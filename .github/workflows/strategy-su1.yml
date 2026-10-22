@@ -4,7 +4,7 @@ on:
     branches: ['construction/su1-20261022']
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: su1-${{ github.ref }}
   cancel-in-progress: true
