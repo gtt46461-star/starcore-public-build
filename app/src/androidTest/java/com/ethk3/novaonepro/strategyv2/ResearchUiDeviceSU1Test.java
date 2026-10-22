@@ -21,8 +21,12 @@ public final class ResearchUiDeviceSU1Test {
                 if(loading.get())android.os.SystemClock.sleep(100);
             }
             assertFalse("research database read did not return",loading.get());
+            scenario.onActivity(activity->{
+                java.util.ArrayList<android.view.View> errors=new java.util.ArrayList<>();activity.getWindow().getDecorView().findViewsWithText(errors,activity.getString(R.string.su1_error,""),android.view.View.FIND_VIEWS_WITH_TEXT);assertTrue("research state read reported an error",errors.isEmpty());
+                java.util.ArrayList<android.view.View> controls=new java.util.ArrayList<>();activity.getWindow().getDecorView().findViewsWithText(controls,activity.getString(R.string.su1_import),android.view.View.FIND_VIEWS_WITH_TEXT);assertFalse("import control missing",controls.isEmpty());
+            });
             android.graphics.Bitmap screenshot=InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();assertNotNull(screenshot);
-            java.io.File directory=InstrumentationRegistry.getInstrumentation().getContext().getExternalFilesDir(null);assertNotNull(directory);
+            java.io.File directory=InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir();assertNotNull(directory);
             try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(directory,"su1-research.png"))){assertTrue(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,output));}finally{screenshot.recycle();}
         }
     }
