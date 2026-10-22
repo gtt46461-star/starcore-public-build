@@ -9,6 +9,7 @@ public final class ArtifactImportSU1 {
     public static String install(DbStore store,String wire){
         PortableArtifactSU1 a=PortableArtifactSU1.decode(wire);if(!StrategySchemaSU1.ready(store.readable()))throw new IllegalStateException("SU1_MIGRATION_REQUIRED");if(!ArchiveStoreSU1.canCreate(store.readable()))throw new IllegalStateException("SU1_STORAGE_BUDGET");
         if(!TargetIssueResolver.isValid(a.throughIssue))throw new IllegalArgumentException("SU1_IMPORT_ISSUE");Models.Draw latest=store.getLatestDraw();if(latest==null||TargetIssueResolver.compare(latest.issue,a.throughIssue)<0)throw new IllegalStateException("SU1_IMPORT_WAIT_LOCAL_HISTORY");
+        if((a.fitted!=null||a.graph!=null)&&TargetIssueResolver.compare(latest.issue,a.throughIssue)<=0)throw new IllegalStateException("SU1_IMPORT_WAIT_POSTTRAIN_LOCAL_HISTORY");
         long through=LiveShadowLoopSU1.sequence(latest.issue),now=System.currentTimeMillis();
         return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_IMPORT_RESEARCH_ONLY",db->{
             try(Cursor c=db.rawQuery("SELECT strategy_id FROM su1_portable_import WHERE artifact_hash=? AND kernel_hash=?",new String[]{a.hash,TrainingCodeIdentityR964.SHA256})){if(c.moveToFirst())return c.getString(0);}

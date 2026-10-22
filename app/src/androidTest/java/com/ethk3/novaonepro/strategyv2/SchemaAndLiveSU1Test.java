@@ -172,12 +172,27 @@ public final class SchemaAndLiveSU1Test {
                 String campaign=StrategyRepositorySU1.beginCampaign(db,"HISTORY_REPLAY",sequence,"{\"testGraph\":true}",now);
                 strategy=StrategyRepositorySU1.candidate(db,asset.program,1,false,"DESKTOP_RELGRAPH",null,campaign,sequence,asset.dataset,-1,now,null,asset.graph);db.setTransactionSuccessful();
             }finally{db.endTransaction();}
+            try(Cursor c=db.rawQuery("SELECT m.trained_through_sequence,p.validation_last_sequence,p.protocol_json FROM su1_model_artifact m JOIN su1_train_protocol p ON p.protocol_hash=m.protocol_hash JOIN su1_strategy_version v ON v.artifact_hash=m.artifact_hash WHERE v.strategy_id=?",new String[]{strategy})){
+                assertTrue(c.moveToFirst());assertEquals(sequence,c.getLong(0));assertTrue(c.getLong(0)>=c.getLong(1));assertTrue(c.getString(2).contains("PENDING_NO_OBSERVATIONS_CREDITED"));
+                assertTrue(c.getString(2).contains("\"parameterTrainedThrough\":"+LiveShadowLoopSU1.sequence(asset.graph.throughIssue)));
+            }
+            try{StrategyRepositorySU1.candidate(db,asset.program,1,false,"DESKTOP_RELGRAPH",null,"unused",LiveShadowLoopSU1.sequence(asset.graph.throughIssue),asset.dataset,-1,now,null,asset.graph);fail("import without post-training local history was accepted");}catch(IllegalArgumentException expected){assertEquals("SU1_IMPORT_WAIT_POSTTRAIN_LOCAL_HISTORY",expected.getMessage());}
             long[] issues=new long[20],available=new long[20];int[][] draws=new int[20][10];for(int t=0;t<20;t++){issues[t]=202610210001L+t;available[t]=now-1000;for(int p=0;p<10;p++)draws[t][p]=(p+t)%10+1;}
             EventFrameSU1 frame=new EventFrameSU1(202610210021L,now+60000,now,"SYNTHETIC_ANDROID_CONTRACT",issues,available,draws);
             java.util.Map<String,ProgramTreeSU1.GraphFitted> loaded=ModelAssetsSU1.loadGraph(db,asset.program,frame);assertEquals(1,loaded.size());
             double[][] actual=ProgramTreeSU1.parse(asset.program).score(new ProgramTreeSU1.Context(draws,20,null,new ScoreHistoryCacheSU1(128,frame),new BudgetTokenSU1(60000,1000000,null)).withGraphFitted(loaded));
             double[][] expected=RelGraphModelSU1.predict(asset.graph.state.weights,new RelationTensorAdapterSU1.Factory(frame).input(20,4,new BudgetTokenSU1(60000,1000000,null)),new BudgetTokenSU1(60000,1000000,null));
             for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(ProgramTreeSU1.clean(Math.log(Math.max(1e-12,expected[p][n]))),actual[p][n],0);
+            java.util.Map<String,Object> stateFixture;
+            try(java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("su1_training_parity.json")){
+                java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] block=new byte[4096];int n;while((n=input.read(block))!=-1)bytes.write(block,0,n);stateFixture=com.ethk3.novaonepro.r952.StrictCanonicalJson.readContextObject(bytes.toString("UTF-8"));
+            }
+            PortableArtifactSU1 stateAsset=PortableArtifactSU1.decode((String)stateFixture.get("portable"));String stateCampaign=StrategyRepositorySU1.beginCampaign(db,"HISTORY_REPLAY",sequence,"{\"testStateImport\":true}",now);
+            String stateStrategy=StrategyRepositorySU1.candidate(db,stateAsset.program,1,false,"DESKTOP_FITTED_MODEL",null,stateCampaign,sequence,stateAsset.dataset,-1,now,stateAsset.fitted);
+            double[][] stateActual=ProgramTreeSU1.parse(stateAsset.program).score(new ProgramTreeSU1.Context(draws,20).withFitted(ModelAssetsSU1.load(db,stateAsset.program,frame)));
+            double[][] stateExpected=RelationalStateInference.predict(stateAsset.fitted.weights,java.util.Arrays.copyOfRange(draws,20-stateAsset.fitted.window,20));
+            for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(ProgramTreeSU1.clean(Math.log(Math.max(1e-12,stateExpected[p][n]))),stateActual[p][n],0);
+            assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_model_artifact m JOIN su1_strategy_version v ON v.artifact_hash=m.artifact_hash WHERE v.strategy_id=? AND m.trained_through_sequence=?",stateStrategy,String.valueOf(sequence)));
             assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_prediction"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_certificate"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=? AND calibration_state='MISSING'",strategy));
         }
     }
