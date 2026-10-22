@@ -1,0 +1,23 @@
+name: starcore-tianshu-b03-payload-check2
+on:
+  push:
+    branches: [v57-full/b03]
+permissions:
+  contents: read
+jobs:
+  aggregate-check:
+    if: contains(github.event.head_commit.message, '[b03-payload-check2]')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct exact scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/b03
+          cat .github/starcore-tianshu-b03/materializer.part-* | base64 --decode | gzip --decompress > /tmp/b03/materializer.py
+          cat .github/starcore-tianshu-b03/harness.part-* | base64 --decode | gzip --decompress > /tmp/b03/harness.py
+          printf '%s  %s\n' '58fbaa501e8d171d08637fdaf3d02562038c514794d537e5c7cb874bb6ecf44e' /tmp/b03/materializer.py | sha256sum -c -
+          printf '%s  %s\n' 'a4d87cc9043d61a98c356c446915a665cdf94669a07ddb4148c4f0ea790e3079' /tmp/b03/harness.py | sha256sum -c -
+          python3 -m py_compile /tmp/b03/materializer.py /tmp/b03/harness.py
+          echo B03_AGGREGATE_PAYLOAD_PASS

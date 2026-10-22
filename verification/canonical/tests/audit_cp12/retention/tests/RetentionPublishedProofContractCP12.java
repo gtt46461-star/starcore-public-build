@@ -1,0 +1,30 @@
+package com.ethk3.novaonepro;
+import java.io.*;import java.nio.file.*;import java.nio.charset.StandardCharsets;import java.util.*;import java.nio.channels.*;
+/** Pure actual receipt/path/lease consumption primitives; Android Service/fsync integration is tested separately. */
+public final class RetentionPublishedProofContractCP12 {
+ static final String H="a".repeat(64),S="b".repeat(64);static int checks;
+ interface Task{void run()throws Exception;}static void ok(boolean v){checks++;if(!v)throw new AssertionError("check"+checks);}static void fails(Task run)throws Exception{checks++;try{run.run();}catch(IOException|IllegalArgumentException expected){return;}throw new AssertionError("badaccepted"+checks);}
+ static void bytes(DataOutputStream d,byte[] v)throws IOException{d.writeInt(v.length);d.write(v);}static void str(DataOutputStream d,String v)throws IOException{bytes(d,v.getBytes(StandardCharsets.UTF_8));}
+ static void encode(File file,RetentionArchiveProtocolCP12.Receipt r)throws IOException{try(DataOutputStream out=new DataOutputStream(new FileOutputStream(file))){out.writeInt(0x53435232);str(out,r.page.requestJson);str(out,r.archiveHash);out.writeLong(r.byteCount);str(out,r.snapshotHash);str(out,r.chainRoot);out.writeLong(r.verifiedAt);out.writeInt(r.members.size());for(RetentionArchiveProtocolCP12.Member m:r.members){out.writeLong(m.rowId);out.writeLong(m.generation);bytes(out,m.key());str(out,m.rowHash);}str(out,r.manifestHash);}}
+ public static void main(String[] args)throws Exception{
+  File root=Path.of(args[0]).toAbsolutePath().toFile();root.mkdirs();File replies=new File(root,"retention-replies-cp12"),requests=new File(root,"retention-requests-cp12");replies.mkdirs();requests.mkdirs();
+  RetentionArchiveProtocolCP12.Page page=new RetentionArchiveProtocolCP12.Page("diagnostic_log","202601010001",1,H,ReleaseManifestR926.MANIFEST_SHA256,RetentionTableRegistryCP12.HASH,Arrays.asList(new RetentionArchiveProtocolCP12.RowVersion(1,7)));
+  File raw=new File(root,"raw.scrow");RetentionRowCodecCP5.TableShape shape=new RetentionRowCodecCP5.TableShape("diagnostic_log",H,"UTF-8",Arrays.asList("log_key"),Arrays.asList("log_key"),S);
+  RetentionRowCodecCP5.RowSource source=new RetentionRowCodecCP5.RowSource(){boolean consumed;public boolean next(){if(consumed)return false;return consumed=true;}public byte[] canonicalKey()throws IOException{return RetentionRowCodecCP5.primaryKey(shape,this);}public int type(int c){return 3;}public long length(int c){return 5;}public long scalarBits(int c){throw new AssertionError();}public int readBytes(int c,long offset,byte[] b,int want){byte[] key="log-A".getBytes(StandardCharsets.UTF_8);int n=Math.min(want,key.length-(int)offset);System.arraycopy(key,(int)offset,b,0,n);return n;}};
+  try(OutputStream out=new FileOutputStream(raw)){RetentionRowCodecCP5.writeTable(shape,source,out,()->{});}
+  RetentionArchiveProtocolCP12.Receipt proof=RetentionArchiveIoCP12.verifyPreparedFile(raw,page,S,()->true);
+  File cas=RetentionArchiveProtocolCP12.casFile(root,proof.archiveHash);cas.getParentFile().mkdirs();Files.move(raw.toPath(),cas.toPath(),StandardCopyOption.REPLACE_EXISTING);File reply=new File(replies,page.requestId+".receipt");encode(reply,proof);File request=new File(requests,page.requestId+".json");Files.write(request.toPath(),page.requestJson.getBytes(StandardCharsets.UTF_8));
+  File lockPath=new File(cas.getParentFile(),proof.archiveHash+".lock");try(RandomAccessFile lock=new RandomAccessFile(lockPath,"rw");FileLock shared=lock.getChannel().lock(0,Long.MAX_VALUE,true)){
+   ok(RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof).manifestHash.equals(proof.manifestHash));ok(RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof).manifestHash.equals(proof.manifestHash));
+   try(RandomAccessFile rival=new RandomAccessFile(lockPath,"rw")){checks++;try{FileLock exclusive=rival.getChannel().tryLock();if(exclusive!=null){exclusive.release();throw new AssertionError("expiryoverlappedproof");}}catch(OverlappingFileLockException expected){}}
+  }
+  File held=new File(root,"held.scrow");Files.move(cas.toPath(),held.toPath(),StandardCopyOption.REPLACE_EXISTING);fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));Files.move(held.toPath(),cas.toPath());
+  Files.move(cas.toPath(),held.toPath());Files.createSymbolicLink(cas.toPath(),held.toPath());fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));Files.delete(cas.toPath());Files.move(held.toPath(),cas.toPath());
+  File requestMoved=new File(root,"moved.json");Files.move(request.toPath(),requestMoved.toPath(),StandardCopyOption.REPLACE_EXISTING);Files.createSymbolicLink(request.toPath(),requestMoved.toPath());fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));Files.delete(request.toPath());Files.move(requestMoved.toPath(),request.toPath());
+  Files.writeString(request.toPath(),page.requestJson+" ");fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));Files.writeString(request.toPath(),page.requestJson);
+  RetentionArchiveProtocolCP12.Receipt changed=new RetentionArchiveProtocolCP12.Receipt(page,proof.archiveHash,proof.byteCount+1,S,proof.chainRoot,proof.verifiedAt,proof.members);encode(reply,changed);fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));encode(reply,proof);
+  try(RandomAccessFile mutate=new RandomAccessFile(cas,"rw")){mutate.setLength(proof.byteCount+1);}fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));
+  Files.delete(reply.toPath());fails(()->RetentionArchiveIoCP12.validatePublishedProof(root,reply,proof));
+  Files.writeString(Path.of(args[1]),"{\"status\":\"PASS\",\"assertions\":"+checks+",\"scope\":\"Actual Java Service-proof consumption primitives using receipt produced by actual independent SCROW verifier: duplicateproof, shared/exclusiveexpiry exclusion, missingCAS/receipt, replacedpath/symlink, request/reply/sizechanged failclosed. Android Service scheduling and fsync not claimed by hosttest; app-private immutable writers assumed, not root-tamper proof.\"}\n");
+ }
+}

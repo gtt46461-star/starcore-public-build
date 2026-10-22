@@ -1,0 +1,71 @@
+package com.ethk3.novaonepro;
+
+import com.ethk3.novaonepro.r952.StrictCanonicalJson;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.*;
+
+/** Cross-process RETENTION_PAGE identity. No writer, delete, or publication authority. */
+public final class RetentionArchiveProtocolCP12 {
+    public static final int MAX_PAGE=128, MAX_REQUEST=65536, MAX_KEY=16384, MAX_KEY_TOTAL=262144, MAX_RECEIPT=393216;
+    public static final String CAS_DIRECTORY="retention-cas-cp12";
+    private RetentionArchiveProtocolCP12() {}
+    public static final class RowVersion {
+        public final long rowId,generation;
+        public RowVersion(long rowId,long generation){if(generation<0)throw new IllegalArgumentException("RETENTION_GENERATION");this.rowId=rowId;this.generation=generation;}
+    }
+    public static final class Page {
+        public final String table,cutoffIssue,schemaHash,releaseHash,registryHash,requestJson,requestId;
+        public final long cutoffOpenTime;
+        public final List<RowVersion> rows;
+        public Page(String table,String cutoffIssue,long cutoffOpenTime,String schemaHash,String releaseHash,String registryHash,List<RowVersion> rows){
+            identifier(table);issue(cutoffIssue);hash(schemaHash);hash(releaseHash);hash(registryHash);
+            if(cutoffOpenTime<=0||rows==null||rows.isEmpty()||rows.size()>MAX_PAGE)throw new IllegalArgumentException("RETENTION_PAGE_BOUND");
+            ArrayList<RowVersion> copy=new ArrayList<>();long prior=Long.MIN_VALUE;boolean first=true;
+            for(RowVersion row:rows){if(row==null||(!first&&row.rowId<=prior))throw new IllegalArgumentException("RETENTION_PAGE_ORDER");first=false;prior=row.rowId;copy.add(row);}
+            this.table=table;this.cutoffIssue=cutoffIssue;this.cutoffOpenTime=cutoffOpenTime;this.schemaHash=schemaHash;this.releaseHash=releaseHash;this.registryHash=registryHash;this.rows=Collections.unmodifiableList(copy);
+            Map<String,Object> root=new TreeMap<>();root.put("revision","RETENTION_PAGE_CP12_1");root.put("mode","RETENTION_PAGE");root.put("table",table);root.put("cutoffIssue",cutoffIssue);root.put("cutoffOpenTime",cutoffOpenTime);root.put("schemaHash",schemaHash);root.put("releaseHash",releaseHash);root.put("registryHash",registryHash);
+            List<Object> ordered=new ArrayList<>();for(RowVersion row:copy)ordered.add(Arrays.asList(row.rowId,row.generation));root.put("rows",ordered);
+            requestJson=StrictCanonicalJson.write(root);if(requestJson.getBytes(StandardCharsets.UTF_8).length>MAX_REQUEST)throw new IllegalArgumentException("RETENTION_REQUEST_BOUND");requestId=sha(requestJson.getBytes(StandardCharsets.UTF_8));
+        }
+        public static Page parse(String json){
+            if(json==null||json.length()>MAX_REQUEST||json.getBytes(StandardCharsets.UTF_8).length>MAX_REQUEST)throw new IllegalArgumentException("RETENTION_REQUEST_BOUND");
+            Map<String,Object> root=StrictCanonicalJson.readObject(json);
+            if(!root.keySet().equals(new HashSet<>(Arrays.asList("revision","mode","table","cutoffIssue","cutoffOpenTime","schemaHash","releaseHash","registryHash","rows")))||!"RETENTION_PAGE_CP12_1".equals(root.get("revision"))||!"RETENTION_PAGE".equals(root.get("mode")))throw new IllegalArgumentException("RETENTION_REQUEST_KEYS");
+            Object ordered=root.get("rows");if(!(ordered instanceof List))throw new IllegalArgumentException("RETENTION_REQUEST_ROWS");
+            ArrayList<RowVersion> rows=new ArrayList<>();for(Object entry:(List<?>)ordered){if(!(entry instanceof List)||((List<?>)entry).size()!=2)throw new IllegalArgumentException("RETENTION_REQUEST_ROW");List<?> tuple=(List<?>)entry;rows.add(new RowVersion(integer(tuple.get(0)),integer(tuple.get(1))));}
+            Page page=new Page(string(root,"table"),string(root,"cutoffIssue"),integer(root.get("cutoffOpenTime")),string(root,"schemaHash"),string(root,"releaseHash"),string(root,"registryHash"),rows);
+            if(!page.requestJson.equals(json))throw new IllegalArgumentException("RETENTION_REQUEST_CANONICAL");return page;
+        }
+        public long[] rowIds(){long[] out=new long[rows.size()];for(int i=0;i<out.length;i++)out[i]=rows.get(i).rowId;return out;}
+    }
+    public static final class Member {
+        public final long rowId,generation;public final String keyHash,rowHash;
+        private final byte[] key;
+        public Member(long rowId,long generation,byte[] key,String rowHash){if(generation<0||key==null||key.length<1||key.length>MAX_KEY)throw new IllegalArgumentException("RETENTION_MEMBER");hash(rowHash);this.rowId=rowId;this.generation=generation;this.key=key.clone();keyHash=sha(key);this.rowHash=rowHash;}
+        public byte[] key(){return key.clone();}
+    }
+    /** Diagnostics creates this only after independent SCROW verification and durable immutable CAS publication. */
+    public static final class Receipt {
+        public final Page page;public final String archiveHash,archiveId,manifestHash,relativePath,snapshotHash,chainRoot;
+        public final long byteCount,verifiedAt;public final List<Member> members;
+        public Receipt(Page page,String archiveHash,long byteCount,String snapshotHash,String chainRoot,long verifiedAt,List<Member> members){
+            if(page==null||byteCount<1||verifiedAt<=0||members==null||members.size()!=page.rows.size())throw new IllegalArgumentException("RETENTION_RECEIPT_BOUND");hash(archiveHash);hash(snapshotHash);hash(chainRoot);
+            ArrayList<Member> copy=new ArrayList<>();int keyBytes=0;for(int i=0;i<members.size();i++){Member m=members.get(i);RowVersion row=page.rows.get(i);if(m==null||m.rowId!=row.rowId||m.generation!=row.generation)throw new IllegalArgumentException("RETENTION_RECEIPT_SCOPE");keyBytes+=m.key.length;if(keyBytes>MAX_KEY_TOTAL)throw new IllegalArgumentException("RETENTION_RECEIPT_KEY_TOTAL");copy.add(m);}
+            this.page=page;this.archiveHash=archiveHash;this.byteCount=byteCount;this.snapshotHash=snapshotHash;this.chainRoot=chainRoot;this.verifiedAt=verifiedAt;this.members=Collections.unmodifiableList(copy);archiveId="RET-"+archiveHash;relativePath=CAS_DIRECTORY+"/"+archiveHash+".scrow";manifestHash=manifestHash(page,archiveHash,byteCount,snapshotHash,chainRoot,copy);
+        }
+    }
+    public static String manifestHash(Page page,String archiveHash,long bytes,String snapshot,String chain,List<Member> members){
+        MessageDigest hash=digest();try{DataOutputStream out=new DataOutputStream(new DigestOutputStream(new OutputStream(){public void write(int b){}public void write(byte[] b,int o,int n){}},hash));out.writeUTF("RETENTION_MEMBER_MANIFEST_CP12_1");out.writeUTF(page.requestId);out.writeUTF(archiveHash);out.writeLong(bytes);out.writeUTF(snapshot);out.writeUTF(chain);out.writeInt(members.size());for(Member m:members){out.writeLong(m.rowId);out.writeLong(m.generation);out.writeUTF(m.keyHash);out.writeUTF(m.rowHash);}out.flush();return hex(hash.digest());}catch(IOException impossible){throw new AssertionError(impossible);}
+    }
+    public static File casFile(File files,String hash)throws IOException {hash(hash);File base=files.getCanonicalFile();File root=new File(base,CAS_DIRECTORY);if(!root.getCanonicalFile().equals(root))throw new IOException("RETENTION_CAS_SYMLINK");File out=new File(root,hash+".scrow");if(!out.getCanonicalFile().equals(out))throw new IOException("RETENTION_CAS_SYMLINK");return out;}
+    static long integer(Object value){if(!(value instanceof Long))throw new IllegalArgumentException("RETENTION_INTEGER");return (Long)value;}
+    static String string(Map<String,Object> root,String key){Object value=root.get(key);if(!(value instanceof String))throw new IllegalArgumentException("RETENTION_STRING");return (String)value;}
+    static void identifier(String value){if(value==null||!value.matches("[A-Za-z_][A-Za-z0-9_]{0,127}"))throw new IllegalArgumentException("RETENTION_IDENTIFIER");}
+    static void issue(String value){if(value==null||!value.matches("[0-9]{12}"))throw new IllegalArgumentException("RETENTION_CUTOFF");}
+    static void hash(String value){if(value==null||!value.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("RETENTION_HASH");}
+    static String sha(byte[] value){return hex(digest().digest(value));}
+    static MessageDigest digest(){try{return MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}}
+    static String hex(byte[] bytes){StringBuilder out=new StringBuilder(bytes.length*2);for(byte b:bytes){out.append("0123456789abcdef".charAt((b&255)>>>4));out.append("0123456789abcdef".charAt(b&15));}return out.toString();}
+}

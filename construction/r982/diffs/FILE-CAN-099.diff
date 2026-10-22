@@ -1,0 +1,47 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ObservationGenerationR932.java b/app/src/main/java/com/ethk3/novaonepro/ObservationGenerationR932.java
+index d5458cd..d44ce83 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ObservationGenerationR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ObservationGenerationR932.java
+@@ -64,6 +64,7 @@ public final class ObservationGenerationR932 {
+ 
+     /** Invoked only after a new actual predraw action and an earlier valid CAL are available. */
+     static String recover(SQLiteDatabase db,String key,String structural,String bundle,String selector,String first,String cal){
++        if(ResearchGatePlanR967.installed().isCp3)return recoverCp4(db,key,structural,bundle,selector,first,cal);
+         if(!db.inTransaction()||!TargetIssueResolver.isValid(first))throw new IllegalStateException("R932_OBSERVATION_TRANSACTION_REQUIRED");
+         String oldId,last,oldState,reason,oldStructure,oldBundle,oldSelector;int serial;
+         try(Cursor c=db.rawQuery("SELECT window_id,last_issue,state,reason,structural_hash,window_no,champion_hash,selection_hash FROM "+FixedResearchWindowR932.WINDOW+" WHERE candidate_key=? ORDER BY window_no DESC LIMIT 1",new String[]{key})){
+@@ -118,4 +119,34 @@ public final class ObservationGenerationR932 {
+         ResearchLifecycleR932.transition(db,key,ResearchLifecycleR932.State.OBSERVING,"SYSTEM_RECOVERED_NEW_PAID_OBSERVATION|"+generation,first,audit,0,0);
+         return window;
+     }
++
++    static String recoverCp4(SQLiteDatabase db,String key,String structure,String bundle,String selector,String first,String cal){
++        if(!db.inTransaction())throw new IllegalStateException("CP4_RECOVERY_TX_REQUIRED");
++        String oldWindow="",life="",end="",state="",reason="";int serial=0;
++        try(Cursor c=db.rawQuery("SELECT w.window_id,w.window_no,w.state,w.reason,b.lifetime_id,l.last_issue FROM "+FixedResearchWindowR932.WINDOW+" w JOIN "+ResearchGatePlanR967.CP4_BINDING+" b ON b.window_id=w.window_id JOIN "+ResearchGatePlanR967.CP4_LIFETIME+" l ON l.lifetime_id=b.lifetime_id WHERE w.candidate_key=? ORDER BY w.window_no DESC LIMIT 1",new String[]{key})){
++            if(!c.moveToFirst())throw new IllegalStateException("CP4_PRIOR_LIFETIME_MISSING");oldWindow=c.getString(0);serial=c.getInt(1)+1;state=c.getString(2);reason=c.getString(3);life=c.getString(4);end=c.getString(5);
++        }
++        if(!isSystemPause(state)&&!"PASS".equals(state))throw new IllegalStateException("CP4_QUALITY_FAILURE_REQUIRES_NEW_CANDIDATE");
++        String latest="";try(Cursor c=db.rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}
++        // A gap does not reset the paid lifetime while its maximum registered endpoint is open.
++        if(latest.compareTo(end)<0||!TargetIssueResolver.next(latest).targetIssue.equals(first))return null;
++        String study=CandidateCalibrationR932.study(db,key,structure,bundle,selector);
++        try(Cursor c=db.rawQuery("SELECT model_json,validation_until FROM "+CandidateCalibrationR932.MODEL+" WHERE candidate_key=? AND study_hash=? AND model_hash=?",new String[]{key,study,cal})){
++            if(!c.moveToFirst()||!cal.equals(V51ChecksumEngine.sha256(c.getString(0)))||c.getString(1).compareTo(first)>=0)throw new IllegalStateException("CP4_RECOVERY_CALIBRATION");
++        }
++        MultipleComparisonRegistryR930.Registration old=ResearchGatePlanR967.registrationForWindowCp4(db,oldWindow);
++        MultipleComparisonRegistryR930.Snapshot prior=MultipleComparisonRegistryR930.readCp3WithinTransaction(db,old.hypothesisId);
++        if(prior==null)throw new IllegalStateException("CP4_OLD_HYPOTHESIS_MISSING");
++        if(prior.state==MultipleComparisonRegistryR930.State.OBSERVING)MultipleComparisonRegistryR930.decideCp3WithinTransaction(db,old,1d,V51ChecksumEngine.sha256("CP4_INCOMPLETE_PROTOCOL_NO_ADVANTAGE_CLAIM|"+life+'|'+end+'|'+state+'|'+reason));
++        String generation=V51ChecksumEngine.sha256("CP4_NEW_PAID_PROTOCOL|"+life+'|'+first+'|'+structure+'|'+bundle+'|'+selector+'|'+cal),claim="cp4_recovery:"+generation;
++        String contract=FixedResearchWindowR932.contract(db),record=V51ChecksumEngine.sha256(generation+'|'+key+'|'+serial+'|'+oldWindow+'|'+first+'|'+contract);
++        db.execSQL("INSERT INTO "+RESTART+" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{generation,key,serial,oldWindow,"CP3_ALL_PRODUCTION",claim,first,state,reason,contract,bundle,selector,structure,record,System.currentTimeMillis()});
++        String window=FixedResearchWindowR932.persistWindow(db,key,structure,bundle,selector,first,120,serial,new Chain(generation,claim,serial,1));
++        String consumer=key.startsWith("algorithm:")?"INVENTED_ALGORITHM":key.startsWith("genesis:")?"GENESIS_ASSET":"FORMULA_GRAPH";
++        try(Cursor c=db.rawQuery("SELECT certificate_hash FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" WHERE consumer=? AND candidate_id=? AND state='ACTIVE'",new String[]{consumer,key.substring(key.indexOf(':')+1)})){
++            while(c.moveToNext())ResearchPlatformStoreR929.revokeInTransaction(db,c.getString(0),"CP4_NEW_PAID_PROTOCOL|"+generation,System.currentTimeMillis());
++        }
++        return window;
++    }
++
+ }

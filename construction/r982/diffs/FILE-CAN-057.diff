@@ -1,0 +1,68 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DiagnosisActivity.java b/app/src/main/java/com/ethk3/novaonepro/DiagnosisActivity.java
+index f54d775..ad5dc77 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DiagnosisActivity.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DiagnosisActivity.java
+@@ -31,19 +31,8 @@ public final class DiagnosisActivity extends Activity {
+         if (exact.length() <= DiagnosticFileStoreR941.PREVIEW_CHARS) {
+             context.startActivity(intent(context, title).putExtra("body", exact)); return;
+         }
+-        final Context app = context.getApplicationContext();
+-        new Thread(() -> {
+-            try {
+-                final File file = DiagnosticFileStoreR941.write(new File(app.getCacheDir(), "r923_reports"), exact);
+-                new Handler(Looper.getMainLooper()).post(() -> {
+-                    if (alive(context)) context.startActivity(intent(context, title).putExtra("report_file", file.getName()));
+-                });
+-            } catch (final Exception failure) {
+-                new Handler(Looper.getMainLooper()).post(() -> {
+-                    if (alive(context)) Toast.makeText(context, "详情文件生成失败：" + failure.getClass().getSimpleName(), Toast.LENGTH_LONG).show();
+-                });
+-            }
+-        }, "R941-Detail-File").start();
++        // Large derived detail is never sent through Binder or retained in a UI export worker.
++        context.startActivity(intent(context, title).putExtra("requires_full_snapshot", true));
+     }
+     public static void openState(Context context, String title) {
+         if (context != null && alive(context)) context.startActivity(intent(context, title));
+@@ -67,26 +56,21 @@ public final class DiagnosisActivity extends Activity {
+         if (body != null && body.length() > DiagnosticFileStoreR941.PREVIEW_CHARS)
+             getIntent().removeExtra("body");
+         if (body != null && body.length() <= DiagnosticFileStoreR941.PREVIEW_CHARS) { smallBody = body; text.setText(body); }
+-        else loadFile(name, body, copy);
++        else if (name != null) loadFile(name, null, copy);
++        else { smallBody = "详情未通过大正文传递；完整原始数据由冻结检测报告交付。";
++            text.setText(smallBody); CompleteReportFileR927.export(this, all, text); }
+     }
+     private void loadFile(final String name, final String legacyBody, final Button copy) {
+         copy.setEnabled(false); text.setText("正在后台准备完整详情……");
+         final Context app = getApplicationContext();
+         new Thread(() -> {
+-            DbStore store = null; File partial = null;
++
+             try {
+                 File directory = new File(app.getCacheDir(), "r923_reports");
+                 if (!directory.isDirectory() && !directory.mkdirs()) throw new java.io.IOException("REPORT_DIRECTORY");
+                 final File ready;
+                 if (name != null) ready = DiagnosticFileStoreR941.resolve(directory, name);
+-                else if (legacyBody != null) ready = DiagnosticFileStoreR941.write(directory, legacyBody);
+-                else {
+-                    store = new DbStore(app);
+-                    final DbStore reportStore=store;
+-                    ready=LosslessReportArchiveR971.create(directory,new LosslessReportArchiveR971.Body(){
+-                        public void write(java.io.Writer out)throws Exception{CompleteReportFileR927.writePayload(reportStore,out);}
+-                    }).file;
+-                }
++                else throw new java.io.IOException("DETAIL_NAME_REQUIRED");
+                 final String preview = DiagnosticFileStoreR941.preview(ready);
+                 runOnUiThread(() -> {
+                     if (closed || isFinishing() || isDestroyed()) return;
+@@ -99,8 +83,7 @@ public final class DiagnosisActivity extends Activity {
+                     if (!closed && !isFinishing()) text.setText("详情读取失败：" + DatabaseCoordinator.describeCauseChain(error, 1200));
+                 });
+             } finally {
+-                if (partial != null && partial.isFile()) partial.delete();
+-                if (store != null) try { store.close(); } catch (Throwable ignored) {}
++                // No database connection or complete-report writer exists in this Activity.
+             }
+         }, "R941-Detail-Preview").start();
+     }

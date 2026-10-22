@@ -1,0 +1,34 @@
+name: starcore-tianshu-b03-payload-check
+on:
+  push:
+    branches: [v57-full/b03]
+permissions:
+  contents: read
+jobs:
+  payload-check:
+    if: contains(github.event.head_commit.message, '[b03-payload-check]')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify every payload part
+        shell: bash
+        run: |
+          set -u
+          wc -c .github/starcore-tianshu-b03/*
+          sha256sum .github/starcore-tianshu-b03/*
+          printf '%s  %s\n' '0ed0e0e1c91eb81dcc39e3808200e678cb88ae8850bdb448e51795b912916c92' .github/starcore-tianshu-b03/materializer.part-000 | sha256sum -c - || true
+          printf '%s  %s\n' 'b114ed0736f9448f32f675959826379ee71ce6f350b20c01a4990a3cd025e21c' .github/starcore-tianshu-b03/materializer.part-001 | sha256sum -c - || true
+          printf '%s  %s\n' 'c9f3ff6d36741e3dc637297889a5755df2b38349cfd0c7f113e0457ea0c5b9f3' .github/starcore-tianshu-b03/materializer.part-002 | sha256sum -c - || true
+          printf '%s  %s\n' '0df033890064c08033f60babf65ff582d73ea842b1ee89c76302c81fdafaffb1' .github/starcore-tianshu-b03/materializer.part-003 | sha256sum -c - || true
+          printf '%s  %s\n' '130d80136f326c93bc1fefe559e02e0717d6b2f4ba932bca27f2f9ce3e54e79d' .github/starcore-tianshu-b03/materializer.part-004 | sha256sum -c - || true
+          printf '%s  %s\n' 'a6fcae1d605e9226ca2cae3c835c88b7f865b8456bd63098276369feb7a156f0' .github/starcore-tianshu-b03/harness.part-000 | sha256sum -c - || true
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          for p in sorted(Path('.github/starcore-tianshu-b03').glob('*')):
+              try:
+                  base64.b64decode(p.read_text(), validate=True)
+                  print(p.name, 'BASE64_OK')
+              except Exception as e:
+                  print(p.name, 'BASE64_BAD', type(e).__name__, str(e))
+          PY

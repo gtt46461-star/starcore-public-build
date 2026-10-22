@@ -1,0 +1,62 @@
+{
+  "schema": "STARCORE_R952_SUPER_UNIFIED_FINAL_GATES_V1",
+  "all_required": true,
+  "engineering_gates": [
+    "208_file_matrix_resolved",
+    "42_core_tasks_pass",
+    "30_enhancement_tasks_pass",
+    "no_placeholder",
+    "full_compile_pass",
+    "migration_fault_pass",
+    "event_replay_pass",
+    "exactly_once_settlement_pass",
+    "exactly_once_training_pass",
+    "pit_no_leakage_pass",
+    "python_java_android_parity_pass",
+    "owner_uniqueness_pass",
+    "forbidden_behaviors_rejected"
+  ],
+  "runtime_gates": [
+    "predraw_real_path_active",
+    "strict_future_oos_real_path_active",
+    "future_n_real_increment_observed",
+    "training_real_increment_observed",
+    "background_full_loop_observed",
+    "storage_window_enforced"
+  ],
+  "lifecycle_gates": [
+    "challenger_machine_gate_operational",
+    "certificate_machine_gate_operational",
+    "mainline_contribution_auditable",
+    "no_research_direct_real"
+  ],
+  "device_release_gates": [
+    "same_signer",
+    "version_upgrade_valid",
+    "overlay_install_no_clear_data",
+    "startup_migration_smoke",
+    "screen_on_off_restart_recovery",
+    "source_apk_manifest_same_origin",
+    "rollback_rehearsal"
+  ],
+  "e2e_zero_chain_breaker": [
+    "created",
+    "registered",
+    "predraw_frozen",
+    "draw_seen",
+    "settled",
+    "strict_future_label",
+    "future_n_increment",
+    "training_exactly_once",
+    "next_issue_predraw"
+  ],
+  "never_fake": [
+    "future_n",
+    "training_count",
+    "challenger_count",
+    "certificate_count",
+    "mainline_applied",
+    "productionAuthority"
+  ],
+  "completion_rule": "Any FAIL or NOT_RUN applicable final gate means NOT 100%."
+}

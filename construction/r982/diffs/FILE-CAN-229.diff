@@ -1,0 +1,226 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/FrozenGraphContextCP4.java b/app/src/main/java/com/ethk3/novaonepro/r952/FrozenGraphContextCP4.java
+new file mode 100644
+index 0000000..12d59b0
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/FrozenGraphContextCP4.java
+@@ -0,0 +1,220 @@
++package com.ethk3.novaonepro.r952;
++
++import com.ethk3.novaonepro.RuntimeMemoryGuardR811;
++import com.ethk3.novaonepro.TargetIssueResolver;
++import com.ethk3.novaonepro.TypedAtomMoleculeGraphR930;
++import com.ethk3.novaonepro.V51ChecksumEngine;
++import java.util.*;
++
++/** Immutable capture/replay boundary. No database, clock, inference or publication authority. */
++public final class FrozenGraphContextCP4 implements AutoCloseable {
++    public static final String REVISION="SCCONTEXT1", MATRIX_REVISION="SCCONTEXT2";
++    public final String target,pitHash,freezeHash,modelHash,contextHash;
++    public final long frozenAt;
++    public final FeatureManifestR952 manifest;
++    public final List<AtomSpecCP4> registeredSpecs;
++    public final Normalizer normalizer;
++    public final List<ExpertPrediction> experts;
++    public final Map<String,TypedAtomMoleculeGraphR930.Value> replayFrozenAtoms;
++    public final Map<String,String> bindingPayloadHashes;
++    public final Map<String,MatrixBindingsCP12.Frozen> frozenMatrices;
++    public final MemoryBudgetCP4 atomMatrixBudget;
++    private final String canonical;
++    private final MemoryBudgetCP4.Lease lease;
++    private boolean closed;
++
++    public static final class Normalizer {
++        private final double[] mean,std;
++        public final String hash;
++        Normalizer(CandidateCompilerR952.Modern model,FeatureManifestR952 manifest){
++            model.requireManifest(manifest);mean=model.means();std=model.standardDeviations();hash=model.normalizerHash;
++        }
++        public double mean(int i){return mean[i];}
++        public double std(int i){return std[i];}
++        public int size(){return mean.length;}
++    }
++    public static final class ExpertPrediction {
++        public final String freezeHash,modelHash,featureManifestHash,target,maxSourceIssue,sourceHash;
++        public final int position;
++        public final long availableAtMs;
++        private final double[] probabilities;
++        public ExpertPrediction(CandidateCompilerR952.ExpertRef ref,String target,String maxSourceIssue,
++                long availableAtMs,String sourceHash,double[] probabilities){
++            need(ref!=null&&probabilities!=null&&probabilities.length==10,"EXPERT_DIMENSION");
++            need(TargetIssueResolver.isValid(target)&&TargetIssueResolver.isValid(maxSourceIssue)
++                &&maxSourceIssue.compareTo(target)<0&&availableAtMs>=0,"EXPERT_PIT");
++            this.freezeHash=ref.freezeHash;this.modelHash=ref.modelHash;this.featureManifestHash=ref.featureManifestHash;
++            this.position=ref.position;this.target=target;this.maxSourceIssue=maxSourceIssue;
++            this.availableAtMs=availableAtMs;this.sourceHash=hash(sourceHash);this.probabilities=probabilities.clone();
++            double sum=0;for(double x:this.probabilities){need(Double.isFinite(x)&&x>=0&&x<=1,"EXPERT_PROBABILITY");sum+=x;}
++            need(Math.abs(sum-1)<=1e-9,"EXPERT_PROBABILITY_SUM");
++        }
++        public double[] probabilities(){return probabilities.clone();}
++        public boolean matchesFrozenRef(CandidateCompilerR952.ExpertRef ref){
++            return ref!=null&&freezeHash.equals(ref.freezeHash)&&modelHash.equals(ref.modelHash)
++                &&featureManifestHash.equals(ref.featureManifestHash)&&position==ref.position;
++        }
++    }
++
++    private FrozenGraphContextCP4(CandidateCompilerR952.Program program,CandidateCompilerR952.Model model,
++            PITSnapshotContractR952 pit,String freeze,long at,Map<String,TypedAtomMoleculeGraphR930.Value> atoms,
++            List<ExpertPrediction> experts,Map<String,String> bindingHashes,MemoryBudgetCP4 budget,
++            Map<String,MatrixBindingsCP12.Frozen> matrices){
++        need(program!=null&&program.ast.formatVersion==3&&model!=null&&!model.isLegacy()&&pit!=null,"AST3_CONTEXT_REQUIRED");
++        need(at>0&&atoms!=null&&experts!=null&&bindingHashes!=null,"CONTEXT_INPUT");
++        model.modern().requireManifest(program.manifest);
++        need(model.modern().kind==program.ast.graphSpec.modelKind&&model.modern().family==program.ast.family,"MODEL_AST_MISMATCH");
++        need(model.modern().trainedUntil.compareTo(pit.targetIssue)<0,"MODEL_TRAINED_AFTER_TARGET");
++        pit.requireConsecutive();need(pit.history.size()>=program.manifest.requiredHistory,"INSUFFICIENT_HISTORY");
++        target=pit.targetIssue;pitHash=pit.snapshotHash;freezeHash=hash(freeze);modelHash=model.hash();frozenAt=at;
++        manifest=program.manifest;normalizer=new Normalizer(model.modern(),manifest);
++        registeredSpecs=Collections.unmodifiableList(new ArrayList<>(program.specs));
++        TreeMap<String,TypedAtomMoleculeGraphR930.Value> copy=new TreeMap<>();
++        for(TypedAtomMoleculeGraphR930.NodeSpec node:program.ast.graphSpec.nodes){
++            if(node.kind!=TypedAtomMoleculeGraphR930.NodeKind.ATOM)continue;
++            TypedAtomMoleculeGraphR930.Value v=atoms.get(node.qualifiedId());
++            need(v!=null&&v.size()==node.shape.elements(),"FROZEN_ATOM_CLOSURE");
++            need(TargetIssueResolver.isValid(v.maxSourceIssue)&&v.maxSourceIssue.compareTo(target)<0
++                &&v.availableAtMs<=at,"FROZEN_ATOM_PIT");
++            for(int j=0;j<v.size();j++)need(Double.isFinite(v.get(j))&&(v.present(j)||v.get(j)==0),"FROZEN_ATOM_ENCODING");
++            copy.put(node.qualifiedId(),v);
++        }
++        need(copy.keySet().equals(atoms.keySet()),"FROZEN_ATOM_CLOSURE");
++        replayFrozenAtoms=Collections.unmodifiableMap(copy);
++        need(matrices!=null,"MATRIX_CAPTURE_REQUIRED");
++        MatrixBindingsCP12.validateFrozen(program,target,pit.lastIssue,at,matrices,copy);
++        frozenMatrices=Collections.unmodifiableMap(new TreeMap<>(matrices));
++        TreeMap<String,String> bindings=new TreeMap<>();for(Map.Entry<String,String> e:bindingHashes.entrySet())bindings.put(hash(e.getKey()),hash(e.getValue()));
++        need(new ArrayList<>(bindings.keySet()).equals(manifest.bindingHashes),"FROZEN_BINDING_CLOSURE");
++        bindingPayloadHashes=Collections.unmodifiableMap(bindings);
++        need(experts.size()==program.ast.graphSpec.experts.size()&&experts.size()==model.modern().experts.size(),"EXPERT_CLOSURE");
++        ArrayList<ExpertPrediction> ecopy=new ArrayList<>();
++        for(int i=0;i<experts.size();i++){
++            ExpertPrediction e=experts.get(i);need(e!=null&&e.matchesFrozenRef(program.ast.graphSpec.experts.get(i))
++                &&e.matchesFrozenRef(model.modern().experts.get(i))&&e.target.equals(target)&&e.availableAtMs<=at,"EXPERT_IDENTITY");
++            ecopy.add(e);
++        }
++        this.experts=Collections.unmodifiableList(ecopy);atomMatrixBudget=Objects.requireNonNull(budget);
++        // Reserve retained context (including both UTF-16 JSON and parsed object overhead) before encoding.
++        long bytes=8192L+registeredSpecs.size()*16384L+copy.size()*2048L+ecopy.size()*2048L+bindings.size()*512L+frozenMatrices.size()*4096L;
++        MemoryBudgetCP4.Lease reserved=budget.acquire(bytes);
++        try{canonical=StrictCanonicalJson.writeContext(canonicalObject(program));contextHash=V51ChecksumEngine.sha256(canonical);lease=reserved;}
++        catch(RuntimeException|Error e){reserved.close();throw e;}
++    }
++    private FrozenGraphContextCP4(PITSnapshotContractR952 pit){
++        need(pit!=null,"MISSING_PIT");target=pit.targetIssue;pitHash=pit.snapshotHash;freezeHash=modelHash=contextHash=canonical="";
++        frozenAt=0;manifest=null;normalizer=null;registeredSpecs=Collections.emptyList();experts=Collections.emptyList();
++        replayFrozenAtoms=Collections.emptyMap();bindingPayloadHashes=Collections.emptyMap();frozenMatrices=Collections.emptyMap();atomMatrixBudget=null;lease=null;
++    }
++    public static FrozenGraphContextCP4 legacy(PITSnapshotContractR952 pit){return new FrozenGraphContextCP4(pit);}
++    public static FrozenGraphContextCP4 fromCaptured(CandidateCompilerR952.Program program,CandidateCompilerR952.Model model,
++            PITSnapshotContractR952 pit,String freeze,long at,Map<String,TypedAtomMoleculeGraphR930.Value> atoms,
++            List<ExpertPrediction> experts,Map<String,String> bindings){
++        return new FrozenGraphContextCP4(program,model,pit,freeze,at,atoms,experts,bindings,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget(),Collections.emptyMap());
++    }
++    // Explicit budget overload is also used by deterministic tests; callers must use a process partition.
++    public static FrozenGraphContextCP4 fromCaptured(CandidateCompilerR952.Program program,CandidateCompilerR952.Model model,
++            PITSnapshotContractR952 pit,String freeze,long at,Map<String,TypedAtomMoleculeGraphR930.Value> atoms,
++            List<ExpertPrediction> experts,Map<String,String> bindings,MemoryBudgetCP4 budget){
++        return new FrozenGraphContextCP4(program,model,pit,freeze,at,atoms,experts,bindings,budget,Collections.emptyMap());
++    }
++    public static FrozenGraphContextCP4 fromCapturedMatricesCP12(CandidateCompilerR952.Program program,CandidateCompilerR952.Model model,
++            PITSnapshotContractR952 pit,String freeze,long at,Map<String,TypedAtomMoleculeGraphR930.Value> atoms,
++            List<ExpertPrediction> experts,Map<String,String> bindings,Map<String,MatrixBindingsCP12.Frozen> matrices,MemoryBudgetCP4 budget){
++        return new FrozenGraphContextCP4(program,model,pit,freeze,at,atoms,experts,bindings,budget,matrices);
++    }
++    public synchronized void requireOpen(){if(closed)throw new IllegalStateException("CONTEXT_CLOSED");}
++    public synchronized String canonicalJson(){requireOpen();need(manifest!=null,"LEGACY_CONTEXT_HAS_NO_RECIPE");return canonical;}
++    public synchronized void close(){if(!closed){closed=true;if(lease!=null)lease.close();}}
++    private Map<String,Object> canonicalObject(CandidateCompilerR952.Program program){
++        Map<String,Object> root=new TreeMap<>();root.put("revision",frozenMatrices.isEmpty()?REVISION:MATRIX_REVISION);root.put("target",target);root.put("pitHash",pitHash);
++        root.put("freezeHash",freezeHash);root.put("modelHash",modelHash);root.put("manifestHash",manifest.hash);root.put("normalizerHash",normalizer.hash);
++        root.put("programHash",program.codeHash);root.put("frozenAt",frozenAt);root.put("bindings",bindingPayloadHashes);
++        List<Object> specs=new ArrayList<>();for(AtomSpecCP4 s:registeredSpecs){Map<String,Object> r=new TreeMap<>();
++            r.put("atomId",s.atomId);r.put("specHash",s.specHash);r.put("specJson",s.canonicalSpec);r.put("outputType",s.outputType);
++            r.put("minimumHistory",s.minimumHistory);r.put("missingPolicy",s.missingPolicy);r.put("state",s.state);specs.add(r);}
++        root.put("specs",specs);Map<String,Object> atoms=new TreeMap<>();
++        for(Map.Entry<String,TypedAtomMoleculeGraphR930.Value> e:replayFrozenAtoms.entrySet()){
++            TypedAtomMoleculeGraphR930.Value v=e.getValue();Map<String,Object> r=new TreeMap<>();List<Object> vs=new ArrayList<>(),mask=new ArrayList<>();
++            for(int i=0;i<v.size();i++){vs.add(Double.toHexString(v.get(i)));mask.add(v.present(i));}
++            r.put("values",vs);r.put("present",mask);r.put("maxSourceIssue",v.maxSourceIssue);r.put("availableAt",v.availableAtMs);
++            r.put("sourceHash",v.sourceHash);r.put("valueHash",v.valueHash);atoms.put(e.getKey(),r);
++        }
++        root.put("atoms",atoms);List<Object> es=new ArrayList<>();for(ExpertPrediction e:experts){Map<String,Object> r=new TreeMap<>();
++            r.put("freezeHash",e.freezeHash);r.put("modelHash",e.modelHash);r.put("manifestHash",e.featureManifestHash);r.put("position",e.position);
++            r.put("target",e.target);r.put("maxSourceIssue",e.maxSourceIssue);r.put("availableAt",e.availableAtMs);r.put("sourceHash",e.sourceHash);
++            List<Object> ps=new ArrayList<>();for(double x:e.probabilities)ps.add(Double.toHexString(x));r.put("probabilities",ps);es.add(r);}
++        root.put("experts",es);if(!frozenMatrices.isEmpty())root.put("matrices",MatrixBindingsCP12.canonicalObject(frozenMatrices));return root;
++    }
++    public static FrozenGraphContextCP4 fromRecipe(String json,String expectedHash,CandidateAstR952 ast,
++            PITSnapshotContractR952 pit,CandidateCompilerR952.Model model,MemoryBudgetCP4 budget){
++        need(json!=null&&expectedHash!=null&&V51ChecksumEngine.sha256(json).equals(hash(expectedHash)),"CONTEXT_HASH_MISMATCH");
++        // Parser scratch reservation is released only after the immutable retained context is charged.
++        try(MemoryBudgetCP4.Lease scratch=budget.acquire(8192L+8L*json.length())){
++            Map<String,Object> root=StrictCanonicalJson.readContextObject(json);
++            boolean matrixRevision=MATRIX_REVISION.equals(str(root,"revision"));
++            if(matrixRevision)keys(root,"revision","target","pitHash","freezeHash","modelHash","manifestHash","normalizerHash","programHash","frozenAt","bindings","specs","atoms","experts","matrices");
++            else keys(root,"revision","target","pitHash","freezeHash","modelHash","manifestHash","normalizerHash","programHash","frozenAt","bindings","specs","atoms","experts");
++            need(matrixRevision||REVISION.equals(str(root,"revision")),"CONTEXT_REVISION");
++            List<AtomSpecCP4> specs=new ArrayList<>();for(Object o:list(root.get("specs"))){Map<String,Object> r=obj(o);
++                keys(r,"atomId","specHash","specJson","outputType","minimumHistory","missingPolicy","state");
++                specs.add(AtomSpecCP4.fromRegistry(str(r,"atomId"),str(r,"specHash"),str(r,"specJson"),str(r,"outputType"),(int)number(r,"minimumHistory"),str(r,"missingPolicy"),str(r,"state")));}
++            CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,FeatureManifestR952.forAst(ast),specs);
++            need(pit.targetIssue.equals(str(root,"target"))&&pit.snapshotHash.equals(str(root,"pitHash"))&&model.hash().equals(str(root,"modelHash"))
++                &&program.manifest.hash.equals(str(root,"manifestHash"))&&program.codeHash.equals(str(root,"programHash"))
++                &&model.modern().normalizerHash.equals(str(root,"normalizerHash")),"RECIPE_IDENTITY");
++            Map<String,TypedAtomMoleculeGraphR930.Value> atoms=new TreeMap<>();
++            for(Map.Entry<String,Object> e:obj(root.get("atoms")).entrySet()){Map<String,Object> r=obj(e.getValue());
++                keys(r,"values","present","maxSourceIssue","availableAt","sourceHash","valueHash");List<Object> vs=list(r.get("values")),ms=list(r.get("present"));
++                need(vs.size()==ms.size()&&vs.size()>=1&&vs.size()<=10,"RECIPE_ATOM_SHAPE");double[] values=new double[vs.size()];boolean[] present=new boolean[vs.size()];
++                for(int i=0;i<values.length;i++){values[i]=hex(vs.get(i));need(ms.get(i) instanceof Boolean,"RECIPE_MASK");present[i]=(Boolean)ms.get(i);}
++                TypedAtomMoleculeGraphR930.Value v=new TypedAtomMoleculeGraphR930.Value(values,present,str(r,"maxSourceIssue"),number(r,"availableAt"),0,str(r,"sourceHash"));
++                need(v.valueHash.equals(str(r,"valueHash")),"RECIPE_ATOM_HASH");atoms.put(e.getKey(),v);
++            }
++            List<ExpertPrediction> experts=new ArrayList<>();for(Object o:list(root.get("experts"))){Map<String,Object> r=obj(o);
++                keys(r,"freezeHash","modelHash","manifestHash","position","target","maxSourceIssue","availableAt","sourceHash","probabilities");
++                List<Object> ps=list(r.get("probabilities"));need(ps.size()==10,"EXPERT_DIMENSION");double[] probability=new double[10];for(int i=0;i<10;i++)probability[i]=hex(ps.get(i));
++                experts.add(new ExpertPrediction(new CandidateCompilerR952.ExpertRef(str(r,"freezeHash"),str(r,"modelHash"),str(r,"manifestHash"),(int)number(r,"position")),
++                    str(r,"target"),str(r,"maxSourceIssue"),number(r,"availableAt"),str(r,"sourceHash"),probability));
++            }
++            Map<String,String> bindings=new TreeMap<>();for(Map.Entry<String,Object> e:obj(root.get("bindings")).entrySet()){
++                need(e.getValue() instanceof String,"BINDING_HASH");bindings.put(e.getKey(),(String)e.getValue());}
++            Map<String,MatrixBindingsCP12.Frozen> matrices=matrixRevision?MatrixBindingsCP12.fromCanonicalObject(root.get("matrices")):Collections.emptyMap();
++            need(matrixRevision==!matrices.isEmpty(),"MATRIX_CONTEXT_REVISION");
++            FrozenGraphContextCP4 result=fromCapturedMatricesCP12(program,model,pit,str(root,"freezeHash"),number(root,"frozenAt"),atoms,experts,bindings,matrices,budget);
++            if(!json.equals(result.canonical)||!expectedHash.equals(result.contextHash)){result.close();throw new IllegalArgumentException("RECIPE_NONCANONICAL");}
++            return result;
++        }
++    }
++    /** Historical TRAIN consumes only immutable raw values. It never loads the child's inference model or current matrices. */
++    public static Map<String,TypedAtomMoleculeGraphR930.Value> verifyHistoricalMatricesCP12(CandidateCompilerR952.Program program,
++            Map<String,Object> context,String target,long drawAt){
++        if(!MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program))return Collections.emptyMap();
++        need(MATRIX_REVISION.equals(str(context,"revision"))&&target.equals(str(context,"target")),"WAIT_BOUND_FEATURE_HISTORY");
++        long at=number(context,"frozenAt");need(at>0&&at<drawAt,"HISTORICAL_MATRIX_AVAILABLE_AFTER_DRAW");
++        Map<String,MatrixBindingsCP12.Frozen> stored=MatrixBindingsCP12.fromCanonicalObject(context.get("matrices"));
++        Map<String,Object> raw=obj(context.get("atoms"));Map<String,TypedAtomMoleculeGraphR930.Value> result=new TreeMap<>();
++        for(MatrixBindingsCP12.Ref ref:MatrixBindingsCP12.validate(program.ast,program.manifest)){
++            if(MatrixHistoricalDrawCP12.isDrawRefCP12(ref))continue;
++            MatrixBindingsCP12.Frozen found=null;for(MatrixBindingsCP12.Frozen f:stored.values()){
++                if(f.type.equals(ref.type.name())&&f.window==ref.window&&f.partition.equals(ref.partition(program.ast.position))
++                        &&f.manifest.equals(ref.manifest)&&f.metric.equals(ref.metric)){need(found==null,"AMBIGUOUS_HISTORICAL_MATRIX");found=f;}}
++            need(found!=null&&found.throughIssue.compareTo(target)<0&&TargetIssueResolver.exact(found.throughIssue,target).valid,"WAIT_BOUND_FEATURE_HISTORY");
++            Map<String,Object> atom=obj(raw.get("CP4:"+found.nodeId));keys(atom,"values","present","maxSourceIssue","availableAt","sourceHash","valueHash");
++            List<Object> values=list(atom.get("values")),present=list(atom.get("present"));need(values.size()==1&&present.size()==1&&present.get(0) instanceof Boolean,"HISTORICAL_MATRIX_ATOM_SHAPE");
++            TypedAtomMoleculeGraphR930.Value original=new TypedAtomMoleculeGraphR930.Value(new double[]{hex(values.get(0))},new boolean[]{(Boolean)present.get(0)},str(atom,"maxSourceIssue"),number(atom,"availableAt"),0,str(atom,"sourceHash"));
++            need(original.availableAtMs==at&&original.valueHash.equals(str(atom,"valueHash"))&&original.valueHash.equals(found.atomValue(at).valueHash)
++                    &&original.sourceHash.equals(found.bindingHash),"HISTORICAL_MATRIX_ATOM_PROOF");
++            result.put(ref.node(),original);
++        }
++        return Collections.unmodifiableMap(result);
++    }
++    private static double hex(Object o){need(o instanceof String,"CONTEXT_DOUBLE");double d=Double.parseDouble((String)o);need(Double.isFinite(d)&&Double.toHexString(d).equals(o),"CONTEXT_DOUBLE_CANONICAL");return d;}
++    @SuppressWarnings("unchecked") private static Map<String,Object> obj(Object o){need(o instanceof Map,"CONTEXT_OBJECT");return (Map<String,Object>)o;}
++    @SuppressWarnings("unchecked") private static List<Object> list(Object o){need(o instanceof List,"CONTEXT_ARRAY");return (List<Object>)o;}
++    private static String str(Map<String,Object> o,String key){Object v=o.get(key);need(v instanceof String,"CONTEXT_STRING:"+key);return (String)v;}
++    private static long number(Map<String,Object> o,String key){Object v=o.get(key);need(v instanceof Long||v instanceof Integer,"CONTEXT_INTEGER:"+key);return ((Number)v).longValue();}
++    private static String hash(String h){need(h!=null&&h.matches("[0-9a-f]{64}"),"CONTEXT_HASH");return h;}
++    private static void keys(Map<String,Object> m,String... keys){need(m.keySet().equals(new HashSet<>(Arrays.asList(keys))),"CONTEXT_KEYS");}
++    private static void need(boolean condition,String code){if(!condition)throw new IllegalArgumentException(code);}
++}

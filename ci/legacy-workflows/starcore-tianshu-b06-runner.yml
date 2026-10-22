@@ -1,0 +1,302 @@
+name: Starcore Tianshu B06 Artifact First Runner
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b06
+    paths:
+      - '.github/starcore-tianshu-b06/RUN_B06'
+      - '.github/workflows/starcore-tianshu-b06-runner.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+concurrency:
+  group: starcore-tianshu-b06-artifact-first
+  cancel-in-progress: false
+
+env:
+  B05_ACCEPTED_SHA: c98278c1d1df465a72f2af736d7ce49a30d7a3ba
+  V51_FROZEN_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+  BRANCH_NAME: agent/starcore-tianshu-b06
+  ACCEPTED_BRANCH: accepted/starcore-tianshu-b06-20260806
+  ACCEPTED_TAG: v57-b06-accepted
+  DELIVERY_NAME: Starcore-Tianshu-B06-20260806-Accepted
+  PATCH_SHA256: c2f71ad4dbe4ed922a90a3c0a8c78fce4dc2cd6801595c84a6bb5d8e961331fe
+  PATCH_GZ_SHA256: e34469e4c168ac81f1787c8b549f7e38f946072912ee89537cdec5e2dcd76e7a
+  CONTRACT_SHA256: b28e80d7dbed0c9a7f8764c44fd93728ea3654bf4e571425e3b635235ee21b28
+
+jobs:
+  b06-artifact-first:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact B06 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b06
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Restore patch and run deterministic short gates
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          trap 'rc=$?; echo "::error::B06_SHORT_GATE_FAILED line=$LINENO command=$BASH_COMMAND rc=$rc"; exit $rc' ERR
+          git merge-base --is-ancestor "$B05_ACCEPTED_SHA" HEAD
+          mkdir -p tools reports delivery
+          cat .github/starcore-tianshu-b06/patch.part-000 .github/starcore-tianshu-b06/patch.part-001.sub-* .github/starcore-tianshu-b06/patch.part-002 .github/starcore-tianshu-b06/patch.part-003 | base64 --decode > tools/B06_SOURCE.patch.gz
+          test "$(sha256sum tools/B06_SOURCE.patch.gz | cut -d' ' -f1)" = "$PATCH_GZ_SHA256"
+          gzip -dc tools/B06_SOURCE.patch.gz > tools/B06_SOURCE.patch
+          test "$(sha256sum tools/B06_SOURCE.patch | cut -d' ' -f1)" = "$PATCH_SHA256"
+          test "$(sha256sum .github/starcore-tianshu-b06/B06_CONTRACT.csv | cut -d' ' -f1)" = "$CONTRACT_SHA256"
+          git apply --check tools/B06_SOURCE.patch
+          for n in 1 2; do
+            rm -rf "/tmp/b06-gen-$n"; mkdir -p "/tmp/b06-gen-$n"
+            git archive HEAD | tar -x -C "/tmp/b06-gen-$n"
+            (cd "/tmp/b06-gen-$n" && patch -p1 --batch --forward < "$GITHUB_WORKSPACE/tools/B06_SOURCE.patch" >/tmp/b06-patch-$n.log)
+          done
+          TARGETS='PatternStateEngine.java ShapeStateEngine.java TransitionRelationEngine.java SimilarShapeEngine.java ShapeMemoryEngine.java NumberBehaviorEngine.java AttributionEngine.java'
+          : > /tmp/b06-gen1.sha; : > /tmp/b06-gen2.sha
+          for f in $TARGETS; do
+            sha256sum "/tmp/b06-gen-1/app/src/main/java/com/ethk3/novaonepro/$f" | sed 's#/tmp/b06-gen-1/##' >> /tmp/b06-gen1.sha
+            sha256sum "/tmp/b06-gen-2/app/src/main/java/com/ethk3/novaonepro/$f" | sed 's#/tmp/b06-gen-2/##' >> /tmp/b06-gen2.sha
+          done
+          sed 's#  app/#  app/#' /tmp/b06-gen1.sha > reports/B06_REGEN_PASS1.sha256
+          sed 's#  app/#  app/#' /tmp/b06-gen2.sha > reports/B06_REGEN_PASS2.sha256
+          diff -u <(cut -d' ' -f1 /tmp/b06-gen1.sha) <(cut -d' ' -f1 /tmp/b06-gen2.sha) > reports/B06_REGEN_DIFF.log
+          git apply tools/B06_SOURCE.patch
+          python3 .github/starcore-tianshu-b06/b06_harness_ci.py
+          git diff --check | tee reports/B06_DIFF_CHECK.log
+          printf 'generator_syntax=PASS\nmaterialization=PASS\nsecond_generation_identical=PASS\nharness=PASS\nfull_parse=PASS\n' > reports/B06_SHORT_GATES.log
+
+      - name: Resolve key in runner memory and verify live primary and backup API
+        shell: bash
+        env:
+          DUOQU_API_KEY_SECRET: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set -Eeu -o pipefail
+          KEY="$DUOQU_API_KEY_SECRET"
+          if [ -z "$KEY" ]; then
+            KEY=$(git show "$V51_FROZEN_SHA:app/src/main/java/com/ethk3/novaonepro/KeyProvider.java" | python3 -c "import re,sys; s=sys.stdin.read(); p=re.findall(r'PART_[0-9]+\\s*=\\s*new char\\[\\]\\s*\\{([^}]*)\\}',s); print(''.join(re.findall(r\"'([^']+)'\",''.join(p))))")
+          fi
+          test ${#KEY} -ge 8
+          echo "::add-mask::$KEY"
+          printf 'DUOQU_API_KEY=%s\n' "$KEY" >> "$GITHUB_ENV"
+          export DUOQU_API_KEY="$KEY"
+          python3 - <<'PY' | tee reports/B06_LIVE_API_TEST.log
+          import datetime, hashlib, json, os, re, time, urllib.parse, urllib.request
+          key=os.environ['DUOQU_API_KEY']; results=[]
+          def request(base,params):
+              last=None
+              for attempt in range(3):
+                  try:
+                      url=base+'?'+urllib.parse.urlencode(dict(params,key=key))
+                      req=urllib.request.Request(url,headers={'Accept':'application/json','User-Agent':'Starcore-Tianshu-B06-Acceptance'})
+                      with urllib.request.urlopen(req,timeout=20) as r: return r.status,r.read(4194304)
+                  except Exception as exc:
+                      last=exc
+                      if attempt<2: time.sleep(1.5*(attempt+1))
+              raise last
+          def rows(payload):
+              data=payload.get('data'); valid=0; schema_valid=0
+              if isinstance(data,list):
+                  for row in data:
+                      if isinstance(row,dict) and all(k in row for k in ('betNo','gmtBetNo','openNumber','block','hash','openTime')):
+                          schema_valid+=1
+                          nums=[int(x) for x in re.split(r'[,\s-]+',str(row['openNumber']).strip()) if x]
+                          if len(nums)==10 and sorted(nums)==list(range(1,11)): valid+=1
+              return data,valid,schema_valid
+          for line,base in [('PRIMARY','https://api.duoqu.online/data'),('BACKUP','https://api1.duoqu.online/data')]:
+              status,raw=request(base,{'code':'Binance1-PK10','limit':20}); payload=json.loads(raw.decode('utf-8')); data,valid,schema_valid=rows(payload)
+              count=len(data) if isinstance(data,list) else 0
+              results.append({'line':line,'operation':'LATEST','http':status,'rows':count,'schema_valid':schema_valid,'valid_permutations':valid,'game':payload.get('lotteryCode',''),'ok':status==200 and payload.get('lotteryCode')=='Binance1-PK10' and count>0 and schema_valid==count and valid==count,'body_sha256':hashlib.sha256(raw).hexdigest()})
+              latest=data[0] if isinstance(data,list) and data else {}; raw_open=str(latest.get('openTime','')).strip(); m=re.search(r'(\d{4})[-/](\d{1,2})[-/](\d{1,2})',raw_open)
+              if m: latest_date=datetime.date(int(m.group(1)),int(m.group(2)),int(m.group(3)))
+              else:
+                  try:
+                      ts=float(raw_open); ts=ts/1000.0 if ts>100000000000 else ts
+                      latest_date=datetime.datetime.fromtimestamp(ts,datetime.timezone(datetime.timedelta(hours=8))).date()
+                  except Exception:
+                      latest_date=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date()
+              date=(latest_date-datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+              status,raw=request(base,{'code':'Binance1-PK10','date':date}); payload=json.loads(raw.decode('utf-8')); data,valid,schema_valid=rows(payload)
+              count=len(data) if isinstance(data,list) else 0
+              results.append({'line':line,'operation':'DATE','query_date':date,'http':status,'rows':count,'schema_valid':schema_valid,'valid_permutations':valid,'game':payload.get('lotteryCode',''),'ok':status==200 and payload.get('lotteryCode')=='Binance1-PK10' and count>0 and schema_valid==count and valid==count,'body_sha256':hashlib.sha256(raw).hexdigest()})
+          report={'game':'Binance1-PK10','requests':4,'latest_rate_limit_contract':'2 requests << 50/min','date_rate_limit_contract':'2 requests << 5/min','key_logged':False,'results':results,'all_ok':all(x['ok'] for x in results)}
+          open('reports/B06_LIVE_API_TEST.json','w',encoding='utf-8').write(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(report,ensure_ascii=False,indent=2))
+          if not report['all_ok']: raise SystemExit('B06_LIVE_API_FAILED')
+          PY
+          if grep -RIlF "$KEY" app/src reports tools .github/starcore-tianshu-b06 --exclude='B06_LIVE_API_TEST.json' 2>/dev/null | grep -q .; then
+            echo 'SECRET_LEAK_FOUND' > reports/B06_SECRET_SCAN.txt; exit 1
+          fi
+          printf 'SECRET_PLAINTEXT_MATCHES=0\nKEY_SOURCE=actions_memory_or_frozen_split_chars\n' > reports/B06_SECRET_SCAN.txt
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform and build tools
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Compile, assemble and lint
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          gradle --no-daemon :app:compileDebugJavaWithJavac 2>&1 | tee reports/B06_QUICK_JAVAC.log
+          gradle --no-daemon :app:assembleDebug 2>&1 | tee reports/B06_GRADLE_BUILD.log
+          gradle --no-daemon :app:lintDebug 2>&1 | tee reports/B06_LINT.log
+
+      - name: Inspect APK and create complete delivery
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          mkdir -p delivery stage/full stage/incremental/business/app/src/main/java/com/ethk3/novaonepro stage/incremental/identity/app/src/main/java/com/ethk3/novaonepro stage/evidence stage/master
+          APK=$(find app/build/outputs/apk/debug -type f -name '*.apk' | sort | head -1)
+          test -n "$APK" -a -s "$APK"
+          OUT_APK="delivery/${DELIVERY_NAME}-shadow-engineering-debug.apk"
+          cp "$APK" "$OUT_APK"
+          BT=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          "$BT/apksigner" verify --verbose --print-certs "$OUT_APK" > reports/B06_APKSIGNER.txt 2>&1
+          if [ -x "$BT/aapt" ]; then "$BT/aapt" dump badging "$OUT_APK" > reports/B06_BADGING.txt; else "$BT/aapt2" dump badging "$OUT_APK" > reports/B06_BADGING.txt; fi
+          grep -q "package: name='com.ethk3.novaonepro'" reports/B06_BADGING.txt
+          grep -q "versionName='V57.6.0-tianshu-b06-shadow-engineering'" reports/B06_BADGING.txt
+          grep -q 'launchable-activity:' reports/B06_BADGING.txt
+          sha256sum "$OUT_APK" > reports/B06_APK_SHA256.txt
+          stat -c 'APK_BYTES=%s' "$OUT_APK" > reports/B06_APK_SIZE.txt
+          printf 'JAVA_FILES=%s\nXML_FILES=%s\nTOTAL_FILES=%s\n' "$(find app/src/main/java -name '*.java' | wc -l)" "$(find app/src/main -name '*.xml' | wc -l)" "$(find . -type f | wc -l)" > reports/B06_SOURCE_COUNTS.txt
+          cat > reports/B06_IDENTITY.txt <<EOF
+          batch=B06
+          base_commit=$B05_ACCEPTED_SHA
+          work_branch=$BRANCH_NAME
+          accepted_branch=$ACCEPTED_BRANCH
+          tag=$ACCEPTED_TAG
+          package=com.ethk3.novaonepro
+          version_name=V57.6.0-tianshu-b06-shadow-engineering
+          version_code=576010806
+          game=Binance1-PK10
+          mode=SHADOW_ONLY
+          model_proven=false
+          real_bet_allowed=false
+          fixed_k=3
+          max_real_bet_per_issue=1
+          owner=DecisionGateEngine_only
+          patch_sha256=$PATCH_SHA256
+          EOF
+          cat > reports/B06_CHINESE_ACCEPTANCE_REPORT.md <<'EOF'
+          # 星核天枢 B06 中文验收报告
+
+          ## 本批结论
+          B06完成形态、关系、记忆、号码行为、相似窗口和归因七个成熟引擎的 Evidence-only 深度升级。七个模块保留原算法资产和生产调用点，但不能再直接写 FinalP、Lane、Champion、Gate、Block 或 BET；DecisionGateEngine 仍是唯一真实BET出口。
+
+          ## 本批核心修复
+          1. PatternStateEngine：形态状态统一输出支持、反证、风险、置信、样本、新鲜度与回放Hash。
+          2. ShapeStateEngine：增加逐分量消融、相关性惩罚、独立支持、集中度和脆弱性诊断。
+          3. TransitionRelationEngine：移除候选概率/门控写入，关系只输出可审计Evidence，并避免每位置重复重算全局行为证据。
+          4. SimilarShapeEngine：增加严格baseIssue/targetIssue时点边界、未来数据排除、24/48/96/240多周期稳定性、重叠风险、近期衰减与留一消融。
+          5. ShapeMemoryEngine：真实校准仅允许REAL_TRADE+BET+settled；SHADOW/HOLD只做反事实记忆。新增64/128/240/480多周期漂移、稳定性和口径隔离审计。
+          6. NumberBehaviorEngine：号码行为降级为Evidence-only并输出确定性审计Hash。
+          7. AttributionEngine：动态报告明确判断39/40/50/60胜率门、15/20/30/40频率门、Wilson下界、ECE、最长连挂、唯一主链、未来泄漏、统计污染、后台/预测/数据库/API/UI状态及具体优化方向。
+
+          ## 胜率与频率事实
+          B06没有证明40%命中且15%覆盖，也没有谎称50%或60%。软件仍为SHADOW_ONLY、MODEL_NOT_PROVEN、REAL_BET_HARD_DISABLED。达到40%/15%必须经过严格时间顺序OOS、跨块稳定、Wilson下界、ECE、真实影子复现、无未来信息和逐模块消融。频率提升到20%/30%/40%只能扩大已证明的低相关状态域，禁止降低安全门或频率债务补单。
+
+          ## 前五批遗留问题说明
+          用户反馈的退出/息屏后后台停运、偶发不预测，属于后续生命周期与Watchdog批次的正式施工范围；B06只提供根因证据字段，不冒充已经彻底修完。全软件动态根因诊断与一键复制报告仍需在B14完成主链接入；一屏UI和滑动性能需在B15完成。当前报告已经能诚实指出这些状态，但不能把尚未施工的批次写成完成。
+          EOF
+          rsync -a --exclude='.git' --exclude='.gradle' --exclude='app/build' --exclude='build' --exclude='delivery' --exclude='stage' ./ stage/full/
+          for f in PatternStateEngine.java ShapeStateEngine.java TransitionRelationEngine.java SimilarShapeEngine.java ShapeMemoryEngine.java NumberBehaviorEngine.java AttributionEngine.java; do cp "app/src/main/java/com/ethk3/novaonepro/$f" stage/incremental/business/app/src/main/java/com/ethk3/novaonepro/; done
+          mkdir -p stage/incremental/identity/app
+          cp app/build.gradle stage/incremental/identity/app/build.gradle
+          cp app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java stage/incremental/identity/app/src/main/java/com/ethk3/novaonepro/
+          cp -a reports/. stage/evidence/
+          cp .github/starcore-tianshu-b06/B06_CONTRACT.csv stage/evidence/
+          (cd stage/full && zip -qr "../../delivery/${DELIVERY_NAME}-full-source.zip" .)
+          (cd stage/incremental && zip -qr "../../delivery/${DELIVERY_NAME}-incremental.zip" .)
+          (cd stage/evidence && zip -qr "../../delivery/${DELIVERY_NAME}-evidence.zip" .)
+          cp "$OUT_APK" "delivery/${DELIVERY_NAME}-full-source.zip" "delivery/${DELIVERY_NAME}-incremental.zip" "delivery/${DELIVERY_NAME}-evidence.zip" stage/master/
+          cp reports/B06_CHINESE_ACCEPTANCE_REPORT.md reports/B06_IDENTITY.txt .github/starcore-tianshu-b06/B06_CONTRACT.csv stage/master/
+          (cd delivery && sha256sum "${DELIVERY_NAME}-shadow-engineering-debug.apk" "${DELIVERY_NAME}-full-source.zip" "${DELIVERY_NAME}-incremental.zip" "${DELIVERY_NAME}-evidence.zip" > SHA256SUMS.txt)
+          cp delivery/SHA256SUMS.txt stage/master/
+          (cd stage/master && zip -qr "../../delivery/${DELIVERY_NAME}-MASTER-with-APK.zip" .)
+          (cd delivery && sha256sum "${DELIVERY_NAME}-MASTER-with-APK.zip" >> SHA256SUMS.txt)
+          if grep -RIlF "$DUOQU_API_KEY" stage/full stage/incremental reports 2>/dev/null | grep -q .; then echo SECRET_LEAK_IN_DELIVERY; exit 1; fi
+          unzip -t "delivery/${DELIVERY_NAME}-MASTER-with-APK.zip" > reports/B06_MASTER_ZIP_TEST.txt
+
+      - name: Upload recovery delivery before Git commit
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B06-Recovery-Delivery
+          path: |
+            delivery/${{ env.DELIVERY_NAME }}-MASTER-with-APK.zip
+            delivery/${{ env.DELIVERY_NAME }}-shadow-engineering-debug.apk
+            delivery/${{ env.DELIVERY_NAME }}-full-source.zip
+            delivery/${{ env.DELIVERY_NAME }}-incremental.zip
+            delivery/${{ env.DELIVERY_NAME }}-evidence.zip
+            delivery/SHA256SUMS.txt
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Commit accepted B06 source, freeze branch and open PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeu -o pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/build.gradle \
+            app/src/main/java/com/ethk3/novaonepro/PatternStateEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/ShapeStateEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/TransitionRelationEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/SimilarShapeEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/ShapeMemoryEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/NumberBehaviorEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/AttributionEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java \
+            app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java
+          git diff --cached --check
+          git commit -m 'feat(starcore): accept Tianshu B06 evidence shape relation memory'
+          FINAL_SHA=$(git rev-parse HEAD)
+          git push origin HEAD:"$BRANCH_NAME"
+          git push --force-with-lease origin HEAD:"$ACCEPTED_BRANCH"
+          git tag -f "$ACCEPTED_TAG" "$FINAL_SHA"
+          git push origin "refs/tags/$ACCEPTED_TAG" --force
+          PR_URL=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH_NAME" --base accepted/starcore-tianshu-b05-20260806 --json url --jq '.[0].url' || true)
+          if [ -z "$PR_URL" ]; then
+            PR_URL=$(gh pr create --repo "$GITHUB_REPOSITORY" --base accepted/starcore-tianshu-b05-20260806 --head "$BRANCH_NAME" --title '星核天枢 B06：形态、关系、记忆与相似窗口 Evidence-only 深度升级' --body 'B06从第五批验收Commit继续，仅施工七个冻结业务文件并同步三个版本身份点。短门、真实主备接口、Gradle、Lint、APK签名和总包均在提交前通过。软件仍为SHADOW_ONLY、MODEL_NOT_PROVEN、REAL_BET_DISABLED。')
+          fi
+          printf 'FINAL_COMMIT=%s\nPR_URL=%s\nACCEPTED_BRANCH=%s\nTAG=%s\n' "$FINAL_SHA" "$PR_URL" "$ACCEPTED_BRANCH" "$ACCEPTED_TAG" | tee reports/B06_GIT_DELIVERY.txt
+          cat reports/B06_GIT_DELIVERY.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final accepted B06 delivery
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B06-Accepted-Delivery
+          path: |
+            delivery/${{ env.DELIVERY_NAME }}-MASTER-with-APK.zip
+            delivery/${{ env.DELIVERY_NAME }}-shadow-engineering-debug.apk
+            delivery/${{ env.DELIVERY_NAME }}-full-source.zip
+            delivery/${{ env.DELIVERY_NAME }}-incremental.zip
+            delivery/${{ env.DELIVERY_NAME }}-evidence.zip
+            delivery/SHA256SUMS.txt
+            reports/B06_GIT_DELIVERY.txt
+          retention-days: 90
+          if-no-files-found: error

@@ -1,0 +1,45 @@
+name: C003 version upgrade delivery
+on:
+  push:
+    branches: [delivery/c003-v577251040-20261018]
+    paths: ['.github/workflows/c003-version-delivery.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c003-version-upgrade
+  cancel-in-progress: false
+jobs:
+  compile-release:
+    if: github.ref == 'refs/heads/delivery/c003-v577251040-20261018'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install the existing exact Android toolchain
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME'])
+          manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0','ndk;28.2.13676358','cmake;3.22.1'],check=True)
+          PY
+      - name: Rebuild the current complete C003 release and retain evidence
+        run: python3 construction/c_chain_20261018/C003-version-upgrade/ci_release.py
+      - name: Upload optional secondary copy
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: C003-version-upgrade-${{ github.run_id }}
+          path: upgrade-artifacts/
+          if-no-files-found: warn

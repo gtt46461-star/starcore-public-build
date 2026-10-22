@@ -1,0 +1,56 @@
+name: starcore-tianshu-b03-fix-verify
+
+on:
+  push:
+    branches:
+      - v57-full/b03
+
+permissions:
+  contents: write
+
+jobs:
+  patch-final-workflow:
+    if: contains(github.event.head_commit.message, '[b03-fix-verify]')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v57-full/b03
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Replace precondition verification with final SHA verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('.github/workflows/starcore-tianshu-b03-final.yml')
+          s = p.read_text(encoding='utf-8')
+          old = "          python3 tools/starcore_tianshu_b03_materialize.py --verify | tee reports/B03_SOURCE_VERIFY.log\n"
+          lines = [
+              "          {",
+              "            printf '%s  %s\\n' '7f13cc396eb5588d86861a6d5011d11577d2780c3d7f6fe6acdc83e4317aea52' app/src/main/java/com/ethk3/novaonepro/DbHelper.java | sha256sum -c -",
+              "            printf '%s  %s\\n' 'd709858ef2964ff4cf5dc71d2e82c089042ddf126679a6ceadb7845765a7777a' app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java | sha256sum -c -",
+              "            printf '%s  %s\\n' 'c9ee86dd635d5415c7678d1f12a7453ddfa1bad095fb57067e93d980d25eae03' app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java | sha256sum -c -",
+              "            printf '%s  %s\\n' 'b410d0f58bc77c1b1132b8eecae888d86016d7585d5cd5ac05278a0130acf176' app/src/main/java/com/ethk3/novaonepro/DatabaseIntegrityVerifier.java | sha256sum -c -",
+              "            printf '%s  %s\\n' '41a279e8ca153d1c0005b4b19538b9749cbc17eabce9ff54e2b14981c130f576' app/src/main/java/com/ethk3/novaonepro/DbStore.java | sha256sum -c -",
+              "            printf '%s  %s\\n' '2910ba42c21664ffb1fd7f083bc6eae746648a91b921a225cfb0533d0ad86722' app/src/main/java/com/ethk3/novaonepro/V51Repository.java | sha256sum -c -",
+              "          } | tee reports/B03_SOURCE_VERIFY.log",
+          ]
+          new = '\n'.join(lines) + '\n'
+          if s.count(old) != 1:
+              raise SystemExit('verify replacement count=%d' % s.count(old))
+          s = s.replace(old, new)
+          old_cleanup = "          rm -f .github/workflows/starcore-tianshu-b03-snapshot.yml .github/workflows/starcore-tianshu-b03-final.yml\n"
+          new_cleanup = "          rm -f .github/workflows/starcore-tianshu-b03-*.yml\n"
+          if s.count(old_cleanup) != 1:
+              raise SystemExit('cleanup replacement count=%d' % s.count(old_cleanup))
+          s = s.replace(old_cleanup, new_cleanup)
+          p.write_text(s, encoding='utf-8')
+          PY
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/starcore-tianshu-b03-final.yml
+          git commit -m 'ci(b03): verify exact materialized source SHA before acceptance [b03-run]'
+          git push origin HEAD:v57-full/b03

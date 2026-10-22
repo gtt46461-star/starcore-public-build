@@ -1,0 +1,151 @@
+{
+  "scope": "ORIGINAL_REPORT_EVIDENCE_NOT_RECONSTRUCTED_TEST_DB",
+  "report_sha256": "1d9a1744393835dd05cea5cc5feb58eadbce81357c752614ea22f22e500e5f5e",
+  "release_epoch": {
+    "epoch_id": "process-1791877997205-32cbe9e5050f",
+    "kind": "PROCESS",
+    "started_at": "1791877997205",
+    "start_issue": "202610130472",
+    "release_code": "577251034"
+  },
+  "modern": [
+    {
+      "candidate_id": "CP12-FAMILY-274334c38654068cd68962c4",
+      "model_kind": "FIXED_GRAPH",
+      "registered_issue": "202610130328",
+      "train_n": "1200",
+      "validation_n": "120",
+      "validation_last": "202610130021",
+      "task_status": "YIELDED",
+      "last_error": "TRAIN_FEATURE_PAGE",
+      "feature_next": 3,
+      "created_during_release": false
+    },
+    {
+      "candidate_id": "CP12-FAMILY-80f7aad201b109f5414f1e75",
+      "model_kind": "HISTOGRAM_TREE",
+      "registered_issue": "202610130474",
+      "train_n": "1200",
+      "validation_n": "120",
+      "validation_last": "202610130023",
+      "task_status": "YIELDED",
+      "last_error": "TRAIN_FEATURE_PAGE",
+      "feature_next": 16,
+      "created_during_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-0d372d7bbb8cbd6b974e0fbc",
+      "model_kind": "MLP_D32_16_10",
+      "registered_issue": "202610130478",
+      "train_n": "1200",
+      "validation_n": "120",
+      "validation_last": "202610130022",
+      "task_status": "PENDING",
+      "last_error": "",
+      "feature_next": 0,
+      "created_during_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-f2c9e4cb3246f90297b4fe2e",
+      "model_kind": "SOFTMAX_LINEAR",
+      "registered_issue": "202610130484",
+      "train_n": "1200",
+      "validation_n": "120",
+      "validation_last": "202610130022",
+      "task_status": "PENDING",
+      "last_error": "",
+      "feature_next": 0,
+      "created_during_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-395d00de3b257bd91d61d493",
+      "model_kind": "FIXED_GRAPH",
+      "registered_issue": "202610130484",
+      "train_n": "1200",
+      "validation_n": "120",
+      "validation_last": "202610130021",
+      "task_status": "PENDING",
+      "last_error": "",
+      "feature_next": 0,
+      "created_during_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-fe112cad7ea02f555d9ea5cc",
+      "model_kind": "FIXED_GRAPH",
+      "registered_issue": "202610130484",
+      "train_n": "1200",
+      "validation_n": "120",
+      "validation_last": "202610130021",
+      "task_status": "PENDING",
+      "last_error": "",
+      "feature_next": 0,
+      "created_during_release": true
+    }
+  ],
+  "modern_feature_total_now": 19,
+  "modern_feature_new_during_release_lower_bound": 16,
+  "modern_protocols_added": 5,
+  "modern_development_receipts": 0,
+  "modern_optimizer_checkpoints": 0,
+  "modern_artifact_identities": 0,
+  "legacy_artifacts_total": 415,
+  "legacy_artifacts_added": 1,
+  "legacy_outbox_added": [
+    {
+      "target_issue": "202610130474",
+      "state": "PENDING",
+      "created_at": "1791878061046"
+    },
+    {
+      "target_issue": "202610130475",
+      "state": "PENDING",
+      "created_at": "1791878111672"
+    },
+    {
+      "target_issue": "202610130479",
+      "state": "PENDING",
+      "created_at": "1791878396577"
+    },
+    {
+      "target_issue": "202610130483",
+      "state": "PENDING",
+      "created_at": "1791878596284"
+    }
+  ],
+  "legacy_outbox_states": {
+    "COMPLETED": 415,
+    "RETRYABLE_FAILED": 1,
+    "PENDING": 12
+  },
+  "legacy_learning_cursor": [
+    {
+      "consumer_id": "R952:R952-C-c41f6a28c10408b48b88",
+      "trained_until_issue": "202610130092",
+      "artifact_hash": "36b4396ef401abe6c7fbd9d05f37b6c6e872160e9938383db45d3edd424c1384",
+      "last_delivery_hash": "9a10785c6f2e62be36a9168363924ab94a05d83c8ed098da26fadcd5b357eb14",
+      "updated_at": "1791878065414"
+    }
+  ],
+  "ftrl_exactly_once_added": 12,
+  "ftrl_target_issues": [
+    "202610130470",
+    "202610130471",
+    "202610130472",
+    "202610130473",
+    "202610130474",
+    "202610130475",
+    "202610130476",
+    "202610130477",
+    "202610130478",
+    "202610130479",
+    "202610130481",
+    "202610130483"
+  ],
+  "ftrl_latest_payload": "learning_identity=b069df256ff9551e2fb87a6bf9ced8c2600ba210478fd338a7741dbe9afd0470|pre_state_hash=d21c3a6b256ccb4b8c393160f0481881e155d5e1f801944f2638b379978bfcec|post_state_hash=f2662e8a580ece9f3fb6ffe7ab3d75a19cc9ca1e3f1a0288981a7b1493e4318d|trained_until=202610130483|detail=contract=R932_FTRL_DUAL_MEMORY_V1_FIXED_32_64_FIVE_STEPS|label_version=STRICT_OOS_SETTLED_PREDRAW_V1|input_hash=540a3bae0edb95c410038f7db22c8c881376399ffa5bf1f3f03e9aacd4f28f53|updates=1114|tx_hash=7004ea720eac0ecaca6a496c18b4607e6d1f8a12aca78a3ad9ece4b295037665",
+  "limitations": [
+    "REGIME feature cursor is currently3 and was updated after installation; installation-time prefix is not exported, so its exact added row count cannot be inferred.",
+    "MAINTENANCE old taskWatermark is a durable review identity, not the model training cutoff.",
+    "FTRL, legacy online artifact, and modern development are distinct evidence chains.",
+    "Modern development validation is not future calibration or REAL authorization."
+  ]
+}

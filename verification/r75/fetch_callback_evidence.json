@@ -1,0 +1,32 @@
+{
+  "scope": "ACTUAL_SERVICE_CALLBACK_REAL_SQLITE_INJECTED_OWNER_WORK_NOT_DEVICE",
+  "root_cause": "Due retention and storage reclaim ran ahead of SQL verification/capture recovery/continuity within every shared 2000ms callback scope; maintenance work could consume the parent before continuity ever ran.",
+  "baseline_reproduction": "Actual R74 AutoFetchService callback with injected 650ms retention + 1500ms reclaim records [RETENTION,RECLAIM] and yields before continuity.",
+  "fix": "Persistent app_state r75_research_callback_turn rotates continuity/retention/continuity/reclaim, committed before work. Maintenance callbacks return through same finally; existing handler posts one 500ms continuation after maintenance even if no pending lane is visible. Due/cadence checks retained. Non-due maintenance slots run continuity. Parent 2000ms / continuity child 1000ms unchanged.",
+  "checks": 45,
+  "validation": {
+    "baseline": {
+      "source_hashes": {
+        "AutoFetchService.java": "4d543317dc851224f74cfecf9b1dbc705ba1deba729ed80058b934bc5121a7cb",
+        "fetch_callback.java": "0f286882138d9a974becef8b126077037ac9158950851c82adf35eea9148fef4"
+      },
+      "log_path": "verification/r75/reproduction/fetch_callback_baseline_test.log",
+      "log_sha256": "5fae7ab63a9483fa0171a3cb5e529caed7c37630c0aeae8618392a58c985a5bf",
+      "test_exit_code": 1
+    },
+    "fixed": {
+      "source_hashes": {
+        "AutoFetchService.java": "f4f668f7fa7e003ccbffc4a22d6f5e5090b94777b4bb47c697c11d8488e37b45",
+        "fetch_callback.java": "0f286882138d9a974becef8b126077037ac9158950851c82adf35eea9148fef4"
+      },
+      "log_path": "verification/r75/reproduction/fetch_callback_fixed_test.log",
+      "log_sha256": "0cc32c60994b0115f3ba2504861ecb0cede5987137263ba1de267ef994e94ad4",
+      "test_exit_code": 0
+    }
+  },
+  "limitations": [
+    "Only maintenance/training collaborator work is injected; trainer performance or device callback timing is not certified by this fixture.",
+    "Required schema startup and runtime SQL verification still run inside the same 2000ms parent scope.",
+    "Android process/OEM suspension and external source timing require physical device observation."
+  ]
+}

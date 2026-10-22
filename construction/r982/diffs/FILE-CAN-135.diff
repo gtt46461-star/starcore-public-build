@@ -1,0 +1,30 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchFailureEvolutionR965.java b/app/src/main/java/com/ethk3/novaonepro/ResearchFailureEvolutionR965.java
+index 7705bcd..109cc2e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchFailureEvolutionR965.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchFailureEvolutionR965.java
+@@ -107,4 +107,25 @@ public final class ResearchFailureEvolutionR965 {
+         }catch(RuntimeException error){out.append("\nEVOLUTION_REPORT_UNAVAILABLE|").append(error.getClass().getSimpleName());}
+         return out.toString();
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        com.ethk3.novaonepro.ReportTextCP12 out=new com.ethk3.novaonepro.ReportTextCP12(report, "\nR965_R908_EVOLUTION|minimumDiagnosticLabels=12|poorObservedRateBelow=0.34|repairActiveCap=64|replacement=RESOURCE_RETIREMENT|parentRetry=12_NEW_PROOF_BOUND_LABELS|generationCap=NONE|newChildFutureN=0|diagnosticIsNotPromotion=1");
++        try {
++            out.append("\nR966_POPULATION|active=").append(ResearchPopulationR966.activeSnapshotCP4(report, store.readable())).append("|capacity=64|retirement=RESOURCE_NOT_QUALITY|generationCap=NONE");
++            try(Cursor c=report.select("SELECT generation,COUNT(*),SUM(CASE WHEN future_n>0 THEN 1 ELSE 0 END),SUM(state_updates) FROM "+DbHelper.TABLE_R908_ALGORITHM_GENOME+" GROUP BY generation ORDER BY generation",null)) {
++                while(c.moveToNext())out.append("\nALGORITHM_GENERATION|generation=").append(c.getInt(0)).append("|programs=").append(c.getInt(1)).append("|withLiveLabels=").append(c.getInt(2)).append("|numericLiveUpdates=").append(c.getLong(3));
++            }
++            try(Cursor c=report.select("SELECT kind,state,COUNT(*) FROM "+DirectedResearchCreationR932.ATTEMPT+" GROUP BY kind,state",null)) {
++                while(c.moveToNext())out.append("\nCREATION_ATTEMPTS|kind=").append(c.getString(0)).append("|state=").append(c.getString(1)).append("|count=").append(c.getInt(2));
++            }
++            try(Cursor c=report.select("SELECT created_issue,parent_key,child_key,state,reason,plan_json FROM "+DirectedResearchCreationR932.ATTEMPT+" WHERE kind=? ORDER BY created_issue DESC LIMIT 16",new String[]{KIND})) {
++                while(c.moveToNext())out.append("\nFAILURE_REPAIR|issue=").append(c.getString(0)).append("|parent=").append(c.getString(1)).append("|child=").append(c.getString(2)).append("|state=").append(c.getString(3)).append("|reason=").append(c.getString(4)).append("|plan=").append(c.getString(5));
++            }
++            out.append("\nR965_ABLATION_QUEUE|code=").append(store.getState("r965_ablation_source","NOT_RUN")).append("|cursor=").append(store.getState("r932_ablation_cursor","")).append("|current=").append(store.getState("r932_ablation_current","")).append("|module=").append(store.getState("r932_ablation_module","0"));
++            try(Cursor c=report.select("SELECT state_key,state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key LIKE 'r965_research_pruning_%' ORDER BY updated_at DESC LIMIT 32",null)) {
++                while(c.moveToNext())out.append("\nRESEARCH_RETIREMENT_CONTRACT|key=").append(c.getString(0)).append("|contract=").append(c.getString(1));
++            }
++        }catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++        return out.toString();
++    }
+ }

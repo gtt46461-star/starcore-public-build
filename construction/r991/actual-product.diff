@@ -1,0 +1,46 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index 6f6406c..9458aac 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -224,7 +224,17 @@ public final class ReportExportServiceCP4 extends Service {
+     private static void deleteFile(File file)throws IOException{if(file.exists()&&!file.delete())throw new IOException("REPORT_TEMP_CLEANUP");}
+     private static void sync(File file)throws IOException{try(RandomAccessFile io=new RandomAccessFile(file,"rw")){io.getFD().sync();}}
+     private static String boundedReason(String value){if(value==null)return "REPORT_UNCLASSIFIED_FAILURE";return value.length()<=512?value:value.substring(0,512);}
+-    private static String classify(Throwable error){if(error instanceof ReportNativeCP4.Failure){ReportNativeCP4.Failure failure=(ReportNativeCP4.Failure)error;return boundedReason("REPORT_NATIVE_"+failure.stage+"_"+failure.nativeCode);}String text=error.getMessage();return boundedReason(text!=null&&(text.startsWith("REPORT_")||text.startsWith("RETENTION_"))?text:error.getClass().getSimpleName());}
++    private static boolean storageFull(Throwable error){for(int depth=0;error!=null&&depth<16;depth++,error=error.getCause())if(error instanceof android.system.ErrnoException&&((android.system.ErrnoException)error).errno==android.system.OsConstants.ENOSPC)return true;return false;}
++    private static String classify(Throwable error){if(storageFull(error))return "REPORT_STORAGE_FULL";if(error instanceof ReportNativeCP4.Failure){ReportNativeCP4.Failure failure=(ReportNativeCP4.Failure)error;return boundedReason("REPORT_NATIVE_"+failure.stage+"_"+failure.nativeCode);}String text=error.getMessage();return boundedReason(text!=null&&(text.startsWith("REPORT_")||text.startsWith("RETENTION_"))?text:error.getClass().getSimpleName());}
++    private static void recordSafStorageFailure(JSONObject state,Throwable error,String reason)throws Exception {
++        if(!reason.equals("REPORT_STORAGE_FULL"))return;
++        // Retain the original typed errno without persisting arbitrary provider text/credentials.
++        StringBuilder detail=new StringBuilder();for(int depth=0;error!=null&&depth<16;depth++,error=error.getCause()){
++            if(detail.length()>0)detail.append(" -> ");detail.append(error.getClass().getSimpleName());
++            if(error instanceof android.system.ErrnoException){int errno=((android.system.ErrnoException)error).errno;detail.append("(errno=").append(errno);if(errno==android.system.OsConstants.ENOSPC)detail.append(",ENOSPC");detail.append(')');}
++        }
++        state.put("failureDetail",boundedReason(detail.toString()));state.put("recovery","FREE_DESTINATION_SPACE_AND_START_NEW_SAF_TRANSFER");
++    }
+     private void requireDiagnosticProcess()throws IOException{if(!(getPackageName()+":diagnostics").equals(processName()))throw new IOException("REPORT_WRONG_PROCESS");}
+     private String processName(){if(Build.VERSION.SDK_INT>=28)return Application.getProcessName();ActivityManager manager=(ActivityManager)getSystemService(ACTIVITY_SERVICE);List<ActivityManager.RunningAppProcessInfo> processes=manager.getRunningAppProcesses();if(processes!=null)for(ActivityManager.RunningAppProcessInfo p:processes)if(p.pid==android.os.Process.myPid())return p.processName;return "UNKNOWN";}
+     private final class ActiveControl implements ReportNativeCP4.Control {
+@@ -277,9 +287,9 @@ public final class ReportExportServiceCP4 extends Service {
+                 state.put("state","VERIFIED_READBACK");state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
+                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);
+             }
+-        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);
++        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);
+             boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}
+-            boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL");if(state.optInt("preemptions",0)>30)state.put("reason","REPORT_PREEMPTION_LIMIT");
++            boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL")&&!reason.equals("REPORT_STORAGE_FULL");if(state.optInt("preemptions",0)>30)state.put("reason","REPORT_PREEMPTION_LIMIT");
+             state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.removeHead(root,transfer);
+         }finally{control=null;}
+     }
+@@ -319,8 +329,8 @@ public final class ReportExportServiceCP4 extends Service {
+                 state.put("state","VERIFIED_READBACK");state.put("allVolumesSaved",true);state.put("volumeCount",total);state.put("manifestSha256",index.getString("manifestSha256"));state.put("verifiedWallMs",System.currentTimeMillis());
+                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);
+             }
+-        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");
+-            if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL");
++        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");
++            if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL")&&!reason.equals("REPORT_STORAGE_FULL");
+             state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");state.put("allVolumesSaved",false);ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.removeHead(root,transfer);
+         }finally{control=null;}
+     }

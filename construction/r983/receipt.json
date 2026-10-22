@@ -1,0 +1,101 @@
+{
+  "status": "PASS",
+  "source_commit": "f1acfd139e1ceff1263630a360946afef5d7c050",
+  "executions": [
+    {
+      "execution": "compile",
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/adapters",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/android/database/sqlite/SQLiteDatabase.java",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/canonical/adapters/android/util/Base64.java",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r982/FrozenAtomFixtureR982.java",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r982/PairedCertificateFixtureR982.java",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/CertificateExecutionFixtureR982.java",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/CertificateMainlineGuardsR982.java",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/CertificateMainlineProbeR982.java"
+      ],
+      "exit_code": 0
+    },
+    {
+      "execution": "CertificateExecutionFixtureR982",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Dstarcore.test.ast=/workspace/scratch/90fcb975db9a/evidence/training-fixture-ast.txt",
+        "-cp",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/adapters:/workspace/scratch/90fcb975db9a/evidence/mainline-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.CertificateExecutionFixtureR982",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/typed_live_bridge.py",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/fixture.db"
+      ],
+      "exit_code": 0
+    },
+    {
+      "execution": "CertificateMainlineProbeR982",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Dstarcore.test.ast=/workspace/scratch/90fcb975db9a/evidence/training-fixture-ast.txt",
+        "-cp",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/adapters:/workspace/scratch/90fcb975db9a/evidence/mainline-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.CertificateMainlineProbeR982",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/typed_live_bridge.py",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/fixture.db"
+      ],
+      "exit_code": 0
+    },
+    {
+      "execution": "CertificateMainlineGuardsR982-repeat",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Dstarcore.test.ast=/workspace/scratch/90fcb975db9a/evidence/training-fixture-ast.txt",
+        "-cp",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/adapters:/workspace/scratch/90fcb975db9a/evidence/mainline-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/typed_live_bridge.py",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/repeat.db",
+        "repeat"
+      ],
+      "exit_code": 0
+    },
+    {
+      "execution": "CertificateMainlineGuardsR982-revoke",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Dstarcore.test.ast=/workspace/scratch/90fcb975db9a/evidence/training-fixture-ast.txt",
+        "-cp",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/adapters:/workspace/scratch/90fcb975db9a/evidence/mainline-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/typed_live_bridge.py",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/revoke.db",
+        "revoke"
+      ],
+      "exit_code": 0
+    },
+    {
+      "execution": "CertificateMainlineGuardsR982-draw",
+      "command": [
+        "java",
+        "-Xmx512m",
+        "-Dstarcore.test.ast=/workspace/scratch/90fcb975db9a/evidence/training-fixture-ast.txt",
+        "-cp",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/adapters:/workspace/scratch/90fcb975db9a/evidence/mainline-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/90fcb975db9a/starcore/verification/r983/typed_live_bridge.py",
+        "/workspace/scratch/90fcb975db9a/evidence/mainline-reproducible-runner/draw.db",
+        "draw"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "product_sha256": "9c74cc8de8676377cfd8821649c05b43b159df0366cb14c19b3825344618437b",
+  "fixture_sha256": "9be7449f6ec2e0e4402bc1bade4d8c25cf59c584ee1faeae3dce2db419e3a212",
+  "ast_sha256": "395d00de3b257bd91d61d493aa4d44745c8d52021739b422d02af72e08b42e3a",
+  "scope": "Host SQLite synthetic 360 Future rows, real product publishers/authorization/choice consumer/race fences. No REAL authorization, natural Future, or Android scenario claim."
+}

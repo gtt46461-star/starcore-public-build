@@ -1,0 +1,98 @@
+{
+  "scope": "SYNTHETIC_HOST_ACTUAL_PRODUCT_NO_DEVICE_OR_USER_BET",
+  "fixture_sha256": "79dd302390192306d765ce7c99be89f8ed73ba5cc702e036dc9696bd2abf5f6b",
+  "sources": {
+    "verification/r983/android/database/sqlite/SQLiteDatabase.java": "0e9b21d36ccee1209f316692f4e9bf69fe551ee385248594340fe65abd7e5963",
+    "verification/r983/android/os/Process.java": "04d2575f7e519f5535aba9b03c5e1345a8dd10f484e53d409f820bfddfde8205",
+    "verification/r983/CertificateMainlineProbeR982.java": "f2b36bf7e9a6cf350c2292814dd30922d9210b5a069718047cf57108c8feff3d",
+    "verification/r983/CertificateMainlineGuardsR982.java": "0d8da693aef04e6d9cf7dff0335b9a6d46f12078ba9c1835b243c85e34d6aae2",
+    "verification/r70/CertifiedBetClosureR70.java": "f7316d8bff446621215c831b04c5941b5377361c3721e6ec038cbc56cd36fddc"
+  },
+  "compile_command": [
+    "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/javac",
+    "-cp",
+    "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+    "-d",
+    "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes",
+    "/workspace/scratch/7a6032548233/starcore/verification/r983/android/database/sqlite/SQLiteDatabase.java",
+    "/workspace/scratch/7a6032548233/starcore/verification/r983/android/os/Process.java",
+    "/workspace/scratch/7a6032548233/starcore/verification/r983/CertificateMainlineProbeR982.java",
+    "/workspace/scratch/7a6032548233/starcore/verification/r983/CertificateMainlineGuardsR982.java",
+    "/workspace/scratch/7a6032548233/starcore/verification/r70/CertifiedBetClosureR70.java"
+  ],
+  "tests": [
+    {
+      "test": "CertificateMainlineProbeR982",
+      "command": [
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "com.ethk3.novaonepro.CertificateMainlineProbeR982",
+        "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/CertificateMainlineProbeR982.db"
+      ],
+      "exit_code": 0,
+      "log_sha256": "9ac17af6874cd806e70e2b526bd4061b1e4b3af0ea2778770871f8787f74a576"
+    },
+    {
+      "test": "CertificateMainlineGuardsR982-repeat",
+      "command": [
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/CertificateMainlineGuardsR982-repeat.db",
+        "repeat"
+      ],
+      "exit_code": 0,
+      "log_sha256": "99fdec2ba186e4dcb5c7c45d56a0520c5456d397175c174cd898e884c424d0c1"
+    },
+    {
+      "test": "CertificateMainlineGuardsR982-revoke",
+      "command": [
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/CertificateMainlineGuardsR982-revoke.db",
+        "revoke"
+      ],
+      "exit_code": 0,
+      "log_sha256": "97171e790ffaff35ecb421b0df1e812162357f8ba66e5874640882c0a1e6e2a5"
+    },
+    {
+      "test": "CertificateMainlineGuardsR982-draw",
+      "command": [
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/CertificateMainlineGuardsR982-draw.db",
+        "draw"
+      ],
+      "exit_code": 0,
+      "log_sha256": "0ce8d466d417dfe027fa71896c9c46e0a839aa1a5e8a65b8a2633fce6089545d"
+    },
+    {
+      "test": "CertifiedBetClosureR70",
+      "command": [
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "com.ethk3.novaonepro.CertifiedBetClosureR70",
+        "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/e2544c9906f6/r75-final-certified-mainline/CertifiedBetClosureR70.db"
+      ],
+      "exit_code": 0,
+      "log_sha256": "dbb318facaccd02f51129b339280feeeee183a413d2b5e83cdfbbcd4d5210d16"
+    }
+  ]
+}

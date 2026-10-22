@@ -1,0 +1,21 @@
+package com.ethk3.novaonepro;
+import java.io.*;import java.nio.file.*;import java.nio.charset.StandardCharsets;import java.util.*;
+public final class RetentionIoContractCP12 {
+ static final String H="a".repeat(64),SNAP="b".repeat(64);static int checks;static void ok(boolean b){checks++;if(!b)throw new AssertionError("check"+checks);}static void fails(Task b)throws Exception{checks++;try{b.run();}catch(IOException expected){return;}throw new AssertionError("invalidaccepted");}interface Task{void run()throws Exception;}
+ static void bytes(DataOutputStream d,byte[] b)throws IOException{d.writeInt(b.length);d.write(b);}static void str(DataOutputStream d,String b)throws IOException{bytes(d,b.getBytes(StandardCharsets.UTF_8));}
+ public static void main(String[] args)throws Exception{
+  Path root=Path.of(args[0]);Files.createDirectories(root);File file=root.resolve("stream.scrow").toFile();
+  RetentionRowCodecCP5.TableShape shape=new RetentionRowCodecCP5.TableShape("diagnostic_log",H,"UTF-8",Arrays.asList("log_key","detail"),Arrays.asList("log_key"),SNAP);
+  RetentionRowCodecCP5.RowSource rows=new RetentionRowCodecCP5.RowSource(){int row=-1;public boolean next(){return ++row<2;}public byte[] canonicalKey()throws IOException{return RetentionRowCodecCP5.primaryKey(shape,this);}public int type(int col){return col==0?3:4;}public long length(int col){return col==0?5:(12L<<20);}public long scalarBits(int col){throw new AssertionError();}public int readBytes(int col,long offset,byte[] b,int want){if(col==0){byte[] key=(row==0?"log-A":"log-B").getBytes(StandardCharsets.UTF_8);int n=Math.min(want,key.length-(int)offset);System.arraycopy(key,(int)offset,b,0,n);return n;}int n=(int)Math.min(want,(12L<<20)-offset);for(int i=0;i<n;i++)b[i]=(byte)((offset+i+row)%251);return n;}};
+  RetentionRowCodecCP5.ArchiveDigest emitted;try(FileOutputStream out=new FileOutputStream(file)){emitted=RetentionRowCodecCP5.writeTable(shape,rows,out,()->{});}
+  RetentionArchiveProtocolCP12.Page page=new RetentionArchiveProtocolCP12.Page("diagnostic_log","202601010001",1,H,ReleaseManifestR926.MANIFEST_SHA256,RetentionTableRegistryCP12.HASH,Arrays.asList(new RetentionArchiveProtocolCP12.RowVersion(1,12),new RetentionArchiveProtocolCP12.RowVersion(2,18)));
+  RetentionArchiveProtocolCP12.Receipt receipt=RetentionArchiveIoCP12.verifyPreparedFile(file,page,SNAP,()->true);ok(receipt.members.size()==2);ok(receipt.archiveHash.equals(emitted.rawSha256));ok(receipt.byteCount>24L<<20);ok(receipt.chainRoot.equals(emitted.rowHashChainRoot));
+  byte[] key=receipt.members.get(0).key();key[0]=0;ok(receipt.members.get(0).key()[0]==1);
+  fails(()->RetentionArchiveIoCP12.verifyPreparedFile(file,page,H,()->true));fails(()->RetentionArchiveIoCP12.verifyPreparedFile(file,page,SNAP,()->false));
+  File binary=root.resolve("reply.receipt").toFile();try(DataOutputStream out=new DataOutputStream(new FileOutputStream(binary))){out.writeInt(0x53435232);str(out,receipt.page.requestJson);str(out,receipt.archiveHash);out.writeLong(receipt.byteCount);str(out,receipt.snapshotHash);str(out,receipt.chainRoot);out.writeLong(receipt.verifiedAt);out.writeInt(receipt.members.size());for(RetentionArchiveProtocolCP12.Member m:receipt.members){out.writeLong(m.rowId);out.writeLong(m.generation);bytes(out,m.key());str(out,m.rowHash);}str(out,receipt.manifestHash);}
+  RetentionArchiveProtocolCP12.Receipt reread=RetentionArchiveIoCP12.readReceipt(binary);ok(reread.manifestHash.equals(receipt.manifestHash));ok(reread.members.get(1).generation==18);
+  try(RandomAccessFile tamper=new RandomAccessFile(binary,"rw")){tamper.seek(tamper.length());tamper.write(1);}fails(()->RetentionArchiveIoCP12.readReceipt(binary));
+  try(RandomAccessFile tamper=new RandomAccessFile(file,"rw")){tamper.seek(tamper.length()-1);tamper.write(1);}fails(()->RetentionArchiveIoCP12.verifyPreparedFile(file,page,SNAP,()->true));
+  Files.writeString(Path.of(args[1]),"{\"status\":\"PASS\",\"assertions\":"+checks+",\"streamed_payload_bytes\":25165824,\"host_heap_cap_bytes\":33554432,\"scope\":\"Actual Java SCROW streaming write/independent IO verifier, largecells24MiB under32MiB heap, manifest/member/reply identity, cancellation, tamper/trailing rejection. Android native run/Os fsync/Service not claimed by this hosttest.\"}\n");
+ }
+}

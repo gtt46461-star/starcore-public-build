@@ -1,0 +1,64 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java b/app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java
+index 7fea921..c3e5ced 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java
+@@ -85,4 +85,59 @@ public final class RealtimePressureGateR811 {
+             underPressure = pressure;
+         }
+     }
++
++    private static final Object REPORT_PRESSURE_LOCK_CP4=new Object();
++    private static java.io.File reportRootCP4;
++    private static String sessionCP4="",ownerCP4="";
++    private static long generationCP4,lastPublishedCP4;
++    static void configureCrossProcess(android.content.Context context){
++        if(context==null)throw new IllegalArgumentException("APPLICATION_CONTEXT_REQUIRED");
++        reportRootCP4=new java.io.File(context.getFilesDir(),"r981_reports");
++    }
++    static void initializeCrossProcessOffMain(){
++        synchronized(REPORT_PRESSURE_LOCK_CP4){ensureSessionCP4();}
++    }
++    private static void ensureSessionCP4(){
++        if(!sessionCP4.isEmpty()||reportRootCP4==null)return;
++        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())
++            throw new IllegalStateException("CP4_PRESSURE_IO_MAIN");
++        try{
++            String created=java.util.UUID.randomUUID().toString();
++            org.json.JSONObject j=new org.json.JSONObject();j.put("session",created);
++            j.put("pid",android.os.Process.myPid());j.put("startElapsed",android.os.SystemClock.elapsedRealtime());
++            atomicJsonCP4("runtime-session.json",j);sessionCP4=created;
++        }catch(Exception e){android.util.Log.e("CP4Pressure","SESSION_WRITE_FAILED",e);}
++    }
++    static void beginCrossProcess(String owner,long generation){
++        synchronized(REPORT_PRESSURE_LOCK_CP4){ensureSessionCP4();ownerCP4=owner;generationCP4=generation;publishCP4(true);}
++    }
++    static void renewCrossProcess(String owner,long generation){
++        synchronized(REPORT_PRESSURE_LOCK_CP4){
++            if(!ownerCP4.equals(owner)||generationCP4!=generation)return;
++            if(android.os.SystemClock.elapsedRealtime()-lastPublishedCP4>=250L)publishCP4(true);
++        }
++    }
++    static void endCrossProcess(String owner,long generation){
++        synchronized(REPORT_PRESSURE_LOCK_CP4){
++            if(!ownerCP4.equals(owner)||generationCP4!=generation)return;
++            publishCP4(false);ownerCP4="";generationCP4=0;
++        }
++    }
++    private static void publishCP4(boolean active){
++        if(sessionCP4.isEmpty()||reportRootCP4==null)return;
++        long now=android.os.SystemClock.elapsedRealtime();
++        try{
++            org.json.JSONObject j=new org.json.JSONObject();j.put("session",sessionCP4);
++            j.put("leaseGeneration",generationCP4);j.put("owner",ownerCP4);
++            j.put("elapsedRealtimeMs",now);j.put("validUntilElapsedMs",active?now+2000L:now);
++            atomicJsonCP4("realtime-pressure.json",j);lastPublishedCP4=now;
++        }catch(Exception e){android.util.Log.e("CP4Pressure","PRESSURE_WRITE_FAILED",e);}
++    }
++    private static void atomicJsonCP4(String name,org.json.JSONObject j)throws Exception{
++        if(!reportRootCP4.isDirectory()&&!reportRootCP4.mkdirs())throw new java.io.IOException("CP4_PRESSURE_DIR");
++        android.util.AtomicFile file=new android.util.AtomicFile(new java.io.File(reportRootCP4,name));
++        java.io.FileOutputStream out=null;
++        try{out=file.startWrite();out.write(j.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));file.finishWrite(out);}
++        catch(Exception failure){if(out!=null)file.failWrite(out);throw failure;}
++    }
+ }

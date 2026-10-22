@@ -1,0 +1,40 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java b/app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java
+index 44f796a..5be7c04 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java
+@@ -47,9 +47,13 @@ public final class CertifiedPredictionR974 {
+             FrozenCandidateAdapterR958.Frozen f=FrozenCandidateAdapterR958.load(store.readable(),id);
+             if(f==null||!f.structure.equals(structure))return "FROZEN_IDENTITY_MISMATCH";
+             if(!ResearchEvaluationRunR967.consumerCompatible(store.readable(),id,target))return "OUTSIDE_EVALUATED_DOMAIN_OR_RUN";
+-            com.ethk3.novaonepro.r952.PITSnapshotContractR952 pit=com.ethk3.novaonepro.r952.PITSnapshotContractR952.capture(store,target,f.ast.lookback);
++            com.ethk3.novaonepro.r952.PITSnapshotContractR952 pit=com.ethk3.novaonepro.r952.PITSnapshotContractR952.capture(store,target,f.ast.formatVersion==3?5000:f.ast.lookback);
+             if(!TargetIssueResolver.exact(pit.lastIssue,target).valid)return "CURRENT_BASE_NOT_AVAILABLE";
+-            FrozenCandidateAdapterR958.score(f.ast,f.model,pit.history,false);
++            if(f.ast.formatVersion==3){
++                try(com.ethk3.novaonepro.r952.FrozenGraphContextCP4 ctx=FrozenCandidateAdapterR958.prepareContextCP8(store.readable(),f,pit,System.currentTimeMillis())){
++                    FrozenCandidateAdapterR958.score(f.ast,f.model,pit,ctx,false);
++                }
++            }else FrozenCandidateAdapterR958.score(f.ast,f.model,pit.history,false);
+             return "";
+         }catch(ResearchWorkBudgetR927.Yield yielded){throw yielded;}
+         catch(RuntimeException failure){return "EXACT_EXECUTION:"+failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());}
+@@ -69,9 +73,7 @@ public final class CertifiedPredictionR974 {
+             if(!certificateContract(store.readable(),e.certificate))throw new IllegalStateException("R974_CERTIFICATE_GATES_INVALID");
+             FrozenCandidateAdapterR958.Frozen f=FrozenCandidateAdapterR958.load(store.readable(),e.id);
+             if(f==null||!f.structure.equals(e.structure)||!ResearchEvaluationRunR967.consumerCompatible(store.readable(),f.id,context.targetIssue))throw new IllegalStateException("R974_FROZEN_MODEL_INCOMPATIBLE");
+-            FrozenConsumerRecipeR932.Recipe original=FrozenCandidateAdapterR958.recipe(store,f,e,.05,context.baseIssue,context.targetIssue);
+-            JSONObject json=new JSONObject(original.encoded);json.put("lane",LANE);json.put("weight",1.0);
+-            FrozenConsumerRecipeR932.Recipe exact=new FrozenConsumerRecipeR932.Recipe(json);
++            FrozenConsumerRecipeR932.Recipe exact=FrozenCandidateAdapterR958.recipeLaneCP12(store,f,e,1.0,context.baseIssue,context.targetIssue,LANE);
+             FrozenConsumerRecipeR932.Mixed mixed=rank(exact,actions);
+             Proof proof=new Proof(e,f,context,exact.encoded,mixed.rankOne,request);
+             if(proof.expired())throw new IllegalStateException("R974_EXACT_PREDICTION_EXPIRED");
+@@ -90,7 +92,7 @@ public final class CertifiedPredictionR974 {
+         String structure=ResearchEvaluationRunR967.versioned(recipe.id)?ResearchEvaluationRunR967.evaluationHash(ast,model,recipe.evaluationRule,recipe.evaluationEpoch):FrozenCandidateAdapterR958.structure(ast,model);
+         String prefix=ResearchEvaluationRunR967.versioned(recipe.id)?ResearchEvaluationRunR967.frozenPrefix(recipe.id):FrozenCandidateAdapterR958.PREFIX;
+         if(!structure.equals(recipe.structure)||!recipe.id.equals(prefix+structure.substring(0,24)))throw new IllegalStateException("R974_EXACT_MODEL_IDENTITY");
+-        final double[] scores=FrozenCandidateAdapterR958.score(ast,model,recipe.frozenHistory,false).scores;
++        final double[] scores=FrozenCandidateAdapterR958.scoreRecipeCP8(recipe,ast,model).scores;
+         K3ActionSpaceEngine.validateOrThrow(actions);Integer[] order=new Integer[1200];
+         for(int i=0;i<1200;i++)order[i]=i;
+         Arrays.sort(order,(a,b)->{int x=K3ActionSpaceEngine.globalOrdinal(actions[a].position,actions[a].n1,actions[a].n2,actions[a].n3),y=K3ActionSpaceEngine.globalOrdinal(actions[b].position,actions[b].n1,actions[b].n2,actions[b].n3);int d=Double.compare(scores[y],scores[x]);return d!=0?d:Integer.compare(x,y);});

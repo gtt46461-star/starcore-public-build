@@ -1,0 +1,195 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
+@@ -17,11 +17,22 @@
+             throw new IllegalStateException("R932_CHOICE_REQUEST_SCOPE");
+         try {
+             ResearchPlatformStoreR929.ensureSchema(store);
++            final String bundle=ModelBundleRuntimeR932.current().hash;
++            try(Cursor previous=store.readable().rawQuery("SELECT bundle_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
++                if(previous.moveToFirst()){
++                    if(!bundle.equals(previous.getString(0)))throw new IllegalStateException("R932_CHOICE_BUNDLE_DRIFT");
++                    publishFreezeStatus(store,target,currentChoiceReasonCP12(store,target));return true;
++                }
++            }
++            // Modern graph preparation/inference forbids a writer transaction. Prepare
++            // executable candidates before acquiring the existing canonical write owner.
++            final PreparedChoiceCP12 prepared=prepareChoiceCP12(store,target,bundle);
++            final String[] commitFailure={"RESEARCH_OVERLAY_DISABLED_WRITE_FAILED"};
+             Boolean ok=store.coordinatorR36().runAtomicWrite(
+                     "R932_FREEZE_ONE_RESEARCH_CONSUMER",
+                     new DatabaseCoordinator.WriteCallable<Boolean>(){
+                         public Boolean call(SQLiteDatabase db){
+-                            String bundle=ModelBundleRuntimeR932.current().hash;
++                            if(!bundle.equals(ModelBundleRuntimeR932.current().hash))throw new IllegalStateException("R932_CHOICE_BUNDLE_DRIFT");
+                             try(Cursor c=db.rawQuery("SELECT bundle_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
+                                 if(c.moveToFirst()){
+                                     if(!bundle.equals(c.getString(0)))throw new IllegalStateException("R932_CHOICE_BUNDLE_DRIFT");
+@@ -29,60 +40,32 @@
+                                 }
+                             }
+                             try(Cursor draw=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue=? LIMIT 1",new String[]{target})){
+-                                if(draw.moveToFirst())throw new IllegalStateException("R932_CHOICE_POSTDRAW_REJECTED");
+-                            }
+-                            String consumer="",candidate="",certificate="";
+-                            StringBuilder roster=new StringBuilder("CP12_LCB_BRIER_LATENCY_ID|").append(target).append('|').append(bundle);
+-                            try(Cursor c=db.rawQuery(
+-                                    "SELECT c.consumer,c.candidate_id,c.structural_hash,c.certificate_hash FROM "
+-                                            +ResearchPlatformStoreR929.TABLE_CERTIFICATE
+-                                            +" c WHERE c.state='ACTIVE' AND c.bundle_hash=? AND c.issued_at<? AND c.maximum_weight>0 AND c.all_gates_pass=1"
+-                                            +(ResearchGatePlanR967.installed().isCp3?"":" AND NOT EXISTS(SELECT 1 FROM "+ResearchCohortR932.CHAMPION+" f WHERE f.family=c.family_id AND f.candidate_key<>(CASE c.consumer WHEN 'INVENTED_ALGORITHM' THEN 'algorithm:' WHEN 'GENESIS_ASSET' THEN 'genesis:' ELSE 'formula:' END)||c.candidate_id)")
+-                                            +" AND c.consumer='INVENTED_ALGORITHM' AND c.candidate_id LIKE 'R958-F-%' ORDER BY COALESCE((SELECT observed FROM "+ResearchPlatformStoreR929.TABLE_CERT_GATE+" WHERE certificate_hash=c.certificate_hash AND gate_id='WILSON_LOWER'),-1) DESC,"
+-                                            +" COALESCE((SELECT observed FROM "+ResearchPlatformStoreR929.TABLE_CERT_GATE+" WHERE certificate_hash=c.certificate_hash AND gate_id='BRIER'),1) ASC,"
+-                                            +" COALESCE((SELECT observed FROM "+ResearchPlatformStoreR929.TABLE_CERT_GATE+" WHERE certificate_hash=c.certificate_hash AND gate_id='RESOURCE_LATENCY_P95_MS'),1e99) ASC,"
+-                                            +" c.candidate_id ASC,c.certificate_hash ASC LIMIT 96",
+-                                    new String[]{bundle,String.valueOf(ModelBundleRuntimeR932.capturedAt())})){
+-                                while(c.moveToNext()){
+-                                    ResearchWorkBudgetR927.checkpoint();
+-                                    if("INVENTED_ALGORITHM".equals(c.getString(0))&&c.getString(1).startsWith(FrozenCandidateAdapterR958.PREFIX)){
+-                                        String unavailable=CertifiedPredictionR974.executableReason(store,c.getString(1),c.getString(2),target);
+-                                        if(!unavailable.isEmpty()){
+-                                            roster.append('|').append(c.getString(1)).append(':').append(unavailable);
+-                                            db.execSQL("INSERT OR IGNORE INTO r974_prediction_rejection VALUES(?,?,?,?,?)",new Object[]{target,c.getString(1),c.getString(3),unavailable,System.currentTimeMillis()});
+-                                            continue;
+-                                        }
+-                                    }
+-                                    if(!ResearchEvaluationRunR967.consumerCompatible(db,c.getString(1),target)){roster.append('|').append(c.getString(3)).append(":OUTSIDE_STATIC_DOMAIN_OR_RUN");continue;}
+-                                    CertificateBundleServiceR929.Consumer type;
+-                                    try{type=CertificateBundleServiceR929.Consumer.valueOf(c.getString(0));}
+-                                    catch(IllegalArgumentException invalid){
+-                                        roster.append('|').append(c.getString(3)).append(":INVALID_CONSUMER");
+-                                        continue;
+-                                    }
+-                                    ResearchPlatformStoreR929.Authorization auth=
+-                                            ResearchPlatformStoreR929.authorizeCurrent(
+-                                                    store,type,c.getString(1),c.getString(2),target,.30);
+-                                    roster.append('|').append(c.getString(3)).append(':')
+-                                            .append(auth.authorized).append(':').append(auth.grantedWeight);
+-                                    if(auth.authorized){
+-                                        consumer=type.name();candidate=c.getString(1);certificate=c.getString(3);
+-                                        break;
+-                                    }
++                                if(draw.moveToFirst()){
++                                    commitFailure[0]="R932_CHOICE_POSTDRAW_REJECTED";
++                                    throw new IllegalStateException(commitFailure[0]);
+                                 }
+                             }
++                            if(!prepared.consumer.isEmpty()){
++                                ResearchPlatformStoreR929.Authorization current=ResearchPlatformStoreR929.authorizeCurrent(
++                                        store,CertificateBundleServiceR929.Consumer.valueOf(prepared.consumer),prepared.candidate,prepared.structure,target,.30);
++                                if(!current.authorized||!prepared.certificate.equals(current.certificateHash)){
++                                    commitFailure[0]="R932_CHOICE_PREPARED_CERTIFICATE_CHANGED:"+current.reason;
++                                    throw new IllegalStateException(commitFailure[0]);
++                                }
++                            }
++                            for(String[] rejected:prepared.rejections)db.execSQL("INSERT OR IGNORE INTO r974_prediction_rejection VALUES(?,?,?,?,?)",
++                                    new Object[]{target,rejected[0],rejected[1],rejected[2],System.currentTimeMillis()});
+                             db.execSQL("INSERT INTO "+TABLE+" VALUES(?,?,?,?,?,?,?)",
+-                                    new Object[]{target,bundle,consumer,candidate,certificate,
+-                                            V51ChecksumEngine.sha256(roster.toString()),
+-                                            System.currentTimeMillis()});
++                                    new Object[]{target,bundle,prepared.consumer,prepared.candidate,prepared.certificate,
++                                            prepared.rosterHash,System.currentTimeMillis()});
+                             return Boolean.TRUE;
+                         }
+                     },Boolean.FALSE);
+             if(Boolean.TRUE.equals(ok)){
+-                publishFreezeStatus(store,target,"FROZEN_OR_EMPTY_SAFE");
++                publishFreezeStatus(store,target,currentChoiceReasonCP12(store,target));
+                 return true;
+             }
+-            publishFreezeStatus(store,target,"RESEARCH_OVERLAY_DISABLED_WRITE_FAILED");
++            publishFreezeStatus(store,target,commitFailure[0]);
+             return false;
+         } catch(ResearchWorkBudgetR927.Yield yielded){
+             publishFreezeStatus(store,target,"RESEARCH_OVERLAY_YIELD_P0");
+@@ -91,9 +74,87 @@
+             publishFreezeStatus(store,target,"RESEARCH_OVERLAY_YIELD_DEADLINE");
+             return false;
+         } catch(RuntimeException unavailable){
+-            publishFreezeStatus(store,target,"RESEARCH_OVERLAY_UNAVAILABLE_"+unavailable.getClass().getSimpleName());
+-            return false;
+-        }
++            publishFreezeStatus(store,target,"RESEARCH_OVERLAY_UNAVAILABLE_"+unavailable.getClass().getSimpleName()+":"+String.valueOf(unavailable.getMessage()));
++            return false;
++        }
++    }
++    private static final class PreparedChoiceCP12 {
++        final String consumer,candidate,structure,certificate,rosterHash;
++        final List<String[]> rejections;
++        PreparedChoiceCP12(String consumer,String candidate,String structure,String certificate,String rosterHash,List<String[]> rejections){
++            this.consumer=consumer;this.candidate=candidate;this.structure=structure;this.certificate=certificate;this.rosterHash=rosterHash;
++            ArrayList<String[]> copy=new ArrayList<String[]>();for(String[] r:rejections)copy.add(r.clone());this.rejections=Collections.unmodifiableList(copy);
++        }
++    }
++    /** Pure bounded preflight. Failure receipts are committed later with the choice. */
++    private static PreparedChoiceCP12 prepareChoiceCP12(DbStore store,String target,String bundle){
++        if(store.readable().inTransaction())throw new IllegalStateException("R932_CHOICE_PREFLIGHT_REQUIRES_NO_WRITER");
++        String consumer="",candidate="",structure="",certificate="";
++        ArrayList<String[]> rejections=new ArrayList<String[]>();
++        StringBuilder roster=new StringBuilder("CP12_LCB_BRIER_LATENCY_ID|").append(target).append('|').append(bundle);
++        try(Cursor c=store.readable().rawQuery(
++                "SELECT c.consumer,c.candidate_id,c.structural_hash,c.certificate_hash FROM "
++                        +ResearchPlatformStoreR929.TABLE_CERTIFICATE
++                        +" c WHERE c.state='ACTIVE' AND c.bundle_hash=? AND c.issued_at<? AND c.maximum_weight>0 AND c.all_gates_pass=1"
++                        +(ResearchGatePlanR967.installed().isCp3?"":" AND NOT EXISTS(SELECT 1 FROM "+ResearchCohortR932.CHAMPION+" f WHERE f.family=c.family_id AND f.candidate_key<>(CASE c.consumer WHEN 'INVENTED_ALGORITHM' THEN 'algorithm:' WHEN 'GENESIS_ASSET' THEN 'genesis:' ELSE 'formula:' END)||c.candidate_id)")
++                        +" AND c.consumer='INVENTED_ALGORITHM' AND c.candidate_id LIKE 'R958-F-%' ORDER BY COALESCE((SELECT observed FROM "+ResearchPlatformStoreR929.TABLE_CERT_GATE+" WHERE certificate_hash=c.certificate_hash AND gate_id='WILSON_LOWER'),-1) DESC,"
++                        +" COALESCE((SELECT observed FROM "+ResearchPlatformStoreR929.TABLE_CERT_GATE+" WHERE certificate_hash=c.certificate_hash AND gate_id='BRIER'),1) ASC,"
++                        +" COALESCE((SELECT observed FROM "+ResearchPlatformStoreR929.TABLE_CERT_GATE+" WHERE certificate_hash=c.certificate_hash AND gate_id='RESOURCE_LATENCY_P95_MS'),1e99) ASC,"
++                        +" c.candidate_id ASC,c.certificate_hash ASC LIMIT 96",
++                new String[]{bundle,String.valueOf(ModelBundleRuntimeR932.capturedAt())})){
++            while(c.moveToNext()){
++                ResearchWorkBudgetR927.checkpoint();
++                if("INVENTED_ALGORITHM".equals(c.getString(0))&&c.getString(1).startsWith(FrozenCandidateAdapterR958.PREFIX)){
++                    String unavailable=CertifiedPredictionR974.executableReason(store,c.getString(1),c.getString(2),target);
++                    if(!unavailable.isEmpty()){
++                        roster.append('|').append(c.getString(1)).append(':').append(unavailable);
++                        rejections.add(new String[]{c.getString(1),c.getString(3),unavailable});continue;
++                    }
++                }
++                if(!ResearchEvaluationRunR967.consumerCompatible(store.readable(),c.getString(1),target)){roster.append('|').append(c.getString(3)).append(":OUTSIDE_STATIC_DOMAIN_OR_RUN");rejections.add(new String[]{c.getString(1),c.getString(3),"OUTSIDE_STATIC_DOMAIN_OR_RUN"});continue;}
++                CertificateBundleServiceR929.Consumer type;
++                try{type=CertificateBundleServiceR929.Consumer.valueOf(c.getString(0));}
++                catch(IllegalArgumentException invalid){roster.append('|').append(c.getString(3)).append(":INVALID_CONSUMER");rejections.add(new String[]{c.getString(1),c.getString(3),"INVALID_CONSUMER"});continue;}
++                ResearchPlatformStoreR929.Authorization auth=ResearchPlatformStoreR929.authorizeCurrent(store,type,c.getString(1),c.getString(2),target,.30);
++                roster.append('|').append(c.getString(3)).append(':').append(auth.authorized).append(':').append(auth.grantedWeight);
++                if(auth.authorized){consumer=type.name();candidate=c.getString(1);structure=c.getString(2);certificate=c.getString(3);break;}
++                rejections.add(new String[]{c.getString(1),c.getString(3),"AUTHORIZE_CURRENT_REJECTED:"+auth.reason});
++                roster.append('|').append(auth.reason);
++            }
++        }
++        if(consumer.isEmpty()&&rejections.isEmpty()){
++            String latest="NO_CERTIFICATE_RECORD";
++            try(Cursor last=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE
++                    +" WHERE consumer='INVENTED_ALGORITHM' AND candidate_id LIKE 'R958-F-%' ORDER BY issued_at DESC,certificate_hash DESC LIMIT 1",null)){
++                if(last.moveToFirst())latest="latest_state="+last.getString(0)+";original_reason="+last.getString(1);
++            }
++            String reason="NO_CERTIFICATE_MATCHED_CURRENT_PREFLIGHT|"+latest
++                    +"|missing=ACTIVE,current_bundle,issued_before_capture,positive_weight,required_gates,supported_exact_consumer"
++                    +"|recovery=run_independent_fixed_Future_and_calibration_then_actual_certificate_publisher";
++            rejections.add(new String[]{"NO_CANDIDATE","",reason});roster.append('|').append(reason);
++        }
++        return new PreparedChoiceCP12(consumer,candidate,structure,certificate,V51ChecksumEngine.sha256(roster.toString()),rejections);
++    }
++    /** Reads the frozen choice and durable rejection facts; never grants authority or reruns a model. */
++    public static String currentChoiceReasonCP12(DbStore store,String target){
++        String consumer,candidate,certificate;
++        try(Cursor choice=store.readable().rawQuery("SELECT consumer,candidate_id,certificate_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
++            if(!choice.moveToFirst())return "CHOICE_NOT_FROZEN|missing=durable_choice|recovery=retry_existing_freeze_owner";
++            consumer=choice.getString(0);candidate=choice.getString(1);certificate=choice.getString(2);
++        }
++        if(consumer!=null&&!consumer.isEmpty()){
++            try(Cursor cert=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" WHERE certificate_hash=?",new String[]{certificate})){
++                if(cert.moveToFirst()&&"ACTIVE".equals(cert.getString(0)))return "FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate;
++                return "NO_VALID_CERTIFICATE|raw="+(cert.getCount()==0?"FROZEN_CERTIFICATE_MISSING":cert.getString(0)+":"+cert.getString(1))
++                        +"|missing=ACTIVE_exact_frozen_certificate|recovery=actual_publisher_with_independent_evidence";
++            }
++        }
++        StringBuilder reason=new StringBuilder();int count=0;
++        try(Cursor rejected=store.readable().rawQuery("SELECT candidate_id,certificate_hash,reason FROM r974_prediction_rejection WHERE target_issue=? ORDER BY recorded_at DESC,candidate_id,certificate_hash LIMIT 8",new String[]{target})){
++            while(rejected.moveToNext()){if(count++>0)reason.append("; ");reason.append(rejected.getString(0)).append(':').append(rejected.getString(2));}
++        }
++        if(count==0)reason.append("HISTORICAL_EMPTY_CHOICE_NO_PREFLIGHT_RECEIPT");
++        return "NO_VALID_CERTIFICATE|preflight="+(count==0?"NOT_RUN":"EXECUTED")+"|raw="+reason.toString()+"|missing=authorized_executable_exact_model|recovery=repair_recorded_dependency_then_freeze_next_target";
+     }
+     private static void publishFreezeStatus(DbStore store,String target,String status){
+         try{

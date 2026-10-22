@@ -1,0 +1,10 @@
+diff --git a/scripts/r817_generate_provenance.sh b/scripts/r817_generate_provenance.sh
+index d91618f..18b94d2 100644
+--- a/scripts/r817_generate_provenance.sh
++++ b/scripts/r817_generate_provenance.sh
+@@ -2,4 +2,4 @@
+ # Canonical R817 provenance entry point; the implementation remains source-compatible.
+ set -euo pipefail
+ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+-exec "$ROOT/scripts/r815_generate_provenance.sh" "$@"
++exec bash "$ROOT/scripts/r815_generate_provenance.sh" "$@"

@@ -1,0 +1,26 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/SemanticGenomeCP12.java b/app/src/main/java/com/ethk3/novaonepro/r952/SemanticGenomeCP12.java
+new file mode 100644
+index 0000000..9718dd6
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/SemanticGenomeCP12.java
+@@ -0,0 +1,20 @@
++package com.ethk3.novaonepro.r952;
++import java.util.*;import com.ethk3.novaonepro.V51ChecksumEngine;
++/** Conservative canonical program identity before learning. Never copies model/Future statistics.
++ * Does not solve arbitrary algebraic equivalence or erase IEEE operation order. */
++public final class SemanticGenomeCP12 {
++ public static final String REVISION="CP12_SEMANTIC_GENOME_V1";
++ private SemanticGenomeCP12(){}
++ public static String hash(int version,String canonical){
++  if(version!=3)return ""; // Existing AST1/2 stay in their scoped compatibility path.
++  if(canonical==null||!canonical.startsWith("AST3:"))throw new IllegalArgumentException("SEMANTIC_GENOME_AST3");
++  Map<String,Object> root=new HashMap<>(StrictCanonicalJson.readObject(canonical.substring(5)));
++  // Family is a research taxonomy. All executable kind, feature order, numeric params,
++  // stage/units, frozen expert/binding identities, PIT/missing rules and compiler revision stay.
++  root.remove("family");
++  Map<String,Object> manifest=new HashMap<>(CandidateAstR952.object(root.get("featureManifest")));
++  manifest.remove("graphHash"); // Derived from exact genome; including it defeats semantic comparison.
++  root.put("featureManifest",manifest);
++  return V51ChecksumEngine.sha256(REVISION+"|"+StrictCanonicalJson.write(root));
++ }
++}

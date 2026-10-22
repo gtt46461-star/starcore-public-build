@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""Restore recorded executable bits after safe tar extraction, including shared hardlink targets."""
+import argparse,tarfile,json,hashlib
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('archive',type=Path);p.add_argument('destination',type=Path);p.add_argument('--receipt',type=Path,required=True);a=p.parse_args();root=a.destination.resolve();changed=[]
+with tarfile.open(a.archive) as t:
+ for member in t:
+  if not member.isfile() or not member.mode&0o111:continue
+  f=(root/member.name).resolve()
+  if not f.is_relative_to(root):raise ValueError('TOOLCHAIN_PATH_ESCAPE')
+  if not f.is_file():raise FileNotFoundError(str(f))
+  before=f.stat().st_mode&0o777;after=before|(member.mode&0o111)
+  if before!=after:
+   digest=hashlib.sha256(f.read_bytes()).hexdigest();f.chmod(after);assert hashlib.sha256(f.read_bytes()).hexdigest()==digest
+   changed.append({'path':member.name,'before_mode':oct(before),'after_mode':oct(after),'content_sha256_unchanged':digest})
+a.receipt.parent.mkdir(parents=True,exist_ok=True);a.receipt.write_text(json.dumps({'changed':changed,'source':'Actual saved archive executable modes; file bytes unchanged; safe path bounds','scope':'Toolchain extraction recovery only, no product guard or assertion changed'},indent=2));print('TOOLCHAIN_EXECUTABLE_MODES_RESTORED',len(changed))

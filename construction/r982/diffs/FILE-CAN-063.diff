@@ -1,0 +1,65 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java b/app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java
+index 98fb6e9..df717d6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java
+@@ -16,12 +16,13 @@ import java.util.ArrayList;
+ 
+ /** Exact text copy with an explicit full-file/chunk fallback for Android Binder size limits. */
+ public final class DiagnosticTextExportR923 {
+-    public static final int SAFE_CLIPBOARD_CHARS = 100_000;
++    public static final int SAFE_CLIPBOARD_CHARS = 16_000;
+     private DiagnosticTextExportR923() {}
+ 
+     public static void copyOrExport(final Activity activity, final String label, final String body) {
+         if (activity == null || activity.isFinishing()) return;
+         final String exact = body == null ? "" : body;
++        if (exact.length() > SAFE_CLIPBOARD_CHARS) { requireSnapshot(activity); return; }
+         if (exact.length() <= SAFE_CLIPBOARD_CHARS) {
+             try {
+                 copy(activity, label, exact);
+@@ -49,6 +50,7 @@ public final class DiagnosticTextExportR923 {
+ 
+     static String[] chunks(String text) {
+         String exact = text == null ? "" : text;
++        if (exact.length() > SAFE_CLIPBOARD_CHARS) throw new IllegalArgumentException("DETAIL_REQUIRES_FULL_SNAPSHOT");
+         ArrayList<String> out = new ArrayList<String>();
+         int start = 0;
+         while (start < exact.length()) {
+@@ -94,16 +96,20 @@ public final class DiagnosticTextExportR923 {
+         share(activity,label,body,true);
+     }
+     private static void share(final Activity activity, final String label, final String body, final boolean csv) {
++        if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
++        final String exact=body==null?"":body;
++        if(exact.length()>SAFE_CLIPBOARD_CHARS){requireSnapshot(activity);return;}
+         new Thread(new Runnable() {
+             @Override public void run() {
+                 try {
+                     File dir = new File(activity.getCacheDir(), "r923_reports");
+                     if (!dir.isDirectory() && !dir.mkdirs()) throw new IllegalStateException("REPORT_DIR");
+-                    String digest = V51ChecksumEngine.sha256(body);
++                    String digest = V51ChecksumEngine.sha256(exact);
+                     File file = new File(dir, "R923_" + digest + (csv ? ".csv" : ".txt"));
+                     try (FileOutputStream out = new FileOutputStream(file)) {
+-                        out.write(body.getBytes(StandardCharsets.UTF_8));
+-                        out.getFD().sync();
++                        java.io.Writer writer=new java.io.OutputStreamWriter(out,StandardCharsets.UTF_8);
++                        for(int offset=0;offset<exact.length();offset+=8192)writer.write(exact,offset,Math.min(8192,exact.length()-offset));
++                        writer.flush();out.getFD().sync();
+                     }
+                     final Uri uri = Uri.parse("content://" + activity.getPackageName()
+                             + ".diagnostic.reports/" + file.getName());
+@@ -136,7 +142,13 @@ public final class DiagnosticTextExportR923 {
+             }
+         }, "R923-Exact-Report-Export").start();
+     }
++    private static void requireSnapshot(Activity activity){
++        Toast.makeText(activity,"详情超过界面安全上限；完整原始数据将从冻结检测报告交付，不声明已复制本段正文。",Toast.LENGTH_LONG).show();
++        CompleteReportFileR927.export(activity);
++    }
+     public static void sharePrepared(Activity activity,String label,File file,String mime){
++        if(activity==null||activity.isFinishing()||activity.isDestroyed())return;
++        if(file==null||!file.isFile()||file.length()>131072L){requireSnapshot(activity);return;}
+         Uri uri=Uri.parse("content://"+activity.getPackageName()+".diagnostic.reports/"+file.getName());
+         Intent intent=new Intent(Intent.ACTION_SEND);intent.setType(mime);
+         intent.putExtra(Intent.EXTRA_STREAM,uri);intent.putExtra(Intent.EXTRA_SUBJECT,label);

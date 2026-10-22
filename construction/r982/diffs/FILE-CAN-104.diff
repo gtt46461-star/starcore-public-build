@@ -1,0 +1,38 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/PipelineInvariantGuard.java b/app/src/main/java/com/ethk3/novaonepro/PipelineInvariantGuard.java
+index 92c1f11..cb5854b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/PipelineInvariantGuard.java
++++ b/app/src/main/java/com/ethk3/novaonepro/PipelineInvariantGuard.java
+@@ -322,4 +322,33 @@ public final class PipelineInvariantGuard {
+         }
+         return "PASS";
+     }
++
++public static CanonicalEvidenceStatus auditCanonicalEvidenceSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String target) {
++        V51Repository.B12InvariantAudit audit = V51Repository.auditB12SnapshotCP4(report, store, target);
++        boolean corePass =
++                audit.issue == 1
++                        && audit.champion == 1
++                        && audit.selected == 1
++                        && audit.auth == 1
++                        && !audit.duplicateTrade
++                        && !audit.duplicateSettlement
++                        && audit.realShadowSeparated;
++        CoreCanonicalStatus core =
++                corePass ? CoreCanonicalStatus.PASS : CoreCanonicalStatus.FAIL;
++        String deferred = DeferredEvidenceWriterR36.statusForTargetSnapshotCP4(report, store, target);
++        FullEvidenceStatus full;
++        if (!corePass) full = FullEvidenceStatus.FAIL;
++        else if (audit.number == 100
++                && audit.compatAction == 10
++                && audit.fullAction == 1200
++                && audit.funnel == 10) full = FullEvidenceStatus.PASS;
++        else if (DeferredEvidenceWriterR36.FAILED_TERMINAL.equals(deferred)
++                || deferred.startsWith("READ_ERROR")) full = FullEvidenceStatus.FAIL;
++        else full = FullEvidenceStatus.PENDING;
++        return new CanonicalEvidenceStatus(
++                target,
++                core,
++                full,
++                audit.detail + "|deferred=" + deferred + "|CORE=" + core + "|FULL=" + full);
++    }
+ }

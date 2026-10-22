@@ -1,0 +1,57 @@
+{
+  "format": "R77_ACTUAL_ANDROID_FINAL_ACCEPTANCE_V1",
+  "scope": "ACTUAL_API35_EMULATOR_SYNTHETIC_CONTRACTS_NOT_USER_PHONE_OR_NATURAL_QUALIFICATION",
+  "productionCommit": "5823c4b3f198c37d9d1a4db3152d2ec0d296bf29",
+  "testAndCiCommit": "ce2d7454992d6c140addfa48381a8d45cebe7c9a",
+  "ciRunId": 38407504018,
+  "originalMainJobId": 115330867042,
+  "recoveryRunId": 38412403994,
+  "recoveryJobId": 115347850507,
+  "runtimeContracts": "PASS",
+  "testClasses": 13,
+  "testClassesPassed": 13,
+  "poolInstrumentedTests": 4,
+  "poolInstrumentedTestsPassed": 4,
+  "poolMarkers": [
+    "ANDROID_R77_BUSY_CONTENTION|elapsed_ms=54|partial_rows=0|error=SQLiteDatabaseLockedException",
+    "ANDROID_R77_BUSY_CONTENTION_PASS|rollback=PASS|retry=PASS|reopen=PASS|scope=REAL_ANDROID_SQLITE_SYNTHETIC_NOT_PHONE_LATENCY",
+    "ANDROID_R77_BUSY_NEGATIVE|ordinary_query=50|primary=50|existing_reader=50|future_reader=2500|old_query_does_not_configure_future_pool_connections=PASS",
+    "ANDROID_R77_BUSY_LEGACY_STRATEGY|actual_api=35|cold_primary=2500|configured_primary=50|repeat=PASS|transaction_released=TRUE|legacy_os_runtime=NOT_RUN",
+    "ANDROID_R77_BUSY_POOL_PASS|api=35|configured_primary=50|existing_reader=50|future_reader=50|reconfigure=PASS|scope=REAL_ANDROID_SQLITE_SYNTHETIC_NOT_PHONE_LATENCY"
+  ],
+  "contentionElapsedMs": 54,
+  "contentionPartialRows": 0,
+  "runtimeStepSeconds": 875,
+  "artifactUpload": "FAIL_ACTIONS_STORAGE_QUOTA",
+  "automaticRecoveryJob": "FAIL_MAIN_JOB_ENUMERATION_ASSERTION",
+  "oneoffReadOnlyRecovery": "PASS",
+  "originalMainWorkflowConclusion": "FAIL_DO_NOT_RELABEL_GREEN",
+  "fallbackVerification": {
+    "performedOn": "Authorized GitHub Actions recovery runner",
+    "manifest": {
+      "files": 118,
+      "bytes": 7338192,
+      "sha256": "2d770c7801b894984f9600e652248c67b16ad6118be44e7f727c8666acdeff36",
+      "format": "ZIP_BASE64_ORDERED_CHUNKS",
+      "chunk_chars": 4096
+    },
+    "verifiedFullArchive": true,
+    "fullArchiveDownloadedLocally": false,
+    "scopeOfLocalRecovery": "compact receipt, complete pool instrumentation log and scoped pool logcat"
+  },
+  "originalJobLogSha256": "6c389ec3fc61841f72a1f448fbf8756677d1afe52fa4185819286e576133abe4",
+  "localRecoveryLogSha256": "9cae5db9a0d4909b39099a48cceed267a7b28150d220477441d3a0f334497207",
+  "testToProductMapping": "product-source-identity-comparison.json",
+  "limitations": [
+    "Android API 21-32 runtime not executed; legacy strategy was tested on API35.",
+    "No user-phone latency, every-draw upstream publication time, or natural out-of-sample profit guarantee is established.",
+    "The first failed fixture and both automatic recovery failures are preserved; original whole workflow remains failure because of infrastructure."
+  ],
+  "infrastructureErrorEvidence": [
+    "2026-10-13T14:19:53.2273787Z ##[error]Failed to CreateArtifact: Artifact storage quota has been hit. Unable to upload any new artifacts. Usage is recalculated every 6-12 hours."
+  ],
+  "automaticRecoveryFailureEvidence": [
+    "recovery-job-115345037606.log",
+    "recovery-job-115346384323.log"
+  ]
+}

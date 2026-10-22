@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "batch": "C023",
+  "commands": [
+    {
+      "name": "sql-export",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/scratch/734b9d5fd4f8/checks/C023/empty",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/build/C023/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "-d",
+        "/workspace/scratch/734b9d5fd4f8/checks/C023/sql-export",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/runtime/tests/RuntimeSqlExportR82.java"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "export-actual-compiled-funnel-sql",
+      "argv": [
+        "java",
+        "-Djava.library.path=/workspace/scratch/734b9d5fd4f8/checks/C023/native",
+        "-Dr82.readonly.bridge=/workspace/scratch/734b9d5fd4f8/stage-sources/final-C023/verification/r996/read_only_bridge.py",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C023/sql-export:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/build/C023/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "com.ethk3.novaonepro.RuntimeSqlExportR82",
+        "/workspace/scratch/734b9d5fd4f8/checks/C023/funnel-blocks.tsv",
+        "/workspace/scratch/734b9d5fd4f8/checks/C023/funnel-full.sql"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "class_files": 3476,
+  "class_tree_sha256": "9c62150cf3d2a4b734c911497bb7aa1e988ba69cc92e868e569456948321a9c2",
+  "product_class_overlays": [],
+  "product_classes_unchanged": true,
+  "scope": "CURRENT_STAGE_SCOPED_HOST_CONTRACTS_ONLY",
+  "later_interfaces_and_all_regression": "C030",
+  "original_device_live_database_and_natural_data": "WAIT"
+}

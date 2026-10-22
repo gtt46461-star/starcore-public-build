@@ -1,0 +1,83 @@
+name: V51 51072406 Gradle Diagnostic
+
+on:
+  push:
+    branches: [agent/v51-apex]
+    paths:
+      - '.github/workflows/v51-51072406-gradle-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose-gradle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+      - name: Materialize exact V51 source
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python tools/apply_v51_apex_51072403.py
+          python tools/apply_v51_hash_audit_51072404.py
+          python tools/apply_v51_signal_integrity_patch.py
+          python tools/apply_v51_signal_discovery_fix_51072404.py
+          python tools/apply_v51_state_trend_upgrade_51072405.py
+          python tools/apply_v51_apex_51072406.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Compile and capture exact errors
+        id: compile
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle --no-daemon --console=plain :app:compileDebugJavaWithJavac > reports/V51_GRADLE_FULL_51072406.log 2>&1
+      - name: Reduce compiler report
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('reports/V51_GRADLE_FULL_51072406.log')
+          text=p.read_text('utf-8',errors='replace') if p.exists() else 'LOG_MISSING'
+          lines=text.splitlines();keep=[]
+          needles=('error:', 'cannot find symbol', 'symbol:', 'location:', 'incompatible types', 'constructor ', 'method ', 'FAILURE:', 'What went wrong:', 'Execution failed for task', 'BUILD SUCCESSFUL')
+          for i,line in enumerate(lines):
+              if any(n in line for n in needles):
+                  for j in range(max(0,i-2),min(len(lines),i+5)):
+                      if lines[j] not in keep: keep.append(lines[j])
+          if not keep: keep=lines[-120:]
+          out='\n'.join(keep[-500:])+'\n'
+          Path('reports/V51_GRADLE_ERRORS_51072406.txt').write_text(out,encoding='utf-8')
+          print(out)
+          PY
+      - name: Persist diagnostic report
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports/V51_GRADLE_ERRORS_51072406.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'test(v51): persist 51072406 Gradle diagnostics [skip ci]'
+            git push origin HEAD:agent/v51-apex
+          fi
+      - name: Enforce compilation result
+        if: steps.compile.outcome != 'success'
+        run: exit 1

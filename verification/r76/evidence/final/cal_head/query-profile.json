@@ -1,0 +1,172 @@
+{
+  "current": {
+    "row": [
+      "202609190003"
+    ],
+    "sqlite_vm_steps": 179,
+    "plan": [
+      [
+        2,
+        0,
+        0,
+        "CO-ROUTINE pending"
+      ],
+      [
+        4,
+        2,
+        0,
+        "MERGE (UNION)"
+      ],
+      [
+        6,
+        4,
+        0,
+        "LEFT"
+      ],
+      [
+        8,
+        6,
+        0,
+        "CO-ROUTINE (subquery-4)"
+      ],
+      [
+        18,
+        8,
+        62,
+        "SEARCH p USING INDEX idx_r932_pair_pending (candidate_hit=?)"
+      ],
+      [
+        24,
+        8,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        29,
+        24,
+        39,
+        "SEARCH d USING INDEX sqlite_autoindex_draws_1 (issue=?)"
+      ],
+      [
+        41,
+        8,
+        0,
+        "CORRELATED SCALAR SUBQUERY 2"
+      ],
+      [
+        45,
+        41,
+        39,
+        "SEARCH d USING COVERING INDEX sqlite_autoindex_draws_1 (issue=?)"
+      ],
+      [
+        54,
+        8,
+        0,
+        "CORRELATED SCALAR SUBQUERY 3"
+      ],
+      [
+        59,
+        54,
+        39,
+        "SEARCH d USING INDEX sqlite_autoindex_draw_dependency_input_cp12_1 (issue=?)"
+      ],
+      [
+        70,
+        8,
+        46,
+        "SEARCH w USING INDEX sqlite_autoindex_research_fixed_window_r932_1 (window_id=?)"
+      ],
+      [
+        75,
+        8,
+        47,
+        "SEARCH c USING INDEX sqlite_autoindex_research_fixed_champion_r932_1 (target_issue=? AND bundle_hash=?)"
+      ],
+      [
+        90,
+        6,
+        16,
+        "SCAN (subquery-4)"
+      ],
+      [
+        97,
+        6,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      [
+        106,
+        4,
+        0,
+        "RIGHT"
+      ],
+      [
+        108,
+        106,
+        0,
+        "CO-ROUTINE (subquery-9)"
+      ],
+      [
+        112,
+        108,
+        53,
+        "SEARCH p USING COVERING INDEX idx_r932_cal_pending (hit=?)"
+      ],
+      [
+        117,
+        108,
+        0,
+        "CORRELATED SCALAR SUBQUERY 6"
+      ],
+      [
+        122,
+        117,
+        39,
+        "SEARCH d USING INDEX sqlite_autoindex_draws_1 (issue=?)"
+      ],
+      [
+        134,
+        108,
+        0,
+        "CORRELATED SCALAR SUBQUERY 7"
+      ],
+      [
+        138,
+        134,
+        39,
+        "SEARCH d USING COVERING INDEX sqlite_autoindex_draws_1 (issue=?)"
+      ],
+      [
+        147,
+        108,
+        0,
+        "CORRELATED SCALAR SUBQUERY 8"
+      ],
+      [
+        152,
+        147,
+        39,
+        "SEARCH d USING INDEX sqlite_autoindex_draw_dependency_input_cp12_1 (issue=?)"
+      ],
+      [
+        169,
+        106,
+        16,
+        "SCAN (subquery-9)"
+      ],
+      [
+        176,
+        106,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ],
+      [
+        219,
+        0,
+        26,
+        "SCAN pending"
+      ]
+    ]
+  }
+}

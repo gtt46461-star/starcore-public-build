@@ -1,0 +1,1185 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java b/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java
+index 79b0749..b78617e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java
+@@ -2872,4 +2872,1180 @@ public final class LiveResearchDiagnosisOrchestrator {
+         }
+         out.append('"');
+     }
++
++public StageArtifact collectImprovementSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        String plan = new ImprovementChallengerPlanEngine().renderSnapshotCP4(report, store);
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "planChars",
++                        String.valueOf(plan.length()),
++                        "char",
++                        "ImprovementChallengerPlanEngine",
++                        true));
++        metrics.add(metricSnapshotCP4(report, "productionMutation", "0", "count", MODE, true));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.IMPROVEMENT, "PLAN"),
++                        EvidenceGrade.CONTRACT,
++                        "ImprovementChallengerPlanEngine",
++                        com.ethk3.novaonepro.ReportTextCP12.sha256(report, plan),
++                        "Challenger只有冻结回放证书通过后才能晋级，不可自动解锁REAL",
++                        plan.length(),
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.IMPROVEMENT,
++                Status.OBSERVED,
++                "ImprovementChallengerPlanEngine",
++                "read-only change plan",
++                "可执行Challenger计划已生成，生产参数未修改",
++                plan,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public static StageArtifact artifactSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            Stage stage,
++            Status status,
++            String owner,
++            String source,
++            String summary,
++            String detail,
++            String readError,
++            long collectedAt,
++            List<Metric> metrics,
++            List<Evidence> evidence) {
++        return new StageArtifact(
++                stage,
++                status,
++                owner,
++                source,
++                summary,
++                detail,
++                readError,
++                collectedAt,
++                metrics,
++                evidence);
++    }
++
++public static String evidenceIdSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Stage stage, String suffix) {
++        return "B14-E-" + stage.name() + '-' + safeSnapshotCP4(report, suffix).toUpperCase(Locale.US);
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value.trim();
++    }
++
++public static Metric metricSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            String key, String value, String unit, String source, boolean available) {
++        return new Metric(key, value, unit, source, available);
++    }
++
++public StageArtifact collectCodeOwnerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        CodeOwnershipCompletenessAuditEngine ownerEngine =
++                new CodeOwnershipCompletenessAuditEngine();
++        CodeOwnershipCompletenessAuditEngine.Report ownerReport = ownerEngine.auditSnapshotCP4(report, store);
++        String audit = ownerEngine.renderSnapshotCP4(report, store);
++        boolean ownerConflict = false;
++        if (ownerReport != null && ownerReport.findings != null) {
++            for (int i = 0; i < ownerReport.findings.length; i++) {
++                CodeOwnershipCompletenessAuditEngine.Finding finding =
++                        ownerReport.findings[i];
++                if (finding == null || finding.rule == null) continue;
++                if ("OWNER_CONFLICT".equals(finding.rule.field)
++                        && finding.level
++                                == CodeOwnershipCompletenessAuditEngine.Level.HARD_BLOCK) {
++                    ownerConflict = true;
++                    break;
++                }
++            }
++        }
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "auditChars",
++                        String.valueOf(audit.length()),
++                        "char",
++                        "CodeOwnershipCompletenessAuditEngine",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "ownerConflict",
++                        String.valueOf(ownerConflict),
++                        "boolean",
++                        "owner audit",
++                        true));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.CODE_OWNER, "OWNER"),
++                        EvidenceGrade.STATIC_BUILD,
++                        "CodeOwnershipCompletenessAuditEngine",
++                        com.ethk3.novaonepro.ReportTextCP12.sha256(report, audit),
++                        "唯一Owner约束必须同时由静态门与运行账本验证",
++                        audit.length(),
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.CODE_OWNER,
++                ownerConflict ? Status.FAIL : Status.PASS,
++                "CodeOwnershipCompletenessAuditEngine",
++                "owner matrix",
++                ownerConflict ? "发现Owner冲突" : "唯一Owner矩阵未发现显式冲突",
++                audit,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectAblationSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        String conflict = new StrategyConflictAblationEngine().renderSnapshotCP4(report, store);
++        String formula = new FormulaAlgorithmAuditEngine().renderSnapshotCP4(report, store);
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "conflictChars",
++                        String.valueOf(conflict.length()),
++                        "char",
++                        "StrategyConflictAblationEngine",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "formulaChars",
++                        String.valueOf(formula.length()),
++                        "char",
++                        "FormulaAlgorithmAuditEngine",
++                        true));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.ABLATION, "CONFLICT"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "StrategyConflictAblationEngine",
++                        com.ethk3.novaonepro.ReportTextCP12.sha256(report, conflict),
++                        "消融建议必须离线验证，不能在报告线程改权重",
++                        conflict.length(),
++                        -1.0d,
++                        -1.0d,
++                        true));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.ABLATION, "FORMULA"),
++                        EvidenceGrade.STATIC_BUILD,
++                        "FormulaAlgorithmAuditEngine",
++                        com.ethk3.novaonepro.ReportTextCP12.sha256(report, formula),
++                        "公式存在不等于效果已证明",
++                        formula.length(),
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.ABLATION,
++                Status.OBSERVED,
++                "StrategyConflictAblationEngine+FormulaAlgorithmAuditEngine",
++                "read-only ablation evidence",
++                "冲突、消融、公式审计已生成",
++                conflict + "\n\n" + formula,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectFailureTreeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        V57FailureDiagnosisEngine failureEngine = new V57FailureDiagnosisEngine();
++        K3FailureDiagnosisEngine k3Engine = new K3FailureDiagnosisEngine();
++        K3FailureDiagnosisEngine.Report k3 = k3Engine.diagnoseSnapshotCP4(report, store);
++        String detail = failureEngine.renderSnapshotCP4(report, store) + "\n\n" + k3Engine.renderSnapshotCP4(report, store);
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "k3PrimaryLayer",
++                        k3.primaryLayer,
++                        "category",
++                        "K3FailureDiagnosisEngine",
++                        true));
++        metrics.add(metricSnapshotCP4(report, "k3Verdict", k3.verdict, "status", "K3FailureDiagnosisEngine", true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "k3LayerCount",
++                        String.valueOf(k3.layers.length),
++                        "count",
++                        "K3FailureDiagnosisEngine",
++                        true));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.FAILURE_TREE, "B14"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "V57FailureDiagnosisEngine+K3FailureDiagnosisEngine",
++                        "primary="
++                                + k3.primaryLayer
++                                + "|verdict="
++                                + k3.verdict
++                                + "|hash="
++                                + k3.checksum,
++                        "失败归因是诊断假设，不得直接改动生产参数",
++                        k3.layers.length,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        Status status =
++                "BLOCKED".equals(k3.verdict)
++                        ? Status.NOT_PROVEN
++                        : ("HEALTHY".equals(k3.verdict) ? Status.OBSERVED : Status.WARN);
++        return artifactSnapshotCP4(report, 
++                Stage.FAILURE_TREE,
++                status,
++                "V57FailureDiagnosisEngine+K3FailureDiagnosisEngine",
++                "immutable evidence diagnosis",
++                k3.primaryLayer + '|' + k3.verdict,
++                detail,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectFrequencySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        boolean locked =
++                !AppConfig.R36_REAL_BET_UNLOCK
++                        && V51BuildManifest.SHADOW_ONLY
++                        && V51BuildManifest.REAL_BET_HARD_DISABLED;
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "realUnlock",
++                        String.valueOf(AppConfig.R36_REAL_BET_UNLOCK),
++                        "boolean",
++                        "AppConfig",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "shadowOnly",
++                        String.valueOf(V51BuildManifest.SHADOW_ONLY),
++                        "boolean",
++                        "V51BuildManifest",
++                        true));
++        metrics.add(metricSnapshotCP4(report, "requiredRealBet", "0", "count", "unproven model policy", true));
++        metrics.add(metricSnapshotCP4(report, "frequencyDebt", "0", "count", "forbidden policy", true));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.FREQUENCY, "REDLINE"),
++                        EvidenceGrade.CONTRACT,
++                        "DecisionGateEngine+V51BuildManifest",
++                        "SHADOW_ONLY="
++                                + V51BuildManifest.SHADOW_ONLY
++                                + "|REAL_HARD_DISABLED="
++                                + V51BuildManifest.REAL_BET_HARD_DISABLED
++                                + "|UNLOCK="
++                                + AppConfig.R36_REAL_BET_UNLOCK,
++                        "频率、欠债、追单、倍投不得绕开模型与实时证明",
++                        1,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.FREQUENCY,
++                locked ? Status.PASS : Status.FAIL,
++                "DecisionGateEngine_ONLY",
++                "compile-time and runtime redlines",
++                locked ? "未证明模型的REAL硬锁成立" : "REAL红线被破坏",
++                "status=NOT_APPLICABLE_MODEL_NOT_PROVEN|debt=0|requiredRealBet=0|chase=false|martingale=false|doubling=false",
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectCalibrationSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        ModelEffectivenessAnalyzerR35.Metrics m = context.model.metrics;
++        ModelEffectivenessAnalyzerR35.Coverage c = context.model.coverage;
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "strictOosN",
++                        String.valueOf(m.strictOosSample),
++                        "sample",
++                        "strict OOS ledger",
++                        "OK".equals(m.readStatus)));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "hitCount",
++                        String.valueOf(m.hitCount),
++                        "count",
++                        "strict OOS ledger",
++                        "OK".equals(m.readStatus)));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "wilsonLower95",
++                        doubleTextSnapshotCP4(report, m.wilsonLower95),
++                        "ratio",
++                        "Wilson score",
++                        m.strictOosSample > 0));
++        metrics.add(
++                metricSnapshotCP4(report, "ECE", doubleTextSnapshotCP4(report, m.ece), "ratio", "selected calibration", m.ece >= 0.0d));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "Brier",
++                        doubleTextSnapshotCP4(report, m.brier),
++                        "score",
++                        "selected calibration",
++                        m.brier >= 0.0d));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "coverage",
++                        c.covered + "/" + c.eligible,
++                        "targets",
++                        "expected target enumeration",
++                        "OK".equals(c.readStatus)));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.CALIBRATION, "OOS"),
++                        "READ_ERROR".equals(m.readStatus)
++                                ? EvidenceGrade.READ_ERROR
++                                : EvidenceGrade.STRICT_OOS,
++                        "ModelEffectivenessAnalyzerR35.metrics",
++                        "read="
++                                + m.readStatus
++                                + "|N="
++                                + m.strictOosSample
++                                + "|hit="
++                                + m.hitCount
++                                + "|wilson="
++                                + m.wilsonLower95
++                                + "|ECE="
++                                + m.ece
++                                + "|Brier="
++                                + m.brier,
++                        "小样本或读取失败不得渲染为命中率证明",
++                        m.strictOosSample,
++                        m.wilsonLower95,
++                        1.0d,
++                        !"READ_ERROR".equals(m.readStatus)));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.CALIBRATION, "COVERAGE"),
++                        "READ_ERROR".equals(c.readStatus)
++                                ? EvidenceGrade.READ_ERROR
++                                : EvidenceGrade.DATABASE_OBSERVATION,
++                        "ModelEffectivenessAnalyzerR35.coverage",
++                        "read="
++                                + c.readStatus
++                                + "|covered="
++                                + c.covered
++                                + "|eligible="
++                                + c.eligible
++                                + "|missing="
++                                + c.missingCsv(),
++                        "覆盖率分母必须来自可枚举目标期，不能用已有表行数",
++                        c.eligible,
++                        -1.0d,
++                        -1.0d,
++                        !"READ_ERROR".equals(c.readStatus)));
++        Status status;
++        String readError = "";
++        if ("READ_ERROR".equals(m.readStatus) || "READ_ERROR".equals(c.readStatus)) {
++            status = Status.READ_ERROR;
++            readError = safeSnapshotCP4(report, m.error) + (safeSnapshotCP4(report, c.error).length() > 0 ? "|" + safeSnapshotCP4(report, c.error) : "");
++        } else if (!V51SelectedCalibrationArtifact.PROVEN) {
++            status = Status.NOT_PROVEN;
++        } else if (m.strictOosSample < AppConfig.R35_PROMOTION_MIN_OOS_SAMPLE) {
++            status = Status.RETEST_REQUIRED;
++        } else {
++            status = Status.OBSERVED;
++        }
++        return artifactSnapshotCP4(report, 
++                Stage.CALIBRATION,
++                status,
++                "OosAfterDrawWriterR36+ModelEffectivenessAnalyzerR35",
++                "frozen canonical + exact draw",
++                "read=" + m.readStatus + "|model=" + context.model.modelStatus,
++                context.model.render(),
++                readError,
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public static String doubleTextSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double value) {
++        if (Double.isNaN(value)) return "NaN";
++        if (Double.isInfinite(value)) return value > 0.0d ? "Infinity" : "-Infinity";
++        return Long.toHexString(Double.doubleToLongBits(value));
++    }
++
++public StageArtifact collectRankerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        boolean proven =
++                V51ActionRankerArtifact.PROVEN && V51ActionRankerArtifact.RANK_ORDER_PASSED;
++        String summary = stateSnapshotCP4(report, store, "v51_ranker_summary", "NO_RUNTIME_SAMPLE");
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "artifactProven",
++                        String.valueOf(V51ActionRankerArtifact.PROVEN),
++                        "boolean",
++                        "V51ActionRankerArtifact",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "rankOrderPassed",
++                        String.valueOf(V51ActionRankerArtifact.RANK_ORDER_PASSED),
++                        "boolean",
++                        "V51ActionRankerArtifact",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "runtimeSummary",
++                        summary,
++                        "text",
++                        "app_state",
++                        !"NO_RUNTIME_SAMPLE".equals(summary)));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.RANKER, "ARTIFACT"),
++                        proven ? EvidenceGrade.STRICT_OOS : EvidenceGrade.STATIC_BUILD,
++                        "V51ActionRankerArtifact",
++                        "PROVEN="
++                                + V51ActionRankerArtifact.PROVEN
++                                + "|RANK_ORDER="
++                                + V51ActionRankerArtifact.RANK_ORDER_PASSED,
++                        "工程可以枚举和排序，但不能伪造训练与跨块排名证书",
++                        proven ? 1 : 0,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.RANKER,
++                proven ? Status.OBSERVED : Status.NOT_PROVEN,
++                "V51ActionRankerEngine",
++                "frozen rank artifact",
++                proven ? "Ranker产物标记已证明，仍需证书哈希复核" : "Ranker未训练/未证明",
++                summary,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public static String stateSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String key, String fallback) {
++        if (store == null) return safeSnapshotCP4(report, fallback);
++        try {
++            String value = store.getState(key, fallback);
++            return value == null ? safeSnapshotCP4(report, fallback) : value;
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++    }
++
++public static String errorTextSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Throwable error) {
++        if (error == null) return "UNKNOWN";
++        String message = error.getMessage();
++        String out = error.getClass().getSimpleName();
++        if (message != null && message.trim().length() > 0) out += ':' + message.trim();
++        return limitSnapshotCP4(report, out, 1000);
++    }
++
++public static String limitSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value, int maximum) {
++        String text = safeSnapshotCP4(report, value);
++        return text.length() <= maximum ? text : text.substring(0, maximum);
++    }
++
++public StageArtifact collectActionSpaceSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        long combinations = K3ActionSpaceEngine.choose(10, 3);
++        long formal = 10L * combinations;
++        boolean exact = combinations == 120L && formal == K3ActionSpaceEngine.TOTAL_ACTIONS;
++        QueryCount persisted =
++                queryCountSnapshotCP4(report, 
++                        store,
++                        "SELECT COUNT(1) FROM "
++                                + V51Repository.ACTION_SPACE
++                                + " WHERE target_issue=?",
++                        context.targetIssue.length() == 0
++                                ? null
++                                : new String[] {context.targetIssue});
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "combinationPerPosition",
++                        String.valueOf(combinations),
++                        "count",
++                        "C(10,3)",
++                        true));
++        metrics.add(metricSnapshotCP4(report, "formalActions", String.valueOf(formal), "count", "10*C(10,3)", exact));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "persistedActions",
++                        String.valueOf(persisted.value),
++                        "rows",
++                        "v51_action_space",
++                        persisted.ok));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.ACTION_SPACE, "FORMULA"),
++                        EvidenceGrade.CONTRACT,
++                        "K3ActionSpaceEngine",
++                        "10*C(10,3)=" + formal,
++                        "排序、删除或剪枝不能改变正式宇宙基数",
++                        (int) formal,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.ACTION_SPACE, "PERSISTED"),
++                        persisted.ok
++                                ? EvidenceGrade.DATABASE_OBSERVATION
++                                : EvidenceGrade.READ_ERROR,
++                        V51Repository.ACTION_SPACE,
++                        persisted.render(),
++                        "表行数必须按目标期读取，不能拿全表数冒充覆盖",
++                        persisted.value,
++                        -1.0d,
++                        -1.0d,
++                        persisted.ok));
++        Status status;
++        String readError = "";
++        if (!exact) {
++            status = Status.FAIL;
++        } else if (!persisted.ok) {
++            status = Status.READ_ERROR;
++            readError = persisted.error;
++        } else if (context.targetIssue.length() == 0 || persisted.value == 0) {
++            status = Status.RETEST_REQUIRED;
++        } else if (persisted.value != 1200) {
++            status = Status.FAIL;
++        } else {
++            status = Status.PASS;
++        }
++        return artifactSnapshotCP4(report, 
++                Stage.ACTION_SPACE,
++                status,
++                "K3ActionSpaceEngine+V51Repository",
++                "formal action universe",
++                "formula=" + formal + "|persisted=" + persisted.render(),
++                "ExactIdentityRequired=true|DeletionOrPruning=FORBIDDEN",
++                readError,
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public static QueryCount queryCountSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String sql, String[] args) {
++        if (store == null) return QueryCount.error("STORE_NULL");
++        if (args == null || args.length == 0 || safeSnapshotCP4(report, args[0]).length() == 0) {
++            return new QueryCount(true, 0, "NO_TARGET");
++        }
++        Cursor cursor = null;
++        try {
++            SQLiteDatabase db = store.readable();
++            cursor = report.select(sql, args);
++            return new QueryCount(true, cursor.moveToFirst() ? cursor.getInt(0) : 0, "");
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public StageArtifact collectK3FunnelSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        int[] sizes = K3FunnelOrchestrator.STAGE_SIZES;
++        boolean exact =
++                sizes != null
++                        && sizes.length == 7
++                        && sizes[0] == 9
++                        && sizes[1] == 8
++                        && sizes[2] == 7
++                        && sizes[3] == 6
++                        && sizes[4] == 5
++                        && sizes[5] == 4
++                        && sizes[6] == 3;
++        String trace = stateSnapshotCP4(report, store, "v51_funnel_summary", "NO_RUNTIME_SAMPLE");
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "stageCount",
++                        String.valueOf(sizes.length),
++                        "count",
++                        "K3FunnelOrchestrator",
++                        true));
++        metrics.add(metricSnapshotCP4(report, "stageSizes", joinIntsSnapshotCP4(report, sizes), "count[]", "K3FunnelOrchestrator", true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "finalK",
++                        sizes.length == 0 ? "-1" : String.valueOf(sizes[sizes.length - 1]),
++                        "count",
++                        "fixed contract",
++                        true));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.K3_FUNNEL, "STATIC"),
++                        EvidenceGrade.STATIC_BUILD,
++                        "K3FunnelOrchestrator.STAGE_SIZES",
++                        "stages=" + joinIntsSnapshotCP4(report, sizes) + "|exact=" + exact,
++                        "漏斗只保留候选轨迹，不得删除1200正式动作证据",
++                        sizes.length,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.K3_FUNNEL, "RUNTIME"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "B10 proof ledger",
++                        trace,
++                        "静态阶段常量不能证明物理设备每期持久化成功",
++                        "NO_RUNTIME_SAMPLE".equals(trace) ? 0 : 1,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        Status status =
++                !exact
++                        ? Status.FAIL
++                        : ("NO_RUNTIME_SAMPLE".equals(trace)
++                                ? Status.RETEST_REQUIRED
++                                : Status.PASS);
++        return artifactSnapshotCP4(report, 
++                Stage.K3_FUNNEL,
++                status,
++                "K3FunnelOrchestrator_ONLY",
++                "exact nested 9/8/7/6/5/4/3 audit",
++                exact ? "固定K3漏斗合同成立" : "固定K3漏斗合同破坏",
++                "static=" + joinIntsSnapshotCP4(report, sizes) + "\nruntime=" + trace,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public static String joinIntsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int[] values) {
++        com.ethk3.novaonepro.ReportTextCP12 out = new com.ethk3.novaonepro.ReportTextCP12(report);
++        if (values != null) {
++            for (int i = 0; i < values.length; i++) {
++                if (i > 0) out.append(',');
++                out.append(values[i]);
++            }
++        }
++        return out.toString();
++    }
++
++public StageArtifact collectCrossPositionSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        String relation = stateSnapshotCP4(report, store, "b06_relation_summary", "NO_RUNTIME_SAMPLE");
++        String permutation = stateSnapshotCP4(report, store, "v51_permutation_summary", "NO_RUNTIME_SAMPLE");
++        String transition = stateSnapshotCP4(report, store, "v51_transition_summary", "NO_RUNTIME_SAMPLE");
++        boolean sample =
++                !"NO_RUNTIME_SAMPLE".equals(relation)
++                        || !"NO_RUNTIME_SAMPLE".equals(permutation)
++                        || !"NO_RUNTIME_SAMPLE".equals(transition);
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(metricSnapshotCP4(report, "relationSummary", relation, "text", "app_state", sample));
++        metrics.add(metricSnapshotCP4(report, "permutationSummary", permutation, "text", "app_state", sample));
++        metrics.add(metricSnapshotCP4(report, "transitionSummary", transition, "text", "app_state", sample));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.CROSS_POSITION, "PIT"),
++                        EvidenceGrade.CONTRACT,
++                        "V51RelationGraphVerifier",
++                        "跨位置特征只允许目标开奖前快照",
++                        "同期开奖信息进入特征即构成泄漏",
++                        sample ? 1 : 0,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.CROSS_POSITION, "RUNTIME"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "relation/permutation/transition summaries",
++                        relation + '|' + permutation + '|' + transition,
++                        "摘要存在不等于跨块证书通过",
++                        sample ? 1 : 0,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.CROSS_POSITION,
++                sample ? Status.OBSERVED : Status.RETEST_REQUIRED,
++                "V51RelationGraphVerifier+V51PermutationFeatureEngine",
++                "pre-draw cross-position evidence",
++                sample ? "跨位置运行证据已观察" : "跨位置等待运行样本",
++                "relation="
++                        + relation
++                        + "\npermutation="
++                        + permutation
++                        + "\ntransition="
++                        + transition,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectNumberSurfaceSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        boolean proven = V51NumberModelArtifact.PROVEN;
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(metricSnapshotCP4(report, "positions", "10", "count", "fixed contract", true));
++        metrics.add(metricSnapshotCP4(report, "numbersPerPosition", "10", "count", "fixed contract", true));
++        metrics.add(metricSnapshotCP4(report, "numberRows", "100", "count", "10x10 formula", true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "artifactProven",
++                        String.valueOf(proven),
++                        "boolean",
++                        "V51NumberModelArtifact",
++                        true));
++        String distribution = stateSnapshotCP4(report, store, "v51_number_distribution_summary", "NO_RUNTIME_SAMPLE");
++        String sinkhorn = stateSnapshotCP4(report, store, "v51_sinkhorn_summary", "NO_RUNTIME_SAMPLE");
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.NUMBER_SURFACE, "CONTRACT"),
++                        EvidenceGrade.CONTRACT,
++                        "V51PositionActionBuilder",
++                        "10 positions * 10 numbers = 100 point-in-time probabilities",
++                        "完整性不等于预测有效性",
++                        100,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.NUMBER_SURFACE, "MODEL"),
++                        proven ? EvidenceGrade.STRICT_OOS : EvidenceGrade.STATIC_BUILD,
++                        "V51NumberModelArtifact.PROVEN",
++                        "artifactProof=" + proven,
++                        "未冻结训练产物不得用工程实现替代模型证明",
++                        proven ? 1 : 0,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.NUMBER_SURFACE,
++                proven ? Status.OBSERVED : Status.NOT_PROVEN,
++                "V51NumberModelArtifact+V51SinkhornEngine",
++                "frozen input and persisted summaries",
++                proven ? "号码面产物已冻结，仍需证书复核" : "号码面工程存在但模型未证明",
++                "distribution=" + distribution + "\nsinkhorn=" + sinkhorn,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectLedgerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        if (store == null) return readErrorSnapshotCP4(report, Stage.LEDGER, context, "STORE_NULL", "DbStore");
++        String target = context.targetIssue;
++        if (target.length() == 0) {
++            return artifactSnapshotCP4(report, 
++                    Stage.LEDGER,
++                    Status.RETEST_REQUIRED,
++                    "V51Repository",
++                    "canonical tables",
++                    "NO_TARGET",
++                    "尚无目标期，无法审计本期首写冻结与B12不变量",
++                    "",
++                    context.createdAt,
++                    Collections.<Metric>emptyList(),
++                    singletonEvidenceSnapshotCP4(report, 
++                            evidenceIdSnapshotCP4(report, Stage.LEDGER, "NO_TARGET"),
++                            EvidenceGrade.DATABASE_OBSERVATION,
++                            "app_state.target_issue",
++                            "NO_TARGET",
++                            "需要至少一次物理设备运行闭环",
++                            0,
++                            true));
++        }
++        V51Repository.B12InvariantAudit audit = V51Repository.auditB12SnapshotCP4(report, store, target);
++        String requestStatus = AnalysisRequestStoreR36.statusSnapshotCP4(report, target);
++        String deferredStatus = DeferredEvidenceWriterR36.statusForTargetSnapshotCP4(report, store, target);
++        boolean deferredInFlight =
++                AnalysisRequestStoreR36.CANONICAL_COMMITTED.equals(requestStatus)
++                        && (DeferredEvidenceWriterR36.PENDING.equals(deferredStatus)
++                                || DeferredEvidenceWriterR36.RUNNING.equals(deferredStatus)
++                                || DeferredEvidenceWriterR36.RETRY_WAIT.equals(deferredStatus));
++        boolean inFlight =
++                AnalysisRequestStoreR36.REQUESTED.equals(requestStatus)
++                        || AnalysisRequestStoreR36.RUNNING.equals(requestStatus)
++                        || AnalysisRequestStoreR36.RETRY_WAIT.equals(requestStatus)
++                        || "MISSING".equals(requestStatus)
++                        || deferredInFlight;
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(metricSnapshotCP4(report, "targetIssue", target, "issue", "V51Repository", true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "b12InvariantPass",
++                        String.valueOf(audit.pass),
++                        "boolean",
++                        "V51Repository.auditB12",
++                        true));
++        metrics.add(metricSnapshotCP4(report, "analysisRequestStatus", requestStatus, "state", "AnalysisRequestStoreR36", true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "deferredEvidenceStatus",
++                        deferredStatus,
++                        "state",
++                        "DeferredEvidenceWriterR36",
++                        !deferredStatus.startsWith("READ_ERROR:")));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.LEDGER, "B12"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "V51Repository#auditB12",
++                        audit.detail + "|hash=" + audit.checksum,
++                        "审计失败必须保持SHADOW并导出原始DB",
++                        1,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        return artifactSnapshotCP4(report, 
++                Stage.LEDGER,
++                audit.pass ? Status.PASS : (inFlight ? Status.RETEST_REQUIRED : Status.FAIL),
++                "V51Repository+CanonicalObservationWriterR36",
++                "B12 invariant audit",
++                audit.pass
++                        ? "B12账本不变量通过"
++                        : (inFlight
++                                ? "账本等待 canonical 或延后证据完成"
++                                : "B12账本不变量失败"),
++                audit.detail
++                        + "\nanalysisRequestStatus="
++                        + requestStatus
++                        + "\ndeferredEvidenceStatus="
++                        + deferredStatus,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public static List<Evidence> singletonEvidenceSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            String id,
++            EvidenceGrade grade,
++            String source,
++            String observation,
++            String counterEvidence,
++            int sample,
++            boolean readSuccessful) {
++        ArrayList<Evidence> out = new ArrayList<Evidence>();
++        out.add(
++                new Evidence(
++                        id,
++                        grade,
++                        source,
++                        observation,
++                        counterEvidence,
++                        sample,
++                        -1.0d,
++                        -1.0d,
++                        readSuccessful));
++        return out;
++    }
++
++public StageArtifact readErrorSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            Stage stage, DiagnosisContext context, String error, String source) {
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, stage, "READ_ERROR"),
++                        EvidenceGrade.READ_ERROR,
++                        source,
++                        "READ_ERROR=" + safeSnapshotCP4(report, error),
++                        "读取失败不得改写为0或PASS",
++                        -1,
++                        -1.0d,
++                        -1.0d,
++                        false));
++        return artifactSnapshotCP4(report, 
++                stage,
++                Status.READ_ERROR,
++                stageOwnerSnapshotCP4(report, stage),
++                source,
++                "READ_ERROR",
++                "READ_ERROR=" + safeSnapshotCP4(report, error),
++                error,
++                context.createdAt,
++                Collections.<Metric>emptyList(),
++                evidence);
++    }
++
++public static String stageOwnerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Stage stage) {
++        switch (stage) {
++            case DATA:
++                return "TargetIssueResolver_ONLY";
++            case RUNTIME:
++                return "AutoFetchService->BusinessReconcilerR36->V51RuntimeOrchestrator";
++            case LEDGER:
++                return "V51Repository";
++            case NUMBER_SURFACE:
++                return "V51NumberModelArtifact";
++            case CROSS_POSITION:
++                return "V51RelationGraphVerifier";
++            case K3_FUNNEL:
++                return "K3FunnelOrchestrator_ONLY";
++            case ACTION_SPACE:
++                return "K3ActionSpaceEngine";
++            case RANKER:
++                return "V51ActionRankerEngine";
++            case CALIBRATION:
++                return "OosAfterDrawWriterR36";
++            case FREQUENCY:
++                return "DecisionGateEngine_ONLY";
++            case FAILURE_TREE:
++                return "V57FailureDiagnosisEngine";
++            case ABLATION:
++                return "StrategyConflictAblationEngine";
++            case CODE_OWNER:
++                return "CodeOwnershipCompletenessAuditEngine";
++            case IMPROVEMENT:
++            default:
++                return "ImprovementChallengerPlanEngine";
++        }
++    }
++
++public StageArtifact collectRuntimeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        if (store == null) return readErrorSnapshotCP4(report, Stage.RUNTIME, context, "STORE_NULL", "DbStore");
++        AutoFetchService.B13RuntimeHealth health = AutoFetchService.b13HealthSnapshotCP4(report, store);
++        RuntimeHealthLedgerR36.BusinessTruth business = context.businessTruth;
++        ModelEffectivenessAnalyzerR35.RuntimeSummary runtime = context.model.runtime;
++        String durable = AnalysisRequestStoreR36.diagnosticSnapshotCP4(report, context.targetIssue);
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "serviceAlive",
++                        business.serviceAlive ? "1" : "0",
++                        "boolean",
++                        "RuntimeHealthLedgerR36.BusinessTruth",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "businessAlive",
++                        business.businessAlive ? "1" : "0",
++                        "boolean",
++                        "RuntimeHealthLedgerR36.BusinessTruth+B13",
++                        true));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "rootCause",
++                        business.rootCause,
++                        "state",
++                        "RuntimeHealthLedgerR36.BusinessTruth",
++                        business.readError.length() == 0));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "serviceAge",
++                        String.valueOf(health.serviceAge),
++                        "ms",
++                        "service heartbeat",
++                        health.serviceBeat > 0));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "fetchAge",
++                        String.valueOf(health.fetchAge),
++                        "ms",
++                        "fetch heartbeat",
++                        health.fetchBeat > 0));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "analysisAge",
++                        String.valueOf(health.analysisAge),
++                        "ms",
++                        "analysis heartbeat",
++                        health.analysisBeat > 0));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "requestToCommitP95",
++                        String.valueOf(runtime.analysisP95Ms),
++                        "ms",
++                        "RuntimeHealthLedgerR36",
++                        "OK".equals(runtime.readStatus)));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "durableRequest",
++                        durable,
++                        "state",
++                        "AnalysisRequestStoreR36",
++                        !"REQUEST_ROW_MISSING".equals(durable)));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "maxConcurrency",
++                        String.valueOf(runtime.maxConcurrency),
++                        "count",
++                        "RuntimeHealthLedgerR36",
++                        "OK".equals(runtime.readStatus)));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "oomCount",
++                        String.valueOf(runtime.oomCount),
++                        "count",
++                        "RuntimeHealthLedgerR36",
++                        "OK".equals(runtime.readStatus)));
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.RUNTIME, "HEARTBEAT"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "AutoFetchService#b13Health",
++                        AutoFetchService.b13DiagnosticsSnapshotCP4(report, store),
++                        "静态APK不能证明熄屏、杀进程或24小时运行",
++                        health.businessAlive ? 1 : 0,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.RUNTIME, "LEDGER"),
++                        "READ_ERROR".equals(runtime.readStatus)
++                                ? EvidenceGrade.READ_ERROR
++                                : EvidenceGrade.DATABASE_OBSERVATION,
++                        "ModelEffectivenessAnalyzerR35.runtime",
++                        runtime.summary(),
++                        "READ_ERROR不得显示成零样本PASS",
++                        runtime.eventCount,
++                        -1.0d,
++                        -1.0d,
++                        !"READ_ERROR".equals(runtime.readStatus)));
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.RUNTIME, "DURABLE_REQUEST"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "AnalysisRequestStoreR36#diagnostic",
++                        durable,
++                        "活动外部Owner只能等待；失败线程不得改写其租约",
++                        "REQUEST_ROW_MISSING".equals(durable) ? 0 : 1,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        Status status;
++        String readError = "";
++        if ("READ_ERROR".equals(business.rootCause)
++                || "READ_ERROR".equals(runtime.readStatus)) {
++            status = Status.READ_ERROR;
++            readError = business.readError.length() > 0 ? business.readError : runtime.error;
++        } else if ("RUNTIME_CHAIN".equals(business.rootCause)
++                || "SETTLEMENT_OOS".equals(business.rootCause)
++                || !business.businessAlive) {
++            status = Status.FAIL;
++        } else if ("ANALYSIS_ATTEMPT_FAILED".equals(runtime.lastAttemptType)
++                && runtime.lastAttemptAt >= runtime.lastAt) {
++            status = Status.FAIL;
++        } else if (runtime.eventCount <= 0) {
++            status = Status.RETEST_REQUIRED;
++        } else if (runtime.maxConcurrency > 1
++                || runtime.analysisP95Ms > 5000L
++                || runtime.oomCount > 0) {
++            status = Status.FAIL;
++        } else {
++            status = Status.PASS;
++        }
++        return artifactSnapshotCP4(report, 
++                Stage.RUNTIME,
++                status,
++                "AutoFetchService->BusinessReconcilerR36->V51RuntimeOrchestrator",
++                "B13 heartbeat + RuntimeHealthLedgerR36",
++                business.status + '|' + business.rootCause + '|' + runtime.readStatus,
++                business.canonical()
++                        + "\n"
++                        + AutoFetchService.b13DiagnosticsSnapshotCP4(report, store)
++                        + "\n"
++                        + runtime.summary()
++                        + "\ndurableRequest="
++                        + durable,
++                readError,
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact collectDataSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosisContext context) {
++        ArrayList<Metric> metrics = new ArrayList<Metric>();
++        ArrayList<Evidence> evidence = new ArrayList<Evidence>();
++        if (store == null) return readErrorSnapshotCP4(report, Stage.DATA, context, "STORE_NULL", "DbStore");
++        String base = stateSnapshotCP4(report, store, "current_issue", "");
++        String target = context.targetIssue;
++        TargetIssueResolver.Resolution resolution = TargetIssueResolver.next(base);
++        boolean targetValid = target.length() > 0 && TargetIssueResolver.isValid(target);
++        boolean exactNext =
++                resolution.valid && targetValid && resolution.targetIssue.equals(target);
++        metrics.add(metricSnapshotCP4(report, "baseIssue", base, "issue", "app_state", base.length() > 0));
++        metrics.add(metricSnapshotCP4(report, "targetIssue", target, "issue", "app_state", targetValid));
++        metrics.add(
++                metricSnapshotCP4(report, 
++                        "exactNextTarget",
++                        String.valueOf(exactNext),
++                        "boolean",
++                        "TargetIssueResolver",
++                        resolution.valid));
++        String observation =
++                "base="
++                        + base
++                        + "|target="
++                        + target
++                        + "|resolver="
++                        + resolution.targetIssue
++                        + "|exact="
++                        + exactNext;
++        evidence.add(
++                new Evidence(
++                        evidenceIdSnapshotCP4(report, Stage.DATA, "ISSUE"),
++                        EvidenceGrade.DATABASE_OBSERVATION,
++                        "TargetIssueResolver+app_state",
++                        observation,
++                        "空期号或非精确下一期会阻断正式分析",
++                        targetValid ? 1 : 0,
++                        -1.0d,
++                        -1.0d,
++                        true));
++        Status status = exactNext ? Status.PASS : Status.WARN;
++        return artifactSnapshotCP4(report, 
++                Stage.DATA,
++                status,
++                "TargetIssueResolver_ONLY",
++                "DbStore.app_state",
++                exactNext ? "精确下一期已解析" : "期号需运行时复核",
++                observation,
++                "",
++                context.createdAt,
++                metrics,
++                evidence);
++    }
++
++public StageArtifact stageSnapshotCP12(com.ethk3.novaonepro.ReportReadContextCP4 report,Stage stage){
++      ModelEffectivenessAnalyzerR35.Analysis model=report.memo("model-analysis",()->new ModelEffectivenessAnalyzerR35().analyzeSnapshotCP4(report,report));
++      RuntimeHealthLedgerR36.BusinessTruth truth=report.memo("business-truth",()->RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report,report));
++      String target=truth.latestDrawIssue.length()==0?report.state("target_issue",""):AppConfig.nextIssueText(truth.latestDrawIssue);
++      DiagnosisContext context=new DiagnosisContext(report.nowMs(),target,model,truth);
++      switch(stage){
++case DATA:return collectDataSnapshotCP4(report,report,context);
++case RUNTIME:return collectRuntimeSnapshotCP4(report,report,context);
++case LEDGER:return collectLedgerSnapshotCP4(report,report,context);
++case NUMBER_SURFACE:return collectNumberSurfaceSnapshotCP4(report,report,context);
++case CROSS_POSITION:return collectCrossPositionSnapshotCP4(report,report,context);
++case K3_FUNNEL:return collectK3FunnelSnapshotCP4(report,report,context);
++case ACTION_SPACE:return collectActionSpaceSnapshotCP4(report,report,context);
++case RANKER:return collectRankerSnapshotCP4(report,report,context);
++case CALIBRATION:return collectCalibrationSnapshotCP4(report,report,context);
++case FREQUENCY:return collectFrequencySnapshotCP4(report,report,context);
++case FAILURE_TREE:return collectFailureTreeSnapshotCP4(report,report,context);
++case ABLATION:return collectAblationSnapshotCP4(report,report,context);
++case CODE_OWNER:return collectCodeOwnerSnapshotCP4(report,report,context);
++case IMPROVEMENT:return collectImprovementSnapshotCP4(report,report,context);
++default:throw new IllegalArgumentException("REPORT_STAGE_UNKNOWN");}
++    }
++
++public DiagnosisBundle diagnosisSnapshotCP12(com.ethk3.novaonepro.ReportReadContextCP4 report){
++      java.util.List<StageArtifact> stages=new java.util.ArrayList<>();
++      for(Stage stage:Stage.values())stages.add(report.memo("diagnosis-stage-"+stage.name(),()->stageSnapshotCP12(report,stage)));
++      RuntimeHealthLedgerR36.BusinessTruth truth=report.memo("business-truth",()->RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report,report));
++      String target=truth.latestDrawIssue.length()==0?report.state("target_issue",""):AppConfig.nextIssueText(truth.latestDrawIssue);
++      return assemble(report.nowMs(),target,stages);
++    }
+ }

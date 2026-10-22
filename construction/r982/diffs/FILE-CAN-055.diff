@@ -1,0 +1,292 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java b/app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java
+index 9a735ef..5ed8f6f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java
+@@ -2833,7 +2833,7 @@ public final class DecisionGateEngine {
+             c.probeRejectReason = r.reason;
+             return r;
+         }
+-        String teacher = (c.teacherStatus == null ? "" : c.teacherStatus).toUpperCase();
++        String teacher = (c.teacherStatus == null ? "" : c.teacherStatus).toUpperCase(java.util.Locale.ROOT);
+         int teacherSample =
+                 Math.max(
+                         c.teacherNumberHistorySample,
+@@ -3556,7 +3556,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         if (s.indexOf("WEAK") >= 0 || s.indexOf("弱") >= 0) {
+             return true;
+         }
+@@ -3573,7 +3573,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         if (s.indexOf("WEAK") >= 0 || s.indexOf("弱") >= 0) {
+             return true;
+         }
+@@ -3911,7 +3911,7 @@ public final class DecisionGateEngine {
+                 || third < FINAL_REVIEW_BET_MIN_THIRD) {
+             return false;
+         }
+-        String v = v20 == null ? "" : v20.toUpperCase();
++        String v = v20 == null ? "" : v20.toUpperCase(java.util.Locale.ROOT);
+         if (v.indexOf("WEAK") >= 0) {
+             if (cover < FINAL_REVIEW_BET_WEAK_V20_MIN_COVER
+                     || risk > FINAL_REVIEW_BET_WEAK_V20_MAX_RISK
+@@ -3941,7 +3941,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         if (s.indexOf("RISK") >= 0
+                 || s.indexOf("FREEZE") >= 0
+                 || s.indexOf("NO_SAMPLE") >= 0
+@@ -3958,7 +3958,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         if (s.indexOf("RISK") >= 0
+                 || s.indexOf("FREEZE") >= 0
+                 || s.indexOf("UNKNOWN") >= 0
+@@ -4086,7 +4086,7 @@ public final class DecisionGateEngine {
+         if (s == null || s.length() == 0) {
+             return false;
+         }
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         return u.indexOf("WEAK") >= 0 || u.indexOf("弱") >= 0;
+     }
+ 
+@@ -4105,7 +4105,7 @@ public final class DecisionGateEngine {
+         if (s == null || s.length() == 0) {
+             return false;
+         }
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         return u.indexOf("WEAK") >= 0 || u.indexOf("弱") >= 0;
+     }
+ 
+@@ -4227,7 +4227,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("NO_SAMPLE") >= 0
+                 || s.indexOf("NO SAMPLE") >= 0
+                 || s.indexOf("NONE") >= 0
+@@ -4290,7 +4290,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("WATCH") >= 0
+                 || s.indexOf("PENDING") >= 0
+                 || s.indexOf("UNKNOWN") >= 0
+@@ -4354,7 +4354,7 @@ public final class DecisionGateEngine {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("WATCH") >= 0
+                 || s.indexOf("PENDING") >= 0
+                 || s.indexOf("NEUTRAL") >= 0
+@@ -4433,7 +4433,7 @@ public final class DecisionGateEngine {
+         if (text == null || key == null || key.length() == 0) {
+             return false;
+         }
+-        return text.toUpperCase().indexOf(key.toUpperCase()) >= 0;
++        return text.toUpperCase(java.util.Locale.ROOT).indexOf(key.toUpperCase(java.util.Locale.ROOT)) >= 0;
+     }
+ 
+     private double finalDiagnosisGateAdjust(
+@@ -6119,7 +6119,7 @@ public final class DecisionGateEngine {
+ 
+     private String buildStructuredNonBetRejectCode(Models.ComboCandidate c) {
+         if (c == null) return "FINAL_NO_CANDIDATE";
+-        String freshness = safeTextLocal(c.snapshotFreshness).toUpperCase();
++        String freshness = safeTextLocal(c.snapshotFreshness).toUpperCase(java.util.Locale.ROOT);
+         if (freshness.indexOf("HARD_STALE") >= 0) return "FINAL_SNAPSHOT_HARD_STALE";
+         double coverage = Math.max(c.coverageQuality, c.coverageQualityScore);
+         if (c.coverageAvailable == 0 || coverage < AppConfig.REAL_BET_PROBE_MIN_COVERAGE)
+@@ -6129,15 +6129,15 @@ public final class DecisionGateEngine {
+             return "FINAL_THIRD_NOT_QUALIFIED";
+         if (c.counterRisk > AppConfig.REAL_BET_PROBE_MAX_COUNTER_RISK)
+             return "FINAL_COUNTER_RISK_HIGH";
+-        String adaptive = safeTextLocal(c.adaptiveStatus).toUpperCase();
++        String adaptive = safeTextLocal(c.adaptiveStatus).toUpperCase(java.util.Locale.ROOT);
+         if (adaptive.indexOf("FREEZE") >= 0 || adaptive.indexOf("REJECT") >= 0)
+             return "FINAL_ADAPTIVE_HARD_RISK";
+-        String rule = safeTextLocal(c.ruleHealthStatus).toUpperCase();
++        String rule = safeTextLocal(c.ruleHealthStatus).toUpperCase(java.util.Locale.ROOT);
+         if (rule.indexOf("HARD_RISK") >= 0 || rule.indexOf("FREEZE") >= 0)
+             return "FINAL_RULE_HEALTH_HARD_RISK";
+         String domain = AppConfig.sanitizePromotionDomainKey(c.shadowPromotionDomain);
+         if (domain.length() == 0) return "FINAL_PROMOTION_DOMAIN_MISSING";
+-        String promotion = safeTextLocal(c.shadowPromotionStatus).toUpperCase();
++        String promotion = safeTextLocal(c.shadowPromotionStatus).toUpperCase(java.util.Locale.ROOT);
+         if (!(promotion.indexOf("PROMOTE_WATCH") >= 0
+                 || promotion.indexOf("READY") >= 0
+                 || promotion.indexOf("STRONG") >= 0)) return "FINAL_PROMOTION_NOT_MATURE";
+@@ -6892,7 +6892,7 @@ public final class DecisionGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("MISLEADING") >= 0
+                 || s.indexOf("RISK") >= 0
+                 || s.indexOf("WEAK") >= 0
+@@ -6905,7 +6905,7 @@ public final class DecisionGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+ 
+         /*
+          * FIX01:
+@@ -6943,7 +6943,7 @@ public final class DecisionGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+ 
+         if (metricPositive(s, "REJECT")
+                 || metricPositive(s, "DOWNGRADE")
+@@ -6971,7 +6971,7 @@ public final class DecisionGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+ 
+         if (metricPositive(s, "PASS")
+                 || metricPositive(s, "PROMOTE")
+@@ -6995,7 +6995,7 @@ public final class DecisionGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+ 
+         if (metricPositive(s, "PROMOTE")
+                 || metricPositive(s, "PASS")
+@@ -7021,8 +7021,8 @@ public final class DecisionGateEngine {
+         if (text == null || key == null || key.length() == 0) {
+             return false;
+         }
+-        String s = text.toUpperCase();
+-        String k = key.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
++        String k = key.toUpperCase(java.util.Locale.ROOT);
+         int from = 0;
+         while (true) {
+             int idx = s.indexOf(k, from);
+@@ -7577,7 +7577,7 @@ public final class DecisionGateEngine {
+                             + "|"
+                             + ctx.promotionClusterStatus;
+         }
+-        String u = s == null ? "" : s.toUpperCase();
++        String u = s == null ? "" : s.toUpperCase(java.util.Locale.ROOT);
+         if (u.indexOf("MINI_CORE") < 0) {
+             return false;
+         }
+@@ -7723,7 +7723,7 @@ public final class DecisionGateEngine {
+ 
+     private String normalizeDynamicText(String text) {
+         if (text == null) return "";
+-        return text.trim().toUpperCase();
++        return text.trim().toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private void writeDynamicCausalAuditFields(Models.ComboCandidate c, DecisionContext ctx) {
+@@ -9219,7 +9219,7 @@ public final class DecisionGateEngine {
+             return true;
+         }
+ 
+-        String s = scope.trim().toUpperCase();
++        String s = scope.trim().toUpperCase(java.util.Locale.ROOT);
+ 
+         return "REAL".equals(s)
+                 || "REAL_TRADE".equals(s)
+@@ -9534,7 +9534,7 @@ public final class DecisionGateEngine {
+             return AppConfig.DECISION_HOLD;
+         }
+ 
+-        x = x.trim().toUpperCase();
++        x = x.trim().toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("BET".equals(x) || "REAL".equals(x) || "REAL_TRADE".equals(x) || "投注".equals(x)) {
+             return AppConfig.DECISION_BET;
+@@ -9561,7 +9561,7 @@ public final class DecisionGateEngine {
+         try {
+             r = AppConfig.normalizeResult(r);
+         } catch (Throwable e) {
+-            r = r.toUpperCase();
++            r = r.toUpperCase(java.util.Locale.ROOT);
+         }
+ 
+         if (AppConfig.RESULT_WIN.equals(r) || "HIT".equals(r) || "命中".equals(r)) {
+@@ -11082,7 +11082,7 @@ public final class DecisionGateEngine {
+             reject = V51Enums.RejectCode.NONE;
+         }
+         V51Models.AuthorizedDecision out =
+-                new DecisionAuthorizationEngine().authorizeV51Frozen(compiled, action, reject);
++                new DecisionAuthorizationEngine().authorizeV51FrozenCP12(new AuthorizationScopeCP12(compiled),compiled, action, reject);
+         if (store != null) {
+             try {
+                 store.setState("v57_b12_bet_owner", V57_TERMINAL_OWNER);
+@@ -11111,6 +11111,7 @@ public final class DecisionGateEngine {
+             out.finalDecisionRejectCode = out.blockCode;
+             out.reasonSummary = "V51 typed runtime result incomplete";
+             out.reasonText = out.reasonSummary;
++            CanonicalReasonCP12.attachDecision(out);
+             return out;
+         }
+         V51Models.AuthorizedDecision authorized = runtime.authorized;
+@@ -11222,7 +11223,8 @@ public final class DecisionGateEngine {
+                                 ? AppConfig.STAT_SCOPE_SHADOW
+                                 : AppConfig.STAT_SCOPE_HOLD);
+         out.realtimeCostMs = runtime.elapsedMs;
+-        return out;
++        CanonicalReasonCP12.attachDecision(out);
++            return out;
+     }
+ 
+     public static final String B12_UNIQUE_DECISION_OWNER = "DecisionGateEngine#decideV51B12";
+@@ -11296,6 +11298,12 @@ public final class DecisionGateEngine {
+                 || c.selected.context == null
+                 || c.selected.action == null
+                 || c.policy == null) return V51Enums.RejectCode.DATA_INCOMPLETE;
++        if (c.policy.realEligible && c.certifiedPrediction == null)
++            return V51Enums.RejectCode.MODEL_NOT_PROVEN;
++        if (c.certifiedPrediction != null
++                && (store == null || !CertifiedPredictionR974.verifyCertificate(
++                        store, c.certifiedPrediction).isEmpty()))
++            return V51Enums.RejectCode.MODEL_NOT_PROVEN;
+         V51Models.PositionAction a = c.selected.action;
+         if (a.position < 1 || a.position > 10 || !b12K3(a.n1, a.n2, a.n3))
+             return V51Enums.RejectCode.FIXED_K3_CONTRACT_FAILED;
+@@ -11346,4 +11354,10 @@ public final class DecisionGateEngine {
+     public static boolean b12CanAnyOtherClassCreateBet() {
+         return false;
+     }
++    /** Only the Gate can create this immutable single-contract signing capability. */
++    public static final class AuthorizationScopeCP12 {
++        private final V51CompiledActionContract contract;
++        private AuthorizationScopeCP12(V51CompiledActionContract c){contract=c;}
++        public boolean matches(V51CompiledActionContract c){return contract==c;}
++    }
+ }

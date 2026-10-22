@@ -1,0 +1,20 @@
+﻿kind,name,exported_or_status,notes
+permission,android.permission.INTERNET,DECLARED,
+permission,android.permission.ACCESS_NETWORK_STATE,DECLARED,
+permission,android.permission.WAKE_LOCK,DECLARED,
+permission,android.permission.FOREGROUND_SERVICE,DECLARED,
+permission,android.permission.FOREGROUND_SERVICE_DATA_SYNC,DECLARED,
+permission,android.permission.POST_NOTIFICATIONS,DECLARED,Android 13+需运行时授权；报告权限8/9，必须在UI列出具体缺哪项
+permission,android.permission.RECEIVE_BOOT_COMPLETED,DECLARED,
+permission,android.permission.SCHEDULE_EXACT_ALARM,DECLARED,
+permission,android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,DECLARED,Manifest已声明，但报告显示当前设备电池豁免=NO，需用户系统授权
+activity,.DiagnosisActivity,false,
+activity,.HistoryActivity,false,
+activity,.ModelLearningActivity,false,
+activity,.DatabaseHealthActivity,false,
+activity,.MainActivity,true,
+service,.AutoFetchService,false,"foregroundServiceType=dataSync, stopWithTask=false；仍需真机taskRemoved/kill/OEM矩阵"
+service,.ServiceWatchdogJobService,false,
+receiver,.BootReceiver,true,监听BOOT/LOCKED_BOOT/MY_PACKAGE_REPLACED/USER_UNLOCKED/EXACT_ALARM变化
+receiver,.InternalWatchdogReceiverR815,false,
+provider,.DiagnosticReportProviderR923,false,

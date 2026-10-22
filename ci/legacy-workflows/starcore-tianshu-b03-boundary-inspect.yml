@@ -1,0 +1,34 @@
+name: starcore-tianshu-b03-boundary-inspect
+
+on:
+  push:
+    branches:
+      - v57-full/b03
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-boundary:
+    if: contains(github.event.head_commit.message, '[b03-inspect-boundary]')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact B03 execution branch
+        uses: actions/checkout@v4
+        with:
+          ref: v57-full/b03
+          fetch-depth: 1
+
+      - name: Reconstruct immutable runner and print failing boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools
+          cat .github/starcore-tianshu-b03/final-runner.part-* | base64 --decode | gzip --decompress > tools/b03_final_accept.sh
+          printf '%s  %s\n' 'db43a9490044991709c1d30be7402e2de961a076c7b6ec17d8be9bb16b955c42' tools/b03_final_accept.sh | sha256sum -c -
+          bash -n tools/b03_final_accept.sh
+          line="$(grep -n 'Parse all Java and XML and enforce B03 source boundaries' tools/b03_final_accept.sh | head -1 | cut -d: -f1)"
+          test -n "$line"
+          end=$((line + 150))
+          echo "B03_BOUNDARY_SECTION=${line}..${end}"
+          nl -ba tools/b03_final_accept.sh | sed -n "${line},${end}p"

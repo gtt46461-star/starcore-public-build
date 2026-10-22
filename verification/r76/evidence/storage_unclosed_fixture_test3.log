@@ -1,0 +1,32 @@
+PASS full production trigger schema retained
+PASS first eligible 128-row page
+PASS first page makes selected-row native snapshot without whole-DB backup
+PASS reject RETENTION_SNAPSHOT_BUSY
+PASS published immutable proof readback
+PASS large cell streamed into exact archive
+PASS receipt-before-ack crash recovers original verified bytes
+PASS receipt recovery performs no database copy
+PASS reject ARCHIVE_STREAM_HASH
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS 128 independently verified rows deleted
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS duplicate proof cannot delete twice
+PASS different page takes a new small snapshot with zero whole-DB backup calls
+PASS published immutable proof readback
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS changed live generation survives stale archive proof
+PASS changed row remains live
+PASS changed requested generation refreshes page cache
+PASS small requested page is below 1MiB despite unrelated history
+PASS refreshed snapshot has new real content hash
+PASS identical requested page reuses immutable snapshot
+PASS reject ARCHIVE_CANCELLED
+PASS cancellation does not trigger another backup
+PASS changed private file fails hash and is rebuilt
+Exception in thread "main" com.ethk3.novaonepro.ReportNativeCP4$Failure: REPORT_RETENTION_PAGE_FAILED|native=8
+	at com.ethk3.novaonepro.ReportNativeCP4.retentionPage(ReportNativeCP4.java:39)
+	at com.ethk3.novaonepro.RetentionSnapshotCacheR73.acquire(RetentionSnapshotCacheR73.java:121)
+	at com.ethk3.novaonepro.RetentionPageClosureR76.main(RetentionPageClosureR76.java:81)

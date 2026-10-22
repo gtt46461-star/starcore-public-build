@@ -1,0 +1,64 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java b/app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java
+index 1d3d811..a7fd07b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchPlatformStoreR929.java
+@@ -283,6 +283,7 @@ public final class ResearchPlatformStoreR929 {
+     static boolean putCertificate(SQLiteDatabase db,
+             CertificateBundleServiceR929.Certificate certificate,String evidence) {
+         if(!db.inTransaction())throw new IllegalStateException("R932_CERTIFICATE_TRANSACTION_REQUIRED");
++        if(ResearchGatePlanR967.installed().isCp3){String rejection=CertificateDependenciesR932.validateCp4Publication(db,certificate);if(!rejection.isEmpty())throw new IllegalStateException(rejection);}
+                         Cursor bundle = db.rawQuery("SELECT state,signature_verified,schema_hash,code_hash "
+                                 + "FROM " + TABLE_BUNDLE + " WHERE bundle_hash=?",
+                                 new String[] {certificate.bundleHash});
+@@ -307,7 +308,7 @@ public final class ResearchPlatformStoreR929 {
+                             db.execSQL("INSERT OR IGNORE INTO "+TABLE_CERT_GATE+" VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{certificate.certificateHash,gate.gateId,gate.observed,gate.required,gate.pass?1:0,gate.source,gate.sourceHash,gate.detail,gate.gateHash});
+                         }
+                         ContentValues values = new ContentValues();
+-                        values.put("contract_revision","R932_REQUIRED_GATES_V1");
++                        values.put("contract_revision",currentCertificateContractCp4());
+                         values.put("candidate_key", certificate.candidate.keyHash);
+                         values.put("consumer", certificate.candidate.consumer.name());
+                         values.put("namespace", certificate.candidate.namespace);
+@@ -384,7 +385,7 @@ public final class ResearchPlatformStoreR929 {
+         try(ModelBundleRuntimeR932.Scope scope=ModelBundleRuntimeR932.forEvidence(active,target,System.currentTimeMillis())){
+             java.util.List<String[]> revoke=new java.util.ArrayList<String[]>();
+             String cursor=store.getState("r932_certificate_audit_cursor","");String next="";
+-            try(Cursor c=BudgetedQueryR927.query(store.readable(),"SELECT certificate_hash,bundle_hash,schema_hash,selection_hash,code_hash,domain_hash,atom_graph_hash,model_hash,policy_hash,calibration_hash,trial_hash,structural_hash,family_id,issued_at,candidate_key FROM "+TABLE_CERTIFICATE+" WHERE state='ACTIVE' AND candidate_key>? ORDER BY candidate_key LIMIT 16",new String[]{cursor})){
++            try(Cursor c=BudgetedQueryR927.query(store.readable(),"SELECT certificate_hash,bundle_hash,schema_hash,selection_hash,code_hash,domain_hash,atom_graph_hash,model_hash,policy_hash,calibration_hash,trial_hash,structural_hash,family_id,issued_at,candidate_key FROM "+TABLE_CERTIFICATE+" WHERE state='ACTIVE' AND contract_revision='"+currentCertificateContractCp4()+"' AND candidate_key>? ORDER BY candidate_key LIMIT 16",new String[]{cursor})){
+                 while(c.moveToNext()){
+                     ResearchWorkBudgetR927.checkpoint();next=c.getString(14);String reason="";
+                     if(!active.equals(c.getString(1))||!V51ActionMetaFeatureEngine.featureManifestHash().equals(c.getString(2))||!CertificateDependenciesR932.selectionHash().equals(c.getString(3))||!SourceManifestR815.SOURCE_TREE_SHA256.equals(c.getString(4))||!DomainRouterR929.installedSchemaHash().equals(c.getString(5)))reason="FROZEN_BUNDLE_SCHEMA_SELECTION_CODE_DOMAIN_CHANGED";
+@@ -426,7 +427,7 @@ public final class ResearchPlatformStoreR929 {
+                     + "b.state,b.signature_verified,c.valid_from_issue,c.valid_until_issue "
+                     + "FROM " + TABLE_CERTIFICATE + " c JOIN " + TABLE_BUNDLE
+                     + " b ON b.bundle_hash=c.bundle_hash WHERE c.consumer=? AND c.candidate_id=? "
+-                    + "AND c.structural_hash=? AND c.evidence_hash=? AND NOT EXISTS(SELECT 1 FROM research_certificate_revocation_r932 rv WHERE rv.certificate_hash=c.certificate_hash) AND c.contract_revision='R932_REQUIRED_GATES_V1' ORDER BY c.updated_at DESC LIMIT 2",
++                    + "AND c.structural_hash=? AND c.evidence_hash=? AND NOT EXISTS(SELECT 1 FROM research_certificate_revocation_r932 rv WHERE rv.certificate_hash=c.certificate_hash) AND c.contract_revision='"+currentCertificateContractCp4()+"' ORDER BY c.updated_at DESC LIMIT 2",
+                     new String[] {consumer.name(), id, structural, evidence});
+             if (!cursor.moveToFirst()) return Authorization.denied("NO_UNIFIED_CERTIFICATE");
+             String level = cursor.getString(0);
+@@ -478,7 +479,7 @@ public final class ResearchPlatformStoreR929 {
+             return Authorization.denied("LIFECYCLE_UNAVAILABLE_"+lifecycleUnavailable.getClass().getSimpleName());
+         }
+         try(Cursor c=store.readable().rawQuery("SELECT evidence_hash,bundle_hash,schema_hash,selection_hash,code_hash,domain_hash,issued_at,atom_graph_hash,model_hash,policy_hash,calibration_hash,trial_hash,family_id FROM "
+-                +TABLE_CERTIFICATE+" WHERE consumer=? AND candidate_id=? AND structural_hash=? AND contract_revision='R932_REQUIRED_GATES_V1' ORDER BY issued_at DESC LIMIT 2",
++                +TABLE_CERTIFICATE+" WHERE consumer=? AND candidate_id=? AND structural_hash=? AND contract_revision='"+currentCertificateContractCp4()+"' ORDER BY issued_at DESC LIMIT 2",
+                 new String[]{consumer.name(),id,structural})){
+             if(!c.moveToFirst())return Authorization.denied("LEGACY_REVIEW_NO_UNIFIED_CERTIFICATE");
+             String evidence=c.getString(0);
+@@ -541,7 +542,7 @@ public final class ResearchPlatformStoreR929 {
+                     + "c.policy_hash,c.calibration_hash,c.trial_hash,c.family_id,b.state,b.signature_verified,c.all_gates_pass "
+                     + "FROM " + TABLE_CERTIFICATE + " c JOIN " + TABLE_BUNDLE
+                     + " b ON b.bundle_hash=c.bundle_hash WHERE c.consumer=? AND c.candidate_id=? "
+-                    + "AND c.structural_hash=? AND c.contract_revision='R932_REQUIRED_GATES_V1' "
++                    + "AND c.structural_hash=? AND c.contract_revision='"+currentCertificateContractCp4()+"' "
+                     + "AND NOT EXISTS(SELECT 1 FROM " + TABLE_REVOCATION
+                     + " rv WHERE rv.certificate_hash=c.certificate_hash) "
+                     + "ORDER BY c.issued_at DESC LIMIT 2",
+@@ -703,4 +704,6 @@ public final class ResearchPlatformStoreR929 {
+         if (!hash(clean)) throw new IllegalArgumentException("R929_" + code + "_NOT_SHA256");
+         return clean;
+     }
++
++    private static String currentCertificateContractCp4(){return ResearchGatePlanR967.installed().isCp3?"CP4_REQUIRED_GATES_V1":"R932_REQUIRED_GATES_V1";}
+ }

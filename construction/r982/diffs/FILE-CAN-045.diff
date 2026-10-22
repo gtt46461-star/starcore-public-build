@@ -1,0 +1,221 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CountdownClock.java b/app/src/main/java/com/ethk3/novaonepro/CountdownClock.java
+index 6e65834..221d5c3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CountdownClock.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CountdownClock.java
+@@ -45,6 +45,7 @@ public final class CountdownClock {
+ 
+     private long nextOpenTime;
+     private long roundIntervalMs;
++    private CountdownProjectionR971.Anchor clockAnchorCP12;
+ 
+     private long lastFetchAt;
+     private long lastSyncAt;
+@@ -200,6 +201,7 @@ public final class CountdownClock {
+         lastSyncAt = System.currentTimeMillis();
+         lastClockWarning = "";
+         lastSyncSource = "history";
++        captureClockAnchorCP12(lastSyncAt);
+ 
+         resetFetchTimerForNewIssue();
+     }
+@@ -236,6 +238,7 @@ public final class CountdownClock {
+         lastSyncAt = System.currentTimeMillis();
+         lastClockWarning = "";
+         lastSyncSource = "latest_draw";
++        captureClockAnchorCP12(lastSyncAt);
+ 
+         if (!sameText(oldTarget, targetIssue)) {
+             resetFetchTimerForNewIssue();
+@@ -245,20 +248,14 @@ public final class CountdownClock {
+     }
+ 
+     public synchronized void syncBySystemClock() {
+-        long now = System.currentTimeMillis();
+-
+-        normalizeRoundInterval();
+-
+-        nextOpenTime = calcNextOfficialOpenTime(now);
+-        lastSyncAt = now;
+-        lastClockWarning = "使用系统时间兜底";
+-        lastSyncSource = "system_clock";
+-
+-        resetFetchTimerForNewIssue();
++        normalizeRoundInterval();nextOpenTime=0L;clockAnchorCP12=null;
++        lastSyncAt=System.currentTimeMillis();lastClockWarning="STALE_CLOCK|WAIT_AUTHORITATIVE_DRAW";
++        lastSyncSource="WAIT_AUTHORITATIVE_DRAW";resetFetchTimerForNewIssue();
+     }
+ 
+     public synchronized void syncIssueOnly(String currentIssueValue) {
+         if (!acceptAuthoritativeIssue(currentIssueValue)) return;
++        if(clockAnchorCP12!=null&&!clockAnchorCP12.targetIssue.equals(targetIssue))clockAnchorCP12=null;
+         resetRealtimeCounterIfIssueChanged();
+     }
+ 
+@@ -273,6 +270,7 @@ public final class CountdownClock {
+         lastSyncAt = System.currentTimeMillis();
+         lastClockWarning = "手动指定开奖时间";
+         lastSyncSource = "manual_next_open_time";
++        captureClockAnchorCP12(lastSyncAt);
+ 
+         resetFetchTimerForNewIssue();
+     }
+@@ -288,29 +286,21 @@ public final class CountdownClock {
+     }
+ 
+     public synchronized long getCountdownMs() {
+-        normalizeNextOpenTime();
+-
+-        if (nextOpenTime <= 0L) {
+-            return 0L;
+-        }
+-
+-        long left = nextOpenTime - System.currentTimeMillis();
+-
+-        if (left < 0L) {
+-            return 0L;
+-        }
+-
+-        return left;
++        long value=getSignedCountdownMs();
++        return value==CountdownProjectionR971.STALE_CLOCK?0L:Math.max(0L,value);
+     }
+ 
+     public synchronized long getSignedCountdownMs() {
+-        normalizeNextOpenTime();
+-
+-        if (nextOpenTime <= 0L) {
+-            return 0L;
+-        }
+-
+-        return nextOpenTime - System.currentTimeMillis();
++        if(clockAnchorCP12==null)return 0L;
++        long signed=clockAnchorCP12.signedRemaining(targetIssue,getClockRevision(),TimeSourceR811.clockSessionCP12(),TimeSourceR811.monoNowMs());
++        if(signed==CountdownProjectionR971.STALE_CLOCK){lastClockWarning="STALE_CLOCK|WAIT_AUTHORITATIVE_DRAW";return 0L;}
++        return signed;
++    }
++    public synchronized CountdownProjectionR971.Anchor clockAnchorCP12(){return clockAnchorCP12;}
++    private void captureClockAnchorCP12(long sampledWall){
++        try{
++            clockAnchorCP12=CountdownProjectionR971.Anchor.capture(targetIssue,getClockRevision(),TimeSourceR811.clockSessionCP12(),nextOpenTime,sampledWall,TimeSourceR811.monoNowMs());
++        }catch(IllegalArgumentException stale){clockAnchorCP12=null;lastClockWarning="STALE_CLOCK|"+stale.getMessage();}
+     }
+ 
+     public synchronized long getNextOpenTime() {
+@@ -596,40 +586,9 @@ public final class CountdownClock {
+     }
+ 
+     public synchronized void moveToNextRound() {
+-        normalizeRoundInterval();
+-
+-        long now = System.currentTimeMillis();
+-
+-        if (lastMoveRoundAt > 0L && now - lastMoveRoundAt < MOVE_ROUND_GUARD_MS) {
+-            return;
+-        }
+-
+-        lastMoveRoundAt = now;
+-
+-        if (nextOpenTime <= 0L) {
+-            nextOpenTime = calcNextOfficialOpenTime(now);
+-        } else {
+-            nextOpenTime += roundIntervalMs;
+-        }
+-
+-        while (nextOpenTime <= now
+-                && now - nextOpenTime > AppConfig.REALTIME_OPEN_AFTER_SEC * ONE_SECOND_MS) {
+-            nextOpenTime += roundIntervalMs;
+-        }
+-
+-        /*
+-         * 注意：
+-         * 这里只在时钟层推进 current/target 的显示，不作为真实开奖依据。
+-         * 真正开奖期号必须以接口返回 draw.issue 为准。
+-         */
+-        if (targetIssue != null && targetIssue.length() > 0) {
+-            currentIssue = targetIssue;
+-            targetIssue = dataGuard.buildNextIssue(currentIssue);
+-            clockRevision.incrementAndGet();
+-        }
+-
+-        normalizeNextOpenTime();
+-        resetFetchTimerForNewIssue();
++        // Retiredsynthetic issue advancement. Fetch/new draw is the sole authoritative source.
++        clockAnchorCP12=null;lastClockWarning="STALE_CLOCK|WAIT_AUTHORITATIVE_DRAW";
++        lastSyncSource="WAIT_AUTHORITATIVE_DRAW";
+     }
+ 
+     public synchronized void onNewDrawArrived(Models.Draw newDraw, List<Models.Draw> history) {
+@@ -761,14 +720,14 @@ public final class CountdownClock {
+         long now = System.currentTimeMillis();
+ 
+         if (latestDraw == null) {
+-            return calcNextOfficialOpenTime(now);
++            return 0L;
+         }
+ 
+         long open = latestDraw.openTime;
+ 
+         if (open <= 0L) {
+             lastClockWarning = "开奖缺少openTime，使用系统时间兜底";
+-            return calcNextOfficialOpenTime(now);
++            return 0L;
+         }
+ 
+         normalizeRoundInterval();
+@@ -779,46 +738,15 @@ public final class CountdownClock {
+         if (diff > API_TIME_FUTURE_MAX_FACTOR * roundIntervalMs
+                 || diff < -API_TIME_PAST_MAX_FACTOR * roundIntervalMs) {
+             lastClockWarning = "接口开奖时间偏离本地时间，使用系统时间兜底";
+-            return calcNextOfficialOpenTime(now);
++            return 0L;
+         }
+ 
+         return candidate;
+     }
+ 
+     private void normalizeNextOpenTime() {
+-        long now = System.currentTimeMillis();
+-
+         normalizeRoundInterval();
+-
+-        if (nextOpenTime <= 0L) {
+-            nextOpenTime = calcNextOfficialOpenTime(now);
+-            return;
+-        }
+-
+-        /*
+-         * 开奖后不能马上推到下一分钟。
+-         * 必须保留开奖点，允许开奖后窗口继续高频抓取，等待接口真正出新开奖。
+-         */
+-        if (nextOpenTime <= now) {
+-            long after = now - nextOpenTime;
+-
+-            if (after <= AppConfig.REALTIME_OPEN_AFTER_SEC * ONE_SECOND_MS) {
+-                return;
+-            }
+-        }
+-
+-        int guard = 0;
+-
+-        while (nextOpenTime <= now && guard < 2000) {
+-            nextOpenTime += roundIntervalMs;
+-            guard++;
+-        }
+-
+-        if (nextOpenTime <= now || nextOpenTime - now > 2L * roundIntervalMs) {
+-            nextOpenTime = calcNextOfficialOpenTime(now);
+-        }
+-
+-        resetRealtimeCounterIfIssueChanged();
++        // Thetargetdeadline is immutable until a real source synchronizes it. No getterrolls an old target into another minute.
+     }
+ 
+     private void normalizeRoundInterval() {
+@@ -1031,6 +959,7 @@ public final class CountdownClock {
+                 return snapshot;
+             }
+             this.nextOpenTime = snapshot.nextOpenTime;
++            captureClockAnchorCP12(nowMs);
+             this.roundIntervalMs = verified.estimatedIntervalMs;
+             this.lastSyncAt = nowMs;
+             this.lastSyncSource = "BINANCE_PROVIDER_TIME";

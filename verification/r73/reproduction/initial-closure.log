@@ -1,0 +1,42 @@
+PASS full production trigger schema retained
+PASS first eligible 128-row page
+PASS first page makes actual pinned native backup
+PASS reject RETENTION_SNAPSHOT_BUSY
+PASS published immutable proof readback
+PASS large cell streamed into exact archive
+PASS receipt-before-ack crash recovers original verified bytes
+PASS receipt recovery performs no database copy
+PASS reject ARCHIVE_STREAM_HASH
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS 128 independently verified rows deleted
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS duplicate proof cannot delete twice
+PASS next page reuses copy with zero backup calls
+PASS published immutable proof readback
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS changed live generation survives stale archive proof
+PASS changed row remains live
+PASS changed requested generation refreshes cache
+PASS refreshed snapshot has new real content hash
+PASS reject ARCHIVE_CANCELLED
+PASS cancellation does not trigger another backup
+PASS changed private file fails hash and is rebuilt
+PASS bounded use count forces replacement
+PASS age limit forces replacement
+PASS wall clock rollback cannot extend cache age
+PASS reject REPORT_DISK_BUDGET
+PASS disk refusal never prunes rows
+PASS reject STALE_PAGE
+PASS stale request leaves no accepted snapshot metadata
+PASS published immutable proof readback
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS cleanup continues after stale-page refresh
+PASS full export can reclaim optional snapshot copy
+PASS snapshot disposal preserves all immutable archives
+PASS draw tail remains exactly 5000
+PASS 383 eligible rows removed while 17 remain
+PASS three real archive receipts published

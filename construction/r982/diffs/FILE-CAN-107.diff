@@ -1,0 +1,73 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RealBetDiagnosisEngine.java b/app/src/main/java/com/ethk3/novaonepro/RealBetDiagnosisEngine.java
+index 62b4d77..01ad863 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RealBetDiagnosisEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RealBetDiagnosisEngine.java
+@@ -1983,7 +1983,7 @@ public final class RealBetDiagnosisEngine {
+     }
+ 
+     private String upper(String s) {
+-        return s == null ? "" : s.toUpperCase();
++        return s == null ? "" : s.toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private void updateFieldChainVerifyCounters(DiagnosisReport report, BetCase c) {
+@@ -2264,7 +2264,7 @@ public final class RealBetDiagnosisEngine {
+         String s = c == null ? "" : firstNonEmpty(c.v20Status, c.dynamicStatus, c.v20Bucket);
+         if (s.length() == 0 && d != null) s = safe(d.v20Status);
+         if (isEmptyBucket(s)) return false;
+-        String u = safe(s).toUpperCase();
++        String u = safe(s).toUpperCase(java.util.Locale.ROOT);
+         return u.indexOf("STRONG") < 0
+                 && u.indexOf("READY") < 0
+                 && u.indexOf("PASS") < 0
+@@ -2480,7 +2480,7 @@ public final class RealBetDiagnosisEngine {
+     }
+ 
+     private boolean isTeacherNoSampleText(String s) {
+-        String u = safe(s).toUpperCase();
++        String u = safe(s).toUpperCase(java.util.Locale.ROOT);
+         if (u.length() == 0) return true;
+         if (isEmptyBucket(u)) return true;
+         return u.indexOf("NO_SAMPLE") >= 0
+@@ -2493,7 +2493,7 @@ public final class RealBetDiagnosisEngine {
+     }
+ 
+     private boolean isV20WatchText(String s) {
+-        String u = safe(s).toUpperCase();
++        String u = safe(s).toUpperCase(java.util.Locale.ROOT);
+         if (u.length() == 0) return true;
+         if (isEmptyBucket(u)) return true;
+         if (isV20HardRiskText(u)) return false;
+@@ -2508,7 +2508,7 @@ public final class RealBetDiagnosisEngine {
+     }
+ 
+     private boolean isAdaptiveWatchText(String s) {
+-        String u = safe(s).toUpperCase();
++        String u = safe(s).toUpperCase(java.util.Locale.ROOT);
+         if (u.length() == 0) return true;
+         if (isAdaptiveHardRiskText(u)) return false;
+         return u.indexOf("WATCH") >= 0
+@@ -2556,12 +2556,12 @@ public final class RealBetDiagnosisEngine {
+     }
+ 
+     private boolean containsAny(String text, String... arr) {
+-        String s = safe(text).toUpperCase();
++        String s = safe(text).toUpperCase(java.util.Locale.ROOT);
+         if (arr == null) return false;
+         for (int i = 0; i < arr.length; i++) {
+             String x = arr[i];
+             if (x == null || x.length() == 0) continue;
+-            String xu = x.toUpperCase();
++            String xu = x.toUpperCase(java.util.Locale.ROOT);
+             if (s.indexOf(xu) >= 0 || safe(text).indexOf(x) >= 0) return true;
+         }
+         return false;
+@@ -4527,7 +4527,7 @@ public final class RealBetDiagnosisEngine {
+     private String normalizeResult(String r) {
+         String s = safe(r).trim();
+         if (s.length() == 0) return AppConfig.RESULT_WAIT;
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         if ("WIN".equals(u) || "HIT".equals(u) || "命中".equals(s)) return AppConfig.RESULT_WIN;
+         if ("MISS".equals(u)
+                 || "LOSE".equals(u)

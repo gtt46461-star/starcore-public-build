@@ -1,0 +1,22 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AppConfig.java b/app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+index e512daf..5909605 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AppConfig.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+@@ -3564,7 +3564,7 @@ public final class AppConfig {
+     }
+ 
+     public static boolean isValidK3Mask(int mask) {
+-        return countK3MaskNumbers(mask) == FIXED_K;
++        return (mask & ~1023) == 0 && Integer.bitCount(mask) == FIXED_K;
+     }
+ 
+     public static String k3MaskToText(int mask) {
+@@ -4961,7 +4961,7 @@ public final class AppConfig {
+             "V47_CROSSFIT_NUMBER_CHAMPION_FINAL40_FULL_DIAGNOSIS_20260721_47072147";
+     public static final String STABILITY_FIX_COHORT =
+             "NOVA_V46_NUMBER_DISTRIBUTION_COHORT_20260721_46072130";
+-    public static final int DB_BUSY_TIMEOUT_MS = 2500;
++    public static final int DB_BUSY_TIMEOUT_MS = 50;
+     public static final int DB_LOCK_RETRY_COUNT = 3;
+     public static final long DB_LOCK_RETRY_BASE_MS = 40L;
+     public static final long BACKGROUND_SLICE_MAX_MS = 800L;

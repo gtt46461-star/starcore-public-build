@@ -1,0 +1,344 @@
+name: Starcore Tianshu B01-B07 R3 Fullblood
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01-b07-r3-20260807
+    paths:
+      - '.github/starcore-tianshu-b07r3/RUN_R3_FULL'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: starcore-tianshu-b01-b07-r3-fullblood
+  cancel-in-progress: false
+
+jobs:
+  short-gates-build-artifact-first:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 42
+    steps:
+      - name: Checkout frozen R2 input
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01-b07-r3-20260807
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Gate 1 - generator syntax only
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p reports delivery
+          timeout 20s python3 -m py_compile \
+            .github/starcore-tianshu-b07r3/apply_r3.py \
+            .github/starcore-tianshu-b07r3/run_r3_fixed.py \
+            .github/starcore-tianshu-b07r3/b07_fullblood_patch.py \
+            .github/starcore-tianshu-b07r3/selfcheck.py \
+            .github/starcore-tianshu-b07r3/selfcheck_fullblood.py \
+            2>&1 | tee reports/B07R3_GATE1_PYTHON.log
+          echo PASS > reports/B07R3_GATE1_STATUS.txt
+
+      - name: Gate 2 - exact R3 patch plus B07 fullblood hardening
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          timeout 100s python3 .github/starcore-tianshu-b07r3/run_r3_fixed.py | tee reports/B07R3_GATE2_BASE_PATCH.log
+          timeout 100s python3 .github/starcore-tianshu-b07r3/b07_fullblood_patch.py | tee reports/B07R3_GATE2_FULLBLOOD_PATCH.log
+          git diff --check | tee reports/B07R3_DIFF_CHECK.log
+          sha256sum app/src/main/java/com/ethk3/novaonepro/StarcoreEvidenceKernel.java | tee reports/B07R3_KERNEL_SHA256.txt
+          echo PASS > reports/B07R3_GATE2_STATUS.txt
+
+      - name: Gate 3 - bounded invariant and full 54-file contract checks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          timeout 100s python3 .github/starcore-tianshu-b07r3/selfcheck.py | tee reports/B07R3_GATE3_INVARIANT.log
+          timeout 100s python3 .github/starcore-tianshu-b07r3/selfcheck_fullblood.py | tee reports/B07R3_GATE3_FULLBLOOD.log
+          echo PASS > reports/B07R3_GATE3_STATUS.txt
+
+      - name: Gate 4 - fast Java compiler
+        shell: bash
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.daemon=false
+        run: |
+          set +e
+          START=$(date +%s)
+          timeout 10m gradle --no-daemon --stacktrace :app:compileDebugJavaWithJavac 2>&1 | tee reports/B07R3_JAVAC_COMPILE.log
+          RC=${PIPESTATUS[0]}
+          END=$(date +%s)
+          printf 'rc=%s\nduration_sec=%s\n' "$RC" "$((END-START))" > reports/B07R3_GATE4_COMPILE_STATUS.txt
+          exit 0
+
+      - name: Gate 4b - source secret reverse scan
+        shell: bash
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set +e
+          python3 - <<'PY' | tee reports/B07R3_SECRET_SCAN.txt
+          from pathlib import Path
+          import os,sys
+          key=os.environ.get('DUOQU_API_KEY','').encode()
+          roots=[Path('app/src'),Path('.github/starcore-tianshu-b07r3')]
+          hits=[]
+          if key:
+              for root in roots:
+                  for p in root.rglob('*'):
+                      if not p.is_file(): continue
+                      try: b=p.read_bytes()
+                      except: continue
+                      if key in b: hits.append(str(p))
+          print('secret_configured='+str(bool(key)))
+          print('plaintext_hits='+str(len(hits)))
+          for h in hits: print('HIT_FILE='+h)
+          sys.exit(1 if hits else 0)
+          PY
+          RC=${PIPESTATUS[0]}
+          echo "rc=$RC" > reports/B07R3_SECRET_SCAN_STATUS.txt
+          exit 0
+
+      - name: Real Binance1-PK10 API sanitized validation
+        shell: bash
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          set +e
+          timeout 35s python3 - <<'PY' | tee reports/B07R3_LIVE_API_TEST.json
+          import json,os,urllib.parse,urllib.request,time
+          key=os.environ.get('DUOQU_API_KEY','').strip()
+          out={'game':'Binance1-PK10','key_logged':False,'primary':{},'backup':{},'result':'NOT_RUN_NO_SECRET'}
+          def collect_rows(obj):
+              rows=[]
+              def walk(x):
+                  if isinstance(x,list):
+                      if x and all(isinstance(y,dict) for y in x): rows.extend(x)
+                      for y in x: walk(y)
+                  elif isinstance(x,dict):
+                      for v in x.values(): walk(v)
+              walk(obj); return rows
+          def validate(obj):
+              rows=collect_rows(obj); valid=0
+              for r in rows[:50]:
+                  vals=[]
+                  for v in r.values():
+                      if isinstance(v,list) and len(v)==10:
+                          try: vals=[int(z) for z in v]
+                          except: vals=[]
+                          if vals: break
+                      if isinstance(v,str):
+                          z=[q for q in v.replace(',',' ').replace('|',' ').replace('-',' ').split() if q.isdigit()]
+                          if len(z)==10: vals=[int(q) for q in z]; break
+                  if sorted(vals)==list(range(1,11)): valid+=1
+              return {'row_candidates':len(rows),'valid_permutation_rows':valid}
+          def call(base):
+              q=urllib.parse.urlencode({'code':'Binance1-PK10','limit':'20','key':key})
+              req=urllib.request.Request(base+'/data?'+q,headers={'User-Agent':'Starcore-Tianshu-R3-Fullblood-CI'})
+              t=time.time()
+              try:
+                  with urllib.request.urlopen(req,timeout=10) as r:
+                      raw=r.read(200000); code=getattr(r,'status',200)
+                  v=validate(json.loads(raw.decode('utf-8','replace')))
+                  v.update({'http':code,'bytes':len(raw),'ms':int((time.time()-t)*1000)})
+                  return v
+              except Exception as e:
+                  return {'http':0,'error_type':e.__class__.__name__,'ms':int((time.time()-t)*1000)}
+          if key:
+              out['primary']=call('https://api.duoqu.online')
+              if out['primary'].get('http')==200: out['result']='OK_PRIMARY'
+              else:
+                  out['backup']=call('https://api1.duoqu.online')
+                  if out['backup'].get('http')==200: out['result']='OK_BACKUP'
+                  else: out['result']='FAIL_BOTH'
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+          exit 0
+
+      - name: Gate 5 - real APK assemble
+        shell: bash
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.daemon=false
+        run: |
+          set +e
+          START=$(date +%s)
+          timeout 13m gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee reports/B07R3_GRADLE_BUILD.log
+          RC=${PIPESTATUS[0]}
+          END=$(date +%s)
+          printf 'rc=%s\nduration_sec=%s\n' "$RC" "$((END-START))" > reports/B07R3_GATE5_BUILD_STATUS.txt
+          APK=$(find app/build/outputs/apk -type f -name '*debug*.apk' | head -1)
+          if [ -n "$APK" ] && [ -s "$APK" ]; then
+            cp "$APK" delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk
+            stat -c 'bytes=%s' delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk > reports/B07R3_APK_SIZE.txt
+            sha256sum delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk > reports/B07R3_APK_SHA256.txt
+          fi
+          exit 0
+
+      - name: Gate 6 - lint signing and package identity
+        shell: bash
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.daemon=false
+        run: |
+          set +e
+          timeout 7m gradle --no-daemon :app:lintDebug 2>&1 | tee reports/B07R3_LINT.log
+          echo "rc=${PIPESTATUS[0]}" > reports/B07R3_LINT_STATUS.txt
+          APK=delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk
+          if [ -s "$APK" ]; then
+            APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)
+            AAPT=$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -1)
+            "$APKSIGNER" verify --verbose --print-certs "$APK" > reports/B07R3_APKSIGNER.txt 2>&1; echo "rc=$?" > reports/B07R3_APKSIGNER_STATUS.txt
+            "$AAPT" dump badging "$APK" > reports/B07R3_BADGING.txt 2>&1; echo "rc=$?" > reports/B07R3_BADGING_STATUS.txt
+          else
+            echo 'rc=2' > reports/B07R3_APKSIGNER_STATUS.txt
+            echo 'rc=2' > reports/B07R3_BADGING_STATUS.txt
+          fi
+          exit 0
+
+      - name: Build complete Chinese acceptance report
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv,hashlib,json,re,subprocess
+          root=Path('.');r=root/'reports';d=root/'delivery'
+          source=list((root/'app/src/main/java').rglob('*.java')); xml=list((root/'app/src/main/res').rglob('*.xml'))+[root/'app/src/main/AndroidManifest.xml']
+          with (r/'B07R3_FILE_AUDIT.csv').open('w',newline='',encoding='utf-8-sig') as f:
+              w=csv.writer(f);w.writerow(['file','bytes','lines','sha256'])
+              for p in sorted(source+xml):
+                  if not p.exists():continue
+                  b=p.read_bytes();w.writerow([str(p),len(b),len(b.splitlines()),hashlib.sha256(b).hexdigest()])
+          inv=json.loads((r/'B07R3_BOUNDED_SELFCHECK.json').read_text(encoding='utf-8'))
+          full=json.loads((r/'B07R3_FULLBLOOD_SELFCHECK.json').read_text(encoding='utf-8'))
+          api=json.loads((r/'B07R3_LIVE_API_TEST.json').read_text(encoding='utf-8'))
+          def rc(name):
+              p=r/name
+              if not p.exists():return 'MISSING'
+              m=re.search(r'^rc=(\d+)',p.read_text(errors='replace'),re.M);return m.group(1) if m else 'MISSING'
+          changed=subprocess.check_output(['git','diff','--name-only']).decode().splitlines()
+          stats=subprocess.check_output(['git','diff','--numstat']).decode().splitlines()
+          report=[]
+          report += ['# 星核天枢 B01-B07 加强优化 R3 满血验收报告','', '施工范围：仅B01-B07返工加强，B08未施工。','冻结输入Commit：f830417793a49ea153c3bfb28a44fd2da510af3。','']
+          report += ['## 已确认的旧版问题','1. R2短门18 PASS / 1 FAIL，B07合同要求的 `StarcoreEvidenceKernel.java` 实际缺失。','2. B07另外5个核心文件实际只有165–479行，明显低于合同1000–1600行目标；因此此前不能称B07满血。','3. 活动V51的 `LanePolicyCompiler` 把全局WalkForward `CHAMPION` 当绝对真实BET前置锁，MODEL_NOT_PROVEN时所有候选直接SHADOW。','4. TaskRemoved虽有START_STICKY/Alarm/Job，但恢复入口会被“旧心跳仍健康”延迟；R3增加同一前台服务立即re-delivery。','']
+          report += ['## 本轮核心修复','- 补齐并真实接入 `StarcoreEvidenceKernel`：固定插件注册、不可变EvidencePacket、EvidenceBundle、超时隔离、组去相关、WATCH/READY/STRONG/FREEZE健康、实时调用+回放调用；禁止写FinalP/Lane/BET。','- `StrategyModuleCatalog`：完整模块权限、输入/输出、禁止写域、回放要求、预算和单Owner审计。','- `StrategyEvidenceContract`：字段级证据Schema、支持/风险/样本语义、归一化、缺失组、指纹与候选审计。','- `UnifiedStrategyEvidenceEngine`：完整阶段编排、单Owner审计、运行阶段持久化，并在PRE_PROBABILITY/PRE_DECISION调用Kernel。','- `EvidenceGroupAggregatorEngine`：weighted median、trimmed mean、Huber、Tukey、tail-risk、ESS、disagreement稳健聚合，降低同源策略重复投票。','- `EvidenceHealthSnapshotEngine`：12/24/48/96/360滚动OOS、Wilson、Brier、ECE、专家稳定性与WATCH/READY/STRONG/FREEZE。','- 真实出手：取消“全局CHAMPION一票锁死活动V51候选”；仍保留PredictionContract、RuntimeFreshness、硬风险、EventP、ActionLCB、Coverage、Third、Counter、Uncertainty、Authorization全部候选级硬门。','- 后台：TaskRemoved立即重挂前台服务，同时保留START_STICKY、WakeLock、Alarm、Job、Boot/PackageReplace恢复。','']
+          report += ['## 54文件合同与构建证据',f'- Java文件={len(source)}；XML={len(xml)}。',f'- 原短门自检 PASS={inv["pass"]} FAIL={inv["fail"]}。',f'- 54文件满血合同自检 PASS={full["pass"]} FAIL={full["fail"]}。',f'- Javac rc={rc("B07R3_GATE4_COMPILE_STATUS.txt")}；Gradle APK rc={rc("B07R3_GATE5_BUILD_STATUS.txt")}；Lint rc={rc("B07R3_LINT_STATUS.txt")}。',f'- apksigner rc={rc("B07R3_APKSIGNER_STATUS.txt")}；badging rc={rc("B07R3_BADGING_STATUS.txt")}；密钥反扫 rc={rc("B07R3_SECRET_SCAN_STATUS.txt")}。',f'- 真实接口={api.get("result")}；主HTTP={api.get("primary",{}).get("http")}；备用HTTP={api.get("backup",{}).get("http")}。','']
+          report += ['## 修改文件与前后变化','以下数值为本轮生成后的 `git diff --numstat`：']+['- '+x for x in stats]+['']
+          report += ['## 胜率40/50/60与频率的严格判断','工程链路通过不等于胜率已经达到40%、50%或60%。报告只允许用严格时间顺序OOS + 已结算REAL/SHADOW、Wilson下界、ECE、四块稳定性、覆盖与最大连挂共同证明。','若不达标，诊断必须区分：代码/调用链缺失、证据冲突/同源重复、概率校准失真、状态漂移、第三号排序弱、策略无增益、样本不足。对应下一步具体模块优先级：HierarchicalCalibration、RegimeDriftCertificate、ThirdNumberConditionalRank、RankerResidualMining、ExpertCorrelationAudit、AblationLedger、CertifiedCoverageExpansion。','频率低时禁止降低硬门或用频率债务补单；只能扩大已经OOS证明的状态域、提升候选排序与证据覆盖，使更多候选自然达到同一质量门。','']
+          report += ['## 后台能力边界','普通退出、划掉最近任务、息屏、锁屏：代码链支持继续运行/恢复。Android用户主动“强行停止”以及厂商明确禁止后台属于系统级封锁，普通应用不能合法绕过；检测报告必须如实显示，不能宣称强停后仍必然运行。','']
+          report += ['## 变更文件清单']+['- '+x for x in changed]
+          (r/'B07R3_FULL_CHANGE_AND_DIAGNOSIS_REPORT.md').write_text('\n'.join(report),encoding='utf-8')
+          PY
+
+      - name: Package delivery before final acceptance and Git
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p delivery/evidence_tmp delivery/incremental_tmp
+          cp reports/B07R3_* delivery/evidence_tmp/ 2>/dev/null || true
+          (cd delivery/evidence_tmp && zip -qr ../Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-EVIDENCE.zip .)
+          git diff --name-only | while read f; do if [ -f "$f" ]; then mkdir -p "delivery/incremental_tmp/$(dirname "$f")"; cp "$f" "delivery/incremental_tmp/$f"; fi; done
+          (cd delivery/incremental_tmp && zip -qr ../Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-INCREMENTAL.zip .)
+          zip -qr delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-FULL-SOURCE.zip . -x '.git/*' '.gradle/*' 'app/build/*' 'delivery/*'
+          cp reports/B07R3_FULL_CHANGE_AND_DIAGNOSIS_REPORT.md delivery/
+          rm -rf delivery/evidence_tmp delivery/incremental_tmp
+          (cd delivery && sha256sum Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-FULL-SOURCE.zip Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-INCREMENTAL.zip Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-EVIDENCE.zip B07R3_FULL_CHANGE_AND_DIAGNOSIS_REPORT.md > SHA256SUMS.txt) || true
+          mkdir -p delivery/master_tmp
+          cp delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk delivery/master_tmp/ 2>/dev/null || true
+          cp delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-FULL-SOURCE.zip delivery/master_tmp/
+          cp delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-INCREMENTAL.zip delivery/master_tmp/
+          cp delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-EVIDENCE.zip delivery/master_tmp/
+          cp delivery/B07R3_FULL_CHANGE_AND_DIAGNOSIS_REPORT.md delivery/master_tmp/
+          cp delivery/SHA256SUMS.txt delivery/master_tmp/
+          (cd delivery/master_tmp && zip -qr ../Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-MASTER.zip .)
+          rm -rf delivery/master_tmp
+          sha256sum delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-MASTER.zip > delivery/MASTER_SHA256.txt
+
+      - name: Collect failure evidence even if a short gate stopped
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p delivery/FAILURE_EVIDENCE
+          cp reports/B07R3_* delivery/FAILURE_EVIDENCE/ 2>/dev/null || true
+
+      - name: Upload artifacts BEFORE source commit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-B07-Reinforced-R3-20260807-Delivery
+          path: delivery/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Final acceptance gate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re,sys
+          r=Path('reports'); failures=[]
+          inv=json.loads((r/'B07R3_BOUNDED_SELFCHECK.json').read_text()); full=json.loads((r/'B07R3_FULLBLOOD_SELFCHECK.json').read_text()); api=json.loads((r/'B07R3_LIVE_API_TEST.json').read_text())
+          def rc(name):
+              p=r/name
+              if not p.exists():return 999
+              m=re.search(r'^rc=(\d+)',p.read_text(),re.M);return int(m.group(1)) if m else 999
+          if inv['fail']!=0:failures.append('invariant_selfcheck')
+          if full['fail']!=0:failures.append('fullblood_selfcheck')
+          if rc('B07R3_GATE4_COMPILE_STATUS.txt')!=0:failures.append('javac')
+          if rc('B07R3_SECRET_SCAN_STATUS.txt')!=0:failures.append('secret_scan')
+          if rc('B07R3_GATE5_BUILD_STATUS.txt')!=0:failures.append('gradle')
+          if rc('B07R3_LINT_STATUS.txt')!=0:failures.append('lint')
+          if rc('B07R3_APKSIGNER_STATUS.txt')!=0:failures.append('apksigner')
+          if rc('B07R3_BADGING_STATUS.txt')!=0:failures.append('badging')
+          if api.get('result') not in ('OK_PRIMARY','OK_BACKUP'):failures.append('live_api')
+          if not Path('delivery/Starcore-Tianshu-B01-B07-Reinforced-R3-20260807.apk').exists():failures.append('apk_missing')
+          print('FINAL_GATE failures=',failures)
+          if failures:sys.exit(1)
+          PY
+
+      - name: Commit only accepted generated business source and reports
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/build.gradle \
+            app/src/main/java/com/ethk3/novaonepro/AppConfig.java \
+            app/src/main/java/com/ethk3/novaonepro/StarcoreEvidenceKernel.java \
+            app/src/main/java/com/ethk3/novaonepro/StrategyModuleCatalog.java \
+            app/src/main/java/com/ethk3/novaonepro/StrategyEvidenceContract.java \
+            app/src/main/java/com/ethk3/novaonepro/UnifiedStrategyEvidenceEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/EvidenceGroupAggregatorEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/EvidenceHealthSnapshotEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/RollingCausalBacktestEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/LanePolicyCompiler.java \
+            app/src/main/java/com/ethk3/novaonepro/BootReceiver.java \
+            app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java \
+            app/src/main/java/com/ethk3/novaonepro/B07R2FullDiagnosticEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/B07R2BuildAuditManifest.java \
+            app/src/main/java/com/ethk3/novaonepro/MainActivity.java \
+            reports/B07R3_* || true
+          git diff --cached --check
+          git commit -m 'feat(starcore): B01-B07 reinforced R3 fullblood repair'
+          git push origin HEAD:agent/starcore-tianshu-b01-b07-r3-20260807
+          git rev-parse HEAD | tee delivery/COMMIT_SHA.txt
+          git push origin HEAD:accepted/starcore-tianshu-b01-b07-r3-20260807 --force-with-lease || git push origin HEAD:accepted/starcore-tianshu-b01-b07-r3-20260807

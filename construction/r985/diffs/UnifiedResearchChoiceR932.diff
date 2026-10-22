@@ -1,0 +1,85 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java b/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
+index c0a4652..e3a80e1 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java
+@@ -21,7 +21,7 @@ public final class UnifiedResearchChoiceR932 {
+             try(Cursor previous=store.readable().rawQuery("SELECT bundle_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
+                 if(previous.moveToFirst()){
+                     if(!bundle.equals(previous.getString(0)))throw new IllegalStateException("R932_CHOICE_BUNDLE_DRIFT");
+-                    publishFreezeStatus(store,target,"FROZEN_OR_EMPTY_SAFE");return true;
++                    publishFreezeStatus(store,target,currentChoiceReasonCP12(store,target));return true;
+                 }
+             }
+             // Modern graph preparation/inference forbids a writer transaction. Prepare
+@@ -62,7 +62,7 @@ public final class UnifiedResearchChoiceR932 {
+                         }
+                     },Boolean.FALSE);
+             if(Boolean.TRUE.equals(ok)){
+-                publishFreezeStatus(store,target,"FROZEN_OR_EMPTY_SAFE");
++                publishFreezeStatus(store,target,currentChoiceReasonCP12(store,target));
+                 return true;
+             }
+             publishFreezeStatus(store,target,commitFailure[0]);
+@@ -74,7 +74,7 @@ public final class UnifiedResearchChoiceR932 {
+             publishFreezeStatus(store,target,"RESEARCH_OVERLAY_YIELD_DEADLINE");
+             return false;
+         } catch(RuntimeException unavailable){
+-            publishFreezeStatus(store,target,"RESEARCH_OVERLAY_UNAVAILABLE_"+unavailable.getClass().getSimpleName());
++            publishFreezeStatus(store,target,"RESEARCH_OVERLAY_UNAVAILABLE_"+unavailable.getClass().getSimpleName()+":"+String.valueOf(unavailable.getMessage()));
+             return false;
+         }
+     }
+@@ -111,17 +111,51 @@ public final class UnifiedResearchChoiceR932 {
+                         rejections.add(new String[]{c.getString(1),c.getString(3),unavailable});continue;
+                     }
+                 }
+-                if(!ResearchEvaluationRunR967.consumerCompatible(store.readable(),c.getString(1),target)){roster.append('|').append(c.getString(3)).append(":OUTSIDE_STATIC_DOMAIN_OR_RUN");continue;}
++                if(!ResearchEvaluationRunR967.consumerCompatible(store.readable(),c.getString(1),target)){roster.append('|').append(c.getString(3)).append(":OUTSIDE_STATIC_DOMAIN_OR_RUN");rejections.add(new String[]{c.getString(1),c.getString(3),"OUTSIDE_STATIC_DOMAIN_OR_RUN"});continue;}
+                 CertificateBundleServiceR929.Consumer type;
+                 try{type=CertificateBundleServiceR929.Consumer.valueOf(c.getString(0));}
+-                catch(IllegalArgumentException invalid){roster.append('|').append(c.getString(3)).append(":INVALID_CONSUMER");continue;}
++                catch(IllegalArgumentException invalid){roster.append('|').append(c.getString(3)).append(":INVALID_CONSUMER");rejections.add(new String[]{c.getString(1),c.getString(3),"INVALID_CONSUMER"});continue;}
+                 ResearchPlatformStoreR929.Authorization auth=ResearchPlatformStoreR929.authorizeCurrent(store,type,c.getString(1),c.getString(2),target,.30);
+                 roster.append('|').append(c.getString(3)).append(':').append(auth.authorized).append(':').append(auth.grantedWeight);
+                 if(auth.authorized){consumer=type.name();candidate=c.getString(1);structure=c.getString(2);certificate=c.getString(3);break;}
++                rejections.add(new String[]{c.getString(1),c.getString(3),"AUTHORIZE_CURRENT_REJECTED:"+auth.reason});
++                roster.append('|').append(auth.reason);
+             }
+         }
++        if(consumer.isEmpty()&&rejections.isEmpty()){
++            String latest="NO_CERTIFICATE_RECORD";
++            try(Cursor last=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE
++                    +" WHERE consumer='INVENTED_ALGORITHM' AND candidate_id LIKE 'R958-F-%' ORDER BY issued_at DESC,certificate_hash DESC LIMIT 1",null)){
++                if(last.moveToFirst())latest="latest_state="+last.getString(0)+";original_reason="+last.getString(1);
++            }
++            String reason="NO_CERTIFICATE_MATCHED_CURRENT_PREFLIGHT|"+latest
++                    +"|missing=ACTIVE,current_bundle,issued_before_capture,positive_weight,required_gates,supported_exact_consumer"
++                    +"|recovery=run_independent_fixed_Future_and_calibration_then_actual_certificate_publisher";
++            rejections.add(new String[]{"NO_CANDIDATE","",reason});roster.append('|').append(reason);
++        }
+         return new PreparedChoiceCP12(consumer,candidate,structure,certificate,V51ChecksumEngine.sha256(roster.toString()),rejections);
+     }
++    /** Reads the frozen choice and durable rejection facts; never grants authority or reruns a model. */
++    public static String currentChoiceReasonCP12(DbStore store,String target){
++        String consumer,candidate,certificate;
++        try(Cursor choice=store.readable().rawQuery("SELECT consumer,candidate_id,certificate_hash FROM "+TABLE+" WHERE target_issue=?",new String[]{target})){
++            if(!choice.moveToFirst())return "CHOICE_NOT_FROZEN|missing=durable_choice|recovery=retry_existing_freeze_owner";
++            consumer=choice.getString(0);candidate=choice.getString(1);certificate=choice.getString(2);
++        }
++        if(consumer!=null&&!consumer.isEmpty()){
++            try(Cursor cert=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" WHERE certificate_hash=?",new String[]{certificate})){
++                if(cert.moveToFirst()&&"ACTIVE".equals(cert.getString(0)))return "FROZEN_CERTIFIED_CHOICE|candidate="+candidate+"|certificate="+certificate;
++                return "NO_VALID_CERTIFICATE|raw="+(cert.getCount()==0?"FROZEN_CERTIFICATE_MISSING":cert.getString(0)+":"+cert.getString(1))
++                        +"|missing=ACTIVE_exact_frozen_certificate|recovery=actual_publisher_with_independent_evidence";
++            }
++        }
++        StringBuilder reason=new StringBuilder();int count=0;
++        try(Cursor rejected=store.readable().rawQuery("SELECT candidate_id,certificate_hash,reason FROM r974_prediction_rejection WHERE target_issue=? ORDER BY recorded_at DESC,candidate_id,certificate_hash LIMIT 8",new String[]{target})){
++            while(rejected.moveToNext()){if(count++>0)reason.append("; ");reason.append(rejected.getString(0)).append(':').append(rejected.getString(2));}
++        }
++        if(count==0)reason.append("HISTORICAL_EMPTY_CHOICE_NO_PREFLIGHT_RECEIPT");
++        return "NO_VALID_CERTIFICATE|preflight="+(count==0?"NOT_RUN":"EXECUTED")+"|raw="+reason.toString()+"|missing=authorized_executable_exact_model|recovery=repair_recorded_dependency_then_freeze_next_target";
++    }
+     private static void publishFreezeStatus(DbStore store,String target,String status){
+         try{
+             store.setState("r932_choice_freeze_status",status);

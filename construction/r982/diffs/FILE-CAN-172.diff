@@ -1,0 +1,34 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeReleaseEpochR817.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeReleaseEpochR817.java
+index 1dbf185..3f83258 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeReleaseEpochR817.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeReleaseEpochR817.java
+@@ -89,4 +89,29 @@ public final class RuntimeReleaseEpochR817 {
+             if (cursor != null) cursor.close();
+         }
+     }
++
++public static long readAtSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return -1L;
++        try {
++            long value = Long.parseLong(store.getState(EPOCH_KEY, "-1"));
++            return value > 0L ? value : -1L;
++        } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);}
++    }
++
++public static long readAtSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                            "SELECT state_value FROM "
++                                    + DbHelper.TABLE_APP_STATE
++                                    + " WHERE state_key=? LIMIT 1",
++                            new String[] {EPOCH_KEY});
++            if (!cursor.moveToFirst()) return -1L;
++            long value = Long.parseLong(cursor.getString(0));
++            return value > 0L ? value : -1L;
++        } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
+ }

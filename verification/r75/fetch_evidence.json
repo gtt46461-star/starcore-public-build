@@ -1,0 +1,59 @@
+{
+  "input_report_sha256": "5b24697f99991b04c259401a552b8f99558a60b9abaf270211baeefc5d0f25c9",
+  "observed_R74_draw_receipts": [
+    {
+      "issue": "202610130323",
+      "fetch_time": 1791868990648,
+      "open_time": 1791868983000,
+      "fetch_minus_open_ms": 7648,
+      "next_target_remaining_at_fetch_ms": 52352,
+      "source_line": "PRIMARY"
+    },
+    {
+      "issue": "202610130322",
+      "fetch_time": 1791868949807,
+      "open_time": 1791868923000,
+      "fetch_minus_open_ms": 26807,
+      "next_target_remaining_at_fetch_ms": 33193,
+      "source_line": "PRIMARY"
+    },
+    {
+      "issue": "202610130321",
+      "fetch_time": 1791868903639,
+      "open_time": 1791868863000,
+      "fetch_minus_open_ms": 40639,
+      "next_target_remaining_at_fetch_ms": 19361,
+      "source_line": "PRIMARY"
+    }
+  ],
+  "source_publish_guarantee": "NOT_ESTABLISHED: received time does not prove external source publish time",
+  "root_cause": "Latest transport used broad history/settlement freshness: distance=1 stayed FRESH until age>125000ms, preventing alternate provider attempt after known target deadline.",
+  "repair": "Latest and freshness recovery use evaluateLatestPollR75; after immutable source deadline reject AWAITING_NEXT_ISSUE and immediately continue backup in the same logical request. Cold start derives next issue only from verified source issue and actual open time; seconds and milliseconds inputs are equivalent and source Draw remains unchanged. Both-old remains waiting without network circuit backoff. General draw/settlement freshness and clock deadlines unchanged.",
+  "validation": {
+    "baseline": {
+      "scope": "Actual compiled fetch sources, synthetic HTTP responses, real host monotonic clock",
+      "log_sha256": "f8fba6cab8c90187bd1dabaaac14fd816e43a03bc64807a0a9c7e2627cb351b8",
+      "log_repo_path": "verification/r75/reproduction/fetch_baseline_test.log",
+      "source_hashes": {
+        "app/src/main/java/com/ethk3/novaonepro/ProviderFreshnessGateR3611.java": "0e8f40e2ef226b44654b5db2f157672505979e4e29ec45e5d900dee18bc4274d",
+        "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java": "b84e1e38cab9bdc96f9a812820825f5ad70b2ce17d47fe74646aed9e25c436b7",
+        "app/src/main/java/com/ethk3/novaonepro/ApiClient.java": "7fc6c78f93d7e8eb531de4795a21d8b3882bcceb65a56c2bf14f671e534783b4",
+        "verification/r75/fetch_poll.java": "8a6ea741cc5995890e489ecdebde82aaca286ab4d3cf54397f745c082f52a30e",
+        "verification/r72/realtime/android/os/SystemClock.java": "0091e7c64934ef8ac62760a767c0f5a7d78c54e9d0f508af0eac4896e1e5a1cf"
+      }
+    },
+    "fixed": {
+      "scope": "Actual compiled fetch sources, synthetic HTTP responses, real host monotonic clock",
+      "log_sha256": "f229a1de6299646f7dba83cb3395b84614c2483fdb6dd9dac2e81ea58a711e9d",
+      "log_repo_path": "verification/r75/reproduction/fetch_fixed_test.log",
+      "source_hashes": {
+        "app/src/main/java/com/ethk3/novaonepro/ProviderFreshnessGateR3611.java": "b2b1b7114c4d54249404d59213ba14bb07b42291ac50ea38601844aa957ef6e7",
+        "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java": "2e4467b09f0d59adb465dd4c41e5790b76a8dda9a8c1ee6eec8ef9b97697cd52",
+        "app/src/main/java/com/ethk3/novaonepro/ApiClient.java": "20819ada10f8ea1892fc733f52bf957d508d99edaae44a123ac359843f8c386b",
+        "verification/r75/fetch_poll.java": "8a6ea741cc5995890e489ecdebde82aaca286ab4d3cf54397f745c082f52a30e",
+        "verification/r72/realtime/android/os/SystemClock.java": "0091e7c64934ef8ac62760a767c0f5a7d78c54e9d0f508af0eac4896e1e5a1cf"
+      }
+    }
+  },
+  "remaining": "No physical device or live source timing acceptance established. DB contention root cause remains separately assigned."
+}

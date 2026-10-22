@@ -1,0 +1,57 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java b/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java
+index 3df3362..7982ffa 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java
+@@ -200,4 +200,52 @@ public final class ResearchMainlineContributionAuditR922 {
+             return Double.isNaN(value) || Double.isInfinite(value) ? -1.0d : value;
+         }
+     }
++
++public static String recentDetailSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, int limit) {
++        if (store == null) return "READ_ERROR:STORE_NULL";
++        Cursor c = null;
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 2048);
++        try {
++            c = BudgetedQueryR927.querySnapshotCP4(report, store.readable(),
++                    "SELECT target_issue,lane,candidate_id,candidate_name,status,applied,"
++                            + "influence_weight,future_n,hit_rate,wilson_lower,brier,ece,coverage,"
++                            + "paired_n,paired_delta,fdr_q,controlled_influence_eligible,evidence_hash "
++                            + "FROM " + TABLE + " WHERE runtime_version=?"
++                            + " ORDER BY created_at DESC,target_issue DESC LIMIT ?",
++                    new String[] {AppConfig.R36_RUNTIME_REPAIR_VERSION,
++                            String.valueOf(Math.max(1, Math.min(50, limit)))});
++            int n = 0;
++            while (c.moveToNext()) {
++                n++;
++                b.append(n).append("｜期=").append(safeSnapshotCP4(report, c.getString(0)))
++                        .append("｜lane=").append(safeSnapshotCP4(report, c.getString(1)))
++                        .append("｜candidate=").append(safeSnapshotCP4(report, c.getString(2)))
++                        .append('/').append(safeSnapshotCP4(report, c.getString(3)))
++                        .append("｜status=").append(safeSnapshotCP4(report, c.getString(4)))
++                        .append("｜applied=").append(c.getInt(5))
++                        .append("｜weight=").append(c.getDouble(6))
++                        .append("｜N/HR/Wilson=").append(c.getInt(7)).append('/')
++                        .append(c.getDouble(8)).append('/').append(c.getDouble(9))
++                        .append("｜Brier/ECE/Coverage=").append(c.getDouble(10)).append('/')
++                        .append(c.getDouble(11)).append('/').append(c.getDouble(12))
++                        .append("｜Paired=").append(c.getInt(13)).append(':').append(c.getDouble(14))
++                        .append("｜FDR=").append(c.getDouble(15))
++                        .append("｜controlledEligible=").append(c.getInt(16))
++                        .append("｜evidence=").append(shortHashSnapshotCP4(report, c.getString(17))).append('\n');
++            }
++            if (n == 0) return "NO_R922_CONTRIBUTION_SAMPLE|fallback=100%";
++            return b.toString();
++        } catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);} finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value.trim();
++    }
++
++public static String shortHashSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        String v = safeSnapshotCP4(report, value);
++        return v.length() <= 12 ? v : v.substring(0, 12);
++    }
+ }

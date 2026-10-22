@@ -1,0 +1,37 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ModelBundleManagerR929.java b/app/src/main/java/com/ethk3/novaonepro/ModelBundleManagerR929.java
+index 142f2df..36ba027 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ModelBundleManagerR929.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ModelBundleManagerR929.java
+@@ -133,32 +133,6 @@ public final class ModelBundleManagerR929 {
+         }catch(RuntimeException e){deleteTree(tmp);throw e;}catch(Throwable e){deleteTree(tmp);throw new IllegalStateException("R929_STAGE_IO",e);}
+     }
+ 
+-    public static void markStaged(final DbStore store,final BundleManifest manifest){
+-        if(store==null||manifest==null)throw new IllegalArgumentException("R929_STAGE_STATE_INPUT");
+-        if(!store.coordinatorR36().runAtomicWrite("R929_MODEL_STAGE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+-            LinkedHashMap<String,String> s=new LinkedHashMap<String,String>();s.put(STATE_STAGED,manifest.bundleHash);s.put(STATE_STATUS,"STAGED_VERIFIED");DbStore.putStatesR36(db,s);
+-        }}))throw new IllegalStateException("R932_MODEL_STATE_COMMIT_FAILED");
+-    }
+-
+-    /** Atomic pointer switch on an issue boundary. Requests already in-flight keep their captured hash. */
+-    public static void activateAtIssueBoundary(final DbStore store,final String targetIssue,final String capturedBundleHash){
+-        if(store==null)throw new IllegalArgumentException("R929_ACTIVATE_STORE");final String target=required(targetIssue);final String captured=safe(capturedBundleHash);
+-        if(!store.coordinatorR36().runAtomicWrite("R929_MODEL_ACTIVATE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+-            String staged=store.getState(STATE_STAGED,"");if(staged.length()!=64)throw new IllegalStateException("R929_NO_VERIFIED_STAGED_BUNDLE");
+-            String active=store.getState(STATE_ACTIVE,"");String issue=store.getState(STATE_ACTIVATED_ISSUE,"");
+-            if(target.equals(issue)&&active.length()==64&&!active.equals(staged))throw new IllegalStateException("R929_BUNDLE_ALREADY_FIXED_FOR_ISSUE");
+-            if(captured.length()==64&&active.length()==64&&!captured.equals(active))throw new IllegalStateException("R929_INFLIGHT_CAPTURE_DRIFT");
+-            LinkedHashMap<String,String> s=new LinkedHashMap<String,String>();s.put(STATE_PREVIOUS,active);s.put(STATE_ACTIVE,staged);s.put(STATE_STAGED,"");s.put(STATE_ACTIVATED_ISSUE,target);s.put(STATE_STATUS,"ACTIVE_AT_ISSUE_BOUNDARY");DbStore.putStatesR36(db,s);
+-        }}))throw new IllegalStateException("R932_MODEL_STATE_COMMIT_FAILED");
+-    }
+-
+-    public static void rollback(final DbStore store,final String reason){
+-        if(store==null)throw new IllegalArgumentException("R929_ROLLBACK_STORE");if(!store.coordinatorR36().runAtomicWrite("R929_MODEL_ROLLBACK",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+-            String previous=store.getState(STATE_PREVIOUS,"");if(previous.length()!=64)throw new IllegalStateException("R929_NO_PREVIOUS_BUNDLE");
+-            LinkedHashMap<String,String> s=new LinkedHashMap<String,String>();s.put(STATE_ACTIVE,previous);s.put(STATE_STAGED,"");s.put(STATE_STATUS,"ROLLED_BACK|"+required(reason));DbStore.putStatesR36(db,s);
+-        }}))throw new IllegalStateException("R932_MODEL_STATE_COMMIT_FAILED");
+-    }
+-
+     public static String captureActiveBundle(DbStore store,String fallback){String x=store==null?"":store.getState(STATE_ACTIVE,"");return x.length()==64?x:safe(fallback);}
+ 
+     public static String toJson(BundleManifest m) {

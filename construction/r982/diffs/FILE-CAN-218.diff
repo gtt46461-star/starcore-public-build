@@ -1,0 +1,54 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/CanonicalSchemaCP12.java b/app/src/main/java/com/ethk3/novaonepro/r952/CanonicalSchemaCP12.java
+new file mode 100644
+index 0000000..4ab998f
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/CanonicalSchemaCP12.java
+@@ -0,0 +1,48 @@
++package com.ethk3.novaonepro.r952;
++import android.database.sqlite.SQLiteDatabase;
++/** DDL helper exclusively called by ResearchMigrationRegistryR952's atomic CP12 step. */
++public final class CanonicalSchemaCP12 {
++ private CanonicalSchemaCP12(){}
++ static void installMatrix(SQLiteDatabase db){
++  if(db==null||!db.inTransaction())throw new IllegalStateException("CP12_SCHEMA_OWNER_TRANSACTION");
++  for(String sql:DDL)db.execSQL(sql);
++ }
++ static void installSemantic(SQLiteDatabase db){
++  if(db==null||!db.inTransaction())throw new IllegalStateException("CP12_SCHEMA_OWNER_TRANSACTION");
++  boolean found=false;try(android.database.Cursor c=db.rawQuery("PRAGMA table_info(r952_candidate)",null)){while(c.moveToNext())if("semantic_hash".equals(c.getString(1)))found=true;}
++  if(!found)db.execSQL("ALTER TABLE r952_candidate ADD COLUMN semantic_hash TEXT NOT NULL DEFAULT ''");
++  db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS cp12_candidate_semantic_identity ON r952_candidate(semantic_hash) WHERE semantic_hash<>''");
++  db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_candidate_semantic_immutable BEFORE UPDATE OF semantic_hash ON r952_candidate BEGIN SELECT RAISE(ABORT,'SEMANTIC_GENOME_IMMUTABLE'); END");
++ }
++ static void installReasons(SQLiteDatabase db){
++  if(db==null||!db.inTransaction())throw new IllegalStateException("CP12_SCHEMA_OWNER_TRANSACTION");
++  String table=com.ethk3.novaonepro.DbHelper.TABLE_R35_SHADOW_OBSERVATION;
++  for(String name:new String[]{"canonical_reason_json","canonical_reason_hash"}){
++   boolean found=false;try(android.database.Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))found=true;}
++   if(!found)db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+name+" TEXT NOT NULL DEFAULT ''");
++  }
++  db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_canonical_reason_immutable BEFORE UPDATE OF canonical_reason_json,canonical_reason_hash ON "+table+" BEGIN SELECT RAISE(ABORT,'CANONICAL_REASON_IMMUTABLE'); END");
++ }
++ private static final String[] DDL={
++"-- Additive only: historical checkpoints remain readable; new codec schema is explicitly gated.\nCREATE TABLE IF NOT EXISTS research_matrix_spec_cp12(\n matrix_id TEXT PRIMARY KEY CHECK(length(matrix_id)=64),\n matrix_type TEXT NOT NULL,\n partition_key TEXT NOT NULL CHECK(length(partition_key) BETWEEN 1 AND 256),\n window_size INTEGER NOT NULL CHECK(window_size BETWEEN 1 AND 5000),\n spec_manifest_hash TEXT NOT NULL CHECK(length(spec_manifest_hash)=64),\n schema_hash TEXT NOT NULL CHECK(length(schema_hash)=64),\n UNIQUE(matrix_type,partition_key,window_size,spec_manifest_hash));\n",
++"CREATE TABLE IF NOT EXISTS research_matrix_input_cp12(\n matrix_id TEXT NOT NULL REFERENCES research_matrix_spec_cp12(matrix_id) ON DELETE RESTRICT,\n source_receipt_hash TEXT NOT NULL CHECK(length(source_receipt_hash)=64),\n source_issue TEXT NOT NULL,\n source_ordinal INTEGER NOT NULL CHECK(source_ordinal>=0),\n input_hash TEXT NOT NULL CHECK(length(input_hash)=64),\n proof_hash TEXT NOT NULL CHECK(length(proof_hash)=64),\n input_payload BLOB NOT NULL CHECK(length(input_payload) BETWEEN 45 AND 16384),\n state TEXT NOT NULL DEFAULT 'READY' CHECK(state IN('READY','DONE','QUARANTINED','REPLAY_REQUIRED','EXPIRED_ARCHIVE_REQUIRED')),\n last_error TEXT NOT NULL DEFAULT '',\n created_at INTEGER NOT NULL,\n updated_at INTEGER NOT NULL,\n PRIMARY KEY(matrix_id,source_receipt_hash));\n",
++"CREATE INDEX IF NOT EXISTS idx_cp12_matrix_input_ready\n ON research_matrix_input_cp12(state,source_issue,source_ordinal,matrix_id,source_receipt_hash);\n",
++"CREATE INDEX IF NOT EXISTS idx_cp12_matrix_input_replay\n ON research_matrix_input_cp12(matrix_id,source_ordinal,source_receipt_hash);\n",
++"-- Generation authority for CAS archive/prune, same registry mechanism as 014.\nCREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_input_insert AFTER INSERT ON research_matrix_input_cp12 BEGIN\n INSERT OR REPLACE INTO research_row_revision_v2(source_table,source_rowid) VALUES('research_matrix_input_cp12',NEW.rowid); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_input_update AFTER UPDATE ON research_matrix_input_cp12 BEGIN\n DELETE FROM research_row_revision_v2 WHERE source_table='research_matrix_input_cp12' AND source_rowid=OLD.rowid;\n INSERT OR REPLACE INTO research_row_revision_v2(source_table,source_rowid) VALUES('research_matrix_input_cp12',NEW.rowid); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_input_delete AFTER DELETE ON research_matrix_input_cp12 BEGIN\n DELETE FROM research_row_revision_v2 WHERE source_table='research_matrix_input_cp12' AND source_rowid=OLD.rowid; END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_spec_insert AFTER INSERT ON research_matrix_spec_cp12 BEGIN\n INSERT OR REPLACE INTO research_row_revision_v2(source_table,source_rowid) VALUES('research_matrix_spec_cp12',NEW.rowid); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_spec_update AFTER UPDATE ON research_matrix_spec_cp12 BEGIN\n SELECT RAISE(ABORT,'CP12_MATRIX_SPEC_IMMUTABLE'); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_spec_delete AFTER DELETE ON research_matrix_spec_cp12 BEGIN\n DELETE FROM research_row_revision_v2 WHERE source_table='research_matrix_spec_cp12' AND source_rowid=OLD.rowid; END;\n",
++"-- Independent Atom argmax-five domain, never joined with certificate resource regime_id 0..3.\nCREATE TABLE IF NOT EXISTS research_matrix_regime5_cp12(\n target_issue TEXT NOT NULL, position INTEGER NOT NULL CHECK(position BETWEEN 1 AND 10),\n policy_hash TEXT NOT NULL CHECK(length(policy_hash)=64),\n history_hash TEXT NOT NULL CHECK(length(history_hash)=64),\n score_hash TEXT NOT NULL CHECK(length(score_hash)=64),\n regime_id INTEGER NOT NULL CHECK(regime_id BETWEEN 0 AND 4),\n scores BLOB NOT NULL CHECK(length(scores)=40),\n captured_at INTEGER NOT NULL CHECK(captured_at>0),\n PRIMARY KEY(target_issue,position));\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_regime5_no_update BEFORE UPDATE ON research_matrix_regime5_cp12 BEGIN\n SELECT RAISE(ABORT,'CP12_REGIME5_IMMUTABLE'); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_regime5_insert AFTER INSERT ON research_matrix_regime5_cp12 BEGIN\n INSERT OR REPLACE INTO research_row_revision_v2(source_table,source_rowid) VALUES('research_matrix_regime5_cp12',NEW.rowid); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_regime5_delete AFTER DELETE ON research_matrix_regime5_cp12 BEGIN\n DELETE FROM research_row_revision_v2 WHERE source_table='research_matrix_regime5_cp12' AND source_rowid=OLD.rowid; END;\n",
++"\n-- Permanent compact evidence that an expired input was deliberately never projected. Full payload remains archive-pinned.\nCREATE TABLE IF NOT EXISTS research_matrix_terminal_cp12(\n matrix_id TEXT NOT NULL REFERENCES research_matrix_spec_cp12(matrix_id) ON DELETE RESTRICT,\n source_receipt_hash TEXT NOT NULL CHECK(length(source_receipt_hash)=64),\n input_hash TEXT NOT NULL CHECK(length(input_hash)=64), proof_hash TEXT NOT NULL CHECK(length(proof_hash)=64),\n terminal_hash TEXT NOT NULL CHECK(length(terminal_hash)=64),\n reason TEXT NOT NULL CHECK(reason='MATRIX_INPUT_EXPIRED_WITHOUT_PROJECTION'),\n source_issue TEXT NOT NULL, created_at INTEGER NOT NULL,\n PRIMARY KEY(matrix_id,source_receipt_hash));\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_matrix_terminal_immutable BEFORE UPDATE ON research_matrix_terminal_cp12 BEGIN\n SELECT RAISE(ABORT,'CP12_MATRIX_TERMINAL_IMMUTABLE'); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_terminal_insert AFTER INSERT ON research_matrix_terminal_cp12 BEGIN\n INSERT OR REPLACE INTO research_row_revision_v2(source_table,source_rowid) VALUES('research_matrix_terminal_cp12',NEW.rowid); END;\n",
++"CREATE TRIGGER IF NOT EXISTS cp12_revision_matrix_terminal_delete AFTER DELETE ON research_matrix_terminal_cp12 BEGIN\n DELETE FROM research_row_revision_v2 WHERE source_table='research_matrix_terminal_cp12' AND source_rowid=OLD.rowid; END;\n",
++"\n-- Actual common-Future producer and source validators use target/position and immutable freeze partitions; no SQLite JSON1.\nCREATE INDEX IF NOT EXISTS idx_cp12_matrix_pair_issue_position_window ON research_fixed_pair_r932(target_issue,position,window_id);\n",
++"CREATE INDEX IF NOT EXISTS idx_cp12_matrix_window_structure_window ON research_fixed_window_r932(structural_hash,window_id);\n"
++ };
++}

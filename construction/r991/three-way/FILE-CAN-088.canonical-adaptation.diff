@@ -1,0 +1,52 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+@@ -995,6 +995,13 @@
+     }
+ 
+     private void bindButtons() {
++        if(txtApiLine!=null){
++            txtApiLine.setContentDescription("数据接口状态，点击配置凭据");
++            txtApiLine.setOnClickListener(view->{
++                java.lang.ref.WeakReference<MainActivity> owner=new java.lang.ref.WeakReference<>(this);
++                ApiCredentialSettingsCP12.show(this,()->{MainActivity current=owner.get();if(current!=null&&!current.isFinishing()&&!current.isDestroyed())current.refreshNow();});
++            });
++        }
+         if (btnStart != null) {
+             btnStart.setOnClickListener(
+                     new View.OnClickListener() {
+@@ -3608,7 +3615,7 @@
+             setText(txtCountdown, "--:--");
+             setText(txtCurrentIssue, "当前期：--");
+             setText(txtTargetIssue, "目标期：--");
+-            setText(txtApiLine, "接口：--");
++            setText(txtApiLine, "接口：--｜点击配置凭据");
+             setText(txtRuntimeStatus, "运行状态：暂无后台状态");
+             setTextColor(txtServiceBadge, R.color.colorWarn);
+             return;
+@@ -3683,7 +3690,7 @@
+             setText(txtTargetIssue, "目标期：" + safeDash(targetIssue));
+ 
+             String apiLine = state == null ? stateOf(snapshot, "api_line") : state.apiLine;
+-            setText(txtApiLine, "接口：" + UiFormatter.apiLineText(apiLine));
++            setText(txtApiLine, "接口：" + UiFormatter.apiLineText(apiLine) + "｜点击配置凭据");
+ 
+             String runtime = buildRuntimeText(state, status, snapshot);
+             setText(txtRuntimeStatus, runtime);
+@@ -9039,7 +9046,7 @@
+             panel.addView(summary);
+ 
+             final Button copy = new Button(this);
+-            copy.setText("一键导出完整检测报告 TXT（全部内容）");
++            copy.setText("导出完整检测报告（全部内容）");
+             panel.addView(copy);
+             final Button forensic = new Button(this);
+             forensic.setText("查看运行、结算与真实出手详情");
+@@ -9091,7 +9098,7 @@
+                     new View.OnClickListener() {
+                         @Override
+                         public void onClick(View v) {
+-                            CompleteReportFileR927.export(MainActivity.this, copy, summary);
++                            CompleteReportFileR927.openExportMenu(MainActivity.this, copy, summary);
+                         }
+                     });
+             forensic.setOnClickListener(

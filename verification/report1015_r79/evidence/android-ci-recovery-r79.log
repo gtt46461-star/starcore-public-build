@@ -1,0 +1,258 @@
+﻿2026-10-15T14:59:12.2291281Z Current runner version: '2.337.0'
+2026-10-15T14:59:12.2370262Z ##[group]Runner Image Provisioner
+2026-10-15T14:59:12.2371989Z Hosted Compute Agent
+2026-10-15T14:59:12.2373202Z Version: 20261002.596
+2026-10-15T14:59:12.2374399Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-15T14:59:12.2375852Z Build Date: 2026-10-02T22:28:27Z
+2026-10-15T14:59:12.2377081Z Worker ID: {905bc7aa-69e1-47ad-9865-ff99baf8d74b}
+2026-10-15T14:59:12.2378362Z Region: eastus
+2026-10-15T14:59:12.2379495Z Cloud: Azure
+2026-10-15T14:59:12.2380553Z ##[endgroup]
+2026-10-15T14:59:12.2403880Z ##[group]Operating System
+2026-10-15T14:59:12.2405005Z Ubuntu
+2026-10-15T14:59:12.2406081Z 24.04.5
+2026-10-15T14:59:12.2407026Z LTS
+2026-10-15T14:59:12.2407987Z ##[endgroup]
+2026-10-15T14:59:12.2409176Z ##[group]Runner Image
+2026-10-15T14:59:12.2410230Z Image: ubuntu-24.04
+2026-10-15T14:59:12.2411370Z Version: 20261004.327.1
+2026-10-15T14:59:12.2413867Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-15T14:59:12.2416673Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-15T14:59:12.2418379Z ##[endgroup]
+2026-10-15T14:59:12.2420972Z ##[group]GITHUB_TOKEN Permissions
+2026-10-15T14:59:12.2444659Z Actions: read
+2026-10-15T14:59:12.2445817Z Contents: read
+2026-10-15T14:59:12.2446764Z Metadata: read
+2026-10-15T14:59:12.2447760Z ##[endgroup]
+2026-10-15T14:59:12.2450877Z Secret source: Actions
+2026-10-15T14:59:12.2463166Z Cache mode: write
+2026-10-15T14:59:12.2464870Z Prepare workflow directory
+2026-10-15T14:59:12.3116728Z Prepare all required actions
+2026-10-15T14:59:12.3286969Z Uses: gtt46461-star/eth-k3-v43-nova/.github/workflows/r77-ci-log-recovery.yml@refs/heads/construction/r78-report1015-repair-20261015 (d9fea8ce28bc3a3a48046a8f964077ffe982f57f)
+2026-10-15T14:59:12.3296700Z Complete job name: scoped-evidence-recovery / recover-scoped-evidence
+2026-10-15T14:59:12.4550334Z ##[group]Run python3 - <<'PY'
+2026-10-15T14:59:12.4552223Z [36;1mpython3 - <<'PY'[0m
+2026-10-15T14:59:12.4553935Z [36;1mimport base64, hashlib, io, json, os, re, time, urllib.error, urllib.parse, urllib.request, zipfile[0m
+2026-10-15T14:59:12.4555889Z [36;1mrepo = os.environ['GITHUB_REPOSITORY'][0m
+2026-10-15T14:59:12.4557347Z [36;1massert repo == 'gtt46461-star/eth-k3-v43-nova'[0m
+2026-10-15T14:59:12.4558783Z [36;1mrun = int(os.environ['GITHUB_RUN_ID'])[0m
+2026-10-15T14:59:12.4560355Z [36;1mclass NoRedirect(urllib.request.HTTPRedirectHandler):[0m
+2026-10-15T14:59:12.4562641Z [36;1m    def redirect_request(self, req, fp, code, msg, headers, newurl):[0m
+2026-10-15T14:59:12.4564207Z [36;1m        return None[0m
+2026-10-15T14:59:12.4565507Z [36;1mdef api(path):[0m
+2026-10-15T14:59:12.4567128Z [36;1m    request = urllib.request.Request('https://api.github.com/repos/' + repo + path,[0m
+2026-10-15T14:59:12.4569452Z [36;1m        headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],[0m
+2026-10-15T14:59:12.4571597Z [36;1m                 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})[0m
+2026-10-15T14:59:12.4573773Z [36;1m    try:[0m
+2026-10-15T14:59:12.4575298Z [36;1m        return urllib.request.build_opener(NoRedirect).open(request, timeout=60).read()[0m
+2026-10-15T14:59:12.4577198Z [36;1m    except urllib.error.HTTPError as error:[0m
+2026-10-15T14:59:12.4578649Z [36;1m        if error.code not in (301, 302, 303, 307, 308):[0m
+2026-10-15T14:59:12.4579878Z [36;1m            raise[0m
+2026-10-15T14:59:12.4581218Z [36;1m        location = error.headers['Location'][0m
+2026-10-15T14:59:12.4583293Z [36;1m        assert urllib.parse.urlparse(location).scheme == 'https'[0m
+2026-10-15T14:59:12.4585018Z [36;1m        # A signed log download is a new request with no bearer token.[0m
+2026-10-15T14:59:12.4586954Z [36;1m        return urllib.request.urlopen(location, timeout=60).read()[0m
+2026-10-15T14:59:12.4588601Z [36;1mrun_info = json.loads(api(f'/actions/runs/{run}'))[0m
+2026-10-15T14:59:12.4590743Z [36;1massert run_info['head_sha'] == os.environ['GITHUB_SHA'][0m
+2026-10-15T14:59:12.4592991Z [36;1mjobs = json.loads(api(f'/actions/runs/{run}/jobs?filter=latest&per_page=100'))['jobs'][0m
+2026-10-15T14:59:12.4595443Z [36;1mcandidates = [job for job in jobs if job['name'] == 'android-compile-native-dex-lint'][0m
+2026-10-15T14:59:12.4597783Z [36;1massert len(candidates) == 1 and candidates[0]['status'] == 'completed'[0m
+2026-10-15T14:59:12.4599429Z [36;1mjob = candidates[0][0m
+2026-10-15T14:59:12.4601095Z [36;1mprint('R77_ORIGINAL_JOB_STATUS|' + json.dumps({'run': run, 'job': job['id'],[0m
+2026-10-15T14:59:12.4603773Z [36;1m    'commit': run_info['head_sha'], 'conclusion': job['conclusion'], 'steps': job['steps']}))[0m
+2026-10-15T14:59:12.4605536Z [36;1mfor attempt in range(6):[0m
+2026-10-15T14:59:12.4606733Z [36;1m    try:[0m
+2026-10-15T14:59:12.4607881Z [36;1m        raw = api(f"/actions/jobs/{job['id']}/logs")[0m
+2026-10-15T14:59:12.4609444Z [36;1m        break[0m
+2026-10-15T14:59:12.4610565Z [36;1m    except urllib.error.HTTPError as error:[0m
+2026-10-15T14:59:12.4612474Z [36;1m        if error.code not in (404, 502, 503, 504) or attempt == 5:[0m
+2026-10-15T14:59:12.4614234Z [36;1m            raise RuntimeError('Actions log HTTP ' + str(error.code)) from None[0m
+2026-10-15T14:59:12.4615931Z [36;1m        time.sleep(5)[0m
+2026-10-15T14:59:12.4617038Z [36;1mtext = raw.decode('utf-8-sig')[0m
+2026-10-15T14:59:12.4618520Z [36;1mprint('R77_ORIGINAL_JOB_LOG_SHA256|' + hashlib.sha256(raw).hexdigest())[0m
+2026-10-15T14:59:12.4620224Z [36;1mbudget = [120000][0m
+2026-10-15T14:59:12.4621215Z [36;1mdef emit(value):[0m
+2026-10-15T14:59:12.4622889Z [36;1m    value = str(value)[0m
+2026-10-15T14:59:12.4624110Z [36;1m    size = min(len(value), budget[0])[0m
+2026-10-15T14:59:12.4625360Z [36;1m    print(value[:size])[0m
+2026-10-15T14:59:12.4626604Z [36;1m    budget[0] -= size[0m
+2026-10-15T14:59:12.4628090Z [36;1m    if size < len(value):[0m
+2026-10-15T14:59:12.4629826Z [36;1m        print('R77_SCOPED_LOG_TRUNCATED|omitted_chars=' + str(len(value) - size))[0m
+2026-10-15T14:59:12.4632032Z [36;1mfor line in text.splitlines():[0m
+2026-10-15T14:59:12.4633816Z [36;1m    if any(token in line for token in ('O09_ANDROID_CLASS_START|', 'O09_ANDROID_CLASS_RESULT|',[0m
+2026-10-15T14:59:12.4636040Z [36;1m            'O09_ANDROID_RUNTIME_RECEIPT|', 'ANDROID_R77_BUSY_', '##[error]')):[0m
+2026-10-15T14:59:12.4637734Z [36;1m        emit(line[:20000])[0m
+2026-10-15T14:59:12.4639193Z [36;1mmatch = re.search(r'O09_EVIDENCE_MANIFEST\|(\{[^\r\n]+\})', text)[0m
+2026-10-15T14:59:12.4641350Z [36;1massert match is not None, 'full fallback manifest missing; no acceptance inferred'[0m
+2026-10-15T14:59:12.4643633Z [36;1mmanifest = json.loads(match.group(1))[0m
+2026-10-15T14:59:12.4645183Z [36;1mchunks = {}[0m
+2026-10-15T14:59:12.4646707Z [36;1mfor index, content in re.findall(r'O09_EVIDENCE_CHUNK\|(\d+)\|([A-Za-z0-9+/=]+)', text):[0m
+2026-10-15T14:59:12.4648753Z [36;1m    assert int(index) not in chunks, 'duplicate evidence chunk'[0m
+2026-10-15T14:59:12.4650248Z [36;1m    chunks[int(index)] = content[0m
+2026-10-15T14:59:12.4652112Z [36;1massert sorted(chunks) == list(range(len(chunks))), 'missing evidence chunk'[0m
+2026-10-15T14:59:12.4654262Z [36;1marchive = base64.b64decode(''.join(chunks[i] for i in sorted(chunks)), validate=True)[0m
+2026-10-15T14:59:12.4656124Z [36;1massert len(archive) == manifest['bytes'][0m
+2026-10-15T14:59:12.4657815Z [36;1massert hashlib.sha256(archive).hexdigest() == manifest['sha256'][0m
+2026-10-15T14:59:12.4659630Z [36;1mprint('R77_FALLBACK_ARCHIVE_VERIFIED|' + json.dumps(manifest))[0m
+2026-10-15T14:59:12.4661266Z [36;1mwith zipfile.ZipFile(io.BytesIO(archive)) as bundle:[0m
+2026-10-15T14:59:12.4663413Z [36;1m    path = 'validation-o09/runtime/receipt.json'[0m
+2026-10-15T14:59:12.4665366Z [36;1m    assert path in bundle.namelist(), 'runtime receipt missing; tests not accepted'[0m
+2026-10-15T14:59:12.4667250Z [36;1m    receipt = json.loads(bundle.read(path))[0m
+2026-10-15T14:59:12.4670200Z [36;1m    assert receipt['commit'] == run_info['head_sha'][0m
+2026-10-15T14:59:12.4672053Z [36;1m    print('R77_RUNTIME_RECEIPT|' + json.dumps(receipt))[0m
+2026-10-15T14:59:12.4674514Z [36;1m    selected = {'SqliteBusyPoolR77Test'} | {item['class'] for item in receipt.get('tests', []) if not item.get('passed')}[0m
+2026-10-15T14:59:12.4676723Z [36;1m    for name in sorted(selected):[0m
+2026-10-15T14:59:12.4678177Z [36;1m        for suffix in ('.log', '-logcat.log'):[0m
+2026-10-15T14:59:12.4679771Z [36;1m            path = 'validation-o09/runtime/' + name + suffix[0m
+2026-10-15T14:59:12.4681248Z [36;1m            if path not in bundle.namelist():[0m
+2026-10-15T14:59:12.4683151Z [36;1m                continue[0m
+2026-10-15T14:59:12.4684400Z [36;1m            data = bundle.read(path)[0m
+2026-10-15T14:59:12.4686069Z [36;1m            print('R77_SCOPED_FILE|' + json.dumps({'path': path, 'bytes': len(data),[0m
+2026-10-15T14:59:12.4687815Z [36;1m                'sha256': hashlib.sha256(data).hexdigest()}))[0m
+2026-10-15T14:59:12.4689289Z [36;1m            value = data.decode('utf-8', errors='replace')[0m
+2026-10-15T14:59:12.4690776Z [36;1m            if suffix == '-logcat.log':[0m
+2026-10-15T14:59:12.4692653Z [36;1m                rows = value.splitlines()[0m
+2026-10-15T14:59:12.4695652Z [36;1m                hits = [i for i, line in enumerate(rows) if re.search(r'ANDROID_R77|AssertionError|FATAL EXCEPTION|ANR in|SQLITE|SQLite.*(Exception|locked)|TestRunner.*(failed|finished)|TimeoutException', line)][0m
+2026-10-15T14:59:12.4699085Z [36;1m                chosen = sorted({j for i in hits for j in range(max(0, i - 3), min(len(rows), i + 12))})[0m
+2026-10-15T14:59:12.4701074Z [36;1m                value = '\n'.join(rows[i] for i in chosen[-150:])[0m
+2026-10-15T14:59:12.4702904Z [36;1m            emit(value[-20000:])[0m
+2026-10-15T14:59:12.4705220Z [36;1m    print('R77_RECOVERY_SCOPE|Evidence extraction only; original job and test failures remain failures')[0m
+2026-10-15T14:59:12.4707415Z [36;1mPY[0m
+2026-10-15T14:59:12.5610196Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-15T14:59:12.5611277Z env:
+2026-10-15T14:59:12.5615739Z   GH_TOKEN: ***
+2026-10-15T14:59:12.5616229Z ##[endgroup]
+2026-10-15T14:59:13.8737429Z R77_ORIGINAL_JOB_STATUS|{"run": 38750295995, "job": 116474626610, "commit": "d9fea8ce28bc3a3a48046a8f964077ffe982f57f", "conclusion": "failure", "steps": [{"name": "Set up job", "status": "completed", "conclusion": "success", "number": 1, "started_at": "2026-10-15T14:19:06Z", "completed_at": "2026-10-15T14:19:07Z"}, {"name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262", "status": "completed", "conclusion": "success", "number": 2, "started_at": "2026-10-15T14:19:07Z", "completed_at": "2026-10-15T14:19:24Z"}, {"name": "Run actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3", "status": "completed", "conclusion": "success", "number": 3, "started_at": "2026-10-15T14:19:24Z", "completed_at": "2026-10-15T14:19:25Z"}, {"name": "Free unused toolchains on disposable hosted runner", "status": "completed", "conclusion": "success", "number": 4, "started_at": "2026-10-15T14:19:25Z", "completed_at": "2026-10-15T14:20:17Z"}, {"name": "Install exact existing Android toolchain", "status": "completed", "conclusion": "success", "number": 5, "started_at": "2026-10-15T14:20:17Z", "completed_at": "2026-10-15T14:20:44Z"}, {"name": "Verify disposable Android emulator boots before compiling", "status": "completed", "conclusion": "success", "number": 6, "started_at": "2026-10-15T14:20:44Z", "completed_at": "2026-10-15T14:22:37Z"}, {"name": "Validate current production Java, Android native ABI, D8 and lint", "status": "completed", "conclusion": "success", "number": 7, "started_at": "2026-10-15T14:22:37Z", "completed_at": "2026-10-15T14:29:34Z"}, {"name": "Prepare independent D04 NumPy and host Java parity fixtures", "status": "completed", "conclusion": "success", "number": 8, "started_at": "2026-10-15T14:29:34Z", "completed_at": "2026-10-15T14:29:49Z"}, {"name": "Build internal Android test packages through normal gates", "status": "completed", "conclusion": "success", "number": 9, "started_at": "2026-10-15T14:29:49Z", "completed_at": "2026-10-15T14:31:10Z"}, {"name": "Run actual Android rolling and rollback contract", "status": "completed", "conclusion": "success", "number": 10, "started_at": "2026-10-15T14:31:10Z", "completed_at": "2026-10-15T14:34:48Z"}, {"name": "Run independent Android runtime contracts", "status": "completed", "conclusion": "success", "number": 11, "started_at": "2026-10-15T14:34:48Z", "completed_at": "2026-10-15T14:58:54Z"}, {"name": "Preserve exact validation evidence in job log", "status": "completed", "conclusion": "success", "number": 12, "started_at": "2026-10-15T14:58:54Z", "completed_at": "2026-10-15T14:59:05Z"}, {"name": "Preserve validation logs and generated identities", "status": "completed", "conclusion": "failure", "number": 13, "started_at": "2026-10-15T14:59:05Z", "completed_at": "2026-10-15T14:59:06Z"}, {"name": "Post Run actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3", "status": "completed", "conclusion": "success", "number": 25, "started_at": "2026-10-15T14:59:06Z", "completed_at": "2026-10-15T14:59:06Z"}, {"name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262", "status": "completed", "conclusion": "success", "number": 26, "started_at": "2026-10-15T14:59:06Z", "completed_at": "2026-10-15T14:59:06Z"}, {"name": "Complete job", "status": "completed", "conclusion": "success", "number": 27, "started_at": "2026-10-15T14:59:06Z", "completed_at": "2026-10-15T14:59:07Z"}]}
+2026-10-15T14:59:13.8819831Z R77_ORIGINAL_JOB_LOG_SHA256|dc8e69cd0ff6e65480b626891aff8477c9b87e6ab5826feb91a4b6fd0b821e9e
+2026-10-15T14:59:13.9012137Z 2026-10-15T14:36:04.8395800Z O09_ANDROID_CLASS_START|R79RecoveryAndroidTest
+2026-10-15T14:59:13.9017126Z 2026-10-15T14:40:47.2453539Z O09_ANDROID_CLASS_RESULT|{"class": "R79RecoveryAndroidTest", "passed": true, "exit": 0, "seconds": 281.751}
+2026-10-15T14:59:13.9022298Z 2026-10-15T14:40:47.5113473Z O09_ANDROID_CLASS_START|SqliteBusyPoolR77Test
+2026-10-15T14:59:13.9026776Z 2026-10-15T14:40:49.5285162Z O09_ANDROID_CLASS_RESULT|{"class": "SqliteBusyPoolR77Test", "passed": true, "exit": 0, "seconds": 1.471}
+2026-10-15T14:59:13.9031453Z 2026-10-15T14:40:49.5618719Z O09_ANDROID_CLASS_START|FeedbackBootstrapAndroidTest
+2026-10-15T14:59:13.9036647Z 2026-10-15T14:40:50.5121382Z O09_ANDROID_CLASS_RESULT|{"class": "FeedbackBootstrapAndroidTest", "passed": true, "exit": 0, "seconds": 0.769}
+2026-10-15T14:59:13.9041572Z 2026-10-15T14:40:50.5451286Z O09_ANDROID_CLASS_START|SqlNumericAffinityAndroidTest
+2026-10-15T14:59:13.9046707Z 2026-10-15T14:40:51.4938677Z O09_ANDROID_CLASS_RESULT|{"class": "SqlNumericAffinityAndroidTest", "passed": true, "exit": 0, "seconds": 0.717}
+2026-10-15T14:59:13.9051867Z 2026-10-15T14:40:51.5263865Z O09_ANDROID_CLASS_START|FoundationImportAndroidCP12Test
+2026-10-15T14:59:13.9056940Z 2026-10-15T14:49:42.1574636Z O09_ANDROID_CLASS_RESULT|{"class": "FoundationImportAndroidCP12Test", "passed": true, "exit": 0, "seconds": 530.4}
+2026-10-15T14:59:13.9061578Z 2026-10-15T14:49:42.3231170Z O09_ANDROID_CLASS_START|ResearchContinuationAndroidTest
+2026-10-15T14:59:13.9066401Z 2026-10-15T14:53:02.1104042Z O09_ANDROID_CLASS_RESULT|{"class": "ResearchContinuationAndroidTest", "passed": true, "exit": 0, "seconds": 199.492}
+2026-10-15T14:59:13.9071105Z 2026-10-15T14:53:02.1434040Z O09_ANDROID_CLASS_START|R36RuntimeChainTest
+2026-10-15T14:59:13.9075626Z 2026-10-15T14:53:03.1241738Z O09_ANDROID_CLASS_RESULT|{"class": "R36RuntimeChainTest", "passed": true, "exit": 0, "seconds": 0.717}
+2026-10-15T14:59:13.9080095Z 2026-10-15T14:53:03.1565210Z O09_ANDROID_CLASS_START|R36DatabaseAtomicityTest
+2026-10-15T14:59:13.9084890Z 2026-10-15T14:53:24.7373614Z O09_ANDROID_CLASS_RESULT|{"class": "R36DatabaseAtomicityTest", "passed": true, "exit": 0, "seconds": 21.368}
+2026-10-15T14:59:13.9089681Z 2026-10-15T14:53:24.7560698Z O09_ANDROID_CLASS_START|C07AndroidRuntimeScheduleTest
+2026-10-15T14:59:13.9095022Z 2026-10-15T14:53:54.7828455Z O09_ANDROID_CLASS_RESULT|{"class": "C07AndroidRuntimeScheduleTest", "passed": true, "exit": 0, "seconds": 29.846}
+2026-10-15T14:59:13.9099750Z 2026-10-15T14:53:54.8156728Z O09_ANDROID_CLASS_START|R939MainChainTest
+2026-10-15T14:59:13.9104424Z 2026-10-15T14:54:29.5534796Z O09_ANDROID_CLASS_RESULT|{"class": "R939MainChainTest", "passed": true, "exit": 0, "seconds": 34.508}
+2026-10-15T14:59:13.9109109Z 2026-10-15T14:54:29.5866147Z O09_ANDROID_CLASS_START|ShadowCycleAndroidTest
+2026-10-15T14:59:13.9114177Z 2026-10-15T14:56:04.6415127Z O09_ANDROID_CLASS_RESULT|{"class": "ShadowCycleAndroidTest", "passed": true, "exit": 0, "seconds": 94.759}
+2026-10-15T14:59:13.9119004Z 2026-10-15T14:56:04.6738013Z O09_ANDROID_CLASS_START|R940UiStabilityTest
+2026-10-15T14:59:13.9123846Z 2026-10-15T14:56:54.7773298Z O09_ANDROID_CLASS_RESULT|{"class": "R940UiStabilityTest", "passed": true, "exit": 0, "seconds": 49.87}
+2026-10-15T14:59:13.9128627Z 2026-10-15T14:56:55.2973048Z O09_ANDROID_CLASS_START|E03AAndroidParityTest
+2026-10-15T14:59:13.9133597Z 2026-10-15T14:58:21.6292963Z O09_ANDROID_CLASS_RESULT|{"class": "E03AAndroidParityTest", "passed": true, "exit": 0, "seconds": 85.48}
+2026-10-15T14:59:13.9138553Z 2026-10-15T14:58:21.6620693Z O09_ANDROID_CLASS_START|D04AndroidRuntimeParityTest
+2026-10-15T14:59:13.9143918Z 2026-10-15T14:58:52.5399149Z O09_ANDROID_CLASS_RESULT|{"class": "D04AndroidRuntimeParityTest", "passed": true, "exit": 0, "seconds": 30.34}
+2026-10-15T14:59:13.9887111Z 2026-10-15T14:58:52.5753888Z O09_ANDROID_RUNTIME_RECEIPT|{"scope": "SYNTHETIC_ANDROID_RUNTIME_NOT_NATURAL_NOT_PHYSICAL_PHONE", "overall_1_9": "NOT_CLOSED", "natural": "NOT_PROVEN", "tests": [{"class": "R79RecoveryAndroidTest", "passed": true, "exit": 0, "seconds": 281.751}, {"class": "SqliteBusyPoolR77Test", "passed": true, "exit": 0, "seconds": 1.471}, {"class": "FeedbackBootstrapAndroidTest", "passed": true, "exit": 0, "seconds": 0.769}, {"class": "SqlNumericAffinityAndroidTest", "passed": true, "exit": 0, "seconds": 0.717}, {"class": "FoundationImportAndroidCP12Test", "passed": true, "exit": 0, "seconds": 530.4}, {"class": "ResearchContinuationAndroidTest", "passed": true, "exit": 0, "seconds": 199.492}, {"class": "R36RuntimeChainTest", "passed": true, "exit": 0, "seconds": 0.717}, {"class": "R36DatabaseAtomicityTest", "passed": true, "exit": 0, "seconds": 21.368}, {"class": "C07AndroidRuntimeScheduleTest", "passed": true, "exit": 0, "seconds": 29.846}, {"class": "R939MainChainTest", "passed": true, "exit": 0, "seconds": 34.508}, {"class": "ShadowCycleAndroidTest", "passed": true, "exit": 0, "seconds": 94.759}, {"class": "R940UiStabilityTest", "passed": true, "exit": 0, "seconds": 49.87}, {"class": "E03AAndroidParityTest", "passed": true, "exit": 0, "seconds": 85.48}, {"class": "D04AndroidRuntimeParityTest", "passed": true, "exit": 0, "seconds": 30.34}], "not_run": {}, "commit": "d9fea8ce28bc3a3a48046a8f964077ffe982f57f", "inputs": [{"path": "app/build/outputs/apk/debug/Starcore-Tianshu-V57.21.2.0.79-R5.4.2.79-1015-O09-debug.apk", "sha256": "9d8e80e9b82bf1b918310e9dba507c782e7cf994714662085326825e3a6747fe"}, {"path": "app/build/outputs/apk/androidTest/debug/Starcore-Tianshu-V57.21.2.0.79-R5.4.2.79-1015-O09-debug-androidTest.apk", "sha256": "bc5d2ed4135bb837dc039a64341b6102cca46ccb81e3c142b3119d0dfdeb2a1a"}], "runtime_contracts": "PASS"}
+2026-10-15T14:59:13.9983370Z ##[error]Failed to CreateArtifact: Artifact storage quota has been hit. Unable to upload any new artifacts. Usage is recalculated every 6-12 hours.
+2026-10-15T14:59:14.0002392Z R77_FALLBACK_ARCHIVE_VERIFIED|{"files": 124, "bytes": 7268838, "sha256": "1149ba2108838e0e12778e5c5ac476ab9285cc75e9f204c76537ebef229d65f6", "format": "ZIP_BASE64_ORDERED_CHUNKS", "chunk_chars": 4096}
+2026-10-15T14:59:14.0028355Z R77_RUNTIME_RECEIPT|{"scope": "SYNTHETIC_ANDROID_RUNTIME_NOT_NATURAL_NOT_PHYSICAL_PHONE", "overall_1_9": "NOT_CLOSED", "natural": "NOT_PROVEN", "tests": [{"class": "R79RecoveryAndroidTest", "passed": true, "exit": 0, "seconds": 281.751}, {"class": "SqliteBusyPoolR77Test", "passed": true, "exit": 0, "seconds": 1.471}, {"class": "FeedbackBootstrapAndroidTest", "passed": true, "exit": 0, "seconds": 0.769}, {"class": "SqlNumericAffinityAndroidTest", "passed": true, "exit": 0, "seconds": 0.717}, {"class": "FoundationImportAndroidCP12Test", "passed": true, "exit": 0, "seconds": 530.4}, {"class": "ResearchContinuationAndroidTest", "passed": true, "exit": 0, "seconds": 199.492}, {"class": "R36RuntimeChainTest", "passed": true, "exit": 0, "seconds": 0.717}, {"class": "R36DatabaseAtomicityTest", "passed": true, "exit": 0, "seconds": 21.368}, {"class": "C07AndroidRuntimeScheduleTest", "passed": true, "exit": 0, "seconds": 29.846}, {"class": "R939MainChainTest", "passed": true, "exit": 0, "seconds": 34.508}, {"class": "ShadowCycleAndroidTest", "passed": true, "exit": 0, "seconds": 94.759}, {"class": "R940UiStabilityTest", "passed": true, "exit": 0, "seconds": 49.87}, {"class": "E03AAndroidParityTest", "passed": true, "exit": 0, "seconds": 85.48}, {"class": "D04AndroidRuntimeParityTest", "passed": true, "exit": 0, "seconds": 30.34}], "not_run": {}, "commit": "d9fea8ce28bc3a3a48046a8f964077ffe982f57f", "inputs": [{"path": "app/build/outputs/apk/debug/Starcore-Tianshu-V57.21.2.0.79-R5.4.2.79-1015-O09-debug.apk", "sha256": "9d8e80e9b82bf1b918310e9dba507c782e7cf994714662085326825e3a6747fe"}, {"path": "app/build/outputs/apk/androidTest/debug/Starcore-Tianshu-V57.21.2.0.79-R5.4.2.79-1015-O09-debug-androidTest.apk", "sha256": "bc5d2ed4135bb837dc039a64341b6102cca46ccb81e3c142b3119d0dfdeb2a1a"}], "runtime_contracts": "PASS"}
+2026-10-15T14:59:14.0054245Z R77_SCOPED_FILE|{"path": "validation-o09/runtime/SqliteBusyPoolR77Test.log", "bytes": 2794, "sha256": "77c4d763b8b0fed14f6aba1428bc2be234a516e4b339501e475795b941d140fe"}
+2026-10-15T14:59:14.0057792Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0059734Z INSTRUMENTATION_STATUS: current=1
+2026-10-15T14:59:14.0061330Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0063175Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0064497Z INSTRUMENTATION_STATUS: stream=
+2026-10-15T14:59:14.0065873Z com.ethk3.novaonepro.SqliteBusyPoolR77Test:
+2026-10-15T14:59:14.0067941Z INSTRUMENTATION_STATUS: test=externalWriteContentionIsBoundedAndAtomicAcrossReopen
+2026-10-15T14:59:14.0069971Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-15T14:59:14.0071877Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0073707Z INSTRUMENTATION_STATUS: current=1
+2026-10-15T14:59:14.0075059Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0076488Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0077762Z INSTRUMENTATION_STATUS: stream=.
+2026-10-15T14:59:14.0079634Z INSTRUMENTATION_STATUS: test=externalWriteContentionIsBoundedAndAtomicAcrossReopen
+2026-10-15T14:59:14.0081850Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-15T14:59:14.0083615Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0085458Z INSTRUMENTATION_STATUS: current=2
+2026-10-15T14:59:14.0086808Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0088218Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0089482Z INSTRUMENTATION_STATUS: stream=
+2026-10-15T14:59:14.0091472Z INSTRUMENTATION_STATUS: test=oldPerQueryConfigurationLeavesFutureConnectionAtNativeDefault
+2026-10-15T14:59:14.0093934Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-15T14:59:14.0095608Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0097400Z INSTRUMENTATION_STATUS: current=2
+2026-10-15T14:59:14.0098746Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0100149Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0101930Z INSTRUMENTATION_STATUS: stream=.
+2026-10-15T14:59:14.0103964Z INSTRUMENTATION_STATUS: test=oldPerQueryConfigurationLeavesFutureConnectionAtNativeDefault
+2026-10-15T14:59:14.0106107Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-15T14:59:14.0107759Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0109762Z INSTRUMENTATION_STATUS: current=3
+2026-10-15T14:59:14.0111093Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0112641Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0113907Z INSTRUMENTATION_STATUS: stream=
+2026-10-15T14:59:14.0115485Z INSTRUMENTATION_STATUS: test=legacyPrimaryStrategyOnActualSQLite
+2026-10-15T14:59:14.0117157Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-15T14:59:14.0118797Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0120599Z INSTRUMENTATION_STATUS: current=3
+2026-10-15T14:59:14.0122028Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0123445Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0124704Z INSTRUMENTATION_STATUS: stream=.
+2026-10-15T14:59:14.0126270Z INSTRUMENTATION_STATUS: test=legacyPrimaryStrategyOnActualSQLite
+2026-10-15T14:59:14.0127960Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-15T14:59:14.0129574Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0131324Z INSTRUMENTATION_STATUS: current=4
+2026-10-15T14:59:14.0133191Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0134564Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0135750Z INSTRUMENTATION_STATUS: stream=
+2026-10-15T14:59:14.0137581Z INSTRUMENTATION_STATUS: test=productionConfigurationCoversExistingAndFutureConnections
+2026-10-15T14:59:14.0139541Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-15T14:59:14.0141136Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-15T14:59:14.0143011Z INSTRUMENTATION_STATUS: current=4
+2026-10-15T14:59:14.0144256Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-15T14:59:14.0145595Z INSTRUMENTATION_STATUS: numtests=4
+2026-10-15T14:59:14.0146783Z INSTRUMENTATION_STATUS: stream=.
+2026-10-15T14:59:14.0148819Z INSTRUMENTATION_STATUS: test=productionConfigurationCoversExistingAndFutureConnections
+2026-10-15T14:59:14.0150795Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-15T14:59:14.0152058Z INSTRUMENTATION_RESULT: stream=
+2026-10-15T14:59:14.0152752Z 
+2026-10-15T14:59:14.0153147Z Time: 0.174
+2026-10-15T14:59:14.0153626Z 
+2026-10-15T14:59:14.0154009Z OK (4 tests)
+2026-10-15T14:59:14.0154498Z 
+2026-10-15T14:59:14.0154507Z 
+2026-10-15T14:59:14.0154985Z INSTRUMENTATION_CODE: -1
+2026-10-15T14:59:14.0155613Z 
+2026-10-15T14:59:14.0157800Z R77_SCOPED_FILE|{"path": "validation-o09/runtime/SqliteBusyPoolR77Test-logcat.log", "bytes": 22030, "sha256": "975296eacb25424dfde5e7e6f754135186dfa28ea0244ec43eca5676dbaff6fa"}
+2026-10-15T14:59:14.0160924Z 10-15 14:40:49.054  3564  3579 I TestRunner: run started: 4 tests
+2026-10-15T14:59:14.0163923Z 10-15 14:40:49.055  3564  3579 I TestRunner: started: externalWriteContentionIsBoundedAndAtomicAcrossReopen(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0172327Z 10-15 14:40:49.103   556  1522 I ActivityManager: Background started FGS: Allowed [callingPackage: com.ethk3.novaonepro; callingUid: 10209; uidState: FGS ; uidBFSL: [BFSL]; intent: Intent { act=com.ethk3.novaonepro.ACTION_SERVICE_START pkg=com.ethk3.novaonepro cmp=com.ethk3.novaonepro/.AutoFetchService (has extras) }; code:ACTIVITY_STARTER; tempAllowListReason:<null>; targetSdkVersion:28; callerTargetSdkVersion:28; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+2026-10-15T14:59:14.0180145Z 10-15 14:40:49.134  3564  3579 I System.out: ANDROID_R77_BUSY_CONTENTION|elapsed_ms=56|partial_rows=0|error=SQLiteDatabaseLockedException
+2026-10-15T14:59:14.0183975Z 10-15 14:40:49.142  3564  3579 I System.out: ANDROID_R77_BUSY_CONTENTION_PASS|rollback=PASS|retry=PASS|reopen=PASS|scope=REAL_ANDROID_SQLITE_SYNTHETIC_NOT_PHONE_LATENCY
+2026-10-15T14:59:14.0188091Z 10-15 14:40:49.144  3564  3579 I TestRunner: finished: externalWriteContentionIsBoundedAndAtomicAcrossReopen(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0192479Z 10-15 14:40:49.147  3564  3579 I TestRunner: started: oldPerQueryConfigurationLeavesFutureConnectionAtNativeDefault(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0197224Z 10-15 14:40:49.171  3564  3579 I System.out: ANDROID_R77_BUSY_NEGATIVE|ordinary_query=50|primary=50|existing_reader=50|future_reader=2500|old_query_does_not_configure_future_pool_connections=PASS
+2026-10-15T14:59:14.0201899Z 10-15 14:40:49.178  3564  3579 I TestRunner: finished: oldPerQueryConfigurationLeavesFutureConnectionAtNativeDefault(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0205864Z 10-15 14:40:49.180  3564  3579 I TestRunner: started: legacyPrimaryStrategyOnActualSQLite(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0209943Z 10-15 14:40:49.191  3564  3579 I System.out: ANDROID_R77_BUSY_LEGACY_STRATEGY|actual_api=35|cold_primary=2500|configured_primary=50|repeat=PASS|transaction_released=TRUE|legacy_os_runtime=NOT_RUN
+2026-10-15T14:59:14.0214139Z 10-15 14:40:49.197  3564  3579 I TestRunner: finished: legacyPrimaryStrategyOnActualSQLite(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0218029Z 10-15 14:40:49.199  3564  3579 I TestRunner: started: productionConfigurationCoversExistingAndFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0222716Z 10-15 14:40:49.217  3564  3579 I System.out: ANDROID_R77_BUSY_POOL_PASS|api=35|configured_primary=50|existing_reader=50|future_reader=50|reconfigure=PASS|scope=REAL_ANDROID_SQLITE_SYNTHETIC_NOT_PHONE_LATENCY
+2026-10-15T14:59:14.0227950Z 10-15 14:40:49.219  3564  3587 W JobInfo : Job 'com.ethk3.novaonepro/.ServiceWatchdogJobService#60518' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+2026-10-15T14:59:14.0234303Z 10-15 14:40:49.220   556  1522 W JobInfo : Job 'com.ethk3.novaonepro/.ServiceWatchdogJobService#60518' has a deadline with no functional constraints. The deadline won't improve job execution latency. Consider removing the deadline.
+2026-10-15T14:59:14.0243191Z 10-15 14:40:49.224  3564  3579 I TestRunner: finished: productionConfigurationCoversExistingAndFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-15T14:59:14.0248581Z 10-15 14:40:49.228  3564  3579 I TestRunner: run finished: 4 tests, 0 failed, 0 ignored
+2026-10-15T14:59:14.0252878Z 10-15 14:40:49.231   556  1756 I ActivityManager: Force stopping com.ethk3.novaonepro appid=10209 user=0: finished inst
+2026-10-15T14:59:14.0257022Z 10-15 14:40:49.233   556  1756 E ActivityManager: Unable to freeze binder for 3564: -11
+2026-10-15T14:59:14.0259745Z --------- beginning of kernel
+2026-10-15T14:59:14.0262348Z 10-15 14:40:49.371     0     0 I binder  : 556:1756 ioctl 400c620e 78732056d354 returned -11
+2026-10-15T14:59:14.0265688Z 10-15 14:40:49.372     0     0 I binder  : 556:1756 ioctl 400c620e 78732056d354 returned -11
+2026-10-15T14:59:14.0270360Z 10-15 14:40:49.237   556  1756 I ActivityManager: Killing 3564:com.ethk3.novaonepro/u0a209 (adj 0): stop com.ethk3.novaonepro due to finished inst
+2026-10-15T14:59:14.0275442Z 10-15 14:40:49.237   556   584 D DisplayManagerService: Drop pending events for gone uid 10209
+2026-10-15T14:59:14.0278761Z 10-15 14:40:49.240   556   717 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET, states=14
+2026-10-15T14:59:14.0282300Z 10-15 14:40:49.240   556   717 D InetDiagMessage: Destroyed 0 sockets, proto=IPPROTO_TCP, family=AF_INET6, states=14
+2026-10-15T14:59:14.0284941Z 10-15 14:40:49.241  3553  3553 I app_process: System.exit called, status: 0
+2026-10-15T14:59:14.0288023Z 10-15 14:40:49.241  3553  3553 I AndroidRuntime: VM exiting with result code 0.
+2026-10-15T14:59:14.0291859Z R77_RECOVERY_SCOPE|Evidence extraction only; original job and test failures remain failures
+2026-10-15T14:59:14.0544319Z Cleaning up orphan processes
+

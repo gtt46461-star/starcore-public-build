@@ -1,0 +1,412 @@
+[
+  {
+    "large_lag_new": [
+      {
+        "wall_ms": 0.4632320014934521,
+        "vm_steps_lower_bound": 33000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 9) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      },
+      {
+        "wall_ms": 0.30837399754091166,
+        "vm_steps_lower_bound": 24000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 4998) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      },
+      {
+        "wall_ms": 0.3257690004829783,
+        "vm_steps_lower_bound": 24000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 5999) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      },
+      {
+        "wall_ms": 0.33188899760716595,
+        "vm_steps_lower_bound": 24000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 9998) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      }
+    ],
+    "rows": 5000,
+    "empty_regime_old": {
+      "wall_ms": 1718.42311400178,
+      "vm_steps_lower_bound": 62587000,
+      "rows": [],
+      "interrupted": false,
+      "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND (SELECT COUNT(*) FROM draws prior WHERE prior.dirty=0 AND prior.issue<d.issue)>=1 AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+      "plan": [
+        [
+          8,
+          0,
+          223,
+          "SCAN d USING INDEX idx_draws_issue"
+        ],
+        [
+          14,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          20,
+          14,
+          203,
+          "SEARCH prior USING INDEX idx_draws_issue_id_r815 (issue<?)"
+        ],
+        [
+          33,
+          0,
+          46,
+          "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+        ]
+      ]
+    },
+    "empty_regime_new": {
+      "wall_ms": 0.5129059973114636,
+      "vm_steps_lower_bound": 35000,
+      "rows": [],
+      "interrupted": false,
+      "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 0) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+      "plan": [
+        [
+          8,
+          0,
+          203,
+          "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+        ],
+        [
+          11,
+          0,
+          0,
+          "SCALAR SUBQUERY 1"
+        ],
+        [
+          20,
+          11,
+          223,
+          "SCAN prior USING INDEX idx_draws_issue"
+        ],
+        [
+          36,
+          0,
+          46,
+          "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+        ]
+      ]
+    },
+    "exact_predicate_parity_cases": 63,
+    "note": "100000-row old all-source scan is capped explicitly; sparse full-table predicates complete and match."
+  },
+  {
+    "large_lag_new": [
+      {
+        "wall_ms": 10.212549997959286,
+        "vm_steps_lower_bound": 672000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 9) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      },
+      {
+        "wall_ms": 9.55075500314706,
+        "vm_steps_lower_bound": 662000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 4998) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      },
+      {
+        "wall_ms": 9.235389999957988,
+        "vm_steps_lower_bound": 660000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 5999) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      },
+      {
+        "wall_ms": 9.187420997477602,
+        "vm_steps_lower_bound": 652000,
+        "rows": [],
+        "interrupted": false,
+        "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 9998) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+        "plan": [
+          [
+            8,
+            0,
+            203,
+            "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+          ],
+          [
+            11,
+            0,
+            0,
+            "SCALAR SUBQUERY 1"
+          ],
+          [
+            20,
+            11,
+            223,
+            "SCAN prior USING INDEX idx_draws_issue"
+          ],
+          [
+            36,
+            0,
+            46,
+            "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+          ]
+        ]
+      }
+    ],
+    "rows": 100000,
+    "empty_regime_old": {
+      "wall_ms": 169.13216000102693,
+      "vm_steps_lower_bound": 5001000,
+      "rows": null,
+      "interrupted": true,
+      "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND (SELECT COUNT(*) FROM draws prior WHERE prior.dirty=0 AND prior.issue<d.issue)>=1 AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+      "plan": [
+        [
+          8,
+          0,
+          223,
+          "SCAN d USING INDEX idx_draws_issue"
+        ],
+        [
+          14,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          20,
+          14,
+          203,
+          "SEARCH prior USING INDEX idx_draws_issue_id_r815 (issue<?)"
+        ],
+        [
+          33,
+          0,
+          46,
+          "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+        ]
+      ]
+    },
+    "empty_regime_new": {
+      "wall_ms": 11.127087000204483,
+      "vm_steps_lower_bound": 700000,
+      "rows": [],
+      "interrupted": false,
+      "sql": "SELECT d.issue FROM draws d WHERE d.dirty=0 AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 0) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='0000000000000000000000000000000000000000000000000000000000000000' AND r.regime_id=0 AND r.captured_at<d.open_time) ORDER BY d.issue LIMIT 1",
+      "plan": [
+        [
+          8,
+          0,
+          203,
+          "SEARCH d USING INDEX idx_draws_issue (issue>?)"
+        ],
+        [
+          11,
+          0,
+          0,
+          "SCALAR SUBQUERY 1"
+        ],
+        [
+          20,
+          11,
+          223,
+          "SCAN prior USING INDEX idx_draws_issue"
+        ],
+        [
+          36,
+          0,
+          46,
+          "SEARCH r EXISTS USING INDEX sqlite_autoindex_research_matrix_regime5_cp12_1 (target_issue=? AND position=?)"
+        ]
+      ]
+    },
+    "exact_predicate_parity_cases": 63,
+    "note": "100000-row old all-source scan is capped explicitly; sparse full-table predicates complete and match."
+  }
+]

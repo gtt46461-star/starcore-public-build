@@ -1,0 +1,88 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java b/app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java
+index 3e1ef2f..1678521 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java
+@@ -362,4 +362,83 @@ public final class ControlledCandidateOpportunityAuditR922 {
+                     + (error.length() == 0 ? "" : "|error=" + error);
+         }
+     }
++
++public static Report captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, int requestedWindow) {
++        if (store == null) return Report.readError(requestedWindow, "STORE_NULL");
++        Cursor cursor = null;
++        try {
++            int window = Math.max(1, Math.min(1200, requestedWindow));
++            cursor = report.select(
++                    "SELECT target_issue,base_issue,runtime_version,gate_eligible,gate_code,gate_detail,"
++                            + "governance_lane,governance_candidate,governance_status,governance_weight,"
++                            + "governance_applied,controlled_influence_eligible,authorized_action,authorized_reject,"
++                            + "position,n1,n2,n3,raw_action_p,third_margin,action_stability,entropy,"
++                            + "assignment_support,falsifier,rank_retention,third_robustness,margin_robustness,"
++                            + "created_at,record_hash FROM " + TABLE
++                            + " WHERE runtime_version=? ORDER BY created_at DESC,target_issue DESC LIMIT ?",
++                    new String[] {AppConfig.R36_RUNTIME_REPAIR_VERSION, String.valueOf(window)});
++            ArrayList<Opportunity> rows = new ArrayList<Opportunity>();
++            while (cursor.moveToNext()) {
++                rows.add(new Opportunity(
++                        cursor.getString(1), cursor.getString(0), cursor.getString(2),
++                        cursor.getInt(3) == 1, cursor.getString(4), cursor.getString(5),
++                        cursor.getString(6), cursor.getString(7), cursor.getString(8), cursor.getDouble(9),
++                        cursor.getInt(10) == 1, cursor.getInt(11) == 1,
++                        cursor.getString(12), cursor.getString(13), cursor.getInt(14), cursor.getInt(15),
++                        cursor.getInt(16), cursor.getInt(17), cursor.getDouble(18), cursor.getDouble(19),
++                        cursor.getDouble(20), cursor.getDouble(21), cursor.getDouble(22), cursor.getDouble(23),
++                        cursor.getDouble(24), cursor.getDouble(25), cursor.getDouble(26), cursor.getLong(27),
++                        cursor.getString(28)));
++            }
++            return evaluateSnapshotCP4(report, rows.toArray(new Opportunity[rows.size()]), window);
++        } catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value.trim();
++    }
++
++public static Report evaluateSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Opportunity[] opportunities, int requestedWindow) {
++        Opportunity[] rows = opportunities == null ? new Opportunity[0] : opportunities;
++        int total = 0, eligible = 0, bets = 0, governed = 0, certifiedInfluence = 0, invalid = 0;
++        LinkedHashMap<String, Integer> rejects = new LinkedHashMap<String, Integer>();
++        String latestTarget = "";
++        for (int i = 0; i < rows.length; i++) {
++            Opportunity row = rows[i];
++            if (row == null || !row.valid()) {
++                invalid++;
++                incrementSnapshotCP4(report, rejects, "AUDIT_ROW_INVALID");
++                continue;
++            }
++            total++;
++            if (latestTarget.length() == 0) latestTarget = row.targetIssue;
++            if (row.gateEligible) eligible++;
++            if (row.governanceApplied) governed++;
++            if (row.controlledInfluenceEligible) certifiedInfluence++;
++            if ("BET".equals(row.authorizedAction)) bets++;
++            else incrementSnapshotCP4(report, rejects, rejectionBucketSnapshotCP4(report, row));
++        }
++        double frequency = total <= 0 ? -1.0d : ((double) bets) / total;
++        String targetState = total <= 0 ? "NO_SAMPLE"
++                : frequency >= OBSERVATION_TARGET ? "TARGET_OBSERVED"
++                : "BELOW_TARGET_OBSERVED_DO_NOT_FORCE";
++        return new Report("OK", Math.max(1, requestedWindow), total, eligible, bets, governed,
++                certifiedInfluence, invalid, frequency, targetState, latestTarget, rejects, "");
++    }
++
++public static String rejectionBucketSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Opportunity row) {
++        if (row.gateCode.length() > 0 && !row.gateEligible) return "GATE_" + row.gateCode;
++        if (row.governanceApplied && !row.controlledInfluenceEligible)
++            return "RESEARCH_GOVERNED_SHADOW_ONLY";
++        if (row.authorizedReject.length() > 0 && !"NONE".equals(row.authorizedReject))
++            return "DECISION_" + row.authorizedReject;
++        return "SHADOW_OR_HOLD";
++    }
++
++public static void incrementSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Map<String, Integer> map, String key) {
++        Integer old = map.get(key);
++        map.put(key, Integer.valueOf(old == null ? 1 : old.intValue() + 1));
++    }
+ }

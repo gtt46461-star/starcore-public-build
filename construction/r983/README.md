@@ -1,0 +1,9 @@
+# R983 actual Mainline construction checkpoint
+
+PLAN_STATUS=INPUT_VERIFIED; SOURCE_IMPLEMENTATION_STATUS=IN_PROGRESS; BUILD_STATUS=see exact R983 build receipt; HOST_TEST_STATUS=MAINLINE_OWNER_SCOPED_PASS; DEVICE_STATUS=DEVICE_NOT_VERIFIED; RELEASE_STATUS=CONSTRUCTION_CHECKPOINT_NOT_FINAL_ACCEPTANCE.
+
+Product defect: qualified modern AST3 certificate was discarded by writer-context executable preparation, producing an empty choice. Original actual failure is retained. UnifiedResearchChoiceR932 now prepares outside the writer and checks current authorization/exact certificate plus target-not-drawn under the original writer before inserting. Failure preserves the typed commit cause; no REAL authority is added.
+
+17 certificate publication assertions; 9 repeat/revocation-after-freeze, 9 revoke-between-prepare/commit, 8 draw-before-commit assertions passed. Separate actual authorization and selected identity checks also passed. Reproducible current-source runner is verification/r983/run_mainline_owner.py. No test product-class override is used by this final runner. Whole current source compilation (825 Java inputs) and 405-table schema integrity/FK checks passed. Actual final Android build/signing receipt is delivered separately with exact commit binding.
+
+All fixture Future/model/paired evidence is synthetic in isolated test DBs, never production certificate/performance. No schema change in this fix. Existing data and schema owners retained. All 299-card/1832-requirement/328-formal-case closure remains incomplete. Next consumer scope: exact prediction → snapshot → sole DecisionGateEngine REAL persistence → sole SettlementEngine replay/recovery; then remaining formal acceptance queue. Two original supplied fixture conflicts, 57 legacy lint baseline errors, real device/customer DB and natural Future gaps remain.

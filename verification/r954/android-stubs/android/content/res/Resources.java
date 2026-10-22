@@ -1,0 +1,1 @@
+package android.content.res; public class Resources { public static class Theme{} public android.util.DisplayMetrics getDisplayMetrics(){return new android.util.DisplayMetrics();} public int getColor(int id){return id;} public int getColor(int id,Theme theme){return id;} }

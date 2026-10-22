@@ -1,0 +1,33 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java b/app/src/main/java/com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java
+index fafbb6c..e3c9298 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java
+@@ -2202,7 +2202,7 @@ public final class AdaptiveLearningJudgeEngine {
+     private String normalizeResult(String r) {
+         String s = safe(r).trim();
+         if (s.length() == 0) return "WAIT";
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         if ("WIN".equals(u) || "HIT".equals(u) || "命中".equals(s)) return resultWin();
+         if ("MISS".equals(u)
+                 || "LOSE".equals(u)
+@@ -2431,7 +2431,7 @@ public final class AdaptiveLearningJudgeEngine {
+     }
+ 
+     private String upper(String s) {
+-        return safe(s).trim().toUpperCase();
++        return safe(s).trim().toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private static String safe(String s) {
+@@ -2705,8 +2705,8 @@ public final class AdaptiveLearningJudgeEngine {
+ 
+     private boolean containsDomainToken(String source, String token) {
+         if (source == null || token == null || token.length() == 0) return false;
+-        String s = "|" + source.toUpperCase().replace('_', '|').replace('-', '|') + "|";
+-        String t = "|" + token.toUpperCase() + "|";
++        String s = "|" + source.toUpperCase(java.util.Locale.ROOT).replace('_', '|').replace('-', '|') + "|";
++        String t = "|" + token.toUpperCase(java.util.Locale.ROOT) + "|";
+         return s.indexOf(t) >= 0;
+     }
+ 

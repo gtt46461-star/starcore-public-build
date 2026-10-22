@@ -1,0 +1,44 @@
+name: C010 revision pass convergence and original-signature build
+# P023: exact C010 retention payload; cumulative C008 repairs retained; formal Java17/API36 build.
+on:
+  push:
+    branches: [construction/c010-final-plan-20261019]
+    paths: ['.github/workflows/c010-final-plan.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c010-final-plan
+  cancel-in-progress: true
+jobs:
+  complete-source-contracts:
+    if: github.ref == 'refs/heads/construction/c010-final-plan-20261019'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install formal Android API36 and the existing complete toolchain
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME']);manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0','ndk;28.2.13676358','cmake;3.22.1'],check=True)
+          PY
+      - name: C010 full host and release checks, prior regressions, Android APK
+        run: python3 construction/c_chain_20261018/C010/ci_verify.py
+
+
+# Retry 2: use the retained Android AtomicFile platform transport for actual product journal tests.
+
+# Retry 2: preserve the verified C009 AtomicFile transport path for unchanged storage regression.
+
+# Retry 3: independently recompile exact C009 retention and C008 storage counterexamples; retain original assertions.

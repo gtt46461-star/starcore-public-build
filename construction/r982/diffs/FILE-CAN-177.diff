@@ -1,0 +1,31 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SelfDiagnosisEngine.java b/app/src/main/java/com/ethk3/novaonepro/SelfDiagnosisEngine.java
+index c55be3b..a77e7ae 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SelfDiagnosisEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SelfDiagnosisEngine.java
+@@ -1369,7 +1369,7 @@ public final class SelfDiagnosisEngine {
+             return AppConfig.STAT_SCOPE_REAL_TRADE;
+         }
+ 
+-        String upper = v.toUpperCase();
++        String upper = v.toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("REAL".equals(upper)
+                 || "REAL_TRADE".equals(upper)
+@@ -1402,7 +1402,7 @@ public final class SelfDiagnosisEngine {
+             return "";
+         }
+ 
+-        String upper = v.toUpperCase();
++        String upper = v.toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("BET".equals(upper) || "下注".equals(v) || "真实出手".equals(v)) {
+             return AppConfig.DECISION_BET;
+@@ -1430,7 +1430,7 @@ public final class SelfDiagnosisEngine {
+             return "";
+         }
+ 
+-        String upper = v.toUpperCase();
++        String upper = v.toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("WIN".equals(upper) || "HIT".equals(upper) || "命中".equals(v) || "中".equals(v)) {
+             return AppConfig.RESULT_WIN;

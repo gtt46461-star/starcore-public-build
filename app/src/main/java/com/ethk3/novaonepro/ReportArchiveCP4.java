@@ -1,0 +1,64 @@
+package com.ethk3.novaonepro;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.*;
+/** Streaming archive writer; metadata is also streamed, never a list of all rows/parts. */
+public final class ReportArchiveCP4 implements Closeable {
+ public static final int PART_BYTES=8*1024*1024;
+ private final File directory; private final FileOutputStream manifest;
+ private final MessageDigest manifestHash; private String lastMember; private int nextPart=1,members; private boolean finished,memberRunning;
+ public ReportArchiveCP4(File exclusiveDirectory,String reportId) throws Exception {
+  if(!reportId.matches("[a-f0-9]{64}"))throw new IOException("REPORT_ID");
+  if(!exclusiveDirectory.isDirectory())throw new IOException("REPORT_JOB_DIRECTORY");
+  directory=exclusiveDirectory;File mf=new File(directory,"manifest.jsonl.partial");
+  if(!mf.createNewFile())throw new IOException("REPORT_MANIFEST_EXISTS");
+  manifest=new FileOutputStream(mf);manifestHash=MessageDigest.getInstance("SHA-256");
+  line("{\"kind\":\"header\",\"format\":\"STARCORE_REPORT_CP4\",\"report_id\":"+q(reportId)+",\"codec\":\"zstd-1.5.7-window19\",\"part_bytes\":"+PART_BYTES+"}",true);
+ }
+ public void add(String logicalName,File immutableFile,long nativeBudget,ReportNativeCP4.Control control) throws Exception {
+  if(finished||memberRunning||!logicalName.matches("[A-Za-z0-9_.-]{1,120}"))throw new IOException("REPORT_MEMBER_STATE");
+  if(lastMember!=null&&lastMember.compareTo(logicalName)>=0)throw new IOException("REPORT_MEMBER_NAME_ORDER");
+  memberRunning=true;long size=immutableFile.length();String sha=hash(immutableFile,control);int first=nextPart;
+  try(Parts out=new Parts(logicalName)){
+   ReportNativeCP4.compress(immutableFile,out,nativeBudget,control);out.finishPart();
+   if(size!=immutableFile.length()||!sha.equals(hash(immutableFile,control)))throw new IOException("REPORT_MEMBER_CHANGED");
+   line("{\"kind\":\"member\",\"name\":"+q(logicalName)+",\"raw_bytes\":"+size+",\"raw_sha256\":"+q(sha)+",\"first_part\":"+first+",\"part_count\":"+(nextPart-first)+"}",true);
+   members++;lastMember=logicalName;
+  }finally{memberRunning=false;}
+ }
+ public void finish(boolean evidenceComplete,boolean checksComplete,String scope) throws Exception {
+  if(finished||memberRunning)throw new IOException("REPORT_FINISH_STATE");
+  String digest=hex(manifestHash.digest());
+  line("{\"kind\":\"footer\",\"members\":"+members+",\"parts\":"+(nextPart-1)+",\"evidence_complete\":"+evidenceComplete+",\"checks_complete\":"+checksComplete+",\"scope\":"+q(scope)+",\"manifest_body_sha256\":"+q(digest)+"}",false);
+  manifest.flush();manifest.getFD().sync();manifest.close();
+  if(!new File(directory,"manifest.jsonl.partial").renameTo(new File(directory,"manifest.jsonl")))throw new IOException("REPORT_MANIFEST_PUBLISH");
+  finished=true;
+ }
+ public void close() throws IOException {if(!finished)manifest.close();}
+ private void line(String s,boolean hashed) throws IOException {byte[] b=(s+"\n").getBytes(StandardCharsets.UTF_8);if(b.length>8192)throw new IOException("REPORT_METADATA_TOO_LARGE");manifest.write(b);if(hashed)manifestHash.update(b);}
+ private final class Parts extends OutputStream {
+  final String member;FileOutputStream file;MessageDigest digest;File partial;int size;String name;
+  Parts(String member){this.member=member;}
+  private void open() throws IOException {
+   name=String.format(Locale.ROOT,"P%06d.bin",nextPart++);partial=new File(directory,name+".partial");
+   if(!partial.createNewFile())throw new IOException("REPORT_PART_EXISTS");file=new FileOutputStream(partial);
+   try{digest=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException e){throw new IOException(e);}size=0;
+  }
+  public void write(int value)throws IOException{byte[] b={(byte)value};write(b,0,1);}
+  public void write(byte[] b,int off,int len)throws IOException{
+   if(b==null||off<0||len<0||off>b.length-len)throw new IndexOutOfBoundsException();
+   while(len>0){if(file==null)open();int n=Math.min(len,PART_BYTES-size);file.write(b,off,n);digest.update(b,off,n);size+=n;off+=n;len-=n;if(size==PART_BYTES)finishPart();}
+  }
+  void finishPart()throws IOException{
+   if(file==null)return;file.flush();file.getFD().sync();file.close();file=null;
+   if(!partial.renameTo(new File(directory,name)))throw new IOException("REPORT_PART_PUBLISH");
+   line("{\"kind\":\"part\",\"member\":"+q(member)+",\"name\":"+q(name)+",\"bytes\":"+size+",\"sha256\":"+q(hex(digest.digest()))+"}",true);
+  }
+  public void close()throws IOException{if(file!=null){file.close();file=null;}} // aborted partial is never a member
+ }
+ public static String hash(File f)throws Exception{return hash(f,()->!Thread.currentThread().isInterrupted());}
+ public static String hash(File f,ReportNativeCP4.Control control)throws Exception{MessageDigest d=MessageDigest.getInstance("SHA-256");try(InputStream in=new FileInputStream(f)){byte[] b=new byte[32768];for(int n;(n=in.read(b))>=0;)if(n>0){if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new IOException("REPORT_CANCELLED");d.update(b,0,n);}}return hex(d.digest());}
+ static String hex(byte[] b){StringBuilder s=new StringBuilder(b.length*2);for(byte x:b)s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();}
+ static String q(String s){StringBuilder b=new StringBuilder("\"");for(int i=0;i<s.length();i++){char c=s.charAt(i);if(c=='"'||c=='\\')b.append('\\').append(c);else if(c<32)b.append(String.format(Locale.ROOT,"\\u%04x",(int)c));else b.append(c);}return b.append('"').toString();}
+}

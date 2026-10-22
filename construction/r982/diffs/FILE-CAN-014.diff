@@ -1,0 +1,81 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java b/app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java
+index f6d5998..982ce38 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java
+@@ -28,6 +28,7 @@ public final class AnalysisSingleFlightR36 {
+             if (owner == null) {
+                 owner = Lease.acquire(request);
+                 RealtimePressureGateR811.beginAnalysis();
++                RealtimePressureGateR811.beginCrossProcess(owner.ownerId,owner.request.generation);
+                 active++;
+                 maximum = Math.max(maximum, active);
+                 if (active != 1) throw new IllegalStateException("R36_ACTIVE_NE_1");
+@@ -51,6 +52,7 @@ public final class AnalysisSingleFlightR36 {
+     public Request releaseAndTakeNext(Lease lease) {
+         synchronized (lock) {
+             if (owner != lease) return null;
++            RealtimePressureGateR811.endCrossProcess(lease.ownerId,lease.request.generation);
+             owner = null;
+             active = Math.max(0, active - 1);
+             RealtimePressureGateR811.endAnalysis();
+@@ -97,6 +99,7 @@ public final class AnalysisSingleFlightR36 {
+             if (!boundWorkerDead && !queuedOnDeadHandler)
+                 return ReapResult.none(worker == null ? "WORKER_NOT_BOUND" : "WORKER_ALIVE");
+             Lease released = owner;
++            RealtimePressureGateR811.endCrossProcess(released.ownerId,released.request.generation);
+             released.token.requestCancelOnce(
+                     boundWorkerDead ? "BOUND_WORKER_DIED" : "OWNING_HANDLER_DIED_BEFORE_BIND");
+             owner = null;
+@@ -214,6 +217,7 @@ public final class AnalysisSingleFlightR36 {
+                                             + Thread.currentThread().getId())
+                             .substring(0, 32);
+             token = new CancellationToken(targetIssue, acquiredMonoAt);
++            token.pressureOwnerCP4=ownerId;token.pressureGenerationCP4=request.generation;
+         }
+ 
+         static Lease acquire(Request request) {
+@@ -269,9 +273,12 @@ public final class AnalysisSingleFlightR36 {
+     public static final class CancellationToken {
+         private final String targetIssue;
+         private boolean cancelRequested, canonicalCommitted;
++        private boolean finalizing;
+         private String cancelReason = "", stage = "ACQUIRED";
+         private long lastProgressMonoAt, lastDurablePulseWallAt;
+         private Thread workerThread;
++        private String pressureOwnerCP4="";
++        private long pressureGenerationCP4;
+ 
+         CancellationToken(String target, long now) {
+             targetIssue = safe(target);
+@@ -300,12 +307,30 @@ public final class AnalysisSingleFlightR36 {
+ 
+         public synchronized boolean requestCancelOnce(String reason) {
+             if (canonicalCommitted || cancelRequested) return false;
++            String normalized = safe(reason);
++            if (finalizing && normalized.startsWith("NEWER_TARGET:")) return false;
+             cancelRequested = true;
+-            cancelReason = safe(reason);
++            cancelReason = normalized;
+             return true;
+         }
+ 
++        /** Linearization point: only a later supersede is deferred, never a hard failure. */
++        public synchronized void enterFinalization() {
++            if (canonicalCommitted) return;
++            if (cancelRequested) {
++                throw new CancelledBeforeCommitException(targetIssue, stage, cancelReason);
++            }
++            finalizing = true;
++            stage = "PREDRAW_FINALIZING";
++            lastProgressMonoAt = monotonicNowMs();
++        }
++
++        public synchronized boolean isFinalizing() {
++            return finalizing && !canonicalCommitted;
++        }
++
+         public synchronized void checkpoint(String value) {
++            RealtimePressureGateR811.renewCrossProcess(pressureOwnerCP4,pressureGenerationCP4);
+             if (!canonicalCommitted) RuntimeResourceAuditR927.checkpoint(value);
+             pulse(value);
+             if (cancelRequested && !canonicalCommitted) {

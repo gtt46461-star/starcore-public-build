@@ -1,0 +1,29 @@
+请接手并继续STARCORE 5.4.2升级施工，先核实当前状态再执行，直接进行已经授权的可逆修改、验证、分支提交和PR更新。
+
+仓库：https://github.com/gtt46461-star/eth-k3-v43-nova
+当前承接分支：agent/r926-batch1-full-sync-20260908
+PR：https://github.com/gtt46461-star/eth-k3-v43-nova/pull/47
+已核实历史锚点：源码/CI 2afa8e19039bf10bd352b6f8cfeff59a3f10bc01；完整74片资产归档 2ad87aa819f2e0225a6f789d46960c2071e33023；原96文件方案恢复 df5fccf226df946daf8d080c50f8f1f90cab8d39。请查询PR当前head及其后继，不要退回旧SHA丢失更新，也不要默认main已包含未合并的PR。
+
+先读这些入口：
+1. docs/5.4.2/12_HANDOFF_20260909/README_ZH.md
+2. docs/5.4.2/12_HANDOFF_20260909/上传方法与后续施工完整问答.md
+3. docs/5.4.2/README_INDEX_ZH.md
+4. docs/R926_5.4.2_FULL_CONSTRUCTION_CONTRACT_ZH.md
+5. docs/5.4.2/11_ENHANCEMENT_20260909/README_ZH.md、INTEGRATION_CONTRACT_ZH.md、TASK_CARDS_ZH.md、enhancement_tasks.json、acceptance_policy_enhanced.json、CURRENT_EXECUTION_STATUS.json
+6. docs/5.4.2/01_TASKS/tasks.json及本批tasks_batch文件
+7. docs/5.4.2/10_ORIGINAL_SNAPSHOT/STARCORE_R926_CLOSURE_PLAN_20260907/中的完整原方案、42任务、186项验收。
+
+原源码1626文件应全部存在，当前生产Java基线570。原始总包在delivery/r926-batch1/input-archive-parts/，应为74片加parts_manifest.json。用scripts/r926_reassemble_total.py的--manifest参数重组，核对308657847字节及SHA-256 a7604028018504045828bc23f1f23050c6ed6ebe1581c950a46616ecfe962ed3。这是原始输入和历史资产，不能拿其中旧源码覆盖当前根目录修复。
+
+第一批B01/B02/B03/B04/B06保持当前成果，不因旧任务status=NOT_STARTED重做。先核查仍待完成的最新源码、签名APK、完整升级总包、CI与发行一致性；未完成如实列出，继续补齐。后续从第二批B05/B07/B08/B09/B10/B11与E02A—E02D开始，将30张增强卡按原七批排序并入后六批全部37项任务，不新增第八批，不跳过原任务步骤或验收。
+
+严格保持com.ethk3.novaonepro、Binance1-PK10、DB36、单位置固定K3、每期最多一个REAL和唯一Owner链；禁止动态K、多REAL、追期、马丁、加倍、频率债。保留已有趋势、形态、教师、关系、反推等矩阵功能和入口。高胜率、高稳定、高品质、最低15%REAL频率是共同效果目标，必须遵守质量门，不靠补单或删分母达标。
+
+真实修改生产代码，说明每个文件的问题、实际改动、调用者/消费者、DB与线程Owner、前后hash及增删行/字符；需要删除重写就执行，不堆叠无用代码，不以空接口、固定返回、仅日志、脱离主链文件或代码行数冒充完成。文件/阶段/整体按风险做必要验证，保留负例、持久化、重启、回滚和现有回归。
+
+在新批次分支工作，保护他人提交和本地改动。每个完成阶段提交并读回GitHub分支head，更新任务和证据，给出commit/PR/CI链接。源码、资产、完整方案、覆盖安装APK、改动说明和验收证据要进入可核对的完整交付，不只给补丁或摘要。
+
+第3批三端合同先有Python/Host及设备fixture，第6批Host准备，第7批真机/Android三端及新Future实证。未执行标NOT_RUN，点值达标、证据确认、工程通过分开报告。中间版本build927—932；最终5.4.2/build933/versionCode577250933只有全部必需门真实通过后发布。
+
+开始先简明汇报读到的仓库、实际head、计划版本、当前批次和已核实缺口，然后马上施工。若工具只有读取权限、无法push或PR、缺依赖或缺真机，给出具体失败动作和原因；完成仍可做的授权工作，不伪报远端提交或验收通过。分阶段汇报真实进度，不能用文档完成代替功能完成。

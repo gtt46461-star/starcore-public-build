@@ -1,0 +1,107 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/Models.java b/app/src/main/java/com/ethk3/novaonepro/Models.java
+index 8e9736c..efd13d6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/Models.java
++++ b/app/src/main/java/com/ethk3/novaonepro/Models.java
+@@ -134,7 +134,7 @@ public final class Models {
+     }
+ 
+     public static boolean isValidK3Mask(int mask) {
+-        return AppConfig.isValidK3Mask(mask);
++        return (mask & ~1023)==0 && AppConfig.isValidK3Mask(mask);
+     }
+ 
+     public static boolean isValidK3Numbers(int n1, int n2, int n3) {
+@@ -21360,4 +21360,93 @@ public final class Models {
+                         numbers);
+         return draw.contractHash().length() == 64;
+     }
++
++public enum ReasonCode {
++        NONE,
++        NO_VALID_CERTIFICATE,
++        NO_MAINLINE,
++        STALE_HISTORY,
++        PIT_INVALID,
++        MISSING_SNAPSHOT,
++        MODEL_MISMATCH,
++        TARGET_SUPERSEDED,
++        TARGET_ALREADY_DRAWN,
++        COMMIT_FAILED,
++        TIME_BUDGET_EXCEEDED,
++        LEASE_LOST,
++        DB_BUSY,
++        SCHEDULE_GAP,
++        CAPTURE_CAPACITY_FULL,
++        WAIT_CALIBRATION,
++        CALIBRATION_QUALITY_FAILED,
++        WINDOW_INCOMPLETE,
++        INSUFFICIENT_FUTURE_N,
++        MULTIPLE_TESTING_FAILED,
++        RESOURCE_UNVERIFIED,
++        DRIFT_LIMIT,
++        CERT_EXPIRED,
++        CERT_REVOKED,
++        INTEGRITY_FAILED,
++        INPUT_DRIFT,
++        NO_NEW_LABEL,
++        RESOURCE_YIELD,
++        NO_OP,
++        AST_INVALID,
++        MISSING_ATOM_BINDING,
++        BACKGROUND_RESTRICTED,
++        UNKNOWN_READ_FAILED,
++        AUTH_INVALID,
++        BUSY,
++        CANCELLED_BEFORE_COMMIT,
++        CERTIFICATE_INVALID,
++        CHECKPOINT_INVALID,
++        CHECKPOINT_WRITE_FAILED,
++        DB_UNAVAILABLE,
++        DRAW_CONFLICT,
++        EVIDENCE_MISSING,
++        GATE_FAILED,
++        IDENTITY_DRIFT,
++        INCONCLUSIVE,
++        INPUT_INVALID,
++        INPUT_MISSING,
++        MISSING_PREDRAW,
++        NO_PREDICTION,
++        OWNER_NOT_COMPLETED,
++        RESTART_NOT_ELIGIBLE,
++        RETENTION_PINNED,
++        VALIDATION_FAILED,
++        WINDOW_GAP,
++        REPORT_MEMORY_BUDGET,
++        REPORT_DISK_BUDGET,
++        REPORT_CACHE_BUDGET,
++        REPORT_CANCELLED,
++        REPORT_TIME_BUDGET,
++        REPORT_BACKUP_FAILED,
++        REPORT_CODEC_FAILED,
++        REPORT_MANIFEST_INVALID,
++        REPORT_MEMBER_CHANGED,
++        REPORT_MISSING_PART,
++        CHECK_NOT_REEVALUATED,
++        REPORT_OBSERVATION_MISSING,
++        REPORT_NEEDS_BASE,
++        REPORT_PARTIAL_SELECTION,
++        RETENTION_INPUT_MATERIALIZATION_PAUSE,
++        AGGREGATE_KEY_CAPACITY,
++        ARCHIVE_CORRUPT,
++        STORAGE_PRESSURE,
++        WAIT_BINDING,
++        FROZEN_IDENTITY_MISMATCH,
++        RECIPE_INCOMPLETE,
++        TRAIN_INPUT_CAPACITY,
++        WAIT_ARCHIVE_CAS,
++        REPORT_CATALOG_LIMIT,
++        REPORT_VALUE_REQUIRES_RAW_REFERENCE,
++        REPORT_SCALAR_UNKNOWN,
++        REPORT_REALTIME_PREEMPT,
++        REPORT_USER_CANCEL,
++        REPORT_STAGE_TIMEOUT,
++        CHECK_UNREGISTERED,
++        NO_OP_UNSUPPORTED_OPERATOR,
++        ATOM_REGISTRY_IDENTITY_DRIFT
++    }
+ }

@@ -1,0 +1,52 @@
+name: starcore-tianshu-b03-snapshot
+
+on:
+  push:
+    branches:
+      - v57-full/b03
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    if: contains(github.event.head_commit.message, '[b03-snapshot]')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout B03 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify B02 accepted base and package source
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=fc9bca9155d0501b1b806706e2e37c41698e5aae
+          test "$(git merge-base HEAD "$BASE")" = "$BASE"
+          ROOT=app/src/main/java/com/ethk3/novaonepro
+          for f in DbHelper.java DatabaseCoordinator.java DatabaseMigrationEngine.java DatabaseIntegrityVerifier.java DbStore.java V51Repository.java; do
+            test -s "$ROOT/$f"
+          done
+          mkdir -p export/relevant
+          cp "$ROOT/DbHelper.java" export/relevant/
+          cp "$ROOT/DatabaseCoordinator.java" export/relevant/
+          cp "$ROOT/DatabaseMigrationEngine.java" export/relevant/
+          cp "$ROOT/DatabaseIntegrityVerifier.java" export/relevant/
+          cp "$ROOT/DbStore.java" export/relevant/
+          cp "$ROOT/V51Repository.java" export/relevant/
+          cp app/build.gradle export/relevant/
+          cp app/src/main/AndroidManifest.xml export/relevant/
+          find "$ROOT" -maxdepth 1 -type f -name '*.java' -printf '%f\n' | sort > export/java_files.txt
+          wc -l "$ROOT"/*.java > export/relevant_line_counts.txt
+          git rev-parse HEAD > export/snapshot_commit.txt
+          git ls-tree -r HEAD --long > export/repo_tree.txt
+          zip -q -r export/starcore-tianshu-b03-b02-accepted-source.zip . \
+            -x '.git/*' '.gradle/*' 'app/build/*' 'build/*' 'export/*'
+          find export -maxdepth 1 -type f -print0 | sort -z | xargs -0 sha256sum > export/SHA256SUMS.txt
+      - name: Upload source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B03-B02-Accepted-Source-Snapshot
+          path: export/*
+          retention-days: 30
+          if-no-files-found: error

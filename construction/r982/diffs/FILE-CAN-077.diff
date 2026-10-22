@@ -1,0 +1,185 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java b/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java
+index 27315d5..75778f2 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/GlobalResearchScheduleR932.java
+@@ -43,6 +43,150 @@ public final class GlobalResearchScheduleR932 {
+     
+         TransactionSchemaCacheR941.mark(db,"GlobalResearchScheduleR932");
+     }
++    public static final String RESERVATION_CP11="research_capture_reservation_v2";
++    public static final String CAPTURE_SCHEDULE_CP11="CP12_FIXED_EVALUATION_241_V1";
++    public static final int CAPTURE_ACTIVE_MAX_CP11=8, CAPTURE_COST_US_CP11=50000;
++    public static final class CaptureReservationCP11 {
++        public final String id,key,freeze,study,first,next,state;
++        public final long generation;
++        CaptureReservationCP11(Cursor c){id=c.getString(0);key=c.getString(1);freeze=c.getString(2);
++            study=c.getString(3);first=c.getString(4);next=c.getString(5);state=c.getString(6);generation=c.getLong(7);}
++    }
++    /** Existing scheduler Owner. Every reservation references a real durable champion for this target.
++     * Metadata projections deliberately exclude AST/model payloads from the single DB writer. */
++    public static int reserveUnscheduledFrozenCP11(SQLiteDatabase db,String target,String championBundle,String selectorHash){
++        if(db==null||!db.inTransaction())throw new IllegalStateException("CAPTURE_RESERVATION_TRANSACTION_REQUIRED");
++        if(!TargetIssueResolver.isValid(target)||championBundle==null||!championBundle.matches("[0-9a-f]{64}")
++                ||selectorHash==null||!selectorHash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("CAPTURE_RESERVATION_IDENTITY");
++        if(drawn(db,target))throw new IllegalStateException("CAPTURE_RESERVATION_POSTDRAW");
++        try(Cursor c=db.rawQuery("SELECT bundle_hash,selection_hash FROM "+FixedResearchWindowR932.CHAMPION+" WHERE target_issue=? LIMIT 2",new String[]{target})){
++            if(!c.moveToFirst()||!championBundle.equals(c.getString(0))||!selectorHash.equals(c.getString(1))||c.moveToNext())
++                throw new IllegalStateException("CAPTURE_CHAMPION_MISSING_OR_AMBIGUOUS");
++        }
++        ArrayList<CaptureReservationCP11> active=new ArrayList<>();
++        try(Cursor c=db.rawQuery("SELECT reservation_id,candidate_key,freeze_hash,study_hash,first_issue,next_issue,state,generation FROM "+RESERVATION_CP11
++                +" WHERE state IN('RESERVED','ACTIVE') ORDER BY next_issue,created_at,reservation_id LIMIT 9",null)){
++            while(c.moveToNext())active.add(new CaptureReservationCP11(c));
++        }
++        if(active.size()>CAPTURE_ACTIVE_MAX_CP11)throw new IllegalStateException("CAPTURE_CAPACITY_CORRUPT");
++        for(CaptureReservationCP11 r:active){
++            boolean valid;
++            try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash "
++                    +"JOIN r952_candidate parent ON parent.candidate_id=f.learner_id WHERE ('algorithm:'||f.candidate_id)=? AND f.structural_hash=? "
++                    +"AND run.first_issue=(SELECT MAX(rr.first_issue)FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) "
++                    +"AND parent.structural_hash=run.ast_hash AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND "
++                    +TrainingContinuationR973.predicate("f.rule_hash")+" LIMIT 1",new String[]{r.key,r.freeze,target})){valid=c.moveToFirst();}
++            if(!valid){retireReservationCP11(db,r,"CAPTURE_DEPENDENCY_RETIRED");continue;}
++            String currentStudy=CandidateCalibrationR932.study(db,r.key,r.freeze,championBundle,selectorHash);
++            if(!currentStudy.equals(r.study)){retireReservationCP11(db,r,"CAPTURE_CHAMPION_DEPENDENCY_CHANGED");continue;}
++            if(r.next.compareTo(target)<0){
++                String gapReason="MISSING_SCHEDULED_CAPTURE";
++                try(Cursor reason=db.rawQuery("SELECT last_reason FROM "+RESERVATION_CP11+" WHERE reservation_id=? AND generation=?",new String[]{r.id,Long.toString(r.generation)})){
++                    if(reason.moveToFirst()&&"MEMORY_PRESSURE".equals(reason.getString(0)))gapReason="MEMORY_PRESSURE";
++                }
++                markReservationGapCP11(db,r,target,gapReason);
++                CandidateCalibrationR932.restartReservedGapCP11(db,r.key,r.freeze,championBundle,selectorHash,r.study,target);
++            }
++        }
++        int occupied;
++        try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+RESERVATION_CP11+" WHERE state IN('RESERVED','ACTIVE')",null)){c.moveToFirst();occupied=c.getInt(0);}
++        int admitted=0;
++        // Stable order and a hard metadata page; existing ACTIVE studies are never evicted for a newer candidate.
++        ArrayList<String[]> ids=new ArrayList<>();
++        try(Cursor c=db.rawQuery("SELECT f.candidate_id,f.structural_hash,f.created_issue FROM "+ResearchEvaluationRunR967.EVAL+" f "
++                +"JOIN "+ResearchEvaluationRunR967.RUN+" run ON run.run_hash=f.run_hash JOIN r952_candidate parent ON parent.candidate_id=f.learner_id "
++                +"WHERE f.created_issue<=? AND f.trained_until_issue<? AND run.first_issue=(SELECT MAX(rr.first_issue)FROM "+ResearchEvaluationRunR967.RUN
++                +" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue<=?) AND parent.structural_hash=run.ast_hash "
++                +"AND parent.state NOT IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED') AND "+TrainingContinuationR973.predicate("f.rule_hash")
++                +" AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) "
++                +"AND life.state IN('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) "
++                +"AND NOT EXISTS(SELECT 1 FROM "+RESERVATION_CP11+" r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state IN('RESERVED','ACTIVE')) "
++                +"ORDER BY f.created_at,f.candidate_id LIMIT 32",new String[]{target,target,target})){
++            while(c.moveToNext())ids.add(new String[]{c.getString(0),c.getString(1),c.getString(2)});
++        }
++        for(String[] row:ids){
++            String key="algorithm:"+row[0];
++            if(!ResearchEvaluationRunR967.eligibleEvaluation(key,target))continue;
++            ResearchMultiplicityR932.registerCandidate(db,key,"algorithm:R958_FIXED_POSITION_SOFTMAX",row[1],row[2]);
++            String study=CandidateCalibrationR932.prepareReservedStudyCP11(db,key,row[1],championBundle,selectorHash,target),first=target;
++            String state="COLLECTING";int captured=0;
++            try(Cursor c=db.rawQuery("SELECT state,first_issue,captured_n FROM "+CandidateCalibrationR932.STUDY+" WHERE study_hash=?",new String[]{study})){
++                if(c.moveToFirst()){state=c.getString(0);first=c.getString(1);captured=c.getInt(2);}
++            }
++            if(!("COLLECTING".equals(state)||"READY".equals(state)||"FROZEN".equals(state)))continue;
++            if(captured<0||captured>241)throw new IllegalStateException("CAPTURE_COUNTER_INVALID");
++            try(Cursor c=db.rawQuery("SELECT state FROM "+RESERVATION_CP11+" WHERE study_hash=?",new String[]{study})){if(c.moveToFirst())continue;}
++            String next=target;
++            if(captured>0){
++                int observed=0;String expected=first,last="";
++                try(Cursor c=db.rawQuery("SELECT target_issue,raw_score,prediction_hash FROM "+CandidateCalibrationR932.OBS+" WHERE study_hash=? ORDER BY target_issue LIMIT 242",new String[]{study})){
++                    while(c.moveToNext()){
++                        if(observed>=captured||!expected.equals(c.getString(0))||!Double.isFinite(c.getDouble(1))||!c.getString(2).matches("[0-9a-f]{64}"))
++                            throw new IllegalStateException("CAPTURE_EXISTING_EVIDENCE_INVALID");
++                        last=c.getString(0);expected=ResearchEvaluationRunR967.nextEvaluation(key,last);observed++;
++                    }
++                }
++                if(observed!=captured)throw new IllegalStateException("CAPTURE_COUNTER_DRIFT");next=expected;
++                if(captured<241&&next.compareTo(target)<0)throw new IllegalStateException("CAPTURE_EXISTING_GAP_NOT_RESTARTED");
++            }
++            if(captured<241&&occupied>=CAPTURE_ACTIVE_MAX_CP11)continue;
++            db.execSQL("INSERT OR IGNORE INTO "+CandidateCalibrationR932.STUDY+" VALUES(?,?,0,0,'COLLECTING',?)",new Object[]{study,key,first});
++            String id=V51ChecksumEngine.sha256("CP12_CAPTURE_RESERVATION|"+key+'|'+row[1]+'|'+study+'|'+first+'|'+CAPTURE_SCHEDULE_CP11);
++            db.execSQL("INSERT INTO "+RESERVATION_CP11+"(reservation_id,candidate_key,freeze_hash,study_hash,first_issue,planned_n,schedule_version,cost_budget_us,state,next_issue,generation,last_reason,created_at) "
++                    +"VALUES(?,?,?,?,?,241,?,?,?,?,0,'',?)",new Object[]{id,key,row[1],study,first,CAPTURE_SCHEDULE_CP11,CAPTURE_COST_US_CP11,captured==241?"COMPLETE":captured==0?"RESERVED":"ACTIVE",next,System.currentTimeMillis()});
++            if(captured<241)occupied++;admitted++;
++        }
++        LinkedHashMap<String,String> state=new LinkedHashMap<>();state.put("cp11_capture_active",Integer.toString(occupied));
++        state.put("cp11_capture_reservation_status",occupied>=CAPTURE_ACTIVE_MAX_CP11?"WAIT_CAPTURE_CAPACITY":"CAPTURE_CAPACITY_AVAILABLE");
++        DbStore.putStatesR36(db,state);
++        return admitted;
++    }
++    private static int changesCP11(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst())throw new IllegalStateException("CAPTURE_CAS_RESULT_MISSING");return c.getInt(0);}}
++    private static void retireReservationCP11(SQLiteDatabase db,CaptureReservationCP11 r,String reason){
++        db.execSQL("UPDATE "+RESERVATION_CP11+" SET state='RETIRED',last_reason=?,generation=generation+1 WHERE reservation_id=? AND generation=? AND state IN('RESERVED','ACTIVE')",
++                new Object[]{reason,r.id,r.generation});if(changesCP11(db)!=1)throw new IllegalStateException("CAPTURE_RESERVATION_CAS_LOST");
++        db.execSQL("INSERT OR IGNORE INTO r975_calibration_failure VALUES(?,?,?,?)",new Object[]{r.study,r.key,reason,System.currentTimeMillis()});
++        db.execSQL("UPDATE "+CandidateCalibrationR932.STUDY+" SET state='BLOCKED_INVALID_INPUT' WHERE study_hash=? AND state='COLLECTING'",new Object[]{r.study});
++    }
++    private static void markReservationGapCP11(SQLiteDatabase db,CaptureReservationCP11 r,String target,String reason){
++        db.execSQL("INSERT OR IGNORE INTO research_capture_gap_v2 VALUES(?,?,?,?,?,?)",new Object[]{r.study,r.next,target,reason,r.id,System.currentTimeMillis()});
++        db.execSQL("INSERT OR IGNORE INTO r975_calibration_failure VALUES(?,?,'R969_CAL_EVALUATION_SCHEDULE_GAP',?)",new Object[]{r.study,r.key,System.currentTimeMillis()});
++        db.execSQL("UPDATE "+CandidateCalibrationR932.STUDY+" SET state='BLOCKED_INVALID_INPUT' WHERE study_hash=? AND state='COLLECTING'",new Object[]{r.study});
++        db.execSQL("UPDATE "+RESERVATION_CP11+" SET state='FAILED_GAP',last_reason=?,generation=generation+1 WHERE reservation_id=? AND generation=? AND next_issue=? AND state IN('RESERVED','ACTIVE')",
++                new Object[]{reason,r.id,r.generation,r.next});if(changesCP11(db)!=1)throw new IllegalStateException("CAPTURE_RESERVATION_CAS_LOST");
++    }
++    /** Resource HOLD preserves the scheduled issue and actual evidence N; a missed issue becomes a truthful gap. */
++    static void holdReservationCP12(SQLiteDatabase db,CaptureReservationCP11 r,String target,String reason){
++        if(!db.inTransaction()||r==null||!target.equals(r.next)||!"MEMORY_PRESSURE".equals(reason))
++            throw new IllegalStateException("CAPTURE_HOLD_IDENTITY");
++        db.execSQL("UPDATE "+RESERVATION_CP11+" SET last_reason=?,generation=generation+1 WHERE reservation_id=? AND generation=? AND next_issue=? AND state IN('RESERVED','ACTIVE')",
++                new Object[]{reason,r.id,r.generation,target});
++        if(changesCP11(db)!=1)throw new IllegalStateException("CAPTURE_RESERVATION_CAS_LOST");
++    }
++    public static List<CaptureReservationCP11> dueReservationsCP11(SQLiteDatabase db,String target){
++        if(db==null||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("CAPTURE_DUE_INPUT");
++        ArrayList<CaptureReservationCP11> out=new ArrayList<>();
++        try(Cursor c=db.rawQuery("SELECT reservation_id,candidate_key,freeze_hash,study_hash,first_issue,next_issue,state,generation FROM "+RESERVATION_CP11
++                +" WHERE state IN('RESERVED','ACTIVE') AND next_issue=? ORDER BY CASE state WHEN 'ACTIVE' THEN 0 ELSE 1 END,created_at,reservation_id LIMIT 9",new String[]{target})){
++            while(c.moveToNext())out.add(new CaptureReservationCP11(c));
++        }
++        if(out.size()>CAPTURE_ACTIVE_MAX_CP11)throw new IllegalStateException("CAPTURE_CAPACITY_CORRUPT");
++        return Collections.unmodifiableList(out);
++    }
++    /** Observation insert, counter increment and this fenced advance are one transaction. */
++    static void completeReservationCaptureCP11(SQLiteDatabase db,CaptureReservationCP11 r,String key,String freeze,String study,String target,int captured){
++        if(!db.inTransaction()||r==null||!key.equals(r.key)||!freeze.equals(r.freeze)||!study.equals(r.study)||!target.equals(r.next)||captured<1||captured>241)
++            throw new IllegalStateException("CAPTURE_RESERVATION_COMMIT_IDENTITY");
++        String next=ResearchEvaluationRunR967.nextEvaluation(key,target);
++        db.execSQL("UPDATE "+RESERVATION_CP11+" SET next_issue=?,state=?,generation=generation+1,last_reason='' WHERE reservation_id=? AND generation=? AND next_issue=? AND state IN('RESERVED','ACTIVE')",
++                new Object[]{next,captured==241?"COMPLETE":"ACTIVE",r.id,r.generation,target});
++        if(changesCP11(db)!=1)throw new IllegalStateException("CAPTURE_RESERVATION_CAS_LOST");
++    }
++    static CaptureReservationCP11 reservationForStudyCP11(SQLiteDatabase db,String study){
++        try(Cursor c=db.rawQuery("SELECT reservation_id,candidate_key,freeze_hash,study_hash,first_issue,next_issue,state,generation FROM "+RESERVATION_CP11+" WHERE study_hash=?",new String[]{study})){
++            return c.moveToFirst()?new CaptureReservationCP11(c):null;
++        }
++    }
+     public static void beginShared(DbStore store,String target,String input){
+         synchronized(CACHE){Shared shared=CACHE.get(store);if(shared==null||!shared.target.equals(target)||!shared.input.equals(input)){shared=new Shared(target,input);CACHE.put(store,shared);}SHARED.set(shared);}
+     }
+@@ -303,4 +447,29 @@ public final class GlobalResearchScheduleR932 {
+         }},Boolean.FALSE);
+     }
+     private static boolean drawn(SQLiteDatabase db,String target){try(Cursor c=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue>=? LIMIT 1",new String[]{target})){return c.moveToFirst();}}
++
++public static int pendingLaneMaskSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store,String target) {
++        if(store==null||!TargetIssueResolver.isValid(target))return 0;
++        int mask=0;
++        SQLiteDatabase db=store.readable();
++        String sql="SELECT sq.candidate_key FROM "+TASK+" sq JOIN "+ResearchCaptureLedgerR932.TABLE
++                +" cap ON cap.target_issue=sq.target_issue AND cap.candidate_key=sq.candidate_key"
++                +" WHERE sq.target_issue=? AND sq.selected=1 AND cap.frozen=0 AND "+admittedPageSnapshotCP4(report, "sq");
++        try(Cursor c=report.select(sql,new String[]{target})) {
++            while(c.moveToNext()) {
++                String key=c.getString(0);
++                if(key==null)continue;
++                if(key.startsWith("tiny:"))mask|=1;
++                else if(key.startsWith("algorithm:"))mask|=2;
++                else if(key.startsWith("genesis:"))mask|=4;
++                else if(key.startsWith("formula:"))mask|=8;
++                if(mask==15)break;
++            }
++        } catch(android.database.sqlite.SQLiteException notReady) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",notReady);}
++        return mask;
++    }
++
++static String admittedPageSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String alias) {
++        return "((NOT EXISTS(SELECT 1 FROM "+StagedResearchRosterR943.MANIFEST+" absent WHERE absent.target_issue="+alias+".target_issue) AND EXISTS(SELECT 1 FROM "+PLAN+" sp WHERE sp.target_issue="+alias+".target_issue)) OR EXISTS(SELECT 1 FROM "+StagedResearchRosterR943.MANIFEST+" m948 JOIN "+StagedResearchRosterR943.TABLE+" p948 ON p948.target_issue=m948.target_issue AND p948.input_hash=m948.input_hash AND p948.payload_hash=m948.payload_hash WHERE m948.target_issue="+alias+".target_issue AND "+alias+".queue_rank>=0 AND "+alias+".queue_rank<p948.cursor AND "+alias+".queue_rank<m948.candidate_count AND EXISTS(SELECT 1 FROM "+IDENTITY+" i948 WHERE i948.candidate_key="+alias+".candidate_key AND i948.structure_hash="+alias+".structure_hash)))";
++    }
+ }

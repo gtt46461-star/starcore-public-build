@@ -1,0 +1,45 @@
+{
+  "operations": [
+    {
+      "operation": "compile_drivers_and_android_transport_only",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/javac",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-cancel/drivers",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/adapters/android/util/AtomicFile.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r987/android/content/Context.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r987/android/content/Intent.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r987/ReportCancellationIsolationR987.java"
+      ],
+      "exit_code": 0
+    },
+    {
+      "operation": "actual_service_request_and_durable_journal_consumption",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-cancel/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.ReportCancellationIsolationR987",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-cancel/files"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.31901001799997175,
+      "scope": "Synthetic host file/Intent transport; fresh JVM recovery/concurrent process command persistence; Android provider and process lifecycle DEVICE_NOT_VERIFIED"
+    }
+  ],
+  "status": "PASS",
+  "product_source_sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": "745a8c4d32cf0ff254d629ec0d8ebd915b5c0cc6dff5db32ba3eeb3386c3f87f",
+    "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java": "24c3079591734d5c29db1658f58cabf5244823fb4bba0b6348ed92f8059b905a",
+    "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java": "2bf3d93449073e306609686ba08760e497f29ae777756dffc2c0aa2b6e880ed4"
+  },
+  "test_source_sha256": {
+    "verification/canonical/adapters/android/util/AtomicFile.java": "6a05d3b4ea1981c01b1e9e38e6cf1e7f598e63b7ce52001b739d004ef4bdda7f",
+    "verification/r987/android/content/Context.java": "1a475a14878edf20479f2d78bbce108e4641e221f0e7ea1499e1f8259db5a589",
+    "verification/r987/android/content/Intent.java": "ea0079a9c8f24433a9f4b554c47e75ab967bc509e37f01c1c74044e06e92280e",
+    "verification/r987/ReportCancellationIsolationR987.java": "6421b41c0625f2481bcc4dd1c7b11e4d8139fa5e3bd52d3743894bad40d8607b"
+  }
+}

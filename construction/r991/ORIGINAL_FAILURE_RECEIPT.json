@@ -1,0 +1,52 @@
+{
+  "executions": [
+    {
+      "execution": "compile",
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r991-original-confirmed/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/c7daf582ec06/evidence/r991-original-confirmed/drivers",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/app/AlarmManager.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/app/Notification.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/app/NotificationManager.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/app/PendingIntent.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/app/Service.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/content/ComponentName.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/content/ContentResolver.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/content/Context.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/content/Intent.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/net/Uri.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/os/Build.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/os/Handler.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/os/StatFs.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/provider/DocumentsContract.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/system/ErrnoException.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/android/system/OsConstants.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/adapters/android/util/AtomicFile.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r991/ReportStorageFailureR991.java"
+      ],
+      "exit_code": 0
+    },
+    {
+      "execution": "actual-service",
+      "command": [
+        "java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r991-original-confirmed/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.ReportStorageFailureR991",
+        "/workspace/scratch/c7daf582ec06/evidence/r991-original-confirmed/files",
+        "storage"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "status": "FAIL",
+  "product_source": "/workspace/scratch/c7daf582ec06/starcore/construction/r991/before/ReportExportServiceCP4.java",
+  "product_sha256": "745a8c4d32cf0ff254d629ec0d8ebd915b5c0cc6dff5db32ba3eeb3386c3f87f",
+  "product_service_class_sha256": "ec92ce773a47121bd6757b1f1ae19899c59cb7fc7beb916318d30b491168128b",
+  "test_driver_sha256": "26c7bd7df3ecfd64d90ebc5050617a18fc6ddcba36f7e40155c9048556f44cef",
+  "scope": "Actual product Service/Publication/Queue/Copy owners, explicit synthetic archive/typed Android errno and host filesystem provider port; no Android provider/process/scheduling claim"
+}

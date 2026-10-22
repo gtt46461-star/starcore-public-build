@@ -1,0 +1,263 @@
+package com.ethk3.novaonepro.r952;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+import com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.*;
+import com.ethk3.novaonepro.r952.CandidateCompilerR952.*;
+import com.ethk3.novaonepro.r952.FrozenGraphContextCP4.ExpertPrediction;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+/** Immutable historical receipt extraction. Only previously durable predraw contexts qualify.
+ * No current model, live Matrix or later fit is read. Own teacher probabilities are
+ * deterministically replayed from already-durable original context and frozen parameters. */
+public final class HistoricalTrainingReceiptCP12 {
+    private HistoricalTrainingReceiptCP12() {}
+    public static final int MAX_LINE=65536,ROWS_PER_FILE=32;
+    private static final String EMPTY=V51ChecksumEngine.sha256("CP12_NO_BOUND_FEATURES");
+    public static final class Row {
+        public final Map<String,Value> atoms;public final List<ExpertPrediction> experts;public final String hash;
+        private Row(Map<String,Value> atoms,List<ExpertPrediction> experts,String hash){this.atoms=Collections.unmodifiableMap(new TreeMap<>(atoms));this.experts=Collections.unmodifiableList(new ArrayList<>(experts));this.hash=hash;}
+    }
+    public static List<TrainingCasCP12.LockedFile> publish(DbStore store,Program program,List<Models.Draw> history,String registeredIssue,String actionId)throws IOException {
+        int h=Math.max(20,program.manifest.requiredHistory),trainN=Math.min(1200,history.size()-h-121),end=history.size()-121,first=end-trainN;
+        if(trainN<300)throw new DevelopmentProductionCP12.Wait("WAIT_HISTORY");
+        StringBuilder identity=new StringBuilder("CP12_BOUND_SELECTION|").append(actionId).append('|').append(program.ast.structuralHash);
+        for(Models.Draw d:history){identity.append('|').append(d.issue).append(':').append(d.openTime);for(int value:d.numbers)identity.append(',').append(value);}
+        final String selection=V51ChecksumEngine.sha256(identity.toString());final int total=trainN+120;
+        int prepared=0;
+        try(Cursor c=store.readable().rawQuery("SELECT row_index,payload_hash FROM research_training_registration_row_cp12 WHERE action_id=? AND selection_hash=? ORDER BY row_index",new String[]{actionId,selection})){
+            while(c.moveToNext()){need(c.getInt(0)==prepared&&prepared<total,"TRAIN_REGISTRATION_PREFIX");prepared++;}}
+        if(prepared<total){final int before=prepared;final List<String> page=new ArrayList<>();
+            // Simple summary/data children have no teacher-context scan. Bound
+            // pages remain one row; long-only pages use at most512KiB and leave
+            // a monotonic publication margin under the same original owner.
+            boolean longOnly=!program.manifest.summarySpecRefs.isEmpty()&&program.manifest.bindingHashes.isEmpty()&&program.ast.graphSpec.experts.isEmpty()&&!MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program);
+            int pageRows=longOnly?8:1;
+            for(int j=before;j<Math.min(total,before+pageRows);j++){
+                ResearchWorkBudgetR927.checkpoint();if(longOnly&&ResearchWorkBudgetR927.remainingMs()<=100)break;
+                int index=j<trainN?first+j:end+1+j-trainN;Models.Draw target=history.get(index);page.add(extract(store.readable(),program,target.issue,target.openTime));
+            }
+            if(page.isEmpty())throw new DevelopmentProductionCP12.Wait("TIME_BUDGET_EXCEEDED");
+            final RuntimeException[] failure=new RuntimeException[1];
+            Boolean committed=store.coordinatorForResearchR952().runAtomicWrite("CP12_REGISTRATION_RECEIPT_PAGE",db->{try{
+                try(Cursor action=db.rawQuery("SELECT state FROM research_action_v2 WHERE action_id=?",new String[]{actionId})){need(action.moveToFirst()&&"PROPOSED".equals(action.getString(0)),"TRAIN_REGISTRATION_ACTION_CAS");}
+                if(!program.manifest.summarySpecRefs.isEmpty())need(LongSummaryBindingsR80.currentReason(db,program.manifest).isEmpty(),"LONG_SOURCE_EPOCH_INVALID");
+                int current=0;try(Cursor c=db.rawQuery("SELECT row_index FROM research_training_registration_row_cp12 WHERE action_id=? AND selection_hash=? ORDER BY row_index",new String[]{actionId,selection})){while(c.moveToNext()){need(c.getInt(0)==current++,"TRAIN_REGISTRATION_PREFIX");}}
+                need(current==before,"TRAIN_REGISTRATION_PREFIX_CAS");int offset=before;for(String line:page){db.execSQL("INSERT INTO research_training_registration_row_cp12(action_id,selection_hash,row_index,payload,payload_hash,created_at) VALUES(?,?,?,?,?,?)",new Object[]{actionId,selection,offset++,line,V51ChecksumEngine.sha256(line),System.currentTimeMillis()});}return true;
+            }catch(RuntimeException e){failure[0]=e;throw e;}},false);
+            if(!Boolean.TRUE.equals(committed))throw new DevelopmentProductionCP12.Wait(ResearchTrainingHookRegistryR952.commitFailureReasonCP12(failure[0],"TRAIN_REGISTRATION_COMMIT_FAILED"));
+            throw new DevelopmentProductionCP12.Wait("PREPARING_TRAINING_INPUT");
+        }
+        List<TrainingCasCP12.LockedFile> files=new ArrayList<>();
+        try {
+            int n=trainN+120;for(int cursor=0;cursor<n;cursor+=ROWS_PER_FILE){ResearchWorkBudgetR927.checkpoint();
+                final List<String> lines=new ArrayList<>();
+                try(Cursor c=store.readable().rawQuery("SELECT row_index,payload,payload_hash,length(CAST(payload AS BLOB)) FROM research_training_registration_row_cp12 WHERE action_id=? AND selection_hash=? AND row_index>=? AND row_index<? ORDER BY row_index",new String[]{actionId,selection,Integer.toString(cursor),Integer.toString(Math.min(n,cursor+ROWS_PER_FILE))})){
+                    int expected=cursor;while(c.moveToNext()){need(c.getInt(0)==expected++&&c.getLong(3)>0&&c.getLong(3)<MAX_LINE,"TRAIN_REGISTRATION_ROW_SIZE");String line=c.getString(1);need(V51ChecksumEngine.sha256(line).equals(c.getString(2)),"TRAIN_REGISTRATION_ROW_HASH");lines.add(line);}need(expected==Math.min(n,cursor+ROWS_PER_FILE),"TRAIN_REGISTRATION_ROW_MISSING");}
+                java.security.MessageDigest expectedDigest=TrainingCasCP12.sha();byte[] expectedMagic="SCBIND1\n".getBytes(StandardCharsets.US_ASCII);expectedDigest.update(expectedMagic);long expectedBytes=expectedMagic.length;
+                for(String line:lines){byte[] value=(line+'\n').getBytes(StandardCharsets.UTF_8);need(value.length<=MAX_LINE,"TRAIN_INPUT_CAPACITY");expectedDigest.update(value);expectedBytes+=value.length;}
+                String expectedHash=TrainingCasCP12.hex(expectedDigest.digest());
+                TrainingCasCP12.LockedFile f=TrainingCasCP12.publish(store.researchInputRootCP11(),TrainingCasCP12.BOUND_SUFFIX,expectedHash,expectedBytes,out->{
+                    java.security.MessageDigest digest=TrainingCasCP12.sha();byte[] magic="SCBIND1\n".getBytes(StandardCharsets.US_ASCII);out.write(magic);digest.update(magic);
+                    for(String line:lines){byte[] bytes=(line+'\n').getBytes(StandardCharsets.UTF_8);if(bytes.length>MAX_LINE)throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");out.write(bytes);digest.update(bytes);}return TrainingCasCP12.hex(digest.digest());});
+                files.add(f);if(files.size()>64)throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");
+                long size=0;for(TrainingCasCP12.LockedFile b:files)size+=b.bytes;if(size>64L<<20)throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");
+            }return files;
+        }catch(IOException|RuntimeException|Error error){for(TrainingCasCP12.LockedFile f:files)try{f.close();}catch(IOException ignored){}throw error;}
+    }
+    /** Empty data-only closure is a first-class deterministic receipt. */
+    public static Row readFor(DbStore store,Program program,Map<String,Object> protocol,String target,long drawAt)throws IOException {
+        if(program.manifest.bindingHashes.isEmpty()&&program.ast.graphSpec.experts.isEmpty()&&!MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program)&&program.manifest.summarySpecRefs.isEmpty())return new Row(Collections.emptyMap(),Collections.emptyList(),EMPTY);
+        Object source=protocol.get("boundFiles");need(source instanceof List,"TRAIN_BOUND_FILE_MANIFEST");
+        for(Object value:(List<?>)source){Map<String,Object> ref=obj(value);if(target.compareTo(str(ref,"firstIssue"))<0||target.compareTo(str(ref,"lastIssue"))>0)continue;String hash=str(ref,"hash");long bytes=number(ref,"byteCount");
+            try(TrainingCasCP12.LockedFile file=TrainingCasCP12.open(store.researchInputRootCP11(),hash,TrainingCasCP12.BOUND_SUFFIX);InputStream input=file.open()){
+                need(file.bytes==bytes,"TRAIN_BOUND_FILE_SIZE");String magic=readLine(input);need("SCBIND1".equals(magic),"TRAIN_BOUND_FILE_MAGIC");String line;
+                while((line=readLine(input))!=null){Map<String,Object> row=StrictCanonicalJson.readContextObject(line);
+                    if(!target.equals(str(row,"target")))continue;need(number(row,"drawAt")==drawAt&&str(row,"manifestHash").equals(program.manifest.hash),"TRAIN_BOUND_TARGET_CAS");
+                    need(StrictCanonicalJson.writeContext(row).equals(line),"TRAIN_BOUND_NONCANONICAL");return decode(program,row,line,drawAt);}
+            }
+        }throw new DevelopmentProductionCP12.Wait("WAIT_BOUND_FEATURE_HISTORY");
+    }
+    private static String extract(SQLiteDatabase db,Program program,String target,long drawAt) {
+        String derivedR81=BoundAtomLifecycleR80.extractDerivedR81(db,program,target,drawAt);
+        if(derivedR81!=null){
+            Map<String,Object> row=StrictCanonicalJson.readContextObject(derivedR81);
+            if(!program.manifest.summarySpecRefs.isEmpty()){
+                Map<String,Object> values=new TreeMap<>(obj(row.get("atoms")));Map<String,LongSummaryBindingsR80.Frozen> summaries=LongSummaryBindingsR80.historical(db,program,target,drawAt);
+                for(Map.Entry<String,LongSummaryBindingsR80.Frozen> e:summaries.entrySet())need(values.put(e.getKey(),valueObject(e.getValue().value(program.ast.position)))==null,"LONG_BOUND_NODE_OVERLAP");
+                row.put("revision","CP12_HISTORICAL_RECEIPT_DERIVED_LONG_R81");row.put("atoms",values);row.put("summarySources",LongSummaryBindingsR80.canonicalObject(summaries));
+            }
+            String encoded=StrictCanonicalJson.writeContext(row);need(encoded.getBytes(StandardCharsets.UTF_8).length<MAX_LINE,"TRAIN_INPUT_CAPACITY");return encoded;
+        }
+        String originalR80=BoundAtomLifecycleR80.extractOriginalR80(db,program,target,drawAt);
+        if(originalR80!=null){
+            if(program.manifest.summarySpecRefs.isEmpty())return originalR80;
+            Map<String,Object> composite=StrictCanonicalJson.readContextObject(originalR80);
+            Map<String,Object> values=new TreeMap<>(obj(composite.get("atoms")));
+            Map<String,LongSummaryBindingsR80.Frozen> summaries=LongSummaryBindingsR80.historical(db,program,target,drawAt);
+            for(Map.Entry<String,LongSummaryBindingsR80.Frozen> e:summaries.entrySet())need(values.put(e.getKey(),valueObject(e.getValue().value(program.ast.position)))==null,"LONG_BOUND_NODE_OVERLAP");
+            composite.put("revision","CP12_HISTORICAL_RECEIPT_BOUND_LONG_R81_1");composite.put("atoms",values);composite.put("summarySources",LongSummaryBindingsR80.canonicalObject(summaries));
+            String combined=StrictCanonicalJson.writeContext(composite);need(combined.getBytes(StandardCharsets.UTF_8).length<MAX_LINE,"TRAIN_INPUT_CAPACITY");return combined;
+        }
+        Map<String,Object> atoms=new TreeMap<>();List<Object> experts=new ArrayList<>();List<Object> proofs=new ArrayList<>();List<Object> matrixSources=new ArrayList<>();Set<String> allMatrixNodes=MatrixBindingsCP12.nodeIds(program.ast,program.manifest),matrixNodes=storedMatrixNodesCP12(program);
+        Map<String,LongSummaryBindingsR80.Frozen> summaries=LongSummaryBindingsR80.historical(db,program,target,drawAt);
+        for(Map.Entry<String,LongSummaryBindingsR80.Frozen> e:summaries.entrySet())atoms.put(e.getKey(),valueObject(e.getValue().value(program.ast.position)));
+        try(MemoryBudgetCP4.Lease scratch=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(2L<<20);
+            Cursor c=db.rawQuery("SELECT p.candidate_id,p.record_hash,p.context_hash,p.captured_at,length(CAST(p.frozen_context AS BLOB)),f.ast,f.structural_hash,f.model_hash,f.trained_until_issue,p.frozen_context FROM r958_frozen_predraw p JOIN "+ResearchEvaluationRunR967.ALL+" f ON f.candidate_id=p.candidate_id WHERE p.target_issue=? AND p.context_hash<>'' AND p.captured_at<? ORDER BY p.candidate_id",new String[]{target,Long.toString(drawAt)})){
+            while(c.moveToNext()){
+                ResearchWorkBudgetR927.checkpoint();if(c.getLong(4)<=0||c.getLong(4)>131072)throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");
+                String json=c.getString(9);need(V51ChecksumEngine.sha256(json).equals(c.getString(2)),"TRAIN_HISTORICAL_CONTEXT_HASH");
+                Map<String,Object> context=StrictCanonicalJson.readContextObject(json);need(StrictCanonicalJson.writeContext(context).equals(json),"TRAIN_HISTORICAL_CONTEXT_CANONICAL");
+                need(target.equals(str(context,"target"))&&number(context,"frozenAt")<=c.getLong(3)&&c.getLong(3)<drawAt
+                        &&c.getString(8).compareTo(target)<0&&str(context,"freezeHash").equals(c.getString(6))&&str(context,"modelHash").equals(c.getString(7)),"TRAIN_HISTORICAL_CONTEXT_PIT");
+                CandidateAstR952 captured=CandidateAstR952.parse(c.getString(5));if(captured.formatVersion!=3)continue;boolean used=false;
+                Map<String,Object> available=obj(context.get("atoms"));Map<String,Object> bindings=obj(context.get("bindings"));
+                if(!matrixNodes.isEmpty()&&!atoms.keySet().containsAll(matrixNodes)&&("SCCONTEXT2".equals(str(context,"revision"))||LongSummaryBindingsR80.CONTEXT_REVISION.equals(str(context,"revision")))){
+                    try{Map<String,Value> mapped=FrozenGraphContextCP4.verifyHistoricalMatricesCP12(program,context,target,drawAt);
+                        for(Map.Entry<String,Value> e:mapped.entrySet())atoms.put(e.getKey(),valueObject(e.getValue()));
+                        Map<String,Object> proofContext=new TreeMap<>();proofContext.put("revision",context.get("revision"));proofContext.put("target",target);proofContext.put("frozenAt",context.get("frozenAt"));proofContext.put("matrices",context.get("matrices"));proofContext.put("atoms",context.get("atoms"));matrixSources.add(proofContext);used=true;
+                    }catch(IllegalArgumentException missing){if(!"WAIT_BOUND_FEATURE_HISTORY".equals(missing.getMessage()))throw missing;}
+                }
+                for(NodeSpec node:program.ast.graphSpec.nodes)if(node.kind==NodeKind.ATOM&&!allMatrixNodes.contains(node.qualifiedId())&&program.specById(node.source).requiresBinding&&!atoms.containsKey(node.qualifiedId())){
+                    if(!bindings.keySet().containsAll(program.manifest.bindingHashes))continue;
+                    for(NodeSpec old:captured.graphSpec.nodes)if(old.kind==NodeKind.ATOM&&old.source.equals(node.source)&&available.containsKey(old.qualifiedId())){
+                        Map<String,Object> v=obj(available.get(old.qualifiedId()));decodeValue(v,target,drawAt);atoms.put(node.qualifiedId(),v);used=true;break;}
+                }
+                for(ExpertRef ref:program.ast.graphSpec.experts){boolean have=false;for(Object current:experts)if(ref.freezeHash.equals(str(obj(current),"freezeHash")))have=true;if(have)continue;
+                    for(Object v:list(context.get("experts"))){Map<String,Object> e=obj(v);if(ref.freezeHash.equals(str(e,"freezeHash"))&&ref.modelHash.equals(str(e,"modelHash"))&&ref.featureManifestHash.equals(str(e,"manifestHash"))&&ref.position==number(e,"position")){
+                        decodeExpert(e,target,drawAt);
+                        try(Cursor teacher=db.rawQuery("SELECT ast,trained_until_issue FROM "+ResearchEvaluationRunR967.ALL+" WHERE structural_hash=? AND model_hash=?",new String[]{ref.freezeHash,ref.modelHash})){
+                            if(!teacher.moveToFirst()||teacher.getString(1).compareTo(target)>=0||!FeatureManifestR952.forAst(CandidateAstR952.parse(teacher.getString(0))).hash.equals(ref.featureManifestHash))throw new IllegalArgumentException("TRAIN_HISTORICAL_TEACHER_CUTOFF");}
+                        experts.add(e);used=true;break;}}
+                    boolean nowHave=false;for(Object e:experts)if(ref.freezeHash.equals(str(obj(e),"freezeHash")))nowHave=true;
+                    // Ordinary frozen parents have no nested context.experts. Reproduce their
+                    // own prediction from the exact immutable context/model, never today's head.
+                    if(!nowHave&&ref.freezeHash.equals(c.getString(6))&&ref.modelHash.equals(c.getString(7))
+                            &&ref.featureManifestHash.equals(captured.graphSpec.featureManifestHash)&&ref.position==captured.position){
+                        long payloadBytes;try(Cursor model=db.rawQuery("SELECT length(CAST(model_payload AS BLOB)) FROM "+ResearchEvaluationRunR967.ALL+" WHERE candidate_id=? AND model_hash=?",new String[]{c.getString(0),ref.modelHash})){
+                            if(!model.moveToFirst()||model.getLong(0)<1||model.getLong(0)>(1L<<20))throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");payloadBytes=model.getLong(0);}
+                        try(MemoryBudgetCP4.Lease modelMemory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire((768L<<10)+4L*payloadBytes)){
+                            String payload;try(Cursor model=db.rawQuery("SELECT model_payload FROM "+ResearchEvaluationRunR967.ALL+" WHERE candidate_id=? AND model_hash=? AND length(CAST(model_payload AS BLOB))=CAST(? AS INTEGER)",new String[]{c.getString(0),ref.modelHash,Long.toString(payloadBytes)})){need(model.moveToFirst(),"TRAIN_TEACHER_MODEL_CAS");payload=model.getString(0);}
+                            ExpertPrediction teacher=replayOwnTeacherCP12(captured,CandidateCompilerR952.Model.parse(payload),context,c.getString(2),ref,target,drawAt);
+                            experts.add(expertObjectCP12(teacher));used=true;
+                        }
+                    }
+                }
+                if(used){Map<String,Object> proof=new TreeMap<>();proof.put("candidateId",c.getString(0));proof.put("predrawHash",c.getString(1));proof.put("contextHash",c.getString(2));proof.put("capturedAt",c.getLong(3));proof.put("freezeHash",c.getString(6));proof.put("modelHash",c.getString(7));proof.put("trainedUntil",c.getString(8));proofs.add(proof);}
+            }
+        }
+        Set<String> required=new HashSet<>(matrixNodes);required.addAll(summaries.keySet());for(NodeSpec node:program.ast.graphSpec.nodes)if(node.kind==NodeKind.ATOM&&!allMatrixNodes.contains(node.qualifiedId())&&program.specById(node.source).requiresBinding)required.add(node.qualifiedId());
+        if(!atoms.keySet().equals(required)||experts.size()!=program.ast.graphSpec.experts.size())throw new DevelopmentProductionCP12.Wait("WAIT_BOUND_FEATURE_HISTORY");
+        List<Object> ordered=new ArrayList<>();for(ExpertRef ref:program.ast.graphSpec.experts)for(Object e:experts)if(ref.freezeHash.equals(str(obj(e),"freezeHash")))ordered.add(e);
+        Map<String,Object> row=new TreeMap<>();row.put("revision",summaries.isEmpty()?"CP12_HISTORICAL_RECEIPT_1":"CP12_HISTORICAL_RECEIPT_LONG_R80_2");row.put("target",target);row.put("drawAt",drawAt);row.put("manifestHash",program.manifest.hash);row.put("atoms",atoms);row.put("experts",ordered);row.put("proofs",proofs);row.put("matrixSources",matrixSources);if(!summaries.isEmpty())row.put("summarySources",LongSummaryBindingsR80.canonicalObject(summaries));
+        String json=StrictCanonicalJson.writeContext(row);if(json.getBytes(StandardCharsets.UTF_8).length>=MAX_LINE)throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");return json;
+    }
+    private static Set<String> storedMatrixNodesCP12(Program program){
+        Set<String> result=new TreeSet<>();for(MatrixBindingsCP12.Ref ref:MatrixBindingsCP12.validate(program.ast,program.manifest))if(!MatrixHistoricalDrawCP12.isDrawRefCP12(ref))result.add(ref.node());return result;
+    }
+    private static Row decode(Program program,Map<String,Object> row,String canonical,long drawAt) {
+        String revision=str(row,"revision");
+        boolean derived="CP12_HISTORICAL_RECEIPT_DERIVED_R81".equals(revision)||"CP12_HISTORICAL_RECEIPT_DERIVED_LONG_R81".equals(revision);
+        boolean composite="CP12_HISTORICAL_RECEIPT_BOUND_LONG_R81_1".equals(revision);
+        boolean boundR80=composite||"CP12_HISTORICAL_RECEIPT_R80".equals(revision);
+        boolean longRevision=composite||"CP12_HISTORICAL_RECEIPT_DERIVED_LONG_R81".equals(revision)||"CP12_HISTORICAL_RECEIPT_LONG_R80_2".equals(revision);
+        need(longRevision==!program.manifest.summarySpecRefs.isEmpty()
+                &&(derived||boundR80||longRevision||"CP12_HISTORICAL_RECEIPT_1".equals(revision)),"TRAIN_BOUND_REVISION");
+        if(longRevision){Set<String> keys=new HashSet<>(Arrays.asList("revision","target","drawAt","manifestHash","atoms","experts","proofs","matrixSources","summarySources"));if(composite){keys.add("originalBound");keys.add("originalBoundHash");}if(derived){keys.add("derivedBound");keys.add("derivedBoundHash");}need(row.keySet().equals(keys),"LONG_TRAIN_RECEIPT_KEYS");}
+        String target=str(row,"target");Map<String,Value> atoms=new TreeMap<>();
+        if(derived){
+            Map<String,Object> proof=obj(row.get("derivedBound"));need(V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(proof)).equals(str(row,"derivedBoundHash")),"BOUND_DERIVED_WRAPPER_HASH");
+            Map<String,Value> proved=BoundAtomLifecycleR80.verifyDerivedR81(program,proof,target,drawAt);Map<String,Object> given=new TreeMap<>(obj(row.get("atoms")));
+            if(longRevision)for(LongSummaryBindingsR80.Ref ref:program.manifest.summarySpecRefs)need(given.remove(ref.node())!=null,"LONG_BOUND_SUMMARY_NODE");
+            need(given.keySet().equals(proved.keySet()),"BOUND_DERIVED_ROW_CLOSURE");for(Map.Entry<String,Value> e:proved.entrySet())need(decodeValue(obj(given.get(e.getKey())),target,drawAt).valueHash.equals(e.getValue().valueHash),"BOUND_DERIVED_ROW_VALUE");
+        }
+        if(boundR80){
+            Map<String,Object> original=obj(row.get("originalBound"));
+            need(V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(original)).equals(str(row,"originalBoundHash")),"BOUND_CAS_ORIGINAL_HASH");
+            // This still authenticates the complete current AST and manifest.
+            // An old cohort cannot authorize a child with an appended summary.
+            BoundAtomLifecycleR80.verifyOriginalR80(program,original,target,drawAt);
+            Map<String,Object> originalValues=new TreeMap<>(obj(row.get("atoms")));
+            if(composite)for(LongSummaryBindingsR80.Ref ref:program.manifest.summarySpecRefs)need(originalValues.remove(ref.node())!=null,"LONG_BOUND_SUMMARY_NODE");
+            need(StrictCanonicalJson.writeContext(original.get("atoms")).equals(StrictCanonicalJson.writeContext(originalValues)),"BOUND_CAS_ORIGINAL_VALUES");
+        }
+        for(Map.Entry<String,Object> e:obj(row.get("atoms")).entrySet())atoms.put(e.getKey(),decodeValue(obj(e.getValue()),target,drawAt));
+        if(longRevision){Map<String,LongSummaryBindingsR80.Frozen> summaries=LongSummaryBindingsR80.fromCanonicalObject(row.get("summarySources"));LongSummaryBindingsR80.validateFrozen(program,target,drawAt,summaries,atoms);}
+        List<ExpertPrediction> experts=new ArrayList<>();for(Object e:list(row.get("experts")))experts.add(decodeExpert(obj(e),target,drawAt));
+        if(MatrixHistoricalDrawCP12.requiresStoredReceiptsCP12(program)){
+            Map<String,Value> proved=new TreeMap<>();for(Object source:list(row.get("matrixSources"))){Map<String,Value> values=FrozenGraphContextCP4.verifyHistoricalMatricesCP12(program,obj(source),target,drawAt);for(Map.Entry<String,Value> e:values.entrySet()){Value current=atoms.get(e.getKey());need(current!=null&&current.valueHash.equals(e.getValue().valueHash),"TRAIN_BOUND_MATRIX_ROW_MISMATCH");proved.put(e.getKey(),e.getValue());}}
+            need(proved.keySet().equals(storedMatrixNodesCP12(program)),"TRAIN_BOUND_MATRIX_CLOSURE");
+        }
+        need(experts.size()==program.ast.graphSpec.experts.size(),"TRAIN_BOUND_EXPERT_CLOSURE");for(int i=0;i<experts.size();i++)need(experts.get(i).matchesFrozenRef(program.ast.graphSpec.experts.get(i)),"TRAIN_BOUND_EXPERT_IDENTITY");
+        for(Object proof:list(row.get("proofs"))){Map<String,Object> p=obj(proof);need(number(p,"capturedAt")<drawAt&&str(p,"trainedUntil").compareTo(target)<0,"TRAIN_BOUND_PROOF_PIT");for(String key:new String[]{"predrawHash","contextHash","freezeHash","modelHash"})need(str(p,key).matches("[0-9a-f]{64}"),"TRAIN_BOUND_PROOF_HASH");}
+        return new Row(atoms,experts,V51ChecksumEngine.sha256(canonical));
+    }
+    static ExpertPrediction replayOwnTeacherCP12(CandidateAstR952 ast,CandidateCompilerR952.Model model,
+            Map<String,Object> context,String contextHash,ExpertRef ref,String target,long drawAt){
+        need(ast.formatVersion==3&&!model.isLegacy()&&model.hash().equals(ref.modelHash)
+                &&ast.graphSpec.featureManifestHash.equals(ref.featureManifestHash)&&ast.position==ref.position
+                &&model.modern().trainedUntil.compareTo(target)<0,"TRAIN_OWN_TEACHER_MODEL");
+        String canonical=StrictCanonicalJson.writeContext(context);
+        need(V51ChecksumEngine.sha256(canonical).equals(contextHash)&&target.equals(str(context,"target"))
+                &&ref.freezeHash.equals(str(context,"freezeHash"))&&ref.modelHash.equals(str(context,"modelHash"))
+                &&ref.featureManifestHash.equals(str(context,"manifestHash"))
+                &&model.modern().normalizerHash.equals(str(context,"normalizerHash"))
+                &&number(context,"frozenAt")>0&&number(context,"frozenAt")<drawAt,"TRAIN_OWN_TEACHER_CONTEXT");
+        List<AtomSpecCP4> specs=new ArrayList<>();for(Object raw:list(context.get("specs"))){Map<String,Object> row=obj(raw);
+            specs.add(AtomSpecCP4.fromRegistry(str(row,"atomId"),str(row,"specHash"),str(row,"specJson"),str(row,"outputType"),(int)number(row,"minimumHistory"),str(row,"missingPolicy"),str(row,"state")));}
+        Program program=CandidateCompilerR952.compile(ast,FeatureManifestR952.forAst(ast),specs);
+        need(program.codeHash.equals(str(context,"programHash")),"TRAIN_OWN_TEACHER_PROGRAM");model.modern().requireManifest(program.manifest);
+        need(new ArrayList<>(obj(context.get("bindings")).keySet()).equals(program.manifest.bindingHashes),"TRAIN_OWN_TEACHER_BINDINGS");
+        Map<String,Value> values=new TreeMap<>();String maxSource=model.modern().trainedUntil;
+        for(Map.Entry<String,Object> e:obj(context.get("atoms")).entrySet()){Value v=decodeValue(obj(e.getValue()),target,drawAt);
+            need(v.availableAtMs<=number(context,"frozenAt"),"TRAIN_OWN_TEACHER_ATOM_TIME");values.put(e.getKey(),v);if(v.maxSourceIssue.compareTo(maxSource)>0)maxSource=v.maxSourceIssue;}
+        Set<String> required=new TreeSet<>();for(NodeSpec node:ast.graphSpec.nodes)if(node.kind==NodeKind.ATOM)required.add(node.qualifiedId());need(values.keySet().equals(required),"TRAIN_OWN_TEACHER_ATOM_CLOSURE");
+        if(!program.manifest.matrixSpecRefs.isEmpty()){
+            need("SCCONTEXT2".equals(str(context,"revision"))||LongSummaryBindingsR80.CONTEXT_REVISION.equals(str(context,"revision")),"TRAIN_OWN_TEACHER_MATRIX_REVISION");
+            Map<String,MatrixBindingsCP12.Frozen> matrices=MatrixBindingsCP12.fromCanonicalObject(context.get("matrices"));String base=null;
+            for(MatrixBindingsCP12.Frozen matrix:matrices.values()){need(TargetIssueResolver.exact(matrix.throughIssue,target).valid,"TRAIN_OWN_TEACHER_MATRIX_PIT");if(base==null)base=matrix.throughIssue;}
+            MatrixBindingsCP12.validateFrozen(program,target,base,number(context,"frozenAt"),matrices,values);
+        }
+        Map<String,LongSummaryBindingsR80.Frozen> summaries=LongSummaryBindingsR80.CONTEXT_REVISION.equals(str(context,"revision"))?LongSummaryBindingsR80.fromCanonicalObject(context.get("summaries")):Collections.emptyMap();LongSummaryBindingsR80.validateFrozen(program,target,number(context,"frozenAt"),summaries,values);
+        List<ExpertPrediction> experts=new ArrayList<>();for(Object raw:list(context.get("experts"))){ExpertPrediction e=decodeExpert(obj(raw),target,drawAt);need(e.availableAtMs<=number(context,"frozenAt"),"TRAIN_OWN_TEACHER_NESTED_TIME");experts.add(e);if(e.maxSourceIssue.compareTo(maxSource)>0)maxSource=e.maxSourceIssue;}
+        need(experts.size()==ast.graphSpec.experts.size(),"TRAIN_OWN_TEACHER_EXPERT_CLOSURE");for(int i=0;i<experts.size();i++)need(experts.get(i).matchesFrozenRef(ast.graphSpec.experts.get(i)),"TRAIN_OWN_TEACHER_EXPERT");
+        long bytes=4096;for(NodeSpec node:ast.graphSpec.nodes)bytes+=512+32L*node.shape.elements();
+        try(MemoryBudgetCP4.Lease graph=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(bytes)){
+            Evaluation evaluation=TypedAtomMoleculeGraphR930.evaluate(ast.graphSpec.typedGraph,new FrozenInputs(target,number(context,"frozenAt"),contextHash,values));
+            WorldFeatureComputationR974.Result features=WorldFeatureComputationR974.frozenFeaturesCP12(program,evaluation,experts,
+                    model.modern().means(),model.modern().standardDeviations(),target,str(context,"pitHash"),contextHash);
+            return new ExpertPrediction(ref,target,maxSource,number(context,"frozenAt"),features.outputHash,model.probabilities(features.values()));
+        }
+    }
+    static Map<String,Object> expertObjectCP12(ExpertPrediction e){Map<String,Object> row=new TreeMap<>();
+        row.put("freezeHash",e.freezeHash);row.put("modelHash",e.modelHash);row.put("manifestHash",e.featureManifestHash);row.put("position",e.position);
+        row.put("target",e.target);row.put("maxSourceIssue",e.maxSourceIssue);row.put("availableAt",e.availableAtMs);row.put("sourceHash",e.sourceHash);
+        List<Object> probabilities=new ArrayList<>();for(double p:e.probabilities())probabilities.add(Double.toHexString(p));row.put("probabilities",probabilities);return row;
+    }
+    private static Map<String,Object> valueObject(Value value){
+        Map<String,Object> row=new TreeMap<>();List<Object> values=new ArrayList<>(),present=new ArrayList<>();for(int i=0;i<value.size();i++){values.add(Double.toHexString(value.get(i)));present.add(value.present(i));}
+        row.put("values",values);row.put("present",present);row.put("maxSourceIssue",value.maxSourceIssue);row.put("availableAt",value.availableAtMs);row.put("sourceHash",value.sourceHash);row.put("valueHash",value.valueHash);return row;
+    }
+    private static Value decodeValue(Map<String,Object> row,String target,long drawAt) {
+        List<?> vs=list(row.get("values")),ms=list(row.get("present"));need(vs.size()==ms.size()&&vs.size()>=1&&vs.size()<=10,"TRAIN_BOUND_ATOM_SHAPE");double[] v=new double[vs.size()];boolean[] m=new boolean[vs.size()];
+        for(int i=0;i<v.length;i++){v[i]=hex(vs.get(i));need(ms.get(i) instanceof Boolean,"TRAIN_BOUND_MASK");m[i]=(Boolean)ms.get(i);}
+        String source=str(row,"maxSourceIssue");long at=number(row,"availableAt");need(TargetIssueResolver.isValid(source)&&source.compareTo(target)<0&&at<drawAt,"TRAIN_BOUND_ATOM_PIT");
+        Value value=new Value(v,m,source,at,0,str(row,"sourceHash"));need(value.valueHash.equals(str(row,"valueHash")),"TRAIN_BOUND_ATOM_HASH");return value;
+    }
+    private static ExpertPrediction decodeExpert(Map<String,Object> row,String target,long drawAt) {
+        need(target.equals(str(row,"target"))&&number(row,"availableAt")<drawAt,"TRAIN_BOUND_TEACHER_PIT");double[] p=new double[10];List<?> values=list(row.get("probabilities"));need(values.size()==10,"TRAIN_BOUND_TEACHER_SHAPE");for(int i=0;i<10;i++)p[i]=hex(values.get(i));
+        return new ExpertPrediction(new ExpertRef(str(row,"freezeHash"),str(row,"modelHash"),str(row,"manifestHash"),(int)number(row,"position")),target,str(row,"maxSourceIssue"),number(row,"availableAt"),str(row,"sourceHash"),p);
+    }
+    static String readLine(InputStream in)throws IOException {
+        ByteArrayOutputStream b=new ByteArrayOutputStream(4096);int x;while((x=in.read())!=-1&&x!='\n'){if(b.size()>=MAX_LINE)throw new IllegalArgumentException("TRAIN_BOUND_LINE_SIZE");b.write(x);}if(x==-1&&b.size()==0)return null;need(x=='\n',"TRAIN_BOUND_TRUNCATED_LINE");String s=new String(b.toByteArray(),StandardCharsets.UTF_8);need(Arrays.equals(b.toByteArray(),s.getBytes(StandardCharsets.UTF_8)),"TRAIN_BOUND_UTF8");return s;
+    }
+    @SuppressWarnings("unchecked") static Map<String,Object> obj(Object v){need(v instanceof Map,"TRAIN_BOUND_OBJECT");return (Map<String,Object>)v;}
+    static List<?> list(Object v){need(v instanceof List,"TRAIN_BOUND_LIST");return (List<?>)v;}
+    static String str(Map<String,Object> o,String key){need(o.get(key) instanceof String,"TRAIN_BOUND_STRING:"+key);return (String)o.get(key);}
+    static long number(Map<String,Object> o,String key){Object v=o.get(key);need(v instanceof Integer||v instanceof Long,"TRAIN_BOUND_INTEGER:"+key);return ((Number)v).longValue();}
+    static double hex(Object v){need(v instanceof String,"TRAIN_BOUND_DOUBLE");double x=Double.parseDouble((String)v);need(Double.isFinite(x)&&Double.toHexString(x).equals(v),"TRAIN_BOUND_FINITE");return x;}
+    static void need(boolean ok,String reason){if(!ok)throw new IllegalArgumentException(reason);}
+}

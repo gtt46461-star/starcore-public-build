@@ -1,0 +1,12 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java b/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
+index 5e9cfa3..a29a5c0 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
+@@ -10,6 +10,7 @@ public final class StarcoreApplication extends Application {
+     @Override
+     public void onCreate() {
+         super.onCreate();
++        KeyProvider.initialize(getApplicationContext());
+         if (!isMainRuntimeProcess(this)) return;
+         RealtimePressureGateR811.configureCrossProcess(this);
+         try {

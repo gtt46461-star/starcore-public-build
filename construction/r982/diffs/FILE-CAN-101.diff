@@ -1,0 +1,67 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/OosActionLogEngine.java b/app/src/main/java/com/ethk3/novaonepro/OosActionLogEngine.java
+index c869191..c197265 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/OosActionLogEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/OosActionLogEngine.java
+@@ -67,7 +67,7 @@ public final class OosActionLogEngine {
+         }
+         int cap = Math.min(AppConfig.V48_FORMAL_CANDIDATE_COUNT, Math.min(maxCount, list.size()));
+         r.requested = cap;
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard1 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             db.beginTransaction();
+             try {
+@@ -133,7 +133,7 @@ public final class OosActionLogEngine {
+             if (valid(c)) chosen.add(c);
+         }
+         int inserted = 0;
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard2 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             db.beginTransaction();
+             try {
+@@ -187,7 +187,7 @@ public final class OosActionLogEngine {
+                 || e == null
+                 || c.oosRankSlot <= 0
+                 || c.oosRankSlot > AppConfig.V48_FORMAL_CANDIDATE_COUNT) return;
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard3 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             try {
+                 long id =
+@@ -221,7 +221,7 @@ public final class OosActionLogEngine {
+                 || safe(d.contractDecisionId).length() == 0
+                 || safe(d.targetIssue).length() == 0) return -1L;
+         ContentValues v = decisionValues(d);
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard4 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             try {
+                 long id =
+@@ -279,7 +279,7 @@ public final class OosActionLogEngine {
+         v.put("authorization_valid", 0);
+         v.put("authorization_reject_code", "HISTORICAL_REPLAY_NO_BET");
+ 
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard5 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             try {
+                 long id =
+@@ -605,7 +605,7 @@ public final class OosActionLogEngine {
+ 
+     private static long insertCandidate(
+             DbStore store, ContentValues values, String contractId, String target, String hash) {
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard6 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             try {
+                 long existing = findExistingCandidateId(db, contractId, target, hash);
+@@ -701,7 +701,7 @@ public final class OosActionLogEngine {
+         if (store == null || draw == null || !draw.isValid()) return 0;
+         int changed = 0;
+         Cursor c = null;
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard7 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             try {
+                 c =

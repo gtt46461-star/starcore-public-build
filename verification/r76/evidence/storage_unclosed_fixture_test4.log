@@ -1,0 +1,21 @@
+PASS full production trigger schema retained
+PASS first eligible 128-row page
+PASS first page makes selected-row native snapshot without whole-DB backup
+PASS reject RETENTION_SNAPSHOT_BUSY
+PASS published immutable proof readback
+PASS large cell streamed into exact archive
+PASS receipt-before-ack crash recovers original verified bytes
+PASS receipt recovery performs no database copy
+PASS reject ARCHIVE_STREAM_HASH
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS 128 independently verified rows deleted
+PASS bounded publication/prune completes after restartable slices
+PASS no deletion permits leak
+PASS duplicate proof cannot delete twice
+PASS different page takes a new small snapshot with zero whole-DB backup calls
+PASS published immutable proof readback
+Exception in thread "main" java.lang.IllegalStateException: database disk image is malformed | UPDATE diagnostic_log SET detail='changed after archival' WHERE rowid=?
+	at android.database.sqlite.SQLiteDatabase.call(SQLiteDatabase.java:75)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:37)
+	at com.ethk3.novaonepro.RetentionPageClosureR76.main(RetentionPageClosureR76.java:58)

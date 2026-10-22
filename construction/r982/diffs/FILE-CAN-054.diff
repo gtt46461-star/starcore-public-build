@@ -1,0 +1,113 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DecisionAuthorizationEngine.java b/app/src/main/java/com/ethk3/novaonepro/DecisionAuthorizationEngine.java
+index 19326de..4ef9875 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DecisionAuthorizationEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DecisionAuthorizationEngine.java
+@@ -58,6 +58,7 @@ public final class DecisionAuthorizationEngine {
+             action = V50Enums.DecisionAction.SHADOW;
+             reject = V50Enums.RejectCode.MODEL_ARTIFACT_UNPROVEN;
+         }
++        if(action==V50Enums.DecisionAction.BET){action=V50Enums.DecisionAction.SHADOW;reject=V50Enums.RejectCode.MODEL_ARTIFACT_UNPROVEN;}
+         long authorizedAt = System.currentTimeMillis();
+         String contractHash = envelope == null ? "" : envelope.contractHash;
+         String decisionId =
+@@ -132,64 +133,10 @@ public final class DecisionAuthorizationEngine {
+ 
+     public Models.DecisionAuthorization authorize(
+             DbStore store, Models.ComboCandidate c, Models.Decision d) {
+-        Models.DecisionAuthorization a = baseAuthorization();
+-        if (d == null) return finish(store, c, d, reject(a, "AUTH_DECISION_NULL", MODE_HOLD));
+-        if (c == null) return finish(store, c, d, reject(a, "AUTH_CANDIDATE_NULL", MODE_HOLD));
+-
+-        String lane = laneOf(d);
+-        LanePolicyCompiler.Result policy = LanePolicyCompiler.getCompiledResult(c, lane);
+-        CompiledActionContract contract = CompiledActionContract.getEligible(c, lane);
+-        if (policy == null || contract == null) {
+-            return finish(
+-                    store,
+-                    c,
+-                    d,
+-                    reject(
+-                            a,
+-                            "AUTH_V46_COMPILED_CONTRACT_MISSING",
+-                            hasLegalK3(d) ? MODE_SHADOW : MODE_HOLD));
+-        }
+-        if (!CompiledActionContract.markAuthorizationAttempt(contract)) {
+-            return finish(store, c, d, reject(a, "AUTH_DUPLICATE_ATTEMPT", MODE_SHADOW));
+-        }
+-
+-        PredictionContractEngine.stampDecision(c, d);
+-        applyCompiledValues(c, d, contract, policy);
+-        a.decisionId = safe(d.contractDecisionId);
+-        a.calibratedProbability = contract.probability;
+-        a.gate = contract.gate;
+-        a.edge = contract.edge;
+-        a.familyLCB = contract.familyLcb;
+-        a.coverage = contract.coverage;
+-        a.thirdQuality = contract.thirdQuality;
+-        a.actionUtility = d.actionUtility;
+-        a.uncertaintyPenalty = d.actionUncertaintyPenalty;
+-        a.structureScore = d.actionStructureScore;
+-        a.laneCandidate = contract.lane;
+-        a.teacherPolicy = teacherPolicy(d);
+-        a.dynamicPolicy = dynamicPolicy(d);
+-        a.adaptivePolicy = adaptivePolicy(d);
+-
+-        String rejectCode = validate(c, d, a, contract, policy);
+-        if (rejectCode.length() > 0) {
+-            reject(a, rejectCode, hasLegalK3(d) ? MODE_SHADOW : MODE_HOLD);
+-        } else {
+-            a.valid = 1;
+-            a.authorizedMode = MODE_BET;
+-            a.rejectCode = "";
+-            a.authorizationId =
+-                    sign(
+-                            a.decisionId,
+-                            a.buildId,
+-                            a.cohortId,
+-                            a.schemaVersion,
+-                            a.pipelineVersion,
+-                            a.calibrationVersion,
+-                            a.authorizedAt,
+-                            a.calibratedProbability,
+-                            a.gate);
+-        }
+-        return finish(store, c, d, a);
++        Models.DecisionAuthorization a=baseAuthorization();
++        if(d!=null){a.decisionId=safe(d.contractDecisionId);a.calibratedProbability=d.finalP;a.gate=d.dynamicGate;}
++        reject(a,"LEGACY_AUTHORIZATION_RETIRED",d!=null&&hasLegalK3(d)?MODE_SHADOW:MODE_HOLD);
++        if(d!=null)apply(d,a);if(c!=null)apply(c,a);return a;
+     }
+ 
+     public Models.DecisionAuthorization refuse(DbStore store, Models.Decision d, String reason) {
+@@ -829,7 +776,7 @@ public final class DecisionAuthorizationEngine {
+             V51CompiledActionContract compiled,
+             V51Enums.DecisionAction action,
+             V51Enums.RejectCode reject) {
+-        return V51AuthorizationCore.authorize(compiled, action, reject);
++        throw new UnsupportedOperationException("LEGACY_AUTHORIZATION_RETIRED");
+     }
+ 
+     public static boolean verifyV51(
+@@ -838,10 +785,12 @@ public final class DecisionAuthorizationEngine {
+     }
+ 
+     // V57_B12_V51_FROZEN_SIGNER
+-    public V51Models.AuthorizedDecision authorizeV51Frozen(
++    V51Models.AuthorizedDecision authorizeV51FrozenCP12(
++            DecisionGateEngine.AuthorizationScopeCP12 scope,
+             V51CompiledActionContract compiled,
+             V51Enums.DecisionAction gateAction,
+             V51Enums.RejectCode gateReject) {
++        if(scope==null||!scope.matches(compiled))throw new IllegalStateException("AUTHORIZATION_SCOPE_MISMATCH");
+         V51Enums.DecisionAction action =
+                 gateAction == null ? V51Enums.DecisionAction.HOLD : gateAction;
+         V51Enums.RejectCode reject =
+@@ -867,4 +816,8 @@ public final class DecisionAuthorizationEngine {
+     public static boolean v57V51SignerOwnsBetChoice() {
+         return false;
+     }
++    /** Retired compatibility entry; final signer requires an unforgeable Gate scope. */
++    @Deprecated public V51Models.AuthorizedDecision authorizeV51Frozen(V51CompiledActionContract compiled,V51Enums.DecisionAction action,V51Enums.RejectCode reject){
++        throw new UnsupportedOperationException("LEGACY_AUTHORIZATION_RETIRED");
++    }
+ }

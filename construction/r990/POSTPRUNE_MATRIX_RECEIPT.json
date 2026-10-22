@@ -1,0 +1,33 @@
+{
+  "executions": [
+    {
+      "name": "compile-test-only",
+      "command": [
+        "javac",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-matrix/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-matrix/drivers",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/adapters/android/util/Base64.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r990/MatrixCheckpointRecoveryR990.java"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "actual-owner-consumer",
+      "command": [
+        "java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-matrix/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.r952.MatrixCheckpointRecoveryR990",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-matrix/fixture.db"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "product_sha256": "52fa85a014df44be0d3ed19bd1acdbc69288ada502aa97322845e1515adacac8",
+  "driver_sha256": "c595c382b96db1df43b844b9d0e92152466b0cd9dfdc9fdf86be92143af27fe3",
+  "scope": "New post-prune driver; current real product Owner/SQLite/policy/numerical consumers; isolated synthetic only; DEVICE_NOT_VERIFIED"
+}

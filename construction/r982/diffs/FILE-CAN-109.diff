@@ -1,0 +1,80 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RealtimeProvenanceRepairR923.java b/app/src/main/java/com/ethk3/novaonepro/RealtimeProvenanceRepairR923.java
+index eb5595b..1bf249a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RealtimeProvenanceRepairR923.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RealtimeProvenanceRepairR923.java
+@@ -19,69 +19,12 @@ public final class RealtimeProvenanceRepairR923 {
+     private RealtimeProvenanceRepairR923() {}
+ 
+     public static Result repair(final DbStore store) {
+-        if (store == null) return new Result(false, 0, 0, 0, "STORE_NULL");
+-        Result out = store.coordinatorR36().runWrite(
+-                "R923_REALTIME_PROVENANCE_REPAIR",
+-                new DatabaseCoordinator.WriteCallable<Result>() {
+-                    @Override public Result call(SQLiteDatabase db) {
+-                        ArrayList<Proof> candidates = load(db);
+-                        int eligible = 0, repaired = 0, skipped = 0;
+-                        for (Proof proof : candidates) {
+-                            if (!proof.valid()) {
+-                                skipped++;
+-                                continue;
+-                            }
+-                            eligible++;
+-                            int actual = proof.drawActual;
+-                            int hit = actual == proof.n1 || actual == proof.n2 || actual == proof.n3
+-                                    ? 1 : 0;
+-                            String result = hit == 1 ? AppConfig.RESULT_WIN : AppConfig.RESULT_MISS;
+-                            double pnl = hit == 1 ? AppConfig.WIN_PNL_K3 : AppConfig.MISS_PNL_K3;
+-                            ContentValues trade = new ContentValues();
+-                            trade.put("source_type", Models.SOURCE_TYPE_REALTIME);
+-                            trade.put("is_realtime_real", 1);
+-                            trade.put("actual_number", actual);
+-                            trade.put("hit", hit);
+-                            trade.put("result", result);
+-                            trade.put("pnl", pnl);
+-                            int n = db.update(
+-                                    DbHelper.TABLE_TRADES,
+-                                    trade,
+-                                    "_id=? AND action='BET' AND stat_scope='REAL_TRADE'"
+-                                            + " AND (COALESCE(source_type,'') IN ('','UNKNOWN')"
+-                                            + " OR (source_type='REALTIME' AND COALESCE(is_realtime_real,0)<>1))",
+-                                    new String[] {String.valueOf(proof.id)});
+-                            if (n != 1) {
+-                                skipped++;
+-                                continue;
+-                            }
+-                            ContentValues decision = new ContentValues();
+-                            decision.put("source_type", Models.SOURCE_TYPE_REALTIME);
+-                            decision.put("is_realtime_real", 1);
+-                            decision.put("actual_number", actual);
+-                            decision.put("hit", hit);
+-                            decision.put("result", result);
+-                            decision.put("pnl", pnl);
+-                            db.update(
+-                                    DbHelper.TABLE_DECISIONS,
+-                                    decision,
+-                                    "target_issue=? AND decision='BET' AND stat_scope='REAL_TRADE'",
+-                                    new String[] {proof.target});
+-                            repaired++;
+-                        }
+-                        long now = System.currentTimeMillis();
+-                        putState(db, "r923_realtime_provenance_repair_version", VERSION, now);
+-                        putState(db, "r923_realtime_provenance_candidates",
+-                                String.valueOf(candidates.size()), now);
+-                        putState(db, "r923_realtime_provenance_eligible", String.valueOf(eligible), now);
+-                        putState(db, "r923_realtime_provenance_repaired", String.valueOf(repaired), now);
+-                        putState(db, "r923_realtime_provenance_skipped", String.valueOf(skipped), now);
+-                        putState(db, "r923_realtime_provenance_repair_at", String.valueOf(now), now);
+-                        return new Result(true, candidates.size(), repaired, skipped, "COMPLETE");
+-                    }
+-                },
+-                new Result(false, 0, 0, 0, "WRITE_FAILED"));
+-        return out == null ? new Result(false, 0, 0, 0, "NULL_RESULT") : out;
++        if(store==null)return new Result(false,0,0,0,"STORE_NULL");
++        ArrayList<Proof> candidates=load(store.readable());
++        int eligible=0,skipped=0;
++        for(Proof proof:candidates){if(proof.valid())eligible++;else skipped++;}
++        // Eligibility is an audit result, never permission to overwrite an existing settlement.
++        return new Result(true,candidates.size(),0,skipped,"CP4_READ_ONLY_PROVENANCE_AUDIT_ELIGIBLE="+eligible);
+     }
+ 
+     private static ArrayList<Proof> load(SQLiteDatabase db) {

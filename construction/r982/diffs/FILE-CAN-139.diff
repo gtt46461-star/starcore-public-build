@@ -1,0 +1,43 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java b/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
+index 0834046..71b7dd8 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java
+@@ -56,7 +56,7 @@ public final class ResearchFunnelR967 {
+             StringBuilder b=new StringBuilder("R967_RESEARCH_FUNNEL|snapshot=").append(id).append("|statementSnapshot=1|startedAt=").append(startedAt).append("|finishedAt=").append(finishedAt).append("|drawWatermark=").append(drawWatermark).append("|status=").append(error.isEmpty()?"READ_OK":"READ_ERROR:"+error);
+             for(Definition d:DEFINITIONS){Long value=values.get(d.key);b.append('\n').append(d.key).append('=').append(value==null?"UNKNOWN_OR_NOT_READY":value).append("|meaning=").append(d.meaning).append("|source=").append(d.table);}
+             b.append("\ncurrent_compatible_selected_applied=REQUIRES_CONSUMER_RECEIPTS_NOT_INFERRED_FROM_ACTIVE_COUNT");
+-            b.append("\nfull_R967_world_six_adapter_chain=NOT_IMPLEMENTED_IN_THIS_CHECKPOINT|device_runtime=NOT_VERIFIED|future_effect=NOT_PROVEN");
++            b.append("\nCP12_SCOPE=CANONICAL_SIX_ADAPTER_CODE_CONTRACT|device=NOT_VERIFIED|future_health=READ_ACTUAL_EVIDENCE|model_quality=READ_ACTUAL_EVIDENCE|device_runtime=NOT_VERIFIED|future_effect=NOT_PROVEN");
+             b.append("\nrecompute_sql_hash=").append(V51ChecksumEngine.sha256(sql));return b.toString();
+         }
+     }
+@@ -85,4 +85,29 @@ public final class ResearchFunnelR967 {
+         }
+     }
+     private static Snapshot failure(long now,String error){Map<String,Long> values=new LinkedHashMap<String,Long>();for(Definition d:DEFINITIONS)values.put(d.key,null);return new Snapshot(now,now,"UNKNOWN",values,error,"");}
++
++public static Snapshot captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if(store==null)return failureSnapshotCP4(report, report.nowMs(),"STORE_NULL");
++        try{return captureSnapshotCP4(report, store.readable());}catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++    }
++
++static Snapshot captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
++        long start=report.nowMs();Map<String,Long> values=new LinkedHashMap<String,Long>();String query="";
++        try {
++            Set<String> present=new HashSet<String>();
++            try(Cursor c=report.select("SELECT name FROM sqlite_master WHERE type IN ('table','view')",null)){while(c.moveToNext())present.add(c.getString(0));}
++            com.ethk3.novaonepro.ReportTextCP12 sql=new com.ethk3.novaonepro.ReportTextCP12(report, "SELECT ");
++            sql.append(present.contains(DbHelper.TABLE_DRAWS)?"(SELECT COALESCE(MAX(issue),'') FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0)":"NULL");
++            for(Definition d:DEFINITIONS)sql.append(',').append(present.contains(d.table)?"("+d.query()+")":"NULL");
++            query=sql.toString();String mark;
++            try(Cursor c=report.select(query,null)) {
++                if(!c.moveToFirst())throw new IllegalStateException("EMPTY_SUMMARY_STATEMENT");
++                mark=c.isNull(0)?"UNKNOWN":c.getString(0);
++                for(int i=0;i<DEFINITIONS.length;i++)values.put(DEFINITIONS[i].key,c.isNull(i+1)?null:Long.valueOf(c.getLong(i+1)));
++            }
++            return new Snapshot(start,report.nowMs(),mark,values,"",query);
++        }catch(RuntimeException error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++    }
++
++public static Snapshot failureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, long now,String error){Map<String,Long> values=new LinkedHashMap<String,Long>();for(Definition d:DEFINITIONS)values.put(d.key,null);return new Snapshot(now,now,"UNKNOWN",values,error,"");}
+ }

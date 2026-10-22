@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DataGuard.java b/app/src/main/java/com/ethk3/novaonepro/DataGuard.java
+index c3f1886..e90ff8f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DataGuard.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DataGuard.java
+@@ -1213,7 +1213,7 @@ public final class DataGuard {
+             return "";
+         }
+ 
+-        String v = value.trim().toUpperCase();
++        String v = value.trim().toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("BET".equals(v) || "下注".equals(value) || "真实出手".equals(value)) {
+             return AppConfig.DECISION_BET;

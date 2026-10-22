@@ -1,0 +1,114 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java b/app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java
+new file mode 100644
+index 0000000..6adc762
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java
+@@ -0,0 +1,108 @@
++package com.ethk3.novaonepro.r952;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import com.ethk3.novaonepro.*;
++import java.io.*;
++import java.nio.charset.StandardCharsets;
++import java.security.*;
++import java.util.*;
++
++/** IMPORT substage adapter. Director owns dispatch, registration and TRAIN publication.
++ * Catalog feature seeds acquire no Future count, certificate or real authority. */
++public final class ModernSeedFactoryCP12 {
++ private ModernSeedFactoryCP12(){}
++ public static final String ASSET="research/cp4_molecule_seeds.jsonl";
++ public static final String ASSET_SHA="b4ab9a61e2a36a4a426d0588ffb52350a25c09165273f802b9aa4c63e3c726ad";
++ public static final int TOTAL=4200,BATCH=25;
++ public static final String REVISION="CP12_SEED_AST3_1",IMPORT="research_molecule_import_cp12",USE="research_molecule_use_cp12";
++ public static final class SeedRow {
++  public final String hash,sourceId,sourceHash,graphJson,outputType;public final int position,row;
++  public final CandidateAstR952 ast;
++  SeedRow(String line,int row,SQLiteDatabase db){
++   Map<String,Object> r=StrictCanonicalJson.readObject(line);need(r.keySet().equals(new TreeSet<>(Arrays.asList("graph","graphHash","seedId","sourceSha256"))),"SEED_ROW_KEYS");
++   Map<String,Object> g=map(r.get("graph"));graphJson=StrictCanonicalJson.write(g);hash=str(r,"graphHash");sourceId=str(r,"seedId");sourceHash=str(r,"sourceSha256");
++   need(hash.matches("[0-9a-f]{64}")&&hash.equals(V51ChecksumEngine.sha256(graphJson))&&sourceHash.matches("[0-9a-f]{64}")&&sourceId.matches("MOL-[0-9a-f]{20}"),"SEED_SOURCE_HASH");
++   position=((Number)g.get("position")).intValue();this.row=row;need(position>=1&&position<=10&&g.get("pit").equals("STRICT_PAST")&&g.get("missing").equals("PROPAGATE")&&g.get("role").equals("FEATURE_ONLY")&&g.get("revision").equals("CP4_SEED_BINDING_1"),"SEED_FEATURE_CONTRACT");
++   Map<String,Object> root=fields("version",3,"compilerRevision","AST3_CP4_1","game",ReleaseManifestR926.GAME_CODE,"position",position,"family","LINEAR","modelKind","SOFTMAX_LINEAR","normalizerPolicy","TRAIN_ONLY_ZSCORE_V1","experts",new ArrayList<>(),"inputDimension",2,"outputId","@MODEL");
++   Map<String,String> renamed=new HashMap<>();int oldOrdinal=0;List<Object> nodes=new ArrayList<>();List<AtomSpecCP4> specs=new ArrayList<>();TreeSet<String> specHashes=new TreeSet<>();int minimum=0;
++   for(Object raw:list(g.get("nodes"))){Map<String,Object> n=map(raw);String op=str(n,"op"),type=str(n,"type"),id=str(n,"id");need(id.equals("n"+oldOrdinal++),"SEED_TOPOLOGY");String newId="n"+nodes.size();List<String> parents=new ArrayList<>();for(Object parent:list(n.get("parents"))){need(renamed.containsKey(parent),"SEED_PARENT_ORDER");parents.add(renamed.get(parent));}
++    String atom="";String modernType=type.equals("BOOL")?"BOOLEAN":type.equals("SCALAR")?"DOUBLE":"INVALID";need(!modernType.equals("INVALID"),"SEED_OUTPUT_TYPE");
++    if(op.equals("ATOM")){atom=str(n,"atomId");AtomSpecCP4 s=spec(db,atom);need(s.position==position&&!s.state.equals("RETIRED"),"SEED_ATOM_STATE_POSITION");specs.add(s);specHashes.add(s.specHash);minimum=Math.max(minimum,s.minimumHistory);
++     // Catalog scalar math primitives preserve their exact declared output type.
++     modernType=s.outputType.equals("BOOLEAN")?"BOOLEAN":s.outputType.equals("PROBABILITY")?"PROBABILITY":"DOUBLE";
++    }
++    List<String> params=new ArrayList<>();for(Object p:list(n.get("parameters"))){double d=Double.parseDouble((String)p);need(Double.isFinite(d),"SEED_PARAMETER");params.add(Double.toHexString(d==0?0:d));}
++    nodes.add(fields("id",newId,"operator",op,"outputType",modernType,"atomId",atom,"stage","FROZEN_PREDRAW","unit","dimensionless","parents",parents,"parameters",params));
++    if(op.equals("ATOM")&&!modernType.equals("DOUBLE")){String castId="n"+nodes.size();nodes.add(fields("id",castId,"operator","NUMERIC_TO_DOUBLE","outputType","DOUBLE","atomId","","stage","FROZEN_PREDRAW","unit","dimensionless","parents",Collections.singletonList(newId),"parameters",new ArrayList<>()));newId=castId;}
++    renamed.put(id,newId);
++   }
++   String output=renamed.get(str(g,"outputId"));need(output!=null,"SEED_ROOT");int at=Integer.parseInt(output.substring(1));need(at>=0&&at<nodes.size(),"SEED_ROOT");String type=str(map(nodes.get(at)),"outputType");outputType=type.equals("BOOLEAN")?"BOOL":"SCALAR";
++   root.put("nodes",nodes);root.put("featureOutputIds",Collections.singletonList(output));
++   root.put("featureManifest",fields("revision","CP4_FEATURE_1","graphHash",CandidateAstR952.hashGraphKernelWithoutManifest(root),"orderedFeatureIds",Collections.singletonList(output),"featureTypes",Collections.singletonList(type),"requiredHistory",minimum,"atomSpecHashes",new ArrayList<>(specHashes),"bindingHashes",new ArrayList<>(),"matrixSpecRefs",new ArrayList<>(),"normalizerPolicy","TRAIN_ONLY_ZSCORE_V1","missingPolicyPerFeature",Collections.singletonList("MASK"),"inputDimension",2,"estimatedStateBytes",8*1024*1024));
++   ast=CandidateAstR952.parse("AST3:"+StrictCanonicalJson.write(root));CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,specs);
++  }
++ }
++ public static final class Page {
++  public final long cursor;public final List<SeedRow> rows;
++  private Page(long c,List<SeedRow> r){cursor=c;rows=Collections.unmodifiableList(r);}
++ }
++ public static void schema(SQLiteDatabase db){
++  need(db!=null&&db.inTransaction(),"SEED_SCHEMA_TX");
++  db.execSQL("CREATE TABLE IF NOT EXISTS "+IMPORT+"(source_hash TEXT PRIMARY KEY CHECK(length(source_hash)=64),asset_name TEXT NOT NULL,expected_rows INTEGER NOT NULL CHECK(expected_rows=4200),next_row INTEGER NOT NULL CHECK(next_row BETWEEN 0 AND 4200),state TEXT NOT NULL CHECK(state IN('IMPORTING','COMPLETE')),generation INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL)");
++  db.execSQL("CREATE TABLE IF NOT EXISTS "+USE+"(seed_hash TEXT PRIMARY KEY REFERENCES research_molecule_seed_v2(seed_hash),ast_hash TEXT NOT NULL,action_id TEXT NOT NULL UNIQUE REFERENCES research_action_v2(action_id),candidate_id TEXT NOT NULL UNIQUE,state TEXT NOT NULL CHECK(state IN('PROPOSED','REGISTERED','NO_OP','HELD')),created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL)");
++  db.execSQL("CREATE INDEX IF NOT EXISTS idx_cp12_seed_use_state ON "+USE+"(state,seed_hash)");
++  db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_seed_asset_identity BEFORE UPDATE ON "+IMPORT+" WHEN OLD.source_hash<>NEW.source_hash OR OLD.asset_name<>NEW.asset_name OR OLD.expected_rows<>NEW.expected_rows BEGIN SELECT RAISE(ABORT,'SEED_ASSET_IDENTITY_IMMUTABLE'); END");
++  db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_seed_use_identity BEFORE UPDATE ON "+USE+" WHEN OLD.seed_hash<>NEW.seed_hash OR OLD.ast_hash<>NEW.ast_hash OR OLD.action_id<>NEW.action_id OR OLD.candidate_id<>NEW.candidate_id BEGIN SELECT RAISE(ABORT,'SEED_USE_IDENTITY_IMMUTABLE'); END");
++  db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_seed_use_delete BEFORE DELETE ON "+USE+" BEGIN SELECT RAISE(ABORT,'SEED_USE_COMPACT_PERMANENT'); END");
++ }
++ /** Streams the complete immutable 3.3MB asset for checksum, retaining at most 25 bounded rows. */
++ public static Page preparePage(SQLiteDatabase db,InputStream input,long cursor,long deadlineNs)throws IOException{
++  need(db!=null&&!db.inTransaction()&&input!=null&&cursor>=0&&cursor<=TOTAL,"SEED_PREPARE_INPUT");
++  MessageDigest digest;try{digest=MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException e){throw new AssertionError(e);}
++  List<String> lines=new ArrayList<>();int count=0,bytes=0;ByteArrayOutputStream line=new ByteArrayOutputStream(4096);byte[] buffer=new byte[8192];int n;
++  try(InputStream in=input){while((n=in.read(buffer))!=-1){ResearchWorkBudgetR927.checkpoint();if(System.nanoTime()>=deadlineNs)throw new DevelopmentProductionCP12.Wait("TIME_BUDGET_EXCEEDED");bytes+=n;need(bytes<=4<<20,"SEED_ASSET_SIZE");digest.update(buffer,0,n);
++   for(int i=0;i<n;i++){if(buffer[i]=='\n'){if(count>=cursor&&count<cursor+BATCH)lines.add(new String(line.toByteArray(),StandardCharsets.UTF_8));count++;line.reset();}else{line.write(buffer[i]);need(line.size()<=8192,"SEED_LINE_SIZE");}}
++  }}
++  need(line.size()==0&&count==TOTAL&&hex(digest.digest()).equals(ASSET_SHA),"SEED_ASSET_IDENTITY");
++  List<SeedRow> rows=new ArrayList<>();for(int i=0;i<lines.size();i++)rows.add(new SeedRow(lines.get(i),(int)cursor+i,db));return new Page(cursor,rows);
++ }
++ public static long importPrepared(SQLiteDatabase db,List<SeedRow> rows,long cursor){
++  need(db!=null&&db.inTransaction()&&rows!=null&&rows.size()<=BATCH&&cursor>=0&&cursor<=TOTAL&&cursor+rows.size()<=TOTAL,"SEED_IMPORT_TX");schema(db);
++  db.execSQL("INSERT OR IGNORE INTO "+IMPORT+" VALUES(?,?,4200,0,'IMPORTING',0,?)",new Object[]{ASSET_SHA,ASSET,System.currentTimeMillis()});
++  long actual;try(Cursor c=db.rawQuery("SELECT next_row FROM "+IMPORT+" WHERE source_hash=?",new String[]{ASSET_SHA})){need(c.moveToFirst(),"SEED_IMPORT_MISSING");actual=c.getLong(0);}
++  boolean replay=actual==cursor+rows.size();need(actual==cursor||replay,"SEED_CURSOR_STALE");
++  for(int i=0;i<rows.size();i++){SeedRow r=rows.get(i);need(r.row==cursor+i,"SEED_PAGE_ORDER");
++   // A prepared graph loses validity if its registry dependency changes before publication.
++   for(com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeSpec node:r.ast.graphSpec.nodes)if(node.kind==com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeKind.ATOM){AtomSpecCP4 s=spec(db,node.source);need(s.position==r.position&&!s.state.equals("RETIRED")&&r.ast.graphSpec.manifest.atomSpecHashes.contains(s.specHash),"SEED_REGISTRY_CAS");}
++   db.execSQL("INSERT OR IGNORE INTO research_molecule_seed_v2(seed_hash,source_seed_id,position,graph_json,output_type,state,compiler_revision,source_hash,alias_of,imported_at)VALUES(?,?,?,?,?,'VALIDATED',?,?,NULL,?)",new Object[]{r.hash,r.sourceId,r.position,r.graphJson,r.outputType,REVISION,r.sourceHash,System.currentTimeMillis()});
++   try(Cursor c=db.rawQuery("SELECT source_seed_id,position,graph_json,output_type,compiler_revision,source_hash FROM research_molecule_seed_v2 WHERE seed_hash=?",new String[]{r.hash})){need(c.moveToFirst()&&r.sourceId.equals(c.getString(0))&&r.position==c.getInt(1)&&r.graphJson.equals(c.getString(2))&&r.outputType.equals(c.getString(3))&&REVISION.equals(c.getString(4))&&r.sourceHash.equals(c.getString(5)),"SEED_REPLAY_DRIFT");}
++  }
++  long next=cursor+rows.size();if(!replay){db.execSQL("UPDATE "+IMPORT+" SET next_row=?,state=?,generation=generation+1,updated_at=? WHERE source_hash=? AND next_row=?",new Object[]{next,next==TOTAL?"COMPLETE":"IMPORTING",System.currentTimeMillis(),ASSET_SHA,cursor});need(changes(db)==1,"SEED_CURSOR_CAS");}
++  if(next==TOTAL)try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM research_molecule_seed_v2 WHERE compiler_revision=?",new String[]{REVISION})){need(c.moveToFirst()&&c.getInt(0)==TOTAL,"SEED_COMPLETION_COUNT");}
++  return next;
++ }
++ /** Invoked only from the Director's existing IMPORT slot, never a new scheduler. */
++ public static String maintain(DbStore store,long deadlineNs){
++  need(store!=null&&!store.readable().inTransaction(),"SEED_MAINTAIN_INPUT");
++  if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())return "YIELD_P0_PRESSURE";
++  if(!AtomCatalogImportCP12.completeCP12(store.readable()))return AtomCatalogImportCP12.drainOneCP12(store,deadlineNs);
++  try(MemoryBudgetCP4.Lease liveSeed=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(1L<<20)){
++  SQLiteDatabase db=store.readable();long cursor=0;try(Cursor c=db.rawQuery("SELECT next_row FROM "+IMPORT+" WHERE source_hash=?",new String[]{ASSET_SHA})){if(c.moveToFirst())cursor=c.getLong(0);}
++  if(cursor<TOTAL){try(MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(1L<<20)){
++   Page page=preparePage(db,store.openResearchAssetCP12(ASSET),cursor,deadlineNs);
++   Long next=store.coordinatorForResearchR952().runAtomicWrite("CP12_MOLECULE_IMPORT",tx->MolecularToolWorldR947.importSeedBatchCP4(tx,page.rows,page.cursor),null);
++   if(next==null)throw new IllegalStateException("SEED_IMPORT_COMMIT_FAILED");return "SEEDS_IMPORTED:"+next+"/"+TOTAL;
++  }catch(IOException e){throw new DevelopmentProductionCP12.Wait("WAIT_INPUT_IO",e);}}
++  return ModernFamilyFactoryCP12.maintain(store,deadlineNs);
++  }catch(IllegalStateException resource){if("ALGORITHM_MEMORY_BUDGET".equals(resource.getMessage()))throw new DevelopmentProductionCP12.Wait("MEMORY_PRESSURE",resource);throw resource;}
++ }
++ static AtomSpecCP4 spec(SQLiteDatabase db,String id){try(Cursor c=db.rawQuery("SELECT atom_id,spec_hash,params_json,output_type,min_history,missing_policy,state FROM research_atom_spec_v2 WHERE atom_id=?",new String[]{id})){if(!c.moveToFirst())throw new DevelopmentProductionCP12.Wait("WAIT_ATOM_REGISTRATION");return AtomSpecCP4.fromRegistry(c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getInt(4),c.getString(5),c.getString(6));}}
++ static int changes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){need(c.moveToFirst(),"SEED_CHANGES");return c.getInt(0);}}
++ static void need(boolean b,String e){if(!b)throw new IllegalArgumentException(e);}
++ @SuppressWarnings("unchecked") static Map<String,Object> map(Object o){return(Map<String,Object>)o;}
++ @SuppressWarnings("unchecked") static List<Object> list(Object o){return(List<Object>)o;}
++ static String str(Map<String,Object> m,String k){need(m.get(k) instanceof String,"SEED_STRING:"+k);return(String)m.get(k);}
++ static Map<String,Object> fields(Object... v){Map<String,Object> m=new TreeMap<>();for(int i=0;i<v.length;i+=2)m.put((String)v[i],v[i+1]);return m;}
++ static String hex(byte[] b){StringBuilder s=new StringBuilder();for(byte x:b)s.append(String.format(Locale.ROOT,"%02x",x&255));return s.toString();}
++}

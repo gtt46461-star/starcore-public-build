@@ -1,0 +1,9 @@
+{"sql": "SELECT COUNT(*) FROM v57_k3_action_space_1200", "args": [], "vm_lower": 300, "vm_upper": 399, "elapsed_ms": 15.003489999799058, "row_count": 1, "first_row": [1500000]}
+{"sql": "SELECT issue,open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1 OFFSET 4999", "args": [], "vm_lower": 25000, "vm_upper": 25099, "elapsed_ms": 2.2065400044084527, "row_count": 1, "first_row": ["202610100014", 1791591243000]}
+{"sql": "SELECT 1 FROM \"v57_k3_action_space_1200\" WHERE \"v57_k3_action_space_1200\".\"target_issue\"<? LIMIT 1", "args": ["202610100014"], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 0.20143699657637626, "row_count": 0, "first_row": null}
+{"sql": "SELECT COUNT(*) FROM v57_k3_action_space_1200", "args": [], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 16.266138998616952, "row_count": 1, "first_row": [1500000]}
+{"sql": "SELECT 1 FROM \"range_specimen\" WHERE \"range_specimen\".\"issue\"<? LIMIT 1", "args": ["202610100014"], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 0.12193000293336809, "row_count": 0, "first_row": null}
+{"sql": "SELECT 1 FROM \"range_unindexed\" WHERE \"range_unindexed\".\"issue\"<? LIMIT 1", "args": ["202610100014"], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 0.08511600026395172, "row_count": 1, "first_row": [1]}
+{"sql": "SELECT COUNT(*) FROM range_unindexed WHERE length(issue)=12 AND issue<'202610100014'", "args": [], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 0.13965599646326154, "row_count": 1, "first_row": [1]}
+{"sql": "SELECT 1 FROM \"range_time\" WHERE \"range_time\".\"at\"<? LIMIT 1", "args": ["100"], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 0.07854599971324205, "row_count": 1, "first_row": [1]}
+{"sql": "SELECT COUNT(*) FROM range_time WHERE at>0 AND at<100", "args": [], "vm_lower": 0, "vm_upper": 99, "elapsed_ms": 0.060708996898029, "row_count": 1, "first_row": [1]}

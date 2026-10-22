@@ -1,0 +1,53 @@
+name: Starcore Tianshu B01 Generator Gate
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01
+    paths:
+      - '.github/workflows/starcore-tianshu-b01-generator-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generator-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Reconstruct generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b01/materializer.part-* > /tmp/materializer.b64
+          base64 --decode /tmp/materializer.b64 | gzip --decompress > tools/starcore_tianshu_b01_materialize.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/starcore_tianshu_b01_materialize.py')
+          t=p.read_text(encoding='utf-8')
+          t=t.replace('25563a5bb5b19aea8ac221b59853a9f97b08ebee1c686c9a21de6ac77c8c821a','40f532fc8eabc4bb71f9aa6e60eeb5aa5a947c16ccafcc5003e76ceed9867d94')
+          t=t.replace('6e800a72c0e6d2dd3ce950f2ba5ea1c659c8a3dece1b8086dee22c8bd538e9df','9683562182798b5bd53142bd802e8ce1dff2bc7faad5de6134047d3ce60e476c')
+          p.write_text(t,encoding='utf-8')
+          PY
+          python3 -m py_compile tools/starcore_tianshu_b01_materialize.py
+
+      - name: Inspect failing ApiClient template
+        shell: bash
+        run: |
+          set -euo pipefail
+          nl -ba tools/starcore_tianshu_b01_materialize.py | sed -n '1580,1665p' | tee reports/B01_GENERATOR_APICLIENT_TEMPLATE.txt
+
+      - name: Upload inspection log
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Generator-Inspection
+          path: reports/B01_GENERATOR_APICLIENT_TEMPLATE.txt
+          if-no-files-found: error

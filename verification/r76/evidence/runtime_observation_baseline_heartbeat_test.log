@@ -1,0 +1,11 @@
+ORIGIN|com.ethk3.novaonepro.ServiceHeartbeatStore|file:/workspace/scratch/e2544c9906f6/r76-observation-baseline-heartbeat/product/
+ORIGIN|com.ethk3.novaonepro.RealtimePressureGateR811|file:/workspace/scratch/e2544c9906f6/r76-observation-baseline-heartbeat/product/
+ORIGIN|com.ethk3.novaonepro.ReportExportServiceCP4|file:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes/
+PASS|CONTROL_DUAL_SYNC_COMMIT_USER_STOP
+PASS|CONTROL_DURABLE_USER_STOP
+OBSERVE|PENDING|us=40906|syncCommits=2
+Exception in thread "main" java.lang.AssertionError: TELEMETRY_NO_SYNC_COMMIT_PENDING
+	at com.ethk3.novaonepro.runtime_observation.check(runtime_observation.java:20)
+	at com.ethk3.novaonepro.runtime_observation.telemetry(runtime_observation.java:63)
+	at com.ethk3.novaonepro.runtime_observation.heartbeat(runtime_observation.java:76)
+	at com.ethk3.novaonepro.runtime_observation.main(runtime_observation.java:170)

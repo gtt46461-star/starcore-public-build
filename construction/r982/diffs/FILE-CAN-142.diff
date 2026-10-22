@@ -1,0 +1,16 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java b/app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java
+index 586ad71..c5289f8 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java
+@@ -252,4 +252,11 @@ public final class ResearchLifecycleR932 {
+         try(Cursor c=store.readable().rawQuery("SELECT COUNT(*),SUM(CASE WHEN outcome='PASSED' THEN 1 ELSE 0 END),SUM(CASE WHEN outcome='FAILED' THEN 1 ELSE 0 END) FROM "+CHILD,null)){if(c.moveToFirst()){int attempts=c.getInt(0),passed=c.isNull(1)?0:c.getInt(1),failed=c.isNull(2)?0:c.getInt(2);b.append("修复 attempted=").append(attempts).append("，matured=").append(passed+failed).append("，passed=").append(passed).append("，pending=").append(attempts-passed-failed).append('\n');}}
+         return b.append("新子代 Future N 从0开始；系统缺口暂停；修复通过只取独立未来配对端点，不取创建数量。\n").toString();
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store){
++        com.ethk3.novaonepro.ReportTextCP12 b=new com.ethk3.novaonepro.ReportTextCP12(report, "\n统一研究生命周期\n");
++        try(Cursor c=report.select("SELECT state,COUNT(*) FROM "+TABLE+" GROUP BY state",null)){while(c.moveToNext())b.append(c.getString(0)).append(' ').append(c.getInt(1)).append('\n');}
++        try(Cursor c=report.select("SELECT COUNT(*),SUM(CASE WHEN outcome='PASSED' THEN 1 ELSE 0 END),SUM(CASE WHEN outcome='FAILED' THEN 1 ELSE 0 END) FROM "+CHILD,null)){if(c.moveToFirst()){int attempts=c.getInt(0),passed=c.isNull(1)?0:c.getInt(1),failed=c.isNull(2)?0:c.getInt(2);b.append("修复 attempted=").append(attempts).append("，matured=").append(passed+failed).append("，passed=").append(passed).append("，pending=").append(attempts-passed-failed).append('\n');}}
++        return b.append("新子代 Future N 从0开始；系统缺口暂停；修复通过只取独立未来配对端点，不取创建数量。\n").toString();
++    }
+ }

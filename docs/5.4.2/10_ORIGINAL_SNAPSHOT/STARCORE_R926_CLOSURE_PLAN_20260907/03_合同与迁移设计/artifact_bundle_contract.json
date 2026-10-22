@@ -1,0 +1,56 @@
+{
+  "schema": "R926_MODEL_BUNDLE_V1_DESIGN",
+  "required_roles": [
+    "NumberQ",
+    "Gate9",
+    "Ranker",
+    "SelectedCalibration",
+    "Predictability",
+    "Policy"
+  ],
+  "required_fields": [
+    "bundle_hash",
+    "game",
+    "schema_hash",
+    "input_stage",
+    "source_commit",
+    "dataset_hash",
+    "split_hash",
+    "trial_id",
+    "trained_until_issue",
+    "selection_policy_hash",
+    "domain_contract_hash",
+    "parts",
+    "host_parity_hash",
+    "android_parity_hash",
+    "sealed_evidence_hash",
+    "future_certificate_hash",
+    "resource_evidence_hash",
+    "signer_id",
+    "signature"
+  ],
+  "part_required_fields": [
+    "role",
+    "artifact_hash",
+    "input_schema_hash",
+    "output_schema_hash",
+    "parent_artifact_hashes",
+    "byte_length",
+    "path",
+    "trained_until_issue"
+  ],
+  "activation_states": [
+    "STAGED",
+    "VERIFIED",
+    "ACTIVE",
+    "REVOKED",
+    "REJECTED"
+  ],
+  "invariants": [
+    "all_parts_verified_before_pointer_change",
+    "immutable_bundle_per_target_issue",
+    "schema_meaning_must_match_not_just_dimensions",
+    "no_manual_PROVEN_toggle",
+    "signature_does_not_prove_predictive_performance"
+  ]
+}

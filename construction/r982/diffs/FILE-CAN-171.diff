@@ -1,0 +1,275 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java
+index 8721d07..5442368 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java
+@@ -379,4 +379,270 @@ public final class RuntimeObservabilityR925 {
+     private static String pct(double n, double d) {
+         return d <= 0 ? "N/A" : String.format(Locale.US, "%.2f%%", 100 * n / d);
+     }
++
++public static String fetchesSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, int limit) {
++        return FetchLedgerR925.reportSnapshotCP4(report, s, limit)
++                + "\n开奖与脏数据冲突账本\n"
++                + querySnapshotCP4(report, 
++                        s,
++                        "SELECT issue,fetch_time,open_time,source_line,dirty,dirty_reason FROM draws ORDER BY fetch_time DESC LIMIT "
++                                + Math.min(500, Math.max(1, limit)),
++                        false);
++    }
++
++public static String querySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, String sql, boolean csv) {
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report);
++        Cursor c = report.select(sql, null);
++        try {
++            for (int i = 0; i < c.getColumnCount(); i++) {
++                if (i > 0) b.append(csv ? ',' : '|');
++                b.append(escapeSnapshotCP4(report, c.getColumnName(i), csv));
++            }
++            b.append('\n');
++            while (c.moveToNext()) {
++                for (int i = 0; i < c.getColumnCount(); i++) {
++                    if (i > 0) b.append(csv ? ',' : '|');
++                    b.append(escapeSnapshotCP4(report, c.isNull(i) ? "N/A" : c.getString(i), csv));
++                }
++                b.append('\n');
++            }
++        } finally {
++            c.close();
++        }
++        return b.toString();
++    }
++
++public static String escapeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String v, boolean csv) {
++        return csv
++                ? '"' + v.replace("\"", "\"\"") + '"'
++                : v.replace('\n', ' ').replace('|', '/');
++    }
++
++public static String shadowSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s) {
++        SQLiteDatabase db = s.readable();
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, "独立影子观察 · 严格赛前冻结\n");
++        for (int size : new int[] {0, 30, 60, 120}) {
++            String recent =
++                    size == 0
++                            ? ""
++                            : " AND o.target_issue IN (SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT "
++                                    + size
++                                    + ")";
++            Cursor c =
++                    report.select(
++                            "SELECT COUNT(*),COALESCE(SUM(CASE WHEN l.hit_label IN(0,1) THEN 1 ELSE 0 END),0),COALESCE(SUM(CASE WHEN l.hit_label=1 THEN 1 ELSE 0 END),0) FROM "
++                                    + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                                    + " o LEFT JOIN "
++                                    + DbHelper.TABLE_R35_OOS_LABEL
++                                    + " l ON l.target_issue=o.target_issue AND l.strict_oos=1 WHERE o.pre_draw_frozen=1"
++                                    + recent,
++                            null);
++            try {
++                c.moveToFirst();
++                int total = c.getInt(0), n = c.getInt(1), hit = c.getInt(2);
++                AlgorithmEvidencePolicyR912.Decision w =
++                        AlgorithmEvidencePolicyR912.evaluate(n, hit, 0, 0);
++                b.append(size == 0 ? "全部" : "最近" + size + "期开奖")
++                        .append("：总数 ")
++                        .append(total)
++                        .append("｜已结算 ")
++                        .append(n)
++                        .append("｜待结算 ")
++                        .append(total - n)
++                        .append("｜中/未中 ")
++                        .append(hit)
++                        .append('/')
++                        .append(n - hit)
++                        .append("｜命中 ")
++                        .append(pctSnapshotCP4(report, hit, n))
++                        .append("｜Wilson ")
++                        .append(
++                                n == 0
++                                        ? "N/A"
++                                        : pctSnapshotCP4(report, w.wilsonLower, 1)
++                                                + "～"
++                                                + pctSnapshotCP4(report, w.wilsonUpper, 1))
++                        .append('\n');
++            } finally {
++                c.close();
++            }
++        }
++        return b.toString();
++    }
++
++public static String pctSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double n, double d) {
++        return d <= 0 ? "N/A" : String.format(Locale.US, "%.2f%%", 100 * n / d);
++    }
++
++public static String pipelineSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, int limit, boolean csv) {
++        if (s == null) return "R926_EVENT_PROJECTION_STORE_NULL\n";
++        SQLiteDatabase db = s.readable();
++        int capped = Math.max(1, Math.min(500, limit));
++        return csv
++                ? RuntimeEventLedgerR926.exportCsvSnapshotCP4(report, db, capped)
++                : RuntimeEventLedgerR926.exportTextSnapshotCP4(report, db, capped);
++    }
++
++public static String performanceSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s) {
++        if (s == null) return "PERFORMANCE_STORE_NULL\n";
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, "PERFORMANCE_B05_COLD_VS_WARM\n");
++        b.append("budgets: requestToDurable=")
++                .append(Batch2ContractCoreR926.REQUEST_TO_DURABLE_BUDGET_MS)
++                .append("ms compute=")
++                .append(Batch2ContractCoreR926.COMPUTE_BUDGET_MS)
++                .append("ms commitSlice=")
++                .append(Batch2ContractCoreR926.DB_SLICE_TARGET_MS)
++                .append("ms coldTarget=")
++                .append(Batch2ContractCoreR926.COLD_START_TARGET_MS)
++                .append("ms\n");
++        for (String type : new String[] {"COLD_MONOTONIC", "WARM_MONOTONIC"}) {
++            ArrayList<Long> queue = new ArrayList<Long>();
++            ArrayList<Long> compute = new ArrayList<Long>();
++            ArrayList<Long> commit = new ArrayList<Long>();
++            ArrayList<Long> total = new ArrayList<Long>();
++            Cursor c =
++                    report.select(
++                                    "SELECT queue_ms,compute_ms,commit_ms,total_ms FROM v57_prediction_timing_r925 WHERE release_code=? AND sample_class=? ORDER BY durable_at DESC LIMIT 120",
++                                    new String[] {String.valueOf(BuildConfig.VERSION_CODE), type});
++            try {
++                while (c.moveToNext()) {
++                    queue.add(Long.valueOf(Math.max(0L, c.getLong(0))));
++                    compute.add(Long.valueOf(Math.max(0L, c.getLong(1))));
++                    commit.add(Long.valueOf(Math.max(0L, c.getLong(2))));
++                    total.add(Long.valueOf(Math.max(0L, c.getLong(3))));
++                }
++            } finally {
++                c.close();
++            }
++            b.append(type).append(" N=").append(total.size()).append('\n');
++            appendLatencySnapshotCP4(report, b, "queue", queue, Long.MAX_VALUE, false);
++            appendLatencySnapshotCP4(report, 
++                    b,
++                    "compute",
++                    compute,
++                    Batch2ContractCoreR926.COMPUTE_BUDGET_MS,
++                    true);
++            appendLatencySnapshotCP4(report, 
++                    b,
++                    "commit",
++                    commit,
++                    Batch2ContractCoreR926.DB_SLICE_TARGET_MS,
++                    true);
++            long totalBudget =
++                    "COLD_MONOTONIC".equals(type)
++                            ? Batch2ContractCoreR926.COLD_START_TARGET_MS
++                            : Batch2ContractCoreR926.REQUEST_TO_DURABLE_BUDGET_MS;
++            appendLatencySnapshotCP4(report, b, "requestToDurable", total, totalBudget, true);
++            if ("WARM_MONOTONIC".equals(type)) {
++                Batch2ContractCoreR926.LatencyStats stats =
++                        Batch2ContractCoreR926.latencyStats(
++                                total, Batch2ContractCoreR926.REQUEST_TO_DURABLE_BUDGET_MS);
++                b.append("B05_WARM_ACCEPTANCE=")
++                        .append(
++                                !"COMPLETE_120".equals(RuntimeAttemptObservabilityR926.acceptanceWindowSnapshotCP4(report, s)) || stats.n < 120
++                                        ? "INCOMPLETE_OR_FAILED_ATTEMPT_WINDOW"
++                                        : stats.p95
++                                                        <= Batch2ContractCoreR926
++                                                                .REQUEST_TO_DURABLE_BUDGET_MS
++                                                && Batch2ContractCoreR926.latencyStats(compute, Batch2ContractCoreR926.COMPUTE_BUDGET_MS).p95 <= Batch2ContractCoreR926.COMPUTE_BUDGET_MS
++                                                ? "PASS_P95_WITHIN_BUDGET"
++                                                : "FAIL_P95_OVER_BUDGET")
++                        .append('\n');
++            }
++        }
++        b.append(RuntimeAttemptObservabilityR926.reportSnapshotCP4(report, s));
++        b.append("RAW_LAST_120\n").append(performanceRawSnapshotCP4(report, s, 120));
++        b.append(RuntimeResourceAuditR927.reportSnapshotCP4(report, s));
++        return b.toString();
++    }
++
++public static String performanceRawSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, int limit) {
++        if (s == null) return "STORE_NULL\n";
++        int capped = Math.max(1, Math.min(120, limit));
++        return querySnapshotCP4(report, 
++                s,
++                "SELECT target_issue AS issue,process_id,release_code,request_at,runtime_at,durable_at,queue_ms,compute_ms,commit_ms,total_ms,sample_class FROM v57_prediction_timing_r925 WHERE release_code="
++                        + BuildConfig.VERSION_CODE
++                        + " ORDER BY durable_at DESC LIMIT "
++                        + capped,
++                false);
++    }
++
++public static void appendLatencySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            com.ethk3.novaonepro.ReportTextCP12 b, String name, ArrayList<Long> samples, long budget, boolean hasBudget) {
++        Batch2ContractCoreR926.LatencyStats x =
++                Batch2ContractCoreR926.latencyStats(samples, budget);
++        b.append(name)
++                .append(" P50=")
++                .append(x.n == 0 ? "N/A" : x.p50 + "ms")
++                .append(" P95=")
++                .append(x.n == 0 ? "N/A" : x.p95 + "ms")
++                .append(" P99=")
++                .append(x.n == 0 ? "N/A" : x.p99 + "ms")
++                .append(" max=")
++                .append(x.n == 0 ? "N/A" : x.max + "ms")
++                .append(" budget=")
++                .append(hasBudget ? budget + "ms" : "N/A")
++                .append(" overBudget=")
++                .append(hasBudget ? String.valueOf(x.overBudget) : "N/A")
++                .append('\n');
++    }
++
++public static String epochsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s) {
++        SQLiteDatabase db = s.readable();
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, "RELEASE_PROCESS_COVERAGE\n");
++        for (String id :
++                new String[] {
++                    "release-" + BuildConfig.VERSION_CODE,
++                    PROCESS_ID,
++                    "cadence-Binance-60000-release-" + BuildConfig.VERSION_CODE
++                }) {
++            Cursor c =
++                    report.select(
++                            "SELECT start_issue,started_at FROM v57_runtime_epoch_r925 WHERE epoch_id=?",
++                            new String[] {id});
++            try {
++                if (!c.moveToFirst()) {
++                    b.append(id).append(" N/A\n");
++                    continue;
++                }
++                String start = c.getString(0);
++                long at = c.getLong(1);
++                String filter = " WHERE dirty=0 AND issue>? AND open_time>=?";
++                String[] args = {start, String.valueOf(at)};
++                String total = scalarSnapshotCP4(report, db, "SELECT COUNT(*) FROM draws" + filter, args);
++                String pred =
++                        scalarSnapshotCP4(report, 
++                                db,
++                                "SELECT COUNT(*) FROM (SELECT issue FROM draws"
++                                        + filter
++                                        + ") d JOIN "
++                                        + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                                        + " o ON o.target_issue=d.issue AND o.pre_draw_frozen=1",
++                                args);
++                b.append(id)
++                        .append(" | 起始=")
++                        .append(start)
++                        .append(" | 预测/开奖=")
++                        .append(pred)
++                        .append('/')
++                        .append(total)
++                        .append(" | 覆盖=")
++                        .append(pctSnapshotCP4(report, Long.parseLong(pred), Long.parseLong(total)))
++                        .append('\n');
++            } finally {
++                c.close();
++            }
++        }
++        return b.append("仅统计纪元开始后实际开奖；旧缺口另列；不足120期为观察中。\n").toString();
++    }
++
++public static String scalarSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql, String[] args) {
++        Cursor c = report.select(sql, args);
++        try {
++            return c.moveToFirst() ? c.getString(0) : "0";
++        } finally {
++            c.close();
++        }
++    }
+ }

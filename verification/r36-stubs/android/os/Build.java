@@ -1,0 +1,1 @@
+package android.os; public class Build { public static class VERSION { public static int SDK_INT=35; } public static class VERSION_CODES { public static final int O=26,M=23,N=24,LOLLIPOP=21,TIRAMISU=33,S=31; } public static String MANUFACTURER="stub",MODEL="stub"; }

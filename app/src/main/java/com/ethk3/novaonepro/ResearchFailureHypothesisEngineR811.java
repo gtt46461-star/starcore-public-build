@@ -1,0 +1,462 @@
+package com.ethk3.novaonepro;
+
+import android.database.Cursor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/** Strict-OOS, issue-level nine-layer failure attribution and falsifiable hypothesis creator. */
+public final class ResearchFailureHypothesisEngineR811 {
+    public static final String[] LAYERS =
+            new String[] {
+                "NUMBER",
+                "RANK",
+                "THIRD",
+                "WINDOW",
+                "REGIME",
+                "MOTIF",
+                "RELATION",
+                "CONSENSUS",
+                "CALIBRATION"
+            };
+
+    private ResearchFailureHypothesisEngineR811() {}
+
+    public static Diagnosis diagnose(DbStore store) {
+        if (store == null) return Diagnosis.empty("STORE_NULL");
+        int[] failures = new int[LAYERS.length];
+        int[] counter = new int[LAYERS.length];
+        int sample = 0, misses = 0, hits = 0;
+        Cursor cursor = null;
+        try {
+            cursor =
+                    store.readable()
+                            .rawQuery(
+                                    "SELECT o.hit_label,o.selected_hit_p,o.position,o.actual_number,"
+                                            + "COALESCE(n.number_rank,11),COALESCE(a.meta_blob,'')"
+                                            + " FROM "
+                                            + DbHelper.TABLE_R35_OOS_LABEL
+                                            + " o LEFT JOIN "
+                                            + V51Repository.NUMBER
+                                            + " n ON n.target_issue=o.target_issue AND n.position=o.position"
+                                            + " AND n.number=o.actual_number LEFT JOIN "
+                                            + V51Repository.ACTION_SPACE
+                                            + " a ON a.target_issue=o.target_issue AND a.position=o.position"
+                                            + " AND a.n1=o.n1 AND a.n2=o.n2 AND a.n3=o.n3"
+                                            + " WHERE o.strict_oos=1 ORDER BY o.target_issue ASC",
+                                    null);
+            while (cursor.moveToNext()) {
+                int hit = cursor.getInt(0);
+                double selectedP = cursor.getDouble(1);
+                int actualRank = cursor.getInt(4);
+                double[] meta = parseMeta(cursor.getString(5));
+                sample++;
+                if (hit == 1) {
+                    hits++;
+                    for (int i = 0; i < counter.length; i++) counter[i]++;
+                    continue;
+                }
+                misses++;
+                int layer = classify(actualRank, selectedP, meta);
+                failures[layer]++;
+            }
+        } catch (Throwable error) {
+            return Diagnosis.empty("READ_ERROR:" + error.getClass().getSimpleName());
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        ArrayList<LayerEvidence> rows = new ArrayList<LayerEvidence>();
+        int primary = 0;
+        for (int i = 0; i < LAYERS.length; i++) {
+            if (failures[i] > failures[primary]) primary = i;
+            double share = misses == 0 ? 0.0d : failures[i] / (double) misses;
+            double confidence = wilsonLower(failures[i], Math.max(1, misses));
+            rows.add(
+                    new LayerEvidence(
+                            LAYERS[i], failures[i], share, confidence, sample, counter[i]));
+        }
+        String primaryLayer = misses == 0 ? "NO_FAILURE" : LAYERS[primary];
+        String hypothesis = mechanism(primaryLayer);
+        String positive =
+                "strictOosN="
+                        + sample
+                        + "|miss="
+                        + misses
+                        + "|hit="
+                        + hits
+                        + "|primary="
+                        + primaryLayer
+                        + "|primaryCount="
+                        + (misses == 0 ? 0 : failures[primary]);
+        String counterEvidence =
+                "Reject when future-live grouped OOS fails to improve hit/coverage/Wilson/ECE/Brier; "
+                        + "all existing hits and non-primary misses are counter-evidence.";
+        String checksum =
+                V51ChecksumEngine.sha256(
+                        canonical(rows)
+                                + '|'
+                                + primaryLayer
+                                + '|'
+                                + hypothesis
+                                + '|'
+                                + positive
+                                + '|'
+                                + counterEvidence);
+        return new Diagnosis(
+                sample,
+                hits,
+                misses,
+                primaryLayer,
+                hypothesis,
+                positive,
+                counterEvidence,
+                Collections.unmodifiableList(rows),
+                checksum,
+                "OK");
+    }
+
+    private static int classify(int actualRank, double selectedP, double[] meta) {
+        double thirdMargin = value(meta, 1);
+        double entropy = value(meta, 2);
+        double stability = value(meta, 3);
+        double consensus = value(meta, 20);
+        if (actualRank == 4 || thirdMargin <= 0.0d) return index("THIRD");
+        if (actualRank > 4) return index("NUMBER");
+        if (selectedP >= 0.55d) return index("CALIBRATION");
+        if (stability < 0.35d) return index("REGIME");
+        if (consensus < 0.35d) return index("CONSENSUS");
+        if (entropy > 0.85d) return index("WINDOW");
+        return index("RANK");
+    }
+
+    private static String mechanism(String layer) {
+        if ("NUMBER".equals(layer))
+            return "Combine decay, window-consensus and cross-position assignment support before K3 ranking";
+        if ("THIRD".equals(layer))
+            return "Increase third-boundary robustness using selected-vs-best-excluded margin";
+        if ("CALIBRATION".equals(layer))
+            return "Fit time-ordered Platt/temperature calibration after selection only";
+        if ("REGIME".equals(layer))
+            return "Condition Research score on regime stability and change-point risk";
+        if ("CONSENSUS".equals(layer))
+            return "Reweight all nine experts with regret and diversity without dropping an expert";
+        if ("WINDOW".equals(layer))
+            return "Evolve short-long rolling-window consensus under PIT-only inputs";
+        if ("MOTIF".equals(layer))
+            return "Challenge motif distance and recurrence support with time-ordered ablation";
+        if ("RELATION".equals(layer))
+            return "Add permutation migration and cross-position exclusivity interactions";
+        if ("RANK".equals(layer))
+            return "Evolve pairwise/listwise action score using margin, stability and entropy";
+        return "Continue strict future-live collection; no failure mechanism is yet identified";
+    }
+
+    private static double[] parseMeta(String blob) {
+        if (blob == null || blob.length() == 0) return new double[0];
+        String[] fields = blob.split(",", -1);
+        double[] output = new double[Math.min(96, fields.length)];
+        for (int i = 0; i < output.length; i++) {
+            try {
+                output[i] = Double.parseDouble(fields[i]);
+            } catch (Throwable ignored) {
+                output[i] = 0.0d;
+            }
+        }
+        return output;
+    }
+
+    private static double value(double[] values, int index) {
+        return values != null && index >= 0 && index < values.length ? values[index] : 0.0d;
+    }
+
+    private static int index(String layer) {
+        for (int i = 0; i < LAYERS.length; i++) if (LAYERS[i].equals(layer)) return i;
+        return 0;
+    }
+
+    private static double wilsonLower(int hit, int n) {
+        if (n <= 0) return 0.0d;
+        double z = 1.959963984540054d, p = hit / (double) n, z2 = z * z;
+        return Math.max(
+                0.0d,
+                (p
+                                + z2 / (2.0d * n)
+                                - z
+                                        * Math.sqrt(
+                                                (p * (1.0d - p) + z2 / (4.0d * n)) / n))
+                        / (1.0d + z2 / n));
+    }
+
+    private static String canonical(List<LayerEvidence> rows) {
+        StringBuilder output = new StringBuilder("R811_FAILURE_VECTOR_V1");
+        for (int i = 0; i < rows.size(); i++) output.append('|').append(rows.get(i).canonical());
+        return output.toString();
+    }
+
+    public static final class LayerEvidence {
+        public final String layer;
+        public final int failureCount, sampleN, counterEvidenceCount;
+        public final double failureShare, confidenceLower95;
+
+        LayerEvidence(String layer, int count, double share, double confidence, int n, int counter) {
+            this.layer = layer;
+            failureCount = count;
+            failureShare = share;
+            confidenceLower95 = confidence;
+            sampleN = n;
+            counterEvidenceCount = counter;
+        }
+
+        public String canonical() {
+            return layer
+                    + ':'
+                    + failureCount
+                    + ':'
+                    + failureShare
+                    + ':'
+                    + confidenceLower95
+                    + ':'
+                    + sampleN
+                    + ':'
+                    + counterEvidenceCount;
+        }
+    }
+
+    public static final class Diagnosis {
+        public final int sampleN, hits, misses;
+        public final String primaryLayer,
+                hypothesis,
+                positiveEvidence,
+                counterEvidence,
+                checksum,
+                status;
+        public final List<LayerEvidence> layers;
+
+        Diagnosis(
+                int n,
+                int hits,
+                int misses,
+                String primary,
+                String hypothesis,
+                String positive,
+                String counter,
+                List<LayerEvidence> layers,
+                String checksum,
+                String status) {
+            sampleN = n;
+            this.hits = hits;
+            this.misses = misses;
+            primaryLayer = primary;
+            this.hypothesis = hypothesis;
+            positiveEvidence = positive;
+            counterEvidence = counter;
+            this.layers = layers;
+            this.checksum = checksum;
+            this.status = status;
+        }
+
+        static Diagnosis empty(String status) {
+            ArrayList<LayerEvidence> rows = new ArrayList<LayerEvidence>();
+            for (int i = 0; i < LAYERS.length; i++)
+                rows.add(new LayerEvidence(LAYERS[i], 0, 0.0d, 0.0d, 0, 0));
+            String hypothesis = mechanism("NO_FAILURE");
+            return new Diagnosis(
+                    0,
+                    0,
+                    0,
+                    "NO_FAILURE",
+                    hypothesis,
+                    "strictOosN=0",
+                    "Future-live OOS required",
+                    Collections.unmodifiableList(rows),
+                    V51ChecksumEngine.sha256(status + '|' + hypothesis),
+                    status);
+        }
+
+        public String canonical() {
+            return sampleN
+                    + "|"
+                    + hits
+                    + "|"
+                    + misses
+                    + "|"
+                    + primaryLayer
+                    + "|"
+                    + hypothesis
+                    + "|"
+                    + positiveEvidence
+                    + "|"
+                    + counterEvidence
+                    + "|"
+                    + checksum
+                    + "|"
+                    + status;
+        }
+    }
+
+public static Diagnosis diagnoseSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+        if (store == null) return Diagnosis.empty("STORE_NULL");
+        int[] failures = new int[LAYERS.length];
+        int[] counter = new int[LAYERS.length];
+        int sample = 0, misses = 0, hits = 0;
+        Cursor cursor = null;
+        try {
+            cursor =
+                    report.select(
+                                    "SELECT o.hit_label,o.selected_hit_p,o.position,o.actual_number,"
+                                            + "COALESCE(n.number_rank,11),COALESCE(a.meta_blob,'')"
+                                            + " FROM "
+                                            + DbHelper.TABLE_R35_OOS_LABEL
+                                            + " o LEFT JOIN "
+                                            + V51Repository.NUMBER
+                                            + " n ON n.target_issue=o.target_issue AND n.position=o.position"
+                                            + " AND n.number=o.actual_number LEFT JOIN "
+                                            + V51Repository.ACTION_SPACE
+                                            + " a ON a.target_issue=o.target_issue AND a.position=o.position"
+                                            + " AND a.n1=o.n1 AND a.n2=o.n2 AND a.n3=o.n3"
+                                            + " WHERE o.strict_oos=1 ORDER BY o.target_issue ASC",
+                                    null);
+            while (cursor.moveToNext()) {
+                int hit = cursor.getInt(0);
+                double selectedP = cursor.getDouble(1);
+                int actualRank = cursor.getInt(4);
+                double[] meta = parseMetaSnapshotCP4(report, cursor.getString(5));
+                sample++;
+                if (hit == 1) {
+                    hits++;
+                    for (int i = 0; i < counter.length; i++) counter[i]++;
+                    continue;
+                }
+                misses++;
+                int layer = classifySnapshotCP4(report, actualRank, selectedP, meta);
+                failures[layer]++;
+            }
+        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
+            if (cursor != null) cursor.close();
+        }
+        ArrayList<LayerEvidence> rows = new ArrayList<LayerEvidence>();
+        int primary = 0;
+        for (int i = 0; i < LAYERS.length; i++) {
+            if (failures[i] > failures[primary]) primary = i;
+            double share = misses == 0 ? 0.0d : failures[i] / (double) misses;
+            double confidence = wilsonLowerSnapshotCP4(report, failures[i], Math.max(1, misses));
+            rows.add(
+                    new LayerEvidence(
+                            LAYERS[i], failures[i], share, confidence, sample, counter[i]));
+        }
+        String primaryLayer = misses == 0 ? "NO_FAILURE" : LAYERS[primary];
+        String hypothesis = mechanismSnapshotCP4(report, primaryLayer);
+        String positive =
+                "strictOosN="
+                        + sample
+                        + "|miss="
+                        + misses
+                        + "|hit="
+                        + hits
+                        + "|primary="
+                        + primaryLayer
+                        + "|primaryCount="
+                        + (misses == 0 ? 0 : failures[primary]);
+        String counterEvidence =
+                "Reject when future-live grouped OOS fails to improve hit/coverage/Wilson/ECE/Brier; "
+                        + "all existing hits and non-primary misses are counter-evidence.";
+        String checksum =
+                com.ethk3.novaonepro.ReportTextCP12.sha256(report, 
+                        canonicalSnapshotCP4(report, rows)
+                                + '|'
+                                + primaryLayer
+                                + '|'
+                                + hypothesis
+                                + '|'
+                                + positive
+                                + '|'
+                                + counterEvidence);
+        return new Diagnosis(
+                sample,
+                hits,
+                misses,
+                primaryLayer,
+                hypothesis,
+                positive,
+                counterEvidence,
+                Collections.unmodifiableList(rows),
+                checksum,
+                "OK");
+    }
+
+public static String canonicalSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, List<LayerEvidence> rows) {
+        com.ethk3.novaonepro.ReportTextCP12 output = new com.ethk3.novaonepro.ReportTextCP12(report, "R811_FAILURE_VECTOR_V1");
+        for (int i = 0; i < rows.size(); i++) output.append('|').append(rows.get(i).canonical());
+        return output.toString();
+    }
+
+public static String mechanismSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String layer) {
+        if ("NUMBER".equals(layer))
+            return "Combine decay, window-consensus and cross-position assignment support before K3 ranking";
+        if ("THIRD".equals(layer))
+            return "Increase third-boundary robustness using selected-vs-best-excluded margin";
+        if ("CALIBRATION".equals(layer))
+            return "Fit time-ordered Platt/temperature calibration after selection only";
+        if ("REGIME".equals(layer))
+            return "Condition Research score on regime stability and change-point risk";
+        if ("CONSENSUS".equals(layer))
+            return "Reweight all nine experts with regret and diversity without dropping an expert";
+        if ("WINDOW".equals(layer))
+            return "Evolve short-long rolling-window consensus under PIT-only inputs";
+        if ("MOTIF".equals(layer))
+            return "Challenge motif distance and recurrence support with time-ordered ablation";
+        if ("RELATION".equals(layer))
+            return "Add permutation migration and cross-position exclusivity interactions";
+        if ("RANK".equals(layer))
+            return "Evolve pairwise/listwise action score using margin, stability and entropy";
+        return "Continue strict future-live collection; no failure mechanism is yet identified";
+    }
+
+public static double wilsonLowerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int hit, int n) {
+        if (n <= 0) return 0.0d;
+        double z = 1.959963984540054d, p = hit / (double) n, z2 = z * z;
+        return Math.max(
+                0.0d,
+                (p
+                                + z2 / (2.0d * n)
+                                - z
+                                        * Math.sqrt(
+                                                (p * (1.0d - p) + z2 / (4.0d * n)) / n))
+                        / (1.0d + z2 / n));
+    }
+
+public static int classifySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int actualRank, double selectedP, double[] meta) {
+        double thirdMargin = valueSnapshotCP4(report, meta, 1);
+        double entropy = valueSnapshotCP4(report, meta, 2);
+        double stability = valueSnapshotCP4(report, meta, 3);
+        double consensus = valueSnapshotCP4(report, meta, 20);
+        if (actualRank == 4 || thirdMargin <= 0.0d) return indexSnapshotCP4(report, "THIRD");
+        if (actualRank > 4) return indexSnapshotCP4(report, "NUMBER");
+        if (selectedP >= 0.55d) return indexSnapshotCP4(report, "CALIBRATION");
+        if (stability < 0.35d) return indexSnapshotCP4(report, "REGIME");
+        if (consensus < 0.35d) return indexSnapshotCP4(report, "CONSENSUS");
+        if (entropy > 0.85d) return indexSnapshotCP4(report, "WINDOW");
+        return indexSnapshotCP4(report, "RANK");
+    }
+
+public static int indexSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String layer) {
+        for (int i = 0; i < LAYERS.length; i++) if (LAYERS[i].equals(layer)) return i;
+        return 0;
+    }
+
+public static double valueSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double[] values, int index) {
+        return values != null && index >= 0 && index < values.length ? values[index] : 0.0d;
+    }
+
+public static double[] parseMetaSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String blob) {
+        if (blob == null || blob.length() == 0) return new double[0];
+        String[] fields = blob.split(",", -1);
+        double[] output = new double[Math.min(96, fields.length)];
+        for (int i = 0; i < output.length; i++) {
+            try {
+                output[i] = Double.parseDouble(fields[i]);
+            } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);}
+        }
+        return output;
+    }
+}

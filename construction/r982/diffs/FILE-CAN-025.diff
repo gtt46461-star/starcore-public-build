@@ -1,0 +1,29 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/BudgetedQueryR927.java b/app/src/main/java/com/ethk3/novaonepro/BudgetedQueryR927.java
+index 814e2ca..902c60b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/BudgetedQueryR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/BudgetedQueryR927.java
+@@ -52,4 +52,24 @@ public final class BudgetedQueryR927 {
+         ResearchWorkBudgetR927.Yield yielded=new ResearchWorkBudgetR927.Yield("SQL_DEADLINE_EXHAUSTED");
+         yielded.initCause(error);return yielded;
+     }
++
++public static Cursor querySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,String sql,String[] args){return querySnapshotCP4(report, db,sql,args,1000L);}
++
++public static Cursor querySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,String sql,String[] args,long limitMs){
++        // The diagnostics owner owns its cancellation/deadline. Main-process model/research budgets are not consulted.
++        if(db!=report.snapshotReadOnly())throw new IllegalArgumentException("REPORT_QUERY_SNAPSHOT_IDENTITY");
++        return report.select(sql,args);
++    }
++
++public static RuntimeException cancellationSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, CancellationSignal signal,OperationCanceledException error,boolean researchQuery){
++        // Only our own deadline cancellation is a cooperative yield. External cancellation
++        // keeps its original failure identity; neither path marks a training job completed.
++        if(!researchQuery||!signal.isCanceled())return error;
++        ResearchWorkBudgetR927.Yield yielded=new ResearchWorkBudgetR927.Yield("SQL_DEADLINE_EXHAUSTED");
++        yielded.initCause(error);return yielded;
++    }
++
++static long queryBudgetMsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, long requested,long realtime,long research){
++        return Math.max(1L,Math.min(Math.max(1L,requested),Math.min(realtime,research)));
++    }
+ }

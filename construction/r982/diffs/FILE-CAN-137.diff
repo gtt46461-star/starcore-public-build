@@ -1,0 +1,11 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java b/app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java
+index 5525b93..8b25f1a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java
+@@ -35,4 +35,6 @@ public final class ResearchFamilyRegistryR925 {
+         return Math.min(1,AlgorithmEvidencePolicyR912.fdrQ(hit,n,1)*families.size()*members.intValue());
+     }
+     public static String report(DbStore store){return "HIERARCHICAL_FWER_BOUND_R925\n旧候选不能事后按表现挑族，全部进入旧注册族；新结构在注册时冻结家族。归档不删假设。\n"+RuntimeObservabilityR925.query(store,"SELECT family_id,registration_origin,COUNT(*) hypothesis_count FROM v57_hypothesis_r925 GROUP BY family_id,registration_origin",false);}
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store){return "HIERARCHICAL_FWER_BOUND_R925\n旧候选不能事后按表现挑族，全部进入旧注册族；新结构在注册时冻结家族。归档不删假设。\n"+RuntimeObservabilityR925.querySnapshotCP4(report, store,"SELECT family_id,registration_origin,COUNT(*) hypothesis_count FROM v57_hypothesis_r925 GROUP BY family_id,registration_origin",false);}
+ }

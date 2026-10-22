@@ -1,0 +1,48 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java b/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
+index 622b42c..2b97f13 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
++++ b/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
+@@ -30,13 +30,25 @@ public final class BootReceiver extends BroadcastReceiver {
+ 
+     @Override
+     public void onReceive(Context context, Intent intent) {
+-        if (context == null) return;
++        if (context == null || intent == null) return;
++        String action = intent.getAction();
++        if (!allowedRuntimeTriggerCP12(action)) return;
+         final Context app=appContext(context);
+         final Intent copy=intent==null?null:new Intent(intent);
+         final PendingResult pending=goAsync();
+         RecoveryDispatchR965.submit(()->receiveOffMain(app,copy),()->{if(pending!=null)pending.finish();});
+     }
+ 
++    private static boolean allowedRuntimeTriggerCP12(String action) {
++        return Intent.ACTION_BOOT_COMPLETED.equals(action)
++                || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
++                    && (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action)
++                        || Intent.ACTION_USER_UNLOCKED.equals(action)))
++                || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)
++                || "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED".equals(action)
++                || AppConfig.ACTION_SERVICE_WATCHDOG.equals(action);
++    }
++
+     private static void receiveOffMain(Context context, Intent intent) {
+         Context app = appContext(context);
+         ServiceHeartbeatStore state = new ServiceHeartbeatStore(app);
+@@ -58,11 +70,13 @@ public final class BootReceiver extends BroadcastReceiver {
+             return;
+         }
+ 
+-        boolean lockedBoot = Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action);
++        boolean lockedBoot = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
++                && Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action);
+         boolean bootLike =
+                 Intent.ACTION_BOOT_COMPLETED.equals(action)
+-                        || Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action)
+-                        || Intent.ACTION_USER_UNLOCKED.equals(action)
++                        || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
++                            && (Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(action)
++                                || Intent.ACTION_USER_UNLOCKED.equals(action)))
+                         || Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)
+                         || "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"
+                                 .equals(action);

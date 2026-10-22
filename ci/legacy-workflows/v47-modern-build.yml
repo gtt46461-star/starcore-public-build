@@ -1,0 +1,122 @@
+name: V47 Modern JDK17 Final Selfcheck And APK
+
+on:
+  pull_request:
+    branches:
+      - agent/v46-full-51-item-rebuild
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v47-modern-final-build
+  cancel-in-progress: true
+
+jobs:
+  final-selfcheck-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact V47 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/v47-modern-crossfit-final40
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run static contract, ten harnesses and Java parse
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check javalang==0.13.0
+          python tools/v47_static_selfcheck.py | tee reports/V47_FINAL_STATIC_SELFCHECK.log
+          python tools/run_v47_harnesses.py | tee reports/V47_FINAL_HARNESSES.log
+          python - <<'PY' | tee reports/V47_FINAL_JAVA_PARSE.log
+          from pathlib import Path
+          import javalang
+          files=list(Path('app/src/main/java/com/ethk3/novaonepro').glob('*.java'))
+          errors=[]
+          for p in files:
+              try:
+                  javalang.parse.parse(p.read_text('utf-8'))
+              except Exception as exc:
+                  errors.append((str(p),str(exc)))
+          print('java_files=%d parse_errors=%d' % (len(files),len(errors)))
+          for item in errors: print(item)
+          raise SystemExit(1 if errors else 0)
+          PY
+          test "$(find tools/v47_harnesses -type f -name '*Harness.py' | wc -l | tr -d ' ')" -eq 10
+          test "$(find app/src/main/java/com/ethk3/novaonepro -type f -name '*.java' | wc -l | tr -d ' ')" -eq 144
+          grep -q "versionName 'V47.0.47072147'" app/build.gradle
+          grep -q 'V47_FULL_SCAN_CANDIDATE_COUNT = 1200' app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+          grep -q 'V47_PROBABILITY_CANDIDATE_COUNT = 60' app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+          grep -q 'V47_FORMAL_CANDIDATE_COUNT = 40' app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+          grep -q 'V47_UI_DISPLAY_CANDIDATE_COUNT = 12' app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+          ! grep -q 'DYNAMIC_CAUSAL_REALTIME_CANDIDATE_CAP = 18' app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android API 36
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Compile final V47 APK
+        id: build
+        shell: bash
+        run: |
+          set +e
+          mkdir -p reports dist
+          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee reports/V47_FINAL_GRADLE_BUILD.log
+          status=${PIPESTATUS[0]}
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [[ "$status" -eq 0 && -f app/build/outputs/apk/debug/app-debug.apk ]]; then
+            cp app/build/outputs/apk/debug/app-debug.apk dist/ETH-K3-Nova-One-Pro-V47.0.47072147-debug.apk
+          fi
+          exit 0
+
+      - name: Package final clean source and evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports dist
+          git rev-parse HEAD > reports/V47_FINAL_COMMIT_SHA.txt
+          git archive --format=zip --output=dist/ETH-K3-Nova-One-Pro-V47.0.47072147-full-source.zip HEAD
+          grep -E -n 'error:|cannot find symbol|FAILURE:|What went wrong|Execution failed|Compilation failed' reports/V47_FINAL_GRADLE_BUILD.log > reports/V47_FINAL_GRADLE_ERRORS.txt || true
+          tail -n 500 reports/V47_FINAL_GRADLE_BUILD.log > reports/V47_FINAL_GRADLE_TAIL.log || true
+          sha256sum dist/* > reports/V47_FINAL_CHECKSUMS.txt || true
+
+      - name: Upload final V47 delivery
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ETH-K3-Nova-One-Pro-V47.0.47072147-final-delivery
+          path: |
+            dist/ETH-K3-Nova-One-Pro-V47.0.47072147-debug.apk
+            dist/ETH-K3-Nova-One-Pro-V47.0.47072147-full-source.zip
+            reports/V47_*
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce final Android compile success
+        if: always()
+        run: test "${{ steps.build.outputs.status }}" = '0'

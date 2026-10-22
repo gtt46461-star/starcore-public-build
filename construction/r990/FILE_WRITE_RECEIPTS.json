@@ -1,0 +1,46 @@
+[
+  {
+    "card_id": "FILE-CAN-240",
+    "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java",
+    "method": "commitCP4",
+    "action": "MODIFY_REAL_PRODUCT_OWNER",
+    "caller": "commitProjectionCP12 -> drainOneCP4 -> ResearchDirectorR952 MATRIX slot; existing FixedWindowCertificatePublisherR932 uses real matrix policy views",
+    "consumer": "MatrixPolicyViewsCP12.readAtCP12/fenceCP12 and MatrixBindingsCP12.capture -> frozen graph/model and Certificate/Research evidence",
+    "database_change": "No DDL; current checkpoint UPDATE compares immutable header/codec/sampleCount with expected prepared identity; wrong schema is rejected before checkpoint or ACK",
+    "before_original_sha256": "b8215977b3410effd3743f8351f62562719d0e81db9c83cb3d6f34c6a0cd4274",
+    "before_current_sha256": "de3f52bee7bc9f85a41c8e9e02991aedee8945f16fce7712a512bac7a94f3fc3",
+    "canonical_after_sha256": "de3f52bee7bc9f85a41c8e9e02991aedee8945f16fce7712a512bac7a94f3fc3",
+    "written_after_sha256": "52fa85a014df44be0d3ed19bd1acdbc69288ada502aa97322845e1515adacac8",
+    "reread_after_sha256": "52fa85a014df44be0d3ed19bd1acdbc69288ada502aa97322845e1515adacac8",
+    "diff": "construction/r990/PRODUCT_MATRIX_HEADER_FENCE.diff",
+    "baseline_local": "afb5bf5e6206a15f13eac8e657e7d16add636e9f",
+    "baseline_remote": "56bd29607f636fb96806ce729dcbd6e3d300d530",
+    "branch": "construction/r981-cp12-20261003",
+    "schema": "Unchanged 405 tables /485 indexes /1260 triggers /2 views; actual fresh source integrity ok /FK0",
+    "original_current_failures": [
+      "WRONG_SCHEMA_ACCEPTED_AND_ACKNOWLEDGED",
+      "CONCURRENT_HEADER_DRIFT_ACCEPTED:schema_hash"
+    ],
+    "current_test": "verification/r990/run_recovered_matrix.py; evidence/r990-postprune-matrix/receipt.json",
+    "current_assertions": 105,
+    "current_status": "ACTUAL_POSTPRUNE_OWNER_POLICY_CONSUMER_NUMERIC_PERSISTENCE_105_PASS",
+    "remaining": "Formal TEST-021/TEST-043 entire scenarios and all applicable plan items still IN_PROGRESS; device/customer DB/natural Future unverified",
+    "requirement_ids": [
+      "BPR-0287",
+      "BPR-0289",
+      "BPR-0290"
+    ],
+    "detection_ids": [],
+    "detection_scope": "No detection row claimed fully closed solely by this guard",
+    "test_ids": [
+      "TEST-021",
+      "TEST-043"
+    ],
+    "scenario_scope": "This guard covers header/schema/cross-preparation CAS, exact publication ACK idempotence and actual policy/numeric consumption, not every arrange/assertion in formal tests",
+    "pre_prune_actual_test_metadata": {
+      "driver": "verification/r990/run_matrix_checks.py",
+      "assertions": 62,
+      "original_driver_bytes": "UNAVAILABLE_AFTER_AUTOMATIC_PRUNE"
+    }
+  }
+]

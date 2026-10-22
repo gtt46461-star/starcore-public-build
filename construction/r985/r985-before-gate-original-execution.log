@@ -1,0 +1,9 @@
+PASS no-certificate actual runtime lease
+PASS no-certificate actual durable claim
+ACTUAL_REVOCATION_AFTER_PREPARE_BEFORE_GATE
+Exception in thread "main" java.lang.IllegalStateException: R36_CANONICAL_COMMIT_FAILED:TX_FAILED:java.lang.IllegalStateException:B11_EXACT_CERTIFICATE_INVALID:CERTIFICATE_INVALID_OR_CHANGED
+	at com.ethk3.novaonepro.V51Repository.commitCanonicalBundleVerifiedR368(V51Repository.java:535)
+	at com.ethk3.novaonepro.V51Repository.commitCanonicalBundleR36(V51Repository.java:372)
+	at com.ethk3.novaonepro.V51RuntimeOrchestrator.runR36(V51RuntimeOrchestrator.java:381)
+	at com.ethk3.novaonepro.RuntimeConsumerChainR984.runFollowingPeriod(RuntimeConsumerChainR984.java:107)
+	at com.ethk3.novaonepro.RuntimeRevocationBeforeGateR985.main(RuntimeRevocationBeforeGateR985.java:11)

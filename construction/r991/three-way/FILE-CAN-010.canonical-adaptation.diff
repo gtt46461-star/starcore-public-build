@@ -1,0 +1,12 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/cpp/report_native_cp4.c
++++ actual-current/app/src/main/cpp/report_native_cp4.c
+@@ -209,7 +209,8 @@
+   int control=!strcmp(name,"publication.lock")||!strcmp(name,"admission.lock"),partial=cp12_partial_name(name);
+   if(!control&&!partial&&!cp12_cas_name(name)){rc=CP4_VERIFY;break;}
+   if((control&&st.st_size!=0)||(!control&&(st.st_size>8LL*1024*1024||(!partial&&st.st_size==0)))){rc=CP4_VERIFY;break;}
+-  if(partial&&clean&&st.st_mtime>=0&&st.st_mtime<=INT64_MAX/1000&&wall>=((int64_t)st.st_mtime)*1000&&wall-((int64_t)st.st_mtime)*1000>=86400000){if(unlinkat(root,name,0)){rc=CP4_IO;break;}changed=1;continue;}
++  int64_t modified_seconds=(int64_t)st.st_mtime;
++  if(partial&&clean&&modified_seconds>=0&&modified_seconds<=INT64_MAX/1000&&wall>=modified_seconds*1000&&wall-modified_seconds*1000>=86400000){if(unlinkat(root,name,0)){rc=CP4_IO;break;}changed=1;continue;}
+   if((int64_t)st.st_size>INT64_MAX-total){rc=CP4_VERIFY;break;}total+=(int64_t)st.st_size;
+  }
+  if(changed&&fsync(root))rc=CP4_IO;closedir(dir);close(root);if(rc)return rc;*bytes=total;return 0;

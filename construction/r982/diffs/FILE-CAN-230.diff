@@ -1,0 +1,137 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/FullbloodDiagnosticsProviderR952.java b/app/src/main/java/com/ethk3/novaonepro/r952/FullbloodDiagnosticsProviderR952.java
+index 482b4b8..169e1fb 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/FullbloodDiagnosticsProviderR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/FullbloodDiagnosticsProviderR952.java
+@@ -137,4 +137,132 @@ public final class FullbloodDiagnosticsProviderR952 {
+         catch(RuntimeException failure){b.append('|').append(key).append("=UNKNOWN:").append(failure.getClass().getSimpleName());}
+         finally {if(c!=null)c.close();}
+     }
++
++public static String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if(store==null)return "R959_DIAGNOSTICS|STORE_NULL";
++        com.ethk3.novaonepro.ReportTextCP12 b=new com.ethk3.novaonepro.ReportTextCP12(report, "R967_DIAGNOSTICS_V6\n").append(com.ethk3.novaonepro.ResearchFunnelR967.captureSnapshotCP4(report, store).render()).append("\nLEGACY_DETAIL_READS_HAVE_SEPARATE_WATERMARKS\n");
++        appendSnapshotCP4(report, b,store,"candidates","SELECT COUNT(*) FROM r952_candidate");
++        appendSnapshotCP4(report, b,store,"predraw_frozen","SELECT COUNT(*) FROM r952_candidate_predraw");
++        appendSnapshotCP4(report, b,store,"strict_future","SELECT COUNT(*) FROM r952_candidate_predraw WHERE settled=1");
++        appendSnapshotCP4(report, b,store,"proof_rejected","SELECT COUNT(*) FROM r952_candidate_predraw WHERE proof_error<>''");
++        appendSnapshotCP4(report, b,store,"training_completed","SELECT COUNT(*) FROM r952_research_outbox o JOIN r952_artifact a ON a.delivery_hash=o.delivery_hash WHERE o.state='COMPLETED' AND a.model_payload<>'' AND a.numeric_updates>0");
++        appendSnapshotCP4(report, b,store,"legacy_hash_only_receipts","SELECT COUNT(*) FROM r952_artifact WHERE model_payload=''");
++        appendSnapshotCP4(report, b,store,"training_pending","SELECT COUNT(*) FROM r952_research_outbox WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED')");
++        appendSnapshotCP4(report, b,store,"training_retryable_operational","SELECT COUNT(*) FROM r952_research_outbox WHERE state='RETRYABLE_FAILED'");
++        appendSnapshotCP4(report, b,store,"training_dependency_retired","SELECT COUNT(*) FROM r952_research_outbox WHERE state='DEPENDENCY_RETIRED'");
++        appendSnapshotCP4(report, b,store,"training_terminal_legacy","SELECT COUNT(*) FROM r952_research_outbox WHERE state='TERMINAL_FAILED'");
++        appendSnapshotCP4(report, b,store,"frozen_evaluation_candidates","SELECT COUNT(*) FROM r967_frozen_candidate_all");
++        appendSnapshotCP4(report, b,store,"frozen_evaluation_future","SELECT COUNT(*) FROM r958_frozen_predraw WHERE settled=1");
++        appendSnapshotCP4(report, b,store,"frozen_evaluation_predictions","SELECT COUNT(*) FROM r958_frozen_predraw");
++        appendSnapshotCP4(report, b,store,"world_atoms","SELECT COUNT(*) FROM r952_world_atom");
++        appendSnapshotCP4(report, b,store,"world_compiled_molecules","SELECT COUNT(*) FROM r952_world_molecule WHERE compiled_hash<>'' AND resolved_semantic_hash<>'' AND canonical_version='WORLD_DAG_V2'");
++        appendSnapshotCP4(report, b,store,"world_legacy_descriptors","SELECT COUNT(*) FROM r952_world_molecule WHERE compiled_hash='' OR canonical_version<>'WORLD_DAG_V2'");
++        appendSnapshotCP4(report, b,store,"matrix_predraw_frozen","SELECT COUNT(*) FROM r952_matrix_snapshot WHERE state='PREDRAW_FROZEN'");
++        appendSnapshotCP4(report, b,store,"matrix_legacy_mutated","SELECT COUNT(*) FROM r952_matrix_snapshot WHERE state<>'PREDRAW_FROZEN'");
++        appendSnapshotCP4(report, b,store,"matrix_separate_feedback","SELECT COUNT(*) FROM r952_matrix_feedback WHERE effective_from_issue>target_issue");
++        b.append("|matrixScope=R952_RESEARCH_SNAPSHOT_LEDGER|fullMatrixConsumerIntegration=NOT_VERIFIED");
++        b.append("|evidenceRole=ONLINE_THEN_IMMUTABLE_EVALUATION|certificateAdapter=R958_SHARED_ALGORITHM_WINDOWS|deviceEffect=NOT_PROVEN");
++        b.append("|mayCreateReal=0|decisionOwner=DecisionGateEngine_ONLY|settlementOwner=SettlementEngine_ONLY");
++        b.append("|evolutionMaintenance=").append(store.getState("r964_evolution_maintenance","NOT_RUN"));
++        b.append("|last_predraw_error=").append(store.getState("r958_extension_predraw_error","NONE_RECORDED"));
++        b.append("|last_settlement_hook_error=").append(store.getState("r958_settlement_hook_error","NONE_RECORDED"));
++        Cursor c=null;
++        try {
++            c=report.select("SELECT candidate_id,target_issue,state,last_error,attempt_count FROM r952_research_outbox WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED') ORDER BY target_issue,candidate_id LIMIT 3",null);
++            while(c.moveToNext())b.append("|training_blocker=").append(c.getString(0)).append('@').append(c.getString(1)).append(':').append(c.getString(2)).append(':').append(c.getString(3)).append(":attempt=").append(c.getInt(4));
++        } catch(RuntimeException failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
++        finally {if(c!=null)c.close();}
++        developmentSnapshotCP4(report, b,store);
++        periodSnapshotCP4(report, b,store);
++        freezeReadinessSnapshotCP4(report, b,store);
++        certificateProgressSnapshotCP4(report, b,store);
++        b.append(com.ethk3.novaonepro.ResearchFailureEvolutionR965.reportSnapshotCP4(report, store));
++        return b.toString();
++    }
++
++public static void certificateProgressSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b,com.ethk3.novaonepro.ReportReadContextCP4 store){
++        b.append("\nR964_CERTIFICATE_PROGRESS|trainingN_is_not_calibrationN=1|calibrationN_is_not_pairedWindowN=1")
++                .append("|studyIdentityIncludesSourceBundleSelectorAtomGraph=1|upgradeMayStartNewStudy=1");
++        try(Cursor c=report.select("SELECT candidate_key,study_hash,captured_n,settled_n,state,first_issue FROM "
++                +com.ethk3.novaonepro.CandidateCalibrationR932.STUDY+" ORDER BY first_issue DESC,candidate_key LIMIT 96",null)){
++            while(c.moveToNext())b.append("\nCALIBRATION_STUDY|candidate=").append(c.getString(0)).append("|study=").append(c.getString(1))
++                    .append("|captured=").append(c.getInt(2)).append("|settled=").append(c.getInt(3)).append("|requiredSeparateLabels=241")
++                    .append("|remainingLabels=").append(Math.max(0,241-c.getInt(3))).append("|state=").append(c.getString(4))
++                    .append("|firstIssue=").append(c.getString(5)).append("|certificateStillRequiresIndependentWindows=1");
++        }catch(RuntimeException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++        try(Cursor c=report.select("SELECT w.candidate_key,w.window_no,w.planned_n,w.state,w.reason,"
++                +"(SELECT COUNT(*) FROM "+com.ethk3.novaonepro.FixedResearchWindowR932.PAIR+" p WHERE p.window_id=w.window_id AND p.candidate_hit IN (0,1)),"
++                +"COALESCE(p.state,'NOT_PUBLISHED'),COALESCE(p.reason,''),COALESCE(p.certificate_hash,'') FROM "
++                +com.ethk3.novaonepro.FixedResearchWindowR932.WINDOW+" w LEFT JOIN "+com.ethk3.novaonepro.FixedWindowCertificatePublisherR932.TABLE
++                +" p ON p.window_id=w.window_id ORDER BY w.first_issue DESC,w.candidate_key LIMIT 96",null)){
++            while(c.moveToNext())b.append("\nCERTIFICATE_WINDOW|candidate=").append(c.getString(0)).append("|window=").append(c.getInt(1))
++                    .append("|requiredPairs=").append(c.getInt(2)).append("|settledPairs=").append(c.getInt(5)).append("|state=").append(c.getString(3))
++                    .append("|reason=").append(c.getString(4)).append("|publication=").append(c.getString(6)).append("|publicationReason=").append(c.getString(7))
++                    .append("|certificateHash=").append(c.getString(8));
++        }catch(RuntimeException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++    }
++
++public static void freezeReadinessSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b,com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        try(Cursor c=report.select("SELECT c.candidate_id,COALESCE(a.numeric_updates,0),"
++                +"(SELECT COUNT(*) FROM r952_research_outbox o WHERE o.candidate_id=c.candidate_id AND o.state NOT IN ('COMPLETED','DEPENDENCY_RETIRED')),"
++                +"(SELECT COUNT(*) FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.settled=0 AND p.proof_error=''),"
++                +"(SELECT COUNT(*) FROM r967_frozen_candidate_all f WHERE f.learner_id=c.candidate_id),c.state,"
++                +"(SELECT COUNT(*) FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.proof_error<>'')"
++                +" FROM r952_candidate c LEFT JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id)"
++                +" LEFT JOIN r952_artifact a ON a.artifact_hash=l.artifact_hash AND a.candidate_id=c.candidate_id"
++                +" ORDER BY c.candidate_id LIMIT 3",null)) {
++            while(c.moveToNext()) {
++                String reason=c.getInt(4)>0?"FROZEN_VERSIONS_SEPARATE_FROM_CONTINUOUS_TRAINING":
++                        "QUARANTINED".equals(c.getString(5))||"QUALITY_PRUNED".equals(c.getString(5))?"CANDIDATE_INELIGIBLE":
++                        c.getInt(1)<FrozenCandidateAdapterR958.MIN_TRAINING?"WAIT_NUMERIC_TRAINING":
++                        c.getInt(2)>0?"WAIT_TRAINING_OUTBOX":c.getInt(3)>0?"WAIT_UNSETTLED_LABELS":"AWAIT_ATOMIC_PREDRAW_FREEZE_CHECKS";
++                b.append("\nFREEZE_READINESS|candidate=").append(c.getString(0)).append("|numericUpdates=").append(c.getInt(1))
++                        .append("|requiredUpdates=").append(FrozenCandidateAdapterR958.MIN_TRAINING)
++                        .append("|pendingTraining=").append(c.getInt(2)).append("|unsettledPredraw=").append(c.getInt(3))
++                        .append("|rejectedPredraw=").append(c.getInt(6))
++                        .append("|reason=").append(reason).append("|certificateGrantedByReport=0");
++            }
++        }catch(RuntimeException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++    }
++
++public static void periodSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b,com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        b.append("\nR967_DURABLE_LANES|scope=MAINTENANCE_REVIEW_NOT_NUMERIC_TRAINING|readAt=").append(report.nowMs());
++        try(Cursor c=report.select("SELECT lane,desired_issue,served_issue,next_sequence,active_task_id,last_outcome FROM "+com.ethk3.novaonepro.ResearchTaskQueueR967.LANE+" ORDER BY lane",null)) {
++            while(c.moveToNext())b.append("\nDURABLE_LANE|lane=").append(c.getInt(0)).append("|desired=").append(c.getString(1)).append("|lastReviewed=").append(c.getString(2)).append("|sequence=").append(c.getLong(3)).append("|activeTask=").append(c.getString(4)).append("|lastOutcome=").append(c.getString(5));
++        }catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++    }
++
++public static void developmentSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b,com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        b.append("\nR959_DEVELOPMENT|latestStatus=").append(store.getState("r922_dynamic_bootstrap_status","NOT_RECORDED"));
++        try(Cursor c=report.select("SELECT state_key,state_value FROM "+DbHelper.TABLE_APP_STATE
++                +" WHERE state_key GLOB 'r959_development_job_*' ORDER BY updated_at DESC,state_key LIMIT 96",null)) {
++            int jobs=0;
++            while(c.moveToNext()) {
++                jobs++;JSONObject job=new JSONObject(c.getString(1));
++                b.append("\nDEV_JOB|key=").append(c.getString(0)).append("|numericUpdates=").append(job.getInt("n"))
++                        .append("|cursor=").append(job.getInt("cursor")).append("|birthCutoff=").append(job.getString("birth"))
++                        .append("|datasetHash=").append(job.getString("dataset")).append("|sourceHash=").append(job.getString("source"))
++                        .append("|trainingCode=").append(job.optString("training_code","LEGACY_SOURCE_BOUND"))
++                        .append("|lastExecutionSource=").append(job.optString("last_execution_source",job.getString("source")))
++                        .append("|stateHash=").append(com.ethk3.novaonepro.ReportTextCP12.sha256(report, job.getString("state")))
++                        .append("|outputChild=").append(job.optString("output_child","PENDING"))
++                        .append("|outputHash=").append(job.optString("output_hash","PENDING"))
++                        .append("|evidenceRole=HISTORICAL_DEVELOPMENT_NOT_FUTURE_OR_CERTIFICATE");
++            }
++            if(jobs==0)b.append("|jobs=NONE_RECORDED");
++        }catch(Exception e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++        try(Cursor c=report.select("SELECT g.genome_id,g.dev_n,g.state_updates,g.future_n,g.future_last_issue,g.status,COALESCE(a.state_value,'NOT_SERVED') FROM "+DbHelper.TABLE_R908_ALGORITHM_GENOME+" g LEFT JOIN "+DbHelper.TABLE_APP_STATE+" a ON a.state_key='r960_development_advanced_'||g.genome_id ORDER BY g.genome_id LIMIT 96",null)) {
++            while(c.moveToNext())b.append("\nALGORITHM_TRAINING|id=").append(c.getString(0)).append("|historicalN=").append(c.getInt(1))
++                    .append("|liveUpdates=").append(c.getInt(2)).append("|futureN=").append(c.getInt(3))
++                    .append("|futureThrough=").append(c.getString(4)).append("|state=").append(c.getString(5))
++                    .append("|developmentLastServed=").append(c.getString(6));
++        }catch(RuntimeException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++    }
++
++public static void appendSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b,com.ethk3.novaonepro.ReportReadContextCP4 store,String key,String sql) {
++        Cursor c=null;
++        try { c=report.select(sql,null);b.append('|').append(key).append('=').append(c.moveToFirst()?String.valueOf(c.getLong(0)):"UNKNOWN"); }
++        catch(RuntimeException failure){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
++        finally {if(c!=null)c.close();}
++    }
+ }

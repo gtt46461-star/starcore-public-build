@@ -1,0 +1,117 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java b/app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java
+index 1393946..8d3d72f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ModelBundleRuntimeR932.java
+@@ -183,20 +183,25 @@ public final class ModelBundleRuntimeR932 {
+         Snapshot snapshot=SEED.hash.equals(hash)?SEED:load(hash);requireUsable(snapshot,target,frozenAt);
+         return new Scope(snapshot,target,frozenAt);
+     }
+-    public static synchronized Scope open(final DbStore store,final String target,long now){
++    public static Scope open(final DbStore store,final String target,long now){
+         if(store==null||filesRoot==null)return new Scope(SEED,target,now,store);
+-        final String fixedIssue=store.getState("r932_bundle_capture_issue","");
+-        final String oldActive=store.getState(ModelBundleManagerR929.STATE_ACTIVE,"");
+-        final String staged=store.getState(ModelBundleManagerR929.STATE_STAGED,"");
+-        final boolean reset="1".equals(store.getState("r932_bundle_reset_pending","0"));
++        final Map<String,String> pointersCP3 = readPointersCP3(store);
++        final String fixedIssue=pointersCP3.get("r932_bundle_capture_issue");
++        final String fixedHash=pointersCP3.get("r932_bundle_capture_hash");
++        if(TargetIssueResolver.isValid(fixedIssue)
++                && TargetIssueResolver.compare(target,fixedIssue)<0)
++            throw new IllegalStateException("CP3_BUNDLE_TARGET_SUPERSEDED");
++        final String oldActive=pointersCP3.get(ModelBundleManagerR929.STATE_ACTIVE);
++        final String staged=pointersCP3.get(ModelBundleManagerR929.STATE_STAGED);
++        final boolean reset="1".equals(pointersCP3.get("r932_bundle_reset_pending"));
+         boolean same=target.equals(fixedIssue);
+-        String chosen=same?store.getState("r932_bundle_capture_hash",""):reset?"":staged.length()==64?staged:oldActive;
++        String chosen=same?fixedHash:reset?"":staged.length()==64?staged:oldActive;
+         Snapshot snapshot;
+         try {snapshot=chosen.length()==64?load(chosen):SEED;requireUsable(snapshot,target,System.currentTimeMillis());}
+         catch(RuntimeException failure){
+             if(same)throw failure; // Never reroll an already fixed issue with another model.
+             store.setState("r932_model_last_rejection","DISABLED|"+failure.getMessage());
+-            String previous=store.getState(ModelBundleManagerR929.STATE_PREVIOUS,"");
++            String previous=pointersCP3.get(ModelBundleManagerR929.STATE_PREVIOUS);
+             try{snapshot=previous.length()==64&&!previous.equals(chosen)?load(previous):SEED;requireUsable(snapshot,target,System.currentTimeMillis());}
+             catch(RuntimeException unavailable){snapshot=SEED;}
+             chosen=snapshot==SEED?"":snapshot.hash;
+@@ -206,7 +211,11 @@ public final class ModelBundleRuntimeR932 {
+             final Snapshot frozenSnapshot=snapshot;
+             boolean committed=store.coordinatorR36().runAtomicWrite("R932_BUNDLE_CAPTURE",new DatabaseCoordinator.WriteRunnable(){
+                 public void run(android.database.sqlite.SQLiteDatabase db){
+-                    if(!oldActive.equals(state(db,ModelBundleManagerR929.STATE_ACTIVE))||!staged.equals(state(db,ModelBundleManagerR929.STATE_STAGED)))
++                    if(!fixedIssue.equals(state(db,"r932_bundle_capture_issue"))
++                            || !fixedHash.equals(state(db,"r932_bundle_capture_hash"))
++                            || reset != "1".equals(state(db,"r932_bundle_reset_pending"))
++                            || !oldActive.equals(state(db,ModelBundleManagerR929.STATE_ACTIVE))
++                            || !staged.equals(state(db,ModelBundleManagerR929.STATE_STAGED)))
+                         throw new IllegalStateException("R932_BUNDLE_POINTER_CAS_LOST");
+                     Map<String,String> values=new LinkedHashMap<String,String>();
+                     if(!oldActive.equals(selected))values.put(ModelBundleManagerR929.STATE_PREVIOUS,oldActive);
+@@ -221,17 +230,42 @@ public final class ModelBundleRuntimeR932 {
+         }
+         return new Scope(snapshot,target,now,store);
+     }
++    private static Map<String,String> readPointersCP3(DbStore store) {
++        String[] keys = {"r932_bundle_capture_issue", "r932_bundle_capture_hash",
++                ModelBundleManagerR929.STATE_ACTIVE, ModelBundleManagerR929.STATE_STAGED,
++                "r932_bundle_reset_pending", ModelBundleManagerR929.STATE_PREVIOUS};
++        Map<String,String> values = new LinkedHashMap<String,String>();
++        for (String key : keys) values.put(key, "");
++        try (android.database.Cursor cursor = store.readable().rawQuery(
++                "SELECT state_key,state_value FROM " + DbHelper.TABLE_APP_STATE
++                + " WHERE state_key IN (?,?,?,?,?,?)", keys)) {
++            while (cursor.moveToNext())
++                values.put(cursor.getString(0), cursor.isNull(1) ? "" : cursor.getString(1));
++        }
++        return Collections.unmodifiableMap(values);
++    }
+     private static String state(android.database.sqlite.SQLiteDatabase db,String key){
+         try(android.database.Cursor c=db.rawQuery("SELECT state_value FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key=?",new String[]{key})){
+             return c.moveToFirst()&&!c.isNull(0)?c.getString(0):"";
+         }
+     }
+-    public static synchronized void requestRollback(DbStore store,String reason){
+-        String previous=store.getState(ModelBundleManagerR929.STATE_PREVIOUS,"");
++    public static void requestRollback(final DbStore store,final String reason){
++        if(store==null)throw new IllegalArgumentException("CP3_ROLLBACK_STORE_REQUIRED");
++        final Map<String,String> beforeCP3=readPointersCP3(store);
++        final String previous=beforeCP3.get(ModelBundleManagerR929.STATE_PREVIOUS);
+         if(previous.length()==64)load(previous);
+-        Map<String,String> state=new LinkedHashMap<String,String>();state.put(ModelBundleManagerR929.STATE_STAGED,previous);
+-        state.put("r932_bundle_reset_pending",previous.length()==64?"0":"1");
+-        state.put(ModelBundleManagerR929.STATE_STATUS,"ROLLBACK_PENDING|"+reason);store.setStates(state);
++        boolean committed=store.coordinatorR36().runAtomicWrite("CP3_BUNDLE_ROLLBACK_REQUEST",
++                new DatabaseCoordinator.WriteRunnable(){public void run(android.database.sqlite.SQLiteDatabase db){
++                    for(Map.Entry<String,String> entry:beforeCP3.entrySet())
++                        if(!entry.getValue().equals(state(db,entry.getKey())))
++                            throw new IllegalStateException("CP3_BUNDLE_ROLLBACK_CAS_LOST");
++                    Map<String,String> values=new LinkedHashMap<String,String>();
++                    values.put(ModelBundleManagerR929.STATE_STAGED,previous);
++                    values.put("r932_bundle_reset_pending",previous.length()==64?"0":"1");
++                    values.put(ModelBundleManagerR929.STATE_STATUS,"ROLLBACK_PENDING|"+reason);
++                    DbStore.putStatesR36(db,values);
++                }});
++        if(!committed)throw new IllegalStateException("CP3_BUNDLE_ROLLBACK_COMMIT_FAILED");
+     }
+     public static String status(DbStore store){
+         if(store==null)return "数据库尚未就绪";
+@@ -301,9 +335,15 @@ public final class ModelBundleRuntimeR932 {
+         if(snapshot.expiresAt<=System.currentTimeMillis())throw new IllegalArgumentException("R932_EXPIRED_IMPORT");
+         ModelBundleManagerR929.stageToDisk(root(),manifest,entries,signature,key);
+         cache(snapshot);
+-        synchronized(ModelBundleRuntimeR932.class){
+-            ModelBundleManagerR929.markStaged(store,manifest);store.setState("r932_bundle_reset_pending","0");
+-        }
++        final String verifiedHashCP3=manifest.bundleHash;
++        if(!store.coordinatorR36().runAtomicWrite("CP3_BUNDLE_STAGE_VERIFIED",
++                new DatabaseCoordinator.WriteRunnable(){public void run(android.database.sqlite.SQLiteDatabase db){
++                    Map<String,String> values=new LinkedHashMap<String,String>();
++                    values.put(ModelBundleManagerR929.STATE_STAGED,verifiedHashCP3);
++                    values.put(ModelBundleManagerR929.STATE_STATUS,"STAGED_VERIFIED");
++                    values.put("r932_bundle_reset_pending","0");
++                    DbStore.putStatesR36(db,values);
++                }}))throw new IllegalStateException("CP3_BUNDLE_STAGE_COMMIT_FAILED");
+         return manifest.bundleHash;
+     }
+     private static Snapshot load(String hash){

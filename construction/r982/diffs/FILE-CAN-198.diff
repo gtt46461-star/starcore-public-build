@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V50DynamicDomainEngine.java b/app/src/main/java/com/ethk3/novaonepro/V50DynamicDomainEngine.java
+index 7f8ff56..3d9fb88 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V50DynamicDomainEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V50DynamicDomainEngine.java
+@@ -28,7 +28,7 @@ public final class V50DynamicDomainEngine {
+                         + hazardBand
+                         + '|'
+                         + confidenceBand;
+-        return "D50_" + V50ChecksumEngine.sha256(raw).substring(0, 16).toUpperCase();
++        return "D50_" + V50ChecksumEngine.sha256(raw).substring(0, 16).toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private static String safe(String value) {

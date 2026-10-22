@@ -1,0 +1,200 @@
+[
+  {
+    "id": "B01",
+    "title": "冻结基线、统一版本与 schema 身份",
+    "original_requirements": [
+      "P1-12",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "release/release_identity.properties",
+      "scripts/r925_source_audit.py",
+      "SchemaRevisionR925.java",
+      "AppConfig.java",
+      "V51BuildManifest.java"
+    ],
+    "anchors": "REVISION；APP_IDENTITY_AND_BUILD；版本生成入口",
+    "gap": "release_identity 的 schemaRevision=4 与 R925_SCHEMA_6 同时出现，读者无法知道其作用域；现有静态通过不能代表运行通过。",
+    "steps": [
+      "生成唯一 release_manifest.json，分别声明 user_version=36、legacyR906Revision=4、r925Revision=R925_SCHEMA_6 和拟新增分域修订号",
+      "从清单生成 Java/报告/构建版本，禁止手工多处改号",
+      "固定 R925 APK/源码/Git hash、559 Java、71资源基线",
+      "拟用 V57.21.2-R5.4.2-926 与 577250926，构建时再验证大于实际安装版，未经发行不写已发布",
+      "BuildIdentity逐字段列期望值/实际值/来源/硬软错误码，不能只显示BUILD_IDENTITY_HARD_BLOCK总状态"
+    ],
+    "acceptance": [
+      "同一构建所有身份一致，故意改任意一处必失败",
+      "原基线字节不变，新版本号不与已有发行冲突"
+    ],
+    "dependencies": [],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。"
+  },
+  {
+    "id": "B02",
+    "title": "全文件职责审计与大文件拆分",
+    "original_requirements": [
+      "P2-02",
+      "P1-12"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "AutoFetchService.java",
+      "DbStore.java",
+      "DbHelper.java",
+      "DatabaseCoordinator.java",
+      "scripts/r925_source_audit.py",
+      "CodeOwnershipCompletenessAuditEngine.java"
+    ],
+    "anchors": "初始化、查询、回调、所有 catch、公共 API",
+    "gap": "原巨型文件与历史多代入口仍在；559 文件索引只是静态清单，并非逐条执行证明。",
+    "steps": [
+      "逐文件建立 callers/callees、DB读写、线程、Owner、异常码、是否可达和处置",
+      "先抽取 UI Presenter、抓取/恢复阶段、只读查询 Repository、Schema 分域",
+      "保留原入口薄委托后删除重复主体，避免新旧两套逻辑运行",
+      "关键 catch 分类为可忽略/重试/降级/终止并写错误码，标明依据，禁止机械删短文件",
+      "旧矩阵和形态资产保留哈希与访问路径，默认不改计算意义"
+    ],
+    "acceptance": [
+      "559个原Java和全部新增文件都有有依据的处置",
+      "关键链没有无诊断吞错，抽取前后固定输入输出一致",
+      "复杂度/调用图改善可量化，不以删代码行数当完成"
+    ],
+    "dependencies": [
+      "B01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。"
+  },
+  {
+    "id": "B03",
+    "title": "Critical / Research / Legacy schema 真正分域",
+    "original_requirements": [
+      "P0-01",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "DatabaseCoordinator.java",
+      "DbHelper.java",
+      "DbStore.java",
+      "SchemaRevisionR925.java",
+      "R811SchemaIntegrityVerifier.java",
+      "V51Repository.java"
+    ],
+    "anchors": "ensureCriticalSchemaOrThrow / ensureRuntimeSchemaOnce / ensureR811ResearchSchemaOnce / ensureSchema",
+    "gap": "首次不命中 stamp 仍执行研究大迁移，且全库 fingerprint 会因研究 DDL 改变。",
+    "steps": [
+      "枚举首次 canonical/settlement 所需表列索引触发器闭包，生成 critical_contract",
+      "拆出 ResearchSchemaCoordinator 与 LegacySchemaCoordinator，独立 stamp 和依赖",
+      "critical就绪即允许唯一主链工作，研究显示初始化而非静默消失",
+      "研究按小事务、有游标与强制最大等待策略调度，不能再次被持续 quiet-window 条件饿死",
+      "fingerprint 仅覆盖该域白名单，不因另一域变化反复全迁移",
+      "缺研究表返回可观测未就绪，禁止 catch 后冒充成功"
+    ],
+    "acceptance": [
+      "新装/旧库/缺表/旧stamp/中断迁移五类可恢复",
+      "critical开库不调用research全量ensure",
+      "研究最终进入READY或明确失败，不无限等待",
+      "真机冷启动目标<8秒单独验收"
+    ],
+    "dependencies": [
+      "B01",
+      "B02"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。"
+  },
+  {
+    "id": "B04",
+    "title": "升级数据一致性与可恢复备份",
+    "original_requirements": [
+      "P0-01",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "SchemaUpgradeCoordinatorR815.java",
+      "DatabaseCoordinator.java",
+      "DbHelper.java",
+      "DiagnosticTextExportR923.java"
+    ],
+    "anchors": "prepareAndVerify / onCreate / onUpgrade / onDowngrade",
+    "gap": "DB_VERSION仍36，增加schema不能只靠onUpgrade；真实大库和WAL中断恢复尚无验证。",
+    "steps": [
+      "同版本迁移使用分域修订表与逐步 journal，每步幂等",
+      "备份走应用受控静默写入窗口、完成checkpoint并关闭连接后复制，或验证可用的SQLite一致快照接口，禁止运行中只拷.db",
+      "备份记录所有关键表计数、hash与user_version",
+      "每DDL/回填小事务提交后更新游标，崩溃仅重放该步",
+      "新增表优先，不删除/重写旧canonical/trade/label",
+      "恢复先验证备份再替换，禁止清空用户库救启动"
+    ],
+    "acceptance": [
+      "对有未checkpoint数据的库备份恢复后记录不丢",
+      "在每步注入进程中止均可重入",
+      "upgrade后历史行及关键hash100%相同",
+      "同版本重复执行不重复数据"
+    ],
+    "dependencies": [
+      "B03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。"
+  },
+  {
+    "id": "B06",
+    "title": "逐期事件账本与唯一幂等投影",
+    "original_requirements": [
+      "P0-05",
+      "P0-02",
+      "P1-10"
+    ],
+    "priority": "P0",
+    "files": [
+      "RuntimeObservabilityR925.java",
+      "RuntimeHealthLedgerR36.java",
+      "V51RuntimeOrchestrator.java",
+      "DatabaseCoordinator.java",
+      "AutoFetchService.java",
+      "SettlementEngine.java",
+      "RuntimeTruthSnapshotR906.java",
+      "CanonicalObservationWriterR36.java",
+      "K3FunnelOrchestrator.java",
+      "TargetIssueResolver.java"
+    ],
+    "anchors": "pipeline / runPredictionTransaction / runSettlementTransaction",
+    "gap": "R925流水主要JOIN终态，不能完整区分未调度、被拒、抓取失败、排队卡住、提交失败。",
+    "steps": [
+      "新增append-only runtime_event及只读issue_projection，统一game/issue/epoch/attempt/event_id",
+      "事件覆盖request/accepted/rejected/queued/started/frozen/settled/FULL/learned/recovery",
+      "业务提交事件与业务行在同一事务，非事务外部事件使用outbox与去重键",
+      "明确事件重复、乱序、旧进程回调处理，不允许晚到事件回退终态",
+      "首页/报告/CSV从同一投影取值并带as_of/event_watermark",
+      "启动做账本对账，无法还原的升级前事件标LEGACY_UNKNOWN",
+      "K3漏斗七阶段trace绑定同一target与1200动作hash，保留完整动作宇宙，不让UI推测阶段是否运行"
+    ],
+    "acceptance": [
+      "任意阶段杀进程后事件可重放且终态不回退",
+      "重复回调10次只一个canonical与一次结算",
+      "最近20/500/导出逐期一致且错误归因唯一"
+    ],
+    "dependencies": [
+      "B01",
+      "B03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。"
+  }
+]

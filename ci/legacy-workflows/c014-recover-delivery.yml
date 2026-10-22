@@ -1,0 +1,59 @@
+name: C014 recover verified build delivery after Artifact quota failure
+on:
+  push:
+    branches: [construction/c014-final-plan-20261020]
+    paths: ['.github/workflows/c014-recover-delivery.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c014-recover-delivery
+  cancel-in-progress: false
+jobs:
+  reproduce-complete-current-source-and-export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 8fe231228d9796621c4d3f01bc842f67889773ae
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /app/**
+            /scripts/**
+            /release/**
+            /verification/**
+            /training/**
+            /gradle/**
+            /construction/r997/**
+            /construction/c_chain_20261018/C006/contract-inputs.zip
+            /construction/c_chain_20261018/C014/**
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare official unchanged Android API36 toolchain
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME']);manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0','ndk;28.2.13676358','cmake;3.22.1'],check=True)
+          PY
+      - name: Rebuild exact source, bind current complete classes, run original JUnit and fresh JNI, export normally through Git
+        env:
+          C014_ORCHESTRATION_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          ref=os.environ['C014_ORCHESTRATION_SHA'];subprocess.run(['git','fetch','origin',ref,'--depth=1'],check=True)
+          raw=subprocess.check_output(['git','show',ref+':construction/c_chain_20261018/C014/supplement/ci_recover_delivery.py'])
+          script=pathlib.Path(os.environ['RUNNER_TEMP'])/'ci_recover_delivery.py';script.write_bytes(raw)
+          subprocess.run(['python3',str(script),ref],check=True)
+          PY
+
+# Retry after creating the isolated verification output before command logging.

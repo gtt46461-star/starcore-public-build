@@ -1,0 +1,1388 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DbStore.java b/app/src/main/java/com/ethk3/novaonepro/DbStore.java
+index 21e96c8..cf08bf6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DbStore.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DbStore.java
+@@ -107,14 +107,49 @@ public final class DbStore {
+     private static final double FIELD_CHAIN_K3_COVERAGE_HARD_RISK = 0.700d;
+     private static final double FIELD_CHAIN_THIRD_NUMBER_MIN = 0.088d;
+ 
++    private final Context researchAppCP12;
++    private final java.io.File researchInputRootCP11;
+     private final DatabaseCoordinator coordinator;
+     private final DbHelper helper;
+     private final HashMap<String, HashSet<String>> columnCache;
+ 
++    public java.io.InputStream openResearchAssetCP12(String path) throws java.io.IOException {
++        if (!"research/cp4_molecule_seeds.jsonl".equals(path)) throw new IllegalArgumentException("TRAIN_ASSET_PATH");
++        return researchAppCP12.getAssets().open(path);
++    }
++    /** API21 asset seek: openFd requires noCompress; pin identity is generated once.
++     * Only the importer owns bytes/cursor/SHA. No repeated prefix skip or file array. */
++    public java.io.InputStream openResearchAtomCatalogAtCP12(long byteOffset) throws java.io.IOException {
++        final long pinnedBytes=com.ethk3.novaonepro.r952.AtomCatalogPinnedCP12.BYTES;
++        if(byteOffset<0||byteOffset>pinnedBytes)throw new IllegalArgumentException("ATOM_ASSET_OFFSET");
++        final android.content.res.AssetFileDescriptor asset=researchAppCP12.getAssets().openFd(com.ethk3.novaonepro.r952.AtomCatalogPinnedCP12.ASSET);
++        java.io.FileInputStream opened=null;
++        try {
++            if(asset.getLength()!=pinnedBytes||asset.getStartOffset()<0||asset.getStartOffset()>Long.MAX_VALUE-byteOffset)throw new java.io.IOException("ATOM_ASSET_PINNED_SIZE");
++            opened=new java.io.FileInputStream(asset.getFileDescriptor());opened.getChannel().position(asset.getStartOffset()+byteOffset);
++            final java.io.FileInputStream file=opened;final long available=pinnedBytes-byteOffset;
++            return new java.io.InputStream(){private long left=available;private boolean closed;
++                private void check()throws java.io.IOException{if(closed)throw new java.io.IOException("ATOM_ASSET_CLOSED");}
++                public int read()throws java.io.IOException{check();if(left==0)return -1;int value=file.read();if(value<0)throw new java.io.EOFException("ATOM_ASSET_TRUNCATED");left--;return value;}
++                public int read(byte[] bytes,int offset,int count)throws java.io.IOException{check();if(bytes==null)throw new NullPointerException();if(offset<0||count<0||offset>bytes.length-count)throw new IndexOutOfBoundsException();if(count==0)return 0;if(left==0)return -1;int n=file.read(bytes,offset,(int)Math.min(left,count));if(n<0)throw new java.io.EOFException("ATOM_ASSET_TRUNCATED");left-=n;return n;}
++                public void close()throws java.io.IOException{if(closed)return;closed=true;try{file.close();}finally{asset.close();}}
++            };
++        }catch(java.io.IOException|RuntimeException|Error failed){if(opened!=null)try{opened.close();}catch(java.io.IOException ignored){}try{asset.close();}catch(java.io.IOException ignored){}throw failed;}
++    }
++    public java.io.File researchInputRootCP11() {
++        if (!researchInputRootCP11.isDirectory() && !researchInputRootCP11.mkdirs())
++            throw new IllegalStateException("TRAIN_INPUT_DIRECTORY");
++        return researchInputRootCP11;
++    }
++
+     public DbStore(Context context) {
+         Context app = context == null ? null : context.getApplicationContext();
+         ModelBundleRuntimeR932.configure(app == null ? context : app);
+-        coordinator = DatabaseCoordinator.get(app == null ? context : app);
++        Context retainedApp = app == null ? context : app;
++        if (retainedApp == null) throw new IllegalArgumentException("TRAIN_CONTEXT_REQUIRED");
++        researchAppCP12 = retainedApp;
++        researchInputRootCP11 = new java.io.File(retainedApp.getFilesDir(), "research-input-v2");
++        coordinator = DatabaseCoordinator.get(retainedApp);
+         helper = coordinator.getHelper();
+         columnCache = new HashMap<String, HashSet<String>>();
+         coordinator.ensureCriticalSchemaOrThrow(
+@@ -2011,543 +2046,34 @@ public final class DbStore {
+     }
+ 
+     private void normalizeLegacyLedgerScopes(SQLiteDatabase db, int limit) {
+-        if (db == null) {
+-            return;
+-        }
+-
+-        try {
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET action=decision WHERE (action IS NULL OR action='') AND"
+-                            + " decision IS NOT NULL AND decision<>''");
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET action=? WHERE decision=? AND (action IS NULL OR action='' OR"
+-                            + " action='REAL' OR action='REAL_TRADE' OR action='投注')",
+-                    new Object[] {AppConfig.DECISION_BET, AppConfig.DECISION_BET});
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET stat_scope=? WHERE decision=? AND (stat_scope IS NULL OR"
+-                            + " stat_scope='' OR stat_scope='REAL')",
+-                    new Object[] {AppConfig.STAT_SCOPE_REAL_TRADE, AppConfig.DECISION_BET});
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET stat_scope=? WHERE decision=? AND (stat_scope IS NULL OR"
+-                            + " stat_scope='' OR stat_scope='REAL')",
+-                    new Object[] {AppConfig.STAT_SCOPE_SHADOW, AppConfig.DECISION_SHADOW});
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET stat_scope=? WHERE decision<>? AND decision<>? AND (stat_scope"
+-                            + " IS NULL OR stat_scope='' OR stat_scope='REAL')",
+-                    new Object[] {
+-                        AppConfig.STAT_SCOPE_HOLD, AppConfig.DECISION_BET, AppConfig.DECISION_SHADOW
+-                    });
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_TRADES
+-                            + " SET action=? WHERE action IS NULL OR action='' OR action='REAL' OR"
+-                            + " action='REAL_TRADE' OR action='投注'",
+-                    new Object[] {AppConfig.DECISION_BET});
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_TRADES
+-                            + " SET stat_scope=? WHERE stat_scope IS NULL OR stat_scope='' OR"
+-                            + " stat_scope='REAL'",
+-                    new Object[] {AppConfig.STAT_SCOPE_REAL_TRADE});
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_TRADES
+-                            + " SET result=? WHERE result IS NULL OR result=''",
+-                    new Object[] {AppConfig.RESULT_WAIT});
+-
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET result=? WHERE result IS NULL OR result=''",
+-                    new Object[] {AppConfig.RESULT_WAIT});
+-            quarantineUnauthorizedV24LedgerRows(db);
+-        } catch (Throwable e) {
+-        }
++        // CP4: old labels are interpreted by read-only legacy views; never promote blanks to REAL.
++        // Existing audit/backup retains every original field. No business write here.
+     }
+ 
+     /** Keep legacy rows for audit, but never let them re-enter V24 real statistics. */
+     private void quarantineUnauthorizedV24LedgerRows(SQLiteDatabase db) {
+-        if (db == null) return;
+-        String decisionValid =
+-                "authorization_valid=1 AND authorized_mode='BET' AND contract_valid=1 "
+-                        + "AND build_id='"
+-                        + AppConfig.BUILD_ID
+-                        + "' AND cohort_id='"
+-                        + AppConfig.COHORT_ID
+-                        + "' "
+-                        + "AND schema_version='"
+-                        + AppConfig.SCHEMA_VERSION
+-                        + "' AND pipeline_version='"
+-                        + AppConfig.PIPELINE_VERSION
+-                        + "' "
+-                        + "AND calibration_version='"
+-                        + AppConfig.CALIBRATION_VERSION
+-                        + "' AND authorization_id IS NOT NULL AND authorization_id<>'' "
+-                        + "AND EXISTS (SELECT 1 FROM "
+-                        + DbHelper.TABLE_DECISION_AUTHORIZATION
+-                        + " a WHERE a.contract_decision_id="
+-                        + DbHelper.TABLE_DECISIONS
+-                        + ".contract_decision_id "
+-                        + "AND a.authorization_id="
+-                        + DbHelper.TABLE_DECISIONS
+-                        + ".authorization_id AND a.valid=1 AND a.authorized_mode='BET' "
+-                        + "AND a.build_id='"
+-                        + AppConfig.BUILD_ID
+-                        + "' AND a.cohort_id='"
+-                        + AppConfig.COHORT_ID
+-                        + "' AND a.schema_version='"
+-                        + AppConfig.SCHEMA_VERSION
+-                        + "' "
+-                        + "AND a.pipeline_version='"
+-                        + AppConfig.PIPELINE_VERSION
+-                        + "' AND a.calibration_version='"
+-                        + AppConfig.CALIBRATION_VERSION
+-                        + "')";
+-        String legacyTradeValid =
+-                "authorization_valid=1 AND authorized_mode='BET' AND contract_valid=1 "
+-                        + "AND build_id='"
+-                        + AppConfig.BUILD_ID
+-                        + "' AND cohort_id='"
+-                        + AppConfig.COHORT_ID
+-                        + "' "
+-                        + "AND schema_version='"
+-                        + AppConfig.SCHEMA_VERSION
+-                        + "' AND pipeline_version='"
+-                        + AppConfig.PIPELINE_VERSION
+-                        + "' "
+-                        + "AND calibration_version='"
+-                        + AppConfig.CALIBRATION_VERSION
+-                        + "' AND authorization_id IS NOT NULL AND authorization_id<>'' "
+-                        + "AND EXISTS (SELECT 1 FROM "
+-                        + DbHelper.TABLE_DECISION_AUTHORIZATION
+-                        + " a WHERE a.contract_decision_id="
+-                        + DbHelper.TABLE_TRADES
+-                        + ".contract_decision_id "
+-                        + "AND a.authorization_id="
+-                        + DbHelper.TABLE_TRADES
+-                        + ".authorization_id AND a.valid=1 AND a.authorized_mode='BET' "
+-                        + "AND a.build_id='"
+-                        + AppConfig.BUILD_ID
+-                        + "' AND a.cohort_id='"
+-                        + AppConfig.COHORT_ID
+-                        + "' AND a.schema_version='"
+-                        + AppConfig.SCHEMA_VERSION
+-                        + "' "
+-                        + "AND a.pipeline_version='"
+-                        + AppConfig.PIPELINE_VERSION
+-                        + "' AND a.calibration_version='"
+-                        + AppConfig.CALIBRATION_VERSION
+-                        + "')";
+-        String v51TradeValid =
+-                "authorization_valid=1 AND authorized_mode='BET' AND contract_valid=1"
+-                        + " AND build_id='" + V51BuildManifest.BUILD_ID + "'"
+-                        + " AND cohort_id='" + V51BuildManifest.COHORT_ID + "'"
+-                        + " AND schema_version='" + V51BuildManifest.DATABASE_SCHEMA + "'"
+-                        + " AND feature_schema_version='" + V51BuildManifest.FEATURE_SCHEMA + "'"
+-                        + " AND ranking_version='" + V51ActionRankerArtifact.ARTIFACT_ID + "'"
+-                        + " AND calibration_version='" + V51SelectedCalibrationArtifact.ARTIFACT_ID + "'"
+-                        + " AND gate_policy_version='" + V51PolicySurfaceArtifact.ARTIFACT_ID + "'"
+-                        + " AND pipeline_version='" + V51BuildManifest.VERSION_NAME + "'"
+-                        + " AND authorization_id IS NOT NULL AND authorization_id<>''"
+-                        + " AND EXISTS (SELECT 1 FROM " + V51Repository.AUTH + " va"
+-                        + " WHERE va.decision_id=" + DbHelper.TABLE_TRADES + ".contract_decision_id"
+-                        + " AND va.target_issue=" + DbHelper.TABLE_TRADES + ".target_issue"
+-                        + " AND va.authorization_hash=" + DbHelper.TABLE_TRADES + ".authorization_id"
+-                        + " AND va.contract_hash=" + DbHelper.TABLE_TRADES + ".pre_draw_reason_fingerprint)"
+-                        + " AND EXISTS (SELECT 1 FROM " + V51Repository.SELECTED + " vs"
+-                        + " WHERE vs.target_issue=" + DbHelper.TABLE_TRADES + ".target_issue"
+-                        + " AND vs.decision_action='BET' AND vs.position=" + DbHelper.TABLE_TRADES + ".position"
+-                        + " AND vs.n1=" + DbHelper.TABLE_TRADES + ".n1"
+-                        + " AND vs.n2=" + DbHelper.TABLE_TRADES + ".n2"
+-                        + " AND vs.n3=" + DbHelper.TABLE_TRADES + ".n3)";
+-        String tradeValid = "(" + legacyTradeValid + ") OR (" + v51TradeValid + ")";
+-        try {
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_DECISIONS
+-                            + " SET decision='SHADOW',action='SHADOW',stat_scope='SHADOW',is_realtime_real=0,authorization_valid=0,authorized_mode='SHADOW',authorization_reject_code='V24_LEGACY_UNAUTHORIZED_QUARANTINE'"
+-                            + " WHERE (decision='BET' OR action='BET' OR stat_scope='REAL_TRADE')"
+-                            + " AND NOT ("
+-                            + decisionValid
+-                            + ")");
+-        } catch (Throwable ignore) {
+-        }
+-        try {
+-            db.execSQL(
+-                    "UPDATE "
+-                            + DbHelper.TABLE_TRADES
+-                            + " SET action='SHADOW',stat_scope='SHADOW',is_realtime_real=0,pnl=0,authorization_valid=0,authorized_mode='SHADOW',authorization_reject_code='V24_LEGACY_UNAUTHORIZED_QUARANTINE'"
+-                            + " WHERE (action='BET' OR stat_scope='REAL_TRADE') AND NOT ("
+-                            + tradeValid
+-                            + ")");
+-        } catch (Throwable ignore) {
+-        }
++        // CP4: diagnostic consumers reject unproven rows by joins; do not rewrite historical REAL.
++        // Release preflight lists conflicting rows and requires explicit verified migration handling.
+     }
+ 
+     private int repairMissingRealTradesFromBetDecisions(SQLiteDatabase db, int limit) {
+-        if (db == null) {
+-            return 0;
+-        }
+-
+-        if (limit <= 0) {
+-            limit = LEDGER_REPAIR_LIMIT;
+-        }
+-
+-        int repaired = 0;
+-        Cursor c = null;
+-
+-        try {
+-            c =
+-                    db.query(
+-                            DbHelper.TABLE_DECISIONS,
+-                            null,
+-                            "decision=? AND target_issue IS NOT NULL AND target_issue<>''",
+-                            new String[] {AppConfig.DECISION_BET},
+-                            null,
+-                            null,
+-                            "created_at DESC, _id DESC",
+-                            String.valueOf(limit));
+-
+-            while (c.moveToNext()) {
+-                Models.Decision d = readDecision(c);
+-
+-                if (d == null || !isValidBetDecision(d)) {
+-                    continue;
+-                }
+-
+-                Models.Trade old = getTradeByTargetIssueLoose(db, d.targetIssue);
+-
+-                if (old != null && old.id > 0L) {
+-                    old.applyDecision(d);
+-                    copyFieldChainFields(d, old);
+-                    old.decisionId = d.id;
+-                    old.action = AppConfig.DECISION_BET;
+-                    old.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-                    long savedOld = saveTrade(old);
+-                    if (savedOld > 0L) {
+-                        ContentValues link = new ContentValues();
+-                        link.put("trade_id", savedOld);
+-                        link.put("stat_scope", AppConfig.STAT_SCOPE_REAL_TRADE);
+-                        link.put("action", AppConfig.DECISION_BET);
+-                        updateFiltered(
+-                                db,
+-                                DbHelper.TABLE_DECISIONS,
+-                                link,
+-                                "_id=?",
+-                                new String[] {String.valueOf(d.id)});
+-                        repaired++;
+-                    }
+-                    continue;
+-                }
+-
+-                Models.Trade t = new Models.Trade();
+-                t.applyDecision(d);
+-                copyFieldChainFields(d, t);
+-                t.decisionId = d.id;
+-                t.createdAt = d.createdAt > 0L ? d.createdAt : System.currentTimeMillis();
+-                t.betTime = t.createdAt;
+-                t.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-                t.action = AppConfig.DECISION_BET;
+-                t.result = AppConfig.RESULT_WAIT;
+-                t.settled = 0;
+-                t.hit = 0;
+-                t.pnl = 0.0d;
+-
+-                long tradeId = saveTrade(t);
+-
+-                if (tradeId > 0L) {
+-                    ContentValues link = new ContentValues();
+-                    link.put("trade_id", tradeId);
+-                    link.put("stat_scope", AppConfig.STAT_SCOPE_REAL_TRADE);
+-                    link.put("action", AppConfig.DECISION_BET);
+-                    updateFiltered(
+-                            db,
+-                            DbHelper.TABLE_DECISIONS,
+-                            link,
+-                            "_id=?",
+-                            new String[] {String.valueOf(d.id)});
+-                    repaired++;
+-                }
+-            }
+-        } catch (Throwable e) {
+-        } finally {
+-            closeCursor(c);
+-        }
+-
+-        return repaired;
++        return 0; // CP4 audit/quarantine only; immutable REAL rows are never silently repaired or deleted.
+     }
+ 
+     private int repairTradeDecisionLinks(SQLiteDatabase db, int limit) {
+-        if (db == null) {
+-            return 0;
+-        }
+-
+-        int repaired = 0;
+-        Cursor c = null;
+-
+-        try {
+-            c =
+-                    db.query(
+-                            DbHelper.TABLE_TRADES,
+-                            null,
+-                            "(decision_id IS NULL OR decision_id<=0) AND target_issue IS NOT NULL"
+-                                + " AND target_issue<>'' AND (stat_scope=? OR stat_scope IS NULL OR"
+-                                + " stat_scope='' OR stat_scope='REAL')",
+-                            new String[] {AppConfig.STAT_SCOPE_REAL_TRADE},
+-                            null,
+-                            null,
+-                            "bet_time DESC, created_at DESC, _id DESC",
+-                            String.valueOf(limit <= 0 ? LEDGER_REPAIR_LIMIT : limit));
+-
+-            while (c.moveToNext()) {
+-                Models.Trade t = readTrade(c);
+-
+-                if (t == null || t.targetIssue == null || t.targetIssue.length() == 0) {
+-                    continue;
+-                }
+-
+-                Models.Decision d = getBestDecisionByTargetIssue(db, t.targetIssue);
+-
+-                if (d == null
+-                        || d.id <= 0L
+-                        || !isValidBetDecision(d)
+-                        || !DecisionAuthorizationEngine.isTradeAuthorized(t)) {
+-                    continue;
+-                }
+-
+-                ContentValues tcv = new ContentValues();
+-                tcv.put("decision_id", d.id);
+-                tcv.put("action", AppConfig.DECISION_BET);
+-                tcv.put("stat_scope", AppConfig.STAT_SCOPE_REAL_TRADE);
+-                putFieldChainValues(tcv, d);
+-                putDynamicCausalValues(tcv, d);
+-                putMainChainClosedLoopValues(tcv, d);
+-                putFinalVersionFallback(tcv, d);
+-                updateFiltered(
+-                        db,
+-                        DbHelper.TABLE_TRADES,
+-                        tcv,
+-                        "_id=?",
+-                        new String[] {String.valueOf(t.id)});
+-
+-                ContentValues dcv = new ContentValues();
+-                dcv.put("trade_id", t.id);
+-                dcv.put("action", AppConfig.DECISION_BET);
+-                dcv.put("stat_scope", AppConfig.STAT_SCOPE_REAL_TRADE);
+-                updateFiltered(
+-                        db,
+-                        DbHelper.TABLE_DECISIONS,
+-                        dcv,
+-                        "_id=?",
+-                        new String[] {String.valueOf(d.id)});
+-
+-                repaired++;
+-            }
+-        } catch (Throwable e) {
+-        } finally {
+-            closeCursor(c);
+-        }
+-
+-        return repaired;
++        return 0; // CP4 audit/quarantine only; immutable REAL rows are never silently repaired or deleted.
+     }
+ 
+     private int repairSettledTradePnl(SQLiteDatabase db, int limit) {
+-        if (db == null) {
+-            return 0;
+-        }
+-
+-        int repaired = 0;
+-        Cursor c = null;
+-
+-        try {
+-            c =
+-                    db.query(
+-                            DbHelper.TABLE_TRADES,
+-                            null,
+-                            "settled=1 AND (pnl IS NULL OR pnl=0) AND (stat_scope=? OR stat_scope"
+-                                + " IS NULL OR stat_scope='' OR stat_scope='REAL')",
+-                            new String[] {AppConfig.STAT_SCOPE_REAL_TRADE},
+-                            null,
+-                            null,
+-                            "settle_time DESC, settled_at DESC, _id DESC",
+-                            String.valueOf(limit <= 0 ? LEDGER_REPAIR_LIMIT : limit));
+-
+-            while (c.moveToNext()) {
+-                Models.Trade t = readTrade(c);
+-
+-                if (t == null || t.id <= 0L || !DecisionAuthorizationEngine.isTradeAuthorized(t)) {
+-                    continue;
+-                }
+-
+-                String r = AppConfig.normalizeResult(t.result);
+-
+-                if (!AppConfig.isTerminalResult(r)) {
+-                    continue;
+-                }
+-
+-                t.result = r;
+-                t.action = AppConfig.DECISION_BET;
+-                t.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-                t.hit = AppConfig.isWinResult(r) ? 1 : 0;
+-                t.pnl = pnlForHitLocal(t.hit == 1);
+-
+-                ContentValues cv = new ContentValues();
+-                cv.put("result", t.result);
+-                cv.put("hit", t.hit);
+-                cv.put("pnl", t.pnl);
+-                cv.put("action", AppConfig.DECISION_BET);
+-                cv.put("stat_scope", AppConfig.STAT_SCOPE_REAL_TRADE);
+-                updateFiltered(
+-                        db,
+-                        DbHelper.TABLE_TRADES,
+-                        cv,
+-                        "_id=?",
+-                        new String[] {String.valueOf(t.id)});
+-                repaired++;
+-            }
+-        } catch (Throwable e) {
+-        } finally {
+-            closeCursor(c);
+-        }
+-
+-        return repaired;
++        return 0; // CP4 audit/quarantine only; immutable REAL rows are never silently repaired or deleted.
+     }
+ 
+     private int cleanupDuplicateRealTradesAll(SQLiteDatabase db, int limit) {
+-        if (db == null) {
+-            return 0;
+-        }
+-
+-        int cleaned = 0;
+-        Cursor c = null;
+-        HashSet<String> seen = new HashSet<String>();
+-
+-        try {
+-            c =
+-                    db.query(
+-                            DbHelper.TABLE_TRADES,
+-                            new String[] {"target_issue"},
+-                            "target_issue IS NOT NULL AND target_issue<>'' AND (stat_scope=? OR"
+-                                + " stat_scope IS NULL OR stat_scope='' OR stat_scope='REAL')",
+-                            new String[] {AppConfig.STAT_SCOPE_REAL_TRADE},
+-                            null,
+-                            null,
+-                            "bet_time DESC, created_at DESC, _id DESC",
+-                            String.valueOf(limit <= 0 ? LEDGER_REPAIR_LIMIT : limit));
+-
+-            while (c.moveToNext()) {
+-                String issue = getString(c, "target_issue");
+-
+-                if (issue == null || issue.length() == 0) {
+-                    continue;
+-                }
+-
+-                if (seen.contains(issue)) {
+-                    continue;
+-                }
+-
+-                seen.add(issue);
+-                cleaned += cleanupDuplicateTradesForTarget(db, issue);
+-            }
+-        } catch (Throwable e) {
+-        } finally {
+-            closeCursor(c);
+-        }
+-
+-        return cleaned;
++        return 0; // CP4 audit/quarantine only; immutable REAL rows are never silently repaired or deleted.
+     }
+ 
+     private int cleanupDuplicateTradesForTarget(SQLiteDatabase db, String targetIssue) {
+-        if (db == null || targetIssue == null || targetIssue.length() == 0) {
+-            return 0;
+-        }
+-
+-        ArrayList<Models.Trade> list = new ArrayList<Models.Trade>();
+-        Cursor c = null;
+-
+-        try {
+-            c =
+-                    db.query(
+-                            DbHelper.TABLE_TRADES,
+-                            null,
+-                            "target_issue=? AND (stat_scope=? OR stat_scope IS NULL OR"
+-                                + " stat_scope='' OR stat_scope='REAL')",
+-                            new String[] {targetIssue, AppConfig.STAT_SCOPE_REAL_TRADE},
+-                            null,
+-                            null,
+-                            "settled DESC, decision_id DESC, bet_time DESC, created_at DESC, _id"
+-                                + " DESC");
+-
+-            while (c.moveToNext()) {
+-                Models.Trade t = readTrade(c);
+-                if (t != null && t.id > 0L) {
+-                    list.add(t);
+-                }
+-            }
+-        } catch (Throwable e) {
+-        } finally {
+-            closeCursor(c);
+-        }
+-
+-        if (list.size() <= 1) {
+-            return 0;
+-        }
+-
+-        Models.Trade keep = chooseBestTradeToKeep(list);
+-
+-        if (keep == null || keep.id <= 0L) {
+-            return 0;
+-        }
+-
+-        int deleted = 0;
+-
+-        for (int i = 0; i < list.size(); i++) {
+-            Models.Trade t = list.get(i);
+-
+-            if (t == null || t.id <= 0L || t.id == keep.id) {
+-                continue;
+-            }
+-
+-            try {
+-                deleted +=
+-                        db.delete(
+-                                DbHelper.TABLE_TRADES,
+-                                "_id=?",
+-                                new String[] {String.valueOf(t.id)});
+-            } catch (Throwable e) {
+-            }
+-        }
+-
+-        ContentValues dcv = new ContentValues();
+-        dcv.put("trade_id", keep.id);
+-        dcv.put("action", AppConfig.DECISION_BET);
+-        dcv.put("stat_scope", AppConfig.STAT_SCOPE_REAL_TRADE);
+-
+-        updateFiltered(
+-                db,
+-                DbHelper.TABLE_DECISIONS,
+-                dcv,
+-                "target_issue=? AND decision=?",
+-                new String[] {targetIssue, AppConfig.DECISION_BET});
+-
+-        return deleted;
++        return 0; // CP4 audit/quarantine only; immutable REAL rows are never silently repaired or deleted.
+     }
+ 
+     private Models.Trade chooseBestTradeToKeep(ArrayList<Models.Trade> list) {
+@@ -2651,7 +2177,7 @@ public final class DbStore {
+                         if (owns) db.beginTransaction();
+                         try {
+                             long rowId = insertDrawInternal(db, draw);
+-                            if (rowId == R811_DRAW_CONFLICT_BLOCKED) {
++                            if (rowId == R811_DRAW_CONFLICT_BLOCKED || rowId == CP12_DRAW_RETENTION_DEFERRED || rowId == CP12_DRAW_OUTSIDE_HISTORY_TAIL) {
+                                 if (owns) db.setTransactionSuccessful();
+                                 return Long.valueOf(rowId);
+                             }
+@@ -2694,6 +2220,20 @@ public final class DbStore {
+                 DrawCanonicalizerR811.observeWithinWrite(db, draw);
+         if (!canonical.confirmed) return R811_DRAW_CONFLICT_BLOCKED;
+ 
++        // Existingissue metadata repair must not consume a new tail slot.
++        boolean existingIssue;
++        try(Cursor tailExisting=db.rawQuery("SELECT 1 FROM draws WHERE issue=? LIMIT 1",new String[]{draw.issue})){existingIssue=tailExisting.moveToFirst();}
++        if(!existingIssue&&!DataRetentionGovernorR900.reserveTailSlotWithinWriteCP12(db,draw.issue)){
++            String oldest="";long count=0;
++            try(Cursor tail=db.rawQuery("SELECT MIN(issue),COUNT(*) FROM draws WHERE dirty=0",null)){if(tail.moveToFirst()){oldest=safeString(tail.getString(0));count=tail.getLong(1);}}
++            boolean outside=count>=5000&&!oldest.isEmpty()&&draw.issue.compareTo(oldest)<=0;
++            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp4_retention_requested','1',?)",new Object[]{System.currentTimeMillis()});
++            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r979_retention_due_at','0',?)",new Object[]{System.currentTimeMillis()});
++            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp12_draw_retention_reason',?,?)",new Object[]{outside?"DRAW_OUTSIDE_HISTORY_TAIL":"DRAW_RETENTION_HEADROOM_PENDING",System.currentTimeMillis()});
++            // observeWithinWrite already durably recorded immutable provider provenance/canonicalhash.
++            // No canonical acceptance event, settlementenqueue or targetadvance is emitted yet.
++            return outside?CP12_DRAW_OUTSIDE_HISTORY_TAIL:CP12_DRAW_RETENTION_DEFERRED;
++        }
+         ContentValues cv = new ContentValues();
+ 
+         cv.put("issue", draw.issue);
+@@ -2850,7 +2390,7 @@ public final class DbStore {
+                                 for (int i = 0; i < batch.size(); i++) {
+                                     Models.Draw draw = batch.get(i);
+                                     long rowId = insertDrawInternal(db, draw);
+-                                    if (rowId == R811_DRAW_CONFLICT_BLOCKED) continue;
++                                    if (rowId == R811_DRAW_CONFLICT_BLOCKED || rowId == CP12_DRAW_RETENTION_DEFERRED || rowId == CP12_DRAW_OUTSIDE_HISTORY_TAIL) continue;
+                                     if (rowId >= 0L) count++;
+                                     SettlementTaskStoreR36.enqueueConfirmedWithinWrite(
+                                             db, draw, System.currentTimeMillis(),
+@@ -2883,31 +2423,11 @@ public final class DbStore {
+     }
+ 
+     private void trimDrawHistoryIfNeeded(SQLiteDatabase db) {
+-        int retention = Math.max(AppConfig.MAX_LOCAL_HISTORY_SAVE, AppConfig.R815_HISTORY_RETENTION_MIN);
+-        if (db == null || retention <= 0) {
+-            return;
+-        }
+-
+-        try {
+-            int total = countTable(db, DbHelper.TABLE_DRAWS, "dirty=0", null);
+-
+-            if (total <= retention) {
+-                return;
+-            }
+-
+-            int remove = total - retention;
+-
+-            db.execSQL(
+-                    "DELETE FROM "
+-                            + DbHelper.TABLE_DRAWS
+-                            + " WHERE _id IN ("
+-                            + "SELECT _id FROM "
+-                            + DbHelper.TABLE_DRAWS
+-                            + " WHERE dirty=0 ORDER BY issue ASC, _id ASC LIMIT "
+-                            + remove
+-                            + ")");
+-        } catch (Throwable e) {
+-        }
++        if(db==null) throw new IllegalArgumentException("CP4_RETENTION_DB_NULL");
++        // This import path may request retention; only DataRetentionGovernor may prune,
++        // after archive verification, terminal/pin checks, and exact row-hash CAS.
++        db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)",
++            new Object[]{"cp4_retention_requested","1",Long.valueOf(System.currentTimeMillis())});
+     }
+ 
+     public boolean hasDrawIssue(String issue) {
+@@ -3883,90 +3403,7 @@ public final class DbStore {
+     }
+ 
+     V50AtomicLegacyWrite persistV50DecisionAndTrade(SQLiteDatabase db, Models.Decision decision) {
+-        if (db == null
+-                || decision == null
+-                || !V50BuildManifest.COHORT_ID.equals(
+-                        decision.cohortId == null ? "" : decision.cohortId)) {
+-            throw new IllegalStateException("V50_ATOMIC_LEGACY_INPUT_INVALID");
+-        }
+-        normalizeV50DecisionBeforeSave(decision);
+-        String contractStatus = PredictionContractEngine.verifyDecision(decision);
+-        if (!PredictionContractEngine.STATUS_VALID.equals(contractStatus)
+-                || !AppConfig.isPlayRuleLegal(
+-                        decision.position,
+-                        AppConfig.FIXED_K,
+-                        decision.n1,
+-                        decision.n2,
+-                        decision.n3)) {
+-            throw new IllegalStateException(
+-                    "V50_ATOMIC_DECISION_CONTRACT_INVALID:" + contractStatus);
+-        }
+-        boolean bet = AppConfig.DECISION_BET.equals(decision.decision);
+-        if (bet && !DecisionAuthorizationEngine.isDecisionAuthorized(decision)) {
+-            throw new IllegalStateException("V50_ATOMIC_DECISION_AUTHORIZATION_INVALID");
+-        }
+-
+-        ExistingV50Legacy existingDecision =
+-                readExistingV50Legacy(db, DbHelper.TABLE_DECISIONS, decision.targetIssue);
+-        long decisionRowId;
+-        boolean idempotent = existingDecision.exists;
+-        if (existingDecision.exists) {
+-            if (!sameV50Legacy(existingDecision, decision)) {
+-                throw new IllegalStateException("V50_ATOMIC_DECISION_HASH_CONFLICT");
+-            }
+-            decisionRowId = existingDecision.rowId;
+-        } else {
+-            decisionRowId =
+-                    insertFiltered(
+-                            db,
+-                            DbHelper.TABLE_DECISIONS,
+-                            v50DecisionValues(decision),
+-                            SQLiteDatabase.CONFLICT_NONE);
+-            if (decisionRowId <= 0L) {
+-                throw new IllegalStateException("V50_ATOMIC_DECISION_INSERT_FAILED");
+-            }
+-        }
+-        decision.id = decisionRowId;
+-
+-        long tradeRowId = 0L;
+-        if (bet) {
+-            ExistingV50Legacy existingTrade =
+-                    readExistingV50Legacy(db, DbHelper.TABLE_TRADES, decision.targetIssue);
+-            if (existingTrade.exists) {
+-                if (!sameV50Legacy(existingTrade, decision)) {
+-                    throw new IllegalStateException("V50_ATOMIC_TRADE_HASH_CONFLICT");
+-                }
+-                tradeRowId = existingTrade.rowId;
+-            } else {
+-                if (countOtherOpenV50Trades(db, decision.targetIssue) > 0) {
+-                    throw new IllegalStateException("V50_ATOMIC_UNSETTLED_TRADE_EXISTS");
+-                }
+-                tradeRowId =
+-                        insertFiltered(
+-                                db,
+-                                DbHelper.TABLE_TRADES,
+-                                v50TradeValues(decision, decisionRowId),
+-                                SQLiteDatabase.CONFLICT_NONE);
+-                if (tradeRowId <= 0L) {
+-                    throw new IllegalStateException("V50_ATOMIC_TRADE_INSERT_FAILED");
+-                }
+-                idempotent = false;
+-            }
+-            ContentValues link = new ContentValues();
+-            link.put("trade_id", tradeRowId);
+-            int linked =
+-                    updateFiltered(
+-                            db,
+-                            DbHelper.TABLE_DECISIONS,
+-                            link,
+-                            "_id=?",
+-                            new String[] {String.valueOf(decisionRowId)});
+-            if (linked != 1) {
+-                throw new IllegalStateException("V50_ATOMIC_DECISION_TRADE_LINK_FAILED");
+-            }
+-            decision.tradeId = tradeRowId;
+-        }
+-        return new V50AtomicLegacyWrite(decisionRowId, tradeRowId, idempotent);
++        throw new IllegalStateException("CP4_LEGACY_TRADE_WRITER_RETIRED:persistV50DecisionAndTrade");
+     }
+ 
+     private static final class ExistingV50Legacy {
+@@ -4134,7 +3571,7 @@ public final class DbStore {
+     }
+ 
+     private long saveDecisionInternal(Models.Decision d, boolean forceReplace) {
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard1 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             if (d == null || d.targetIssue == null || d.targetIssue.length() == 0) {
+                 return -1L;
+             }
+@@ -5657,56 +5094,11 @@ public final class DbStore {
+     }
+ 
+     public long saveTradeFromDecision(Models.Decision d) {
+-        if (d == null) {
+-            return -1L;
+-        }
+-
+-        normalizeDecisionBeforeSave(d);
+-
+-        if (!isValidBetDecision(d)) {
+-            return -1L;
+-        }
+-
+-        SQLiteDatabase db = writable();
+-        ensureRuntimeExtraTablesOnce(db);
+-
+-        Models.Trade old = getTradeByTargetIssueLoose(db, d.targetIssue);
+-
+-        if (old != null && old.id > 0L) {
+-            if (old.settled == 1) {
+-                linkDecisionTradeAfterSave(db, old);
+-                return old.id;
+-            }
+-
+-            old.applyDecision(d);
+-            copyFieldChainFields(d, old);
+-            old.decisionId = d.id;
+-            old.action = AppConfig.DECISION_BET;
+-            old.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-            old.settled = 0;
+-            old.result = AppConfig.RESULT_WAIT;
+-            old.hit = 0;
+-            old.pnl = 0.0d;
+-
+-            saveTrade(old);
+-            return old.id;
+-        }
+-
+-        Models.Trade t = new Models.Trade();
+-        t.applyDecision(d);
+-        copyFieldChainFields(d, t);
+-
+-        t.decisionId = d.id;
+-        t.action = AppConfig.DECISION_BET;
+-        t.createdAt = d.createdAt > 0L ? d.createdAt : System.currentTimeMillis();
+-        t.betTime = t.createdAt;
+-        t.result = AppConfig.RESULT_WAIT;
+-        t.settled = 0;
+-        t.hit = 0;
+-        t.pnl = 0.0d;
+-        t.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-
+-        return saveTrade(t);
++        if (d==null || d.targetIssue==null) return -1L;
++        Models.Trade existing=getTradeByTargetIssue(d.targetIssue);
++        if(existing==null || existing.position!=d.position || existing.n1!=d.n1
++                || existing.n2!=d.n2 || existing.n3!=d.n3) return -1L;
++        return existing.id; // Read-only compatibility. Missing REAL is never backfilled.
+     }
+ 
+     /**
+@@ -5720,6 +5112,8 @@ public final class DbStore {
+             throw new IllegalStateException("R915_REAL_CANONICAL_TRANSACTION_REQUIRED");
+         if (result == null || result.authorized == null
+                 || result.authorized.action != V51Enums.DecisionAction.BET) return 0L;
++        if (result.contract == null || result.contract.certifiedPrediction == null)
++            throw new IllegalStateException("CP3_NO_VALID_CERTIFICATE");
+         if (!V51CandidateRealGateR915.verifyAuthorized(null, result.contract, result.authorized))
+             throw new IllegalStateException("R915_REAL_GATE_OR_SIGNATURE_INVALID");
+         V51Models.SelectedActionEnvelope selected = result.selected;
+@@ -5832,8 +5226,8 @@ public final class DbStore {
+         trade.reasonSummary = decision.reasonSummary;
+         if (!DecisionAuthorizationEngine.isTradeAuthorized(trade))
+             throw new IllegalStateException("R915_REAL_PERSISTED_CONTRACT_INVALID");
+-        long id = insertFiltered(
+-                db, DbHelper.TABLE_TRADES, tradeToValues(trade), SQLiteDatabase.CONFLICT_ABORT);
++        long id = db.insertWithOnConflict(DbHelper.TABLE_TRADES, null,
++                filterValuesForTable(db,DbHelper.TABLE_TRADES,tradeToValues(trade)),SQLiteDatabase.CONFLICT_ABORT);
+         if (id <= 0L) throw new IllegalStateException("R915_REAL_INSERT_FAILED");
+         if(result.contract.certifiedPrediction!=null){
+             CertifiedPredictionR974.Proof p=result.contract.certifiedPrediction;
+@@ -5852,87 +5246,7 @@ public final class DbStore {
+     }
+ 
+     public long saveTrade(Models.Trade t) {
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
+-            if (t == null || t.targetIssue == null || t.targetIssue.length() == 0) {
+-                return -1L;
+-            }
+-
+-            normalizeTradeBeforeSave(t);
+-            if (!DecisionAuthorizationEngine.isTradeAuthorized(t)) {
+-                return -1L;
+-            }
+-
+-            if (!AppConfig.isValidPosition(t.position) || !Models.isValidK3Mask(t.k3Mask)) {
+-                return -1L;
+-            }
+-
+-            SQLiteDatabase db = writable();
+-            ensureRuntimeExtraTablesOnce(db);
+-
+-            Models.Trade oldByTarget = getTradeByTargetIssueLoose(db, t.targetIssue);
+-
+-            if (oldByTarget != null && oldByTarget.id > 0L) {
+-                if (oldByTarget.settled == 1 && t.settled != 1) {
+-                    copySettlementFields(oldByTarget, t);
+-                }
+-
+-                if (t.id <= 0L) {
+-                    t.id = oldByTarget.id;
+-                }
+-
+-                if (t.decisionId <= 0L) {
+-                    t.decisionId = oldByTarget.decisionId;
+-                }
+-            }
+-
+-            if (!V50BuildManifest.COHORT_ID.equals(t.cohortId == null ? "" : t.cohortId)) {
+-                syncFieldChainAliases(t);
+-            }
+-            ContentValues cv = tradeToValues(t);
+-
+-            if (t.id > 0L) {
+-                int updated =
+-                        updateFiltered(
+-                                db,
+-                                DbHelper.TABLE_TRADES,
+-                                cv,
+-                                "_id=?",
+-                                new String[] {String.valueOf(t.id)});
+-
+-                if (updated > 0) {
+-                    linkDecisionTradeAfterSave(db, t);
+-                    cleanupDuplicateTradesForTarget(db, t.targetIssue);
+-                    return t.id;
+-                }
+-            }
+-
+-            if (oldByTarget != null && oldByTarget.id > 0L) {
+-                int updated =
+-                        updateFiltered(
+-                                db,
+-                                DbHelper.TABLE_TRADES,
+-                                cv,
+-                                "_id=?",
+-                                new String[] {String.valueOf(oldByTarget.id)});
+-
+-                if (updated > 0) {
+-                    t.id = oldByTarget.id;
+-                    linkDecisionTradeAfterSave(db, t);
+-                    cleanupDuplicateTradesForTarget(db, t.targetIssue);
+-                    return oldByTarget.id;
+-                }
+-            }
+-
+-            long id = insertFiltered(db, DbHelper.TABLE_TRADES, cv, SQLiteDatabase.CONFLICT_IGNORE);
+-
+-            if (id > 0L) {
+-                t.id = id;
+-                linkDecisionTradeAfterSave(db, t);
+-                cleanupDuplicateTradesForTarget(db, t.targetIssue);
+-            }
+-
+-            return id;
+-        }
++        throw new IllegalStateException("CP4_LEGACY_TRADE_WRITER_RETIRED:saveTrade");
+     }
+ 
+     private void normalizeTradeBeforeSave(Models.Trade t) {
+@@ -6085,39 +5399,15 @@ public final class DbStore {
+     }
+ 
+     public int updateTradeFull(Models.Trade t) {
+-        if (t == null || t.id <= 0L) {
+-            return 0;
+-        }
+-        normalizeTradeBeforeSave(t);
+-        if (!DecisionAuthorizationEngine.isTradeAuthorized(t)) {
+-            return 0;
+-        }
+-        syncFieldChainAliases(t);
+-        SQLiteDatabase db = writable();
+-        ensureRuntimeExtraTablesOnce(db);
+-        return updateFiltered(
+-                db,
+-                DbHelper.TABLE_TRADES,
+-                tradeToValues(t),
+-                "_id=?",
+-                new String[] {String.valueOf(t.id)});
++        throw new IllegalStateException("CP4_LEGACY_TRADE_WRITER_RETIRED:updateTradeFull");
+     }
+ 
+     public int updateTrade(Models.Trade t) {
+-        return updateTradeFull(t);
++        throw new IllegalStateException("CP4_LEGACY_TRADE_WRITER_RETIRED:updateTrade");
+     }
+ 
+     public long replaceTradeFull(Models.Trade t) {
+-        if (t == null) {
+-            return -1L;
+-        }
+-        if (t.id > 0L) {
+-            int u = updateTradeFull(t);
+-            if (u > 0) {
+-                return t.id;
+-            }
+-        }
+-        return saveTrade(t);
++        throw new IllegalStateException("CP4_LEGACY_TRADE_WRITER_RETIRED:replaceTradeFull");
+     }
+ 
+     private void copyFieldChainFields(Object from, Object to) {
+@@ -6307,7 +5597,7 @@ public final class DbStore {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("STRONG") < 0
+                 && s.indexOf("READY") < 0
+                 && s.indexOf("PASS") < 0
+@@ -6319,7 +5609,7 @@ public final class DbStore {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("STRONG") < 0
+                 && s.indexOf("READY") < 0
+                 && s.indexOf("PASS") < 0
+@@ -6331,7 +5621,7 @@ public final class DbStore {
+         if (text == null || key == null || key.length() == 0) {
+             return false;
+         }
+-        return text.toUpperCase().indexOf(key.toUpperCase()) >= 0;
++        return text.toUpperCase(java.util.Locale.ROOT).indexOf(key.toUpperCase(java.util.Locale.ROOT)) >= 0;
+     }
+ 
+     private ContentValues tradeToValues(Models.Trade t) {
+@@ -6685,148 +5975,19 @@ public final class DbStore {
+     }
+ 
+     public int settleTrade(Models.Trade t) {
+-        if (t == null) {
+-            return 0;
+-        }
+-
+-        normalizeTradeBeforeSave(t);
+-
+-        if (!isValidRealTrade(t)) {
+-            return 0;
+-        }
+-
+-        if (t.settled != 1 || !AppConfig.isTerminalResult(t.result)) {
+-            return 0;
+-        }
+-
+-        SQLiteDatabase db = writable();
+-        ensureRuntimeExtraTablesOnce(db);
+-
+-        if (t.id <= 0L) {
+-            Models.Trade old = getTradeByTargetIssueLoose(db, t.targetIssue);
+-
+-            if (old != null && old.id > 0L) {
+-                t.id = old.id;
+-
+-                if (t.decisionId <= 0L) {
+-                    t.decisionId = old.decisionId;
+-                }
+-            }
+-        }
+-
+-        if (t.id <= 0L) {
+-            return 0;
+-        }
+-
+-        t.action = AppConfig.DECISION_BET;
+-        t.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-        t.hit = AppConfig.isWinResult(t.result) ? 1 : 0;
+-        t.pnl = pnlForHitLocal(t.hit == 1);
+-
+-        if (t.settleTime <= 0L) {
+-            t.settleTime = System.currentTimeMillis();
+-        }
+-
+-        if (t.settledAt <= 0L) {
+-            t.settledAt = t.settleTime;
+-        }
+-
+-        ContentValues cv = tradeToValues(t);
+-
+-        int updated =
+-                updateFiltered(
+-                        db,
+-                        DbHelper.TABLE_TRADES,
+-                        cv,
+-                        "_id=?",
+-                        new String[] {String.valueOf(t.id)});
+-
+-        if (updated <= 0) {
+-            return 0;
+-        }
+-
+-        updateDecisionSettlementFromTrade(db, t);
+-        cleanupDuplicateTradesForTarget(db, t.targetIssue);
+-
+-        setState("last_settle_issue", t.targetIssue);
+-        setState("last_settle_result", t.result);
+-        setState("last_settle_pnl", String.valueOf(t.pnl));
+-        setState("last_settle_time", String.valueOf(System.currentTimeMillis()));
+-
+-        return updated;
++        if(t==null || t.targetIssue==null)return 0;
++        Models.Draw draw=getDrawByIssue(t.targetIssue);
++        if(draw==null || !draw.isValid())return 0;
++        SettlementEngine.SettlementReport report=SettlementCoordinatorR815.settleNow(
++                this,draw,SettlementCoordinatorR815.Reason.LEGACY_API);
++        return report==null?0:report.settledCount;
+     }
+ 
+     public int settleTradeByDraw(Models.Trade t, Models.Draw draw) {
+-        if (t == null || draw == null) {
+-            return 0;
+-        }
+-
+-        if (draw.issue == null || draw.issue.length() == 0) {
+-            return 0;
+-        }
+-
+-        if (t.targetIssue == null || t.targetIssue.length() == 0) {
+-            return 0;
+-        }
+-
+-        if (!draw.issue.equals(t.targetIssue)) {
+-            return 0;
+-        }
+-
+-        if (!AppConfig.isValidPosition(t.position)) {
+-            return 0;
+-        }
+-
+-        if (t.k3Mask <= 0 && AppConfig.isValidK3Numbers(t.n1, t.n2, t.n3)) {
+-            t.k3Mask = Models.buildK3Mask(t.n1, t.n2, t.n3);
+-        }
+-
+-        if (!Models.isValidK3Mask(t.k3Mask)) {
+-            return 0;
+-        }
+-
+-        int actual = getActualNumberByPosition(draw, t.position);
+-
+-        if (!AppConfig.isValidNumber(actual)) {
+-            return 0;
+-        }
+-
+-        boolean hit = isTradeK3HitStrict(t, actual);
+-
+-        long now = System.currentTimeMillis();
+-
+-        t.actualNumber = actual;
+-        t.hit = hit ? 1 : 0;
+-        t.result = hit ? AppConfig.RESULT_WIN : AppConfig.RESULT_MISS;
+-        t.pnl = pnlForHitLocal(hit);
+-        t.settled = 1;
+-        t.settleTime = now;
+-        t.settledAt = now;
+-        t.action = AppConfig.DECISION_BET;
+-        t.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-        t.settlementReason =
+-                "严格单位置K3结算｜目标期="
+-                        + t.targetIssue
+-                        + "｜位置="
+-                        + t.position
+-                        + "｜实际="
+-                        + actual
+-                        + "｜K3="
+-                        + t.n1
+-                        + ","
+-                        + t.n2
+-                        + ","
+-                        + t.n3
+-                        + "｜结果="
+-                        + t.result;
+-
+-        if (!hit) {
+-            t.missReason = "预测位置实际号码未落入K3组合";
+-        } else {
+-            t.missReason = "";
+-        }
+-
+-        return settleTrade(t);
++        if(t==null || draw==null || !draw.isValid() || !draw.issue.equals(t.targetIssue))return 0;
++        SettlementEngine.SettlementReport report=SettlementCoordinatorR815.settleNow(
++                this,draw,SettlementCoordinatorR815.Reason.LEGACY_API);
++        return report==null?0:report.settledCount;
+     }
+ 
+     private boolean isTradeK3HitStrict(Models.Trade t, int actual) {
+@@ -6966,7 +6127,7 @@ public final class DbStore {
+             String targetIssue,
+             List<Models.ComboCandidate> candidates,
+             int limit) {
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard3 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             saveMainChainCandidateSnapshot(
+                     baseIssue, targetIssue, candidates, MAIN_CHAIN_REALTIME_TOP40_LIMIT);
+             if (targetIssue == null || targetIssue.length() == 0 || candidates == null) {
+@@ -15559,6 +14720,8 @@ public final class DbStore {
+ 
+     private long insertFiltered(
+             SQLiteDatabase db, String table, ContentValues source, int conflictAlgorithm) {
++        if(DbHelper.TABLE_TRADES.equals(table))
++            throw new IllegalStateException("CP4_TRADE_INSERT_REQUIRES_CANONICAL_OWNER");
+         if (db == null || table == null || table.length() == 0 || source == null) {
+             return -1L;
+         }
+@@ -15569,6 +14732,7 @@ public final class DbStore {
+             return -1L;
+         }
+ 
++        RetentionAggregateCapacityCP12.checkAdmission(db,table,filtered);
+         if (conflictAlgorithm == SQLiteDatabase.CONFLICT_NONE) {
+             return db.insert(table, null, filtered);
+         }
+@@ -15578,6 +14742,8 @@ public final class DbStore {
+ 
+     private int updateFiltered(
+             SQLiteDatabase db, String table, ContentValues source, String where, String[] args) {
++        if(DbHelper.TABLE_TRADES.equals(table))
++            throw new IllegalStateException("CP4_TRADE_UPDATE_REQUIRES_SETTLEMENT_OWNER");
+         if (db == null || table == null || table.length() == 0 || source == null) {
+             return 0;
+         }
+@@ -20195,7 +19361,7 @@ public final class DbStore {
+     }
+ 
+     public void saveLayerSnapshot(Models.LayerSnapshot x) {
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard4 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             if (x == null || x.snapshotKey == null || x.snapshotKey.length() == 0) return;
+             if (x.maxIncludedIssue != null
+                     && x.asOfIssue != null
+@@ -20306,7 +19472,7 @@ public final class DbStore {
+     }
+ 
+     public void saveBackgroundCursor(Models.BackgroundCursor x) {
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard5 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             if (x == null || x.taskKey == null || x.taskKey.length() == 0) return;
+             SQLiteDatabase db = writable();
+             ensureLinkModificationV2Ready(db);
+@@ -21106,12 +20272,12 @@ public final class DbStore {
+                         : "Q_WEAK";
+         String riskBand = counter <= AppConfig.REAL_BET_PROBE_MAX_COUNTER_RISK ? "R_OK" : "R_HIGH";
+         String needBand = need >= AppConfig.REAL_BET_PROBE_MIN_NEED_SUPPLY ? "N_OK" : "N_WEAK";
+-        String adaptive = getOptionalStringField(obj, "adaptiveStatus", "").toUpperCase();
++        String adaptive = getOptionalStringField(obj, "adaptiveStatus", "").toUpperCase(java.util.Locale.ROOT);
+         String adaptiveBand =
+                 adaptive.indexOf("FREEZE") >= 0 || adaptive.indexOf("REJECT") >= 0
+                         ? "A_RISK"
+                         : "A_OK";
+-        String rule = getOptionalStringField(obj, "ruleHealthStatus", "").toUpperCase();
++        String rule = getOptionalStringField(obj, "ruleHealthStatus", "").toUpperCase(java.util.Locale.ROOT);
+         String ruleBand =
+                 rule.indexOf("HARD_RISK") >= 0 || rule.indexOf("FREEZE") >= 0 ? "RH_RISK" : "RH_OK";
+         return AppConfig.sanitizePromotionDomainKey(
+@@ -21171,12 +20337,12 @@ public final class DbStore {
+                         : "Q_WEAK";
+         String riskBand = counter <= AppConfig.REAL_BET_PROBE_MAX_COUNTER_RISK ? "R_OK" : "R_HIGH";
+         String needBand = need >= AppConfig.REAL_BET_PROBE_MIN_NEED_SUPPLY ? "N_OK" : "N_WEAK";
+-        String adaptive = getString(c, "adaptive_status").toUpperCase();
++        String adaptive = getString(c, "adaptive_status").toUpperCase(java.util.Locale.ROOT);
+         String adaptiveBand =
+                 adaptive.indexOf("FREEZE") >= 0 || adaptive.indexOf("REJECT") >= 0
+                         ? "A_RISK"
+                         : "A_OK";
+-        String rule = getString(c, "rule_health_status").toUpperCase();
++        String rule = getString(c, "rule_health_status").toUpperCase(java.util.Locale.ROOT);
+         String ruleBand =
+                 rule.indexOf("HARD_RISK") >= 0 || rule.indexOf("FREEZE") >= 0 ? "RH_RISK" : "RH_OK";
+         return AppConfig.sanitizePromotionDomainKey(
+@@ -21288,7 +20454,7 @@ public final class DbStore {
+             long costMs,
+             String summary) {
+         if (taskKey == null || taskKey.length() == 0) return;
+-        String key = AppConfig.safeKeyPart(taskKey).toLowerCase();
++        String key = AppConfig.safeKeyPart(taskKey).toLowerCase(java.util.Locale.ROOT);
+         HashMap<String, String> values = new HashMap<String, String>();
+         values.put("background_slice_" + key + "_status", status == null ? "" : status);
+         values.put("background_slice_" + key + "_processed", String.valueOf(processed));
+@@ -21303,7 +20469,7 @@ public final class DbStore {
+ 
+     public String getBackgroundSliceSummary(String taskKey) {
+         if (taskKey == null || taskKey.length() == 0) return "";
+-        String key = AppConfig.safeKeyPart(taskKey).toLowerCase();
++        String key = AppConfig.safeKeyPart(taskKey).toLowerCase(java.util.Locale.ROOT);
+         return "status="
+                 + getState("background_slice_" + key + "_status", "")
+                 + "|processed="
+@@ -21334,8 +20500,8 @@ public final class DbStore {
+     }
+ 
+     public Models.TeacherSliceState loadTeacherSliceState(String layer) {
+-        String l = layer == null ? "" : layer.trim().toUpperCase();
+-        String key = "teacher_" + l.toLowerCase();
++        String l = layer == null ? "" : layer.trim().toUpperCase(java.util.Locale.ROOT);
++        String key = "teacher_" + l.toLowerCase(java.util.Locale.ROOT);
+         Models.TeacherSliceState x = new Models.TeacherSliceState();
+         x.layer = l;
+         x.status = getState("background_slice_" + key + "_status", "IDLE");
+@@ -21563,7 +20729,7 @@ public final class DbStore {
+         cv.put("upper_bound", x.upperBound);
+         cv.put("drift_score", x.driftScore);
+         cv.put("updated_at", x.updatedAt);
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard6 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             db.insertWithOnConflict(table, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+         }
+     }
+@@ -21800,61 +20966,7 @@ public final class DbStore {
+ 
+     /** 把Decision证据补回同目标期Trade，只修审计字段，不改结果和盈亏。 */
+     public synchronized int repairDecisionTradeEvidenceV17(int limit) {
+-        String done = getState(AppConfig.DECISION_TRADE_REPAIR_STATE_KEY, "");
+-        if ("DONE".equals(done)) return 0;
+-        int batch = Math.max(1, Math.min(AppConfig.BACKGROUND_MAINTENANCE_BATCH, limit));
+-        String cursor = getState(AppConfig.DECISION_TRADE_REPAIR_STATE_KEY + "_cursor", "");
+-        Cursor c = null;
+-        int changed = 0, scanned = 0;
+-        String last = cursor;
+-        try {
+-            SQLiteDatabase db = writable();
+-            String where = "target_issue<>''";
+-            String[] args = null;
+-            if (cursor.length() > 0) {
+-                where += " AND target_issue>?";
+-                args = new String[] {cursor};
+-            }
+-            c =
+-                    db.query(
+-                            DbHelper.TABLE_TRADES,
+-                            new String[] {"target_issue"},
+-                            where,
+-                            args,
+-                            null,
+-                            null,
+-                            "target_issue ASC",
+-                            String.valueOf(batch));
+-            while (c != null && c.moveToNext()) {
+-                scanned++;
+-                String issue = c.getString(0);
+-                last = issue;
+-                Models.Decision d = getDecisionByTargetIssue(issue);
+-                if (d == null) continue;
+-                ContentValues cv = new ContentValues();
+-                putFieldChainValues(cv, d);
+-                putDynamicCausalValues(cv, d);
+-                putMainChainClosedLoopValues(cv, d);
+-                putLinkModificationV2Values(cv, d);
+-                changed +=
+-                        updateFiltered(
+-                                db,
+-                                DbHelper.TABLE_TRADES,
+-                                cv,
+-                                "target_issue=?",
+-                                new String[] {issue});
+-            }
+-            if (last.length() > 0)
+-                setState(AppConfig.DECISION_TRADE_REPAIR_STATE_KEY + "_cursor", last);
+-            setState(
+-                    AppConfig.DECISION_TRADE_REPAIR_STATE_KEY,
+-                    scanned < batch ? "DONE" : "RUNNING");
+-        } catch (Throwable e) {
+-            setState(AppConfig.DECISION_TRADE_REPAIR_STATE_KEY, "ERROR:" + String.valueOf(e));
+-        } finally {
+-            closeCursor(c);
+-        }
+-        return changed;
++        return 0; // CP4 read-only diagnosis; immutable ledger evidence is never filled after draw.
+     }
+ 
+     public Models.FrequencyState loadRollingFrequencyStateV20() {
+@@ -23315,4 +22427,18 @@ public final class DbStore {
+                 && !V51BuildManifest.CANDIDATE_REAL_AUTH_ENABLED;
+     }
+     /* STARCORE_TIANSHU_B03_DBSTORE_END */
++
++public static final long CP12_DRAW_RETENTION_DEFERRED=-3L,CP12_DRAW_OUTSIDE_HISTORY_TAIL=-4L;
++
++public int replayRetentionDeferredDrawsCP12(int limit){
++        if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("DRAW_RETENTION_REPLAY_MAIN_THREAD");
++        ArrayList<Models.Draw> pending=new ArrayList<>();
++        String sql="SELECT p.parsed_issue,p.server_open_time,p.observed_at,p.source_line,p.permutation FROM "+DbHelper.TABLE_R811_DRAW_PROVENANCE+" p JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=p.parsed_issue WHERE c.status='CONFIRMED_CANONICAL_DRAW' AND NOT EXISTS(SELECT 1 FROM draws d WHERE d.issue=p.parsed_issue) AND p.draw_hash=c.canonical_draw_hash AND (SELECT COUNT(*) FROM draws WHERE dirty=0)>=5000 AND p.parsed_issue>(SELECT MIN(issue) FROM draws WHERE dirty=0) AND p.provenance_id=(SELECT MIN(v.provenance_id) FROM "+DbHelper.TABLE_R811_DRAW_PROVENANCE+" v WHERE v.parsed_issue=p.parsed_issue AND v.draw_hash=p.draw_hash) ORDER BY p.parsed_issue LIMIT "+Math.max(1,Math.min(8,limit));
++        try(Cursor c=readable().rawQuery(sql,null)){while(c.moveToNext()){
++            Models.Draw d=new Models.Draw();d.issue=c.getString(0);d.openTime=c.getLong(1);d.fetchTime=c.getLong(2);d.sourceLine=c.getString(3);d.rawJson="";
++            String text=safeString(c.getString(4));if(text.length()>40)throw new IllegalStateException("DRAW_RETENTION_PERMUTATION_BOUND");String[] values=text.split(",",-1);if(values.length!=10)throw new IllegalStateException("DRAW_RETENTION_PERMUTATION_COUNT");
++            for(int i=0;i<10;i++)d.numbers[i]=Integer.parseInt(values[i].trim());if(!d.isValid())throw new IllegalStateException("DRAW_RETENTION_PROVENANCE_INVALID");pending.add(d);
++        }}
++        int applied=0;for(Models.Draw draw:pending){long saved=saveDraw(draw);if(saved==CP12_DRAW_RETENTION_DEFERRED)break;if(saved>=0)applied++;}return applied;
++    }
+ }

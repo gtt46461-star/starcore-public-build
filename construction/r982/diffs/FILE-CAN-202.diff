@@ -1,0 +1,49 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+index 88918bc..fed6f42 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+@@ -32,7 +32,7 @@ public final class V51RuntimeOrchestrator {
+         final long runtimeEnteredMonoR927 = TimeSourceR811.monoNowMs();
+         final long runtimeEnteredR925 = System.currentTimeMillis();
+         AnalysisRequestStoreR36 requests = new AnalysisRequestStoreR36(store);
+-        try (ModelBundleRuntimeR932.Scope modelScope = ModelBundleRuntimeR932.open(store, request.targetIssue, request.requestAt)) {
++        try (RecipeBudgetScopeCP12 recipeScope=RecipeBudgetScopeCP12.open();ModelBundleRuntimeR932.Scope modelScope = openBundleTracedCP3(store, request, trace)) {
+             checkpoint(requests, lease, "RUNTIME_ENTER");
+             V51Models.DrawFrame[] history = input.frozenFramesR36();
+             if (history.length < 12) throw new IllegalStateException("V51_HISTORY_LT_12");
+@@ -284,6 +284,7 @@ public final class V51RuntimeOrchestrator {
+                     mark,
+                     true,
+                     RuntimeMemoryGuardR811.snapshot("SELECTION_DONE").canonical());
++            lease.token.enterFinalization();
+             checkpoint(requests, lease, "SELECTION_DONE");
+ 
+             mark = trace.begin("DECISION_GATE");
+@@ -437,7 +438,7 @@ public final class V51RuntimeOrchestrator {
+             // R907 P0 latency rule: after canonical commit, return immediately to the service so
+             // Decision broadcast is not held behind Research/diagnostic work. Research capture is
+             // scheduled on the dedicated background-serial HandlerThread by AutoFetchService.
+-            return new OutcomeR36(result, commit, snapshot.sha256, trace);
++            return new OutcomeR36(result.publishedViewCP12(), commit, snapshot.sha256, trace);
+         } catch (OutOfMemoryError oom) {
+             trace.end(root, false, "OOM");
+             RuntimeMemoryGuardR811.recoverAfterFailure();
+@@ -817,4 +818,18 @@ public final class V51RuntimeOrchestrator {
+             trace = t;
+         }
+     }
++
++    private static ModelBundleRuntimeR932.Scope openBundleTracedCP3(
++            DbStore store, AnalysisSingleFlightR36.Request request, RuntimeTraceR36 trace) {
++        RuntimeTraceR36.Mark mark = trace.begin("MODEL_BUNDLE_OPEN_CP3");
++        boolean ok = false;
++        try {
++            ModelBundleRuntimeR932.Scope scope = ModelBundleRuntimeR932.open(
++                    store, request.targetIssue, request.requestAt);
++            ok = true;
++            return scope;
++        } finally {
++            trace.end(mark, ok, ok ? "BUNDLE_FROZEN" : "BUNDLE_OPEN_FAILED");
++        }
++    }
+ }

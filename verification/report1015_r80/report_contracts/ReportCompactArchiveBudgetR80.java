@@ -1,0 +1,20 @@
+package com.ethk3.novaonepro;
+import android.database.sqlite.SQLiteDatabase;import java.io.*;import java.nio.file.*;import org.json.*;import java.util.*;
+public class ReportCompactArchiveBudgetR80{
+ static int n;static void ok(boolean b,String s){if(!b)throw new AssertionError(s);n++;System.out.println("PASS "+s);}
+ static File add(SQLiteDatabase db,File root,String id,long size,int marker)throws Exception{File f=new File(root,id+".tmp");try(RandomAccessFile out=new RandomAccessFile(f,"rw")){out.setLength(size);out.seek(0);out.write(marker);}String h=ReportArchiveCP4.hash(f);File dest=new File(root,"retention-cas-cp12/"+h+".scrow");Files.move(f.toPath(),dest.toPath());db.execSQL("INSERT INTO research_evidence_archive_v2 VALUES(?,?,?,?,1,'VERIFIED')",new Object[]{id,"r80_probe_input",h,"retention-cas-cp12/"+h+".scrow"});return dest;}
+ public static void main(String[]args)throws Exception{File root=new File(args[1]);root.mkdirs();new File(root,"retention-cas-cp12").mkdir();File report=new File(root,"report.jsonl");
+ try(SQLiteDatabase db=new SQLiteDatabase(args[0],new File(root,"fixture.db").getPath())){
+ db.execSQL("CREATE TABLE research_evidence_archive_v2(archive_id TEXT,source_table TEXT,archive_hash TEXT,relative_path TEXT,row_count INTEGER,state TEXT)");db.execSQL("CREATE TABLE research_evidence_locator_v2(archive_id TEXT)");
+ File huge=add(db,root,"a",9L*1024*1024,1);JSONObject compact=ReportAttachmentClosureCP12.observeR80Archives(db,root,report,()->true,true);
+ ok(compact.getString("status").equals("VERIFICATION_PARTIAL"),"oversized compact archive explicitly partial");ok(compact.getLong("compactArchiveBytesRead")==0&&compact.getLong("byteVerificationNotRunPages")==1,"oversized body not read or called corrupt");ok(Files.readString(report.toPath()).contains("NOT_RUN_COMPACT_BYTE_BUDGET"),"exact metadata row retained for skipped body");
+ JSONObject full=ReportAttachmentClosureCP12.observeR80Archives(db,root,report,()->true,false);ok(full.getLong("verifiedPages")==1&&full.getString("status").equals("VERIFIED_ARCHIVE_AVAILABILITY"),"fullraw verifies body above compact limit");ok(ReportAttachmentClosureCP12.observeR80Archives(db,root,report,()->true).getLong("verifiedPages")==1,"legacy helper keeps full verification semantics");
+ File first=add(db,root,"b",3L*1024*1024,2);add(db,root,"c",3L*1024*1024,3);add(db,root,"d",3L*1024*1024,4);
+ compact=ReportAttachmentClosureCP12.observeR80Archives(db,root,report,()->true,true);ok(compact.getLong("pages")==4&&Files.readAllLines(report.toPath()).size()==4,"budget exhaustion never truncates metadata coverage");ok(compact.getLong("verifiedPages")==2&&compact.getLong("byteVerificationNotRunPages")==2,"cumulative budget applied across files");ok(compact.getLong("compactArchiveBytesRead")==6L*1024*1024,"only actual bytes consumed accounted");
+ long[] budget={65536};File stale=new File(huge.getPath()){@Override public long length(){return 1;}};String hash=ReportAttachmentClosureCP12.boundedArchiveHashR80(stale,budget,()->true);ok(hash==null&&budget[0]==0,"file growth beyond stale stat bounded at actual read budget");
+ long[] cancelBudget={8L*1024*1024};int[] calls={0};boolean cancelled=false;try{ReportAttachmentClosureCP12.boundedArchiveHashR80(first,cancelBudget,()->++calls[0]<3);}catch(InterruptedIOException expected){cancelled=true;}ok(cancelled&&cancelBudget[0]<8L*1024*1024&&cancelBudget[0]>0,"midstream cancellation aborts rather than verifies");
+ Files.writeString(first.toPath(),"corrupt");compact=ReportAttachmentClosureCP12.observeR80Archives(db,root,report,()->true,true);ok(compact.getLong("missingOrCorruptPages")==1&&compact.getString("status").equals("ARCHIVE_EVIDENCE_UNAVAILABLE"),"corrupt page still detected under budget");Files.delete(first.toPath());compact=ReportAttachmentClosureCP12.observeR80Archives(db,root,report,()->true,true);ok(Files.readString(report.toPath()).contains("MISSING_ARCHIVE")&&compact.getLong("missingOrCorruptPages")==1,"missing archive distinct from budget notrun");
+ }
+ System.out.println("PASS COMPACT_ARCHIVE_BUDGET assertions="+n+" scope=real_files_synthetic_registries_no_device_latency_claim");
+ }
+}

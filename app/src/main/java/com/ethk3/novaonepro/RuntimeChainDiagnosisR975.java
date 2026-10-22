@@ -1,0 +1,149 @@
+package com.ethk3.novaonepro;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.content.res.AssetManager;
+import java.io.*;
+
+/** Read-only incident triage, not a global claim that every function is correct.
+ * Queries have separate read timestamps. No migration, model update, certificate,
+ * synthetic success, or counter repair is performed by this report.
+ */
+public final class RuntimeChainDiagnosisR975 {
+    public static final String INDEX="research/r975_source_calls.tsv";
+    private RuntimeChainDiagnosisR975() {}
+    public static void write(SQLiteDatabase db,Writer out)throws IOException {
+        out.write("\n【R975故障定位：先看阻断，再看原始表】\n");
+        out.write("build="+ReleaseManifestR926.VERSION_NAME+"|versionCode="+ReleaseManifestR926.VERSION_CODE+"|numericRule="+TrainingCodeIdentityR964.SHA256+"\n");
+        out.write("范围=已记录的运行证据与必要条件；不是所有文件所有路径真机通过。各查询独立读取；缺表/SQL异常=UNKNOWN，不是0或PASS。\n");
+        out.write("主链规则=有效独立证据HR>=34%且质量门通过；每个合格期最多一次REAL；无频率配额；未达证据门不伪造出手。\n");
+        long trained=number(db,out,"completed_numeric_training","SELECT COUNT(*) FROM r952_research_outbox WHERE state='COMPLETED'");
+        long post=number(db,out,"post_training_unfinished","SELECT COUNT(*) FROM v57_research_task_r967 WHERE kind='POST_TRAIN' AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL')");
+        long ready=number(db,out,"calibration_ready","SELECT COUNT(*) FROM research_candidate_cal_study_r932 WHERE state='READY'");
+        long fitted=number(db,out,"calibration_fitted","SELECT COUNT(*) FROM research_candidate_cal_model_r932");
+        long windows=number(db,out,"formal_windows","SELECT COUNT(*) FROM research_fixed_window_r932");
+        long certificates=number(db,out,"active_gate_passing_certificates","SELECT COUNT(*) FROM research_certificate_r929 WHERE state='ACTIVE' AND all_gates_pass=1");
+        long real=number(db,out,"exact_real_consumptions","SELECT COUNT(*) FROM r974_exact_real_receipt");
+        String root;
+        if(ready>0&&fitted==0)root="CALIBRATION_READY_NOT_PUBLISHED：已有固定校准样本达到241但拟合模型为空。查CandidateCalibrationR932.fitOne和维护lane6；不能归因于没有高胜率算法。";
+        else if(trained>0&&post>0)root="TRAINING_FEEDBACK_BACKLOG：数值训练已经发生，但训练后投影仍有积压。查POST_TASK的最早期号/租约/失败原因；不能把所有训练都说成0。";
+        else if(windows==0&&fitted==0)root="WAIT_CALIBRATION_OR_CAPTURE：还没有可用校准模型。逐模型检查当前规则新更新数、冻结捕获和241固定样本；旧warm count不是当前模型已评估样本。";
+        else if(windows==0)root="CALIBRATION_TO_WINDOW_NOT_ADVANCED：有校准模型但正式窗口为空。查模型兼容、下一期开盘前捕获、冠军快照、结构/选择器身份与固定窗口注册。";
+        else if(windows>0&&certificates==0)root="WINDOW_TO_CERTIFICATE_NOT_PASSED：查固定窗口状态、统计门与发布审计；不得将未通过的窗口强行变成证书。";
+        else if(certificates>0&&real==0)root="CERTIFICATE_TO_REAL_NOT_CONSUMED：已有通过门的证书，但没有精确REAL消费收据；核对期号、当期模型可执行性、兼容性、截止时间与拒绝表。";
+        else if(real>0)root="RECEIPTS_PRESENT_NOT_FULL_ACCEPTANCE：存在部分消费收据；仍须核对每期缺口、错期/重复、延迟、后台、存储及各独立模型的质量。";
+        else root="UNKNOWN_INSUFFICIENT_STAGE_DATA：必要表/查询不完整，不能定位下游合格或健康；按各node原始异常排查。";
+        if(trained<0||post<0||ready<0||fitted<0||windows<0||certificates<0||real<0)
+            out.write("总判定=PARTIAL_UNKNOWN：至少一项查询不可用；下述是已知条件推导，不能声称完整健康。\n");
+        out.write("首个可解释阻断="+root+"\n");
+        stage(db,out,"01_DRAW_SETTLE","SettlementEngine / SettlementTaskStoreR36","开奖→权威结算","SELECT target_issue,status,settlement_hash FROM v57_settlement_task_r36 ORDER BY target_issue DESC LIMIT 3","缺COMPLETED需先查数据获取、期号及结算事务；研究链不得自行补造结算。");
+        stage(db,out,"02_TRAIN","r952/ResearchOutboxR952.drainOne → ResearchTrainingHookRegistryR952.prepare / commit","数值训练提交","SELECT candidate_id,target_issue,state,last_error,delivery_hash FROM r952_research_outbox WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED') ORDER BY target_issue,candidate_id LIMIT 12","查看未完成队列真实原因；完成计数只代表提交，不等于模型质量通过。");
+        stage(db,out,"03_POST_TASK","r952/PostSettlementResearchLoopR952.drainOne → projectOnline → ResearchTaskQueueR967.complete","训练→知识投影","SELECT candidate_id,target_issue,status,generation,lease_until,attempt_count,last_error FROM v57_research_task_r967 WHERE kind='POST_TRAIN' AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL') ORDER BY target_issue,candidate_id LIMIT 12","R975同事务领取与完成；预算中断应回滚领取。旧进程租约未到期仍保护；持续RUNNING/无游标推进须检查死循环。");
+        stage(db,out,"04_EVOLVE","r952/EvolutionEvidenceR975.advance → EvolutionControllerR952.evolveOne","误差分页→实际子代","SELECT parent_id,endpoint,verified_n,state,reason,child_id,evidence_hash FROM r975_evolution_review ORDER BY updated_at DESC LIMIT 12","ACTIVE应逐页增加到120；READY下一轮生成不同公式；BLOCKED须按reason处理；CONSUMED必须有实际child_id及血缘，不能仅递增代数。");
+        stage(db,out,"05_CHILD","r952/EvolutionControllerR952 → ComputationReceiptR974.lineage","新公式与父代保留","SELECT candidate_id,parent_id,created_issue,state,future_n,structural_hash FROM r952_candidate WHERE parent_id<>'' ORDER BY created_issue DESC LIMIT 12","核查新结构与独立训练；future_n不允许继承父代；父公式与双亲来源见r974_model_lineage原始表。");
+        stage(db,out,"06_FREEZE","ResearchEvaluationRunR967 / FrozenCandidateAdapterR958.prepare","当前规则模型→独立冻结","SELECT candidate_id,learner_id,created_issue,trained_until_issue,run_hash,rule_hash,update_endpoint FROM r967_frozen_evaluation_v2 ORDER BY created_issue DESC LIMIT 12","新运行身份需真实新增120次更新，后续冻结距离上次端点也需120；warm start不算新证据。确切审阅兼容的R974训练可续接，未知规则不得混用。");
+        trainingGaps(db,out);
+        stage(db,out,"07_CAL_READY","CandidateCalibrationR932.fitOne → publishFit","固定120拟合+1隔离+120验证","SELECT candidate_key,captured_n,settled_n,state,first_issue,study_hash FROM research_candidate_cal_study_r932 WHERE state='READY' ORDER BY first_issue LIMIT 12","READY说明校准收集完成而非胜率合格；模型发布保留原始证据哈希，拟合在写锁外。多轮仍READY需查lane6预算/异常。");
+        stage(db,out,"07A_CAL_FIT_QUALITY","CandidateCalibrationR932.publishFit → ResearchLogisticCalibrationR932","实际验证误差，不把已拟合当合格","SELECT candidate_key,model_hash,model_json,frozen_at FROM research_candidate_cal_model_r932 ORDER BY frozen_at DESC LIMIT 12","model_json中validation_brier、validation_ece和分箱计数是真实固定验证结果；如ECE>0.04应继续研究/独立验证，不得改成默认合格值或继承父代成绩。");
+        stage(db,out,"08_CAL_BLOCKED","CandidateCalibrationR932.fitOne","校准数据异常隔离","SELECT s.candidate_key,s.state,s.first_issue,s.study_hash,f.reason FROM research_candidate_cal_study_r932 s LEFT JOIN r975_calibration_failure f ON f.study_hash=s.study_hash WHERE s.state LIKE 'BLOCKED%' ORDER BY s.first_issue LIMIT 12","缺失/非法固定样本或身份漂移不得补值；保留原行并重新收集新研究身份，不假报校准成功。");
+        stage(db,out,"09_WINDOWS","FixedResearchWindowR932.freezePair / maintain / closeOne","校准→正式配对窗口","SELECT candidate_key,first_issue,last_issue,planned_n,state,reason FROM research_fixed_window_r932 ORDER BY registered_at DESC LIMIT 12","OPEN按注册端点累积；PAUSED保留缺期事实；不得开奖后补预测或用训练集命中代替独立未来。");
+        stage(db,out,"10_PUBLISH","FixedWindowCertificatePublisherR932.advance","窗口统计→证书","SELECT candidate_key,state,reason,verified_n,certificate_hash FROM research_window_publication_r932 ORDER BY updated_at DESC LIMIT 12","BLOCKED按实际执行证明/身份/窗口门修复；不得删除质量门以消除0。");
+        stage(db,out,"11_CERTIFICATE","CertificateBundleServiceR929.evaluate / UnifiedResearchChoiceR932.freeze","同一准入与排序","SELECT candidate_id,state,level,valid_from_issue,all_gates_pass,reason,certificate_hash FROM research_certificate_r929 ORDER BY issued_at DESC LIMIT 12","34%只是一项；样本、校准、配对证据、结构及有效期必须一起通过。按当前已知证据选择可执行合格模型。");
+        stage(db,out,"12_MAINTENANCE","ResearchLearningContinuityR912.runLane / pulseWithin","22条维护调用链","SELECT lane,desired_issue,served_issue,active_task_id,last_outcome,updated_at FROM v57_research_lane_cursor_r967 ORDER BY lane LIMIT 22","desired不等served表示未完成，不能因为调用过就算成功；结合durable_task.last_error和子步骤游标检查。各lane名见调用索引。");
+        stage(db,out,"13_WORLD","WorldFeatureComputationR974.compute → CandidateSandboxR952.execute → ComputationReceiptR974.record","实际矩阵特征与模型消费","SELECT * FROM r974_computation_receipt ORDER BY target_issue DESC LIMIT 3","输入/输出hash必须对应实际模型特征；原子注册行数不代表消费。滞后相关不是因果证明；完整六适配器链需独立核验。");
+        stage(db,out,"14_REAL_REJECT","CertifiedPredictionR974 / DecisionGateEngine","当期模型拒绝","SELECT * FROM r974_prediction_rejection ORDER BY target_issue DESC LIMIT 8","无合格或过期即拒绝；记录当前模型身份和拒绝原因，禁止追期、补单、强制出手。");
+        stage(db,out,"15_REAL_RECEIPT","DecisionGateEngine.decideV51B12 → DbStore.insertAuthorizedTradeWithinCanonicalR915","唯一REAL事务","SELECT * FROM r974_exact_real_receipt ORDER BY target_issue DESC LIMIT 8","收据必须与trades原子提交且每期唯一；正权重排名贡献不等于REAL。合格连续期不得受频率配额拦截。");
+        out.write("\n全软件未测范围=设备覆盖安装/息屏后台/真实端到端P95/未来胜率/所有界面和故障分支；不能从上述收据推出这些已通过。旧版历史P95与当前进程指标需分开。\n");
+    }
+    private static void trainingGaps(SQLiteDatabase db,Writer out)throws IOException {
+        stage(db,out,"06A_CURRENT_RULE_UPDATES","ResearchEvaluationRunR967.current / FrozenCandidateAdapterR958.eligible","每个学习器当前规则的真正新增更新数",
+            "SELECT r.learner_id,r.first_issue,r.rule_hash,r.initial_updates,a.target_issue,a.numeric_updates,(a.numeric_updates-r.initial_updates) new_updates FROM r967_numeric_training_run r LEFT JOIN r952_learning_cursor lc ON lc.consumer_id=('R952:'||r.learner_id) LEFT JOIN r952_artifact a ON a.artifact_hash=lc.artifact_hash WHERE NOT EXISTS(SELECT 1 FROM r967_numeric_training_run n WHERE n.learner_id=r.learner_id AND n.first_issue>r.first_issue) ORDER BY r.learner_id LIMIT 128",
+            "new_updates为当前运行起点后的数值更新差，不是独立未来样本；NULL说明游标关联缺失，必须修复关联，不把NULL变成0。冻结前还要核对同规则/AST/完整性身份。");
+    }
+    static long number(SQLiteDatabase db,Writer out,String name,String sql)throws IOException {
+        out.write("metric="+name+"|readStartedAt="+System.currentTimeMillis()+"|sql="+sql+"\n");
+        if(db==null){out.write("result=UNKNOWN|DATABASE_NOT_READY\n");return -1;}
+        try(Cursor c=db.rawQuery(sql,null)){if(!c.moveToFirst())throw new IllegalStateException("NO_AGGREGATE_ROW");long n=c.getLong(0);out.write("value="+n+"\n");return n;}
+        catch(RuntimeException e){out.write("result=UNKNOWN|"+clean(e.toString())+"\n");return -1;}
+    }
+    static void stage(SQLiteDatabase db,Writer out,String id,String owner,String function,String sql,String action)throws IOException {
+        out.write("\nnode="+id+"|file_method="+owner+"|function="+function+"\n修复/核验办法="+action+"\nreadStartedAt="+System.currentTimeMillis()+"|SQL="+sql+"\n");
+        if(db==null){out.write("status=UNKNOWN|DATABASE_NOT_READY\n");return;}
+        try(Cursor c=db.rawQuery(sql,null)){int n=0;while(c.moveToNext()){out.write("RECORDED_ROW");for(int i=0;i<c.getColumnCount();i++)out.write("|"+clean(c.getColumnName(i))+"="+clean(c.getString(i)));out.write("\n");n++;}if(n==0)out.write("status=NO_MATCHING_RECEIPT|不是功能通过，也不等于文件不存在\n");}
+        catch(RuntimeException e){out.write("status=UNKNOWN|"+clean(e.toString())+"|不得按成功或0处理\n");}
+    }
+    public static void writeSourceIndex(AssetManager assets,Writer out)throws IOException {
+        out.write("\n【逐文件、方法、直接调用索引：编译字节码静态索引，不是真机覆盖率】\n");
+        if(assets==null){out.write("SOURCE_INDEX=UNKNOWN|ASSET_MANAGER_NOT_AVAILABLE\n");return;}
+        try(Reader in=new InputStreamReader(assets.open(INDEX),"UTF-8")){char[] b=new char[16384];int n;while((n=in.read(b))!=-1)out.write(b,0,n);}
+        catch(IOException e){out.write("SOURCE_INDEX=UNKNOWN|"+clean(e.toString())+"\n");}
+        out.write("\n静态存在/编译通过不代表方法实际执行。未绑定运行收据的函数=RUNTIME_NOT_INSTRUMENTED，需相应入口/故障测试；不能笼统说全软件百分百无问题。\n");
+    }
+    private static String clean(String s){if(s==null)return "SQL_NULL";s=s.replace("\\","\\\\").replace("\n","\\n").replace("\r","\\r").replace("|","\\|");return s.length()>4096?s.substring(0,4096)+"...[摘要截断，原始表另列]":s;}
+
+public static void writeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,Writer out)throws IOException {
+        out.write("\n【R975故障定位：先看阻断，再看原始表】\n");
+        out.write("build="+ReleaseManifestR926.VERSION_NAME+"|versionCode="+ReleaseManifestR926.VERSION_CODE+"|numericRule="+TrainingCodeIdentityR964.SHA256+"\n");
+        out.write("范围=已记录的运行证据与必要条件；不是所有文件所有路径真机通过。各查询独立读取；缺表/SQL异常=UNKNOWN，不是0或PASS。\n");
+        out.write("主链规则=有效独立证据HR>=34%且质量门通过；每个合格期最多一次REAL；无频率配额；未达证据门不伪造出手。\n");
+        long trained=numberSnapshotCP4(report, db,out,"completed_numeric_training","SELECT COUNT(*) FROM r952_research_outbox WHERE state='COMPLETED'");
+        long post=numberSnapshotCP4(report, db,out,"post_training_unfinished","SELECT COUNT(*) FROM v57_research_task_r967 WHERE kind='POST_TRAIN' AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL')");
+        long ready=numberSnapshotCP4(report, db,out,"calibration_ready","SELECT COUNT(*) FROM research_candidate_cal_study_r932 WHERE state='READY'");
+        long fitted=numberSnapshotCP4(report, db,out,"calibration_fitted","SELECT COUNT(*) FROM research_candidate_cal_model_r932");
+        long windows=numberSnapshotCP4(report, db,out,"formal_windows","SELECT COUNT(*) FROM research_fixed_window_r932");
+        long certificates=numberSnapshotCP4(report, db,out,"active_gate_passing_certificates","SELECT COUNT(*) FROM research_certificate_r929 WHERE state='ACTIVE' AND all_gates_pass=1");
+        long real=numberSnapshotCP4(report, db,out,"exact_real_consumptions","SELECT COUNT(*) FROM r974_exact_real_receipt");
+        String root;
+        if(ready>0&&fitted==0)root="CALIBRATION_READY_NOT_PUBLISHED：已有固定校准样本达到241但拟合模型为空。查CandidateCalibrationR932.fitOne和维护lane6；不能归因于没有高胜率算法。";
+        else if(trained>0&&post>0)root="TRAINING_FEEDBACK_BACKLOG：数值训练已经发生，但训练后投影仍有积压。查POST_TASK的最早期号/租约/失败原因；不能把所有训练都说成0。";
+        else if(windows==0&&fitted==0)root="WAIT_CALIBRATION_OR_CAPTURE：还没有可用校准模型。逐模型检查当前规则新更新数、冻结捕获和241固定样本；旧warm count不是当前模型已评估样本。";
+        else if(windows==0)root="CALIBRATION_TO_WINDOW_NOT_ADVANCED：有校准模型但正式窗口为空。查模型兼容、下一期开盘前捕获、冠军快照、结构/选择器身份与固定窗口注册。";
+        else if(windows>0&&certificates==0)root="WINDOW_TO_CERTIFICATE_NOT_PASSED：查固定窗口状态、统计门与发布审计；不得将未通过的窗口强行变成证书。";
+        else if(certificates>0&&real==0)root="CERTIFICATE_TO_REAL_NOT_CONSUMED：已有通过门的证书，但没有精确REAL消费收据；核对期号、当期模型可执行性、兼容性、截止时间与拒绝表。";
+        else if(real>0)root="RECEIPTS_PRESENT_NOT_FULL_ACCEPTANCE：存在部分消费收据；仍须核对每期缺口、错期/重复、延迟、后台、存储及各独立模型的质量。";
+        else root="UNKNOWN_INSUFFICIENT_STAGE_DATA：必要表/查询不完整，不能定位下游合格或健康；按各node原始异常排查。";
+        if(trained<0||post<0||ready<0||fitted<0||windows<0||certificates<0||real<0)
+            out.write("总判定=PARTIAL_UNKNOWN：至少一项查询不可用；下述是已知条件推导，不能声称完整健康。\n");
+        out.write("首个可解释阻断="+root+"\n");
+        stageSnapshotCP4(report, db,out,"01_DRAW_SETTLE","SettlementEngine / SettlementTaskStoreR36","开奖→权威结算","SELECT target_issue,status,settlement_hash FROM v57_settlement_task_r36 ORDER BY target_issue DESC LIMIT 3","缺COMPLETED需先查数据获取、期号及结算事务；研究链不得自行补造结算。");
+        stageSnapshotCP4(report, db,out,"02_TRAIN","r952/ResearchOutboxR952.drainOne → ResearchTrainingHookRegistryR952.prepare / commit","数值训练提交","SELECT candidate_id,target_issue,state,last_error,delivery_hash FROM r952_research_outbox WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED') ORDER BY target_issue,candidate_id LIMIT 12","查看未完成队列真实原因；完成计数只代表提交，不等于模型质量通过。");
+        stageSnapshotCP4(report, db,out,"03_POST_TASK","r952/PostSettlementResearchLoopR952.drainOne → projectOnline → ResearchTaskQueueR967.complete","训练→知识投影","SELECT candidate_id,target_issue,status,generation,lease_until,attempt_count,last_error FROM v57_research_task_r967 WHERE kind='POST_TRAIN' AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL') ORDER BY target_issue,candidate_id LIMIT 12","R975同事务领取与完成；预算中断应回滚领取。旧进程租约未到期仍保护；持续RUNNING/无游标推进须检查死循环。");
+        stageSnapshotCP4(report, db,out,"04_EVOLVE","r952/EvolutionEvidenceR975.advance → EvolutionControllerR952.evolveOne","误差分页→实际子代","SELECT parent_id,endpoint,verified_n,state,reason,child_id,evidence_hash FROM r975_evolution_review ORDER BY updated_at DESC LIMIT 12","ACTIVE应逐页增加到120；READY下一轮生成不同公式；BLOCKED须按reason处理；CONSUMED必须有实际child_id及血缘，不能仅递增代数。");
+        stageSnapshotCP4(report, db,out,"05_CHILD","r952/EvolutionControllerR952 → ComputationReceiptR974.lineage","新公式与父代保留","SELECT candidate_id,parent_id,created_issue,state,future_n,structural_hash FROM r952_candidate WHERE parent_id<>'' ORDER BY created_issue DESC LIMIT 12","核查新结构与独立训练；future_n不允许继承父代；父公式与双亲来源见r974_model_lineage原始表。");
+        stageSnapshotCP4(report, db,out,"06_FREEZE","ResearchEvaluationRunR967 / FrozenCandidateAdapterR958.prepare","当前规则模型→独立冻结","SELECT candidate_id,learner_id,created_issue,trained_until_issue,run_hash,rule_hash,update_endpoint FROM r967_frozen_evaluation_v2 ORDER BY created_issue DESC LIMIT 12","新运行身份需真实新增120次更新，后续冻结距离上次端点也需120；warm start不算新证据。确切审阅兼容的R974训练可续接，未知规则不得混用。");
+        trainingGapsSnapshotCP4(report, db,out);
+        stageSnapshotCP4(report, db,out,"07_CAL_READY","CandidateCalibrationR932.fitOne → publishFit","固定120拟合+1隔离+120验证","SELECT candidate_key,captured_n,settled_n,state,first_issue,study_hash FROM research_candidate_cal_study_r932 WHERE state='READY' ORDER BY first_issue LIMIT 12","READY说明校准收集完成而非胜率合格；模型发布保留原始证据哈希，拟合在写锁外。多轮仍READY需查lane6预算/异常。");
+        stageSnapshotCP4(report, db,out,"07A_CAL_FIT_QUALITY","CandidateCalibrationR932.publishFit → ResearchLogisticCalibrationR932","实际验证误差，不把已拟合当合格","SELECT candidate_key,model_hash,model_json,frozen_at FROM research_candidate_cal_model_r932 ORDER BY frozen_at DESC LIMIT 12","model_json中validation_brier、validation_ece和分箱计数是真实固定验证结果；如ECE>0.04应继续研究/独立验证，不得改成默认合格值或继承父代成绩。");
+        stageSnapshotCP4(report, db,out,"08_CAL_BLOCKED","CandidateCalibrationR932.fitOne","校准数据异常隔离","SELECT s.candidate_key,s.state,s.first_issue,s.study_hash,f.reason FROM research_candidate_cal_study_r932 s LEFT JOIN r975_calibration_failure f ON f.study_hash=s.study_hash WHERE s.state LIKE 'BLOCKED%' ORDER BY s.first_issue LIMIT 12","缺失/非法固定样本或身份漂移不得补值；保留原行并重新收集新研究身份，不假报校准成功。");
+        stageSnapshotCP4(report, db,out,"09_WINDOWS","FixedResearchWindowR932.freezePair / maintain / closeOne","校准→正式配对窗口","SELECT candidate_key,first_issue,last_issue,planned_n,state,reason FROM research_fixed_window_r932 ORDER BY registered_at DESC LIMIT 12","OPEN按注册端点累积；PAUSED保留缺期事实；不得开奖后补预测或用训练集命中代替独立未来。");
+        stageSnapshotCP4(report, db,out,"10_PUBLISH","FixedWindowCertificatePublisherR932.advance","窗口统计→证书","SELECT candidate_key,state,reason,verified_n,certificate_hash FROM research_window_publication_r932 ORDER BY updated_at DESC LIMIT 12","BLOCKED按实际执行证明/身份/窗口门修复；不得删除质量门以消除0。");
+        stageSnapshotCP4(report, db,out,"11_CERTIFICATE","CertificateBundleServiceR929.evaluate / UnifiedResearchChoiceR932.freeze","同一准入与排序","SELECT candidate_id,state,level,valid_from_issue,all_gates_pass,reason,certificate_hash FROM research_certificate_r929 ORDER BY issued_at DESC LIMIT 12","34%只是一项；样本、校准、配对证据、结构及有效期必须一起通过。按当前已知证据选择可执行合格模型。");
+        stageSnapshotCP4(report, db,out,"12_MAINTENANCE","ResearchLearningContinuityR912.runLane / pulseWithin","22条维护调用链","SELECT lane,desired_issue,served_issue,active_task_id,last_outcome,updated_at FROM v57_research_lane_cursor_r967 ORDER BY lane LIMIT 22","desired不等served表示未完成，不能因为调用过就算成功；结合durable_task.last_error和子步骤游标检查。各lane名见调用索引。");
+        stageSnapshotCP4(report, db,out,"13_WORLD","WorldFeatureComputationR974.compute → CandidateSandboxR952.execute → ComputationReceiptR974.record","实际矩阵特征与模型消费","SELECT * FROM r974_computation_receipt ORDER BY target_issue DESC LIMIT 3","输入/输出hash必须对应实际模型特征；原子注册行数不代表消费。滞后相关不是因果证明；完整六适配器链需独立核验。");
+        stageSnapshotCP4(report, db,out,"14_REAL_REJECT","CertifiedPredictionR974 / DecisionGateEngine","当期模型拒绝","SELECT * FROM r974_prediction_rejection ORDER BY target_issue DESC LIMIT 8","无合格或过期即拒绝；记录当前模型身份和拒绝原因，禁止追期、补单、强制出手。");
+        stageSnapshotCP4(report, db,out,"15_REAL_RECEIPT","DecisionGateEngine.decideV51B12 → DbStore.insertAuthorizedTradeWithinCanonicalR915","唯一REAL事务","SELECT * FROM r974_exact_real_receipt ORDER BY target_issue DESC LIMIT 8","收据必须与trades原子提交且每期唯一；正权重排名贡献不等于REAL。合格连续期不得受频率配额拦截。");
+        out.write("\n全软件未测范围=设备覆盖安装/息屏后台/真实端到端P95/未来胜率/所有界面和故障分支；不能从上述收据推出这些已通过。旧版历史P95与当前进程指标需分开。\n");
+    }
+
+static void stageSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,Writer out,String id,String owner,String function,String sql,String action)throws IOException {
+        out.write("\nnode="+id+"|file_method="+owner+"|function="+function+"\n修复/核验办法="+action+"\nreadStartedAt="+report.nowMs()+"|SQL="+sql+"\n");
+        if(db==null){out.write("status=UNKNOWN|DATABASE_NOT_READY\n");return;}
+        try(Cursor c=report.select(sql,null)){int n=0;while(c.moveToNext()){out.write("RECORDED_ROW");for(int i=0;i<c.getColumnCount();i++)out.write("|"+cleanSnapshotCP4(report, c.getColumnName(i))+"="+cleanSnapshotCP4(report, c.getString(i)));out.write("\n");n++;}if(n==0)out.write("status=NO_MATCHING_RECEIPT|不是功能通过，也不等于文件不存在\n");}
+        catch(RuntimeException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
+    }
+
+public static String cleanSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String s){if(s==null)return "SQL_NULL";s=s.replace("\\","\\\\").replace("\n","\\n").replace("\r","\\r").replace("|","\\|");return s.length()>4096?s.substring(0,4096)+"...[摘要截断，原始表另列]":s;}
+
+public static void trainingGapsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,Writer out)throws IOException {
+        stageSnapshotCP4(report, db,out,"06A_CURRENT_RULE_UPDATES","ResearchEvaluationRunR967.current / FrozenCandidateAdapterR958.eligible","每个学习器当前规则的真正新增更新数",
+            "SELECT r.learner_id,r.first_issue,r.rule_hash,r.initial_updates,a.target_issue,a.numeric_updates,(a.numeric_updates-r.initial_updates) new_updates FROM r967_numeric_training_run r LEFT JOIN r952_learning_cursor lc ON lc.consumer_id=('R952:'||r.learner_id) LEFT JOIN r952_artifact a ON a.artifact_hash=lc.artifact_hash WHERE NOT EXISTS(SELECT 1 FROM r967_numeric_training_run n WHERE n.learner_id=r.learner_id AND n.first_issue>r.first_issue) ORDER BY r.learner_id LIMIT 128",
+            "new_updates为当前运行起点后的数值更新差，不是独立未来样本；NULL说明游标关联缺失，必须修复关联，不把NULL变成0。冻结前还要核对同规则/AST/完整性身份。");
+    }
+
+static long numberSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,Writer out,String name,String sql)throws IOException {
+        out.write("metric="+name+"|readStartedAt="+report.nowMs()+"|sql="+sql+"\n");
+        if(db==null){out.write("result=UNKNOWN|DATABASE_NOT_READY\n");return -1;}
+        try(Cursor c=report.select(sql,null)){if(!c.moveToFirst())throw new IllegalStateException("NO_AGGREGATE_ROW");long n=c.getLong(0);out.write("value="+n+"\n");return n;}
+        catch(RuntimeException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
+    }
+}

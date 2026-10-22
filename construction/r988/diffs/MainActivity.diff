@@ -1,0 +1,36 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MainActivity.java b/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+index 22f585a..e026d91 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+@@ -995,6 +995,13 @@ public final class MainActivity extends Activity {
+     }
+ 
+     private void bindButtons() {
++        if(txtApiLine!=null){
++            txtApiLine.setContentDescription("数据接口状态，点击配置凭据");
++            txtApiLine.setOnClickListener(view->{
++                java.lang.ref.WeakReference<MainActivity> owner=new java.lang.ref.WeakReference<>(this);
++                ApiCredentialSettingsCP12.show(this,()->{MainActivity current=owner.get();if(current!=null&&!current.isFinishing()&&!current.isDestroyed())current.refreshNow();});
++            });
++        }
+         if (btnStart != null) {
+             btnStart.setOnClickListener(
+                     new View.OnClickListener() {
+@@ -3608,7 +3615,7 @@ public final class MainActivity extends Activity {
+             setText(txtCountdown, "--:--");
+             setText(txtCurrentIssue, "当前期：--");
+             setText(txtTargetIssue, "目标期：--");
+-            setText(txtApiLine, "接口：--");
++            setText(txtApiLine, "接口：--｜点击配置凭据");
+             setText(txtRuntimeStatus, "运行状态：暂无后台状态");
+             setTextColor(txtServiceBadge, R.color.colorWarn);
+             return;
+@@ -3683,7 +3690,7 @@ public final class MainActivity extends Activity {
+             setText(txtTargetIssue, "目标期：" + safeDash(targetIssue));
+ 
+             String apiLine = state == null ? stateOf(snapshot, "api_line") : state.apiLine;
+-            setText(txtApiLine, "接口：" + UiFormatter.apiLineText(apiLine));
++            setText(txtApiLine, "接口：" + UiFormatter.apiLineText(apiLine) + "｜点击配置凭据");
+ 
+             String runtime = buildRuntimeText(state, status, snapshot);
+             setText(txtRuntimeStatus, runtime);

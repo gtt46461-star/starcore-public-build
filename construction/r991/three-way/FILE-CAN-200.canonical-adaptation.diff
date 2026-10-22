@@ -1,0 +1,11 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/V51Repository.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/V51Repository.java
+@@ -500,7 +500,7 @@
+                                                         : "NO_ELIGIBLE_ACTION");
+                                         DbStore.putStatesR36(db, states);
+                                         RuntimeEventHooksR926.canonicalWithinTransaction(
+-                                                db, request, snapshot, snapshotHash, trace, written.recordHash);
++                                                db,store,request,snapshot,snapshotHash,trace,written.recordHash,result.contract);
+                                         return new CanonicalCommitResult(
+                                                 true,
+                                                 written.replay,

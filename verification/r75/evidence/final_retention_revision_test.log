@@ -1,0 +1,20 @@
+PASS full installed schema
+PASS first bounded page preserves existing 128 rows
+PASS page cursor advances over live rows
+PASS at most 128 candidates per cleanup
+PASS table cursor gives next table a turn
+PASS second call resumes after persisted key
+PASS rollback fixture actually attempts orphan deletions
+PASS rollback restores cursor and revisions atomically
+PASS third page deletes only 84 known missing rowids
+PASS next page handles 128 orphans
+PASS last page finishes orphan tail
+PASS page end wraps for newly inserted low rowids
+PASS all live rows and their current generations retained
+PASS wrapped cursor finds newly inserted low rowid orphan
+PASS updated live generation survives cleanup
+PASS concurrent writer resumes after transaction without lost work
+PASS concurrent replacement leaves exactly one live row
+PASS concurrent row generation remains valid after full sweep
+PASS expired deadline does no scanning
+PASS expired slice does not remove revisions

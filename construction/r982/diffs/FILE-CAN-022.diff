@@ -1,0 +1,50 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java b/app/src/main/java/com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java
+index 848bfb3..1e3c8e8 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java
++++ b/app/src/main/java/com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java
+@@ -626,4 +626,45 @@ public final class Batch34ChallengerCertificateBridgeR930 {
+     private static String fmt(double value) {
+         return finite(value) ? String.format(Locale.US, "%.6f", value) : "N/A";
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        Summary summary = snapshotSummarySnapshotCP4(report, store, "REPORT");
++        return ResearchPipelineStatusR941.captureSnapshotCP4(report, store) + "\n\n【旧算法观察桥接（独立历史口径）】\n" + summary.canonical()
++                + "\n最近实际扫描：" + store.getState("r930_batch34_challenger_bridge_status", "NOT_RUN")
++                + "\n口径：历史长期证据只负责进入L4挑战者，new Future支持从0开始；"
++                + "本桥接仅记录旧算法赛前观察，最多读取最早1200个新样本；不是主链重排。"
++                + "旧score不是校准概率，Brier/ECE为N/A；缺固定配对基线和校准包时保持L4零权重。"
++                + "任何证书都无REAL授权权力。";
++    }
++
++public static Summary snapshotSummarySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String status) {
++        return querySummarySnapshotCP4(report, store, 0, 0, 0, status);
++    }
++
++public static Summary querySummarySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, int scanned, int eligible, int admitted, String status) {
++        int challengers = countSnapshotCP4(report, store, Batch34SchemaR930.TABLE_LIFECYCLE,
++                "repair_target='LEGACY_STABLE_ADMISSION_TO_NEW_FUTURE' AND state NOT IN ('PRUNED','QUARANTINED','ARCHIVED')", null);
++        int certificates = countSnapshotCP4(report, store, Batch34SchemaR930.TABLE_MODULE_STATE,
++                "module_id LIKE 'R930_L4_%' AND certificate_sha256<>''", null);
++        int shadow = countSnapshotCP4(report, store, Batch34SchemaR930.TABLE_EVIDENCE_LINK,
++                "evidence_type=?", new String[] { EVIDENCE_SHADOW });
++        int fresh = 0, controlled = 0; Cursor c = null;
++        try {
++            c = BudgetedQueryR927.querySnapshotCP4(report, store.readable(),"SELECT COALESCE(SUM(future_support),0),"
++                    + "SUM(CASE WHEN state IN ('PROMOTED_L6','MATURE_L7') THEN 1 ELSE 0 END) FROM "
++                    + Batch34SchemaR930.TABLE_LIFECYCLE
++                    + " WHERE repair_target='LEGACY_STABLE_ADMISSION_TO_NEW_FUTURE'", null);
++            if (c.moveToFirst()) { fresh = Math.max(0, c.getInt(0)); controlled = Math.max(0, c.getInt(1)); }
++        } catch (ResearchWorkBudgetR927.Yield yielded) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",yielded);} catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);} finally { if (c != null) c.close(); }
++        return new Summary(scanned, eligible, admitted, challengers, certificates, shadow, fresh, controlled, status);
++    }
++
++public static int countSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String table, String where, String[] args) {
++        Cursor c = null;
++        try {
++            c = BudgetedQueryR927.querySnapshotCP4(report, store.readable(),"SELECT COUNT(*) FROM " + table + " WHERE " + where, args);
++            return c.moveToFirst() ? Math.max(0, c.getInt(0)) : 0;
++        } catch (ResearchWorkBudgetR927.Yield yielded) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",yielded);} catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);}
++        finally { if (c != null) c.close(); }
++    }
+ }

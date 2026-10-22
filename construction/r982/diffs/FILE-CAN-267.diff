@@ -1,0 +1,761 @@
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/activity_main.xml
+index e396f06..4b62885 100644
+--- a/app/src/main/res/layout/activity_main.xml
++++ b/app/src/main/res/layout/activity_main.xml
+@@ -1,482 +1,79 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:layout_width="match_parent"
+-    android:layout_height="match_parent"
+-    android:background="@drawable/bg_app_canvas"
+-    android:fitsSystemWindows="true"
+-    android:clipToPadding="true"
+-    android:fillViewport="true"
+-    android:overScrollMode="never"
+-    android:scrollbars="vertical">
+-
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="vertical"
+-        android:paddingLeft="@dimen/screen_padding"
+-        android:paddingTop="16dp"
+-        android:paddingRight="@dimen/screen_padding"
+-        android:paddingBottom="32dp">
+-
+-        <!-- 顶部品牌与操作区 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:background="@drawable/bg_hero_card"
+-            android:elevation="6dp"
+-            android:orientation="vertical"
+-            android:padding="18dp">
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:gravity="center_vertical"
+-                android:orientation="horizontal">
+-
+-                <ImageView
+-                    android:layout_width="58dp"
+-                    android:layout_height="58dp"
+-                    android:contentDescription="@string/accessibility_logo"
+-                    android:src="@drawable/ic_app_nova" />
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="wrap_content"
+-                    android:layout_marginLeft="12dp"
+-                    android:layout_weight="1"
+-                    android:orientation="vertical">
+-
+-                    <TextView
+-                        android:id="@+id/txt_app_title"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:ellipsize="end"
+-                        android:fontFamily="sans-serif-medium"
+-                        android:maxLines="1"
+-                        android:text="@string/app_name"
+-                        android:textColor="@color/colorTextMain"
+-                        android:textSize="@dimen/text_hero"
+-                        android:textStyle="bold" />
+-
+-                    <TextView
+-                        android:id="@+id/txt_app_subtitle"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:layout_marginTop="3dp"
+-                        android:ellipsize="end"
+-                        android:lineSpacingExtra="1dp"
+-                        android:maxLines="2"
+-                        android:text="@string/app_subtitle"
+-                        android:textColor="@color/colorTextSub"
+-                        android:textSize="12sp" />
++<?xml version='1.0' encoding='utf-8'?>
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_app_canvas" android:fitsSystemWindows="true" android:clipToPadding="true" android:fillViewport="true" android:overScrollMode="never" android:scrollbars="vertical">
++    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="16dp" android:paddingBottom="32dp" android:paddingStart="@dimen/screen_padding" android:paddingEnd="@dimen/screen_padding">
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_hero_card" android:elevation="6dp" android:orientation="vertical" android:padding="18dp">
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
++                <ImageView android:layout_width="58dp" android:layout_height="58dp" android:contentDescription="@string/accessibility_logo" android:src="@drawable/ic_app_nova" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
++                    <TextView android:id="@+id/txt_app_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:fontFamily="sans-serif-medium" android:maxLines="1" android:text="@string/app_name" android:textColor="@color/colorTextMain" android:textSize="@dimen/text_hero" android:textStyle="bold" />
++                    <TextView android:id="@+id/txt_app_subtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:ellipsize="end" android:lineSpacingExtra="1dp" android:maxLines="2" android:text="@string/app_subtitle" android:textColor="@color/colorTextSub" android:textSize="12sp" />
+                 </LinearLayout>
+-
+             </LinearLayout>
+-
+-            <HorizontalScrollView
+-                android:id="@+id/scroll_build_badge"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="10dp"
+-                android:fillViewport="true"
+-                android:overScrollMode="never"
+-                android:scrollbars="none">
+-
+-                <TextView
+-                    android:id="@+id/txt_build_badge"
+-                    style="@style/ChipText"
+-                    android:layout_width="wrap_content"
+-                    android:layout_height="wrap_content"
+-                    android:background="@drawable/bg_chip_info"
+-                    android:ellipsize="none"
+-                    android:maxLines="1"
+-                    android:singleLine="true"
+-                    android:text="@string/app_build_badge" />
++            <HorizontalScrollView android:id="@+id/scroll_build_badge" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:fillViewport="true" android:overScrollMode="never" android:scrollbars="none">
++                <TextView android:id="@+id/txt_build_badge" style="@style/ChipText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_chip_info" android:singleLine="true" android:text="@string/app_build_badge" />
+             </HorizontalScrollView>
+-
+-            <TextView
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="10dp"
+-                android:ellipsize="end"
+-                android:maxLines="2"
+-                android:text="@string/hero_caption"
+-                android:textColor="@color/colorTextMuted"
+-                android:textSize="12sp" />
+-
+-            <View
+-                android:layout_width="match_parent"
+-                android:layout_height="1dp"
+-                android:layout_marginTop="14dp"
+-                android:layout_marginBottom="12dp"
+-                android:background="@drawable/bg_divider" />
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:baselineAligned="false"
+-                android:orientation="horizontal">
+-
+-                <Button
+-                    android:id="@+id/btn_start"
+-                    style="@style/NovaButton"
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/button_height"
+-                    android:layout_marginRight="5dp"
+-                    android:layout_weight="1"
+-                    android:drawableLeft="@drawable/ic_start"
+-                    android:drawablePadding="6dp"
+-                    android:text="@string/action_start" />
+-
+-                <Button
+-                    android:id="@+id/btn_stop"
+-                    style="@style/NovaButtonDanger"
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/button_height"
+-                    android:layout_marginLeft="5dp"
+-                    android:layout_weight="1"
+-                    android:drawableLeft="@drawable/ic_stop"
+-                    android:drawablePadding="6dp"
+-                    android:text="@string/action_stop" />
++            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:ellipsize="end" android:maxLines="2" android:text="@string/hero_caption" android:textColor="@color/colorTextMuted" android:textSize="12sp" />
++            <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="14dp" android:layout_marginBottom="12dp" android:background="@drawable/bg_divider" />
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:baselineAligned="false" android:orientation="horizontal">
++                <Button android:id="@+id/btn_start" style="@style/NovaButton" android:layout_width="0dp" android:layout_height="@dimen/button_height" android:layout_weight="1" android:drawablePadding="6dp" android:text="@string/action_start" android:layout_marginEnd="5dp" android:drawableStart="@drawable/ic_start" />
++                <Button android:id="@+id/btn_stop" style="@style/NovaButtonDanger" android:layout_width="0dp" android:layout_height="@dimen/button_height" android:layout_weight="1" android:drawablePadding="6dp" android:text="@string/action_stop" android:layout_marginStart="5dp" android:drawableStart="@drawable/ic_stop" />
+             </LinearLayout>
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="10dp"
+-                android:baselineAligned="false"
+-                android:orientation="horizontal">
+-
+-                <Button
+-                    android:id="@+id/btn_refresh"
+-                    style="@style/NovaButtonSecondary"
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/button_height"
+-                    android:layout_marginRight="5dp"
+-                    android:layout_weight="1"
+-                    android:drawableLeft="@drawable/ic_refresh"
+-                    android:drawablePadding="6dp"
+-                    android:text="@string/action_refresh" />
+-
+-                <Button
+-                    android:id="@+id/btn_backtest_full"
+-                    style="@style/NovaButtonQuiet"
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/button_height"
+-                    android:layout_marginLeft="5dp"
+-                    android:layout_weight="1"
+-                    android:drawableLeft="@drawable/ic_backtest"
+-                    android:drawablePadding="6dp"
+-                    android:text="@string/action_backtest" />
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:baselineAligned="false" android:orientation="horizontal">
++                <Button android:id="@+id/btn_refresh" style="@style/NovaButtonSecondary" android:layout_width="0dp" android:layout_height="@dimen/button_height" android:layout_weight="1" android:drawablePadding="6dp" android:text="@string/action_refresh" android:layout_marginEnd="5dp" android:drawableStart="@drawable/ic_refresh" />
++                <Button android:id="@+id/btn_backtest_full" style="@style/NovaButtonQuiet" android:layout_width="0dp" android:layout_height="@dimen/button_height" android:layout_weight="1" android:drawablePadding="6dp" android:text="@string/action_backtest" android:layout_marginStart="5dp" android:drawableStart="@drawable/ic_backtest" />
+             </LinearLayout>
+         </LinearLayout>
+-
+-        <!-- 实时服务 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="3dp"
+-            android:orientation="vertical">
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:gravity="center_vertical"
+-                android:orientation="horizontal">
+-
+-                <ImageView
+-                    android:layout_width="24dp"
+-                    android:layout_height="24dp"
+-                    android:src="@drawable/ic_service" />
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="wrap_content"
+-                    android:layout_marginLeft="10dp"
+-                    android:layout_weight="1"
+-                    android:orientation="vertical">
+-
+-                    <TextView
+-                        android:id="@+id/txt_service_badge"
+-                        style="@style/CardTitle"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:text="@string/section_service" />
+-
+-                    <TextView
+-                        style="@style/SectionCaption"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:text="@string/section_service_caption" />
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="3dp" android:orientation="vertical">
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
++                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_service" android:contentDescription="@null" android:importantForAccessibility="no" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="10dp">
++                    <TextView android:id="@+id/txt_service_badge" style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_service" />
++                    <TextView style="@style/SectionCaption" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_service_caption" />
+                 </LinearLayout>
+-
+-                <TextView
+-                    android:layout_width="wrap_content"
+-                    android:layout_height="wrap_content"
+-                    android:background="@drawable/bg_chip_success"
+-                    android:paddingLeft="9dp"
+-                    android:paddingTop="4dp"
+-                    android:paddingRight="9dp"
+-                    android:paddingBottom="4dp"
+-                    android:text="@string/label_live"
+-                    android:textColor="@color/colorWin"
+-                    android:textSize="11sp"
+-                    android:textStyle="bold" />
++                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_chip_success" android:paddingTop="4dp" android:paddingBottom="4dp" android:text="@string/label_live" android:textColor="@color/colorWin" android:textSize="11sp" android:textStyle="bold" android:paddingStart="9dp" android:paddingEnd="9dp" />
+             </LinearLayout>
+-
+-            <TextView
+-                android:id="@+id/txt_countdown"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="14dp"
+-                android:fontFamily="sans-serif-medium"
+-                android:gravity="center"
+-                android:text="@string/placeholder_countdown"
+-                android:textColor="@color/colorInfo"
+-                android:textSize="28sp"
+-                android:textStyle="bold" />
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="12dp"
+-                android:baselineAligned="false"
+-                android:orientation="horizontal">
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="72dp"
+-                    android:layout_marginRight="5dp"
+-                    android:layout_weight="1"
+-                    android:background="@drawable/bg_metric_neutral"
+-                    android:gravity="center"
+-                    android:orientation="vertical"
+-                    android:padding="8dp">
+-
+-                    <TextView
+-                        style="@style/MetricLabel"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:text="@string/label_current_issue" />
+-
+-                    <TextView
+-                        android:id="@+id/txt_current_issue"
+-                        style="@style/MetricValue"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:layout_marginTop="5dp"
+-                        android:text="@string/placeholder_value" />
++            <TextView android:id="@+id/txt_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:fontFamily="sans-serif-medium" android:gravity="center" android:text="@string/placeholder_countdown" android:textColor="@color/colorInfo" android:textSize="28sp" android:textStyle="bold" />
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:baselineAligned="false" android:orientation="horizontal">
++                <LinearLayout android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:background="@drawable/bg_metric_neutral" android:gravity="center" android:orientation="vertical" android:padding="8dp" android:layout_marginEnd="5dp">
++                    <TextView style="@style/MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/label_current_issue" />
++                    <TextView android:id="@+id/txt_current_issue" style="@style/MetricValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/placeholder_value" />
+                 </LinearLayout>
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="72dp"
+-                    android:layout_marginLeft="5dp"
+-                    android:layout_weight="1"
+-                    android:background="@drawable/bg_metric_info"
+-                    android:gravity="center"
+-                    android:orientation="vertical"
+-                    android:padding="8dp">
+-
+-                    <TextView
+-                        style="@style/MetricLabel"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:text="@string/label_target_issue" />
+-
+-                    <TextView
+-                        android:id="@+id/txt_target_issue"
+-                        style="@style/MetricValue"
+-                        android:layout_width="match_parent"
+-                        android:layout_height="wrap_content"
+-                        android:layout_marginTop="5dp"
+-                        android:text="@string/placeholder_value"
+-                        android:textColor="@color/colorInfo" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:background="@drawable/bg_metric_info" android:gravity="center" android:orientation="vertical" android:padding="8dp" android:layout_marginStart="5dp">
++                    <TextView style="@style/MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/label_target_issue" />
++                    <TextView android:id="@+id/txt_target_issue" style="@style/MetricValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/placeholder_value" android:textColor="@color/colorInfo" />
+                 </LinearLayout>
+             </LinearLayout>
+-
+-            <TextView
+-                android:id="@+id/txt_api_line"
+-                style="@style/TextSub"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="12dp"
+-                android:text="@string/placeholder_api" />
+-
+-            <TextView
+-                android:id="@+id/txt_runtime_status"
+-                style="@style/ConsoleText"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="8dp"
+-                android:background="@drawable/bg_console"
+-                android:minHeight="92dp"
+-                android:text="@string/placeholder_runtime"
+-                android:textIsSelectable="true" />
+-
+-            <Button
+-                android:id="@+id/btn_background_reliability"
+-                style="@style/NovaButtonQuiet"
+-                android:layout_width="match_parent"
+-                android:layout_height="48dp"
+-                android:layout_marginTop="8dp"
+-                android:text="后台续跑授权检查" />
+-
+-            <TextView
+-                style="@style/TextMuted"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="7dp"
+-                android:text="@string/label_build_identity" />
++            <TextView android:id="@+id/txt_api_line" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/placeholder_api" />
++            <TextView android:id="@+id/txt_runtime_status" style="@style/ConsoleText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_console" android:minHeight="92dp" android:text="@string/placeholder_runtime" android:textIsSelectable="true" />
++            <Button android:id="@+id/btn_background_reliability" style="@style/NovaButtonQuiet" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:text="@string/cp12_background_authorization" />
++            <TextView style="@style/TextMuted" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:text="@string/label_build_identity" />
+         </LinearLayout>
+-
+-        <!-- 决策 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="4dp"
+-            android:gravity="center_horizontal"
+-            android:orientation="vertical">
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:gravity="center_vertical"
+-                android:orientation="horizontal">
+-
+-                <ImageView
+-                    android:layout_width="24dp"
+-                    android:layout_height="24dp"
+-                    android:src="@drawable/ic_target" />
+-
+-                <TextView
+-                    android:id="@+id/txt_decision_label"
+-                    style="@style/CardTitle"
+-                    android:layout_width="0dp"
+-                    android:layout_height="wrap_content"
+-                    android:layout_marginLeft="10dp"
+-                    android:layout_weight="1"
+-                    android:text="@string/section_decision" />
+-            </LinearLayout>
+-
+-            <View
+-                android:layout_width="match_parent"
+-                android:layout_height="1dp"
+-                android:layout_marginTop="12dp"
+-                android:background="@drawable/bg_divider" />
+-
+-            <TextView
+-                android:id="@+id/txt_decision"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="14dp"
+-                android:fontFamily="sans-serif-medium"
+-                android:gravity="center"
+-                android:text="@string/label_waiting"
+-                android:textColor="@color/colorInfo"
+-                android:textSize="@dimen/text_decision"
+-                android:textStyle="bold" />
+-
+-            <TextView
+-                android:id="@+id/txt_position_numbers"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="8dp"
+-                android:gravity="center"
+-                android:letterSpacing="0.03"
+-                android:lines="2"
+-                android:minLines="2"
+-                android:maxLines="2"
+-                android:ellipsize="end"
+-                android:text="@string/placeholder_action"
+-                android:textColor="@color/colorTextMain"
+-                android:textSize="@dimen/text_numbers"
+-                android:textStyle="bold" />
+-
+-            <TextView
+-                android:id="@+id/txt_decision_summary"
+-                style="@style/TextSub"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="9dp"
+-                android:gravity="center"
+-                android:lines="4"
+-                android:minLines="4"
+-                android:maxLines="4"
+-                android:ellipsize="end"
+-                android:text="@string/placeholder_decision_summary"
+-                android:textIsSelectable="false" />
+-
+-            <LinearLayout
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="14dp"
+-                android:baselineAligned="false"
+-                android:orientation="horizontal">
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/metric_height"
+-                    android:layout_marginRight="4dp"
+-                    android:layout_weight="1"
+-                    android:background="@drawable/bg_metric_info"
+-                    android:gravity="center"
+-                    android:orientation="vertical"
+-                    android:padding="7dp">
+-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_probability" />
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="4dp" android:gravity="center_horizontal" android:orientation="vertical">
++            <TextView android:id="@+id/txt_decision_label" style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_decision" android:drawableStart="@drawable/ic_target" android:drawablePadding="10dp" android:gravity="center_vertical" android:minHeight="24dp" />
++            <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="12dp" android:background="@drawable/bg_divider" />
++            <TextView android:id="@+id/txt_decision" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:fontFamily="sans-serif-medium" android:gravity="center" android:text="@string/label_waiting" android:textColor="@color/colorInfo" android:textSize="@dimen/text_decision" android:textStyle="bold" />
++            <TextView android:id="@+id/txt_position_numbers" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:gravity="center" android:letterSpacing="0.03" android:lines="2" android:minLines="2" android:maxLines="2" android:ellipsize="end" android:text="@string/placeholder_action" android:textColor="@color/colorTextMain" android:textSize="@dimen/text_numbers" android:textStyle="bold" />
++            <TextView android:id="@+id/txt_decision_summary" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:gravity="center" android:lines="4" android:minLines="4" android:maxLines="4" android:ellipsize="end" android:text="@string/placeholder_decision_summary" android:textIsSelectable="false" />
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:baselineAligned="false" android:orientation="horizontal">
++                <LinearLayout android:layout_width="0dp" android:layout_height="@dimen/metric_height" android:layout_weight="1" android:background="@drawable/bg_metric_info" android:gravity="center" android:orientation="vertical" android:padding="7dp" android:layout_marginEnd="4dp">
++                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_probability" android:contentDescription="@null" android:importantForAccessibility="no" />
+                     <TextView style="@style/MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/label_final_probability" />
+                     <TextView android:id="@+id/txt_final_p" style="@style/MetricValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:gravity="center" android:minLines="1" android:maxLines="2" android:text="@string/placeholder_value" android:textColor="@color/colorInfo" />
+                 </LinearLayout>
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/metric_height"
+-                    android:layout_marginLeft="4dp"
+-                    android:layout_marginRight="4dp"
+-                    android:layout_weight="1"
+-                    android:background="@drawable/bg_metric_warn"
+-                    android:gravity="center"
+-                    android:orientation="vertical"
+-                    android:padding="7dp">
+-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_gate" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="@dimen/metric_height" android:layout_weight="1" android:background="@drawable/bg_metric_warn" android:gravity="center" android:orientation="vertical" android:padding="7dp" android:layout_marginStart="4dp" android:layout_marginEnd="4dp">
++                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_gate" android:contentDescription="@null" android:importantForAccessibility="no" />
+                     <TextView style="@style/MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/label_gate" />
+                     <TextView android:id="@+id/txt_dynamic_gate" style="@style/MetricValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:gravity="center" android:minLines="1" android:maxLines="2" android:text="@string/placeholder_value" android:textColor="@color/colorWarn" />
+                 </LinearLayout>
+-
+-                <LinearLayout
+-                    android:layout_width="0dp"
+-                    android:layout_height="@dimen/metric_height"
+-                    android:layout_marginLeft="4dp"
+-                    android:layout_weight="1"
+-                    android:background="@drawable/bg_metric_danger"
+-                    android:gravity="center"
+-                    android:orientation="vertical"
+-                    android:padding="7dp">
+-                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_edge" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="@dimen/metric_height" android:layout_weight="1" android:background="@drawable/bg_metric_danger" android:gravity="center" android:orientation="vertical" android:padding="7dp" android:layout_marginStart="4dp">
++                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_edge" android:contentDescription="@null" android:importantForAccessibility="no" />
+                     <TextView style="@style/MetricLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/label_edge" />
+                     <TextView android:id="@+id/txt_edge" style="@style/MetricValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:ellipsize="end" android:gravity="center" android:minLines="1" android:maxLines="2" android:text="@string/placeholder_value" android:textColor="@color/colorMiss" />
+                 </LinearLayout>
+             </LinearLayout>
+         </LinearLayout>
+-
+-        <!-- 形态证据 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="3dp"
+-            android:orientation="vertical">
+-
+-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_evidence" />
+-                <TextView style="@style/CardTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="10dp" android:layout_weight="1" android:text="@string/section_evidence" />
+-            </LinearLayout>
+-
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="3dp" android:orientation="vertical">
++            <TextView style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_evidence" android:drawableStart="@drawable/ic_evidence" android:drawablePadding="10dp" android:gravity="center_vertical" android:minHeight="24dp" />
+             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_card_compact" android:orientation="vertical">
+                     <TextView android:id="@+id/txt_state_mode" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/placeholder_state" />
+@@ -485,7 +82,6 @@
+                     <TextView android:id="@+id/txt_break_depth" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/placeholder_break_depth" />
+                     <TextView android:id="@+id/txt_recovery_score" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/placeholder_recovery_score" />
+                 </LinearLayout>
+-
+                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:background="@drawable/bg_card_compact" android:orientation="vertical">
+                     <TextView android:id="@+id/txt_similar_hit_rate" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/placeholder_similar_hit_rate" />
+                     <TextView android:id="@+id/txt_effective_sample" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/placeholder_effective_sample" />
+@@ -495,185 +91,38 @@
+                 </LinearLayout>
+             </LinearLayout>
+         </LinearLayout>
+-
+-        <!-- 真实统计 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="3dp"
+-            android:orientation="vertical">
+-
+-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_stats" />
+-                <TextView style="@style/CardTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="10dp" android:layout_weight="1" android:text="@string/section_stats" />
+-            </LinearLayout>
+-
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="3dp" android:orientation="vertical">
++            <TextView style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_stats" android:drawableStart="@drawable/ic_stats" android:drawablePadding="10dp" android:gravity="center_vertical" android:minHeight="24dp" />
+             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal">
+-                <TextView android:id="@+id/txt_stats_line1" style="@style/TextSub" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginRight="4dp" android:layout_weight="1" android:background="@drawable/bg_metric_neutral" android:gravity="center" android:minHeight="58dp" android:padding="8dp" android:text="@string/placeholder_real_bet" />
+-                <TextView android:id="@+id/txt_stats_line2" style="@style/TextSub" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="4dp" android:layout_marginRight="4dp" android:layout_weight="1" android:background="@drawable/bg_metric_info" android:gravity="center" android:minHeight="58dp" android:padding="8dp" android:text="@string/placeholder_frequency" />
+-                <TextView android:id="@+id/txt_stats_line3" style="@style/TextSub" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="4dp" android:layout_weight="1" android:background="@drawable/bg_metric_warn" android:gravity="center" android:minHeight="58dp" android:padding="8dp" android:text="@string/placeholder_pnl" />
++                <TextView android:id="@+id/txt_stats_line1" style="@style/TextSub" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_metric_neutral" android:gravity="center" android:minHeight="58dp" android:padding="8dp" android:text="@string/placeholder_real_bet" android:layout_marginEnd="4dp" />
++                <TextView android:id="@+id/txt_stats_line2" style="@style/TextSub" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_metric_info" android:gravity="center" android:minHeight="58dp" android:padding="8dp" android:text="@string/placeholder_frequency" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" />
++                <TextView android:id="@+id/txt_stats_line3" style="@style/TextSub" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_metric_warn" android:gravity="center" android:minHeight="58dp" android:padding="8dp" android:text="@string/placeholder_pnl" android:layout_marginStart="4dp" />
+             </LinearLayout>
+-
+-            <TextView
+-                android:id="@+id/txt_backtest_summary"
+-                style="@style/ConsoleText"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="10dp"
+-                android:background="@drawable/bg_console"
+-                android:minHeight="72dp"
+-                android:text="@string/placeholder_backtest"
+-                android:textIsSelectable="true" />
++            <TextView android:id="@+id/txt_backtest_summary" style="@style/ConsoleText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_console" android:minHeight="72dp" android:text="@string/placeholder_backtest" android:textIsSelectable="true" />
+         </LinearLayout>
+-
+-        <!-- 诊断原因 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="3dp"
+-            android:orientation="vertical">
+-
+-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_reason" />
+-                <TextView style="@style/CardTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="10dp" android:layout_weight="1" android:text="@string/section_reason" />
+-            </LinearLayout>
+-
+-            <LinearLayout
+-                android:id="@+id/why_truth_host"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="7dp"
+-                android:orientation="vertical" />
+-
+-            <TextView
+-                style="@style/CardTitle"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="12dp"
+-                android:text="R919 十六项运行真值状态" />
+-
+-            <LinearLayout
+-                android:id="@+id/diagnostic_state_host"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="4dp"
+-                android:orientation="vertical" />
+-
+-            <!-- Legacy heavy-reason host is retained only for binary/source compatibility.
+-                 R906 renderHeavySnapshot never writes the four-card truth host. -->
+-            <LinearLayout
+-                android:id="@+id/list_reasons"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:visibility="gone"
+-                android:orientation="vertical" />
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="3dp" android:orientation="vertical">
++            <TextView style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_reason" android:drawableStart="@drawable/ic_reason" android:drawablePadding="10dp" android:gravity="center_vertical" android:minHeight="24dp" />
++            <LinearLayout android:id="@+id/why_truth_host" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:orientation="vertical" />
++            <TextView style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/cp12_runtime_truth_title" />
++            <LinearLayout android:id="@+id/diagnostic_state_host" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="vertical" />
++            <LinearLayout android:id="@+id/list_reasons" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:orientation="vertical" />
+         </LinearLayout>
+-
+-        <!-- 决策历史 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="3dp"
+-            android:orientation="vertical">
+-
+-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_history" />
+-                <TextView style="@style/CardTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="10dp" android:layout_weight="1" android:text="@string/section_history" />
+-            </LinearLayout>
+-
+-            <LinearLayout
+-                android:id="@+id/scroll_history"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="8dp"
+-                android:background="@drawable/bg_console"
+-                android:clipToPadding="false"
+-                android:orientation="vertical"
+-                android:padding="6dp">
+-
+-                <Button
+-                    android:id="@+id/btn_open_history"
+-                    style="@style/NovaButtonQuiet"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="48dp"
+-                    android:text="@string/action_open_history" />
+-
+-                <LinearLayout
+-                    android:id="@+id/list_history"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="wrap_content"
+-                    android:orientation="vertical" />
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="3dp" android:orientation="vertical">
++            <TextView style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_history" android:drawableStart="@drawable/ic_history" android:drawablePadding="10dp" android:gravity="center_vertical" android:minHeight="24dp" />
++            <LinearLayout android:id="@+id/scroll_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_console" android:clipToPadding="false" android:orientation="vertical" android:padding="6dp">
++                <Button android:id="@+id/btn_open_history" style="@style/NovaButtonQuiet" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/action_open_history" />
++                <LinearLayout android:id="@+id/list_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+             </LinearLayout>
+         </LinearLayout>
+-
+-        <!-- 开奖历史 -->
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="@dimen/section_gap"
+-            android:background="@drawable/bg_card"
+-            android:elevation="3dp"
+-            android:orientation="vertical">
+-
+-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+-                <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_draw" />
+-                <TextView style="@style/CardTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginLeft="10dp" android:layout_weight="1" android:text="@string/section_draw_history" />
+-            </LinearLayout>
+-
+-            <LinearLayout
+-                android:id="@+id/scroll_draw_history"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:layout_marginTop="8dp"
+-                android:background="@drawable/bg_console"
+-                android:clipToPadding="false"
+-                android:orientation="vertical"
+-                android:padding="6dp">
+-
+-                <Button
+-                    android:id="@+id/btn_open_diagnosis"
+-                    style="@style/NovaButtonQuiet"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="48dp"
+-                    android:text="@string/action_open_diagnosis" />
+-
+-                <Button
+-                    android:id="@+id/btn_open_model_learning"
+-                    style="@style/NovaButtonQuiet"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="48dp"
+-                    android:layout_marginTop="6dp"
+-                    android:text="@string/action_open_model_learning" />
+-
+-                <Button
+-                    android:id="@+id/btn_open_database_health"
+-                    style="@style/NovaButtonQuiet"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="48dp"
+-                    android:layout_marginTop="6dp"
+-                    android:text="@string/action_open_database_health" />
+-
+-                <LinearLayout
+-                    android:id="@+id/list_draw_history"
+-                    android:layout_width="match_parent"
+-                    android:layout_height="wrap_content"
+-                    android:orientation="vertical" />
++        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/section_gap" android:background="@drawable/bg_card" android:elevation="3dp" android:orientation="vertical">
++            <TextView style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/section_draw_history" android:drawableStart="@drawable/ic_draw" android:drawablePadding="10dp" android:gravity="center_vertical" android:minHeight="24dp" />
++            <LinearLayout android:id="@+id/scroll_draw_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_console" android:clipToPadding="false" android:orientation="vertical" android:padding="6dp">
++                <Button android:id="@+id/btn_open_diagnosis" style="@style/NovaButtonQuiet" android:layout_width="match_parent" android:layout_height="48dp" android:text="@string/action_open_diagnosis" />
++                <Button android:id="@+id/btn_open_model_learning" style="@style/NovaButtonQuiet" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="@string/action_open_model_learning" />
++                <Button android:id="@+id/btn_open_database_health" style="@style/NovaButtonQuiet" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" android:text="@string/action_open_database_health" />
++                <LinearLayout android:id="@+id/list_draw_history" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+             </LinearLayout>
+         </LinearLayout>
+-
+-        <TextView
+-            style="@style/TextMuted"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="14dp"
+-            android:gravity="center"
+-            android:text="@string/footer_single_gate" />
+-
++        <TextView style="@style/TextMuted" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center" android:text="@string/footer_single_gate" />
+     </LinearLayout>
+-</ScrollView>
++</ScrollView>
+\ No newline at end of file

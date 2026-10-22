@@ -1,0 +1,21 @@
+﻿id,item,pass_condition,evidence
+A01,资源ID/DEX,0 mismatch,static+APK
+A02,phone/sw600dp UI parity,所有必需控件ID一致,static
+A03,按钮接线,每个Button有handler且action可达,static+instrumented
+A04,后台权限,battery unrestricted + exact alarm + notification + vendor autostart可见,device
+A05,冷启动,critical DB startup目标<8s，且单独统计,device
+A06,稳态预测,request→commit P95<=5s,device 120 issues
+A07,预测覆盖,release-epoch coverage>=99%,device 120 issues
+A08,结算,有赛前预测的结算完成率>=99.9%，duplicate=0,device
+A09,Deferred,最新FULL<=2期滞后，backlog单调收敛至0,device soak
+A10,Shadow UI,首页独立显示30/60/120、Wilson、recent20,UI
+A11,REAL合同,invalid=0 duplicate=0,device
+A12,模型Artifact,Number/Gate/Rank/Calibration hash+PIT+parity+OOS齐全,offline
+A13,淘汰解释,100%归档有first_prune_reason+metrics,DB
+A14,Research捕获,system capture coverage>=99% for active cohort,device
+A15,挑战者,只有合同全过才进入,DB+test
+A16,证书,证书只SHADOW，不直接REAL,contract
+A17,息屏,120期无掉期,device
+A18,划掉,30期无掉期,device
+A19,24h,业务链无stale/重复,device
+A20,完整报告,包含manifest/resource/button/source/pipeline/research,export

@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "checks": 16,
+  "runs": {
+    "timely": {
+      "status": "PASS",
+      "checks": 5,
+      "mode": "timely",
+      "scope": "ACTUAL_RESERVED_CAPTURE_SQLITE_HOST_CONTROLLED_TIME"
+    },
+    "expired": {
+      "status": "PASS",
+      "checks": 5,
+      "mode": "expired",
+      "scope": "ACTUAL_RESERVED_CAPTURE_SQLITE_HOST_CONTROLLED_TIME"
+    },
+    "crossing": {
+      "status": "PASS",
+      "checks": 6,
+      "mode": "crossing",
+      "scope": "ACTUAL_RESERVED_CAPTURE_SQLITE_HOST_CONTROLLED_TIME"
+    }
+  },
+  "implementation": "supplied-product-bytecode",
+  "sources": {
+    "verification/r77/CaptureDeadlineR77.java": "0e441a883bebe348dddd876cc11b03405e9807ad95c36c837d7e0095756c09a5",
+    "verification/r75/MainlineCaptureR75.java": "404f3b43272296ce21481d814046f4a66ec1fef9c1b407758ba8b9f1ebafe66a",
+    "verification/r77/MainlineAstR77.java": "987515a7fe7cfa97a3d6c6c52d855383e08bc1385ae21ea69557f2b4ac29b3d1",
+    "verification/r982/TrainingFixtureCP11.java": "81b0aa6a6b6c7a64529191e4f2b5fb26311c51ff15e5d469bafd63df3ec692e2",
+    "verification/canonical/adapters/android/os/Debug.java": "3770b8c1f236fbfc5a6d3e8eaf3d724dbb5d1cfdc94513e12862619870558103",
+    "verification/canonical/adapters/android/os/SystemClock.java": "3d8ebd8661e0f3d90bce83d8b434aa0ae5081d6e5d1300688b7d6e5382cd18b1"
+  },
+  "product_classes": "../r77-final-classes"
+}

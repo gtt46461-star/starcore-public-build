@@ -1,0 +1,1 @@
+package android.os; public class Process { public static final int THREAD_PRIORITY_DEFAULT=0,THREAD_PRIORITY_BACKGROUND=10,THREAD_PRIORITY_URGENT_DISPLAY=-8; public static int myPid(){return 1;} public static void killProcess(int p){} public static void setThreadPriority(int p){} }

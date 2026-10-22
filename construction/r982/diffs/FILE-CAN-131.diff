@@ -1,0 +1,11 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureStateMachineR930.java b/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureStateMachineR930.java
+index 922cf9f..a609e9e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureStateMachineR930.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchCaptureStateMachineR930.java
+@@ -87,4 +87,6 @@ public final class ResearchCaptureStateMachineR930 {
+     private static long parseLong(String x,long d){try{return Long.parseLong(x);}catch(Throwable e){return d;}}
+     private static String required(String x){String v=x==null?"":x.trim();if(v.length()==0)throw new IllegalArgumentException("R930_CAPTURE_REQUIRED");return v;}
+     private static String optionalHash(String x){String v=x==null?"":x.trim().toLowerCase(Locale.US);if(v.length()==0)return "";if(!v.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R930_CAPTURE_HASH");return v;}
++
++public static String denominatorSummarySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store){if(store==null)return "N/A";return "opportunity="+store.getState("r930_capture_opportunity_denominator","0")+"|available="+store.getState("r930_capture_count_system_available","0")+"|eligible="+store.getState("r930_capture_count_eligible","0")+"|selected="+store.getState("r930_capture_count_selected","0")+"|started="+store.getState("r930_capture_count_execution_started","0")+"|frozen="+store.getState("r930_capture_count_frozen","0")+"|systemPause="+store.getState("r930_capture_count_paused_system","0")+"|execFail="+store.getState("r930_capture_count_failed_execution","0");}
+ }

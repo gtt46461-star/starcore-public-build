@@ -1,0 +1,31 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java b/app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java
+index c7c3361..7d1a35a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchPopulationR966.java
+@@ -35,7 +35,7 @@ final class ResearchPopulationR966 {
+                     +" AND NOT EXISTS(SELECT 1 FROM "+CandidateCalibrationR932.OBS+" o WHERE o.candidate_key=l.candidate_key)"
+                     +" AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" w WHERE w.candidate_key=l.candidate_key)"
+                     +" AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.ELITE+" e WHERE e.candidate_key=l.candidate_key)"
+-                    +" AND NOT EXISTS(SELECT 1 FROM "+PairedResearchChallengeR932.TABLE+" p WHERE p.state='OPEN' AND (p.parent_key=l.candidate_key OR p.child_key=l.candidate_key))"
++                    +(ResearchGatePlanR967.installed().isCp3?" AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" cp4 WHERE cp4.candidate_key=l.candidate_key AND cp4.state='OPEN')":" AND NOT EXISTS(SELECT 1 FROM "+PairedResearchChallengeR932.TABLE+" p WHERE p.state='OPEN' AND (p.parent_key=l.candidate_key OR p.child_key=l.candidate_key))")
+                     +" AND NOT EXISTS(SELECT 1 FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" c WHERE c.consumer='INVENTED_ALGORITHM' AND c.candidate_id=g.genome_id AND c.state='ACTIVE')";
+             try(Cursor c=db.rawQuery(sql,new String[]{parent})){if(c.moveToFirst())return parent;}
+         }
+@@ -61,7 +61,7 @@ final class ResearchPopulationR966 {
+                 +" WHERE a.parent_key=l.candidate_key AND a.state='CREATED' AND a.kind='PREDRAW_FAILURE_REPAIR' AND child.future_n>=12"
+                 +" AND child.status NOT LIKE 'PRUNED%' AND child.status NOT LIKE 'QUARANTINED%' AND child.status NOT IN ('RETIRED','ARCHIVED'))))"
+                 +" AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.ELITE+" e WHERE e.candidate_key=l.candidate_key)"
+-                +" AND NOT EXISTS(SELECT 1 FROM "+PairedResearchChallengeR932.TABLE+" p WHERE p.state='OPEN' AND (p.parent_key=l.candidate_key OR p.child_key=l.candidate_key))"
++                +(ResearchGatePlanR967.installed().isCp3?" AND NOT EXISTS(SELECT 1 FROM "+FixedResearchWindowR932.WINDOW+" cp4 WHERE cp4.candidate_key=l.candidate_key AND cp4.state='OPEN')":" AND NOT EXISTS(SELECT 1 FROM "+PairedResearchChallengeR932.TABLE+" p WHERE p.state='OPEN' AND (p.parent_key=l.candidate_key OR p.child_key=l.candidate_key))")
+                 +" AND NOT EXISTS(SELECT 1 FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" c WHERE c.consumer='INVENTED_ALGORITHM' AND c.candidate_id=g.genome_id AND c.state='ACTIVE')"
+                 +" ORDER BY g.future_hit*1.0/MAX(1,g.future_n),g.generation,g.genome_id LIMIT 1";
+         try(Cursor c=db.rawQuery(sql,null)){
+@@ -95,4 +95,8 @@ final class ResearchPopulationR966 {
+             ResearchLifecycleR932.transition(db,key,ResearchLifecycleR932.State.RESOURCE_RETIRED,reason,issue,V51ChecksumEngine.sha256(reason+'|'+key+'|'+issue),n,0);
+         }
+     }
++
++static int activeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db){
++        try(Cursor c=report.select("SELECT COUNT(*) FROM "+DbHelper.TABLE_R908_ALGORITHM_GENOME+" WHERE "+ACTIVE,null)){return c.moveToFirst()?c.getInt(0):0;}
++    }
+ }

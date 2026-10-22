@@ -1,0 +1,102 @@
+name: V51 APEX 51072405 State Trend Failure Research
+
+on:
+  push:
+    branches: [agent/v51-apex]
+    paths:
+      - 'tools/apply_v51_state_trend_upgrade_51072405.py'
+      - '.github/workflows/v51-state-trend-51072405-research.yml'
+  pull_request:
+    branches: [agent/v50-prime]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  strict-state-trend-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify source identity
+        shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+
+      - name: Materialize V51 research chain
+        run: |
+          set -euo pipefail
+          mkdir -p reports delivery
+          python tools/apply_v51_apex_51072403.py
+          python tools/apply_v51_hash_audit_51072404.py
+          python tools/apply_v51_signal_integrity_patch.py
+          python tools/apply_v51_signal_discovery_fix_51072404.py
+          python tools/apply_v51_state_trend_upgrade_51072405.py
+          test -s training/v51_signal_discovery_audit.py
+          test -s training/v51_state_trend_failure_audit.py
+          test -s tools/v51_state_trend_failure_harness.py
+          test -s docs/V51_STATE_TREND_SELECTIVE_UPGRADE_51072405.md
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned dependencies
+        run: python -m pip install --disable-pip-version-check numpy==2.3.5 scikit-learn==1.8.0
+
+      - name: Run strict state trend and failure-domain audit
+        env:
+          PYTHONHASHSEED: '0'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          NUMEXPR_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          python training/v51_state_trend_failure_audit.py \
+            --report delivery/V51_STATE_TREND_FAILURE_AUDIT_51072405.json \
+            2>&1 | tee delivery/V51_STATE_TREND_FAILURE_STDOUT_51072405.log
+          cp delivery/V51_STATE_TREND_FAILURE_AUDIT_51072405.json reports/V51_STATE_TREND_FAILURE_AUDIT.json
+
+      - name: Enforce release lock and chronology contract
+        run: |
+          set -euo pipefail
+          python tools/v51_state_trend_failure_harness.py \
+            --report delivery/V51_STATE_TREND_FAILURE_AUDIT_51072405.json \
+            2>&1 | tee delivery/V51_STATE_TREND_FAILURE_HARNESS_51072405.json
+          cp docs/V51_STATE_TREND_SELECTIVE_UPGRADE_51072405.md delivery/
+          printf '%s\n' "$(git rev-parse HEAD)" > delivery/V51_SOURCE_COMMIT_51072405.txt
+          sha256sum delivery/* > delivery/SHA256SUMS_51072405.txt
+
+      - name: Publish research summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r=json.load(open('delivery/V51_STATE_TREND_FAILURE_AUDIT_51072405.json'))
+          f=r['frozen_champion_result']
+          print('## V51 APEX 51072405')
+          print('- Development champion: **%s**'%r['development_champion'])
+          print('- Frozen coverage / Top15: **%.2f%% / %.2f%%**'%(f['coverage']*100,f['top15_hit']*100))
+          print('- Frozen four blocks: **%s**'%(' / '.join('%.2f%%'%(x*100) for x in f['top15_blocks'])))
+          print('- Qualified 40/15: **%s**'%r['qualified_40_15_state_trend_signal_found'])
+          print('- Real BET: **disabled unless the full model gate is proven**')
+          PY
+
+      - name: Upload research evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: V51-APEX-51072405-state-trend-research-not-proven
+          path: delivery/*
+          if-no-files-found: error
+          retention-days: 30

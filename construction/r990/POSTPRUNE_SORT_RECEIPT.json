@@ -1,0 +1,35 @@
+{
+  "operations": [
+    {
+      "operation": "compile_driver_only",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/javac",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-sort/drivers",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r989/ReportSortFailureCleanupR989.java"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.816428692000045
+    },
+    {
+      "operation": "actual_current_sort_failure_cleanup",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-sort/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.ReportSortFailureCleanupR989",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-sort/files"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.26453945499997644
+    }
+  ],
+  "status": "PASS",
+  "scope": "Actual current product; synthetic host files, no Android provider/process/production-data claim",
+  "actual_product_source_sha256": "8656f2d85e6ec50d98704b22fc66a4341ab81042df8667321b2f5b06ef684eb6",
+  "actual_complete_product_class_sha256": "3944e33d99b67b010e29afd5c1894dce32008458b99f5e5ad2a41b365c0fe0cd",
+  "test_source_sha256": "63f48634e3e592352dcc07f21c6716f627e0880858557ce804f459ab2324bf85"
+}

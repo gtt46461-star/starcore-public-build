@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "batch": "C021",
+  "commands": [
+    {
+      "name": "target-tests",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/scratch/734b9d5fd4f8/checks/C021/empty",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/build/C021/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "-d",
+        "/workspace/scratch/734b9d5fd4f8/checks/C021/target-tests",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/build_owner/tests/TargetIssueBoundaryTest.java"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "maximum-date-invalid-and-cross-day",
+      "argv": [
+        "java",
+        "-Djava.library.path=/workspace/scratch/734b9d5fd4f8/checks/C021/native",
+        "-Dr82.readonly.bridge=/workspace/scratch/734b9d5fd4f8/stage-sources/final-C021/verification/r996/read_only_bridge.py",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C021/target-tests:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/build/C021/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "com.ethk3.novaonepro.TargetIssueBoundaryTest"
+      ],
+      "exit_code": 0,
+      "log_sha256": "831e25ae914b20165fe6ff893f876cd87cbe92967fb212b220cd466028569a5c"
+    },
+    {
+      "name": "production-governance-retained",
+      "argv": [
+        "python3",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/build_owner/tests/governance/run.py",
+        "--candidate-classes",
+        "/workspace/scratch/734b9d5fd4f8/build/C021/actual-applied/classes",
+        "--adapters",
+        "/workspace/scratch/734b9d5fd4f8/plan/tests/adapters",
+        "--android-jar",
+        "/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "--project-root",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C021",
+        "--schema",
+        "/workspace/scratch/734b9d5fd4f8/plan/tests/schema.sqlite",
+        "--bridge",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C021/verification/canonical/schema/sqlite_bridge.py",
+        "--out",
+        "/workspace/scratch/734b9d5fd4f8/checks/C021/governance"
+      ],
+      "exit_code": 0,
+      "log_sha256": "b9843f3f537ec5e613ba1b374e5698dc27d72ae9c1db80c7fada81056fe29699"
+    }
+  ],
+  "class_files": 3475,
+  "class_tree_sha256": "917cff95bbb50212250ed7833f5fdf140ff41da6bcf4afa88b9752a9a04f94c1",
+  "product_class_overlays": [],
+  "product_classes_unchanged": true,
+  "scope": "CURRENT_STAGE_SCOPED_HOST_CONTRACTS_ONLY",
+  "later_interfaces_and_all_regression": "C030",
+  "original_device_live_database_and_natural_data": "WAIT"
+}

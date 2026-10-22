@@ -1,0 +1,34 @@
+package com.ethk3.novaonepro;
+import java.util.*;
+/** Scalar history representation avoids 5000 nested JSON row/number arrays. */
+public final class FrozenHistoryWireCP11 {
+ public static final int MAX_ROWS=5000,MAX_CHARS=320000;
+ private FrozenHistoryWireCP11(){}
+ public static void append(StringBuilder out,Models.Draw draw){
+  if(draw==null||!draw.isValid()||draw.dirty!=0||!TargetIssueResolver.isValid(draw.issue)
+      ||draw.openTime<=0||draw.fetchTime<0)throw new IllegalArgumentException("RECIPE_HISTORY_ROW");
+  int seen=0;out.append(draw.issue).append('|').append(draw.openTime).append('|').append(draw.fetchTime).append('|');
+  for(int i=0;i<10;i++){int n=draw.numbers[i];if(n<1||n>10||(seen&(1<<(n-1)))!=0)throw new IllegalArgumentException("RECIPE_HISTORY_PERMUTATION");seen|=1<<(n-1);out.append((char)('A'+n-1));}
+  out.append('\n');if(out.length()>MAX_CHARS)throw new IllegalArgumentException("RECIPE_HISTORY_SIZE");
+ }
+ public static List<Models.Draw> decode(String wire,int expected,String base){
+  if(wire==null||wire.length()>MAX_CHARS||expected<0||expected>MAX_ROWS||!TargetIssueResolver.isValid(base))throw new IllegalArgumentException("RECIPE_HISTORY_BOUND");
+  final String[] issues=new String[expected];final long[] open=new long[expected],fetch=new long[expected];final byte[] values=new byte[expected*10];
+  int count=0,at=0;String previous="";
+  while(at<wire.length()){
+   if(count>=expected)throw new IllegalArgumentException("RECIPE_HISTORY_COUNT");
+   int end=wire.indexOf('\n',at),a=wire.indexOf('|',at),b=a<0?-1:wire.indexOf('|',a+1),c=b<0?-1:wire.indexOf('|',b+1);
+   if(end<0||a<=at||b<=a+1||c<=b+1||c+11!=end)throw new IllegalArgumentException("RECIPE_HISTORY_FORMAT");
+   String issue=wire.substring(at,a);long opened=parseNonnegative(wire,a+1,b),fetched=parseNonnegative(wire,b+1,c);
+   if(!TargetIssueResolver.isValid(issue)||issue.compareTo(base)>0||(!previous.isEmpty()&&previous.compareTo(issue)>=0)||opened<=0)throw new IllegalArgumentException("RECIPE_HISTORY_PIT");
+   int seen=0;for(int i=0;i<10;i++){int n=wire.charAt(c+i+1)-'A'+1;if(n<1||n>10||(seen&(1<<(n-1)))!=0)throw new IllegalArgumentException("RECIPE_HISTORY_PERMUTATION");seen|=1<<(n-1);values[count*10+i]=(byte)n;}
+   issues[count]=issue;open[count]=opened;fetch[count]=fetched;count++;previous=issue;at=end+1;
+  }
+  if(count!=expected)throw new IllegalArgumentException("RECIPE_HISTORY_COUNT");
+  return Collections.unmodifiableList(new AbstractList<Models.Draw>(){
+   public int size(){return expected;}
+   public Models.Draw get(int i){if(i<0||i>=expected)throw new IndexOutOfBoundsException();Models.Draw d=new Models.Draw();d.issue=issues[i];d.openTime=open[i];d.fetchTime=fetch[i];d.sourceLine="";for(int n=0;n<10;n++)d.numbers[n]=values[i*10+n];return d;}
+  });
+ }
+ private static long parseNonnegative(String text,int start,int end){if(start>=end||end-start>19)throw new IllegalArgumentException("RECIPE_HISTORY_TIME");long value=0;for(int i=start;i<end;i++){int digit=text.charAt(i)-'0';if(digit<0||digit>9||value>(Long.MAX_VALUE-digit)/10)throw new IllegalArgumentException("RECIPE_HISTORY_TIME");value=value*10+digit;}return value;}
+}

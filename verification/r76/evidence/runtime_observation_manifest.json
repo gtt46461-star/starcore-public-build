@@ -1,0 +1,68 @@
+{
+  "baselineRevision": "22e9a2ee",
+  "status": "DEVELOPMENT_PASS_FINAL_BYTECODE_PENDING",
+  "checks": 81,
+  "owners": [
+    "ServiceHeartbeatStore",
+    "RealtimePressureGateR811"
+  ],
+  "consumer": "ReportExportServiceCP4.ActiveControl.shouldContinue",
+  "baselineFailures": [
+    "TELEMETRY_NO_SYNC_COMMIT_PENDING: 2 delayed sync commits, 40906 us with 20 ms injected per commit",
+    "PRESSURE_BEGIN_HAS_NO_ATOMIC_FSYNC: 1 delayed AtomicFile finish, 20715 us with 20 ms injected delay"
+  ],
+  "scope": [
+    "Two actual owner classes compiled from source in isolated development overlay; unchanged ReportExportServiceCP4 release bytecode consumer",
+    "SharedPreferences Android transport adapter models immediate memory visibility, deferred ordered disk queue and delayed commit",
+    "AtomicFile Android transport adapter uses real host files, fsync and atomic replace, counts durable writes and models legacy backup recovery",
+    "Failure injection at FileOutputStream pending open and File.renameTo destination SecurityManager check; former record and retry timestamp verified",
+    "Actual report control validates session/generation/2-second expiry, future monotonic samples, oversized hints and malformed JSON"
+  ],
+  "limitations": [
+    "Injected host delays establish call-path behavior, not measured Android preferences or device fsync latency",
+    "SharedPreferences model does not validate Android process death, lifecycle apply flush or cross-process delivery timing",
+    "No final R76 release class validation until final-bytecode mode is rerun",
+    "No conclusion that these two mechanisms alone explain the supplied device multi-second stalls",
+    "No phone 55-second capture SLA, natural training/Future, certificate or real trade acceptance"
+  ],
+  "runs": [
+    {
+      "name": "baseline_heartbeat",
+      "directory": "/workspace/scratch/e2544c9906f6/r76-observation-baseline-heartbeat",
+      "files": {
+        "verification/r76/evidence/runtime_observation_baseline_heartbeat_test.log": "4e7decc0dc4498f7f04ae27bebc51c5c520e0afa965b2df49fadd9931d96e7f5",
+        "verification/r76/evidence/runtime_observation_baseline_heartbeat_steps.json": "c895af52b356b063a66e2f7c5556dfc041ca977343065a3b6f7a6b63a0543c1c",
+        "verification/r76/evidence/runtime_observation_baseline_heartbeat_product-bytecode.json": "cf8de159703c4de6caa2f8d515df752a938e21a5367dedc8585a62d5d393d6aa",
+        "verification/r76/evidence/runtime_observation_baseline_heartbeat_sources.json": "e767f4f62d0160f4adce026aa8b55199df58053f8258a7751cb3fd50b82991d8"
+      }
+    },
+    {
+      "name": "baseline_pressure",
+      "directory": "/workspace/scratch/e2544c9906f6/r76-observation-baseline-pressure",
+      "files": {
+        "verification/r76/evidence/runtime_observation_baseline_pressure_test.log": "a35197ed423694ae632e444b4bf9a736b5ecdbaafe34465442899ce124493eb7",
+        "verification/r76/evidence/runtime_observation_baseline_pressure_steps.json": "4ed239da6dd38f6eed817a73fc6d640d5c71dff13a67280e74bdfdefaa7a6475",
+        "verification/r76/evidence/runtime_observation_baseline_pressure_product-bytecode.json": "cf8de159703c4de6caa2f8d515df752a938e21a5367dedc8585a62d5d393d6aa",
+        "verification/r76/evidence/runtime_observation_baseline_pressure_sources.json": "2edc99c56a375221b053ff4f39a886446d1df0f1d83547ed43a0586968129095"
+      }
+    },
+    {
+      "name": "development",
+      "directory": "/workspace/scratch/e2544c9906f6/r76-observation-fixed2",
+      "files": {
+        "verification/r76/evidence/runtime_observation_development_test.log": "5236d2e9367e6e0201b348cceccc106075f368235d67d55e475cd78aa59984ab",
+        "verification/r76/evidence/runtime_observation_development_steps.json": "af1040cfe24b9996669338aa947190b154073c5816134b8044bf1d5bf3598ae8",
+        "verification/r76/evidence/runtime_observation_development_product-bytecode.json": "bbf3b9c127bbf03ace95732f461841da9ba1100a0ddfd455ef1bb5020d2c7db5",
+        "verification/r76/evidence/runtime_observation_development_sources.json": "2c50434be5311f02c18ff0bb3318d09b7d472703a8fd0a15e9f6516e1ff40cb0",
+        "verification/r76/evidence/runtime_observation_development_result.json": "faf10a2ad0dd64849f4087feea75ff9255392b562f273684acc440cc2043ffcf"
+      }
+    }
+  ],
+  "sourceHashes": {
+    "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java": "5df02033dc65ea99cca42e45a59cbdc3840dc3326bc9246fbda309b46778655f",
+    "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java": "b306cabb79519524b55addef239b37dcbedd289c6cab2ba81040cf488e872104",
+    "verification/r76/runtime_observation.java": "572e69dc51662a78802728881d3152e2c5897d535d07e05f7c793c86324790b4",
+    "verification/r76/runtime_observation_run.py": "8d11933492b7ca3b59dd8bfbe049dd0e141a5b85e9f70594a8b63a495690bdac",
+    "verification/r76/runtime_observation_adapters/android/util/AtomicFile.java": "ce3538f80b6719538947fa87bbdd29ad10168f22b09723f382719a1ac0e7fdf3"
+  }
+}

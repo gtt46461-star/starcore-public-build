@@ -1,0 +1,10 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
+@@ -10,6 +10,7 @@
+     @Override
+     public void onCreate() {
+         super.onCreate();
++        KeyProvider.initialize(getApplicationContext());
+         if (!isMainRuntimeProcess(this)) return;
+         RealtimePressureGateR811.configureCrossProcess(this);
+         try {

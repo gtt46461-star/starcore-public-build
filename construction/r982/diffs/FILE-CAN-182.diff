@@ -1,0 +1,48 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java b/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java
+index ad2f5bb..e15c426 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java
+@@ -1444,4 +1444,43 @@ public final class SettlementTaskStoreR36 {
+                     + "|blocked=" + blocked;
+         }
+     }
++
++public static Terminal terminalSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String target) {
++        if (store == null) return null;
++        Cursor c = null;
++        try {
++            c =
++                    report.select(
++                                    "SELECT status,settlement_hash,last_error,completed_at,"
++                                            + "terminal_code,task_class,attempts,source FROM "
++                                            + DbHelper.TABLE_R36_SETTLEMENT_TASK
++                                            + " WHERE target_issue=? LIMIT 1",
++                                    new String[] {target});
++            if (!c.moveToFirst() || !isTerminalSnapshotCP4(report, c.getString(0))) return null;
++            return new Terminal(
++                    target,
++                    c.getString(0),
++                    c.getString(1),
++                    c.getString(2),
++                    c.getLong(3),
++                    c.getString(4),
++                    c.getString(5),
++                    c.getInt(6),
++                    c.getString(7));
++        } finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static boolean isTerminalSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String s) {
++        String x = safeSnapshotCP4(report, s);
++        return COMPLETED.equals(x)
++                || FAILED_TERMINAL.equals(x)
++                || NO_PREDRAW_CANONICAL_TERMINAL.equals(x)
++                || INVALID_DRAW_TERMINAL.equals(x);
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
++        return x == null ? "" : x.trim();
++    }
+ }

@@ -1,0 +1,89 @@
+package com.ethk3.novaonepro.r952;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.*;
+
+/** Registry row -> immutable, hash-checked evaluator specification. */
+public final class AtomSpecCP4 {
+    public final String atomId,specHash,family,version,context,transform,regime;
+    public final String outputType,missingPolicy,state,canonicalSpec;
+    public final int position,minimumHistory;
+    public final boolean requiresBinding,requiresSummary;
+    public final String summaryEpochHash,summaryMetric;
+    public final int summaryWindow,summaryDigit;
+    public final AtomEvaluatorCP4.Spec mathSpec;
+    private AtomSpecCP4(Map<String,Object> row) {
+        keys(row,"atomId","specHash","spec","outputType","minimumHistory","state","missingPolicy");
+        Map<String,Object> s=object(row.get("spec"));
+        keys(s,"context","family","params","position","regime","transform","version");
+        atomId=str(row,"atomId");specHash=str(row,"specHash");family=str(s,"family");version=str(s,"version");
+        context=str(s,"context");transform=str(s,"transform");regime=str(s,"regime");position=integer(s,"position");
+        outputType=str(row,"outputType");missingPolicy=str(row,"missingPolicy");state=str(row,"state");minimumHistory=integer(row,"minimumHistory");
+        canonicalSpec=StrictCanonicalJson.writeAtom(s);
+        require(position>=1&&position<=10&&(version.equals("CP2")||version.equals("LONG_R80"))&&transform.equals("IDENTITY")&&regime.equals("ALL"),"ATOM_SPEC_IDENTITY");
+        require(specHash.equals(sha256(canonicalSpec)) && atomId.equals("ATOM2-"+specHash.substring(0,24)),"ATOM_SPEC_HASH_MISMATCH");
+        require(Arrays.asList("DISCOVERED","REQUIRES_BINDING","OBSERVING","VALIDATED","ACTIVE","DOWNWEIGHTED","RETIRED").contains(state),"ATOM_STATE");
+        require(!missingPolicy.isEmpty()&&missingPolicy.length()<=2048,"ATOM_MISSING_POLICY");
+        Map<String,Object> p=object(s.get("params"));int w=0,lag=0,digit=0,from=0,to=0,recent=0,reference=0,period=0,min=0,order=1,minContext=0;double alpha=.5;String mathRegime="ALL";
+        boolean binding=false,longSummary=false;String epoch="",summary="";int longWindow=0,longDigit=-1;
+        switch(family) {
+            case "LONG_FREQUENCY_R80":case "LONG_ENTROPY_R80":
+                if(family.equals("LONG_FREQUENCY_R80")){keys(p,"epochHash","window","digit");longDigit=digit(p,"digit");summary="FREQUENCY";}
+                else{keys(p,"epochHash","window");summary="ENTROPY";}
+                epoch=str(p,"epochHash");longWindow=integer(p,"window");require(epoch.matches("[0-9a-f]{64}")&&LongSummaryBindingsR80.validWindow(longWindow),"LONG_ATOM_SOURCE");longSummary=true;min=1;break;
+            case "LAG_DIGIT_EQ":keys(p,"digit","lag");digit=digit(p,"digit");lag=positive(p,"lag");min=lag;break;
+            case "DELTA_NUMERIC":case "DIRECTION":keys(p,"lag");lag=positive(p,"lag");min=lag+1;break;
+            case "FREQUENCY":case "OMISSION_RATE":case "ROLLING_VARIANCE_INDICATOR":case "FREQUENCY_SLOPE":
+            case "GAP_LAST_GAP":case "GAP_MEAN_GAP":case "GAP_VAR_GAP":case "GAP_GAP_Z":
+                keys(p,"digit","window");digit=digit(p,"digit");w=positive(p,"window");min=w;break;
+            case "OMISSION":keys(p,"digit");digit=digit(p,"digit");min=2;break;
+            case "TRANSITION_P1":keys(p,"from","to","window");from=digit(p,"from");to=digit(p,"to");w=positive(p,"window");min=w+1;break;
+            case "MARKOV_SCORE":order=integer(p,"order");require(order==1||order==2,"MARKOV_ORDER");
+                if(order==1)keys(p,"alpha","digit","order","window");
+                else{keys(p,"alpha","digit","minContext","order","window");minContext=integer(p,"minContext");require(minContext==8,"MARKOV_CONTEXT_SUPPORT");}
+                Object av=p.get("alpha");require(av instanceof StrictCanonicalJson.AtomDecimal,"MARKOV_ALPHA_ENCODING");alpha=((StrictCanonicalJson.AtomDecimal)av).doubleValue();
+                digit=digit(p,"digit");w=positive(p,"window");min=w+order;break;
+            case "PERIODICITY":keys(p,"digit","period","window");digit=digit(p,"digit");period=positive(p,"period");w=positive(p,"window");min=w+period;break;
+            case "ENTROPY":case "ROLLING_MEAN_DIGIT":case "ROLLING_VARIANCE_DIGIT":keys(p,"window");w=positive(p,"window");min=w;break;
+            case "CONDITIONAL_ENTROPY":keys(p,"condition","lag","window");require(str(p,"condition").equals("lag_digit"),"ATOM_CONDITION");lag=positive(p,"lag");w=positive(p,"window");min=w+lag;break;
+            case "MUTUAL_INFORMATION":keys(p,"digit","lag","window");digit=digit(p,"digit");lag=positive(p,"lag");w=positive(p,"window");min=w+lag;break;
+            case "HOT_COLD_Z":keys(p,"digit","recent","reference");digit=digit(p,"digit");recent=positive(p,"recent");reference=positive(p,"reference");require(recent<reference,"WINDOW_ORDER");min=reference;break;
+            case "DRIFT_JS":case "DRIFT_PSI":keys(p,"recent","reference");recent=positive(p,"recent");reference=positive(p,"reference");min=recent+reference;break;
+            case "REGIME_SCORE":keys(p,"regime","window");mathRegime=str(p,"regime");require(Arrays.asList("LOW_ENTROPY","HIGH_ENTROPY","TRENDING","MEAN_REVERTING","DRIFTING").contains(mathRegime),"ATOM_REGIME");w=positive(p,"window");min=2*w;break;
+            case "RESIDUAL_MEAN_TEMPLATE":case "LOSS_STREAK_TEMPLATE":case "CONFIDENCE_TEMPLATE":
+                keys(p,"binding","window");require(str(p,"binding").equals("strategy_version"),"ATOM_BINDING");binding=true;w=positive(p,"window");min=family.equals("LOSS_STREAK_TEMPLATE")?1:w;break;
+            case "STRATEGY_DISAGREEMENT_TEMPLATE":keys(p,"binding","window");require(str(p,"binding").equals("candidate_set")&&integer(p,"window")==1,"ATOM_BINDING");binding=true;w=1;min=1;break;
+            default:throw new IllegalArgumentException("UNKNOWN_ATOM_FAMILY:"+family);
+        }
+        requiresBinding=binding;requiresSummary=longSummary;summaryEpochHash=epoch;summaryMetric=summary;summaryWindow=longWindow;summaryDigit=longDigit;
+        require(version.equals(longSummary?"LONG_R80":"CP2"),"ATOM_SPEC_VERSION");
+        require(context.equals(longSummary?"LONG_SUMMARY_R80":binding?(family.equals("STRATEGY_DISAGREEMENT_TEMPLATE")?"candidate_set":"strategy_version"):"PIT_DRAW"),"ATOM_CONTEXT");
+        require(minimumHistory==min && min>=1 && min<=5000,"ATOM_MINIMUM_HISTORY");
+        String expectedType=family.equals("LAG_DIGIT_EQ")?"BOOLEAN":family.equals("DIRECTION")?"ORDINAL":
+            (family.equals("TRANSITION_P1")||family.equals("MARKOV_SCORE")||family.equals("CONFIDENCE_TEMPLATE"))?"PROBABILITY":
+            family.equals("REGIME_SCORE")?"SCALAR_REGIME_SCORE":"SCALAR";
+        require(outputType.equals(expectedType),"ATOM_OUTPUT_TYPE");
+        mathSpec=new AtomEvaluatorCP4.Spec(family,w,lag,digit,from,to,recent,reference,period,alpha,mathRegime,order,minContext);
+    }
+    public static AtomSpecCP4 fromAssetLine(String line) {
+        require(line!=null && line.getBytes(StandardCharsets.UTF_8).length<=8192,"ATOM_LINE_SIZE");
+        return new AtomSpecCP4(StrictCanonicalJson.readAtomObject(line));
+    }
+    public static AtomSpecCP4 fromRegistry(String id,String hash,String specJson,String output,int history,String missing,String state) {
+        Map<String,Object> row=new HashMap<>();row.put("atomId",id);row.put("specHash",hash);
+        row.put("spec",StrictCanonicalJson.readAtomObject(specJson));row.put("outputType",output);row.put("minimumHistory",history);row.put("missingPolicy",missing);row.put("state",state);
+        return new AtomSpecCP4(row);
+    }
+    private static String sha256(String s) {
+        try{byte[] b=MessageDigest.getInstance("SHA-256").digest(s.getBytes(StandardCharsets.UTF_8));StringBuilder out=new StringBuilder(64);for(byte v:b){out.append("0123456789abcdef".charAt((v&255)>>>4));out.append("0123456789abcdef".charAt(v&15));}return out.toString();}
+        catch(java.security.NoSuchAlgorithmException impossible){throw new AssertionError(impossible);}
+    }
+    private static void require(boolean b,String reason){if(!b)throw new IllegalArgumentException(reason);}
+    @SuppressWarnings("unchecked") private static Map<String,Object> object(Object o){require(o instanceof Map,"ATOM_OBJECT");return (Map<String,Object>)o;}
+    private static void keys(Map<String,Object> o,String... names){require(o.keySet().equals(new HashSet<>(Arrays.asList(names))),"ATOM_KEYS");}
+    private static String str(Map<String,Object> o,String key){Object v=o.get(key);require(v instanceof String,"ATOM_STRING:"+key);return (String)v;}
+    private static int integer(Map<String,Object> o,String key){Object v=o.get(key);require(v instanceof Long||v instanceof Integer,"ATOM_INTEGER:"+key);long n=((Number)v).longValue();require(n>=Integer.MIN_VALUE&&n<=Integer.MAX_VALUE,"ATOM_INTEGER_RANGE");return (int)n;}
+    private static int positive(Map<String,Object> o,String key){int n=integer(o,key);require(n>=1&&n<=5000,"ATOM_WINDOW_RANGE");return n;}
+    private static int digit(Map<String,Object> o,String key){int n=integer(o,key);require(n>=0&&n<=9,"ATOM_DIGIT");return n;}
+}

@@ -1,0 +1,220 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+index 7d8f65f..3e4cd36 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -22,7 +22,61 @@ public final class DatabaseCoordinator {
+     public static final String VERSION = "V57.3.0_TIANSHU_B03_DATABASE_COORDINATOR";
+     public static final String GAME_CODE = "Binance1-PK10";
+     public static final String DATABASE_NAME = "binance_k3_nova_one_pro_v57.db";
+-    public static final Object WRITE_MONITOR = new Object();
++    private static final java.util.concurrent.locks.ReentrantLock WRITE_LOCK_CP3 =
++            new java.util.concurrent.locks.ReentrantLock(true);
++    private static final ThreadLocal<Long> WRITE_DEADLINE_CP3 = new ThreadLocal<Long>();
++
++    /** One shared lock, used by every former WRITE_MONITOR site. No second writer lock. */
++    public static final class WriterGuardCP3 implements AutoCloseable {
++        private boolean closed;
++        private WriterGuardCP3() {}
++        @Override public void close() {
++            if (closed) throw new IllegalStateException("CP3_WRITER_DOUBLE_CLOSE");
++            closed = true;
++            WRITE_LOCK_CP3.unlock();
++        }
++    }
++    public static final class WriterDeadlineScopeCP3 implements AutoCloseable {
++        private final Long previous;
++        private boolean closed;
++        private WriterDeadlineScopeCP3(long deadlineMonoMs) {
++            previous = WRITE_DEADLINE_CP3.get();
++            WRITE_DEADLINE_CP3.set(previous == null ? deadlineMonoMs
++                    : Math.min(previous.longValue(), deadlineMonoMs));
++        }
++        @Override public void close() {
++            if (closed) throw new IllegalStateException("CP3_DEADLINE_DOUBLE_CLOSE");
++            closed = true;
++            if (previous == null) WRITE_DEADLINE_CP3.remove();
++            else WRITE_DEADLINE_CP3.set(previous);
++        }
++    }
++    public static WriterDeadlineScopeCP3 withWriterDeadlineCP3(long deadlineMonoMs) {
++        if (deadlineMonoMs <= 0) throw new IllegalArgumentException("CP3_DEADLINE_REQUIRED");
++        return new WriterDeadlineScopeCP3(deadlineMonoMs);
++    }
++    public static WriterGuardCP3 acquireWriterGuardCP3() {
++        if (android.os.Looper.myLooper() != null
++                && android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
++            throw new IllegalStateException("CP3_DB_WRITE_ON_MAIN_THREAD");
++        Long scoped = WRITE_DEADLINE_CP3.get();
++        long now = TimeSourceR811.monoNowMs();
++        long deadline = scoped == null ? now + 250L : scoped.longValue();
++        long left = deadline - now;
++        if (left <= 0) throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
++        try {
++            if (!WRITE_LOCK_CP3.tryLock(left, java.util.concurrent.TimeUnit.MILLISECONDS))
++                throw new IllegalStateException("CP3_DB_BUSY_LOCK_TIMEOUT");
++        } catch (InterruptedException interrupted) {
++            Thread.currentThread().interrupt();
++            throw new IllegalStateException("CP3_DB_WAIT_INTERRUPTED", interrupted);
++        }
++        if (TimeSourceR811.monoNowMs() >= deadline) {
++            WRITE_LOCK_CP3.unlock();
++            throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
++        }
++        return new WriterGuardCP3();
++    }
+ 
+     public interface WriteCallable<T> {
+         T call(SQLiteDatabase db) throws Exception;
+@@ -130,9 +184,9 @@ public final class DatabaseCoordinator {
+     }
+ 
+     private static volatile DatabaseCoordinator instance;
+-    private final Context app;
++    private final android.app.Application app;
+     private final DbHelper helper;
+-    private final ReentrantLock writeLock = new ReentrantLock(true);
++    private final ReentrantLock writeLock = WRITE_LOCK_CP3;
+     private final AtomicInteger waitingWriters = new AtomicInteger(0);
+     /** R914: background writers wait outside the fair lock while live business work is queued. */
+     private final AtomicInteger criticalBusinessWaitersR914 = new AtomicInteger(0);
+@@ -151,8 +205,12 @@ public final class DatabaseCoordinator {
+     private volatile int commitCount, rollbackCount, replayCount;
+ 
+     private DatabaseCoordinator(Context context) {
+-        Context c = context == null ? null : context.getApplicationContext();
+-        app = c == null ? context : c;
++        if (context == null) throw new IllegalArgumentException("APPLICATION_CONTEXT_REQUIRED");
++        Context c = context.getApplicationContext();
++        Context resolved = c == null ? context : c;
++        if (!(resolved instanceof android.app.Application))
++            throw new IllegalArgumentException("APPLICATION_CONTEXT_REQUIRED");
++        app = (android.app.Application) resolved;
+         helper = new DbHelper(app);
+         backgroundWriter =
+                 new ThreadPoolExecutor(
+@@ -220,7 +278,7 @@ public final class DatabaseCoordinator {
+      */
+     public void ensureCriticalSchemaOrThrow(SchemaInitializer initializer) {
+         if (criticalSchemaReady.get()) return;
+-        synchronized (WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard1 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             if (criticalSchemaReady.get()) return;
+             long started = System.currentTimeMillis();
+             criticalSchemaStartedAt = started;
+@@ -338,7 +396,7 @@ public final class DatabaseCoordinator {
+     public boolean ensureRuntimeSchemaOnce(SchemaInitializer initializer) {
+         if (runtimeSchemaReady.get()) return true;
+         if (initializer == null) return false;
+-        synchronized (WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard2 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             if (runtimeSchemaReady.get()) return true;
+             long started = System.currentTimeMillis();
+             legacySchemaStartedAt = started;
+@@ -417,7 +475,7 @@ public final class DatabaseCoordinator {
+ 
+     public boolean beginLinkSchemaEnsure() {
+         if (linkSchemaReady.get()) return false;
+-        synchronized (WRITE_MONITOR) {
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard3 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             if (linkSchemaReady.get()) return false;
+             linkSchemaReady.set(true);
+             return true;
+@@ -430,12 +488,18 @@ public final class DatabaseCoordinator {
+ 
+     public <T> T runWrite(String operation, WriteCallable<T> task, T fallback) {
+         if (task == null) return fallback;
++        if (android.os.Looper.myLooper() != null
++                && android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
++            throw new IllegalStateException("CP3_DB_WRITE_ON_MAIN_THREAD");
++        final Long scopedDeadlineCP3 = WRITE_DEADLINE_CP3.get();
++        final long writeDeadlineCP3 = scopedDeadlineCP3 == null
++                ? TimeSourceR811.monoNowMs() + 250L : scopedDeadlineCP3.longValue();
+         final String opR909 = safe(operation);
+         final boolean criticalBusinessR914 = isCriticalBusinessOperationR914(opR909);
+         final boolean backgroundR909 = !criticalBusinessR914 && isBackgroundOperationR909(opR909);
+         final boolean reentrantWriterR914 = writeLock.isHeldByCurrentThread();
+         if (criticalBusinessR914) criticalBusinessWaitersR914.incrementAndGet();
+-        else if (backgroundR909 && !reentrantWriterR914) yieldBackgroundForCriticalBusinessR914();
++        else if (backgroundR909 && !reentrantWriterR914) yieldBackgroundForCriticalBusinessR914(writeDeadlineCP3);
+         waitingWriters.incrementAndGet();
+         long started = TimeSourceR811.monoNowMs();
+         long waitStarted = started;
+@@ -445,7 +509,16 @@ public final class DatabaseCoordinator {
+                 long acquireStartedR927 = TimeSourceR811.monoNowMs();
+                 boolean waitRecordedR927 = false;
+                 try {
+-                    while (!writeLock.tryLock(50L, TimeUnit.MILLISECONDS)) {
++                    while (true) {
++                        long remainingCP3 = writeDeadlineCP3 - TimeSourceR811.monoNowMs();
++                        if (remainingCP3 <= 0L)
++                            throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
++                        if (writeLock.tryLock(Math.min(50L, remainingCP3), TimeUnit.MILLISECONDS)) {
++                            locked = true;
++                            if (TimeSourceR811.monoNowMs() >= writeDeadlineCP3)
++                                throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
++                            break;
++                        }
+                         RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");
+                         if(backgroundR909) ResearchWorkBudgetR927.checkpoint();
+                     }
+@@ -490,7 +563,7 @@ public final class DatabaseCoordinator {
+                         }
+                         locked = false;
+                     }
+-                    sleepBackoff(attempt);
++                    sleepBackoff(attempt, writeDeadlineCP3);
+                 } finally {
+                     if (!waitRecordedR927) RuntimeResourceAuditR927.lockWait(TimeSourceR811.monoNowMs()-acquireStartedR927);
+                     if (locked) {
+@@ -579,8 +652,8 @@ public final class DatabaseCoordinator {
+                 || op.startsWith("R909_SETTLEMENT_POST_COMMIT_SIDECAR");
+     }
+ 
+-    private void yieldBackgroundForCriticalBusinessR914() {
+-        long deadline = TimeSourceR811.monoNowMs() + 350L;
++    private void yieldBackgroundForCriticalBusinessR914(long writeDeadlineCP3) {
++        long deadline = Math.min(writeDeadlineCP3, TimeSourceR811.monoNowMs() + 350L);
+         while (criticalBusinessWaitersR914.get() > 0
+                 && TimeSourceR811.monoNowMs() < deadline) {
+             ResearchWorkBudgetR927.checkpoint();
+@@ -1040,7 +1113,17 @@ public final class DatabaseCoordinator {
+         lastWriteCostMs = cost;
+         if (cost > longestWriteCostMs) longestWriteCostMs = cost;
+         lastOperation = safe(operation);
+-        lastError = safeError(e);
++        String capacityReason=RetentionAggregateCapacityCP12.reason(e);
++        lastError = capacityReason.isEmpty()?safeError(e):capacityReason+":"+safeError(e);
++        if(!capacityReason.isEmpty()&&writeLock.isHeldByCurrentThread()){
++            // The failed owner transaction has rolled back; publish scheduler/UI HOLD truth separately.
++            SQLiteDatabase db=writable();
++            if(!db.inTransaction())try{
++                db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp12_aggregate_blocker',?,?)",new Object[]{lastError,System.currentTimeMillis()});
++                db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('cp4_retention_requested','1',?)",new Object[]{System.currentTimeMillis()});
++                db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r979_retention_due_at','0',?)",new Object[]{System.currentTimeMillis()});
++            }catch(RuntimeException receiptFailure){lastError+="|BLOCKER_RECEIPT_FAILED:"+safeError(receiptFailure);}
++        }
+         lastRollbackAt = System.currentTimeMillis();
+         rollbackCount++;
+     }
+@@ -1049,15 +1132,18 @@ public final class DatabaseCoordinator {
+         Throwable x = e;
+         for (int i = 0; i < 6 && x != null; i++, x = x.getCause()) {
+             if (x instanceof SQLiteDatabaseLockedException) return true;
+-            String m = String.valueOf(x.getMessage()).toLowerCase();
++            String m = String.valueOf(x.getMessage()).toLowerCase(java.util.Locale.ROOT);
+             if (m.indexOf("database is locked") >= 0 || m.indexOf("database table is locked") >= 0)
+                 return true;
+         }
+         return false;
+     }
+ 
+-    private static void sleepBackoff(int attempt) {
+-        long ms = AppConfig.DB_LOCK_RETRY_BASE_MS * (1L << Math.min(3, Math.max(0, attempt)));
++    private static void sleepBackoff(int attempt, long deadlineMonoMsCP3) {
++        long remainingCP3 = deadlineMonoMsCP3 - TimeSourceR811.monoNowMs();
++        if (remainingCP3 <= 0L) return;
++        long ms = Math.min(remainingCP3,
++                AppConfig.DB_LOCK_RETRY_BASE_MS * (1L << Math.min(3, Math.max(0, attempt))));
+         try {
+             Thread.sleep(ms);
+         } catch (InterruptedException e) {

@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "python3",
+      "verification/r986/run_report_checks.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-report"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "verification/r987/run_cancellation_checks.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-cancel"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "verification/r990/run_recovered_matrix.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--schema-db",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/schema.db",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-matrix"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "python3",
+      "verification/r983/run_mainline_owner.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--fixture-db",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-mainline/fixture.db",
+      "--ast",
+      "/workspace/scratch/c7daf582ec06/evidence/training-fixture-ast.txt",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-mainline"
+    ],
+    "exit_code": 1
+  }
+]

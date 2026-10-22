@@ -1,0 +1,322 @@
+{
+  "scope": "EXACT_SOURCE_NUMERIC_CONTINUATION_ONLY_NO_CERTIFICATE_MIGRATION",
+  "reviewed_input_provenance_sha256": "a68fe596392ad84dfcbc830ef1b302048586535b410a44a048d7ac75a26cf2d7",
+  "runtime_contract_sha256": "fb7e18a7c135df68dca1e1b4f3ea5f64a6bbd21a7f789467bd244ea8b7db3705",
+  "predecessors": [
+    {
+      "baseline_file": "release/r65_semantic_baseline.json",
+      "baseline_manifest_sha256": "02e2c3730a2e60f2635995e8c8fad93e6d0e31091c0e1b61d527883a5b17ce87",
+      "predecessor_training_rule_sha256": "233fbf6bf3b2313d56576c9c0a7953323a76d0e5f6a3d9fc6297b88f98648e09",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "5018a389bf8d949028d3746f36ed5fd5891fffc83343dcc14a3a3f17faafe40d",
+          "after_sha256": "28deed7085ab53fc46e2d64035d0409d2be6d9af0ac7745aa4656b541f5c27b7",
+          "rationale": "Clock publication before telemetry, duplicate poll write admission and finally-rescheduled serial fetch; existing canonical reads no longer acquire analysis pressure. The actual feature/model/loss, predraw deadline, canonical writer and certificate owners are unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "before_sha256": "840f9673bfac5bf3cce646336f74c94f6a337436470944359f53de9e74e2261f",
+          "after_sha256": "06a201edcc996c6a90884455aba81f07cc51dcc6556b27822b105e0ed47c16a3",
+          "rationale": "Recognize existing cooperative scopes as research for writer priority, including CP12 names; no numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "before_sha256": "cb8b9cedee4444d2a58db994b3486cf40de25eeddccbf5539ff0403f934cfa23",
+          "after_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
+          "rationale": "R68: Move existing database health read to a background worker; error rendering and lifecycle guard only. Shared DB ownership and numeric code unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DrawPollingReplayR67.java",
+          "before_sha256": "",
+          "after_sha256": "6cd0959223764bac8082326740ded8f96f654fd48e6a427ded2e4b1dcd518b10",
+          "rationale": "Read-only duplicate poll admission. Changed/conflicting draws keep canonical writer; identical confirmed values do not retrain or alter features."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+          "before_sha256": "2d0370f5ffd864aecc2bb3c4a76f325b585b5a8c0f78618a7d7b6c9719b4face",
+          "after_sha256": "2d57d765791b9f3dcc28edb0c39da16562ab3d14226ad17af85f5fd6783b915c",
+          "rationale": "R68: Lazy-open DbStore on the existing serial background handler; encompass model status in error handling. Import and rollback retain their original owners and authorization."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "before_sha256": "453fd1ac37e5e5f8b56677cc686a57bac2d661f933b4c780e8aeb17bdac1f726",
+          "after_sha256": "5236f4dccf69d89bede6b690a5dea84da113d1ac8db3f7c2a051194a82812449",
+          "rationale": "R68: Use ZIP deflate level 6; existing lossless per-member SHA, byte count and CRC readback stay enforced."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "before_sha256": "3d53a35acbefed37e253afdff2bc70b7c0c35fa9bd1b1371a53aa47f50735c2d",
+          "after_sha256": "11f8fd19dce4db45542e2e1bca86599c54dddd0b555c13d0d4a38b10894cd13a",
+          "rationale": "R68: Reuse the owner-verified immutable snapshot hash instead of hashing the same private file twice. Resume still verifies SHA and size; no live database mutations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "aff0e860f9b187c1d2acb7a1cd19cbfc435d519f5eed5323d38bdc7d26c9350f",
+          "after_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+          "rationale": "Display the actual raw-vs-metadata report scope from the captured source manifest. No learning or evidence mutation. R68: Clarify diagnostic versus raw backup coverage; same 96 evaluation handlers, no health or qualification thresholds changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "8a76c1a0f628007be8991db017e00eff7b644ee97312d6a82b7101225c77c298",
+          "after_sha256": "8398374733b3e0782e35e6a8111cc2edd6f5d6c2e8c64bf5724da3e64a51b79a",
+          "rationale": "Read-only snapshot export expands selected metadata from sampled to all rows; no model training/inference code. R68: Read-only full-snapshot diagnostic metadata and file-state observations. Every selected metadata row and text column retained, raw binary size explicitly marked. No training/inference or evidence state changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "ee577095efcff80ba08b1ed4aee4dfbc7880dc45077fdaac9c1c03e5b3c1cd00",
+          "after_sha256": "8452f75bbf870624be91462902ef64128ef9223ce848a74f26c3ff195def6b88",
+          "rationale": "Full raw report request with snapshot and attachments; read-only evidence, no learning change. R68: Default full diagnostic request omits the raw backup; explicit raw option remains. Add file-state member and accurate stage progress; retain snapshot, archive, CRC and SAF integrity gates."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "ff0fa63fb965d7778bcf37704c0e556aade685c79b234b7cbff7b36ce58b1e51",
+          "after_sha256": "4b4ae27b143b9c97ff1e1b101cc119d4c1cd3f397cc4e2a5c9c86575eadacc0d",
+          "rationale": "R68: After publication verify the sealed single ZIP and manifest before removing redundant private compressed parts; legacy multipart keeps all parts. No learning state or external user files touched."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+          "before_sha256": "cbfd4332710c4347cbfdde17335fc7f9de740aa0588e2ca7a65b783bc38df587",
+          "after_sha256": "26a2a8cf834efb42ceb1f08ff6fda24f6eb6cb8a51bc7338a0cd556995ec7222",
+          "rationale": "Reserve receipt time and fair hot-lane service; same durable tasks and numerical owners."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLifecycleR932.java",
+          "before_sha256": "be05bb6c6a3e79c412370cba55264dc65e2cf794b56b531f27836aa58d198c61",
+          "after_sha256": "ecb7bfb2e30534daddb78f6353db9d4780a3f67221a6a435652e00b86a7d948a",
+          "rationale": "Online labels no longer overwrite certificate-owned lifecycle state; no frozen evidence, policy or numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkBudgetR927.java",
+          "before_sha256": "3e261a645ca0daa0dc715092b1c2d097c9f70d0f12e61e0c013d46cfc8ffdf5a",
+          "after_sha256": "46954fadfb351ee49d67d33ccfee2e73b20409a754f77d897e09f5ae0842fe35",
+          "rationale": "Only bounded lease bookkeeping after cooperative cancellation; original deadline restored; no numerical publication."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "before_sha256": "c05324164bae4b41733176a2bb81a47a7e8ea7424a959fd95bee7d36dcee9554",
+          "after_sha256": "2b45f27fe4850178fcc1ce85077d856cf91a3b63b024ff4bc2752fb412d96fb1",
+          "rationale": "R68: Rebuild only absent or mismatched projection watermarks within the same bounded issue set. Replays original immutable events with unchanged reducer; no event fabrication, rank changes or numerical training changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "a81f69e5fc95a577e06c3a3a3e697f22c421c79775bd9a662223db1ceb8e1889",
+          "after_sha256": "6bb0040dc3b718f9a3346c7863832cd0d25b0a43e9ad13c2382d59f3d227245d",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java",
+          "before_sha256": "05df369ad7c7c624707d44577e20445bacb356f17f596327d0c8a130c791f184",
+          "after_sha256": "46fa153748f9befe6b203be595a1aab1d5567fef4f3d5b8f96ea570208d1d61f",
+          "rationale": "96-row pages preserve pinned rows, full SHA and cursor CAS; same 64KiB and 250ms compute bounds; no atom semantic change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+          "before_sha256": "2ff0ec421c30ea30ce985436d04f898bcec3b7e35f6cf66a51fbf88d81d1a78f",
+          "after_sha256": "3eb22fb3ee1e4972cbf37be9ec278dfc7dc7a5d2ffe64ecbecf8cab56f13d40a",
+          "rationale": "Release unchanged action lease after preemption; proposal, parent, mutation and fusion formulas unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+          "before_sha256": "d033b4f07b8543c9370b5428c1891b023fd8d512a0026de9ac60bb5b4ef7c424",
+          "after_sha256": "8bd1bdac8c51715f372326bfb6579d538058623039987c96d4331308d30eb092",
+          "rationale": "Use remaining compute slice across original six-slot order; no model/feature/loss changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchOutboxR952.java",
+          "before_sha256": "c805f2a7d13b59ba4aa62be77c22bbd2eb495d54fd76571fc8d094e89f4d3b73",
+          "after_sha256": "e77f7eab213185d81eca4fb50d5f3588f81401ff7132d41511a6e636c33b5995",
+          "rationale": "Lease-only release after preemption; remove in-memory claim only after successful durable commit."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+          "before_sha256": "eea8a1027ca96911495b600beab1170150f8c3e051e7c3d3e6801352d4385093",
+          "after_sha256": "670d735f602be288a726a9732eba455c31f809efa6bbb36ccc1de3c340308c54",
+          "rationale": "Spend the same bounded TRAIN quantum across up to 12 persisted rotating subslots; each task owns its own transaction, input, cursor and lease. Model update, freeze and numerical kernels are unchanged."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "c3d3c7db38f75e84e6d9cb2cea088a88e59419ad10c570bb4152d864529b2e48",
+          "after_sha256": "76375b2a50487c645226eded4cafa51fedb1563fb5d9d137b5cadd4c0a952352",
+          "rationale": "Finite exact R65 source baseline, unchanged policy and runtime, reviewed control-only diffs. Does not admit other versions or migrate certificates/evidence. R68: Admit exactly the reviewed R65, R66 and R67 baselines under unchanged policy/runtime; reject unreviewed hashes. No evidence or certificate migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r66_semantic_baseline.json",
+      "baseline_manifest_sha256": "dd3d3dd62ddde24077d11f2d357a9b3458f1adba3fe5a4eba61a6dc7c14dda10",
+      "predecessor_training_rule_sha256": "04dcbeb86d5a92e3ea600425f8ee21b682e922d36945994ead611e9cefd377f8",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "before_sha256": "26940e25f90dec340b8ccfb4476165e068515446c67740e62486ebfcd8525ba4",
+          "after_sha256": "28deed7085ab53fc46e2d64035d0409d2be6d9af0ac7745aa4656b541f5c27b7",
+          "rationale": "Clock publication before telemetry, duplicate poll write admission and finally-rescheduled serial fetch; existing canonical reads no longer acquire analysis pressure. The actual feature/model/loss, predraw deadline, canonical writer and certificate owners are unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+          "before_sha256": "840f9673bfac5bf3cce646336f74c94f6a337436470944359f53de9e74e2261f",
+          "after_sha256": "06a201edcc996c6a90884455aba81f07cc51dcc6556b27822b105e0ed47c16a3",
+          "rationale": "Recognize existing cooperative scopes as research for writer priority, including CP12 names; no numeric changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "before_sha256": "cb8b9cedee4444d2a58db994b3486cf40de25eeddccbf5539ff0403f934cfa23",
+          "after_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
+          "rationale": "R68: Move existing database health read to a background worker; error rendering and lifecycle guard only. Shared DB ownership and numeric code unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DrawPollingReplayR67.java",
+          "before_sha256": "",
+          "after_sha256": "6cd0959223764bac8082326740ded8f96f654fd48e6a427ded2e4b1dcd518b10",
+          "rationale": "Read-only duplicate poll admission. Changed/conflicting draws keep canonical writer; identical confirmed values do not retrain or alter features."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+          "before_sha256": "2d0370f5ffd864aecc2bb3c4a76f325b585b5a8c0f78618a7d7b6c9719b4face",
+          "after_sha256": "2d57d765791b9f3dcc28edb0c39da16562ab3d14226ad17af85f5fd6783b915c",
+          "rationale": "R68: Lazy-open DbStore on the existing serial background handler; encompass model status in error handling. Import and rollback retain their original owners and authorization."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "before_sha256": "453fd1ac37e5e5f8b56677cc686a57bac2d661f933b4c780e8aeb17bdac1f726",
+          "after_sha256": "5236f4dccf69d89bede6b690a5dea84da113d1ac8db3f7c2a051194a82812449",
+          "rationale": "R68: Use ZIP deflate level 6; existing lossless per-member SHA, byte count and CRC readback stay enforced."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "before_sha256": "3d53a35acbefed37e253afdff2bc70b7c0c35fa9bd1b1371a53aa47f50735c2d",
+          "after_sha256": "11f8fd19dce4db45542e2e1bca86599c54dddd0b555c13d0d4a38b10894cd13a",
+          "rationale": "R68: Reuse the owner-verified immutable snapshot hash instead of hashing the same private file twice. Resume still verifies SHA and size; no live database mutations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "604106de8a57c9d25a682075b4da7e123d2138c2e6e922632430a1675a657507",
+          "after_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+          "rationale": "Display the actual raw-vs-metadata report scope from the captured source manifest. No learning or evidence mutation. R68: Clarify diagnostic versus raw backup coverage; same 96 evaluation handlers, no health or qualification thresholds changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "e468339c4b3099878f78cc609e6d74149dd029261dd19d3bf83a4401d216667a",
+          "after_sha256": "8398374733b3e0782e35e6a8111cc2edd6f5d6c2e8c64bf5724da3e64a51b79a",
+          "rationale": "Read-only snapshot export expands selected metadata from sampled to all rows; no model training/inference code. R68: Read-only full-snapshot diagnostic metadata and file-state observations. Every selected metadata row and text column retained, raw binary size explicitly marked. No training/inference or evidence state changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "ee577095efcff80ba08b1ed4aee4dfbc7880dc45077fdaac9c1c03e5b3c1cd00",
+          "after_sha256": "8452f75bbf870624be91462902ef64128ef9223ce848a74f26c3ff195def6b88",
+          "rationale": "Full raw report request with snapshot and attachments; read-only evidence, no learning change. R68: Default full diagnostic request omits the raw backup; explicit raw option remains. Add file-state member and accurate stage progress; retain snapshot, archive, CRC and SAF integrity gates."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "ff0fa63fb965d7778bcf37704c0e556aade685c79b234b7cbff7b36ce58b1e51",
+          "after_sha256": "4b4ae27b143b9c97ff1e1b101cc119d4c1cd3f397cc4e2a5c9c86575eadacc0d",
+          "rationale": "R68: After publication verify the sealed single ZIP and manifest before removing redundant private compressed parts; legacy multipart keeps all parts. No learning state or external user files touched."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkBudgetR927.java",
+          "before_sha256": "8fb0808f9c2ce2ed58a5ffe78c99f052f2fd1d9c4ac01e85f15bbf395f691a93",
+          "after_sha256": "46954fadfb351ee49d67d33ccfee2e73b20409a754f77d897e09f5ae0842fe35",
+          "rationale": "Only bounded lease bookkeeping after cooperative cancellation; original deadline restored; no numerical publication."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "before_sha256": "c05324164bae4b41733176a2bb81a47a7e8ea7424a959fd95bee7d36dcee9554",
+          "after_sha256": "2b45f27fe4850178fcc1ce85077d856cf91a3b63b024ff4bc2752fb412d96fb1",
+          "rationale": "R68: Rebuild only absent or mismatched projection watermarks within the same bounded issue set. Replays original immutable events with unchanged reducer; no event fabrication, rank changes or numerical training changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+          "before_sha256": "a81f69e5fc95a577e06c3a3a3e697f22c421c79775bd9a662223db1ceb8e1889",
+          "after_sha256": "6bb0040dc3b718f9a3346c7863832cd0d25b0a43e9ad13c2382d59f3d227245d",
+          "rationale": "Clear stale error detail on fetch success; diagnostic change only."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java",
+          "before_sha256": "05df369ad7c7c624707d44577e20445bacb356f17f596327d0c8a130c791f184",
+          "after_sha256": "46fa153748f9befe6b203be595a1aab1d5567fef4f3d5b8f96ea570208d1d61f",
+          "rationale": "96-row pages preserve pinned rows, full SHA and cursor CAS; same 64KiB and 250ms compute bounds; no atom semantic change."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+          "before_sha256": "128d50d0da9f97ba4a678da42b2879bc179947708b97470dbe22daa603d51cd1",
+          "after_sha256": "670d735f602be288a726a9732eba455c31f809efa6bbb36ccc1de3c340308c54",
+          "rationale": "Spend the same bounded TRAIN quantum across up to 12 persisted rotating subslots; each task owns its own transaction, input, cursor and lease. Model update, freeze and numerical kernels are unchanged."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "c966fe7ee883aa2bdebdb0d6e90ec87bd3700f8035f77a03aa4822658979a63c",
+          "after_sha256": "76375b2a50487c645226eded4cafa51fedb1563fb5d9d137b5cadd4c0a952352",
+          "rationale": "Finite exact R65 source baseline, unchanged policy and runtime, reviewed control-only diffs. Does not admit other versions or migrate certificates/evidence. R68: Admit exactly the reviewed R65, R66 and R67 baselines under unchanged policy/runtime; reject unreviewed hashes. No evidence or certificate migration."
+        }
+      ]
+    },
+    {
+      "baseline_file": "release/r67_semantic_baseline.json",
+      "baseline_manifest_sha256": "b9e5f0168b9807fbcd8dff12817dc1d0768fedd5b2198c4135dedde252da84d9",
+      "predecessor_training_rule_sha256": "a0d0c0be9e9e1bf0ea99130a2962ea7f591cb53de7d5ff686b51e9efd7fc5f12",
+      "reviewed_numeric_changes": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
+          "before_sha256": "cb8b9cedee4444d2a58db994b3486cf40de25eeddccbf5539ff0403f934cfa23",
+          "after_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
+          "rationale": "R68: Move existing database health read to a background worker; error rendering and lifecycle guard only. Shared DB ownership and numeric code unchanged."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+          "before_sha256": "2d0370f5ffd864aecc2bb3c4a76f325b585b5a8c0f78618a7d7b6c9719b4face",
+          "after_sha256": "2d57d765791b9f3dcc28edb0c39da16562ab3d14226ad17af85f5fd6783b915c",
+          "rationale": "R68: Lazy-open DbStore on the existing serial background handler; encompass model status in error handling. Import and rollback retain their original owners and authorization."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
+          "before_sha256": "453fd1ac37e5e5f8b56677cc686a57bac2d661f933b4c780e8aeb17bdac1f726",
+          "after_sha256": "5236f4dccf69d89bede6b690a5dea84da113d1ac8db3f7c2a051194a82812449",
+          "rationale": "R68: Use ZIP deflate level 6; existing lossless per-member SHA, byte count and CRC readback stay enforced."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+          "before_sha256": "3d53a35acbefed37e253afdff2bc70b7c0c35fa9bd1b1371a53aa47f50735c2d",
+          "after_sha256": "11f8fd19dce4db45542e2e1bca86599c54dddd0b555c13d0d4a38b10894cd13a",
+          "rationale": "R68: Reuse the owner-verified immutable snapshot hash instead of hashing the same private file twice. Resume still verifies SHA and size; no live database mutations."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
+          "before_sha256": "cbcf50f8fff4776c8bd589142b4fb6489a435c4042bc89309cb0ee62666324f7",
+          "after_sha256": "a1050003b7a2238cdc1d276c69242d27395b3ecd5837194c63b75ea815e4b957",
+          "rationale": "R68: Clarify diagnostic versus raw backup coverage; same 96 evaluation handlers, no health or qualification thresholds changed."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+          "before_sha256": "e468339c4b3099878f78cc609e6d74149dd029261dd19d3bf83a4401d216667a",
+          "after_sha256": "8398374733b3e0782e35e6a8111cc2edd6f5d6c2e8c64bf5724da3e64a51b79a",
+          "rationale": "R68: Read-only full-snapshot diagnostic metadata and file-state observations. Every selected metadata row and text column retained, raw binary size explicitly marked. No training/inference or evidence state changes."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+          "before_sha256": "69770ae932f32ff2ddcbd50a9c9b42fe2ad9fc5a153d63831608bba5e1c77ff7",
+          "after_sha256": "8452f75bbf870624be91462902ef64128ef9223ce848a74f26c3ff195def6b88",
+          "rationale": "R68: Default full diagnostic request omits the raw backup; explicit raw option remains. Add file-state member and accurate stage progress; retain snapshot, archive, CRC and SAF integrity gates."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+          "before_sha256": "ff0fa63fb965d7778bcf37704c0e556aade685c79b234b7cbff7b36ce58b1e51",
+          "after_sha256": "4b4ae27b143b9c97ff1e1b101cc119d4c1cd3f397cc4e2a5c9c86575eadacc0d",
+          "rationale": "R68: After publication verify the sealed single ZIP and manifest before removing redundant private compressed parts; legacy multipart keeps all parts. No learning state or external user files touched."
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+          "before_sha256": "c05324164bae4b41733176a2bb81a47a7e8ea7424a959fd95bee7d36dcee9554",
+          "after_sha256": "2b45f27fe4850178fcc1ce85077d856cf91a3b63b024ff4bc2752fb412d96fb1",
+          "rationale": "R68: Rebuild only absent or mismatched projection watermarks within the same bounded issue set. Replays original immutable events with unchanged reducer; no event fabrication, rank changes or numerical training changes."
+        },
+        {
+          "path": "scripts/r967_semantic_identity.py",
+          "before_sha256": "b072c6b888510b65c0b7e1a0069e5c1ac925a485540127a900a99496f0b8e24d",
+          "after_sha256": "76375b2a50487c645226eded4cafa51fedb1563fb5d9d137b5cadd4c0a952352",
+          "rationale": "R68: Admit exactly the reviewed R65, R66 and R67 baselines under unchanged policy/runtime; reject unreviewed hashes. No evidence or certificate migration."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java
+@@ -25,6 +25,15 @@
+         String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
+         long total;
+         try(FileOutputStream fd=new FileOutputStream(plans);Writer out=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192)) {
++            org.json.JSONArray observations=request.getJSONObject("observation").optJSONArray("fullObservations");
++            if(observations!=null){if(observations.length()>8)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
++                for(int i=0;i<observations.length();i++){JSONObject ref=observations.getJSONObject(i);String key=ref.getString("key"),requestId=request.getString("requestId"),hash=ref.getString("sha256");
++                    if(!key.matches("[A-Za-z][A-Za-z0-9]{0,63}")||!requestId.matches("[0-9a-f]{64}")||!ref.getString("path").equals("observations/"+requestId+"/"+key+".txt"))throw new IOException("REPORT_OBSERVATION_REFERENCE_PATH");requireHash(hash);
++                    File original=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r981_reports"),ref.getString("path"));
++                    if(!original.isFile()||original.length()!=ref.getLong("bytes")||!hash.equals(ReportArchiveCP4.hash(original,control)))throw new IOException("REPORT_OBSERVATION_CHANGED");
++                    descriptor(out,"runtime-observation-"+key+".txt",hash,original.length(),"OBSERVATION",original.getPath(),"");
++                }
++            }
+             File installed=new File(app.getApplicationInfo().sourceDir).getCanonicalFile();if(!installed.isFile())throw new IOException("REPORT_INSTALLED_APK_MISSING");descriptor(out,"installed-app.apk",apkBefore,installed.length(),"INSTALLED_APK",installed.getPath(),"");source.put("installedApkMember","installed-app.apk");
+             String last="";
+             while(true) {
+@@ -81,6 +90,10 @@
+                     else if(kind.equals("ASSET")){try(InputStream in=app.getAssets().open(input)){copy(in,fixed,bytes,hash,control);}}
+                     else if(kind.equals("TRAINING")){File root=new File(app.getFilesDir(),"research-input-v2").getCanonicalFile();String suffix=input.endsWith(".scdev")?".scdev":input.endsWith(".scbind")?".scbind":"";
+                         try(com.ethk3.novaonepro.r952.TrainingCasCP12.LockedFile lease=com.ethk3.novaonepro.r952.TrainingCasCP12.open(root,hash,suffix);InputStream in=lease.open()){if(lease.bytes!=bytes)throw new IOException("REPORT_TRAINING_CAS_BYTES");copy(in,fixed,bytes,hash,control);}}
++                    else if(kind.equals("OBSERVATION")){File file=new File(input),root=new File(app.getFilesDir(),"r981_reports/observations").getCanonicalFile();
++                        if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(root.getPath()+File.separator))throw new IOException("REPORT_OBSERVATION_SOURCE_PATH");
++                        // Unique request files are immutable after queue publication. Copy verifies every original byte.
++                        try(InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
+                     else if(kind.equals("FILE")){File file=new File(input);if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(app.getFilesDir().getCanonicalPath()+File.separator))throw new IOException("REPORT_ATTACHMENT_SOURCE_PATH");
+                         try(SharedLease lease=shared(new File(lock));InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
+                     else throw new IOException("REPORT_ATTACHMENT_KIND");

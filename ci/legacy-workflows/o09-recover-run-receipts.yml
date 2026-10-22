@@ -1,0 +1,28 @@
+name: O09 read-only completed-run evidence recovery
+# Source job 114449161698 is running: wait for completion and recover its immutable receipts.
+on:
+  push:
+    branches: [construction/optimized299-o01-20261008]
+    paths:
+      - '.github/workflows/o09-recover-run-receipts.yml'
+      - 'verification/o09/recover_run_receipts.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - job: '114449161698'
+            commit: '5f2c535a682f2b7fecda16133e0031994095ec38'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Verify source identity and extract exact original receipts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 verification/o09/recover_run_receipts.py --job '${{ matrix.job }}' --commit '${{ matrix.commit }}'

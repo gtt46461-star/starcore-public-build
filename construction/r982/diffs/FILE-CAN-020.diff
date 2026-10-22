@@ -1,0 +1,556 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+index fbceae9..7ca4114 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+@@ -3414,10 +3414,13 @@ public final class AutoFetchService extends Service {
+             // exhaust an old request's SLO before its retry could acquire ownership.
+             resourceScopeR927 = RuntimeResourceAuditR927.begin(store, lease);
+             RuntimeResourceAuditR927.stageEnd("OWNER_DISPATCH",Math.max(0L,workerEnteredR959-lease.acquiredMonoAt),true);
++            RuntimeResourceAuditR927.measuredQueueSpanCP12("OWNER_DISPATCH",lease.acquiredMonoAt,workerEnteredR959);
+             RuntimeResourceAuditR927.stageEnd("DURABLE_CLAIM",claimCostR959,true);
+             long requestOriginR959=RuntimeObservabilityR925.requestOrigin(request);
+             if(requestOriginR959>=0)RuntimeResourceAuditR927.stageEnd("REQUEST_TO_WORKER",Math.max(0L,workerEnteredR959-requestOriginR959),true);
++            if(requestOriginR959>=0&&requestOriginR959<=lease.acquiredMonoAt)RuntimeResourceAuditR927.measuredQueueSpanCP12("REQUEST_BEFORE_OWNER",requestOriginR959,lease.acquiredMonoAt);
+             final long preparationStartedR959=TimeSourceR811.monoNowMs();
++            RuntimeResourceAuditR927.stageBegin("PRE_HISTORY_METADATA");
+             AnalysisSingleFlightR36.Request claimed = claim.request;
+             RuntimeEventHooksR926.started(store, claimed, lease.ownerId);
+             if (store.getDrawByIssue(request.targetIssue) != null) {
+@@ -3450,6 +3453,7 @@ public final class AutoFetchService extends Service {
+             RuntimeResourceAuditR927.stageEnd("HISTORY", TimeSourceR811.monoNowMs()-historyStartedR927, true);
+             renewAnalysisLeaseOrThrowR365(requests, request, lease, "HISTORY_PREPARE_DONE");
+             final long inputStartedR959=TimeSourceR811.monoNowMs();
++            RuntimeResourceAuditR927.stageBegin("PIT_FREEZE_AND_BIND");
+             V51RuntimeInputR36 input =
+                     V51RuntimeInputR36.freeze(analysisHistory, claimed);
+             RuntimeEventHooksR926.frozen(store, claimed, input);
+@@ -4894,7 +4898,8 @@ public final class AutoFetchService extends Service {
+                     long retentionNow=System.currentTimeMillis();
+                     long retentionDue=0L;
+                     try{retentionDue=Long.parseLong(store.getState("r979_retention_due_at","0"));}catch(NumberFormatException ignored){}
+-                    if(retentionNow>=retentionDue && ResearchWorkBudgetR927.remainingMs()>250L) {
++                    boolean retentionRequestedCP4="1".equals(store.getState("cp4_retention_requested","0"));
++                    if((retentionRequestedCP4||retentionNow>=retentionDue) && ResearchWorkBudgetR927.remainingMs()>250L) {
+                         store.setState("r979_retention_due_at",Long.toString(retentionNow+60000L));
+                         ResearchWorkBudgetR927.Scope retentionScope=ResearchWorkBudgetR927.enter(180L);
+                         try {DataRetentionGovernorR900.trim(store,150L);}
+@@ -6113,12 +6118,12 @@ public final class AutoFetchService extends Service {
+                         : "Q_WEAK";
+         String riskBand = counter <= AppConfig.REAL_BET_PROBE_MAX_COUNTER_RISK ? "R_OK" : "R_HIGH";
+         String needBand = need >= AppConfig.REAL_BET_PROBE_MIN_NEED_SUPPLY ? "N_OK" : "N_WEAK";
+-        String adaptive = readString(obj, "adaptiveStatus", "").toUpperCase();
++        String adaptive = readString(obj, "adaptiveStatus", "").toUpperCase(java.util.Locale.ROOT);
+         String adaptiveBand =
+                 adaptive.indexOf("FREEZE") >= 0 || adaptive.indexOf("REJECT") >= 0
+                         ? "A_RISK"
+                         : "A_OK";
+-        String rule = readString(obj, "ruleHealthStatus", "").toUpperCase();
++        String rule = readString(obj, "ruleHealthStatus", "").toUpperCase(java.util.Locale.ROOT);
+         String ruleBand =
+                 rule.indexOf("HARD_RISK") >= 0 || rule.indexOf("FREEZE") >= 0 ? "RH_RISK" : "RH_OK";
+         domain =
+@@ -6569,7 +6574,7 @@ public final class AutoFetchService extends Service {
+         if (status == null || status.length() == 0) {
+             return false;
+         }
+-        String s = status.toUpperCase();
++        String s = status.toUpperCase(java.util.Locale.ROOT);
+         return "STRONG".equals(s)
+                 || "READY".equals(s)
+                 || "WATCH".equals(s)
+@@ -7280,7 +7285,7 @@ public final class AutoFetchService extends Service {
+             current =
+                     runCandidateEngineListReturn(
+                             teacherNumberMatrixEngine,
+-                            "teacher_number_matrix_bridge_" + stageName.toLowerCase(),
++                            "teacher_number_matrix_bridge_" + stageName.toLowerCase(java.util.Locale.ROOT),
+                             current,
+                             clean,
+                             vectors,
+@@ -7364,7 +7369,7 @@ public final class AutoFetchService extends Service {
+             return false;
+         }
+ 
+-        String s = stageName.trim().toUpperCase();
++        String s = stageName.trim().toUpperCase(java.util.Locale.ROOT);
+         if (AppConfig.REALTIME_TEACHER_SINGLE_BRIDGE
+                 && !AppConfig.REALTIME_TEACHER_PRIMARY_STAGE.equals(s)
+                 && allCandidatesKeepTeacherEvidence73487246(candidates)) return true;
+@@ -8033,7 +8038,7 @@ public final class AutoFetchService extends Service {
+             }
+         }
+         String reason = safe(decision.reasonSummary) + "|" + safe(decision.reasonText);
+-        String upper = reason.toUpperCase();
++        String upper = reason.toUpperCase(java.util.Locale.ROOT);
+         if (upper.indexOf("FUTURE_LEAK") >= 0
+                 || upper.indexOf("未来泄漏") >= 0
+                 || upper.indexOf("未结算真实BET") >= 0
+@@ -8792,47 +8797,10 @@ public final class AutoFetchService extends Service {
+     }
+ 
+     private void repairExistingTradeClosedLoopFields(Models.Trade trade, Models.Decision decision) {
+-        if (trade == null || decision == null || store == null) {
+-            return;
+-        }
+-        copyClosedLoopFields(decision, trade);
+-        try {
+-            Object r =
+-                    invokeOptional(
+-                            store,
+-                            "replaceTradeFull",
+-                            new Class[] {Models.Trade.class},
+-                            new Object[] {trade});
+-            if (r == REFLECTION_NO_METHOD) {
+-                r =
+-                        invokeOptional(
+-                                store,
+-                                "updateTradeFull",
+-                                new Class[] {Models.Trade.class},
+-                                new Object[] {trade});
+-            }
+-            if (r == REFLECTION_NO_METHOD) {
+-                r =
+-                        invokeOptional(
+-                                store,
+-                                "updateTrade",
+-                                new Class[] {Models.Trade.class},
+-                                new Object[] {trade});
+-            }
+-            store.setState(
+-                    "field_chain_trade_repair",
+-                    r == REFLECTION_NO_METHOD ? "NO_UPDATE_METHOD" : "OK");
+-            store.setState(
+-                    "field_chain_trade_repair_target",
+-                    decision.targetIssue == null ? "" : decision.targetIssue);
+-            store.setState("field_chain_trade_repair_summary", buildClosedLoopFieldSummary(trade));
+-        } catch (Throwable e) {
+-            try {
+-                store.setState("field_chain_trade_repair", "ERROR");
+-                store.setState("field_chain_trade_repair_error", safeError(e));
+-            } catch (Throwable ignore) {
+-            }
+-        }
++        if(store==null || trade==null || decision==null)return;
++        store.setState("field_chain_trade_repair","READ_ONLY_CANONICAL_FIELDS_IMMUTABLE");
++        store.setState("field_chain_trade_repair_target",decision.targetIssue==null?"":decision.targetIssue);
++        // Deliberately no reflective replaceTradeFull/updateTradeFull/updateTrade call.
+     }
+ 
+     private String buildClosedLoopFieldSummary(Object obj) {
+@@ -8913,7 +8881,7 @@ public final class AutoFetchService extends Service {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("STRONG") < 0
+                 && s.indexOf("READY") < 0
+                 && s.indexOf("PASS") < 0
+@@ -8925,7 +8893,7 @@ public final class AutoFetchService extends Service {
+         if (text == null || text.length() == 0 || "空".equals(text)) {
+             return true;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("STRONG") < 0
+                 && s.indexOf("READY") < 0
+                 && s.indexOf("PASS") < 0
+@@ -8937,7 +8905,7 @@ public final class AutoFetchService extends Service {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("STRONG") >= 0
+                 || s.indexOf("READY") >= 0
+                 || s.indexOf("PASS") >= 0
+@@ -8949,7 +8917,7 @@ public final class AutoFetchService extends Service {
+         if (text == null || key == null || key.length() == 0) {
+             return false;
+         }
+-        return text.toUpperCase().indexOf(key.toUpperCase()) >= 0;
++        return text.toUpperCase(java.util.Locale.ROOT).indexOf(key.toUpperCase(java.util.Locale.ROOT)) >= 0;
+     }
+ 
+     private String readFirstString(Object obj, String[] names) {
+@@ -9342,7 +9310,7 @@ public final class AutoFetchService extends Service {
+         }
+ 
+         if (r instanceof String) {
+-            String s = String.valueOf(r).trim().toUpperCase();
++            String s = String.valueOf(r).trim().toUpperCase(java.util.Locale.ROOT);
+             if ("0".equals(s) || "FALSE".equals(s) || "FAIL".equals(s) || "ERROR".equals(s)) {
+                 return false;
+             }
+@@ -9353,114 +9321,15 @@ public final class AutoFetchService extends Service {
+     }
+ 
+     private void ensureTradeCreatedForBetDecision(Models.Decision decision, String reason) {
+-        if (decision == null || store == null || settlementEngine == null) {
+-            return;
+-        }
+-
+-        normalizeDecisionScopePreserveSettlement(decision);
+-        repairDecisionK3(decision);
+-
+-        syncClosedLoopAliases(decision);
+-
+-        /* 73487246：DecisionGate已经完成唯一动作裁决。这里仅记录旧字段链审计，
+-         * 不得因为负Edge、Teacher/V20观察态、覆盖或第三号软风险拒绝创建Trade。 */
+-        String autoFetchBlock = autoFetchFinalBetBlockCode(decision);
+-        try {
+-            store.setState(
+-                    "last_trade_field_chain_audit", autoFetchBlock == null ? "" : autoFetchBlock);
+-            store.setState("last_trade_field_chain_policy", "AUDIT_ONLY_DECISION_GATE_UNIQUE");
+-        } catch (Throwable ignore) {
+-        }
+-
+-        if (!AppConfig.DECISION_BET.equals(decision.decision)) {
+-            return;
+-        }
+-
+-        if (decision.targetIssue == null || decision.targetIssue.length() == 0) {
+-            return;
+-        }
+-
+-        if (!isDecisionValidRealBet(decision)) {
+-            try {
+-                store.setState("last_trade_create_result", "SKIP_INVALID_DECISION");
+-                store.setState("last_trade_create_error", "BET Decision字段非法，未创建Trade");
+-                store.setState("last_trade_target_issue", decision.targetIssue);
+-            } catch (Throwable e) {
+-            }
+-            return;
+-        }
+-
+-        try {
+-            Models.Trade existingTargetTrade = store.getTradeByTargetIssue(decision.targetIssue);
+-
+-            if (existingTargetTrade != null
+-                    && isTradeMatchedDecision(existingTargetTrade, decision)) {
+-                repairExistingTradeClosedLoopFields(existingTargetTrade, decision);
+-                store.setState("last_trade_create_result", "EXISTS_VALID");
+-                store.setState("last_trade_target_issue", decision.targetIssue);
+-                store.setState("last_trade_create_reason", reason == null ? "" : reason);
+-                return;
+-            }
+-
+-            if (existingTargetTrade != null
+-                    && !isTradeMatchedDecision(existingTargetTrade, decision)) {
+-                store.setState("last_trade_create_result", "EXISTS_MISMATCH_REPAIR");
+-                store.setState("last_trade_target_issue", decision.targetIssue);
+-                store.setState(
+-                        "last_trade_mismatch_detail",
+-                        buildTradeMismatchDetail(existingTargetTrade, decision));
+-            }
+-
+-            boolean savedTrade = settlementEngine.saveBetDecisionAsTrade(store, decision);
+-
+-            if (savedTrade) {
+-                repairTradeClosedLoopFieldsByTarget(
+-                        decision, "settlementEngine.saveBetDecisionAsTrade");
+-            }
+-
+-            if (!savedTrade) {
+-                savedTrade = forceSaveTradeFromDecision(decision);
+-            }
+-
+-            store.setState("last_trade_create_result", savedTrade ? "OK" : "FAIL");
+-            store.setState("last_trade_target_issue", decision.targetIssue);
+-            store.setState("last_trade_create_reason", reason == null ? "" : reason);
+-            store.setState("last_trade_create_at", String.valueOf(System.currentTimeMillis()));
+-        } catch (Throwable e) {
+-            store.setState("last_trade_create_result", "ERROR");
+-            store.setState("last_trade_create_error", safeError(e));
+-        }
++        if(store==null || decision==null || decision.targetIssue==null)return;
++        Models.Trade row=store.getTradeByTargetIssue(decision.targetIssue);
++        store.setState("cp4_trade_receipt_check",row==null?"MISSING_CANONICAL_TRADE":"CANONICAL_TRADE_PRESENT");
++        // A missing row is an integrity diagnostic; this Service may never create it.
+     }
+ 
+     private boolean forceSaveTradeFromDecision(Models.Decision decision) {
+-        if (decision == null || store == null || settlementEngine == null) {
+-            return false;
+-        }
+-
+-        Models.Trade trade = null;
+-
+-        try {
+-            trade = settlementEngine.createTradeFromDecision(decision);
+-        } catch (Throwable e) {
+-            trade = null;
+-        }
+-
+-        if (trade == null) {
+-            return false;
+-        }
+-
+-        try {
+-            copyClosedLoopFields(decision, trade);
+-            PredictionContractEngine.stampTrade(decision, trade);
+-            syncClosedLoopAliases(trade);
+-            long id = store.saveTrade(trade);
+-            if (id > 0L) {
+-                repairTradeClosedLoopFieldsByTarget(decision, "forceSaveTradeFromDecision");
+-            }
+-            return id > 0L;
+-        } catch (Throwable e) {
+-            return false;
+-        }
++        if(store!=null)store.setState("cp4_legacy_trade_create","RETIRED_CANONICAL_RECEIPT_REQUIRED");
++        return false;
+     }
+ 
+     private boolean isDecisionValidRealBet(Models.Decision d) {
+@@ -10056,7 +9925,7 @@ public final class AutoFetchService extends Service {
+         if (text == null || key == null || key.length() == 0) {
+             return false;
+         }
+-        return text.toUpperCase().indexOf(key.toUpperCase()) >= 0;
++        return text.toUpperCase(java.util.Locale.ROOT).indexOf(key.toUpperCase(java.util.Locale.ROOT)) >= 0;
+     }
+ 
+     private double max3(double a, double b, double c) {
+@@ -10996,53 +10865,7 @@ public final class AutoFetchService extends Service {
+     }
+ 
+     private int repairMissingTradeForRecentBetDecisions(Models.Draw latestDraw) {
+-        if (store == null || latestDraw == null || !latestDraw.isValid()) {
+-            return 0;
+-        }
+-        int repaired = 0;
+-        try {
+-            List<Models.Decision> list =
+-                    store.getRecentDecisions(SETTLEMENT_RECENT_DECISION_REPAIR_LIMIT);
+-            if (list == null || list.size() == 0) {
+-                return 0;
+-            }
+-            for (int i = 0; i < list.size(); i++) {
+-                Models.Decision d = list.get(i);
+-                if (d == null) {
+-                    continue;
+-                }
+-                normalizeDecisionScopePreserveSettlement(d);
+-                repairDecisionK3(d);
+-                if (!isDecisionValidRealBet(d)) {
+-                    continue;
+-                }
+-                if (!isIssueDue(d.targetIssue, latestDraw.issue)) {
+-                    continue;
+-                }
+-                Models.Trade old = null;
+-                try {
+-                    old = store.getTradeByTargetIssue(d.targetIssue);
+-                } catch (Throwable e) {
+-                    old = null;
+-                }
+-                if (old != null && old.id > 0L && isTradeMatchedDecision(old, d)) {
+-                    continue;
+-                }
+-                ensureTradeCreatedForBetDecision(d, "结算前补建目标期真实BET Trade");
+-                repaired++;
+-            }
+-            if (repaired > 0) {
+-                store.setState("settlement_trade_repair_count", String.valueOf(repaired));
+-                store.setState(
+-                        "settlement_trade_repair_at", String.valueOf(System.currentTimeMillis()));
+-            }
+-        } catch (Throwable e) {
+-            try {
+-                store.setState("settlement_trade_repair_error", safeError(e));
+-            } catch (Throwable ignore) {
+-            }
+-        }
+-        return repaired;
++        return 0; // Historical absence is recorded by audit, never filled after the draw.
+     }
+ 
+     private int settlePendingRealTradesCatchup(Models.Draw latestDraw, String stage) {
+@@ -15636,11 +15459,13 @@ public final class AutoFetchService extends Service {
+         final long sampledAt;
+         final long countdown;
+         final String base, target;
++        final CountdownProjectionR971.Anchor anchor;
+         synchronized (clock) {
+             sampledAt = android.os.SystemClock.elapsedRealtime();
+             countdown = clock.getCountdownMs();
+             base = clock.getCurrentIssue();
+             target = clock.getTargetIssue();
++            anchor=clock.clockAnchorCP12();
+         }
+         // The limiter and sample timestamps share a monotonic time base. Wall-clock corrections
+         // cannot stop ticks or turn an old queued countdown into a fresh, extended deadline.
+@@ -15652,6 +15477,13 @@ public final class AutoFetchService extends Service {
+             intent.setPackage(getPackageName());
+             intent.putExtra(AppConfig.EXTRA_COUNTDOWN_MS, countdown);
+             intent.putExtra("r971_tick_elapsed", sampledAt);
++            if(anchor!=null&&target.equals(anchor.targetIssue)){
++                intent.putExtra("clock_session_cp12",anchor.session);
++                intent.putExtra("clock_revision_cp12",anchor.revision);
++                intent.putExtra("clock_deadline_wall_cp12",anchor.deadlineWallMs);
++                intent.putExtra("clock_deadline_mono_cp12",anchor.deadlineMonoMs);
++                intent.putExtra("clock_anchor_sampled_cp12",anchor.sampledMonoMs);
++            }
+             intent.putExtra(AppConfig.EXTRA_CURRENT_ISSUE, base);
+             intent.putExtra(AppConfig.EXTRA_TARGET_ISSUE, target);
+             sendBroadcast(intent);
+@@ -16523,7 +16355,7 @@ public final class AutoFetchService extends Service {
+             return AppConfig.DECISION_HOLD;
+         }
+ 
+-        String x = text.trim().toUpperCase();
++        String x = text.trim().toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("BET".equals(x)
+                 || "REAL".equals(x)
+@@ -17684,4 +17516,149 @@ public final class AutoFetchService extends Service {
+         for (int i = 0; i < values.length; i++) out = Math.max(out, values[i]);
+         return out;
+     }
++
++public static B13RuntimeHealth b13HealthSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        long now = report.nowMs();
++        if (store == null)
++            return new B13RuntimeHealth(
++                    now, 0, 0, 0, 0, 0, "", false, "UNKNOWN", "STORE_NULL", "");
++        long fetch =
++                maxTimestampSnapshotCP4(report, 
++                        parseLongSnapshotCP4(report, store.getState("b13_fetch_beat_ms", "0")),
++                        parseLongSnapshotCP4(report, store.getState("last_fetch_success_at", "0")));
++        long analysis =
++                maxTimestampSnapshotCP4(report, 
++                        parseLongSnapshotCP4(report, store.getState("b13_analysis_beat_ms", "0")),
++                        parseLongSnapshotCP4(report, store.getState("last_analysis_success_at", "0")));
++        long settlement =
++                maxTimestampSnapshotCP4(report, 
++                        parseLongSnapshotCP4(report, store.getState("b13_settlement_beat_ms", "0")),
++                        parseLongSnapshotCP4(report, store.getState("last_settlement_success_at", "0")));
++        long service =
++                maxTimestampSnapshotCP4(report, 
++                        parseLongSnapshotCP4(report, store.getState("b13_service_beat_ms", "0")),
++                        parseLongSnapshotCP4(report, store.getState("last_service_started_at", "0")),
++                        parseLongSnapshotCP4(report, store.getState("last_service_command_at", "0")),
++                        fetch,
++                        analysis,
++                        settlement);
++        Models.Draw latestDraw = null;
++        long latestDrawAt = 0L;
++        String latestIssue = "";
++        try {
++            latestDraw = store.getLatestDraw();
++            if (latestDraw != null && latestDraw.isValid()) {
++                latestIssue = latestDraw.issue == null ? "" : latestDraw.issue.trim();
++                latestDrawAt = normalizeB13DrawTimeSnapshotCP4(report, latestDraw.openTime, now);
++            }
++        } catch (Throwable ignore) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignore);}
++        boolean providerCorroborated = false;
++        try {
++            ProviderFreshnessGateR3611.Candidate selected =
++                    ProviderFreshnessGateR3611.snapshot().selected;
++            String selectedIssue = selected.issue == null ? "" : selected.issue.trim();
++            long observationAge = ageSnapshotCP4(report, now, selected.observedAt);
++            if (latestIssue.length() > 0
++                    && latestIssue.equals(selectedIssue)
++                    && "FRESH".equals(selected.code)
++                    && selected.observedAt > 0L
++                    && observationAge <= B13_FETCH_STALE_MS
++                    && selected.ageMs >= 0L
++                    && selected.ageMs <= ProviderFreshnessGateR3611.STALE_MS) {
++                long providerOpenAt = selected.observedAt - selected.ageMs;
++                if (providerOpenAt > 0L) {
++                    latestDrawAt = Math.max(latestDrawAt, providerOpenAt);
++                    providerCorroborated = true;
++                }
++            }
++        } catch (Throwable ignore) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignore);}
++        return new B13RuntimeHealth(
++                now,
++                service,
++                fetch,
++                analysis,
++                settlement,
++                latestDrawAt,
++                latestIssue,
++                providerCorroborated,
++                store.getState("b13_analysis_stage", "UNKNOWN"),
++                store.getState("b13_analysis_error", ""), latestCommittedIssueR924SnapshotCP4(report, store));
++    }
++
++public static String latestCommittedIssueR924SnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        android.database.Cursor cursor = null;
++        try {
++            cursor = report.select("SELECT target_issue FROM "
++                    + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                    + " WHERE pre_draw_frozen=1 ORDER BY target_issue DESC LIMIT 1", null);
++            return cursor.moveToFirst() ? cursor.getString(0) : "";
++        } catch (Throwable unavailable) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",unavailable);}
++        finally { if (cursor != null) cursor.close(); }
++    }
++
++public static long ageSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, long now, long t) {
++        return t <= 0 ? Long.MAX_VALUE : Math.max(0, now - t);
++    }
++
++public static long normalizeB13DrawTimeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, long openTime, long now) {
++        long t = openTime;
++        if (t > 0L && t < 100000000000L) t *= 1000L;
++        if (t <= 0L || t > now + 10L * 60L * 1000L) return 0L;
++        if (now - t > 7L * 24L * 60L * 60L * 1000L) return 0L;
++        return t;
++    }
++
++public long parseLongSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value, long fallback) {
++        try {
++            return Long.parseLong(value);
++        } catch (Throwable e) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++    }
++
++public static long parseLongSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
++        try {
++            return Long.parseLong(x == null ? "0" : x);
++        } catch (Throwable e) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++    }
++
++public static long maxTimestampSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, long... values) {
++        long out = 0L;
++        if (values == null) return out;
++        for (int i = 0; i < values.length; i++) out = Math.max(out, values[i]);
++        return out;
++    }
++
++public static String b13DiagnosticsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        B13RuntimeHealth h = b13HealthSnapshotCP4(report, store);
++        return "status="
++                + h.status
++                + "|rootCause="
++                + h.rootCause
++                + "|committedIssue=" + h.committedIssue + "|predictionState=" + h.predictionState
++                + "|serviceAge="
++                + h.serviceAge
++                + "|fetchAge="
++                + h.fetchAge
++                + "|latestIssue="
++                + h.latestIssue
++                + "|latestDrawAge="
++                + h.latestDrawAge
++                + "|dataFresh="
++                + (h.dataFresh ? 1 : 0)
++                + "|providerCorroborated="
++                + (h.providerCorroborated ? 1 : 0)
++                + "|analysisAge="
++                + h.analysisAge
++                + "|analysisStage="
++                + h.analysisStage
++                + "|analysisError="
++                + h.analysisError
++                + "|settlementAge="
++                + h.settlementAge
++                + "|businessAlive="
++                + (h.businessAlive ? 1 : 0)
++                + "|runtime="
++                + B13_UNIQUE_PRODUCTION_RUNTIME
++                + "|hash="
++                + h.checksum;
++    }
+ }

@@ -1,0 +1,31 @@
+name: Starcore Tianshu B01 Shadow Lock Inspect
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01
+    paths:
+      - '.github/workflows/starcore-tianshu-b01-shadow-lock-inspect.yml'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+          fetch-depth: 0
+      - shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b01/materializer.part-* | base64 --decode | gzip --decompress > tools/m.py
+          cat .github/starcore-tianshu-b01/harness.part-* | base64 --decode | gzip --decompress > tools/h.py
+          {
+            echo '--- GENERATOR OCCURRENCES ---'
+            grep -n -C 8 -F 'public static final boolean SHADOW_ONLY = true;' tools/m.py || true
+          } | tee reports/B01_SHADOW_LOCK_GENERATOR_OCCURRENCES.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Shadow-Lock-Generator-Occurrences
+          path: reports/B01_SHADOW_LOCK_GENERATOR_OCCURRENCES.txt

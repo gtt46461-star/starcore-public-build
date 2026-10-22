@@ -1,0 +1,3255 @@
+[
+  {
+    "id": "B01",
+    "title": "冻结基线、统一版本与 schema 身份",
+    "original_requirements": [
+      "P1-12",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "release/release_identity.properties",
+      "scripts/r925_source_audit.py",
+      "SchemaRevisionR925.java",
+      "AppConfig.java",
+      "V51BuildManifest.java"
+    ],
+    "anchors": "REVISION；APP_IDENTITY_AND_BUILD；版本生成入口",
+    "gap": "release_identity 的 schemaRevision=4 与 R925_SCHEMA_6 同时出现，读者无法知道其作用域；现有静态通过不能代表运行通过。",
+    "steps": [
+      "生成唯一 release_manifest.json，分别声明 user_version=36、legacyR906Revision=4、r925Revision=R925_SCHEMA_6 和拟新增分域修订号",
+      "从清单生成 Java/报告/构建版本，禁止手工多处改号",
+      "固定 R925 APK/源码/Git hash、559 Java、71资源基线",
+      "拟用 V57.21.2-R5.4.2-926 与 577250926，构建时再验证大于实际安装版，未经发行不写已发布",
+      "BuildIdentity逐字段列期望值/实际值/来源/硬软错误码，不能只显示BUILD_IDENTITY_HARD_BLOCK总状态"
+    ],
+    "acceptance": [
+      "同一构建所有身份一致，故意改任意一处必失败",
+      "原基线字节不变，新版本号不与已有发行冲突"
+    ],
+    "dependencies": [],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "release/release_identity.properties",
+        "state": "EXISTING",
+        "sha256": "c66decd88b70880d70d21fad11fd756ffd00ae95f4de0480c1552dc765a32e2e",
+        "lines": 10
+      },
+      {
+        "path": "scripts/r925_source_audit.py",
+        "state": "EXISTING",
+        "sha256": "dc78d953c38658bbfe6b11203be82ab649e7dadc593388a37ad0d84c853b086a",
+        "lines": 52
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java",
+        "state": "EXISTING",
+        "sha256": "20a0c9c23827118f7776798c5366e052239d959ab1382053e2215f33d57f78e8",
+        "lines": 46
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AppConfig.java",
+        "state": "EXISTING",
+        "sha256": "0eb6be3cca74192260d00df5ad2f538820c73207bf5d01423b115aaaf1f2a10d",
+        "lines": 6216
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java",
+        "state": "EXISTING",
+        "sha256": "47c4aef812005666ddb298bfd0d71a723f2a6792aca4e00a80f4af384d4c26d5",
+        "lines": 359
+      }
+    ]
+  },
+  {
+    "id": "B02",
+    "title": "全文件职责审计与大文件拆分",
+    "original_requirements": [
+      "P2-02",
+      "P1-12"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "AutoFetchService.java",
+      "DbStore.java",
+      "DbHelper.java",
+      "DatabaseCoordinator.java",
+      "scripts/r925_source_audit.py",
+      "CodeOwnershipCompletenessAuditEngine.java"
+    ],
+    "anchors": "初始化、查询、回调、所有 catch、公共 API",
+    "gap": "原巨型文件与历史多代入口仍在；559 文件索引只是静态清单，并非逐条执行证明。",
+    "steps": [
+      "逐文件建立 callers/callees、DB读写、线程、Owner、异常码、是否可达和处置",
+      "先抽取 UI Presenter、抓取/恢复阶段、只读查询 Repository、Schema 分域",
+      "保留原入口薄委托后删除重复主体，避免新旧两套逻辑运行",
+      "关键 catch 分类为可忽略/重试/降级/终止并写错误码，标明依据，禁止机械删短文件",
+      "旧矩阵和形态资产保留哈希与访问路径，默认不改计算意义"
+    ],
+    "acceptance": [
+      "559个原Java和全部新增文件都有有依据的处置",
+      "关键链没有无诊断吞错，抽取前后固定输入输出一致",
+      "复杂度/调用图改善可量化，不以删代码行数当完成"
+    ],
+    "dependencies": [
+      "B01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "state": "EXISTING",
+        "sha256": "0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444",
+        "lines": 17481
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "state": "EXISTING",
+        "sha256": "6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf",
+        "lines": 23272
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "state": "EXISTING",
+        "sha256": "53c4f42f153e7ba42effdac914c9c2c4f73604c8630cda48051b8404c1e403e8",
+        "lines": 8573
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "state": "EXISTING",
+        "sha256": "bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0",
+        "lines": 3313
+      },
+      {
+        "path": "scripts/r925_source_audit.py",
+        "state": "EXISTING",
+        "sha256": "dc78d953c38658bbfe6b11203be82ab649e7dadc593388a37ad0d84c853b086a",
+        "lines": 52
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+        "state": "EXISTING",
+        "sha256": "71a1bb282c31c8a798bf2ce02920c10931c3f018da0860a54cdef97aa719e08e",
+        "lines": 429
+      }
+    ]
+  },
+  {
+    "id": "B03",
+    "title": "Critical / Research / Legacy schema 真正分域",
+    "original_requirements": [
+      "P0-01",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "DatabaseCoordinator.java",
+      "DbHelper.java",
+      "DbStore.java",
+      "SchemaRevisionR925.java",
+      "R811SchemaIntegrityVerifier.java",
+      "V51Repository.java"
+    ],
+    "anchors": "ensureCriticalSchemaOrThrow / ensureRuntimeSchemaOnce / ensureR811ResearchSchemaOnce / ensureSchema",
+    "gap": "首次不命中 stamp 仍执行研究大迁移，且全库 fingerprint 会因研究 DDL 改变。",
+    "steps": [
+      "枚举首次 canonical/settlement 所需表列索引触发器闭包，生成 critical_contract",
+      "拆出 ResearchSchemaCoordinator 与 LegacySchemaCoordinator，独立 stamp 和依赖",
+      "critical就绪即允许唯一主链工作，研究显示初始化而非静默消失",
+      "研究按小事务、有游标与强制最大等待策略调度，不能再次被持续 quiet-window 条件饿死",
+      "fingerprint 仅覆盖该域白名单，不因另一域变化反复全迁移",
+      "缺研究表返回可观测未就绪，禁止 catch 后冒充成功"
+    ],
+    "acceptance": [
+      "新装/旧库/缺表/旧stamp/中断迁移五类可恢复",
+      "critical开库不调用research全量ensure",
+      "研究最终进入READY或明确失败，不无限等待",
+      "真机冷启动目标<8秒单独验收"
+    ],
+    "dependencies": [
+      "B01",
+      "B02"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "state": "EXISTING",
+        "sha256": "bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0",
+        "lines": 3313
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "state": "EXISTING",
+        "sha256": "53c4f42f153e7ba42effdac914c9c2c4f73604c8630cda48051b8404c1e403e8",
+        "lines": 8573
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "state": "EXISTING",
+        "sha256": "6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf",
+        "lines": 23272
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java",
+        "state": "EXISTING",
+        "sha256": "20a0c9c23827118f7776798c5366e052239d959ab1382053e2215f33d57f78e8",
+        "lines": 46
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/R811SchemaIntegrityVerifier.java",
+        "state": "EXISTING",
+        "sha256": "5038ebd6cf428ff926967baa1c3e7b59af95e6d4a02beb58b5d2f3d7533d67f3",
+        "lines": 180
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "state": "EXISTING",
+        "sha256": "5d2249eebed01654c50cd8dc30cecd542b2fd546bfa91f34009fc87569413f22",
+        "lines": 4875
+      }
+    ]
+  },
+  {
+    "id": "B04",
+    "title": "升级数据一致性与可恢复备份",
+    "original_requirements": [
+      "P0-01",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "SchemaUpgradeCoordinatorR815.java",
+      "DatabaseCoordinator.java",
+      "DbHelper.java",
+      "DiagnosticTextExportR923.java"
+    ],
+    "anchors": "prepareAndVerify / onCreate / onUpgrade / onDowngrade",
+    "gap": "DB_VERSION仍36，增加schema不能只靠onUpgrade；真实大库和WAL中断恢复尚无验证。",
+    "steps": [
+      "同版本迁移使用分域修订表与逐步 journal，每步幂等",
+      "备份走应用受控静默写入窗口、完成checkpoint并关闭连接后复制，或验证可用的SQLite一致快照接口，禁止运行中只拷.db",
+      "备份记录所有关键表计数、hash与user_version",
+      "每DDL/回填小事务提交后更新游标，崩溃仅重放该步",
+      "新增表优先，不删除/重写旧canonical/trade/label",
+      "恢复先验证备份再替换，禁止清空用户库救启动"
+    ],
+    "acceptance": [
+      "对有未checkpoint数据的库备份恢复后记录不丢",
+      "在每步注入进程中止均可重入",
+      "upgrade后历史行及关键hash100%相同",
+      "同版本重复执行不重复数据"
+    ],
+    "dependencies": [
+      "B03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java",
+        "state": "EXISTING",
+        "sha256": "7a97d366e275afb5355a9f08bf9efeb3ef2199daaf52a2d18e6ed113d920586a",
+        "lines": 222
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "state": "EXISTING",
+        "sha256": "bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0",
+        "lines": 3313
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+        "state": "EXISTING",
+        "sha256": "53c4f42f153e7ba42effdac914c9c2c4f73604c8630cda48051b8404c1e403e8",
+        "lines": 8573
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java",
+        "state": "EXISTING",
+        "sha256": "ad3ef3cfa57ce05567e20b51543daa769d73672dfc356e11f2fe59a8ceab9a7d",
+        "lines": 147
+      }
+    ]
+  },
+  {
+    "id": "B05",
+    "title": "全路径时延与一分钟实时预算",
+    "original_requirements": [
+      "P0-01",
+      "P0-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "V51RuntimeOrchestrator.java",
+      "AnalysisSingleFlightR36.java",
+      "RealtimePressureGateR811.java",
+      "RuntimeObservabilityR925.java",
+      "AutoFetchService.java",
+      "K3FailureDiagnosisEngine.java",
+      "V57FailureDiagnosisEngine.java"
+    ],
+    "anchors": "runR36 / request→durable / performance",
+    "gap": "主机编译不能证明手机5秒；时延需分冷启动、排队、计算、提交和故障超时。",
+    "steps": [
+      "耗时用elapsedRealtime或nanoTime，审计时间用wall clock，禁止跨进程比较单调钟",
+      "记录每次attempt并单列成功率，失败/取消不从延迟报告隐去",
+      "给历史读取、共享特征、号码面、1200排序、gate、提交分预算与取消点",
+      "缓存只按baseIssue/schema/artifact/stateHash完整键复用",
+      "生产前研究让步，长SQL不能靠循环内deadline视为已限制",
+      "记录P50/P95/P99/max、GC/堆峰值、锁等待及原始样本"
+    ],
+    "acceptance": [
+      "同机120期稳态request→durable P95≤5000ms、compute P95≤3000ms",
+      "冷启动独立10次目标<8000ms",
+      "超时/失败全计数，不能用成功子集掩盖掉期"
+    ],
+    "dependencies": [
+      "B03",
+      "B06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8",
+        "lines": 773
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java",
+        "state": "EXISTING",
+        "sha256": "627ccf5b9e4966dbf6f90e07e1e26c43b604337441b9f0490a022d8428f6ae2d",
+        "lines": 355
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+        "state": "EXISTING",
+        "sha256": "5d16a76ecb0ddb5c39e298030f3e752e4fc5db92d4da58e046a84b7f54407a5e",
+        "lines": 88
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java",
+        "state": "EXISTING",
+        "sha256": "9f4b8e3ac2781a8f62c7357d570cf0a5a628d125416876a7d91eff09cf157e19",
+        "lines": 93
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "state": "EXISTING",
+        "sha256": "0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444",
+        "lines": 17481
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+        "state": "EXISTING",
+        "sha256": "5f5b850aadd25b2ff961d5a14b33a6eb169233537950445b1c23987d64c3a101",
+        "lines": 284
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+        "state": "EXISTING",
+        "sha256": "aefd1c74cf4042aec6f5c94594ee7a128df9e4b1c15e97f143c497903ec3fe55",
+        "lines": 542
+      }
+    ]
+  },
+  {
+    "id": "B06",
+    "title": "逐期事件账本与唯一幂等投影",
+    "original_requirements": [
+      "P0-05",
+      "P0-02",
+      "P1-10"
+    ],
+    "priority": "P0",
+    "files": [
+      "RuntimeObservabilityR925.java",
+      "RuntimeHealthLedgerR36.java",
+      "V51RuntimeOrchestrator.java",
+      "DatabaseCoordinator.java",
+      "AutoFetchService.java",
+      "SettlementEngine.java",
+      "RuntimeTruthSnapshotR906.java",
+      "CanonicalObservationWriterR36.java",
+      "K3FunnelOrchestrator.java",
+      "TargetIssueResolver.java"
+    ],
+    "anchors": "pipeline / runPredictionTransaction / runSettlementTransaction",
+    "gap": "R925流水主要JOIN终态，不能完整区分未调度、被拒、抓取失败、排队卡住、提交失败。",
+    "steps": [
+      "新增append-only runtime_event及只读issue_projection，统一game/issue/epoch/attempt/event_id",
+      "事件覆盖request/accepted/rejected/queued/started/frozen/settled/FULL/learned/recovery",
+      "业务提交事件与业务行在同一事务，非事务外部事件使用outbox与去重键",
+      "明确事件重复、乱序、旧进程回调处理，不允许晚到事件回退终态",
+      "首页/报告/CSV从同一投影取值并带as_of/event_watermark",
+      "启动做账本对账，无法还原的升级前事件标LEGACY_UNKNOWN",
+      "K3漏斗七阶段trace绑定同一target与1200动作hash，保留完整动作宇宙，不让UI推测阶段是否运行"
+    ],
+    "acceptance": [
+      "任意阶段杀进程后事件可重放且终态不回退",
+      "重复回调10次只一个canonical与一次结算",
+      "最近20/500/导出逐期一致且错误归因唯一"
+    ],
+    "dependencies": [
+      "B01",
+      "B03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java",
+        "state": "EXISTING",
+        "sha256": "9f4b8e3ac2781a8f62c7357d570cf0a5a628d125416876a7d91eff09cf157e19",
+        "lines": 93
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java",
+        "state": "EXISTING",
+        "sha256": "5e5b130ff6b0020bcb62fead9371b30c583a681d5fb6fe4687b2a7c147fa5a8a",
+        "lines": 316
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8",
+        "lines": 773
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "state": "EXISTING",
+        "sha256": "bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0",
+        "lines": 3313
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "state": "EXISTING",
+        "sha256": "0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444",
+        "lines": 17481
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "state": "EXISTING",
+        "sha256": "0dde0c59781661a17285ea78d08bfd6993d832ab3c1ca39126b8fdd6f41645a9",
+        "lines": 3045
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+        "state": "EXISTING",
+        "sha256": "615e02108c03f32fd1b00a9d4794d6c2a19a4af516124680ab438bfc48cc28de",
+        "lines": 857
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "state": "EXISTING",
+        "sha256": "866c03b6f1be07608567ec1cf4061f150b3f04282cbbee60a728222d171ed9d5",
+        "lines": 487
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "1e15ed3afa38727b8277e4caa4da6f18e21e0e82e48c8a56965067490a1ca83a",
+        "lines": 383
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "state": "EXISTING",
+        "sha256": "aa5ca72a05dc6a54f32482b474008d0334bddcea13fde601de2d8b22e623adac",
+        "lines": 176
+      }
+    ]
+  },
+  {
+    "id": "B07",
+    "title": "后台恢复、锁屏、重启与用户停止语义",
+    "original_requirements": [
+      "P0-03",
+      "P0-04"
+    ],
+    "priority": "P0",
+    "files": [
+      "AutoFetchService.java",
+      "BootReceiver.java",
+      "ServiceWatchdogJobService.java",
+      "InternalWatchdogReceiverR815.java",
+      "ServiceHeartbeatStore.java",
+      "BackgroundRuntimeCapabilityR811.java"
+    ],
+    "anchors": "onCreate / onStartCommand / onTaskRemoved / reconcileAutoFetchService",
+    "gap": "有恢复入口但缺物理连续性证据；授权绿灯并不等于每分钟业务健康。",
+    "steps": [
+      "先及时显示前台服务通知再异步初始化",
+      "恢复统一走原BootReceiver/lease入口重整业务定时器，心跳与业务健康分别判断",
+      "锁定未解锁时只读device-protected最小启停标志，解锁后开凭据库",
+      "区分返回桌面/划掉/系统回收/应用内停止/系统强停，手动停止不得复活",
+      "Job和闹钟仅恢复提示与校验，不能当作每分钟准确计时来源",
+      "按真实OS和targetSdk分支处理启动受限/授权撤回/网络切换/退避，日志注明无法恢复原因"
+    ],
+    "acceptance": [
+      "亮屏120期、息屏120期、划掉30期连续业务验收",
+      "用户停止和系统强停不绕过，用户重开后幂等恢复",
+      "每次恢复都能看到请求/接受/真正业务恢复三时点"
+    ],
+    "dependencies": [
+      "B06",
+      "B04"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "state": "EXISTING",
+        "sha256": "0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444",
+        "lines": 17481
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+        "state": "EXISTING",
+        "sha256": "de6bfe40db72e9de42ecea84ce9f2aea86e99a0b9c6e37c834af641eea3f40c6",
+        "lines": 405
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java",
+        "state": "EXISTING",
+        "sha256": "b36db6254f60b05aba502a92d12a3c8c7fa1444118579fd43182b168d4ed049a",
+        "lines": 134
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java",
+        "state": "EXISTING",
+        "sha256": "c13353eafcfe4b402b12ef11fb7d9a4fc473b8f4847e356cc4fcece0cf04ecc9",
+        "lines": 56
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "state": "EXISTING",
+        "sha256": "b9849b2f432a8edbcd2b0d3fdfc28c4619798b27813c57c4524c3eb22f257b82",
+        "lines": 1515
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java",
+        "state": "EXISTING",
+        "sha256": "2759d9d68105f4ea625c6ce7f7eea9fb48d5d7efe833b30b87307dd5a4b96f76",
+        "lines": 87
+      }
+    ]
+  },
+  {
+    "id": "B08",
+    "title": "抓取账本、来源治理与网络失败恢复",
+    "original_requirements": [
+      "P1-10",
+      "P0-05"
+    ],
+    "priority": "P0",
+    "files": [
+      "ApiClient.java",
+      "FetchLedgerR925.java",
+      "ApiTransportGovernanceEngine.java",
+      "AutoFetchService.java",
+      "DbStore.java"
+    ],
+    "anchors": "GET/POST / response / payload acceptance",
+    "gap": "HTTP成功不等于有效开奖；记录机会有但离线、脏数据、进程中断需要完整状态归因。",
+    "steps": [
+      "将REQUESTED/HTTP_RECEIVED/PARSE_REJECTED/PROVENANCE_REJECTED/CANONICAL_ACCEPTED/INTERRUPTED分开",
+      "请求id串起payload哈希、候选开奖、规范化结果，canonical接受与事件同事务",
+      "校验期号/10号码排列/游戏/开奖时点/重复冲突",
+      "旧响应不得覆盖新期，来源冲突进入隔离",
+      "请求开始后进程死亡保留未知结果并下次对账，禁止推造超时返回码",
+      "重试指数退避+抖动+限额，保留现有provider额度配置，不做未知外部调用"
+    ],
+    "acceptance": [
+      "503/超时/200脏JSON/合法重复/冲突/乱序/飞行模式均有结果码",
+      "重复不会双预测",
+      "HTTP200但业务拒绝在UI与报告可区分"
+    ],
+    "dependencies": [
+      "B06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+        "state": "EXISTING",
+        "sha256": "e015468e4bd44d916456d9fe3f77d66d9bd2e9d9dfbd3af5579d510333e8aaff",
+        "lines": 1323
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "state": "EXISTING",
+        "sha256": "a812817f479f21518ecb1a58a0603dba348a8c8da0e0fe6817608692038c5636",
+        "lines": 36
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+        "state": "EXISTING",
+        "sha256": "d656bf68bd165d1de6b1ad04189a189018eea1194182c4a3e31814ae8f067948",
+        "lines": 842
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "state": "EXISTING",
+        "sha256": "0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444",
+        "lines": 17481
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "state": "EXISTING",
+        "sha256": "6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf",
+        "lines": 23272
+      }
+    ]
+  },
+  {
+    "id": "B09",
+    "title": "每期结算、影子、学习恰好一次",
+    "original_requirements": [
+      "P0-04",
+      "P1-09"
+    ],
+    "priority": "P0",
+    "files": [
+      "SettlementEngine.java",
+      "OosAfterDrawWriterR36.java",
+      "DeferredEvidenceWriterR36.java",
+      "ResearchAdaptiveLearnerStoreR811.java",
+      "ResearchTinyDeepLearnerR909.java",
+      "DbStore.java",
+      "CanonicalObservationWriterR36.java"
+    ],
+    "anchors": "exact settlement / labels / online update",
+    "gap": "需要验证全期结算、学习去重、崩溃重放；只看累计数不能证明一分一期闭环。",
+    "steps": [
+      "以game/issue/model_snapshot定义结算和学习幂等键",
+      "CORE结算先持久化，FULL和研究通过outbox异步展开",
+      "未开奖PENDING、无赛前冻结NO_PREDRAW、已开奖缺结算ERROR独立展示",
+      "FTRL/TinyDeep更新以已结算过去期游标和输入hash一次提交",
+      "当前期模型读取冻结版本，训练更新不能倒写该期",
+      "旧缺失来源不伪造PIT，只保留历史统计单列"
+    ],
+    "acceptance": [
+      "连续完整样本每期CORE结算一条、重放不重复",
+      "同一标签不能更新模型两次",
+      "崩溃在学习前后均确定恢复",
+      "120期测试要求全部应结已结"
+    ],
+    "dependencies": [
+      "B06",
+      "B08"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "state": "EXISTING",
+        "sha256": "0dde0c59781661a17285ea78d08bfd6993d832ab3c1ca39126b8fdd6f41645a9",
+        "lines": 3045
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java",
+        "state": "EXISTING",
+        "sha256": "21913b1977d345c7ca1cb9b0917e39bd42caac8a29d2ff461eb48693243867c6",
+        "lines": 419
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "state": "EXISTING",
+        "sha256": "d302924e373b64033fb0dd1d7975e3a9e034311d20f9944c26d8c71ccc69644a",
+        "lines": 1069
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java",
+        "state": "EXISTING",
+        "sha256": "5194b12069a011bc9f6dcf8150a31765bc1de4cf4cf3b811ed1f767f094daf2d",
+        "lines": 312
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java",
+        "state": "EXISTING",
+        "sha256": "ffc729f771473ae8bc024645cd9fb858c4d13a6411baf78cb2496a243086e11c",
+        "lines": 311
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "state": "EXISTING",
+        "sha256": "6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf",
+        "lines": 23272
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "state": "EXISTING",
+        "sha256": "866c03b6f1be07608567ec1cf4061f150b3f04282cbbee60a728222d171ed9d5",
+        "lines": 487
+      }
+    ]
+  },
+  {
+    "id": "B10",
+    "title": "FULL积压实质收敛与可观测调度",
+    "original_requirements": [
+      "P2-01"
+    ],
+    "priority": "P0",
+    "files": [
+      "DeferredEvidenceWriterR36.java",
+      "BacklogConvergenceR925.java",
+      "V51Repository.java",
+      "RealtimePressureGateR811.java"
+    ],
+    "anchors": "drainAvailable / drainSettledCatchup / claim / next_action_ordinal",
+    "gap": "当前最新FULL期差只是MAX完成值，可能掩盖中间洞；旧积压并未实测清空。",
+    "steps": [
+      "实时canonical和CORE优先，再最新已结FULL，最后按最老欠账公平补齐",
+      "将每1200动作分块游标与lease原子提交，分片幂等",
+      "指标增加最老未完成issue、连续FULL水位、洞数量、终止失败队列",
+      "按服务率减新增率报告净吞吐，不能要求有新任务时逐条pending严格单调",
+      "过期无快照转缺证隔离并计未完成，不删除当作清零",
+      "用真实备份库回放2216量级任务，限制DB写片长"
+    ],
+    "acceptance": [
+      "全量有可恢复证据的待办最终归零",
+      "不可恢复数明确非零即全闭环不通过",
+      "最新FULL≤2实际开奖滞后且连续水位无隐洞",
+      "模型与UI不因补账卡顿"
+    ],
+    "dependencies": [
+      "B05",
+      "B09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java",
+        "state": "EXISTING",
+        "sha256": "d302924e373b64033fb0dd1d7975e3a9e034311d20f9944c26d8c71ccc69644a",
+        "lines": 1069
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/BacklogConvergenceR925.java",
+        "state": "EXISTING",
+        "sha256": "9951cdb122c0e54e1fb7e565e224d7d5857d5fac8e725513cc51ee3fb59c3d5d",
+        "lines": 19
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51Repository.java",
+        "state": "EXISTING",
+        "sha256": "5d2249eebed01654c50cd8dc30cecd542b2fd546bfa91f34009fc87569413f22",
+        "lines": 4875
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+        "state": "EXISTING",
+        "sha256": "5d16a76ecb0ddb5c39e298030f3e752e4fc5db92d4da58e046a84b7f54407a5e",
+        "lines": 88
+      }
+    ]
+  },
+  {
+    "id": "B11",
+    "title": "真实出手来源与最终唯一决策审计",
+    "original_requirements": [
+      "P0-06",
+      "P1-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "DecisionGateEngine.java",
+      "RealBetDiagnosisEngine.java",
+      "V51RuntimeOrchestrator.java",
+      "ControlledCandidateOpportunityAuditR922.java",
+      "CodeOwnershipCompletenessAuditEngine.java",
+      "TargetIssueResolver.java"
+    ],
+    "anchors": "final gate / immutable decision / provenance",
+    "gap": "旧101条来源无效不能被新版改成有效；现有多个策略标志需解析实际门，而非仅读一个SHADOW常量。",
+    "steps": [
+      "生成有效门配置快照，记录所有参与策略开关及实际DecisionGate分支",
+      "REAL行必须携带request/frozen/durable时点、draw来源、action/model/bundle/cert哈希",
+      "Research没有创建BET的接口能力",
+      "旧无效REAL独立报表，严禁纳入新严格胜率",
+      "无证据策略与频率提案由原唯一Gate裁定，不新增后台BET作者"
+    ],
+    "acceptance": [
+      "新受控测试REAL invalid=0 duplicate=0，每期最多一条且固定K3单位置",
+      "来源缺一拒绝",
+      "旧101条状态不被篡改",
+      "所有Owner扫描和行为测试通过"
+    ],
+    "dependencies": [
+      "B06",
+      "B09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "state": "EXISTING",
+        "sha256": "428455f117549f91cf4d70f0531bd3962b088398b93fb2fa6ef5a6e89d608144",
+        "lines": 11349
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RealBetDiagnosisEngine.java",
+        "state": "EXISTING",
+        "sha256": "459dab7540c8cc5b23e43428c9b61387f09f3b536c0eeaa0992179ba45619602",
+        "lines": 5711
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8",
+        "lines": 773
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+        "state": "EXISTING",
+        "sha256": "429e07f99bdc353c2d1f9d18eceadec90cadcd3c908b439566c2c9e50f764188",
+        "lines": 365
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+        "state": "EXISTING",
+        "sha256": "71a1bb282c31c8a798bf2ce02920c10931c3f018da0860a54cdef97aa719e08e",
+        "lines": 429
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "state": "EXISTING",
+        "sha256": "aa5ca72a05dc6a54f32482b474008d0334bddcea13fde601de2d8b22e623adac",
+        "lines": 176
+      }
+    ]
+  },
+  {
+    "id": "D01",
+    "title": "PIT训练快照、字段语义与数据可用性",
+    "original_requirements": [
+      "P1-01",
+      "M1"
+    ],
+    "priority": "P0",
+    "files": [
+      "TrainingSnapshotExportR925.java",
+      "DeferredEvidenceSnapshotR36.java",
+      "GenesisAssetVmR915.java",
+      "V51Models.java",
+      "training/r925/pipeline.py",
+      "V51PermutationFeatureEngine.java",
+      "V51RelationGraphVerifier.java"
+    ],
+    "anchors": "write / validate / positionActions / snapshot hash",
+    "gap": "目前导出META96与标签，但缺完整上游原始输入合同、域签名、缺失掩码、依赖版本和证书绑定。",
+    "steps": [
+      "新建不可变FeatureManifest，每维明确名称/单位/范围/lag/window/source/missing/cost/版本",
+      "导出raw上游state/expert/atommask与full1200，所有max_source_issue严格早于target",
+      "保存snapshot内target与SQL join target一致、创建/冻结/接收/开奖时点一致断言",
+      "导出稳定快照或高水位分片，不长期占读事务阻塞WAL",
+      "每分片hash、范围、总manifest和隔离坏行清单",
+      "缺数据先部署采集，只允许新赛前冻结积累Future证据"
+    ],
+    "acceptance": [
+      "错误游戏/重复期/未知schema/时间穿越/坏hash/非完整1200拒绝",
+      "100期逐字段PIT检查",
+      "同输入导出内容hash相同",
+      "缺标签只作待结，不偷偷补特征"
+    ],
+    "dependencies": [
+      "B04",
+      "B06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/TrainingSnapshotExportR925.java",
+        "state": "EXISTING",
+        "sha256": "7eb25309c5ee8e75e048ea7692bacd8e6140ba7d7078d618e2f579bc53082671",
+        "lines": 55
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java",
+        "state": "EXISTING",
+        "sha256": "3cb068dbd86c256d903bf0f33639d9b1013d9d24fa93c8e70d08610fd9d45f50",
+        "lines": 1037
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java",
+        "state": "EXISTING",
+        "sha256": "6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475",
+        "lines": 424
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51Models.java",
+        "state": "EXISTING",
+        "sha256": "fd86dd41bf85094c5fa0f6d0889c0cc1744751a82188cfee9146e5451f994ba3",
+        "lines": 1804
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationFeatureEngine.java",
+        "state": "EXISTING",
+        "sha256": "99c3c310016368a1375335dd8d247bfdccebf8cc3e56c509200675dc3c22d182",
+        "lines": 1460
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java",
+        "state": "EXISTING",
+        "sha256": "3e058679421cc8bfb392db8d879bdf3eb5bfa1ea8bb48cc745d1a0e4b733fc13",
+        "lines": 45
+      }
+    ]
+  },
+  {
+    "id": "D02",
+    "title": "消除NumberQ与META96的循环输入歧义",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M1",
+      "M2",
+      "M3"
+    ],
+    "priority": "P0",
+    "files": [
+      "DeepCandidateRuntimeR925.java",
+      "V51PermutationNumberModelEngine.java",
+      "V51ActionMetaFeatureEngine.java",
+      "training/r925/deep_candidates.py",
+      "V51PermutationFeatureEngine.java"
+    ],
+    "anchors": "FEATURE_CONTRACT / surfaces / predict",
+    "gap": "R925深度候选用动作META96的均值派生输入，与原R811原始96维不是同合同；动作META又含号码面，不能反向作为同一号码面的上游。",
+    "steps": [
+      "画出raw history→base experts→NumberQ→META96→ranker的无环依赖",
+      "保留R925派生网络为明确二阶段residual专家，或以原始上游96重新训练NumberQ，默认选择后者用于主号码面",
+      "禁止将R925权重改个类型名直接装入R811",
+      "artifact manifest绑定input_stage/schema_hash/parent_artifact_hash，Java loader必须实际检查",
+      "D2慢状态只取t-1及以前并持久化游标，首次无历史按训练约定冷启动",
+      "9专家直接导出原始冻结logits，旧META反演仅兼容审计"
+    ],
+    "acceptance": [
+      "同维数不同语义artifact拒绝",
+      "依赖图无环",
+      "同一issue offline/Java/Android输入逐字段相等",
+      "重启慢状态不读当前标签"
+    ],
+    "dependencies": [
+      "D01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java",
+        "state": "EXISTING",
+        "sha256": "437029bea9b9311f26cc9d8b2b218317a1bcd051b604387343427a8ea1cb504f",
+        "lines": 52
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "state": "EXISTING",
+        "sha256": "d1d3302565c881c3d23ee0c8866faa9c7d03032b80125227aa2d66c5c9a040fb",
+        "lines": 257
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51ActionMetaFeatureEngine.java",
+        "state": "EXISTING",
+        "sha256": "54c7d4797198e2c748de384831cafcd356c17b3f52306bcda8799ffd5da1883c",
+        "lines": 87
+      },
+      {
+        "path": "training/r925/deep_candidates.py",
+        "state": "EXISTING",
+        "sha256": "60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e",
+        "lines": 130
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationFeatureEngine.java",
+        "state": "EXISTING",
+        "sha256": "99c3c310016368a1375335dd8d247bfdccebf8cc3e56c509200675dc3c22d182",
+        "lines": 1460
+      }
+    ]
+  },
+  {
+    "id": "D03",
+    "title": "独立训练阶段、时间切分与全局封存",
+    "original_requirements": [
+      "P1-01",
+      "M1",
+      "M2",
+      "M3",
+      "M4"
+    ],
+    "priority": "P1",
+    "files": [
+      "training/r925/pipeline.py",
+      "training/r925/deep_candidates.py",
+      "training/v51_training_core.py",
+      "training/v50_train_pipeline.py"
+    ],
+    "anchors": "run / splits / r925_sealed_registry / stage_entry",
+    "gap": "R925源文件父目录封存登记能拦同目录重跑，却不是跨源副本、跨项目实验的统一试验账本；模块输出还非独立生产合同。",
+    "steps": [
+      "拆dataset/number/gate/ranker/calibration/policy/evaluate命令与独立manifest",
+      "统一experiment registry以game+schema+源内容hash+sealed issue集合标识，不能靠复制目录重置",
+      "freeze选择前不读sealed标签，记录试验数与超参候选，故障恢复同trial幂等",
+      "至少5个expanding folds，内层调参、外层比较、CAL只选中样本、POLICY更后、SEALED最后",
+      "折边界历史特征可引用过去，学习参数和慢状态不可引用未来",
+      "各阶段失败不能给其他阶段写PROVEN",
+      "所有旧V49/V50/V51/R811训练入口明确LEGACY_REPLAY或委托新CLI；旧10动作pipeline不能出R926生产证明"
+    ],
+    "acceptance": [
+      "复制源文件到其他目录仍拒绝同sealed窗口新选择",
+      "篡改上游hash下游失效",
+      "五阶段样本区间严格有序",
+      "同trial崩溃恢复不重复消费sealed"
+    ],
+    "dependencies": [
+      "D01",
+      "D02"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      },
+      {
+        "path": "training/r925/deep_candidates.py",
+        "state": "EXISTING",
+        "sha256": "60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e",
+        "lines": 130
+      },
+      {
+        "path": "training/v51_training_core.py",
+        "state": "EXISTING",
+        "sha256": "23567fb59055c6cd3b7db86ec5432f39090fb361197982f5303470164082522d",
+        "lines": 877
+      },
+      {
+        "path": "training/v50_train_pipeline.py",
+        "state": "EXISTING",
+        "sha256": "8b862ba6ced4e45ec8da2cc4e8bda4f4c38b4159b0661a4e345a6839ed1ffeab",
+        "lines": 1022
+      }
+    ]
+  },
+  {
+    "id": "D04",
+    "title": "NumberQ、Gate9、深度和在线侧路完整比较",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M2"
+    ],
+    "priority": "P1",
+    "files": [
+      "V51PermutationNumberModelEngine.java",
+      "V51ExpertGateEngine.java",
+      "V51SinkhornEngine.java",
+      "DeepCandidateRuntimeR925.java",
+      "ResearchTinyDeepLearnerR909.java",
+      "training/r925/deep_candidates.py",
+      "DeepLearningBridgeEngine.java"
+    ],
+    "anchors": "predict / logits / gate / prepare",
+    "gap": "R925研究推理通过host parity，但无生产数据训练、设备资源证据和生产artifact装载链。",
+    "steps": [
+      "保留9专家及已有矩阵，冻结各expert版本与可用性",
+      "比较原NumberQ、D0、D1残差、D2快慢、D3蒸馏，Gate9独立OOS训练",
+      "号码面finite、行列和≤1e-6、非负与专家退化fallback合同",
+      "训练teacher只用更早冻结模型，蒸馏不能见目标窗口标签",
+      "在线FTRL/TinyDeep仅过去label更新，升级为champion必须走相同证书",
+      "报告per-position CE/Top1/Top3/Brier、专家权重/失效、资源与增量"
+    ],
+    "acceptance": [
+      "每候选同fold完整结果，包括失败试验",
+      "没有更优候选时保留baseline且报告未达到效果门",
+      "host/设备推理一致且满足主链预算"
+    ],
+    "dependencies": [
+      "D02",
+      "D03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "state": "EXISTING",
+        "sha256": "d1d3302565c881c3d23ee0c8866faa9c7d03032b80125227aa2d66c5c9a040fb",
+        "lines": 257
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+        "state": "EXISTING",
+        "sha256": "1b4b4cf3fe899e10c98359b42ebbffc7d8bc78740411bc0a8a15f11a232d6e62",
+        "lines": 213
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java",
+        "state": "EXISTING",
+        "sha256": "58c3810a7a1365a0e8054ed85bbf3ff529ecdb18f8d11169724c924427f604d2",
+        "lines": 207
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java",
+        "state": "EXISTING",
+        "sha256": "437029bea9b9311f26cc9d8b2b218317a1bcd051b604387343427a8ea1cb504f",
+        "lines": 52
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java",
+        "state": "EXISTING",
+        "sha256": "ffc729f771473ae8bc024645cd9fb858c4d13a6411baf78cb2496a243086e11c",
+        "lines": 311
+      },
+      {
+        "path": "training/r925/deep_candidates.py",
+        "state": "EXISTING",
+        "sha256": "60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e",
+        "lines": 130
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeepLearningBridgeEngine.java",
+        "state": "EXISTING",
+        "sha256": "397aba6ceaef6e33b665364b5b35677eef21302528498f9759844b462243d81c",
+        "lines": 3209
+      }
+    ]
+  },
+  {
+    "id": "D05",
+    "title": "完整1200动作Ranker模型族与生产一致性",
+    "original_requirements": [
+      "P1-01",
+      "M3"
+    ],
+    "priority": "P1",
+    "files": [
+      "K3ActionSpaceEngine.java",
+      "V51ActionRankerEngine.java",
+      "RankerMathR925.java",
+      "V51ActionRankerArtifact.java",
+      "training/r925/pipeline.py",
+      "K3FunnelOrchestrator.java",
+      "V51PositionActionBuilder.java"
+    ],
+    "anchors": "rankDetailed / artifactScore / fit / scores",
+    "gap": "R925实现一个线性listwise+pairwise，不等于原计划多个ranker候选与独立阶段全部完成。",
+    "steps": [
+      "固定position1..10、每位120组、ordinal0..1199和并列tie-break",
+      "比较RawActionP、pairwise线性、listwise线性、top-weighted pairwise、小MLP，树模型仅在资源与导出可行时研究比较",
+      "hard-negative以同组差一号码为主，统计样本单位始终issue",
+      "训练Ranker的META来自更早冻结Number/Gate OOF输出，不能用未来已训练号码面",
+      "记录Rank1/Top3/MRR/NDCG/paired/regime/block、全1200hash",
+      "并列/近并列和非有限值给确定性处理"
+    ],
+    "acceptance": [
+      "每期1200唯一动作、360正标签、全1200评分",
+      "100期×1200 Java/Android rank1完全一致",
+      "仅1200行视作1期样本",
+      "最终封存比较无退化"
+    ],
+    "dependencies": [
+      "D03",
+      "D04"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/K3ActionSpaceEngine.java",
+        "state": "EXISTING",
+        "sha256": "25925852af63bed57b010e30051fbacee9d150c98c6b11de2ea7fb2e5295ec85",
+        "lines": 531
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "state": "EXISTING",
+        "sha256": "ca552537cea28f0821c6932d63f7b923ec0d17650da3df96d96ddd38a07bf420",
+        "lines": 161
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RankerMathR925.java",
+        "state": "EXISTING",
+        "sha256": "294a7777185737aaad9bb8b1c1672445fc77e41979ac80a8fdb3ee2457114923",
+        "lines": 16
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerArtifact.java",
+        "state": "EXISTING",
+        "sha256": "19d3c8083db6bd0518a6e6a08f2f2865e7016ff2a1ded8a86edf67dc685b986c",
+        "lines": 23
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "1e15ed3afa38727b8277e4caa4da6f18e21e0e82e48c8a56965067490a1ca83a",
+        "lines": 383
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PositionActionBuilder.java",
+        "state": "EXISTING",
+        "sha256": "5a8528e9c5492230cb2b057da904d83ef1d151df55a21b0fa5f6b360312096a5",
+        "lines": 90
+      }
+    ]
+  },
+  {
+    "id": "D06",
+    "title": "最终被选动作的校准与融合后失配修复",
+    "original_requirements": [
+      "P1-01",
+      "M4",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "V51SelectedActionCalibrationEngine.java",
+      "V51SelectedCalibrationArtifact.java",
+      "V51RuntimeOrchestrator.java",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "selected / calibration_fit / buildRankedActionStage",
+    "gap": "单独校准基础rank1不足以证明研究融合后新选动作概率；原始score不能直接充当命中概率。",
+    "steps": [
+      "定义selection_policy_hash包含ranker+consumer+weight+regime+tie-break",
+      "校准数据必须由相同冻结选择规则生成，融合改变选择后重新进入校准合同",
+      "比较logistic/beta/isotonic/域收缩，选择仅用更早数据",
+      "保存原rawScore、RawActionP、SelectedHitP及各来源，未知显示N/A",
+      "概率[Brier/ECE]只接受已校准并有支持的字段",
+      "把概率与分数分离为类型，禁止clamp01(score)当作校准"
+    ],
+    "acceptance": [
+      "变更consumer/权重/排序会使不兼容calibration拒绝",
+      "错误概率类型被测试发现",
+      "sealed Brier/ECE/NLL及分箱附样本数，达到合同门才宣告证明"
+    ],
+    "dependencies": [
+      "D03",
+      "D05",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java",
+        "state": "EXISTING",
+        "sha256": "488da5257f76020a1c5db3063965afcb43a8b255e9c67f95e723587ee59caf00",
+        "lines": 93
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51SelectedCalibrationArtifact.java",
+        "state": "EXISTING",
+        "sha256": "4f9324c3d135dd1b03df831c049515169a483118ec6c3bfa0d04b9935e38ef39",
+        "lines": 22
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8",
+        "lines": 773
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      }
+    ]
+  },
+  {
+    "id": "D07",
+    "title": "不确定性、稳定性和选择性拒绝",
+    "original_requirements": [
+      "M4",
+      "P1-01"
+    ],
+    "priority": "P1",
+    "files": [
+      "V51SelectedActionCalibrationEngine.java",
+      "DecisionGateEngine.java",
+      "FeatureAblationAttributionEngine.java",
+      "MainActivity.java"
+    ],
+    "anchors": "SelectedHitP / risk / stability",
+    "gap": "完整不确定性分解尚缺，单期风险、稳定性存在空白反馈，不能用固定值填充。",
+    "steps": [
+      "输出reliability_bin_n/分箱历史Wilson区间/calibration support/regime support/模型分歧/漂移",
+      "Wilson明确为群体频率区间，不是这一次必中的个体区间",
+      "nonconformity是拒绝特征，不冒充概率或无条件conformal保证",
+      "stability按冻结输入扰动/专家删除的K3一致度定义并版本化",
+      "来源不足显示缺失原因、最近成功期与下一步，不显示0误导",
+      "把不确定性门写入同一policy artifact而非UI自判"
+    ],
+    "acceptance": [
+      "常数/小样本/新域/专家全失效时状态可解释",
+      "每个指标追到输入hash和窗口",
+      "拒绝不产生补频率BET"
+    ],
+    "dependencies": [
+      "D06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java",
+        "state": "EXISTING",
+        "sha256": "488da5257f76020a1c5db3063965afcb43a8b255e9c67f95e723587ee59caf00",
+        "lines": 93
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "state": "EXISTING",
+        "sha256": "428455f117549f91cf4d70f0531bd3962b088398b93fb2fa6ef5a6e89d608144",
+        "lines": 11349
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java",
+        "state": "EXISTING",
+        "sha256": "6efea69dead58faf69d2128f58e0d9a4f07cddc601a4e1a1131c6e41f1796cf5",
+        "lines": 57
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      }
+    ]
+  },
+  {
+    "id": "D08",
+    "title": "领域证书与赛前状态路由",
+    "original_requirements": [
+      "P1-05",
+      "M5"
+    ],
+    "priority": "P1",
+    "files": [
+      "AlgorithmRegimeEvidenceR923.java",
+      "V51StateTrajectoryEngine.java",
+      "AlgorithmProductionGovernorR915.java",
+      "CertifiedResearchMixerR915.java",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "regime assignment / production influence",
+    "gap": "R925只有离线域校准，未完成手机DOMAIN证书及路由；现有≥12组支持不等于生产校准支持。",
+    "steps": [
+      "训练段冻结状态边界，market regime与runtime health两个命名空间",
+      "领域artifact绑定regime schema、feature hash、选择规则与证书",
+      "足够CAL有效样本默认每域≥120，否则收缩到已证明全局或拒绝领域激活",
+      "路由只用赛前state，退出域立即weight0",
+      "域优势判断同时报告overall与每域paired置信/覆盖/风险，纳入多重比较",
+      "未知域/切换抖动用冻结滞回规则与显式fallback"
+    ],
+    "acceptance": [
+      "同一target与hash路由可复现",
+      "未支持域只能PAUSE/fallback",
+      "域外0贡献",
+      "更改边界必须重新起窗，不继承证据"
+    ],
+    "dependencies": [
+      "D06",
+      "C01",
+      "C06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmRegimeEvidenceR923.java",
+        "state": "EXISTING",
+        "sha256": "d80d6155efce2d03a542d559be2b427048f57cc412b0ce8b0bfb44898be72805",
+        "lines": 143
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51StateTrajectoryEngine.java",
+        "state": "EXISTING",
+        "sha256": "8e5eba367acfbd083d595c1cb1207289a1f165583d79127c75af3a4c925374d8",
+        "lines": 3665
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+        "state": "EXISTING",
+        "sha256": "3978563f45357eff48f0a29b3cdeb0f7faf960f2cdb4f6726b53193a27a1bf0f",
+        "lines": 442
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java",
+        "state": "EXISTING",
+        "sha256": "0ce66437efac93159fc926a3d2794965af7c7e519b524f9d37b977f2dbc827a4",
+        "lines": 243
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      }
+    ]
+  },
+  {
+    "id": "D09",
+    "title": "Predictability与出手频率的真实目标闭环",
+    "original_requirements": [
+      "P1-01",
+      "P0-06",
+      "M4"
+    ],
+    "priority": "P1",
+    "files": [
+      "V51PredictabilityArtifact.java",
+      "V51PolicySurfaceArtifact.java",
+      "DecisionGateEngine.java",
+      "ControlledCandidateOpportunityAuditR922.java",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "policy selection / predictability / final REAL decision",
+    "gap": "至少15%是效果目标，R925没有经证明达标的当前游戏策略；不能以强制放行代替训练。",
+    "steps": [
+      "独立训练predictability/selector并绑定更早OOF校准",
+      "只在POLICY集冻结阈值，输出覆盖—HR—Brier—风险Pareto表",
+      "sealed与Future分开报告eligible/selected/REAL三个分母",
+      "工程目标40%与频率15%都必须由同一冻结策略独立验证，未达标记录FAIL_EFFECT",
+      "禁止频率债务、追期、两挂后硬出手",
+      "DecisionGate保持唯一，证书与频率目标不能直接授权BET"
+    ],
+    "acceptance": [
+      "冻结策略真实数据独立评估完整",
+      "覆盖不足明确多少，不改分母达标",
+      "即使找不到可行策略训练流程仍可验收工程，但效果目标不能关闭"
+    ],
+    "dependencies": [
+      "D06",
+      "D07",
+      "D08",
+      "B11"
+    ],
+    "kind": "DATA_DEPENDENT",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PredictabilityArtifact.java",
+        "state": "EXISTING",
+        "sha256": "60a21473ce2f41fd1e5c28bb3bfcd5a319e402f5d5e9f5747c1963c9caf1c084",
+        "lines": 14
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51PolicySurfaceArtifact.java",
+        "state": "EXISTING",
+        "sha256": "466a571fd0fc8ecc89989cf421aa8be118ae9eadf7cc2e2b2d8649e116631c9c",
+        "lines": 13
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "state": "EXISTING",
+        "sha256": "428455f117549f91cf4d70f0531bd3962b088398b93fb2fa6ef5a6e89d608144",
+        "lines": 11349
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java",
+        "state": "EXISTING",
+        "sha256": "429e07f99bdc353c2d1f9d18eceadec90cadcd3c908b439566c2c9e50f764188",
+        "lines": 365
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      }
+    ]
+  },
+  {
+    "id": "D10",
+    "title": "模型包验证、导入、原子激活和撤回",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "ResearchArtifactCodecR811.java",
+      "V51ActionRankerArtifact.java",
+      "V51NumberModelArtifact.java",
+      "V51ExpertGateArtifact.java",
+      "V51RuntimeOrchestrator.java",
+      "MainActivity.java",
+      "DeepLearningBridgeEngine.java",
+      "ModelEffectivenessAnalyzerR35.java",
+      "ImprovementChallengerPlanEngine.java",
+      "ResearchCertificationEngineR811.java"
+    ],
+    "anchors": "decode / type / manifest / model snapshot",
+    "gap": "新二进制仅type/trainedUntil/fields，尚不能单凭其字节证明input合同、来源、阶段证书；生产多artifact一致装载未闭环。",
+    "steps": [
+      "建立bundle manifest列Number/Gate/Ranker/Calibration/Predictability/Policy、schema/training/parity/certificate hash",
+      "导入先解包限额/路径/内容hash/类型/签名验证，完整成功才落STAGED",
+      "APK原签名不等于模型包签名，模型签名独立owner可信key且私钥不放运行APK",
+      "stage/verify/activate在一期边界原子换bundle指针，每期固定一套依赖",
+      "证书过期、非有限、hash不符、资源异常立即下一决策禁用并回已有可用bundle",
+      "旧静态常量通过adapter读取，禁止半套新旧模型混用"
+    ],
+    "acceptance": [
+      "任意丢一artifact/错维度同形状错schema/非法路径/错签名/中途中止全部拒绝",
+      "请求进行中换指针不改变该期",
+      "回滚无重复canonical/REAL"
+    ],
+    "dependencies": [
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D08",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchArtifactCodecR811.java",
+        "state": "EXISTING",
+        "sha256": "05d8f015f9f91c51a115960bd8c3bd0cb73d5bc4215000e9db2d7657a31b0c43",
+        "lines": 159
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerArtifact.java",
+        "state": "EXISTING",
+        "sha256": "19d3c8083db6bd0518a6e6a08f2f2865e7016ff2a1ded8a86edf67dc685b986c",
+        "lines": 23
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51NumberModelArtifact.java",
+        "state": "EXISTING",
+        "sha256": "8eb169a38e0972b2d3c475b32be8c444c8e3c448b7695c85911f5c0dd8c7c29d",
+        "lines": 26
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateArtifact.java",
+        "state": "EXISTING",
+        "sha256": "ea300bb12306bc1f24e3f90e8000cb7f13b6844a309f8a5d674be2a1df4d5676",
+        "lines": 29
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "state": "EXISTING",
+        "sha256": "f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8",
+        "lines": 773
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeepLearningBridgeEngine.java",
+        "state": "EXISTING",
+        "sha256": "397aba6ceaef6e33b665364b5b35677eef21302528498f9759844b462243d81c",
+        "lines": 3209
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+        "state": "EXISTING",
+        "sha256": "09b9b7d4f3b154656f6989eae833d8e08b1d8d3586ed281fe62db691cd24c7a2",
+        "lines": 947
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",
+        "state": "EXISTING",
+        "sha256": "1fc9b2284a9b38da7457a297abb2bf5f46fe5a4b7902aabdafdfbb4d1bbdfd8a",
+        "lines": 360
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCertificationEngineR811.java",
+        "state": "EXISTING",
+        "sha256": "1e88f119b5a72cfd4f21d959766e5b08f869177bc7441709e0d99758887e496c",
+        "lines": 281
+      }
+    ]
+  },
+  {
+    "id": "D11",
+    "title": "主机与Android三端数值和状态一致性",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M2",
+      "M3"
+    ],
+    "priority": "P0",
+    "files": [
+      "verification/r925/verify_parity.py",
+      "verification/r925/DeepParityHarness.java",
+      "verification/r925/GateParityHarness.java",
+      "verification/r925/RankerParityHarness.java",
+      "DeepCandidateRuntimeR925.java"
+    ],
+    "anchors": "float output / artifact decode / target PIT",
+    "gap": "现有host成绩规模为14400动作分数和400网络输出，Android为NOT_RUN；不能当100期×1200手机通过。",
+    "steps": [
+      "建立100个完整真实或明确标记合同fixture，覆盖边界/tie/缺失/慢状态/重启/坏artifact",
+      "从同一签名APK内实际推理导出分数，禁止使用另一份Java简化函数",
+      "比较完整1200、Q行列和、最终选中、概率、域/权重、bundle hash",
+      "默认absolute1e-8+relative1e-6，rank1/tie-break100%一致，差异先定位不放宽门掩盖",
+      "报告每模型minSdk21设备或模拟器与目标手机API"
+    ],
+    "acceptance": [
+      "Python/host/Android逐元素结果全可复现",
+      "维度、语义、PIT、非有限和坏hash负例全部拒绝",
+      "设备结果不以host替代"
+    ],
+    "dependencies": [
+      "D10",
+      "Q01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "verification/r925/verify_parity.py",
+        "state": "EXISTING",
+        "sha256": "8510d9af6b77c4f122d5f6fe221dc5bca06da461fa9d639b4190c83f119648c7",
+        "lines": 39
+      },
+      {
+        "path": "verification/r925/DeepParityHarness.java",
+        "state": "EXISTING",
+        "sha256": "c0c1dcb05fd72d16b74071ad91606f83a583da5edd07e5b3a29de9bd900eaad4",
+        "lines": 20
+      },
+      {
+        "path": "verification/r925/GateParityHarness.java",
+        "state": "EXISTING",
+        "sha256": "9cb79bf1eb4d0eda92c390f3452d0311f5bb52530fc097e71a187605f1355d91",
+        "lines": 15
+      },
+      {
+        "path": "verification/r925/RankerParityHarness.java",
+        "state": "EXISTING",
+        "sha256": "5ad89f9efe3d878e664db704c593241cabe4be81e4656174df88059750812ded",
+        "lines": 11
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java",
+        "state": "EXISTING",
+        "sha256": "437029bea9b9311f26cc9d8b2b218317a1bcd051b604387343427a8ea1cb504f",
+        "lines": 52
+      }
+    ]
+  },
+  {
+    "id": "C01",
+    "title": "统一证书V2、状态梯子与三个消费者",
+    "original_requirements": [
+      "P1-02",
+      "P1-05",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "PromotionWindowR925.java",
+      "ResearchCertificateR906.java",
+      "ResearchGenomeContractR915.java",
+      "AlgorithmProductionGovernorR915.java",
+      "CertifiedResearchMixerR915.java",
+      "ResearchMainlineGovernorR903.java",
+      "ResearchCertificationEngineR811.java"
+    ],
+    "anchors": "register / evaluate / evaluateAsset / evaluateGenesis / govern / mix",
+    "gap": "R925共用窗口计算但底层三套证书仍分离，晋级门、原因和消费授权没有一个版本化合同。",
+    "steps": [
+      "新证书结构统一candidate namespace/family/model/bundle/schema/选择策略/域/统计协议/anchor",
+      "L0到L7与暂停/撤销分开建模，所有消费者只调用CertificateService",
+      "旧证书映射LEGACY_REVIEW，不能自动带权，保留全部旧证据",
+      "明确L5仅影子模拟重排，L6才受控主排序5%，更高权重按新增独立证据",
+      "同一期只一个实际研究消费者，候选选择使用更早冻结证书排序并列规则",
+      "UI展示每一门observed/required/pass/source，0证书给具体原因"
+    ],
+    "acceptance": [
+      "算法/图资产/创生三者用同一合同测试向量得到一致授权",
+      "无证书0权重",
+      "证书只授予排序影响不创建REAL",
+      "旧新状态全部可解释"
+    ],
+    "dependencies": [
+      "B06",
+      "D01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "state": "EXISTING",
+        "sha256": "ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a",
+        "lines": 60
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCertificateR906.java",
+        "state": "EXISTING",
+        "sha256": "d03d585dd09ef1aa6d227e169f378518716bf85fa87708ddd75bc884a8243f2c",
+        "lines": 111
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchGenomeContractR915.java",
+        "state": "EXISTING",
+        "sha256": "a088c3dd1bfe1c1ceed89c23991a5ac2c462e4c78918297104ac8921a564d9dd",
+        "lines": 290
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+        "state": "EXISTING",
+        "sha256": "3978563f45357eff48f0a29b3cdeb0f7faf960f2cdb4f6726b53193a27a1bf0f",
+        "lines": 442
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java",
+        "state": "EXISTING",
+        "sha256": "0ce66437efac93159fc926a3d2794965af7c7e519b524f9d37b977f2dbc827a4",
+        "lines": 243
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java",
+        "state": "EXISTING",
+        "sha256": "ac4e832795d2dca31e1c3a5b1f7fcdf9c0b4cd81281fd24af44aaa767623aed6",
+        "lines": 82
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCertificationEngineR811.java",
+        "state": "EXISTING",
+        "sha256": "1e88f119b5a72cfd4f21d959766e5b08f869177bc7441709e0d99758887e496c",
+        "lines": 281
+      }
+    ]
+  },
+  {
+    "id": "C02",
+    "title": "配对基线冻结、固定窗口与晋级防反复试探",
+    "original_requirements": [
+      "P1-02",
+      "P1-05",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "PromotionWindowR925.java",
+      "AlgorithmEvolutionLifecycleR912.java",
+      "ResearchCertificateR906.java",
+      "AssetGenesisEngineR915.java"
+    ],
+    "anchors": "fromCursor / stats / ORDER BY p.target_issue",
+    "gap": "当前窗口扫描自anchor后的全部记录，以当时运行主链标签作baseline；候选不足以证明比较对象固定，反复查看的统计错误率未单独治理。",
+    "steps": [
+      "创建window_id并绑定candidate hash、固定champion bundle及其独立影子预测，不能用随时间变更的production混合结果代替",
+      "预注册新窗口边界和配对缺失规则，统一每issue仅一条pair",
+      "L5新120期、L6再新240期",
+      "后续权重升级各新增240/240/360期，目标累计600/840/1200",
+      "每个窗口只在预定终点做一次晋级判断，期间仅做资源/PIT硬撤销或预注册安全监测",
+      "置信区间按issue分块与依赖假设报告，20期块和t近似不得称无条件显著性保证",
+      "累计历史改为每window增量聚合和有限分页，禁止每轮无限扫全部历史"
+    ],
+    "acceptance": [
+      "重复label/跨game/基线变更/错窗口/回看调门负例全部拒绝",
+      "fail窗口不可原样反复试到PASS",
+      "固定champion逐期预测hash可重算",
+      "长历史查询预算可控"
+    ],
+    "dependencies": [
+      "C01",
+      "C06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "state": "EXISTING",
+        "sha256": "ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a",
+        "lines": 60
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+        "state": "EXISTING",
+        "sha256": "027a5975c707443ea0499fe4d0377ba4c2c199dc28f21a976d233e57c3a77604",
+        "lines": 527
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchCertificateR906.java",
+        "state": "EXISTING",
+        "sha256": "d03d585dd09ef1aa6d227e169f378518716bf85fa87708ddd75bc884a8243f2c",
+        "lines": 111
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+        "state": "EXISTING",
+        "sha256": "6a49d8bd4197696f40405d950359445fb9815934f4ff2e16241423acc7445072",
+        "lines": 887
+      }
+    ]
+  },
+  {
+    "id": "C03",
+    "title": "候选概率合同与Brier/ECE真值",
+    "original_requirements": [
+      "P1-05",
+      "M4",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "AlgorithmInventionLabR908.java",
+      "GenesisAssetVmR915.java",
+      "PromotionWindowR925.java",
+      "AlgorithmEvidencePolicyR912.java"
+    ],
+    "anchors": "freezeOne score/probability / stats / evaluate",
+    "gap": "当前algorithm/genesis窗口直接读取score计算误差平方；clamp01(score)也不是概率校准，存在证据语义风险。",
+    "steps": [
+      "冻结raw_score与selected_hit_p两个独立列及calibration_hash",
+      "只有独立CAL校准的对应动作才参与Brier/ECE门",
+      "原score证据保留标RAW_SCORE_NOT_CALIBRATED，不据此宣称概率证明",
+      "每个候选难以单独CAL时使用事先冻结的族级收缩校准且注明支持，否则停观察",
+      "非有限、超范围、缺失校准和不同选择策略一律不给概率证书",
+      "迁移不能用新校准倒算历史并冒充旧赛前概率，只能离线诊断"
+    ],
+    "acceptance": [
+      "构造相同ranking不同score尺度，概率证书不被尺度伪造",
+      "raw score=.9不自动等于90%命中概率",
+      "所有Brier行可追calibration/selection hash"
+    ],
+    "dependencies": [
+      "C01",
+      "D06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+        "state": "EXISTING",
+        "sha256": "ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9",
+        "lines": 734
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java",
+        "state": "EXISTING",
+        "sha256": "6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475",
+        "lines": 424
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "state": "EXISTING",
+        "sha256": "ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a",
+        "lines": 60
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvidencePolicyR912.java",
+        "state": "EXISTING",
+        "sha256": "8b2f62ad95da8b5e432dccb9361de93060c85dd8e5610935ce11c715f296a308",
+        "lines": 282
+      }
+    ]
+  },
+  {
+    "id": "C04",
+    "title": "四层捕获覆盖与冻结事务一致性",
+    "original_requirements": [
+      "P1-04",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "CaptureOpportunityR925.java",
+      "ResearchPredrawCaptureR923.java",
+      "AlgorithmInventionLabR908.java",
+      "DatabaseCoordinator.java",
+      "ResearchFailureAttributionR815.java"
+    ],
+    "anchors": "eligible / record / freezeOne",
+    "gap": "R925拆了eligible与执行，但机会登记与冻结未在同一统一状态机里，runWrite失败和中断仍可能造成状态歧义。",
+    "steps": [
+      "记录system_available/eligible/selected/execution_started/frozen各阶段与原因，不混系统压力和算法主动失败",
+      "冻结果、opportunity终态、事件在同一DB事务，状态转移用CAS",
+      "失败写入不能返回成功，runWrite布尔/异常必须上抛可观测码",
+      "TierC代理证据独立于full1200不得计晋级样本",
+      "系统拒绝进入可恢复pause，不从总系统coverage分母删除",
+      "旧缺口保留unknown",
+      "ResearchFailureAttributionR815中的旧coverage归因同步改为系统/调度/执行原因，不能仅改生命周期而让归因页继续误判"
+    ],
+    "acceptance": [
+      "在冻结前/后/事务中断分别注入故障，终态与预测行一致",
+      "同一期冻结不可被后续失败覆盖",
+      "分母公式可从明细逐行复算"
+    ],
+    "dependencies": [
+      "B06",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/CaptureOpportunityR925.java",
+        "state": "EXISTING",
+        "sha256": "7de3719b9a95dfc5c1dd222984d3fd29dea3dfd7ac97b54f5240697b5d5be25c",
+        "lines": 30
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+        "state": "EXISTING",
+        "sha256": "6fe435e9938e7c39cf7e68b20d83871c2d920bc121d5c452ae038545e1e7cefb",
+        "lines": 191
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+        "state": "EXISTING",
+        "sha256": "ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9",
+        "lines": 734
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "state": "EXISTING",
+        "sha256": "bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0",
+        "lines": 3313
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFailureAttributionR815.java",
+        "state": "EXISTING",
+        "sha256": "af7bdc2ac0b27bc23cf443dbff72d07c32eb7d770ccccefc6528fad629fc01fd",
+        "lines": 87
+      }
+    ]
+  },
+  {
+    "id": "C05",
+    "title": "结构、行为、残差去重与家族冠军",
+    "original_requirements": [
+      "P1-06",
+      "M7"
+    ],
+    "priority": "P1",
+    "files": [
+      "ResearchFamilyRegistryR925.java",
+      "AlgorithmInventionLabR908.java",
+      "FormulaAlgorithmAuditEngine.java",
+      "AlgorithmGenomeR908.java",
+      "StrategyConflictAblationEngine.java"
+    ],
+    "anchors": "register / reconcile / structuralHash / behavior probe",
+    "gap": "R925用操作码拓扑登记和保守旧族，尚无全候选行为/残差聚类及每族冠军调度。",
+    "steps": [
+      "结构canonical化参数顺序与无效操作，完全相同保留alias不重复计算",
+      "固定PIT probe输入及schema，记录全1200rank/选中hash",
+      "残差相关仅在共同Future期且支持足够时评估，按既定阈值>0.95标同质，域互补则保留",
+      "统计family注册不可事后改族缩小检验分母，调度cluster与统计family两个字段",
+      "每族1champion和至多3challenger，其余暂停保留证据",
+      "冠军替换需要新独立配对窗口，不用训练分数挑赢者"
+    ],
+    "acceptance": [
+      "重复结构/行为候选不占双份active预算",
+      "高相关但不同有效域不误并",
+      "归档和合并不减少已注册假设总数",
+      "每族冠军可追晋级依据"
+    ],
+    "dependencies": [
+      "C04",
+      "C06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java",
+        "state": "EXISTING",
+        "sha256": "4fd3f43d8ce2f6ba38e4bf670c6a82c3e5ebae88c5d6c8804c2fe0b02f2c82a2",
+        "lines": 38
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+        "state": "EXISTING",
+        "sha256": "ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9",
+        "lines": 734
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+        "state": "EXISTING",
+        "sha256": "0560e76e0ed1ab66883ea90981f2138892362381226ede588122461e5dc6af26",
+        "lines": 336
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeR908.java",
+        "state": "EXISTING",
+        "sha256": "e37b894ad8118cf233a9896412846f0b594623720adb22827f33f072e77409d1",
+        "lines": 777
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java",
+        "state": "EXISTING",
+        "sha256": "32df9cd99493816b8cd8b94e55ad9283a77f6df4621443494b1a89187bc6da8a",
+        "lines": 389
+      }
+    ]
+  },
+  {
+    "id": "C06",
+    "title": "多重比较、试验注册与顺序检验协议",
+    "original_requirements": [
+      "P1-06",
+      "M7"
+    ],
+    "priority": "P0",
+    "files": [
+      "ResearchFamilyRegistryR925.java",
+      "AlgorithmEvidencePolicyR912.java",
+      "training/r925/research_governance.py",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "adjustedQ / fdrQ / hierarchical_adjustment",
+    "gap": "R925是保守FWER上界，不是实现了BH/FDR算法；重复试验、模型搜索和动态增加家族需统一统计合同。",
+    "steps": [
+      "报告命名区分raw_p/FWER_adjusted_p与FDR_q，禁止把所有值都叫q",
+      "默认保守分层Bonferroni+固定批次：批次alpha按预注册序列分配，族/候选预算冻结",
+      "候选/超参/域路由/修复子代均注册，归档不能删预算",
+      "局部与全局窗口检查登记look_id，不因看见好结果提前发证",
+      "bootstrap/分块统计明确依赖假设和近似性质，历史正态近似小N不当精确p",
+      "若采用其他层级FDR，必须单独实现验证依赖假设与仿真错误率后切换协议，禁止直接调低48下限"
+    ],
+    "acceptance": [
+      "在纯噪声、相关候选、连续追加、重复look下统计测试报告可复现",
+      "分配alpha总额≤预注册总额",
+      "旧假设无法通过改名/归档/拆族逃避分母"
+    ],
+    "dependencies": [
+      "D03",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java",
+        "state": "EXISTING",
+        "sha256": "4fd3f43d8ce2f6ba38e4bf670c6a82c3e5ebae88c5d6c8804c2fe0b02f2c82a2",
+        "lines": 38
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvidencePolicyR912.java",
+        "state": "EXISTING",
+        "sha256": "8b2f62ad95da8b5e432dccb9361de93060c85dd8e5610935ce11c715f296a308",
+        "lines": 282
+      },
+      {
+        "path": "training/r925/research_governance.py",
+        "state": "EXISTING",
+        "sha256": "c51d75f5a9b34b2e33f5ac04b5141cf7127998c7355d981ded71cab638ffeee0",
+        "lines": 38
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      }
+    ]
+  },
+  {
+    "id": "C07",
+    "title": "8/24/64分层调度、共享计算与公平采样",
+    "original_requirements": [
+      "P1-04",
+      "P1-06",
+      "M10"
+    ],
+    "priority": "P1",
+    "files": [
+      "AlgorithmEvolutionLifecycleR912.java",
+      "AlgorithmInventionLabR908.java",
+      "ResearchPredrawCaptureR923.java",
+      "RealtimePressureGateR811.java",
+      "ResearchEvaluationSchedulerR906.java"
+    ],
+    "anchors": "MAX_RUNNABLE / MAX_OBSERVATION_COHORT_R925 / select cohort",
+    "gap": "R925为32观察/8批量，不是8+24+64完整三层；简单扩容会占满一分钟。",
+    "steps": [
+      "A最多8个全1200、B最多24个共享特征批量完整评分、C最多64个代理苗圃，容量上限非每期必执行数",
+      "每期先冻结调度清单与budget，按缺样本年龄/晋级级别/家族配额确定，规则不看当期标签",
+      "缓存按issue/schema/model/atom状态键共享且只读",
+      "计算片≤250ms、总研究预算初值700ms并由实测自适应，临近下一期让步",
+      "执行失败/系统让步/未选中完整计账，不能淘汰没得到资源的候选",
+      "轮转最大等待与连续Future采样效率报告"
+    ],
+    "acceptance": [
+      "64苗圃压力下主链仍满足5秒门",
+      "无候选无限饿死且无重复active",
+      "C层证据不能伪装full1200晋级",
+      "资源撤回不会误prune"
+    ],
+    "dependencies": [
+      "B05",
+      "C04",
+      "C05"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+        "state": "EXISTING",
+        "sha256": "027a5975c707443ea0499fe4d0377ba4c2c199dc28f21a976d233e57c3a77604",
+        "lines": 527
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+        "state": "EXISTING",
+        "sha256": "ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9",
+        "lines": 734
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+        "state": "EXISTING",
+        "sha256": "6fe435e9938e7c39cf7e68b20d83871c2d920bc121d5c452ae038545e1e7cefb",
+        "lines": 191
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+        "state": "EXISTING",
+        "sha256": "5d16a76ecb0ddb5c39e298030f3e752e4fc5db92d4da58e046a84b7f54407a5e",
+        "lines": 88
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationSchedulerR906.java",
+        "state": "EXISTING",
+        "sha256": "68df884cc7262b22c8f2d8994df00f6ef7f55335443501e696b0b5356ff856e4",
+        "lines": 60
+      }
+    ]
+  },
+  {
+    "id": "C08",
+    "title": "生命周期V3与精英修复效果账本",
+    "original_requirements": [
+      "P1-03",
+      "P1-04",
+      "M10"
+    ],
+    "priority": "P1",
+    "files": [
+      "AlgorithmEvolutionLifecycleR912.java",
+      "LifecycleAuditR925.java",
+      "ResearchGenomeContractR915.java",
+      "AlgorithmEvidencePolicyR912.java",
+      "AssetGenesisEngineR915.java",
+      "ImprovementChallengerPlanEngine.java",
+      "ResearchFailureHypothesisEngineR811.java",
+      "ResearchFailureAttributionR815.java"
+    ],
+    "anchors": "maintain / freshChild / first_prune_reason",
+    "gap": "首次原因已有保护，但完整Elite pool、修复操作选择、父子成败追踪仍缺。",
+    "steps": [
+      "统一状态机IDEA/NURSERY/OBSERVING/EVIDENCE_READY/CHALLENGER/SHADOW/INFLUENCE/CHAMPION及暂停/隔离/质量淘汰",
+      "高潜父代按冻结多指标规则入elite，列具体未过门",
+      "每child必须repair_target/parent/changed_modules/atoms/expected_effect/falsification，结构新ID、新N=0",
+      "保留首次淘汰与所有转移事件，旧不可恢复原因为UNAVAILABLE",
+      "系统误杀经证据复核回观察，不直接恢复生产",
+      "修复成功率分attempted/matured/passed/pending，未到样本不算失败或成功"
+    ],
+    "acceptance": [
+      "父代200样本child仍0",
+      "两次同结果不重复转移",
+      "系统缺失只pause",
+      "修复后必须独立paired改善才success，不以created数量完成"
+    ],
+    "dependencies": [
+      "C01",
+      "C04",
+      "C07",
+      "C09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java",
+        "state": "EXISTING",
+        "sha256": "027a5975c707443ea0499fe4d0377ba4c2c199dc28f21a976d233e57c3a77604",
+        "lines": 527
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java",
+        "state": "EXISTING",
+        "sha256": "8c5f061694793cac2e641cb91214e6aa823da8b4627dd318acbbbfe587d27904",
+        "lines": 27
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchGenomeContractR915.java",
+        "state": "EXISTING",
+        "sha256": "a088c3dd1bfe1c1ceed89c23991a5ac2c462e4c78918297104ac8921a564d9dd",
+        "lines": 290
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvidencePolicyR912.java",
+        "state": "EXISTING",
+        "sha256": "8b2f62ad95da8b5e432dccb9361de93060c85dd8e5610935ce11c715f296a308",
+        "lines": 282
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+        "state": "EXISTING",
+        "sha256": "6a49d8bd4197696f40405d950359445fb9815934f4ff2e16241423acc7445072",
+        "lines": 887
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",
+        "state": "EXISTING",
+        "sha256": "1fc9b2284a9b38da7457a297abb2bf5f46fe5a4b7902aabdafdfbb4d1bbdfd8a",
+        "lines": 360
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java",
+        "state": "EXISTING",
+        "sha256": "f3d57d5b0f1b891aba4c23b15b775e662bc09c8d2d6ca4b12ef3e56c1b4b8553",
+        "lines": 296
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFailureAttributionR815.java",
+        "state": "EXISTING",
+        "sha256": "af7bdc2ac0b27bc23cf443dbff72d07c32eb7d770ccccefc6528fad629fc01fd",
+        "lines": 87
+      }
+    ]
+  },
+  {
+    "id": "C09",
+    "title": "逐期失败分析、真正模块消融与定向反事实",
+    "original_requirements": [
+      "M8",
+      "P1-07"
+    ],
+    "priority": "P1",
+    "files": [
+      "ResearchAblationR815.java",
+      "FeatureAblationAttributionEngine.java",
+      "ResearchNovelFormulaSynthesizerR903.java",
+      "ResearchMethodGraphSynthesizerR903.java",
+      "training/r925/pipeline.py",
+      "StrategyConflictAblationEngine.java",
+      "V51RelationGraphVerifier.java",
+      "ResearchFailureHypothesisEngineR811.java"
+    ],
+    "anchors": "evaluate / snapshot / synthesize / failure diagnostics",
+    "gap": "R925十类失败标志与离线留一特征族不是完整模块重执行，不足以称因果证明或手机修复闭环。",
+    "steps": [
+      "存FailureCase与冻结输入、选中动作、第三第四边界、原概率/校准、teacher/shape/relation、consumer和statehash",
+      "按已定义赛前特征分组，开奖只用于标注失败，聚类参数只能用于之后",
+      "在完全同一输入上关闭FTRL/TinyDeep/Teacher/Trend/Shape/Relation/Invented逐一重跑完整选择链",
+      "记录changed selection、Δscore/Hit/Brier与运行成本，保证counterfactual_run不写canonical",
+      "区分软件干预贡献与真实世界因果，最近获胜K3只作诊断不倒改预测",
+      "少于预定失败支持不盲造，输出WAIT_FOR_FAILURE_EVIDENCE"
+    ],
+    "acceptance": [
+      "每一模块消融有真实执行输出，不是重命名指标",
+      "所有当期历史hash不变",
+      "repair只影响下一候选和未来期",
+      "负对照模块应零影响"
+    ],
+    "dependencies": [
+      "D01",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchAblationR815.java",
+        "state": "EXISTING",
+        "sha256": "759250e2abc20ac7c2d913e626c7f7918596ba058362d91c2f13727fe3d8eee6",
+        "lines": 81
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java",
+        "state": "EXISTING",
+        "sha256": "6efea69dead58faf69d2128f58e0d9a4f07cddc601a4e1a1131c6e41f1796cf5",
+        "lines": 57
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java",
+        "state": "EXISTING",
+        "sha256": "6358f89d9a46b7b65254205d78ca05e41aedf918ec1f9c650342a2a935a8c990",
+        "lines": 108
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java",
+        "state": "EXISTING",
+        "sha256": "b1a738569034ade2c91e92f5117cd99bee77e7eee2a1cd9cb03eea77cbae3587",
+        "lines": 145
+      },
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java",
+        "state": "EXISTING",
+        "sha256": "32df9cd99493816b8cd8b94e55ad9283a77f6df4621443494b1a89187bc6da8a",
+        "lines": 389
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java",
+        "state": "EXISTING",
+        "sha256": "3e058679421cc8bfb392db8d879bdf3eb5bfa1ea8bb48cc745d1a0e4b733fc13",
+        "lines": 45
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java",
+        "state": "EXISTING",
+        "sha256": "f3d57d5b0f1b891aba4c23b15b775e662bc09c8d2d6ca4b12ef3e56c1b4b8553",
+        "lines": 296
+      }
+    ]
+  },
+  {
+    "id": "C10",
+    "title": "逐原子缺失、时延、PIT与质量图",
+    "original_requirements": [
+      "M9",
+      "P1-07"
+    ],
+    "priority": "P1",
+    "files": [
+      "GenesisSchemaRegistryR915.java",
+      "GenesisAssetVmR915.java",
+      "AtomQualityLedgerR925.java",
+      "GenesisSchemaRegistryR915.java"
+    ],
+    "anchors": "AtomSpec / PredrawContext / maintain",
+    "gap": "当前120期均值方差漂移和128相关边不包含真实missingness、逐原子耗时与独立消融；deadline也不能中断已开始的大SQL。",
+    "steps": [
+      "原子产出ValueResult包含value/present/missing_reason/max_source_issue/cost_ns/hash，零值与缺失严格分开",
+      "在原子计算处计时而非把整组耗时平均到每个原子",
+      "240项语义分层逐项保留，165赛前/40代理/20开奖后/15审计来源列表核对",
+      "质量采用增量有游标窗口，最近期查询用专门冻结上下文索引而非每轮全表GROUP BY",
+      "相关/共选/冲突/残差互补边各自命名，不把相关当因果",
+      "同一期多个资产复用同一atom上下文只算一次支持"
+    ],
+    "acceptance": [
+      "每个原子有来源/掩码/耗时/消费者清单",
+      "本期postdraw20项生产调用0",
+      "百万冻结记录查询EXPLAIN索引与性能满足预算",
+      "旧fixture缺mask明确unknown"
+    ],
+    "dependencies": [
+      "D01",
+      "C09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java",
+        "state": "EXISTING",
+        "sha256": "1aacddab094e95c456713c5c010bd5766b459a4ab6650a0db01161a938f0e604",
+        "lines": 292
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java",
+        "state": "EXISTING",
+        "sha256": "6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475",
+        "lines": 424
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java",
+        "state": "EXISTING",
+        "sha256": "8c26c5fef8f28dbecee857049eac7bdeca817b5d30d3ca879699a8362e993755",
+        "lines": 54
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java",
+        "state": "EXISTING",
+        "sha256": "1aacddab094e95c456713c5c010bd5766b459a4ab6650a0db01161a938f0e604",
+        "lines": 292
+      }
+    ]
+  },
+  {
+    "id": "C11",
+    "title": "原子准入、隔离和保留既有矩阵",
+    "original_requirements": [
+      "M9"
+    ],
+    "priority": "P1",
+    "files": [
+      "GenesisSchemaRegistryR915.java",
+      "GenesisAssetVmR915.java",
+      "AtomQualityLedgerR925.java",
+      "ResearchNovelFormulaSynthesizerR903.java"
+    ],
+    "anchors": "productionScoreEligible / semanticTier / atom consumers",
+    "gap": "R925只观察不自动降噪；新增隔离必须避免删掉用户要求保留的原有矩阵与素材。",
+    "steps": [
+      "状态ACTIVE/WATCH/SHADOW_ONLY/QUARANTINED带规则版本和证据",
+      "PIT/非确定性硬失败立即隔离新研究消费，缺失/有害消融须足够支持",
+      "既有固定矩阵注册为legacy_fixed，不物理删除/改其公式，新增候选通过受控adapter引用",
+      "原子替换改变schema/asset hash，相关证书失效重新观察",
+      "新原子准入要求签名schema、有限范围、PIT、确定性、成本、支持定义和parity",
+      "恢复只能通过新的审计证据，禁止下次轮询自动解禁"
+    ],
+    "acceptance": [
+      "原有趋势/形态/关系/教师/反推/因果/反哺资产hash保留",
+      "隔离后新候选不会再调用该原子",
+      "缺失与低相关不能触发无证据删除",
+      "恢复过程可审计"
+    ],
+    "dependencies": [
+      "C10",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java",
+        "state": "EXISTING",
+        "sha256": "1aacddab094e95c456713c5c010bd5766b459a4ab6650a0db01161a938f0e604",
+        "lines": 292
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java",
+        "state": "EXISTING",
+        "sha256": "6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475",
+        "lines": 424
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java",
+        "state": "EXISTING",
+        "sha256": "8c26c5fef8f28dbecee857049eac7bdeca817b5d30d3ca879699a8362e993755",
+        "lines": 54
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java",
+        "state": "EXISTING",
+        "sha256": "6358f89d9a46b7b65254205d78ca05e41aedf918ec1f9c650342a2a935a8c990",
+        "lines": 108
+      }
+    ]
+  },
+  {
+    "id": "C12",
+    "title": "创造搜索的结构新颖度与质量目标",
+    "original_requirements": [
+      "M8",
+      "M9",
+      "M10",
+      "P1-02"
+    ],
+    "priority": "P1",
+    "files": [
+      "ResearchNovelFormulaSynthesizerR903.java",
+      "ResearchMethodGraphSynthesizerR903.java",
+      "AlgorithmGenomeR908.java",
+      "AlgorithmGenomeVmR908.java",
+      "AssetGenesisEngineR915.java",
+      "ResearchFailureHypothesisEngineR811.java"
+    ],
+    "anchors": "synthesize / instruction set / genome / VM",
+    "gap": "用户要求创造具体算法机制，不只是改参数、增加候选数；现有搜索还需把失败与互补证据接成目标。",
+    "steps": [
+      "建立允许的原子→表达式→方法图→状态更新程序搜索语法，保留解释与中文名",
+      "生成先做类型/范围/PIT/成本/资源上界检查，再结构/行为去重",
+      "标明PARAMETER_VARIANT/STRUCTURAL_CHANGE/NEW_FAMILY，不把调参称新算法家族",
+      "有失败证据优先最小修复，无证据按预注册少量探索配额生成",
+      "目标先硬约束再配对增益/校准/域稳定/资源Pareto比较，复杂度和新颖度最后",
+      "产物包含可执行genome文本、依赖原子、输入输出例、失效条件、所属家族和未来证书链"
+    ],
+    "acceptance": [
+      "从最底层原子到可执行候选有完整源码文本",
+      "至少用合同fixture验证新结构能运行并被正确拒绝/晋级，真实高品质只能由Future证据认定",
+      "每个创造事件都有目的与预算"
+    ],
+    "dependencies": [
+      "C05",
+      "C08",
+      "C11"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C12/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java",
+        "state": "EXISTING",
+        "sha256": "6358f89d9a46b7b65254205d78ca05e41aedf918ec1f9c650342a2a935a8c990",
+        "lines": 108
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java",
+        "state": "EXISTING",
+        "sha256": "b1a738569034ade2c91e92f5117cd99bee77e7eee2a1cd9cb03eea77cbae3587",
+        "lines": 145
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeR908.java",
+        "state": "EXISTING",
+        "sha256": "e37b894ad8118cf233a9896412846f0b594623720adb22827f33f072e77409d1",
+        "lines": 777
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeVmR908.java",
+        "state": "EXISTING",
+        "sha256": "4e1b0319002bef9365127ff37a4083e493d498269bc504b94736f830ac9ea1d6",
+        "lines": 236
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java",
+        "state": "EXISTING",
+        "sha256": "6a49d8bd4197696f40405d950359445fb9815934f4ff2e16241423acc7445072",
+        "lines": 887
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java",
+        "state": "EXISTING",
+        "sha256": "f3d57d5b0f1b891aba4c23b15b775e662bc09c8d2d6ca4b12ef3e56c1b4b8553",
+        "lines": 296
+      }
+    ]
+  },
+  {
+    "id": "U01",
+    "title": "首页固定信息、流水和独立影子卡",
+    "original_requirements": [
+      "P0-03",
+      "P0-05",
+      "P1-09",
+      "P1-10"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "OperationalDashboardR925.java",
+      "RuntimeObservabilityR925.java",
+      "app/src/main/res/layout/activity_main.xml",
+      "app/src/main/res/layout-sw600dp/activity_main.xml",
+      "RuntimeTruthSnapshotR906.java"
+    ],
+    "anchors": "install R925 panels / capture / pipeline / shadow",
+    "gap": "R925动态加卡尚无设备视觉验收；长流水可能挤压主信息，授权和实际运行状态容易混读。",
+    "steps": [
+      "顶部横向版本条及后台能力条固定，权限与业务健康两个灯",
+      "首页只显示最近20期紧凑行，可展开500，抓取最近100独立筛选",
+      "Shadow卡显示总/已结/待结/中/未中/HR/Wilson/30/60/120且按需展开",
+      "显示as_of时间/旧数据/查询失败，刷新失败不能留下无标识旧值",
+      "全部DB读取后台、有生命周期取消和请求版本号防旧回调覆盖新页面",
+      "保留原号码面/风险/形态入口"
+    ],
+    "acceptance": [
+      "phone与sw600dp全部ID/handler一致",
+      "最大字体和窄屏不遮按钮",
+      "停止刷新/旋转重建无泄漏",
+      "UI计数与同一event watermark导出一致"
+    ],
+    "dependencies": [
+      "B06",
+      "B07",
+      "B09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java",
+        "state": "EXISTING",
+        "sha256": "02830c819dcb2021581d7db98cd98888b1bf40027b4bd36fd7b48c0f2256f72d",
+        "lines": 23
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java",
+        "state": "EXISTING",
+        "sha256": "9f4b8e3ac2781a8f62c7357d570cf0a5a628d125416876a7d91eff09cf157e19",
+        "lines": 93
+      },
+      {
+        "path": "app/src/main/res/layout/activity_main.xml",
+        "state": "EXISTING",
+        "sha256": "66c5f236d2ca3234323a3f574714d54c88a99c86a13dd3514057f5a2de1c3af0",
+        "lines": 679
+      },
+      {
+        "path": "app/src/main/res/layout-sw600dp/activity_main.xml",
+        "state": "EXISTING",
+        "sha256": "66c5f236d2ca3234323a3f574714d54c88a99c86a13dd3514057f5a2de1c3af0",
+        "lines": 679
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+        "state": "EXISTING",
+        "sha256": "615e02108c03f32fd1b00a9d4794d6c2a19a4af516124680ab438bfc48cc28de",
+        "lines": 857
+      }
+    ]
+  },
+  {
+    "id": "U02",
+    "title": "四个独立能力页面及趋势证据",
+    "original_requirements": [
+      "P1-08",
+      "M2",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "ResearchDashboardR924.java",
+      "ModelLearningActivity.java",
+      "app/src/main/AndroidManifest.xml"
+    ],
+    "anchors": "captureSection / detail routes / Activity registration",
+    "gap": "目前四卡仍共用现有详情Activity长文，缺四个职责清晰的独立趋势页面。",
+    "steps": [
+      "新增DeepLearningActivity/ EvolutionActivity/CreationActivity/AtomQualityActivity及独立只读Presenter，全部Manifest明确注册",
+      "每页固定职责/最近动作/输入/产物/样本/独立提升/卡门/主链贡献8项",
+      "趋势按期绘制样本、pairedΔ、校准、状态转移与实权重，N不足画空态不画假曲线",
+      "深度页分离模型版本与更新次数，进化页父子图和修复率，创造页中文公式/代码/证书漏斗，原子页质量/消费者/语义隔离",
+      "图表本地Canvas只读，数据分页且无额外网络依赖",
+      "从四页回到同一issue证据和完整报告"
+    ],
+    "acceptance": [
+      "用户5秒能找到正在做什么/有没有改善/是否接主链/为什么未接",
+      "四页各自点击、返回、空态、错误、长名单和大屏测试通过",
+      "原有功能页全部可达"
+    ],
+    "dependencies": [
+      "U01",
+      "C08",
+      "C10",
+      "D10"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java",
+        "state": "EXISTING",
+        "sha256": "1c0ee626459554ceb1cac7e80c5440ac412997fbc4e99e324fc4122907935eb0",
+        "lines": 143
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+        "state": "EXISTING",
+        "sha256": "ca383f468f6ae25ecf006e53387890217cc02a42a7f6eea95b315db8366fa657",
+        "lines": 200
+      },
+      {
+        "path": "app/src/main/AndroidManifest.xml",
+        "state": "EXISTING",
+        "sha256": "bae4edec4437a9037ceed7b87b1ed41e0eabebaba0e892f90b114b5f5fb9fae2",
+        "lines": 89
+      }
+    ]
+  },
+  {
+    "id": "U03",
+    "title": "为什么中/不中、风险稳定性与旧矩阵回归",
+    "original_requirements": [
+      "M8",
+      "P1-08"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "FeatureAblationAttributionEngine.java",
+      "V57CompleteDiagnosticReportEngine.java",
+      "Models.java",
+      "K3FailureDiagnosisEngine.java",
+      "V57FailureDiagnosisEngine.java",
+      "V51RelationGraphVerifier.java"
+    ],
+    "anchors": "reason states / original p / stability / matrices",
+    "gap": "历史用户反馈空值与长教师段落；R925缺设备证明，不能假设代码存在即修好。",
+    "steps": [
+      "追踪号码风险/动作稳定性/原始概率/校准概率的计算→持久化→DTO→绑定每一段",
+      "恢复紧凑多状态框，包含来源强度/分歧/边界/形态/关系/teacher/漂移/样本/研究贡献等实际可得状态",
+      "开奖前分析与开奖后解释分区，教师长文放展开详情",
+      "没有数据给缺失原因和期号，不用固定填充值",
+      "保留趋势形态、号码属性、位置关联、教师、反推、因果、反哺原资产并逐入口回归",
+      "“两挂”触发诊断事件可以做，但不能保证第三次命中"
+    ],
+    "acceptance": [
+      "对旧反馈每个字段提供有值/缺失/失败fixture及设备截图",
+      "原矩阵入口和数值来源无消失",
+      "开奖后解释不修改赛前决策"
+    ],
+    "dependencies": [
+      "D07",
+      "C09",
+      "U01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java",
+        "state": "EXISTING",
+        "sha256": "6efea69dead58faf69d2128f58e0d9a4f07cddc601a4e1a1131c6e41f1796cf5",
+        "lines": 57
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "state": "EXISTING",
+        "sha256": "44bef170584845aa20a5da82d1e373e5f1087fde62aaec88d8271e711bcef4ed",
+        "lines": 643
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/Models.java",
+        "state": "EXISTING",
+        "sha256": "16a9fbe9f63c6bb8342595bd0face89814b065ca893aa9fdf33e31c52d542ca7",
+        "lines": 21363
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+        "state": "EXISTING",
+        "sha256": "5f5b850aadd25b2ff961d5a14b33a6eb169233537950445b1c23987d64c3a101",
+        "lines": 284
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+        "state": "EXISTING",
+        "sha256": "aefd1c74cf4042aec6f5c94594ee7a128df9e4b1c15e97f143c497903ec3fe55",
+        "lines": 542
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java",
+        "state": "EXISTING",
+        "sha256": "3e058679421cc8bfb392db8d879bdf3eb5bfa1ea8bb48cc745d1a0e4b733fc13",
+        "lines": 45
+      }
+    ]
+  },
+  {
+    "id": "U04",
+    "title": "完整检测报告、导出与可追溯证据",
+    "original_requirements": [
+      "P1-12",
+      "P0-05",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "V57CompleteDiagnosticReportEngine.java",
+      "SoftwareAuditR925.java",
+      "DiagnosticTextExportR923.java",
+      "DiagnosticReportProviderR923.java",
+      "TrainingSnapshotExportR925.java"
+    ],
+    "anchors": "report / static asset / sharePrepared / MIME",
+    "gap": "静态审计已嵌入，但动态分项失败、证书七件套、全模块进度与一键大数据导出仍需统一并验证。",
+    "steps": [
+      "一个诊断快照ID汇总身份/权限/业务事件/时延/结算/影子/REAL/积压/模型/证书/家族/修复/原子/UI/全部源文件资产",
+      "每节有status/as_of/source/hash/window，错误独立列不吞",
+      "一键导出主报告txt与JSON、明细CSV/JSONL及manifest，使用流式写文件避免超大String和binder",
+      "分享只授权本次URI且Provider验证规范路径与文件范围",
+      "复制完整报告与导出共用同一快照，超过系统剪贴能力明确改用文件",
+      "结果摘要分别CODE/HOST/APK/DEVICE/DATA/FUTURE，不用一个PASS覆盖所有层"
+    ],
+    "acceptance": [
+      "任何章节故障仍导出错误码及其他章节",
+      "所有M1-M10状态非缺省",
+      "同一snapshot UI与报告计数一致",
+      "导出文件实际可分享打开、hash可复算"
+    ],
+    "dependencies": [
+      "B06",
+      "U02",
+      "U03",
+      "C02",
+      "D10"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "state": "EXISTING",
+        "sha256": "44bef170584845aa20a5da82d1e373e5f1087fde62aaec88d8271e711bcef4ed",
+        "lines": 643
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java",
+        "state": "EXISTING",
+        "sha256": "db051920120947ad2c721e90730699f7449866b2f3a2b80bfbaa692a7a4c707c",
+        "lines": 35
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java",
+        "state": "EXISTING",
+        "sha256": "ad3ef3cfa57ce05567e20b51543daa769d73672dfc356e11f2fe59a8ceab9a7d",
+        "lines": 147
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+        "state": "EXISTING",
+        "sha256": "1e1e53dd5a181c8bf353c89e88bb8632b17e86e3c1a184bf2f30654e7900abb5",
+        "lines": 63
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/TrainingSnapshotExportR925.java",
+        "state": "EXISTING",
+        "sha256": "7eb25309c5ee8e75e048ea7692bacd8e6140ba7d7078d618e2f579bc53082671",
+        "lines": 55
+      }
+    ]
+  },
+  {
+    "id": "Q01",
+    "title": "主机、SQL、故障注入与统计回归",
+    "original_requirements": [
+      "P1-12",
+      "P2-02",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "scripts/r925_compile_host.sh",
+      "scripts/r925_verify_sql_and_training.sh",
+      "verification/r925/R925PolicyHarness.java",
+      "verification/r925/R925SqlHarness.java",
+      "verification/r925/verify_training.py"
+    ],
+    "anchors": "现有host harness扩展 / real SQLite bridge",
+    "gap": "既有host通过是基线；新方案需故障语义和负例，不能全靠regex扫描通过。",
+    "steps": [
+      "保留原13纯主机harness结果并核对真实接口，新增每任务负例",
+      "真实SQLite测试所有DDL幂等/唯一键/回放/回滚/并发锁",
+      "完整流水在每个持久化边界注入中止，核对收敛与Owner",
+      "训练污染、复制sealed、错校准选择hash、改域、基线变更、假family与重复look一律拒绝",
+      "原子语义和旧矩阵fixture保留",
+      "证据中明确mock、synthetic、host、instrumented四种来源",
+      "本项仅主机/SQL/构建合同门，不依赖Android实测完成；D11先做host子检查，设备部分在Q01产出测试APK后完成，避免启动依赖环"
+    ],
+    "acceptance": [
+      "所有必需负例可触发预期拒绝",
+      "零测试不得显示PASS",
+      "失败列表、命令/版本/hash完整，改动相关回归全部通过"
+    ],
+    "dependencies": [
+      "B10",
+      "B11",
+      "C12",
+      "U04",
+      "D10"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "scripts/r925_compile_host.sh",
+        "state": "EXISTING",
+        "sha256": "778cc725ce0fdf962cedaf6a0d029c11427e136aa16207925245b70a440a516d",
+        "lines": 42
+      },
+      {
+        "path": "scripts/r925_verify_sql_and_training.sh",
+        "state": "EXISTING",
+        "sha256": "36d623360837abc02a6b19db4044c7f12edac402c1d89df18761d9649b2cea0e",
+        "lines": 17
+      },
+      {
+        "path": "verification/r925/R925PolicyHarness.java",
+        "state": "EXISTING",
+        "sha256": "aebb878cd16dc176bd21edb802554b453d34a657e0d3c88719206854c795cb24",
+        "lines": 21
+      },
+      {
+        "path": "verification/r925/R925SqlHarness.java",
+        "state": "EXISTING",
+        "sha256": "caaf06f058ef293eb5050c6d079e94f0345a7dd7286146860502bc203bbc41af",
+        "lines": 63
+      },
+      {
+        "path": "verification/r925/verify_training.py",
+        "state": "EXISTING",
+        "sha256": "080c578c82a0845db11e8c06dbf8fded50f7fc12209d35b77739a9d7e5686d77",
+        "lines": 39
+      }
+    ]
+  },
+  {
+    "id": "Q02",
+    "title": "手机覆盖安装与完整后台设备矩阵",
+    "original_requirements": [
+      "P0-01",
+      "P0-02",
+      "P0-03",
+      "P0-04",
+      "P1-09",
+      "P1-11",
+      "P2-01"
+    ],
+    "priority": "P0",
+    "files": [
+      "app/src/main/AndroidManifest.xml",
+      "scripts/r925_apk_acceptance.sh",
+      "MainActivity.java",
+      "AutoFetchService.java"
+    ],
+    "anchors": "实体Android14目标手机优先 / 辅助API21与35/36",
+    "gap": "没有可访问手机或模拟器，当前所有物理启动/息屏/划掉/24h未执行。",
+    "steps": [
+      "先备份应用内可恢复数据并核对当前安装包身份，使用原签名覆盖安装不卸载",
+      "按设备表执行冷启动、120亮屏、120息屏、划掉30、网络/锁屏/重启/授权撤回/用户停止",
+      "系统强停单独记录系统行为，恢复从用户启动开始验收",
+      "24h连续运行保存逐期事件、logcat/ANR/崩溃、耗时与电量温度",
+      "全部页面大字体/暗色/窄屏/平板点击截图，导出回传",
+      "任一失败归Owner修复后仅重跑相关项与必要端到端门"
+    ],
+    "acceptance": [
+      "安装后可启动且历史保留",
+      "规定可运行场景掉期0/重复0，连续120覆盖目标≥99%但若要求无掉期则按120/120判",
+      "稳态5秒和FULL/结算门全达标",
+      "未执行维持NOT_RUN"
+    ],
+    "dependencies": [
+      "Q01"
+    ],
+    "kind": "DEVICE_DEPENDENT",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "app/src/main/AndroidManifest.xml",
+        "state": "EXISTING",
+        "sha256": "bae4edec4437a9037ceed7b87b1ed41e0eabebaba0e892f90b114b5f5fb9fae2",
+        "lines": 89
+      },
+      {
+        "path": "scripts/r925_apk_acceptance.sh",
+        "state": "EXISTING",
+        "sha256": "f08e34edd4a245ed2d52cd62f5c961cee39301d6fc4dfead7138d1a5f0bb7463",
+        "lines": 185
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "state": "EXISTING",
+        "sha256": "ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741",
+        "lines": 9440
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "state": "EXISTING",
+        "sha256": "0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444",
+        "lines": 17481
+      }
+    ]
+  },
+  {
+    "id": "Q03",
+    "title": "真实训练、封存与未来证书效果验收",
+    "original_requirements": [
+      "P1-01",
+      "P1-02",
+      "P1-07",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "training/r925/pipeline.py",
+      "training/r925/deep_candidates.py",
+      "PromotionWindowR925.java",
+      "V57CompleteDiagnosticReportEngine.java",
+      "ModelEffectivenessAnalyzerR35.java"
+    ],
+    "anchors": "真实当前游戏训练快照 / sealed / Future live",
+    "gap": "附件提供报告和项目，不包含足以完成该合同的当前游戏生产训练快照；120+240新期本来需要经过真实时间。",
+    "steps": [
+      "在工程设备门通过后启动新快照采集与已结数据导出，可用旧严格快照按合同审计后补充训练",
+      "由训练命令生成全部artifact，独立sealed一次性验收并永久登记",
+      "失败则保持研究、不伪造PROVEN，下一轮需要新的预注册设计与未消费数据",
+      "只有经批准的冻结bundle进入影子Future",
+      "证书阶梯按实际有效配对期等待，漏样本会延长，不能模拟补满",
+      "目标40%/15%及稳定性独立报表，任何未达标效果项保持失败"
+    ],
+    "acceptance": [
+      "真实dataset/所有阶段/host+Androidparity/hash/封存/资源/新Future齐全才模型证明",
+      "至少1个真实合格候选若未出现就不能声称创造效果完成",
+      "不保证数据必有可持续优势"
+    ],
+    "dependencies": [
+      "Q02",
+      "D09",
+      "C02",
+      "D10",
+      "D11"
+    ],
+    "kind": "DATA_AND_FUTURE_DEPENDENT",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "training/r925/pipeline.py",
+        "state": "EXISTING",
+        "sha256": "cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f",
+        "lines": 201
+      },
+      {
+        "path": "training/r925/deep_candidates.py",
+        "state": "EXISTING",
+        "sha256": "60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e",
+        "lines": 130
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "state": "EXISTING",
+        "sha256": "ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a",
+        "lines": 60
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "state": "EXISTING",
+        "sha256": "44bef170584845aa20a5da82d1e373e5f1087fde62aaec88d8271e711bcef4ed",
+        "lines": 643
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+        "state": "EXISTING",
+        "sha256": "09b9b7d4f3b154656f6989eae833d8e08b1d8d3586ed281fe62db691cd24c7a2",
+        "lines": 947
+      }
+    ]
+  },
+  {
+    "id": "Q04",
+    "title": "一次总交付、可重建包与实际回退",
+    "original_requirements": [
+      "P1-12",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "scripts/r925_build_release.sh",
+      "scripts/r925_build_total.sh",
+      "scripts/r925_apk_acceptance.sh",
+      "release/release_identity.properties"
+    ],
+    "anchors": "源码→资源→DEX→签名→总包 / release gate",
+    "gap": "下一次必须严格区别工程包与通过全部验收的正式封板包；同签名旧APK未必允许versionCode降级覆盖。",
+    "steps": [
+      "所有任务施工与验证完成后统一冻结发行commit，不逐小补丁交付",
+      "包含完整源码资产、所有模型证据/原方案/DDL/构建工具/原签名材料/历史包/最终APK/修改统计/未关闭项",
+      "构建后从实际APK提取DEX/资源/身份/模型hash与源码生成清单核对",
+      "回退首选同版本内停用新模型/研究开关，代码回退构建更高versionCode恢复包，原旧APK仅作存档，不能承诺普通手机直接降级覆盖",
+      "检查总包所有字节和重建命令",
+      "发布门由机器读取任务结果，不允许NOT_RUN/BLOCKED/FAIL被整体PASS盖掉"
+    ],
+    "acceptance": [
+      "全部工程门PASS方可工程完成",
+      "设备/数据/Future效果门也全PASS才允许标全部目标验收",
+      "单一总包文件可校验、可按文档重建，实际恢复包数据兼容已测"
+    ],
+    "dependencies": [
+      "Q01",
+      "Q02",
+      "Q03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "file_details": [
+      {
+        "path": "scripts/r925_build_release.sh",
+        "state": "EXISTING",
+        "sha256": "7b4154f5ac8391490a437ca9ba9f94fb08d5a67b17b7117aed205a0422c3e4ce",
+        "lines": 256
+      },
+      {
+        "path": "scripts/r925_build_total.sh",
+        "state": "EXISTING",
+        "sha256": "3e537b744498c1198dd3fe92aa4de9c29420169712055989ed13d8d4654992ad",
+        "lines": 10
+      },
+      {
+        "path": "scripts/r925_apk_acceptance.sh",
+        "state": "EXISTING",
+        "sha256": "f08e34edd4a245ed2d52cd62f5c961cee39301d6fc4dfead7138d1a5f0bb7463",
+        "lines": 185
+      },
+      {
+        "path": "release/release_identity.properties",
+        "state": "EXISTING",
+        "sha256": "c66decd88b70880d70d21fad11fd756ffd00ae95f4de0480c1552dc765a32e2e",
+        "lines": 10
+      }
+    ]
+  }
+]

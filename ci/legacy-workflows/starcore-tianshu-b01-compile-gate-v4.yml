@@ -1,0 +1,129 @@
+name: Starcore Tianshu B01 Compile Gate V4
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01
+    paths:
+      - '.github/workflows/starcore-tianshu-b01-compile-gate-v4.yml'
+  workflow_dispatch:
+
+jobs:
+  compile-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+          fetch-depth: 0
+
+      - name: Generate and apply compatibility patches
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b01/materializer.part-* | base64 --decode | gzip --decompress > tools/m.py
+          cat .github/starcore-tianshu-b01/harness.part-* | base64 --decode | gzip --decompress > tools/h.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/m.py')
+          text=p.read_text(encoding='utf-8')
+          replacements={
+              '25563a5bb5b19aea8ac221b59853a9f97b08ebee1c686c9a21de6ac77c8c821a':'40f532fc8eabc4bb71f9aa6e60eeb5aa5a947c16ccafcc5003e76ceed9867d94',
+              '6e800a72c0e6d2dd3ce950f2ba5ea1c659c8a3dece1b8086dee22c8bd538e9df':'9683562182798b5bd53142bd802e8ce1dff2bc7faad5de6134047d3ce60e476c',
+              'fields[i % fields.length]':'fields[i %% fields.length]',
+              '        "    public static final boolean SHADOW_ONLY = true;",':'        "    public static final boolean SHADOW_ONLY = true;",\n        "    public static final boolean REAL_BET_HARD_DISABLED = true;",'
+          }
+          for old,new in replacements.items():
+              count=text.count(old)
+              if count != 1:
+                  raise SystemExit('generator replacement count mismatch %r=%d' % (old,count))
+              text=text.replace(old,new)
+          p.write_text(text,encoding='utf-8')
+          PY
+          python3 tools/m.py --apply >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+
+          api=Path('app/src/main/java/com/ethk3/novaonepro/ApiClient.java')
+          text=api.read_text(encoding='utf-8')
+          old="+ requestedLimit + '|' + requestedDate + '|B01';"
+          new='+ requestedLimit + \'|\' + requestedDate + "|B01";'
+          if text.count(old) != 1:
+              raise SystemExit('ApiClient literal patch count=%d' % text.count(old))
+          api.write_text(text.replace(old,new),encoding='utf-8')
+
+          contract=Path('app/src/main/java/com/ethk3/novaonepro/BinanceGameContract.java')
+          text=contract.read_text(encoding='utf-8')
+          marker='    public static boolean isIsoDate(String date) { return safe(date).matches("\\\\d{4}-\\\\d{2}-\\\\d{2}"); }\n'
+          addition='''    public static boolean isIsoDate(String date) { return safe(date).matches("\\\\d{4}-\\\\d{2}-\\\\d{2}"); }\n\n    public static boolean isValidDate(String date) {\n        String value = safe(date).trim();\n        if (!isIsoDate(value)) return false;\n        try {\n            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);\n            format.setLenient(false);\n            Date parsed = format.parse(value);\n            return parsed != null && value.equals(format.format(parsed));\n        } catch (ParseException ignored) {\n            return false;\n        }\n    }\n'''
+          if text.count(marker) != 1:
+              raise SystemExit('Binance date marker count=%d' % text.count(marker))
+          contract.write_text(text.replace(marker,addition),encoding='utf-8')
+          PY
+          python3 tools/h.py | tee reports/B01_COMPILE_GATE_HARNESS.log
+          git diff --check
+
+      - name: Write deterministic build.gradle
+        shell: bash
+        run: |
+          cat > app/build.gradle <<'GRADLE'
+          plugins { id 'com.android.application' }
+          def injectedApiKey = System.getenv('DUOQU_API_KEY') ?: ''
+          def escapedApiKey = injectedApiKey.replace('\\', '\\\\').replace('"', '\\"')
+          android {
+              namespace 'com.ethk3.novaonepro'
+              compileSdk 36
+              defaultConfig {
+                  applicationId 'com.ethk3.novaonepro'
+                  minSdk 21
+                  targetSdk 28
+                  versionCode 571010805
+                  versionName 'V57.1.0-tianshu-b01-shadow'
+                  buildConfigField 'String', 'DUOQU_API_KEY', '"' + escapedApiKey + '"'
+                  setProperty('archivesBaseName', 'Starcore-Tianshu-B01-Binance-K3-Shadow')
+              }
+              buildFeatures { buildConfig true }
+              buildTypes {
+                  debug { minifyEnabled false }
+                  release {
+                      minifyEnabled false
+                      shrinkResources false
+                      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                  }
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_1_7
+                  targetCompatibility JavaVersion.VERSION_1_7
+              }
+              lint { abortOnError false; checkReleaseBuilds false }
+          }
+          java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+          GRADLE
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Compile all Java
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle --no-daemon --stacktrace :app:compileDebugJavaWithJavac 2>&1 | tee reports/B01_COMPILE_GATE.log
+      - name: Upload compile evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Compile-Gate-V4
+          path: reports/*
+          if-no-files-found: warn

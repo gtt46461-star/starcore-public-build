@@ -1,0 +1,1 @@
+package android.view; public class Choreographer { public interface FrameCallback{void doFrame(long t);} private static final Choreographer I=new Choreographer(); public static Choreographer getInstance(){return I;} public void postFrameCallback(FrameCallback c){} public void removeFrameCallback(FrameCallback c){} }

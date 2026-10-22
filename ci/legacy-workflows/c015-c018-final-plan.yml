@@ -1,0 +1,72 @@
+name: C015-C018 authenticated worktrees and cumulative Android APK
+on:
+  push:
+    branches: [construction/c015-c018-final-plan-20261020]
+    paths: ['.github/workflows/c015-c018-final-plan.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c015-c018-final-plan
+  cancel-in-progress: false
+jobs:
+  sequential-stages:
+    if: github.ref == 'refs/heads/construction/c015-c018-final-plan-20261020'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /app/**
+            /scripts/**
+            /release/**
+            /verification/**
+            /training/**
+            /gradle/**
+            /construction/r997/**
+            /construction/c_chain_20261018/C006/contract-inputs.zip
+            /construction/c_chain_20261018/C014/test-inputs.zip
+            /construction/c_chain_20261018/C014/test-inputs-index.json
+            /construction/c_chain_20261018/C014/before-source-index.json
+            /construction/c_chain_20261018/C015-C018/**
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install formal Android API36 and production toolchain
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME']);manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0','ndk;28.2.13676358','cmake;3.22.1'],check=True)
+          subprocess.run(['python3','-m','pip','install','numpy==2.3.5'],check=True)
+          PY
+      - name: Sequential actual C015 C016 C017 C018 application and validation
+        run: python3 construction/c_chain_20261018/C015-C018/ci_verify.py
+      - name: Preserve current stage evidence and complete C018 classes
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: STARCORE-C015-C018-evidence
+          path: ${{ runner.temp }}/STARCORE-C015-C018-evidence.zip
+          if-no-files-found: error
+          retention-days: 30
+      - name: Preserve exact product members of all four Android builds
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: STARCORE-C015-C018-APK-payloads
+          path: ${{ runner.temp }}/STARCORE-C015-C018-APK-payloads.zip
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,46 @@
+diff --git a/app/src/test/java/com/ethk3/novaonepro/Batch4ContractsR930Test.java b/app/src/test/java/com/ethk3/novaonepro/Batch4ContractsR930Test.java
+index 16722b1..e3fc0d5 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/Batch4ContractsR930Test.java
++++ b/app/src/test/java/com/ethk3/novaonepro/Batch4ContractsR930Test.java
+@@ -110,6 +110,20 @@ public final class Batch4ContractsR930Test {
+         assertTrue(Double.isFinite(state.correction(0, 0, "102")));
+     }
+ 
++    @Test public void matrixModelIdentityDriftIsRejectedBeforeSettlement() {
++        MatrixSnapshotFeedbackR930.CaptureBundle capture = capture("101","100",10L,H0,H1);
++        MatrixSnapshotFeedbackR930.FrozenMatrix teacher = matrix(
++                MatrixSnapshotFeedbackR930.MatrixKind.EVIDENCE_TEACHER,"101","100",10L,H0,H1,H3);
++        try {
++            new MatrixSnapshotFeedbackR930.CommonSnapshot("101","100",10L,H0,H1,H2,
++                    capture,Arrays.asList(teacher),new HashSet<MatrixSnapshotFeedbackR930.MatrixKind>(
++                            Arrays.asList(MatrixSnapshotFeedbackR930.MatrixKind.EVIDENCE_TEACHER)));
++            fail("different frozen model accepted");
++        } catch(IllegalArgumentException expected) {
++            assertEquals("R930_COMMON_MATRIX_FREEZE_DRIFT",expected.getMessage());
++        }
++    }
++
+     @Test public void ablationMustActuallyRecomputeAndSummaryIsPaired() {
+         final AblationRepairCreationR930.CandidateDefinition candidate = candidate("candidate");
+         AblationRepairCreationR930.Evaluator evaluator =
+@@ -275,6 +289,11 @@ public final class Batch4ContractsR930Test {
+     private static MatrixSnapshotFeedbackR930.FrozenMatrix matrix(
+             MatrixSnapshotFeedbackR930.MatrixKind kind, String target, String source,
+             long frozenAt, String graphHash, String inputHash) {
++        return matrix(kind,target,source,frozenAt,graphHash,inputHash,H2);
++    }
++    private static MatrixSnapshotFeedbackR930.FrozenMatrix matrix(
++            MatrixSnapshotFeedbackR930.MatrixKind kind, String target, String source,
++            long frozenAt, String graphHash, String inputHash, String modelHash) {
+         List<MatrixSnapshotFeedbackR930.MatrixCell> cells =
+                 new ArrayList<MatrixSnapshotFeedbackR930.MatrixCell>();
+         for (int row = 0; row < 10; row++) for (int column = 0; column < 10; column++)
+@@ -283,7 +302,7 @@ public final class Batch4ContractsR930Test {
+                     MatrixSnapshotFeedbackR930.sha256(kind.name() + row + column)));
+         return new MatrixSnapshotFeedbackR930.FrozenMatrix(kind, target, source, frozenAt,
+                 "FROZEN_PREDRAW", graphHash, inputHash,
+-                MatrixSnapshotFeedbackR930.sha256("model" + kind.name()), cells);
++                modelHash, cells);
+     }
+ 
+     private static AblationRepairCreationR930.CandidateDefinition candidate(String id) {

@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReasonEngine.java b/app/src/main/java/com/ethk3/novaonepro/ReasonEngine.java
+index 140fd65..b053d10 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReasonEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReasonEngine.java
+@@ -2535,7 +2535,7 @@ public final class ReasonEngine {
+             return "";
+         }
+         try {
+-            return s.trim().toUpperCase();
++            return s.trim().toUpperCase(java.util.Locale.ROOT);
+         } catch (Throwable e) {
+             return s.trim();
+         }

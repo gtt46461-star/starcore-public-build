@@ -1,0 +1,74 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CertificateLifecycleProjectionR957.java b/app/src/main/java/com/ethk3/novaonepro/CertificateLifecycleProjectionR957.java
+index 16dd706..bfcf4f9 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CertificateLifecycleProjectionR957.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CertificateLifecycleProjectionR957.java
+@@ -1,64 +1,11 @@
+ package com.ethk3.novaonepro;
+ 
+-import android.database.Cursor;
+-import android.database.sqlite.SQLiteDatabase;
+-import java.util.ArrayList;
+-
+-/** Projects valid zero-weight L4/L5 certificates into lifecycle truth without granting influence. */
++/** Retired legacy stage-to-lifecycle writer. CertificatePolicy/CertificateOwner alone
++ * publish/revoke canonical certificate rows; consumers read their immutable identity. */
+ public final class CertificateLifecycleProjectionR957 {
+     public static final boolean MAY_AUTHORIZE_REAL=false;
++    public static final String STATUS="RETIRED_STAGE_TO_LIFECYCLE_WRITER_CP12";
+     private CertificateLifecycleProjectionR957(){}
+-
+-    public static int maintain(final DbStore store){
+-        if(store==null||RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())return 0;
+-        String latest="";
+-        try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){
+-            if(c.moveToFirst())latest=c.getString(0);
+-        }
+-        TargetIssueResolver.Resolution next=TargetIssueResolver.next(latest);
+-        if(!next.valid)return 0;
+-        final String target=next.targetIssue;
+-        ArrayList<Row> rows=new ArrayList<Row>();
+-        try(Cursor c=store.readable().rawQuery("SELECT candidate_key,structural_hash,state,future_n,paired_n FROM "
+-                +ResearchLifecycleR932.TABLE+" WHERE state NOT IN ('PAUSED','QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED','INFLUENCE','CHAMPION') ORDER BY reviewed_at,candidate_key LIMIT 12",null)){
+-            while(c.moveToNext())rows.add(new Row(c.getString(0),c.getString(1),c.getString(2),c.getInt(3),c.getInt(4)));
+-        }
+-        int changed=0;
+-        for(Row row:rows){
+-            ResearchWorkBudgetR927.checkpoint();
+-            String id=row.key.substring(row.key.indexOf(':')+1);
+-            CertificateBundleServiceR929.Consumer kind=row.key.startsWith("algorithm:")?CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM
+-                    :row.key.startsWith("genesis:")?CertificateBundleServiceR929.Consumer.GENESIS_ASSET
+-                    :CertificateBundleServiceR929.Consumer.FORMULA_GRAPH;
+-            CertificateStageProjectionR957.Stage stage=CertificateStageProjectionR957.current(store,kind,id,row.structure,target);
+-            if(!stage.valid)continue;
+-            final ResearchLifecycleR932.State state;
+-            final String reason;
+-            if(stage.is("L4_CHALLENGER")){state=ResearchLifecycleR932.State.CHALLENGER;reason="SHARED_CURRENT_CHALLENGER_CERTIFICATE|"+stage.certificateHash;}
+-            else if(stage.is("L5_SHADOW")){state=ResearchLifecycleR932.State.SHADOW;reason="SHARED_CURRENT_SHADOW_CERTIFICATE|"+stage.certificateHash;}
+-            else continue;
+-            final String evidence=V51ChecksumEngine.sha256("R957_STAGE|"+row.key+'|'+row.structure+'|'+target+'|'+stage.certificateHash+'|'+state.name());
+-            Boolean ok=store.coordinatorR36().runAtomicWrite("R957_ZERO_WEIGHT_CERTIFICATE_STAGE",new DatabaseCoordinator.WriteCallable<Boolean>(){
+-                public Boolean call(SQLiteDatabase db){
+-                    try(Cursor c=db.rawQuery("SELECT state FROM "+ResearchLifecycleR932.TABLE+" WHERE candidate_key=?",new String[]{row.key})){
+-                        if(!c.moveToFirst())return Boolean.FALSE;
+-                        String now=c.getString(0);
+-                        if("PAUSED".equals(now)||"QUARANTINED".equals(now)||"QUALITY_PRUNED".equals(now)||"RESOURCE_RETIRED".equals(now)||"INFLUENCE".equals(now)||"CHAMPION".equals(now))return Boolean.FALSE;
+-                        if(state.name().equals(now))return Boolean.FALSE;
+-                    }
+-                    ResearchLifecycleR932.transition(db,row.key,state,reason,target,evidence,row.future,row.paired);
+-                    return Boolean.TRUE;
+-                }
+-            },Boolean.FALSE);
+-            if(Boolean.TRUE.equals(ok))changed++;
+-        }
+-        try{store.setState("r957_certificate_stage_projection","changed="+changed+"|target="+target+"|directREAL=0");}catch(Throwable ignore){}
+-        return changed;
+-    }
+-
+-    private static final class Row{
+-        final String key,structure,old;final int future,paired;
+-        Row(String key,String structure,String old,int future,int paired){this.key=key;this.structure=structure;this.old=old;this.future=future;this.paired=paired;}
+-    }
++    /** Compatibility caller receives zero changes. No certificate/lifecycle/app_state write. */
++    public static int maintain(final DbStore store){return 0;}
+ }
+-

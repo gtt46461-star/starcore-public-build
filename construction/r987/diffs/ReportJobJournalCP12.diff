@@ -1,0 +1,56 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java b/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java
+index 9d16e4f..742b7c9 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java
+@@ -12,6 +12,51 @@ public final class ReportJobJournalCP12 implements Closeable {
+     public enum Stage { CLAIMED,BACKUP,SNAPSHOT_DURABLE,INDEXING,INDEX_DURABLE,COMPRESSING,VERIFYING,READY_TO_SHARE,RETENTION_ENCODING,RETENTION_RECEIPT_DURABLE,RETENTION_READY,PAUSED,FAILED,CANCELLED }
+     public enum Recovery { BACKUP,REBUILD_INDEX,RECOMPRESS,VERIFY_AND_PUBLISH,READ_PUBLISHED,WAIT_FOR_KICK,TERMINAL }
+     public static final int MAX_JSON=65536;
++    private static final Object CANCEL_COMMANDS_LOCK=new Object();
++    private interface CancelWork<T>{T run()throws Exception;}
++    /** Independent durable commands: cancelling one task cannot overwrite another task's command. */
++    public static void requestCancellation(File root,String id)throws Exception {
++        hash(id);withCancellationLock(root,()->{
++            File job=ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/job.json");
++            if(job.exists()) {
++                if(!id.equals(Job.parse(readAtomic(job,MAX_JSON)).jobId))throw new IOException("REPORT_CANCEL_IDENTITY");
++            } else {
++                File request=ReportArchiveVerifierCP12.inside(root,"requests/"+id+".json");
++                if(!request.exists())throw new IOException("REPORT_CANCEL_TASK_MISSING");
++                JSONObject row=new JSONObject(readAtomic(request,MAX_JSON));
++                if(!id.equals(row.getString("requestId"))||!"SAF_TRANSFER".equals(row.getString("mode")))throw new IOException("REPORT_CANCEL_IDENTITY");
++            }
++            File directory=ReportArchiveVerifierCP12.inside(root,"cancel-commands");
++            if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("REPORT_CANCEL_DIRECTORY");
++            File[] commands=directory.listFiles();if(commands==null)throw new IOException("REPORT_CANCEL_DIRECTORY_READ");
++            File destination=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
++            if(!destination.exists()&&commands.length>=1024)throw new IOException("REPORT_CANCEL_COMMAND_LIMIT");
++            JSONObject command=new JSONObject();command.put("jobId",id);command.put("cancel",true);command.put("createdWallMs",System.currentTimeMillis());
++            writeAtomic(destination,command.toString());return null;
++        });
++    }
++    public static boolean isCancellationRequested(File root,String id)throws Exception {
++        hash(id);return withCancellationLock(root,()->{
++            File command=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
++            if(command.exists()) {
++                try{JSONObject row=new JSONObject(readAtomic(command,4096));
++                    if(!id.equals(row.getString("jobId"))||!row.getBoolean("cancel"))throw new IOException("REPORT_CANCEL_IDENTITY");
++                }catch(org.json.JSONException malformed){throw new IOException("REPORT_CANCEL_FORMAT",malformed);}
++                return true;
++            }
++            // Preserve commands written by releases that used the original single-command file.
++            File legacy=ReportArchiveVerifierCP12.inside(root,"cancel.json");if(!legacy.exists())return false;
++            JSONObject row=new JSONObject(readAtomic(legacy,4096));return id.equals(row.optString("jobId"))&&row.optBoolean("cancel");
++        });
++    }
++    public static void removeCancellation(File root,String id)throws Exception {
++        hash(id);withCancellationLock(root,()->{File command=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
++            if(command.exists())new AtomicFile(command).delete();if(command.exists())throw new IOException("REPORT_CANCEL_CLEANUP");return null;});
++    }
++    private static <T>T withCancellationLock(File root,CancelWork<T> work)throws Exception {
++        synchronized(CANCEL_COMMANDS_LOCK){if(!root.isDirectory())throw new IOException("REPORT_CANCEL_ROOT");
++            try(RandomAccessFile io=new RandomAccessFile(ReportArchiveVerifierCP12.inside(root,"cancel-command.lock"),"rw");FileLock lock=io.getChannel().lock()){return work.run();}}
++    }
+     public static final class Job {
+         public final String jobId,requestId,releaseHash,mode;
+         public String stage="CLAIMED",resumeStage="BACKUP",lastReason="",snapshotSha="",publishedDir="",manifestSha="";

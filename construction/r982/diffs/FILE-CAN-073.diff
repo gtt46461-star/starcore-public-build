@@ -1,0 +1,561 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java b/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java
+index cf8255b..dbc34ef 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java
+@@ -40,12 +40,199 @@ public final class FrozenCandidateAdapterR958 {
+         }
+     }
+ 
++    /** A complete prepared receipt. Numeric parsing and hashing never run under the writer. */
++    public static final class PreparedFreezeCP8 implements AutoCloseable {
++        public final String candidateId,artifactHash,inputHash,protocolHash,target,modelHash,manifestHash;
++        public final String receiptHash,validationHash,validationLast,ruleHash,astHash,modelPayload;
++        public final CandidateAstR952 ast;
++        public final CandidateCompilerR952.Model model;
++        public final long trainN;
++        private final MemoryBudgetCP4.Lease memory;
++        private boolean closed;
++        private PreparedFreezeCP8(ResearchTaskQueueR967.Lease task,String target,String[] row,long trainN,
++                CandidateAstR952 ast,CandidateCompilerR952.Model model,MemoryBudgetCP4.Lease memory){
++            candidateId=task.candidate;artifactHash=task.authorityRef;inputHash=task.inputHash;
++            protocolHash=task.sequence;this.target=target;modelHash=row[1];manifestHash=row[9];
++            receiptHash=row[2];validationHash=row[3];validationLast=row[10];ruleHash=TrainingCodeIdentityR964.SHA256;
++            this.ast=ast;this.model=model;astHash=ast.structuralHash;modelPayload=row[0];this.trainN=trainN;this.memory=memory;
++        }
++        void requireOpen(){if(closed)throw new IllegalStateException("FREEZE_PREPARED_CLOSED");}
++        @Override public void close(){if(!closed){closed=true;memory.close();}}
++    }
++    /** Catch only this code as a scheduling yield, never as successful publication. */
++    public static final class FreezeTargetChangedCP8 extends RuntimeException {
++        public FreezeTargetChangedCP8(){super("TARGET_SUPERSEDED");}
++    }
++    public static PreparedFreezeCP8 prepareDevelopmentFreezeCP8(DbStore store,
++            ResearchTaskQueueR967.Lease task,String target){
++        if(store==null||task==null||!"FREEZE_CANDIDATE".equals(task.kind)
++                ||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("FREEZE_INPUT");
++        SQLiteDatabase db=store.readable();
++        if(db.inTransaction())throw new IllegalStateException("FREEZE_PREPARE_WRITER");
++        MemoryBudgetCP4.Lease memory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(2L<<20);
++        boolean returned=false;
++        try{
++            // Cap the SQLite projection before CursorWindow receives model/AST text.
++            String guard="SELECT length(CAST(a.model_payload AS BLOB)),length(CAST(c.ast AS BLOB)),"
++                +"length(CAST(d.receipt_json AS BLOB)),length(CAST(d.validation_json AS BLOB)) "
++                +"FROM r952_artifact a JOIN r952_candidate c ON c.candidate_id=a.candidate_id "
++                +"JOIN research_development_receipt_v2 d ON d.artifact_hash=a.artifact_hash WHERE a.artifact_hash=?";
++            try(Cursor c=db.rawQuery(guard,new String[]{task.authorityRef})){
++                if(!c.moveToFirst()||c.isNull(0)||c.isNull(1)||c.isNull(2)||c.isNull(3)
++                    ||c.getLong(0)<1||c.getLong(0)>262144||c.getLong(1)<1||c.getLong(1)>32768
++                    ||c.getLong(2)<2||c.getLong(2)>8192||c.getLong(3)<2||c.getLong(3)>16384)
++                    throw new IllegalStateException("FREEZE_PAYLOAD_SIZE_OR_MISSING");
++            }
++            String sql="SELECT a.model_payload,a.payload_hash,a.development_receipt_hash,a.validation_hash,"
++                +"d.receipt_json,d.validation_json,c.ast,c.structural_hash,p.input_hash,p.feature_manifest_hash,"
++                +"p.validation_last,p.train_n,p.validation_n,a.development_sample_n,a.validation_sample_n,"
++                +"a.validation_pass,a.training_kind,l.trained_until_issue,l.artifact_hash,p.ast_hash,"
++                +"p.model_kind,p.protocol_hash,c.state,p.validation_first FROM r952_artifact a "
++                +"JOIN research_development_receipt_v2 d ON d.artifact_hash=a.artifact_hash "
++                +"AND d.receipt_hash=a.development_receipt_hash AND d.validation_hash=a.validation_hash "
++                +"JOIN research_training_protocol_v2 p ON p.protocol_hash=d.protocol_hash AND p.candidate_id=a.candidate_id "
++                +"JOIN r952_candidate c ON c.candidate_id=a.candidate_id "
++                +"JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id) "
++                +"WHERE a.artifact_hash=? AND a.candidate_id=? AND p.protocol_hash=? AND p.input_hash=?";
++            String[] row=new String[24];long trainN;
++            try(Cursor c=db.rawQuery(sql,new String[]{task.authorityRef,task.candidate,task.sequence,task.inputHash})){
++                if(!c.moveToFirst())throw new IllegalStateException("FREEZE_DEVELOPMENT_RECEIPT_MISSING");
++                for(int i=0;i<row.length;i++){if(c.isNull(i))throw new IllegalStateException("FREEZE_NULL");row[i]=c.getString(i);}
++                trainN=c.getLong(11);
++                if(trainN<300||trainN>1200||c.getInt(12)!=120||c.getLong(13)!=trainN||c.getInt(14)!=120
++                    ||c.getInt(15)!=1||!"DEVELOPMENT_AST3".equals(row[16])
++                    ||!row[10].equals(row[17])||!task.authorityRef.equals(row[18])
++                    ||!row[7].equals(row[19])||!task.sequence.equals(row[21])||retiredCP8(row[22]))
++                    throw new IllegalStateException("FREEZE_DEVELOPMENT_CONTRACT");
++            }
++            CandidateAstR952 ast=CandidateAstR952.parse(row[6]);
++            CandidateCompilerR952.Model model=CandidateCompilerR952.Model.parse(row[0]);
++            FeatureManifestR952 manifest=FeatureManifestR952.forAst(ast);
++            if(ast.formatVersion!=3||model.isLegacy()||!ast.structuralHash.equals(row[7])
++                ||!model.hash().equals(row[1])||!manifest.hash.equals(row[9])
++                ||!model.modern().trainedUntil.equals(row[10])||!TargetIssueResolver.isValid(row[10])
++                ||row[10].compareTo(target)>=0||model.updates!=trainN
++                ||!model.modern().developmentReceiptHash.equals(row[2])
++                ||!model.modern().kind.name().equals(row[20])||model.modern().family!=ast.family)
++                throw new IllegalStateException("FREEZE_MODEL_IDENTITY");
++            model.modern().requireManifest(manifest);
++            verifySmallCanonicalCP8(row[4],row[2],8192);verifySmallCanonicalCP8(row[5],row[3],16384);
++            Map<String,Object> receipt=StrictCanonicalJson.readObject(row[4]);
++            String[][] identity={{"revision","CP8_DEV_RECEIPT_1"},{"protocolHash",task.sequence},
++                {"inputHash",task.inputHash},{"astHash",ast.structuralHash},{"manifestHash",manifest.hash},
++                {"kind",row[20]},{"normalizerHash",model.modern().normalizerHash},
++                {"validationLast",row[10]},{"validationHash",row[3]}};
++            for(String[] entry:identity)if(!entry[1].equals(receipt.get(entry[0])))throw new IllegalStateException("FREEZE_RECEIPT_IDENTITY");
++            if(!Long.valueOf(trainN).equals(receipt.get("trainN"))||!Long.valueOf(120).equals(receipt.get("validationN")))
++                throw new IllegalStateException("FREEZE_RECEIPT_COUNTS");
++            String weightsHash=developmentWeightsHashCP8(model);
++            if(!weightsHash.equals(receipt.get("weightsHash"))||!receipt.keySet().equals(new HashSet<String>(Arrays.asList(
++                "revision","protocolHash","inputHash","astHash","manifestHash","kind","normalizerHash","trainN",
++                "validationN","validationLast","epochsExecuted","optimizerSteps","weightsHash","validationHash"))))
++                throw new IllegalStateException("FREEZE_RECEIPT_WEIGHTS_OR_KEYS");
++            Map<String,Object> validation=StrictCanonicalJson.readObject(row[5]);
++            if(!validation.keySet().equals(new HashSet<String>(Arrays.asList("revision","rowCount","firstIssue","lastIssue",
++                "orderedPredictionHash","ceMean","brierMean","hitCount","allFinite","normalizerHash","epochSelected","weightsHash")))
++                ||!"CP8_DEV_VALIDATION_1".equals(validation.get("revision"))||!Long.valueOf(120).equals(validation.get("rowCount"))
++                ||!row[23].equals(validation.get("firstIssue"))||!row[10].equals(validation.get("lastIssue"))
++                ||!Boolean.TRUE.equals(validation.get("allFinite"))||!weightsHash.equals(validation.get("weightsHash"))
++                ||!model.modern().normalizerHash.equals(validation.get("normalizerHash"))
++                ||!(validation.get("orderedPredictionHash") instanceof String)
++                ||!((String)validation.get("orderedPredictionHash")).matches("[0-9a-f]{64}"))
++                throw new IllegalStateException("FREEZE_VALIDATION_IDENTITY");
++            double ce=receiptDoubleCP8(validation.get("ceMean")),brier=receiptDoubleCP8(validation.get("brierMean"));
++            Object hit=validation.get("hitCount"),epoch=validation.get("epochSelected"),epochs=receipt.get("epochsExecuted"),steps=receipt.get("optimizerSteps");
++            if(ce<0||ce>35||brier<0||brier>.2+1e-12||!(hit instanceof Long)||(Long)hit<0||(Long)hit>120
++                ||!(epoch instanceof Long)||(Long)epoch<1||(Long)epoch>20||!(epochs instanceof Long)
++                ||(Long)epochs<(Long)epoch||(Long)epochs>20||!(steps instanceof Long)||(Long)steps<0)
++                throw new IllegalStateException("FREEZE_VALIDATION_METRICS");
++            TreeSet<String> ids=new TreeSet<>();
++            for(TypedAtomMoleculeGraphR930.NodeSpec node:ast.graphSpec.nodes)
++                if(node.kind==TypedAtomMoleculeGraphR930.NodeKind.ATOM)ids.add(node.source);
++            ArrayList<AtomSpecCP4> specs=new ArrayList<>();
++            for(String id:ids)try(Cursor c=db.rawQuery("SELECT atom_id,spec_hash,params_json,output_type,min_history,missing_policy,state,family,spec_version,position FROM research_atom_spec_v2 WHERE atom_id=?",new String[]{id})){
++                if(!c.moveToFirst())throw new IllegalStateException("UNKNOWN_ATOM");
++                AtomSpecCP4 spec=AtomSpecCP4.fromRegistry(c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getInt(4),c.getString(5),c.getString(6));
++                if(!spec.family.equals(c.getString(7))||!spec.version.equals(c.getString(8))||spec.position!=c.getInt(9))
++                    throw new IllegalStateException("ATOM_REGISTRY_IDENTITY");
++                specs.add(spec);
++            }
++            CandidateCompilerR952.compile(ast,manifest,specs);
++            PreparedFreezeCP8 prepared=new PreparedFreezeCP8(task,target,row,trainN,ast,model,memory);
++            returned=true;return prepared;
++        }finally{if(!returned)memory.close();}
++    }
++    /** Receipt body identity excludes receipt/model hashes and therefore has no hash cycle. */
++    public static String developmentWeightsHashCP8(CandidateCompilerR952.Model model){
++        CandidateCompilerR952.Modern m=model.modern();Map<String,Object> out=new TreeMap<>();
++        out.put("revision","CP8_DEV_WEIGHTS_1");out.put("kind",m.kind.name());
++        out.put("weights",hexArrayCP8(m.weights()));out.put("treeCut",hexArrayCP8(m.treeCuts()));
++        out.put("treeLeafProbability",hexArrayCP8(m.treeLeafProbabilities()));
++        out.put("treeFeature",intArrayCP8(m.treeFeatures()));out.put("treeLeft",intArrayCP8(m.treeLeft()));out.put("treeRight",intArrayCP8(m.treeRight()));
++        List<Object> experts=new ArrayList<>();for(CandidateCompilerR952.ExpertRef e:m.experts){
++            Map<String,Object> ref=new TreeMap<>();ref.put("freezeHash",e.freezeHash);ref.put("modelHash",e.modelHash);
++            ref.put("featureManifestHash",e.featureManifestHash);ref.put("position",e.position);experts.add(ref);
++        }
++        out.put("experts",experts);return V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(out));
++    }
++    private static List<String> hexArrayCP8(double[] a){List<String> out=new ArrayList<>();for(double v:a)out.add(Double.toHexString(v));return out;}
++    private static List<Integer> intArrayCP8(int[] a){List<Integer> out=new ArrayList<>();for(int v:a)out.add(v);return out;}
++    private static double receiptDoubleCP8(Object value){
++        if(!(value instanceof String))throw new IllegalStateException("FREEZE_METRIC_TYPE");
++        double v=Double.parseDouble((String)value);
++        if(!Double.isFinite(v)||!Double.toHexString(v).equals(value))throw new IllegalStateException("FREEZE_METRIC_VALUE");return v;
++    }
++    private static boolean retiredCP8(String state){
++        return "QUARANTINED".equals(state)||"QUALITY_PRUNED".equals(state)||"RESOURCE_RETIRED".equals(state);
++    }
++    private static void verifySmallCanonicalCP8(String json,String hash,int limit){
++        if(json==null||json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>limit
++            ||!V51ChecksumEngine.sha256(json).equals(hash)||!StrictCanonicalJson.write(StrictCanonicalJson.readObject(json)).equals(json))
++            throw new IllegalStateException("FREEZE_RECEIPT_HASH_OR_CANONICAL");
++    }
++    public static String commitDevelopmentFreezeCP8(SQLiteDatabase db,ResearchTaskQueueR967.Lease task,
++            PreparedFreezeCP8 p){
++        p.requireOpen();
++        if(!db.inTransaction()||!ResearchTaskQueueR967.owns(db,task))throw new IllegalStateException("FREEZE_STALE_LEASE");
++        if(!"FREEZE_CANDIDATE".equals(task.kind)||!task.candidate.equals(p.candidateId)
++            ||!task.authorityRef.equals(p.artifactHash)||!task.inputHash.equals(p.inputHash)||!task.sequence.equals(p.protocolHash))
++            throw new IllegalStateException("FREEZE_PREPARED_IDENTITY");
++        String latest="";
++        try(Cursor c=db.rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){
++            if(c.moveToFirst())latest=c.getString(0);
++        }
++        if(!TargetIssueResolver.isValid(latest)||!p.target.equals(TargetIssueResolver.next(latest).targetIssue)||drawn(db,p.target))
++            throw new FreezeTargetChangedCP8();
++        try(Cursor c=db.rawQuery("SELECT a.payload_hash,a.development_receipt_hash,a.validation_hash,p.input_hash,"
++            +"p.ast_hash,c.state,l.artifact_hash,d.receipt_hash FROM r952_artifact a "
++            +"JOIN research_training_protocol_v2 p ON p.candidate_id=a.candidate_id "
++            +"JOIN r952_candidate c ON c.candidate_id=a.candidate_id "
++            +"JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id) "
++            +"JOIN research_development_receipt_v2 d ON d.artifact_hash=a.artifact_hash AND d.protocol_hash=p.protocol_hash "
++            +"WHERE a.artifact_hash=? AND a.candidate_id=? AND p.protocol_hash=?",
++            new String[]{p.artifactHash,p.candidateId,p.protocolHash})){
++            if(!c.moveToFirst()||!p.modelHash.equals(c.getString(0))||!p.receiptHash.equals(c.getString(1))
++                ||!p.validationHash.equals(c.getString(2))||!p.inputHash.equals(c.getString(3))||!p.astHash.equals(c.getString(4))
++                ||retiredCP8(c.getString(5))||!p.artifactHash.equals(c.getString(6))||!p.receiptHash.equals(c.getString(7)))
++                throw new IllegalStateException("FREEZE_COMMIT_SOURCE_CHANGED");
++        }
++        String frozenId=ResearchEvaluationRunR967.registerDevelopmentCP8(db,p);
++        String freezeHash;try(Cursor frozen=db.rawQuery("SELECT structural_hash FROM "+ResearchEvaluationRunR967.EVAL+" WHERE candidate_id=?",new String[]{frozenId})){
++            if(!frozen.moveToFirst())throw new IllegalStateException("MATRIX_FREEZE_ROW_MISSING");freezeHash=frozen.getString(0);}
++        MatrixSourceRouterCP12.registerFrozenPolicyMatricesCP12(db,freezeHash);
++        MatrixSourceRouterCP12.registerFrozenAtomStudiesCP12(db,freezeHash,p.ast,p.model);
++        Map<String,String> components=new TreeMap<>();components.put("ast",p.astHash);components.put("model",p.modelHash);components.put("features",p.manifestHash);components.put("development",p.receiptHash);components.put("protocol",p.protocolHash);
++        MatrixSourceRouterCP12.enqueueFreezeCP12(db,freezeHash,p.target,p.receiptHash,components,System.currentTimeMillis());
++        ResearchTaskQueueR967.complete(db,task,frozenId);
++        return frozenId;
++    }
++
+     // The cursor references an atomically committed immutable artifact. Unconsumed labels
+     // and not-yet-drawn predictions are not dependencies of that artifact. Waiting for all
+     // of them to disappear starves freeze under continuous capture. prepare() revalidates
+     // the exact model/run hashes inside its transaction; no future evidence is inherited.
+     private static Cursor eligible(SQLiteDatabase db,String target) {
+-        return db.rawQuery("SELECT c.candidate_id,c.ast,c.structural_hash,l.trained_until_issue,a.model_payload,a.payload_hash,a.artifact_hash,r.run_hash,r.rule_hash,r.integrity_epoch,r.initial_updates FROM r952_candidate c JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id) JOIN r952_artifact a ON a.artifact_hash=l.artifact_hash AND a.candidate_id=c.candidate_id JOIN "+ResearchEvaluationRunR967.RUN+" r ON r.learner_id=c.candidate_id WHERE r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?) AND a.numeric_updates-r.initial_updates>=CAST(? AS INTEGER) AND a.numeric_updates-r.initial_updates-COALESCE((SELECT MAX(f.update_endpoint) FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash),0)>=CAST(? AS INTEGER) AND l.trained_until_issue<? AND c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash AND f.update_endpoint=a.numeric_updates-r.initial_updates) AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.learner_id=c.candidate_id AND f.run_hash=r.run_hash AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<2 AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.rule_hash=r.rule_hash AND f.run_hash IN (SELECT rr.run_hash FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.first_issue=(SELECT MAX(rr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr2 WHERE rr2.learner_id=rr.learner_id)) AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<32 ORDER BY l.trained_until_issue,c.candidate_id LIMIT 1",new String[]{target,target,String.valueOf(MIN_TRAINING),String.valueOf(ResearchEvaluationRunR967.FREEZE_EVERY),target});
++        return db.rawQuery("SELECT c.candidate_id,c.ast,c.structural_hash,l.trained_until_issue,a.model_payload,a.payload_hash,a.artifact_hash,r.run_hash,r.rule_hash,r.integrity_epoch,r.initial_updates FROM r952_candidate c JOIN r952_learning_cursor l ON l.consumer_id=('R952:'||c.candidate_id) JOIN r952_artifact a ON a.artifact_hash=l.artifact_hash AND a.candidate_id=c.candidate_id JOIN "+ResearchEvaluationRunR967.RUN+" r ON r.learner_id=c.candidate_id WHERE r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?) AND a.numeric_updates-r.initial_updates>=CAST(? AS INTEGER) AND a.numeric_updates-r.initial_updates-COALESCE((SELECT MAX(f.update_endpoint) FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash),0)>=CAST(? AS INTEGER) AND l.trained_until_issue<? AND c.ast NOT LIKE 'AST3:%' AND c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.EVAL+" f WHERE f.run_hash=r.run_hash AND f.update_endpoint=a.numeric_updates-r.initial_updates) AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.learner_id=c.candidate_id AND f.run_hash=r.run_hash AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<2 AND (SELECT COUNT(*) FROM "+ResearchEvaluationRunR967.EVAL+" f LEFT JOIN "+ResearchLifecycleR932.TABLE+" life ON life.candidate_key=('algorithm:'||f.candidate_id) WHERE f.rule_hash=r.rule_hash AND f.run_hash IN (SELECT rr.run_hash FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.first_issue=(SELECT MAX(rr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr2 WHERE rr2.learner_id=rr.learner_id)) AND (life.state IS NULL OR life.state NOT IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')))<32 ORDER BY l.trained_until_issue,c.candidate_id LIMIT 1",new String[]{target,target,String.valueOf(MIN_TRAINING),String.valueOf(ResearchEvaluationRunR967.FREEZE_EVERY),target});
+     }
+ 
+     /** Freeze prospectively after at least120 further numeric updates; backlog cannot skip all checkpoints; each version starts with no evaluation N. */
+@@ -78,40 +265,11 @@ public final class FrozenCandidateAdapterR958 {
+         final String target=snapshot.targetIssue;
+         String streamFilter=ResearchEvaluationRunR967.trainingIssue(target)?" AND f.candidate_id NOT LIKE '"+ResearchEvaluationRunR967.LEGACY_PREFIX+"%'":"";
+         ArrayList<String> ids=new ArrayList<String>();
+-        try(Cursor c=store.readable().rawQuery("SELECT f.candidate_id FROM "+ResearchEvaluationRunR967.ALL+" f WHERE f.created_issue<=?"+" AND (f.run_hash='' OR ("+TrainingContinuationR973.predicate("f.rule_hash")+" AND f.run_hash IN (SELECT rr.run_hash FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue=(SELECT MAX(rr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr2 WHERE rr2.learner_id=f.learner_id AND rr2.first_issue<='"+target+"'))))"+streamFilter+" AND (f.run_hash<>'' OR NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=f.learner_id AND r.first_issue<='"+target+"')) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) AND NOT EXISTS(SELECT 1 FROM "+PREDRAW+" p WHERE p.candidate_id=f.candidate_id AND p.target_issue=?)"+GlobalResearchScheduleR932.predicate(target,"'algorithm:'||f.candidate_id")+" ORDER BY f.candidate_id LIMIT 2",new String[]{target,target})) {
++        try(Cursor c=store.readable().rawQuery("SELECT f.candidate_id FROM "+ResearchEvaluationRunR967.ALL+" f WHERE f.created_issue<=?"+" AND (f.run_hash='' OR ("+TrainingContinuationR973.predicate("f.rule_hash")+" AND f.run_hash IN (SELECT rr.run_hash FROM "+ResearchEvaluationRunR967.RUN+" rr WHERE rr.learner_id=f.learner_id AND rr.first_issue=(SELECT MAX(rr2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" rr2 WHERE rr2.learner_id=f.learner_id AND rr2.first_issue<='"+target+"'))))"+streamFilter+" AND (f.run_hash<>'' OR NOT EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=f.learner_id AND r.first_issue<='"+target+"')) AND NOT EXISTS(SELECT 1 FROM "+ResearchLifecycleR932.TABLE+" life WHERE life.candidate_key=('algorithm:'||f.candidate_id) AND life.state IN ('QUALITY_PRUNED','QUARANTINED','RESOURCE_RETIRED')) AND (f.run_hash='' OR EXISTS(SELECT 1 FROM research_capture_reservation_v2 r WHERE r.candidate_key=('algorithm:'||f.candidate_id) AND r.state='COMPLETE')) AND NOT EXISTS(SELECT 1 FROM "+PREDRAW+" p WHERE p.candidate_id=f.candidate_id AND p.target_issue=?)"+GlobalResearchScheduleR932.predicate(target,"'algorithm:'||f.candidate_id")+" ORDER BY f.candidate_id LIMIT 2",new String[]{target,target})) {
+             while(c.moveToNext())ids.add(c.getString(0));
+         }
+         int n=0;
+-        for(String id:ids) {
+-            ResearchWorkBudgetR927.checkpoint();
+-            final Frozen f=load(store.readable(),id);
+-            if(f==null||!ResearchEvaluationRunR967.mayCapture(store.readable(),f,target))continue;
+-            final PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,f.ast.lookback);
+-            if(!pit.lastIssue.equals(snapshot.baseIssue))throw new IllegalStateException("R958_EVAL_BASE_MISMATCH");
+-            String key="algorithm:"+id;
+-            ResearchCaptureLedgerR932.record(store,target,key,"EXECUTION_STARTED","FROZEN_NUMERIC_FULL1200",0);
+-            final Scored scored=score(f.ast,f.model,pit.history,true);
+-            final K3ActionSpaceEngine.ActionIdentity selected=K3ActionSpaceEngine.enumerateIdentityUniverse()[scored.ordinal];
+-            final String input=V51ChecksumEngine.sha256(snapshot.recordHash+'|'+pit.snapshotHash);
+-            final String prediction=V51ChecksumEngine.sha256("R958_FROZEN_PREDRAW|"+id+'|'+target+'|'+input+'|'+scored.proof.scoreHash+'|'+scored.ordinal);
+-            boolean ok=store.coordinatorR36().runAtomicWrite("R958_FROZEN_FULL1200_PREDRAW",new DatabaseCoordinator.WriteRunnable() {
+-                public void run(SQLiteDatabase db) {
+-                    if(drawn(db,target))throw new IllegalStateException("R958_EVAL_POSTDRAW");
+-                    Frozen current=load(db,f.id);
+-                    if(current==null||!current.structure.equals(f.structure)||!ResearchEvaluationRunR967.mayCapture(db,current,target))throw new IllegalStateException("R958_EVAL_MODEL_CHANGED");
+-                    db.execSQL("INSERT OR IGNORE INTO "+PREDRAW+"(target_issue,candidate_id,record_hash,input_hash,position,n1,n2,n3,score,captured_at) VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{target,f.id,prediction,input,selected.position,selected.n1,selected.n2,selected.n3,scored.scores[scored.ordinal],System.currentTimeMillis()});
+-                    try(Cursor c=db.rawQuery("SELECT record_hash FROM "+PREDRAW+" WHERE target_issue=? AND candidate_id=?",new String[]{target,f.id})) {
+-                        if(!c.moveToFirst()||!prediction.equals(c.getString(0)))throw new IllegalStateException("R958_EVAL_REPLAY_CONFLICT");
+-                    }
+-                    String key="algorithm:"+f.id;
+-                    scored.proof.freeze(db,key,f.structure,input,snapshot.baseIssue,target,prediction);
+-                    FixedResearchWindowR932.freezePair(db,key,f.structure,target,prediction,selected.position,selected.n1,selected.n2,selected.n3,scored.scores[scored.ordinal]);
+-                    ResearchCaptureLedgerR932.record(db,target,key,"FROZEN","EVALUATION_ONLY_NO_TRAINING",prediction,Math.max(1,scored.proof.elapsedNs/1000000),true);
+-                }
+-            });
+-            if(!ok)throw new IllegalStateException("R958_EVAL_FREEZE_COMMIT_FAILED");
+-            n++;
+-        }
++        for(String id:ids){ResearchWorkBudgetR927.checkpoint();n+=captureOneCP12(store,snapshot,id,null);}
+         return n;
+     }
+ 
+@@ -163,24 +321,13 @@ public final class FrozenCandidateAdapterR958 {
+     }
+ 
+     static FrozenConsumerRecipeR932.Recipe recipe(DbStore store,Frozen f,UnifiedResearchChoiceR932.Evidence evidence,double weight,String base,String target)throws JSONException {
+-        PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,f.ast.lookback);
+-        if(!base.equals(pit.lastIssue))throw new IllegalStateException("R958_CONSUMER_BASE_MISMATCH");
+-        JSONObject root=new JSONObject();root.put("revision",FrozenConsumerRecipeR932.REVISION);root.put("source_sha256",SourceManifestR815.SOURCE_TREE_SHA256);
+-        root.put("lane","INVENTED_ALGORITHM_CERTIFIED");root.put("id",f.id);root.put("spec",f.ast.canonical);root.put("state",f.model.payload());root.put("structure",f.structure);root.put("evidence",evidence.evidence);root.put("certificate",evidence.certificate);root.put("weight",weight);root.put("base",base);root.put("target",target);
+-        root.put("evaluation_rule",f.rule);root.put("evaluation_epoch",f.epoch);
+-        root.put("history_hash",pit.snapshotHash);root.put("surface_hash","");root.put("history_rows",pit.history.size());root.put("elapsed_ms",0);
+-        JSONArray history=new JSONArray();ArrayList<Models.Draw> chronological=new ArrayList<Models.Draw>(pit.history);Collections.reverse(chronological);
+-        for(Models.Draw draw:chronological) {
+-            JSONObject row=new JSONObject();row.put("issue",draw.issue);row.put("open_time",draw.openTime);row.put("fetch_time",draw.fetchTime);row.put("numbers",new JSONArray(draw.numbers));history.put(row);
+-        }
+-        root.put("history",history);
+-        try{return new FrozenConsumerRecipeR932.Recipe(root);}catch(JSONException e){throw e;}catch(Exception e){throw new IllegalArgumentException("R958_CONSUMER_RECIPE",e);}
++        return recipeLaneCP12(store,f,evidence,weight,base,target,"INVENTED_ALGORITHM_CERTIFIED");
+     }
+     static FrozenConsumerRecipeR932.Mixed mix(FrozenConsumerRecipeR932.Recipe recipe,V51Models.PositionAction[] actions) {
+         CandidateAstR952 ast=CandidateAstR952.parse(recipe.spec);CandidateCompilerR952.Model model=CandidateCompilerR952.Model.parse(recipe.state);
+         String structure=ResearchEvaluationRunR967.versioned(recipe.id)?ResearchEvaluationRunR967.evaluationHash(ast,model,recipe.evaluationRule,recipe.evaluationEpoch):structure(ast,model);
+         if(!structure.equals(recipe.structure)||!recipe.id.equals((ResearchEvaluationRunR967.versioned(recipe.id)?ResearchEvaluationRunR967.frozenPrefix(recipe.id):PREFIX)+structure.substring(0,24)))throw new IllegalStateException("R958_RECIPE_MODEL_IDENTITY");
+-        final double[] research=score(ast,model,recipe.frozenHistory,false).scores;
++        final double[] research=scoreRecipeCP8(recipe,ast,model).scores;
+         Integer[] rank=new Integer[1200];for(int i=0;i<1200;i++)rank[i]=i;
+         Arrays.sort(rank,(a,b)->{int d=Double.compare(research[b],research[a]);return d!=0?d:Integer.compare(a,b);});
+         double[] percentile=new double[1200];for(int i=0;i<1200;i++)percentile[rank[i]]=1.0-i/1199.0;
+@@ -201,4 +348,285 @@ public final class FrozenCandidateAdapterR958 {
+     private static boolean drawn(SQLiteDatabase db,String target) {
+         try(Cursor c=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue>=? LIMIT 1",new String[]{target})){return c.moveToFirst();}
+     }
++    /** Read immutable rows only. The caller must be off the UI/writer thread and close the result. */
++    public static FrozenGraphContextCP4 prepareContextCP8(SQLiteDatabase db,Frozen frozen,PITSnapshotContractR952 pit,long frozenAt) {
++        if(db==null||db.inTransaction()||frozen==null||pit==null||frozen.ast.formatVersion!=3)
++            throw new IllegalArgumentException("CONTEXT_PREPARE_CONTRACT");
++        if(frozenAt<=0||frozen.createdIssue.compareTo(pit.targetIssue)>0||frozen.trainedUntil.compareTo(pit.targetIssue)>=0)
++            throw new IllegalStateException("FROZEN_IDENTITY_MISMATCH");
++        // A durable prospective capture owns this candidate/target input. Reuse its exact bytes.
++        try(Cursor c=db.rawQuery("SELECT frozen_context,context_hash FROM "+PREDRAW+" WHERE candidate_id=? AND target_issue=?",new String[]{frozen.id,pit.targetIssue})){
++            if(c.moveToFirst()){
++                FrozenGraphContextCP4 restored=FrozenGraphContextCP4.fromRecipe(c.getString(0),c.getString(1),frozen.ast,pit,frozen.model,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget());
++                if(!restored.freezeHash.equals(frozen.structure)){restored.close();throw new IllegalStateException("RECIPE_FREEZE_MISMATCH");}
++                return restored;
++            }
++        }
++        return prepareContextCP8(db,frozen,pit,frozenAt,new HashSet<String>(),new HashSet<String>(),0);
++    }
++    private static FrozenGraphContextCP4 prepareContextCP8(SQLiteDatabase db,Frozen frozen,PITSnapshotContractR952 pit,long at,
++            Set<String> ancestors,Set<String> visited,int depth) {
++        if(depth>3||ancestors.contains(frozen.structure))throw new IllegalStateException("EXPERT_CYCLE_OR_DEPTH");
++        visited.add(frozen.structure);if(visited.size()>16)throw new IllegalStateException("EXPERT_CLOSURE_BUDGET");
++        ancestors.add(frozen.structure);
++        try {
++            FeatureManifestR952 manifest=FeatureManifestR952.forAst(frozen.ast);
++            frozen.model.modern().requireManifest(manifest);pit.requireConsecutive();
++            TreeSet<String> ids=new TreeSet<String>();
++            for(TypedAtomMoleculeGraphR930.NodeSpec node:frozen.ast.graphSpec.nodes)
++                if(node.kind==TypedAtomMoleculeGraphR930.NodeKind.ATOM)ids.add(node.source);
++            ArrayList<AtomSpecCP4> specs=new ArrayList<AtomSpecCP4>();
++            for(String id:ids)try(Cursor c=db.rawQuery("SELECT atom_id,spec_hash,params_json,output_type,min_history,missing_policy,state,family,spec_version,position FROM research_atom_spec_v2 WHERE atom_id=?",new String[]{id})){
++                if(!c.moveToFirst())throw new IllegalStateException("UNKNOWN_ATOM");
++                AtomSpecCP4 spec=AtomSpecCP4.fromRegistry(c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getInt(4),c.getString(5),c.getString(6));
++                if(!spec.family.equals(c.getString(7))||!spec.version.equals(c.getString(8))||spec.position!=c.getInt(9))throw new IllegalStateException("ATOM_REGISTRY_IDENTITY");
++                specs.add(spec);
++            }
++            CandidateCompilerR952.Program program=CandidateCompilerR952.compile(frozen.ast,manifest,specs);
++            TreeMap<String,ArrayList<BindingRowCP8>> groups=new TreeMap<String,ArrayList<BindingRowCP8>>();
++            for(String hash:manifest.bindingHashes)try(Cursor c=db.rawQuery("SELECT atom_id,candidate_version,model_hash,cohort_hash,created_issue FROM research_atom_binding_v2 WHERE binding_hash=?",new String[]{hash})){
++                if(!c.moveToFirst()||!ids.contains(c.getString(0))||!TargetIssueResolver.isValid(c.getString(4))||c.getString(4).compareTo(pit.targetIssue)>=0)
++                    throw new IllegalStateException("WAIT_BINDING");
++                BindingRowCP8 row=new BindingRowCP8(hash,c.getString(0),c.getString(1),c.getString(2),c.getString(3));
++                if(!groups.containsKey(row.atom))groups.put(row.atom,new ArrayList<BindingRowCP8>());groups.get(row.atom).add(row);
++            }
++            Set<String> matrixAtomSources=MatrixBindingsCP12.atomSources(frozen.ast,manifest);
++            Set<String> matrixNodeIds=MatrixBindingsCP12.nodeIds(frozen.ast,manifest);
++            Map<String,AtomEvaluatorCP4.Binding> bindings=new HashMap<String,AtomEvaluatorCP4.Binding>();
++            Map<String,String> payloadHashes=new TreeMap<String,String>();
++            for(AtomSpecCP4 spec:specs){
++                ArrayList<BindingRowCP8> rows=groups.get(spec.atomId);
++                if(matrixAtomSources.contains(spec.atomId)){if(rows!=null)throw new IllegalStateException("MATRIX_ATOM_HAS_SECOND_BINDING_OWNER");continue;}
++                if(!spec.requiresBinding){if(rows!=null)throw new IllegalStateException("UNUSED_BINDING");continue;}
++                boolean disagreement=spec.family.equals("STRATEGY_DISAGREEMENT_TEMPLATE");
++                if(rows==null||(!disagreement&&rows.size()!=1)||(disagreement&&(rows.size()<2||rows.size()>32)))throw new IllegalStateException("WAIT_BINDING");
++                int[] masks=new int[disagreement?rows.size():0];StringBuilder groupHash=new StringBuilder("CP8_BOUND|"+spec.specHash);
++                AtomEvaluatorCP4.Binding single=null;String cohort=rows.get(0).cohort;
++                Set<String> parents=new HashSet<String>();
++                for(int i=0;i<rows.size();i++){
++                    BindingRowCP8 row=rows.get(i);
++                    if(!parents.add(row.candidate)||!cohort.equals(row.cohort))throw new IllegalStateException("BINDING_COHORT");
++                    Frozen parent=load(db,row.candidate);
++                    if(parent==null||!parent.modelHash.equals(row.model))throw new IllegalStateException("BINDING_MODEL");
++                    ArrayList<FutureRowCP8> future=readBindingRowsCP8(db,parent,pit,spec,disagreement?1:spec.mathSpec.w,at);
++                    int size=future.size(),required=disagreement||spec.family.equals("LOSS_STREAK_TEMPLATE")?1:spec.mathSpec.w;
++                    if(size<required)throw new IllegalStateException("INSUFFICIENT_FUTURE_HISTORY");
++                    int[] hits=new int[size];double[] scores=new double[size];StringBuilder b=new StringBuilder("CP8_BINDING|"+row.hash);
++                    for(int j=0;j<size;j++){FutureRowCP8 f=future.get(j);hits[j]=f.hit;scores[j]=f.score;b.append('|').append(f.canonical);}
++                    String payload=V51ChecksumEngine.sha256(b.toString());payloadHashes.put(row.hash,payload);groupHash.append('|').append(payload);
++                    if(disagreement){
++                        if(!future.get(0).issue.equals(pit.lastIssue))throw new IllegalStateException("BINDING_COHORT_TARGET");
++                        masks[i]=future.get(0).mask;
++                    }else single=new AtomEvaluatorCP4.Binding(hits,scores,new int[0],sourceOrdinalCP8(pit,future.get(size-1).issue),parent.structure,payload);
++                }
++                bindings.put(spec.atomId,disagreement?new AtomEvaluatorCP4.Binding(new int[0],new double[0],masks,pit.history.size()-1,
++                    V51ChecksumEngine.sha256(cohort),V51ChecksumEngine.sha256(groupHash.toString())):single);
++            }
++            at=System.currentTimeMillis();
++            TreeMap<String,TypedAtomMoleculeGraphR930.Value> atomValues=new TreeMap<String,TypedAtomMoleculeGraphR930.Value>();
++            try(AtomWindowCP4 window=new AtomWindowCP4(RuntimeMemoryGuardR811.algorithmAtomMatrixBudget())){
++                long ordinal=0;for(int i=pit.history.size()-1;i>=0;i--)window.append(ordinal++,pit.history.get(i).getNumberAtPosition(frozen.ast.position)-1);
++                for(TypedAtomMoleculeGraphR930.NodeSpec node:frozen.ast.graphSpec.nodes){
++                    if(node.kind!=TypedAtomMoleculeGraphR930.NodeKind.ATOM||matrixNodeIds.contains(node.qualifiedId()))continue;
++                    AtomSpecCP4 spec=program.specById(node.source);AtomEvaluatorCP4.Binding bound=bindings.get(spec.atomId);
++                    AtomEvaluatorCP4.Result result=AtomEvaluatorCP4.evaluate(spec.mathSpec,window,bound,pit.history.size());
++                    String source=V51ChecksumEngine.sha256("CP8_ATOM|"+pit.snapshotHash+'|'+spec.specHash+'|'+(bound==null?"":bound.payloadHash));
++                    atomValues.put(node.qualifiedId(),new TypedAtomMoleculeGraphR930.Value(new double[]{result.value},new boolean[]{result.present},pit.lastIssue,at,0,source));
++                }
++            }
++            ArrayList<FrozenGraphContextCP4.ExpertPrediction> experts=new ArrayList<FrozenGraphContextCP4.ExpertPrediction>();
++            for(CandidateCompilerR952.ExpertRef ref:frozen.ast.graphSpec.experts){
++                String id=null;
++                try(Cursor c=db.rawQuery("SELECT candidate_id FROM "+ResearchEvaluationRunR967.EVAL+" WHERE structural_hash=?",new String[]{ref.freezeHash})){if(c.moveToFirst())id=c.getString(0);}
++                if(id==null)throw new IllegalStateException("EXPERT_FREEZE_MISSING");
++                try(MemoryBudgetCP4.Lease modelBytes=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(262144)){
++                    Frozen parent=load(db,id);
++                    if(parent==null||!parent.structure.equals(ref.freezeHash)||!parent.modelHash.equals(ref.modelHash)
++                        ||parent.ast.position!=ref.position||!FeatureManifestR952.forAst(parent.ast).hash.equals(ref.featureManifestHash)
++                        ||parent.createdIssue.compareTo(pit.targetIssue)>0||parent.trainedUntil.compareTo(pit.targetIssue)>=0)
++                        throw new IllegalStateException("EXPERT_IDENTITY");
++                    double[] probabilities;String source;long expertAt;
++                    if(parent.ast.formatVersion==3){
++                        try(FrozenGraphContextCP4 child=prepareContextCP8(db,parent,pit,at,ancestors,visited,depth+1)){
++                            CandidateCompilerR952.Program ep=CandidateCompilerR952.compile(parent.ast,child.manifest,child.registeredSpecs);
++                            WorldFeatureComputationR974.Result input=ep.compute(pit,child);probabilities=parent.model.probabilities(input.values());source=input.outputHash;expertAt=child.frozenAt;
++                        }
++                    }else {WorldFeatureComputationR974.Result input=WorldFeatureComputationR974.compute(parent.ast,pit.history);probabilities=parent.model.probabilities(input.values());source=input.outputHash;expertAt=System.currentTimeMillis();}
++                    experts.add(new FrozenGraphContextCP4.ExpertPrediction(ref,pit.targetIssue,pit.lastIssue,expertAt,source,probabilities));
++                }
++            }
++            Map<String,MatrixBindingsCP12.Frozen> matrices=MatrixBindingsCP12.capture(db,program,pit);
++            long capturedAt=System.currentTimeMillis();for(Map.Entry<String,MatrixBindingsCP12.Frozen> e:matrices.entrySet())atomValues.put(e.getKey(),e.getValue().atomValue(capturedAt));
++            return FrozenGraphContextCP4.fromCapturedMatricesCP12(program,frozen.model,pit,frozen.structure,capturedAt,atomValues,experts,payloadHashes,matrices,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget());
++        }finally{ancestors.remove(frozen.structure);}
++    }
++    private static final class BindingRowCP8 {
++        final String hash,atom,candidate,model,cohort;
++        BindingRowCP8(String h,String a,String c,String m,String s){hash=h;atom=a;candidate=c;model=m;cohort=s;}
++    }
++    private static final class FutureRowCP8 {
++        final String issue,canonical;final int hit,mask;final double score;
++        FutureRowCP8(String i,String c,int h,int m,double s){issue=i;canonical=c;hit=h;mask=m;score=s;}
++    }
++    private static int sourceOrdinalCP8(PITSnapshotContractR952 pit,String issue){
++        for(int i=0;i<pit.history.size();i++)if(issue.equals(pit.history.get(i).issue))return pit.history.size()-1-i;
++        throw new IllegalStateException("BINDING_SOURCE_OUTSIDE_PIT");
++    }
++    private static ArrayList<FutureRowCP8> readBindingRowsCP8(SQLiteDatabase db,Frozen parent,PITSnapshotContractR952 pit,AtomSpecCP4 spec,int limit,long at){
++        if(limit<1||limit>5000)throw new IllegalArgumentException("BINDING_WINDOW");
++        ArrayList<FutureRowCP8> rows=new ArrayList<FutureRowCP8>();
++        try(Cursor c=db.rawQuery("SELECT target_issue,position,n1,n2,n3,score,hit,captured_at,record_hash,label_hash,settlement_hash,settled,proof_error FROM "+PREDRAW+" WHERE candidate_id=? AND target_issue<? ORDER BY target_issue DESC LIMIT ?",new String[]{parent.id,pit.targetIssue,String.valueOf(limit)})){
++            while(c.moveToNext()){
++                String issue=c.getString(0);int n1=c.getInt(2),n2=c.getInt(3),n3=c.getInt(4),hit=c.getInt(6);double score=c.getDouble(5);
++                if(!TargetIssueResolver.isValid(issue)||c.getInt(1)!=spec.position||!DecisionGateEngine.b12K3(n1,n2,n3)||c.isNull(6)
++                    ||hit<0||hit>1||!Double.isFinite(score)||score<0||score>1||c.getLong(7)<=0||c.getLong(7)>at
++                    ||c.getInt(11)!=1||!c.getString(12).isEmpty()||!c.getString(8).matches("[0-9a-f]{64}")
++                    ||!c.getString(9).matches("[0-9a-f]{64}")||!c.getString(10).matches("[0-9a-f]{64}")
++                    ||parent.createdIssue.compareTo(issue)>0||parent.trainedUntil.compareTo(issue)>=0)
++                    throw new IllegalStateException("BINDING_FUTURE_INTEGRITY");
++                if(!rows.isEmpty()&&!ResearchEvaluationRunR967.nextEvaluation(parent.id,issue).equals(rows.get(rows.size()-1).issue))
++                    throw new IllegalStateException("BINDING_FUTURE_GAP");
++                int mask=(1<<(n1-1))|(1<<(n2-1))|(1<<(n3-1));
++                rows.add(new FutureRowCP8(issue,issue+"|"+mask+'|'+Double.toHexString(score)+'|'+hit+'|'+c.getString(8)+'|'+c.getString(9)+'|'+c.getString(10),hit,mask,score));
++            }
++        }
++        if(!rows.isEmpty()&&ResearchEvaluationRunR967.nextEvaluation(parent.id,rows.get(0).issue).compareTo(pit.targetIssue)<0)
++            throw new IllegalStateException("BINDING_FUTURE_STALE");
++        Collections.reverse(rows);return rows;
++    }
++
++
++    static Scored score(CandidateAstR952 ast,CandidateCompilerR952.Model model,PITSnapshotContractR952 pit,FrozenGraphContextCP4 ctx,boolean audit){
++        if(ast.formatVersion!=3)return score(ast,model,pit.history,audit);
++        if(ctx==null||!ctx.modelHash.equals(model.hash()))throw new IllegalArgumentException("MODEL_FEATURE_HASH_MISMATCH");
++        CandidateCompilerR952.Program program=CandidateCompilerR952.compile(ast,ctx.manifest,ctx.registeredSpecs);
++        CandidateSandboxR952.Prediction prediction=CandidateSandboxR952.execute(program,pit,model,ctx);
++        double[] p=prediction.probabilities();
++        double[] replay=CandidateCompilerR952.Model.parse(model.payload()).probabilities(CandidateCompilerR952.decodeInput(prediction.features,model.inputDimension(),false));
++        K3ActionSpaceEngine.ActionIdentity[] actions=K3ActionSpaceEngine.enumerateIdentityUniverse();
++        CandidateExecutionAuditR932.Builder builder=audit?new CandidateExecutionAuditR932.Builder():null;
++        double[] scores=new double[actions.length];int best=0;
++        for(K3ActionSpaceEngine.ActionIdentity x:actions){int i=x.globalOrdinal;
++            scores[i]=x.position==ast.position?p[x.n1-1]+p[x.n2-1]+p[x.n3-1]:0;
++            double other=x.position==ast.position?replay[x.n1-1]+replay[x.n2-1]+replay[x.n3-1]:0;
++            if(builder!=null)builder.add(i,scores[i],other,i);if(scores[i]>scores[best])best=i;
++        }
++        return new Scored(scores,best,builder==null?null:builder.finish(best,ast.canonical,ast.canonical,model.payload(),model.payload(),model.payload()));
++    }
++    static Scored scoreRecipeCP8(FrozenConsumerRecipeR932.Recipe recipe,CandidateAstR952 ast,CandidateCompilerR952.Model model){
++        if(ast.formatVersion!=3)return score(ast,model,recipe.frozenHistory,false);
++        PITSnapshotContractR952 pit=PITSnapshotContractR952.fromFrozenHistory(recipe.target,recipe.frozenHistory,recipe.historyHash);
++        try(FrozenGraphContextCP4 ctx=FrozenGraphContextCP4.fromRecipe(recipe.contextJson,recipe.contextHash,ast,pit,model,RuntimeMemoryGuardR811.algorithmAtomMatrixBudget())){
++            if(!ctx.freezeHash.equals(recipe.structure))throw new IllegalStateException("RECIPE_FREEZE_MISMATCH");
++            return score(ast,model,pit,ctx,false);
++        }
++    }
++
++
++static FrozenConsumerRecipeR932.Recipe recipeLaneCP12(DbStore store,Frozen f,UnifiedResearchChoiceR932.Evidence evidence,double weight,String base,String target,String lane)throws JSONException {
++        RecipeBudgetScopeCP12.requireActive();
++        if(!lane.equals("INVENTED_ALGORITHM_CERTIFIED")&&!lane.equals(CertifiedPredictionR974.LANE))throw new IllegalArgumentException("RECIPE_LANE");
++        PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,f.ast.formatVersion==3?5000:f.ast.lookback);
++        if(!base.equals(pit.lastIssue))throw new IllegalStateException("R958_CONSUMER_BASE_MISMATCH");
++        JSONObject root=new JSONObject();root.put("revision",FrozenConsumerRecipeR932.REVISION);root.put("source_sha256",SourceManifestR815.SOURCE_TREE_SHA256);
++        root.put("lane",lane);root.put("id",f.id);root.put("spec",f.ast.canonical);root.put("state",f.model.payload());root.put("structure",f.structure);root.put("evidence",evidence.evidence);root.put("certificate",evidence.certificate);root.put("weight",weight);root.put("base",base);root.put("target",target);
++        root.put("evaluation_rule",f.rule);root.put("evaluation_epoch",f.epoch);
++        root.put("history_hash",pit.snapshotHash);root.put("surface_hash","");root.put("history_rows",pit.history.size());root.put("elapsed_ms",0);
++        StringBuilder historyWire=new StringBuilder(Math.min(FrozenHistoryWireCP11.MAX_CHARS,pit.history.size()*80));
++        for(int i=pit.history.size()-1;i>=0;i--)FrozenHistoryWireCP11.append(historyWire,pit.history.get(i));
++        root.put("history",new JSONArray());root.put("history_wire",historyWire.toString());
++        if(f.ast.formatVersion==3)try(FrozenGraphContextCP4 ctx=prepareContextCP8(store.readable(),f,pit,System.currentTimeMillis())){
++            root.put("frozen_context",ctx.canonicalJson());root.put("context_hash",ctx.contextHash);
++        }
++        try{return new FrozenConsumerRecipeR932.Recipe(root);}catch(JSONException e){throw e;}catch(Exception e){throw new IllegalArgumentException("R958_CONSUMER_RECIPE",e);}
++    }
++
++public static int captureReservedCP12(DbStore store,DeferredEvidenceSnapshotR36.Snapshot snapshot){
++        int n=0;
++        for(GlobalResearchScheduleR932.CaptureReservationCP11 r:GlobalResearchScheduleR932.dueReservationsCP11(store.readable(),snapshot.targetIssue)){
++            ResearchWorkBudgetR927.checkpoint();
++            if(drawn(store.readable(),snapshot.targetIssue))throw new IllegalStateException("R958_EVAL_POSTDRAW");
++            ResearchWorkBudgetR927.Scope slice=ResearchWorkBudgetR927.enter(GlobalResearchScheduleR932.CAPTURE_COST_US_CP11/1000L);
++            try{n+=captureOneCP12(store,snapshot,r.key.substring("algorithm:".length()),r);}
++            catch(IllegalStateException resource){
++                if(!"ALGORITHM_MEMORY_BUDGET".equals(resource.getMessage()))throw resource;
++                final GlobalResearchScheduleR932.CaptureReservationCP11 held=r;
++                boolean persisted=store.coordinatorR36().runAtomicWrite("CP12_CAPTURE_MEMORY_HOLD",new DatabaseCoordinator.WriteRunnable(){
++                    public void run(SQLiteDatabase db){
++                        GlobalResearchScheduleR932.holdReservationCP12(db,held,snapshot.targetIssue,"MEMORY_PRESSURE");
++                        ResearchCaptureLedgerR932.record(db,snapshot.targetIssue,held.key,"HOLD","MEMORY_PRESSURE","",0,false);
++                    }
++                });
++                if(!persisted)throw new IllegalStateException("CAPTURE_HOLD_COMMIT_FAILED",resource);
++                return n;
++            }
++            finally{ResearchWorkBudgetR927.leave(slice);}
++        }
++        return n;
++    }
++
++private static int captureOneCP12(DbStore store,DeferredEvidenceSnapshotR36.Snapshot snapshot,String id,
++            final GlobalResearchScheduleR932.CaptureReservationCP11 reservation){
++        final String target=snapshot.targetIssue;
++        // Producer capture owns PIT/context allocations; consumer Recipe lanes have separate scopes.
++        try(com.ethk3.novaonepro.r952.MemoryBudgetCP4.Lease captureMemory=
++                RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(4L<<20)){
++            ResearchWorkBudgetR927.checkpoint();
++            final Frozen f=load(store.readable(),id);
++            if(f==null||!ResearchEvaluationRunR967.mayCapture(store.readable(),f,target))return 0;
++            final PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,f.ast.formatVersion==3?5000:f.ast.lookback);
++            if(!pit.lastIssue.equals(snapshot.baseIssue))throw new IllegalStateException("R958_EVAL_BASE_MISMATCH");
++            final com.ethk3.novaonepro.r952.AtomRegimePolicyCP12.Receipt matrixRegime=
++                    com.ethk3.novaonepro.r952.AtomRegimePolicyCP12.prepareIfAvailableCP12(store,pit,f.ast.position,System.currentTimeMillis());
++            String key="algorithm:"+id;
++            ResearchCaptureLedgerR932.record(store,target,key,"EXECUTION_STARTED","FROZEN_NUMERIC_FULL1200",0);
++            final String contextJson,contextHash;
++            final Scored scored;
++            if(f.ast.formatVersion==3){
++                try(FrozenGraphContextCP4 ctx=prepareContextCP8(store.readable(),f,pit,System.currentTimeMillis())){
++                    scored=score(f.ast,f.model,pit,ctx,true);contextJson=ctx.canonicalJson();contextHash=ctx.contextHash;
++                }
++            }else{scored=score(f.ast,f.model,pit.history,true);contextJson=contextHash="";}
++            final K3ActionSpaceEngine.ActionIdentity selected=K3ActionSpaceEngine.enumerateIdentityUniverse()[scored.ordinal];
++            final String input=V51ChecksumEngine.sha256(snapshot.recordHash+'|'+pit.snapshotHash+(contextHash.isEmpty()?"":"|"+contextHash));
++            final String prediction=V51ChecksumEngine.sha256("R958_FROZEN_PREDRAW|"+id+'|'+target+'|'+input+'|'+scored.proof.scoreHash+'|'+scored.ordinal);
++            boolean ok=store.coordinatorR36().runAtomicWrite("R958_FROZEN_FULL1200_PREDRAW",new DatabaseCoordinator.WriteRunnable() {
++                public void run(SQLiteDatabase db) {
++                    if(drawn(db,target))throw new IllegalStateException("R958_EVAL_POSTDRAW");
++                    if(matrixRegime!=null)com.ethk3.novaonepro.r952.AtomRegimePolicyCP12.commit(db,matrixRegime);
++                    if(reservation!=null){
++                        GlobalResearchScheduleR932.CaptureReservationCP11 currentReservation=GlobalResearchScheduleR932.reservationForStudyCP11(db,reservation.study);
++                        if(currentReservation==null||!reservation.id.equals(currentReservation.id)||reservation.generation!=currentReservation.generation
++                                ||!target.equals(currentReservation.next)||!("ACTIVE".equals(currentReservation.state)||"RESERVED".equals(currentReservation.state)))
++                            throw new IllegalStateException("CAPTURE_RESERVATION_STALE");
++                    }
++                    Frozen current=load(db,f.id);
++                    if(current==null||!current.structure.equals(f.structure)||!ResearchEvaluationRunR967.mayCapture(db,current,target))throw new IllegalStateException("R958_EVAL_MODEL_CHANGED");
++                    db.execSQL("INSERT OR IGNORE INTO "+PREDRAW+"(target_issue,candidate_id,record_hash,input_hash,position,n1,n2,n3,score,captured_at,frozen_context,context_hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{target,f.id,prediction,input,selected.position,selected.n1,selected.n2,selected.n3,scored.scores[scored.ordinal],System.currentTimeMillis(),contextJson,contextHash});
++                    try(Cursor c=db.rawQuery("SELECT record_hash FROM "+PREDRAW+" WHERE target_issue=? AND candidate_id=?",new String[]{target,f.id})) {
++                        if(!c.moveToFirst()||!prediction.equals(c.getString(0)))throw new IllegalStateException("R958_EVAL_REPLAY_CONFLICT");
++                    }
++                    String key="algorithm:"+f.id;
++                    scored.proof.freeze(db,key,f.structure,input,snapshot.baseIssue,target,prediction);
++                    if(reservation!=null){
++                        // Raw prospective calibration is upstream of formal window guards.
++                        String bundle,selector;
++                        try(Cursor champion=db.rawQuery("SELECT bundle_hash,selection_hash FROM "+FixedResearchWindowR932.CHAMPION+" WHERE target_issue=? LIMIT 2",new String[]{target})){
++                            if(!champion.moveToFirst())throw new IllegalStateException("CAPTURE_CHAMPION_MISSING");
++                            bundle=champion.getString(0);selector=champion.getString(1);
++                            if(champion.moveToNext())throw new IllegalStateException("CAPTURE_CHAMPION_AMBIGUOUS");
++                        }
++                        if(!reservation.study.equals(CandidateCalibrationR932.study(db,key,f.structure,bundle,selector)))
++                            throw new IllegalStateException("CAPTURE_STUDY_DEPENDENCY_CHANGED");
++                        CandidateCalibrationR932.captureOrPredict(db,key,f.structure,bundle,selector,target,prediction,
++                                scored.scores[scored.ordinal],selected.position,selected.n1,selected.n2,selected.n3);
++                    }
++                    FixedResearchWindowR932.freezePair(db,key,f.structure,target,prediction,selected.position,selected.n1,selected.n2,selected.n3,scored.scores[scored.ordinal]);
++                    ResearchCaptureLedgerR932.record(db,target,key,"FROZEN","EVALUATION_ONLY_NO_TRAINING",prediction,Math.max(1,scored.proof.elapsedNs/1000000),true);
++                }
++            });
++            if(!ok)throw new IllegalStateException("R958_EVAL_FREEZE_COMMIT_FAILED");
++        return 1;
++        }
++    }
+ }

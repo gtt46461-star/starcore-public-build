@@ -1,0 +1,54 @@
+﻿priority,file,area,required_change
+P0,AutoFetchService.java,后台/预测运行,真机后台尚未证明；启动/恢复/抓取/分析/结算均集中在超大Service，需拆分稳态与冷启动遥测并做T29-T34真机闭环
+P0,BackgroundRuntimeCapabilityR811.java,系统后台权限,报告显示电池无限制=NO，物理后台不可能宣称完成；UI必须长期显示未授权红灯直到补齐
+P0,BootReceiver.java,后台恢复,Boot/Replace/Unlock有恢复入口，但taskRemoved/kill/24h真机证据仍缺
+P0,DatabaseCoordinator.java,数据库启动,critical schema冷启动约34.8s，是39.6s壁钟P95的重要来源；需版本化一次迁移、预校验和启动轻量化
+P0,DbHelper.java,数据库Schema,8572+行且大量DDL；critical路径仍含R906/R811 research schema，启动成本过高；需把非主链研究DDL移出P0启动
+P0,DecisionGateEngine.java,REAL/决策,当前机会频率0，受MODEL_NOT_PROVEN/BuildIdentity及稳定性熵等门阻断；不能靠放宽门硬凑15%
+P0,InternalWatchdogReceiverR815.java,后台恢复,内部watchdog存在但不能绕过OEM/force-stop；需在UI展示真实限制和最近恢复记录
+P0,RuntimeHealthLedgerR36.java,后台运行真值,运行真值存在，但当前报告仍会把启动前缺口混入当前覆盖；需增加release/process epoch范围
+P0,ServiceWatchdogJobService.java,后台恢复,JobScheduler存在但尚未完成真机矩阵证明
+P0,V51BuildManifest.java,BuildIdentity,受控候选出现BUILD_IDENTITY_HARD_BLOCK；需逐字段定位而不是只显示总状态
+P0,V51RuntimeOrchestrator.java,预测主链,请求到提交P95被冷启动/排队混合；需分解queue/db-start/compute/commit并确保每期请求
+P1,AlgorithmEvidencePolicyR912.java,算法淘汰/晋级,coverage<0.60且N>=120可不可逆淘汰；coverage可能混入系统未捕获/暂停造成的基础设施缺口，需拆算法可用性覆盖与系统捕获覆盖
+P1,AlgorithmEvolutionLifecycleR912.java,算法生命周期,已淘汰后lifecycle_reason被重写为IRREVERSIBLE_EVIDENCE_PRUNE，原始淘汰原因丢失；必须保留first_prune_reason/metric snapshot并支持纠错复核
+P1,AlgorithmProductionGovernorR915.java,算法接入主链,只读取CHALLENGER_FUTURE_OOS；当前0挑战者所以NO_CERTIFIED_ALGORITHM、权重0
+P1,CertifiedResearchMixerR915.java,创生资产接主链,无证书则NO_CERTIFIED_NEW_ASSET，主链贡献0；不能把38/50%小样本直接接入
+P1,DeepLearningBridgeEngine.java,深度学习桥,大量研究/兼容逻辑，需明确哪些信号真实进入当前NumberQ/Ranker，哪些仅诊断
+P1,DiagnosticTextExportR923.java,检测报告导出,导出能力存在；报告需新增UI/资源/Manifest/逐文件审计章节
+P1,K3FailureDiagnosisEngine.java,失败诊断,同上；根因优先级正确但口径还不够细
+P1,MainActivity.java,UI/可观察性,影子统计、抓取、研究等塞进综合长文本且固定行数/省略；用户无法一眼确认每期抓取→分析→出号→结算
+P1,ModelEffectivenessAnalyzerR35.java,模型证明,当前MODEL_PROVEN=false；需要冻结数据集/Artifact/严格时间OOS证书
+P1,ModelLearningActivity.java,UI/研究页,复用Diagnosis大文本页，四大能力没有结构化表格/趋势/候选晋级进度，难以理解
+P1,OosAfterDrawWriterR36.java,OOS,严格赛前冻结后结算逻辑存在，但有效校准样本=0，需补合法SelectedHitP
+P1,ResearchCertificateR906.java,证书,资产证书门极严：N240、coverage95%、Brier≤.21、ECE≤.06、block≥.70等；当前0证书需要先保证连续捕获和可执行Parity，再谈证书
+P1,ResearchDashboardR924.java,UI/四框,已有四框数据源，但需要拆清深度学习/动态迭代/创造/原子因子的职责与KPI，避免混杂
+P1,ResearchEvaluationSchedulerR906.java,Research调度,活跃评估受MAX_RUNNABLE/队列限制；需防止高证据候选被容量暂停长期饿死
+P1,ResearchMainlineGovernorR903.java,研究主链治理,只有证书化可执行资产才能重排SHADOW；当前长期fallback
+P1,ResearchPredrawCaptureR923.java,Research赛前捕获,四lane轮转且总预算6200ms；依赖durable snapshot，任何上游延迟/pressure都会减少Future-OOS样本
+P1,ResearchTinyDeepLearnerR909.java,TinyDeep,正在SHADOW更新但不等于生产证明；需明确独立OOS贡献和消融
+P1,RuntimeTruthSnapshotR906.java,UI真值,统一真值是优点；下一版要增加逐期pipeline ledger、shadow window stats、certificate funnel
+P1,ServiceHeartbeatStore.java,后台可视化,已有heartbeat数据，但缺独立可视化流水表
+P1,V51ActionRankerArtifact.java,动作Ranker,PROVEN=false、RANK_ORDER_PASSED=false、STABLE_FOLDS=0；生产排序退化为手工researchScore
+P1,V51ActionRankerEngine.java,实时排序核心,未证明时使用researchScore=1.8*rawP+0.28*stability-0.14*entropy+thirdMargin+微弱meta系数
+P1,V51ExpertGateArtifact.java,专家Gate,PROVEN=false；运行时走中性/证据质量研究路由
+P1,V51NumberModelArtifact.java,号码模型,DATA_SHA256/参数均UNTRAINED，PROVEN=false；当前号码面是研究型专家融合，不是冻结训练模型
+P1,V51PermutationNumberModelEngine.java,实时出号核心,9专家→证据质量路由→Sinkhorn；Artifact未证明时仍可出SHADOW预测，但不是已证明高胜率生产模型
+P1,V51PolicySurfaceArtifact.java,策略曲面,CELLS为空、MODEL_GATE_PASSED=false；选择性策略未训练
+P1,V51PredictabilityArtifact.java,可预测性,PROVEN=false、权重全零；未形成已证明的可预测性模型
+P1,V51SelectedActionCalibrationEngine.java,校准,Artifact未证明则返回NaN；这是MODEL_NOT_PROVEN长期存在的核心之一
+P1,V51SelectedCalibrationArtifact.java,概率校准,PROVEN=false；SelectedHitP直接N/A，无法用校准概率做可靠门策略
+P1,V57CompleteDiagnosticReportEngine.java,检测报告,运行/研究很全，但没有完整AndroidManifest、按钮接线、layout变体、资源孤儿/缺失、545文件静态健康章节
+P1,V57FailureDiagnosisEngine.java,失败诊断,需要把冷启动/稳态、版本前/版本后覆盖分开，避免错修模型
+P2,CanonicalObservationWriterR36.java,账本,first-write-wins要继续保持并增加逐期UI可见性
+P2,FormulaAlgorithmAuditEngine.java,公式审计,1852公式数量很大，需做去重/族级FDR/有效性贡献，而不是继续堆数量
+P2,ImprovementChallengerPlanEngine.java,Challenger,当前只生成计划，productionMutation=0；要把训练、冻结、证书流水真正跑通
+P2,K3ActionSpaceEngine.java,1200动作,1200公式存在；延后动作行未全收敛时FULL仍pending
+P2,K3FunnelOrchestrator.java,K3漏斗,静态合同存在；需真机逐期持久化7阶段trace
+P2,StrategyConflictAblationEngine.java,消融,已有但要进入候选淘汰/晋级解释，避免重复策略堆叠
+P2,V51PermutationFeatureEngine.java,特征,需加入逐特征PIT/leakage和训练/服务parity报告
+P2,V51PositionActionBuilder.java,1200动作,必须继续全量，不可为提速删动作
+P2,V51RelationGraphVerifier.java,跨位置,工程存在但物理运行/PIT证据仍需复测
+P2,V51Repository.java,账本,canonical/动作持久化是真值基础，延后FULL仍pending需收敛
+INFO,CodeOwnershipCompletenessAuditEngine.java,Owner,唯一Owner静态审计PASS，继续保持
+INFO,TargetIssueResolver.java,期号,当前唯一Owner正确，继续保持

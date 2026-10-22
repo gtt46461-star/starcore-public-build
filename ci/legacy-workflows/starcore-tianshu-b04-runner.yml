@@ -1,0 +1,150 @@
+name: Starcore Tianshu B04 Artifact First Runner
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b04
+    paths:
+      - '.github/starcore-tianshu-b04/**'
+      - '.github/workflows/starcore-tianshu-b04-runner.yml'
+  pull_request:
+    branches:
+      - accepted/starcore-tianshu-b03-20260805
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b04-artifact-first
+  cancel-in-progress: false
+
+env:
+  B03_ACCEPTED_SHA: a193e100fbed90ab66434180f20c58886b3e9260
+  V51_FROZEN_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+  BRANCH_NAME: agent/starcore-tianshu-b04
+  DELIVERY_NAME: Starcore-Tianshu-B04-20260806-Accepted
+  PATCH_SHA256: f82df364ff3be30c5f600e9c73f06cbb85e5638b526b32cc276f9b1bd06ef622
+  NEW_FILES_PATCH_SHA256: f6c0020e9f176460b6e9aeed91d9bd56c57cca15730a7c64a56765ad61ad236a
+  RUNNER_ARCHIVE_SHA256: 8c2b38fb8069ba4bf68d47d82ad8211eab24156b13802e52cbd56e93b4d128b9
+
+jobs:
+  b04-artifact-first:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact B04 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b04
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Restore deterministic runner scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .b04-runner
+          cat .github/starcore-tianshu-b04/runner.part-* | base64 --decode > .b04-runner/scripts.tar.gz
+          test "$(sha256sum .b04-runner/scripts.tar.gz | cut -d' ' -f1)" = "$RUNNER_ARCHIVE_SHA256"
+          tar -xzf .b04-runner/scripts.tar.gz -C .b04-runner
+          chmod +x .b04-runner/*.sh
+          python3 - <<'PY_PATCH'
+          from pathlib import Path
+          p = Path('.b04-runner/01_precheck.sh')
+          text = p.read_text(encoding='utf-8')
+          start = '# STEP: Reconstruct deterministic B04 patch\n'
+          end = '# STEP: Run B04 static contract Harness\n'
+          if text.count(start) != 1 or text.count(end) != 1:
+              raise SystemExit('B04_PRECHECK_SECTION_MATCH_NOT_ONE')
+          prefix, rest = text.split(start, 1)
+          old_body, suffix = rest.split(end, 1)
+          new_lines = [
+              'set -euo pipefail',
+              'cat .github/starcore-tianshu-b04/patch.part-* | base64 --decode | gzip --decompress > tools/B04_SOURCE.patch',
+              'cat .github/starcore-tianshu-b04/new.part-* | base64 --decode | gzip --decompress > tools/B04_NEW_FILES.patch',
+              'test "$(sha256sum tools/B04_SOURCE.patch | cut -d\' \' -f1)" = "$PATCH_SHA256"',
+              'test "$(sha256sum tools/B04_NEW_FILES.patch | cut -d\' \' -f1)" = "$NEW_FILES_PATCH_SHA256"',
+              'git apply --check tools/B04_SOURCE.patch',
+              'git apply --check tools/B04_NEW_FILES.patch',
+              'git apply tools/B04_SOURCE.patch',
+              'git apply tools/B04_NEW_FILES.patch',
+              'git diff --check',
+              'sha256sum .github/starcore-tianshu-b04/patch.part-* .github/starcore-tianshu-b04/new.part-* tools/B04_SOURCE.patch tools/B04_NEW_FILES.patch > reports/B04_PATCH_SHA256.txt',
+              'git diff --stat > reports/B04_DIFF_STAT.txt',
+              "git status --porcelain -- app/build.gradle app/src/main | sed -E 's/^.. //' | sort -u > reports/B04_CHANGED_FILES.txt",
+              'test "$(wc -l < reports/B04_CHANGED_FILES.txt)" -eq 15',
+              '',
+          ]
+          new_body = '\n'.join(new_lines) + '\n'
+          text = prefix + start + new_body + end + suffix
+          date_start = "    date=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime('%Y-%m-%d'); status,raw=request(base,{'code':'Binance1-PK10','date':date}); payload=json.loads(raw.decode('utf-8')); data,valid=rows(payload)\n"
+          report_marker = "report={'game':'Binance1-PK10'"
+          if text.count(date_start) != 1 or text.count(report_marker) != 1:
+              raise SystemExit('B04_LIVE_DATE_SECTION_MATCH_NOT_ONE')
+          live_prefix, live_rest = text.split(date_start, 1)
+          old_date_body, live_suffix = live_rest.split(report_marker, 1)
+          date_lines = [
+              "    latest_row=data[0] if isinstance(data,list) and data else {}",
+              "    raw_open=str(latest_row.get('openTime','')).strip()",
+              "    date_match=re.search(r'(\\d{4})[-/](\\d{1,2})[-/](\\d{1,2})',raw_open)",
+              "    if date_match:",
+              "        latest_date=datetime.date(int(date_match.group(1)),int(date_match.group(2)),int(date_match.group(3)))",
+              "    else:",
+              "        try:",
+              "            ts=float(raw_open); ts=ts/1000.0 if ts>100000000000 else ts",
+              "            latest_date=datetime.datetime.fromtimestamp(ts,datetime.timezone(datetime.timedelta(hours=8))).date()",
+              "        except Exception:",
+              "            latest_date=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date()",
+              "    date=(latest_date-datetime.timedelta(days=1)).strftime('%Y-%m-%d')",
+              "    status,raw=request(base,{'code':'Binance1-PK10','date':date}); payload=json.loads(raw.decode('utf-8')); data,valid=rows(payload)",
+              "    results.append({'line':line,'operation':'DATE','query_date':date,'http':status,'rows':len(data) if isinstance(data,list) else 0,'valid':valid,'ok':status==200 and payload.get('lotteryCode')=='Binance1-PK10' and isinstance(data,list) and valid==len(data) and valid>0,'sha256':hashlib.sha256(raw).hexdigest()})",
+              "",
+          ]
+          text = live_prefix + '\n'.join(date_lines) + '\n' + report_marker + live_suffix
+          p.write_text(text, encoding='utf-8')
+          PY_PATCH
+          bash -n .b04-runner/*.sh
+
+      - name: Run short gates and live API verification
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          trap 'rc=$?; echo "::error::B04_PRECHECK_FAILED line=$LINENO command=$BASH_COMMAND rc=$rc"; exit $rc' ERR
+          source .b04-runner/01_precheck.sh
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Build, inspect and package artifacts
+        shell: bash
+        run: .b04-runner/02_build_package.sh
+
+      - name: Upload accepted B04 delivery first
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B04-Accepted-Delivery
+          path: |
+            delivery/${{ env.DELIVERY_NAME }}-MASTER-with-APK.zip
+            delivery/${{ env.DELIVERY_NAME }}-shadow-debug.apk
+            delivery/${{ env.DELIVERY_NAME }}-full-source.zip
+            delivery/${{ env.DELIVERY_NAME }}-incremental.zip
+            delivery/${{ env.DELIVERY_NAME }}-evidence.zip
+            delivery/B04_IDENTITY.txt
+            delivery/SHA256SUMS.txt
+          retention-days: 90
+
+      - name: Commit accepted B04 source after artifact upload
+        shell: bash
+        run: .b04-runner/03_commit.sh

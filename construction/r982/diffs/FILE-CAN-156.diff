@@ -1,0 +1,138 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java b/app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java
+new file mode 100644
+index 0000000..42ed93c
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java
+@@ -0,0 +1,132 @@
++package com.ethk3.novaonepro;
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import android.system.Os;
++import android.system.OsConstants;
++import java.io.*;
++import java.nio.channels.*;
++import java.nio.charset.StandardCharsets;
++import java.security.*;
++import java.util.*;
++
++/** Only the :diagnostics RETENTION_PAGE worker calls run. Publishes files, never live DB rows. */
++public final class RetentionArchiveIoCP12 {
++    private static final long NATIVE_BUDGET=4L<<20;
++    private RetentionArchiveIoCP12(){}
++    public static RetentionArchiveProtocolCP12.Receipt run(File filesDir,RetentionArchiveProtocolCP12.Page page,
++            File jobDirectory,File snapshot,String snapshotSha256,ReportNativeCP4.Control control)throws IOException {
++        if(filesDir==null||page==null||control==null)throw new IOException("RETENTION_IO_INPUT");
++        if(!RetentionTableRegistryCP12.HASH.equals(page.registryHash)||!ReleaseManifestR926.MANIFEST_SHA256.equals(page.releaseHash)
++                ||!RetentionTableRegistryCP12.require(page.table).archiveAndPrune())throw new IOException("RETENTION_REQUEST_IDENTITY");
++        File job=jobDirectory.getCanonicalFile();if(!job.getPath().startsWith(filesDir.getCanonicalPath()+File.separator))throw new IOException("RETENTION_JOB_PATH");
++        File staging=new File(job,page.requestId+".partial");
++        try(RetentionSnapshotRowsCP7.VerifiedSnapshot verified=RetentionSnapshotRowsCP7.VerifiedSnapshot.verify(job,snapshot,snapshotSha256,control)){
++            // Metadata/generation connection closes before the separately budgeted native reader.
++            try(SQLiteDatabase db=SQLiteDatabase.openDatabase(snapshot.getPath(),null,SQLiteDatabase.OPEN_READONLY|SQLiteDatabase.NO_LOCALIZED_COLLATORS)){
++                for(RetentionArchiveProtocolCP12.RowVersion row:page.rows){check(control);try(Cursor c=db.rawQuery(
++                        "SELECT COALESCE((SELECT r.generation FROM research_row_revision_v2 r WHERE r.source_table=? AND r.source_rowid=t.rowid),0) FROM \""+page.table+"\" t WHERE t.rowid=?",new String[]{page.table,Long.toString(row.rowId)})){
++                    if(!c.moveToFirst()||c.getLong(0)!=row.generation)throw new IOException("STALE_PAGE");
++                }}
++            }
++            try(RetentionSnapshotRowsCP7 source=RetentionSnapshotRowsCP7.openSelected(verified,page.table,page.rowIds(),NATIVE_BUDGET,control);
++                FileOutputStream out=new FileOutputStream(staging)){
++                if(!source.shape.schemaHash.equals(page.schemaHash))throw new IOException("RETENTION_SCHEMA_CHANGED");
++                RetentionRowCodecCP5.writeTable(source.shape,source,out,()->check(control));out.getFD().sync();
++            }
++            RetentionArchiveProtocolCP12.Receipt receipt=verifyPreparedFile(staging,page,snapshotSha256,control);
++            File destination=RetentionArchiveProtocolCP12.casFile(filesDir,receipt.archiveHash),root=destination.getParentFile();
++            if(!root.isDirectory()&&!root.mkdirs())throw new IOException("RETENTION_CAS_MKDIR");
++            File lockPath=new File(root,receipt.archiveHash+".lock");
++            try(RandomAccessFile lock=new RandomAccessFile(lockPath,"rw")){
++                FileLock lease;try{lease=lock.getChannel().tryLock();}catch(OverlappingFileLockException busy){throw new IOException("RETENTION_CAS_BUSY",busy);}
++                if(lease==null)throw new IOException("RETENTION_CAS_BUSY");
++                try{
++                    if(destination.exists()){
++                        RetentionArchiveProtocolCP12.Receipt existing=verifyPreparedFile(destination,page,snapshotSha256,control);
++                        if(!existing.archiveHash.equals(receipt.archiveHash)||!existing.manifestHash.equals(receipt.manifestHash))throw new IOException("RETENTION_CAS_COLLISION");
++                        if(!staging.delete())throw new IOException("RETENTION_PARTIAL_DELETE");
++                    }else{
++                        try{Os.rename(staging.getPath(),destination.getPath());}catch(Exception e){throw new IOException("RETENTION_CAS_RENAME",e);}
++                    }
++                    syncDirectory(root);return receipt;
++                }finally{lease.release();}
++            }
++        }finally{
++            // Interrupted output has no database receipt. Keep for 1h job cleanup/recovery.
++        }
++    }
++    public static RetentionArchiveProtocolCP12.Receipt verifyPreparedFile(File file,RetentionArchiveProtocolCP12.Page page,String snapshot,
++            ReportNativeCP4.Control control)throws IOException {
++        final ArrayList<RetentionArchiveProtocolCP12.Member> members=new ArrayList<>();
++        final byte[][] pending={null};final int[] ordinal={-1};
++        RetentionRowCodecCP5.ArchiveDigest digest;
++        try(InputStream in=new BufferedInputStream(new FileInputStream(file),8192)){
++            digest=RetentionRowCodecCP5.readVerify(in,new RetentionRowCodecCP5.RowConsumer(){
++                public void beginTable(RetentionRowCodecCP5.TableShape shape)throws IOException{if(!shape.tableName.equals(page.table)||!shape.schemaHash.equals(page.schemaHash)||!shape.snapshotId.equals(snapshot))throw new IOException("RETENTION_FILE_IDENTITY");}
++                public void beginRow(long index,byte[] key)throws IOException{if(index!=members.size()||index>=page.rows.size())throw new IOException("RETENTION_FILE_COUNT");ordinal[0]=(int)index;pending[0]=key;}
++                public void cellHeader(int column,int type,long length){}
++                public void cellBytes(int column,byte[] buffer,int offset,int count){}
++                public void endRow(String rowHash){RetentionArchiveProtocolCP12.RowVersion row=page.rows.get(ordinal[0]);members.add(new RetentionArchiveProtocolCP12.Member(row.rowId,row.generation,pending[0],rowHash));pending[0]=null;}
++                public void endTable(RetentionRowCodecCP5.ArchiveDigest verified)throws IOException{if(verified.rowCount!=page.rows.size())throw new IOException("RETENTION_FILE_COUNT");}
++            },()->check(control));
++        }
++        if(file.length()!=digest.byteCount)throw new IOException("RETENTION_FILE_SIZE");
++        return new RetentionArchiveProtocolCP12.Receipt(page,digest.rawSha256,digest.byteCount,snapshot,digest.rowHashChainRoot,System.currentTimeMillis(),members);
++    }
++    /** Binary immutable reply; AtomicFile is the Service job journal, never this CAS identity. */
++    public static void writeReceipt(File destination,RetentionArchiveProtocolCP12.Receipt receipt)throws IOException {
++        if(destination==null||receipt==null)throw new IOException("RETENTION_RECEIPT_INPUT");
++        File root=destination.getCanonicalFile().getParentFile();if(!root.isDirectory()&&!root.mkdirs())throw new IOException("RETENTION_RECEIPT_MKDIR");
++        File staging=new File(root,destination.getName()+".partial");
++        try(FileOutputStream raw=new FileOutputStream(staging);DataOutputStream out=new DataOutputStream(new BufferedOutputStream(raw,8192))){
++            out.writeInt(0x53435232);bytes(out,receipt.page.requestJson.getBytes(StandardCharsets.UTF_8));string(out,receipt.archiveHash);out.writeLong(receipt.byteCount);string(out,receipt.snapshotHash);string(out,receipt.chainRoot);out.writeLong(receipt.verifiedAt);out.writeInt(receipt.members.size());
++            for(RetentionArchiveProtocolCP12.Member m:receipt.members){out.writeLong(m.rowId);out.writeLong(m.generation);bytes(out,m.key());string(out,m.rowHash);}string(out,receipt.manifestHash);out.flush();raw.getFD().sync();
++        }
++        if(destination.exists()){
++            RetentionArchiveProtocolCP12.Receipt existing=readReceipt(destination);
++            if(!existing.manifestHash.equals(receipt.manifestHash)||!existing.archiveHash.equals(receipt.archiveHash))throw new IOException("RETENTION_RECEIPT_COLLISION");
++            if(!staging.delete())throw new IOException("RETENTION_RECEIPT_PARTIAL_DELETE");
++        }else try{Os.rename(staging.getPath(),destination.getPath());}catch(Exception e){throw new IOException("RETENTION_RECEIPT_RENAME",e);}
++        syncDirectory(root);
++    }
++    public static RetentionArchiveProtocolCP12.Receipt readReceipt(File file)throws IOException {
++        if(file==null||!file.isFile()||file.length()<1||file.length()>RetentionArchiveProtocolCP12.MAX_RECEIPT)throw new IOException("RETENTION_RECEIPT_BOUND");
++        try(DataInputStream in=new DataInputStream(new BufferedInputStream(new FileInputStream(file),8192))){
++            if(in.readInt()!=0x53435232)throw new IOException("RETENTION_RECEIPT_MAGIC");
++            RetentionArchiveProtocolCP12.Page page=RetentionArchiveProtocolCP12.Page.parse(utf8(bytes(in,RetentionArchiveProtocolCP12.MAX_REQUEST)));
++            String archive=string(in);long count=in.readLong();String snapshot=string(in),chain=string(in);long at=in.readLong();int n=in.readInt();
++            if(n<1||n!=page.rows.size())throw new IOException("RETENTION_RECEIPT_COUNT");
++            ArrayList<RetentionArchiveProtocolCP12.Member> members=new ArrayList<>();for(int i=0;i<n;i++)members.add(new RetentionArchiveProtocolCP12.Member(in.readLong(),in.readLong(),bytes(in,RetentionArchiveProtocolCP12.MAX_KEY),string(in)));
++            String manifest=string(in);if(in.read()!=-1)throw new IOException("RETENTION_RECEIPT_TRAILING");
++            RetentionArchiveProtocolCP12.Receipt result=new RetentionArchiveProtocolCP12.Receipt(page,archive,count,snapshot,chain,at,members);if(!result.manifestHash.equals(manifest))throw new IOException("RETENTION_RECEIPT_MANIFEST");return result;
++        }catch(IllegalArgumentException malformed){throw new IOException("RETENTION_RECEIPT_MALFORMED",malformed);}
++    }
++    /** Bounded consumption of Service-owned immutable proof; caller holds the archive shared lock.
++     * Service run() is the unique full-byte verifier. Internal files are not a proof against root-level tampering.
++     */
++    public static RetentionArchiveProtocolCP12.Receipt validatePublishedProof(File filesDir,File reply,RetentionArchiveProtocolCP12.Receipt claimed)throws IOException {
++        if(filesDir==null||reply==null||claimed==null)throw new IOException("RETENTION_PROOF_INPUT");
++        File base=filesDir.getCanonicalFile(),root=new File(base,"retention-replies-cp12");
++        File exact=new File(root,claimed.page.requestId+".receipt");
++        if(!root.getCanonicalFile().equals(root)||!exact.getCanonicalFile().equals(exact)||!reply.getCanonicalFile().equals(exact))throw new IOException("RETENTION_PROOF_PATH");
++        RetentionArchiveProtocolCP12.Receipt fresh=readReceipt(exact);
++        if(!fresh.manifestHash.equals(claimed.manifestHash)||!fresh.archiveHash.equals(claimed.archiveHash)||!fresh.page.requestId.equals(claimed.page.requestId))throw new IOException("RETENTION_PROOF_CHANGED");
++        if(!ReleaseManifestR926.MANIFEST_SHA256.equals(fresh.page.releaseHash)||!RetentionTableRegistryCP12.HASH.equals(fresh.page.registryHash)||!RetentionTableRegistryCP12.require(fresh.page.table).archiveAndPrune())throw new IOException("RETENTION_PROOF_RELEASE");
++        File requestRoot=new File(base,"retention-requests-cp12"),request=new File(requestRoot,fresh.page.requestId+".json");
++        if(!requestRoot.getCanonicalFile().equals(requestRoot)||!request.getCanonicalFile().equals(request)||!request.isFile()||request.length()<1||request.length()>RetentionArchiveProtocolCP12.MAX_REQUEST)throw new IOException("RETENTION_PROOF_REQUEST_PATH");
++        ByteArrayOutputStream bytes=new ByteArrayOutputStream((int)request.length());try(InputStream in=new FileInputStream(request)){byte[] buffer=new byte[8192];int n;while((n=in.read(buffer))!=-1){if(bytes.size()>RetentionArchiveProtocolCP12.MAX_REQUEST-n)throw new IOException("RETENTION_PROOF_REQUEST_BOUND");bytes.write(buffer,0,n);}}
++        if(!Arrays.equals(bytes.toByteArray(),fresh.page.requestJson.getBytes(StandardCharsets.UTF_8)))throw new IOException("RETENTION_PROOF_REQUEST_CHANGED");
++        File cas=RetentionArchiveProtocolCP12.casFile(base,fresh.archiveHash);
++        if(!cas.isFile()||cas.length()!=fresh.byteCount)throw new IOException("RETENTION_PROOF_CAS_MISSING_OR_SIZE");
++        return fresh;
++    }
++    private static byte[] bytes(DataInputStream in,int bound)throws IOException{int size=in.readInt();if(size<1||size>bound)throw new IOException("RETENTION_RECEIPT_FIELD_BOUND");byte[] bytes=new byte[size];in.readFully(bytes);return bytes;}
++    private static void bytes(DataOutputStream out,byte[] bytes)throws IOException{out.writeInt(bytes.length);out.write(bytes);}
++    private static String utf8(byte[] bytes)throws IOException{String text=new String(bytes,StandardCharsets.UTF_8);if(!Arrays.equals(bytes,text.getBytes(StandardCharsets.UTF_8)))throw new IOException("RETENTION_RECEIPT_UTF8");return text;}
++    private static void string(DataOutputStream out,String value)throws IOException{bytes(out,value.getBytes(StandardCharsets.UTF_8));}
++    private static String string(DataInputStream in)throws IOException{return utf8(bytes(in,256));}
++    private static void check(ReportNativeCP4.Control control)throws IOException{if(control==null||!control.shouldContinue())throw new InterruptedIOException("ARCHIVE_CANCELLED");}
++    private static void syncDirectory(File root)throws IOException{
++        java.io.FileDescriptor fd=null;try{fd=Os.open(root.getPath(),OsConstants.O_RDONLY,0);Os.fsync(fd);}catch(Exception failure){throw new IOException("RETENTION_DIRECTORY_FSYNC",failure);}finally{if(fd!=null)try{Os.close(fd);}catch(Exception close){throw new IOException("RETENTION_DIRECTORY_CLOSE",close);}}
++    }
++}

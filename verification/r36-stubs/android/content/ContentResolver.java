@@ -1,0 +1,1 @@
+package android.content; public class ContentResolver { public java.io.InputStream openInputStream(android.net.Uri u) throws java.io.IOException {return null;} public java.io.OutputStream openOutputStream(android.net.Uri u,String m) throws java.io.IOException {return null;} }

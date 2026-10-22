@@ -1,0 +1,88 @@
+{
+  "schema": "R926_ACCEPTANCE_POLICY_DESIGN_V1",
+  "status": "DESIGN_NOT_IMPLEMENTED",
+  "baseline_release": "V57.21.1-R5.4.1-925",
+  "game": "Binance1-PK10",
+  "db_user_version": 36,
+  "engineering": {
+    "cold_start_ms_max_target": 8000,
+    "warm_request_to_durable_p95_ms": 5000,
+    "pure_compute_p95_ms": 3000,
+    "minimum_warm_issues": 120,
+    "normal_scenario_missing_issues_max": 0,
+    "duplicate_decisions_max": 0,
+    "duplicate_settlements_max": 0,
+    "latest_full_lag_actual_draws_max": 2,
+    "crash_max": 0,
+    "anr_max": 0,
+    "oom_max": 0,
+    "device_soak_hours": 24
+  },
+  "model": {
+    "planned_real_dataset_issues": 10000,
+    "split_fractions": [
+      0.5,
+      0.15,
+      0.13,
+      0.1,
+      0.12
+    ],
+    "folds_min": 5,
+    "actions_per_issue": 1200,
+    "positive_actions_per_issue": 360,
+    "input_meta_width": 96,
+    "domain_cal_support_min": 120,
+    "parity_issues_min": 100,
+    "parity_absolute_tolerance": 1e-08,
+    "parity_relative_tolerance": 1e-06,
+    "rank1_parity": 1.0,
+    "sinkhorn_row_col_error_max": 1e-06,
+    "sealed_reuse_max": 0
+  },
+  "certificate": {
+    "challenger_min_n": 240,
+    "challenger_min_hr": 0.36,
+    "challenger_wilson_lower_min": 0.3,
+    "challenger_brier_max": 0.24,
+    "challenger_ece_max": 0.12,
+    "paired_n_min": 120,
+    "paired_delta_min": 0.02,
+    "new_window_sizes": [
+      120,
+      240,
+      240,
+      240,
+      360
+    ],
+    "weight_caps": [
+      0,
+      0.05,
+      0.12,
+      0.2,
+      0.3
+    ],
+    "paired_noninferiority_margin": 0,
+    "all_original_stricter_consumer_caps_retained": true,
+    "fwer_total_alpha": 0.05,
+    "batch_alpha_formula": "0.05 / (r*(r+1)); r>=1"
+  },
+  "effect_targets": {
+    "selected_hr": 0.4,
+    "real_frequency": 0.15,
+    "ece_max": 0.04,
+    "guaranteed": false,
+    "same_frozen_policy_required": true,
+    "failed_target_status": "FAIL_EFFECT"
+  },
+  "forbidden": [
+    "dynamic_K",
+    "K4",
+    "multi_position_REAL",
+    "chase",
+    "martingale",
+    "doubling",
+    "frequency_debt",
+    "research_direct_BET",
+    "postdraw_predraw_rewrite"
+  ]
+}

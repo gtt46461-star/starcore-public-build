@@ -1,0 +1,50 @@
+{
+  "schema": "STARCORE_R952_FINAL_GATE_STATUS_V1",
+  "generated_at_utc": "2026-09-19T00:00:00Z",
+  "overall": "ENGINEERING_COMPLETE_RELEASE_CANDIDATE_NOT_100_PERCENT",
+  "completion_rule": "Any FAIL or NOT_RUN applicable final gate means NOT 100%.",
+  "engineering_gates": {
+    "208_file_matrix_resolved": "PASS_208_OF_208",
+    "42_core_tasks_implemented_or_preserved": "PASS_CODE_SCOPE",
+    "42_core_tasks_all_acceptance": "NOT_RUN_LIVE_AND_DEVICE_GATES",
+    "30_enhancement_tasks_implemented_or_preserved": "PASS_CODE_SCOPE",
+    "30_enhancement_tasks_all_acceptance": "NOT_RUN_LIVE_AND_DEVICE_GATES",
+    "no_placeholder": "PASS",
+    "full_compile": "PASS_721_JAVA_2998_CLASSES",
+    "migration_fault": "PASS_HOST_REAL_SQLITE",
+    "event_replay": "PASS_HOST_REAL_SQLITE",
+    "exactly_once_settlement": "PASS_HOST_REAL_SQLITE",
+    "exactly_once_training": "PASS_HOST_REAL_SQLITE",
+    "pit_no_leakage": "PASS_HOST_CONTRACT",
+    "python_java_parity": "PASS_HOST",
+    "android_device_parity": "NOT_RUN_NO_DEVICE",
+    "owner_uniqueness": "PASS",
+    "forbidden_behaviors_rejected": "PASS"
+  },
+  "runtime_gates": {
+    "predraw_real_path_wired_in_apk": "PASS",
+    "strict_future_oos_real_path_wired_in_apk": "PASS",
+    "future_n_live_increment_observed": "NOT_RUN_REQUIRES_FUTURE_DRAW",
+    "training_live_increment_observed": "NOT_RUN_REQUIRES_FUTURE_DRAW",
+    "background_full_loop_observed": "NOT_RUN_NO_DEVICE",
+    "storage_window_enforced": "PASS_HOST_REAL_SQLITE"
+  },
+  "lifecycle_gates": {
+    "challenger_machine_gate_operational": "PASS_HOST_REAL_SQLITE",
+    "certificate_machine_gate_operational": "PASS_HOST_REAL_SQLITE",
+    "mainline_contribution_auditable": "PASS_HOST_REAL_SQLITE",
+    "r952_future_count_cannot_self_certify": "PASS",
+    "no_research_direct_real": "PASS"
+  },
+  "device_release_gates": {
+    "same_signer": "PASS",
+    "version_upgrade_valid": "PASS",
+    "overlay_install_no_clear_data": "NOT_RUN_NO_DEVICE",
+    "startup_migration_smoke": "NOT_RUN_NO_DEVICE",
+    "screen_on_off_restart_recovery": "NOT_RUN_NO_DEVICE",
+    "source_apk_manifest_same_origin": "PASS",
+    "rollback_rehearsal": "NOT_RUN_NO_DEVICE"
+  },
+  "fail_count": 0,
+  "not_run_reason": "No authorized physical target device, installed production database, or future live draw stream was available in this workspace."
+}

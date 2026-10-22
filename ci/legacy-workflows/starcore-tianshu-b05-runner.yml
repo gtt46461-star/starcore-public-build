@@ -1,0 +1,94 @@
+name: Starcore Tianshu B05 Artifact First Runner
+
+on:
+  push:
+    branches:
+      - v57-full/b05
+    paths:
+      - '.github/starcore-tianshu-b05/**'
+      - '.github/workflows/starcore-tianshu-b05-runner.yml'
+  pull_request:
+    branches:
+      - accepted/starcore-tianshu-b04-20260806
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b05-artifact-first
+  cancel-in-progress: false
+
+env:
+  B04_ACCEPTED_SHA: 94be027abbb868ac252cd21d2a80aea8bc59c1b1
+  V51_FROZEN_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+  BRANCH_NAME: v57-full/b05
+  DELIVERY_NAME: Starcore-Tianshu-B05-20260806-Accepted
+  PATCH_SHA256: 1ed566e6da55347b5027ccab756ad862ef95a50e5c74195621b5ed89c58e9199
+  RUNNER_ARCHIVE_SHA256: a4bb304262f0249444d26de23d08316c462768806d9b00c7478891bb1940b8ba
+
+jobs:
+  b05-artifact-first:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact B05 branch
+        uses: actions/checkout@v4
+        with:
+          ref: v57-full/b05
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Restore deterministic B05 runner scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .b05-runner
+          cat .github/starcore-tianshu-b05/runner.part-* | base64 --decode > .b05-runner/scripts.tar.gz
+          test "$(sha256sum .b05-runner/scripts.tar.gz | cut -d' ' -f1)" = "$RUNNER_ARCHIVE_SHA256"
+          tar -xzf .b05-runner/scripts.tar.gz -C .b05-runner
+          chmod +x .b05-runner/*.sh
+          bash -n .b05-runner/*.sh
+
+      - name: Run B05 short gates and live API verification
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          trap 'rc=$?; echo "::error::B05_PRECHECK_FAILED line=$LINENO command=$BASH_COMMAND rc=$rc"; exit $rc' ERR
+          source .b05-runner/01_precheck.sh
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Build inspect and package B05
+        shell: bash
+        run: .b05-runner/02_build_package.sh
+
+      - name: Upload accepted B05 delivery first
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B05-Accepted-Delivery
+          path: |
+            delivery/${{ env.DELIVERY_NAME }}-MASTER-with-APK.zip
+            delivery/${{ env.DELIVERY_NAME }}-shadow-debug.apk
+            delivery/${{ env.DELIVERY_NAME }}-full-source.zip
+            delivery/${{ env.DELIVERY_NAME }}-incremental.zip
+            delivery/${{ env.DELIVERY_NAME }}-evidence.zip
+            delivery/B05_IDENTITY.txt
+            delivery/SHA256SUMS.txt
+          retention-days: 90
+
+      - name: Commit and tag accepted B05 source after artifact upload
+        shell: bash
+        run: .b05-runner/03_commit.sh

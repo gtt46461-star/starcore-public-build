@@ -1,0 +1,55 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/MutationPolicyR952.java b/app/src/main/java/com/ethk3/novaonepro/r952/MutationPolicyR952.java
+index 72c8970..8d7188b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/MutationPolicyR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/MutationPolicyR952.java
+@@ -2,45 +2,21 @@ package com.ethk3.novaonepro.r952;
+ 
+ import com.ethk3.novaonepro.V51ChecksumEngine;
+ 
+-/** A bounded, explicitly unproven repair hypothesis from observed prediction errors. */
++/** Retired AST1 repair entry points. CP12 MutationGraph owns actual graph changes;
++ * Proposal remains a historical serialization DTO and grants no execution rights. */
+ public final class MutationPolicyR952 {
+     private MutationPolicyR952() {}
+     public static Proposal propose(String parent,CandidateAstR952 ast,String failureHash,int recentMisses,int earlierMisses) {
+-        if(parent==null||parent.isEmpty()||ast==null||failureHash==null||!failureHash.matches("[0-9a-f]{64}")
+-                ||recentMisses<0||recentMisses>20||earlierMisses<0||earlierMisses>100||recentMisses+earlierMisses<30)
+-            throw new IllegalArgumentException("R958_REPAIR_FAILURE_SUPPORT");
+-        boolean recentDeterioration=recentMisses*100>earlierMisses*20;
+-        int lookback=recentDeterioration?Math.max(20,ast.lookback-20):Math.min(480,ast.lookback+20);
+-        if(lookback==ast.lookback)lookback=ast.lookback==20?40:ast.lookback-20;
+-        CandidateAstR952 child=ast.withLookback(lookback);
+-        String target=recentDeterioration?"RECENT_MISS_RATE_EXCEEDS_EARLIER_WINDOW":"PERSISTENT_MISSES_TEST_LONGER_SUPPORT";
+-        return new Proposal(parent,child,target,failureHash,"LOOKBACK:"+ast.lookback+"->"+lookback,
+-            recentDeterioration?"Test faster adaptation on new independent labels":"Test lower frequency-estimate variance on new independent labels",
+-            "Reject unless the new independent paired window improves calibrated loss and hit rate within resource limits");
++        throw new IllegalStateException("RETIRED_CP12_MUTATION_GRAPH_OWNER");
+     }
+     /** Search at most 240 explicit hypotheses; an ancestor cannot stall every later generation. */
+     public static Proposal proposeNovel(String parent,CandidateAstR952 ast,String failureHash,
+             int recentMisses,int earlierMisses,java.util.Set<String> existing) {
+-        Proposal preferred=propose(parent,ast,failureHash,recentMisses,earlierMisses);
+-        if(!existing.contains(preferred.ast.structuralHash))return preferred;
+-        int direction=recentMisses*100>earlierMisses*20?-1:1;
+-        for(int operator=0;operator<5;operator++)for(int distance=1;distance<=24;distance++)for(int sign=0;sign<2;sign++) {
+-            int window=ast.lookback+20*distance*direction*(sign==0?1:-1);
+-            if(window<20||window>480)continue;
+-            CandidateAstR952.Operator[] operators={CandidateAstR952.Operator.POSITION_FREQUENCY,CandidateAstR952.Operator.RECENCY_BLEND,CandidateAstR952.Operator.MARKOV_TRANSITION,CandidateAstR952.Operator.CROSS_POSITION_LAG,CandidateAstR952.Operator.MOLECULAR_BLEND};
+-            CandidateAstR952.Operator op=operators[operator];
+-            CandidateAstR952 child=new CandidateAstR952(op,ast.position,window);
+-            if(child.structuralHash.equals(ast.structuralHash)||existing.contains(child.structuralHash))continue;
+-            return new Proposal(parent,child,preferred.repairTarget+"|NOVEL_ALTERNATIVE_AFTER_DUPLICATE",failureHash,
+-                    "LOOKBACK:"+ast.lookback+"->"+window+"|OPERATOR:"+ast.operator+"->"+op,
+-                    "Test an unmeasured alternative support window/operator after earlier structures already exist",
+-                    preferred.falsification);
+-        }
+-        return null; // Finite grammar exhausted: no invented evidence or unbounded generation.
++        throw new IllegalStateException("RETIRED_CP12_MUTATION_GRAPH_OWNER");
+     }
+     /** Unmeasured legacy calls cannot manufacture a repair evidence claim. */
+     public static Proposal propose(String parent,CandidateAstR952 ast,String failureHash) {
+-        throw new IllegalArgumentException("R958_ACTUAL_FAILURE_WINDOW_REQUIRED");
++        throw new IllegalStateException("RETIRED_CP12_MUTATION_GRAPH_OWNER");
+     }
+     public static final class Proposal {
+         public final String parentId,repairTarget,evidenceHash,changedModules,expectedEffect,falsification,proposalHash;

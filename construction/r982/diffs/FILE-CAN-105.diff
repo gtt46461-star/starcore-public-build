@@ -1,0 +1,112 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/PredictionGenerationCoverageR923.java b/app/src/main/java/com/ethk3/novaonepro/PredictionGenerationCoverageR923.java
+index 7207309..16fbb90 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/PredictionGenerationCoverageR923.java
++++ b/app/src/main/java/com/ethk3/novaonepro/PredictionGenerationCoverageR923.java
+@@ -172,4 +172,107 @@ public final class PredictionGenerationCoverageR923 {
+             return out.toString();
+         }
+     }
++
++public static Report captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return Report.error("STORE_NULL");
++        try {
++            SQLiteDatabase db = store.readable();
++            Window[] windows = new Window[WINDOWS.length];
++            for (int i = 0; i < WINDOWS.length; i++) windows[i] = windowSnapshotCP4(report, db, WINDOWS[i]);
++            return new Report("OK", windows, missingRecent30SnapshotCP4(report, db), "");
++        } catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value.replace('\n', ' ').replace('|', '/').trim();
++    }
++
++public static String missingRecent30SnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
++        String recent = "(SELECT issue FROM " + DbHelper.TABLE_DRAWS
++                + " WHERE dirty=0 ORDER BY issue DESC LIMIT 30)";
++        Cursor c = null;
++        LinkedHashMap<String, Integer> reasons = new LinkedHashMap<String, Integer>();
++        com.ethk3.novaonepro.ReportTextCP12 issues = new com.ethk3.novaonepro.ReportTextCP12(report);
++        try {
++            c = report.select(
++                    "SELECT d.issue,COALESCE(r.status,'NO_REQUEST'),COALESCE(r.error_code,''),"
++                            + "COALESCE(r.last_stage,'') FROM " + recent + " d LEFT JOIN "
++                            + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                            + " o ON o.target_issue=d.issue LEFT JOIN "
++                            + DbHelper.TABLE_R36_ANALYSIS_REQUEST
++                            + " r ON r.target_issue=d.issue WHERE (o.target_issue IS NULL OR COALESCE(o.pre_draw_frozen,0)<>1)"
++                            + " ORDER BY d.issue DESC",
++                    null);
++            while (c.moveToNext()) {
++                String issue = safeSnapshotCP4(report, c.getString(0));
++                String status = safeSnapshotCP4(report, c.getString(1));
++                String error = safeSnapshotCP4(report, c.getString(2));
++                String stage = safeSnapshotCP4(report, c.getString(3));
++                String reason = "NO_REQUEST".equals(status)
++                        ? "NO_ANALYSIS_REQUEST"
++                        : status + (error.length() == 0 ? "" : ':' + error)
++                                + (stage.length() == 0 ? "" : "@" + stage);
++                Integer old = reasons.get(reason);
++                reasons.put(reason, Integer.valueOf(old == null ? 1 : old.intValue() + 1));
++                if (issues.length() > 0) issues.append(',');
++                issues.append(issue).append('(').append(reason).append(')');
++            }
++        } finally {
++            if (c != null) c.close();
++        }
++        return "distribution=" + reasons + "|issues="
++                + (issues.length() == 0 ? "NONE" : issues.toString());
++    }
++
++public static Window windowSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, int requested) {
++        String recent = "(SELECT issue FROM " + DbHelper.TABLE_DRAWS
++                + " WHERE dirty=0 ORDER BY issue DESC LIMIT " + requested + ")";
++        int draws = scalarSnapshotCP4(report, db, "SELECT COUNT(1) FROM " + recent, null);
++        int canonical = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT o.target_issue) FROM "
++                        + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o JOIN " + recent
++                        + " d ON d.issue=o.target_issue WHERE o.pre_draw_frozen=1", null);
++        int opportunities = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT p.target_issue) FROM "
++                        + ControlledCandidateOpportunityAuditR922.TABLE + " p JOIN " + recent
++                        + " d ON d.issue=p.target_issue", null);
++        int requestedCount = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT r.target_issue) FROM "
++                        + DbHelper.TABLE_R36_ANALYSIS_REQUEST + " r JOIN " + recent
++                        + " d ON d.issue=r.target_issue", null);
++        int committedRequests = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT r.target_issue) FROM "
++                        + DbHelper.TABLE_R36_ANALYSIS_REQUEST + " r JOIN " + recent
++                        + " d ON d.issue=r.target_issue WHERE r.status=?",
++                new String[] {AnalysisRequestStoreR36.CANONICAL_COMMITTED});
++        int real = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT o.target_issue) FROM "
++                        + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o JOIN " + recent
++                        + " d ON d.issue=o.target_issue JOIN " + DbHelper.TABLE_TRADES
++                        + " t ON t.target_issue=o.target_issue WHERE o.pre_draw_frozen=1"
++                        + " AND o.decision_action='BET' AND t.action='BET'"
++                        + " AND t.source_type='REALTIME' AND t.is_realtime_real=1"
++                        + " AND t.stat_scope='REAL_TRADE' AND t.authorization_valid=1"
++                        + " AND t.authorized_mode='BET' AND t.contract_valid=1"
++                        + " AND t.authorization_id=o.authorization_hash"
++                        + " AND t.position=o.position AND t.n1=o.n1 AND t.n2=o.n2 AND t.n3=o.n3",
++                null);
++        int shadow = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT o.target_issue) FROM "
++                        + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o JOIN " + recent
++                        + " d ON d.issue=o.target_issue WHERE o.pre_draw_frozen=1"
++                        + " AND COALESCE(o.decision_action,'')<>'BET'", null);
++        return new Window(requested, draws, canonical, opportunities, requestedCount,
++                committedRequests, real, shadow);
++    }
++
++public static int scalarSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql, String[] args) {
++        Cursor c = null;
++        try {
++            c = report.select(sql, args);
++            return c.moveToFirst() ? Math.max(0, c.getInt(0)) : 0;
++        } finally {
++            if (c != null) c.close();
++        }
++    }
+ }

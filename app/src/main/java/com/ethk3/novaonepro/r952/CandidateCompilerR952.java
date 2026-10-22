@@ -1,0 +1,500 @@
+package com.ethk3.novaonepro.r952;
+
+import com.ethk3.novaonepro.AppConfig;
+import com.ethk3.novaonepro.Models;
+import com.ethk3.novaonepro.V51ChecksumEngine;
+import java.util.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import android.util.Base64;
+
+/** Bounded frequency program with a persisted, prequential softmax residual learner. */
+public final class CandidateCompilerR952 {
+    public static final String REVISION = "R974_TYPED_FEATURE_RESIDUAL_MLP_V1";
+    private CandidateCompilerR952() {}
+    public static Program compile(CandidateAstR952 ast) {
+        if (ast == null) throw new IllegalArgumentException("R952_COMPILE_AST");
+        if(ast.formatVersion==3)throw new IllegalArgumentException("MISSING_FEATURE_MANIFEST");
+        return new Program(ast);
+    }
+
+    public static Program compile(CandidateAstR952 ast,FeatureManifestR952 manifest,List<AtomSpecCP4> registered) {
+        if(ast==null)throw new IllegalArgumentException("R952_COMPILE_AST");
+        if(ast.formatVersion!=3)return compile(ast);
+        Modern.need(manifest!=null&&manifest.modern&&manifest.hash.equals(ast.graphSpec.featureManifestHash),"FEATURE_MANIFEST_MISMATCH");
+        Modern.need(registered!=null&&registered.size()<=256,"ACTIVE_CLOSURE_LIMIT");
+        TreeMap<String,AtomSpecCP4> indexed=new TreeMap<>();
+        for(AtomSpecCP4 spec:registered){Modern.need(spec!=null&&indexed.put(spec.atomId,spec)==null,"DUPLICATE_ATOM_SPEC");}
+        TreeSet<String> used=new TreeSet<>(),hashes=new TreeSet<>();int requiredHistory=0;
+        for(com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeSpec node:ast.graphSpec.nodes)
+            if(node.kind==com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeKind.ATOM){
+                AtomSpecCP4 spec=indexed.get(node.source);Modern.need(spec!=null,"UNKNOWN_ATOM");
+                Modern.need(spec.position==ast.position,"ATOM_POSITION_MISMATCH");
+                String type=spec.outputType.equals("BOOLEAN")?"BOOLEAN":spec.outputType.equals("PROBABILITY")?"PROBABILITY":"DOUBLE";
+                Modern.need(node.valueType.name().equals(type)&&node.shape.elements()==1,"ATOM_OUTPUT_TYPE_MISMATCH");
+                Modern.need(!spec.state.equals("RETIRED"),"ATOM_RETIRED");
+                used.add(spec.atomId);hashes.add(spec.specHash);requiredHistory=Math.max(requiredHistory,spec.minimumHistory);
+            }
+        Modern.need(used.equals(indexed.keySet()),"UNUSED_ATOM_SPEC");
+        Modern.need(new ArrayList<>(hashes).equals(manifest.atomSpecHashes),"ATOM_SPEC_HASH_MISMATCH");
+        for(MatrixBindingsCP12.Ref ref:MatrixBindingsCP12.validate(ast,manifest))requiredHistory=Math.max(requiredHistory,MatrixHistoricalDrawCP12.minimumHistoryCP12(ref));
+        LongSummaryBindingsR80.validate(ast,manifest,new ArrayList<>(indexed.values()));
+        Modern.need(requiredHistory==manifest.requiredHistory,"HISTORY_MANIFEST_MISMATCH");
+        Modern.need(estimateStateBytes(ast,indexed.values())<=manifest.estimatedStateBytes,"MEMORY_ESTIMATE_MISMATCH");
+        return new Program(ast,manifest,new ArrayList<>(indexed.values()));
+    }
+    /** Same sufficient-statistic sharing keys as AtomWindowCP4; budget includes bindings and graph values. */
+    public static long estimateStateBytes(CandidateAstR952 ast,Collection<AtomSpecCP4> specs) {
+        Set<Integer> positions=new HashSet<>();Set<String> windows=new HashSet<>();long bytes=0;
+        for(AtomSpecCP4 spec:specs){if(spec.requiresSummary){bytes+=8192L;continue;}positions.add(spec.position);AtomEvaluatorCP4.Spec s=spec.mathSpec;
+            switch(s.family){
+                case "TRANSITION_P1":bytes+=windowBytes(windows,spec.position,s.w,1);break;
+                case "MARKOV_SCORE":bytes+=s.order==2?(windows.add(spec.position+":M2:"+s.w)?8192L:0L):windowBytes(windows,spec.position,s.w,1);break;
+                case "PERIODICITY":bytes+=windowBytes(windows,spec.position,s.w,s.period);break;
+                case "CONDITIONAL_ENTROPY":case "MUTUAL_INFORMATION":bytes+=windowBytes(windows,spec.position,s.w,s.lag);break;
+                case "HOT_COLD_Z":bytes+=windowBytes(windows,spec.position,s.recent,0)+windowBytes(windows,spec.position,s.reference,0);break;
+                case "DRIFT_JS":case "DRIFT_PSI":bytes+=windowBytes(windows,spec.position,s.recent,0)+windowBytes(windows,spec.position,s.recent+s.reference,0);break;
+                case "REGIME_SCORE":bytes+=windowBytes(windows,spec.position,s.w,0)+windowBytes(windows,spec.position,2*s.w,0)+windowBytes(windows,spec.position,s.w-1,1);break;
+                case "LAG_DIGIT_EQ":case "DELTA_NUMERIC":case "DIRECTION":case "OMISSION":case "OMISSION_RATE":break;
+                default:if(spec.requiresBinding)bytes+=1024L+48L*s.w;else bytes+=windowBytes(windows,spec.position,s.w,0);
+            }
+        }
+        bytes+=8192L*positions.size();
+        for(com.ethk3.novaonepro.TypedAtomMoleculeGraphR930.NodeSpec n:ast.graphSpec.nodes)bytes+=512L+32L*n.shape.elements();
+        return bytes;
+    }
+    private static long windowBytes(Set<String> keys,int position,int window,int lag){
+        Modern.need(window>0&&lag>=0&&window+lag<=5000,"ATOM_WINDOW_BOUND");
+        return keys.add(position+":"+window+":"+lag)?4096L+64L*window:0;
+    }
+
+    /** Ordinals are part of CP4MODEL binary version 1; append-only. */
+    public enum ModelKind { FIXED_GRAPH, SOFTMAX_LINEAR, OVR_LOGISTIC, HISTOGRAM_TREE, EXPERT_HEDGE, MLP_D32_16_10 }
+    public static final class ExpertRef {
+        public final String freezeHash,modelHash,featureManifestHash;
+        public final int position;
+        public ExpertRef(String freezeHash,String modelHash,String featureManifestHash,int position) {
+            this.freezeHash=Modern.hashText(freezeHash);this.modelHash=Modern.hashText(modelHash);
+            this.featureManifestHash=Modern.hashText(featureManifestHash);
+            Modern.need(position>=1&&position<=10,"EXPERT_POSITION");this.position=position;
+        }
+    }
+    /** Pure immutable inference data. No database, clock, training state or authority. */
+    public static final class Modern {
+        static final String PREFIX="CP4MODEL|";
+        static final int MAX_BINARY=1<<20, MAX_ENCODED=1_400_000;
+        public final ModelKind kind;
+        public final CandidateAstR952.Family family;
+        public final int inputDimension,featureN,expertN;
+        public final long uniqueTrainN,seed;
+        public final String trainedUntil,featureManifestHash,normalizerHash,graphHash,developmentReceiptHash;
+        private final double[] mean,std,weights,treeCut,treeLeafP;
+        private final int[] treeFeature,left,right;
+        public final List<ExpertRef> experts;
+        public Modern(ModelKind kind,CandidateAstR952.Family family,int d,int f,int e,
+                long n,long seed,String trainedUntil,String manifestHash,String normalizerHash,
+                String graphHash,String receiptHash,double[] mean,double[] std,double[] weights,
+                int[] treeFeature,double[] treeCut,int[] left,int[] right,double[] treeLeafP,
+                List<ExpertRef> experts) {
+            need(kind!=null&&family!=null&&CandidateAstR952.familyAccepts(family,kind),"MODEL_FAMILY_KIND");
+            this.kind=kind;this.family=family;inputDimension=d;featureN=f;expertN=e;
+            expectedWeights(kind,d,f,e);need(n>=0&&n<=1200,"MODEL_SAMPLE_BOUND");uniqueTrainN=n;this.seed=seed;
+            need(com.ethk3.novaonepro.TargetIssueResolver.isValid(trainedUntil),"MODEL_TRAINED_UNTIL");
+            this.trainedUntil=trainedUntil;featureManifestHash=hashText(manifestHash);
+            this.normalizerHash=hashText(normalizerHash);this.graphHash=hashText(graphHash);
+            developmentReceiptHash=hashText(receiptHash);
+            this.mean=copy(mean,f,"MODEL_MEAN");this.std=copy(std,f,"MODEL_STD");
+            for(double v:this.std)need(v>=1e-6,"MODEL_STD_RANGE");
+            this.weights=copy(weights,expectedWeights(kind,d,f,e),"MODEL_WEIGHTS");
+            need(treeFeature!=null,"TREE_NULL");int nodes=treeFeature.length;
+            need(kind==ModelKind.HISTOGRAM_TREE?nodes>=1&&nodes<=31:nodes==0,"TREE_NODE_COUNT");
+            this.treeFeature=treeFeature.clone();this.treeCut=copy(treeCut,nodes,"TREE_CUT");
+            need(left!=null&&right!=null&&left.length==nodes&&right.length==nodes,"TREE_CHILD_COUNT");
+            this.left=left.clone();this.right=right.clone();this.treeLeafP=copy(treeLeafP,nodes*10,"TREE_LEAF_COUNT");
+            if(nodes>0)need(validateTree(0,0)==nodes,"TREE_UNREACHABLE_NODE");
+            need(experts!=null&&experts.size()==e,"EXPERT_COUNT");
+            ArrayList<ExpertRef> refs=new ArrayList<>();HashSet<String> seen=new HashSet<>();int pos=0;
+            for(ExpertRef ref:experts){need(ref!=null&&seen.add(ref.freezeHash),"EXPERT_DUPLICATE");
+                need(pos==0||pos==ref.position,"EXPERT_POSITION_MISMATCH");pos=ref.position;refs.add(ref);}
+            this.experts=Collections.unmodifiableList(refs);
+        }
+        static int expectedWeights(ModelKind kind,int d,int f,int e) {
+            need(d>=1&&d<=80&&f>=0&&f<=32&&e>=0&&e<=8,"MODEL_DIMENSION");
+            switch(kind) {
+                case FIXED_GRAPH:need(d==10&&f==0&&e==0,"MODEL_FIXED_SHAPE");return 0;
+                case EXPERT_HEDGE:need(e>=2&&f==0&&d==10*e,"MODEL_EXPERT_SHAPE");return e;
+                default:need(f>=1&&d==2*f&&e==0,"MODEL_FEATURE_SHAPE");
+            }
+            switch(kind){case SOFTMAX_LINEAR:case OVR_LOGISTIC:return 10*d+10;
+                case HISTOGRAM_TREE:return 0;case MLP_D32_16_10:return 32*d+730;
+                default:throw bad("MODEL_KIND");}
+        }
+        /** Returns first unused preorder index: enforces no cycles, sharing or disconnected nodes. */
+        private int validateTree(int at,int depth) {
+            need(at>=0&&at<treeFeature.length&&depth<=4,"TREE_DEPTH_OR_INDEX");
+            int f=treeFeature[at];
+            if(f==-1){need(left[at]==-1&&right[at]==-1&&treeCut[at]==0,"TREE_LEAF_FIELDS");
+                validateProbabilities(Arrays.copyOfRange(treeLeafP,at*10,at*10+10));return at+1;}
+            need(f>=0&&f<inputDimension&&depth<4,"TREE_FEATURE_OR_DEPTH");
+            for(int d=0;d<10;d++)need(treeLeafP[at*10+d]==0,"TREE_INTERNAL_PROBABILITY");
+            need(left[at]==at+1,"TREE_PREORDER_LEFT");int next=validateTree(left[at],depth+1);
+            need(right[at]==next,"TREE_PREORDER_RIGHT");return validateTree(right[at],depth+1);
+        }
+        public double mean(int i){return mean[i];}
+        public double std(int i){return std[i];}
+        public double[] means(){return mean.clone();}
+        public double[] standardDeviations(){return std.clone();}
+        public double[] weights(){return weights.clone();}
+        public int[] treeFeatures(){return treeFeature.clone();}
+        public int[] treeLeft(){return left.clone();}
+        public int[] treeRight(){return right.clone();}
+        public double[] treeCuts(){return treeCut.clone();}
+        public double[] treeLeafProbabilities(){return treeLeafP.clone();}
+        public Modern withWeights(double[] replacement) {
+            return new Modern(kind,family,inputDimension,featureN,expertN,uniqueTrainN,seed,trainedUntil,
+                featureManifestHash,normalizerHash,graphHash,developmentReceiptHash,mean,std,replacement,
+                treeFeature,treeCut,left,right,treeLeafP,experts);
+        }
+        /** For learning/validation only; normalizer identity requires the ordered feature IDs. */
+        public void requireManifest(FeatureManifestR952 manifest) {
+            need(manifest!=null&&manifest.modern&&featureManifestHash.equals(manifest.hash)
+                &&graphHash.equals(manifest.graphHash)&&inputDimension==manifest.inputDimension,
+                "MODEL_MANIFEST_MISMATCH");
+            need(normalizerHash.equals(normalizerHash(manifest.orderedFeatureIds,mean,std)),"NORMALIZER_HASH_MISMATCH");
+        }
+        public static String normalizerHash(List<String> ids,double[] means,double[] deviations) {
+            need(ids!=null&&ids.size()<=32,"NORMALIZER_FEATURES");
+            double[] m=copy(means,ids.size(),"NORMALIZER_MEAN"),s=copy(deviations,ids.size(),"NORMALIZER_STD");
+            for(double v:s)need(v>=1e-6,"NORMALIZER_STD_RANGE");
+            try {ByteArrayOutputStream b=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(b);
+                o.writeInt(0x53434e31);o.writeShort(ids.size());HashSet<String> seen=new HashSet<>();
+                for(String id:ids){need(id!=null&&id.matches("n[0-9]{1,3}")&&seen.add(id),"NORMALIZER_ID");writeString(o,id);}
+                for(int i=0;i<m.length;i++){o.writeDouble(m[i]);o.writeDouble(s[i]);}o.flush();return hex(digest(b.toByteArray()));
+            }catch(IOException impossible){throw new AssertionError(impossible);}
+        }
+        private byte[] inferenceBody() {
+            try{ByteArrayOutputStream b=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(b);
+                o.writeInt(0x53435731);o.writeByte(kind.ordinal());o.writeShort(inputDimension);
+                writeArray(o,weights);writeTree(o);writeExperts(o);o.flush();return b.toByteArray();
+            }catch(IOException impossible){throw new AssertionError(impossible);}
+        }
+        public String weightsHash(){return hex(digest(inferenceBody()));}
+        private void writeTree(DataOutputStream o)throws IOException {
+            o.writeShort(treeFeature.length);for(int i=0;i<treeFeature.length;i++){
+                o.writeShort(treeFeature[i]);o.writeDouble(treeCut[i]);o.writeShort(left[i]);o.writeShort(right[i]);
+                for(int d=0;d<10;d++)o.writeDouble(treeLeafP[i*10+d]);}
+        }
+        private void writeExperts(DataOutputStream o)throws IOException {
+            o.writeByte(experts.size());for(ExpertRef e:experts){writeString(o,e.freezeHash);
+                writeString(o,e.modelHash);writeString(o,e.featureManifestHash);o.writeByte(e.position);}
+        }
+        public String payload() {
+            try{ByteArrayOutputStream b=new ByteArrayOutputStream();DataOutputStream o=new DataOutputStream(b);
+                o.writeInt(0x53434d34);o.writeShort(1);o.writeByte(kind.ordinal());o.writeByte(family.ordinal());
+                o.writeShort(inputDimension);o.writeShort(featureN);o.writeShort(expertN);
+                o.writeLong(uniqueTrainN);o.writeLong(seed);
+                writeString(o,trainedUntil);writeString(o,featureManifestHash);writeString(o,normalizerHash);
+                writeString(o,graphHash);writeString(o,developmentReceiptHash);
+                writeArray(o,mean);writeArray(o,std);writeArray(o,weights);writeTree(o);writeExperts(o);o.flush();
+                byte[] before=b.toByteArray();o.write(digest(before));o.flush();
+                need(b.size()<=MAX_BINARY,"MODEL_BINARY_SIZE");return PREFIX+Base64.encodeToString(b.toByteArray(),Base64.NO_WRAP);
+            }catch(IOException impossible){throw new AssertionError(impossible);}
+        }
+        public static Modern parse(String payload) {
+            need(payload!=null&&payload.startsWith(PREFIX)&&payload.length()<=MAX_ENCODED,"MODEL_ENCODED_SIZE");
+            String raw=payload.substring(PREFIX.length());need(raw.length()%4==0,"MODEL_BASE64_CANONICAL");
+            // Upper bound before decode, not after allocating an attacker-selected array.
+            need((long)raw.length()/4*3<=MAX_BINARY+2,"MODEL_BINARY_SIZE");
+            byte[] all;try{all=Base64.decode(raw,Base64.NO_WRAP);}catch(IllegalArgumentException e){throw bad("MODEL_BASE64");}
+            need(all.length>=64&&all.length<=MAX_BINARY,"MODEL_BINARY_SIZE");
+            int end=all.length-32;need(MessageDigest.isEqual(digest(all,0,end),Arrays.copyOfRange(all,end,all.length)),"MODEL_BODY_HASH");
+            try{DataInputStream in=new DataInputStream(new ByteArrayInputStream(all,0,end));
+                need(in.readInt()==0x53434d34&&in.readUnsignedShort()==1,"MODEL_REVISION_UNSUPPORTED");
+                int k=in.readUnsignedByte(),a=in.readUnsignedByte();
+                need(k<ModelKind.values().length&&a<CandidateAstR952.Family.values().length,"MODEL_KIND_OR_FAMILY");
+                ModelKind kind=ModelKind.values()[k];CandidateAstR952.Family family=CandidateAstR952.Family.values()[a];
+                int d=in.readUnsignedShort(),f=in.readUnsignedShort(),e=in.readUnsignedShort();int wn=expectedWeights(kind,d,f,e);
+                long n=in.readLong(),seed=in.readLong();String until=readString(in),manifest=readString(in),norm=readString(in),graph=readString(in),receipt=readString(in);
+                double[] mean=readArray(in,f),std=readArray(in,f),weights=readArray(in,wn);
+                int nodes=in.readUnsignedShort();need(kind==ModelKind.HISTOGRAM_TREE?nodes>=1&&nodes<=31:nodes==0,"TREE_NODE_COUNT");
+                need(in.available()>=nodes*94+1,"MODEL_TRUNCATED_TREE");
+                int[] tf=new int[nodes],left=new int[nodes],right=new int[nodes];double[] cut=new double[nodes],lp=new double[nodes*10];
+                for(int i=0;i<nodes;i++){tf[i]=in.readShort();cut[i]=in.readDouble();left[i]=in.readShort();right[i]=in.readShort();for(int j=0;j<10;j++)lp[i*10+j]=in.readDouble();}
+                int refs=in.readUnsignedByte();need(refs==e,"EXPERT_COUNT");ArrayList<ExpertRef> experts=new ArrayList<>();
+                for(int i=0;i<refs;i++)experts.add(new ExpertRef(readString(in),readString(in),readString(in),in.readUnsignedByte()));
+                need(in.available()==0,"MODEL_TRAILING_BYTES");
+                Modern result=new Modern(kind,family,d,f,e,n,seed,until,manifest,norm,graph,receipt,mean,std,weights,tf,cut,left,right,lp,experts);
+                need(result.payload().equals(payload),"MODEL_NON_CANONICAL");return result;
+            }catch(IOException e){throw bad("MODEL_TRUNCATED");}
+        }
+        private void input(double[] x){need(x!=null&&x.length==inputDimension,"MODEL_INPUT_DIMENSION");for(double v:x)need(Double.isFinite(v),"MODEL_INPUT_NONFINITE");
+            for(int i=0;i<featureN;i++)need((x[featureN+i]==0||x[featureN+i]==1)&&(x[featureN+i]!=0||x[i]==0),"MODEL_FEATURE_MASK");}
+        public double[] probabilities(double[] x) {
+            input(x);double[] p=new double[10];int d=inputDimension;
+            switch(kind){
+                case FIXED_GRAPH:
+                    double total=0;for(double v:x){need(v>=0,"NEGATIVE_GRAPH_SCORE");total+=v+1e-9;}
+                    need(Double.isFinite(total)&&total>0,"GRAPH_SCORE_TOTAL");for(int i=0;i<10;i++)p[i]=(x[i]+1e-9)/total;break;
+                case SOFTMAX_LINEAR:case OVR_LOGISTIC:
+                    for(int i=0;i<10;i++){double z=weights[10*d+i];for(int j=0;j<d;j++)z+=weights[i*d+j]*x[j];
+                        need(Double.isFinite(z),"MODEL_LOGIT_NONFINITE");p[i]=kind==ModelKind.SOFTMAX_LINEAR?z:Math.max(1e-12,Math.min(1-1e-12,sigmoid(z)));}
+                    p=kind==ModelKind.SOFTMAX_LINEAR?softmax(p):normalize(p);break;
+                case HISTOGRAM_TREE:
+                    int node=0;while(treeFeature[node]!=-1)node=x[treeFeature[node]]<=treeCut[node]?left[node]:right[node];
+                    System.arraycopy(treeLeafP,node*10,p,0,10);break;
+                case EXPERT_HEDGE:
+                    double[] ew=expertLogWeights(weights);for(int j=0;j<expertN;j++){double[] ep=Arrays.copyOfRange(x,j*10,j*10+10);validateProbabilities(ep);
+                        for(int i=0;i<10;i++)p[i]+=ew[j]*ep[i];}break;
+                case MLP_D32_16_10:p=forward(x)[2];break;
+                default:throw bad("MODEL_KIND");
+            }
+            validateProbabilities(p);return p;
+        }
+        private double[][] forward(double[] x) {
+            int d=inputDimension,b1=32*d,w2=b1+32,b2=w2+512,w3=b2+16,b3=w3+160;
+            double[] h1=new double[32],h2=new double[16],z3=new double[10];
+            for(int k=0;k<32;k++){double z=weights[b1+k];for(int j=0;j<d;j++)z+=weights[k*d+j]*x[j];need(Double.isFinite(z),"MODEL_ACTIVATION_NONFINITE");h1[k]=Math.max(0,z);}
+            for(int k=0;k<16;k++){double z=weights[b2+k];for(int j=0;j<32;j++)z+=weights[w2+k*32+j]*h1[j];need(Double.isFinite(z),"MODEL_ACTIVATION_NONFINITE");h2[k]=Math.max(0,z);}
+            for(int i=0;i<10;i++){double z=weights[b3+i];for(int j=0;j<16;j++)z+=weights[w3+i*16+j]*h2[j];z3[i]=z;}
+            return new double[][]{h1,h2,softmax(z3)};
+        }
+        /** Unregularized per-row CE (linear/MLP), sum of ten BCEs (OVR).
+         * Mean batch, L2 and clipping belong to the batch trainer, never to this derivative. */
+        public double[] lossGradient(double[] x,int actual) {
+            input(x);need(actual>=1&&actual<=10,"MODEL_TARGET");int d=inputDimension;double[] g=new double[weights.length];
+            if(kind==ModelKind.SOFTMAX_LINEAR||kind==ModelKind.OVR_LOGISTIC){
+                double[] delta=kind==ModelKind.SOFTMAX_LINEAR?probabilities(x):new double[10];
+                if(kind==ModelKind.OVR_LOGISTIC)for(int i=0;i<10;i++){double z=weights[10*d+i];for(int j=0;j<d;j++)z+=weights[i*d+j]*x[j];
+                    need(Double.isFinite(z),"MODEL_LOGIT_NONFINITE");delta[i]=sigmoid(z);}
+                delta[actual-1]-=1;for(int i=0;i<10;i++){g[10*d+i]=delta[i];for(int j=0;j<d;j++)g[i*d+j]=delta[i]*x[j];}
+            }else if(kind==ModelKind.MLP_D32_16_10){
+                double[][] h=forward(x);double[] d3=h[2].clone(),d2=new double[16],d1=new double[32];d3[actual-1]-=1;
+                int b1=32*d,w2=b1+32,b2=w2+512,w3=b2+16,b3=w3+160;
+                for(int i=0;i<10;i++){g[b3+i]=d3[i];for(int k=0;k<16;k++)g[w3+i*16+k]=d3[i]*h[1][k];}
+                for(int k=0;k<16;k++){for(int i=0;i<10;i++)d2[k]+=weights[w3+i*16+k]*d3[i];if(h[1][k]<=0)d2[k]=0;
+                    g[b2+k]=d2[k];for(int j=0;j<32;j++)g[w2+k*32+j]=d2[k]*h[0][j];}
+                for(int j=0;j<32;j++){for(int k=0;k<16;k++)d1[j]+=weights[w2+k*32+j]*d2[k];if(h[0][j]<=0)d1[j]=0;
+                    g[b1+j]=d1[j];for(int f=0;f<d;f++)g[j*d+f]=d1[j]*x[f];}
+            }else throw bad("MODEL_HAS_NO_GRADIENT");
+            for(double v:g)need(Double.isFinite(v),"MODEL_GRADIENT_NONFINITE");return g;
+        }
+        public double trainingLoss(double[] x,int actual) {
+            input(x);need(actual>=1&&actual<=10,"MODEL_TARGET");
+            if(kind!=ModelKind.OVR_LOGISTIC)return -Math.log(probabilities(x)[actual-1]);
+            double loss=0;for(int i=0;i<10;i++){double z=weights[10*inputDimension+i];for(int f=0;f<inputDimension;f++)z+=weights[i*inputDimension+f]*x[f];
+                need(Double.isFinite(z),"MODEL_LOGIT_NONFINITE");loss+=Math.max(z,0)-(i==actual-1?z:0)+Math.log1p(Math.exp(-Math.abs(z)));}
+            need(Double.isFinite(loss),"MODEL_LOSS_NONFINITE");return loss;
+        }
+        private static double sigmoid(double z){need(Double.isFinite(z),"MODEL_LOGIT_NONFINITE");if(z>=0)return 1/(1+Math.exp(-z));double e=Math.exp(z);return e/(1+e);}
+        /** Hedge log-weights may differ by >700 after legal repeated low-probability labels.
+         * Subtract-max prevents overflow; exp underflow is a valid zero mixture weight.
+         * Linear/MLP logit-range guards remain unchanged. */
+        private static double[] expertLogWeights(double[] logWeights) {
+            double max=-Double.MAX_VALUE;for(double x:logWeights){need(Double.isFinite(x),"MODEL_EXPERT_WEIGHT_NONFINITE");max=Math.max(max,x);}
+            double[] weights=new double[logWeights.length];double sum=0;
+            for(int i=0;i<weights.length;i++){weights[i]=Math.exp(logWeights[i]-max);sum+=weights[i];}
+            need(Double.isFinite(sum)&&sum>=1,"MODEL_EXPERT_WEIGHT_SUM");
+            for(int i=0;i<weights.length;i++)weights[i]/=sum;
+            return weights;
+        }
+        private static double[] softmax(double[] z){double max=Double.NEGATIVE_INFINITY;for(double v:z){need(Double.isFinite(v),"MODEL_LOGIT_NONFINITE");max=Math.max(max,v);}
+            double[] p=new double[z.length];for(int i=0;i<z.length;i++){need(z[i]-max>=-700,"MODEL_LOGIT_RANGE");p[i]=Math.exp(z[i]-max);}return normalize(p);}
+        private static double[] normalize(double[] p){double sum=0;for(double v:p){need(Double.isFinite(v)&&v>0,"MODEL_POSITIVE_SCORE");sum+=v;}
+            need(Double.isFinite(sum)&&sum>0,"MODEL_SCORE_SUM");for(int i=0;i<p.length;i++)p[i]/=sum;return p;}
+        static void need(boolean b,String code){if(!b)throw bad(code);}
+        static IllegalArgumentException bad(String code){return new IllegalArgumentException(code);}
+        static String hashText(String s){need(s!=null&&s.matches("[0-9a-f]{64}"),"MODEL_HASH_FORMAT");return s;}
+        private static double[] copy(double[] x,int n,String code){need(x!=null&&x.length==n,code);double[] y=x.clone();for(int i=0;i<n;i++){need(Double.isFinite(y[i]),"MODEL_NONFINITE");if(y[i]==0)y[i]=0;}return y;}
+        private static byte[] digest(byte[] b){return digest(b,0,b.length);}
+        private static byte[] digest(byte[] b,int start,int n){try{MessageDigest d=MessageDigest.getInstance("SHA-256");d.update(b,start,n);return d.digest();}catch(java.security.NoSuchAlgorithmException e){throw new AssertionError(e);}}
+        private static String hex(byte[] b){StringBuilder s=new StringBuilder(b.length*2);for(byte v:b){s.append("0123456789abcdef".charAt((v&255)>>>4));s.append("0123456789abcdef".charAt(v&15));}return s.toString();}
+        private static void writeString(DataOutputStream o,String s)throws IOException{byte[] b=s.getBytes(StandardCharsets.UTF_8);need(b.length<=256,"MODEL_STRING_SIZE");o.writeShort(b.length);o.write(b);}
+        private static String readString(DataInputStream in)throws IOException{int n=in.readUnsignedShort();need(n<=256&&n<=in.available(),"MODEL_STRING_SIZE");byte[] b=new byte[n];in.readFully(b);String s=new String(b,StandardCharsets.UTF_8);need(Arrays.equals(b,s.getBytes(StandardCharsets.UTF_8)),"MODEL_UTF8");return s;}
+        private static void writeArray(DataOutputStream o,double[] x)throws IOException{o.writeInt(x.length);for(double v:x)o.writeDouble(v==0?0:v);}
+        private static double[] readArray(DataInputStream in,int expected)throws IOException{int n=in.readInt();need(n==expected&&(long)n*8<=in.available(),"MODEL_ARRAY_BOUND");double[] x=new double[n];for(int i=0;i<n;i++)x[i]=in.readDouble();return x;}
+    }
+
+    /** Immutable residual MLP: 10 inputs, 8 tanh units, 10 softmax outputs (178 parameters).
+     * V1 payloads remain exactly executable; conversion is explicit at a NEW training-run boundary.
+     * The model never owns labels, evidence, certificates or trade writes.
+     */
+    public static final class Model {
+        public static final int HIDDEN=8, PARAMETER_COUNT=178;
+        public static final String NEURAL_REVISION="R974_RESIDUAL_MLP_10_8_10_V1";
+        public static final String LEGACY_REVISION="R958_FREQUENCY_SOFTMAX_V1";
+        public final long updates;
+        private final double[] parameters;
+        private final boolean neural;
+        private final Modern modern;
+        private Model(long count,double[] values,boolean neural) {
+            if(count<0||values==null||values.length!=(neural?PARAMETER_COUNT:10))
+                throw new IllegalArgumentException("R974_MODEL_SHAPE");
+            updates=count;this.neural=neural;parameters=values.clone();modern=null;
+            for(double v:parameters)if(!Double.isFinite(v)||Math.abs(v)>4.00000001)
+                throw new IllegalArgumentException("R974_MODEL_NONFINITE_OR_RANGE");
+        }
+        private Model(Modern modern) {
+            this.modern=Objects.requireNonNull(modern);updates=modern.uniqueTrainN;
+            neural=false;parameters=new double[0];
+        }
+        public static Model fromModern(Modern modern){return new Model(modern);}
+        public int inputDimension(){return modern==null?10:modern.inputDimension;}
+        public boolean isLegacy(){return modern==null;}
+        /** null means one of the two byte-compatible legacy payload revisions. */
+        public ModelKind kind(){return modern==null?null:modern.kind;}
+        public Modern modern(){if(modern==null)throw new IllegalStateException("MODEL_IS_LEGACY");return modern;}
+        public boolean matchesManifest(String f,String n){return modern!=null&&modern.featureManifestHash.equals(f)&&modern.normalizerHash.equals(n);}
+        public static Model initial(){return new Model(0,initialParameters(),true);}
+        private static double[] initialParameters(){
+            double[] p=new double[PARAMETER_COUNT];
+            // Fixed asymmetric initialization; no outcome-dependent seed or random reinitialization.
+            for(int i=0;i<80;i++)p[i]=0.05*Math.sin((i+1)*1.6180339887498948);
+            return p;
+        }
+        public Model upgradeForTraining(){
+            if(modern!=null||neural)return this;
+            double[] p=initialParameters();System.arraycopy(parameters,0,p,168,10);
+            return new Model(updates,p,true);
+        }
+        public boolean isNeural(){return modern==null?neural:modern.kind==ModelKind.MLP_D32_16_10;}
+        public double[] parameters(){return modern==null?parameters.clone():modern.weights();}
+        public static Model fromParameters(long updates,double[] p){return new Model(updates,p,true);}
+        public String payload(){if(modern!=null)return modern.payload();return (neural?NEURAL_REVISION:LEGACY_REVISION)+"|"+updates+"|"+encode(parameters);}
+        public String hash(){return V51ChecksumEngine.sha256(payload());}
+        public static Model parse(String payload){
+            if(payload!=null&&payload.startsWith(Modern.PREFIX))return fromModern(Modern.parse(payload));
+            String[] p=payload==null?new String[0]:payload.split("\\|",-1);
+            if(p.length!=3||(!NEURAL_REVISION.equals(p[0])&&!LEGACY_REVISION.equals(p[0])))
+                throw new IllegalArgumentException("R974_MODEL_VERSION");
+            boolean neural=NEURAL_REVISION.equals(p[0]);String[] raw=p[2].split(",",-1);
+            if(raw.length!=(neural?PARAMETER_COUNT:10))throw new IllegalArgumentException("R974_MODEL_SHAPE");
+            double[] values=new double[raw.length];for(int i=0;i<values.length;i++)values[i]=Double.parseDouble(raw[i]);
+            Model m=new Model(Long.parseLong(p[1]),values,neural);
+            if(!m.payload().equals(payload))throw new IllegalArgumentException("R974_MODEL_CANONICAL");return m;
+        }
+        private double[] hidden(double[] x){
+            double[] h=new double[HIDDEN];
+            for(int k=0;k<HIDDEN;k++){
+                double z=parameters[80+k];
+                for(int i=0;i<10;i++)z+=parameters[k*10+i]*((x[i]-.1)*10.0);
+                h[k]=Math.tanh(z);
+            }return h;
+        }
+        public double[] probabilities(double[] input){
+            if(modern!=null)return modern.probabilities(input);
+            validateProbabilities(input);double[] h=neural?hidden(input):null,out=new double[10];
+            double max=Double.NEGATIVE_INFINITY;
+            for(int i=0;i<10;i++){
+                double z=Math.log(input[i])+(neural?parameters[168+i]:parameters[i]);
+                if(neural)for(int k=0;k<HIDDEN;k++)z+=parameters[88+i*HIDDEN+k]*h[k];
+                out[i]=z;max=Math.max(max,z);
+            }
+            double sum=0;for(int i=0;i<10;i++){out[i]=Math.exp(out[i]-max);sum+=out[i];}
+            for(int i=0;i<10;i++)out[i]/=sum;return out;
+        }
+        /** Analytic cross-entropy gradient, independently finite-difference tested. */
+        public double[] lossGradient(double[] input,int actual){
+            if(modern!=null)return modern.lossGradient(input,actual);
+            if(actual<1||actual>10)throw new IllegalArgumentException("R974_TRAIN_TARGET");
+            double[] p=probabilities(input);p[actual-1]-=1;
+            if(!neural)return p;
+            double[] h=hidden(input),g=new double[PARAMETER_COUNT];
+            for(int i=0;i<10;i++){
+                g[168+i]=p[i];
+                for(int k=0;k<HIDDEN;k++)g[88+i*HIDDEN+k]=p[i]*h[k];
+            }
+            for(int k=0;k<HIDDEN;k++){
+                double delta=0;for(int i=0;i<10;i++)delta+=parameters[88+i*HIDDEN+k]*p[i];
+                delta*=1-h[k]*h[k];g[80+k]=delta;
+                for(int i=0;i<10;i++)g[k*10+i]=delta*((input[i]-.1)*10.0);
+            }return g;
+        }
+        public Model update(double[] frozenInput,int actual){
+            if(modern!=null)throw new IllegalStateException("CP4_BATCH_TRAINING_OWNER_REQUIRED");
+            if(updates==Long.MAX_VALUE)throw new IllegalArgumentException("R974_UPDATE_OVERFLOW");
+            double[] gradient=lossGradient(frozenInput,actual),next=parameters.clone();
+            double rate=.1/Math.sqrt(1.0+updates/100.0);
+            for(int i=0;i<next.length;i++)next[i]=Math.max(-4,Math.min(4,next[i]-rate*gradient[i]));
+            return new Model(updates+1,next,neural);
+        }
+    }
+
+    public static final class Program {
+        public final CandidateAstR952 ast;
+        public final String codeHash;
+        public final FeatureManifestR952 manifest;
+        public final List<AtomSpecCP4> specs;
+        private final Map<String,AtomSpecCP4> specIndex;
+        Program(CandidateAstR952 a,FeatureManifestR952 manifest,List<AtomSpecCP4> specs) {
+            ast=a;this.manifest=manifest;this.specs=Collections.unmodifiableList(new ArrayList<>(specs));
+            Map<String,AtomSpecCP4> index=new HashMap<>();for(AtomSpecCP4 spec:specs)index.put(spec.atomId,spec);
+            specIndex=Collections.unmodifiableMap(index);codeHash=V51ChecksumEngine.sha256("CP4_PROGRAM|"+a.canonical+'|'+manifest.hash);
+        }
+        public AtomSpecCP4 specById(String id){AtomSpecCP4 spec=specIndex.get(id);if(spec==null)throw new IllegalArgumentException("UNKNOWN_ATOM");return spec;}
+        Program(CandidateAstR952 a) { manifest=null;specs=Collections.emptyList();specIndex=Collections.emptyMap();ast = a; codeHash = V51ChecksumEngine.sha256(REVISION + "|" + a.canonical); }
+        public double[] features(List<Models.Draw> newestFirst) {
+            if(ast.formatVersion==3)throw new IllegalStateException("AST3_REQUIRES_PIT_CONTEXT");
+            return WorldFeatureComputationR974.compute(ast,newestFirst).values();
+        }
+        public WorldFeatureComputationR974.Result compute(PITSnapshotContractR952 pit,FrozenGraphContextCP4 context) {
+            if(pit==null)throw new IllegalArgumentException("MISSING_PIT");
+            if(ast.formatVersion!=3)return WorldFeatureComputationR974.compute(ast,pit.history);
+            if(context==null)throw new IllegalArgumentException("AST3_CONTEXT_REQUIRED");
+            return WorldFeatureComputationR974.compute(this,pit,context);
+        }
+        public int predictMask(List<Models.Draw> history) { return top3(features(history)); }
+    }
+
+    /** Each number is visited once; no seed can be inserted twice. */
+    public static int top3(double[] scores) {
+        validateProbabilities(scores);
+        int[] best = {-1, -1, -1};
+        for (int n = 0; n < 10; n++) {
+            for (int i = 0; i < 3; i++) {
+                if (best[i] < 0 || scores[n] > scores[best[i]] || scores[n] == scores[best[i]] && n < best[i]) {
+                    for (int j = 2; j > i; j--) best[j] = best[j - 1];
+                    best[i] = n;
+                    break;
+                }
+            }
+        }
+        int mask = AppConfig.buildK3Mask(best[0] + 1, best[1] + 1, best[2] + 1);
+        if (AppConfig.countK3MaskNumbers(mask) != 3) throw new IllegalStateException("R958_FIXED_K3");
+        return mask;
+    }
+    public static String encode(double[] values) {
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < values.length; i++) { if (i > 0) b.append(','); b.append(Double.toString(values[i])); }
+        return b.toString();
+    }
+    public static double[] decode(String value, boolean probabilities) {
+        String[] parts = value == null ? new String[0] : value.split(",", -1);
+        if (parts.length != 10) throw new IllegalArgumentException("R958_VECTOR_SHAPE");
+        double[] values = new double[10];
+        for (int i = 0; i < 10; i++) {
+            values[i] = Double.parseDouble(parts[i]);
+            if (!Double.isFinite(values[i])) throw new IllegalArgumentException("R958_VECTOR_NONFINITE");
+        }
+        if (probabilities) validateProbabilities(values);
+        return values;
+    }
+    public static double[] decodeInput(String encoded,int expected,boolean legacyProbability) {
+        if(expected<1||expected>80||encoded==null||encoded.length()>8192)throw new IllegalArgumentException("FEATURE_VECTOR_BOUND");
+        String[] fields=encoded.split(",",-1);
+        if(fields.length!=expected)throw new IllegalArgumentException("FEATURE_VECTOR_DIMENSION");
+        double[] out=new double[expected];
+        for(int i=0;i<expected;i++){
+            out[i]=Double.parseDouble(fields[i]);
+            if(!Double.isFinite(out[i]))throw new IllegalArgumentException("FEATURE_VECTOR_NONFINITE");
+        }
+        if(!encode(out).equals(encoded))throw new IllegalArgumentException("FEATURE_VECTOR_NON_CANONICAL");
+        if(legacyProbability)validateProbabilities(out);return out;
+    }
+    private static void validateProbabilities(double[] p) {
+        if (p == null || p.length != 10) throw new IllegalArgumentException("R958_PROBABILITY_SHAPE");
+        double sum = 0;
+        for (double v : p) { if (!Double.isFinite(v) || v <= 0 || v > 1) throw new IllegalArgumentException("R958_PROBABILITY_RANGE"); sum += v; }
+        if (Math.abs(sum - 1.0) > 1e-9) throw new IllegalArgumentException("R958_PROBABILITY_SUM");
+    }
+}

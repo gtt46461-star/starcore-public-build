@@ -1,0 +1,66 @@
+name: Starcore Tianshu B06 Contract Byte Repair
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b06
+    paths:
+      - '.github/starcore-tianshu-b06/RUN_CONTRACT_REPAIR'
+      - '.github/workflows/starcore-tianshu-b06-contract-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b06-contract-byte-repair
+  cancel-in-progress: false
+
+jobs:
+  repair-contract-bytes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact B06 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b06
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Restore and verify original contract bytes
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          trap 'rc=$?; echo "::error::B06_CONTRACT_REPAIR_FAILED line=$LINENO command=$BASH_COMMAND rc=$rc"; exit $rc' ERR
+          cat .github/starcore-tianshu-b06/contract.part-* | base64 --decode > /tmp/B06_CONTRACT.csv.gz
+          test "$(sha256sum /tmp/B06_CONTRACT.csv.gz | cut -d' ' -f1)" = '036cc6a7faf35cc427ad948865550959d4045f396a8886194b27cfc5fb328f34'
+          gzip -dc /tmp/B06_CONTRACT.csv.gz > .github/starcore-tianshu-b06/B06_CONTRACT.csv
+          test "$(sha256sum .github/starcore-tianshu-b06/B06_CONTRACT.csv | cut -d' ' -f1)" = 'b28e80d7dbed0c9a7f8764c44fd93728ea3654bf4e571425e3b635235ee21b28'
+          test "$(wc -c < .github/starcore-tianshu-b06/B06_CONTRACT.csv)" = '10926'
+          python3 - <<'PY'
+          import csv
+          from pathlib import Path
+          p=Path('.github/starcore-tianshu-b06/B06_CONTRACT.csv')
+          raw=p.read_bytes()
+          if b'\x00' in raw: raise SystemExit('NUL_FOUND')
+          with p.open('r',encoding='utf-8-sig',newline='') as f: rows=list(csv.reader(f))
+          if len(rows)!=8: raise SystemExit('ROW_COUNT=%d'%len(rows))
+          if any(len(r)!=17 for r in rows): raise SystemExit('COLUMN_COUNTS=%r'%[len(r) for r in rows])
+          print('CSV_STRUCTURE=PASS rows=8 columns=17')
+          PY
+
+      - name: Commit byte-exact contract only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/starcore-tianshu-b06/B06_CONTRACT.csv
+          if git diff --cached --quiet; then
+            echo 'B06_CONTRACT_ALREADY_EXACT'
+          else
+            git commit -m 'fix(starcore): restore byte-exact B06 contract'
+            git push origin HEAD:agent/starcore-tianshu-b06
+          fi
+          printf 'CONTRACT_SHA256=%s\nCONTRACT_BYTES=%s\n' "$(sha256sum .github/starcore-tianshu-b06/B06_CONTRACT.csv | cut -d' ' -f1)" "$(wc -c < .github/starcore-tianshu-b06/B06_CONTRACT.csv)" >> "$GITHUB_STEP_SUMMARY"

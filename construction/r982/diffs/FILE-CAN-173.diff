@@ -1,0 +1,72 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java
+index e02198b..c26f47b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java
+@@ -20,6 +20,10 @@ public final class RuntimeResourceAuditR927 {
+         public Thread newThread(Runnable r) { Thread t=new Thread(r,"r927-resource-sampler");t.setDaemon(true);t.setPriority(Thread.MIN_PRIORITY);return t; }
+     });
+     private RuntimeResourceAuditR927() {}
++    private static final com.ethk3.novaonepro.r952.ExclusiveStageClockCP12 EXCLUSIVE_CP12=new com.ethk3.novaonepro.r952.ExclusiveStageClockCP12(new com.ethk3.novaonepro.r952.ExclusiveStageClockCP12.Clock(){
++        public long wallNanos(){return System.nanoTime();}
++        public long cpuNanos(){try{return android.os.Debug.threadCpuTimeNanos();}catch(RuntimeException unavailable){return -1;}}
++    });
+ 
+     public static void ensure(SQLiteDatabase db) {
+         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE+" (execution_id TEXT PRIMARY KEY,attempt_id TEXT NOT NULL,target_issue TEXT NOT NULL,process_id TEXT NOT NULL,release_code INTEGER NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL DEFAULT 0,status TEXT NOT NULL,elapsed_ms INTEGER NOT NULL DEFAULT -1,heap_peak_bytes INTEGER NOT NULL DEFAULT -1,heap_samples INTEGER NOT NULL DEFAULT 0,gc_count INTEGER NOT NULL DEFAULT -1,gc_time_ms INTEGER NOT NULL DEFAULT -1,gc_status TEXT NOT NULL DEFAULT 'UNMEASURED',lock_wait_ms INTEGER NOT NULL DEFAULT 0,lock_wait_max_ms INTEGER NOT NULL DEFAULT 0,db_body_max_ms INTEGER NOT NULL DEFAULT 0,db_slice_overruns INTEGER NOT NULL DEFAULT 0,budget_hash TEXT NOT NULL,stage_samples TEXT NOT NULL DEFAULT '',reason TEXT NOT NULL DEFAULT '')");
+@@ -31,9 +35,9 @@ public final class RuntimeResourceAuditR927 {
+     public static Scope begin(final DbStore store, AnalysisSingleFlightR36.Lease lease) {
+         if(CURRENT.get()!=null)throw new IllegalStateException("B05_RESOURCE_SCOPE_NESTED");
+         final Scope scope=new Scope(lease, FIRST.getAndSet(false));
+-        CURRENT.set(scope);
++        CURRENT.set(scope);EXCLUSIVE_CP12.abandon();
+         scope.sampleHeap();
+-        scope.sampling=SAMPLER.scheduleAtFixedRate(new Runnable(){public void run(){scope.sampleHeap();}},SAMPLE_MS,SAMPLE_MS,TimeUnit.MILLISECONDS);
++        scope.sampling=SAMPLER.scheduleWithFixedDelay(new Runnable(){public void run(){scope.sampleHeap();}},SAMPLE_MS,SAMPLE_MS,TimeUnit.MILLISECONDS);
+         try {
+             boolean ok=store.coordinatorR36().runWrite("R927_RESOURCE_START",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+                 /* A stale STARTED row may appear after startup reconciliation (restored DB,
+@@ -55,6 +59,8 @@ public final class RuntimeResourceAuditR927 {
+     public static void finish(final DbStore store, final Scope scope, boolean committed, String reason) {
+         if(scope==null)return;
+         CURRENT.remove();
++        int incompleteExclusive=EXCLUSIVE_CP12.abandon();
++        if(incompleteExclusive>0)synchronized(scope){scope.stages.append("CP12EX_UNAVAILABLE|INCOMPLETE_SPANS|").append(incompleteExclusive).append(';');}
+         synchronized(scope){for(Map.Entry<String,long[]> e:scope.active.entrySet())scope.stages.append(e.getKey()).append(":INTERRUPTED:").append(Math.max(0L,TimeSourceR811.monoNowMs()-e.getValue()[0])).append(';');scope.active.clear();}
+         if(scope.sampling!=null)scope.sampling.cancel(false);scope.sampleHeap();
+         final long elapsed=Math.max(0L,TimeSourceR811.monoNowMs()-scope.startedMono);
+@@ -86,15 +92,24 @@ public final class RuntimeResourceAuditR927 {
+         Scope s=CURRENT.get();if(s==null||s.lease.token.isCanonicalCommitted())return;
+         long now=TimeSourceR811.monoNowMs();s.check(stage,now);
+         long budget=stageBudget(stage);if(budget>0)s.beginStage(stage,now,budget);
++        try{EXCLUSIVE_CP12.begin(stage);}catch(IllegalStateException invalid){synchronized(s){s.stages.append("CP12EX_UNAVAILABLE|").append(clean(stage)).append('|').append(invalid.getMessage()).append(';');}}
+     }
+     public static void stageEnd(String stage,long elapsed,boolean success) {
+         Scope s=CURRENT.get();if(s==null)return;
+         long budget=stageBudget(stage);
+         synchronized(s){s.stages.append(stage).append(':').append(elapsed).append('/').append(budget).append(':').append(!success?"FAILED":budget>0L&&elapsed>budget?"OVER_BUDGET":"OK").append(';');s.active.remove(stage);}
++        try{com.ethk3.novaonepro.r952.ExclusiveStageClockCP12.Span span=EXCLUSIVE_CP12.end(stage);synchronized(s){s.stages.append(span.canonical());}}
++        catch(IllegalStateException missing){synchronized(s){s.stages.append("CP12EX_UNAVAILABLE|").append(clean(stage)).append('|').append(missing.getMessage()).append(';');}EXCLUSIVE_CP12.abandon();}
+         s.sampleHeap();
+         // Stage SLO overruns are evidence. Only the immutable request deadline cancels prediction.
+         if(success&&!s.lease.token.isCanonicalCommitted())s.check(stage,TimeSourceR811.monoNowMs());
+     }
++    /** Separate disjoint async dispatch wait. CPU is unavailable, not zero; this never enters the sync stack. */
++    public static void measuredQueueSpanCP12(String stage,long startMonoMs,long endMonoMs){
++        Scope scope=CURRENT.get();if(scope==null)return;
++        if(stage==null||!stage.matches("[A-Z][A-Z0-9_]{0,63}")||startMonoMs<0||endMonoMs<startMonoMs){synchronized(scope){scope.stages.append("CP12EX_UNAVAILABLE|QUEUE_CLOCK_INVALID;");}return;}
++        long nanos=(endMonoMs-startMonoMs)*1000000L;synchronized(scope){scope.stages.append("CP12EX1|").append(stage).append('|').append(nanos).append("|-1|").append(Thread.currentThread().getId()).append("|QUEUE;");}
++    }
+     static long stageBudget(String stage) {
+         if("HISTORY".equals(stage))return 1000L;if("R36_COMPUTE".equals(stage))return 3000L;if("FEATURES_SUB".equals(stage))return 900L;if("STATE_SUB".equals(stage))return 700L;if("NUMBER_MODEL".equals(stage))return 600L;if("ACTION_BUILD_FUNNEL_META_RANK".equals(stage))return 600L;if("SELECTION_POLICY".equals(stage))return 300L;if("SNAPSHOT_STREAM".equals(stage))return 400L;if("DB_CANONICAL_WAIT".equals(stage))return 600L;return 0L;
+     }
+@@ -125,4 +140,10 @@ public final class RuntimeResourceAuditR927 {
+     }
+     public static final class BudgetExceeded extends RuntimeException {BudgetExceeded(String message){super("B05_TIMEOUT|"+message);}}
+     private static String clean(String s){return s==null?"":s.replace('\n',' ').replace('\r',' ');}
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        com.ethk3.novaonepro.ReportTextCP12 b=new com.ethk3.novaonepro.ReportTextCP12(report, "B05_RESOURCE_RAW_LAST_120\n堆峰值为25ms采样最大值；GC是进程累计计数差，非单线程归因；-1=系统不支持/未测量。全部执行原始行见全表导出。\n");
++        Cursor c=report.select("SELECT execution_id,attempt_id,target_issue,status,elapsed_ms,heap_peak_bytes,heap_samples,gc_count,gc_time_ms,gc_status,lock_wait_ms,lock_wait_max_ms,db_body_max_ms,db_slice_overruns,budget_hash,stage_samples,reason FROM "+TABLE+" WHERE release_code=? ORDER BY started_at DESC LIMIT 120",new String[]{String.valueOf(BuildConfig.VERSION_CODE)});
++        try {String[] names=c.getColumnNames();while(c.moveToNext()){for(int i=0;i<names.length;i++)b.append(names[i]).append('=').append(c.isNull(i)?"NULL":c.getString(i)).append('|');b.append('\n');}}finally{c.close();}return b.toString();
++    }
+ }

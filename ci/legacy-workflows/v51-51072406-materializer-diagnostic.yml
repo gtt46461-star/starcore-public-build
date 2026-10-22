@@ -1,0 +1,48 @@
+name: V51 51072406 Materializer Diagnostic
+
+on:
+  push:
+    branches: [agent/v51-apex]
+    paths:
+      - '.github/workflows/v51-51072406-materializer-diagnostic.yml'
+  pull_request:
+    branches: [agent/v50-prime]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Materialize 51072403
+        run: python tools/apply_v51_apex_51072403.py
+      - name: Materialize hash audit
+        run: python tools/apply_v51_hash_audit_51072404.py
+      - name: Materialize signal integrity
+        run: python tools/apply_v51_signal_integrity_patch.py
+      - name: Materialize signal discovery
+        run: python tools/apply_v51_signal_discovery_fix_51072404.py
+      - name: Materialize 51072405
+        run: python tools/apply_v51_state_trend_upgrade_51072405.py
+      - name: Verify payload part blobs
+        shell: bash
+        run: |
+          test "$(git hash-object tools/v51_51072406_parts/part01.b64)" = e52dfe6bc263ccf765b452cc0dc89ba1aac0c454
+          test "$(git hash-object tools/v51_51072406_parts/part02.b64)" = e6de12f0cc8ba2705b3811d558a1f86c129af796
+          test "$(git hash-object tools/v51_51072406_parts/part03.b64)" = b251d9054616eddf024b7484ce57b30acb6435ae
+          test "$(git hash-object tools/v51_51072406_parts/part04.b64)" = 8a4d375fd5f3c75dd40c8d2926d3a3a1c9515071
+          test "$(git hash-object tools/v51_51072406_parts/part05.b64)" = 2540c98ed9243f1bf57690b82f3a73eef8caf440
+          test "$(git hash-object tools/v51_51072406_parts/part06.b64)" = 0891f191f0f4c27ea000f4648b62f5c43fbbc5a3
+      - name: Materialize 51072406
+        run: python tools/apply_v51_apex_51072406.py
+      - name: Verify generated files
+        run: |
+          test -s training/v51_opportunity_window_audit_51072406.py
+          test -s app/src/main/java/com/ethk3/novaonepro/V51RobustTop3Optimizer.java
+          python -m py_compile training/v51_opportunity_window_audit_51072406.py tools/v51_opportunity_51072406_harness.py

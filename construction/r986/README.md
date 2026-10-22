@@ -1,0 +1,17 @@
+# R986 actual report construction checkpoint — full plan IN_PROGRESS
+
+Actual product: ReportSafCopyCP12 and ReportExportServiceCP4. Original R985 copy returned a success receipt after cancellation at final provider-stream close; the unchanged regression fails against that original product. Current copy checks cancellation/interruption after close. Actual Service checks control before success persistence and verifies resumed saved receipts against the immutable published delivery index, with cardinality and duplicate provider-URI guards. No schema, authorization, settlement or Future change.
+
+Three-way records identify FILE-CAN-129/121: absent in original R980, canonical additions, preserved current R985 implementation plus bounded safety adaptation. Before bytes, actual reread hashes, exact diffs and actual release-class/APK call-asset consumer evidence are included.
+
+Current-source results: clean assembleRelease testDebugUnitTest lintRelease exit0;29 unit tests0 fail; current whole825-input Java schema405 tables/485 indexes/1260 triggers/2 views, integrity ok and no FK errors. Strict empty-baseline lint still FAIL57 errors; baseline not relaxed. Actual current component suite63 PASS/2 retained FAIL. Both original formal assertions remain unchanged.
+
+Current report checks8 PASS, fresh current host native/JNI report/archive/CAS3 PASS, current positive33-assertion runtime chain and actual certificate/race owners PASS. Host AtomicFile prerequisite initially missing caused Stub failures; original failures retained, existing filesystem port compiled as a test adapter and actual product classes unchanged. Android provider/process/background/device execution remains DEVICE_NOT_VERIFIED.
+
+Original R980 source8e188bd4726ad205f971428876967de5f89fd633 was compiled independently758 Java inputs; real old DDL348 tables/454 indexes/128 triggers/2 views. Its actual old DbStore/Research owners populated only an isolated synthetic DB. Current migration owners executed twice:343 original tables' exact original-column rows unchanged, all old app_state values retained, all133 manifest registry digests/locks retained, original migration journal rows retained.1348 scoped business/explicit metadata assertions PASS. The initial all-row-byte guard FAIL is retained: migration legitimately changes schema checkpoint times, reseeds derived manifest timestamps, and advances RESEARCH14→15 with12 appended steps. Review records describe exact allowed deltas rather than claiming all raw bytes unchanged. This is not a customer DB or the missing original CP11 training fixture.
+
+Original R980 APK was recovered and actually verified: package com.ethk3.novaonepro,577250980, SHA256368fa891966c179d301b12e2016a55c223ca70cd949989d32aed0525c695713a. Current signed R986577250986 has the same certificate ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f. Actual overwrite installation NOT_RUN.
+
+All299/1832/166/328 ledger remains in release/r986_construction_ledger.tar.gz with scoped component receipts and remaining exact-clause/scenario acceptance. Two contradictory canonical seed-use assertions, original CertificatePrepare fixture insufficiency,57 strict lint errors, customer DB/CP11/device/natural Future and full per-clause acceptance remain open. No 100% or final-plan completion claim.
+
+Signed APK is a stage checkpoint. Local restored history and remote API history remain separate; publish parent R985 remote2a3a01887d3ed30b7ad02e164dcca81aebcead51. No force push/main merge. Private signing/API configuration excluded.

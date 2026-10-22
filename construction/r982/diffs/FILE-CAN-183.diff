@@ -1,0 +1,58 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java b/app/src/main/java/com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java
+index e847781..a25bd30 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ShadowPromotionVerifierEngine.java
+@@ -1361,7 +1361,7 @@ public final class ShadowPromotionVerifierEngine {
+     }
+ 
+     private boolean isUnsafeOutcomeDomain(String type, String key, String value) {
+-        String t = safe(type).toUpperCase();
++        String t = safe(type).toUpperCase(java.util.Locale.ROOT);
+         if (DOMAIN_K3_LAYER.equals(t)) return true;
+         return AppConfig.isUnsafePromotionDomainKey(key)
+                 || AppConfig.isUnsafePromotionDomainKey(value);
+@@ -2244,7 +2244,7 @@ public final class ShadowPromotionVerifierEngine {
+     private String normalizeResult(String r) {
+         String s = safe(r).trim();
+         if (s.length() == 0) return resultWait();
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         if ("WIN".equals(u) || "HIT".equals(u) || "命中".equals(s)) return resultWin();
+         if ("MISS".equals(u)
+                 || "LOSE".equals(u)
+@@ -2472,7 +2472,7 @@ public final class ShadowPromotionVerifierEngine {
+     }
+ 
+     private static String upper(String s) {
+-        return safe(s).trim().toUpperCase();
++        return safe(s).trim().toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private static String safe(String s) {
+@@ -2530,7 +2530,7 @@ public final class ShadowPromotionVerifierEngine {
+ 
+     private static boolean isWinTextStatic(String r) {
+         String s = safe(r).trim();
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         return "WIN".equals(u) || "HIT".equals(u) || "命中".equals(s);
+     }
+ 
+@@ -2685,7 +2685,7 @@ public final class ShadowPromotionVerifierEngine {
+     }
+ 
+     private String normalizeV2PromotionStatus(String status) {
+-        String x = safe(status).toUpperCase();
++        String x = safe(status).toUpperCase(java.util.Locale.ROOT);
+         if (AppConfig.PROMOTION_STRONG.equals(x)) return AppConfig.PROMOTION_STRONG;
+         if (AppConfig.PROMOTION_READY.equals(x)) return AppConfig.PROMOTION_READY;
+         if (AppConfig.PROMOTION_PROMOTE_WATCH.equals(x)) return AppConfig.PROMOTION_PROMOTE_WATCH;
+@@ -3885,7 +3885,7 @@ public final class ShadowPromotionVerifierEngine {
+ 
+     private boolean isControlledProbeEligible(PromotionCandidateSignal s, double lower) {
+         if (s == null) return false;
+-        String st = safe(s.shadowPromotionStatus).toUpperCase();
++        String st = safe(s.shadowPromotionStatus).toUpperCase(java.util.Locale.ROOT);
+         boolean stateOk =
+                 st.indexOf("STRONG") >= 0
+                         || st.indexOf("READY") >= 0

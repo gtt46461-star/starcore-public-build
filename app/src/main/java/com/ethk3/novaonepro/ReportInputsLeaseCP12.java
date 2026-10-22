@@ -1,0 +1,13 @@
+package com.ethk3.novaonepro;
+import java.io.*;import java.nio.channels.*;
+/** One global read pin acquired before FULL snapshot; expiry takes the same lock exclusively. */
+public final class ReportInputsLeaseCP12 implements Closeable {
+ private final RandomAccessFile io;private final FileChannel channel;private final FileLock lock;
+ private ReportInputsLeaseCP12(RandomAccessFile io,FileChannel channel,FileLock lock){this.io=io;this.channel=channel;this.lock=lock;}
+ public static ReportInputsLeaseCP12 acquire(File filesDir)throws IOException {
+  File root=new File(filesDir,"retention-cas-cp12");if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_INPUT_LEASE_DIRECTORY");
+  File file=ReportArchiveVerifierCP12.inside(root.getCanonicalFile(),"publication.lock");RandomAccessFile io=new RandomAccessFile(file,"rw");FileChannel channel=io.getChannel();
+  try{FileLock lock=channel.tryLock(0,Long.MAX_VALUE,true);if(lock==null)throw new IOException("REPORT_INPUT_LEASE_BUSY");return new ReportInputsLeaseCP12(io,channel,lock);}catch(Exception error){channel.close();io.close();if(error instanceof IOException)throw(IOException)error;throw new IOException("REPORT_INPUT_LEASE_BUSY",error);}
+ }
+ public void close()throws IOException{try{lock.release();}finally{try{channel.close();}finally{io.close();}}}
+}

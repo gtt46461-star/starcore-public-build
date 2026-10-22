@@ -1,0 +1,305 @@
+name: starcore-tianshu-b03-final
+
+on:
+  push:
+    branches:
+      - v57-full/b03
+
+permissions:
+  contents: write
+
+jobs:
+  b03-acceptance:
+    if: contains(github.event.head_commit.message, '[b03-run]')
+    runs-on: ubuntu-24.04
+    env:
+      B02_ACCEPTED_SHA: fc9bca9155d0501b1b806706e2e37c41698e5aae
+      KEY_BASE_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+      BRANCH_NAME: v57-full/b03
+      DELIVERY_NAME: Starcore-Tianshu-B03-20260805-Accepted
+      VERSION_NAME: V57.3.0-tianshu-b03-shadow-engineering
+      VERSION_CODE: '573010805'
+    steps:
+      - name: Checkout exact B03 branch
+        uses: actions/checkout@v4
+        with:
+          ref: v57-full/b03
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify B02 accepted ancestry and resolve API key in memory
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git merge-base HEAD "$B02_ACCEPTED_SHA")" = "$B02_ACCEPTED_SHA"
+          KEY=$(git show "$KEY_BASE_SHA:app/src/main/java/com/ethk3/novaonepro/KeyProvider.java" | python3 -c "import re,sys; s=sys.stdin.read(); p=re.findall(r'PART_[0-9]+\\s*=\\s*new char\\[\\]\\s*\\{([^}]*)\\}',s); print(''.join(re.findall(r\"'([^']+)'\",''.join(p))))")
+          test ${#KEY} -ge 8
+          echo "::add-mask::$KEY"
+          echo "DUOQU_API_KEY=$KEY" >> "$GITHUB_ENV"
+          mkdir -p tools reports delivery
+          printf 'b02_accepted_sha=%s\nworkflow_input_sha=%s\n' "$B02_ACCEPTED_SHA" "$(git rev-parse HEAD)" > reports/B03_BASELINE_IDENTITY.txt
+
+      - name: Reconstruct and verify deterministic B03 tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/starcore-tianshu-b03/materializer.part-* | base64 --decode | gzip --decompress > tools/starcore_tianshu_b03_materialize.py
+          cat .github/starcore-tianshu-b03/harness.part-* | base64 --decode | gzip --decompress > tools/run_starcore_b03_harness.py
+          printf '%s  %s\n' '58fbaa501e8d171d08637fdaf3d02562038c514794d537e5c7cb874bb6ecf44e' tools/starcore_tianshu_b03_materialize.py | sha256sum -c -
+          printf '%s  %s\n' 'a4d87cc9043d61a98c356c446915a665cdf94669a07ddb4148c4f0ea790e3079' tools/run_starcore_b03_harness.py | sha256sum -c -
+          python3 -m py_compile tools/starcore_tianshu_b03_materialize.py tools/run_starcore_b03_harness.py
+
+      - name: Materialize six complete B03 database files
+        shell: bash
+        env:
+          B03_REPO_ROOT: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          python3 tools/starcore_tianshu_b03_materialize.py --apply | tee reports/B03_MATERIALIZE.log
+          python3 tools/starcore_tianshu_b03_materialize.py --verify | tee reports/B03_SOURCE_VERIFY.log
+          git diff --check
+
+      - name: Apply deterministic B03 Android build identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('app/build.gradle')
+          s=p.read_text(encoding='utf-8')
+          s,n1=re.subn(r"versionCode\s+\d+", "versionCode 573010805", s, count=1)
+          s,n2=re.subn(r"versionName\s+'[^']+'", "versionName 'V57.3.0-tianshu-b03-shadow-engineering'", s, count=1)
+          s,n3=re.subn(r"setProperty\('archivesBaseName',\s*'[^']+'\)", "setProperty('archivesBaseName', 'Starcore-Tianshu-B03-Binance-K3-Shadow-Engineering')", s, count=1)
+          if (n1,n2,n3)!=(1,1,1): raise SystemExit('build identity replacement mismatch %r' % ((n1,n2,n3),))
+          p.write_text(s,encoding='utf-8')
+          PY
+          grep -n "versionCode\|versionName\|archivesBaseName\|buildConfigField" app/build.gradle | sed 's/DUOQU_API_KEY.*/DUOQU_API_KEY [REDACTED]/' > reports/B03_BUILD_CONFIG_AUDIT.txt
+          ! grep -F "$DUOQU_API_KEY" app/build.gradle
+
+      - name: Run B03 database contract and SQLite mirror gates
+        shell: bash
+        env:
+          B03_REPO_ROOT: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          python3 tools/run_starcore_b03_harness.py | tee reports/B03_HARNESS.log
+          grep -F '"passed": 50' reports/B03_HARNESS.log >/dev/null
+          grep -F '"failed": 0' reports/B03_HARNESS.log >/dev/null
+
+      - name: Parse all Java and XML and enforce B03 source boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check javalang==0.13.0 >/dev/null
+          python3 - <<'PY' | tee reports/B03_FULL_PARSE.log
+          from pathlib import Path
+          import javalang, xml.etree.ElementTree as ET
+          errors=[]
+          java_files=sorted(Path('app/src/main/java').rglob('*.java'))
+          xml_files=sorted(Path('app/src/main').rglob('*.xml'))
+          for path in java_files:
+              try: javalang.parse.parse(path.read_text(encoding='utf-8'))
+              except Exception as exc: errors.append((str(path),str(exc)))
+          for path in xml_files:
+              try: ET.parse(str(path))
+              except Exception as exc: errors.append((str(path),str(exc)))
+          print('java=%d xml=%d errors=%d' % (len(java_files),len(xml_files),len(errors)))
+          for item in errors[:100]: print(item)
+          raise SystemExit(1 if errors else 0)
+          PY
+          ROOT=app/src/main/java/com/ethk3/novaonepro
+          python3 - <<'PY' | tee reports/B03_LINE_RANGE_AUDIT.txt
+          from pathlib import Path
+          root=Path('app/src/main/java/com/ethk3/novaonepro')
+          ranges={
+            'DbHelper.java':(4645,5202),
+            'DatabaseCoordinator.java':(1000,1600),
+            'DatabaseMigrationEngine.java':(1000,1600),
+            'DatabaseIntegrityVerifier.java':(1000,1600),
+            'DbStore.java':(17584,19694),
+            'V51Repository.java':(1000,1600),
+          }
+          for name,(lo,hi) in ranges.items():
+              count=len((root/name).read_text(encoding='utf-8').splitlines())
+              print('%s=%d range=%d..%d' % (name,count,lo,hi))
+              if count < lo or count > hi: raise SystemExit('%s out of range' % name)
+          PY
+          grep -F 'binance_k3_nova_one_pro_v57.db' "$ROOT/DbHelper.java" "$ROOT/DatabaseMigrationEngine.java" "$ROOT/DatabaseIntegrityVerifier.java" >/dev/null
+          grep -F 'REAL_BET_HARD_DISABLED' "$ROOT/V51Repository.java" >/dev/null
+          grep -F 'LEGACY_DRAW_ONLY' "$ROOT/DatabaseMigrationEngine.java" >/dev/null
+          grep -F 'PRAGMA foreign_key_check' "$ROOT/DatabaseIntegrityVerifier.java" >/dev/null
+          grep -F 'b03_prediction_ledger' "$ROOT/DbHelper.java" "$ROOT/DbStore.java" "$ROOT/V51Repository.java" >/dev/null
+          ! grep -R -E 'TODO|FIXME|UnsupportedOperationException' "$ROOT/DbHelper.java" "$ROOT/DatabaseCoordinator.java" "$ROOT/DatabaseMigrationEngine.java" "$ROOT/DatabaseIntegrityVerifier.java" "$ROOT/DbStore.java" "$ROOT/V51Repository.java"
+          ! grep -R -F "$DUOQU_API_KEY" app/src/main reports tools
+          printf 'source_boundary=PASS\n' > reports/B03_SECURITY_AND_BOUNDARY_GATE.txt
+
+      - name: Verify live Binance1-PK10 provider path
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' | tee reports/B03_LIVE_API_TEST.log
+          import hashlib,json,os,re,urllib.parse,urllib.request
+          key=os.environ['DUOQU_API_KEY']; results=[]
+          for base in ('https://api.duoqu.online/data','https://api1.duoqu.online/data'):
+              result={'base':base,'ok':False}
+              try:
+                  url=base+'?'+urllib.parse.urlencode({'code':'Binance1-PK10','limit':20,'key':key})
+                  request=urllib.request.Request(url,headers={'Accept':'application/json','User-Agent':'Starcore-Tianshu-B03-Acceptance'})
+                  with urllib.request.urlopen(request,timeout=20) as response:
+                      raw=response.read(2097152); status=response.status
+                  payload=json.loads(raw.decode('utf-8')); rows=payload.get('data'); valid=0
+                  if isinstance(rows,list):
+                      for row in rows:
+                          if isinstance(row,dict) and all(k in row for k in ('betNo','gmtBetNo','openNumber','block','hash','openTime')):
+                              numbers=[int(x) for x in re.split(r'[,\s-]+',str(row['openNumber']).strip()) if x]
+                              if len(numbers)==10 and sorted(numbers)==list(range(1,11)): valid+=1
+                  ok=(status==200 and str(payload.get('info','')).lower()=='success' and payload.get('lotteryCode')=='Binance1-PK10' and valid==20)
+                  result={'base':base,'http':status,'ok':ok,'rows':len(rows) if isinstance(rows,list) else 0,'valid_permutations':valid,'response_sha256':hashlib.sha256(raw).hexdigest(),'key_fingerprint':hashlib.sha256(key.encode()).hexdigest()[:12]}
+              except Exception as exc:
+                  result={'base':base,'ok':False,'error_type':type(exc).__name__}
+              results.append(result)
+          open('reports/B03_LIVE_API_TEST.json','w',encoding='utf-8').write(json.dumps(results,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(results,ensure_ascii=False,indent=2))
+          if not any(x.get('ok') for x in results): raise SystemExit(1)
+          PY
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+          cache-read-only: true
+
+      - name: Compile lint sign and inspect B03 APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace :app:clean :app:assembleDebug :app:lintDebug 2>&1 | tee reports/B03_GRADLE_BUILD.log
+          APK=$(find app/build/outputs/apk/debug -type f -name '*.apk' -size +100k | head -1)
+          test -n "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee reports/B03_APKSIGNER.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee reports/B03_BADGING.txt
+          grep -F "package: name='com.ethk3.novaonepro'" reports/B03_BADGING.txt >/dev/null
+          grep -F "versionName='$VERSION_NAME'" reports/B03_BADGING.txt >/dev/null
+          cp "$APK" "delivery/$DELIVERY_NAME-shadow-engineering-debug.apk"
+          sha256sum "delivery/$DELIVERY_NAME-shadow-engineering-debug.apk" > reports/B03_APK_SHA256.txt
+          stat -c 'apk_bytes=%s' "delivery/$DELIVERY_NAME-shadow-engineering-debug.apk" > reports/B03_APK_SIZE.txt
+          ! grep -R -F "$DUOQU_API_KEY" reports tools app/src/main app/build.gradle
+
+      - name: Generate exact B03 per-file audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv,hashlib,json,subprocess
+          base='fc9bca9155d0501b1b806706e2e37c41698e5aae'
+          root=Path('app/src/main/java/com/ethk3/novaonepro')
+          names=['DbHelper.java','DatabaseCoordinator.java','DatabaseMigrationEngine.java','DatabaseIntegrityVerifier.java','DbStore.java','V51Repository.java']
+          purposes={
+            'DbHelper.java':'建立B03唯一SQLite正式Schema、WAL/外键、13表、索引、不可变触发器与游戏隔离',
+            'DatabaseCoordinator.java':'建立单写者队列、事务上下文、幂等审计、原子预测与影子结算协调',
+            'DatabaseMigrationEngine.java':'旧库只允许开奖进入隔离区，拒绝预测、校准、盈亏、交易与授权迁移',
+            'DatabaseIntegrityVerifier.java':'只读执行quick_check、foreign_key_check、Schema、孤儿、游戏与哈希回放验证',
+            'DbStore.java':'成为B03存储门面，统一预测、影子结算、旧开奖隔离、状态与回放审计',
+            'V51Repository.java':'扩展V51账本身份字段并原子双写B03不可变预测/影子结算账本，真实BET硬锁',
+          }
+          rows=[]
+          for name in names:
+              path=root/name; after=path.read_bytes(); before=subprocess.check_output(['git','show',base+':'+str(path)])
+              rows.append({'file':name,'before_lines':len(before.decode('utf-8').splitlines()),'after_lines':len(after.decode('utf-8').splitlines()),'delta_lines':len(after.decode('utf-8').splitlines())-len(before.decode('utf-8').splitlines()),'before_bytes':len(before),'after_bytes':len(after),'before_sha256':hashlib.sha256(before).hexdigest(),'after_sha256':hashlib.sha256(after).hexdigest(),'implementation':purposes[name]})
+          with open('reports/B03_FILE_AUDIT.csv','w',encoding='utf-8-sig',newline='') as stream:
+              writer=csv.DictWriter(stream,fieldnames=list(rows[0].keys())); writer.writeheader(); writer.writerows(rows)
+          Path('reports/B03_FILE_AUDIT.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          total_before=sum(x['before_lines'] for x in rows); total_after=sum(x['after_lines'] for x in rows)
+          report=['# 星核天枢 B03 完整施工与验收报告','','基线：`'+base+'`','状态：SQLite建库、迁移、完整性与唯一仓储工程验收；MODEL_NOT_PROVEN；SHADOW_ONLY；真实BET硬锁。','','| 文件 | 原行数 | 修改后 | 增量 | 核心施工 |','|---|---:|---:|---:|---|']
+          for row in rows: report.append('| %s | %d | %d | %+d | %s |' % (row['file'],row['before_lines'],row['after_lines'],row['delta_lines'],row['implementation']))
+          report.extend(['','B03六文件原合计：**%d行**；修改后合计：**%d行**；净增加：**%+d行**。' % (total_before,total_after,total_after-total_before),'','验收范围：50/50合同、SQLite镜像、全Java/XML解析、真实接口、Gradle assembleDebug、lintDebug、APK签名与包身份。'])
+          Path('reports/B03_IMPLEMENTATION_REPORT.md').write_text('\n'.join(report)+'\n',encoding='utf-8')
+          PY
+          git diff --stat "$B02_ACCEPTED_SHA" -- app/build.gradle app/src/main/java/com/ethk3/novaonepro > reports/B03_DIFF_STAT.txt
+          git diff --numstat "$B02_ACCEPTED_SHA" -- app/build.gradle app/src/main/java/com/ethk3/novaonepro > reports/B03_DIFF_NUMSTAT.txt
+
+      - name: Commit accepted B03 source and immutable tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -rf .github/starcore-tianshu-b03
+          rm -f .github/workflows/starcore-tianshu-b03-snapshot.yml .github/workflows/starcore-tianshu-b03-final.yml
+          git add -A .github app/build.gradle \
+            app/src/main/java/com/ethk3/novaonepro/DbHelper.java \
+            app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java \
+            app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/DatabaseIntegrityVerifier.java \
+            app/src/main/java/com/ethk3/novaonepro/DbStore.java \
+            app/src/main/java/com/ethk3/novaonepro/V51Repository.java
+          git diff --cached --check
+          git commit -m 'feat(starcore): accept Tianshu B03 immutable database foundation'
+          git fetch origin "$BRANCH_NAME"
+          git rebase "origin/$BRANCH_NAME"
+          git push origin "HEAD:$BRANCH_NAME"
+          FINAL_SHA=$(git rev-parse HEAD)
+          printf '%s\n' "$FINAL_SHA" > reports/B03_FINAL_COMMIT.txt
+          if git rev-parse 'refs/tags/v57-b03-accepted' >/dev/null 2>&1; then
+            test "$(git rev-list -n1 v57-b03-accepted)" = "$FINAL_SHA"
+          else
+            git tag -a v57-b03-accepted -m 'Starcore Tianshu B03 accepted' "$FINAL_SHA"
+            git push origin refs/tags/v57-b03-accepted
+          fi
+
+      - name: Package final accepted delivery
+        shell: bash
+        run: |
+          set -euo pipefail
+          FINAL_SHA=$(git rev-parse HEAD)
+          printf 'b02_accepted_sha=%s\nb03_final_sha=%s\ntag=v57-b03-accepted\n' "$B02_ACCEPTED_SHA" "$FINAL_SHA" > delivery/B03_SOURCE_IDENTITY.txt
+          rm -rf /tmp/b03full /tmp/b03master
+          mkdir -p /tmp/b03full /tmp/b03master
+          rsync -a --exclude='.git' --exclude='.gradle' --exclude='app/build' --exclude='delivery' --exclude='reports' --exclude='tools' ./ /tmp/b03full/
+          (cd /tmp/b03full && zip -q -r "$GITHUB_WORKSPACE/delivery/$DELIVERY_NAME-full-source.zip" .)
+          zip -q -r "delivery/$DELIVERY_NAME-incremental.zip" \
+            app/build.gradle \
+            app/src/main/java/com/ethk3/novaonepro/DbHelper.java \
+            app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java \
+            app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java \
+            app/src/main/java/com/ethk3/novaonepro/DatabaseIntegrityVerifier.java \
+            app/src/main/java/com/ethk3/novaonepro/DbStore.java \
+            app/src/main/java/com/ethk3/novaonepro/V51Repository.java \
+            reports/B03_* tools/starcore_tianshu_b03_materialize.py tools/run_starcore_b03_harness.py
+          zip -q -r "delivery/$DELIVERY_NAME-evidence.zip" reports/B03_* tools/starcore_tianshu_b03_materialize.py tools/run_starcore_b03_harness.py
+          sha256sum delivery/* > delivery/SHA256SUMS.txt
+          cp delivery/* /tmp/b03master/
+          (cd /tmp/b03master && zip -q -r "$GITHUB_WORKSPACE/delivery/$DELIVERY_NAME-MASTER-with-APK.zip" .)
+          sha256sum "delivery/$DELIVERY_NAME-MASTER-with-APK.zip" >> delivery/SHA256SUMS.txt
+          find delivery -maxdepth 1 -type f -printf '%f %s bytes\n' | sort | tee reports/B03_DELIVERY_LIST.txt
+          unzip -t "delivery/$DELIVERY_NAME-full-source.zip" >/dev/null
+          unzip -t "delivery/$DELIVERY_NAME-incremental.zip" >/dev/null
+          unzip -t "delivery/$DELIVERY_NAME-evidence.zip" >/dev/null
+          unzip -t "delivery/$DELIVERY_NAME-MASTER-with-APK.zip" >/dev/null
+
+      - name: Upload final accepted B03 delivery
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B03-Accepted-Delivery
+          path: delivery/*
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6

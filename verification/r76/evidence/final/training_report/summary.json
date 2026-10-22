@@ -1,0 +1,257 @@
+{
+  "status": "PASS",
+  "scope": "CONTROLLED_REPORT_ORIGINAL_CAS_AND_PREFIX_ACTUAL_OWNERS_NOT_PHONE_LATENCY_OR_FUTURE_QUALITY",
+  "product_classes": "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+  "explicit_product_overlays": [],
+  "commands": [
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/scratch/7a6032548233/starcore/verification/r76/training_prepare_report.py",
+      "--schema",
+      "/workspace/scratch/7a6032548233/r72-final-schema",
+      "--report",
+      "/workspace/scratch/e2544c9906f6/r76-input/report/DIAGNOSTIC_SCOPE.json",
+      "--out",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/fixture"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/javac",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "-d",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/classes",
+      "/workspace/scratch/7a6032548233/starcore/verification/r76/training_ReportOwnerR76.java",
+      "/workspace/scratch/7a6032548233/starcore/verification/r72/realtime/android/os/SystemClock.java"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Xmx512m",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_ReportOwnerR76",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/fixture/report.db",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/app",
+      "/workspace/scratch/7a6032548233/starcore/app/src/main/assets",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/cold",
+      "20",
+      "training"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Xmx512m",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_ReportOwnerR76",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/fixture/report.db",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/app",
+      "/workspace/scratch/7a6032548233/starcore/app/src/main/assets",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/resumed",
+      "400",
+      "training"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Xmx512m",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_ReportOwnerR76",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/fixture/report.db",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/app",
+      "/workspace/scratch/7a6032548233/starcore/app/src/main/assets",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report/restarted",
+      "1",
+      "training"
+    ]
+  ],
+  "original_input_identities": [
+    {
+      "hash": "1b402346dfc4432ad3fee77b5ec24b1ca87fa9dd1eaae9836f136537816eed70",
+      "bytes": 108699,
+      "rows": 1721
+    },
+    {
+      "hash": "aed6e0b9a83acf738c081a2899b753dac14253cc39e1cda5bf169852652a2e5d",
+      "bytes": 103659,
+      "rows": 1641
+    },
+    {
+      "hash": "b8e610a541a3ed6856be7382eaf370bd63538c25a579b6798c15a7a88f702f31",
+      "bytes": 103659,
+      "rows": 1641
+    },
+    {
+      "hash": "5ec40e01ee7cebf5ec51da122cbc8afce13b5f8d323acdc3ef3042d347e7ae38",
+      "bytes": 105549,
+      "rows": 1671
+    },
+    {
+      "hash": "aa9d3234cd80697c6ea34aa46731e98f9f2dda88ad196180eedca04e96b0343a",
+      "bytes": 105549,
+      "rows": 1671
+    },
+    {
+      "hash": "15a805ad436993a8118ad8a4c17a8dc44d5a83c614aaac4210b131e34c6a5223",
+      "bytes": 103659,
+      "rows": 1641
+    }
+  ],
+  "original_feature_prefixes": [
+    {
+      "task_id": "cc62a6dd090cd9452b6eddb453f30f94306122e02bef3c9f4deb8b442414f7ee",
+      "next_index": 3,
+      "prefix_hash": "d9c4d8f117856581d0f88acd8798f955fb5851a010698bda67864969e10aa06f",
+      "status": "EXACT_REPORT_MATCH"
+    },
+    {
+      "task_id": "47e81fedea8a2155b390eac3665ecd4ee81d16aafde4b651cbc4f061ab74f569",
+      "next_index": 16,
+      "prefix_hash": "cd7cf3d9837bae81ec748d34b0c6a9ca56c5a95ac28158f3d0bf8d2f15ad0452",
+      "status": "EXACT_REPORT_MATCH"
+    }
+  ],
+  "feature_rows": 7920,
+  "development_receipts": 6,
+  "restart_duplicate_models": 0,
+  "models": [
+    {
+      "candidate_id": "CP12-FAMILY-274334c38654068cd68962c4",
+      "model_kind": "FIXED_GRAPH",
+      "validation_last": "202610130021",
+      "artifact_hash": "444de818542fbf07a757ab09d07d687323b48c07dd7c9fa091dd6701f1e71deb",
+      "numeric_updates": 1200,
+      "development_sample_n": 1200,
+      "validation_sample_n": 120,
+      "validation_pass": 1
+    },
+    {
+      "candidate_id": "CP12-FAMILY-0d372d7bbb8cbd6b974e0fbc",
+      "model_kind": "MLP_D32_16_10",
+      "validation_last": "202610130022",
+      "artifact_hash": "4e46915b62fe3711167306834f2bb097dabe34d0827b9c8cda85922f580a4e2a",
+      "numeric_updates": 1200,
+      "development_sample_n": 1200,
+      "validation_sample_n": 120,
+      "validation_pass": 1
+    },
+    {
+      "candidate_id": "CP12-FAMILY-80f7aad201b109f5414f1e75",
+      "model_kind": "HISTOGRAM_TREE",
+      "validation_last": "202610130023",
+      "artifact_hash": "18bc000dee9fe1238ab0a8fedba56b4f35556d67404d3ec513a9c034fc57acab",
+      "numeric_updates": 1200,
+      "development_sample_n": 1200,
+      "validation_sample_n": 120,
+      "validation_pass": 1
+    },
+    {
+      "candidate_id": "CP12-FAMILY-f2c9e4cb3246f90297b4fe2e",
+      "model_kind": "SOFTMAX_LINEAR",
+      "validation_last": "202610130022",
+      "artifact_hash": "ac9d975012b685fd82020532695025f63b2bfd5cb82cdb39678eeddd4be8b610",
+      "numeric_updates": 1200,
+      "development_sample_n": 1200,
+      "validation_sample_n": 120,
+      "validation_pass": 1
+    },
+    {
+      "candidate_id": "CP12-FAMILY-395d00de3b257bd91d61d493",
+      "model_kind": "FIXED_GRAPH",
+      "validation_last": "202610130021",
+      "artifact_hash": "3b0f7b5493caae5ccef7bf453795eb73556429fc628ad76698ce4127a8bf2f2d",
+      "numeric_updates": 1200,
+      "development_sample_n": 1200,
+      "validation_sample_n": 120,
+      "validation_pass": 1
+    },
+    {
+      "candidate_id": "CP12-FAMILY-fe112cad7ea02f555d9ea5cc",
+      "model_kind": "FIXED_GRAPH",
+      "validation_last": "202610130021",
+      "artifact_hash": "9b8c3bc0a381588f369efb14f3e22519d58e37edc2fd008a6277e79e0bb5d330",
+      "numeric_updates": 1200,
+      "development_sample_n": 1200,
+      "validation_sample_n": 120,
+      "validation_pass": 1
+    }
+  ],
+  "frozen": [
+    {
+      "candidate_id": "R958-F-V3-b6fa3072978eeebab75423a1",
+      "learner_id": "CP12-FAMILY-274334c38654068cd68962c4",
+      "model_hash": "2c417f424f325859ddebabf8083608575b80c102e915948b54d5dd8bc38ae6b7",
+      "trained_until_issue": "202610130021",
+      "created_issue": "202610130484",
+      "source_artifact": "444de818542fbf07a757ab09d07d687323b48c07dd7c9fa091dd6701f1e71deb",
+      "run_hash": "baa786d38663639be52127619368d3f3fbc4b206d13c54ffc50df42f0e79c160",
+      "rule_hash": "b602c90acbce9379985a3991fada5795a47826a4758f3dc3f9aec01fe99f4efd"
+    },
+    {
+      "candidate_id": "R958-F-V3-ab7e2feb930ad4e536b7f10c",
+      "learner_id": "CP12-FAMILY-0d372d7bbb8cbd6b974e0fbc",
+      "model_hash": "2946d13a08215c3b3f4e0e8b741dcd0282f571b212d1e2371949f7934b23767d",
+      "trained_until_issue": "202610130022",
+      "created_issue": "202610130484",
+      "source_artifact": "4e46915b62fe3711167306834f2bb097dabe34d0827b9c8cda85922f580a4e2a",
+      "run_hash": "81396c6a1a9e7e4fd9ef6b57ec6c37277c78ac79c8ede621868e337e7bc754c8",
+      "rule_hash": "b602c90acbce9379985a3991fada5795a47826a4758f3dc3f9aec01fe99f4efd"
+    },
+    {
+      "candidate_id": "R958-F-V3-9c9d01cc009ac68776e9b7d5",
+      "learner_id": "CP12-FAMILY-80f7aad201b109f5414f1e75",
+      "model_hash": "b4eff6546919e8cd390659cc1be59cdce13841ba8175f9e399a50437f46bfd80",
+      "trained_until_issue": "202610130023",
+      "created_issue": "202610130484",
+      "source_artifact": "18bc000dee9fe1238ab0a8fedba56b4f35556d67404d3ec513a9c034fc57acab",
+      "run_hash": "82b30cfaa0ff18c85f32ad0503116e07b0fe9dc3655e2227813b910093f66e54",
+      "rule_hash": "b602c90acbce9379985a3991fada5795a47826a4758f3dc3f9aec01fe99f4efd"
+    },
+    {
+      "candidate_id": "R958-F-V3-3a6eb5d9143bf8b98184d863",
+      "learner_id": "CP12-FAMILY-f2c9e4cb3246f90297b4fe2e",
+      "model_hash": "376906aeb5369daa0e01c171391dc6bd564a0f1d8b7aec17fe14fc5cb6b91805",
+      "trained_until_issue": "202610130022",
+      "created_issue": "202610130484",
+      "source_artifact": "ac9d975012b685fd82020532695025f63b2bfd5cb82cdb39678eeddd4be8b610",
+      "run_hash": "684ef948692d84af72f638f95af36019e2ca82af9a27c8964681523236786388",
+      "rule_hash": "b602c90acbce9379985a3991fada5795a47826a4758f3dc3f9aec01fe99f4efd"
+    },
+    {
+      "candidate_id": "R958-F-V3-09b0f8627d740ac3ffb711bf",
+      "learner_id": "CP12-FAMILY-395d00de3b257bd91d61d493",
+      "model_hash": "3ad6d1fc39338f0c798bfcc35dfbb6db6d6a7756b9a233ad783e1d2c6df3799d",
+      "trained_until_issue": "202610130021",
+      "created_issue": "202610130484",
+      "source_artifact": "3b0f7b5493caae5ccef7bf453795eb73556429fc628ad76698ce4127a8bf2f2d",
+      "run_hash": "5e2a9e4f2c06ceb217229d691a058d5368f5101d14c630beef3f42f690ef0850",
+      "rule_hash": "b602c90acbce9379985a3991fada5795a47826a4758f3dc3f9aec01fe99f4efd"
+    },
+    {
+      "candidate_id": "R958-F-V3-32ef6456e4be172717f2dadb",
+      "learner_id": "CP12-FAMILY-fe112cad7ea02f555d9ea5cc",
+      "model_hash": "588e7602a43d8d26696fe175e23c90c435eb360d1410ebd44e823fe68f2f3290",
+      "trained_until_issue": "202610130021",
+      "created_issue": "202610130484",
+      "source_artifact": "9b8c3bc0a381588f369efb14f3e22519d58e37edc2fd008a6277e79e0bb5d330",
+      "run_hash": "77dbbc53c87db8194fd925ec27d125a202aed2d60d775d8f2f753ba1f62e5d22",
+      "rule_hash": "b602c90acbce9379985a3991fada5795a47826a4758f3dc3f9aec01fe99f4efd"
+    }
+  ],
+  "task_states": [
+    {
+      "kind": "FREEZE_CANDIDATE",
+      "status": "COMPLETED",
+      "n": 6
+    },
+    {
+      "kind": "TRAIN_CANDIDATE",
+      "status": "COMPLETED",
+      "n": 6
+    }
+  ]
+}

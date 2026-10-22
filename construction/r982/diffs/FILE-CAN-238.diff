@@ -1,0 +1,46 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/MatrixPolicyViewsCP12.java b/app/src/main/java/com/ethk3/novaonepro/r952/MatrixPolicyViewsCP12.java
+new file mode 100644
+index 0000000..fcd83d8
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/MatrixPolicyViewsCP12.java
+@@ -0,0 +1,40 @@
++package com.ethk3.novaonepro.r952;
++import android.database.Cursor;import android.database.sqlite.SQLiteDatabase;import java.util.*;
++/** Certificate/Research reads exactly four master300 rings; later checkpoints require an isolated immutable-input PIT replay. */
++public final class MatrixPolicyViewsCP12 {
++ private MatrixPolicyViewsCP12(){}
++ public static final class View {
++  public final String matrixId,payloadHash,viewHash,throughIssue,policyHash,sourceFence;public final long version;public final int window;public final boolean replayed;
++  public final Map<String,double[]> metrics;
++  private View(MatrixSnapshotBusR952.CheckpointCP4 cp,MatrixProjectionCP12.State state,int window,String sourceFence,boolean replayed){matrixId=cp.matrixId;payloadHash=cp.payloadHash;throughIssue=cp.throughIssue;version=cp.version;this.window=window;this.sourceFence=sourceFence;this.replayed=replayed;policyHash=MatrixProjectionCP12.POLICY_VIEWS_HASH;viewHash=MatrixProjectionCP12.hash("CP12_POLICY_VIEW|"+sourceFence+'|'+MatrixProjectionCP12.viewHash(cp.matrixId,cp.payloadHash,cp.version,window));Map<String,double[]> m=new LinkedHashMap<>();for(Map.Entry<String,double[]> entry:MatrixProjectionCP12.metricsWindow(state,window).entrySet())m.put(entry.getKey(),entry.getValue().clone());metrics=Collections.unmodifiableMap(m);}
++  public double scalar(String key){double[] value=metrics.get(key);if(value==null||value.length!=1||!Double.isFinite(value[0]))throw new IllegalStateException("MATRIX_METRIC_UNAVAILABLE/"+key);return value[0];}
++ }
++ public static Map<String,View> readAtCP12(SQLiteDatabase db,String freezeHash,String throughIssue){
++  if(db.inTransaction()||!com.ethk3.novaonepro.TargetIssueResolver.isValid(throughIssue))throw new IllegalArgumentException("MATRIX_POLICY_READ_SCOPE");
++  String target=com.ethk3.novaonepro.TargetIssueResolver.next(throughIssue).targetIssue;Map<String,View> out=new LinkedHashMap<>();
++  try(MemoryBudgetCP4.Lease scratch=com.ethk3.novaonepro.RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(1572864)){
++   for(MatrixProjectionCP12.Type type:types()){
++    MatrixProjectionCP12.Spec spec=MatrixSourceRouterCP12.frozenPolicySpecCP12(type,freezeHash,300);MatrixSnapshotBusR952.CheckpointCP4 cp=MatrixSnapshotBusR952.readAtCP4(db,spec.matrixId,spec.manifest,target);MatrixProjectionCP12.State state;String fence;boolean replayed;
++    if(cp!=null&&cp.throughIssue.equals(throughIssue)){if(!cp.schemaHash.equals(MatrixProjectionCP12.SCHEMA_HASH))throw new IllegalStateException("MATRIX_SCHEMA_MISMATCH");state=MatrixProjectionCP12.decode(spec,cp.payload());fence=storedFence(cp);replayed=false;}
++    else{List<Input> inputs=readInputs(db,spec,throughIssue);if(inputs.isEmpty()||!inputs.get(inputs.size()-1).issue.equals(throughIssue))throw new IllegalStateException("WAIT_MATRIX_CHECKPOINT/"+type.name()+"/"+throughIssue);state=MatrixProjectionCP12.empty(spec);StringBuilder proof=new StringBuilder("CP12_POLICY_PIT_INPUTS|").append(spec.matrixId).append('|').append(throughIssue);for(Input input:inputs){MatrixProjectionCP12.apply(state,input.ordinal,MatrixProjectionCP12.sampleFromBytes(input.payload),null);proof.append('|').append(input.fence);}fence=MatrixProjectionCP12.hash(proof.toString());byte[] payload=MatrixProjectionCP12.encode(state);cp=new MatrixSnapshotBusR952.CheckpointCP4(type.name(),spec.partition,300,spec.manifest,MatrixProjectionCP12.SCHEMA_HASH,0,throughIssue,inputs.get(inputs.size()-1).receipt,state.samples(),payload);replayed=true;}
++    for(int window:new int[]{20,50,100,300}){View view=new View(cp,state,window,fence,replayed);out.put(type.name()+"/"+window,view);}
++   }
++  }return Collections.unmodifiableMap(out);
++ }
++ /** Writer fence hashes source identities only. Numerical ring decoding is exclusively outside the write transaction. */
++ public static boolean fenceCP12(SQLiteDatabase db,String freezeHash,String throughIssue,Map<String,View> views){
++  if(!db.inTransaction()||views==null||views.size()!=16)throw new IllegalStateException("MATRIX_POLICY_FENCE_SCOPE");
++  for(MatrixProjectionCP12.Type type:types()){View view=views.get(type.name()+"/300");if(view==null||!view.throughIssue.equals(throughIssue))return false;MatrixProjectionCP12.Spec spec=MatrixSourceRouterCP12.frozenPolicySpecCP12(type,freezeHash,300);String fence;
++   if(!view.replayed){try(Cursor c=db.rawQuery("SELECT version,through_issue,last_receipt,payload_hash,schema_hash FROM research_matrix_checkpoint_v2 WHERE matrix_id=?",new String[]{spec.matrixId})){if(!c.moveToFirst())return false;fence=MatrixProjectionCP12.hash("CP12_POLICY_STORED|"+spec.matrixId+'|'+c.getLong(0)+'|'+c.getString(1)+'|'+c.getString(2)+'|'+c.getString(3)+'|'+c.getString(4));}}
++   else{StringBuilder proof=new StringBuilder("CP12_POLICY_PIT_INPUTS|").append(spec.matrixId).append('|').append(throughIssue);for(String source:readInputFences(db,spec,throughIssue))proof.append('|').append(source);fence=MatrixProjectionCP12.hash(proof.toString());}
++   if(!view.sourceFence.equals(fence))return false;
++  }return true;
++ }
++ private static String storedFence(MatrixSnapshotBusR952.CheckpointCP4 cp){return MatrixProjectionCP12.hash("CP12_POLICY_STORED|"+cp.matrixId+'|'+cp.version+'|'+cp.throughIssue+'|'+cp.lastReceipt+'|'+cp.payloadHash+'|'+cp.schemaHash);}
++ private static MatrixProjectionCP12.Type[] types(){return new MatrixProjectionCP12.Type[]{MatrixProjectionCP12.Type.CandidateWindowMatrix,MatrixProjectionCP12.Type.CandidateErrorMatrix,MatrixProjectionCP12.Type.ConfidenceMatrix,MatrixProjectionCP12.Type.ResidualMatrix};}
++ private static final class Input {String issue,receipt,fence;long ordinal;byte[] payload;}
++ private static List<String> readInputFences(SQLiteDatabase db,MatrixProjectionCP12.Spec spec,String through){ArrayList<String> out=new ArrayList<>();try(Cursor c=db.rawQuery("SELECT i.input_hash,a.result_hash,a.through_issue FROM research_matrix_input_cp12 i JOIN research_projection_ack_v2 a ON a.consumer=? AND a.source_hash=i.source_receipt_hash WHERE i.matrix_id=? AND i.source_issue<=? AND i.state='DONE' ORDER BY i.source_ordinal DESC,i.source_receipt_hash DESC LIMIT 300",new String[]{"MATRIX_CP4/"+spec.matrixId,spec.matrixId,through})){while(c.moveToNext())out.add(c.getString(0)+'|'+c.getString(1)+'|'+c.getString(2));}Collections.reverse(out);return out;}
++ private static List<Input> readInputs(SQLiteDatabase db,MatrixProjectionCP12.Spec spec,String through){ArrayList<Input> out=new ArrayList<>();String sql="SELECT i.source_issue,i.source_receipt_hash,i.source_ordinal,i.input_hash,i.proof_hash,i.input_payload,a.result_hash,a.through_issue FROM research_matrix_input_cp12 i JOIN research_projection_ack_v2 a ON a.consumer=? AND a.source_hash=i.source_receipt_hash WHERE i.matrix_id=? AND i.source_issue<=? AND i.state='DONE' ORDER BY i.source_ordinal DESC,i.source_receipt_hash DESC LIMIT 300";
++  try(Cursor c=db.rawQuery(sql,new String[]{"MATRIX_CP4/"+spec.matrixId,spec.matrixId,through})){while(c.moveToNext()){Input i=new Input();i.issue=c.getString(0);i.receipt=c.getString(1);i.ordinal=c.getLong(2);String inputHash=c.getString(3),proof=c.getString(4),ack=c.getString(6);i.payload=c.getBlob(5);String expected=MatrixProjectionCP12.hash("CP12_MATRIX_INPUT|"+spec.matrixId+'|'+i.issue+'|'+i.ordinal+'|'+i.receipt+'|'+proof+'|'+MatrixProjectionCP12.bytesHash(i.payload));if(!expected.equals(inputHash)||!ack.matches("[0-9a-f]{64}")||com.ethk3.novaonepro.TargetIssueResolver.compare(c.getString(7),i.issue)<0)throw new IllegalStateException("MATRIX_POLICY_INPUT_PROOF");i.fence=inputHash+'|'+ack+'|'+c.getString(7);out.add(i);}}Collections.reverse(out);return out;
++ }
++}

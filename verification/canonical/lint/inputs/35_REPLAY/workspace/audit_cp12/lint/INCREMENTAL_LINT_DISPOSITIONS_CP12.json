@@ -1,0 +1,18 @@
+{
+  "rows": [
+    {
+      "issue_id": "CP12-LINT-BUILD-001",
+      "detector": "AndroidGradlePluginVersion",
+      "severity": "Warning",
+      "file": "gradle/wrapper/gradle-wrapper.properties",
+      "message": "A newer version of Gradle than 8.13 is available: 8.14.5",
+      "error_line": "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.13-bin.zip",
+      "source_sha256": "1d62eee5bc00866b8d4a9832e3b6e7fbbf1fb7e3207271ff374024a9a16cb9ab",
+      "baseline_approved": true,
+      "disposition": "KEEP_PINNED_VERIFIED_TOOLCHAIN",
+      "exact_change_or_rationale": "The lint detector explicitly permits deliberate older-version pinning. This plan pins Gradle8.13 with AGP8.7.3/JDK17/SDK36/NDK28.2 already compiled; a mere newer-version notice is not a compatibility defect. Do not perform an unaudited toolchain upgrade. Match this exact wrapper path/anchor/message only; other new warnings remain failures.",
+      "test": "Actual clean Java/resources/three-ABI/D8/29unit build; strictlint with exact one-location baseline",
+      "acceptance": "Pinned8.13 build succeeds; source wrapper unchanged; no blanket detector disable"
+    }
+  ]
+}

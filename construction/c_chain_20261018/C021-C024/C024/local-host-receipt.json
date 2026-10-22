@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "batch": "C024",
+  "commands": [
+    {
+      "name": "compile-current-complete-JNI-native",
+      "argv": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "-std=c11",
+        "-DSQLITE_THREADSAFE=1",
+        "-DSQLITE_TEMP_STORE=1",
+        "-DSQLITE_DEFAULT_MEMSTATUS=1",
+        "-DSQLITE_OMIT_LOAD_EXTENSION=1",
+        "-DZSTD_DISABLE_ASM=1",
+        "-I",
+        "/workspace/scratch/734b9d5fd4f8/toolchain/jni",
+        "-I",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor",
+        "-I",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/report_native_cp4.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/sqlite3.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/xxhash.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/pool.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/debug.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/entropy_common.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/fse_decompress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/zstd_common.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/threading.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/common/error_private.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_sequences.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/fse_compress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstdmt_compress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_lazy.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/huf_compress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_opt.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_literals.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_preSplit.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/hist.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_superblock.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_ldm.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_double_fast.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/compress/zstd_fast.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/decompress/huf_decompress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/decompress/zstd_decompress.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/decompress/zstd_ddict.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/zstd/lib/decompress/zstd_decompress_block.c",
+        "-lm",
+        "-ldl",
+        "-lpthread",
+        "-o",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/native/libstarcore_report_cp4.so"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "compile-current-native-maintenance-cli",
+      "argv": [
+        "gcc",
+        "-O2",
+        "-DSQLITE_THREADSAFE=1",
+        "-DSQLITE_OMIT_LOAD_EXTENSION=1",
+        "-I",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/rebuild_cli.c",
+        "/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/app/src/main/cpp/vendor/sqlite3.c",
+        "-lm",
+        "-lpthread",
+        "-ldl",
+        "-o",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/rebuild_cli"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "current-native-all-types-schema-rowid-sequence-FK",
+      "argv": [
+        "python3",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/run_native_rebuild.py",
+        "--schema",
+        "/workspace/scratch/734b9d5fd4f8/plan/tests/schema.sqlite",
+        "--native",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/rebuild_cli",
+        "--out",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/native-copy"
+      ],
+      "exit_code": 0,
+      "log_sha256": "bd83082d4baf6bb8eb4d5a580002a168d30ef7df7627368e6fd92fed15c1d8be"
+    },
+    {
+      "name": "health-android-transports",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/empty",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/build/C024/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "-d",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/health-android-transports",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/health-adapters-src/android/app/Application.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/health-adapters-src/android/content/Context.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/health-adapters-src/android/os/OperationCanceledException.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/health-adapters-src/android/os/CancellationSignal.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/health-adapters-src/android/database/sqlite/SQLiteDatabase.java"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "current-storage-tests",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/empty",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/health-android-transports:/workspace/scratch/734b9d5fd4f8/build/C024/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "-d",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/current-storage-tests",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/java/com/ethk3/novaonepro/MaintenanceProtocolTestR82.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/java/com/ethk3/novaonepro/HealthEntryTestR82.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/report_storage/tests/java/com/ethk3/novaonepro/MaintenanceAdmissionR82Test.java"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "swap-crash-recovery-eight-thread-and-process-leases",
+      "argv": [
+        "java",
+        "-Djava.library.path=/workspace/scratch/734b9d5fd4f8/checks/C024/native",
+        "-Dr82.readonly.bridge=/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/verification/r996/read_only_bridge.py",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/current-storage-tests:/workspace/scratch/734b9d5fd4f8/checks/C024/health-android-transports:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/build/C024/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "com.ethk3.novaonepro.MaintenanceProtocolTestR82",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/native/libstarcore_report_cp4.so",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/protocol",
+        "/workspace/scratch/734b9d5fd4f8/plan/tests/schema.sqlite"
+      ],
+      "exit_code": 0,
+      "log_sha256": "efa1c36a97078ce39b7de32de69ce4f97af6c31e1f3240dca063c78b59bd698b"
+    },
+    {
+      "name": "health-readonly-cancel-unknown",
+      "argv": [
+        "java",
+        "-Djava.library.path=/workspace/scratch/734b9d5fd4f8/checks/C024/native",
+        "-Dr82.readonly.bridge=/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/verification/r996/read_only_bridge.py",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/current-storage-tests:/workspace/scratch/734b9d5fd4f8/checks/C024/health-android-transports:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/build/C024/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "com.ethk3.novaonepro.HealthEntryTestR82",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/health/full/com.ethk3.novaonepro/databases/binance_k3_nova_one_pro_v57.db",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/health/missing/com.ethk3.novaonepro/databases/binance_k3_nova_one_pro_v57.db"
+      ],
+      "exit_code": 0,
+      "log_sha256": "98ff1047c8c2469c29023eebb70472cb783023788d763bef46f85592de30113a"
+    },
+    {
+      "name": "maintenance-mutual-exclusion-and-manual-start",
+      "argv": [
+        "java",
+        "-Djava.library.path=/workspace/scratch/734b9d5fd4f8/checks/C024/native",
+        "-Dr82.readonly.bridge=/workspace/scratch/734b9d5fd4f8/stage-sources/final-C024/verification/r996/read_only_bridge.py",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/current-storage-tests:/workspace/scratch/734b9d5fd4f8/checks/C024/health-android-transports:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/build/C024/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "com.ethk3.novaonepro.MaintenanceAdmissionR82Test",
+        "/workspace/scratch/734b9d5fd4f8/checks/C024/admission/database.db"
+      ],
+      "exit_code": 0,
+      "log_sha256": "810d617e1b38840e2c20a2d0917d3d65ecf843f9eb4a8426f94e1b30f0d9ffab"
+    }
+  ],
+  "class_files": 3480,
+  "class_tree_sha256": "6110c76be9134d594e0bc5a173fec5af6496c123ad6afef948d5e8f27bd57c97",
+  "product_class_overlays": [],
+  "product_classes_unchanged": true,
+  "scope": "CURRENT_STAGE_SCOPED_HOST_CONTRACTS_ONLY",
+  "later_interfaces_and_all_regression": "C030",
+  "original_device_live_database_and_natural_data": "WAIT"
+}

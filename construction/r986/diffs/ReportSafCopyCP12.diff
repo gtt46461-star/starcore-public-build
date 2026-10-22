@@ -1,0 +1,29 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java b/app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java
+index 60d312a..6df801e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java
+@@ -1,5 +1,5 @@
+ package com.ethk3.novaonepro;
+-import java.io.*;import java.security.*;
++import java.io.*;import java.security.*;import org.json.JSONObject;
+ /** The same streaming algorithm is used by the Android SAF owner and the host filesystem contract. */
+ public final class ReportSafCopyCP12 {
+  private ReportSafCopyCP12(){}
+@@ -13,7 +13,16 @@ public final class ReportSafCopyCP12 {
+  public static Receipt verifyReadback(String expectedSha,long expectedBytes,Destination destination,ReportNativeCP4.Control control)throws Exception {
+   if(expectedSha==null||!expectedSha.matches("[0-9a-f]{64}")||expectedBytes<1||expectedBytes>ReportArchiveCP4.PART_BYTES)throw new IOException("REPORT_SAF_EXPECTED_IDENTITY");
+   MessageDigest hash=MessageDigest.getInstance("SHA-256");long bytes=0;try(InputStream in=destination.openInput()){if(in==null)throw new IOException("REPORT_SAF_READBACK_UNAVAILABLE");byte[] buffer=new byte[32768];int n;while((n=in.read(buffer))!=-1){check(control);bytes=Math.addExact(bytes,n);if(bytes>expectedBytes)throw new IOException("REPORT_SAF_VERIFY_FAILED");hash.update(buffer,0,n);}}
+-  String sha=ReportArchiveCP4.hex(hash.digest());if(bytes!=expectedBytes||!sha.equals(expectedSha))throw new IOException("REPORT_SAF_VERIFY_FAILED");return new Receipt(bytes,sha);
++  String sha=ReportArchiveCP4.hex(hash.digest());if(bytes!=expectedBytes||!sha.equals(expectedSha))throw new IOException("REPORT_SAF_VERIFY_FAILED");
++  // Closing a provider stream can deliver cancellation or interruption after its final read.
++  // A success receipt is committed only after the closed stream and the control both agree.
++  check(control);return new Receipt(bytes,sha);
++ }
++ /** Resume receipts are witnesses, not a second source of the immutable delivery identity. */
++ public static Receipt verifySavedReceipt(JSONObject saved,String expectedName,String expectedSha,long expectedBytes,Destination destination,ReportNativeCP4.Control control)throws Exception {
++  try{if(saved==null||!expectedName.equals(saved.getString("name"))||!expectedSha.equals(saved.getString("sha256"))||expectedBytes!=saved.getLong("bytes"))throw new IOException("REPORT_SAF_RECEIPT_IDENTITY");}
++  catch(org.json.JSONException malformed){throw new IOException("REPORT_SAF_RECEIPT_IDENTITY",malformed);}
++  return verifyReadback(expectedSha,expectedBytes,destination,control);
+  }
+  private static void check(ReportNativeCP4.Control control)throws IOException{if(Thread.currentThread().isInterrupted()||!control.shouldContinue())throw new InterruptedIOException("REPORT_SAF_CANCELLED");}
+ }

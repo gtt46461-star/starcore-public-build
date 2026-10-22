@@ -1,0 +1,476 @@
+[
+  {
+    "id": "D09",
+    "title": "Predictability与出手频率的真实目标闭环",
+    "original_requirements": [
+      "P1-01",
+      "P0-06",
+      "M4"
+    ],
+    "priority": "P1",
+    "files": [
+      "V51PredictabilityArtifact.java",
+      "V51PolicySurfaceArtifact.java",
+      "DecisionGateEngine.java",
+      "ControlledCandidateOpportunityAuditR922.java",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "policy selection / predictability / final REAL decision",
+    "gap": "至少15%是效果目标，R925没有经证明达标的当前游戏策略；不能以强制放行代替训练。",
+    "steps": [
+      "独立训练predictability/selector并绑定更早OOF校准",
+      "只在POLICY集冻结阈值，输出覆盖—HR—Brier—风险Pareto表",
+      "sealed与Future分开报告eligible/selected/REAL三个分母",
+      "工程目标40%与频率15%都必须由同一冻结策略独立验证，未达标记录FAIL_EFFECT",
+      "禁止频率债务、追期、两挂后硬出手",
+      "DecisionGate保持唯一，证书与频率目标不能直接授权BET"
+    ],
+    "acceptance": [
+      "冻结策略真实数据独立评估完整",
+      "覆盖不足明确多少，不改分母达标",
+      "即使找不到可行策略训练流程仍可验收工程，但效果目标不能关闭"
+    ],
+    "dependencies": [
+      "D06",
+      "D07",
+      "D08",
+      "B11"
+    ],
+    "kind": "DATA_DEPENDENT",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04F"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C02",
+    "title": "配对基线冻结、固定窗口与晋级防反复试探",
+    "original_requirements": [
+      "P1-02",
+      "P1-05",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "PromotionWindowR925.java",
+      "AlgorithmEvolutionLifecycleR912.java",
+      "ResearchCertificateR906.java",
+      "AssetGenesisEngineR915.java"
+    ],
+    "anchors": "fromCursor / stats / ORDER BY p.target_issue",
+    "gap": "当前窗口扫描自anchor后的全部记录，以当时运行主链标签作baseline；候选不足以证明比较对象固定，反复查看的统计错误率未单独治理。",
+    "steps": [
+      "创建window_id并绑定candidate hash、固定champion bundle及其独立影子预测，不能用随时间变更的production混合结果代替",
+      "预注册新窗口边界和配对缺失规则，统一每issue仅一条pair",
+      "L5新120期、L6再新240期",
+      "后续权重升级各新增240/240/360期，目标累计600/840/1200",
+      "每个窗口只在预定终点做一次晋级判断，期间仅做资源/PIT硬撤销或预注册安全监测",
+      "置信区间按issue分块与依赖假设报告，20期块和t近似不得称无条件显著性保证",
+      "累计历史改为每window增量聚合和有限分页，禁止每轮无限扫全部历史"
+    ],
+    "acceptance": [
+      "重复label/跨game/基线变更/错窗口/回看调门负例全部拒绝",
+      "fail窗口不可原样反复试到PASS",
+      "固定champion逐期预测hash可重算",
+      "长历史查询预算可控"
+    ],
+    "dependencies": [
+      "C01",
+      "C06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04E"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C04",
+    "title": "四层捕获覆盖与冻结事务一致性",
+    "original_requirements": [
+      "P1-04",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "CaptureOpportunityR925.java",
+      "ResearchPredrawCaptureR923.java",
+      "AlgorithmInventionLabR908.java",
+      "DatabaseCoordinator.java",
+      "ResearchFailureAttributionR815.java"
+    ],
+    "anchors": "eligible / record / freezeOne",
+    "gap": "R925拆了eligible与执行，但机会登记与冻结未在同一统一状态机里，runWrite失败和中断仍可能造成状态歧义。",
+    "steps": [
+      "记录system_available/eligible/selected/execution_started/frozen各阶段与原因，不混系统压力和算法主动失败",
+      "冻结果、opportunity终态、事件在同一DB事务，状态转移用CAS",
+      "失败写入不能返回成功，runWrite布尔/异常必须上抛可观测码",
+      "TierC代理证据独立于full1200不得计晋级样本",
+      "系统拒绝进入可恢复pause，不从总系统coverage分母删除",
+      "旧缺口保留unknown",
+      "ResearchFailureAttributionR815中的旧coverage归因同步改为系统/调度/执行原因，不能仅改生命周期而让归因页继续误判"
+    ],
+    "acceptance": [
+      "在冻结前/后/事务中断分别注入故障，终态与预测行一致",
+      "同一期冻结不可被后续失败覆盖",
+      "分母公式可从明细逐行复算"
+    ],
+    "dependencies": [
+      "B06",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04E",
+      "E04G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C05",
+    "title": "结构、行为、残差去重与家族冠军",
+    "original_requirements": [
+      "P1-06",
+      "M7"
+    ],
+    "priority": "P1",
+    "files": [
+      "ResearchFamilyRegistryR925.java",
+      "AlgorithmInventionLabR908.java",
+      "FormulaAlgorithmAuditEngine.java",
+      "AlgorithmGenomeR908.java",
+      "StrategyConflictAblationEngine.java"
+    ],
+    "anchors": "register / reconcile / structuralHash / behavior probe",
+    "gap": "R925用操作码拓扑登记和保守旧族，尚无全候选行为/残差聚类及每族冠军调度。",
+    "steps": [
+      "结构canonical化参数顺序与无效操作，完全相同保留alias不重复计算",
+      "固定PIT probe输入及schema，记录全1200rank/选中hash",
+      "残差相关仅在共同Future期且支持足够时评估，按既定阈值>0.95标同质，域互补则保留",
+      "统计family注册不可事后改族缩小检验分母，调度cluster与统计family两个字段",
+      "每族1champion和至多3challenger，其余暂停保留证据",
+      "冠军替换需要新独立配对窗口，不用训练分数挑赢者"
+    ],
+    "acceptance": [
+      "重复结构/行为候选不占双份active预算",
+      "高相关但不同有效域不误并",
+      "归档和合并不减少已注册假设总数",
+      "每族冠军可追晋级依据"
+    ],
+    "dependencies": [
+      "C04",
+      "C06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C07",
+    "title": "8/24/64分层调度、共享计算与公平采样",
+    "original_requirements": [
+      "P1-04",
+      "P1-06",
+      "M10"
+    ],
+    "priority": "P1",
+    "files": [
+      "AlgorithmEvolutionLifecycleR912.java",
+      "AlgorithmInventionLabR908.java",
+      "ResearchPredrawCaptureR923.java",
+      "RealtimePressureGateR811.java",
+      "ResearchEvaluationSchedulerR906.java"
+    ],
+    "anchors": "MAX_RUNNABLE / MAX_OBSERVATION_COHORT_R925 / select cohort",
+    "gap": "R925为32观察/8批量，不是8+24+64完整三层；简单扩容会占满一分钟。",
+    "steps": [
+      "A最多8个全1200、B最多24个共享特征批量完整评分、C最多64个代理苗圃，容量上限非每期必执行数",
+      "每期先冻结调度清单与budget，按缺样本年龄/晋级级别/家族配额确定，规则不看当期标签",
+      "缓存按issue/schema/model/atom状态键共享且只读",
+      "计算片≤250ms、总研究预算初值700ms并由实测自适应，临近下一期让步",
+      "执行失败/系统让步/未选中完整计账，不能淘汰没得到资源的候选",
+      "轮转最大等待与连续Future采样效率报告"
+    ],
+    "acceptance": [
+      "64苗圃压力下主链仍满足5秒门",
+      "无候选无限饿死且无重复active",
+      "C层证据不能伪装full1200晋级",
+      "资源撤回不会误prune"
+    ],
+    "dependencies": [
+      "B05",
+      "C04",
+      "C05"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04D",
+      "E04F"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C08",
+    "title": "生命周期V3与精英修复效果账本",
+    "original_requirements": [
+      "P1-03",
+      "P1-04",
+      "M10"
+    ],
+    "priority": "P1",
+    "files": [
+      "AlgorithmEvolutionLifecycleR912.java",
+      "LifecycleAuditR925.java",
+      "ResearchGenomeContractR915.java",
+      "AlgorithmEvidencePolicyR912.java",
+      "AssetGenesisEngineR915.java",
+      "ImprovementChallengerPlanEngine.java",
+      "ResearchFailureHypothesisEngineR811.java",
+      "ResearchFailureAttributionR815.java"
+    ],
+    "anchors": "maintain / freshChild / first_prune_reason",
+    "gap": "首次原因已有保护，但完整Elite pool、修复操作选择、父子成败追踪仍缺。",
+    "steps": [
+      "统一状态机IDEA/NURSERY/OBSERVING/EVIDENCE_READY/CHALLENGER/SHADOW/INFLUENCE/CHAMPION及暂停/隔离/质量淘汰",
+      "高潜父代按冻结多指标规则入elite，列具体未过门",
+      "每child必须repair_target/parent/changed_modules/atoms/expected_effect/falsification，结构新ID、新N=0",
+      "保留首次淘汰与所有转移事件，旧不可恢复原因为UNAVAILABLE",
+      "系统误杀经证据复核回观察，不直接恢复生产",
+      "修复成功率分attempted/matured/passed/pending，未到样本不算失败或成功"
+    ],
+    "acceptance": [
+      "父代200样本child仍0",
+      "两次同结果不重复转移",
+      "系统缺失只pause",
+      "修复后必须独立paired改善才success，不以created数量完成"
+    ],
+    "dependencies": [
+      "C01",
+      "C04",
+      "C07",
+      "C09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04C",
+      "E04E",
+      "E04G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C09",
+    "title": "逐期失败分析、真正模块消融与定向反事实",
+    "original_requirements": [
+      "M8",
+      "P1-07"
+    ],
+    "priority": "P1",
+    "files": [
+      "ResearchAblationR815.java",
+      "FeatureAblationAttributionEngine.java",
+      "ResearchNovelFormulaSynthesizerR903.java",
+      "ResearchMethodGraphSynthesizerR903.java",
+      "training/r925/pipeline.py",
+      "StrategyConflictAblationEngine.java",
+      "V51RelationGraphVerifier.java",
+      "ResearchFailureHypothesisEngineR811.java"
+    ],
+    "anchors": "evaluate / snapshot / synthesize / failure diagnostics",
+    "gap": "R925十类失败标志与离线留一特征族不是完整模块重执行，不足以称因果证明或手机修复闭环。",
+    "steps": [
+      "存FailureCase与冻结输入、选中动作、第三第四边界、原概率/校准、teacher/shape/relation、consumer和statehash",
+      "按已定义赛前特征分组，开奖只用于标注失败，聚类参数只能用于之后",
+      "在完全同一输入上关闭FTRL/TinyDeep/Teacher/Trend/Shape/Relation/Invented逐一重跑完整选择链",
+      "记录changed selection、Δscore/Hit/Brier与运行成本，保证counterfactual_run不写canonical",
+      "区分软件干预贡献与真实世界因果，最近获胜K3只作诊断不倒改预测",
+      "少于预定失败支持不盲造，输出WAIT_FOR_FAILURE_EVIDENCE"
+    ],
+    "acceptance": [
+      "每一模块消融有真实执行输出，不是重命名指标",
+      "所有当期历史hash不变",
+      "repair只影响下一候选和未来期",
+      "负对照模块应零影响"
+    ],
+    "dependencies": [
+      "D01",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04B",
+      "E04C"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C10",
+    "title": "逐原子缺失、时延、PIT与质量图",
+    "original_requirements": [
+      "M9",
+      "P1-07"
+    ],
+    "priority": "P1",
+    "files": [
+      "GenesisSchemaRegistryR915.java",
+      "GenesisAssetVmR915.java",
+      "AtomQualityLedgerR925.java",
+      "GenesisSchemaRegistryR915.java"
+    ],
+    "anchors": "AtomSpec / PredrawContext / maintain",
+    "gap": "当前120期均值方差漂移和128相关边不包含真实missingness、逐原子耗时与独立消融；deadline也不能中断已开始的大SQL。",
+    "steps": [
+      "原子产出ValueResult包含value/present/missing_reason/max_source_issue/cost_ns/hash，零值与缺失严格分开",
+      "在原子计算处计时而非把整组耗时平均到每个原子",
+      "240项语义分层逐项保留，165赛前/40代理/20开奖后/15审计来源列表核对",
+      "质量采用增量有游标窗口，最近期查询用专门冻结上下文索引而非每轮全表GROUP BY",
+      "相关/共选/冲突/残差互补边各自命名，不把相关当因果",
+      "同一期多个资产复用同一atom上下文只算一次支持"
+    ],
+    "acceptance": [
+      "每个原子有来源/掩码/耗时/消费者清单",
+      "本期postdraw20项生产调用0",
+      "百万冻结记录查询EXPLAIN索引与性能满足预算",
+      "旧fixture缺mask明确unknown"
+    ],
+    "dependencies": [
+      "D01",
+      "C09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04A",
+      "E04B",
+      "E04G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C11",
+    "title": "原子准入、隔离和保留既有矩阵",
+    "original_requirements": [
+      "M9"
+    ],
+    "priority": "P1",
+    "files": [
+      "GenesisSchemaRegistryR915.java",
+      "GenesisAssetVmR915.java",
+      "AtomQualityLedgerR925.java",
+      "ResearchNovelFormulaSynthesizerR903.java"
+    ],
+    "anchors": "productionScoreEligible / semanticTier / atom consumers",
+    "gap": "R925只观察不自动降噪；新增隔离必须避免删掉用户要求保留的原有矩阵与素材。",
+    "steps": [
+      "状态ACTIVE/WATCH/SHADOW_ONLY/QUARANTINED带规则版本和证据",
+      "PIT/非确定性硬失败立即隔离新研究消费，缺失/有害消融须足够支持",
+      "既有固定矩阵注册为legacy_fixed，不物理删除/改其公式，新增候选通过受控adapter引用",
+      "原子替换改变schema/asset hash，相关证书失效重新观察",
+      "新原子准入要求签名schema、有限范围、PIT、确定性、成本、支持定义和parity",
+      "恢复只能通过新的审计证据，禁止下次轮询自动解禁"
+    ],
+    "acceptance": [
+      "原有趋势/形态/关系/教师/反推/因果/反哺资产hash保留",
+      "隔离后新候选不会再调用该原子",
+      "缺失与低相关不能触发无证据删除",
+      "恢复过程可审计"
+    ],
+    "dependencies": [
+      "C10",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04A",
+      "E04B",
+      "E04G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C12",
+    "title": "创造搜索的结构新颖度与质量目标",
+    "original_requirements": [
+      "M8",
+      "M9",
+      "M10",
+      "P1-02"
+    ],
+    "priority": "P1",
+    "files": [
+      "ResearchNovelFormulaSynthesizerR903.java",
+      "ResearchMethodGraphSynthesizerR903.java",
+      "AlgorithmGenomeR908.java",
+      "AlgorithmGenomeVmR908.java",
+      "AssetGenesisEngineR915.java",
+      "ResearchFailureHypothesisEngineR811.java"
+    ],
+    "anchors": "synthesize / instruction set / genome / VM",
+    "gap": "用户要求创造具体算法机制，不只是改参数、增加候选数；现有搜索还需把失败与互补证据接成目标。",
+    "steps": [
+      "建立允许的原子→表达式→方法图→状态更新程序搜索语法，保留解释与中文名",
+      "生成先做类型/范围/PIT/成本/资源上界检查，再结构/行为去重",
+      "标明PARAMETER_VARIANT/STRUCTURAL_CHANGE/NEW_FAMILY，不把调参称新算法家族",
+      "有失败证据优先最小修复，无证据按预注册少量探索配额生成",
+      "目标先硬约束再配对增益/校准/域稳定/资源Pareto比较，复杂度和新颖度最后",
+      "产物包含可执行genome文本、依赖原子、输入输出例、失效条件、所属家族和未来证书链"
+    ],
+    "acceptance": [
+      "从最底层原子到可执行候选有完整源码文本",
+      "至少用合同fixture验证新结构能运行并被正确拒绝/晋级，真实高品质只能由Future证据认定",
+      "每个创造事件都有目的与预算"
+    ],
+    "dependencies": [
+      "C05",
+      "C08",
+      "C11"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C12/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E04A",
+      "E04D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  }
+]

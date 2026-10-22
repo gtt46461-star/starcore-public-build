@@ -1,0 +1,55 @@
+name: Starcore Tianshu B06 Bootstrap Export
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b06
+    paths:
+      - '.github/workflows/starcore-tianshu-b06-bootstrap-export.yml'
+      - '.github/starcore-tianshu-b06/BOOTSTRAP_TRIGGER'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: starcore-tianshu-b06-bootstrap-export
+  cancel-in-progress: false
+
+jobs:
+  export-b05-accepted-snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact B06 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b06
+          fetch-depth: 0
+
+      - name: Verify frozen ancestry and build snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          B05_ACCEPTED_SHA='c98278c1d1df465a72f2af736d7ce49a30d7a3ba'
+          git merge-base --is-ancestor "$B05_ACCEPTED_SHA" HEAD
+          test -z "$(git status --porcelain)"
+          mkdir -p bootstrap
+          git rev-parse HEAD > bootstrap/B06_BOOTSTRAP_HEAD.txt
+          git rev-parse "$B05_ACCEPTED_SHA" > bootstrap/B05_ACCEPTED_SHA.txt
+          printf 'CLEAN_BEFORE_EXPORT=true\n' > bootstrap/GIT_STATUS.txt
+          zip -q -r bootstrap/Starcore-Tianshu-B05-Accepted-Source-Snapshot.zip . \
+            -x '.git/*' 'bootstrap/Starcore-Tianshu-B05-Accepted-Source-Snapshot.zip'
+          sha256sum bootstrap/Starcore-Tianshu-B05-Accepted-Source-Snapshot.zip > bootstrap/SHA256SUMS.txt
+          unzip -t bootstrap/Starcore-Tianshu-B05-Accepted-Source-Snapshot.zip > bootstrap/ZIP_TEST.log
+          find app/src/main/java -name '*.java' -type f | sort > bootstrap/JAVA_FILES.txt
+          find app/src/main -name '*.xml' -type f | sort > bootstrap/XML_FILES.txt
+          printf 'JAVA_COUNT=%s\nXML_COUNT=%s\n' "$(wc -l < bootstrap/JAVA_FILES.txt)" "$(wc -l < bootstrap/XML_FILES.txt)" > bootstrap/FILE_COUNTS.txt
+
+      - name: Upload B05 accepted source snapshot first
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B05-Accepted-Source-Snapshot
+          path: bootstrap/
+          retention-days: 30
+          if-no-files-found: error

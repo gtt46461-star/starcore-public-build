@@ -1,0 +1,69 @@
+name: starcore-tianshu-b03-runner
+
+on:
+  push:
+    branches:
+      - v57-full/b03
+
+permissions:
+  contents: write
+
+jobs:
+  final-acceptance:
+    if: contains(github.event.head_commit.message, '[b03-execute]')
+    runs-on: ubuntu-24.04
+    env:
+      B02_ACCEPTED_SHA: fc9bca9155d0501b1b806706e2e37c41698e5aae
+      KEY_BASE_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+      BRANCH_NAME: v57-full/b03
+      DELIVERY_NAME: Starcore-Tianshu-B03-20260805-Accepted
+      VERSION_NAME: V57.3.0-tianshu-b03-shadow-engineering
+      VERSION_CODE: '573010805'
+    steps:
+      - name: Checkout exact B03 branch
+        uses: actions/checkout@v4
+        with:
+          ref: v57-full/b03
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+          cache-read-only: true
+
+      - name: Verify six chunks and execute exact B03 acceptance script
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=.github/starcore-tianshu-b03
+          printf '%s  %s\n' '9130fb38b35a21ad0fbe213aa029cf62154b03d73a5b2444c871df3f11d0d61c' "$ROOT/final-runner.chunk-000" | sha256sum -c -
+          printf '%s  %s\n' '19d285fab622e79f2bf9d8e230c8c89e76ded53e550a976b87e7b2d9563b7140' "$ROOT/final-runner.chunk-001" | sha256sum -c -
+          printf '%s  %s\n' 'e603a70f195e5db386e9a7d6dbde87f4bd88afce049ff50c7959fffb864e374b' "$ROOT/final-runner.chunk-002" | sha256sum -c -
+          printf '%s  %s\n' 'c59ceed7f0a5aa0502b257755e419c4d37d0f28c48c5c2376441f3138b2d6ad5' "$ROOT/final-runner.chunk-003" | sha256sum -c -
+          printf '%s  %s\n' 'b6bc3908245212f847084a524d73367dfce7af925c7ed4b3b78dadf954ce0ff4' "$ROOT/final-runner.chunk-004" | sha256sum -c -
+          printf '%s  %s\n' '2e4d60ee246c24e7620fd25891dcc12083d5275bdf49b9c7025720bd1f25981b' "$ROOT/final-runner.chunk-005" | sha256sum -c -
+          mkdir -p tools
+          cat "$ROOT"/final-runner.chunk-* | base64 --decode | gzip --decompress > tools/b03_final_accept.sh
+          printf '%s  %s\n' '0560112fa39c85b8cbb10fd1e31c8ce4cab204efa3f0c0cf8e1554b529e53788' tools/b03_final_accept.sh | sha256sum -c -
+          bash -n tools/b03_final_accept.sh
+          bash tools/b03_final_accept.sh
+
+      - name: Upload final accepted B03 delivery
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B03-Accepted-Delivery
+          path: delivery/*
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6

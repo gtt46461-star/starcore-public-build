@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/WalkForwardBacktestEngine.java b/app/src/main/java/com/ethk3/novaonepro/WalkForwardBacktestEngine.java
+index bff103f..963b179 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/WalkForwardBacktestEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/WalkForwardBacktestEngine.java
+@@ -2656,7 +2656,7 @@ public final class WalkForwardBacktestEngine {
+     }
+ 
+     private String upperSafe(String s) {
+-        return s == null ? "" : s.toUpperCase();
++        return s == null ? "" : s.toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private TeacherApplyReport applyTeacherMatrixForBacktest(

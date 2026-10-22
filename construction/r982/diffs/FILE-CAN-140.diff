@@ -1,0 +1,174 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java b/app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java
+index e16d73a..17717fc 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchGatePlanR967.java
+@@ -14,8 +14,21 @@ public final class ResearchGatePlanR967 {
+     public static final String REVISION="R967_FORMAL_PLAN_V1";
+     public static final String REASON="FIXED_ENDPOINT_IMMUTABLE_PLAN_R967";
+     private ResearchGatePlanR967(){}
++private static final String CP3_POLICY_CANONICAL = "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}";
++public static final class Cp3Options {
++    private final JSONObject value;
++    private Cp3Options(JSONObject p) throws JSONException { value=new JSONObject(p.toString()); }
++    public String text(String key) { try { Object x=value.get(key);if(!(x instanceof String))throw new IllegalStateException("CP3_POLICY_TYPE:"+key);return (String)x;}catch(JSONException e){throw new IllegalStateException("CP3_POLICY_FIELD:"+key,e);} }
++    public double number(String key) { try { Object x=value.get(key);if(!(x instanceof Number))throw new IllegalStateException("CP3_POLICY_TYPE:"+key);double v=((Number)x).doubleValue();if(Double.isNaN(v)||Double.isInfinite(v))throw new IllegalStateException("CP3_POLICY_NONFINITE");return v;}catch(JSONException e){throw new IllegalStateException("CP3_POLICY_FIELD:"+key,e);} }
++    public int integer(String key) { double v=number(key);if(v!=(int)v)throw new IllegalStateException("CP3_POLICY_INTEGER:"+key);return (int)v; }
++    public boolean flag(String key) { try { Object x=value.get(key);if(!(x instanceof Boolean))throw new IllegalStateException("CP3_POLICY_TYPE:"+key);return (Boolean)x;}catch(JSONException e){throw new IllegalStateException("CP3_POLICY_FIELD:"+key,e);} }
++    public double[] numbers(String key) { try { JSONArray a=value.getJSONArray(key);double[] out=new double[a.length()];for(int i=0;i<out.length;i++){Object x=a.get(i);if(!(x instanceof Number))throw new IllegalStateException("CP3_POLICY_ARRAY_TYPE");out[i]=((Number)x).doubleValue();}return out;}catch(JSONException e){throw new IllegalStateException("CP3_POLICY_FIELD:"+key,e);} }
++    public double rollingMinimum(int window) { try { Object x=value.getJSONObject("rolling_hit_rate_min").get(String.valueOf(window));if(!(x instanceof Number))throw new IllegalStateException("CP3_POLICY_ROLLING_TYPE");return ((Number)x).doubleValue();}catch(JSONException e){throw new IllegalStateException("CP3_POLICY_ROLLING_WINDOW",e);} }
++    public int roleCount(String role) { try { return ResearchGatePlanR967.integer(value.getJSONObject("data_roles").get(role),role); }catch(JSONException e){throw new IllegalStateException("CP3_POLICY_ROLE",e);} }
++}
+ 
+     public static void schema(SQLiteDatabase db){
++        schemaCp4(db);
+         if(TransactionSchemaCacheR941.readyCommitted(db,"ResearchGatePlanR967"))return;
+         boolean column=false;
+         try(Cursor c=db.rawQuery("PRAGMA table_info("+FixedResearchWindowR932.WINDOW+")",null)){
+@@ -42,6 +55,8 @@ public final class ResearchGatePlanR967 {
+ 
+     /** This interpreter supports one statistic and role protocol, not arbitrary JSON-defined code. */
+     public static final class Policy {
++        public final boolean isCp3;
++        public final Cp3Options cp3;
+         public final String hash,json,revision;
+         public final double totalAlpha,minRate,minLower,maxBrier,maxEce,minDelta,minBlock,consumerCap;
+         private final int[] sizes;
+@@ -50,6 +65,23 @@ public final class ResearchGatePlanR967 {
+             if(!hash.equals(expected))throw new IllegalStateException("R967_POLICY_HASH_MISMATCH");
+             try{
+                 JSONObject p=new JSONObject(text);
++if ("CP3_PREQUENTIAL_EPROCESS_V1".equals(p.optString("statistics_revision", ""))) {
++    // Exact canonical bytes reject duplicate keys, changed key types, removed or extra gates.
++    if (!CP3_POLICY_CANONICAL.equals(text)) throw new IllegalStateException("CP3_POLICY_FIELDS_OR_VALUE_DRIFT");
++    isCp3=true;
++    cp3=new Cp3Options(p);
++    revision=p.getString("revision");
++    totalAlpha=number(p,"total_alpha",.05,.05);
++    minRate=number(p,"min_hit_rate",.34,.34);
++    minLower=number(p,"min_wilson_lower",.30,.30);
++    maxBrier=number(p,"max_brier",.24,.24);
++    maxEce=number(p,"max_ece",.04,.04);
++    consumerCap=number(p,"consumer_cap",.05,.05);
++    minDelta=Double.NaN; minBlock=Double.NaN; // legacy-only sentinel; never a CP3 threshold
++    sizes=new int[]{120,240,240,240,360};
++    return;
++}
++isCp3=false; cp3=null;
+                 fields(p,"revision,mode,statistics_revision,calibration_revision,data_roles,window_sizes,missing_policy,restart_policy,allocation_revision,total_alpha,max_looks,min_hit_rate,min_wilson_lower,max_brier,max_ece,min_paired_delta_exclusive,min_block_lower_exclusive,consumer_cap,real_authority,null_assumption,legacy_point_rate_alone_is_certificate");
+                 for(String key:new String[]{"revision","mode","statistics_revision","calibration_revision","allocation_revision","missing_policy","restart_policy","null_assumption"})if(!(p.get(key) instanceof String))throw new IllegalStateException("R967_POLICY_TYPE:"+key);
+                 if(!(p.get("real_authority") instanceof Boolean)||!(p.get("legacy_point_rate_alone_is_certificate") instanceof Boolean))throw new IllegalStateException("R967_POLICY_TYPE:authority");
+@@ -132,6 +164,8 @@ public final class ResearchGatePlanR967 {
+             }catch(JSONException e){throw new IllegalStateException("R967_CALIBRATION_CONTRACT_MISMATCH",e);}
+             cal=c.getString(0);
+         }
++        if(p.isCp3){bindCp4(db,window,key,structure,bundle,selector,first,last,planned,chain,cal);return;}
++        if(installed().isCp3)throw new IllegalStateException("CP4_LEGACY_PLAN_READ_ONLY");
+         // These are the existing irrevocable allocations, not a new alpha budget.
+         double alpha=ResearchMultiplicityR932.registerLook(db,chain.claim,window,chain.stage,first,last);
+         ResearchMultiplicityR932.ResearchIdentity identity=ResearchMultiplicityR932.identity(db,chain.claim);
+@@ -159,6 +193,9 @@ public final class ResearchGatePlanR967 {
+     }
+     private static Policy policyForGeneration(SQLiteDatabase db,String key,ObservationGenerationR932.Chain chain){
+         if(chain.stage<=1)return installed();
++        try(Cursor cp4=db.rawQuery("SELECT policy_json,policy_hash FROM "+CP4_LIFETIME+" WHERE candidate_key=? AND generation_id=?",new String[]{key,chain.generation})){
++            if(cp4.moveToFirst())return policy(cp4.getString(0),cp4.getString(1));
++        }
+         try(Cursor c=db.rawQuery("SELECT p.policy_hash,g.policy_json FROM "+PLAN+" p JOIN "+FixedResearchWindowR932.WINDOW+" w ON w.window_id=p.window_id JOIN "+POLICY+" g ON g.policy_hash=p.policy_hash WHERE w.candidate_key=? AND w.window_no=?",new String[]{key,String.valueOf(chain.start)})){
+             if(c.moveToFirst())return policy(c.getString(1),c.getString(0));
+         }
+@@ -187,6 +224,7 @@ public final class ResearchGatePlanR967 {
+ 
+     /** Read-only revalidation of DB plan bytes, window denominator and paid look. */
+     public static Plan forWindow(SQLiteDatabase db,String window,boolean required){
++        try(Cursor present=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{CP4_BINDING})){if(present.moveToFirst()){Plan cp4=planCp4(db,window);if(cp4!=null)return cp4;}}
+         String planHash=null,text=null,policyText=null,policyHash=null;long at=0;
+         try(Cursor c=db.rawQuery("SELECT p.plan_hash,p.plan_json,p.policy_hash,p.registered_at,g.policy_json FROM "+PLAN+" p LEFT JOIN "+POLICY+" g ON g.policy_hash=p.policy_hash WHERE p.window_id=?",new String[]{window})){
+             if(c.moveToFirst()){planHash=c.getString(0);text=c.getString(1);policyHash=c.getString(2);at=c.getLong(3);policyText=c.getString(4);}
+@@ -223,4 +261,87 @@ public final class ResearchGatePlanR967 {
+         String reason="";try(Cursor c=db.rawQuery("SELECT reason FROM "+FixedResearchWindowR932.WINDOW+" WHERE window_id=?",new String[]{window})){if(c.moveToFirst())reason=c.getString(0);}
+         return forWindow(db,window,REASON.equals(reason));
+     }
++
++    static final String CP4_LIFETIME="research_cp4_frozen_lifetime";
++    static final String CP4_BINDING="research_cp4_window_binding";
++    public static void schemaCp4(SQLiteDatabase db){
++        if(TransactionSchemaCacheR941.readyCommitted(db,"CP4_FORMAL_BINDING_V1"))return;
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+CP4_LIFETIME+"(lifetime_id TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,generation_id TEXT NOT NULL,identity_hash TEXT NOT NULL,identity_json TEXT NOT NULL,policy_hash TEXT NOT NULL,policy_json TEXT NOT NULL,hypothesis_id TEXT NOT NULL UNIQUE,registration_json TEXT NOT NULL,first_issue TEXT NOT NULL,last_issue TEXT NOT NULL,created_at INTEGER NOT NULL,UNIQUE(candidate_key,generation_id))");
++        db.execSQL("CREATE TABLE IF NOT EXISTS "+CP4_BINDING+"(window_id TEXT PRIMARY KEY,lifetime_id TEXT NOT NULL REFERENCES "+CP4_LIFETIME+"(lifetime_id),stage INTEGER NOT NULL CHECK(stage BETWEEN 1 AND 5),first_issue TEXT NOT NULL,last_issue TEXT NOT NULL,planned_n INTEGER NOT NULL,plan_hash TEXT NOT NULL UNIQUE,UNIQUE(lifetime_id,stage))");
++        for(String table:new String[]{CP4_LIFETIME,CP4_BINDING})for(String op:new String[]{"UPDATE","DELETE"})db.execSQL("CREATE TRIGGER IF NOT EXISTS "+table+"_immutable_"+op+" BEFORE "+op+" ON "+table+" BEGIN SELECT RAISE(ABORT,'CP4_FORMAL_IDENTITY_IMMUTABLE'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS cp4_lifetime_no_replace BEFORE INSERT ON "+CP4_LIFETIME+" WHEN EXISTS(SELECT 1 FROM "+CP4_LIFETIME+" WHERE lifetime_id=NEW.lifetime_id OR (candidate_key=NEW.candidate_key AND generation_id=NEW.generation_id) OR hypothesis_id=NEW.hypothesis_id) BEGIN SELECT RAISE(ABORT,'CP4_LIFETIME_REPLACE_FORBIDDEN'); END");
++        db.execSQL("CREATE TRIGGER IF NOT EXISTS cp4_binding_no_replace BEFORE INSERT ON "+CP4_BINDING+" WHEN EXISTS(SELECT 1 FROM "+CP4_BINDING+" WHERE window_id=NEW.window_id OR (lifetime_id=NEW.lifetime_id AND stage=NEW.stage) OR plan_hash=NEW.plan_hash) BEGIN SELECT RAISE(ABORT,'CP4_BINDING_REPLACE_FORBIDDEN'); END");
++        TransactionSchemaCacheR941.markCommitted(db,"CP4_FORMAL_BINDING_V1");
++    }
++    static final class FrozenIdentityCp4 {
++        final String json,hash,program,state,code,schema,atom,bundle,selector,calibration,structure,key,family;
++        FrozenIdentityCp4(String key,String structure,String bundle,String selector,String cal,String family,JSONObject execution)throws JSONException{
++            if(family==null||family.isEmpty())throw new IllegalStateException("CP4_ALGORITHM_FAMILY_MISSING");this.family=family;
++            this.key=key;this.structure=structure;this.bundle=bundle;this.selector=selector;calibration=cal;
++            program=execution.getString("program_hash");state=execution.getString("state_hash");code=execution.getString("code_hash");schema=execution.getString("schema_hash");atom=execution.getString("atom_graph_hash");
++            for(String h:new String[]{structure,bundle,selector,cal,program,state,code,schema,atom})if(!h.matches("[0-9a-f]{64}"))throw new IllegalStateException("CP4_FREEZE_HASH");
++            if(!key.equals(execution.getString("candidate_key"))||!structure.equals(execution.getString("structural_hash"))||!bundle.equals(execution.getString("model_bundle_hash")))throw new IllegalStateException("CP4_FREEZE_IDENTITY");
++            JSONObject v=new JSONObject();v.put("family",family);v.put("candidate",key);v.put("structure",structure);v.put("bundle",bundle);v.put("selector",selector);v.put("calibration",cal);v.put("program",program);v.put("state",state);v.put("code",code);v.put("schema",schema);v.put("atom",atom);v.put("action_space","FULL1200_SINGLE_POSITION_FIXED_K3");
++            // Hash a fixed ordered list; JSONObject iteration ordering is not identity.
++            hash=V51ChecksumEngine.sha256("CP4_FREEZE1|"+key+'|'+structure+'|'+bundle+'|'+selector+'|'+cal+'|'+program+'|'+state+'|'+code+'|'+schema+'|'+atom+"|FULL1200_SINGLE_POSITION_FIXED_K3|"+family);json=v.toString();
++        }
++    }
++    static FrozenIdentityCp4 captureIdentityCp4(SQLiteDatabase db,String key,String structure,String bundle,String selector,String first,String cal){
++        try(Cursor c=db.rawQuery("SELECT payload,proof_hash,base_issue,action_count FROM "+CandidateExecutionAuditR932.TABLE+" WHERE candidate_key=? AND target_issue=? AND structural_hash=?",new String[]{key,first,structure})){
++            if(!c.moveToFirst()||!V51ChecksumEngine.sha256(c.getString(0)).equals(c.getString(1))||!TargetIssueResolver.exact(c.getString(2),first).valid||c.getInt(3)!=1200)throw new IllegalStateException("CP4_FIRST_EXECUTION_REQUIRED");
++            ResearchMultiplicityR932.ResearchIdentity metadata=ResearchMultiplicityR932.identity(db,key);if(metadata==null||!metadata.structureHash.equals(structure))throw new IllegalStateException("CP4_FAMILY_IDENTITY_MISSING");
++            return new FrozenIdentityCp4(key,structure,bundle,selector,cal,metadata.family,new JSONObject(c.getString(0)));
++        }catch(JSONException e){throw new IllegalStateException("CP4_EXECUTION_JSON",e);}
++    }
++    static MultipleComparisonRegistryR930.Registration registrationCp4(String json){
++        try{JSONObject r=new JSONObject(json);return new MultipleComparisonRegistryR930.Registration(r.getString("game"),r.getString("schema"),r.getString("source"),"CP3_ALL_PRODUCTION",r.getString("structure"),r.getString("hyper"),r.getString("protocol"),"",r.getString("lifetime"),r.getString("first"),r.getString("last"),"CP3_PROTOCOL_FINAL");}catch(JSONException e){throw new IllegalStateException("CP4_REGISTRATION_JSON",e);}
++    }
++    static MultipleComparisonRegistryR930.Registration registrationForWindowCp4(SQLiteDatabase db,String window){
++        try(Cursor c=db.rawQuery("SELECT l.registration_json FROM "+CP4_BINDING+" b JOIN "+CP4_LIFETIME+" l ON l.lifetime_id=b.lifetime_id WHERE b.window_id=?",new String[]{window})){
++            if(!c.moveToFirst())throw new IllegalStateException("CP4_LIFETIME_BINDING_MISSING");return registrationCp4(c.getString(0));
++        }
++    }
++    static void bindCp4(SQLiteDatabase db,String window,String key,String structure,String bundle,String selector,String first,String last,int planned,ObservationGenerationR932.Chain chain,String cal){
++        schemaCp4(db);Policy p=installed();if(!p.isCp3)throw new IllegalStateException("CP4_POLICY_REQUIRED");
++        FrozenIdentityCp4 identity=captureIdentityCp4(db,key,structure,bundle,selector,first,cal);
++        String life="",registration="",lifeFirst="",lifeLast="",identityHash="";
++        try(Cursor c=db.rawQuery("SELECT lifetime_id,registration_json,first_issue,last_issue,identity_hash,policy_hash FROM "+CP4_LIFETIME+" WHERE candidate_key=? AND generation_id=?",new String[]{key,chain.generation})){
++            if(c.moveToFirst()){life=c.getString(0);registration=c.getString(1);lifeFirst=c.getString(2);lifeLast=c.getString(3);identityHash=c.getString(4);if(!p.hash.equals(c.getString(5)))throw new IllegalStateException("CP4_GENERATION_POLICY_DRIFT");}
++        }
++        try{
++            if(life.isEmpty()){
++                if(chain.stage!=1)throw new IllegalStateException("CP4_FIRST_WINDOW_REQUIRED");
++                lifeFirst=first;lifeLast=ResearchEvaluationRunR967.endpoint(key,first,1200);
++                life=V51ChecksumEngine.sha256("CP4_LIFETIME|"+key+'|'+chain.generation+'|'+identity.hash+'|'+p.hash+'|'+first+'|'+lifeLast);
++                JSONObject r=new JSONObject();r.put("game",V51Repository.GAME_CODE);r.put("schema",identity.schema);r.put("source",identity.code);r.put("structure",structure);r.put("hyper",V51ChecksumEngine.sha256(identity.program+'|'+identity.state+'|'+bundle+'|'+cal));r.put("protocol",V51ChecksumEngine.sha256(p.hash+'|'+selector+'|'+identity.atom));r.put("lifetime",life);r.put("first",first);r.put("last",lifeLast);registration=r.toString();
++                MultipleComparisonRegistryR930.Registration reg=registrationCp4(registration);MultipleComparisonRegistryR930.reserveCp3LifetimeWithinTransaction(db,reg);
++                db.execSQL("INSERT INTO "+CP4_LIFETIME+" VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{life,key,chain.generation,identity.hash,identity.json,p.hash,p.json,reg.hypothesisId,registration,first,lifeLast,System.currentTimeMillis()});
++            }else if(!identity.hash.equals(identityHash))throw new IllegalStateException("CP4_FROZEN_MODEL_DRIFT");
++            int preceding=0;for(int stage=1;stage<chain.stage;stage++)preceding+=p.planned(stage);
++            String expectedFirst=preceding==0?lifeFirst:ResearchEvaluationRunR967.nextEvaluation(key,ResearchEvaluationRunR967.endpoint(key,lifeFirst,preceding));
++            if(!first.equals(expectedFirst)||planned!=p.planned(chain.stage)||!last.equals(ResearchEvaluationRunR967.endpoint(key,first,planned)))throw new IllegalStateException("CP4_FIXED_ENDPOINT_DRIFT");
++            String h=V51ChecksumEngine.sha256("CP4_PLAN|"+window+'|'+life+'|'+chain.stage+'|'+first+'|'+last+'|'+planned+'|'+p.hash);
++            db.execSQL("INSERT INTO "+CP4_BINDING+" VALUES(?,?,?,?,?,?,?)",new Object[]{window,life,chain.stage,first,last,planned,h});
++        }catch(JSONException e){throw new IllegalStateException("CP4_PLAN_JSON",e);}
++    }
++    static Plan planCp4(SQLiteDatabase db,String window){
++        try(Cursor c=db.rawQuery("SELECT b.lifetime_id,b.stage,b.first_issue,b.last_issue,b.planned_n,b.plan_hash,l.policy_json,l.policy_hash,l.registration_json,l.identity_json,l.identity_hash,l.created_at,w.candidate_key,w.first_issue,w.last_issue,w.planned_n FROM "+CP4_BINDING+" b JOIN "+CP4_LIFETIME+" l ON l.lifetime_id=b.lifetime_id JOIN "+FixedResearchWindowR932.WINDOW+" w ON w.window_id=b.window_id WHERE b.window_id=?",new String[]{window})){
++            if(!c.moveToFirst())return null;
++            Policy p=policy(c.getString(6),c.getString(7));if(!p.isCp3)throw new IllegalStateException("CP4_PLAN_POLICY");
++            String h=V51ChecksumEngine.sha256("CP4_PLAN|"+window+'|'+c.getString(0)+'|'+c.getInt(1)+'|'+c.getString(2)+'|'+c.getString(3)+'|'+c.getInt(4)+'|'+p.hash);
++            if(!h.equals(c.getString(5))||!c.getString(2).equals(c.getString(13))||!c.getString(3).equals(c.getString(14))||c.getInt(4)!=c.getInt(15)||c.getInt(4)!=p.planned(c.getInt(1)))throw new IllegalStateException("CP4_PLAN_DRIFT");
++            MultipleComparisonRegistryR930.Registration r=registrationCp4(c.getString(8));MultipleComparisonRegistryR930.Snapshot s=MultipleComparisonRegistryR930.readCp3WithinTransaction(db,r.hypothesisId);
++            if(s==null||!s.windowId.equals(c.getString(0))||!s.family.equals("CP3_ALL_PRODUCTION"))throw new IllegalStateException("CP4_ALPHA_IDENTITY_DRIFT");
++            try{JSONObject identity=new JSONObject(c.getString(9));return new Plan(h,window,identity.getString("calibration"),TrainingCodeIdentityR964.SHA256,c.getString(9),p,c.getLong(11));}catch(JSONException e){throw new IllegalStateException("CP4_PLAN_IDENTITY_JSON",e);}
++        }
++    }
++    static void observeCp4(SQLiteDatabase db,String window,String key,String issue,String prediction){
++        Plan plan=planCp4(db,window);if(plan==null||!plan.policy.isCp3)throw new IllegalStateException("CP4_FORMAL_PLAN_MISSING");
++        try{JSONObject identity=new JSONObject(plan.json);FrozenIdentityCp4 current=captureIdentityCp4(db,key,identity.getString("structure"),identity.getString("bundle"),identity.getString("selector"),issue,identity.getString("calibration"));
++            String expected="";try(Cursor c=db.rawQuery("SELECT l.identity_hash FROM "+CP4_BINDING+" b JOIN "+CP4_LIFETIME+" l ON l.lifetime_id=b.lifetime_id WHERE b.window_id=?",new String[]{window})){if(c.moveToFirst())expected=c.getString(0);}
++            if(!current.hash.equals(expected))throw new IllegalStateException("CP4_FROZEN_MODEL_DRIFT");
++            MultipleComparisonRegistryR930.markObservingWithinTransactionCp3(db,registrationForWindowCp4(db,window),prediction);
++        }catch(JSONException e){throw new IllegalStateException("CP4_IDENTITY_JSON",e);}
++    }
++
+ }

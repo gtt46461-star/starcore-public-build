@@ -1,0 +1,68 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CandidateExecutionAuditR932.java b/app/src/main/java/com/ethk3/novaonepro/CandidateExecutionAuditR932.java
+index 90f65b1..0973cc3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CandidateExecutionAuditR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CandidateExecutionAuditR932.java
+@@ -14,6 +14,8 @@ public final class CandidateExecutionAuditR932 {
+     public static final String REVISION = "R932_FULL_GROUP_SERIALIZATION_REPLAY_V1";
+     private CandidateExecutionAuditR932() {}
+ 
++    private static long usedHeapCp4(){Runtime r=Runtime.getRuntime();return Math.max(0L,r.totalMemory()-r.freeMemory())+Math.max(0L,android.os.Debug.getNativeHeapAllocatedSize());}
++
+     static void schema(SQLiteDatabase db) {
+         if (TransactionSchemaCacheR941.readyCommitted(db,"CandidateExecutionAuditR932")) return;
+ 
+@@ -28,6 +30,9 @@ public final class CandidateExecutionAuditR932 {
+         private final int[] ties = new int[1200];
+         private final boolean[] seen = new boolean[1200];
+         private final long started = System.nanoTime();
++        private final long heapStart=usedHeapCp4();
++        private long heapPeak=heapStart; private int heapSamples;
++        private void sampleHeapCp4(){heapPeak=Math.max(heapPeak,usedHeapCp4());heapSamples++;}
+         private int count;
+         private double error;
+         public void add(int ordinal, double score, double replayScore, int tieRank) {
+@@ -39,7 +44,7 @@ public final class CandidateExecutionAuditR932 {
+             if (difference > 1e-12 * Math.max(1d, Math.abs(score)))
+                 throw new IllegalStateException("R932_AUDIT_SERIALIZATION_PARITY");
+             error = Math.max(error, difference);
+-            seen[ordinal] = true; scores[ordinal] = score; ties[ordinal] = tieRank; count++;
++            seen[ordinal] = true; scores[ordinal] = score; ties[ordinal] = tieRank; count++; if((count&31)==0)sampleHeapCp4();
+         }
+         public Proof finish(int selected, String programBefore, String programAfter,
+                 String stateBefore, String stateAfter, String replayStateAfter) {
+@@ -61,10 +66,11 @@ public final class CandidateExecutionAuditR932 {
+             if (selected != order[0]) throw new IllegalStateException("R932_AUDIT_SELECTED_PARITY");
+             StringBuilder ranks = new StringBuilder(6000);
+             for (int ordinal : order) ranks.append(ordinal).append(',');
++            sampleHeapCp4();
+             return new Proof(selected, V51ChecksumEngine.sha256(ranks.toString()),
+                     V51ChecksumEngine.sha256(values.toString()),
+                     V51ChecksumEngine.sha256(programBefore), V51ChecksumEngine.sha256(stateBefore),
+-                    error, Math.max(1L, System.nanoTime() - started));
++                    error, Math.max(1L, System.nanoTime() - started),Math.max(0L,heapPeak-heapStart),heapSamples);
+         }
+     }
+ 
+@@ -72,11 +78,11 @@ public final class CandidateExecutionAuditR932 {
+         public final int selectedOrdinal;
+         public final String rankingHash, scoreHash, programHash, stateHash;
+         public final double maxError;
+-        public final long elapsedNs;
++        public final long elapsedNs,heapIncrementCp4; public final int heapSamplesCp4;
+         private Proof(int selected, String ranking, String score, String program,
+-                String state, double error, long elapsed) {
++                String state, double error, long elapsed,long heapIncrement,int heapSamples) {
+             selectedOrdinal=selected; rankingHash=ranking; scoreHash=score;
+-            programHash=program; stateHash=state; maxError=error; elapsedNs=elapsed;
++            programHash=program; stateHash=state; maxError=error; elapsedNs=elapsed;heapIncrementCp4=heapIncrement;heapSamplesCp4=heapSamples;
+         }
+         public void freeze(SQLiteDatabase db, String key, String structure, String input,
+                 String base, String target, String prediction) {
+@@ -106,6 +112,7 @@ public final class CandidateExecutionAuditR932 {
+                 db.execSQL("INSERT OR IGNORE INTO " + TABLE + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                         new Object[]{key,target,structure,input,base,prediction,rankingHash,scoreHash,
+                             code,schema,atom,1200,maxError,elapsedNs,payload,proof,System.currentTimeMillis()});
++                if(ResearchGatePlanR967.installed().isCp3)CandidateResourceEvidenceCP4.freeze(db,key,target,prediction,proof,selectedOrdinal,elapsedNs,heapIncrementCp4,heapSamplesCp4);
+                 try(Cursor c=db.rawQuery("SELECT proof_hash FROM " + TABLE
+                         + " WHERE candidate_key=? AND target_issue=?",new String[]{key,target})) {
+                     if(!c.moveToFirst() || !proof.equals(c.getString(0)))

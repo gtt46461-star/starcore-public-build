@@ -1,0 +1,56 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java b/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java
+index 3affb2d..7a47cef 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationRunR967.java
+@@ -83,7 +83,7 @@ public final class ResearchEvaluationRunR967 {
+     public static int enroll(final DbStore store,final String target){
+         if(store==null||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("R969_RUN_TARGET");
+         final ArrayList<String> ids=new ArrayList<String>();
+-        try(Cursor c=store.readable().rawQuery("SELECT c.candidate_id FROM r952_candidate c WHERE c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND NOT EXISTS(SELECT 1 FROM "+RUN+" r WHERE r.learner_id=c.candidate_id AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?)) AND (EXISTS(SELECT 1 FROM "+RUN+" old WHERE old.learner_id=c.candidate_id AND old.first_issue=(SELECT MAX(last.first_issue) FROM "+RUN+" last WHERE last.learner_id=c.candidate_id AND last.first_issue<=?) AND NOT "+TrainingContinuationR973.predicate("old.rule_hash")+") OR (NOT EXISTS(SELECT 1 FROM r952_research_outbox o WHERE o.candidate_id=c.candidate_id AND o.state NOT IN ('COMPLETED','DEPENDENCY_RETIRED')) AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.settled=0 AND p.proof_error=''))) ORDER BY c.created_at,c.candidate_id LIMIT 16",new String[]{target,target})){while(c.moveToNext())ids.add(c.getString(0));}
++        try(Cursor c=store.readable().rawQuery("SELECT c.candidate_id FROM r952_candidate c WHERE c.ast NOT LIKE 'AST3:%' AND c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND NOT EXISTS(SELECT 1 FROM "+RUN+" r WHERE r.learner_id=c.candidate_id AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?)) AND (EXISTS(SELECT 1 FROM "+RUN+" old WHERE old.learner_id=c.candidate_id AND old.first_issue=(SELECT MAX(last.first_issue) FROM "+RUN+" last WHERE last.learner_id=c.candidate_id AND last.first_issue<=?) AND NOT "+TrainingContinuationR973.predicate("old.rule_hash")+") OR (NOT EXISTS(SELECT 1 FROM r952_research_outbox o WHERE o.candidate_id=c.candidate_id AND o.state NOT IN ('COMPLETED','DEPENDENCY_RETIRED')) AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.settled=0 AND p.proof_error=''))) ORDER BY c.created_at,c.candidate_id LIMIT 16",new String[]{target,target})){while(c.moveToNext())ids.add(c.getString(0));}
+         if(ids.isEmpty())return 0;
+         Integer n=store.coordinatorR36().runAtomicWrite("R969_PREREGISTER_DISJOINT_TRAIN_RUN",new DatabaseCoordinator.WriteCallable<Integer>(){public Integer call(SQLiteDatabase db){
+             if(drawn(db,target))throw new IllegalStateException("R969_RUN_POSTDRAW");int count=0;
+@@ -150,8 +150,41 @@ public final class ResearchEvaluationRunR967 {
+     }
+     private static String inputHash(String run,String learner,String target,String input,String model){return new ResearchSemanticsR967.Builder("R967_TRAIN_INPUT_V2").hash("run",run).text("learner",learner).text("target",target).hash("input",input).hash("model",model).digest();}
+     public static String evaluationHash(CandidateAstR952 ast,CandidateCompilerR952.Model model,String rule,String epoch){
+-        return ResearchSemanticsR967.frozenEvaluationHash(ast.structuralHash,model.hash(),FeatureManifestR952.production().hash,rule,V51ChecksumEngine.sha256("FIXED_AST_POSITION_FULL1200_SCORE_DESC_ORDINAL_ASC_V1"),epoch);
++        return ResearchSemanticsR967.frozenEvaluationHash(ast.structuralHash,model.hash(),FeatureManifestR952.forAst(ast).hash,rule,V51ChecksumEngine.sha256("FIXED_AST_POSITION_FULL1200_SCORE_DESC_ORDINAL_ASC_V1"),epoch);
++    }
++    /** Only the FREEZE task owner calls this method, inside its existing writer transaction. */
++    static String registerDevelopmentCP8(SQLiteDatabase db,FrozenCandidateAdapterR958.PreparedFreezeCP8 p){
++        p.requireOpen();
++        if(!db.inTransaction()||p.ast.formatVersion!=3||p.model.isLegacy()||drawn(db,p.target))
++            throw new IllegalStateException("FREEZE_REGISTRATION_GUARD");
++        try(Cursor c=db.rawQuery("SELECT candidate_id,model_hash,ast,trained_until_issue FROM "+EVAL
++                +" WHERE learner_id=? AND source_artifact=?",new String[]{p.candidateId,p.artifactHash})){
++            if(c.moveToFirst()){
++                if(!p.modelHash.equals(c.getString(1))||!p.ast.canonical.equals(c.getString(2))||!p.validationLast.equals(c.getString(3)))
++                    throw new IllegalStateException("FREEZE_ARTIFACT_REPLAY_CONFLICT");
++                String existing=c.getString(0);
++                if(c.moveToNext())throw new IllegalStateException("FREEZE_DUPLICATE_ARTIFACT");
++                return existing;
++            }
++        }
++        String epoch=originHash(p.candidateId,p.target,p.astHash,p.ruleHash,p.modelPayload,p.artifactHash);
++        String run=runHash(p.candidateId,p.target,p.astHash,p.ruleHash,p.modelPayload,p.artifactHash,SPLIT,epoch);
++        try(Cursor c=db.rawQuery("SELECT run_hash FROM "+RUN+" WHERE learner_id=? AND first_issue=?",new String[]{p.candidateId,p.target})){
++            if(c.moveToFirst())throw new IllegalStateException("FREEZE_RUN_ALREADY_PRESENT_WITHOUT_EVAL");
++        }
++        long now=System.currentTimeMillis();
++        db.execSQL("INSERT INTO "+RUN+"(run_hash,learner_id,first_issue,ast_hash,rule_hash,initial_payload,initial_updates,source_artifact,split_rule,integrity_epoch,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
++            new Object[]{run,p.candidateId,p.target,p.astHash,p.ruleHash,p.modelPayload,p.trainN,p.artifactHash,SPLIT,epoch,now});
++        String structure=evaluationHash(p.ast,p.model,p.ruleHash,epoch);
++        String id=PREFIX+structure.substring(0,24);
++        db.execSQL("INSERT INTO "+EVAL+"(candidate_id,learner_id,ast,model_payload,structural_hash,model_hash,trained_until_issue,created_issue,source_artifact,created_at,run_hash,rule_hash,integrity_epoch,update_endpoint) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,0)",
++            new Object[]{id,p.candidateId,p.ast.canonical,p.modelPayload,structure,p.modelHash,p.validationLast,p.target,p.artifactHash,now,run,p.ruleHash,epoch});
++        ResearchLifecycleR932.enroll(db,"algorithm:"+id,structure,p.target,"C");
++        ResearchLifecycleR932.transition(db,"algorithm:"+id,ResearchLifecycleR932.State.NURSERY,
++            "FROZEN_WAIT_CAPTURE_CAPACITY",p.target,p.artifactHash,0,0);
++        return id;
+     }
++
+     public static boolean mayCapture(SQLiteDatabase db,FrozenCandidateAdapterR958.Frozen f,String target){
+         if(versioned(f.id)){
+             if(!eligibleEvaluation(f.id,target))return false;

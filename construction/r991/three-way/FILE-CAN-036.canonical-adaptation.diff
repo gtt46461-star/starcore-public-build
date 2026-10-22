@@ -1,0 +1,47 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java
+@@ -402,7 +402,43 @@
+     }
+     public static String cp4CurrentDomainReason(DbStore store,String lifetimeId,String target){return CandidateResourceEvidenceCP4.currentDomainReason(store,lifetimeId,target);}
+     public static List<GateObservation> cp4ExternalGates(android.database.sqlite.SQLiteDatabase db,String lifetimeId,String evidenceHash,String endpoint){
+-        return CandidateResourceEvidenceCP4.gates(db,lifetimeId,evidenceHash,endpoint);
++        ArrayList<GateObservation> gates=new ArrayList<GateObservation>(CandidateResourceEvidenceCP4.gates(db,lifetimeId,evidenceHash,endpoint));
++        gates.add(cp4AtomBindings(db,lifetimeId,endpoint));
++        return gates;
++    }
++
++    /** The publisher prepares immutable atom evidence outside the certificate writer.
++     * Bind the actual frozen AST/model to the same lifetime used by all other CP4 gates. */
++    private static GateObservation cp4AtomBindings(android.database.sqlite.SQLiteDatabase db,String lifetime,String endpoint){
++        if(db.inTransaction())throw new IllegalStateException("ATOM_CERTIFICATE_PREPARE_IN_WRITER");
++        String key="",structure="",state="",first="";
++        try {
++            try(android.database.Cursor bound=db.rawQuery("SELECT candidate_key,identity_json,first_issue,last_issue,length(CAST(identity_json AS BLOB)) FROM "+ResearchGatePlanR967.CP4_LIFETIME+" WHERE lifetime_id=? AND length(CAST(identity_json AS BLOB)) BETWEEN 2 AND 32768",new String[]{lifetime})){
++                if(!bound.moveToFirst())throw new IllegalStateException("ATOM_CERTIFICATE_LIFETIME_MISSING");
++                if(bound.getLong(4)<2||bound.getLong(4)>32768)throw new IllegalStateException("ATOM_CERTIFICATE_IDENTITY_BOUND");
++                key=bound.getString(0);first=bound.getString(2);
++                if(!TargetIssueResolver.isValid(endpoint)||endpoint.compareTo(first)<0||endpoint.compareTo(bound.getString(3))>0)
++                    throw new IllegalStateException("ATOM_CERTIFICATE_ENDPOINT_SCOPE");
++                org.json.JSONObject identity=new org.json.JSONObject(bound.getString(1));
++                if(!key.equals(identity.getString("candidate")))throw new IllegalStateException("ATOM_CERTIFICATE_CANDIDATE_SCOPE");
++                structure=identity.getString("structure");state=identity.getString("state");
++            }
++            if(!key.startsWith("algorithm:"))throw new IllegalStateException("ATOM_CERTIFICATE_FROZEN_OWNER_REQUIRED");
++            try(com.ethk3.novaonepro.r952.AtomAdmissionCP12.Group group=com.ethk3.novaonepro.r952.AtomAdmissionCP12.readForLifetimeCP12(db,lifetime,endpoint,System.nanoTime()+700000000L)){
++                if(group.eligible&&(!structure.equals(group.freezeHash)||!state.equals(group.modelHash)))
++                    throw new IllegalStateException("ATOM_CERTIFICATE_FROZEN_IDENTITY_CHANGED");
++                return group.gateCP12();
++            }
++        }catch(org.json.JSONException invalid){
++            return missingAtomBindingGate(lifetime,endpoint,"ATOM_CERTIFICATE_IDENTITY_JSON");
++        }catch(RuntimeException unavailable){
++            if(unavailable instanceof ResearchWorkBudgetR927.Yield)throw unavailable;
++            String reason=unavailable.getMessage();
++            return missingAtomBindingGate(lifetime,endpoint,reason==null?unavailable.getClass().getSimpleName():reason);
++        }
++    }
++    private static GateObservation missingAtomBindingGate(String lifetime,String endpoint,String reason){
++        return new GateObservation(com.ethk3.novaonepro.r952.AtomAdmissionCP12.GATE,0,1,false,"IMMUTABLE_CONSUMED_ATOM_OOS",V51ChecksumEngine.sha256("CP12_ATOM_CERTIFICATE_MISSING|"+lifetime+'|'+endpoint+'|'+reason),reason);
+     }
+ 
+     private static GateObservation gate(String id, double observed, double required,

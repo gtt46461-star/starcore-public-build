@@ -1,0 +1,14 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/TimeSourceR811.java b/app/src/main/java/com/ethk3/novaonepro/TimeSourceR811.java
+index 3a49a6a..066ada2 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/TimeSourceR811.java
++++ b/app/src/main/java/com/ethk3/novaonepro/TimeSourceR811.java
+@@ -7,6 +7,9 @@ public final class TimeSourceR811 {
+     private static final long BOOT_WALL_ANCHOR = System.currentTimeMillis();
+     private static final long BOOT_MONO_ANCHOR = SystemClock.elapsedRealtime();
+ 
++    private static final String CLOCK_SESSION_CP12=java.util.UUID.randomUUID().toString();
++    /** Neverpersisted. Restart/reboot discards every previous monotonic anchor. */
++    public static String clockSessionCP12(){return CLOCK_SESSION_CP12;}
+     private TimeSourceR811() {}
+ 
+     public static long wallNowMs() {

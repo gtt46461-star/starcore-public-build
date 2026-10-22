@@ -1,0 +1,27 @@
+{
+  "scope": "READ_ONLY_REAL_PUBLIC_NEURAL_OWNER_5000_DRAW_DB_EMPTY_REGIME_DIAGNOSTIC_HOST_SQL_ONLY",
+  "drawCount": 5000,
+  "regimeCount": 0,
+  "parameters": [
+    "617b2a06d9b2027ebb1cdd4bbc62bdfb35e0622161c691b7cb0563e749eb4754",
+    "617b2a06d9b2027ebb1cdd4bbc62bdfb35e0622161c691b7cb0563e749eb4754"
+  ],
+  "originalOwnerLog": "/workspace/scratch/e2544c9906f6/r75-matrix-owner2/neural-first.log",
+  "results": {
+    "before": {
+      "elapsed_ms": 1954.398008,
+      "rows": [],
+      "sql": "SELECT d.issue,d.open_time,d.fetch_time,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM draws d WHERE d.dirty=0  AND (SELECT COUNT(*) FROM draws prior WHERE prior.dirty=0 AND prior.issue<d.issue)>=1 AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='8f2d6bd846d32447c4b0457a00441e29d91fc65225c900c73e4f3fd3cf4b69c0' AND r.regime_id=3 AND r.captured_at<d.open_time) AND d.issue>=COALESCE((SELECT state_value FROM app_state WHERE state_key='r75_matrix_bootstrap_617b2a06d9b2027ebb1cdd4bbc62bdfb35e0622161c691b7cb0563e749eb4754'),'') AND d.issue>COALESCE((SELECT through_issue FROM research_matrix_checkpoint_v2 WHERE matrix_id=?),'') AND NOT EXISTS(SELECT 1 FROM research_matrix_input_cp12 i WHERE i.matrix_id=? AND i.source_issue=d.issue) ORDER BY d.issue LIMIT 1"
+    },
+    "interim_exists": {
+      "elapsed_ms": 4.036867,
+      "rows": [],
+      "sql": "SELECT d.issue,d.open_time,d.fetch_time,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM draws d WHERE d.dirty=0  AND EXISTS(SELECT 1 FROM draws prior WHERE prior.dirty=0 AND prior.issue<d.issue ORDER BY prior.issue DESC LIMIT 1 OFFSET 0) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='8f2d6bd846d32447c4b0457a00441e29d91fc65225c900c73e4f3fd3cf4b69c0' AND r.regime_id=3 AND r.captured_at<d.open_time) AND d.issue>=COALESCE((SELECT state_value FROM app_state WHERE state_key='r75_matrix_bootstrap_617b2a06d9b2027ebb1cdd4bbc62bdfb35e0622161c691b7cb0563e749eb4754'),'') AND d.issue>COALESCE((SELECT through_issue FROM research_matrix_checkpoint_v2 WHERE matrix_id=?),'') AND NOT EXISTS(SELECT 1 FROM research_matrix_input_cp12 i WHERE i.matrix_id=? AND i.source_issue=d.issue) ORDER BY d.issue LIMIT 1"
+    },
+    "final_fixed_threshold": {
+      "elapsed_ms": 17.597466,
+      "rows": [],
+      "sql": "SELECT d.issue,d.open_time,d.fetch_time,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM draws d WHERE d.dirty=0  AND d.issue>(SELECT prior.issue FROM draws prior WHERE prior.dirty=0 ORDER BY prior.issue LIMIT 1 OFFSET 0) AND EXISTS(SELECT 1 FROM research_matrix_regime5_cp12 r WHERE r.target_issue=d.issue AND r.position=1 AND r.policy_hash='8f2d6bd846d32447c4b0457a00441e29d91fc65225c900c73e4f3fd3cf4b69c0' AND r.regime_id=3 AND r.captured_at<d.open_time) AND d.issue>=COALESCE((SELECT state_value FROM app_state WHERE state_key='r75_matrix_bootstrap_617b2a06d9b2027ebb1cdd4bbc62bdfb35e0622161c691b7cb0563e749eb4754'),'') AND d.issue>COALESCE((SELECT through_issue FROM research_matrix_checkpoint_v2 WHERE matrix_id=?),'') AND NOT EXISTS(SELECT 1 FROM research_matrix_input_cp12 i WHERE i.matrix_id=? AND i.source_issue=d.issue) ORDER BY d.issue LIMIT 1"
+    }
+  }
+}

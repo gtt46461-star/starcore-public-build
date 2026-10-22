@@ -1,0 +1,303 @@
+{
+  "status": "FAIL",
+  "scope": "FINAL_RELEASE_JAVA_BYTECODE_HOST_ADAPTERS_NOT_ANDROID_DEVICE_OR_NATURAL_QUALITY",
+  "source_commit": "ede9746f9172033d27cf6ed15456780d4a92ca4d",
+  "build_receipt_sha256": "6642e0f90ceb5b5bcee28140bd76a6e1f8f975fbce64176b216e19e8df5326a5",
+  "build_receipt": {
+    "format": "OPT299_ENGINEERING_APK_V1",
+    "stage": "O09",
+    "variant": "release",
+    "sourceCommit": "ede9746f9172033d27cf6ed15456780d4a92ca4d",
+    "sourceTree": "5d946ce25b552b8318a550eb942c40dbb5f2f519",
+    "apkFile": "Starcore-Tianshu-V57.21.2.0.76-R5.4.2.76-1013-O09-release.apk",
+    "apkSha256": "757ff09c339358398146f7bebb8c5ed894356a02d22a2e1b6c67525802480e8e",
+    "runnerSha256": "cfac03b4c61151b916bcde5e80ffec9ce6150e91481768fcc16c8b58d02bead6",
+    "callArchiveSha256": "aba80e9e63c247fd86907841e2d4d5435e5f18d73a0913bd65f0ae6396f2c9f4",
+    "nativeAbis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "catalogAssets": [
+      {
+        "path": "assets/cp4_atom_registry.jsonl",
+        "sha256": "57673f6000cd5db5ae4be162430086753c879b8c63d5ef1d2bb521169cdcdefe",
+        "bytes": 10416375,
+        "compressedBytes": 10416375,
+        "compression": "ZIP_STORED"
+      },
+      {
+        "path": "assets/research/cp4_molecule_seeds.jsonl",
+        "sha256": "b4ab9a61e2a36a4a426d0588ffb52350a25c09165273f802b9aa4c63e3c726ad",
+        "bytes": 3265020,
+        "compressedBytes": 3265020,
+        "compression": "ZIP_STORED"
+      }
+    ],
+    "generatedOutputs": [
+      {
+        "path": "release/r982_source_calls.tsv.gz",
+        "sha256": "aba80e9e63c247fd86907841e2d4d5435e5f18d73a0913bd65f0ae6396f2c9f4"
+      },
+      {
+        "path": "release/r982_source_calls.manifest.json",
+        "sha256": "05d48d29bd85131eb0d4d52c3094d3668712b2b3a5468a8757ad43fecd1e5e70"
+      },
+      {
+        "path": "app/build/generated/r967/semantic_manifest.json",
+        "sha256": "97f0bd8db763a3dd1a4630c0ae108fdad498f1f445ab82386e27d49fe24e84c3"
+      },
+      {
+        "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+        "sha256": "499243acca249486db8ccdec9c13708f32fa007a45ad14df8c4be0cc628a978b"
+      }
+    ],
+    "applicationId": "com.ethk3.novaonepro",
+    "versionName": "V57.21.2.0.76-R5.4.2.76-1013-O09",
+    "versionCode": 577251035,
+    "certificateSha256": "ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f",
+    "deviceStatus": "NOT_RUN",
+    "naturalFutureStatus": "NOT_RUN",
+    "overwriteInstallStatus": "NOT_RUN",
+    "complete299BusinessAcceptance": false
+  },
+  "product_classes": "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+  "class_count": 3419,
+  "bytecode_unchanged": true,
+  "host_collisions": [],
+  "results": [
+    {
+      "name": "cal_head",
+      "exit_code": 0,
+      "seconds": 1.731,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/run_fixed_window_head.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--product-classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/cal_head"
+      ],
+      "log_sha256": "9cdfb1a85edf626c7b3d50129304a77d2ffd7bee82e8dca82f6bb3c9476c4263"
+    },
+    {
+      "name": "cal_maintenance",
+      "exit_code": 0,
+      "seconds": 12.875,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/run_mainline_maintenance.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--product-classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/cal_maintenance"
+      ],
+      "log_sha256": "4c1e4859f3272b0b902530eb5e4f26e94438a11f8936acc978bed2a8663ad849"
+    },
+    {
+      "name": "continuation",
+      "exit_code": 0,
+      "seconds": 3.24,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/training_continuation_run.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/continuation"
+      ],
+      "log_sha256": "adb20f5b44ae62868c00291d9a842932f85430070c143ad8632295338764ab83"
+    },
+    {
+      "name": "diagnosis",
+      "exit_code": 0,
+      "seconds": 1.794,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_diagnosis_run.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--android-runtime",
+        "/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "--final-bytecode",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/diagnosis"
+      ],
+      "log_sha256": "9dca5727e60f66aa4ebbddc5d7cf9323a9bf923504ece2621651c25932edb6c4"
+    },
+    {
+      "name": "fetch_callback",
+      "exit_code": 0,
+      "seconds": 3.26,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r75/fetch_callback_actual_run.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/fetch_callback"
+      ],
+      "log_sha256": "3407ffcf94ac0c945459c6c1c0586c5ff25b977102568b1b8e86579af306d4d2"
+    },
+    {
+      "name": "observation",
+      "exit_code": 0,
+      "seconds": 2.451,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation_run.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--android-runtime",
+        "/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "--final-bytecode",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/observation"
+      ],
+      "log_sha256": "6120ac7d34273f5c4af6c4896a4927bf6de1f7ca6845efd78f3a227ab971c23c"
+    },
+    {
+      "name": "pipeline",
+      "exit_code": 0,
+      "seconds": 5.146,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/pipeline_status_run.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--report",
+        "/workspace/scratch/e2544c9906f6/r76-input/report/DIAGNOSTIC_SCOPE.json",
+        "--repair",
+        "/workspace/scratch/e2544c9906f6/r75-final-training-452854cc/repair/repair.db",
+        "--final-classes",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/pipeline"
+      ],
+      "log_sha256": "aa205bb42091b378cebd70b7f58bb4ea9d800104e04420775922580bc920546e"
+    },
+    {
+      "name": "queue",
+      "exit_code": 0,
+      "seconds": 4.11,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/training_run_ready.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--database",
+        "/workspace/scratch/e2544c9906f6/r76-training-report/report.db",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue"
+      ],
+      "log_sha256": "8bd8d1952876047cf5bc00b04e313f7140ce388c261a295da8bd48468af3c86c"
+    },
+    {
+      "name": "retention",
+      "exit_code": 0,
+      "seconds": 9.655,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/run_retention_page.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--native",
+        "/workspace/scratch/e2544c9906f6/r76-storage/native",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/retention"
+      ],
+      "log_sha256": "b0f4a0b981476b33138e7074c2551fc9269a13b32418e29c00c930e946fd7500"
+    },
+    {
+      "name": "training_report",
+      "exit_code": 0,
+      "seconds": 38.738,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/training_run_report.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--report",
+        "/workspace/scratch/e2544c9906f6/r76-input/report/DIAGNOSTIC_SCOPE.json",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_report"
+      ],
+      "log_sha256": "39b1c89b18b9e51cfaf983d881c1017ad76565aa696e483c11c1069b5453ebba"
+    },
+    {
+      "name": "training_shared",
+      "exit_code": 1,
+      "seconds": 6.233,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r75/training_run_all.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--schema",
+        "/workspace/scratch/7a6032548233/r72-final-schema",
+        "--report",
+        "/workspace/scratch/e2544c9906f6/r76-input/report/DIAGNOSTIC_SCOPE.json",
+        "--native",
+        "/workspace/scratch/e2544c9906f6/r76-storage/native",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/training_shared"
+      ],
+      "log_sha256": "49bed37e74c3e83aac54741e193517e49c4ca6c0c9b1691071d217e2a20a145d"
+    },
+    {
+      "name": "ui",
+      "exit_code": 0,
+      "seconds": 2.007,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/7a6032548233/starcore/verification/r76/ui_run.py",
+        "--jdk",
+        "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1",
+        "--classes",
+        "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "--android-runtime",
+        "/workspace/scratch/cd9274eff1c6/android-all.jar",
+        "--final-bytecode",
+        "--out",
+        "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/ui"
+      ],
+      "log_sha256": "60da943c0c6cbe88dd367f67f9e72ae2cf53a841c01d3bddedbc946a1e9a81c2"
+    }
+  ],
+  "native_host_sha256": "30f9e0bb9679a22cda36306f6710cc544897865faea4988ccdc3e7ef65d47fc3"
+}

@@ -1,0 +1,21 @@
+﻿优先级,文件,动作,方法/区域,现状问题,R925施工,验收
+P0,training/v51_training_core.py,重构,action_surface/fit_ranker/run_pipeline,10候选ranker与1200生产语义不一致；parity硬编码false,拆成1200 groupwise dataset/ranker；parity由证书输入,Python/Java/Android Rank1完全一致；model_gate可真实变true
+P0,training/v50_train_pipeline.py,重构/降级为兼容,action_surface/main,旧pipeline同样group_size=10,禁止作为R925生产证明；只保留legacy replay,报告明确LEGACY_NOT_PROOF
+P0,K3ActionSpaceEngine.java,保留+审计,globalOrdinal/action universe,生产1200动作真值Owner,输出训练/生产共享ordinal fixture,1200 identity唯一且hash一致
+P0,V51ActionRankerEngine.java,重构接artifact,rank,当前artifact未证明,加载R925 1200 groupwise artifact；fallback显式,artifact PROVEN/parity pass
+P0,AlgorithmEvidencePolicyR912.java,升级R925 policy,evaluateWithRegimeSupport,coverage可触发永久prune,拆system/candidate/selection coverage；质量与证据pause分离,误淘汰=0
+P0,AlgorithmEvolutionLifecycleR912.java,升级V3,maintain/enforceCapacity,MAX_RUNNABLE=8+不可逆prune,分Tier调度；生命周期V3；first prune保留,候选吞吐提升且实时P95不退化
+P1,ResearchCertificationEngineR811.java,分层,certifyCandidate,高等级PROVEN与中间证书混淆,增加L3-L7证书梯子/独立表,UI可看到每层数量和差距
+P1,AlgorithmProductionGovernorR915.java,升级,govern/influenceWeight,一旦Challenger可12~30%，阶段较粗,增加0/5/12/20/30阶梯证书,逐期贡献可追溯
+P1,ResearchTinyDeepLearnerR909.java,增强观测,updateOne/freezePredraw,只有更新/损失，不证明增益,增加OOS/paired/calibration/drift dashboard,更新效果可判定
+P1,ResearchAdaptiveLearnerStoreR811.java,增强观测,updateFromStrictOos,FTRL更新与生产效果脱节,FTRL作为独立challenger并做paired证书,artifact状态与效果一致
+P1,AlgorithmRegimeEvidenceR923.java,扩展,evaluate,Regime只有命中率支持,加Wilson/Brier/ECE/paired per regime,Domain certificate可生成
+P1,ResearchFailureHypothesisEngineR811.java,增强,diagnose/mechanism,九层归因仍较粗,输出FailureCluster id与具体repair target,每个child可追溯到失败簇
+P1,ResearchFailureAttributionR815.java,增强,classify,coverage<0.30易混系统因素,接入system capture truth,不再把系统缺失归因算法
+P1,ResearchAblationR815.java,扩展,evaluate,消融指标较少,模块/原子/家族逐期paired ablation,能证明模块净贡献
+P1,FeatureAblationAttributionEngine.java,扩展,snapshot,单期责任较轻,沉淀长期责任分布/不确定性,UI可看为何中/不中模块贡献
+P1,ResearchNovelFormulaSynthesizerR903.java,重构搜索策略,synthesize,随机混合比例偏高,失败驱动+原子质量+互补搜索,盲造比例下降
+P1,ResearchMethodGraphSynthesizerR903.java,增强,synthesize,方法图丰富但验证入口不统一,统一M1-M10证书合同,每个method有同一证据七件套
+P1,ResearchGenomeContractR915.java,升级,Evidence/productionInfluenceEligible,单一CHALLENGER状态,支持生命周期V3+阶段证书,合同与DB/UI一致
+P2,DbHelper.java,schema migration,R925新增表/列,缺first prune/system coverage/cert ladder,DB_VERSION保留36时用addColumn幂等迁移或明确升37,升级覆盖安装不丢历史
+P2,ResearchDashboardR924.java,升级R925,render,用户看不懂证书/进化效果,增加十模块状态与证书漏斗,一屏可见训练/进化真值

@@ -1,0 +1,58 @@
+[
+  {
+    "stage": "r990-consistent-provenance",
+    "command": [
+      "bash",
+      "scripts/r817_generate_provenance.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 2.7462125080000988,
+    "actual_JDK": "Zulu17.0.17"
+  },
+  {
+    "stage": "r990-consistent-release-compile",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--console=plain",
+      "compileReleaseJavaWithJavac",
+      "-x",
+      "generateR982SourceCallAsset"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 11.849796493000213,
+    "actual_JDK": "Zulu17.0.17"
+  },
+  {
+    "stage": "r990-consistent-source-calls",
+    "command": [
+      "python3",
+      "scripts/r982_source_call_asset.py",
+      "--freeze",
+      "--classes",
+      "app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 4.053850841999974,
+    "actual_JDK": "Zulu17.0.17"
+  },
+  {
+    "stage": "r990-consistent-final-build",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--console=plain",
+      "clean",
+      "assembleRelease",
+      "testDebugUnitTest",
+      "lintRelease"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 153.8973680170002,
+    "actual_JDK": "Zulu17.0.17"
+  }
+]

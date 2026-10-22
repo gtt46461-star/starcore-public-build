@@ -1,0 +1,1 @@
+package android.database; import android.database.sqlite.SQLiteDatabase; public class DatabaseUtils { public static String sqlEscapeString(String s){return "'"+s+"'";} public static long longForQuery(SQLiteDatabase db,String q,String[] a){return 0;} }

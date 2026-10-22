@@ -1,0 +1,34 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/AtomAblationReplayCP12.java b/app/src/main/java/com/ethk3/novaonepro/r952/AtomAblationReplayCP12.java
+new file mode 100644
+index 0000000..70657a9
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/AtomAblationReplayCP12.java
+@@ -0,0 +1,28 @@
++package com.ethk3.novaonepro.r952;
++import com.ethk3.novaonepro.*;import java.util.*;
++/** Post-settlement research contrast on immutable pre-draw raw atoms and the same frozen model/normalizer. */
++public final class AtomAblationReplayCP12 {
++ private AtomAblationReplayCP12(){}
++ public static final String POLICY_HASH=MatrixProjectionCP12.hash("CP12_RAW_ATOM_ZERO_FIXED_K3_BRIER_V1");
++ public static final class Contrast {public final double delta;public final String proof;Contrast(double delta,String proof){this.delta=delta;this.proof=proof;}}
++ public static Contrast contrast(CandidateCompilerR952.Program program,CandidateCompilerR952.Modern model,Map<String,Object> context,String contextHash,String nodeId,int selectedMask,int actual,double capturedScore,long drawAt){
++  if(program==null||model==null||program.ast.graphSpec.modelKind==CandidateCompilerR952.ModelKind.EXPERT_HEDGE||Integer.bitCount(selectedMask)!=3||actual<1||actual>10||!Double.isFinite(capturedScore))throw new IllegalStateException("ATOM_ABLATION_UNAVAILABLE");
++  String target=CandidateAstR952.str(context,"target");long frozenAt=((Number)context.get("frozenAt")).longValue();if(frozenAt<=0||frozenAt>=drawAt)throw new IllegalStateException("ATOM_ABLATION_PIT");
++  Map<String,TypedAtomMoleculeGraphR930.Value> atoms=new TreeMap<>();Map<String,Object> rawAtoms=CandidateAstR952.object(context.get("atoms"));Set<String> required=new HashSet<>();
++  for(TypedAtomMoleculeGraphR930.NodeSpec node:program.ast.graphSpec.nodes)if(node.kind==TypedAtomMoleculeGraphR930.NodeKind.ATOM){required.add(node.qualifiedId());Map<String,Object> raw=CandidateAstR952.object(rawAtoms.get(node.qualifiedId()));List<?> values=CandidateAstR952.array(raw.get("values")),mask=CandidateAstR952.array(raw.get("present"));if(values.size()!=node.shape.elements()||mask.size()!=values.size())throw new IllegalStateException("ATOM_ABLATION_CLOSURE");double[] v=new double[values.size()];boolean[] m=new boolean[v.length];for(int i=0;i<v.length;i++){v[i]=Double.parseDouble((String)values.get(i));m[i]=(Boolean)mask.get(i);}long at=((Number)raw.get("availableAt")).longValue();TypedAtomMoleculeGraphR930.Value value=new TypedAtomMoleculeGraphR930.Value(v,m,CandidateAstR952.str(raw,"maxSourceIssue"),at,0,CandidateAstR952.str(raw,"sourceHash"));if(!value.valueHash.equals(CandidateAstR952.str(raw,"valueHash"))||value.maxSourceIssue.compareTo(target)>=0||at>frozenAt)throw new IllegalStateException("ATOM_ABLATION_VALUE_PROOF");atoms.put(node.qualifiedId(),value);}
++  if(!required.equals(rawAtoms.keySet())||!atoms.containsKey(nodeId))throw new IllegalStateException("ATOM_ABLATION_CLOSURE");
++  Map<String,MatrixBindingsCP12.Frozen> matrices=context.containsKey("matrices")?MatrixBindingsCP12.fromCanonicalObject(context.get("matrices")):Collections.emptyMap();String base="";for(MatrixBindingsCP12.Frozen matrix:matrices.values()){if(!TargetIssueResolver.exact(matrix.throughIssue,target).valid)throw new IllegalStateException("ATOM_ABLATION_MATRIX_WATERMARK");if(base.isEmpty())base=matrix.throughIssue;else if(!base.equals(matrix.throughIssue))throw new IllegalStateException("ATOM_ABLATION_MATRIX_WATERMARK");}MatrixBindingsCP12.validateFrozen(program,target,base,frozenAt,matrices,atoms);
++  Map<String,Object> bindings=CandidateAstR952.object(context.get("bindings"));if(!new TreeSet<>(bindings.keySet()).equals(new TreeSet<>(program.manifest.bindingHashes)))throw new IllegalStateException("ATOM_ABLATION_BINDING_CLOSURE");for(Object bindingProof:bindings.values())if(!(bindingProof instanceof String)||!((String)bindingProof).matches("[0-9a-f]{64}"))throw new IllegalStateException("ATOM_ABLATION_BINDING_PROOF");
++  try(MemoryBudgetCP4.Lease scratch=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(262144)){
++   double[] original=input(program,model,TypedAtomMoleculeGraphR930.evaluate(program.ast.graphSpec.typedGraph,new TypedAtomMoleculeGraphR930.FrozenInputs(target,frozenAt,contextHash,atoms)));double p=sum(model.probabilities(original),selectedMask);if(Math.abs(p-capturedScore)>1e-10)throw new IllegalStateException("ATOM_ABLATION_ORIGINAL_REPLAY_DRIFT");
++   TypedAtomMoleculeGraphR930.Value prior=atoms.get(nodeId);atoms.put(nodeId,new TypedAtomMoleculeGraphR930.Value(new double[prior.size()],prior.maskCopy(),prior.maxSourceIssue,prior.availableAtMs,0,MatrixProjectionCP12.hash("CP12_ABLATION|"+POLICY_HASH+'|'+prior.valueHash)));
++   double[] disabled=input(program,model,TypedAtomMoleculeGraphR930.evaluate(program.ast.graphSpec.typedGraph,new TypedAtomMoleculeGraphR930.FrozenInputs(target,frozenAt,contextHash,atoms)));double q=sum(model.probabilities(disabled),selectedMask),y=(selectedMask&(1<<(actual-1)))!=0?1:0,delta=(q-y)*(q-y)-(p-y)*(p-y);
++   String proof=MatrixProjectionCP12.hash("CP12_ABLATION_CONTRAST|"+POLICY_HASH+'|'+contextHash+'|'+model.payload()+'|'+nodeId+'|'+selectedMask+'|'+actual+'|'+Double.toHexString(p)+'|'+Double.toHexString(q)+'|'+Double.toHexString(delta));return new Contrast(delta,proof);
++  }
++ }
++ private static double sum(double[] p,int mask){double result=0;for(int i=0;i<10;i++)if((mask&(1<<i))!=0)result+=p[i];return result;}
++ private static double[] input(CandidateCompilerR952.Program program,CandidateCompilerR952.Modern model,TypedAtomMoleculeGraphR930.Evaluation evaluation){
++  if(program.ast.graphSpec.modelKind==CandidateCompilerR952.ModelKind.FIXED_GRAPH){TypedAtomMoleculeGraphR930.Value v=evaluation.require("CP4:"+program.ast.graphSpec.outputId);if(v.size()!=10||v.presentCount()!=10)throw new IllegalStateException("ATOM_ABLATION_OUTPUT_MISSING");return v.valuesCopy();}
++  int n=program.ast.graphSpec.featureOutputIds.size();double[] x=new double[n*2],means=model.means(),std=model.standardDeviations();int present=0;for(int i=0;i<n;i++){TypedAtomMoleculeGraphR930.Value v=evaluation.require("CP4:"+program.ast.graphSpec.featureOutputIds.get(i));if(v.size()!=1)throw new IllegalStateException("ATOM_ABLATION_SCALAR");if(v.present(0)){x[i]=(v.get(0)-means[i])/std[i];x[n+i]=1;present++;}else if(!program.manifest.missingPolicyPerFeature.get(i).equals("MASK"))throw new IllegalStateException("ATOM_ABLATION_REQUIRED_MISSING");}if(present==0)throw new IllegalStateException("ATOM_ABLATION_OUTPUT_MISSING");return x;
++ }
++}

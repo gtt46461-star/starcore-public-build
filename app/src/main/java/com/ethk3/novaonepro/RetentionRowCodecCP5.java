@@ -1,0 +1,180 @@
+package com.ethk3.novaonepro;
+
+import com.ethk3.novaonepro.r952.StrictCanonicalJson;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.*;
+import org.json.*;
+
+/** SCROW1 streaming row archive. A codec only: no database handle and no prune authority.
+ * All output and RowConsumer effects remain STAGING until a complete verified digest returns.
+ * The caller owns streams and fixed-snapshot row resources. */
+public final class RetentionRowCodecCP5 {
+    private RetentionRowCodecCP5() {}
+    public static final int BUFFER=8192,MAX_COLUMNS=1024,MAX_METADATA=65536,MAX_KEY=16384;
+    public static final int NULL=0,INTEGER=1,REAL=2,TEXT=3,BLOB=4;
+    private static final byte[] MAGIC={'S','C','R','O','W','1'};
+    public interface CancelCheck { void check() throws IOException; }
+    public interface RowSource {
+        boolean next() throws IOException;
+        byte[] canonicalKey() throws IOException;
+        int type(int column) throws IOException;
+        long length(int column) throws IOException;
+        /** SQL INTEGER or raw IEEE754 bits for REAL. Never a decimal rendering. */
+        long scalarBits(int column) throws IOException;
+        /** Offset is zero based; fills buffer[0..returned). No whole-cell allocation. */
+        int readBytes(int column,long offset,byte[] buffer,int maximum) throws IOException;
+    }
+    public interface RowConsumer {
+        void beginTable(TableShape shape) throws IOException;
+        void beginRow(long ordinal,byte[] key) throws IOException;
+        void cellHeader(int column,int type,long length) throws IOException;
+        /** Buffer is borrowed for this callback only. */
+        void cellBytes(int column,byte[] buffer,int offset,int count) throws IOException;
+        void endRow(String rowHash) throws IOException;
+        void endTable(ArchiveDigest verified) throws IOException;
+    }
+    public static final class TableShape {
+        public final String tableName,schemaHash,sqliteEncoding,snapshotId;
+        public final List<String> orderedColumns,primaryKeyColumns;
+        private final boolean[] primary;
+        public TableShape(String tableName,String schemaHash,String sqliteEncoding,
+                List<String> columns,List<String> primaryKeys,String snapshotId) {
+            this.tableName=identifier(tableName);this.schemaHash=hash(schemaHash);
+            this.snapshotId=hash(snapshotId);this.sqliteEncoding=Objects.requireNonNull(sqliteEncoding);
+            need(Arrays.asList("UTF-8","UTF-16le","UTF-16be").contains(sqliteEncoding),"ARCHIVE_ENCODING");
+            need(columns!=null&&columns.size()>=1&&columns.size()<=MAX_COLUMNS,"ARCHIVE_COLUMN_COUNT");
+            ArrayList<String> c=new ArrayList<>();HashSet<String> unique=new HashSet<>();
+            for(String name:columns){name=identifier(name);need(unique.add(name),"ARCHIVE_COLUMN_DUPLICATE");c.add(name);}
+            orderedColumns=Collections.unmodifiableList(c);need(primaryKeys!=null,"ARCHIVE_PK_NULL");
+            primary=new boolean[c.size()];ArrayList<String> p=new ArrayList<>();int last=-1;
+            for(String name:primaryKeys){int i=c.indexOf(name);need(i>last,"ARCHIVE_PK_ORDINAL");last=i;primary[i]=true;p.add(name);}
+            primaryKeyColumns=Collections.unmodifiableList(p);
+        }
+        private String metadata() {
+            // Fixed ASCII keys in code-point order; ordered lists preserve schema column order.
+            return "{\"orderedColumns\":"+list(orderedColumns)+",\"primaryKeyColumns\":"+list(primaryKeyColumns)
+                +",\"schemaHash\":"+StrictCanonicalJson.write(schemaHash)+",\"snapshotId\":"+StrictCanonicalJson.write(snapshotId)
+                +",\"sqliteEncoding\":"+StrictCanonicalJson.write(sqliteEncoding)+",\"tableName\":"+StrictCanonicalJson.write(tableName)+"}";
+        }
+        static TableShape parse(byte[] utf8)throws IOException {
+            String text=new String(utf8,StandardCharsets.UTF_8);check(Arrays.equals(utf8,text.getBytes(StandardCharsets.UTF_8)),"ARCHIVE_UTF8");
+            try{JSONObject o=new JSONObject(text);HashSet<String> keys=new HashSet<>();Iterator<String> it=o.keys();while(it.hasNext())keys.add(it.next());
+                check(keys.equals(new HashSet<>(Arrays.asList("orderedColumns","primaryKeyColumns","schemaHash","snapshotId","sqliteEncoding","tableName"))),"ARCHIVE_METADATA_KEYS");
+                TableShape result=new TableShape(string(o,"tableName"),string(o,"schemaHash"),string(o,"sqliteEncoding"),strings(o.get("orderedColumns")),strings(o.get("primaryKeyColumns")),string(o,"snapshotId"));
+                // This rejects duplicate keys, coercions, whitespace, unordered keys and alternate escapes.
+                check(result.metadata().equals(text),"ARCHIVE_METADATA_CANONICAL");return result;
+            }catch(JSONException|IllegalArgumentException e){throw new IOException("ARCHIVE_METADATA",e);}
+        }
+        private static String string(JSONObject o,String key)throws JSONException,IOException{Object v=o.get(key);check(v instanceof String,"ARCHIVE_METADATA_TYPE");return (String)v;}
+        private static List<String> strings(Object v)throws JSONException,IOException{check(v instanceof JSONArray,"ARCHIVE_METADATA_ARRAY");JSONArray a=(JSONArray)v;check(a.length()<=MAX_COLUMNS,"ARCHIVE_COLUMN_COUNT");ArrayList<String> out=new ArrayList<>();for(int i=0;i<a.length();i++){Object s=a.get(i);check(s instanceof String,"ARCHIVE_COLUMN_TYPE");out.add((String)s);}return out;}
+        private static String list(List<String> strings){StringBuilder b=new StringBuilder("[");for(int i=0;i<strings.size();i++){if(i>0)b.append(',');b.append(StrictCanonicalJson.write(strings.get(i)));}return b.append(']').toString();}
+    }
+    public static final class ArchiveDigest {
+        public final String rawSha256,rowHashChainRoot;
+        public final long rowCount,byteCount;
+        private ArchiveDigest(byte[] sha,long count,byte[] chain,long bytes){rawSha256=hex(sha);rowCount=count;rowHashChainRoot=hex(chain);byteCount=bytes;}
+    }
+    /** Canonical PK key: tag1, uint16 count, then ordinal + full typed cell per non-NULL PK. */
+    public static byte[] primaryKey(TableShape shape,RowSource row)throws IOException {
+        KeyBuilder key=new KeyBuilder(shape);byte[] buffer=new byte[BUFFER];
+        for(int i=0;i<shape.primary.length;i++)if(shape.primary[i]){
+            int type=row.type(i);long n=row.length(i);cell(type,n);check(type!=NULL,"ARCHIVE_NULL_PK_REQUIRES_ROWID");
+            key.cell(i,type,n);if(type==INTEGER||type==REAL){byte[] bits=longBytes(row.scalarBits(i));key.bytes(bits,0,8);}
+            else for(long offset=0;offset<n;){int want=(int)Math.min(BUFFER,n-offset);int got=row.readBytes(i,offset,buffer,want);check(got>0&&got<=want,"ARCHIVE_SHORT_SOURCE");key.bytes(buffer,0,got);offset+=got;}
+        }
+        check(!shape.primaryKeyColumns.isEmpty(),"ARCHIVE_NO_PK");return key.value();
+    }
+    /** Snapshot-local key is never treated as a permanent business identity. */
+    public static byte[] snapshotLocalKey(TableShape shape,long rowid) {
+        byte[] key=new byte[41];key[0]=2;System.arraycopy(unhex(shape.snapshotId),0,key,1,32);System.arraycopy(longBytes(rowid),0,key,33,8);return key;
+    }
+    public static ArchiveDigest writeTable(TableShape shape,RowSource rows,OutputStream out,CancelCheck cancel)throws IOException {
+        Objects.requireNonNull(shape);Objects.requireNonNull(rows);Objects.requireNonNull(cancel);
+        byte[] metadata=shape.metadata().getBytes(StandardCharsets.UTF_8);check(metadata.length<=MAX_METADATA,"ARCHIVE_METADATA_SIZE");
+        Meter m=new Meter(Objects.requireNonNull(out));byte[] buffer=new byte[BUFFER];cancel.check();
+        m.write(MAGIC);m.u16(1);m.u32(metadata.length);m.write(metadata);byte[] chain=sha(metadata);long count=0;
+        while(rows.next()){
+            cancel.check();byte[] key=rows.canonicalKey();keyBound(key,shape);KeyBuilder pk=new KeyBuilder(shape);boolean nullPk=false;
+            m.row=digest();m.u8(0x52);m.u32(key.length);m.write(key);m.u16(shape.orderedColumns.size());
+            for(int col=0;col<shape.orderedColumns.size();col++){
+                cancel.check();int type=rows.type(col);long n=rows.length(col);cell(type,n);m.u8(type);m.i64(n);
+                boolean isPk=shape.primary[col];if(isPk){nullPk|=type==NULL;if(key[0]==1)pk.cell(col,type,n);}
+                if(type==INTEGER||type==REAL){byte[] bits=longBytes(rows.scalarBits(col));m.write(bits);if(isPk&&key[0]==1)pk.bytes(bits,0,8);}
+                else for(long offset=0;offset<n;){cancel.check();int want=(int)Math.min(BUFFER,n-offset);int got=rows.readBytes(col,offset,buffer,want);
+                    check(got>0&&got<=want,"ARCHIVE_SHORT_SOURCE");m.write(buffer,0,got);if(isPk&&key[0]==1)pk.bytes(buffer,0,got);offset+=got;}
+            }
+            verifyKey(shape,key,pk,nullPk);byte[] rowHash=m.row.digest();m.row=null;m.write(rowHash);chain=chain(chain,rowHash);count=add(count,1);
+        }
+        cancel.check();m.u8(0x45);m.i64(count);m.write(chain);byte[] prefix=m.prefix.digest();m.prefix=null;m.write(prefix);out.flush();
+        return new ArchiveDigest(m.all.digest(),count,chain,m.count);
+    }
+    public static ArchiveDigest readVerify(InputStream in,RowConsumer sink,CancelCheck cancel)throws IOException {
+        Objects.requireNonNull(sink);Objects.requireNonNull(cancel);Reader r=new Reader(Objects.requireNonNull(in));cancel.check();
+        check(Arrays.equals(r.bytes(6),MAGIC)&&r.u16()==1,"ARCHIVE_VERSION");long size=r.u32();check(size<=MAX_METADATA,"ARCHIVE_METADATA_SIZE");
+        byte[] metadata=r.bytes((int)size);TableShape shape=TableShape.parse(metadata);sink.beginTable(shape);byte[] chain=sha(metadata),buffer=new byte[BUFFER];long count=0;
+        for(;;){cancel.check();r.row=digest();int tag=r.u8();
+            if(tag==0x45){r.row=null;long claimed=r.i64();check(claimed==count,"ARCHIVE_ROW_COUNT");check(MessageDigest.isEqual(chain,r.bytes(32)),"ARCHIVE_CHAIN");
+                byte[] expected=r.prefix.digest();r.prefix=null;check(MessageDigest.isEqual(expected,r.bytes(32)),"ARCHIVE_STREAM_HASH");check(in.read()==-1,"ARCHIVE_TRAILING_BYTES");
+                ArchiveDigest verified=new ArchiveDigest(r.all.digest(),count,chain,r.count);sink.endTable(verified);return verified;}
+            check(tag==0x52,"ARCHIVE_ROW_TAG");long kl=r.u32();check(kl>=1&&kl<=MAX_KEY,"ARCHIVE_KEY_SIZE");byte[] key=r.bytes((int)kl);keyBound(key,shape);
+            check(r.u16()==shape.orderedColumns.size(),"ARCHIVE_COLUMN_COUNT");sink.beginRow(count,key.clone());KeyBuilder pk=new KeyBuilder(shape);boolean nullPk=false;
+            for(int col=0;col<shape.orderedColumns.size();col++){
+                cancel.check();int type=r.u8();long n=r.i64();cell(type,n);sink.cellHeader(col,type,n);boolean isPk=shape.primary[col];
+                if(isPk){nullPk|=type==NULL;if(key[0]==1)pk.cell(col,type,n);}
+                for(long offset=0;offset<n;){cancel.check();int want=(int)Math.min(BUFFER,n-offset);r.read(buffer,0,want);if(isPk&&key[0]==1)pk.bytes(buffer,0,want);sink.cellBytes(col,buffer,0,want);offset+=want;}
+            }
+            verifyKey(shape,key,pk,nullPk);byte[] rowHash=r.row.digest();r.row=null;check(MessageDigest.isEqual(rowHash,r.bytes(32)),"ARCHIVE_ROW_HASH");
+            chain=chain(chain,rowHash);count=add(count,1);sink.endRow(hex(rowHash));
+        }
+    }
+    private static void cell(int type,long length)throws IOException{check(type>=NULL&&type<=BLOB&&length>=0,"ARCHIVE_CELL_TYPE_OR_LENGTH");check(type==NULL?length==0:type==INTEGER||type==REAL?length==8:true,"ARCHIVE_CELL_LENGTH");}
+    private static void keyBound(byte[] key,TableShape s)throws IOException{check(key!=null&&key.length>=1&&key.length<=MAX_KEY,"ARCHIVE_KEY_SIZE");
+        check(key[0]==1||key[0]==2,"ARCHIVE_KEY_TAG");if(key[0]==2)check(key.length==41&&MessageDigest.isEqual(Arrays.copyOfRange(key,1,33),unhex(s.snapshotId)),"ARCHIVE_SNAPSHOT_KEY");}
+    private static void verifyKey(TableShape shape,byte[] key,KeyBuilder pk,boolean nullPk)throws IOException{
+        if(key[0]==1)check(!shape.primaryKeyColumns.isEmpty()&&!nullPk&&Arrays.equals(key,pk.value()),"ARCHIVE_PK_MISMATCH");
+        else check(shape.primaryKeyColumns.isEmpty()||nullPk,"ARCHIVE_UNNECESSARY_ROWID_KEY");
+    }
+    private static final class KeyBuilder {
+        final ByteArrayOutputStream out=new ByteArrayOutputStream();boolean selected;
+        KeyBuilder(TableShape shape)throws IOException{put(new byte[]{1,(byte)(shape.primaryKeyColumns.size()>>>8),(byte)shape.primaryKeyColumns.size()},0,3);}
+        void cell(int col,int type,long n)throws IOException{selected=true;put(new byte[]{(byte)(col>>>8),(byte)col,(byte)type},0,3);put(longBytes(n),0,8);check(n<=MAX_KEY-out.size(),"ARCHIVE_KEY_SIZE");}
+        void bytes(byte[] b,int start,int n)throws IOException{if(selected)put(b,start,n);}
+        void put(byte[] b,int start,int n)throws IOException{check(n>=0&&n<=MAX_KEY-out.size(),"ARCHIVE_KEY_SIZE");out.write(b,start,n);}
+        byte[] value(){return out.toByteArray();}
+    }
+    private static class Hashes {
+        final MessageDigest all=digest();MessageDigest prefix=digest(),row;long count;
+        void update(byte[] b,int off,int n)throws IOException{count=add(count,n);all.update(b,off,n);if(prefix!=null)prefix.update(b,off,n);if(row!=null)row.update(b,off,n);}
+    }
+    private static final class Meter extends Hashes {
+        final OutputStream out;Meter(OutputStream o){out=o;}
+        void write(byte[] b)throws IOException{write(b,0,b.length);}
+        void write(byte[] b,int off,int n)throws IOException{out.write(b,off,n);update(b,off,n);}
+        void u8(int v)throws IOException{write(new byte[]{(byte)v});}
+        void u16(int v)throws IOException{write(new byte[]{(byte)(v>>>8),(byte)v});}
+        void u32(long v)throws IOException{write(new byte[]{(byte)(v>>>24),(byte)(v>>>16),(byte)(v>>>8),(byte)v});}
+        void i64(long v)throws IOException{write(longBytes(v));}
+    }
+    private static final class Reader extends Hashes {
+        final InputStream in;Reader(InputStream i){in=i;}
+        void read(byte[] b,int off,int len)throws IOException{int at=0;while(at<len){int n=in.read(b,off+at,len-at);if(n<0)throw new EOFException("ARCHIVE_TRUNCATED");if(n==0)throw new IOException("ARCHIVE_NO_PROGRESS");update(b,off+at,n);at+=n;}}
+        byte[] bytes(int n)throws IOException{byte[] b=new byte[n];read(b,0,n);return b;}
+        int u8()throws IOException{return bytes(1)[0]&255;}
+        int u16()throws IOException{byte[] b=bytes(2);return (b[0]&255)<<8|b[1]&255;}
+        long u32()throws IOException{byte[] b=bytes(4);return ((long)(b[0]&255)<<24)|((long)(b[1]&255)<<16)|((long)(b[2]&255)<<8)|(b[3]&255);}
+        long i64()throws IOException{byte[] b=bytes(8);long v=0;for(byte x:b)v=(v<<8)|(x&255);return v;}
+    }
+    private static long add(long a,long b)throws IOException{if(a<0||b<0||a>Long.MAX_VALUE-b)throw new IOException("ARCHIVE_LENGTH_OVERFLOW");return a+b;}
+    private static byte[] longBytes(long n){byte[] b=new byte[8];for(int i=7;i>=0;i--){b[i]=(byte)n;n>>>=8;}return b;}
+    private static byte[] chain(byte[] a,byte[] b){MessageDigest d=digest();d.update(a);d.update(b);return d.digest();}
+    private static MessageDigest digest(){try{return MessageDigest.getInstance("SHA-256");}catch(NoSuchAlgorithmException e){throw new AssertionError(e);}}
+    private static byte[] sha(byte[] b){return digest().digest(b);}
+    private static String hex(byte[] b){StringBuilder s=new StringBuilder(b.length*2);for(byte v:b){s.append("0123456789abcdef".charAt((v&255)>>>4));s.append("0123456789abcdef".charAt(v&15));}return s.toString();}
+    private static byte[] unhex(String h){byte[] b=new byte[32];for(int i=0;i<32;i++)b[i]=(byte)Integer.parseInt(h.substring(2*i,2*i+2),16);return b;}
+    private static String identifier(String s){need(s!=null&&!s.isEmpty()&&s.indexOf('\0')<0&&s.getBytes(StandardCharsets.UTF_8).length<=256,"ARCHIVE_IDENTIFIER");StrictCanonicalJson.write(s);return s;}
+    private static String hash(String s){need(s!=null&&s.matches("[0-9a-f]{64}"),"ARCHIVE_HASH");return s;}
+    private static void need(boolean b,String why){if(!b)throw new IllegalArgumentException(why);}
+    private static void check(boolean b,String why)throws IOException{if(!b)throw new IOException(why);}
+}

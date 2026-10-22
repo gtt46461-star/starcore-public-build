@@ -1,0 +1,69 @@
+{
+  "source_commit": "452854cc8a82933d5547e1b81789beb22dbe4c49",
+  "status": "PASS",
+  "scope": "FINAL_RELEASE_BYTECODE_REGRESSION_HOST_NOT_DEVICE",
+  "groups": [
+    {
+      "name": "poll29",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r75-final-fetch29",
+      "result": {
+        "status": "PASS",
+        "checks": 29,
+        "scope": "ACTUAL_POLL_GATE_TRANSPORT_SYNTHETIC_RESPONSES_NOT_DEVICE"
+      },
+      "files": {
+        "verification/r75/evidence/final_fetch_poll29_test.log": "f229a1de6299646f7dba83cb3395b84614c2483fdb6dd9dac2e81ea58a711e9d",
+        "verification/r75/evidence/final_fetch_poll29_result.json": "45091dce5da5df461eb8b36a29424709df5c883f238aa8126d1685b6a6cea002",
+        "verification/r75/evidence/final_fetch_poll29_product-bytecode.json": "7e4b748a08c71d5178a76ba25f8d55b8a6162021350337fbbe9794d243dcd44d",
+        "verification/r75/evidence/final_fetch_poll29_sources.json": "f4891f38609e6cf6a90c4615635127c72461a6d47bd3d279b97206dedb52b516"
+      },
+      "bytecode_mode": "FINAL_BYTECODE_NO_PRODUCT_OVERLAY",
+      "product_class_count": 32,
+      "bytecode_unchanged": true
+    },
+    {
+      "name": "callback45",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r75-final-callback45",
+      "result": {
+        "status": "PASS",
+        "checks": 45,
+        "scope": "ACTUAL_SERVICE_CALLBACK_REAL_SQLITE_INJECTED_OWNER_WORK_NOT_DEVICE"
+      },
+      "files": {
+        "verification/r75/evidence/final_fetch_callback45_test.log": "0cc32c60994b0115f3ba2504861ecb0cede5987137263ba1de267ef994e94ad4",
+        "verification/r75/evidence/final_fetch_callback45_result.json": "dfeaf0c443644a5dda4f0ffe616387f9f6cfec1d9c3e40b559b66d9f98d7ea0e",
+        "verification/r75/evidence/final_fetch_callback45_product-bytecode.json": "26d3f51faf7ffd16527519f608be8cd7052e9cda88a61e7f2158a955639fc21c",
+        "verification/r75/evidence/final_fetch_callback45_source-hashes.json": "36969d7e77442314c28b213d1eebd68ce692b0d49d86b38190a72aad50312cca",
+        "verification/r75/evidence/final_fetch_callback45_steps.json": "dce678b88710154693e42a721a1c76ec5864c658c707d7fa88dbd6618541cf0f"
+      },
+      "bytecode_mode": "FINAL_SERVICE_BYTECODE_WITH_EXPLICIT_OWNER_WORK_FIXTURES",
+      "product_class_count": 60,
+      "bytecode_unchanged": true
+    },
+    {
+      "name": "actual_callback33",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r75-final-callback-actual33",
+      "result": {
+        "status": "PASS",
+        "checks": 33,
+        "scope": "ACTUAL_PRODUCT_CALLBACK_AND_OWNERS_REAL_SQLITE_ANDROID_HOST_ADAPTERS_EMPTY_HISTORY"
+      },
+      "files": {
+        "verification/r75/evidence/final_fetch_actual_callback33_test.log": "10959b6d7c0bdc3cf43e096c740c5e3766eeb8216f26315b673b096a5ca34097",
+        "verification/r75/evidence/final_fetch_actual_callback33_result.json": "44f02ebd43c808697fcbb74e726985239324178765259e1223cf496f440fcb0b",
+        "verification/r75/evidence/final_fetch_actual_callback33_product-bytecode.json": "95a30fc05dc33c4f6aa896f9c0675f0c5ae4fcd93624202f361e5f7ca5f31da0",
+        "verification/r75/evidence/final_fetch_actual_callback33_source-hashes.json": "93b664e83e7bbcb6bd158487b8e59c8e82d5906c8664f59c5d25b903cd90b45b",
+        "verification/r75/evidence/final_fetch_actual_callback33_steps.json": "af5d2e41d030cec7cbf0d9d64a245b982eeb5085bba8ad24725361cae8242b4b"
+      },
+      "bytecode_mode": "FINAL_BYTECODE_NO_PRODUCT_OVERLAY",
+      "product_class_count": 143,
+      "bytecode_unchanged": true
+    }
+  ],
+  "limitations": [
+    "Provider HTTP payloads are synthetic; this does not establish live source publication latency.",
+    "Callback45 explicitly injects six owner-work collaborators; actual_callback33 replaces no production class.",
+    "Actual callback fixture has empty history and bypasses Android process startup; it proves owner rotation, fairness and error handling, not training throughput or device scheduling.",
+    "All tested owners use real monotonic time and real SQLite; the parent callback remains 2000ms."
+  ]
+}

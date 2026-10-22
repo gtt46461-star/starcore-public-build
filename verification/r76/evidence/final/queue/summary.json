@@ -1,0 +1,749 @@
+{
+  "status": "PASS",
+  "scope": "CONTROLLED_REPORT_ROWS_SQL_VM_WORK_NOT_PHONE_LATENCY",
+  "semantic_checks": 9,
+  "profiles": {
+    "report": {
+      "MAINTENANCE": {
+        "ready": 22,
+        "baseline_steps": 72342,
+        "current_steps": 1137,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            61,
+            "SEARCH t USING INDEX idx_r967_one_active_lane (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            40,
+            35,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            59,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            64,
+            59,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            84,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "TRAIN_CANDIDATE": {
+        "ready": 6,
+        "baseline_steps": 474,
+        "current_steps": 507,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            61,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            66,
+            61,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            85,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            90,
+            85,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            110,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "POST_TRAIN": {
+        "ready": 0,
+        "baseline_steps": 4740,
+        "current_steps": 5532,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            61,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            66,
+            61,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            85,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            90,
+            85,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            110,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "FREEZE_CANDIDATE": {
+        "ready": 0,
+        "baseline_steps": 164,
+        "current_steps": 126,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            61,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            66,
+            61,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            85,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            90,
+            85,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            110,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "LOCAL_ORPHAN": {
+        "rows": 0,
+        "baseline_steps": 10625,
+        "current_steps": 149,
+        "baseline_plan": [
+          [
+            2,
+            0,
+            216,
+            "SCAN v57_research_task_r967"
+          ]
+        ],
+        "current_plan": [
+          [
+            30,
+            0,
+            214,
+            "SCAN v57_research_task_r967 USING INDEX idx_r975_task_unresolved"
+          ]
+        ]
+      }
+    },
+    "expanded": {
+      "MAINTENANCE": {
+        "ready": 22,
+        "baseline_steps": 1222198,
+        "current_steps": 1029,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            61,
+            "SEARCH t USING INDEX idx_r967_one_active_lane (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            40,
+            35,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            59,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            64,
+            59,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            84,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "TRAIN_CANDIDATE": {
+        "ready": 6,
+        "baseline_steps": 474,
+        "current_steps": 507,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            61,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            66,
+            61,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            85,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            90,
+            85,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            110,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "POST_TRAIN": {
+        "ready": 0,
+        "baseline_steps": 4740,
+        "current_steps": 5532,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            61,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            66,
+            61,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            85,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            90,
+            85,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            110,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "FREEZE_CANDIDATE": {
+        "ready": 0,
+        "baseline_steps": 164,
+        "current_steps": 126,
+        "baseline_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            35,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            39,
+            35,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            83,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            87,
+            83,
+            46,
+            "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            109,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "current_plan": [
+          [
+            4,
+            0,
+            62,
+            "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+          ],
+          [
+            61,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 1"
+          ],
+          [
+            66,
+            61,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            85,
+            0,
+            0,
+            "CORRELATED SCALAR SUBQUERY 2"
+          ],
+          [
+            90,
+            85,
+            50,
+            "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+          ],
+          [
+            110,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ]
+      },
+      "LOCAL_ORPHAN": {
+        "rows": 0,
+        "baseline_steps": 160623,
+        "current_steps": 147,
+        "baseline_plan": [
+          [
+            2,
+            0,
+            216,
+            "SCAN v57_research_task_r967"
+          ]
+        ],
+        "current_plan": [
+          [
+            30,
+            0,
+            214,
+            "SCAN v57_research_task_r967 USING INDEX idx_r975_task_unresolved"
+          ]
+        ]
+      }
+    }
+  },
+  "predicates_sha256": {
+    "baseline": "2ca6dbdbed81235bc784c6e62ba974faeb4f2d91a1b43ec8908231ad33faae01",
+    "current": "11c24bfef691b7f0f9579ae1d35db56a61b4b1ef7871484143c3d52e1ba1ea91"
+  },
+  "commands": [
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/javac",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "-d",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/classes",
+      "/workspace/scratch/7a6032548233/starcore/verification/r76/training_ReadyQueueR76.java",
+      "/workspace/scratch/7a6032548233/starcore/verification/r72/realtime/android/os/SystemClock.java"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_ReadyQueueR76",
+      "sql",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/current-ready.sql"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "/workspace/scratch/7a6032548233/starcore/verification/r76/training_ready_profile.py",
+      "--database",
+      "/workspace/scratch/e2544c9906f6/r76-training-report/report.db",
+      "--baseline",
+      "/workspace/scratch/7a6032548233/starcore/verification/r76/evidence/training_r75_ready_predicate.sql",
+      "--current",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/current-ready.sql",
+      "--out",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/profile"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_ReadyQueueR76",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r76-final-ede9746f/queue/profile/queue.db"
+    ]
+  ],
+  "product_classes": "/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+  "explicit_product_overlays": [],
+  "actual_claim_yield_owner": "PASS"
+}

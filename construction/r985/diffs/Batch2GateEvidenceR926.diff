@@ -1,0 +1,53 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java b/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java
+index bb38413..1b03447 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java
+@@ -338,6 +338,26 @@ public final class Batch2GateEvidenceR926 {
+         return V51AuthorizationCore.verify(persisted,compiled);
+     }
+ 
++    /** Validate an existing non-BET owner envelope; this never authorizes a Trade. */
++    private static boolean nonBetAuthorizationMatches(String action,String authorization,V51CompiledActionContract compiled){
++        if(authorization==null)return false;
++        String[] fields=authorization.split("\\|",-1);
++        if(fields.length!=8||!"V51AUTH".equals(fields[0])||!action.equals(fields[4])||"BET".equals(action))return false;
++        try{
++            V51Models.AuthorizedDecision persisted=new V51Models.AuthorizedDecision(
++                    V51Enums.DecisionAction.valueOf(action),V51Enums.RejectCode.valueOf(fields[5]),compiled.selected,
++                    fields[1],authorization,V51ArtifactBundleManifest.BUNDLE_HASH);
++            if(V51AuthorizationCore.verify(persisted,compiled))return true;
++            // decideV51B12 tightens a rejected input into SHADOW and removes its exact proof.
++            // Reconstruct that existing owner's contract for verification only, never authorize.
++            V51SelectiveRiskController.Result shadow=new V51SelectiveRiskController.Result(
++                    V51Enums.Lane.SHADOW,V51Enums.RejectCode.valueOf(fields[5]),null,false,"B12_HARD_BLOCK");
++            V51CompiledActionContract tightened=new V51CompiledActionContract(compiled.selected,shadow,compiled.stability,
++                    compiled.featureHash,compiled.stateHash,compiled.expertHash,compiled.probabilityHash,compiled.actionHash);
++            return V51AuthorizationCore.verify(persisted,tightened);
++        }catch(IllegalArgumentException invalid){return false;}
++    }
++
+     /**
+      * A Research contribution can never use a missing/revoked/out-of-range certificate as a
+      * provenance substitute. Baseline/no-contribution is explicitly hashed as NOT_APPLICABLE rather
+@@ -370,6 +390,21 @@ public final class Batch2GateEvidenceR926 {
+                     ||!proof.evidence.equals(contributionEvidence)
+                     ||!Batch2ContractCoreR926.isSha256(contributionRecord))
+                 throw new IllegalStateException("B11_EXACT_CERTIFICATE_CONTRIBUTION_MISMATCH");
++            String persistedAction, persistedAuthorization;
++            try(Cursor decision=BudgetedQueryR927.query(db,"SELECT decision_action,authorization_hash FROM "+V51Repository.SELECTED+" WHERE target_issue=?",new String[]{targetIssue})){
++                if(!decision.moveToFirst())throw new IllegalStateException("B11_EXACT_DECISION_MISSING");
++                persistedAction=decision.getString(0);persistedAuthorization=decision.getString(1);
++            }
++            if(!"BET".equals(persistedAction)){
++                if(!nonBetAuthorizationMatches(persistedAction,persistedAuthorization,compiled))
++                    throw new IllegalStateException("B11_EXACT_NO_REAL_AUTHORIZATION_MISMATCH");
++                try(Cursor real=BudgetedQueryR927.query(db,"SELECT 1 FROM r974_exact_real_receipt WHERE target_issue=? UNION ALL SELECT 1 FROM "+DbHelper.TABLE_TRADES+" WHERE target_issue=? AND action='BET' LIMIT 1",new String[]{targetIssue,targetIssue})){
++                    if(real.moveToFirst())throw new IllegalStateException("B11_EXACT_NO_REAL_RECEIPT_CONFLICT");
++                }
++                String certificateBlock=CertifiedPredictionR974.verifyCertificate(store,proof);
++                return new CertificateEvidence(V51ChecksumEngine.sha256("E02D_EXACT_NO_REAL|"+targetIssue+'|'+proof.hash+'|'+persistedAuthorization+'|'+certificateBlock),
++                        "R974_EXACT_NO_REAL_AUTHORIZATION|certificate_reason="+(certificateBlock.isEmpty()?"GATE_REJECTED":certificateBlock));
++            }
+             String invalid=CertifiedPredictionR974.verifyCertificate(store,proof);
+             if(!invalid.isEmpty())throw new IllegalStateException("B11_EXACT_CERTIFICATE_INVALID:"+invalid);
+             // These are the immutable rows just written in THIS canonical transaction. Never

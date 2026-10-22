@@ -1,0 +1,37 @@
+package com.ethk3.novaonepro.r952;
+import java.util.*;
+import android.database.Cursor;import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+/** Five continuous Atom regime scores -> separate categorical argmax5 namespace. Never resource-regime4. */
+public final class AtomRegimePolicyCP12 {
+ private AtomRegimePolicyCP12(){}
+ public static final String POLICY="CP12_ATOM_REGIME_ARGMAX5_V1", POLICY_HASH=MatrixProjectionCP12.hash(POLICY);
+ public static final String[] LABELS={"LOW_ENTROPY","HIGH_ENTROPY","TRENDING","MEAN_REVERTING","DRIFTING"};
+ public static final class Receipt {
+  public final String target,historyHash,scoreHash;public final int position,regime;public final long capturedAt;private final double[] scores;
+  private Receipt(String target,int position,String historyHash,double[] scores,long at){this.target=target;this.position=position;this.historyHash=historyHash;this.scores=scores.clone();capturedAt=at;int best=0;for(int i=1;i<5;i++)if(scores[i]>scores[best])best=i;regime=best;StringBuilder b=new StringBuilder(POLICY).append('|').append(target).append('|').append(position).append('|').append(historyHash);for(double p:scores)b.append('|').append(Double.toHexString(p));scoreHash=MatrixProjectionCP12.hash(b.toString());}
+  public double[] scores(){return scores.clone();}
+ }
+ public static Receipt prepareIfAvailableCP12(DbStore store,PITSnapshotContractR952 pit,int position,long capturedAt){
+  if(pit.history.size()>=100)return prepare(pit,position,capturedAt);
+  int n=0;try(Cursor c=store.readable().rawQuery("SELECT COUNT(*) FROM (SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 AND issue<? ORDER BY issue DESC LIMIT 100)",new String[]{pit.targetIssue})){if(c.moveToFirst())n=c.getInt(0);}if(n<100)return null;
+  return prepare(PITSnapshotContractR952.capture(store,pit.targetIssue,100),position,capturedAt);
+ }
+ public static Receipt prepare(PITSnapshotContractR952 pit,int position,long capturedAt){
+  if(pit==null||pit.history.size()<100||capturedAt<=0||position<1||position>10)throw new IllegalArgumentException("REGIME5_HISTORY100_REQUIRED");pit.requireConsecutive();
+  StringBuilder proof=new StringBuilder("CP12_REGIME_CATALOG_W50_HISTORY100");double[] score=new double[5];long targetOrdinal=MatrixSourceRouterCP12.issueOrdinal(pit.targetIssue);
+  try(AtomWindowCP4 ring=new AtomWindowCP4(RuntimeMemoryGuardR811.algorithmAtomMatrixBudget())){for(int i=99;i>=0;i--){Models.Draw d=pit.history.get(i);int digit=d.getNumberAtPosition(position)-1;long ordinal=MatrixSourceRouterCP12.issueOrdinal(d.issue);ring.append(ordinal,digit);proof.append('|').append(d.issue).append(':').append(digit);}
+   for(int i=0;i<5;i++){AtomEvaluatorCP4.Spec spec=new AtomEvaluatorCP4.Spec("REGIME_SCORE",50,0,0,0,0,0,0,0,.5,LABELS[i]);AtomEvaluatorCP4.Result result=AtomEvaluatorCP4.evaluate(spec,ring,null,targetOrdinal);if(!result.present)throw new IllegalStateException("REGIME5_SCORE_UNAVAILABLE/"+LABELS[i]);score[i]=result.value;}
+  }
+  return new Receipt(pit.targetIssue,position,MatrixProjectionCP12.hash(proof.toString()),score,capturedAt);
+ }
+ public static void commit(SQLiteDatabase db,Receipt receipt){
+  if(!db.inTransaction())throw new IllegalStateException("REGIME5_TRANSACTION");
+  try(Cursor drawn=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue=?",new String[]{receipt.target})){if(drawn.moveToFirst())throw new IllegalStateException("REGIME5_POSTDRAW_CREATION");}
+  java.nio.ByteBuffer buffer=java.nio.ByteBuffer.allocate(40);for(double p:receipt.scores)buffer.putDouble(p);
+  db.execSQL("INSERT OR IGNORE INTO research_matrix_regime5_cp12(target_issue,position,policy_hash,history_hash,score_hash,regime_id,scores,captured_at) VALUES(?,?,?,?,?,?,?,?)",new Object[]{receipt.target,receipt.position,POLICY_HASH,receipt.historyHash,receipt.scoreHash,receipt.regime,buffer.array(),receipt.capturedAt});
+  try(Cursor c=db.rawQuery("SELECT policy_hash,history_hash,score_hash,regime_id FROM research_matrix_regime5_cp12 WHERE target_issue=? AND position=?",new String[]{receipt.target,Integer.toString(receipt.position)})){
+   if(!c.moveToFirst()||!POLICY_HASH.equals(c.getString(0))||!receipt.historyHash.equals(c.getString(1))||!receipt.scoreHash.equals(c.getString(2))||receipt.regime!=c.getInt(3))throw new IllegalStateException("REGIME5_FROZEN_IDENTITY_DRIFT");
+  }
+ }
+}

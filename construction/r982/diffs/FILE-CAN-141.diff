@@ -1,0 +1,66 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+index 3438e51..044c2ce 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java
+@@ -122,9 +122,10 @@ public final class ResearchLearningContinuityR912 {
+     }
+ 
+     private static String readyMaintenanceCandidate(SQLiteDatabase db,int start,long now) {
++        ResearchTaskQueueR967.reapExpiredOwnedCP4(db);
+         String best=null;int bestDistance=CONTINUITY_LANES+1;
+         String sql="SELECT t.candidate_id FROM "+ResearchTaskQueueR967.TABLE+" t WHERE "+ResearchTaskQueueR967.readyPredicate();
+-        try(Cursor c=db.rawQuery(sql,new String[]{ResearchTaskQueueR967.MAINTENANCE,Long.toString(now),Long.toString(now),Long.toString(now+ResearchTaskQueueR967.LEASE_MS)})){
++        try(Cursor c=db.rawQuery(sql,ResearchTaskQueueR967.readyArgsCP4(ResearchTaskQueueR967.MAINTENANCE,now))){
+             while(c.moveToNext()){
+                 String candidate=c.getString(0);
+                 if(candidate==null||!candidate.startsWith("lane:"))continue;
+@@ -162,7 +163,14 @@ public final class ResearchLearningContinuityR912 {
+         // for the draw and stranded the backlog until a later watermark happened to reopen it.
+         try(Cursor c=db.rawQuery("SELECT 1 FROM r952_research_outbox WHERE state NOT IN ('COMPLETED','DEPENDENCY_RETIRED') LIMIT 1",null)){if(c.moveToFirst())return true;}
+         if(!exists(db,ResearchTaskQueueR967.TABLE))return false;
+-        try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchTaskQueueR967.TABLE+" WHERE kind='POST_TRAIN' AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL') LIMIT 1",null)){return c.moveToFirst();}
++        try(Cursor c=db.rawQuery("SELECT 1 FROM "+ResearchTaskQueueR967.TABLE+" WHERE kind IN('POST_TRAIN','TRAIN_CANDIDATE','FREEZE_CANDIDATE','RESEARCH_ACTION') AND status NOT IN ('COMPLETED','EXPIRED','FAILED_TERMINAL') LIMIT 1",null)){return c.moveToFirst();}
++    }
++    /** Do not serve lane13 after only TRAIN: the other five wheel owners must run
++     * even when no legacy outbox rows exist to keep the lane awake. */
++    static boolean directorTurnCompleteCP12(SQLiteDatabase db){
++        try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r975_director_priority'",null)){
++            return c.moveToFirst()&&"TRAIN".equals(c.getString(0));
++        }
+     }
+     static boolean terminalReviewOutcome(String detail) {
+         return ResearchEvolutionHeartbeatR947.terminalReview(detail);
+@@ -256,20 +264,14 @@ public final class ResearchLearningContinuityR912 {
+             case 1: return ResearchPredrawSettlementPumpR908.drainBatch(store,12,slice).status;
+             case 2: return "POSTCOMMIT_MIRRORED="+SettlementPostCommitSidecarR909.drain(store,8,slice);
+             case 3: { ResearchOrchestratorR906.Result r=ResearchOrchestratorR906.pulse(store,slice);return r.success?r.status:"YIELD_OR_ERROR:"+r.status; }
+-            case 4: {ResearchTinyDeepLearnerR909.Result r=ResearchTinyDeepLearnerR909.updateOne(store);return r.success?"UPDATED|"+r.status:"NO_NEW_LABEL".equals(r.status)?r.status:"ERROR:"+r.status;}
+-            case 5: {
+-                // Keep the immutable historical genome archive advancing independently of whether
+-                // a replacement slot happens to open on this pulse. Import is bounded/idempotent;
+-                // creation, evaluation and promotion still remain owned by their existing gates.
+-                String imported=HistoricalGenomeImportR967.maintain(store);
+-                return "HISTORICAL_IMPORT="+imported+"|"+AlgorithmEvolutionLifecycleR912.maintain(store).detail;
+-            }
++            case 4: return "RETIRED_CP12_MODERN_TRAINING_OWNER";
++            case 5: return "RETIRED_CP12_DIRECTOR_IMPORT_OWNER";
+             case 6: return FixedResearchWindowR932.maintainReviewed(store);
+             case 7: return ModuleAblationR932.maintainReviewed(store);
+             case 8: {int n=AlgorithmProofRecoveryR948.maintain(store,2);ResearchPlatformStoreR929.revokeStaleDependencies(store);return "PROOF_HEADS="+n;}
+             case 9: return FixedWindowCertificatePublisherR932.maintainReviewed(store);
+             case 10: ResearchCohortR932.maintain(store);return "COHORT_REVIEWED";
+-            case 11: PairedResearchChallengeR932.maintain(store);return "PAIRED_CHALLENGE_REVIEWED";
++            case 11: if(ResearchGatePlanR967.installed().isCp3)return PairedResearchChallengeR932.describeLatestCp4(store);PairedResearchChallengeR932.maintain(store);return "PAIRED_CHALLENGE_REVIEWED";
+             case 12:
+                 try(Cursor c=store.readable().rawQuery("SELECT target_issue FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" WHERE pre_draw_frozen=1 ORDER BY target_issue DESC LIMIT 1",null)){if(c.moveToFirst())Batch34ChallengerCertificateBridgeR930.sync(store,c.getString(0));}
+                 CertificateLifecycleProjectionR957.maintain(store);return "CERTIFICATE_PROJECTION_REVIEWED";
+@@ -277,7 +279,8 @@ public final class ResearchLearningContinuityR912 {
+                 int advanced=com.ethk3.novaonepro.r952.ResearchDirectorR952.pulse(store,slice);
+                 // Do not mark this watermark served while numeric or post-training work remains.
+                 // The same durable maintenance task yields and is reclaimed until the queue drains.
+-                return pendingOnline(store)?"R952_PENDING|advanced="+advanced:"R952_DRAINED|advanced="+advanced;
++                return pendingOnline(store)||!directorTurnCompleteCP12(store.readable())
++                        ?"R952_PENDING|advanced="+advanced:"R952_DRAINED|advanced="+advanced;
+             }
+             case 14: {
+                 long end=TimeSourceR811.monoNowMs()+slice;

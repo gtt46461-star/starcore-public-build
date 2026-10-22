@@ -1,0 +1,70 @@
+BOOT	27.346897	DELETE FROM app_state WHERE state_key IN (?,?,?,?,?,?)
+BOOT	24.571823	SELECT count(*) FROM research_row_revision_v2
+COLD_REACTIVATE	0.445465	SELECT state_key,state_value FROM app_state WHERE state_key IN (?,?,?,?,?,?)
+COLD_REACTIVATE	0.248085	BEGIN IMMEDIATE
+COLD_REACTIVATE	0.212633	SELECT state_value FROM app_state WHERE state_key=?
+COLD_REACTIVATE	0.10855	SELECT state_value FROM app_state WHERE state_key=?
+COLD_REACTIVATE	0.094429	SELECT state_value FROM app_state WHERE state_key=?
+COLD_REACTIVATE	0.111233	SELECT state_value FROM app_state WHERE state_key=?
+COLD_REACTIVATE	0.096482	SELECT state_value FROM app_state WHERE state_key=?
+COLD_REACTIVATE	0.154488	PRAGMA schema_version
+COLD_REACTIVATE	0.254364	CREATE TABLE IF NOT EXISTS research_trial_registry_r929(trial_id TEXT PRIMARY KEY NOT NULL,identity_hash TEXT NOT NULL UNIQUE,stage TEXT NOT NULL,status TEXT NOT NULL,dataset_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,source_hash TEXT NOT NULL,hyper_hash TEXT NOT NULL,family_id TEXT NOT NULL,structural_hash TEXT NOT NULL,split_hash TEXT NOT NULL,seed INTEGER NOT NULL,sealed_token_hash TEXT NOT NULL DEFAULT '',sealed_consumed INTEGER NOT NULL DEFAULT 0,output_hash TEXT NOT NULL DEFAULT '',failure_code TEXT NOT NULL DEFAULT '',registered_at INTEGER NOT NULL,started_at INTEGER NOT NULL DEFAULT 0,finished_at INTEGER NOT NULL DEFAULT 0,record_hash TEXT NOT NULL)
+COLD_REACTIVATE	0.141698	CREATE INDEX IF NOT EXISTS idx_r929_trial_family ON research_trial_registry_r929(family_id,status,registered_at)
+COLD_REACTIVATE	0.298028	CREATE TABLE IF NOT EXISTS research_model_bundle_r929(bundle_hash TEXT PRIMARY KEY NOT NULL,bundle_id TEXT NOT NULL,game TEXT NOT NULL,schema_hash TEXT NOT NULL,code_hash TEXT NOT NULL,manifest_hash TEXT NOT NULL,key_id TEXT NOT NULL,signature_algorithm TEXT NOT NULL,signature_verified INTEGER NOT NULL,artifact_count INTEGER NOT NULL,total_bytes INTEGER NOT NULL,created_issue TEXT NOT NULL,earliest_issue TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,verified_at INTEGER NOT NULL,activated_at INTEGER NOT NULL DEFAULT 0,rollback_of TEXT NOT NULL DEFAULT '',row_hash TEXT NOT NULL)
+COLD_REACTIVATE	0.124763	CREATE UNIQUE INDEX IF NOT EXISTS idx_r929_bundle_one_active ON research_model_bundle_r929(state) WHERE state='ACTIVE'
+COLD_REACTIVATE	0.327352	CREATE TABLE IF NOT EXISTS research_certificate_r929(candidate_key TEXT PRIMARY KEY NOT NULL,consumer TEXT NOT NULL,namespace TEXT NOT NULL,family_id TEXT NOT NULL,candidate_id TEXT NOT NULL,structural_hash TEXT NOT NULL,evidence_hash TEXT NOT NULL,level TEXT NOT NULL,state TEXT NOT NULL,bundle_hash TEXT NOT NULL,schema_hash TEXT NOT NULL,atom_graph_hash TEXT NOT NULL,model_hash TEXT NOT NULL,policy_hash TEXT NOT NULL,calibration_hash TEXT NOT NULL,domain_hash TEXT NOT NULL,trial_hash TEXT NOT NULL,selection_hash TEXT NOT NULL,code_hash TEXT NOT NULL,valid_from_issue TEXT NOT NULL,valid_until_issue TEXT NOT NULL,maximum_weight REAL NOT NULL,all_gates_pass INTEGER NOT NULL,gate_hash TEXT NOT NULL,reason TEXT NOT NULL,certificate_hash TEXT NOT NULL UNIQUE,issued_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,contract_revision TEXT NOT NULL DEFAULT '')
+COLD_REACTIVATE	2.371389	CREATE TABLE IF NOT EXISTS research_certificate_history_r932(certificate_hash TEXT PRIMARY KEY,candidate_key TEXT NOT NULL,canonical TEXT NOT NULL,evidence_hash TEXT NOT NULL,issued_at INTEGER NOT NULL)
+COLD_REACTIVATE	0.166095	CREATE TABLE IF NOT EXISTS research_certificate_revocation_r932(certificate_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,revoked_at INTEGER NOT NULL)
+COLD_REACTIVATE	0.14996	CREATE TABLE IF NOT EXISTS research_certificate_gate_r932(certificate_hash TEXT NOT NULL,gate_id TEXT NOT NULL,observed REAL NOT NULL,required REAL NOT NULL,pass INTEGER NOT NULL,source TEXT NOT NULL,source_hash TEXT NOT NULL,detail TEXT NOT NULL,gate_hash TEXT NOT NULL,PRIMARY KEY(certificate_hash,gate_id))
+COLD_REACTIVATE	0.97198	PRAGMA table_info(research_certificate_r929)
+COLD_REACTIVATE	0.145474	CREATE INDEX IF NOT EXISTS idx_r929_cert_lookup ON research_certificate_r929(consumer,candidate_id,state,valid_from_issue,valid_until_issue)
+COLD_REACTIVATE	0.209137	CREATE TABLE IF NOT EXISTS research_mainline_contribution_r929(target_issue TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,bundle_hash TEXT NOT NULL,requested_weight REAL NOT NULL,authorized_weight REAL NOT NULL,before_rank1_hash TEXT NOT NULL,after_rank1_hash TEXT NOT NULL,input_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,record_hash TEXT PRIMARY KEY NOT NULL,created_at INTEGER NOT NULL,UNIQUE(target_issue,consumer,candidate_id))
+COLD_REACTIVATE	0.110723	CREATE INDEX IF NOT EXISTS idx_r929_contribution_issue ON research_mainline_contribution_r929(target_issue,status,created_at)
+COLD_REACTIVATE	0.118355	CREATE TABLE IF NOT EXISTS research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT NOT NULL,consumer TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,roster_hash TEXT NOT NULL,frozen_at INTEGER NOT NULL)
+COLD_REACTIVATE	0.118204	CREATE TABLE IF NOT EXISTS research_platform_event_r929(event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,previous_hash TEXT NOT NULL,current_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)
+COLD_REACTIVATE	0.078766	PRAGMA schema_version
+COLD_REACTIVATE	0.454379	SELECT bundle_hash,schema_hash,code_hash FROM research_model_bundle_r929 WHERE state='ACTIVE'
+COLD_REACTIVATE	0.338298	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.172274	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.120808	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.093748	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.128259	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.1562	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.137072	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.144473	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.1152	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.125064	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.144613	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.090223	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.088159	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+COLD_REACTIVATE	0.077734	SELECT changes(),last_insert_rowid()
+COLD_REACTIVATE	0.189849	COMMIT
+COLD_REACTIVATE	0.100879	PRAGMA schema_version
+WARM_NEXT_ISSUE	0.384636	SELECT state_key,state_value FROM app_state WHERE state_key IN (?,?,?,?,?,?)
+WARM_NEXT_ISSUE	0.091184	BEGIN IMMEDIATE
+WARM_NEXT_ISSUE	0.211522	SELECT state_value FROM app_state WHERE state_key=?
+WARM_NEXT_ISSUE	0.123101	SELECT state_value FROM app_state WHERE state_key=?
+WARM_NEXT_ISSUE	0.097062	SELECT state_value FROM app_state WHERE state_key=?
+WARM_NEXT_ISSUE	0.076142	SELECT state_value FROM app_state WHERE state_key=?
+WARM_NEXT_ISSUE	0.105255	SELECT state_value FROM app_state WHERE state_key=?
+WARM_NEXT_ISSUE	0.068812	PRAGMA schema_version
+WARM_NEXT_ISSUE	0.1092	SELECT bundle_hash,schema_hash,code_hash FROM research_model_bundle_r929 WHERE state='ACTIVE'
+WARM_NEXT_ISSUE	0.140977	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.101679	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.100008	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.089021	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.082101	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.119836	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.08822	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.069943	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.1092	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.127197	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.10884	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.084725	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.275155	INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)
+WARM_NEXT_ISSUE	0.100978	SELECT changes(),last_insert_rowid()
+WARM_NEXT_ISSUE	0.086126	COMMIT
+WARM_NEXT_ISSUE	0.076312	PRAGMA schema_version
+SAME_ISSUE	0.235817	SELECT state_key,state_value FROM app_state WHERE state_key IN (?,?,?,?,?,?)
+SAME_ISSUE	0.134478	SELECT count(*) FROM research_model_bundle_r929 WHERE state='ACTIVE'
+SAME_ISSUE	0.137892	SELECT count(*) FROM research_certificate_r929

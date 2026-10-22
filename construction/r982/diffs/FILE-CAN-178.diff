@@ -1,0 +1,21 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java b/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
+index 087c985..740d9e2 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java
+@@ -21,12 +21,16 @@ public final class ServiceHeartbeatStore {
+ 
+     private static final String PREF = "v20_service_runtime_light";
+     private static final Object LOCK = new Object();
++    // Constructor rejects Activity/null fallback; only process-lifetime Application context is retained.
++    @android.annotation.SuppressLint("StaticFieldLeak")
+     private static volatile Context LAST_APP_CONTEXT;
+ 
+     private final Context app;
+ 
+     public ServiceHeartbeatStore(Context context) {
+         Context c = context == null ? null : context.getApplicationContext();
++        if (c == null && !(context instanceof android.app.Application))
++            throw new IllegalArgumentException("APPLICATION_CONTEXT_REQUIRED");
+         app = c == null ? context : c;
+         if (app != null) LAST_APP_CONTEXT = app;
+     }

@@ -1,0 +1,1 @@
+package android.content.res; import java.io.*; public class AssetManager { public static final int ACCESS_STREAMING=2; public InputStream open(String n,int mode) throws IOException {return open(n);} public InputStream open(String n) throws IOException {return new ByteArrayInputStream(new byte[0]);} }

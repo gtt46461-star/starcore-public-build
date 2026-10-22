@@ -1,0 +1,41 @@
+{
+  "reviewer": "r77_latency",
+  "status": "PASS_WITH_EXPLICIT_SYNTHETIC_SCOPE",
+  "fixtureDirectory": "/workspace/scratch/e2544c9906f6/r77-mainline/final-certified-clock-consistent",
+  "resultsSha256": "a8582f2da5efffc4adcedfd79a7cc6a0710c0c315ba46cd83cf51655369f6cfb",
+  "productClasses": "/workspace/scratch/e2544c9906f6/r77-final-classes",
+  "sealedProductClasssetSha256": "cacfd80efeb17c3ad48a6ae9b61f1d0a6c94ff45c57429c9338467ad1f1e6266",
+  "productClassOverlays": 0,
+  "testsPassed": 6,
+  "actualPublisherChecks": 19,
+  "everyPeriodChecks": 35,
+  "qualificationHistory": {
+    "previousDayDrawCount": 1440,
+    "formalDayDrawCount": 360,
+    "sequenceGapFixedInFixtureOnly": true
+  },
+  "pairedTemporalValidation": {
+    "settlementRows": 240,
+    "allCreatedUpdatedCompletedEqualDrawTimePlus1": true,
+    "matrixInputRows": 480,
+    "allCreatedAtEqualDrawTimePlus2": true,
+    "allUpdatedAtEqualDrawTimePlus3": true,
+    "twoFinalPairedCheckpointsEqualThroughDrawTimePlus3": true
+  },
+  "clockBytecodeAudit": "elapsedRealtime uses System.nanoTime / 1000000; elapsedRealtimeNanos uses System.nanoTime; uptimeMillis delegates elapsedRealtime",
+  "positivePath": [
+    "actual certificate publisher",
+    "UnifiedResearchChoice.freeze",
+    "CertifiedPrediction.prepare",
+    "V51CandidateRealGate.evaluate",
+    "DecisionGate.decideV51B12",
+    "authorized trade DAO",
+    "SettlementCoordinator"
+  ],
+  "scopeLimitations": [
+    "Calibration/formal qualification histories and resource/matrix evidence are controlled synthetic SQL seeds, not observed phone profitability or natural-period acquisition.",
+    "Every-period fixture constructs CONTROLLED_PROBE selected envelope and passing risk result and seeds shadow observations; it does not run full canonical orchestrator serialization.",
+    "Three consecutive synthetic qualified periods are not a guarantee of every future real period, phone latency, or financial return."
+  ],
+  "productsChangedByReview": false
+}

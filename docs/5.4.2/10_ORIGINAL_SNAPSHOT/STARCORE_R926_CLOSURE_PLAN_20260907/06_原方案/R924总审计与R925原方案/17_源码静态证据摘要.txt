@@ -1,0 +1,30 @@
+R924 package static evidence
+JAVA_COUNT=545
+RESOURCE_FILE_COUNT=71
+PHONE_MAIN_ID_COUNT=47
+SW600DP_MAIN_ID_COUNT=46
+SW600DP_MISSING_ID=btn_background_reliability
+
+Artifact truth:
+V51NumberModelArtifact.PROVEN=false / DATA_SHA256=UNTRAINED
+V51ExpertGateArtifact.PROVEN=false / DATA_SHA256=UNTRAINED
+V51ActionRankerArtifact.PROVEN=false / RANK_ORDER_PASSED=false / STABLE_FOLDS=0
+V51SelectedCalibrationArtifact.PROVEN=false / OOS_ECE=1
+V51PolicySurfaceArtifact.MODEL_GATE_PASSED=false / CELLS=0
+V51PredictabilityArtifact.PROVEN=false / weights=zero
+
+Algorithm policy:
+MIN_CERTIFICATE_N=240
+MIN_PAIRED_N=120
+prune when N>=120 && coverage<0.60
+challenger requires coverage>=0.80 + all other gates
+already-pruned lifecycle reason is rewritten to IRREVERSIBLE_EVIDENCE_PRUNE
+
+R906 asset certificate:
+MIN_FUTURE_N=240
+MIN_COVERAGE=0.95
+MAX_BRIER=0.21
+MAX_ECE=0.06
+MIN_BLOCK_STABILITY=0.70
+MAX_DRIFT=0.12
+MAY_AUTHORIZE_REAL=false

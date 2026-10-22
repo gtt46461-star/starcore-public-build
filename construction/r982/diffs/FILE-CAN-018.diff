@@ -1,0 +1,12 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java b/app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java
+index 849bf86..1e2c2fe 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java
+@@ -12,4 +12,7 @@ public final class AtomQualityLedgerR925 {
+     }
+     public static String report(DbStore store){return "ATOM_QUALITY_R932\n新记录保存逐原子缺失原因和实际计算耗时；每期首份赛前冻结上下文只计一次支持，增量游标与统计同事务提交。旧记录缺失掩码为未知；旧相关边仅作历史诊断，不是因果关系。\n"
+         +RuntimeObservabilityR925.query(store,"SELECT * FROM research_atom_quality_r932 ORDER BY atom_id",false)+"\n相关冗余边（不是因果关系）\n"+RuntimeObservabilityR925.query(store,"SELECT * FROM v57_atom_edge_r925 ORDER BY ABS(correlation) DESC",false);}
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store){return "ATOM_QUALITY_R932\n新记录保存逐原子缺失原因和实际计算耗时；每期首份赛前冻结上下文只计一次支持，增量游标与统计同事务提交。旧记录缺失掩码为未知；旧相关边仅作历史诊断，不是因果关系。\n"
++        +RuntimeObservabilityR925.querySnapshotCP4(report, store,"SELECT * FROM research_atom_quality_r932 ORDER BY atom_id",false)+"\n相关冗余边（不是因果关系）\n"+RuntimeObservabilityR925.querySnapshotCP4(report, store,"SELECT * FROM v57_atom_edge_r925 ORDER BY ABS(correlation) DESC",false);}
+ }

@@ -1,0 +1,90 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java
+index 53ce834..0a7828e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java
+@@ -736,4 +736,85 @@ public final class RuntimeEventLedgerR926 {
+     private static String safe(String s) {
+         return s == null ? "" : s.trim();
+     }
++
++public static String exportTextSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, int limit) {
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 8192);
++        b.append("target_issue|current_state|state_rank|epoch_id|attempt_id|event_watermark|as_of|last_error_code|request|accepted|rejected|queued|started|frozen|canonical|settled|full|learned|recovery\n");
++        List<Projection> rows = recentProjectionsSnapshotCP4(report, db, limit);
++        for (Projection p : rows) {
++            textSnapshotCP4(report, b, p.targetIssue); b.append('|');
++            textSnapshotCP4(report, b, p.currentState); b.append('|').append(p.stateRank).append('|');
++            textSnapshotCP4(report, b, p.epochId); b.append('|');
++            textSnapshotCP4(report, b, p.attemptId); b.append('|').append(p.eventWatermark).append('|').append(p.asOf).append('|');
++            textSnapshotCP4(report, b, p.lastErrorCode); b.append('|').append(p.requestSeen).append('|').append(p.acceptedSeen).append('|')
++                    .append(p.rejectedSeen).append('|').append(p.queuedSeen).append('|').append(p.startedSeen).append('|')
++                    .append(p.frozenSeen).append('|').append(p.canonicalSeen).append('|').append(p.settledSeen).append('|')
++                    .append(p.fullSeen).append('|').append(p.learnedSeen).append('|').append(p.recoverySeen).append('\n');
++        }
++        return b.toString();
++    }
++
++public static void textSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b, String value) {
++        String s = safeSnapshotCP4(report, value);
++        for (int i = 0; i < s.length(); i++) {
++            char ch = s.charAt(i);
++            if (ch == '\n' || ch == '\r' || ch == '|') b.append('/'); else b.append(ch);
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String s) {
++        return s == null ? "" : s.trim();
++    }
++
++public static List<Projection> recentProjectionsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, int limit) {
++        ArrayList<Projection> out = new ArrayList<Projection>();
++        if (db == null) return out;
++        int capped = Math.max(1, Math.min(500, limit));
++        Cursor c = null;
++        try {
++            c = report.select(
++                    projectionSelectSnapshotCP4(report)
++                            + " WHERE game_code=? ORDER BY target_issue DESC,event_watermark DESC LIMIT ?",
++                    new String[] {ReleaseManifestR926.GAME_CODE, String.valueOf(capped)});
++            while (c.moveToNext()) out.add(new Projection(c));
++        } finally {
++            if (c != null) c.close();
++        }
++        return out;
++    }
++
++public static String projectionSelectSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report) {
++        return "SELECT target_issue,current_state,state_rank,epoch_id,attempt_id,last_event_id,event_watermark,as_of,last_error_code,"
++                + "request_seen,accepted_seen,rejected_seen,queued_seen,started_seen,frozen_seen,canonical_seen,settled_seen,full_seen,learned_seen,recovery_seen"
++                + " FROM " + TABLE_PROJECTION;
++    }
++
++public static String exportCsvSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, int limit) {
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 8192);
++        b.append("target_issue,current_state,state_rank,epoch_id,attempt_id,event_watermark,as_of,last_error_code,request,accepted,rejected,queued,started,frozen,canonical,settled,full,learned,recovery\n");
++        List<Projection> rows = recentProjectionsSnapshotCP4(report, db, limit);
++        for (Projection p : rows) {
++            csvSnapshotCP4(report, b, p.targetIssue); b.append(',');
++            csvSnapshotCP4(report, b, p.currentState); b.append(',').append(p.stateRank).append(',');
++            csvSnapshotCP4(report, b, p.epochId); b.append(',');
++            csvSnapshotCP4(report, b, p.attemptId); b.append(',').append(p.eventWatermark).append(',').append(p.asOf).append(',');
++            csvSnapshotCP4(report, b, p.lastErrorCode); b.append(',').append(p.requestSeen).append(',').append(p.acceptedSeen).append(',')
++                    .append(p.rejectedSeen).append(',').append(p.queuedSeen).append(',').append(p.startedSeen).append(',')
++                    .append(p.frozenSeen).append(',').append(p.canonicalSeen).append(',').append(p.settledSeen).append(',')
++                    .append(p.fullSeen).append(',').append(p.learnedSeen).append(',').append(p.recoverySeen).append('\n');
++        }
++        return b.toString();
++    }
++
++public static void csvSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b, String value) {
++        String s = safeSnapshotCP4(report, value);
++        boolean quote = s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0 || s.indexOf('\r') >= 0;
++        if (!quote) { b.append(s); return; }
++        b.append('"');
++        for (int i = 0; i < s.length(); i++) {
++            char ch = s.charAt(i);
++            if (ch == '"') b.append("\"\""); else b.append(ch);
++        }
++        b.append('"');
++    }
+ }

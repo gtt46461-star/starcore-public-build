@@ -1,0 +1,180 @@
+{
+  "product_build": "R78",
+  "report_archive_members_verified": 45,
+  "unit_tests": {
+    "tests": 54,
+    "failures": 0,
+    "errors": 0
+  },
+  "owner_regressions": {
+    "scope": "ACTUAL_GRADLE_PRODUCT_HOST_SQLITE_NOT_PHONE_OR_FORECAST_QUALITY",
+    "product_classes": 3421,
+    "results": [
+      {
+        "name": "post-batch",
+        "exit_code": 0,
+        "log_sha256": "c13e7a46a1561010d8e9757202d5dba2dec50af53662dc1dafd4e8c682aca642",
+        "status": "PASS"
+      },
+      {
+        "name": "reserved-batch",
+        "exit_code": 0,
+        "log_sha256": "1c018dc08f1dee566c30f077be443a3f755586f80a2392a9ba83c90d7ee7f34e",
+        "status": "PASS"
+      },
+      {
+        "name": "post-repair",
+        "exit_code": 0,
+        "log_sha256": "163778c30c5d8421629faa7b5378d4ec9e6b2fce7b8ac6647365818a3084459f",
+        "status": "PASS"
+      },
+      {
+        "name": "draw-ingest",
+        "exit_code": 0,
+        "log_sha256": "05e96c8fd6b5cd7c5d5e55c4a6a12d5c3dca507b5e0814d5ee788d549b9aeb7d",
+        "status": "PASS"
+      },
+      {
+        "name": "fairness-low",
+        "exit_code": 0,
+        "log_sha256": "bdaac2b378b53ad51462bc94784e154a58f5f68223a0d5008b66a5ecac3d1a17",
+        "status": "PASS"
+      },
+      {
+        "name": "capture-timely",
+        "exit_code": 0,
+        "log_sha256": "6f796a6b4ddea548971b67893431b5e414be4d6805b860c6430350d6785adb20",
+        "status": "PASS"
+      },
+      {
+        "name": "capture-expired",
+        "exit_code": 0,
+        "log_sha256": "6f796a6b4ddea548971b67893431b5e414be4d6805b860c6430350d6785adb20",
+        "status": "PASS"
+      },
+      {
+        "name": "capture-crossing",
+        "exit_code": 0,
+        "log_sha256": "6f796a6b4ddea548971b67893431b5e414be4d6805b860c6430350d6785adb20",
+        "status": "PASS"
+      }
+    ],
+    "schema_integrity": {
+      "quick_check": [
+        [
+          "ok"
+        ]
+      ],
+      "foreign_key_check": []
+    }
+  },
+  "multiscale": {
+    "name": "multiscale",
+    "exit_code": 0,
+    "scope": "ACTUAL_PRODUCT_HOST_NOT_PHONE_OR_WIN_RATE"
+  },
+  "calibration_restart": [
+    {
+      "name": "calibration-seed",
+      "exit_code": 0,
+      "scope": "ACTUAL_PRODUCT_HOST_NOT_PHONE_OR_WIN_RATE"
+    },
+    {
+      "name": "calibration-resume",
+      "exit_code": 0,
+      "scope": "ACTUAL_PRODUCT_HOST_NOT_PHONE_OR_WIN_RATE"
+    }
+  ],
+  "original_training_replay": {
+    "exit_code": 0,
+    "tasks": [
+      [
+        "COMPLETED",
+        14
+      ],
+      [
+        "FAILED_TERMINAL",
+        1
+      ]
+    ],
+    "terminal_reasons": [
+      [
+        "IllegalArgumentException:TRAIN_ALL_FEATURES_MISSING|cause=IllegalArgumentException:TRAIN_ALL_FEATURES_MISSING",
+        1
+      ]
+    ],
+    "features": 19800,
+    "scope": "ACTUAL_ORIGINAL_INPUT_HOST_REPLAY_PARTIAL_FEATURES_REBUILT_NOT_PHONE"
+  },
+  "continuation": {
+    "status": "PASS",
+    "results": [
+      {
+        "mode": "normal",
+        "scope": "FINAL_BYTECODE_NO_PRODUCT_OVERLAY",
+        "result": {
+          "status": "PASS",
+          "checks": 31
+        }
+      },
+      {
+        "mode": "too_many",
+        "scope": "ISOLATED_GENERATED_INPUT_MUTATION_ACTUAL_PRODUCT_SOURCE",
+        "result": {
+          "status": "PASS",
+          "checks": 1
+        }
+      },
+      {
+        "mode": "duplicate",
+        "scope": "ISOLATED_GENERATED_INPUT_MUTATION_ACTUAL_PRODUCT_SOURCE",
+        "result": {
+          "status": "PASS",
+          "checks": 1
+        }
+      },
+      {
+        "mode": "malformed",
+        "scope": "ISOLATED_GENERATED_INPUT_MUTATION_ACTUAL_PRODUCT_SOURCE",
+        "result": {
+          "status": "PASS",
+          "checks": 1
+        }
+      }
+    ],
+    "unchanged": true,
+    "before": {
+      "TrainingContinuationR973": "be4b005996b7549dc2863791ab4ab52480dbe810d6ed8a3dcd31436fc67a700f",
+      "TrainingCodeIdentityR964": "6428089e59692bb7f9dcb25dd18c05a9f48d99ecc741b304c6107dc8d540a25a",
+      "ResearchSemanticsGeneratedR967": "45d58311575790fc26bdf5f9f558312f22c8b5b7837c48cb41671b20e3d92c39"
+    },
+    "after": {
+      "TrainingContinuationR973": "be4b005996b7549dc2863791ab4ab52480dbe810d6ed8a3dcd31436fc67a700f",
+      "TrainingCodeIdentityR964": "6428089e59692bb7f9dcb25dd18c05a9f48d99ecc741b304c6107dc8d540a25a",
+      "ResearchSemanticsGeneratedR967": "45d58311575790fc26bdf5f9f558312f22c8b5b7837c48cb41671b20e3d92c39"
+    }
+  },
+  "source_identity_incremental": {
+    "status": "PASS",
+    "scope": "ACTUAL_RENDERER_AND_FACADE_TWO_GENERATIONS_NO_FACADE_RECOMPILE",
+    "runs": [
+      {
+        "mode": "shipped_constant",
+        "exit_code": 1,
+        "unchanged_facade_sha256": "b43ce0fb93ad050eaccc3cdd6fc92788e52f3c9070485f3086278dda622e7fcf",
+        "result": "OLD_DEFECT_REPRODUCED",
+        "diagnostic": "Exception in thread \"main\" java.lang.AssertionError: STALE_GENERATED_IDENTITY:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n\tat com.ethk3.novaonepro.Read.main(Read.java:1)"
+      },
+      {
+        "mode": "runtime_field",
+        "exit_code": 0,
+        "unchanged_facade_sha256": "ffea03501fef82e3041d16766ac9eaf0af820aff3d1940c2bd056e1d890e0808",
+        "result": "CURRENT_IDENTITY_READ",
+        "diagnostic": ""
+      }
+    ]
+  },
+  "physical_device": "NOT_VERIFIED",
+  "natural_future": "NOT_VERIFIED",
+  "all_22_items_closed": false
+}

@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java b/app/src/main/java/com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java
+index 11d468a..402946d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java
+@@ -98,7 +98,7 @@ public final class CanonicalDecisionViewAdapterR36 {
+                         + selectedEvidenceStatus
+                         + "｜结算="
+                         + settlement;
+-        d.reasonText = d.reasonSummary;
++        d.reasonText = CanonicalReasonCP12.existingReceiptText(v.reasonJson,v.reasonHash,d.reasonSummary);
+         d.selfDiagnosisText = d.reasonSummary;
+         return d;
+     }

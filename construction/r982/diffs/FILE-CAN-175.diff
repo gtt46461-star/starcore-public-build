@@ -1,0 +1,15 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SafeLog.java b/app/src/main/java/com/ethk3/novaonepro/SafeLog.java
+index ab0e6d5..47d80a4 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SafeLog.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SafeLog.java
+@@ -192,8 +192,8 @@ public final class SafeLog {
+     }
+ 
+     private static String hideParamByPrefix(String text, String prefix) {
+-        String lower = text.toLowerCase();
+-        String lowerPrefix = prefix.toLowerCase();
++        String lower = text.toLowerCase(java.util.Locale.ROOT);
++        String lowerPrefix = prefix.toLowerCase(java.util.Locale.ROOT);
+         StringBuilder out = new StringBuilder();
+         int from = 0;
+         while (true) {

@@ -1,0 +1,36 @@
+[
+  {
+    "path": "app/src/main/java/com/ethk3/novaonepro/ReportMemberPlanCP12.java",
+    "methods": [
+      "sort",
+      "cleanFailedAttempt",
+      "removeGenerated"
+    ],
+    "action": "MODIFY_REAL_PRODUCT",
+    "card_ids": [
+      "FILE-CAN-124"
+    ],
+    "requirement_ids": [
+      "USR-41-004",
+      "HIST-U04-02",
+      "HIST-E05D-01",
+      "HIST-E05D-02",
+      "HIST-E05D-03"
+    ],
+    "detection_ids": [],
+    "formal_case_bindings": [],
+    "caller": "ReportExportServiceCP4.runOwnedJob INDEX_DURABLE -> ReportMemberPlanCP12.sort",
+    "consumer": "Returned complete sorted members -> actual ReportArchiveCP4.add/finish -> publication; failure -> actual Service PAUSED/CANCELLED/FAILED journal and recovery retry",
+    "database_change": "NONE",
+    "persistent_change": "Only own nonce temporary workspace and partial result removed on failure; unsorted source/job evidence and unrelated tasks retained",
+    "before_sha256": "8846089ae1c0b63dff46d9dab8b19237d08e692db7191dc794a176828edc550d",
+    "after_write_and_reread_sha256": "8656f2d85e6ec50d98704b22fc66a4341ab81042df8667321b2f5b06ef684eb6",
+    "git_blob": "0b20da640d9507aa6024403c7b9b1d2c492abbc3",
+    "before_copy": "construction/r989/before/ReportMemberPlanCP12.java",
+    "diff": "construction/r989/diffs/ReportMemberPlanCP12.diff",
+    "build_input": true,
+    "original_failure": "Actual R988 sorter leaves directory on cancel-before-read: original assertion7 FAIL; original compiled driver and exact recompiled source class identity retained",
+    "current_execution": "158 real file/ordered-value/reason/interrupt/path/suppressed-failure checks PASS; actual release classes/APK contain consumers",
+    "scope": "Fresh current complete827 product compilation; host synthetic files only. Device/process/provider/performance not verified. Prior R988 aggregate cleanup root cause still UNKNOWN."
+  }
+]

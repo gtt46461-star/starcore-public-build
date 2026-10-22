@@ -1,0 +1,927 @@
+diff --git a/release/research_dependencies_r967.json b/release/research_dependencies_r967.json
+index d5ffa46..069d1f7 100644
+--- a/release/research_dependencies_r967.json
++++ b/release/research_dependencies_r967.json
+@@ -2,10 +2,22 @@
+   "revision": "R967_EXPLICIT_DEPENDENCIES_V1",
+   "scope": "CONSERVATIVE_DEV_CONTINUATION_ONLY_NOT_CERTIFICATE_COMPATIBILITY",
+   "files": [
++    {
++      "path": "app/build.gradle",
++      "role": "BUILD_CONTRACT"
++    },
+     {
+       "path": "app/src/main/AndroidManifest.xml",
+       "role": "PRESENTATION"
+     },
++    {
++      "path": "app/src/main/assets/cp4_atom_registry.jsonl",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/assets/cp4_catalog_manifest.json",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/assets/history_seed.csv.gz",
+       "role": "NUMERIC"
+@@ -50,6 +62,10 @@
+       "path": "app/src/main/assets/r952/modules/world.json",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/assets/research/cp4_molecule_seeds.jsonl",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/assets/research/r967_history/R908_125_algorithms.tsv",
+       "role": "NUMERIC"
+@@ -59,9 +75,296 @@
+       "role": "NUMERIC"
+     },
+     {
+-      "path": "app/src/main/assets/research/r975_source_calls.tsv",
+-      "role": "PRESENTATION",
+-      "reason": "Build-derived source/method/direct-call diagnostic index; never a numeric input or runtime coverage assertion"
++      "path": "app/src/main/cpp/CMakeLists.txt",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/report_native_cp4.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/DEPENDENCY_LOCK.json",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/sqlite3.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/sqlite3.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/sqlite3ext.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/COPYING",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/LICENSE",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/VENDOR_SELECTION.json",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/allocations.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/bits.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/bitstream.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/compiler.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/cpu.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/debug.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/debug.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/entropy_common.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/error_private.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/error_private.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/fse.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/fse_decompress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/huf.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/mem.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/pool.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/pool.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/portability_macros.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/threading.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/threading.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/xxhash.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/xxhash.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/zstd_common.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/zstd_deps.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/zstd_internal.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/common/zstd_trace.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/clevels.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/fse_compress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/hist.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/hist.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/huf_compress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_internal.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_literals.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_literals.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_sequences.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_sequences.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_superblock.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_compress_superblock.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_cwksp.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_double_fast.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_double_fast.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_fast.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_fast.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_lazy.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_lazy.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_ldm.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_ldm.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_ldm_geartab.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_opt.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_opt.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_preSplit.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstd_preSplit.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstdmt_compress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/compress/zstdmt_compress.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/huf_decompress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/zstd_ddict.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/zstd_ddict.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/zstd_decompress.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/zstd_decompress_block.c",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/zstd_decompress_block.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/decompress/zstd_decompress_internal.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/zdict.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/zstd.h",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "app/src/main/cpp/vendor/zstd/lib/zstd_errors.h",
++      "role": "BUILD_CONTRACT"
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/AblationRepairCreationR930.java",
+@@ -78,7 +381,7 @@
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/AdaptiveLearningJudgeEngine.java",
+       "role": "NUMERIC",
+-      "dynamic_review_sha256": "a0a18a61427ab96f8ca0fbf047b4b0407d4abc0c198389748c6f6bd39d30fdb0"
++      "dynamic_review_sha256": "35ab71a8cc5efc21f0e0cfd1a09967838fe54acaaf9c9788411ae071a59a9c8f"
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/AdaptiveShadowLearnerEngine.java",
+@@ -199,7 +502,7 @@
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+       "role": "NUMERIC",
+-      "dynamic_review_sha256": "bf52ea5cddd776baf68982868d70c79e349cb38672a016ef8c580c0ea7b0c032",
++      "dynamic_review_sha256": "ec7a6bb5ee9bdfa3a5b33e938a707146de683af3611b03fd3858aeb5ce081936",
+       "dynamic_review_note": "R973: reviewed diff only clock Looper/lifecycle and broadcast dispatch. Reflection calls/targets unchanged."
+     },
+     {
+@@ -327,6 +630,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/BuildProvenanceR815.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/BusinessFunnelCP12.java",
++      "role": "PRESENTATION"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/BusinessReconcilerR35.java",
+       "role": "NUMERIC"
+@@ -371,6 +678,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/CandidateProbabilityTruthR930.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/CandidateResourceEvidenceCP4.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalDecisionViewAdapterR36.java",
+       "role": "NUMERIC"
+@@ -379,6 +690,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/CanonicalReasonCP12.java",
++      "role": "PRESENTATION"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/CaptureOpportunityR925.java",
+       "role": "NUMERIC"
+@@ -807,6 +1122,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenConsumerRecipeR932.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/FrozenHistoryWireCP11.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/FrozenModuleInputR932.java",
+       "role": "NUMERIC"
+@@ -1405,6 +1724,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/ReasonListAdapter.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RecipeBudgetScopeCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/RecoveryCoordinatorR815.java",
+       "role": "NUMERIC"
+@@ -1441,6 +1764,71 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+       "role": "PROVENANCE"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveCP4.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportArchiveVerifierCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportBoundedSqlCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportCheckRegistryCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportMemberPlanCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
++      "role": "NUMERIC",
++      "dynamic_review_sha256": "ef8bb08f1ba4933069c6c416cbecf6dd4395dc203e2de462d028eaa20f2e251e"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportReadContextCP4.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportRequestQueueCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportSafCopyCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ReportTextCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchAblationR815.java",
+       "role": "NUMERIC"
+@@ -1613,6 +2001,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeatureVectorR815.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFeedbackCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java",
+       "role": "PRESENTATION"
+@@ -1793,6 +2185,50 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/ResearchWorkBudgetR927.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionAggregateCapacityCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveIoCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArchiveProtocolCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionArtifactIdentityCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionDurableModelQuotaCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionRevisionSchemaCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionRowCodecCP5.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotRowsCP7.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTaskExpiryCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/RetentionWorkingStorageQuotaCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/RiskCoverageController.java",
+       "role": "NUMERIC"
+@@ -1881,7 +2317,7 @@
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java",
+       "role": "NUMERIC",
+-      "dynamic_review_sha256": "ab0a4cb8598e32f98ce036131ce0dbcd646609e2daf94b8cba9d5393f0bf3b2d"
++      "dynamic_review_sha256": "2d41f6d25b4a150390c6aa4671e508510fbb8f7ec368acf0d8f1ba83334d103a"
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeTraceR36.java",
+@@ -2850,10 +3286,30 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/ActionRankContractR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomAblationReplayCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomAdmissionCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomCatalogImportCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomCatalogPinnedCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomDiscoveryEngineR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomEvaluatorCP4.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomOntologyR952.java",
+       "role": "NUMERIC"
+@@ -2862,6 +3318,18 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomQualityPresenterR952.java",
+       "role": "PRESENTATION"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomRegimePolicyCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomSpecCP4.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/AtomWindowCP4.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/BatchBuildIdentityR952.java",
+       "role": "NUMERIC"
+@@ -2886,6 +3354,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/CandidateSandboxR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/CanonicalSchemaCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/CapabilityTracePageR952.java",
+       "role": "NUMERIC"
+@@ -2930,6 +3402,18 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/DeepLearningPresenterR952.java",
+       "role": "PRESENTATION"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentInputCP9.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionControllerR952.java",
+       "role": "NUMERIC"
+@@ -2943,6 +3427,14 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionPresenterR952.java",
+       "role": "PRESENTATION"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/EvolutionTeachersCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ExclusiveStageClockCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/FeatureManifestR952.java",
+       "role": "NUMERIC"
+@@ -2951,6 +3443,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/FeedbackMatrixRegistryR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/FrozenGraphContextCP4.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/FullbloodDiagnosticsProviderR952.java",
+       "role": "NUMERIC"
+@@ -2959,6 +3455,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/FullbloodPageProviderR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/HistoricalTrainingReceiptCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/KnowledgeLedgerR952.java",
+       "role": "NUMERIC"
+@@ -2971,14 +3471,58 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/LegacyTrainingStreamMigrationR971.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixAttributionCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixBindingsCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixEvidenceReadCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixHistoricalDrawCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixMetricsCP11.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixPolicyViewsCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixProjectionCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MemoryBudgetCP4.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModelBundleLoaderR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernFamilyFactoryCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ModernSeedFactoryCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/MoleculeCompilerR952.java",
+       "role": "NUMERIC"
+@@ -2991,6 +3535,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/MoleculeOperatorRegistryR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MutationGraphCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/MutationPolicyR952.java",
+       "role": "NUMERIC"
+@@ -3011,6 +3559,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/PredictabilityContractR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ProspectiveDiversityCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+       "role": "NUMERIC"
+@@ -3067,6 +3619,10 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResumableSha256CP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/RuntimeEventContractR952.java",
+       "role": "NUMERIC"
+@@ -3075,10 +3631,26 @@
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/RuntimeRecoveryJournalR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/SemanticGenomeCP12.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/StrictCanonicalJson.java",
++      "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/TrainingCasCP12.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/TrialRegistryR952.java",
+       "role": "NUMERIC"
+     },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/r952/TypedOperationsCP4.java",
++      "role": "NUMERIC"
++    },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/r952/WorldAtomR952.java",
+       "role": "NUMERIC"
+@@ -3111,10 +3683,6 @@
+       "path": "app/src/main/res/anim/fade_slide_out.xml",
+       "role": "PRESENTATION"
+     },
+-    {
+-      "path": "app/src/main/res/color/button_text.xml",
+-      "role": "PRESENTATION"
+-    },
+     {
+       "path": "app/src/main/res/drawable/bg_accent_bar.xml",
+       "role": "PRESENTATION"
+@@ -3123,10 +3691,6 @@
+       "path": "app/src/main/res/drawable/bg_app_canvas.xml",
+       "role": "PRESENTATION"
+     },
+-    {
+-      "path": "app/src/main/res/drawable/bg_button.xml",
+-      "role": "PRESENTATION"
+-    },
+     {
+       "path": "app/src/main/res/drawable/bg_card.xml",
+       "role": "PRESENTATION"
+@@ -3135,10 +3699,6 @@
+       "path": "app/src/main/res/drawable/bg_card_compact.xml",
+       "role": "PRESENTATION"
+     },
+-    {
+-      "path": "app/src/main/res/drawable/bg_chip_danger.xml",
+-      "role": "PRESENTATION"
+-    },
+     {
+       "path": "app/src/main/res/drawable/bg_chip_info.xml",
+       "role": "PRESENTATION"
+@@ -3147,10 +3707,6 @@
+       "path": "app/src/main/res/drawable/bg_chip_success.xml",
+       "role": "PRESENTATION"
+     },
+-    {
+-      "path": "app/src/main/res/drawable/bg_chip_warning.xml",
+-      "role": "PRESENTATION"
+-    },
+     {
+       "path": "app/src/main/res/drawable/bg_console.xml",
+       "role": "PRESENTATION"
+@@ -3223,10 +3779,6 @@
+       "path": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+       "role": "PRESENTATION"
+     },
+-    {
+-      "path": "app/src/main/res/drawable/ic_menu_compass.xml",
+-      "role": "PRESENTATION"
+-    },
+     {
+       "path": "app/src/main/res/drawable/ic_notification_nova.xml",
+       "role": "PRESENTATION"
+@@ -3295,10 +3847,6 @@
+       "path": "app/src/main/res/layout/activity_main.xml",
+       "role": "PRESENTATION"
+     },
+-    {
+-      "path": "app/src/main/res/layout/dialog_full_text.xml",
+-      "role": "PRESENTATION"
+-    },
+     {
+       "path": "app/src/main/res/layout/row_diagnostic_state_r906.xml",
+       "role": "PRESENTATION"
+@@ -3308,27 +3856,27 @@
+       "role": "PRESENTATION"
+     },
+     {
+-      "path": "app/src/main/res/layout/row_position_score.xml",
++      "path": "app/src/main/res/layout/row_reason.xml",
+       "role": "PRESENTATION"
+     },
+     {
+-      "path": "app/src/main/res/layout/row_reason.xml",
++      "path": "app/src/main/res/layout/row_why_truth_r906.xml",
+       "role": "PRESENTATION"
+     },
+     {
+-      "path": "app/src/main/res/layout/row_why_truth_r906.xml",
++      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+       "role": "PRESENTATION"
+     },
+     {
+-      "path": "app/src/main/res/layout/view_collapsible_section.xml",
++      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+       "role": "PRESENTATION"
+     },
+     {
+-      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
++      "path": "app/src/main/res/mipmap-anydpi-v33/ic_launcher.xml",
+       "role": "PRESENTATION"
+     },
+     {
+-      "path": "app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
++      "path": "app/src/main/res/mipmap-anydpi-v33/ic_launcher_round.xml",
+       "role": "PRESENTATION"
+     },
+     {
+@@ -3351,6 +3899,10 @@
+       "path": "app/src/main/res/values-v21/styles.xml",
+       "role": "PRESENTATION"
+     },
++    {
++      "path": "app/src/main/res/values-v23/styles.xml",
++      "role": "PRESENTATION"
++    },
+     {
+       "path": "app/src/main/res/values/colors.xml",
+       "role": "PRESENTATION"
+@@ -3379,6 +3931,14 @@
+       "path": "app/src/main/res/xml/network_security_config.xml",
+       "role": "PRESENTATION"
+     },
++    {
++      "path": "release/r982_source_calls.manifest.json",
++      "role": "PROVENANCE"
++    },
++    {
++      "path": "release/r982_source_calls.tsv.gz",
++      "role": "PROVENANCE"
++    },
+     {
+       "path": "release/research_gate_plan_r967.json",
+       "role": "POLICY"
+@@ -3386,6 +3946,10 @@
+     {
+       "path": "scripts/r967_semantic_identity.py",
+       "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "scripts/r982_source_call_asset.py",
++      "role": "BUILD_CONTRACT"
+     }
+   ],
+   "review_notes": {

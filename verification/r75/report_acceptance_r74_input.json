@@ -1,0 +1,719 @@
+{
+  "input_version": "V57.21.2.0.74-R5.4.2.74-1013-O09",
+  "input_snapshot_sha256": "6eded8491d74af347080b90e90be6d7eab217ad0524c9eca95d3aaa268747ad1",
+  "checks": 96,
+  "query_errors": 0,
+  "health_counts": {
+    "FAIL": 6,
+    "WARN": 8,
+    "NOT_PROVEN": 20,
+    "OBSERVED": 43,
+    "NOT_APPLICABLE": 16,
+    "PASS": 3
+  },
+  "scope": "Input report findings mapped to repair/evidence obligations; not a post-install acceptance result. Historical rows are not all R74 observations.",
+  "construction_plan_provenance": {
+    "repository_full_name": "gtt46461-star/eth-k3-v43-nova",
+    "original_ref": "0dba7800a68f33dbe8617b71d1ce5f6318dfe16e",
+    "review_method": "Full git index path inventory followed by GitHub fetch_file at the pinned original ref; returned blob IDs matched git index. Partial local checkout search alone was insufficient.",
+    "historical_numbering_distinction": "docs/5.4.2/01_TASKS historical batches 1-7 are not the later optimized299 O01-O09. The later nine-stage records and O08/O09 delivery documents exist in the repository.",
+    "reviewed_files": [
+      {
+        "path": "construction_state/optimized299/O09_CURRENT_DELIVERY_HANDOFF.md",
+        "git_blob_sha": "923cdcac21574cc31faf1b61ee01b0d40ff45e30",
+        "content_length": 5101
+      },
+      {
+        "path": "construction_state/optimized299/evidence/O08/delivery/README.md",
+        "git_blob_sha": "d90f2278c6f08d2bbc5c2d71d6ce31c867118e60",
+        "content_length": 306
+      },
+      {
+        "path": "construction_state/optimized299/evidence/O09/delivery/README.md",
+        "git_blob_sha": "a74e0c7dd6a8d5c861300c836b10c23bff419ba0",
+        "content_length": 268
+      },
+      {
+        "path": "construction_state/optimized299/evidence/O09/BATCH_CLOSURE_592_REPAIRED.csv",
+        "git_blob_sha": "76656606526e37e96719344274f3c4d31742ddab",
+        "content_length": 645277
+      },
+      {
+        "path": "construction_state/optimized299/O09_RELEASE63_HANDOFF.md",
+        "git_blob_sha": "d03fb8f9c6820186bbdcdeeff26fc230640c496c",
+        "content_length": 2401
+      },
+      {
+        "path": "construction_state/optimized299/HANDOFF.json",
+        "git_blob_sha": "19fd2414832ea1473bcc927bd63aa19bb634249a",
+        "content_length": 9855
+      },
+      {
+        "path": "construction_state/optimized299/evidence/O09/release65/RELEASE65_FIXES_AND_LIMITS.md",
+        "git_blob_sha": "69d62703d62733f365cfb83b6725b2c4de925101",
+        "content_length": 2895
+      },
+      {
+        "path": "construction_state/optimized299/HANDOFF_NEXT_WINDOW.md",
+        "git_blob_sha": "2b1119701cddb4bbcae3d4051644b3ca954f2a82",
+        "content_length": 5961
+      }
+    ],
+    "original_manifest": {
+      "path": "construction_state/optimized299/manifest.snapshot.json",
+      "git_blob_sha": "f65440cadbda5ce086c890f896e9892f98bf320d",
+      "read_method": "GitHub fetch_blob using exact indexed blob SHA; fetch_file returned empty content for this large object.",
+      "content_length": 2887232,
+      "package_id": "STARCORE_FINAL_OPTIMIZED299_20261008",
+      "original_card_count": 299,
+      "original_requirement_count": 1832,
+      "stage_count": 12,
+      "stages": [
+        {
+          "id": "O01",
+          "name": "固定基线与构建生成器",
+          "depends_on": [],
+          "operations": 4
+        },
+        {
+          "id": "O02",
+          "name": "运行期限与严格事务",
+          "depends_on": [
+            "O01"
+          ],
+          "operations": 11
+        },
+        {
+          "id": "O03",
+          "name": "出号冻结与结算恢复",
+          "depends_on": [
+            "O02"
+          ],
+          "operations": 10
+        },
+        {
+          "id": "O04",
+          "name": "原子矩阵数值闭环",
+          "depends_on": [
+            "O03"
+          ],
+          "operations": 5
+        },
+        {
+          "id": "O05",
+          "name": "创造进化与CAL身份",
+          "depends_on": [
+            "O04"
+          ],
+          "operations": 12
+        },
+        {
+          "id": "O06",
+          "name": "证书资格与真实主链",
+          "depends_on": [
+            "O05"
+          ],
+          "operations": 13
+        },
+        {
+          "id": "O07",
+          "name": "检测报告与存储保留",
+          "depends_on": [
+            "O06"
+          ],
+          "operations": 4
+        },
+        {
+          "id": "O08",
+          "name": "4200分子有界导入",
+          "depends_on": [
+            "O07"
+          ],
+          "operations": 10
+        },
+        {
+          "id": "O09",
+          "name": "全能力真实消费者",
+          "depends_on": [
+            "O08"
+          ],
+          "operations": 0
+        },
+        {
+          "id": "O10",
+          "name": "检测与需求全量回归",
+          "depends_on": [
+            "O09"
+          ],
+          "operations": 0
+        },
+        {
+          "id": "O11",
+          "name": "设备运行与性能",
+          "depends_on": [
+            "O10"
+          ],
+          "operations": 0
+        },
+        {
+          "id": "O12",
+          "name": "签名发布与最终交接",
+          "depends_on": [
+            "O11"
+          ],
+          "operations": 0
+        }
+      ],
+      "note": "The manifest plans O01-O12; historical handoff application covers O01-O09 only. O09 has zero source operations but substantive whole-consumer verification assertions. Later planned stages are neither executed nor authorized merely by a next-stage cursor."
+    },
+    "historical_handoff": {
+      "application": "O01-O09 APPLIED",
+      "engineering_effective": "O01-O08 STALE_SOURCE_REVERIFY; O09 FAILED",
+      "runtime": "NOT_RUN",
+      "natural": "NOT_PROVEN",
+      "latest_release_in_this_historical_file": "release65",
+      "overall_1_9": "NOT_CLOSED",
+      "r75_current_pass_claimed": false
+    },
+    "closure_repair_subset": {
+      "path": "construction_state/optimized299/evidence/O09/BATCH_CLOSURE_592_REPAIRED.csv",
+      "git_blob_sha": "76656606526e37e96719344274f3c4d31742ddab",
+      "rows": 592,
+      "columns": [
+        "requirement_sequence",
+        "original_business_id",
+        "premature_whole_closure_batches",
+        "associated_original_cards",
+        "last_associated_code_batch",
+        "exact_requirement",
+        "canonical_acceptance",
+        "proposed_early_result",
+        "whole_requirement_rule",
+        "original_evidence_limit",
+        "updated_component_primary_stages",
+        "updated_whole_engineering_verification_stage",
+        "updated_natural_rule",
+        "updated_implementation_status"
+      ],
+      "whole_engineering_stage_counts": {
+        "O09": 592
+      },
+      "implementation_status_counts": {
+        "NOT_RUN_ON_FINAL_COMPOSED_SOURCE": 592
+      },
+      "note": "Historical correction of premature whole-requirement closure, a subset of the 1832 requirements. Does not mean 592 new requirements, 592 current failures, or 592 R75 passes."
+    }
+  },
+  "items": [
+    {
+      "check_id": "RSEC-009",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【0.当前总判定】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "overall",
+      "input_evidence_sha256": "4ccd09f26455158456d19ce59e70ca102aab8f5fa48f884e003240f0544a59de",
+      "r75_fix_relationship": "施工台账存在但属于R997快照，仅62/1832已修改待验证、1770未知；不能把未知当未修改。",
+      "acceptance_still_required": "需按最终源码逐项绑定1–9批合同、受影响回归和真实设备证据；当前report自身明确未建立全批验收。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-019",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-A.模型准确率卡】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "0a3f1ca07b1010accbc8d4980412738d9405855d5eac0c3e7992a4cd1a0ed453",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。 校准失败到定向变异/新子训练任务由121项主机检查验证；另17项真实Owner续跑证明FIXED_GRAPH子代完成480训练/120验证及冻结，开发截止与诊断边界分离；仍无独立校准/正式Future/自然增益或REAL证明。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false,
+      "r75_evidence_refs": [
+        "evidence/calibration-repair-summary.json",
+        "evidence/mainline-results.json",
+        "evidence/training_repair_continuation.json"
+      ]
+    },
+    {
+      "check_id": "RSEC-020",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-B.策略效果卡】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "9d853b304ce907c9ca6575092e95e0e8afbec219433a4d454b1c00e76db394a7",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。 校准失败到定向变异/新子训练任务由121项主机检查验证；另17项真实Owner续跑证明FIXED_GRAPH子代完成480训练/120验证及冻结，开发截止与诊断边界分离；仍无独立校准/正式Future/自然增益或REAL证明。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false,
+      "r75_evidence_refs": [
+        "evidence/calibration-repair-summary.json",
+        "evidence/mainline-results.json",
+        "evidence/training_repair_continuation.json"
+      ]
+    },
+    {
+      "check_id": "RSEC-021",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-C.期级链路卡】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "d7cce85a36e87821c3445c99e5ddd2443174c2a9e6a4b9920b296549496b665a",
+      "r75_fix_relationship": "保留唯一canonical/settlement Owner和完整1200动作；本轮归档有界清理缓解争锁，但不补造缺失历史。",
+      "acceptance_still_required": "仍需逐期canonical与100号码/1200动作延后证据齐全、PIT、无重复交易结算、非REAL影子覆盖；报告deferred pending=57。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-022",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-D.资源效率卡】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "5b491e21a9f328dacee3d371a6d888ef6297b7486413dc7def14b0c74fc58237",
+      "r75_fix_relationship": "归档revision扫描有界、研究与维护callback隔离；冷bundle增加有界BEGIN/body/END观测以定位等待，未据主机结果断言手机5.57秒根因已修复。",
+      "acceptance_still_required": "仍需手机资源、写锁、峰值堆、P95与超预算测量；R74当前release只2事件且P95=7883ms。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-030",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【4.R3.6硬门】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "hardGates",
+      "input_evidence_sha256": "5bc16e65a2820c219b352fb344e8a14e128a2085a77bdd64367c741f71111003",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-033",
+      "input_health": "WARN",
+      "input_state": "OK",
+      "title": "【7.R3.6运行健康账本】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "evaluator_method": "readRuntime",
+      "input_evidence_sha256": "44c6cefbb534fd1c0e1d009bdcaea7c6e5490da6e701e8dd169abf2157a362b5",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-034",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【8.严格OOS/Wilson/ECE/Brier/Coverage】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "oos",
+      "input_evidence_sha256": "5aed0b4ed7c2a44b89085c62ba0479007206b5432c4388363fdea82baeb11978",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。 校准失败到定向变异/新子训练任务由121项主机检查验证；另17项真实Owner续跑证明FIXED_GRAPH子代完成480训练/120验证及冻结，开发截止与诊断边界分离；仍无独立校准/正式Future/自然增益或REAL证明。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false,
+      "r75_evidence_refs": [
+        "evidence/calibration-repair-summary.json",
+        "evidence/mainline-results.json",
+        "evidence/training_repair_continuation.json"
+      ]
+    },
+    {
+      "check_id": "RSEC-035",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【9.模型有效性与根因优先级】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "evaluator_method": "analyze",
+      "input_evidence_sha256": "0563ad7a398d2e25df4f1d68404fe3a0f1b701a5ef9393b4b3920a61c5eea0fe",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-037",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【11.1200正式动作与实时/延后写分离】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "actionContract",
+      "input_evidence_sha256": "50272856c853e8b27b7703f258290b5e951db23e445198e9105cee81e4b34239",
+      "r75_fix_relationship": "保留唯一canonical/settlement Owner和完整1200动作；本轮归档有界清理缓解争锁，但不补造缺失历史。",
+      "acceptance_still_required": "仍需逐期canonical与100号码/1200动作延后证据齐全、PIT、无重复交易结算、非REAL影子覆盖；报告deferred pending=57。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-039",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【13.REAL与SHADOW分账】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "realShadow",
+      "input_evidence_sha256": "0bbdc4d4074a1f8143e355c83c216838ba518f070719c7ea9cfabaeb7df634bf",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-048",
+      "input_health": "WARN",
+      "input_state": "WARN",
+      "title": "【第1章 数据与期号】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectData",
+      "input_evidence_sha256": "313a3b716ef5b6aaef86ee13fc08e8b35310e157bf81eba2308bb371ab2cce9d",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-052",
+      "input_health": "FAIL",
+      "input_state": "FAIL",
+      "title": "【第2章 Service与业务运行】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectRuntime",
+      "input_evidence_sha256": "fda794b23854f2b9ba00a8caf2e10b7e457a48b32ee2b422e7d4e0049aed43e5",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-053",
+      "input_health": "WARN",
+      "input_state": "RETEST_REQUIRED",
+      "title": "【第3章 账本与首写冻结】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectLedger",
+      "input_evidence_sha256": "47b29549dc3fcfe8127dcc18612a24c319203230d8c50b0a7aa38ab3e7c252e6",
+      "r75_fix_relationship": "保留唯一canonical/settlement Owner和完整1200动作；本轮归档有界清理缓解争锁，但不补造缺失历史。",
+      "acceptance_still_required": "仍需逐期canonical与100号码/1200动作延后证据齐全、PIT、无重复交易结算、非REAL影子覆盖；报告deferred pending=57。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-054",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第4章 100号码概率面】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectNumberSurface",
+      "input_evidence_sha256": "0248344d36c88c8f246650bdb78090bf0e4f8637e28f834e12df5e0b552e10d6",
+      "r75_fix_relationship": "当前章节显示NO_RUNTIME_SAMPLE；应核对最终本期完整证据与读取投影。",
+      "acceptance_still_required": "需要同一最新目标期的跨位关系/排列/转移、100号码Sinkhorn、动作ranker运行收据；静态结构不等于样本。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-055",
+      "input_health": "WARN",
+      "input_state": "RETEST_REQUIRED",
+      "title": "【第5章 跨位置结构】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCrossPosition",
+      "input_evidence_sha256": "23f6d455fe475350f6361c1ebdb1a560e77563325a77cc30c6a104f29e170a6c",
+      "r75_fix_relationship": "当前章节显示NO_RUNTIME_SAMPLE；应核对最终本期完整证据与读取投影。",
+      "acceptance_still_required": "需要同一最新目标期的跨位关系/排列/转移、100号码Sinkhorn、动作ranker运行收据；静态结构不等于样本。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-056",
+      "input_health": "WARN",
+      "input_state": "RETEST_REQUIRED",
+      "title": "【第6章 固定K3漏斗】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectK3Funnel",
+      "input_evidence_sha256": "fce0bac0cfca3e16a6c875eba139a07077172913f043a7cb58138c1e8eba4809",
+      "r75_fix_relationship": "保留唯一canonical/settlement Owner和完整1200动作；本轮归档有界清理缓解争锁，但不补造缺失历史。",
+      "acceptance_still_required": "仍需逐期canonical与100号码/1200动作延后证据齐全、PIT、无重复交易结算、非REAL影子覆盖；报告deferred pending=57。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-057",
+      "input_health": "WARN",
+      "input_state": "RETEST_REQUIRED",
+      "title": "【第7章 1200正式动作空间】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectActionSpace",
+      "input_evidence_sha256": "f7d228e72e7650ed923c3b993b6235714458847270152faa1385976a5c88ceef",
+      "r75_fix_relationship": "保留唯一canonical/settlement Owner和完整1200动作；本轮归档有界清理缓解争锁，但不补造缺失历史。",
+      "acceptance_still_required": "仍需逐期canonical与100号码/1200动作延后证据齐全、PIT、无重复交易结算、非REAL影子覆盖；报告deferred pending=57。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-058",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第8章 动作Ranker】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectRanker",
+      "input_evidence_sha256": "aa3d3c0db6a90197c694e0356e3b51f2472506df466fb04a499312a318131df0",
+      "r75_fix_relationship": "当前章节显示NO_RUNTIME_SAMPLE；应核对最终本期完整证据与读取投影。",
+      "acceptance_still_required": "需要同一最新目标期的跨位关系/排列/转移、100号码Sinkhorn、动作ranker运行收据；静态结构不等于样本。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-059",
+      "input_health": "NOT_PROVEN",
+      "input_state": "WAIT_CALIBRATION_INPUT",
+      "title": "【第9章 选择后校准与严格OOS】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCalibration",
+      "input_evidence_sha256": "1dae59ccab5ce96ac879f195e4273106e291f4de8c1a54de3bc04a74960d500c",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。 校准失败到定向变异/新子训练任务由121项主机检查验证；另17项真实Owner续跑证明FIXED_GRAPH子代完成480训练/120验证及冻结，开发截止与诊断边界分离；仍无独立校准/正式Future/自然增益或REAL证明。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false,
+      "r75_evidence_refs": [
+        "evidence/calibration-repair-summary.json",
+        "evidence/mainline-results.json",
+        "evidence/training_repair_continuation.json"
+      ]
+    },
+    {
+      "check_id": "RSEC-060",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第10章 频率与REAL硬门】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectFrequency",
+      "input_evidence_sha256": "78d6ffcc7326c620e9beb27d17f34e7664e1da063ca708d589e05c4099b67f52",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-061",
+      "input_health": "WARN",
+      "input_state": "WARN",
+      "title": "【第11章 失败树与反证】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectFailureTree",
+      "input_evidence_sha256": "5e3f539b38799423f66f87d89789d93500b48c41ca74a84b342dd3991f44ff43",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-062",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【B14动态故障诊断】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "38586a8c16c35a9fbb2980f6d10d40be9fb35f0f82672f4acb587b9c70ef6c93",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-063",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【确认事实/假设分离】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "38586a8c16c35a9fbb2980f6d10d40be9fb35f0f82672f4acb587b9c70ef6c93",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-064",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【因果故障图】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "38586a8c16c35a9fbb2980f6d10d40be9fb35f0f82672f4acb587b9c70ef6c93",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-065",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【修复优先级】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "38586a8c16c35a9fbb2980f6d10d40be9fb35f0f82672f4acb587b9c70ef6c93",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-066",
+      "input_health": "FAIL",
+      "input_state": "BLOCKED_UPSTREAM",
+      "title": "【K3失败九类拆解】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "7e32fec3e4a810a2b30cd0cac71e4bf96dda28243669e2948dd1f94e2a58948f",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-068",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NO_MEASURED_ABLATION",
+      "title": "【策略贡献/冲突/冗余/消融】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "59b45179f846fa390d73a4a994011fedcfed05d66e01d7932ddcb7e07d349835",
+      "r75_fix_relationship": "本轮未制造消融证据。新增矩阵定义发现仅补登记入口，不能替代共同正式Future、父子比较、消融数值及主链贡献证据。",
+      "acceptance_still_required": "需要冻结strict OOS同窗口移除模块比较；没有持久化deltaHit/Brier/coverage/ECE时保持NO_MEASURED_ABLATION。 新增矩阵登记仍需专项回归与source→projection→checkpoint/ACK→consumer验证；20类不因spec存在即算完成。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-069",
+      "input_health": "WARN",
+      "input_state": "WATCH",
+      "title": "【公式/算法/概率审计】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "cd0bf0562cb645d8b4862bf47f386229b264741073b137d87f95769f1c17c9f8",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。 校准失败到定向变异/新子训练任务由121项主机检查验证；另17项真实Owner续跑证明FIXED_GRAPH子代完成480训练/120验证及冻结，开发截止与诊断边界分离；仍无独立校准/正式Future/自然增益或REAL证明。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false,
+      "r75_evidence_refs": [
+        "evidence/calibration-repair-summary.json",
+        "evidence/mainline-results.json",
+        "evidence/training_repair_continuation.json"
+      ]
+    },
+    {
+      "check_id": "RSEC-070",
+      "input_health": "FAIL",
+      "input_state": "FAIL",
+      "title": "【第13章 代码Owner完整性】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCodeOwner",
+      "input_evidence_sha256": "01068fc6038c96ac060431740f8fa63a9f296918cf4add9c05bb53724fcee277",
+      "r75_fix_relationship": "本轮具体Owner的抓取、调度、归档、捕获与校准诊断修复有局部收据；未将完整代码Owner审计或1832条施工合同整体标为通过。新增矩阵持久交替发现/消费已通过551专项及67公共训练冻结Owner延续检查，lag相关COUNT重复扫描已修；最终release字节码/手机仍待验，登记spec不能替代合法源或自然资格。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-071",
+      "input_health": "FAIL",
+      "input_state": "HARD_BLOCK",
+      "title": "【代码Owner与完整性审计】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "9f470fc78be1e9b54453ff19817ef382d3cd93529597d3e7f1a9d1d0c33dd910",
+      "r75_fix_relationship": "本轮具体Owner的抓取、调度、归档、捕获与校准诊断修复有局部收据；未将完整代码Owner审计或1832条施工合同整体标为通过。新增矩阵持久交替发现/消费已通过551专项及67公共训练冻结Owner延续检查，lag相关COUNT重复扫描已修；最终release字节码/手机仍待验，登记spec不能替代合法源或自然资格。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-073",
+      "input_health": "NOT_PROVEN",
+      "input_state": "REAL_LOCKED_SHADOW_ONLY",
+      "title": "【改进Challenger计划】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",
+      "evaluator_method": "render",
+      "input_evidence_sha256": "f4a17504ca6d9a58442e54f7dce63ddcd1566d2599399aafbca0ea4bea4cfafa",
+      "r75_fix_relationship": "候选预留容量早返、独立异常隔离、训练继续调度有助积累真实证据；未降低或绕过证书准入。 校准失败到定向变异/新子训练任务由121项主机检查验证；另17项真实Owner续跑证明FIXED_GRAPH子代完成480训练/120验证及冻结，开发截止与诊断边界分离；仍无独立校准/正式Future/自然增益或REAL证明。",
+      "acceptance_still_required": "仍需连续独立校准241期、正式固定Future窗口、模型/策略/证书/正权重应用/REAL结算实证；现报告校准模型和证书均0，不能宣称已真实出手或保证下一代更强。",
+      "new_runtime_pass_claimed": false,
+      "r75_evidence_refs": [
+        "evidence/calibration-repair-summary.json",
+        "evidence/mainline-results.json",
+        "evidence/training_repair_continuation.json"
+      ]
+    },
+    {
+      "check_id": "RSEC-074",
+      "input_health": "FAIL",
+      "input_state": "FAIL",
+      "title": "【第15章 Finding完整施工账本】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "findingChapter",
+      "input_evidence_sha256": "35ddf4af7dadd098c0f9419535fc5357def184b7a52307f922edd0611e8c9d72",
+      "r75_fix_relationship": "本轮具体Owner的抓取、调度、归档、捕获与校准诊断修复有局部收据；未将完整代码Owner审计或1832条施工合同整体标为通过。新增矩阵持久交替发现/消费已通过551专项及67公共训练冻结Owner延续检查，lag相关COUNT重复扫描已修；最终release字节码/手机仍待验，登记spec不能替代合法源或自然资格。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    },
+    {
+      "check_id": "RSEC-078",
+      "input_health": "FAIL",
+      "input_state": "FAIL",
+      "title": "【第19章 R811结算、证据、SHADOW与Research统一真值】",
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "r811TruthChapter",
+      "input_evidence_sha256": "43b798f0844e1d101c281776f7714bb198a76eb8726cc0de0935e993b0a5130a",
+      "r75_fix_relationship": "抓取旧期择源、数据库写锁持有、研究轮盘预算、捕获异常隔离为本轮相关修复；这些是多个检查引用同一运行事实。",
+      "acceptance_still_required": "仍需升级后连续自然开奖，验证期号一致、落库→结算→新期快照，5秒分析目标与息屏/HOME/任务移除；主机通过不能覆盖现场失败。",
+      "new_runtime_pass_claimed": false
+    }
+  ],
+  "r75_host_repair_evidence": {
+    "calibration_repair": {
+      "status": "PASS_HOST_SCOPE_ONLY",
+      "summary": "evidence/calibration-repair-summary.json",
+      "checks": 121,
+      "modes": 9,
+      "proved": "合成不合格校准诊断生成不同typed AST3；跨JVM登记NURSERY子代、不可变训练输入/协议和TRAIN任务；DEV早于CAL；写锁/父变化/截止拒绝/ACK归档幂等。",
+      "not_proved": "新子独立校准、正式Future、自然增益、证书、手机部署、REAL或全部模型族完成。",
+      "original_calibration_observations_unchanged": true,
+      "new_runtime_pass_claimed": false,
+      "training_continuation": {
+        "summary": "evidence/training_repair_continuation.json",
+        "checks": 17,
+        "training_pulses": 115,
+        "train_n": 480,
+        "validation_n": 120,
+        "model_kind": "FIXED_GRAPH",
+        "proved": "真实TRAIN/FREEZE Owner计算600特征行，生成独立artifact/receipt和冻结模型；DEV截止早于原CAL fitFirst，重放不重复，0继承Future/证书/REAL。"
+      }
+    },
+    "matrix_registration": {
+      "status": "PASS_SCOPED_HOST_OVERLAY_PENDING_FINAL_RELEASE_BYTECODE_AND_PHONE",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixRegistrationR75.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java"
+      ],
+      "scope": "持久交替registration-first与consumption-first的有界quantum，5阶段发现且每页最多8个spec；已有SourceRouter/Projection/ACK Owner提供数值。lag相关COUNT改为一次独立索引阈值读取，保留原连续期/PIT证明。不补造教师/Future/资格。",
+      "acceptance_still_required": "上述专项为当前源码隔离编译/合成主机证据，仍须最终release字节码复跑与手机持续运行；不是20类手机全闭环或自然预测质量。缺绑定/教师/共同Future的真实源继续等待。",
+      "new_runtime_pass_claimed": false,
+      "targeted_host_checks": {
+        "total": 551,
+        "fairness_budget_cursor": 393,
+        "finite_tail_bootstrap_metrics": 57,
+        "source_authority_and_negative_isolation": 101,
+        "product_overlay": true,
+        "summary": "evidence/matrix_registration_result.json",
+        "coverage": "18种拉取源通过实际source→spec→MATRIX Owner→90个SQLite checkpoint→MatrixEvidenceReadCP12消费者；Freeze/Failure是原事件源。"
+      },
+      "training_owner_continuation": {
+        "checks": 67,
+        "summary": "evidence/matrix_registration_owner_summary.json",
+        "scope": "真实公共TRAIN/FREEZE产出数据库的独立副本，零手插矩阵源；跨JVM恢复，保持质量/Future/证书/REAL计数不变。"
+      },
+      "lag_sql_evidence": {
+        "summary": "evidence/matrix_lag_sql.json",
+        "rows": [
+          5000,
+          100000
+        ],
+        "truth_comparisons_per_size": 63,
+        "old_100000_empty_scan": "EXPLICITLY_VM_STEP_INTERRUPTED_NOT_COMPLETED"
+      },
+      "canonical_host_checks": {
+        "checks": 76,
+        "log": "evidence/matrix_canonical_development.log",
+        "scope": "实际 canonical MatrixSourcesCP12Test，当前三源码compile overlay；Freeze/Failure事件源包含在旧canonical。任意无教师关系A/B负例应拒绝，合法教师正例在R75源fixture单独验证。"
+      }
+    },
+    "retention_final_release": {
+      "status": "PASS_FINAL_RELEASE_BYTECODE_HOST_SCOPE_ONLY",
+      "summary": "evidence/final_retention_manifest.json",
+      "source_commit": "452854cc8a82933d5547e1b81789beb22dbe4c49",
+      "revision_checks": 20,
+      "archive_checks": 42,
+      "product_overlay_compiled": false,
+      "product_class_collisions": [],
+      "product_classes_unchanged_after_both_runs": true,
+      "scope": "两个独立新SQLite数据库，真实产品Owner和native备份；只编译fixture/Android适配。旧百万行失败和开发日志保留；手机归档、真实空间回收及1–9全量未验。",
+      "new_runtime_pass_claimed": false
+    }
+  }
+}

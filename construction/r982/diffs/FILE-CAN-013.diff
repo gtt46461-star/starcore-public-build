@@ -1,0 +1,41 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java b/app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java
+index 8cf3af7..60af564 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java
+@@ -1407,4 +1407,36 @@ public final class AnalysisRequestStoreR36 {
+     private static String safe(String value) {
+         return value == null ? "" : value.trim();
+     }
++
++public static String diagnosticSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String target) {
++        DurableRow row = readDurableRow(report.readable(), target);
++        if (row == null) return "REQUEST_ROW_MISSING";
++        return "status="
++                + row.status
++                + "|generation="
++                + row.generation
++                + "|attempts="
++                + row.attempts
++                + "|stage="
++                + row.lastStage
++                + "|error="
++                + row.error
++                + "|firstError="
++                + row.firstError
++                + "|owner="
++                + row.leaseOwner
++                + "|leaseUntil="
++                + row.leaseUntil
++                + "|nextAttemptAt="
++                + row.nextAttemptAt
++                + "|deadlineAt="
++                + row.deadlineAt
++                + "|repair="
++                + row.repairVersion;
++    }
++
++public static String statusSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String target) {
++        DurableRow row = readDurableRow(report.readable(), target);
++        return row == null ? "MISSING" : row.status;
++    }
+ }

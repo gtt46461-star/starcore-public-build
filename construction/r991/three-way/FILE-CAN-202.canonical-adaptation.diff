@@ -1,0 +1,11 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+@@ -641,7 +641,7 @@
+                 (assetGovernance.applied ? assetGovernance.proof() + "|" : "")
+                         + (algorithmGovernance.applied
+                                 ? algorithmGovernance.proof()
+-                                : governance.status),
++                                : governance.status)+"|choice_reason="+UnifiedResearchChoiceR932.currentChoiceReasonCP12(store,targetIssue),
+                 governanceCandidate,
+                 !governance.applied
+                         && (assetGovernance.applied

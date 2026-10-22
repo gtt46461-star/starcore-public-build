@@ -1,0 +1,40 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/UiSnapshotBuilder.java b/app/src/main/java/com/ethk3/novaonepro/UiSnapshotBuilder.java
+index 13a55c4..9356cc4 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/UiSnapshotBuilder.java
++++ b/app/src/main/java/com/ethk3/novaonepro/UiSnapshotBuilder.java
+@@ -130,7 +130,7 @@ public final class UiSnapshotBuilder {
+             out.runtime =
+                     "BusinessTruth=FAIL｜rootCause=READ_ERROR｜"
+                             + e.getClass().getSimpleName();
+-            out.rootCause = "READ_ERROR";
++            out.rootCause = Models.ReasonCode.UNKNOWN_READ_FAILED.name();
+             finalizeSnapshot(out);
+             return out;
+         }
+@@ -149,11 +149,13 @@ public final class UiSnapshotBuilder {
+             return "目标期="
+                     + issue(value.targetIssue)
+                     + "｜"
+-                    + safe(value.blockCode)
++                    + CanonicalReasonCP12.displayDecision(value)
+                     + "\nSelectedHitP="
+                     + UiFormatter.formatOptionalProbability(false, value.finalP, value.blockCode)
+                     + "\n"
+-                    + bounded(value.reasonSummary, 360);
++                    + bounded(value.reasonSummary, 360)
++                    + "\nReason=" + CanonicalReasonCP12.displayDecision(value)
++                    + "|receipt=" + CanonicalReasonCP12.persistedCode(value.reasonText).name();
+         }
+         return "目标期="
+                 + issue(value.targetIssue)
+@@ -172,7 +174,9 @@ public final class UiSnapshotBuilder {
+                 + CanonicalDecisionViewAdapterR36.settlementStatus(
+                         store, value.targetIssue, value.settled)
+                 + "\n"
+-                + bounded(value.reasonSummary, 360);
++                + bounded(value.reasonSummary, 360)
++                    + "\nReason=" + CanonicalReasonCP12.displayDecision(value)
++                    + "|receipt=" + CanonicalReasonCP12.persistedCode(value.reasonText).name();
+     }
+ 
+     private static String window(DiagnosticSnapshotR811.WindowStats stats) {

@@ -1,0 +1,30 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/AtomicToolWorldR943.java b/app/src/main/java/com/ethk3/novaonepro/AtomicToolWorldR943.java
+index c2a4aab..2fe3aad 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/AtomicToolWorldR943.java
++++ b/app/src/main/java/com/ethk3/novaonepro/AtomicToolWorldR943.java
+@@ -147,4 +147,25 @@ public final class AtomicToolWorldR943 {
+     }
+     static byte[] pack(double[] x){try{ByteArrayOutputStream b=new ByteArrayOutputStream();DataOutputStream d=new DataOutputStream(b);for(double v:x){if(!Double.isFinite(v))throw new IllegalArgumentException("ATOMIC_NONFINITE");d.writeDouble(v);}d.close();return b.toByteArray();}catch(IOException e){throw new IllegalStateException(e);}}
+     static double[] unpack(byte[] b,int n){if(b==null||b.length!=n*8)throw new IllegalArgumentException("ATOMIC_VECTOR_SHAPE");try{DataInputStream in=new DataInputStream(new ByteArrayInputStream(b));double[] x=new double[n];for(int i=0;i<n;i++){x[i]=in.readDouble();if(!Double.isFinite(x[i]))throw new IllegalArgumentException("ATOMIC_VECTOR_NONFINITE");}return x;}catch(IOException e){throw new IllegalStateException(e);}}
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store,boolean detail){
++        com.ethk3.novaonepro.ReportTextCP12 out=new com.ethk3.novaonepro.ReportTextCP12(report, "原子世界：165项可评分原子→分箱工具→7组神经网络→资产原料选择。\n");
++        try{SQLiteDatabase db=store.readable();
++            out.append(store.getState("r943_atomic_world_training","等待首次开奖前原子冻结")).append('\n');
++            try(Cursor c=report.select("SELECT state,COUNT(*),MIN(n),MAX(n) FROM "+QUALITY+" GROUP BY state",null)){while(c.moveToNext())out.append(c.getString(0)).append("：").append(c.getInt(1)).append("项；样本范围 ").append(c.getInt(2)).append("–").append(c.getInt(3)).append('\n');}
++            if(detail)for(Quality q:qualitiesSnapshotCP4(report, db).values())out.append(GenesisSchemaRegistryR915.atoms().get(q.index).id).append(" | ").append(q.state).append(" | N=").append(q.n).append(" | missing=").append(q.missing).append(" | BrierGain=").append(q.n==0?"未知":q.gain/q.n).append(" | lower=").append(q.lower()).append(" | positive120Blocks=").append(q.positiveBlocks).append('/').append(q.blocks).append('\n');
++            out.append("特征增益仅用于研究选材；新资产仍须独立未来样本与同一证书门。原子缺失、负增益和隔离状态均保留原因。");
++        }catch(Exception e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++        return out.toString();
++    }
++
++static Map<Integer,Quality> qualitiesSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db){
++        Map<Integer,Quality> out=new HashMap<Integer,Quality>();
++        try(Cursor c=report.select("SELECT atom_index,n,missing,counts,gain_sum,gain_sq,block_n,block_gain,positive_blocks,blocks,state,last_issue FROM "+QUALITY,null)){
++            while(c.moveToNext()){Quality q=new Quality();q.index=c.getInt(0);q.n=c.getInt(1);q.missing=c.getInt(2);q.counts=unpackSnapshotCP4(report, c.getBlob(3),10);q.gain=c.getDouble(4);q.gainSq=c.getDouble(5);q.blockN=c.getInt(6);q.blockGain=c.getDouble(7);q.positiveBlocks=c.getInt(8);q.blocks=c.getInt(9);q.state=c.getString(10);q.last=c.getString(11);out.put(q.index,q);}
++        }
++        return out;
++    }
++
++static double[] unpackSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, byte[] b,int n){if(b==null||b.length!=n*8)throw new IllegalArgumentException("ATOMIC_VECTOR_SHAPE");try{DataInputStream in=new DataInputStream(new ByteArrayInputStream(b));double[] x=new double[n];for(int i=0;i<n;i++){x[i]=in.readDouble();if(!Double.isFinite(x[i]))throw new IllegalArgumentException("ATOMIC_VECTOR_NONFINITE");}return x;}catch(IOException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}}
+ }

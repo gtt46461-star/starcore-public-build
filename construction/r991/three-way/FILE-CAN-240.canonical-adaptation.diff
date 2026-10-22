@@ -1,0 +1,25 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java
+@@ -60,6 +60,11 @@
+     /** Caller owns short DatabaseCoordinator write transaction; numerical apply must already have completed. */
+     public static boolean commitCP4(SQLiteDatabase db,CheckpointCP4 expected,CheckpointCP4 next,long now) {
+         if(!db.inTransaction()||next==null)throw new IllegalStateException("CP4_MATRIX_TRANSACTION");
++        // A payload hash does not authenticate its schema/header. Reject an incompatible
++        // prepared identity before either the checkpoint or its consumption ACK is written.
++        if(!MatrixProjectionCP12.SCHEMA_HASH.equals(next.schemaHash)
++                ||expected!=null&&!next.schemaHash.equals(expected.schemaHash))
++            throw new IllegalArgumentException("CP12_MATRIX_SCHEMA_MISMATCH");
+         String consumer="MATRIX_CP4/"+next.matrixId;
+         try(Cursor ack=db.rawQuery("SELECT result_hash,through_issue FROM research_projection_ack_v2 WHERE consumer=? AND source_hash=?",new String[]{consumer,next.lastReceipt})) {
+             if(ack.moveToFirst()) {
+@@ -74,7 +79,9 @@
+             if(!expected.matrixId.equals(next.matrixId)||next.version!=expected.version+1
+                     ||TargetIssueResolver.compare(next.throughIssue,expected.throughIssue)<0)
+                 throw new IllegalArgumentException("CP4_MATRIX_VERSION_ORDER");
+-            db.execSQL("UPDATE research_matrix_checkpoint_v2 SET version=?,through_issue=?,last_receipt=?,payload=?,payload_hash=?,sample_count=?,updated_at=? WHERE matrix_id=? AND version=? AND payload_hash=? AND last_receipt=? AND through_issue=?",new Object[]{next.version,next.throughIssue,next.lastReceipt,next.payload(),next.payloadHash,next.sampleCount,now,expected.matrixId,expected.version,expected.payloadHash,expected.lastReceipt,expected.throughIssue});
++            // Header changes during off-writer preparation must lose the same CAS as
++            // payload/version changes. Numerical decoding remains outside this transaction.
++            db.execSQL("UPDATE research_matrix_checkpoint_v2 SET version=?,through_issue=?,last_receipt=?,payload=?,payload_hash=?,sample_count=?,updated_at=? WHERE matrix_id=? AND version=? AND payload_hash=? AND last_receipt=? AND through_issue=? AND matrix_type=? AND partition_key=? AND window_size=? AND feature_manifest_hash=? AND schema_hash=? AND sample_count=? AND payload_codec='BINARY_V1'",new Object[]{next.version,next.throughIssue,next.lastReceipt,next.payload(),next.payloadHash,next.sampleCount,now,expected.matrixId,expected.version,expected.payloadHash,expected.lastReceipt,expected.throughIssue,expected.matrixType,expected.partitionKey,expected.windowSize,expected.featureManifestHash,expected.schemaHash,expected.sampleCount});
+         }
+         try(Cursor changes=db.rawQuery("SELECT changes()",null)){if(!changes.moveToFirst()||changes.getInt(0)!=1)return false;}
+         db.execSQL("INSERT INTO research_projection_ack_v2(consumer,source_hash,result_hash,through_issue,created_at) VALUES(?,?,?,?,?)",new Object[]{consumer,next.lastReceipt,next.payloadHash,next.throughIssue,now});

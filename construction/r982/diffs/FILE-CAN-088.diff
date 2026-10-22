@@ -1,0 +1,149 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MainActivity.java b/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+index fc2c440..22f585a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+@@ -221,6 +221,7 @@ public final class MainActivity extends Activity {
+     private long liveCountdownMs;
+     private long liveCountdownAt;
+     private String liveCountdownTargetR971 = "";
++    private CountdownProjectionR971.Anchor liveClockAnchorCP12;
+ 
+     private boolean userScrolling;
+     private boolean pendingLightRefresh;
+@@ -373,6 +374,16 @@ public final class MainActivity extends Activity {
+                         String currentIssue = intent.getStringExtra(AppConfig.EXTRA_CURRENT_ISSUE);
+                         String targetIssue = intent.getStringExtra(AppConfig.EXTRA_TARGET_ISSUE);
+ 
++                        try{
++                            CountdownProjectionR971.Anchor incoming=CountdownProjectionR971.Anchor.received(
++                                targetIssue,intent.getLongExtra("clock_revision_cp12",-1L),intent.getStringExtra("clock_session_cp12"),
++                                intent.getLongExtra("clock_deadline_wall_cp12",0L),intent.getLongExtra("clock_deadline_mono_cp12",0L),intent.getLongExtra("clock_anchor_sampled_cp12",-1L));
++                            long signed=incoming.signedRemaining(targetIssue,incoming.revision,TimeSourceR811.clockSessionCP12(),TimeSourceR811.monoNowMs());
++                            if(signed==CountdownProjectionR971.STALE_CLOCK)return;
++                            if(liveClockAnchorCP12!=null&&incoming.targetIssue.equals(liveClockAnchorCP12.targetIssue)
++                                    &&incoming.session.equals(liveClockAnchorCP12.session)&&incoming.revision<liveClockAnchorCP12.revision)return;
++                            liveClockAnchorCP12=incoming;
++                        }catch(IllegalArgumentException rejectedClock){return;}
+                         liveCountdownMs = ms;
+                         liveCountdownAt = intent.getLongExtra("r971_tick_elapsed", android.os.SystemClock.elapsedRealtime());
+                         liveCountdownTargetR971 = targetIssue == null ? "" : targetIssue;
+@@ -1080,8 +1091,7 @@ public final class MainActivity extends Activity {
+             android.net.Uri packageUri =
+                     android.net.Uri.parse("package:" + getPackageName());
+             if (Build.VERSION.SDK_INT >= 23 && !capability.ignoringBatteryOptimizations) {
+-                intent = new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+-                intent.setData(packageUri);
++                intent = new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+             } else if (Build.VERSION.SDK_INT >= 31 && !capability.exactAlarmRuntimeGranted) {
+                 intent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                 intent.setData(packageUri);
+@@ -1095,7 +1105,9 @@ public final class MainActivity extends Activity {
+             startActivity(intent);
+         } catch (Throwable primary) {
+             try {
+-                startActivity(new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
++                Intent fallback = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
++                fallback.setData(android.net.Uri.parse("package:" + getPackageName()));
++                startActivity(fallback);
+             } catch (Throwable fallback) {
+                 Toast.makeText(this, "无法打开系统后台设置，请手动允许自启动和无限制电池使用", Toast.LENGTH_LONG).show();
+             }
+@@ -4514,16 +4526,11 @@ public final class MainActivity extends Activity {
+         boolean snapshotTarget = state != null && sameIssueText(state.targetIssue, uiLockedTargetIssue);
+         if (liveCountdownAt > 0L && liveTarget
+                 && (snapshot == null || !snapshotTarget || liveCountdownAt >= snapshot.loadedElapsedAtR971)) {
+-            return CountdownProjectionR971.remaining(liveCountdownMs, liveCountdownAt, now);
+-        }
+-        if (snapshot != null && snapshotTarget) {
+-            // Use the persisted absolute deadline, not a repeatedly reloaded constant countdown_ms.
+-            long deadline = state.nextOpenTime;
+-            if (deadline <= 0L && snapshot.latestDraw != null && snapshot.latestDraw.openTime > 0L)
+-                deadline = snapshot.latestDraw.openTime + 60000L;
+-            return CountdownProjectionR971.remaining(
+-                    CountdownProjectionR971.atRead(deadline, snapshot.loadedAt), snapshot.loadedElapsedAtR971, now);
++            if(liveClockAnchorCP12==null)return 0L;
++            long remain=liveClockAnchorCP12.remaining(uiLockedTargetIssue,liveClockAnchorCP12.revision,TimeSourceR811.clockSessionCP12(),now);
++            return remain==CountdownProjectionR971.STALE_CLOCK?0L:remain;
+         }
++        // Persistedwall timestamps remain diagnostic evidence. Display waits for the Clockowner's same-session anchor after process/reboot; UIdoesnotcreate another anchor from walltime.
+         return 0L; // Waiting for a verified target, never fabricate another 60-second cycle.
+     }
+ 
+@@ -6662,7 +6669,7 @@ public final class MainActivity extends Activity {
+         tv.setEllipsize(TextUtils.TruncateAt.END);
+ 
+         if (bold) {
+-            tv.setTypeface(null, 1);
++            tv.setTypeface(null, android.graphics.Typeface.BOLD);
+         }
+ 
+         return tv;
+@@ -6711,6 +6718,9 @@ public final class MainActivity extends Activity {
+         }
+     }
+ 
++    // API<33 uses a signature permission on every internal action; API33+ additionally
++    // uses NOT_EXPORTED. The four-argument legacy overload has no flags parameter.
++    @android.annotation.SuppressLint("UnspecifiedRegisterReceiverFlag")
+     private void registerServiceReceiver() {
+         if (receiverRegistered) {
+             return;
+@@ -6725,7 +6735,8 @@ public final class MainActivity extends Activity {
+             filter.addAction(AppConfig.ACTION_TEACHER_MATRIX_UPDATED);
+             filter.addAction(ACTION_V20_CAUSE_CHAIN_UPDATED);
+ 
+-            registerReceiver(serviceReceiver, filter);
++            if(Build.VERSION.SDK_INT>=33)registerReceiver(serviceReceiver,filter,Context.RECEIVER_NOT_EXPORTED);
++            else registerReceiver(serviceReceiver,filter,getPackageName()+".permission.INTERNAL_EVENT",null);
+             receiverRegistered = true;
+         } catch (Throwable e) {
+         }
+@@ -6847,7 +6858,7 @@ public final class MainActivity extends Activity {
+         try {
+             r = AppConfig.normalizeResult(r);
+         } catch (Throwable e) {
+-            r = r.trim().toUpperCase();
++            r = r.trim().toUpperCase(java.util.Locale.ROOT);
+         }
+ 
+         return AppConfig.RESULT_WIN.equals(r)
+@@ -8907,11 +8918,11 @@ public final class MainActivity extends Activity {
+     }
+ 
+     private String buildAlwaysOnPermissionStatusV17() {
+-        boolean batteryIgnored = false;
++        boolean batteryIgnored = android.os.Build.VERSION.SDK_INT < 23;
+         boolean exact = true;
+         try {
+             android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+-            batteryIgnored = pm != null && pm.isIgnoringBatteryOptimizations(getPackageName());
++            if(android.os.Build.VERSION.SDK_INT >= 23)batteryIgnored = pm != null && pm.isIgnoringBatteryOptimizations(getPackageName());
+         } catch (Throwable e) {
+         }
+         try {
+@@ -9028,7 +9039,7 @@ public final class MainActivity extends Activity {
+             panel.addView(summary);
+ 
+             final Button copy = new Button(this);
+-            copy.setText("一键导出完整检测报告 TXT（全部内容）");
++            copy.setText("导出完整检测报告（全部内容）");
+             panel.addView(copy);
+             final Button forensic = new Button(this);
+             forensic.setText("查看运行、结算与真实出手详情");
+@@ -9080,7 +9091,7 @@ public final class MainActivity extends Activity {
+                     new View.OnClickListener() {
+                         @Override
+                         public void onClick(View v) {
+-                            CompleteReportFileR927.export(MainActivity.this, copy, summary);
++                            CompleteReportFileR927.openExportMenu(MainActivity.this, copy, summary);
+                         }
+                     });
+             forensic.setOnClickListener(
+@@ -9161,6 +9172,7 @@ public final class MainActivity extends Activity {
+                     // Full details live in their file-backed pages; never lay out unbounded dashboard text.
+                     for (int i = 0; i < cards.length; i++) cards[i] = limitText(cards[i], 1000);
+                     for (int i = 0; i < operational.length; i++) operational[i] = limitText(operational[i], 1200);
++                    cards[2] = snapshot.businessFunnel == null ? "业务漏斗 UNKNOWN｜"+snapshot.readError : snapshot.businessFunnel.summary();
+                     Handler handler = uiHandler;
+                     if (handler == null || !handler.post(new Runnable() {
+                         private int cardIndex;

@@ -1,0 +1,54 @@
+[
+  {
+    "name": "r984-provenance",
+    "command": [
+      "bash",
+      "scripts/r817_generate_provenance.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 2.231
+  },
+  {
+    "name": "r984-compile",
+    "command": [
+      "/tmp/starcore-cdaf1f33/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--console=plain",
+      "compileReleaseJavaWithJavac",
+      "-x",
+      "generateR982SourceCallAsset"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 20.868
+  },
+  {
+    "name": "r984-freeze",
+    "command": [
+      "python3",
+      "scripts/r982_source_call_asset.py",
+      "--freeze",
+      "--classes",
+      "app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 3.96
+  },
+  {
+    "name": "r984-build",
+    "command": [
+      "/tmp/starcore-cdaf1f33/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--console=plain",
+      "clean",
+      "assembleRelease",
+      "testDebugUnitTest",
+      "lintRelease"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 166.475
+  }
+]

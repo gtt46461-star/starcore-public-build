@@ -1,0 +1,16 @@
+# 必跑负例
+- Future样本不足却尝试晋级 → FAIL
+- post-draw补写predraw → FAIL
+- 历史样本标成Future → FAIL
+- duplicate settlement → no second effect
+- duplicate training delivery → no second update
+- stale certificate/dependency drift → reject
+- revoked certificate → reject
+- Research create REAL → reject
+- K4/dynamicK/multi-position/chase/martingale/doubling/frequency-debt → source/runtime gates reject
+- PIT future leakage → reject
+- model artifact hash drift → reject
+- migration中断后重启 → re-enter and converge
+- clear-data/new install → safe bootstrap, no assumption of prior unverifiable training
+- file freeze byte drift → fail
+- source/APK mismatch → fail

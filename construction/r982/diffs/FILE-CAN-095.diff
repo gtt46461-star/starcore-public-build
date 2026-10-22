@@ -1,0 +1,46 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ModuleAblationR932.java b/app/src/main/java/com/ethk3/novaonepro/ModuleAblationR932.java
+index b200d1a..cd8759c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ModuleAblationR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ModuleAblationR932.java
+@@ -39,6 +39,7 @@ public final class ModuleAblationR932 {
+         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r932_module_summary ON "+TABLE+"(code_hash,module,state,target_issue)");
+     }
+     static JSONObject analyze(List<String> proofs,String sourceHash,Models.Draw actual,ModuleReplayR932.Module module)throws Exception {
++        try(RecipeBudgetScopeCP12 recipeScope=RecipeBudgetScopeCP12.open()){
+         FrozenModuleInputR932.Input input=FrozenModuleInputR932.decode(proofs);
+         if(actual==null||!actual.isValid()||!actual.issue.equals(input.target))throw new IllegalArgumentException("R932_ABLATION_ACTUAL_ISSUE");
+         long start=System.nanoTime();
+@@ -62,6 +63,7 @@ public final class ModuleAblationR932 {
+             result.put("delta_brier",JSONObject.NULL);result.put("brier_status","MODULE_SPECIFIC_CALIBRATION_REQUIRED; ORIGINAL_SELECTOR_CAL_IS_NOT_REUSED");
+             result.put("measured_cost_ns",Math.max(0,System.nanoTime()-start));result.put("scope","POSTMORTEM_SAME_INPUT_NOT_FUTURE_PROMOTION_EVIDENCE");result.put("minimum_failure_support",MIN_FAILURE_SUPPORT);result.put("may_authorize_real",false);return result;
+         }
++        }
+     }
+     static boolean hasRunnableWork(SQLiteDatabase db) {
+         String current="",cursor="",source="";
+@@ -130,4 +132,25 @@ public final class ModuleAblationR932 {
+         }});if(!ok)throw new IllegalStateException("R932_ABLATION_RESULT_COMMIT_FAILED");
+         return hasRunnableWork(store.readable())?"MODULE_PENDING":"MODULE_RESEARCH_REVIEWED";
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        com.ethk3.novaonepro.ReportTextCP12 out=new com.ethk3.novaonepro.ReportTextCP12(report, "\n同输入模块消融（最近240条已重跑样本）\n");
++        for(ModuleReplayR932.Module module:ModuleReplayR932.Module.values())if(module!=ModuleReplayR932.Module.BASELINE) {
++            Summary s=summarySnapshotCP4(report, store,module);out.append(module.name()).append("：N=").append(s.cases).append("，原失败样本=").append(s.failures).append('/').append(MIN_FAILURE_SUPPORT);
++            out.append(s.sufficient?"，平均命中变化="+s.meanDeltaHit:"，不足以归因");out.append("，校准配对N=").append(s.brierCases).append(s.sufficient&&s.brierCases>=MIN_FAILURE_SUPPORT?"，平均ΔBrier="+s.meanDeltaBrier:"，ΔBrier支持不足").append('\n');
++        }
++        return out.append("未激活模块另记负对照；缺冻结输入/原结果复现失败不计样本。ΔBrier使用严格更早120拟合/1隔离/120验证的模块专用校准；不足或验证失败显示缺失。消融不是未来晋级证据。\n").toString();
++    }
++
++public static Summary summarySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store,ModuleReplayR932.Module module) {
++        int n=0,failures=0,brierN=0;double sum=0,brierSum=0;
++        try(Cursor exists=report.select("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{TABLE})){if(!exists.moveToFirst())return new Summary(0,0,0);}
++        try(Cursor c=report.select("SELECT payload,payload_hash FROM "+TABLE+" WHERE code_hash=? AND module=? AND state='REEXECUTED' ORDER BY target_issue DESC LIMIT 240",new String[]{SourceManifestR815.SOURCE_TREE_SHA256,module.name()})) {
++            while(c.moveToNext()) {
++                if(!com.ethk3.novaonepro.ReportTextCP12.sha256(report, c.getString(0)).equals(c.getString(1)))throw new IllegalStateException("R932_ABLATION_REPORT_HASH");
++                try{JSONObject row=new JSONObject(c.getString(0));n++;if(row.getBoolean("original_failure"))failures++;sum+=row.getInt("delta_hit");if(row.has("delta_brier")&&!row.isNull("delta_brier")){double delta=row.getDouble("delta_brier");if(!Double.isFinite(delta))throw new IllegalStateException("R932_ABLATION_REPORT_NONFINITE");brierN++;brierSum+=delta;}}catch(JSONException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++            }
++        }
++        return new Summary(n,failures,sum,brierN,brierSum);
++    }
+ }

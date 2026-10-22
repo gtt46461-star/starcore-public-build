@@ -1,0 +1,50 @@
+name: starcore-tianshu-b03-boundary-assertions
+
+on:
+  push:
+    branches:
+      - v57-full/b03
+
+permissions:
+  contents: read
+
+jobs:
+  boundary-assertions:
+    if: contains(github.event.head_commit.message, '[b03-boundary-assertions]')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact B03 branch
+        uses: actions/checkout@v4
+        with:
+          ref: v57-full/b03
+          fetch-depth: 0
+
+      - name: Reconstruct six files and label every post-parse assertion
+        shell: bash
+        env:
+          B03_REPO_ROOT: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b03/materializer.part-* | base64 --decode | gzip --decompress > tools/starcore_tianshu_b03_materialize.py
+          printf '%s  %s\n' '58fbaa501e8d171d08637fdaf3d02562038c514794d537e5c7cb874bb6ecf44e' tools/starcore_tianshu_b03_materialize.py | sha256sum -c -
+          python3 -m py_compile tools/starcore_tianshu_b03_materialize.py
+          python3 tools/starcore_tianshu_b03_materialize.py --apply >/dev/null
+          python3 tools/starcore_tianshu_b03_materialize.py --verify >/dev/null
+          ROOT=app/src/main/java/com/ethk3/novaonepro
+          check() {
+            label="$1"; shift
+            if "$@"; then echo "PASS $label"; else echo "FAIL $label"; return 1; fi
+          }
+          failed=0
+          check DB_IDENTITY grep -F 'binance_k3_nova_one_pro_v57.db' "$ROOT/DbHelper.java" "$ROOT/DatabaseMigrationEngine.java" "$ROOT/DatabaseIntegrityVerifier.java" || failed=1
+          check REAL_BET_LITERAL grep -F 'REAL_BET_HARD_DISABLED' "$ROOT/V51Repository.java" || failed=1
+          check LEGACY_DRAW_ONLY grep -F 'LEGACY_DRAW_ONLY' "$ROOT/DatabaseMigrationEngine.java" || failed=1
+          check FOREIGN_KEY_CHECK grep -F 'PRAGMA foreign_key_check' "$ROOT/DatabaseIntegrityVerifier.java" || failed=1
+          check LEDGER_LITERAL grep -F 'b03_prediction_ledger' "$ROOT/DbHelper.java" "$ROOT/DbStore.java" "$ROOT/V51Repository.java" || failed=1
+          if grep -R -E 'TODO|FIXME|UnsupportedOperationException' "$ROOT/DbHelper.java" "$ROOT/DatabaseCoordinator.java" "$ROOT/DatabaseMigrationEngine.java" "$ROOT/DatabaseIntegrityVerifier.java" "$ROOT/DbStore.java" "$ROOT/V51Repository.java"; then echo 'FAIL FORBIDDEN_PLACEHOLDERS'; failed=1; else echo 'PASS FORBIDDEN_PLACEHOLDERS'; fi
+          echo '--- V51Repository BET/GATE semantic context ---'
+          grep -n -E 'REAL_BET|HARD_DISABLED|SHADOW|BET|authorize|Authoriz|DecisionGate|may.*Bet|allow.*Bet' "$ROOT/V51Repository.java" | head -120 || true
+          echo '--- Database identity context ---'
+          grep -n -E 'binance_k3_nova_one_pro_v57|DATABASE_NAME|DB_NAME|LEGACY_DRAW_ONLY|foreign_key_check|b03_prediction_ledger' "$ROOT/DbHelper.java" "$ROOT/DatabaseMigrationEngine.java" "$ROOT/DatabaseIntegrityVerifier.java" "$ROOT/DbStore.java" "$ROOT/V51Repository.java" | head -200 || true
+          exit "$failed"

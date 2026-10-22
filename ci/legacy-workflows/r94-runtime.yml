@@ -1,0 +1,44 @@
+name: C019 C020 original signed upgrade and completed schema oracle
+on:
+  push:
+    branches: [construction/c019-c020-completion-20261021]
+    paths: ['.github/workflows/r94-runtime.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c019-c020-r94-real-android
+  cancel-in-progress: false
+jobs:
+  actual-ART-original-signed-upgrade:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /construction/c_chain_20261018/C015-C018/transport/39441500601/*payloads*
+            /construction/c_chain_20261018/C015-C018/transport/39441500601/manifest.json
+            /construction/c_chain_20261018/C019-C020/r94/runs/39522960693/transport/*payloads*
+            /construction/c_chain_20261018/C019-C020/r94/runs/39522960693/transport/manifest.json
+            /construction/c_chain_20261018/C019-C020/runtime_r94/**
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Official API35 runtime and API36 signing verification tools
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME']);manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'build-tools;36.0.0','emulator','system-images;android-35;google_apis;x86_64'],check=True)
+          PY
+          sudo chmod 666 /dev/kvm
+      - name: Exact signed APK baseline negatives cover upgrade schema recovery and real runtime
+        run: python3 construction/c_chain_20261018/C019-C020/runtime_r94/probe_r94.py

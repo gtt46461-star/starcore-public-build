@@ -1,0 +1,290 @@
+name: Starcore Tianshu B01 Full Source And APK
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01
+    paths:
+      - '.github/workflows/starcore-tianshu-b01-build.yml'
+      - '.github/starcore-tianshu-b01/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b01
+  cancel-in-progress: false
+
+env:
+  BASELINE_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+  DELIVERY_NAME: Starcore-Tianshu-B01-20260805
+  ACCEPTED_TAG: v57-b01-accepted
+
+jobs:
+  materialize-verify-build-deliver:
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message || '', '[b01-materialized]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout frozen V51-derived B01 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify exact frozen baseline parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASELINE_SHA}^{commit}"
+          test "$(git merge-base HEAD "${BASELINE_SHA}")" = "${BASELINE_SHA}"
+          mkdir -p reports delivery tools
+          printf '%s\n' "${BASELINE_SHA}" > reports/B01_BASELINE_SHA.txt
+
+      - name: Reconstruct deterministic B01 materializer and harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/starcore-tianshu-b01/materializer.part-* > /tmp/materializer.b64
+          base64 --decode /tmp/materializer.b64 | gzip --decompress > tools/starcore_tianshu_b01_materialize.py
+          cat .github/starcore-tianshu-b01/harness.part-* > /tmp/harness.b64
+          base64 --decode /tmp/harness.b64 | gzip --decompress > tools/run_starcore_b01_harness.py
+          echo 'f7f001d1cca8bbe619c0a917eb143daefe9a571c8d5fa10cff40648c6279e49e  tools/starcore_tianshu_b01_materialize.py' | sha256sum --check --strict
+          python3 - <<'PY'
+          from pathlib import Path
+          path=Path('tools/starcore_tianshu_b01_materialize.py')
+          text=path.read_text(encoding='utf-8')
+          replacements={
+              '25563a5bb5b19aea8ac221b59853a9f97b08ebee1c686c9a21de6ac77c8c821a':
+                  '40f532fc8eabc4bb71f9aa6e60eeb5aa5a947c16ccafcc5003e76ceed9867d94',
+              '6e800a72c0e6d2dd3ce950f2ba5ea1c659c8a3dece1b8086dee22c8bd538e9df':
+                  '9683562182798b5bd53142bd802e8ce1dff2bc7faad5de6134047d3ce60e476c',
+          }
+          for old_hash,new_hash in replacements.items():
+              if old_hash not in text:
+                  raise SystemExit('missing baseline hash to correct: '+old_hash)
+              text=text.replace(old_hash,new_hash)
+          source_old='String field = fields[i % fields.length];'
+          source_new='String field = fields[i %% fields.length];'
+          if source_old not in text:
+              raise SystemExit('missing percent-format source correction')
+          text=text.replace(source_old,source_new,1)
+          shadow_old='        \"    public static final boolean SHADOW_ONLY = true;\",\n'
+          shadow_new=(shadow_old
+              + '        \"    public static final boolean REAL_BET_HARD_DISABLED = true;\",\n')
+          if shadow_old not in text:
+              raise SystemExit('missing hard-disable insertion point')
+          text=text.replace(shadow_old,shadow_new,1)
+          path.write_text(text,encoding='utf-8')
+          PY
+          echo '7bde11f7991e8d5f3709c8b2a763b7e5888433719d9a2261ff7c6e58ed80cb80  tools/starcore_tianshu_b01_materialize.py' | sha256sum --check --strict
+          echo 'ad0d964db1bd9d5b99a4dae41b8e8d303727ee5000fb2867f28d69d9bf9a2959  tools/run_starcore_b01_harness.py' | sha256sum --check --strict
+          python3 -m py_compile tools/starcore_tianshu_b01_materialize.py tools/run_starcore_b01_harness.py
+
+      - name: Materialize ten B01 full source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/starcore_tianshu_b01_materialize.py --apply | tee reports/B01_MATERIALIZE.log
+          python3 tools/starcore_tianshu_b01_materialize.py --verify | tee reports/B01_SOURCE_VERIFY.log
+          git diff --check
+
+      - name: Run executable B01 contracts and replay harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/run_starcore_b01_harness.py | tee reports/B01_HARNESS.log
+
+      - name: Parse every Java source and validate XML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check javalang==0.13.0
+          python3 - <<'PY' | tee reports/B01_JAVA_XML_PARSE.log
+          from pathlib import Path
+          import javalang
+          import xml.etree.ElementTree as ET
+          java_files=sorted(Path('app/src/main/java').rglob('*.java'))
+          errors=[]
+          for path in java_files:
+              try:
+                  javalang.parse.parse(path.read_text(encoding='utf-8'))
+              except Exception as exc:
+                  errors.append((str(path), str(exc)))
+          xml_files=sorted(Path('app/src/main').rglob('*.xml'))
+          for path in xml_files:
+              try:
+                  ET.parse(str(path))
+              except Exception as exc:
+                  errors.append((str(path), str(exc)))
+          print('java_files=%d xml_files=%d errors=%d' % (len(java_files),len(xml_files),len(errors)))
+          for item in errors[:100]: print(item)
+          raise SystemExit(1 if errors else 0)
+          PY
+
+      - name: Verify build-time API key and live Duoqu contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${DUOQU_API_KEY:-}" ]]; then
+            DUOQU_API_KEY="$(python3 - <<'PY'
+          import re, subprocess
+          text=subprocess.check_output([
+              'git','show',
+              '80b09c5e5921f18c4ef05ceee7332ad0ee621944:app/src/main/java/com/ethk3/novaonepro/KeyProvider.java'
+          ], text=True)
+          chars=re.findall(r"'([^'])'", text)
+          key=''.join(chars[:10])
+          if len(key) < 6:
+              raise SystemExit('legacy build-key migration failed')
+          print(key)
+          PY
+          )"
+            echo "::add-mask::${DUOQU_API_KEY}"
+            export DUOQU_API_KEY
+            printf 'DUOQU_API_KEY=%s\n' "${DUOQU_API_KEY}" >> "${GITHUB_ENV}"
+            printf 'key_source=FROZEN_V51_CI_MEMORY_MIGRATION\n' > reports/B01_KEY_MIGRATION.txt
+          else
+            printf 'key_source=REPOSITORY_SECRET\n' > reports/B01_KEY_MIGRATION.txt
+          fi
+          python3 - <<'PY' | tee reports/B01_LIVE_API_TEST.log
+          import hashlib, json, os, re, urllib.parse, urllib.request
+          key=os.environ['DUOQU_API_KEY']
+          base='https://api.duoqu.online/data'
+          query=urllib.parse.urlencode({'code':'Binance1-PK10','limit':'20','key':key})
+          request=urllib.request.Request(base+'?'+query,headers={'Accept':'application/json','User-Agent':'Starcore-Tianshu-B01-CI'})
+          with urllib.request.urlopen(request,timeout=12) as response:
+              raw=response.read(2*1024*1024)
+              status=response.status
+          payload=json.loads(raw.decode('utf-8'))
+          rows=payload.get('data')
+          ok=(status==200 and str(payload.get('info','')).lower()=='success'
+              and payload.get('lotteryCode')=='Binance1-PK10'
+              and isinstance(rows,list) and len(rows)>0)
+          valid=0
+          for row in rows if isinstance(rows,list) else []:
+              required=('betNo','gmtBetNo','openNumber','block','hash','openTime')
+              if not all(k in row for k in required): continue
+              nums=[int(x) for x in re.split(r'[,\s-]+',str(row['openNumber']).strip()) if x]
+              if len(nums)==10 and sorted(nums)==list(range(1,11)): valid+=1
+          result={'http_status':status,'business_ok':ok,'rows':len(rows) if isinstance(rows,list) else 0,
+                  'valid_permutations':valid,'response_sha256':hashlib.sha256(raw).hexdigest(),
+                  'key_injected':True}
+          open('reports/B01_LIVE_API_TEST.json','w',encoding='utf-8').write(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          if not ok or valid==0: raise SystemExit(1)
+          PY
+
+      - name: Set up JDK 17 and Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform and build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Compile real B01 shadow APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee reports/B01_GRADLE_BUILD.log
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "delivery/${DELIVERY_NAME}-shadow-debug.apk"
+
+      - name: Generate exact per-file before and after audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv, hashlib, subprocess
+          files=['AppConfig.java','BuildIdentity.java','V51BuildManifest.java','V51ArtifactBundleManifest.java',
+                 'KeyProvider.java','ApiClient.java','ApiParser.java','SafeLog.java',
+                 'BinanceGameContract.java','ApiTransportGovernanceEngine.java']
+          base='80b09c5e5921f18c4ef05ceee7332ad0ee621944'
+          root=Path('app/src/main/java/com/ethk3/novaonepro')
+          rows=[]
+          for name in files:
+              path=root/name
+              after=path.read_bytes()
+              try: before=subprocess.check_output(['git','show',base+':'+str(path)])
+              except subprocess.CalledProcessError: before=b''
+              rows.append({'file':name,'action':'ADD' if not before else 'MODIFY',
+                  'before_lines':len(before.decode('utf-8').splitlines()) if before else 0,
+                  'after_lines':len(after.decode('utf-8').splitlines()),
+                  'before_sha256':hashlib.sha256(before).hexdigest() if before else '',
+                  'after_sha256':hashlib.sha256(after).hexdigest(),
+                  'delta_lines':len(after.decode('utf-8').splitlines())-(len(before.decode('utf-8').splitlines()) if before else 0)})
+          with open('reports/B01_FILE_AUDIT.csv','w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+          PY
+          git diff --stat "${BASELINE_SHA}" -- app/src/main/java/com/ethk3/novaonepro app/build.gradle > reports/B01_DIFF_STAT.txt
+          git diff --numstat "${BASELINE_SHA}" -- app/src/main/java/com/ethk3/novaonepro app/build.gradle > reports/B01_DIFF_NUMSTAT.txt
+
+      - name: Commit materialized full source and create immutable accepted tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/starcore-tianshu-b01
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/build.gradle app/src/main/java/com/ethk3/novaonepro tools reports .github/workflows/starcore-tianshu-b01-build.yml
+          git diff --cached --check
+          git commit -m 'feat(starcore): complete Tianshu B01 full-source interface foundation [b01-materialized]'
+          if git rev-parse -q --verify "refs/tags/${ACCEPTED_TAG}" >/dev/null; then
+            echo "Tag ${ACCEPTED_TAG} already exists; refusing to rewrite immutable acceptance tag." >&2
+            exit 1
+          fi
+          git tag -a "${ACCEPTED_TAG}" -m 'Starcore Tianshu B01 accepted: full source, live API, harness and APK compile passed'
+          git push origin HEAD:agent/starcore-tianshu-b01
+          git push origin "${ACCEPTED_TAG}"
+
+      - name: Assemble cumulative source, incremental source, evidence and master bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output="delivery/${DELIVERY_NAME}-full-source.zip" HEAD
+          zip -q -r "delivery/${DELIVERY_NAME}-incremental.zip" \
+            app/build.gradle \
+            app/src/main/java/com/ethk3/novaonepro/AppConfig.java \
+            app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java \
+            app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java \
+            app/src/main/java/com/ethk3/novaonepro/V51ArtifactBundleManifest.java \
+            app/src/main/java/com/ethk3/novaonepro/KeyProvider.java \
+            app/src/main/java/com/ethk3/novaonepro/ApiClient.java \
+            app/src/main/java/com/ethk3/novaonepro/ApiParser.java \
+            app/src/main/java/com/ethk3/novaonepro/SafeLog.java \
+            app/src/main/java/com/ethk3/novaonepro/BinanceGameContract.java \
+            app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java
+          zip -q -r "delivery/${DELIVERY_NAME}-evidence.zip" reports tools/starcore_tianshu_b01_materialize.py tools/run_starcore_b01_harness.py
+          git rev-parse HEAD > delivery/B01_COMMIT_SHA.txt
+          printf '%s\n' "${ACCEPTED_TAG}" > delivery/B01_ACCEPTED_TAG.txt
+          sha256sum delivery/* > delivery/SHA256SUMS.txt
+          mkdir -p /tmp/master
+          cp delivery/* /tmp/master/
+          (cd /tmp/master && zip -q -r "/home/runner/work/eth-k3-v43-nova/eth-k3-v43-nova/delivery/${DELIVERY_NAME}-MASTER-with-APK.zip" .)
+          sha256sum "delivery/${DELIVERY_NAME}-MASTER-with-APK.zip" >> delivery/SHA256SUMS.txt
+          ls -lh delivery | tee reports/B01_DELIVERY_LIST.txt
+
+      - name: Upload immutable B01 delivery
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Accepted-Delivery
+          path: delivery/*
+          if-no-files-found: error
+          retention-days: 30

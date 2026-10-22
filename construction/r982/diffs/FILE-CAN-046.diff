@@ -1,0 +1,45 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CountdownProjectionR971.java b/app/src/main/java/com/ethk3/novaonepro/CountdownProjectionR971.java
+index 64923a5..61973ac 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CountdownProjectionR971.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CountdownProjectionR971.java
+@@ -13,4 +13,40 @@ public final class CountdownProjectionR971 {
+         // A one-minute product must not resurrect a stale target after a large clock change.
+         return Math.min(60000L,deadlineWallMs-readWallMs);
+     }
++
++    public static final long STALE_CLOCK=Long.MIN_VALUE;
++    public static final class Anchor {
++        public final String targetIssue,session;
++        public final long revision,deadlineWallMs,deadlineMonoMs,sampledMonoMs;
++        private Anchor(String target,long revision,String session,long wall,long mono,long sampled){
++            this.targetIssue=target;this.revision=revision;this.session=session;
++            deadlineWallMs=wall;deadlineMonoMs=mono;sampledMonoMs=sampled;
++        }
++        public static Anchor capture(String target,long revision,String session,long deadlineWall,long sampledWall,long sampledMono){
++            if(!TargetIssueResolver.isValid(target)||revision<0||session==null||session.isEmpty()
++                    ||deadlineWall<=0||sampledWall<=0||sampledMono<0)throw new IllegalArgumentException("CLOCK_ANCHOR_IDENTITY");
++            final long duration;
++            try{duration=Math.subtractExact(deadlineWall,sampledWall);}catch(ArithmeticException bad){throw new IllegalArgumentException("CLOCK_ANCHOR_OVERFLOW",bad);}
++            if(duration>120000L||duration < -180000L)throw new IllegalArgumentException("STALE_CLOCK");
++            try{return new Anchor(target,revision,session,deadlineWall,Math.addExact(sampledMono,duration),sampledMono);}
++            catch(ArithmeticException bad){throw new IllegalArgumentException("CLOCK_ANCHOR_OVERFLOW",bad);}
++        }
++        public static Anchor received(String target,long revision,String session,long wall,long mono,long sampled){
++            final long duration;
++            try{duration=Math.subtractExact(mono,sampled);}catch(ArithmeticException bad){throw new IllegalArgumentException("CLOCK_ANCHOR_OVERFLOW",bad);}
++            if(!TargetIssueResolver.isValid(target)||revision<0||session==null||session.isEmpty()
++                    ||wall<=0||sampled<0||duration>120000L||duration < -180000L)
++                throw new IllegalArgumentException("CLOCK_ANCHOR_IDENTITY");
++            return new Anchor(target,revision,session,wall,mono,sampled);
++        }
++        public long signedRemaining(String expectedTarget,long expectedRevision,String expectedSession,long nowMono){
++            if(!targetIssue.equals(expectedTarget)||revision!=expectedRevision||!session.equals(expectedSession)
++                    ||nowMono<sampledMonoMs||nowMono-sampledMonoMs>180000L)return STALE_CLOCK;
++            try{return Math.subtractExact(deadlineMonoMs,nowMono);}catch(ArithmeticException bad){return STALE_CLOCK;}
++        }
++        public long remaining(String target,long revision,String session,long nowMono){
++            long signed=signedRemaining(target,revision,session,nowMono);
++            return signed==STALE_CLOCK?STALE_CLOCK:Math.max(0L,signed);
++        }
++    }
+ }

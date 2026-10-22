@@ -1,0 +1,81 @@
+{
+  "status": "FIXTURE_ASSUMPTION_CORRECTED_ACTUAL_ANDROID_RERUN_PASS",
+  "original_ci": {
+    "run_id": 38401142672,
+    "job_id": 115308784137,
+    "commit": "5823c4b3f198c37d9d1a4db3152d2ec0d296bf29",
+    "class": "SqliteBusyPoolR77Test",
+    "seconds": 7.108,
+    "failed_line": 87,
+    "assertion": "transaction pins the primary writer expected:<2500> but was:<50>",
+    "initial_primary_default_assertion": "PASSED",
+    "other_classes_passed": 12,
+    "product_future_contention_cases_in_first_run": "NOT_REACHED_AFTER_FIRST_ASSERTION"
+  },
+  "erratum": {
+    "withdrawn_claim": "An unpinned rawQuery PRAGMA busy_timeout=50 only configures a reader and necessarily leaves the primary at 2500 ms.",
+    "actual_counterexample": "The API 35 emulator primary was 2500 initially and 50 after the exact R76 rawQuery setter. That observation invalidates the fixture assumption and the universal primary clause in the original explanatory prose/comment.",
+    "routing": "AOSP API35 SQLiteProgram assumes read-only for SELECT only during preparation. PRAGMA preparation requests primary affinity. Execution uses the native statement readOnly result; a rawQuery method name alone does not identify which pool connection is prepared or used.",
+    "sqlite_effect": "The checked-in SQLite implementation applies busy_timeout in pragma preparation by calling sqlite3_busy_timeout. An independent native prepare-without-step probe also changed the timeout to 50. This explains why a primary can be configured even when later execution uses a reader.",
+    "correct_scope": "A per-query PRAGMA affects connections where it is prepared or executed; it is not a retained configuration for connections opened later. No product runtime change is justified by the first test failure.",
+    "product_comment": "DbHelper.java lines 311-313, specifically \"rawQuery alone neither configures the primary writer nor future pool connections\", overstates the primary clause. The API 35 result retracts that clause and earlier equivalent prose; the lack of retained configuration for future connections remains valid. Product source/comment is held unchanged to preserve tested source identity."
+  },
+  "corrected_fixture": {
+    "old_setter": "Exact unpinned R76 rawQuery setter retained; observed primary timeout is logged without requiring 2500.",
+    "negative": "Explicitly create one cold reader. Apply old setter. Hold primary and existing reader concurrently, forcing a new third connection; that future connection must remain at native 2500.",
+    "positive": "Call actual DbHelper.configureBusyTimeoutR77, then use the same forced-connection helper to require primary/existing/future all 50. Reconfiguration assertions unchanged.",
+    "other_contracts": "Actual legacy strategy, real external write-lock timeout/rollback/retry/reopen assertions retained.",
+    "independent_tests": 4,
+    "bounded_wait_seconds": 10,
+    "fake_pool_or_product_overlay": false,
+    "source_sha256": "932bde83b9a188ddbc65d806cc591950e76a466b37dc05ab8b44f60c2425910b"
+  },
+  "official_source": {
+    "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/java/android/database/sqlite/SQLiteProgram.java?format=TEXT",
+    "sha256": "b68f0f028a5e5f990068577b75911b9f5a2075df2a8a3c54aaf867c3fbf1ce5b",
+    "relevant_symbols": [
+      "SQLiteProgram constructor assumeReadOnly",
+      "getConnectionFlags"
+    ]
+  },
+  "compile": {
+    "scope": "JAVAC_API_SURFACE_ONLY_NOT_ANDROID_RUNTIME",
+    "exit_code": 0,
+    "source": "/workspace/scratch/e2544c9906f6/starcore/app/src/androidTest/java/com/ethk3/novaonepro/SqliteBusyPoolR77Test.java",
+    "sourceSha256": "932bde83b9a188ddbc65d806cc591950e76a466b37dc05ab8b44f60c2425910b",
+    "productClasses": "SEALED_FINAL_CLASSES_NO_PRODUCT_RECOMPILATION",
+    "command": [
+      "/workspace/scratch/e2544c9906f6/r77-toolchain/jdk-host/bin/javac",
+      "-encoding",
+      "UTF-8",
+      "-source",
+      "17",
+      "-target",
+      "17",
+      "-sourcepath",
+      "/workspace/scratch/e2544c9906f6/r77-busy-test-compile/corrected-future-negative/empty-sourcepath",
+      "-classpath",
+      "/workspace/scratch/e2544c9906f6/r77-toolchain/sdk/platforms/android-36/android.jar:/workspace/scratch/e2544c9906f6/r77-final-classes:/workspace/scratch/e2544c9906f6/r77-toolchain/gradle-8.13/lib/junit-4.13.2.jar:/workspace/scratch/e2544c9906f6/r77-busy-test-compile/deps/androidx-test-core.jar:/workspace/scratch/e2544c9906f6/r77-busy-test-compile/deps/androidx-test-junit.jar",
+      "-d",
+      "/workspace/scratch/e2544c9906f6/r77-busy-test-compile/corrected-future-negative/classes",
+      "/workspace/scratch/e2544c9906f6/starcore/app/src/androidTest/java/com/ethk3/novaonepro/SqliteBusyPoolR77Test.java"
+    ],
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "independent_review": {
+    "reviewer": "r77_latency",
+    "result": "STATIC_REVIEW_PASS",
+    "notes": "Same connection helper for negative and positive; earlier first-reader release causes Future failure, cannot produce a false pass; four independent JUnit tests preserve evidence even when one fails."
+  },
+  "android_corrected_runtime": {
+    "status": "PASS",
+    "run_id": 38407504018,
+    "commit": "ce2d7454992d6c140addfa48381a8d45cebe7c9a",
+    "classes_passed": 13,
+    "pool_tests_passed": 4,
+    "contention_elapsed_ms": 54,
+    "evidence": "final/android/acceptance-summary.json",
+    "physical_phone": "NOT_RUN",
+    "legacy_os_below_33": "NOT_RUN"
+  }
+}

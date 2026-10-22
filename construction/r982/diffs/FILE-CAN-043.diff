@@ -1,0 +1,16 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java b/app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java
+index d9d419a..7acae63 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ControlledFrequencyDiagnosticR923.java
+@@ -110,4 +110,11 @@ public final class ControlledFrequencyDiagnosticR923 {
+                     + "只有严格未来OOS非劣且校准/分块/Regime/最长连挂同时通过才可发布。";
+         }
+     }
++
++public static Report captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        return new Report(
++                ControlledCandidateOpportunityAuditR922.captureSnapshotCP4(report, store, 30),
++                ControlledCandidateOpportunityAuditR922.captureSnapshotCP4(report, store, 120),
++                ControlledCandidateOpportunityAuditR922.captureSnapshotCP4(report, store, 1200));
++    }
+ }

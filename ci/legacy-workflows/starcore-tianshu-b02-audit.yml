@@ -1,0 +1,73 @@
+name: Starcore Tianshu B02 Source Audit
+
+on:
+  push:
+    branches:
+      - v57-full/b02
+    paths:
+      - '.github/workflows/starcore-tianshu-b02-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout B02 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Audit seven B02 files and API identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='app/src/main/java/com/ethk3/novaonepro'
+          OUT='b02-audit'
+          mkdir -p "$OUT/originals"
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv, hashlib, json, re, shutil
+          root=Path('app/src/main/java/com/ethk3/novaonepro')
+          out=Path('b02-audit')
+          names=['DataGuard.java','CountdownClock.java','Models.java','V51Models.java','SchemaContractRegistry.java','FeatureContractRegistry.java','DrawIntegrityRecoveryEngine.java']
+          rows=[]
+          for name in names:
+              p=root/name
+              exists=p.exists()
+              data=p.read_bytes() if exists else b''
+              text=data.decode('utf-8') if exists else ''
+              if exists: shutil.copy2(p,out/'originals'/name)
+              rows.append({
+                  'file':name,
+                  'exists':exists,
+                  'lines':len(text.splitlines()),
+                  'bytes':len(data),
+                  'sha256':hashlib.sha256(data).hexdigest() if exists else '',
+                  'methods':len(re.findall(r'(?m)^\s*(?:public|protected|private|static|final|synchronized|native|abstract|\s)+\s*[\w<>\[\], ?]+\s+\w+\s*\([^;]*\)\s*(?:throws [^{]+)?\{',text)),
+                  'classes':len(re.findall(r'\b(?:class|interface|enum)\s+\w+',text)),
+                  'ethereum_tokens':text.count('Ethereum1-PK10'),
+                  'binance_tokens':text.count('Binance1-PK10'),
+                  'todo_tokens':len(re.findall(r'(?i)TODO|UnsupportedOperationException',text)),
+                  'bet_tokens':len(re.findall(r'\bBET\b|createBet|rescueBet|forceBet',text,re.I)),
+                  'settlement_tokens':len(re.findall(r'Settlement|settle',text,re.I)),
+              })
+          (out/'B02_SOURCE_AUDIT.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          with (out/'B02_SOURCE_AUDIT.csv').open('w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
+          PY
+          grep -R -n -E 'Ethereum1-PK10|Binance1-PK10|api\.duoqu\.online|api1\.duoqu\.online|/api/lottery/(latest|history)|/data' "$ROOT"/{DataGuard.java,CountdownClock.java,Models.java,V51Models.java,SchemaContractRegistry.java,FeatureContractRegistry.java,AppConfig.java,ApiClient.java,BinanceGameContract.java} > "$OUT/B02_API_AND_GAME_REFERENCES.txt" || true
+          grep -R -n -E 'createBet|rescueBet|forceBet|REAL_BET|SHADOW_ONLY|MODEL_PROVEN|Settlement|settle' "$ROOT"/{DataGuard.java,CountdownClock.java,Models.java,V51Models.java,SchemaContractRegistry.java,FeatureContractRegistry.java} > "$OUT/B02_OWNER_RISK_REFERENCES.txt" || true
+          printf 'head=%s\nbase_b01=%s\n' "$(git rev-parse HEAD)" 'd3b2a0c77a40e45b3454d2495c03ca1d69657518' > "$OUT/B02_GIT_IDENTITY.txt"
+          git merge-base --is-ancestor d3b2a0c77a40e45b3454d2495c03ca1d69657518 HEAD
+          zip -q -r Starcore-Tianshu-B02-Source-Audit.zip "$OUT"
+
+      - name: Upload B02 source audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B02-Source-Audit
+          path: Starcore-Tianshu-B02-Source-Audit.zip
+          if-no-files-found: error
+          retention-days: 30

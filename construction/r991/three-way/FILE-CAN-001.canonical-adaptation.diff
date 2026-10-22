@@ -1,0 +1,47 @@
+--- FINAL_CANONICAL_AFTER/app/build.gradle
++++ actual-current/app/build.gradle
+@@ -43,16 +43,7 @@
+     if (value == null || String.valueOf(value).trim().isEmpty()) throw new GradleException('R926_IDENTITY_MISSING_' + key)
+     String.valueOf(value)
+ }
+-def injectedApiKey = (System.getenv('DUOQU_API_KEY') ?: '').trim()
+-def requestedRelease = gradle.startParameter.taskNames.any { def task = it.tokenize(':').last().toLowerCase(); task.startsWith('assemble') && task.endsWith('release') || task.startsWith('bundle') && task.endsWith('release') }
+-if (requestedRelease && !(injectedApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
+-    throw new GradleException('R818_RELEASE_DUOQU_API_KEY_REQUIRED')
+-}
+-def injectedApiKeySplit = injectedApiKey.length() <= 1 ? injectedApiKey.length() : injectedApiKey.length().intdiv(2)
+-def injectedApiKeyA = injectedApiKey.substring(0, injectedApiKeySplit)
+-def injectedApiKeyB = injectedApiKey.substring(injectedApiKeySplit)
+-def escapedApiKeyA = injectedApiKeyA.replace('\\', '\\\\').replace('"', '\\"')
+-def escapedApiKeyB = injectedApiKeyB.replace('\\', '\\\\').replace('"', '\\"')
++// API credentials are configured privately on the device and must never be build inputs.
+ android {
+     namespace requiredIdentity('applicationId')
+     buildToolsVersion '36.0.0'
+@@ -68,8 +59,8 @@
+         versionName requiredIdentity('versionName')
+         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+         vectorDrawables.useSupportLibrary = false
+-        buildConfigField 'String', 'DUOQU_API_KEY_A', '"' + escapedApiKeyA + '"'
+-        buildConfigField 'String', 'DUOQU_API_KEY_B', '"' + escapedApiKeyB + '"'
++        buildConfigField 'String', 'DUOQU_API_KEY_A', '""'
++        buildConfigField 'String', 'DUOQU_API_KEY_B', '""'
+         buildConfigField 'String', 'RELEASE_MANIFEST_SHA256', '"' + manifestSha256 + '"'
+         buildConfigField 'int', 'DB_USER_VERSION', requiredIdentity('dbVersion')
+         buildConfigField 'int', 'LEGACY_R906_SCHEMA_REVISION', requiredIdentity('legacyR906Revision')
+@@ -114,6 +105,15 @@
+     outputs.upToDateWhen { false }
+ }
+ android.sourceSets.main.java.srcDir(layout.buildDirectory.dir('generated/source/r967'))
++// Lossless source-call evidence is materialized from a pinned archive, then checked against
++// every actual product source hash. It is included in the same APK assets as the report reads.
++def generateR982SourceCallAsset = tasks.register('generateR982SourceCallAsset', Exec) {
++    workingDir rootProject.projectDir
++    commandLine 'python3', rootProject.file('scripts/r982_source_call_asset.py').absolutePath
++    outputs.upToDateWhen { false }
++}
++android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r982'))
++tasks.named('preBuild').configure { dependsOn generateR982SourceCallAsset }
+ tasks.named('preBuild').configure { dependsOn generateR967Semantics, verifyCatalogAssetsCP12 }
+ tasks.withType(JavaCompile).configureEach { dependsOn generateR967Semantics }
+ 

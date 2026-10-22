@@ -1,0 +1,15 @@
+# 5.4.2施工方案入口
+
+1. [长期施工合同](../R926_5.4.2_FULL_CONSTRUCTION_CONTRACT_ZH.md)
+2. [后六批增强总方案](11_ENHANCEMENT_20260909/README_ZH.md)
+3. [30张逐卡施工与验收](11_ENHANCEMENT_20260909/TASK_CARDS_ZH.md)
+4. [完整42任务及增强映射](01_TASKS/tasks.json)
+5. [原96文件完整施工方案](10_ORIGINAL_SNAPSHOT/STARCORE_R926_CLOSURE_PLAN_20260907/完整施工方案.md)
+6. [原文件逐字节完整性](ORIGINAL_PLAN_INTEGRITY.json)
+
+保留七批927–932及最终5.4.2/933。优先级：用户当前要求→长期合同及增强→当前分批卡→原始历史快照。增强全部尚未实施，方案存在不计工程完成；原快照中的旧拟定版本不覆盖当前身份。
+
+7. [后续施工交接与可复制指令](12_HANDOFF_20260909/README_ZH.md)
+8. [增强整合、接口与优先级](11_ENHANCEMENT_20260909/INTEGRATION_CONTRACT_ZH.md)
+9. [当前已核实执行范围](11_ENHANCEMENT_20260909/CURRENT_EXECUTION_STATUS.json)
+10. [新增90条验收要求](11_ENHANCEMENT_20260909/ENHANCEMENT_ACCEPTANCE_90.json)

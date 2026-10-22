@@ -1,0 +1,168 @@
+{
+  "scope": "OFFICIAL_AOSP_SOURCE_REVIEW_NOT_ANDROID_DEVICE_EXECUTION",
+  "reviewed_api_levels": [
+    30,
+    31,
+    32,
+    33,
+    34,
+    35
+  ],
+  "first_reviewed_api_supporting_row_returning_pragma_in_execPerConnectionSQL": 33,
+  "configuration": "PRAGMA busy_timeout=50 returns SQLITE_ROW; API30-32 per-connection path dispatches native non-query execution which rejects rows. API33+ drains PRAGMA rows before evaluating completion.",
+  "product_resolution": "SDK_INT >=33 uses execPerConnectionSQL; older versions use transaction-pinned primary rawQuery setter with explicit verification. No claim that older future readers inherit configuration.",
+  "runtime_boundary": "API35 Android instrumentation checks actual pool and direct legacy strategy implementation; does not claim physical-phone or API30-32 runtime evidence.",
+  "versions": [
+    {
+      "tag": "android-11.0.0_r1",
+      "api": 30,
+      "sources": [
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-11.0.0_r1/core/jni/android_database_SQLiteConnection.cpp",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-11.0.0_r1/core/jni/android_database_SQLiteConnection.cpp?format=TEXT",
+          "sha256": "0143c7e5ca4adb75ef80c09112836629bd6d943948311c1eb1ec4e21e749622f",
+          "bytes": 36998,
+          "symbol": "static int executeNonQuery",
+          "line": 521,
+          "pragma_rows_drained": false,
+          "on_row_without_pragma_handler": true
+        },
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-11.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-11.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java?format=TEXT",
+          "sha256": "cf8ce27060801463f51ac8f0a18a2e60e9a99bedc678aa9243b6d46e6be465a6",
+          "bytes": 73323,
+          "symbol": "private void executePerConnectionSqlFromConfiguration",
+          "line": 502,
+          "pragma_dispatches_execute": true
+        }
+      ]
+    },
+    {
+      "tag": "android-12.0.0_r1",
+      "api": 31,
+      "sources": [
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.0.0_r1/core/jni/android_database_SQLiteConnection.cpp",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.0.0_r1/core/jni/android_database_SQLiteConnection.cpp?format=TEXT",
+          "sha256": "0143c7e5ca4adb75ef80c09112836629bd6d943948311c1eb1ec4e21e749622f",
+          "bytes": 36998,
+          "symbol": "static int executeNonQuery",
+          "line": 521,
+          "pragma_rows_drained": false,
+          "on_row_without_pragma_handler": true
+        },
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java?format=TEXT",
+          "sha256": "cf3dc47c76e907c2a800d99c7b6393a3de00e47f2a0bf93922c92dcf6c877a8c",
+          "bytes": 73608,
+          "symbol": "private void executePerConnectionSqlFromConfiguration",
+          "line": 504,
+          "pragma_dispatches_execute": true
+        }
+      ]
+    },
+    {
+      "tag": "android-12.1.0_r1",
+      "api": 32,
+      "sources": [
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.1.0_r1/core/jni/android_database_SQLiteConnection.cpp",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.1.0_r1/core/jni/android_database_SQLiteConnection.cpp?format=TEXT",
+          "sha256": "0143c7e5ca4adb75ef80c09112836629bd6d943948311c1eb1ec4e21e749622f",
+          "bytes": 36998,
+          "symbol": "static int executeNonQuery",
+          "line": 521,
+          "pragma_rows_drained": false,
+          "on_row_without_pragma_handler": true
+        },
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.1.0_r1/core/java/android/database/sqlite/SQLiteConnection.java",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-12.1.0_r1/core/java/android/database/sqlite/SQLiteConnection.java?format=TEXT",
+          "sha256": "cf3dc47c76e907c2a800d99c7b6393a3de00e47f2a0bf93922c92dcf6c877a8c",
+          "bytes": 73608,
+          "symbol": "private void executePerConnectionSqlFromConfiguration",
+          "line": 504,
+          "pragma_dispatches_execute": true
+        }
+      ]
+    },
+    {
+      "tag": "android-13.0.0_r1",
+      "api": 33,
+      "sources": [
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-13.0.0_r1/core/jni/android_database_SQLiteConnection.cpp",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-13.0.0_r1/core/jni/android_database_SQLiteConnection.cpp?format=TEXT",
+          "sha256": "14709965eae88b0658a06d61c5e87e40bce12595946545b247db868f9564f6a3",
+          "bytes": 37190,
+          "symbol": "static int executeNonQuery",
+          "line": 521,
+          "pragma_rows_drained": true,
+          "on_row_without_pragma_handler": true
+        },
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-13.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-13.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java?format=TEXT",
+          "sha256": "47221999620fa14de4a0da2f91ab404c18b4d0837c3ded39d4e7045b676ff6f1",
+          "bytes": 74307,
+          "symbol": "private void executePerConnectionSqlFromConfiguration",
+          "line": 516,
+          "pragma_dispatches_execute": true
+        }
+      ]
+    },
+    {
+      "tag": "android-14.0.0_r1",
+      "api": 34,
+      "sources": [
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-14.0.0_r1/core/jni/android_database_SQLiteConnection.cpp",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-14.0.0_r1/core/jni/android_database_SQLiteConnection.cpp?format=TEXT",
+          "sha256": "14709965eae88b0658a06d61c5e87e40bce12595946545b247db868f9564f6a3",
+          "bytes": 37190,
+          "symbol": "static int executeNonQuery",
+          "line": 521,
+          "pragma_rows_drained": true,
+          "on_row_without_pragma_handler": true
+        },
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-14.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-14.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java?format=TEXT",
+          "sha256": "8677792d1be9d0177816ccc322251758758efeb7b085dd34ff66a9e171802f7f",
+          "bytes": 74419,
+          "symbol": "private void executePerConnectionSqlFromConfiguration",
+          "line": 516,
+          "pragma_dispatches_execute": true
+        }
+      ]
+    },
+    {
+      "tag": "android-15.0.0_r1",
+      "api": 35,
+      "sources": [
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/jni/android_database_SQLiteConnection.cpp",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/jni/android_database_SQLiteConnection.cpp?format=TEXT",
+          "sha256": "453e22a15007df4b3113d470c0bab39d562faac31d352f23a192ca6a87f3030a",
+          "bytes": 39893,
+          "symbol": "static int executeNonQuery",
+          "line": 564,
+          "pragma_rows_drained": true,
+          "on_row_without_pragma_handler": true
+        },
+        {
+          "url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java",
+          "retrieval_url": "https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-15.0.0_r1/core/java/android/database/sqlite/SQLiteConnection.java?format=TEXT",
+          "sha256": "0b4eaa3d8ba0a5c74776faeb11bb8d29c52e65890b65f04c3a071e7e7223ef47",
+          "bytes": 80920,
+          "symbol": "private void executePerConnectionSqlFromConfiguration",
+          "line": 527,
+          "pragma_dispatches_execute": true
+        }
+      ]
+    }
+  ],
+  "runtime_status": "NOT_RUN_IN_THIS_RECEIPT"
+}

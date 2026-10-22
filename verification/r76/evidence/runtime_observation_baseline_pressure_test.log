@@ -1,0 +1,9 @@
+ORIGIN|com.ethk3.novaonepro.ServiceHeartbeatStore|file:/workspace/scratch/e2544c9906f6/r76-observation-baseline-pressure/product/
+ORIGIN|com.ethk3.novaonepro.RealtimePressureGateR811|file:/workspace/scratch/e2544c9906f6/r76-observation-baseline-pressure/product/
+ORIGIN|com.ethk3.novaonepro.ReportExportServiceCP4|file:/workspace/scratch/7a6032548233/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes/
+PASS|SESSION_USES_DURABLE_ATOMIC_FILE
+OBSERVE|PRESSURE_BEGIN|us=20715|atomicFinishes=1
+Exception in thread "main" java.lang.AssertionError: PRESSURE_BEGIN_HAS_NO_ATOMIC_FSYNC
+	at com.ethk3.novaonepro.runtime_observation.check(runtime_observation.java:20)
+	at com.ethk3.novaonepro.runtime_observation.pressure(runtime_observation.java:132)
+	at com.ethk3.novaonepro.runtime_observation.main(runtime_observation.java:171)

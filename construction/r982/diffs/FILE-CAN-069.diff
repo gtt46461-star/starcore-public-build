@@ -1,0 +1,82 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java b/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java
+index c1ec125..dacb348 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java
+@@ -65,7 +65,7 @@ public final class FixedResearchWindowR932 {
+         try(Cursor c=db.rawQuery("SELECT bundle_hash,selection_hash,prediction_hash FROM "+CHAMPION+" WHERE target_issue=? LIMIT 2",new String[]{target})) {
+             if(!c.moveToFirst())return;bundle=c.getString(0);selector=c.getString(1);champion=c.getString(2);if(c.moveToNext())throw new IllegalStateException("R932_CHAMPION_AMBIGUOUS");
+         }
+-        PairedResearchChallengeR932.freeze(db,key,structural,target,candidateHash,rawScore,position,n1,n2,n3);
++        if(!ResearchGatePlanR967.installed().isCp3)PairedResearchChallengeR932.freeze(db,key,structural,target,candidateHash,rawScore,position,n1,n2,n3);
+         String window=null;int number=1;boolean recovery=false;
+         try(Cursor c=db.rawQuery("SELECT window_id,structural_hash,champion_hash,selection_hash,first_issue,last_issue,state,window_no FROM "+WINDOW+" WHERE candidate_key=? ORDER BY window_no DESC LIMIT 1",new String[]{key})) {
+             if(c.moveToFirst()) {
+@@ -101,6 +101,7 @@ public final class FixedResearchWindowR932 {
+                 window=register(db,key,structural,bundle,selector,target,new int[]{120,240,240,240,360}[next.stage-1],number);
+             }
+         }
++        if(ResearchGatePlanR967.installed().isCp3)ResearchGatePlanR967.observeCp4(db,window,key,target,candidateHash);
+         db.execSQL("INSERT OR IGNORE INTO "+PAIR+"(window_id,target_issue,candidate_hash,champion_prediction_hash,position,n1,n2,n3,selected_hit_p,calibration_hash,frozen_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{window,target,candidateHash,champion,position,n1,n2,n3,calibrated==null?-1.0:calibrated.value,calibrated==null?"":calibrated.hash,System.currentTimeMillis()});
+         try(Cursor c=db.rawQuery("SELECT candidate_hash,champion_prediction_hash FROM "+PAIR+" WHERE window_id=? AND target_issue=?",new String[]{window,target})) {
+             if(!c.moveToFirst()||!candidateHash.equals(c.getString(0))||!champion.equals(c.getString(1)))throw new IllegalStateException("R932_PAIR_REPLAY_DRIFT");
+@@ -155,7 +156,7 @@ public final class FixedResearchWindowR932 {
+             if(hasPending(store.readable(),CandidateCalibrationR932.OBS,"hit",issue)
+                     && !store.coordinatorR36().runAtomicWrite("R948_CAL_SETTLE_PAGE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){CandidateCalibrationR932.settle(db,draw);}}))throw new IllegalStateException("R948_CAL_SETTLE_COMMIT_FAILED");
+             ResearchWorkBudgetR927.checkpoint();
+-            if(hasPending(store.readable(),PairedResearchChallengeR932.PREDICTION,"hit",issue)
++            if(!ResearchGatePlanR967.installed().isCp3 && hasPending(store.readable(),PairedResearchChallengeR932.PREDICTION,"hit",issue)
+                     && !store.coordinatorR36().runAtomicWrite("R948_CHALLENGE_SETTLE_PAGE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){PairedResearchChallengeR932.settle(db,draw);}}))throw new IllegalStateException("R948_CHALLENGE_SETTLE_COMMIT_FAILED");
+             boolean ok=!hasPending(store.readable(),PAIR,"candidate_hit",issue)
+                     || store.coordinatorR36().runAtomicWrite("R932_FIXED_PAIR_SETTLE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+@@ -213,8 +214,7 @@ public final class FixedResearchWindowR932 {
+                 +draw+" WHERE p.candidate_hit=-1 ORDER BY p.target_issue LIMIT 1)"
+                 +" UNION SELECT target_issue FROM (SELECT p.target_issue FROM "+CandidateCalibrationR932.OBS+" p"
+                 +draw+" WHERE p.hit=-1 ORDER BY p.target_issue LIMIT 1)"
+-                +" UNION SELECT target_issue FROM (SELECT p.target_issue FROM "+PairedResearchChallengeR932.PREDICTION+" p"
+-                +draw+" WHERE p.hit=-1 ORDER BY p.target_issue LIMIT 1)) pending";
++                +(ResearchGatePlanR967.installed().isCp3?"":" UNION SELECT target_issue FROM (SELECT p.target_issue FROM "+PairedResearchChallengeR932.PREDICTION+" p"+draw+" WHERE p.hit=-1 ORDER BY p.target_issue LIMIT 1)")+ ") pending";
+     }
+     private static String closablePredicate(){
+         // Keep unknown/pending labels intact. Skip a waiting head, but still invalidate
+@@ -225,6 +225,7 @@ public final class FixedResearchWindowR932 {
+     }
+     /** One fixed-window close, independently schedulable of the settlement backlog. */
+     static void closeOne(final DbStore store) {
++        if(ResearchGatePlanR967.installed().isCp3){closeOneCp4(store);return;}
+         ResearchWorkBudgetR927.checkpoint();
+         String latest="";try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}
+         final String endpoint=latest;
+@@ -268,4 +269,33 @@ public final class FixedResearchWindowR932 {
+     private static boolean drawExists(SQLiteDatabase db,String issue) {
+         try(Cursor c=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue>=? AND dirty=0 LIMIT 1",new String[]{issue})){return c.moveToFirst();}
+     }
++
++    static void closeOneCp4(final DbStore store){
++        String issue="";try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())issue=c.getString(0);}
++        if(issue.isEmpty())return;final String endpoint=issue;
++        boolean ok=store.coordinatorR36().runAtomicWrite("CP4_FORMAL_WINDOW_CLOSE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
++            try(Cursor c=db.rawQuery("SELECT w.window_id,w.planned_n FROM "+WINDOW+" w JOIN "+ResearchGatePlanR967.CP4_BINDING+" b ON b.window_id=w.window_id WHERE w.state='OPEN' AND w.last_issue<=? ORDER BY w.last_issue,w.window_id LIMIT 1",new String[]{endpoint})){
++                if(!c.moveToFirst())return;String id=c.getString(0);FixedWindowStatisticsR932.Result r=FixedWindowStatisticsR932.evaluate(db,id,c.getInt(1),endpoint);if(r==null)return;
++                FixedWindowStatisticsR932.persist(db,id,r);
++                db.execSQL("UPDATE "+WINDOW+" SET state=?,reason=?,result_hash=? WHERE window_id=? AND state='OPEN'",new Object[]{r.state,r.json,r.hash,id});
++            }
++        }});if(!ok)throw new IllegalStateException("CP4_FORMAL_CLOSE_COMMIT");
++    }
++
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        com.ethk3.novaonepro.ReportTextCP12 out=new com.ethk3.novaonepro.ReportTextCP12(report, "\n独立校准与固定配对窗口\n");
++        try(Cursor exists=report.select("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{WINDOW})){if(!exists.moveToFirst())return out.append("尚无新格式窗口；旧分数不能作为校准概率。\n").toString();}
++        try(Cursor c=report.select("SELECT state,COUNT(*) FROM "+CandidateCalibrationR932.STUDY+" GROUP BY state",null)){while(c.moveToNext())out.append("候选校准 ").append(c.getString(0)).append(": ").append(c.getInt(1)).append('\n');}
++        try(Cursor c=report.select("SELECT state,COUNT(*) FROM "+WINDOW+" GROUP BY state",null)){while(c.moveToNext())out.append("窗口 ").append(c.getString(0)).append(": ").append(c.getInt(1)).append('\n');}
++        try(Cursor c=report.select("SELECT COUNT(*),COALESCE(SUM(alpha),0) FROM "+ResearchMultiplicityR932.FAMILY,null)){if(c.moveToFirst())out.append("已注册统计族: ").append(c.getInt(0)).append("；已分配 alpha: ").append(c.getDouble(1)).append(" / 0.05\n");}
++        try(Cursor c=report.select("SELECT w.candidate_key,w.window_no,w.state,s.metrics_json FROM "+WINDOW+" w LEFT JOIN "+FixedWindowStatisticsR932.TABLE+" s ON s.window_id=w.window_id ORDER BY w.registered_at DESC LIMIT 3",null)) {
++            while(c.moveToNext()) {
++                out.append(c.getString(0)).append(" #").append(c.getInt(1)).append(' ').append(c.getString(2));
++                if(!c.isNull(3))try{JSONObject m=new JSONObject(c.getString(3));out.append("；配对 ").append(m.getInt("paired_n")).append('/').append(m.getInt("planned_n")).append("；HR ").append(m.getDouble("hit_rate")).append("；ECE ").append(m.getDouble("ece")).append("；校正 p ").append(m.getDouble("fwer_adjusted_p"));}catch(org.json.JSONException e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++                out.append('\n');
++            }
++        }
++        return out.append("候选专用校准不等于最终混合选择校准；窗口通过不直接授予 REAL。\n").append(FixedWindowCertificatePublisherR932.reportSnapshotCP4(report, store)).toString();
++    }
+ }

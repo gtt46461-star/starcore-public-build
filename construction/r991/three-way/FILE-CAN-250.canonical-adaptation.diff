@@ -1,0 +1,13 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
+@@ -484,8 +484,8 @@
+     /** A bounded POST safe unit: repair one terminal projection, otherwise consume one POST_TRAIN. */
+     private static boolean drainPostSlotCP12(DbStore store,long end) {
+         if(System.nanoTime()>=end)return false;String[] row=null;
+-        try(Cursor c=store.readable().rawQuery("SELECT DISTINCT p.target_issue,t.settlement_hash,t.completed_at FROM (SELECT target_issue,settled,proof_error FROM r952_candidate_predraw UNION ALL SELECT target_issue,settled,proof_error FROM r958_frozen_predraw) p JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=p.target_issue WHERE p.settled=0 AND p.proof_error='' AND t.status='COMPLETED' ORDER BY p.target_issue LIMIT 1",null)){if(c.moveToFirst())row=new String[]{c.getString(0),c.getString(1),c.getString(2)};}
+-        if(row!=null){Models.Draw draw=store.getDrawByIssue(row[0]);if(draw!=null){onSettlementCompleted(store,draw,row[1],Long.parseLong(row[2]));return true;}}
++        try(Cursor c=store.readable().rawQuery("SELECT DISTINCT p.target_issue,t.settlement_hash,t.completed_at FROM (SELECT target_issue,settled,proof_error FROM r952_candidate_predraw UNION ALL SELECT target_issue,settled,proof_error FROM r958_frozen_predraw) p JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=p.target_issue JOIN "+DbHelper.TABLE_DRAWS+" d ON d.issue=p.target_issue AND d.dirty=0 AND d.open_time>0 WHERE p.settled=0 AND p.proof_error='' AND t.status='COMPLETED' AND t.completed_at>0 ORDER BY p.target_issue LIMIT 1",null)){if(c.moveToFirst())row=new String[]{c.getString(0),c.getString(1),c.getString(2)};}
++        if(row!=null){Models.Draw draw=store.getDrawByIssue(row[0]);if(draw!=null&&draw.isValid()&&draw.dirty==0){onSettlementCompleted(store,draw,row[1],Long.parseLong(row[2]));return true;}}
+         return PostSettlementResearchLoopR952.drainOne(store);
+     }
+ 

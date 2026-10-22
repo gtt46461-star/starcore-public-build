@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java b/app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java
+index 38febc3..88fbd10 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java
+@@ -522,7 +522,7 @@ public final class ApiTransportGovernanceEngine {
+         if (body.length() == 0) return new Evaluation(false, Outcome.EMPTY_BODY, "EMPTY_BODY");
+         if (!(body.startsWith("{") || body.startsWith("[")))
+             return new Evaluation(false, Outcome.NON_JSON, "NON_JSON");
+-        String lower = body.toLowerCase();
++        String lower = body.toLowerCase(java.util.Locale.ROOT);
+         if (lower.indexOf("\"info\"") >= 0 && lower.indexOf("success") < 0)
+             return new Evaluation(false, Outcome.BUSINESS_FAILURE, "INFO_NOT_SUCCESS");
+         return new Evaluation(true, Outcome.SUCCESS, "");

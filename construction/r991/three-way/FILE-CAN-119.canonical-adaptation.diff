@@ -1,0 +1,62 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -138,7 +138,7 @@
+         if(jobDirectory==null||!jobDirectory.isDirectory()||!new File(snapshot.getPath()).getCanonicalPath().startsWith(jobDirectory.getCanonicalPath()+File.separator))throw new IOException("REPORT_CONTEXT_DIRECTORY");
+         CancellationSignal cancellation=context.cancellationSignal();
+         if(!ACTIVE_CANCEL.compareAndSet(null,cancellation))throw new IOException("CATALOG_ALREADY_RUNNING");
+-        try{FilePages sink=new FilePages(jobDirectory);Result result=export(snapshot,context.snapshotSha256(),context.snapshotSha256(),ReportCheckRegistryCP12.checks(context),sink,progress);context.finishArtifacts();return withFiles(result,sink.files);}finally{ACTIVE_CANCEL.compareAndSet(cancellation,null);}
++        try{FilePages sink=new FilePages(jobDirectory);Result result=export(context,snapshot,context.snapshotSha256(),context.snapshotSha256(),ReportCheckRegistryCP12.checks(context),sink,progress);context.finishArtifacts();return withFiles(result,sink.files);}finally{ACTIVE_CANCEL.compareAndSet(cancellation,null);}
+     }
+     /** Deliberately fails rather than manufacturing own-process observations or unbound evaluators. */
+     public static Result write(SQLiteDatabase snapshot,File directory)throws Exception{throw new IOException("REPORT_READ_CONTEXT_REQUIRED");}
+@@ -175,7 +175,7 @@
+         }
+     }
+     /** snapshot must be an already copied, hash-verified, read-only PRIVATE SQLite file. */
+-    private static Result export(SQLiteDatabase snapshot, String snapshotId, String snapshotSha256,
++    private static Result export(ReportReadContextCP4 context, SQLiteDatabase snapshot, String snapshotId, String snapshotSha256,
+             Iterable<CheckSpec> checks, Pages pages, Progress progress) throws IOException {
+         if (snapshot == null || !snapshot.isOpen() || !snapshot.isReadOnly())
+             throw new IllegalArgumentException("REPORT_REQUIRES_READONLY_SNAPSHOT");
+@@ -227,16 +227,16 @@
+                             pragma(out,snapshot,"foreign_key_list",name,progress);
+                         } catch(RuntimeException failure) {
+                             errors++;evidenceOK=false;
+-                            out.line(obj("kind","table_error","table",name,"reason",failure.getClass().getSimpleName()));
++                            out.line(obj("kind","table_error","table",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
+                         }
+                     } else if("index".equals(type)) {
+                         try { pragma(out,snapshot,"index_info",name,progress); }
+-                        catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",failure.getClass().getSimpleName()));}
++                        catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));}
+                     }
+                 }
+             } catch(RuntimeException failure) {
+                 errors++;evidenceOK=false;
+-                out.line(obj("kind","catalog_error","reason",failure.getClass().getSimpleName()));
++                out.line(obj("kind","catalog_error","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
+             }
+             // No derived rate is manufactured from a schema count. Checks retain original semantics in their registered adapters.
+             SnapshotQuery input=new SnapshotQuery(snapshot); Set<String> ids=new HashSet<String>();
+@@ -260,7 +260,7 @@
+                 } catch(Exception failure) {
+                     if(Thread.currentThread().isInterrupted()||(ACTIVE_CANCEL.get()!=null&&ACTIVE_CANCEL.get().isCanceled()))throw new InterruptedIOException("REPORT_CHECK_CANCELLED");
+                     errors++;if(check.required){checksOK=false;allPassed=false;}
+-                    out.line(obj("kind","check_result","id",check.id,"execution_state","READ_ERROR","domain_outcome","READ_ERROR","health","UNKNOWN","state","READ_ERROR","reason",boundedFailure(failure),"evidence_member","snapshot.db","completes_contract",false));
++                    out.line(obj("kind","check_result","id",check.id,"execution_state","READ_ERROR","domain_outcome","READ_ERROR","health","UNKNOWN","state","READ_ERROR","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure),"evidence_member","snapshot.db","completes_contract",false));
+                 }
+             }
+             progress.checkpoint("CATALOG_END",checkCount);
+@@ -293,6 +293,12 @@
+     }
+     private static String ident(String s) {if(s==null || s.indexOf('\0')>=0)throw new IllegalArgumentException("SQL_IDENTIFIER");return '"'+s.replace("\"","\"\"")+'"';}
+     private static String boundedFailure(Exception error){String text=error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage());return text.length()<=1024?text:text.substring(0,1024);}
++    /** Preserve the complete cause chain; large stacks use the same verified text members as normal sections. */
++    private static String fullFailure(ReportReadContextCP4 context,Exception error){
++        ReportTextCP12 text=new ReportTextCP12(context);
++        try{java.io.PrintWriter output=new java.io.PrintWriter(text.writer());error.printStackTrace(output);output.flush();return text.toString();}
++        catch(RuntimeException failure){text.abort();throw failure;}
++    }
+     private static String bounded(String s) {if(s!=null && s.length()>16384)throw new IllegalArgumentException("CATALOG_METADATA_TOO_LARGE");return s;}
+     private static String obj(Object... kv) {
+         if((kv.length&1)!=0)throw new IllegalArgumentException("JSON_FIELDS");StringBuilder b=new StringBuilder(1024);b.append('{');

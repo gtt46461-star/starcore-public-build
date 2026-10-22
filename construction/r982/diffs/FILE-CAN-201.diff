@@ -1,0 +1,26 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeInputR36.java b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeInputR36.java
+index c354f55..71a621a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeInputR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeInputR36.java
+@@ -24,7 +24,12 @@ public final class V51RuntimeInputR36 {
+         baseIssue = base;
+         targetIssue = target;
+         historyHash = hash;
+-        this.history = Collections.unmodifiableList(history);
++        final List<Models.Draw> privateHistory = Collections.unmodifiableList(history);
++        // Models.Draw is mutable: a read-only List alone did not make the PIT immutable.
++        this.history = Collections.unmodifiableList(new java.util.AbstractList<Models.Draw>() {
++            @Override public Models.Draw get(int index) { return privateHistory.get(index).copy(); }
++            @Override public int size() { return privateHistory.size(); }
++        });
+         frozenFrames = frames == null ? new V51Models.DrawFrame[0] : frames.clone();
+     }
+ 
+@@ -38,6 +43,7 @@ public final class V51RuntimeInputR36 {
+                 Models.Draw d = input.get(i);
+                 if (d != null
+                         && d.isValid()
++                        && d.dirty == 0
+                         && TargetIssueResolver.isValid(d.issue)
+                         && !TargetIssueResolver.isAfter(d.issue, request.baseIssue)) {
+                     eligible.add(d.copy());

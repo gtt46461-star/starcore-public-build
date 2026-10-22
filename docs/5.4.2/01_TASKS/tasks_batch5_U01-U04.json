@@ -1,0 +1,207 @@
+[
+  {
+    "id": "U01",
+    "title": "首页固定信息、流水和独立影子卡",
+    "original_requirements": [
+      "P0-03",
+      "P0-05",
+      "P1-09",
+      "P1-10"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "OperationalDashboardR925.java",
+      "RuntimeObservabilityR925.java",
+      "app/src/main/res/layout/activity_main.xml",
+      "app/src/main/res/layout-sw600dp/activity_main.xml",
+      "RuntimeTruthSnapshotR906.java"
+    ],
+    "anchors": "install R925 panels / capture / pipeline / shadow",
+    "gap": "R925动态加卡尚无设备视觉验收；长流水可能挤压主信息，授权和实际运行状态容易混读。",
+    "steps": [
+      "顶部横向版本条及后台能力条固定，权限与业务健康两个灯",
+      "首页只显示最近20期紧凑行，可展开500，抓取最近100独立筛选",
+      "Shadow卡显示总/已结/待结/中/未中/HR/Wilson/30/60/120且按需展开",
+      "显示as_of时间/旧数据/查询失败，刷新失败不能留下无标识旧值",
+      "全部DB读取后台、有生命周期取消和请求版本号防旧回调覆盖新页面",
+      "保留原号码面/风险/形态入口"
+    ],
+    "acceptance": [
+      "phone与sw600dp全部ID/handler一致",
+      "最大字体和窄屏不遮按钮",
+      "停止刷新/旋转重建无泄漏",
+      "UI计数与同一event watermark导出一致"
+    ],
+    "dependencies": [
+      "B06",
+      "B07",
+      "B09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E05A",
+      "E05B"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "U02",
+    "title": "四个独立能力页面及趋势证据",
+    "original_requirements": [
+      "P1-08",
+      "M2",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "ResearchDashboardR924.java",
+      "ModelLearningActivity.java",
+      "app/src/main/AndroidManifest.xml"
+    ],
+    "anchors": "captureSection / detail routes / Activity registration",
+    "gap": "目前四卡仍共用现有详情Activity长文，缺四个职责清晰的独立趋势页面。",
+    "steps": [
+      "新增DeepLearningActivity/ EvolutionActivity/CreationActivity/AtomQualityActivity及独立只读Presenter，全部Manifest明确注册",
+      "每页固定职责/最近动作/输入/产物/样本/独立提升/卡门/主链贡献8项",
+      "趋势按期绘制样本、pairedΔ、校准、状态转移与实权重，N不足画空态不画假曲线",
+      "深度页分离模型版本与更新次数，进化页父子图和修复率，创造页中文公式/代码/证书漏斗，原子页质量/消费者/语义隔离",
+      "图表本地Canvas只读，数据分页且无额外网络依赖",
+      "从四页回到同一issue证据和完整报告"
+    ],
+    "acceptance": [
+      "用户5秒能找到正在做什么/有没有改善/是否接主链/为什么未接",
+      "四页各自点击、返回、空态、错误、长名单和大屏测试通过",
+      "原有功能页全部可达"
+    ],
+    "dependencies": [
+      "U01",
+      "C08",
+      "C10",
+      "D10"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E05A"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "U03",
+    "title": "为什么中/不中、风险稳定性与旧矩阵回归",
+    "original_requirements": [
+      "M8",
+      "P1-08"
+    ],
+    "priority": "P1",
+    "files": [
+      "MainActivity.java",
+      "FeatureAblationAttributionEngine.java",
+      "V57CompleteDiagnosticReportEngine.java",
+      "Models.java",
+      "K3FailureDiagnosisEngine.java",
+      "V57FailureDiagnosisEngine.java",
+      "V51RelationGraphVerifier.java"
+    ],
+    "anchors": "reason states / original p / stability / matrices",
+    "gap": "历史用户反馈空值与长教师段落；R925缺设备证明，不能假设代码存在即修好。",
+    "steps": [
+      "追踪号码风险/动作稳定性/原始概率/校准概率的计算→持久化→DTO→绑定每一段",
+      "恢复紧凑多状态框，包含来源强度/分歧/边界/形态/关系/teacher/漂移/样本/研究贡献等实际可得状态",
+      "开奖前分析与开奖后解释分区，教师长文放展开详情",
+      "没有数据给缺失原因和期号，不用固定填充值",
+      "保留趋势形态、号码属性、位置关联、教师、反推、因果、反哺原资产并逐入口回归",
+      "“两挂”触发诊断事件可以做，但不能保证第三次命中"
+    ],
+    "acceptance": [
+      "对旧反馈每个字段提供有值/缺失/失败fixture及设备截图",
+      "原矩阵入口和数值来源无消失",
+      "开奖后解释不修改赛前决策"
+    ],
+    "dependencies": [
+      "D07",
+      "C09",
+      "U01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E05B",
+      "E05C"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "U04",
+    "title": "完整检测报告、导出与可追溯证据",
+    "original_requirements": [
+      "P1-12",
+      "P0-05",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "V57CompleteDiagnosticReportEngine.java",
+      "SoftwareAuditR925.java",
+      "DiagnosticTextExportR923.java",
+      "DiagnosticReportProviderR923.java",
+      "TrainingSnapshotExportR925.java"
+    ],
+    "anchors": "report / static asset / sharePrepared / MIME",
+    "gap": "静态审计已嵌入，但动态分项失败、证书七件套、全模块进度与一键大数据导出仍需统一并验证。",
+    "steps": [
+      "一个诊断快照ID汇总身份/权限/业务事件/时延/结算/影子/REAL/积压/模型/证书/家族/修复/原子/UI/全部源文件资产",
+      "每节有status/as_of/source/hash/window，错误独立列不吞",
+      "一键导出主报告txt与JSON、明细CSV/JSONL及manifest，使用流式写文件避免超大String和binder",
+      "分享只授权本次URI且Provider验证规范路径与文件范围",
+      "复制完整报告与导出共用同一快照，超过系统剪贴能力明确改用文件",
+      "结果摘要分别CODE/HOST/APK/DEVICE/DATA/FUTURE，不用一个PASS覆盖所有层"
+    ],
+    "acceptance": [
+      "任何章节故障仍导出错误码及其他章节",
+      "所有M1-M10状态非缺省",
+      "同一snapshot UI与报告计数一致",
+      "导出文件实际可分享打开、hash可复算"
+    ],
+    "dependencies": [
+      "B06",
+      "U02",
+      "U03",
+      "C02",
+      "D10"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/U04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E05D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  }
+]

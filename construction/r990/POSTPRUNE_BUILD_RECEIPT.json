@@ -1,0 +1,56 @@
+{
+  "initial_clean_build": "FAIL_NDK_CLANG_19_EXECUTE_MODE_LOST_ON_SAFE_TAR_EXTRACTION",
+  "initial_log": "evidence/r990-postprune-build.log",
+  "mode_restoration": "POSTPRUNE_TOOLCHAIN_MODE_RECEIPT.json; one execute permission, actual binary SHA unchanged",
+  "retry_command": [
+    "toolchain/gradle/gradle-8.13/bin/gradle",
+    "-p",
+    "starcore",
+    "--offline",
+    "--no-daemon",
+    "--no-build-cache",
+    "--console=plain",
+    "clean",
+    "assembleRelease",
+    "testDebugUnitTest",
+    "lintRelease"
+  ],
+  "retry_exit_code": 0,
+  "retry_log": "evidence/r990-postprune-build-retry.log",
+  "task_fact": "87 actionable tasks:87 executed",
+  "actual_JDK": "Zulu17.0.17",
+  "actual_gradle": "8.13",
+  "compile_sdk": 36,
+  "build_tools": "36.0.0",
+  "AGP": "8.12.2",
+  "NDK": "28.2.13676358",
+  "CMake": "3.22.1",
+  "unit_tests": 29,
+  "unit_failures": 0,
+  "source_call_gate": "Normal preBuild generation/check executed; no index exclusion/bypass in clean full release",
+  "APK_ABIs": [
+    {
+      "path": "lib/arm64-v8a/libstarcore_report_cp4.so",
+      "ELF_class": 2,
+      "ELF_machine": 183,
+      "size": 1576360,
+      "sha256": "a17f22f5240bee70268e89271dc09c7f49f4f99fe7fb2f2c1d6e2e6093bf6ae4"
+    },
+    {
+      "path": "lib/armeabi-v7a/libstarcore_report_cp4.so",
+      "ELF_class": 1,
+      "ELF_machine": 40,
+      "size": 1198392,
+      "sha256": "e15ad1652c903c9f2d30f9fad2e8794b5f4298cdb2aea91dfb413d342e6f2f38"
+    },
+    {
+      "path": "lib/x86_64/libstarcore_report_cp4.so",
+      "ELF_class": 2,
+      "ELF_machine": 62,
+      "size": 1746504,
+      "sha256": "587b0d0ab9bfd20194f2e261ffd124c1900f4ccba036737f24e80c9985ede0ae"
+    }
+  ],
+  "strict_lint": "FAIL57; original baseline unchanged",
+  "scope": "Fresh current complete Java/resources/Manifest/native3ABI/D8/baselined lint build; DEVICE_NOT_VERIFIED; all-plan IN_PROGRESS"
+}

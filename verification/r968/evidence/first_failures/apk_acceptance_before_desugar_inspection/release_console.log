@@ -1,0 +1,23 @@
+R926_RELEASE_BUILD=PASS
+APK=/mnt/data/continuation/evidence/release/Starcore-Tianshu-V57.21.2.0.11-R5.4.2.11-968-release.apk
+CERT_SHA256=ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f
+DEX_INTERNAL_IDENTITY=PASS
+R926_PRODUCT_CLASSES=86
+RESOURCE_ID_PARITY=PASS_ZERO_MISMATCH
+MAIN_ACTIVITY_BINDINGS=PASS
+PREDECESSOR_RESOURCE_COMPATIBILITY=PASS
+MANIFEST_IDENTITY=PASS
+SIGNATURE_CONTINUITY=PASS_OVERWRITE_INSTALL
+PHYSICAL_DEVICE_RUNTIME=RETEST_REQUIRED
+R926_APK_ACCEPTANCE=FAIL|R968_FINAL_DEX_WIRING
+Traceback (most recent call last):
+  File "/mnt/data/continuation/source/STARCORE_5.4.2.10_R967_CORE_CANDIDATE_SOURCE/scripts/r926_build_from_signing_kit.py", line 24, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/mnt/data/continuation/source/STARCORE_5.4.2.10_R967_CORE_CANDIDATE_SOURCE/scripts/r926_build_from_signing_kit.py", line 23, in main
+    subprocess.run(['bash','scripts/r926_apk_acceptance.sh',str(apk),str((a.certificate_base_apk or a.base_apk).resolve())],cwd=root,env=dict(env,R926_EVIDENCE_DIR=str(a.out.resolve()/'evidence')),check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['bash', 'scripts/r926_apk_acceptance.sh', '/mnt/data/continuation/evidence/release/Starcore-Tianshu-V57.21.2.0.11-R5.4.2.11-968-release.apk', '/mnt/data/STARCORE_5.4.2.10_R967_CORE_CANDIDATE_OVERWRITE.apk']' returned non-zero exit status 1.

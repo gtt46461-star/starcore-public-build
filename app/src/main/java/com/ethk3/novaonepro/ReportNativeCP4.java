@@ -1,0 +1,121 @@
+package com.ethk3.novaonepro;
+import java.io.*;
+/** Report/SQLite methods run only in :diagnostics; the separate CAS walker serves training without SQLite. */
+public final class ReportNativeCP4 {
+ private ReportNativeCP4() {}
+ private static boolean loaded, rowReaderActive;
+ private static boolean casWalkerLoaded;
+ /** CAS directory-only JNI. Does not permit report/SQLite operations in the application process.
+  * Caller holds admission.lock exclusively while accounting/publishing; partial cleanup never removes CAS. */
+ public static synchronized long trainingCasBytesCP12(String directory,long nowMs,boolean cleanOldPartials){
+  if(directory==null||directory.isEmpty()||nowMs<0)throw new IllegalArgumentException("CAS_WALK_ARGUMENT");
+  if(!casWalkerLoaded){System.loadLibrary("starcore_report_cp4");casWalkerLoaded=true;}
+  return trainingCasBytes0(directory,nowMs,cleanOldPartials);
+ }
+ private static native long trainingCasBytes0(String directory,long nowMs,boolean cleanOldPartials);
+
+ public interface Control { boolean shouldContinue(); default void onBackupProgress(long totalPages,long remainingPages,int nativeCode) {} }
+ public static synchronized void loadForDiagnosticProcess(String observedProcessName, String packageName) {
+  if (!(packageName + ":diagnostics").equals(observedProcessName)) throw new IllegalStateException("REPORT_WRONG_PROCESS");
+  System.loadLibrary("starcore_report_cp4");
+  loaded=true;
+ }
+ public static synchronized void backup(File source, File dest, long nativeBudget, Control control) throws IOException {
+  if(!loaded||rowReaderActive||source==null||dest==null||control==null)throw new IOException("REPORT_NATIVE_STATE");
+  if(source.getCanonicalPath().equals(dest.getCanonicalPath())) throw new IOException("REPORT_SOURCE_EQUALS_DEST");
+  try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(source,()->control.shouldContinue(),2500L)) {
+   int code=backup0(source.getCanonicalPath(),dest.getCanonicalPath(),nativeBudget,0,control);
+   if(code!=0)throw new Failure("BACKUP",code);
+  }
+ }
+ /** Private, selected-row SQLite snapshot. Main source is attached strictly read-only;
+  * original DDL, encoding, rowids, cell storage classes and row generations are retained. */
+ public static synchronized void retentionPage(File source,File dest,String table,long[] rows,
+                                               long nativeBudget,long maxBytes,Control control)throws IOException {
+  if(!loaded||rowReaderActive||source==null||dest==null||control==null)throw new IOException("REPORT_NATIVE_STATE");
+  identifier(table);
+  if(rows==null||rows.length<1||rows.length>RetentionArchiveProtocolCP12.MAX_PAGE||maxBytes<65536)throw new IOException("RETENTION_PAGE_BOUND");
+  for(int i=1;i<rows.length;i++)if(rows[i]<=rows[i-1])throw new IOException("RETENTION_PAGE_ORDER");
+  if(source.getCanonicalPath().equals(dest.getCanonicalPath()))throw new IOException("REPORT_SOURCE_EQUALS_DEST");
+  try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(source,()->control.shouldContinue(),2500L)) {
+   int code=retentionPage0(source.getCanonicalPath(),dest.getCanonicalPath(),table,rows,nativeBudget,maxBytes,control);
+   if(code!=0)throw new Failure("RETENTION_PAGE",code);
+  }
+ }
+ public static synchronized void compress(File source, OutputStream output, long nativeBudget, Control control) throws IOException {
+  if(!loaded||rowReaderActive||source==null||output==null||control==null)throw new IOException("REPORT_NATIVE_STATE");
+  int code=compress0(source.getCanonicalPath(),nativeBudget,0,output,control);
+  if(code!=0)throw new Failure("COMPRESS",code);
+ }
+ public static final class Failure extends IOException {
+  public final String stage; public final int nativeCode;
+  public Failure(String stage,int code){super("REPORT_"+stage+"_FAILED|native="+code);this.stage=stage;this.nativeCode=code;}
+ }
+ public static synchronized void decompress(InputStream input, OutputStream output, long expectedRawBytes,
+                                            long nativeBudget, Control control) throws IOException {
+  if(!loaded||rowReaderActive||input==null||output==null||control==null||expectedRawBytes<0)throw new IOException("REPORT_NATIVE_STATE");
+  int code=decompress0(input,output,expectedRawBytes,nativeBudget,0,control);
+  if(code!=0)throw new Failure("DECOMPRESS",code);
+ }
+ public static synchronized void verifyArchiveDirectory(File directory,int expectedParts,Control control)throws IOException {
+  if(!loaded||rowReaderActive||directory==null||expectedParts<1||expectedParts>999999||control==null)throw new IOException("REPORT_NATIVE_STATE");
+  int code=verifyArchiveDirectory0(directory.getCanonicalPath(),expectedParts,control);
+  if(code!=0)throw new Failure("ARCHIVE_DIRECTORY",code);
+ }
+ private static native int decompress0(InputStream input,OutputStream output,long rawBytes,long memory,long budgetMs,Control control);
+ private static native int verifyArchiveDirectory0(String directory,int parts,Control control);
+ private static native int backup0(String source,String destination,long memory,long budgetMs,Control control);
+ private static native int retentionPage0(String source,String destination,String table,long[] rows,long memory,long maxBytes,Control control);
+ private static native int compress0(String source,long memory,long budgetMs,OutputStream output,Control control);
+
+ /** One fixed-copy connection; callers hold the private snapshot lease until close. */
+ public static final class RowReader implements Closeable {
+  private long handle;
+  private final Control control;
+  private RowReader(File snapshot,long nativeBudget,Control control)throws IOException {
+   if(control==null)throw new IllegalArgumentException("REPORT_CONTROL");this.control=control;
+   handle=readerOpen0(snapshot.getCanonicalPath(),nativeBudget);
+   if(handle==0)throw new IOException("REPORT_ROW_READER_OPEN");
+  }
+  private void check()throws IOException {if(handle==0)throw new IOException("REPORT_ROW_READER_CLOSED");if(!control.shouldContinue())throw new InterruptedIOException("REPORT_ROW_READER_CANCELLED");}
+  /** null means EOF; negative rowids, including Long.MIN_VALUE, are valid SQLite keys. */
+  public synchronized Long nextRow(String table,String rowidAlias,boolean first,long previous)throws IOException {
+   check();identifier(table);identifier(rowidAlias);long[] out=new long[2];int rc=readerNext0(handle,table,rowidAlias,first,previous,out);
+   if(rc!=0)throw new Failure("ROW_NEXT",rc);return out[0]==0?null:Long.valueOf(out[1]);
+  }
+  public static final class Cell {
+   public final int type;public final long scalarBits,length;
+   private Cell(long[] x){type=(int)x[0];scalarBits=x[1];length=x[2];}
+  }
+  /** Inspects only typeof/numeric scalar; TEXT/BLOB opens a read-only incremental blob. */
+  public synchronized Cell cell(String table,String column,String rowidAlias,long row)throws IOException {
+   check();identifier(table);identifier(column);identifier(rowidAlias);long[] out=new long[3];int rc=readerCell0(handle,table,column,rowidAlias,row,out);
+   if(rc!=0)throw new Failure("ROW_CELL",rc);return new Cell(out);
+  }
+  public synchronized int read(long offset,byte[] buffer,int maximum)throws IOException {
+   check();if(buffer==null||maximum<1||maximum>8192||maximum>buffer.length||offset<0)throw new IllegalArgumentException("ARCHIVE_CHUNK_BOUND");
+   int rc=readerRead0(handle,offset,buffer,maximum);if(rc!=0)throw new Failure("ROW_READ",rc);return maximum;
+  }
+  public synchronized long nativePeakBytes()throws IOException {check();return readerPeak0(handle);}
+  public synchronized void close()throws IOException {
+   if(handle==0)return;long old=handle;handle=0;
+   synchronized(ReportNativeCP4.class){try{int rc=readerClose0(old);if(rc!=0)throw new Failure("ROW_CLOSE",rc);}finally{rowReaderActive=false;}}
+  }
+ }
+ public static synchronized RowReader openRows(File snapshot,long nativeBudget,Control control)throws IOException {
+  if(!loaded||rowReaderActive)throw new IOException("REPORT_NATIVE_STATE");
+  if(snapshot==null||!snapshot.isFile())throw new IOException("REPORT_SNAPSHOT_MISSING");
+  RowReader result=new RowReader(snapshot,nativeBudget,control);rowReaderActive=true;return result;
+ }
+ private static void identifier(String s){
+  if(s==null||s.length()==0||s.length()>256)throw new IllegalArgumentException("ARCHIVE_IDENTIFIER");
+  // Canonical R980/CP4 tables use ASCII identifiers. This also avoids JNI modified-UTF8 ambiguity.
+  for(int i=0;i<s.length();i++)if(s.charAt(i)<32||s.charAt(i)>126)throw new IllegalArgumentException("ARCHIVE_IDENTIFIER_ENCODING");
+ }
+ private static native long readerOpen0(String path,long memory)throws IOException;
+ private static native int readerClose0(long handle);
+ private static native int readerNext0(long handle,String table,String alias,boolean first,long prior,long[] result);
+ private static native int readerCell0(long handle,String table,String column,String alias,long row,long[] result);
+ private static native int readerRead0(long handle,long offset,byte[] output,int maximum);
+ private static native long readerPeak0(long handle);
+}

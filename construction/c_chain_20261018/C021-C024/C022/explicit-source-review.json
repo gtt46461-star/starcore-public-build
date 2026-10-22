@@ -1,0 +1,142 @@
+{
+  "canonical_plan_sha256": "50497444e626f1cc49b90add152ac042bb525c3fd775a54b54bceb8b8356c988",
+  "controlled_changes": [
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "0fc35deb81d84ab712c1212d4e17ff4aa6cd3d87dae4dbfd3043e650a084cbb0",
+      "before_role": "NUMERIC",
+      "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "rationale": "Preserve C019 startup queue rejection recovery, cancellation and liveness-thread teardown; merge only C022 bounded per-prediction wake lease and lifecycle gate changes.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "ecc021c659d31635c0fbea4cde821403424725f77b9a661dd1b206162a448957",
+      "before_role": "NUMERIC",
+      "before_sha256": "754c01343d9fe165c24869495a07190878fb0d4e68012a4ebe92b550423c8382",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+      "rationale": "Retain C019 transaction-local schema-column cache with failure invalidation; verified previous schema semantics and transaction boundaries stay unchanged.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "7b725e2d72ab28c3a89e00c67962ec96f9a153f84e3f3c03fc4eaf31bc6ecbae",
+      "before_role": "NUMERIC",
+      "before_sha256": "eb1e99dcba9f5d8d44e96ba7714250968803d31451f82348961c1b9de0b54143",
+      "path": "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+      "rationale": "Retain pre-C020 missing fixed-window evidence presentation; no zero probability, synthesized sample, historical Future migration or qualification inheritance.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "ce899fe2bcf9f569e6c4587ba47d30e82c942020bf929f392c9720cd7ebc7546",
+      "before_role": "PRESENTATION",
+      "before_sha256": "f2adb8ba66500c3f014210bc8eaa1341f66104ebaf8af1e0d4635f97ba3f9941",
+      "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+      "rationale": "Preserve C019 truthful initialization-stalled wording while integrating C024 explicit maintenance admission and preventing automatic restart during offline maintenance.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "ca9b23b5881347f1936b69062c4c47402ab44ab80bdb9a1fcf3bd510cd00d0f7",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
+      "rationale": "Own a bounded per-attempt wake lock, consume the original monotonic remaining deadline and release exactly once after canonical commit or failure.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "f801a8ecef5da3bf4126cc374c237660c408957789b803251818a3fd5332c7d1",
+      "before_role": "NUMERIC",
+      "before_sha256": "210825377aa27fdb7b62aed8ed24d77a8ad385216d009a295b4d87426a642613",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ProductionPredictionDispatcherR815.java",
+      "rationale": "Carry the same explicit bounded wake lease through the existing production dispatch API and release it after the actual durable canonical commit.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "07f7dd398b2915bf369938cb6728e1797f3fe22108b5739867c6adf7755fc949",
+      "before_role": "NUMERIC",
+      "before_sha256": "ea2caa7d8d2aea28082e5fcae3799f41f8dc1193b96fd38592d6ed796a016372",
+      "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
+      "rationale": "Retain prior bounded outbox recovery and realtime admission ownership; original writer transactions still fully complete once admitted, with no extra source writer.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "5551068efdbb5964564cc380beb6d75cc0294fc59c3f94da64476e1463636d76",
+      "before_role": "NUMERIC",
+      "before_sha256": "0a6a5f34ccb81d3bd25317a6577f730fb8a98c460351b47eb576b1138c4e1488",
+      "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeExternalEventWriterR926.java",
+      "rationale": "Retain prior bounded original-thread outbox recovery with limited row and monotonic time budget; current prediction deadline retains priority over historical work.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "675116d1308f7bfb135af76d1d050cf07a8206dc37775cef6288a50b9faf32bd",
+      "before_role": "NUMERIC",
+      "before_sha256": "4f652dffe99bd19a0aa23ee67bbdc57029cc6af23b8da5839fb827a2ce926590",
+      "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+      "rationale": "Reject the maximum-date rollover when it no longer produces an eight-digit valid Gregorian date, retaining the unique target owner and original failure interface.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "3accf52b5cc45f8f3814702ad130ce34316eee16d9f3cf4b546513059f8379f9",
+      "before_role": "NUMERIC",
+      "before_sha256": "0ab0fe6a7097ff20862193323fd28291925ae8c82cc8453964d4b8e8183b7f55",
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51AutoFetchBridge.java",
+      "rationale": "Forward the explicitly owned per-attempt wake lease to the existing orchestrator without a shared mutable thread-local owner or changed public four-argument caller contract.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "2bc8cb55fcfb38feef2bdc8415d289e801300a2cce6e27ebc77d890a5d4ef21d",
+      "before_role": "NUMERIC",
+      "before_sha256": "105bc06fdda0f5a7c203fe4a51604ae83fb342976f8f0ad92496965fd445ae79",
+      "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+      "rationale": "Explicit cumulative C022 source for V51RuntimeOrchestrator.java: Explicit WakeLease only; original two-argument domain certify caller. The predeclared API dependencies for later stages are deliberately absent here; this is an independently frozen complete AFTER, not a patched final hash.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "9f7be130b46c067c400f498869878a74f01ebdcc8167a4e7f832a9300d18d2b8",
+      "before_role": "BUILD_CONTRACT",
+      "before_sha256": "b132348a354663f8a6b2159f17938e99b695ffa3a343ca06f1a52e2f3de46a1c",
+      "path": "scripts/r967_semantic_identity.py",
+      "rationale": "Add a strict separate R82 zero-predecessor invalidation branch pinned to exact old R81 semantics and controlled-role maps; validate every current source difference and bind offline drift exporter inputs when they arrive.",
+      "reviewer": "STARCORE C021-C024 exact-source construction review"
+    }
+  ],
+  "new_roles": {
+    "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java": {
+      "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
+      "rationale": "Own a bounded per-attempt wake lock, consume the original monotonic remaining deadline and release exactly once after canonical commit or failure.",
+      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "role": "NUMERIC"
+    },
+    "release/r81_controlled_source_baseline.json": {
+      "path": "release/r81_controlled_source_baseline.json",
+      "rationale": "Preserve the exact old R81 controlled path/role/source-hash map, including presentation inputs absent from the numeric dependency list, for independent strict R82 difference review.",
+      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "role": "PROVENANCE"
+    },
+    "release/r81_semantic_baseline.json": {
+      "path": "release/r81_semantic_baseline.json",
+      "rationale": "Preserve the exact old shipped R81 generated semantic manifest bytes as immutable provenance; it cannot authorize numerical compatibility with the new R82 matrix and model semantics.",
+      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "role": "PROVENANCE"
+    },
+    "release/r82_training_invalidation.json": {
+      "path": "release/r82_training_invalidation.json",
+      "rationale": "The generated proof binds exact current non-provenance sources, manually reviewed roles, immutable old R81 baselines and ZERO predecessors; self-hashing is excluded while schema and all source differences are independently validated.",
+      "reviewer": "R82_IDENTITY_INTERPRETER_REVIEW",
+      "role": "PROVENANCE"
+    }
+  },
+  "proof_sha256": "0c0f85ed26a8c0f3c233544661e15cd793a3b919202bad971baf7d76f121473d",
+  "status": "REVIEWED_ADAPTED_SOURCE_IDENTITY",
+  "zero_predecessors": true
+}

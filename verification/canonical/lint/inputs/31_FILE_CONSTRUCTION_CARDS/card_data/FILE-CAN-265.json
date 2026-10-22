@@ -1,0 +1,132 @@
+{
+  "card_id": "FILE-CAN-265",
+  "path": "app/src/main/res/layout-sw600dp/activity_main.xml",
+  "source_role": "PRODUCT_SOURCE",
+  "typed_source_sha256": null,
+  "typed_source_binding": "NOT_HASH_BOUND",
+  "disposition": "MODIFY",
+  "before_path": "/workspace/scratch/805d80e64eb3/current_source/STARCORE_5.4.2.23_R980_SOURCE/app/src/main/res/layout-sw600dp/activity_main.xml",
+  "before_ref": "CURRENT_SOURCE/app/src/main/res/layout-sw600dp/activity_main.xml",
+  "after_ref": "32_METHOD_PATCH_BLUEPRINTS/FINAL_CANONICAL_AFTER/app/src/main/res/layout-sw600dp/activity_main.xml",
+  "before_sha256": "66c5f236d2ca3234323a3f574714d54c88a99c86a13dd3514057f5a2de1c3af0",
+  "after_path": "/workspace/scratch/805d80e64eb3/audit_cp12/composed_b860f106/app/src/main/res/layout-sw600dp/activity_main.xml",
+  "after_sha256": "a8c8f6028cf8300557b7013c14e9664dc483e10e89f2dece60d469f79567d990",
+  "patch": "patches/FILE-CAN-265.diff",
+  "members_changed": 0,
+  "changed_members": [],
+  "current_method_signatures": [],
+  "target_method_signatures": [],
+  "current_ast_declarations": [],
+  "target_ast_declarations": [],
+  "typed_callers": [],
+  "typed_callees": [],
+  "type_references": [],
+  "domain_contracts": [
+    {
+      "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+      "row": 56,
+      "kind": "CONTRACT",
+      "data": {
+        "file": "app/src/main/res/layout-sw600dp/activity_main.xml",
+        "owner": "activity_main existingOwner (lint remediation doesnotcreatebusiness executionowner)",
+        "thread": "UI main thread only for resource inflation/render/boundedlisteners; no new timer/backgroundOwner",
+        "transaction": "none; resource/locale/security guard changes preserve existingtransaction contract",
+        "trigger": "current detector(s):ContentDescription,EllipsizeMaxLines,HardcodedText,RtlHardcoded,TooManyViews,UseCompoundDrawables",
+        "idempotency": "exact originalissue detector+message+file+sourceanchor+count; exact AST/literal patch matchesbefore oralreadyappliedafter",
+        "failure": "New/Error/security finding cannotenteradvisorybaseline; patchcontext drift fail; APIlevel guards refuse unsupportedcall",
+        "recovery": "reapply exactoverlay idempotently; root finalMemberMerge retains otherOwners latestmembers; strictlint regression catchesnewfinding",
+        "test": "Gradle :app:lintDebug warningsAsErrors=true abortOnError=true onfinalcomposedtree; BASELINE_GUARD_REGRESSION_CP12.json; FILE-CP12-LINT-055",
+        "acceptance": "No EllipsizeMaxLines construction failure. | No residual of this detector at these exact resources; source/layout/state semantics retained. | No growing hierarchy;97 hard bound per active main layout and singleton visible Activity state; arbitrary dynamic rows prohibited."
+      }
+    }
+  ],
+  "fixed_contract_fields": {
+    "owner": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "activity_main existingOwner (lint remediation doesnotcreatebusiness executionowner)"
+      }
+    ],
+    "thread": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "UI main thread only for resource inflation/render/boundedlisteners; no new timer/backgroundOwner"
+      }
+    ],
+    "transaction": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "none; resource/locale/security guard changes preserve existingtransaction contract"
+      }
+    ],
+    "trigger": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "current detector(s):ContentDescription,EllipsizeMaxLines,HardcodedText,RtlHardcoded,TooManyViews,UseCompoundDrawables"
+      }
+    ],
+    "idempotency": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "exact originalissue detector+message+file+sourceanchor+count; exact AST/literal patch matchesbefore oralreadyappliedafter"
+      }
+    ],
+    "failure": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "New/Error/security finding cannotenteradvisorybaseline; patchcontext drift fail; APIlevel guards refuse unsupportedcall"
+      }
+    ],
+    "recovery": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "reapply exactoverlay idempotently; root finalMemberMerge retains otherOwners latestmembers; strictlint regression catchesnewfinding"
+      }
+    ],
+    "test": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "Gradle :app:lintDebug warningsAsErrors=true abortOnError=true onfinalcomposedtree; BASELINE_GUARD_REGRESSION_CP12.json; FILE-CP12-LINT-055"
+      }
+    ],
+    "acceptance": [
+      {
+        "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+        "row": 56,
+        "value": "No EllipsizeMaxLines construction failure. | No residual of this detector at these exact resources; source/layout/state semantics retained. | No growing hierarchy;97 hard bound per active main layout and singleton visible Activity state; arbitrary dynamic rows prohibited."
+      }
+    ]
+  },
+  "domain_documents": [],
+  "source_traceability": [
+    {
+      "origin": "audit_cp12/lint/FILE_CONTRACTS_CP12.csv",
+      "row": 56,
+      "kind": "CONTRACT",
+      "data": {
+        "file": "app/src/main/res/layout-sw600dp/activity_main.xml",
+        "owner": "activity_main existingOwner (lint remediation doesnotcreatebusiness executionowner)",
+        "thread": "UI main thread only for resource inflation/render/boundedlisteners; no new timer/backgroundOwner",
+        "transaction": "none; resource/locale/security guard changes preserve existingtransaction contract",
+        "trigger": "current detector(s):ContentDescription,EllipsizeMaxLines,HardcodedText,RtlHardcoded,TooManyViews,UseCompoundDrawables",
+        "idempotency": "exact originalissue detector+message+file+sourceanchor+count; exact AST/literal patch matchesbefore oralreadyappliedafter",
+        "failure": "New/Error/security finding cannotenteradvisorybaseline; patchcontext drift fail; APIlevel guards refuse unsupportedcall",
+        "recovery": "reapply exactoverlay idempotently; root finalMemberMerge retains otherOwners latestmembers; strictlint regression catchesnewfinding",
+        "test": "Gradle :app:lintDebug warningsAsErrors=true abortOnError=true onfinalcomposedtree; BASELINE_GUARD_REGRESSION_CP12.json; FILE-CP12-LINT-055",
+        "acceptance": "No EllipsizeMaxLines construction failure. | No residual of this detector at these exact resources; source/layout/state semantics retained. | No growing hierarchy;97 hard bound per active main layout and singleton visible Activity state; arbitrary dynamic rows prohibited."
+      }
+    }
+  ],
+  "issue_ids": [],
+  "requirement_ids": [],
+  "disposition_proof": null,
+  "full_after_is_normative": true
+}

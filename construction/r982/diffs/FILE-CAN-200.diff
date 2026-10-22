@@ -1,0 +1,227 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V51Repository.java b/app/src/main/java/com/ethk3/novaonepro/V51Repository.java
+index 4e20437..0a1888d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V51Repository.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V51Repository.java
+@@ -4877,4 +4877,222 @@ public final class V51Repository {
+                 settlements > 1,
+                 shadowReal == 0);
+     }
++
++public static B12InvariantAudit auditB12SnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String target) {
++        if (store == null)
++            return new B12InvariantAudit(target, 0, 0, 0, 0, 0, 0, 0, 0, true, true, false);
++        SQLiteDatabase db = store.readable();
++        int issue = countSnapshotCP4(report, db, ISSUE, target),
++                number = countSnapshotCP4(report, db, NUMBER, target),
++                compat = countSnapshotCP4(report, db, ACTION, target),
++                full = countSnapshotCP4(report, db, ACTION_SPACE, target),
++                champ = countSnapshotCP4(report, db, CHAMPION, target),
++                funnel = countSnapshotCP4(report, db, FUNNEL, target),
++                sel = countSnapshotCP4(report, db, SELECTED, target),
++                auth =
++                        intScalarSnapshotCP4(report, 
++                                db,
++                                "SELECT COUNT(1) FROM " + AUTH + " WHERE target_issue=?",
++                                new String[] {target});
++        int trades =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + DbHelper.TABLE_TRADES
++                                + " WHERE target_issue=? AND stat_scope=?",
++                        new String[] {target, AppConfig.STAT_SCOPE_REAL_TRADE});
++        int settlements =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + DbHelper.TABLE_B03_SETTLEMENT_EVENT
++                                + " WHERE target_issue=?",
++                        new String[] {target});
++        int shadowReal =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE target_issue=? AND decision_action='SHADOW' AND result IN"
++                                + " ('WIN','LOSS')",
++                        new String[] {target});
++        return new B12InvariantAudit(
++                target,
++                issue,
++                number,
++                compat,
++                full,
++                champ,
++                funnel,
++                sel,
++                auth,
++                trades > 1,
++                settlements > 1,
++                shadowReal == 0);
++    }
++
++public static int intScalarSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql, String[] args) {
++        Cursor c = null;
++        try {
++            c = report.select(sql, args);
++            return c.moveToFirst() ? c.getInt(0) : 0;
++        } finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static int countSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String table, String target) {
++        Cursor c = null;
++        try {
++            c =
++                    report.select(
++                            "SELECT COUNT(1) FROM " + table + " WHERE target_issue=?",
++                            new String[] {target});
++            return c.moveToFirst() ? c.getInt(0) : 0;
++        } finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static DiagnosticStats diagnosticStatsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        DiagnosticStats x = new DiagnosticStats();
++        if (store == null) return x;
++        SQLiteDatabase db = store.readable();
++        x.predictions =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM " + ISSUE + " WHERE game_code=?",
++                        new String[] {GAME_CODE});
++        x.selected =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM " + SELECTED + " WHERE game_code=?",
++                        new String[] {GAME_CODE});
++        x.bet =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='BET'",
++                        new String[] {GAME_CODE});
++        x.shadow =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='SHADOW'",
++                        new String[] {GAME_CODE});
++        x.hold =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='HOLD'",
++                        new String[] {GAME_CODE});
++        x.settled =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND settled=1 AND result IN ('HIT','MISS')",
++                        new String[] {GAME_CODE});
++        x.hit =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND settled=1 AND result='HIT'",
++                        new String[] {GAME_CODE});
++        x.betSettled =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='BET' AND settled=1 AND"
++                                + " result IN ('HIT','MISS')",
++                        new String[] {GAME_CODE});
++        x.betHit =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='BET' AND settled=1 AND"
++                                + " result='HIT'",
++                        new String[] {GAME_CODE});
++        x.shadowSettled =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='SHADOW' AND settled=1"
++                                + " AND result IN ('HIT','MISS')",
++                        new String[] {GAME_CODE});
++        x.shadowHit =
++                intScalarSnapshotCP4(report, 
++                        db,
++                        "SELECT COUNT(1) FROM "
++                                + SELECTED
++                                + " WHERE game_code=? AND decision_action='SHADOW' AND settled=1"
++                                + " AND result='HIT'",
++                        new String[] {GAME_CODE});
++        x.coverage = x.predictions <= 0 ? 0 : (double) x.bet / x.predictions;
++        x.hitRate = x.settled <= 0 ? 0 : (double) x.hit / x.settled;
++        x.betHitRate = x.betSettled <= 0 ? 0 : (double) x.betHit / x.betSettled;
++        x.shadowHitRate = x.shadowSettled <= 0 ? 0 : (double) x.shadowHit / x.shadowSettled;
++        x.wilsonLower = wilsonSnapshotCP4(report, x.hit, x.settled);
++        x.ece = selectedEceSnapshotCP4(report, db);
++        return x;
++    }
++
++public static double selectedEceSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
++        Cursor c = null;
++        try {
++            c =
++                    report.select(
++                            "SELECT selected_hit_p,result FROM "
++                                    + SELECTED
++                                    + " WHERE game_code=? AND settled=1 AND selected_hit_p>=0 AND"
++                                    + " selected_hit_p<=1 AND result IN ('HIT','MISS')",
++                            new String[] {GAME_CODE});
++            int bins = 10;
++            int[] count = new int[bins];
++            double[] sumP = new double[bins], sumY = new double[bins];
++            int total = 0;
++            while (c.moveToNext()) {
++                double p = c.getDouble(0);
++                if (Double.isNaN(p) || Double.isInfinite(p)) continue;
++                if (p < 0) p = 0;
++                if (p > 1) p = 1;
++                int y = "HIT".equals(c.getString(1)) ? 1 : 0;
++                int b = (int) Math.floor(p * bins);
++                if (b >= bins) b = bins - 1;
++                if (b < 0) b = 0;
++                count[b]++;
++                sumP[b] += p;
++                sumY[b] += y;
++                total++;
++            }
++            if (total <= 0) return 0;
++            double ece = 0;
++            for (int b = 0; b < bins; b++) {
++                if (count[b] <= 0) continue;
++                double avgP = sumP[b] / count[b], avgY = sumY[b] / count[b];
++                ece += ((double) count[b] / total) * Math.abs(avgP - avgY);
++            }
++            return ece;
++        } finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static double wilsonSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int hit, int n) {
++        if (n <= 0) return 0;
++        double z = 1.959963984540054d,
++                p = (double) hit / n,
++                z2 = z * z,
++                den = 1 + z2 / n,
++                center = p + z2 / (2 * n),
++                adj = z * Math.sqrt((p * (1 - p) + z2 / (4 * n)) / n);
++        return Math.max(0, (center - adj) / den);
++    }
+ }

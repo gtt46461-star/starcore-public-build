@@ -1,0 +1,54 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+index e5b5d89..cd20cf4 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -274,6 +274,7 @@ public final class ReportExportServiceCP4 extends Service {
+                 if(name.equals("index.json")){path="delivery/index.json";File file=new File(sourceJob,path);bytes=file.length();sha=ReportArchiveCP4.hash(file,active);}else{JSONArray files=index.getJSONArray("files");for(int i=0;i<files.length();i++){JSONObject row=files.getJSONObject(i);if(row.getString("name").equals(name)){path=row.getString("path");sha=row.getString("sha256");bytes=row.getLong("bytes");break;}}}
+                 if(path.isEmpty())throw new IOException("REPORT_SAF_VOLUME_UNLISTED");state.put("expectedSha256",sha);state.put("expectedBytes",bytes);ReportJobJournalCP12.writeAtomic(journal,state.toString());
+                 transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,Uri.parse(request.getString("destination")),active);
++                active.checkpoint();
+                 state.put("state","VERIFIED_READBACK");state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
+                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);
+             }
+@@ -309,13 +310,13 @@ public final class ReportExportServiceCP4 extends Service {
+                     Uri destination;
+                     if(state.has("currentUri"))destination=Uri.parse(state.getString("currentUri"));
+                     else {destination=android.provider.DocumentsContract.createDocument(getContentResolver(),directory,"application/octet-stream",name);if(destination==null)throw new IOException("REPORT_SAF_DOCUMENT_CREATE");state.put("currentUri",destination.toString());ReportJobJournalCP12.writeAtomic(journal,state.toString());}
+-                    if(next==volumes.length())verifySavedTreeParts(root,transfer,next,active);
++                    if(next==volumes.length())verifySavedTreeParts(root,transfer,next,sourceJob,index,active);
+                     transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,destination,active);
+                     JSONObject saved=new JSONObject();saved.put("uri",destination.toString());saved.put("sha256",sha);saved.put("bytes",bytes);saved.put("name",name);ReportJobJournalCP12.writeAtomic(new File(root,"saf-parts/"+transfer+"/"+next+".json"),saved.toString());
+                     next++;state.put("nextVolume",next);state.remove("currentUri");state.put("verifiedVolumes",next);ReportJobJournalCP12.writeAtomic(journal,state.toString());
+                     // A kick after the final cursor write can finish without recopying any part.
+                 }
+-                verifySavedTreeParts(root,transfer,total,active);
++                verifySavedTreeParts(root,transfer,total,sourceJob,index,active);active.checkpoint();
+                 state.put("state","VERIFIED_READBACK");state.put("allVolumesSaved",true);state.put("volumeCount",total);state.put("manifestSha256",index.getString("manifestSha256"));state.put("verifiedWallMs",System.currentTimeMillis());
+                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);
+             }
+@@ -324,12 +325,23 @@ public final class ReportExportServiceCP4 extends Service {
+             state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");state.put("allVolumesSaved",false);ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.removeHead(root,transfer);
+         }finally{control=null;}
+     }
+-    private void verifySavedTreeParts(File root,String transfer,int count,ActiveControl active)throws Exception {
++    private void verifySavedTreeParts(File root,String transfer,int count,File sourceJob,JSONObject index,ActiveControl active)throws Exception {
++        JSONArray volumes=index.getJSONArray("files");
++        if(volumes.length()<1||volumes.length()>128||count<0||count>volumes.length()+1)throw new IOException("REPORT_SAF_RECEIPT_SET_BOUND");
++        Set<String> destinations=new HashSet<>();
+         for(int i=0;i<count;i++) {
+             active.enter("SAF_VERIFY_SET",120000);
+             JSONObject saved=new JSONObject(ReportJobJournalCP12.readAtomic(new File(root,"saf-parts/"+transfer+"/"+i+".json"),8192));
+             Uri uri=Uri.parse(saved.getString("uri"));
+-            ReportSafCopyCP12.verifyReadback(saved.getString("sha256"),saved.getLong("bytes"),new ReportSafCopyCP12.Destination(){
++            if(!"content".equals(uri.getScheme())||!destinations.add(uri.toString()))throw new IOException("REPORT_SAF_RECEIPT_DESTINATION");
++            String expectedName,expectedSha;long expectedBytes;
++            if(i==volumes.length()){
++                File deliveryIndex=ReportArchiveVerifierCP12.inside(sourceJob,"delivery/index.json");
++                expectedName="index.json";expectedBytes=deliveryIndex.length();expectedSha=ReportArchiveCP4.hash(deliveryIndex,active);
++            }else{
++                JSONObject expected=volumes.getJSONObject(i);expectedName=expected.getString("name");expectedSha=expected.getString("sha256");expectedBytes=expected.getLong("bytes");
++            }
++            ReportSafCopyCP12.verifySavedReceipt(saved,expectedName,expectedSha,expectedBytes,new ReportSafCopyCP12.Destination(){
+                 public OutputStream openOutputTruncating()throws IOException{throw new IOException("REPORT_VERIFY_READ_ONLY");}
+                 public InputStream openInput()throws IOException{return getContentResolver().openInputStream(uri);}
+             },active);

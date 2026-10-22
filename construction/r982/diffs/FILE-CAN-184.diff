@@ -1,0 +1,35 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java b/app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java
+index fc27664..02e7fc9 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java
+@@ -35,4 +35,30 @@ public final class SoftwareAuditR925 {
+         }
+         return b.toString();
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store){
++        com.ethk3.novaonepro.ReportTextCP12 b=new com.ethk3.novaonepro.ReportTextCP12(report, "R925_AUDIT_V3_WITH_R930_BATCH34_CARDS\n静态检查、工程验收、效果证明与物理运行验收分别记录。\n");
++        for(int kind=0;kind<14;kind++){
++            b.append("\n[R925_SECTION_").append(kind).append("]\n");
++            try{
++                if(kind==0){
++                    b.append("CURRENT_IDENTITY=").append(ReleaseManifestR926.VERSION_NAME).append("/").append(ReleaseManifestR926.VERSION_CODE).append("\n以下是保留的R925静态审计快照，不代表当前运行版本或当前验收结论。\n");
++                    b.append(report.assetReference("r925_software_audit.txt"));
++                }else if(kind==1)b.append(RuntimeObservabilityR925.epochsSnapshotCP4(report, store));
++                else if(kind==2)b.append(RuntimeObservabilityR925.performanceSnapshotCP4(report, store));
++                else if(kind==3)b.append(RuntimeObservabilityR925.pipelineSnapshotCP4(report, store,500,false));
++                else if(kind==4)b.append(RuntimeObservabilityR925.shadowSnapshotCP4(report, store));
++                else if(kind==5)b.append(LifecycleAuditR925.reportSnapshotCP4(report, store));
++                else if(kind==6)b.append(RuntimeObservabilityR925.querySnapshotCP4(report, store,"SELECT status,COUNT(*) opportunities FROM v57_capture_opportunity_r925 GROUP BY status",false));
++                else if(kind==7)b.append(ResearchFamilyRegistryR925.reportSnapshotCP4(report, store));
++                else if(kind==8)b.append(CaptureOpportunityR925.reportSnapshotCP4(report, store));
++                else if(kind==9)b.append(AtomQualityLedgerR925.reportSnapshotCP4(report, store));
++                else if(kind==10)b.append(RuntimeObservabilityR925.fetchesSnapshotCP4(report, store,500));
++                else if(kind==11)b.append(BacklogConvergenceR925.reportSnapshotCP4(report, store));
++                else if(kind==12)b.append(Batch34DiagnosticCardsR930.renderSnapshotCP4(report, store)).append(UnifiedResearchChoiceR932.reportSnapshotCP4(report, store)).append(FixedResearchWindowR932.reportSnapshotCP4(report, store)).append(ModuleAblationR932.reportSnapshotCP4(report, store));
++                else if(kind==13)b.append(Batch34ChallengerCertificateBridgeR930.reportSnapshotCP4(report, store));
++            }catch(Throwable failure){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
++        }
++        return b.toString();
++    }
+ }

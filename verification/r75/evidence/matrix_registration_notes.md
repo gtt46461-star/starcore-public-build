@@ -1,0 +1,13 @@
+# R75 modern matrix registration — development evidence
+
+Production source hashes are in matrix_registration_result.json. This evidence uses a compile overlay; final release-class execution is a separate gate.
+
+The existing MATRIX owner now alternates a bounded registration quantum with consumption-first pulses; registration performs at most eight metadata entries from one source page. Five durable cursors cover actual PIT history, exclusive audit receipts, immutable frozen models/bindings/teachers, formal common-Future peers, and immutable parent/child lineage. No source sample, checkpoint, quality qualification, or REAL entitlement is invented by registration.
+
+The source router persists the last attempted partition rather than skipping an unprocessed 64-entry page. Default history initialization fixes its true source lower bound once in the same transaction as registration. W=300 (Drift=600) finite source tails encode and produce metrics identical to full-history replay for all five history types, including omission gaps and sparse conditional observations. Existing manifests retain their previous initial source selection.
+
+Teacher input requires actual frozen teacher/student AST and model references plus both model manifests. New AtomTarget partitions identify the specific immutable freeze, then revalidate the complete scope/model/normalizer/binding spec; intermediate graph atoms are not treated as directly normalized features.
+
+Checks: 393 source fairness/budget/cursor cases, 57 finite-tail/bootstrap/metric cases, and 101 synthetic valid authority/negative isolation cases. The last group uses real source owners, automatic registration, the MATRIX owner, 90 actual SQLite checkpoints across 18 pull-source matrix types, and MatrixEvidenceReadCP12 consumption. Freeze and Failure remain real event-driven sources exercised by the existing CP12 canonical test. Missing Future, teacher, binding, lineage or qualification is not synthesized. Actual training-owner fixture verification is recorded separately by the construction audit agent.
+
+The prior lag COUNT subquery was quadratic on a full draw table. The replacement reads the lag-th clean issue once, then retains the existing exact preceding-draw/PIT proof checks. SQLite benchmark preserves query plans and VM steps for 5,000 and 100,000 rows, with 63 truth comparisons per size including dirty rows, lag 4,999 / 6,000 / 9,999 and insufficient history. At 100,000 rows the old entire empty-regime scan was deliberately interrupted after 5,001,000 VM steps; this is not reported as a completed old result. New scalar queries complete; measured times are host evidence, not a phone timing guarantee.

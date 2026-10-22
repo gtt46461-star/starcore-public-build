@@ -1,0 +1,81 @@
+package com.ethk3.novaonepro.r952;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.*;
+import com.ethk3.novaonepro.r952.CandidateCompilerR952.ExpertRef;
+import com.ethk3.novaonepro.r952.FrozenGraphContextCP4.ExpertPrediction;
+import java.util.*;
+
+/** Immutable historical teacher binding helper. Evolution owns scheduling, Director owns child creation. */
+public final class EvolutionTeachersCP12 {
+    private EvolutionTeachersCP12(){}
+    public static final String TABLE="research_action_teacher_binding_cp12",LINEAGE="research_child_teacher_lineage_cp12";
+    public static final class Binding {
+        public final String action,source,boundary,boundaryHash,evidence,refsJson,witnessesJson,proof;
+        public final List<ExpertRef> refs;public final List<Map<String,Object>> witnesses;
+        Binding(String a,String s,String b,String bh,String e,List<ExpertRef> r,List<Map<String,Object>> w){
+            action=a;source=s;boundary=b;boundaryHash=bh;evidence=e;refs=Collections.unmodifiableList(new ArrayList<>(r));List<Map<String,Object>> frozenWitnesses=new ArrayList<>();for(Map<String,Object> witness:w)frozenWitnesses.add(Collections.unmodifiableMap(new TreeMap<>(witness)));witnesses=Collections.unmodifiableList(frozenWitnesses);
+            List<Object> rr=new ArrayList<>();for(ExpertRef x:r)rr.add(ref(x));refsJson=StrictCanonicalJson.writeContext(rr);witnessesJson=StrictCanonicalJson.writeContext(w);
+            if(refsJson.length()>4096||witnessesJson.length()>16384||r.size()<2||r.size()>3||r.size()!=w.size())throw new IllegalArgumentException("TEACHER_BINDING_SIZE");
+            proof=V51ChecksumEngine.sha256("CP12_ACTION_TEACHERS|"+a+'|'+e+'|'+bh+'|'+refsJson+'|'+witnessesJson);
+        }
+    }
+    public interface HistoricalDrawReader { Models.Draw read(String issue); }
+    /** Existing DbStore is the real caller; overload makes the SQL/replay contract independently executable. */
+    public static Binding prepareCP12(DbStore store,String action,String source,String evidence,CandidateAstR952.Family family,int position,long deadlineNs){return prepareCP12(store.readable(),store::getDrawByIssue,action,source,evidence,family,position,deadlineNs);}
+    /** Reads only immutable captures at or before the original Action source, never today's model head. */
+    public static Binding prepareCP12(SQLiteDatabase db,HistoricalDrawReader draws,String action,String source,String evidence,CandidateAstR952.Family family,int position,long deadlineNs){
+        if(db.inTransaction())throw new IllegalStateException("TEACHER_PREPARE_OUTSIDE_TX");
+        need(position>=1&&position<=10,"TEACHER_POSITION");
+        // Full canonical root suffix, not an unanchored nested expert/parameter match.
+        String positionTail="%,\"position\":"+position+",\"version\":3}";
+        int wanted=family==CandidateAstR952.Family.ENSEMBLE?3:2;String boundary=TargetIssueResolver.next(source).targetIssue;
+        String boundaryHash=V51ChecksumEngine.sha256("CP12_ACTION_BOUNDARY|"+action+'|'+source+'|'+boundary+'|'+evidence);
+        Binding stored=readCP12(db,action,evidence);
+        if(stored!=null){need(stored.source.equals(source)&&stored.boundary.equals(boundary)&&stored.boundaryHash.equals(boundaryHash)&&stored.refs.size()==wanted,"TEACHER_BOUNDARY_CHANGED");
+            check(deadlineNs);return stored;}
+        List<ExpertRef> refs=new ArrayList<>();List<Map<String,Object>> witnesses=new ArrayList<>();Set<String> seen=new HashSet<>();
+        try(Cursor c=db.rawQuery("SELECT f.candidate_id,f.structural_hash,f.model_hash,f.trained_until_issue,p.target_issue,p.record_hash,p.context_hash,p.captured_at FROM "+ResearchEvaluationRunR967.ALL+" f JOIN r958_frozen_predraw p ON p.candidate_id=f.candidate_id JOIN r952_candidate parent ON parent.candidate_id=f.learner_id WHERE f.ast LIKE 'AST3:%' AND f.ast LIKE ? AND length(CAST(f.ast AS BLOB)) BETWEEN 1 AND 32768 AND length(CAST(f.model_payload AS BLOB)) BETWEEN 1 AND 262144 AND p.target_issue<=? AND p.context_hash<>'' AND f.trained_until_issue<p.target_issue AND f.created_issue<=p.target_issue AND parent.state NOT IN('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND p.target_issue=(SELECT MAX(w.target_issue) FROM r958_frozen_predraw w WHERE w.candidate_id=f.candidate_id AND w.target_issue<=? AND w.context_hash<>'') ORDER BY p.target_issue DESC,f.candidate_id LIMIT 128",new String[]{positionTail,source,source})){
+            while(c.moveToNext()&&refs.size()<wanted){check(deadlineNs);if(seen.contains(c.getString(1)))continue;
+                Map<String,Object> identity=new TreeMap<>();identity.put("candidate_id",c.getString(0));identity.put("target",c.getString(4));identity.put("record_hash",c.getString(5));identity.put("context_hash",c.getString(6));identity.put("captured_at",c.getLong(7));
+                try{CandidateAstR952 frozenAst;try(Cursor a=db.rawQuery("SELECT ast,length(CAST(ast AS BLOB)) FROM "+ResearchEvaluationRunR967.ALL+" WHERE candidate_id=?",new String[]{c.getString(0)})){if(!a.moveToFirst()||a.getLong(1)>32768||a.getLong(1)<1)continue;frozenAst=CandidateAstR952.parse(a.getString(0));}if(frozenAst.formatVersion!=3||frozenAst.position!=position)continue;ExpertRef r=new ExpertRef(c.getString(1),c.getString(2),frozenAst.graphSpec.manifest.hash,position);
+                    Map<String,Object> witness=replayWitnessCP12(db,draws,identity,r,source,position);refs.add(r);witnesses.add(witness);seen.add(r.freezeHash);
+                }catch(IllegalArgumentException|IllegalStateException rejected){if("ALGORITHM_MEMORY_BUDGET".equals(rejected.getMessage()))throw rejected;/* Invalid historical candidate is ineligible; never reconstruct later weights. */}
+            }
+        }
+        if(refs.size()!=wanted)throw new MutationGraphCP12.Wait("WAIT_FROZEN_TEACHER");return new Binding(action,source,boundary,boundaryHash,evidence,refs,witnesses);
+    }
+    private static Map<String,Object> replayWitnessCP12(SQLiteDatabase db,HistoricalDrawReader draws,Map<String,Object> expected,ExpertRef ref,String source,int position){
+        String candidate=str(expected,"candidate_id"),target=str(expected,"target");need(TargetIssueResolver.isValid(target)&&target.compareTo(source)<=0&&ref.position==position,"TEACHER_SOURCE_PIT");Models.Draw draw=draws.read(target);need(draw!=null&&draw.isValid()&&draw.dirty==0,"TEACHER_DRAW_UNKNOWN");
+        long payloadBytes,contextBytes;try(Cursor c=db.rawQuery("SELECT length(CAST(f.model_payload AS BLOB)),length(CAST(p.frozen_context AS BLOB)) FROM "+ResearchEvaluationRunR967.ALL+" f JOIN r958_frozen_predraw p ON p.candidate_id=f.candidate_id WHERE f.candidate_id=? AND p.target_issue=?",new String[]{candidate,target})){need(c.moveToFirst(),"TEACHER_WITNESS_MISSING");payloadBytes=c.getLong(0);contextBytes=c.getLong(1);need(payloadBytes>0&&payloadBytes<=(1L<<20)&&contextBytes>0&&contextBytes<=131072,"TEACHER_WITNESS_SIZE");}
+        try(MemoryBudgetCP4.Lease modelMemory=RuntimeMemoryGuardR811.algorithmModelBudget().acquire((768L<<10)+4L*payloadBytes);MemoryBudgetCP4.Lease scratch=RuntimeMemoryGuardR811.algorithmAtomMatrixBudget().acquire(768L<<10)){
+            FrozenCandidateAdapterR958.Frozen frozen=FrozenCandidateAdapterR958.load(db,candidate);need(frozen!=null&&frozen.ast.formatVersion==3&&frozen.structure.equals(ref.freezeHash)&&frozen.modelHash.equals(ref.modelHash)&&frozen.ast.graphSpec.manifest.hash.equals(ref.featureManifestHash)&&frozen.ast.position==position&&frozen.trainedUntil.compareTo(target)<0&&frozen.createdIssue.compareTo(target)<=0,"TEACHER_FROZEN_IDENTITY");
+            try(Cursor c=db.rawQuery("SELECT record_hash,context_hash,captured_at,frozen_context FROM r958_frozen_predraw WHERE candidate_id=? AND target_issue=?",new String[]{candidate,target})){
+                need(c.moveToFirst()&&str(expected,"record_hash").equals(c.getString(0))&&str(expected,"context_hash").equals(c.getString(1))&&number(expected,"captured_at")==c.getLong(2)&&c.getLong(2)>0&&c.getLong(2)<draw.openTime,"TEACHER_CAPTURE_CAS");
+                String context=c.getString(3);need(V51ChecksumEngine.sha256(context).equals(c.getString(1)),"TEACHER_CONTEXT_HASH");Map<String,Object> parsed=StrictCanonicalJson.readContextObject(context);
+                ExpertPrediction prediction=HistoricalTrainingReceiptCP12.replayOwnTeacherCP12(frozen.ast,frozen.model,parsed,c.getString(1),ref,target,draw.openTime);
+                need(prediction.maxSourceIssue.compareTo(target)<0&&prediction.availableAtMs<=c.getLong(2),"TEACHER_REPLAY_PIT");Map<String,Object> witness=new TreeMap<>(expected);witness.put("freeze_hash",ref.freezeHash);witness.put("model_hash",ref.modelHash);witness.put("manifest_hash",ref.featureManifestHash);witness.put("trained_until",frozen.trainedUntil);witness.put("created_issue",frozen.createdIssue);witness.put("source_hash",prediction.sourceHash);witness.put("max_source_issue",prediction.maxSourceIssue);witness.put("available_at",prediction.availableAtMs);witness.put("draw_at",draw.openTime);
+                List<Object> probabilities=new ArrayList<>();for(double value:prediction.probabilities())probabilities.add(Double.toHexString(value));witness.put("probabilities_hash",V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(probabilities)));return witness;
+            }
+        }
+    }
+    public static Binding readCP12(SQLiteDatabase db,String action,String evidence){try(Cursor c=db.rawQuery("SELECT source_issue,selection_boundary,boundary_hash,refs_json,witnesses_json,proof_hash FROM research_action_teacher_binding_cp12 WHERE action_id=?",new String[]{action})){if(!c.moveToFirst())return null;String refsJson=c.getString(3),witnessJson=c.getString(4);need(refsJson.length()<=4096&&witnessJson.length()<=16384,"TEACHER_BINDING_SIZE");List<ExpertRef> refs=new ArrayList<>();for(Object raw:array(refsJson)){Map<String,Object> m=map(raw);refs.add(new ExpertRef(str(m,"freezeHash"),str(m,"modelHash"),str(m,"featureManifestHash"),(int)number(m,"position")));}List<Map<String,Object>> witnesses=new ArrayList<>();for(Object raw:array(witnessJson))witnesses.add(map(raw));Binding b=new Binding(action,c.getString(0),c.getString(1),c.getString(2),evidence,refs,witnesses);need(b.refsJson.equals(refsJson)&&b.witnessesJson.equals(witnessJson)&&b.proof.equals(c.getString(5)),"TEACHER_BINDING_HASH");for(int i=0;i<b.refs.size();i++){Map<String,Object> w=b.witnesses.get(i);try(Cursor pin=db.rawQuery("SELECT teacher_candidate_id,target_issue,record_hash,context_hash,witness_hash FROM research_action_teacher_witness_cp12 WHERE action_id=? AND teacher_freeze_hash=?",new String[]{action,b.refs.get(i).freezeHash})){need(pin.moveToFirst()&&str(w,"candidate_id").equals(pin.getString(0))&&str(w,"target").equals(pin.getString(1))&&str(w,"record_hash").equals(pin.getString(2))&&str(w,"context_hash").equals(pin.getString(3))&&V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(w)).equals(pin.getString(4)),"TEACHER_TYPED_WITNESS_CAS");}}return b;}}
+    /** Cheap same-transaction metadata fence. Full model/context replays are outside the writer. */
+    public static void verifyCP12(SQLiteDatabase db,Binding b,CandidateAstR952 ast){need(db.inTransaction()&&b!=null,"TEACHER_BINDING_TX");try(Cursor c=db.rawQuery("SELECT a.state,a.evidence_hash,ib.source_issue,ib.selection_boundary,ib.boundary_hash FROM research_action_v2 a JOIN research_action_input_boundary_cp12 ib ON ib.action_id=a.action_id WHERE a.action_id=?",new String[]{b.action})){need(c.moveToFirst()&&c.getString(0).equals("PROPOSED")&&c.getString(1).equals(b.evidence)&&c.getString(2).equals(b.source)&&c.getString(3).equals(b.boundary)&&c.getString(4).equals(b.boundaryHash),"TEACHER_ACTION_CAS");}
+        need(ast.graphSpec.experts.size()==b.refs.size(),"TEACHER_AST_CAS");for(int i=0;i<b.refs.size();i++){ExpertRef ref=b.refs.get(i),actual=ast.graphSpec.experts.get(i);need(ref.freezeHash.equals(actual.freezeHash)&&ref.modelHash.equals(actual.modelHash)&&ref.featureManifestHash.equals(actual.featureManifestHash)&&ref.position==actual.position,"TEACHER_AST_CAS");Map<String,Object> w=b.witnesses.get(i);
+            try(Cursor c=db.rawQuery("SELECT f.structural_hash,f.model_hash,f.trained_until_issue,f.created_issue,p.record_hash,p.context_hash,p.captured_at,d.open_time,d.dirty,parent.state FROM "+ResearchEvaluationRunR967.ALL+" f JOIN r958_frozen_predraw p ON p.candidate_id=f.candidate_id JOIN draws d ON d.issue=p.target_issue JOIN r952_candidate parent ON parent.candidate_id=f.learner_id WHERE f.candidate_id=? AND p.target_issue=?",new String[]{str(w,"candidate_id"),str(w,"target")})){need(c.moveToFirst()&&ref.freezeHash.equals(c.getString(0))&&ref.modelHash.equals(c.getString(1))&&str(w,"trained_until").equals(c.getString(2))&&str(w,"created_issue").equals(c.getString(3))&&str(w,"record_hash").equals(c.getString(4))&&str(w,"context_hash").equals(c.getString(5))&&number(w,"captured_at")==c.getLong(6)&&number(w,"draw_at")==c.getLong(7)&&c.getInt(8)==0,"TEACHER_WITNESS_METADATA_CAS");
+                // Eligibility can be revoked while replay runs off-writer or after a stored binding.
+                // Keep the same exclusion as selection inside the child-creation transaction.
+                need(!Arrays.asList("QUARANTINED","QUALITY_PRUNED","RESOURCE_RETIRED").contains(c.getString(9)),"TEACHER_PARENT_ELIGIBILITY_CHANGED");}
+        }
+    }
+    public static void insertCP12(SQLiteDatabase db,Binding binding,CandidateAstR952 ast){verifyCP12(db,binding,ast);Binding existing=readCP12(db,binding.action,binding.evidence);if(existing!=null){need(existing.proof.equals(binding.proof),"TEACHER_BINDING_REPLAY_CAS");return;}db.execSQL("INSERT INTO research_action_teacher_binding_cp12(action_id,source_issue,selection_boundary,boundary_hash,refs_json,witnesses_json,proof_hash,created_at) VALUES(?,?,?,?,?,?,?,?)",new Object[]{binding.action,binding.source,binding.boundary,binding.boundaryHash,binding.refsJson,binding.witnessesJson,binding.proof,System.currentTimeMillis()});for(int i=0;i<binding.refs.size();i++){Map<String,Object> w=binding.witnesses.get(i);db.execSQL("INSERT INTO research_action_teacher_witness_cp12(action_id,teacher_freeze_hash,teacher_candidate_id,target_issue,record_hash,context_hash,witness_hash) VALUES(?,?,?,?,?,?,?)",new Object[]{binding.action,binding.refs.get(i).freezeHash,str(w,"candidate_id"),str(w,"target"),str(w,"record_hash"),str(w,"context_hash"),V51ChecksumEngine.sha256(StrictCanonicalJson.writeContext(w))});}}
+    public static Map<String,Object> ref(ExpertRef r){Map<String,Object> m=new TreeMap<>();m.put("freezeHash",r.freezeHash);m.put("modelHash",r.modelHash);m.put("featureManifestHash",r.featureManifestHash);m.put("position",r.position);return m;}
+    @SuppressWarnings("unchecked")private static List<Object> array(String json){Object rows=StrictCanonicalJson.readContextObject("{\"rows\":"+json+"}").get("rows");if(!(rows instanceof List))throw new IllegalStateException("TEACHER_ARRAY");return(List<Object>)rows;}
+    private static void check(long deadline){ResearchWorkBudgetR927.checkpoint();if(System.nanoTime()+50000000L>=deadline)throw new MutationGraphCP12.Wait("TIME_BUDGET_EXCEEDED");}
+    static void need(boolean valid,String reason){if(!valid)throw new IllegalStateException(reason);}
+    @SuppressWarnings("unchecked")static Map<String,Object> map(Object o){if(!(o instanceof Map))throw new IllegalStateException("TEACHER_OBJECT");return(Map<String,Object>)o;}
+    static String str(Map<String,Object> m,String k){Object v=m.get(k);if(!(v instanceof String))throw new IllegalStateException("TEACHER_STRING:"+k);return(String)v;}
+    static long number(Map<String,Object> m,String k){Object v=m.get(k);if(!(v instanceof Number))throw new IllegalStateException("TEACHER_NUMBER:"+k);return((Number)v).longValue();}
+}

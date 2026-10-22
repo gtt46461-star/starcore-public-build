@@ -1,0 +1,60 @@
+--- FINAL_CANONICAL_AFTER/release/research_dependencies_r967.json
++++ actual-current/release/research_dependencies_r967.json
+@@ -75,11 +75,6 @@
+       "role": "NUMERIC"
+     },
+     {
+-      "path": "app/src/main/assets/research/r975_source_calls.tsv",
+-      "role": "PRESENTATION",
+-      "reason": "Build-derived source/method/direct-call diagnostic index; never a numeric input or runtime coverage assertion"
+-    },
+-    {
+       "path": "app/src/main/cpp/CMakeLists.txt",
+       "role": "BUILD_CONTRACT"
+     },
+@@ -451,6 +446,10 @@
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+       "role": "NUMERIC"
++    },
++    {
++      "path": "app/src/main/java/com/ethk3/novaonepro/ApiCredentialSettingsCP12.java",
++      "role": "PRESENTATION"
+     },
+     {
+       "path": "app/src/main/java/com/ethk3/novaonepro/ApiParser.java",
+@@ -1622,6 +1621,10 @@
+       "role": "NUMERIC"
+     },
+     {
++      "path": "app/src/main/java/com/ethk3/novaonepro/PrivateApiCredentialCP12.java",
++      "role": "NUMERIC"
++    },
++    {
+       "path": "app/src/main/java/com/ethk3/novaonepro/ProbabilityAuditEngine.java",
+       "role": "NUMERIC"
+     },
+@@ -3937,11 +3940,23 @@
+       "role": "PRESENTATION"
+     },
+     {
++      "path": "release/r982_source_calls.manifest.json",
++      "role": "PROVENANCE"
++    },
++    {
++      "path": "release/r982_source_calls.tsv.gz",
++      "role": "PROVENANCE"
++    },
++    {
+       "path": "release/research_gate_plan_r967.json",
+       "role": "POLICY"
+     },
+     {
+       "path": "scripts/r967_semantic_identity.py",
++      "role": "BUILD_CONTRACT"
++    },
++    {
++      "path": "scripts/r982_source_call_asset.py",
+       "role": "BUILD_CONTRACT"
+     }
+   ],

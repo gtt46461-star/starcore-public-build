@@ -1,0 +1,150 @@
+{
+  "schema": "R75_ANDROID_CI_STEP_EVIDENCE_V1",
+  "repository": "gtt46461-star/eth-k3-v43-nova",
+  "source_commit": "452854cc8a82933d5547e1b81789beb22dbe4c49",
+  "source_tree": "a92b3ff5cd87cfa415edc98985538d3adbda2e18",
+  "run": {
+    "id": 38359778200,
+    "attempt": 1,
+    "url": "https://github.com/gtt46461-star/eth-k3-v43-nova/actions/runs/38359778200",
+    "created_at": "2026-10-13T06:58:16Z",
+    "updated_at": "2026-10-13T07:28:35Z",
+    "status": "completed",
+    "conclusion": "failure"
+  },
+  "jobs_response": {
+    "jobs": [
+      {
+        "id": 115170969263,
+        "name": "android-compile-native-dex-lint",
+        "status": "completed",
+        "conclusion": "failure",
+        "run_id": 38359778200,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Free unused toolchains on disposable hosted runner",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install exact existing Android toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Verify disposable Android emulator boots before compiling",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Validate current production Java, Android native ABI, D8 and lint",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Prepare independent D04 NumPy and host Java parity fixtures",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Build internal Android test packages through normal gates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Run actual Android rolling and rollback contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run independent Android runtime contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Preserve exact validation evidence in job log",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Preserve validation logs and generated identities",
+            "status": "completed",
+            "conclusion": "failure",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          }
+        ]
+      }
+    ]
+  },
+  "artifacts_response": {
+    "artifacts": []
+  },
+  "interpretation": {
+    "android_compile_native_dex_lint": "PASS_BY_GITHUB_STEP_CONCLUSION",
+    "android_rolling_and_rollback": "PASS_BY_GITHUB_STEP_CONCLUSION",
+    "independent_android_runtime": "PASS_BY_GITHUB_STEP_CONCLUSION",
+    "log_evidence_writer": "PASS_BY_GITHUB_STEP_CONCLUSION",
+    "artifact_upload": "FAILURE",
+    "upload_failure_reason": "NOT_RETRIEVED",
+    "raw_runtime_receipts_and_metrics": "NOT_RETRIEVED",
+    "workflow_overall": "FAILURE",
+    "physical_user_phone": "NOT_VERIFIED",
+    "natural_qualified_mainline": "NOT_PROVEN",
+    "apk_delivery_gate": false
+  },
+  "log_retrieval": {
+    "method": "github.fetch_workflow_job_logs",
+    "root_completed_job_attempts": 2,
+    "result": "Transport closed",
+    "job_id": 115170969263,
+    "raw_log_received": false
+  },
+  "evidence_boundary": "GitHub API step conclusions confirm execution status. They do not substitute for raw test receipts, per-test numerical metrics, signed release installation on the user's phone, natural prospective qualification or full O01-O09 conjunctive acceptance. No product or workflow source was changed to suppress this failure.",
+  "recovery": "Step 12 ran scripts/o09_validation_log_fallback.py successfully. Retrieve this existing job's logs, reassemble contiguous O09_EVIDENCE_CHUNK records, and verify ZIP bytes/SHA256 against O09_EVIDENCE_MANIFEST before importing receipts. No test rerun is required solely to recover existing evidence."
+}

@@ -1,0 +1,138 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java
+index 1080d76..236d238 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java
+@@ -313,4 +313,133 @@ public final class RuntimeHealthLedgerR36 {
+     private static String safe(String x) {
+         return x == null ? "" : x.trim();
+     }
++
++public static BusinessTruth businessTruthSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return BusinessTruth.readError("STORE_NULL");
++        Cursor c = null;
++        try {
++            BusinessTruth out = new BusinessTruth();
++            AutoFetchService.B13RuntimeHealth runtimeHealth = AutoFetchService.b13HealthSnapshotCP4(report, store);
++            out.serviceAlive = runtimeHealth.serviceAlive;
++            out.businessAlive = runtimeHealth.businessAlive;
++            out.runtimeHealthRootCause = safeSnapshotCP4(report, runtimeHealth.rootCause);
++            out.latestDrawIssue = safeSnapshotCP4(report, store.getLatestDrawIssue());
++            SQLiteDatabase db = store.readable();
++            out.latestCanonicalIssue =
++                    scalarTextSnapshotCP4(report, 
++                            db,
++                            "SELECT target_issue FROM "
++                                    + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                                    + " ORDER BY target_issue DESC LIMIT 1");
++            out.latestSettledIssue =
++                    scalarTextSnapshotCP4(report, 
++                            db,
++                            "SELECT target_issue FROM "
++                                    + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                                    + " WHERE settled=1 ORDER BY target_issue DESC LIMIT 1");
++            out.latestOosIssue =
++                    scalarTextSnapshotCP4(report, 
++                            db,
++                            "SELECT target_issue FROM "
++                                    + DbHelper.TABLE_R35_OOS_LABEL
++                                    + " WHERE strict_oos=1 ORDER BY target_issue DESC LIMIT 1");
++            c =
++                    report.select(
++                            "SELECT COUNT(*) FROM "
++                                    + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
++                                    + " WHERE status<>'COMPLETED'",
++                            null);
++            if (c.moveToFirst()) out.deferredPending = c.getInt(0);
++            c.close();
++            c = null;
++            Metrics analysis = metricsSnapshotCP4(report, store, DURABLE_RETURN_EVENT_R923, 120);
++            if ("READ_ERROR".equals(analysis.readStatus)) {
++                return BusinessTruth.readError("ANALYSIS_METRICS:" + analysis.error);
++            }
++            out.analysisP95Ms = analysis.p95Ms;
++            out.analysisEpochAt = RuntimeReleaseEpochR817.readAtSnapshotCP4(report, store);
++            String expectedCanonical = AppConfig.nextIssueText(out.latestDrawIssue);
++            out.drawToCanonicalLag =
++                    out.latestDrawIssue.length() == 0
++                            ? -1
++                            : (expectedCanonical.equals(out.latestCanonicalIssue) ? 0 : 1);
++            out.drawToSettledLag =
++                    out.latestDrawIssue.length() == 0
++                            ? -1
++                            : (out.latestDrawIssue.equals(out.latestSettledIssue) ? 0 : 1);
++            out.settledToOosLag =
++                    out.latestSettledIssue.length() == 0
++                            ? -1
++                            : (out.latestSettledIssue.equals(out.latestOosIssue) ? 0 : 1);
++            if (!out.businessAlive || out.drawToCanonicalLag > 0) {
++                out.status = "FAIL";
++                out.rootCause = "RUNTIME_CHAIN";
++            } else if (out.drawToSettledLag > 0 || out.settledToOosLag > 0) {
++                out.status = "DEGRADED";
++                out.rootCause = "SETTLEMENT_OOS";
++            } else if (analysis.sample <= 0) {
++                out.status = "DEGRADED";
++                out.rootCause = "MODEL_SAMPLE";
++            } else {
++                out.status = "HEALTHY";
++                out.rootCause = "NONE";
++            }
++            return out;
++        } catch (Throwable e) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);} finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static Metrics metricsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String eventType, int limit) {
++        if (store == null) return Metrics.readError("STORE_NULL");
++        long epochAt = RuntimeReleaseEpochR817.readAtSnapshotCP4(report, store);
++        if (epochAt <= 0L) return Metrics.readError("R816_RELEASE_EPOCH_MISSING");
++        Cursor c = null;
++        try {
++            c =
++                    report.select(
++                                    "SELECT elapsed_ms,status,target_issue,event_at FROM "
++                                            + DbHelper.TABLE_R35_RUNTIME_HEALTH
++                                            + " WHERE event_type=? AND event_at>=?"
++                                            + " ORDER BY event_at DESC LIMIT ?",
++                                    new String[] {
++                                        safeSnapshotCP4(report, eventType),
++                                        String.valueOf(epochAt),
++                                        String.valueOf(Math.max(1, limit))
++                                    });
++            java.util.ArrayList<Long> values = new java.util.ArrayList<Long>();
++            String status = "NEVER", target = "";
++            long at = 0L;
++            while (c.moveToNext()) {
++                if (values.size() == 0) {
++                    status = safeSnapshotCP4(report, c.getString(1));
++                    target = safeSnapshotCP4(report, c.getString(2));
++                    at = c.getLong(3);
++                }
++                values.add(Long.valueOf(c.getLong(0)));
++            }
++            if (values.size() == 0) return new Metrics("NO_DATA", 0, 0L, status, target, at, "");
++            java.util.Collections.sort(values);
++            int index = (int) Math.ceil(values.size() * 0.95d) - 1;
++            if (index < 0) index = 0;
++            return new Metrics(
++                    "OK", values.size(), values.get(index).longValue(), status, target, at, "");
++        } catch (Throwable e) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);} finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
++        return x == null ? "" : x.trim();
++    }
++
++public static String scalarTextSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql) {
++        Cursor c = null;
++        try {
++            c = report.select(sql, null);
++            return c.moveToFirst() ? safeSnapshotCP4(report, c.getString(0)) : "";
++        } finally {
++            if (c != null) c.close();
++        }
++    }
+ }

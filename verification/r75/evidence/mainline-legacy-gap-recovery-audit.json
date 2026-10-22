@@ -1,0 +1,55 @@
+{
+  "status": "READ_ONLY_CONFIRMED_NO_HISTORICAL_CAPACITY_DEADLOCK",
+  "scope": "USER_R74_REPORT_SNAPSHOT_PLUS_CURRENT_PRODUCT_SOURCE_NOT_NEW_RUNTIME_TEST",
+  "reservations": {
+    "FAILED_GAP": 186,
+    "ACTIVE": 2
+  },
+  "studies": {
+    "COLLECTING": 388,
+    "BLOCKED_INVALID_INPUT": 186
+  },
+  "failure_reasons": {
+    "R969_CAL_EVALUATION_SCHEDULE_GAP": 186
+  },
+  "active_count": 2,
+  "capacity": 8,
+  "blocked_studies_with_active_reservation": 0,
+  "collecting_families": {
+    "algorithm_OTHER": 281,
+    "formula_OTHER": 63,
+    "genesis_OTHER": 42,
+    "algorithm_V3": 2
+  },
+  "current_active": [
+    {
+      "candidate_key": "algorithm:R958-F-V3-6b41c14ad196171743249fe0",
+      "first_issue": "202610130323",
+      "next_issue": "202610130324",
+      "captured_n": 1
+    },
+    {
+      "candidate_key": "algorithm:R958-F-V3-a4908eb19e37ed53d1400efb",
+      "first_issue": "202610130323",
+      "next_issue": "202610130324",
+      "captured_n": 1
+    }
+  ],
+  "existing_recovery": [
+    "GlobalResearchScheduleR932.reserveUnscheduledFrozenCP11 reconciles old dependencies and next_issue gaps before capacity check.",
+    "markReservationGapCP11 moves old reservation to FAILED_GAP; capacity counts only RESERVED or ACTIVE.",
+    "CandidateCalibrationR932.restartAfterGap accepts only original R969_CAL_EVALUATION_SCHEDULE_GAP, keeps old study and labels intact, starts new head only before unknown future target.",
+    "Circular 32-candidate admission scan persists cursor so terminal old studies cannot hide newer frozen candidates.",
+    "Each capture commits observation and advances reservation together; observation241 makes reservation COMPLETE and frees its slot."
+  ],
+  "evidence": {
+    "prior_bounded_scan": "verification/r74/CaptureAdmissionR74.java proves next-page admission after32blocked; blocked studies unchanged.",
+    "continuous241": "verification/r75/MainlineCaptureR75.java actual product capture/settle/fit241 across JVM restart; no resets.",
+    "gap_restart_contract": "verification/r979/RecoveryHarnessR979.java contains gap-only/no-label-reuse/no-low-quality-retry/no-postdraw restart contract."
+  },
+  "limitation": "Recovery permits a new valid prospective window; it cannot retroactively fill gaps, guarantee device continuity, or prove quality.",
+  "product_source_sha256": {
+    "GlobalResearchScheduleR932.java": "90f4a81a0bf1759473b1fc1437783ffcb7e66c46f8095d265d0633e4169bd0e7",
+    "CandidateCalibrationR932.java": "e1021ebdd8a8a5a395628c9ef2721e29eea9918bca3a20daaea2bd8f0899e7d9"
+  }
+}

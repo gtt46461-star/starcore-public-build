@@ -1,0 +1,64 @@
+diff --git a/app/src/main/res/layout/row_reason.xml b/app/src/main/res/layout/row_reason.xml
+index 41443c8..3fb1d48 100644
+--- a/app/src/main/res/layout/row_reason.xml
++++ b/app/src/main/res/layout/row_reason.xml
+@@ -1,50 +1,9 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
+-    android:layout_marginTop="8dp"
+-    android:background="@drawable/bg_reason_row"
+-    android:elevation="1dp"
+-    android:orientation="horizontal"
+-    android:padding="11dp">
+-
+-    <View
+-        android:layout_width="4dp"
+-        android:layout_height="match_parent"
+-        android:background="@drawable/bg_accent_bar" />
+-
+-    <TextView
+-        android:id="@+id/txt_reason_badge"
+-        style="@style/ChipText"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:layout_marginLeft="9dp"
+-        android:background="@drawable/bg_chip_info"
+-        android:minWidth="52dp"
+-        android:text="@string/row_hint" />
+-
+-    <LinearLayout
+-        android:layout_width="0dp"
+-        android:layout_height="wrap_content"
+-        android:layout_marginLeft="10dp"
+-        android:layout_weight="1"
+-        android:orientation="vertical">
+-
+-        <TextView
+-            android:id="@+id/txt_reason_title"
+-            style="@style/CardTitle"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:text="@string/placeholder_diagnosis_title"
+-            android:textSize="16sp" />
+-
+-        <TextView
+-            android:id="@+id/txt_reason_detail"
+-            style="@style/TextSub"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="4dp"
+-            android:text="@string/placeholder_diagnosis_content"
+-            android:textIsSelectable="true" />
++<?xml version='1.0' encoding='utf-8'?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_reason_row" android:elevation="1dp" android:orientation="horizontal" android:padding="11dp">
++    <View android:layout_width="4dp" android:layout_height="match_parent" android:background="@drawable/bg_accent_bar" />
++    <TextView android:id="@+id/txt_reason_badge" style="@style/ChipText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_chip_info" android:minWidth="52dp" android:text="@string/row_hint" android:layout_marginStart="9dp" />
++    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="10dp">
++        <TextView android:id="@+id/txt_reason_title" style="@style/CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/placeholder_diagnosis_title" android:textSize="16sp" />
++        <TextView android:id="@+id/txt_reason_detail" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/placeholder_diagnosis_content" android:textIsSelectable="true" />
+     </LinearLayout>
+-</LinearLayout>
++</LinearLayout>
+\ No newline at end of file

@@ -1,0 +1,146 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/HistoricalGenomeImportR967.java b/app/src/main/java/com/ethk3/novaonepro/HistoricalGenomeImportR967.java
+index 68f0eae..1020e8e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/HistoricalGenomeImportR967.java
++++ b/app/src/main/java/com/ethk3/novaonepro/HistoricalGenomeImportR967.java
+@@ -94,27 +94,101 @@ public final class HistoricalGenomeImportR967 {
+             cached=decode(out.toByteArray(),SOURCE_SHA,SOURCE_ROWS);return cached;
+         }
+     }
+-    /** Runs as a bounded substep of the existing creator maintenance lane. No new thread/Owner. */
+-    static String maintain(final DbStore store) {
+-        if(store==null)return "R970_HISTORY_STORE_NULL";
+-        if(count(store.readable(),"SELECT COUNT(*) FROM "+ARCHIVE+" WHERE source_hash=?",SOURCE_SHA)==SOURCE_ROWS)
+-            return "R970_HISTORY_INVENTORY_COMPLETE";
+-        if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())return "YIELD_R970_HISTORY_P0";
++    /** Legacy callers only enqueue work through the Director's existing pulse. */
++    static String maintain(final DbStore store) { return "DEFER_IMPORT_TO_CANONICAL_DIRECTOR"; }
++
++    /** Fixed sixth slot; persistent two-subslot fairness, no added scheduler or thread. */
++    public static boolean maintainCP12(final DbStore store,final long deadlineNs) {
++        if(store==null||System.nanoTime()>=deadlineNs)return false;
++        final int slot=Integer.parseInt(store.getState("cp12_import_subslot","0"));
++        if(slot<0||slot>1)throw new IllegalStateException("IMPORT_SUBSLOT_CORRUPT");
++        store.setState("cp12_import_subslot",String.valueOf(1-slot));
++        if(slot==1){String result=MolecularToolWorldR947.importSeedBatchCP4(store,deadlineNs);
++            store.setState("cp12_import_last_result",result);
++            return result.matches("[0-9a-f]{64}")||result.startsWith("SEEDS_IMPORTED:")||result.startsWith("NO_OP:")||result.startsWith("HELD:");}
++        return importArchivePageCP12(store,deadlineNs);
++    }
++    private static final class PreparedRowCP12 {
++        final int number;final String raw,rowHash;final String[] fields;final Verdict verdict;
++        final String liveProgram,liveStatus;
++        PreparedRowCP12(int n,String raw,Verdict v,String program,String status){
++            number=n;this.raw=raw;rowHash=hash(raw);fields=raw.split("\t",-1);
++            verdict=v;liveProgram=program;liveStatus=status;
++        }
++    }
++    private static String boundedLineCP12(java.io.Reader in)throws IOException {
++        StringBuilder b=new StringBuilder(1024);int ch;
++        while((ch=in.read())!=-1){if(ch=='\n')return b.toString();
++            if(ch=='\r'||ch==0||b.length()>=8192)throw new IOException("HISTORY_LINE_BOUND_OR_TEXT");b.append((char)ch);}
++        return b.length()==0?null:b.toString();
++    }
++    /** Hash and parse outside DB writer; one 1MiB scope, at most four prepared rows. */
++    public static boolean importArchivePageCP12(final DbStore store,long deadlineNs) {
++        if(store==null||System.nanoTime()>=deadlineNs||RealtimePressureGateR811.hasActiveCriticalWork()
++                ||SettlementExecutionGateR819.isActive())return false;
++        if(count(store.readable(),"SELECT COUNT(*) FROM "+ARCHIVE+" WHERE source_hash=?",SOURCE_SHA)==SOURCE_ROWS)return false;
+         final String latest=ResearchLearningContinuityR912.latest(store);
+-        if(!TargetIssueResolver.isValid(latest))return "R970_HISTORY_WAIT_VALID_DRAW";
+-        try {
+-            final Archive source=asset(store.coordinatorR36().appContextR925());
+-            final RuntimeException[] failure=new RuntimeException[1];
+-            Integer added=store.coordinatorR36().runAtomicWrite("R970_HISTORY_ARCHIVE",new DatabaseCoordinator.WriteCallable<Integer>(){
+-                public Integer call(SQLiteDatabase db){try{return Integer.valueOf(importBatch(db,source,latest,BATCH));}catch(RuntimeException e){failure[0]=e;throw e;}}
+-            },null);
+-            if(added==null)throw new IllegalStateException("R970_HISTORY_COMMIT_FAILED",failure[0]);
+-            String status="R970_HISTORY_ARCHIVED|added="+added+"|source="+SOURCE_SHA;
+-            store.setState("r970_historical_import_status",status);return status;
+-        }catch(ResearchWorkBudgetR927.Yield y){throw y;}
+-        catch(RuntimeResourceAuditR927.BudgetExceeded y){throw y;}
+-        catch(IOException e){String status="R970_HISTORY_INPUT_ERROR|"+e.getMessage();store.setState("r970_historical_import_status",status);return status;}
+-        catch(IllegalArgumentException e){String status="R970_HISTORY_REJECTED_INPUT|"+e.getMessage();store.setState("r970_historical_import_status",status);return status;}
++        if(!TargetIssueResolver.isValid(latest))return false;
++        android.content.Context ctx=store.coordinatorR36().appContextR925();
++        if(ctx==null)throw new IllegalStateException("HISTORY_ASSET_CONTEXT");
++        try(com.ethk3.novaonepro.r952.MemoryBudgetCP4.Lease lease=RuntimeMemoryGuardR811.algorithmModelBudget().acquire(1L<<20)) {
++            MessageDigest digest=MessageDigest.getInstance("SHA-256");long bytes=0;
++            try(InputStream in=ctx.getAssets().open(ASSET)){byte[] chunk=new byte[8192];int n;
++                while((n=in.read(chunk))!=-1){bytes+=n;if(bytes>MAX_BYTES)throw new IOException("HISTORY_ASSET_BOUND");digest.update(chunk,0,n);}}
++            StringBuilder hex=new StringBuilder(64);for(byte v:digest.digest()){int x=v&255;hex.append("0123456789abcdef".charAt(x>>>4)).append("0123456789abcdef".charAt(x&15));}
++            if(!SOURCE_SHA.equals(hex.toString()))throw new IllegalStateException("HISTORY_ASSET_HASH");
++            final Map<Integer,String> prior=new HashMap<Integer,String>();
++            try(Cursor c=store.readable().rawQuery("SELECT row_number,row_hash FROM "+ARCHIVE+" WHERE source_hash=? ORDER BY row_number LIMIT 125",new String[]{SOURCE_SHA})){
++                while(c.moveToNext())prior.put(c.getInt(0),c.getString(1));}
++            Map<String,String> programs=new HashMap<String,String>();Set<String> conflicts=new HashSet<String>();
++            List<String> pending=new ArrayList<String>(BATCH);List<Integer> numbers=new ArrayList<Integer>(BATCH);
++            try(java.io.Reader in=new java.io.BufferedReader(new java.io.InputStreamReader(ctx.getAssets().open(ASSET),StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)),8192)){
++                if(!HEADER.equals(boundedLineCP12(in)))throw new IllegalStateException("HISTORY_HEADER");
++                for(int i=1;i<=SOURCE_ROWS;i++){
++                    String raw=boundedLineCP12(in);if(raw==null)throw new IllegalStateException("HISTORY_ROW_COUNT");
++                    String[] f=raw.split("\t",-1);if(f.length!=43)throw new IllegalStateException("HISTORY_COLUMN_COUNT");
++                    String old=programs.put(f[0],hash(f[2]));if(old!=null&&!old.equals(hash(f[2])))conflicts.add(f[0]);
++                    String previous=prior.get(i);if(previous!=null&&!previous.equals(hash(raw)))throw new IllegalStateException("HISTORY_ROW_IDENTITY");
++                    if(previous==null&&pending.size()<BATCH){pending.add(raw);numbers.add(i);}
++                }
++                if(boundedLineCP12(in)!=null)throw new IllegalStateException("HISTORY_EXTRA_ROW");
++            }
++            final List<PreparedRowCP12> rows=new ArrayList<PreparedRowCP12>(BATCH);
++            for(int i=0;i<pending.size();i++){
++                if(System.nanoTime()>=deadlineNs)return false;ResearchWorkBudgetR927.checkpoint();
++                String raw=pending.get(i),program=null,status=null;String[] f=raw.split("\t",-1);
++                Verdict v=validate(raw,latest);if(conflicts.contains(f[0]))v=Verdict.reject("SOURCE_ID_PROGRAM_COLLISION");
++                try(Cursor c=store.readable().rawQuery("SELECT genome_spec,status FROM "+DbHelper.TABLE_R908_ALGORITHM_GENOME+" WHERE genome_id=?",new String[]{f[0]})){
++                    if(c.moveToFirst()){program=c.getString(0);status=c.getString(1);}}
++                if(v.accepted()&&program!=null){if(!f[2].equals(program))v=Verdict.reject("CURRENT_ID_PROGRAM_COLLISION");
++                    else if(status!=null&&status.startsWith("QUARANTINED"))v=Verdict.reject("CURRENT_QUARANTINE_PRESERVED");}
++                rows.add(new PreparedRowCP12(numbers.get(i),raw,v,program,status));
++            }
++            if(rows.isEmpty()||System.nanoTime()>=deadlineNs)return false;
++            Integer added=store.coordinatorR36().runAtomicWrite("CP12_HISTORY_ARCHIVE_PAGE",new DatabaseCoordinator.WriteCallable<Integer>(){
++                public Integer call(SQLiteDatabase db){return commitArchivePageCP12(db,rows,latest);}},null);
++            if(added==null)throw new IllegalStateException("HISTORY_ARCHIVE_COMMIT");
++            return added.intValue()>0;
++        }catch(IOException|NoSuchAlgorithmException e){throw new IllegalStateException("HISTORY_ASSET_PREPARE",e);}
++    }
++    /** Small identity CAS and append only; VM parsing/validation never occurs under writer. */
++    private static int commitArchivePageCP12(SQLiteDatabase db,List<PreparedRowCP12> rows,String boundary) {
++        transaction(db);boolean known=false;
++        try(Cursor c=db.rawQuery("SELECT header,row_count,asset_name FROM "+SOURCE+" WHERE source_hash=?",new String[]{SOURCE_SHA})){
++            if(c.moveToFirst()){known=true;if(!HEADER.equals(c.getString(0))||c.getInt(1)!=SOURCE_ROWS||!ASSET.equals(c.getString(2)))throw new IllegalStateException("HISTORY_SOURCE_CAS");}}
++        if(!known)db.execSQL("INSERT INTO "+SOURCE+" VALUES(?,?,?,?,?,?)",new Object[]{SOURCE_SHA,ASSET,HEADER,SOURCE_ROWS,boundary,System.currentTimeMillis()});
++        int added=0;
++        for(PreparedRowCP12 r:rows){
++            try(Cursor c=db.rawQuery("SELECT row_hash FROM "+ARCHIVE+" WHERE source_hash=? AND row_number=?",new String[]{SOURCE_SHA,String.valueOf(r.number)})){
++                if(c.moveToFirst()){if(!r.rowHash.equals(c.getString(0)))throw new IllegalStateException("HISTORY_ROW_CAS");continue;}}
++            String program=null,status=null;
++            try(Cursor c=db.rawQuery("SELECT genome_spec,status FROM "+DbHelper.TABLE_R908_ALGORITHM_GENOME+" WHERE genome_id=?",new String[]{r.fields[0]})){
++                if(c.moveToFirst()){program=c.getString(0);status=c.getString(1);}}
++            if(!Objects.equals(program,r.liveProgram)||!Objects.equals(status,r.liveStatus))throw new IllegalStateException("HISTORY_LIVE_PROGRAM_CAS");
++            Verdict v=r.verdict;String[] f=r.fields;
++            db.execSQL("INSERT INTO "+ARCHIVE+" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{recordId(SOURCE_SHA,r.number),SOURCE_SHA,r.number,r.rowHash,r.raw,f[0],f[19],f[38],hash(f[2]),hash(f[17]),v.accepted()?ACCEPT:"REJECT",v.reason,v.seed==null?"":v.seed.canonical(),v.seed==null?"":v.seed.structuralHash,boundary,System.currentTimeMillis()});added++;
++        }
++        return added;
+     }
+ 
+     /** Only appends inventory. Creation, live model updates and formal sample tables are untouched. */
+@@ -260,4 +334,19 @@ public final class HistoricalGenomeImportR967 {
+     private static long count(SQLiteDatabase db,String sql,String parameter){try(Cursor c=db.rawQuery(sql,new String[]{parameter})){return c.moveToFirst()?c.getLong(0):0;}}
+     static String hash(String s){return V51ChecksumEngine.sha256(s);}
+     static String sha(byte[] b){try{byte[] digest=MessageDigest.getInstance("SHA-256").digest(b);StringBuilder s=new StringBuilder(64);for(byte value:digest){int x=value&255;s.append("0123456789abcdef".charAt(x>>>4)).append("0123456789abcdef".charAt(x&15));}return s.toString();}catch(NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}}
++
++public static void writeReportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store,java.io.Writer out)throws IOException {
++        out.write("R970_HISTORICAL_INVENTORY|source="+SOURCE_SHA+"|expected=125|OLD_FUTURE_NOT_TRANSFERRED\n");
++        if(store==null){out.write("STATUS=STORE_NULL\n");return;}
++        out.write("worker_status="+store.getState("r970_historical_import_status","NOT_YET_RUN")+"\n");
++        try(Cursor c=report.select("SELECT a.row_number,a.record_id,a.original_id,a.original_status,a.original_reason,a.verdict,a.reason,a.row_hash,a.program_hash,a.state_hash,COALESCE(u.state,''),COALESCE(u.seed_key,''),COALESCE(u.attempt_id,''),COALESCE(u.reason,'') FROM "+ARCHIVE+" a LEFT JOIN "+USE+" u ON a.record_id=u.record_id WHERE a.source_hash=? ORDER BY a.row_number LIMIT 125",new String[]{SOURCE_SHA})) {
++            while(c.moveToNext()){
++                out.write("row="+c.getInt(0)+"|record="+c.getString(1)+"|original="+c.getString(2)+"|old_status="+c.getString(3)
++                    +"|old_reason="+c.getString(4)+"|verdict="+c.getString(5)+"|reason="+c.getString(6)+"|row_sha="+c.getString(7)
++                    +"|program_sha="+c.getString(8)+"|state_sha="+c.getString(9)+"|use_state="+c.getString(10)
++                    +"|new_seed="+c.getString(11)+"|creation_attempt="+c.getString(12)+"|use_reason="+c.getString(13)+"\n");
++            }
++        }catch(RuntimeException error){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);}
++        out.write("Interpretation=CURRENT_VM_INITIALIZATION_ONLY; OLD_VM_AND_OLD_FUTURE_NOT_RECERTIFIED; SEED_CREATION_IS_NOT_TRAINING_OR_CERTIFICATION\n");
++    }
+ }

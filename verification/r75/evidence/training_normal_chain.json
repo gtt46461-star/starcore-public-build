@@ -1,0 +1,98 @@
+{
+  "status": "PASS",
+  "results": {
+    "director": {
+      "status": "PASS",
+      "checks": 62,
+      "scope": "REAL_DIRECTOR_SQLITE_ADMISSION_WITH_SHORT_PARENT_SCOPE_NO_DEVICE_OR_QUALITY_CLAIM"
+    },
+    "outbox": {
+      "status": "PASS",
+      "checks": 10,
+      "director_pulses": 13,
+      "elapsed_ms": 1931,
+      "artifact_count": 13,
+      "feedback_count": 13,
+      "scope": "ACTUAL_OWNER_SYNTHETIC_LABELS_AND_CRASH_LEASE_NO_DEVICE_OR_FUTURE_QUALITY"
+    },
+    "modern": {
+      "status": "PASS",
+      "training_turns": 250,
+      "elapsed_ms": 27787,
+      "feature_rows": 1320,
+      "train_n": 1200,
+      "validation_n": 120,
+      "receipt_count": 1,
+      "model_kind": "MLP_D32_16_10",
+      "scope": "REPORT_AST_HISTORY_ACTUAL_OWNER_HOST_RESTARTED_NOT_PHONE_FUTURE_OR_REAL"
+    }
+  },
+  "commands": [
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/javac",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/e2544c9906f6/r75-protocol-audit/new-overlay:/workspace/scratch/e2544c9906f6/r75-protocol-audit/product-snapshot:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "-d",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/classes",
+      "/workspace/scratch/7a6032548233/starcore/verification/r75/training_DirectorBudgetR75.java",
+      "/workspace/scratch/7a6032548233/starcore/verification/r75/training_OutboxRecoveryR75.java",
+      "/workspace/scratch/7a6032548233/starcore/verification/r75/training_ReportModernR75.java",
+      "/workspace/scratch/7a6032548233/starcore/verification/r72/realtime/android/os/SystemClock.java"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/e2544c9906f6/r75-protocol-audit/new-overlay:/workspace/scratch/e2544c9906f6/r75-protocol-audit/product-snapshot:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_DirectorBudgetR75",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/director.db",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/director.json"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/e2544c9906f6/r75-protocol-audit/new-overlay:/workspace/scratch/e2544c9906f6/r75-protocol-audit/product-snapshot:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_OutboxRecoveryR75",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/outbox.db",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/outbox.json",
+      "/workspace/scratch/7a6032548233/starcore/app/src/main/assets"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/scratch/7a6032548233/starcore/verification/r75/training_prepare_report.py",
+      "--schema",
+      "/workspace/scratch/7a6032548233/r72-final-schema",
+      "--report",
+      "/workspace/scratch/e2544c9906f6/r75-input/DIAGNOSTIC_SCOPE.json",
+      "--out",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/modern"
+    ],
+    [
+      "/workspace/scratch/cd9274eff1c6/jdk/jdk-17.0.20.1+1/bin/java",
+      "-Djava.library.path=/workspace/scratch/7a6032548233/host-native",
+      "-cp",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/classes:/workspace/scratch/7a6032548233/r72-final-schema/classes:/workspace/scratch/e2544c9906f6/r75-protocol-audit/new-overlay:/workspace/scratch/e2544c9906f6/r75-protocol-audit/product-snapshot:/workspace/scratch/cd9274eff1c6/android-all.jar",
+      "com.ethk3.novaonepro.training_ReportModernR75",
+      "/workspace/scratch/7a6032548233/starcore/verification/canonical/schema/sqlite_bridge.py",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/modern/family-report.db",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/modern/inputs",
+      "/workspace/scratch/7a6032548233/starcore/app/src/main/assets",
+      "/workspace/scratch/e2544c9906f6/r75-protocol-audit/chain/modern.json"
+    ]
+  ],
+  "report_sha256": "7c27e983942d809aaeb26ea708af6ec3bd731248adf4403e8410a9697d52ca94",
+  "sources": {
+    "verification/r75/training_DirectorBudgetR75.java": "e38155146fcc7dd878a83ad25c4da5963da271bec6db4d5b26550303195e3cfb",
+    "verification/r75/training_OutboxRecoveryR75.java": "98cb713dd11b90efcda7fc4fcf76fe37a82b452ce14527c53a347fdedd2a5fb1",
+    "verification/r75/training_ReportModernR75.java": "4386c801319dca0ac79acadc379dd3fe6b3741f8f7e2378117d6d0961a0c30ae",
+    "verification/r72/realtime/android/os/SystemClock.java": "0091e7c64934ef8ac62760a767c0f5a7d78c54e9d0f508af0eac4896e1e5a1cf"
+  },
+  "product_classes": "/workspace/scratch/e2544c9906f6/r75-protocol-audit/product-snapshot",
+  "explicit_product_overlays": [
+    "/workspace/scratch/e2544c9906f6/r75-protocol-audit/new-overlay"
+  ],
+  "scope": "HOST_OWNER_RECOVERY_AND_OBSERVED_REPORT_DEVELOPMENT_NOT_PHONE_OR_PREDICTIVE_QUALITY"
+}

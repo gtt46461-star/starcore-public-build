@@ -1,0 +1,10 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
+@@ -57,6 +57,7 @@
+             state.noteLockedBootOnly(action);
+             return; // ACTION_USER_UNLOCKED re-enters the original owner after unlock.
+         }
++        if(Intent.ACTION_USER_UNLOCKED.equals(action)||Intent.ACTION_BOOT_COMPLETED.equals(action)||Intent.ACTION_MY_PACKAGE_REPLACED.equals(action))KeyProvider.reloadAsync(app);
+         state.markReceiver(action);
+ 
+         long age = state.getHeartbeatAgeMs();

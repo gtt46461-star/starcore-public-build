@@ -1,0 +1,90 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CandidateResourceEvidenceCP4.java b/app/src/main/java/com/ethk3/novaonepro/CandidateResourceEvidenceCP4.java
+new file mode 100644
+index 0000000..cad1d25
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/CandidateResourceEvidenceCP4.java
+@@ -0,0 +1,84 @@
++package com.ethk3.novaonepro;
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import java.util.*;
++/** One predraw resource/regime receipt. It never issues a certificate or writes REAL/Settlement. */
++public final class CandidateResourceEvidenceCP4 {
++ public static final String TABLE="research_cp4_candidate_resource";
++ public static final String REGIME_POLICY=V51ChecksumEngine.sha256("CERT_REGIME4_V1|n100|Hnorm_laplace_0.5_lt_0.8|JS_laplace_0.5_last50_prior50_gt_0.1|natural_log|PIT_LT_TARGET");
++ private CandidateResourceEvidenceCP4(){}
++ public static final class Context {public final int regime;public final double js;Context(int regime,double js){this.regime=regime;this.js=js;}}
++ /** Query is bounded to 100 integers. No target result or retrospective regime relabeling. */
++ public static Context context(SQLiteDatabase db,int position,String target){
++  if(position<1||position>10||!TargetIssueResolver.isValid(target))throw new IllegalArgumentException("CP4_REGIME_INPUT");
++  try(Cursor existing=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 AND issue>=? LIMIT 1",new String[]{target})){if(existing.moveToFirst())throw new IllegalStateException("CP4_REGIME_POSTDRAW_REJECTED");}
++  int[] newest=new int[10],older=new int[10];int n=0;String next=target;
++  try(Cursor c=db.rawQuery("SELECT issue,n"+position+" FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 AND issue<? ORDER BY issue DESC LIMIT 100",new String[]{target})){
++   while(c.moveToNext()){String issue=c.getString(0);int value=c.getInt(1);if(value<1||value>10||!TargetIssueResolver.exact(issue,next).valid)throw new IllegalStateException("CP4_REGIME_PIT_GAP");(n<50?newest:older)[value-1]++;n++;next=issue;}
++  }
++  if(n!=100)throw new IllegalStateException("CP4_REGIME_HISTORY_100_REQUIRED");
++  double entropy=0,js=0;for(int i=0;i<10;i++){double p=(newest[i]+.5)/55d,q=(older[i]+.5)/55d,m=(p+q)/2d,all=(newest[i]+older[i]+.5)/105d;entropy-=all*Math.log(all);js+=.5*p*Math.log(p/m)+.5*q*Math.log(q/m);}
++  js=Math.max(0,js);int regime=(entropy/Math.log(10)>=.8?2:0)+(js>.1?1:0);return new Context(regime,js);
++ }
++ static void freeze(SQLiteDatabase db,String key,String target,String prediction,String proof,int selected,long elapsed,long heapIncrement,int samples){
++  if(!db.inTransaction()||selected<0||selected>=1200||elapsed<=0||heapIncrement<0||samples<=0)throw new IllegalStateException("CP4_RESOURCE_TRANSACTION_OR_INPUT");
++  try(Cursor c=db.rawQuery("SELECT prediction_hash,execution_proof_hash FROM "+TABLE+" WHERE candidate_key=? AND target_issue=?",new String[]{key,target})){
++   if(c.moveToFirst()){if(!prediction.equals(c.getString(0))||!proof.equals(c.getString(1)))throw new IllegalStateException("CP4_RESOURCE_IDEMPOTENCY_CONFLICT");return;}
++  }
++  int pos=selected/120+1;Context ctx=context(db,pos,target);long at=System.currentTimeMillis();int measured=samples>=4?1:0;
++  String h=V51ChecksumEngine.sha256(key+'|'+target+'|'+prediction+'|'+proof+'|'+pos+'|'+ctx.regime+'|'+REGIME_POLICY+'|'+Double.toHexString(ctx.js)+'|'+elapsed+'|'+heapIncrement+'|'+samples+'|'+measured+"|100|"+at);
++  db.execSQL("INSERT INTO "+TABLE+"(candidate_key,target_issue,prediction_hash,execution_proof_hash,position,regime_id,regime_policy_hash,drift_js,elapsed_ns,heap_increment_bytes,heap_samples,measured,history_n,created_at,record_hash) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{key,target,prediction,proof,pos,ctx.regime,REGIME_POLICY,ctx.js,elapsed,heapIncrement,samples,measured,100,at,h});
++ }
++ private static CertificateBundleServiceR929.GateObservation gate(String id,double value,double required,boolean pass,String hash,String detail){return new CertificateBundleServiceR929.GateObservation(id,Double.isFinite(value)?value:-1,required,pass&&Double.isFinite(value),"CP4_PREDRAW_RESOURCE_AND_FIXED_PAIR",hash,detail);}
++ public static List<CertificateBundleServiceR929.GateObservation> gates(SQLiteDatabase db,String life,String evidence,String endpoint){
++  ArrayList<CertificateBundleServiceR929.GateObservation> out=new ArrayList<>();
++  int expected=0,n=0,measured=0,mask=0;boolean valid=true,robust=true;long heap=0;double js=-1,jaccard=0,adv=0;int[] groupN=new int[4],groupHits=new int[4];ArrayList<Long> latency=new ArrayList<>();
++  try {
++   String first="",key="",last="";
++   try(Cursor c=db.rawQuery("SELECT first_issue,candidate_key,last_issue FROM "+ResearchGatePlanR967.CP4_LIFETIME+" WHERE lifetime_id=?",new String[]{life})){if(!c.moveToFirst())throw new IllegalStateException("CP4_LIFETIME_MISSING");first=c.getString(0);key=c.getString(1);last=c.getString(2);}
++   if(endpoint.compareTo(first)<0||endpoint.compareTo(last)>0)throw new IllegalStateException("CP4_PREFIX_OUTSIDE_LIFETIME");
++   for(String cursor=first;cursor.compareTo(endpoint)<=0;cursor=ResearchEvaluationRunR967.nextEvaluation(key,cursor)){
++    if(++expected>1200)throw new IllegalStateException("CP4_PREFIX_CAP");
++    if(cursor.equals(endpoint))break;
++    if(ResearchEvaluationRunR967.nextEvaluation(key,cursor).compareTo(endpoint)>0)throw new IllegalStateException("CP4_PREFIX_ENDPOINT_ALIGNMENT");
++   }
++   String sql="SELECT p.target_issue,p.candidate_hit,p.champion_hit,p.position,p.n1,p.n2,p.n3,r.regime_id,r.drift_js,r.elapsed_ns,r.heap_increment_bytes,r.heap_samples,r.measured,r.regime_policy_hash,r.prediction_hash,r.execution_proof_hash,p.candidate_hash,e.proof_hash,c.position,c.n1,c.n2,c.n3,c.prediction_hash,p.champion_prediction_hash FROM "+ResearchGatePlanR967.CP4_BINDING+" b JOIN "+ResearchGatePlanR967.CP4_LIFETIME+" l ON l.lifetime_id=b.lifetime_id JOIN "+FixedResearchWindowR932.PAIR+" p ON p.window_id=b.window_id LEFT JOIN "+TABLE+" r ON r.candidate_key=l.candidate_key AND r.target_issue=p.target_issue LEFT JOIN "+CandidateExecutionAuditR932.TABLE+" e ON e.candidate_key=l.candidate_key AND e.target_issue=p.target_issue LEFT JOIN "+FixedResearchWindowR932.CHAMPION+" c ON c.target_issue=p.target_issue AND c.prediction_hash=p.champion_prediction_hash WHERE b.lifetime_id=? AND p.target_issue<=? ORDER BY p.target_issue";
++   String previous="";
++   try(Cursor c=db.rawQuery(sql,new String[]{life,endpoint})){
++    while(c.moveToNext()){
++     n++;if(n>1200)throw new IllegalStateException("CP4_RESOURCE_DENOMINATOR_CAP");String issue=c.getString(0);if(issue.equals(previous))valid=false;previous=issue;
++     int y=c.getInt(1),ref=c.getInt(2),reg=c.getInt(7);
++     if(c.isNull(7)||reg<0||reg>3||y<0||y>1||ref<0||ref>1||c.isNull(18)||!REGIME_POLICY.equals(c.getString(13))||!Objects.equals(c.getString(14),c.getString(16))||!Objects.equals(c.getString(15),c.getString(17))||!Objects.equals(c.getString(22),c.getString(23))){valid=false;continue;}
++     groupN[reg]++;groupHits[reg]+=y;js=c.getDouble(8); // latest predraw context at the evaluated prefix endpoint
++     if(c.getInt(12)==1&&c.getInt(11)>=4&&c.getLong(9)>0&&c.getLong(10)>=0){measured++;latency.add(c.getLong(9));heap=Math.max(heap,c.getLong(10));}else valid=false;
++     boolean digits=true;for(int col:new int[]{4,5,6,19,20,21})digits&=c.getInt(col)>=1&&c.getInt(col)<=10;
++     if(!digits||c.getInt(3)<1||c.getInt(3)>10||c.getInt(18)<1||c.getInt(18)>10){valid=false;continue;}
++     int a=(1<<(c.getInt(4)-1))|(1<<(c.getInt(5)-1))|(1<<(c.getInt(6)-1)),b=(1<<(c.getInt(19)-1))|(1<<(c.getInt(20)-1))|(1<<(c.getInt(21)-1));
++     if(Integer.bitCount(a)!=3||Integer.bitCount(b)!=3){valid=false;continue;}
++     int intersection=c.getInt(3)==c.getInt(18)?Integer.bitCount(a&b):0;jaccard+=intersection/(double)(6-intersection);adv+=y-ref;
++    }
++   }
++   valid&=expected>=360&&n==expected&&measured==n&&previous.equals(endpoint);
++   for(int r=0;r<4;r++)if(groupN[r]>=50){if(groupHits[r]/(double)groupN[r]<.27)robust=false;else mask|=1<<r;}
++   Collections.sort(latency);double p95=latency.size()<50?-1:latency.get((int)Math.ceil(.95*latency.size())-1)/1000000d;
++   double similarity=n>0?jaccard/n:-1,delta=n>0?adv/n:-1;
++   out.add(gate("RESOURCE_INTEGRITY",valid?1:0,1,valid,evidence,"EXPECTED="+expected+"|OBSERVED="+n+"|SAMPLED_HEAP_NOT_EXACT_ALLOCATOR_PEAK"));
++   out.add(gate("RESOURCE_N",measured,50,measured>=50,evidence,"ALL_FORMAL_ROWS_REQUIRE_RESOURCE_RECEIPT"));
++   out.add(gate("RESOURCE_LATENCY_P95_MS",p95,700,p95>=0&&p95<=700,evidence,"FULL1200_SERIALIZATION_REPLAY_WALL_TIME_EXCLUDES_QUEUE"));
++   out.add(gate("RESOURCE_HEAP_INCREMENT",heap,67108864,valid&&heap<=67108864,evidence,"MAX_OBSERVED_JAVA_PLUS_NATIVE_DELTA;ALLOCATOR_CAP_SEPARATE"));
++   out.add(gate("DOMAIN_SUPPORT",mask,1,mask>0,evidence,"CERT_REGIME4_MASK"));out.add(gate("REGIME_ROBUSTNESS",robust?1:0,1,robust&&mask>0,evidence,"EACH_N50_GROUP_HR_GTE_0_27"));
++   out.add(gate("DRIFT",js,.1,js>=0&&js<=.1,evidence,"LAST_PREFIX_PIT_CONTEXT_JS;RECHECK_CURRENT_TARGET_BEFORE_AUTH"));
++   out.add(gate("DIVERSITY",similarity,.98,similarity>=0&&(similarity<.98||delta>0),evidence,"MEAN_POSITION_K3_JACCARD"));out.add(gate("DUPLICATE_PAIRED_ADVANTAGE",delta,0,n>0&&delta>=-1&&delta<=1,evidence,"PAIRED_HIT_DIFFERENCE;POSITIVE_ONLY_REQUIRED_IF_DUPLICATE"));
++  }catch(RuntimeException error){if(error instanceof ResearchWorkBudgetR927.Yield)throw error;out.clear();out.add(gate("RESOURCE_INTEGRITY",0,1,false,evidence,"CP4_EXTERNAL_EVIDENCE_READ_ERROR|"+error.getClass().getSimpleName()));}
++  out.addAll(com.ethk3.novaonepro.r952.ProspectiveDiversityCP12.gatesCP12(db,life,endpoint));
++  return out;
++ }
++ public static String currentDomainReason(DbStore store,String lifetime,String target){
++  try {
++   int mask=0,position=0;
++   try(Cursor c=store.readable().rawQuery("SELECT d.observed FROM research_certificate_r929 c JOIN research_certificate_gate_r932 g ON g.certificate_hash=c.certificate_hash AND g.gate_id='CP4_LIFETIME' JOIN research_certificate_gate_r932 d ON d.certificate_hash=c.certificate_hash AND d.gate_id='DOMAIN_SUPPORT' WHERE g.source_hash=? AND g.pass=1 AND d.pass=1 AND c.state='ACTIVE'",new String[]{lifetime})){if(!c.moveToFirst())return "CP4_CERT_DOMAIN_MISSING";mask=c.getInt(0);if(c.moveToNext())return "CP4_CERT_DOMAIN_AMBIGUOUS";}
++   try(Cursor c=store.readable().rawQuery("SELECT DISTINCT p.position FROM "+ResearchGatePlanR967.CP4_BINDING+" b JOIN "+FixedResearchWindowR932.PAIR+" p ON p.window_id=b.window_id WHERE b.lifetime_id=? AND p.target_issue<? LIMIT 2",new String[]{lifetime,target})){if(!c.moveToFirst())return "CP4_FIXED_POSITION_MISSING";position=c.getInt(0);if(c.moveToNext())return "CP4_FIXED_POSITION_CHANGED";}
++   Context ctx=context(store.readable(),position,target);if(ctx.js>.1)return "DRIFT_LIMIT";return (mask&(1<<ctx.regime))==0?"NO_SUPPORTED_REGIME":"";
++  }catch(RuntimeException e){if(e instanceof ResearchWorkBudgetR927.Yield)throw e;return "CP4_DOMAIN_READ_ERROR";}
++ }
++}

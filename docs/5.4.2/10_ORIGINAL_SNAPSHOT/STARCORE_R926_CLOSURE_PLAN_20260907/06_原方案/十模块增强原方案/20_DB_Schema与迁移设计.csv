@@ -1,0 +1,11 @@
+﻿表/对象,类型,用途,关键字段
+v57_r925_training_snapshot,新表,训练数据/PIT快照,snapshot_id PK; issue ranges; hashes; split boundaries; pit violations; status
+v57_r925_model_artifact,新表,统一模型artifact登记,artifact_id/type/hash/schema_hash/data_hash/trained_until/parity/status/metrics
+v57_r925_parity_certificate,新表,Python/Java/Android parity,artifact_id; fixture_hash; python_hash; java_hash; android_hash; max_abs_error; rank1_match; passed
+v57_r925_candidate_lifecycle,新表,生命周期V3,candidate_id; stage; first_prune_reason; first_prune_metrics; policy_version; reconsiderable; pause_reason
+v57_r925_candidate_coverage,新表,coverage拆分,candidate_id/issue; system_capture; execution; eligible; selected; missing_reason
+v57_r925_certificate_ladder,新表,L3-L7证书,candidate_id; level; valid_from/to; evidence_hash; paired window; status
+v57_r925_failure_case,新表,逐期失败案例,issue; cluster; frozen features; counterfactual; attribution hash
+v57_r925_repair_experiment,新表,精英修复,child; parent; repair_target; changed_atoms; expected_effect; falsification
+v57_r925_atom_quality,新表,原子质量,atom_id; support; missing; drift; latency; pit; deterministic; ablation; redundancy
+v57_r925_family_registry,新表,家族/FDR,family_id; champion; members; behavior corr; family_q; within_q

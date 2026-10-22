@@ -1,0 +1,1326 @@
+{
+  "schema": "STARCORE_542_ENHANCEMENT_V1",
+  "revision": "2026-09-09",
+  "status": "DESIGN_NOT_IMPLEMENTED",
+  "batch1_reopened": false,
+  "original_task_count": 42,
+  "tasks": [
+    {
+      "id": "E02A",
+      "batch": 2,
+      "original_tasks": [
+        "B05",
+        "B10"
+      ],
+      "title": "端到端期限与资源隔离",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/BacklogConvergenceR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "原请求经唯一SingleFlight到durable；各段单调钟deadline、全attempt、完整缓存键、连续FULL水位/洞/净吞吐；研究取消点目标100ms、DB分片50ms，资源上限同机预冻结",
+      "implementation_steps": [
+        "原请求经唯一SingleFlight到durable",
+        "各段单调钟deadline、全attempt、完整缓存键、连续FULL水位/洞/净吞吐",
+        "研究取消点目标100ms、DB分片50ms，资源上限同机预冻结"
+      ],
+      "acceptance": [
+        "120期P95总延迟≤5000ms/compute≤3000ms",
+        "64苗圃和2216积压并发无洞不拖慢",
+        "阻塞SQL/取消/GC不删失败慢样本"
+      ],
+      "dependencies": [],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E02A/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E02B",
+      "batch": 2,
+      "original_tasks": [
+        "B07",
+        "B08"
+      ],
+      "title": "可信来源与时钟治理",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeRecoveryCoordinatorR926.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "provider→请求账本→规范化/隔离→outbox；source/request/payload hash与首次available_at、draw_at、clock_epoch；晚到更正追加版本不倒填赛前",
+      "implementation_steps": [
+        "provider→请求账本→规范化/隔离→outbox",
+        "source/request/payload hash与首次available_at、draw_at、clock_epoch",
+        "晚到更正追加版本不倒填赛前"
+      ],
+      "acceptance": [
+        "503/脏200/乱序/冲突/时钟跳变有原因码",
+        "晚到不可成为历史赛前特征",
+        "用户停止不可复活"
+      ],
+      "dependencies": [],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E02B/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E02C",
+      "batch": 2,
+      "original_tasks": [
+        "B09",
+        "B10"
+      ],
+      "title": "可重放学习状态链",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "结算事件→学习outbox→旧状态→原子提交新状态和游标→下一期；幂等键game/issue/update_contract/label_version/input_hash；pre/post_state_hash和trained_until",
+      "implementation_steps": [
+        "结算事件→学习outbox→旧状态→原子提交新状态和游标→下一期",
+        "幂等键game/issue/update_contract/label_version/input_hash",
+        "pre/post_state_hash和trained_until"
+      ],
+      "acceptance": [
+        "每个边界kill重启/双worker/重复10次等于单次状态",
+        "当前期预测不被学习倒写",
+        "乱序/纠正标签按冻结规则重建或拒绝"
+      ],
+      "dependencies": [
+        "E02B"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E02C/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E02D",
+      "batch": 2,
+      "original_tasks": [
+        "B11"
+      ],
+      "title": "唯一Gate证据包",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "最终选择/有效贡献→原唯一Gate→不可变REAL；绑定data/feature/model/state/selection/calibration/cert/budget hash和实际配置；受控未证明与MODEL_PROVEN分开",
+      "implementation_steps": [
+        "最终选择/有效贡献→原唯一Gate→不可变REAL",
+        "绑定data/feature/model/state/selection/calibration/cert/budget hash和实际配置",
+        "受控未证明与MODEL_PROVEN分开"
+      ],
+      "acceptance": [
+        "缺来源/失效证书不得旁路",
+        "每期仅单位置K3一个REAL",
+        "高分/频率不足不得触发补单"
+      ],
+      "dependencies": [
+        "E02C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E02D/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03A",
+      "batch": 3,
+      "original_tasks": [
+        "D01",
+        "D02"
+      ],
+      "title": "统一PIT特征DAG",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/TrainingSnapshotExportR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionMetaFeatureEngine.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "raw过去窗口→typed图→专家/NumberQ→META1200→排序；节点semantic/type/unit/shape/parents/max_issue/available_at/mask/reason/cost/hash；label独立join",
+      "implementation_steps": [
+        "raw过去窗口→typed图→专家/NumberQ→META1200→排序",
+        "节点semantic/type/unit/shape/parents/max_issue/available_at/mask/reason/cost/hash",
+        "label独立join"
+      ],
+      "acceptance": [
+        "100期逐字段三端一致",
+        "同形状错语义/未来label/环被拒",
+        "合法0不判missing，legacy不填0升级"
+      ],
+      "dependencies": [
+        "E02B",
+        "E02C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03A/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03B",
+      "batch": 3,
+      "original_tasks": [
+        "D03",
+        "C06"
+      ],
+      "title": "嵌套时间验证与全试验登记",
+      "existing_files": [
+        "training/r925/pipeline.py",
+        "training/r925/research_governance.py",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "过去rolling OOF→TRAIN/TUNE/CAL/POLICY/SEALED/FUTURE；按标签可用性purge/embargo；数据内容hash/源码/超参/seed/族/预算全登记；sealed读取令牌先原子消费",
+      "implementation_steps": [
+        "过去rolling OOF→TRAIN/TUNE/CAL/POLICY/SEALED/FUTURE",
+        "按标签可用性purge/embargo",
+        "数据内容hash/源码/超参/seed/族/预算全登记",
+        "sealed读取令牌先原子消费"
+      ],
+      "acceptance": [
+        "改名/复制路径/拆族/归档不恢复sealed权限",
+        "上游变化下游失效",
+        "泄漏trap被阻断且全部失败试验保留"
+      ],
+      "dependencies": [
+        "E03A"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03B/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03C",
+      "batch": 3,
+      "original_tasks": [
+        "D04",
+        "D05"
+      ],
+      "title": "深度表征和模型族公平比较",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "training/r925/deep_candidates.py"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "D0小MLP/D1残差/D2快慢/D3蒸馏、9专家与R0–R5同fold/同成本；多尺度/矩阵交互/OOF残差为登记消融轴；teacher仅用合法过去；完整1200评分与固定tie-break",
+      "implementation_steps": [
+        "D0小MLP/D1残差/D2快慢/D3蒸馏、9专家与R0–R5同fold/同成本",
+        "多尺度/矩阵交互/OOF残差为登记消融轴",
+        "teacher仅用合法过去",
+        "完整1200评分与固定tie-break"
+      ],
+      "acceptance": [
+        "1200唯一动作360正标签仅一issue",
+        "100期rank1一致且abs1e-8/rel1e-6",
+        "无增益选简单基线，不可部署记录失败"
+      ],
+      "dependencies": [
+        "E03B",
+        "E02A"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03C/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03D",
+      "batch": 3,
+      "original_tasks": [
+        "D06",
+        "D07",
+        "C03"
+      ],
+      "title": "选择后校准与联合质量门",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "training/r925/pipeline.py"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "最终consumer/selection/混合权重冻结后CAL；固定箱support/区间，Brier/NLL对champion、常数0.3和简单模型配对；同Future联合HR.40/频率.15/ECE.04",
+      "implementation_steps": [
+        "最终consumer/selection/混合权重冻结后CAL",
+        "固定箱support/区间，Brier/NLL对champion、常数0.3和简单模型配对",
+        "同Future联合HR.40/频率.15/ECE.04"
+      ],
+      "acceptance": [
+        "raw score换尺度不得伪造概率",
+        "选择权重变化旧cal拒绝",
+        "零出手/低支持/缩分母不能确认效果"
+      ],
+      "dependencies": [
+        "E03C",
+        "E02D"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03D/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03E",
+      "batch": 3,
+      "original_tasks": [
+        "D07",
+        "D08"
+      ],
+      "title": "漂移与不确定性分解",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/AlgorithmRegimeEvidenceR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51StateTrajectoryEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "过去特征/mask/残差/校准监测→域支持→PAUSE/新观察；TUNE冻结阈值/参考窗/误报预算/冷却；设备故障与game regime分离；分歧/扰动/域支持分列",
+      "implementation_steps": [
+        "过去特征/mask/残差/校准监测→域支持→PAUSE/新观察",
+        "TUNE冻结阈值/参考窗/误报预算/冷却",
+        "设备故障与game regime分离",
+        "分歧/扰动/域支持分列"
+      ],
+      "acceptance": [
+        "突变/渐变/短噪声/断网有不同状态",
+        "未知域0新贡献",
+        "conformal仅诊断，不扩大K或保证单期"
+      ],
+      "dependencies": [
+        "E03D"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03E/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03F",
+      "batch": 3,
+      "original_tasks": [
+        "D04",
+        "D08",
+        "D10"
+      ],
+      "title": "双记忆持续学习",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java",
+        "app/src/main/java/com/ethk3/novaonepro/ModelChampionChallengerRegistry.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchArtifactCodecR811.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "已结游标→近期+长期replay→有界更新→checkpoint→下一期state；预冻结学习率/梯度/步数/seed/初始化/回退；静态与adaptive contract分别评价",
+      "implementation_steps": [
+        "已结游标→近期+长期replay→有界更新→checkpoint→下一期state",
+        "预冻结学习率/梯度/步数/seed/初始化/回退",
+        "静态与adaptive contract分别评价"
+      ],
+      "acceptance": [
+        "A→B→A报告学习和遗忘",
+        "重启10次state hash一致",
+        "坏权重/当前label/人工改规则拒绝旧证书"
+      ],
+      "dependencies": [
+        "E03B",
+        "E03E",
+        "E02C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03F/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E03G",
+      "batch": 3,
+      "original_tasks": [
+        "C01",
+        "C06",
+        "D10"
+      ],
+      "title": "证书依赖闭包与原子激活",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchCertificateR906.java",
+        "app/src/main/java/com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "一合同验证三消费者，绑定原子图/model/policy/cal/domain/trial/selection/code；验证完整包后下一期换指针；撤销向依赖闭包传播",
+      "implementation_steps": [
+        "一合同验证三消费者，绑定原子图/model/policy/cal/domain/trial/selection/code",
+        "验证完整包后下一期换指针",
+        "撤销向依赖闭包传播"
+      ],
+      "acceptance": [
+        "三消费者同向量授权一致",
+        "错签名/路径/缺依赖/中途kill拒绝或原子恢复",
+        "当前期不可半旧半新"
+      ],
+      "dependencies": [
+        "E03D",
+        "E03F"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E03G/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04A",
+      "batch": 4,
+      "original_tasks": [
+        "C10",
+        "C11",
+        "C12"
+      ],
+      "title": "原子因子分子类型图",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeVmR908.java",
+        "app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "保留240项语义；原子→typed因子表达式→分子子图/有界状态→策略VM；声明类型/单位/时态/mask/来源/成本/父hash；规范化结构与CSE",
+      "implementation_steps": [
+        "保留240项语义",
+        "原子→typed因子表达式→分子子图/有界状态→策略VM",
+        "声明类型/单位/时态/mask/来源/成本/父hash",
+        "规范化结构与CSE"
+      ],
+      "acceptance": [
+        "全生产原子有消费者与逐项耗时",
+        "未来依赖/环/无界/NaN/非法类型拒绝",
+        "新分子可反解全部父原子"
+      ],
+      "dependencies": [
+        "E03A",
+        "E03G"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04A/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04B",
+      "batch": 4,
+      "original_tasks": [
+        "C09",
+        "C10",
+        "C11"
+      ],
+      "title": "全矩阵共同快照与反哺",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/TeacherMatrixEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/CausalFactorMatrixEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuleHealthMatrixEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/DynamicFreezeMatrixEngine.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "调用图补齐全部趋势/形态/关系/教师/因果反推/冻结矩阵入口；同snapshot输出score_kind/domain/support/cost/status；消融→repair→新证书→未来贡献",
+      "implementation_steps": [
+        "调用图补齐全部趋势/形态/关系/教师/因果反推/冻结矩阵入口",
+        "同snapshot输出score_kind/domain/support/cost/status",
+        "消融→repair→新证书→未来贡献"
+      ],
+      "acceptance": [
+        "旧入口与固定fixture逐一回归",
+        "不同快照混合拒绝",
+        "真实关闭矩阵重跑有结果，负对照不得凭名称获权"
+      ],
+      "dependencies": [
+        "E04A"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04B/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04C",
+      "batch": 4,
+      "original_tasks": [
+        "C08",
+        "C09"
+      ],
+      "title": "真实消融与最小修复",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchAblationR815.java",
+        "app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "已结失败按采集/执行/选位/边界/校准/域/冲突/随机残差归因；真实模块干预→目的/证伪条件/预算→最小child→新Future；计算干预不冒充机制因果",
+      "implementation_steps": [
+        "已结失败按采集/执行/选位/边界/校准/域/冲突/随机残差归因",
+        "真实模块干预→目的/证伪条件/预算→最小child→新Future",
+        "计算干预不冒充机制因果"
+      ],
+      "acceptance": [
+        "去FTRL/TinyDeep/Teacher/Trend/Shape/Relation/Invented真实重执行",
+        "父200样本child仍0",
+        "失败/pending保留，历史hash不变"
+      ],
+      "dependencies": [
+        "E04B"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04C/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04D",
+      "batch": 4,
+      "original_tasks": [
+        "C05",
+        "C07",
+        "C12"
+      ],
+      "title": "多样性和残差互补搜索",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java",
+        "app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "参数/结构/新拓扑分别登记可执行DSL和变异；结构/行为/过去OOF残差去重；增益/稳定/互补/成本/复杂度Pareto；8/24/64公平调度，所有生成计假设预算",
+      "implementation_steps": [
+        "参数/结构/新拓扑分别登记可执行DSL和变异",
+        "结构/行为/过去OOF残差去重",
+        "增益/稳定/互补/成本/复杂度Pareto",
+        "8/24/64公平调度，所有生成计假设预算"
+      ],
+      "acceptance": [
+        "同结构改名不占双active",
+        "同seed可复建",
+        "代理证据不晋级，无信号可全部失败，预算耗尽不追求凑通过"
+      ],
+      "dependencies": [
+        "E04A",
+        "E04C",
+        "E03B"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04D/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04E",
+      "batch": 4,
+      "original_tasks": [
+        "C02",
+        "C04",
+        "C08"
+      ],
+      "title": "公平配对与渐进晋级",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/CaptureOpportunityR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "共同机会→两者赛前冻结→固定champion配对；保留candidate-only/champion-only/both-missing及敏感性；原FWER、L4、新120/240/240/240/360窗、0/5/12/20/30%及更严格旧cap",
+      "implementation_steps": [
+        "共同机会→两者赛前冻结→固定champion配对",
+        "保留candidate-only/champion-only/both-missing及敏感性",
+        "原FWER、L4、新120/240/240/240/360窗、0/5/12/20/30%及更严格旧cap"
+      ],
+      "acceptance": [
+        "冻结前后/事务中断分母不丢",
+        "变更基线/域/选择旧窗失效",
+        "只保留赢家/重复look/失败窗复用拒绝"
+      ],
+      "dependencies": [
+        "E04D",
+        "E03G"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04E/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04F",
+      "batch": 4,
+      "original_tasks": [
+        "D09",
+        "C07"
+      ],
+      "title": "频率质量可行前沿",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PredictabilityArtifact.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51PolicySurfaceArtifact.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "POLICY选一条冻结政策→SEALED/FUTURE→原Gate；计划/合法可用/选中/REAL分母分列；机会不足归因数据/信号/支持/资源，不降低质量",
+      "implementation_steps": [
+        "POLICY选一条冻结政策→SEALED/FUTURE→原Gate",
+        "计划/合法可用/选中/REAL分母分列",
+        "机会不足归因数据/信号/支持/资源，不降低质量"
+      ],
+      "acceptance": [
+        "同窗HR≥.40/频率≥.15/ECE≤.04才点值达标",
+        "联合置信不足保持不足",
+        "零机会/连错不追单加倍补债"
+      ],
+      "dependencies": [
+        "E04E",
+        "E03D"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04F/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E04G",
+      "batch": 4,
+      "original_tasks": [
+        "C04",
+        "C08",
+        "C10",
+        "C11"
+      ],
+      "title": "贡献图与隔离恢复",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "构件→候选→证书→选择→结算→贡献/失败→新研究；记录真实权重/排序变化/依赖hash；ACTIVE/WATCH/SHADOW_ONLY/QUARANTINED，恢复需新证据",
+      "implementation_steps": [
+        "构件→候选→证书→选择→结算→贡献/失败→新研究",
+        "记录真实权重/排序变化/依赖hash",
+        "ACTIVE/WATCH/SHADOW_ONLY/QUARANTINED，恢复需新证据"
+      ],
+      "acceptance": [
+        "隔离原子后代下一期贡献归零",
+        "撤权重启projection一致",
+        "无证据不能显示0而实际参与排序"
+      ],
+      "dependencies": [
+        "E04B",
+        "E04C",
+        "E04E"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E04G/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E05A",
+      "batch": 5,
+      "original_tasks": [
+        "U01",
+        "U02"
+      ],
+      "title": "四能力页与旧功能可达",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java",
+        "app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "四独立入口同一只读watermark，展示正在做什么/支持/改善/主链贡献/阻断；原矩阵页全部保留",
+      "implementation_steps": [
+        "四独立入口同一只读watermark，展示正在做什么/支持/改善/主链贡献/阻断",
+        "原矩阵页全部保留"
+      ],
+      "acceptance": [
+        "5秒可找证据与原因",
+        "phone/sw600dp/最大字体/旋转/长名单通过",
+        "空样本不默认绿灯100%"
+      ],
+      "dependencies": [
+        "E04G"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E05A/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E05B",
+      "batch": 5,
+      "original_tasks": [
+        "U01",
+        "U03"
+      ],
+      "title": "胜率品质与稳定证据面板",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "HR/配对delta/Brier/NLL/ECE/coverage/域支持与时延/掉期/重复/ANR分列；点值、区间、n、分母、假设、窗口、版本可钻取",
+      "implementation_steps": [
+        "HR/配对delta/Brier/NLL/ECE/coverage/域支持与时延/掉期/重复/ANR分列",
+        "点值、区间、n、分母、假设、窗口、版本可钻取"
+      ],
+      "acceptance": [
+        "180选中与1200计划不混",
+        "未知/低支持/依赖假设不足明确不足",
+        "历史连错不冒充未来上限"
+      ],
+      "dependencies": [
+        "E04F"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E05B/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E05C",
+      "batch": 5,
+      "original_tasks": [
+        "U03"
+      ],
+      "title": "赛前赛后解释边界",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/WhyTruthSectionRendererR906.java",
+        "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "赛前理由→赛后追加诊断→未来修复意图三时态；关联真实消融和冻结hash；区分计算敏感性/关联/假说",
+      "implementation_steps": [
+        "赛前理由→赛后追加诊断→未来修复意图三时态",
+        "关联真实消融和冻结hash",
+        "区分计算敏感性/关联/假说"
+      ],
+      "acceptance": [
+        "未开奖/无赛前/待结/缺失/失败都有fixture",
+        "后验替换特征不改历史hash",
+        "重复诊断不双学"
+      ],
+      "dependencies": [
+        "E04C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E05C/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E05D",
+      "batch": 5,
+      "original_tasks": [
+        "U04"
+      ],
+      "title": "一致报告与实际导出",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/TrainingSnapshotExportR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "同snapshot_id/watermark生成TXT/JSON/CSV，含42任务30卡、全部试验、图/证书/贡献/故障；分章节错误标PARTIAL；原始凭据不进报告",
+      "implementation_steps": [
+        "同snapshot_id/watermark生成TXT/JSON/CSV，含42任务30卡、全部试验、图/证书/贡献/故障",
+        "分章节错误标PARTIAL",
+        "原始凭据不进报告"
+      ],
+      "acceptance": [
+        "三格式逐期一致",
+        "手机长报告真分享打开和hash复算",
+        "删章/假PASS/空间不足/进程中断不可误当完整"
+      ],
+      "dependencies": [
+        "E05A",
+        "E05B",
+        "E05C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E05D/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E06A",
+      "batch": 6,
+      "original_tasks": [
+        "Q01"
+      ],
+      "title": "属性变形和故障回归",
+      "existing_files": [
+        "scripts/r926_migration_fault_harness.py",
+        "scripts/r926_event_ledger_harness.py",
+        "verification/r925/R925PolicyHarness.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "真实Owner/SQLite边界执行→kill/并发/重放/乱序/分片/变形断言，永久保留B06先durable outbox再投影；每卡正常+至少两负例",
+      "implementation_steps": [
+        "真实Owner/SQLite边界执行→kill/并发/重放/乱序/分片/变形断言，永久保留B06先durable outbox再投影",
+        "每卡正常+至少两负例"
+      ],
+      "acceptance": [
+        "禁用关键校验对应测试必失败",
+        "零测试/跳过不可PASS",
+        "新接口有真实消费者、状态变化和重启证据"
+      ],
+      "dependencies": [
+        "E05D",
+        "E04G"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E06A/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E06B",
+      "batch": 6,
+      "original_tasks": [
+        "Q01"
+      ],
+      "title": "误晋级和泄漏对抗",
+      "existing_files": [
+        "training/r925/research_governance.py",
+        "verification/r925/verify_training.py",
+        "training/r925/pipeline.py"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "独立噪声/相关候选/时间依赖/突变/泄漏trap→完整选择和证书；轻量治理≥10000模拟并报告FWER及95%区间；完整训练另列有界种子",
+      "implementation_steps": [
+        "独立噪声/相关候选/时间依赖/突变/泄漏trap→完整选择和证书",
+        "轻量治理≥10000模拟并报告FWER及95%区间",
+        "完整训练另列有界种子"
+      ],
+      "acceptance": [
+        "重复look/改名/拆族/复制行/复用sealed被识别",
+        "故意bug能暴露",
+        "假设不成立不可凭模拟称任意依赖有效"
+      ],
+      "dependencies": [
+        "E04E"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E06B/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E06C",
+      "batch": 6,
+      "original_tasks": [
+        "Q01"
+      ],
+      "title": "三端全状态Host准备",
+      "existing_files": [
+        "verification/r925/verify_parity.py",
+        "verification/r925/DeepParityHarness.java",
+        "verification/r925/RankerParityHarness.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "冻结100期raw/mask/Q/Gate/Sinkhorn/META1200/rank/selection/cal/state向量；abs1e-8/rel1e-6、rank1完全一致；极值/错语义/重启向量",
+      "implementation_steps": [
+        "冻结100期raw/mask/Q/Gate/Sinkhorn/META1200/rank/selection/cal/state向量",
+        "abs1e-8/rel1e-6、rank1完全一致",
+        "极值/错语义/重启向量"
+      ],
+      "acceptance": [
+        "Python/Host符合合同",
+        "错hash/非有限/schema负例拒绝",
+        "Android栏NOT_RUN，Host不能关闭D11"
+      ],
+      "dependencies": [
+        "E03F"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E06C/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E06D",
+      "batch": 6,
+      "original_tasks": [
+        "Q01"
+      ],
+      "title": "源码APK方案与包同源门",
+      "existing_files": [
+        "scripts/r926_build_release.sh",
+        "scripts/r925_build_total.sh",
+        "scripts/r926_apk_acceptance.sh"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "source/tree/build_input/plan/APK/cert/CI/package绑定；当前展开源码及全部原资产继承；分片顺序/尺寸/逐片和总hash；同commit CI后预发行",
+      "implementation_steps": [
+        "source/tree/build_input/plan/APK/cert/CI/package绑定",
+        "当前展开源码及全部原资产继承",
+        "分片顺序/尺寸/逐片和总hash",
+        "同commit CI后预发行"
+      ],
+      "acceptance": [
+        "缺片/旧APK/旧计划/输入漂移拒绝",
+        "干净环境可重建",
+        "任一必需门未过不得发布完成版"
+      ],
+      "dependencies": [
+        "E06A",
+        "E06B",
+        "E06C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E06D/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E07A",
+      "batch": 7,
+      "original_tasks": [
+        "Q02"
+      ],
+      "title": "真机覆盖与连续运行",
+      "existing_files": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeRecoveryCoordinatorR926.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainActivity.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "同签名覆盖→历史hash→冷启动10次→亮屏120/息屏120/划掉30→网络/授权/用户停止/重启→24h；记录OS/设备/热/内存/权限",
+      "implementation_steps": [
+        "同签名覆盖→历史hash→冷启动10次→亮屏120/息屏120/划掉30→网络/授权/用户停止/重启→24h",
+        "记录OS/设备/热/内存/权限"
+      ],
+      "acceptance": [
+        "正常可运行场景掉期/重复/崩溃/ANR/OOM均0",
+        "停止不复活",
+        "5秒SLO/FULL连续水位与旧账门通过"
+      ],
+      "dependencies": [
+        "E06D"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E07A/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E07B",
+      "batch": 7,
+      "original_tasks": [
+        "Q03"
+      ],
+      "title": "真实Future联合效果",
+      "existing_files": [
+        "training/r925/pipeline.py",
+        "app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "真实数据全部阶段冻结后新Future；原10000期首轮规划加实际出手率/依赖/效应/alpha的预注册样本和最大日历；共同验证HR/coverage/ECE/相对基线/域稳定",
+      "implementation_steps": [
+        "真实数据全部阶段冻结后新Future",
+        "原10000期首轮规划加实际出手率/依赖/效应/alpha的预注册样本和最大日历",
+        "共同验证HR/coverage/ECE/相对基线/域稳定"
+      ],
+      "acceptance": [
+        "真实合格候选至少一名且有合法贡献才关闭创造效果",
+        "旧sealed/模拟/后补赛前不得证明",
+        "未达FAIL_EFFECT，低支持不足"
+      ],
+      "dependencies": [
+        "E07A",
+        "E04F"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E07B/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E07C",
+      "batch": 7,
+      "original_tasks": [
+        "D11"
+      ],
+      "title": "Android三端全状态一致",
+      "existing_files": [
+        "verification/r925/verify_parity.py",
+        "verification/r925/GateParityHarness.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "同冻结100期向量真Android运行，设备/APK/输入hash和退出码；全1200/rank1/prob/mask/schema/在线state及热切换撤权重启",
+      "implementation_steps": [
+        "同冻结100期向量真Android运行，设备/APK/输入hash和退出码",
+        "全1200/rank1/prob/mask/schema/在线state及热切换撤权重启"
+      ],
+      "acceptance": [
+        "原数值容差与rank1=100%全过",
+        "假设备输出/错schema/hash被拒",
+        "Host输出不可复制到Android栏"
+      ],
+      "dependencies": [
+        "E07A",
+        "E06C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E07C/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    },
+    {
+      "id": "E07D",
+      "batch": 7,
+      "original_tasks": [
+        "Q04"
+      ],
+      "title": "实际恢复与最终5.4.2发布",
+      "existing_files": [
+        "scripts/r925_build_total.sh",
+        "scripts/r926_build_release.sh",
+        "release/release_manifest.json"
+      ],
+      "status": "DESIGN_NOT_IMPLEMENTED",
+      "effect_proven": false,
+      "production_and_data_contract": "42任务+30卡+Q01-Q04/D11→真实备份/模型/历史恢复→源码APK计划证据一致→5.4.2/933/577250933；安装回退与源码回退区分",
+      "implementation_steps": [
+        "42任务+30卡+Q01-Q04/D11→真实备份/模型/历史恢复→源码APK计划证据一致→5.4.2/933/577250933",
+        "安装回退与源码回退区分"
+      ],
+      "acceptance": [
+        "所有必需门有真实证据",
+        "单总包可核查重建并实际恢复",
+        "任何设备/Future未过只能RC，不虚报100%"
+      ],
+      "dependencies": [
+        "E07A",
+        "E07B",
+        "E07C"
+      ],
+      "failure_and_rollback": "拒绝/隔离无效新增贡献；保留上一完整合法baseline和历史证据；不修改过去预测/结算，按当前唯一Owner和冻结恢复合同重试。不得降门槛凑通过。",
+      "evidence_directory": "evidence/5.4.2/enhancement/E07D/",
+      "required_evidence": [
+        "source_before_after_SHA",
+        "production_caller_and_consumer",
+        "DB_thread_owner",
+        "real_state_and_persistence",
+        "input_output_hash",
+        "command_exit_code",
+        "positive_and_two_negative_cases",
+        "restart_and_rollback",
+        "device_and_future_scope"
+      ]
+    }
+  ]
+}

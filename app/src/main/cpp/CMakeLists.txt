@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.22.1)
+project(starcore_report_cp4 C)
+file(GLOB ZSTD_FILES vendor/zstd/lib/common/*.c vendor/zstd/lib/compress/*.c vendor/zstd/lib/decompress/*.c)
+add_library(starcore_report_cp4 SHARED report_native_cp4.c vendor/sqlite3.c ${ZSTD_FILES})
+target_compile_features(starcore_report_cp4 PRIVATE c_std_11)
+target_compile_definitions(starcore_report_cp4 PRIVATE SQLITE_THREADSAFE=1 SQLITE_TEMP_STORE=1 SQLITE_DEFAULT_MEMSTATUS=1 SQLITE_OMIT_LOAD_EXTENSION=1 ZSTD_DISABLE_ASM=1)
+target_compile_options(starcore_report_cp4 PRIVATE -fvisibility=hidden -O2)
+target_include_directories(starcore_report_cp4 PRIVATE vendor vendor/zstd/lib)
+target_link_libraries(starcore_report_cp4 dl m)
+# Only :diagnostics loads this shared object. Existing product SQLite is not replaced.

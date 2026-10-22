@@ -1,0 +1,8 @@
+PASS concurrent writer executed after private destination transaction started (source already pinned)
+PASS page retains original cell despite concurrent live update
+PASS copied generation matches same pinned old row
+PASS real live generation advanced independently
+PASS 64MiB cell exceeding SQL copy budget falls back to existing streaming backup
+PASS fallback is explicitly recorded
+PASS all 64MiB cell bytes stream into independently verified SCROW
+PASS source large cell is never truncated or pruned by snapshot worker

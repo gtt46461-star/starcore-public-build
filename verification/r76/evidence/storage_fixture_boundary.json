@@ -1,0 +1,13 @@
+{
+  "initial_fixture_failures": [
+    "test3: native READONLY after repeated page rebuild",
+    "test4: malformed during explicit live update"
+  ],
+  "observed_fixture_fault": "A live fixture setup write transaction was kept open while a separate JVM edge suite ran; failed outputs reverted to the original schema-sized file. Exact OS-level cause was not proven.",
+  "correction": "Commit and close setup transactions before the independent JVM test; reopen only for filler construction; quick_check and full source byte hash before/after native page success and refusal.",
+  "subsequent_actual_product_results": [
+    "256MiB filler:49 native/input checks,52 archive/CAS checks,8 WAL/64MiB-cell checks PASS",
+    "4352MiB filler: same checks PASS; source 4590436352 bytes to private page36864 bytes"
+  ],
+  "phone_causality_claimed": false
+}

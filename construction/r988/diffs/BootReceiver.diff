@@ -1,0 +1,12 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java b/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
+index 2b97f13..e36bfb3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
++++ b/app/src/main/java/com/ethk3/novaonepro/BootReceiver.java
+@@ -57,6 +57,7 @@ public final class BootReceiver extends BroadcastReceiver {
+             state.noteLockedBootOnly(action);
+             return; // ACTION_USER_UNLOCKED re-enters the original owner after unlock.
+         }
++        if(Intent.ACTION_USER_UNLOCKED.equals(action)||Intent.ACTION_BOOT_COMPLETED.equals(action)||Intent.ACTION_MY_PACKAGE_REPLACED.equals(action))KeyProvider.reloadAsync(app);
+         state.markReceiver(action);
+ 
+         long age = state.getHeartbeatAgeMs();

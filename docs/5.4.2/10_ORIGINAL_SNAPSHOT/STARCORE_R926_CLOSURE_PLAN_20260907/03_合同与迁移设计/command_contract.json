@@ -1,0 +1,148 @@
+{
+  "status": "DESIGN_NOT_IMPLEMENTED",
+  "python_module": "training.r926.cli",
+  "global_registry": "<owner-controlled-experiment-registry>",
+  "commands": [
+    {
+      "name": "dataset",
+      "args": [
+        "--input-dir",
+        "--schema-manifest",
+        "--output",
+        "--registry"
+      ],
+      "outputs": [
+        "dataset_manifest.json",
+        "quarantine.jsonl",
+        "splits.json",
+        "features_shards",
+        "labels_shards"
+      ]
+    },
+    {
+      "name": "train-number",
+      "args": [
+        "--dataset",
+        "--fold-registry",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "number_artifacts",
+        "oof_number",
+        "number_metrics.json"
+      ]
+    },
+    {
+      "name": "train-gate",
+      "args": [
+        "--dataset",
+        "--number-bundle",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "gate_artifact",
+        "oof_gate",
+        "gate_metrics.json"
+      ]
+    },
+    {
+      "name": "train-ranker",
+      "args": [
+        "--dataset",
+        "--number-gate-bundle",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "ranker_candidates",
+        "oof_selected",
+        "rank_metrics.json"
+      ]
+    },
+    {
+      "name": "train-calibration",
+      "args": [
+        "--selected-oof",
+        "--selection-policy-hash",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "calibration_candidates",
+        "uncertainty_manifest",
+        "domain_manifest"
+      ]
+    },
+    {
+      "name": "train-policy",
+      "args": [
+        "--calibrated-policy-window",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "predictability_artifact",
+        "policy_artifact",
+        "frontier.json"
+      ]
+    },
+    {
+      "name": "freeze",
+      "args": [
+        "--stages",
+        "--registry",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "bundle_manifest.json",
+        "artifact_hashes.json",
+        "selection_frozen.json"
+      ]
+    },
+    {
+      "name": "evaluate-sealed",
+      "args": [
+        "--bundle",
+        "--registry",
+        "--trial-id",
+        "--output"
+      ],
+      "outputs": [
+        "sealed_consumption.json",
+        "sealed_metrics.json",
+        "all_selected.jsonl"
+      ]
+    },
+    {
+      "name": "parity",
+      "args": [
+        "--bundle",
+        "--fixture",
+        "--host-output",
+        "--android-output",
+        "--output"
+      ],
+      "outputs": [
+        "parity_certificate.json",
+        "max_error_rows.json"
+      ]
+    },
+    {
+      "name": "certificate",
+      "args": [
+        "--bundle",
+        "--protocol",
+        "--future-window",
+        "--registry",
+        "--output"
+      ],
+      "outputs": [
+        "certificate.json",
+        "gate_results.json"
+      ]
+    }
+  ]
+}

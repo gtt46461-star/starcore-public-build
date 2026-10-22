@@ -1,0 +1,81 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ProbabilityEngine.java b/app/src/main/java/com/ethk3/novaonepro/ProbabilityEngine.java
+index ab17faf..917fc19 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ProbabilityEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ProbabilityEngine.java
+@@ -3446,7 +3446,7 @@ public final class ProbabilityEngine {
+                         -MAX_TEACHER_GATE_REDUCE,
+                         MAX_TEACHER_GATE_BOOST);
+         s.riskPenalty = clamp(risk, 0.0d, 0.025d);
+-        String u = status.toUpperCase();
++        String u = status.toUpperCase(java.util.Locale.ROOT);
+         boolean neutral = AppConfig.isNeutralEvidenceStatus(u);
+         if (neutral && s.sample <= 0) {
+             s.applied = 0;
+@@ -6735,7 +6735,7 @@ public final class ProbabilityEngine {
+     }
+ 
+     private String upper(String s) {
+-        return s == null ? "" : s.toUpperCase();
++        return s == null ? "" : s.toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private boolean isNoSampleWatchNeutralForProbability(Models.ComboCandidate c) {
+@@ -7250,7 +7250,7 @@ public final class ProbabilityEngine {
+         if (status == null || status.length() == 0 || "NONE".equals(status))
+             status = readString(c, "teacherMatrixStatus", readString(c, "teacherStatus", ""));
+         if (status == null || status.length() == 0) return true;
+-        status = status.toUpperCase();
++        status = status.toUpperCase(java.util.Locale.ROOT);
+         return status.indexOf("STRONG") < 0 && status.indexOf("READY") < 0;
+     }
+ 
+@@ -7262,7 +7262,7 @@ public final class ProbabilityEngine {
+                             "v20Status",
+                             readString(c, "dynamicStatus", readString(c, "dynamicGrade", "")));
+             if (status == null || status.length() == 0) return true;
+-            String s = status.toUpperCase();
++            String s = status.toUpperCase(java.util.Locale.ROOT);
+             return s.indexOf("STRONG") < 0
+                     && s.indexOf("READY") < 0
+                     && s.indexOf("PASS") < 0
+@@ -7271,7 +7271,7 @@ public final class ProbabilityEngine {
+         }
+         if (v.grade == null || v.grade.length() == 0)
+             return v.dynamicScore < 0.58d || v.counterEvidence >= 0.58d;
+-        String g = v.grade.toUpperCase();
++        String g = v.grade.toUpperCase(java.util.Locale.ROOT);
+         if (g.indexOf("S") >= 0
+                 || g.indexOf("A") >= 0
+                 || g.indexOf("STRONG") >= 0
+@@ -7289,11 +7289,11 @@ public final class ProbabilityEngine {
+                         "v20Status",
+                         readString(c, "dynamicStatus", readString(c, "dynamicGrade", "")));
+         if (teacher != null) {
+-            String s = teacher.toUpperCase();
++            String s = teacher.toUpperCase(java.util.Locale.ROOT);
+             if (s.indexOf("STRONG") >= 0 || s.indexOf("READY") >= 0) return true;
+         }
+         if (v20 != null) {
+-            String s = v20.toUpperCase();
++            String s = v20.toUpperCase(java.util.Locale.ROOT);
+             if (s.indexOf("STRONG") >= 0
+                     || s.indexOf("READY") >= 0
+                     || s.indexOf("PASS") >= 0
+@@ -7671,7 +7671,7 @@ public final class ProbabilityEngine {
+ 
+     private boolean containsMisleading(String text) {
+         if (text == null) return false;
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("MISLEADING") >= 0
+                 || s.indexOf("误导") >= 0
+                 || s.indexOf("亏") >= 0
+@@ -7680,7 +7680,7 @@ public final class ProbabilityEngine {
+ 
+     private boolean containsPromotion(String text) {
+         if (text == null) return false;
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("PROMOTE") >= 0 || s.indexOf("晋级") >= 0 || s.indexOf("强域") >= 0;
+     }
+ 

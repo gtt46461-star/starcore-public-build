@@ -1,0 +1,76 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ApiClient.java b/app/src/main/java/com/ethk3/novaonepro/ApiClient.java
+index d56a023..ab70c73 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ApiClient.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ApiClient.java
+@@ -42,7 +42,7 @@ public final class ApiClient {
+      */
+     public Models.ApiResult fetchLatest(final String localTargetIssue) {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+         final String expected = safeIssue(localTargetIssue);
+         Models.ApiResult raw =
+@@ -96,7 +96,7 @@ public final class ApiClient {
+      */
+     public Models.ApiResult fetchHistoryFresh(final int count, final String localTargetIssue) {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+         int bounded = count;
+         if (bounded < MIN_LIMIT) bounded = LATEST_DEFAULT_LIMIT;
+@@ -148,7 +148,7 @@ public final class ApiClient {
+     /** Today-date recovery with the same freshness rule and endpoint failover. */
+     public Models.ApiResult fetchTodayBackfillFresh(final String localTargetIssue) {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+         final String expected = safeIssue(localTargetIssue);
+         final String date = todayDate();
+@@ -361,7 +361,7 @@ public final class ApiClient {
+ 
+     public Models.ApiResult fetchRawLatest() {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+ 
+         return requestGovernedLatest(LATEST_DEFAULT_LIMIT);
+@@ -369,7 +369,7 @@ public final class ApiClient {
+ 
+     public Models.ApiResult fetchRawHistory(int count) {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+ 
+         if (count < MIN_LIMIT) {
+@@ -385,7 +385,7 @@ public final class ApiClient {
+ 
+     public Models.ApiResult fetchRawTodayHistory() {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+ 
+         return requestGovernedDate(todayDate());
+@@ -393,7 +393,7 @@ public final class ApiClient {
+ 
+     public Models.ApiResult fetchRawYesterdayHistory() {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+ 
+         return requestGovernedDate(offsetDate(-1));
+@@ -401,7 +401,7 @@ public final class ApiClient {
+ 
+     public Models.ApiResult fetchRawDateHistory(String date) {
+         if (!KeyProvider.isKeyReady()) {
+-            return Models.ApiResult.fail("KEY_NOT_READY", "接口秘钥未准备");
++            return Models.ApiResult.fail("KEY_NOT_READY", KeyProvider.unavailableReasonCP12());
+         }
+ 
+         if (date == null || date.length() == 0) {

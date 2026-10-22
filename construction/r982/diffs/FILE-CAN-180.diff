@@ -1,0 +1,148 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java b/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java
+index 9065703..0e23543 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java
+@@ -1327,7 +1327,7 @@ public final class SettlementEngine {
+             return "";
+         }
+ 
+-        String u = r.toUpperCase();
++        String u = r.toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("WIN".equals(u) || "HIT".equals(u) || "命中".equals(r)) {
+             return AppConfig.RESULT_WIN;
+@@ -1534,34 +1534,10 @@ public final class SettlementEngine {
+     }
+ 
+     public boolean saveBetDecisionAsTrade(DbStore store, Models.Decision decision) {
+-        if (store == null || !canCreateTradeFromDecision(decision)) {
+-            return false;
+-        }
+-
+-        Models.Trade existing = safeGetTradeByTargetIssue(store, decision.targetIssue);
+-
+-        if (existing != null) {
+-            return true;
+-        }
+-
+-        long id;
+-
+-        try {
+-            id = store.saveTradeFromDecision(decision);
+-            if (id > 0L) {
+-                return true;
+-            }
+-        } catch (Throwable e) {
+-        }
+-
+-        Models.Trade trade = createTradeFromDecision(decision);
+-
+-        if (trade == null) {
+-            return false;
+-        }
+-
+-        id = safeSaveTrade(store, trade);
+-        return id > 0L;
++        if(store==null || decision==null || decision.targetIssue==null)return false;
++        Models.Trade existing=store.getTradeByTargetIssue(decision.targetIssue);
++        return existing!=null && existing.position==decision.position && existing.n1==decision.n1
++                && existing.n2==decision.n2 && existing.n3==decision.n3; // Read-only, never BET creation.
+     }
+ 
+     private boolean isQuickOrPlaceholderDecision(Models.Decision d) {
+@@ -1927,63 +1903,11 @@ public final class SettlementEngine {
+     }
+ 
+     private int safeSettleTrade(DbStore store, Models.Trade trade) {
+-        if (store == null || trade == null) {
+-            return 0;
+-        }
+-
+-        if (!isRealBetTradeScopeAndAction(trade)) {
+-            return 0;
+-        }
+-
+-        normalizeLegacyRealTradeAction(trade);
+-        trade.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-        trade.action = AppConfig.ACTION_BET;
+-
+-        if (trade.id <= 0L && trade.targetIssue != null && trade.targetIssue.length() > 0) {
+-            Models.Trade old = safeGetTradeByTargetIssue(store, trade.targetIssue);
+-
+-            if (old != null && old.id > 0L) {
+-                trade.id = old.id;
+-
+-                if (trade.decisionId <= 0L) {
+-                    trade.decisionId = old.decisionId;
+-                }
+-            }
+-        }
+-
+-        int updated = 0;
+-
+-        try {
+-            updated = store.settleTrade(trade);
+-        } catch (Throwable e) {
+-            updated = 0;
+-        }
+-
+-        if (updated > 0 && verifyTradeSettlement(store, trade)) {
+-            return updated;
+-        }
+-
+-        Models.Trade after = safeGetTradeByTargetIssue(store, trade.targetIssue);
+-
+-        if (after != null && after.id > 0L) {
+-            trade.id = after.id;
+-
+-            if (trade.decisionId <= 0L) {
+-                trade.decisionId = after.decisionId;
+-            }
+-
+-            try {
+-                updated = store.settleTrade(trade);
+-            } catch (Throwable e) {
+-                updated = 0;
+-            }
+-
+-            if (updated > 0 && verifyTradeSettlement(store, trade)) {
+-                return updated;
+-            }
+-        }
+-
+-        return updated;
++        if(store==null || trade==null || trade.targetIssue==null)return 0;
++        Models.Draw draw=store.getDrawByIssue(trade.targetIssue);
++        if(draw==null || !draw.isValid())return 0;
++        SettlementReport report=SettlementCoordinatorR815.settleNow(store,draw,SettlementCoordinatorR815.Reason.LEGACY_API);
++        return report==null?0:report.settledCount;
+     }
+ 
+     private boolean verifyTradeSettlement(DbStore store, Models.Trade trade) {
+@@ -2379,23 +2303,9 @@ public final class SettlementEngine {
+     }
+ 
+     private long safeSaveTrade(DbStore store, Models.Trade trade) {
+-        if (store == null || trade == null) {
+-            return -1L;
+-        }
+-
+-        if (!isRealBetTradeScopeAndAction(trade)) {
+-            return -1L;
+-        }
+-
+-        normalizeLegacyRealTradeAction(trade);
+-        trade.statScope = AppConfig.STAT_SCOPE_REAL_TRADE;
+-        trade.action = AppConfig.ACTION_BET;
+-
+-        try {
+-            return store.saveTrade(trade);
+-        } catch (Throwable e) {
+-            return -1L;
+-        }
++        if(store==null || trade==null || trade.targetIssue==null)return -1L;
++        Models.Trade existing=store.getTradeByTargetIssue(trade.targetIssue);
++        return existing==null?-1L:existing.id;
+     }
+ 
+     private void copyV20SettlementEvidenceFields(Object from, Object to) {

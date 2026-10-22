@@ -1,0 +1,337 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+new file mode 100644
+index 0000000..e8d8b6b
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/ReportCatalogCP4.java
+@@ -0,0 +1,331 @@
++package com.ethk3.novaonepro;
++
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import android.os.CancellationSignal;
++import java.util.concurrent.atomic.AtomicReference;
++import java.io.Closeable;
++import java.io.IOException;
++import java.io.InterruptedIOException;
++import java.io.Writer;
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.FileOutputStream;
++import java.io.BufferedWriter;
++import java.io.OutputStreamWriter;
++import java.io.FilterWriter;
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.List;
++import java.security.MessageDigest;
++import java.nio.charset.StandardCharsets;
++import java.util.HashSet;
++import java.util.Set;
++
++/** CP4 proposed implementation. Owns report metadata only; never creates DbStore or writes business state. */
++public final class ReportCatalogCP4 {
++    public static final int PAGE_UTF8_BYTES = 2 * 1024 * 1024;
++    private static final int MAX_RECORD_UTF8_BYTES = 128 * 1024;
++    private static final int SQL_CHUNK_CHARS = 8192;
++    private static final int MAX_CHECKS = 2048;
++    private ReportCatalogCP4() {}
++    private static final AtomicReference<CancellationSignal> ACTIVE_CANCEL = new AtomicReference<CancellationSignal>();
++    public static void cancelActive() { CancellationSignal c=ACTIVE_CANCEL.get();if(c!=null)c.cancel(); }
++    private static Cursor query(SQLiteDatabase db,String sql,String[] args) { return db.rawQuery(sql,args,ACTIVE_CANCEL.get()); }
++
++    /** Caller checks cancellation, available space and durable job ownership. Throw on cancellation. */
++    public interface Progress { void checkpoint(String phase, long completed) throws IOException; }
++    /** Root archive owner supplies buffered file writers, then records their hashes in the immutable manifest. */
++    public interface Pages {
++        Writer open(int pageNumber) throws IOException;
++        void committed(int pageNumber, long utf8Bytes, long records) throws IOException;
++    }
++    /** Bind only one of the96 canonical pure snapshot evaluators; absent implementations abort. */
++    public interface CheckRunner { CheckResult run(SnapshotQuery input) throws Exception; }
++    public enum CheckKind { ASSERTION, DIAGNOSTIC, REFERENCE }
++    public static final class CheckResult {
++        public final String executionState,domainOutcome,health,state,reason,evidence;
++        public CheckResult(String execution,String outcome,String health,String reason,String evidence){
++            if(!"EXECUTED".equals(execution)&&!"READ_ERROR".equals(execution)&&!"CANCELLED".equals(execution))throw new IllegalArgumentException("CHECK_EXECUTION_STATE");
++            if(outcome==null||outcome.isEmpty()||health==null||!health.matches("PASS|OBSERVED|WARN|FAIL|NOT_PROVEN|UNKNOWN|NOT_APPLICABLE"))throw new IllegalArgumentException("CHECK_OUTCOME");
++            this.executionState=execution;this.domainOutcome=bounded(outcome);this.health=health;this.state=this.domainOutcome;this.reason=bounded(reason);this.evidence=bounded(evidence);
++        }
++        public CheckResult(String state,String reason,String evidence){this("EXECUTED",state,ReportCheckRegistryCP12.health(state),reason,evidence);}
++    }
++    public static final class CheckSpec {
++        public final String id, section, sourcePath, sourceMethod, queryContract, evidenceMember;
++        public final boolean required;
++        public final CheckKind kind;
++        public final CheckRunner runner;
++        public CheckSpec(String id, String section, String sourcePath, String sourceMethod,
++                String queryContract, String evidenceMember, boolean required, CheckRunner runner) {
++            this(id,section,sourcePath,sourceMethod,queryContract,evidenceMember,required,
++                    required?CheckKind.DIAGNOSTIC:CheckKind.REFERENCE,runner);
++        }
++        public CheckSpec(String id,String section,String sourcePath,String sourceMethod,
++                String queryContract,String evidenceMember,boolean required,CheckKind kind,CheckRunner runner) {
++            this.id = bounded(id); this.section = bounded(section); this.sourcePath = bounded(sourcePath);
++            this.sourceMethod = bounded(sourceMethod); this.queryContract = bounded(queryContract);
++            this.evidenceMember = bounded(evidenceMember); this.required = required; this.runner = runner;
++            if(kind==null)throw new IllegalArgumentException("CHECK_KIND");this.kind=kind;
++            if (id == null || id.length() == 0) throw new IllegalArgumentException("CHECK_ID");
++        }
++    }
++    /** A completed computation may truthfully report FAIL; a count is never its replacement. */
++    public static boolean hasCompleteResult(CheckSpec spec,CheckResult result) {
++        if(spec==null||result==null||!"EXECUTED".equals(result.executionState))return false;
++        switch(spec.kind){
++            case ASSERTION:return "PASS".equals(result.domainOutcome)||"FAIL".equals(result.domainOutcome);
++            case DIAGNOSTIC:return !result.domainOutcome.isEmpty()&&result.evidence!=null;
++            case REFERENCE:return "N/A".equals(result.domainOutcome)&&"NOT_APPLICABLE".equals(result.health);
++            default:throw new AssertionError(spec.kind);
++        }
++    }
++    public static boolean isHealthy(CheckSpec spec,CheckResult result){
++        if(!hasCompleteResult(spec,result))return false;
++        if(spec.kind==CheckKind.REFERENCE)return true;
++        if(spec.kind==CheckKind.ASSERTION)return "PASS".equals(result.domainOutcome);
++        return "PASS".equals(result.health)||"OBSERVED".equals(result.health);
++    }
++    public static final class SnapshotQuery {
++        private final SQLiteDatabase db;
++        private SnapshotQuery(SQLiteDatabase db) { this.db = db; }
++        /** Scalar integer-only API prevents new huge raw TEXT/BLOB allocations in check adapters. */
++        public long scalarLong(String sql, String[] args) {
++            if (sql == null || !sql.trim().toUpperCase(java.util.Locale.ROOT).startsWith("SELECT ")
++                    || sql.indexOf(';') >= 0) throw new IllegalArgumentException("CHECK_SELECT_ONLY");
++            try (Cursor c = query(db,sql,args)) {
++                if (!c.moveToFirst() || c.getColumnCount() != 1 || c.isNull(0)
++                        || c.getType(0) != Cursor.FIELD_TYPE_INTEGER) {
++                    throw new IllegalStateException("CHECK_SCALAR_INTEGER_REQUIRED");
++                }
++                long value = c.getLong(0);
++                if (c.moveToNext()) throw new IllegalStateException("CHECK_SCALAR_MULTIPLE_ROWS");
++                return value;
++            }
++        }
++    }
++    public static final class Result {
++        public final long objects, rows, checks, unevaluated, queryErrors;
++        public final int tables;
++        public final String scope;
++        public final List<File> indexFiles;
++        public final boolean evidenceCatalogComplete, checksComplete, allChecksPassed;
++        private Result(long objects,long tables,long rows,long checks,long unevaluated,long queryErrors,
++                boolean evidenceCatalogComplete,boolean checksComplete,boolean allChecksPassed) {
++            if(tables>Integer.MAX_VALUE)throw new IllegalArgumentException("TOO_MANY_TABLES");
++            this.objects=objects;this.tables=(int)tables;this.rows=rows;this.checks=checks;
++            this.scope="ALL_SQLITE_EVIDENCE_WITH_LEGACY_CHECK_DIRECTORY";
++            this.indexFiles=Collections.emptyList();
++            this.unevaluated=unevaluated;this.queryErrors=queryErrors;
++            this.evidenceCatalogComplete=evidenceCatalogComplete;this.checksComplete=checksComplete;this.allChecksPassed=allChecksPassed;
++        }
++        private Result(Result r,List<File> files) {
++            this.objects=r.objects;this.tables=r.tables;this.rows=r.rows;this.checks=r.checks;
++            this.unevaluated=r.unevaluated;this.queryErrors=r.queryErrors;
++            this.evidenceCatalogComplete=r.evidenceCatalogComplete;this.checksComplete=r.checksComplete;this.allChecksPassed=r.allChecksPassed;
++            this.scope=r.scope;this.indexFiles=Collections.unmodifiableList(new ArrayList<File>(files));
++        }
++    }
++
++    private static Result withFiles(Result r,List<File> files) {
++        return new Result(r,files);
++    }
++
++    /** Required service entry: native backup handles must all be closed before Android opens this copy. */
++    public static Result write(ReportReadContextCP4 context, File jobDirectory,Progress progress) throws Exception {
++        SQLiteDatabase snapshot=context.snapshotReadOnly();
++        if(jobDirectory==null||!jobDirectory.isDirectory()||!new File(snapshot.getPath()).getCanonicalPath().startsWith(jobDirectory.getCanonicalPath()+File.separator))throw new IOException("REPORT_CONTEXT_DIRECTORY");
++        CancellationSignal cancellation=context.cancellationSignal();
++        if(!ACTIVE_CANCEL.compareAndSet(null,cancellation))throw new IOException("CATALOG_ALREADY_RUNNING");
++        try{FilePages sink=new FilePages(jobDirectory);Result result=export(context,snapshot,context.snapshotSha256(),context.snapshotSha256(),ReportCheckRegistryCP12.checks(context),sink,progress);context.finishArtifacts();return withFiles(result,sink.files);}finally{ACTIVE_CANCEL.compareAndSet(cancellation,null);}
++    }
++    /** Deliberately fails rather than manufacturing own-process observations or unbound evaluators. */
++    public static Result write(SQLiteDatabase snapshot,File directory)throws Exception{throw new IOException("REPORT_READ_CONTEXT_REQUIRED");}
++    private static String sha256(File file) throws Exception {
++        MessageDigest d=MessageDigest.getInstance("SHA-256");byte[] b=new byte[65536];
++        try(FileInputStream in=new FileInputStream(file)){int n;while((n=in.read(b))!=-1){
++            if(Thread.currentThread().isInterrupted() || (ACTIVE_CANCEL.get()!=null && ACTIVE_CANCEL.get().isCanceled()))throw new InterruptedIOException("HASH_CANCELLED");d.update(b,0,n);}}
++        StringBuilder out=new StringBuilder(64);for(byte x:d.digest()){int v=x&255;if(v<16)out.append('0');out.append(Integer.toHexString(v));}return out.toString();
++    }
++    private static final class FilePages implements Pages {
++        final File directory;final List<File> files=new ArrayList<File>();
++        File pending;FileOutputStream stream;
++        FilePages(File job) throws IOException {
++            directory=new File(job,"catalog");if(!directory.isDirectory() && !directory.mkdir())throw new IOException("CATALOG_DIRECTORY");
++            if(!directory.getCanonicalPath().startsWith(job.getCanonicalPath()+File.separator))throw new IOException("CATALOG_PATH_ESCAPE");
++            File[] old=directory.listFiles();if(old==null)throw new IOException("CATALOG_LIST_FAILED");
++            // Regeneration of this immutable snapshot is idempotent; no files outside catalog-NNNN names are deleted.
++            for(File f:old)if(f.getName().matches("catalog-[0-9]{4}\\.jsonl(?:\\.partial)?") && !f.delete())throw new IOException("CATALOG_RESET_FAILED");
++        }
++        public Writer open(int page) throws IOException {
++            if(page<1 || page>1024)throw new IOException("CATALOG_TOO_MANY_PAGES");
++            pending=new File(directory,String.format(java.util.Locale.ROOT,"catalog-%04d.jsonl.partial",page));
++            if(pending.exists())throw new IOException("CATALOG_PARTIAL_EXISTS");
++            stream=new FileOutputStream(pending);final FileOutputStream fd=stream;
++            return new FilterWriter(new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),16384)){
++                public void close() throws IOException {try{flush();fd.getFD().sync();}finally{super.close();}}
++            };
++        }
++        public void committed(int page,long bytes,long records) throws IOException {
++            if(bytes>PAGE_UTF8_BYTES || records==0)throw new IOException("CATALOG_PAGE_CONTRACT");
++            File target=new File(directory,String.format(java.util.Locale.ROOT,"catalog-%04d.jsonl",page));
++            if(target.exists() || pending==null || !pending.renameTo(target))throw new IOException("CATALOG_RENAME");
++            files.add(target);pending=null;stream=null;
++        }
++    }
++    /** snapshot must be an already copied, hash-verified, read-only PRIVATE SQLite file. */
++    private static Result export(ReportReadContextCP4 context, SQLiteDatabase snapshot, String snapshotId, String snapshotSha256,
++            Iterable<CheckSpec> checks, Pages pages, Progress progress) throws IOException {
++        if (snapshot == null || !snapshot.isOpen() || !snapshot.isReadOnly())
++            throw new IllegalArgumentException("REPORT_REQUIRES_READONLY_SNAPSHOT");
++        if (snapshotId == null || snapshotId.length() == 0 || snapshotSha256 == null
++                || !snapshotSha256.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("SNAPSHOT_IDENTITY");
++        if (checks == null || pages == null || progress == null) throw new IllegalArgumentException("NULL_ARGUMENT");
++        progress.checkpoint("CATALOG_START",0);
++        long objectCount=0, tableCount=0, rowCount=0, checkCount=0, uncomputed=0, errors=0;
++        boolean evidenceOK=true, checksOK=true, allPassed=true;
++        try (JsonPages out = new JsonPages(pages)) {
++            out.line(obj("kind","catalog","revision","CP12_V1","snapshot_id",snapshotId,
++                    "snapshot_sha256",snapshotSha256,"raw_evidence_member","snapshot.db",
++                    "consistency","SINGLE_IMMUTABLE_SNAPSHOT","count_scope","ALL_TABLES_IN_SQLITE_MASTER",
++                    "raw_values_omitted_from_text",true));
++            try {
++                String previousType="",previousName="";
++                while(true) {
++                    progress.checkpoint("SCHEMA_OBJECT",objectCount);
++                    String type,name,table;long sqlChars,rootPage;boolean sqlNull;
++                    // Close this window before opening any DDL fragment/count/PRAGMA cursor.
++                    try(Cursor c=query(snapshot,"SELECT type,name,tbl_name,rootpage,length(sql) FROM sqlite_master WHERE type>? OR (type=? AND name>?) ORDER BY type,name LIMIT 1",
++                            new String[]{previousType,previousType,previousName})) {
++                        if(!c.moveToFirst())break;
++                        type=c.getString(0);name=c.getString(1);table=c.getString(2);rootPage=c.getLong(3);
++                        sqlNull=c.isNull(4);sqlChars=sqlNull?0:c.getLong(4);
++                    }
++                    previousType=type;previousName=name;
++                    out.line(obj("kind","schema_object","type",type,"name",name,"table",table,
++                            "rootpage",rootPage,"sql_chars",sqlChars,"sql_null",sqlNull));
++                    // Read only bounded schema fragments, never full payload rows or full DDL strings.
++                    for(long pos=1;pos<=sqlChars;pos+=SQL_CHUNK_CHARS) {
++                        progress.checkpoint("SCHEMA_SQL_CHUNK",pos);
++                        try(Cursor s=query(snapshot,"SELECT substr(sql,?,?) FROM sqlite_master WHERE type=? AND name=?",
++                                new String[]{Long.toString(pos),Integer.toString(SQL_CHUNK_CHARS),type,name})) {
++                            if(!s.moveToFirst())throw new IOException("SCHEMA_OBJECT_DISAPPEARED");
++                            out.line(obj("kind","schema_sql_chunk","type",type,"name",name,"start_char",pos,"text",s.getString(0)));
++                        }
++                    }
++                    objectCount++;
++                    if("table".equals(type)) {
++                        tableCount++;
++                        try {
++                            long n=scalar(snapshot,"SELECT COUNT(*) FROM "+ident(name));
++                            if(n<0 || rowCount>Long.MAX_VALUE-n)throw new IllegalStateException("COUNT_OVERFLOW");
++                            rowCount+=n;
++                            out.line(obj("kind","table_count","table",name,"rows",n,"status","OK"));
++                            pragma(out,snapshot,"table_info",name,progress);
++                            pragma(out,snapshot,"index_list",name,progress);
++                            pragma(out,snapshot,"foreign_key_list",name,progress);
++                        } catch(RuntimeException failure) {
++                            errors++;evidenceOK=false;
++                            out.line(obj("kind","table_error","table",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
++                        }
++                    } else if("index".equals(type)) {
++                        try { pragma(out,snapshot,"index_info",name,progress); }
++                        catch(RuntimeException failure){errors++;evidenceOK=false;out.line(obj("kind","index_error","name",name,"reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));}
++                    }
++                }
++            } catch(RuntimeException failure) {
++                errors++;evidenceOK=false;
++                out.line(obj("kind","catalog_error","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure)));
++            }
++            // No derived rate is manufactured from a schema count. Checks retain original semantics in their registered adapters.
++            SnapshotQuery input=new SnapshotQuery(snapshot); Set<String> ids=new HashSet<String>();
++            for(CheckSpec check:checks) {
++                progress.checkpoint("CHECK",checkCount);
++                if(check==null || !ids.add(check.id))throw new IOException("CHECK_ID_NULL_OR_DUPLICATE");
++                if(++checkCount>MAX_CHECKS)throw new IOException("CHECK_REGISTRY_TOO_LARGE");
++                out.line(obj("kind","check_contract","id",check.id,"section",check.section,"source_path",check.sourcePath,
++                        "source_method",check.sourceMethod,"query_contract",check.queryContract,"evidence_member",check.evidenceMember,
++                        "required",check.required,"check_kind",check.kind.name()));
++                if(check.runner==null)throw new IOException("REPORT_UNBOUND_CANONICAL_HANDLER");
++                try {
++                    CheckResult result=check.runner.run(input);
++                    if(result==null)throw new IllegalStateException("NULL_CHECK_RESULT");
++                    boolean complete=hasCompleteResult(check,result);
++                    if(check.required){if(!complete)checksOK=false;if(!isHealthy(check,result))allPassed=false;}
++                    out.line(obj("kind","check_result","id",check.id,"execution_state",result.executionState,"domain_outcome",result.domainOutcome,"health",result.health,"state",result.state,"reason",result.reason,"evidence",result.evidence,"completes_contract",complete));
++                } catch(InterruptedException stop) {
++                    Thread.currentThread().interrupt();throw new InterruptedIOException("REPORT_CHECK_INTERRUPTED");
++                } catch(IOException stop) { throw stop;
++                } catch(Exception failure) {
++                    if(Thread.currentThread().isInterrupted()||(ACTIVE_CANCEL.get()!=null&&ACTIVE_CANCEL.get().isCanceled()))throw new InterruptedIOException("REPORT_CHECK_CANCELLED");
++                    errors++;if(check.required){checksOK=false;allPassed=false;}
++                    out.line(obj("kind","check_result","id",check.id,"execution_state","READ_ERROR","domain_outcome","READ_ERROR","health","UNKNOWN","state","READ_ERROR","reason",boundedFailure(failure),"error_detail",fullFailure(context,failure),"evidence_member","snapshot.db","completes_contract",false));
++                }
++            }
++            progress.checkpoint("CATALOG_END",checkCount);
++            if(checkCount!=96)throw new IOException("REPORT_CANONICAL_HANDLER_COUNT");
++            out.line(obj("kind","catalog_result","objects",objectCount,"tables",tableCount,"rows",rowCount,
++                    "checks",checkCount,"unevaluated",uncomputed,"errors",errors,
++                    "evidence_catalog_complete",evidenceOK,"checks_complete",checksOK,"all_checks_passed",checksOK&&allPassed,
++                    "evidence_archive_complete","OWNER_MUST_VERIFY_ALL_MEMBER_HASHES"));
++        }
++        return new Result(objectCount,tableCount,rowCount,checkCount,uncomputed,errors,evidenceOK,checksOK,checksOK&&allPassed);
++    }
++    private static void pragma(JsonPages out,SQLiteDatabase db,String operation,String name,Progress progress) throws IOException {
++        // operation comes solely from the four fixed call sites above.
++        try(Cursor c=query(db,"PRAGMA "+operation+"("+ident(name)+")",null)) {
++            long n=0;while(c.moveToNext()) {
++                progress.checkpoint("SCHEMA_PRAGMA",n++);
++                StringBuilder b=new StringBuilder(1024);b.append('{');field(b,"kind","pragma_row");b.append(',');field(b,"operation",operation);b.append(',');field(b,"name",name);
++                for(int j=0;j<c.getColumnCount();j++) {b.append(',');quote(b,c.getColumnName(j));b.append(':');
++                    if(c.isNull(j))b.append("null");else if(c.getType(j)==Cursor.FIELD_TYPE_INTEGER)b.append(c.getLong(j));
++                    else if(c.getType(j)==Cursor.FIELD_TYPE_FLOAT)b.append(Double.toString(c.getDouble(j)));
++                    else if(c.getType(j)==Cursor.FIELD_TYPE_BLOB)throw new IllegalStateException("SCHEMA_BLOB_FORBIDDEN");
++                    else quote(b,bounded(c.getString(j)));
++                }
++                b.append('}');out.line(b.toString());
++            }
++        }
++    }
++    private static long scalar(SQLiteDatabase db,String sql) {
++        try(Cursor c=query(db,sql,null)) {if(!c.moveToFirst())throw new IllegalStateException("NO_COUNT");return c.getLong(0);}
++    }
++    private static String ident(String s) {if(s==null || s.indexOf('\0')>=0)throw new IllegalArgumentException("SQL_IDENTIFIER");return '"'+s.replace("\"","\"\"")+'"';}
++    private static String boundedFailure(Exception error){String text=error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage());return text.length()<=1024?text:text.substring(0,1024);}
++    /** Preserve the complete cause chain; large stacks use the same verified text members as normal sections. */
++    private static String fullFailure(ReportReadContextCP4 context,Exception error){
++        ReportTextCP12 text=new ReportTextCP12(context);
++        try{java.io.PrintWriter output=new java.io.PrintWriter(text.writer());error.printStackTrace(output);output.flush();return text.toString();}
++        catch(RuntimeException failure){text.abort();throw failure;}
++    }
++    private static String bounded(String s) {if(s!=null && s.length()>16384)throw new IllegalArgumentException("CATALOG_METADATA_TOO_LARGE");return s;}
++    private static String obj(Object... kv) {
++        if((kv.length&1)!=0)throw new IllegalArgumentException("JSON_FIELDS");StringBuilder b=new StringBuilder(1024);b.append('{');
++        for(int i=0;i<kv.length;i+=2){if(i>0)b.append(',');field(b,(String)kv[i],kv[i+1]);}return b.append('}').toString();
++    }
++    private static void field(StringBuilder b,String key,Object value) {
++        quote(b,key);b.append(':');if(value==null)b.append("null");else if(value instanceof Boolean || value instanceof Number)b.append(value.toString());else quote(b,bounded(value.toString()));
++    }
++    private static void quote(StringBuilder b,String s) {
++        if(s==null){b.append("null");return;}b.append('"');
++        for(int i=0;i<s.length();i++){char c=s.charAt(i);switch(c){case '"':b.append("\\\"");break;case '\\':b.append("\\\\");break;case '\n':b.append("\\n");break;case '\r':b.append("\\r");break;case '\t':b.append("\\t");break;
++            default:if(c<32 || Character.isSurrogate(c)){b.append("\\u");String h=Integer.toHexString(c);for(int j=h.length();j<4;j++)b.append('0');b.append(h);}else b.append(c);}}
++        b.append('"');
++    }
++    private static final class JsonPages implements Closeable {
++        private final Pages pages;private Writer writer;private int number;private long bytes,records;
++        JsonPages(Pages pages){this.pages=pages;}
++        void line(String json) throws IOException {
++            int n=json.getBytes(StandardCharsets.UTF_8).length+1;
++            if(n>MAX_RECORD_UTF8_BYTES)throw new IOException("CATALOG_RECORD_TOO_LARGE");
++            if(writer!=null && bytes+n>PAGE_UTF8_BYTES)finish();
++            if(writer==null){number++;writer=pages.open(number);if(writer==null)throw new IOException("NULL_PAGE_WRITER");bytes=0;records=0;}
++            writer.write(json);writer.write('\n');bytes+=n;records++;
++        }
++        private void finish() throws IOException {
++            Writer old=writer;writer=null;old.close();pages.committed(number,bytes,records);
++        }
++        public void close() throws IOException {if(writer!=null)finish();}
++    }
++}

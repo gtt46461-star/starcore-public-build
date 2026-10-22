@@ -1,0 +1,63 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/BuildCohortMigrationEngine.java b/app/src/main/java/com/ethk3/novaonepro/BuildCohortMigrationEngine.java
+index 063be5a..3a6ce0e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/BuildCohortMigrationEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/BuildCohortMigrationEngine.java
+@@ -28,55 +28,10 @@ public final class BuildCohortMigrationEngine {
+         migrateWithReport(store);
+     }
+ 
++    @Deprecated
+     public static MigrationReport migrateWithReport(DbStore store) {
+-        if (store == null) return new MigrationReport(false, 0, 0, "V50_COHORT_STORE_NULL");
+-        String done = store.getState("v50_build_cohort_migration", "");
+-        if (MODULE_VERSION.equals(done)) {
+-            return new MigrationReport(true, 0, 0, "V50_COHORT_MIGRATION_IDEMPOTENT");
+-        }
+-        SQLiteDatabase db = store.writable();
+-        boolean owns = !db.inTransaction();
+-        if (owns) db.beginTransaction();
+-        try {
+-            ContentValues legacy = new ContentValues();
+-            legacy.put("cohort_id", "LEGACY_PRE_V50_UNSPECIFIED");
+-            int decisions =
+-                    db.update(
+-                            DbHelper.TABLE_DECISIONS,
+-                            legacy,
+-                            "cohort_id IS NULL OR cohort_id=''",
+-                            null);
+-            int trades =
+-                    db.update(
+-                            DbHelper.TABLE_TRADES,
+-                            legacy,
+-                            "cohort_id IS NULL OR cohort_id=''",
+-                            null);
+-            store.setState(
+-                    "v50_previous_build_identity_status",
+-                    store.getState(BuildIdentity.STATE_STATUS, ""));
+-            store.setState(
+-                    "v50_previous_active_cohort",
+-                    store.getState("active_quality_build_cohort", ""));
+-            store.setState("active_quality_build_version", V50BuildManifest.STRATEGY_VERSION);
+-            store.setState("active_quality_build_cohort", V50BuildManifest.COHORT_ID);
+-            store.setState("active_evidence_domain_schema", V50BuildManifest.SCHEMA_ID);
+-            store.setState("v50_calibration_scope", V50BuildManifest.fingerprint());
+-            store.setState("v50_legacy_policy", "LEGACY_READ_ONLY_OBSERVER_EXCLUDED_FROM_V50");
+-            store.setState("v50_build_cohort_migration", MODULE_VERSION);
+-            if (owns) db.setTransactionSuccessful();
+-            return new MigrationReport(true, decisions, trades, "V50_COHORT_MIGRATION_OK");
+-        } catch (Throwable error) {
+-            return new MigrationReport(
+-                    false, 0, 0, error.getClass().getSimpleName() + ':' + safe(error.getMessage()));
+-        } finally {
+-            if (owns) {
+-                try {
+-                    db.endTransaction();
+-                } catch (Throwable ignore) {
+-                }
+-            }
+-        }
++        return new MigrationReport(false, 0, 0,
++                "CP5_LEGACY_COHORT_MUTATOR_RETIRED_READ_ONLY");
+     }
+ 
+     private static String safe(String value) {

@@ -1,0 +1,4466 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STARCORE R926 完整闭环施工方案</title><style>body{font-family:system-ui,"Noto Sans CJK SC",sans-serif;background:#f3f5f8;color:#172334;margin:0;line-height:1.8}header{background:#183652;color:white;padding:24px}nav{display:flex;flex-wrap:wrap;gap:8px;padding:16px;background:white}nav a{padding:6px 10px;border:1px solid #dbe2ed;border-radius:5px;text-decoration:none;color:#174779}main{max-width:1150px;margin:18px auto;padding:0 14px}section{background:white;border:1px solid #dce3ec;border-radius:8px;padding:22px;margin-bottom:20px;overflow-x:auto}h1{font-size:1.7rem}h2{font-size:1.35rem;margin-top:30px;border-bottom:2px solid #d6e4ef}h3{font-size:1.1rem;color:#345570}table{border-collapse:collapse;width:100%;margin:14px 0;font-size:.92rem}th,td{border:1px solid #cfd9e3;padding:9px;vertical-align:top;min-width:90px}th{background:#e8f0f7;text-align:left}code{font-family:ui-monospace,monospace;overflow-wrap:anywhere}pre{background:#f0f3f7;padding:12px;overflow:auto;font-size:.8rem}pre.plain{white-space:pre-wrap}a{color:#1e5e95}li{margin:7px 0}@media(max-width:650px){section{padding:14px}table{min-width:650px}h1{font-size:1.4rem}}@media print{nav{display:none}body{background:white}section{break-before:page;border:0}pre{white-space:pre-wrap}table{font-size:8pt}}main{background:white;padding:25px;box-sizing:border-box}h1{padding-top:24px;border-top:3px solid #c6d9e8;scroll-margin-top:12px}.table-wrap{overflow-x:auto}</style></head><body><header><strong>STARCORE R925 → R926</strong><br>42 项施工任务 · 73 条原文件要求 · 43 条原验收 · 186 条新用例<br>2026-09-07｜施工设计包：方案结构通过检查，应用实施及设备/模型效果尚待执行</header><nav><a href="#chapter-0">STARCORE R925 → R926 全缺口闭环施工方案</a><a href="#chapter-1">现状、剩余工程与本轮新增发现</a><a href="#chapter-2">唯一主链与模块接口设计</a><a href="#chapter-3">数据库、首次启动和积压施工细则</a><a href="#chapter-4">后台、抓取、结算与设备测试设计</a><a href="#chapter-5">M1–M5：从原始赛前输入到最终选择概率</a><a href="#chapter-6">M6–M10：证书、家族、修复、原子与创造</a><a href="#chapter-7">UI、原功能保留与检测报告</a><a href="#chapter-8">一次总施工的顺序、依赖与封板规则</a><a href="#chapter-9">平台依据与技术取舍</a><a href="#chapter-10">42项逐项施工任务</a><a href="#chapter-11">原要求覆盖</a><a href="#chapter-12">DDL的边界与事务接线</a><a href="#chapter-13">原方案验收口径冲突的明确处理</a><a href="#chapter-14">设备验收操作表</a><a href="#chapter-15">本包脚本的实际作用</a><a href="#chapter-16">原逐文件施工要求逐条映射</a><a href="#chapter-17">工程实现和外部证据的准备顺序</a><a href="#chapter-18">186条验收用例明细</a></nav><main><h1 id="chapter-0">STARCORE R925 → R926 全缺口闭环施工方案</h1>
+<p>编制日期：2026-09-07。基线：已交付 V57.21.1-R5.4.1-925。拟定下一版：V57.21.2-R5.4.2-926，未施工、未发行。</p>
+<p>本包交付的是继续实施所需的详细工程设计、问题台账、数据/数据库合同、测试矩阵、源码定位和原方案追踪。方案正文、42张任务卡与验收门共同构成施工范围；不把方案文件存在当成功能已完成。</p>
+<h2>先回答还没完成什么</h2>
+<ol>
+<li>首次数据库迁移仍夹带研究大schema；大文件分层与关键吞错审计未完整做完，手机冷启动/5秒出号没有实测。</li>
+<li>后台恢复、逐阶段持久化事件、每期结算和学习幂等、FULL旧积压实际清空还缺完整实现或运行验证。</li>
+<li>NumberQ/Gate/Ranker/校准/Predictability/Policy没有当前游戏真实生产证明，模型包导入、跨阶段依赖及手机parity尚未闭环。</li>
+<li>证书底层仍是三套兼容结构，配对baseline需固定；raw score参与概率误差、融合后选择规则改变等语义必须修正。</li>
+<li>分域路由、不确定性、结构/行为/残差去重、顺序多重比较、8/24/64调度、Elite Repair和修复成功率仍未全实现。</li>
+<li>原子真实缺失/耗时/PIT/独立消融、自动隔离与最低构件定向创造尚未完整接入。</li>
+<li>四个独立能力页、趋势、为什么中/不中多状态框、风险/稳定性空白回归和大报告真机分享仍有工作。</li>
+<li>同签名覆盖后实际启动、息屏120期、划掉30期、24小时及真实未来晋级窗口均未在本次环境执行。</li>
+</ol>
+<h2>阅读顺序</h2>
+<p>先看 <code>完整施工方案.html</code>（手机浏览器可离线打开，可搜索），再看 <code>01_详细施工/01_现状与新增问题.md</code> 和 <code>02_施工台账/42项逐项施工任务.md</code>。开工时使用 <code>02_施工台账/tasks.json</code> 和 <code>03_合同与迁移设计</code>；验收按 <code>04_验收与执行</code>。原有两份施工方案完整保留在 <code>06_原方案</code>，所有原问题与原测试都有映射。</p>
+<h2>一次性交付的定义</h2>
+<p>这次以一个冻结基线、一个发行分支、同一套合同和一轮总发布完成全部计划范围。内部允许修复与回归，不能承诺“一次编写绝无缺陷”。工程实现、手机可用性、真实训练和未来效果都过各自门后，才允许称为全部目标验收。没有真实数据、手机和未来样本时，工程可以继续完成，设备与效果门仍必须保持未通过。</p>
+<p>任何方案都不能保证随机或近随机序列存在稳定高胜率信号，也不能承诺两次未中后第三次必中。这里给的是找出有效策略、拒绝无效策略、保留证据、逐期验证与受控接入的完整施工路径。</p>
+<hr>
+<h1 id="chapter-1">现状、剩余工程与本轮新增发现</h1>
+<h2>已经有证据的 R925 产物</h2>
+<p>已交付APK SHA256：<code>957f3e3dbe78bfa93788fbf2f7873ed3de03244a2cd08b89a230a67b4a8bffcf</code>，3,642,545字节。签名证书SHA256：<code>ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f</code>。包名 <code>com.ethk3.novaonepro</code>，versionCode <code>577250925</code>。559个Java文件、71个资源文件，13个纯主机harness执行；APK检查的65/65是指定运行类集合，不是DEX总类数。</p>
+<p>R925增加了schema指纹、首淘汰原因、机会分账、独立窗口、抓取/影子/时延报表、原子质量观察、真实冻结训练导出和研究模型训练/推理。最后已修正一期多个研究消费者连续改写及权重记录问题，这些不应再被写成“完全没做”。</p>
+<p>主机数值核对是14,400动作分数，最大绝对差1.735e-18；四类深度网络400个输出，最大差2.221e-16；Gate9号码面100项最大差3.042e-14。全部Android parity标NOT_RUN。100期模拟训练只验证合同和代码执行，不代表当前游戏收益。详细基线日志见05目录。</p>
+<h2>此次直接从代码定位的新增问题或风险</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>证据</th>
+<th>判断</th>
+<th>施工项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N01</td>
+<td>release_identity.properties schemaRevision=4；SchemaRevisionR925.REVISION=R925_SCHEMA_6</td>
+<td>可能分别代表旧/新修订，但报告未区分作用域；须统一命名并生成</td>
+<td>B01</td>
+</tr>
+<tr>
+<td>N02</td>
+<td>DatabaseCoordinator.ensureCriticalSchemaOrThrow仍有R820_RESEARCH_SCHEMA；matches对全sqlite_master做hash</td>
+<td>首次迁移与研究DDL还耦合，stamp不是全量lazy</td>
+<td>B03/B04</td>
+</tr>
+<tr>
+<td>N03</td>
+<td>PromotionWindowR925.evaluate/evaluateGenesis选择p.score；fromCursor用(score-hit)^2</td>
+<td>分数未绑定校准合同，误差门的概率语义不充分</td>
+<td>C03/D06</td>
+</tr>
+<tr>
+<td>N04</td>
+<td>PromotionWindowR925窗口JOIN运行oos标签，未包含固定champion_hash与window_end</td>
+<td>缺冻结比较对象和终点；持续重复查看需要额外统计治理</td>
+<td>C02/C06</td>
+</tr>
+<tr>
+<td>N05</td>
+<td>窗口查询从anchor至今全部拉入ArrayList</td>
+<td>长周期增长、查询/内存预算未封顶</td>
+<td>C02/B05</td>
+</tr>
+<tr>
+<td>N06</td>
+<td>DeepCandidateRuntimeR925声明FEATURE_CONTRACT；R811 codec仅type/trainedUntil/fields</td>
+<td>同维度不代表同语义，loader必须校验外部manifest；不认定目前会自动激活</td>
+<td>D02/D10</td>
+</tr>
+<tr>
+<td>N07</td>
+<td>deep_candidates.surfaces从META派生输入；主链META在NumberQ后构造</td>
+<td>新网络是派生研究合同，不能直接作为原NumberQ上游替换，需消除循环依赖设计</td>
+<td>D02</td>
+</tr>
+<tr>
+<td>N08</td>
+<td>训练封存registry位置为source.resolve().parent</td>
+<td>限制了同父目录，但搬源到其他父目录仍可另建registry，非全局试验账本</td>
+<td>D03</td>
+</tr>
+<tr>
+<td>N09</td>
+<td>Ranker一个线性模型族；Hard pair取32个高分正负动作</td>
+<td>不等于完整R0–R5比较，也未严格实现“只差一个号码”近邻策略</td>
+<td>D05</td>
+</tr>
+<tr>
+<td>N10</td>
+<td>capture record执行两条语句，冻结在其他方法事务；调用方未统一处理写失败</td>
+<td>需要统一事务及幂等状态机，当前主机测试不能覆盖所有崩溃切点</td>
+<td>C04</td>
+</tr>
+<tr>
+<td>N11</td>
+<td>Backlog用MAX(completed target)描述latest FULL</td>
+<td>最新已完成不等于连续完整水位，中间洞需要另报</td>
+<td>B10</td>
+</tr>
+<tr>
+<td>N12</td>
+<td>AtomQuality在旧冻结表GROUP BY找最近120期，只有循环内deadline</td>
+<td>入游标之前SQL可能已扫描大量历史；增量索引和可中断查询须实测</td>
+<td>C10</td>
+</tr>
+<tr>
+<td>N13</td>
+<td>MainActivity末部动态面板与共享详情Activity</td>
+<td>四独立页和设备视觉门仍未完成；布局ID一致只证明绑定的一部分</td>
+<td>U01/U02</td>
+</tr>
+<tr>
+<td>N14</td>
+<td>AppConfig存在多代SHADOW/MODEL/REAL开关</td>
+<td>实际生效必须按调用链与DecisionGate快照解释，不能读单一常量下结论</td>
+<td>B11</td>
+</tr>
+</tbody></table></div>
+<p>这些发现中，N01是身份语义歧义，N06/N07是未来接入风险，N10是崩溃一致性待实现/验证；均不能仅凭静态发现宣称已在用户手机复现故障。</p>
+<h2>不能恢复与不能替代的证据</h2>
+<p>升级前丢失的first_prune、请求事件与赛前输入不能事后伪造。缺失旧记录应永久标UNKNOWN/UNAVAILABLE，并让新版记录完整。无赛前快照的历史开奖可以研究历史特征，但不能作为当时真实Future-OOS冻结预测。手机启动与后台必须有设备证据；模型成功必须有真实封存与未来窗口。</p>
+<hr>
+<h1 id="chapter-2">唯一主链与模块接口设计</h1>
+<h2>不变身份</h2>
+<p>Binance1-PK10、一分钟游戏、单位置固定K3、每期最多一个REAL。包名、DB名和user_version=36延续。DecisionGateEngine决定最终BET，SettlementEngine负责结算，TargetIssueResolver负责期号，AnalysisSingleFlightR36负责预测单飞。OosAfterDrawWriterR36与DeferredEvidenceWriterR36继续分担结果证据写入；禁止新模块另起一个出手或结算Owner。</p>
+<h2>数据与调用顺序</h2>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 1040" role="img" aria-label="唯一主链，研究评审只影响未来期" style="max-width:580px;width:100%;display:block;margin:auto"><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#456884"/></marker></defs><rect x="180" y="12" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="47" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">来源校验与规范开奖</text><path d="M395 68 V92" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="95" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="130" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">唯一目标期与单飞请求</text><path d="M395 151 V175" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="178" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="213" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">冻结历史与模型版本</text><path d="M395 234 V258" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="261" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="296" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">特征和号码概率面</text><path d="M395 317 V341" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="344" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="379" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">完整1200动作排序</text><path d="M395 400 V424" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="427" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="462" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">唯一研究消费者</text><path d="M395 483 V507" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="510" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="545" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">匹配选择规则的校准</text><path d="M395 566 V590" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="593" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="628" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">唯一 DecisionGate</text><path d="M395 649 V673" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="676" width="430" height="56" rx="8" fill="#e8f0f7" stroke="#8da7ba"/><text x="395" y="711" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">原子冻结与事件</text><path d="M395 732 V756" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="759" width="430" height="56" rx="8" fill="#f1ecfa" stroke="#8da7ba"/><text x="395" y="794" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">唯一结算 Owner</text><path d="M395 815 V839" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="842" width="430" height="56" rx="8" fill="#f1ecfa" stroke="#8da7ba"/><text x="395" y="877" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">FULL 证据与过去期学习</text><path d="M395 898 V922" stroke="#456884" stroke-width="2" marker-end="url(#arrow)"/><rect x="180" y="925" width="430" height="56" rx="8" fill="#f1ecfa" stroke="#8da7ba"/><text x="395" y="960" text-anchor="middle" font-family="system-ui,sans-serif" font-size="20" fill="#173752">研究与证书评审</text><path d="M180 953 H70 V206 H175" fill="none" stroke="#856393" stroke-width="2" marker-end="url(#arrow)"/><text x="48" y="630" transform="rotate(-90 48 630)" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#704b83">只对下一期生效，不回写当前期</text></svg>
+<p>L→C只允许对下一期生效；该图不表示允许当前期结果回灌。正式动作宇宙一直为1200，研究代理缩减不能删除正式动作。无合格研究消费者时使用原基础排序。</p>
+<h2>计划新增接口（均为待实现，不冒充现有类）</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>模块</th>
+<th>接口与输入</th>
+<th>输出/副作用</th>
+<th>调用者与失败行为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RuntimeEventRepositoryR926</td>
+<td>appendWithinTransaction(db,event)</td>
+<td>追加事件+outbox；event_id幂等</td>
+<td>各现有Owner；提交失败业务事务一起回滚</td>
+</tr>
+<tr>
+<td>IssueProjectionRepositoryR926</td>
+<td>read(game,from,limit,watermark)</td>
+<td>不可变DTO，分页</td>
+<td>UI/报告；查询失败显示错误与旧数据时间</td>
+</tr>
+<tr>
+<td>ResearchSchemaCoordinatorR926</td>
+<td>ensureSlice(deadline,token)</td>
+<td>READY/PROGRESS/BLOCKED/FAILED</td>
+<td>服务空闲片；不抢critical写锁</td>
+</tr>
+<tr>
+<td>FeatureManifestR926</td>
+<td>validate(snapshot,contract)</td>
+<td>类型化错误集合</td>
+<td>训练导出/loader；失败隔离不用生产</td>
+</tr>
+<tr>
+<td>ModelBundleStoreR926</td>
+<td>stage(file); verify(id); activateNextIssue(id)</td>
+<td>完整bundle原子指针</td>
+<td>导入界面+现有orchestrator；无半激活</td>
+</tr>
+<tr>
+<td>CertificateServiceR926</td>
+<td>authorize(candidate,target,selectionHash,domain)</td>
+<td>Permit(level,maxWeight,reason,evidenceHash)</td>
+<td>三个消费者共用；缺证0权重</td>
+</tr>
+<tr>
+<td>CandidateScheduleR926</td>
+<td>plan(target,cohort,budget)</td>
+<td>冻结A/B/C清单与公平序号</td>
+<td>ResearchPredrawCapture；只跑清单</td>
+</tr>
+<tr>
+<td>FailureReplayR926</td>
+<td>replay(snapshot,moduleMask)</td>
+<td>独立诊断结果，不写BET/canonical</td>
+<td>开奖后worker；预算超限留游标</td>
+</tr>
+<tr>
+<td>AtomValueR926</td>
+<td>value,present,reason,maxSource,cost</td>
+<td>原子产出结构</td>
+<td>原子生产处；禁止隐式缺失转0</td>
+</tr>
+<tr>
+<td>CapabilityPresenterR926</td>
+<td>capture(snapshot)</td>
+<td>权限与业务两个状态</td>
+<td>MainActivity；不做DB写入和模型训练</td>
+</tr>
+</tbody></table></div>
+<h2>线程、锁和事务</h2>
+<p>UI线程只绑定DTO、绘图、导航。网络线程不持DB锁发HTTP。预测单飞线程拿本期ImmutableBundle和不可变历史；写入统一coordinator。研究worker一次只申请小写片，出现critical立即让步。不能在同一SQLite事务里执行长网络、训练、全文件hash或UI回调。</p>
+<p>业务事件和业务数据同事务；只有外部请求开始/响应这类无法与服务端一起事务化的事件使用独立id+outbox对账。任何“runWrite返回false”都不得标操作成功。超时的旧attempt无法覆盖新attempt或已提交canonical。保留旧接口薄委托是迁移步骤，全部调用切换和回归后删除重复主体。</p>
+<h2>研究融合合同</h2>
+<p>一期候选在赛前按已冻结的证书优先级与tie-break选出一个。先保留baseline rank；计算candidate rank；用预注册rank百分位融合保持量纲一致；使用同一selection_policy_hash对应的校准与policy。记录before/after ordinal、consumer、weight、rank delta、chosenChanged、cert hash与失败原因。即使没改变rank1，也要如实记录“参与但未改变选中”。</p>
+<p>5/12/20/30%是协议上限，现有创生8%等更小安全上限不会仅因新证书自动被移除。解除旧低上限必须作为选择策略变更，新校准+新独立窗口；否则effectiveWeight=min(协议上限,原消费者上限,域上限,资源上限)。</p>
+<hr>
+<h1 id="chapter-3">数据库、首次启动和积压施工细则</h1>
+<p>B03/B04/B05/B10共同实施，不能单独加一张stamp表便标完成。</p>
+<h2>Critical表依赖的取得方式</h2>
+<p>从StarcoreApplication→服务初始化→DbStore→runR36→canonical commit→CORE settlement逐调用追踪SQL，形成table/column/index/trigger四列白名单。包含所有首次读取的配置与状态表；由实际fixture在空库运行捕获缺表错误并补全。只有这份闭包可以阻塞首个实时周期。R35/R36/V51/B03中属于研究的表应拆出，不能仅按旧方法名整体划分。</p>
+<p>生成critical、research、legacy三个独立修订：每域对象DDL规范化hash、校验代码hash、最后成功步骤、迁移开始/完成时间。ready只能由对象逐项校验写入，不能因另一个域成功而设true。</p>
+<h2>首迁移流程</h2>
+<ol>
+<li>取得唯一迁移lease，先读取轻量DB身份，显示明确“升级中”。</li>
+<li>对现有库进行一致性备份并验证；备份耗时单列，不伪装计算耗时。</li>
+<li>small critical变更在短事务完成；主链所需索引必须存在。</li>
+<li>critical通过后开放主链，研究/旧UI读取各自就绪状态。</li>
+<li>research迁移以步骤游标推进，大量回填每批建议200行、写片目标≤100ms，超限缩小；每片后让出critical。</li>
+<li>最大等待目标5分钟内得到研究READY或明确错误。繁忙导致无法达成必须显式CAPACITY_BLOCKED，不能永远“稍后”。</li>
+<li>最终核对各域stamp和全部旧记录基线hash。</li>
+</ol>
+<p>批大小与时间是实施初值，要用真实大库测并记录。SQLite建索引本身可能是长操作；若建在大旧表上，需预迁移窗口或新辅助表增量维护，不能假装在SQL外检查deadline便能中断。</p>
+<h2>设计DDL范围</h2>
+<p><code>03_合同与迁移设计/schema_r926_design.sql</code>给出新增核心表、主键、索引、检查约束与不可变触发器，能在host SQLite重复执行。它是初始设计DDL；手机接入仍要实现coordinator、事务、迁移游标和兼容测试，不允许直接在用户库手工运行。针对最低API21的SQLite，不使用UPSERT新语法、窗口函数、JSON1、STRICT、RETURNING等高版本依赖。</p>
+<h2>大库性能试验</h2>
+<p>数据库夹具分别包含1千、10万、100万冻结/事件行及2216个积压任务；记录EXPLAIN QUERY PLAN、P50/P95、读写竞争和GC。百万行是容量试验设计，不是当前用户真实数据规模。最近20/500与单候选窗口必须命中复合索引并有limit/window_end。原子窗口用独立issue_context单行表与时间索引，不扫描每个资产的重复blob。</p>
+<p>CORE/FULL分开：CORE预测/结算承担及时性；FULL仍必须完成全1200，不能删任务达成性能。连续FULL水位要按实际draw序列而非数字期号相减；跳过日期/游戏边界需TargetIssueResolver。旧pending若缺snapshot，隔离并保留数量，关闭工单前必须恢复证据或明确无法重建，不能用“队列已空”隐藏丢失。</p>
+<h2>备份与回退</h2>
+<p>SQLite WAL数据库存在未归并日志时，仅复制主.db可能不完整。备份设计必须保持同一一致快照；应用无法调用native backup时，受控停止写入、checkpoint成功、关闭连接、复制验证后再恢复工作。不能用长时全局锁覆盖正常一分钟链路。<a href="https://www.sqlite.org/wal.html">SQLite WAL官方说明</a></p>
+<p>库结构回退采用保留新增表、旧查询兼容；模型指针回退不改历史。普通Android安装通常会拒绝更低versionCode，故旧APK是历史资产，真正代码回退需同签名更高versionCode的恢复构建，且先验证新增schema兼容。不要用卸载丢数据作为默认恢复步骤。</p>
+<hr>
+<h1 id="chapter-4">后台、抓取、结算与设备测试设计</h1>
+<h2>当前平台事实</h2>
+<p>源码与构建清单为compileSdk36/minSdk21/targetSdk28，AutoFetchService声明dataSync和stopWithTask=false。Android版本条件必须同时注明OS与target：针对target35及以上的dataSync每24小时6小时总额度和BOOT_COMPLETED限制，不能直接套在当前target28上解释其现有问题；未来升target时必须重新评审。<a href="https://developer.android.com/develop/background-work/services/fgs/timeout">Android FGS超时</a>、<a href="https://developer.android.com/develop/background-work/services/fgs/service-types">FGS类型</a></p>
+<p>周期WorkManager最短15分钟且执行时机受约束，不能作为一分钟准确出号机制。此次保留原服务与唯一恢复入口，不为凑常驻另加一条定时出手链。<a href="https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work">官方周期工作说明</a></p>
+<p>Doze会限制后台网络、唤醒锁和普通闹钟，因此需要按实际豁免状态和机型验证；一个绿灯或一个活着的进程不足以证明业务持续。<a href="https://developer.android.com/training/monitoring-device-state/doze-standby">Doze官方说明</a></p>
+<h2>五种退出要分开</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>预期</th>
+<th>验收依据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>返回桌面</td>
+<td>用户仍启用服务，持续一期业务</td>
+<td>事件与最新期心跳</td>
+</tr>
+<tr>
+<td>划掉最近任务</td>
+<td>在允许设备状态下恢复/持续服务，未授权不能假装成功</td>
+<td>onTaskRemoved及后续真实流水</td>
+</tr>
+<tr>
+<td>系统回收进程</td>
+<td>可用系统触发到来后原入口幂等恢复</td>
+<td>新process epoch+recovery_event</td>
+</tr>
+<tr>
+<td>应用内停止</td>
+<td>停止业务，不被watchdog强行拉回</td>
+<td>user_enabled=false，随后无新预测</td>
+</tr>
+<tr>
+<td>系统设置强制停止</td>
+<td>尊重停止状态，用户重新启动后恢复</td>
+<td>强停期间显示无法执行；重开后补历史而非补旧BET</td>
+</tr>
+</tbody></table></div>
+<p>Android15强化stopped状态并取消PendingIntent；移出该状态需要用户相关动作。强停不是可以承诺“永远自动复活”的正常后台场景。<a href="https://developer.android.com/about/versions/15/behavior-changes-all">Android15所有应用行为变化</a></p>
+<h2>完整逐期状态机</h2>
+<p>每个已规范化的实际开奖触发：目标解析→请求接受/拒绝→排队→计算→赛前冻结→等待开奖→CORE结算→影子标签→FULL→研究结算/学习→下一期。每个阶段记录开始、结束、错误、attempt、owner、版本及event_id。未开奖不要求结算；没有赛前冻结不可制造历史预测；开奖后不可补BET。</p>
+<p>应用恢复不以“heartbeat健康”直接跳过检查，而应校验抓取循环、目标解析、singleflight租约、结算游标与outbox；每项重整只能走已有owner。网络中断期间允许真实错误事件，恢复后补合法历史标签，错过预测记MISS_SYSTEM，不能回填为100%实时覆盖。</p>
+<h2>设备与资源测试</h2>
+<p>主目标用户Android14手机（具体机型以设备读取为准）；辅助API21兼容环境及API35/36设备/模拟器做系统分支。实体设备是息屏/厂商调度的最终证据，模拟器不能替代厂商后台验收。</p>
+<p>冷启动10次与稳定期分开。亮屏120期、息屏120期、划掉30期为最低连续场景；24h需真实运行24h，不用压缩时间回放替代。网络故障矩阵另计，不能把正常运行目标套到物理无网期间，也不能删这些故障的总统计。记录电量/温度/CPU/堆/GC、ANR/崩溃、request-to-durable与draw-to-settle。长耗时失败也显示。</p>
+<p>24h验收既包含实时0重复、规定正常网络区间0掉期，也包括学习游标/FULL连续水位与新样本增长。只出现通知、只抓到最新开奖、只更新一个timer均不算业务验收成功。</p>
+<hr>
+<h1 id="chapter-5">M1–M5：从原始赛前输入到最终选择概率</h1>
+<h2>不能跳过的上游重建</h2>
+<p>R925冻结META96允许精确回放当时的1200动作排序，但META96来自已有NumberQ和专家。若用它训练一个网络，再把该网络当同一轮NumberQ上游，会形成语义循环。R926生产路线固定为：原始过去窗口/状态特征→冻结基础专家logits→NumberQ/Gate→完整1200 META→Ranker→最终研究选择→SelectedHitP→Policy。R925派生网络可保留作独立二阶段研究，不直接替换原R811输入96。</p>
+<h2>字段合同</h2>
+<p>原始训练snapshot至少包含：game、target、base、created/frozen/received/draw时点、schema和feature hash、max_source_issue、data source hash、模型版本、10×10专家面、原始特征及mask、D2过去慢状态、1200动作及ordinal、原子语义清单和消费者、最终选择策略hash、原选动作。label独立按target join，只在结果数据层出现。所有数值定义单位和缺失原因，禁止用未来信息补缺。</p>
+<p>旧快照没有这些上游字段时分为LEGACY_META_REPLAY，仍可做固定旧ranker研究；不能把缺字段填0升为新生产合同。每个导出分片固定水位，落盘后hash再打包。手机当前库未提供，首先要用新版导出按钮收集。</p>
+<h2>数据数量与日历预算</h2>
+<p>建议首轮规划10,000个完整真实issue作为训练工程预算，50%TRAIN/15%TUNE/13%CAL/10%POLICY/12%SEALED，即5000/1500/1300/1000/1200期。它不是达到胜率的保证，也不是统计充分性的通用定理。有效域CAL不足120、特征稀疏或指标区间过宽时继续采集，不人为合并到达标。</p>
+<p>一分钟且每期有效时10,000期理论下限约6.94天；现有合格旧快照可减少等待。缺失、停机和状态不齐会延长。当前100期模拟数据仅工程合同测试，不达本轮生产计划。后续证书Future必须在模型冻结后新增，不能拿TRAIN或SEALED重新算Future。</p>
+<h2>阶段产物与依赖</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>输入</th>
+<th>产物</th>
+<th>失败处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DATA</td>
+<td>真实冻结分片+schema</td>
+<td>dataset manifest、坏行隔离、缺口表、分段hash</td>
+<td>禁止进入训练</td>
+</tr>
+<tr>
+<td>NUMBER</td>
+<td>更早raw+专家+label</td>
+<td>D0/D1/D2/D3候选、选择日志、OOF Q</td>
+<td>保留旧baseline</td>
+</tr>
+<tr>
+<td>GATE</td>
+<td>更早冻结expert OOF</td>
+<td>Gate9、权重/专家健康合同</td>
+<td>退回已验证静态融合</td>
+</tr>
+<tr>
+<td>RANK</td>
+<td>严格OOF Q生成的1200 META</td>
+<td>R0–R5比较、选定artifact、OOF selected</td>
+<td>未胜baseline不晋级</td>
+</tr>
+<tr>
+<td>CAL</td>
+<td>更后固定最终selection输出</td>
+<td>C0/C1/C2/C3比较、校准支持、reliability bins</td>
+<td>SelectedHitP=N/A</td>
+</tr>
+<tr>
+<td>POLICY</td>
+<td>更后校准输出与label</td>
+<td>冻结阈值、coverage-risk frontier、predictability</td>
+<td>不强行出手</td>
+</tr>
+<tr>
+<td>SEALED</td>
+<td>最后未读取目标窗口</td>
+<td>独立完整流水与单次评价证书</td>
+<td>失败保留，不反复调参</td>
+</tr>
+<tr>
+<td>FUTURE</td>
+<td>冻结bundle之后新增期</td>
+<td>同版本未来证书与逐期贡献</td>
+<td>独立窗口不通过则撤回</td>
+</tr>
+</tbody></table></div>
+<p>每阶段manifest包含源码commit、输入hash、超参/seed、有效期数、训练截止、依赖artifact、schema、选择规则与输出hash。并行执行多个独立试验可以在同一阶段内部进行，但全部候选都登记；不能只留下最好的那一个。</p>
+<h2>模型实现具体规则</h2>
+<p>NumberQ：保留9专家与原矩阵；D0小MLP、D1残差、D2快慢、D3蒸馏在同折比较。D2慢状态只在上一期后更新，复位/重启语义训练与手机一致。Gate输入只含过去状态和专家健康，9权重softmax；专家缺失按冻结mask规则处理。Sinkhorn使用相同迭代上限/温度/误差与稳定运算。</p>
+<p>Ranker：所有1200动作不删除；标签每issue360正例。hard negatives取同位置K3仅换一个号码的负例、rawP高但miss负例，采样seed冻结。R0 raw基线，R1 pairwise线性，R2 listwise线性，R3顶部加权，R4树可研究比较且需可部署证明，R5小MLP。R4若不可部署，出具资源/兼容拒绝结果，不把“未做”伪装已实现。性能预算不允许1200×1200全矩阵爆炸。</p>
+<p>Calibration：C0 logistic/beta、C1 isotonic、C2域条件、C3向全局收缩。同一selection_policy_hash才能消费其校准。融合消费者或weight改变导致动作分布变化时，需匹配其独立校准；未匹配保持0新贡献或无证明，不能盲用旧校准。分箱边界在CAL冻结后，未来报告不按标签重新分箱挑结果。</p>
+<p>Uncertainty：报告分箱支持、历史Wilson、域支持、专家分歧、扰动稳定性和nonconformity；明确每项解释与采样单位。分箱频率区间不是单期命中概率的保证。无支持显示N/A和证据缺口。</p>
+<p>Regime：市场序列状态与设备运行状态完全分开，后者只影响可运行性，不能当号码优势。生产域证书与schema/边界/有效期绑定。离开域立即0贡献，低样本域不永久prune。领域选择也属于试验，需要纳入多重比较。</p>
+<h2>训练执行命令合同</h2>
+<p>本包 <code>03_合同与迁移设计/command_contract.json</code>列出待实现的R926 CLI参数/产物，不声称脚本已经存在。已有R925命令只用作基线验证。必须先完成新训练接口与tests，再运行真实数据；禁止把旧命令成功当整个新体系已完成。</p>
+<hr>
+<h1 id="chapter-6">M6–M10：证书、家族、修复、原子与创造</h1>
+<h2>证书梯子和有效权重</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>证据</th>
+<th>允许作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>L0 IDEA</td>
+<td>设计、中文名、结构hash</td>
+<td>不可运行生产</td>
+</tr>
+<tr>
+<td>L1 NURSERY</td>
+<td>类型/PIT/VM成本/确定性测试</td>
+<td>TierC代理研究</td>
+</tr>
+<tr>
+<td>L2 OBSERVING</td>
+<td>真实赛前完整冻结与精确结算</td>
+<td>积累独立Future</td>
+</tr>
+<tr>
+<td>L3 EVIDENCE_READY</td>
+<td>Future≥120、合同有效</td>
+<td>有资格比较，不代表高胜率</td>
+</tr>
+<tr>
+<td>L4 CHALLENGER</td>
+<td>Future≥240、HR≥.36、Wilson≥.30、Brier≤.24、ECE≤.12、paired≥120、Δ≥.02等原政策门</td>
+<td>注册固定champion的新窗口</td>
+</tr>
+<tr>
+<td>L5 SHADOW_CERTIFIED</td>
+<td>注册后新120有效配对期，校准/域/资源无退化，配对下界≥0</td>
+<td>独立影子模拟重排，实际主排序仍0</td>
+</tr>
+<tr>
+<td>L6 INFLUENCE_5</td>
+<td>L5后再新240，预注册superiority或非劣+风险改善</td>
+<td>最多5%主排序影响，仍经唯一Gate</td>
+</tr>
+<tr>
+<td>INFLUENCE_12</td>
+<td>再新240，总新窗口≥600</td>
+<td>最多12%，受旧低上限约束</td>
+</tr>
+<tr>
+<td>INFLUENCE_20</td>
+<td>再新240，总新窗口≥840</td>
+<td>最多20%，受旧低上限约束</td>
+</tr>
+<tr>
+<td>INFLUENCE_30</td>
+<td>再新360，总新窗口≥1200</td>
+<td>最多30%，受旧低上限约束</td>
+</tr>
+<tr>
+<td>L7 CHAMPION</td>
+<td>完整bundle替换另过激活与整体Future门</td>
+<td>下一期生效，不直接授权REAL</td>
+</tr>
+</tbody></table></div>
+<p>240/120/240不是三次读取同一批数据。每一段有固定start/end与input/candidate/champion/calibration/selection hash。表中样本数是最低设计门，合格有效样本不足必须等待。初始L4证据不计入后续1200。按一分钟且每期入样，新360至少6小时，后续1200至少20小时；候选没被每期选择会更久。</p>
+<h2>基线与选择偏差</h2>
+<p>候选对固定champion做同时期影子比较；生产总主链可以随部署变化，但不能把混合多版本标签称同一基线。候选在未来窗口开始前冻结，期间代码、权重、原子、域、校准有变化就终止该窗口，新结构重新注册。共同有效配对期一一对应；漏样本原因也报告，防选择性只保留有利期。</p>
+<p>L4保留原门的block/regime/maxMiss与覆盖审核，统一名称和作用域，不为凑一个挑战者简单放宽。L6默认使用“配对HR下界≥0、Brier不劣且至少一种预注册风险指标改善”；若用允许小幅HR非劣容差，应作为新协议在看数据前固定，不能现场改变。本包初版容差设0。</p>
+<h2>概率真值</h2>
+<p>raw score仅排序，概率证书需要candidate_calibration_hash和对应selection。缺校准可以继续研究命中标签与排名，但Brier/ECE状态必须UNCALIBRATED，不可用clamp01替代。历史score可离线重新校准做分析，不能伪造它在当时赛前已存在。</p>
+<h2>家族与检验协议</h2>
+<p>统计family在注册时冻结；调度cluster可以基于已结过去残差调整，但不影响历史hypothesis分母。完全重复保留alias与证据，停止计算不删除登记。族内一位champion、至多3个challenger；互补领域保留。</p>
+<p>默认协议为有明确名称的保守FWER控制：总alpha=.05，批次r的alpha=.05/[r(r+1)]，批次预注册F个family与各m_f个候选，单候选预算alpha_r/(F*m_f)。各检验只在固定窗口终点一次；统计输入p的有效性依赖独立性/相关结构等假设，分块bootstrap近似需如实声明，不能仅凭预算式宣称任意依赖下有效。R925正态近似fdrQ不直接冒充精确p。若最终选择层级FDR算法，另写版本与模拟验证报告；在其完成前保持保守命名和门。</p>
+<p>固定窗口中途只能按预注册安全规则撤权，不能不断检测“刚好赢了”晋级。所有模型超参、领域划分、精英修复子代都登记。未结算的候选不算失败，归档不能减少历史试验数。</p>
+<h2>精英修复</h2>
+<p>父代N≥120且预定义高潜条件满足至少两项时入池；HR、Wilson、校准、配对、域支持都同时显示。挑一个明确失败机制：边界号码错误→hard-negative repair；校准假高→calibration repair；域失效→router repair；重复/冲突原子→substitution；记忆窗口失配→memory repair。child结构hash和N重新起步；父证据只能用作设计先验。</p>
+<p>修复链：FailureCase→冻结聚类版本→RepairIntent→最小结构变更→类型/PIT/VM资源检查→新注册→未来paired→matured/passed/revoked。成功率=成熟且通过的新修复/全部成熟修复，并同时列pending、运行拒绝、质量失败，不把未完成从attempted总数中隐藏。</p>
+<h2>模块消融和原子质量</h2>
+<p>对固定快照真正重执行：baseline、去FTRL、去TinyDeep、去Teacher、去Trend、去Shape、去Relation、去Invented，输出选择变化/Hit/Brier和时延。label仅在诊断末尾比较，快照不变。软件开关干预能证明“该模块改变了计算结果”，不自动证明市场因果。</p>
+<p>原子产出时记录mask、来源最大期、独立耗时与确定性hash，不能用值==0推missing，也不能把一组耗时平均给每项。每期一个原子上下文供多资产复用；240项原语义层登记保留。质量图分相关、共选、冲突、互补、消融五类边；不同证据不可混称因果。</p>
+<p>自动隔离不删除固定旧矩阵：新研究消费者按ACTIVE/WATCH/SHADOW_ONLY/QUARANTINED路由。变更原子集合意味着新schema和新证书，不能保持旧证书继续生产。没有充分支持时观察，不靠相关低或一次miss判原子无价值。</p>
+<h2>真正的底层创造</h2>
+<p>允许原子组合构建表达式、状态更新程序、方法图和算法Genome。类型系统规定数值/类别/布尔/窗口/状态输入以及合法算子；有界VM限制循环、内存、指令数和输出finite。创新分三类：参数变体、结构变更、新操作拓扑家族。中文名和结构解释与执行文本一起生成。优先解决具体失败、寻找残差互补，最后才考虑增加复杂度。</p>
+<p>缺少有效信息时正确结果可以是“新候选未通过”。不能写“至少生成一个高胜率算法”作为无需数据即可保证的工程通过条件。</p>
+<hr>
+<h1 id="chapter-7">UI、原功能保留与检测报告</h1>
+<h2>首页布局合同</h2>
+<p>顶端固定横向版本摘要（可横向滚动但不多行占屏）；第二行权限灯与业务灯独立；当前期号码/模式/风险/稳定性保持主位；Shadow独立摘要；最近20期流水紧凑可展开；四大能力各一张短卡与“详情”。不能把几十行后台文字放顶端挤没出号。</p>
+<p>每个值都有明确空态：等待第一期、等待开奖、样本不足、查询失败、旧数据、合同不兼容、未授权、模型未证明。无值不能补0或“良好”。数据过期显示上次成功时间。异步加载必须绑定screen generation，界面退出后不再写View。</p>
+<h2>四独立页的最小完整内容</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>页面</th>
+<th>首屏问题</th>
+<th>证据与交互</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>深度学习</td>
+<td>当前用了哪个模型？更新有效吗？</td>
+<td>训练窗口/截止、模型图、专家权重、OOS/未来ΔHR/Brier/ECE、设备耗时、证明状态；按模型/期号筛选</td>
+</tr>
+<tr>
+<td>动态进化</td>
+<td>刚改了什么？是否修好了？</td>
+<td>父子谱系、修复目标/差异、N=0重启、成熟成功率、暂停/淘汰首次原因和后续转移</td>
+</tr>
+<tr>
+<td>创造能力</td>
+<td>到底创造出什么可执行策略？</td>
+<td>中文名、原子依赖、genome/公式源码、创新等级、完整1200运行与机会覆盖、证书漏斗和实际权重</td>
+</tr>
+<tr>
+<td>原子因子</td>
+<td>哪些构件有用、缺失、重复或有害？</td>
+<td>240项语义层、mask/PIT/时延/支持/漂移/消融、消费者、质量图、隔离原因和恢复门</td>
+</tr>
+</tbody></table></div>
+<p>趋势数据只画已有独立样本。连续时间没样本要断线，不用插值伪造业务连续性；历史按版本着色或分段。表格可查看明细，图只辅助。</p>
+<h2>为什么中/不中</h2>
+<p>预判部分：号码面、第三/第四边界、动作稳定、号码风险、趋势形态、位置/号码关联、teacher支持/分歧、校准与不确定性、研究消费者。结果部分：实际号码、命中位置、最近获胜动作、真实重执行消融、何处高估、归因支持。展示紧凑多状态框；教师详细文本继续保留在展开区。原始概率和校准概率分名，缺证明不能暗示校准成功。</p>
+<p>原有矩阵与形态功能做“入口→数据→渲染→明细→回到主页”逐条用例，每条保留截图和原资产hash。不能为简化四卡删除原有内容。变更 UI 文件时同时检查phone和sw600dp，并对新增4 Activity进行Manifest、DEX、按钮导航和生命周期测试。</p>
+<h2>一键完整报告结构</h2>
+<p>0 总判定分工程/主机/APK/设备/数据/未来；1身份与不可变红线；2运行/权限/恢复；3逐期事件及缺口；4时延/内存；5规范来源和抓取；6canonical/影子/REAL独立账；7CORE/FULL/连续水位与隔离欠账；8全部生产artifact与依赖hash；9深度学习；10进化/修复；11创造/家族/多重比较；12原子/因果与语义；13证书梯子/域/权重/贡献；14 UI按钮/布局；15Manifest/资源；16逐文件源码/资产；17错误/异常与自检；18升级/回退；19完整明细索引与hash。</p>
+<p>各章独立状态，不是全部凑成一个超大String。报告元数据含snapshot_id、as_of、水位、release/process/cadence epoch、source_commit、APK hash、schema hash。每个数字注明分母和时间窗。旧数据明确旧版本；抓取业务错误保留原error_code，不将HTTP200标作成功。</p>
+<p>分享TXT主报告、JSON可机读报告和分片CSV/JSONL，全部同一manifest。CSV正确转义换行/逗号/引号，避免手写拼接；下载后自动解析重读核对。文件Provider只允许受控报告目录规范路径，MIME和grant权限实际用另一应用打开验证。</p>
+<hr>
+<h1 id="chapter-8">一次总施工的顺序、依赖与封板规则</h1>
+<h2>阶段与退出门</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>工单范围</th>
+<th>退出条件</th>
+<th>失败返回</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>S0 基线和合同</td>
+<td>B01/B02，定义B06/C01/D01接口</td>
+<td>源hash/Owner/任务覆盖无空项</td>
+<td>补齐职责与合同</td>
+</tr>
+<tr>
+<td>S1 可恢复基础设施</td>
+<td>B03/B04/B06/B07/B08/B09/B10/B11/B05</td>
+<td>schema/事件/结算/抓取/队列故障回归通过</td>
+<td>对应Owner修复</td>
+</tr>
+<tr>
+<td>S2 数据与模型离线</td>
+<td>D01–D08、D10设计和C01/C03/C06接口</td>
+<td>数据PIT、全1200、阶段依赖、校准和封存测试通过</td>
+<td>污染数据隔离，新试验登记</td>
+</tr>
+<tr>
+<td>S3 研究闭环</td>
+<td>C01–C12、D09/D10集成</td>
+<td>三类消费者、精英、原子、领域与权重统一</td>
+<td>不改变原已冻结主链</td>
+</tr>
+<tr>
+<td>S4 界面和报告</td>
+<td>U01–U04</td>
+<td>所有原入口与四新页、报告明细一致</td>
+<td>修复DTO/绑定/查询</td>
+</tr>
+<tr>
+<td>S5 全主机与APK</td>
+<td>D11主机部分/Q01</td>
+<td>所有必需负例、SQL、资源与真实DEX通过</td>
+<td>只重跑受影响依赖闭包</td>
+</tr>
+<tr>
+<td>S6 设备与真实训练</td>
+<td>D11设备/Q02/Q03</td>
+<td>覆盖/性能/24h、真实sealed、未来证书证据</td>
+<td>修复后需要新的相关窗口</td>
+</tr>
+<tr>
+<td>S7 总发行</td>
+<td>Q04</td>
+<td>所有目标门通过、可重建总包完整</td>
+<td>发行阻断，不伪装完成</td>
+</tr>
+</tbody></table></div>
+<p>阶段内以tasks.json精确依赖为准。D06与C01需先冻结联合选择/证书合同再各自编码，不让两组旧接口继续分叉。S2可先用合成数据实现训练与负例，但生产训练要等实际数据；Q01的主机gate完成后才开始全设备验收。一次总交付不等于跳过中间自检。</p>
+<h2>每个文件的施工记录</h2>
+<p>必须记录path、关联任务、原问题、处置（保留/抽取/重写/新增/删除重复主体）、方法锚点、before/after SHA256、行数、字符数、增删行/字符、影响调用者、DB合同、线程/Owner、验证命令与输出。不能事先编造修改行数；本计划只记录当前基线并留待真实施工填写。短文件不自动等于空壳，接口/常量/受控delegate可以短，必须以可执行职责判断。</p>
+<h2>完成门</h2>
+<p>工程完成：42项中所有可实现代码和合同已实现，全部要求的静态/host/APK门PASS，无ENGINEERING类NOT_STARTED/PARTIAL/FAIL。设备项不因host通过而PASS。模型证明：真实dataset+训练各阶段+sealed+三端parity+未来窗口及资源证据齐全；PROVEN由验证器产出，不是开发者手改布尔值。目标效果：冻结策略满足预先规定HR/覆盖/校准/风险目标，否则保持FAIL_EFFECT。</p>
+<p>三层的PASS必须各自出具，不允许把“工程已完成，效果未证明”写成“所有问题彻底解决”。若数据无优势，完整系统应明确拒绝晋级；这是正确行为，但用户期待的高胜率目标仍未达成。</p>
+<h2>依赖与耗时不能隐瞒</h2>
+<p>环境已经有Java17/D8、SDK36和原签名材料，能继续源码与host构建。当前缺真实应用DB及新版冻结输入、可连接Android设备、未来时间窗。执行者应首先完成不依赖外部条件的代码、测试和导出入口；尽早安排数据与设备，避免全部写完才发现没数据。120/240窗口按有效样本计，不把1200动作当1200期，不模拟生成未来开奖证明。</p>
+<h2>失败归属与回归范围</h2>
+<p>安装不启动→版本/Manifest/资源/应用初始化；只通知不业务→服务阶段/恢复租约；结算少→来源→冻结→CORE→标签链；有证据无贡献→证书/域/校准/权重/消费者；数字空白→产出/存储/DTO/绑定；积压涨→吞吐和游标；训练好上线差→输入合同/三端parity/选择校准/漂移。每个失败映射到一个主Owner，可有多个依赖任务，但不得随意改无关模型阈值。</p>
+<hr>
+<h1 id="chapter-9">平台依据与技术取舍</h1>
+<p>检索核对日期：2026-09-07；仅使用Android与SQLite官方资料。下列规则用于约束后台/迁移方案，不能据此推断用户手机某次故障的具体原因。</p>
+<ul>
+<li>target Android12+的后台启动FGS存在条件限制，当前项目target28应按真实OS/target分别判断。<a href="https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start">Android后台启动限制</a></li>
+<li>target35+ dataSync累计时限、超时回调及开机广播启动限制，需要未来升target专项改造，不能用改服务类型冒充无限常驻。<a href="https://developer.android.com/develop/background-work/services/fgs/timeout">FGS超时</a>、<a href="https://developer.android.com/develop/background-work/services/fgs/service-types">FGS类型</a></li>
+<li>Doze限制网络与任务机会，特权/豁免与厂商行为应以设备测试为准。<a href="https://developer.android.com/training/monitoring-device-state/doze-standby">Doze/App Standby</a></li>
+<li>周期WorkManager至少15分钟，不能承诺一分钟精准调度。<a href="https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work">Work requests</a></li>
+<li>Android15的停止状态清理PendingIntent，系统强停需要用户相关动作恢复。<a href="https://developer.android.com/about/versions/15/behavior-changes-all">所有应用行为变化</a></li>
+<li>WAL与checkpoint决定备份一致性；不能把运行中复制主.db当完整数据库备份。<a href="https://www.sqlite.org/wal.html">SQLite WAL</a>、<a href="https://sqlite.org/c3ref/wal_checkpoint_v2.html">Checkpoint API语义</a></li>
+</ul>
+<p>代码/模型方案是基于当前源码的工程设计。总体阈值是原方案目标与本方案明确预注册初值，尚未用真实数据证明一定可达。分块统计的依赖假设必须纳入统计协议，不引用公式名称伪装无条件保证。</p>
+<hr>
+<h1 id="chapter-10">42项逐项施工任务</h1>
+<p>以下均是R925之后的剩余工作，status=NOT_STARTED指本计划施工状态，不否认R925已有基础实现。新增类在架构章明确标待实现。</p>
+<h2>B01 冻结基线、统一版本与 schema 身份</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-12 / P2-02；前置：无。</p>
+<h3>当前缺口</h3>
+<p>release_identity 的 schemaRevision=4 与 R925_SCHEMA_6 同时出现，读者无法知道其作用域；现有静态通过不能代表运行通过。</p>
+<h3>具体文件与入口</h3>
+<p>REVISION；APP_IDENTITY_AND_BUILD；版本生成入口</p>
+<ul>
+<li><p><code>release/release_identity.properties</code>：EXISTING，当前10行，SHA256 <code>c66decd88b70880d70d21fad11fd756ffd00ae95f4de0480c1552dc765a32e2e</code>。</p>
+</li>
+<li><p><code>scripts/r925_source_audit.py</code>：EXISTING，当前52行，SHA256 <code>dc78d953c38658bbfe6b11203be82ab649e7dadc593388a37ad0d84c853b086a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java</code>：EXISTING，当前46行，SHA256 <code>20a0c9c23827118f7776798c5366e052239d959ab1382053e2215f33d57f78e8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AppConfig.java</code>：EXISTING，当前6216行，SHA256 <code>0eb6be3cca74192260d00df5ad2f538820c73207bf5d01423b115aaaf1f2a10d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java</code>：EXISTING，当前359行，SHA256 <code>47c4aef812005666ddb298bfd0d71a723f2a6792aca4e00a80f4af384d4c26d5</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>生成唯一 release_manifest.json，分别声明 user_version=36、legacyR906Revision=4、r925Revision=R925_SCHEMA_6 和拟新增分域修订号</p>
+</li>
+<li><p>从清单生成 Java/报告/构建版本，禁止手工多处改号</p>
+</li>
+<li><p>固定 R925 APK/源码/Git hash、559 Java、71资源基线</p>
+</li>
+<li><p>拟用 V57.21.2-R5.4.2-926 与 577250926，构建时再验证大于实际安装版，未经发行不写已发布</p>
+</li>
+<li><p>BuildIdentity逐字段列期望值/实际值/来源/硬软错误码，不能只显示BUILD_IDENTITY_HARD_BLOCK总状态</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>同一构建所有身份一致，故意改任意一处必失败</p>
+</li>
+<li><p>原基线字节不变，新版本号不与已有发行冲突</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B02 全文件职责审计与大文件拆分</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P2-02 / P1-12；前置：B01。</p>
+<h3>当前缺口</h3>
+<p>原巨型文件与历史多代入口仍在；559 文件索引只是静态清单，并非逐条执行证明。</p>
+<h3>具体文件与入口</h3>
+<p>初始化、查询、回调、所有 catch、公共 API</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code>：EXISTING，当前17481行，SHA256 <code>0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbStore.java</code>：EXISTING，当前23272行，SHA256 <code>6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbHelper.java</code>：EXISTING，当前8573行，SHA256 <code>53c4f42f153e7ba42effdac914c9c2c4f73604c8630cda48051b8404c1e403e8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code>：EXISTING，当前3313行，SHA256 <code>bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0</code>。</p>
+</li>
+<li><p><code>scripts/r925_source_audit.py</code>：EXISTING，当前52行，SHA256 <code>dc78d953c38658bbfe6b11203be82ab649e7dadc593388a37ad0d84c853b086a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java</code>：EXISTING，当前429行，SHA256 <code>71a1bb282c31c8a798bf2ce02920c10931c3f018da0860a54cdef97aa719e08e</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>逐文件建立 callers/callees、DB读写、线程、Owner、异常码、是否可达和处置</p>
+</li>
+<li><p>先抽取 UI Presenter、抓取/恢复阶段、只读查询 Repository、Schema 分域</p>
+</li>
+<li><p>保留原入口薄委托后删除重复主体，避免新旧两套逻辑运行</p>
+</li>
+<li><p>关键 catch 分类为可忽略/重试/降级/终止并写错误码，标明依据，禁止机械删短文件</p>
+</li>
+<li><p>旧矩阵和形态资产保留哈希与访问路径，默认不改计算意义</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>559个原Java和全部新增文件都有有依据的处置</p>
+</li>
+<li><p>关键链没有无诊断吞错，抽取前后固定输入输出一致</p>
+</li>
+<li><p>复杂度/调用图改善可量化，不以删代码行数当完成</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B03 Critical / Research / Legacy schema 真正分域</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-01 / P2-02；前置：B01、B02。</p>
+<h3>当前缺口</h3>
+<p>首次不命中 stamp 仍执行研究大迁移，且全库 fingerprint 会因研究 DDL 改变。</p>
+<h3>具体文件与入口</h3>
+<p>ensureCriticalSchemaOrThrow / ensureRuntimeSchemaOnce / ensureR811ResearchSchemaOnce / ensureSchema</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code>：EXISTING，当前3313行，SHA256 <code>bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbHelper.java</code>：EXISTING，当前8573行，SHA256 <code>53c4f42f153e7ba42effdac914c9c2c4f73604c8630cda48051b8404c1e403e8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbStore.java</code>：EXISTING，当前23272行，SHA256 <code>6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java</code>：EXISTING，当前46行，SHA256 <code>20a0c9c23827118f7776798c5366e052239d959ab1382053e2215f33d57f78e8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/R811SchemaIntegrityVerifier.java</code>：EXISTING，当前180行，SHA256 <code>5038ebd6cf428ff926967baa1c3e7b59af95e6d4a02beb58b5d2f3d7533d67f3</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51Repository.java</code>：EXISTING，当前4875行，SHA256 <code>5d2249eebed01654c50cd8dc30cecd542b2fd546bfa91f34009fc87569413f22</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>枚举首次 canonical/settlement 所需表列索引触发器闭包，生成 critical_contract</p>
+</li>
+<li><p>拆出 ResearchSchemaCoordinator 与 LegacySchemaCoordinator，独立 stamp 和依赖</p>
+</li>
+<li><p>critical就绪即允许唯一主链工作，研究显示初始化而非静默消失</p>
+</li>
+<li><p>研究按小事务、有游标与强制最大等待策略调度，不能再次被持续 quiet-window 条件饿死</p>
+</li>
+<li><p>fingerprint 仅覆盖该域白名单，不因另一域变化反复全迁移</p>
+</li>
+<li><p>缺研究表返回可观测未就绪，禁止 catch 后冒充成功</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>新装/旧库/缺表/旧stamp/中断迁移五类可恢复</p>
+</li>
+<li><p>critical开库不调用research全量ensure</p>
+</li>
+<li><p>研究最终进入READY或明确失败，不无限等待</p>
+</li>
+<li><p>真机冷启动目标&lt;8秒单独验收</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B04 升级数据一致性与可恢复备份</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-01 / P2-02；前置：B03。</p>
+<h3>当前缺口</h3>
+<p>DB_VERSION仍36，增加schema不能只靠onUpgrade；真实大库和WAL中断恢复尚无验证。</p>
+<h3>具体文件与入口</h3>
+<p>prepareAndVerify / onCreate / onUpgrade / onDowngrade</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/SchemaUpgradeCoordinatorR815.java</code>：EXISTING，当前222行，SHA256 <code>7a97d366e275afb5355a9f08bf9efeb3ef2199daaf52a2d18e6ed113d920586a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code>：EXISTING，当前3313行，SHA256 <code>bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbHelper.java</code>：EXISTING，当前8573行，SHA256 <code>53c4f42f153e7ba42effdac914c9c2c4f73604c8630cda48051b8404c1e403e8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java</code>：EXISTING，当前147行，SHA256 <code>ad3ef3cfa57ce05567e20b51543daa769d73672dfc356e11f2fe59a8ceab9a7d</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>同版本迁移使用分域修订表与逐步 journal，每步幂等</p>
+</li>
+<li><p>备份走应用受控静默写入窗口、完成checkpoint并关闭连接后复制，或验证可用的SQLite一致快照接口，禁止运行中只拷.db</p>
+</li>
+<li><p>备份记录所有关键表计数、hash与user_version</p>
+</li>
+<li><p>每DDL/回填小事务提交后更新游标，崩溃仅重放该步</p>
+</li>
+<li><p>新增表优先，不删除/重写旧canonical/trade/label</p>
+</li>
+<li><p>恢复先验证备份再替换，禁止清空用户库救启动</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>对有未checkpoint数据的库备份恢复后记录不丢</p>
+</li>
+<li><p>在每步注入进程中止均可重入</p>
+</li>
+<li><p>upgrade后历史行及关键hash100%相同</p>
+</li>
+<li><p>同版本重复执行不重复数据</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B05 全路径时延与一分钟实时预算</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-01 / P0-02；前置：B03、B06。</p>
+<h3>当前缺口</h3>
+<p>主机编译不能证明手机5秒；时延需分冷启动、排队、计算、提交和故障超时。</p>
+<h3>具体文件与入口</h3>
+<p>runR36 / request→durable / performance</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code>：EXISTING，当前773行，SHA256 <code>f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AnalysisSingleFlightR36.java</code>：EXISTING，当前355行，SHA256 <code>627ccf5b9e4966dbf6f90e07e1e26c43b604337441b9f0490a022d8428f6ae2d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java</code>：EXISTING，当前88行，SHA256 <code>5d16a76ecb0ddb5c39e298030f3e752e4fc5db92d4da58e046a84b7f54407a5e</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java</code>：EXISTING，当前93行，SHA256 <code>9f4b8e3ac2781a8f62c7357d570cf0a5a628d125416876a7d91eff09cf157e19</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code>：EXISTING，当前17481行，SHA256 <code>0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java</code>：EXISTING，当前284行，SHA256 <code>5f5b850aadd25b2ff961d5a14b33a6eb169233537950445b1c23987d64c3a101</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java</code>：EXISTING，当前542行，SHA256 <code>aefd1c74cf4042aec6f5c94594ee7a128df9e4b1c15e97f143c497903ec3fe55</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>耗时用elapsedRealtime或nanoTime，审计时间用wall clock，禁止跨进程比较单调钟</p>
+</li>
+<li><p>记录每次attempt并单列成功率，失败/取消不从延迟报告隐去</p>
+</li>
+<li><p>给历史读取、共享特征、号码面、1200排序、gate、提交分预算与取消点</p>
+</li>
+<li><p>缓存只按baseIssue/schema/artifact/stateHash完整键复用</p>
+</li>
+<li><p>生产前研究让步，长SQL不能靠循环内deadline视为已限制</p>
+</li>
+<li><p>记录P50/P95/P99/max、GC/堆峰值、锁等待及原始样本</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>同机120期稳态request→durable P95≤5000ms、compute P95≤3000ms</p>
+</li>
+<li><p>冷启动独立10次目标&lt;8000ms</p>
+</li>
+<li><p>超时/失败全计数，不能用成功子集掩盖掉期</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B06 逐期事件账本与唯一幂等投影</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-05 / P0-02 / P1-10；前置：B01、B03。</p>
+<h3>当前缺口</h3>
+<p>R925流水主要JOIN终态，不能完整区分未调度、被拒、抓取失败、排队卡住、提交失败。</p>
+<h3>具体文件与入口</h3>
+<p>pipeline / runPredictionTransaction / runSettlementTransaction</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java</code>：EXISTING，当前93行，SHA256 <code>9f4b8e3ac2781a8f62c7357d570cf0a5a628d125416876a7d91eff09cf157e19</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java</code>：EXISTING，当前316行，SHA256 <code>5e5b130ff6b0020bcb62fead9371b30c583a681d5fb6fe4687b2a7c147fa5a8a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code>：EXISTING，当前773行，SHA256 <code>f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code>：EXISTING，当前3313行，SHA256 <code>bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code>：EXISTING，当前17481行，SHA256 <code>0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code>：EXISTING，当前3045行，SHA256 <code>0dde0c59781661a17285ea78d08bfd6993d832ab3c1ca39126b8fdd6f41645a9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java</code>：EXISTING，当前857行，SHA256 <code>615e02108c03f32fd1b00a9d4794d6c2a19a4af516124680ab438bfc48cc28de</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java</code>：EXISTING，当前487行，SHA256 <code>866c03b6f1be07608567ec1cf4061f150b3f04282cbbee60a728222d171ed9d5</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java</code>：EXISTING，当前383行，SHA256 <code>1e15ed3afa38727b8277e4caa4da6f18e21e0e82e48c8a56965067490a1ca83a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java</code>：EXISTING，当前176行，SHA256 <code>aa5ca72a05dc6a54f32482b474008d0334bddcea13fde601de2d8b22e623adac</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>新增append-only runtime_event及只读issue_projection，统一game/issue/epoch/attempt/event_id</p>
+</li>
+<li><p>事件覆盖request/accepted/rejected/queued/started/frozen/settled/FULL/learned/recovery</p>
+</li>
+<li><p>业务提交事件与业务行在同一事务，非事务外部事件使用outbox与去重键</p>
+</li>
+<li><p>明确事件重复、乱序、旧进程回调处理，不允许晚到事件回退终态</p>
+</li>
+<li><p>首页/报告/CSV从同一投影取值并带as_of/event_watermark</p>
+</li>
+<li><p>启动做账本对账，无法还原的升级前事件标LEGACY_UNKNOWN</p>
+</li>
+<li><p>K3漏斗七阶段trace绑定同一target与1200动作hash，保留完整动作宇宙，不让UI推测阶段是否运行</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>任意阶段杀进程后事件可重放且终态不回退</p>
+</li>
+<li><p>重复回调10次只一个canonical与一次结算</p>
+</li>
+<li><p>最近20/500/导出逐期一致且错误归因唯一</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B07 后台恢复、锁屏、重启与用户停止语义</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-03 / P0-04；前置：B06、B04。</p>
+<h3>当前缺口</h3>
+<p>有恢复入口但缺物理连续性证据；授权绿灯并不等于每分钟业务健康。</p>
+<h3>具体文件与入口</h3>
+<p>onCreate / onStartCommand / onTaskRemoved / reconcileAutoFetchService</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code>：EXISTING，当前17481行，SHA256 <code>0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/BootReceiver.java</code>：EXISTING，当前405行，SHA256 <code>de6bfe40db72e9de42ecea84ce9f2aea86e99a0b9c6e37c834af641eea3f40c6</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java</code>：EXISTING，当前134行，SHA256 <code>b36db6254f60b05aba502a92d12a3c8c7fa1444118579fd43182b168d4ed049a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/InternalWatchdogReceiverR815.java</code>：EXISTING，当前56行，SHA256 <code>c13353eafcfe4b402b12ef11fb7d9a4fc473b8f4847e356cc4fcece0cf04ecc9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java</code>：EXISTING，当前1515行，SHA256 <code>b9849b2f432a8edbcd2b0d3fdfc28c4619798b27813c57c4524c3eb22f257b82</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/BackgroundRuntimeCapabilityR811.java</code>：EXISTING，当前87行，SHA256 <code>2759d9d68105f4ea625c6ce7f7eea9fb48d5d7efe833b30b87307dd5a4b96f76</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>先及时显示前台服务通知再异步初始化</p>
+</li>
+<li><p>恢复统一走原BootReceiver/lease入口重整业务定时器，心跳与业务健康分别判断</p>
+</li>
+<li><p>锁定未解锁时只读device-protected最小启停标志，解锁后开凭据库</p>
+</li>
+<li><p>区分返回桌面/划掉/系统回收/应用内停止/系统强停，手动停止不得复活</p>
+</li>
+<li><p>Job和闹钟仅恢复提示与校验，不能当作每分钟准确计时来源</p>
+</li>
+<li><p>按真实OS和targetSdk分支处理启动受限/授权撤回/网络切换/退避，日志注明无法恢复原因</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>亮屏120期、息屏120期、划掉30期连续业务验收</p>
+</li>
+<li><p>用户停止和系统强停不绕过，用户重开后幂等恢复</p>
+</li>
+<li><p>每次恢复都能看到请求/接受/真正业务恢复三时点</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B08 抓取账本、来源治理与网络失败恢复</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-10 / P0-05；前置：B06。</p>
+<h3>当前缺口</h3>
+<p>HTTP成功不等于有效开奖；记录机会有但离线、脏数据、进程中断需要完整状态归因。</p>
+<h3>具体文件与入口</h3>
+<p>GET/POST / response / payload acceptance</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ApiClient.java</code>：EXISTING，当前1323行，SHA256 <code>e015468e4bd44d916456d9fe3f77d66d9bd2e9d9dfbd3af5579d510333e8aaff</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java</code>：EXISTING，当前36行，SHA256 <code>a812817f479f21518ecb1a58a0603dba348a8c8da0e0fe6817608692038c5636</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java</code>：EXISTING，当前842行，SHA256 <code>d656bf68bd165d1de6b1ad04189a189018eea1194182c4a3e31814ae8f067948</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code>：EXISTING，当前17481行，SHA256 <code>0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbStore.java</code>：EXISTING，当前23272行，SHA256 <code>6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>将REQUESTED/HTTP_RECEIVED/PARSE_REJECTED/PROVENANCE_REJECTED/CANONICAL_ACCEPTED/INTERRUPTED分开</p>
+</li>
+<li><p>请求id串起payload哈希、候选开奖、规范化结果，canonical接受与事件同事务</p>
+</li>
+<li><p>校验期号/10号码排列/游戏/开奖时点/重复冲突</p>
+</li>
+<li><p>旧响应不得覆盖新期，来源冲突进入隔离</p>
+</li>
+<li><p>请求开始后进程死亡保留未知结果并下次对账，禁止推造超时返回码</p>
+</li>
+<li><p>重试指数退避+抖动+限额，保留现有provider额度配置，不做未知外部调用</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>503/超时/200脏JSON/合法重复/冲突/乱序/飞行模式均有结果码</p>
+</li>
+<li><p>重复不会双预测</p>
+</li>
+<li><p>HTTP200但业务拒绝在UI与报告可区分</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B09 每期结算、影子、学习恰好一次</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-04 / P1-09；前置：B06、B08。</p>
+<h3>当前缺口</h3>
+<p>需要验证全期结算、学习去重、崩溃重放；只看累计数不能证明一分一期闭环。</p>
+<h3>具体文件与入口</h3>
+<p>exact settlement / labels / online update</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code>：EXISTING，当前3045行，SHA256 <code>0dde0c59781661a17285ea78d08bfd6993d832ab3c1ca39126b8fdd6f41645a9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java</code>：EXISTING，当前419行，SHA256 <code>21913b1977d345c7ca1cb9b0917e39bd42caac8a29d2ff461eb48693243867c6</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java</code>：EXISTING，当前1069行，SHA256 <code>d302924e373b64033fb0dd1d7975e3a9e034311d20f9944c26d8c71ccc69644a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java</code>：EXISTING，当前312行，SHA256 <code>5194b12069a011bc9f6dcf8150a31765bc1de4cf4cf3b811ed1f767f094daf2d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java</code>：EXISTING，当前311行，SHA256 <code>ffc729f771473ae8bc024645cd9fb858c4d13a6411baf78cb2496a243086e11c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DbStore.java</code>：EXISTING，当前23272行，SHA256 <code>6b476d069e95b6b532724f8a8aa4e409394534adf0527362e59d02e0e2cf0acf</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java</code>：EXISTING，当前487行，SHA256 <code>866c03b6f1be07608567ec1cf4061f150b3f04282cbbee60a728222d171ed9d5</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>以game/issue/model_snapshot定义结算和学习幂等键</p>
+</li>
+<li><p>CORE结算先持久化，FULL和研究通过outbox异步展开</p>
+</li>
+<li><p>未开奖PENDING、无赛前冻结NO_PREDRAW、已开奖缺结算ERROR独立展示</p>
+</li>
+<li><p>FTRL/TinyDeep更新以已结算过去期游标和输入hash一次提交</p>
+</li>
+<li><p>当前期模型读取冻结版本，训练更新不能倒写该期</p>
+</li>
+<li><p>旧缺失来源不伪造PIT，只保留历史统计单列</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>连续完整样本每期CORE结算一条、重放不重复</p>
+</li>
+<li><p>同一标签不能更新模型两次</p>
+</li>
+<li><p>崩溃在学习前后均确定恢复</p>
+</li>
+<li><p>120期测试要求全部应结已结</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B10 FULL积压实质收敛与可观测调度</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P2-01；前置：B05、B09。</p>
+<h3>当前缺口</h3>
+<p>当前最新FULL期差只是MAX完成值，可能掩盖中间洞；旧积压并未实测清空。</p>
+<h3>具体文件与入口</h3>
+<p>drainAvailable / drainSettledCatchup / claim / next_action_ordinal</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java</code>：EXISTING，当前1069行，SHA256 <code>d302924e373b64033fb0dd1d7975e3a9e034311d20f9944c26d8c71ccc69644a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/BacklogConvergenceR925.java</code>：EXISTING，当前19行，SHA256 <code>9951cdb122c0e54e1fb7e565e224d7d5857d5fac8e725513cc51ee3fb59c3d5d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51Repository.java</code>：EXISTING，当前4875行，SHA256 <code>5d2249eebed01654c50cd8dc30cecd542b2fd546bfa91f34009fc87569413f22</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java</code>：EXISTING，当前88行，SHA256 <code>5d16a76ecb0ddb5c39e298030f3e752e4fc5db92d4da58e046a84b7f54407a5e</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>实时canonical和CORE优先，再最新已结FULL，最后按最老欠账公平补齐</p>
+</li>
+<li><p>将每1200动作分块游标与lease原子提交，分片幂等</p>
+</li>
+<li><p>指标增加最老未完成issue、连续FULL水位、洞数量、终止失败队列</p>
+</li>
+<li><p>按服务率减新增率报告净吞吐，不能要求有新任务时逐条pending严格单调</p>
+</li>
+<li><p>过期无快照转缺证隔离并计未完成，不删除当作清零</p>
+</li>
+<li><p>用真实备份库回放2216量级任务，限制DB写片长</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>全量有可恢复证据的待办最终归零</p>
+</li>
+<li><p>不可恢复数明确非零即全闭环不通过</p>
+</li>
+<li><p>最新FULL≤2实际开奖滞后且连续水位无隐洞</p>
+</li>
+<li><p>模型与UI不因补账卡顿</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>B11 真实出手来源与最终唯一决策审计</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P0-06 / P1-02；前置：B06、B09。</p>
+<h3>当前缺口</h3>
+<p>旧101条来源无效不能被新版改成有效；现有多个策略标志需解析实际门，而非仅读一个SHADOW常量。</p>
+<h3>具体文件与入口</h3>
+<p>final gate / immutable decision / provenance</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java</code>：EXISTING，当前11349行，SHA256 <code>428455f117549f91cf4d70f0531bd3962b088398b93fb2fa6ef5a6e89d608144</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RealBetDiagnosisEngine.java</code>：EXISTING，当前5711行，SHA256 <code>459dab7540c8cc5b23e43428c9b61387f09f3b536c0eeaa0992179ba45619602</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code>：EXISTING，当前773行，SHA256 <code>f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java</code>：EXISTING，当前365行，SHA256 <code>429e07f99bdc353c2d1f9d18eceadec90cadcd3c908b439566c2c9e50f764188</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java</code>：EXISTING，当前429行，SHA256 <code>71a1bb282c31c8a798bf2ce02920c10931c3f018da0860a54cdef97aa719e08e</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java</code>：EXISTING，当前176行，SHA256 <code>aa5ca72a05dc6a54f32482b474008d0334bddcea13fde601de2d8b22e623adac</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>生成有效门配置快照，记录所有参与策略开关及实际DecisionGate分支</p>
+</li>
+<li><p>REAL行必须携带request/frozen/durable时点、draw来源、action/model/bundle/cert哈希</p>
+</li>
+<li><p>Research没有创建BET的接口能力</p>
+</li>
+<li><p>旧无效REAL独立报表，严禁纳入新严格胜率</p>
+</li>
+<li><p>无证据策略与频率提案由原唯一Gate裁定，不新增后台BET作者</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>新受控测试REAL invalid=0 duplicate=0，每期最多一条且固定K3单位置</p>
+</li>
+<li><p>来源缺一拒绝</p>
+</li>
+<li><p>旧101条状态不被篡改</p>
+</li>
+<li><p>所有Owner扫描和行为测试通过</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/B11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D01 PIT训练快照、字段语义与数据可用性</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-01 / M1；前置：B04、B06。</p>
+<h3>当前缺口</h3>
+<p>目前导出META96与标签，但缺完整上游原始输入合同、域签名、缺失掩码、依赖版本和证书绑定。</p>
+<h3>具体文件与入口</h3>
+<p>write / validate / positionActions / snapshot hash</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/TrainingSnapshotExportR925.java</code>：EXISTING，当前55行，SHA256 <code>7eb25309c5ee8e75e048ea7692bacd8e6140ba7d7078d618e2f579bc53082671</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceSnapshotR36.java</code>：EXISTING，当前1037行，SHA256 <code>3cb068dbd86c256d903bf0f33639d9b1013d9d24fa93c8e70d08610fd9d45f50</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java</code>：EXISTING，当前424行，SHA256 <code>6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51Models.java</code>：EXISTING，当前1804行，SHA256 <code>fd86dd41bf85094c5fa0f6d0889c0cc1744751a82188cfee9146e5451f994ba3</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PermutationFeatureEngine.java</code>：EXISTING，当前1460行，SHA256 <code>99c3c310016368a1375335dd8d247bfdccebf8cc3e56c509200675dc3c22d182</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java</code>：EXISTING，当前45行，SHA256 <code>3e058679421cc8bfb392db8d879bdf3eb5bfa1ea8bb48cc745d1a0e4b733fc13</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>新建不可变FeatureManifest，每维明确名称/单位/范围/lag/window/source/missing/cost/版本</p>
+</li>
+<li><p>导出raw上游state/expert/atommask与full1200，所有max_source_issue严格早于target</p>
+</li>
+<li><p>保存snapshot内target与SQL join target一致、创建/冻结/接收/开奖时点一致断言</p>
+</li>
+<li><p>导出稳定快照或高水位分片，不长期占读事务阻塞WAL</p>
+</li>
+<li><p>每分片hash、范围、总manifest和隔离坏行清单</p>
+</li>
+<li><p>缺数据先部署采集，只允许新赛前冻结积累Future证据</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>错误游戏/重复期/未知schema/时间穿越/坏hash/非完整1200拒绝</p>
+</li>
+<li><p>100期逐字段PIT检查</p>
+</li>
+<li><p>同输入导出内容hash相同</p>
+</li>
+<li><p>缺标签只作待结，不偷偷补特征</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D02 消除NumberQ与META96的循环输入歧义</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-01 / P1-07 / M1 / M2 / M3；前置：D01。</p>
+<h3>当前缺口</h3>
+<p>R925深度候选用动作META96的均值派生输入，与原R811原始96维不是同合同；动作META又含号码面，不能反向作为同一号码面的上游。</p>
+<h3>具体文件与入口</h3>
+<p>FEATURE_CONTRACT / surfaces / predict</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java</code>：EXISTING，当前52行，SHA256 <code>437029bea9b9311f26cc9d8b2b218317a1bcd051b604387343427a8ea1cb504f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java</code>：EXISTING，当前257行，SHA256 <code>d1d3302565c881c3d23ee0c8866faa9c7d03032b80125227aa2d66c5c9a040fb</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51ActionMetaFeatureEngine.java</code>：EXISTING，当前87行，SHA256 <code>54c7d4797198e2c748de384831cafcd356c17b3f52306bcda8799ffd5da1883c</code>。</p>
+</li>
+<li><p><code>training/r925/deep_candidates.py</code>：EXISTING，当前130行，SHA256 <code>60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PermutationFeatureEngine.java</code>：EXISTING，当前1460行，SHA256 <code>99c3c310016368a1375335dd8d247bfdccebf8cc3e56c509200675dc3c22d182</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>画出raw history→base experts→NumberQ→META96→ranker的无环依赖</p>
+</li>
+<li><p>保留R925派生网络为明确二阶段residual专家，或以原始上游96重新训练NumberQ，默认选择后者用于主号码面</p>
+</li>
+<li><p>禁止将R925权重改个类型名直接装入R811</p>
+</li>
+<li><p>artifact manifest绑定input_stage/schema_hash/parent_artifact_hash，Java loader必须实际检查</p>
+</li>
+<li><p>D2慢状态只取t-1及以前并持久化游标，首次无历史按训练约定冷启动</p>
+</li>
+<li><p>9专家直接导出原始冻结logits，旧META反演仅兼容审计</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>同维数不同语义artifact拒绝</p>
+</li>
+<li><p>依赖图无环</p>
+</li>
+<li><p>同一issue offline/Java/Android输入逐字段相等</p>
+</li>
+<li><p>重启慢状态不读当前标签</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D03 独立训练阶段、时间切分与全局封存</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-01 / M1 / M2 / M3 / M4；前置：D01、D02。</p>
+<h3>当前缺口</h3>
+<p>R925源文件父目录封存登记能拦同目录重跑，却不是跨源副本、跨项目实验的统一试验账本；模块输出还非独立生产合同。</p>
+<h3>具体文件与入口</h3>
+<p>run / splits / r925_sealed_registry / stage_entry</p>
+<ul>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+<li><p><code>training/r925/deep_candidates.py</code>：EXISTING，当前130行，SHA256 <code>60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e</code>。</p>
+</li>
+<li><p><code>training/v51_training_core.py</code>：EXISTING，当前877行，SHA256 <code>23567fb59055c6cd3b7db86ec5432f39090fb361197982f5303470164082522d</code>。</p>
+</li>
+<li><p><code>training/v50_train_pipeline.py</code>：EXISTING，当前1022行，SHA256 <code>8b862ba6ced4e45ec8da2cc4e8bda4f4c38b4159b0661a4e345a6839ed1ffeab</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>拆dataset/number/gate/ranker/calibration/policy/evaluate命令与独立manifest</p>
+</li>
+<li><p>统一experiment registry以game+schema+源内容hash+sealed issue集合标识，不能靠复制目录重置</p>
+</li>
+<li><p>freeze选择前不读sealed标签，记录试验数与超参候选，故障恢复同trial幂等</p>
+</li>
+<li><p>至少5个expanding folds，内层调参、外层比较、CAL只选中样本、POLICY更后、SEALED最后</p>
+</li>
+<li><p>折边界历史特征可引用过去，学习参数和慢状态不可引用未来</p>
+</li>
+<li><p>各阶段失败不能给其他阶段写PROVEN</p>
+</li>
+<li><p>所有旧V49/V50/V51/R811训练入口明确LEGACY_REPLAY或委托新CLI；旧10动作pipeline不能出R926生产证明</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>复制源文件到其他目录仍拒绝同sealed窗口新选择</p>
+</li>
+<li><p>篡改上游hash下游失效</p>
+</li>
+<li><p>五阶段样本区间严格有序</p>
+</li>
+<li><p>同trial崩溃恢复不重复消费sealed</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D04 NumberQ、Gate9、深度和在线侧路完整比较</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-01 / P1-07 / M2；前置：D02、D03。</p>
+<h3>当前缺口</h3>
+<p>R925研究推理通过host parity，但无生产数据训练、设备资源证据和生产artifact装载链。</p>
+<h3>具体文件与入口</h3>
+<p>predict / logits / gate / prepare</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java</code>：EXISTING，当前257行，SHA256 <code>d1d3302565c881c3d23ee0c8866faa9c7d03032b80125227aa2d66c5c9a040fb</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51ExpertGateEngine.java</code>：EXISTING，当前213行，SHA256 <code>1b4b4cf3fe899e10c98359b42ebbffc7d8bc78740411bc0a8a15f11a232d6e62</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51SinkhornEngine.java</code>：EXISTING，当前207行，SHA256 <code>58c3810a7a1365a0e8054ed85bbf3ff529ecdb18f8d11169724c924427f604d2</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java</code>：EXISTING，当前52行，SHA256 <code>437029bea9b9311f26cc9d8b2b218317a1bcd051b604387343427a8ea1cb504f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java</code>：EXISTING，当前311行，SHA256 <code>ffc729f771473ae8bc024645cd9fb858c4d13a6411baf78cb2496a243086e11c</code>。</p>
+</li>
+<li><p><code>training/r925/deep_candidates.py</code>：EXISTING，当前130行，SHA256 <code>60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeepLearningBridgeEngine.java</code>：EXISTING，当前3209行，SHA256 <code>397aba6ceaef6e33b665364b5b35677eef21302528498f9759844b462243d81c</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>保留9专家及已有矩阵，冻结各expert版本与可用性</p>
+</li>
+<li><p>比较原NumberQ、D0、D1残差、D2快慢、D3蒸馏，Gate9独立OOS训练</p>
+</li>
+<li><p>号码面finite、行列和≤1e-6、非负与专家退化fallback合同</p>
+</li>
+<li><p>训练teacher只用更早冻结模型，蒸馏不能见目标窗口标签</p>
+</li>
+<li><p>在线FTRL/TinyDeep仅过去label更新，升级为champion必须走相同证书</p>
+</li>
+<li><p>报告per-position CE/Top1/Top3/Brier、专家权重/失效、资源与增量</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>每候选同fold完整结果，包括失败试验</p>
+</li>
+<li><p>没有更优候选时保留baseline且报告未达到效果门</p>
+</li>
+<li><p>host/设备推理一致且满足主链预算</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D05 完整1200动作Ranker模型族与生产一致性</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-01 / M3；前置：D03、D04。</p>
+<h3>当前缺口</h3>
+<p>R925实现一个线性listwise+pairwise，不等于原计划多个ranker候选与独立阶段全部完成。</p>
+<h3>具体文件与入口</h3>
+<p>rankDetailed / artifactScore / fit / scores</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/K3ActionSpaceEngine.java</code>：EXISTING，当前531行，SHA256 <code>25925852af63bed57b010e30051fbacee9d150c98c6b11de2ea7fb2e5295ec85</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java</code>：EXISTING，当前161行，SHA256 <code>ca552537cea28f0821c6932d63f7b923ec0d17650da3df96d96ddd38a07bf420</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RankerMathR925.java</code>：EXISTING，当前16行，SHA256 <code>294a7777185737aaad9bb8b1c1672445fc77e41979ac80a8fdb3ee2457114923</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51ActionRankerArtifact.java</code>：EXISTING，当前23行，SHA256 <code>19d3c8083db6bd0518a6e6a08f2f2865e7016ff2a1ded8a86edf67dc685b986c</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/K3FunnelOrchestrator.java</code>：EXISTING，当前383行，SHA256 <code>1e15ed3afa38727b8277e4caa4da6f18e21e0e82e48c8a56965067490a1ca83a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PositionActionBuilder.java</code>：EXISTING，当前90行，SHA256 <code>5a8528e9c5492230cb2b057da904d83ef1d151df55a21b0fa5f6b360312096a5</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>固定position1..10、每位120组、ordinal0..1199和并列tie-break</p>
+</li>
+<li><p>比较RawActionP、pairwise线性、listwise线性、top-weighted pairwise、小MLP，树模型仅在资源与导出可行时研究比较</p>
+</li>
+<li><p>hard-negative以同组差一号码为主，统计样本单位始终issue</p>
+</li>
+<li><p>训练Ranker的META来自更早冻结Number/Gate OOF输出，不能用未来已训练号码面</p>
+</li>
+<li><p>记录Rank1/Top3/MRR/NDCG/paired/regime/block、全1200hash</p>
+</li>
+<li><p>并列/近并列和非有限值给确定性处理</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>每期1200唯一动作、360正标签、全1200评分</p>
+</li>
+<li><p>100期×1200 Java/Android rank1完全一致</p>
+</li>
+<li><p>仅1200行视作1期样本</p>
+</li>
+<li><p>最终封存比较无退化</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D06 最终被选动作的校准与融合后失配修复</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-01 / M4 / M6；前置：D03、D05、C01。</p>
+<h3>当前缺口</h3>
+<p>单独校准基础rank1不足以证明研究融合后新选动作概率；原始score不能直接充当命中概率。</p>
+<h3>具体文件与入口</h3>
+<p>selected / calibration_fit / buildRankedActionStage</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java</code>：EXISTING，当前93行，SHA256 <code>488da5257f76020a1c5db3063965afcb43a8b255e9c67f95e723587ee59caf00</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51SelectedCalibrationArtifact.java</code>：EXISTING，当前22行，SHA256 <code>4f9324c3d135dd1b03df831c049515169a483118ec6c3bfa0d04b9935e38ef39</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code>：EXISTING，当前773行，SHA256 <code>f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>定义selection_policy_hash包含ranker+consumer+weight+regime+tie-break</p>
+</li>
+<li><p>校准数据必须由相同冻结选择规则生成，融合改变选择后重新进入校准合同</p>
+</li>
+<li><p>比较logistic/beta/isotonic/域收缩，选择仅用更早数据</p>
+</li>
+<li><p>保存原rawScore、RawActionP、SelectedHitP及各来源，未知显示N/A</p>
+</li>
+<li><p>概率[Brier/ECE]只接受已校准并有支持的字段</p>
+</li>
+<li><p>把概率与分数分离为类型，禁止clamp01(score)当作校准</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>变更consumer/权重/排序会使不兼容calibration拒绝</p>
+</li>
+<li><p>错误概率类型被测试发现</p>
+</li>
+<li><p>sealed Brier/ECE/NLL及分箱附样本数，达到合同门才宣告证明</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D07 不确定性、稳定性和选择性拒绝</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：M4 / P1-01；前置：D06。</p>
+<h3>当前缺口</h3>
+<p>完整不确定性分解尚缺，单期风险、稳定性存在空白反馈，不能用固定值填充。</p>
+<h3>具体文件与入口</h3>
+<p>SelectedHitP / risk / stability</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java</code>：EXISTING，当前93行，SHA256 <code>488da5257f76020a1c5db3063965afcb43a8b255e9c67f95e723587ee59caf00</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java</code>：EXISTING，当前11349行，SHA256 <code>428455f117549f91cf4d70f0531bd3962b088398b93fb2fa6ef5a6e89d608144</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java</code>：EXISTING，当前57行，SHA256 <code>6efea69dead58faf69d2128f58e0d9a4f07cddc601a4e1a1131c6e41f1796cf5</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>输出reliability_bin_n/分箱历史Wilson区间/calibration support/regime support/模型分歧/漂移</p>
+</li>
+<li><p>Wilson明确为群体频率区间，不是这一次必中的个体区间</p>
+</li>
+<li><p>nonconformity是拒绝特征，不冒充概率或无条件conformal保证</p>
+</li>
+<li><p>stability按冻结输入扰动/专家删除的K3一致度定义并版本化</p>
+</li>
+<li><p>来源不足显示缺失原因、最近成功期与下一步，不显示0误导</p>
+</li>
+<li><p>把不确定性门写入同一policy artifact而非UI自判</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>常数/小样本/新域/专家全失效时状态可解释</p>
+</li>
+<li><p>每个指标追到输入hash和窗口</p>
+</li>
+<li><p>拒绝不产生补频率BET</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D08 领域证书与赛前状态路由</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-05 / M5；前置：D06、C01、C06。</p>
+<h3>当前缺口</h3>
+<p>R925只有离线域校准，未完成手机DOMAIN证书及路由；现有≥12组支持不等于生产校准支持。</p>
+<h3>具体文件与入口</h3>
+<p>regime assignment / production influence</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmRegimeEvidenceR923.java</code>：EXISTING，当前143行，SHA256 <code>d80d6155efce2d03a542d559be2b427048f57cc412b0ce8b0bfb44898be72805</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51StateTrajectoryEngine.java</code>：EXISTING，当前3665行，SHA256 <code>8e5eba367acfbd083d595c1cb1207289a1f165583d79127c75af3a4c925374d8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java</code>：EXISTING，当前442行，SHA256 <code>3978563f45357eff48f0a29b3cdeb0f7faf960f2cdb4f6726b53193a27a1bf0f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java</code>：EXISTING，当前243行，SHA256 <code>0ce66437efac93159fc926a3d2794965af7c7e519b524f9d37b977f2dbc827a4</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>训练段冻结状态边界，market regime与runtime health两个命名空间</p>
+</li>
+<li><p>领域artifact绑定regime schema、feature hash、选择规则与证书</p>
+</li>
+<li><p>足够CAL有效样本默认每域≥120，否则收缩到已证明全局或拒绝领域激活</p>
+</li>
+<li><p>路由只用赛前state，退出域立即weight0</p>
+</li>
+<li><p>域优势判断同时报告overall与每域paired置信/覆盖/风险，纳入多重比较</p>
+</li>
+<li><p>未知域/切换抖动用冻结滞回规则与显式fallback</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>同一target与hash路由可复现</p>
+</li>
+<li><p>未支持域只能PAUSE/fallback</p>
+</li>
+<li><p>域外0贡献</p>
+</li>
+<li><p>更改边界必须重新起窗，不继承证据</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D09 Predictability与出手频率的真实目标闭环</h2>
+<p>优先级：P1；类别：DATA_DEPENDENT；原要求：P1-01 / P0-06 / M4；前置：D06、D07、D08、B11。</p>
+<h3>当前缺口</h3>
+<p>至少15%是效果目标，R925没有经证明达标的当前游戏策略；不能以强制放行代替训练。</p>
+<h3>具体文件与入口</h3>
+<p>policy selection / predictability / final REAL decision</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PredictabilityArtifact.java</code>：EXISTING，当前14行，SHA256 <code>60a21473ce2f41fd1e5c28bb3bfcd5a319e402f5d5e9f5747c1963c9caf1c084</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51PolicySurfaceArtifact.java</code>：EXISTING，当前13行，SHA256 <code>466a571fd0fc8ecc89989cf421aa8be118ae9eadf7cc2e2b2d8649e116631c9c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java</code>：EXISTING，当前11349行，SHA256 <code>428455f117549f91cf4d70f0531bd3962b088398b93fb2fa6ef5a6e89d608144</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ControlledCandidateOpportunityAuditR922.java</code>：EXISTING，当前365行，SHA256 <code>429e07f99bdc353c2d1f9d18eceadec90cadcd3c908b439566c2c9e50f764188</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>独立训练predictability/selector并绑定更早OOF校准</p>
+</li>
+<li><p>只在POLICY集冻结阈值，输出覆盖—HR—Brier—风险Pareto表</p>
+</li>
+<li><p>sealed与Future分开报告eligible/selected/REAL三个分母</p>
+</li>
+<li><p>工程目标40%与频率15%都必须由同一冻结策略独立验证，未达标记录FAIL_EFFECT</p>
+</li>
+<li><p>禁止频率债务、追期、两挂后硬出手</p>
+</li>
+<li><p>DecisionGate保持唯一，证书与频率目标不能直接授权BET</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>冻结策略真实数据独立评估完整</p>
+</li>
+<li><p>覆盖不足明确多少，不改分母达标</p>
+</li>
+<li><p>即使找不到可行策略训练流程仍可验收工程，但效果目标不能关闭</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D10 模型包验证、导入、原子激活和撤回</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-01 / P1-07 / M1 / M2 / M3 / M4 / M5 / M6；前置：D03、D04、D05、D06、D08、C01。</p>
+<h3>当前缺口</h3>
+<p>新二进制仅type/trainedUntil/fields，尚不能单凭其字节证明input合同、来源、阶段证书；生产多artifact一致装载未闭环。</p>
+<h3>具体文件与入口</h3>
+<p>decode / type / manifest / model snapshot</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchArtifactCodecR811.java</code>：EXISTING，当前159行，SHA256 <code>05d8f015f9f91c51a115960bd8c3bd0cb73d5bc4215000e9db2d7657a31b0c43</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51ActionRankerArtifact.java</code>：EXISTING，当前23行，SHA256 <code>19d3c8083db6bd0518a6e6a08f2f2865e7016ff2a1ded8a86edf67dc685b986c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51NumberModelArtifact.java</code>：EXISTING，当前26行，SHA256 <code>8eb169a38e0972b2d3c475b32be8c444c8e3c448b7695c85911f5c0dd8c7c29d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51ExpertGateArtifact.java</code>：EXISTING，当前29行，SHA256 <code>ea300bb12306bc1f24e3f90e8000cb7f13b6844a309f8a5d674be2a1df4d5676</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code>：EXISTING，当前773行，SHA256 <code>f2dfb85f2b1ce22d70822f71af8647bf3a4ecbd5a0b32ab6e316d0b8bccf0ad8</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeepLearningBridgeEngine.java</code>：EXISTING，当前3209行，SHA256 <code>397aba6ceaef6e33b665364b5b35677eef21302528498f9759844b462243d81c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java</code>：EXISTING，当前947行，SHA256 <code>09b9b7d4f3b154656f6989eae833d8e08b1d8d3586ed281fe62db691cd24c7a2</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java</code>：EXISTING，当前360行，SHA256 <code>1fc9b2284a9b38da7457a297abb2bf5f46fe5a4b7902aabdafdfbb4d1bbdfd8a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchCertificationEngineR811.java</code>：EXISTING，当前281行，SHA256 <code>1e88f119b5a72cfd4f21d959766e5b08f869177bc7441709e0d99758887e496c</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>建立bundle manifest列Number/Gate/Ranker/Calibration/Predictability/Policy、schema/training/parity/certificate hash</p>
+</li>
+<li><p>导入先解包限额/路径/内容hash/类型/签名验证，完整成功才落STAGED</p>
+</li>
+<li><p>APK原签名不等于模型包签名，模型签名独立owner可信key且私钥不放运行APK</p>
+</li>
+<li><p>stage/verify/activate在一期边界原子换bundle指针，每期固定一套依赖</p>
+</li>
+<li><p>证书过期、非有限、hash不符、资源异常立即下一决策禁用并回已有可用bundle</p>
+</li>
+<li><p>旧静态常量通过adapter读取，禁止半套新旧模型混用</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>任意丢一artifact/错维度同形状错schema/非法路径/错签名/中途中止全部拒绝</p>
+</li>
+<li><p>请求进行中换指针不改变该期</p>
+</li>
+<li><p>回滚无重复canonical/REAL</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>D11 主机与Android三端数值和状态一致性</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-01 / P1-07 / M2 / M3；前置：D10、Q01。</p>
+<h3>当前缺口</h3>
+<p>现有host成绩规模为14400动作分数和400网络输出，Android为NOT_RUN；不能当100期×1200手机通过。</p>
+<h3>具体文件与入口</h3>
+<p>float output / artifact decode / target PIT</p>
+<ul>
+<li><p><code>verification/r925/verify_parity.py</code>：EXISTING，当前39行，SHA256 <code>8510d9af6b77c4f122d5f6fe221dc5bca06da461fa9d639b4190c83f119648c7</code>。</p>
+</li>
+<li><p><code>verification/r925/DeepParityHarness.java</code>：EXISTING，当前20行，SHA256 <code>c0c1dcb05fd72d16b74071ad91606f83a583da5edd07e5b3a29de9bd900eaad4</code>。</p>
+</li>
+<li><p><code>verification/r925/GateParityHarness.java</code>：EXISTING，当前15行，SHA256 <code>9cb79bf1eb4d0eda92c390f3452d0311f5bb52530fc097e71a187605f1355d91</code>。</p>
+</li>
+<li><p><code>verification/r925/RankerParityHarness.java</code>：EXISTING，当前11行，SHA256 <code>5ad89f9efe3d878e664db704c593241cabe4be81e4656174df88059750812ded</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java</code>：EXISTING，当前52行，SHA256 <code>437029bea9b9311f26cc9d8b2b218317a1bcd051b604387343427a8ea1cb504f</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>建立100个完整真实或明确标记合同fixture，覆盖边界/tie/缺失/慢状态/重启/坏artifact</p>
+</li>
+<li><p>从同一签名APK内实际推理导出分数，禁止使用另一份Java简化函数</p>
+</li>
+<li><p>比较完整1200、Q行列和、最终选中、概率、域/权重、bundle hash</p>
+</li>
+<li><p>默认absolute1e-8+relative1e-6，rank1/tie-break100%一致，差异先定位不放宽门掩盖</p>
+</li>
+<li><p>报告每模型minSdk21设备或模拟器与目标手机API</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>Python/host/Android逐元素结果全可复现</p>
+</li>
+<li><p>维度、语义、PIT、非有限和坏hash负例全部拒绝</p>
+</li>
+<li><p>设备结果不以host替代</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/D11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C01 统一证书V2、状态梯子与三个消费者</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-02 / P1-05 / M6；前置：B06、D01。</p>
+<h3>当前缺口</h3>
+<p>R925共用窗口计算但底层三套证书仍分离，晋级门、原因和消费授权没有一个版本化合同。</p>
+<h3>具体文件与入口</h3>
+<p>register / evaluate / evaluateAsset / evaluateGenesis / govern / mix</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java</code>：EXISTING，当前60行，SHA256 <code>ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchCertificateR906.java</code>：EXISTING，当前111行，SHA256 <code>d03d585dd09ef1aa6d227e169f378518716bf85fa87708ddd75bc884a8243f2c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchGenomeContractR915.java</code>：EXISTING，当前290行，SHA256 <code>a088c3dd1bfe1c1ceed89c23991a5ac2c462e4c78918297104ac8921a564d9dd</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmProductionGovernorR915.java</code>：EXISTING，当前442行，SHA256 <code>3978563f45357eff48f0a29b3cdeb0f7faf960f2cdb4f6726b53193a27a1bf0f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CertifiedResearchMixerR915.java</code>：EXISTING，当前243行，SHA256 <code>0ce66437efac93159fc926a3d2794965af7c7e519b524f9d37b977f2dbc827a4</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java</code>：EXISTING，当前82行，SHA256 <code>ac4e832795d2dca31e1c3a5b1f7fcdf9c0b4cd81281fd24af44aaa767623aed6</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchCertificationEngineR811.java</code>：EXISTING，当前281行，SHA256 <code>1e88f119b5a72cfd4f21d959766e5b08f869177bc7441709e0d99758887e496c</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>新证书结构统一candidate namespace/family/model/bundle/schema/选择策略/域/统计协议/anchor</p>
+</li>
+<li><p>L0到L7与暂停/撤销分开建模，所有消费者只调用CertificateService</p>
+</li>
+<li><p>旧证书映射LEGACY_REVIEW，不能自动带权，保留全部旧证据</p>
+</li>
+<li><p>明确L5仅影子模拟重排，L6才受控主排序5%，更高权重按新增独立证据</p>
+</li>
+<li><p>同一期只一个实际研究消费者，候选选择使用更早冻结证书排序并列规则</p>
+</li>
+<li><p>UI展示每一门observed/required/pass/source，0证书给具体原因</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>算法/图资产/创生三者用同一合同测试向量得到一致授权</p>
+</li>
+<li><p>无证书0权重</p>
+</li>
+<li><p>证书只授予排序影响不创建REAL</p>
+</li>
+<li><p>旧新状态全部可解释</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C02 配对基线冻结、固定窗口与晋级防反复试探</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-02 / P1-05 / M6；前置：C01、C06。</p>
+<h3>当前缺口</h3>
+<p>当前窗口扫描自anchor后的全部记录，以当时运行主链标签作baseline；候选不足以证明比较对象固定，反复查看的统计错误率未单独治理。</p>
+<h3>具体文件与入口</h3>
+<p>fromCursor / stats / ORDER BY p.target_issue</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java</code>：EXISTING，当前60行，SHA256 <code>ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java</code>：EXISTING，当前527行，SHA256 <code>027a5975c707443ea0499fe4d0377ba4c2c199dc28f21a976d233e57c3a77604</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchCertificateR906.java</code>：EXISTING，当前111行，SHA256 <code>d03d585dd09ef1aa6d227e169f378518716bf85fa87708ddd75bc884a8243f2c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java</code>：EXISTING，当前887行，SHA256 <code>6a49d8bd4197696f40405d950359445fb9815934f4ff2e16241423acc7445072</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>创建window_id并绑定candidate hash、固定champion bundle及其独立影子预测，不能用随时间变更的production混合结果代替</p>
+</li>
+<li><p>预注册新窗口边界和配对缺失规则，统一每issue仅一条pair</p>
+</li>
+<li><p>L5新120期、L6再新240期</p>
+</li>
+<li><p>后续权重升级各新增240/240/360期，目标累计600/840/1200</p>
+</li>
+<li><p>每个窗口只在预定终点做一次晋级判断，期间仅做资源/PIT硬撤销或预注册安全监测</p>
+</li>
+<li><p>置信区间按issue分块与依赖假设报告，20期块和t近似不得称无条件显著性保证</p>
+</li>
+<li><p>累计历史改为每window增量聚合和有限分页，禁止每轮无限扫全部历史</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>重复label/跨game/基线变更/错窗口/回看调门负例全部拒绝</p>
+</li>
+<li><p>fail窗口不可原样反复试到PASS</p>
+</li>
+<li><p>固定champion逐期预测hash可重算</p>
+</li>
+<li><p>长历史查询预算可控</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C03 候选概率合同与Brier/ECE真值</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-05 / M4 / M6；前置：C01、D06。</p>
+<h3>当前缺口</h3>
+<p>当前algorithm/genesis窗口直接读取score计算误差平方；clamp01(score)也不是概率校准，存在证据语义风险。</p>
+<h3>具体文件与入口</h3>
+<p>freezeOne score/probability / stats / evaluate</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java</code>：EXISTING，当前734行，SHA256 <code>ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java</code>：EXISTING，当前424行，SHA256 <code>6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java</code>：EXISTING，当前60行，SHA256 <code>ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmEvidencePolicyR912.java</code>：EXISTING，当前282行，SHA256 <code>8b2f62ad95da8b5e432dccb9361de93060c85dd8e5610935ce11c715f296a308</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>冻结raw_score与selected_hit_p两个独立列及calibration_hash</p>
+</li>
+<li><p>只有独立CAL校准的对应动作才参与Brier/ECE门</p>
+</li>
+<li><p>原score证据保留标RAW_SCORE_NOT_CALIBRATED，不据此宣称概率证明</p>
+</li>
+<li><p>每个候选难以单独CAL时使用事先冻结的族级收缩校准且注明支持，否则停观察</p>
+</li>
+<li><p>非有限、超范围、缺失校准和不同选择策略一律不给概率证书</p>
+</li>
+<li><p>迁移不能用新校准倒算历史并冒充旧赛前概率，只能离线诊断</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>构造相同ranking不同score尺度，概率证书不被尺度伪造</p>
+</li>
+<li><p>raw score=.9不自动等于90%命中概率</p>
+</li>
+<li><p>所有Brier行可追calibration/selection hash</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C04 四层捕获覆盖与冻结事务一致性</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-04 / M10；前置：B06、C01。</p>
+<h3>当前缺口</h3>
+<p>R925拆了eligible与执行，但机会登记与冻结未在同一统一状态机里，runWrite失败和中断仍可能造成状态歧义。</p>
+<h3>具体文件与入口</h3>
+<p>eligible / record / freezeOne</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/CaptureOpportunityR925.java</code>：EXISTING，当前30行，SHA256 <code>7de3719b9a95dfc5c1dd222984d3fd29dea3dfd7ac97b54f5240697b5d5be25c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java</code>：EXISTING，当前191行，SHA256 <code>6fe435e9938e7c39cf7e68b20d83871c2d920bc121d5c452ae038545e1e7cefb</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java</code>：EXISTING，当前734行，SHA256 <code>ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code>：EXISTING，当前3313行，SHA256 <code>bdde174e72379084a74066b320d281cadd67bd2f675d9b03d02e4b22c9fe0ba0</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFailureAttributionR815.java</code>：EXISTING，当前87行，SHA256 <code>af7bdc2ac0b27bc23cf443dbff72d07c32eb7d770ccccefc6528fad629fc01fd</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>记录system_available/eligible/selected/execution_started/frozen各阶段与原因，不混系统压力和算法主动失败</p>
+</li>
+<li><p>冻结果、opportunity终态、事件在同一DB事务，状态转移用CAS</p>
+</li>
+<li><p>失败写入不能返回成功，runWrite布尔/异常必须上抛可观测码</p>
+</li>
+<li><p>TierC代理证据独立于full1200不得计晋级样本</p>
+</li>
+<li><p>系统拒绝进入可恢复pause，不从总系统coverage分母删除</p>
+</li>
+<li><p>旧缺口保留unknown</p>
+</li>
+<li><p>ResearchFailureAttributionR815中的旧coverage归因同步改为系统/调度/执行原因，不能仅改生命周期而让归因页继续误判</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>在冻结前/后/事务中断分别注入故障，终态与预测行一致</p>
+</li>
+<li><p>同一期冻结不可被后续失败覆盖</p>
+</li>
+<li><p>分母公式可从明细逐行复算</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C05 结构、行为、残差去重与家族冠军</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-06 / M7；前置：C04、C06。</p>
+<h3>当前缺口</h3>
+<p>R925用操作码拓扑登记和保守旧族，尚无全候选行为/残差聚类及每族冠军调度。</p>
+<h3>具体文件与入口</h3>
+<p>register / reconcile / structuralHash / behavior probe</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java</code>：EXISTING，当前38行，SHA256 <code>4fd3f43d8ce2f6ba38e4bf670c6a82c3e5ebae88c5d6c8804c2fe0b02f2c82a2</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java</code>：EXISTING，当前734行，SHA256 <code>ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java</code>：EXISTING，当前336行，SHA256 <code>0560e76e0ed1ab66883ea90981f2138892362381226ede588122461e5dc6af26</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeR908.java</code>：EXISTING，当前777行，SHA256 <code>e37b894ad8118cf233a9896412846f0b594623720adb22827f33f072e77409d1</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java</code>：EXISTING，当前389行，SHA256 <code>32df9cd99493816b8cd8b94e55ad9283a77f6df4621443494b1a89187bc6da8a</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>结构canonical化参数顺序与无效操作，完全相同保留alias不重复计算</p>
+</li>
+<li><p>固定PIT probe输入及schema，记录全1200rank/选中hash</p>
+</li>
+<li><p>残差相关仅在共同Future期且支持足够时评估，按既定阈值&gt;0.95标同质，域互补则保留</p>
+</li>
+<li><p>统计family注册不可事后改族缩小检验分母，调度cluster与统计family两个字段</p>
+</li>
+<li><p>每族1champion和至多3challenger，其余暂停保留证据</p>
+</li>
+<li><p>冠军替换需要新独立配对窗口，不用训练分数挑赢者</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>重复结构/行为候选不占双份active预算</p>
+</li>
+<li><p>高相关但不同有效域不误并</p>
+</li>
+<li><p>归档和合并不减少已注册假设总数</p>
+</li>
+<li><p>每族冠军可追晋级依据</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C06 多重比较、试验注册与顺序检验协议</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-06 / M7；前置：D03、C01。</p>
+<h3>当前缺口</h3>
+<p>R925是保守FWER上界，不是实现了BH/FDR算法；重复试验、模型搜索和动态增加家族需统一统计合同。</p>
+<h3>具体文件与入口</h3>
+<p>adjustedQ / fdrQ / hierarchical_adjustment</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFamilyRegistryR925.java</code>：EXISTING，当前38行，SHA256 <code>4fd3f43d8ce2f6ba38e4bf670c6a82c3e5ebae88c5d6c8804c2fe0b02f2c82a2</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmEvidencePolicyR912.java</code>：EXISTING，当前282行，SHA256 <code>8b2f62ad95da8b5e432dccb9361de93060c85dd8e5610935ce11c715f296a308</code>。</p>
+</li>
+<li><p><code>training/r925/research_governance.py</code>：EXISTING，当前38行，SHA256 <code>c51d75f5a9b34b2e33f5ac04b5141cf7127998c7355d981ded71cab638ffeee0</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>报告命名区分raw_p/FWER_adjusted_p与FDR_q，禁止把所有值都叫q</p>
+</li>
+<li><p>默认保守分层Bonferroni+固定批次：批次alpha按预注册序列分配，族/候选预算冻结</p>
+</li>
+<li><p>候选/超参/域路由/修复子代均注册，归档不能删预算</p>
+</li>
+<li><p>局部与全局窗口检查登记look_id，不因看见好结果提前发证</p>
+</li>
+<li><p>bootstrap/分块统计明确依赖假设和近似性质，历史正态近似小N不当精确p</p>
+</li>
+<li><p>若采用其他层级FDR，必须单独实现验证依赖假设与仿真错误率后切换协议，禁止直接调低48下限</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>在纯噪声、相关候选、连续追加、重复look下统计测试报告可复现</p>
+</li>
+<li><p>分配alpha总额≤预注册总额</p>
+</li>
+<li><p>旧假设无法通过改名/归档/拆族逃避分母</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C07 8/24/64分层调度、共享计算与公平采样</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-04 / P1-06 / M10；前置：B05、C04、C05。</p>
+<h3>当前缺口</h3>
+<p>R925为32观察/8批量，不是8+24+64完整三层；简单扩容会占满一分钟。</p>
+<h3>具体文件与入口</h3>
+<p>MAX_RUNNABLE / MAX_OBSERVATION_COHORT_R925 / select cohort</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java</code>：EXISTING，当前527行，SHA256 <code>027a5975c707443ea0499fe4d0377ba4c2c199dc28f21a976d233e57c3a77604</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmInventionLabR908.java</code>：EXISTING，当前734行，SHA256 <code>ed7018326c9d8e7ee1eccd6475cc2ef184eff92cb1ae580ad2d1dcf117a147e9</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java</code>：EXISTING，当前191行，SHA256 <code>6fe435e9938e7c39cf7e68b20d83871c2d920bc121d5c452ae038545e1e7cefb</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java</code>：EXISTING，当前88行，SHA256 <code>5d16a76ecb0ddb5c39e298030f3e752e4fc5db92d4da58e046a84b7f54407a5e</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchEvaluationSchedulerR906.java</code>：EXISTING，当前60行，SHA256 <code>68df884cc7262b22c8f2d8994df00f6ef7f55335443501e696b0b5356ff856e4</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>A最多8个全1200、B最多24个共享特征批量完整评分、C最多64个代理苗圃，容量上限非每期必执行数</p>
+</li>
+<li><p>每期先冻结调度清单与budget，按缺样本年龄/晋级级别/家族配额确定，规则不看当期标签</p>
+</li>
+<li><p>缓存按issue/schema/model/atom状态键共享且只读</p>
+</li>
+<li><p>计算片≤250ms、总研究预算初值700ms并由实测自适应，临近下一期让步</p>
+</li>
+<li><p>执行失败/系统让步/未选中完整计账，不能淘汰没得到资源的候选</p>
+</li>
+<li><p>轮转最大等待与连续Future采样效率报告</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>64苗圃压力下主链仍满足5秒门</p>
+</li>
+<li><p>无候选无限饿死且无重复active</p>
+</li>
+<li><p>C层证据不能伪装full1200晋级</p>
+</li>
+<li><p>资源撤回不会误prune</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C08 生命周期V3与精英修复效果账本</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-03 / P1-04 / M10；前置：C01、C04、C07、C09。</p>
+<h3>当前缺口</h3>
+<p>首次原因已有保护，但完整Elite pool、修复操作选择、父子成败追踪仍缺。</p>
+<h3>具体文件与入口</h3>
+<p>maintain / freshChild / first_prune_reason</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmEvolutionLifecycleR912.java</code>：EXISTING，当前527行，SHA256 <code>027a5975c707443ea0499fe4d0377ba4c2c199dc28f21a976d233e57c3a77604</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java</code>：EXISTING，当前27行，SHA256 <code>8c5f061694793cac2e641cb91214e6aa823da8b4627dd318acbbbfe587d27904</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchGenomeContractR915.java</code>：EXISTING，当前290行，SHA256 <code>a088c3dd1bfe1c1ceed89c23991a5ac2c462e4c78918297104ac8921a564d9dd</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmEvidencePolicyR912.java</code>：EXISTING，当前282行，SHA256 <code>8b2f62ad95da8b5e432dccb9361de93060c85dd8e5610935ce11c715f296a308</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java</code>：EXISTING，当前887行，SHA256 <code>6a49d8bd4197696f40405d950359445fb9815934f4ff2e16241423acc7445072</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java</code>：EXISTING，当前360行，SHA256 <code>1fc9b2284a9b38da7457a297abb2bf5f46fe5a4b7902aabdafdfbb4d1bbdfd8a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java</code>：EXISTING，当前296行，SHA256 <code>f3d57d5b0f1b891aba4c23b15b775e662bc09c8d2d6ca4b12ef3e56c1b4b8553</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFailureAttributionR815.java</code>：EXISTING，当前87行，SHA256 <code>af7bdc2ac0b27bc23cf443dbff72d07c32eb7d770ccccefc6528fad629fc01fd</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>统一状态机IDEA/NURSERY/OBSERVING/EVIDENCE_READY/CHALLENGER/SHADOW/INFLUENCE/CHAMPION及暂停/隔离/质量淘汰</p>
+</li>
+<li><p>高潜父代按冻结多指标规则入elite，列具体未过门</p>
+</li>
+<li><p>每child必须repair_target/parent/changed_modules/atoms/expected_effect/falsification，结构新ID、新N=0</p>
+</li>
+<li><p>保留首次淘汰与所有转移事件，旧不可恢复原因为UNAVAILABLE</p>
+</li>
+<li><p>系统误杀经证据复核回观察，不直接恢复生产</p>
+</li>
+<li><p>修复成功率分attempted/matured/passed/pending，未到样本不算失败或成功</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>父代200样本child仍0</p>
+</li>
+<li><p>两次同结果不重复转移</p>
+</li>
+<li><p>系统缺失只pause</p>
+</li>
+<li><p>修复后必须独立paired改善才success，不以created数量完成</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C09 逐期失败分析、真正模块消融与定向反事实</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：M8 / P1-07；前置：D01、C01。</p>
+<h3>当前缺口</h3>
+<p>R925十类失败标志与离线留一特征族不是完整模块重执行，不足以称因果证明或手机修复闭环。</p>
+<h3>具体文件与入口</h3>
+<p>evaluate / snapshot / synthesize / failure diagnostics</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchAblationR815.java</code>：EXISTING，当前81行，SHA256 <code>759250e2abc20ac7c2d913e626c7f7918596ba058362d91c2f13727fe3d8eee6</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java</code>：EXISTING，当前57行，SHA256 <code>6efea69dead58faf69d2128f58e0d9a4f07cddc601a4e1a1131c6e41f1796cf5</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java</code>：EXISTING，当前108行，SHA256 <code>6358f89d9a46b7b65254205d78ca05e41aedf918ec1f9c650342a2a935a8c990</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java</code>：EXISTING，当前145行，SHA256 <code>b1a738569034ade2c91e92f5117cd99bee77e7eee2a1cd9cb03eea77cbae3587</code>。</p>
+</li>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java</code>：EXISTING，当前389行，SHA256 <code>32df9cd99493816b8cd8b94e55ad9283a77f6df4621443494b1a89187bc6da8a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java</code>：EXISTING，当前45行，SHA256 <code>3e058679421cc8bfb392db8d879bdf3eb5bfa1ea8bb48cc745d1a0e4b733fc13</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java</code>：EXISTING，当前296行，SHA256 <code>f3d57d5b0f1b891aba4c23b15b775e662bc09c8d2d6ca4b12ef3e56c1b4b8553</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>存FailureCase与冻结输入、选中动作、第三第四边界、原概率/校准、teacher/shape/relation、consumer和statehash</p>
+</li>
+<li><p>按已定义赛前特征分组，开奖只用于标注失败，聚类参数只能用于之后</p>
+</li>
+<li><p>在完全同一输入上关闭FTRL/TinyDeep/Teacher/Trend/Shape/Relation/Invented逐一重跑完整选择链</p>
+</li>
+<li><p>记录changed selection、Δscore/Hit/Brier与运行成本，保证counterfactual_run不写canonical</p>
+</li>
+<li><p>区分软件干预贡献与真实世界因果，最近获胜K3只作诊断不倒改预测</p>
+</li>
+<li><p>少于预定失败支持不盲造，输出WAIT_FOR_FAILURE_EVIDENCE</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>每一模块消融有真实执行输出，不是重命名指标</p>
+</li>
+<li><p>所有当期历史hash不变</p>
+</li>
+<li><p>repair只影响下一候选和未来期</p>
+</li>
+<li><p>负对照模块应零影响</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C10 逐原子缺失、时延、PIT与质量图</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：M9 / P1-07；前置：D01、C09。</p>
+<h3>当前缺口</h3>
+<p>当前120期均值方差漂移和128相关边不包含真实missingness、逐原子耗时与独立消融；deadline也不能中断已开始的大SQL。</p>
+<h3>具体文件与入口</h3>
+<p>AtomSpec / PredrawContext / maintain</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java</code>：EXISTING，当前292行，SHA256 <code>1aacddab094e95c456713c5c010bd5766b459a4ab6650a0db01161a938f0e604</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java</code>：EXISTING，当前424行，SHA256 <code>6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java</code>：EXISTING，当前54行，SHA256 <code>8c26c5fef8f28dbecee857049eac7bdeca817b5d30d3ca879699a8362e993755</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java</code>：EXISTING，当前292行，SHA256 <code>1aacddab094e95c456713c5c010bd5766b459a4ab6650a0db01161a938f0e604</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>原子产出ValueResult包含value/present/missing_reason/max_source_issue/cost_ns/hash，零值与缺失严格分开</p>
+</li>
+<li><p>在原子计算处计时而非把整组耗时平均到每个原子</p>
+</li>
+<li><p>240项语义分层逐项保留，165赛前/40代理/20开奖后/15审计来源列表核对</p>
+</li>
+<li><p>质量采用增量有游标窗口，最近期查询用专门冻结上下文索引而非每轮全表GROUP BY</p>
+</li>
+<li><p>相关/共选/冲突/残差互补边各自命名，不把相关当因果</p>
+</li>
+<li><p>同一期多个资产复用同一atom上下文只算一次支持</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>每个原子有来源/掩码/耗时/消费者清单</p>
+</li>
+<li><p>本期postdraw20项生产调用0</p>
+</li>
+<li><p>百万冻结记录查询EXPLAIN索引与性能满足预算</p>
+</li>
+<li><p>旧fixture缺mask明确unknown</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C11 原子准入、隔离和保留既有矩阵</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：M9；前置：C10、C01。</p>
+<h3>当前缺口</h3>
+<p>R925只观察不自动降噪；新增隔离必须避免删掉用户要求保留的原有矩阵与素材。</p>
+<h3>具体文件与入口</h3>
+<p>productionScoreEligible / semanticTier / atom consumers</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisSchemaRegistryR915.java</code>：EXISTING，当前292行，SHA256 <code>1aacddab094e95c456713c5c010bd5766b459a4ab6650a0db01161a938f0e604</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/GenesisAssetVmR915.java</code>：EXISTING，当前424行，SHA256 <code>6045a3436344eba31b64c0a6f9fa1e3145a9cb3d96b46b5544cb5a5c5662e475</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AtomQualityLedgerR925.java</code>：EXISTING，当前54行，SHA256 <code>8c26c5fef8f28dbecee857049eac7bdeca817b5d30d3ca879699a8362e993755</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java</code>：EXISTING，当前108行，SHA256 <code>6358f89d9a46b7b65254205d78ca05e41aedf918ec1f9c650342a2a935a8c990</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>状态ACTIVE/WATCH/SHADOW_ONLY/QUARANTINED带规则版本和证据</p>
+</li>
+<li><p>PIT/非确定性硬失败立即隔离新研究消费，缺失/有害消融须足够支持</p>
+</li>
+<li><p>既有固定矩阵注册为legacy_fixed，不物理删除/改其公式，新增候选通过受控adapter引用</p>
+</li>
+<li><p>原子替换改变schema/asset hash，相关证书失效重新观察</p>
+</li>
+<li><p>新原子准入要求签名schema、有限范围、PIT、确定性、成本、支持定义和parity</p>
+</li>
+<li><p>恢复只能通过新的审计证据，禁止下次轮询自动解禁</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>原有趋势/形态/关系/教师/反推/因果/反哺资产hash保留</p>
+</li>
+<li><p>隔离后新候选不会再调用该原子</p>
+</li>
+<li><p>缺失与低相关不能触发无证据删除</p>
+</li>
+<li><p>恢复过程可审计</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>C12 创造搜索的结构新颖度与质量目标</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：M8 / M9 / M10 / P1-02；前置：C05、C08、C11。</p>
+<h3>当前缺口</h3>
+<p>用户要求创造具体算法机制，不只是改参数、增加候选数；现有搜索还需把失败与互补证据接成目标。</p>
+<h3>具体文件与入口</h3>
+<p>synthesize / instruction set / genome / VM</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java</code>：EXISTING，当前108行，SHA256 <code>6358f89d9a46b7b65254205d78ca05e41aedf918ec1f9c650342a2a935a8c990</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java</code>：EXISTING，当前145行，SHA256 <code>b1a738569034ade2c91e92f5117cd99bee77e7eee2a1cd9cb03eea77cbae3587</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeR908.java</code>：EXISTING，当前777行，SHA256 <code>e37b894ad8118cf233a9896412846f0b594623720adb22827f33f072e77409d1</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AlgorithmGenomeVmR908.java</code>：EXISTING，当前236行，SHA256 <code>4e1b0319002bef9365127ff37a4083e493d498269bc504b94736f830ac9ea1d6</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AssetGenesisEngineR915.java</code>：EXISTING，当前887行，SHA256 <code>6a49d8bd4197696f40405d950359445fb9815934f4ff2e16241423acc7445072</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchFailureHypothesisEngineR811.java</code>：EXISTING，当前296行，SHA256 <code>f3d57d5b0f1b891aba4c23b15b775e662bc09c8d2d6ca4b12ef3e56c1b4b8553</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>建立允许的原子→表达式→方法图→状态更新程序搜索语法，保留解释与中文名</p>
+</li>
+<li><p>生成先做类型/范围/PIT/成本/资源上界检查，再结构/行为去重</p>
+</li>
+<li><p>标明PARAMETER_VARIANT/STRUCTURAL_CHANGE/NEW_FAMILY，不把调参称新算法家族</p>
+</li>
+<li><p>有失败证据优先最小修复，无证据按预注册少量探索配额生成</p>
+</li>
+<li><p>目标先硬约束再配对增益/校准/域稳定/资源Pareto比较，复杂度和新颖度最后</p>
+</li>
+<li><p>产物包含可执行genome文本、依赖原子、输入输出例、失效条件、所属家族和未来证书链</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>从最底层原子到可执行候选有完整源码文本</p>
+</li>
+<li><p>至少用合同fixture验证新结构能运行并被正确拒绝/晋级，真实高品质只能由Future证据认定</p>
+</li>
+<li><p>每个创造事件都有目的与预算</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/C12/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>U01 首页固定信息、流水和独立影子卡</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P0-03 / P0-05 / P1-09 / P1-10；前置：B06、B07、B09。</p>
+<h3>当前缺口</h3>
+<p>R925动态加卡尚无设备视觉验收；长流水可能挤压主信息，授权和实际运行状态容易混读。</p>
+<h3>具体文件与入口</h3>
+<p>install R925 panels / capture / pipeline / shadow</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/OperationalDashboardR925.java</code>：EXISTING，当前23行，SHA256 <code>02830c819dcb2021581d7db98cd98888b1bf40027b4bd36fd7b48c0f2256f72d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RuntimeObservabilityR925.java</code>：EXISTING，当前93行，SHA256 <code>9f4b8e3ac2781a8f62c7357d570cf0a5a628d125416876a7d91eff09cf157e19</code>。</p>
+</li>
+<li><p><code>app/src/main/res/layout/activity_main.xml</code>：EXISTING，当前679行，SHA256 <code>66c5f236d2ca3234323a3f574714d54c88a99c86a13dd3514057f5a2de1c3af0</code>。</p>
+</li>
+<li><p><code>app/src/main/res/layout-sw600dp/activity_main.xml</code>：EXISTING，当前679行，SHA256 <code>66c5f236d2ca3234323a3f574714d54c88a99c86a13dd3514057f5a2de1c3af0</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java</code>：EXISTING，当前857行，SHA256 <code>615e02108c03f32fd1b00a9d4794d6c2a19a4af516124680ab438bfc48cc28de</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>顶部横向版本条及后台能力条固定，权限与业务健康两个灯</p>
+</li>
+<li><p>首页只显示最近20期紧凑行，可展开500，抓取最近100独立筛选</p>
+</li>
+<li><p>Shadow卡显示总/已结/待结/中/未中/HR/Wilson/30/60/120且按需展开</p>
+</li>
+<li><p>显示as_of时间/旧数据/查询失败，刷新失败不能留下无标识旧值</p>
+</li>
+<li><p>全部DB读取后台、有生命周期取消和请求版本号防旧回调覆盖新页面</p>
+</li>
+<li><p>保留原号码面/风险/形态入口</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>phone与sw600dp全部ID/handler一致</p>
+</li>
+<li><p>最大字体和窄屏不遮按钮</p>
+</li>
+<li><p>停止刷新/旋转重建无泄漏</p>
+</li>
+<li><p>UI计数与同一event watermark导出一致</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/U01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>U02 四个独立能力页面及趋势证据</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：P1-08 / M2 / M7 / M8 / M9 / M10；前置：U01、C08、C10、D10。</p>
+<h3>当前缺口</h3>
+<p>目前四卡仍共用现有详情Activity长文，缺四个职责清晰的独立趋势页面。</p>
+<h3>具体文件与入口</h3>
+<p>captureSection / detail routes / Activity registration</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java</code>：EXISTING，当前143行，SHA256 <code>1c0ee626459554ceb1cac7e80c5440ac412997fbc4e99e324fc4122907935eb0</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ModelLearningActivity.java</code>：EXISTING，当前200行，SHA256 <code>ca383f468f6ae25ecf006e53387890217cc02a42a7f6eea95b315db8366fa657</code>。</p>
+</li>
+<li><p><code>app/src/main/AndroidManifest.xml</code>：EXISTING，当前89行，SHA256 <code>bae4edec4437a9037ceed7b87b1ed41e0eabebaba0e892f90b114b5f5fb9fae2</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>新增DeepLearningActivity/ EvolutionActivity/CreationActivity/AtomQualityActivity及独立只读Presenter，全部Manifest明确注册</p>
+</li>
+<li><p>每页固定职责/最近动作/输入/产物/样本/独立提升/卡门/主链贡献8项</p>
+</li>
+<li><p>趋势按期绘制样本、pairedΔ、校准、状态转移与实权重，N不足画空态不画假曲线</p>
+</li>
+<li><p>深度页分离模型版本与更新次数，进化页父子图和修复率，创造页中文公式/代码/证书漏斗，原子页质量/消费者/语义隔离</p>
+</li>
+<li><p>图表本地Canvas只读，数据分页且无额外网络依赖</p>
+</li>
+<li><p>从四页回到同一issue证据和完整报告</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>用户5秒能找到正在做什么/有没有改善/是否接主链/为什么未接</p>
+</li>
+<li><p>四页各自点击、返回、空态、错误、长名单和大屏测试通过</p>
+</li>
+<li><p>原有功能页全部可达</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/U02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>U03 为什么中/不中、风险稳定性与旧矩阵回归</h2>
+<p>优先级：P1；类别：ENGINEERING；原要求：M8 / P1-08；前置：D07、C09、U01。</p>
+<h3>当前缺口</h3>
+<p>历史用户反馈空值与长教师段落；R925缺设备证明，不能假设代码存在即修好。</p>
+<h3>具体文件与入口</h3>
+<p>reason states / original p / stability / matrices</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/FeatureAblationAttributionEngine.java</code>：EXISTING，当前57行，SHA256 <code>6efea69dead58faf69d2128f58e0d9a4f07cddc601a4e1a1131c6e41f1796cf5</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java</code>：EXISTING，当前643行，SHA256 <code>44bef170584845aa20a5da82d1e373e5f1087fde62aaec88d8271e711bcef4ed</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/Models.java</code>：EXISTING，当前21363行，SHA256 <code>16a9fbe9f63c6bb8342595bd0face89814b065ca893aa9fdf33e31c52d542ca7</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java</code>：EXISTING，当前284行，SHA256 <code>5f5b850aadd25b2ff961d5a14b33a6eb169233537950445b1c23987d64c3a101</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java</code>：EXISTING，当前542行，SHA256 <code>aefd1c74cf4042aec6f5c94594ee7a128df9e4b1c15e97f143c497903ec3fe55</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V51RelationGraphVerifier.java</code>：EXISTING，当前45行，SHA256 <code>3e058679421cc8bfb392db8d879bdf3eb5bfa1ea8bb48cc745d1a0e4b733fc13</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>追踪号码风险/动作稳定性/原始概率/校准概率的计算→持久化→DTO→绑定每一段</p>
+</li>
+<li><p>恢复紧凑多状态框，包含来源强度/分歧/边界/形态/关系/teacher/漂移/样本/研究贡献等实际可得状态</p>
+</li>
+<li><p>开奖前分析与开奖后解释分区，教师长文放展开详情</p>
+</li>
+<li><p>没有数据给缺失原因和期号，不用固定填充值</p>
+</li>
+<li><p>保留趋势形态、号码属性、位置关联、教师、反推、因果、反哺原资产并逐入口回归</p>
+</li>
+<li><p>“两挂”触发诊断事件可以做，但不能保证第三次命中</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>对旧反馈每个字段提供有值/缺失/失败fixture及设备截图</p>
+</li>
+<li><p>原矩阵入口和数值来源无消失</p>
+</li>
+<li><p>开奖后解释不修改赛前决策</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/U03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>U04 完整检测报告、导出与可追溯证据</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-12 / P0-05 / M1 / M2 / M3 / M4 / M5 / M6 / M7 / M8 / M9 / M10；前置：B06、U02、U03、C02、D10。</p>
+<h3>当前缺口</h3>
+<p>静态审计已嵌入，但动态分项失败、证书七件套、全模块进度与一键大数据导出仍需统一并验证。</p>
+<h3>具体文件与入口</h3>
+<p>report / static asset / sharePrepared / MIME</p>
+<ul>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java</code>：EXISTING，当前643行，SHA256 <code>44bef170584845aa20a5da82d1e373e5f1087fde62aaec88d8271e711bcef4ed</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java</code>：EXISTING，当前35行，SHA256 <code>db051920120947ad2c721e90730699f7449866b2f3a2b80bfbaa692a7a4c707c</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DiagnosticTextExportR923.java</code>：EXISTING，当前147行，SHA256 <code>ad3ef3cfa57ce05567e20b51543daa769d73672dfc356e11f2fe59a8ceab9a7d</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java</code>：EXISTING，当前63行，SHA256 <code>1e1e53dd5a181c8bf353c89e88bb8632b17e86e3c1a184bf2f30654e7900abb5</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/TrainingSnapshotExportR925.java</code>：EXISTING，当前55行，SHA256 <code>7eb25309c5ee8e75e048ea7692bacd8e6140ba7d7078d618e2f579bc53082671</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>一个诊断快照ID汇总身份/权限/业务事件/时延/结算/影子/REAL/积压/模型/证书/家族/修复/原子/UI/全部源文件资产</p>
+</li>
+<li><p>每节有status/as_of/source/hash/window，错误独立列不吞</p>
+</li>
+<li><p>一键导出主报告txt与JSON、明细CSV/JSONL及manifest，使用流式写文件避免超大String和binder</p>
+</li>
+<li><p>分享只授权本次URI且Provider验证规范路径与文件范围</p>
+</li>
+<li><p>复制完整报告与导出共用同一快照，超过系统剪贴能力明确改用文件</p>
+</li>
+<li><p>结果摘要分别CODE/HOST/APK/DEVICE/DATA/FUTURE，不用一个PASS覆盖所有层</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>任何章节故障仍导出错误码及其他章节</p>
+</li>
+<li><p>所有M1-M10状态非缺省</p>
+</li>
+<li><p>同一snapshot UI与报告计数一致</p>
+</li>
+<li><p>导出文件实际可分享打开、hash可复算</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/U04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>Q01 主机、SQL、故障注入与统计回归</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-12 / P2-02 / M1 / M2 / M3 / M4 / M5 / M6 / M7 / M8 / M9 / M10；前置：B10、B11、C12、U04、D10。</p>
+<h3>当前缺口</h3>
+<p>既有host通过是基线；新方案需故障语义和负例，不能全靠regex扫描通过。</p>
+<h3>具体文件与入口</h3>
+<p>现有host harness扩展 / real SQLite bridge</p>
+<ul>
+<li><p><code>scripts/r925_compile_host.sh</code>：EXISTING，当前42行，SHA256 <code>778cc725ce0fdf962cedaf6a0d029c11427e136aa16207925245b70a440a516d</code>。</p>
+</li>
+<li><p><code>scripts/r925_verify_sql_and_training.sh</code>：EXISTING，当前17行，SHA256 <code>36d623360837abc02a6b19db4044c7f12edac402c1d89df18761d9649b2cea0e</code>。</p>
+</li>
+<li><p><code>verification/r925/R925PolicyHarness.java</code>：EXISTING，当前21行，SHA256 <code>aebb878cd16dc176bd21edb802554b453d34a657e0d3c88719206854c795cb24</code>。</p>
+</li>
+<li><p><code>verification/r925/R925SqlHarness.java</code>：EXISTING，当前63行，SHA256 <code>caaf06f058ef293eb5050c6d079e94f0345a7dd7286146860502bc203bbc41af</code>。</p>
+</li>
+<li><p><code>verification/r925/verify_training.py</code>：EXISTING，当前39行，SHA256 <code>080c578c82a0845db11e8c06dbf8fded50f7fc12209d35b77739a9d7e5686d77</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>保留原13纯主机harness结果并核对真实接口，新增每任务负例</p>
+</li>
+<li><p>真实SQLite测试所有DDL幂等/唯一键/回放/回滚/并发锁</p>
+</li>
+<li><p>完整流水在每个持久化边界注入中止，核对收敛与Owner</p>
+</li>
+<li><p>训练污染、复制sealed、错校准选择hash、改域、基线变更、假family与重复look一律拒绝</p>
+</li>
+<li><p>原子语义和旧矩阵fixture保留</p>
+</li>
+<li><p>证据中明确mock、synthetic、host、instrumented四种来源</p>
+</li>
+<li><p>本项仅主机/SQL/构建合同门，不依赖Android实测完成；D11先做host子检查，设备部分在Q01产出测试APK后完成，避免启动依赖环</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>所有必需负例可触发预期拒绝</p>
+</li>
+<li><p>零测试不得显示PASS</p>
+</li>
+<li><p>失败列表、命令/版本/hash完整，改动相关回归全部通过</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/Q01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>Q02 手机覆盖安装与完整后台设备矩阵</h2>
+<p>优先级：P0；类别：DEVICE_DEPENDENT；原要求：P0-01 / P0-02 / P0-03 / P0-04 / P1-09 / P1-11 / P2-01；前置：Q01。</p>
+<h3>当前缺口</h3>
+<p>没有可访问手机或模拟器，当前所有物理启动/息屏/划掉/24h未执行。</p>
+<h3>具体文件与入口</h3>
+<p>实体Android14目标手机优先 / 辅助API21与35/36</p>
+<ul>
+<li><p><code>app/src/main/AndroidManifest.xml</code>：EXISTING，当前89行，SHA256 <code>bae4edec4437a9037ceed7b87b1ed41e0eabebaba0e892f90b114b5f5fb9fae2</code>。</p>
+</li>
+<li><p><code>scripts/r925_apk_acceptance.sh</code>：EXISTING，当前185行，SHA256 <code>f08e34edd4a245ed2d52cd62f5c961cee39301d6fc4dfead7138d1a5f0bb7463</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code>：EXISTING，当前9440行，SHA256 <code>ce51799bd437d0e687a844672be80e44ba02bb23fb9b72297013f46b1d946741</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code>：EXISTING，当前17481行，SHA256 <code>0ac3cf4d83bc28342a4fee5f12e97d76777e152f733df706aa9619671126a444</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>先备份应用内可恢复数据并核对当前安装包身份，使用原签名覆盖安装不卸载</p>
+</li>
+<li><p>按设备表执行冷启动、120亮屏、120息屏、划掉30、网络/锁屏/重启/授权撤回/用户停止</p>
+</li>
+<li><p>系统强停单独记录系统行为，恢复从用户启动开始验收</p>
+</li>
+<li><p>24h连续运行保存逐期事件、logcat/ANR/崩溃、耗时与电量温度</p>
+</li>
+<li><p>全部页面大字体/暗色/窄屏/平板点击截图，导出回传</p>
+</li>
+<li><p>任一失败归Owner修复后仅重跑相关项与必要端到端门</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>安装后可启动且历史保留</p>
+</li>
+<li><p>规定可运行场景掉期0/重复0，连续120覆盖目标≥99%但若要求无掉期则按120/120判</p>
+</li>
+<li><p>稳态5秒和FULL/结算门全达标</p>
+</li>
+<li><p>未执行维持NOT_RUN</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/Q02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>Q03 真实训练、封存与未来证书效果验收</h2>
+<p>优先级：P0；类别：DATA_AND_FUTURE_DEPENDENT；原要求：P1-01 / P1-02 / P1-07 / M1 / M2 / M3 / M4 / M5 / M6 / M7 / M8 / M9 / M10；前置：Q02、D09、C02、D10、D11。</p>
+<h3>当前缺口</h3>
+<p>附件提供报告和项目，不包含足以完成该合同的当前游戏生产训练快照；120+240新期本来需要经过真实时间。</p>
+<h3>具体文件与入口</h3>
+<p>真实当前游戏训练快照 / sealed / Future live</p>
+<ul>
+<li><p><code>training/r925/pipeline.py</code>：EXISTING，当前201行，SHA256 <code>cf36699bf67858cf1bc647b308c17b4b26667504fbc83c51b011d4decc0d730f</code>。</p>
+</li>
+<li><p><code>training/r925/deep_candidates.py</code>：EXISTING，当前130行，SHA256 <code>60cd6a0957da610ec051ad4a90abb899c31bc9497ce05c15fb82ee5dca48ce4e</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/PromotionWindowR925.java</code>：EXISTING，当前60行，SHA256 <code>ad0aaab62168f63e92ebd009e0b67ad5e66c66aa0e6e310384d089258408d36a</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java</code>：EXISTING，当前643行，SHA256 <code>44bef170584845aa20a5da82d1e373e5f1087fde62aaec88d8271e711bcef4ed</code>。</p>
+</li>
+<li><p><code>app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java</code>：EXISTING，当前947行，SHA256 <code>09b9b7d4f3b154656f6989eae833d8e08b1d8d3586ed281fe62db691cd24c7a2</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>在工程设备门通过后启动新快照采集与已结数据导出，可用旧严格快照按合同审计后补充训练</p>
+</li>
+<li><p>由训练命令生成全部artifact，独立sealed一次性验收并永久登记</p>
+</li>
+<li><p>失败则保持研究、不伪造PROVEN，下一轮需要新的预注册设计与未消费数据</p>
+</li>
+<li><p>只有经批准的冻结bundle进入影子Future</p>
+</li>
+<li><p>证书阶梯按实际有效配对期等待，漏样本会延长，不能模拟补满</p>
+</li>
+<li><p>目标40%/15%及稳定性独立报表，任何未达标效果项保持失败</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>真实dataset/所有阶段/host+Androidparity/hash/封存/资源/新Future齐全才模型证明</p>
+</li>
+<li><p>至少1个真实合格候选若未出现就不能声称创造效果完成</p>
+</li>
+<li><p>不保证数据必有可持续优势</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/Q03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<h2>Q04 一次总交付、可重建包与实际回退</h2>
+<p>优先级：P0；类别：ENGINEERING；原要求：P1-12 / P2-02；前置：Q01、Q02、Q03。</p>
+<h3>当前缺口</h3>
+<p>下一次必须严格区别工程包与通过全部验收的正式封板包；同签名旧APK未必允许versionCode降级覆盖。</p>
+<h3>具体文件与入口</h3>
+<p>源码→资源→DEX→签名→总包 / release gate</p>
+<ul>
+<li><p><code>scripts/r925_build_release.sh</code>：EXISTING，当前256行，SHA256 <code>7b4154f5ac8391490a437ca9ba9f94fb08d5a67b17b7117aed205a0422c3e4ce</code>。</p>
+</li>
+<li><p><code>scripts/r925_build_total.sh</code>：EXISTING，当前10行，SHA256 <code>3e537b744498c1198dd3fe92aa4de9c29420169712055989ed13d8d4654992ad</code>。</p>
+</li>
+<li><p><code>scripts/r925_apk_acceptance.sh</code>：EXISTING，当前185行，SHA256 <code>f08e34edd4a245ed2d52cd62f5c961cee39301d6fc4dfead7138d1a5f0bb7463</code>。</p>
+</li>
+<li><p><code>release/release_identity.properties</code>：EXISTING，当前10行，SHA256 <code>c66decd88b70880d70d21fad11fd756ffd00ae95f4de0480c1552dc765a32e2e</code>。</p>
+</li>
+</ul>
+<h3>实施步骤</h3>
+<ol>
+<li><p>所有任务施工与验证完成后统一冻结发行commit，不逐小补丁交付</p>
+</li>
+<li><p>包含完整源码资产、所有模型证据/原方案/DDL/构建工具/原签名材料/历史包/最终APK/修改统计/未关闭项</p>
+</li>
+<li><p>构建后从实际APK提取DEX/资源/身份/模型hash与源码生成清单核对</p>
+</li>
+<li><p>回退首选同版本内停用新模型/研究开关，代码回退构建更高versionCode恢复包，原旧APK仅作存档，不能承诺普通手机直接降级覆盖</p>
+</li>
+<li><p>检查总包所有字节和重建命令</p>
+</li>
+<li><p>发布门由机器读取任务结果，不允许NOT_RUN/BLOCKED/FAIL被整体PASS盖掉</p>
+</li>
+</ol>
+<h3>验收条件</h3>
+<ul>
+<li><p>全部工程门PASS方可工程完成</p>
+</li>
+<li><p>设备/数据/Future效果门也全PASS才允许标全部目标验收</p>
+</li>
+<li><p>单一总包文件可校验、可按文档重建，实际恢复包数据兼容已测</p>
+</li>
+</ul>
+<h3>失败处理与证据</h3>
+<p>关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。</p>
+<p>实施后写入 evidence/Q04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。</p>
+<hr>
+<h1 id="chapter-11">原要求覆盖</h1>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>原要求</th>
+<th>内容</th>
+<th>施工任务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0-01</td>
+<td>冷启动/延迟口径</td>
+<td>B03、B04、B05、Q02</td>
+</tr>
+<tr>
+<td>P0-02</td>
+<td>覆盖口径混淆</td>
+<td>B05、B06、Q02</td>
+</tr>
+<tr>
+<td>P0-03</td>
+<td>后台系统授权未完成</td>
+<td>B07、U01、Q02</td>
+</tr>
+<tr>
+<td>P0-04</td>
+<td>后台真机闭环未证明</td>
+<td>B07、B09、Q02</td>
+</tr>
+<tr>
+<td>P0-05</td>
+<td>实时观察不可见</td>
+<td>B06、B08、U01、U04</td>
+</tr>
+<tr>
+<td>P0-06</td>
+<td>REAL旧账本来源无效</td>
+<td>B11、D09</td>
+</tr>
+<tr>
+<td>P1-01</td>
+<td>生产模型未训练</td>
+<td>D01、D02、D03、D04、D05、D06、D07、D09、D10、D11、Q03</td>
+</tr>
+<tr>
+<td>P1-02</td>
+<td>创造主链贡献0</td>
+<td>B11、C01、C02、C12、Q03</td>
+</tr>
+<tr>
+<td>P1-03</td>
+<td>淘汰原因丢失</td>
+<td>C08</td>
+</tr>
+<tr>
+<td>P1-04</td>
+<td>coverage淘汰混入基础设施因素</td>
+<td>C04、C07、C08</td>
+</tr>
+<tr>
+<td>P1-05</td>
+<td>证书门与算法门两套阈值不统一</td>
+<td>D08、C01、C02、C03</td>
+</tr>
+<tr>
+<td>P1-06</td>
+<td>FDR/候选爆炸</td>
+<td>C05、C06、C07</td>
+</tr>
+<tr>
+<td>P1-07</td>
+<td>深度学习只研究不生产</td>
+<td>D02、D04、D10、D11、C09、C10、Q03</td>
+</tr>
+<tr>
+<td>P1-08</td>
+<td>四大能力概念混杂</td>
+<td>U02、U03</td>
+</tr>
+<tr>
+<td>P1-09</td>
+<td>影子统计不独立</td>
+<td>B09、U01、Q02</td>
+</tr>
+<tr>
+<td>P1-10</td>
+<td>抓取记录不可见</td>
+<td>B06、B08、U01</td>
+</tr>
+<tr>
+<td>P1-11</td>
+<td>大屏布局缺后台授权按钮</td>
+<td>Q02</td>
+</tr>
+<tr>
+<td>P1-12</td>
+<td>报告缺UI/资源/Manifest/逐文件章节</td>
+<td>B01、B02、U04、Q01、Q04</td>
+</tr>
+<tr>
+<td>P2-01</td>
+<td>Deferred backlog</td>
+<td>B10、Q02</td>
+</tr>
+<tr>
+<td>P2-02</td>
+<td>MainActivity/AutoFetchService/DbStore超大</td>
+<td>B01、B02、B03、B04、Q01、Q04</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>模块1全部子项见原方案与详细章节</td>
+<td>D01、D02、D03、D10、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>模块2全部子项见原方案与详细章节</td>
+<td>D02、D03、D04、D10、D11、U02、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>模块3全部子项见原方案与详细章节</td>
+<td>D02、D03、D05、D10、D11、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>模块4全部子项见原方案与详细章节</td>
+<td>D03、D06、D07、D09、D10、C03、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>模块5全部子项见原方案与详细章节</td>
+<td>D08、D10、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M6</td>
+<td>模块6全部子项见原方案与详细章节</td>
+<td>D06、D10、C01、C02、C03、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M7</td>
+<td>模块7全部子项见原方案与详细章节</td>
+<td>C05、C06、U02、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M8</td>
+<td>模块8全部子项见原方案与详细章节</td>
+<td>C09、C12、U02、U03、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M9</td>
+<td>模块9全部子项见原方案与详细章节</td>
+<td>C10、C11、C12、U02、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>M10</td>
+<td>模块10全部子项见原方案与详细章节</td>
+<td>C04、C07、C08、C12、U02、U04、Q01、Q03</td>
+</tr>
+<tr>
+<td>USER-01</td>
+<td>保留原矩阵形态与底层构件资产</td>
+<td>B02、C11、U03、Q04</td>
+</tr>
+<tr>
+<td>USER-02</td>
+<td>为什么中不中多状态框、风险稳定性与原始概率</td>
+<td>D07、U03</td>
+</tr>
+<tr>
+<td>USER-03</td>
+<td>最少15%真实频率与高胜率目标</td>
+<td>D09、Q03</td>
+</tr>
+<tr>
+<td>USER-04</td>
+<td>一键完整报告、所有资产单链接</td>
+<td>U04、Q04</td>
+</tr>
+<tr>
+<td>USER-05</td>
+<td>具体算法源码与中文名、不是调参冒充新家族</td>
+<td>C12、U02</td>
+</tr>
+<tr>
+<td>USER-06</td>
+<td>逐文件行数/字符和阶段严格自检</td>
+<td>B01、B02、Q01、Q04</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="chapter-12">DDL的边界与事务接线</h1>
+<p>设计SQL提供26张新增表和不可变证据触发器，不修改原表及user_version。手机层要通过原DatabaseCoordinator执行迁移，分域stamp与旧表适配须实现后才能发布。schema本身不能证明代码正确。</p>
+<p>关键写事务：canonical/贡献/event/outbox一组；CORE settlement/label/event/outbox一组；候选freeze/schedule终态/event一组；学习参数/学习游标/outbox完成一组；bundle激活指针CAS与激活事件一组。网络响应和用户操作先记录request id，再由这些事务完成投影。</p>
+<p>SQLite CHECK无法覆盖完整Java/Python合同：有限数、真实日期期号、snapshot与join issue一致、证书签名、窗口game/candidate/hash匹配、统计协议和PIT必须由应用验证并做负例。外键需每连接开启并检验foreign_key_check；声明外键不代表已启用。</p>
+<p>r926_window的start/end、候选/基线/schema/calibration/selection/domain/protocol在REGISTERED之后不可改变：设计SQL已含字段级不可变触发器，手机迁移必须安装并实际测试，状态与result_hash只允许预定义转移。r926_certificate的签发合同不可改，撤销仅补revoked_at/reason。r926_bundle manifest不可改，status变化需事件。下文自检只验证当前设计表/约束，并未替代这些手机服务方法。</p>
+<p>时间窗不足不扩大end并继续直到赢：该窗口以不足样本结束为INCOMPLETE记录（应用可映射ABORTED+原因），下一窗口重新预注册；旧不足样本不装作新证据。生产建议按实际issue序列预先确定end，不能用字符串加240处理跨日。game/issue为业务键，hash是身份与证据键，两者不可混用。</p>
+<p>迁移回填只将旧证据映射为LEGACY并保留旧hash；旧未知概率/缺mask/缺原原因不能自动补真。r926_atom_measure对research/settlement语义允许事后来源，只有生产消费者校验max_source&lt;target。先保留全部旧240项，再对165生产可用项施加赛前门。</p>
+<hr>
+<h1 id="chapter-13">原方案验收口径冲突的明确处理</h1>
+<ol>
+<li>覆盖≥99%与“120期无掉期”：正常场景取更严格120/120；覆盖百分比仍另报。断网测试单列故障时段，不从全期流水消失。</li>
+<li>结算≥99.9%与120期样本：120期任何一条未结即不能PASS，采用全部应结样本完成且duplicate0；24h再报告比例。</li>
+<li>backlog单调下降：有新增任务时瞬时pending可以上升。改为净吞吐为正、旧队列龄下降、可恢复欠账最终0；全部缺证隔离也必须列出，不能装作清零。</li>
+<li>100%归档有原始原因：对新版所有转移要求完整；旧已丢失原因只能UNAVAILABLE。旧未知不能改为通过，明确历史证据不可恢复。</li>
+<li>每级新Future窗口：此处明确为120/240/240/240/360不重叠；初始L4旧样本不计入。已有R925历史只作兼容诊断，不直接购买新窗口授权。</li>
+<li>SHADOW5–12%与生产阶梯：L5只在独立影子副本重排；L6才实际5%。旧更低消费者cap继续取min，扩大cap要新的选择/校准合同和新窗口。</li>
+<li>至少1个真实合格候选：保留为效果目标；如果真实数据找不到，则FAIL_EFFECT，不能降低阈值或用模拟构造候选报完成。</li>
+<li>FDR字段：原R925实际FWER上界必须改名明确；新方案默认固定批次保守多重比较协议，不把它冒充BH。</li>
+<li>所有手机都永远后台：不可执行的绝对承诺。验收指定设备和授权/网络场景；尊重用户强停。当前target28，target35特有限制不可误判为当前事实。</li>
+<li>R811/R925都96维：维数相同不是合同相同。生产上游重新训练；派生META网络单列研究；绝不改名激活。</li>
+<li>生产真值：AppConfig多代标志有不同作用域，按实际Gate调用与本期配置hash判断，不能用旧常量文字推测实际REAL权限。</li>
+<li>“不删除原资产”和自动降噪：保留原代码/素材与历史，隔离新的研究消费者；如果确需改变固定旧资产，另形成明确diff和证明，不能暗中删改。</li>
+</ol>
+<hr>
+<h1 id="chapter-14">设备验收操作表</h1>
+<p>当前全部NOT_RUN。设备准备记录OS/API、厂商、电池优化、通知、精确闹钟、网络、应用身份、数据hash与起止时间；不能用终端host结果填写设备PASS。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>场景</th>
+<th>操作</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEV01</td>
+<td>覆盖安装并冷启动</td>
+<td>同包名证书versionCode检查→应用内备份→覆盖安装→首次启动</td>
+<td>数据不丢，界面和服务可用，冷启动10次分项时延</td>
+</tr>
+<tr>
+<td>DEV02</td>
+<td>亮屏120期</td>
+<td>合法网络/用户启用→120实际draw</td>
+<td>120/120预测，全部应结已结，0重复</td>
+</tr>
+<tr>
+<td>DEV03</td>
+<td>息屏120期</td>
+<td>记录权限状态→真实锁屏两小时以上</td>
+<td>逐期业务完整，系统限制错误不能隐藏</td>
+</tr>
+<tr>
+<td>DEV04</td>
+<td>划掉30期</td>
+<td>启用服务→划掉任务→观察30期</td>
+<td>仍运行/允许恢复，0重复，记录onTaskRemoved</td>
+</tr>
+<tr>
+<td>DEV05</td>
+<td>系统回收</td>
+<td>测试设备诱发进程回收，禁止等同强停</td>
+<td>lease恢复、无并发Owner，恢复时间与缺口明确</td>
+</tr>
+<tr>
+<td>DEV06</td>
+<td>应用内停止</td>
+<td>用户点停止→等10期→手动重启</td>
+<td>停止不复活，恢复不补旧BET</td>
+</tr>
+<tr>
+<td>DEV07</td>
+<td>系统强停</td>
+<td>系统设置强停→等10期→用户重开</td>
+<td>尊重强停，重开明确epoch和漏期，正确补历史</td>
+</tr>
+<tr>
+<td>DEV08</td>
+<td>断网与切网</td>
+<td>飞行模式3分钟→恢复/WiFi移动切换</td>
+<td>错误和恢复可见，补标签不补假赛前预测</td>
+</tr>
+<tr>
+<td>DEV09</td>
+<td>通知电池闹钟权限撤回</td>
+<td>分别撤回再恢复</td>
+<td>能力灯与真实业务状态独立、跳转和返回重读</td>
+</tr>
+<tr>
+<td>DEV10</td>
+<td>重启未解锁与解锁</td>
+<td>重启保持锁定→稍后解锁</td>
+<td>锁定期不访问凭据DB，解锁后幂等恢复</td>
+</tr>
+<tr>
+<td>DEV11</td>
+<td>24小时soak</td>
+<td>正常网络完整24h记录环境与版本</td>
+<td>0crash/ANR/OOM/重复，正常段0掉期，性能/积压/学习达门</td>
+</tr>
+<tr>
+<td>DEV12</td>
+<td>页面与旧资产</td>
+<td>窄屏/大字体/平板→全部原入口和四新页</td>
+<td>无空白误标、遮挡、卡死；资产不丢，截图齐全</td>
+</tr>
+<tr>
+<td>DEV13</td>
+<td>导出与分享</td>
+<td>导出txt/json/csv/jsonl→其他应用打开</td>
+<td>文件完整可读，hash正确，不只复制截断</td>
+</tr>
+<tr>
+<td>DEV14</td>
+<td>三端parity</td>
+<td>签名APK执行100期×1200完整fixture</td>
+<td>完整输出hash、rank1一致、概率误差门</td>
+</tr>
+<tr>
+<td>DEV15</td>
+<td>回退构建</td>
+<td>同签名更高VC恢复包测试</td>
+<td>数据保留，新增schema兼容，恢复原模型和主链</td>
+</tr>
+</tbody></table></div>
+<p>开发人员可在已授权测试设备使用 <code>adb install -r &lt;signed.apk&gt;</code>；操作前确认设备序列号和包签名。释放版allowBackup=false时，不承诺adb backup可读取数据库，数据导出/恢复必须走应用实现的受控接口。不要通过卸载换取启动通过。真实强停/断网的时段不可用假回放抹平。</p>
+<p>每场景产物：device_manifest.json、原始logcat、app_events.jsonl、metrics.json、screenshots/、exports/、assertions.json。记录设备是否实际连接，环境不足时保持BLOCKED_ENVIRONMENT。</p>
+<hr>
+<h1 id="chapter-15">本包脚本的实际作用</h1>
+<p><code>python3 04_验收与执行/validate_plan.py</code>：检查42工单、依赖无环、路径/基线、原要求/验收映射、合同和SQL设计语法/唯一/不可变约束。通过只能称方案结构自检通过。</p>
+<p><code>python3 04_验收与执行/release_gate.py 04_验收与执行/结果记录模板.json</code>：应退出1并输出FAIL，因为当前未施工和未实测。该拒绝是正确行为。施工完成后用真实结果文件与可读取hash证据运行。此脚本只是结果目录的防漏报门，不代替实际设备/统计判读，也不能防止有人伪造所有原始证据。</p>
+<p><code>schema_r926_design.sql</code>是在隔离内存SQLite验证的设计DDL，不应由用户直接导入手机库。真实迁移由B03/B04接入原应用coordinator后生成，须执行断电/旧库兼容门。</p>
+<p>保留现有R925构建命令用于基线回归；R926 CLI与新增Java类尚待实现，具体接口见command_contract和任务卡。完成结果应记录源码commit、构建APKhash、实际运行设备/数据/窗口，而不是拿本计划自检日志当运行证明。</p>
+<hr>
+<h1 id="chapter-16">原逐文件施工要求逐条映射</h1>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>原表</th>
+<th>文件</th>
+<th>原要求</th>
+<th>新任务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>AutoFetchService.java</td>
+<td>真机后台尚未证明；启动/恢复/抓取/分析/结算均集中在超大Service，需拆分稳态与冷启动遥测并做T29-T34真机闭环</td>
+<td>B02、B05、B06、B07、B08、Q02</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>BackgroundRuntimeCapabilityR811.java</td>
+<td>报告显示电池无限制=NO，物理后台不可能宣称完成；UI必须长期显示未授权红灯直到补齐</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>BootReceiver.java</td>
+<td>Boot/Replace/Unlock有恢复入口，但taskRemoved/kill/24h真机证据仍缺</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>DatabaseCoordinator.java</td>
+<td>critical schema冷启动约34.8s，是39.6s壁钟P95的重要来源；需版本化一次迁移、预校验和启动轻量化</td>
+<td>B02、B03、B04、B06、C04</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>DbHelper.java</td>
+<td>8572+行且大量DDL；critical路径仍含R906/R811 research schema，启动成本过高；需把非主链研究DDL移出P0启动</td>
+<td>B02、B03、B04</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>DecisionGateEngine.java</td>
+<td>当前机会频率0，受MODEL_NOT_PROVEN/BuildIdentity及稳定性熵等门阻断；不能靠放宽门硬凑15%</td>
+<td>B11、D07、D09</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>InternalWatchdogReceiverR815.java</td>
+<td>内部watchdog存在但不能绕过OEM/force-stop；需在UI展示真实限制和最近恢复记录</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>RuntimeHealthLedgerR36.java</td>
+<td>运行真值存在，但当前报告仍会把启动前缺口混入当前覆盖；需增加release/process epoch范围</td>
+<td>B06</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ServiceWatchdogJobService.java</td>
+<td>JobScheduler存在但尚未完成真机矩阵证明</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51BuildManifest.java</td>
+<td>受控候选出现BUILD_IDENTITY_HARD_BLOCK；需逐字段定位而不是只显示总状态</td>
+<td>B01</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51RuntimeOrchestrator.java</td>
+<td>请求到提交P95被冷启动/排队混合；需分解queue/db-start/compute/commit并确保每期请求</td>
+<td>B05、B06、B11、D06、D10</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>AlgorithmEvidencePolicyR912.java</td>
+<td>coverage&lt;0.60且N&gt;=120可不可逆淘汰；coverage可能混入系统未捕获/暂停造成的基础设施缺口，需拆算法可用性覆盖与系统捕获覆盖</td>
+<td>C03、C06、C08</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>AlgorithmEvolutionLifecycleR912.java</td>
+<td>已淘汰后lifecycle_reason被重写为IRREVERSIBLE_EVIDENCE_PRUNE，原始淘汰原因丢失；必须保留first_prune_reason/metric snapshot并支持纠错复核</td>
+<td>C02、C07、C08</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>AlgorithmProductionGovernorR915.java</td>
+<td>只读取CHALLENGER_FUTURE_OOS；当前0挑战者所以NO_CERTIFIED_ALGORITHM、权重0</td>
+<td>D08、C01</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>CertifiedResearchMixerR915.java</td>
+<td>无证书则NO_CERTIFIED_NEW_ASSET，主链贡献0；不能把38/50%小样本直接接入</td>
+<td>D08、C01</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>DeepLearningBridgeEngine.java</td>
+<td>大量研究/兼容逻辑，需明确哪些信号真实进入当前NumberQ/Ranker，哪些仅诊断</td>
+<td>D04、D10</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>DiagnosticTextExportR923.java</td>
+<td>导出能力存在；报告需新增UI/资源/Manifest/逐文件审计章节</td>
+<td>B04、U04</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>K3FailureDiagnosisEngine.java</td>
+<td>同上；根因优先级正确但口径还不够细</td>
+<td>B05、U03</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>MainActivity.java</td>
+<td>影子统计、抓取、研究等塞进综合长文本且固定行数/省略；用户无法一眼确认每期抓取→分析→出号→结算</td>
+<td>B02、D07、D10、U01、U02、U03、Q02</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ModelEffectivenessAnalyzerR35.java</td>
+<td>当前MODEL_PROVEN=false；需要冻结数据集/Artifact/严格时间OOS证书</td>
+<td>D10、Q03</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ModelLearningActivity.java</td>
+<td>复用Diagnosis大文本页，四大能力没有结构化表格/趋势/候选晋级进度，难以理解</td>
+<td>U02</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>OosAfterDrawWriterR36.java</td>
+<td>严格赛前冻结后结算逻辑存在，但有效校准样本=0，需补合法SelectedHitP</td>
+<td>B09</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ResearchCertificateR906.java</td>
+<td>资产证书门极严：N240、coverage95%、Brier≤.21、ECE≤.06、block≥.70等；当前0证书需要先保证连续捕获和可执行Parity，再谈证书</td>
+<td>C01、C02</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ResearchDashboardR924.java</td>
+<td>已有四框数据源，但需要拆清深度学习/动态迭代/创造/原子因子的职责与KPI，避免混杂</td>
+<td>U02</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ResearchEvaluationSchedulerR906.java</td>
+<td>活跃评估受MAX_RUNNABLE/队列限制；需防止高证据候选被容量暂停长期饿死</td>
+<td>C07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ResearchMainlineGovernorR903.java</td>
+<td>只有证书化可执行资产才能重排SHADOW；当前长期fallback</td>
+<td>C01</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ResearchPredrawCaptureR923.java</td>
+<td>四lane轮转且总预算6200ms；依赖durable snapshot，任何上游延迟/pressure都会减少Future-OOS样本</td>
+<td>C04、C07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ResearchTinyDeepLearnerR909.java</td>
+<td>正在SHADOW更新但不等于生产证明；需明确独立OOS贡献和消融</td>
+<td>B09、D04</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>RuntimeTruthSnapshotR906.java</td>
+<td>统一真值是优点；下一版要增加逐期pipeline ledger、shadow window stats、certificate funnel</td>
+<td>B06、U01</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ServiceHeartbeatStore.java</td>
+<td>已有heartbeat数据，但缺独立可视化流水表</td>
+<td>B07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51ActionRankerArtifact.java</td>
+<td>PROVEN=false、RANK_ORDER_PASSED=false、STABLE_FOLDS=0；生产排序退化为手工researchScore</td>
+<td>D05、D10</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51ActionRankerEngine.java</td>
+<td>未证明时使用researchScore=1.8<em>rawP+0.28</em>stability-0.14*entropy+thirdMargin+微弱meta系数</td>
+<td>D05</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51ExpertGateArtifact.java</td>
+<td>PROVEN=false；运行时走中性/证据质量研究路由</td>
+<td>D10</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51NumberModelArtifact.java</td>
+<td>DATA_SHA256/参数均UNTRAINED，PROVEN=false；当前号码面是研究型专家融合，不是冻结训练模型</td>
+<td>D10</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51PermutationNumberModelEngine.java</td>
+<td>9专家→证据质量路由→Sinkhorn；Artifact未证明时仍可出SHADOW预测，但不是已证明高胜率生产模型</td>
+<td>D02、D04</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51PolicySurfaceArtifact.java</td>
+<td>CELLS为空、MODEL_GATE_PASSED=false；选择性策略未训练</td>
+<td>D09</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51PredictabilityArtifact.java</td>
+<td>PROVEN=false、权重全零；未形成已证明的可预测性模型</td>
+<td>D09</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51SelectedActionCalibrationEngine.java</td>
+<td>Artifact未证明则返回NaN；这是MODEL_NOT_PROVEN长期存在的核心之一</td>
+<td>D06、D07</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51SelectedCalibrationArtifact.java</td>
+<td>PROVEN=false；SelectedHitP直接N/A，无法用校准概率做可靠门策略</td>
+<td>D06</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V57CompleteDiagnosticReportEngine.java</td>
+<td>运行/研究很全，但没有完整AndroidManifest、按钮接线、layout变体、资源孤儿/缺失、545文件静态健康章节</td>
+<td>U03、U04、Q03</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V57FailureDiagnosisEngine.java</td>
+<td>需要把冷启动/稳态、版本前/版本后覆盖分开，避免错修模型</td>
+<td>B05、U03</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>CanonicalObservationWriterR36.java</td>
+<td>first-write-wins要继续保持并增加逐期UI可见性</td>
+<td>B06、B09</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>FormulaAlgorithmAuditEngine.java</td>
+<td>1852公式数量很大，需做去重/族级FDR/有效性贡献，而不是继续堆数量</td>
+<td>C05</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>ImprovementChallengerPlanEngine.java</td>
+<td>当前只生成计划，productionMutation=0；要把训练、冻结、证书流水真正跑通</td>
+<td>D10、C08</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>K3ActionSpaceEngine.java</td>
+<td>1200公式存在；延后动作行未全收敛时FULL仍pending</td>
+<td>D05</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>K3FunnelOrchestrator.java</td>
+<td>静态合同存在；需真机逐期持久化7阶段trace</td>
+<td>B06、D05</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>StrategyConflictAblationEngine.java</td>
+<td>已有但要进入候选淘汰/晋级解释，避免重复策略堆叠</td>
+<td>C05、C09</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51PermutationFeatureEngine.java</td>
+<td>需加入逐特征PIT/leakage和训练/服务parity报告</td>
+<td>D01、D02</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51PositionActionBuilder.java</td>
+<td>必须继续全量，不可为提速删动作</td>
+<td>D05</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51RelationGraphVerifier.java</td>
+<td>工程存在但物理运行/PIT证据仍需复测</td>
+<td>D01、C09、U03</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>V51Repository.java</td>
+<td>canonical/动作持久化是真值基础，延后FULL仍pending需收敛</td>
+<td>B03、B10</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>CodeOwnershipCompletenessAuditEngine.java</td>
+<td>唯一Owner静态审计PASS，继续保持</td>
+<td>B02、B11</td>
+</tr>
+<tr>
+<td>07_关键文件逐文件施工清单.csv</td>
+<td>TargetIssueResolver.java</td>
+<td>当前唯一Owner正确，继续保持</td>
+<td>B06、B11</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>training/v51_training_core.py</td>
+<td>拆成1200 groupwise dataset/ranker；parity由证书输入</td>
+<td>D03</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>training/v50_train_pipeline.py</td>
+<td>禁止作为R925生产证明；只保留legacy replay</td>
+<td>D03</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>K3ActionSpaceEngine.java</td>
+<td>输出训练/生产共享ordinal fixture</td>
+<td>D05</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>V51ActionRankerEngine.java</td>
+<td>加载R925 1200 groupwise artifact；fallback显式</td>
+<td>D05</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>AlgorithmEvidencePolicyR912.java</td>
+<td>拆system/candidate/selection coverage；质量与证据pause分离</td>
+<td>C03、C06、C08</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>AlgorithmEvolutionLifecycleR912.java</td>
+<td>分Tier调度；生命周期V3；first prune保留</td>
+<td>C02、C07、C08</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchCertificationEngineR811.java</td>
+<td>增加L3-L7证书梯子/独立表</td>
+<td>D10、C01</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>AlgorithmProductionGovernorR915.java</td>
+<td>增加0/5/12/20/30阶梯证书</td>
+<td>D08、C01</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchTinyDeepLearnerR909.java</td>
+<td>增加OOS/paired/calibration/drift dashboard</td>
+<td>B09、D04</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchAdaptiveLearnerStoreR811.java</td>
+<td>FTRL作为独立challenger并做paired证书</td>
+<td>B09</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>AlgorithmRegimeEvidenceR923.java</td>
+<td>加Wilson/Brier/ECE/paired per regime</td>
+<td>D08</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchFailureHypothesisEngineR811.java</td>
+<td>输出FailureCluster id与具体repair target</td>
+<td>C08、C09、C12</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchFailureAttributionR815.java</td>
+<td>接入system capture truth</td>
+<td>C04、C08</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchAblationR815.java</td>
+<td>模块/原子/家族逐期paired ablation</td>
+<td>C09</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>FeatureAblationAttributionEngine.java</td>
+<td>沉淀长期责任分布/不确定性</td>
+<td>D07、C09、U03</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchNovelFormulaSynthesizerR903.java</td>
+<td>失败驱动+原子质量+互补搜索</td>
+<td>C09、C11、C12</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchMethodGraphSynthesizerR903.java</td>
+<td>统一M1-M10证书合同</td>
+<td>C09、C12</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchGenomeContractR915.java</td>
+<td>支持生命周期V3+阶段证书</td>
+<td>C01、C08</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>DbHelper.java</td>
+<td>DB_VERSION保留36时用addColumn幂等迁移或明确升37</td>
+<td>B02、B03、B04</td>
+</tr>
+<tr>
+<td>19_逐文件施工矩阵.csv</td>
+<td>ResearchDashboardR924.java</td>
+<td>增加十模块状态与证书漏斗</td>
+<td>U02</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h1 id="chapter-17">工程实现和外部证据的准备顺序</h1>
+<p>任务卡里的implementation、host、device、data、future应作为独立子状态记录。D01–D10、C01–C12可以先用显式合同fixture完成代码和负例；这种fixture不能获得生产授权。Q01仅要求主机/SQL/APK合同，不等待D11的Android结果，先产出可测试APK；D11设备数值核对和Q02全设备矩阵在该APK上执行。Q03在这些门之后做真实训练、封存与Future。这样不会出现“必须先有设备PASS才能造测试APK”的循环。</p>
+<p>临时采集/验收APK只用于取得证据，保留明确测试身份与状态；用户要求的一次正式总交付仍在Q04。工程师必须尽早组织数据/手机，不能以依赖为由停止其余可实施项目。</p>
+<p>若现有严格快照够训练，可提前做离线真实数据验证；正式Future计数仍需冻结bundle之后。本计划不预填任何生产分数或预期获胜候选。</p>
+<hr>
+<h1 id="chapter-18">186条验收用例明细</h1>
+<p>所有以下用例均为NOT_RUN。前置、证据路径与状态见JSON/CSV。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>任务</th>
+<th>操作/输入</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AT-B01-01</td>
+<td>B01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同一构建所有身份一致，故意改任意一处必失败</td>
+</tr>
+<tr>
+<td>AT-B01-02</td>
+<td>B01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>原基线字节不变，新版本号不与已有发行冲突</td>
+</tr>
+<tr>
+<td>AT-B02-01</td>
+<td>B02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>559个原Java和全部新增文件都有有依据的处置</td>
+</tr>
+<tr>
+<td>AT-B02-02</td>
+<td>B02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>关键链没有无诊断吞错，抽取前后固定输入输出一致</td>
+</tr>
+<tr>
+<td>AT-B02-03</td>
+<td>B02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>复杂度/调用图改善可量化，不以删代码行数当完成</td>
+</tr>
+<tr>
+<td>AT-B03-01</td>
+<td>B03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>新装/旧库/缺表/旧stamp/中断迁移五类可恢复</td>
+</tr>
+<tr>
+<td>AT-B03-02</td>
+<td>B03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>critical开库不调用research全量ensure</td>
+</tr>
+<tr>
+<td>AT-B03-03</td>
+<td>B03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>研究最终进入READY或明确失败，不无限等待</td>
+</tr>
+<tr>
+<td>AT-B03-04</td>
+<td>B03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>真机冷启动目标&lt;8秒单独验收</td>
+</tr>
+<tr>
+<td>AT-B04-01</td>
+<td>B04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>对有未checkpoint数据的库备份恢复后记录不丢</td>
+</tr>
+<tr>
+<td>AT-B04-02</td>
+<td>B04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>在每步注入进程中止均可重入</td>
+</tr>
+<tr>
+<td>AT-B04-03</td>
+<td>B04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>upgrade后历史行及关键hash100%相同</td>
+</tr>
+<tr>
+<td>AT-B04-04</td>
+<td>B04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同版本重复执行不重复数据</td>
+</tr>
+<tr>
+<td>AT-B05-01</td>
+<td>B05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同机120期稳态request→durable P95≤5000ms、compute P95≤3000ms</td>
+</tr>
+<tr>
+<td>AT-B05-02</td>
+<td>B05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>冷启动独立10次目标&lt;8000ms</td>
+</tr>
+<tr>
+<td>AT-B05-03</td>
+<td>B05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>超时/失败全计数，不能用成功子集掩盖掉期</td>
+</tr>
+<tr>
+<td>AT-B06-01</td>
+<td>B06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>任意阶段杀进程后事件可重放且终态不回退</td>
+</tr>
+<tr>
+<td>AT-B06-02</td>
+<td>B06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>重复回调10次只一个canonical与一次结算</td>
+</tr>
+<tr>
+<td>AT-B06-03</td>
+<td>B06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>最近20/500/导出逐期一致且错误归因唯一</td>
+</tr>
+<tr>
+<td>AT-B07-01</td>
+<td>B07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>亮屏120期、息屏120期、划掉30期连续业务验收</td>
+</tr>
+<tr>
+<td>AT-B07-02</td>
+<td>B07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>用户停止和系统强停不绕过，用户重开后幂等恢复</td>
+</tr>
+<tr>
+<td>AT-B07-03</td>
+<td>B07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每次恢复都能看到请求/接受/真正业务恢复三时点</td>
+</tr>
+<tr>
+<td>AT-B08-01</td>
+<td>B08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>503/超时/200脏JSON/合法重复/冲突/乱序/飞行模式均有结果码</td>
+</tr>
+<tr>
+<td>AT-B08-02</td>
+<td>B08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>重复不会双预测</td>
+</tr>
+<tr>
+<td>AT-B08-03</td>
+<td>B08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>HTTP200但业务拒绝在UI与报告可区分</td>
+</tr>
+<tr>
+<td>AT-B09-01</td>
+<td>B09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>连续完整样本每期CORE结算一条、重放不重复</td>
+</tr>
+<tr>
+<td>AT-B09-02</td>
+<td>B09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同一标签不能更新模型两次</td>
+</tr>
+<tr>
+<td>AT-B09-03</td>
+<td>B09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>崩溃在学习前后均确定恢复</td>
+</tr>
+<tr>
+<td>AT-B09-04</td>
+<td>B09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>120期测试要求全部应结已结</td>
+</tr>
+<tr>
+<td>AT-B10-01</td>
+<td>B10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>全量有可恢复证据的待办最终归零</td>
+</tr>
+<tr>
+<td>AT-B10-02</td>
+<td>B10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>不可恢复数明确非零即全闭环不通过</td>
+</tr>
+<tr>
+<td>AT-B10-03</td>
+<td>B10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>最新FULL≤2实际开奖滞后且连续水位无隐洞</td>
+</tr>
+<tr>
+<td>AT-B10-04</td>
+<td>B10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>模型与UI不因补账卡顿</td>
+</tr>
+<tr>
+<td>AT-B11-01</td>
+<td>B11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>新受控测试REAL invalid=0 duplicate=0，每期最多一条且固定K3单位置</td>
+</tr>
+<tr>
+<td>AT-B11-02</td>
+<td>B11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>来源缺一拒绝</td>
+</tr>
+<tr>
+<td>AT-B11-03</td>
+<td>B11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>旧101条状态不被篡改</td>
+</tr>
+<tr>
+<td>AT-B11-04</td>
+<td>B11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>所有Owner扫描和行为测试通过</td>
+</tr>
+<tr>
+<td>AT-D01-01</td>
+<td>D01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>错误游戏/重复期/未知schema/时间穿越/坏hash/非完整1200拒绝</td>
+</tr>
+<tr>
+<td>AT-D01-02</td>
+<td>D01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>100期逐字段PIT检查</td>
+</tr>
+<tr>
+<td>AT-D01-03</td>
+<td>D01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同输入导出内容hash相同</td>
+</tr>
+<tr>
+<td>AT-D01-04</td>
+<td>D01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>缺标签只作待结，不偷偷补特征</td>
+</tr>
+<tr>
+<td>AT-D02-01</td>
+<td>D02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同维数不同语义artifact拒绝</td>
+</tr>
+<tr>
+<td>AT-D02-02</td>
+<td>D02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>依赖图无环</td>
+</tr>
+<tr>
+<td>AT-D02-03</td>
+<td>D02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同一issue offline/Java/Android输入逐字段相等</td>
+</tr>
+<tr>
+<td>AT-D02-04</td>
+<td>D02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>重启慢状态不读当前标签</td>
+</tr>
+<tr>
+<td>AT-D03-01</td>
+<td>D03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>复制源文件到其他目录仍拒绝同sealed窗口新选择</td>
+</tr>
+<tr>
+<td>AT-D03-02</td>
+<td>D03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>篡改上游hash下游失效</td>
+</tr>
+<tr>
+<td>AT-D03-03</td>
+<td>D03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>五阶段样本区间严格有序</td>
+</tr>
+<tr>
+<td>AT-D03-04</td>
+<td>D03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同trial崩溃恢复不重复消费sealed</td>
+</tr>
+<tr>
+<td>AT-D04-01</td>
+<td>D04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每候选同fold完整结果，包括失败试验</td>
+</tr>
+<tr>
+<td>AT-D04-02</td>
+<td>D04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>没有更优候选时保留baseline且报告未达到效果门</td>
+</tr>
+<tr>
+<td>AT-D04-03</td>
+<td>D04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>host/设备推理一致且满足主链预算</td>
+</tr>
+<tr>
+<td>AT-D05-01</td>
+<td>D05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每期1200唯一动作、360正标签、全1200评分</td>
+</tr>
+<tr>
+<td>AT-D05-02</td>
+<td>D05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>100期×1200 Java/Android rank1完全一致</td>
+</tr>
+<tr>
+<td>AT-D05-03</td>
+<td>D05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>仅1200行视作1期样本</td>
+</tr>
+<tr>
+<td>AT-D05-04</td>
+<td>D05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>最终封存比较无退化</td>
+</tr>
+<tr>
+<td>AT-D06-01</td>
+<td>D06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>变更consumer/权重/排序会使不兼容calibration拒绝</td>
+</tr>
+<tr>
+<td>AT-D06-02</td>
+<td>D06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>错误概率类型被测试发现</td>
+</tr>
+<tr>
+<td>AT-D06-03</td>
+<td>D06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>sealed Brier/ECE/NLL及分箱附样本数，达到合同门才宣告证明</td>
+</tr>
+<tr>
+<td>AT-D07-01</td>
+<td>D07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>常数/小样本/新域/专家全失效时状态可解释</td>
+</tr>
+<tr>
+<td>AT-D07-02</td>
+<td>D07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每个指标追到输入hash和窗口</td>
+</tr>
+<tr>
+<td>AT-D07-03</td>
+<td>D07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>拒绝不产生补频率BET</td>
+</tr>
+<tr>
+<td>AT-D08-01</td>
+<td>D08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同一target与hash路由可复现</td>
+</tr>
+<tr>
+<td>AT-D08-02</td>
+<td>D08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>未支持域只能PAUSE/fallback</td>
+</tr>
+<tr>
+<td>AT-D08-03</td>
+<td>D08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>域外0贡献</td>
+</tr>
+<tr>
+<td>AT-D08-04</td>
+<td>D08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>更改边界必须重新起窗，不继承证据</td>
+</tr>
+<tr>
+<td>AT-D09-01</td>
+<td>D09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>冻结策略真实数据独立评估完整</td>
+</tr>
+<tr>
+<td>AT-D09-02</td>
+<td>D09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>覆盖不足明确多少，不改分母达标</td>
+</tr>
+<tr>
+<td>AT-D09-03</td>
+<td>D09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>即使找不到可行策略训练流程仍可验收工程，但效果目标不能关闭</td>
+</tr>
+<tr>
+<td>AT-D10-01</td>
+<td>D10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>任意丢一artifact/错维度同形状错schema/非法路径/错签名/中途中止全部拒绝</td>
+</tr>
+<tr>
+<td>AT-D10-02</td>
+<td>D10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>请求进行中换指针不改变该期</td>
+</tr>
+<tr>
+<td>AT-D10-03</td>
+<td>D10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>回滚无重复canonical/REAL</td>
+</tr>
+<tr>
+<td>AT-D11-01</td>
+<td>D11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>Python/host/Android逐元素结果全可复现</td>
+</tr>
+<tr>
+<td>AT-D11-02</td>
+<td>D11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>维度、语义、PIT、非有限和坏hash负例全部拒绝</td>
+</tr>
+<tr>
+<td>AT-D11-03</td>
+<td>D11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>设备结果不以host替代</td>
+</tr>
+<tr>
+<td>AT-C01-01</td>
+<td>C01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>算法/图资产/创生三者用同一合同测试向量得到一致授权</td>
+</tr>
+<tr>
+<td>AT-C01-02</td>
+<td>C01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>无证书0权重</td>
+</tr>
+<tr>
+<td>AT-C01-03</td>
+<td>C01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>证书只授予排序影响不创建REAL</td>
+</tr>
+<tr>
+<td>AT-C01-04</td>
+<td>C01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>旧新状态全部可解释</td>
+</tr>
+<tr>
+<td>AT-C02-01</td>
+<td>C02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>重复label/跨game/基线变更/错窗口/回看调门负例全部拒绝</td>
+</tr>
+<tr>
+<td>AT-C02-02</td>
+<td>C02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>fail窗口不可原样反复试到PASS</td>
+</tr>
+<tr>
+<td>AT-C02-03</td>
+<td>C02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>固定champion逐期预测hash可重算</td>
+</tr>
+<tr>
+<td>AT-C02-04</td>
+<td>C02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>长历史查询预算可控</td>
+</tr>
+<tr>
+<td>AT-C03-01</td>
+<td>C03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>构造相同ranking不同score尺度，概率证书不被尺度伪造</td>
+</tr>
+<tr>
+<td>AT-C03-02</td>
+<td>C03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>raw score=.9不自动等于90%命中概率</td>
+</tr>
+<tr>
+<td>AT-C03-03</td>
+<td>C03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>所有Brier行可追calibration/selection hash</td>
+</tr>
+<tr>
+<td>AT-C04-01</td>
+<td>C04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>在冻结前/后/事务中断分别注入故障，终态与预测行一致</td>
+</tr>
+<tr>
+<td>AT-C04-02</td>
+<td>C04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同一期冻结不可被后续失败覆盖</td>
+</tr>
+<tr>
+<td>AT-C04-03</td>
+<td>C04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>分母公式可从明细逐行复算</td>
+</tr>
+<tr>
+<td>AT-C05-01</td>
+<td>C05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>重复结构/行为候选不占双份active预算</td>
+</tr>
+<tr>
+<td>AT-C05-02</td>
+<td>C05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>高相关但不同有效域不误并</td>
+</tr>
+<tr>
+<td>AT-C05-03</td>
+<td>C05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>归档和合并不减少已注册假设总数</td>
+</tr>
+<tr>
+<td>AT-C05-04</td>
+<td>C05</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每族冠军可追晋级依据</td>
+</tr>
+<tr>
+<td>AT-C06-01</td>
+<td>C06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>在纯噪声、相关候选、连续追加、重复look下统计测试报告可复现</td>
+</tr>
+<tr>
+<td>AT-C06-02</td>
+<td>C06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>分配alpha总额≤预注册总额</td>
+</tr>
+<tr>
+<td>AT-C06-03</td>
+<td>C06</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>旧假设无法通过改名/归档/拆族逃避分母</td>
+</tr>
+<tr>
+<td>AT-C07-01</td>
+<td>C07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>64苗圃压力下主链仍满足5秒门</td>
+</tr>
+<tr>
+<td>AT-C07-02</td>
+<td>C07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>无候选无限饿死且无重复active</td>
+</tr>
+<tr>
+<td>AT-C07-03</td>
+<td>C07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>C层证据不能伪装full1200晋级</td>
+</tr>
+<tr>
+<td>AT-C07-04</td>
+<td>C07</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>资源撤回不会误prune</td>
+</tr>
+<tr>
+<td>AT-C08-01</td>
+<td>C08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>父代200样本child仍0</td>
+</tr>
+<tr>
+<td>AT-C08-02</td>
+<td>C08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>两次同结果不重复转移</td>
+</tr>
+<tr>
+<td>AT-C08-03</td>
+<td>C08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>系统缺失只pause</td>
+</tr>
+<tr>
+<td>AT-C08-04</td>
+<td>C08</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>修复后必须独立paired改善才success，不以created数量完成</td>
+</tr>
+<tr>
+<td>AT-C09-01</td>
+<td>C09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每一模块消融有真实执行输出，不是重命名指标</td>
+</tr>
+<tr>
+<td>AT-C09-02</td>
+<td>C09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>所有当期历史hash不变</td>
+</tr>
+<tr>
+<td>AT-C09-03</td>
+<td>C09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>repair只影响下一候选和未来期</td>
+</tr>
+<tr>
+<td>AT-C09-04</td>
+<td>C09</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>负对照模块应零影响</td>
+</tr>
+<tr>
+<td>AT-C10-01</td>
+<td>C10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每个原子有来源/掩码/耗时/消费者清单</td>
+</tr>
+<tr>
+<td>AT-C10-02</td>
+<td>C10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>本期postdraw20项生产调用0</td>
+</tr>
+<tr>
+<td>AT-C10-03</td>
+<td>C10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>百万冻结记录查询EXPLAIN索引与性能满足预算</td>
+</tr>
+<tr>
+<td>AT-C10-04</td>
+<td>C10</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>旧fixture缺mask明确unknown</td>
+</tr>
+<tr>
+<td>AT-C11-01</td>
+<td>C11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>原有趋势/形态/关系/教师/反推/因果/反哺资产hash保留</td>
+</tr>
+<tr>
+<td>AT-C11-02</td>
+<td>C11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>隔离后新候选不会再调用该原子</td>
+</tr>
+<tr>
+<td>AT-C11-03</td>
+<td>C11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>缺失与低相关不能触发无证据删除</td>
+</tr>
+<tr>
+<td>AT-C11-04</td>
+<td>C11</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>恢复过程可审计</td>
+</tr>
+<tr>
+<td>AT-C12-01</td>
+<td>C12</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>从最底层原子到可执行候选有完整源码文本</td>
+</tr>
+<tr>
+<td>AT-C12-02</td>
+<td>C12</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>至少用合同fixture验证新结构能运行并被正确拒绝/晋级，真实高品质只能由Future证据认定</td>
+</tr>
+<tr>
+<td>AT-C12-03</td>
+<td>C12</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>每个创造事件都有目的与预算</td>
+</tr>
+<tr>
+<td>AT-U01-01</td>
+<td>U01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>phone与sw600dp全部ID/handler一致</td>
+</tr>
+<tr>
+<td>AT-U01-02</td>
+<td>U01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>最大字体和窄屏不遮按钮</td>
+</tr>
+<tr>
+<td>AT-U01-03</td>
+<td>U01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>停止刷新/旋转重建无泄漏</td>
+</tr>
+<tr>
+<td>AT-U01-04</td>
+<td>U01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>UI计数与同一event watermark导出一致</td>
+</tr>
+<tr>
+<td>AT-U02-01</td>
+<td>U02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>用户5秒能找到正在做什么/有没有改善/是否接主链/为什么未接</td>
+</tr>
+<tr>
+<td>AT-U02-02</td>
+<td>U02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>四页各自点击、返回、空态、错误、长名单和大屏测试通过</td>
+</tr>
+<tr>
+<td>AT-U02-03</td>
+<td>U02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>原有功能页全部可达</td>
+</tr>
+<tr>
+<td>AT-U03-01</td>
+<td>U03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>对旧反馈每个字段提供有值/缺失/失败fixture及设备截图</td>
+</tr>
+<tr>
+<td>AT-U03-02</td>
+<td>U03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>原矩阵入口和数值来源无消失</td>
+</tr>
+<tr>
+<td>AT-U03-03</td>
+<td>U03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>开奖后解释不修改赛前决策</td>
+</tr>
+<tr>
+<td>AT-U04-01</td>
+<td>U04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>任何章节故障仍导出错误码及其他章节</td>
+</tr>
+<tr>
+<td>AT-U04-02</td>
+<td>U04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>所有M1-M10状态非缺省</td>
+</tr>
+<tr>
+<td>AT-U04-03</td>
+<td>U04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>同一snapshot UI与报告计数一致</td>
+</tr>
+<tr>
+<td>AT-U04-04</td>
+<td>U04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>导出文件实际可分享打开、hash可复算</td>
+</tr>
+<tr>
+<td>AT-Q01-01</td>
+<td>Q01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>所有必需负例可触发预期拒绝</td>
+</tr>
+<tr>
+<td>AT-Q01-02</td>
+<td>Q01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>零测试不得显示PASS</td>
+</tr>
+<tr>
+<td>AT-Q01-03</td>
+<td>Q01</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>失败列表、命令/版本/hash完整，改动相关回归全部通过</td>
+</tr>
+<tr>
+<td>AT-Q02-01</td>
+<td>Q02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>安装后可启动且历史保留</td>
+</tr>
+<tr>
+<td>AT-Q02-02</td>
+<td>Q02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>规定可运行场景掉期0/重复0，连续120覆盖目标≥99%但若要求无掉期则按120/120判</td>
+</tr>
+<tr>
+<td>AT-Q02-03</td>
+<td>Q02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>稳态5秒和FULL/结算门全达标</td>
+</tr>
+<tr>
+<td>AT-Q02-04</td>
+<td>Q02</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>未执行维持NOT_RUN</td>
+</tr>
+<tr>
+<td>AT-Q03-01</td>
+<td>Q03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>真实dataset/所有阶段/host+Androidparity/hash/封存/资源/新Future齐全才模型证明</td>
+</tr>
+<tr>
+<td>AT-Q03-02</td>
+<td>Q03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>至少1个真实合格候选若未出现就不能声称创造效果完成</td>
+</tr>
+<tr>
+<td>AT-Q03-03</td>
+<td>Q03</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>不保证数据必有可持续优势</td>
+</tr>
+<tr>
+<td>AT-Q04-01</td>
+<td>Q04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>全部工程门PASS方可工程完成</td>
+</tr>
+<tr>
+<td>AT-Q04-02</td>
+<td>Q04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>设备/数据/Future效果门也全PASS才允许标全部目标验收</td>
+</tr>
+<tr>
+<td>AT-Q04-03</td>
+<td>Q04</td>
+<td>按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码</td>
+<td>单一总包文件可校验、可按文档重建，实际恢复包数据兼容已测</td>
+</tr>
+<tr>
+<td>F01</td>
+<td>B04</td>
+<td>迁移完成DDL但未更新step_cursor时中止</td>
+<td>重启仅幂等重复本步，历史行hash相同</td>
+</tr>
+<tr>
+<td>F02</td>
+<td>B04</td>
+<td>WAL含未checkpoint交易时做一致备份</td>
+<td>恢复保留所有已提交交易，不能丢WAL记录</td>
+</tr>
+<tr>
+<td>F03</td>
+<td>B03</td>
+<td>Research新表缺失、critical表完整</td>
+<td>主链可运行，研究INIT/FAILED可见</td>
+</tr>
+<tr>
+<td>F04</td>
+<td>B03</td>
+<td>研究DDL变化但critical对象未变</td>
+<td>不重复critical全库迁移</td>
+</tr>
+<tr>
+<td>F05</td>
+<td>B06</td>
+<td>canonical事务提交前中止</td>
+<td>无半条canonical/贡献/event</td>
+</tr>
+<tr>
+<td>F06</td>
+<td>B06</td>
+<td>事务提交后outbox消费前中止</td>
+<td>重启只消费一次，canonical不重建</td>
+</tr>
+<tr>
+<td>F07</td>
+<td>B06</td>
+<td>旧attempt响应晚于新attempt durable</td>
+<td>旧回调不覆盖终态，不制造第二REAL</td>
+</tr>
+<tr>
+<td>F08</td>
+<td>B08</td>
+<td>HTTP200但JSON错游戏/错号码排列</td>
+<td>HTTP已收，业务拒绝，有独立码</td>
+</tr>
+<tr>
+<td>F09</td>
+<td>B08</td>
+<td>两个来源同一期不同排列</td>
+<td>隔离冲突，不静默覆盖</td>
+</tr>
+<tr>
+<td>F10</td>
+<td>B07</td>
+<td>通知可见但抓取timer不再触发</td>
+<td>业务灯变坏，恢复原定时器而不是只续心跳</td>
+</tr>
+<tr>
+<td>F11</td>
+<td>B09</td>
+<td>标签重复10次/学习回调重复10次</td>
+<td>仅一次结算与一次参数更新</td>
+</tr>
+<tr>
+<td>F12</td>
+<td>B10</td>
+<td>最新FULL成功而中间10期未完成</td>
+<td>连续水位和洞数量显示缺口</td>
+</tr>
+<tr>
+<td>F13</td>
+<td>B10</td>
+<td>欠账snapshot损坏/丢失</td>
+<td>隔离并计未闭环，不删作清零</td>
+</tr>
+<tr>
+<td>F14</td>
+<td>D01</td>
+<td>snapshot内target与SQL join target不同</td>
+<td>导出拒绝，不生成伪标签</td>
+</tr>
+<tr>
+<td>F15</td>
+<td>D01</td>
+<td>frozen_at&gt;=draw_at、base&gt;=target</td>
+<td>PIT拒绝</td>
+</tr>
+<tr>
+<td>F16</td>
+<td>D02</td>
+<td>相同96维但不同feature_contract</td>
+<td>loader拒绝</td>
+</tr>
+<tr>
+<td>F17</td>
+<td>D02</td>
+<td>D2输入包含当期更新后的慢状态</td>
+<td>PIT/状态hash拒绝</td>
+</tr>
+<tr>
+<td>F18</td>
+<td>D03</td>
+<td>把已消费sealed源复制到另一目录</td>
+<td>全局registry仍拒绝新选择</td>
+</tr>
+<tr>
+<td>F19</td>
+<td>D05</td>
+<td>只提供10动作而非1200</td>
+<td>合同拒绝</td>
+</tr>
+<tr>
+<td>F20</td>
+<td>D05</td>
+<td>所有分数相等/差1e-12的并列动作</td>
+<td>三端同一ordinal tie-break</td>
+</tr>
+<tr>
+<td>F21</td>
+<td>D06</td>
+<td>研究权重变化但使用旧selection校准hash</td>
+<td>校准不兼容，禁止新证明/贡献</td>
+</tr>
+<tr>
+<td>F22</td>
+<td>C03</td>
+<td>raw score从0..1缩放到0..100</td>
+<td>不能影响概率质量证书，raw不算Brier</td>
+</tr>
+<tr>
+<td>F23</td>
+<td>D08</td>
+<td>未知域/域CAL支持119</td>
+<td>PAUSE/fallback，不品质prune</td>
+</tr>
+<tr>
+<td>F24</td>
+<td>D10</td>
+<td>丢Policy artifact或签名/hash错误</td>
+<td>整包不激活</td>
+</tr>
+<tr>
+<td>F25</td>
+<td>D10</td>
+<td>预测中更换bundle、进程中止</td>
+<td>当期固定原bundle；下一期或重启一致选择</td>
+</tr>
+<tr>
+<td>F26</td>
+<td>C02</td>
+<td>同一target两条pair或换champion_hash</td>
+<td>唯一/窗口合同拒绝</td>
+</tr>
+<tr>
+<td>F27</td>
+<td>C02</td>
+<td>first120失败后延长直到变好</td>
+<td>原窗口仍失败，新窗口必须预注册</td>
+</tr>
+<tr>
+<td>F28</td>
+<td>C04</td>
+<td>冻结写成功但机会写失败</td>
+<td>同事务回滚或完整成功，不能半成功</td>
+</tr>
+<tr>
+<td>F29</td>
+<td>C05</td>
+<td>相同结构改中文名重新注册</td>
+<td>别名关联，active不双计、统计历史保留</td>
+</tr>
+<tr>
+<td>F30</td>
+<td>C06</td>
+<td>归档90%失败候选后重算显著性</td>
+<td>历史假设预算不下降</td>
+</tr>
+<tr>
+<td>F31</td>
+<td>C07</td>
+<td>连续压力导致某候选未分配运行</td>
+<td>PAUSED_CAPACITY，不QUALITY_PRUNE</td>
+</tr>
+<tr>
+<td>F32</td>
+<td>C08</td>
+<td>父代N200拷贝给child</td>
+<td>子代birth N必须0，约束拒绝非0</td>
+</tr>
+<tr>
+<td>F33</td>
+<td>C09</td>
+<td>消融重执行试图写当期canonical</td>
+<td>只读/权限边界拒绝，历史hash不变</td>
+</tr>
+<tr>
+<td>F34</td>
+<td>C10</td>
+<td>一个原子合法值0、另一个缺失</td>
+<td>mask与missing_reason明确区分</td>
+</tr>
+<tr>
+<td>F35</td>
+<td>C11</td>
+<td>开奖后原子流入赛前评分</td>
+<td>PIT硬拒绝并隔离新研究消费</td>
+</tr>
+<tr>
+<td>F36</td>
+<td>U01</td>
+<td>页面退出后旧查询完成</td>
+<td>不写已销毁View，新屏不被旧数据覆盖</td>
+</tr>
+<tr>
+<td>F37</td>
+<td>U02</td>
+<td>四页面无样本/一万个候选/最大字号</td>
+<td>空态真实、分页流畅、按钮不遮挡</td>
+</tr>
+<tr>
+<td>F38</td>
+<td>U04</td>
+<td>其中一章SQL异常、报告超过内存预算</td>
+<td>流式导出其余与错误码，无OOM/截断冒充完整</td>
+</tr>
+<tr>
+<td>F39</td>
+<td>Q04</td>
+<td>APK资源/模型/版本与manifest一项不一致</td>
+<td>发行gate拒绝</td>
+</tr>
+<tr>
+<td>F40</td>
+<td>Q04</td>
+<td>仅host日志且设备/Future为NOT_RUN</td>
+<td>release gate拒绝全部完成声明</td>
+</tr>
+</tbody></table></div>
+</main></body></html>

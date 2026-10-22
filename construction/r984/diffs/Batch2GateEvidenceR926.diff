@@ -1,0 +1,120 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java b/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java
+index 8b910b4..bb38413 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/Batch2GateEvidenceR926.java
+@@ -17,6 +17,14 @@ public final class Batch2GateEvidenceR926 {
+             DeferredEvidenceSnapshotR36.Header snapshot,
+             String snapshotHash,
+             String canonicalHash) {
++        return validateAndAppendWithinTransaction(db,null,request,snapshot,snapshotHash,canonicalHash,null);
++    }
++
++    /** Receives the same compiled proof already checked by the sole REAL writer. */
++    public static Batch2ContractCoreR926.GateCheck validateAndAppendWithinTransaction(
++            SQLiteDatabase db, DbStore store, AnalysisSingleFlightR36.Request request,
++            DeferredEvidenceSnapshotR36.Header snapshot, String snapshotHash,
++            String canonicalHash, V51CompiledActionContract compiled) {
+         if (db == null || !db.inTransaction())
+             throw new IllegalStateException("B11_CANONICAL_TRANSACTION_REQUIRED");
+         if (request == null || !request.valid() || snapshot == null)
+@@ -48,7 +56,7 @@ public final class Batch2GateEvidenceR926 {
+             String gateCode = safe(c.getString(11));
+ 
+             EvidencePack evidence = readEvidencePack(
+-                    db, request, snapshot, snapshotHash, governanceStatus);
++                    db, store, request, snapshot, snapshotHash, governanceStatus,compiled);
+             Batch2ContractCoreR926.GateInput input =
+                     new Batch2ContractCoreR926.GateInput(
+                             action,
+@@ -138,10 +146,11 @@ public final class Batch2GateEvidenceR926 {
+ 
+     private static EvidencePack readEvidencePack(
+             SQLiteDatabase db,
++            DbStore store,
+             AnalysisSingleFlightR36.Request request,
+             DeferredEvidenceSnapshotR36.Header snapshot,
+             String snapshotHash,
+-            String governanceStatus) {
++            String governanceStatus,V51CompiledActionContract compiled) {
+         String persistedHistory = "", feature = "", state = "", expert = "", bundle = "", cohort = "";
+         Cursor c = null;
+         try {
+@@ -207,7 +216,7 @@ public final class Batch2GateEvidenceR926 {
+                         + V51SelectedCalibrationArtifact.OOS_ECE + '|'
+                         + Double.toString(selectedHitP));
+ 
+-        CertificateEvidence cert = certificateEvidence(db, request.targetIssue);
++        CertificateEvidence cert = certificateEvidence(db,store,request.targetIssue,compiled,snapshot,snapshotHash);
+         String budgetHash = V51ChecksumEngine.sha256(
+                 "E02D_BUDGET|request_to_durable=" + Batch2ContractCoreR926.REQUEST_TO_DURABLE_BUDGET_MS
+                         + "|compute=" + Batch2ContractCoreR926.COMPUTE_BUDGET_MS
+@@ -319,12 +328,22 @@ public final class Batch2GateEvidenceR926 {
+         }
+     }
+ 
++    /** Verify the existing owner's serialized envelope against the current compiled contract. */
++    private static boolean exactAuthorizationMatches(String authorization,V51CompiledActionContract compiled) {
++        if(!V51AuthorizationCore.isBetEnvelope(authorization))return false;
++        String decisionId=authorization.split("\\|",-1)[1];
++        V51Models.AuthorizedDecision persisted=new V51Models.AuthorizedDecision(
++                V51Enums.DecisionAction.BET,V51Enums.RejectCode.NONE,compiled.selected,
++                decisionId,authorization,V51ArtifactBundleManifest.BUNDLE_HASH);
++        return V51AuthorizationCore.verify(persisted,compiled);
++    }
++
+     /**
+      * A Research contribution can never use a missing/revoked/out-of-range certificate as a
+      * provenance substitute. Baseline/no-contribution is explicitly hashed as NOT_APPLICABLE rather
+      * than pretending that a certificate exists.
+      */
+-    private static CertificateEvidence certificateEvidence(SQLiteDatabase db, String targetIssue) {
++    private static CertificateEvidence certificateEvidence(SQLiteDatabase db,DbStore store,String targetIssue,V51CompiledActionContract compiled,DeferredEvidenceSnapshotR36.Header snapshot,String snapshotHash) {
+         Cursor c = null;
+         String candidateId = "", contributionEvidence = "", contributionRecord = "";
+         boolean applied = false, controlledEligible = false;
+@@ -344,6 +363,45 @@ public final class Batch2GateEvidenceR926 {
+         } finally {
+             if (c != null) c.close();
+         }
++        if(compiled!=null&&compiled.certifiedPrediction!=null){
++            CertifiedPredictionR974.Proof proof=compiled.certifiedPrediction;
++            if(store==null||!targetIssue.equals(proof.target)||!proof.matches(compiled.selected)
++                    ||!applied||!controlledEligible||!proof.candidate.equals(candidateId)
++                    ||!proof.evidence.equals(contributionEvidence)
++                    ||!Batch2ContractCoreR926.isSha256(contributionRecord))
++                throw new IllegalStateException("B11_EXACT_CERTIFICATE_CONTRIBUTION_MISMATCH");
++            String invalid=CertifiedPredictionR974.verifyCertificate(store,proof);
++            if(!invalid.isEmpty())throw new IllegalStateException("B11_EXACT_CERTIFICATE_INVALID:"+invalid);
++            // These are the immutable rows just written in THIS canonical transaction. Never
++            // substitute an R906 shadow certificate for the current R974 exact consumer.
++            try(Cursor exact=BudgetedQueryR927.query(db,
++                    "SELECT e.candidate_id,e.model_hash,e.certificate_hash,e.proof_hash,e.recipe_hash,e.action_hash,e.authorization_hash"
++                    +" FROM r974_exact_real_receipt e JOIN "+DbHelper.TABLE_TRADES+" t ON t._id=e.trade_id AND t.target_issue=e.target_issue"
++                    +" JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" o ON o.target_issue=e.target_issue"
++                    +" WHERE e.target_issue=? AND t.action='BET' AND t.stat_scope='REAL_TRADE'"
++                    +" AND e.authorization_hash=t.authorization_id AND e.authorization_hash=o.authorization_hash"
++                    +" AND o.decision_action='BET' AND o.pre_draw_frozen=1 AND o.bundle_hash=? AND o.history_hash=? AND o.snapshot_hash=? AND o.contract_hash=?"
++                    +" AND t.position=? AND t.n1=? AND t.n2=? AND t.n3=?",
++                    new String[]{targetIssue,snapshot.bundleHash,proof.history,snapshotHash,compiled.selected.contractHash,
++                            String.valueOf(compiled.selected.action.position),String.valueOf(compiled.selected.action.n1),
++                            String.valueOf(compiled.selected.action.n2),String.valueOf(compiled.selected.action.n3)})){
++                if(!exact.moveToFirst()||!proof.candidate.equals(exact.getString(0))
++                        ||!proof.modelHash.equals(exact.getString(1))||!proof.certificate.equals(exact.getString(2))
++                        ||!proof.hash.equals(exact.getString(3))||!V51ChecksumEngine.sha256(proof.recipe).equals(exact.getString(4))
++                        ||!proof.actionHash.equals(exact.getString(5))||!exactAuthorizationMatches(exact.getString(6),compiled))
++                    throw new IllegalStateException("B11_EXACT_CERTIFICATE_RECEIPT_MISMATCH");
++                String authorization=exact.getString(6);
++                if(exact.moveToNext())throw new IllegalStateException("B11_EXACT_CERTIFICATE_RECEIPT_CARDINALITY");
++                return new CertificateEvidence(V51ChecksumEngine.sha256(
++                        "E02D_EXACT_CERT|"+proof.candidate+'|'+proof.structure+'|'+proof.modelHash+'|'+proof.certificate
++                        +'|'+proof.evidence+'|'+proof.hash+'|'+proof.actionHash+'|'+authorization+'|'+contributionRecord),
++                        "R974_EXACT_CERTIFICATE_AND_CANONICAL_RECEIPT_BOUND");
++            }
++        }
++        if(tableExists(db,"r974_exact_real_receipt"))try(Cursor exact=BudgetedQueryR927.query(db,
++                "SELECT 1 FROM r974_exact_real_receipt WHERE target_issue=? LIMIT 1",new String[]{targetIssue})){
++            if(exact.moveToFirst())throw new IllegalStateException("B11_EXACT_CERTIFICATE_PROOF_MISSING");
++        }
+         if (!applied) {
+             return new CertificateEvidence(
+                     V51ChecksumEngine.sha256(

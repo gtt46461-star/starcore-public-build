@@ -1,0 +1,197 @@
+[
+  {
+    "id": "D11",
+    "title": "主机与Android三端数值和状态一致性",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M2",
+      "M3"
+    ],
+    "priority": "P0",
+    "files": [
+      "verification/r925/verify_parity.py",
+      "verification/r925/DeepParityHarness.java",
+      "verification/r925/GateParityHarness.java",
+      "verification/r925/RankerParityHarness.java",
+      "DeepCandidateRuntimeR925.java"
+    ],
+    "anchors": "float output / artifact decode / target PIT",
+    "gap": "现有host成绩规模为14400动作分数和400网络输出，Android为NOT_RUN；不能当100期×1200手机通过。",
+    "steps": [
+      "建立100个完整真实或明确标记合同fixture，覆盖边界/tie/缺失/慢状态/重启/坏artifact",
+      "从同一签名APK内实际推理导出分数，禁止使用另一份Java简化函数",
+      "比较完整1200、Q行列和、最终选中、概率、域/权重、bundle hash",
+      "默认absolute1e-8+relative1e-6，rank1/tie-break100%一致，差异先定位不放宽门掩盖",
+      "报告每模型minSdk21设备或模拟器与目标手机API"
+    ],
+    "acceptance": [
+      "Python/host/Android逐元素结果全可复现",
+      "维度、语义、PIT、非有限和坏hash负例全部拒绝",
+      "设备结果不以host替代"
+    ],
+    "dependencies": [
+      "D10",
+      "Q01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E07C"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "Q02",
+    "title": "手机覆盖安装与完整后台设备矩阵",
+    "original_requirements": [
+      "P0-01",
+      "P0-02",
+      "P0-03",
+      "P0-04",
+      "P1-09",
+      "P1-11",
+      "P2-01"
+    ],
+    "priority": "P0",
+    "files": [
+      "app/src/main/AndroidManifest.xml",
+      "scripts/r925_apk_acceptance.sh",
+      "MainActivity.java",
+      "AutoFetchService.java"
+    ],
+    "anchors": "实体Android14目标手机优先 / 辅助API21与35/36",
+    "gap": "没有可访问手机或模拟器，当前所有物理启动/息屏/划掉/24h未执行。",
+    "steps": [
+      "先备份应用内可恢复数据并核对当前安装包身份，使用原签名覆盖安装不卸载",
+      "按设备表执行冷启动、120亮屏、120息屏、划掉30、网络/锁屏/重启/授权撤回/用户停止",
+      "系统强停单独记录系统行为，恢复从用户启动开始验收",
+      "24h连续运行保存逐期事件、logcat/ANR/崩溃、耗时与电量温度",
+      "全部页面大字体/暗色/窄屏/平板点击截图，导出回传",
+      "任一失败归Owner修复后仅重跑相关项与必要端到端门"
+    ],
+    "acceptance": [
+      "安装后可启动且历史保留",
+      "规定可运行场景掉期0/重复0，连续120覆盖目标≥99%但若要求无掉期则按120/120判",
+      "稳态5秒和FULL/结算门全达标",
+      "未执行维持NOT_RUN"
+    ],
+    "dependencies": [
+      "Q01"
+    ],
+    "kind": "DEVICE_DEPENDENT",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E07A"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "Q03",
+    "title": "真实训练、封存与未来证书效果验收",
+    "original_requirements": [
+      "P1-01",
+      "P1-02",
+      "P1-07",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "training/r925/pipeline.py",
+      "training/r925/deep_candidates.py",
+      "PromotionWindowR925.java",
+      "V57CompleteDiagnosticReportEngine.java",
+      "ModelEffectivenessAnalyzerR35.java"
+    ],
+    "anchors": "真实当前游戏训练快照 / sealed / Future live",
+    "gap": "附件提供报告和项目，不包含足以完成该合同的当前游戏生产训练快照；120+240新期本来需要经过真实时间。",
+    "steps": [
+      "在工程设备门通过后启动新快照采集与已结数据导出，可用旧严格快照按合同审计后补充训练",
+      "由训练命令生成全部artifact，独立sealed一次性验收并永久登记",
+      "失败则保持研究、不伪造PROVEN，下一轮需要新的预注册设计与未消费数据",
+      "只有经批准的冻结bundle进入影子Future",
+      "证书阶梯按实际有效配对期等待，漏样本会延长，不能模拟补满",
+      "目标40%/15%及稳定性独立报表，任何未达标效果项保持失败"
+    ],
+    "acceptance": [
+      "真实dataset/所有阶段/host+Androidparity/hash/封存/资源/新Future齐全才模型证明",
+      "至少1个真实合格候选若未出现就不能声称创造效果完成",
+      "不保证数据必有可持续优势"
+    ],
+    "dependencies": [
+      "Q02",
+      "D09",
+      "C02",
+      "D10",
+      "D11"
+    ],
+    "kind": "DATA_AND_FUTURE_DEPENDENT",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E07B"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "Q04",
+    "title": "一次总交付、可重建包与实际回退",
+    "original_requirements": [
+      "P1-12",
+      "P2-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "scripts/r925_build_release.sh",
+      "scripts/r925_build_total.sh",
+      "scripts/r925_apk_acceptance.sh",
+      "release/release_identity.properties"
+    ],
+    "anchors": "源码→资源→DEX→签名→总包 / release gate",
+    "gap": "下一次必须严格区别工程包与通过全部验收的正式封板包；同签名旧APK未必允许versionCode降级覆盖。",
+    "steps": [
+      "所有任务施工与验证完成后统一冻结发行commit，不逐小补丁交付",
+      "包含完整源码资产、所有模型证据/原方案/DDL/构建工具/原签名材料/历史包/最终APK/修改统计/未关闭项",
+      "构建后从实际APK提取DEX/资源/身份/模型hash与源码生成清单核对",
+      "回退首选同版本内停用新模型/研究开关，代码回退构建更高versionCode恢复包，原旧APK仅作存档，不能承诺普通手机直接降级覆盖",
+      "检查总包所有字节和重建命令",
+      "发布门由机器读取任务结果，不允许NOT_RUN/BLOCKED/FAIL被整体PASS盖掉"
+    ],
+    "acceptance": [
+      "全部工程门PASS方可工程完成",
+      "设备/数据/Future效果门也全PASS才允许标全部目标验收",
+      "单一总包文件可校验、可按文档重建，实际恢复包数据兼容已测"
+    ],
+    "dependencies": [
+      "Q01",
+      "Q02",
+      "Q03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E07D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  }
+]

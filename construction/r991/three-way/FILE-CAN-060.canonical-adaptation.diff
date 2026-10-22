@@ -1,0 +1,10 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java
+@@ -8,6 +8,7 @@
+  public boolean onCreate(){return true;}
+  private Resolved resolve(Uri uri)throws Exception{
+   if(getContext()==null||uri==null)throw new FileNotFoundException("REPORT_CONTEXT");List<String> parts=uri.getPathSegments();
++  if(parts.size()==3&&parts.get(0).equals("recovery")){String id=parts.get(1),name=parts.get(2);if(!id.matches("[0-9a-f]{64}")||!name.matches("[0-9a-f]{64}\\.zip"))throw new FileNotFoundException("REPORT_RECOVERY_PATH");File root=new File(getContext().getFilesDir(),"r981_reports");File directory=ReportArchiveVerifierCP12.inside(root,"recovery/"+id);JSONObject receipt=new JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"receipt.json"),4096));String sha=receipt.getString("sha256");File file=ReportArchiveVerifierCP12.inside(directory,name);if(!name.equals(sha+".zip")||!file.isFile()||file.length()!=receipt.getLong("bytes")||!sha.equals(ReportArchiveCP4.hash(file,()->true)))throw new FileNotFoundException("REPORT_RECOVERY_HASH");return new Resolved(file,null,sha,file.length());}
+   if(parts.size()==1){String name=parts.get(0);if(!name.matches("R923_[0-9a-f]{64}\\.(txt|csv|jsonl|zip)"))throw new FileNotFoundException("REPORT_LEGACY_PATH");File file=ReportArchiveVerifierCP12.inside(new File(getContext().getCacheDir(),"r923_reports"),name);if(!file.isFile()||file.length()>131072)throw new FileNotFoundException("REPORT_LEGACY_TOO_LARGE_USE_FULL_SERVICE");return new Resolved(file,null,null,file.length());}
+   if(parts.size()!=3||!parts.get(0).equals("r981")||!parts.get(2).matches("index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest"))throw new FileNotFoundException("REPORT_VOLUME_PATH");
+   File job=ReportPublicationCP12.job(getContext().getFilesDir(),parts.get(1));JSONObject index=ReportPublicationCP12.delivery(job);if(!index.getString("jobId").equals(parts.get(1)))throw new FileNotFoundException("REPORT_INDEX_IDENTITY");

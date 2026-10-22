@@ -1,0 +1,187 @@
+﻿id,task,type,precondition,procedure,expected,evidence,status
+AT-B01-01,B01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同一构建所有身份一致，故意改任意一处必失败,evidence/B01/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B01-02,B01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,原基线字节不变，新版本号不与已有发行冲突,evidence/B01/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B02-01,B02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,559个原Java和全部新增文件都有有依据的处置,evidence/B02/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B02-02,B02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,关键链没有无诊断吞错，抽取前后固定输入输出一致,evidence/B02/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B02-03,B02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,复杂度/调用图改善可量化，不以删代码行数当完成,evidence/B02/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B03-01,B03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,新装/旧库/缺表/旧stamp/中断迁移五类可恢复,evidence/B03/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B03-02,B03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,critical开库不调用research全量ensure,evidence/B03/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B03-03,B03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,研究最终进入READY或明确失败，不无限等待,evidence/B03/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B03-04,B03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,真机冷启动目标<8秒单独验收,evidence/B03/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-B04-01,B04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,对有未checkpoint数据的库备份恢复后记录不丢,evidence/B04/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B04-02,B04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,在每步注入进程中止均可重入,evidence/B04/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B04-03,B04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,upgrade后历史行及关键hash100%相同,evidence/B04/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B04-04,B04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同版本重复执行不重复数据,evidence/B04/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-B05-01,B05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同机120期稳态request→durable P95≤5000ms、compute P95≤3000ms,evidence/B05/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B05-02,B05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,冷启动独立10次目标<8000ms,evidence/B05/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B05-03,B05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,超时/失败全计数，不能用成功子集掩盖掉期,evidence/B05/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B06-01,B06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,任意阶段杀进程后事件可重放且终态不回退,evidence/B06/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B06-02,B06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,重复回调10次只一个canonical与一次结算,evidence/B06/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B06-03,B06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,最近20/500/导出逐期一致且错误归因唯一,evidence/B06/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B07-01,B07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,亮屏120期、息屏120期、划掉30期连续业务验收,evidence/B07/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B07-02,B07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,用户停止和系统强停不绕过，用户重开后幂等恢复,evidence/B07/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B07-03,B07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每次恢复都能看到请求/接受/真正业务恢复三时点,evidence/B07/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B08-01,B08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,503/超时/200脏JSON/合法重复/冲突/乱序/飞行模式均有结果码,evidence/B08/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B08-02,B08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,重复不会双预测,evidence/B08/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B08-03,B08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,HTTP200但业务拒绝在UI与报告可区分,evidence/B08/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B09-01,B09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,连续完整样本每期CORE结算一条、重放不重复,evidence/B09/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B09-02,B09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同一标签不能更新模型两次,evidence/B09/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B09-03,B09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,崩溃在学习前后均确定恢复,evidence/B09/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B09-04,B09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,120期测试要求全部应结已结,evidence/B09/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-B10-01,B10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,全量有可恢复证据的待办最终归零,evidence/B10/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B10-02,B10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,不可恢复数明确非零即全闭环不通过,evidence/B10/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B10-03,B10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,最新FULL≤2实际开奖滞后且连续水位无隐洞,evidence/B10/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B10-04,B10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,模型与UI不因补账卡顿,evidence/B10/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-B11-01,B11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,新受控测试REAL invalid=0 duplicate=0，每期最多一条且固定K3单位置,evidence/B11/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-B11-02,B11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,来源缺一拒绝,evidence/B11/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-B11-03,B11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,旧101条状态不被篡改,evidence/B11/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-B11-04,B11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,所有Owner扫描和行为测试通过,evidence/B11/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-D01-01,D01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,错误游戏/重复期/未知schema/时间穿越/坏hash/非完整1200拒绝,evidence/D01/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D01-02,D01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,100期逐字段PIT检查,evidence/D01/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D01-03,D01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同输入导出内容hash相同,evidence/D01/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D01-04,D01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,缺标签只作待结，不偷偷补特征,evidence/D01/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-D02-01,D02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同维数不同语义artifact拒绝,evidence/D02/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D02-02,D02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,依赖图无环,evidence/D02/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D02-03,D02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同一issue offline/Java/Android输入逐字段相等,evidence/D02/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D02-04,D02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,重启慢状态不读当前标签,evidence/D02/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-D03-01,D03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,复制源文件到其他目录仍拒绝同sealed窗口新选择,evidence/D03/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D03-02,D03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,篡改上游hash下游失效,evidence/D03/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D03-03,D03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,五阶段样本区间严格有序,evidence/D03/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D03-04,D03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同trial崩溃恢复不重复消费sealed,evidence/D03/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-D04-01,D04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每候选同fold完整结果，包括失败试验,evidence/D04/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D04-02,D04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,没有更优候选时保留baseline且报告未达到效果门,evidence/D04/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D04-03,D04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,host/设备推理一致且满足主链预算,evidence/D04/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D05-01,D05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每期1200唯一动作、360正标签、全1200评分,evidence/D05/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D05-02,D05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,100期×1200 Java/Android rank1完全一致,evidence/D05/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D05-03,D05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,仅1200行视作1期样本,evidence/D05/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D05-04,D05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,最终封存比较无退化,evidence/D05/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-D06-01,D06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,变更consumer/权重/排序会使不兼容calibration拒绝,evidence/D06/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D06-02,D06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,错误概率类型被测试发现,evidence/D06/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D06-03,D06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,sealed Brier/ECE/NLL及分箱附样本数，达到合同门才宣告证明,evidence/D06/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D07-01,D07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,常数/小样本/新域/专家全失效时状态可解释,evidence/D07/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D07-02,D07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每个指标追到输入hash和窗口,evidence/D07/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D07-03,D07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,拒绝不产生补频率BET,evidence/D07/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D08-01,D08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同一target与hash路由可复现,evidence/D08/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D08-02,D08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,未支持域只能PAUSE/fallback,evidence/D08/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D08-03,D08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,域外0贡献,evidence/D08/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D08-04,D08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,更改边界必须重新起窗，不继承证据,evidence/D08/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-D09-01,D09,DATA_FUTURE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,冻结策略真实数据独立评估完整,evidence/D09/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D09-02,D09,DATA_FUTURE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,覆盖不足明确多少，不改分母达标,evidence/D09/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D09-03,D09,DATA_FUTURE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,即使找不到可行策略训练流程仍可验收工程，但效果目标不能关闭,evidence/D09/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D10-01,D10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,任意丢一artifact/错维度同形状错schema/非法路径/错签名/中途中止全部拒绝,evidence/D10/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D10-02,D10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,请求进行中换指针不改变该期,evidence/D10/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D10-03,D10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,回滚无重复canonical/REAL,evidence/D10/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-D11-01,D11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,Python/host/Android逐元素结果全可复现,evidence/D11/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-D11-02,D11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,维度、语义、PIT、非有限和坏hash负例全部拒绝,evidence/D11/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-D11-03,D11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,设备结果不以host替代,evidence/D11/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C01-01,C01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,算法/图资产/创生三者用同一合同测试向量得到一致授权,evidence/C01/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C01-02,C01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,无证书0权重,evidence/C01/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C01-03,C01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,证书只授予排序影响不创建REAL,evidence/C01/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C01-04,C01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,旧新状态全部可解释,evidence/C01/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C02-01,C02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,重复label/跨game/基线变更/错窗口/回看调门负例全部拒绝,evidence/C02/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C02-02,C02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,fail窗口不可原样反复试到PASS,evidence/C02/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C02-03,C02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,固定champion逐期预测hash可重算,evidence/C02/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C02-04,C02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,长历史查询预算可控,evidence/C02/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C03-01,C03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,构造相同ranking不同score尺度，概率证书不被尺度伪造,evidence/C03/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C03-02,C03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,raw score=.9不自动等于90%命中概率,evidence/C03/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C03-03,C03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,所有Brier行可追calibration/selection hash,evidence/C03/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C04-01,C04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,在冻结前/后/事务中断分别注入故障，终态与预测行一致,evidence/C04/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C04-02,C04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同一期冻结不可被后续失败覆盖,evidence/C04/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C04-03,C04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,分母公式可从明细逐行复算,evidence/C04/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C05-01,C05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,重复结构/行为候选不占双份active预算,evidence/C05/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C05-02,C05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,高相关但不同有效域不误并,evidence/C05/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C05-03,C05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,归档和合并不减少已注册假设总数,evidence/C05/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C05-04,C05,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每族冠军可追晋级依据,evidence/C05/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C06-01,C06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,在纯噪声、相关候选、连续追加、重复look下统计测试报告可复现,evidence/C06/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C06-02,C06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,分配alpha总额≤预注册总额,evidence/C06/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C06-03,C06,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,旧假设无法通过改名/归档/拆族逃避分母,evidence/C06/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C07-01,C07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,64苗圃压力下主链仍满足5秒门,evidence/C07/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C07-02,C07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,无候选无限饿死且无重复active,evidence/C07/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C07-03,C07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,C层证据不能伪装full1200晋级,evidence/C07/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C07-04,C07,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,资源撤回不会误prune,evidence/C07/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C08-01,C08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,父代200样本child仍0,evidence/C08/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C08-02,C08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,两次同结果不重复转移,evidence/C08/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C08-03,C08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,系统缺失只pause,evidence/C08/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C08-04,C08,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,修复后必须独立paired改善才success，不以created数量完成,evidence/C08/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C09-01,C09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每一模块消融有真实执行输出，不是重命名指标,evidence/C09/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C09-02,C09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,所有当期历史hash不变,evidence/C09/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C09-03,C09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,repair只影响下一候选和未来期,evidence/C09/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C09-04,C09,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,负对照模块应零影响,evidence/C09/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C10-01,C10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每个原子有来源/掩码/耗时/消费者清单,evidence/C10/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C10-02,C10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,本期postdraw20项生产调用0,evidence/C10/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C10-03,C10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,百万冻结记录查询EXPLAIN索引与性能满足预算,evidence/C10/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C10-04,C10,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,旧fixture缺mask明确unknown,evidence/C10/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C11-01,C11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,原有趋势/形态/关系/教师/反推/因果/反哺资产hash保留,evidence/C11/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C11-02,C11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,隔离后新候选不会再调用该原子,evidence/C11/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C11-03,C11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,缺失与低相关不能触发无证据删除,evidence/C11/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-C11-04,C11,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,恢复过程可审计,evidence/C11/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-C12-01,C12,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,从最底层原子到可执行候选有完整源码文本,evidence/C12/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-C12-02,C12,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,至少用合同fixture验证新结构能运行并被正确拒绝/晋级，真实高品质只能由Future证据认定,evidence/C12/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-C12-03,C12,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,每个创造事件都有目的与预算,evidence/C12/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-U01-01,U01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,phone与sw600dp全部ID/handler一致,evidence/U01/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-U01-02,U01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,最大字体和窄屏不遮按钮,evidence/U01/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-U01-03,U01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,停止刷新/旋转重建无泄漏,evidence/U01/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-U01-04,U01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,UI计数与同一event watermark导出一致,evidence/U01/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-U02-01,U02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,用户5秒能找到正在做什么/有没有改善/是否接主链/为什么未接,evidence/U02/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-U02-02,U02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,四页各自点击、返回、空态、错误、长名单和大屏测试通过,evidence/U02/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-U02-03,U02,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,原有功能页全部可达,evidence/U02/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-U03-01,U03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,对旧反馈每个字段提供有值/缺失/失败fixture及设备截图,evidence/U03/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-U03-02,U03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,原矩阵入口和数值来源无消失,evidence/U03/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-U03-03,U03,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,开奖后解释不修改赛前决策,evidence/U03/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-U04-01,U04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,任何章节故障仍导出错误码及其他章节,evidence/U04/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-U04-02,U04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,所有M1-M10状态非缺省,evidence/U04/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-U04-03,U04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,同一snapshot UI与报告计数一致,evidence/U04/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-U04-04,U04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,导出文件实际可分享打开、hash可复算,evidence/U04/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q01-01,Q01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,所有必需负例可触发预期拒绝,evidence/Q01/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q01-02,Q01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,零测试不得显示PASS,evidence/Q01/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q01-03,Q01,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,失败列表、命令/版本/hash完整，改动相关回归全部通过,evidence/Q01/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q02-01,Q02,DEVICE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,安装后可启动且历史保留,evidence/Q02/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q02-02,Q02,DEVICE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,规定可运行场景掉期0/重复0，连续120覆盖目标≥99%但若要求无掉期则按120/120判,evidence/Q02/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q02-03,Q02,DEVICE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,稳态5秒和FULL/结算门全达标,evidence/Q02/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q02-04,Q02,DEVICE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,未执行维持NOT_RUN,evidence/Q02/AT-04.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q03-01,Q03,DATA_FUTURE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,真实dataset/所有阶段/host+Androidparity/hash/封存/资源/新Future齐全才模型证明,evidence/Q03/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q03-02,Q03,DATA_FUTURE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,至少1个真实合格候选若未出现就不能声称创造效果完成,evidence/Q03/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q03-03,Q03,DATA_FUTURE,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,不保证数据必有可持续优势,evidence/Q03/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q04-01,Q04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,全部工程门PASS方可工程完成,evidence/Q04/AT-01.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q04-02,Q04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,设备/数据/Future效果门也全PASS才允许标全部目标验收,evidence/Q04/AT-02.json + 原始日志/输入输出hash,NOT_RUN
+AT-Q04-03,Q04,IMPLEMENTATION_CONTRACT,关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结,按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码,单一总包文件可校验、可按文档重建，实际恢复包数据兼容已测,evidence/Q04/AT-03.json + 原始日志/输入输出hash,NOT_RUN
+F01,B04,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,迁移完成DDL但未更新step_cursor时中止,重启仅幂等重复本步，历史行hash相同,evidence/B04/F01.json + log,NOT_RUN
+F02,B04,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,WAL含未checkpoint交易时做一致备份,恢复保留所有已提交交易，不能丢WAL记录,evidence/B04/F02.json + log,NOT_RUN
+F03,B03,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,Research新表缺失、critical表完整,主链可运行，研究INIT/FAILED可见,evidence/B03/F03.json + log,NOT_RUN
+F04,B03,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,研究DDL变化但critical对象未变,不重复critical全库迁移,evidence/B03/F04.json + log,NOT_RUN
+F05,B06,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,canonical事务提交前中止,无半条canonical/贡献/event,evidence/B06/F05.json + log,NOT_RUN
+F06,B06,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,事务提交后outbox消费前中止,重启只消费一次，canonical不重建,evidence/B06/F06.json + log,NOT_RUN
+F07,B06,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,旧attempt响应晚于新attempt durable,旧回调不覆盖终态，不制造第二REAL,evidence/B06/F07.json + log,NOT_RUN
+F08,B08,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,HTTP200但JSON错游戏/错号码排列,HTTP已收，业务拒绝，有独立码,evidence/B08/F08.json + log,NOT_RUN
+F09,B08,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,两个来源同一期不同排列,隔离冲突，不静默覆盖,evidence/B08/F09.json + log,NOT_RUN
+F10,B07,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,通知可见但抓取timer不再触发,业务灯变坏，恢复原定时器而不是只续心跳,evidence/B07/F10.json + log,NOT_RUN
+F11,B09,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,标签重复10次/学习回调重复10次,仅一次结算与一次参数更新,evidence/B09/F11.json + log,NOT_RUN
+F12,B10,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,最新FULL成功而中间10期未完成,连续水位和洞数量显示缺口,evidence/B10/F12.json + log,NOT_RUN
+F13,B10,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,欠账snapshot损坏/丢失,隔离并计未闭环，不删作清零,evidence/B10/F13.json + log,NOT_RUN
+F14,D01,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,snapshot内target与SQL join target不同,导出拒绝，不生成伪标签,evidence/D01/F14.json + log,NOT_RUN
+F15,D01,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,frozen_at>=draw_at、base>=target,PIT拒绝,evidence/D01/F15.json + log,NOT_RUN
+F16,D02,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,相同96维但不同feature_contract,loader拒绝,evidence/D02/F16.json + log,NOT_RUN
+F17,D02,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,D2输入包含当期更新后的慢状态,PIT/状态hash拒绝,evidence/D02/F17.json + log,NOT_RUN
+F18,D03,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,把已消费sealed源复制到另一目录,全局registry仍拒绝新选择,evidence/D03/F18.json + log,NOT_RUN
+F19,D05,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,只提供10动作而非1200,合同拒绝,evidence/D05/F19.json + log,NOT_RUN
+F20,D05,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,所有分数相等/差1e-12的并列动作,三端同一ordinal tie-break,evidence/D05/F20.json + log,NOT_RUN
+F21,D06,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,研究权重变化但使用旧selection校准hash,校准不兼容，禁止新证明/贡献,evidence/D06/F21.json + log,NOT_RUN
+F22,C03,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,raw score从0..1缩放到0..100,不能影响概率质量证书，raw不算Brier,evidence/C03/F22.json + log,NOT_RUN
+F23,D08,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,未知域/域CAL支持119,PAUSE/fallback，不品质prune,evidence/D08/F23.json + log,NOT_RUN
+F24,D10,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,丢Policy artifact或签名/hash错误,整包不激活,evidence/D10/F24.json + log,NOT_RUN
+F25,D10,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,预测中更换bundle、进程中止,当期固定原bundle；下一期或重启一致选择,evidence/D10/F25.json + log,NOT_RUN
+F26,C02,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,同一target两条pair或换champion_hash,唯一/窗口合同拒绝,evidence/C02/F26.json + log,NOT_RUN
+F27,C02,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,first120失败后延长直到变好,原窗口仍失败，新窗口必须预注册,evidence/C02/F27.json + log,NOT_RUN
+F28,C04,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,冻结写成功但机会写失败,同事务回滚或完整成功，不能半成功,evidence/C04/F28.json + log,NOT_RUN
+F29,C05,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,相同结构改中文名重新注册,别名关联，active不双计、统计历史保留,evidence/C05/F29.json + log,NOT_RUN
+F30,C06,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,归档90%失败候选后重算显著性,历史假设预算不下降,evidence/C06/F30.json + log,NOT_RUN
+F31,C07,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,连续压力导致某候选未分配运行,PAUSED_CAPACITY，不QUALITY_PRUNE,evidence/C07/F31.json + log,NOT_RUN
+F32,C08,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,父代N200拷贝给child,子代birth N必须0，约束拒绝非0,evidence/C08/F32.json + log,NOT_RUN
+F33,C09,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,消融重执行试图写当期canonical,只读/权限边界拒绝，历史hash不变,evidence/C09/F33.json + log,NOT_RUN
+F34,C10,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,一个原子合法值0、另一个缺失,mask与missing_reason明确区分,evidence/C10/F34.json + log,NOT_RUN
+F35,C11,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,开奖后原子流入赛前评分,PIT硬拒绝并隔离新研究消费,evidence/C11/F35.json + log,NOT_RUN
+F36,U01,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,页面退出后旧查询完成,不写已销毁View，新屏不被旧数据覆盖,evidence/U01/F36.json + log,NOT_RUN
+F37,U02,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,四页面无样本/一万个候选/最大字号,空态真实、分页流畅、按钮不遮挡,evidence/U02/F37.json + log,NOT_RUN
+F38,U04,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,其中一章SQL异常、报告超过内存预算,流式导出其余与错误码，无OOM/截断冒充完整,evidence/U04/F38.json + log,NOT_RUN
+F39,Q04,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,APK资源/模型/版本与manifest一项不一致,发行gate拒绝,evidence/Q04/F39.json + log,NOT_RUN
+F40,Q04,FAULT_INJECTION,隔离fixture或测试设备，非用户生产库,仅host日志且设备/Future为NOT_RUN,release gate拒绝全部完成声明,evidence/Q04/F40.json + log,NOT_RUN

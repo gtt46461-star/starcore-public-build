@@ -1,0 +1,1 @@
+package android.net; import java.util.*; public class Uri { public static Uri parse(String s){return new Uri();} public String getLastPathSegment(){return "";} public List<String> getPathSegments(){return Collections.emptyList();} }

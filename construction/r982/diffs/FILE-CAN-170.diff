@@ -1,0 +1,52 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeMemoryGuardR811.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeMemoryGuardR811.java
+index 2ffc971..3dd9b58 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeMemoryGuardR811.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeMemoryGuardR811.java
+@@ -11,15 +11,20 @@ public final class RuntimeMemoryGuardR811 {
+ 
+     private RuntimeMemoryGuardR811() {}
+ 
+-    /** Clear only deterministic recomputable caches; ask for GC only under measured pressure. */
++    /** One process-wide partition: callers must not create a new full budget per prediction. */
++    private static final class AlgorithmBudgets {
++        static final long TOTAL=com.ethk3.novaonepro.r952.MemoryBudgetCP4.algorithmTotal(Runtime.getRuntime().maxMemory());
++        static final com.ethk3.novaonepro.r952.MemoryBudgetCP4 MODEL=new com.ethk3.novaonepro.r952.MemoryBudgetCP4(TOTAL/2);
++        static final com.ethk3.novaonepro.r952.MemoryBudgetCP4 ATOM_MATRIX=new com.ethk3.novaonepro.r952.MemoryBudgetCP4(TOTAL-TOTAL/2);
++    }
++    public static com.ethk3.novaonepro.r952.MemoryBudgetCP4 algorithmModelBudget(){return AlgorithmBudgets.MODEL;}
++    public static com.ethk3.novaonepro.r952.MemoryBudgetCP4 algorithmAtomMatrixBudget(){return AlgorithmBudgets.ATOM_MATRIX;}
++
++
++    /** Clear deterministic recomputable caches only under measured pressure; never force GC. */
+     public static Snapshot prepareForAnalysis() {
+         Snapshot before = snapshot("PREFLIGHT_BEFORE");
+-        RollingWindowCache.shared().clear();
+-        FullInformationFeatureGraphEngine.shared().clear();
+-        if (before.headroomBytes < LOW_HEADROOM_BYTES) {
+-            System.gc();
+-            System.runFinalization();
+-        }
++        if (before.headroomBytes < LOW_HEADROOM_BYTES) clearRecomputableCaches();
+         Snapshot after = snapshot("PREFLIGHT_AFTER");
+         if (after.headroomBytes < MIN_START_HEADROOM_BYTES)
+             throw new MemoryPressureException(after.canonical());
+@@ -37,16 +42,12 @@ public final class RuntimeMemoryGuardR811 {
+     }
+ 
+     public static void recoverAfterFailure() {
+-        clearRecomputableCaches();
+-        try {
+-            System.gc();
+-        } catch (Throwable ignored) {
+-        }
++        clearRecomputableCaches(); // no forced GC/finalization on the critical path
+     }
+ 
+-    /** Release only deterministic recomputable analysis caches after canonical commit. */
++    /** Warm caches survive normal targets; bounded caches own admission/eviction. */
+     public static void releaseAfterAnalysis() {
+-        clearRecomputableCaches();
++        if (snapshot("POST_COMMIT").headroomBytes < LOW_HEADROOM_BYTES) clearRecomputableCaches();
+     }
+ 
+     private static void clearRecomputableCaches() {

@@ -1,0 +1,26 @@
+name: starcore-tianshu-b03-export-final
+on:
+  push:
+    branches:
+      - v57-full/b03
+permissions:
+  contents: read
+jobs:
+  export:
+    if: contains(github.event.head_commit.message, '[b03-export-final]')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export current final workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p export
+          cp .github/workflows/starcore-tianshu-b03-final.yml export/
+          sha256sum export/starcore-tianshu-b03-final.yml > export/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B03-Final-Workflow-Export
+          path: export/*
+          retention-days: 7
+          if-no-files-found: error

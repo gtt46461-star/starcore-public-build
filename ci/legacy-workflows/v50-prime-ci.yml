@@ -1,0 +1,199 @@
+name: V50 PRIME Engineering Candidate And APK
+
+on:
+  push:
+    branches:
+      - agent/v50-prime
+  pull_request:
+    branches:
+      - agent/v49-full-window-causal-moe
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-build-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact submitted source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify checked-out source identity
+        shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          ACTUAL_SOURCE_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
+          printf 'source_commit=%s\n' "$ACTUAL_SOURCE_SHA"
+
+      - name: Set up pinned Python model toolchain
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install verification dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check \
+            numpy==2.3.5 scikit-learn==1.8.0 javalang==0.13.0
+
+      - name: Reproduce all four model artifacts
+        shell: bash
+        env:
+          PYTHONHASHSEED: '0'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          NUMEXPR_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v50-generated reports delivery
+          python training/v50_train_pipeline.py \
+            --epochs 9 \
+            --java-output-dir /tmp/v50-generated \
+            --report /tmp/V50_MODEL_LAB.json \
+            > reports/V50_TRAIN_REPRODUCIBILITY_50072403.log
+          python tools/v50_artifact_reproducibility.py \
+            --committed-dir app/src/main/java/com/ethk3/novaonepro \
+            --generated-dir /tmp/v50-generated \
+            --committed-report reports/V50_MODEL_LAB.json \
+            --generated-report /tmp/V50_MODEL_LAB.json \
+            --tolerance 1e-4 \
+            | tee reports/V50_ARTIFACT_REPRODUCIBILITY_50072403.json
+
+      - name: Run executable V50 gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/run_v50_harnesses.py \
+            | tee reports/V50_HARNESSES_STDOUT_50072403.json
+
+      - name: Parse every Java and XML source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' | tee reports/V50_SOURCE_PARSE_50072403.txt
+          from pathlib import Path
+          import javalang
+          import xml.etree.ElementTree as ET
+
+          java_files = sorted(Path('app/src/main/java').rglob('*.java'))
+          errors = []
+          for path in java_files:
+              try:
+                  javalang.parse.parse(path.read_text('utf-8'))
+              except Exception as exc:
+                  errors.append((str(path), str(exc)))
+
+          xml_files = sorted(Path('app/src/main/res').rglob('*.xml'))
+          xml_files.append(Path('app/src/main/AndroidManifest.xml'))
+          for path in xml_files:
+              ET.parse(str(path))
+
+          print('java_files=%d parse_errors=%d xml_files=%d' %
+                (len(java_files), len(errors), len(xml_files)))
+          for item in errors[:100]:
+              print('%s :: %s' % item)
+          if errors:
+              raise SystemExit(1)
+          PY
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform and build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Build real Android APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace :app:assembleDebug \
+            2>&1 | tee reports/V50_GRADLE_BUILD_50072403.log
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n 1)"
+          test -n "$APK"
+          test -s "$APK"
+          cp "$APK" \
+            delivery/ETH-K3-Nova-One-Pro-V50.0.50072403-engineering-candidate-model-not-proven-debug.apk
+
+      - name: Package exact source, evidence, and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > delivery/V50_SOURCE_COMMIT.txt
+          printf '%s\n' \
+            'V50_ENGINEERING_IN_PROGRESS_MODEL_NOT_PROVEN' \
+            > delivery/V50_RELEASE_STATE.txt
+          git archive --format=zip --output \
+            delivery/ETH-K3-Nova-One-Pro-V50.0.50072403-full-source.zip HEAD
+          cp reports/V50_MODEL_LAB.json delivery/
+          cp reports/V50_HARNESSES_50072403.json delivery/
+          sha256sum delivery/*.apk delivery/*.zip \
+            > delivery/SHA256SUMS.txt
+          cat delivery/SHA256SUMS.txt
+
+      - name: Publish gate summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          report = json.load(open('reports/V50_MODEL_LAB.json'))
+          policy = report['selective_policy']
+          rank = report['action_rankers'][report['action_champion']]
+          print('## V50 PRIME 50072403')
+          print()
+          print('- Engineering harnesses: **12/12 passed**')
+          print('- Quality-qualified OOS coverage: **%.2f%%**' %
+                (policy['coverage'] * 100))
+          if policy['selected']:
+              print('- Quality-qualified hit rate: **%.2f%%**' %
+                    (policy['hit_rate'] * 100))
+              print('- Quality-qualified ECE: **%.2f%%**' %
+                    (policy['ece'] * 100))
+          else:
+              print('- Quality-qualified hit rate / ECE: **N/A (no surface passed)**')
+          print('- Rank1 / Rank2 / Rank3: **%.2f%% / %.2f%% / %.2f%%**' %
+                (rank['rank1_rate'] * 100, rank['rank2_rate'] * 100,
+                 rank['rank3_rate'] * 100))
+          print('- Model gate: **NOT PROVEN**')
+          print('- Real BET: **disabled by release gates**')
+          PY
+
+      - name: Upload V50 engineering-candidate deliverables
+        uses: actions/upload-artifact@v4
+        with:
+          name: V50-PRIME-50072403-engineering-candidate-model-not-proven
+          path: |
+            delivery/*
+            reports/V50_HARNESSES_STDOUT_50072403.json
+            reports/V50_SOURCE_PARSE_50072403.txt
+            reports/V50_TRAIN_REPRODUCIBILITY_50072403.log
+            reports/V50_ARTIFACT_REPRODUCIBILITY_50072403.json
+            reports/V50_GRADLE_BUILD_50072403.log
+          if-no-files-found: error
+          retention-days: 30

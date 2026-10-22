@@ -1,0 +1,43 @@
+PASS actual source request ledger
+PASS actual accepted predraw source event
+PASS actual durable request
+PASS single actual lease
+PASS durable owner claim
+RUNTIME_OUTCOME BET|NONE|RUNTIME_REPAIR_BUILD_MODEL_NOT_PROVEN_CONTROLLED_PROBE|R903_MAINLINE=R974_EXACT_FROZEN_MODEL|certificate=1a4847e26c9a1d4b8c275b1806b48e9454327f9b9142df2c1f8f6e1d8a2d3371
+PASS actual certified REAL receipt
+PASS one REAL row
+PASS canonical predraw snapshot
+PASS durable full action snapshot
+PASS full 1200 action ranking and 100 number events
+PASS exact receipt cannot use legacy proof fallback
+PASS actual history owner stores exact draw
+SETTLEMENT R36_EXACT_TERMINAL|task=COMPLETED|oos=STRICT_ACTION_OOS_UNCALIBRATED|real=REAL_SETTLED|core=COMMITTED_SIDEcars_DEFERRED|hash=582644be73271f1279177e13ab1fdd04197637e69ebab12cb05e4b9d69bf3ac5
+PASS actual sole settlement completes REAL
+PASS exact action OOS completes task
+PASS unavailable calibrated probability remains unavailable
+SIDECAR OK:COMPLETED
+RESEARCH_CONSUMER OK|compact=1|learned=1|created=1|artifactJobs=0|certification=NOT_DUE|R906_EVOLUTION|nursery=1|active=0|challenger=0|archived=0|status=OK
+PASS actual outbox downstream acknowledged
+PASS actual compact research label consumed
+LEARNER REPLAY_IDEMPOTENT_ARTIFACT_PRESENT
+PASS actual settlement feedback updates saved model
+PASS one persisted trained artifact
+PASS settlement recovery does not duplicate REAL
+PASS next period recovers sole runtime lease
+PASS next period durable claim
+NEXT_PERIOD_RUNTIME BET|NONE|RUNTIME_REPAIR_BUILD_MODEL_NOT_PROVEN_CONTROLLED_PROBE|R903_MAINLINE=R974_EXACT_FROZEN_MODEL|certificate=1a4847e26c9a1d4b8c275b1806b48e9454327f9b9142df2c1f8f6e1d8a2d3371
+PASS next period pipeline creates canonical predraw fact
+PASS next period maintains maximum one REAL
+PASS next-period actual draw owner
+PASS next-period exact receipt available
+PASS actual certificate revocation owner
+PASS no-certificate actual runtime lease
+PASS no-certificate actual durable claim
+NO_CERTIFICATE_UPSTREAM_STAGES target=202609230363|scope=COMPLETED_SPANS_BEFORE_COMMIT|nested=INCLUSIVE_NOT_ADDITIVE|MODEL_BUNDLE_OPEN_CP3=0ms:OK|FEATURES_SUB=8ms:OK|STATE_SUB=3ms:OK|NUMBER_MODEL=47ms:OK|ACTION_BUILD_FUNNEL_META_RANK=38ms:OK|SELECTION_POLICY=106ms:OK|DECISION_GATE=5ms:OK|R36_COMPUTE=216ms:OK|SNAPSHOT_STREAM=44ms:OK|DB_CANONICAL_WAIT=12ms:OK
+NO_CERTIFICATE_RUNTIME SHADOW|MODEL_NOT_PROVEN|RUNTIME_REPAIR_BUILD_MODEL_NOT_PROVEN_CONTROLLED_PROBE|R903_MAINLINE=LEGACY_MAINLINE_RETIRED_USE_UNIFIED_EXACT_OWNER|choice_reason=NO_VALID_CERTIFICATE|preflight=EXECUTED|raw=NO_CANDIDATE:NO_CERTIFICATE_MATCHED_CURRENT_PREFLIGHT|latest_state=REVOKED;original_reason=EXPLICIT_TEST_ONLY_NO_CERTIFICATE_PERIOD|missing=ACTIVE,current_bundle,issued_before_capture,positive_weight,required_gates,supported_exact_consumer|recovery=run_independent_fixed_Future_and_calibration_then_actual_certificate_publisher|missing=authorized_executable_exact_model|recovery=repair_recorded_dependency_then_freeze_next_target
+PASS no certificate produces zero REAL
+PASS no-certificate upstream pipeline still commits predraw fact
+NO_CERTIFICATE_CHOICE_REASON NO_VALID_CERTIFICATE|preflight=EXECUTED|raw=NO_CANDIDATE:NO_CERTIFICATE_MATCHED_CURRENT_PREFLIGHT|latest_state=REVOKED;original_reason=EXPLICIT_TEST_ONLY_NO_CERTIFICATE_PERIOD|missing=ACTIVE,current_bundle,issued_before_capture,positive_weight,required_gates,supported_exact_consumer|recovery=run_independent_fixed_Future_and_calibration_then_actual_certificate_publisher|missing=authorized_executable_exact_model|recovery=repair_recorded_dependency_then_freeze_next_target
+PASS precise durable revoked-certificate cause and recovery
+PASS actual canonical consumer persists original NO_BET cause
+RUNTIME_CONSUMER_CHAIN_PASS checks=33 scope=SYNTHETIC_HOST_NOT_NATURAL_FUTURE_NOT_DEVICE

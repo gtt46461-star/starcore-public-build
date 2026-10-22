@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "batch": "C022",
+  "commands": [
+    {
+      "name": "wake-tests",
+      "argv": [
+        "java",
+        "com.sun.tools.javac.Main",
+        "-sourcepath",
+        "/workspace/scratch/734b9d5fd4f8/checks/C022/empty",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/build/C022/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "-d",
+        "/workspace/scratch/734b9d5fd4f8/checks/C022/wake-tests",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/runtime/tests/wake-stubs/android/content/Context.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/runtime/tests/wake-stubs/android/os/SystemClock.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/runtime/tests/wake-stubs/android/os/PowerManager.java",
+        "/workspace/scratch/734b9d5fd4f8/plan/repack/legacy_audit/runtime/tests/PredrawWakeLeaseR81Test.java"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "wake-deadline-exception-idempotent-os-race",
+      "argv": [
+        "java",
+        "-Djava.library.path=/workspace/scratch/734b9d5fd4f8/checks/C022/native",
+        "-Dr82.readonly.bridge=/workspace/scratch/734b9d5fd4f8/stage-sources/final-C022/verification/r996/read_only_bridge.py",
+        "-cp",
+        "/workspace/scratch/734b9d5fd4f8/checks/C022/wake-tests:/workspace/scratch/734b9d5fd4f8/plan/tests/adapters:/workspace/scratch/734b9d5fd4f8/build/C022/actual-applied/classes:/workspace/scratch/734b9d5fd4f8/toolchain/android-platform-36/android.jar",
+        "com.ethk3.novaonepro.PredrawWakeLeaseR81Test"
+      ],
+      "exit_code": 0,
+      "log_sha256": "cc0e5ddcf66ecf25d9a7c6e3d7602c3b92a3173ec94c8b7c4cf9d32743d5e0a9"
+    }
+  ],
+  "class_files": 3476,
+  "class_tree_sha256": "a61e410ac74f9b261f780427bb1683e0a4b83b826f39cf8b1306666159be16cd",
+  "product_class_overlays": [],
+  "product_classes_unchanged": true,
+  "scope": "CURRENT_STAGE_SCOPED_HOST_CONTRACTS_ONLY",
+  "later_interfaces_and_all_regression": "C030",
+  "original_device_live_database_and_natural_data": "WAIT"
+}

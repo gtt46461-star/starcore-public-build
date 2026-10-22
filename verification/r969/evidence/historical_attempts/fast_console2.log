@@ -1,0 +1,129 @@
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+/mnt/data/r969work/tests/fast/adapters/com/ethk3/novaonepro/DatabaseCoordinator.java:43: warning: [removal] ThreadDeath in java.lang has been deprecated and marked for removal
+        catch (VirtualMachineError fatal) { throw fatal; } catch (ThreadDeath fatal) { throw fatal; } catch (Throwable failure) { failure.printStackTrace(System.err); return fallback; }
+                                                                  ^
+Note: /mnt/data/r969work/tests/fast/adapters/android/database/CursorWrapper.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+1 warning
+
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+PASS STREAM_PRODUCT_SCHEMA_READY
+PASS ACTUAL_FIRST_CAPTURE_BINDS_ONE_RUN_AND_INPUT
+PASS ORIGIN_BOUND_TO_REAL_RUN_NOT_R948_WRONG_NAMESPACE
+PASS ACTUAL_CAPTURE_IDENTITY_REPLAY_VALID
+PASS REPEATED_REGISTRATION_AND_CAPTURE_DO_NOT_RESET
+PASS r967_numeric_training_run_UPDATE
+PASS r967_numeric_training_run_DELETE
+PASS r967_numeric_training_run_REPLACE
+PASS r967_numeric_training_input_UPDATE
+PASS r967_numeric_training_input_DELETE
+PASS r967_numeric_training_input_REPLACE
+PASS CHANGED_INPUT_REJECTED
+PASS CHANGED_MODEL_REJECTED
+PASS EVAL_ROLE_CANNOT_TRAIN
+PASS EVAL_ROLE_CANNOT_FEEDBACK
+PASS RETIRED_PARENT_CANNOT_NEW_TRAIN
+PASS V2_ACTUAL_NUMERIC_COMMIT
+java.lang.IllegalStateException: V2_POST_ACK_CRASH | UPDATE v57_research_task_r967 SET status='COMPLETED',lease_until=0,lease_owner='',result_hash=?,last_error='',updated_at=? WHERE task_id=? AND generation=? AND cursor=? AND status='RUNNING'
+	at android.database.sqlite.SQLiteDatabase.call(SQLiteDatabase.java:50)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:13)
+	at com.ethk3.novaonepro.ResearchTaskQueueR967.complete(ResearchTaskQueueR967.java:104)
+	at com.ethk3.novaonepro.r952.PostSettlementResearchLoopR952$2.call(PostSettlementResearchLoopR952.java:61)
+	at com.ethk3.novaonepro.r952.PostSettlementResearchLoopR952$2.call(PostSettlementResearchLoopR952.java:52)
+	at com.ethk3.novaonepro.DatabaseCoordinator$2.call(DatabaseCoordinator.java:60)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:40)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWrite(DatabaseCoordinator.java:54)
+	at com.ethk3.novaonepro.r952.PostSettlementResearchLoopR952.drainOne(PostSettlementResearchLoopR952.java:52)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.basic(StreamInvariantHarnessR969.java:43)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.main(StreamInvariantHarnessR969.java:104)
+PASS V2_POST_CRASH_DEFERRED
+PASS V2_FEEDBACK_AND_ACK_ROLL_BACK_TOGETHER
+PASS V2_POST_CRASH_RETRY_FINISHES
+PASS V2_FEEDBACK_DOES_NOT_RETRAIN
+PASS V2_POST_REPLAY_NO_DUPLICATE
+java.lang.IllegalStateException: INPUT_WRITE_CRASH | INSERT INTO r967_numeric_training_input VALUES(?,?,?,?,?,?)
+	at android.database.sqlite.SQLiteDatabase.call(SQLiteDatabase.java:50)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:13)
+	at com.ethk3.novaonepro.ResearchEvaluationRunR967.bindInput(ResearchEvaluationRunR967.java:124)
+	at com.ethk3.novaonepro.r952.ResearchDirectorR952$1.call(ResearchDirectorR952.java:53)
+	at com.ethk3.novaonepro.r952.ResearchDirectorR952$1.call(ResearchDirectorR952.java:34)
+	at com.ethk3.novaonepro.DatabaseCoordinator$2.call(DatabaseCoordinator.java:60)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:40)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWrite(DatabaseCoordinator.java:54)
+	at com.ethk3.novaonepro.r952.ResearchDirectorR952.capturePredraw(ResearchDirectorR952.java:33)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.lambda$basic$9(StreamInvariantHarnessR969.java:51)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.reject(StreamInvariantHarnessR969.java:12)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.basic(StreamInvariantHarnessR969.java:51)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.main(StreamInvariantHarnessR969.java:104)
+PASS PREDRAW_SIDECAR_FAILURE_PROPAGATES
+PASS PREDRAW_AND_SIDECAR_ATOMIC_ROLLBACK
+PASS CAPTURE_RECOVERS_AFTER_SIDECAR_FAULT
+PASS MISSING_TRIGGER_NOT_READY:r967_numeric_training_run_no_update
+PASS MISSING_TRIGGER_REPAIRED:r967_numeric_training_run_no_update
+PASS MISSING_TRIGGER_NOT_READY:r967_numeric_training_run_no_delete
+PASS MISSING_TRIGGER_REPAIRED:r967_numeric_training_run_no_delete
+PASS MISSING_TRIGGER_NOT_READY:r967_numeric_training_input_no_update
+PASS MISSING_TRIGGER_REPAIRED:r967_numeric_training_input_no_update
+PASS MISSING_TRIGGER_NOT_READY:r967_numeric_training_input_no_delete
+PASS MISSING_TRIGGER_REPAIRED:r967_numeric_training_input_no_delete
+PASS MISSING_TRIGGER_NOT_READY:r967_frozen_evaluation_v2_no_update
+PASS MISSING_TRIGGER_REPAIRED:r967_frozen_evaluation_v2_no_update
+PASS MISSING_TRIGGER_NOT_READY:r967_frozen_evaluation_v2_no_delete
+PASS MISSING_TRIGGER_REPAIRED:r967_frozen_evaluation_v2_no_delete
+PASS TRIGGER_REPAIR_PRESERVES_IMMUTABLE_HISTORY
+PASS LOST_RUN_DOES_NOT_REBIND_CAPTURED_INPUT
+PASS LOST_RUN_BLOCKED_PENDING_INPUT_POSTDRAW_NOOP
+PASS NO_FABRICATED_RUN_AFTER_LOSS
+PASS STREAM_PRODUCT_SCHEMA_READY
+PASS OLD_RULE_FIXTURE_PASSES_TYPED_ORIGIN_REPLAY
+PASS OLD_RULE_CANNOT_RUN_NEW_NUMERIC_CODE
+java.lang.IllegalStateException: RUN_UPGRADE_WRITE_FAULT | INSERT INTO r967_numeric_training_run VALUES(?,?,?,?,?,?,?,?,?,?,?)
+	at android.database.sqlite.SQLiteDatabase.call(SQLiteDatabase.java:50)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:13)
+	at com.ethk3.novaonepro.ResearchEvaluationRunR967$1.call(ResearchEvaluationRunR967.java:94)
+	at com.ethk3.novaonepro.ResearchEvaluationRunR967$1.call(ResearchEvaluationRunR967.java:81)
+	at com.ethk3.novaonepro.DatabaseCoordinator$2.call(DatabaseCoordinator.java:60)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:40)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWrite(DatabaseCoordinator.java:54)
+	at com.ethk3.novaonepro.ResearchEvaluationRunR967.enroll(ResearchEvaluationRunR967.java:81)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.lambda$upgrade$13(StreamInvariantHarnessR969.java:88)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.reject(StreamInvariantHarnessR969.java:12)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.upgrade(StreamInvariantHarnessR969.java:88)
+	at com.ethk3.novaonepro.StreamInvariantHarnessR969.main(StreamInvariantHarnessR969.java:104)
+PASS UPGRADE_ATOMIC_INSERT_FAULT
+PASS UPGRADE_ROLLBACK_RESTORES_PRIOR_QUEUE_AND_CAPTURE
+PASS PROSPECTIVE_NEW_RULE_RUN_REGISTERED
+PASS OLD_PENDING_NOT_COMPLETED_NOT_QUALITY_FAILED
+PASS UPGRADE_PRESERVES_PRIOR_RUN_WITHOUT_FAKE_TRAINING
+PASS NEW_RUN_HAS_DISTINCT_PROVENANCE_NO_FUTURE_TRANSFER
+PASS UPGRADE_REPLAY_DOES_NOT_RESET_AGAIN
+PASS HISTORICAL_IDENTITY_REMAINS_VERIFIABLE_NOT_TRAINABLE
+PASS NEW_RUN_REAL_CAPTURE_AFTER_RETIRED_OLD_QUEUE
+PASS RETIRED_DEPENDENCY_DOES_NOT_BLOCK_NEW_TRAIN_OWNER
+PASS ONLY_NEW_VALID_LABEL_WAS_TRAINED
+PASS NEW_RUN_FEEDBACK_AFTER_RULE_UPGRADE
+R969_STREAM_INVARIANTS_PASS checks=56; old-rule fixture=QUEUE_METADATA_ONLY; host_SQLite=YES; physical_device=NOT_RUN
+
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
+PASS FRESH_ALL_PRODUCT_RESEARCH_MIGRATIONS_READY:READY|cursor=COMPLETE|error=
+PASS ORIGINAL_WINDOW_HAS_STABLE_PLAN_REVISION
+PASS REQUIRED_SCHEMA_OBJECT:research_identity_r967
+PASS REQUIRED_SCHEMA_OBJECT:research_identity_view_r967
+PASS REQUIRED_SCHEMA_OBJECT:v57_research_task_r967
+PASS REQUIRED_SCHEMA_OBJECT:v57_research_input_pin_r967
+PASS REQUIRED_SCHEMA_OBJECT:v57_research_lane_cursor_r967
+PASS REQUIRED_SCHEMA_OBJECT:research_experiment_plan_r967
+PASS REQUIRED_SCHEMA_OBJECT:research_gate_policy_r967
+PASS REQUIRED_SCHEMA_OBJECT:research_plan_required_r967
+PASS OLD_READY_CANNOT_HIDE_MISSING_R967_OBJECTS
+PASS REVISION_8_TO_9_REPAIR_READY:READY|cursor=COMPLETE|error=
+PASS UPGRADE_PRESERVES_RESEARCH_AND_SPENT_ALPHA_HISTORY
+PASS UPGRADE_PRESERVES_PENDING_TASKS
+PASS SAME_VERSION_VIEW_DRIFT_REJECTED
+PASS SAME_VERSION_VIEW_REPAIRED
+PASS FULL_SCHEMA_FUNNEL_QUERY_VALID:
+PASS FULL_SCHEMA_FUNNEL_RECONCILES_REGISTRY
+PASS READY_MIGRATION_IDEMPOTENT
+PASS MIGRATION_DOES_NOT_FABRICATE_CERTIFICATES
+SCHEMA_MIGRATION_PASS checks=20; production_DDL_SQL=YES; DBStore_writer=HOST_ADAPTER; physical_upgrade=NOT_RUN
+

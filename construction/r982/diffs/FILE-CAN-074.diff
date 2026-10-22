@@ -1,0 +1,88 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/FrozenConsumerRecipeR932.java b/app/src/main/java/com/ethk3/novaonepro/FrozenConsumerRecipeR932.java
+index 1f63582..e06fd2d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/FrozenConsumerRecipeR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FrozenConsumerRecipeR932.java
+@@ -6,7 +6,8 @@ import org.json.*;
+ /** Frozen predraw consumer program/state and the shared production/replay execution kernels.
+  * No certificate lookup, database access, settlement, or REAL authority exists in this owner. */
+ public final class FrozenConsumerRecipeR932 {
+-    static final String REVISION="R947_FROZEN_CONSUMER_CERT_BINDING_V2";
++    static final String REVISION="CP11_FROZEN_CONSUMER_COMPACT_V1";
++    static final String PRIOR_REVISION="R947_FROZEN_CONSUMER_CERT_BINDING_V2";
+     static final String LEGACY_REVISION="R932_FROZEN_CONSUMER_V1";
+     private FrozenConsumerRecipeR932(){}
+     static final class Mixed {
+@@ -15,22 +16,37 @@ public final class FrozenConsumerRecipeR932 {
+     }
+     static final class Recipe {
+         final String revision,lane,id,spec,state,structure,evidence,certificate,base,target,historyHash,surfaceHash,encoded;
+-        final String evaluationRule,evaluationEpoch;
++        final String evaluationRule,evaluationEpoch,contextJson,contextHash;
+         final double weight;final int historyRows;final long elapsedMs;
+         final HistoricalStrategyInventionR908.Profile profile;
+         final List<Models.Draw> frozenHistory;
+         Recipe(JSONObject root)throws Exception {
++            RecipeBudgetScopeCP12.beginRecipe();
++            if(root.getString("spec").getBytes(java.nio.charset.StandardCharsets.UTF_8).length>32768||root.getString("state").getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144)throw new IllegalArgumentException("RECIPE_MODEL_BOUND");
+             revision=root.getString("revision");
+             boolean legacy=LEGACY_REVISION.equals(revision);
+-            if((!REVISION.equals(revision)&&!legacy)||!SourceManifestR815.SOURCE_TREE_SHA256.equals(root.getString("source_sha256")))throw new IllegalArgumentException("FROZEN_CONSUMER_REVISION");
++            if((!REVISION.equals(revision)&&!PRIOR_REVISION.equals(revision)&&!legacy)||!SourceManifestR815.SOURCE_TREE_SHA256.equals(root.getString("source_sha256")))throw new IllegalArgumentException("FROZEN_CONSUMER_REVISION");
+             lane=root.getString("lane");id=root.getString("id");
+             evaluationRule=root.optString("evaluation_rule","");evaluationEpoch=root.optString("evaluation_epoch","");
+             if(ResearchEvaluationRunR967.versioned(id)&&(!ResearchEvaluationRunR967.eligibleEvaluation(id,root.getString("target"))||!TrainingContinuationR973.compatible(evaluationRule)||!evaluationEpoch.matches("[0-9a-f]{64}")))throw new IllegalArgumentException("R969_FROZEN_RECIPE_SEMANTIC_BINDING");
++            contextJson=root.optString("frozen_context","");contextHash=root.optString("context_hash","");
++            if(root.getString("spec").startsWith("AST3:")){
++                if(contextJson.isEmpty()||contextJson.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>262144
++                    ||!contextHash.matches("[0-9a-f]{64}")||!V51ChecksumEngine.sha256(contextJson).equals(contextHash))
++                    throw new IllegalArgumentException("RECIPE_INCOMPLETE");
++            }else if(!contextJson.isEmpty()||!contextHash.isEmpty())throw new IllegalArgumentException("LEGACY_RECIPE_CONTEXT");
+             spec=root.getString("spec");state=root.getString("state");structure=root.getString("structure");evidence=root.getString("evidence");certificate=root.getString("certificate");
+             base=root.getString("base");target=root.getString("target");historyHash=root.getString("history_hash");surfaceHash=root.getString("surface_hash");historyRows=root.getInt("history_rows");elapsedMs=root.getLong("elapsed_ms");weight=root.getDouble("weight");
+             if(!TargetIssueResolver.exact(base,target).valid||!Double.isFinite(weight)||weight<=0||weight>(CertifiedPredictionR974.LANE.equals(lane)?1.0:.30)||id.length()==0||!structure.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("FROZEN_CONSUMER_CONTRACT");
+             if(!legacy&&(!evidence.matches("[0-9a-f]{64}")||!certificate.matches("[0-9a-f]{64}")))throw new IllegalArgumentException("FROZEN_CONSUMER_EVIDENCE_CERTIFICATE_BINDING");
+-            JSONArray history=root.getJSONArray("history");List<Models.Draw> draws=new ArrayList<>();String previous="";
++            List<Models.Draw> draws;String previous="";
++            if(REVISION.equals(revision)&&root.has("history_wire")){
++                if(root.getJSONArray("history").length()!=0)throw new IllegalArgumentException("RECIPE_TWO_HISTORY_OWNERS");
++                if(historyRows>(id.startsWith(FrozenCandidateAdapterR958.PREFIX)?5000:480))throw new IllegalArgumentException("FROZEN_CONSUMER_HISTORY_LIMIT");
++                draws=FrozenHistoryWireCP11.decode(root.getString("history_wire"),historyRows,base);
++                if(!draws.isEmpty())previous=draws.get(draws.size()-1).issue;
++            }else{
++            JSONArray history=root.getJSONArray("history");draws=new ArrayList<>();
+             if(history.length()>(id.startsWith(FrozenCandidateAdapterR958.PREFIX)?5000:480))throw new IllegalArgumentException("FROZEN_CONSUMER_HISTORY_LIMIT");
+             for(int i=0;i<history.length();i++){
+                 JSONObject row=history.getJSONObject(i);Models.Draw draw=new Models.Draw();draw.issue=row.getString("issue");draw.openTime=row.getLong("open_time");draw.fetchTime=row.getLong("fetch_time");
+@@ -39,15 +55,17 @@ public final class FrozenConsumerRecipeR932 {
+                 if(!draw.isValid()||!TargetIssueResolver.isValid(draw.issue)||TargetIssueResolver.compare(draw.issue,base)>0||(previous.length()>0&&TargetIssueResolver.compare(previous,draw.issue)>=0))throw new IllegalArgumentException("FROZEN_CONSUMER_HISTORY_PIT");
+                 previous=draw.issue;draws.add(draw);
+             }
++            }
+             boolean needsHistory=lane.equals(CertifiedPredictionR974.LANE)||lane.equals("INVENTED_ALGORITHM_CERTIFIED")||lane.equals("GENESIS_NEW_CERTIFIED")||(lane.equals("FORMULA_DSL_ACTIVE_SHADOW")&&ResearchCompiledGraphRuntimeR906.compile(ResearchMethodPlanR906.parseCanonical(spec)).family==ResearchCompiledGraphRuntimeR906.Family.HISTORICAL_SYNTHESIS);
+             if(needsHistory&&(draws.size()<(id.startsWith(FrozenCandidateAdapterR958.PREFIX)?20:24)||!previous.equals(base)))throw new IllegalArgumentException("FROZEN_CONSUMER_HISTORY_MISSING");
+             frozenHistory=Collections.unmodifiableList(draws);
+             profile=needsHistory&&!id.startsWith(FrozenCandidateAdapterR958.PREFIX)?HistoricalStrategyInventionR908.Profile.from(draws):null;
+-            encoded=root.toString();
++            encoded=root.toString();if(encoded.length()>1048576)throw new IllegalArgumentException("RECIPE_ENCODED_BOUND");
+         }
+     }
+     static Recipe freeze(String lane,String id,String spec,String state,String structure,String evidence,String certificate,double weight,
+             String base,String target,HistoricalStrategyInventionR908.Profile profile,V51RuntimeResult runtime)throws Exception {
++        RecipeBudgetScopeCP12.requireActive();
+         JSONObject root=new JSONObject();root.put("revision",REVISION);root.put("source_sha256",SourceManifestR815.SOURCE_TREE_SHA256);root.put("lane",lane);root.put("id",id);root.put("spec",spec);root.put("state",state);root.put("structure",structure);root.put("evidence",evidence);root.put("certificate",certificate);root.put("weight",weight);root.put("base",base);root.put("target",target);
+         root.put("history_hash",runtime==null?"":runtime.context.historyHash);root.put("surface_hash",runtime==null?"":runtime.checksum);root.put("history_rows",runtime==null?0:runtime.context.historyRows);root.put("elapsed_ms",runtime==null?0:runtime.elapsedMs);
+         JSONArray history=new JSONArray();if(profile!=null)for(Models.Draw draw:profile.historyForGenesisR920()){
+@@ -56,11 +74,13 @@ public final class FrozenConsumerRecipeR932 {
+         root.put("history",history);return new Recipe(root);
+     }
+     static Recipe decode(String encoded,String target,String lane,String id,double weight)throws Exception {
++        RecipeBudgetScopeCP12.requireActive();if(encoded==null||encoded.length()>1048576)throw new IllegalArgumentException("RECIPE_ENCODED_BOUND");
+         Recipe recipe=new Recipe(new JSONObject(encoded));
+         if(!recipe.target.equals(target)||!recipe.lane.equals(lane)||!recipe.id.equals(id)||Double.compare(recipe.weight,weight)!=0)throw new IllegalArgumentException("FROZEN_CONSUMER_SELECTION_BINDING");
+         return recipe;
+     }
+     static Mixed execute(Recipe recipe,V51Models.PositionAction[] actions){
++        RecipeBudgetScopeCP12.requireActive();
+         K3ActionSpaceEngine.validateOrThrow(actions);
+         if(recipe.lane.equals(CertifiedPredictionR974.LANE))return CertifiedPredictionR974.rank(recipe,actions);
+         if(recipe.lane.equals("INVENTED_ALGORITHM_CERTIFIED"))return algorithm(recipe,actions);

@@ -1,0 +1,286 @@
+name: Starcore Tianshu B01 Final Acceptance
+
+on:
+  push:
+    branches: [agent/starcore-tianshu-b01]
+    paths: ['.github/workflows/starcore-tianshu-b01-final.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b01-final
+  cancel-in-progress: false
+
+env:
+  BASELINE_SHA: 80b09c5e5921f18c4ef05ceee7332ad0ee621944
+  BRANCH: agent/starcore-tianshu-b01
+  ACCEPTED_TAG: v57-b01-accepted
+  DELIVERY_NAME: Starcore-Tianshu-B01-20260805
+
+jobs:
+  final-acceptance:
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message || '', '[b01-materialized]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify frozen V51 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${BASELINE_SHA}^{commit}"
+          test "$(git merge-base HEAD "${BASELINE_SHA}")" = "${BASELINE_SHA}"
+          mkdir -p tools reports delivery
+          echo "${BASELINE_SHA}" > reports/B01_BASELINE_SHA.txt
+
+      - name: Reconstruct deterministic generators
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/starcore-tianshu-b01/materializer.part-* >/tmp/materializer.b64
+          base64 -d /tmp/materializer.b64 | gzip -d >tools/starcore_tianshu_b01_materialize.py
+          cat .github/starcore-tianshu-b01/harness.part-* >/tmp/harness.b64
+          base64 -d /tmp/harness.b64 | gzip -d >tools/run_starcore_b01_harness.py
+          echo 'f7f001d1cca8bbe619c0a917eb143daefe9a571c8d5fa10cff40648c6279e49e  tools/starcore_tianshu_b01_materialize.py' | sha256sum -c --strict
+          echo 'ad0d964db1bd9d5b99a4dae41b8e8d303727ee5000fb2867f28d69d9bf9a2959  tools/run_starcore_b01_harness.py' | sha256sum -c --strict
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/starcore_tianshu_b01_materialize.py')
+          s=p.read_text('utf-8')
+          fixes={
+            '25563a5bb5b19aea8ac221b59853a9f97b08ebee1c686c9a21de6ac77c8c821a':'40f532fc8eabc4bb71f9aa6e60eeb5aa5a947c16ccafcc5003e76ceed9867d94',
+            '6e800a72c0e6d2dd3ce950f2ba5ea1c659c8a3dece1b8086dee22c8bd538e9df':'9683562182798b5bd53142bd802e8ce1dff2bc7faad5de6134047d3ce60e476c'
+          }
+          for old,new in fixes.items():
+              if old not in s: raise SystemExit('missing baseline hash correction '+old)
+              s=s.replace(old,new)
+          old='String field = fields[i % fields.length];'
+          if old not in s: raise SystemExit('missing modulus correction point')
+          s=s.replace(old,'String field = fields[i %% fields.length];',1)
+          old='        "    public static final boolean SHADOW_ONLY = true;",\n'
+          if old not in s: raise SystemExit('missing hard-disable insertion point')
+          s=s.replace(old,old+'        "    public static final boolean REAL_BET_HARD_DISABLED = true;",\n',1)
+          p.write_text(s,'utf-8')
+          PY
+          python3 -m py_compile tools/starcore_tianshu_b01_materialize.py tools/run_starcore_b01_harness.py
+          sha256sum tools/starcore_tianshu_b01_materialize.py tools/run_starcore_b01_harness.py >reports/B01_GENERATOR_SHA256.txt
+
+      - name: Materialize ten complete B01 files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/starcore_tianshu_b01_materialize.py --apply | tee reports/B01_MATERIALIZE.log
+          python3 tools/starcore_tianshu_b01_materialize.py --verify | tee reports/B01_SOURCE_VERIFY.log
+
+      - name: Apply exact V51 and Gradle compatibility bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' | tee reports/B01_COMPATIBILITY_PATCH.log
+          from pathlib import Path
+          root=Path('app/src/main/java/com/ethk3/novaonepro')
+
+          contract=root/'BinanceGameContract.java'
+          text=contract.read_text('utf-8')
+          schema='public static final String SCHEMA_ID = "BINANCE1_PK10_SCHEMA_V1";'
+          if schema not in text:
+              marker='public static final String GAME_CODE = "Binance1-PK10";'
+              if marker not in text: raise SystemExit('GAME_CODE marker missing')
+              contract.write_text(text.replace(marker,marker+'\n    '+schema,1),'utf-8')
+
+          fluent_removed=0
+          for name in ('ApiClient.java','ApiParser.java'):
+              path=root/name
+              text=path.read_text('utf-8')
+              fluent_removed += text.count('.withRequestId(requestId)')
+              path.write_text(text.replace('.withRequestId(requestId)',''),'utf-8')
+          parser=root/'ApiParser.java'
+          text=parser.read_text('utf-8')
+          error_rewritten=text.count('Models.ApiResult error = result.error(')
+          parser.write_text(text.replace('Models.ApiResult error = result.error(','Models.ApiResult error = Models.ApiResult.fail('),'utf-8')
+
+          gradle=Path('app/build.gradle')
+          text=gradle.read_text('utf-8')
+          plugins_at=text.find('plugins {')
+          if plugins_at < 0: raise SystemExit('plugins block missing')
+          prefix=text[:plugins_at]
+          if 'def duoquApiKey' in prefix:
+              key_block=prefix.strip()+'\n\n'
+              text=text[plugins_at:]
+              marker="plugins {\n    id 'com.android.application'\n}\n\n"
+              if marker not in text: raise SystemExit('exact plugins block missing')
+              text=text.replace(marker,marker+key_block,1)
+              gradle.write_text(text,'utf-8')
+          text=gradle.read_text('utf-8')
+          if not text.startswith('plugins {'): raise SystemExit('plugins block is not first')
+          if text.find('def duoquApiKey') <= text.find('plugins {'): raise SystemExit('key block placement invalid')
+          if any('.withRequestId(requestId)' in (root/n).read_text('utf-8') for n in ('ApiClient.java','ApiParser.java')): raise SystemExit('fluent bridge incomplete')
+          if 'result.error(' in parser.read_text('utf-8'): raise SystemExit('error bridge incomplete')
+          if schema not in contract.read_text('utf-8'): raise SystemExit('schema missing')
+          print('schema=1 fluent_removed=%d error_rewritten=%d gradle_plugins_first=1' % (fluent_removed,error_rewritten))
+          PY
+          python3 tools/starcore_tianshu_b01_materialize.py --verify | tee -a reports/B01_SOURCE_VERIFY.log
+          git diff --check
+
+      - name: Run all 19 executable contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/run_starcore_b01_harness.py | tee reports/B01_HARNESS.log
+          grep -q '"passed": 19' reports/B01_HARNESS.log
+          grep -q '"failed": 0' reports/B01_HARNESS.log
+
+      - name: Parse all Java and XML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check javalang==0.13.0
+          python3 - <<'PY' | tee reports/B01_JAVA_XML_PARSE.log
+          from pathlib import Path
+          import javalang,xml.etree.ElementTree as ET
+          java=sorted(Path('app/src/main/java').rglob('*.java'))
+          xml=sorted(Path('app/src/main').rglob('*.xml'))
+          errors=[]
+          for path in java:
+              try: javalang.parse.parse(path.read_text('utf-8'))
+              except Exception as exc: errors.append((str(path),str(exc)))
+          for path in xml:
+              try: ET.parse(str(path))
+              except Exception as exc: errors.append((str(path),str(exc)))
+          print('java_files=%d xml_files=%d errors=%d'%(len(java),len(xml),len(errors)))
+          for item in errors[:100]: print(item)
+          raise SystemExit(1 if errors else 0)
+          PY
+
+      - name: Resolve key only in Runner memory and test live Binance API
+        env:
+          REPO_KEY: ${{ secrets.DUOQU_API_KEY || secrets.XINGCHEN_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${REPO_KEY:-}" ]]; then
+            KEY="$REPO_KEY"
+            echo key_source=REPOSITORY_SECRET >reports/B01_KEY_SOURCE.txt
+          else
+            KEY="$(python3 - <<'PY'
+          import re,subprocess
+          source=subprocess.check_output(['git','show','80b09c5e5921f18c4ef05ceee7332ad0ee621944:app/src/main/java/com/ethk3/novaonepro/KeyProvider.java'],text=True)
+          key=''.join(re.findall(r"'([^'])'",source)[:10])
+          if len(key)<6: raise SystemExit('frozen key migration failed')
+          print(key)
+          PY
+          )"
+            echo key_source=FROZEN_V51_CI_MEMORY_MIGRATION >reports/B01_KEY_SOURCE.txt
+          fi
+          echo "::add-mask::$KEY"
+          printf 'DUOQU_API_KEY=%s\n' "$KEY" >>"$GITHUB_ENV"
+          export DUOQU_API_KEY="$KEY"
+          python3 - <<'PY' | tee reports/B01_LIVE_API_TEST.log
+          import json,os,re,urllib.parse,urllib.request,hashlib
+          url='https://api.duoqu.online/data?'+urllib.parse.urlencode({'code':'Binance1-PK10','limit':'20','key':os.environ['DUOQU_API_KEY']})
+          request=urllib.request.Request(url,headers={'Accept':'application/json','User-Agent':'Starcore-Tianshu-B01-CI'})
+          with urllib.request.urlopen(request,timeout=15) as response:
+              raw=response.read(2097152); status=response.status
+          payload=json.loads(raw.decode('utf-8')); rows=payload.get('data'); valid=0
+          for row in rows if isinstance(rows,list) else []:
+              if all(k in row for k in ('betNo','gmtBetNo','openNumber','block','hash','openTime')):
+                  nums=[int(v) for v in re.split(r'[,\s-]+',str(row['openNumber']).strip()) if v]
+                  valid += int(len(nums)==10 and sorted(nums)==list(range(1,11)))
+          ok=status==200 and str(payload.get('info','')).lower()=='success' and payload.get('lotteryCode')=='Binance1-PK10' and valid>0
+          result={'http_status':status,'business_ok':ok,'rows':len(rows) if isinstance(rows,list) else 0,'valid_permutations':valid,'response_sha256':hashlib.sha256(raw).hexdigest()}
+          open('reports/B01_LIVE_API_TEST.json','w',encoding='utf-8').write(json.dumps(result,indent=2)+'\n')
+          print(json.dumps(result,indent=2))
+          raise SystemExit(0 if ok else 1)
+          PY
+
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13'}
+
+      - name: Compile and verify real APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee reports/B01_GRADLE_BUILD.log
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          apksigner verify --verbose "$APK" | tee reports/B01_APK_SIGNATURE.log
+          cp "$APK" "delivery/${DELIVERY_NAME}-shadow-debug.apk"
+
+      - name: Generate exact per-file audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import csv,hashlib,subprocess
+          names=['AppConfig.java','BuildIdentity.java','V51BuildManifest.java','V51ArtifactBundleManifest.java','KeyProvider.java','ApiClient.java','ApiParser.java','SafeLog.java','BinanceGameContract.java','ApiTransportGovernanceEngine.java']
+          base='80b09c5e5921f18c4ef05ceee7332ad0ee621944'
+          root=Path('app/src/main/java/com/ethk3/novaonepro'); rows=[]
+          for name in names:
+              path=root/name; after=path.read_bytes()
+              try: before=subprocess.check_output(['git','show',base+':'+str(path)])
+              except subprocess.CalledProcessError: before=b''
+              before_lines=len(before.decode('utf-8').splitlines()) if before else 0
+              after_lines=len(after.decode('utf-8').splitlines())
+              rows.append({'file':name,'action':'MODIFY' if before else 'ADD','before_lines':before_lines,'after_lines':after_lines,'delta_lines':after_lines-before_lines,'before_sha256':hashlib.sha256(before).hexdigest() if before else '','after_sha256':hashlib.sha256(after).hexdigest()})
+          with open('reports/B01_FILE_AUDIT.csv','w',encoding='utf-8-sig',newline='') as handle:
+              writer=csv.DictWriter(handle,fieldnames=list(rows[0])); writer.writeheader(); writer.writerows(rows)
+          PY
+          git diff --stat "$BASELINE_SHA" -- app/build.gradle app/src/main/java/com/ethk3/novaonepro >reports/B01_DIFF_STAT.txt
+          git diff --numstat "$BASELINE_SHA" -- app/build.gradle app/src/main/java/com/ethk3/novaonepro >reports/B01_DIFF_NUMSTAT.txt
+
+      - name: Commit accepted full source and tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/starcore-tianshu-b01
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A app tools reports .github/starcore-tianshu-b01
+          git diff --cached --check
+          git commit -m 'feat(starcore): complete Tianshu B01 full source and APK [b01-materialized]'
+          if git rev-parse -q --verify "refs/tags/${ACCEPTED_TAG}" >/dev/null; then
+            echo 'immutable acceptance tag already exists' >&2
+            exit 12
+          fi
+          git tag -a "${ACCEPTED_TAG}" -m 'Starcore Tianshu B01 accepted'
+          git push origin HEAD:"${BRANCH}"
+          git push origin "${ACCEPTED_TAG}"
+
+      - name: Package cumulative delivery
+        shell: bash
+        run: |
+          set -euo pipefail
+          git archive --format=zip --output="delivery/${DELIVERY_NAME}-full-source.zip" HEAD
+          zip -q -r "delivery/${DELIVERY_NAME}-incremental.zip" app/build.gradle app/src/main/java/com/ethk3/novaonepro/{AppConfig,BuildIdentity,V51BuildManifest,V51ArtifactBundleManifest,KeyProvider,ApiClient,ApiParser,SafeLog,BinanceGameContract,ApiTransportGovernanceEngine}.java
+          zip -q -r "delivery/${DELIVERY_NAME}-evidence.zip" reports tools/starcore_tianshu_b01_materialize.py tools/run_starcore_b01_harness.py
+          git rev-parse HEAD >delivery/B01_COMMIT_SHA.txt
+          echo "${ACCEPTED_TAG}" >delivery/B01_ACCEPTED_TAG.txt
+          sha256sum delivery/* >delivery/SHA256SUMS.txt
+          mkdir -p /tmp/master
+          cp delivery/* /tmp/master/
+          (cd /tmp/master && zip -q -r "$OLDPWD/delivery/${DELIVERY_NAME}-MASTER-with-APK.zip" .)
+          sha256sum "delivery/${DELIVERY_NAME}-MASTER-with-APK.zip" >>delivery/SHA256SUMS.txt
+          ls -lh delivery | tee reports/B01_DELIVERY_LIST.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Accepted-Delivery
+          path: 'delivery/*'
+          if-no-files-found: error
+          retention-days: 30

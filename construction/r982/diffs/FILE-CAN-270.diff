@@ -1,0 +1,74 @@
+diff --git a/app/src/main/res/layout/row_history.xml b/app/src/main/res/layout/row_history.xml
+index 6d735d8..1c308e1 100644
+--- a/app/src/main/res/layout/row_history.xml
++++ b/app/src/main/res/layout/row_history.xml
+@@ -1,60 +1,13 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
+-    android:layout_marginTop="8dp"
+-    android:background="@drawable/bg_history_row"
+-    android:elevation="1dp"
+-    android:orientation="vertical"
+-    android:padding="12dp">
+-
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:gravity="center_vertical"
+-        android:orientation="horizontal">
+-
+-        <ImageView
+-            android:layout_width="18dp"
+-            android:layout_height="18dp"
+-            android:src="@drawable/ic_history" />
+-
+-        <TextView
+-            android:id="@+id/txt_history_issue"
+-            style="@style/TextMain"
+-            android:layout_width="0dp"
+-            android:layout_height="wrap_content"
+-            android:layout_marginLeft="7dp"
+-            android:layout_weight="1"
+-            android:text="@string/placeholder_issue"
+-            android:textStyle="bold" />
+-
+-        <TextView
+-            android:id="@+id/txt_history_result"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:background="@drawable/bg_chip_info"
+-            android:minWidth="54dp"
+-            android:gravity="center"
+-            android:paddingLeft="9dp"
+-            android:paddingTop="4dp"
+-            android:paddingRight="9dp"
+-            android:paddingBottom="4dp"
+-            android:text="@string/placeholder_value"
+-            android:textColor="@color/colorInfo"
+-            android:textSize="12sp"
+-            android:textStyle="bold" />
++<?xml version='1.0' encoding='utf-8'?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_history_row" android:elevation="1dp" android:orientation="vertical" android:padding="12dp">
++    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
++        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_history" android:contentDescription="@null" android:importantForAccessibility="no" />
++        <TextView android:id="@+id/txt_history_issue" style="@style/TextMain" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/placeholder_issue" android:textStyle="bold" android:layout_marginStart="7dp" />
++        <TextView android:id="@+id/txt_history_result" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_chip_info" android:minWidth="54dp" android:gravity="center" android:paddingTop="4dp" android:paddingBottom="4dp" android:text="@string/placeholder_value" android:textColor="@color/colorInfo" android:textSize="12sp" android:textStyle="bold" android:paddingStart="9dp" android:paddingEnd="9dp" />
+     </LinearLayout>
+-
+-    <View
+-        android:layout_width="match_parent"
+-        android:layout_height="1dp"
+-        android:layout_marginTop="8dp"
+-        android:layout_marginBottom="7dp"
+-        android:background="@drawable/bg_divider" />
+-
++    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="8dp" android:layout_marginBottom="7dp" android:background="@drawable/bg_divider" />
+     <TextView android:id="@+id/txt_history_decision" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/placeholder_decision" />
+     <TextView android:id="@+id/txt_history_probability" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/placeholder_probability" />
+     <TextView android:id="@+id/txt_history_detail" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/placeholder_detail" />
+     <TextView android:id="@+id/txt_history_reason" style="@style/TextSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/placeholder_reason" android:textIsSelectable="true" />
+-</LinearLayout>
++</LinearLayout>
+\ No newline at end of file

@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Fresh post-prune replay; never claims the unavailable original test source was recovered."""
+import argparse,subprocess,json,shutil,hashlib
+from pathlib import Path
+p=argparse.ArgumentParser();p.add_argument('--classes',type=Path,required=True);p.add_argument('--schema-db',type=Path,required=True);p.add_argument('--android-jar',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--race-only',action='store_true');a=p.parse_args();r=Path(__file__).resolve().parents[2];o=a.out.resolve();assert not o.exists() or not any(o.iterdir());o.mkdir(parents=True,exist_ok=True);d=o/'drivers';d.mkdir();shutil.copy2(a.schema_db,o/'fixture.db');cp=str(d)+':'+str(a.classes.resolve())+':'+str(a.android_jar.resolve());records=[]
+def run(name,cmd):
+ with(o/(name+'.log')).open('w') as f:q=subprocess.run(list(map(str,cmd)),stdout=f,stderr=subprocess.STDOUT)
+ records.append({'name':name,'command':list(map(str,cmd)),'exit_code':q.returncode});(o/'receipt.json').write_text(json.dumps({'executions':records,'product_sha256':hashlib.sha256((r/'app/src/main/java/com/ethk3/novaonepro/r952/MatrixSnapshotBusR952.java').read_bytes()).hexdigest(),'driver_sha256':hashlib.sha256((Path(__file__).parent/'MatrixCheckpointRecoveryR990.java').read_bytes()).hexdigest(),'scope':'New post-prune driver; current real product Owner/SQLite/policy/numerical consumers; isolated synthetic only; DEVICE_NOT_VERIFIED'},indent=2));return q.returncode
+assert run('compile-test-only',['javac','-cp',cp,'-d',d,r/'verification/canonical/adapters/android/util/Base64.java',Path(__file__).parent/'MatrixCheckpointRecoveryR990.java'])==0
+cmd=['java','-Xmx128m','-cp',cp,'com.ethk3.novaonepro.r952.MatrixCheckpointRecoveryR990',r/'verification/canonical/schema/sqlite_bridge.py',o/'fixture.db']
+if a.race_only:cmd.append('race-only')
+raise SystemExit(run('actual-owner-consumer',cmd))

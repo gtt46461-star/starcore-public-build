@@ -1,0 +1,248 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DbHelper.java b/app/src/main/java/com/ethk3/novaonepro/DbHelper.java
+index 4dc1199..d72b2bd 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DbHelper.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DbHelper.java
+@@ -271,100 +271,14 @@ public final class DbHelper extends SQLiteOpenHelper {
+      * after an upgrade. Ledger settlement rows are preserved.
+      */
+     private void resetV40DistributionLearningTables(SQLiteDatabase db) {
+-        if (db == null) return;
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
+-            try {
+-                db.execSQL("DELETE FROM " + TABLE_OOS_ACTION_LOG);
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                db.execSQL("DELETE FROM " + TABLE_HIERARCHICAL_POSTERIOR);
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                db.execSQL("DELETE FROM " + TABLE_MONOTONIC_CALIBRATION);
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                db.execSQL("DELETE FROM " + TABLE_DECISION_AUTHORIZATION);
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                db.execSQL(
+-                        "DELETE FROM "
+-                                + TABLE_APP_STATE
+-                                + " WHERE state_key LIKE 'v24_micro_%'"
+-                                + " OR state_key LIKE 'v25_micro_%'"
+-                                + " OR state_key LIKE 'v24_authorization_%'"
+-                                + " OR state_key LIKE 'v25_oos_eligibility_%'"
+-                                + " OR state_key LIKE 'v26_micro_%'"
+-                                + " OR state_key LIKE 'v26_oos_%'"
+-                                + " OR state_key LIKE 'v27_micro_%'"
+-                                + " OR state_key LIKE 'v27_oos_%'"
+-                                + " OR state_key LIKE 'v27_online_action_%'"
+-                                + " OR state_key LIKE 'v28_micro_%'"
+-                                + " OR state_key LIKE 'v28_oos_%'"
+-                                + " OR state_key LIKE 'v28_authorization_%'"
+-                                + " OR state_key LIKE 'v28_online_action_%'"
+-                                + " OR state_key LIKE 'v40_sequence_%'"
+-                                + " OR state_key LIKE 'v40_distribution_%'"
+-                                + " OR state_key LIKE 'v40_online_action_%'"
+-                                + " OR state_key LIKE 'v40_oos_%'"
+-                                + " OR state_key LIKE 'v40_authorization_%'"
+-                                + " OR state_key LIKE 'v40_calibration_%'"
+-                                + " OR state_key LIKE 'v41_realtime_probability_%'"
+-                                + " OR state_key LIKE 'v41_authorization_%'"
+-                                + " OR state_key LIKE 'v41_decision_oos_%'"
+-                                + " OR state_key LIKE 'v41_live_action_budget_%'"
+-                                + " OR state_key LIKE 'v24_realtime_probability_%'"
+-                                + " OR state_key LIKE 'v25_realtime_probability_%'"
+-                                + " OR state_key LIKE 'v26_realtime_probability_%'"
+-                                + " OR state_key LIKE 'teacher_reserved_%'"
+-                                + " OR state_key LIKE 'teacher_snapshot_%'"
+-                                + " OR state_key LIKE 'teacher_matrix_bridge_%'"
+-                                + " OR state_key='teacher_matrix_summary'"
+-                                + " OR state_key='teacher_matrix_realtime_summary'"
+-                                + " OR state_key='teacher_number_matrix_summary'"
+-                                + " OR state_key='teacher_number_matrix_realtime_summary'");
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                db.execSQL(
+-                        "UPDATE "
+-                                + TABLE_DECISIONS
+-                                + " SET authorization_valid=0, authorization_id='',"
+-                                + " authorized_mode='SHADOW',"
+-                                + " authorization_reject_code='V40_DISTRIBUTION_SCHEMA_RESET' WHERE"
+-                                + " pipeline_version<>? OR calibration_version<>?",
+-                        new Object[] {AppConfig.PIPELINE_VERSION, AppConfig.CALIBRATION_VERSION});
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                db.execSQL(
+-                        "UPDATE "
+-                                + TABLE_TRADES
+-                                + " SET authorization_valid=0, authorization_id='',"
+-                                + " authorized_mode='SHADOW',"
+-                                + " authorization_reject_code='V40_DISTRIBUTION_SCHEMA_RESET' WHERE"
+-                                + " pipeline_version<>? OR calibration_version<>?",
+-                        new Object[] {AppConfig.PIPELINE_VERSION, AppConfig.CALIBRATION_VERSION});
+-            } catch (Throwable ignore) {
+-            }
+-            try {
+-                ContentValues state = new ContentValues();
+-                state.put("state_key", "v40_distribution_schema_reset_version");
+-                state.put(
+-                        "state_value",
+-                        AppConfig.PIPELINE_VERSION
+-                                + "|DB="
+-                                + AppConfig.DB_VERSION
+-                                + "|SCHEMA="
+-                                + AppConfig.SCHEMA_VERSION);
+-                db.insertWithOnConflict(
+-                        TABLE_APP_STATE, null, state, SQLiteDatabase.CONFLICT_REPLACE);
+-            } catch (Throwable ignore) {
+-            }
+-        }
++        if (db == null || !db.inTransaction())
++            throw new SQLiteException("CP5_SCHEMA_MIGRATION_TRANSACTION_REQUIRED");
++        ContentValues state = new ContentValues();
++        state.put("state_key", "v40_distribution_schema_reset_version");
++        state.put("state_value", "CP5_LEGACY_EVIDENCE_PRESERVED_READ_ONLY");
++        db.insertWithOnConflict(TABLE_APP_STATE, null, state, SQLiteDatabase.CONFLICT_REPLACE);
++        // Old authorization/settlement facts are not rewritten. Current consumers require
++        // the current build/policy/frozen identity and independently reject old evidence.
+     }
+ 
+     @Override
+@@ -379,10 +293,16 @@ public final class DbHelper extends SQLiteOpenHelper {
+         if (db == null) return;
+         try { db.execSQL("PRAGMA auto_vacuum=INCREMENTAL"); db.execSQL("PRAGMA journal_size_limit=8388608"); }
+         catch (Exception ignored) { /* Reclaim reports actual page/free-list state. */ }
+-        try {
+-            Cursor c = db.rawQuery("PRAGMA busy_timeout=" + AppConfig.DB_BUSY_TIMEOUT_MS, null);
+-            if (c != null) c.close();
+-        } catch (Throwable ignore) {
++        try (Cursor busyCP3 = db.rawQuery(
++                "PRAGMA busy_timeout=" + AppConfig.DB_BUSY_TIMEOUT_MS, null)) {
++            if (busyCP3 == null || !busyCP3.moveToFirst()
++                    || busyCP3.getLong(0) != AppConfig.DB_BUSY_TIMEOUT_MS)
++                throw new SQLiteException("CP3_SQLITE_BUSY_TIMEOUT_CONFIG_FAILED");
++        }
++        try (Cursor busyCP3 = db.rawQuery("PRAGMA busy_timeout", null)) {
++            if (busyCP3 == null || !busyCP3.moveToFirst()
++                    || busyCP3.getLong(0) != AppConfig.DB_BUSY_TIMEOUT_MS)
++                throw new SQLiteException("CP3_SQLITE_BUSY_TIMEOUT_VERIFY_FAILED");
+         }
+         try {
+             db.setForeignKeyConstraintsEnabled(true);
+@@ -6779,111 +6699,9 @@ public final class DbHelper extends SQLiteOpenHelper {
+         return "'" + value.replace("'", "''") + "'";
+     }
+ 
++    @Deprecated
+     public void dropAll(SQLiteDatabase db) {
+-        if (db == null) {
+-            return;
+-        }
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_LINK_CANDIDATE_SNAPSHOT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_SHADOW_DOMAIN_STAT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_BACKGROUND_CURSOR);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_LAYER_SNAPSHOT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_FREQUENCY_STATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DYNAMIC_CAUSAL_STATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROMOTION_DOMAIN_SNAPSHOT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ADAPTIVE_JUDGE_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MISS_REASON_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAUSE_ABLATION_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COUNTERFACTUAL_REASON_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NEED_SUPPLY_MATCH_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NUMBER_SUPPLY_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_POSITION_NEED_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WINDOW_FEATURE_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DYNAMIC_WINDOW_CLUSTER);
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_CLOSED_LOOP);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_ACTION_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_FALSE_STRONG);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_SHADOW_HEALTH);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_RULE_HEALTH);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_REVERSE_REASON_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_SIMILAR_WINDOW);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_TEACHER_NUMBER);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_CAUSE_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_V20_WINDOW_STATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REAL_TRADE_LEDGER);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISION_AUDIT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DYNAMIC_CAUSE_CHAIN);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SEED_CAUSE_EXPANSION);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FALSE_STRONG_FREEZE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHADOW_HEALTH_GATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATE_HEALTH_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SOURCE_HEALTH_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RULE_HEALTH_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_THIRD_GUARD_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COUNTERFACTUAL_RANK);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_NUMBER_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_POSITION_CAUSE_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAUSAL_FACTOR_MATRIX);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CANDIDATE_AUDIT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FULL_CANDIDATE_SCAN);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRE_DRAW_NUMBER_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRE_DRAW_FEATURE);
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DIAG_LOG);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_UI_TEXT_STATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_ASSIST_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_REPLAY_STABILITY);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_REPLAY_COUNTERFACTUAL);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_REPLAY_REPORT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_REPLAY_CURSOR);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_REPLAY_CASE);
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ELITE45_AUDIT_LOG);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMBO_ROLE_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FALSE_STRONG_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REASON_CAUSAL_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REASON_CONTRAST_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRE_DRAW_REASON_SAMPLE);
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_MATRIX_REPORT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_MATRIX_COMBO_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_MATRIX_STATE_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_MATRIX_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_MATRIX_SAMPLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_AUTO_LEARN_CURSOR);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LEARNING_CASE_LOG);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STATE_NUMBER_PROFILE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RUNTIME_PROFILE_CACHE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REALTIME_VALIDATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEACHER_SNAPSHOT);
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SELF_DIAGNOSIS_LOG);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_AI_JUDGE_LOG);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CANDIDATE_EVIDENCE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LEARNING_SNAPSHOT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BIAS_EVIDENCE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROBABILITY_AUDIT_BUCKET);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROMOTION_CANDIDATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_POINT_IN_TIME_SNAPSHOT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MANUAL_BACKTEST_TASK);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEEP_CYCLE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEEP_TRANSITION);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEEP_ATTRIBUTION);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEEP_PROFILE);
+-
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_APP_STATE);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BACKTEST);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MODEL_WEIGHT);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CALIBRATION);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BREAK_MEMORY);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_COMBO_MEMORY);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHAPE_MEMORY);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHAPE_VECTOR);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHADOW);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRADES);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISIONS);
+-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DRAWS);
++        throw new SQLiteException("CP5_DESTRUCTIVE_RESET_RETIRED_USE_VERIFIED_RESTORE");
+     }
+ 
+     /**

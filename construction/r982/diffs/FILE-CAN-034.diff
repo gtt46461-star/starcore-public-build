@@ -1,0 +1,111 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CanonicalReasonCP12.java b/app/src/main/java/com/ethk3/novaonepro/CanonicalReasonCP12.java
+new file mode 100644
+index 0000000..cb2159b
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/CanonicalReasonCP12.java
+@@ -0,0 +1,105 @@
++package com.ethk3.novaonepro;
++import org.json.JSONObject;
++/** Pure reason projection; never authorizes, schedules, writes SQL, or recalculates health. */
++public final class CanonicalReasonCP12 {
++ public static final String POLICY="CP12_CANONICAL_REASON_V1";
++ private static final String PREFIX="SCREASON1:";
++ private CanonicalReasonCP12(){}
++ public static Models.ReasonCode normalize(String detail) {
++  if(detail==null||detail.length()==0||"NONE".equals(detail))return Models.ReasonCode.NONE;
++  try{return Models.ReasonCode.valueOf(detail);}catch(IllegalArgumentException unregistered){}
++  switch(detail){
++   case "DATA_INCOMPLETE":return Models.ReasonCode.STALE_HISTORY;
++   case "TARGET_ISSUE_INVALID":return Models.ReasonCode.INPUT_INVALID;
++   case "HISTORY_NOT_POINT_IN_TIME":case "PERMUTATION_INPUT_INVALID":return Models.ReasonCode.PIT_INVALID;
++   case "HISTORY_HASH_MISMATCH":case "PERMUTATION_NORMALIZATION_FAILED":case "OWNER_CONFLICT":case "FIXED_K3_CONTRACT_FAILED":return Models.ReasonCode.INTEGRITY_FAILED;
++   case "ARTIFACT_BUNDLE_MISMATCH":case "FEATURE_CONTRACT_MISMATCH":return Models.ReasonCode.MODEL_MISMATCH;
++   case "MODEL_NOT_PROVEN":return Models.ReasonCode.NO_VALID_CERTIFICATE;
++   case "CALIBRATION_NOT_PROVEN":return Models.ReasonCode.WAIT_CALIBRATION;
++   case "DOMAIN_NOT_PROVEN":return Models.ReasonCode.NO_MAINLINE;
++   case "LEDGER_INCOMPLETE":return Models.ReasonCode.WINDOW_INCOMPLETE;
++   case "DUPLICATE_TRADE":case "UNSETTLED_TRADE_EXISTS":return Models.ReasonCode.BUSY;
++   case "AUTHORIZATION_FAILED":return Models.ReasonCode.AUTH_INVALID;
++   case "RUNTIME_EXCEPTION":case "READ_ERROR":case "STORE_NULL":return Models.ReasonCode.UNKNOWN_READ_FAILED;
++   case "V51_RUNTIME_RESULT_INCOMPLETE":case "V50_RUNTIME_RESULT_INCOMPLETE":return Models.ReasonCode.INPUT_MISSING;
++   case "RANK_ORDER_NOT_PROVEN":case "PREDICTABILITY_NOT_PROVEN":case "POLICY_CELL_NOT_PROVEN":case "RANK_UNSTABLE":case "THIRD_BOUNDARY_UNSTABLE":case "FALSE_CONSENSUS":case "FALSIFIER_TOO_STRONG":case "UNCERTAINTY_HIGH":return Models.ReasonCode.GATE_FAILED;
++   case "TRAIN_REQUIRED_FEATURE_MISSING":case "TRAIN_ALL_FEATURES_MISSING":case "TRAIN_FEATURE_ALL_MISSING":return Models.ReasonCode.INPUT_INVALID;
++   case "TRAIN_WEIGHT_NONFINITE":case "TRAIN_GRADIENT_NONFINITE":case "TRAIN_STANDARDIZED_NONFINITE":case "SCDEV_BODY_HASH":case "SCDEV_DRAW_HASH":case "SCDEV_INPUT_HASH":case "SCDEV_MAGIC":case "SCDEV_CANONICAL_HEADER":case "SCDEV_CLOSED":case "TRAIN_SLICE_CLOSED":return Models.ReasonCode.INTEGRITY_FAILED;
++   case "SCDEV_HEADER_IDENTITY":return Models.ReasonCode.INPUT_DRIFT;
++   case "SCDEV_SEQUENCE_GAP":case "SCDEV_PIT_RANGE":case "SCDEV_DRAW_TIME":return Models.ReasonCode.PIT_INVALID;
++   case "WAIT_FROZEN_TEACHER":case "WAIT_ATOM_REGISTRATION":case "WAIT_HISTORY":case "WAIT_BOUND_FEATURE_HISTORY":return Models.ReasonCode.INPUT_MISSING;
++   case "ALGORITHM_MEMORY_BUDGET":case "MEMORY_PRESSURE":return Models.ReasonCode.RESOURCE_YIELD;
++   case "MODEL_STORAGE_CAPACITY":case "MODEL_STORAGE_LEGACY_OVER_BUDGET":case "TRAINING_WORKING_STORAGE_CAPACITY":case "TRAINING_WORKING_STORAGE_LEGACY_OVER_BUDGET":case "TRAINING_INPUT_STORAGE_CAPACITY":return Models.ReasonCode.STORAGE_PRESSURE;
++   case "CAS_QUOTA":case "MATRIX_CHECKPOINT_STORAGE_CAPACITY":return Models.ReasonCode.STORAGE_PRESSURE;
++   case "MODEL_STORAGE_SINGLE_PAYLOAD_BOUND":case "TRAINING_WORKING_SINGLE_PAYLOAD_BOUND":return Models.ReasonCode.INPUT_INVALID;
++   case "HASH_SIZE_CONFLICT":case "MODEL_STORAGE_HASH_CONFLICT":return Models.ReasonCode.INTEGRITY_FAILED;
++   case "RETENTION_AGGREGATE_CAPACITY":return Models.ReasonCode.AGGREGATE_KEY_CAPACITY;
++   case "RETENTION_AGGREGATE_INVALID_KEY":return Models.ReasonCode.INPUT_INVALID;
++   case "RETENTION_MEMORY_PRESSURE":return Models.ReasonCode.RESOURCE_YIELD;
++   case "BLOCKER_FIXED_NUMERIC_PARENT_FEATURE":return Models.ReasonCode.INPUT_INVALID;
++   case "R932_CAL_MODEL_BOUND":return Models.ReasonCode.INPUT_INVALID;
++   case "FITTED_BUT_NOT_QUALIFIED":return Models.ReasonCode.CALIBRATION_QUALITY_FAILED;
++  }
++  if(detail.startsWith("TRAIN_CHECKPOINT_"))return Models.ReasonCode.CHECKPOINT_INVALID;
++  if(detail.startsWith("MODEL_EXPERT_WEIGHT_"))return Models.ReasonCode.INTEGRITY_FAILED;
++  if(detail.startsWith("SCDEV_")||detail.startsWith("TRAIN_"))return Models.ReasonCode.INPUT_INVALID;
++  if(detail.startsWith("CAS_DIRECTORY_INVALID"))return Models.ReasonCode.INTEGRITY_FAILED;
++  if(detail.startsWith("CP3_DB_BUSY"))return Models.ReasonCode.DB_BUSY;
++  if(detail.startsWith("CP3_MODEL_STATE_")||detail.equals("MODEL_VERSION_REBUILD_REQUIRED"))return Models.ReasonCode.CHECKPOINT_INVALID;
++  // Unknown raw owner codes are visible, never converted to a successful or zero observation.
++  return Models.ReasonCode.CHECK_UNREGISTERED;
++ }
++ public static boolean retryable(Models.ReasonCode code){
++  switch(code){
++   case DB_BUSY:case DB_UNAVAILABLE:case BUSY:case RESOURCE_YIELD:case STORAGE_PRESSURE:case INPUT_MISSING:case WAIT_CALIBRATION:case WAIT_BINDING:case WAIT_ARCHIVE_CAS:case BACKGROUND_RESTRICTED:case RETENTION_PINNED:case CAPTURE_CAPACITY_FULL:return true;
++   default:return false;
++  }
++ }
++ public static final class Receipt {
++  public final Models.ReasonCode code;
++  public final String detailCode,entityId,targetIssue,attemptId,sourceHash;
++  public final long observedWallMs,observedElapsedMs;
++  public final boolean retryable;
++  public final String json,hash;
++  public Receipt(String detail,String entity,String target,String attempt,String source,long wall,long elapsed){
++   if(wall<0||elapsed<0)throw new IllegalArgumentException("REASON_CLOCK_INVALID");
++   detailCode=safe(detail);code=normalize(detailCode);entityId=safe(entity);targetIssue=safe(target);attemptId=safe(attempt);sourceHash=safe(source);
++   if(!sourceHash.isEmpty()&&!sourceHash.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("REASON_SOURCE_HASH_INVALID");
++   observedWallMs=wall;observedElapsedMs=elapsed;retryable=CanonicalReasonCP12.retryable(code);
++   try{
++    JSONObject o=new JSONObject();o.put("policy",POLICY);o.put("code",code.name());o.put("detail_code",detailCode);o.put("entity_id",entityId);o.put("target_issue",targetIssue);o.put("attempt_id",attemptId);o.put("source_hash",sourceHash);o.put("observed_wall_ms",wall);o.put("observed_elapsed_ms",elapsed);o.put("retryable",retryable);json=o.toString();
++    // Positional hash does not rely on JSONObject member iteration order.
++    hash=V51ChecksumEngine.sha256(frame(POLICY)+frame(code.name())+frame(detailCode)+frame(entityId)+frame(targetIssue)+frame(attemptId)+frame(sourceHash)+frame(Long.toString(wall))+frame(Long.toString(elapsed))+frame(Boolean.toString(retryable)));
++   }catch(Exception failure){throw new IllegalStateException("REASON_RECEIPT_ENCODING_FAILED",failure);}
++  }
++ }
++ public static void attachDecision(Models.Decision d){
++  if(d==null)throw new IllegalArgumentException("REASON_DECISION_REQUIRED");
++  String source=d.candidateHash!=null&&d.candidateHash.matches("[0-9a-f]{64}")?d.candidateHash:"";
++  Receipt r=new Receipt(d.blockCode,"DECISION:"+safe(d.targetIssue),d.targetIssue,d.contractDecisionId,source,TimeSourceR811.wallNowMs(),TimeSourceR811.monoNowMs());
++  d.reasonText=PREFIX+r.json+"\n"+safe(d.reasonSummary);
++ }
++ public static String displayDecision(Models.Decision d){
++  if(d==null)return "INPUT_MISSING|DECISION_NULL";
++  return normalize(d.blockCode).name()+"|detail="+safe(d.blockCode);
++ }
++ public static Models.ReasonCode persistedCode(String reasonText){
++  if(reasonText!=null&&reasonText.startsWith("SCREASON_CORRUPT|"))return Models.ReasonCode.INTEGRITY_FAILED;
++  if(reasonText==null||!reasonText.startsWith(PREFIX))return Models.ReasonCode.CHECK_NOT_REEVALUATED;
++  int end=reasonText.indexOf('\n',PREFIX.length());String body=reasonText.substring(PREFIX.length(),end<0?reasonText.length():end);
++  try{JSONObject o=new JSONObject(body);if(!POLICY.equals(o.getString("policy")))return Models.ReasonCode.IDENTITY_DRIFT;Models.ReasonCode actual=normalize(o.getString("detail_code"));return actual.name().equals(o.getString("code"))?actual:Models.ReasonCode.INTEGRITY_FAILED;}
++  catch(Exception invalid){return Models.ReasonCode.UNKNOWN_READ_FAILED;}
++ }
++
++ public static String existingReceiptText(String json,String hash,String summary){
++  if(json==null||json.isEmpty())return safe(summary); // Historical rows remain explicitly not reevaluated.
++  try{
++   JSONObject o=new JSONObject(json);
++   Receipt r=new Receipt(o.getString("detail_code"),o.getString("entity_id"),o.getString("target_issue"),o.getString("attempt_id"),o.getString("source_hash"),o.getLong("observed_wall_ms"),o.getLong("observed_elapsed_ms"));
++   if(!r.hash.equals(hash)||!r.code.name().equals(o.getString("code"))||!POLICY.equals(o.getString("policy"))||r.retryable!=o.getBoolean("retryable"))return "SCREASON_CORRUPT|"+safe(summary);
++   return PREFIX+json+"\n"+safe(summary);
++  }catch(Exception invalid){return "SCREASON_CORRUPT|"+safe(summary);}
++ }
++ private static String frame(String value){return value.length()+":"+value;}
++ private static String safe(String value){return value==null?"":value;}
++}

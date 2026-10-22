@@ -1,0 +1,1032 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java b/app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java
+index a4ebc6f..90f9543 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java
+@@ -692,29 +692,16 @@ public final class LiveDiagnosticReportEngine {
+         return generate(store);
+     }
+ 
+-    public String generate(DbStore store) {
+-        return generateArtifact(store).fullText;
+-    }
++    public String generate(DbStore store) { return "BOUNDED_SUMMARY_ONLY|full_report_owner=ReportExportServiceCP4|no_live_DB_evaluation|no_report_persistence"; }
+ 
+-    public ReportArtifact generateArtifact(DbStore store) {
+-        return generateArtifact(store, ReportRequest.production());
+-    }
++    public ReportArtifact generateArtifact(DbStore store) { throw new IllegalStateException("REPORT_EXPORT_OWNER_SERVICE_ONLY"); }
+ 
+-    public ReportArtifact generateArtifact(DbStore store, ReportRequest request) {
+-        ReportRequest effective = request == null ? ReportRequest.production() : request;
+-        LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle =
+-                new LiveResearchDiagnosisOrchestrator().diagnose(store);
+-        ReportArtifact artifact = buildInternal(bundle, effective, bundle.createdAt, store);
+-        if (!effective.persist) return artifact;
+-        return artifact.withPersistence(persist(store, artifact));
+-    }
++    public ReportArtifact generateArtifact(DbStore store, ReportRequest request) { throw new IllegalStateException("REPORT_EXPORT_OWNER_SERVICE_ONLY"); }
+ 
+     public ReportArtifact build(
+             LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle,
+             ReportRequest request,
+-            long generatedAt) {
+-        return buildInternal(bundle, request, generatedAt, null);
+-    }
++            long generatedAt) { throw new IllegalStateException("REPORT_EXPORT_OWNER_SERVICE_ONLY"); }
+ 
+     private ReportArtifact buildInternal(
+             LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle,
+@@ -2928,4 +2915,993 @@ public final class LiveDiagnosticReportEngine {
+         }
+         out.append('"');
+     }
++
++public String r811ResearchTruthSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosticSnapshotR811 snapshot) {
++        boolean schemaReady =
++                store != null && report.observationBoolean("researchSchemaReady");
++        int strictOosIssues =
++                researchCountSnapshotCP4(report, 
++                        store,
++                        "SELECT COUNT(DISTINCT target_issue) FROM "
++                                + DbHelper.TABLE_R35_OOS_LABEL
++                                + " WHERE strict_oos=1");
++        int strictOosHits =
++                researchCountSnapshotCP4(report, 
++                        store,
++                        "SELECT COUNT(DISTINCT target_issue) FROM "
++                                + DbHelper.TABLE_R35_OOS_LABEL
++                                + " WHERE strict_oos=1 AND hit_label=1");
++        double strictOosHitRate = strictOosIssues <= 0 || strictOosHits < 0
++                ? Double.NaN : strictOosHits / (double) strictOosIssues;
++        double strictOosWilson = strictOosIssues <= 0 || strictOosHits < 0
++                ? Double.NaN : wilsonLowerSnapshotCP4(report, strictOosHits, strictOosIssues);
++        int actionLabelIssues =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store,
++                                "SELECT COUNT(DISTINCT target_issue) FROM v57_research_action_label_r811")
++                        : -1;
++        int actionRows =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store, "SELECT COUNT(1) FROM v57_research_action_label_r811")
++                        : -1;
++        int expertSnapshotIssues =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store,
++                                "SELECT COUNT(DISTINCT target_issue) FROM v57_research_expert_predraw_r811")
++                        : -1;
++        int livePredrawIssues =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store,
++                                "SELECT COUNT(DISTINCT target_issue) FROM "
++                                        + DbHelper.TABLE_R817_RESEARCH_PREDRAW)
++                        : -1;
++        int livePredrawSettled =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store,
++                                "SELECT COUNT(1) FROM "
++                                        + DbHelper.TABLE_R817_RESEARCH_PREDRAW
++                                        + " WHERE hit_label IN (0,1)")
++                        : -1;
++        String livePredrawAdaptive =
++                schemaReady ? latestResearchPredrawAdaptiveSnapshotCP4(report, store) : "SCHEMA_NOT_READY";
++        int generated =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store,
++                                "SELECT COUNT(1) FROM v57_research_candidate_r811"
++                                        + " WHERE run_id=(SELECT run_id FROM v57_research_run_r811"
++                                        + " ORDER BY updated_at DESC LIMIT 1)")
++                        : -1;
++        int shadowEligible =
++                schemaReady
++                        ? researchCountSnapshotCP4(report, 
++                                store,
++                                "SELECT COUNT(1) FROM v57_research_candidate_r811"
++                                        + " WHERE status IN ('SHADOW_ELIGIBLE','SHADOW_CHALLENGER')"
++                                        + " AND run_id=(SELECT run_id FROM v57_research_run_r811"
++                                        + " ORDER BY updated_at DESC LIMIT 1)")
++                        : -1;
++        String observed =
++                snapshot.recent120.sample == 0
++                        ? "N/A_NO_SETTLED_FUTURE_LIVE_OOS"
++                        : "N="
++                                + snapshot.recent120.sample
++                                + "|Hit="
++                                + snapshot.recent120.hit
++                                + "|HitRate="
++                                + snapshot.recent120.hitRate
++                                + "|Wilson="
++                                + snapshot.recent120.wilsonLower
++                                + "|Brier="
++                                + snapshot.recent120.brier;
++        /* Grow with observed content instead of reserving a contiguous 256 KiB char array while
++         * the business loop may already be close to its heap ceiling. */
++        com.ethk3.novaonepro.ReportTextCP12 out = new com.ethk3.novaonepro.ReportTextCP12(report, 32768);
++        out.append("\n【自主策略发现/深度学习/动态进化】\n")
++                .append("R908CreationDefinition=RAW_HISTORY->PRIMITIVE_DISCOVERY->FORMULA_SYNTHESIS + ALGORITHM_GENOME_PROGRAM_SEARCH->PREDRAW_FREEZE->OOS->KEEP_MUTATE_PRUNE\n")
++                .append("R908FixedMLAsMother=NO|FixedMLRole=OPTIONAL_BASELINE_OR_EXECUTOR_ONLY\n")
++                .append("R908AlgorithmDefinition=NEW_ALGORITHM_REQUIRES_OWN_STATE+OWN_SCORE_PROGRAM+OWN_SETTLEMENT_UPDATE_PROGRAM+OWN_FAILURE_DOMAIN\n")
++                .append("R908AlgorithmPrimitiveContract=").append(AlgorithmGenomeVmR908.explainInputs()).append('\n')
++                .append("R908AlgorithmInvention=").append(store.getState("r908_algorithm_invention_tick", "NOT_STARTED")).append('\n')
++                .append("R908AlgorithmSurvivors=").append(store.getState("r908_algorithm_invention_survivors", "[]")).append('\n')
++                .append("R908AlgorithmMechanismCells=").append(store.getState("r908_algorithm_invention_mechanism_cells", "[]")).append('\n')
++                .append("R908AlgorithmPredrawFrozen=").append(store.getState("r908_algorithm_async_frozen", "0")).append('\n')
++                .append("R908AlgorithmSettlement=").append(store.getState("r908_algorithm_settlement_updates", "0")).append('\n')
++                .append("R908HistoricalInvention=").append(store.getState("r908_historical_invention_tick", "NOT_STARTED")).append('\n')
++                .append("R908HistoricalReliability=").append(store.getState("r908_invention_last_reliability", "NOT_AVAILABLE")).append('\n')
++                .append("R908HistoricalAssets=").append(store.getState("r908_invention_last_assets", "[]")).append('\n')
++                .append("R908BackgroundResearch=").append(store.getState("r908_research_tick_status", "NOT_STARTED")).append('\n')
++                .append("R908ResearchPhase=").append(store.getState("r908_research_phase", "0")).append('\n')
++                .append("R908CompactLearner=").append(store.getState("r906_research_orchestrator_status", "NOT_STARTED")).append('\n')
++                .append("R908FtrlCompact=").append(store.getState("r906_ftrl_compact_status", "NOT_STARTED")).append('\n')
++                .append("R908BackgroundLoops=").append(store.getState("r908_background_loops", "NOT_ARMED")).append("|at=").append(store.getState("r908_background_loops_at", "0")).append('\n')
++                .append("R908SettlementLoop=").append(store.getState("r908_settlement_loop_status", "NOT_STARTED")).append("|at=").append(store.getState("r908_settlement_loop_at", "0")).append("|currentExact=").append(store.getState("r908_current_exact_retry_status", "NONE")).append('\n')
++                .append("R908AlgorithmFutureOos=").append(store.getState("r908_algorithm_future_summary", "NO_FUTURE_OOS_YET")).append('\n')
++                .append("R911ResearchSqlGate=").append(store.getState("r911_research_sql_gate", "NOT_RUN")).append('\n')
++                .append("R911SettlementRuntimeTruth=").append(SettlementRuntimeTruthR911.snapshotSnapshotCP4(report, store)).append('\n')
++                .append("ResearchSchema=")
++                .append(schemaReady ? "READY" : "NOT_READY_NO_FALSE_ZERO")
++                .append("\n[A Production Champion]\n")
++                .append("ChampionId=")
++                .append(V51BuildManifest.COHORT_ID)
++                .append("\nCodeHash=")
++                .append(com.ethk3.novaonepro.ReportTextCP12.sha256(report, V51BuildManifest.COHORT_ID))
++                .append("|HashMeaning=COHORT_IDENTITY_NOT_SOURCE_FILE\n")
++                .append("ArtifactHash=N/A_PRODUCTION_ARTIFACTS_UNPROVEN\n")
++                .append("DatasetHash=N/A_NO_RESEARCH_PROMOTION\nTrainedUntilIssue=N/A\n")
++                .append("ModelFamily=FROZEN_B01_B15_R366_PRODUCTION\nStrictOosN=")
++                .append(strictOosIssues)
++                .append("\nStrictOosHit=").append(strictOosHits)
++                .append("\nOverallHitRate=").append(finiteTextSnapshotCP4(report, strictOosHitRate))
++                .append("\nOverallWilsonLower95=").append(finiteTextSnapshotCP4(report, strictOosWilson))
++                .append("\nRecent120N=").append(snapshot.recent120.sample)
++                .append("\nRecent120Hit=").append(snapshot.recent120.hit)
++                .append("\nRecent120HitRate=")
++                .append(snapshot.recent120.sample == 0 ? "N/A" : snapshot.recent120.hitRate)
++                .append("\nRecent120WilsonLower95=")
++                .append(snapshot.recent120.sample == 0 ? "N/A" : snapshot.recent120.wilsonLower)
++                .append("\nCoverage=N/A_ELIGIBLE_DENOMINATOR_NOT_CERTIFIED")
++                .append("\nBetaLower95=N/A\nECE=N/A_NO_PROVEN_PROBABILITY\nRecent120Brier=")
++                .append(snapshot.recent120.sample == 0 ? "N/A" : snapshot.recent120.brier)
++                .append("\nCoverageCV=N/A\nBlockMetrics=N/A\nRegimeMetrics=N/A\nLongestLose=N/A\n")
++                .append("P50/P95/P99=N/A_DEVICE_RETEST_REQUIRED\nModelProof45=NOT_PROVEN\n")
++                .append("[B Failure Distribution]\n");
++        appendFailureDistributionSnapshotCP4(report, out, store);
++        out.append("[C Hypotheses]\n");
++        appendHypothesesSnapshotCP4(report, out, store, schemaReady);
++        out.append("[D Newly Created Formula]\n");
++        appendFormulaCandidatesSnapshotCP4(report, out, store, schemaReady);
++        out.append("[E Candidate Strategy Chain]\n")
++                .append("RawHistory -> HistoricalStrategyInventionR908[atomic empirical facts] -> formula/strategy synthesis; AND ")
++                .append("RawHistory -> AlgorithmInventionLabR908[primitive instruction population] -> AlgorithmGenomeR908[state+scoreProgram+updateProgram] -> ")
++                .append("structural mutation + behavioral novelty -> chronological development walk-forward -> Chinese mechanism identity -> ")
++                .append("exact1200 Research-only scoring -> pre-draw frozen feature/state -> exact-draw state update -> future strict OOS -> ")
++                .append("block/regime/ablation/complexity evidence -> keep/mutate/prune -> SHADOW_CHALLENGER. ")
++                .append("Markov/forest/neural/bandit are benchmark opponents only, never mandatory parents.\n")
++                .append("ChainContractHash=")
++                .append(
++                        com.ethk3.novaonepro.ReportTextCP12.sha256(report, 
++                                "R908_CHAIN|RAW_HISTORY|DISCOVERY|WF|SYMBOLIC_SYNTHESIS|1200|PREDRAW|OOS|ABLATION|EVOLVE|SHADOW"))
++                .append("|ProductionOwnerMutation=0\n")
++                .append("[F Search Statistics]\nGenerated=")
++                .append(generated)
++                .append("|StaticRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_STATIC%") : -1)
++                .append("|LeakageRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_LEAKAGE%") : -1)
++                .append("|WalkForwardRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_WALK_FORWARD%") : -1)
++                .append("|OverfitRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_OVERFIT%") : -1)
++                .append("|CalibrationRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_CALIBRATION%") : -1)
++                .append("|FDRRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_FDR%") : -1)
++                .append("|FrozenOosRejected=")
++                .append(schemaReady ? candidateStatusCountSnapshotCP4(report, store, "REJECT_FROZEN%") : -1)
++                .append("|ShadowEligible=")
++                .append(shadowEligible)
++                .append("|Promoted=0_PRODUCTION\n")
++                .append("[G Top Challenger Table]\n")
++                .append("CandidateId|FormulaOrModel|EligibleN|SelectedN|HitN|HitRate|Coverage|")
++                .append("Wilson|Beta|ECE|Brier|CoverageCV|")
++                .append("Blocks|Regimes|LongestLose|LatencyP95|RAM|CodeHash|FDR|Status\n");
++        appendTopChallengersSnapshotCP4(report, out, store, schemaReady);
++        out.append("[H Code Generation]\n")
++                .append("Policy=COMPLETE_TEXT_NO_TRUNCATION|RuntimeJavacD8SignInstall=FORBIDDEN|")
++                .append("OwnerAudit=NO_PRODUCTION_OWNER|StrategyBoundaryAudit=LOCKED\n");
++        appendCodeGenerationSnapshotCP4(report, out, store, snapshot, schemaReady);
++        out.append("[Deep Learning Exact Runtime/Trainer]\n")
++                .append("JavaRuntimeFile=ResearchModelCandidateRuntimeR811.java\n")
++                .append("OfflineTrainerFile=training/r811_autonomous_research.py\n")
++                .append("Architecture=x[96];h1=ReLU(W1*x+b1)[64];h2=ReLU(W2*h1+b2)[32];")
++                .append("z=W3*h2+b3[100];Q=log_domain_Sinkhorn(reshape10x10(z))\n")
++                .append("Loss=L_ce+lambda2*sum(W^2);L_ce=-sum_p(log(max(eps,Q[p,actual_p])))\n")
++                .append("Adam=m=.9m+.1g;v=.999v+.001g^2;bias_correct;")
++                .append("w-=lr*mhat/(sqrt(vhat)+1e-8);globalGradientClip=5.0\n")
++                .append("AllowedLR=1e-4,3e-4,1e-3|AllowedLambda2=0,1e-6,1e-5,1e-4|")
++                .append("Init=XavierUniform(limit=sqrt(6/(fanIn+fanOut)))|Seed=xorshift64star\n")
++                .append("Split=chronological train->validation->sealedFinal;shuffle=false;")
++                .append("earlyStop=validation_only;sealedFinalConsumed=false\n")
++                .append("AndroidPolicy=frozen_artifact_inference_and_light_FTRL_only;")
++                .append("large_network_backprop=OFFLINE_ONLY\n");
++        appendResearchArtifactsSnapshotCP4(report, out, store, schemaReady);
++        out.append("[Dynamic Iteration Exact Runtime]\n")
++                .append("Order=draw(t)->SettlementEngine(t)->strictOos(t)->exact1200Labels(t)->")
++                .append("FTRL.update(t)->artifact.trainedUntil=t->earliestUse(t+1)\n")
++                .append("FTRL=p=sigmoid(w*x);g=(p-y)x;sigma=(sqrt(n+g^2)-sqrt(n))/alpha;")
++                .append("z+=g-sigma*w;n+=g^2;w=0 if abs(z)<=l1 else ")
++                .append("-(z-sign(z)l1)/((beta+sqrt(n))/alpha+l2)\n")
++                .append("Parameters=alpha0.05,beta1,l1=0.001,l2=0.01|")
++                .append("PersistentStore=v57_research_artifact_r811|")
++                .append("FutureBackfillLearning=FORBIDDEN\n")
++                .append("ResearchRunState=")
++                .append(store == null ? "STORE_NULL" : store.getState("r811_research_tick_status", "NOT_STARTED"))
++                .append("|FtrlStatus=")
++                .append(store == null ? "STORE_NULL" : store.getState("r811_adaptive_learner_status", "NOT_STARTED"))
++                .append("|FtrlTrainedUntil=")
++                .append(store == null ? "" : store.getState("r811_ftrl_trained_until", ""))
++                .append("|PredrawStatus=")
++                .append(store == null ? "STORE_NULL" : store.getState("r817_research_predraw_status", "NOT_STARTED"))
++                .append("|PredrawIssues=")
++                .append(livePredrawIssues)
++                .append("|PredrawSettled=")
++                .append(livePredrawSettled)
++                .append("|AdaptivePredraw=")
++                .append(livePredrawAdaptive)
++                .append("\n[I Decision]\nKEEP_CHAMPION=YES|PROMOTE_TO_SHADOW=")
++                .append(shadowEligible > 0 ? "CERTIFICATE_AND_FUTURE_LIVE_DEPENDENT" : "NO")
++                .append("|PROMOTE_TO_PRODUCTION=FORBIDDEN|")
++                .append("Reason=R811_ZERO_DRIFT_MODEL_UNPROVEN_PHYSICAL_RETEST_REQUIRED\n")
++                .append("[J Truth boundary]\nResearchTarget45=0.45|Recent120Observed=")
++                .append(observed)
++                .append("|ModelProof45=NOT_PROVEN\n")
++                .append("ProofRule=Nselected>=480;hit>=0.45;Wilson>=0.40;Beta>=0.40;")
++                .append("coverage>=0.15;ECE<=0.04;stableBlocks>=3/4;FDR=true;")
++                .append("futureLiveAfterFreeze=true\n")
++                .append("[Production Gate Truth]\n")
++                .append("ProductionExpertGateArtifactProven=false|")
++                .append("ProductionRegretObserveCallSites=0_SOURCE_AUDITED|")
++                .append("GateStatus=FROZEN_TELEMETRY_ONLY|GateEffectiveExperts[10]=")
++                .append("PREDRAW_SIDECAR_WHEN_AVAILABLE|GateFallbackUsed[10]=")
++                .append("PREDRAW_SIDECAR_WHEN_AVAILABLE|GateFallbackExpert[10]=")
++                .append("PREDRAW_SIDECAR_WHEN_AVAILABLE|GateWeightSummary=")
++                .append("DIAGNOSTIC_ONLY_NOT_STRATEGY_HASH\n")
++                .append("[Grouped Research Dataset]\nStrictSelectedOosIssues=")
++                .append(strictOosIssues)
++                .append("|ResearchActionLabelIssues=")
++                .append(actionLabelIssues)
++                .append("|ResearchActionRows=")
++                .append(actionRows)
++                .append("|ResearchExpertSnapshotIssues=")
++                .append(expertSnapshotIssues)
++                .append("|ProofIndependentN=")
++                .append(strictOosIssues)
++                .append("|ActionRowsNeverCountAsProofN=true\n")
++                .append("[Cross-position Assignment Research]\n")
++                .append("LocationEntropy=AVAILABLE|PositionExclusivity=AVAILABLE|")
++                .append("LocationVote=AVAILABLE|AssignmentEnsembleSupport=AVAILABLE|")
++                .append("CurrentBestAssignmentCandidate=")
++                .append(shadowEligible <= 0 ? "NONE_CERTIFIED" : "SEE_TOP_CHALLENGERS")
++                .append("|GlobalOccurrencePrediction=FORBIDDEN\n")
++                .append("[Candidate Executability]\n")
++                .append("RUNTIME_EXECUTABLE_DSL=YES_RESEARCH_SHADOW|")
++                .append("RUNTIME_EXECUTABLE_GENERIC_MODEL=YES_AFTER_VALID_FROZEN_ARTIFACT|")
++                .append("BUILD_REQUIRED_JAVA=YES_NO_DYNAMIC_LOAD|")
++                .append("GeneratedJavaIsAuditableSource=true|")
++                .append("CurrentApkGenericDslPredrawExecution=R817_ACTIVE_WHEN_CANDIDATE_EXISTS|")
++                .append("MayAuthorizeReal=false\n")
++                .append("[Runtime Memory Repair Truth]\n")
++                .append("HistoryProjectionExcludesRawJson=")
++                .append(DrawHistoryProjectionR817.excludesRawPayload())
++                .append("|OversizeRawPayloadPending=")
++                .append(store == null ? -1 : DrawRawPayloadCompactorR817.pendingSnapshotCP4(report, store))
++                .append("|DeferredChunk=")
++                .append(AppConfig.R36_DEFERRED_ACTION_CHUNK)
++                .append("|DuplicateHistoryConversion=REMOVED|StreamingSnapshot=ENABLED|")
++                .append("RankSort=STABLE_PRIMITIVE_MERGESORT|ActionHashValidation=ONE_PASS|")
++                .append("OOMLedgerTruth=OOM_COUNTS_AS_OOM|RepairVersion=")
++                .append(AppConfig.R36_RUNTIME_REPAIR_VERSION)
++                .append("|MemoryPreflight=")
++                .append(store == null
++                        ? "STORE_NULL"
++                        : store.getState("r811_runtime_memory_preflight", "NOT_OBSERVED"))
++                .append("\n");
++        return out.toString();
++    }
++
++public void appendResearchArtifactsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 out, com.ethk3.novaonepro.ReportReadContextCP4 store, boolean ready) {
++        if (!ready) {
++            out.append("LatestResearchArtifact=NONE_SCHEMA_NOT_READY\n");
++            return;
++        }
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT artifact_id,artifact_type,trained_until_issue,"
++                                            + "feature_schema_hash,artifact_hash,status FROM"
++                                            + " v57_research_artifact_r811 ORDER BY trained_until_issue DESC LIMIT 1",
++                                    null);
++            if (cursor.moveToFirst())
++                out.append("LatestResearchArtifact=")
++                        .append(cursor.getString(0))
++                        .append("|Type=")
++                        .append(cursor.getString(1))
++                        .append("|TrainedUntil=")
++                        .append(cursor.getString(2))
++                        .append("|FeatureSchemaHash=")
++                        .append(cursor.getString(3))
++                        .append("|ArtifactHash=")
++                        .append(cursor.getString(4))
++                        .append("|Status=")
++                        .append(cursor.getString(5))
++                        .append('\n');
++            else out.append("LatestResearchArtifact=NONE_UNTRAINED\n");
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public void appendCodeGenerationSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            com.ethk3.novaonepro.ReportTextCP12 out, com.ethk3.novaonepro.ReportReadContextCP4 store, DiagnosticSnapshotR811 snapshot, boolean ready) {
++        int count = 0;
++        Cursor cursor = null;
++        if (ready) {
++            try {
++                cursor =
++                        report.select(
++                                        "SELECT g.candidate_id,g.bundle_path,g.patch_sha256,"
++                                                + "g.manifest_sha256,g.compile_status,g.owner_audit_status,"
++                                                + "g.bundle_hash,"+ReportBoundedSqlCP12.fieldReference(report,"v57_research_codegen_r811","g","java_source")+","+ReportBoundedSqlCP12.fieldReference(report,"v57_research_codegen_r811","g","patch_text")+","+ReportBoundedSqlCP12.fieldReference(report,"v57_research_codegen_r811","g","manifest_text")+","+ReportBoundedSqlCP12.fieldReference(report,"v57_research_codegen_r811","g","fixtures_text")+" FROM v57_research_codegen_r811 g"
++                                                + " JOIN v57_research_candidate_r811 c"
++                                                + " ON c.candidate_id=g.candidate_id"
++                                                + " WHERE c.run_id=(SELECT run_id FROM"
++                                                + " v57_research_run_r811 ORDER BY updated_at DESC LIMIT 1)"
++                                                + " ORDER BY g.candidate_id ASC",
++                                        null);
++                while (cursor.moveToNext()) {
++                    count++;
++                    appendCompleteCodeBundleSnapshotCP4(report, 
++                            out,
++                            "PERSISTED_" + count,
++                            cursor.getString(0),
++                            cursor.getString(1),
++                            cursor.getString(2),
++                            cursor.getString(3),
++                            cursor.getString(4),
++                            cursor.getString(5),
++                            cursor.getString(6),
++                            cursor.getString(7),
++                            cursor.getString(8),
++                            cursor.getString(9),
++                            cursor.getString(10));
++                }
++            } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++                if (cursor != null) cursor.close();
++            }
++        }
++        if (count == 0) appendUntrainedReferenceCodeSnapshotCP4(report, out, snapshot);
++    }
++
++public void appendUntrainedReferenceCodeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            com.ethk3.novaonepro.ReportTextCP12 out, DiagnosticSnapshotR811 snapshot) {
++        String until =
++                TargetIssueResolver.isValid(snapshot.latestOos)
++                        ? snapshot.latestOos
++                        : "202608170001";
++        StrategyChallengerFactoryEngine.FindingBundle finding =
++                new StrategyChallengerFactoryEngine.FindingBundle(
++                        "UNTRAINED_REFERENCE",
++                        "TinyMLP architecture is buildable but has no learned weights or proof",
++                        "Future frozen live OOS may reject every candidate",
++                        "PRODUCTION_FROZEN",
++                        "ResearchModelCandidateRuntimeR811",
++                        "DecisionGateEngine,SettlementEngine,REAL_BET_UNLOCK");
++        StrategyChallengerFactoryEngine.CandidateSpec candidate =
++                StrategyChallengerFactoryEngine.fromHypothesis(
++                        finding,
++                        new StrategyChallengerFactoryEngine.ResearchDataset(
++                                com.ethk3.novaonepro.ReportTextCP12.sha256(report, "R811_UNTRAINED_REFERENCE_DATASET"),
++                                until,
++                                0),
++                        StrategyChallengerFactoryEngine.CandidateType.MODEL,
++                        "TINY_MLP[D=96,H1=64,H2=32,O=100,loss=PERMUTATION_CE_SINKHORN,"
++                                + "adam=0.9/0.999/1e-8,clip=5,lr=1e-4|3e-4|1e-3,"
++                                + "lambda2=0|1e-6|1e-5|1e-4,early_stop=validation_only]",
++                        false,
++                        811L);
++        CandidateCodeSynthesisEngine.Bundle bundle =
++                CandidateCodeSynthesisEngine.synthesize(candidate);
++        appendCompleteCodeBundleSnapshotCP4(report, 
++                out,
++                "UNTRAINED_DESIGN_REFERENCE_NOT_OBSERVED_CANDIDATE",
++                candidate.candidateId,
++                "research/generated/"
++                        + candidate.candidateId.replaceAll("[^A-Za-z0-9_]", "_")
++                        + ".java",
++                com.ethk3.novaonepro.ReportTextCP12.sha256(report, bundle.patch),
++                com.ethk3.novaonepro.ReportTextCP12.sha256(report, bundle.manifest),
++                "DESIGN_ONLY_BUILD_REQUIRED_UNTRAINED",
++                "PASS_RESEARCH_ONLY_NO_OWNER",
++                bundle.bundleHash,
++                bundle.javaSource,
++                bundle.patch,
++                bundle.manifest,
++                bundle.fixtures);
++    }
++
++public void appendCompleteCodeBundleSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            com.ethk3.novaonepro.ReportTextCP12 out,
++            String ordinal,
++            String candidateId,
++            String path,
++            String patchHash,
++            String manifestHash,
++            String compileStatus,
++            String ownerAudit,
++            String bundleHash,
++            String javaSource,
++            String patch,
++            String manifest,
++            String fixtures) {
++        out.append("--- CODE_BUNDLE_BEGIN ")
++                .append(ordinal)
++                .append(" ---\nCandidateId=")
++                .append(candidateId)
++                .append("\nPath=")
++                .append(path)
++                .append("\nPatchHash=")
++                .append(patchHash)
++                .append("\nManifestHash=")
++                .append(manifestHash)
++                .append("\nCompileStatus=")
++                .append(compileStatus)
++                .append("\nOwnerAudit=")
++                .append(ownerAudit)
++                .append("\nStrategyBoundaryAudit=RESEARCH_ONLY_NO_REAL_AUTHORITY")
++                .append("\nBundleHash=")
++                .append(bundleHash)
++                .append("\n--- GeneratedJava BEGIN ---\n")
++                .append(safePreserveSnapshotCP4(report, javaSource))
++                .append("\n--- GeneratedJava END ---\n--- PATCH.diff BEGIN ---\n")
++                .append(safePreserveSnapshotCP4(report, patch))
++                .append("\n--- PATCH.diff END ---\n--- manifest BEGIN ---\n")
++                .append(safePreserveSnapshotCP4(report, manifest))
++                .append("\n--- manifest END ---\n--- fixtures BEGIN ---\n")
++                .append(safePreserveSnapshotCP4(report, fixtures))
++                .append("\n--- fixtures END ---\n--- CODE_BUNDLE_END ")
++                .append(ordinal)
++                .append(" ---\n");
++    }
++
++public static String safePreserveSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value;
++    }
++
++public void appendTopChallengersSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 out, com.ethk3.novaonepro.ReportReadContextCP4 store, boolean ready) {
++        if (!ready) {
++            out.append("READ_ERROR_RESEARCH_SCHEMA_NOT_READY\n");
++            return;
++        }
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT c.candidate_id,c.candidate_type,c.canonical_spec,"
++                                            + "e.eligible_n,e.selected_n,e.hit_n,e.hit_rate,"
++                                            + "e.coverage,e.wilson_lower,e.beta_lower,e.ece,e.brier,e.coverage_cv,"
++                                            + "e.longest_lose,e.latency_p95_ms,e.ram_peak_bytes,c.code_hash,e.fdr_pass,"
++                                            + "c.status,(SELECT fold_id FROM v57_research_experiment_r811 b"
++                                            + " WHERE b.candidate_id=c.candidate_id AND b.split_role='BLOCK_STRESS' LIMIT 1),"
++                                            + "(SELECT fold_id FROM v57_research_experiment_r811 r"
++                                            + " WHERE r.candidate_id=c.candidate_id AND r.split_role='REGIME_STRESS' LIMIT 1)"
++                                            + " FROM v57_research_candidate_r811 c LEFT JOIN"
++                                            + " v57_research_experiment_r811 e ON e.candidate_id=c.candidate_id"
++                                            + " AND e.split_role='FROZEN_TEST'"
++                                            + " WHERE c.run_id=(SELECT run_id FROM v57_research_run_r811"
++                                            + " ORDER BY updated_at DESC LIMIT 1)"
++                                            + " ORDER BY COALESCE(e.wilson_lower,-1) DESC,"
++                                            + "c.candidate_id ASC LIMIT 10",
++                                    null);
++            int count = 0;
++            while (cursor.moveToNext()) {
++                count++;
++                out.append(cursor.getString(0))
++                        .append('|')
++                        .append(cursor.getString(1))
++                        .append(':')
++                        .append(cursor.getString(2))
++                        .append("|EligibleN=")
++                        .append(cursor.getInt(3))
++                        .append("|SelectedN=")
++                        .append(cursor.getInt(4))
++                        .append("|HitN=")
++                        .append(cursor.getInt(5))
++                        .append("|HitRate=")
++                        .append(cursor.getDouble(6))
++                        .append("|Coverage=")
++                        .append(cursor.getDouble(7))
++                        .append("|Wilson=")
++                        .append(cursor.getDouble(8))
++                        .append("|Beta=")
++                        .append(cursor.getDouble(9))
++                        .append("|ECE=")
++                        .append(cursor.getDouble(10))
++                        .append("|Brier=")
++                        .append(cursor.getDouble(11))
++                        .append("|CoverageCV=")
++                        .append(cursor.getDouble(12))
++                        .append("|Blocks=")
++                        .append(cursor.getString(19))
++                        .append("|Regimes=")
++                        .append(cursor.getString(20))
++                        .append("|LongestLose=")
++                        .append(cursor.getInt(13))
++                        .append("|LatencyP95=")
++                        .append(cursor.getDouble(14))
++                        .append("|RAM=")
++                        .append(cursor.getLong(15))
++                        .append("|CodeHash=")
++                        .append(cursor.getString(16))
++                        .append("|FDR=")
++                        .append(cursor.getInt(17))
++                        .append("|Status=")
++                        .append(cursor.getString(18))
++                        .append('\n');
++            }
++            if (count == 0) out.append("NO_CANDIDATE_ROWS\n");
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public int candidateStatusCountSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String like) {
++        if (store == null) return -1;
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT COUNT(1) FROM v57_research_candidate_r811"
++                                            + " WHERE status LIKE ? AND run_id=(SELECT run_id FROM"
++                                            + " v57_research_run_r811 ORDER BY updated_at DESC LIMIT 1)",
++                                    new String[] {like});
++            return cursor.moveToFirst() ? cursor.getInt(0) : 0;
++        } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public void appendFormulaCandidatesSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 out, com.ethk3.novaonepro.ReportReadContextCP4 store, boolean ready) {
++        if (!ready) {
++            out.append("NONE_PERSISTED_RESEARCH_SCHEMA_NOT_READY\n");
++            return;
++        }
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT candidate_id,formula_ast,parent_formula_ids,generation,"
++                                            + "genetic_operator,complexity,feature_dependencies,dataset_hash,seed,status"
++                                            + " FROM v57_research_candidate_r811 WHERE candidate_type='FORMULA'"
++                                            + " AND run_id=(SELECT run_id FROM v57_research_run_r811"
++                                            + " ORDER BY updated_at DESC LIMIT 1)"
++                                            + " ORDER BY generation ASC,candidate_id ASC",
++                                    null);
++            int count = 0;
++            while (cursor.moveToNext()) {
++                count++;
++                out.append("Formula#")
++                        .append(count)
++                        .append("|FormulaId=")
++                        .append(cursor.getString(0))
++                        .append("|CanonicalAST=")
++                        .append(cursor.getString(1))
++                        .append("|HumanReadableFormula=")
++                        .append(cursor.getString(1))
++                        .append("|ParentFormulaIds=")
++                        .append(cursor.getString(2))
++                        .append("|Generation=")
++                        .append(cursor.getInt(3))
++                        .append("|Mutation/Crossover=")
++                        .append(cursor.getString(4))
++                        .append("|Complexity=")
++                        .append(cursor.getDouble(5))
++                        .append("|FeatureDependencies=")
++                        .append(cursor.getString(6))
++                        .append("|PITAudit=PREDRAW_FEATURES_ONLY_GROUP_BY_TARGET_ISSUE")
++                        .append("|DatasetHash=")
++                        .append(cursor.getString(7))
++                        .append("|Seed=")
++                        .append(cursor.getLong(8))
++                        .append("|Status=")
++                        .append(cursor.getString(9))
++                        .append('\n');
++            }
++            if (count == 0) out.append("NONE_YET_SCREENING_REQUIRES_STRICT_OOS_N_120\n");
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public void appendHypothesesSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 out, com.ethk3.novaonepro.ReportReadContextCP4 store, boolean ready) {
++        if (!ready) {
++            out.append("READ_ERROR=RESEARCH_SCHEMA_NOT_READY\n");
++            return;
++        }
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT hypothesis_id,failure_layer,mechanism,positive_evidence,"
++                                            + "counter_evidence,affected_regime,candidate_family,acceptance_json,status"
++                                            + " FROM v57_research_hypothesis_r811"
++                                            + " WHERE run_id=(SELECT run_id FROM v57_research_run_r811"
++                                            + " ORDER BY updated_at DESC LIMIT 1)"
++                                            + " ORDER BY updated_at DESC",
++                                    null);
++            int count = 0;
++            while (cursor.moveToNext()) {
++                count++;
++                out.append("Hypothesis#")
++                        .append(count)
++                        .append("|Id=")
++                        .append(cursor.getString(0))
++                        .append("|FailureLayer=")
++                        .append(cursor.getString(1))
++                        .append("|Mechanism=")
++                        .append(cursor.getString(2))
++                        .append("|PositiveEvidence=")
++                        .append(cursor.getString(3))
++                        .append("|CounterEvidence=")
++                        .append(cursor.getString(4))
++                        .append("|AffectedRegime=")
++                        .append(cursor.getString(5))
++                        .append("|CandidateFamily=")
++                        .append(cursor.getString(6))
++                        .append("|RequiredTestAndAcceptance=")
++                        .append(cursor.getString(7))
++                        .append("|Status=")
++                        .append(cursor.getString(8))
++                        .append('\n');
++            }
++            if (count == 0) out.append("NONE_YET_STRICT_OOS_GATE_NOT_MET\n");
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public void appendFailureDistributionSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 out, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        ResearchFailureHypothesisEngineR811.Diagnosis diagnosis =
++                ResearchFailureHypothesisEngineR811.diagnoseSnapshotCP4(report, store);
++        out.append("Status=")
++                .append(diagnosis.status)
++                .append("|Primary=")
++                .append(diagnosis.primaryLayer)
++                .append("|Checksum=")
++                .append(diagnosis.checksum)
++                .append('\n');
++        for (int i = 0; i < diagnosis.layers.size(); i++) {
++            ResearchFailureHypothesisEngineR811.LayerEvidence row = diagnosis.layers.get(i);
++            out.append(row.layer)
++                    .append("|count=")
++                    .append(row.failureCount)
++                    .append("|share=")
++                    .append(row.failureShare)
++                    .append("|confidenceLower95=")
++                    .append(row.confidenceLower95)
++                    .append("|sample=")
++                    .append(row.sampleN)
++                    .append("|counterEvidenceCount=")
++                    .append(row.counterEvidenceCount)
++                    .append('\n');
++        }
++        out.append("MechanisticHypothesis=")
++                .append(diagnosis.hypothesis)
++                .append("\nCounterEvidence=")
++                .append(diagnosis.counterEvidence)
++                .append('\n');
++    }
++
++public static String finiteTextSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double value) {
++        return Double.isNaN(value) || Double.isInfinite(value)
++                ? "N/A" : String.format(Locale.US, "%.8f", value);
++    }
++
++public int researchCountSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String sql) {
++        if (store == null || sql == null) return -1;
++        Cursor cursor = null;
++        try {
++            cursor = report.select(sql, null);
++            return cursor.moveToFirst() ? cursor.getInt(0) : 0;
++        } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public String latestResearchPredrawAdaptiveSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return "STORE_NULL";
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT adaptive_artifact_hash,adaptive_trained_until,"
++                                            + "adaptive_updates,adaptive_weight,formula_probability,adaptive_probability"
++                                            + " FROM "
++                                            + DbHelper.TABLE_R817_RESEARCH_PREDRAW
++                                            + " ORDER BY frozen_at DESC,candidate_id ASC LIMIT 1",
++                                    null);
++            if (!cursor.moveToFirst()) return "NONE_YET";
++            String artifact = cursor.getString(0) == null ? "" : cursor.getString(0);
++            return "artifact="
++                    + (artifact.length() == 0 ? "NONE" : artifact)
++                    + "/trainedUntil="
++                    + cursor.getString(1)
++                    + "/updates="
++                    + cursor.getLong(2)
++                    + "/weight="
++                    + cursor.getDouble(3)
++                    + "/formulaP="
++                    + cursor.getDouble(4)
++                    + "/adaptiveP="
++                    + cursor.getDouble(5);
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public static double wilsonLowerSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, int hit, int n) {
++        if (n <= 0) return Double.NaN;
++        double z = 1.959963984540054d;
++        double p = hit / (double) n;
++        double denominator = 1.0d + z * z / n;
++        double center = p + z * z / (2.0d * n);
++        double margin = z * Math.sqrt((p * (1.0d - p) + z * z / (4.0d * n)) / n);
++        return Math.max(0.0d, Math.min(1.0d, (center - margin) / denominator));
++    }
++
++public ChapterSource r811TruthChapterSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        RuntimeHealthLedgerR36.BusinessTruth truth =
++                RuntimeHealthLedgerR36.businessTruthSnapshotCP4(report, store);
++        DiagnosticSnapshotR811 snapshot = DiagnosticSnapshotR811.captureSnapshotCP4(report, store);
++        SettlementTaskStoreR36.Terminal terminal =
++                SettlementTaskStoreR36.terminalSnapshotCP4(report, store, snapshot.latestDraw);
++        String detail =
++                "Build="
++                        + V51BuildManifest.VERSION_NAME
++                        + "\nDB_VERSION="
++                        + AppConfig.DB_VERSION
++                        + "\nR811_SCHEMA_REVISION="
++                        + snapshot.schemaRevision
++                        + "\nBusinessTruth="
++                        + truth.canonical()
++                        + "\nCORE="
++                        + snapshot.coreStatus
++                        + "\nFULL="
++                        + snapshot.fullStatus
++                        + "\nSHADOW predicted/settled/pending/hit/miss="
++                        + snapshot.shadowPredicted
++                        + '/'
++                        + snapshot.shadowSettled
++                        + '/'
++                        + Math.max(0, snapshot.shadowPredicted - snapshot.shadowSettled)
++                        + '/'
++                        + snapshot.shadowHit
++                        + '/'
++                        + snapshot.shadowMiss
++                        + "\nProvider primary issue/age/code="
++                        + store.getState("r3611_provider_primary_issue", "")
++                        + '/'
++                        + store.getState("r3611_provider_primary_age_ms", "-1")
++                        + '/'
++                        + store.getState("r3611_provider_primary_code", "NO_SAMPLE")
++                        + "\nProvider backup issue/age/code="
++                        + store.getState("r3611_provider_backup_issue", "")
++                        + '/'
++                        + store.getState("r3611_provider_backup_age_ms", "-1")
++                        + '/'
++                        + store.getState("r3611_provider_backup_code", "NO_SAMPLE")
++                        + "\nProvider selected issue/line/age="
++                        + store.getState("r3611_provider_selected_issue", "")
++                        + '/'
++                        + store.getState("r3611_provider_selected_line", "")
++                        + '/'
++                        + store.getState("r3611_provider_selected_age_ms", "-1")
++                        + "\nShadow backlog total/ready/waitDraw/lease/pitInvalid/corrupt="
++                        + store.getState("r3611_shadow_backlog_total", "0")
++                        + '/'
++                        + store.getState("r3611_shadow_ready_to_settle", "0")
++                        + '/'
++                        + store.getState("r3611_shadow_wait_draw", "0")
++                        + '/'
++                        + store.getState("r3611_shadow_lease_active", "0")
++                        + '/'
++                        + store.getState("r3611_shadow_pit_invalid", "0")
++                        + '/'
++                        + store.getState("r3611_shadow_data_corrupt", "0")
++                        + "\nShadow oldest pending="
++                        + store.getState("r3611_shadow_oldest_pending_issue", "")
++                        + "\nLatest settlement task="
++                        + (terminal == null
++                                ? "PENDING_OR_MISSING"
++                                : terminal.taskClass
++                                        + '/'
++                                        + terminal.status
++                                        + '/'
++                                        + terminal.terminalCode
++                                        + "/attempts="
++                                        + terminal.attempts
++                                        + "/error="
++                                        + terminal.error)
++                        + "\nResearch state="
++                        + store.getResearchStateR811("r811_research_state", "IDLE")
++                        + "\nResearch candidate="
++                        + store.getResearchStateR811("r811_research_candidate", "NONE")
++                        + "\nR908 settlement recovery="
++                        + store.getState("r906_supervisor_last_result", "NOT_STARTED")
++                        + "\nR908 Research settlement="
++                        + store.getState("r908_research_settlement_status", "NOT_STARTED")
++                        + "\nR908 autonomous tick="
++                        + store.getState("r908_research_tick_status", "NOT_STARTED")
++                        + "\nR908 historical invention="
++                        + store.getState("r908_historical_invention_tick", "NOT_STARTED")
++                        + "\nR908 invention OOS/walk-forward="
++                        + store.getState("r908_invention_last_reliability", "NOT_AVAILABLE")
++                        + "\nResearch boundary=CERTIFICATE_BOUNDED_SCORE_ONLY|DIRECT_REAL_AUTH=0|AUTO_UNLOCK=0\n"
++                        + r811ResearchTruthSnapshotCP4(report, store, snapshot);
++        LiveResearchDiagnosisOrchestrator.Status status;
++        if ("READ_ERROR".equals(truth.rootCause))
++            status = LiveResearchDiagnosisOrchestrator.Status.READ_ERROR;
++        else if ("FAIL".equals(truth.status)) status = LiveResearchDiagnosisOrchestrator.Status.FAIL;
++        else if ("DEGRADED".equals(truth.status))
++            status = LiveResearchDiagnosisOrchestrator.Status.RETEST_REQUIRED;
++        else status = LiveResearchDiagnosisOrchestrator.Status.PASS;
++        return new ChapterSource(
++                "C19-R811-RUNTIME-TRUTH",
++                "R811结算、证据、SHADOW与Research统一真值",
++                "RuntimeHealthLedgerR36/DiagnosticSnapshotR811",
++                status,
++                "READ_ERROR".equals(truth.rootCause)
++                        ? LiveResearchDiagnosisOrchestrator.EvidenceGrade.READ_ERROR
++                        : LiveResearchDiagnosisOrchestrator.EvidenceGrade.DATABASE_OBSERVATION,
++                snapshot.shadowSettled,
++                "recent30/60/120",
++                "rootCause=" + truth.rootCause + "|status=" + truth.status,
++                "服务进程存活不能反证issue lag；Deferred PENDING不能污染CORE",
++                "按READ_ERROR→RUNTIME→SETTLEMENT/OOS→EVIDENCE→MODEL顺序处理",
++                detail,
++                com.ethk3.novaonepro.ReportTextCP12.sha256(report, detail));
++    }
++
++public ChapterSource validationChapterSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle) {
++        com.ethk3.novaonepro.ReportTextCP12 detail = new com.ethk3.novaonepro.ReportTextCP12(report);
++        detail.append("bundleValid=")
++                .append(bundle.validation.valid)
++                .append("\nfixedOrder=")
++                .append(bundle.validation.fixedOrder)
++                .append("\nuniqueFindingIds=")
++                .append(bundle.validation.uniqueFindingIds)
++                .append("\nevidenceResolved=")
++                .append(bundle.validation.evidenceResolved)
++                .append("\nedgesResolved=")
++                .append(bundle.validation.edgesResolved)
++                .append("\nacyclic=")
++                .append(bundle.validation.acyclic)
++                .append("\nhashStable=")
++                .append(bundle.validation.hashStable)
++                .append("\nreadOnlyContract=")
++                .append(bundle.validation.readOnlyContract)
++                .append("\nviolations=");
++        for (int i = 0; i < bundle.validation.violations.size(); i++) {
++            if (i > 0) detail.append(',');
++            detail.append(bundle.validation.violations.get(i));
++        }
++        detail.append("\nValidationHash=").append(bundle.validation.checksum).append('\n');
++        return new ChapterSource(
++                "C18-BUNDLE-VALIDATION",
++                "诊断编排确定性与完整性校验",
++                LiveResearchDiagnosisOrchestrator.OWNER,
++                bundle.validation.valid
++                        ? LiveResearchDiagnosisOrchestrator.Status.PASS
++                        : LiveResearchDiagnosisOrchestrator.Status.FAIL,
++                LiveResearchDiagnosisOrchestrator.EvidenceGrade.STATIC_BUILD,
++                7,
++                "N/A",
++                bundle.validation.valid ? "诊断Bundle校验通过" : "诊断Bundle校验失败",
++                "Bundle校验通过仍不等于物理设备运行通过",
++                "运行主机回放、APK ABI门和物理设备矩阵",
++                detail.toString(),
++                bundle.validation.checksum);
++    }
++
++public ChapterSource edgeChapterSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle) {
++        com.ethk3.novaonepro.ReportTextCP12 detail = new com.ethk3.novaonepro.ReportTextCP12(report, 16384);
++        for (int i = 0; i < bundle.edges.size(); i++) {
++            LiveResearchDiagnosisOrchestrator.DependencyEdge edge = bundle.edges.get(i);
++            detail.append(i + 1)
++                    .append('|')
++                    .append(edge.fromFinding)
++                    .append(" -> ")
++                    .append(edge.toFinding)
++                    .append('|')
++                    .append(edge.kind.name())
++                    .append('|')
++                    .append(edge.rationale)
++                    .append("|hash=")
++                    .append(edge.checksum)
++                    .append('\n');
++        }
++        return new ChapterSource(
++                "C16-DEPENDENCY-DAG",
++                "根因依赖DAG",
++                LiveResearchDiagnosisOrchestrator.OWNER,
++                bundle.validation.acyclic
++                        ? LiveResearchDiagnosisOrchestrator.Status.PASS
++                        : LiveResearchDiagnosisOrchestrator.Status.FAIL,
++                LiveResearchDiagnosisOrchestrator.EvidenceGrade.STATIC_BUILD,
++                bundle.edges.size(),
++                "N/A",
++                bundle.validation.acyclic ? "依赖图无环且引用完整" : "依赖图校验失败",
++                "DAG表达诊断顺序，不代表因果关系已经由实验识别",
++                "先修上游阻断点，再执行下游模型与Challenger验证",
++                detail.toString(),
++                hashEdgesSnapshotCP4(report, bundle.edges));
++    }
++
++public static String hashEdgesSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, List<LiveResearchDiagnosisOrchestrator.DependencyEdge> edges) {
++        com.ethk3.novaonepro.ReportTextCP12 out = new com.ethk3.novaonepro.ReportTextCP12(report);
++        for (int i = 0; i < edges.size(); i++) out.append('|').append(edges.get(i).checksum);
++        return com.ethk3.novaonepro.ReportTextCP12.sha256(report, out.toString());
++    }
++
++public ChapterSource findingChapterSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, LiveResearchDiagnosisOrchestrator.DiagnosisBundle bundle) {
++        com.ethk3.novaonepro.ReportTextCP12 detail = new com.ethk3.novaonepro.ReportTextCP12(report, 32768);
++        for (int i = 0; i < bundle.findings.size(); i++) {
++            LiveResearchDiagnosisOrchestrator.Finding finding = bundle.findings.get(i);
++            detail.append(i + 1)
++                    .append('|')
++                    .append(finding.id)
++                    .append('|')
++                    .append(finding.severity.name())
++                    .append('|')
++                    .append(finding.status.name())
++                    .append("|confidence=")
++                    .append(finding.confidence)
++                    .append("|owner=")
++                    .append(finding.owner)
++                    .append("|file=")
++                    .append(finding.codeLocation)
++                    .append('\n')
++                    .append("结论=")
++                    .append(finding.conclusion)
++                    .append('\n')
++                    .append("原因=")
++                    .append(finding.cause)
++                    .append('\n')
++                    .append("影响=")
++                    .append(finding.impact)
++                    .append('\n')
++                    .append("施工=")
++                    .append(finding.action)
++                    .append('\n')
++                    .append("验证=")
++                    .append(finding.validation)
++                    .append('\n')
++                    .append("期望=")
++                    .append(finding.expected)
++                    .append('\n')
++                    .append("回滚=")
++                    .append(finding.rollback)
++                    .append("\nFindingHash=")
++                    .append(finding.checksum)
++                    .append("\n\n");
++        }
++        return new ChapterSource(
++                "C15-FINDING-DAG",
++                "Finding完整施工账本",
++                LiveResearchDiagnosisOrchestrator.OWNER,
++                bundle.overallStatus,
++                LiveResearchDiagnosisOrchestrator.EvidenceGrade.DATABASE_OBSERVATION,
++                bundle.findings.size(),
++                "N/A",
++                "每个结论均绑定证据、反证、Owner、代码位置、施工、验证和回滚",
++                "诊断结论不是模型效果证明，也不得直接解锁REAL",
++                "按P0→P1→P2顺序关闭；READ_ERROR优先于模型调参",
++                detail.toString(),
++                hashFindingsSnapshotCP4(report, bundle.findings));
++    }
++
++public static String hashFindingsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, List<LiveResearchDiagnosisOrchestrator.Finding> findings) {
++        com.ethk3.novaonepro.ReportTextCP12 out = new com.ethk3.novaonepro.ReportTextCP12(report);
++        for (int i = 0; i < findings.size(); i++) out.append('|').append(findings.get(i).checksum);
++        return com.ethk3.novaonepro.ReportTextCP12.sha256(report, out.toString());
++    }
++
++public ChapterSource redlineChapterSnapshotCP12(com.ethk3.novaonepro.ReportReadContextCP4 report){return redlineChapter(null);}
+ }

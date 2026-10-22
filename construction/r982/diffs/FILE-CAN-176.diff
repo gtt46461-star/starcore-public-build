@@ -1,0 +1,57 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java b/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
+index 521b797..16678af 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java
+@@ -170,6 +170,9 @@ public final class SchemaDomainCoordinatorR926 {
+                     "r952_world_molecule_immutable_update", "r952_world_molecule_immutable_delete"
+                     , "r952_matrix_feedback", "r952_matrix_snapshot_immutable_update", "r952_matrix_feedback_immutable_update"
+                     , "r952_knowledge_immutable_update", "r952_knowledge_admission_delete", "r959_schedule_mode_immutable"
++                    , "research_plan_migration_v2", "research_task_checkpoint_v2", "research_capture_reservation_v2", "idx_cp2_capture_due", "research_capture_gap_v2", "research_atom_spec_v2", "research_atom_binding_v2", "research_matrix_checkpoint_v2", "research_projection_ack_v2", "research_finding_v2", "idx_cp2_finding_queue", "research_action_v2", "research_result_v2", "research_certificate_policy_v2", "research_evidence_archive_v2", "idx_cp2_archive_prune", "research_finding_evidence_v2", "research_molecule_seed_v2", "idx_cp4_molecule_seed_state", "research_evidence_archive_member_v2", "idx_cp4_archive_member_lookup", "research_retention_permit_v2", "research_evidence_locator_v2", "research_cp4_frozen_lifetime", "research_cp4_window_binding", "cp4_lifetime_no_replace", "cp4_binding_no_replace", "research_cp4_frozen_lifetime_immutable_UPDATE", "research_cp4_frozen_lifetime_immutable_DELETE", "research_cp4_window_binding_immutable_UPDATE", "research_cp4_window_binding_immutable_DELETE", "research_cp4_candidate_resource", "idx_cp4_resource_target", "research_cp4_candidate_resource_immutable_UPDATE", "research_cp4_candidate_resource_immutable_DELETE", "cp4_candidate_resource_conflict"
++                    // CP12 required owner storage; retain all existing CP4 required objects.
++                    , "r967_frozen_evaluation_v2", "research_action_input_boundary_cp12", "research_action_proposal_cp12", "research_action_result_binding_cp12", "research_artifact_identity_v2", "research_atom_catalog_import_cp12", "research_calibration_quality_cp12", "research_development_receipt_v2", "research_durable_model_identity_cp12", "research_durable_model_ref_cp12", "research_family_creation_cp12", "research_family_cursor_cp12", "research_family_wheel_cp12", "research_feedback_rejection_cp12", "research_formal_observation_cp12", "research_matrix_input_cp12", "research_matrix_regime5_cp12", "research_matrix_spec_cp12", "research_matrix_terminal_cp12", "research_molecule_import_cp12", "research_molecule_use_cp12", "research_row_revision_v2", "research_task_input_binding_v2", "research_task_retention_expiry_cp12", "research_training_attachment_cp12", "research_training_feature_cursor_cp12", "research_training_feature_row_cp11", "research_training_input_v2", "research_training_protocol_attachment_cp12", "research_training_protocol_v2", "research_training_registration_row_cp12", "research_working_storage_cp12", "research_working_storage_ref_cp12", "cp12_candidate_semantic_identity", "cp12_candidate_semantic_immutable", "cp12_canonical_reason_immutable", "research_atom_admission_cp12", "research_action_teacher_binding_cp12", "research_child_teacher_lineage_cp12", "research_action_teacher_witness_cp12"
+                 });
+     }
+ 
+@@ -422,4 +425,42 @@ public final class SchemaDomainCoordinatorR926 {
+     }
+     private static String bounded(String s, int max) { String x=safe(s); return x.length()<=max?x:x.substring(0,max); }
+     private static String safe(String s) { return s == null ? "" : s.trim(); }
++
++public static boolean matchesSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, Contract contract) {
++        if (db == null || contract == null) return false;
++        Cursor c = null;
++        try {
++            c = report.select("SELECT revision,contract_hash,fingerprint,state FROM " + TABLE_DOMAIN
++                    + " WHERE domain=?", new String[] {contract.domain});
++            if (!c.moveToFirst()) return false;
++            if (c.getInt(0) != contract.revision) return false;
++            if (!contract.contractHash.equals(c.getString(1))) return false;
++            if (!"READY".equals(c.getString(3))) return false;
++            return fingerprintSnapshotCP4(report, db, contract).equals(c.getString(2));
++        } catch (RuntimeException unavailable) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",unavailable);}
++        finally { if (c != null) c.close(); }
++    }
++
++public static String fingerprintSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, Contract contract) {
++        if (db == null || contract == null) return "";
++        Set<String> wanted = new HashSet<String>(Arrays.asList(contract.objects));
++        ArrayList<String> rows = new ArrayList<String>();
++        Cursor c = report.select("SELECT type,name,tbl_name,COALESCE(sql,'') FROM sqlite_master"
++                + " WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name", null);
++        try {
++            while (c.moveToNext()) {
++                String name = safeSnapshotCP4(report, c.getString(1));
++                String table = safeSnapshotCP4(report, c.getString(2));
++                if (!wanted.contains(name) && !wanted.contains(table)) continue;
++                rows.add(safeSnapshotCP4(report, c.getString(0)) + '|' + name + '|' + table + '|' + safeSnapshotCP4(report, c.getString(3)));
++            }
++        } finally { c.close(); }
++        Collections.sort(rows);
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, contract.domain).append('|').append(contract.revision)
++                .append('|').append(contract.contractHash);
++        for (String row : rows) b.append('\n').append(row.length()).append(':').append(row);
++        return com.ethk3.novaonepro.ReportTextCP12.sha256(report, b.toString());
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String s) { return s == null ? "" : s.trim(); }
+ }

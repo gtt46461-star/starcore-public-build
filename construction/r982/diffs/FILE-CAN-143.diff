@@ -1,0 +1,27 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchLogisticCalibrationR932.java b/app/src/main/java/com/ethk3/novaonepro/ResearchLogisticCalibrationR932.java
+index b60dd70..409335e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchLogisticCalibrationR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchLogisticCalibrationR932.java
+@@ -20,14 +20,18 @@ public final class ResearchLogisticCalibrationR932 {
+     }
+     static double predict(JSONObject model,double score)throws JSONException {
+         if(!Double.isFinite(score))throw new IllegalArgumentException("R932_CAL_SCORE_NONFINITE");
+-        double x=Math.max(-8,Math.min(8,(score-model.getDouble("mean"))/model.getDouble("scale")));
+-        return 1/(1+Math.exp(-Math.max(-35,Math.min(35,model.getDouble("bias")+model.getDouble("weight")*x))));
++        double mean=model.getDouble("mean"),scale=model.getDouble("scale"),bias=model.getDouble("bias"),weight=model.getDouble("weight");
++        if(!Double.isFinite(mean)||!Double.isFinite(scale)||scale<=0||!Double.isFinite(bias)||!Double.isFinite(weight))throw new IllegalArgumentException("R932_CAL_MODEL_PARAMETERS");
++        double x=Math.max(-8,Math.min(8,(score-mean)/scale));
++        return 1/(1+Math.exp(-Math.max(-35,Math.min(35,bias+weight*x))));
+     }
+     static void validate(JSONObject model,double[] scores,double[] hits)throws JSONException {
+         if(scores.length!=241||hits.length!=241)throw new IllegalArgumentException("R932_CAL_HOLDOUT_DIMENSION");
+-        double brier=0,ece=0;int[] bins=new int[10];double[] ps=new double[10],ys=new double[10];
+-        for(int i=121;i<241;i++){if(hits[i]!=0&&hits[i]!=1)throw new IllegalArgumentException("R932_CAL_HOLDOUT_LABEL");double p=predict(model,scores[i]);brier+=(p-hits[i])*(p-hits[i])/120;int bin=Math.min(9,(int)(p*10));bins[bin]++;ps[bin]+=p;ys[bin]+=hits[i];}
++        double brier=0,ece=0,baseline=0;int[] bins=new int[10];double[] ps=new double[10],ys=new double[10];
++        for(int i=121;i<241;i++){if(hits[i]!=0&&hits[i]!=1)throw new IllegalArgumentException("R932_CAL_HOLDOUT_LABEL");double p=predict(model,scores[i]);brier+=(p-hits[i])*(p-hits[i])/120;baseline+=(.3-hits[i])*(.3-hits[i])/120;int bin=Math.min(9,(int)(p*10));bins[bin]++;ps[bin]+=p;ys[bin]+=hits[i];}
+         for(int i=0;i<10;i++)ece+=Math.abs(ps[i]-ys[i])/120;
+         model.put("validation_brier",brier);model.put("validation_ece",ece);model.put("validation_bin_counts",new JSONArray(bins));
++        model.put("validation_bin_sum_p",new JSONArray(ps));model.put("validation_bin_sum_y",new JSONArray(ys));
++        model.put("validation_baseline_brier",baseline);
+     }
+ }

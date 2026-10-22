@@ -1,0 +1,25 @@
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:18: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static final sun.misc.Unsafe U;
+                         ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:19: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static{try{Field f=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);U=(sun.misc.Unsafe)f.get(null);}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+                               ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:19: warning: Unsafe is internal proprietary API and may be removed in a future release
+    static{try{Field f=sun.misc.Unsafe.class.getDeclaredField("theUnsafe");f.setAccessible(true);U=(sun.misc.Unsafe)f.get(null);}catch(Exception e){throw new ExceptionInInitializerError(e);}}
+                                                                                                            ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:149: warning: [removal] SecurityManager in java.lang has been deprecated and marked for removal
+        SecurityManager previous=System.getSecurityManager();
+        ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:149: warning: [removal] getSecurityManager() in System has been deprecated and marked for removal
+        SecurityManager previous=System.getSecurityManager();
+                                       ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:150: warning: [removal] SecurityManager in java.lang has been deprecated and marked for removal
+        try{System.setSecurityManager(new SecurityManager(){@Override public void checkPermission(Permission p){}@Override public void checkWrite(String file){if(new File(file).getAbsolutePath().equals(denied))throw new SecurityException("INJECTED_RENAME_DESTINATION_DENIED");}});
+                                          ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:150: warning: [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+        try{System.setSecurityManager(new SecurityManager(){@Override public void checkPermission(Permission p){}@Override public void checkWrite(String file){if(new File(file).getAbsolutePath().equals(denied))throw new SecurityException("INJECTED_RENAME_DESTINATION_DENIED");}});
+                  ^
+/workspace/scratch/7a6032548233/starcore/verification/r76/runtime_observation.java:152: warning: [removal] setSecurityManager(SecurityManager) in System has been deprecated and marked for removal
+        }finally{System.setSecurityManager(previous);}
+                       ^
+8 warnings

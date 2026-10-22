@@ -1,0 +1,28 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java b/app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java
+index 1c26f54..09a2716 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java
+@@ -10,6 +10,8 @@ import java.io.StringWriter;
+ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
+     public static final String VERSION = "V44_NOVA_DIAGNOSIS_FREQUENCY_STABILITY_20260720_44157296";
+     private static final String PREF = "v20_crash_snapshot";
++    // Constructor rejects Activity/null fallback; only process-lifetime Application context is retained.
++    @android.annotation.SuppressLint("StaticFieldLeak")
+     private static volatile CrashRecorder installed;
+     private static volatile String currentTargetIssue = "";
+     private static volatile String currentStage = "";
+@@ -18,11 +20,14 @@ public final class CrashRecorder implements Thread.UncaughtExceptionHandler {
+ 
+     private CrashRecorder(Context context) {
+         Context c = context == null ? null : context.getApplicationContext();
++        if (c == null && !(context instanceof android.app.Application))
++            throw new IllegalArgumentException("APPLICATION_CONTEXT_REQUIRED");
+         app = c == null ? context : c;
+         previous = Thread.getDefaultUncaughtExceptionHandler();
+     }
+ 
+     public static void install(Context context) {
++        if (context == null) return;
+         if (installed != null) return;
+         synchronized (CrashRecorder.class) {
+             if (installed == null) {

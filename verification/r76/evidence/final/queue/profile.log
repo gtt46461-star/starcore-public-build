@@ -1,0 +1,164 @@
+{
+  "report": {
+    "ready": 22,
+    "baseline_steps": 72342,
+    "current_steps": 1137,
+    "baseline_plan": [
+      [
+        4,
+        0,
+        62,
+        "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+      ],
+      [
+        35,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        39,
+        35,
+        46,
+        "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        83,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 2"
+      ],
+      [
+        87,
+        83,
+        46,
+        "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        109,
+        0,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    ],
+    "current_plan": [
+      [
+        4,
+        0,
+        61,
+        "SEARCH t USING INDEX idx_r967_one_active_lane (kind=?)"
+      ],
+      [
+        35,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        40,
+        35,
+        50,
+        "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        59,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 2"
+      ],
+      [
+        64,
+        59,
+        50,
+        "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        84,
+        0,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    ]
+  },
+  "expanded": {
+    "ready": 22,
+    "baseline_steps": 1222198,
+    "current_steps": 1029,
+    "baseline_plan": [
+      [
+        4,
+        0,
+        62,
+        "SEARCH t USING INDEX idx_r975_post_authority (kind=?)"
+      ],
+      [
+        35,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        39,
+        35,
+        46,
+        "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        83,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 2"
+      ],
+      [
+        87,
+        83,
+        46,
+        "SEARCH e USING COVERING INDEX idx_r967_task_order (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        109,
+        0,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    ],
+    "current_plan": [
+      [
+        4,
+        0,
+        61,
+        "SEARCH t USING INDEX idx_r967_one_active_lane (kind=?)"
+      ],
+      [
+        35,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 1"
+      ],
+      [
+        40,
+        35,
+        50,
+        "SEARCH e USING INDEX idx_r975_task_unresolved (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        59,
+        0,
+        0,
+        "CORRELATED SCALAR SUBQUERY 2"
+      ],
+      [
+        64,
+        59,
+        50,
+        "SEARCH e USING INDEX idx_r975_task_terminal_block (kind=? AND candidate_id=? AND target_issue<?)"
+      ],
+      [
+        84,
+        0,
+        0,
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    ]
+  }
+}

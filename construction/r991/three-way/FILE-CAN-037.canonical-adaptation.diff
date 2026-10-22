@@ -1,0 +1,12 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/CertificateDependenciesR932.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/CertificateDependenciesR932.java
+@@ -47,7 +47,8 @@
+                 if(!t.moveToFirst()||!cert.candidate.structuralHash.equals(t.getString(0))||!cert.candidate.familyId.equals(t.getString(1))||!"COMPLETED".equals(t.getString(2))||t.getLong(3)>=cert.issuedAtMs||t.getLong(4)>=cert.issuedAtMs)return "CP4_TRIAL_IDENTITY_OR_CHRONOLOGY";
+                 if(t.moveToNext())return "CP4_TRIAL_AMBIGUOUS";
+             }
+-            return com.ethk3.novaonepro.r952.AtomAdmissionCP12.currentBindingsReasonCP12(db,cert.gates,ModelBundleRuntimeR932.currentTarget(),cert.candidate.structuralHash,cert.modelHash);
++            if(!com.ethk3.novaonepro.r952.ProspectiveDiversityCP12.fenceGatesCP12(db,cert.gates))return "CP12_CERTIFICATE_DIVERSITY_SOURCE_CHANGED";
++            return com.ethk3.novaonepro.r952.AtomAdmissionCP12.currentBindingsReasonCP12(db,cert.gates,cert.validFromIssue,cert.candidate.structuralHash,cert.modelHash);
+         }catch(JSONException e){return "CP4_FROZEN_IDENTITY_JSON";}
+     }
+     static String checkCp4(DbStore store,String atom,String model,String policy,String calibration,String trial,String structural,String family,long issuedAt){

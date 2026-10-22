@@ -1,0 +1,197 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeAttemptObservabilityR926.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeAttemptObservabilityR926.java
+index 1c95718..0a76c7f 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeAttemptObservabilityR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeAttemptObservabilityR926.java
+@@ -209,4 +209,192 @@ public final class RuntimeAttemptObservabilityR926 {
+         String x = safe(value);
+         return x.length() <= max ? x : x.substring(0, max);
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return "B05_ATTEMPT_OUTCOMES_STORE_NULL\n";
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, "B05_ATTEMPT_OUTCOMES\n");
++        SQLiteDatabase db = store.readable();
++        try {
++            long releaseStartedAt = releaseStartedAtSnapshotCP4(report, db);
++            b.append("release_code=").append(BuildConfig.VERSION_CODE)
++                    .append("|release_started_at=").append(releaseStartedAt).append('\n');
++            appendEventCountsSnapshotCP4(report, db, b, releaseStartedAt);
++            appendDurableCountsSnapshotCP4(report, db, b, releaseStartedAt);
++            appendRecentFailuresSnapshotCP4(report, db, b, releaseStartedAt);
++        } catch (Throwable t) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",t);}
++        return b.toString();
++    }
++
++static String acceptanceWindowSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        SQLiteDatabase db = store.readable();
++        long since = releaseStartedAtSnapshotCP4(report, db);
++        if (since <= 0L) return "RELEASE_EPOCH_MISSING";
++        String events = RuntimeEventLedgerR926.TABLE_EVENT;
++        Cursor c = report.select("SELECT r.attempt_id,t.sample_class,"
++                + "EXISTS(SELECT 1 FROM " + events + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='REJECTED'),"
++                + "EXISTS(SELECT 1 FROM " + events + " x WHERE x.attempt_id=r.attempt_id AND x.event_type='CANONICAL')"
++                + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id AND q.status<>'CANONICAL_COMMITTED')"
++                + ",EXISTS(SELECT 1 FROM v57_attempt_resource_r927 q WHERE q.attempt_id=r.attempt_id AND q.status='CANONICAL_COMMITTED')"
++                + " FROM (SELECT attempt_id,MAX(seq) seq FROM " + events
++                + " WHERE event_type='REQUESTED' AND game_code=? AND created_at>=? AND attempt_id<>''"
++                + " GROUP BY attempt_id ORDER BY seq DESC LIMIT 120) r"
++                + " LEFT JOIN v57_prediction_timing_r925 t ON t.attempt_id=r.attempt_id AND t.release_code=?",
++                new String[]{ReleaseManifestR926.GAME_CODE, String.valueOf(since), String.valueOf(BuildConfig.VERSION_CODE)});
++        int n=0, failed=0;
++        try { while(c.moveToNext()) { n++; if(!"WARM_MONOTONIC".equals(c.getString(1)) || c.getInt(2)>0 || c.getInt(3)==0 || c.getInt(4)>0 || c.getInt(5)==0) failed++; } }
++        finally { c.close(); }
++        return n==120 && failed==0 ? "COMPLETE_120" : "REQUESTED="+n+"|FAILED_OR_UNMEASURED="+failed;
++    }
++
++public static void appendEventCountsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, com.ethk3.novaonepro.ReportTextCP12 b, long since) {
++        String table = RuntimeEventLedgerR926.TABLE_EVENT;
++        String where = since > 0L ? " WHERE created_at>=?" : "";
++        String[] args = since > 0L ? new String[] {String.valueOf(since)} : null;
++        long requested = scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT attempt_id) FROM " + table + where
++                        + (where.length() == 0 ? " WHERE" : " AND")
++                        + " event_type='REQUESTED' AND attempt_id<>''", args);
++        long accepted = eventAttemptsSnapshotCP4(report, db, table, since, "ACCEPTED");
++        long started = eventAttemptsSnapshotCP4(report, db, table, since, "STARTED");
++        long rejected = eventAttemptsSnapshotCP4(report, db, table, since, "REJECTED");
++        long canonical = eventAttemptsSnapshotCP4(report, db, table, since, "CANONICAL");
++        long explicitTimeout = eventTextAttemptsSnapshotCP4(report, db, table, since, "TIMEOUT");
++        long explicitCancel = eventTextAttemptsSnapshotCP4(report, db, table, since, "CANCEL");
++        b.append("event_attempts requested=").append(requested)
++                .append(" accepted=").append(accepted)
++                .append(" started=").append(started)
++                .append(" rejected=").append(rejected)
++                .append(" canonical=").append(canonical)
++                .append(" explicit_timeout=").append(explicitTimeout)
++                .append(" explicit_cancel=").append(explicitCancel)
++                .append(" unresolved_requested=").append(scalarSnapshotCP4(report, db, "SELECT COUNT(DISTINCT r.attempt_id) FROM " + table
++                        + " r WHERE r.event_type='REQUESTED' AND r.attempt_id<>'' AND r.created_at>=?"
++                        + " AND NOT EXISTS(SELECT 1 FROM " + table + " x WHERE x.attempt_id=r.attempt_id"
++                        + " AND x.event_type IN ('CANONICAL','REJECTED'))", new String[]{String.valueOf(since)}))
++                .append('\n');
++    }
++
++public static long eventAttemptsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            SQLiteDatabase db, String table, long since, String eventType) {
++        String where = since > 0L ? "created_at>=? AND " : "";
++        String[] args = since > 0L
++                ? new String[] {String.valueOf(since), eventType}
++                : new String[] {eventType};
++        return scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT attempt_id) FROM " + table + " WHERE " + where
++                        + "event_type=? AND attempt_id<>''", args);
++    }
++
++public static long eventTextAttemptsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            SQLiteDatabase db, String table, long since, String token) {
++        String where = since > 0L ? "created_at>=? AND " : "";
++        String[] args = since > 0L
++                ? new String[] {String.valueOf(since), "%" + token + "%", "%" + token + "%"}
++                : new String[] {"%" + token + "%", "%" + token + "%"};
++        return scalarSnapshotCP4(report, db,
++                "SELECT COUNT(DISTINCT attempt_id) FROM " + table + " WHERE " + where
++                        + "attempt_id<>'' AND (stage LIKE ? OR payload_text LIKE ?)", args);
++    }
++
++public static void appendDurableCountsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, com.ethk3.novaonepro.ReportTextCP12 b, long since) {
++        String table = DbHelper.TABLE_R36_ANALYSIS_REQUEST;
++        String where = since > 0L ? " WHERE request_at>=?" : "";
++        String[] args = since > 0L ? new String[] {String.valueOf(since)} : null;
++        Cursor c = report.select(
++                "SELECT status,COUNT(*),COALESCE(SUM(attempts),0),"
++                        + "COALESCE(SUM(CASE WHEN error_code<>'' THEN 1 ELSE 0 END),0),"
++                        + "COALESCE(SUM(CASE WHEN first_error_code<>'' THEN 1 ELSE 0 END),0)"
++                        + " FROM " + table + where + " GROUP BY status ORDER BY status",
++                args);
++        try {
++            long rows = 0L, claimAttempts = 0L, errors = 0L, firstErrors = 0L;
++            while (c.moveToNext()) {
++                String status = safeSnapshotCP4(report, c.getString(0));
++                long n = c.getLong(1), attempts = c.getLong(2), e = c.getLong(3), first = c.getLong(4);
++                rows += n;
++                claimAttempts += attempts;
++                errors += e;
++                firstErrors += first;
++                b.append("durable_status ").append(status)
++                        .append(" rows=").append(n)
++                        .append(" claim_attempts=").append(attempts)
++                        .append(" active_errors=").append(e)
++                        .append(" first_error_preserved=").append(first)
++                        .append('\n');
++            }
++            b.append("durable_totals rows=").append(rows)
++                    .append(" claim_attempts=").append(claimAttempts)
++                    .append(" active_errors=").append(errors)
++                    .append(" first_error_preserved=").append(firstErrors)
++                    .append('\n');
++        } finally {
++            c.close();
++        }
++    }
++
++public static void appendRecentFailuresSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, com.ethk3.novaonepro.ReportTextCP12 b, long since) {
++        String table = DbHelper.TABLE_R36_ANALYSIS_REQUEST;
++        String where = " WHERE (status IN ('RETRY_WAIT','EXPIRED','FAILED_TERMINAL')"
++                + " OR error_code<>'' OR first_error_code<>'')";
++        java.util.ArrayList<String> argsList = new java.util.ArrayList<String>();
++        if (since > 0L) {
++            where += " AND request_at>=?";
++            argsList.add(String.valueOf(since));
++        }
++        Cursor c = report.select(
++                "SELECT target_issue,status,attempts,request_at,deadline_at,last_transition_at,"
++                        + "error_code,first_error_code,last_stage FROM " + table + where
++                        + " ORDER BY last_transition_at DESC LIMIT 30",
++                argsList.isEmpty() ? null : argsList.toArray(new String[argsList.size()]));
++        try {
++            b.append("recent_failure_or_retry_rows\n");
++            while (c.moveToNext()) {
++                long deadline = c.getLong(4);
++                long transition = c.getLong(5);
++                boolean deadlineExceeded = deadline > 0L && transition > deadline;
++                b.append("issue=").append(safeSnapshotCP4(report, c.getString(0)))
++                        .append("|status=").append(safeSnapshotCP4(report, c.getString(1)))
++                        .append("|attempts=").append(c.getLong(2))
++                        .append("|request_at=").append(c.getLong(3))
++                        .append("|deadline_at=").append(deadline)
++                        .append("|last_transition_at=").append(transition)
++                        .append("|deadline_exceeded=").append(deadlineExceeded ? 1 : 0)
++                        .append("|error=").append(safeSnapshotCP4(report, c.getString(6)))
++                        .append("|first_error=").append(safeSnapshotCP4(report, c.getString(7)))
++                        .append("|stage=").append(safeSnapshotCP4(report, c.getString(8)))
++                        .append('\n');
++            }
++        } finally {
++            c.close();
++        }
++    }
++
++public static long releaseStartedAtSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
++        Cursor c = report.select(
++                "SELECT started_at FROM v57_runtime_epoch_r925 WHERE epoch_id=? LIMIT 1",
++                new String[] {"release-" + BuildConfig.VERSION_CODE});
++        try {
++            return c.moveToFirst() ? Math.max(0L, c.getLong(0)) : 0L;
++        } finally {
++            c.close();
++        }
++    }
++
++public static long scalarSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql, String[] args) {
++        Cursor c = report.select(sql, args);
++        try {
++            return c.moveToFirst() ? Math.max(0L, c.getLong(0)) : 0L;
++        } finally {
++            c.close();
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value.replace('\n', ' ').replace('|', '/').trim();
++    }
++
++public static String trimSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value, int max) {
++        String x = safeSnapshotCP4(report, value);
++        return x.length() <= max ? x : x.substring(0, max);
++    }
+ }

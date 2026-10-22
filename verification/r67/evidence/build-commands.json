@@ -1,0 +1,71 @@
+[
+  {
+    "argv": [
+      "/workspace/scratch/cd9274eff1c6/toolchain/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--max-workers=2",
+      "-Dorg.gradle.workers.max=2",
+      ":app:assembleRelease",
+      ":app:testDebugUnitTest",
+      ":app:lintRelease"
+    ],
+    "log": "strict-android-release.log",
+    "logSha256": "10337f548f60cd2764c222a113fad8eb7e0db5d2a858d69b2430c9828af86096",
+    "exitCode": 0,
+    "elapsedSeconds": 79.027
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "scripts/r982_source_call_asset.py",
+      "--freeze",
+      "--classes",
+      "/workspace/scratch/cd9274eff1c6/starcore-r67/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+    ],
+    "log": "final-compiled-call-stability.log",
+    "logSha256": "5c3f267ddd81ee5a28e992d0fcb65984cb3faf93aa9bbff25b1ffab8231a16df",
+    "exitCode": 0,
+    "elapsedSeconds": 4.597
+  },
+  {
+    "argv": [
+      "/workspace/scratch/cd9274eff1c6/toolchain/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--max-workers=2",
+      "-Dorg.gradle.workers.max=2",
+      ":app:verifyFinalR967Semantics",
+      ":app:verifyFinalR815Provenance"
+    ],
+    "log": "final-generated-identities.log",
+    "logSha256": "5e0abcd822106e79b059dd7b3cd37b7b32acb0ee66e93131c4b613c46ba34a57",
+    "exitCode": 0,
+    "elapsedSeconds": 8.487
+  },
+  {
+    "argv": [
+      "/workspace/scratch/cd9274eff1c6/toolchain/sdk/build-tools/36.0.0/aapt2",
+      "dump",
+      "badging",
+      "/workspace/scratch/cd9274eff1c6/starcore-r67/app/build/outputs/apk/release/Starcore-Tianshu-V57.21.2.0.67-R5.4.2.67-1012-O09-release.apk"
+    ],
+    "log": "actual-apk-badging.log",
+    "logSha256": "3a57ccd1f96e84a5cbc747ac5dced12cbbd574fb5ca0e2aeca295f473820dd15",
+    "exitCode": 0,
+    "elapsedSeconds": 0.003
+  },
+  {
+    "argv": [
+      "/workspace/scratch/cd9274eff1c6/toolchain/sdk/build-tools/36.0.0/apksigner",
+      "verify",
+      "--verbose",
+      "--print-certs",
+      "/workspace/scratch/cd9274eff1c6/starcore-r67/app/build/outputs/apk/release/Starcore-Tianshu-V57.21.2.0.67-R5.4.2.67-1012-O09-release.apk"
+    ],
+    "log": "actual-apk-signature.log",
+    "logSha256": "77287ff82d2dbd041fd817a5c493016b75c38556e8872e70f46eed2239e13607",
+    "exitCode": 0,
+    "elapsedSeconds": 0.418
+  }
+]

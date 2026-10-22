@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "executions": [
+    {
+      "step": "compile-drivers",
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-release-matrix/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-release-matrix/drivers",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r990/MatrixCheckpointFenceR990.java",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/adapters/android/util/Base64.java"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.668
+    },
+    {
+      "step": "matrix-checkpoint-fence",
+      "command": [
+        "java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-release-matrix/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.r952.MatrixCheckpointFenceR990",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-release-matrix/fixture.db",
+        "/workspace/scratch/c7daf582ec06/evidence/r990-release-matrix/assertions.json"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 0.315
+    }
+  ],
+  "source_commit": "afb5bf5e6206a15f13eac8e657e7d16add636e9f",
+  "source_dirty": true,
+  "product_sha256": "52fa85a014df44be0d3ed19bd1acdbc69288ada502aa97322845e1515adacac8",
+  "product_class_sha256": "b3ae6b84ff21bfe657fda8dbc46d2a94a862391430fdfedcd1720b1793d48610",
+  "schema_sha256": "0869529dde494fccff92b86fe06742be8fcd07b8e0d95caeba97bed5a3e1a739",
+  "scope": "Real product checkpoint Owner and SQLite/policy/kernel consumers, isolated synthetic schema corruption and CAS header races; DEVICE_NOT_VERIFIED; not natural Future or model performance"
+}

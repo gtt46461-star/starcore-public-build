@@ -1,0 +1,17 @@
+# 状态机与Exactly-once合同
+
+## Runtime delivery
+PENDING → RUNNING → COMPLETED
+                ↘ RETRYABLE_FAILED → PENDING
+                ↘ TERMINAL_FAILED
+
+## Candidate lifecycle
+IDEA → NURSERY → OBSERVING → EVIDENCE_READY → CHALLENGER → SHADOW → INFLUENCE → CHAMPION
+任意合法状态可按证据进入 PAUSED / QUARANTINED / QUALITY_PRUNED。
+QUARANTINED/QUALITY_PRUNED 默认不可自动恢复，需显式审计恢复。
+
+## Predraw/Future
+REGISTERED → PREDRAW_PENDING → FROZEN → DRAW_SEEN → SETTLED → STRICT_FUTURE → TRAINED
+开奖后禁止从 PREDRAW_PENDING 补写成 FROZEN。
+
+所有迁移必须有稳定event_hash和CAS/唯一约束。

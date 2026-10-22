@@ -1,0 +1,34 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/FixedWindowStatisticsR932.java b/app/src/main/java/com/ethk3/novaonepro/FixedWindowStatisticsR932.java
+index 3f87cbb..895f421 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/FixedWindowStatisticsR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/FixedWindowStatisticsR932.java
+@@ -23,6 +23,7 @@ db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE+"(window_id TEXT PRIMARY KEY,metr
+         }
+         ResearchGatePlanR967.Plan plan=ResearchGatePlanR967.beforeEvaluation(db,window);
+         ResearchGatePlanR967.Policy policy=plan==null?null:plan.policy;
++        if(policy!=null&&policy.isCp3)return evaluateCp4(db,window,planned,endpoint,plan,candidate,first,last);
+         int n=0,hits=0,base=0,probN=0,pending=0;double brier=0,ece=0;int[] bins=new int[10];double[] probSum=new double[10],hitSum=new double[10];
+         ArrayList<Double> deltas=new ArrayList<Double>(),errors=new ArrayList<Double>();StringBuilder evidence=new StringBuilder(window);String calibration="";boolean calibrationDrift=false;boolean scheduleGap=false;String expected=first;int captured=0;
+         try(Cursor rows=db.rawQuery("SELECT target_issue,candidate_hit,champion_hit,selected_hit_p,calibration_hash,candidate_hash,champion_prediction_hash FROM "+FixedResearchWindowR932.PAIR+" WHERE window_id=? ORDER BY target_issue LIMIT 1201",new String[]{window})) {
+@@ -71,4 +72,21 @@ db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE+"(window_id TEXT PRIMARY KEY,metr
+     static void persist(SQLiteDatabase db,String window,Result result) {
+         db.execSQL("INSERT INTO "+TABLE+" VALUES(?,?,?,?)",new Object[]{window,result.json,result.hash,System.currentTimeMillis()});
+     }
++
++    static Result evaluateCp4(SQLiteDatabase db,String window,int planned,String endpoint,ResearchGatePlanR967.Plan plan,String candidate,String first,String last){
++        int n=0,hits=0,base=0;double brier=0,baseBrier=0;double[] pbin=new double[10],ybin=new double[10];String expected=first;StringBuilder evidence=new StringBuilder(plan.hash);boolean gap=false;
++        try(Cursor c=db.rawQuery("SELECT target_issue,candidate_hit,champion_hit,selected_hit_p,calibration_hash,candidate_hash,champion_prediction_hash FROM "+FixedResearchWindowR932.PAIR+" WHERE window_id=? ORDER BY target_issue",new String[]{window})){
++            while(c.moveToNext()){
++                if(c.getInt(1)<0||c.getInt(2)<0)return null;
++                String issue=c.getString(0);if(!issue.equals(expected)||issue.compareTo(last)>0)gap=true;expected=ResearchEvaluationRunR967.nextEvaluation(candidate,issue);
++                int y=c.getInt(1),by=c.getInt(2);double p=c.getDouble(3);
++                if((y!=0&&y!=1)||(by!=0&&by!=1)||!Double.isFinite(p)||p<0||p>1||!plan.calibrationHash.equals(c.getString(4)))throw new IllegalStateException("CP4_FORMAL_PROBABILITY_OR_LABEL");
++                n++;hits+=y;base+=by;brier+=(p-y)*(p-y);baseBrier+=(.3-y)*(.3-y);int bin=Math.min(9,(int)(p*10));pbin[bin]+=p;ybin[bin]+=y;
++                evidence.append('|').append(issue).append('|').append(c.getString(5)).append('|').append(c.getString(6)).append('|').append(y).append('|').append(by).append('|').append(Double.toHexString(p));
++            }
++        }
++        String state=gap||n!=planned?"PAUSED_CAPTURE":"PASS";double ece=0;for(int i=0;i<10;i++)ece+=Math.abs(pbin[i]-ybin[i]);
++        try{JSONObject j=new JSONObject();j.put("revision","CP4_ENDPOINT_INTEGRITY_V1");j.put("window_id",window);j.put("state",state);j.put("planned_n",planned);j.put("paired_n",n);j.put("candidate_hits",hits);j.put("champion_hits",base);j.put("plan_hash",plan.hash);j.put("policy_hash",plan.policy.hash);j.put("calibration_hash",plan.calibrationHash);j.put("brier",n==0?JSONObject.NULL:brier/n);j.put("baseline_brier",n==0?JSONObject.NULL:baseBrier/n);j.put("ece",n==0?JSONObject.NULL:ece/n);j.put("evidence_hash",V51ChecksumEngine.sha256(evidence.toString()));j.put("certificate_authority",false);j.put("stage_pass_meaning","COMPLETE_IMMUTABLE_ENDPOINT_NOT_SIGNIFICANCE");String json=j.toString();return new Result(state,json,V51ChecksumEngine.sha256(json),null);}catch(JSONException e){throw new IllegalStateException("CP4_ENDPOINT_JSON",e);}
++    }
++
+ }

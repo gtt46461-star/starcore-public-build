@@ -1,0 +1,3564 @@
+{
+  "review_revision": "R76_INPUT_REVIEW_1",
+  "scope": "READ_ONLY_INPUT_AUDIT_NOT_A_FIX_OR_POSTFIX_ACCEPTANCE",
+  "input_root": "/workspace/scratch/e2544c9906f6/r76-input/report",
+  "input_zip": {
+    "path": "/workspace/scratch/e2544c9906f6/upload/10.13检测报告.zip",
+    "sha256": "a4acc60904ecef8b88fcd5e5b4c3b5707a057652c4fdf7ee2bb6d694eaf68825",
+    "verified": true
+  },
+  "identity": {
+    "version": "V57.21.2.0.75-R5.4.2.75-1013-O09",
+    "version_code": 577251034,
+    "apk_sha256": "4cf8eac63ff37ea4b320426e55efbb4ad87010e4b2e570e2818e83f83139abaa",
+    "matches_r75_signed_build_receipt": true,
+    "release_sha256": "f38c36132e2209de2b76e0417a46b6962d60b35a8f5e557c85cfd05170fe7aed",
+    "snapshot_sha256": "2723e68fa2fc8ec272b89912662e169e8622e37654ebb59465281023a7f1c013",
+    "snapshot_bytes": 4277227520,
+    "source_index_sha256": "55721f8383357e1129d01e448764a5b7fdfc225b02d2af5394d9b63cf74ac51d"
+  },
+  "integrity": {
+    "diagnostic_profile": "COMPLETE_DIAGNOSTIC_R70",
+    "legacy_source_manifest_label": "COMPLETE_DIAGNOSTIC_R68",
+    "catalog_result": {
+      "kind": "catalog_result",
+      "objects": 2803,
+      "tables": 418,
+      "rows": 6702647,
+      "checks": 96,
+      "unevaluated": 0,
+      "errors": 0,
+      "evidence_catalog_complete": true,
+      "checks_complete": true,
+      "all_checks_passed": false,
+      "evidence_archive_complete": "OWNER_MUST_VERIFY_ALL_MEMBER_HASHES"
+    },
+    "raw_members_verified": 42,
+    "member_errors": [],
+    "manifest_body_sha256_valid": true,
+    "attachments_verified": 9,
+    "attachment_errors": [],
+    "dynamic_check_refs_verified": 14,
+    "dynamic_reference_errors": [],
+    "all_62_recent_metadata_exports_complete": true,
+    "catalog_and_report_details_checks_identical": true,
+    "omissions": [
+      "APK binary",
+      "raw SQLite",
+      "training/model/retention payloads",
+      "historical duplicate ledgers"
+    ],
+    "boundary": "Raw SQLite/APK/model payload absence is declared and not a broken archive. All checks executed is distinct from all business checks passed. Per-table byte ownership cannot be recovered from row counts."
+  },
+  "health_counts": {
+    "OBSERVED": 43,
+    "NOT_APPLICABLE": 16,
+    "NOT_PROVEN": 22,
+    "WARN": 6,
+    "PASS": 6,
+    "FAIL": 3
+  },
+  "r74_health_counts": {
+    "OBSERVED": 43,
+    "NOT_APPLICABLE": 16,
+    "NOT_PROVEN": 20,
+    "WARN": 8,
+    "FAIL": 6,
+    "PASS": 3
+  },
+  "health_changes": [
+    {
+      "id": "RSEC-048",
+      "r74_health": "WARN",
+      "r75_health": "PASS",
+      "r74_state": "WARN",
+      "r75_state": "PASS"
+    },
+    {
+      "id": "RSEC-053",
+      "r74_health": "WARN",
+      "r75_health": "PASS",
+      "r74_state": "RETEST_REQUIRED",
+      "r75_state": "PASS"
+    },
+    {
+      "id": "RSEC-057",
+      "r74_health": "WARN",
+      "r75_health": "PASS",
+      "r74_state": "RETEST_REQUIRED",
+      "r75_state": "PASS"
+    },
+    {
+      "id": "RSEC-061",
+      "r74_health": "WARN",
+      "r75_health": "NOT_PROVEN",
+      "r74_state": "WARN",
+      "r75_state": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-066",
+      "r74_health": "FAIL",
+      "r75_health": "FAIL",
+      "r74_state": "BLOCKED_UPSTREAM",
+      "r75_state": "BLOCKED"
+    },
+    {
+      "id": "RSEC-070",
+      "r74_health": "FAIL",
+      "r75_health": "WARN",
+      "r74_state": "FAIL",
+      "r75_state": "WARN"
+    },
+    {
+      "id": "RSEC-071",
+      "r74_health": "FAIL",
+      "r75_health": "WARN",
+      "r74_state": "HARD_BLOCK",
+      "r75_state": "WATCH"
+    },
+    {
+      "id": "RSEC-078",
+      "r74_health": "FAIL",
+      "r75_health": "NOT_PROVEN",
+      "r74_state": "FAIL",
+      "r75_state": "RESEARCH_TRAINING_NOT_OBSERVED"
+    }
+  ],
+  "all_96_checks": [
+    {
+      "id": "RSEC-001",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R975故障定位：先看阻断，再看原始表】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8432
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeChainDiagnosisR975.java",
+      "evaluator_method": "write",
+      "evidence_member": "report-text-442b0c28cf96f0f679812d4668ab84925c55fa3f5dfc8aaa6654dc9d3fd64b0b.txt",
+      "evidence_sha256": "442b0c28cf96f0f679812d4668ab84925c55fa3f5dfc8aaa6654dc9d3fd64b0b",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-002",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【逐文件、方法、直接调用索引：编译字节码静态索引，不是真机覆盖率】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8434
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeChainDiagnosisR975.java",
+      "evaluator_method": "writeSourceIndex",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "2c9c706992ad533ad46106d7c91aa661c4823a08548efebdfbe1a7b7240395dd",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-003",
+      "health": "OBSERVED",
+      "state": "READ_OK",
+      "execution_state": "EXECUTED",
+      "title": "【R967同一语句快照：研究登记、训练、校准与队列】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8436
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ResearchFunnelR967.java",
+      "evaluator_method": "capture + appendMoleculeCheckpointCP12",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "b09ceb5b98e390cf0bf0b520bef3ecbf8692dae1e983dd452de8abb68e05fe69",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-004",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R974逐段执行收据：只读、各查询独立时点、不是整库事务快照】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8438
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ResearchStageProgressR973.java",
+      "evaluator_method": "write",
+      "evidence_member": "report-text-c0a49ad71c08901910e647f483bc215f90dedfdb109ecc0c2a7bc2f3cfcc3f09.txt",
+      "evidence_sha256": "c0a49ad71c08901910e647f483bc215f90dedfdb109ecc0c2a7bc2f3cfcc3f09",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-005",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R970历史算法原始档案与新种子去向】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8440
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/HistoricalGenomeImportR967.java",
+      "evaluator_method": "writeReport",
+      "evidence_member": "report-text-855b5e1bb2744291144f48ae67718dd5b9c4709993a8e2c972a87680678094db.txt",
+      "evidence_sha256": "855b5e1bb2744291144f48ae67718dd5b9c4709993a8e2c972a87680678094db",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-006",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【手机储存与5000期清理】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8442
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+      "evaluator_method": "summary",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4df06c88580b30c43b164dfb96722095f4f7db374f5ce2917aedbb6ac702b9d5",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-007",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【原子世界资产工具与神经学习】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8444
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/AtomicToolWorldR943.java",
+      "evaluator_method": "report",
+      "evidence_member": "report-text-cbed31644b7d49d9d996f04b764c162a0d3218c7c31f08d0b86e97f8eb7b55c2.txt",
+      "evidence_sha256": "cbed31644b7d49d9d996f04b764c162a0d3218c7c31f08d0b86e97f8eb7b55c2",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-009",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【0.当前总判定】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8446
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "overall",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4ccd09f26455158456d19ce59e70ca102aab8f5fa48f884e003240f0544a59de",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-010",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【0A.R923全软件情况统一总览（先看这里）】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8448
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/UnifiedSoftwareStatusR923.java",
+      "evaluator_method": "capture",
+      "evidence_member": "report-text-3de60619a65a9481950fc4fd3eca837d79b47b1e5f7510be368a67524a0d3e23.txt",
+      "evidence_sha256": "3de60619a65a9481950fc4fd3eca837d79b47b1e5f7510be368a67524a0d3e23",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-011",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【分时读取的详细视图；不作为上方统一漏斗分母】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8450
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ResearchDashboardR924.java",
+      "evaluator_method": "capture",
+      "evidence_member": "report-text-a8717d7563a7936208b7e0c6fdd8a226e05851cd4934b4ab5c88947940a0c291.txt",
+      "evidence_sha256": "a8717d7563a7936208b7e0c6fdd8a226e05851cd4934b4ab5c88947940a0c291",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-012",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【挑战者、证书与主链实际应用｜统一账本】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8452
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ResearchPipelineStatusR941.java",
+      "evaluator_method": "capture",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "c99a75ca9c6f460b1cbc7286df4ee1f1cc91ffbda12596c348aa01af15aafb20",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-013",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【GENESIS_NEW创生资产榜】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8454
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "appendGenesisAssets",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "013ffb39ee8ed79b5d0bafe2fa7f78c3c6d129d93f029d2f1566d9220e08e18e",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-014",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【活跃算法家族Future OOS榜】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8456
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "appendAlgorithms",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "e4302da7d7202ab9f42f476d9902bd0f605c372fd43a46544680a7a33390b1e8",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-015",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【算法证据归档榜（淘汰不删除）】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8458
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "appendArchivedAlgorithms",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "84023dcd88c55a8e686351e56504d721dff0112c4aa8b830c0b7c035bd42d067",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-016",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【240项底层因子/原子完整登记】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8460
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "appendAtomRegistry",
+      "evidence_member": "report-text-f8d86637213f011595dc9d7c942b3c8799b544cf088f8a1ad42f9f4293713b50.txt",
+      "evidence_sha256": "f8d86637213f011595dc9d7c942b3c8799b544cf088f8a1ad42f9f4293713b50",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-017",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【失败驱动的新原子提案】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8462
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "appendAtomProposals",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "cd1af69ce1a267ed60c46e2f308e7d41c50a9943ff339d4c1cd0b2c655eed746",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-018",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【0B.5.4.1新增检查与运行证据】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8464
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/SoftwareAuditR925.java",
+      "evaluator_method": "report",
+      "evidence_member": "report-text-e00f4dc6d49d0e060b997f93ee5ec14e38ba1a2a696ee69cf3228bb3af0ecd97.txt",
+      "evidence_sha256": "e00f4dc6d49d0e060b997f93ee5ec14e38ba1a2a696ee69cf3228bb3af0ecd97",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-019",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-A.模型准确率卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8466
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "0a3f1ca07b1010accbc8d4980412738d9405855d5eac0c3e7992a4cd1a0ed453",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-020",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-B.策略效果卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8468
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "9d853b304ce907c9ca6575092e95e0e8afbec219433a4d454b1c00e76db394a7",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-021",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-C.期级链路卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8470
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "d7cce85a36e87821c3445c99e5ddd2443174c2a9e6a4b9920b296549496b665a",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-022",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-D.资源效率卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8472
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+      "evidence_sha256": "9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-023",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【旧算法观察桥接（独立历史口径）】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8474
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34ChallengerCertificateBridgeR930.java",
+      "evaluator_method": "report",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "b9e6edb43dc7fa02743917eb9629893f41ec486110c18e57ccce5ef1ee65d900",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-024",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【0D.真实训练与逐期执行证据：fullblood】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8476
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/r952/FullbloodDiagnosticsProviderR952.java",
+      "evaluator_method": "render",
+      "evidence_member": "report-text-87e668551c8f850882717440231ef992ffd9aa98b81a84c9785697d96f4af575.txt",
+      "evidence_sha256": "87e668551c8f850882717440231ef992ffd9aa98b81a84c9785697d96f4af575",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-025",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【0D.真实训练与逐期执行证据：capability_trace】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8478
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/r952/CapabilityTracePageR952.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "7652ddec65a7b5376a9599a5ad525c320e19a62a2f15cfa5148924a7e84957ae",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-026",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【0C.R940界面卡顿与闪退取证】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8480
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "generateArtifact",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "7893c13f421e8750de7393495c6ad50b42d454cd0991487dbfc4572def3ed158",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-027",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【1.身份与不可变红线】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8482
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "identity",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "b98049e8078fd58a66f7f549cd9610fb03cefcaa969c438ec2ffdeb3b4109467",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-028",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【2.B01–B15工程状态】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8484
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "batchStatus",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "f09887879990f24e928e6046b78e56bf4fd66c8b22a7231bde7a80922aa28100",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-029",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【3.唯一运行状态机】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8486
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "stateMachine",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "9739fb4d00e28fc158a5e2595a64c798978436374fb868462efd0900f63d595f",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-030",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【4.R3.6硬门】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8488
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "hardGates",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "34970373293c99d2c21b77191676b197dedf695bc3e604e8b507bf676cafde1e",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-031",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【5.实际开奖分母预测覆盖与最近10期业务闭环】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8490
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "recentClosure",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "a21854e93b4b85146eb90327215b317b7302e8925485ccd1e8e98d7b78890e43",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-032",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【6.进程/Service/业务心跳】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8492
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "generateArtifact",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "54091d5e2030443dedb57e55533a7347f55fa9543d6c0db536330acc6430b2d3",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-033",
+      "health": "WARN",
+      "state": "OK",
+      "execution_state": "EXECUTED",
+      "title": "【7.R3.6运行健康账本】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8494
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "evaluator_method": "readRuntime",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "5720c9eb56147a19299ae5b16e6314fd92dcfdd2b61d2b0c41c15e1d13856a6f",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-034",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【8.严格OOS/Wilson/ECE/Brier/Coverage】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8496
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "oos",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "83fd27f566bfc068e70d7927485981531dcc46e6b9a69336a44bde407b95b38e",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-035",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【9.模型有效性与根因优先级】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8498
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "evaluator_method": "analyze",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "117558c0bfee37604c2678a2cbbf32c4c9d08d0c3bb022c3a377c42da0d9b927",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-036",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【10.唯一Owner】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8500
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "owners",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "12375ec3e73bbc921b869b5502a2c5c0be8a8e16305b0604957eaaf18f3664a6",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-037",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【11.1200正式动作与实时/延后写分离】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8502
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "actionContract",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "a739b66288f766a8c3445b60a1367af64c5ec5cd7bdcb1ba40f11eb578fb313f",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-038",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【12.精确结算与OOS标签】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8504
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "settlement",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "c2ab2d59d9ab407513407bbaf43f7e8f65e679f968e0c755d9329aca61c315ed",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-039",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【13.REAL与SHADOW分账】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8506
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "realShadow",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "0bbdc4d4074a1f8143e355c83c216838ba518f070719c7ea9cfabaeb7df634bf",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-040",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【14.真实出手机会漏斗（15%仅观察目标）】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8508
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "frequency",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "6014644076a4a91e74ae293c67130cfd6e4424d84f96d5af0259c2847f291911",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-041",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【15.后台恢复】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8510
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "recovery",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "5618484f7ceabbaf6424ea1179d87f57eef2b9eac90ed7d37ba26b8079dbcb2f",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-042",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【16.物理设备验证矩阵】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8512
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "deviceMatrix",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "ecb6912f883d6e69d4be1ceed9d30fa00a136b0ea771fd21d192aaf0bfc04a07",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-043",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【17.历史链只读隔离】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8514
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "legacyReadOnly",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "94de4c74fed996206deb6cd3eb90266a64ba0a4b1f7c7026f4380a26b189cd06",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-044",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【18A.B14–B15原始取证附录】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8516
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "generateArtifact",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "c193ce990c62ff0babf8bdf636350f4219d45ea71e331311b6a7d4a30d7d8c37",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-048",
+      "health": "PASS",
+      "state": "PASS",
+      "execution_state": "EXECUTED",
+      "title": "【第1章 数据与期号】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8518
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectData",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "a594a794143db9630bbc336996f766923a289c5cfb36eeb081c8828f4c2a46d8",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-052",
+      "health": "FAIL",
+      "state": "FAIL",
+      "execution_state": "EXECUTED",
+      "title": "【第2章 Service与业务运行】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8520
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectRuntime",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "cb8360e2ac6481c8e7a7b9af1aa3d35373e2ea7e5c9f9813d4372c5c0b843925",
+      "raw_r74_health": "FAIL"
+    },
+    {
+      "id": "RSEC-053",
+      "health": "PASS",
+      "state": "PASS",
+      "execution_state": "EXECUTED",
+      "title": "【第3章 账本与首写冻结】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8522
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectLedger",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "42ae0c667546f87b6312ab68501b3071227c17214b2fa2c4268c939ef91185d1",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-054",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第4章 100号码概率面】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8524
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectNumberSurface",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "0248344d36c88c8f246650bdb78090bf0e4f8637e28f834e12df5e0b552e10d6",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-055",
+      "health": "WARN",
+      "state": "RETEST_REQUIRED",
+      "execution_state": "EXECUTED",
+      "title": "【第5章 跨位置结构】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8526
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCrossPosition",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "23f6d455fe475350f6361c1ebdb1a560e77563325a77cc30c6a104f29e170a6c",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-056",
+      "health": "WARN",
+      "state": "RETEST_REQUIRED",
+      "execution_state": "EXECUTED",
+      "title": "【第6章 固定K3漏斗】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8528
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectK3Funnel",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "fce0bac0cfca3e16a6c875eba139a07077172913f043a7cb58138c1e8eba4809",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-057",
+      "health": "PASS",
+      "state": "PASS",
+      "execution_state": "EXECUTED",
+      "title": "【第7章 1200正式动作空间】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8530
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectActionSpace",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "f7d228e72e7650ed923c3b993b6235714458847270152faa1385976a5c88ceef",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-058",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第8章 动作Ranker】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8532
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectRanker",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "aa3d3c0db6a90197c694e0356e3b51f2472506df466fb04a499312a318131df0",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-059",
+      "health": "NOT_PROVEN",
+      "state": "WAIT_CALIBRATION_INPUT",
+      "execution_state": "EXECUTED",
+      "title": "【第9章 选择后校准与严格OOS】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8534
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCalibration",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "e4bee458a4cedbf9e558641a32afc36bf011d597277083b9590ecd566b32f0cc",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-060",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第10章 频率与REAL硬门】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8536
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectFrequency",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "78d6ffcc7326c620e9beb27d17f34e7664e1da063ca708d589e05c4099b67f52",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-061",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第11章 失败树与反证】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8538
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectFailureTree",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4127295b6c497b3d1ec46089d959cbcfebb022816f808751de33bf639a4812ad",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-062",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【B14动态故障诊断】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8540
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-063",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【确认事实/假设分离】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8542
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-064",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【因果故障图】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8544
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-065",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【修复优先级】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8546
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-066",
+      "health": "FAIL",
+      "state": "BLOCKED",
+      "execution_state": "EXECUTED",
+      "title": "【K3失败九类拆解】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8548
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4f56a5aa325e957d15ec66c6ce6c201a27ed31b9a145f1ddc96d0383e511114b",
+      "raw_r74_health": "FAIL"
+    },
+    {
+      "id": "RSEC-067",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【第12章 消融与冲突】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8550
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectAblation",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "c30d24fdc3cc2b0a3be69cf95a967569bb7b68310430e4b2863ded89693cb806",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-068",
+      "health": "NOT_PROVEN",
+      "state": "NO_MEASURED_ABLATION",
+      "execution_state": "EXECUTED",
+      "title": "【策略贡献/冲突/冗余/消融】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8552
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "59b45179f846fa390d73a4a994011fedcfed05d66e01d7932ddcb7e07d349835",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-069",
+      "health": "WARN",
+      "state": "WATCH",
+      "execution_state": "EXECUTED",
+      "title": "【公式/算法/概率审计】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8554
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "cd0bf0562cb645d8b4862bf47f386229b264741073b137d87f95769f1c17c9f8",
+      "raw_r74_health": "WARN"
+    },
+    {
+      "id": "RSEC-070",
+      "health": "WARN",
+      "state": "WARN",
+      "execution_state": "EXECUTED",
+      "title": "【第13章 代码Owner完整性】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8556
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCodeOwner",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "d4aaf67e0af785ae5547ca3ede59641c1a37b277516a937d9c70ea26269a29b5",
+      "raw_r74_health": "FAIL"
+    },
+    {
+      "id": "RSEC-071",
+      "health": "WARN",
+      "state": "WATCH",
+      "execution_state": "EXECUTED",
+      "title": "【代码Owner与完整性审计】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8558
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "14194964705cb5dbbfc697cb6f58be954338afb6bd5352728285913ae1acdb87",
+      "raw_r74_health": "FAIL"
+    },
+    {
+      "id": "RSEC-072",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【第14章 Challenger施工与验证】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8560
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectImprovement",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "8bacd1c52b4bd13165ab3881a7e777ef62d6489133fffe26341d97e94869a739",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-073",
+      "health": "NOT_PROVEN",
+      "state": "REAL_LOCKED_SHADOW_ONLY",
+      "execution_state": "EXECUTED",
+      "title": "【改进Challenger计划】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8562
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "5a86c02ce218d1040273ab4f4c5d590743ae7e48710c51bc888890f22b80d484",
+      "raw_r74_health": "NOT_PROVEN"
+    },
+    {
+      "id": "RSEC-074",
+      "health": "FAIL",
+      "state": "FAIL",
+      "execution_state": "EXECUTED",
+      "title": "【第15章 Finding完整施工账本】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8564
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "findingChapter",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "3a6e5848a8c184998424a700b3959968d247559e9c3eb7a6f33e74e98b491b89",
+      "raw_r74_health": "FAIL"
+    },
+    {
+      "id": "RSEC-075",
+      "health": "PASS",
+      "state": "PASS",
+      "execution_state": "EXECUTED",
+      "title": "【第16章 根因依赖DAG】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8566
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "edgeChapter",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "20db8c1d2f37d98376c2ff256fe574c196a47fca9d9780f97bc35541c82717fd",
+      "raw_r74_health": "PASS"
+    },
+    {
+      "id": "RSEC-076",
+      "health": "PASS",
+      "state": "PASS",
+      "execution_state": "EXECUTED",
+      "title": "【第17章 身份、玩法与REAL不可变红线】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8568
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "redlineChapter",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "be580eb1efaac8495a86460c6371ab40f3635b02ab2fb681fbd242d5d6a0a9ff",
+      "raw_r74_health": "PASS"
+    },
+    {
+      "id": "RSEC-077",
+      "health": "PASS",
+      "state": "PASS",
+      "execution_state": "EXECUTED",
+      "title": "【第18章 诊断编排确定性与完整性校验】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8570
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "validationChapter",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "aa020dde1b34fb89601731944e11a787a16984e34deb35599de67cfdb19a00a3",
+      "raw_r74_health": "PASS"
+    },
+    {
+      "id": "RSEC-078",
+      "health": "NOT_PROVEN",
+      "state": "RESEARCH_TRAINING_NOT_OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【第19章 R811结算、证据、SHADOW与Research统一真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 1
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "r811TruthChapter",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "d6eba967c6591c7717aeee0ab6390241a5d2a42cfcf32d3b2f27d8852c9d7cc1",
+      "raw_r74_health": "FAIL"
+    },
+    {
+      "id": "RSEC-079",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【自主策略发现/深度学习/动态进化】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 3
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "r811ResearchTruth",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "8a0753a896433997a3d36db3fdf819bd1875df451ea9ba78f37c5f00db93fd4d",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-301",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【真实性边界】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 5
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "buildBody",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "5f795376fc1ee8b930dfd712b2a7115b3c1822a88b0cadd621d20454209c21e2",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-302",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【报告哈希与完整结束标志】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 7
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "buildInternal",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "e45aec440a2a992db6629acfb54eed1ec7661b7cc00f63ef6b7f8319bc70023d",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-303",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【END_OF_LIVE_DIAGNOSTIC_REPORT】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 9
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "renderChapter",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "57a09ef26f56da96f8aa1ae55ce31d12f9fad6b6f2287d5fd271aacaaf88911c",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-304",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【18B.R922运行闭环/影子结算/Research/REAL硬门唯一真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 11
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "generateArtifact",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "cf663c8f0df33d9b116dbee78e8f2dd568e5422f6457339246c40d351b4d00e8",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-305",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R923运行闭环唯一真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 13
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "pipelineDetail",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "d0947eb445522f77f73c409cb39339638ee2aa3ad0a748099cce934d24182412",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-306",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R923严格Future OOS统计】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 15
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "shadowDetail",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "3c89fa80c9370ecafb55fd91ef651ecbec5f446043e6bad372e25b15a24d8de1",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-307",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R923深度学习・动态迭代・算法创造唯一真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 17
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "researchDetail",
+      "evidence_member": "report-text-975bd49fdded117088698ae1089d372600f9a116675dcd6514973e8d58c8f37d.txt",
+      "evidence_sha256": "975bd49fdded117088698ae1089d372600f9a116675dcd6514973e8d58c8f37d",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-308",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【证书化主链贡献】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 19
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "appendContributions",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "e1631474f9a8860caf8ac9f9752b3d115f23e3474c033647efca04abc9fe207c",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-309",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R923逐期预测主链贡献审计】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 21
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "researchDetail",
+      "evidence_member": "report-text-975bd49fdded117088698ae1089d372600f9a116675dcd6514973e8d58c8f37d.txt",
+      "evidence_sha256": "975bd49fdded117088698ae1089d372600f9a116675dcd6514973e8d58c8f37d",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-310",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【R923真实出手统计与硬门唯一真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 23
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "realDetail",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "429c4c7bc26e294666d79f9cced65ec26c43072a0d1d46960d9f36b65f6229b6",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-311",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【R922为什么中/不中/不出手真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 25
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "renderWhyCards",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "ec0594be9ae1c2d720be6b945cdf2c33cf2365ad740313bc128a6fe30b8db2c1",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-312",
+      "health": "OBSERVED",
+      "state": "AVAILABLE",
+      "execution_state": "EXECUTED",
+      "title": "【为什么中】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 27
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "buildTruthCards",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "a4870b6bc18bac68408e6d5bb29b5a2c7bf289ee29f0fdf0bc9456944a614999",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-313",
+      "health": "OBSERVED",
+      "state": "AVAILABLE",
+      "execution_state": "EXECUTED",
+      "title": "【为什么不中】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 29
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "buildTruthCards",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "daf2466f56e04b0f69b1dc96df9f8cf0ad8b1e639ec8831a3a921f5532590947",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-314",
+      "health": "OBSERVED",
+      "state": "AVAILABLE",
+      "execution_state": "EXECUTED",
+      "title": "【为什么不出手】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 31
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "buildTruthCards",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "9e464902efe4b1702d26f5b816193e8ba5b4ed5144997e4af60144d71782688e",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-315",
+      "health": "OBSERVED",
+      "state": "AVAILABLE",
+      "execution_state": "EXECUTED",
+      "title": "【逐期结算统计】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 33
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java",
+      "evaluator_method": "buildTruthCards",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "5e14fa924cdab23ed865831b5471f77dd4c1c2796730c05613570e53e87ce139",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-316",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【18C.创造候选接入预测主链审计】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 35
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ResearchMainlineContributionAuditR922.java",
+      "evaluator_method": "recentDetail",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "e4e862f183408502eac3c92b2bc0d2dd31e4e93e710324ecdc636114df90d1c0",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-317",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【18C2.算法数量、归档原因、晋升淘汰与完整清单】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 37
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+      "evaluator_method": "capture",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "feca1a9a1273e6efce08b97bd513d8063a57bd627b9a55c14975311ca522f5fe",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-318",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【18.报告完整性】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 39
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "generateArtifact",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "980e74ef76eaf2217000e09c1ef296c749999745f072960444f832ff18875c26",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-319",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【19.完整报告SHA256】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 41
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "<init>",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "72b1a0850c79bae3bea8a8f8ddaa50937a5cf699cb84f931b5c33d49443f8208",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-320",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【END_OF_COMPLETE_REPORT】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 43
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "<init>",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "1e991805a4304e140ba05b254dced512ebe74517fe125e0461d8b1eef0d0587f",
+      "raw_r74_health": "NOT_APPLICABLE"
+    },
+    {
+      "id": "RSEC-321",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【20.全部创造算法与研究方法，含归档】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 45
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+      "evaluator_method": "writeDetails",
+      "evidence_member": "report-text-b3236250187a40a518412bdce680f3ee516548908f339f3ad6029238133ef106.txt",
+      "evidence_sha256": "b3236250187a40a518412bdce680f3ee516548908f339f3ad6029238133ef106",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-322",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【全部创造算法中文清单｜全状态｜无数量截断】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 47
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+      "evaluator_method": "allAlgorithms",
+      "evidence_member": "report-text-caebe550e72716975e8056123ed1ee9166ed612de49af895464ae2a1e201baa3.txt",
+      "evidence_sha256": "caebe550e72716975e8056123ed1ee9166ed612de49af895464ae2a1e201baa3",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-323",
+      "health": "OBSERVED",
+      "state": "OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【全部研究方法｜含归档｜无数量截断】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 49
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/AlgorithmLifecycleReportR927.java",
+      "evaluator_method": "allResearchMethods",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "85239b4858c02122581f98989152991a48d4531ebe748f2a1a4d2b514ff7f06a",
+      "raw_r74_health": "OBSERVED"
+    },
+    {
+      "id": "RSEC-324",
+      "health": "NOT_APPLICABLE",
+      "state": "N/A",
+      "execution_state": "EXECUTED",
+      "title": "【21.全部资产、晋升、淘汰证据原始表】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 51
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/FullResearchInventoryR923.java",
+      "evaluator_method": "writeToStrict",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "ac36e87d5d5aab497c04f414685070d53357042d79a10dd35ea352ea2cabcad8",
+      "raw_r74_health": "NOT_APPLICABLE"
+    }
+  ],
+  "all_nonpass_checks": [
+    {
+      "id": "RSEC-009",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【0.当前总判定】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8446
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "overall",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4ccd09f26455158456d19ce59e70ca102aab8f5fa48f884e003240f0544a59de",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "GOVERNANCE",
+      "acceptance_kind": "FINAL_REQUIREMENT_AND_DEVICE_EVIDENCE",
+      "action": "1–9/1832复合要求逐项绑定最终源及现场证据；未知不能当未施工或已验收。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java"
+      ],
+      "evidence_excerpt": "PLAN_ACCEPTANCE=NOT_ESTABLISHED_BY_THIS_RUNTIME_REPORT\nENGINEERING_BUILD=THIS_RUNNING_APK\nPHYSICAL_DEVICE_RUNTIME=RETEST_REQUIRED\nMODEL_PROOF=DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY\nREAL_BET_UNLOCK=CONTROLLED_CANDIDATE_EXACT_GATE\nRELEASE_POSTURE=RUNTIME_REPAIR_BUILD_MODEL_NOT_PROVEN_CONTROLLED_PROBE\nROOT_CAUSE_PRIORITY=RUNTIME_CHAIN_FIRST",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-019",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-A.模型准确率卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8466
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "0a3f1ca07b1010accbc8d4980412738d9405855d5eac0c3e7992a4cd1a0ed453",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_MODEL_EVIDENCE",
+      "action": "修复连续捕获后积累同一冻结候选独立CAL/Future；模型和质量证书为0。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "MetricScope=MODEL_AND_CALIBRATION_ONLY\nRawRankingScoreIsProbability=false\nBrierECERequireFrozenSelectedActionProbability=true\nGeneratedFromRealData=false\nFutureOosProven=false\nStructuralEvidenceReady=false\nEffectEvidenceReady=false\nSelectedSupport=N/A\nSelectedHitRate=N/A\nSelectedWilsonLower=N/A\nBrier=N/A\nECE=N/A\nLongestMiss=N/A\nModelAccuracyStatus=UNPROVEN_NO_FUTURE_POLICY_EVIDENCE\nSeedCount=N/A\nTop1Agreement=N/A\nKendallTau=N/A\nProbabilityIntervalWidthP95=N/A\nRankDisplacementP95=N/A",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-020",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-B.策略效果卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8468
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "9d853b304ce907c9ca6575092e95e0e8afbec219433a4d454b1c00e76db394a7",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_POLICY_EVIDENCE",
+      "action": "冻结策略同窗口验证覆盖/命中/ECE/稳定性；不得用频率债或强制REAL代替。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "MetricScope=FROZEN_POLICY_FUTURE_WINDOW_ONLY\nTargetSelectedCoverage=15.00%\nTargetSelectedHitRate=40.00%\nTargetECE<=4.00%\nTargetLongestMiss<=8\nQuotaEnforcementAllowed=false\nFrequencyDebtAllowed=false\nCertificateDirectBetAuthority=false\nSystemAvailable=N/A\nEligible=N/A\nSelected=N/A\nExecutionStarted=N/A\nFrozen=N/A\nREAL=N/A\nSHADOW=N/A\nSelectedCoverage=N/A\nRealCoverage=N/A\nStrategyEffectStatus=UNPROVEN_NO_UNCONSUMED_FUTURE_WINDOW\nRealEligible=false\nPolicyEffectProven=false\nGateCode=D01_DATASET_MANIFEST_NULL\nGateFailures=D01_DATASET_MANIFEST_NULL,D10_BUNDLE_NULL,R929_ENGINEERING_CONTRACTS_NOT_PASSED,C10_C11_ATOM_REGISTRY_NOT_PASSED,C12_INVENTION_GENOME_GATE_NOT_PASSED,R929_SAME_CERTIFICATE_UPGRADE_NOT_PASSED,R929_SOURCE_COMMIT_HASH_INVALID,R929_EVIDENCE_INDEX_HASH_INVALID,D09_POLICY_EVIDENCE_NULL,D07_STABILITY_EVIDENCE_NULL,C01_CERTIFICATE_NULL,C06_DOMAIN_CERTIFICATE_NULL,D08_RELATION_GRAPH_ABLATION_NOT_PASSED,C09_FAILURE_ABLATION_NOT_PASSED",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-021",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-C.期级链路卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8470
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "d7cce85a36e87821c3445c99e5ddd2443174c2a9e6a4b9920b296549496b665a",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "PERIOD",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "action": "期级影子/赛前冻结/结算证据需齐全，当前480和482缺canonical_seen。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredWorkDispatcherR926.java"
+      ],
+      "evidence_excerpt": "MetricScope=ONE_TARGET_ISSUE_END_TO_END\nRequiredRoute=planned>system_available>eligible>selected>execution_started>frozen>REAL_OR_SHADOW_OR_AUDITED_REJECTION\nDecisionOwner=DecisionGateEngine_ONLY\nSettlementOwner=SettlementEngine_ONLY\nShadowRequiredWhenNotReal=true\nSystemOpportunityRoute=SHADOW_REQUIRED\nCaptureDenominators=opportunity=0|available=0|eligible=0|selected=0|started=0|frozen=0|systemPause=0|execFail=0\nCurrentEvidenceStatus=ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING\nCurrentBundle=N/A\nCurrentPolicy=N/A\nIssueChainStatus=NO_REAL_PROOF_KEEP_SHADOW_AND_AUDIT",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-022",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "execution_state": "EXECUTED",
+      "title": "【E05-D.资源效率卡】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8472
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+      "evaluator_method": "render",
+      "evidence_member": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+      "evidence_sha256": "9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "PERFORMANCE",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "action": "优先查历史metadata、writer/commit争用、policy壁钟开销，冷bundle已非该样本主瓶颈。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java"
+      ],
+      "evidence_excerpt": "MetricScope=COMPUTE_MEMORY_DB_AND_RESEARCH_BUDGET_ONLY\nResearchTierCapacity=A8_FULL1200|B24_SHARED_FULL_SCORE|C64_PROXY_NURSERY\nPerSliceBudgetNs=250000000\nInitialTotalBudgetNs=700000000\nFrequencyDebtAllowed=false\nResourceMetricsDoNotProveAccuracy=true\nRuntimeResourceAudit=\nB05_RESOURCE_RAW_LAST_120\n堆峰值为25ms采样最大值；GC是进程累计计数差，非单线程归因；-1=系统不支持/未测量。全部执行原始行见全表导出。\nexecution_id=d5ff4438cefa0d5ccc5e45a0797d4ffc|attempt_id=dee99ebe6aad5de8cc4d13a2-1308|target_issue=202610130484|status=CANONICAL_COMMITTED|elapsed_ms=7135|heap_peak_bytes=420299040|heap_samples=300|gc_count=3|gc_time_ms=285|gc_status=PROCESS_COUNTER_DELTA|lock_wait_ms=57|lock_wait_max_ms=3|db_body_max_ms=5258|db_slice_overruns=0|budget_hash=9196b432cf8c270ffd38d97a5bcb0af07b52b473a28db293e3a2e1f24e460b44|stage_samples=OWNER_DISPATCH:14/0:OK;CP12EX_UNAVAILABLE|OWNER_DISPATCH|STAGE_STACK_MISMATCH;CP12EX1|OWNER_DISPATCH|14000000|-1|3419|QUEUE;DURABLE_CLAIM:10/0:OK;CP12EX_UNAVAILABLE|DURABLE_CLAIM|STAGE_STACK_MISMATCH;REQUEST_TO_WORKER:9600/0:OK;CP12EX_UNAVAILABLE|REQUEST_TO_WORKER|STAGE_STACK_MISMATCH;CP12EX1|REQUEST_BEFORE_OWNER|9586000000|-1|3419|QUEUE;PRE_HISTORY_METADATA:19/0:OK;CP12EX1|PRE_HISTORY_METADATA|18484479|9627659|341",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-030",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【4.R3.6硬门】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8488
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "hardGates",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "34970373293c99d2c21b77191676b197dedf695bc3e604e8b507bf676cafde1e",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "PERIOD",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "action": "覆盖8/30混合升级前期，另独立验474–484当前期；不得补造漏期冻结。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredWorkDispatcherR926.java"
+      ],
+      "evidence_excerpt": "K1_Coverage=8/30|sinceBase=202610111415|window=30|missing=202610130482,202610130480,202610130473,202610130472,202610130471,202610130470,202610130469,202610130468,202610130467,202610130466,202610130465,202610130464,202610130463,202610130462,202610130461,202610130460,202610130459,202610130458,202610130457,202610130456,202610130455,202610130454|FAIL_OBSERVED\nK2_AnalysisMaxConcurrency=1|required<=1|PASS_OBSERVED\nK3_RequestToCommitP95Ms=26214|target<=5000|FAIL_OBSERVED\nK4_OOM=0|required=0|PASS_OBSERVED\nK5_CanonicalRows=1132|firstWriteWins=TRUE\nK6_StrictOosLabels=1131|modelInvocation=0\nK7_BusinessHeartbeat=NO_CONTEXT|databaseStartup=critical=READY@309ms/error=|research=READY|legacy=NOT_STARTED@0ms/error=\nK8_EngineeringMatrix=B01–B15_R36_IMPLEMENTED\nK9_ControlledRealLedger=R922_CONTROLLED_REAL_CONTRACT_AUDIT_V1|read=OK|status=PASS_EXACT_CONTROLLED_LEDGER|total=0|settled=0|open=0|invalid=0|duplicate=0|reasons={}|rawScoreIsCalibratedProbability=FALSE|required=invalid0/duplicate0/open<=1|PASS_EXACT_CONTRACT\nK10_ModelProof=DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY|requiredForProductionREAL=true|controlledEngineeringGate=SEPARATE_EXACT_CONTRACT\nK11_DurableAnalysisRequ",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-033",
+      "health": "WARN",
+      "state": "OK",
+      "execution_state": "EXECUTED",
+      "title": "【7.R3.6运行健康账本】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8494
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "evaluator_method": "readRuntime",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "5720c9eb56147a19299ae5b16e6314fd92dcfdd2b61d2b0c41c15e1d13856a6f",
+      "raw_r74_health": "WARN",
+      "category": "PERFORMANCE",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "action": "当前release 9事件P95=26214ms；需要真实设备首抓→落库→分析SLA，不是旧累计。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java"
+      ],
+      "evidence_excerpt": "readStatus=OK|events=9|p95Ms=26214|maxConcurrency=1|oomCount=0|lastStatus=SUCCESS|lastTarget=202610130484|lastAt=1791878603302|lastAttemptType=ANALYSIS_DURABLE_RETURNED_R923|lastAttemptStatus=SUCCESS|lastAttemptTarget=202610130484|lastAttemptDetail=MONOTONIC_REQUEST_TO_TRANSACTION_RETURN|TELEMETRY_IO_EXCLUDED|error=",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-034",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【8.严格OOS/Wilson/ECE/Brier/Coverage】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8496
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "oos",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "83fd27f566bfc068e70d7927485981531dcc46e6b9a69336a44bde407b95b38e",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_MODEL_EVIDENCE",
+      "action": "1131个严格影子OOS不等于候选CAL/证书；保留N=1131/Hit357，补合法冻结概率才能评价Brier/ECE。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "readStatus=OK\nstrictOosSample=1131\nhitCount=357\nhitRate=0.3156498673740053\nwilsonLower95=0.28922571329515717\nvalidCalibrationSample=0\nECE=NOT_AVAILABLE\nBrier=NOT_AVAILABLE\nCoverage=8/30|sinceBase=202610111415|window=30|missing=202610130482,202610130480,202610130473,202610130472,202610130471,202610130470,202610130469,202610130468,202610130467,202610130466,202610130465,202610130464,202610130463,202610130462,202610130461,202610130460,202610130459,202610130458,202610130457,202610130456,202610130455,202610130454\nPromotionMinOos=120\nTinySamplePolicy=NEVER_RENDER_AS_PROOF",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-035",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【9.模型有效性与根因优先级】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8498
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+      "evaluator_method": "analyze",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "117558c0bfee37604c2678a2cbbf32c4c9d08d0c3bb022c3a377c42da0d9b927",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "PERIOD",
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "action": "先消除当前期漏捕与写入/时延，再验独立模型证据，不把未知质量当胜率差。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredWorkDispatcherR926.java"
+      ],
+      "evidence_excerpt": "rootCause=RUNTIME_CHAIN_FIRST\nmodelStatus=DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY\nstrictOosRead=OK|N=1131|hit=357|hitRate=0.3156498673740053|wilsonLower95=0.28922571329515717|ece=-1.0|brier=-1.0\ncoverageRead=OK|sinceBase=202610111415|activationEpoch=R922|covered=8|eligible=30|window=30|missing=202610130482,202610130480,202610130473,202610130472,202610130471,202610130470,202610130469,202610130468,202610130467,202610130466,202610130465,202610130464,202610130463,202610130462,202610130461,202610130460,202610130459,202610130458,202610130457,202610130456,202610130455,202610130454\nruntime=read=OK|scope=R900_CURRENT_RELEASE|epochAt=1791877997204|events=9|requestToCommitP95Ms=26214|maxConcurrency=1|oom=0|last=SUCCESS|target=202610130484|at=1791878603302|lastAttempt=ANALYSIS_DURABLE_RETURNED_R923:SUCCESS|attemptTarget=202610130484|attemptAt=1791878603302|attemptDetail=MONOTONIC_REQUEST_TO_TRANSACTION_RETURN|TELEMETRY_IO_EXCLUDED|lifetimeEvents=200|lifetimeRequestToCommitP95Ms=36639|lifetimeMaxConcurrency=1|lifetimeOom=0\ndeferredRead=OK|pending=94\nP0|category=RUNTIME_CHAIN|file=V51RuntimeOrchestrator|method=runR36|evidence=requestToCommitP95Ms=26214|counterEvidence",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-037",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【11.1200正式动作与实时/延后写分离】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8502
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "actionContract",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "a739b66288f766a8c3445b60a1367af64c5ec5cd7bdcb1ba40f11eb578fb313f",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "PERIOD",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "action": "deferred pending57→94，需要有界消费追平，保持1200动作集合及每期唯一身份。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/DeferredWorkDispatcherR926.java"
+      ],
+      "evidence_excerpt": "FormalActionUniverse=10*C(10,3)=1200\nActionsPerPosition=120\nDeletionOrPruning=FORBIDDEN\nSynchronousCore=issue/champion/selected/authorization/canonical/job\nDeferred=100-number/1200-action/permutation/proofs/spans\nDeferredRead=OK\nDeferredPending=94\nBacklogTruth=read=OK|pending=94|core=1|actionRows=360|ordinalMin/Max=0/360|oldest/newest=202610130110/202610130455|scheduler=LIVE_DEEPEST_PLUS_OLDEST_SETTLED_R925\nSnapshotFormat=VERSIONED_GZIP_DATA_STREAM_SHA256\nModelInvocationDuringDeferred=0\nFirstWriteWins=TRUE",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-039",
+      "health": "NOT_PROVEN",
+      "state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "execution_state": "EXECUTED",
+      "title": "【13.REAL与SHADOW分账】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8506
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+      "evaluator_method": "realShadow",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "0bbdc4d4074a1f8143e355c83c216838ba518f070719c7ea9cfabaeb7df634bf",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "action": "Exact gate没有合法证书时保持SHADOW；不能自动解锁以制造真实出手。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "REAL_BET_AUTO_UNLOCK=false\nMODEL_PROVEN=false\nREALTIME_PROVEN=false\nCurrentMode=CONTROLLED_CANDIDATE_ENGINEERING\nSHADOW never contributes to REAL P/L, REAL hit rate or REAL calibration\nUnlockState=EXACT_GATE_ONLY\nModelStatus=DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-052",
+      "health": "FAIL",
+      "state": "FAIL",
+      "execution_state": "EXECUTED",
+      "title": "【第2章 Service与业务运行】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8520
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectRuntime",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "cb8360e2ac6481c8e7a7b9af1aa3d35373e2ea7e5c9f9813d4372c5c0b843925",
+      "raw_r74_health": "FAIL",
+      "category": "PERFORMANCE",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "action": "HEALTHY表示循环活跃；P95>5000仍触发FAIL。定位新鲜SLA瓶颈和484历史写失败重试。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java"
+      ],
+      "evidence_excerpt": "status=HEALTHY|rootCause=NONE|serviceAlive=1|businessAlive=1|runtimeHealthRootCause=NONE|latestDraw=202610130483|latestCanonical=202610130484|latestSettled=202610130483|latestOos=202610130483|lag=0,0,0|deferred=94|analysisP95=26214|analysisScope=R900_CURRENT_RELEASE|analysisEpochAt=1791877997204|readError=\nstatus=HEALTHY|rootCause=NONE|committedIssue=202610130484|predictionState=CURRENT_COMMITTED|serviceAge=9522|fetchAge=9522|latestIssue=202610130483|latestDrawAge=72861|dataFresh=1|providerCorroborated=0|analysisAge=52509|analysisStage=ANALYSIS_CANONICAL_COMMITTED|analysisError=|settlementAge=83526|businessAlive=1|runtime=AutoFetchService->V51RuntimeOrchestrator|hash=5ed15d77559bc3fc4035ae46b5c66ceb8b23539fe343fad7126f6bad76c1fcc0\nread=OK|scope=R900_CURRENT_RELEASE|epochAt=1791877997204|events=9|requestToCommitP95Ms=26214|maxConcurrency=1|oom=0|last=SUCCESS|target=202610130484|at=1791878603302|lastAttempt=ANALYSIS_DURABLE_RETURNED_R923:SUCCESS|attemptTarget=202610130484|attemptAt=1791878603302|attemptDetail=MONOTONIC_REQUEST_TO_TRANSACTION_RETURN|TELEMETRY_IO_EXCLUDED|lifetimeEvents=200|lifetimeRequestToCommitP95Ms=36639|lifetimeMaxConcurrency=1|lifetimeOom=0\ndurableRequest=status=",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-054",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第4章 100号码概率面】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8524
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectNumberSurface",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "0248344d36c88c8f246650bdb78090bf0e4f8637e28f834e12df5e0b552e10d6",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "MODEL",
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "action": "分布/Sinkhorn运行指标没有持久样本；核查当前Owner写出与report读取，不把静态实现或别表行数冒充。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java"
+      ],
+      "evidence_excerpt": "distribution=NO_RUNTIME_SAMPLE\nsinkhorn=NO_RUNTIME_SAMPLE",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-055",
+      "health": "WARN",
+      "state": "RETEST_REQUIRED",
+      "execution_state": "EXECUTED",
+      "title": "【第5章 跨位置结构】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8526
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCrossPosition",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "23f6d455fe475350f6361c1ebdb1a560e77563325a77cc30c6a104f29e170a6c",
+      "raw_r74_health": "WARN",
+      "category": "MODEL",
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "action": "relation/permutation/transition报告无样本；核对精确目标/PIT源和当前指标消费者。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java"
+      ],
+      "evidence_excerpt": "relation=NO_RUNTIME_SAMPLE\npermutation=NO_RUNTIME_SAMPLE\ntransition=NO_RUNTIME_SAMPLE",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-056",
+      "health": "WARN",
+      "state": "RETEST_REQUIRED",
+      "execution_state": "EXECUTED",
+      "title": "【第6章 固定K3漏斗】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8528
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectK3Funnel",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "fce0bac0cfca3e16a6c875eba139a07077172913f043a7cb58138c1e8eba4809",
+      "raw_r74_health": "WARN",
+      "category": "MODEL",
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "action": "静态K=9..3不是逐期funnel证据，核查持久指标入口并回读本期。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java"
+      ],
+      "evidence_excerpt": "static=9,8,7,6,5,4,3\nruntime=NO_RUNTIME_SAMPLE",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-058",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第8章 动作Ranker】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8532
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectRanker",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "aa3d3c0db6a90197c694e0356e3b51f2472506df466fb04a499312a318131df0",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "MODEL",
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "action": "Ranker无runtime sample；需要同一期完整动作排名指标及冻结身份。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java"
+      ],
+      "evidence_excerpt": "NO_RUNTIME_SAMPLE",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-059",
+      "health": "NOT_PROVEN",
+      "state": "WAIT_CALIBRATION_INPUT",
+      "execution_state": "EXECUTED",
+      "title": "【第9章 选择后校准与严格OOS】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8534
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCalibration",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "e4bee458a4cedbf9e558641a32afc36bf011d597277083b9590ecd566b32f0cc",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "CODE_INVESTIGATION_AND_NATURAL_EVIDENCE",
+      "action": "203个gap中4条为本版480/482漏期，2条为旧354缺口本版发现；先解决捕获连续性，不能拼跨study241。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "rootCause=RUNTIME_CHAIN_FIRST\nmodelStatus=DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY\nstrictOosRead=OK|N=1131|hit=357|hitRate=0.3156498673740053|wilsonLower95=0.28922571329515717|ece=-1.0|brier=-1.0\ncoverageRead=OK|sinceBase=202610111415|activationEpoch=R922|covered=8|eligible=30|window=30|missing=202610130482,202610130480,202610130473,202610130472,202610130471,202610130470,202610130469,202610130468,202610130467,202610130466,202610130465,202610130464,202610130463,202610130462,202610130461,202610130460,202610130459,202610130458,202610130457,202610130456,202610130455,202610130454\nruntime=read=OK|scope=R900_CURRENT_RELEASE|epochAt=1791877997204|events=9|requestToCommitP95Ms=26214|maxConcurrency=1|oom=0|last=SUCCESS|target=202610130484|at=1791878603302|lastAttempt=ANALYSIS_DURABLE_RETURNED_R923:SUCCESS|attemptTarget=202610130484|attemptAt=1791878603302|attemptDetail=MONOTONIC_REQUEST_TO_TRANSACTION_RETURN|TELEMETRY_IO_EXCLUDED|lifetimeEvents=200|lifetimeRequestToCommitP95Ms=36639|lifetimeMaxConcurrency=1|lifetimeOom=0\ndeferredRead=OK|pending=94\nP0|category=RUNTIME_CHAIN|file=V51RuntimeOrchestrator|method=runR36|evidence=requestToCommitP95Ms=26214|counterEvidence",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-060",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第10章 频率与REAL硬门】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8536
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectFrequency",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "78d6ffcc7326c620e9beb27d17f34e7664e1da063ca708d589e05c4099b67f52",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_REAL_EVIDENCE",
+      "action": "REAL账本total=0，空账本无重复不等于已经实际出手；需要自然合格候选经唯一gate。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "R922_CONTROLLED_REAL_CONTRACT_AUDIT_V1|read=OK|status=PASS_EXACT_CONTROLLED_LEDGER|total=0|settled=0|open=0|invalid=0|duplicate=0|reasons={}|rawScoreIsCalibratedProbability=FALSE|modelQuality=SEPARATE_FUTURE_EVALUATION|frequencyDebt=FORBIDDEN_POLICY",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-061",
+      "health": "NOT_PROVEN",
+      "state": "NOT_PROVEN",
+      "execution_state": "EXECUTED",
+      "title": "【第11章 失败树与反证】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8538
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectFailureTree",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4127295b6c497b3d1ec46089d959cbcfebb022816f808751de33bf639a4812ad",
+      "raw_r74_health": "WARN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "action": "当前动态诊断已转模型证据未完整；相同诊断被多个章节复用，不计独立六个故障。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【B14动态故障诊断】\n结论=ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED\n根因=STRICT_OOS_MODEL_PROOF_NOT_COMPLETE\n证据哈希=f342acd0a76f4333904501f0d83a1def96a364493cc3df6ba769c91a9e43fc92\n\n【确认事实/假设分离】\n1.B14-RUNTIME｜RUNTIME_OBSERVED｜INFO｜业务循环活跃\nOwner=AutoFetchService\n正证据=status=HEALTHY|rootCause=NONE|committedIssue=202610130484|predictionState=CURRENT_COMMITTED|serviceAge=9522|fetchAge=9522|latestIssue=202610130483|latestDrawAge=72861|dataFresh=1|providerCorroborated=0|analysisAge=52509|analysisStage=ANALYSIS_CANONICAL_COMMITTED|analysisError=|settlementAge=83526|businessAlive=1|runtime=AutoFetchService->V51RuntimeOrchestrator|hash=5ed15d77559bc3fc4035ae46b5c66ceb8b23539fe343fad7126f6bad76c1fcc0\n反证/限制=仅Service存活不能证明业务存活\n为什么=Process/Service/Fetch/Analysis/Settlement必须分层判断\n修复=检查自启动/电池优化/调度/异常并恢复最后业务阶段\n验证=息屏+HOME+划掉任务后连续观察业务beat\n\n2.B14-MODEL-PROOF｜CONFIRMED｜HARD_BLOCK｜模型证明链未完成\nOwner=B09-B11\n正证据=Number=false|Rank=false|Calibration=false|Policy=false\n反证/限制=不能用工程实现代替严格OOS证明\n为什么=REAL必须依赖冻结Artifact、时间顺序OOS、校准和证书\n修复=继续SHADOW积累合法pre-draw样本；训练/冻结/Parity后再证明\n验证=冻结段独立复算+四块证书+ECE/Brier/Wilson\n\n3.B14-REAL-SHADOW｜RUNTIME_OBSERVED｜WATCH｜真实/影子统计隔离审计\nOwner=V51Repository\n正证据=bet=0|betHit=0|betHitRate=0.0|betSettled=0|",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-062",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【B14动态故障诊断】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8540
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "action": "与061同诊断hash；须真实CAL/Future/证书，非另一个独立运行崩溃。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【B14动态故障诊断】\n结论=ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED\n根因=STRICT_OOS_MODEL_PROOF_NOT_COMPLETE\n证据哈希=f342acd0a76f4333904501f0d83a1def96a364493cc3df6ba769c91a9e43fc92\n\n【确认事实/假设分离】\n1.B14-RUNTIME｜RUNTIME_OBSERVED｜INFO｜业务循环活跃\nOwner=AutoFetchService\n正证据=status=HEALTHY|rootCause=NONE|committedIssue=202610130484|predictionState=CURRENT_COMMITTED|serviceAge=9522|fetchAge=9522|latestIssue=202610130483|latestDrawAge=72861|dataFresh=1|providerCorroborated=0|analysisAge=52509|analysisStage=ANALYSIS_CANONICAL_COMMITTED|analysisError=|settlementAge=83526|businessAlive=1|runtime=AutoFetchService->V51RuntimeOrchestrator|hash=5ed15d77559bc3fc4035ae46b5c66ceb8b23539fe343fad7126f6bad76c1fcc0\n反证/限制=仅Service存活不能证明业务存活\n为什么=Process/Service/Fetch/Analysis/Settlement必须分层判断\n修复=检查自启动/电池优化/调度/异常并恢复最后业务阶段\n验证=息屏+HOME+划掉任务后连续观察业务beat\n\n2.B14-MODEL-PROOF｜CONFIRMED｜HARD_BLOCK｜模型证明链未完成\nOwner=B09-B11\n正证据=Number=false|Rank=false|Calibration=false|Policy=false\n反证/限制=不能用工程实现代替严格OOS证明\n为什么=REAL必须依赖冻结Artifact、时间顺序OOS、校准和证书\n修复=继续SHADOW积累合法pre-draw样本；训练/冻结/Parity后再证明\n验证=冻结段独立复算+四块证书+ECE/Brier/Wilson\n\n3.B14-REAL-SHADOW｜RUNTIME_OBSERVED｜WATCH｜真实/影子统计隔离审计\nOwner=V51Repository\n正证据=bet=0|betHit=0|betHitRate=0.0|betSettled=0|",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-063",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【确认事实/假设分离】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8542
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "action": "与061同诊断hash；保留真实证据不足。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【B14动态故障诊断】\n结论=ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED\n根因=STRICT_OOS_MODEL_PROOF_NOT_COMPLETE\n证据哈希=f342acd0a76f4333904501f0d83a1def96a364493cc3df6ba769c91a9e43fc92\n\n【确认事实/假设分离】\n1.B14-RUNTIME｜RUNTIME_OBSERVED｜INFO｜业务循环活跃\nOwner=AutoFetchService\n正证据=status=HEALTHY|rootCause=NONE|committedIssue=202610130484|predictionState=CURRENT_COMMITTED|serviceAge=9522|fetchAge=9522|latestIssue=202610130483|latestDrawAge=72861|dataFresh=1|providerCorroborated=0|analysisAge=52509|analysisStage=ANALYSIS_CANONICAL_COMMITTED|analysisError=|settlementAge=83526|businessAlive=1|runtime=AutoFetchService->V51RuntimeOrchestrator|hash=5ed15d77559bc3fc4035ae46b5c66ceb8b23539fe343fad7126f6bad76c1fcc0\n反证/限制=仅Service存活不能证明业务存活\n为什么=Process/Service/Fetch/Analysis/Settlement必须分层判断\n修复=检查自启动/电池优化/调度/异常并恢复最后业务阶段\n验证=息屏+HOME+划掉任务后连续观察业务beat\n\n2.B14-MODEL-PROOF｜CONFIRMED｜HARD_BLOCK｜模型证明链未完成\nOwner=B09-B11\n正证据=Number=false|Rank=false|Calibration=false|Policy=false\n反证/限制=不能用工程实现代替严格OOS证明\n为什么=REAL必须依赖冻结Artifact、时间顺序OOS、校准和证书\n修复=继续SHADOW积累合法pre-draw样本；训练/冻结/Parity后再证明\n验证=冻结段独立复算+四块证书+ECE/Brier/Wilson\n\n3.B14-REAL-SHADOW｜RUNTIME_OBSERVED｜WATCH｜真实/影子统计隔离审计\nOwner=V51Repository\n正证据=bet=0|betHit=0|betHitRate=0.0|betSettled=0|",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-064",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【因果故障图】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8544
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "action": "与061同诊断hash；保留正式门禁，不能凭修复数保证质量。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【B14动态故障诊断】\n结论=ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED\n根因=STRICT_OOS_MODEL_PROOF_NOT_COMPLETE\n证据哈希=f342acd0a76f4333904501f0d83a1def96a364493cc3df6ba769c91a9e43fc92\n\n【确认事实/假设分离】\n1.B14-RUNTIME｜RUNTIME_OBSERVED｜INFO｜业务循环活跃\nOwner=AutoFetchService\n正证据=status=HEALTHY|rootCause=NONE|committedIssue=202610130484|predictionState=CURRENT_COMMITTED|serviceAge=9522|fetchAge=9522|latestIssue=202610130483|latestDrawAge=72861|dataFresh=1|providerCorroborated=0|analysisAge=52509|analysisStage=ANALYSIS_CANONICAL_COMMITTED|analysisError=|settlementAge=83526|businessAlive=1|runtime=AutoFetchService->V51RuntimeOrchestrator|hash=5ed15d77559bc3fc4035ae46b5c66ceb8b23539fe343fad7126f6bad76c1fcc0\n反证/限制=仅Service存活不能证明业务存活\n为什么=Process/Service/Fetch/Analysis/Settlement必须分层判断\n修复=检查自启动/电池优化/调度/异常并恢复最后业务阶段\n验证=息屏+HOME+划掉任务后连续观察业务beat\n\n2.B14-MODEL-PROOF｜CONFIRMED｜HARD_BLOCK｜模型证明链未完成\nOwner=B09-B11\n正证据=Number=false|Rank=false|Calibration=false|Policy=false\n反证/限制=不能用工程实现代替严格OOS证明\n为什么=REAL必须依赖冻结Artifact、时间顺序OOS、校准和证书\n修复=继续SHADOW积累合法pre-draw样本；训练/冻结/Parity后再证明\n验证=冻结段独立复算+四块证书+ECE/Brier/Wilson\n\n3.B14-REAL-SHADOW｜RUNTIME_OBSERVED｜WATCH｜真实/影子统计隔离审计\nOwner=V51Repository\n正证据=bet=0|betHit=0|betHitRate=0.0|betSettled=0|",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-065",
+      "health": "NOT_PROVEN",
+      "state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "execution_state": "EXECUTED",
+      "title": "【修复优先级】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8546
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "action": "与061同诊断hash；反馈/研究可继续，生产须独立资格。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【B14动态故障诊断】\n结论=ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED\n根因=STRICT_OOS_MODEL_PROOF_NOT_COMPLETE\n证据哈希=f342acd0a76f4333904501f0d83a1def96a364493cc3df6ba769c91a9e43fc92\n\n【确认事实/假设分离】\n1.B14-RUNTIME｜RUNTIME_OBSERVED｜INFO｜业务循环活跃\nOwner=AutoFetchService\n正证据=status=HEALTHY|rootCause=NONE|committedIssue=202610130484|predictionState=CURRENT_COMMITTED|serviceAge=9522|fetchAge=9522|latestIssue=202610130483|latestDrawAge=72861|dataFresh=1|providerCorroborated=0|analysisAge=52509|analysisStage=ANALYSIS_CANONICAL_COMMITTED|analysisError=|settlementAge=83526|businessAlive=1|runtime=AutoFetchService->V51RuntimeOrchestrator|hash=5ed15d77559bc3fc4035ae46b5c66ceb8b23539fe343fad7126f6bad76c1fcc0\n反证/限制=仅Service存活不能证明业务存活\n为什么=Process/Service/Fetch/Analysis/Settlement必须分层判断\n修复=检查自启动/电池优化/调度/异常并恢复最后业务阶段\n验证=息屏+HOME+划掉任务后连续观察业务beat\n\n2.B14-MODEL-PROOF｜CONFIRMED｜HARD_BLOCK｜模型证明链未完成\nOwner=B09-B11\n正证据=Number=false|Rank=false|Calibration=false|Policy=false\n反证/限制=不能用工程实现代替严格OOS证明\n为什么=REAL必须依赖冻结Artifact、时间顺序OOS、校准和证书\n修复=继续SHADOW积累合法pre-draw样本；训练/冻结/Parity后再证明\n验证=冻结段独立复算+四块证书+ECE/Brier/Wilson\n\n3.B14-REAL-SHADOW｜RUNTIME_OBSERVED｜WATCH｜真实/影子统计隔离审计\nOwner=V51Repository\n正证据=bet=0|betHit=0|betHitRate=0.0|betSettled=0|",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-066",
+      "health": "FAIL",
+      "state": "BLOCKED",
+      "execution_state": "EXECUTED",
+      "title": "【K3失败九类拆解】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8548
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "4f56a5aa325e957d15ec66c6ce6c201a27ed31b9a145f1ddc96d0383e511114b",
+      "raw_r74_health": "FAIL",
+      "category": "MODEL",
+      "acceptance_kind": "TRAINING_AND_NATURAL_QUALITY_REQUIRED",
+      "action": "NumberQ/Ranker/SelectedHitP显示工程种子未证明；实际训练冻结并按各自自然OOS合同验收，不靠改PROVEN字段。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java"
+      ],
+      "evidence_excerpt": "【K3失败九类拆解】\nVersion=V57_K3_FAILURE_DIAGNOSIS_FULL_20260808\nPrimaryLayer=NUMBER|Verdict=BLOCKED\n1.NUMBER|BLOCKED|confidence=1.0\nPositive=NumberQ artifact|PROVEN=false\nNegative=Untrained NumberQ cannot establish top-number quality\nReason=Strict OOS artifact proof is missing\nNextTest=Train/freeze NumberQ; compare top-k recall and Sinkhorn parity.\nHash=188a8c07b32305677574b8281e3fa23d00fb91928b496e47af2903fc7721746f\n\n2.RANK|BLOCKED|confidence=1.0\nPositive=1200-action rank artifact|PROVEN=false\nNegative=Untrained ranker cannot establish Champion ordering\nReason=Strict OOS artifact proof is missing\nNextTest=Run same-issue groupwise OOS Rank1/MRR/NDCG/pairwise stability.\nHash=04dd7351eac06dd82af4b9fffe376070b7f865e47b594e7a46fb63f9eb2fd84a\n\n3.THIRD|UNAVAILABLE|confidence=0.0\nPositive=N/A\nNegative=No persisted runtime evidence\nReason=Third boundary decides whether final K3 loses its marginal candidate\nNextTest=Audit rank3 vs rank4 margin, miss migration and after-draw counterfactual.\nHash=6b79dd3575f6e6884abccc9ba90ac2200ea6630bf2c2af228348ceff0a35e0c9\n\n4.WINDOW|UNAVAILABLE|confidence=0.0\nPositive=N/A\nNegative=No persisted runtime evidence\nReason=Window choice can overfit local repetition o",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-068",
+      "health": "NOT_PROVEN",
+      "state": "NO_MEASURED_ABLATION",
+      "execution_state": "EXECUTED",
+      "title": "【策略贡献/冲突/冗余/消融】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8552
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "59b45179f846fa390d73a4a994011fedcfed05d66e01d7932ddcb7e07d349835",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_ABLATION_REQUIRED",
+      "action": "无冻结OOS消融，策略增益/冲突/冗余不能编造；现代矩阵少量checkpoint亦不等于正式消融。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【策略贡献/冲突/冗余/消融】\nVersion=V57_STRATEGY_CONFLICT_ABLATION_FULL_20260808\nVerdict=NO_MEASURED_ABLATION\n\n-- Production模块消融（strict OOS only） --\nPIT_FEATURE_GRAPH|UNAVAILABLE|dHit=N/A|dBrier=N/A|dCoverage=N/A|dECE=N/A|Verdict=NO_CLAIM|Confidence=0.0\nReason=No frozen OOS/shadow ablation measurement is persisted; do not invent contribution.\nHash=317a05dfed2a6e1842a355a6b23b242129ec99116aa1de2349e24b3a969ae901\nSTATE_REGIME|UNAVAILABLE|dHit=N/A|dBrier=N/A|dCoverage=N/A|dECE=N/A|Verdict=NO_CLAIM|Confidence=0.0\nReason=No frozen OOS/shadow ablation measurement is persisted; do not invent contribution.\nHash=877d76bc0e1bc6923cb5e19be5985547b3e0f5439ba0fcc4e252fba8f9cbfd30\nMOTIF_RELATION|UNAVAILABLE|dHit=N/A|dBrier=N/A|dCoverage=N/A|dECE=N/A|Verdict=NO_CLAIM|Confidence=0.0\nReason=No frozen OOS/shadow ablation measurement is persisted; do not invent contribution.\nHash=aa51d69cb5f7caa4bcf983386fc445cafb2c1901b44c398f9c5a74d902b3683b\nTEACHER_CAUSAL|UNAVAILABLE|dHit=N/A|dBrier=N/A|dCoverage=N/A|dECE=N/A|Verdict=NO_CLAIM|Confidence=0.0\nReason=No frozen OOS/shadow ablation measurement is persisted; do not invent contribution.\nHash=79b8ee753ea3eb3f224ba6be1c8179d2ef964672272e77922666cbf3ab917003\nEXPERT_GAT",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-069",
+      "health": "WARN",
+      "state": "WATCH",
+      "execution_state": "EXECUTED",
+      "title": "【公式/算法/概率审计】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8554
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "cd0bf0562cb645d8b4862bf47f386229b264741073b137d87f95769f1c17c9f8",
+      "raw_r74_health": "WARN",
+      "category": "MODEL",
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "action": "8个WATCH/UNAVAILABLE涵盖模型/校准/Sinkhorn/PIT/离线parity；按精确原条款分别补证。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/V51PermutationNumberModelEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51ActionRankerEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51SelectedActionCalibrationEngine.java"
+      ],
+      "evidence_excerpt": "【公式/算法/概率审计】\nVersion=V57_FORMULA_ALGORITHM_AUDIT_FULL_20260808\nVerdict=WATCH|Blocks=0|Warnings=8\n1.K3_ACTION_COMBINATORICS|INFO\nFormula=10*C(10,3)=1200\nObserved=TOTAL_ACTIONS=1200\nWhy=Reduced action space makes rank and selection statistics incomparable\nRepair=Require exactly 1200 unique position+K3 actions every target issue.\nHash=dbd7b29ce26ed93346eff7f319149e099f785aefb2a5ef44b728cfe8388b7d79\n\n2.FIXED_K|INFO\nFormula=K=3\nObserved=single-position fixed K3 contract\nWhy=Dynamic K changes the estimand and violates settlement semantics\nRepair=Keep fixed K=3 for REAL and SHADOW comparison.\nHash=3f1962074de217197c25dd33ff27883a7f6ba6f0bc90c19ef3d7e8cbd4bd0d63\n\n3.DEFERRED_SLICE_UNIVERSE|INFO\nFormula=slice<1200 AND final action universe=1200\nObserved=slice=120|TOTAL_ACTIONS=1200\nWhy=Persistence slicing must never shrink the formal action universe\nRepair=Restore exact 1200 verification and cursor-only slicing.\nHash=6b5934b578e786fb42293cdfd7e0b610bea843052be427364f76e54bded9ff13\n\n4.STRATEGY_PARITY_CERTIFICATE|UNAVAILABLE\nFormula=baseline output fingerprint == R811 output fingerprint\nObserved=NOT_RUN\nWhy=Runtime/diagnostic changes cannot silently drift B04-B12 decisions\nRepair=Run the froze",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-070",
+      "health": "WARN",
+      "state": "WARN",
+      "execution_state": "EXECUTED",
+      "title": "【第13章 代码Owner完整性】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8556
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+      "evaluator_method": "collectCodeOwner",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "d4aaf67e0af785ae5547ca3ede59641c1a37b277516a937d9c70ea26269a29b5",
+      "raw_r74_health": "FAIL",
+      "category": "GOVERNANCE",
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "action": "Owner审计11PASS/5WATCH/1NA/0BLOCK，重点PIT状态与未证明模型；不能作为全代码无冲突证书。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java"
+      ],
+      "evidence_excerpt": "【代码Owner与完整性审计】\nVersion=V57_CODE_OWNERSHIP_AUDIT_FULL_20260808\nVerdict=WATCH|PASS=11|WATCH=5|BLOCK=0|NA=1\n1.API_TRANSPORT|PASS\nExpectedOwner=ApiClient/ApiTransportGovernanceEngine\nInvariant=transport only; no prediction/BET owner\nObserved=transport-separated\nEvidence=B01-B07 accepted runtime contract\nRepair=Keep API layer data-only.\nHash=f824e104232c5ae6cf464e062f245a9aafb3f2a6bb63d4927e010b3cbe2c5033\n\n2.POINT_IN_TIME|UNAVAILABLE\nExpectedOwner=FullInformationFeatureGraphEngine\nInvariant=historyMaxIssue < targetIssue\nObserved=N/A\nEvidence=No runtime PIT status in state store\nRepair=Collect PIT audit state before claiming live proof.\nHash=95a55f7255a7f56377bdb3e0116162a07d95e5d726d9efb83adab147db813d33\n\n3.EVIDENCE|PASS\nExpectedOwner=StarcoreEvidenceKernel/B07 registry\nInvariant=evidence can score/explain but cannot create REAL BET\nObserved=read-only evidence lane\nEvidence=B07/B08 architecture\nRepair=Keep evidence outputs immutable and decision-neutral.\nHash=2841349f0a9089214eb2fbe2012775ce8c5e346683155d216a6441dd5b3f4436\n\n4.NUMBER_Q|WATCH\nExpectedOwner=V51PermutationNumberModelEngine\nInvariant=sole final 10x10 NumberQ owner\nObserved=artifact=V51_PERMUTATION_NUMBER_ENGINEERING_SEED|PR",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-071",
+      "health": "WARN",
+      "state": "WATCH",
+      "execution_state": "EXECUTED",
+      "title": "【代码Owner与完整性审计】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8558
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "14194964705cb5dbbfc697cb6f58be954338afb6bd5352728285913ae1acdb87",
+      "raw_r74_health": "FAIL",
+      "category": "GOVERNANCE",
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "action": "与070同一Owner审计，避免重复计算为独立代码冲突。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+        "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java"
+      ],
+      "evidence_excerpt": "【代码Owner与完整性审计】\nVersion=V57_CODE_OWNERSHIP_AUDIT_FULL_20260808\nVerdict=WATCH|PASS=11|WATCH=5|BLOCK=0|NA=1\n1.API_TRANSPORT|PASS\nExpectedOwner=ApiClient/ApiTransportGovernanceEngine\nInvariant=transport only; no prediction/BET owner\nObserved=transport-separated\nEvidence=B01-B07 accepted runtime contract\nRepair=Keep API layer data-only.\nHash=f824e104232c5ae6cf464e062f245a9aafb3f2a6bb63d4927e010b3cbe2c5033\n\n2.POINT_IN_TIME|UNAVAILABLE\nExpectedOwner=FullInformationFeatureGraphEngine\nInvariant=historyMaxIssue < targetIssue\nObserved=N/A\nEvidence=No runtime PIT status in state store\nRepair=Collect PIT audit state before claiming live proof.\nHash=95a55f7255a7f56377bdb3e0116162a07d95e5d726d9efb83adab147db813d33\n\n3.EVIDENCE|PASS\nExpectedOwner=StarcoreEvidenceKernel/B07 registry\nInvariant=evidence can score/explain but cannot create REAL BET\nObserved=read-only evidence lane\nEvidence=B07/B08 architecture\nRepair=Keep evidence outputs immutable and decision-neutral.\nHash=2841349f0a9089214eb2fbe2012775ce8c5e346683155d216a6441dd5b3f4436\n\n4.NUMBER_Q|WATCH\nExpectedOwner=V51PermutationNumberModelEngine\nInvariant=sole final 10x10 NumberQ owner\nObserved=artifact=V51_PERMUTATION_NUMBER_ENGINEERING_SEED|PR",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-073",
+      "health": "NOT_PROVEN",
+      "state": "REAL_LOCKED_SHADOW_ONLY",
+      "execution_state": "EXECUTED",
+      "title": "【改进Challenger计划】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8562
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",
+      "evaluator_method": "render",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "5a86c02ce218d1040273ab4f4c5d590743ae7e48710c51bc888890f22b80d484",
+      "raw_r74_health": "NOT_PROVEN",
+      "category": "QUALIFICATION",
+      "acceptance_kind": "NATURAL_CHALLENGER_EVIDENCE",
+      "action": "Challenger建议不等于候选已合格；需新训练/冻结/CAL/独立Future比较和证书。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/FixedWindowCertificatePublisherR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java",
+        "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java"
+      ],
+      "evidence_excerpt": "【改进Challenger计划】\nVersion=V57_IMPROVEMENT_CHALLENGER_FULL_20260808\nGate=REAL_LOCKED_SHADOW_ONLY\nP2|NUMBER_Q|V51PermutationNumberModelEngine/V51ExpertGateEngine\nChange=Train 9-expert gate and NumberQ on strict time-ordered folds, freeze artifact/data hash and replay parity\nEvidence=Number artifact PROVEN=false\nAcceptance=Frozen OOS top-number quality + Sinkhorn finite/parity + no PIT leakage\nRollback=Keep artifact UNTRAINED and SHADOW-only\nDatasetHash=UNAVAILABLE_DATASET_HASH\nCodeHash=a0595cd0359a0cfdc315b507d716e9c91e4c35e452450e894aff6a501833a971\nTestProtocol=TIME_ORDERED_OOS|Frozen OOS top-number quality + Sinkhorn finite/parity + no PIT leakage\nProductionMutation=0|Binding=BLOCKED_BINDING_INCOMPLETE\nImpact=0.85|Risk=0.3\nHash=120b790d21a0a45ba93fb0fdc6e99c8f7e07ad8b6493079035c6ad46d2cbaefd\n\nP3|ACTION_RANK|V51ActionRankerEngine\nChange=Train same-target 1200-action groupwise ranker; compare pairwise/listwise challenger under identical folds\nEvidence=Rank artifact not proven/order not proven\nAcceptance=Rank1/MRR/NDCG/pairwise + block stability + immutable Champion all pass\nRollback=Retain research score only; no REAL authorization\nDatasetHash=UNAVAILABLE_DATASET_HASH\nCodeHash=f48ab19",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-074",
+      "health": "FAIL",
+      "state": "FAIL",
+      "execution_state": "EXECUTED",
+      "title": "【第15章 Finding完整施工账本】",
+      "catalog_locator": {
+        "file": "catalog-0002.jsonl",
+        "line": 8564
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "findingChapter",
+      "evidence_member": "catalog-0002.jsonl",
+      "evidence_sha256": "3a6e5848a8c184998424a700b3959968d247559e9c3eb7a6f33e74e98b491b89",
+      "raw_r74_health": "FAIL",
+      "category": "PERFORMANCE",
+      "acceptance_kind": "CODE_AND_DIAGNOSTIC_PRECISION",
+      "action": "F020的FAIL由P95门触发；HEALTHY时通用“service failure”原因过宽，需显示实际SLA证据而非假称服务已死。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeResourceAuditR927.java"
+      ],
+      "evidence_excerpt": "1|B14-F020-RUNTIME|P0|FAIL|confidence=0.95|owner=AutoFetchService->BusinessReconcilerR36->V51RuntimeOrchestrator|file=AutoFetchService.java|RuntimeHealthLedgerR36.java\n结论=HEALTHY|NONE|OK\n原因=observed invariant or runtime gate failed\n影响=service failure prevents fetch, analysis, settlement and evidence closure\n施工=repair typed database/framework path first; then rerun screen-on/off, kill and soak matrix\n验证=T01-T04 single-flight plus T29-T34 physical runtime matrix\n期望=gate fails closed and raw evidence is retained\n回滚=keep SHADOW_ONLY and export DB/logcat before further changes\nFindingHash=c3902685f8e199843d046de5384d0a44a382c6b2ff2478476e739d1a35478796\n\n2|B14-F040-NUMBER_SURFACE|P1|NOT_PROVEN|confidence=1.0|owner=V51NumberModelArtifact+V51SinkhornEngine|file=V51NumberModelArtifact.java|V51SinkhornEngine.java\n结论=号码面工程存在但模型未证明\n原因=frozen model artifact and strict OOS certificate are absent or unproven\n影响=unproven number probabilities cannot support REAL authorization\n施工=train offline, freeze artifact/hash and replay PIT number probabilities\n验证=PIT replay, row sums, Sinkhorn parity and artifact hash\n期望=SHADOW_ONLY; REAL remains locked\n回滚=keep canonical rows immutable, disable new path and r",
+      "new_pass_claimed": false
+    },
+    {
+      "id": "RSEC-078",
+      "health": "NOT_PROVEN",
+      "state": "RESEARCH_TRAINING_NOT_OBSERVED",
+      "execution_state": "EXECUTED",
+      "title": "【第19章 R811结算、证据、SHADOW与Research统一真值】",
+      "catalog_locator": {
+        "file": "catalog-0003.jsonl",
+        "line": 1
+      },
+      "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+      "evaluator_method": "r811TruthChapter",
+      "evidence_member": "catalog-0003.jsonl",
+      "evidence_sha256": "d6eba967c6591c7717aeee0ab6390241a5d2a42cfcf32d3b2f27d8852c9d7cc1",
+      "raw_r74_health": "FAIL",
+      "category": "TRAINING",
+      "acceptance_kind": "CODE_AND_DIAGNOSTIC_PRECISION",
+      "action": "现代input/protocol已有6、feature cursor2但development receipt0；旧FTRL/online有数值更新。分开写现代未完成和旧学习存在，不概括无算法。",
+      "source_candidates": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java"
+      ],
+      "evidence_excerpt": "Build=V57.21.2.0.75-R5.4.2.75-1013-O09\nDB_VERSION=36\nR811_SCHEMA_REVISION=1\nBusinessTruth=status=HEALTHY|rootCause=NONE|serviceAlive=1|businessAlive=1|runtimeHealthRootCause=NONE|latestDraw=202610130483|latestCanonical=202610130484|latestSettled=202610130483|latestOos=202610130483|lag=0,0,0|deferred=94|analysisP95=26214|analysisScope=R900_CURRENT_RELEASE|analysisEpochAt=1791877997204|readError=\nCORE=PASS\nFULL=PASS\nSHADOW predicted/settled/pending/hit/miss=1132/1131/1/357/774\nProvider primary issue/age/code=202610130483/33676/FRESH\nProvider backup issue/age/code=202610130483/3686/FRESH\nProvider selected issue/line/age=202610130483/PRIMARY/33676\nShadow backlog total/ready/waitDraw/lease/pitInvalid/corrupt=1/0/1/0/0/0\nShadow oldest pending=202610130484\nLatest settlement task=LIVE_CURRENT/COMPLETED/STRICT_ACTION_OOS_UNCALIBRATED/attempts=1/error=\nResearch state=IDLE\nResearch candidate=NONE\nR908 settlement recovery=recovered=0|seededEligible=0|reopenedFalseNoPredraw=0|reopenedRetryable=0|settled=0|evidenceRepaired=0|excludedLegacy=0\nR908 Research settlement=DONE|issues=12|rows=0|coverage=0|costMs=160\nR908 autonomous tick=PERIOD_PENDING|REVIEW_ONLY|watermark=202610130483|taskWatermark=20",
+      "new_pass_claimed": false
+    }
+  ],
+  "timeline": {
+    "release_epoch": {
+      "epoch_id": "release-577251034",
+      "kind": "RELEASE",
+      "started_at": "1791877997205",
+      "start_issue": "202610130472",
+      "release_code": "577251034"
+    },
+    "release_epoch_utc_plus8": "2026-10-13T15:53:17.205000+08:00",
+    "installation_replace_at": 1791877992112,
+    "installation_replace_utc_plus8": "2026-10-13T15:53:12.112000+08:00",
+    "service_started_at": 1791877998760,
+    "sample_wall_ms": 1791878654764,
+    "sample_utc_plus8": "2026-10-13T16:04:14.764000+08:00",
+    "service_age_at_sample_seconds": 656.004,
+    "report_latest_draw": "202610130483",
+    "report_target": "202610130484",
+    "file_state_started_ms": 1791879097619,
+    "file_state_boundary": "Live export-time metadata, not database snapshot time",
+    "screenshots": [
+      {
+        "file": "/workspace/scratch/e2544c9906f6/upload/01-1000302604.jpg",
+        "sha256": "ac281285ad56684f8189dda2a4871008fd468a97711ed4c05530c173fab1cf4c",
+        "independently_viewed": true,
+        "clock": "15:57",
+        "finding": "LIGHT_SNAPSHOT_TRUTH_NULL / READ_ERROR for reasons and R919 truth cards; data unavailable is not proof of zero algorithms."
+      },
+      {
+        "file": "/workspace/scratch/e2544c9906f6/upload/02-1000302605.jpg",
+        "sha256": "06af05bf4c0e6d186fe32c6d4a07d1f6a7fcf0f1b5c855fd99cfd8c9e9a299c6",
+        "independently_viewed": true,
+        "clock": "15:57",
+        "finding": "same null light snapshot; why hit/miss/bet and settlement unavailable."
+      },
+      {
+        "file": "/workspace/scratch/e2544c9906f6/upload/03-1000302610.jpg",
+        "sha256": "c4ae042b61dbc1f91ffcf0cada15ec6a0171f6b96e27c09126bc77c20ef05989",
+        "independently_viewed": true,
+        "clock": "16:15",
+        "current_issue": "202610130494",
+        "target_issue": "202610130495",
+        "finding": "Heartbeat abnormal banner, but running/manual-start waiting detail; countdown00:09; actual SHADOW position6 K3=03/09/10; displayed algorithm V51 numbers/1200 rank; formula MAINLINE_FORMULA_UNQUALIFIED."
+      }
+    ],
+    "same_role_issue_distance_report_to_1615_screenshot": 11,
+    "screenshot_boundary": "15:57 truth-read error precedes runtime sample;16:15 image is later than report current483/target484. Compare current494-current483 or target495-target484, not target495-current483. No claim this immutable report describes the later instant."
+  },
+  "crash_audit": {
+    "crash_count": 172,
+    "oom_count": 0,
+    "last_crash_at": 1791806924296,
+    "last_crash_utc_plus8": "2026-10-12T20:08:44.296000+08:00",
+    "unchanged_from_r74": true,
+    "new_r75_fatal_crash_proven": false,
+    "window_crash_count_10m": 1,
+    "window_count_caveat": "Persisted summary label is stale when lastAt predates current release by about20h; do not count it as a fresh crash.",
+    "source": "runtime-observation-crashSummary.txt",
+    "system_exit_new_records": "installPackageLI package-replacement stops, not proof of app fatal crash"
+  },
+  "table_comparison_r74_to_r75": {
+    "research_row_revision_v2": {
+      "r74": 3354442,
+      "current_r75": 3617409,
+      "delta": 262967
+    },
+    "research_training_input_v2": {
+      "r74": 0,
+      "current_r75": 6,
+      "delta": 6
+    },
+    "research_training_protocol_v2": {
+      "r74": 0,
+      "current_r75": 6,
+      "delta": 6
+    },
+    "research_training_feature_cursor_cp12": {
+      "r74": 0,
+      "current_r75": 2,
+      "delta": 2
+    },
+    "research_development_receipt_v2": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_artifact_identity_v2": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "r952_candidate": {
+      "r74": 1,
+      "current_r75": 7,
+      "delta": 6
+    },
+    "r952_artifact": {
+      "r74": 413,
+      "current_r75": 415,
+      "delta": 2
+    },
+    "r952_candidate_predraw": {
+      "r74": 463,
+      "current_r75": 473,
+      "delta": 10
+    },
+    "r952_matrix_snapshot": {
+      "r74": 463,
+      "current_r75": 473,
+      "delta": 10
+    },
+    "r952_matrix_feedback": {
+      "r74": 421,
+      "current_r75": 428,
+      "delta": 7
+    },
+    "research_matrix_spec_cp12": {
+      "r74": 0,
+      "current_r75": 26,
+      "delta": 26
+    },
+    "research_matrix_checkpoint_v2": {
+      "r74": 0,
+      "current_r75": 15,
+      "delta": 15
+    },
+    "research_matrix_terminal_cp12": {
+      "r74": 0,
+      "current_r75": 7,
+      "delta": 7
+    },
+    "research_atom_spec_v2": {
+      "r74": 25350,
+      "current_r75": 25350,
+      "delta": 0
+    },
+    "research_atom_binding_v2": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_atom_admission_cp12": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_candidate_cal_study_r932": {
+      "r74": 574,
+      "current_r75": 727,
+      "delta": 153
+    },
+    "r975_calibration_failure": {
+      "r74": 186,
+      "current_r75": 203,
+      "delta": 17
+    },
+    "research_candidate_cal_model_r932": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_calibration_quality_cp12": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_fixed_window_r932": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_fixed_pair_r932": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_certificate_r929": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_mainline_contribution_r929": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    },
+    "research_evidence_archive_v2": {
+      "r74": 0,
+      "current_r75": 0,
+      "delta": 0
+    }
+  },
+  "modern_protocols": [
+    {
+      "candidate_id": "CP12-FAMILY-274334c38654068cd68962c4",
+      "model_kind": "FIXED_GRAPH",
+      "registered_issue": "202610130328",
+      "created_at": "1791869240290",
+      "train_n": "1200",
+      "validation_n": "120",
+      "train_first": "202610120141",
+      "train_last": "202610121340",
+      "validation_first": "202610121342",
+      "validation_last": "202610130021",
+      "created_in_current_release": false
+    },
+    {
+      "candidate_id": "CP12-FAMILY-80f7aad201b109f5414f1e75",
+      "model_kind": "HISTOGRAM_TREE",
+      "registered_issue": "202610130474",
+      "created_at": "1791878031980",
+      "train_n": "1200",
+      "validation_n": "120",
+      "train_first": "202610120143",
+      "train_last": "202610121342",
+      "validation_first": "202610121344",
+      "validation_last": "202610130023",
+      "created_in_current_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-0d372d7bbb8cbd6b974e0fbc",
+      "model_kind": "MLP_D32_16_10",
+      "registered_issue": "202610130478",
+      "created_at": "1791878292459",
+      "train_n": "1200",
+      "validation_n": "120",
+      "train_first": "202610120142",
+      "train_last": "202610121341",
+      "validation_first": "202610121343",
+      "validation_last": "202610130022",
+      "created_in_current_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-f2c9e4cb3246f90297b4fe2e",
+      "model_kind": "SOFTMAX_LINEAR",
+      "registered_issue": "202610130484",
+      "created_at": "1791878603881",
+      "train_n": "1200",
+      "validation_n": "120",
+      "train_first": "202610120142",
+      "train_last": "202610121341",
+      "validation_first": "202610121343",
+      "validation_last": "202610130022",
+      "created_in_current_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-395d00de3b257bd91d61d493",
+      "model_kind": "FIXED_GRAPH",
+      "registered_issue": "202610130484",
+      "created_at": "1791878604114",
+      "train_n": "1200",
+      "validation_n": "120",
+      "train_first": "202610120141",
+      "train_last": "202610121340",
+      "validation_first": "202610121342",
+      "validation_last": "202610130021",
+      "created_in_current_release": true
+    },
+    {
+      "candidate_id": "CP12-FAMILY-fe112cad7ea02f555d9ea5cc",
+      "model_kind": "FIXED_GRAPH",
+      "registered_issue": "202610130484",
+      "created_at": "1791878604374",
+      "train_n": "1200",
+      "validation_n": "120",
+      "train_first": "202610120141",
+      "train_last": "202610121340",
+      "validation_first": "202610121342",
+      "validation_last": "202610130021",
+      "created_in_current_release": true
+    }
+  ],
+  "feature_cursors": [
+    {
+      "task_id": "cc62a6dd090cd9452b6eddb453f30f94306122e02bef3c9f4deb8b442414f7ee",
+      "protocol_hash": "c106c42c24c02dd4cad05f8ac181c24067e767b4dc13e3fd581d3ad890d6cff9",
+      "input_hash": "1b402346dfc4432ad3fee77b5ec24b1ca87fa9dd1eaae9836f136537816eed70",
+      "next_index": "3",
+      "prefix_hash": "d9c4d8f117856581d0f88acd8798f955fb5851a010698bda67864969e10aa06f",
+      "updated_at": "1791878065828"
+    },
+    {
+      "task_id": "47e81fedea8a2155b390eac3665ecd4ee81d16aafde4b651cbc4f061ab74f569",
+      "protocol_hash": "21db739594f1ec37e2698c4e2a9e8d12951702cf6d606c2079fdc0d9cea58c06",
+      "input_hash": "aed6e0b9a83acf738c081a2899b753dac14253cc39e1cda5bf169852652a2e5d",
+      "next_index": "16",
+      "prefix_hash": "cd7cf3d9837bae81ec748d34b0c6a9ca56c5a95ac28158f3d0bf8d2f15ad0452",
+      "updated_at": "1791878332450"
+    }
+  ],
+  "calibration": {
+    "study_states": {
+      "COLLECTING": 524,
+      "BLOCKED_INVALID_INPUT": 203
+    },
+    "settled_sum": 7241,
+    "largest_single_study_settled": 166,
+    "all_failure_reasons": {
+      "R969_CAL_EVALUATION_SCHEDULE_GAP": 203
+    },
+    "recorded_after_release_gaps": [
+      {
+        "study_hash": "539f2a36f7da98ace78920cea89ee445a0f8da405475244780c42edcc8799531",
+        "expected_issue": "202610130354",
+        "observed_issue": "202610130474",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "0f554a5801e64bb57858d1be375c2761726e74d6a3dfaa3f43e8f6dc6ffb72a5",
+        "recorded_at": "1791878012561"
+      },
+      {
+        "study_hash": "df5ab1316404e13bfd87a890dc53ace82e7f56df5acbd73efcc05f891ebac2b0",
+        "expected_issue": "202610130354",
+        "observed_issue": "202610130474",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "cbb76660696201b1cf8c49d147f6b96380c3f0b926393f1df35e226aef3b4e26",
+        "recorded_at": "1791878012571"
+      },
+      {
+        "study_hash": "c530fcbd753519408589d7fa0311df2dec7074551145295be6591f02b48102c9",
+        "expected_issue": "202610130480",
+        "observed_issue": "202610130481",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "cc559656b14686faf8f834f828e1e12db864a92c9de40d506194e8d107f25a5d",
+        "recorded_at": "1791878444383"
+      },
+      {
+        "study_hash": "58d8081a7ccf669aecbe058f70746cb6322b0a80d1b808d2dc45362ace782cdf",
+        "expected_issue": "202610130480",
+        "observed_issue": "202610130481",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "b42d7eb6f6ee3d9188b4cd549d0bd2c17f63d2092a44f383e18a7ada02f15aba",
+        "recorded_at": "1791878444401"
+      },
+      {
+        "study_hash": "87f7c55f3092bc72f7c50ec7dfbfac251bab0ec7c8aeed378e1018e83f3237a7",
+        "expected_issue": "202610130482",
+        "observed_issue": "202610130483",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "d6168506dd060e64adace2473ac2cd3d33327ff1588192e26972e4c179dce28a",
+        "recorded_at": "1791878561338"
+      },
+      {
+        "study_hash": "83947653c21cb75bc2bdde2d1b42bfa7710568cf0e0ecfc9ac4b056b995bd08e",
+        "expected_issue": "202610130482",
+        "observed_issue": "202610130483",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "e5caa05b956f57ba47754140e6934c8b1ffd694c356cf27c408a70bfacccdaeb",
+        "recorded_at": "1791878561344"
+      }
+    ],
+    "fresh_release_period_gaps": [
+      {
+        "study_hash": "c530fcbd753519408589d7fa0311df2dec7074551145295be6591f02b48102c9",
+        "expected_issue": "202610130480",
+        "observed_issue": "202610130481",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "cc559656b14686faf8f834f828e1e12db864a92c9de40d506194e8d107f25a5d",
+        "recorded_at": "1791878444383"
+      },
+      {
+        "study_hash": "58d8081a7ccf669aecbe058f70746cb6322b0a80d1b808d2dc45362ace782cdf",
+        "expected_issue": "202610130480",
+        "observed_issue": "202610130481",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "b42d7eb6f6ee3d9188b4cd549d0bd2c17f63d2092a44f383e18a7ada02f15aba",
+        "recorded_at": "1791878444401"
+      },
+      {
+        "study_hash": "87f7c55f3092bc72f7c50ec7dfbfac251bab0ec7c8aeed378e1018e83f3237a7",
+        "expected_issue": "202610130482",
+        "observed_issue": "202610130483",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "d6168506dd060e64adace2473ac2cd3d33327ff1588192e26972e4c179dce28a",
+        "recorded_at": "1791878561338"
+      },
+      {
+        "study_hash": "83947653c21cb75bc2bdde2d1b42bfa7710568cf0e0ecfc9ac4b056b995bd08e",
+        "expected_issue": "202610130482",
+        "observed_issue": "202610130483",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "e5caa05b956f57ba47754140e6934c8b1ffd694c356cf27c408a70bfacccdaeb",
+        "recorded_at": "1791878561344"
+      }
+    ],
+    "old_period_gaps_discovered_after_upgrade": [
+      {
+        "study_hash": "539f2a36f7da98ace78920cea89ee445a0f8da405475244780c42edcc8799531",
+        "expected_issue": "202610130354",
+        "observed_issue": "202610130474",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "0f554a5801e64bb57858d1be375c2761726e74d6a3dfaa3f43e8f6dc6ffb72a5",
+        "recorded_at": "1791878012561"
+      },
+      {
+        "study_hash": "df5ab1316404e13bfd87a890dc53ace82e7f56df5acbd73efcc05f891ebac2b0",
+        "expected_issue": "202610130354",
+        "observed_issue": "202610130474",
+        "reason": "MISSING_SCHEDULED_CAPTURE",
+        "request_ref": "cbb76660696201b1cf8c49d147f6b96380c3f0b926393f1df35e226aef3b4e26",
+        "recorded_at": "1791878012571"
+      }
+    ],
+    "boundary": "New failure timestamp does not make old expected354 a new release miss. Actual480/482 lost frozen observations cannot be backfilled."
+  },
+  "current_period_projections": [
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130474",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1298",
+      "attempt_id": "755a55817220ef0f65b793d1-1298",
+      "last_event_id": "9413099b00c9384458d62e990eb959f00aa1bfd9f3cb7f95f5deeb07f121d834",
+      "event_watermark": "49024",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878086130"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130475",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1299",
+      "attempt_id": "d5a8cf58c0f4ee42c85680b3-1299",
+      "last_event_id": "cf142cb3f5e68953d31c21d515d36bf3132bb954b92daec7f038df65eddfc755",
+      "event_watermark": "49043",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878130410"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130476",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1300",
+      "attempt_id": "b80ab452eb4ac65f2918d1fe-1300",
+      "last_event_id": "9a1ea9f5287d04453bb79ec57547bbdc28b611b1f6a2369a0241125545bf9142",
+      "event_watermark": "49064",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878187426"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130477",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1301",
+      "attempt_id": "fc88700d4b96ea6767d750d0-1301",
+      "last_event_id": "7acd3752f66329989db449c2150c3817adb193b228c42f659e7c8cd9de5fca63",
+      "event_watermark": "49080",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "0",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878272646"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130478",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1302",
+      "attempt_id": "ad0708c1466db2a172eb9363-1302",
+      "last_event_id": "198738db6ee6a5849f09f5771b429b87c93d93f02095c2d5168c166b1d62754b",
+      "event_watermark": "49107",
+      "request_seen": "1",
+      "accepted_seen": "0",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "0",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878336801"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130480",
+      "current_state": "LEARNING_PENDING",
+      "state_rank": "70",
+      "epoch_id": "1304",
+      "attempt_id": "4118a4cd1774c1fd1f9dd400-1304",
+      "last_event_id": "e3a5eb26a0f039eb95d3dbd7c5f8bd29a14a6083f1440b51bf72d1beb604d057",
+      "event_watermark": "49131",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "0",
+      "settled_seen": "1",
+      "full_seen": "0",
+      "learned_seen": "0",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878444871"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130479",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1303",
+      "attempt_id": "d733206fa8d81e5469392ddc-1303",
+      "last_event_id": "7dc56c0b3d853a9e57ae26e3b57c5654b4e75f3640ec7dc39d175b3d2651528b",
+      "event_watermark": "49132",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878481880"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130481",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1305",
+      "attempt_id": "6970f77ce97ac462002aeb80-1305",
+      "last_event_id": "81249c50f3b846c7ebefef0693dad85b27a6a8d37d46ea8cbd93ce3014cf3929",
+      "event_watermark": "49157",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878564068"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130482",
+      "current_state": "LEARNING_PENDING",
+      "state_rank": "70",
+      "epoch_id": "1306",
+      "attempt_id": "01f28d3b420a14eb5b20d86d-1306",
+      "last_event_id": "ee427abec25e3b456bbe02c7f7589cf585b60df521b6c881aa5711e6f0efc041",
+      "event_watermark": "49174",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "0",
+      "settled_seen": "1",
+      "full_seen": "0",
+      "learned_seen": "0",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878585570"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130483",
+      "current_state": "LEARNED_EXACTLY_ONCE",
+      "state_rank": "90",
+      "epoch_id": "1307",
+      "attempt_id": "923847588cfcc758d3cba70f-1307",
+      "last_event_id": "685370d30ad53267e16d900390d4bc3b656e1d718ecc7e268bb9112836956161",
+      "event_watermark": "49195",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "1",
+      "full_seen": "1",
+      "learned_seen": "1",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878645562"
+    },
+    {
+      "game_code": "Binance1-PK10",
+      "target_issue": "202610130484",
+      "current_state": "FULL_EVIDENCE_COMPLETED",
+      "state_rank": "80",
+      "epoch_id": "1308",
+      "attempt_id": "dee99ebe6aad5de8cc4d13a2-1308",
+      "last_event_id": "36f360d5c79efcddefc87dc3fc3374987a6e945bc31542ec973e43cdeec1e9bc",
+      "event_watermark": "49196",
+      "request_seen": "1",
+      "accepted_seen": "1",
+      "rejected_seen": "0",
+      "queued_seen": "1",
+      "started_seen": "1",
+      "frozen_seen": "1",
+      "canonical_seen": "1",
+      "settled_seen": "0",
+      "full_seen": "1",
+      "learned_seen": "0",
+      "recovery_seen": "0",
+      "last_error_code": "",
+      "as_of": "1791878646552"
+    }
+  ],
+  "performance": {
+    "check": "RSEC-033/RSEC-052",
+    "current_release_events": 9,
+    "p95_ms": 26214,
+    "old_r74_events": 2,
+    "old_r74_p95_ms": 7883,
+    "comparability": "Different short samples, not a controlled performance comparison. Current P95 does breach5000ms.",
+    "resources": [
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 10,
+        "execution_id": "d5ff4438cefa0d5ccc5e45a0797d4ffc",
+        "target_issue": "202610130484",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "7135",
+        "long_spans": [
+          {
+            "stage": "REQUEST_BEFORE_OWNER",
+            "wall_ms": 9586.0,
+            "thread_cpu_ms": -1e-06
+          },
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 664.051406,
+            "thread_cpu_ms": 617.655429
+          },
+          {
+            "stage": "DB_CANONICAL_WAIT",
+            "wall_ms": 5258.286613,
+            "thread_cpu_ms": 83.326406
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 11,
+        "execution_id": "3d8dc50fd7d7677e09b5adc10c02f3df",
+        "target_issue": "202610130484",
+        "status": "NOT_COMMITTED",
+        "elapsed_ms": "8464",
+        "long_spans": [],
+        "reason": "java.lang.IllegalStateException:R914_DRAW_HISTORY_BATCH_WRITE_FAILED|committedRows=0|fromOrdinal=1040|chunkCount=8 <- java.lang.IllegalStateException:F01_WRITE_FAILED|operation=R914_DRAW_HISTORY_BATCH <- java.lang.IllegalStateException:CP3_DB_BUSY_DEADLINE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 12,
+        "execution_id": "d848d7d5ac20a5cc427efbd213b464a7",
+        "target_issue": "202610130483",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "26305",
+        "long_spans": [
+          {
+            "stage": "PRE_HISTORY_METADATA",
+            "wall_ms": 15844.438119,
+            "thread_cpu_ms": 263.166463
+          },
+          {
+            "stage": "ACTION_BUILD_FUNNEL_META_RANK",
+            "wall_ms": 504.572604,
+            "thread_cpu_ms": 412.578847
+          },
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 8069.961872,
+            "thread_cpu_ms": 568.107505
+          },
+          {
+            "stage": "DB_CANONICAL_WAIT",
+            "wall_ms": 623.931458,
+            "thread_cpu_ms": 122.98724
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 13,
+        "execution_id": "ce223191dda33902283f28d1edc257e6",
+        "target_issue": "202610130482",
+        "status": "NOT_COMMITTED",
+        "elapsed_ms": "8478",
+        "long_spans": [
+          {
+            "stage": "REQUEST_BEFORE_OWNER",
+            "wall_ms": 10982.0,
+            "thread_cpu_ms": -1e-06
+          }
+        ],
+        "reason": "com.ethk3.novaonepro.RuntimeResourceAuditR927$BudgetExceeded:B05_TIMEOUT|DEADLINE_EXCEEDED:ACTION_STABILITY_DONE|over_ms=2459||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 14,
+        "execution_id": "59249891644c20234788de9c6fa3e9b3",
+        "target_issue": "202610130482",
+        "status": "NOT_COMMITTED",
+        "elapsed_ms": "10774",
+        "long_spans": [
+          {
+            "stage": "PRE_HISTORY_METADATA",
+            "wall_ms": 5352.548904,
+            "thread_cpu_ms": 113.121242
+          },
+          {
+            "stage": "HISTORY",
+            "wall_ms": 537.301562,
+            "thread_cpu_ms": 36.860516
+          }
+        ],
+        "reason": "java.lang.IllegalStateException:R366_DURABLE_LEASE_FENCE_LOST:HISTORY_PREPARE_DONE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 15,
+        "execution_id": "74578d1cfa2eec9203d6ed6fdb7020b0",
+        "target_issue": "202610130481",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "17676",
+        "long_spans": [
+          {
+            "stage": "ACTION_BUILD_FUNNEL_META_RANK",
+            "wall_ms": 549.213594,
+            "thread_cpu_ms": 501.822552
+          },
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 7940.703538,
+            "thread_cpu_ms": 866.702776
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 16,
+        "execution_id": "cb6d6f6d490686ce3c25b275df477bfe",
+        "target_issue": "202610130480",
+        "status": "NOT_COMMITTED",
+        "elapsed_ms": "11895",
+        "long_spans": [
+          {
+            "stage": "PRE_HISTORY_METADATA",
+            "wall_ms": 865.421354,
+            "thread_cpu_ms": 24.660988
+          }
+        ],
+        "reason": "com.ethk3.novaonepro.RuntimeResourceAuditR927$BudgetExceeded:B05_TIMEOUT|DEADLINE_EXCEEDED:ACTION_STABILITY_DONE|over_ms=7904||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 17,
+        "execution_id": "5ebe47215d9b011e60268b1ba520b670",
+        "target_issue": "202610130479",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "2855",
+        "long_spans": [
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 788.624687,
+            "thread_cpu_ms": 743.638686
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 18,
+        "execution_id": "0a21fd6f75d0bb0aca4f0e6afece6c1f",
+        "target_issue": "202610130478",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "4051",
+        "long_spans": [
+          {
+            "stage": "ACTION_BUILD_FUNNEL_META_RANK",
+            "wall_ms": 578.32677,
+            "thread_cpu_ms": 422.321615
+          },
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 626.36526,
+            "thread_cpu_ms": 610.226627
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 19,
+        "execution_id": "f5323f2c92864ad839f46e22b4ec32bd",
+        "target_issue": "202610130476",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "2170",
+        "long_spans": [
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 630.491979,
+            "thread_cpu_ms": 596.88688
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 20,
+        "execution_id": "c4c4b6ca7055010c644e76c9e5e5dcb9",
+        "target_issue": "202610130475",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "2018",
+        "long_spans": [
+          {
+            "stage": "OWNER_DISPATCH",
+            "wall_ms": 992.0,
+            "thread_cpu_ms": -1e-06
+          },
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 612.915677,
+            "thread_cpu_ms": 601.185842
+          }
+        ],
+        "reason": "DURABLE||"
+      },
+      {
+        "file": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "line": 21,
+        "execution_id": "9a259cb80f7292875b82e775da827cc2",
+        "target_issue": "202610130474",
+        "status": "CANONICAL_COMMITTED",
+        "elapsed_ms": "3193",
+        "long_spans": [
+          {
+            "stage": "ACTION_BUILD_FUNNEL_META_RANK",
+            "wall_ms": 807.316562,
+            "thread_cpu_ms": 561.328023
+          },
+          {
+            "stage": "SELECTION_POLICY",
+            "wall_ms": 741.965208,
+            "thread_cpu_ms": 651.489656
+          }
+        ],
+        "reason": "DURABLE||"
+      }
+    ],
+    "runtime_fetch_write_error": "PAYLOAD:WRITE_REJECTED",
+    "runtime_db_wait_max_ms": 1921
+  },
+  "retention": {
+    "truth": {
+      "key": "r900_retention_truth",
+      "value": "RETENTION_IO_RETRY:REPORT_STAGE_TIMEOUT",
+      "updatedAt": 1791877720509,
+      "status": "READ_OK"
+    },
+    "predates_release": true,
+    "new_due_state": {
+      "key": "r979_retention_due_at",
+      "value": "1791878621002",
+      "updatedAt": 1791878616005,
+      "status": "READ_OK"
+    },
+    "reclaim": {
+      "key": "r943_storage_reclaim",
+      "value": "RECLAIM_COMPLETE|beforeBytes=4269842432|afterBytes=4269842432|freePages=0",
+      "updatedAt": 1791878574954,
+      "status": "READ_OK"
+    },
+    "archive_rows": 0,
+    "revision_rows": 3617409,
+    "large_tables": [
+      {
+        "table": "research_row_revision_v2",
+        "rows": 3617409
+      },
+      {
+        "table": "v57_k3_action_space_1200",
+        "rows": 1245960
+      },
+      {
+        "table": "v57_research_action_label_r811",
+        "rows": 1238400
+      },
+      {
+        "table": "v51_number_event",
+        "rows": 105159
+      },
+      {
+        "table": "v57_research_expert_outcome_r811",
+        "rows": 82350
+      },
+      {
+        "table": "research_capture_event_r932",
+        "rows": 63112
+      },
+      {
+        "table": "v57_runtime_event_r926",
+        "rows": 37625
+      },
+      {
+        "table": "research_capture_opportunity_r932",
+        "rows": 26279
+      },
+      {
+        "table": "research_schedule_task_r932",
+        "rows": 26046
+      },
+      {
+        "table": "research_atom_spec_v2",
+        "rows": 25350
+      }
+    ],
+    "no_table_byte_breakdown": true,
+    "boundary": "Do not equate row counts with disk bytes or historical REPORT_STAGE_TIMEOUT with a new R75 timeout."
+  },
+  "priority_findings": [
+    {
+      "priority": "P0",
+      "id": "R76-PERIOD-IO",
+      "evidence": [
+        "RSEC-022",
+        "RSEC-033",
+        "RSEC-052",
+        "DIAGNOSTIC_SCOPE.research_capture_gap_v2"
+      ],
+      "finding": "Fresh 480/482 capture loss, history read/write/commit wall-time stalls, not primarily current bundle open.",
+      "action": "Bound/locate expensive IO and lock ownership while preserving source identity, durable requests and no postdraw synthetic freeze."
+    },
+    {
+      "priority": "P0",
+      "id": "R76-LIGHT-TRUTH",
+      "evidence": [
+        "/workspace/scratch/e2544c9906f6/upload/01-1000302604.jpg",
+        "/workspace/scratch/e2544c9906f6/upload/02-1000302605.jpg",
+        "/workspace/scratch/e2544c9906f6/upload/03-1000302610.jpg"
+      ],
+      "finding": "UI truth unavailable and heartbeat labels inconsistent across observed states.",
+      "action": "Inspect light snapshot population/read-error propagation and shared health presentation; unavailable must not become zero or no-algorithm."
+    },
+    {
+      "priority": "P1",
+      "id": "R76-TRAINING-THROUGHPUT",
+      "evidence": [
+        "DIAGNOSTIC_SCOPE.research_training_protocol_v2",
+        "DIAGNOSTIC_SCOPE.research_training_feature_cursor_cp12",
+        "RSEC-078"
+      ],
+      "finding": "Actual modern preparation and matrix checkpoints exist, training cursor only3/16, no completed development receipt/artifact.",
+      "action": "Profile startup/resume feature extraction and scheduling slice costs on real-sized history; preserve protocols and cursor atomicity."
+    },
+    {
+      "priority": "P1",
+      "id": "R76-RETENTION",
+      "evidence": [
+        "RSEC-006",
+        "FILE_STATE.jsonl",
+        "DIAGNOSTIC_SCOPE.researchSchedulerState"
+      ],
+      "finding": "4.277GB snapshot,3.617M revision and0 archive; old timeout plus no new reclaimed pages.",
+      "action": "Bound backup/archive IO and current requests; keep live rows and immutable proofs, do not remove history merely to turn report green."
+    },
+    {
+      "priority": "P1",
+      "id": "R76-DIAGNOSTIC-PRECISION",
+      "evidence": [
+        "RSEC-052",
+        "RSEC-074",
+        "RSEC-078"
+      ],
+      "finding": "SLA FAIL can coexist withHEALTHY; generic service-failed/legacy idle text obscures actual modern progress.",
+      "action": "Expose exact failing predicate and distinguish legacy, modern incomplete, unavailable and zero."
+    },
+    {
+      "priority": "NATURAL_EVIDENCE",
+      "id": "R76-REAL-QUALIFICATION",
+      "evidence": [
+        "RSEC-019",
+        "RSEC-059",
+        "RSEC-060",
+        "RSEC-066",
+        "RSEC-073"
+      ],
+      "finding": "No candidate CAL model/quality/formal pair/certificate/mainline contribution;10-minute postinstall cannot prove241-minute independentCAL plus formalFuture.",
+      "action": "Repair continuity, train/freeze, collect valid independent windows and qualify actual candidates. Never fabricate outcomes, markPROVEN or forceREAL."
+    }
+  ],
+  "not_claimed": [
+    "No product source modified by this audit",
+    "No all-tests rerun",
+    "No claim R75 code was absent",
+    "No user phone REAL produced or increased hit rate",
+    "No complete1–9/1832 acceptance",
+    "No zero-crash guarantee beyond absence of new fatal evidence in supplied summary"
+  ]
+}

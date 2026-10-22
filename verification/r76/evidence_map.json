@@ -1,0 +1,1448 @@
+{
+  "revision": "R76_ENGINEERING_ACCEPTANCE_FINAL_HOST",
+  "draft_as_of_utc": "2026-10-13T09:03:26.739156+00:00",
+  "purpose": "Engineering evidence map, not an edited phone diagnostic report or full business certificate",
+  "input_report": {
+    "zip_sha256": "a4acc60904ecef8b88fcd5e5b4c3b5707a057652c4fdf7ee2bb6d694eaf68825",
+    "running_release": "V57.21.2.0.75-R5.4.2.75-1013-O09",
+    "version_code": 577251034,
+    "nonpass_counts": {
+      "FAIL": 3,
+      "WARN": 6,
+      "NOT_PROVEN": 22
+    },
+    "review_receipts": [
+      {
+        "path": "verification/r76/report_findings.json",
+        "available": true,
+        "sha256": "64f116b95d4412a449b6cbe5c300097d211e0ab2d7ec3668d39e0d4d2975c76d"
+      },
+      {
+        "path": "verification/r76/INPUT_REVIEW.md",
+        "available": true,
+        "sha256": "5327a0cb693a350aa784c07bdcd416154aa73c631eb75b05d752c96d8116f1c9"
+      }
+    ]
+  },
+  "target_release": {
+    "version_name": "V57.21.2.0.76-R5.4.2.76-1013-O09",
+    "version_code": 577251035,
+    "source_commit": "ede9746f9172033d27cf6ed15456780d4a92ca4d"
+  },
+  "release_gates": {
+    "source_freeze": "PASS",
+    "strict_build": "PASS",
+    "unit_tests": "PASS",
+    "lint": "PASS",
+    "signature_and_apk_identity": "PASS",
+    "final_bytecode_no_overlay": "PASS",
+    "android_ci": "VALIDATION_STEPS_PASS_OVERALL_FAILURE_ARTIFACT_UPLOAD",
+    "delivery": "SAVED",
+    "phone_continuous_runtime": "NOT_VERIFIED",
+    "natural_calibration_future_quality": "NOT_VERIFIED",
+    "qualified_real_mainline": "NOT_VERIFIED",
+    "all_batches_1_to_9": "NOT_ESTABLISHED"
+  },
+  "workstreams": [
+    {
+      "id": "UI",
+      "title": "倒计时与本期诊断显示",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "app/src/main/java/com/ethk3/novaonepro/RuntimeTruthSnapshotR906.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/ui_evidence.json",
+          "available": true,
+          "sha256": "56c29e333712a52c9cdc6df1306b9d109cca72568d220830fef9c7a2c57edb22"
+        },
+        {
+          "path": "verification/r76/evidence/ui_acceptance40_result.json",
+          "available": true,
+          "sha256": "3df3998663076da4a43cf4d3b86cfa7c2a9241dce5e3ad8c3a8b9f0a98970097"
+        },
+        {
+          "path": "verification/r76/evidence/ui_acceptance40_sources.json",
+          "available": true,
+          "sha256": "157415bb6325f92cbf59f879dbaf4d293f646be88236c78f09185d6313901e08"
+        },
+        {
+          "path": "verification/r76/evidence/ui_midrender_without_fence_test.log",
+          "available": true,
+          "sha256": "4e6cac3c20d9e6716acdaed68e7831f0795ee8927bae14adc1892470026a257c"
+        },
+        {
+          "path": "verification/r76/evidence/final/ui/product-bytecode.json",
+          "available": true,
+          "sha256": "448d91fa0f4e3f5413e29a7d1e46500bffcda93654659d3f719c6c0b7f9aefce"
+        },
+        {
+          "path": "verification/r76/evidence/final/ui/result.json",
+          "available": true,
+          "sha256": "3df3998663076da4a43cf4d3b86cfa7c2a9241dce5e3ad8c3a8b9f0a98970097"
+        },
+        {
+          "path": "verification/r76/evidence/final/ui/sources.json",
+          "available": true,
+          "sha256": "ab3d4d8c61d94a37b2f60bda2c2c8e043e2301490465ff73bd0e39f11a8b2b69"
+        },
+        {
+          "path": "verification/r76/evidence/final/ui/steps.json",
+          "available": true,
+          "sha256": "8f150d088406026fd0f9cc17393711214b02060a54769ddf400a841e099814e0"
+        }
+      ],
+      "established": [
+        "40个主机真实Activity入口检查；旧missing diagnostic→READ_ERROR、错过广播不导入较新同session clock、两次clock读之间旧目标覆盖均有负例。",
+        "PENDING与真实READ_ERROR分开；目标绑定summary缓存；渲染前后fence；异步badge目标fence；读取既有源clock，不在UI补造60秒。"
+      ],
+      "not_established": [
+        "Android布局/完整生命周期/手机持续倒计时尚未验证；不证明上游在开奖后5秒发布。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    },
+    {
+      "id": "RESEARCH_UI",
+      "title": "中文训练、进化、原子矩阵与主链资格观察",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchPipelineStatusR76.java",
+        "app/src/main/java/com/ethk3/novaonepro/MainActivity.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/pipeline_dev_manifest.json",
+          "available": true,
+          "sha256": "139cf89c4dfd0e4db4baf92e39197e240554eaf8cdcc78989728a3aabc3057d1"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_report.json",
+          "available": true,
+          "sha256": "a982ba4e52436b8f6247026aed12af8cf59dec72075059be02f49d49dc828d54"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_repair.json",
+          "available": true,
+          "sha256": "4bc6a19c3e7769c781cc49d5b5a9a53dffa7871dc867a3c4236f42474a9d548f"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_empty.json",
+          "available": true,
+          "sha256": "3ee099d3658a152faf0049361d0edbcd61d0b0932e7c8dca02c8b63d21bf3791"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_failure.json",
+          "available": true,
+          "sha256": "edd461f63eaba9a58ca2f64a59b6fe9e143013e81aa3e065a0d10e0383b4276e"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_false-complete.json",
+          "available": true,
+          "sha256": "da0bcb8023faee87bde0278d63d54668d1a139a1677c6e6b215bb6f3dc922455"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_online.json",
+          "available": true,
+          "sha256": "8968433ec82558afbfe9711a0e4ba254a807c39a37a4cbffe5cdca9cfe78b6df"
+        },
+        {
+          "path": "verification/r76/evidence/pipeline_dev_cap.json",
+          "available": true,
+          "sha256": "bda52b0f229a8c5e3ddf1117d10700a7504bcd73f96060cfe1d6bd33950caa0a"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/cap.json",
+          "available": true,
+          "sha256": "8a8a4f0e6b1127f865280101d4475946d7769a0a997de800973d0580e7ed81f0"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/empty.json",
+          "available": true,
+          "sha256": "be514d773b9321c03267c8d012cc24f36a7ce61bf50bb2c2deb11e6e6cba8a27"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/failure.json",
+          "available": true,
+          "sha256": "2ee22434c926e3a6a02d0aff52c47ff23ec0da10dd886f00900f96d58c3d3a58"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/false-complete.json",
+          "available": true,
+          "sha256": "771079fc30da4b905436dae50f75c62eff1f2a85cb077396cb580d74f94fba5a"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/manifest.json",
+          "available": true,
+          "sha256": "135f8c820f11b5ed36d313fc9ac3e1baf394844d4fd5212003b7ba8fce792419"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/online.json",
+          "available": true,
+          "sha256": "fc3e7c8fa95b00e6ac162f42921a96d123e1f83bc824947e6b1c20be2f5b3e5b"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/repair.json",
+          "available": true,
+          "sha256": "8c806281bf098adfdeb86ea3fffaf5d0e9c95cf103559c7399d50d92a18dc146"
+        },
+        {
+          "path": "verification/r76/evidence/final/pipeline/report.json",
+          "available": true,
+          "sha256": "007f3a2f977a348ee56325bb37edb07f19011a06f11306bd2c2a596d34fa9afa"
+        }
+      ],
+      "established": [
+        "7种fixture共90个显示检查；只读并保留数据库前后身份；按近期有界行页显示FTRL/旧在线学习/现代开发训练、子代与独立评价、矩阵投影及校准资格。",
+        "任务COMPLETED不能代替artifact/receipt；失败/缺表/超预算不当零；每张快照显示时间与最近来源期。"
+      ],
+      "not_established": [
+        "只读投影没有进行新的训练或授予资格。",
+        "报告metadata重建缺二进制；FTRL artifact未导出导致fixture空表不表示手机FTRL为0；独立online正例是synthetic UI metadata。",
+        "350ms是段间协作预算，不是SQLite锁等待硬取消。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    },
+    {
+      "id": "QUEUE_READY",
+      "title": "研究待执行、前序与本地孤儿任务查询",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/training_ready_development.json",
+          "available": true,
+          "sha256": "8516400c28dc8fc66d3e3704f7d2797b0e6d7500e0dd85c9ca2fca276e860a30"
+        },
+        {
+          "path": "verification/r76/evidence/training_ready_owner_development.log",
+          "available": true,
+          "sha256": "de6e06c1c08fc60e97283308027e77317f4397c16ec52f5dffa6750680e7721f"
+        },
+        {
+          "path": "verification/r76/evidence/final/queue/summary.json",
+          "available": true,
+          "sha256": "eb18f45aacd865e92b6e0373d31ff04e371a80de40db3c26e15da5d340667cf3"
+        }
+      ],
+      "established": [
+        "原3537任务数据下，maintenance准备队列VM步72342→1137；添加5万已完成历史后1222198→1029，22个ready结果身份/顺序相同。",
+        "9项语义检查及实际claim/yield入口；利用现有active/unresolved/terminal partial indexes，不放宽预算或资格。",
+        "本地orphan查询利用既有active部分索引：报告VM步10625→149；+5万完成历史160623→147；实际live token禁止重复claim，进程内token消失后同任务generation1→2恢复、旧token被拒。"
+      ],
+      "not_established": [
+        "VM工作量不是用户手机时延或持续每期训练完成率；最终release无overlay已通过，手机真实后台恢复仍待验。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    },
+    {
+      "id": "TRAIN_RESUME",
+      "title": "报告认证输入的真实开发训练续跑验证",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchTrainingHookRegistryR952.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java",
+        "app/src/main/java/com/ethk3/novaonepro/ResearchTaskQueueR967.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/training_report_findings.json",
+          "available": true,
+          "sha256": "6f13bd79169a033b902e23a319d13205ce569a83d2205ba30baccf6ad6c37f28"
+        },
+        {
+          "path": "verification/r76/evidence/training_report_owner_development.json",
+          "available": true,
+          "sha256": "21a16a8f2c3594b4b3bf4391cc4334999e8f5493e4dd6784d29e92eb3b91d09a"
+        },
+        {
+          "path": "verification/r76/training_README.md",
+          "available": true,
+          "sha256": "973a63b13a671658ba49d73fb7228e7f6902a70e85acfa7cc1c1102f42ed4ca9"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/cold-inputs.json",
+          "available": true,
+          "sha256": "e386e04d27c0ab11505beb660d4475dd5b35f6f2cc371c9864dec05ce4c34fb2"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/cold-pulses.json",
+          "available": true,
+          "sha256": "35a5f4da97ff374e363628f4e2da48ae5dc1c313b3f90dde61953a6488b8e443"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/restarted-inputs.json",
+          "available": true,
+          "sha256": "e386e04d27c0ab11505beb660d4475dd5b35f6f2cc371c9864dec05ce4c34fb2"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/restarted-pulses.json",
+          "available": true,
+          "sha256": "5385173898b23a4a01f407aa1bb6360761fcd62fc797fc4f6097d923ce1fbab4"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/resumed-inputs.json",
+          "available": true,
+          "sha256": "e386e04d27c0ab11505beb660d4475dd5b35f6f2cc371c9864dec05ce4c34fb2"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/resumed-pulses.json",
+          "available": true,
+          "sha256": "7ce4c6d7fb66a874fb6405ebc5b1c74f81e77b112ae0497a821e1455eb06a2bc"
+        },
+        {
+          "path": "verification/r76/evidence/final/training_report/summary.json",
+          "available": true,
+          "sha256": "48ce3726dfc20e806ea645983723a9f653c4bce307363a55e6b46035c479310b"
+        }
+      ],
+      "established": [
+        "隔离重建6个SCDEV，原hash/字节数匹配；两个已导出feature prefix(3和16)精确匹配。",
+        "真实Owner在新JVM续跑7920特征行，6个开发收据、6个artifact、6个freeze，每个1200开发+120验证；第三JVM不重复发布。"
+      ],
+      "not_established": [
+        "这是隔离报告重建测试，绝非用户手机已经训练完成；二进制未导出的lane不被证明。",
+        "原报告现代receipt/artifact identity仍为0；不得用此fixture回写或改述原报告。",
+        "最终固定源码/无overlay训练续跑已通过；这不等于CAL/Future、胜率提升或REAL。"
+      ],
+      "work_type": "VERIFICATION_OF_EXISTING_OWNERS"
+    },
+    {
+      "id": "CAL_HEAD",
+      "title": "校准待结算head避免宽历史视图物化",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/dev_fixed_head_summary.json",
+          "available": true,
+          "sha256": "7ca8a99c170aa9654b25b6bb5e5010ea12fa8b6485d0872428f3d8d49acb5aa9"
+        },
+        {
+          "path": "verification/r76/evidence/dev_fixed_head_owner.json",
+          "available": true,
+          "sha256": "7a4075c6876c2283a4ff98a43fc994651c8a32d800c371671d8c0fc9cc253d6c"
+        },
+        {
+          "path": "verification/r76/evidence/dev_fixed_head_query-profile.json",
+          "available": true,
+          "sha256": "e5399b769590ae919663418c6d18dbfff289361d43299e3eebfe70320758c716"
+        },
+        {
+          "path": "verification/r76/evidence/final/cal_head/owner.json",
+          "available": true,
+          "sha256": "7a4075c6876c2283a4ff98a43fc994651c8a32d800c371671d8c0fc9cc253d6c"
+        },
+        {
+          "path": "verification/r76/evidence/final/cal_head/query-profile.json",
+          "available": true,
+          "sha256": "fe4606b0f071c8313daed611686c3214a4b518b835c9d93d9f0aee6170fcf609"
+        },
+        {
+          "path": "verification/r76/evidence/final/cal_head/summary.json",
+          "available": true,
+          "sha256": "19388ec008f77cc48bbbc8c4ba9842c3fbeeebb676e131393cd81c488da42713"
+        }
+      ],
+      "established": [
+        "9个实际公共maintenance检查；5000条×8KiB热历史，SQLite VM步270169→179，返回相同head。",
+        "热表PK clean存在性或无热表时retained clean存在性，保留dirty热表遮蔽、独立family head和冻结identity。"
+      ],
+      "not_established": [
+        "手机自然连续捕获480/482断口不能补造；查询优化不证明每期SLA。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    },
+    {
+      "id": "CAL_MAINTENANCE",
+      "title": "真实capture/settle/maintenance连续性验证",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
+        "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/dev_mainline_maintenance_summary.json",
+          "available": true,
+          "sha256": "0375d61ba4c520b2b5354ebbd45e4811a6a274abf171961af918e9047dde299c"
+        },
+        {
+          "path": "verification/r76/evidence/dev_mainline_maintenance_seed.json",
+          "available": true,
+          "sha256": "ae405358f3fd9337413d0da63545536a73bd9946927a83187b667e082c751d58"
+        },
+        {
+          "path": "verification/r76/evidence/dev_mainline_maintenance_resume.json",
+          "available": true,
+          "sha256": "b71a35e134922ea76a2568fd37605f9915c85e63f96348cf2a9e85ed38c36382"
+        },
+        {
+          "path": "verification/r76/evidence/mainline_report_audit.json",
+          "available": true,
+          "sha256": "81179280df031478b8b3c85b36104caa10b328b7e23236e0a402c25650b7e64d"
+        },
+        {
+          "path": "verification/r76/evidence/final/cal_maintenance/resume.json",
+          "available": true,
+          "sha256": "b71a35e134922ea76a2568fd37605f9915c85e63f96348cf2a9e85ed38c36382"
+        },
+        {
+          "path": "verification/r76/evidence/final/cal_maintenance/seed.json",
+          "available": true,
+          "sha256": "ae405358f3fd9337413d0da63545536a73bd9946927a83187b667e082c751d58"
+        },
+        {
+          "path": "verification/r76/evidence/final/cal_maintenance/summary.json",
+          "available": true,
+          "sha256": "7fd9355d575c6cdfbbf234b103781f55034b3b4cd36bdd770c30ea4239db00bf"
+        }
+      ],
+      "established": [
+        "7+12=19个实际Owner检查；合成host241个前瞻输入，在第120期换JVM，350ms公共maintenance续跑至实际120/1/120拟合。",
+        "fixture实际ECE约0.12118未合格；formal pair/cert/REAL均0，测试没有放宽质量门。"
+      ],
+      "not_established": [
+        "241是合成host输入序列，非手机自然运行241分钟；不证明真实模型合格。",
+        "原报告当前同两旧AST候选仅2 captured/0 settled，本轮没有把未知质量判为胜率差。"
+      ],
+      "work_type": "VERIFICATION_OF_EXISTING_OWNERS"
+    },
+    {
+      "id": "OBSERVATION_IO",
+      "title": "观测写入解除同步持久屏障",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+        "app/src/main/java/com/ethk3/novaonepro/RealtimePressureGateR811.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/runtime_observation_manifest.json",
+          "available": true,
+          "sha256": "cb59862e10a157160ebd6a3fa14afb53d12e0accbc573c840be70f2d1cafad79"
+        },
+        {
+          "path": "verification/r76/evidence/runtime_observation_development_result.json",
+          "available": true,
+          "sha256": "faf10a2ad0dd64849f4087feea75ff9255392b562f273684acc440cc2043ffcf"
+        },
+        {
+          "path": "verification/r76/evidence/runtime_observation_baseline_heartbeat_test.log",
+          "available": true,
+          "sha256": "4e7decc0dc4498f7f04ae27bebc51c5c520e0afa965b2df49fadd9931d96e7f5"
+        },
+        {
+          "path": "verification/r76/evidence/runtime_observation_baseline_pressure_test.log",
+          "available": true,
+          "sha256": "a35197ed423694ae632e444b4bf9a736b5ecdbaafe34465442899ce124493eb7"
+        },
+        {
+          "path": "verification/r76/evidence/final/observation/product-bytecode.json",
+          "available": true,
+          "sha256": "def23985c6bc9ee71a19851eb8d464dd7d01a3e468b48d14a101d2a832b50f24"
+        },
+        {
+          "path": "verification/r76/evidence/final/observation/result.json",
+          "available": true,
+          "sha256": "faf10a2ad0dd64849f4087feea75ff9255392b562f273684acc440cc2043ffcf"
+        },
+        {
+          "path": "verification/r76/evidence/final/observation/sources.json",
+          "available": true,
+          "sha256": "2c50434be5311f02c18ff0bb3318d09b7d472703a8fd0a15e9f6516e1ff40cb0"
+        },
+        {
+          "path": "verification/r76/evidence/final/observation/steps.json",
+          "available": true,
+          "sha256": "84af0962ef24e2f284c12b79e122184c1eee20bb4cf846ab9d812e80bf5bc17b"
+        }
+      ],
+      "established": [
+        "81个真实Owner及实际report pressure reader检查；12类观测改apply，权限/停启/recovery/runtime lease仍commit。",
+        "2秒跨进程pressure采用同目录临时文件rename；runtime-session仍AtomicFile持久，旧.bak恢复，写/rename失败保旧且可重试。",
+        "旧源码同fixture为两个负例；新代码通过内存即见、顺序flush、session/expiry/generation与错误路径。"
+      ],
+      "not_established": [
+        "延迟是显式注入的主机边界模型，非手机SharedPreferences/fsync测量；不能称解释全部秒级停顿。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    },
+    {
+      "id": "RETENTION",
+      "title": "归档页避免每页复制整个大数据库",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/cpp/report_native_cp4.c",
+        "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
+        "app/src/main/java/com/ethk3/novaonepro/RetentionSnapshotCacheR73.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/storage_report_measure.json",
+          "available": true,
+          "sha256": "7574cc796e268dba14c2e9a02b7888cc2c043cf21e148f0ec95d4b64b3dfaccd"
+        },
+        {
+          "path": "verification/r76/evidence/final/retention/edges-result.json",
+          "available": true,
+          "sha256": "e1fb9e2abdb78e21e9079fc1c1381b47e0ee6e10e50880ffa181c24c1c3be669"
+        },
+        {
+          "path": "verification/r76/evidence/final/retention/pipeline-result.json",
+          "available": true,
+          "sha256": "3da6b34fbdfa89122f0fe3a80a4fbc93b271644d351c069f38458a90343b73e1"
+        },
+        {
+          "path": "verification/r76/evidence/final/retention/run.json",
+          "available": true,
+          "sha256": "16d75756a02bfbd42d9dd277e2862418457624531db029b0f6bfe1de7620469f"
+        },
+        {
+          "path": "verification/r76/evidence/storage_4g_run.json",
+          "available": true,
+          "sha256": "de26e1894b708d9ca4104594df1efe74929472f91c567ed6eafb6412bb874af6"
+        },
+        {
+          "path": "verification/r76/evidence/storage_4g_pipeline-result.json",
+          "available": true,
+          "sha256": "3da6b34fbdfa89122f0fe3a80a4fbc93b271644d351c069f38458a90343b73e1"
+        },
+        {
+          "path": "verification/r76/evidence/storage_4g_edges-result.json",
+          "available": true,
+          "sha256": "e1fb9e2abdb78e21e9079fc1c1381b47e0ee6e10e50880ffa181c24c1c3be669"
+        },
+        {
+          "path": "verification/r76/evidence/storage_fixture_boundary.json",
+          "available": true,
+          "sha256": "0ad052c30c945f98fd72fb22848e89150fc09aa6ed951533cf447930e4643ed7"
+        }
+      ],
+      "established": [
+        "当前源码增加只读事务中复制请求页所需行/列及代次元数据的有界native路径；现有schema/row identity/generation与发布删除复查仍保留。",
+        "页cache新revision隔离旧whole-db缓存；内存受限的大单行保留full backup fallback；取消/hash验证失败清理未发布副本。",
+        "最终主机JNI+release字节码49输入/复制、52归档CAS、8WAL/大单行边界通过；开发4,590,436,352字节库仅生成36,864字节128行快照，原库哈希不变。"
+      ],
+      "not_established": [
+        "未验证Android设备/手机大库归档及延迟；主机JNI收据已取得，失败fixture及其边界修正保留。",
+        "旧两大升级备份3711119360字节保留；报告目录不是8GB主因；仅版本bump不触发新备份是既有critical revision/contract/DDL约束，不是删除备份。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    },
+    {
+      "id": "RUNTIME_REASON",
+      "title": "运行FAIL显示准确SLA原因",
+      "development_status": "DEVELOPMENT_VERIFIED",
+      "final_bytecode_status": "PASS_HOST_NO_PRODUCT_OVERLAY",
+      "phone_status": "NOT_VERIFIED",
+      "sources": [
+        "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java"
+      ],
+      "receipts": [
+        {
+          "path": "verification/r76/evidence/final/diagnosis/product-bytecode.json",
+          "available": true,
+          "sha256": "a7399bfabd416c7ad4bc8f99ec1cd95d3c7d1232915e4c65b71554770d0d551b"
+        },
+        {
+          "path": "verification/r76/evidence/final/diagnosis/result.json",
+          "available": true,
+          "sha256": "47a3b9bd1dfee88780677d1636ddebcedea0bb27566df7c07f3ca7fbc416d0c7"
+        },
+        {
+          "path": "verification/r76/evidence/final/diagnosis/sources.json",
+          "available": true,
+          "sha256": "a00b78b2661d7df45bff030ccf1d78a1d3de72a80038b6e0f3980375bf352455"
+        },
+        {
+          "path": "verification/r76/evidence/final/diagnosis/steps.json",
+          "available": true,
+          "sha256": "f4901ae7810a655d0224f7a3a229ac9a37fd9d6021dd11969623d76701637642"
+        }
+      ],
+      "established": [
+        "已定位RSEC052/074的FAIL可由当前release P95>5000触发，HEALTHY仅表明循环活跃。",
+        "最终字节码23项实际diagnosis入口通过；使用实际存在指标准确解释SLA/心跳/最新失败，保留FAIL与READ_ERROR，不降低门槛。"
+      ],
+      "not_established": [
+        "未以新手机报告证明P95已经改善；原报告FAIL未改写。"
+      ],
+      "work_type": "SOURCE_REPAIR_OR_PRESENTATION_CHANGE"
+    }
+  ],
+  "report_nonpass_obligations": [
+    {
+      "check_id": "RSEC-009",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【0.当前总判定】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8446
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "4ccd09f26455158456d19ce59e70ca102aab8f5fa48f884e003240f0544a59de",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "evaluator_method": "overall"
+      },
+      "acceptance_kind": "FINAL_REQUIREMENT_AND_DEVICE_EVIDENCE",
+      "remaining_obligation": "1–9/1832复合要求逐项绑定最终源及现场证据；未知不能当未施工或已验收。",
+      "related_work_ids": [
+        "UI",
+        "RESEARCH_UI",
+        "QUEUE_READY",
+        "TRAIN_RESUME",
+        "CAL_HEAD",
+        "OBSERVATION_IO",
+        "RETENTION"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-019",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-A.模型准确率卡】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8466
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "0a3f1ca07b1010accbc8d4980412738d9405855d5eac0c3e7992a4cd1a0ed453",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_MODEL_EVIDENCE",
+      "remaining_obligation": "修复连续捕获后积累同一冻结候选独立CAL/Future；模型和质量证书为0。",
+      "related_work_ids": [
+        "TRAIN_RESUME",
+        "CAL_MAINTENANCE",
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-020",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-B.策略效果卡】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8468
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "9d853b304ce907c9ca6575092e95e0e8afbec219433a4d454b1c00e76db394a7",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_POLICY_EVIDENCE",
+      "remaining_obligation": "冻结策略同窗口验证覆盖/命中/ECE/稳定性；不得用频率债或强制REAL代替。",
+      "related_work_ids": [
+        "CAL_MAINTENANCE"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-021",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-C.期级链路卡】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8470
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "d7cce85a36e87821c3445c99e5ddd2443174c2a9e6a4b9920b296549496b665a",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "remaining_obligation": "期级影子/赛前冻结/结算证据需齐全，当前480和482缺canonical_seen。",
+      "related_work_ids": [
+        "UI",
+        "CAL_HEAD",
+        "QUEUE_READY",
+        "OBSERVATION_IO"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-022",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_IMPLEMENTED_REAL_DATA_AND_FUTURE_EVIDENCE_PENDING",
+      "title": "【E05-D.资源效率卡】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8472
+        },
+        "member": "report-text-9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273.txt",
+        "sha256": "9d53f39df519e380c66b955a6a9e5f3db6dfc83f4fed4dbd6cca37246eae6273",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/Batch34DiagnosticCardsR930.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "remaining_obligation": "优先查历史metadata、writer/commit争用、policy壁钟开销，冷bundle已非该样本主瓶颈。",
+      "related_work_ids": [
+        "QUEUE_READY",
+        "CAL_HEAD",
+        "OBSERVATION_IO",
+        "RETENTION"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-030",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【4.R3.6硬门】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8488
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "34970373293c99d2c21b77191676b197dedf695bc3e604e8b507bf676cafde1e",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "evaluator_method": "hardGates"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "remaining_obligation": "覆盖8/30混合升级前期，另独立验474–484当前期；不得补造漏期冻结。",
+      "related_work_ids": [
+        "UI",
+        "CAL_HEAD",
+        "QUEUE_READY",
+        "OBSERVATION_IO"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-033",
+      "input_health": "WARN",
+      "input_state": "OK",
+      "title": "【7.R3.6运行健康账本】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8494
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "5720c9eb56147a19299ae5b16e6314fd92dcfdd2b61d2b0c41c15e1d13856a6f",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+        "evaluator_method": "readRuntime"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "remaining_obligation": "当前release 9事件P95=26214ms；需要真实设备首抓→落库→分析SLA，不是旧累计。",
+      "related_work_ids": [
+        "QUEUE_READY",
+        "CAL_HEAD",
+        "OBSERVATION_IO",
+        "RETENTION"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-034",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【8.严格OOS/Wilson/ECE/Brier/Coverage】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8496
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "83fd27f566bfc068e70d7927485981531dcc46e6b9a69336a44bde407b95b38e",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "evaluator_method": "oos"
+      },
+      "acceptance_kind": "NATURAL_MODEL_EVIDENCE",
+      "remaining_obligation": "1131个严格影子OOS不等于候选CAL/证书；保留N=1131/Hit357，补合法冻结概率才能评价Brier/ECE。",
+      "related_work_ids": [
+        "CAL_MAINTENANCE"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-035",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【9.模型有效性与根因优先级】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8498
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "117558c0bfee37604c2678a2cbbf32c4c9d08d0c3bb022c3a377c42da0d9b927",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ModelEffectivenessAnalyzerR35.java",
+        "evaluator_method": "analyze"
+      },
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "先消除当前期漏捕与写入/时延，再验独立模型证据，不把未知质量当胜率差。",
+      "related_work_ids": [
+        "CAL_HEAD",
+        "TRAIN_RESUME",
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-037",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【11.1200正式动作与实时/延后写分离】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8502
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "a739b66288f766a8c3445b60a1367af64c5ec5cd7bdcb1ba40f11eb578fb313f",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "evaluator_method": "actionContract"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "remaining_obligation": "deferred pending57→94，需要有界消费追平，保持1200动作集合及每期唯一身份。",
+      "related_work_ids": [
+        "QUEUE_READY",
+        "OBSERVATION_IO",
+        "RETENTION"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-039",
+      "input_health": "NOT_PROVEN",
+      "input_state": "DEPLOYMENT_PROOF_INSUFFICIENT_RESEARCH_TRAINING_REPORTED_SEPARATELY",
+      "title": "【13.REAL与SHADOW分账】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8506
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "0bbdc4d4074a1f8143e355c83c216838ba518f070719c7ea9cfabaeb7df634bf",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java",
+        "evaluator_method": "realShadow"
+      },
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "remaining_obligation": "Exact gate没有合法证书时保持SHADOW；不能自动解锁以制造真实出手。",
+      "related_work_ids": [
+        "RESEARCH_UI",
+        "CAL_MAINTENANCE"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-052",
+      "input_health": "FAIL",
+      "input_state": "FAIL",
+      "title": "【第2章 Service与业务运行】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8520
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "cb8360e2ac6481c8e7a7b9af1aa3d35373e2ea7e5c9f9813d4372c5c0b843925",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectRuntime"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_DEVICE_RETEST",
+      "remaining_obligation": "HEALTHY表示循环活跃；P95>5000仍触发FAIL。定位新鲜SLA瓶颈和484历史写失败重试。",
+      "related_work_ids": [
+        "QUEUE_READY",
+        "CAL_HEAD",
+        "OBSERVATION_IO",
+        "RETENTION",
+        "RUNTIME_REASON"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-054",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第4章 100号码概率面】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8524
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "0248344d36c88c8f246650bdb78090bf0e4f8637e28f834e12df5e0b552e10d6",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectNumberSurface"
+      },
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "分布/Sinkhorn运行指标没有持久样本；核查当前Owner写出与report读取，不把静态实现或别表行数冒充。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "本轮没有新增该概率面持久运行指标的专项验收。"
+    },
+    {
+      "check_id": "RSEC-055",
+      "input_health": "WARN",
+      "input_state": "RETEST_REQUIRED",
+      "title": "【第5章 跨位置结构】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8526
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "23f6d455fe475350f6361c1ebdb1a560e77563325a77cc30c6a104f29e170a6c",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectCrossPosition"
+      },
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "relation/permutation/transition报告无样本；核对精确目标/PIT源和当前指标消费者。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "本轮没有新增跨位结构指标真实来源/消费者专项验收。"
+    },
+    {
+      "check_id": "RSEC-056",
+      "input_health": "WARN",
+      "input_state": "RETEST_REQUIRED",
+      "title": "【第6章 固定K3漏斗】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8528
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "fce0bac0cfca3e16a6c875eba139a07077172913f043a7cb58138c1e8eba4809",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectK3Funnel"
+      },
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "静态K=9..3不是逐期funnel证据，核查持久指标入口并回读本期。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "本轮没有新增当前期K3漏斗指标专项验收。"
+    },
+    {
+      "check_id": "RSEC-058",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第8章 动作Ranker】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8532
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "aa3d3c0db6a90197c694e0356e3b51f2472506df466fb04a499312a318131df0",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectRanker"
+      },
+      "acceptance_kind": "RUNTIME_METRIC_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "Ranker无runtime sample；需要同一期完整动作排名指标及冻结身份。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "本轮没有新增Ranker精确期排名指标专项验收。"
+    },
+    {
+      "check_id": "RSEC-059",
+      "input_health": "NOT_PROVEN",
+      "input_state": "WAIT_CALIBRATION_INPUT",
+      "title": "【第9章 选择后校准与严格OOS】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8534
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "e4bee458a4cedbf9e558641a32afc36bf011d597277083b9590ecd566b32f0cc",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectCalibration"
+      },
+      "acceptance_kind": "CODE_INVESTIGATION_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "203个gap中4条为本版480/482漏期，2条为旧354缺口本版发现；先解决捕获连续性，不能拼跨study241。",
+      "related_work_ids": [
+        "CAL_HEAD",
+        "CAL_MAINTENANCE",
+        "QUEUE_READY"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-060",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第10章 频率与REAL硬门】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8536
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "78d6ffcc7326c620e9beb27d17f34e7664e1da063ca708d589e05c4099b67f52",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectFrequency"
+      },
+      "acceptance_kind": "NATURAL_REAL_EVIDENCE",
+      "remaining_obligation": "REAL账本total=0，空账本无重复不等于已经实际出手；需要自然合格候选经唯一gate。",
+      "related_work_ids": [
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-061",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NOT_PROVEN",
+      "title": "【第11章 失败树与反证】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8538
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "4127295b6c497b3d1ec46089d959cbcfebb022816f808751de33bf639a4812ad",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectFailureTree"
+      },
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "remaining_obligation": "当前动态诊断已转模型证据未完整；相同诊断被多个章节复用，不计独立六个故障。",
+      "related_work_ids": [
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-062",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【B14动态故障诊断】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8540
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "remaining_obligation": "与061同诊断hash；须真实CAL/Future/证书，非另一个独立运行崩溃。",
+      "related_work_ids": [
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-063",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【确认事实/假设分离】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8542
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "remaining_obligation": "与061同诊断hash；保留真实证据不足。",
+      "related_work_ids": [
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-064",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【因果故障图】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8544
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "remaining_obligation": "与061同诊断hash；保留正式门禁，不能凭修复数保证质量。",
+      "related_work_ids": [
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-065",
+      "input_health": "NOT_PROVEN",
+      "input_state": "ENGINEERING_DIAGNOSIS_ACTIVE_REAL_REMAINS_GATED",
+      "title": "【修复优先级】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8546
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "331ea543b99b4b0cb10210e9959349af87fcf66da825d61da7b48b6af5153a20",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/V57FailureDiagnosisEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_QUALIFICATION_REQUIRED",
+      "remaining_obligation": "与061同诊断hash；反馈/研究可继续，生产须独立资格。",
+      "related_work_ids": [
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-066",
+      "input_health": "FAIL",
+      "input_state": "BLOCKED",
+      "title": "【K3失败九类拆解】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8548
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "4f56a5aa325e957d15ec66c6ce6c201a27ed31b9a145f1ddc96d0383e511114b",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/K3FailureDiagnosisEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "TRAINING_AND_NATURAL_QUALITY_REQUIRED",
+      "remaining_obligation": "NumberQ/Ranker/SelectedHitP显示工程种子未证明；实际训练冻结并按各自自然OOS合同验收，不靠改PROVEN字段。",
+      "related_work_ids": [
+        "TRAIN_RESUME",
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "六个现代候选开发artifact不等于NumberQ/Ranker/SelectedHitP各自已自然OOS证明。"
+    },
+    {
+      "check_id": "RSEC-068",
+      "input_health": "NOT_PROVEN",
+      "input_state": "NO_MEASURED_ABLATION",
+      "title": "【策略贡献/冲突/冗余/消融】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8552
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "59b45179f846fa390d73a4a994011fedcfed05d66e01d7932ddcb7e07d349835",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_ABLATION_REQUIRED",
+      "remaining_obligation": "无冻结OOS消融，策略增益/冲突/冗余不能编造；现代矩阵少量checkpoint亦不等于正式消融。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "没有新增冻结自然OOS消融或策略增益证据。"
+    },
+    {
+      "check_id": "RSEC-069",
+      "input_health": "WARN",
+      "input_state": "WATCH",
+      "title": "【公式/算法/概率审计】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8554
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "cd0bf0562cb645d8b4862bf47f386229b264741073b137d87f95769f1c17c9f8",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/FormulaAlgorithmAuditEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "8个WATCH/UNAVAILABLE涵盖模型/校准/Sinkhorn/PIT/离线parity；按精确原条款分别补证。",
+      "related_work_ids": [
+        "CAL_HEAD",
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-070",
+      "input_health": "WARN",
+      "input_state": "WARN",
+      "title": "【第13章 代码Owner完整性】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8556
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "d4aaf67e0af785ae5547ca3ede59641c1a37b277516a937d9c70ea26269a29b5",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java",
+        "evaluator_method": "collectCodeOwner"
+      },
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "Owner审计11PASS/5WATCH/1NA/0BLOCK，重点PIT状态与未证明模型；不能作为全代码无冲突证书。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "局部Owner回归不能代替全部Owner/1–9契约的无冲突验收。"
+    },
+    {
+      "check_id": "RSEC-071",
+      "input_health": "WARN",
+      "input_state": "WATCH",
+      "title": "【代码Owner与完整性审计】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8558
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "14194964705cb5dbbfc697cb6f58be954338afb6bd5352728285913ae1acdb87",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/CodeOwnershipCompletenessAuditEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "MIXED_RUNTIME_AND_NATURAL_EVIDENCE",
+      "remaining_obligation": "与070同一Owner审计，避免重复计算为独立代码冲突。",
+      "related_work_ids": [],
+      "mapping_status": "NO_NEW_DIRECT_ACCEPTANCE_EVIDENCE",
+      "new_report_health": null,
+      "closed": false,
+      "note": "与070同一审计，保留独立报告ID但不重复计工程故障。"
+    },
+    {
+      "check_id": "RSEC-073",
+      "input_health": "NOT_PROVEN",
+      "input_state": "REAL_LOCKED_SHADOW_ONLY",
+      "title": "【改进Challenger计划】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8562
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "5a86c02ce218d1040273ab4f4c5d590743ae7e48710c51bc888890f22b80d484",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/ImprovementChallengerPlanEngine.java",
+        "evaluator_method": "render"
+      },
+      "acceptance_kind": "NATURAL_CHALLENGER_EVIDENCE",
+      "remaining_obligation": "Challenger建议不等于候选已合格；需新训练/冻结/CAL/独立Future比较和证书。",
+      "related_work_ids": [
+        "TRAIN_RESUME",
+        "CAL_MAINTENANCE",
+        "RESEARCH_UI"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "开发回归只覆盖列出的机制；原报告结论保持，最终业务/自然证据尚待验收。"
+    },
+    {
+      "check_id": "RSEC-074",
+      "input_health": "FAIL",
+      "input_state": "FAIL",
+      "title": "【第15章 Finding完整施工账本】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0002.jsonl",
+          "line": 8564
+        },
+        "member": "catalog-0002.jsonl",
+        "sha256": "3a6e5848a8c184998424a700b3959968d247559e9c3eb7a6f33e74e98b491b89",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+        "evaluator_method": "findingChapter"
+      },
+      "acceptance_kind": "CODE_AND_DIAGNOSTIC_PRECISION",
+      "remaining_obligation": "精确原因文案已实现并主机验证；需新手机报告观察实际P95/失败状态，原FAIL不自动变PASS。",
+      "related_work_ids": [
+        "RUNTIME_REASON"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "原因精确化最终字节码23项通过；原RSEC报告健康结论未改写，需新手机报告验证。"
+    },
+    {
+      "check_id": "RSEC-078",
+      "input_health": "NOT_PROVEN",
+      "input_state": "RESEARCH_TRAINING_NOT_OBSERVED",
+      "title": "【第19章 R811结算、证据、SHADOW与Research统一真值】",
+      "original_evidence": {
+        "catalog_locator": {
+          "file": "catalog-0003.jsonl",
+          "line": 1
+        },
+        "member": "catalog-0003.jsonl",
+        "sha256": "d6eba967c6591c7717aeee0ab6390241a5d2a42cfcf32d3b2f27d8852c9d7cc1",
+        "evaluator_source": "app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java",
+        "evaluator_method": "r811TruthChapter"
+      },
+      "acceptance_kind": "CODE_AND_DIAGNOSTIC_PRECISION",
+      "remaining_obligation": "现代input/protocol已有6、feature cursor2但development receipt0；旧FTRL/online有数值更新。分开写现代未完成和旧学习存在，不概括无算法。",
+      "related_work_ids": [
+        "RESEARCH_UI",
+        "TRAIN_RESUME",
+        "QUEUE_READY"
+      ],
+      "mapping_status": "PARTIAL_ENGINEERING_EVIDENCE_RETEST_REQUIRED",
+      "new_report_health": null,
+      "closed": false,
+      "note": "新增中文UI投影能区分学习链；原R811报告evaluator字段本轮是否修正尚未证明。"
+    }
+  ],
+  "not_claimed": [
+    "No guarantee the upstream draw is published within five seconds after opening.",
+    "No verified continuous phone capture at 55 seconds remaining, background recovery, runtime P95 or full transaction-to-settlement timing.",
+    "7920 host development features and six freezes are not user-phone completion or natural CAL/Future evidence.",
+    "No force-enabling REAL, synthetic predraw backfill, artificial qualification, or guaranteed monotonically improving generations.",
+    "Old 3.711GB large upgrade backups are retained; no claim of reclaimed phone bytes.",
+    "No all-96 PASS and no full 1–9 acceptance; APK saved, phone and natural qualification remain unverified."
+  ],
+  "updated_at_utc": "2026-10-13T10:05:31.192269+00:00",
+  "final_receipts": [
+    {
+      "path": "verification/r76/evidence/final/suite.json",
+      "available": true,
+      "sha256": "35488c95c5005152ae287dcfd4da456fbfed584b350cca7c3f997c04f2845fde"
+    },
+    {
+      "path": "verification/r76/evidence/final/first-suite-attempt.json",
+      "available": true,
+      "sha256": "c6344062d95a43ef45c006b33f08292928f4b6c933935df0619ba86382c9a2f2"
+    },
+    {
+      "path": "verification/r76/evidence/final/release-class-hashes.json.gz",
+      "available": true,
+      "sha256": "ba1d069de87c2d0cec3c7e27e342ea72aebb2df9eabffa0752038d38f9967376"
+    },
+    {
+      "path": "verification/r76/evidence/final/build-build-receipt.json",
+      "available": true,
+      "sha256": "6642e0f90ceb5b5bcee28140bd76a6e1f8f975fbce64176b216e19e8df5326a5"
+    },
+    {
+      "path": "verification/r76/evidence/final/unit-summary.json",
+      "available": true,
+      "sha256": "3266c5b92bf8c81a4ca34164d23c3091d57cd75cc1a59d66b50807ec8f5f0eaf"
+    },
+    {
+      "path": "verification/r76/evidence/final/delivery.json",
+      "available": true,
+      "sha256": "ff6dcf087d1f3e7a515f9309a860a671024c0f80a1228a54f22ae0a2c8f2bee6"
+    },
+    {
+      "path": "verification/r76/evidence/final/build-first-attempt.json",
+      "available": true,
+      "sha256": "cc719c0c6e9a9185d8955efdab407314102d48422566b4b4017f3aa0481815c6"
+    },
+    {
+      "path": "verification/r76/evidence/final/ci-result.json",
+      "available": true,
+      "sha256": "e5902299d50474d201fd423f4cf9600e5a36cb494b3859480deba35f5d8e58a1"
+    }
+  ],
+  "ci_limitation": "Required code/build/Android/runtime and log-fallback steps succeeded. Final artifact upload failed; job logs could not be retrieved, exact upload cause unavailable. Overall workflow remains failure."
+}

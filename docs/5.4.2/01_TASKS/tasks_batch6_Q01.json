@@ -1,0 +1,63 @@
+[
+  {
+    "id": "Q01",
+    "title": "主机、SQL、故障注入与统计回归",
+    "original_requirements": [
+      "P1-12",
+      "P2-02",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8",
+      "M9",
+      "M10"
+    ],
+    "priority": "P0",
+    "files": [
+      "scripts/r925_compile_host.sh",
+      "scripts/r925_verify_sql_and_training.sh",
+      "verification/r925/R925PolicyHarness.java",
+      "verification/r925/R925SqlHarness.java",
+      "verification/r925/verify_training.py"
+    ],
+    "anchors": "现有host harness扩展 / real SQLite bridge",
+    "gap": "既有host通过是基线；新方案需故障语义和负例，不能全靠regex扫描通过。",
+    "steps": [
+      "保留原13纯主机harness结果并核对真实接口，新增每任务负例",
+      "真实SQLite测试所有DDL幂等/唯一键/回放/回滚/并发锁",
+      "完整流水在每个持久化边界注入中止，核对收敛与Owner",
+      "训练污染、复制sealed、错校准选择hash、改域、基线变更、假family与重复look一律拒绝",
+      "原子语义和旧矩阵fixture保留",
+      "证据中明确mock、synthetic、host、instrumented四种来源",
+      "本项仅主机/SQL/构建合同门，不依赖Android实测完成；D11先做host子检查，设备部分在Q01产出测试APK后完成，避免启动依赖环"
+    ],
+    "acceptance": [
+      "所有必需负例可触发预期拒绝",
+      "零测试不得显示PASS",
+      "失败列表、命令/版本/hash完整，改动相关回归全部通过"
+    ],
+    "dependencies": [
+      "B10",
+      "B11",
+      "C12",
+      "U04",
+      "D10"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/Q01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E06A",
+      "E06B",
+      "E06C",
+      "E06D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  }
+]

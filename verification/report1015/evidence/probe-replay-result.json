@@ -1,0 +1,103 @@
+{
+  "scope": "RETROSPECTIVE_PROSPECTIVE_REPLAY_NOT_NATURAL_FUTURE_NOT_CERTIFICATE",
+  "draws_sha256": "7b1af8ab11a6ed41b5c8b7908d4f8d6d101843ec637cc93917c4c7b1a280dd19",
+  "position": 1,
+  "k": 3,
+  "history_windows": [
+    48,
+    240,
+    960
+  ],
+  "horizons": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "dirichlet_alpha": 1,
+  "weights": "EQUAL_FIXED",
+  "holdout_n": 1200,
+  "holdout_first": "202610140494",
+  "holdout_last": "202610150253",
+  "fixed_123_baseline": {
+    "n": 1200,
+    "hits": 333,
+    "hit_rate": 0.2775,
+    "wilson95": [
+      0.25290624744298096,
+      0.3035137478252361
+    ],
+    "maximum_miss_streak": 17,
+    "brier_raw_not_calibrated": 0.20100000000000304
+  },
+  "horizon_results": {
+    "1": {
+      "n": 1200,
+      "hits": 355,
+      "hit_rate": 0.29583333333333334,
+      "wilson95": [
+        0.2706941170098833,
+        0.3222755415695668
+      ],
+      "maximum_miss_streak": 22,
+      "brier_raw_not_calibrated": 0.2211768139226019
+    },
+    "2": {
+      "n": 1200,
+      "hits": 353,
+      "hit_rate": 0.2941666666666667,
+      "wilson95": [
+        0.26907494156475575,
+        0.32057202035003673
+      ],
+      "maximum_miss_streak": 14,
+      "brier_raw_not_calibrated": 0.2090485244472438
+    },
+    "4": {
+      "n": 1200,
+      "hits": 348,
+      "hit_rate": 0.29,
+      "wilson95": [
+        0.26502881390963506,
+        0.3163114063435135
+      ],
+      "maximum_miss_streak": 14,
+      "brier_raw_not_calibrated": 0.20737993203462737
+    },
+    "8": {
+      "n": 1200,
+      "hits": 340,
+      "hit_rate": 0.2833333333333333,
+      "wilson95": [
+        0.2585604592730233,
+        0.30948897432149514
+      ],
+      "maximum_miss_streak": 17,
+      "brier_raw_not_calibrated": 0.20506436791443206
+    }
+  },
+  "probe_consensus": {
+    "n": 1200,
+    "hits": 361,
+    "hit_rate": 0.30083333333333334,
+    "wilson95": [
+      0.275554100705361,
+      0.32738364786806173
+    ],
+    "maximum_miss_streak": 16,
+    "brier_raw_not_calibrated": 0.21176376142962458
+  },
+  "probe_consensus_threshold_040": {
+    "n": 0,
+    "hit_rate": null
+  },
+  "threshold_040_coverage": 0.0,
+  "promotion": "NOT_GRANTED",
+  "limitations": [
+    "Single reported feed; no independent feed verification.",
+    "Replay rather than device-frozen natural predictions.",
+    "Raw probability mass is not selection-conditioned calibration.",
+    "No hyperparameter or horizon chosen by holdout outcomes; multiple comparisons remain exploratory.",
+    "Correlated horizon outcomes must not be summed into independent sample N."
+  ]
+}

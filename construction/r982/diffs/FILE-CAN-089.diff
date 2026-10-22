@@ -1,0 +1,12 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java b/app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java
+index 8779501..4ef0f93 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MainActivityTruthPresenterR926.java
+@@ -23,6 +23,7 @@ public final class MainActivityTruthPresenterR926 {
+ 
+     public static RenderedDetail render(DbStore store, int kind) {
+         RuntimeReadOnlyRepositoryR926 repository = new RuntimeReadOnlyRepositoryR926(store);
++        if(kind==3||kind==9){RuntimeTruthSnapshotR906 truth=HomeTruthRepositoryR906.capture(store);return new RenderedDetail("业务漏斗14阶段完整明细",truth.businessFunnel==null?"READ_ERROR|"+truth.readError:truth.businessFunnel.detail(),false);}
+         if (kind >= 1 && kind <= 4) {
+             int section = kind - 1;
+             return new RenderedDetail(

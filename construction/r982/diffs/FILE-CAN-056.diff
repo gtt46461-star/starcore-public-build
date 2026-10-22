@@ -1,0 +1,68 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java b/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java
+index 9881ffb..13fedc5 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DeferredEvidenceWriterR36.java
+@@ -1136,4 +1136,63 @@ public final class DeferredEvidenceWriterR36 {
+                     + (error.length() == 0 ? "" : "|error=" + error);
+         }
+     }
++
++public static BacklogStats backlogStatsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return BacklogStats.readError("STORE_NULL");
++        Cursor c = null;
++        try {
++            c = report.select(
++                    "SELECT COUNT(1),"
++                            + "COALESCE(SUM(CASE WHEN core_materialized=1 THEN 1 ELSE 0 END),0),"
++                            + "COALESCE(SUM(next_action_ordinal),0),"
++                            + "COALESCE(MAX(next_action_ordinal),0),"
++                            + "COALESCE(MIN(CASE WHEN core_materialized=1 THEN next_action_ordinal ELSE 0 END),0),"
++                            + "COALESCE(MAX(target_issue),''),COALESCE(MIN(target_issue),'') FROM "
++                            + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
++                            + " WHERE status IN ('PENDING','RUNNING','RETRY_WAIT')",
++                    null);
++            if (!c.moveToFirst()) return BacklogStats.readError("NO_ROW");
++            return new BacklogStats("OK", c.getInt(0), c.getInt(1), c.getLong(2),
++                    c.getInt(3), c.getInt(4), safeSnapshotCP4(report, c.getString(5)), safeSnapshotCP4(report, c.getString(6)), "");
++        } catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);} finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
++        return x == null ? "" : x.trim();
++    }
++
++public static int pendingCountSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return 0;
++        Cursor c = null;
++        try {
++            c =
++                    report.select(
++                                    "SELECT COUNT(1) FROM "
++                                            + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
++                                            + " WHERE status IN ('PENDING','RUNNING','RETRY_WAIT')",
++                                    null);
++            return c.moveToFirst() ? c.getInt(0) : 0;
++        } finally {
++            if (c != null) c.close();
++        }
++    }
++
++public static String statusForTargetSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store, String target) {
++        if (store == null) return "READ_ERROR:STORE_NULL";
++        if (!TargetIssueResolver.isValid(target)) return "MISSING";
++        Cursor c = null;
++        try {
++            c =
++                    report.select(
++                                    "SELECT status FROM "
++                                            + DbHelper.TABLE_R35_DEFERRED_EVIDENCE_JOB
++                                            + " WHERE target_issue=? LIMIT 1",
++                                    new String[] {target});
++            return c.moveToFirst() ? safeSnapshotCP4(report, c.getString(0)) : "MISSING";
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (c != null) c.close();
++        }
++    }
+ }

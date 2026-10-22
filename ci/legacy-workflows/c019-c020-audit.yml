@@ -1,0 +1,58 @@
+name: C019 C020 and complete current C001-C020 contracts
+on:
+  push:
+    branches: [construction/c019-c020-audit-20261020]
+    paths: ['.github/workflows/c019-c020-audit.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c019-c020-audit
+  cancel-in-progress: false
+jobs:
+  current-source-contracts:
+    if: github.ref == 'refs/heads/construction/c019-c020-audit-20261020'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /app/**
+            /scripts/**
+            /release/**
+            /verification/**
+            /training/**
+            /gradle/**
+            /construction/r997/**
+            /construction/c_chain_20261018/C006/contract-inputs.zip
+            /construction/c_chain_20261018/C014/test-inputs.zip
+            /construction/c_chain_20261018/C014/test-inputs-index.json
+            /construction/c_chain_20261018/C019-C020/**
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install formal Android36 tools
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME']);manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0'],check=True)
+          subprocess.run(['python3','-m','pip','install','numpy==2.3.5'],check=True)
+          PY
+      - name: Actual C019 C020 and all twenty current-source contracts
+        env:
+          STARCORE_AUDIT_BATCHES: C001
+        run: python3 construction/c_chain_20261018/C019-C020/ci_verify.py
+
+# Revision 2: retain original strict rejection; bind regenerated host inventory and run full scheduling and motif contracts.
+# Revision 3: compile authentic R80 Git source for negative counterexamples; never replace current candidate classes.
+# Revision 4: supply exact canonical historical applier solely for its retained C001 contract; rerun only missing C001.

@@ -1,0 +1,58 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java
+@@ -64,7 +64,9 @@
+         } finally {
+             if (c != null) c.close();
+         }
+-        if(!Double.isFinite(probability)||probability<0.0d||probability>1.0d)
++        boolean exactUncalibrated = probability == -1.0d
++                && exactUncalibratedReceipt(db,target,position,n1,n2,n3,frozenHash,snapshotHash);
++        if(!exactUncalibrated && (!Double.isFinite(probability)||probability<0.0d||probability>1.0d))
+             return fail(target,"FROZEN_PROBABILITY_INVALID",base,commitAt,draw.openTime,historyHash,frozenHash,drawHash);
+         long frozenAt = commitAt > 0L ? commitAt : predictedAt;
+         if (preDraw != 1 || !TargetIssueResolver.exact(base, target).valid)
+@@ -211,7 +213,8 @@
+                 hit,
+                 probability,
+                 brier,
+-                replay ? "REPLAY_IDEMPOTENT_BUSINESS_FACTS" : "STRICT_OOS_COMMITTED",
++                replay ? "REPLAY_IDEMPOTENT_BUSINESS_FACTS"
++                        : exactUncalibrated ? "STRICT_ACTION_OOS_UNCALIBRATED" : "STRICT_OOS_COMMITTED",
+                 effectiveRecord,
+                 base,
+                 frozenAt,
+@@ -219,6 +222,34 @@
+                 historyHash,
+                 frozenHash,
+                 drawHash);
++    }
++
++    /** Historical action facts never fabricate calibrated probability. Only an immutable exact
++     * receipt bound to its original B11 audit permits the explicit unavailable sentinel. */
++    private static boolean exactUncalibratedReceipt(SQLiteDatabase db,String target,
++            int position,int n1,int n2,int n3,String canonicalHash,String snapshotHash) {
++        try(Cursor c=db.rawQuery(
++                "SELECT e.model_hash,e.certificate_hash,e.proof_hash,e.recipe_hash,e.action_hash,e.authorization_hash,g.payload_text,g.payload_hash"
++                +" FROM r974_exact_real_receipt e JOIN "+DbHelper.TABLE_TRADES+" t ON t._id=e.trade_id AND t.target_issue=e.target_issue"
++                +" JOIN "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" s ON s.target_issue=e.target_issue"
++                +" JOIN "+V51Repository.AUTH+" a ON a.target_issue=e.target_issue AND a.authorization_hash=e.authorization_hash"
++                +" JOIN "+RuntimeEventLedgerR926.TABLE_EVENT+" g ON g.target_issue=e.target_issue AND g.event_type='GATE_EVIDENCE' AND g.source='Batch2GateEvidenceR926'"
++                +" WHERE e.target_issue=? AND t.action='BET' AND t.stat_scope='REAL_TRADE'"
++                +" AND t.authorization_id=e.authorization_hash AND s.authorization_hash=e.authorization_hash"
++                +" AND s.decision_action='BET' AND s.pre_draw_frozen=1 AND s.selected_hit_p=-1"
++                +" AND s.record_hash=? AND s.snapshot_hash=? AND a.contract_hash=s.contract_hash AND a.bundle_hash=s.bundle_hash"
++                +" AND t.position=? AND t.n1=? AND t.n2=? AND t.n3=?",
++                new String[]{target,canonicalHash,snapshotHash,String.valueOf(position),String.valueOf(n1),String.valueOf(n2),String.valueOf(n3)})) {
++            if(!c.moveToFirst())return false;
++            for(int i=0;i<5;i++)if(!Batch2ContractCoreR926.isSha256(c.getString(i)))return false;
++            String payload=c.getString(6);
++            boolean valid=V51AuthorizationCore.isBetEnvelope(c.getString(5))&&payload!=null
++                    &&V51ChecksumEngine.sha256(payload).equals(c.getString(7))
++                    &&payload.contains("|canonical_hash="+canonicalHash+"|")
++                    &&payload.contains("|snapshot_hash="+snapshotHash+"|")
++                    &&payload.contains("|certificate_mode=R974_EXACT_CERTIFICATE_AND_CANONICAL_RECEIPT_BOUND|");
++            return valid&&!c.moveToNext();
++        }
+     }
+ 
+     private static ExistingLabel existingBusinessLabel(SQLiteDatabase db, String target) {

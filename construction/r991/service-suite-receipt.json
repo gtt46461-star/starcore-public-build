@@ -1,0 +1,98 @@
+[
+  {
+    "mode": "storage",
+    "command": [
+      "python3",
+      "verification/r991/run_service_storage.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-service-actual-storage",
+      "--mode",
+      "storage"
+    ],
+    "exit_code": 0
+  },
+  {
+    "mode": "write",
+    "command": [
+      "python3",
+      "verification/r991/run_service_storage.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-service-actual-write",
+      "--mode",
+      "write"
+    ],
+    "exit_code": 0
+  },
+  {
+    "mode": "close",
+    "command": [
+      "python3",
+      "verification/r991/run_service_storage.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-service-actual-close",
+      "--mode",
+      "close"
+    ],
+    "exit_code": 0
+  },
+  {
+    "mode": "late",
+    "command": [
+      "python3",
+      "verification/r991/run_service_storage.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-service-actual-late",
+      "--mode",
+      "late"
+    ],
+    "exit_code": 0
+  },
+  {
+    "mode": "normal",
+    "command": [
+      "python3",
+      "verification/r991/run_service_storage.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-service-actual-normal",
+      "--mode",
+      "normal"
+    ],
+    "exit_code": 0
+  },
+  {
+    "mode": "transient",
+    "command": [
+      "python3",
+      "verification/r991/run_service_storage.py",
+      "--classes",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-schema/classes",
+      "--android-jar",
+      "/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "--out",
+      "/workspace/scratch/c7daf582ec06/evidence/r991-service-actual-transient",
+      "--mode",
+      "transient"
+    ],
+    "exit_code": 0
+  }
+]

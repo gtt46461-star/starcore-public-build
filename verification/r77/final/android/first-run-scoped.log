@@ -1,0 +1,276 @@
+﻿2026-10-13T13:36:01.8186803Z Current runner version: '2.337.0'
+2026-10-13T13:36:01.8206011Z ##[group]Runner Image Provisioner
+2026-10-13T13:36:01.8206664Z Hosted Compute Agent
+2026-10-13T13:36:01.8207045Z Version: 20261002.596
+2026-10-13T13:36:01.8207409Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T13:36:01.8207913Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T13:36:01.8208323Z Worker ID: {a266a9e4-b92a-4539-9d32-c649aea555d9}
+2026-10-13T13:36:01.8208774Z Region: centralus
+2026-10-13T13:36:01.8209148Z Cloud: Azure
+2026-10-13T13:36:01.8209462Z ##[endgroup]
+2026-10-13T13:36:01.8210340Z ##[group]Operating System
+2026-10-13T13:36:01.8210710Z Ubuntu
+2026-10-13T13:36:01.8211048Z 24.04.5
+2026-10-13T13:36:01.8211401Z LTS
+2026-10-13T13:36:01.8211715Z ##[endgroup]
+2026-10-13T13:36:01.8212077Z ##[group]Runner Image
+2026-10-13T13:36:01.8212466Z Image: ubuntu-24.04
+2026-10-13T13:36:01.8212830Z Version: 20261004.327.1
+2026-10-13T13:36:01.8213958Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T13:36:01.8214868Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T13:36:01.8215424Z ##[endgroup]
+2026-10-13T13:36:01.8216159Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T13:36:01.8217501Z Actions: read
+2026-10-13T13:36:01.8217883Z Contents: read
+2026-10-13T13:36:01.8218236Z Metadata: read
+2026-10-13T13:36:01.8218569Z ##[endgroup]
+2026-10-13T13:36:01.8219990Z Secret source: Actions
+2026-10-13T13:36:01.8220541Z Cache mode: write
+2026-10-13T13:36:01.8221342Z Prepare workflow directory
+2026-10-13T13:36:01.8464666Z Prepare all required actions
+2026-10-13T13:36:01.8573738Z Complete job name: recover-scoped-evidence
+2026-10-13T13:36:01.9277645Z ##[group]Run python3 - <<'PY'
+2026-10-13T13:36:01.9278583Z [36;1mpython3 - <<'PY'[0m
+2026-10-13T13:36:01.9279550Z [36;1mimport base64, hashlib, io, json, os, re, urllib.error, urllib.parse, urllib.request, zipfile[0m
+2026-10-13T13:36:01.9280635Z [36;1mrepo = os.environ['GITHUB_REPOSITORY'][0m
+2026-10-13T13:36:01.9281346Z [36;1massert repo == 'gtt46461-star/eth-k3-v43-nova'[0m
+2026-10-13T13:36:01.9282035Z [36;1mjob = 115308784137[0m
+2026-10-13T13:36:01.9282701Z [36;1mclass NoRedirect(urllib.request.HTTPRedirectHandler):[0m
+2026-10-13T13:36:01.9283822Z [36;1m    def redirect_request(self, req, fp, code, msg, headers, newurl):[0m
+2026-10-13T13:36:01.9284665Z [36;1m        return None[0m
+2026-10-13T13:36:01.9285536Z [36;1mrequest = urllib.request.Request(f'https://api.github.com/repos/{repo}/actions/jobs/{job}/logs',[0m
+2026-10-13T13:36:01.9286650Z [36;1m    headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],[0m
+2026-10-13T13:36:01.9287737Z [36;1m             'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})[0m
+2026-10-13T13:36:01.9288669Z [36;1mtry:[0m
+2026-10-13T13:36:01.9289379Z [36;1m    response = urllib.request.build_opener(NoRedirect).open(request, timeout=60)[0m
+2026-10-13T13:36:01.9290253Z [36;1m    raw = response.read()[0m
+2026-10-13T13:36:01.9290965Z [36;1mexcept urllib.error.HTTPError as error:[0m
+2026-10-13T13:36:01.9291703Z [36;1m    if error.code not in (301, 302, 303, 307, 308):[0m
+2026-10-13T13:36:01.9292645Z [36;1m        raise RuntimeError('Actions log API HTTP ' + str(error.code)) from None[0m
+2026-10-13T13:36:01.9293800Z [36;1m    location = error.headers['Location'][0m
+2026-10-13T13:36:01.9294555Z [36;1m    assert urllib.parse.urlparse(location).scheme == 'https'[0m
+2026-10-13T13:36:01.9295444Z [36;1m    # The GitHub bearer token is never sent to the signed blob URL.[0m
+2026-10-13T13:36:01.9296294Z [36;1m    raw = urllib.request.urlopen(location, timeout=60).read()[0m
+2026-10-13T13:36:01.9297141Z [36;1mtext = raw.decode('utf-8-sig')[0m
+2026-10-13T13:36:01.9297973Z [36;1mprint('R77_ORIGINAL_JOB_LOG_SHA256|' + hashlib.sha256(raw).hexdigest())[0m
+2026-10-13T13:36:01.9298746Z [36;1mfor line in text.splitlines():[0m
+2026-10-13T13:36:01.9299669Z [36;1m    if any(token in line for token in ('O09_ANDROID_CLASS_START|', 'O09_ANDROID_CLASS_RESULT|',[0m
+2026-10-13T13:36:01.9301014Z [36;1m            'O09_ANDROID_RUNTIME_RECEIPT|', 'ANDROID_R77_BUSY_', '##[error]')):[0m
+2026-10-13T13:36:01.9301832Z [36;1m        print(line[:20000])[0m
+2026-10-13T13:36:01.9302678Z [36;1mmanifest = json.loads(re.search(r'O09_EVIDENCE_MANIFEST\|(\{[^\r\n]+\})', text).group(1))[0m
+2026-10-13T13:36:01.9303741Z [36;1mchunks = {}[0m
+2026-10-13T13:36:01.9304511Z [36;1mfor index, content in re.findall(r'O09_EVIDENCE_CHUNK\|(\d+)\|([A-Za-z0-9+/=]+)', text):[0m
+2026-10-13T13:36:01.9305500Z [36;1m    assert int(index) not in chunks, 'duplicate evidence chunk'[0m
+2026-10-13T13:36:01.9306302Z [36;1m    chunks[int(index)] = content[0m
+2026-10-13T13:36:01.9307070Z [36;1massert sorted(chunks) == list(range(len(chunks))), 'missing evidence chunk'[0m
+2026-10-13T13:36:01.9308134Z [36;1marchive = base64.b64decode(''.join(chunks[i] for i in sorted(chunks)), validate=True)[0m
+2026-10-13T13:36:01.9309023Z [36;1massert len(archive) == manifest['bytes'][0m
+2026-10-13T13:36:01.9309918Z [36;1massert hashlib.sha256(archive).hexdigest() == manifest['sha256'][0m
+2026-10-13T13:36:01.9310823Z [36;1mprint('R77_FALLBACK_ARCHIVE_VERIFIED|' + json.dumps(manifest))[0m
+2026-10-13T13:36:01.9311658Z [36;1mwith zipfile.ZipFile(io.BytesIO(archive)) as bundle:[0m
+2026-10-13T13:36:01.9312588Z [36;1m    receipt = json.loads(bundle.read('validation-o09/runtime/receipt.json'))[0m
+2026-10-13T13:36:01.9313695Z [36;1m    print('R77_RUNTIME_RECEIPT|' + json.dumps(receipt))[0m
+2026-10-13T13:36:01.9314855Z [36;1m    selected = {'SqliteBusyPoolR77Test'} | {item['class'] for item in receipt.get('tests', []) if not item.get('passed')}[0m
+2026-10-13T13:36:01.9316154Z [36;1m    for name in sorted(selected):[0m
+2026-10-13T13:36:01.9316888Z [36;1m        path = 'validation-o09/runtime/' + name + '.log'[0m
+2026-10-13T13:36:01.9317676Z [36;1m        if path in bundle.namelist():[0m
+2026-10-13T13:36:01.9318421Z [36;1m            value = bundle.read(path).decode('utf-8', errors='replace')[0m
+2026-10-13T13:36:01.9319264Z [36;1m            print('R77_TEST_LOG_BEGIN|' + name)[0m
+2026-10-13T13:36:01.9319919Z [36;1m            print(value[-60000:])[0m
+2026-10-13T13:36:01.9320531Z [36;1m            print('R77_TEST_LOG_END|' + name)[0m
+2026-10-13T13:36:01.9321326Z [36;1m        path = 'validation-o09/runtime/' + name + '-logcat.log'[0m
+2026-10-13T13:36:01.9322053Z [36;1m        if path in bundle.namelist():[0m
+2026-10-13T13:36:01.9322935Z [36;1m            rows = bundle.read(path).decode('utf-8', errors='replace').splitlines()[0m
+2026-10-13T13:36:01.9324764Z [36;1m            hits = [i for i, line in enumerate(rows) if re.search(r'ANDROID_R77|AssertionError|FATAL EXCEPTION|ANR in|SQLITE|SQLite.*(Exception|locked)|TestRunner.*(failed|finished)|TimeoutException', line)][0m
+2026-10-13T13:36:01.9326415Z [36;1m            chosen = sorted({j for i in hits for j in range(max(0, i - 3), min(len(rows), i + 12))})[0m
+2026-10-13T13:36:01.9327365Z [36;1m            print('R77_SCOPED_LOGCAT_BEGIN|' + name)[0m
+2026-10-13T13:36:01.9328054Z [36;1m            for i in chosen[-500:]: print(rows[i])[0m
+2026-10-13T13:36:01.9328834Z [36;1m            print('R77_SCOPED_LOGCAT_END|' + name)[0m
+2026-10-13T13:36:01.9329447Z [36;1mPY[0m
+2026-10-13T13:36:02.0301600Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T13:36:02.0302718Z env:
+2026-10-13T13:36:02.0326980Z   GH_TOKEN: ***
+2026-10-13T13:36:02.0327584Z ##[endgroup]
+2026-10-13T13:36:03.6870728Z R77_ORIGINAL_JOB_LOG_SHA256|ddf0b563d5d2bd8db628458ed908a6bd9402e0154f80971a35ed5128493120ff
+2026-10-13T13:36:03.6872294Z 2026-10-13T13:12:21.7621538Z O09_ANDROID_CLASS_START|SqliteBusyPoolR77Test
+2026-10-13T13:36:03.6874270Z 2026-10-13T13:12:29.3663592Z O09_ANDROID_CLASS_RESULT|{"class": "SqliteBusyPoolR77Test", "passed": false, "exit": 0, "seconds": 7.108}
+2026-10-13T13:36:03.6876138Z 2026-10-13T13:12:29.4316990Z O09_ANDROID_CLASS_START|FeedbackBootstrapAndroidTest
+2026-10-13T13:36:03.6878272Z 2026-10-13T13:12:35.6112658Z O09_ANDROID_CLASS_RESULT|{"class": "FeedbackBootstrapAndroidTest", "passed": true, "exit": 0, "seconds": 5.735}
+2026-10-13T13:36:03.6880137Z 2026-10-13T13:12:35.7261533Z O09_ANDROID_CLASS_START|SqlNumericAffinityAndroidTest
+2026-10-13T13:36:03.6881994Z 2026-10-13T13:12:40.0022877Z O09_ANDROID_CLASS_RESULT|{"class": "SqlNumericAffinityAndroidTest", "passed": true, "exit": 0, "seconds": 3.878}
+2026-10-13T13:36:03.6884184Z 2026-10-13T13:12:40.0665124Z O09_ANDROID_CLASS_START|FoundationImportAndroidCP12Test
+2026-10-13T13:36:03.6886213Z 2026-10-13T13:15:57.6732968Z O09_ANDROID_CLASS_RESULT|{"class": "FoundationImportAndroidCP12Test", "passed": true, "exit": 0, "seconds": 197.26}
+2026-10-13T13:36:03.6888239Z 2026-10-13T13:15:57.9393071Z O09_ANDROID_CLASS_START|ResearchContinuationAndroidTest
+2026-10-13T13:36:03.6890441Z 2026-10-13T13:18:55.1223432Z O09_ANDROID_CLASS_RESULT|{"class": "ResearchContinuationAndroidTest", "passed": true, "exit": 0, "seconds": 176.788}
+2026-10-13T13:36:03.6892613Z 2026-10-13T13:18:55.1874060Z O09_ANDROID_CLASS_START|R36RuntimeChainTest
+2026-10-13T13:36:03.6894707Z 2026-10-13T13:18:56.1141539Z O09_ANDROID_CLASS_RESULT|{"class": "R36RuntimeChainTest", "passed": true, "exit": 0, "seconds": 0.716}
+2026-10-13T13:36:03.6896703Z 2026-10-13T13:18:56.1466604Z O09_ANDROID_CLASS_START|R36DatabaseAtomicityTest
+2026-10-13T13:36:03.6898720Z 2026-10-13T13:19:16.7892458Z O09_ANDROID_CLASS_RESULT|{"class": "R36DatabaseAtomicityTest", "passed": true, "exit": 0, "seconds": 20.413}
+2026-10-13T13:36:03.6900724Z 2026-10-13T13:19:16.8218168Z O09_ANDROID_CLASS_START|C07AndroidRuntimeScheduleTest
+2026-10-13T13:36:03.6902909Z 2026-10-13T13:19:43.9742902Z O09_ANDROID_CLASS_RESULT|{"class": "C07AndroidRuntimeScheduleTest", "passed": true, "exit": 0, "seconds": 26.974}
+2026-10-13T13:36:03.6904991Z 2026-10-13T13:19:44.0073226Z O09_ANDROID_CLASS_START|R939MainChainTest
+2026-10-13T13:36:03.6906772Z 2026-10-13T13:20:16.9788183Z O09_ANDROID_CLASS_RESULT|{"class": "R939MainChainTest", "passed": true, "exit": 0, "seconds": 32.74}
+2026-10-13T13:36:03.6908614Z 2026-10-13T13:20:17.0109651Z O09_ANDROID_CLASS_START|ShadowCycleAndroidTest
+2026-10-13T13:36:03.6910535Z 2026-10-13T13:21:41.8342945Z O09_ANDROID_CLASS_RESULT|{"class": "ShadowCycleAndroidTest", "passed": true, "exit": 0, "seconds": 84.61}
+2026-10-13T13:36:03.6912501Z 2026-10-13T13:21:41.8732813Z O09_ANDROID_CLASS_START|R940UiStabilityTest
+2026-10-13T13:36:03.6914593Z 2026-10-13T13:22:19.8472898Z O09_ANDROID_CLASS_RESULT|{"class": "R940UiStabilityTest", "passed": true, "exit": 0, "seconds": 37.711}
+2026-10-13T13:36:03.6916585Z 2026-10-13T13:22:20.1171901Z O09_ANDROID_CLASS_START|E03AAndroidParityTest
+2026-10-13T13:36:03.6918605Z 2026-10-13T13:23:31.3687344Z O09_ANDROID_CLASS_RESULT|{"class": "E03AAndroidParityTest", "passed": true, "exit": 0, "seconds": 69.201}
+2026-10-13T13:36:03.6920616Z 2026-10-13T13:23:31.4023274Z O09_ANDROID_CLASS_START|D04AndroidRuntimeParityTest
+2026-10-13T13:36:03.6923820Z 2026-10-13T13:23:55.1584278Z O09_ANDROID_CLASS_RESULT|{"class": "D04AndroidRuntimeParityTest", "passed": true, "exit": 0, "seconds": 23.16}
+2026-10-13T13:36:03.6941508Z 2026-10-13T13:23:55.1918913Z O09_ANDROID_RUNTIME_RECEIPT|{"scope": "SYNTHETIC_ANDROID_RUNTIME_NOT_NATURAL_NOT_PHYSICAL_PHONE", "overall_1_9": "NOT_CLOSED", "natural": "NOT_PROVEN", "tests": [{"class": "SqliteBusyPoolR77Test", "passed": false, "exit": 0, "seconds": 7.108}, {"class": "FeedbackBootstrapAndroidTest", "passed": true, "exit": 0, "seconds": 5.735}, {"class": "SqlNumericAffinityAndroidTest", "passed": true, "exit": 0, "seconds": 3.878}, {"class": "FoundationImportAndroidCP12Test", "passed": true, "exit": 0, "seconds": 197.26}, {"class": "ResearchContinuationAndroidTest", "passed": true, "exit": 0, "seconds": 176.788}, {"class": "R36RuntimeChainTest", "passed": true, "exit": 0, "seconds": 0.716}, {"class": "R36DatabaseAtomicityTest", "passed": true, "exit": 0, "seconds": 20.413}, {"class": "C07AndroidRuntimeScheduleTest", "passed": true, "exit": 0, "seconds": 26.974}, {"class": "R939MainChainTest", "passed": true, "exit": 0, "seconds": 32.74}, {"class": "ShadowCycleAndroidTest", "passed": true, "exit": 0, "seconds": 84.61}, {"class": "R940UiStabilityTest", "passed": true, "exit": 0, "seconds": 37.711}, {"class": "E03AAndroidParityTest", "passed": true, "exit": 0, "seconds": 69.201}, {"class": "D04AndroidRuntimeParityTest", "passed": true, "exit": 0, "seconds": 23.16}], "not_run": {}, "commit": "5823c4b3f198c37d9d1a4db3152d2ec0d296bf29", "inputs": [{"path": "app/build/outputs/apk/debug/Starcore-Tianshu-V57.21.2.0.77-R5.4.2.77-1013-O09-debug.apk", "sha256": "74a5dd2aa29e5a9e9b86e05fe0dd0a3ec52330e171e840a2c0f0ff3b6c434f63"}, {"path": "app/build/outputs/apk/androidTest/debug/Starcore-Tianshu-V57.21.2.0.77-R5.4.2.77-1013-O09-debug-androidTest.apk", "sha256": "199d5084b197ef870ca17e63e843ba2e8e765bd34d9f6fa7e8654b992b5f3143"}], "runtime_contracts": "FAIL"}
+2026-10-13T13:36:03.6980849Z ##[error]Process completed with exit code 1.
+2026-10-13T13:36:03.6990483Z ##[error]Failed to CreateArtifact: Artifact storage quota has been hit. Unable to upload any new artifacts. Usage is recalculated every 6-12 hours.
+2026-10-13T13:36:03.6994733Z R77_FALLBACK_ARCHIVE_VERIFIED|{"files": 118, "bytes": 7408835, "sha256": "bf8019111b53fbb179d8b91fba983120d8578a6380085420fff5f2825208bc7f", "format": "ZIP_BASE64_ORDERED_CHUNKS", "chunk_chars": 4096}
+2026-10-13T13:36:03.7010059Z R77_RUNTIME_RECEIPT|{"scope": "SYNTHETIC_ANDROID_RUNTIME_NOT_NATURAL_NOT_PHYSICAL_PHONE", "overall_1_9": "NOT_CLOSED", "natural": "NOT_PROVEN", "tests": [{"class": "SqliteBusyPoolR77Test", "passed": false, "exit": 0, "seconds": 7.108}, {"class": "FeedbackBootstrapAndroidTest", "passed": true, "exit": 0, "seconds": 5.735}, {"class": "SqlNumericAffinityAndroidTest", "passed": true, "exit": 0, "seconds": 3.878}, {"class": "FoundationImportAndroidCP12Test", "passed": true, "exit": 0, "seconds": 197.26}, {"class": "ResearchContinuationAndroidTest", "passed": true, "exit": 0, "seconds": 176.788}, {"class": "R36RuntimeChainTest", "passed": true, "exit": 0, "seconds": 0.716}, {"class": "R36DatabaseAtomicityTest", "passed": true, "exit": 0, "seconds": 20.413}, {"class": "C07AndroidRuntimeScheduleTest", "passed": true, "exit": 0, "seconds": 26.974}, {"class": "R939MainChainTest", "passed": true, "exit": 0, "seconds": 32.74}, {"class": "ShadowCycleAndroidTest", "passed": true, "exit": 0, "seconds": 84.61}, {"class": "R940UiStabilityTest", "passed": true, "exit": 0, "seconds": 37.711}, {"class": "E03AAndroidParityTest", "passed": true, "exit": 0, "seconds": 69.201}, {"class": "D04AndroidRuntimeParityTest", "passed": true, "exit": 0, "seconds": 23.16}], "not_run": {}, "commit": "5823c4b3f198c37d9d1a4db3152d2ec0d296bf29", "inputs": [{"path": "app/build/outputs/apk/debug/Starcore-Tianshu-V57.21.2.0.77-R5.4.2.77-1013-O09-debug.apk", "sha256": "74a5dd2aa29e5a9e9b86e05fe0dd0a3ec52330e171e840a2c0f0ff3b6c434f63"}, {"path": "app/build/outputs/apk/androidTest/debug/Starcore-Tianshu-V57.21.2.0.77-R5.4.2.77-1013-O09-debug-androidTest.apk", "sha256": "199d5084b197ef870ca17e63e843ba2e8e765bd34d9f6fa7e8654b992b5f3143"}], "runtime_contracts": "FAIL"}
+2026-10-13T13:36:03.7024626Z R77_TEST_LOG_BEGIN|SqliteBusyPoolR77Test
+2026-10-13T13:36:03.7025886Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-13T13:36:03.7027162Z INSTRUMENTATION_STATUS: current=1
+2026-10-13T13:36:03.7028146Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-13T13:36:03.7029166Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-13T13:36:03.7030033Z INSTRUMENTATION_STATUS: stream=
+2026-10-13T13:36:03.7030905Z com.ethk3.novaonepro.SqliteBusyPoolR77Test:
+2026-10-13T13:36:03.7032298Z INSTRUMENTATION_STATUS: test=actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections
+2026-10-13T13:36:03.7033910Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-13T13:36:03.7035008Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.SqliteBusyPoolR77Test
+2026-10-13T13:36:03.7036198Z INSTRUMENTATION_STATUS: current=1
+2026-10-13T13:36:03.7037053Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-13T13:36:03.7038114Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-13T13:36:03.7039572Z INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: transaction pins the primary writer expected:<2500> but was:<50>
+2026-10-13T13:36:03.7041167Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-13T13:36:03.7042167Z 	at org.junit.Assert.failNotEquals(Assert.java:835)
+2026-10-13T13:36:03.7043261Z 	at org.junit.Assert.assertEquals(Assert.java:647)
+2026-10-13T13:36:03.7044720Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.assertPrimaryTimeout(SqliteBusyPoolR77Test.java:55)
+2026-10-13T13:36:03.7047085Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.oldReaderOnlyConfigurationLeavesPrimaryAtNativeDefault(SqliteBusyPoolR77Test.java:87)
+2026-10-13T13:36:03.7049960Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(SqliteBusyPoolR77Test.java:68)
+2026-10-13T13:36:03.7051523Z 
+2026-10-13T13:36:03.7051845Z INSTRUMENTATION_STATUS: stream=
+2026-10-13T13:36:03.7053389Z Error in actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test):
+2026-10-13T13:36:03.7055388Z java.lang.AssertionError: transaction pins the primary writer expected:<2500> but was:<50>
+2026-10-13T13:36:03.7056677Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-13T13:36:03.7057612Z 	at org.junit.Assert.failNotEquals(Assert.java:835)
+2026-10-13T13:36:03.7058617Z 	at org.junit.Assert.assertEquals(Assert.java:647)
+2026-10-13T13:36:03.7060063Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.assertPrimaryTimeout(SqliteBusyPoolR77Test.java:55)
+2026-10-13T13:36:03.7062489Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.oldReaderOnlyConfigurationLeavesPrimaryAtNativeDefault(SqliteBusyPoolR77Test.java:87)
+2026-10-13T13:36:03.7065341Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(SqliteBusyPoolR77Test.java:68)
+2026-10-13T13:36:03.7066902Z 
+2026-10-13T13:36:03.7067652Z INSTRUMENTATION_STATUS: test=actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections
+2026-10-13T13:36:03.7069133Z INSTRUMENTATION_STATUS_CODE: -2
+2026-10-13T13:36:03.7069903Z INSTRUMENTATION_RESULT: stream=
+2026-10-13T13:36:03.7070376Z 
+2026-10-13T13:36:03.7070648Z Time: 0.059
+2026-10-13T13:36:03.7071266Z There was 1 failure:
+2026-10-13T13:36:03.7072599Z 1) actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-13T13:36:03.7074639Z java.lang.AssertionError: transaction pins the primary writer expected:<2500> but was:<50>
+2026-10-13T13:36:03.7075897Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-13T13:36:03.7076821Z 	at org.junit.Assert.failNotEquals(Assert.java:835)
+2026-10-13T13:36:03.7077822Z 	at org.junit.Assert.assertEquals(Assert.java:647)
+2026-10-13T13:36:03.7079243Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.assertPrimaryTimeout(SqliteBusyPoolR77Test.java:55)
+2026-10-13T13:36:03.7081522Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.oldReaderOnlyConfigurationLeavesPrimaryAtNativeDefault(SqliteBusyPoolR77Test.java:87)
+2026-10-13T13:36:03.7084318Z 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(SqliteBusyPoolR77Test.java:68)
+2026-10-13T13:36:03.7085829Z 
+2026-10-13T13:36:03.7086117Z FAILURES!!!
+2026-10-13T13:36:03.7086746Z Tests run: 1,  Failures: 1
+2026-10-13T13:36:03.7087171Z 
+2026-10-13T13:36:03.7087176Z 
+2026-10-13T13:36:03.7087479Z INSTRUMENTATION_CODE: -1
+2026-10-13T13:36:03.7087902Z 
+2026-10-13T13:36:03.7088223Z R77_TEST_LOG_END|SqliteBusyPoolR77Test
+2026-10-13T13:36:03.7089083Z R77_SCOPED_LOGCAT_BEGIN|SqliteBusyPoolR77Test
+2026-10-13T13:36:03.7091062Z 10-13 13:12:23.345   559   572 W system_server: ApkAssets: Deleting an ApkAssets object '/product/overlay/SettingsGoogle__sdk_gphone64_x86_64__auto_generated_rro_product.apk' with 1 weak references
+2026-10-13T13:36:03.7093569Z 10-13 13:12:23.364   933   933 E CellBroadcastUtils: getDefaultCellBroadcastReceiverPackageName: no package found
+2026-10-13T13:36:03.7095536Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: Retrieving snapshot for com.google.android.gms.playlog.uploader failed
+2026-10-13T13:36:03.7097654Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: java.util.concurrent.TimeoutException: Timed out waiting for Task
+2026-10-13T13:36:03.7099626Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at dkkh.n(:com.google.android.gms@242335041@24.23.35 (190800-646585959):53)
+2026-10-13T13:36:03.7101644Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at czsy.f(:com.google.android.gms@242335041@24.23.35 (190800-646585959):11)
+2026-10-13T13:36:03.7103964Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at czsy.j(:com.google.android.gms@242335041@24.23.35 (190800-646585959):42)
+2026-10-13T13:36:03.7105926Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at czsy.h(:com.google.android.gms@242335041@24.23.35 (190800-646585959):4)
+2026-10-13T13:36:03.7108499Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at com.google.android.gms.clearcut.init.ClearcutInitChimeraIntentService.b(:com.google.android.gms@242335041@24.23.35 (190800-646585959):45)
+2026-10-13T13:36:03.7111190Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at ajjh.onHandleIntent(:com.google.android.gms@242335041@24.23.35 (190800-646585959):143)
+2026-10-13T13:36:03.7113932Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at com.google.android.chimera.IntentOperation.onHandleIntent(:com.google.android.gms@242335041@24.23.35 (190800-646585959):2)
+2026-10-13T13:36:03.7116504Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at ajom.onHandleIntent(:com.google.android.gms@242335041@24.23.35 (190800-646585959):8)
+2026-10-13T13:36:03.7118658Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at pkf.run(:com.google.android.gms@242335041@24.23.35 (190800-646585959):70)
+2026-10-13T13:36:03.7120623Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at pke.run(:com.google.android.gms@242335041@24.23.35 (190800-646585959):152)
+2026-10-13T13:36:03.7122589Z 10-13 13:12:23.372  1287  1609 E PhenotypeFlagCommitter: 	at emsz.run(:com.google.android.gms@242335041@24.23.35 (190800-646585959):21)
+2026-10-13T13:36:03.7126037Z 10-13 13:12:24.213  1780  2067 W earchbox:search: Long monitor contention with owner BG Thread #2 (2095) at android.accounts.Account com.google.android.apps.gsa.search.core.google.gaia.bh.L(java.lang.String)(PG:43) waiters=0 in java.lang.String[] com.google.android.apps.gsa.search.core.google.gaia.bh.v() for 1.704s
+2026-10-13T13:36:03.7128996Z 10-13 13:12:24.219   559  2253 I ActivityManager: dumpStackTraces extraPids=null
+2026-10-13T13:36:03.7130056Z 10-13 13:12:24.219   559  2253 I ActivityManager: Done dumping
+2026-10-13T13:36:03.7131183Z 10-13 13:12:24.220   559  2253 E ActivityManager: ANR in com.google.android.apps.messaging
+2026-10-13T13:36:03.7132317Z 10-13 13:12:24.220   559  2253 E ActivityManager: PID: 1737
+2026-10-13T13:36:03.7134713Z 10-13 13:12:24.220   559  2253 E ActivityManager: Reason: Broadcast of Intent { act=android.intent.action.SIM_STATE_CHANGED flg=0x15000010 cmp=com.google.android.apps.messaging/.shared.simstatetracker.AsyncTelephonySimStateReceiver (has extras) }
+2026-10-13T13:36:03.7137222Z 10-13 13:12:24.220   559  2253 E ActivityManager: ErrorId: 7dcf9c11-9621-4791-bb55-adae7c6e5e98
+2026-10-13T13:36:03.7138371Z 10-13 13:12:24.220   559  2253 E ActivityManager: Frozen: false
+2026-10-13T13:36:03.7139330Z 10-13 13:12:24.220   559  2253 E ActivityManager: Load: 0.0 / 0.0 / 0.0
+2026-10-13T13:36:03.7140503Z 10-13 13:12:24.220   559  2253 E ActivityManager: ----- Output from /proc/pressure/memory -----
+2026-10-13T13:36:03.7141896Z 10-13 13:12:24.220   559  2253 E ActivityManager: some avg10=20.55 avg60=9.56 avg300=2.50 total=8030310
+2026-10-13T13:36:03.7143364Z 10-13 13:12:24.220   559  2253 E ActivityManager: full avg10=0.54 avg60=0.09 avg300=0.02 total=71011
+2026-10-13T13:36:03.7144751Z 10-13 13:12:24.220   559  2253 E ActivityManager: ----- End output from /proc/pressure/memory -----
+2026-10-13T13:36:03.7146190Z 10-13 13:12:24.220   559  2253 E ActivityManager: ----- Output from /proc/pressure/cpu -----
+2026-10-13T13:36:03.7147574Z 10-13 13:12:24.220   559  2253 E ActivityManager: some avg10=99.56 avg60=76.42 avg300=25.85 total=88253278
+2026-10-13T13:36:03.7149400Z 10-13 13:12:27.228  1122  2496 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_REMOVED [CONTEXT service_id=17 ]
+2026-10-13T13:36:03.7151350Z 10-13 13:12:27.230  1122  1690 I FontLog : Package com.ethk3.novaonepro.test has no metadata [CONTEXT service_id=132 ]
+2026-10-13T13:36:03.7152831Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: <DWB> Call failed: get_actions
+2026-10-13T13:36:03.7160487Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: java.util.concurrent.TimeoutException: Waited 5000 milliseconds (plus 226149 nanoseconds delay) for lep@5244c2e[status=PENDING, info=[inputFuture=[leo@93ea3cf[status=PENDING, setFuture=[ldw@6af015c[status=PENDING, info=[inputFuture=[lep@415cc65[status=PENDING, info=[inputFuture=[lep@cacfd3a[status=PENDING, info=[inputFuture=[lfl@fabadeb[status=PENDING, info=[futures=[lep@9d8d748[status=PENDING, info=[inputFuture=[lep@c9bc9e1[status=PENDING, info=[inputFuture=[lgj@addb306[status=PENDING, info=[delegate=[lhp@9953dc7[status=PENDING, info=[task=[running=[NOT STARTED YET], propagating=[caw@c481ff4]]]]]]]], function=[propagating=[cag@f2a231d]]]]], function=[propagating=[cme@111f992]]]]]]]], function=[propagating=[dhi@79def63]]]]], function=[propagating=[bxu@6c14760]]]]], exceptionType=[class java.lang.Throwable], fallback=[propagating=[cau@84ad419]]]]]]], function=[propagating=[bxu@8d21cde]]]]
+2026-10-13T13:36:03.7167887Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at lem.get(PG:52)
+2026-10-13T13:36:03.7168988Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at lgb.get(PG:2)
+2026-10-13T13:36:03.7170622Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at com.google.android.apps.wellbeing.api.impl.WellbeingSettingsProvider.i(PG:9)
+2026-10-13T13:36:03.7172836Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at com.google.android.apps.wellbeing.api.impl.WellbeingSettingsProvider.call(PG:162)
+2026-10-13T13:36:03.7174965Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at android.content.ContentProvider.call(ContentProvider.java:2704)
+2026-10-13T13:36:03.7176937Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at android.content.ContentProvider$Transport.call(ContentProvider.java:633)
+2026-10-13T13:36:03.7179037Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at android.content.ContentProviderNative.onTransact(ContentProviderNative.java:307)
+2026-10-13T13:36:03.7181022Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at android.os.Binder.execTransactInternal(Binder.java:1500)
+2026-10-13T13:36:03.7182733Z 10-13 13:12:27.254  1248  1833 W WellbeingSettingsProvid: 	at android.os.Binder.execTransact(Binder.java:1444)
+2026-10-13T13:36:03.7184173Z 10-13 13:12:27.268  1382  2430 V ClearcutMetricXmitter: Transmission is done.
+2026-10-13T13:36:03.7185481Z 10-13 13:12:27.274  1287  2518 W SQLiteLog: (28) double-quoted string literal: "com.ethk3.novaonepro.test"
+2026-10-13T13:36:03.7189130Z 10-13 13:12:28.398   559  1037 D ConnectivityService: requestNetwork for uid/pid:10143/2372 activeRequest: null callbackRequest: 82 [NetworkRequest [ REQUEST id=83, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10143 RequestorUid: 10143 RequestorPkg: com.google.android.gms UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false
+2026-10-13T13:36:03.7253233Z 10-13 13:12:28.403   559   712 D ConnectivityService: NetReassign [83 : null → 100] [c 0] [a 0] [i 0]
+2026-10-13T13:36:03.7254793Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: Error getting timestamp from proto data store
+2026-10-13T13:36:03.7268440Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: java.util.concurrent.TimeoutException: Waited 10 milliseconds (plus 4 milliseconds, 655953 nanoseconds delay) for i@360bb48[status=PENDING, info=[inputFuture=[cf@aefdde1[status=PENDING, info=[delegate=[h@ac23706[status=PENDING, info=[inputFuture=[com.google.apps.tiktok.concurrent.an@61971c7[status=PENDING, info=[callable=[com.google.android.libraries.storage.protostore.el@6a43f4], trial=[com.google.apps.tiktok.concurrent.ao@ab771d[status=PENDING, setFuture=[du@4babd92[status=PENDING, setFuture=[bd@a316363[status=PENDING, info=[futures=[com.google.apps.tiktok.concurrent.an@4e1ab60[status=PENDING, info=[callable=[com.google.android.libraries.storage.protostore.bn@28d6819], trial=[com.google.apps.tiktok.concurrent.ao@84320de[status=PENDING, setFuture=[du@24cd2bf[status=PENDING, setFuture=[i@1a61d8c[status=PENDING, info=[inputFuture=[h@7036cd5[status=PENDING, setFuture=[com.google.apps.tiktok.concurrent.an@95c6cea[status=PENDING, info=[callable=[com.google.android.libraries.storage.protostore.ca@c85dbdb], trial=[com.google.apps.tiktok.concurrent.ao@45d8678[status=PENDING, setFuture=[du@39b0151[status=PENDING, info=[task=[running=[RUNNING ON Blocking Thread #2], propagating=[com.google.android.libraries.storage.protostore.ca@c85dbdb]]]]]]]]]]]], function=[Functions.constant(null)]]]]]]]]]]]]]]]]]]]]], function=[propagating=[com.google.android.libraries.storage.protostore.ej@90c6db6]]]]]]]], function=[com.google.android.apps.gsa.nga.shared.f.a.dp@47c5ab7]]]
+2026-10-13T13:36:03.7281465Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.common.util.concurrent.d.get(PG:54)
+2026-10-13T13:36:03.7283146Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.shared.util.c.aj.g(PG:15)
+2026-10-13T13:36:03.7284921Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.nga.shared.f.a.dq.b(PG:12)
+2026-10-13T13:36:03.7286597Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.staticplugins.aw.n.B(PG:9)
+2026-10-13T13:36:03.7288272Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.staticplugins.aw.n.c(PG:1)
+2026-10-13T13:36:03.7289981Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.search.core.ae.an.a.c.g(PG:3)
+2026-10-13T13:36:03.7291760Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.search.core.service.e.a.i.h(PG:124)
+2026-10-13T13:36:03.7293663Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.search.core.service.e.a.e.run(PG:155)
+2026-10-13T13:36:03.7295486Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.search.core.service.e.a.i.d(PG:9)
+2026-10-13T13:36:03.7297298Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.search.core.service.e.a.i.g(PG:8)
+2026-10-13T13:36:03.7299110Z 10-13 13:12:28.404  1780  2148 I NearmissAnalysisInfo: 	at com.google.android.apps.gsa.search.core.service.e.a.c.a(PG:5)
+2026-10-13T13:36:03.7300482Z 10-13 13:12:29.588  2340  2618 I TestRunner: run started: 1 tests
+2026-10-13T13:36:03.7302212Z 10-13 13:12:29.591  2340  2618 I TestRunner: started: actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-13T13:36:03.7304086Z 10-13 13:12:29.622   355   355 I netd    : tetherGetStats() -> {[]} <0.31ms>
+2026-10-13T13:36:03.7305861Z 10-13 13:12:29.632  2340  2618 E TestRunner: failed: actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-13T13:36:03.7307658Z 10-13 13:12:29.633  2340  2618 E TestRunner: ----- begin exception -----
+2026-10-13T13:36:03.7309129Z 10-13 13:12:29.633  2340  2618 E TestRunner: java.lang.AssertionError: transaction pins the primary writer expected:<2500> but was:<50>
+2026-10-13T13:36:03.7310675Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-13T13:36:03.7311937Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.Assert.failNotEquals(Assert.java:835)
+2026-10-13T13:36:03.7313425Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.Assert.assertEquals(Assert.java:647)
+2026-10-13T13:36:03.7315166Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.assertPrimaryTimeout(SqliteBusyPoolR77Test.java:55)
+2026-10-13T13:36:03.7317676Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.oldReaderOnlyConfigurationLeavesPrimaryAtNativeDefault(SqliteBusyPoolR77Test.java:87)
+2026-10-13T13:36:03.7320612Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at com.ethk3.novaonepro.SqliteBusyPoolR77Test.actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(SqliteBusyPoolR77Test.java:68)
+2026-10-13T13:36:03.7322792Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+2026-10-13T13:36:03.7324481Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+2026-10-13T13:36:03.7326398Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+2026-10-13T13:36:03.7328363Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+2026-10-13T13:36:03.7330299Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+2026-10-13T13:36:03.7332184Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:463)
+2026-10-13T13:36:03.7334295Z 10-13 13:12:29.633  2340  2618 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+2026-10-13T13:36:03.7335724Z 10-13 13:12:29.634  2340  2618 E TestRunner: ----- end exception -----
+2026-10-13T13:36:03.7337472Z 10-13 13:12:29.635  2340  2618 I TestRunner: finished: actualPoolRejectsReaderOnlyFixAndConfiguresFutureConnections(com.ethk3.novaonepro.SqliteBusyPoolR77Test)
+2026-10-13T13:36:03.7339556Z 10-13 13:12:29.642   800   800 D ZenModeController: Removed callback class com.android.systemui.qs.tiles.DndTile$3
+2026-10-13T13:36:03.7340957Z 10-13 13:12:29.647  2340  2618 I TestRunner: run finished: 1 tests, 1 failed, 0 ignored
+2026-10-13T13:36:03.7342377Z 10-13 13:12:29.655   559   575 I ActivityManager: Force stopping com.ethk3.novaonepro appid=10209 user=0: finished inst
+2026-10-13T13:36:03.7343814Z 10-13 13:12:29.656  2303  2303 I app_process: System.exit called, status: 0
+2026-10-13T13:36:03.7344925Z 10-13 13:12:29.656  2303  2303 I AndroidRuntime: VM exiting with result code 0.
+2026-10-13T13:36:03.7346079Z 10-13 13:12:29.783     0     0 I binder  : 559:575 ioctl 400c620e 77dec47c3354 returned -11
+2026-10-13T13:36:03.7347241Z 10-13 13:12:29.784     0     0 I binder  : 559:575 ioctl 400c620e 77dec47c3354 returned -11
+2026-10-13T13:36:03.7348491Z 10-13 13:12:29.663  2372  2563 D TrafficStats: tagSocket(119) with statsTag=0x1803, statsUid=10143
+2026-10-13T13:36:03.7349746Z 10-13 13:12:29.667  1780  1780 I CtfBroadcastReceiver: (REDACTED) #onReceive: %s
+2026-10-13T13:36:03.7350907Z 10-13 13:12:29.672   559   575 E ActivityManager: Unable to freeze binder for 2340: -11
+2026-10-13T13:36:03.7352171Z 10-13 13:12:29.673   559   583 D DisplayManagerService: Drop pending events for gone uid 10209
+2026-10-13T13:36:03.7353894Z 10-13 13:12:29.685   559   575 I ActivityManager: Killing 2340:com.ethk3.novaonepro/u0a209 (adj 0): stop com.ethk3.novaonepro due to finished inst
+2026-10-13T13:36:03.7357134Z 10-13 13:12:29.688   559   575 I BroadcastQueue: BOOT_COMPLETED_BROADCAST_COMPLETION_LATENCY_REPORTED action:android.intent.action.LOCKED_BOOT_COMPLETED dispatchLatency:116 completeLatency:5308 dispatchRealLatency:116 completeRealLatency:5308 receiversSize:1 userId:0 userType:android.os.usertype.full.SYSTEM
+2026-10-13T13:36:03.7359786Z R77_SCOPED_LOGCAT_END|SqliteBusyPoolR77Test
+2026-10-13T13:36:03.7485906Z Cleaning up orphan processes
+

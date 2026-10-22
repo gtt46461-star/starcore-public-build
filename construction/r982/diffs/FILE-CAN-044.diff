@@ -1,0 +1,132 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ControlledRealContractAuditR922.java b/app/src/main/java/com/ethk3/novaonepro/ControlledRealContractAuditR922.java
+index 93cc74c..8ad120b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ControlledRealContractAuditR922.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ControlledRealContractAuditR922.java
+@@ -228,4 +228,127 @@ public final class ControlledRealContractAuditR922 {
+             return String.format(Locale.US, "%.2f%%", 100.0d * total / opportunities);
+         }
+     }
++
++public static Report captureSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return Report.readError("STORE_NULL");
++        Cursor cursor = null;
++        try {
++            SQLiteDatabase db = store.readable();
++            cursor = report.select(
++                    "SELECT target_issue,settled,action,stat_scope,source_type,is_realtime_real,"
++                            + "authorization_valid,authorized_mode,authorization_id,contract_valid,"
++                            + "contract_status,lane_candidate,position,n1,n2,n3,k3_mask,raw_p,"
++                            + "calibrated_p,final_p,authorization_probability,"
++                            + "EXISTS(SELECT 1 FROM " + V51Repository.AUTH + " a JOIN "
++                            + V51Repository.SELECTED + " s ON s.decision_id=a.decision_id AND s.target_issue=a.target_issue"
++                            + " JOIN " + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o ON o.target_issue=a.target_issue"
++                            + " WHERE a.target_issue=t.target_issue AND a.authorization_hash=t.authorization_id"
++                            + " AND s.authorization_hash=t.authorization_id AND o.authorization_hash=t.authorization_id"
++                            + " AND a.contract_hash=s.contract_hash AND a.contract_hash=o.contract_hash"
++                            + " AND s.decision_action='BET' AND o.decision_action='BET' AND o.pre_draw_frozen=1"
++                            + " AND o.position=t.position AND o.n1=t.n1 AND o.n2=t.n2 AND o.n3=t.n3"
++                            + " AND s.position=t.position AND s.n1=t.n1 AND s.n2=t.n2 AND s.n3=t.n3) FROM "
++                            + DbHelper.TABLE_TRADES
++                            + " t WHERE action='BET' OR stat_scope='REAL_TRADE' OR is_realtime_real=1"
++                            + " ORDER BY target_issue ASC,_id ASC",
++                    null);
++            java.util.ArrayList<Row> rows = new java.util.ArrayList<Row>();
++            while (cursor.moveToNext()) {
++                Row row = new Row(
++                        safeSnapshotCP4(report, cursor.getString(0)), cursor.getInt(1), safeSnapshotCP4(report, cursor.getString(2)),
++                        safeSnapshotCP4(report, cursor.getString(3)), safeSnapshotCP4(report, cursor.getString(4)), cursor.getInt(5),
++                        cursor.getInt(6), safeSnapshotCP4(report, cursor.getString(7)), safeSnapshotCP4(report, cursor.getString(8)),
++                        cursor.getInt(9), safeSnapshotCP4(report, cursor.getString(10)), safeSnapshotCP4(report, cursor.getString(11)),
++                        cursor.getInt(12), cursor.getInt(13), cursor.getInt(14), cursor.getInt(15),
++                        cursor.getInt(16), cursor.getDouble(17), cursor.getDouble(18),
++                        cursor.getDouble(19), cursor.getDouble(20));
++                row.durableEvidenceMatches = cursor.getInt(21) == 1;
++                rows.add(row);
++            }
++            return evaluateSnapshotCP4(report, rows.toArray(new Row[rows.size()]));
++        } catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
++        return value == null ? "" : value.trim();
++    }
++
++public static Report evaluateSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Row[] rows) {
++        Row[] input = rows == null ? new Row[0] : rows;
++        int total = 0, settled = 0, open = 0, invalid = 0, duplicates = 0;
++        LinkedHashMap<String, Integer> reasons = new LinkedHashMap<String, Integer>();
++        LinkedHashMap<String, Integer> targets = new LinkedHashMap<String, Integer>();
++        for (int i = 0; i < input.length; i++) {
++            Row row = input[i];
++            if (row == null) {
++                invalid++;
++                incrementSnapshotCP4(report, reasons, "NULL_ROW");
++                continue;
++            }
++            total++;
++            if (row.settled == 1) settled++;
++            else open++;
++            Integer count = targets.get(row.targetIssue);
++            targets.put(row.targetIssue, Integer.valueOf(count == null ? 1 : count.intValue() + 1));
++            String reason = invalidReasonSnapshotCP4(report, row);
++            if (reason.length() > 0) {
++                invalid++;
++                incrementSnapshotCP4(report, reasons, reason);
++            }
++        }
++        for (Integer count : targets.values())
++            if (count != null && count.intValue() > 1) duplicates += count.intValue() - 1;
++        if (duplicates > 0) incrementBySnapshotCP4(report, reasons, "DUPLICATE_TARGET", duplicates);
++        boolean passed = invalid == 0 && duplicates == 0 && open <= 1;
++        if (open > 1) incrementBySnapshotCP4(report, reasons, "MULTIPLE_OPEN_REAL", open - 1);
++        String status = passed ? "PASS_EXACT_CONTROLLED_LEDGER" : "FAIL_CONTRACT";
++        return new Report("OK", passed, total, settled, open, invalid, duplicates, reasons, status, "");
++    }
++
++public static void incrementBySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Map<String, Integer> map, String key, int amount) {
++        Integer old = map.get(key);
++        map.put(key, Integer.valueOf((old == null ? 0 : old.intValue()) + Math.max(0, amount)));
++    }
++
++public static void incrementSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Map<String, Integer> map, String key) {
++        incrementBySnapshotCP4(report, map, key, 1);
++    }
++
++public static String invalidReasonSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, Row r) {
++        if (!TargetIssueResolver.isValid(r.targetIssue)) return "TARGET_INVALID";
++        if (!"BET".equals(r.action)) return "ACTION_NOT_BET";
++        if (!AppConfig.STAT_SCOPE_REAL_TRADE.equals(r.statScope)) return "SCOPE_NOT_REAL_TRADE";
++        if (!Models.SOURCE_TYPE_REALTIME.equals(r.sourceType)) return "SOURCE_NOT_REALTIME";
++        if (r.isRealtimeReal != 1) return "REALTIME_FLAG_INVALID";
++        if (r.authorizationValid != 1 || !"BET".equals(r.authorizedMode))
++            return "AUTHORIZATION_MODE_INVALID";
++        if (!r.authorizationId.matches("[0-9a-f]{64}")
++                && !V51AuthorizationCore.isBetEnvelope(r.authorizationId)) return "AUTHORIZATION_ID_INVALID";
++        if (!r.durableEvidenceMatches) return "AUTHORIZATION_EVIDENCE_MISMATCH";
++        if (r.contractValid != 1 || !EXACT_CONTRACT_STATUS.equals(r.contractStatus))
++            return "CONTRACT_STATUS_INVALID";
++        if (!V51Enums.Lane.CONTROLLED_PROBE.name().equals(r.lane))
++            return "LANE_NOT_CONTROLLED_PROBE";
++        if (r.position < 1 || r.position > 10 || !DecisionGateEngine.b12K3(r.n1, r.n2, r.n3))
++            return "FIXED_K3_INVALID";
++        if (r.k3Mask != 0 && r.k3Mask != AppConfig.buildK3Mask(r.n1, r.n2, r.n3))
++            return "K3_MASK_INVALID";
++        if (!finiteSnapshotCP4(report, r.rawP) || r.rawP < 0.0d || r.rawP > 1.0d) return "RAW_SCORE_INVALID";
++        if (!zeroOrUnavailableSnapshotCP4(report, r.calibratedP)
++                || !zeroOrUnavailableSnapshotCP4(report, r.finalP)
++                || !zeroOrUnavailableSnapshotCP4(report, r.authorizationProbability))
++            return "UNPROVEN_CALIBRATION_MUST_BE_ZERO";
++        if (r.settled != 0 && r.settled != 1) return "SETTLED_FLAG_INVALID";
++        return "";
++    }
++
++public static boolean zeroOrUnavailableSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double value) {
++        return Double.isNaN(value) || Math.abs(value) <= 1.0e-12d;
++    }
++
++public static boolean finiteSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double value) {
++        return !Double.isNaN(value) && !Double.isInfinite(value);
++    }
+ }

@@ -1,0 +1,130 @@
+﻿2026-10-13T14:14:05.6166946Z Current runner version: '2.337.0'
+2026-10-13T14:14:05.6245184Z ##[group]Runner Image Provisioner
+2026-10-13T14:14:05.6246823Z Hosted Compute Agent
+2026-10-13T14:14:05.6247966Z Version: 20261002.596
+2026-10-13T14:14:05.6249642Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-13T14:14:05.6251088Z Build Date: 2026-10-02T22:28:27Z
+2026-10-13T14:14:05.6252434Z Worker ID: {389550b1-efe5-420f-aacd-a105d5e73c89}
+2026-10-13T14:14:05.6253720Z Region: eastus
+2026-10-13T14:14:05.6254830Z Cloud: Azure
+2026-10-13T14:14:05.6255763Z ##[endgroup]
+2026-10-13T14:14:05.6278779Z ##[group]Operating System
+2026-10-13T14:14:05.6280025Z Ubuntu
+2026-10-13T14:14:05.6281171Z 24.04.5
+2026-10-13T14:14:05.6282127Z LTS
+2026-10-13T14:14:05.6282996Z ##[endgroup]
+2026-10-13T14:14:05.6284112Z ##[group]Runner Image
+2026-10-13T14:14:05.6285185Z Image: ubuntu-24.04
+2026-10-13T14:14:05.6286706Z Version: 20261004.327.1
+2026-10-13T14:14:05.6289645Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-13T14:14:05.6292689Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+2026-10-13T14:14:05.6294472Z ##[endgroup]
+2026-10-13T14:14:05.6296786Z ##[group]GITHUB_TOKEN Permissions
+2026-10-13T14:14:05.6320349Z Actions: read
+2026-10-13T14:14:05.6321588Z Contents: read
+2026-10-13T14:14:05.6322587Z Metadata: read
+2026-10-13T14:14:05.6323698Z ##[endgroup]
+2026-10-13T14:14:05.6326921Z Secret source: Actions
+2026-10-13T14:14:05.6329134Z Cache mode: write
+2026-10-13T14:14:05.6330711Z Prepare workflow directory
+2026-10-13T14:14:05.7274043Z Prepare all required actions
+2026-10-13T14:14:05.7432278Z Uses: gtt46461-star/eth-k3-v43-nova/.github/workflows/r77-ci-log-recovery.yml@refs/heads/construction/r75-live-chain-20261013 (ce2d7454992d6c140addfa48381a8d45cebe7c9a)
+2026-10-13T14:14:05.7441046Z Complete job name: scoped-evidence-recovery / recover-scoped-evidence
+2026-10-13T14:14:05.8622633Z ##[group]Run python3 - <<'PY'
+2026-10-13T14:14:05.8623645Z [36;1mpython3 - <<'PY'[0m
+2026-10-13T14:14:05.8624741Z [36;1mimport base64, hashlib, io, json, os, re, time, urllib.error, urllib.parse, urllib.request, zipfile[0m
+2026-10-13T14:14:05.8625826Z [36;1mrepo = os.environ['GITHUB_REPOSITORY'][0m
+2026-10-13T14:14:05.8626601Z [36;1massert repo == 'gtt46461-star/eth-k3-v43-nova'[0m
+2026-10-13T14:14:05.8627462Z [36;1mrun = int(os.environ['GITHUB_RUN_ID'])[0m
+2026-10-13T14:14:05.8628560Z [36;1mclass NoRedirect(urllib.request.HTTPRedirectHandler):[0m
+2026-10-13T14:14:05.8629720Z [36;1m    def redirect_request(self, req, fp, code, msg, headers, newurl):[0m
+2026-10-13T14:14:05.8630581Z [36;1m        return None[0m
+2026-10-13T14:14:05.8631180Z [36;1mdef api(path):[0m
+2026-10-13T14:14:05.8632116Z [36;1m    request = urllib.request.Request('https://api.github.com/repos/' + repo + path,[0m
+2026-10-13T14:14:05.8633337Z [36;1m        headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],[0m
+2026-10-13T14:14:05.8634538Z [36;1m                 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28'})[0m
+2026-10-13T14:14:05.8635467Z [36;1m    try:[0m
+2026-10-13T14:14:05.8636329Z [36;1m        return urllib.request.build_opener(NoRedirect).open(request, timeout=60).read()[0m
+2026-10-13T14:14:05.8637382Z [36;1m    except urllib.error.HTTPError as error:[0m
+2026-10-13T14:14:05.8638197Z [36;1m        if error.code not in (301, 302, 303, 307, 308):[0m
+2026-10-13T14:14:05.8639165Z [36;1m            raise[0m
+2026-10-13T14:14:05.8639830Z [36;1m        location = error.headers['Location'][0m
+2026-10-13T14:14:05.8640719Z [36;1m        assert urllib.parse.urlparse(location).scheme == 'https'[0m
+2026-10-13T14:14:05.8641740Z [36;1m        # A signed log download is a new request with no bearer token.[0m
+2026-10-13T14:14:05.8642776Z [36;1m        return urllib.request.urlopen(location, timeout=60).read()[0m
+2026-10-13T14:14:05.8643779Z [36;1mrun_info = json.loads(api(f'/actions/runs/{run}'))[0m
+2026-10-13T14:14:05.8644663Z [36;1massert run_info['head_sha'] == os.environ['GITHUB_SHA'][0m
+2026-10-13T14:14:05.8646001Z [36;1mjobs = json.loads(api(f'/actions/runs/{run}/jobs?filter=latest&per_page=100'))['jobs'][0m
+2026-10-13T14:14:05.8647258Z [36;1mcandidates = [job for job in jobs if job['name'] == 'android-compile-native-dex-lint'][0m
+2026-10-13T14:14:05.8648535Z [36;1massert len(candidates) == 1 and candidates[0]['status'] == 'completed'[0m
+2026-10-13T14:14:05.8649489Z [36;1mjob = candidates[0][0m
+2026-10-13T14:14:05.8650335Z [36;1mprint('R77_ORIGINAL_JOB_STATUS|' + json.dumps({'run': run, 'job': job['id'],[0m
+2026-10-13T14:14:05.8651604Z [36;1m    'commit': run_info['head_sha'], 'conclusion': job['conclusion'], 'steps': job['steps']}))[0m
+2026-10-13T14:14:05.8652603Z [36;1mfor attempt in range(6):[0m
+2026-10-13T14:14:05.8653218Z [36;1m    try:[0m
+2026-10-13T14:14:05.8653887Z [36;1m        raw = api(f"/actions/jobs/{job['id']}/logs")[0m
+2026-10-13T14:14:05.8654740Z [36;1m        break[0m
+2026-10-13T14:14:05.8655402Z [36;1m    except urllib.error.HTTPError as error:[0m
+2026-10-13T14:14:05.8656393Z [36;1m        if error.code not in (404, 502, 503, 504) or attempt == 5:[0m
+2026-10-13T14:14:05.8657391Z [36;1m            raise RuntimeError('Actions log HTTP ' + str(error.code)) from None[0m
+2026-10-13T14:14:05.8658622Z [36;1m        time.sleep(5)[0m
+2026-10-13T14:14:05.8659380Z [36;1mtext = raw.decode('utf-8-sig')[0m
+2026-10-13T14:14:05.8660238Z [36;1mprint('R77_ORIGINAL_JOB_LOG_SHA256|' + hashlib.sha256(raw).hexdigest())[0m
+2026-10-13T14:14:05.8661285Z [36;1mbudget = [120000][0m
+2026-10-13T14:14:05.8661887Z [36;1mdef emit(value):[0m
+2026-10-13T14:14:05.8662506Z [36;1m    value = str(value)[0m
+2026-10-13T14:14:05.8663203Z [36;1m    size = min(len(value), budget[0])[0m
+2026-10-13T14:14:05.8663908Z [36;1m    print(value[:size])[0m
+2026-10-13T14:14:05.8664645Z [36;1m    budget[0] -= size[0m
+2026-10-13T14:14:05.8665456Z [36;1m    if size < len(value):[0m
+2026-10-13T14:14:05.8666415Z [36;1m        print('R77_SCOPED_LOG_TRUNCATED|omitted_chars=' + str(len(value) - size))[0m
+2026-10-13T14:14:05.8667372Z [36;1mfor line in text.splitlines():[0m
+2026-10-13T14:14:05.8668678Z [36;1m    if any(token in line for token in ('O09_ANDROID_CLASS_START|', 'O09_ANDROID_CLASS_RESULT|',[0m
+2026-10-13T14:14:05.8670468Z [36;1m            'O09_ANDROID_RUNTIME_RECEIPT|', 'ANDROID_R77_BUSY_', '##[error]')):[0m
+2026-10-13T14:14:05.8671520Z [36;1m        emit(line[:20000])[0m
+2026-10-13T14:14:05.8672364Z [36;1mmatch = re.search(r'O09_EVIDENCE_MANIFEST\|(\{[^\r\n]+\})', text)[0m
+2026-10-13T14:14:05.8673449Z [36;1massert match is not None, 'full fallback manifest missing; no acceptance inferred'[0m
+2026-10-13T14:14:05.8674406Z [36;1mmanifest = json.loads(match.group(1))[0m
+2026-10-13T14:14:05.8675164Z [36;1mchunks = {}[0m
+2026-10-13T14:14:05.8676016Z [36;1mfor index, content in re.findall(r'O09_EVIDENCE_CHUNK\|(\d+)\|([A-Za-z0-9+/=]+)', text):[0m
+2026-10-13T14:14:05.8677155Z [36;1m    assert int(index) not in chunks, 'duplicate evidence chunk'[0m
+2026-10-13T14:14:05.8677993Z [36;1m    chunks[int(index)] = content[0m
+2026-10-13T14:14:05.8679117Z [36;1massert sorted(chunks) == list(range(len(chunks))), 'missing evidence chunk'[0m
+2026-10-13T14:14:05.8680357Z [36;1marchive = base64.b64decode(''.join(chunks[i] for i in sorted(chunks)), validate=True)[0m
+2026-10-13T14:14:05.8681377Z [36;1massert len(archive) == manifest['bytes'][0m
+2026-10-13T14:14:05.8682243Z [36;1massert hashlib.sha256(archive).hexdigest() == manifest['sha256'][0m
+2026-10-13T14:14:05.8683291Z [36;1mprint('R77_FALLBACK_ARCHIVE_VERIFIED|' + json.dumps(manifest))[0m
+2026-10-13T14:14:05.8684285Z [36;1mwith zipfile.ZipFile(io.BytesIO(archive)) as bundle:[0m
+2026-10-13T14:14:05.8685165Z [36;1m    path = 'validation-o09/runtime/receipt.json'[0m
+2026-10-13T14:14:05.8686179Z [36;1m    assert path in bundle.namelist(), 'runtime receipt missing; tests not accepted'[0m
+2026-10-13T14:14:05.8687126Z [36;1m    receipt = json.loads(bundle.read(path))[0m
+2026-10-13T14:14:05.8688198Z [36;1m    assert receipt['commit'] == run_info['head_sha'][0m
+2026-10-13T14:14:05.8689260Z [36;1m    print('R77_RUNTIME_RECEIPT|' + json.dumps(receipt))[0m
+2026-10-13T14:14:05.8690567Z [36;1m    selected = {'SqliteBusyPoolR77Test'} | {item['class'] for item in receipt.get('tests', []) if not item.get('passed')}[0m
+2026-10-13T14:14:05.8691686Z [36;1m    for name in sorted(selected):[0m
+2026-10-13T14:14:05.8692391Z [36;1m        for suffix in ('.log', '-logcat.log'):[0m
+2026-10-13T14:14:05.8693279Z [36;1m            path = 'validation-o09/runtime/' + name + suffix[0m
+2026-10-13T14:14:05.8694114Z [36;1m            if path not in bundle.namelist():[0m
+2026-10-13T14:14:05.8694836Z [36;1m                continue[0m
+2026-10-13T14:14:05.8695518Z [36;1m            data = bundle.read(path)[0m
+2026-10-13T14:14:05.8696445Z [36;1m            print('R77_SCOPED_FILE|' + json.dumps({'path': path, 'bytes': len(data),[0m
+2026-10-13T14:14:05.8697484Z [36;1m                'sha256': hashlib.sha256(data).hexdigest()}))[0m
+2026-10-13T14:14:05.8698596Z [36;1m            value = data.decode('utf-8', errors='replace')[0m
+2026-10-13T14:14:05.8699432Z [36;1m            if suffix == '-logcat.log':[0m
+2026-10-13T14:14:05.8700174Z [36;1m                rows = value.splitlines()[0m
+2026-10-13T14:14:05.8701752Z [36;1m                hits = [i for i, line in enumerate(rows) if re.search(r'ANDROID_R77|AssertionError|FATAL EXCEPTION|ANR in|SQLITE|SQLite.*(Exception|locked)|TestRunner.*(failed|finished)|TimeoutException', line)][0m
+2026-10-13T14:14:05.8772341Z [36;1m                chosen = sorted({j for i in hits for j in range(max(0, i - 3), min(len(rows), i + 12))})[0m
+2026-10-13T14:14:05.8774072Z [36;1m                value = '\n'.join(rows[i] for i in chosen[-150:])[0m
+2026-10-13T14:14:05.8775342Z [36;1m            emit(value[-20000:])[0m
+2026-10-13T14:14:05.8777037Z [36;1m    print('R77_RECOVERY_SCOPE|Evidence extraction only; original job and test failures remain failures')[0m
+2026-10-13T14:14:05.8778044Z [36;1mPY[0m
+2026-10-13T14:14:06.2524553Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-13T14:14:06.2525680Z env:
+2026-10-13T14:14:06.2530489Z   GH_TOKEN: ***
+2026-10-13T14:14:06.2530953Z ##[endgroup]
+2026-10-13T14:14:06.8729581Z Traceback (most recent call last):
+2026-10-13T14:14:06.8731433Z   File "<stdin>", line 25, in <module>
+2026-10-13T14:14:06.8732884Z AssertionError
+2026-10-13T14:14:06.8881156Z ##[error]Process completed with exit code 1.
+2026-10-13T14:14:06.9093856Z Cleaning up orphan processes
+

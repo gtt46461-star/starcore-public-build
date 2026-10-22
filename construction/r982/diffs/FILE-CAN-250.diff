@@ -1,0 +1,281 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
+index 5c295de..c40d7d0 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java
+@@ -13,7 +13,7 @@ public final class ResearchDirectorR952 {
+     /** Same active/current-rule/no-row domain as capturePredraw, used by durable continuation. */
+     public static boolean hasPendingCapture(DbStore store,String target){
+         if(store==null||!TargetIssueResolver.isValid(target))return false;
+-        try(Cursor c=store.readable().rawQuery("SELECT 1 FROM r952_candidate c WHERE c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=c.candidate_id AND r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?)) AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.target_issue=?) LIMIT 1",new String[]{target,target,target})){
++        try(Cursor c=store.readable().rawQuery("SELECT 1 FROM r952_candidate c WHERE c.ast NOT LIKE 'AST3:%' AND c.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=c.candidate_id AND r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?)) AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.target_issue=?) LIMIT 1",new String[]{target,target,target})){
+             return c.moveToFirst();
+         }
+     }
+@@ -31,7 +31,7 @@ public final class ResearchDirectorR952 {
+         FrozenCandidateAdapterR958.prepare(store,target);
+         final int bound=Math.max(1,Math.min(16,maxCandidates));
+         final ArrayList<String[]> candidates=new ArrayList<String[]>();
+-        Cursor selected=store.readable().rawQuery("SELECT candidate_id,ast,structural_hash FROM r952_candidate c WHERE state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=c.candidate_id AND r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?)) AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.target_issue=?) ORDER BY future_n ASC,created_at ASC,candidate_id ASC LIMIT ?",new String[]{target,target,target,String.valueOf(bound)});
++        Cursor selected=store.readable().rawQuery("SELECT candidate_id,ast,structural_hash FROM r952_candidate c WHERE c.ast NOT LIKE 'AST3:%' AND state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND EXISTS(SELECT 1 FROM "+ResearchEvaluationRunR967.RUN+" r WHERE r.learner_id=c.candidate_id AND r.first_issue<=? AND "+TrainingContinuationR973.predicate("r.rule_hash")+" AND r.first_issue=(SELECT MAX(r2.first_issue) FROM "+ResearchEvaluationRunR967.RUN+" r2 WHERE r2.learner_id=c.candidate_id AND r2.first_issue<=?)) AND NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.candidate_id=c.candidate_id AND p.target_issue=?) ORDER BY future_n ASC,created_at ASC,candidate_id ASC LIMIT ?",new String[]{target,target,target,String.valueOf(bound)});
+         try { while(selected.moveToNext()) {
+             String[] row={selected.getString(0),selected.getString(1),selected.getString(2)};
+             CandidateAstR952 ast=CandidateAstR952.parse(row[1]);
+@@ -282,46 +282,20 @@ public final class ResearchDirectorR952 {
+         } finally {c.close();}
+     }
+ 
+-    /** Recovery reads committed terminals; it never repeats Production settlement. */
++    /** One durable wheel slot per pulse; no priority read/write race or hidden repeated drain. */
+     public static int pulse(DbStore store,long budgetMs) {
+-        if(store==null)return 0;
+-        long end=System.nanoTime()+Math.max(50L,Math.min(1200L,budgetMs))*1000000L;
+-        // R975: reserve an actual first slot, not hypothetical leftover time. Persist
+-        // the next phase before work so a budget yield cannot pin the scheduler to one
+-        // family forever. All numerical training is still owned by the same outbox.
+-        String priority=store.getState("r975_director_priority","TRAIN");
+-        store.setState("r975_director_priority",priority.equals("TRAIN")?"POST":priority.equals("POST")?"EVOLVE":"TRAIN");
+-        int trainedCount=0,postCount=0;
+-        if(priority.equals("TRAIN")) { if(ResearchOutboxR952.drainOne(store))trainedCount++; }
+-        else if(priority.equals("POST")) { if(PostSettlementResearchLoopR952.drainOne(store))postCount++; }
+-        else if(priority.equals("EVOLVE")){
+-            Models.Draw latest=store.getLatestDraw();
+-            if(latest!=null&&latest.isValid())store.setState("r964_evolution_maintenance",latest.issue+"|"+EvolutionControllerR952.evolveOne(store,latest.issue));
+-        }
+-        ArrayList<String[]> pending=new ArrayList<String[]>();
+-        Cursor c=store.readable().rawQuery("SELECT DISTINCT p.target_issue,t.settlement_hash,t.completed_at FROM (SELECT target_issue,settled,proof_error FROM r952_candidate_predraw UNION ALL SELECT target_issue,settled,proof_error FROM r958_frozen_predraw) p JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=p.target_issue WHERE p.settled=0 AND p.proof_error='' AND t.status='COMPLETED' ORDER BY p.target_issue LIMIT 4",null);
+-        try {while(c.moveToNext())pending.add(new String[]{c.getString(0),c.getString(1),c.getString(2)});} finally {c.close();}
+-        for(String[] row:pending){
+-            if(System.nanoTime()>=end)break;
+-            Models.Draw draw=store.getDrawByIssue(row[0]);
+-            if(draw!=null)onSettlementCompleted(store,draw,row[1],Long.parseLong(row[2]));
+-        }
+-        // Drain a bounded batch under the same wall-clock lease. POST_TRAIN is intentionally
+-        // cheaper than numeric training after R971 because global evolution is coalesced once
+-        // below. This lets an upgraded phone retire historical backlog without turning a single
+-        // maintenance callback into unbounded work.
+-        for(int turn=0;turn<16&&System.nanoTime()<end;turn++) {
+-            boolean trained=ResearchOutboxR952.drainOne(store);
+-            if(trained)trainedCount++;
+-            boolean feedback1=false,feedback2=false;
+-            if(System.nanoTime()<end){ResearchWorkBudgetR927.checkpoint();feedback1=PostSettlementResearchLoopR952.drainOne(store);if(feedback1)postCount++;}
+-            if(System.nanoTime()<end){ResearchWorkBudgetR927.checkpoint();feedback2=PostSettlementResearchLoopR952.drainOne(store);if(feedback2)postCount++;}
+-            if(!trained&&!feedback1&&!feedback2)break;
++        if(store==null)return 0;long end=System.nanoTime()+Math.max(50L,Math.min(250L,budgetMs))*1000000L;
++        String slot=advanceDirectorSlotCP12(store);if(slot==null||System.nanoTime()>=end)return 0;
++        ResearchWorkBudgetR927.checkpoint();
++        switch(slot){
++            case "TRAIN":return ResearchTrainingHookRegistryR952.drainTrainingSlotCP11(store,end)?1:0;
++            case "POST":return drainPostSlotCP12(store,end)?1:0;
++            case "MATRIX":return MatrixSnapshotBusR952.drainOneCP4(store,end)?1:0;
++            case "RESEARCH":return ResearchFeedbackCP12.drainOne(store,end)?1:0;
++            case "EVOLVE":return EvolutionControllerR952.drainActionCP12(store,end)?1:0;
++            case "IMPORT":return HistoricalGenomeImportR967.maintainCP12(store,end)?1:0;
++            default:throw new IllegalStateException("DIRECTOR_SLOT");
+         }
+-        // Evolution is serviced by its reserved phase above, independently of the
+-        // training backlog. No POST completion asserts that a child already exists.
+-        store.setState("r971_r952_batch_status","trained="+trainedCount+"|post="+postCount+"|budgetMs="+budgetMs);
+-        return trainedCount+postCount;
+     }
+ 
+     private static void bootstrap(final DbStore store,final String issue) {
+@@ -330,12 +304,13 @@ public final class ResearchDirectorR952 {
+         // Registration belongs to the immutable identity, not each issue or each retry.
+         boolean lifecycleReady;
+         try(Cursor table=store.readable().rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{ResearchLifecycleR932.TABLE})) {lifecycleReady=table.moveToFirst();}
+-        if(lifecycleReady)
+-        try(Cursor c=store.readable().rawQuery("SELECT c.ast,c.structural_hash,c.may_create_real,l.structural_hash FROM r952_candidate c JOIN "+ResearchLifecycleR932.TABLE+" l ON l.candidate_key=('r952:'||c.candidate_id) WHERE c.candidate_id=?",new String[]{id})) {
+-            if(c.moveToFirst()) {
+-                if(!ast.canonical.equals(c.getString(0))||!ast.structuralHash.equals(c.getString(1))
+-                        ||c.getInt(2)!=0||!ast.structuralHash.equals(c.getString(3)))throw new IllegalStateException("R958_BOOTSTRAP_IDENTITY_DRIFT");
+-                return;
++        if(lifecycleReady) {
++            try(Cursor c=store.readable().rawQuery("SELECT c.ast,c.structural_hash,c.may_create_real,l.structural_hash FROM r952_candidate c JOIN "+ResearchLifecycleR932.TABLE+" l ON l.candidate_key=('r952:'||c.candidate_id) WHERE c.candidate_id=?",new String[]{id})) {
++                if(c.moveToFirst()) {
++                    if(!ast.canonical.equals(c.getString(0))||!ast.structuralHash.equals(c.getString(1))
++                            ||c.getInt(2)!=0||!ast.structuralHash.equals(c.getString(3)))throw new IllegalStateException("R958_BOOTSTRAP_IDENTITY_DRIFT");
++                    return;
++                }
+             }
+         }
+         boolean ok=store.coordinatorForResearchR952().runAtomicWrite("R952_BOOTSTRAP_CANDIDATE",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){
+@@ -351,4 +326,179 @@ public final class ResearchDirectorR952 {
+     private static boolean drawExists(SQLiteDatabase db,String target){Cursor c=db.rawQuery("SELECT 1 FROM "+DbHelper.TABLE_DRAWS+" WHERE issue=? LIMIT 1",new String[]{target});try{return c.moveToFirst();}finally{c.close();}}
+     private static int changed(SQLiteDatabase db){Cursor c=db.rawQuery("SELECT changes()",null);try{return c.moveToFirst()?c.getInt(0):0;}finally{c.close();}}
+     private static void funnel(SQLiteDatabase db,String target,String id,String stage,String hash,String reason){db.execSQL("INSERT OR IGNORE INTO r952_candidate_funnel(target_issue,candidate_id,stage,stage_hash,reason,created_at) VALUES(?,?,?,?,?,?)",new Object[]{target,id,stage,hash,reason,System.currentTimeMillis()});RuntimeEventContractR952.record(db,stage,target,id,hash);}
++
++    /** Sole writer of development artifact/checkpoint, followed atomically by FREEZE enqueue. */
++    public static String commitCandidateBatchCP11(SQLiteDatabase db,ResearchTaskQueueR967.Lease lease,
++            ResearchTrainingHookRegistryR952.DevelopmentBatchCP11 batch) {
++        if(db==null||!db.inTransaction()||lease==null||batch==null||!"TRAIN_CANDIDATE".equals(lease.kind)
++                ||!lease.id.equals(batch.taskId)||!lease.sequence.equals(batch.protocolHash)
++                ||!lease.inputHash.equals(batch.inputHash)||!ResearchTaskQueueR967.owns(db,lease))
++            throw new IllegalStateException("TRAIN_COMMIT_IDENTITY_OR_LEASE");
++        try(Cursor c=db.rawQuery("SELECT p.ast_hash,p.feature_manifest_hash,p.train_n,p.validation_n,p.validation_first,p.validation_last,p.model_kind,c.ast,c.structural_hash,c.state FROM research_training_protocol_v2 p JOIN r952_candidate c ON c.candidate_id=p.candidate_id WHERE p.protocol_hash=? AND p.candidate_id=? AND p.input_hash=?",new String[]{lease.sequence,lease.candidate,lease.inputHash})){
++            if(!c.moveToFirst()||!batch.astHash.equals(c.getString(0))||!batch.manifestHash.equals(c.getString(1))
++                    ||batch.trainN!=c.getLong(2)||c.getInt(3)!=120||!batch.validationFirst.equals(c.getString(4))
++                    ||!batch.validationLast.equals(c.getString(5))||!batch.astHash.equals(c.getString(8))
++                    ||"QUARANTINED".equals(c.getString(9))||"QUALITY_PRUNED".equals(c.getString(9))
++                    ||"RESOURCE_RETIRED".equals(c.getString(9)))throw new IllegalStateException("TRAIN_PROTOCOL_CAS");
++            CandidateAstR952 ast=CandidateAstR952.parse(c.getString(7));
++            if(ast.formatVersion!=3||!ast.structuralHash.equals(batch.astHash)
++                    ||!ast.graphSpec.modelKind.name().equals(c.getString(6)))throw new IllegalStateException("TRAIN_AST_CAS");
++        }
++        String checkpointHash="";long checkpointGeneration=0;
++        try(Cursor c=db.rawQuery("SELECT payload_hash,lease_generation,input_hash FROM research_task_checkpoint_v2 WHERE task_id=?",new String[]{lease.id})){
++            if(c.moveToFirst()){checkpointHash=c.getString(0);checkpointGeneration=c.getLong(1);
++                if(!lease.inputHash.equals(c.getString(2)))throw new IllegalStateException("CHECKPOINT_INPUT_CAS");}
++        }
++        if(!checkpointHash.equals(batch.oldCheckpointHash)||checkpointGeneration!=batch.oldCheckpointGeneration)
++            throw new IllegalStateException("CHECKPOINT_PREDECESSOR_CAS");
++        long now=System.currentTimeMillis();
++        if(!batch.complete){
++            if(checkpointHash.isEmpty())db.execSQL("INSERT INTO research_task_checkpoint_v2(task_id,input_hash,model_hash,phase,cursor,partial_payload,payload_hash,lease_generation,updated_at) VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{lease.id,lease.inputHash,batch.modelHash,batch.phase,batch.rowCursor,batch.checkpoint(),batch.newCheckpointHash,lease.generation,now});
++            else {
++                db.execSQL("UPDATE research_task_checkpoint_v2 SET model_hash=?,phase=?,cursor=?,partial_payload=?,payload_hash=?,lease_generation=?,updated_at=? WHERE task_id=? AND input_hash=? AND payload_hash=? AND lease_generation=?",new Object[]{batch.modelHash,batch.phase,batch.rowCursor,batch.checkpoint(),batch.newCheckpointHash,lease.generation,now,lease.id,lease.inputHash,checkpointHash,checkpointGeneration});
++                if(changed(db)!=1)throw new IllegalStateException("CHECKPOINT_CAS");
++            }
++            if(!ResearchTaskQueueR967.yield(db,lease,batch.queueCursor,"TRAIN_SLICE",250))throw new IllegalStateException("CHECKPOINT_QUEUE_CAS");
++            return "YIELDED";
++        }
++        String delivery=V51ChecksumEngine.sha256("CP8_DEV_DELIVERY|"+batch.protocolHash);
++        String artifact=V51ChecksumEngine.sha256("CP8_DEV_ARTIFACT|"+lease.candidate+'|'+batch.protocolHash+'|'+batch.modelHash+'|'+batch.receiptHash);
++        // This identity was computed/verified outside the writer. No numerical work is done here.
++        db.execSQL("INSERT INTO r952_artifact(artifact_hash,candidate_id,parent_hash,target_issue,delivery_hash,payload_hash,created_at,model_payload,numeric_updates,training_kind,development_receipt_hash,development_sample_n,validation_sample_n,validation_pass,validation_hash) VALUES(?,?,'',?,?,?,?,?,?,'DEVELOPMENT_AST3',?,?,120,1,?)",new Object[]{artifact,lease.candidate,batch.validationLast,delivery,batch.modelHash,now,batch.modelPayload,batch.trainN,batch.receiptHash,batch.trainN,batch.validationHash});
++        RetentionArtifactIdentityCP12.register(db,artifact);
++        db.execSQL("INSERT INTO research_development_receipt_v2(receipt_hash,artifact_hash,protocol_hash,validation_hash,receipt_json,validation_json,created_at) VALUES(?,?,?,?,?,?,?)",new Object[]{batch.receiptHash,artifact,batch.protocolHash,batch.validationHash,batch.receiptJson,batch.validationJson,now});
++        LearningCursorR952.advance(db,"R952:"+lease.candidate,batch.validationLast,artifact,delivery);
++        ResearchTaskQueueR967.complete(db,lease,artifact);
++        ResearchTaskQueueR967.enqueue(db,"FREEZE_CANDIDATE",lease.candidate,lease.issue,lease.sequence,lease.inputHash,artifact);
++        db.execSQL("UPDATE r952_candidate SET state='VALIDATED' WHERE candidate_id=? AND structural_hash=? AND may_create_real=0",new Object[]{lease.candidate,batch.astHash});
++        if(changed(db)!=1)throw new IllegalStateException("TRAIN_CANDIDATE_STATE_CAS");
++        funnel(db,lease.issue,lease.candidate,"VALIDATED",batch.validationHash,"DEVELOPMENT_ONLY|FUTURE_N_UNCHANGED");
++        return artifact;
++    }
++    /** Immutable parent/action expectations captured before any file preparation. */
++    public static final class PreparedEvolution {
++        public final String candidateId,actionId,parentId,intentId,expectedParentHash,expectedActionEvidenceHash;
++        public final String secondaryParentId,expectedSecondaryParentHash;
++        public PreparedEvolution(String candidateId,String actionId,String parentId,String intentId,String expectedParentHash,String expectedActionEvidenceHash) {
++            this(candidateId,actionId,parentId,intentId,expectedParentHash,expectedActionEvidenceHash,"","");
++        }
++        public PreparedEvolution(String candidateId,String actionId,String parentId,String intentId,String expectedParentHash,String expectedActionEvidenceHash,String secondaryParentId,String expectedSecondaryParentHash) {
++            if(candidateId==null||candidateId.isEmpty()||actionId==null||actionId.isEmpty()||parentId==null||intentId==null||intentId.isEmpty()
++                    ||expectedParentHash==null||expectedActionEvidenceHash==null||!expectedActionEvidenceHash.matches("[0-9a-f]{64}")
++                    ||secondaryParentId==null||expectedSecondaryParentHash==null||(!parentId.isEmpty()&&!expectedParentHash.matches("[0-9a-f]{64}"))
++                    ||(!secondaryParentId.isEmpty()&&(!expectedSecondaryParentHash.matches("[0-9a-f]{64}")||parentId.equals(secondaryParentId))))
++                throw new IllegalArgumentException("REGISTER_EVOLUTION_EXPECTATION");
++            this.candidateId=candidateId;this.actionId=actionId;this.parentId=parentId;this.intentId=intentId;
++            this.expectedParentHash=expectedParentHash;this.expectedActionEvidenceHash=expectedActionEvidenceHash;
++            this.secondaryParentId=secondaryParentId;this.expectedSecondaryParentHash=expectedSecondaryParentHash;
++        }
++    }
++    public static DevelopmentProductionCP12.PreparedProtocol prepareTrainingProtocolCP5(DbStore store,CandidateAstR952 ast,String candidateId,String actionId,String registrationIssue) {
++        return DevelopmentProductionCP12.prepare(store,ast,candidateId,actionId,registrationIssue);
++    }
++    /** Sole modern child writer. Caller also completes its owned RESEARCH_ACTION lease in this transaction. */
++    public static String commitPreparedCandidateCP5(SQLiteDatabase db,DevelopmentProductionCP12.PreparedProtocol p,PreparedEvolution child) {
++        if(db==null||!db.inTransaction()||p==null||child==null)throw new IllegalStateException("REGISTER_TX_REQUIRED");p.requireOpen();
++        if(!p.candidateId.equals(child.candidateId)||!p.actionId.equals(child.actionId)||p.ast.formatVersion!=3
++                ||drawExists(db,p.registeredIssue))throw new IllegalStateException("REGISTER_PREPARED_IDENTITY");
++        if(DevelopmentProductionCP12.historyGeneration(db)!=p.historyGeneration)throw new DevelopmentProductionCP12.Wait("TRAIN_HISTORY_CHANGED");
++        String latest="";try(Cursor c=db.rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=c.getString(0);}
++        if(!TargetIssueResolver.isValid(latest)||!TargetIssueResolver.next(latest).targetIssue.equals(p.registeredIssue))throw new DevelopmentProductionCP12.Wait("TARGET_SUPERSEDED");
++        String parentAst=readParentCP12(db,child.parentId,child.expectedParentHash),secondAst=readParentCP12(db,child.secondaryParentId,child.expectedSecondaryParentHash);
++        java.util.TreeSet<String> parentHashes=new java.util.TreeSet<>();if(!child.parentId.isEmpty())parentHashes.add(child.expectedParentHash);if(!child.secondaryParentId.isEmpty())parentHashes.add(child.expectedSecondaryParentHash);
++        String parents=StrictCanonicalJson.writeContext(new java.util.ArrayList<>(parentHashes));
++        try(Cursor c=db.rawQuery("SELECT source_issue,selection_boundary,evidence_hash,boundary_hash FROM research_action_input_boundary_cp12 WHERE action_id=?",new String[]{child.actionId})){
++            if(!c.moveToFirst()||!p.lastIssue.equals(c.getString(0))||!TargetIssueResolver.next(p.lastIssue).targetIssue.equals(c.getString(1))||!child.expectedActionEvidenceHash.equals(c.getString(2))
++                    ||!V51ChecksumEngine.sha256("CP12_ACTION_BOUNDARY|"+child.actionId+'|'+c.getString(0)+'|'+c.getString(1)+'|'+c.getString(2)).equals(c.getString(3)))throw new IllegalStateException("REGISTER_SELECTION_BOUNDARY_CAS");
++        }
++        try(Cursor c=db.rawQuery("SELECT state,evidence_hash,parent_hashes_json,action_type FROM research_action_v2 WHERE action_id=?",new String[]{child.actionId})){
++            if(!c.moveToFirst()||!"PROPOSED".equals(c.getString(0))||!child.expectedActionEvidenceHash.equals(c.getString(1))
++                    ||!parents.equals(c.getString(2))||"HOLD".equals(c.getString(3)))throw new IllegalStateException("REGISTER_ACTION_CAS");
++        }
++        try(Cursor c=db.rawQuery("SELECT candidate_id,ast,structural_hash FROM r952_candidate WHERE structural_hash=?",new String[]{p.ast.structuralHash})){
++            if(c.moveToFirst()){
++                if(!p.ast.canonical.equals(c.getString(1)))throw new IllegalStateException("REGISTER_HASH_COLLISION");
++                db.execSQL("UPDATE research_action_v2 SET state='NO_OP',child_id=?,last_error='EXISTING_STRUCTURE_NO_NEW_GENERATION' WHERE action_id=? AND state='PROPOSED' AND evidence_hash=?",new Object[]{c.getString(0),child.actionId,child.expectedActionEvidenceHash});
++                if(changed(db)!=1)throw new IllegalStateException("REGISTER_NO_OP_CAS");return "NO_OP:"+c.getString(0);
++            }
++        }
++        // Ordered creation admission: exact genome above, then canonical semantic program.
++        // Prediction/error similarity require prospective common Future and are certificate-stage gates.
++        try(Cursor duplicate=db.rawQuery("SELECT candidate_id FROM r952_candidate WHERE semantic_hash=?",new String[]{p.ast.semanticHashCP12})){
++            if(duplicate.moveToFirst()){
++                db.execSQL("UPDATE research_action_v2 SET state='NO_OP',child_id=?,last_error='EXISTING_SEMANTIC_PROGRAM_NO_NEW_GENERATION' WHERE action_id=? AND state='PROPOSED' AND evidence_hash=?",new Object[]{duplicate.getString(0),child.actionId,child.expectedActionEvidenceHash});
++                if(changed(db)!=1)throw new IllegalStateException("REGISTER_SEMANTIC_NO_OP_CAS");return "NO_OP:"+duplicate.getString(0);
++            }
++        }
++        try(Cursor count=db.rawQuery("SELECT COUNT(*) FROM v57_research_task_r967 WHERE kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL')",null)){
++            if(count.moveToFirst()&&count.getLong(0)>=16)throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");}
++        long activeBytes=0;java.util.HashSet<String> activeHashes=new java.util.HashSet<>();
++        String active="SELECT p.protocol_hash,p.input_hash FROM research_training_protocol_v2 p WHERE EXISTS(SELECT 1 FROM v57_research_task_r967 q WHERE q.candidate_id=p.candidate_id AND q.kind IN('TRAIN_CANDIDATE','FREEZE_CANDIDATE') AND q.status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL'))";
++        try(Cursor c=db.rawQuery("SELECT i.input_hash,i.byte_count FROM research_training_input_v2 i WHERE i.input_hash IN(SELECT input_hash FROM ("+active+"))",null)){while(c.moveToNext()){activeHashes.add(c.getString(0));activeBytes+=c.getLong(1);}}
++        try(Cursor c=db.rawQuery("SELECT a.attachment_hash,a.byte_count FROM research_training_attachment_cp12 a WHERE EXISTS(SELECT 1 FROM research_training_protocol_attachment_cp12 r WHERE r.attachment_hash=a.attachment_hash AND r.protocol_hash IN(SELECT protocol_hash FROM ("+active+")))",null)){while(c.moveToNext())if(activeHashes.add(c.getString(0)))activeBytes+=c.getLong(1);}
++        if(activeHashes.add(p.inputHash))activeBytes+=p.bytes;for(TrainingCasCP12.LockedFile f:p.boundFiles)if(activeHashes.add(f.hash))activeBytes+=f.bytes;
++        if(activeBytes>(64L<<20))throw new DevelopmentProductionCP12.Wait("TRAIN_INPUT_CAPACITY");
++        db.execSQL("INSERT INTO r952_candidate(candidate_id,intent_id,ast,structural_hash,parent_id,state,future_n,created_issue,may_create_real,created_at,semantic_hash) VALUES(?,?,?,?,?,'NURSERY',0,?,0,?,?)",new Object[]{child.candidateId,child.intentId,p.ast.canonical,p.ast.structuralHash,child.parentId,p.registeredIssue,System.currentTimeMillis(),p.ast.semanticHashCP12});
++        MatrixBindingsCP12.registerSpecsCP12(db,p.ast);
++        insertTrainingInputCP12(db,p);insertTrainingProtocolCP12(db,p);
++        String task=ResearchTaskQueueR967.enqueue(db,"TRAIN_CANDIDATE",child.candidateId,p.registeredIssue,p.protocolHash,p.inputHash,child.actionId);
++        ResearchLifecycleR932.enrollR952(db,"r952:"+child.candidateId,p.ast.structuralHash,p.registeredIssue);
++        if(!child.parentId.isEmpty())ComputationReceiptR974.lineage(db,child.candidateId,child.parentId,"PRIMARY",parentAst,child.expectedActionEvidenceHash,p.registeredIssue);
++        if(!child.secondaryParentId.isEmpty())ComputationReceiptR974.lineage(db,child.candidateId,child.secondaryParentId,"FUSION_SECONDARY",secondAst,child.expectedActionEvidenceHash,p.registeredIssue);
++        db.execSQL("UPDATE research_action_v2 SET state='WAIT_FUTURE',child_id=?,last_error='' WHERE action_id=? AND state='PROPOSED' AND evidence_hash=?",new Object[]{child.candidateId,child.actionId,child.expectedActionEvidenceHash});
++        if(changed(db)!=1)throw new IllegalStateException("REGISTER_ACTION_STATE_CAS");
++        funnel(db,p.registeredIssue,child.candidateId,"REGISTERED",p.protocolHash,"TRAIN_TASK="+task+"|FUTURE_N=0");return task;
++    }
++    private static String readParentCP12(SQLiteDatabase db,String id,String hash) {
++        if(id.isEmpty()){if(!hash.isEmpty())throw new IllegalArgumentException("REGISTER_EMPTY_PARENT_HASH");return "";}
++        try(Cursor c=db.rawQuery("SELECT ast,structural_hash,state FROM r952_candidate WHERE candidate_id=?",new String[]{id})){
++            if(!c.moveToFirst()||!hash.equals(c.getString(1))||"QUARANTINED".equals(c.getString(2))||"QUALITY_PRUNED".equals(c.getString(2))||"RESOURCE_RETIRED".equals(c.getString(2)))throw new IllegalStateException("REGISTER_PARENT_CAS");return c.getString(0);}
++    }
++    private static void insertTrainingInputCP12(SQLiteDatabase db,DevelopmentProductionCP12.PreparedProtocol p) {
++        String path=p.inputHash+TrainingCasCP12.INPUT_SUFFIX;
++        try(Cursor c=db.rawQuery("SELECT relative_path,byte_count,row_count,first_issue,last_issue,schema_hash,source_manifest_hash FROM research_training_input_v2 WHERE input_hash=?",new String[]{p.inputHash})){
++            if(c.moveToFirst()){if(!path.equals(c.getString(0))||p.bytes!=c.getLong(1)||p.rows!=c.getInt(2)||!p.firstIssue.equals(c.getString(3))||!p.lastIssue.equals(c.getString(4))||!V51ChecksumEngine.sha256(p.headerJson).equals(c.getString(5))||!p.sourceManifestHash.equals(c.getString(6)))throw new IllegalStateException("REGISTER_INPUT_DRIFT");return;}
++        }
++        db.execSQL("INSERT INTO research_training_input_v2(input_hash,relative_path,byte_count,row_count,first_issue,last_issue,schema_hash,source_manifest_hash,created_at) VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{p.inputHash,path,p.bytes,p.rows,p.firstIssue,p.lastIssue,V51ChecksumEngine.sha256(p.headerJson),p.sourceManifestHash,System.currentTimeMillis()});
++    }
++    private static void insertTrainingProtocolCP12(SQLiteDatabase db,DevelopmentProductionCP12.PreparedProtocol p) {
++        java.util.Map<String,Object> json=StrictCanonicalJson.readContextObject(p.protocolJson);
++        db.execSQL("INSERT INTO research_training_protocol_v2(protocol_hash,candidate_id,input_hash,ast_hash,feature_manifest_hash,model_kind,train_first,train_last,embargo_issue,validation_first,validation_last,train_n,validation_n,seed,protocol_json,registered_issue,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,120,?,?,?,?)",new Object[]{p.protocolHash,p.candidateId,p.inputHash,p.ast.structuralHash,p.ast.graphSpec.manifest.hash,p.ast.graphSpec.modelKind.name(),json.get("trainFirst"),json.get("trainLast"),json.get("embargoIssue"),json.get("validationFirst"),json.get("validationLast"),p.trainN,p.seed,p.protocolJson,p.registeredIssue,System.currentTimeMillis()});
++        for(TrainingCasCP12.LockedFile attachment:p.boundFiles){
++            try(Cursor existing=db.rawQuery("SELECT byte_count FROM research_training_attachment_cp12 WHERE attachment_hash=?",new String[]{attachment.hash})){
++                if(existing.moveToFirst()){if(existing.getLong(0)!=attachment.bytes)throw new IllegalStateException("REGISTER_ATTACHMENT_DRIFT");}
++                else db.execSQL("INSERT INTO research_training_attachment_cp12(attachment_hash,relative_path,byte_count,created_at) VALUES(?,?,?,?)",new Object[]{attachment.hash,attachment.hash+TrainingCasCP12.BOUND_SUFFIX,attachment.bytes,System.currentTimeMillis()});
++            }
++            db.execSQL("INSERT INTO research_training_protocol_attachment_cp12(protocol_hash,attachment_hash) VALUES(?,?)",new Object[]{p.protocolHash,attachment.hash});
++        }
++    }
++
++    private static String advanceDirectorSlotCP12(DbStore store) {
++        final String[] slots={"TRAIN","POST","MATRIX","RESEARCH","EVOLVE","IMPORT"};
++        return store.coordinatorForResearchR952().runAtomicWrite("CP12_DIRECTOR_SLOT",db->{
++            String value="TRAIN";try(Cursor c=db.rawQuery("SELECT state_value FROM app_state WHERE state_key='r975_director_priority'",null)){if(c.moveToFirst())value=c.getString(0);}
++            int selected=0;for(int i=0;i<slots.length;i++)if(slots[i].equals(value))selected=i;
++            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES('r975_director_priority',?,?)",new Object[]{slots[(selected+1)%slots.length],System.currentTimeMillis()});return slots[selected];
++        },null);
++    }
++    /** A bounded POST safe unit: repair one terminal projection, otherwise consume one POST_TRAIN. */
++    private static boolean drainPostSlotCP12(DbStore store,long end) {
++        if(System.nanoTime()>=end)return false;String[] row=null;
++        try(Cursor c=store.readable().rawQuery("SELECT DISTINCT p.target_issue,t.settlement_hash,t.completed_at FROM (SELECT target_issue,settled,proof_error FROM r952_candidate_predraw UNION ALL SELECT target_issue,settled,proof_error FROM r958_frozen_predraw) p JOIN "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" t ON t.target_issue=p.target_issue JOIN "+DbHelper.TABLE_DRAWS+" d ON d.issue=p.target_issue AND d.dirty=0 AND d.open_time>0 WHERE p.settled=0 AND p.proof_error='' AND t.status='COMPLETED' AND t.completed_at>0 ORDER BY p.target_issue LIMIT 1",null)){if(c.moveToFirst())row=new String[]{c.getString(0),c.getString(1),c.getString(2)};}
++        if(row!=null){Models.Draw draw=store.getDrawByIssue(row[0]);if(draw!=null&&draw.isValid()&&draw.dirty==0){onSettlementCompleted(store,draw,row[1],Long.parseLong(row[2]));return true;}}
++        return PostSettlementResearchLoopR952.drainOne(store);
++    }
++
++    public static boolean failCandidateTaskCP12(SQLiteDatabase db,ResearchTaskQueueR967.Lease lease,String reason) {
++        if(db==null||!db.inTransaction()||!ResearchTaskQueueR967.owns(db,lease))return false;
++        String evidence=V51ChecksumEngine.sha256("CP12_TRAIN_FAILURE|"+lease.id+'|'+lease.inputHash+'|'+reason);
++        String finding=V51ChecksumEngine.sha256("CP12_TASK_FINDING|"+lease.id);
++        java.util.Map<String,Object> details=new java.util.TreeMap<>();details.put("taskId",lease.id);details.put("inputHash",lease.inputHash);details.put("protocolHash",lease.sequence);details.put("cursor",lease.cursor);details.put("reason",reason);
++        db.execSQL("INSERT OR IGNORE INTO research_finding_v2(finding_id,game_code,candidate_version,source_issue,episode_start_issue,problem_type,severity,evidence_hash,evidence_json,hypothesis,falsification_test,state,created_at,updated_at) VALUES(?,'PK10',?,?,?,'TRAIN_INPUT_INTEGRITY','P0',?,?,?,'REPLAY_IMMUTABLE_INPUT_AND_CHECKPOINT','ERROR',?,?)",new Object[]{finding,lease.candidate,lease.issue,lease.issue,evidence,StrictCanonicalJson.writeContext(details),"Input/protocol/checkpoint identity failed; no numerical result was published",System.currentTimeMillis(),System.currentTimeMillis()});
++        if(!ResearchTaskQueueR967.failTerminalCP12(db,lease,reason))throw new IllegalStateException("TRAIN_TERMINAL_LEASE_CHANGED");
++        // A dead child cannot leave its originating experiment permanently WAIT_FUTURE.
++        db.execSQL("UPDATE research_finding_v2 SET state='ERROR',updated_at=? WHERE finding_id IN(SELECT finding_id FROM research_action_v2 WHERE child_id=? AND state IN('WAIT_FUTURE','CREATED'))",new Object[]{System.currentTimeMillis(),lease.candidate});
++        db.execSQL("UPDATE research_action_v2 SET state='REJECTED',last_error=? WHERE child_id=? AND state IN('WAIT_FUTURE','CREATED')",new Object[]{reason,lease.candidate});
++        db.execSQL("UPDATE r952_candidate SET state='QUARANTINED' WHERE candidate_id=?",new Object[]{lease.candidate});return true;
++    }
+ }

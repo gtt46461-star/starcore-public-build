@@ -1,0 +1,238 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java b/app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java
+index 7e135d5..823829d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StrategyConflictAblationEngine.java
+@@ -197,7 +197,7 @@ public final class StrategyConflictAblationEngine {
+ 
+     private ModuleEffect readEffect(
+             DbStore store, String module, String prefixRoot, boolean production) {
+-        String prefix = prefixRoot + module.toLowerCase();
++        String prefix = prefixRoot + module.toLowerCase(java.util.Locale.ROOT);
+         String dh = get(store, prefix + "_delta_hit", "");
+         String db = get(store, prefix + "_delta_brier", "");
+         String dc = get(store, prefix + "_delta_coverage", "");
+@@ -386,4 +386,224 @@ public final class StrategyConflictAblationEngine {
+     private static String s(String x) {
+         return x == null ? "" : x;
+     }
++
++public String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        Report r = auditSnapshotCP4(report, store);
++        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 12288);
++        b.append("【策略贡献/冲突/冗余/消融】\nVersion=")
++                .append(VERSION)
++                .append("\nVerdict=")
++                .append(r.verdict)
++                .append('\n');
++        b.append("\n-- Production模块消融（strict OOS only） --\n");
++        appendEffectsSnapshotCP4(report, b, r.productionEffects);
++        b.append("\n-- Research模块消融（不并入Production） --\n");
++        appendEffectsSnapshotCP4(report, b, r.researchEffects);
++        b.append("\n-- Pairwise冲突 --\n");
++        for (int i = 0; i < r.conflicts.length; i++) {
++            Conflict c = r.conflicts[i];
++            b.append(c.left)
++                    .append(" <-> ")
++                    .append(c.right)
++                    .append('|')
++                    .append(c.type)
++                    .append("|score=")
++                    .append(c.score)
++                    .append("\nEvidence=")
++                    .append(c.evidence)
++                    .append("\nAction=")
++                    .append(c.action)
++                    .append("\nHash=")
++                    .append(c.checksum)
++                    .append('\n');
++        }
++        b.append("ReportHash=").append(r.checksum).append('\n');
++        return b.toString();
++    }
++
++public void appendEffectsSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportTextCP12 b, ModuleEffect[] effects) {
++        for (int i = 0; i < effects.length; i++) {
++            ModuleEffect e = effects[i];
++            b.append(e.module)
++                    .append('|')
++                    .append(e.evidence)
++                    .append("|dHit=")
++                    .append(e.deltaHit)
++                    .append("|dBrier=")
++                    .append(e.deltaBrier)
++                    .append("|dCoverage=")
++                    .append(e.deltaCoverage)
++                    .append("|dECE=")
++                    .append(e.deltaEce)
++                    .append("|Verdict=")
++                    .append(e.verdict)
++                    .append("|Confidence=")
++                    .append(e.confidence)
++                    .append("\nReason=")
++                    .append(e.reason)
++                    .append("\nHash=")
++                    .append(e.checksum)
++                    .append('\n');
++        }
++    }
++
++public Report auditSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        ArrayList<ModuleEffect> production = new ArrayList<ModuleEffect>();
++        ArrayList<ModuleEffect> research = new ArrayList<ModuleEffect>();
++        for (int i = 0; i < MODULES.length; i++) {
++            production.add(readEffectSnapshotCP4(report, store, MODULES[i], "b14_ablation_", true));
++            research.add(readEffectSnapshotCP4(report, store, MODULES[i], "r811_research_ablation_", false));
++        }
++        ArrayList<Conflict> conflicts = new ArrayList<Conflict>();
++        addRuntimeConflictSnapshotCP4(report, 
++                store, conflicts, "STATE_REGIME", "MOTIF_RELATION", "b14_conflict_state_motif");
++        addRuntimeConflictSnapshotCP4(report, 
++                store, conflicts, "TEACHER_CAUSAL", "EXPERT_GATE", "b14_conflict_teacher_gate");
++        addRuntimeConflictSnapshotCP4(report, 
++                store, conflicts, "SINKHORN_NUMBER_Q", "ACTION_RANKER", "b14_conflict_number_rank");
++        addRuntimeConflictSnapshotCP4(report, 
++                store,
++                conflicts,
++                "SELECTED_CALIBRATION",
++                "POLICY_COMPILER",
++                "b14_conflict_calibration_policy");
++        addRuntimeConflictSnapshotCP4(report, 
++                store,
++                conflicts,
++                "DOMAIN_CERTIFICATE",
++                "CONFORMAL_RISK",
++                "b14_conflict_domain_conformal");
++        Collections.sort(
++                conflicts,
++                new Comparator<Conflict>() {
++                    public int compare(Conflict a, Conflict b) {
++                        return a.score == b.score ? 0 : (a.score > b.score ? -1 : 1);
++                    }
++                });
++        return new Report(
++                production.toArray(new ModuleEffect[production.size()]),
++                research.toArray(new ModuleEffect[research.size()]),
++                conflicts.toArray(new Conflict[conflicts.size()]));
++    }
++
++public void addRuntimeConflictSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            com.ethk3.novaonepro.ReportReadContextCP4 store, ArrayList<Conflict> out, String left, String right, String key) {
++        String raw = getSnapshotCP4(report, store, key, "");
++        if (raw.length() == 0) {
++            out.add(
++                    new Conflict(
++                            left,
++                            right,
++                            "UNAVAILABLE",
++                            "No persisted pairwise conflict measurement",
++                            "Run time-ordered ablation/correlation/replay before changing weights.",
++                            0.0d));
++            return;
++        }
++        double score = parse01SnapshotCP4(report, raw);
++        String type =
++                score >= 0.8
++                        ? "STRONG_CONFLICT"
++                        : (score >= 0.5 ? "WATCH_CONFLICT" : "LOW_CONFLICT");
++        out.add(
++                new Conflict(
++                        left,
++                        right,
++                        type,
++                        key + '=' + raw,
++                        score >= 0.8
++                                ? "Freeze automatic fusion for this pair and run isolated replay."
++                                : "Retain but monitor blockwise stability.",
++                        score));
++    }
++
++public static double parse01SnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
++        try {
++            return clampSnapshotCP4(report, Double.parseDouble(x));
++        } catch (Throwable t) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",t);}
++    }
++
++public static double clampSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, double x) {
++        if (Double.isNaN(x) || Double.isInfinite(x)) return 0.0d;
++        return Math.max(0.0d, Math.min(1.0d, x));
++    }
++
++public static String getSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, String k, String d) {
++        try {
++            return s == null ? d : s.getState(k, d);
++        } catch (Throwable t) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",t);}
++    }
++
++public ModuleEffect readEffectSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
++            com.ethk3.novaonepro.ReportReadContextCP4 store, String module, String prefixRoot, boolean production) {
++        String prefix = prefixRoot + module.toLowerCase(java.util.Locale.ROOT);
++        String dh = getSnapshotCP4(report, store, prefix + "_delta_hit", "");
++        String db = getSnapshotCP4(report, store, prefix + "_delta_brier", "");
++        String dc = getSnapshotCP4(report, store, prefix + "_delta_coverage", "");
++        String de = getSnapshotCP4(report, store, prefix + "_delta_ece", "");
++        String scope = getSnapshotCP4(report, store, prefix + "_scope", "");
++        if (dh.length() == 0 && db.length() == 0 && dc.length() == 0 && de.length() == 0)
++            return new ModuleEffect(
++                    module,
++                    "UNAVAILABLE",
++                    "N/A",
++                    "N/A",
++                    "N/A",
++                    "N/A",
++                    "NO_CLAIM",
++                    "No frozen OOS/shadow ablation measurement is persisted; do not invent"
++                        + " contribution.",
++                    0.0d);
++        if (production && (!"OOS".equalsIgnoreCase(scope) || !hasStrictOosSnapshotCP4(report, store))) {
++            return new ModuleEffect(
++                    module,
++                    "UNAVAILABLE",
++                    "N/A",
++                    "N/A",
++                    "N/A",
++                    "N/A",
++                    "NO_CLAIM",
++                    "Production contribution requires an existing strict OOS label and OOS scope.",
++                    0.0d);
++        }
++        String ev =
++                production
++                        ? "MEASURED_OOS"
++                        : ("OOS".equalsIgnoreCase(scope)
++                                ? "RESEARCH_MEASURED_OOS"
++                                : "RESEARCH_MEASURED_SHADOW");
++        return new ModuleEffect(
++                module,
++                ev,
++                valSnapshotCP4(report, dh),
++                valSnapshotCP4(report, db),
++                valSnapshotCP4(report, dc),
++                valSnapshotCP4(report, de),
++                "REVIEW_MEASURED_DELTA",
++                "Interpret hit together with Brier/ECE/coverage; one metric alone cannot prove"
++                    + " usefulness.",
++                "MEASURED_OOS".equals(ev) || "RESEARCH_MEASURED_OOS".equals(ev)
++                        ? 0.9d
++                        : 0.65d);
++    }
++
++public static String valSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
++        return x == null || x.length() == 0 ? "N/A" : x;
++    }
++
++public boolean hasStrictOosSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        android.database.Cursor cursor = null;
++        try {
++            if (store == null) return false;
++            cursor =
++                    report.select(
++                                    "SELECT 1 FROM "
++                                            + DbHelper.TABLE_R35_OOS_LABEL
++                                            + " WHERE strict_oos=1 AND settled_at>0 LIMIT 1",
++                                    null);
++            return cursor.moveToFirst();
++        } catch (Throwable error) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",error);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
+ }

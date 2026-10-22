@@ -1,0 +1,36 @@
+PASS transaction commits after genuine independent SQLite writer wait
+PASS BEGIN lock wait is distinct from callback duration
+PASS BEGIN wait retains committed outcome
+PASS SQLite BEGIN lock timeout returns original fallback
+PASS failed BEGIN records unexecuted callback and END as unavailable
+PASS slow callback still commits
+PASS slow callback is distinct from SQLite BEGIN and END
+PASS transaction commits after genuine independent SQLite reader wait
+PASS COMMIT wait is distinct from callback duration
+PASS failing callback returns original fallback
+PASS failing callback rolls back and records rollback
+PASS SQLite deferred foreign-key COMMIT failure returns original fallback
+PASS actual COMMIT failure is distinguishable from body failure
+PASS failed COMMIT creates no durable child
+PASS nested caller-owned transaction executes callback
+PASS caller-owned transaction marks unexecuted BEGIN/END as unavailable
+PASS observation does not commit caller-owned transaction
+PASS injected observation failure preserves committed success
+PASS injected observation failure preserves original callback exception
+PASS observation failure preserves durable commit and rollback semantics
+PASS ten thousand observations retain at most 128 bounded labels and one truncation marker
+PASS new observation cap preserves prior stage evidence and bounds added characters
+PASS further observations allocate no additional stage text after cap
+PASS transaction cap does not suppress later existing CP12EX stages
+PASS legacy inclusive dbBody metric remains independent
+PASS merged observation respects existing matrix bounds chars=2079 entries=511
+PASS actual latency matrix retains identical accepted ordinal receipt and proof
+PASS merged observation respects existing matrix bounds chars=2083 entries=512
+PASS actual latency matrix retains identical accepted ordinal receipt and proof
+PASS already excessive original remains byte-identical chars=2087 entries=513
+PASS merged observation respects existing matrix bounds chars=65535 entries=3
+PASS actual latency matrix retains identical accepted ordinal receipt and proof
+PASS merged observation respects existing matrix bounds chars=65536 entries=3
+PASS actual latency matrix retains identical accepted ordinal receipt and proof
+PASS already excessive original remains byte-identical chars=65537 entries=3
+PASS transaction detail and original aggregate persist in report row

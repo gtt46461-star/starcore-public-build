@@ -1,0 +1,161 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/KeyProvider.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/KeyProvider.java
+@@ -10,20 +10,37 @@
+     private static final String MATERIALIZATION_MARKER =
+             "STARCORE_TIANSHU_B01_MATERIALIZED_20260805";
+     private static final String INJECTION_SOURCE =
+-            "BuildConfig.DUOQU_API_KEY_A+DUOQU_API_KEY_B_RUNTIME_JOIN";
+-    private static final Object LOCK = new Object();
+-    private static volatile String cachedFingerprint = "";
++            "DEVICE_ANDROID_KEYSTORE_PRIVATE_CREDENTIAL_CP12";
++    private static volatile PrivateApiCredentialCP12 credential;
++    private static final java.util.concurrent.atomic.AtomicBoolean RELOAD_PENDING=new java.util.concurrent.atomic.AtomicBoolean();
++    private static final java.util.concurrent.ThreadPoolExecutor CREDENTIAL_IO =
++            new java.util.concurrent.ThreadPoolExecutor(1,1,0L,java.util.concurrent.TimeUnit.MILLISECONDS,
++                    new java.util.concurrent.ArrayBlockingQueue<Runnable>(4),r->{Thread t=new Thread(r,"api-credential-cp12");t.setDaemon(true);return t;});
+ 
+     private KeyProvider() {}
+ 
+     public static String getApiKey() {
+-        String key =
+-                new StringBuilder(32)
+-                        .append(BuildConfig.DUOQU_API_KEY_A)
+-                        .append(BuildConfig.DUOQU_API_KEY_B)
+-                        .toString();
+-        return key == null ? "" : key.trim();
+-    }
++        PrivateApiCredentialCP12 owner=credential;return owner==null?"":owner.get();
++    }
++
++    /** Startup schedules private file/keystore IO; all getters remain memory-only on UI. */
++    public static synchronized void initialize(android.content.Context context) {
++        if(credential!=null)return;PrivateApiCredentialCP12 owner=new PrivateApiCredentialCP12(new PrivateApiCredentialCP12.DeviceStorage(context));
++        credential=owner;reloadAsync(context);
++    }
++    public static void reloadAsync(android.content.Context context){
++        initialize(context);if(!RELOAD_PENDING.compareAndSet(false,true))return;PrivateApiCredentialCP12 owner=credential;
++        try{CREDENTIAL_IO.execute(()->{try{owner.load();}finally{RELOAD_PENDING.set(false);}});}catch(java.util.concurrent.RejectedExecutionException busy){RELOAD_PENDING.set(false);}
++    }
++    public interface ConfigurationResult{void complete(boolean saved,String reason);}
++    public static void configureAsync(android.content.Context context,char[] input,ConfigurationResult result) {
++        initialize(context);final char[] copy=input==null?new char[0]:input.clone();final PrivateApiCredentialCP12 owner=credential;
++        try{CREDENTIAL_IO.execute(()->{boolean saved=false;String reason="KEY_STORE_WRITE_FAILED";
++            try{owner.configure(copy);saved=true;reason="READY";}catch(Exception failure){reason=failure.getMessage()!=null&&failure.getMessage().equals("KEY_INPUT_INVALID")?"KEY_INPUT_INVALID":"KEY_STORE_WRITE_FAILED";}
++            finally{zeroize(copy);}result.complete(saved,reason);
++        });}catch(java.util.concurrent.RejectedExecutionException busy){zeroize(copy);result.complete(false,"KEY_CONFIGURATION_BUSY");}
++    }
++    public static String unavailableReasonCP12(){PrivateApiCredentialCP12 owner=credential;return (owner==null?"KEY_OWNER_NOT_INITIALIZED":owner.state())+"|original_reason="+(owner==null?"APPLICATION_CREDENTIAL_OWNER_NOT_RUN":owner.failureReason())+"|missing=device_api_credential|recovery=HOME_API_LINE_CONFIGURE";}
+ 
+     public static char[] acquireKeyChars() {
+         return getApiKey().toCharArray();
+@@ -84,25 +101,10 @@
+     }
+ 
+     public static String fingerprint() {
+-        String cached = cachedFingerprint;
+-        if (cached.length() > 0) return cached;
+-        synchronized (LOCK) {
+-            if (cachedFingerprint.length() > 0) return cachedFingerprint;
+-            char[] chars = decodeChars();
+-            byte[] bytes = null;
+-            try {
+-                bytes = new String(chars).getBytes("UTF-8");
+-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+-                byte[] hash = digest.digest(bytes);
+-                cachedFingerprint = hex(hash);
+-                return cachedFingerprint;
+-            } catch (Exception error) {
+-                return "FINGERPRINT_ERROR";
+-            } finally {
+-                zeroize(chars);
+-                if (bytes != null) for (int i = 0; i < bytes.length; i++) bytes[i] = 0;
+-            }
+-        }
++        char[] chars=decodeChars();byte[] bytes=null;
++        try {bytes=new String(chars).getBytes("UTF-8");return hex(MessageDigest.getInstance("SHA-256").digest(bytes));}
++        catch(Exception failure){return "FINGERPRINT_ERROR";}
++        finally{zeroize(chars);if(bytes!=null)java.util.Arrays.fill(bytes,(byte)0);}
+     }
+ 
+     public static String shortFingerprint() {
+@@ -184,7 +186,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-007", "FINGERPRINT_ONLY", "GROUP_01", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-008", "MASKED_STATUS", "GROUP_01", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-009", "ZEROIZE_CHAR_BUFFER", "GROUP_01", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-010", "BUILD_INJECTION", "GROUP_01", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-010", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_01", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-011", "QUERY_PARAM_REDACTION", "GROUP_01", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-012", "HEADER_REDACTION", "GROUP_01", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-013", "JSON_REDACTION", "GROUP_01", true));
+@@ -204,7 +206,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-027", "FINGERPRINT_ONLY", "GROUP_02", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-028", "MASKED_STATUS", "GROUP_02", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-029", "ZEROIZE_CHAR_BUFFER", "GROUP_02", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-030", "BUILD_INJECTION", "GROUP_02", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-030", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_02", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-031", "QUERY_PARAM_REDACTION", "GROUP_02", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-032", "HEADER_REDACTION", "GROUP_02", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-033", "JSON_REDACTION", "GROUP_02", true));
+@@ -224,7 +226,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-047", "FINGERPRINT_ONLY", "GROUP_03", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-048", "MASKED_STATUS", "GROUP_03", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-049", "ZEROIZE_CHAR_BUFFER", "GROUP_03", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-050", "BUILD_INJECTION", "GROUP_03", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-050", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_03", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-051", "QUERY_PARAM_REDACTION", "GROUP_03", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-052", "HEADER_REDACTION", "GROUP_03", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-053", "JSON_REDACTION", "GROUP_03", true));
+@@ -244,7 +246,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-067", "FINGERPRINT_ONLY", "GROUP_04", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-068", "MASKED_STATUS", "GROUP_04", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-069", "ZEROIZE_CHAR_BUFFER", "GROUP_04", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-070", "BUILD_INJECTION", "GROUP_04", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-070", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_04", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-071", "QUERY_PARAM_REDACTION", "GROUP_04", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-072", "HEADER_REDACTION", "GROUP_04", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-073", "JSON_REDACTION", "GROUP_04", true));
+@@ -264,7 +266,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-087", "FINGERPRINT_ONLY", "GROUP_05", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-088", "MASKED_STATUS", "GROUP_05", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-089", "ZEROIZE_CHAR_BUFFER", "GROUP_05", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-090", "BUILD_INJECTION", "GROUP_05", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-090", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_05", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-091", "QUERY_PARAM_REDACTION", "GROUP_05", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-092", "HEADER_REDACTION", "GROUP_05", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-093", "JSON_REDACTION", "GROUP_05", true));
+@@ -284,7 +286,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-107", "FINGERPRINT_ONLY", "GROUP_06", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-108", "MASKED_STATUS", "GROUP_06", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-109", "ZEROIZE_CHAR_BUFFER", "GROUP_06", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-110", "BUILD_INJECTION", "GROUP_06", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-110", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_06", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-111", "QUERY_PARAM_REDACTION", "GROUP_06", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-112", "HEADER_REDACTION", "GROUP_06", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-113", "JSON_REDACTION", "GROUP_06", true));
+@@ -304,7 +306,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-127", "FINGERPRINT_ONLY", "GROUP_07", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-128", "MASKED_STATUS", "GROUP_07", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-129", "ZEROIZE_CHAR_BUFFER", "GROUP_07", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-130", "BUILD_INJECTION", "GROUP_07", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-130", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_07", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-131", "QUERY_PARAM_REDACTION", "GROUP_07", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-132", "HEADER_REDACTION", "GROUP_07", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-133", "JSON_REDACTION", "GROUP_07", true));
+@@ -324,7 +326,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-147", "FINGERPRINT_ONLY", "GROUP_08", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-148", "MASKED_STATUS", "GROUP_08", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-149", "ZEROIZE_CHAR_BUFFER", "GROUP_08", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-150", "BUILD_INJECTION", "GROUP_08", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-150", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_08", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-151", "QUERY_PARAM_REDACTION", "GROUP_08", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-152", "HEADER_REDACTION", "GROUP_08", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-153", "JSON_REDACTION", "GROUP_08", true));
+@@ -344,7 +346,7 @@
+         rules.add(new PolicyRule("TIANSHU-SECRET-167", "FINGERPRINT_ONLY", "GROUP_09", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-168", "MASKED_STATUS", "GROUP_09", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-169", "ZEROIZE_CHAR_BUFFER", "GROUP_09", true));
+-        rules.add(new PolicyRule("TIANSHU-SECRET-170", "BUILD_INJECTION", "GROUP_09", true));
++        rules.add(new PolicyRule("TIANSHU-SECRET-170", "DEVICE_PRIVATE_CREDENTIAL_STORAGE", "GROUP_09", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-171", "QUERY_PARAM_REDACTION", "GROUP_09", true));
+         rules.add(new PolicyRule("TIANSHU-SECRET-172", "HEADER_REDACTION", "GROUP_09", true));
+         return Collections.unmodifiableList(rules);

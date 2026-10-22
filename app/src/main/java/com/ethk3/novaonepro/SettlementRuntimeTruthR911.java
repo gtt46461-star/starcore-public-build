@@ -1,0 +1,189 @@
+package com.ethk3.novaonepro;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+/** Read-only R911 settlement/research runtime truth for diagnostics. */
+public final class SettlementRuntimeTruthR911 {
+    private SettlementRuntimeTruthR911() {}
+
+    public static String snapshot(DbStore store) {
+        if (store == null) return "R911_RUNTIME_TRUTH=READ_ERROR:STORE_NULL";
+        try {
+            SQLiteDatabase db = store.readable();
+            long now = System.currentTimeMillis();
+            int ready = scalarInt(db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK + " t"
+                            + " JOIN " + DrawDependencyInputCP12.SOURCE + " d ON d.issue=t.target_issue AND d.dirty=0"
+                            + " JOIN " + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " s ON s.target_issue=t.target_issue"
+                            + " WHERE t.status IN ('PENDING','RETRY_WAIT') AND t.next_attempt_at<=?"
+                            + " AND (t.lease_until=0 OR t.lease_until<?)"
+                            + " AND s.pre_draw_frozen=1 AND s.settled=0",
+                    new String[]{String.valueOf(now), String.valueOf(now)});
+            int retry = scalarInt(db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='RETRY_WAIT'", null);
+            int running = scalarInt(db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='RUNNING'", null);
+            int completed = scalarInt(db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='COMPLETED'", null);
+            String latestCompleted = scalarText(db,
+                    "SELECT COALESCE(MAX(target_issue),'') FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='COMPLETED'", null);
+            String latestOos = scalarText(db,
+                    "SELECT COALESCE(MAX(target_issue),'') FROM " + DbHelper.TABLE_R35_OOS_LABEL
+                            + " WHERE strict_oos=1", null);
+            String retryTop = retryTop(db);
+            int algorithms = scalarInt(db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R908_ALGORITHM_GENOME, null);
+            int algorithmFutureN = scalarInt(db,
+                    "SELECT COALESCE(SUM(future_n),0) FROM " + DbHelper.TABLE_R908_ALGORITHM_GENOME, null);
+            DatabaseCoordinator coord = store.coordinatorR36();
+            return "R911_RUNTIME_TRUTH=OK"
+                    + "|ready=" + ready
+                    + "|retry=" + retry
+                    + "|running=" + running
+                    + "|completed=" + completed
+                    + "|latestCompleted=" + latestCompleted
+                    + "|latestOos=" + latestOos
+                    + "|dbWaitMs=" + coord.lastDbLockWaitMs()
+                    + "|dbWaitMaxMs=" + coord.longestDbLockWaitMs()
+                    + "|retryTop=" + retryTop
+                    + "|ftrlUpdates=" + safe(store.getState("r811_ftrl_updates", "0"))
+                    + "|ftrlUntil=" + safe(store.getState("r811_ftrl_trained_until", ""))
+                    + "|tinyDeepUpdates=" + safe(store.getState("r909_tiny_deep_updates", "0"))
+                    + "|tinyDeepUntil=" + safe(store.getState("r909_tiny_deep_trained_until", ""))
+                    + "|algorithms=" + algorithms
+                    + "|algorithmFutureN=" + algorithmFutureN
+                    + "|sqlGate=" + safe(store.getState("r911_research_sql_gate", "NOT_RUN"));
+        } catch (Throwable failure) {
+            return "R911_RUNTIME_TRUTH=READ_ERROR:"
+                    + failure.getClass().getSimpleName() + ':' + safe(failure.getMessage());
+        }
+    }
+
+    private static String retryTop(SQLiteDatabase db) {
+        Cursor c = null;
+        StringBuilder b = new StringBuilder();
+        try {
+            c = db.rawQuery(
+                    "SELECT COALESCE(NULLIF(last_error,''),failure_class),COUNT(*),MAX(attempts)"
+                            + " FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status IN ('RETRY_WAIT','RUNNING')"
+                            + " GROUP BY COALESCE(NULLIF(last_error,''),failure_class)"
+                            + " ORDER BY COUNT(*) DESC LIMIT 5", null);
+            while (c.moveToNext()) {
+                if (b.length() > 0) b.append(';');
+                b.append(trim(safe(c.getString(0)), 120))
+                        .append('#').append(c.getInt(1))
+                        .append("/a").append(c.getInt(2));
+            }
+            return b.length() == 0 ? "NONE" : b.toString();
+        } finally { if (c != null) c.close(); }
+    }
+
+    private static int scalarInt(SQLiteDatabase db, String sql, String[] args) {
+        Cursor c = null;
+        try { c=db.rawQuery(sql,args); return c.moveToFirst()?c.getInt(0):0; }
+        finally { if(c!=null)c.close(); }
+    }
+    private static String scalarText(SQLiteDatabase db, String sql, String[] args) {
+        Cursor c = null;
+        try { c=db.rawQuery(sql,args); return c.moveToFirst()?safe(c.getString(0)):""; }
+        finally { if(c!=null)c.close(); }
+    }
+    private static String trim(String x,int n){String s=safe(x);return s.length()<=n?s:s.substring(0,n);}
+    private static String safe(String x){return x==null?"":x.trim();}
+
+public static String snapshotSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+        if (store == null) return "R911_RUNTIME_TRUTH=READ_ERROR:STORE_NULL";
+        try {
+            SQLiteDatabase db = store.readable();
+            long now = report.nowMs();
+            int ready = scalarIntSnapshotCP4(report, db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK + " t"
+                            + " JOIN " + DrawDependencyInputCP12.SOURCE + " d ON d.issue=t.target_issue AND d.dirty=0"
+                            + " JOIN " + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " s ON s.target_issue=t.target_issue"
+                            + " WHERE t.status IN ('PENDING','RETRY_WAIT') AND t.next_attempt_at<=?"
+                            + " AND (t.lease_until=0 OR t.lease_until<?)"
+                            + " AND s.pre_draw_frozen=1 AND s.settled=0",
+                    new String[]{String.valueOf(now), String.valueOf(now)});
+            int retry = scalarIntSnapshotCP4(report, db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='RETRY_WAIT'", null);
+            int running = scalarIntSnapshotCP4(report, db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='RUNNING'", null);
+            int completed = scalarIntSnapshotCP4(report, db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='COMPLETED'", null);
+            String latestCompleted = scalarTextSnapshotCP4(report, db,
+                    "SELECT COALESCE(MAX(target_issue),'') FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status='COMPLETED'", null);
+            String latestOos = scalarTextSnapshotCP4(report, db,
+                    "SELECT COALESCE(MAX(target_issue),'') FROM " + DbHelper.TABLE_R35_OOS_LABEL
+                            + " WHERE strict_oos=1", null);
+            String retryTop = retryTopSnapshotCP4(report, db);
+            int algorithms = scalarIntSnapshotCP4(report, db,
+                    "SELECT COUNT(*) FROM " + DbHelper.TABLE_R908_ALGORITHM_GENOME, null);
+            int algorithmFutureN = scalarIntSnapshotCP4(report, db,
+                    "SELECT COALESCE(SUM(future_n),0) FROM " + DbHelper.TABLE_R908_ALGORITHM_GENOME, null);
+            
+            return "R911_RUNTIME_TRUTH=OK"
+                    + "|ready=" + ready
+                    + "|retry=" + retry
+                    + "|running=" + running
+                    + "|completed=" + completed
+                    + "|latestCompleted=" + latestCompleted
+                    + "|latestOos=" + latestOos
+                    + "|dbWaitMs=" + report.observationLong("dbWaitMs")
+                    + "|dbWaitMaxMs=" + report.observationLong("dbWaitMaxMs")
+                    + "|retryTop=" + retryTop
+                    + "|ftrlUpdates=" + safeSnapshotCP4(report, store.getState("r811_ftrl_updates", "0"))
+                    + "|ftrlUntil=" + safeSnapshotCP4(report, store.getState("r811_ftrl_trained_until", ""))
+                    + "|tinyDeepUpdates=" + safeSnapshotCP4(report, store.getState("r909_tiny_deep_updates", "0"))
+                    + "|tinyDeepUntil=" + safeSnapshotCP4(report, store.getState("r909_tiny_deep_trained_until", ""))
+                    + "|algorithms=" + algorithms
+                    + "|algorithmFutureN=" + algorithmFutureN
+                    + "|sqlGate=" + safeSnapshotCP4(report, store.getState("r911_research_sql_gate", "NOT_RUN"));
+        } catch (Throwable failure) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",failure);}
+    }
+
+public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x){return x==null?"":x.trim();}
+
+public static int scalarIntSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql, String[] args) {
+        Cursor c = null;
+        try { c=report.select(sql,args); return c.moveToFirst()?c.getInt(0):0; }
+        finally { if(c!=null)c.close(); }
+    }
+
+public static String retryTopSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db) {
+        Cursor c = null;
+        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report);
+        try {
+            c = report.select(
+                    "SELECT COALESCE(NULLIF(last_error,''),failure_class),COUNT(*),MAX(attempts)"
+                            + " FROM " + DbHelper.TABLE_R36_SETTLEMENT_TASK
+                            + " WHERE status IN ('RETRY_WAIT','RUNNING')"
+                            + " GROUP BY COALESCE(NULLIF(last_error,''),failure_class)"
+                            + " ORDER BY COUNT(*) DESC LIMIT 5", null);
+            while (c.moveToNext()) {
+                if (b.length() > 0) b.append(';');
+                b.append(trimSnapshotCP4(report, safeSnapshotCP4(report, c.getString(0)), 120))
+                        .append('#').append(c.getInt(1))
+                        .append("/a").append(c.getInt(2));
+            }
+            return b.length() == 0 ? "NONE" : b.toString();
+        } finally { if (c != null) c.close(); }
+    }
+
+public static String trimSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x,int n){String s=safeSnapshotCP4(report, x);return s.length()<=n?s:s.substring(0,n);}
+
+public static String scalarTextSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String sql, String[] args) {
+        Cursor c = null;
+        try { c=report.select(sql,args); return c.moveToFirst()?safeSnapshotCP4(report, c.getString(0)):""; }
+        finally { if(c!=null)c.close(); }
+    }
+}

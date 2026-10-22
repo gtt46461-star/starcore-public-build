@@ -1,0 +1,130 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V50AtomicDecisionLedgerEngine.java b/app/src/main/java/com/ethk3/novaonepro/V50AtomicDecisionLedgerEngine.java
+index ed15be5..c61ae66 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V50AtomicDecisionLedgerEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V50AtomicDecisionLedgerEngine.java
+@@ -43,123 +43,8 @@ public final class V50AtomicDecisionLedgerEngine {
+             final V50Models.AuthorizedDecision authorized,
+             final String hypothesisBlob,
+             final Models.Decision legacyDecision) {
+-        if (store == null
+-                || context == null
+-                || features == null
+-                || states == null
+-                || states.length != 10
+-                || fusion == null
+-                || actions == null
+-                || actions.length != 10
+-                || selected == null
+-                || authorized == null
+-                || legacyDecision == null) {
+-            return fail(
+-                    V50Enums.FailureCode.PREDICTION_INSERT_FAILED,
+-                    "V50_ATOMIC_LEDGER_INPUT_INCOMPLETE",
+-                    null);
+-        }
+-        V50Repository.ReadyReport ready = V50Repository.ensure(store);
+-        if (!ready.ready) {
+-            return fail(
+-                    V50Enums.FailureCode.MIGRATION_FAILED,
+-                    ready.integrity == null ? "V50_DATABASE_NOT_READY" : ready.integrity.detail,
+-                    null);
+-        }
+-        final Auxiliary auxiliary = auxiliary(fusion, states);
+-        try {
+-            Boolean idempotent =
+-                    V50Repository.transaction(
+-                            store,
+-                            new V50Repository.TransactionBody<Boolean>() {
+-                                public Boolean run(SQLiteDatabase db) throws Exception {
+-                                    V50Repository.WriteResult issue =
+-                                            V50Repository.insertIssuePrediction(
+-                                                    db,
+-                                                    context,
+-                                                    features.checksum,
+-                                                    stateHash(states),
+-                                                    expertHash(fusion.experts),
+-                                                    fusion.numberProbability,
+-                                                    Arrays.asList(actions),
+-                                                    selected,
+-                                                    V50NumberModelArtifact.PARAMETER_SHA256,
+-                                                    hypothesisBlob);
+-                                    require(issue);
+-                                    V50Repository.WriteResult numbers =
+-                                            V50Repository.insertNumberEvents(
+-                                                    db,
+-                                                    context.targetIssue,
+-                                                    fusion.numberProbability,
+-                                                    auxiliary.ranks,
+-                                                    auxiliary.expertContribution,
+-                                                    auxiliary.teacherContribution,
+-                                                    auxiliary.domains,
+-                                                    features.checksum);
+-                                    require(numbers);
+-                                    V50Repository.WriteResult position =
+-                                            V50Repository.insertPositionActions(
+-                                                    db,
+-                                                    context.targetIssue,
+-                                                    Arrays.asList(actions));
+-                                    require(position);
+-                                    boolean stateIdempotent =
+-                                            insertStates(db, context.targetIssue, states);
+-                                    V50Repository.WriteResult decision =
+-                                            V50Repository.insertAuthorizedDecision(
+-                                                    db,
+-                                                    authorized,
+-                                                    authorized.action
+-                                                            == V50Enums.DecisionAction.BET);
+-                                    require(decision);
+-                                    DbStore.V50AtomicLegacyWrite legacy =
+-                                            store.persistV50DecisionAndTrade(db, legacyDecision);
+-                                    if (legacy == null
+-                                            || legacy.decisionRowId <= 0L
+-                                            || (authorized.action == V50Enums.DecisionAction.BET
+-                                                    && legacy.tradeRowId <= 0L)) {
+-                                        throw new WriteFailure(
+-                                                V50Enums.FailureCode.SQLITE_ERROR,
+-                                                "V50_ATOMIC_LEGACY_DECISION_TRADE_FAILED");
+-                                    }
+-                                    return Boolean.valueOf(
+-                                            issue.idempotent
+-                                                    && numbers.idempotent
+-                                                    && position.idempotent
+-                                                    && stateIdempotent
+-                                                    && decision.idempotent
+-                                                    && legacy.idempotent);
+-                                }
+-                            });
+-            LedgerReconciliationEngine.Report reconciliation =
+-                    LedgerReconciliationEngine.reconcile(store.readable(), context.targetIssue);
+-            if (!reconciliation.valid) {
+-                return fail(reconciliation.failureCode, reconciliation.detail, reconciliation);
+-            }
+-            return new Result(
+-                    true,
+-                    idempotent.booleanValue(),
+-                    V50Enums.FailureCode.NONE,
+-                    "V50_ATOMIC_PREDICTION_LEDGER_COMMITTED",
+-                    reconciliation);
+-        } catch (WriteFailure failure) {
+-            V50Repository.recordLedgerError(
+-                    store.writable(),
+-                    context.targetIssue,
+-                    failure.code,
+-                    "V50AtomicDecisionLedgerEngine",
+-                    failure.getMessage());
+-            return fail(failure.code, failure.getMessage(), null);
+-        } catch (Throwable error) {
+-            String detail = error.getClass().getSimpleName() + ':' + safe(error.getMessage());
+-            V50Repository.recordLedgerError(
+-                    store.writable(),
+-                    context.targetIssue,
+-                    V50Enums.FailureCode.SQLITE_ERROR,
+-                    "V50AtomicDecisionLedgerEngine",
+-                    detail);
+-            return fail(V50Enums.FailureCode.SQLITE_ERROR, detail, null);
+-        }
++        return fail(V50Enums.FailureCode.PREDICTION_INSERT_FAILED,
++                "CP4_LEGACY_V50_WRITER_RETIRED_USE_R36_CANONICAL",null);
+     }
+ 
+     private static boolean insertStates(

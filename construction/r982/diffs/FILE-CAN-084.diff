@@ -1,0 +1,16 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java b/app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java
+index 78b33da..8e30c4b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LifecycleAuditR925.java
+@@ -24,4 +24,11 @@ public final class LifecycleAuditR925 {
+         try {while(c.moveToNext()) {for(int i=0;i<c.getColumnCount();i++)b.append(c.getColumnName(i)).append('=').append(c.getString(i)).append(' ');b.append('\n');}}
+         finally {c.close();}return b.toString();
+     }
++
++public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        com.ethk3.novaonepro.ReportTextCP12 b=new com.ethk3.novaonepro.ReportTextCP12(report, "PRUNE_REASON_LEDGER\n原始原因不可恢复的旧记录明确标记，不根据当前指标编造。\n");
++        Cursor c=report.select("SELECT genome_id,first_prune_reason,first_prune_issue,original_available,latest_status,latest_reason,first_prune_metrics FROM v57_lifecycle_audit_r925 ORDER BY first_prune_at DESC",null);
++        try {while(c.moveToNext()) {for(int i=0;i<c.getColumnCount();i++)b.append(c.getColumnName(i)).append('=').append(c.getString(i)).append(' ');b.append('\n');}}
++        finally {c.close();}return b.toString();
++    }
+ }

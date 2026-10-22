@@ -1,0 +1,99 @@
+name: Starcore Tianshu B01 Generator Unit Gate
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01
+    paths:
+      - '.github/workflows/starcore-tianshu-b01-generator-unit-gate.yml'
+  workflow_dispatch:
+
+jobs:
+  unit-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+          fetch-depth: 0
+
+      - name: Reconstruct and repair generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b01/materializer.part-* | base64 --decode | gzip --decompress > tools/starcore_tianshu_b01_materialize.py
+          cat .github/starcore-tianshu-b01/harness.part-* | base64 --decode | gzip --decompress > tools/run_starcore_b01_harness.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/starcore_tianshu_b01_materialize.py')
+          t=p.read_text(encoding='utf-8')
+          replacements={
+          '25563a5bb5b19aea8ac221b59853a9f97b08ebee1c686c9a21de6ac77c8c821a':'40f532fc8eabc4bb71f9aa6e60eeb5aa5a947c16ccafcc5003e76ceed9867d94',
+          '6e800a72c0e6d2dd3ce950f2ba5ea1c659c8a3dece1b8086dee22c8bd538e9df':'9683562182798b5bd53142bd802e8ce1dff2bc7faad5de6134047d3ce60e476c',
+          'fields[i % fields.length]':'fields[i %% fields.length]',
+          '        "    public static final boolean SHADOW_ONLY = true;",':'        "    public static final boolean SHADOW_ONLY = true;",\n        "    public static final boolean REAL_BET_HARD_DISABLED = true;",'
+          }
+          for old,new in replacements.items():
+              count=t.count(old)
+              if count != 1:
+                  raise SystemExit('replacement count mismatch %r=%d' % (old,count))
+              t=t.replace(old,new)
+          p.write_text(t,encoding='utf-8')
+          PY
+          python3 -m py_compile tools/starcore_tianshu_b01_materialize.py tools/run_starcore_b01_harness.py
+
+      - name: Generate and verify all ten B01 source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/starcore_tianshu_b01_materialize.py --apply | tee reports/B01_UNIT_MATERIALIZE.log
+          python3 tools/starcore_tianshu_b01_materialize.py --verify | tee reports/B01_UNIT_VERIFY.log
+          git diff --check
+
+      - name: Execute harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/run_starcore_b01_harness.py | tee reports/B01_UNIT_HARNESS.log
+
+      - name: Parse generated B01 Java
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check javalang==0.13.0 >/dev/null
+          python3 - <<'PY' | tee reports/B01_UNIT_JAVA_PARSE.log
+          from pathlib import Path
+          import javalang
+          names=['AppConfig.java','BuildIdentity.java','V51BuildManifest.java','V51ArtifactBundleManifest.java','KeyProvider.java','ApiClient.java','ApiParser.java','SafeLog.java','BinanceGameContract.java','ApiTransportGovernanceEngine.java']
+          root=Path('app/src/main/java/com/ethk3/novaonepro')
+          errors=[]
+          for name in names:
+              p=root/name
+              try: javalang.parse.parse(p.read_text(encoding='utf-8'))
+              except Exception as e: errors.append((name,str(e)))
+              print('%s lines=%d bytes=%d' % (name,len(p.read_text(encoding='utf-8').splitlines()),p.stat().st_size))
+          print('errors=%d' % len(errors))
+          for x in errors: print(x)
+          raise SystemExit(1 if errors else 0)
+          PY
+
+      - name: Upload unit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Generator-Unit-Evidence-${{ github.run_number }}
+          path: |
+            reports/*
+            app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+            app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java
+            app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java
+            app/src/main/java/com/ethk3/novaonepro/V51ArtifactBundleManifest.java
+            app/src/main/java/com/ethk3/novaonepro/KeyProvider.java
+            app/src/main/java/com/ethk3/novaonepro/ApiClient.java
+            app/src/main/java/com/ethk3/novaonepro/ApiParser.java
+            app/src/main/java/com/ethk3/novaonepro/SafeLog.java
+            app/src/main/java/com/ethk3/novaonepro/BinanceGameContract.java
+            app/src/main/java/com/ethk3/novaonepro/ApiTransportGovernanceEngine.java
+          if-no-files-found: warn

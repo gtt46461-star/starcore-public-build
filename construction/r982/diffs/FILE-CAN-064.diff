@@ -1,0 +1,21 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DrawIntegrityRecoveryEngine.java b/app/src/main/java/com/ethk3/novaonepro/DrawIntegrityRecoveryEngine.java
+index dfffad8..4c6b436 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DrawIntegrityRecoveryEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DrawIntegrityRecoveryEngine.java
+@@ -418,12 +418,10 @@ public final class DrawIntegrityRecoveryEngine {
+         BigInteger x = new BigInteger(a), y = new BigInteger(b);
+         BigInteger diff = y.subtract(x);
+         if (diff.compareTo(BigInteger.ONE) <= 0) return null;
+-        int size;
+-        try {
+-            size = diff.subtract(BigInteger.ONE).intValueExact();
+-        } catch (Throwable e) {
+-            size = Integer.MAX_VALUE;
+-        }
++        BigInteger missing = diff.subtract(BigInteger.ONE);
++        // diff > 1 above, so missing is positive. Avoid API31 intValueExact on minSDK21.
++        int size = missing.compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) > 0
++                ? Integer.MAX_VALUE : missing.intValue();
+         return new Gap(
+                 from,
+                 to,

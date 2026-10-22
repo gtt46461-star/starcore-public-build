@@ -1,0 +1,83 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 136ea1e..a2a4e59 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -44,7 +44,7 @@ def requiredIdentity = { String key ->
+     String.valueOf(value)
+ }
+ def injectedApiKey = (System.getenv('DUOQU_API_KEY') ?: '').trim()
+-def requestedRelease = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
++def requestedRelease = gradle.startParameter.taskNames.any { def task = it.tokenize(':').last().toLowerCase(); task.startsWith('assemble') && task.endsWith('release') || task.startsWith('bundle') && task.endsWith('release') }
+ if (requestedRelease && !(injectedApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
+     throw new GradleException('R818_RELEASE_DUOQU_API_KEY_REQUIRED')
+ }
+@@ -55,10 +55,14 @@ def escapedApiKeyA = injectedApiKeyA.replace('\\', '\\\\').replace('"', '\\"')
+ def escapedApiKeyB = injectedApiKeyB.replace('\\', '\\\\').replace('"', '\\"')
+ android {
+     namespace requiredIdentity('applicationId')
++    buildToolsVersion '36.0.0'
+     compileSdk Integer.parseInt(requiredIdentity('compileSdk'))
++    ndkVersion "28.2.13676358"
++    externalNativeBuild { cmake { path file("src/main/cpp/CMakeLists.txt"); version "3.22.1" } }
+     defaultConfig {
+         applicationId requiredIdentity('applicationId')
+         minSdk Integer.parseInt(requiredIdentity('minSdk'))
++        ndk { abiFilters "arm64-v8a", "armeabi-v7a", "x86_64" }
+         targetSdk Integer.parseInt(requiredIdentity('targetSdk'))
+         versionCode Integer.parseInt(requiredIdentity('versionCode'))
+         versionName requiredIdentity('versionName')
+@@ -77,22 +81,31 @@ android {
+         setProperty('archivesBaseName', 'Starcore-Tianshu-' + requiredIdentity('versionName'))
+     }
+     buildFeatures { buildConfig true }
++    androidResources { noCompress += ["jsonl"] }
+     buildTypes {
+         debug { minifyEnabled false }
+         release { minifyEnabled false; shrinkResources false; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' }
+     }
+-    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
++    compileOptions { coreLibraryDesugaringEnabled true; sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+     testOptions { unitTests.returnDefaultValues = true }
+-    lint { abortOnError false; checkReleaseBuilds false }
++    lint { baseline file("lint-baseline.xml"); abortOnError true; checkReleaseBuilds true; warningsAsErrors true }
+ }
+ java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+ 
+ dependencies {
++    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+     testImplementation 'junit:junit:4.13.2'
+     androidTestImplementation 'androidx.test:runner:1.6.2'
+     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+ }
+ 
++// Build identity of the exact two catalogs consumed by the runtime importers.
++def verifyCatalogAssetsCP12 = tasks.register('verifyCatalogAssetsCP12', Exec) {
++    workingDir rootProject.projectDir
++    commandLine 'python3', rootProject.file('scripts/verify_catalog_assets_cp12.py').absolutePath, '--check'
++    outputs.upToDateWhen { false }
++}
++
+ // R967 explicit numerical dependencies/policy. Outputs live only under build/generated.
+ def generateR967Semantics = tasks.register('generateR967Semantics', Exec) {
+     workingDir rootProject.projectDir
+@@ -101,5 +114,19 @@ def generateR967Semantics = tasks.register('generateR967Semantics', Exec) {
+     outputs.upToDateWhen { false }
+ }
+ android.sourceSets.main.java.srcDir(layout.buildDirectory.dir('generated/source/r967'))
+-tasks.named('preBuild').configure { dependsOn generateR967Semantics }
++// Lossless source-call evidence is materialized from a pinned archive, then checked against
++// every actual product source hash. It is included in the same APK assets as the report reads.
++def generateR982SourceCallAsset = tasks.register('generateR982SourceCallAsset', Exec) {
++    workingDir rootProject.projectDir
++    commandLine 'python3', rootProject.file('scripts/r982_source_call_asset.py').absolutePath
++    outputs.upToDateWhen { false }
++}
++android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r982'))
++tasks.named('preBuild').configure { dependsOn generateR982SourceCallAsset }
++tasks.named('preBuild').configure { dependsOn generateR967Semantics, verifyCatalogAssetsCP12 }
+ tasks.withType(JavaCompile).configureEach { dependsOn generateR967Semantics }
++
++// Canonical acceptance has no dependency on a connected physical device.
++tasks.register('verifyCanonicalPlanBuildCP3') {
++    dependsOn 'generateR967Semantics', 'testDebugUnitTest', 'lintRelease'
++}

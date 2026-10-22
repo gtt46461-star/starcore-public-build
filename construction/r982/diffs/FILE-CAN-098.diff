@@ -1,0 +1,61 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MultipleComparisonRegistryR930.java b/app/src/main/java/com/ethk3/novaonepro/MultipleComparisonRegistryR930.java
+index 1d10f27..d8f0143 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MultipleComparisonRegistryR930.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MultipleComparisonRegistryR930.java
+@@ -51,6 +51,7 @@ public final class MultipleComparisonRegistryR930 {
+     }
+ 
+     public static Snapshot reserve(final DbStore store,final Registration r,final double allocation,final double initialAlpha){
++        if(r!=null && "CP3_ALL_PRODUCTION".equals(r.statisticalFamily))throw new IllegalArgumentException("CP4_USE_LIFETIME_RESERVATION");
+         if(store==null||r==null)throw new IllegalArgumentException("C06_RESERVE_INPUT_NULL");
+         if(!finite(allocation)||allocation<=0||!finite(initialAlpha)||initialAlpha<=0||allocation>initialAlpha)throw new IllegalArgumentException("C06_ALPHA_ALLOCATION_INVALID");
+         final Snapshot[] out=new Snapshot[1];
+@@ -110,4 +111,48 @@ public final class MultipleComparisonRegistryR930 {
+ 
+     private static void appendEvent(SQLiteDatabase db,Registration r,String type,String look,double p,String evidence){String detail=REVISION+"|event="+type+"|look="+look+"|raw_p="+(finite(p)?String.format(Locale.US,"%.12g",p):"N/A")+"|window="+r.windowId+"|start="+r.windowStartIssue+"|end="+r.windowEndIssue;String id=V51ChecksumEngine.sha256(r.hypothesisId+'|'+type+'|'+look+'|'+evidence+'|'+detail);ContentValues v=new ContentValues();v.put("evidence_id",id);v.put("game_code",r.gameCode);v.put("target_issue",r.windowEndIssue);v.put("evidence_type","C06_"+type);v.put("owner",r.hypothesisId);v.put("payload_hash",evidence);v.put("detail",detail);v.put("created_at",System.currentTimeMillis());long inserted=db.insertWithOnConflict(Batch34SchemaR930.TABLE_EVIDENCE_LINK,null,v,SQLiteDatabase.CONFLICT_IGNORE);if(inserted<0){Cursor c=db.rawQuery("SELECT payload_hash,detail FROM "+Batch34SchemaR930.TABLE_EVIDENCE_LINK+" WHERE evidence_id=?",new String[]{id});try{if(!c.moveToFirst()||!evidence.equals(c.getString(0))||!detail.equals(c.getString(1)))throw new IllegalStateException("C06_EVENT_IDEMPOTENCY_CONFLICT");}finally{c.close();}}}
+     private static boolean prob(double x){return finite(x)&&x>=0&&x<=1;}private static boolean finite(double x){return !Double.isNaN(x)&&!Double.isInfinite(x);}private static String issue(String x,String f){String v=req(x,f);if(!Batch34EvidenceContractR929.validIssue(v))throw new IllegalArgumentException("C06_"+f+"_INVALID");return v;}private static String optionalHash(String x,String f){String v=clean(x).toLowerCase(Locale.US);if(v.length()==0)return "";if(!Batch34EvidenceContractR929.isSha256(v))throw new IllegalArgumentException("C06_"+f+"_INVALID");return v;}private static String hash(String x,String f){String v=req(x,f).toLowerCase(Locale.US);if(!Batch34EvidenceContractR929.isSha256(v))throw new IllegalArgumentException("C06_"+f+"_INVALID");return v;}private static String req(String x,String f){String v=clean(x);if(v.length()==0)throw new IllegalArgumentException("C06_"+f+"_EMPTY");return v;}private static String clean(String x){return x==null?"":x.trim();}
++
++    /** CP4 target adapter; one hypothesis for the entire frozen protocol lifetime. */
++    static Snapshot reserveCp3LifetimeWithinTransaction(SQLiteDatabase db,Registration r){
++        if(db==null||!db.inTransaction()||r==null)throw new IllegalStateException("CP4_REGISTRATION_TX_REQUIRED");
++        if(!"CP3_ALL_PRODUCTION".equals(r.statisticalFamily)||!"CP3_PROTOCOL_FINAL".equals(r.plannedLookId))throw new IllegalArgumentException("CP4_REGISTRATION_PROTOCOL");
++        Batch34SchemaR930.ensure(db);
++        Snapshot old=read(db,r.hypothesisId);
++        if(old!=null){if(!old.family.equals(r.statisticalFamily)||!old.windowId.equals(r.windowId))throw new IllegalStateException("CP4_REGISTRATION_IDENTITY");return old;}
++        double available=.05;long index=0;
++        try(Cursor c=db.rawQuery("SELECT initial_alpha,available_alpha,global_index FROM "+Batch34SchemaR930.TABLE_ALPHA_LEDGER+" WHERE family=?",new String[]{r.statisticalFamily})){
++            if(c.moveToFirst()){if(Double.compare(c.getDouble(0),.05)!=0)throw new IllegalStateException("CP4_ALPHA_REDEFINITION");available=c.getDouble(1);index=c.getLong(2);}
++        }
++        if(index<0||index==Long.MAX_VALUE)throw new IllegalStateException("CP4_ALPHA_INDEX_EXHAUSTED");
++        long next=index+1;double alpha=.05/(double)next/((double)next+1d);
++        if(!finite(alpha)||alpha<=0||available+1e-15<alpha)throw new IllegalStateException("CP4_ALPHA_BUDGET_EXHAUSTED");
++        long now=System.currentTimeMillis();ContentValues v=new ContentValues();v.put("family",r.statisticalFamily);v.put("initial_alpha",.05);v.put("available_alpha",available-alpha);v.put("global_index",next);v.put("updated_at",now);
++        if(db.insertWithOnConflict(Batch34SchemaR930.TABLE_ALPHA_LEDGER,null,v,SQLiteDatabase.CONFLICT_REPLACE)<0)throw new IllegalStateException("CP4_ALPHA_LEDGER_WRITE");
++        v=new ContentValues();v.put("hypothesis_id",r.hypothesisId);v.put("family",r.statisticalFamily);v.put("global_index",next);v.put("alpha",alpha);v.put("window_id",r.windowId);v.put("state",State.RESERVED.name());v.putNull("p_value");v.put("evidence_sha256","");v.put("reserved_at",now);v.put("decided_at",0L);
++        if(db.insertWithOnConflict(Batch34SchemaR930.TABLE_HYPOTHESIS,null,v,SQLiteDatabase.CONFLICT_ABORT)<0)throw new IllegalStateException("CP4_HYPOTHESIS_WRITE");
++        appendEvent(db,r,"REGISTER",r.plannedLookId,Double.NaN,V51ChecksumEngine.sha256("CP4_RESERVED|"+r.hypothesisId));
++        return read(db,r.hypothesisId);
++    }
++    static Snapshot readCp3WithinTransaction(SQLiteDatabase db,String id){return read(db,id);}
++    static void markObservingWithinTransactionCp3(SQLiteDatabase db,Registration r,String captureHash){
++        if(db==null||!db.inTransaction())throw new IllegalStateException("CP4_OBSERVATION_TX_REQUIRED");
++        String evidence=hash(captureHash,"CAPTURE");Snapshot old=read(db,r.hypothesisId);
++        if(old==null)throw new IllegalStateException("CP4_HYPOTHESIS_NOT_REGISTERED");
++        if(old.state==State.OBSERVING||old.state==State.ACCEPTED)return;
++        if(old.state!=State.RESERVED)throw new IllegalStateException("CP4_HYPOTHESIS_NOT_OPEN");
++        ContentValues v=new ContentValues();v.put("state",State.OBSERVING.name());
++        if(db.update(Batch34SchemaR930.TABLE_HYPOTHESIS,v,"hypothesis_id=? AND state=?",new String[]{r.hypothesisId,State.RESERVED.name()})!=1)throw new IllegalStateException("CP4_OBSERVING_CAS");
++        appendEvent(db,r,"FIRST_OBSERVATION",r.plannedLookId,Double.NaN,evidence);
++    }
++    static Snapshot decideCp3WithinTransaction(SQLiteDatabase db,Registration r,double p,String evidence){
++        if(db==null||!db.inTransaction()||!prob(p))throw new IllegalStateException("CP4_DECISION_TX_OR_P");
++        evidence=hash(evidence,"EVIDENCE");Snapshot old=read(db,r.hypothesisId);
++        if(old==null)throw new IllegalStateException("CP4_HYPOTHESIS_NOT_REGISTERED");
++        if(old.state==State.ACCEPTED||old.state==State.REJECTED){if(Double.compare(old.rawP,p)!=0||!old.evidenceSha256.equals(evidence))throw new IllegalStateException("CP4_TERMINAL_IMMUTABLE");return old;}
++        if(old.state!=State.OBSERVING)throw new IllegalStateException("CP4_DECISION_NOT_OBSERVING");
++        State terminal=p<=old.alpha?State.ACCEPTED:State.REJECTED;ContentValues v=new ContentValues();v.put("state",terminal.name());v.put("p_value",p);v.put("evidence_sha256",evidence);v.put("decided_at",System.currentTimeMillis());
++        if(db.update(Batch34SchemaR930.TABLE_HYPOTHESIS,v,"hypothesis_id=? AND state=?",new String[]{r.hypothesisId,State.OBSERVING.name()})!=1)throw new IllegalStateException("CP4_DECISION_CAS");
++        appendEvent(db,r,"TERMINAL_LOOK",r.plannedLookId,p,evidence);return read(db,r.hypothesisId);
++    }
++
+ }

@@ -1,0 +1,1 @@
+package android.content; public class ComponentName { private final String className; public static ComponentName unflattenFromString(String s){return new ComponentName(null,Object.class);} public ComponentName(Context c,Class<?> k){className=k==null?"":k.getName();} public String getClassName(){return className;} }

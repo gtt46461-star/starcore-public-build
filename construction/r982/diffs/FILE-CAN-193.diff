@@ -1,0 +1,87 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/TypedAtomMoleculeGraphR930.java b/app/src/main/java/com/ethk3/novaonepro/TypedAtomMoleculeGraphR930.java
+index 6c0d026..7b2fb98 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/TypedAtomMoleculeGraphR930.java
++++ b/app/src/main/java/com/ethk3/novaonepro/TypedAtomMoleculeGraphR930.java
+@@ -1,6 +1,7 @@
+ package com.ethk3.novaonepro;
+ 
+ import java.nio.charset.StandardCharsets;
++import com.ethk3.novaonepro.r952.TypedOperationsCP4;
+ import java.security.MessageDigest;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+@@ -34,7 +35,7 @@ public final class TypedAtomMoleculeGraphR930 {
+     private TypedAtomMoleculeGraphR930() {}
+ 
+     public enum NodeKind { ATOM, FACTOR, MOLECULE }
+-    public enum ValueType { DOUBLE, INTEGER, BOOLEAN, CATEGORY, VECTOR, MATRIX }
++    public enum ValueType { DOUBLE, INTEGER, BOOLEAN, CATEGORY, VECTOR, MATRIX, PROBABILITY, SCORE_VECTOR10, RANK_VECTOR10, K3_SET, REGIME }
+     public enum Stage {
+         RAW_PREDRAW(0),
+         FROZEN_PREDRAW(1),
+@@ -74,7 +75,10 @@ public final class TypedAtomMoleculeGraphR930 {
+         CLIP(1, 1),
+         RESIDUAL(2, 2),
+         ORTHOGONAL_RESIDUAL(2, 2),
+-        INTERACTION3(3, 3);
++        INTERACTION3(3, 3),
++        CONSTANT(0,0), PACK10(10,10), THRESHOLD_GE(2,2), THRESHOLD_GT(2,2), THRESHOLD_LE(2,2),
++        CONDITIONAL(3,3), REGIME_GATE(2,2), TEMPORAL_PATTERN(1,32),
++        RANK(1,1), TOP_K3(1,1), NORMALIZE_POSITIVE(1,1), NUMERIC_TO_DOUBLE(1,1), SCALAR_MULTIPLY_VECTOR10(2,2);
+         final int minimumParents;
+         final int maximumParents;
+         Operator(int minimumParents, int maximumParents) {
+@@ -173,8 +177,8 @@ public final class TypedAtomMoleculeGraphR930 {
+                         : operator == Operator.WEIGHTED_MEAN || operator == Operator.WEIGHTED_SUM
+                         ? this.parents.size() : operator == Operator.ORTHOGONAL_RESIDUAL
+                         ? this.parameters.length == 0 ? 0 : 1 : 0;
+-                if (this.parameters.length != expected || operator == Operator.CLIP
+-                        && this.parameters[0] > this.parameters[1])
++                if (!version.startsWith("AST3") && (this.parameters.length != expected || operator == Operator.CLIP
++                        && this.parameters[0] > this.parameters[1]))
+                     throw new IllegalArgumentException("R958_OPERATOR_PARAMETER_CONTRACT");
+             }
+             if (legacyProtected && !LEGACY_NAMESPACE.equals(this.namespace))
+@@ -245,6 +249,20 @@ public final class TypedAtomMoleculeGraphR930 {
+ 
+         private void validateParentsAndSemantics(NodeSpec node, Map<String, NodeSpec> nodes) {
+             if (node.kind == NodeKind.ATOM) return;
++            if (node.version.startsWith("AST3")) {
++                String[] types = new String[node.parents.size()];
++                int[] widths = new int[node.parents.size()];
++                for (int i=0;i<node.parents.size();i++) {
++                    NodeSpec parent=nodes.get(node.parents.get(i));
++                    if(parent==null || parent.qualifiedId().equals(node.qualifiedId()))
++                        throw new IllegalArgumentException("AST3_PARENT");
++                    if(!parent.stage.productionPredraw() || parent.stage.order>node.stage.order)
++                        throw new IllegalArgumentException("AST3_STAGE_DIRECTION");
++                    types[i]=parent.valueType.name(); widths[i]=parent.shape.elements();
++                }
++                TypedOperationsCP4.validate(node.operator.name(),node.valueType.name(),node.shape.elements(),types,widths,node.parameters);
++                return;
++            }
+             Shape parentShape = null;
+             for (String parentId : node.parents) {
+                 NodeSpec parent = nodes.get(parentId);
+@@ -423,6 +441,12 @@ public final class TypedAtomMoleculeGraphR930 {
+             sources.append('|').append(parent.valueHash);
+         }
+         double[] parameters = node.parameters;
++        if (node.version.startsWith("AST3")) {
++            TypedOperationsCP4.Value[] arguments=new TypedOperationsCP4.Value[parents.size()];
++            for(int i=0;i<arguments.length;i++) arguments[i]=new TypedOperationsCP4.Value(parents.get(i).valuesCopy(),parents.get(i).maskCopy());
++            TypedOperationsCP4.Value result=TypedOperationsCP4.apply(node.operator.name(),width,arguments,parameters);
++            return new Value(result.x,result.present,maxSource,available,Math.max(0,System.nanoTime()-started),sha256(sources.toString()));
++        }
+         for (int index = 0; index < width; index++) {
+             boolean all = true;
+             for (Value parent : parents) all &= parent.present(index);
+@@ -504,6 +528,8 @@ public final class TypedAtomMoleculeGraphR930 {
+     private static void validateValue(NodeSpec node, Value value, FrozenInputs inputs) {
+         if (value == null || value.size() != node.shape.elements())
+             throw new IllegalArgumentException("R930_VALUE_SHAPE_MISMATCH:" + node.id);
++        if(node.version.startsWith("AST3"))
++            TypedOperationsCP4.validateValue(node.valueType.name(),new TypedOperationsCP4.Value(value.valuesCopy(),value.maskCopy()));
+         if (value.availableAtMs > inputs.frozenAtMs)
+             throw new IllegalArgumentException("R930_VALUE_AVAILABLE_AFTER_FREEZE:" + node.id);
+         if (node.stage.productionPredraw() && !"CONSTANT".equals(node.source)

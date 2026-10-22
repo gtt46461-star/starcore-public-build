@@ -1,0 +1,121 @@
+{
+  "baseline_revision": "22e9a2ee",
+  "scope": "ACTUAL_ACTIVITY_ENTRYPOINTS_HOST_NO_LAYOUT_NO_DEVICE",
+  "observed_report_frame_summary": "R914_FRAME|frames=29996|slow33=37|severe50=13|maxMs=322.168|scrollFrames=13082|scrollSlow33=4|scrollSevere50=2|scrollSlowRate=0.000306|truthBinds=232|truthBindAvgMs=1.171|truthBindMaxMs=36.503",
+  "root_causes": [
+    "Normal missing light diagnostic snapshot was converted to a READ_ERROR in renderR906Truth.",
+    "Process clock could only be imported after UI locked the same target from a DB read/broadcast; a resumed or stale activity ignored an already verified newer clock.",
+    "Home heavy worker captured full details while dashboard captured another summary; cached truth was published for light reads only after unrelated heavy history completion.",
+    "Research capability cards invoked the legacy ResearchDashboard and then replaced the creation card with the general business funnel, instead of distinct current training/evolution/atoms/mainline projections."
+  ],
+  "repairs": [
+    "Explicit target-bound stable PENDING identity, preserving actual read errors.",
+    "Admit same-session owner anchor before target render fence; reject older targets/revisions and never create a new clock.",
+    "One atomic target-bound summary cache shared by light/heavy/dashboard workers; no full details in the periodic home capture.",
+    "Integrate ResearchPipelineStatusR76 bounded worker read and cached Chinese section details; remove periodic ResearchDashboard call."
+  ],
+  "results": [
+    {
+      "name": "ui_r75_pending",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-r75-pending-reproduction",
+      "files": {
+        "verification/r76/evidence/ui_r75_pending_test.log": "90912dccf789501520cf45aa4f59cc7c363b6a3741b03a24bc58bb02e94f0d86",
+        "verification/r76/evidence/ui_r75_pending_steps.json": "a232719223c02d34da9bc1095c653162714e44ebe967b41ca6ee5cd1d9781507",
+        "verification/r76/evidence/ui_r75_pending_sources.json": "d7bbdc0e58e65d1dc3bcc7fdbf136886fb3dcb8d2a5e4896e03307ee599fb2fc",
+        "verification/r76/evidence/ui_r75_pending_product-bytecode.json": "81c07151ded5bd9a3a349b7c52d93d5a1963efb7f108bbe3e628d390e854bf84"
+      }
+    },
+    {
+      "name": "ui_r75_countdown",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-r75-countdown-reproduction",
+      "files": {
+        "verification/r76/evidence/ui_r75_countdown_test.log": "fa3d06d1265b95fdf504c19cb5d6c1b784c0c3206563401d0c6219fff3291481",
+        "verification/r76/evidence/ui_r75_countdown_steps.json": "cff85b2ed837686101b6d43153988b15fec4cf4949434de305152079a6a76b83",
+        "verification/r76/evidence/ui_r75_countdown_sources.json": "aa03861da05c97eb5b147fb9b4473e78538d521754d386e23f009d7e6acb185e",
+        "verification/r76/evidence/ui_r75_countdown_product-bytecode.json": "81c07151ded5bd9a3a349b7c52d93d5a1963efb7f108bbe3e628d390e854bf84"
+      }
+    },
+    {
+      "name": "ui_midrender_without_fence",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-midrender-before-fence",
+      "files": {
+        "verification/r76/evidence/ui_midrender_without_fence_test.log": "4e6cac3c20d9e6716acdaed68e7831f0795ee8927bae14adc1892470026a257c",
+        "verification/r76/evidence/ui_midrender_without_fence_steps.json": "92d3ead14c824044ad04f12e6f6b1d9fed8784ed40b61704735c2381f5ea6204",
+        "verification/r76/evidence/ui_midrender_without_fence_sources.json": "4ed9063aa601b469c20e742295513315918976f2701a56d08574f4f808004948",
+        "verification/r76/evidence/ui_midrender_without_fence_product-bytecode.json": "81c07151ded5bd9a3a349b7c52d93d5a1963efb7f108bbe3e628d390e854bf84"
+      }
+    },
+    {
+      "name": "ui_acceptance40",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-acceptance",
+      "files": {
+        "verification/r76/evidence/ui_acceptance40_test.log": "23f4626359f242ead4660082e5a21f7fb468c93d9dcc5db0cf7e33e4e0c0eeaa",
+        "verification/r76/evidence/ui_acceptance40_steps.json": "e5202a4e49ea0103a413ffa2a5d9de11370dfce696222c71ca5b4d1e02261c7b",
+        "verification/r76/evidence/ui_acceptance40_sources.json": "157415bb6325f92cbf59f879dbaf4d293f646be88236c78f09185d6313901e08",
+        "verification/r76/evidence/ui_acceptance40_product-bytecode.json": "81c07151ded5bd9a3a349b7c52d93d5a1963efb7f108bbe3e628d390e854bf84",
+        "verification/r76/evidence/ui_acceptance40_result.json": "3df3998663076da4a43cf4d3b86cfa7c2a9241dce5e3ad8c3a8b9f0a98970097"
+      }
+    }
+  ],
+  "limitations": [
+    "No Android layout/lifecycle or physical-device timing acceptance is claimed by this fixture.",
+    "A provider publication by 55 seconds remaining cannot be established from UI tests.",
+    "The actual RuntimeTruthSnapshot summary still performs its existing evidence SQL; backend profile is separately assigned."
+  ],
+  "previous_preflight_results": [
+    {
+      "name": "ui_baseline_pending",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-baseline-final-pending",
+      "files": {
+        "verification/r76/evidence/ui_baseline_pending_test.log": "4b5c51ca90868f05bb6653ac41f5cbde88262b39fe98cabfc3debb2493c312e5",
+        "verification/r76/evidence/ui_baseline_pending_steps.json": "9f839f706591aa87316de4dd44b3e0b8d68e8172b130a1660b4d825ec7cf257c",
+        "verification/r76/evidence/ui_baseline_pending_sources.json": "54b81e4fdb02ad2284d183ac055bf57da433bfb7f2686a22f5bf34d3bd558945",
+        "verification/r76/evidence/ui_baseline_pending_product-bytecode.json": "81c07151ded5bd9a3a349b7c52d93d5a1963efb7f108bbe3e628d390e854bf84"
+      }
+    },
+    {
+      "name": "ui_baseline_countdown",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-baseline-final-countdown",
+      "files": {
+        "verification/r76/evidence/ui_baseline_countdown_test.log": "ce44da5f6d0f47c54afc58db27ccf2558c3a9c6a4f03556f4278e0b5507a89c8",
+        "verification/r76/evidence/ui_baseline_countdown_steps.json": "012783f544e3a00ff316aae606b2e7513ae5e134c7fad1f94d132a70a66e72ad",
+        "verification/r76/evidence/ui_baseline_countdown_sources.json": "7750823c94865a344b2160b266a641ac62d1fd6bd5ee00efd426baee91800639",
+        "verification/r76/evidence/ui_baseline_countdown_product-bytecode.json": "81c07151ded5bd9a3a349b7c52d93d5a1963efb7f108bbe3e628d390e854bf84"
+      }
+    },
+    {
+      "name": "ui_fixed",
+      "output_directory": "/workspace/scratch/e2544c9906f6/r76-ui-fixed2",
+      "files": {
+        "verification/r76/evidence/ui_fixed_test.log": "c8159aa8d5b6737e9d15e53d0e4213a3239cb82554654338f30468421d637220",
+        "verification/r76/evidence/ui_fixed_steps.json": "cc576e724e6afa78945e06a4f64c86ce781268eacf3ea5b4604abfa8aba87e35",
+        "verification/r76/evidence/ui_fixed_sources.json": "4a75bffbf360a48f637ca078acdc2748a555e6cace5f2587ae79e5a33aa0f467",
+        "verification/r76/evidence/ui_fixed_result.json": "ec328bee4d8549f93c09ee2fc42182b682642d600dfa6a35f6e5890089daef3f"
+      }
+    }
+  ],
+  "checks": 40,
+  "review_correction": "Independent review identified a second owner-anchor read during the runtime card binding. The R76 draft without a second target fence failed the deterministic real-time publication fixture; the final fence prevents any old-target decision/probability/truth repaint.",
+  "independent_review": "report_contract_review reviewed PENDING, cache identity, both render fences, delayed heartbeat target checks and research source/time display; no blocking issue found.",
+  "recent_report_draw_receipts": [
+    {
+      "issue": "202610130483",
+      "provider": "BACKUP",
+      "fetch_minus_open_ms": 3685,
+      "next_deadline_remaining_ms": 56315
+    },
+    {
+      "issue": "202610130482",
+      "provider": "BACKUP",
+      "fetch_minus_open_ms": 4286,
+      "next_deadline_remaining_ms": 55714
+    },
+    {
+      "issue": "202610130481",
+      "provider": "PRIMARY",
+      "fetch_minus_open_ms": 36222,
+      "next_deadline_remaining_ms": 23778
+    }
+  ],
+  "clock_fixture": "SystemClock returns real System.nanoTime; the optional observer publishes an immutable synthetic service clock anchor at the second Activity read boundary. It does not advance, freeze or fabricate time."
+}

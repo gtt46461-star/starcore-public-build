@@ -1,0 +1,40 @@
+diff --git a/scripts/cp4_compile_molecule_seeds.py b/scripts/cp4_compile_molecule_seeds.py
+new file mode 100644
+index 0000000..c1964e1
+--- /dev/null
++++ b/scripts/cp4_compile_molecule_seeds.py
+@@ -0,0 +1,34 @@
++import csv,json,pathlib,hashlib,collections,argparse
++p=argparse.ArgumentParser();p.add_argument('--plan-root',required=True);p.add_argument('--source-seeds',required=True);args=p.parse_args()
++P=pathlib.Path(args.plan_root);source=pathlib.Path(args.source_seeds)
++rows=list(csv.DictReader((P/'09_ATOM_MASTER_CATALOG/ATOM_MASTER_CATALOG.csv').open(encoding='utf-8-sig')))
++registry={(r['source_atom'],int(r['position'])):r['atom_id'] for r in rows}
++for r in csv.DictReader((P/'09_ATOM_MASTER_CATALOG/ATOM_ALIAS_MAP.csv').open(encoding='utf-8-sig')):registry[(r['old_atom_id'],int(r['position']))]=r['canonical_atom_id']
++drift={int(r['position']):r['atom_id'] for r in rows if r['family']=='DRIFT_JS' and json.loads(r['params'])=={'recent':20,'reference':120}}
++canonical=lambda x:json.dumps(x,ensure_ascii=False,sort_keys=True,separators=(',',':'))
++sha=lambda x:hashlib.sha256(x.encode()).hexdigest()
++compiled=[];ledger=[];seen={};kind=collections.Counter()
++for line,raw in enumerate(source.read_text().splitlines(),1):
++ old=json.loads(raw);assert sha(canonical(old['ast']))==old['signature_sha256'];kind[old['kind']]+=1
++ for position in range(1,11):
++  nodes=[]
++  def node(op,typ,parents=(),parameters=(),atom=None):
++   n={'id':'n'+str(len(nodes)),'op':op,'type':typ,'parents':list(parents),'parameters':[float(p).hex() for p in parameters]}
++   if atom:n['atomId']=atom
++   nodes.append(n);return n['id']
++  atoms=[]
++  for n in old['ast']['nodes']:
++   if n['op']=='AtomNode':atoms.append(node('ATOM','SCALAR',atom=registry[(n['id'],position)]))
++  if old['kind']=='THRESHOLD':const=node('CONSTANT','SCALAR',parameters=[.3]);out=node('THRESHOLD_GE','BOOL',[atoms[0],const])
++  elif old['kind']=='WEIGHTED_SUM':out=node('WEIGHTED_SUM','SCALAR',atoms, [.65,.35])
++  elif old['kind']=='CONDITIONAL':zero=node('CONSTANT','SCALAR',parameters=[0]);guard=node('THRESHOLD_GT','BOOL',[atoms[0],zero]);out=node('CONDITIONAL','SCALAR',[guard,atoms[1],zero])
++  elif old['kind']=='REGIME_GATE':js=node('ATOM','SCALAR',atom=drift[position]);cut=node('CONSTANT','SCALAR',parameters=[.1]);guard=node('THRESHOLD_LE','BOOL',[js,cut]);out=node('CONDITIONAL','SCALAR',[guard,atoms[0],atoms[1]])
++  else:raise ValueError(old['kind'])
++  graph={'revision':'CP4_SEED_BINDING_1','position':position,'nodes':nodes,'outputId':out,'role':'FEATURE_ONLY','missing':'PROPAGATE','pit':'STRICT_PAST'}
++  h=sha(canonical(graph));key=(h,position);alias=seen.get(key,'');seen.setdefault(key,old['molecule_id'])
++  compiled.append({'seedId':old['molecule_id'],'sourceSha256':old['signature_sha256'],'graphHash':h,'graph':graph})
++  ledger.append({'source_line':line,'seed_id':old['molecule_id'],'source_hash':old['signature_sha256'],'kind':old['kind'],'position':position,'compiled_hash':h,'status':'ALIAS' if alias else 'COMPILED_FEATURE','alias_of':alias,'ast_nodes':len(nodes),'target_method':'MolecularToolWorldR947.importSeedBatchCP4','construction_card':'FILE-142','test':'CP4-SEED-420','acceptance':'canonical hash; all atom refs resolve; typed scalar/Bool root; no direct REAL'})
++out=P/'14_CREATOR/CP4_MOLECULE_SEED_COMPILED.jsonl';out.write_text('\n'.join(canonical(r) for r in compiled)+'\n')
++with (P/'14_CREATOR/CP4_MOLECULE_SEED_TRACEABILITY.csv').open('w',encoding='utf-8-sig',newline='') as f:w=csv.DictWriter(f,fieldnames=list(ledger[0]));w.writeheader();w.writerows(ledger)
++stats={'source_seeds':len(ledger)//10,'source_hashes_verified':len(ledger)//10,'position_bound_features':len(ledger),'unique_position_graphs':len(seen),'aliases':sum(bool(r['alias_of']) for r in ledger),'unresolved_atom_references':0,'kind_counts':dict(kind),'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'semantics':'CP4 explicit normalization of previously underspecified Conditional and RegimeGate; not historical runtime proof','runtime_product_status':'NOT_IMPLEMENTED_PLAN_ONLY'}
++(P/'14_CREATOR/CP4_SEED_IMPORT_VALIDATION.json').write_text(json.dumps(stats,indent=2,ensure_ascii=False)+'\n');print(json.dumps(stats,ensure_ascii=False))

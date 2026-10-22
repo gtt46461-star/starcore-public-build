@@ -1,0 +1,10 @@
+package com.ethk3.novaonepro;
+import java.io.*;import java.nio.charset.StandardCharsets;import java.util.*;import org.json.*;
+public class ReportSortContractCP12{
+ static int assertions;static void need(boolean b){assertions++;if(!b)throw new AssertionError(assertions);}interface Work{void run()throws Exception;}static void reject(Work w)throws Exception{assertions++;try{w.run();throw new AssertionError("expected rejection");}catch(IOException|IllegalArgumentException expected){}}
+ public static void main(String[]args)throws Exception{File dir=new File(args[0]);dir.mkdirs();File input=new File(dir,"input.jsonl");String hash="1".repeat(64);List<Integer> values=new ArrayList<>();for(int i=0;i<70001;i++)values.add(i);Collections.shuffle(values,new Random(4312));try(Writer out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(input),StandardCharsets.UTF_8))){for(int i:values)ReportMemberPlanCP12.append(out,String.format(Locale.ROOT,"member-%06d",i),"snapshot.db",hash,i);ReportMemberPlanCP12.append(out,"member-000999","snapshot.db",hash,999);}
+  File sorted=ReportMemberPlanCP12.sort(dir,input,()->true);int n=0;try(ReportArchiveVerifierCP12.LineReader reader=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(sorted),8192)){byte[] line;while((line=reader.next())!=null){JSONObject r=new JSONObject(new String(line,StandardCharsets.UTF_8));need(r.getString("name").equals(String.format(Locale.ROOT,"member-%06d",n)));need(r.getLong("bytes")==n);n++;}}need(n==70001);
+  File conflict=new File(dir,"conflict.jsonl");try(Writer out=new FileWriter(conflict)){ReportMemberPlanCP12.append(out,"same","a",hash,1);ReportMemberPlanCP12.append(out,"same","b",hash,1);}reject(()->ReportMemberPlanCP12.sort(dir,conflict,()->true));reject(()->ReportMemberPlanCP12.sort(dir,input,()->false));reject(()->ReportMemberPlanCP12.append(new StringWriter(),"bad/name","a",hash,1));
+  System.out.println("PASS REAL_EXTERNAL_SORT_70001 assertions="+assertions+" maxHeap="+Runtime.getRuntime().maxMemory()+" usedHeap="+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()));
+ }
+}

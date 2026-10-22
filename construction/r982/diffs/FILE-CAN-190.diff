@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StrategyExecutionTraceEngine.java b/app/src/main/java/com/ethk3/novaonepro/StrategyExecutionTraceEngine.java
+index c8c1855..dd68051 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StrategyExecutionTraceEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StrategyExecutionTraceEngine.java
+@@ -32,7 +32,7 @@ public final class StrategyExecutionTraceEngine {
+     }
+ 
+     private static String key(String s) {
+-        return safe(s).toLowerCase().replaceAll("[^a-z0-9]+", "_");
++        return safe(s).toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9]+", "_");
+     }
+ 
+     private static String safe(String s) {

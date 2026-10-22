@@ -1,0 +1,54 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java b/app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java
+index e407bde..17961e6 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java
++++ b/app/src/main/java/com/ethk3/novaonepro/LegacyPredrawContextBridgeR915.java
+@@ -317,4 +317,49 @@ public final class LegacyPredrawContextBridgeR915 {
+                 ? "N/A" : String.format(java.util.Locale.US, "%.5f", value);
+     }
+     private static String safe(String value) { return value == null ? "" : value.trim(); }
++
++public static String missingReasonSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,String target,boolean post) {
++        if(db==null||!db.isOpen())return "READ_ERROR:DB_NOT_OPEN";
++        if(safeSnapshotCP4(report, target).length()==0)return "NO_SAMPLE:TARGET_ISSUE_EMPTY";
++        String table=post?POST_TABLE:TABLE;Cursor c=null;try{
++            c=report.select("SELECT COUNT(1) FROM sqlite_master WHERE type='table' AND name=?",new String[]{table});
++            if(!c.moveToFirst()||c.getInt(0)!=1)return "NO_SAMPLE:TABLE_MISSING:"+table;
++            c.close();c=report.select("SELECT COUNT(1) FROM "+table+" WHERE target_issue=?",new String[]{target});
++            if(!c.moveToFirst()||c.getInt(0)!=1)return "NO_SAMPLE:ROW_MISSING:"+table+":issue="+target;
++            return "AVAILABLE";
++        }catch(Throwable e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++        finally{if(c!=null)c.close();}
++    }
++
++public static String safeSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) { return value == null ? "" : value.trim(); }
++
++public static PostRow readPostSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,String target) {
++        if(db==null||safeSnapshotCP4(report, target).length()==0)return null;Cursor c=null;try{
++            c=report.select("SELECT status,attribution_summary,feedback_summary,predraw_record_hash,"
++                            +"draw_hash,record_hash,actual_number,hit_label FROM "+POST_TABLE
++                            +" WHERE target_issue=? LIMIT 1",new String[]{target});
++            if(!c.moveToFirst())return null;
++            return new PostRow(target,c.getString(0),c.getString(1),c.getString(2),c.getString(3),
++                    c.getString(4),c.getString(5),c.getInt(6),c.getInt(7));
++        }catch(Throwable ignored){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);}finally{if(c!=null)c.close();}
++    }
++
++public static Row readSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db, String target) {
++        if (db == null || safeSnapshotCP4(report, target).length() == 0) return null;
++        // Read paths are deliberately DDL-free.  The table is created by the canonical writer;
++        // attempting CREATE TABLE from a UI/read transaction can upgrade its lock and briefly
++        // block the per-minute settlement writer on older SQLite builds.
++        Cursor c = null;
++        try {
++            c = report.select("SELECT teacher_summary,reasoning_summary,reverse_summary,"
++                            + "causal_summary,feedback_contract,trend_summary,shape_summary,"
++                            + "relation_summary,record_hash FROM " + TABLE
++                            + " WHERE target_issue=? LIMIT 1", new String[] {target});
++            if (!c.moveToFirst()) return null;
++            return new Row(target, c.getString(0), c.getString(1), c.getString(2),
++                    c.getString(3), c.getString(4), c.getString(5), c.getString(6),
++                    c.getString(7), c.getString(8));
++        } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);}
++        finally { if (c != null) c.close(); }
++    }
+ }

@@ -1,0 +1,33 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java b/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java
+index 0d8e3bb..6c9797b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java
+@@ -14,27 +14,7 @@ public final class ResearchMainlineGovernorR903 {
+     private ResearchMainlineGovernorR903(){}
+ 
+     public static Result govern(DbStore store,String baseIssue,String targetIssue,V51Models.PositionAction[] defaultRanked){
+-        if(store==null||!TargetIssueResolver.isValid(targetIssue)||defaultRanked==null||defaultRanked.length!=K3ActionSpaceEngine.TOTAL_ACTIONS)
+-            return Result.fallback(defaultRanked,"INPUT_INVALID");
+-        if(AppConfig.R36_REAL_BET_UNLOCK||MAY_AUTHORIZE_REAL)
+-            throw new IllegalStateException("R906_RESEARCH_MAINLINE_REAL_BOUNDARY");
+-        Certified one=loadSingleCertificate(store,targetIssue);
+-        if(one==null)return Result.fallback(defaultRanked,lastStatus(store,"NO_ACTIVE_CERTIFICATE"));
+-        final PromotionWindowR925.Window window;
+-        try{window=PromotionWindowR925.authorize(store,CertificateBundleServiceR929.Consumer.FORMULA_GRAPH,one.assetId,one.artifactHash,targetIssue);}
+-        catch(Throwable unavailable){return fallback(store,defaultRanked,"R925_WINDOW_READ_ERROR_"+unavailable.getClass().getSimpleName());}
+-        if(window.weight<=0)return fallback(store,defaultRanked,window.summary());
+-        try{
+-            ResearchMethodPlanR906 plan=ResearchMethodPlanR906.parseCanonical(one.canonicalSpec);
+-            boolean historical=ResearchCompiledGraphRuntimeR906.compile(plan).family==ResearchCompiledGraphRuntimeR906.Family.HISTORICAL_SYNTHESIS;
+-            HistoricalStrategyInventionR908.Profile profile=historical?HistoricalStrategyInventionR908.buildProfileAt(store,baseIssue):null;
+-            FrozenConsumerRecipeR932.Recipe recipe=FrozenConsumerRecipeR932.freeze("FORMULA_DSL_ACTIVE_SHADOW",one.assetId,one.canonicalSpec,"",one.artifactHash,one.evidenceHash,one.certificateId,window.weight,
+-                    baseIssue,targetIssue,profile,null);
+-            FrozenConsumerRecipeR932.Mixed mixed=FrozenConsumerRecipeR932.execute(recipe,defaultRanked);
+-            V51Models.PositionAction[] reranked=mixed.actions;V51Models.PositionAction selected=mixed.rankOne;
+-            try{store.setState("r906_research_governor_status","APPLIED_CERTIFICATE");store.setState("r906_research_certificate_id",one.certificateId);store.setState("r906_research_applied_asset",one.assetId);store.setState("r906_research_applied_asset_zh",one.displayNameZh);store.setState("r906_research_governor_target",targetIssue);}catch(Throwable ignore){}
+-            return new Result(true,reranked,selected,"CERTIFIED_SHADOW_CHAMPION",one.assetId,one.futureN,one.hitRate,one.adjustedLower,one.brier,window.weight,recipe.encoded);
+-        }catch(Throwable e){return fallback(store,defaultRanked,"CERTIFICATE_READ_OR_RUNTIME_FAILED_"+e.getClass().getSimpleName());}
++        return Result.fallback(defaultRanked,"LEGACY_MAINLINE_RETIRED_USE_UNIFIED_EXACT_OWNER");
+     }
+ 
+     private static Result fallback(DbStore store,V51Models.PositionAction[] actions,String status){try{store.setState("r906_research_governor_status",status);store.setState("r906_research_certificate_id","");store.setState("r906_research_applied_asset","");store.setState("r906_research_applied_asset_zh","");}catch(Throwable ignore){}return Result.fallback(actions,status);}

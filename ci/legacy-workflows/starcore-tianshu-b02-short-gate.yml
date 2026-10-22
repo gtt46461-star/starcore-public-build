@@ -1,0 +1,135 @@
+name: Starcore Tianshu B02 Short Gate
+
+on:
+  push:
+    branches:
+      - v57-full/b02
+    paths:
+      - '.github/starcore-tianshu-b02/materializer.part-*'
+      - '.github/workflows/starcore-tianshu-b02-short-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: starcore-tianshu-b02-short-gate
+  cancel-in-progress: false
+
+env:
+  B01_ACCEPTED_SHA: d3b2a0c77a40e45b3454d2495c03ca1d69657518
+  MATERIALIZER_SHA256: 98f6da2c9c067dab75be027f726838b115ced00ac0d66ee66ecd60a6db1d3867
+
+jobs:
+  short-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout B02 branch
+        uses: actions/checkout@v4
+        with:
+          ref: v57-full/b02
+          fetch-depth: 0
+
+      - name: Verify B01 ancestry and reconstruct deterministic materializer
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$B01_ACCEPTED_SHA" HEAD
+          test "$(sha256sum .github/starcore-tianshu-b02/materializer.part-00 | cut -d' ' -f1)" = '5cd3927b07080fa35a2e46bd632919872be7906587d466530c0ef7648b7b3566'
+          test "$(sha256sum .github/starcore-tianshu-b02/materializer.part-01 | cut -d' ' -f1)" = '925bb603dd0dfdefe5301660cab228d3f8bb6909b8fdeeb0ad7006a0bf21128e'
+          test "$(sha256sum .github/starcore-tianshu-b02/materializer.part-02 | cut -d' ' -f1)" = 'f15b81dcd96fc0158e0ad876835c38a68a1b3afdc9f560fd8550e2fd311b2fdf'
+          test "$(sha256sum .github/starcore-tianshu-b02/materializer.part-03 | cut -d' ' -f1)" = '78eaf4646eec169d30428c0e2ffe9f9db70cfbf5f2251a448b24c7e25c887550'
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b02/materializer.part-* | base64 --decode | gzip --decompress > tools/starcore_tianshu_b02_materialize.py
+          test "$(sha256sum tools/starcore_tianshu_b02_materialize.py | cut -d' ' -f1)" = "$MATERIALIZER_SHA256"
+          python3 -m py_compile tools/starcore_tianshu_b02_materialize.py
+
+      - name: Materialize seven complete B02 source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT='app/src/main/java/com/ethk3/novaonepro'
+          python3 tools/starcore_tianshu_b02_materialize.py "$ROOT" --apply | tee reports/B02_SHORT_MATERIALIZE.json
+          python3 tools/starcore_tianshu_b02_materialize.py "$ROOT" --verify | tee reports/B02_SHORT_VERIFY.json
+          test "$(wc -l < "$ROOT/DataGuard.java")" -ge 1438
+          test "$(wc -l < "$ROOT/CountdownClock.java")" -ge 1067
+          test "$(wc -l < "$ROOT/Models.java")" -ge 18809
+          test "$(wc -l < "$ROOT/V51Models.java")" -ge 1000
+          test "$(wc -l < "$ROOT/SchemaContractRegistry.java")" -ge 1000
+          test "$(wc -l < "$ROOT/FeatureContractRegistry.java")" -ge 1000
+          test "$(wc -l < "$ROOT/DrawIntegrityRecoveryEngine.java")" -ge 1200
+          ! grep -R -E 'TODO|UnsupportedOperationException' "$ROOT"/{DataGuard.java,CountdownClock.java,Models.java,V51Models.java,SchemaContractRegistry.java,FeatureContractRegistry.java,DrawIntegrityRecoveryEngine.java}
+          ! grep -F 'Ethereum1-PK10' "$ROOT/CountdownClock.java"
+          grep -F 'Binance1-PK10' "$ROOT/DrawIntegrityRecoveryEngine.java" >/dev/null
+          grep -F 'B02_REAL_BET_HARD_DISABLED = true' "$ROOT/V51Models.java" >/dev/null
+          grep -F 'B02_MODEL_PROVEN = false' "$ROOT/FeatureContractRegistry.java" >/dev/null
+          git diff --check
+
+      - name: Compile and execute integrity core Harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .b02-short-javac
+          mkdir -p .b02-short-javac/src/com/ethk3/novaonepro .b02-short-javac/classes
+          cp app/src/main/java/com/ethk3/novaonepro/DrawIntegrityRecoveryEngine.java .b02-short-javac/src/com/ethk3/novaonepro/
+          cat > .b02-short-javac/src/com/ethk3/novaonepro/Models.java <<'JAVA'
+          package com.ethk3.novaonepro;
+          public final class Models {
+              private Models() { }
+              public static final class Draw {
+                  public String issue = "";
+                  public long openTime;
+                  public long fetchTime;
+                  public String sourceLine = "PRIMARY";
+                  public int[] numbers = new int[10];
+                  public String rawJson = "";
+                  public Draw copy() {
+                      Draw d = new Draw();
+                      d.issue = issue; d.openTime = openTime; d.fetchTime = fetchTime;
+                      d.sourceLine = sourceLine; d.rawJson = rawJson;
+                      d.numbers = numbers == null ? null : numbers.clone();
+                      return d;
+                  }
+              }
+          }
+          JAVA
+          cat > .b02-short-javac/src/com/ethk3/novaonepro/B02Harness.java <<'JAVA'
+          package com.ethk3.novaonepro;
+          import java.util.ArrayList;
+          public final class B02Harness {
+              private static Models.Draw draw(String issue, long time, int[] numbers) {
+                  Models.Draw d = new Models.Draw();
+                  d.issue = issue; d.openTime = time; d.fetchTime = time + 100L;
+                  d.sourceLine = "PRIMARY"; d.numbers = numbers; d.rawJson = "{}";
+                  return d;
+              }
+              public static void main(String[] args) {
+                  DrawIntegrityRecoveryEngine e = new DrawIntegrityRecoveryEngine();
+                  if (!DrawIntegrityRecoveryEngine.selfTest()) throw new AssertionError("selfTest");
+                  ArrayList<Models.Draw> list = new ArrayList<Models.Draw>();
+                  list.add(draw("202608050001", 1000L, new int[]{1,2,3,4,5,6,7,8,9,10}));
+                  list.add(draw("202608050003", 121000L, new int[]{2,1,3,4,5,6,7,8,9,10}));
+                  DrawIntegrityRecoveryEngine.HistoryVerification h = e.verifyHistory(list, "Binance1-PK10", 130000L);
+                  if (!h.accepted || h.gaps.size() != 1) throw new AssertionError("gap");
+                  if (e.buildRecoveryPlan(h, 130000L).requests.size() != 1) throw new AssertionError("plan");
+                  Models.Draw conflict = draw("202608050003", 121000L, new int[]{3,1,2,4,5,6,7,8,9,10});
+                  list.add(conflict);
+                  DrawIntegrityRecoveryEngine.HistoryVerification c = e.verifyHistory(list, "Binance1-PK10", 130000L);
+                  if (c.accepted || c.conflictCount != 1) throw new AssertionError("conflict");
+                  if (!e.replayHash(list, 130000L).equals(e.replayHash(list, 130000L))) throw new AssertionError("replay");
+                  System.out.println("B02_HARNESS_PASS|rules=" + e.ruleCatalog().size() + "|hash=" + e.ruleCatalogHash());
+              }
+          }
+          JAVA
+          javac -encoding UTF-8 -source 7 -target 7 -d .b02-short-javac/classes $(find .b02-short-javac/src -name '*.java' | sort) 2>&1 | tee reports/B02_SHORT_JAVAC.log
+          java -cp .b02-short-javac/classes com.ethk3.novaonepro.B02Harness | tee reports/B02_SHORT_HARNESS.log
+          grep -F 'B02_HARNESS_PASS' reports/B02_SHORT_HARNESS.log >/dev/null
+
+      - name: Upload short-gate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B02-Short-Gate-Evidence
+          path: reports/
+          if-no-files-found: error
+          retention-days: 30

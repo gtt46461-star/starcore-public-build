@@ -1,0 +1,2 @@
+package android.content;
+public class Context {private final java.io.File root;private final android.content.res.AssetManager assets;public Context(java.io.File r,java.io.File a){root=r;assets=new android.content.res.AssetManager(a);}public android.content.res.AssetManager getAssets(){return assets;}public Context getApplicationContext(){return this;}public java.io.File getFilesDir(){root.mkdirs();return root;}public java.io.File getCacheDir(){java.io.File d=new java.io.File(root,"cache");d.mkdirs();return d;}}

@@ -1,0 +1,25 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DrawRawPayloadCompactorR817.java b/app/src/main/java/com/ethk3/novaonepro/DrawRawPayloadCompactorR817.java
+index df2819d..41f4e26 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DrawRawPayloadCompactorR817.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DrawRawPayloadCompactorR817.java
+@@ -71,4 +71,20 @@ public final class DrawRawPayloadCompactorR817 {
+             if (cursor != null) cursor.close();
+         }
+     }
++
++public static int pendingSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
++        if (store == null) return -1;
++        Cursor cursor = null;
++        try {
++            cursor =
++                    report.select(
++                                    "SELECT COUNT(1) FROM "
++                                            + DbHelper.TABLE_DRAWS
++                                            + " WHERE length(COALESCE(raw_json,''))>?",
++                                    new String[] {String.valueOf(MAX_PER_OBJECT_BYTES)});
++            return cursor.moveToFirst() ? cursor.getInt(0) : -1;
++        } catch (Throwable ignored) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",ignored);} finally {
++            if (cursor != null) cursor.close();
++        }
++    }
+ }

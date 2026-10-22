@@ -1,0 +1,87 @@
+[
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "scripts/r926_release_manifest.py",
+      "--check"
+    ],
+    "log": "release-identity.log",
+    "logSha256": "6fb0fd15d0e3cd17170e942660dc0391a7dee7fb844ea4c0fedcd6e8a0dac603",
+    "exitCode": 0,
+    "elapsedSeconds": 0.045
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "scripts/verify_catalog_assets_cp12.py",
+      "--check"
+    ],
+    "log": "catalogs.log",
+    "logSha256": "ca3a4389365a4de128fe487a63c246b197ba749f0953462cf05f120f40da6208",
+    "exitCode": 0,
+    "elapsedSeconds": 0.563
+  },
+  {
+    "argv": [
+      "/workspace/scratch/7e217cab5595/toolchain/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--max-workers=2",
+      "-Dorg.gradle.workers.max=2",
+      ":app:compileReleaseJavaWithJavac",
+      "-x",
+      ":app:generateR982SourceCallAsset",
+      "-x",
+      ":app:generateR997ConstructionAssets"
+    ],
+    "log": "bootstrap-actual-gradle-compile-NOT-APK.log",
+    "logSha256": "6845cb21db8586a3a701dcde4836566f367ed463066cf86a0fc33798abd288c1",
+    "exitCode": 0,
+    "elapsedSeconds": 17.767
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "scripts/r982_source_call_asset.py",
+      "--freeze",
+      "--classes",
+      "/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+    ],
+    "log": "freeze-actual-compiled-calls.log",
+    "logSha256": "8bb877cb6043bfb5948cc5c93057822a93ec7e555ca017207a02421c4fc3e82f",
+    "exitCode": 0,
+    "elapsedSeconds": 4.645
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "scripts/r967_semantic_identity.py"
+    ],
+    "log": "refresh-semantic-generated.log",
+    "logSha256": "8bc130f8487db1620828410f02d856aafff38b6d6631707e70633b682c3e03e6",
+    "exitCode": 0,
+    "elapsedSeconds": 0.477
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "scripts/r967_semantic_identity.py",
+      "--check"
+    ],
+    "log": "verify-semantic-generated.log",
+    "logSha256": "07a96c9e4497168374d70f2ea816025115d31497b3c530abde7bb65acb53e68b",
+    "exitCode": 0,
+    "elapsedSeconds": 0.474
+  },
+  {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "scripts/r967_semantic_identity.py",
+      "--self-test"
+    ],
+    "log": "semantic-mutations.log",
+    "logSha256": "81c520f4faee6b5b3a2f96a6d2cb331a3a82830b53a35b9e51f230e0938cf8f3",
+    "exitCode": 0,
+    "elapsedSeconds": 4.27
+  }
+]

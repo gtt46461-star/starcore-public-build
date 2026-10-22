@@ -1,0 +1,570 @@
+[
+  {
+    "id": "D01",
+    "title": "PIT训练快照、字段语义与数据可用性",
+    "original_requirements": [
+      "P1-01",
+      "M1"
+    ],
+    "priority": "P0",
+    "files": [
+      "TrainingSnapshotExportR925.java",
+      "DeferredEvidenceSnapshotR36.java",
+      "GenesisAssetVmR915.java",
+      "V51Models.java",
+      "training/r925/pipeline.py",
+      "V51PermutationFeatureEngine.java",
+      "V51RelationGraphVerifier.java"
+    ],
+    "anchors": "write / validate / positionActions / snapshot hash",
+    "gap": "目前导出META96与标签，但缺完整上游原始输入合同、域签名、缺失掩码、依赖版本和证书绑定。",
+    "steps": [
+      "新建不可变FeatureManifest，每维明确名称/单位/范围/lag/window/source/missing/cost/版本",
+      "导出raw上游state/expert/atommask与full1200，所有max_source_issue严格早于target",
+      "保存snapshot内target与SQL join target一致、创建/冻结/接收/开奖时点一致断言",
+      "导出稳定快照或高水位分片，不长期占读事务阻塞WAL",
+      "每分片hash、范围、总manifest和隔离坏行清单",
+      "缺数据先部署采集，只允许新赛前冻结积累Future证据"
+    ],
+    "acceptance": [
+      "错误游戏/重复期/未知schema/时间穿越/坏hash/非完整1200拒绝",
+      "100期逐字段PIT检查",
+      "同输入导出内容hash相同",
+      "缺标签只作待结，不偷偷补特征"
+    ],
+    "dependencies": [
+      "B04",
+      "B06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03A"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D02",
+    "title": "消除NumberQ与META96的循环输入歧义",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M1",
+      "M2",
+      "M3"
+    ],
+    "priority": "P0",
+    "files": [
+      "DeepCandidateRuntimeR925.java",
+      "V51PermutationNumberModelEngine.java",
+      "V51ActionMetaFeatureEngine.java",
+      "training/r925/deep_candidates.py",
+      "V51PermutationFeatureEngine.java"
+    ],
+    "anchors": "FEATURE_CONTRACT / surfaces / predict",
+    "gap": "R925深度候选用动作META96的均值派生输入，与原R811原始96维不是同合同；动作META又含号码面，不能反向作为同一号码面的上游。",
+    "steps": [
+      "画出raw history→base experts→NumberQ→META96→ranker的无环依赖",
+      "保留R925派生网络为明确二阶段residual专家，或以原始上游96重新训练NumberQ，默认选择后者用于主号码面",
+      "禁止将R925权重改个类型名直接装入R811",
+      "artifact manifest绑定input_stage/schema_hash/parent_artifact_hash，Java loader必须实际检查",
+      "D2慢状态只取t-1及以前并持久化游标，首次无历史按训练约定冷启动",
+      "9专家直接导出原始冻结logits，旧META反演仅兼容审计"
+    ],
+    "acceptance": [
+      "同维数不同语义artifact拒绝",
+      "依赖图无环",
+      "同一issue offline/Java/Android输入逐字段相等",
+      "重启慢状态不读当前标签"
+    ],
+    "dependencies": [
+      "D01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D02/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03A"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D03",
+    "title": "独立训练阶段、时间切分与全局封存",
+    "original_requirements": [
+      "P1-01",
+      "M1",
+      "M2",
+      "M3",
+      "M4"
+    ],
+    "priority": "P1",
+    "files": [
+      "training/r925/pipeline.py",
+      "training/r925/deep_candidates.py",
+      "training/v51_training_core.py",
+      "training/v50_train_pipeline.py"
+    ],
+    "anchors": "run / splits / r925_sealed_registry / stage_entry",
+    "gap": "R925源文件父目录封存登记能拦同目录重跑，却不是跨源副本、跨项目实验的统一试验账本；模块输出还非独立生产合同。",
+    "steps": [
+      "拆dataset/number/gate/ranker/calibration/policy/evaluate命令与独立manifest",
+      "统一experiment registry以game+schema+源内容hash+sealed issue集合标识，不能靠复制目录重置",
+      "freeze选择前不读sealed标签，记录试验数与超参候选，故障恢复同trial幂等",
+      "至少5个expanding folds，内层调参、外层比较、CAL只选中样本、POLICY更后、SEALED最后",
+      "折边界历史特征可引用过去，学习参数和慢状态不可引用未来",
+      "各阶段失败不能给其他阶段写PROVEN",
+      "所有旧V49/V50/V51/R811训练入口明确LEGACY_REPLAY或委托新CLI；旧10动作pipeline不能出R926生产证明"
+    ],
+    "acceptance": [
+      "复制源文件到其他目录仍拒绝同sealed窗口新选择",
+      "篡改上游hash下游失效",
+      "五阶段样本区间严格有序",
+      "同trial崩溃恢复不重复消费sealed"
+    ],
+    "dependencies": [
+      "D01",
+      "D02"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03B"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D04",
+    "title": "NumberQ、Gate9、深度和在线侧路完整比较",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M2"
+    ],
+    "priority": "P1",
+    "files": [
+      "V51PermutationNumberModelEngine.java",
+      "V51ExpertGateEngine.java",
+      "V51SinkhornEngine.java",
+      "DeepCandidateRuntimeR925.java",
+      "ResearchTinyDeepLearnerR909.java",
+      "training/r925/deep_candidates.py",
+      "DeepLearningBridgeEngine.java"
+    ],
+    "anchors": "predict / logits / gate / prepare",
+    "gap": "R925研究推理通过host parity，但无生产数据训练、设备资源证据和生产artifact装载链。",
+    "steps": [
+      "保留9专家及已有矩阵，冻结各expert版本与可用性",
+      "比较原NumberQ、D0、D1残差、D2快慢、D3蒸馏，Gate9独立OOS训练",
+      "号码面finite、行列和≤1e-6、非负与专家退化fallback合同",
+      "训练teacher只用更早冻结模型，蒸馏不能见目标窗口标签",
+      "在线FTRL/TinyDeep仅过去label更新，升级为champion必须走相同证书",
+      "报告per-position CE/Top1/Top3/Brier、专家权重/失效、资源与增量"
+    ],
+    "acceptance": [
+      "每候选同fold完整结果，包括失败试验",
+      "没有更优候选时保留baseline且报告未达到效果门",
+      "host/设备推理一致且满足主链预算"
+    ],
+    "dependencies": [
+      "D02",
+      "D03"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D04/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03C",
+      "E03F"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D05",
+    "title": "完整1200动作Ranker模型族与生产一致性",
+    "original_requirements": [
+      "P1-01",
+      "M3"
+    ],
+    "priority": "P1",
+    "files": [
+      "K3ActionSpaceEngine.java",
+      "V51ActionRankerEngine.java",
+      "RankerMathR925.java",
+      "V51ActionRankerArtifact.java",
+      "training/r925/pipeline.py",
+      "K3FunnelOrchestrator.java",
+      "V51PositionActionBuilder.java"
+    ],
+    "anchors": "rankDetailed / artifactScore / fit / scores",
+    "gap": "R925实现一个线性listwise+pairwise，不等于原计划多个ranker候选与独立阶段全部完成。",
+    "steps": [
+      "固定position1..10、每位120组、ordinal0..1199和并列tie-break",
+      "比较RawActionP、pairwise线性、listwise线性、top-weighted pairwise、小MLP，树模型仅在资源与导出可行时研究比较",
+      "hard-negative以同组差一号码为主，统计样本单位始终issue",
+      "训练Ranker的META来自更早冻结Number/Gate OOF输出，不能用未来已训练号码面",
+      "记录Rank1/Top3/MRR/NDCG/paired/regime/block、全1200hash",
+      "并列/近并列和非有限值给确定性处理"
+    ],
+    "acceptance": [
+      "每期1200唯一动作、360正标签、全1200评分",
+      "100期×1200 Java/Android rank1完全一致",
+      "仅1200行视作1期样本",
+      "最终封存比较无退化"
+    ],
+    "dependencies": [
+      "D03",
+      "D04"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03C"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D06",
+    "title": "最终被选动作的校准与融合后失配修复",
+    "original_requirements": [
+      "P1-01",
+      "M4",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "V51SelectedActionCalibrationEngine.java",
+      "V51SelectedCalibrationArtifact.java",
+      "V51RuntimeOrchestrator.java",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "selected / calibration_fit / buildRankedActionStage",
+    "gap": "单独校准基础rank1不足以证明研究融合后新选动作概率；原始score不能直接充当命中概率。",
+    "steps": [
+      "定义selection_policy_hash包含ranker+consumer+weight+regime+tie-break",
+      "校准数据必须由相同冻结选择规则生成，融合改变选择后重新进入校准合同",
+      "比较logistic/beta/isotonic/域收缩，选择仅用更早数据",
+      "保存原rawScore、RawActionP、SelectedHitP及各来源，未知显示N/A",
+      "概率[Brier/ECE]只接受已校准并有支持的字段",
+      "把概率与分数分离为类型，禁止clamp01(score)当作校准"
+    ],
+    "acceptance": [
+      "变更consumer/权重/排序会使不兼容calibration拒绝",
+      "错误概率类型被测试发现",
+      "sealed Brier/ECE/NLL及分箱附样本数，达到合同门才宣告证明"
+    ],
+    "dependencies": [
+      "D03",
+      "D05",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D07",
+    "title": "不确定性、稳定性和选择性拒绝",
+    "original_requirements": [
+      "M4",
+      "P1-01"
+    ],
+    "priority": "P1",
+    "files": [
+      "V51SelectedActionCalibrationEngine.java",
+      "DecisionGateEngine.java",
+      "FeatureAblationAttributionEngine.java",
+      "MainActivity.java"
+    ],
+    "anchors": "SelectedHitP / risk / stability",
+    "gap": "完整不确定性分解尚缺，单期风险、稳定性存在空白反馈，不能用固定值填充。",
+    "steps": [
+      "输出reliability_bin_n/分箱历史Wilson区间/calibration support/regime support/模型分歧/漂移",
+      "Wilson明确为群体频率区间，不是这一次必中的个体区间",
+      "nonconformity是拒绝特征，不冒充概率或无条件conformal保证",
+      "stability按冻结输入扰动/专家删除的K3一致度定义并版本化",
+      "来源不足显示缺失原因、最近成功期与下一步，不显示0误导",
+      "把不确定性门写入同一policy artifact而非UI自判"
+    ],
+    "acceptance": [
+      "常数/小样本/新域/专家全失效时状态可解释",
+      "每个指标追到输入hash和窗口",
+      "拒绝不产生补频率BET"
+    ],
+    "dependencies": [
+      "D06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03D",
+      "E03E"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D08",
+    "title": "领域证书与赛前状态路由",
+    "original_requirements": [
+      "P1-05",
+      "M5"
+    ],
+    "priority": "P1",
+    "files": [
+      "AlgorithmRegimeEvidenceR923.java",
+      "V51StateTrajectoryEngine.java",
+      "AlgorithmProductionGovernorR915.java",
+      "CertifiedResearchMixerR915.java",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "regime assignment / production influence",
+    "gap": "R925只有离线域校准，未完成手机DOMAIN证书及路由；现有≥12组支持不等于生产校准支持。",
+    "steps": [
+      "训练段冻结状态边界，market regime与runtime health两个命名空间",
+      "领域artifact绑定regime schema、feature hash、选择规则与证书",
+      "足够CAL有效样本默认每域≥120，否则收缩到已证明全局或拒绝领域激活",
+      "路由只用赛前state，退出域立即weight0",
+      "域优势判断同时报告overall与每域paired置信/覆盖/风险，纳入多重比较",
+      "未知域/切换抖动用冻结滞回规则与显式fallback"
+    ],
+    "acceptance": [
+      "同一target与hash路由可复现",
+      "未支持域只能PAUSE/fallback",
+      "域外0贡献",
+      "更改边界必须重新起窗，不继承证据"
+    ],
+    "dependencies": [
+      "D06",
+      "C01",
+      "C06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03E",
+      "E03F"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "D10",
+    "title": "模型包验证、导入、原子激活和撤回",
+    "original_requirements": [
+      "P1-01",
+      "P1-07",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "ResearchArtifactCodecR811.java",
+      "V51ActionRankerArtifact.java",
+      "V51NumberModelArtifact.java",
+      "V51ExpertGateArtifact.java",
+      "V51RuntimeOrchestrator.java",
+      "MainActivity.java",
+      "DeepLearningBridgeEngine.java",
+      "ModelEffectivenessAnalyzerR35.java",
+      "ImprovementChallengerPlanEngine.java",
+      "ResearchCertificationEngineR811.java"
+    ],
+    "anchors": "decode / type / manifest / model snapshot",
+    "gap": "新二进制仅type/trainedUntil/fields，尚不能单凭其字节证明input合同、来源、阶段证书；生产多artifact一致装载未闭环。",
+    "steps": [
+      "建立bundle manifest列Number/Gate/Ranker/Calibration/Predictability/Policy、schema/training/parity/certificate hash",
+      "导入先解包限额/路径/内容hash/类型/签名验证，完整成功才落STAGED",
+      "APK原签名不等于模型包签名，模型签名独立owner可信key且私钥不放运行APK",
+      "stage/verify/activate在一期边界原子换bundle指针，每期固定一套依赖",
+      "证书过期、非有限、hash不符、资源异常立即下一决策禁用并回已有可用bundle",
+      "旧静态常量通过adapter读取，禁止半套新旧模型混用"
+    ],
+    "acceptance": [
+      "任意丢一artifact/错维度同形状错schema/非法路径/错签名/中途中止全部拒绝",
+      "请求进行中换指针不改变该期",
+      "回滚无重复canonical/REAL"
+    ],
+    "dependencies": [
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D08",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/D10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03F",
+      "E03G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C01",
+    "title": "统一证书V2、状态梯子与三个消费者",
+    "original_requirements": [
+      "P1-02",
+      "P1-05",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "PromotionWindowR925.java",
+      "ResearchCertificateR906.java",
+      "ResearchGenomeContractR915.java",
+      "AlgorithmProductionGovernorR915.java",
+      "CertifiedResearchMixerR915.java",
+      "ResearchMainlineGovernorR903.java",
+      "ResearchCertificationEngineR811.java"
+    ],
+    "anchors": "register / evaluate / evaluateAsset / evaluateGenesis / govern / mix",
+    "gap": "R925共用窗口计算但底层三套证书仍分离，晋级门、原因和消费授权没有一个版本化合同。",
+    "steps": [
+      "新证书结构统一candidate namespace/family/model/bundle/schema/选择策略/域/统计协议/anchor",
+      "L0到L7与暂停/撤销分开建模，所有消费者只调用CertificateService",
+      "旧证书映射LEGACY_REVIEW，不能自动带权，保留全部旧证据",
+      "明确L5仅影子模拟重排，L6才受控主排序5%，更高权重按新增独立证据",
+      "同一期只一个实际研究消费者，候选选择使用更早冻结证书排序并列规则",
+      "UI展示每一门observed/required/pass/source，0证书给具体原因"
+    ],
+    "acceptance": [
+      "算法/图资产/创生三者用同一合同测试向量得到一致授权",
+      "无证书0权重",
+      "证书只授予排序影响不创建REAL",
+      "旧新状态全部可解释"
+    ],
+    "dependencies": [
+      "B06",
+      "D01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C01/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C03",
+    "title": "候选概率合同与Brier/ECE真值",
+    "original_requirements": [
+      "P1-05",
+      "M4",
+      "M6"
+    ],
+    "priority": "P0",
+    "files": [
+      "AlgorithmInventionLabR908.java",
+      "GenesisAssetVmR915.java",
+      "PromotionWindowR925.java",
+      "AlgorithmEvidencePolicyR912.java"
+    ],
+    "anchors": "freezeOne score/probability / stats / evaluate",
+    "gap": "当前algorithm/genesis窗口直接读取score计算误差平方；clamp01(score)也不是概率校准，存在证据语义风险。",
+    "steps": [
+      "冻结raw_score与selected_hit_p两个独立列及calibration_hash",
+      "只有独立CAL校准的对应动作才参与Brier/ECE门",
+      "原score证据保留标RAW_SCORE_NOT_CALIBRATED，不据此宣称概率证明",
+      "每个候选难以单独CAL时使用事先冻结的族级收缩校准且注明支持，否则停观察",
+      "非有限、超范围、缺失校准和不同选择策略一律不给概率证书",
+      "迁移不能用新校准倒算历史并冒充旧赛前概率，只能离线诊断"
+    ],
+    "acceptance": [
+      "构造相同ranking不同score尺度，概率证书不被尺度伪造",
+      "raw score=.9不自动等于90%命中概率",
+      "所有Brier行可追calibration/selection hash"
+    ],
+    "dependencies": [
+      "C01",
+      "D06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C03/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "C06",
+    "title": "多重比较、试验注册与顺序检验协议",
+    "original_requirements": [
+      "P1-06",
+      "M7"
+    ],
+    "priority": "P0",
+    "files": [
+      "ResearchFamilyRegistryR925.java",
+      "AlgorithmEvidencePolicyR912.java",
+      "training/r925/research_governance.py",
+      "training/r925/pipeline.py"
+    ],
+    "anchors": "adjustedQ / fdrQ / hierarchical_adjustment",
+    "gap": "R925是保守FWER上界，不是实现了BH/FDR算法；重复试验、模型搜索和动态增加家族需统一统计合同。",
+    "steps": [
+      "报告命名区分raw_p/FWER_adjusted_p与FDR_q，禁止把所有值都叫q",
+      "默认保守分层Bonferroni+固定批次：批次alpha按预注册序列分配，族/候选预算冻结",
+      "候选/超参/域路由/修复子代均注册，归档不能删预算",
+      "局部与全局窗口检查登记look_id，不因看见好结果提前发证",
+      "bootstrap/分块统计明确依赖假设和近似性质，历史正态近似小N不当精确p",
+      "若采用其他层级FDR，必须单独实现验证依赖假设与仿真错误率后切换协议，禁止直接调低48下限"
+    ],
+    "acceptance": [
+      "在纯噪声、相关候选、连续追加、重复look下统计测试报告可复现",
+      "分配alpha总额≤预注册总额",
+      "旧假设无法通过改名/归档/拆族逃避分母"
+    ],
+    "dependencies": [
+      "D03",
+      "C01"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/C06/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E03B",
+      "E03G"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  }
+]

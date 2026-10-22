@@ -1,0 +1,365 @@
+{
+  "status": "PASS",
+  "mode": "CHANGED_GOVERNOR_SOURCE_WITH_RETAINED_PRODUCT_DEPENDENCIES",
+  "scope": "CURRENT_PROTECTED_RANGE_PREFILTER_NOT_GENERAL_SQL_DEADLINE_OR_PHONE_TIMING",
+  "results": [
+    {
+      "status": "PASS",
+      "checks": 10,
+      "mode": "protected",
+      "scope": "ACTUAL_RETENTION_SELECTION_READ_ONLY_REAL_SQLITE_NOT_PHONE",
+      "range_queries": [
+        {
+          "sql": "SELECT 1 FROM \"v57_k3_action_space_1200\" WHERE \"v57_k3_action_space_1200\".\"target_issue\"<? LIMIT 1",
+          "args": [
+            "202610100014"
+          ],
+          "vm_lower": 0,
+          "vm_upper": 99,
+          "elapsed_ms": 0.17507000302430242,
+          "row_count": 0,
+          "first_row": null
+        }
+      ],
+      "selector_queries": [],
+      "rows": 50000,
+      "source_bytes_unchanged": true
+    },
+    {
+      "status": "PASS",
+      "checks": 10,
+      "mode": "protected",
+      "scope": "ACTUAL_RETENTION_SELECTION_READ_ONLY_REAL_SQLITE_NOT_PHONE",
+      "range_queries": [
+        {
+          "sql": "SELECT 1 FROM \"v57_k3_action_space_1200\" WHERE \"v57_k3_action_space_1200\".\"target_issue\"<? LIMIT 1",
+          "args": [
+            "202610100014"
+          ],
+          "vm_lower": 0,
+          "vm_upper": 99,
+          "elapsed_ms": 0.20143699657637626,
+          "row_count": 0,
+          "first_row": null
+        }
+      ],
+      "selector_queries": [],
+      "rows": 1500000,
+      "source_bytes_unchanged": true
+    },
+    {
+      "status": "PASS",
+      "checks": 131,
+      "mode": "mixed",
+      "scope": "ACTUAL_RETENTION_SELECTION_READ_ONLY_REAL_SQLITE_NOT_PHONE",
+      "range_queries": [
+        {
+          "sql": "SELECT 1 FROM \"v57_k3_action_space_1200\" WHERE \"v57_k3_action_space_1200\".\"target_issue\"<? LIMIT 1",
+          "args": [
+            "202610100014"
+          ],
+          "vm_lower": 0,
+          "vm_upper": 99,
+          "elapsed_ms": 0.4209300022921525,
+          "row_count": 1,
+          "first_row": [
+            1
+          ]
+        }
+      ],
+      "selector_queries": [
+        {
+          "sql": "SELECT \"v57_k3_action_space_1200\".rowid,COALESCE((SELECT r.generation FROM research_row_revision_v2 r WHERE r.source_table=? AND r.source_rowid=\"v57_k3_action_space_1200\".rowid),0) FROM \"v57_k3_action_space_1200\" WHERE length(\"v57_k3_action_space_1200\".\"target_issue\")=12 AND \"v57_k3_action_space_1200\".\"target_issue\"<? AND (NOT EXISTS(SELECT 1 FROM v57_research_input_pin_r967 p JOIN v57_research_task_r967 t ON t.task_id=p.task_id WHERE p.source_table='v57_k3_action_space_1200' AND p.source_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND t.status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL'))) AND (NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.target_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND p.settled=0)) AND (NOT EXISTS(SELECT 1 FROM r958_frozen_predraw p WHERE p.target_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND p.settled=0)) AND (NOT EXISTS(SELECT 1 FROM r952_research_outbox o WHERE o.target_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND o.state NOT IN('COMPLETED','DEPENDENCY_RETIRED'))) ORDER BY \"v57_k3_action_space_1200\".rowid LIMIT 128",
+          "args": [
+            "v57_k3_action_space_1200",
+            "202610100014"
+          ],
+          "vm_lower": 307500,
+          "vm_upper": 307599,
+          "elapsed_ms": 5.848294000315946,
+          "row_count": 128,
+          "first_row": [
+            50001,
+            0
+          ]
+        }
+      ],
+      "rows": 50000,
+      "source_bytes_unchanged": true
+    },
+    {
+      "status": "PASS",
+      "checks": 2,
+      "mode": "pinned",
+      "scope": "ACTUAL_RETENTION_SELECTION_READ_ONLY_REAL_SQLITE_NOT_PHONE",
+      "range_queries": [
+        {
+          "sql": "SELECT 1 FROM \"v57_k3_action_space_1200\" WHERE \"v57_k3_action_space_1200\".\"target_issue\"<? LIMIT 1",
+          "args": [
+            "202610100014"
+          ],
+          "vm_lower": 0,
+          "vm_upper": 99,
+          "elapsed_ms": 0.1945570038515143,
+          "row_count": 1,
+          "first_row": [
+            1
+          ]
+        }
+      ],
+      "selector_queries": [
+        {
+          "sql": "SELECT \"v57_k3_action_space_1200\".rowid,COALESCE((SELECT r.generation FROM research_row_revision_v2 r WHERE r.source_table=? AND r.source_rowid=\"v57_k3_action_space_1200\".rowid),0) FROM \"v57_k3_action_space_1200\" WHERE length(\"v57_k3_action_space_1200\".\"target_issue\")=12 AND \"v57_k3_action_space_1200\".\"target_issue\"<? AND (NOT EXISTS(SELECT 1 FROM v57_research_input_pin_r967 p JOIN v57_research_task_r967 t ON t.task_id=p.task_id WHERE p.source_table='v57_k3_action_space_1200' AND p.source_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND t.status NOT IN('COMPLETED','EXPIRED','FAILED_TERMINAL'))) AND (NOT EXISTS(SELECT 1 FROM r952_candidate_predraw p WHERE p.target_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND p.settled=0)) AND (NOT EXISTS(SELECT 1 FROM r958_frozen_predraw p WHERE p.target_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND p.settled=0)) AND (NOT EXISTS(SELECT 1 FROM r952_research_outbox o WHERE o.target_issue=\"v57_k3_action_space_1200\".\"target_issue\" AND o.state NOT IN('COMPLETED','DEPENDENCY_RETIRED'))) ORDER BY \"v57_k3_action_space_1200\".rowid LIMIT 128",
+          "args": [
+            "v57_k3_action_space_1200",
+            "202610100014"
+          ],
+          "vm_lower": 305700,
+          "vm_upper": 305799,
+          "elapsed_ms": 4.5930160049465485,
+          "row_count": 0,
+          "first_row": null
+        }
+      ],
+      "rows": 50000,
+      "source_bytes_unchanged": true
+    }
+  ],
+  "plans": {
+    "protected-50000": [
+      [
+        3,
+        0,
+        191,
+        "SEARCH v57_k3_action_space_1200 USING COVERING INDEX sqlite_autoindex_v57_k3_action_space_1200_1 (target_issue<?)"
+      ]
+    ],
+    "protected-1500000": [
+      [
+        3,
+        0,
+        191,
+        "SEARCH v57_k3_action_space_1200 USING COVERING INDEX sqlite_autoindex_v57_k3_action_space_1200_1 (target_issue<?)"
+      ]
+    ],
+    "mixed-50000": [
+      [
+        3,
+        0,
+        191,
+        "SEARCH v57_k3_action_space_1200 USING COVERING INDEX sqlite_autoindex_v57_k3_action_space_1200_1 (target_issue<?)"
+      ]
+    ],
+    "pinned-50000": [
+      [
+        3,
+        0,
+        191,
+        "SEARCH v57_k3_action_space_1200 USING COVERING INDEX sqlite_autoindex_v57_k3_action_space_1200_1 (target_issue<?)"
+      ]
+    ]
+  },
+  "original_selector_baseline": [
+    {
+      "rows": 50000,
+      "vm_lower": 300300,
+      "vm_upper": 300399,
+      "elapsed_ms": 4.340172999945935,
+      "plan": [
+        [
+          4,
+          0,
+          216,
+          "SCAN v57_k3_action_space_1200"
+        ],
+        [
+          12,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 2"
+        ],
+        [
+          18,
+          12,
+          56,
+          "SEARCH p USING COVERING INDEX idx_r967_input_pin (source_table=? AND source_issue=?)"
+        ],
+        [
+          23,
+          12,
+          46,
+          "SEARCH t USING INDEX sqlite_autoindex_v57_research_task_r967_1 (task_id=?)"
+        ],
+        [
+          60,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 3"
+        ],
+        [
+          64,
+          60,
+          52,
+          "SEARCH p USING COVERING INDEX idx_r958_pending_settlement (settled=? AND target_issue=?)"
+        ],
+        [
+          75,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 4"
+        ],
+        [
+          79,
+          75,
+          53,
+          "SEARCH p USING COVERING INDEX idx_r958_frozen_pending (settled=? AND target_issue=?)"
+        ],
+        [
+          90,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 5"
+        ],
+        [
+          95,
+          90,
+          205,
+          "SCAN o USING INDEX idx_r979_outbox_unresolved"
+        ],
+        [
+          108,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          112,
+          108,
+          39,
+          "SEARCH r USING COVERING INDEX sqlite_autoindex_research_row_revision_v2_1 (source_table=? AND source_rowid=?)"
+        ]
+      ],
+      "empty_result_unchanged": true
+    },
+    {
+      "rows": 1500000,
+      "vm_lower": 9000300,
+      "vm_upper": 9000399,
+      "elapsed_ms": 158.56351000547875,
+      "plan": [
+        [
+          4,
+          0,
+          216,
+          "SCAN v57_k3_action_space_1200"
+        ],
+        [
+          12,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 2"
+        ],
+        [
+          18,
+          12,
+          56,
+          "SEARCH p USING COVERING INDEX idx_r967_input_pin (source_table=? AND source_issue=?)"
+        ],
+        [
+          23,
+          12,
+          46,
+          "SEARCH t USING INDEX sqlite_autoindex_v57_research_task_r967_1 (task_id=?)"
+        ],
+        [
+          60,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 3"
+        ],
+        [
+          64,
+          60,
+          52,
+          "SEARCH p USING COVERING INDEX idx_r958_pending_settlement (settled=? AND target_issue=?)"
+        ],
+        [
+          75,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 4"
+        ],
+        [
+          79,
+          75,
+          53,
+          "SEARCH p USING COVERING INDEX idx_r958_frozen_pending (settled=? AND target_issue=?)"
+        ],
+        [
+          90,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 5"
+        ],
+        [
+          95,
+          90,
+          205,
+          "SCAN o USING INDEX idx_r979_outbox_unresolved"
+        ],
+        [
+          108,
+          0,
+          0,
+          "CORRELATED SCALAR SUBQUERY 1"
+        ],
+        [
+          112,
+          108,
+          39,
+          "SEARCH r USING COVERING INDEX sqlite_autoindex_research_row_revision_v2_1 (source_table=? AND source_rowid=?)"
+        ]
+      ],
+      "empty_result_unchanged": true
+    }
+  ],
+  "fresh_jvm_page_identity_unchanged": true,
+  "product_before": {
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$1.class": "f205ea71d8b72eb7eec37a34557c1d820a166fe65d5e577212416524df343f1b",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$4.class": "26d9ddf6ea01d6e3386e150518ac20c6570b1a2d028b997f5589f214268b98e8",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$6.class": "d1b16dc2d0fa6d871036fa8230b607f18ae902247f5f36f9cf379c0c1ce743be",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$Cutoff.class": "1d4a73104e85f50e5d6151f9c44b343333a16543ddcaaba37a97ad665d07f65f",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$5.class": "96b80e07569a6f75bb26d0c9a72eadb1202c7377fc8c9f9a26f2cdf3e69af735",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900.class": "c307b9e1f08d7d893419d78f749e5b1f95e74e9f64818b15517bdc94d92050e1",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$7.class": "2e8ec37afaf6589561f95f1df5f08e3d29c295403678403e899a8d28ce0cc67b",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$2.class": "3efe74d229b8d870f4574a952c79e3b7d6d3c520eb1868208923c4f0573b2206",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$LiveKeyShapeCP12.class": "b7f35f0e10519df51c0c602396b37abd64eae761810350ef49b1df0d751c790f",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$3.class": "bb6e17bed42c40810353db5d0eff76914d2e4a52a2c9d047e4b6120f3d6ede0b"
+  },
+  "product_after": {
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$1.class": "f205ea71d8b72eb7eec37a34557c1d820a166fe65d5e577212416524df343f1b",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$4.class": "26d9ddf6ea01d6e3386e150518ac20c6570b1a2d028b997f5589f214268b98e8",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$6.class": "d1b16dc2d0fa6d871036fa8230b607f18ae902247f5f36f9cf379c0c1ce743be",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$Cutoff.class": "1d4a73104e85f50e5d6151f9c44b343333a16543ddcaaba37a97ad665d07f65f",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$5.class": "96b80e07569a6f75bb26d0c9a72eadb1202c7377fc8c9f9a26f2cdf3e69af735",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900.class": "c307b9e1f08d7d893419d78f749e5b1f95e74e9f64818b15517bdc94d92050e1",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$7.class": "2e8ec37afaf6589561f95f1df5f08e3d29c295403678403e899a8d28ce0cc67b",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$2.class": "3efe74d229b8d870f4574a952c79e3b7d6d3c520eb1868208923c4f0573b2206",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$LiveKeyShapeCP12.class": "b7f35f0e10519df51c0c602396b37abd64eae761810350ef49b1df0d751c790f",
+    "/workspace/scratch/e2544c9906f6/r77-toolchain/host-product-classes/com/ethk3/novaonepro/DataRetentionGovernorR900$3.class": "bb6e17bed42c40810353db5d0eff76914d2e4a52a2c9d047e4b6120f3d6ede0b"
+  },
+  "source_hash": "aa2477e2bd9b4495e8430e1350447f2aece3743727a983c71d2ee85d41b9c575",
+  "fixture_hashes": {
+    "protected-50000": "a6fae22d96d53d2dfc83e012e346994679541422d4fa53e77b8741562dc08dd3",
+    "protected-1500000": "db3608a365b28da25d4e8c0bf23e8c418153b4864e0386d2ad6d3017981c5ec6",
+    "mixed-50000": "b40add3335ff8d18a72286a6802c0700145e053ab6e44cfc67491c6dd9b5a3e3",
+    "pinned-50000": "f58b0c3685015bddd6fdec708d3e6ad92dec00a51a94bfb1942c766effa3cc02"
+  },
+  "fixture_paths": {
+    "protected-50000": "/tmp/r77-retention6-fixtures/protected-50000/source.db",
+    "protected-1500000": "/tmp/r77-retention6-fixtures/protected-1500000/source.db",
+    "mixed-50000": "/tmp/r77-retention6-fixtures/mixed-50000/source.db",
+    "pinned-50000": "/tmp/r77-retention6-fixtures/pinned-50000/source.db"
+  },
+  "bridge_hash": "d078645da1ed57d7dafa5111c66006a308c84e4abaa9ad4c3f6fbe1c3f0ef808"
+}

@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/KeyProvider.java b/app/src/main/java/com/ethk3/novaonepro/KeyProvider.java
+index 8996c46..0de3d50 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/KeyProvider.java
++++ b/app/src/main/java/com/ethk3/novaonepro/KeyProvider.java
+@@ -146,7 +146,7 @@ public final class KeyProvider {
+     }
+ 
+     private static boolean containsSensitiveParameter(String text) {
+-        String lower = text.toLowerCase();
++        String lower = text.toLowerCase(java.util.Locale.ROOT);
+         return lower.indexOf("key=") >= 0
+                 || lower.indexOf("token=") >= 0
+                 || lower.indexOf("secret=") >= 0

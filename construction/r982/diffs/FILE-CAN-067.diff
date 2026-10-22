@@ -1,0 +1,77 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DynamicGateEngine.java b/app/src/main/java/com/ethk3/novaonepro/DynamicGateEngine.java
+index 85401dc..7512299 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DynamicGateEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DynamicGateEngine.java
+@@ -2734,14 +2734,14 @@ public final class DynamicGateEngine {
+     }
+ 
+     private String upperLocal(String text) {
+-        return text == null ? "" : text.toUpperCase();
++        return text == null ? "" : text.toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private boolean containsStrongReady(String text) {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("STRONG") >= 0
+                 || s.indexOf("READY") >= 0
+                 || s.indexOf("PASS") >= 0
+@@ -2982,7 +2982,7 @@ public final class DynamicGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("MISLEADING") >= 0
+                 || s.indexOf("误导") >= 0
+                 || s.indexOf("亏") >= 0
+@@ -2993,7 +2993,7 @@ public final class DynamicGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("EFFECTIVE") >= 0 || s.indexOf("有效") >= 0 || s.indexOf("强域") >= 0;
+     }
+ 
+@@ -3001,7 +3001,7 @@ public final class DynamicGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         return s.indexOf("PROMOTE") >= 0 || s.indexOf("晋级") >= 0 || s.indexOf("强域") >= 0;
+     }
+ 
+@@ -3013,7 +3013,7 @@ public final class DynamicGateEngine {
+         if (text == null) {
+             return false;
+         }
+-        String s = text.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
+         if (metricPositive(s, "PASS")
+                 || metricPositive(s, "PROMOTE")
+                 || metricPositive(s, "通过")
+@@ -3030,8 +3030,8 @@ public final class DynamicGateEngine {
+         if (text == null || key == null || key.length() == 0) {
+             return false;
+         }
+-        String s = text.toUpperCase();
+-        String k = key.toUpperCase();
++        String s = text.toUpperCase(java.util.Locale.ROOT);
++        String k = key.toUpperCase(java.util.Locale.ROOT);
+         int from = 0;
+         while (true) {
+             int idx = s.indexOf(k, from);
+@@ -6367,7 +6367,7 @@ public final class DynamicGateEngine {
+         String a = action == null ? "" : action.trim();
+ 
+         String x = d.length() > 0 ? d : a;
+-        x = x.toUpperCase();
++        x = x.toUpperCase(java.util.Locale.ROOT);
+ 
+         if ("BET".equals(x) || "REAL".equals(x) || "REAL_TRADE".equals(x) || "投注".equals(x)) {
+             return AppConfig.DECISION_BET;

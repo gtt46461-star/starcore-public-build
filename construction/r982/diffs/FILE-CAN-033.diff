@@ -1,0 +1,90 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java b/app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java
+index 3c63ec5..2259ced 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CanonicalObservationWriterR36.java
+@@ -53,6 +53,11 @@ public final class CanonicalObservationWriterR36 {
+         cv.put("lane", record.lane);
+         cv.put("decision_action", record.decisionAction);
+         cv.put("reject_code", record.rejectCode);
++        CanonicalReasonCP12.Receipt reasonReceipt = new CanonicalReasonCP12.Receipt(
++                record.rejectCode, "CANONICAL:"+record.recordHash, record.targetIssue,
++                record.attemptId, record.historyHash, record.createdAt, TimeSourceR811.monoNowMs());
++        cv.put("canonical_reason_json", reasonReceipt.json);
++        cv.put("canonical_reason_hash", reasonReceipt.hash);
+         cv.put("bundle_hash", record.bundleHash);
+         cv.put("contract_hash", record.contractHash);
+         cv.put("authorization_hash", record.authorizationHash);
+@@ -229,7 +234,7 @@ public final class CanonicalObservationWriterR36 {
+                     store.readable()
+                             .rawQuery(
+                                     "SELECT base_issue,target_issue,position,n1,n2,n3,"
+-                                        + "selected_hit_p,predictability,lane,decision_action,reject_code,created_at,settled,actual_number,hit_label,record_hash,snapshot_hash,action_space_hash"
++                                        + "selected_hit_p,predictability,lane,decision_action,reject_code,created_at,settled,actual_number,hit_label,record_hash,snapshot_hash,action_space_hash,canonical_reason_json,canonical_reason_hash"
+                                         + " FROM "
+                                             + DbHelper.TABLE_R35_SHADOW_OBSERVATION
+                                             + " WHERE target_issue=? AND pre_draw_frozen=1 LIMIT 1",
+@@ -253,7 +258,7 @@ public final class CanonicalObservationWriterR36 {
+                     c.getInt(14),
+                     c.getString(15),
+                     c.getString(16),
+-                    c.getString(17));
++                    c.getString(17), c.getString(18), c.getString(19));
+         } finally {
+             if (c != null) c.close();
+         }
+@@ -432,7 +437,7 @@ public final class CanonicalObservationWriterR36 {
+                 rejectCode,
+                 recordHash,
+                 snapshotHash,
+-                actionSpaceHash;
++                actionSpaceHash, reasonJson, reasonHash;
+         public final int position, n1, n2, n3, settled, actualNumber, hitLabel;
+         public final double selectedHitP, predictability;
+         public final long createdAt;
+@@ -474,6 +479,46 @@ public final class CanonicalObservationWriterR36 {
+             recordHash = safe(record);
+             snapshotHash = safe(snapshot);
+             actionSpaceHash = safe(actionHash);
++            reasonJson="";reasonHash="";
++        }
++        CanonicalView(
++                String base,
++                String target,
++                int position,
++                int n1,
++                int n2,
++                int n3,
++                double p,
++                double predict,
++                String lane,
++                String action,
++                String reject,
++                long created,
++                int settled,
++                int actual,
++                int hit,
++                String record,
++                String snapshot,
++                String actionHash, String reasonJson, String reasonHash) {
++            baseIssue = safe(base);
++            targetIssue = safe(target);
++            this.position = position;
++            this.n1 = n1;
++            this.n2 = n2;
++            this.n3 = n3;
++            selectedHitP = p;
++            predictability = predict;
++            this.lane = safe(lane);
++            decisionAction = safe(action);
++            rejectCode = safe(reject);
++            createdAt = created;
++            this.settled = settled;
++            actualNumber = actual;
++            hitLabel = hit;
++            recordHash = safe(record);
++            snapshotHash = safe(snapshot);
++            actionSpaceHash = safe(actionHash);
++            this.reasonJson=safe(reasonJson);this.reasonHash=safe(reasonHash);
+         }
+     }
+ 

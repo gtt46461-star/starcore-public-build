@@ -1,0 +1,59 @@
+name: Starcore Tianshu B06 Chunk Order Repair
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b06
+    paths:
+      - '.github/starcore-tianshu-b06/RUN_CHUNK_ORDER_REPAIR'
+      - '.github/workflows/starcore-tianshu-b06-chunk-order-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b06-chunk-order-repair
+  cancel-in-progress: false
+
+jobs:
+  repair-chunk-order:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact B06 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b06
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Replace only the patch reconstruction line
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/starcore-tianshu-b06-runner.yml')
+          s=p.read_text(encoding='utf-8')
+          old="          cat .github/starcore-tianshu-b06/patch.part-* | base64 --decode > tools/B06_SOURCE.patch.gz\n"
+          new="          cat .github/starcore-tianshu-b06/patch.part-000 .github/starcore-tianshu-b06/patch.part-001.sub-* .github/starcore-tianshu-b06/patch.part-002 .github/starcore-tianshu-b06/patch.part-003 | base64 --decode > tools/B06_SOURCE.patch.gz\n"
+          if s.count(old)!=1: raise SystemExit('MATCH_COUNT='+str(s.count(old)))
+          s=s.replace(old,new,1)
+          if s.count(new)!=1: raise SystemExit('NEW_MATCH_COUNT='+str(s.count(new)))
+          p.write_text(s,encoding='utf-8')
+          print('CHUNK_ORDER_REPAIR=PASS')
+          PY
+          grep -q "patch.part-001.sub-\*" .github/workflows/starcore-tianshu-b06-runner.yml
+          git diff --check -- .github/workflows/starcore-tianshu-b06-runner.yml
+
+      - name: Commit repaired workflow object
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/starcore-tianshu-b06-runner.yml
+          git commit -m 'fix(starcore): reconstruct B06 patch from byte-exact chunks'
+          echo "REPAIR_COMMIT=$(git rev-parse HEAD)"
+          git push origin HEAD:agent/starcore-tianshu-b06

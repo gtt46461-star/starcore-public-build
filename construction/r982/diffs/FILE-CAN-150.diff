@@ -1,0 +1,43 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java b/app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java
+index d9a4e9b..ef2f6ee 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java
+@@ -1,6 +1,7 @@
+ package com.ethk3.novaonepro;
+ 
+ import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
+ import java.util.LinkedHashMap;
+ 
+ /**
+@@ -62,6 +63,21 @@ public final class ResearchPredrawCaptureR923 {
+         // hundreds of candidate registrations. Capture them before resumable roster work.
+         GlobalResearchScheduleR932.captureAtoms(store,snapshot);
+         FixedResearchWindowR932.freezeChampion(store,snapshot);
++        // The independent base bundle is real evidence; no existing research Certificate is required.
++        String[] champion=null;
++        try(Cursor c=store.readable().rawQuery("SELECT bundle_hash,selection_hash FROM "+FixedResearchWindowR932.CHAMPION+" WHERE target_issue=? LIMIT 2",new String[]{target})){
++            if(c.moveToFirst()){champion=new String[]{c.getString(0),c.getString(1)};if(c.moveToNext())throw new IllegalStateException("CAPTURE_CHAMPION_AMBIGUOUS");}
++        }
++        int reservedEvaluations=0;
++        if(champion==null)store.setState("cp11_capture_reservation_status","WAIT_CHAMPION_BUNDLE");
++        else {
++            final String[] frozenChampion=champion;
++            boolean reserved=store.coordinatorR36().runAtomicWrite("CP12_RESERVE_PROSPECTIVE_CAPTURE",new DatabaseCoordinator.WriteRunnable(){
++                public void run(SQLiteDatabase db){GlobalResearchScheduleR932.reserveUnscheduledFrozenCP11(db,target,frozenChampion[0],frozenChampion[1]);}
++            });
++            if(!reserved)throw new IllegalStateException("CAPTURE_RESERVATION_COMMIT_FAILED");
++            reservedEvaluations=FrozenCandidateAdapterR958.captureReservedCP12(store,snapshot);
++        }
+         // R979: independent trained-model evaluations must not wait behind full legacy
+         // cohort preparation. Give training, frozen evaluation and general cohorts a
+         // durable first slot. An interrupted callback advances priority, not evidence.
+@@ -82,7 +98,7 @@ public final class ResearchPredrawCaptureR923 {
+         long acceptedBudget = Math.max(500L, Math.min(MAX_TOTAL_BUDGET_MS, budgetMs));
+         long deadline = started + acceptedBudget;
+         String tiny = "NOT_ATTEMPTED";
+-        int algorithms = frozenEvaluations, assets = 0, formulas = 0;
++        int algorithms = reservedEvaluations + frozenEvaluations, assets = 0, formulas = 0;
+         String formulaStatus = "NOT_ATTEMPTED";
+         String stop = "";
+ 

@@ -1,0 +1,22 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DynamicFreezeMatrixEngine.java b/app/src/main/java/com/ethk3/novaonepro/DynamicFreezeMatrixEngine.java
+index 82e4e80..ecd787d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DynamicFreezeMatrixEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DynamicFreezeMatrixEngine.java
+@@ -1723,7 +1723,7 @@ public final class DynamicFreezeMatrixEngine {
+     private String normalizeResult(String r) {
+         String s = safe(r).trim();
+         if (s.length() == 0) return resultWait();
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         if ("WIN".equals(u) || "HIT".equals(u) || "命中".equals(s)) return resultWin();
+         if ("MISS".equals(u)
+                 || "LOSE".equals(u)
+@@ -1951,7 +1951,7 @@ public final class DynamicFreezeMatrixEngine {
+     }
+ 
+     private static String upper(String s) {
+-        return safe(s).trim().toUpperCase();
++        return safe(s).trim().toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private static String safe(String s) {

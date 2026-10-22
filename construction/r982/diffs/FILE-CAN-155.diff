@@ -1,0 +1,62 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RetentionAggregateCapacityCP12.java b/app/src/main/java/com/ethk3/novaonepro/RetentionAggregateCapacityCP12.java
+new file mode 100644
+index 0000000..1e21aef
+--- /dev/null
++++ b/app/src/main/java/com/ethk3/novaonepro/RetentionAggregateCapacityCP12.java
+@@ -0,0 +1,56 @@
++package com.ethk3.novaonepro;
++import android.content.ContentValues;import android.database.Cursor;import android.database.sqlite.SQLiteDatabase;import java.util.*;
++/** Existing DbStore.insertFiltered preflight consumes fixed naturalkey contracts before SQLite insert can swallow an ABORT. */
++public final class RetentionAggregateCapacityCP12 {
++ private RetentionAggregateCapacityCP12(){}
++ public static final class Capacity extends IllegalStateException {public final String table,reason;Capacity(String t,String r){super(r+":"+t);table=t;reason=r;}}
++ private static final Map<String,String[]> KEYS;
++ static {HashMap<String,String[]> keys=new HashMap<>();
++keys.put("break_memory",new String[]{"break_key","position","break_depth_bucket","drift_bucket","markov_bucket"});
++keys.put("calibration_bucket",new String[]{"bucket_key"});
++keys.put("causal_factor_matrix",new String[]{"causal_key"});
++keys.put("combo_memory",new String[]{"shape_key","position","k3_mask"});
++keys.put("combo_role_profile",new String[]{"combo_role_key"});
++keys.put("deep_cycle",new String[]{"cycle_key"});
++keys.put("deep_profile",new String[]{"profile_key"});
++keys.put("deep_transition",new String[]{"transition_key"});
++keys.put("dynamic_domain_stat_v20",new String[]{"domain_key"});
++keys.put("false_strong_profile",new String[]{"false_key"});
++keys.put("forward_validation_stat_v20",new String[]{"domain_key"});
++keys.put("hierarchical_posterior_v28",new String[]{"family_level","family_key"});
++keys.put("model_weight",new String[]{"weight_key"});
++keys.put("monotonic_calibration_v28",new String[]{"calibration_version","bucket_no"});
++keys.put("position_cause_matrix",new String[]{"position_key"});
++keys.put("promotion_domain_stat_v20",new String[]{"domain_key"});
++keys.put("reason_causal_profile",new String[]{"causal_key"});
++keys.put("reason_contrast_profile",new String[]{"profile_key"});
++keys.put("rule_health_matrix",new String[]{"rule_key"});
++keys.put("runtime_profile_cache",new String[]{"profile_key"});
++keys.put("shadow_health_gate",new String[]{"shadow_key"});
++keys.put("shape_memory",new String[]{"shape_key","position"});
++keys.put("source_health_matrix",new String[]{"source_key"});
++keys.put("state_health_matrix",new String[]{"state_health_key"});
++keys.put("state_number_profile",new String[]{"profile_key"});
++keys.put("teacher_assist_profile",new String[]{"assist_key"});
++keys.put("teacher_domain_stat_v20",new String[]{"domain_key"});
++keys.put("teacher_matrix_combo_profile",new String[]{"combo_key"});
++keys.put("teacher_matrix_profile",new String[]{"profile_key"});
++keys.put("teacher_matrix_state_profile",new String[]{"state_profile_key"});
++keys.put("teacher_number_matrix",new String[]{"teacher_key"});
++keys.put("third_guard_matrix",new String[]{"guard_key"});
++keys.put("v20_action_matrix",new String[]{"action_key"});
++keys.put("v20_cause_matrix",new String[]{"cause_key"});
++keys.put("v49_teacher_posterior",new String[]{"teacher_key"});
++keys.put("v49_ui_cache",new String[]{"cache_key"});
++keys.put("v50_teacher_profile",new String[]{"evidence_level","state_domain","lifecycle","position","number"});
++KEYS=Collections.unmodifiableMap(keys);}
++ public static void checkAdmission(SQLiteDatabase db,String table,ContentValues row){
++  String[] keys=KEYS.get(table);if(keys==null)return;
++  if(db==null||row==null)throw new IllegalStateException("RETENTION_AGGREGATE_OWNER_INPUT");
++  StringBuilder where=new StringBuilder();String[] args=new String[keys.length];
++  for(int i=0;i<keys.length;i++){Object value=row.get(keys[i]);if(value==null)throw new Capacity(table,"RETENTION_AGGREGATE_INVALID_KEY");if(i>0)where.append(" AND ");where.append('"').append(keys[i]).append("\"=?");args[i]=String.valueOf(value);}
++  try(Cursor c=db.rawQuery("SELECT 1 FROM \""+table+"\" WHERE "+where+" LIMIT 1",args)){if(c.moveToFirst())return;}
++  try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM \""+table+"\"",null)){if(!c.moveToFirst())throw new IllegalStateException("RETENTION_AGGREGATE_COUNT");if(c.getLong(0)>=4096)throw new Capacity(table,"RETENTION_AGGREGATE_CAPACITY");}
++ }
++ public static String reason(Throwable error){for(int i=0;i<8&&error!=null;i++,error=error.getCause()){if(error instanceof Capacity)return ((Capacity)error).reason;String text=String.valueOf(error.getMessage());if(text.contains("RETENTION_AGGREGATE_CAPACITY"))return "RETENTION_AGGREGATE_CAPACITY";if(text.contains("RETENTION_AGGREGATE_INVALID_KEY"))return "RETENTION_AGGREGATE_INVALID_KEY";}return "";}
++}

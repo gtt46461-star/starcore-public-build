@@ -1,0 +1,79 @@
+name: O09 refresh compiled call inputs
+# Current preparation: atom import preserves invocation-local write failure causes.
+on:
+  push:
+    branches: [construction/optimized299-o01-20261008]
+    paths: ['.github/workflows/o09-refresh-compiled-calls.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare-only-no-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Free unused toolchains on disposable hosted runner
+        shell: bash
+        run: |
+          python3 - <<'PYSPACE'
+          import os, pathlib, shutil, subprocess
+          if os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted':
+              raise SystemExit('Disk preparation is restricted to disposable GitHub-hosted runners')
+          sdk = pathlib.Path(os.environ['ANDROID_HOME'])
+          manager = next(p for p in (sdk/'cmdline-tools/latest/bin/sdkmanager', sdk/'cmdline-tools/12.0/bin/sdkmanager') if p.is_file())
+          for installed in sorted((sdk/'ndk').glob('*')):
+              if installed.is_dir() and installed.name != '28.2.13676358':
+                  subprocess.run([str(manager), '--uninstall', 'ndk;' + installed.name], check=True)
+          # This workflow uses Java/Python/Android only. The hosted image's .NET SDK is disposable.
+          unused = pathlib.Path('/usr/share/dotnet')
+          if unused.is_dir() and not unused.is_symlink():
+              subprocess.run(['sudo', 'rm', '-rf', '--', str(unused)], check=True)
+          print('O09_RUNNER_FREE_BYTES=' + str(shutil.disk_usage(os.environ['RUNNER_TEMP']).free), flush=True)
+          PYSPACE
+      - name: Install exact existing Android toolchain
+        shell: bash
+        run: |
+          python3 - <<'PYSDK'
+          import os, pathlib, subprocess
+          sdk = pathlib.Path(os.environ.get('ANDROID_HOME', '/usr/local/lib/android/sdk'))
+          candidates = [sdk/'cmdline-tools/latest/bin/sdkmanager', sdk/'cmdline-tools/12.0/bin/sdkmanager']
+          manager = next((p for p in candidates if p.is_file()), None)
+          if manager is None:
+              raise SystemExit('Android command-line tools are missing from the runner SDK')
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              env.write(f'ANDROID_HOME={sdk}\nANDROID_SDK_ROOT={sdk}\n')
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0',
+                          'ndk;28.2.13676358','cmake;3.22.1'],check=True)
+          PYSDK
+      - name: Warm actual Java dependencies and resources without an APK
+        shell: bash
+        run: |
+          mkdir -p validation-o09/prepare
+          git rev-parse HEAD > validation-o09/input-commit.txt
+          set -o pipefail
+          bash ./gradlew --no-daemon --max-workers=2 :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset -x :app:generateR997ConstructionAssets 2>&1 | tee validation-o09/prepare/bootstrap-online.log
+      - name: Run canonical prepare producer on the real compiled classes
+        shell: bash
+        run: |
+          chmod +x gradlew
+          python3 scripts/opt299_stage_build.py --phase prepare --stage O09 --variant debug --gradle "$PWD/gradlew" --sdk "$ANDROID_HOME" --jdk "$JAVA_HOME" --gradle-home "$HOME/.gradle" --evidence "$PWD/validation-o09/prepare"
+          python3 - <<'PY'
+          import base64,hashlib,json,pathlib,subprocess
+          names = ['release/r982_source_calls.tsv.gz','release/r982_source_calls.manifest.json','app/build/generated/r967/semantic_manifest.json','app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
+          files=[]
+          for name in names:
+              b=pathlib.Path(name).read_bytes()
+              files.append({'path':name,'sha256':hashlib.sha256(b).hexdigest(),'bytes':len(b),'base64':base64.b64encode(b).decode('ascii')})
+          value={'scope':'CANONICAL_PREPARE_ONLY_NOT_APK','input_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'files':files}
+          pathlib.Path('validation-o09/prepare/generated-inputs.json').write_text(json.dumps(value))
+          print('O09_CANONICAL_PREPARE_GENERATED_FILES=4')
+          PY
+      - name: Preserve exact preparation evidence
+        if: always()
+        run: python3 scripts/o09_validation_log_fallback.py

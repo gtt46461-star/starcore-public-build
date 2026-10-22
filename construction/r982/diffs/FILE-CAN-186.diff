@@ -1,0 +1,32 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java b/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
+index bf2c087..5e9cfa3 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StarcoreApplication.java
+@@ -10,6 +10,8 @@ public final class StarcoreApplication extends Application {
+     @Override
+     public void onCreate() {
+         super.onCreate();
++        if (!isMainRuntimeProcess(this)) return;
++        RealtimePressureGateR811.configureCrossProcess(this);
+         try {
+             CrashRecorder.install(getApplicationContext());
+             // R912: hashing the installed APK and every classes*.dex entry can take seconds on
+@@ -31,4 +33,18 @@ public final class StarcoreApplication extends Application {
+             CrashRecorder.recordCaught(getApplicationContext(), failure, "APPLICATION_LIGHT_BOOT_R912");
+         }
+     }
++    static boolean isMainRuntimeProcess(android.content.Context context) {
++        String name = null;
++        if (android.os.Build.VERSION.SDK_INT >= 28) name = Application.getProcessName();
++        else {
++            android.app.ActivityManager manager = (android.app.ActivityManager)
++                    context.getSystemService(android.content.Context.ACTIVITY_SERVICE);
++            java.util.List<android.app.ActivityManager.RunningAppProcessInfo> list =
++                    manager == null ? null : manager.getRunningAppProcesses();
++            if (list != null) for (android.app.ActivityManager.RunningAppProcessInfo item : list)
++                if (item.pid == android.os.Process.myPid()) { name = item.processName; break; }
++        }
++        // Unknown identity fails closed. No DB or recovery request in any secondary process.
++        return context.getPackageName().equals(name);
++    }
+ }

@@ -1,0 +1,272 @@
+[
+  {
+    "id": "B05",
+    "title": "全路径时延与一分钟实时预算",
+    "original_requirements": [
+      "P0-01",
+      "P0-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "V51RuntimeOrchestrator.java",
+      "AnalysisSingleFlightR36.java",
+      "RealtimePressureGateR811.java",
+      "RuntimeObservabilityR925.java",
+      "AutoFetchService.java",
+      "K3FailureDiagnosisEngine.java",
+      "V57FailureDiagnosisEngine.java"
+    ],
+    "anchors": "runR36 / request→durable / performance",
+    "gap": "主机编译不能证明手机5秒；时延需分冷启动、排队、计算、提交和故障超时。",
+    "steps": [
+      "耗时用elapsedRealtime或nanoTime，审计时间用wall clock，禁止跨进程比较单调钟",
+      "记录每次attempt并单列成功率，失败/取消不从延迟报告隐去",
+      "给历史读取、共享特征、号码面、1200排序、gate、提交分预算与取消点",
+      "缓存只按baseIssue/schema/artifact/stateHash完整键复用",
+      "生产前研究让步，长SQL不能靠循环内deadline视为已限制",
+      "记录P50/P95/P99/max、GC/堆峰值、锁等待及原始样本"
+    ],
+    "acceptance": [
+      "同机120期稳态request→durable P95≤5000ms、compute P95≤3000ms",
+      "冷启动独立10次目标<8000ms",
+      "超时/失败全计数，不能用成功子集掩盖掉期"
+    ],
+    "dependencies": [
+      "B03",
+      "B06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B05/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E02A"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "B07",
+    "title": "后台恢复、锁屏、重启与用户停止语义",
+    "original_requirements": [
+      "P0-03",
+      "P0-04"
+    ],
+    "priority": "P0",
+    "files": [
+      "AutoFetchService.java",
+      "BootReceiver.java",
+      "ServiceWatchdogJobService.java",
+      "InternalWatchdogReceiverR815.java",
+      "ServiceHeartbeatStore.java",
+      "BackgroundRuntimeCapabilityR811.java"
+    ],
+    "anchors": "onCreate / onStartCommand / onTaskRemoved / reconcileAutoFetchService",
+    "gap": "有恢复入口但缺物理连续性证据；授权绿灯并不等于每分钟业务健康。",
+    "steps": [
+      "先及时显示前台服务通知再异步初始化",
+      "恢复统一走原BootReceiver/lease入口重整业务定时器，心跳与业务健康分别判断",
+      "锁定未解锁时只读device-protected最小启停标志，解锁后开凭据库",
+      "区分返回桌面/划掉/系统回收/应用内停止/系统强停，手动停止不得复活",
+      "Job和闹钟仅恢复提示与校验，不能当作每分钟准确计时来源",
+      "按真实OS和targetSdk分支处理启动受限/授权撤回/网络切换/退避，日志注明无法恢复原因"
+    ],
+    "acceptance": [
+      "亮屏120期、息屏120期、划掉30期连续业务验收",
+      "用户停止和系统强停不绕过，用户重开后幂等恢复",
+      "每次恢复都能看到请求/接受/真正业务恢复三时点"
+    ],
+    "dependencies": [
+      "B06",
+      "B04"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B07/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E02B"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "B08",
+    "title": "抓取账本、来源治理与网络失败恢复",
+    "original_requirements": [
+      "P1-10",
+      "P0-05"
+    ],
+    "priority": "P0",
+    "files": [
+      "ApiClient.java",
+      "FetchLedgerR925.java",
+      "ApiTransportGovernanceEngine.java",
+      "AutoFetchService.java",
+      "DbStore.java"
+    ],
+    "anchors": "GET/POST / response / payload acceptance",
+    "gap": "HTTP成功不等于有效开奖；记录机会有但离线、脏数据、进程中断需要完整状态归因。",
+    "steps": [
+      "将REQUESTED/HTTP_RECEIVED/PARSE_REJECTED/PROVENANCE_REJECTED/CANONICAL_ACCEPTED/INTERRUPTED分开",
+      "请求id串起payload哈希、候选开奖、规范化结果，canonical接受与事件同事务",
+      "校验期号/10号码排列/游戏/开奖时点/重复冲突",
+      "旧响应不得覆盖新期，来源冲突进入隔离",
+      "请求开始后进程死亡保留未知结果并下次对账，禁止推造超时返回码",
+      "重试指数退避+抖动+限额，保留现有provider额度配置，不做未知外部调用"
+    ],
+    "acceptance": [
+      "503/超时/200脏JSON/合法重复/冲突/乱序/飞行模式均有结果码",
+      "重复不会双预测",
+      "HTTP200但业务拒绝在UI与报告可区分"
+    ],
+    "dependencies": [
+      "B06"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B08/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E02B"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "B09",
+    "title": "每期结算、影子、学习恰好一次",
+    "original_requirements": [
+      "P0-04",
+      "P1-09"
+    ],
+    "priority": "P0",
+    "files": [
+      "SettlementEngine.java",
+      "OosAfterDrawWriterR36.java",
+      "DeferredEvidenceWriterR36.java",
+      "ResearchAdaptiveLearnerStoreR811.java",
+      "ResearchTinyDeepLearnerR909.java",
+      "DbStore.java",
+      "CanonicalObservationWriterR36.java"
+    ],
+    "anchors": "exact settlement / labels / online update",
+    "gap": "需要验证全期结算、学习去重、崩溃重放；只看累计数不能证明一分一期闭环。",
+    "steps": [
+      "以game/issue/model_snapshot定义结算和学习幂等键",
+      "CORE结算先持久化，FULL和研究通过outbox异步展开",
+      "未开奖PENDING、无赛前冻结NO_PREDRAW、已开奖缺结算ERROR独立展示",
+      "FTRL/TinyDeep更新以已结算过去期游标和输入hash一次提交",
+      "当前期模型读取冻结版本，训练更新不能倒写该期",
+      "旧缺失来源不伪造PIT，只保留历史统计单列"
+    ],
+    "acceptance": [
+      "连续完整样本每期CORE结算一条、重放不重复",
+      "同一标签不能更新模型两次",
+      "崩溃在学习前后均确定恢复",
+      "120期测试要求全部应结已结"
+    ],
+    "dependencies": [
+      "B06",
+      "B08"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B09/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E02C"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "B10",
+    "title": "FULL积压实质收敛与可观测调度",
+    "original_requirements": [
+      "P2-01"
+    ],
+    "priority": "P0",
+    "files": [
+      "DeferredEvidenceWriterR36.java",
+      "BacklogConvergenceR925.java",
+      "V51Repository.java",
+      "RealtimePressureGateR811.java"
+    ],
+    "anchors": "drainAvailable / drainSettledCatchup / claim / next_action_ordinal",
+    "gap": "当前最新FULL期差只是MAX完成值，可能掩盖中间洞；旧积压并未实测清空。",
+    "steps": [
+      "实时canonical和CORE优先，再最新已结FULL，最后按最老欠账公平补齐",
+      "将每1200动作分块游标与lease原子提交，分片幂等",
+      "指标增加最老未完成issue、连续FULL水位、洞数量、终止失败队列",
+      "按服务率减新增率报告净吞吐，不能要求有新任务时逐条pending严格单调",
+      "过期无快照转缺证隔离并计未完成，不删除当作清零",
+      "用真实备份库回放2216量级任务，限制DB写片长"
+    ],
+    "acceptance": [
+      "全量有可恢复证据的待办最终归零",
+      "不可恢复数明确非零即全闭环不通过",
+      "最新FULL≤2实际开奖滞后且连续水位无隐洞",
+      "模型与UI不因补账卡顿"
+    ],
+    "dependencies": [
+      "B05",
+      "B09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B10/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E02A",
+      "E02C"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  },
+  {
+    "id": "B11",
+    "title": "真实出手来源与最终唯一决策审计",
+    "original_requirements": [
+      "P0-06",
+      "P1-02"
+    ],
+    "priority": "P0",
+    "files": [
+      "DecisionGateEngine.java",
+      "RealBetDiagnosisEngine.java",
+      "V51RuntimeOrchestrator.java",
+      "ControlledCandidateOpportunityAuditR922.java",
+      "CodeOwnershipCompletenessAuditEngine.java",
+      "TargetIssueResolver.java"
+    ],
+    "anchors": "final gate / immutable decision / provenance",
+    "gap": "旧101条来源无效不能被新版改成有效；现有多个策略标志需解析实际门，而非仅读一个SHADOW常量。",
+    "steps": [
+      "生成有效门配置快照，记录所有参与策略开关及实际DecisionGate分支",
+      "REAL行必须携带request/frozen/durable时点、draw来源、action/model/bundle/cert哈希",
+      "Research没有创建BET的接口能力",
+      "旧无效REAL独立报表，严禁纳入新严格胜率",
+      "无证据策略与频率提案由原唯一Gate裁定，不新增后台BET作者"
+    ],
+    "acceptance": [
+      "新受控测试REAL invalid=0 duplicate=0，每期最多一条且固定K3单位置",
+      "来源缺一拒绝",
+      "旧101条状态不被篡改",
+      "所有Owner扫描和行为测试通过"
+    ],
+    "dependencies": [
+      "B06",
+      "B09"
+    ],
+    "kind": "ENGINEERING",
+    "status": "NOT_STARTED",
+    "rollback": "关闭本项新入口并回到已冻结的 R925 对应实现，保留新增证据表，禁止重写历史预测和结算。",
+    "evidence": "实施后写入 evidence/B11/result.json、输入哈希、输出哈希、命令、退出码、期号范围、设备与版本；当前仅为施工设计。",
+    "enhancement_ids": [
+      "E02D"
+    ],
+    "enhancement_contract": "docs/5.4.2/11_ENHANCEMENT_20260909/enhancement_tasks.json",
+    "completion_requires_enhancement_acceptance": true
+  }
+]

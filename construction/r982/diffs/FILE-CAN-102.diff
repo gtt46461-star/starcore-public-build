@@ -1,0 +1,32 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java b/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java
+index b00432e..8d3d999 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java
++++ b/app/src/main/java/com/ethk3/novaonepro/OosAfterDrawWriterR36.java
+@@ -64,6 +64,8 @@ public final class OosAfterDrawWriterR36 {
+         } finally {
+             if (c != null) c.close();
+         }
++        if(!Double.isFinite(probability)||probability<0.0d||probability>1.0d)
++            return fail(target,"FROZEN_PROBABILITY_INVALID",base,commitAt,draw.openTime,historyHash,frozenHash,drawHash);
+         long frozenAt = commitAt > 0L ? commitAt : predictedAt;
+         if (preDraw != 1 || !TargetIssueResolver.exact(base, target).valid)
+             return fail(
+@@ -178,14 +180,12 @@ public final class OosAfterDrawWriterR36 {
+         if (inserted < 0L) {
+             ExistingLabel existing = existingBusinessLabel(db, target);
+             if (existing == null
+-                    || !existing.matches(base, position, n1, n2, n3, actual, hit)) {
++                    || !existing.matches(base, position, n1, n2, n3, actual, hit)
++                    || !record.equals(existing.recordHash)) {
+                 throw new IllegalStateException("R36_OOS_FIRST_WRITE_CONFLICT");
+             }
+-            /*
+-             * R911 compatibility: provenance/record hash rules evolved across hotfixes.
+-             * If the immutable business facts are identical, the first-written OOS row wins and
+-             * settlement converges as a replay instead of retrying forever on a hash-only change.
+-             */
++            // Frozen prediction/draw provenance is part of replay identity. Legacy labels
++            // remain immutable evidence; a hash-only difference cannot authorize a new replay.
+             effectiveRecord = existing.recordHash;
+         }
+         ContentValues shadow = new ContentValues();

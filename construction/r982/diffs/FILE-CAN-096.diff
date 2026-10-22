@@ -1,0 +1,22 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ModuleEffectScoreEngine.java b/app/src/main/java/com/ethk3/novaonepro/ModuleEffectScoreEngine.java
+index e31a213..d10624a 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ModuleEffectScoreEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ModuleEffectScoreEngine.java
+@@ -2116,7 +2116,7 @@ public final class ModuleEffectScoreEngine {
+     private String normalizeResult(String r) {
+         String s = safe(r).trim();
+         if (s.length() == 0) return resultWait();
+-        String u = s.toUpperCase();
++        String u = s.toUpperCase(java.util.Locale.ROOT);
+         if ("WIN".equals(u) || "HIT".equals(u) || "命中".equals(s)) return resultWin();
+         if ("MISS".equals(u)
+                 || "LOSE".equals(u)
+@@ -2341,7 +2341,7 @@ public final class ModuleEffectScoreEngine {
+     }
+ 
+     private static String upper(String s) {
+-        return safe(s).trim().toUpperCase();
++        return safe(s).trim().toUpperCase(java.util.Locale.ROOT);
+     }
+ 
+     private static String safe(String s) {

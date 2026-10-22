@@ -1,0 +1,1 @@
+package android.content; import android.net.Uri; public class ClipData { public static ClipData newPlainText(CharSequence l,CharSequence t){return new ClipData();} public static ClipData newRawUri(CharSequence l,Uri u){return new ClipData();} }

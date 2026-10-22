@@ -1,0 +1,63 @@
+name: Starcore Tianshu B06 API Parser Repair
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b06
+    paths:
+      - '.github/starcore-tianshu-b06/RUN_API_PARSER_REPAIR'
+      - '.github/workflows/starcore-tianshu-b06-api-parser-repair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starcore-tianshu-b06-api-parser-repair
+  cancel-in-progress: false
+
+jobs:
+  repair-api-parser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact B06 branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b06
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Apply exact API schema and accepted-branch patch
+        shell: bash
+        run: |
+          set -Eeu -o pipefail
+          trap 'rc=$?; echo "::error::B06_API_REPAIR_FAILED line=$LINENO command=$BASH_COMMAND rc=$rc"; exit $rc' ERR
+          test "$(sha256sum .github/starcore-tianshu-b06/fix_b06_api_workflow.py | cut -d' ' -f1)" = 'f9b048a3ef2d5f44382a357cf64988d651591cc291ca3d287a775c655910ebd6'
+          python3 .github/starcore-tianshu-b06/fix_b06_api_workflow.py
+          grep -q "betNo.*gmtBetNo.*openNumber.*block.*hash.*openTime" .github/workflows/starcore-tianshu-b06-runner.yml
+          grep -q "https://api.duoqu.online/data" .github/workflows/starcore-tianshu-b06-runner.yml
+          grep -q "https://api1.duoqu.online/data" .github/workflows/starcore-tianshu-b06-runner.yml
+          grep -q -- "git push --force-with-lease origin HEAD:\"\$ACCEPTED_BRANCH\"" .github/workflows/starcore-tianshu-b06-runner.yml
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/starcore-tianshu-b06-runner.yml')
+          s=p.read_text(encoding='utf-8')
+          assert s.count("python3 - <<'PY' | tee reports/B06_LIVE_API_TEST.log") == 1
+          assert s.count('B06_LIVE_API_FAILED') == 1
+          assert s.count('--force-with-lease') == 1
+          print('B06_API_REPAIR_CONTRACT=PASS')
+          PY
+          git diff --check -- .github/workflows/starcore-tianshu-b06-runner.yml
+
+      - name: Commit only the repaired main workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/starcore-tianshu-b06-runner.yml
+          git diff --cached --check
+          git commit -m 'fix(starcore): parse verified Duoqu B06 schema and resume safely'
+          git push origin HEAD:agent/starcore-tianshu-b06
+          printf 'API_SCHEMA=betNo,gmtBetNo,openNumber,block,hash,openTime\nACCEPTED_PUSH=force-with-lease\n' >> "$GITHUB_STEP_SUMMARY"

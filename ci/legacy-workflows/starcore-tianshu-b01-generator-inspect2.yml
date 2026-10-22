@@ -1,0 +1,36 @@
+name: Starcore Tianshu B01 Generator Inspect Two
+
+on:
+  push:
+    branches:
+      - agent/starcore-tianshu-b01
+    paths:
+      - '.github/workflows/starcore-tianshu-b01-generator-inspect2.yml'
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/starcore-tianshu-b01
+      - shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports tools
+          cat .github/starcore-tianshu-b01/materializer.part-* | base64 --decode | gzip --decompress > tools/m.py
+          nl -ba tools/m.py | sed -n '1600,1745p' | tee reports/ApiClient-template-full.txt
+          python3 - <<'PY' | tee reports/ApiClient-percent-audit.txt
+          from pathlib import Path
+          t=Path('tools/m.py').read_text(encoding='utf-8').splitlines()
+          for i,line in enumerate(t,1):
+              if 1600 <= i <= 1745 and '%' in line:
+                  print('%d:%s' % (i,line))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Starcore-Tianshu-B01-Generator-Inspection-2
+          path: reports/*
+          if-no-files-found: error

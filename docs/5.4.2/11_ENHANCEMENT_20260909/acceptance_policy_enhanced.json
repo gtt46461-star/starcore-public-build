@@ -1,0 +1,48 @@
+{
+  "schema": "STARCORE_542_ENHANCED_ACCEPTANCE_DESIGN_V1",
+  "status": "DESIGN_NOT_IMPLEMENTED",
+  "k": 3,
+  "maximum_real_per_issue": 1,
+  "db_user_version": 36,
+  "effect_targets": {
+    "selected_hr_min": 0.4,
+    "real_frequency_min": 0.15,
+    "ece_max": 0.04,
+    "same_frozen_policy_and_future_window": true,
+    "guaranteed": false
+  },
+  "confirmation": "预注册同时置信界：HR下界≥.40、coverage下界≥.15、ECE上界≤.04；相对基线/域稳定/资源门同过。必须写明估计对象、相关性假设、alpha/方法/支持与最大日历，假设不满足保持INSUFFICIENT_EVIDENCE。",
+  "statistics": {
+    "unit": "issue",
+    "total_alpha": 0.05,
+    "round_alpha": ".05/(r*(r+1))",
+    "default": "fixed_window",
+    "all_trials_registered": true,
+    "sealed_reuse_max": 0,
+    "lightweight_null_replicates_min": 10000
+  },
+  "engineering": {
+    "warm_p95_ms": 5000,
+    "compute_p95_ms": 3000,
+    "cold_start_target_ms": 8000,
+    "warm_issues": 120,
+    "normal_missing_max": 0,
+    "duplicate_max": 0,
+    "full_lag_max": 2,
+    "soak_hours": 24
+  },
+  "final_release": {
+    "version": "5.4.2",
+    "build": 933,
+    "versionCode": 577250933,
+    "requires": [
+      "all42",
+      "all30",
+      "Q01",
+      "Q02",
+      "Q03",
+      "Q04",
+      "D11"
+    ]
+  }
+}

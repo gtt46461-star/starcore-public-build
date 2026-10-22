@@ -1,0 +1,187 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java b/app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java
+index bce1204..1b7d925 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ServiceWatchdogJobService.java
+@@ -2,154 +2,38 @@ package com.ethk3.novaonepro;
+ 
+ import android.app.job.JobParameters;
+ import android.app.job.JobService;
+-import android.content.Context;
++import java.util.concurrent.ConcurrentHashMap;
+ import java.util.concurrent.atomic.AtomicBoolean;
+ 
+-/**
+- * B07 JobScheduler recovery insurance. It never opens the main SQLite, runs strategy, or creates
+- * Decision/Trade/BET. The only completion proof it may emit is based on the existing lightweight
+- * V57RuntimeTruth plus a fresh runtime lease.
+- */
++/** Android main callbacks only KICK the existing RecoveryCoordinator, never access preferences/DB. */
+ public final class ServiceWatchdogJobService extends JobService {
+-    public static final String OUMAN_GALAXY_REBUILD_VERSION =
+-            AppConfig.OUMAN_GALAXY_REBUILD_VERSION;
+-    public static final String VERSION =
+-            AppConfig.R36_RUNTIME_REPAIR_VERSION + "|B07_RECOVERY_PROOF_V2";
+-
+-    @Override
+-    public boolean onStartJob(final JobParameters params) {
+-        final Context app = getApplicationContext();
+-        final ServiceHeartbeatStore state = new ServiceHeartbeatStore(app);
+-        final AtomicBoolean finished = new AtomicBoolean(false);
+-
+-        Thread timeout =
+-                new Thread(
+-                        new Runnable() {
+-                            @Override
+-                            public void run() {
+-                                try {
+-                                    Thread.sleep(AppConfig.B07_JOB_WORK_TIMEOUT_MS);
+-                                } catch (InterruptedException ignore) {
+-                                    return;
+-                                }
+-                                if (finished.compareAndSet(false, true)) {
+-                                    state.markJobFinished("TIMEOUT_BOUNDARY_RESCHEDULE");
+-                                    state.markRecoveryResult(
+-                                            "job_timeout", false, "B07_JOB_WORK_TIMEOUT_MS");
+-                                    state.markBusinessStage(
+-                                            "B07_RECOVERY_EVIDENCE",
+-                                            RecoveryCoordinatorR815.evidence(app).summary());
+-                                    try {
+-                                        BootReceiver.scheduleAllRecovery(app, "job:timeout");
+-                                    } catch (Throwable ignore) {
+-                                    }
+-                                    try {
+-                                        jobFinished(params, true);
+-                                    } catch (Throwable ignore) {
+-                                    }
+-                                }
+-                            }
+-                        },
+-                        "starcore_b07_job_timeout");
+-        timeout.start();
+-
+-        Thread worker =
+-                new Thread(
+-                        new Runnable() {
+-                            @Override
+-                            public void run() {
+-                                String result = "UNKNOWN";
+-                                boolean reschedule = false;
+-                                try {
+-                                    long age = state.getHeartbeatAgeMs();
+-                                    ServiceHeartbeatStore.V57RuntimeTruth truth =
+-                                            state.v57RuntimeTruth();
+-                                    boolean leaseFresh = state.isRuntimeLeaseFresh();
+-                                    state.markJobTriggered(age);
+-                                    state.markRecoveryTrigger("job");
+-                                    state.markBusinessStage(
+-                                            "V57_B13_WATCHDOG_TRUTH", truth.summary());
+-
+-                                    if (!state.isUserEnabled()) {
+-                                        result = "USER_DISABLED_FAIL_CLOSED";
+-                                        BootReceiver.cancelAllRecovery(app, "job:user_disabled");
+-                                    } else if (!truth.healthy() || !leaseFresh) {
+-                                        String reason =
+-                                                "job:stale:heartbeat="
+-                                                        + age
+-                                                        + ":business="
+-                                                        + state.getBusinessStaleReason()
+-                                                        + ":runtimeLease="
+-                                                        + leaseFresh;
+-                                        boolean ok = BootReceiver.startAutoFetchService(app, reason);
+-                                        result =
+-                                                ok
+-                                                        ? "START_EVALUATED"
+-                                                        : "START_DEFERRED_OR_FAILED";
+-                                        reschedule = !ok;
+-                                        state.markRecoveryResult("job", ok, result);
+-                                    } else {
+-                                        // This is the first point where B07 may call a recovery complete:
+-                                        // the independent watchdog sees both healthy business truth and a
+-                                        // fresh runtime lease after the service-start proof.
+-                                        RecoveryCoordinatorR815.markBusinessRestored(
+-                                                app, "WATCHDOG_HEALTHY|" + truth.summary());
+-                                        boolean ok =
+-                                                BootReceiver.reconcileAutoFetchService(
+-                                                        app,
+-                                                        "job:periodic_reconcile_healthy");
+-                                        result =
+-                                                ok
+-                                                        ? "HEALTHY_RECONCILE_EVALUATED"
+-                                                        : "HEALTHY_RECONCILE_DEFERRED";
+-                                        reschedule = !ok;
+-                                        state.markRecoveryResult("job", ok, result);
+-                                    }
+-
+-                                    state.markBusinessStage(
+-                                            "B07_RECOVERY_EVIDENCE",
+-                                            RecoveryCoordinatorR815.evidence(app).summary());
+-                                    if (state.isUserEnabled())
+-                                        BootReceiver.scheduleAllRecovery(app, "job:reschedule");
+-                                } catch (Throwable e) {
+-                                    result = "ERROR:" + e.getClass().getSimpleName();
+-                                    reschedule = true;
+-                                    state.markRecoveryResult("job", false, result);
+-                                    state.markBusinessStage(
+-                                            "B07_RECOVERY_EVIDENCE",
+-                                            RecoveryCoordinatorR815.evidence(app).summary());
+-                                } finally {
+-                                    if (finished.compareAndSet(false, true)) {
+-                                        state.markJobFinished(result);
+-                                        try {
+-                                            jobFinished(params, reschedule);
+-                                        } catch (Throwable ignore) {
+-                                        }
+-                                    }
+-                                }
+-                            }
+-                        },
+-                        "starcore_b07_triggered_watchdog_job");
+-        try {
+-            worker.setPriority(Thread.MIN_PRIORITY);
+-        } catch (Throwable ignore) {
+-        }
+-        worker.start();
++    public static final String OUMAN_GALAXY_REBUILD_VERSION=AppConfig.OUMAN_GALAXY_REBUILD_VERSION;
++    public static final String VERSION=AppConfig.R36_RUNTIME_REPAIR_VERSION+"|CP4_JOB_KICK_ONLY";
++    private final ConcurrentHashMap<JobParameters,AtomicBoolean> active=new ConcurrentHashMap<>();
++    @Override public boolean onStartJob(final JobParameters params){
++        final AtomicBoolean cancelled=new AtomicBoolean();
++        final AtomicBoolean retry=new AtomicBoolean(true);
++        active.put(params,cancelled);
++        RecoveryDispatchR965.submit(()->{
++            if(cancelled.get())return;
++            ServiceHeartbeatStore state=new ServiceHeartbeatStore(getApplicationContext());
++            if(!state.isUserEnabled()){
++                retry.set(false);BootReceiver.cancelAllRecovery(getApplicationContext(),"CP4_JOB_USER_DISABLED");return;
++            }
++            state.markJobTriggered(state.getHeartbeatAgeMs());
++            if(cancelled.get())return;
++            RecoveryCoordinatorR815.Result result=RecoveryCoordinatorR815.request(
++                    getApplicationContext(),"CP4_JOB_KICK",0L);
++            retry.set(!result.accepted);
++            state.markJobFinished(result.status);
++        },()->{
++            if(active.remove(params,cancelled)&&!cancelled.get())jobFinished(params,retry.get());
++        },Math.min(8000L,AppConfig.B07_JOB_WORK_TIMEOUT_MS));
+         return true;
+     }
+-
+-    @Override
+-    public boolean onStopJob(JobParameters params) {
+-        try {
+-            Context app = getApplicationContext();
+-            ServiceHeartbeatStore state = new ServiceHeartbeatStore(app);
+-            state.markJobFinished("STOPPED_BY_SYSTEM_RESCHEDULE");
+-            state.markBusinessStage(
+-                    "B07_RECOVERY_EVIDENCE", RecoveryCoordinatorR815.evidence(app).summary());
+-            if (state.isUserEnabled()) BootReceiver.scheduleAllRecovery(app, "job:onStopJob");
+-            else BootReceiver.cancelAllRecovery(app, "job:onStopJob:user_disabled");
+-        } catch (Throwable ignore) {
+-        }
+-        return true;
++    @Override public boolean onStopJob(JobParameters params){
++        AtomicBoolean cancelled=active.remove(params);
++        if(cancelled!=null)cancelled.set(true);
++        return true; // Framework reschedules; no synchronous preference commit on main thread.
+     }
+ }

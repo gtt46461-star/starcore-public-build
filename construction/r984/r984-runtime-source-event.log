@@ -1,0 +1,10 @@
+PASS actual source request ledger
+PASS actual accepted predraw source event
+PASS actual durable request
+PASS single actual lease
+PASS durable owner claim
+Exception in thread "main" java.lang.IllegalStateException: R36_CANONICAL_COMMIT_FAILED:TX_FAILED:java.lang.IllegalStateException:B11_GATE_PROVENANCE_REJECT:BET_CERTIFICATE_HASH_MISSING
+	at com.ethk3.novaonepro.V51Repository.commitCanonicalBundleVerifiedR368(V51Repository.java:535)
+	at com.ethk3.novaonepro.V51Repository.commitCanonicalBundleR36(V51Repository.java:372)
+	at com.ethk3.novaonepro.V51RuntimeOrchestrator.runR36(V51RuntimeOrchestrator.java:381)
+	at com.ethk3.novaonepro.RuntimeConsumerChainR984.main(RuntimeConsumerChainR984.java:34)

@@ -1,0 +1,73 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/r952/EvolutionEvidenceR975.java b/app/src/main/java/com/ethk3/novaonepro/r952/EvolutionEvidenceR975.java
+index 67ff313..2afeaf5 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/r952/EvolutionEvidenceR975.java
++++ b/app/src/main/java/com/ethk3/novaonepro/r952/EvolutionEvidenceR975.java
+@@ -4,11 +4,8 @@ import android.database.Cursor;
+ import android.database.sqlite.SQLiteDatabase;
+ import com.ethk3.novaonepro.*;
+ 
+-/** Resumable review of actual completed training labels, never admission evidence.
+- * Eight sidecar verifications per call. A row and its cursor commit together; a
+- * cancelled page cannot claim verified progress. READY is finalized by the existing
+- * evolution owner on a later call, without repeating all 120 SQL verifications.
+- */
++/** Historical legacy review schema/decoder retained for archive compatibility.
++ * All review advancement is retired; ResearchFeedbackCP12 owns formal miss episodes. */
+ public final class EvolutionEvidenceR975 {
+     public static final String TABLE="r975_evolution_review";
+     public static final int PAGE=8, REQUIRED=120;
+@@ -29,19 +26,8 @@ public final class EvolutionEvidenceR975 {
+         Review(Cursor c){id=c.getString(0);parent=c.getString(1);astHash=c.getString(2);endpoint=c.getString(3);after=c.getString(4);cursor=c.getString(5);n=c.getInt(6);recent=c.getInt(7);earlier=c.getInt(8);payload=c.getString(9);hash=c.getString(10);state=c.getString(11);}
+     }
+     static Review next(SQLiteDatabase db,String endpoint) {
+-        schema(db);
+-        try(Cursor c=db.rawQuery("SELECT * FROM "+TABLE+" WHERE state IN ('ACTIVE','READY') ORDER BY updated_at,review_id LIMIT 1",null)){if(c.moveToFirst())return verify(new Review(c));}
+-        // Count only actual completed labels after this parent's last child. Old hit
+-        // totals or warm-start counters alone never start a new repair generation.
+-        String sql="SELECT p.candidate_id,p.structural_hash,COALESCE((SELECT MAX(child.created_issue) FROM r952_candidate child WHERE child.parent_id=p.candidate_id),'') last_child FROM r952_candidate p WHERE p.state NOT IN ('QUARANTINED','QUALITY_PRUNED','RESOURCE_RETIRED') AND p.future_n>=120 AND EXISTS(SELECT 1 FROM r952_learning_cursor lc JOIN r952_artifact a ON a.artifact_hash=lc.artifact_hash WHERE a.candidate_id=p.candidate_id AND a.numeric_updates>=120) AND (SELECT COUNT(*) FROM r952_candidate_predraw q JOIN r952_research_outbox o ON o.candidate_id=q.candidate_id AND o.target_issue=q.target_issue AND o.state='COMPLETED' AND o.label_hash=q.label_hash AND o.settlement_hash=q.settlement_hash WHERE q.candidate_id=p.candidate_id AND q.settled=1 AND q.proof_error='' AND q.evidence_role IN ('ONLINE_TRAINING','TRAIN_STREAM_V2') AND q.target_issue<=? AND q.target_issue>COALESCE((SELECT MAX(child.created_issue) FROM r952_candidate child WHERE child.parent_id=p.candidate_id),''))>=120 AND NOT EXISTS(SELECT 1 FROM "+TABLE+" r WHERE r.parent_id=p.candidate_id AND r.endpoint=?) ORDER BY last_child,p.future_n DESC,p.candidate_id LIMIT 1";
+-        try(Cursor c=db.rawQuery(sql,new String[]{endpoint,endpoint})){
+-            if(!c.moveToFirst())return null;
+-            String parent=c.getString(0),ast=c.getString(1),after=c.getString(2);
+-            String id=V51ChecksumEngine.sha256("R975_FAILURE_REVIEW|"+parent+'|'+ast+'|'+endpoint+'|'+after);
+-            String payload="R958_ACTUAL_ONLINE_ERRORS|"+parent;
+-            db.execSQL("INSERT INTO "+TABLE+"(review_id,parent_id,ast_hash,endpoint,after_child_issue,cursor_issue,payload,evidence_hash,state,updated_at) VALUES(?,?,?,?,?,?,?,?, 'ACTIVE',?)",new Object[]{id,parent,ast,endpoint,after,endpoint+"~",payload,V51ChecksumEngine.sha256(payload),System.currentTimeMillis()});
+-            try(Cursor row=db.rawQuery("SELECT * FROM "+TABLE+" WHERE review_id=?",new String[]{id})){if(!row.moveToFirst())throw new IllegalStateException("R975_REVIEW_INSERT_LOST");return verify(new Review(row));}
+-        }
++        // CP12 uses immutable formal Future feedback, never legacy training labels.
++        return null;
+     }
+     private static Review verify(Review r){
+         if(r.n<0||r.n>REQUIRED||r.recent<0||r.earlier<0||r.recent>Math.min(20,r.n)||r.recent+r.earlier>r.n||!V51ChecksumEngine.sha256(r.payload).equals(r.hash))throw new IllegalStateException("R975_REVIEW_CURSOR_OR_HASH_DRIFT");
+@@ -59,30 +45,9 @@ public final class EvolutionEvidenceR975 {
+         return r;
+     }
+     static String advance(SQLiteDatabase db,Review r) {
+-        if(!db.inTransaction())throw new IllegalStateException("R975_REVIEW_TRANSACTION_REQUIRED");
+-        if(!r.state.equals("ACTIVE"))return "REVIEW_"+r.state;
+-        int n=r.n,recent=r.recent,earlier=r.earlier,read=0;String cursor=r.cursor;
+-        StringBuilder payload=new StringBuilder(r.payload);
+-        String sql="SELECT q.target_issue,q.actual_number,q.prediction_mask,q.hit,q.label_hash,q.evidence_role,q.input_hash,q.model_hash FROM r952_candidate_predraw q JOIN r952_research_outbox o ON o.candidate_id=q.candidate_id AND o.target_issue=q.target_issue AND o.state='COMPLETED' AND o.label_hash=q.label_hash AND o.settlement_hash=q.settlement_hash WHERE q.candidate_id=? AND q.settled=1 AND q.proof_error='' AND q.evidence_role IN ('ONLINE_TRAINING','TRAIN_STREAM_V2') AND q.target_issue<? AND q.target_issue>? ORDER BY q.target_issue DESC LIMIT "+Math.min(PAGE,REQUIRED-n);
+-        try(Cursor c=db.rawQuery(sql,new String[]{r.parent,r.cursor,r.after})){
+-            while(c.moveToNext()){
+-                try{ResearchWorkBudgetR927.checkpoint();}catch(ResearchWorkBudgetR927.Yield y){if(read==0)throw y;break;}
+-                if(ResearchEvaluationRunR967.ROLE.equals(c.getString(5)))ResearchEvaluationRunR967.verifyRecordedInput(db,r.parent,c.getString(0),c.getString(6),c.getString(7));
+-                int actual=c.getInt(1),mask=c.getInt(2),hit=c.getInt(3);
+-                if(actual<1||actual>10||AppConfig.countK3MaskNumbers(mask)!=3||(hit!=0&&hit!=1)||hit!=(AppConfig.maskContainsNumber(mask,actual)?1:0))throw new IllegalStateException("R975_FAILURE_LABEL_OR_K3_INVALID");
+-                if(hit==0){if(n<20)recent++;else earlier++;}
+-                cursor=c.getString(0);payload.append('|').append(cursor).append(':').append(actual).append(':').append(mask).append(':').append(hit).append(':').append(c.getString(4));n++;read++;
+-            }
+-        }
+-        if(read==0){finish(db,r,"BLOCKED","SOURCE_LABELS_MISSING_OR_RETIRED","");return "BLOCKED_SOURCE_LABELS_MISSING";}
+-        String body=payload.toString(),state=n==REQUIRED?"READY":"ACTIVE";
+-        db.execSQL("UPDATE "+TABLE+" SET cursor_issue=?,verified_n=?,recent_misses=?,earlier_misses=?,payload=?,evidence_hash=?,state=?,reason='VERIFIED_COMPLETED_LABEL_PAGE',updated_at=? WHERE review_id=? AND state='ACTIVE' AND verified_n=? AND evidence_hash=?",new Object[]{cursor,n,recent,earlier,body,V51ChecksumEngine.sha256(body),state,System.currentTimeMillis(),r.id,r.n,r.hash});
+-        try(Cursor changed=db.rawQuery("SELECT changes()",null)){if(!changed.moveToFirst()||changed.getInt(0)!=1)throw new IllegalStateException("R975_REVIEW_CURSOR_CAS_LOST");}
+-        return "ERROR_REVIEW_"+state+"|parent="+r.parent+"|verified="+n+"/120|review="+r.id;
++        throw new IllegalStateException("RETIRED_CP12_FORMAL_RESEARCH_OWNER");
+     }
+     static void finish(SQLiteDatabase db,Review r,String state,String reason,String child){
+-        if(!db.inTransaction()||(!state.equals("BLOCKED")&&!state.equals("CONSUMED")))throw new IllegalStateException("R975_REVIEW_FINISH_CONTRACT");
+-        db.execSQL("UPDATE "+TABLE+" SET state=?,reason=?,child_id=?,updated_at=? WHERE review_id=? AND state IN ('ACTIVE','READY') AND evidence_hash=?",new Object[]{state,reason,child,System.currentTimeMillis(),r.id,r.hash});
+-        try(Cursor changed=db.rawQuery("SELECT changes()",null)){if(!changed.moveToFirst()||changed.getInt(0)!=1)throw new IllegalStateException("R975_REVIEW_FINISH_CAS_LOST");}
++        throw new IllegalStateException("RETIRED_CP12_FORMAL_RESEARCH_OWNER");
+     }
+ }

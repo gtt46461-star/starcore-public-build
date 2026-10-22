@@ -1,0 +1,3 @@
+package android.content.res;
+import java.io.*;
+public final class AssetFileDescriptor implements Closeable {private final RandomAccessFile owner;private final long start,length;private boolean closed;public static int opened,closedCount;public AssetFileDescriptor(File f,long start,long length)throws IOException{owner=new RandomAccessFile(f,"r");this.start=start;this.length=length;opened++;}public FileDescriptor getFileDescriptor(){try{return owner.getFD();}catch(IOException e){throw new IllegalStateException(e);}}public long getStartOffset(){return start;}public long getLength(){return length;}public void close()throws IOException{if(!closed){closed=true;closedCount++;owner.close();}}}

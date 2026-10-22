@@ -1,0 +1,1 @@
+package android.os; public class HandlerThread extends Thread { public HandlerThread(String n){super(n);} public HandlerThread(String n,int p){super(n);} public Looper getLooper(){return Looper.getMainLooper();} public boolean quit(){return true;} public boolean quitSafely(){return true;} }

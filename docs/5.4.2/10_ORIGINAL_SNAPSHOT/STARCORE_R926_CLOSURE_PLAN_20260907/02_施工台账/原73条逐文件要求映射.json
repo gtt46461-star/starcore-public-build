@@ -1,0 +1,1009 @@
+[
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "AutoFetchService.java",
+      "area": "后台/预测运行",
+      "required_change": "真机后台尚未证明；启动/恢复/抓取/分析/结算均集中在超大Service，需拆分稳态与冷启动遥测并做T29-T34真机闭环"
+    },
+    "current_tasks": [
+      "B02",
+      "B05",
+      "B06",
+      "B07",
+      "B08",
+      "Q02"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "BackgroundRuntimeCapabilityR811.java",
+      "area": "系统后台权限",
+      "required_change": "报告显示电池无限制=NO，物理后台不可能宣称完成；UI必须长期显示未授权红灯直到补齐"
+    },
+    "current_tasks": [
+      "B07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "BootReceiver.java",
+      "area": "后台恢复",
+      "required_change": "Boot/Replace/Unlock有恢复入口，但taskRemoved/kill/24h真机证据仍缺"
+    },
+    "current_tasks": [
+      "B07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "DatabaseCoordinator.java",
+      "area": "数据库启动",
+      "required_change": "critical schema冷启动约34.8s，是39.6s壁钟P95的重要来源；需版本化一次迁移、预校验和启动轻量化"
+    },
+    "current_tasks": [
+      "B02",
+      "B03",
+      "B04",
+      "B06",
+      "C04"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "DbHelper.java",
+      "area": "数据库Schema",
+      "required_change": "8572+行且大量DDL；critical路径仍含R906/R811 research schema，启动成本过高；需把非主链研究DDL移出P0启动"
+    },
+    "current_tasks": [
+      "B02",
+      "B03",
+      "B04"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "DecisionGateEngine.java",
+      "area": "REAL/决策",
+      "required_change": "当前机会频率0，受MODEL_NOT_PROVEN/BuildIdentity及稳定性熵等门阻断；不能靠放宽门硬凑15%"
+    },
+    "current_tasks": [
+      "B11",
+      "D07",
+      "D09"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "InternalWatchdogReceiverR815.java",
+      "area": "后台恢复",
+      "required_change": "内部watchdog存在但不能绕过OEM/force-stop；需在UI展示真实限制和最近恢复记录"
+    },
+    "current_tasks": [
+      "B07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "RuntimeHealthLedgerR36.java",
+      "area": "后台运行真值",
+      "required_change": "运行真值存在，但当前报告仍会把启动前缺口混入当前覆盖；需增加release/process epoch范围"
+    },
+    "current_tasks": [
+      "B06"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "ServiceWatchdogJobService.java",
+      "area": "后台恢复",
+      "required_change": "JobScheduler存在但尚未完成真机矩阵证明"
+    },
+    "current_tasks": [
+      "B07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "V51BuildManifest.java",
+      "area": "BuildIdentity",
+      "required_change": "受控候选出现BUILD_IDENTITY_HARD_BLOCK；需逐字段定位而不是只显示总状态"
+    },
+    "current_tasks": [
+      "B01"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P0",
+      "file": "V51RuntimeOrchestrator.java",
+      "area": "预测主链",
+      "required_change": "请求到提交P95被冷启动/排队混合；需分解queue/db-start/compute/commit并确保每期请求"
+    },
+    "current_tasks": [
+      "B05",
+      "B06",
+      "B11",
+      "D06",
+      "D10"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "AlgorithmEvidencePolicyR912.java",
+      "area": "算法淘汰/晋级",
+      "required_change": "coverage<0.60且N>=120可不可逆淘汰；coverage可能混入系统未捕获/暂停造成的基础设施缺口，需拆算法可用性覆盖与系统捕获覆盖"
+    },
+    "current_tasks": [
+      "C03",
+      "C06",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "AlgorithmEvolutionLifecycleR912.java",
+      "area": "算法生命周期",
+      "required_change": "已淘汰后lifecycle_reason被重写为IRREVERSIBLE_EVIDENCE_PRUNE，原始淘汰原因丢失；必须保留first_prune_reason/metric snapshot并支持纠错复核"
+    },
+    "current_tasks": [
+      "C02",
+      "C07",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "AlgorithmProductionGovernorR915.java",
+      "area": "算法接入主链",
+      "required_change": "只读取CHALLENGER_FUTURE_OOS；当前0挑战者所以NO_CERTIFIED_ALGORITHM、权重0"
+    },
+    "current_tasks": [
+      "D08",
+      "C01"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "CertifiedResearchMixerR915.java",
+      "area": "创生资产接主链",
+      "required_change": "无证书则NO_CERTIFIED_NEW_ASSET，主链贡献0；不能把38/50%小样本直接接入"
+    },
+    "current_tasks": [
+      "D08",
+      "C01"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "DeepLearningBridgeEngine.java",
+      "area": "深度学习桥",
+      "required_change": "大量研究/兼容逻辑，需明确哪些信号真实进入当前NumberQ/Ranker，哪些仅诊断"
+    },
+    "current_tasks": [
+      "D04",
+      "D10"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "DiagnosticTextExportR923.java",
+      "area": "检测报告导出",
+      "required_change": "导出能力存在；报告需新增UI/资源/Manifest/逐文件审计章节"
+    },
+    "current_tasks": [
+      "B04",
+      "U04"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "K3FailureDiagnosisEngine.java",
+      "area": "失败诊断",
+      "required_change": "同上；根因优先级正确但口径还不够细"
+    },
+    "current_tasks": [
+      "B05",
+      "U03"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "MainActivity.java",
+      "area": "UI/可观察性",
+      "required_change": "影子统计、抓取、研究等塞进综合长文本且固定行数/省略；用户无法一眼确认每期抓取→分析→出号→结算"
+    },
+    "current_tasks": [
+      "B02",
+      "D07",
+      "D10",
+      "U01",
+      "U02",
+      "U03",
+      "Q02"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ModelEffectivenessAnalyzerR35.java",
+      "area": "模型证明",
+      "required_change": "当前MODEL_PROVEN=false；需要冻结数据集/Artifact/严格时间OOS证书"
+    },
+    "current_tasks": [
+      "D10",
+      "Q03"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ModelLearningActivity.java",
+      "area": "UI/研究页",
+      "required_change": "复用Diagnosis大文本页，四大能力没有结构化表格/趋势/候选晋级进度，难以理解"
+    },
+    "current_tasks": [
+      "U02"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "OosAfterDrawWriterR36.java",
+      "area": "OOS",
+      "required_change": "严格赛前冻结后结算逻辑存在，但有效校准样本=0，需补合法SelectedHitP"
+    },
+    "current_tasks": [
+      "B09"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ResearchCertificateR906.java",
+      "area": "证书",
+      "required_change": "资产证书门极严：N240、coverage95%、Brier≤.21、ECE≤.06、block≥.70等；当前0证书需要先保证连续捕获和可执行Parity，再谈证书"
+    },
+    "current_tasks": [
+      "C01",
+      "C02"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ResearchDashboardR924.java",
+      "area": "UI/四框",
+      "required_change": "已有四框数据源，但需要拆清深度学习/动态迭代/创造/原子因子的职责与KPI，避免混杂"
+    },
+    "current_tasks": [
+      "U02"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ResearchEvaluationSchedulerR906.java",
+      "area": "Research调度",
+      "required_change": "活跃评估受MAX_RUNNABLE/队列限制；需防止高证据候选被容量暂停长期饿死"
+    },
+    "current_tasks": [
+      "C07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ResearchMainlineGovernorR903.java",
+      "area": "研究主链治理",
+      "required_change": "只有证书化可执行资产才能重排SHADOW；当前长期fallback"
+    },
+    "current_tasks": [
+      "C01"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ResearchPredrawCaptureR923.java",
+      "area": "Research赛前捕获",
+      "required_change": "四lane轮转且总预算6200ms；依赖durable snapshot，任何上游延迟/pressure都会减少Future-OOS样本"
+    },
+    "current_tasks": [
+      "C04",
+      "C07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ResearchTinyDeepLearnerR909.java",
+      "area": "TinyDeep",
+      "required_change": "正在SHADOW更新但不等于生产证明；需明确独立OOS贡献和消融"
+    },
+    "current_tasks": [
+      "B09",
+      "D04"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "RuntimeTruthSnapshotR906.java",
+      "area": "UI真值",
+      "required_change": "统一真值是优点；下一版要增加逐期pipeline ledger、shadow window stats、certificate funnel"
+    },
+    "current_tasks": [
+      "B06",
+      "U01"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "ServiceHeartbeatStore.java",
+      "area": "后台可视化",
+      "required_change": "已有heartbeat数据，但缺独立可视化流水表"
+    },
+    "current_tasks": [
+      "B07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51ActionRankerArtifact.java",
+      "area": "动作Ranker",
+      "required_change": "PROVEN=false、RANK_ORDER_PASSED=false、STABLE_FOLDS=0；生产排序退化为手工researchScore"
+    },
+    "current_tasks": [
+      "D05",
+      "D10"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51ActionRankerEngine.java",
+      "area": "实时排序核心",
+      "required_change": "未证明时使用researchScore=1.8*rawP+0.28*stability-0.14*entropy+thirdMargin+微弱meta系数"
+    },
+    "current_tasks": [
+      "D05"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51ExpertGateArtifact.java",
+      "area": "专家Gate",
+      "required_change": "PROVEN=false；运行时走中性/证据质量研究路由"
+    },
+    "current_tasks": [
+      "D10"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51NumberModelArtifact.java",
+      "area": "号码模型",
+      "required_change": "DATA_SHA256/参数均UNTRAINED，PROVEN=false；当前号码面是研究型专家融合，不是冻结训练模型"
+    },
+    "current_tasks": [
+      "D10"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51PermutationNumberModelEngine.java",
+      "area": "实时出号核心",
+      "required_change": "9专家→证据质量路由→Sinkhorn；Artifact未证明时仍可出SHADOW预测，但不是已证明高胜率生产模型"
+    },
+    "current_tasks": [
+      "D02",
+      "D04"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51PolicySurfaceArtifact.java",
+      "area": "策略曲面",
+      "required_change": "CELLS为空、MODEL_GATE_PASSED=false；选择性策略未训练"
+    },
+    "current_tasks": [
+      "D09"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51PredictabilityArtifact.java",
+      "area": "可预测性",
+      "required_change": "PROVEN=false、权重全零；未形成已证明的可预测性模型"
+    },
+    "current_tasks": [
+      "D09"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51SelectedActionCalibrationEngine.java",
+      "area": "校准",
+      "required_change": "Artifact未证明则返回NaN；这是MODEL_NOT_PROVEN长期存在的核心之一"
+    },
+    "current_tasks": [
+      "D06",
+      "D07"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V51SelectedCalibrationArtifact.java",
+      "area": "概率校准",
+      "required_change": "PROVEN=false；SelectedHitP直接N/A，无法用校准概率做可靠门策略"
+    },
+    "current_tasks": [
+      "D06"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V57CompleteDiagnosticReportEngine.java",
+      "area": "检测报告",
+      "required_change": "运行/研究很全，但没有完整AndroidManifest、按钮接线、layout变体、资源孤儿/缺失、545文件静态健康章节"
+    },
+    "current_tasks": [
+      "U03",
+      "U04",
+      "Q03"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P1",
+      "file": "V57FailureDiagnosisEngine.java",
+      "area": "失败诊断",
+      "required_change": "需要把冷启动/稳态、版本前/版本后覆盖分开，避免错修模型"
+    },
+    "current_tasks": [
+      "B05",
+      "U03"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "CanonicalObservationWriterR36.java",
+      "area": "账本",
+      "required_change": "first-write-wins要继续保持并增加逐期UI可见性"
+    },
+    "current_tasks": [
+      "B06",
+      "B09"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "FormulaAlgorithmAuditEngine.java",
+      "area": "公式审计",
+      "required_change": "1852公式数量很大，需做去重/族级FDR/有效性贡献，而不是继续堆数量"
+    },
+    "current_tasks": [
+      "C05"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "ImprovementChallengerPlanEngine.java",
+      "area": "Challenger",
+      "required_change": "当前只生成计划，productionMutation=0；要把训练、冻结、证书流水真正跑通"
+    },
+    "current_tasks": [
+      "D10",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "K3ActionSpaceEngine.java",
+      "area": "1200动作",
+      "required_change": "1200公式存在；延后动作行未全收敛时FULL仍pending"
+    },
+    "current_tasks": [
+      "D05"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "K3FunnelOrchestrator.java",
+      "area": "K3漏斗",
+      "required_change": "静态合同存在；需真机逐期持久化7阶段trace"
+    },
+    "current_tasks": [
+      "B06",
+      "D05"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "StrategyConflictAblationEngine.java",
+      "area": "消融",
+      "required_change": "已有但要进入候选淘汰/晋级解释，避免重复策略堆叠"
+    },
+    "current_tasks": [
+      "C05",
+      "C09"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "V51PermutationFeatureEngine.java",
+      "area": "特征",
+      "required_change": "需加入逐特征PIT/leakage和训练/服务parity报告"
+    },
+    "current_tasks": [
+      "D01",
+      "D02"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "V51PositionActionBuilder.java",
+      "area": "1200动作",
+      "required_change": "必须继续全量，不可为提速删动作"
+    },
+    "current_tasks": [
+      "D05"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "V51RelationGraphVerifier.java",
+      "area": "跨位置",
+      "required_change": "工程存在但物理运行/PIT证据仍需复测"
+    },
+    "current_tasks": [
+      "D01",
+      "C09",
+      "U03"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "P2",
+      "file": "V51Repository.java",
+      "area": "账本",
+      "required_change": "canonical/动作持久化是真值基础，延后FULL仍pending需收敛"
+    },
+    "current_tasks": [
+      "B03",
+      "B10"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "INFO",
+      "file": "CodeOwnershipCompletenessAuditEngine.java",
+      "area": "Owner",
+      "required_change": "唯一Owner静态审计PASS，继续保持"
+    },
+    "current_tasks": [
+      "B02",
+      "B11"
+    ]
+  },
+  {
+    "source_file": "07_关键文件逐文件施工清单.csv",
+    "original": {
+      "priority": "INFO",
+      "file": "TargetIssueResolver.java",
+      "area": "期号",
+      "required_change": "当前唯一Owner正确，继续保持"
+    },
+    "current_tasks": [
+      "B06",
+      "B11"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P0",
+      "文件": "training/v51_training_core.py",
+      "动作": "重构",
+      "方法/区域": "action_surface/fit_ranker/run_pipeline",
+      "现状问题": "10候选ranker与1200生产语义不一致；parity硬编码false",
+      "R925施工": "拆成1200 groupwise dataset/ranker；parity由证书输入",
+      "验收": "Python/Java/Android Rank1完全一致；model_gate可真实变true"
+    },
+    "current_tasks": [
+      "D03"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P0",
+      "文件": "training/v50_train_pipeline.py",
+      "动作": "重构/降级为兼容",
+      "方法/区域": "action_surface/main",
+      "现状问题": "旧pipeline同样group_size=10",
+      "R925施工": "禁止作为R925生产证明；只保留legacy replay",
+      "验收": "报告明确LEGACY_NOT_PROOF"
+    },
+    "current_tasks": [
+      "D03"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P0",
+      "文件": "K3ActionSpaceEngine.java",
+      "动作": "保留+审计",
+      "方法/区域": "globalOrdinal/action universe",
+      "现状问题": "生产1200动作真值Owner",
+      "R925施工": "输出训练/生产共享ordinal fixture",
+      "验收": "1200 identity唯一且hash一致"
+    },
+    "current_tasks": [
+      "D05"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P0",
+      "文件": "V51ActionRankerEngine.java",
+      "动作": "重构接artifact",
+      "方法/区域": "rank",
+      "现状问题": "当前artifact未证明",
+      "R925施工": "加载R925 1200 groupwise artifact；fallback显式",
+      "验收": "artifact PROVEN/parity pass"
+    },
+    "current_tasks": [
+      "D05"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P0",
+      "文件": "AlgorithmEvidencePolicyR912.java",
+      "动作": "升级R925 policy",
+      "方法/区域": "evaluateWithRegimeSupport",
+      "现状问题": "coverage可触发永久prune",
+      "R925施工": "拆system/candidate/selection coverage；质量与证据pause分离",
+      "验收": "误淘汰=0"
+    },
+    "current_tasks": [
+      "C03",
+      "C06",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P0",
+      "文件": "AlgorithmEvolutionLifecycleR912.java",
+      "动作": "升级V3",
+      "方法/区域": "maintain/enforceCapacity",
+      "现状问题": "MAX_RUNNABLE=8+不可逆prune",
+      "R925施工": "分Tier调度；生命周期V3；first prune保留",
+      "验收": "候选吞吐提升且实时P95不退化"
+    },
+    "current_tasks": [
+      "C02",
+      "C07",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchCertificationEngineR811.java",
+      "动作": "分层",
+      "方法/区域": "certifyCandidate",
+      "现状问题": "高等级PROVEN与中间证书混淆",
+      "R925施工": "增加L3-L7证书梯子/独立表",
+      "验收": "UI可看到每层数量和差距"
+    },
+    "current_tasks": [
+      "D10",
+      "C01"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "AlgorithmProductionGovernorR915.java",
+      "动作": "升级",
+      "方法/区域": "govern/influenceWeight",
+      "现状问题": "一旦Challenger可12~30%，阶段较粗",
+      "R925施工": "增加0/5/12/20/30阶梯证书",
+      "验收": "逐期贡献可追溯"
+    },
+    "current_tasks": [
+      "D08",
+      "C01"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchTinyDeepLearnerR909.java",
+      "动作": "增强观测",
+      "方法/区域": "updateOne/freezePredraw",
+      "现状问题": "只有更新/损失，不证明增益",
+      "R925施工": "增加OOS/paired/calibration/drift dashboard",
+      "验收": "更新效果可判定"
+    },
+    "current_tasks": [
+      "B09",
+      "D04"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchAdaptiveLearnerStoreR811.java",
+      "动作": "增强观测",
+      "方法/区域": "updateFromStrictOos",
+      "现状问题": "FTRL更新与生产效果脱节",
+      "R925施工": "FTRL作为独立challenger并做paired证书",
+      "验收": "artifact状态与效果一致"
+    },
+    "current_tasks": [
+      "B09"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "AlgorithmRegimeEvidenceR923.java",
+      "动作": "扩展",
+      "方法/区域": "evaluate",
+      "现状问题": "Regime只有命中率支持",
+      "R925施工": "加Wilson/Brier/ECE/paired per regime",
+      "验收": "Domain certificate可生成"
+    },
+    "current_tasks": [
+      "D08"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchFailureHypothesisEngineR811.java",
+      "动作": "增强",
+      "方法/区域": "diagnose/mechanism",
+      "现状问题": "九层归因仍较粗",
+      "R925施工": "输出FailureCluster id与具体repair target",
+      "验收": "每个child可追溯到失败簇"
+    },
+    "current_tasks": [
+      "C08",
+      "C09",
+      "C12"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchFailureAttributionR815.java",
+      "动作": "增强",
+      "方法/区域": "classify",
+      "现状问题": "coverage<0.30易混系统因素",
+      "R925施工": "接入system capture truth",
+      "验收": "不再把系统缺失归因算法"
+    },
+    "current_tasks": [
+      "C04",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchAblationR815.java",
+      "动作": "扩展",
+      "方法/区域": "evaluate",
+      "现状问题": "消融指标较少",
+      "R925施工": "模块/原子/家族逐期paired ablation",
+      "验收": "能证明模块净贡献"
+    },
+    "current_tasks": [
+      "C09"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "FeatureAblationAttributionEngine.java",
+      "动作": "扩展",
+      "方法/区域": "snapshot",
+      "现状问题": "单期责任较轻",
+      "R925施工": "沉淀长期责任分布/不确定性",
+      "验收": "UI可看为何中/不中模块贡献"
+    },
+    "current_tasks": [
+      "D07",
+      "C09",
+      "U03"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchNovelFormulaSynthesizerR903.java",
+      "动作": "重构搜索策略",
+      "方法/区域": "synthesize",
+      "现状问题": "随机混合比例偏高",
+      "R925施工": "失败驱动+原子质量+互补搜索",
+      "验收": "盲造比例下降"
+    },
+    "current_tasks": [
+      "C09",
+      "C11",
+      "C12"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchMethodGraphSynthesizerR903.java",
+      "动作": "增强",
+      "方法/区域": "synthesize",
+      "现状问题": "方法图丰富但验证入口不统一",
+      "R925施工": "统一M1-M10证书合同",
+      "验收": "每个method有同一证据七件套"
+    },
+    "current_tasks": [
+      "C09",
+      "C12"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P1",
+      "文件": "ResearchGenomeContractR915.java",
+      "动作": "升级",
+      "方法/区域": "Evidence/productionInfluenceEligible",
+      "现状问题": "单一CHALLENGER状态",
+      "R925施工": "支持生命周期V3+阶段证书",
+      "验收": "合同与DB/UI一致"
+    },
+    "current_tasks": [
+      "C01",
+      "C08"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P2",
+      "文件": "DbHelper.java",
+      "动作": "schema migration",
+      "方法/区域": "R925新增表/列",
+      "现状问题": "缺first prune/system coverage/cert ladder",
+      "R925施工": "DB_VERSION保留36时用addColumn幂等迁移或明确升37",
+      "验收": "升级覆盖安装不丢历史"
+    },
+    "current_tasks": [
+      "B02",
+      "B03",
+      "B04"
+    ]
+  },
+  {
+    "source_file": "19_逐文件施工矩阵.csv",
+    "original": {
+      "优先级": "P2",
+      "文件": "ResearchDashboardR924.java",
+      "动作": "升级R925",
+      "方法/区域": "render",
+      "现状问题": "用户看不懂证书/进化效果",
+      "R925施工": "增加十模块状态与证书漏斗",
+      "验收": "一屏可见训练/进化真值"
+    },
+    "current_tasks": [
+      "U02"
+    ]
+  }
+]

@@ -1,0 +1,77 @@
+name: Starcore Tianshu B01 Java Diagnostic
+on:
+  push:
+    branches: [agent/starcore-tianshu-b01]
+    paths: ['.github/workflows/starcore-tianshu-b01-java-diagnostic.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: agent/starcore-tianshu-b01, fetch-depth: 0}
+      - name: Reconstruct exact final B01 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports
+          cat .github/starcore-tianshu-b01/materializer.part-* >/tmp/m.b64
+          base64 -d /tmp/m.b64 | gzip -d >tools/starcore_tianshu_b01_materialize.py
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tools/starcore_tianshu_b01_materialize.py');s=p.read_text('utf-8')
+          for a,b in {'25563a5bb5b19aea8ac221b59853a9f97b08ebee1c686c9a21de6ac77c8c821a':'40f532fc8eabc4bb71f9aa6e60eeb5aa5a947c16ccafcc5003e76ceed9867d94','6e800a72c0e6d2dd3ce950f2ba5ea1c659c8a3dece1b8086dee22c8bd538e9df':'9683562182798b5bd53142bd802e8ce1dff2bc7faad5de6134047d3ce60e476c'}.items():
+              if a not in s:raise SystemExit('missing hash')
+              s=s.replace(a,b)
+          a='String field = fields[i % fields.length];';s=s.replace(a,'String field = fields[i %% fields.length];',1)
+          a='        "    public static final boolean SHADOW_ONLY = true;",\n';s=s.replace(a,a+'        "    public static final boolean REAL_BET_HARD_DISABLED = true;",\n',1)
+          p.write_text(s,'utf-8')
+          PY
+          python3 tools/starcore_tianshu_b01_materialize.py --apply
+          python3 - <<'PY'
+          from pathlib import Path
+          r=Path('app/src/main/java/com/ethk3/novaonepro')
+          p=r/'BinanceGameContract.java';s=p.read_text('utf-8');schema='public static final String SCHEMA_ID = "BINANCE1_PK10_SCHEMA_V1";';m='public static final String GAME_CODE = "Binance1-PK10";'
+          if schema not in s:p.write_text(s.replace(m,m+'\n    '+schema,1),'utf-8')
+          for n in ('ApiClient.java','ApiParser.java'):
+              p=r/n;p.write_text(p.read_text('utf-8').replace('.withRequestId(requestId)',''),'utf-8')
+          p=r/'ApiParser.java';p.write_text(p.read_text('utf-8').replace('Models.ApiResult error = result.error(','Models.ApiResult error = Models.ApiResult.fail('),'utf-8')
+          g=Path('app/build.gradle');s=g.read_text('utf-8');i=s.find('plugins {');pre=s[:i]
+          if 'def duoquApiKey' in pre:
+              block=pre.strip()+'\n\n';s=s[i:];marker="plugins {\n    id 'com.android.application'\n}\n\n";s=s.replace(marker,marker+block,1);g.write_text(s,'utf-8')
+          if not g.read_text('utf-8').startswith('plugins {'):raise SystemExit('plugin order bad')
+          PY
+          git diff --check
+      - name: Resolve key in memory
+        shell: bash
+        run: |
+          K="$(python3 - <<'PY'
+          import re,subprocess
+          s=subprocess.check_output(['git','show','80b09c5e5921f18c4ef05ceee7332ad0ee621944:app/src/main/java/com/ethk3/novaonepro/KeyProvider.java'],text=True)
+          print(''.join(re.findall(r"'([^'])'",s)[:10]))
+          PY
+          )"; echo "::add-mask::$K"; echo "DUOQU_API_KEY=$K" >>"$GITHUB_ENV"
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v3
+      - run: yes | sdkmanager --licenses >/dev/null || true; sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13'}
+      - name: Capture complete Java compile diagnostics
+        id: compile
+        shell: bash
+        run: |
+          set +e
+          gradle --no-daemon --stacktrace :app:compileDebugJavaWithJavac >reports/B01_JAVA_COMPILE_FULL.log 2>&1
+          S=$?; echo "status=$S" >>"$GITHUB_OUTPUT"
+          grep -nE 'error:|cannot find symbol|incompatible types|method .* cannot be applied|FAILURE:|What went wrong|Execution failed|Compilation failed' reports/B01_JAVA_COMPILE_FULL.log >reports/B01_JAVA_COMPILE_ERRORS.txt || true
+          tail -n 1500 reports/B01_JAVA_COMPILE_FULL.log >reports/B01_JAVA_COMPILE_TAIL.txt || true
+          exit 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: Starcore-Tianshu-B01-Java-Diagnostics, path: 'reports/B01_JAVA_COMPILE_*', if-no-files-found: error, retention-days: 7}
+      - if: always()
+        run: test "${{ steps.compile.outputs.status }}" = '0'

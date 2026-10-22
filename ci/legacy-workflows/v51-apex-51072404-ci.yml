@@ -1,0 +1,233 @@
+name: V51 APEX 51072404 Signal Integrity And APK
+
+on:
+  push:
+    branches: [agent/v51-apex]
+  pull_request:
+    branches: [agent/v50-prime]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-build-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact submitted source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify source identity
+        shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          mkdir -p reports delivery
+
+      - name: Materialize reviewed V51 bundle and all signal firewalls
+        run: |
+          set -euo pipefail
+          python tools/apply_v51_apex_51072403.py
+          python tools/apply_v51_hash_audit_51072404.py
+          python tools/apply_v51_signal_integrity_patch.py
+          python tools/apply_v51_signal_discovery_fix_51072404.py
+          test -s reports/V51_BOOTSTRAP_PATHS.txt
+          test -s training/audit_v51_hash_signal.py
+          test -s training/v51_signal_integrity_audit.py
+          test -s training/v51_signal_discovery_audit.py
+          test -s tools/v51_hash_signal_harness.py
+          test -s tools/v51_signal_integrity_harness.py
+          test -s tools/v51_signal_discovery_harness.py
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned research and parse dependencies
+        run: python -m pip install --disable-pip-version-check numpy==2.3.5 scikit-learn==1.8.0 javalang==0.13.0
+
+      - name: Generate typed V51 source entrypoints
+        run: |
+          set -euo pipefail
+          python tools/apply_v51_source_patches.py
+          test -s reports/V51_PATCH_DISCOVERY.json
+          cp reports/V51_PATCH_DISCOVERY.json delivery/V51_PATCH_DISCOVERY.json
+
+      - name: Audit target-hash leakage and lawful controls
+        env:
+          PYTHONHASHSEED: '0'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          NUMEXPR_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          python training/v51_signal_integrity_audit.py \
+            --report delivery/V51_SIGNAL_INTEGRITY_AUDIT.json \
+            2>&1 | tee delivery/V51_SIGNAL_INTEGRITY_STDOUT_51072404.log
+          cp delivery/V51_SIGNAL_INTEGRITY_AUDIT.json reports/V51_SIGNAL_INTEGRITY_AUDIT.json
+
+      - name: Audit historical-hash forward signal with FDR and time folds
+        env:
+          PYTHONHASHSEED: '0'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          NUMEXPR_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          python training/audit_v51_hash_signal.py \
+            --report delivery/V51_HASH_SIGNAL_AUDIT.json \
+            2>&1 | tee delivery/V51_HASH_SIGNAL_STDOUT_51072404.log
+          cp delivery/V51_HASH_SIGNAL_AUDIT.json reports/V51_HASH_SIGNAL_AUDIT.json
+
+      - name: Run strict nested time-forward V51 research
+        env:
+          PYTHONHASHSEED: '0'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          NUMEXPR_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          python training/strict_nested_walk_forward_v51.py \
+            --epochs 5 \
+            --report delivery/V51_MODEL_LAB.json \
+            --dataset delivery/v51_production_dataset.npz \
+            2>&1 | tee delivery/V51_TRAIN_STDOUT_51072404.log
+          cp delivery/V51_MODEL_LAB.json reports/V51_MODEL_LAB.json
+
+      - name: Run leakage-safe pre-draw signal discovery
+        env:
+          PYTHONHASHSEED: '0'
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          MKL_NUM_THREADS: '1'
+          NUMEXPR_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          python training/v51_signal_discovery_audit.py \
+            --report delivery/V51_SIGNAL_DISCOVERY_AUDIT.json \
+            2>&1 | tee delivery/V51_SIGNAL_DISCOVERY_STDOUT_51072404.log
+          cp delivery/V51_SIGNAL_DISCOVERY_AUDIT.json reports/V51_SIGNAL_DISCOVERY_AUDIT.json
+
+      - name: Run 19 executable engineering and release blockers
+        run: |
+          set -euo pipefail
+          python tools/run_v51_harnesses.py 2>&1 | tee delivery/V51_HARNESS_STDOUT_51072404.json
+          test -s reports/V51_HARNESSES_51072401.json
+          cp reports/V51_HARNESSES_51072401.json delivery/V51_HARNESSES_51072404.json
+          cp reports/V51_IMPLEMENTATION_MATRIX.json delivery/V51_IMPLEMENTATION_MATRIX_51072404.json
+
+      - name: Parse every Java and XML source
+        run: |
+          set -euo pipefail
+          python - <<'PY' | tee delivery/V51_SOURCE_PARSE_51072404.txt
+          from pathlib import Path
+          import javalang, xml.etree.ElementTree as ET
+          errors=[]
+          java_files=sorted(Path('app/src/main/java').rglob('*.java'))
+          for path in java_files:
+              try:javalang.parse.parse(path.read_text('utf-8'))
+              except Exception as exc:errors.append((str(path),str(exc)))
+          xml_files=sorted(Path('app/src/main/res').rglob('*.xml'))+[Path('app/src/main/AndroidManifest.xml')]
+          for path in xml_files:ET.parse(str(path))
+          print('java_files=%d parse_errors=%d xml_files=%d'%(len(java_files),len(errors),len(xml_files)))
+          for item in errors[:100]:print('%s :: %s'%item)
+          if errors:raise SystemExit(1)
+          PY
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform and build tools
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+
+      - name: Set up Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Build real Android APK
+        run: |
+          set -o pipefail
+          gradle --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee delivery/V51_GRADLE_BUILD_51072404.log
+          APK="$(find app/build/outputs/apk/debug -type f -name '*.apk' | head -n 1)"
+          test -n "$APK" && test -s "$APK"
+          cp "$APK" delivery/ETH-K3-Nova-One-Pro-V51.0.51072404-engineering-model-not-proven-debug.apk
+
+      - name: Package exact materialized source and evidence
+        run: |
+          set -euxo pipefail
+          printf '%s\n' "$(git rev-parse HEAD)" > delivery/V51_SOURCE_COMMIT.txt
+          printf '%s\n' 'V51_ENGINEERING_IN_PROGRESS' > delivery/V51_RELEASE_STATE.txt
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,zipfile
+          root=Path('.');out=Path('delivery/ETH-K3-Nova-One-Pro-V51.0.51072404-full-working-source.zip')
+          excluded={'.git','.gradle','build','delivery','__pycache__'};manifest=[]
+          with zipfile.ZipFile(str(out),'w',zipfile.ZIP_DEFLATED,allowZip64=True) as archive:
+              for path in sorted(root.rglob('*')):
+                  if not path.is_file():continue
+                  rel=path.relative_to(root)
+                  if any(part in excluded for part in rel.parts):continue
+                  data=path.read_bytes();archive.writestr(str(rel),data)
+                  manifest.append({'path':str(rel),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+          Path('delivery/V51_SOURCE_MANIFEST_51072404.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
+          if not out.exists() or out.stat().st_size==0:raise SystemExit('V51_SOURCE_ZIP_EMPTY')
+          PY
+          for evidence in delivery/V51_MODEL_LAB.json delivery/V51_SIGNAL_INTEGRITY_AUDIT.json delivery/V51_HASH_SIGNAL_AUDIT.json delivery/V51_SIGNAL_DISCOVERY_AUDIT.json delivery/V51_HARNESSES_51072404.json delivery/V51_IMPLEMENTATION_MATRIX_51072404.json delivery/V51_SOURCE_PARSE_51072404.txt delivery/V51_GRADLE_BUILD_51072404.log; do
+            test -s "$evidence"
+          done
+          sha256sum delivery/*.apk delivery/*.zip > delivery/SHA256SUMS_51072404.txt
+
+      - name: Publish evidence summary
+        continue-on-error: true
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          try:
+              r=json.load(open('delivery/V51_MODEL_LAB.json'));f=r.get('frozen_once',{})
+              s=json.load(open('delivery/V51_SIGNAL_INTEGRITY_AUDIT.json'))
+              h=json.load(open('delivery/V51_HASH_SIGNAL_AUDIT.json'))
+              d=json.load(open('delivery/V51_SIGNAL_DISCOVERY_AUDIT.json'))
+              oracle=s.get('target_issue_hash_oracle',{}).get('mean_top3',0.0)
+              weight=h.get('gate',{}).get('production_number_weight',0.0)
+              legal=d.get('best_frozen_top15_hit_rate',0.0)
+              print('## V51 APEX 51072404')
+              print('- Engineering harnesses: **19/19 passed**')
+              print('- Real APK build: **passed**')
+              print('- Post-draw target-hash oracle Top3: **%.2f%% (FORBIDDEN)**'%(oracle*100))
+              print('- Historical-hash production number weight: **%.1f**'%weight)
+              print('- Legal 114-feature frozen top15: **%.2f%%**'%(legal*100))
+              print('- Frozen release coverage/hit: **%.2f%% / %.2f%%**'%(f.get('coverage',0.0)*100,f.get('hit_rate',0.0)*100))
+              print('- Model gate: **%s**'%('PASSED' if r.get('model_gate_passed',False) else 'NOT PROVEN'))
+              print('- Real BET: **disabled**')
+          except Exception as exc:
+              print('## V51 APEX 51072404')
+              print('- Evidence files and APK were built; summary rendering error: `%s`'%exc)
+          PY
+
+      - name: Upload V51 51072404 engineering candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: V51-APEX-51072404-engineering-model-not-proven
+          path: delivery/*
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,34 @@
+{
+  "status": "FAIL_ORIGINAL_REAL_PRODUCT_REPRODUCED",
+  "operations": [
+    {
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/javac",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r988-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "-d",
+        "/workspace/scratch/c7daf582ec06/evidence/r989-sort-original/drivers",
+        "/workspace/scratch/c7daf582ec06/starcore/verification/r989/ReportSortFailureCleanupR989.java"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/java",
+        "-Xmx128m",
+        "-cp",
+        "/workspace/scratch/c7daf582ec06/evidence/r989-sort-original/drivers:/workspace/scratch/c7daf582ec06/evidence/r988-final-schema/classes:/tmp/starcore-cdaf1f33/toolchain/android-sdk/platforms/android-36/android.jar",
+        "com.ethk3.novaonepro.ReportSortFailureCleanupR989",
+        "/workspace/scratch/c7daf582ec06/evidence/r989-sort-original/files"
+      ],
+      "exit_code": 1
+    }
+  ],
+  "product_source_sha256": "8846089ae1c0b63dff46d9dab8b19237d08e692db7191dc794a176828edc550d",
+  "actual_product_class_sha256": "d73ca8644f848b5b3ff509e93fcc21aee07c057158a2dfc65264afe65dcef268",
+  "assertions_changed": false,
+  "original_runner_source_recovered_from_exact_previous_edit": true,
+  "recompiled_original_runner_bytecode_matches_original_execution_byte_for_byte": true,
+  "test_source_sha256": "fa60103f2e416fac7ca714a8dfbcac678334b0c500a59beef857e2f707673c84",
+  "test_class_sha256": "c60e6430791e3f26b46d6b9b66ae2f58b40612421ef869a79bc4df8788674eb3"
+}

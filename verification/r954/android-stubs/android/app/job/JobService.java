@@ -1,0 +1,1 @@
+package android.app.job; import android.app.Service; public abstract class JobService extends Service { public abstract boolean onStartJob(JobParameters p); public abstract boolean onStopJob(JobParameters p); public void jobFinished(JobParameters p,boolean r){} }

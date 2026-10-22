@@ -1,0 +1,344 @@
+{
+  "scope": "R76 phone report; epoch-filtered events/draws. Resources limited to LAST_120 rows. Report snapshots are not all one transaction.",
+  "epoch_ms": 1791886582918,
+  "epoch_cst": "2026-10-13T18:16:22.918000+08:00",
+  "current_warm_samples": 70,
+  "warm": {
+    "queue_ms": {
+      "n": 70,
+      "p50": 9018,
+      "p95": 29767,
+      "max": 54317
+    },
+    "compute_ms": {
+      "n": 70,
+      "p50": 997,
+      "p95": 11574,
+      "max": 18277
+    },
+    "commit_ms": {
+      "n": 70,
+      "p50": 65,
+      "p95": 5157,
+      "max": 7880
+    },
+    "total_ms": {
+      "n": 70,
+      "p50": 12221,
+      "p95": 41346,
+      "max": 55453
+    }
+  },
+  "warm_over_5s": 58,
+  "fetch": {
+    "fetch_minus_draw_ms": {
+      "n": 77,
+      "p50": 3763,
+      "p95": 32010,
+      "max": 61958
+    },
+    "first_receipt_minus_draw_ms": {
+      "n": 76,
+      "p50": 3682,
+      "p95": 35884,
+      "max": 61883
+    },
+    "receipt_to_db_ms": {
+      "n": 70,
+      "p50": 36,
+      "p95": 156,
+      "max": 839
+    },
+    "fetch_to_next_request_ms": {
+      "n": 76,
+      "p50": 57,
+      "p95": 1066,
+      "max": 2249
+    },
+    "request_to_next_commit_ms": {
+      "n": 71,
+      "p50": 12201,
+      "p95": 41326,
+      "max": 55417
+    },
+    "fetch_to_settled_ms": {
+      "n": 77,
+      "p50": 216,
+      "p95": 1227,
+      "max": 4113
+    }
+  },
+  "draws": 77,
+  "receipt_after_saved_draw_issues": [
+    "202610130622",
+    "202610130623",
+    "202610130631",
+    "202610130651",
+    "202610130669",
+    "202610130684"
+  ],
+  "draw_received_under5s": 49,
+  "draw_received_over30s": 4,
+  "missing_next_request": [
+    "202610130669"
+  ],
+  "missing_next_commit": [
+    "202610130641",
+    "202610130647",
+    "202610130653",
+    "202610130660",
+    "202610130669",
+    "202610130693"
+  ],
+  "settlement_status_counts": {
+    "COMPLETED": 71,
+    "NO_PREDRAW_CANONICAL_TERMINAL": 6
+  },
+  "resources": {
+    "n": 120,
+    "committed": 65,
+    "failed": 55,
+    "failure_reasons": {
+      "code=API_LATEST_FAILED": 1,
+      "java.lang.IllegalStateException:R366_DURABLE_LEASE_FENCE_LOST:HISTORY_PREPARE_ENTER": 16,
+      "java.lang.IllegalStateException:R36_HISTORY_BIND_FAILED": 10,
+      "java.lang.IllegalStateException:R366_DURABLE_LEASE_FENCE_LOST:HISTORY_PREPARE_DONE": 12,
+      "android.os.OperationCanceledException:The operation has been canceled.": 5,
+      "": 8,
+      "com.ethk3.novaonepro.RuntimeResourceAuditR927$BudgetExceeded:B05_TIMEOUT": 2,
+      "java.lang.IllegalStateException:R36_CANONICAL_COMMIT_FAILED:WRITE_COORDINATION_FAILED:java.lang.IllegalStateException:F01_WRITE_FAILED": 1
+    }
+  },
+  "stages": {
+    "ACTION_BUILD_FUNNEL_META_RANK": {
+      "wall_ms": {
+        "n": 68,
+        "p50": 267.11,
+        "p95": 5435.799,
+        "max": 10816.115
+      },
+      "cpu_ms": {
+        "n": 68,
+        "p50": 260.602,
+        "p95": 400.552,
+        "max": 2506.026
+      },
+      "wall_gte_2000_cpu_lt_1000": 7
+    },
+    "DB_CANONICAL_WAIT": {
+      "wall_ms": {
+        "n": 65,
+        "p50": 64.815,
+        "p95": 2681.634,
+        "max": 5185.692
+      },
+      "cpu_ms": {
+        "n": 65,
+        "p50": 54.249,
+        "p95": 100.496,
+        "max": 120.591
+      },
+      "wall_gte_2000_cpu_lt_1000": 5
+    },
+    "DECISION_GATE": {
+      "wall_ms": {
+        "n": 66,
+        "p50": 2.803,
+        "p95": 46.978,
+        "max": 6484.203
+      },
+      "cpu_ms": {
+        "n": 66,
+        "p50": 2.327,
+        "p95": 19.848,
+        "max": 234.097
+      },
+      "wall_gte_2000_cpu_lt_1000": 1
+    },
+    "FEATURES_SUB": {
+      "wall_ms": {
+        "n": 69,
+        "p50": 11.73,
+        "p95": 57.838,
+        "max": 162.663
+      },
+      "cpu_ms": {
+        "n": 69,
+        "p50": 10.61,
+        "p95": 53.745,
+        "max": 69.505
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "HISTORY": {
+      "wall_ms": {
+        "n": 96,
+        "p50": 57.293,
+        "p95": 549.291,
+        "max": 624.818
+      },
+      "cpu_ms": {
+        "n": 96,
+        "p50": 32.956,
+        "p95": 90.521,
+        "max": 122.767
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "MODEL_BUNDLE_OPEN_CP3": {
+      "wall_ms": {
+        "n": 69,
+        "p50": 4.19,
+        "p95": 51.451,
+        "max": 306.329
+      },
+      "cpu_ms": {
+        "n": 69,
+        "p50": 2.242,
+        "p95": 10.457,
+        "max": 20.24
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "NUMBER_MODEL": {
+      "wall_ms": {
+        "n": 68,
+        "p50": 221.004,
+        "p95": 292.595,
+        "max": 1965.739
+      },
+      "cpu_ms": {
+        "n": 68,
+        "p50": 216.302,
+        "p95": 265.64,
+        "max": 1498.795
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "OWNER_DISPATCH": {
+      "wall_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "cpu_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "PIT_FREEZE_AND_BIND": {
+      "wall_ms": {
+        "n": 69,
+        "p50": 27.88,
+        "p95": 219.274,
+        "max": 5456.242
+      },
+      "cpu_ms": {
+        "n": 69,
+        "p50": 14.675,
+        "p95": 74.696,
+        "max": 496.414
+      },
+      "wall_gte_2000_cpu_lt_1000": 1
+    },
+    "PRE_HISTORY_METADATA": {
+      "wall_ms": {
+        "n": 101,
+        "p50": 60.773,
+        "p95": 5338.151,
+        "max": 5673.797
+      },
+      "cpu_ms": {
+        "n": 101,
+        "p50": 15.907,
+        "p95": 127.937,
+        "max": 463.292
+      },
+      "wall_gte_2000_cpu_lt_1000": 11
+    },
+    "R36_COMPUTE": {
+      "wall_ms": {
+        "n": 68,
+        "p50": 6.537,
+        "p95": 31.695,
+        "max": 79.37
+      },
+      "cpu_ms": {
+        "n": 68,
+        "p50": 6.257,
+        "p95": 23.58,
+        "max": 32.155
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "REQUEST_BEFORE_OWNER": {
+      "wall_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "cpu_ms": {
+        "n": 0,
+        "p50": null,
+        "p95": null,
+        "max": null
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "SELECTION_POLICY": {
+      "wall_ms": {
+        "n": 68,
+        "p50": 455.805,
+        "p95": 5250.885,
+        "max": 9729.57
+      },
+      "cpu_ms": {
+        "n": 68,
+        "p50": 418.103,
+        "p95": 796.093,
+        "max": 3986.849
+      },
+      "wall_gte_2000_cpu_lt_1000": 4
+    },
+    "SNAPSHOT_STREAM": {
+      "wall_ms": {
+        "n": 66,
+        "p50": 152.241,
+        "p95": 212.528,
+        "max": 565.716
+      },
+      "cpu_ms": {
+        "n": 66,
+        "p50": 150.434,
+        "p95": 196.286,
+        "max": 245.84
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    },
+    "STATE_SUB": {
+      "wall_ms": {
+        "n": 69,
+        "p50": 9.074,
+        "p95": 55.667,
+        "max": 252.091
+      },
+      "cpu_ms": {
+        "n": 69,
+        "p50": 8.364,
+        "p95": 49.31,
+        "max": 72.217
+      },
+      "wall_gte_2000_cpu_lt_1000": 0
+    }
+  },
+  "sources": {
+    "report-text-587f8446edea15718ed9e9499d91a277ae887410a5540daa8429b12c6b7e2147.txt": "587f8446edea15718ed9e9499d91a277ae887410a5540daa8429b12c6b7e2147",
+    "report-text-1640e2c373eaace43a42ab4a889a248c62702ec6e73fd326149054210290abc5.txt": "1640e2c373eaace43a42ab4a889a248c62702ec6e73fd326149054210290abc5",
+    "DIAGNOSTIC_SCOPE.json": "ab6acaa1fd423fab5daca97fe61643ec356789938c23f8efa88661608e3dc0fc"
+  }
+}

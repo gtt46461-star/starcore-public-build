@@ -1,0 +1,2053 @@
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/R903_RELEASE_NOTES.md ./R903_RELEASE_NOTES.md
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/R903_RELEASE_NOTES.md	1969-12-31 19:00:00.000000000 -0500
++++ ./R903_RELEASE_NOTES.md	2026-08-26 10:55:46.787234392 -0400
+@@ -0,0 +1,58 @@
++# STARCORE_TIANSHU V57.16.3-R4.0.3-903 升级说明
++
++## 本次定位的根因
++
++检测报告不是“整个后台没有运行”。业务心跳仍存活，真正阻塞点是结算/OOS 链：430 个赛前冻结样本只有 52 个结算终态，404 个任务位于 `LIVE_RETRY`。R901/R902 看门狗只查询 `BACKLOG`，任务一旦因瞬时写协调失败转为 `LIVE_RETRY`，就会长期得不到执行机会。
++
++研究侧是第二条独立问题：每个目标期只冻结一个候选公式。96 个候选轮转时，数百期后大量候选仍只有 N=1；结算和 1200 动作证据又落后，FTRL 因而保持 `NOT_STARTED`，生命周期无法达到 N=24 的保留/淘汰门槛。
++
++## R903 实施内容
++
++1. 逐期结算闭环
++   - 新增全任务类别的 ready-predraw 排空器，不再只处理 `BACKLOG`。
++   - 查询同时要求：赛前冻结、尚未结算、开奖行有效、任务已到可执行时间。
++   - 看门狗周期由 5 秒缩短到 1 秒；单轮最多 48 个任务、最多占用 1200ms，避免垄断数据库写入。
++   - 数据库锁、写协调失败、事务失败、超时/OOM 等瞬时错误最多重试 50 次，最长退避 15 秒；确定性合同错误仍按原门槛终止，防止无限重试坏数据。
++
++2. 研究结算和深度学习闭环
++   - 研究动作标签/FTRL 侧路从每轮一个目标期改为最多 4 个目标期、1200ms 有界批处理。
++   - 每个未来目标期从冻结 1 个候选改为最多冻结 8 个候选、600ms 有界批处理。
++   - 同一候选/同一期增加排除查询，避免 canonical 重放时重复占用批次。
++   - Production canonical、SettlementEngine、REAL 授权边界均未改变；研究失败仍不能反向使正式预测失败。
++
++3. 真正的结构级策略创造
++   - 新增 `ResearchNovelFormulaSynthesizerR903`，不是只改权重或扩展“多位置交叉交集”。
++   - 可创造的结构包括：证据分歧惩罚、稳健短板约束、原始概率—排序残差、边界/熵比、互补证据交互。
++   - 初始工厂每次最多生成 20 个结构候选；生命周期释放容量后，结构创造与连续变异共同补位。
++   - 所有公式只运行在受限 AST/DSL 中，禁止实际开奖结果、开奖后字段、文件、网络、反射和 REAL 授权。
++   - “创造”不等于“已证明”。每个候选仍必须经过未来期冻结 OOS；N<12 孵化，N>=12 观察，N>=24 才允许按 Wilson 区间保留或淘汰。
++
++4. 方法族级创造（不是改参数）
++   - 新增 `ResearchMethodGraphSynthesizerR903`，按“数据表征 × 学习器 × 校准器 × 风险否决 × 证伪协议”组合创造完整方法图。
++   - 当前会产生十个本质不同的方法族：贝叶斯马尔可夫状态转移、在线 Hoeffding 随机森林、梯度树、因果 TCN/GRU 时序神经网络、排列图神经网络、相似状态检索、贝叶斯变点、跨家族混合专家，以及按本次失败层/数据哈希新命名并新组合的 `NOVA_RESIDUAL_TRANSPORT_*`、`NOVA_MOTIF_COMPOSER_*`。
++   - 两个 `NOVA_*` 不是给旧算法换名：前者使用双时间尺度失误残差场、位置迁移传输和守恒镜像更新；后者使用带类型的因果形态语法、反事实信用分配和复杂度约束 bandit。它们仍必须被编译、训练和未来验证，名字本身不构成效果证明。
++   - 每个方法图都写明 1200 动作口径、扩展式 walk-forward、按目标期分组、禁止开奖后特征、Wilson/Brier/ECE/覆盖率/延迟指标和明确淘汰条件，不允许只保存一个“神经网络”名字。
++   - 这些属于待训练方法资产，默认 `runtime_executable=false`。只有生成冻结 artifact、通过 PIT/泄漏检查并积累未来 OOS 后，才可进入 SHADOW 挑战；不能用未训练蓝图冒充实盘高胜率算法。
++
++5. 唯一 SHADOW 主链统筹
++   - 新增 `ResearchMainlineGovernorR903`，接在正式 1200 动作生成之后、canonical 冻结之前；它是唯一允许已证明 Research 公式影响下一期 SHADOW 排序的位置。
++   - 默认完全保留原 V51 ranker。候选必须同时满足：至少 120 个更早未来期样本、`KEEP_ACTIVE_R900`、按最多 96 个候选做同时比较校正后的置信下界不低于 K3 随机基线 30%、Brier 不高于 0.21、最近与此前两个 30 样本块均不低于 30%且漂移不超过 12%。
++   - 通过后，候选对同一期 1200 动作重新评分并产生唯一 Rank1；随后仍经过原稳定性、预测性、校准、DecisionGate、canonical 和结算链。没有第二条结算链，也不允许开奖后重算。
++   - 退化、证据不足、公式损坏或任何执行异常均自动回退原 ranker。由于本版仍 `SHADOW_ONLY` 且 `REAL_BET_HARD_DISABLED`，统筹层只能影响研究/影子出号，不能授权真实下注。
++   - 动态迭代目标是提高未来 OOS 的稳定性与质量，但不写入“必然越来越高”或“保证 70%–80%”的伪合同；异常高胜率必须先过泄漏、时间块和校准审计。
++
++6. 原因与风险 UI
++   - “为什么中 / 为什么不中 / 为什么不出手”由一小段字符改为四张完整证据卡：命中反哺、未中反哺、未出手硬门、逐期结算覆盖。
++   - 命中/未中卡显示同一期冻结的原始动作概率、Rank、RankScore、第三边界、动作稳定性、号码熵风险、窗口共识、跨位支持。
++   - `原始动作K3概率`明确标注“未校准”；没有冻结证据时显示 `N/A（冻结字段缺失）`，不再留空，也不伪造成 0。
++   - 运行真值新增结算覆盖率、全类别本轮排空数、每期候选冻结数、研究批结算数和结构创造算子。
++
++## 不变的安全合同
++
++- applicationId：`com.ethk3.novaonepro`
++- 数据库版本：36，不清库、不改表身份
++- 游戏：`Binance1-PK10`
++- `SHADOW_ONLY=true`
++- `MODEL_PROVEN=false`
++- `REAL_BET_HARD_DISABLED=true`
++- 单位置固定 K3；未引入 K4、多位置 REAL、追损、倍投或频率债务
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/R903_SIGNING_STATUS.md ./R903_SIGNING_STATUS.md
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/R903_SIGNING_STATUS.md	1969-12-31 19:00:00.000000000 -0500
++++ ./R903_SIGNING_STATUS.md	2026-08-26 11:02:34.694281447 -0400
+@@ -0,0 +1,16 @@
++# R903 覆盖安装签名状态
++
++R903 发布 APK 已使用原 STARCORE V57 发布私钥签名，并与 R902 基包完成证书连续性比较。
++
++- package：`com.ethk3.novaonepro`
++- versionCode：`577200903`
++- versionName：`V57.16.3-R4.0.3-903`
++- APK SHA-256：`7869d9bac682fe1fe8803f389608000f69552a5eff2600e5c842f618f22aee8d`
++- 新 APK 证书 SHA-256：`ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f`
++- R902 基包证书 SHA-256：`ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f`
++- v1/v2/v3 验签：PASS
++- ZIP 完整性：PASS
++- 结论：`SIGNATURE_CONTINUITY=PASS_OVERWRITE_INSTALL`
++
++发布私钥和口令属于高敏感签名资产，没有放进分发总包；总包中的 APK 已完成签名，可直接覆盖安装。后续重新构建仍需原签名材料，`scripts/r903_build_release.sh` 会强制比较证书，不一致就失败。
++
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/R903_VALIDATION_REPORT.md ./R903_VALIDATION_REPORT.md
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/R903_VALIDATION_REPORT.md	1969-12-31 19:00:00.000000000 -0500
++++ ./R903_VALIDATION_REPORT.md	2026-08-26 11:02:35.730309569 -0400
+@@ -0,0 +1,42 @@
++# R903 自检报告
++
++## 已完成的自动检查
++
++- 全量 Java 17 编译：PASS（475 个应用 Java 源文件，相关源码完整进入 D8）。
++- R903 主机不变量测试：PASS。
++  - 结构生成 20 个，唯一 20 个。
++  - 同一输入逐项可复现。
++  - 分歧、比率、交互三类结构均实际生成并通过 DSL 解析。
++  - 十个方法族均实际生成；除马尔可夫、在线森林、时序神经网络、排列图网络、混合专家外，还包含按失败层与数据哈希派生的两个 `NOVA_*` 新机制图；每个方法图都含 PIT 协议、证伪条件和 REAL 禁止边界。
++  - 已证明候选接入唯一 SHADOW 主链的统筹点已接线；N、Wilson、Brier、相邻时间块稳定性、目标期 PIT 边界和失败回退均有硬门。
++  - SHADOW/REAL 硬边界保持不变。
++- R903 行为门禁：PASS。
++  - 全类别结算查询已接入每秒看门狗。
++  - `PENDING`、`RETRY_WAIT` 和过期 `RUNNING` 均有执行路径。
++  - 瞬时失败与确定性失败使用不同重试上限。
++  - 每期多候选冻结、同一期去重、研究批结算、结构级创造均已接线。
++  - 丰富原因卡、未校准概率标签、缺失风险字段显式 N/A 均已接线。
++- D8 release dex：PASS。
++- APK 资源重建、zipalign、ZIP 完整性：PASS。
++- APK 身份：PASS。
++  - package=`com.ethk3.novaonepro`
++  - versionCode=`577200903`
++  - versionName=`V57.16.3-R4.0.3-903`
++  - minSdk=21，targetSdk=28
++- 已签名发布 APK SHA-256：`7869d9bac682fe1fe8803f389608000f69552a5eff2600e5c842f618f22aee8d`
++- R903 与 R902 证书 SHA-256 均为：`ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f`。
++- APK v1/v2/v3 验签、证书连续性和覆盖安装门禁：PASS。
++
++## 仍需真机验证的动态结果
++
++静态检查和构建不能伪装成实盘运行结果。安装后应以同一数据库观察：
++
++1. `结算可立即处理的冻结SHADOW` 持续下降；新目标期在开奖进入本地库后得到终态。
++2. `结算覆盖率=已结算/赛前冻结` 持续上升；待结算不再长期积压在 `LIVE_RETRY`。
++3. 新目标期 `每期候选冻结数` 正常为 8（实时预算不足时可小于 8，但不能长期固定为 1）。
++4. 候选 `future_n` 持续增长；达到样本门槛后生命周期出现观察、保留、淘汰和结构再生。
++5. 1200 动作证据完成后 FTRL 更新数开始增长；任何模型效果仍只能按未来 OOS 统计，不得提前宣称。
++
++## 覆盖安装签名状态
++
++已使用原 STARCORE V57 发布私钥完成签名，并与 R902 基包逐证书比较一致。总包中的 `Starcore-Tianshu-V57.16.3-R4.0.3-903-release.apk` 可直接覆盖安装。发布私钥未放入分发包。
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/README_R903_FIRST.txt ./README_R903_FIRST.txt
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/README_R903_FIRST.txt	1969-12-31 19:00:00.000000000 -0500
++++ ./README_R903_FIRST.txt	2026-08-26 11:02:35.346299146 -0400
+@@ -0,0 +1,17 @@
++STARCORE_TIANSHU V57.16.3-R4.0.3-903
++
++先看：
++1. R903_RELEASE_NOTES.md：根因、施工内容、方法族创造能力。
++2. R903_VALIDATION_REPORT.md：编译、DEX、APK 身份和门禁结果。
++3. R903_SIGNING_STATUS.md：覆盖安装 APK 的证书连续性、验签和哈希结果。
++4. R902_TO_R903_FULL.patch：相对原 R902 源码的完整变更审计。
++
++APK/Starcore-Tianshu-V57.16.3-R4.0.3-903-release.apk
++已使用原 STARCORE V57 发布证书签名，可直接覆盖安装 R902。
++
++新旧 APK 证书 SHA-256 均为：
++ae7e1b4a5a71f1f299d4a0b2472c6a36513873514e78190d42d6cfba3340116f
++验签和覆盖安装连续性检查均已通过。
++
++本版仍是 SHADOW_ONLY / MODEL_PROVEN=false / REAL_BET_HARD_DISABLED=true。
++任何新公式、马尔可夫、森林或神经网络方法图都必须先经未来 OOS 证明，不能把蓝图或小样本冒充高胜率资产。
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/build.gradle ./app/build.gradle
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/build.gradle	2026-08-26 00:36:01.000000000 -0400
++++ ./app/build.gradle	2026-08-26 10:34:49.392994879 -0400
+@@ -34,7 +34,7 @@
+         vectorDrawables.useSupportLibrary = false
+         buildConfigField 'String', 'DUOQU_API_KEY_A', '"' + escapedApiKeyA + '"'
+         buildConfigField 'String', 'DUOQU_API_KEY_B', '"' + escapedApiKeyB + '"'
+-        setProperty('archivesBaseName', 'Starcore-Tianshu-' + requiredIdentity('versionName') + '-R901-Settlement-UI-Closure')
++        setProperty('archivesBaseName', 'Starcore-Tianshu-' + requiredIdentity('versionName') + '-R903-Settlement-Research-Creation')
+     }
+     buildFeatures { buildConfig true }
+     buildTypes {
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/AppConfig.java ./app/src/main/java/com/ethk3/novaonepro/AppConfig.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/AppConfig.java	2026-08-26 02:44:50.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/AppConfig.java	2026-08-26 10:34:22.492219479 -0400
+@@ -130,7 +130,7 @@
+      * R3.6 runtime-closure contract. R3.5 constants remain only for reading legacy rows; every
+      * active runtime writer uses the R3.6 contract.
+      */
+-    public static final String R36_RUNTIME_REPAIR_VERSION = "V57.16.2-R4.0.2-902";
++    public static final String R36_RUNTIME_REPAIR_VERSION = "V57.16.3-R4.0.3-903";
+     /** Same-user-version additive extension; deliberately not represented by PRAGMA user_version. */
+     public static final int R811_SCHEMA_REVISION = 1;
+     /** R815 is a same-DB-version additive migration. It is deliberately separate from user_version. */
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java ./app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java	2026-08-26 02:40:01.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java	2026-08-26 10:30:38.554107095 -0400
+@@ -110,7 +110,7 @@
+     private static final long ANALYSIS_RETRY_DELAY_MS = 260L;
+     private static final long ANALYSIS_WATCHDOG_INTERVAL_MS = 1000L;
+     private static final long R816_ANALYSIS_RECONCILE_INTERVAL_MS = 3000L;
+-    private static final long R816_SETTLEMENT_WATCHDOG_INTERVAL_MS = 5000L;
++    private static final long R816_SETTLEMENT_WATCHDOG_INTERVAL_MS = 1000L;
+     private static final long R816_PRODUCTION_MAINTENANCE_INTERVAL_MS = 10000L;
+     private static final long R816_RESEARCH_TICK_INTERVAL_MS = 5000L;
+     private static final long R817_RESEARCH_SCHEMA_INTERVAL_MS = 30000L;
+@@ -3427,7 +3427,7 @@
+                                             >= 96L * RuntimeMemoryGuardR811.MIB
+                                     && store.coordinatorR36().isR811ResearchSchemaReady()) {
+                                 ResearchSettlementSidecarR811.Result researchSidecar =
+-                                        ResearchSettlementSidecarR811.drain(store);
++                                        ResearchSettlementSidecarR811.drainBatch(store, 4, 1200L);
+                                 store.setState(
+                                         "r902_research_settlement_status", researchSidecar.status);
+                                 store.setState(
+@@ -4263,7 +4263,8 @@
+                     // R901 watchdog correctness lane: historical frozen targets must keep
+                     // settling even when realtime analysis leaves almost no quiet window.
+                     int seededR901 = SettlementTaskStoreR36.seedHistorical(store, 64);
+-                    int drainedR901 = SettlementCoordinatorR815.drainPredrawBacklog(store, 32);
++                    int drainedR901 =
++                            SettlementCoordinatorR815.drainReadyPredraw(store, 48, 1200L);
+                     store.setState("r901_watchdog_settlement_seeded", String.valueOf(seededR901));
+                     store.setState("r901_watchdog_settlement_drained", String.valueOf(drainedR901));
+                     store.setState("r901_watchdog_settlement_at", String.valueOf(now));
+@@ -4318,7 +4319,7 @@
+                         // RealtimePressure/BudgetGovernor immediately yields before heavy work.
+                         if (productionIdle) {
+                             ResearchSettlementSidecarR811.Result sidecar =
+-                                    ResearchSettlementSidecarR811.drain(store);
++                                    ResearchSettlementSidecarR811.drainBatch(store, 4, 1200L);
+                             store.setState("r811_research_sidecar_status", sidecar.status);
+                             store.setState(
+                                     "r811_research_sidecar_at",
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java ./app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/BuildIdentity.java	2026-08-26 10:34:22.864229816 -0400
+@@ -302,7 +302,7 @@
+         checks.add(
+                 new CheckResult(
+                         "R36_RUNTIME",
+-                        AppConfig.R36_RUNTIME_REPAIR_VERSION.equals("V57.16.2-R4.0.2-902"),
++                        AppConfig.R36_RUNTIME_REPAIR_VERSION.equals("V57.16.3-R4.0.3-903"),
+                         AppConfig.R36_RUNTIME_REPAIR_VERSION,
+                         true));
+         checks.add(
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java ./app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/LiveDiagnosticReportEngine.java	2026-08-26 10:34:36.916653156 -0400
+@@ -16,7 +16,7 @@
+  */
+ public final class LiveDiagnosticReportEngine {
+     public static final String OWNER = "B15_LIVE_DIAGNOSTIC_REPORT_AND_COPY_ONLY";
+-    public static final String VERSION = "V57.16.2-R4.0.2-902-B15-FULL-REPORT-V15";
++    public static final String VERSION = "V57.16.3-R4.0.3-903-B15-FULL-REPORT-V16";
+     public static final String HASH_ALGORITHM = "SHA-256";
+     public static final String END_MARKER = "【END_OF_LIVE_DIAGNOSTIC_REPORT】";
+     public static final int DEFAULT_SUMMARY_MAX = 12000;
+@@ -1940,7 +1940,7 @@
+             String chapterRegion,
+             String json) {
+         StringBuilder out = new StringBuilder(chapterRegion.length() + json.length() + 32768);
+-        out.append("STARCORE_TIANSHU V57.16.2-R4.0.2-902 | B14-B15 FULL DIAGNOSTIC EVIDENCE\n")
++        out.append("STARCORE_TIANSHU V57.16.3-R4.0.3-903 | B14-B15 FULL DIAGNOSTIC EVIDENCE\n")
+                 .append("ReportVersion=")
+                 .append(VERSION)
+                 .append("\nGeneratedAt=")
+@@ -2018,7 +2018,7 @@
+             String fullHash,
+             ReportRequest request) {
+         StringBuilder out = new StringBuilder(16384);
+-        out.append("【星核天枢V57.16.2-R4.0.2-902完整诊断摘要】\n")
++        out.append("【星核天枢V57.16.3-R4.0.3-903完整诊断摘要】\n")
+                 .append("Overall=")
+                 .append(bundle.overallStatus.name())
+                 .append("|Primary=")
+@@ -2149,7 +2149,7 @@
+             return new CopyPayload(
+                     mode,
+                     CopyStatus.EXACT_FULL,
+-                    "星核天枢V57.16.2-R4.0.2-902完整检测报告",
++                    "星核天枢V57.16.3-R4.0.3-903完整检测报告",
+                     fullText,
+                     fullHash,
+                     Collections.<RedactionEvent>emptyList(),
+@@ -2160,7 +2160,7 @@
+             return new CopyPayload(
+                     mode,
+                     redacted.changed ? CopyStatus.REDACTED_FULL : CopyStatus.EXACT_FULL,
+-                    "星核天枢V57.16.2-R4.0.2-902完整检测报告",
++                    "星核天枢V57.16.3-R4.0.3-903完整检测报告",
+                     redacted.text,
+                     fullHash,
+                     redacted.events,
+@@ -2169,7 +2169,7 @@
+         return new CopyPayload(
+                 mode,
+                 CopyStatus.EXACT_FULL,
+-                "星核天枢V57.16.2-R4.0.2-902完整检测报告",
++                "星核天枢V57.16.3-R4.0.3-903完整检测报告",
+                 fullText,
+                 fullHash,
+                 Collections.<RedactionEvent>emptyList(),
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java ./app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java	2026-08-26 10:34:23.176238486 -0400
+@@ -22,7 +22,7 @@
+  */
+ public final class LiveResearchDiagnosisOrchestrator {
+     public static final String OWNER = "B14_B15_RESEARCH_DIAGNOSIS_ORCHESTRATOR_ONLY";
+-    public static final String VERSION = "V57.16.2-R4.0.2-902-B14-DIAGNOSIS-DAG-V15";
++    public static final String VERSION = "V57.16.3-R4.0.3-903-B14-DIAGNOSIS-DAG-V16";
+     public static final String GAME_CODE = "Binance1-PK10";
+     public static final String MODE = "READ_ONLY_SHADOW_DIAGNOSIS";
+ 
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/MainActivity.java ./app/src/main/java/com/ethk3/novaonepro/MainActivity.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/MainActivity.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/MainActivity.java	2026-08-26 10:34:22.952232261 -0400
+@@ -3177,15 +3177,61 @@
+                 snapshot.whyTruthText,
+                 stateOf(snapshot, "last_decision_summary"),
+                 "等待赛前冻结预测与精确结算真值");
+-        ensureSinglePreview(
+-                listReasons,
+-                "为什么中 / 为什么不中 / 为什么不出手",
+-                limitText(detail, 1200),
+-                new View.OnClickListener() {
+-                    public void onClick(View v) {
+-                        DiagnosisActivity.openState(MainActivity.this, "V50完整诊断");
+-                    }
+-                });
++        renderWhyTruthCardsR903(detail, snapshot);
++    }
++
++    /** R903 presents the three independent truth questions as full evidence cards. */
++    private void renderWhyTruthCardsR903(String text, LightSnapshot snapshot) {
++        if (listReasons == null) return;
++        listReasons.removeAllViews();
++        String source = firstNonEmpty(text, "等待赛前冻结预测与精确结算真值");
++        String[] markers =
++                new String[] {"为什么中：", "为什么不中：", "为什么不出手：", "结算真值："};
++        String[] titles =
++                new String[] {"命中证据反哺", "未中原因反哺", "未出手硬门", "逐期结算覆盖"};
++        String[] levels =
++                new String[] {
++                    AppConfig.REASON_PASS,
++                    AppConfig.REASON_WARN,
++                    AppConfig.REASON_INFO,
++                    AppConfig.REASON_INFO
++                };
++        int added = 0;
++        for (int i = 0; i < markers.length; i++) {
++            int start = source.indexOf(markers[i]);
++            if (start < 0) continue;
++            start += markers[i].length();
++            int end = source.length();
++            for (int j = 0; j < markers.length; j++) {
++                int next = source.indexOf(markers[j], start);
++                if (next >= 0 && next < end) end = next;
++            }
++            String body = source.substring(start, end).trim();
++            if (i == 2 && snapshot != null && snapshot.decision != null) {
++                String evidence = buildV20EvidenceUiText(snapshot.decision, snapshot, 520);
++                if (evidence.length() > 0) body = body + "\n\n赛前冻结证据：\n" + evidence;
++            }
++            Models.ReasonItem item = new Models.ReasonItem();
++            item.level = levels[i];
++            item.code = "R903_WHY_TRUTH_" + i;
++            item.title = titles[i];
++            item.detail = limitText(body, 1800);
++            item.value = 0.0d;
++            item.passed = i == 1 ? 0 : 1;
++            item.createdAt = System.currentTimeMillis();
++            addReasonRow(item, snapshot == null ? null : snapshot.state, snapshot);
++            added++;
++        }
++        if (added == 0) {
++            Models.ReasonItem fallback = new Models.ReasonItem();
++            fallback.level = AppConfig.REASON_INFO;
++            fallback.code = "R903_WHY_TRUTH_WAIT";
++            fallback.title = "因果证据等待区";
++            fallback.detail = limitText(source, 1800);
++            fallback.passed = 1;
++            fallback.createdAt = System.currentTimeMillis();
++            addReasonRow(fallback, snapshot == null ? null : snapshot.state, snapshot);
++        }
+     }
+ 
+     private void renderHeavySnapshot(HeavySnapshot snapshot) {
+@@ -5014,10 +5060,10 @@
+ 
+         if ("R900_V51_SELECTED_EVIDENCE".equals(d.shapeKey)) {
+             setText(txtStateMode, "状态：V51赛前证据已冻结");
+-            setText(txtTrendLife, d.trendLife >= 0 ? "动作稳定性：" + UiFormatter.probability(d.trendLife) : "动作稳定性：等待物化");
+-            setText(txtDriftRisk, d.driftRisk >= 0 ? "号码熵风险：" + UiFormatter.probability(d.driftRisk) : "号码熵风险：等待物化");
++            setText(txtTrendLife, d.trendLife >= 0 ? "动作稳定性：" + UiFormatter.probability(d.trendLife) : "动作稳定性：N/A（冻结字段缺失）");
++            setText(txtDriftRisk, d.driftRisk >= 0 ? "号码熵风险：" + UiFormatter.probability(d.driftRisk) : "号码熵风险：N/A（冻结字段缺失）");
+             setText(txtBreakDepth, "第三边界：" + signedUiR900(d.championGap));
+-            setText(txtRecoveryScore, d.recoveryScore >= 0 ? "跨位支持：" + UiFormatter.probability(d.recoveryScore) : "跨位支持：等待物化");
++            setText(txtRecoveryScore, d.recoveryScore >= 0 ? "跨位支持：" + UiFormatter.probability(d.recoveryScore) : "跨位支持：N/A（冻结字段缺失）");
+             setTextColor(txtStateMode, R.color.colorWin);
+             setTextColor(txtDriftRisk, R.color.colorTextMain);
+             setTextColor(txtBreakDepth, d.championGap < 0 ? R.color.colorMiss : R.color.colorTextMain);
+@@ -5075,7 +5121,7 @@
+         }
+ 
+         if ("R900_V51_SELECTED_EVIDENCE".equals(d.shapeKey)) {
+-            setText(txtSimilarHitRate, d.rawP >= 0 ? "原始K3概率：" + UiFormatter.probability(d.rawP) : "原始K3概率：N/A");
++            setText(txtSimilarHitRate, d.rawP >= 0 ? "原始动作K3概率（未校准）：" + UiFormatter.probability(d.rawP) : "原始动作K3概率（未校准）：N/A（冻结字段缺失）");
+             setText(txtEffectiveSample, "同一期动作Rank：" + (d.effectiveSample > 0 ? d.effectiveSample : 0) + "/1200");
+             setText(txtComboHitRate, d.comboGap >= 0 ? "窗口共识：" + UiFormatter.probability(d.comboGap) : "窗口共识：N/A");
+             setText(txtChampionGap, "第三边界：" + signedUiR900(d.championGap));
+@@ -5506,15 +5552,7 @@
+                                 snapshot.diagnosisSummary,
+                                 stateOf(snapshot.light, "last_decision_summary"),
+                                 "尚无可结算原因样本");
+-        ensureSinglePreview(
+-                listReasons,
+-                "为什么中 / 为什么不中 / 为什么不出手",
+-                limitText(text, 1200),
+-                new View.OnClickListener() {
+-                    public void onClick(View v) {
+-                        DiagnosisActivity.openState(MainActivity.this, "V50完整诊断");
+-                    }
+-                });
++        renderWhyTruthCardsR903(text, snapshot == null ? null : snapshot.light);
+     }
+ 
+     private void renderV49DecisionPreview(HeavySnapshot snapshot) {
+@@ -6892,7 +6930,7 @@
+             return;
+         }
+         diagnosisClipboardChunkIndex = 0;
+-        copyTextToClipboard("星核天枢V57.16.2-R4.0.2-902完整检测报告", value);
++        copyTextToClipboard("星核天枢V57.16.3-R4.0.3-903完整检测报告", value);
+         toast("完整检测报告已一次复制，共" + value.length() + "字；正文与报告SHA256完全一致");
+     }
+ 
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ReleaseIdentityR817.java ./app/src/main/java/com/ethk3/novaonepro/ReleaseIdentityR817.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ReleaseIdentityR817.java	2026-08-26 02:44:50.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/ReleaseIdentityR817.java	2026-08-26 10:34:22.676224592 -0400
+@@ -3,8 +3,8 @@
+ /** Immutable R819 release identity (R817 class name retained for binary/source compatibility) shared by build logic, runtime checks and delivery gates. */
+ public final class ReleaseIdentityR817 {
+     public static final String APPLICATION_ID = "com.ethk3.novaonepro";
+-    public static final String VERSION_NAME = "V57.16.2-R4.0.2-902";
+-    public static final int VERSION_CODE = 577200902;
++    public static final String VERSION_NAME = "V57.16.3-R4.0.3-903";
++    public static final int VERSION_CODE = 577200903;
+     public static final int COMPILE_SDK = 36;
+     public static final int MIN_SDK = 21;
+     public static final int TARGET_SDK = 28;
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionLifecycleR900.java ./app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionLifecycleR900.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionLifecycleR900.java	2026-08-25 23:52:53.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionLifecycleR900.java	2026-08-26 10:36:44.848169888 -0400
+@@ -161,17 +161,30 @@
+         if (parentSpecs.isEmpty()) return;
+         int create = Math.min(NEW_PER_OOS, ACTIVE_POOL_MAX - active);
+         long root = ResearchDeterministicRngR811.seed("R900|" + latest + '|' + active);
++        java.util.List<ResearchStrategyDslEngine.Node> novel =
++                ResearchNovelFormulaSynthesizerR903.create(
++                        finding.failureLayer, finding.hypothesis, dataset.datasetHash, create);
+         for (int i=0; i<create; i++) {
+             String parent = parentSpecs.get(i % parentSpecs.size());
+             ResearchStrategyDslEngine.Node node;
+-            try { node = ResearchStrategyDslEngine.parse(parent); }
++            String operator;
++            try {
++                if ((i & 1) == 0 && i < novel.size()) {
++                    node = novel.get(i);
++                    operator = "R903_STRUCTURAL_SYNTHESIS";
++                } else {
++                    node = ResearchStrategyDslEngine.mutate(
++                            ResearchStrategyDslEngine.parse(parent), root + i);
++                    operator = "R900_CONTINUOUS_MUTATION";
++                }
++            }
+             catch (Throwable bad) { continue; }
+-            String spec = ResearchStrategyDslEngine.canonical(ResearchStrategyDslEngine.mutate(node, root + i));
++            String spec = ResearchStrategyDslEngine.canonical(node);
+             StrategyChallengerFactoryEngine.CandidateSpec candidate =
+                     StrategyChallengerFactoryEngine.fromHypothesis(finding, dataset,
+                             StrategyChallengerFactoryEngine.CandidateType.FORMULA, spec, true, root + i);
+             if (scalarInt(db, "SELECT COUNT(*) FROM v57_research_candidate_r811 WHERE candidate_id='" + sql(candidate.candidateId) + "'") > 0) continue;
+-            persistCandidate(db, candidate, latest);
++            persistCandidate(db, candidate, latest, operator);
+             summary.generated++;
+         }
+         ContentValues state = new ContentValues();
+@@ -180,7 +193,11 @@
+         db.insertWithOnConflict(DbHelper.TABLE_APP_STATE, null, state, SQLiteDatabase.CONFLICT_REPLACE);
+     }
+ 
+-    private static void persistCandidate(SQLiteDatabase db, StrategyChallengerFactoryEngine.CandidateSpec c, String runId) {
++    private static void persistCandidate(
++            SQLiteDatabase db,
++            StrategyChallengerFactoryEngine.CandidateSpec c,
++            String runId,
++            String geneticOperator) {
+         long now = TimeSourceR811.wallNowMs();
+         CandidateCodeSynthesisEngine.Bundle bundle = CandidateCodeSynthesisEngine.synthesize(c);
+         ContentValues v = new ContentValues();
+@@ -190,7 +207,7 @@
+         v.put("dataset_hash", c.datasetHash); v.put("formula_ast", c.canonicalSpec);
+         v.put("changed_symbols", c.changedSymbols); v.put("forbidden_symbols", c.forbiddenSymbols);
+         v.put("seed", c.seed); v.put("complexity", c.complexity); v.put("code_hash", bundle.bundleHash);
+-        v.put("generation", c.generation + 1); v.put("genetic_operator", "R900_CONTINUOUS_MUTATION");
++        v.put("generation", c.generation + 1); v.put("genetic_operator", safe(geneticOperator));
+         v.put("parent_formula_ids", c.parentFormulaIds); v.put("feature_dependencies", c.featureDependencies);
+         v.put("artifact_hash", c.candidateHash); v.put("runtime_executable", 1);
+         v.put("status", "EXPLORATORY_COLLECT_ONLY"); v.put("created_at", now); v.put("updated_at", now);
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java ./app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java	1969-12-31 19:00:00.000000000 -0500
++++ ./app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java	2026-08-26 10:55:44.083160701 -0400
+@@ -0,0 +1,278 @@
++package com.ethk3.novaonepro;
++
++import android.database.Cursor;
++import java.util.Arrays;
++import java.util.Comparator;
++
++/**
++ * Evidence governor that may re-rank the unique future SHADOW action surface.
++ *
++ * <p>It is deliberately much stricter than the Research keep/prune lifecycle. A formula needs at
++ * least 120 earlier future-live outcomes, Wilson95 lower bound at/above the random K3 baseline,
++ * useful probability error, and stable adjacent time blocks. Failed or absent evidence preserves
++ * the frozen Production ranker exactly. REAL authority is impossible in this class.
++ */
++public final class ResearchMainlineGovernorR903 {
++    public static final int MIN_FUTURE_N = 120;
++    public static final double MIN_WILSON_LOWER = 0.30d;
++    public static final double MAX_BRIER = 0.21d;
++    public static final double MAX_BLOCK_DRIFT = 0.12d;
++    /** Approximate two-sided family-wise correction for a pool of at most 96 candidates. */
++    public static final double SIMULTANEOUS_Z = 3.48d;
++    public static final boolean MAY_AUTHORIZE_REAL = false;
++
++    private ResearchMainlineGovernorR903() {}
++
++    public static Result govern(
++            DbStore store,
++            String targetIssue,
++            V51Models.PositionAction[] defaultRanked) {
++        if (store == null
++                || !TargetIssueResolver.isValid(targetIssue)
++                || defaultRanked == null
++                || defaultRanked.length != K3ActionSpaceEngine.TOTAL_ACTIONS)
++            return Result.fallback(defaultRanked, "INPUT_INVALID");
++        if (!V51BuildManifest.SHADOW_ONLY
++                || !V51BuildManifest.REAL_BET_HARD_DISABLED
++                || AppConfig.R36_REAL_BET_UNLOCK
++                || MAY_AUTHORIZE_REAL)
++            throw new IllegalStateException("R903_MAINLINE_REAL_BOUNDARY");
++        Candidate champion = certifiedChampion(store, targetIssue);
++        if (champion == null) return Result.fallback(defaultRanked, "NO_CERTIFIED_CHAMPION");
++        final ResearchStrategyDslEngine.Node formula;
++        try {
++            formula = ResearchStrategyDslEngine.parse(champion.formula);
++        } catch (Throwable invalid) {
++            return Result.fallback(defaultRanked, "CERTIFIED_FORMULA_INVALID");
++        }
++        try {
++            final double[] score = new double[defaultRanked.length];
++            Integer[] order = new Integer[defaultRanked.length];
++            FeatureView features = new FeatureView();
++            for (int i = 0; i < defaultRanked.length; i++) {
++                V51Models.PositionAction action = defaultRanked[i];
++                if (action == null) return Result.fallback(defaultRanked, "ACTION_NULL");
++                features.bind(action);
++                score[i] = finite(ResearchStrategyDslEngine.evaluate(formula, features));
++                order[i] = Integer.valueOf(i);
++            }
++            Arrays.sort(
++                    order,
++                    new Comparator<Integer>() {
++                        @Override
++                        public int compare(Integer left, Integer right) {
++                            int a = left.intValue(), b = right.intValue();
++                            int byScore = Double.compare(score[b], score[a]);
++                            if (byScore != 0) return byScore;
++                            int byOldRank = Integer.compare(defaultRanked[a].rank, defaultRanked[b].rank);
++                            return byOldRank != 0 ? byOldRank : Integer.compare(a, b);
++                        }
++                    });
++            V51Models.PositionAction[] reranked =
++                    new V51Models.PositionAction[defaultRanked.length];
++            for (int rank = 0; rank < order.length; rank++) {
++                int index = order[rank].intValue();
++                V51Models.PositionAction action = defaultRanked[index];
++                double margin = rank == 0 && order.length > 1
++                        ? score[index] - score[order[1].intValue()]
++                        : 0.0d;
++                reranked[index] =
++                        new V51Models.PositionAction(
++                                action.position,
++                                action.n1,
++                                action.n2,
++                                action.n3,
++                                action.n4,
++                                action.rawActionP,
++                                score[index],
++                                margin,
++                                action.thirdMargin,
++                                action.entropy,
++                                action.stability,
++                                action.metaFeatures,
++                                action.fingerprint,
++                                rank + 1,
++                                V51ChecksumEngine.sha256(
++                                        action.checksum + "|R903_GOVERNED|" + champion.id + '|'
++                                                + score[index] + '|' + (rank + 1)));
++            }
++            V51Models.PositionAction selected = reranked[order[0].intValue()];
++            return new Result(
++                    true,
++                    reranked,
++                    selected,
++                    "CERTIFIED_SHADOW_CHAMPION",
++                    champion.id,
++                    champion.n,
++                    champion.hitRate,
++                    champion.wilsonLower,
++                    champion.brier);
++        } catch (Throwable failure) {
++            return Result.fallback(
++                    defaultRanked, "GOVERNOR_FAILED_" + failure.getClass().getSimpleName());
++        }
++    }
++
++    private static Candidate certifiedChampion(DbStore store, String targetIssue) {
++        Cursor cursor = null;
++        Candidate best = null;
++        try {
++            cursor =
++                    store.readable()
++                            .rawQuery(
++                                    "SELECT c.candidate_id,c.canonical_spec,COUNT(o.target_issue),"
++                                            + "SUM(o.hit_label),AVG((o.probability-o.hit_label)*"
++                                            + "(o.probability-o.hit_label)),MAX(o.target_issue) FROM "
++                                            + "v57_research_candidate_r811 c JOIN "
++                                            + "v57_research_candidate_outcome_r811 o"
++                                            + " ON o.candidate_id=c.candidate_id"
++                                            + " WHERE c.candidate_type='FORMULA' AND c.runtime_executable=1"
++                                            + " AND c.status='KEEP_ACTIVE_R900' AND o.target_issue<?"
++                                            + " GROUP BY c.candidate_id,c.canonical_spec"
++                                            + " HAVING COUNT(o.target_issue)>=?"
++                                            + " ORDER BY (1.0*SUM(o.hit_label)/COUNT(o.target_issue)) DESC"
++                                            + " LIMIT 12",
++                                    new String[] {
++                                        targetIssue, String.valueOf(MIN_FUTURE_N)
++                                    });
++            while (cursor.moveToNext()) {
++                int n = cursor.getInt(2), hit = cursor.getInt(3);
++                double rate = n <= 0 ? 0.0d : ((double) hit) / n;
++                double lower = wilsonLower(hit, n);
++                double brier = cursor.getDouble(4);
++                String lastIssue = safe(cursor.getString(5));
++                if (lower < MIN_WILSON_LOWER
++                        || brier < 0.0d
++                        || brier > MAX_BRIER
++                        || !TargetIssueResolver.isValid(lastIssue)
++                        || TargetIssueResolver.compare(lastIssue, targetIssue) >= 0
++                        || !stableBlocks(store, safe(cursor.getString(0)), targetIssue)) continue;
++                Candidate current =
++                        new Candidate(
++                                safe(cursor.getString(0)), safe(cursor.getString(1)), n, rate, lower, brier);
++                if (best == null || quality(current) > quality(best)) best = current;
++            }
++            return best;
++        } catch (Throwable ignored) {
++            return null;
++        } finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++    private static boolean stableBlocks(DbStore store, String candidateId, String targetIssue) {
++        Cursor cursor = null;
++        try {
++            cursor =
++                    store.readable()
++                            .rawQuery(
++                                    "SELECT hit_label FROM v57_research_candidate_outcome_r811"
++                                            + " WHERE candidate_id=? AND target_issue<?"
++                                            + " ORDER BY target_issue DESC LIMIT 60",
++                                    new String[] {candidateId, targetIssue});
++            int n = 0, recentHit = 0, priorHit = 0;
++            while (cursor.moveToNext()) {
++                if (n < 30) recentHit += cursor.getInt(0);
++                else priorHit += cursor.getInt(0);
++                n++;
++            }
++            if (n < 60) return false;
++            double recent = recentHit / 30.0d, prior = priorHit / 30.0d;
++            return recent >= 0.30d
++                    && prior >= 0.30d
++                    && Math.abs(recent - prior) <= MAX_BLOCK_DRIFT;
++        } finally {
++            if (cursor != null) cursor.close();
++        }
++    }
++
++    private static double wilsonLower(int hit, int n) {
++        if (n <= 0) return 0.0d;
++        double z = SIMULTANEOUS_Z, p = ((double) hit) / n, z2 = z * z;
++        double denominator = 1.0d + z2 / n;
++        double center = (p + z2 / (2.0d * n)) / denominator;
++        double half = z * Math.sqrt((p * (1.0d - p) + z2 / (4.0d * n)) / n) / denominator;
++        return Math.max(0.0d, center - half);
++    }
++
++    private static double quality(Candidate value) {
++        return value.wilsonLower + 0.10d * value.hitRate - 0.15d * value.brier;
++    }
++
++    private static double meta(double[] values, int index) {
++        return values != null && index >= 0 && index < values.length ? finite(values[index]) : 0.0d;
++    }
++
++    private static double finite(double value) {
++        return Double.isNaN(value) || Double.isInfinite(value) ? 0.0d : value;
++    }
++
++    private static String safe(String value) {
++        return value == null ? "" : value.trim();
++    }
++
++    private static final class FeatureView implements ResearchStrategyDslEngine.FeatureProvider {
++        V51Models.PositionAction action;
++        void bind(V51Models.PositionAction value) { action = value; }
++        public double value(String name) {
++            if (action == null) return 0.0d;
++            if ("rank_score".equals(name)) return action.rankScore;
++            if ("raw_action_p".equals(name)) return action.rawActionP;
++            if ("third_margin".equals(name)) return action.thirdMargin;
++            if ("entropy".equals(name)) return action.entropy;
++            if ("stability".equals(name)) return action.stability;
++            if ("assignment_support".equals(name)) return meta(action.metaFeatures, 15);
++            if ("window_consensus".equals(name)) return meta(action.metaFeatures, 20);
++            return 0.0d;
++        }
++    }
++
++    private static final class Candidate {
++        final String id, formula;
++        final int n;
++        final double hitRate, wilsonLower, brier;
++        Candidate(String id, String formula, int n, double rate, double lower, double brier) {
++            this.id = id; this.formula = formula; this.n = n;
++            hitRate = rate; wilsonLower = lower; this.brier = brier;
++        }
++    }
++
++    public static final class Result {
++        public final boolean applied;
++        public final V51Models.PositionAction[] actions;
++        public final V51Models.PositionAction rankOne;
++        public final String status, candidateId;
++        public final int futureN;
++        public final double hitRate, wilsonLower, brier;
++
++        Result(
++                boolean applied,
++                V51Models.PositionAction[] actions,
++                V51Models.PositionAction rankOne,
++                String status,
++                String candidateId,
++                int futureN,
++                double hitRate,
++                double wilsonLower,
++                double brier) {
++            this.applied = applied;
++            this.actions = actions;
++            this.rankOne = rankOne;
++            this.status = safe(status);
++            this.candidateId = safe(candidateId);
++            this.futureN = Math.max(0, futureN);
++            this.hitRate = hitRate;
++            this.wilsonLower = wilsonLower;
++            this.brier = brier;
++        }
++
++        static Result fallback(V51Models.PositionAction[] actions, String status) {
++            V51Models.PositionAction one = null;
++            if (actions != null) {
++                for (int i = 0; i < actions.length; i++)
++                    if (actions[i] != null && actions[i].rank == 1) { one = actions[i]; break; }
++            }
++            return new Result(false, actions, one, status, "", 0, 0.0d, 0.0d, -1.0d);
++        }
++    }
++}
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java ./app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java	1969-12-31 19:00:00.000000000 -0500
++++ ./app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java	2026-08-26 10:55:19.402489208 -0400
+@@ -0,0 +1,135 @@
++package com.ethk3.novaonepro;
++
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.List;
++
++/**
++ * Creates method-family-level Research plans, not coefficient variants.
++ *
++ * <p>Each blueprint changes the representation, learner and inference contract.  It also carries
++ * a point-in-time training protocol, calibration method, risk veto and falsification rule so a
++ * name such as “random forest” cannot be stored as an empty slogan.  Blueprints require offline
++ * artifact construction and future OOS certification before they can become executable.
++ */
++public final class ResearchMethodGraphSynthesizerR903 {
++    private ResearchMethodGraphSynthesizerR903() {}
++
++    public static List<Blueprint> create(
++            String failureLayer, String hypothesis, String datasetHash, int issueN) {
++        long root =
++                ResearchDeterministicRngR811.seed(
++                        "R903_METHOD_GRAPH|"
++                                + safe(failureLayer)
++                                + '|'
++                                + safe(hypothesis)
++                                + '|'
++                                + safe(datasetHash));
++        ResearchDeterministicRngR811 rng = new ResearchDeterministicRngR811(root);
++        ArrayList<Blueprint> out = new ArrayList<Blueprint>();
++        String protocol =
++                "PIT_PROTOCOL[split=expanding_walk_forward,purge=1_issue,group=target_issue,"
++                        + "action_universe=1200,baseline_k3=0.30,metrics=wilson95+brier+ece+coverage+latency,"
++                        + "min_issue_n=" + Math.max(120, issueN) + ",post_draw_feature_forbidden=true]";
++
++        out.add(blueprint("MARKOV_REGIME",
++                "REPRESENTATION[transition_tensor=number_position+rank_bucket,order=1|2,regime=change_point]",
++                "LEARNER[bayesian_markov=dirichlet_smoothed,backoff=order2_to_order1_to_global]",
++                "CALIBRATION[beta_binomial_by_regime]",
++                "RISK[posterior_entropy+transition_support_min]", protocol, rng));
++        out.add(blueprint("ONLINE_FOREST",
++                "REPRESENTATION[action_tabular=raw_p+rank+third+entropy+stability+consensus+assignment]",
++                "LEARNER[online_hoeffding_forest,trees=" + choose(rng, 24, 32, 48)
++                        + ",subspace=sqrt,split=hoeffding,drift=ADWIN]",
++                "CALIBRATION[online_isotonic_shadow]",
++                "RISK[tree_vote_disagreement+leaf_support_min]", protocol, rng));
++        out.add(blueprint("GRADIENT_TREES",
++                "REPRESENTATION[action_tabular+window_deltas+position_collision]",
++                "LEARNER[hist_gradient_boosting,depth=" + choose(rng, 3, 4, 5)
++                        + ",loss=selection_conditioned_logloss,monotone=stability:+|entropy:-]",
++                "CALIBRATION[temperature_then_isotonic]",
++                "RISK[ensemble_margin+time_block_stability]", protocol, rng));
++        out.add(blueprint("TEMPORAL_NEURAL",
++                "REPRESENTATION[permutation_sequence=120x10,embedding=number+position+relative_rank]",
++                "LEARNER[causal_tcn_gru,width=" + choose(rng, 24, 32, 48)
++                        + ",layers=2,dropout=0.15,loss=permutation_ce+selected_k3_aux]",
++                "CALIBRATION[temperature_validation_only]",
++                "RISK[mc_dropout_disagreement+regime_shift_veto]", protocol, rng));
++        out.add(blueprint("PERMUTATION_GRAPH",
++                "REPRESENTATION[graph_nodes=number@position,edges=migration+collision+lagged_dependence]",
++                "LEARNER[message_passing_network,layers=2,aggregation=attention,output=100_cells]",
++                "CALIBRATION[vector_temperature_by_position]",
++                "RISK[graph_ensemble_disagreement+position_entropy]", protocol, rng));
++        out.add(blueprint("ANALOG_RETRIEVAL",
++                "REPRESENTATION[state_signature=transition+entropy+regime+window_slope]",
++                "LEARNER[metric_knn,k=" + choose(rng, 24, 36, 48)
++                        + ",distance=learned_diagonal,recency_decay=true]",
++                "CALIBRATION[wilson_shrinkage_by_neighbor_support]",
++                "RISK[neighbor_distance+effective_sample_floor]", protocol, rng));
++        out.add(blueprint("BAYESIAN_CHANGEPOINT",
++                "REPRESENTATION[run_length_state+number_hazard+position_migration]",
++                "LEARNER[bayesian_online_changepoint,hazard=learned_shadow,emission=dirichlet_multinomial]",
++                "CALIBRATION[posterior_predictive]",
++                "RISK[run_length_uncertainty+hazard_spike_veto]", protocol, rng));
++        out.add(blueprint("DIVERSE_MOE",
++                "REPRESENTATION[experts=markov+forest+temporal_neural+analog+formula,gate=regime_features]",
++                "LEARNER[mixture_of_experts,gate=online_ftrl,diversity_penalty=error_correlation]",
++                "CALIBRATION[cross_fitted_stacking_then_isotonic]",
++                "RISK[expert_disagreement+gate_concentration+worst_block]", protocol, rng));
++        String noveltyTag = Long.toHexString(root).toUpperCase(java.util.Locale.US);
++        if (noveltyTag.length() > 8) noveltyTag = noveltyTag.substring(0, 8);
++        out.add(blueprint("NOVA_RESIDUAL_TRANSPORT_" + noveltyTag,
++                "REPRESENTATION[signed_error_field=action_neighborhood+position_migration+regime_residual]",
++                "LEARNER[dual_timescale_residual_transport,update=conservation_normalized_mirror_descent,"
++                        + "memory=fast_miss_trace+slow_counterfactual_trace]",
++                "CALIBRATION[conformal_residual_bucket_by_regime]",
++                "RISK[residual_mass_concentration+transport_instability+novelty_veto]", protocol, rng));
++        out.add(blueprint("NOVA_MOTIF_COMPOSER_" + noveltyTag,
++                "REPRESENTATION[causal_motif_grammar=transition+collision+rank_reversal+window_disagreement]",
++                "LEARNER[typed_program_graph_coevolution,credit=counterfactual_shapley_shadow,"
++                        + "controller=complexity_regularized_bandit]",
++                "CALIBRATION[cross_fitted_motif_isotonic]",
++                "RISK[motif_support_floor+counterfactual_disagreement+description_length_veto]", protocol, rng));
++        return Collections.unmodifiableList(out);
++    }
++
++    private static Blueprint blueprint(
++            String family,
++            String representation,
++            String learner,
++            String calibration,
++            String risk,
++            String protocol,
++            ResearchDeterministicRngR811 rng) {
++        String objective =
++                "OBJECTIVE[maximize=wilson95_lower_hit_rate,subject_to=brier+ece+coverage+latency+ram,"
++                        + "selection=future_oos_only,real_authority=false]";
++        String falsifier =
++                "FALSIFY[reject_if=wilson_upper_below_0.30|ece_above_0.08|unstable_time_blocks|"
++                        + "latency_budget_exceeded|feature_leakage]";
++        String spec =
++                "METHOD_GRAPH_R903[family=" + family
++                        + ",idea_seed=" + Long.toUnsignedString(rng.xorshift())
++                        + "," + representation + ',' + learner + ',' + calibration + ',' + risk
++                        + ',' + objective + ',' + falsifier + ',' + protocol + ']';
++        return new Blueprint(family, spec);
++    }
++
++    private static int choose(ResearchDeterministicRngR811 rng, int a, int b, int c) {
++        int which = rng.nextInt(3);
++        return which == 0 ? a : (which == 1 ? b : c);
++    }
++
++    private static String safe(String value) {
++        return value == null ? "" : value.trim();
++    }
++
++    public static final class Blueprint {
++        public final String family, canonicalSpec;
++
++        Blueprint(String family, String canonicalSpec) {
++            this.family = safe(family);
++            this.canonicalSpec = safe(canonicalSpec);
++        }
++    }
++}
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java ./app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java	1969-12-31 19:00:00.000000000 -0500
++++ ./app/src/main/java/com/ethk3/novaonepro/ResearchNovelFormulaSynthesizerR903.java	2026-08-26 10:31:27.411434598 -0400
+@@ -0,0 +1,108 @@
++package com.ethk3.novaonepro;
++
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.HashSet;
++import java.util.List;
++
++/**
++ * Deterministic structural formula creator for the Research sandbox.
++ *
++ * <p>This is not a list of coefficient variants.  It composes different causal motifs (agreement
++ * floor, signal disagreement, raw/rank residual, uncertainty ratio and complementary evidence)
++ * into bounded DSL trees.  Every result is parser-validated, reproducible and forbidden from
++ * accessing outcomes or Production authorization.
++ */
++public final class ResearchNovelFormulaSynthesizerR903 {
++    private static final String[] SIGNALS =
++            new String[] {
++                "raw_action_p", "rank_score", "third_margin", "stability",
++                "window_consensus", "assignment_support"
++            };
++
++    private ResearchNovelFormulaSynthesizerR903() {}
++
++    public static List<ResearchStrategyDslEngine.Node> create(
++            String failureLayer, String hypothesis, String datasetHash, int requested) {
++        int bound = Math.max(4, Math.min(24, requested));
++        long seed =
++                ResearchDeterministicRngR811.seed(
++                        "R903_NOVEL_TOPOLOGY|"
++                                + safe(failureLayer)
++                                + '|'
++                                + safe(hypothesis)
++                                + '|'
++                                + safe(datasetHash));
++        ResearchDeterministicRngR811 rng = new ResearchDeterministicRngR811(seed);
++        ArrayList<ResearchStrategyDslEngine.Node> output =
++                new ArrayList<ResearchStrategyDslEngine.Node>();
++        HashSet<String> seen = new HashSet<String>();
++        int attempts = 0;
++        while (output.size() < bound && attempts++ < bound * 12) {
++            String a = feature(SIGNALS[rng.nextInt(SIGNALS.length)]);
++            String b = feature(SIGNALS[rng.nextInt(SIGNALS.length)]);
++            String c = feature(SIGNALS[rng.nextInt(SIGNALS.length)]);
++            String risk = feature("entropy");
++            double w1 = weight(rng, 0.25d, 0.70d);
++            double w2 = weight(rng, 0.10d, 0.45d);
++            double w3 = weight(rng, 0.08d, 0.35d);
++            String expression;
++            switch (rng.nextInt(5)) {
++                case 0: // reward agreement but penalize the absolute disagreement explicitly.
++                    expression =
++                            "SIGMOID(SUB(ADD(MUL(CONST("
++                                    + w1 + ")," + a + "),MUL(CONST(" + w2 + "),MIN(" + b + ',' + c
++                                    + "))),MUL(CONST(" + w3 + "),ABS(SUB(" + b + ',' + c + ")))))";
++                    break;
++                case 1: // the weakest supporting axis limits confidence (robust bottleneck).
++                    expression =
++                            "CLIP(ADD(MUL(CONST(" + w1 + "),CLIP(" + a
++                                    + ",CONST(0),CONST(1))),MUL(CONST(" + w2 + "),MIN(MIN(" + b
++                                    + ',' + c + "),ONE_MINUS(CLIP(" + risk
++                                    + ",CONST(0),CONST(1)))))),CONST(0),CONST(1))";
++                    break;
++                case 2: // raw/rank residual is evidence of model disagreement, not a bonus.
++                    expression =
++                            "CLIP(SUB(ADD(MUL(CONST(" + w1
++                                    + "),FEATURE(raw_action_p)),MUL(CONST(" + w2
++                                    + "),SIGMOID(FEATURE(rank_score)))),MUL(CONST(" + w3
++                                    + "),ABS(SUB(FEATURE(raw_action_p),SIGMOID(FEATURE(rank_score)))))),CONST(0),CONST(1))";
++                    break;
++                case 3: // margin-to-risk ratio is bounded by a consensus floor.
++                    expression =
++                            "SIGMOID(ADD(MUL(CONST(" + w1 + ")," + a + "),MUL(CONST(" + w2
++                                    + "),MIN(SAFE_DIV(ABS(FEATURE(third_margin)),ADD(CONST(0.1),"
++                                    + risk + "),CONST(0.001)),MIN(" + b + ',' + c + ")))))";
++                    break;
++                default: // complementary evidence: high score only when distinct axes co-support.
++                    expression =
++                            "SIGMOID(SUB(ADD(MUL(CONST(" + w1 + ")," + a
++                                    + "),MUL(CONST(" + w2 + "),INTERACTION(" + b
++                                    + ",ONE_MINUS(CLIP(" + c
++                                    + ",CONST(0),CONST(1)))))),MUL(CONST(" + w3 + ")," + risk + ")))";
++                    break;
++            }
++            try {
++                ResearchStrategyDslEngine.Node node = ResearchStrategyDslEngine.parse(expression);
++                String canonical = ResearchStrategyDslEngine.canonical(node);
++                if (seen.add(canonical)) output.add(node);
++            } catch (IllegalArgumentException invalidGeneratedTree) {
++                // A bounded generation miss is discarded; no invalid AST is ever persisted.
++            }
++        }
++        return Collections.unmodifiableList(output);
++    }
++
++    private static String feature(String name) {
++        return "FEATURE(" + name + ')';
++    }
++
++    private static double weight(ResearchDeterministicRngR811 rng, double min, double max) {
++        double value = min + (max - min) * rng.nextDouble();
++        return Math.rint(value * 1000.0d) / 1000.0d;
++    }
++
++    private static String safe(String value) {
++        return value == null ? "" : value.trim();
++    }
++}
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchSettlementSidecarR811.java ./app/src/main/java/com/ethk3/novaonepro/ResearchSettlementSidecarR811.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchSettlementSidecarR811.java	2026-08-26 02:38:19.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/ResearchSettlementSidecarR811.java	2026-08-26 10:30:38.450104264 -0400
+@@ -16,6 +16,33 @@
+ 
+     private ResearchSettlementSidecarR811() {}
+ 
++    /** Bounded multi-issue closure used only after Production settlement has yielded. */
++    public static Result drainBatch(DbStore store, int maxIssues, long budgetMs) {
++        int bound = Math.max(1, Math.min(8, maxIssues));
++        long deadline = System.currentTimeMillis() + Math.max(100L, Math.min(1500L, budgetMs));
++        int completed = 0, rows = 0;
++        String lastTarget = "", lastHash = "", lastStatus = "IDLE";
++        for (int i = 0; i < bound && System.currentTimeMillis() < deadline; i++) {
++            Result one = drain(store);
++            lastStatus = one.status;
++            lastTarget = one.targetIssue;
++            lastHash = one.groupHash;
++            rows += one.rows;
++            if (!one.success || "IDLE".equals(one.status)) break;
++            completed++;
++        }
++        if (store != null) {
++            store.setState("r903_research_settlement_batch", String.valueOf(completed));
++            store.setState("r903_research_settlement_batch_at", String.valueOf(System.currentTimeMillis()));
++        }
++        return new Result(
++                completed > 0 || "IDLE".equals(lastStatus),
++                "R903_BATCH=" + completed + "|last=" + lastStatus,
++                lastTarget,
++                lastHash,
++                rows);
++    }
++
+     public static Result drain(DbStore store) {
+         if (store == null) return Result.fail("STORE_NULL", "");
+         if (RealtimePressureGateR811.hasActiveCriticalWork()
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchShadowChallengerRuntimeR817.java ./app/src/main/java/com/ethk3/novaonepro/ResearchShadowChallengerRuntimeR817.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/ResearchShadowChallengerRuntimeR817.java	2026-08-25 23:53:05.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/ResearchShadowChallengerRuntimeR817.java	2026-08-26 10:36:57.372512465 -0400
+@@ -17,6 +17,38 @@
+ 
+     private ResearchShadowChallengerRuntimeR817() {}
+ 
++    /**
++     * R903 evaluates a bounded cohort for the same future issue.  The previous one-candidate
++     * round-robin required roughly 96 live issues before every formula received a second sample.
++     * Each call still freezes an independent immutable prediction and remains Research-only.
++     */
++    public static BatchResult captureBatch(
++            DbStore store, V51RuntimeResult runtime, int maxCandidates, long budgetMs) {
++        int bound = Math.max(1, Math.min(12, maxCandidates));
++        long deadline = System.currentTimeMillis() + Math.max(80L, Math.min(900L, budgetMs));
++        int frozen = 0;
++        String lastStatus = "NO_ATTEMPT";
++        StringBuilder ids = new StringBuilder();
++        for (int i = 0; i < bound && System.currentTimeMillis() < deadline; i++) {
++            Result one = capture(store, runtime);
++            lastStatus = one.status;
++            if (!one.success) break;
++            frozen++;
++            if (ids.length() > 0) ids.append(',');
++            ids.append(one.candidateId);
++        }
++        if (store != null) {
++            store.setState("r903_research_capture_count", String.valueOf(frozen));
++            store.setState("r903_research_capture_candidates", ids.toString());
++            store.setState("r903_research_capture_at", String.valueOf(System.currentTimeMillis()));
++        }
++        return new BatchResult(
++                frozen > 0,
++                "R903_BATCH_FROZEN=" + frozen + "|last=" + lastStatus,
++                frozen,
++                ids.toString());
++    }
++
+     public static Result capture(final DbStore store, final V51RuntimeResult runtime) {
+         if (store == null || runtime == null || !runtime.success)
+             return Result.skip("INPUT_INVALID");
+@@ -34,7 +66,7 @@
+             return Result.skip("RUNTIME_SURFACE_INVALID");
+ 
+         final String targetIssue = runtime.context.targetIssue;
+-        final Candidate candidate = nextCandidate(store);
++        final Candidate candidate = nextCandidate(store, targetIssue);
+         if (candidate == null) return Result.skip("NO_RUNTIME_FORMULA_CANDIDATE");
+         final ResearchStrategyDslEngine.Node formula;
+         try {
+@@ -339,7 +371,7 @@
+         return count;
+     }
+ 
+-    private static Candidate nextCandidate(DbStore store) {
++    private static Candidate nextCandidate(DbStore store, String targetIssue) {
+         Cursor cursor = null;
+         try {
+             cursor =
+@@ -351,12 +383,15 @@
+                                             + " p ON p.candidate_id=c.candidate_id WHERE c.candidate_type='FORMULA'"
+                                             + " AND c.runtime_executable=1 AND c.status IN"
+                                             + " ('EXPLORATORY_COLLECT_ONLY','RESEARCH_READY','SHADOW_CHALLENGER','ACTIVE_OBSERVE_R900','KEEP_ACTIVE_R900')"
++                                            + " AND NOT EXISTS(SELECT 1 FROM "
++                                            + DbHelper.TABLE_R817_RESEARCH_PREDRAW
++                                            + " x WHERE x.candidate_id=c.candidate_id AND x.target_issue=?)"
+                                             + " GROUP BY c.candidate_id,c.artifact_hash,c.canonical_spec,c.status"
+                                             + " ORDER BY CASE c.status WHEN 'SHADOW_CHALLENGER' THEN 0"
+                                             + " WHEN 'KEEP_ACTIVE_R900' THEN 1 WHEN 'RESEARCH_READY' THEN 2"
+                                             + " WHEN 'ACTIVE_OBSERVE_R900' THEN 3 ELSE 4 END,"
+                                             + " COUNT(p.target_issue) ASC,c.updated_at ASC,c.candidate_id ASC LIMIT 1",
+-                                    null);
++                                    new String[] {safe(targetIssue)});
+             return cursor.moveToFirst()
+                     ? new Candidate(
+                             cursor.getString(0),
+@@ -523,4 +558,17 @@
+             return new Result(false, status, "", "", "", -1, 0.0d);
+         }
+     }
++
++    public static final class BatchResult {
++        public final boolean success;
++        public final String status, candidateIds;
++        public final int frozen;
++
++        BatchResult(boolean success, String status, int frozen, String candidateIds) {
++            this.success = success;
++            this.status = safe(status);
++            this.frozen = Math.max(0, frozen);
++            this.candidateIds = safe(candidateIds);
++        }
++    }
+ }
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/RuntimeTruthDashboardR818.java ./app/src/main/java/com/ethk3/novaonepro/RuntimeTruthDashboardR818.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/RuntimeTruthDashboardR818.java	2026-08-26 02:45:03.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/RuntimeTruthDashboardR818.java	2026-08-26 10:55:45.883209755 -0400
+@@ -9,7 +9,7 @@
+  * READ_ERROR rather than silently converted to zero/pass.
+  */
+ public final class RuntimeTruthDashboardR818 {
+-    public static final String VERSION = "V57.16.2-R4.0.2-902-RUNTIME-TRUTH-DASHBOARD-V3";
++    public static final String VERSION = "V57.16.3-R4.0.3-903-RUNTIME-TRUTH-DASHBOARD-V4";
+ 
+     private RuntimeTruthDashboardR818() {}
+ 
+@@ -96,7 +96,7 @@
+ 
+     private static String pipelineDetail(DbStore store, DiagnosticSnapshotR811 d, SQLiteDatabase db) {
+         StringBuilder b = new StringBuilder(4096);
+-        b.append("【R902运行闭环真值】\n").append(pipelineSummary(store, d)).append('\n');
++        b.append("【R903运行闭环真值】\n").append(pipelineSummary(store, d)).append('\n');
+         b.append("目标期=").append(value(d.targetIssue)).append("｜CORE=").append(value(d.coreStatus))
+                 .append("｜FULL=").append(value(d.fullStatus)).append('\n');
+         b.append("待结算任务分布=").append(taskDistribution(db)).append('\n');
+@@ -114,19 +114,21 @@
+                 .append("｜RUNNING任务=").append(running)
+                 .append("｜GateActive=").append(SettlementExecutionGateR819.isActive() ? 1 : 0).append('\n');
+         if (truth.businessAlive && "SETTLEMENT_OOS".equals(truth.rootCause)) {
+-            b.append("后台/结算判定=后台业务仍在运行，但结算/OOS落后；不是‘整个后台停止’。R902会在每次业务协调和看门狗中优先补结算。\n");
++            b.append("后台/结算判定=后台业务仍在运行，但结算/OOS落后；不是‘整个后台停止’。R903每秒从全部任务类别排空已开奖冻结样本。\n");
+         } else if (!truth.businessAlive) {
+             b.append("后台/结算判定=业务心跳未通过；需先按后台恢复矩阵检查Service/进程/调度。\n");
+         } else {
+             b.append("后台/结算判定=").append(value(truth.status)).append('/')
+                     .append(value(truth.rootCause)).append('\n');
+         }
+-        b.append("R902紧急结算最近=seeded=")
++        b.append("R903全类别结算最近=seeded=")
+                 .append(value(store.getState("r901_settlement_urgent_seeded", "0")))
+                 .append("｜drained=")
+                 .append(value(store.getState("r901_settlement_urgent_drained", "0")))
+                 .append("｜watchdogDrained=")
+                 .append(value(store.getState("r901_watchdog_settlement_drained", "0")))
++                .append("｜allClassDrained=")
++                .append(value(store.getState("r903_ready_predraw_last_drained", "0")))
+                 .append("｜gapCount=").append(value(store.getState("r902_watchdog_gap_count", "N/A"))).append('\n');
+         b.append("R902延后证据追赶=status=")
+                 .append(value(store.getState("r902_deferred_urgent_status", "NOT_STARTED")))
+@@ -165,9 +167,13 @@
+     private static String shadowSummary(DiagnosticSnapshotR811 d) {
+         int pending = Math.max(0, d.shadowPredicted - d.shadowSettled);
+         String rate = d.shadowSettled <= 0 ? "N/A" : pct(((double) d.shadowHit) / d.shadowSettled);
++        String coverage = d.shadowPredicted <= 0
++                ? "N/A"
++                : pct(((double) d.shadowSettled) / d.shadowPredicted);
+         return "影子观察结算｜预测=" + d.shadowPredicted
+                 + "｜已结算=" + d.shadowSettled
+                 + "｜待结算=" + pending
++                + "｜结算覆盖率=" + coverage
+                 + "\n命中=" + d.shadowHit
+                 + "｜未中=" + d.shadowMiss
+                 + "｜命中率=" + rate
+@@ -176,7 +182,7 @@
+ 
+     private static String shadowDetail(DiagnosticSnapshotR811 d, SQLiteDatabase db) {
+         StringBuilder b = new StringBuilder(4096);
+-        b.append("【R902影子观察/严格OOS结算统计】\n").append(shadowSummary(d)).append('\n');
++        b.append("【R903影子观察/严格OOS结算统计】\n").append(shadowSummary(d)).append('\n');
+         appendWindow(b, "最近30", d.recent30);
+         appendWindow(b, "最近60", d.recent60);
+         appendWindow(b, "最近120", d.recent120);
+@@ -211,6 +217,7 @@
+         if (run.length() == 0) run = "NOT_STARTED";
+         int candidates = integer(db, "SELECT COUNT(1) FROM v57_research_candidate_r811");
+         int executable = integer(db, "SELECT COUNT(1) FROM v57_research_candidate_r811 WHERE runtime_executable=1");
++        int methodGraphs = integer(db, "SELECT COUNT(1) FROM v57_research_candidate_r811 WHERE candidate_type='MODEL'");
+         int predraw = integer(db, "SELECT COUNT(1) FROM " + DbHelper.TABLE_R817_RESEARCH_PREDRAW);
+         int settled = integer(db, "SELECT COUNT(1) FROM " + DbHelper.TABLE_R817_RESEARCH_PREDRAW + " WHERE hit_label IN (0,1)");
+         int hit = integer(db, "SELECT COUNT(1) FROM " + DbHelper.TABLE_R817_RESEARCH_PREDRAW + " WHERE hit_label=1");
+@@ -218,7 +225,7 @@
+         int kept = integer(db, "SELECT COUNT(1) FROM v57_research_candidate_score_r900 WHERE state='KEEP_ACTIVE_R900'");
+         int pruned = integer(db, "SELECT COUNT(1) FROM v57_research_prune_log_r900");
+         return "自主研究/深度学习｜Schema=READY｜Run=" + run + "｜Tick=" + value(tick)
+-                + "\n候选=" + candidates + "｜可执行=" + executable
++                + "\n候选=" + candidates + "｜可执行=" + executable + "｜方法族蓝图=" + methodGraphs
+                 + "｜赛前冻结=" + predraw + "｜已结算=" + settled + "｜命中=" + hit
+                 + "｜已有未来实盘评分=" + scored + "｜保留=" + kept + "｜累计淘汰=" + pruned
+                 + "\nLifecycle=" + value(store.getState("r900_research_lifecycle", "WAIT_FIRST_CYCLE"))
+@@ -227,12 +234,28 @@
+ 
+     private static String researchDetail(DbStore store, SQLiteDatabase db) {
+         StringBuilder b = new StringBuilder(8192);
+-        b.append("【R902自主策略发现/深度学习/动态迭代真值】\n");
++        b.append("【R903自主策略发现/深度学习/动态迭代真值】\n");
+         b.append(researchSummary(store, db)).append('\n');
+         boolean schemaReady = store.coordinatorR36().isR811ResearchSchemaReady();
+         b.append("Schema=").append(schemaReady ? "READY" : value(store.getState("r817_research_schema_status", "NOT_READY")))
+                 .append("｜Sidecar=").append(value(store.getState("r811_research_sidecar_status", "NOT_STARTED")))
+                 .append("｜Capture=").append(value(store.getState("r817_research_capture_status", "NOT_STARTED"))).append('\n');
++        b.append("每期候选冻结数=")
++                .append(value(store.getState("r903_research_capture_count", "0")))
++                .append("｜研究批结算=")
++                .append(value(store.getState("r903_research_settlement_batch", "0")))
++                .append("｜结构创造算子=R903_STRUCTURAL_SYNTHESIS\n");
++        b.append("方法族创造=MARKOV/ONLINE_FOREST/GRADIENT_TREES/TEMPORAL_NEURAL/"
++                + "PERMUTATION_GRAPH/ANALOG_RETRIEVAL/BAYESIAN_CHANGEPOINT/DIVERSE_MOE"
++                + "/NOVA_RESIDUAL_TRANSPORT/NOVA_MOTIF_COMPOSER"
++                + "｜未训练蓝图不得冒充可执行资产\n");
++        b.append("唯一SHADOW主链统筹=status=")
++                .append(value(store.getState("r903_mainline_governor_status", "NO_CERTIFIED_CHAMPION")))
++                .append("｜applied=")
++                .append(value(store.getState("r903_mainline_governor_applied", "0")))
++                .append("｜candidate=")
++                .append(value(store.getState("r903_mainline_governor_candidate", "")))
++                .append("｜晋升门槛=N>=120+96候选同时校正下界>=30%+Brier<=0.21+相邻30期漂移<=12%\n");
+         b.append("FTRL=").append(value(store.getState("r811_adaptive_learner_status", "NOT_STARTED")))
+                 .append("｜trainedUntil=").append(value(store.getState("r817_research_adaptive_trained_until", "")))
+                 .append("｜updates=").append(value(store.getState("r817_research_adaptive_updates", "0")))
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java ./app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java	2026-08-26 00:36:01.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java	2026-08-26 10:29:59.285035915 -0400
+@@ -124,6 +124,44 @@
+         return terminalized;
+     }
+ 
++    /**
++     * R903 correctness drain for every runnable class that already has immutable pre-draw
++     * evidence.  R901 only selected {@code BACKLOG}; after a transient failure tasks are promoted
++     * to {@code LIVE_RETRY}, so that query could strand hundreds of otherwise settleable issues.
++     * The wall-clock budget keeps this repair lane from monopolising the single DB writer.
++     */
++    public static int drainReadyPredraw(
++            DbStore store, int limit, long budgetMs) {
++        if (store == null || SettlementExecutionGateR819.isActive()) return 0;
++        SettlementTaskStoreR36.recoverImpossibleRunningLeasesWhenIdle(
++                store, "R903_DRAIN_ALL_READY_PREDRAW");
++        int bound = Math.max(1, Math.min(64, limit));
++        long deadline = System.currentTimeMillis() + Math.max(100L, Math.min(2500L, budgetMs));
++        int terminalized = 0;
++        for (int i = 0; i < bound && System.currentTimeMillis() < deadline; i++) {
++            String target = nextRunnableReadyPredrawR903(store);
++            if (target.length() == 0) break;
++            Models.Draw draw = store.getDrawByIssue(target);
++            if (draw == null || !draw.isValid()) {
++                SettlementTaskStoreR36.markInvalidDrawTerminal(
++                        store,
++                        target,
++                        draw == null
++                                ? "R903_PREDRAW_REFERENCED_DRAW_MISSING"
++                                : "R903_PREDRAW_REFERENCED_DRAW_INVALID");
++            } else {
++                enqueueDraw(store, draw, Reason.HISTORICAL_BACKFILL);
++                SettlementEngine.SettlementReport report = execute(store, draw);
++                if (report != null
++                        && "R819_SETTLEMENT_SINGLE_FLIGHT_BUSY".equals(report.detail)) break;
++            }
++            if (SettlementTaskStoreR36.terminal(store, target) != null) terminalized++;
++        }
++        store.setState("r903_ready_predraw_last_drained", String.valueOf(terminalized));
++        store.setState("r903_ready_predraw_last_at", String.valueOf(System.currentTimeMillis()));
++        return terminalized;
++    }
++
+     static boolean isCoordinatorExecutionActive() {
+         Integer depth = ACTIVE_EXECUTION.get();
+         return depth != null && depth.intValue() > 0;
+@@ -247,6 +285,37 @@
+         } finally {
+             if (cursor != null) cursor.close();
+         }
++    }
++
++    private static String nextRunnableReadyPredrawR903(DbStore store) {
++        Cursor cursor = null;
++        long now = System.currentTimeMillis();
++        try {
++            cursor =
++                    store.readable()
++                            .rawQuery(
++                                    "SELECT t.target_issue FROM "
++                                            + DbHelper.TABLE_R36_SETTLEMENT_TASK
++                                            + " t JOIN "
++                                            + DbHelper.TABLE_R35_SHADOW_OBSERVATION
++                                            + " o ON o.target_issue=t.target_issue"
++                                            + " JOIN "
++                                            + DbHelper.TABLE_DRAWS
++                                            + " d ON d.issue=t.target_issue AND d.dirty=0"
++                                            + " WHERE o.pre_draw_frozen=1 AND o.settled=0"
++                                            + " AND ((t.status IN ('PENDING','RETRY_WAIT')"
++                                            + " AND t.next_attempt_at<=?) OR (t.status='RUNNING'"
++                                            + " AND t.lease_until<?))"
++                                            + " ORDER BY t.priority DESC,t.next_attempt_at ASC,"
++                                            + "t.created_at ASC,t.target_issue ASC LIMIT 1",
++                                    new String[] {String.valueOf(now), String.valueOf(now)});
++            return cursor.moveToFirst() ? safe(cursor.getString(0)) : "";
++        } catch (RuntimeException failure) {
++            record(store, "R903_READY_PREDRAW_QUERY_FAILED", "", failure, true);
++            return "";
++        } finally {
++            if (cursor != null) cursor.close();
++        }
+     }
+ 
+     private static String nextRunnable(DbStore store, boolean backlogOnly) {
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java ./app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java	2026-08-25 23:47:55.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java	2026-08-26 10:29:59.469040946 -0400
+@@ -325,8 +325,12 @@
+                             @Override
+                             public void run(SQLiteDatabase db) {
+                                 long now = System.currentTimeMillis();
+-                                boolean terminal =
+-                                        claim.attempts >= AppConfig.R36_SETTLEMENT_MAX_ATTEMPTS;
++                                boolean transientFailure = isTransientSettlementFailure(error);
++                                int attemptLimit =
++                                        transientFailure
++                                                ? Math.max(50, AppConfig.R36_SETTLEMENT_MAX_ATTEMPTS)
++                                                : AppConfig.R36_SETTLEMENT_MAX_ATTEMPTS;
++                                boolean terminal = claim.attempts >= attemptLimit;
+                                 ContentValues cv = new ContentValues();
+                                 cv.put("status", terminal ? FAILED_TERMINAL : RETRY_WAIT);
+                                 cv.put("updated_at", now);
+@@ -339,7 +343,7 @@
+                                                 ? 0L
+                                                 : now
+                                                         + Math.min(
+-                                                                60000L,
++                                                                transientFailure ? 15000L : 60000L,
+                                                                 1000L
+                                                                         * (1L
+                                                                                 << Math.min(
+@@ -360,6 +364,18 @@
+                         });
+     }
+ 
++    private static boolean isTransientSettlementFailure(String error) {
++        String value = safe(error).toUpperCase(java.util.Locale.US);
++        return value.indexOf("WRITE_COORDINATION") >= 0
++                || value.indexOf("TX_FAILED") >= 0
++                || value.indexOf("LOCKED") >= 0
++                || value.indexOf("BUSY") >= 0
++                || value.indexOf("TIMEOUT") >= 0
++                || value.indexOf("INTERRUPT") >= 0
++                || value.indexOf("OOM") >= 0
++                || value.indexOf("SQLITE") >= 0;
++    }
++
+     public static String nextRunnable(DbStore store, long now) {
+         if (store == null) return "";
+         Cursor c = null;
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/StrategyChallengerFactoryEngine.java ./app/src/main/java/com/ethk3/novaonepro/StrategyChallengerFactoryEngine.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/StrategyChallengerFactoryEngine.java	2026-08-25 23:48:45.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/StrategyChallengerFactoryEngine.java	2026-08-26 10:44:12.480301843 -0400
+@@ -37,12 +37,14 @@
+         // N<120 candidates remain EXPLORATORY_COLLECT_ONLY and are forbidden from any effect claim.
+         ArrayList<CandidateSpec> output = new ArrayList<CandidateSpec>();
+         output.addAll(generateFormulaCandidates(finding, dataset));
++        // Method-family creation is allowed immediately as an auditable design asset.  These
++        // plans remain non-executable until a PIT-trained artifact passes future OOS gates.
++        output.addAll(generateModelCandidates(finding, dataset));
+         /* Exploratory formulas can be generated immediately. Learned gates, calibrators and
+          * neural artifacts retain the N=120 screening boundary and never authorize REAL. */
+         if (dataset.issueN >= 120) {
+             output.addAll(generateExpertCandidates(finding, dataset));
+             output.addAll(generateCalibrationCandidates(finding, dataset));
+-            output.addAll(generateModelCandidates(finding, dataset));
+         }
+         return Collections.unmodifiableList(output);
+     }
+@@ -169,6 +171,18 @@
+                             + ResearchCandidateFormulaLibraryR3611.SEEDS[b][0]);
+         }
+ 
++        // R903 structural creation: failure-conditioned, reproducible topologies that are not
++        // confined to the fixed seed list or to one cross-position/intersection idea.
++        List<ResearchStrategyDslEngine.Node> novel =
++                ResearchNovelFormulaSynthesizerR903.create(
++                        finding.failureLayer, finding.hypothesis, dataset.datasetHash, 20);
++        for (int i = 0; i < novel.size(); i++) {
++            population.add(novel.get(i));
++            generations.add(Integer.valueOf(1));
++            operators.add("R903_STRUCTURAL_SYNTHESIS");
++            parents.add("FAILURE_LAYER+DATASET_HASH");
++        }
++
+         ArrayList<CandidateSpec> output = new ArrayList<CandidateSpec>();
+         java.util.HashSet<String> seen = new java.util.HashSet<String>();
+         for (int i = 0; i < population.size(); i++) {
+@@ -242,35 +256,30 @@
+     public static List<CandidateSpec> generateModelCandidates(
+             FindingBundle finding, ResearchDataset dataset) {
+         ArrayList<CandidateSpec> output = new ArrayList<CandidateSpec>();
+-        long seed =
+-                ResearchDeterministicRngR811.seed(
+-                        "MODEL|" + finding.hypothesis + '|' + dataset.datasetHash);
+-        output.add(
+-                fromHypothesis(
+-                        finding,
+-                        dataset,
+-                        CandidateType.MODEL,
+-                        "TINY_MLP[D=96,H1=64,H2=32,O=100,loss=PERMUTATION_CE,"
+-                                + "adam=0.9/0.999/1e-8,clip=5,lr=1e-4|3e-4|1e-3,"
+-                                + "early_stop=validation_only]",
+-                        false,
+-                        seed));
+-        output.add(
+-                fromHypothesis(
+-                        finding,
+-                        dataset,
+-                        CandidateType.MODEL,
+-                        "ATTENTION[heads=1,width=16,sequence=PIT_ONLY,output=100]",
+-                        false,
+-                        seed + 1));
+-        output.add(
+-                fromHypothesis(
+-                        finding,
+-                        dataset,
+-                        CandidateType.MODEL,
+-                        "FTRL[D=96,alpha=0.05,beta=1,l1=0.001,l2=0.01]",
+-                        false,
+-                        seed + 2));
++        List<ResearchMethodGraphSynthesizerR903.Blueprint> blueprints =
++                ResearchMethodGraphSynthesizerR903.create(
++                        finding.failureLayer,
++                        finding.hypothesis,
++                        dataset.datasetHash,
++                        dataset.issueN);
++        long seed = ResearchDeterministicRngR811.seed("METHOD_GRAPH|" + dataset.datasetHash);
++        for (int i = 0; i < blueprints.size(); i++) {
++            ResearchMethodGraphSynthesizerR903.Blueprint blueprint = blueprints.get(i);
++            CandidateSpec base =
++                    fromHypothesis(
++                            finding,
++                            dataset,
++                            CandidateType.MODEL,
++                            blueprint.canonicalSpec,
++                            false,
++                            seed + i,
++                            40.0d + i);
++            output.add(
++                    base.withEvolution(
++                            1,
++                            "R903_METHOD_GRAPH_SYNTHESIS_" + blueprint.family,
++                            "FAILURE_HYPOTHESIS+METHOD_GRAMMAR"));
++        }
+         return output;
+     }
+ 
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V51AutoFetchBridge.java ./app/src/main/java/com/ethk3/novaonepro/V51AutoFetchBridge.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V51AutoFetchBridge.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/V51AutoFetchBridge.java	2026-08-26 10:34:22.784227594 -0400
+@@ -2,7 +2,7 @@
+ 
+ /** Sole typed bridge. Ownership is acquired by AutoFetchService and is never duplicated here. */
+ public final class V51AutoFetchBridge {
+-    public static final String VERSION = "V57.16.2-R4.0.2-902-DISPATCHER-BRIDGE";
++    public static final String VERSION = "V57.16.3-R4.0.3-903-DISPATCHER-BRIDGE";
+     public static final String PRODUCTION_RUNTIME = "ProductionPredictionDispatcherR815#dispatch";
+     public static final String LEGACY_RUNTIME = "DISABLED_ON_ACTIVE_R36_PATH";
+ 
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java ./app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/V51BuildManifest.java	2026-08-26 10:34:22.592222258 -0400
+@@ -13,8 +13,8 @@
+     public static final String CODE_NAME = "STARCORE_TIANSHU";
+     public static final String BATCH_ID = "B15";
+     public static final String VERSION_NAME =
+-            "V57.16.2-R4.0.2-902";
+-    public static final int VERSION_CODE = 577200902;
++            "V57.16.3-R4.0.3-903";
++    public static final int VERSION_CODE = 577200903;
+     public static final String PRODUCT_NAME = "星核·币安K3天枢";
+     public static final String FORMAL_NAME =
+             "Starcore Tianshu Binance K3 Point-In-Time Selective Research System";
+@@ -309,7 +309,7 @@
+                 && GAME_CODE.equals(AppConfig.LOTTERY_CODE)
+                 && DATABASE_NAME.equals(AppConfig.DB_NAME)
+                 && AppConfig.DB_VERSION == 36
+-                && AppConfig.R36_RUNTIME_REPAIR_VERSION.equals("V57.16.2-R4.0.2-902")
++                && AppConfig.R36_RUNTIME_REPAIR_VERSION.equals("V57.16.3-R4.0.3-903")
+                 && AppConfig.R811_SCHEMA_REVISION == 1
+                 && AppConfig.R815_SCHEMA_REVISION == 3
+                 && AppConfig.TianshuB01.isProductionTransportConfigValid()
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java ./app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java	2026-08-25 09:44:04.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java	2026-08-26 10:53:38.847752336 -0400
+@@ -131,7 +131,14 @@
+ 
+             mark = trace.begin("ACTION_BUILD_FUNNEL_META_RANK");
+             ActionStage actionStage =
+-                    buildRankedActionStage(features, states, numberModel, request.requestAt, lease);
++                    buildRankedActionStage(
++                            store,
++                            context.targetIssue,
++                            features,
++                            states,
++                            numberModel,
++                            request.requestAt,
++                            lease);
+             V51EffectiveConsensusEngine.Consensus[] consensus = actionStage.consensus;
+             K3FunnelOrchestrator.Audit funnel = actionStage.funnel;
+             V51Models.PositionAction[] actions = actionStage.actions;
+@@ -275,7 +282,9 @@
+                             + '|'
+                             + authorized.rejectCode.name()
+                             + '|'
+-                            + V51BuildManifest.releaseState();
++                            + V51BuildManifest.releaseState()
++                            + "|R903_MAINLINE="
++                            + actionStage.governanceStatus;
+             long computeMs = Math.max(0L, TimeSourceR811.monoNowMs() - computeStarted);
+             V51RuntimeResult result =
+                     new V51RuntimeResult(
+@@ -316,11 +325,22 @@
+                             trace);
+             trace.end(commitMark, true, "CANONICAL_COMMITTED");
+             lease.token.markCanonicalCommitted();
++            try {
++                store.setState("r903_mainline_governor_status", actionStage.governanceStatus);
++                store.setState("r903_mainline_governor_candidate", actionStage.governanceCandidate);
++                store.setState("r903_mainline_governor_target", request.targetIssue);
++                store.setState(
++                        "r903_mainline_governor_applied",
++                        actionStage.governanceApplied ? "1" : "0");
++            } catch (Throwable ignoredGovernanceTelemetry) {
++                // The canonical commit is already durable; telemetry cannot invalidate it.
++            }
+             /* Non-fatal, pre-draw Research sidecar.  It reuses the frozen exact1200 surface and
+              * cannot mutate the Production champion, authorization or REAL ledger. */
+             try {
+-                ResearchShadowChallengerRuntimeR817.Result research =
+-                        ResearchShadowChallengerRuntimeR817.capture(store, result);
++                ResearchShadowChallengerRuntimeR817.BatchResult research =
++                        ResearchShadowChallengerRuntimeR817.captureBatch(
++                                store, result, 8, 600L);
+                 store.setState("r817_research_capture_status", research.status);
+                 store.setState("r817_research_capture_target", request.targetIssue);
+             } catch (Throwable researchFailure) {
+@@ -355,6 +375,8 @@
+     }
+ 
+     private static ActionStage buildRankedActionStage(
++            DbStore store,
++            String targetIssue,
+             V51Models.PermutationFeatureSnapshot features,
+             V51Models.StateTrajectorySnapshot[] states,
+             V51PermutationNumberModelEngine.Result numberModel,
+@@ -388,6 +410,12 @@
+         lease.token.checkpoint("ACTION_RANK_DONE");
+         V51Models.PositionAction[] actions = ranked.ranked;
+         V51Models.PositionAction rankOne = ranked.rankOne;
++        ResearchMainlineGovernorR903.Result governance =
++                ResearchMainlineGovernorR903.govern(store, targetIssue, actions);
++        if (governance.applied) {
++            actions = governance.actions;
++            rankOne = governance.rankOne;
++        }
+         if (rankOne == null || actions == null || actions.length != 1200)
+             throw new IllegalStateException("R36_RANK_CARDINALITY_INVALID");
+         K3ActionSpaceEngine.FrozenChampion champion =
+@@ -404,7 +432,10 @@
+                 actions,
+                 rankOne,
+                 stability,
+-                champion.actionSpaceHash);
++                champion.actionSpaceHash,
++                governance.applied,
++                governance.status,
++                governance.candidateId);
+     }
+ 
+     private static final class ActionStage {
+@@ -414,6 +445,8 @@
+         final V51Models.PositionAction rankOne;
+         final V51RankStabilityEngine.Result stability;
+         final String actionSpaceHash;
++        final boolean governanceApplied;
++        final String governanceStatus, governanceCandidate;
+ 
+         ActionStage(
+                 V51EffectiveConsensusEngine.Consensus[] consensus,
+@@ -421,13 +454,19 @@
+                 V51Models.PositionAction[] actions,
+                 V51Models.PositionAction rankOne,
+                 V51RankStabilityEngine.Result stability,
+-                String actionSpaceHash) {
++                String actionSpaceHash,
++                boolean governanceApplied,
++                String governanceStatus,
++                String governanceCandidate) {
+             this.consensus = consensus;
+             this.funnel = funnel;
+             this.actions = actions;
+             this.rankOne = rankOne;
+             this.stability = stability;
+             this.actionSpaceHash = actionSpaceHash;
++            this.governanceApplied = governanceApplied;
++            this.governanceStatus = governanceStatus == null ? "" : governanceStatus;
++            this.governanceCandidate = governanceCandidate == null ? "" : governanceCandidate;
+         }
+     }
+ 
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java ./app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java	2026-08-26 02:44:51.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/V57CompleteDiagnosticReportEngine.java	2026-08-26 10:34:23.084235930 -0400
+@@ -7,7 +7,7 @@
+ public final class V57CompleteDiagnosticReportEngine {
+     public static final String OWNER = "R36_COMPLETE_REPORT_OWNER";
+     public static final String REPORT_VERSION =
+-            "V57.16.2-R4.0.2-902-B01-B15-COMPLETE-DIAG-V15";
++            "V57.16.3-R4.0.3-903-B01-B15-COMPLETE-DIAG-V16";
+ 
+     public static final class ReportArtifact {
+         public final String body, canonicalBodySha256, fullText;
+@@ -32,7 +32,7 @@
+         ModelEffectivenessAnalyzerR35.Analysis analysis =
+                 new ModelEffectivenessAnalyzerR35().analyze(store);
+         StringBuilder b = new StringBuilder(32768);
+-        b.append("STARCORE_TIANSHU V57.16.2-R4.0.2-902 | B01–B15_JAVA17_D8_RUNTIME_RESEARCH_CLOSURE\n");
++        b.append("STARCORE_TIANSHU V57.16.3-R4.0.3-903 | B01–B15_JAVA17_D8_RUNTIME_RESEARCH_CLOSURE\n");
+         section(b, "0.当前总判定", overall(analysis));
+         section(b, "1.身份与不可变红线", identity());
+         section(b, "2.B01–B15工程状态", batchStatus());
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/WhyDecisionTruthR820.java ./app/src/main/java/com/ethk3/novaonepro/WhyDecisionTruthR820.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/app/src/main/java/com/ethk3/novaonepro/WhyDecisionTruthR820.java	2026-08-25 23:11:33.000000000 -0400
++++ ./app/src/main/java/com/ethk3/novaonepro/WhyDecisionTruthR820.java	2026-08-26 10:32:42.817483940 -0400
+@@ -32,6 +32,7 @@
+                     .append("位置冻结K3=").append(k3(hit))
+                     .append("，实际=").append(two(hit.actual))
+                     .append("；实际号码属于冻结K3，所以严格OOS命中。")
++                    .append(" 赛前证据反哺=").append(evidence(hit)).append('。')
+                     .append(" 赛前冻结Hash=").append(shortHash(hit.recordHash));
+         }
+ 
+@@ -43,6 +44,7 @@
+                     .append("位置冻结K3=").append(k3(miss))
+                     .append("，实际=").append(two(miss.actual))
+                     .append("；实际号码不属于冻结K3，所以严格OOS未中。")
++                    .append(" 赛前证据反哺=").append(evidence(miss)).append('。')
+                     .append(" 直接机械原因=候选集合漏掉实际号码；")
+                     .append("更深层 NUMBER/RANK/THIRD/WINDOW/REGIME 归因只有在该期1200动作、")
+                     .append("Rank边界和反事实证据完成后才可定责，缺证据时明确显示“未证明”，不编造。")
+@@ -69,18 +71,26 @@
+ 
+     private static Row latestSettled(SQLiteDatabase db, int hit) {
+         return queryOne(db,
+-                "SELECT target_issue,position,n1,n2,n3,actual_number,hit_label,decision_action,reject_code,selected_hit_p,record_hash"
+-                        + " FROM " + DbHelper.TABLE_R35_SHADOW_OBSERVATION
+-                        + " WHERE pre_draw_frozen=1 AND settled=1 AND hit_label=?"
+-                        + " ORDER BY settled_at DESC,target_issue DESC LIMIT 1",
++                "SELECT o.target_issue,o.position,o.n1,o.n2,o.n3,o.actual_number,o.hit_label,"
++                        + "o.decision_action,o.reject_code,o.selected_hit_p,o.record_hash,"
++                        + "s.raw_action_p,s.rank_score,s.rank_no,s.third_margin,s.entropy,"
++                        + "s.stability,s.window_consensus,s.assignment_support FROM "
++                        + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o LEFT JOIN "
++                        + V51Repository.SELECTED + " s ON s.target_issue=o.target_issue"
++                        + " WHERE o.pre_draw_frozen=1 AND o.settled=1 AND o.hit_label=?"
++                        + " ORDER BY o.settled_at DESC,o.target_issue DESC LIMIT 1",
+                 new String[] {String.valueOf(hit)});
+     }
+ 
+     private static Row latestCanonical(SQLiteDatabase db) {
+         return queryOne(db,
+-                "SELECT target_issue,position,n1,n2,n3,actual_number,hit_label,decision_action,reject_code,selected_hit_p,record_hash"
+-                        + " FROM " + DbHelper.TABLE_R35_SHADOW_OBSERVATION
+-                        + " WHERE pre_draw_frozen=1 ORDER BY commit_at DESC,target_issue DESC LIMIT 1",
++                "SELECT o.target_issue,o.position,o.n1,o.n2,o.n3,o.actual_number,o.hit_label,"
++                        + "o.decision_action,o.reject_code,o.selected_hit_p,o.record_hash,"
++                        + "s.raw_action_p,s.rank_score,s.rank_no,s.third_margin,s.entropy,"
++                        + "s.stability,s.window_consensus,s.assignment_support FROM "
++                        + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o LEFT JOIN "
++                        + V51Repository.SELECTED + " s ON s.target_issue=o.target_issue"
++                        + " WHERE o.pre_draw_frozen=1 ORDER BY o.commit_at DESC,o.target_issue DESC LIMIT 1",
+                 null);
+     }
+ 
+@@ -90,7 +100,9 @@
+             c = db.rawQuery(sql, args);
+             if (!c.moveToFirst()) return null;
+             return new Row(c.getString(0), c.getInt(1), c.getInt(2), c.getInt(3), c.getInt(4),
+-                    c.getInt(5), c.getInt(6), c.getString(7), c.getString(8), c.getDouble(9), c.getString(10));
++                    c.getInt(5), c.getInt(6), c.getString(7), c.getString(8), c.getDouble(9),
++                    c.getString(10), nullable(c, 11), nullable(c, 12), c.isNull(13) ? 0 : c.getInt(13),
++                    nullable(c, 14), nullable(c, 15), nullable(c, 16), nullable(c, 17), nullable(c, 18));
+         } finally {
+             if (c != null) c.close();
+         }
+@@ -113,6 +125,29 @@
+         if (Double.isNaN(p) || Double.isInfinite(p) || p < 0.0d || p > 1.0d) return "N/A";
+         return String.format(java.util.Locale.US, "%.2f%%", p * 100.0d);
+     }
++    private static double nullable(Cursor c, int index) {
++        return c.isNull(index) ? Double.NaN : c.getDouble(index);
++    }
++    private static String metric(double value) {
++        return Double.isNaN(value) || Double.isInfinite(value)
++                ? "N/A"
++                : String.format(java.util.Locale.US, "%.4f", value);
++    }
++    private static String evidence(Row r) {
++        if (r == null) return "N/A";
++        double entropyRisk =
++                Double.isNaN(r.entropy) || r.entropy < 0.0d
++                        ? Double.NaN
++                        : Math.max(0.0d, Math.min(1.0d, r.entropy / Math.log(10.0d)));
++        return "原始动作概率=" + probability(r.rawP)
++                + "｜Rank=" + (r.rank > 0 ? r.rank + "/1200" : "N/A")
++                + "｜RankScore=" + metric(r.rankScore)
++                + "｜第三边界=" + metric(r.third)
++                + "｜动作稳定性=" + probability(r.stability)
++                + "｜号码熵风险=" + probability(entropyRisk)
++                + "｜窗口共识=" + probability(r.window)
++                + "｜跨位支持=" + probability(r.assignment);
++    }
+     private static String shortHash(String s) {
+         String x = value(s); return x.length() <= 12 ? x : x.substring(0, 12);
+     }
+@@ -121,11 +156,18 @@
+         final String issue, action, reject, recordHash;
+         final int position, n1, n2, n3, actual, hit;
+         final double selectedP;
++        final double rawP, rankScore, third, entropy, stability, window, assignment;
++        final int rank;
+         Row(String issue, int position, int n1, int n2, int n3, int actual, int hit,
+-                String action, String reject, double selectedP, String recordHash) {
++                String action, String reject, double selectedP, String recordHash,
++                double rawP, double rankScore, int rank, double third, double entropy,
++                double stability, double window, double assignment) {
+             this.issue=value(issue); this.position=position; this.n1=n1; this.n2=n2; this.n3=n3;
+             this.actual=actual; this.hit=hit; this.action=value(action); this.reject=value(reject);
+             this.selectedP=selectedP; this.recordHash=value(recordHash);
++            this.rawP=rawP; this.rankScore=rankScore; this.rank=rank; this.third=third;
++            this.entropy=entropy; this.stability=stability; this.window=window;
++            this.assignment=assignment;
+         }
+     }
+ }
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/release/release_identity.properties ./release/release_identity.properties
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/release/release_identity.properties	2026-08-26 02:44:50.000000000 -0400
++++ ./release/release_identity.properties	2026-08-26 10:34:22.392216701 -0400
+@@ -1,6 +1,6 @@
+ applicationId=com.ethk3.novaonepro
+-versionName=V57.16.2-R4.0.2-902
+-versionCode=577200902
++versionName=V57.16.3-R4.0.3-903
++versionCode=577200903
+ compileSdk=36
+ minSdk=21
+ targetSdk=28
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/scripts/r903_behavior_gate.sh ./scripts/r903_behavior_gate.sh
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/scripts/r903_behavior_gate.sh	1969-12-31 19:00:00.000000000 -0500
++++ ./scripts/r903_behavior_gate.sh	2026-08-26 10:55:19.590494285 -0400
+@@ -0,0 +1,66 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
++TC=${STARCORE_TOOLCHAIN_ROOT:-"$ROOT/../TOOLCHAIN_USED"}
++ANDROID=${STARCORE_ANDROID_JAR:-"$TC/android-platform-36/android.jar"}
++R8=${STARCORE_R8_JAR:-"$TC/r8-9.2.23/r8-9.2.23.jar"}
++EVIDENCE=${R903_EVIDENCE_DIR:-"$ROOT/build/r903-verification/evidence"}
++TMP=$(mktemp -d "${TMPDIR:-/tmp}/starcore-r903-gate.XXXXXX")
++trap 'rm -rf "$TMP"' EXIT HUP INT TERM
++cd "$ROOT"
++
++fail() { echo "R903_GATE=FAIL|$1" >&2; exit 1; }
++require_file() { [ -f "$1" ] || fail "MISSING:$2"; }
++require_text() { rg -q -- "$1" "$2" || fail "$3"; }
++forbid_text() { if rg -q -- "$1" "$2"; then fail "$3"; fi; }
++
++require_file "$ANDROID" ANDROID_PLATFORM_36
++require_file "$R8" R8_D8
++mkdir -p "$TMP/classes" "$TMP/d8" "$EVIDENCE"
++
++require_text '^versionName=V57\.16\.3-R4\.0\.3-903$' release/release_identity.properties VERSION_NAME
++require_text '^versionCode=577200903$' release/release_identity.properties VERSION_CODE
++require_text '^dbVersion=36$' release/release_identity.properties DB_CONTINUITY
++require_text 'drainReadyPredraw\(store, 48, 1200L\)' app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java ALL_CLASS_DRAIN_WIRED
++require_text 'R903_DRAIN_ALL_READY_PREDRAW' app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java READY_PREDRAW_OWNER
++require_text "t.status IN \('PENDING','RETRY_WAIT'\)" app/src/main/java/com/ethk3/novaonepro/SettlementCoordinatorR815.java RETRY_WAIT_INCLUDED
++require_text 'isTransientSettlementFailure' app/src/main/java/com/ethk3/novaonepro/SettlementTaskStoreR36.java TRANSIENT_RETRY_POLICY
++require_text 'captureBatch\(' app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java MULTI_CANDIDATE_WIRED
++require_text 'NOT EXISTS\(SELECT 1 FROM' app/src/main/java/com/ethk3/novaonepro/ResearchShadowChallengerRuntimeR817.java SAME_ISSUE_DUPLICATE_GUARD
++require_text 'drainBatch\(store, 4, 1200L\)' app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java RESEARCH_BATCH_SETTLEMENT
++require_text 'R903_STRUCTURAL_SYNTHESIS' app/src/main/java/com/ethk3/novaonepro/ResearchEvolutionLifecycleR900.java STRUCTURAL_CREATION_LIFECYCLE
++require_text 'R903_METHOD_GRAPH_SYNTHESIS_' app/src/main/java/com/ethk3/novaonepro/StrategyChallengerFactoryEngine.java METHOD_FAMILY_CREATION
++require_text 'MARKOV_REGIME' app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java MARKOV_FAMILY
++require_text 'ONLINE_FOREST' app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java FOREST_FAMILY
++require_text 'TEMPORAL_NEURAL' app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java NEURAL_FAMILY
++require_text 'NOVA_RESIDUAL_TRANSPORT_' app/src/main/java/com/ethk3/novaonepro/ResearchMethodGraphSynthesizerR903.java NOVEL_METHOD_FAMILY
++require_text 'ResearchMainlineGovernorR903\.govern' app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java CERTIFIED_MAINLINE_WIRED
++require_text 'MIN_FUTURE_N = 120' app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java MAINLINE_MIN_FUTURE_N
++require_text 'MIN_WILSON_LOWER = 0\.30d' app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java MAINLINE_WILSON_GATE
++require_text 'MAX_BRIER = 0\.21d' app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java MAINLINE_BRIER_GATE
++require_text 'o\.target_issue<\?' app/src/main/java/com/ethk3/novaonepro/ResearchMainlineGovernorR903.java MAINLINE_PIT_BOUNDARY
++require_text 'renderWhyTruthCardsR903' app/src/main/java/com/ethk3/novaonepro/MainActivity.java RICH_WHY_CARDS
++require_text '原始动作K3概率（未校准）' app/src/main/java/com/ethk3/novaonepro/MainActivity.java RAW_PROBABILITY_HONEST_LABEL
++require_text '号码熵风险：N/A（冻结字段缺失）' app/src/main/java/com/ethk3/novaonepro/MainActivity.java RISK_NA_EXPLICIT
++forbid_text 'R815_SHADOW_ONLY = false|R815_MODEL_PROVEN = true|R815_REAL_BET_HARD_DISABLED = false|MODEL_PROVEN = true|SHADOW_ONLY = false|REAL_BET_HARD_DISABLED = false' app/src/main/java/com/ethk3/novaonepro REAL_BOUNDARY_CHANGED
++
++find app/src/main/java -name '*.java' -print | sort > "$TMP/sources.list"
++java -m jdk.compiler/com.sun.tools.javac.Main -encoding UTF-8 -source 17 -target 17 \
++    -cp "$ANDROID" -d "$TMP/classes" @"$TMP/sources.list" \
++    verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java \
++    verification/r36-stubs/com/ethk3/novaonepro/R.java > "$TMP/javac.log" 2>&1 || fail JAVAC
++java -m jdk.compiler/com.sun.tools.javac.Main -encoding UTF-8 -source 17 -target 17 \
++    -cp "$TMP/classes:$ANDROID" -d "$TMP/classes" verification/r903/R903RepairHarness.java \
++    >> "$TMP/javac.log" 2>&1 || fail HARNESS_COMPILE
++java -cp "$TMP/classes:$ANDROID" com.ethk3.novaonepro.R903RepairHarness \
++    > "$TMP/harness.log" 2>&1 || fail HARNESS
++(cd "$TMP/classes" && zip -q -r "$TMP/classes.jar" .)
++java -cp "$R8" com.android.tools.r8.D8 --release --min-api 21 --lib "$ANDROID" \
++    --output "$TMP/d8" "$TMP/classes.jar" > "$TMP/d8.log" 2>&1 || fail D8
++test -s "$TMP/d8/classes.dex" || fail DEX_EMPTY
++
++cp "$TMP/javac.log" "$TMP/harness.log" "$TMP/d8.log" "$EVIDENCE/"
++sha256sum "$TMP/d8"/classes*.dex > "$EVIDENCE/R903_DEX_SHA256.txt"
++printf 'R903_GATE=PASS\nIDENTITY=V57.16.3-R4.0.3-903/577200903\nSETTLEMENT_ALL_CLASS=PASS\nRESEARCH_BATCH_AND_CREATION=PASS\nWHY_AND_RISK_UI=PASS\nJAVA17_D8=PASS\nREAL_BOUNDARY=PASS\n' \
++    | tee "$EVIDENCE/R903_GATE_SUMMARY.txt"
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/scripts/r903_build_release.sh ./scripts/r903_build_release.sh
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/scripts/r903_build_release.sh	1969-12-31 19:00:00.000000000 -0500
++++ ./scripts/r903_build_release.sh	2026-08-26 10:40:14.809885128 -0400
+@@ -0,0 +1,93 @@
++#!/usr/bin/env bash
++set -euo pipefail
++
++ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
++BASE=${1:-"$ROOT/../APK/Starcore-Tianshu-V57.16.2-R4.0.2-902-release.apk"}
++OUT_DIR=${2:-"$ROOT/build/r903-release"}
++TC=${STARCORE_TOOLCHAIN_ROOT:-"$ROOT/../TOOLCHAIN_USED"}
++ANDROID="$TC/android-platform-36/android.jar"
++R8="$TC/r8-9.2.23/r8-9.2.23.jar"
++APKTOOL="$TC/apktool/apktool.jar"
++LIB="$TC/jadx-node/package/resources/jadx-1.1.0/lib"
++ZIPALIGN="$TC/android-signing/zipalign"
++APKSIGNER="$TC/android-signing/apksigner"
++AAPT2="$TC/aapt/bin/x64/linux/aapt2"
++TMP=$(mktemp -d "${TMPDIR:-/tmp}/starcore-r903-build.XXXXXX")
++trap 'rm -rf "$TMP"' EXIT HUP INT TERM
++
++fail() { echo "R903_RELEASE_BUILD=FAIL|$1" >&2; exit 1; }
++for required in "$BASE" "$ANDROID" "$R8" "$APKTOOL" "$ZIPALIGN" "$APKSIGNER" "$AAPT2"; do
++    [ -f "$required" ] || fail "MISSING:$(basename "$required")"
++done
++mkdir -p "$OUT_DIR/evidence" "$TMP/classes" "$TMP/gen/com/ethk3/novaonepro" \
++    "$TMP/d8" "$TMP/framework" "$TMP/logs"
++cd "$ROOT"
++
++# Recover the already-configured provider key only inside the private temporary tree.
++unzip -p "$BASE" classes.dex > "$TMP/base.dex" || fail BASE_DEX
++java -cp "$LIB/*" org.jf.baksmali.Main d "$TMP/base.dex" -o "$TMP/smali" \
++    > "$TMP/logs/baksmali.log" 2>&1 || fail BASE_DECODE
++BC="$TMP/smali/com/ethk3/novaonepro/BuildConfig.smali"
++[ -f "$BC" ] || fail BASE_BUILD_CONFIG
++A=$(sed -n 's/^\.field public static final DUOQU_API_KEY_A:Ljava\/lang\/String; = "\([A-Za-z0-9][A-Za-z0-9]*\)"$/\1/p' "$BC")
++B=$(sed -n 's/^\.field public static final DUOQU_API_KEY_B:Ljava\/lang\/String; = "\([A-Za-z0-9][A-Za-z0-9]*\)"$/\1/p' "$BC")
++KEY="$A$B"
++[[ "$KEY" =~ ^[A-Za-z0-9]{8,128}$ ]] || fail API_KEY_FORMAT
++sed -e "s/DUOQU_API_KEY_A = \"\"/DUOQU_API_KEY_A = \"$A\"/" \
++    -e "s/DUOQU_API_KEY_B = \"\"/DUOQU_API_KEY_B = \"$B\"/" \
++    verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java \
++    > "$TMP/gen/com/ethk3/novaonepro/BuildConfig.java"
++unset A B KEY
++
++find app/src/main/java -name '*.java' -print | sort > "$TMP/sources.list"
++java -m jdk.compiler/com.sun.tools.javac.Main -encoding UTF-8 -source 17 -target 17 \
++    -cp "$ANDROID" -d "$TMP/classes" @"$TMP/sources.list" \
++    "$TMP/gen/com/ethk3/novaonepro/BuildConfig.java" \
++    verification/r36-stubs/com/ethk3/novaonepro/R.java > "$TMP/logs/javac.log" 2>&1 || fail JAVAC
++(cd "$TMP/classes" && zip -q -r "$TMP/classes.jar" .)
++java -cp "$R8" com.android.tools.r8.D8 --release --min-api 21 --lib "$ANDROID" \
++    --output "$TMP/d8" "$TMP/classes.jar" > "$TMP/logs/d8.log" 2>&1 || fail D8
++
++java -jar "$APKTOOL" d -s -p "$TMP/framework" -f -o "$TMP/decoded" "$BASE" \
++    > "$TMP/logs/apktool-decode.log" 2>&1 || fail APKTOOL_DECODE
++rm -f "$TMP/decoded"/classes*.dex
++cp "$TMP/d8"/classes*.dex "$TMP/decoded/"
++cp app/src/main/AndroidManifest.xml "$TMP/decoded/AndroidManifest.xml"
++cp -R app/src/main/res/. "$TMP/decoded/res/"
++sed -i -e 's/^  versionCode: .*/  versionCode: 577200903/' \
++    -e 's/^  versionName: .*/  versionName: V57.16.3-R4.0.3-903/' "$TMP/decoded/apktool.yml"
++java -jar "$APKTOOL" b -p "$TMP/framework" -o "$TMP/unsigned.apk" "$TMP/decoded" \
++    > "$TMP/logs/apktool-build.log" 2>&1 || fail APKTOOL_BUILD
++UNSIGNED="$OUT_DIR/Starcore-Tianshu-V57.16.3-R4.0.3-903-unsigned-aligned.apk"
++"$ZIPALIGN" -f -p 4 "$TMP/unsigned.apk" "$UNSIGNED" > "$TMP/logs/zipalign.log" 2>&1 || fail ZIPALIGN
++"$AAPT2" dump badging "$UNSIGNED" > "$TMP/logs/aapt2-badging.log" || fail BADGING
++rg -q "package: name='com.ethk3.novaonepro' versionCode='577200903' versionName='V57.16.3-R4.0.3-903'" \
++    "$TMP/logs/aapt2-badging.log" || fail IDENTITY
++unzip -t "$UNSIGNED" > "$TMP/logs/unzip-test.log" || fail ZIP_VERIFY
++sha256sum "$UNSIGNED" > "$OUT_DIR/evidence/R903_UNSIGNED_APK_SHA256.txt"
++
++if [ -z "${STARCORE_SIGNING_P12:-}" ] || [ -z "${STARCORE_SIGNING_PASSWORD:-}" ]; then
++    cp "$TMP/logs/"* "$OUT_DIR/evidence/"
++    printf 'R903_RELEASE_BUILD=VERIFY_ONLY\nUNSIGNED_ALIGNED=%s\nIDENTITY=PASS\nSIGNING=BLOCKED_ORIGINAL_PRIVATE_KEY_NOT_PROVIDED\nOVERWRITE_INSTALL=NOT_CLAIMED\n' \
++        "$UNSIGNED" | tee "$OUT_DIR/evidence/R903_RELEASE_BUILD_SUMMARY.txt"
++    exit 0
++fi
++
++P12=$STARCORE_SIGNING_P12
++PASS=$STARCORE_SIGNING_PASSWORD
++ALIAS=${STARCORE_SIGNING_ALIAS:-starcore-r902}
++TYPE=${STARCORE_SIGNING_TYPE:-PKCS12}
++[ -f "$P12" ] || fail SIGNING_KEY_MISSING
++SIGNED="$OUT_DIR/Starcore-Tianshu-V57.16.3-R4.0.3-903-release.apk"
++"$APKSIGNER" sign --ks "$P12" --ks-type "$TYPE" --ks-key-alias "$ALIAS" \
++    --ks-pass "pass:$PASS" --key-pass "pass:$PASS" --min-sdk-version 21 \
++    --out "$SIGNED" "$UNSIGNED" > "$TMP/logs/apksigner-sign.log" 2>&1 || fail SIGN
++unset PASS
++"$APKSIGNER" verify --verbose --print-certs "$SIGNED" > "$TMP/logs/apksigner-verify.log" 2>&1 || fail SIGN_VERIFY
++cert_sha=$(sed -n 's/^.*certificate SHA-256 digest: //p' "$TMP/logs/apksigner-verify.log" | head -n 1)
++base_cert=$("$APKSIGNER" verify --print-certs "$BASE" 2>/dev/null | sed -n 's/^.*certificate SHA-256 digest: //p' | head -n 1)
++[ -n "$base_cert" ] && [ "$base_cert" = "$cert_sha" ] || fail SIGNING_CERT_CHANGED
++cp "$TMP/logs/"* "$OUT_DIR/evidence/"
++sha256sum "$SIGNED" > "$OUT_DIR/evidence/R903_SIGNED_APK_SHA256.txt"
++printf 'R903_RELEASE_BUILD=PASS\nAPK=%s\nCERT_SHA256=%s\nSIGNATURE_CONTINUITY=PASS_OVERWRITE_INSTALL\n' \
++    "$SIGNED" "$cert_sha" | tee "$OUT_DIR/evidence/R903_RELEASE_BUILD_SUMMARY.txt"
+diff -ruN '--exclude=build' '--exclude=R902_TO_R903_FULL.patch' /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/verification/r903/R903RepairHarness.java ./verification/r903/R903RepairHarness.java
+--- /tmp/starcore-r902-original.oVCice/R902_DELIVERY/SOURCE_COMPLETE/verification/r903/R903RepairHarness.java	1969-12-31 19:00:00.000000000 -0500
++++ ./verification/r903/R903RepairHarness.java	2026-08-26 10:55:45.107188607 -0400
+@@ -0,0 +1,81 @@
++package com.ethk3.novaonepro;
++
++import java.util.HashSet;
++import java.util.List;
++
++/** Host-side invariant checks for the R903 settlement/research repair. */
++public final class R903RepairHarness {
++    public static void main(String[] args) {
++        String hash = repeat('a', 64);
++        List<ResearchStrategyDslEngine.Node> first =
++                ResearchNovelFormulaSynthesizerR903.create(
++                        "NUMBER_RISK", "disagreement and residual", hash, 20);
++        List<ResearchStrategyDslEngine.Node> second =
++                ResearchNovelFormulaSynthesizerR903.create(
++                        "NUMBER_RISK", "disagreement and residual", hash, 20);
++        require(first.size() >= 16, "NOVEL_COUNT=" + first.size());
++        require(first.size() == second.size(), "NON_DETERMINISTIC_COUNT");
++        HashSet<String> unique = new HashSet<String>();
++        boolean disagreement = false, ratio = false, interaction = false;
++        for (int i = 0; i < first.size(); i++) {
++            String a = ResearchStrategyDslEngine.canonical(first.get(i));
++            String b = ResearchStrategyDslEngine.canonical(second.get(i));
++            require(a.equals(b), "NON_DETERMINISTIC_FORMULA_" + i);
++            require(unique.add(a), "DUPLICATE_FORMULA_" + i);
++            require(ResearchStrategyDslEngine.complexity(first.get(i)) > 0.0d, "ZERO_COMPLEXITY");
++            disagreement |= a.indexOf("ABS(SUB(") >= 0;
++            ratio |= a.indexOf("SAFE_DIV(") >= 0;
++            interaction |= a.indexOf("INTERACTION(") >= 0;
++        }
++        require(disagreement && ratio && interaction, "STRUCTURAL_DIVERSITY_MISSING");
++        List<ResearchMethodGraphSynthesizerR903.Blueprint> methods =
++                ResearchMethodGraphSynthesizerR903.create(
++                        "MODEL_ERROR", "create distinct method families", hash, 52);
++        HashSet<String> families = new HashSet<String>();
++        boolean markov = false, forest = false, neural = false, graph = false, moe = false, novel = false;
++        for (int i = 0; i < methods.size(); i++) {
++            ResearchMethodGraphSynthesizerR903.Blueprint method = methods.get(i);
++            require(families.add(method.family), "DUPLICATE_METHOD_FAMILY");
++            require(method.canonicalSpec.indexOf("PIT_PROTOCOL") >= 0, "METHOD_PIT_PROTOCOL");
++            require(method.canonicalSpec.indexOf("FALSIFY") >= 0, "METHOD_FALSIFIER");
++            require(method.canonicalSpec.indexOf("real_authority=false") >= 0, "METHOD_REAL_BOUNDARY");
++            markov |= "MARKOV_REGIME".equals(method.family);
++            forest |= "ONLINE_FOREST".equals(method.family);
++            neural |= "TEMPORAL_NEURAL".equals(method.family);
++            graph |= "PERMUTATION_GRAPH".equals(method.family);
++            moe |= "DIVERSE_MOE".equals(method.family);
++            novel |= method.family.startsWith("NOVA_");
++        }
++        require(methods.size() >= 10, "METHOD_FAMILY_COUNT=" + methods.size());
++        require(markov && forest && neural && graph && moe && novel, "METHOD_FAMILY_DIVERSITY");
++        require(ResearchMainlineGovernorR903.MIN_FUTURE_N >= 120, "MAINLINE_SAMPLE_GATE");
++        require(ResearchMainlineGovernorR903.MIN_WILSON_LOWER >= 0.30d, "MAINLINE_WILSON_GATE");
++        require(ResearchMainlineGovernorR903.MAX_BRIER <= 0.21d, "MAINLINE_BRIER_GATE");
++        require(ResearchMainlineGovernorR903.SIMULTANEOUS_Z >= 3.4d, "MAINLINE_MULTIPLE_TEST_GATE");
++        require(!ResearchMainlineGovernorR903.MAY_AUTHORIZE_REAL, "MAINLINE_REAL_AUTHORITY");
++        require(V51BuildManifest.VERSION_CODE == 577200903, "VERSION_CODE");
++        require(
++                "V57.16.3-R4.0.3-903".equals(V51BuildManifest.VERSION_NAME),
++                "VERSION_NAME");
++        require(V51BuildManifest.SHADOW_ONLY, "RESEARCH_BOUNDARY_SHADOW_ONLY");
++        require(V51BuildManifest.REAL_BET_HARD_DISABLED, "REAL_HARD_LOCK");
++        System.out.println(
++                "R903_REPAIR_HARNESS=PASS|novel="
++                        + first.size()
++                        + "|unique="
++                        + unique.size()
++                        + "|methodFamilies="
++                        + families.size()
++                        + "|structuralDiversity=PASS|realBoundary=PASS");
++    }
++
++    private static String repeat(char value, int count) {
++        StringBuilder out = new StringBuilder(count);
++        for (int i = 0; i < count; i++) out.append(value);
++        return out.toString();
++    }
++
++    private static void require(boolean condition, String code) {
++        if (!condition) throw new AssertionError("R903_" + code);
++    }
++}

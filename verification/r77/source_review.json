@@ -1,0 +1,82 @@
+{
+  "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java": {
+    "sha256": "f7b1da0722b62dee468382820396ba4c4e359bdddd10d2e0636a77b4c3f62f36",
+    "rationale": "R77: Preserve the invocation-specific SQL cause for lease pulse and history binding; an unavailable writer is not a false owner-CAS mismatch. Original request, generation, owner, hash and deadline predicates are unchanged."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java": {
+    "sha256": "11ac814b002c8574f2bbd8dcaa5886568f06c6a30b315c264d094fa5bdc1db7b",
+    "rationale": "R77: Remove optional snapshot persistence from HTTP admission; move decision/backtest display callbacks to the existing guard handler with paired cleanup; choose next transport wake from memory. Coalesce lease renewals after a successful claim while preserving checkpoint and final CAS checks. Recover only exited owners by exact request/owner/generation/hash through the existing analysis handler; superseded, drawn or expired requests cannot reenter retry. Separate optional post-commit display failures from committed business results. No new numerical scorer, authority, transport provider or reflection target."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/CandidateCalibrationR932.java": {
+    "sha256": "54dbebebe3b3ac1fdde8fc911863d730cfa6b4f96df82f0d8ba76d4ce72edf34",
+    "rationale": "R77: Require capture strictly before authenticated draw time at settlement and fitting. Late pending observations retain terminal invalid -2 and never enter win/loss denominators. Block corrupt READY inputs, release their reservation and permit only input-failure prospective restart with no copied labels or retry after quality failure. Calibration formulas, thresholds, statistical budgets and certificate gates remain unchanged."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/CrashRecorder.java": {
+    "sha256": "1f71c281105cc72724920aa5171504b474cb89bc39dfbf93d89546953d44538b",
+    "rationale": "R77: Display expired fixed-window crash counts as zero current events, retain original counts/timestamps and report UNKNOWN when no rolling timestamps can establish a recent count. No numerical training behavior."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java": {
+    "sha256": "aa2477e2bd9b4495e8430e1350447f2aece3743727a983c71d2ee85d41b9c575",
+    "rationale": "R77: Use an indexed necessary leading-range existence check before the original archive row selector. Only a verified conjunct can be factored out; a positive result grants no deletion authority. Original exact eligibility, protected window, dependency pins, row generation, archive proof and CAS deletion remain unchanged; no new dynamic targets."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DbHelper.java": {
+    "sha256": "754c01343d9fe165c24869495a07190878fb0d4e68012a4ebe92b550423c8382",
+    "rationale": "R77: Configure busy_timeout on every current and future pooled connection on API33+, using the existing exact 50ms value. API30-32 and older use an explicitly pinned primary writer plus reader PRAGMA because their native per-connection execution rejects row-returning PRAGMAs. Fail closed on setup/verification errors; no schema, training values or SQLite replacement."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DbStore.java": {
+    "sha256": "e0a2fdc7fe3820256785e946f5d38d70b4752a47ebc9d2ad8b5772058facafc2",
+    "rationale": "R77: Batch unchanged runtime status fields into one existing coordinated SQLite transaction. Treat negative insert return as failure and propagate strict batch errors to enclosing owners for rollback. A separate outside-transaction optional telemetry API preserves already committed owner results on display failure, rejects nested use before writing and cannot grant cursor/receipt/eligibility authority. No reflection targets or numerical values change."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java": {
+    "sha256": "d5265d556aa7a5ce4d15641b1ddf37923c50815ae237242a5f288cb2b40de653",
+    "rationale": "R77: Authenticate retained calibration open time using the complete original input hash, valid issue/permutation, dirty flag and draw hash version. Keep settled binary calibration draw inputs while COLLECTING/READY and release after terminal study state. No new labels, fabricated open time, or retained fallback over a dirty hot row."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/FrozenCandidateAdapterR958.java": {
+    "sha256": "1657d79eb80f63fbc102907584efaffc6010b1d76152a3944f126bf4bca6d82e",
+    "rationale": "R77: Apply the existing one-minute target deadline before computation and inside the transaction before/after candidate publication; crossing the boundary rolls back the complete observation. Same frozen model, point-in-time input, 1200 action scoring, selected action and evidence gates."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/LiveResearchDiagnosisOrchestrator.java": {
+    "sha256": "a89c5b3b9ac2a58e8e794075c5d652a98eeb69b3692487496d189bf0d32d4c0d",
+    "rationale": "R77: Classify partial deferred action persistence as awaiting retest only with the exact pending owner states; completed missing/excess action rows and read errors remain failures. Report explicit missing predraw coverage instead of an invented settlement obligation. Runtime latency and integrity gates are unchanged."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java": {
+    "sha256": "5269face2938d4a6d9bc38b9cc76eb34d33838fb487b8bc7955604162d00f0e1",
+    "rationale": "R77: After the existing artifact and learned receipt transaction has succeeded, make only the dashboard projection optional. Preserve authoritative training result, artifact hashes, numerical updates and replay/exactly-once rules; do not skip subsequent learner work due solely to display failure."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java": {
+    "sha256": "a5798f5119e48eae96eec9f690857eaabbb74f1b7ef413f086a2e68c85505692",
+    "rationale": "R77: After the lane receipt has committed, make only its dashboard summary optional. Lane scheduling, owner execution, durable cursor and receipt conditions remain unchanged; telemetry failure cannot relabel successful work as owner ERROR."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ResearchPredrawCaptureR923.java": {
+    "sha256": "8f312d9f928043ecf24eb434b92801c2bb9c3191a3a4465fa9b190c7281dff83",
+    "rationale": "R77: Reject an already expired target before spending the research capture slice, using the existing target resolver and base draw deadline. Existing due reservation priority and immutable capture contract remain unchanged."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ResearchSettlementSidecarR811.java": {
+    "sha256": "b450abbca635f3526cb1b2d1730c67f295d25750165fe38ddca412b88feef87f",
+    "rationale": "R77: Make only the summary of already returned FTRL/Tiny learner results optional outside their transactions. Preserve learning cursors, trained receipts and settlement ownership; a display failure does not convert committed learning to a failure."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ResearchShadowChallengerRuntimeR817.java": {
+    "sha256": "32015166406fc1d6b9a7b85161d2185362707fcfdf66af173d88b371b6daa542",
+    "rationale": "R77: After the frozen prediction transaction has completed, make only the adaptive dashboard state optional. The prediction receipt, success result, model parameters, timing and immutable evidence remain authoritative."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/RuntimeHealthLedgerR36.java": {
+    "sha256": "c01e1dfcda89d5d4f89b0d719922585bd3834cafc0c0eb3d18f2925b14f8d82f",
+    "rationale": "R77: Compare settlement lag with the newest actual immutable predraw obligation and separately retain a failing missing-predraw-coverage signal. Live and report snapshots use identical classification. No change to settlement, labels or canonical decisions."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/TrainingContinuationR973.java": {
+    "sha256": "d1e62392e9040d9be0735ec4c5985787bdc655be9e1279ff88c11e89d56cfdef",
+    "rationale": "R77: Accept at most twelve exact individually reviewed R65-R76 DEV predecessor hashes from generated build inputs. Unknown, malformed, duplicate and over-limit hashes fail closed; no transitive trust, evidence/certificate migration or model qualification."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentProductionCP12.java": {
+    "sha256": "56b8e8f02b86ab2d65e21500a050d1568ad049d3f48e1c272b65ed3ff6d9abe7",
+    "rationale": "R77: Compute the identical ordered feature rows in pages capped at 64 rows and 128KiB retained bytes. Keep at most four process-local prepared pages under the shared memory budget, bound to task/protocol/input/cursor/database path; original lease/generation/prefix CAS governs every commit. Preserve completed rows across transient writer/P0 failure, release memory after commit/eviction and use durable progress after restart. No feature formula, dataset, numeric training or checkpoint format change."
+  },
+  "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java": {
+    "sha256": "e78a17fb59a195520d679c1738dbb84df9b172c45fa936024c67bb863df94d6a",
+    "rationale": "R77: Alternate an existing ready modern-training turn with the original six-owner wheel, retaining the normal cursor during reserved turns. Preserve owner work quanta, P0 priority, deadlines, readiness and fairness; no numerical formulas, task eligibility or artificial samples."
+  },
+  "scripts/r967_semantic_identity.py": {
+    "sha256": "4070382335b11fa5dbaa06a230472a00be4a3d442718864161d38bb8c063d852",
+    "rationale": "R77: Extend finite modern DEV continuation by exactly the final byte-pinned R76 manifest, retaining each exact reviewed before/after digest and all policy/runtime/provenance mutation checks. Twelve named modern predecessors; legacy maximum eight unchanged. No certificate or historical evidence compatibility."
+  }
+}

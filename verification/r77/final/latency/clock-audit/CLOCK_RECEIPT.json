@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "allFinalFixtureClocksAreReal": true,
+  "oldEvidenceRevoked": false,
+  "reason": "Both final fixture classpaths already used real nanoTime adapters copied from R76 fetch_callback, not host-schema counter clocks. Runtime checks loaded each original fixture clock class without replacing it.",
+  "rows": [
+    {
+      "fixture": "final-lease",
+      "clockClassSha256": "b627ff56ef7f7472fa10a9d06090668f7a21b3b79d468f6030292200c95b0a16",
+      "clockBytecode": "System.nanoTime real monotonic / Thread.sleep",
+      "javapSha256": "5cdb55661f82265a43328cd03ab33336ccd1c718c0aa3d20b64d422951e06ce4",
+      "runtime": {
+        "status": "PASS",
+        "probes": 30000,
+        "elapsedDeltaMs": 34,
+        "sleepNanoDuration": 30192699,
+        "sleepElapsedDurationMs": 30,
+        "classSource": "file:/workspace/scratch/e2544c9906f6/r77-latency/final-lease/tests/"
+      }
+    },
+    {
+      "fixture": "final-fetch",
+      "clockClassSha256": "b627ff56ef7f7472fa10a9d06090668f7a21b3b79d468f6030292200c95b0a16",
+      "clockBytecode": "System.nanoTime real monotonic / Thread.sleep",
+      "javapSha256": "5cdb55661f82265a43328cd03ab33336ccd1c718c0aa3d20b64d422951e06ce4",
+      "runtime": {
+        "status": "PASS",
+        "probes": 30000,
+        "elapsedDeltaMs": 34,
+        "sleepNanoDuration": 30160071,
+        "sleepElapsedDurationMs": 30,
+        "classSource": "file:/workspace/scratch/e2544c9906f6/r77-latency/final-fetch/tests/"
+      }
+    }
+  ]
+}

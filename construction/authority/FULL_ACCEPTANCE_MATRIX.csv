@@ -1,0 +1,40 @@
+﻿id,domain,test,pass,source
+T-M1-01,PIT,随机100 target所有source issue < target,PASS=100/100,七批十模块原验收
+T-M1-02,Dataset hash,重复构建,hash完全一致,七批十模块原验收
+T-M2-01,Sinkhorn,行列和/finite,最大误差<=1e-6且finite,七批十模块原验收
+T-M2-02,Deep parity,Python/Java/Android NumberQ,fixture逐元素误差<=约定epsilon,七批十模块原验收
+T-M3-01,1200 universe,每issue 1200 action,ordinal 0..1199唯一,七批十模块原验收
+T-M3-02,Groupwise rank,统计单位,任何显著性N只按issue计,七批十模块原验收
+T-M3-03,Rank parity,100 issue×1200,Rank1 100%一致,七批十模块原验收
+T-M4-01,Calibration PIT,calibration只用cross-fitted selected,无泄漏,七批十模块原验收
+T-M4-02,Calibration,ECE/Brier,达到发布阈值且不劣Champion,七批十模块原验收
+T-M5-01,Regime support,support不足,只能PAUSE不能QUALITY_PRUNE,七批十模块原验收
+T-M6-01,Certificate ladder,L3→L7,每级新Future窗口不可复用,七批十模块原验收
+T-M6-02,Weight ladder,0/5/12/20/30,无对应证书不得越级,七批十模块原验收
+T-M7-01,Family dedupe,结构/行为/统计,同质候选不重复占active,七批十模块原验收
+T-M7-02,FDR,层级校正,family_q/within_q/final_q均可追溯,七批十模块原验收
+T-M8-01,Failure repair,每child,必须有repair_target或明确NEW_FAMILY,七批十模块原验收
+T-M8-02,Counterfactual,开奖后分析,不得回写当期predraw,七批十模块原验收
+T-M9-01,Atom PIT,165生产原子,PIT=PASS,七批十模块原验收
+T-M9-02,Atom leakage,A9 postdraw,本期评分调用=0,七批十模块原验收
+T-M10-01,Pause/Prune,系统漏捕获,不得永久淘汰,七批十模块原验收
+T-M10-02,Elite repair,N>=120高潜候选,父证据不复制，child N=0,七批十模块原验收
+T-INTEG-01,End-to-end,fetch→predict→settle→learn→next,连续120期无断链,七批十模块原验收
+T-INTEG-02,Latency,warm steady-state,P95<=5s且research不阻塞,七批十模块原验收
+T-INTEG-03,No direct REAL,Research/Algorithm,BET writer=0,七批十模块原验收
+U-E2E-001,Future chain,new candidate created→predraw frozen,frozen row before draw; hashes complete,超级统一E2E新增硬门
+U-E2E-002,Future chain,draw→settlement→strict label,future_n 0→1 exactly once,超级统一E2E新增硬门
+U-E2E-003,Training,same label delivered twice,training executes once; cursor monotonic,超级统一E2E新增硬门
+U-E2E-004,Recovery,process dies after RUNNING before commit,lease takeover/replay; no duplicate,超级统一E2E新增硬门
+U-E2E-005,Lifecycle,insufficient Future evidence,must not promote; blocker explicit,超级统一E2E新增硬门
+U-E2E-006,Certificate,dependency hash drift,authorization rejected,超级统一E2E新增硬门
+U-E2E-007,Mainline,valid research certificate,contribution allowed; mayCreateReal=false,超级统一E2E新增硬门
+U-E2E-008,Owner,Research attempts REAL,hard reject,超级统一E2E新增硬门
+U-E2E-009,PIT,feature source issue >= target,hard reject,超级统一E2E新增硬门
+U-E2E-010,Future,post-draw freeze attempt,hard reject,超级统一E2E新增硬门
+U-E2E-011,Scheduler,many candidates with Future deficit,N=0 candidates receive priority/fairness,超级统一E2E新增硬门
+U-E2E-012,Evolution,child candidate born,"child Future N=0, no inherited proof",超级统一E2E新增硬门
+U-E2E-013,Background,screen off/restart/network recovery,full loop resumes with durable cursor,超级统一E2E新增硬门
+U-E2E-014,Storage,rolling window cleanup,<=5000 online issues; pending evidence preserved,超级统一E2E新增硬门
+U-E2E-015,UI/diagnostics,all counters zero,top blocker reasons explain exact stage,超级统一E2E新增硬门
+U-E2E-016,Package,source/APK/signature/manifest,all identity hashes consistent,超级统一E2E新增硬门

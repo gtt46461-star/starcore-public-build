@@ -1,0 +1,207 @@
+--- FINAL_CANONICAL_AFTER/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
++++ actual-current/app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java
+@@ -34,12 +34,12 @@
+         try{REQUESTS.execute(()->{try{
+             JSONObject request=new JSONObject();request.put("revision","REPORT_REQUEST_CP12_1");request.put("requestId",id);request.put("mode","FULL_REPORT");
+             request.put("releaseHash",ReleaseManifestR926.MANIFEST_SHA256);request.put("createdWallMs",System.currentTimeMillis());
+-            JSONObject observation=new JSONObject();observation.put("pid",android.os.Process.myPid());observation.put("sampleWallMs",System.currentTimeMillis());observation.put("sampleElapsedMs",SystemClock.elapsedRealtime());
+-            observation.put("frameSummary",boundedObservation(FrameMetricsR906.latestSummary()));observation.put("process",app.getPackageName());
+-            observation.put("crashSummary",boundedObservation(CrashRecorder.detailedSummary(app)));observation.put("heartbeatSummary",boundedObservation(new ServiceHeartbeatStore(app).detailedSummary()));
+-            DatabaseCoordinator coordinator=DatabaseCoordinator.peek();if(coordinator!=null){observation.put("dbWaitMs",coordinator.lastDbLockWaitMs());observation.put("dbWaitMaxMs",coordinator.longestDbLockWaitMs());observation.put("researchSchemaReady",coordinator.isR811ResearchSchemaReady());observation.put("schemaStartupSummary",boundedObservation(coordinator.startupSchemaSummary()));}observation.put("realtimePressure",RealtimePressureGateR811.isUnderPressure());observation.put("fetchWriteError",boundedObservation(FetchLedgerR925.reportWriteErrorObservationCP12()));
++            File root=requestRoot(app);JSONObject observation=new JSONObject();observation.put("pid",android.os.Process.myPid());observation.put("sampleWallMs",System.currentTimeMillis());observation.put("sampleElapsedMs",SystemClock.elapsedRealtime());
++            ReportJobJournalCP12.collectObservation(root,id,observation,"frameSummary",()->FrameMetricsR906.latestSummary());observation.put("process",app.getPackageName());
++            ReportJobJournalCP12.collectObservation(root,id,observation,"crashSummary",()->CrashRecorder.detailedSummary(app));ReportJobJournalCP12.collectObservation(root,id,observation,"heartbeatSummary",()->new ServiceHeartbeatStore(app).detailedSummary());
++            DatabaseCoordinator coordinator=DatabaseCoordinator.peek();if(coordinator!=null){observation.put("dbWaitMs",coordinator.lastDbLockWaitMs());observation.put("dbWaitMaxMs",coordinator.longestDbLockWaitMs());observation.put("researchSchemaReady",coordinator.isR811ResearchSchemaReady());ReportJobJournalCP12.collectObservation(root,id,observation,"schemaStartupSummary",()->coordinator.startupSchemaSummary());}observation.put("realtimePressure",RealtimePressureGateR811.isUnderPressure());ReportJobJournalCP12.collectObservation(root,id,observation,"fetchWriteError",()->FetchLedgerR925.reportWriteErrorObservationCP12());
+             request.put("observation",observation);
+-            File root=requestRoot(app);ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());
++            ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".json"),request.toString());
+             ReportRequestQueueCP12.enqueue(root,id,"FULL_REPORT");kick(app,ACTION_EXPORT,id);
+         }catch(Throwable error){requestFailure(app,id,error);}});}catch(RejectedExecutionException full){requestFailure(app,id,new IOException("REPORT_REQUEST_QUEUE_FULL"));}
+         return id;
+@@ -57,14 +57,16 @@
+         } catch(IOException error){throw error;}catch(Exception error){throw new IOException("RETENTION_REQUEST_INVALID",error);}
+     }
+     public static void requestCancel(Context context,String jobId)throws Exception {
+-        requireHash(jobId);Context app=context.getApplicationContext();JSONObject command=new JSONObject();command.put("jobId",jobId);command.put("cancel",true);command.put("createdWallMs",System.currentTimeMillis());
+-        ReportJobJournalCP12.writeAtomic(new File(requestRoot(app),"cancel.json"),command.toString());kick(app,ACTION_CANCEL,jobId);
++        requireHash(jobId);Context app=context.getApplicationContext();ReportJobJournalCP12.requestCancellation(requestRoot(app),jobId);kick(app,ACTION_CANCEL,jobId);
++    }
++    public static void resumeExport(Context context,String jobId)throws IOException {
++        requireHash(jobId);
++        kick(context.getApplicationContext(),ACTION_RESUME,jobId);
+     }
+     private static void kick(Context app,String action,String id){Intent intent=new Intent(app,ReportExportServiceCP4.class).setAction(action).putExtra("id",id);
+         if(Build.VERSION.SDK_INT>=26)app.startForegroundService(intent);else app.startService(intent);}
+     private static File requestRoot(Context app)throws IOException{File root=new File(app.getFilesDir(),"r981_reports");if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_ROOT_CREATE");return root;}
+-    private static String boundedObservation(String summary)throws IOException{if(summary==null)return "OBSERVATION_UNAVAILABLE";if(summary.getBytes(StandardCharsets.UTF_8).length>16384)throw new IOException("REPORT_OBSERVATION_BOUND");return summary;}
+-    private static void requestFailure(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));ReportJobJournalCP12.writeAtomic(new File(requestRoot(app),"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
++    private static void requestFailure(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));File root=requestRoot(app);try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error));}catch(Exception unavailable){failure.put("recoveryFailure",boundedReason(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage()));}ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
+     private static String id(String mode){return RetentionArchiveProtocolCP12.sha(("REPORT_CP12|"+ReleaseManifestR926.MANIFEST_SHA256+"|"+mode+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));}
+     private static void requireHash(String value)throws IOException{if(value==null||!value.matches("[0-9a-f]{64}"))throw new IOException("REPORT_HASH");}
+ 
+@@ -72,7 +74,7 @@
+         controlTimer=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"report-control-cp12"));
+         controlTimer.scheduleWithFixedDelay(()->{ActiveControl active=control;if(active!=null&&!active.shouldContinue()){ReportCatalogCP4.cancelActive();Future<?> future=workerFuture;if(future!=null)future.cancel(true);}},250,250,TimeUnit.MILLISECONDS);}
+     @Override public int onStartCommand(Intent intent,int flags,int startId){lastStartId=startId;foreground("报告等待处理");
+-        if(intent!=null&&ACTION_CANCEL.equals(intent.getAction())){String key=intent.getStringExtra("id");if(key!=null&&key.matches("[0-9a-f]{64}")){ActiveControl active=control;if(active!=null&&active.cancelKey.equals(key))active.cancel.set(true);try{REQUESTS.execute(()->{try{JSONObject command=new JSONObject();command.put("jobId",key);command.put("cancel",true);command.put("createdWallMs",System.currentTimeMillis());ReportJobJournalCP12.writeAtomic(new File(requestRoot(getApplicationContext()),"cancel.json"),command.toString());}catch(Exception error){android.util.Log.e("ReportExportCP12","cancel command persistence failed",error);}});}catch(RejectedExecutionException full){android.util.Log.w("ReportExportCP12","active task cancel is set; redelivered intent will persist after restart",full);}}}
++        if(intent!=null&&ACTION_CANCEL.equals(intent.getAction())){String key=intent.getStringExtra("id");if(key!=null&&key.matches("[0-9a-f]{64}")){ActiveControl active=control;if(active!=null&&active.cancelKey.equals(key))active.cancel.set(true);try{REQUESTS.execute(()->{try{ReportJobJournalCP12.requestCancellation(requestRoot(getApplicationContext()),key);}catch(Exception error){android.util.Log.e("ReportExportCP12","cancel command persistence failed",error);}});}catch(RejectedExecutionException full){android.util.Log.w("ReportExportCP12","active task cancel is set; redelivered intent will persist after restart",full);}}}
+         if(drainQueued.compareAndSet(false,true)){try{workerFuture=worker.submit(this::drain);}catch(RejectedExecutionException full){drainQueued.set(false);}}
+         return START_REDELIVER_INTENT;}
+     @Override public IBinder onBind(Intent intent){return null;}
+@@ -84,10 +86,13 @@
+         startForeground(NOTIFICATION,builder.setSmallIcon(android.R.drawable.stat_notify_sync).setContentTitle("STARCORE 检测报告").setContentText(text).setOngoing(true).build());}
+ 
+     private void drain(){
++        String currentRequest="";
+         try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(getFilesDir())) {
+-            if(journal==null)return;ReportPublicationCP12.pruneRequestMetadata(journal.root(),System.currentTimeMillis());requireDiagnosticProcess();ReportNativeCP4.loadForDiagnosticProcess(processName(),getPackageName());
+-            ReportJobJournalCP12.Job job=journal.current();JSONObject request=null;
+-            if(job!=null&&isActive(job)){request=loadRequest(journal.root(),job.requestId);}
++            if(journal==null)return;String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
++            ReportPublicationCP12.pruneRequestMetadata(journal.root(),System.currentTimeMillis());
++            ReportJobJournalCP12.Job job=journal.current();if(job!=null&&isActive(job))currentRequest=job.requestId;
++            requireDiagnosticProcess();ReportNativeCP4.loadForDiagnosticProcess(processName(),getPackageName());JSONObject request=null;
++            if(job!=null&&isActive(job)){currentRequest=job.requestId;request=loadRequest(journal.root(),job.requestId);}
+             else {request=nextRequest(journal.root());if(request==null)return;
+                 String requestId=request.getString("requestId"),mode=request.getString("mode");requireHash(requestId);
+                 if(mode.equals("SAF_TRANSFER")){runSafRequest(request,journal.root());return;}
+@@ -161,9 +166,17 @@
+                 else if(reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED")){job.preemptions++;job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";if(job.preemptions>30){job.lastReason="REPORT_PREEMPTION_LIMIT";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}else{journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}}
+                 else if(isRetryable(reason)&&++job.failureAttempts<3){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}
+                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}
++                if(job.stage.equals("FAILED")&&job.mode.equals("FULL_REPORT"))try{ReportJobJournalCP12.writeFailureArtifact(journal.root(),job.requestId,error);}catch(Exception unavailable){android.util.Log.e("ReportExportCP12","recovery evidence unavailable",unavailable);}
+                 journal.acknowledge(job.requestId,job);
+             } finally {control=null;}
+-        }catch(Throwable error){android.util.Log.e("ReportExportCP12","report owner failed",error);}
++        }catch(Throwable error){if(!currentRequest.isEmpty()){
++            requestFailure(getApplicationContext(),currentRequest,error);
++            try(ReportJobJournalCP12 recovery=ReportJobJournalCP12.tryClaim(getFilesDir())){if(recovery!=null){
++                ReportJobJournalCP12.Job failed=recovery.current();
++                if(failed!=null&&failed.requestId.equals(currentRequest)&&isActive(failed)){failed.lastReason=classify(error);recovery.transition(failed,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());recovery.acknowledge(currentRequest,failed);}
++                ReportRequestQueueCP12.removeHead(recovery.root(),currentRequest);
++            }}catch(Exception recoveryFailure){android.util.Log.e("ReportExportCP12","report failure receipt recovery failed",recoveryFailure);}
++        }android.util.Log.e("ReportExportCP12","report owner failed",error);}
+         finally{drainQueued.set(false);main.post(()->{stopForeground(false);stopSelfResult(lastStartId);});if(!destroyed.get()){try{File root=requestRoot(this);if(ReportRequestQueueCP12.head(root)!=null)scheduleResume("");}catch(Exception ignored){}}}
+     }
+     private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal)throws Exception {
+@@ -211,7 +224,17 @@
+     private static void deleteFile(File file)throws IOException{if(file.exists()&&!file.delete())throw new IOException("REPORT_TEMP_CLEANUP");}
+     private static void sync(File file)throws IOException{try(RandomAccessFile io=new RandomAccessFile(file,"rw")){io.getFD().sync();}}
+     private static String boundedReason(String value){if(value==null)return "REPORT_UNCLASSIFIED_FAILURE";return value.length()<=512?value:value.substring(0,512);}
+-    private static String classify(Throwable error){if(error instanceof ReportNativeCP4.Failure){ReportNativeCP4.Failure failure=(ReportNativeCP4.Failure)error;return boundedReason("REPORT_NATIVE_"+failure.stage+"_"+failure.nativeCode);}String text=error.getMessage();return boundedReason(text!=null&&(text.startsWith("REPORT_")||text.startsWith("RETENTION_"))?text:error.getClass().getSimpleName());}
++    private static boolean storageFull(Throwable error){for(int depth=0;error!=null&&depth<16;depth++,error=error.getCause())if(error instanceof android.system.ErrnoException&&((android.system.ErrnoException)error).errno==android.system.OsConstants.ENOSPC)return true;return false;}
++    private static String classify(Throwable error){if(storageFull(error))return "REPORT_STORAGE_FULL";if(error instanceof ReportNativeCP4.Failure){ReportNativeCP4.Failure failure=(ReportNativeCP4.Failure)error;return boundedReason("REPORT_NATIVE_"+failure.stage+"_"+failure.nativeCode);}String text=error.getMessage();return boundedReason(text!=null&&(text.startsWith("REPORT_")||text.startsWith("RETENTION_"))?text:error.getClass().getSimpleName());}
++    private static void recordSafStorageFailure(JSONObject state,Throwable error,String reason)throws Exception {
++        if(!reason.equals("REPORT_STORAGE_FULL"))return;
++        // Retain the original typed errno without persisting arbitrary provider text/credentials.
++        StringBuilder detail=new StringBuilder();for(int depth=0;error!=null&&depth<16;depth++,error=error.getCause()){
++            if(detail.length()>0)detail.append(" -> ");detail.append(error.getClass().getSimpleName());
++            if(error instanceof android.system.ErrnoException){int errno=((android.system.ErrnoException)error).errno;detail.append("(errno=").append(errno);if(errno==android.system.OsConstants.ENOSPC)detail.append(",ENOSPC");detail.append(')');}
++        }
++        state.put("failureDetail",boundedReason(detail.toString()));state.put("recovery","FREE_DESTINATION_SPACE_AND_START_NEW_SAF_TRANSFER");
++    }
+     private void requireDiagnosticProcess()throws IOException{if(!(getPackageName()+":diagnostics").equals(processName()))throw new IOException("REPORT_WRONG_PROCESS");}
+     private String processName(){if(Build.VERSION.SDK_INT>=28)return Application.getProcessName();ActivityManager manager=(ActivityManager)getSystemService(ACTIVITY_SERVICE);List<ActivityManager.RunningAppProcessInfo> processes=manager.getRunningAppProcesses();if(processes!=null)for(ActivityManager.RunningAppProcessInfo p:processes)if(p.pid==android.os.Process.myPid())return p.processName;return "UNKNOWN";}
+     private final class ActiveControl implements ReportNativeCP4.Control {
+@@ -222,7 +245,7 @@
+         public synchronized boolean shouldContinue(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
+             long now=SystemClock.elapsedRealtime();if(now>=deadline){stopReason="REPORT_STAGE_TIMEOUT";return false;}
+             if(now-lastRead>=250){lastRead=now;try{
+-                File command=new File(root,"cancel.json");if(command.exists()){JSONObject json=new JSONObject(ReportJobJournalCP12.readAtomic(command,4096));if(cancelKey.equals(json.optString("jobId"))&&json.optBoolean("cancel")){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}}
++                if(ReportJobJournalCP12.isCancellationRequested(root,cancelKey)){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}
+                 File pressure=new File(root,"realtime-pressure.json"),session=new File(root,"runtime-session.json");
+                 if(pressure.exists()&&session.exists()){
+                     JSONObject json=new JSONObject(ReportJobJournalCP12.readAtomic(pressure,4096)),owner=new JSONObject(ReportJobJournalCP12.readAtomic(session,4096));
+@@ -243,9 +266,10 @@
+     private static boolean isRetryable(String reason){return reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.equals("IOException");}
+ 
+     public static String requestSafTransfer(Context context,String jobId,String volumeName,Uri destination){final Context app=context.getApplicationContext();final String transfer=id("SAF_TRANSFER");
+-        try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!volumeName.matches("index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest"))throw new IOException("REPORT_SAF_REQUEST");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".json"),request.toString());ReportRequestQueueCP12.enqueue(root,transfer,"SAF_TRANSFER");kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
++        try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".json"),request.toString());ReportRequestQueueCP12.enqueue(root,transfer,"SAF_TRANSFER");kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
+     }
+     private void runSafRequest(JSONObject request,File root)throws Exception{
++        if(request.getString("volumeName").equals("*")){runSafTreeRequest(request,root);return;}
+         String transfer=request.getString("requestId");File journal=new File(root,"saf/"+transfer+".json");JSONObject state=journal.exists()?new JSONObject(ReportJobJournalCP12.readAtomic(journal,8192)):new JSONObject(request.toString());
+         if(state.optString("state").equals("VERIFIED_READBACK")){ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);return;}
+         if(state.optString("state").equals("FAILED")||state.optString("state").equals("CANCELLED")){ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);return;}
+@@ -259,13 +283,78 @@
+                 if(name.equals("index.json")){path="delivery/index.json";File file=new File(sourceJob,path);bytes=file.length();sha=ReportArchiveCP4.hash(file,active);}else{JSONArray files=index.getJSONArray("files");for(int i=0;i<files.length();i++){JSONObject row=files.getJSONObject(i);if(row.getString("name").equals(name)){path=row.getString("path");sha=row.getString("sha256");bytes=row.getLong("bytes");break;}}}
+                 if(path.isEmpty())throw new IOException("REPORT_SAF_VOLUME_UNLISTED");state.put("expectedSha256",sha);state.put("expectedBytes",bytes);ReportJobJournalCP12.writeAtomic(journal,state.toString());
+                 transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,Uri.parse(request.getString("destination")),active);
++                active.checkpoint();
+                 state.put("state","VERIFIED_READBACK");state.put("actualSha256",sha);state.put("actualBytes",bytes);state.put("localReceiptDurable",true);state.put("destinationGuarantee","CLOSED_PROVIDER_STREAM_AND_EXACT_READBACK");state.put("verifiedWallMs",System.currentTimeMillis());
+                 ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);
+             }
+-        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);
++        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);
+             boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}
+-            boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL");if(state.optInt("preemptions",0)>30)state.put("reason","REPORT_PREEMPTION_LIMIT");
++            boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL")&&!reason.equals("REPORT_STORAGE_FULL");if(state.optInt("preemptions",0)>30)state.put("reason","REPORT_PREEMPTION_LIMIT");
+             state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.removeHead(root,transfer);
+         }finally{control=null;}
+     }
++
++    /** One folder selection saves every verified volume; index is written last, never for a partial set. */
++    private void runSafTreeRequest(JSONObject request,File root)throws Exception {
++        String transfer=request.getString("requestId");File journal=new File(root,"saf/"+transfer+".json");
++        JSONObject state=journal.exists()?new JSONObject(ReportJobJournalCP12.readAtomic(journal,65536)):new JSONObject(request.toString());
++        String previous=state.optString("state");if(previous.equals("VERIFIED_READBACK")||previous.equals("FAILED")||previous.equals("CANCELLED")){ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);return;}
++        ActiveControl active=null;
++        try {
++            state.put("state","COPYING");state.put("attempt",state.optInt("attempt",0)+1);ReportJobJournalCP12.writeAtomic(journal,state.toString());
++            File sourceJob=ReportPublicationCP12.job(getFilesDir(),request.getString("jobId"));ReportJobJournalCP12.Job sourceState=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(sourceJob,"job.json"),65536));
++            active=new ActiveControl(sourceState,root,transfer);control=active;foreground("正在保存完整报告全部分卷");active.enter("SAF_COPY",120000);
++            try(ReportPublicationCP12.Lease pin=ReportPublicationCP12.shared(sourceJob)) {
++                JSONObject index=ReportPublicationCP12.delivery(sourceJob);JSONArray volumes=index.getJSONArray("files");int total=volumes.length()+1;
++                Uri tree=Uri.parse(request.getString("destination"));Uri directory;
++                if(state.has("directoryUri"))directory=Uri.parse(state.getString("directoryUri"));
++                else {Uri parent=android.provider.DocumentsContract.buildDocumentUriUsingTree(tree,android.provider.DocumentsContract.getTreeDocumentId(tree));
++                    directory=android.provider.DocumentsContract.createDocument(getContentResolver(),parent,android.provider.DocumentsContract.Document.MIME_TYPE_DIR,"STARCORE-"+sourceState.jobId);
++                    if(directory==null)throw new IOException("REPORT_SAF_DIRECTORY_CREATE");state.put("directoryUri",directory.toString());state.put("nextVolume",0);ReportJobJournalCP12.writeAtomic(journal,state.toString());}
++                int next=state.optInt("nextVolume",0);if(next<0||next>total)throw new IOException("REPORT_SAF_CURSOR");
++                while(next<total) {
++                    active.enter("SAF_COPY",120000);String name,path,sha;long bytes;
++                    if(next==volumes.length()){name="index.json";path="delivery/index.json";File file=new File(sourceJob,path);bytes=file.length();sha=ReportArchiveCP4.hash(file,active);}
++                    else {JSONObject row=volumes.getJSONObject(next);name=row.getString("name");path=row.getString("path");sha=row.getString("sha256");bytes=row.getLong("bytes");}
++                    Uri destination;
++                    if(state.has("currentUri"))destination=Uri.parse(state.getString("currentUri"));
++                    else {destination=android.provider.DocumentsContract.createDocument(getContentResolver(),directory,"application/octet-stream",name);if(destination==null)throw new IOException("REPORT_SAF_DOCUMENT_CREATE");state.put("currentUri",destination.toString());ReportJobJournalCP12.writeAtomic(journal,state.toString());}
++                    if(next==volumes.length())verifySavedTreeParts(root,transfer,next,sourceJob,index,active);
++                    transferPart(this,ReportArchiveVerifierCP12.inside(sourceJob,path),sha,bytes,destination,active);
++                    JSONObject saved=new JSONObject();saved.put("uri",destination.toString());saved.put("sha256",sha);saved.put("bytes",bytes);saved.put("name",name);ReportJobJournalCP12.writeAtomic(new File(root,"saf-parts/"+transfer+"/"+next+".json"),saved.toString());
++                    next++;state.put("nextVolume",next);state.remove("currentUri");state.put("verifiedVolumes",next);ReportJobJournalCP12.writeAtomic(journal,state.toString());
++                    // A kick after the final cursor write can finish without recopying any part.
++                }
++                verifySavedTreeParts(root,transfer,total,sourceJob,index,active);active.checkpoint();
++                state.put("state","VERIFIED_READBACK");state.put("allVolumesSaved",true);state.put("volumeCount",total);state.put("manifestSha256",index.getString("manifestSha256"));state.put("verifiedWallMs",System.currentTimeMillis());
++                ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());ReportRequestQueueCP12.removeHead(root,transfer);
++            }
++        }catch(Exception error){String reason=active==null||active.stopReason.isEmpty()?classify(error):active.stopReason;state.put("reason",reason);recordSafStorageFailure(state,error,reason);boolean preempt=reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED");
++            if(preempt){state.put("attempt",Math.max(0,state.optInt("attempt",0)-1));state.put("preemptions",state.optInt("preemptions",0)+1);}boolean retry=(preempt||state.optInt("attempt",0)<3)&&state.optInt("preemptions",0)<=30&&!reason.equals("REPORT_USER_CANCEL")&&!reason.equals("REPORT_STORAGE_FULL");
++            state.put("state",reason.equals("REPORT_USER_CANCEL")?"CANCELLED":retry?"PAUSED":"FAILED");state.put("allVolumesSaved",false);ReportJobJournalCP12.writeAtomic(journal,state.toString());ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+transfer+".ack.json"),state.toString());if(retry)scheduleResume(transfer);else ReportRequestQueueCP12.removeHead(root,transfer);
++        }finally{control=null;}
++    }
++    private void verifySavedTreeParts(File root,String transfer,int count,File sourceJob,JSONObject index,ActiveControl active)throws Exception {
++        JSONArray volumes=index.getJSONArray("files");
++        if(volumes.length()<1||volumes.length()>128||count<0||count>volumes.length()+1)throw new IOException("REPORT_SAF_RECEIPT_SET_BOUND");
++        Set<String> destinations=new HashSet<>();
++        for(int i=0;i<count;i++) {
++            active.enter("SAF_VERIFY_SET",120000);
++            JSONObject saved=new JSONObject(ReportJobJournalCP12.readAtomic(new File(root,"saf-parts/"+transfer+"/"+i+".json"),8192));
++            Uri uri=Uri.parse(saved.getString("uri"));
++            if(!"content".equals(uri.getScheme())||!destinations.add(uri.toString()))throw new IOException("REPORT_SAF_RECEIPT_DESTINATION");
++            String expectedName,expectedSha;long expectedBytes;
++            if(i==volumes.length()){
++                File deliveryIndex=ReportArchiveVerifierCP12.inside(sourceJob,"delivery/index.json");
++                expectedName="index.json";expectedBytes=deliveryIndex.length();expectedSha=ReportArchiveCP4.hash(deliveryIndex,active);
++            }else{
++                JSONObject expected=volumes.getJSONObject(i);expectedName=expected.getString("name");expectedSha=expected.getString("sha256");expectedBytes=expected.getLong("bytes");
++            }
++            ReportSafCopyCP12.verifySavedReceipt(saved,expectedName,expectedSha,expectedBytes,new ReportSafCopyCP12.Destination(){
++                public OutputStream openOutputTruncating()throws IOException{throw new IOException("REPORT_VERIFY_READ_ONLY");}
++                public InputStream openInput()throws IOException{return getContentResolver().openInputStream(uri);}
++            },active);
++        }
++    }
++
+ }

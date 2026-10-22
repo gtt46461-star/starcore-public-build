@@ -1,0 +1,53 @@
+{
+  "actual_APK_sha256": "0077e204610728b1c64772213e7b121b22f7c7718ccec1d5079786dd6b1ca387",
+  "actual_packaged_source_call_edges": [
+    "METHOD\tapp/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java\t745a8c4d32cf0ff254d629ec0d8ebd915b5c0cc6dff5db32ba3eeb3386c3f87f\tcom/ethk3/novaonepro/ReportExportServiceCP4\tlambda$onStartCommand$11\t(Ljava/lang/String;)V\t77\t77\tSYNTHETIC\t77@1:com/ethk3/novaonepro/ReportExportServiceCP4.getApplicationContext()Landroid/content/Context;;77@4:com/ethk3/novaonepro/ReportExportServiceCP4.requestRoot(Landroid/content/Context;)Ljava/io/File;;77@8:com/ethk3/novaonepro/ReportJobJournalCP12.requestCancellation(Ljava/io/File;Ljava/lang/String;)V;77@22:android/util/Log.e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I\tRUNTIME_NOT_INSTRUMENTED_UNLESS_STAGE_RECEIPT_PRESENT",
+    "METHOD\tapp/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java\t745a8c4d32cf0ff254d629ec0d8ebd915b5c0cc6dff5db32ba3eeb3386c3f87f\tcom/ethk3/novaonepro/ReportExportServiceCP4\trequestCancel\t(Landroid/content/Context;Ljava/lang/String;)V\t60\t61\tDECLARED\t60@1:com/ethk3/novaonepro/ReportExportServiceCP4.requireHash(Ljava/lang/String;)V;60@5:android/content/Context.getApplicationContext()Landroid/content/Context;;60@10:com/ethk3/novaonepro/ReportExportServiceCP4.requestRoot(Landroid/content/Context;)Ljava/io/File;;60@14:com/ethk3/novaonepro/ReportJobJournalCP12.requestCancellation(Ljava/io/File;Ljava/lang/String;)V;60@21:com/ethk3/novaonepro/ReportExportServiceCP4.kick(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V\tRUNTIME_NOT_INSTRUMENTED_UNLESS_STAGE_RECEIPT_PRESENT",
+    "METHOD\tapp/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java\t745a8c4d32cf0ff254d629ec0d8ebd915b5c0cc6dff5db32ba3eeb3386c3f87f\tcom/ethk3/novaonepro/ReportExportServiceCP4$ActiveControl\tshouldContinue\t()Z\t235\t247\tDECLARED\t235@4:java/lang/String.isEmpty()Z;235@16:java/util/concurrent/atomic/AtomicBoolean.get()Z;235@37:java/util/concurrent/atomic/AtomicBoolean.get()Z;235@51:java/lang/Thread.currentThread()Ljava/lang/Thread;;235@54:java/lang/Thread.isInterrupted()Z;236@68:android/os/SystemClock.elapsedRealtime()J;238@115:com/ethk3/novaonepro/ReportJobJournalCP12.isCancellationRequested(Ljava/io/File;Ljava/lang/String;)Z;238@126:java/util/concurrent/atomic/AtomicBoolean.set(Z)V;239@147:java/io/File.<init>(Ljava/io/File;Ljava/lang/String;)V;239@161:java/io/File.<init>(Ljava/io/File;Ljava/lang/String;)V;240@167:java/io/File.exists()Z;240@175:java/io/File.exists()Z;241@189:com/ethk3/novaonepro/ReportJobJournalCP12.readAtomic(Ljava/io/File;I)Ljava/lang/String;;241@192:org/json/JSONObject.<init>(Ljava/lang/String;)V;241@206:com/ethk3/novaonepro/ReportJobJournalCP12.readAtomic(Ljava/io/File;I)Ljava/lang/String;;241@209:org/json/JSONObject.<init>(Ljava/lang/String;)V;242@218:org/json/JSONObject.getLong(Ljava/lang/String;)J;242@227:org/json/JSONObject.getLong(Ljava/lang/String;)J;243@236:org/json/JSONObject.getString(Ljava/lang/String;)Ljava/lang/String;;243@243:org/json/JSONObject.getString(Ljava/lang/String;)Ljava/lang/String;;243@246:java/lang/String.equals(Ljava/lang/Object;)Z;243@258:org/json/JSONObject.getLong(Ljava/lang/String;)J;243@295:org/json/JSONObject.getLong(Ljava/lang/String;)J;245@319:com/ethk3/novaonepro/ReportExportServiceCP4.getFilesDir()Ljava/io/File;;245@322:java/io/File.getPath()Ljava/lang/String;;245@325:android/os/StatFs.<init>(Ljava/lang/String;)V;245@328:android/os/StatFs.getAvailableBytes()J\tRUNTIME_NOT_INSTRUMENTED_UNLESS_STAGE_RECEIPT_PRESENT"
+  ],
+  "scope": "Actual current APK source-call input generated from complete release bytecode. Device execution NOT_RUN.",
+  "actual_release_bytecode_calls": [
+    {
+      "class": "ReportExportServiceCP4",
+      "expected_actual_product_call": "requestCancellation",
+      "exit_code": 0,
+      "bytecode_sha256": "7babbdb6bb6c9e1fd79433675c4f5aef158dcdc50931bf36df2719e57191e761",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/javap",
+        "-private",
+        "-c",
+        "-classpath",
+        "/workspace/scratch/c7daf582ec06/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.ReportExportServiceCP4"
+      ]
+    },
+    {
+      "class": "ReportExportServiceCP4$ActiveControl",
+      "expected_actual_product_call": "isCancellationRequested",
+      "exit_code": 0,
+      "bytecode_sha256": "f110af75d3c1c960fb9c9798d1e984f89739c6dae0980d543f12fb2ce613d3d4",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/javap",
+        "-private",
+        "-c",
+        "-classpath",
+        "/workspace/scratch/c7daf582ec06/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.ReportExportServiceCP4$ActiveControl"
+      ]
+    },
+    {
+      "class": "ReportPublicationCP12",
+      "expected_actual_product_call": "removeCancellation",
+      "exit_code": 0,
+      "bytecode_sha256": "597b06c838a0b2507f2f5f798e87e0c24cb182e93dbe9d519f78fdf71568fb52",
+      "command": [
+        "/tmp/starcore-cdaf1f33/toolchain/jdk-17.0.16+8/bin/javap",
+        "-private",
+        "-c",
+        "-classpath",
+        "/workspace/scratch/c7daf582ec06/starcore/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.ReportPublicationCP12"
+      ]
+    }
+  ]
+}

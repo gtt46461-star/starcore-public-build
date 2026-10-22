@@ -1,0 +1,23 @@
+diff --git a/scripts/cp4_compile_catalog.py b/scripts/cp4_compile_catalog.py
+new file mode 100644
+index 0000000..0eb550d
+--- /dev/null
++++ b/scripts/cp4_compile_catalog.py
+@@ -0,0 +1,17 @@
++#!/usr/bin/env python3
++"""Build immutable Atom registry asset from the audited canonical CSV, streaming rows."""
++import argparse,csv,json,hashlib,pathlib
++p=argparse.ArgumentParser();p.add_argument('--catalog',required=True);p.add_argument('--output',required=True);a=p.parse_args()
++out=pathlib.Path(a.output);out.parent.mkdir(parents=True,exist_ok=True);ids=set();hashes=set();count=0;families=set();requires=0;digest=hashlib.sha256()
++with open(a.catalog,encoding='utf-8-sig',newline='') as src,out.open('wb') as dst:
++ for r in csv.DictReader(src):
++  spec={k:r[k] for k in ['family','version','transform','regime','context']};spec['params']=json.loads(r['params']);spec['position']=int(r['position'])
++  canonical=json.dumps(spec,sort_keys=True,separators=(',',':'));h=hashlib.sha256(canonical.encode()).hexdigest()
++  assert h==r['spec_hash'] and r['atom_id']=='ATOM2-'+h[:24],r['atom_id']
++  assert h not in hashes and r['atom_id'] not in ids,'DUPLICATE';hashes.add(h);ids.add(r['atom_id'])
++  assert 1<=spec['position']<=10 and 1<=int(r['minimum_history'])<=5000
++  row={'atomId':r['atom_id'],'specHash':h,'spec':spec,'outputType':r['output'],'minimumHistory':int(r['minimum_history']),'state':r['lifecycle'],'missingPolicy':r['missing_policy']}
++  b=(json.dumps(row,sort_keys=True,separators=(',',':'))+'\n').encode();assert len(b)<=8192;dst.write(b);digest.update(b);count+=1;families.add(r['family']);requires+=r['lifecycle']=='REQUIRES_BINDING'
++assert count==24550 and len(families)==28 and requires==130,(count,len(families),requires)
++manifest={'revision':'CP4_CATALOG_ASSET_1','atoms':count,'families':len(families),'requiresBinding':requires,'assetSha256':digest.hexdigest(),'schema':'research_atom_spec_v2','runtimePolicy':'activeClosure<=256; no full eager evaluation'}
++out.with_suffix('.manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');print(json.dumps(manifest))

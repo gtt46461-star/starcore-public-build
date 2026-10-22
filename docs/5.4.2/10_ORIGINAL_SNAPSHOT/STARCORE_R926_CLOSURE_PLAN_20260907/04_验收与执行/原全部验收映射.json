@@ -1,0 +1,477 @@
+[
+  {
+    "id": "A01",
+    "source": "原20项验收",
+    "item": "资源ID/DEX",
+    "original_pass_condition": "0 mismatch",
+    "mapped_tasks": [
+      "Q01",
+      "Q04"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A02",
+    "source": "原20项验收",
+    "item": "phone/sw600dp UI parity",
+    "original_pass_condition": "所有必需控件ID一致",
+    "mapped_tasks": [
+      "U01",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A03",
+    "source": "原20项验收",
+    "item": "按钮接线",
+    "original_pass_condition": "每个Button有handler且action可达",
+    "mapped_tasks": [
+      "U01",
+      "U02",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A04",
+    "source": "原20项验收",
+    "item": "后台权限",
+    "original_pass_condition": "battery unrestricted + exact alarm + notification + vendor autostart可见",
+    "mapped_tasks": [
+      "B07",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A05",
+    "source": "原20项验收",
+    "item": "冷启动",
+    "original_pass_condition": "critical DB startup目标<8s，且单独统计",
+    "mapped_tasks": [
+      "B03",
+      "B04",
+      "B05",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A06",
+    "source": "原20项验收",
+    "item": "稳态预测",
+    "original_pass_condition": "request→commit P95<=5s",
+    "mapped_tasks": [
+      "B05",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A07",
+    "source": "原20项验收",
+    "item": "预测覆盖",
+    "original_pass_condition": "release-epoch coverage>=99%",
+    "mapped_tasks": [
+      "B06",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A08",
+    "source": "原20项验收",
+    "item": "结算",
+    "original_pass_condition": "有赛前预测的结算完成率>=99.9%，duplicate=0",
+    "mapped_tasks": [
+      "B09",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A09",
+    "source": "原20项验收",
+    "item": "Deferred",
+    "original_pass_condition": "最新FULL<=2期滞后，backlog单调收敛至0",
+    "mapped_tasks": [
+      "B10",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A10",
+    "source": "原20项验收",
+    "item": "Shadow UI",
+    "original_pass_condition": "首页独立显示30/60/120、Wilson、recent20",
+    "mapped_tasks": [
+      "U01",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A11",
+    "source": "原20项验收",
+    "item": "REAL合同",
+    "original_pass_condition": "invalid=0 duplicate=0",
+    "mapped_tasks": [
+      "B11",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A12",
+    "source": "原20项验收",
+    "item": "模型Artifact",
+    "original_pass_condition": "Number/Gate/Rank/Calibration hash+PIT+parity+OOS齐全",
+    "mapped_tasks": [
+      "D01",
+      "D03",
+      "D10",
+      "D11",
+      "Q03"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A13",
+    "source": "原20项验收",
+    "item": "淘汰解释",
+    "original_pass_condition": "100%归档有first_prune_reason+metrics",
+    "mapped_tasks": [
+      "C08",
+      "U02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A14",
+    "source": "原20项验收",
+    "item": "Research捕获",
+    "original_pass_condition": "system capture coverage>=99% for active cohort",
+    "mapped_tasks": [
+      "C04",
+      "C07",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A15",
+    "source": "原20项验收",
+    "item": "挑战者",
+    "original_pass_condition": "只有合同全过才进入",
+    "mapped_tasks": [
+      "C01",
+      "C02",
+      "C06"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A16",
+    "source": "原20项验收",
+    "item": "证书",
+    "original_pass_condition": "证书只SHADOW，不直接REAL",
+    "mapped_tasks": [
+      "C01",
+      "B11"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A17",
+    "source": "原20项验收",
+    "item": "息屏",
+    "original_pass_condition": "120期无掉期",
+    "mapped_tasks": [
+      "B07",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A18",
+    "source": "原20项验收",
+    "item": "划掉",
+    "original_pass_condition": "30期无掉期",
+    "mapped_tasks": [
+      "B07",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A19",
+    "source": "原20项验收",
+    "item": "24h",
+    "original_pass_condition": "业务链无stale/重复",
+    "mapped_tasks": [
+      "B07",
+      "B09",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "A20",
+    "source": "原20项验收",
+    "item": "完整报告",
+    "original_pass_condition": "包含manifest/resource/button/source/pipeline/research",
+    "mapped_tasks": [
+      "U04",
+      "Q04"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M1-01",
+    "source": "原十模块验收",
+    "item": "随机100 target所有source issue < target",
+    "original_pass_condition": "PASS=100/100",
+    "mapped_tasks": [
+      "D01"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M1-02",
+    "source": "原十模块验收",
+    "item": "重复构建",
+    "original_pass_condition": "hash完全一致",
+    "mapped_tasks": [
+      "D01",
+      "D03"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M2-01",
+    "source": "原十模块验收",
+    "item": "行列和/finite",
+    "original_pass_condition": "最大误差<=1e-6且finite",
+    "mapped_tasks": [
+      "D04",
+      "D11"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M2-02",
+    "source": "原十模块验收",
+    "item": "Python/Java/Android NumberQ",
+    "original_pass_condition": "fixture逐元素误差<=约定epsilon",
+    "mapped_tasks": [
+      "D11"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M3-01",
+    "source": "原十模块验收",
+    "item": "每issue 1200 action",
+    "original_pass_condition": "ordinal 0..1199唯一",
+    "mapped_tasks": [
+      "D01",
+      "D05"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M3-02",
+    "source": "原十模块验收",
+    "item": "统计单位",
+    "original_pass_condition": "任何显著性N只按issue计",
+    "mapped_tasks": [
+      "D03",
+      "D05",
+      "C06"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M3-03",
+    "source": "原十模块验收",
+    "item": "100 issue×1200",
+    "original_pass_condition": "Rank1 100%一致",
+    "mapped_tasks": [
+      "D11"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M4-01",
+    "source": "原十模块验收",
+    "item": "calibration只用cross-fitted selected",
+    "original_pass_condition": "无泄漏",
+    "mapped_tasks": [
+      "D06"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M4-02",
+    "source": "原十模块验收",
+    "item": "ECE/Brier",
+    "original_pass_condition": "达到发布阈值且不劣Champion",
+    "mapped_tasks": [
+      "D06",
+      "Q03"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M5-01",
+    "source": "原十模块验收",
+    "item": "support不足",
+    "original_pass_condition": "只能PAUSE不能QUALITY_PRUNE",
+    "mapped_tasks": [
+      "D08"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M6-01",
+    "source": "原十模块验收",
+    "item": "L3→L7",
+    "original_pass_condition": "每级新Future窗口不可复用",
+    "mapped_tasks": [
+      "C01",
+      "C02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M6-02",
+    "source": "原十模块验收",
+    "item": "0/5/12/20/30",
+    "original_pass_condition": "无对应证书不得越级",
+    "mapped_tasks": [
+      "C01",
+      "C02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M7-01",
+    "source": "原十模块验收",
+    "item": "结构/行为/统计",
+    "original_pass_condition": "同质候选不重复占active",
+    "mapped_tasks": [
+      "C05"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M7-02",
+    "source": "原十模块验收",
+    "item": "层级校正",
+    "original_pass_condition": "family_q/within_q/final_q均可追溯",
+    "mapped_tasks": [
+      "C06"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M8-01",
+    "source": "原十模块验收",
+    "item": "每child",
+    "original_pass_condition": "必须有repair_target或明确NEW_FAMILY",
+    "mapped_tasks": [
+      "C08",
+      "C12"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M8-02",
+    "source": "原十模块验收",
+    "item": "开奖后分析",
+    "original_pass_condition": "不得回写当期predraw",
+    "mapped_tasks": [
+      "C09"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M9-01",
+    "source": "原十模块验收",
+    "item": "165生产原子",
+    "original_pass_condition": "PIT=PASS",
+    "mapped_tasks": [
+      "C10",
+      "C11"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M9-02",
+    "source": "原十模块验收",
+    "item": "A9 postdraw",
+    "original_pass_condition": "本期评分调用=0",
+    "mapped_tasks": [
+      "C10",
+      "C11"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M10-01",
+    "source": "原十模块验收",
+    "item": "系统漏捕获",
+    "original_pass_condition": "不得永久淘汰",
+    "mapped_tasks": [
+      "C04",
+      "C08"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-M10-02",
+    "source": "原十模块验收",
+    "item": "N>=120高潜候选",
+    "original_pass_condition": "父证据不复制，child N=0",
+    "mapped_tasks": [
+      "C08"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-INTEG-01",
+    "source": "原十模块验收",
+    "item": "fetch→predict→settle→learn→next",
+    "original_pass_condition": "连续120期无断链",
+    "mapped_tasks": [
+      "B09",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-INTEG-02",
+    "source": "原十模块验收",
+    "item": "warm steady-state",
+    "original_pass_condition": "P95<=5s且research不阻塞",
+    "mapped_tasks": [
+      "B05",
+      "C07",
+      "Q02"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  },
+  {
+    "id": "T-INTEG-03",
+    "source": "原十模块验收",
+    "item": "Research/Algorithm",
+    "original_pass_condition": "BET writer=0",
+    "mapped_tasks": [
+      "B11",
+      "Q01"
+    ],
+    "status": "REQUIRES_FINAL_R926_EVIDENCE"
+  }
+]

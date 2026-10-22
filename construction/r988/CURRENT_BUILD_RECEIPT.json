@@ -1,0 +1,74 @@
+[
+  {
+    "name": "r988-identity",
+    "command": [
+      "python3",
+      "scripts/r926_release_manifest.py",
+      "--write"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.036
+  },
+  {
+    "name": "r988-identity-check",
+    "command": [
+      "python3",
+      "scripts/r926_release_manifest.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 0.031
+  },
+  {
+    "name": "r988-provenance",
+    "command": [
+      "bash",
+      "scripts/r817_generate_provenance.sh"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 2.334
+  },
+  {
+    "name": "r988-compile",
+    "command": [
+      "/tmp/starcore-cdaf1f33/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--console=plain",
+      "compileReleaseJavaWithJavac",
+      "-x",
+      "generateR982SourceCallAsset"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 12.861
+  },
+  {
+    "name": "r988-freeze",
+    "command": [
+      "python3",
+      "scripts/r982_source_call_asset.py",
+      "--freeze",
+      "--classes",
+      "app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 4.042
+  },
+  {
+    "name": "r988-build",
+    "command": [
+      "/tmp/starcore-cdaf1f33/toolchain/gradle/gradle-8.13/bin/gradle",
+      "--offline",
+      "--no-daemon",
+      "--no-build-cache",
+      "--console=plain",
+      "clean",
+      "assembleRelease",
+      "testDebugUnitTest",
+      "lintRelease"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 146.789
+  }
+]

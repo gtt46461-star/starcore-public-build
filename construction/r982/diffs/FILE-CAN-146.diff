@@ -1,0 +1,28 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchMultiplicityR932.java b/app/src/main/java/com/ethk3/novaonepro/ResearchMultiplicityR932.java
+index e4d66c6..1fc4c0e 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchMultiplicityR932.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchMultiplicityR932.java
+@@ -68,6 +68,7 @@ public final class ResearchMultiplicityR932 {
+         }
+     }
+     private static String allocateFormalHypothesis(SQLiteDatabase db,String key,String family,String structure,String issue) {
++        if(ResearchGatePlanR967.installed().isCp3)throw new IllegalStateException("CP3_LEGACY_ALPHA_OWNER_RETIRED");
+         transaction(db);
+         String hypothesis=V51ChecksumEngine.sha256("R932_FROZEN_HYPOTHESIS|"+family+'|'+structure);
+         try(Cursor c=db.rawQuery("SELECT h.hypothesis_hash,h.family FROM "+HYPOTHESIS+" h WHERE structure_hash=?",new String[]{structure})) {
+@@ -88,6 +89,7 @@ public final class ResearchMultiplicityR932 {
+         return hypothesis;
+     }
+     static double registerLook(SQLiteDatabase db,String key,String window,int number,String first,String last) {
++        if(ResearchGatePlanR967.installed().isCp3)throw new IllegalStateException("CP3_LEGACY_ALPHA_OWNER_RETIRED");
+         transaction(db);if(number<1||number>5)throw new IllegalArgumentException("R932_LOOK_NUMBER");
+         ResearchIdentity research=identity(db,key);
+         if(research==null||research.registeredIssue.compareTo(first)>0)throw new IllegalStateException("R967_FORMAL_REQUIRES_PRIOR_RESEARCH_IDENTITY");
+@@ -105,6 +107,7 @@ public final class ResearchMultiplicityR932 {
+         return alpha;
+     }
+     static void close(SQLiteDatabase db,String window,String endpoint,String state,String result,Double rawP) {
++        if(ResearchGatePlanR967.installed().isCp3)throw new IllegalStateException("CP3_LEGACY_ALPHA_OWNER_RETIRED");
+         transaction(db);
+         try(Cursor c=db.rawQuery("SELECT last_issue,state,result_hash,raw_p FROM "+LOOK+" WHERE window_id=?",new String[]{window})) {
+             if(!c.moveToFirst())throw new IllegalStateException("R932_LOOK_NOT_REGISTERED");

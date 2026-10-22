@@ -1,0 +1,52 @@
+name: C011 C012 archive CAS and history verification
+on:
+  push:
+    branches: [construction/c011-c012-final-plan-20261019]
+    paths: ['.github/workflows/c011-c012-final-plan.yml']
+permissions:
+  contents: write
+concurrency:
+  group: starcore-c011-c012-final-plan
+  cancel-in-progress: true
+jobs:
+  complete-source-contracts:
+    if: github.ref == 'refs/heads/construction/c011-c012-final-plan-20261019'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /app/**
+            /scripts/**
+            /release/**
+            /verification/**
+            /training/**
+            /gradle/**
+            /construction/r997/**
+            /construction/c_chain_20261018/C006/contract-inputs.zip
+            /construction/c_chain_20261018/C011-C012/**
+          persist-credentials: true
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install formal Android API36 and AAPT2
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os,pathlib,subprocess
+          sdk=pathlib.Path(os.environ['ANDROID_HOME']);manager=sdk/'cmdline-tools/latest/bin/sdkmanager'
+          subprocess.run([str(manager),'--licenses'],input='y\n'*200,text=True,check=True)
+          subprocess.run([str(manager),'platforms;android-36','build-tools;36.0.0'],check=True)
+          PY
+      - name: C011 C012 fresh complete source and native contracts
+        run: python3 construction/c_chain_20261018/C011-C012/ci_verify.py
+
+# Retry: contract outputs are private siblings outside product and master bundle.

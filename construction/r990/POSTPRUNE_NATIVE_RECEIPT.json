@@ -1,0 +1,59 @@
+[
+  {
+    "execution": "compile",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/javac",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "-d",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/drivers",
+      "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/tests/audit_cp12/native/java/com/ethk3/novaonepro/ArchivePipelineActualCP12.java",
+      "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/tests/audit_cp12/native/java/com/ethk3/novaonepro/NativeReportContractCP12.java",
+      "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/tests/audit_cp12/native/cas_java/com/ethk3/novaonepro/CasDirectoryActualCP12.java"
+    ],
+    "exit_code": 0,
+    "scope": "Fresh current product classes / actual current host JNI, isolated synthetic SQLite only; DEVICE_NOT_VERIFIED"
+  },
+  {
+    "execution": "NativeReportContractCP12",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+      "-Xmx128m",
+      "-Djava.library.path=/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-fixed",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "com.ethk3.novaonepro.NativeReportContractCP12",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/NativeReportContractCP12/files"
+    ],
+    "exit_code": 0,
+    "scope": "Fresh current product classes / actual current host JNI, isolated synthetic SQLite only; DEVICE_NOT_VERIFIED"
+  },
+  {
+    "execution": "ArchivePipelineActualCP12",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+      "-Xmx128m",
+      "-Djava.library.path=/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-fixed",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "com.ethk3.novaonepro.ArchivePipelineActualCP12",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/ArchivePipelineActualCP12/files"
+    ],
+    "exit_code": 0,
+    "scope": "Fresh current product classes / actual current host JNI, isolated synthetic SQLite only; DEVICE_NOT_VERIFIED"
+  },
+  {
+    "execution": "CasDirectoryActualCP12",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+      "-Xmx128m",
+      "-Djava.library.path=/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-fixed",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-postprune-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "com.ethk3.novaonepro.CasDirectoryActualCP12",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-postprune-native-checks/CasDirectoryActualCP12/files"
+    ],
+    "exit_code": 0,
+    "scope": "Fresh current product classes / actual current host JNI, isolated synthetic SQLite only; DEVICE_NOT_VERIFIED"
+  }
+]

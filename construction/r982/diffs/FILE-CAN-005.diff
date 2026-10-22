@@ -1,0 +1,74 @@
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index becaacf..3a697b0 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -1,7 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.ethk3.novaonepro">
++   >
+ 
++    <permission android:name="com.ethk3.novaonepro.permission.INTERNAL_EVENT" android:protectionLevel="signature" />
++    <uses-permission android:name="com.ethk3.novaonepro.permission.INTERNAL_EVENT" />
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.WAKE_LOCK" />
+@@ -10,7 +12,6 @@
+     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+ 
+     <application
+         android:name=".StarcoreApplication"
+@@ -31,14 +32,14 @@
+             android:name="com.ethk3.novaonepro.R811_RUNTIME_POLICY"
+             android:value="TARGET_28_DATA_SYNC_NO_SPECIAL_USE" />
+ 
+-        <activity android:name=".DiagnosisActivity" android:exported="false" android:screenOrientation="portrait" />
+-        <activity android:name=".HistoryActivity" android:exported="false" android:screenOrientation="portrait" />
+-        <activity android:name=".ModelLearningActivity" android:exported="false" android:screenOrientation="portrait" />
++        <activity android:name=".DiagnosisActivity" android:exported="false" />
++        <activity android:name=".HistoryActivity" android:exported="false" />
++        <activity android:name=".ModelLearningActivity" android:exported="false" />
+         <activity android:name=".DeepLearningActivity" android:exported="false" />
+         <activity android:name=".EvolutionActivity" android:exported="false" />
+         <activity android:name=".CreationActivity" android:exported="false" />
+         <activity android:name=".AtomQualityActivity" android:exported="false" />
+-        <activity android:name=".DatabaseHealthActivity" android:exported="false" android:screenOrientation="portrait" />
++        <activity android:name=".DatabaseHealthActivity" android:exported="false" />
+ 
+         <provider
+             android:name=".DiagnosticReportProviderR923"
+@@ -49,7 +50,7 @@
+         <activity
+             android:name=".MainActivity"
+             android:exported="true"
+-            android:screenOrientation="portrait">
++           >
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
+@@ -73,7 +74,7 @@
+             android:name=".BootReceiver"
+             android:directBootAware="true"
+             android:enabled="true"
+-            android:exported="true">
++            android:exported="false">
+             <intent-filter>
+                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+@@ -89,5 +90,13 @@
+             android:enabled="true"
+             android:exported="false" />
+ 
++        <service
++            android:name=".ReportExportServiceCP4"
++            android:enabled="true"
++            android:exported="false"
++            android:process=":diagnostics"
++            android:foregroundServiceType="dataSync"
++            android:stopWithTask="false" />
++
+     </application>
+ </manifest>

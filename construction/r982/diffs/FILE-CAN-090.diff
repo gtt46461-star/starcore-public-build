@@ -1,0 +1,115 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MicroWalkForwardEngine.java b/app/src/main/java/com/ethk3/novaonepro/MicroWalkForwardEngine.java
+index 5153b0e..f893616 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MicroWalkForwardEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MicroWalkForwardEngine.java
+@@ -415,40 +415,46 @@ public final class MicroWalkForwardEngine {
+             report.totalPublishedSample = countProcessed(store);
+             return;
+         }
+-        OnlineActionModelEngine.Snapshot onlineModel = OnlineActionModelEngine.load(store);
+-        synchronized (DatabaseCoordinator.WRITE_MONITOR) {
++
++        Report committed = new Report();
++        try (DatabaseCoordinator.WriterGuardCP3 cp3WriterGuard1 = DatabaseCoordinator.acquireWriterGuardCP3()) {
+             SQLiteDatabase db = store.writable();
+             db.beginTransaction();
+             try {
++                OnlineActionModelEngine.Snapshot onlineModel = OnlineActionModelEngine.loadWithinTransactionCP3(db);
+                 String lastOrigin = "";
+                 for (int i = 0; i < rows.size(); i++) {
+                     if (i > 0 && System.currentTimeMillis() >= deadline) break;
+                     Row x = rows.get(i);
+-                    report.testTargetIssue = x.targetIssue;
+-                    report.trainedUntilIssue = x.baseIssue;
+-                    report.processedPredictions++;
+-                    report.oosPredictions++;
++                    try(Cursor live=db.rawQuery("SELECT settled,processed,hit,target_issue FROM "+DbHelper.TABLE_OOS_ACTION_LOG+" WHERE _id=?",new String[]{String.valueOf(x.id)})){
++                        if(!live.moveToFirst()||live.getInt(1)!=0)continue;
++                        if(live.getInt(0)!=1||live.getInt(2)!=x.hit||!x.targetIssue.equals(live.getString(3)))throw new IllegalStateException("OOS_ROW_CHANGED");}
++
++                    committed.testTargetIssue = x.targetIssue;
++                    committed.trainedUntilIssue = x.baseIssue;
++                    committed.processedPredictions++;
++                    committed.oosPredictions++;
+                     if (!safe(x.targetIssue).equals(lastOrigin)) {
+-                        report.processedOrigins++;
++                        committed.processedOrigins++;
+                         lastOrigin = safe(x.targetIssue);
+                     }
+                     if (OosActionLogEngine.SOURCE_HISTORICAL_WALK_FORWARD.equals(x.source)) {
+-                        report.historicalPredictions++;
++                        committed.historicalPredictions++;
+                     } else {
+-                        report.livePredictions++;
++                        committed.livePredictions++;
+                     }
+-                    if (x.hit == 1) report.hits++;
+-                    report.familiesUpdated +=
++                    if (x.hit == 1) committed.hits++;
++                    committed.familiesUpdated +=
+                             updateFamily(db, "GLOBAL", "GLOBAL", x.hit, x.targetIssue);
+-                    report.familiesUpdated +=
++                    committed.familiesUpdated +=
+                             updateFamily(db, "POSITION", x.position, x.hit, x.targetIssue);
+-                    report.familiesUpdated +=
++                    committed.familiesUpdated +=
+                             updateFamily(db, "COARSE", x.coarse, x.hit, x.targetIssue);
+-                    report.familiesUpdated += updateFamily(db, "MID", x.mid, x.hit, x.targetIssue);
+-                    report.familiesUpdated +=
++                    committed.familiesUpdated += updateFamily(db, "MID", x.mid, x.hit, x.targetIssue);
++                    committed.familiesUpdated +=
+                             updateFamily(db, "FINE", x.fine, x.hit, x.targetIssue);
+                     OnlineActionModelEngine.update(onlineModel, x.features, x.hit);
+-                    report.bucketsUpdated +=
++                    committed.bucketsUpdated +=
+                             updateBucket(
+                                     db,
+                                     MonotonicCalibrationEngine.bucket(x.modelProbability),
+@@ -458,21 +464,27 @@ public final class MicroWalkForwardEngine {
+                     done.put("processed", 1);
+                     done.put("processed_at", System.currentTimeMillis());
+                     done.put("published_version", MODULE_VERSION);
+-                    db.update(
++                    int marked = db.update(
+                             DbHelper.TABLE_OOS_ACTION_LOG,
+                             done,
+                             "_id=? AND settled=1 AND processed=0",
+                             new String[] {String.valueOf(x.id)});
++                    if(marked!=1)throw new IllegalStateException("OOS_PROCESSED_CAS");
+                 }
++                OnlineActionModelEngine.persistWithinTransactionCP3(db,onlineModel,System.currentTimeMillis());
+                 db.setTransactionSuccessful();
+-            } finally {
+-                try {
+-                    db.endTransaction();
+-                } catch (Throwable ignore) {
+-                }
+-            }
++            } finally { db.endTransaction(); }
+         }
+-        OnlineActionModelEngine.persist(store, onlineModel);
++        report.testTargetIssue=committed.testTargetIssue;
++        report.trainedUntilIssue=committed.trainedUntilIssue;
++        report.processedPredictions+=committed.processedPredictions;
++        report.oosPredictions+=committed.oosPredictions;
++        report.processedOrigins+=committed.processedOrigins;
++        report.historicalPredictions+=committed.historicalPredictions;
++        report.livePredictions+=committed.livePredictions;
++        report.hits+=committed.hits;
++        report.familiesUpdated+=committed.familiesUpdated;
++        report.bucketsUpdated+=committed.bucketsUpdated;
+         report.totalPublishedSample = countProcessed(store);
+     }
+ 
+@@ -541,10 +553,7 @@ public final class MicroWalkForwardEngine {
+                     out.add(x);
+             }
+         } catch (Throwable e) {
+-            try {
+-                store.setState(STATE_LAST_ERROR, "LOAD_PENDING:" + e.getClass().getSimpleName());
+-            } catch (Throwable ignore) {
+-            }
++            throw new IllegalStateException("OOS_PENDING_READ_FAILED",e);
+         } finally {
+             if (c != null)
+                 try {

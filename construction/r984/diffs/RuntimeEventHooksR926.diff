@@ -1,0 +1,21 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java b/app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java
+index 2dfbe80..563af06 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java
++++ b/app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java
+@@ -50,9 +50,15 @@ public final class RuntimeEventHooksR926 {
+             String snapshotHash,
+             RuntimeTraceR36 trace,
+             String canonicalHash) {
++        canonicalWithinTransaction(db,null,r,snapshot,snapshotHash,trace,canonicalHash,null);
++    }
++
++    public static void canonicalWithinTransaction(SQLiteDatabase db,DbStore store,
++            AnalysisSingleFlightR36.Request r,DeferredEvidenceSnapshotR36.Header snapshot,
++            String snapshotHash,RuntimeTraceR36 trace,String canonicalHash,V51CompiledActionContract compiled) {
+         Batch2ContractCoreR926.GateCheck gateEvidence =
+                 Batch2GateEvidenceR926.validateAndAppendWithinTransaction(
+-                        db, r, snapshot, snapshotHash, canonicalHash);
++                        db,store,r,snapshot,snapshotHash,canonicalHash,compiled);
+         String traceText = trace == null ? "" : trace.compactStagesR923();
+         long wallAuditElapsed = Math.max(0L, System.currentTimeMillis() - r.requestAt);
+         String payload = "canonical_hash=" + safe(canonicalHash)

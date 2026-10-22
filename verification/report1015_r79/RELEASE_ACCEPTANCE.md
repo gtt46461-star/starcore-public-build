@@ -1,0 +1,9 @@
+# R79 实际验收补充
+
+源码提交 d9fea8ce28bc3a3a48046a8f964077ffe982f57f。原签名正常发布构建完成，54个单测全部通过，3426发布类与1309构建输入核验通过。新修复86主机断言、原8组owner回归及109条实际JNI/SQLite归档回归通过。
+
+Android API35模拟器14类独立runtime测试全部通过，包含R79Recovery、SQLite连接池、种子导入、研究恢复、D04和E03。测试为隔离合成输入，不是原手机、14GB原库或自然Future证明。
+
+GitHub Actions运行38750295995整体仍为failure，唯一失败步骤为上传artifact，原因是仓库artifact存储配额耗尽。独立恢复job116495466803成功提取原始runtime receipt及范围日志；没有把上传失败改成成功。
+
+APK SHA256 e532cbce38eee053a9ef52db57f61bc2028f9a13dcf068a8e939a695cf80629d。原签名v1/v2、3ABI、ZIP CRC及16KiB对齐通过。该APK仍是修复候选，不是1832要求或1至9方案全部闭环。原总账状态保留，未清空未完成项。

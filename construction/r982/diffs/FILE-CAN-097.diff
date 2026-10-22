@@ -1,0 +1,21 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/MolecularToolWorldR947.java b/app/src/main/java/com/ethk3/novaonepro/MolecularToolWorldR947.java
+index f87151c..eba92fc 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/MolecularToolWorldR947.java
++++ b/app/src/main/java/com/ethk3/novaonepro/MolecularToolWorldR947.java
+@@ -32,6 +32,16 @@ public final class MolecularToolWorldR947 {
+     private static final int MAX_PROPOSALS_PER_PULSE = 8;
+     private MolecularToolWorldR947() {}
+ 
++    /** Canonical Director IMPORT slot delegates here; no independent scheduler. */
++    public static String importSeedBatchCP4(DbStore store,long deadlineNs) {
++        return com.ethk3.novaonepro.r952.ModernSeedFactoryCP12.maintain(store,deadlineNs);
++    }
++    /** Publishes at most 25 already compiled rows and their durable cursor in one transaction. */
++    public static long importSeedBatchCP4(SQLiteDatabase db,
++            List<com.ethk3.novaonepro.r952.ModernSeedFactoryCP12.SeedRow> rows,long cursor) {
++        return com.ethk3.novaonepro.r952.ModernSeedFactoryCP12.importPrepared(db,rows,cursor);
++    }
++
+     static void schema(SQLiteDatabase db) {
+         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE + "(proposal_hash TEXT PRIMARY KEY,novelty_key TEXT NOT NULL,operator TEXT NOT NULL,parent_indices TEXT NOT NULL,parent_hashes TEXT NOT NULL,state TEXT NOT NULL,created_issue TEXT NOT NULL,created_at INTEGER NOT NULL,selected_at INTEGER NOT NULL DEFAULT 0)");
+         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r947_molecule_state ON " + TABLE + "(state,created_issue,created_at)");

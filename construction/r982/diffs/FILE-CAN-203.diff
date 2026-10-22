@@ -1,0 +1,14 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java
+index e08b325..b06a73c 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeResult.java
+@@ -141,4 +141,9 @@ public final class V51RuntimeResult {
+                 elapsedMs,
+                 checksum);
+     }
++    /** Durable snapshot owns replay bytes; published UI/runtime view does not retain a MiB recipe. */
++    public V51RuntimeResult publishedViewCP12(){
++        return new V51RuntimeResult(success,context,features,states,numberModel,consensus,funnel,actions,selected,authorized,contract,status,elapsedMs,checksum,opportunityAuditR922,contributionAuditR922,"");
++    }
++
+ }

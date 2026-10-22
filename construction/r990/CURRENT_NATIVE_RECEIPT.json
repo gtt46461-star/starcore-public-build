@@ -1,0 +1,61 @@
+[
+  {
+    "operation": "compile current test drivers only",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/javac",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "-d",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/drivers",
+      "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/tests/audit_cp12/native/java/com/ethk3/novaonepro/ArchivePipelineActualCP12.java",
+      "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/tests/audit_cp12/native/java/com/ethk3/novaonepro/NativeReportContractCP12.java",
+      "/workspace/scratch/c7daf582ec06/starcore/verification/canonical/tests/audit_cp12/native/cas_java/com/ethk3/novaonepro/CasDirectoryActualCP12.java"
+    ],
+    "exit_code": 0
+  },
+  {
+    "test": "NativeReportContractCP12",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+      "-Xmx128m",
+      "-Djava.library.path=/workspace/scratch/c7daf582ec06/evidence/r990-current-native",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "com.ethk3.novaonepro.NativeReportContractCP12",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/NativeReportContractCP12/files"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "scope": "Fresh release-bound current product classes and unchanged-current-source-built JNI. Explicit synthetic native SQLite fixtures; DEVICE_NOT_VERIFIED."
+  },
+  {
+    "test": "ArchivePipelineActualCP12",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+      "-Xmx128m",
+      "-Djava.library.path=/workspace/scratch/c7daf582ec06/evidence/r990-current-native",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "com.ethk3.novaonepro.ArchivePipelineActualCP12",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/ArchivePipelineActualCP12/files"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "scope": "Fresh release-bound current product classes and unchanged-current-source-built JNI. Explicit synthetic native SQLite fixtures; DEVICE_NOT_VERIFIED."
+  },
+  {
+    "test": "CasDirectoryActualCP12",
+    "command": [
+      "/workspace/scratch/c7daf582ec06/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+      "-Xmx128m",
+      "-Djava.library.path=/workspace/scratch/c7daf582ec06/evidence/r990-current-native",
+      "-cp",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-report/drivers:/workspace/scratch/c7daf582ec06/evidence/r990-release-schema/classes:/workspace/scratch/c7daf582ec06/toolchain/android-sdk/platforms/android-36/android.jar",
+      "com.ethk3.novaonepro.CasDirectoryActualCP12",
+      "/workspace/scratch/c7daf582ec06/evidence/r990-release-native/CasDirectoryActualCP12/files"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "scope": "Fresh release-bound current product classes and unchanged-current-source-built JNI. Explicit synthetic native SQLite fixtures; DEVICE_NOT_VERIFIED."
+  }
+]

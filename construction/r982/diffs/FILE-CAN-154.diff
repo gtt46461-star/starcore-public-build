@@ -1,0 +1,158 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java b/app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java
+index 23e5915..7548766 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java
++++ b/app/src/main/java/com/ethk3/novaonepro/ResearchTinyDeepLearnerR909.java
+@@ -33,149 +33,10 @@ public final class ResearchTinyDeepLearnerR909 {
+ 
+     /** Advances exactly one chronological settled label. Never backfills into an earlier artifact. */
+     public static Result updateOne(final DbStore store) {
+-        if (store == null) return Result.fail("STORE_NULL");
+-        if (AppConfig.R36_REAL_BET_UNLOCK || MAY_AUTHORIZE_REAL)
+-            throw new IllegalStateException("R909_TINY_DEEP_REAL_BOUNDARY");
+-        final ArtifactRow prior = loadLatest(store, "999999999999");
+-        String trained = prior == null ? "" : prior.artifact.trainedUntilIssue;
+-        final Label label = nextLabel(store, trained);
+-        if (label == null) {
+-            setState(store, "r909_tiny_deep_status", "IDLE_NO_NEW_COMPACT_LABEL");
+-            return Result.fail("NO_NEW_LABEL");
+-        }
+-        final Network network = prior == null ? Network.initial() : Network.from(prior.artifact);
+-        final double before = network.predict(label.x);
+-        final double loss = network.update(label.x, label.y);
+-        final long updates = network.updates;
+-        final String nextTrained = label.issue;
+-        final ResearchArtifactCodecR811.Artifact artifact = network.toArtifact(nextTrained);
+-        final byte[] blob = ResearchArtifactCodecR811.encode(artifact);
+-        final String hash = ResearchArtifactCodecR811.hash(artifact);
+-        final String preStateHash =
+-                prior == null
+-                        ? V51ChecksumEngine.sha256(
+-                                "R909_TINY_DEEP_GENESIS|"
+-                                        + ARTIFACT_TYPE
+-                                        + '|'
+-                                        + AppConfig.R906_COMPACT_FEATURE_SCHEMA)
+-                        : prior.hash;
+-        final String inputHash = learningInputHash(label);
+-        final String learningIdentity =
+-                Batch2ContractCoreR926.learningKey(
+-                        V51Repository.GAME_CODE,
+-                        nextTrained,
+-                        UPDATE_CONTRACT,
+-                        LABEL_VERSION,
+-                        inputHash);
+-        if (!Batch2ContractCoreR926.isSha256(preStateHash)
+-                || !Batch2ContractCoreR926.isSha256(hash)
+-                || !Batch2ContractCoreR926.isSha256(inputHash)
+-                || !Batch2ContractCoreR926.isSha256(learningIdentity))
+-            return Result.fail("B09_LEARNING_HASH_INVALID");
+-
+-        final String artifactId =
+-                "R909-TINY-DEEP-" + nextTrained + "-" + hash.substring(0, 12);
+-        final long now = System.currentTimeMillis();
+-        DatabaseCoordinator.TransactionResult<Boolean> tx =
+-                store.coordinatorR36()
+-                        .runTransaction(
+-                                "R909_RESEARCH_TINY_DEEP_ARTIFACT_B09_ATOMIC",
+-                                nextTrained,
+-                                learningIdentity,
+-                                new DatabaseCoordinator.TransactionCallable<Boolean>() {
+-                                    @Override
+-                                    public Boolean call(
+-                                            SQLiteDatabase db,
+-                                            DatabaseCoordinator.TransactionContext context) {
+-                                        if (!db.inTransaction())
+-                                            throw new IllegalStateException(
+-                                                    "B09_TINY_DEEP_TRANSACTION_NOT_ACTIVE");
+-                                        String currentHead="";
+-                                        try(Cursor head=db.rawQuery("SELECT artifact_hash FROM v57_research_artifact_r811 WHERE artifact_type=? AND status='SHADOW_RESEARCH_ONLY' ORDER BY trained_until_issue DESC,created_at DESC LIMIT 1",new String[]{ARTIFACT_TYPE})) {if(head.moveToFirst())currentHead=safe(head.getString(0));}
+-                                        String expectedHead=prior==null?"":prior.hash;
+-                                        if(!expectedHead.equals(currentHead)) {
+-                                            if(artifactMatches(db,artifactId,hash))return Boolean.TRUE;
+-                                            throw new IllegalStateException("R948_TINY_DEEP_PRIOR_HEAD_CHANGED");
+-                                        }
+-                                        ContentValues v = new ContentValues();
+-                                        v.put("artifact_id", artifactId);
+-                                        v.put("artifact_type", ARTIFACT_TYPE);
+-                                        v.put("trained_until_issue", nextTrained);
+-                                        v.put(
+-                                                "feature_schema_hash",
+-                                                AppConfig.R906_COMPACT_FEATURE_SCHEMA);
+-                                        v.put("artifact_blob", blob);
+-                                        v.put("artifact_hash", hash);
+-                                        // Keep the pre-B09 load contract stable: research-only and
+-                                        // never REAL-authorizing.
+-                                        v.put("status", "SHADOW_RESEARCH_ONLY");
+-                                        v.put("created_at", now);
+-                                        long n =
+-                                                db.insertWithOnConflict(
+-                                                        "v57_research_artifact_r811",
+-                                                        null,
+-                                                        v,
+-                                                        SQLiteDatabase.CONFLICT_IGNORE);
+-                                        boolean artifactDurable =
+-                                                n > 0L || artifactMatches(db, artifactId, hash);
+-                                        if (!artifactDurable)
+-                                            throw new IllegalStateException(
+-                                                    "B09_TINY_DEEP_ARTIFACT_CONFLICT");
+-                                        RuntimeEventHooksR926.learnedWithinTransaction(
+-                                                db,
+-                                                nextTrained,
+-                                                "ResearchTinyDeepLearnerR909",
+-                                                learningIdentity,
+-                                                preStateHash,
+-                                                hash,
+-                                                artifact.trainedUntilIssue,
+-                                                "contract="
+-                                                        + UPDATE_CONTRACT
+-                                                        + "|label_version="
+-                                                        + LABEL_VERSION
+-                                                        + "|input_hash="
+-                                                        + inputHash
+-                                                        + "|updates="
+-                                                        + updates
+-                                                        + "|loss="
+-                                                        + loss
+-                                                        + "|tx_hash="
+-                                                        + safe(context.transactionHash));
+-                                        return Boolean.TRUE;
+-                                    }
+-                                },
+-                                Boolean.FALSE);
+-        boolean durable = artifactMatches(store.readable(), artifactId, hash);
+-        if (!tx.success || !durable)
+-            return Result.fail(
+-                    "ARTIFACT_OR_LEARNED_TX_FAILED|"
+-                            + safe(tx.code)
+-                            + "|replay="
+-                            + (tx.replay ? 1 : 0));
+-        Map<String, String> s = new LinkedHashMap<String, String>();
+-        s.put(
+-                "r909_tiny_deep_status",
+-                tx.replay
+-                        ? "REPLAY_SHADOW_ONLY_B09_EXACTLY_ONCE"
+-                        : "UPDATED_SHADOW_ONLY_B09_EXACTLY_ONCE");
+-        s.put("r909_tiny_deep_trained_until", nextTrained);
+-        s.put("r909_tiny_deep_updates", String.valueOf(updates));
+-        s.put("r909_tiny_deep_artifact_hash", hash);
+-        s.put("r909_tiny_deep_learning_identity", learningIdentity);
+-        s.put("r909_tiny_deep_b09_tx_hash", safe(tx.transactionHash));
+-        s.put("r909_tiny_deep_last_loss", Double.toString(loss));
+-        s.put("r909_tiny_deep_last_before_p", Double.toString(before));
+-        s.put("r909_tiny_deep_at", String.valueOf(now));
+-        store.setStates(s);
+-        return new Result(
+-                true,
+-                tx.replay
+-                        ? "REPLAY_SHADOW_ONLY_B09_EXACTLY_ONCE"
+-                        : "UPDATED_SHADOW_ONLY_B09_EXACTLY_ONCE",
+-                nextTrained,
+-                hash,
+-                updates,
+-                loss);
++        if(store==null)return Result.fail("STORE_NULL");
++        // CP12: AST3 DevelopmentProduction/Director is the only active numerical owner.
++        // Historical codecs and frozen shadow capture remain readable; no legacy SGD/artifact write.
++        return Result.fail("RETIRED_CP12_MODERN_TRAINING_OWNER");
+     }
+ 
+     /** Freezes one future prediction from the latest strictly-prior neural artifact. */

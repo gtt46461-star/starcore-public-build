@@ -1,0 +1,47 @@
+diff --git a/app/src/test/java/com/ethk3/novaonepro/AnalysisSingleFlightR36Test.java b/app/src/test/java/com/ethk3/novaonepro/AnalysisSingleFlightR36Test.java
+index c1833fb..056513a 100644
+--- a/app/src/test/java/com/ethk3/novaonepro/AnalysisSingleFlightR36Test.java
++++ b/app/src/test/java/com/ethk3/novaonepro/AnalysisSingleFlightR36Test.java
+@@ -27,13 +27,41 @@ public final class AnalysisSingleFlightR36Test {
+         AnalysisSingleFlightR36.SubmitResult owner=flight.submit(request(1));
+         flight.submit(request(2));flight.submit(request(3));
+         assertEquals("202608100003",flight.pendingTarget());
+-        assertTrue(owner.lease.token.lastProgressAt()>0L);
++        assertTrue(owner.lease.token.supersededByNewerTarget());
++        assertEquals("NEWER_TARGET:202608100002",owner.lease.token.cancelReason());
+         assertFalse(flight.cancelIfNoProgress(owner.lease.token.lastProgressAt()+29999L));
+         assertFalse(flight.cancelIfNoProgress(owner.lease.token.lastProgressAt()+60000L));
+         AnalysisSingleFlightR36.Request next=flight.releaseAndTakeNext(owner.lease);
+         assertEquals("202608100003",next.targetIssue);
+     }
+ 
++    @Test public void newerTargetAfterFinalizationQueuesUntilDurableCommit(){
++        AnalysisSingleFlightR36.SubmitResult owner=flight.submit(request(1));
++        owner.lease.token.enterFinalization();
++        flight.submit(request(2));flight.submit(request(3));
++        assertTrue(owner.lease.token.isFinalizing());
++        assertFalse(owner.lease.token.supersededByNewerTarget());
++        assertEquals("",owner.lease.token.cancelReason());
++        assertEquals(1,flight.activeCount());
++        assertEquals("202608100003",flight.pendingTarget());
++        owner.lease.token.markCanonicalCommitted();
++        assertFalse(flight.cancelIfNoProgress(owner.lease.token.lastProgressAt()+60000L));
++        assertEquals("202608100003",flight.releaseAndTakeNext(owner.lease).targetIssue);
++        assertEquals(0,flight.activeCount());
++    }
++
++    @Test public void supersededBeforeFinalizationCannotEnterCommitPhase(){
++        AnalysisSingleFlightR36.SubmitResult owner=flight.submit(request(1));
++        flight.submit(request(2));
++        try { owner.lease.token.enterFinalization(); fail("superseded owner entered finalization"); }
++        catch(AnalysisSingleFlightR36.CancelledBeforeCommitException expected) {
++            assertTrue(expected.getMessage().contains("NEWER_TARGET"));
++        }
++        assertFalse(owner.lease.token.isFinalizing());
++        assertEquals(1,flight.activeCount());
++        assertEquals("202608100002",flight.releaseAndTakeNext(owner.lease).targetIssue);
++    }
++
+     @Test public void noProgressCancelsExactlyOnce(){
+         AnalysisSingleFlightR36.SubmitResult owner=flight.submit(request(1));
+         long at=owner.lease.token.lastProgressAt();

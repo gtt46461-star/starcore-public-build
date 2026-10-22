@@ -1,0 +1,11 @@
+package com.ethk3.novaonepro;
+import com.ethk3.novaonepro.*;import java.io.*;import java.nio.charset.StandardCharsets;import java.security.*;import java.util.*;
+public class ReportSpoolContractCP12 {
+ static int assertions;static void need(boolean b){assertions++;if(!b)throw new AssertionError(assertions);}
+ static final class Context implements ReportTextCP12.Context {final File root;Set<ReportTextCP12> live=new HashSet<>();boolean cancel;Context(File root){this.root=root;}public void checkpoint(){if(cancel)throw new ReportReadContextCP4.ReportReadFailureCP4("REPORT_CONTEXT_CANCELLED");}public File jobDirectory(){return root;}public void trackRenderer(ReportTextCP12 x){live.add(x);if(live.size()>32)throw new AssertionError();}public void releaseRenderer(ReportTextCP12 x){live.remove(x);}public void recordTextArtifact(File f,String sha,long bytes){need(f.isFile()&&f.length()==bytes);}}
+ public static void main(String[]args)throws Exception{File root=new File(args[0]);root.mkdirs();Context c=new Context(root);String block="abcdef0123456789".repeat(2048);MessageDigest expected=MessageDigest.getInstance("SHA-256");ReportTextCP12 text=new ReportTextCP12(c);for(int i=0;i<6144;i++){text.append(block);expected.update(block.getBytes(StandardCharsets.UTF_8));}String token=text.toString();need(token.startsWith(ReportTextCP12.REF_BEGIN));need(token.contains(ReportArchiveCP4.hex(expected.digest())));need(c.live.isEmpty());
+  ReportTextCP12 nested=new ReportTextCP12(c);nested.append("prefix|").append(token).append("|suffix");String nestedToken=nested.toString();need(nestedToken.startsWith(ReportTextCP12.REF_BEGIN));String again=ReportTextCP12.sha256(c,"prefix|"+token+"|suffix");need(nestedToken.contains(again));
+  ReportTextCP12 duplicate=new ReportTextCP12(c);duplicate.append(token);need(duplicate.toString().equals(token));ReportTextCP12 cancelled=new ReportTextCP12(c);cancelled.append(block);need(!c.live.isEmpty());c.cancel=true;boolean threw=false;try{cancelled.append("x");}catch(ReportReadContextCP4.ReportReadFailureCP4 e){threw=true;}need(threw);cancelled.abort();need(c.live.isEmpty());
+  System.out.println("PASS REAL_REPORT_RENDERER_192MiB_NESTED assertions="+assertions+" maxHeap="+Runtime.getRuntime().maxMemory()+" usedHeap="+(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()));
+ }
+}

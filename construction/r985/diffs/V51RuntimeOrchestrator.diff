@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+index fed6f42..09ebcdc 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java
+@@ -641,7 +641,7 @@ public final class V51RuntimeOrchestrator {
+                 (assetGovernance.applied ? assetGovernance.proof() + "|" : "")
+                         + (algorithmGovernance.applied
+                                 ? algorithmGovernance.proof()
+-                                : governance.status),
++                                : governance.status)+"|choice_reason="+UnifiedResearchChoiceR932.currentChoiceReasonCP12(store,targetIssue),
+                 governanceCandidate,
+                 !governance.applied
+                         && (assetGovernance.applied

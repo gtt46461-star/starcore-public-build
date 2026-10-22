@@ -1,0 +1,1862 @@
+[
+  {
+    "id": "AT-B01-01",
+    "task": "B01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同一构建所有身份一致，故意改任意一处必失败",
+    "evidence": "evidence/B01/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B01-02",
+    "task": "B01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "原基线字节不变，新版本号不与已有发行冲突",
+    "evidence": "evidence/B01/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B02-01",
+    "task": "B02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "559个原Java和全部新增文件都有有依据的处置",
+    "evidence": "evidence/B02/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B02-02",
+    "task": "B02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "关键链没有无诊断吞错，抽取前后固定输入输出一致",
+    "evidence": "evidence/B02/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B02-03",
+    "task": "B02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "复杂度/调用图改善可量化，不以删代码行数当完成",
+    "evidence": "evidence/B02/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B03-01",
+    "task": "B03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "新装/旧库/缺表/旧stamp/中断迁移五类可恢复",
+    "evidence": "evidence/B03/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B03-02",
+    "task": "B03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "critical开库不调用research全量ensure",
+    "evidence": "evidence/B03/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B03-03",
+    "task": "B03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "研究最终进入READY或明确失败，不无限等待",
+    "evidence": "evidence/B03/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B03-04",
+    "task": "B03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "真机冷启动目标<8秒单独验收",
+    "evidence": "evidence/B03/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B04-01",
+    "task": "B04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "对有未checkpoint数据的库备份恢复后记录不丢",
+    "evidence": "evidence/B04/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B04-02",
+    "task": "B04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "在每步注入进程中止均可重入",
+    "evidence": "evidence/B04/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B04-03",
+    "task": "B04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "upgrade后历史行及关键hash100%相同",
+    "evidence": "evidence/B04/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B04-04",
+    "task": "B04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同版本重复执行不重复数据",
+    "evidence": "evidence/B04/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B05-01",
+    "task": "B05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同机120期稳态request→durable P95≤5000ms、compute P95≤3000ms",
+    "evidence": "evidence/B05/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B05-02",
+    "task": "B05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "冷启动独立10次目标<8000ms",
+    "evidence": "evidence/B05/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B05-03",
+    "task": "B05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "超时/失败全计数，不能用成功子集掩盖掉期",
+    "evidence": "evidence/B05/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B06-01",
+    "task": "B06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "任意阶段杀进程后事件可重放且终态不回退",
+    "evidence": "evidence/B06/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B06-02",
+    "task": "B06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "重复回调10次只一个canonical与一次结算",
+    "evidence": "evidence/B06/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B06-03",
+    "task": "B06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "最近20/500/导出逐期一致且错误归因唯一",
+    "evidence": "evidence/B06/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B07-01",
+    "task": "B07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "亮屏120期、息屏120期、划掉30期连续业务验收",
+    "evidence": "evidence/B07/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B07-02",
+    "task": "B07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "用户停止和系统强停不绕过，用户重开后幂等恢复",
+    "evidence": "evidence/B07/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B07-03",
+    "task": "B07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每次恢复都能看到请求/接受/真正业务恢复三时点",
+    "evidence": "evidence/B07/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B08-01",
+    "task": "B08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "503/超时/200脏JSON/合法重复/冲突/乱序/飞行模式均有结果码",
+    "evidence": "evidence/B08/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B08-02",
+    "task": "B08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "重复不会双预测",
+    "evidence": "evidence/B08/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B08-03",
+    "task": "B08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "HTTP200但业务拒绝在UI与报告可区分",
+    "evidence": "evidence/B08/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B09-01",
+    "task": "B09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "连续完整样本每期CORE结算一条、重放不重复",
+    "evidence": "evidence/B09/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B09-02",
+    "task": "B09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同一标签不能更新模型两次",
+    "evidence": "evidence/B09/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B09-03",
+    "task": "B09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "崩溃在学习前后均确定恢复",
+    "evidence": "evidence/B09/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B09-04",
+    "task": "B09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "120期测试要求全部应结已结",
+    "evidence": "evidence/B09/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B10-01",
+    "task": "B10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "全量有可恢复证据的待办最终归零",
+    "evidence": "evidence/B10/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B10-02",
+    "task": "B10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "不可恢复数明确非零即全闭环不通过",
+    "evidence": "evidence/B10/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B10-03",
+    "task": "B10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "最新FULL≤2实际开奖滞后且连续水位无隐洞",
+    "evidence": "evidence/B10/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B10-04",
+    "task": "B10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "模型与UI不因补账卡顿",
+    "evidence": "evidence/B10/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B11-01",
+    "task": "B11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "新受控测试REAL invalid=0 duplicate=0，每期最多一条且固定K3单位置",
+    "evidence": "evidence/B11/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B11-02",
+    "task": "B11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "来源缺一拒绝",
+    "evidence": "evidence/B11/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B11-03",
+    "task": "B11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "旧101条状态不被篡改",
+    "evidence": "evidence/B11/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-B11-04",
+    "task": "B11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "所有Owner扫描和行为测试通过",
+    "evidence": "evidence/B11/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D01-01",
+    "task": "D01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "错误游戏/重复期/未知schema/时间穿越/坏hash/非完整1200拒绝",
+    "evidence": "evidence/D01/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D01-02",
+    "task": "D01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "100期逐字段PIT检查",
+    "evidence": "evidence/D01/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D01-03",
+    "task": "D01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同输入导出内容hash相同",
+    "evidence": "evidence/D01/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D01-04",
+    "task": "D01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "缺标签只作待结，不偷偷补特征",
+    "evidence": "evidence/D01/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D02-01",
+    "task": "D02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同维数不同语义artifact拒绝",
+    "evidence": "evidence/D02/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D02-02",
+    "task": "D02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "依赖图无环",
+    "evidence": "evidence/D02/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D02-03",
+    "task": "D02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同一issue offline/Java/Android输入逐字段相等",
+    "evidence": "evidence/D02/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D02-04",
+    "task": "D02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "重启慢状态不读当前标签",
+    "evidence": "evidence/D02/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D03-01",
+    "task": "D03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "复制源文件到其他目录仍拒绝同sealed窗口新选择",
+    "evidence": "evidence/D03/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D03-02",
+    "task": "D03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "篡改上游hash下游失效",
+    "evidence": "evidence/D03/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D03-03",
+    "task": "D03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "五阶段样本区间严格有序",
+    "evidence": "evidence/D03/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D03-04",
+    "task": "D03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同trial崩溃恢复不重复消费sealed",
+    "evidence": "evidence/D03/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D04-01",
+    "task": "D04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每候选同fold完整结果，包括失败试验",
+    "evidence": "evidence/D04/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D04-02",
+    "task": "D04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "没有更优候选时保留baseline且报告未达到效果门",
+    "evidence": "evidence/D04/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D04-03",
+    "task": "D04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "host/设备推理一致且满足主链预算",
+    "evidence": "evidence/D04/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D05-01",
+    "task": "D05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每期1200唯一动作、360正标签、全1200评分",
+    "evidence": "evidence/D05/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D05-02",
+    "task": "D05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "100期×1200 Java/Android rank1完全一致",
+    "evidence": "evidence/D05/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D05-03",
+    "task": "D05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "仅1200行视作1期样本",
+    "evidence": "evidence/D05/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D05-04",
+    "task": "D05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "最终封存比较无退化",
+    "evidence": "evidence/D05/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D06-01",
+    "task": "D06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "变更consumer/权重/排序会使不兼容calibration拒绝",
+    "evidence": "evidence/D06/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D06-02",
+    "task": "D06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "错误概率类型被测试发现",
+    "evidence": "evidence/D06/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D06-03",
+    "task": "D06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "sealed Brier/ECE/NLL及分箱附样本数，达到合同门才宣告证明",
+    "evidence": "evidence/D06/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D07-01",
+    "task": "D07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "常数/小样本/新域/专家全失效时状态可解释",
+    "evidence": "evidence/D07/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D07-02",
+    "task": "D07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每个指标追到输入hash和窗口",
+    "evidence": "evidence/D07/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D07-03",
+    "task": "D07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "拒绝不产生补频率BET",
+    "evidence": "evidence/D07/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D08-01",
+    "task": "D08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同一target与hash路由可复现",
+    "evidence": "evidence/D08/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D08-02",
+    "task": "D08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "未支持域只能PAUSE/fallback",
+    "evidence": "evidence/D08/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D08-03",
+    "task": "D08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "域外0贡献",
+    "evidence": "evidence/D08/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D08-04",
+    "task": "D08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "更改边界必须重新起窗，不继承证据",
+    "evidence": "evidence/D08/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D09-01",
+    "task": "D09",
+    "type": "DATA_FUTURE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "冻结策略真实数据独立评估完整",
+    "evidence": "evidence/D09/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D09-02",
+    "task": "D09",
+    "type": "DATA_FUTURE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "覆盖不足明确多少，不改分母达标",
+    "evidence": "evidence/D09/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D09-03",
+    "task": "D09",
+    "type": "DATA_FUTURE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "即使找不到可行策略训练流程仍可验收工程，但效果目标不能关闭",
+    "evidence": "evidence/D09/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D10-01",
+    "task": "D10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "任意丢一artifact/错维度同形状错schema/非法路径/错签名/中途中止全部拒绝",
+    "evidence": "evidence/D10/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D10-02",
+    "task": "D10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "请求进行中换指针不改变该期",
+    "evidence": "evidence/D10/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D10-03",
+    "task": "D10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "回滚无重复canonical/REAL",
+    "evidence": "evidence/D10/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D11-01",
+    "task": "D11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "Python/host/Android逐元素结果全可复现",
+    "evidence": "evidence/D11/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D11-02",
+    "task": "D11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "维度、语义、PIT、非有限和坏hash负例全部拒绝",
+    "evidence": "evidence/D11/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-D11-03",
+    "task": "D11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "设备结果不以host替代",
+    "evidence": "evidence/D11/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C01-01",
+    "task": "C01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "算法/图资产/创生三者用同一合同测试向量得到一致授权",
+    "evidence": "evidence/C01/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C01-02",
+    "task": "C01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "无证书0权重",
+    "evidence": "evidence/C01/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C01-03",
+    "task": "C01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "证书只授予排序影响不创建REAL",
+    "evidence": "evidence/C01/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C01-04",
+    "task": "C01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "旧新状态全部可解释",
+    "evidence": "evidence/C01/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C02-01",
+    "task": "C02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "重复label/跨game/基线变更/错窗口/回看调门负例全部拒绝",
+    "evidence": "evidence/C02/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C02-02",
+    "task": "C02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "fail窗口不可原样反复试到PASS",
+    "evidence": "evidence/C02/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C02-03",
+    "task": "C02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "固定champion逐期预测hash可重算",
+    "evidence": "evidence/C02/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C02-04",
+    "task": "C02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "长历史查询预算可控",
+    "evidence": "evidence/C02/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C03-01",
+    "task": "C03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "构造相同ranking不同score尺度，概率证书不被尺度伪造",
+    "evidence": "evidence/C03/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C03-02",
+    "task": "C03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "raw score=.9不自动等于90%命中概率",
+    "evidence": "evidence/C03/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C03-03",
+    "task": "C03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "所有Brier行可追calibration/selection hash",
+    "evidence": "evidence/C03/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C04-01",
+    "task": "C04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "在冻结前/后/事务中断分别注入故障，终态与预测行一致",
+    "evidence": "evidence/C04/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C04-02",
+    "task": "C04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同一期冻结不可被后续失败覆盖",
+    "evidence": "evidence/C04/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C04-03",
+    "task": "C04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "分母公式可从明细逐行复算",
+    "evidence": "evidence/C04/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C05-01",
+    "task": "C05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "重复结构/行为候选不占双份active预算",
+    "evidence": "evidence/C05/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C05-02",
+    "task": "C05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "高相关但不同有效域不误并",
+    "evidence": "evidence/C05/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C05-03",
+    "task": "C05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "归档和合并不减少已注册假设总数",
+    "evidence": "evidence/C05/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C05-04",
+    "task": "C05",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每族冠军可追晋级依据",
+    "evidence": "evidence/C05/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C06-01",
+    "task": "C06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "在纯噪声、相关候选、连续追加、重复look下统计测试报告可复现",
+    "evidence": "evidence/C06/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C06-02",
+    "task": "C06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "分配alpha总额≤预注册总额",
+    "evidence": "evidence/C06/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C06-03",
+    "task": "C06",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "旧假设无法通过改名/归档/拆族逃避分母",
+    "evidence": "evidence/C06/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C07-01",
+    "task": "C07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "64苗圃压力下主链仍满足5秒门",
+    "evidence": "evidence/C07/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C07-02",
+    "task": "C07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "无候选无限饿死且无重复active",
+    "evidence": "evidence/C07/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C07-03",
+    "task": "C07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "C层证据不能伪装full1200晋级",
+    "evidence": "evidence/C07/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C07-04",
+    "task": "C07",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "资源撤回不会误prune",
+    "evidence": "evidence/C07/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C08-01",
+    "task": "C08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "父代200样本child仍0",
+    "evidence": "evidence/C08/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C08-02",
+    "task": "C08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "两次同结果不重复转移",
+    "evidence": "evidence/C08/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C08-03",
+    "task": "C08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "系统缺失只pause",
+    "evidence": "evidence/C08/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C08-04",
+    "task": "C08",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "修复后必须独立paired改善才success，不以created数量完成",
+    "evidence": "evidence/C08/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C09-01",
+    "task": "C09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每一模块消融有真实执行输出，不是重命名指标",
+    "evidence": "evidence/C09/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C09-02",
+    "task": "C09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "所有当期历史hash不变",
+    "evidence": "evidence/C09/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C09-03",
+    "task": "C09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "repair只影响下一候选和未来期",
+    "evidence": "evidence/C09/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C09-04",
+    "task": "C09",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "负对照模块应零影响",
+    "evidence": "evidence/C09/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C10-01",
+    "task": "C10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每个原子有来源/掩码/耗时/消费者清单",
+    "evidence": "evidence/C10/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C10-02",
+    "task": "C10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "本期postdraw20项生产调用0",
+    "evidence": "evidence/C10/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C10-03",
+    "task": "C10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "百万冻结记录查询EXPLAIN索引与性能满足预算",
+    "evidence": "evidence/C10/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C10-04",
+    "task": "C10",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "旧fixture缺mask明确unknown",
+    "evidence": "evidence/C10/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C11-01",
+    "task": "C11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "原有趋势/形态/关系/教师/反推/因果/反哺资产hash保留",
+    "evidence": "evidence/C11/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C11-02",
+    "task": "C11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "隔离后新候选不会再调用该原子",
+    "evidence": "evidence/C11/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C11-03",
+    "task": "C11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "缺失与低相关不能触发无证据删除",
+    "evidence": "evidence/C11/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C11-04",
+    "task": "C11",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "恢复过程可审计",
+    "evidence": "evidence/C11/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C12-01",
+    "task": "C12",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "从最底层原子到可执行候选有完整源码文本",
+    "evidence": "evidence/C12/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C12-02",
+    "task": "C12",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "至少用合同fixture验证新结构能运行并被正确拒绝/晋级，真实高品质只能由Future证据认定",
+    "evidence": "evidence/C12/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-C12-03",
+    "task": "C12",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "每个创造事件都有目的与预算",
+    "evidence": "evidence/C12/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U01-01",
+    "task": "U01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "phone与sw600dp全部ID/handler一致",
+    "evidence": "evidence/U01/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U01-02",
+    "task": "U01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "最大字体和窄屏不遮按钮",
+    "evidence": "evidence/U01/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U01-03",
+    "task": "U01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "停止刷新/旋转重建无泄漏",
+    "evidence": "evidence/U01/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U01-04",
+    "task": "U01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "UI计数与同一event watermark导出一致",
+    "evidence": "evidence/U01/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U02-01",
+    "task": "U02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "用户5秒能找到正在做什么/有没有改善/是否接主链/为什么未接",
+    "evidence": "evidence/U02/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U02-02",
+    "task": "U02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "四页各自点击、返回、空态、错误、长名单和大屏测试通过",
+    "evidence": "evidence/U02/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U02-03",
+    "task": "U02",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "原有功能页全部可达",
+    "evidence": "evidence/U02/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U03-01",
+    "task": "U03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "对旧反馈每个字段提供有值/缺失/失败fixture及设备截图",
+    "evidence": "evidence/U03/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U03-02",
+    "task": "U03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "原矩阵入口和数值来源无消失",
+    "evidence": "evidence/U03/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U03-03",
+    "task": "U03",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "开奖后解释不修改赛前决策",
+    "evidence": "evidence/U03/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U04-01",
+    "task": "U04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "任何章节故障仍导出错误码及其他章节",
+    "evidence": "evidence/U04/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U04-02",
+    "task": "U04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "所有M1-M10状态非缺省",
+    "evidence": "evidence/U04/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U04-03",
+    "task": "U04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "同一snapshot UI与报告计数一致",
+    "evidence": "evidence/U04/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-U04-04",
+    "task": "U04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "导出文件实际可分享打开、hash可复算",
+    "evidence": "evidence/U04/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q01-01",
+    "task": "Q01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "所有必需负例可触发预期拒绝",
+    "evidence": "evidence/Q01/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q01-02",
+    "task": "Q01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "零测试不得显示PASS",
+    "evidence": "evidence/Q01/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q01-03",
+    "task": "Q01",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "失败列表、命令/版本/hash完整，改动相关回归全部通过",
+    "evidence": "evidence/Q01/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q02-01",
+    "task": "Q02",
+    "type": "DEVICE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "安装后可启动且历史保留",
+    "evidence": "evidence/Q02/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q02-02",
+    "task": "Q02",
+    "type": "DEVICE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "规定可运行场景掉期0/重复0，连续120覆盖目标≥99%但若要求无掉期则按120/120判",
+    "evidence": "evidence/Q02/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q02-03",
+    "task": "Q02",
+    "type": "DEVICE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "稳态5秒和FULL/结算门全达标",
+    "evidence": "evidence/Q02/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q02-04",
+    "task": "Q02",
+    "type": "DEVICE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "未执行维持NOT_RUN",
+    "evidence": "evidence/Q02/AT-04.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q03-01",
+    "task": "Q03",
+    "type": "DATA_FUTURE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "真实dataset/所有阶段/host+Androidparity/hash/封存/资源/新Future齐全才模型证明",
+    "evidence": "evidence/Q03/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q03-02",
+    "task": "Q03",
+    "type": "DATA_FUTURE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "至少1个真实合格候选若未出现就不能声称创造效果完成",
+    "evidence": "evidence/Q03/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q03-03",
+    "task": "Q03",
+    "type": "DATA_FUTURE",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "不保证数据必有可持续优势",
+    "evidence": "evidence/Q03/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q04-01",
+    "task": "Q04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "全部工程门PASS方可工程完成",
+    "evidence": "evidence/Q04/AT-01.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q04-02",
+    "task": "Q04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "设备/数据/Future效果门也全PASS才允许标全部目标验收",
+    "evidence": "evidence/Q04/AT-02.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "AT-Q04-03",
+    "task": "Q04",
+    "type": "IMPLEMENTATION_CONTRACT",
+    "precondition": "关联任务源码已实现且所有前置任务合同稳定；输入fixture和源码/APK hash冻结",
+    "procedure": "按任务卡方法入口执行该条件的正常与破坏输入；记录逐步输出与错误码",
+    "expected": "单一总包文件可校验、可按文档重建，实际恢复包数据兼容已测",
+    "evidence": "evidence/Q04/AT-03.json + 原始日志/输入输出hash",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F01",
+    "task": "B04",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "迁移完成DDL但未更新step_cursor时中止",
+    "expected": "重启仅幂等重复本步，历史行hash相同",
+    "evidence": "evidence/B04/F01.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F02",
+    "task": "B04",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "WAL含未checkpoint交易时做一致备份",
+    "expected": "恢复保留所有已提交交易，不能丢WAL记录",
+    "evidence": "evidence/B04/F02.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F03",
+    "task": "B03",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "Research新表缺失、critical表完整",
+    "expected": "主链可运行，研究INIT/FAILED可见",
+    "evidence": "evidence/B03/F03.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F04",
+    "task": "B03",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "研究DDL变化但critical对象未变",
+    "expected": "不重复critical全库迁移",
+    "evidence": "evidence/B03/F04.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F05",
+    "task": "B06",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "canonical事务提交前中止",
+    "expected": "无半条canonical/贡献/event",
+    "evidence": "evidence/B06/F05.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F06",
+    "task": "B06",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "事务提交后outbox消费前中止",
+    "expected": "重启只消费一次，canonical不重建",
+    "evidence": "evidence/B06/F06.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F07",
+    "task": "B06",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "旧attempt响应晚于新attempt durable",
+    "expected": "旧回调不覆盖终态，不制造第二REAL",
+    "evidence": "evidence/B06/F07.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F08",
+    "task": "B08",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "HTTP200但JSON错游戏/错号码排列",
+    "expected": "HTTP已收，业务拒绝，有独立码",
+    "evidence": "evidence/B08/F08.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F09",
+    "task": "B08",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "两个来源同一期不同排列",
+    "expected": "隔离冲突，不静默覆盖",
+    "evidence": "evidence/B08/F09.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F10",
+    "task": "B07",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "通知可见但抓取timer不再触发",
+    "expected": "业务灯变坏，恢复原定时器而不是只续心跳",
+    "evidence": "evidence/B07/F10.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F11",
+    "task": "B09",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "标签重复10次/学习回调重复10次",
+    "expected": "仅一次结算与一次参数更新",
+    "evidence": "evidence/B09/F11.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F12",
+    "task": "B10",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "最新FULL成功而中间10期未完成",
+    "expected": "连续水位和洞数量显示缺口",
+    "evidence": "evidence/B10/F12.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F13",
+    "task": "B10",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "欠账snapshot损坏/丢失",
+    "expected": "隔离并计未闭环，不删作清零",
+    "evidence": "evidence/B10/F13.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F14",
+    "task": "D01",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "snapshot内target与SQL join target不同",
+    "expected": "导出拒绝，不生成伪标签",
+    "evidence": "evidence/D01/F14.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F15",
+    "task": "D01",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "frozen_at>=draw_at、base>=target",
+    "expected": "PIT拒绝",
+    "evidence": "evidence/D01/F15.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F16",
+    "task": "D02",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "相同96维但不同feature_contract",
+    "expected": "loader拒绝",
+    "evidence": "evidence/D02/F16.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F17",
+    "task": "D02",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "D2输入包含当期更新后的慢状态",
+    "expected": "PIT/状态hash拒绝",
+    "evidence": "evidence/D02/F17.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F18",
+    "task": "D03",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "把已消费sealed源复制到另一目录",
+    "expected": "全局registry仍拒绝新选择",
+    "evidence": "evidence/D03/F18.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F19",
+    "task": "D05",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "只提供10动作而非1200",
+    "expected": "合同拒绝",
+    "evidence": "evidence/D05/F19.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F20",
+    "task": "D05",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "所有分数相等/差1e-12的并列动作",
+    "expected": "三端同一ordinal tie-break",
+    "evidence": "evidence/D05/F20.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F21",
+    "task": "D06",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "研究权重变化但使用旧selection校准hash",
+    "expected": "校准不兼容，禁止新证明/贡献",
+    "evidence": "evidence/D06/F21.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F22",
+    "task": "C03",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "raw score从0..1缩放到0..100",
+    "expected": "不能影响概率质量证书，raw不算Brier",
+    "evidence": "evidence/C03/F22.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F23",
+    "task": "D08",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "未知域/域CAL支持119",
+    "expected": "PAUSE/fallback，不品质prune",
+    "evidence": "evidence/D08/F23.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F24",
+    "task": "D10",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "丢Policy artifact或签名/hash错误",
+    "expected": "整包不激活",
+    "evidence": "evidence/D10/F24.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F25",
+    "task": "D10",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "预测中更换bundle、进程中止",
+    "expected": "当期固定原bundle；下一期或重启一致选择",
+    "evidence": "evidence/D10/F25.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F26",
+    "task": "C02",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "同一target两条pair或换champion_hash",
+    "expected": "唯一/窗口合同拒绝",
+    "evidence": "evidence/C02/F26.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F27",
+    "task": "C02",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "first120失败后延长直到变好",
+    "expected": "原窗口仍失败，新窗口必须预注册",
+    "evidence": "evidence/C02/F27.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F28",
+    "task": "C04",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "冻结写成功但机会写失败",
+    "expected": "同事务回滚或完整成功，不能半成功",
+    "evidence": "evidence/C04/F28.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F29",
+    "task": "C05",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "相同结构改中文名重新注册",
+    "expected": "别名关联，active不双计、统计历史保留",
+    "evidence": "evidence/C05/F29.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F30",
+    "task": "C06",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "归档90%失败候选后重算显著性",
+    "expected": "历史假设预算不下降",
+    "evidence": "evidence/C06/F30.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F31",
+    "task": "C07",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "连续压力导致某候选未分配运行",
+    "expected": "PAUSED_CAPACITY，不QUALITY_PRUNE",
+    "evidence": "evidence/C07/F31.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F32",
+    "task": "C08",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "父代N200拷贝给child",
+    "expected": "子代birth N必须0，约束拒绝非0",
+    "evidence": "evidence/C08/F32.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F33",
+    "task": "C09",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "消融重执行试图写当期canonical",
+    "expected": "只读/权限边界拒绝，历史hash不变",
+    "evidence": "evidence/C09/F33.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F34",
+    "task": "C10",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "一个原子合法值0、另一个缺失",
+    "expected": "mask与missing_reason明确区分",
+    "evidence": "evidence/C10/F34.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F35",
+    "task": "C11",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "开奖后原子流入赛前评分",
+    "expected": "PIT硬拒绝并隔离新研究消费",
+    "evidence": "evidence/C11/F35.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F36",
+    "task": "U01",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "页面退出后旧查询完成",
+    "expected": "不写已销毁View，新屏不被旧数据覆盖",
+    "evidence": "evidence/U01/F36.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F37",
+    "task": "U02",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "四页面无样本/一万个候选/最大字号",
+    "expected": "空态真实、分页流畅、按钮不遮挡",
+    "evidence": "evidence/U02/F37.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F38",
+    "task": "U04",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "其中一章SQL异常、报告超过内存预算",
+    "expected": "流式导出其余与错误码，无OOM/截断冒充完整",
+    "evidence": "evidence/U04/F38.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F39",
+    "task": "Q04",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "APK资源/模型/版本与manifest一项不一致",
+    "expected": "发行gate拒绝",
+    "evidence": "evidence/Q04/F39.json + log",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "F40",
+    "task": "Q04",
+    "type": "FAULT_INJECTION",
+    "precondition": "隔离fixture或测试设备，非用户生产库",
+    "procedure": "仅host日志且设备/Future为NOT_RUN",
+    "expected": "release gate拒绝全部完成声明",
+    "evidence": "evidence/Q04/F40.json + log",
+    "status": "NOT_RUN"
+  }
+]

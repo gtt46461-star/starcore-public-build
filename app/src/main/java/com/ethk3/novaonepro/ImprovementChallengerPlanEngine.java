@@ -1,0 +1,587 @@
+package com.ethk3.novaonepro;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+/**
+ * Evidence-bound improvement planner. Proposals cannot unlock REAL; each proposal requires a
+ * measurable acceptance test.
+ */
+public final class ImprovementChallengerPlanEngine {
+    public static final String OWNER = "B14_IMPROVEMENT_CHALLENGER_PLAN";
+    public static final String VERSION = "V57_IMPROVEMENT_CHALLENGER_FULL_20260808";
+
+    public static final class Proposal {
+        public final int priority;
+        public final String target, fileOrModule, change, evidence, acceptance, rollback;
+        public final String datasetHash, codeHash, testProtocol, bindingStatus;
+        public final int productionMutation;
+        public final double expectedImpact, risk;
+        public final String checksum;
+
+        Proposal(
+                int p,
+                String target,
+                String file,
+                String change,
+                String evidence,
+                String acceptance,
+                String rollback,
+                double impact,
+                double risk) {
+            this(
+                    p,
+                    target,
+                    file,
+                    change,
+                    evidence,
+                    acceptance,
+                    rollback,
+                    impact,
+                    risk,
+                    "UNAVAILABLE_DATASET_HASH",
+                    V51ChecksumEngine.sha256(s(file) + '|' + s(change)),
+                    acceptance,
+                    0);
+        }
+
+        Proposal(
+                int p,
+                String target,
+                String file,
+                String change,
+                String evidence,
+                String acceptance,
+                String rollback,
+                double impact,
+                double risk,
+                String datasetHash,
+                String codeHash,
+                String testProtocol,
+                int productionMutation) {
+            priority = p;
+            this.target = s(target);
+            fileOrModule = s(file);
+            this.change = s(change);
+            this.evidence = s(evidence);
+            this.acceptance = s(acceptance);
+            this.rollback = s(rollback);
+            this.datasetHash = s(datasetHash);
+            this.codeHash = s(codeHash);
+            this.testProtocol = s(testProtocol);
+            this.productionMutation = productionMutation;
+            this.bindingStatus =
+                    isSha256(this.datasetHash)
+                                    && isSha256(this.codeHash)
+                                    && this.testProtocol.length() > 0
+                                    && this.rollback.length() > 0
+                                    && productionMutation == 0
+                            ? "BOUND_RESEARCH_ONLY"
+                            : "BLOCKED_BINDING_INCOMPLETE";
+            expectedImpact = clamp(impact);
+            this.risk = clamp(risk);
+            checksum =
+                    V51ChecksumEngine.sha256(
+                            p
+                                    + '|'
+                                    + this.target
+                                    + '|'
+                                    + fileOrModule
+                                    + '|'
+                                    + this.change
+                                    + '|'
+                                    + this.evidence
+                                    + '|'
+                                    + this.acceptance
+                                    + '|'
+                                    + this.rollback
+                                    + '|'
+                                    + this.datasetHash
+                                    + '|'
+                                    + this.codeHash
+                                    + '|'
+                                    + this.testProtocol
+                                    + '|'
+                                    + this.productionMutation
+                                    + '|'
+                                    + expectedImpact
+                                    + '|'
+                                    + this.risk);
+        }
+    }
+
+    public static final class Plan {
+        public final Proposal[] proposals;
+        public final String gate, checksum;
+
+        Plan(Proposal[] p, String gate) {
+            proposals = p;
+            this.gate = s(gate);
+            StringBuilder h = new StringBuilder(this.gate);
+            for (int i = 0; i < p.length; i++) h.append('|').append(p[i].checksum);
+            checksum = V51ChecksumEngine.sha256(h.toString());
+        }
+    }
+
+    public Plan build(DbStore store) {
+        ArrayList<Proposal> p = new ArrayList<Proposal>();
+        AutoFetchService.B13RuntimeHealth h = AutoFetchService.b13Health(store);
+        if (!h.businessAlive)
+            p.add(
+                    proposal(
+                            store,
+                            1,
+                            "BACKGROUND_RUNTIME",
+                            "AutoFetchService/V51RuntimeOrchestrator",
+                            "Recover from last successful business stage; distinguish service beat"
+                                + " from fetch/analysis/settlement beat",
+                            h.rootCause,
+                            "Screen-off + HOME + task removal replay shows fresh"
+                                + " fetch/analysis/settlement beats without duplicate target"
+                                + " processing",
+                            "Rollback to R323 field-repair scheduler while preserving B12 owners",
+                            0.95d,
+                            0.20d));
+        if (!V51NumberModelArtifact.PROVEN)
+            p.add(
+                    proposal(
+                            store,
+                            2,
+                            "NUMBER_Q",
+                            "V51PermutationNumberModelEngine/V51ExpertGateEngine",
+                            "Train 9-expert gate and NumberQ on strict time-ordered folds, freeze"
+                                + " artifact/data hash and replay parity",
+                            "Number artifact PROVEN=false",
+                            "Frozen OOS top-number quality + Sinkhorn finite/parity + no PIT"
+                                + " leakage",
+                            "Keep artifact UNTRAINED and SHADOW-only",
+                            0.85d,
+                            0.30d));
+        if (!V51ActionRankerArtifact.PROVEN || !V51ActionRankerArtifact.RANK_ORDER_PASSED)
+            p.add(
+                    proposal(
+                            store,
+                            3,
+                            "ACTION_RANK",
+                            "V51ActionRankerEngine",
+                            "Train same-target 1200-action groupwise ranker; compare"
+                                + " pairwise/listwise challenger under identical folds",
+                            "Rank artifact not proven/order not proven",
+                            "Rank1/MRR/NDCG/pairwise + block stability + immutable Champion all"
+                                + " pass",
+                            "Retain research score only; no REAL authorization",
+                            0.80d,
+                            0.25d));
+        if (!V51SelectedCalibrationArtifact.PROVEN)
+            p.add(
+                    proposal(
+                            store,
+                            4,
+                            "SELECTED_HIT_P",
+                            "V51SelectedActionCalibrationEngine",
+                            "Fit only selection-conditioned pre-draw OOS calibration; add subgroup"
+                                + " reliability bins",
+                            "Calibration artifact PROVEN=false",
+                            "ECE<=release threshold, Brier improves vs baseline, Wilson lower bound"
+                                + " and subgroup parity recorded",
+                            "SelectedHitP remains N/A",
+                            0.90d,
+                            0.20d));
+        if (!V51PolicySurfaceArtifact.MODEL_GATE_PASSED)
+            p.add(
+                    proposal(
+                            store,
+                            5,
+                            "SELECTIVE_POLICY",
+                            "V51SelectivePolicyCompiler",
+                            "Compile CORE/DYNAMIC only from frozen model + domain/window/conformal"
+                                + " certificates; never debt-fill coverage",
+                            "Policy model gate not passed",
+                            "Coverage achieved without debt-fill while frozen blocks/certificates"
+                                + " pass; CONTROLLED_PROBE cannot create REAL",
+                            "Remain SHADOW",
+                            0.90d,
+                            0.15d));
+        String conflict = get(store, "b14_conflict_summary", "");
+        if (conflict.length() > 0)
+            p.add(
+                    proposal(
+                            store,
+                            6,
+                            "STRATEGY_CONFLICT",
+                            "StrategyConflictAblationEngine",
+                            "Run leave-one-module-out and pairwise conflict replay on identical OOS"
+                                + " blocks",
+                            conflict,
+                            "Measured deltas include hit+Brier+ECE+coverage and confidence; no"
+                                + " unmeasured module is promoted",
+                            "Restore previous fusion weights",
+                            0.65d,
+                            0.20d));
+        p.add(
+                proposal(
+                        store,
+                        7,
+                        "EVIDENCE_EXPANSION",
+                        "B04-B11 evidence chain",
+                        "Increase legal pre-draw settled SHADOW evidence across regimes rather than"
+                            + " lowering gates",
+                        "Model proof is separate from engineering completion",
+                        "Independent frozen period has enough samples in at least 3/4 blocks and"
+                            + " all artifact hashes/parity checks are reproducible",
+                        "No change to REAL gate",
+                        0.75d,
+                        0.10d));
+        Collections.sort(
+                p,
+                new Comparator<Proposal>() {
+                    public int compare(Proposal a, Proposal b) {
+                        return a.priority - b.priority;
+                    }
+                });
+        String gate =
+                V51NumberModelArtifact.PROVEN
+                                && V51ActionRankerArtifact.PROVEN
+                                && V51SelectedCalibrationArtifact.PROVEN
+                                && V51PolicySurfaceArtifact.MODEL_GATE_PASSED
+                        ? "MODEL_CHAIN_PROVEN_RECHECK_CERTIFICATES"
+                        : "REAL_LOCKED_SHADOW_ONLY";
+        return new Plan(p.toArray(new Proposal[p.size()]), gate);
+    }
+
+    public String render(DbStore store) {
+        Plan x = build(store);
+        StringBuilder b = new StringBuilder(8192);
+        b.append("【改进Challenger计划】\nVersion=")
+                .append(VERSION)
+                .append("\nGate=")
+                .append(x.gate)
+                .append('\n');
+        for (int i = 0; i < x.proposals.length; i++) {
+            Proposal p = x.proposals[i];
+            b.append("P")
+                    .append(p.priority)
+                    .append('|')
+                    .append(p.target)
+                    .append('|')
+                    .append(p.fileOrModule)
+                    .append("\nChange=")
+                    .append(p.change)
+                    .append("\nEvidence=")
+                    .append(p.evidence)
+                    .append("\nAcceptance=")
+                    .append(p.acceptance)
+                    .append("\nRollback=")
+                    .append(p.rollback)
+                    .append("\nDatasetHash=")
+                    .append(p.datasetHash)
+                    .append("\nCodeHash=")
+                    .append(p.codeHash)
+                    .append("\nTestProtocol=")
+                    .append(p.testProtocol)
+                    .append("\nProductionMutation=")
+                    .append(p.productionMutation)
+                    .append("|Binding=")
+                    .append(p.bindingStatus)
+                    .append("\nImpact=")
+                    .append(p.expectedImpact)
+                    .append("|Risk=")
+                    .append(p.risk)
+                    .append("\nHash=")
+                    .append(p.checksum)
+                    .append("\n\n");
+        }
+        b.append("PlanHash=").append(x.checksum).append('\n');
+        return b.toString();
+    }
+
+    private Proposal proposal(
+            DbStore store,
+            int priority,
+            String target,
+            String file,
+            String change,
+            String evidence,
+            String acceptance,
+            String rollback,
+            double impact,
+            double risk) {
+        String datasetHash = get(store, "r811_research_dataset_hash", "");
+        if (!isSha256(datasetHash)) datasetHash = "UNAVAILABLE_DATASET_HASH";
+        String codeHash = get(store, "r811_research_code_hash", "");
+        if (!isSha256(codeHash)) {
+            codeHash =
+                    V51ChecksumEngine.sha256(
+                            VERSION + '|' + s(target) + '|' + s(file) + '|' + s(change));
+        }
+        return new Proposal(
+                priority,
+                target,
+                file,
+                change,
+                evidence,
+                acceptance,
+                rollback,
+                impact,
+                risk,
+                datasetHash,
+                codeHash,
+                "TIME_ORDERED_OOS|" + s(acceptance),
+                0);
+    }
+
+    private static boolean isSha256(String value) {
+        String x = s(value);
+        if (x.length() != 64) return false;
+        for (int i = 0; i < x.length(); i++) {
+            char c = Character.toLowerCase(x.charAt(i));
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) return false;
+        }
+        return true;
+    }
+
+    private static double clamp(double x) {
+        if (Double.isNaN(x) || Double.isInfinite(x)) return 0;
+        return Math.max(0, Math.min(1, x));
+    }
+
+    private static String get(DbStore s, String k, String d) {
+        try {
+            return s == null ? d : s.getState(k, d);
+        } catch (Throwable t) {
+            return d;
+        }
+    }
+
+    private static String s(String x) {
+        return x == null ? "" : x;
+    }
+
+public String renderSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+        Plan x = buildSnapshotCP4(report, store);
+        com.ethk3.novaonepro.ReportTextCP12 b = new com.ethk3.novaonepro.ReportTextCP12(report, 8192);
+        b.append("【改进Challenger计划】\nVersion=")
+                .append(VERSION)
+                .append("\nGate=")
+                .append(x.gate)
+                .append('\n');
+        for (int i = 0; i < x.proposals.length; i++) {
+            Proposal p = x.proposals[i];
+            b.append("P")
+                    .append(p.priority)
+                    .append('|')
+                    .append(p.target)
+                    .append('|')
+                    .append(p.fileOrModule)
+                    .append("\nChange=")
+                    .append(p.change)
+                    .append("\nEvidence=")
+                    .append(p.evidence)
+                    .append("\nAcceptance=")
+                    .append(p.acceptance)
+                    .append("\nRollback=")
+                    .append(p.rollback)
+                    .append("\nDatasetHash=")
+                    .append(p.datasetHash)
+                    .append("\nCodeHash=")
+                    .append(p.codeHash)
+                    .append("\nTestProtocol=")
+                    .append(p.testProtocol)
+                    .append("\nProductionMutation=")
+                    .append(p.productionMutation)
+                    .append("|Binding=")
+                    .append(p.bindingStatus)
+                    .append("\nImpact=")
+                    .append(p.expectedImpact)
+                    .append("|Risk=")
+                    .append(p.risk)
+                    .append("\nHash=")
+                    .append(p.checksum)
+                    .append("\n\n");
+        }
+        b.append("PlanHash=").append(x.checksum).append('\n');
+        return b.toString();
+    }
+
+public Plan buildSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store) {
+        ArrayList<Proposal> p = new ArrayList<Proposal>();
+        AutoFetchService.B13RuntimeHealth h = AutoFetchService.b13HealthSnapshotCP4(report, store);
+        if (!h.businessAlive)
+            p.add(
+                    proposalSnapshotCP4(report, 
+                            store,
+                            1,
+                            "BACKGROUND_RUNTIME",
+                            "AutoFetchService/V51RuntimeOrchestrator",
+                            "Recover from last successful business stage; distinguish service beat"
+                                + " from fetch/analysis/settlement beat",
+                            h.rootCause,
+                            "Screen-off + HOME + task removal replay shows fresh"
+                                + " fetch/analysis/settlement beats without duplicate target"
+                                + " processing",
+                            "Rollback to R323 field-repair scheduler while preserving B12 owners",
+                            0.95d,
+                            0.20d));
+        if (!V51NumberModelArtifact.PROVEN)
+            p.add(
+                    proposalSnapshotCP4(report, 
+                            store,
+                            2,
+                            "NUMBER_Q",
+                            "V51PermutationNumberModelEngine/V51ExpertGateEngine",
+                            "Train 9-expert gate and NumberQ on strict time-ordered folds, freeze"
+                                + " artifact/data hash and replay parity",
+                            "Number artifact PROVEN=false",
+                            "Frozen OOS top-number quality + Sinkhorn finite/parity + no PIT"
+                                + " leakage",
+                            "Keep artifact UNTRAINED and SHADOW-only",
+                            0.85d,
+                            0.30d));
+        if (!V51ActionRankerArtifact.PROVEN || !V51ActionRankerArtifact.RANK_ORDER_PASSED)
+            p.add(
+                    proposalSnapshotCP4(report, 
+                            store,
+                            3,
+                            "ACTION_RANK",
+                            "V51ActionRankerEngine",
+                            "Train same-target 1200-action groupwise ranker; compare"
+                                + " pairwise/listwise challenger under identical folds",
+                            "Rank artifact not proven/order not proven",
+                            "Rank1/MRR/NDCG/pairwise + block stability + immutable Champion all"
+                                + " pass",
+                            "Retain research score only; no REAL authorization",
+                            0.80d,
+                            0.25d));
+        if (!V51SelectedCalibrationArtifact.PROVEN)
+            p.add(
+                    proposalSnapshotCP4(report, 
+                            store,
+                            4,
+                            "SELECTED_HIT_P",
+                            "V51SelectedActionCalibrationEngine",
+                            "Fit only selection-conditioned pre-draw OOS calibration; add subgroup"
+                                + " reliability bins",
+                            "Calibration artifact PROVEN=false",
+                            "ECE<=release threshold, Brier improves vs baseline, Wilson lower bound"
+                                + " and subgroup parity recorded",
+                            "SelectedHitP remains N/A",
+                            0.90d,
+                            0.20d));
+        if (!V51PolicySurfaceArtifact.MODEL_GATE_PASSED)
+            p.add(
+                    proposalSnapshotCP4(report, 
+                            store,
+                            5,
+                            "SELECTIVE_POLICY",
+                            "V51SelectivePolicyCompiler",
+                            "Compile CORE/DYNAMIC only from frozen model + domain/window/conformal"
+                                + " certificates; never debt-fill coverage",
+                            "Policy model gate not passed",
+                            "Coverage achieved without debt-fill while frozen blocks/certificates"
+                                + " pass; CONTROLLED_PROBE cannot create REAL",
+                            "Remain SHADOW",
+                            0.90d,
+                            0.15d));
+        String conflict = getSnapshotCP4(report, store, "b14_conflict_summary", "");
+        if (conflict.length() > 0)
+            p.add(
+                    proposalSnapshotCP4(report, 
+                            store,
+                            6,
+                            "STRATEGY_CONFLICT",
+                            "StrategyConflictAblationEngine",
+                            "Run leave-one-module-out and pairwise conflict replay on identical OOS"
+                                + " blocks",
+                            conflict,
+                            "Measured deltas include hit+Brier+ECE+coverage and confidence; no"
+                                + " unmeasured module is promoted",
+                            "Restore previous fusion weights",
+                            0.65d,
+                            0.20d));
+        p.add(
+                proposalSnapshotCP4(report, 
+                        store,
+                        7,
+                        "EVIDENCE_EXPANSION",
+                        "B04-B11 evidence chain",
+                        "Increase legal pre-draw settled SHADOW evidence across regimes rather than"
+                            + " lowering gates",
+                        "Model proof is separate from engineering completion",
+                        "Independent frozen period has enough samples in at least 3/4 blocks and"
+                            + " all artifact hashes/parity checks are reproducible",
+                        "No change to REAL gate",
+                        0.75d,
+                        0.10d));
+        Collections.sort(
+                p,
+                new Comparator<Proposal>() {
+                    public int compare(Proposal a, Proposal b) {
+                        return a.priority - b.priority;
+                    }
+                });
+        String gate =
+                V51NumberModelArtifact.PROVEN
+                                && V51ActionRankerArtifact.PROVEN
+                                && V51SelectedCalibrationArtifact.PROVEN
+                                && V51PolicySurfaceArtifact.MODEL_GATE_PASSED
+                        ? "MODEL_CHAIN_PROVEN_RECHECK_CERTIFICATES"
+                        : "REAL_LOCKED_SHADOW_ONLY";
+        return new Plan(p.toArray(new Proposal[p.size()]), gate);
+    }
+
+public Proposal proposalSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, 
+            com.ethk3.novaonepro.ReportReadContextCP4 store,
+            int priority,
+            String target,
+            String file,
+            String change,
+            String evidence,
+            String acceptance,
+            String rollback,
+            double impact,
+            double risk) {
+        String datasetHash = getSnapshotCP4(report, store, "r811_research_dataset_hash", "");
+        if (!isSha256SnapshotCP4(report, datasetHash)) datasetHash = "UNAVAILABLE_DATASET_HASH";
+        String codeHash = getSnapshotCP4(report, store, "r811_research_code_hash", "");
+        if (!isSha256SnapshotCP4(report, codeHash)) {
+            codeHash =
+                    com.ethk3.novaonepro.ReportTextCP12.sha256(report, 
+                            VERSION + '|' + sSnapshotCP4(report, target) + '|' + sSnapshotCP4(report, file) + '|' + sSnapshotCP4(report, change));
+        }
+        return new Proposal(
+                priority,
+                target,
+                file,
+                change,
+                evidence,
+                acceptance,
+                rollback,
+                impact,
+                risk,
+                datasetHash,
+                codeHash,
+                "TIME_ORDERED_OOS|" + sSnapshotCP4(report, acceptance),
+                0);
+    }
+
+public static String sSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String x) {
+        return x == null ? "" : x;
+    }
+
+public static boolean isSha256SnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, String value) {
+        String x = sSnapshotCP4(report, value);
+        if (x.length() != 64) return false;
+        for (int i = 0; i < x.length(); i++) {
+            char c = Character.toLowerCase(x.charAt(i));
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) return false;
+        }
+        return true;
+    }
+
+public static String getSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 s, String k, String d) {
+        try {
+            return s == null ? d : s.getState(k, d);
+        } catch (Throwable t) {throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",t);}
+    }
+}

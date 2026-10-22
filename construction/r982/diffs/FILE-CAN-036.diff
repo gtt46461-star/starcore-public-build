@@ -1,0 +1,123 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java b/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java
+index 7cb5399..efdc9ea 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java
++++ b/app/src/main/java/com/ethk3/novaonepro/CertificateBundleServiceR929.java
+@@ -313,6 +313,11 @@ public final class CertificateBundleServiceR929 {
+         if (input.hitRate < MIN_ENTRY_HIT_RATE || input.coverage < MIN_EVIDENCE_COVERAGE || input.ece > MAX_ENTRY_ECE
+                 || !input.domainSupported || !input.resourcePass)
+             return new Evaluation(Level.L4_CHALLENGER, gates, "QUALITY_GATE_NOT_MET");
++        for (GateObservation observation : gates) {
++            if (!observation.pass)
++                return new Evaluation(Level.L4_CHALLENGER, gates,
++                        "CP3_GATE_NOT_MET|" + observation.gateId);
++        }
+         if (input.independentWindows < 1)
+             return new Evaluation(Level.L4_CHALLENGER, gates, "NO_INDEPENDENT_PROMOTION_WINDOW");
+         if (input.futureN < MIN_INFLUENCE_FUTURE_N || input.pairedN < MIN_INFLUENCE_PAIRED_N || input.independentWindows < MIN_INDEPENDENT_WINDOWS)
+@@ -331,6 +336,7 @@ public final class CertificateBundleServiceR929 {
+     public static double validatedInfluenceCap(List<GateObservation> observations){
+         Map<String,GateObservation> g=new HashMap<String,GateObservation>();
+         if(observations==null)return 0;for(GateObservation x:observations){if(x==null||g.put(x.gateId,x)!=null||!x.pass)return 0;}
++        if(g.containsKey("CP4_POLICY"))return validatedCp4Cap(g);
+         String[] hard={"PIT","DETERMINISM","PARITY","DOMAIN_SUPPORT","RESOURCE"};
+         for(String id:hard)if(!atLeast(g,id,1))return 0;
+         if(!atLeast(g,"FUTURE_N",MIN_INFLUENCE_FUTURE_N)||!atLeast(g,"PAIRED_N",MIN_INFLUENCE_PAIRED_N)||!atLeast(g,"INDEPENDENT_WINDOWS",MIN_INDEPENDENT_WINDOWS)
+@@ -343,6 +349,98 @@ public final class CertificateBundleServiceR929 {
+     private static boolean atLeast(Map<String,GateObservation> g,String id,double value){GateObservation x=g.get(id);return x!=null&&finite(x.observed)&&x.observed>=value;}
+     private static boolean atMost(Map<String,GateObservation> g,String id,double value){GateObservation x=g.get(id);return x!=null&&finite(x.observed)&&x.observed>=0&&x.observed<=value;}
+ 
++    /** CP4 uses one frozen e-process lifetime; legacy FWER/paired-delta gates do not interpret it. */
++    public static Evaluation evaluateCp4(org.json.JSONObject m,List<GateObservation> external) {
++        ArrayList<GateObservation> g=new ArrayList<GateObservation>();
++        try {
++            ResearchGatePlanR967.Policy p=ResearchGatePlanR967.installed();
++            if(!p.isCp3 || !"CP4_CERTIFICATE_METRICS_V1".equals(m.getString("revision")) || !p.hash.equals(m.getString("policy_hash")))
++                throw new IllegalArgumentException("CP4_POLICY_IDENTITY");
++            String evidence=requireHash(m.getString("evidence_hash"),"CP4_EVIDENCE");
++            g.add(new GateObservation("CP4_POLICY",1,1,true,"CP4_CERTIFICATE_METRICS_V1",p.hash,"FROZEN_POLICY"));
++            g.add(new GateObservation("CP4_IDENTITY",1,1,true,"CP4_FROZEN_IDENTITY",requireHash(m.getString("identity_hash"),"CP4_IDENTITY"),"IDENTITY"));
++            g.add(new GateObservation("CP4_LIFETIME",1,1,true,"CP4_FROZEN_LIFETIME",requireHash(m.getString("lifetime_id"),"CP4_LIFETIME"),"ONE_HYPOTHESIS"));
++            boolean integrity=m.getBoolean("integrity");
++            for(String id:new String[]{"PIT","DETERMINISM","PARITY"})g.add(cp4Gate(id,integrity?1:0,1,integrity,evidence,"FROZEN_EXECUTION_VERIFIED"));
++            cp4Min(g,m,"FUTURE_N","future_n",360,evidence);cp4Min(g,m,"PAIRED_N","paired_n",360,evidence);cp4Min(g,m,"INDEPENDENT_WINDOWS","independent_windows",2,evidence);
++            cp4Min(g,m,"HIT_RATE","hit_rate",.34,evidence);double lower=m.getDouble("wilson_lower");g.add(cp4Gate("WILSON_LOWER",lower,.3,lower>.3,evidence,"IID_DESCRIPTIVE_NOT_SEQUENTIAL_PROOF"));
++            cp4Min(g,m,"COVERAGE","coverage",.95,evidence);cp4Max(g,m,"BRIER","brier",.24,evidence);cp4Max(g,m,"ECE","ece",.04,evidence);
++            double b=m.getDouble("brier"),baseline=m.getDouble("baseline_brier");g.add(cp4Gate("BASELINE_BRIER",baseline,0,metric(baseline),evidence,"SAME_WINDOW_CONSTANT_POINT_30"));g.add(cp4Gate("BRIER_RELATIVE",b,baseline,metric(b)&&metric(baseline)&&b<=baseline,evidence,"SAME_WINDOW"));
++            cp4Max(g,m,"MAX_LOSS_STREAK","max_loss_streak",12,evidence);cp4Max(g,m,"RESIDUAL_DRAWDOWN","residual_drawdown",8,evidence);cp4Min(g,m,"MIN_FIXED_WINDOW_RATE","min_fixed_window_rate",.30,evidence);
++            int[] windows={20,50,100,300};double[] minima={.15,.22,.27,.34};for(int i=0;i<windows.length;i++)cp4Min(g,m,"ROLLING_"+windows[i],"rolling_"+windows[i]+"_rate",minima[i],evidence);
++            double alpha=m.getDouble("alpha"),logE=m.getDouble("log_e"),anytime=m.getDouble("anytime_p");
++            g.add(cp4Gate("LIFETIME_ALPHA",alpha,.05,alpha>0&&alpha<=.05,evidence,"SUMMABLE_GLOBAL_ALPHA"));
++            g.add(cp4Gate("CURRENT_LOG_E",logE,alpha>0?-Math.log(alpha):0,alpha>0&&logE>=-Math.log(alpha),evidence,"CURRENT_CROSSING_REQUIRED"));
++            g.add(cp4Gate("ANYTIME_P",anytime,alpha,metric(anytime)&&alpha>0&&anytime<=alpha,evidence,"EXP_MINUS_MAX_LOG_E"));
++            if(external!=null)g.addAll(external);
++            double cap=validatedInfluenceCap(g);
++            if(cap<=0){String reason="CP4_REQUIRED_EVIDENCE_MISSING";for(GateObservation x:g)if(!x.pass){reason="CP4_GATE_NOT_MET|"+x.gateId;break;}return new Evaluation(Level.L4_CHALLENGER,g,reason);}
++            return new Evaluation(Level.L6_CONTROLLED_INFLUENCE,g,"CP4_CERTIFIED_FIXED_CAP_0_05_NO_REAL_AUTHORITY");
++        } catch(org.json.JSONException invalid) {throw new IllegalArgumentException("CP4_METRIC_FIELDS",invalid);}
++    }
++    private static GateObservation cp4Gate(String id,double observed,double required,boolean pass,String evidence,String detail){return new GateObservation(id,finite(observed)?observed:-1,finite(required)?required:-1,pass&&finite(observed)&&finite(required),"CP4_FROZEN_EVIDENCE",evidence,detail);}
++    private static void cp4Min(List<GateObservation> out,org.json.JSONObject m,String id,String key,double min,String evidence)throws org.json.JSONException{double v=m.getDouble(key);out.add(cp4Gate(id,v,min,v>=min,evidence,key));}
++    private static void cp4Max(List<GateObservation> out,org.json.JSONObject m,String id,String key,double max,String evidence)throws org.json.JSONException{double v=m.getDouble(key);out.add(cp4Gate(id,v,max,v>=0&&v<=max,evidence,key));}
++    private static double validatedCp4Cap(Map<String,GateObservation> g){
++        GateObservation policy=g.get("CP4_POLICY");if(policy==null||!"CP4_CERTIFICATE_METRICS_V1".equals(policy.source)||!ResearchGatePlanR967.installed().hash.equals(policy.sourceHash))return 0;
++        for(String id:new String[]{"CP4_POLICY","CP4_IDENTITY","CP4_LIFETIME","PIT","DETERMINISM","PARITY","REGIME_ROBUSTNESS","RESOURCE_INTEGRITY"})if(!atLeast(g,id,1))return 0;
++        if(!atLeast(g,"DOMAIN_SUPPORT",1)||!atMost(g,"DOMAIN_SUPPORT",15))return 0;
++        if(!atLeast(g,"FUTURE_N",360)||!atLeast(g,"PAIRED_N",360)||!atLeast(g,"INDEPENDENT_WINDOWS",2)||!atLeast(g,"HIT_RATE",.34)||!atLeast(g,"COVERAGE",.95))return 0;
++        if(!g.containsKey("WILSON_LOWER")||g.get("WILSON_LOWER").observed<=.3)return 0;
++        if(!atMost(g,"BRIER",.24)||!atMost(g,"ECE",.04)||!atMost(g,"MAX_LOSS_STREAK",12)||!atMost(g,"RESIDUAL_DRAWDOWN",8)||!atLeast(g,"MIN_FIXED_WINDOW_RATE",.3))return 0;
++        int[] w={20,50,100,300};double[] m={.15,.22,.27,.34};for(int i=0;i<w.length;i++)if(!atLeast(g,"ROLLING_"+w[i],m[i]))return 0;
++        if(!atMost(g,"BASELINE_BRIER",1)||!g.containsKey("BRIER_RELATIVE")||g.get("BRIER_RELATIVE").observed>g.get("BASELINE_BRIER").observed||g.get("BRIER_RELATIVE").observed!=g.get("BRIER").observed)return 0;
++        if(!atMost(g,"LIFETIME_ALPHA",.05)||g.get("LIFETIME_ALPHA").observed<=0)return 0;
++        double alpha=g.get("LIFETIME_ALPHA").observed;
++        if(!g.containsKey("CURRENT_LOG_E")||g.get("CURRENT_LOG_E").observed < -Math.log(alpha)||!atMost(g,"ANYTIME_P",alpha))return 0;
++        if(!atMost(g,"DRIFT",.1)||!atLeast(g,"RESOURCE_N",50)||!atMost(g,"RESOURCE_LATENCY_P95_MS",700)||!atMost(g,"RESOURCE_HEAP_INCREMENT",67108864))return 0;
++        for(String id:new String[]{"ATOM_BINDING_ADMISSION","PREDICTION_SIMILARITY","ERROR_SIMILARITY"})if(!g.containsKey(id)||!g.get(id).pass)return 0;
++        if(!g.containsKey("DIVERSITY")||!g.containsKey("DUPLICATE_PAIRED_ADVANTAGE"))return 0;
++        double similarity=g.get("DIVERSITY").observed,adv=g.get("DUPLICATE_PAIRED_ADVANTAGE").observed;
++        if(!metric(similarity)||!finite(adv)||adv < -1||adv>1||(similarity>=.98&&adv<=0))return 0;
++        return .05; // policy consumer_cap; no n-dependent rise to legacy 0.30
++    }
++    public static String cp4CurrentDomainReason(DbStore store,String lifetimeId,String target){return CandidateResourceEvidenceCP4.currentDomainReason(store,lifetimeId,target);}
++    public static List<GateObservation> cp4ExternalGates(android.database.sqlite.SQLiteDatabase db,String lifetimeId,String evidenceHash,String endpoint){
++        ArrayList<GateObservation> gates=new ArrayList<GateObservation>(CandidateResourceEvidenceCP4.gates(db,lifetimeId,evidenceHash,endpoint));
++        gates.add(cp4AtomBindings(db,lifetimeId,endpoint));
++        return gates;
++    }
++
++    /** The publisher prepares immutable atom evidence outside the certificate writer.
++     * Bind the actual frozen AST/model to the same lifetime used by all other CP4 gates. */
++    private static GateObservation cp4AtomBindings(android.database.sqlite.SQLiteDatabase db,String lifetime,String endpoint){
++        if(db.inTransaction())throw new IllegalStateException("ATOM_CERTIFICATE_PREPARE_IN_WRITER");
++        String key="",structure="",state="",first="";
++        try {
++            try(android.database.Cursor bound=db.rawQuery("SELECT candidate_key,identity_json,first_issue,last_issue,length(CAST(identity_json AS BLOB)) FROM "+ResearchGatePlanR967.CP4_LIFETIME+" WHERE lifetime_id=? AND length(CAST(identity_json AS BLOB)) BETWEEN 2 AND 32768",new String[]{lifetime})){
++                if(!bound.moveToFirst())throw new IllegalStateException("ATOM_CERTIFICATE_LIFETIME_MISSING");
++                if(bound.getLong(4)<2||bound.getLong(4)>32768)throw new IllegalStateException("ATOM_CERTIFICATE_IDENTITY_BOUND");
++                key=bound.getString(0);first=bound.getString(2);
++                if(!TargetIssueResolver.isValid(endpoint)||endpoint.compareTo(first)<0||endpoint.compareTo(bound.getString(3))>0)
++                    throw new IllegalStateException("ATOM_CERTIFICATE_ENDPOINT_SCOPE");
++                org.json.JSONObject identity=new org.json.JSONObject(bound.getString(1));
++                if(!key.equals(identity.getString("candidate")))throw new IllegalStateException("ATOM_CERTIFICATE_CANDIDATE_SCOPE");
++                structure=identity.getString("structure");state=identity.getString("state");
++            }
++            if(!key.startsWith("algorithm:"))throw new IllegalStateException("ATOM_CERTIFICATE_FROZEN_OWNER_REQUIRED");
++            try(com.ethk3.novaonepro.r952.AtomAdmissionCP12.Group group=com.ethk3.novaonepro.r952.AtomAdmissionCP12.readForLifetimeCP12(db,lifetime,endpoint,System.nanoTime()+700000000L)){
++                if(group.eligible&&(!structure.equals(group.freezeHash)||!state.equals(group.modelHash)))
++                    throw new IllegalStateException("ATOM_CERTIFICATE_FROZEN_IDENTITY_CHANGED");
++                return group.gateCP12();
++            }
++        }catch(org.json.JSONException invalid){
++            return missingAtomBindingGate(lifetime,endpoint,"ATOM_CERTIFICATE_IDENTITY_JSON");
++        }catch(RuntimeException unavailable){
++            if(unavailable instanceof ResearchWorkBudgetR927.Yield)throw unavailable;
++            String reason=unavailable.getMessage();
++            return missingAtomBindingGate(lifetime,endpoint,reason==null?unavailable.getClass().getSimpleName():reason);
++        }
++    }
++    private static GateObservation missingAtomBindingGate(String lifetime,String endpoint,String reason){
++        return new GateObservation(com.ethk3.novaonepro.r952.AtomAdmissionCP12.GATE,0,1,false,"IMMUTABLE_CONSUMED_ATOM_OOS",V51ChecksumEngine.sha256("CP12_ATOM_CERTIFICATE_MISSING|"+lifetime+'|'+endpoint+'|'+reason),reason);
++    }
++
+     private static GateObservation gate(String id, double observed, double required,
+             boolean pass, EvidenceInput input) {
+         double safeObserved = finite(observed) ? observed : -1.0d;

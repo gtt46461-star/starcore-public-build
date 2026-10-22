@@ -1,0 +1,98 @@
+{
+  "scope": "SYNTHETIC_HOST_ACTUAL_PRODUCT_NO_DEVICE_OR_USER_BET",
+  "fixture_sha256": "b3161b3e410139ab8bae04fbc482e52f57c6894eeaf567dd80266f51d90eff11",
+  "sources": {
+    "verification/r983/android/database/sqlite/SQLiteDatabase.java": "0e9b21d36ccee1209f316692f4e9bf69fe551ee385248594340fe65abd7e5963",
+    "verification/r983/android/os/Process.java": "04d2575f7e519f5535aba9b03c5e1345a8dd10f484e53d409f820bfddfde8205",
+    "verification/r983/CertificateMainlineProbeR982.java": "f2b36bf7e9a6cf350c2292814dd30922d9210b5a069718047cf57108c8feff3d",
+    "verification/r983/CertificateMainlineGuardsR982.java": "0d8da693aef04e6d9cf7dff0335b9a6d46f12078ba9c1835b243c85e34d6aae2",
+    "verification/r70/CertifiedBetClosureR70.java": "f7316d8bff446621215c831b04c5941b5377361c3721e6ec038cbc56cd36fddc"
+  },
+  "compile_command": [
+    "/workspace/scratch/7e217cab5595/toolchain/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/javac",
+    "-cp",
+    "/workspace/scratch/7a6032548233/r70-mainline-verified/classes:/workspace/scratch/7e217cab5595/r70-schema/classes:/workspace/scratch/7e217cab5595/android-all.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+    "-d",
+    "/workspace/scratch/7a6032548233/r70-mainline-verified/classes",
+    "/workspace/scratch/7e217cab5595/repo/verification/r983/android/database/sqlite/SQLiteDatabase.java",
+    "/workspace/scratch/7e217cab5595/repo/verification/r983/android/os/Process.java",
+    "/workspace/scratch/7e217cab5595/repo/verification/r983/CertificateMainlineProbeR982.java",
+    "/workspace/scratch/7e217cab5595/repo/verification/r983/CertificateMainlineGuardsR982.java",
+    "/workspace/scratch/7e217cab5595/repo/verification/r70/CertifiedBetClosureR70.java"
+  ],
+  "tests": [
+    {
+      "test": "CertificateMainlineProbeR982",
+      "command": [
+        "/workspace/scratch/7e217cab5595/toolchain/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/classes:/workspace/scratch/7e217cab5595/r70-schema/classes:/workspace/scratch/7e217cab5595/android-all.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.CertificateMainlineProbeR982",
+        "/workspace/scratch/7e217cab5595/repo/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/CertificateMainlineProbeR982.db"
+      ],
+      "exit_code": 0,
+      "log_sha256": "9ac17af6874cd806e70e2b526bd4061b1e4b3af0ea2778770871f8787f74a576"
+    },
+    {
+      "test": "CertificateMainlineGuardsR982-repeat",
+      "command": [
+        "/workspace/scratch/7e217cab5595/toolchain/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/classes:/workspace/scratch/7e217cab5595/r70-schema/classes:/workspace/scratch/7e217cab5595/android-all.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/7e217cab5595/repo/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/CertificateMainlineGuardsR982-repeat.db",
+        "repeat"
+      ],
+      "exit_code": 0,
+      "log_sha256": "99fdec2ba186e4dcb5c7c45d56a0520c5456d397175c174cd898e884c424d0c1"
+    },
+    {
+      "test": "CertificateMainlineGuardsR982-revoke",
+      "command": [
+        "/workspace/scratch/7e217cab5595/toolchain/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/classes:/workspace/scratch/7e217cab5595/r70-schema/classes:/workspace/scratch/7e217cab5595/android-all.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/7e217cab5595/repo/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/CertificateMainlineGuardsR982-revoke.db",
+        "revoke"
+      ],
+      "exit_code": 0,
+      "log_sha256": "97171e790ffaff35ecb421b0df1e812162357f8ba66e5874640882c0a1e6e2a5"
+    },
+    {
+      "test": "CertificateMainlineGuardsR982-draw",
+      "command": [
+        "/workspace/scratch/7e217cab5595/toolchain/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/classes:/workspace/scratch/7e217cab5595/r70-schema/classes:/workspace/scratch/7e217cab5595/android-all.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.CertificateMainlineGuardsR982",
+        "/workspace/scratch/7e217cab5595/repo/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/CertificateMainlineGuardsR982-draw.db",
+        "draw"
+      ],
+      "exit_code": 0,
+      "log_sha256": "0ce8d466d417dfe027fa71896c9c46e0a839aa1a5e8a65b8a2633fce6089545d"
+    },
+    {
+      "test": "CertifiedBetClosureR70",
+      "command": [
+        "/workspace/scratch/7e217cab5595/toolchain/toolchain/zulu17.62.17-ca-jdk17.0.17-linux_x64/bin/java",
+        "-Xmx512m",
+        "-cp",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/classes:/workspace/scratch/7e217cab5595/r70-schema/classes:/workspace/scratch/7e217cab5595/android-all.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar:/workspace/scratch/7e217cab5595/repo/app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes",
+        "com.ethk3.novaonepro.CertifiedBetClosureR70",
+        "/workspace/scratch/7e217cab5595/repo/verification/canonical/schema/sqlite_bridge.py",
+        "/workspace/scratch/7a6032548233/r70-mainline-verified/CertifiedBetClosureR70.db"
+      ],
+      "exit_code": 0,
+      "log_sha256": "8ca72b4f346ac28195f53edebaaed9db9a939743d783de0d82fb786fb6ec4078"
+    }
+  ]
+}

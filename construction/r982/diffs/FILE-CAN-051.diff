@@ -1,0 +1,30 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java b/app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java
+index 2b1998a..1264d77 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseMigrationEngine.java
+@@ -164,7 +164,7 @@ public final class DatabaseMigrationEngine {
+                 for (int c = 0; c < table.columns.size(); c++) {
+                     SchemaContractRegistry.Column col = table.columns.get(c);
+                     if (actual.contains(col.name)) continue;
+-                    String upper = col.definition.toUpperCase();
++                    String upper = col.definition.toUpperCase(java.util.Locale.ROOT);
+                     if (upper.indexOf("PRIMARY KEY") >= 0 || upper.indexOf("AUTOINCREMENT") >= 0)
+                         throw new IllegalStateException(
+                                 "NON_ADDABLE_KEY_COLUMN:" + table.name + '.' + col.name);
+@@ -405,14 +405,14 @@ public final class DatabaseMigrationEngine {
+     }
+ 
+     public static boolean mayImportTable(String table) {
+-        String t = safe(table).toLowerCase();
++        String t = safe(table).toLowerCase(java.util.Locale.ROOT);
+         List<LegacySourcePolicy> x = sourcePolicies();
+         for (int i = 0; i < x.size(); i++) if (x.get(i).table.equals(t)) return x.get(i).allowed;
+         return false;
+     }
+ 
+     public static boolean containsForbiddenLegacyCategory(String table) {
+-        String t = safe(table).toLowerCase();
++        String t = safe(table).toLowerCase(java.util.Locale.ROOT);
+         return t.indexOf("predict") >= 0
+                 || t.indexOf("decision") >= 0
+                 || t.indexOf("trade") >= 0

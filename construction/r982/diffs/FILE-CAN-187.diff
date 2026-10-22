@@ -1,0 +1,13 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StartupHealthR912.java b/app/src/main/java/com/ethk3/novaonepro/StartupHealthR912.java
+index 354445d..94062f9 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StartupHealthR912.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StartupHealthR912.java
+@@ -19,6 +19,8 @@ public final class StartupHealthR912 {
+                     @Override public void run() {
+                         try {
+                             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
++                            RecoveryDispatchR965.warmUpOffMain();
++                            RealtimePressureGateR811.initializeCrossProcessOffMain();
+                             // Result is retained by BuildProvenanceR815.lastSnapshot(). Do not
+                             // overwrite the live service/UI crash stage from this side thread.
+                             BuildProvenanceR815.verifyRuntime(app);

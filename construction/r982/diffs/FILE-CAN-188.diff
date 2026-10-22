@@ -1,0 +1,43 @@
+diff --git a/app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java b/app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java
+index 4de2b5c..dbd30de 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java
++++ b/app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java
+@@ -27,18 +27,14 @@ public final class StorageReclaimR943 {
+                         // Android execSQL rejects this row-producing PRAGMA. Step the cursor
+                         // to completion so every requested page can be reclaimed. Yield between
+                         // small calls; storage maintenance must not monopolize the writer.
+-                        long deadline=TimeSourceR811.monoNowMs()+80L;
+-                        for(int i=0;i<16&&!RealtimePressureGateR811.hasActiveCriticalWork()
++                        long deadline=TimeSourceR811.monoNowMs()+40L;
++                        for(int i=0;i<8&&!RealtimePressureGateR811.hasActiveCriticalWork()
+                                 &&TimeSourceR811.monoNowMs()<deadline;i++)reclaimPage(db,16);
+                     } else if(mode==0&&free>1024&&free*2>pages) {
+-                        // SQLite rewrites an old non-vacuum file once. It must have scratch space;
+-                        // no DROP DATABASE, unlink, or copy-over of a live database is permitted.
+-                        long required=Math.max(0,pages-free)*scalar(db,"page_size")*2+64L*1024*1024;
+-                        if(f.getParentFile().getUsableSpace()<required)return "WAIT_FREE_SPACE_FOR_LEGACY_COMPACTION|requiredBytes="+required+"|reusablePages="+free;
+-                        store.setState("r943_storage_reclaim","LEGACY_COMPACTION_RUNNING|beforeBytes="+before+"|requiredFreeBytes="+required);
+-                        db.execSQL("PRAGMA auto_vacuum=INCREMENTAL");db.execSQL("VACUUM");
++                        return "LEGACY_COMPACTION_REQUIRED|reusablePages="+free
++                            +"|reason=FULL_VACUUM_REQUIRES_EXPLICIT_MAINTENANCE_WINDOW";
+                     }
+-                    try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null)){if(c.moveToFirst()&&c.getInt(0)!=0)return "WAL_BUSY_RETRY|freePages="+scalar(db,"freelist_count");}
++                    try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(PASSIVE)",null)){if(c.moveToFirst()&&c.getInt(0)!=0)return "WAL_BUSY_RETRY|freePages="+scalar(db,"freelist_count");}
+                     return "RECLAIM_COMPLETE|beforeBytes="+before+"|afterBytes="+f.length()+"|freePages="+scalar(db,"freelist_count");
+                 }catch(Exception e){return "RECLAIM_ERROR:"+e.getClass().getSimpleName()+":"+e.getMessage();}
+             }
+@@ -52,4 +48,14 @@ public final class StorageReclaimR943 {
+             while(cursor.moveToNext()){ /* Advancing executes the incremental SQLite operation. */ }
+         }
+     }
++
++public static String summarySnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, com.ethk3.novaonepro.ReportReadContextCP4 store){
++        try{SQLiteDatabase db=store.readable();File f=new File(db.getPath());
++            return "PHONE_STORAGE|limitIssues=5000|databaseBytes="+f.length()+"|walBytes="+new File(f+"-wal").length()
++                +"|pageSize="+scalarSnapshotCP4(report, db,"page_size")+"|pageCount="+scalarSnapshotCP4(report, db,"page_count")+"|freePages="+scalarSnapshotCP4(report, db,"freelist_count")
++                +"|autoVacuum="+scalarSnapshotCP4(report, db,"auto_vacuum")+"|cleanup="+store.getState("r900_retention_truth","")+"|reclaim="+store.getState("r943_storage_reclaim","");
++        }catch(Exception e){throw new com.ethk3.novaonepro.ReportReadContextCP4.ReportReadFailureCP4("REPORT_QUERY_OR_FORMAT_FAILED",e);}
++    }
++
++public static long scalarSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4 report, SQLiteDatabase db,String pragma){try(Cursor c=report.select("PRAGMA "+pragma,null)){return c.moveToFirst()?c.getLong(0):0;}}
+ }
