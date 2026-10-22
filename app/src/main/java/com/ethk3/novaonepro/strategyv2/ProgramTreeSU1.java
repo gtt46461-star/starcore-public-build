@@ -25,6 +25,10 @@ public final class ProgramTreeSU1 {
         public final RelationalStateInference.Weights weights;public final int firstTarget;
         public Fitted(RelationalStateInference.Weights weights,int firstTarget){this.weights=weights;this.firstTarget=firstTarget;}
     }
+    public static final class GraphFitted {
+        public final RelGraphModelSU1.Weights weights;public final int firstTarget;
+        public GraphFitted(RelGraphModelSU1.Weights weights,int firstTarget){this.weights=weights;this.firstTarget=firstTarget;}
+    }
 
     /** History context for one target. draws[u][p] is the number (1..10) at position p of row u. */
     public static final class Context {
@@ -32,7 +36,9 @@ public final class ProgramTreeSU1 {
         final AtomLiftSU1 atoms; final ScoreHistoryCacheSU1 cache; final BudgetTokenSU1 budget;
         java.util.LinkedHashMap<String,RelationalStateInference.Weights> models=new java.util.LinkedHashMap<>(8,.75f,true);
         java.util.LinkedHashMap<String,FusionKernelSU1.Model> fusions=new java.util.LinkedHashMap<>(8,.75f,true);
+        java.util.LinkedHashMap<String,RelGraphOptimizerSU1> graphModels=new java.util.LinkedHashMap<>(8,.75f,true);
         private Map<String,Fitted> fitted=java.util.Collections.emptyMap();
+        private Map<String,GraphFitted> graphFitted=java.util.Collections.emptyMap();
         private final Map<Integer, double[][]> experts = new HashMap<>();
         private final Map<Integer, double[][]> xtrans = new HashMap<>();
         public Context(int[][] draws, int target) {
@@ -43,7 +49,8 @@ public final class ProgramTreeSU1 {
             this.draws=draws;this.t=target;this.atoms=atoms;this.cache=cache;this.budget=budget;
         }
         public Context withFitted(Map<String,Fitted> bindings){fitted=bindings;return this;}
-        Context atTarget(int target){Context c=new Context(draws,target,atoms,cache,budget);c.models=models;c.fusions=fusions;c.fitted=fitted;return c;}
+        public Context withGraphFitted(Map<String,GraphFitted> bindings){graphFitted=bindings;return this;}
+        Context atTarget(int target){Context c=new Context(draws,target,atoms,cache,budget);c.models=models;c.fusions=fusions;c.graphModels=graphModels;c.fitted=fitted;c.graphFitted=graphFitted;return c;}
         double[][] cached(String text,java.util.function.Supplier<double[][]> fn){budget.checkpointOrYield();return cache.score(text,t,fn);}
         int lagValue(int q, int lag) { return t >= lag ? draws[t - lag][q] : 0; }
         double[][] expert(int e) {
@@ -133,7 +140,7 @@ public final class ProgramTreeSU1 {
                 int block=c.t/50*50;String key=width+"|"+window+"|"+seed+"|"+block;
                 RelationalStateInference.Weights w=c.models.get(key);
                 if(w==null){w=RelationalTrainerSU1.trainCausal(c.draws,block,width,window,seed,c.budget);c.models.put(key,w);while(c.models.size()>8)c.models.remove(c.models.keySet().iterator().next());}
-                if(c.t==0)return new double[10][10];double[][] probabilities=RelationalStateInference.predict(w,java.util.Arrays.copyOfRange(c.draws,Math.max(0,c.t-window),c.t));
+                if(c.t==0)return new double[10][10];double[][] probabilities=ModelKernelRegistrySU1.predict(ModelKernelRegistrySU1.RELSTATE,w,java.util.Arrays.copyOfRange(c.draws,Math.max(0,c.t-window),c.t));
                 for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
             };}
             case "MODEL": {final String hash=x.s(0);final int window=x.i(1);return c->{
@@ -143,10 +150,20 @@ public final class ProgramTreeSU1 {
                 c.budget.checkpointOrYield();double[][] probabilities=RelationalStateInference.predict(fitted.weights,java.util.Arrays.copyOfRange(c.draws,c.t-window,c.t));
                 for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
             };}
+            case "GDEEP": {final int width=x.i(0),window=x.i(1),seed=x.i(2);return c->{
+                if(c.t<window)throw new IllegalArgumentException("SU1_GRAPH_COMPLETE_WINDOW_REQUIRED");
+                int boundary=c.t/50*50;String key=width+"|"+window+"|"+seed+"|"+boundary;RelationTensorAdapterSU1.Factory factory=c.cache.graphFactory(c.draws);RelGraphOptimizerSU1 model=c.graphModels.get(key);
+                if(model==null){model=RelGraphTrainerSU1.trainCausal(factory,c.draws,boundary,width,window,seed,c.budget);c.graphModels.put(key,model);while(c.graphModels.size()>8)c.graphModels.remove(c.graphModels.keySet().iterator().next());}
+                double[][] probabilities=ModelKernelRegistrySU1.predict(ModelKernelRegistrySU1.RELGRAPH,model.weights,factory.input(c.t,window,c.budget),c.budget);for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
+            };}
             case "FUSE": {final Node left=build(x.t(0)),right=build(x.t(1));final int window=x.i(2);final String identity=x.toString();return c->{
                 String key=identity+"|"+(c.t/50);FusionKernelSU1.Model model=c.fusions.get(key);
                 if(model==null){model=FusionKernelSU1.train(left,right,c,window);c.fusions.put(key,model);while(c.fusions.size()>8)c.fusions.remove(c.fusions.keySet().iterator().next());}
                 return FusionKernelSU1.score(model,left.score(c),right.score(c));
+            };}
+            case "GMODEL": {final String hash=x.s(0);final int window=x.i(1);return c->{
+                GraphFitted fitted=c.graphFitted.get(hash);if(fitted==null)throw new IllegalArgumentException("SU1_GRAPH_MODEL_DEPENDENCY_MISSING");if(c.t<fitted.firstTarget)throw new IllegalArgumentException("SU1_GRAPH_FITTED_TRAINING_BOUNDARY");
+                double[][] probabilities=ModelKernelRegistrySU1.predict(ModelKernelRegistrySU1.RELGRAPH,fitted.weights,c.cache.graphFactory(c.draws).input(c.t,window,c.budget),c.budget);for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
             };}
             case "NUMIS": { final int k = x.i(0); return c -> { double[][] o = new double[10][10];
                 for (int p = 0; p < 10; p++) o[p][k] = 1.0; return o; }; }

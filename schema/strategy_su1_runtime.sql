@@ -307,3 +307,49 @@ CREATE TRIGGER IF NOT EXISTS su1_research_knowledge_immutable BEFORE UPDATE ON s
 BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS su1_research_knowledge_no_delete BEFORE DELETE ON su1_research_knowledge
 BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;
+CREATE TABLE IF NOT EXISTS su1_campaign_audit (
+ source_campaign TEXT NOT NULL REFERENCES su1_campaign(campaign_id),
+ variant TEXT NOT NULL CHECK(variant IN ('REAL','TIME_SHUFFLED','PLANTED_SIGNAL','NO_DIRECTOR','NO_MEMORY')),
+ audit_campaign TEXT NOT NULL UNIQUE REFERENCES su1_campaign(campaign_id),
+ dataset_blob TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ generation INTEGER NOT NULL CHECK(generation>=0),
+ checkpoint_hash TEXT REFERENCES su1_blob(blob_hash),
+ phase TEXT NOT NULL CHECK(phase IN ('SEARCH','SEALED','DONE','WAIT_HISTORY')),
+ selected_hash TEXT CHECK(selected_hash IS NULL OR length(selected_hash)=64),
+ selected_program TEXT,
+ updated_at INTEGER NOT NULL,
+ PRIMARY KEY(source_campaign,variant),
+ CHECK(phase<>'SEALED' OR (selected_hash IS NOT NULL AND selected_program IS NOT NULL))
+);
+CREATE INDEX IF NOT EXISTS su1_audit_work ON su1_campaign_audit(phase,updated_at);
+CREATE TABLE IF NOT EXISTS su1_campaign_audit_open (
+ source_campaign TEXT NOT NULL,
+ variant TEXT NOT NULL,
+ selected_hash TEXT,
+ report_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ opened_at INTEGER NOT NULL,
+ PRIMARY KEY(source_campaign,variant),
+ FOREIGN KEY(source_campaign,variant) REFERENCES su1_campaign_audit(source_campaign,variant)
+);
+CREATE TRIGGER IF NOT EXISTS su1_audit_open_once BEFORE INSERT ON su1_campaign_audit_open
+BEGIN
+ SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM su1_campaign_audit a WHERE a.source_campaign=NEW.source_campaign AND a.variant=NEW.variant AND (a.phase='SEALED' AND a.selected_hash=NEW.selected_hash OR a.phase='SEARCH' AND a.selected_hash IS NULL AND NEW.selected_hash IS NULL))
+ THEN RAISE(ABORT,'SU1_AUDIT_CHAMPION_NOT_FROZEN') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_audit_checkpoint_cas BEFORE UPDATE ON su1_campaign_audit
+BEGIN
+ SELECT CASE WHEN OLD.phase IN ('DONE','WAIT_HISTORY') OR NEW.generation<>OLD.generation+1 OR NEW.source_campaign<>OLD.source_campaign OR NEW.variant<>OLD.variant OR NEW.audit_campaign<>OLD.audit_campaign OR NEW.dataset_blob<>OLD.dataset_blob OR NEW.updated_at<OLD.updated_at
+ OR OLD.phase='SEALED' AND (NEW.selected_hash IS NOT OLD.selected_hash OR NEW.selected_program IS NOT OLD.selected_program OR NEW.phase NOT IN ('SEALED','DONE'))
+ OR NEW.phase='DONE' AND NOT EXISTS(SELECT 1 FROM su1_campaign_audit_open o WHERE o.source_campaign=OLD.source_campaign AND o.variant=OLD.variant)
+ THEN RAISE(ABORT,'SU1_AUDIT_CHECKPOINT_CAS') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_audit_open_no_update BEFORE UPDATE ON su1_campaign_audit_open
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS su1_audit_open_no_delete BEFORE DELETE ON su1_campaign_audit_open
+BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;
+CREATE TRIGGER IF NOT EXISTS su1_audit_no_delete BEFORE DELETE ON su1_campaign_audit
+BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_audit_insert AFTER INSERT ON su1_campaign_audit
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_audit_update AFTER UPDATE ON su1_campaign_audit
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;

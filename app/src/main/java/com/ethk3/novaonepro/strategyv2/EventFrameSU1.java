@@ -29,6 +29,7 @@ public final class EventFrameSU1 {
     }
     public int size(){return history.length;}
     public long issue(int index){return issues[index];}
+    public long availableAt(int index){return available[index];}
     public int[][] history(){int[][] out=new int[history.length][];for(int i=0;i<out.length;i++)out[i]=history[i].clone();return out;}
     public String payload(){StringBuilder b=new StringBuilder();for(int i=0;i<history.length;i++){b.append(issues[i]).append('@').append(available[i]);for(int v:history[i])b.append(',').append(v);b.append('\n');}return b.toString();}
 }

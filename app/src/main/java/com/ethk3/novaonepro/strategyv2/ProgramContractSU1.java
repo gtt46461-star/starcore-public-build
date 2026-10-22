@@ -71,9 +71,15 @@ public final class ProgramContractSU1 {
                 knowledge = RelationTypeSU1.Knowledge.STATISTICAL_ESTIMATE; source = "HASH_BOUND_FROZEN_RELSTATE10_MANIFEST";
                 a.bytes += 1048576; a.state += 1280; a.ops += number(t,1)*150000L;
                 a.history = Math.max(a.history, number(t,1)); break;
+            case "GDEEP": {
+                knowledge = RelationTypeSU1.Knowledge.STATISTICAL_ESTIMATE; source = "TYPED_RELATION_FEATURE_HYPEREDGE_ADAM_BPTT_RELGRAPH10_V1";
+                int d=number(t,0),w=number(t,1);a.bytes+=8L*w*(730L*d+700)+1048576;a.state+=65536;a.ops+=8L*w*(2400L*d*d+2000L*d);a.history=Math.max(a.history,1100);break;
+            }
             case "FUSE":
                 knowledge = RelationTypeSU1.Knowledge.STATISTICAL_ESTIMATE; source = "JOINT_CAUSAL_GATE_AND_TEMPERATURE_FIT_FROZEN_PARENTS";
                 a.bytes += 4096; a.state += 320; a.ops += 500000; a.history = Math.max(a.history,170); break;
+            case "GMODEL":
+                knowledge=RelationTypeSU1.Knowledge.STATISTICAL_ESTIMATE;source="FROZEN_RELGRAPH18_GROUP_ADAM_MANIFEST";a.bytes+=8L*number(t,1)*(730L*16+700)+1048576;a.state+=262144;a.ops+=number(t,1)*500000L;a.history=Math.max(a.history,1100);break;
             case "ATOM": case "ATOMC":
                 knowledge = RelationTypeSU1.Knowledge.STATISTICAL_ESTIMATE; source = "LIFTED_CP4_EXPLICIT_REGISTRY_PARAMETERS";
                 a.history = 5000; a.ops += 50000; a.relations.add(t.toString()); break;

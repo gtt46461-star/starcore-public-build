@@ -22,12 +22,13 @@ public final class LiveShadowLoopSU1 {
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_SEED_POOL",db->{
             if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_runtime_program WHERE kernel_hash=?",TrainingCodeIdentityR964.SHA256))return 0;
             long now=System.currentTimeMillis(),through=sequence(String.valueOf(frame.targetIssue))-1;
-            String campaign=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",through,"{\"kind\":\"BOOTSTRAP_PARAMETER_FREE\",\"revision\":1,\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}",now);
+            String campaign=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",through,"{\"kind\":\"BOOTSTRAP_EXECUTABLE_PROGRAMS\",\"revision\":2,\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}",now);
             for(int e=0;e<8;e++)StrategyRepositorySU1.candidate(db,"EXPERT("+e+")",1,false,"EXPERT_MIX",null,campaign,through,frame.sourceVersionHash,-1,now);
             for(int off=0;off<10;off++)StrategyRepositorySU1.candidate(db,"XT("+off+")",1,false,"MATRIX",null,campaign,through,frame.sourceVersionHash,-1,now);
+            for(int seed=0;seed<2;seed++)StrategyRepositorySU1.candidate(db,"GDEEP(2,4,"+seed+")",1,false,"DEEP",null,campaign,through,frame.sourceVersionHash,-1,now);
             db.execSQL("UPDATE su1_campaign SET status='DONE',finished_at=?,programs_evaluated=0 WHERE campaign_id=? AND status='RUNNING'",new Object[]{now,campaign});
             db.execSQL("UPDATE su1_runtime_control SET mode='SHADOW',contract_hash=?,updated_at=?,reason='SU1_RESEARCH_ENABLED_MAINLINE_CLOSED' WHERE singleton=1 AND mode='DISABLED'",new Object[]{StrategyRepositorySU1.ACTION,now});
-            return 18;
+            return 20;
         });
     }
     private static final class Prepared {
@@ -42,19 +43,19 @@ public final class LiveShadowLoopSU1 {
         long seq=sequence(target);List<StrategyRepositorySU1.Member> members=StrategyRepositorySU1.active(store.readable());
         List<Prepared> prepared=new ArrayList<>();int[][] history=frame.history();int t=history.length;
         BudgetTokenSU1 budget=new BudgetTokenSU1(250,300000,SettlementExecutionGateR819::isActive);
-        ScoreHistoryCacheSU1 cache=new ScoreHistoryCacheSU1(2048,frame.sourceVersionHash);
+        ScoreHistoryCacheSU1 cache=new ScoreHistoryCacheSU1(2048,frame);
         try(AtomLiftSU1 atoms=new AtomLiftSU1(history)){
             for(int i=0;i<members.size();i++){
                 StrategyRepositorySU1.Member m=members.get((i+(int)(seq%members.size()))%members.size());
                 if(StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_live_attempt WHERE strategy_id=? AND sequence_ordinal=?",m.id,String.valueOf(seq)))continue;
                 try{
                     if(!budget.tryConsume(1000)){prepared.add(new Prepared(m,0,0,"BUDGET_SKIP","DEADLINE_BUDGET"));continue;}
-                    ProgramTreeSU1.Node program=ProgramTreeSU1.parse(m.text);Map<String,ProgramTreeSU1.Fitted> fitted=ModelAssetsSU1.load(store.readable(),m.text,frame);double[][] scores=program.score(new ProgramTreeSU1.Context(history,t,atoms,cache,budget).withFitted(fitted));
+                    ProgramTreeSU1.Node program=ProgramTreeSU1.parse(m.text);Map<String,ProgramTreeSU1.Fitted> fitted=ModelAssetsSU1.load(store.readable(),m.text,frame);Map<String,ProgramTreeSU1.GraphFitted> graph=ModelAssetsSU1.loadGraph(store.readable(),m.text,frame);double[][] scores=program.score(new ProgramTreeSU1.Context(history,t,atoms,cache,budget).withFitted(fitted).withGraphFitted(graph));
                     int[] action=ProgramTreeSU1.action(scores);boolean act=true;
                     if(m.coverage<.999){
                         int block=t-(int)(seq%50),lo=Math.max(0,block-720);double[] gate=new double[block];
                         if(block<=lo)act=false;
-                        else{for(int u=lo;u<block;u++){double[][] prior=program.score(new ProgramTreeSU1.Context(history,u,atoms,cache,budget).withFitted(fitted));int[] a=ProgramTreeSU1.action(prior);gate[u]=HistoricalReplayEngineSU1.gateValue(prior,a[0],m.margin);}
+                        else{for(int u=lo;u<block;u++){double[][] prior=program.score(new ProgramTreeSU1.Context(history,u,atoms,cache,budget).withFitted(fitted).withGraphFitted(graph));int[] a=ProgramTreeSU1.action(prior);gate[u]=HistoricalReplayEngineSU1.gateValue(prior,a[0],m.margin);}
                             act=HistoricalReplayEngineSU1.gateValue(scores,action[0],m.margin)>=HistoricalReplayEngineSU1.quantileLinear(gate,lo,block,1-m.coverage);}
                     }
                     prepared.add(new Prepared(m,action[0],(1<<(action[1]-1))|(1<<(action[2]-1))|(1<<(action[3]-1)),act?"FROZEN":"GATE_SKIP","RAW_K3_HEX="+Double.toHexString(HistoricalReplayEngineSU1.positionMasses(scores)[action[0]-1])));

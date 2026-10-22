@@ -54,7 +54,8 @@ public final class ProgramTextSU1 {
             case "XI":arity(t,3);number(t,0,0,7);number(t,1,0,7);number(t,2,0,9);break;
             case "HEDGE":arity(t,2);number(t,0,30,360);number(t,1,1,8000);break;
             case "DEEP":arity(t,3);number(t,0,2,8);number(t,1,8,32);number(t,2,0,2147483647);break;
-            case "MODEL":arity(t,2);HashingSU1.sha(t.args.get(0).toString());number(t,1,1,256);break;
+            case "GDEEP":arity(t,3);number(t,0,2,8);number(t,1,4,32);number(t,2,0,2147483647);break;
+            case "MODEL":case "GMODEL":arity(t,2);HashingSU1.sha(t.args.get(0).toString());number(t,1,1,256);break;
             case "FUSE":arity(t,3);child(t,0,false);child(t,1,false);number(t,2,30,120);break;
             case "REL":arity(t,4);if(!Arrays.asList("SAME","PLUS1","MINUS1","MIRROR","SUM").contains(t.args.get(0)))throw new IllegalArgumentException("SU1_REL_KIND");number(t,1,1,5000);number(t,2,0,9);number(t,3,0,9);break;
             case "ODD":case "BIG":arity(t,2);number(t,0,0,9);number(t,1,1,5000);break;
@@ -68,7 +69,7 @@ public final class ProgramTextSU1 {
             default:throw new IllegalArgumentException("SU1_UNKNOWN_OPERATOR:"+t.op);
         }
     }
-    private static long cost(Term t){long c=t.op.equals("DEEP")?300000:t.op.equals("FUSE")?100000:1;for(Object a:t.args)if(a instanceof Term)c+=cost((Term)a);return t.op.equals("HOTT")?c*Integer.parseInt(t.args.get(0).toString())*10:c;}
+    private static long cost(Term t){long c=t.op.equals("DEEP")?300000:t.op.equals("GDEEP")?600000:t.op.equals("FUSE")?100000:1;for(Object a:t.args)if(a instanceof Term)c+=cost((Term)a);return t.op.equals("HOTT")?c*Integer.parseInt(t.args.get(0).toString())*10:c;}
     public static boolean constant(Term t){
         if(t.op.equals("NUMIS"))return true;
         if(t.op.equals("SUB")&&t.args.get(0).toString().equals(t.args.get(1).toString()))return true;

@@ -9,7 +9,7 @@ import java.util.*;
 public final class StrategyRepositorySU1 {
     private StrategyRepositorySU1() {}
     public static final String ACTION=HashingSU1.text("SU1_ACTION_HEAD_V2|ONE_POSITION|FIXED_K3|FLOAT64_MASS_ROUND_1E9|LOW_POSITION_TIE");
-    public static final String UPDATE=HashingSU1.fields("SU1_WINDOW_RESET_V3|DEEP_SGD_CAUSAL_BLOCK50|HEDGE_SETTLED_PREFIX|FROZEN_IMPORTED_MODEL|NO_PARENT_EVIDENCE_INHERITANCE",TrainingObjectiveSU1.research().hash,FusionKernelSU1.PROTOCOL);
+    public static final String UPDATE=HashingSU1.fields("SU1_WINDOW_RESET_V3|DEEP_SGD_CAUSAL_BLOCK50|HEDGE_SETTLED_PREFIX|FROZEN_IMPORTED_MODEL|NO_PARENT_EVIDENCE_INHERITANCE",TrainingObjectiveSU1.research().hash,FusionKernelSU1.PROTOCOL,RelGraphTrainerSU1.UPDATE,RelGraphModelSU1.PROTOCOL);
     public static final class Member {
         public final String id,text,arm,parent;
         public final double coverage,fitness;
@@ -69,23 +69,29 @@ public final class StrategyRepositorySU1 {
     }
     public static String candidate(SQLiteDatabase db,String text,double coverage,boolean margin,String arm,String parent,
             String campaign,long through,String datasetHash,double fitness,long now,TrainingCheckpointSU1 fitted){
+        return candidate(db,text,coverage,margin,arm,parent,campaign,through,datasetHash,fitness,now,fitted,null);
+    }
+    public static String candidate(SQLiteDatabase db,String text,double coverage,boolean margin,String arm,String parent,
+            String campaign,long through,String datasetHash,double fitness,long now,TrainingCheckpointSU1 fitted,RelGraphCheckpointSU1 graph){
         text=ProgramTextSU1.canonical(text);if(!Double.isFinite(fitness)||coverage<=0||coverage>1)throw new IllegalArgumentException("SU1_CANDIDATE");
-        boolean usesModel=false;for(ProgramTextSU1.Term term:ProgramTextSU1.subtrees(ProgramTextSU1.parse(text),false))usesModel|=term.op.equals("MODEL");
+        if(fitted!=null&&graph!=null)throw new IllegalArgumentException("SU1_ONE_FITTED_KERNEL");
+        boolean usesModel=false,usesGraph=false;for(ProgramTextSU1.Term term:ProgramTextSU1.subtrees(ProgramTextSU1.parse(text),false)){usesModel|=term.op.equals("MODEL");usesGraph|=term.op.equals("GMODEL");}
         if(usesModel&&(fitted==null||!text.equals("MODEL("+fitted.hash+","+fitted.window+")")))throw new IllegalArgumentException("SU1_CANDIDATE_MODEL_MANIFEST_REQUIRED");
+        if(usesGraph&&(graph==null||!text.equals("GMODEL("+graph.hash+","+graph.window+")")))throw new IllegalArgumentException("SU1_CANDIDATE_GRAPH_MANIFEST_REQUIRED");
         String program=HashingSU1.text(ProgramTreeSU1.PROTOCOL+"|"+text);
-        String ir=blob(db,text,"SU1_GRAMMAR_TEXT_V1",now),weights=fitted==null?blob(db,"CAUSAL_WINDOW_PROGRAM|"+UPDATE+"|"+text,"SU1_EXECUTABLE_WINDOW_ALGORITHM_V2",now):blob(db,fitted.weightsWire,"SU1_RELSTATE10_BINARY_BASE64_V1",now);
+        String ir=blob(db,text,"SU1_GRAMMAR_TEXT_V1",now),weights=graph!=null?blob(db,graph.stateWire,"SU1_RELGRAPH18_ADAM_BINARY_V1",now):fitted==null?blob(db,"CAUSAL_WINDOW_PROGRAM|"+UPDATE+"|"+text,"SU1_EXECUTABLE_WINDOW_ALGORITHM_V2",now):blob(db,fitted.weightsWire,"SU1_RELSTATE10_BINARY_BASE64_V1",now);
         ProgramContractSU1 compiled=ProgramContractSU1.compile(ProgramTextSU1.parse(text));
         String semanticManifest=blob(db,compiled.manifest,"SU1_PROGRAM_CONTRACT_V1",now);
         dependency(db,"PROGRAM",program,"BLOB",semanticManifest,"SEMANTICS_AND_STATIC_RESOURCE_MANIFEST",now);
-        String report=fitted==null?blob(db,"STRUCTURE_SELECTION|"+datasetHash+"|"+through+"|"+Double.toHexString(fitness),"SU1_SEARCH_RECEIPT_V1",now):blob(db,fitted.wire,TrainingCheckpointSU1.FORMAT,now);
-        if(fitted!=null){dependency(db,"PROGRAM",program,"BLOB",report,"FITTED_GRAPH_PARAMETER_OPTIMIZER_MANIFEST",now);dependency(db,"BLOB",report,"BLOB",weights,"EXACT_TRAINED_WEIGHTS",now);}
+        String report=graph!=null?blob(db,graph.wire,RelGraphCheckpointSU1.FORMAT,now):fitted==null?blob(db,"STRUCTURE_SELECTION|"+datasetHash+"|"+through+"|"+Double.toHexString(fitness),"SU1_SEARCH_RECEIPT_V1",now):blob(db,fitted.wire,fitted.optimizer.kind==OptimizerStateSU1.Kind.SGD_NO_MOMENTUM_V1?TrainingCheckpointSU1.FORMAT:TrainingCheckpointSU1.ADAM_FORMAT,now);
+        if(fitted!=null||graph!=null){dependency(db,"PROGRAM",program,"BLOB",report,"FITTED_GRAPH_PARAMETER_OPTIMIZER_MANIFEST",now);dependency(db,"BLOB",report,"BLOB",weights,"EXACT_TRAINED_WEIGHTS",now);}
         if(!exists(db,"SELECT 1 FROM su1_program WHERE program_hash=?",program))db.execSQL("INSERT INTO su1_program VALUES(?,?,?,?,?,?,?,?)",new Object[]{program,HashingSU1.text(ProgramTreeSU1.PROTOCOL),HashingSU1.text("PK10_10X10_PIT_V1"),ir,UPDATE,compiled.stateBytes,compiled.operationUnits,now});
-        long trainLast=fitted==null?Math.max(1,through-1000):LiveShadowLoopSU1.sequence(fitted.throughIssue),valFirst=trainLast+1,valLast=Math.max(valFirst,through);
-        String protocolJson="{\"kind\":\""+(fitted==null?"CAUSAL_WINDOW_STRUCTURE_SEARCH":"IMPORTED_FIXED_MODEL_LOCAL_VALIDATION_PENDING")+"\",\"dataset\":\""+datasetHash+"\",\"trainLast\":"+trainLast+",\"validationFirst\":"+valFirst+",\"validationLast\":"+valLast+"}";
+        long trainLast=graph!=null?LiveShadowLoopSU1.sequence(graph.throughIssue):fitted==null?Math.max(1,through-1000):LiveShadowLoopSU1.sequence(fitted.throughIssue),valFirst=trainLast+1,valLast=Math.max(valFirst,through);
+        String protocolJson="{\"kind\":\""+(fitted==null&&graph==null?"CAUSAL_WINDOW_STRUCTURE_SEARCH":"IMPORTED_FIXED_MODEL_LOCAL_VALIDATION_PENDING")+"\",\"dataset\":\""+datasetHash+"\",\"trainLast\":"+trainLast+",\"validationFirst\":"+valFirst+",\"validationLast\":"+valLast+"}";
         String protocol=HashingSU1.fields("SU1_SEARCH_PROTOCOL_V1",program,protocolJson);
         if(!exists(db,"SELECT 1 FROM su1_train_protocol WHERE protocol_hash=?",protocol))db.execSQL("INSERT INTO su1_train_protocol VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{protocol,program,datasetHash,HashingSU1.fields(String.valueOf(trainLast),String.valueOf(valLast)),protocolJson,Math.max(1,trainLast-3200),trainLast,valFirst,valLast,ACTION,now});
         String artifact=HashingSU1.fields("SU1_INTERPRETED_ARTIFACT_V1",protocol,program,weights,report);
-        if(!exists(db,"SELECT 1 FROM su1_model_artifact WHERE artifact_hash=?",artifact))db.execSQL("INSERT INTO su1_model_artifact VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{artifact,protocol,program,fitted==null?"CAUSAL_WINDOW_PROGRAM":"SU1_FITTED_RELSTATE10",HashingSU1.text(fitted==null?"ATOM_EVALUATOR_CP4_V1":"RELSTATE10_CATEGORICAL_ONE_HOT_V1"),weights,fitted==null?through:LiveShadowLoopSU1.sequence(fitted.throughIssue),report,now});
+        if(!exists(db,"SELECT 1 FROM su1_model_artifact WHERE artifact_hash=?",artifact))db.execSQL("INSERT INTO su1_model_artifact VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{artifact,protocol,program,graph!=null?"SU1_FITTED_RELGRAPH10":fitted==null?"CAUSAL_WINDOW_PROGRAM":"SU1_FITTED_RELSTATE10",graph!=null?RelationTensorAdapterSU1.SCHEMA:HashingSU1.text(fitted==null?"ATOM_EVALUATOR_CP4_V1":"RELSTATE10_CATEGORICAL_ONE_HOT_V1"),weights,graph!=null?LiveShadowLoopSU1.sequence(graph.throughIssue):fitted==null?through:LiveShadowLoopSU1.sequence(fitted.throughIssue),report,now});
         String selector=HashingSU1.fields("SU1_CAUSAL_QUANTILE_V1",Double.toHexString(coverage),String.valueOf(margin),"720|50|LINEAR");
         String id=new StrategyIdentitySU1(program,protocol,artifact,UPDATE,selector,HashingSU1.text("CALIBRATION_MISSING"),HashingSU1.fields("SU1_ATOM_CONDITION_V2_1E12|JAVA17_FLOAT32_NODES_V1",com.ethk3.novaonepro.TrainingCodeIdentityR964.SHA256,String.valueOf(parent))).hash;
         if(!exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=?",id)){

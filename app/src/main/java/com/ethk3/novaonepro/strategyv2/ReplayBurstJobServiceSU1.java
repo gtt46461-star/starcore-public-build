@@ -39,6 +39,11 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                 long feedbackEnd=SystemClock.elapsedRealtime()+2000;
                 for(int i=0;i<512&&!cancelled.get()&&SystemClock.elapsedRealtime()<feedbackEnd;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}
                 final DbStore owner=store;
+                long auditStop=Math.min(stop,SystemClock.elapsedRealtime()+10000);
+                while(!cancelled.get()&&SystemClock.elapsedRealtime()<auditStop){
+                    if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure())return;
+                    if(!CampaignAuditStoreSU1.advanceOne(store,new BudgetTokenSU1(2000,30000000,()->cancelled.get()||SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure())))break;
+                }
                 Models.Draw last=store.getLatestDraw();if(last!=null&&TargetIssueResolver.isValid(last.issue))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_DAILY_CLOSE",db->{LiveShadowLoopSU1.closeDays(db,Integer.parseInt(last.issue.substring(0,8)));return 0;});
                 try(CampaignStateSU1 state=CampaignStateSU1.open(store)){
                     if(state==null){retry=false;return;}

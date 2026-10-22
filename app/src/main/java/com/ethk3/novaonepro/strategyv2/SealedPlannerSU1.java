@@ -21,7 +21,9 @@ public final class SealedPlannerSU1 {
         long first=Math.max(state.through+1,TargetIssueResolver.firstFutureOrdinalSU1(latest,now));
         long last=first+1439,offset=state.through-state.foundry.valEnd+1;
         String parent=StrategyRepositorySU1.findParent(db,champion.genome.parent);if(!champion.genome.parent.isEmpty()&&parent==null)return;
+        String second=StrategyRepositorySU1.findParent(db,champion.genome.secondaryParent);if(!champion.genome.secondaryParent.isEmpty()&&second==null)return;
         String id=StrategyRepositorySU1.candidate(db,champion.genome.text,champion.genome.coverage,champion.genome.margin,champion.genome.arm,parent,state.campaign,state.through,state.datasetBlob,champion.fitness,now);
+        if(second!=null)StrategyRepositorySU1.lineage(db,second,id,"FUSE",state.through,HashingSU1.text(champion.genome.text),now);
         StrategyRepositorySU1.row(db,"su1_sealed_plan","campaign_id",state.campaign,"strategy_id",id,"dev_first",offset+state.foundry.devStart,"dev_last",offset+state.foundry.devEnd-1,"val_first",offset+state.foundry.valStart,"val_last",offset+state.foundry.valEnd-1,"first_sequence",first,"last_sequence",last,"selected_at",now);
     }
     private static String issue(long sequence){return TargetIssueResolver.fromSequenceOrdinalSU1(sequence);}

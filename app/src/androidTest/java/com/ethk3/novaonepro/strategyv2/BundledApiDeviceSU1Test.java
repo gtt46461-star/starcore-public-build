@@ -21,6 +21,11 @@ public final class BundledApiDeviceSU1Test {
             assertTrue(KeyProvider.usesReleaseDefault());
             assertEquals("AUTHORIZED_LEGACY_RELEASE_DEFAULT", KeyProvider.credentialSource());
             assertFalse(KeyProvider.redact("key=" + KeyProvider.getApiKey()).contains(KeyProvider.getApiKey()));
+            com.ethk3.novaonepro.Models.ApiResult result=new com.ethk3.novaonepro.ApiClient().fetchLatest();
+            assertNotNull("Bundled API returned no response",result);
+            assertTrue("Bundled API did not return current validated data through the actual app client",result.success||result.ok);
+            assertNotNull("Bundled API returned no latest draw",result.latestDraw);
+            assertTrue("Bundled API returned invalid numbers",result.latestDraw.isValid());
         }
     }
 }

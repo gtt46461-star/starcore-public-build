@@ -24,6 +24,7 @@ public final class CalibrationPipelineSU1 {
                     id=HashingSU1.fields("SU1_CALIBRATED_VERSION_V1",r[0],blob,TrainingCodeIdentityR964.SHA256);
                     db.execSQL("INSERT INTO su1_strategy_version SELECT ?,'SU1',program_hash,artifact_hash,selector_hash,?,'FROZEN',action_contract_hash,state_initial_hash,?,?,strategy_role FROM su1_strategy_version WHERE strategy_id=?",new Object[]{id,blob,through,now,r[0]});
                     db.execSQL("INSERT INTO su1_runtime_program SELECT ?,canonical_text,coverage,margin_gate,parent_id,?,kernel_hash FROM su1_runtime_program WHERE strategy_id=?",new Object[]{id,now,r[0]});
+                    StrategyRepositorySU1.lineage(db,r[0],id,"CALIBRATE",through,blob,now);
                     try(Cursor ancestor=db.rawQuery("SELECT parent_id FROM su1_runtime_program WHERE strategy_id=?",new String[]{id})){if(ancestor.moveToFirst()&&!ancestor.isNull(0))StrategyRepositorySU1.lineage(db,ancestor.getString(0),id,"CALIBRATE",through,blob,now);}
                     String campaign=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",through,"{\"kind\":\"FROZEN_CALIBRATION_NEW_VERSION\",\"source\":\""+r[0]+"\"}",now);
                     db.execSQL("UPDATE su1_campaign SET status='DONE',finished_at=? WHERE campaign_id=?",new Object[]{now,campaign});

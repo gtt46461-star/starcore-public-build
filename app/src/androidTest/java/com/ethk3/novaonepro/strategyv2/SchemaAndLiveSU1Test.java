@@ -139,4 +139,46 @@ public final class SchemaAndLiveSU1Test {
             try{db.execSQL("INSERT INTO su1_mainline_head_event VALUES(2,?,?,NULL,NULL,'REVOKE',?,1)",new Object[]{HashingSU1.text("bad generation"),new String(new char[64]).replace('\0','0'),MainlineHeadSU1.POLICY});fail("skipped head generation accepted");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
         }
     }
+    @Test public void auditChampionCannotBeChangedOrOpenedTwice(){
+        try(SQLiteDatabase db=database()){
+            ready(db);long now=System.currentTimeMillis();String source=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",5000,"{}",now),audit=StrategyRepositorySU1.beginCampaign(db,"HISTORY_REPLAY",5000,"{\"audit\":true}",now),data=StrategyRepositorySU1.blob(db,"test source","SU1_TEST_DATA",now),selected=HashingSU1.text("selected"),report=StrategyRepositorySU1.blob(db,"test report","SU1_TEST_REPORT",now);
+            StrategyRepositorySU1.row(db,"su1_campaign_audit","source_campaign",source,"variant","REAL","audit_campaign",audit,"dataset_blob",data,"generation",0,"phase","SEARCH","updated_at",now);
+            try{StrategyRepositorySU1.row(db,"su1_campaign_audit_open","source_campaign",source,"variant","REAL","selected_hash",selected,"report_hash",report,"opened_at",now);fail("unselected champion opened");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            db.execSQL("UPDATE su1_campaign_audit SET phase='SEALED',selected_hash=?,selected_program='EXPERT(0)',generation=1",new Object[]{selected});
+            try{db.execSQL("UPDATE su1_campaign_audit SET selected_hash=NULL,selected_program=NULL,generation=2,phase='DONE'");fail("selected champion cleared");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            StrategyRepositorySU1.row(db,"su1_campaign_audit_open","source_campaign",source,"variant","REAL","selected_hash",selected,"report_hash",report,"opened_at",now);
+            try{StrategyRepositorySU1.row(db,"su1_campaign_audit_open","source_campaign",source,"variant","REAL","selected_hash",selected,"report_hash",report,"opened_at",now);fail("sealed audit opened twice");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            db.execSQL("UPDATE su1_campaign_audit SET phase='DONE',generation=2");assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool"));
+        }
+    }
+    @Test public void priorSu1V2BuildUpgradesWithoutRewritingItsMigrationReceipts()throws Exception{
+        try(SQLiteDatabase db=database();java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("su1_preview_v2.json")){
+            java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] block=new byte[4096];int n;while((n=input.read(block))!=-1)bytes.write(block,0,n);org.json.JSONArray old=new org.json.JSONArray(bytes.toString("UTF-8"));
+            db.execSQL("CREATE TABLE su1_migration_unit_v2(unit INTEGER PRIMARY KEY,sql_hash TEXT NOT NULL,installed_at INTEGER NOT NULL)");
+            for(int i=0;i<old.length();i++){String sql=old.getString(i);db.execSQL(sql);db.execSQL("INSERT INTO su1_migration_unit_v2 VALUES(?,?,1)",new Object[]{i,HashingSU1.text(sql)});}
+            assertFalse(StrategySchemaSU1.ready(db));ready(db);assertTrue(StrategySchemaSU1.ready(db));
+            try(Cursor c=db.rawQuery("SELECT unit,sql_hash,installed_at FROM su1_migration_unit_v2 WHERE unit<? ORDER BY unit",new String[]{String.valueOf(old.length())})){int count=0;while(c.moveToNext()){assertEquals(count,c.getInt(0));assertEquals(HashingSU1.text(old.getString(count)),c.getString(1));assertEquals(1,c.getLong(2));count++;}assertEquals(old.length(),count);}
+        }
+    }
+    @Test public void fittedGraphParametersArePublishedAndActuallyConsumedWithoutInheritedEvidence()throws Exception{
+        java.util.Map<String,Object> fixture;
+        try(java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("su1_relgraph_parity.json")){
+            java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] block=new byte[4096];int n;while((n=input.read(block))!=-1)bytes.write(block,0,n);fixture=com.ethk3.novaonepro.r952.StrictCanonicalJson.readContextObject(bytes.toString("UTF-8"));
+        }
+        PortableArtifactSU1 asset=PortableArtifactSU1.decode((String)fixture.get("portableGraph"));assertNotNull(asset.graph);
+        try(SQLiteDatabase db=database()){
+            ready(db);long now=System.currentTimeMillis(),sequence=LiveShadowLoopSU1.sequence("202610210020");String strategy;
+            db.beginTransaction();try{
+                String campaign=StrategyRepositorySU1.beginCampaign(db,"HISTORY_REPLAY",sequence,"{\"testGraph\":true}",now);
+                strategy=StrategyRepositorySU1.candidate(db,asset.program,1,false,"DESKTOP_RELGRAPH",null,campaign,sequence,asset.dataset,-1,now,null,asset.graph);db.setTransactionSuccessful();
+            }finally{db.endTransaction();}
+            long[] issues=new long[20],available=new long[20];int[][] draws=new int[20][10];for(int t=0;t<20;t++){issues[t]=202610210001L+t;available[t]=now-1000;for(int p=0;p<10;p++)draws[t][p]=(p+t)%10+1;}
+            EventFrameSU1 frame=new EventFrameSU1(202610210021L,now+60000,now,"SYNTHETIC_ANDROID_CONTRACT",issues,available,draws);
+            java.util.Map<String,ProgramTreeSU1.GraphFitted> loaded=ModelAssetsSU1.loadGraph(db,asset.program,frame);assertEquals(1,loaded.size());
+            double[][] actual=ProgramTreeSU1.parse(asset.program).score(new ProgramTreeSU1.Context(draws,20,null,new ScoreHistoryCacheSU1(128,frame),new BudgetTokenSU1(60000,1000000,null)).withGraphFitted(loaded));
+            double[][] expected=RelGraphModelSU1.predict(asset.graph.state.weights,new RelationTensorAdapterSU1.Factory(frame).input(20,4,new BudgetTokenSU1(60000,1000000,null)),new BudgetTokenSU1(60000,1000000,null));
+            for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(ProgramTreeSU1.clean(Math.log(Math.max(1e-12,expected[p][n]))),actual[p][n],0);
+            assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_prediction"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_certificate"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=? AND calibration_state='MISSING'",strategy));
+        }
+    }
 }

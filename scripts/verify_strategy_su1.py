@@ -17,6 +17,7 @@ def main():
     okay=run('schema_and_catalog_reproducibility',[sys.executable,'scripts/generate_strategy_su1_schema.py','--check'])
     okay=run('independent_atom_golden',[sys.executable,HOST/'scripts/build_atom_parity.py']) and okay
     okay=run('independent_training_golden',[sys.executable,HOST/'scripts/build_training_parity.py']) and okay
+    okay=run('independent_relgraph_golden',[sys.executable,HOST/'scripts/build_relgraph_parity.py']) and okay
     classes=ROOT/'build/su1-host-classes';classes.mkdir(parents=True,exist_ok=True)
     prod=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2'
     sources=[p for p in prod.glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
@@ -26,7 +27,7 @@ def main():
     compiled=run('deployed_java_compile',['java','com.sun.tools.javac.Main','-source','17','-target','17','-d',classes]+sources)
     okay=compiled and okay
     if compiled:
-        for name in ['ProgramTreeSU1Test','TypedProgramTest','PairedEvidenceTest','NullBaselineTest','ProductionKernelSU1Test','AdvancedContractsSU1Test','TrainingParitySU1Test']:
+        for name in ['ProgramTreeSU1Test','TypedProgramTest','PairedEvidenceTest','NullBaselineTest','ProductionKernelSU1Test','AdvancedContractsSU1Test','TrainingParitySU1Test','AuditControlsSU1Test','RelGraphContractsSU1Test','RelGraphParitySU1Test']:
             okay=run(name,['java','-cp',classes,'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
     okay=run('python_schema_learning_and_null_suites',[sys.executable,'-m','unittest','discover','-s','reference/python','-p','test_*.py','-v'],HOST) and okay
     okay=run('python_replay_and_creation_suites',[sys.executable,'-m','unittest','discover','-s','reference/replay','-p','test_*.py','-v'],HOST) and okay

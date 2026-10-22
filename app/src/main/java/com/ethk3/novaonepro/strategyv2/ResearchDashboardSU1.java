@@ -54,6 +54,16 @@ public final class ResearchDashboardSU1 {
                     .append("计划机会 ").append(c.getLong(3)).append("；配对 ").append(c.getLong(4)).append("；不完整 ").append(c.getLong(5)).append("；配对命中 ").append(c.getLong(6)).append('\n')
                     .append(String.format(Locale.CHINA,"保守改善下界 %.4f；配对覆盖 %.2f%%；%s\n",c.getDouble(7),100*c.getDouble(8),c.getString(9)));
         }}
+        out.append("\n历史活动对照（独立封存重放，属于研究数据）\n");
+        try(Cursor c=db.rawQuery("SELECT a.source_campaign,a.variant,a.phase,o.report_hash FROM su1_campaign_audit a LEFT JOIN su1_campaign_audit_open o ON o.source_campaign=a.source_campaign AND o.variant=a.variant ORDER BY a.updated_at DESC,a.variant LIMIT 15",null)){
+            while(c.moveToNext()){
+                budget.checkpointOrYield();out.append(shortId(c.getString(0))).append(' ').append(c.getString(1)).append(" · ").append(c.getString(2)).append('\n');
+                if(!c.isNull(3)){
+                    Map<String,Object> report=com.ethk3.novaonepro.r952.StrictCanonicalJson.readContextObject(CampaignStateSU1.localBlob(db,c.getString(3)));
+                    for(String split:new String[]{"dev","val","sealed"})if(report.get(split) instanceof Map){Map<?,?> metrics=(Map<?,?>)report.get(split);long n=((Number)metrics.get("actions")).longValue(),k=((Number)metrics.get("hits")).longValue(),calendar=((Number)metrics.get("opportunities")).longValue();out.append(split.toUpperCase(Locale.ROOT)).append(' ').append(k).append('/').append(n).append(" = ").append(percent(k,n)).append("；机会 ").append(calendar).append("；覆盖 ").append(percent(n,calendar)).append('\n');}
+                }
+            }
+        }
         out.append("\n能力链实际回执\n输入快照 ").append(scalar(db,"SELECT count(*) FROM su1_snapshot"))
                 .append("；关系切片审计 ").append(scalar(db,"SELECT count(*) FROM su1_dependency WHERE reason='RELATION_SUPPORT_AUDIT'"))
                 .append("；已训练参数模型 ").append(scalar(db,"SELECT count(*) FROM su1_model_artifact WHERE model_kind='SU1_FITTED_RELSTATE10'")).append('\n')
@@ -61,6 +71,7 @@ public final class ResearchDashboardSU1 {
                 .append("；已核验结算 ").append(scalar(db,"SELECT count(*) FROM su1_settlement"))
                 .append("；已消费反馈 ").append(scalar(db,"SELECT count(*) FROM su1_outbox WHERE state='DONE'"))
                 .append("；未消费反馈 ").append(scalar(db,"SELECT count(*) FROM su1_outbox WHERE state<>'DONE'")).append('\n');
+        out.append("可检索研究记录 ").append(scalar(db,"SELECT count(*) FROM su1_research_knowledge")).append("；包含情境、假设、动作、估算操作成本及结果。\n");
         long claims=scalar(db,"SELECT count(*) FROM su1_eval_cohort WHERE evidence_role='CONFIRM'");
         out.append("\n自然资格：须以有效证书核验；历史成绩和排行均不等于正式资格。\n确认声明数 ").append(claims).append("；证书记录 ").append(scalar(db,"SELECT count(*) FROM su1_certificate")).append('\n');
         MainlineHeadSU1.Head head=MainlineHeadSU1.read(db);

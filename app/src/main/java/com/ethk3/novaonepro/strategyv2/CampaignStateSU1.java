@@ -21,7 +21,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
         try{ByteArrayOutputStream raw=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new GZIPOutputStream(raw))){out.writeInt(0x53553144);out.writeInt(rows.size());for(Models.Draw row:rows){out.writeUTF(row.issue);out.writeLong(row.openTime);out.writeLong(row.fetchTime);for(int p=1;p<=10;p++)out.writeByte(row.getNumberAtPosition(p));}}return Base64.getEncoder().encodeToString(raw.toByteArray());}
         catch(IOException impossible){throw new IllegalStateException(impossible);}
     }
-    private static int[][] unpack(String payload){
+    static int[][] unpack(String payload){
         if(payload==null||payload.length()>1048576)throw new IllegalArgumentException("SU1_DATASET_BYTES");
         try(DataInputStream in=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(payload))))){
             if(in.readInt()!=0x53553144)throw new IOException("SU1_DATASET_VERSION");int n=in.readInt();if(n<3400||n>20000)throw new IOException("SU1_DATASET_ROWS");int[][] d=new int[n][10];String prior=null;
@@ -45,10 +45,18 @@ public final class CampaignStateSU1 implements AutoCloseable {
         long through=LiveShadowLoopSU1.sequence(rows.get(rows.size()-1).issue);
         try(Cursor c=store.readable().rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%CONTINUOUS_CREATION%'",null)){if(c.moveToFirst()&&!c.isNull(0)&&through-c.getLong(0)<300)return null;}
         String payload=dataset(rows),hash=HashingSU1.text(payload);int[][] d=unpack(payload);StrategyFoundrySU1 f=new StrategyFoundrySU1(d,hash,through,24,3);
+        long lastFull=0;try(Cursor c=store.readable().rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%FULL_ATOM_SCREEN%' AND config_json LIKE ?",new String[]{"%"+TrainingCodeIdentityR964.SHA256+"%"})){if(c.moveToFirst()&&!c.isNull(0))lastFull=c.getLong(0);}
+        if(lastFull>0&&through-lastFull<1440){
+            List<StrategyFoundrySU1.Genome> survivors=new ArrayList<>();for(StrategyRepositorySU1.Member m:StrategyRepositorySU1.active(store.readable())){
+                if(survivors.size()>=12)break;if(m.text.contains("MODEL("))continue;
+                StrategyFoundrySU1.Genome base=new StrategyFoundrySU1.Genome(m.text,"GRAMMAR",m.arm,"survivor_retest","",m.fitness,m.coverage,m.margin);
+                survivors.add(new StrategyFoundrySU1.Genome(m.text,"GRAMMAR",m.arm,"survivor_retest",base.key(),m.fitness,m.coverage,m.margin));
+            }f.startRefresh(survivors);
+        }
         // Only the continuing REAL research lineage inherits memory. Control runs never read this table.
         try(Cursor c=store.readable().rawQuery("SELECT state_json,state_hash FROM su1_director_state s JOIN su1_campaign c ON c.campaign_id=s.campaign_id ORDER BY c.finished_at DESC LIMIT 1",null)){if(c.moveToFirst()){String memory=c.getString(0);if(!HashingSU1.text(memory).equals(c.getString(1)))throw new IllegalStateException("SU1_MEMORY_HASH");f.inheritMemory(memory);}}
         DirectorLiveFeedbackSU1.load(store.readable(),f.director);
-        String config="{\"kind\":\"CONTINUOUS_CREATION\",\"population\":24,\"generations\":3,\"atomCondition\":\"V2_1E12\",\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}";
+        String config="{\"kind\":\"CONTINUOUS_CREATION\",\"scope\":\""+(f.fullScan?"FULL_ATOM_SCREEN":"FAST_REFRESH")+"\",\"population\":24,\"generations\":3,\"atomCondition\":\"V2_1E12\",\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}";
         String campaign=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_CAMPAIGN_START",db->{String id=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",through,config,System.currentTimeMillis());StrategyRepositorySU1.blob(db,payload,"SU1_DATASET_GZIP_BASE64_V1",System.currentTimeMillis());return id;});
         return new CampaignStateSU1(store,campaign,hash,through,f,gen,expected);
     }
@@ -68,15 +76,19 @@ public final class CampaignStateSU1 implements AutoCloseable {
                     String payload=StrategyRepositorySU1.blob(db,experience,"SU1_RESEARCH_EXPERIENCE_V1",now);
                     StrategyRepositorySU1.row(db,"su1_research_knowledge","attempt_id",id,"context_key",foundry.researchContext.key,"hypothesis",g.arm,"action",g.operator,"cost_units",cost,"result",attempt.result,"payload_hash",payload,"recorded_at",now);
                 }
-                if(attempt.ranked!=null&&attempt.ranked.fitness>-1&&attempt.ranked.valFitness>-1){
+                if(attempt.ranked!=null&&!g.operator.equals("survivor_retest")&&attempt.ranked.fitness>-1&&attempt.ranked.valFitness>-1){
                     boolean useful=StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool WHERE state='ACTIVE'")<32;
                     if(!useful)try(Cursor c=db.rawQuery("SELECT min(prior_fitness) FROM su1_research_pool WHERE state='ACTIVE'",null)){c.moveToFirst();useful=attempt.ranked.fitness>c.getDouble(0);}
-                    String parent=StrategyRepositorySU1.findParent(db,g.parent);if(useful&&(g.parent.isEmpty()||parent!=null))StrategyRepositorySU1.candidate(db,g.text,g.coverage,g.margin,g.arm,parent,campaign,through,datasetBlob,attempt.ranked.fitness,now);
+                    String parent=StrategyRepositorySU1.findParent(db,g.parent),second=StrategyRepositorySU1.findParent(db,g.secondaryParent);
+                    if(useful&&(g.parent.isEmpty()||parent!=null)&&(g.secondaryParent.isEmpty()||second!=null)){
+                        String child=StrategyRepositorySU1.candidate(db,g.text,g.coverage,g.margin,g.arm,parent,campaign,through,datasetBlob,attempt.ranked.fitness,now);
+                        if(second!=null)StrategyRepositorySU1.lineage(db,second,child,"FUSE",through,HashingSU1.text(g.text),now);
+                    }
                 }
             }
             for(StrategyFoundrySU1.Curve curve:foundry.curves())if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_campaign_curve WHERE campaign_id=? AND generation=?",campaign,String.valueOf(curve.generation)))StrategyRepositorySU1.row(db,"su1_campaign_curve","campaign_id",campaign,"generation",curve.generation,"dev_fitness",curve.dev,"champion_val_fitness",curve.val,"champion_family",curve.family,"recorded_at",now);
             if(foundry.done()){
-                SealedPlannerSU1.plan(db,this,now,latest);persistMacros(db,now);String memory=foundry.memory();db.execSQL("INSERT INTO su1_director_state VALUES(?,?,?)",new Object[]{campaign,memory,HashingSU1.text(memory)});
+                SealedPlannerSU1.plan(db,this,now,latest);CampaignAuditStoreSU1.enqueue(db,this,now);persistMacros(db,now);String memory=foundry.memory();db.execSQL("INSERT INTO su1_director_state VALUES(?,?,?)",new Object[]{campaign,memory,HashingSU1.text(memory)});
                 db.execSQL("UPDATE su1_campaign SET status='DONE',finished_at=?,programs_evaluated=? WHERE campaign_id=? AND status='RUNNING'",new Object[]{now,foundry.evaluated,campaign});
             }
             return 0;
