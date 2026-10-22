@@ -99,8 +99,8 @@ public final class LiveShadowLoopSU1 {
     public static void requireCompleted(SQLiteDatabase db,Models.Draw draw,String settlementHash,long completedAt){
         if(!db.inTransaction())throw new IllegalStateException("SU1_SETTLEMENT_OWNER_TRANSACTION_REQUIRED");
         if(draw==null||!draw.isValid()||draw.dirty!=0)throw new IllegalArgumentException("SU1_CANONICAL_DRAW_REQUIRED");
-        try(Cursor terminal=db.rawQuery("SELECT status,settlement_hash,completed_at FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE target_issue=?",new String[]{draw.issue})){
-            if(!terminal.moveToFirst()||!"COMPLETED".equals(terminal.getString(0))||!settlementHash.equals(terminal.getString(1))||completedAt!=terminal.getLong(2))throw new IllegalStateException("SU1_CANONICAL_COMPLETED_REQUIRED");
+        try(Cursor terminal=db.rawQuery("SELECT status,settlement_hash,completed_at,draw_hash FROM "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" WHERE target_issue=?",new String[]{draw.issue})){
+            if(!terminal.moveToFirst()||!"COMPLETED".equals(terminal.getString(0))||!settlementHash.equals(terminal.getString(1))||completedAt!=terminal.getLong(2)||!DrawHashR36.matchesPersisted(terminal.getString(3),DrawHashR36.LEGACY_VERSION,draw))throw new IllegalStateException("SU1_CANONICAL_COMPLETED_REQUIRED");
         }
         try(Cursor canonical=db.rawQuery("SELECT dirty,open_time,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM "+DrawDependencyInputCP12.SOURCE+" WHERE issue=?",new String[]{draw.issue})){
             if(!canonical.moveToFirst()||canonical.getInt(0)!=0||canonical.getLong(1)!=draw.openTime)throw new IllegalStateException("SU1_CANONICAL_DRAW_MISMATCH");

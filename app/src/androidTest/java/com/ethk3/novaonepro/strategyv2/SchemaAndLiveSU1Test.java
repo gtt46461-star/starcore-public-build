@@ -14,7 +14,7 @@ public final class SchemaAndLiveSU1Test {
         SQLiteDatabase db=SQLiteDatabase.create(null);db.setForeignKeyConstraintsEnabled(true);
         db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INTEGER,open_time INTEGER,n1 INTEGER,n2 INTEGER,n3 INTEGER,n4 INTEGER,n5 INTEGER,n6 INTEGER,n7 INTEGER,n8 INTEGER,n9 INTEGER,n10 INTEGER)");
         db.execSQL("CREATE VIEW "+DrawDependencyInputCP12.SOURCE+" AS SELECT * FROM draws");
-        db.execSQL("CREATE TABLE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+"(target_issue TEXT PRIMARY KEY,status TEXT,settlement_hash TEXT,completed_at INTEGER)");
+        db.execSQL("CREATE TABLE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+"(target_issue TEXT PRIMARY KEY,status TEXT,settlement_hash TEXT,completed_at INTEGER,draw_hash TEXT)");
         return db;
     }
     private static void ready(SQLiteDatabase db){int steps=0;while(!StrategySchemaSU1.ready(db)){assertTrue("migration did not terminate",steps++<1000);StrategySchemaSU1.advance(db);}}
@@ -44,12 +44,16 @@ public final class SchemaAndLiveSU1Test {
             }finally{db.endTransaction();}
             String hash=HashingSU1.text("canonical completed");Models.Draw draw=new Models.Draw();draw.issue=target;draw.openTime=open;for(int p=0;p<10;p++)draw.numbers[p]=p+1;
             db.execSQL("INSERT INTO draws VALUES(?,0,?,1,2,3,4,5,6,7,8,9,10)",new Object[]{target,open});
-            db.execSQL("INSERT INTO "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" VALUES(?,'RUNNING',?,?)",new Object[]{target,hash,open+10});
+            db.execSQL("INSERT INTO "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" VALUES(?,'RUNNING',?,?,?)",new Object[]{target,hash,open+10,DrawHashR36.sha256V2(draw)});
             try{settle(db,draw,hash,open+10);fail("non-completed label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
             db.execSQL("UPDATE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" SET status='COMPLETED'");
             assertEquals(1,settle(db,draw,hash,open+10));assertEquals(0,settle(db,draw,hash,open+10));
             assertEquals(1,StrategyRepositorySU1.count(db,"SELECT actions FROM su1_live_arm_stats WHERE arm='EXPERT_MIX'"));
             draw.numbers[0]=2;draw.numbers[1]=1;try{settle(db,draw,hash,open+10);fail("forged canonical label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
+            // Matching a changed hot row is insufficient: the immutable terminal must bind the same draw hash.
+            db.execSQL("UPDATE draws SET n1=2,n2=1 WHERE issue=?",new Object[]{target});
+            try{settle(db,draw,hash,open+10);fail("changed canonical row reused a stale terminal hash");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
+            db.execSQL("UPDATE draws SET n1=1,n2=2 WHERE issue=?",new Object[]{target});
             try(Cursor c=db.rawQuery("SELECT hit FROM su1_live_shadow",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getInt(0));}
             LiveShadowLoopSU1.closeDays(db,20261022);assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_live_daily WHERE actions=1 AND hits=1"));
         }
@@ -62,8 +66,8 @@ public final class SchemaAndLiveSU1Test {
                 String id=StrategyRepositorySU1.candidate(db,"EXPERT(0)",1,false,"EXPERT_MIX",null,campaign,seq-1,HashingSU1.text("input"),-1,now);
                 cohort=PromotionPipelineSU1.register(db,id,PromotionPipelineSU1.nullBaseline(db),family,issue,seq-1,1,"VS_NULL_BASELINE","CONFIRM");
                 db.execSQL("INSERT INTO draws VALUES(?,0,?,1,2,3,4,5,6,7,8,9,10)",new Object[]{issue,open});
-                db.execSQL("INSERT INTO "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" VALUES(?,'COMPLETED',?,?)",new Object[]{issue,hash,open+1});
                 Models.Draw draw=new Models.Draw();draw.issue=issue;draw.openTime=open;for(int p=0;p<10;p++)draw.numbers[p]=p+1;
+                db.execSQL("INSERT INTO "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" VALUES(?,'COMPLETED',?,?,?)",new Object[]{issue,hash,open+1,DrawHashR36.sha256V2(draw)});
                 EvidenceLoopSU1.settleWithin(db,draw,hash,open+1);db.setTransactionSuccessful();
             }finally{db.endTransaction();}
             EvidenceQualitySU1.Look look=EvidenceQualitySU1.prepare(db,cohort,open+2,new BudgetTokenSU1(10000,100000,null));assertNotNull(look);assertEquals(1,look.n);assertEquals(1,look.unpaired);assertEquals("INSUFFICIENT",look.state);
