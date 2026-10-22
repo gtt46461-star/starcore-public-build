@@ -92,6 +92,7 @@ public final class LiveShadowLoopSU1 {
         Object[] args=new Object[13];for(int p=0;p<10;p++)args[p]=draw.getNumberAtPosition(p+1);args[10]=completedAt;args[11]=seq;args[12]=completedAt;
         db.execSQL("UPDATE su1_live_shadow SET hit=(number_mask>>(CASE position WHEN 1 THEN ? WHEN 2 THEN ? WHEN 3 THEN ? WHEN 4 THEN ? WHEN 5 THEN ? WHEN 6 THEN ? WHEN 7 THEN ? WHEN 8 THEN ? WHEN 9 THEN ? ELSE ? END-1))&1,settled_at=? WHERE sequence_ordinal=? AND hit IS NULL AND target_open_time<=?",args);
         int n=StrategyRepositorySU1.count(db,"SELECT changes()");
+        DirectorLiveFeedbackSU1.settled(db,seq);
         db.execSQL("UPDATE su1_live_target SET legacy_settlement_hash=?,completed_at=? WHERE sequence_ordinal=? AND completed_at IS NULL",new Object[]{settlementHash,completedAt,seq});
         return n;
     }

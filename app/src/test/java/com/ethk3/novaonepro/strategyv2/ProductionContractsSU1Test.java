@@ -34,4 +34,25 @@ public final class ProductionContractsSU1Test {
         int[][] a=history(120),b=history(120);for(int i=100;i<120;i++){int v=b[i][0];b[i][0]=b[i][1];b[i][1]=v;}
         ProgramTreeSU1.Node program=ProgramTreeSU1.parse("DEEP(3,8,7)");double[][] first=program.score(new ProgramTreeSU1.Context(a,100)),second=program.score(new ProgramTreeSU1.Context(b,100));for(int p=0;p<10;p++)assertArrayEquals(first[p],second[p],0);
     }
+    @Test public void portableImportRejectsTamperingAndAuthorityFields(){
+        Map<String,Object> payload=new TreeMap<>();payload.put("format",PortableArtifactSU1.FORMAT);payload.put("program","XT(0)");payload.put("coverageHex","0x1.0p0");payload.put("marginGate",false);payload.put("datasetSha256",HashingSU1.text("data"));payload.put("trainedThroughIssue","202610210001");payload.put("numericProtocol","SU1_ATOM_CONDITION_V2_1E12");
+        Map<String,Object> envelope=new TreeMap<>();envelope.put("payload",payload);envelope.put("sha256",HashingSU1.text(com.ethk3.novaonepro.r952.StrictCanonicalJson.write(payload)));
+        String wire=com.ethk3.novaonepro.r952.StrictCanonicalJson.write(envelope);assertEquals("XT(0)",PortableArtifactSU1.decode(wire).program);
+        try{PortableArtifactSU1.decode(wire.replace("XT(0)","XT(1)"));fail("tampered program accepted");}catch(IllegalArgumentException expected){assertNotNull(expected.getMessage());}
+        payload.put("certificate","PASS");envelope.put("sha256",HashingSU1.text(com.ethk3.novaonepro.r952.StrictCanonicalJson.write(payload)));
+        try{PortableArtifactSU1.decode(com.ethk3.novaonepro.r952.StrictCanonicalJson.write(envelope));fail("imported authority accepted");}catch(IllegalArgumentException expected){assertNotNull(expected.getMessage());}
+    }
+    @Test public void foundryCheckpointRestoresAnInterruptedAtomicScan(){
+        int[][] draws=history(3400);String hash=HashingSU1.text("immutable dataset");String wire;
+        try(StrategyFoundrySU1 f=new StrategyFoundrySU1(draws,hash,19,8,1)){
+            try{f.next(new BudgetTokenSU1(60000,100,null));fail("expected a budget yield");}catch(BudgetTokenSU1.Yield expected){assertEquals(0,f.evaluated);}wire=f.checkpoint();
+        }
+        try(StrategyFoundrySU1 resumed=StrategyFoundrySU1.restore(draws,hash,wire)){assertEquals(wire,resumed.checkpoint());assertEquals(0,resumed.evaluated);}
+        try{StrategyFoundrySU1.restore(draws,HashingSU1.text("other data"),wire);fail("wrong dataset resumed");}catch(IllegalArgumentException expected){assertNotNull(expected.getMessage());}
+    }
+    @Test public void canonicalSequenceOwnerHandlesDayAndEpochBoundaries(){
+        assertEquals(1,com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1("202001010001"));
+        long last=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1("202610211440");assertEquals("202610220001",com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(last+1));
+        assertEquals(2,com.ethk3.novaonepro.TargetIssueResolver.firstUnseenOrdinalSU1(1577836800000L));
+    }
 }

@@ -37,7 +37,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
             if(!TrainingCodeIdentityR964.SHA256.equals(state.get("kernel")))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_INVALIDATE_CHECKPOINT_KERNEL",db->{db.execSQL("UPDATE su1_campaign SET status='FAILED',finished_at=? WHERE campaign_id=? AND status='RUNNING'",new Object[]{System.currentTimeMillis(),campaign});return 0;});
             try(Cursor status=store.readable().rawQuery("SELECT status FROM su1_campaign WHERE campaign_id=?",new String[]{campaign})){if(status.moveToFirst()&&status.getString(0).equals("RUNNING")){
                 String payload=localBlob(store.readable(),blob);StrategyFoundrySU1 f=StrategyFoundrySU1.restore(unpack(payload),HashingSU1.text(payload),(String)state.get("session"));
-                List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result='EVALUATED'",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
+                List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result='EVALUATED'",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(store.readable(),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
             }}
         }
         List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));Collections.reverse(rows);if(rows.size()<3400)return null;
@@ -47,6 +47,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
         String payload=dataset(rows),hash=HashingSU1.text(payload);int[][] d=unpack(payload);StrategyFoundrySU1 f=new StrategyFoundrySU1(d,hash,through,24,3);
         // Only the continuing REAL research lineage inherits memory. Control runs never read this table.
         try(Cursor c=store.readable().rawQuery("SELECT state_json,state_hash FROM su1_director_state s JOIN su1_campaign c ON c.campaign_id=s.campaign_id ORDER BY c.finished_at DESC LIMIT 1",null)){if(c.moveToFirst()){String memory=c.getString(0);if(!HashingSU1.text(memory).equals(c.getString(1)))throw new IllegalStateException("SU1_MEMORY_HASH");f.inheritMemory(memory);}}
+        DirectorLiveFeedbackSU1.load(store.readable(),f.director);
         String config="{\"kind\":\"CONTINUOUS_CREATION\",\"population\":24,\"generations\":3,\"atomCondition\":\"V2_1E12\",\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}";
         String campaign=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_CAMPAIGN_START",db->{String id=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",through,config,System.currentTimeMillis());StrategyRepositorySU1.blob(db,payload,"SU1_DATASET_GZIP_BASE64_V1",System.currentTimeMillis());return id;});
         return new CampaignStateSU1(store,campaign,hash,through,f,gen,expected);
@@ -67,6 +68,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
                     String parent=StrategyRepositorySU1.findParent(db,g.parent);if(useful&&(g.parent.isEmpty()||parent!=null))StrategyRepositorySU1.candidate(db,g.text,g.coverage,g.margin,g.arm,parent,campaign,through,datasetBlob,attempt.ranked.fitness,now);
                 }
             }
+            for(StrategyFoundrySU1.Curve curve:foundry.curves())if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_campaign_curve WHERE campaign_id=? AND generation=?",campaign,String.valueOf(curve.generation)))StrategyRepositorySU1.row(db,"su1_campaign_curve","campaign_id",campaign,"generation",curve.generation,"dev_fitness",curve.dev,"champion_val_fitness",curve.val,"champion_family",curve.family,"recorded_at",now);
             if(foundry.done()){
                 SealedPlannerSU1.plan(db,this,now,latest==null?null:latest.issue);persistMacros(db,now);String memory=foundry.memory();db.execSQL("INSERT INTO su1_director_state VALUES(?,?,?)",new Object[]{campaign,memory,HashingSU1.text(memory)});
                 db.execSQL("UPDATE su1_campaign SET status='DONE',finished_at=?,programs_evaluated=? WHERE campaign_id=? AND status='RUNNING'",new Object[]{now,foundry.evaluated,campaign});

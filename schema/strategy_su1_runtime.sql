@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS su1_runtime_program (
  margin_gate INTEGER NOT NULL CHECK(margin_gate IN (0,1)),
  parent_id TEXT REFERENCES su1_strategy_version(strategy_id),
  created_at INTEGER NOT NULL,
- kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64)
+ kernel_hash TEXT NOT NULL DEFAULT '0000000000000000000000000000000000000000000000000000000000000000' CHECK(length(kernel_hash)=64)
 );
 CREATE TABLE IF NOT EXISTS su1_kernel_state (
  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
@@ -148,6 +148,12 @@ CREATE TABLE IF NOT EXISTS su1_live_attempt (
 ) WITHOUT ROWID;
 CREATE TRIGGER IF NOT EXISTS su1_live_attempt_immutable BEFORE UPDATE ON su1_live_attempt
 BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_live_arm_stats (
+ arm TEXT PRIMARY KEY NOT NULL,
+ actions INTEGER NOT NULL CHECK(actions>=0),
+ hits INTEGER NOT NULL CHECK(hits>=0 AND hits<=actions),
+ through_sequence INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS su1_search_attempt (
  attempt_id TEXT PRIMARY KEY NOT NULL CHECK(length(attempt_id)=64),
  genome_key TEXT NOT NULL CHECK(length(genome_key)=64),
@@ -214,3 +220,41 @@ CREATE TRIGGER IF NOT EXISTS su1_retention_research_task_insert AFTER INSERT ON 
 BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
 CREATE TRIGGER IF NOT EXISTS su1_retention_research_task_update AFTER UPDATE ON su1_research_task
 BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+
+CREATE TABLE IF NOT EXISTS su1_live_day_archive (
+ strategy_id TEXT NOT NULL REFERENCES su1_strategy_version(strategy_id),
+ day_key INTEGER NOT NULL,
+ payload_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ actions INTEGER NOT NULL,
+ hits INTEGER NOT NULL,
+ created_at INTEGER NOT NULL,
+ compacted_at INTEGER,
+ PRIMARY KEY(strategy_id,day_key)
+);
+CREATE TRIGGER IF NOT EXISTS su1_live_day_archive_update BEFORE UPDATE ON su1_live_day_archive
+BEGIN
+ SELECT CASE WHEN OLD.compacted_at IS NOT NULL OR NEW.compacted_at IS NULL OR NEW.strategy_id<>OLD.strategy_id OR NEW.day_key<>OLD.day_key OR NEW.payload_hash<>OLD.payload_hash OR NEW.actions<>OLD.actions OR NEW.hits<>OLD.hits OR NEW.created_at<>OLD.created_at
+ THEN RAISE(ABORT,'SU1_DAILY_ARCHIVE_IMMUTABLE') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_live_shadow_verified_compaction BEFORE DELETE ON su1_live_shadow
+BEGIN
+ SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM su1_live_day_archive a JOIN su1_blob b ON b.blob_hash=a.payload_hash JOIN su1_archive_receipt r ON r.receipt_id=b.archive_receipt_id WHERE a.strategy_id=OLD.strategy_id AND a.day_key=OLD.day_key AND b.storage_state='ARCHIVED' AND r.replay_verified=1)
+ THEN RAISE(ABORT,'SU1_VERIFIED_ARCHIVE_REQUIRED') END;
+END;
+
+CREATE TABLE IF NOT EXISTS su1_campaign_curve (
+ campaign_id TEXT NOT NULL REFERENCES su1_campaign(campaign_id),
+ generation INTEGER NOT NULL,
+ dev_fitness REAL NOT NULL,
+ champion_val_fitness REAL NOT NULL,
+ champion_family TEXT NOT NULL,
+ recorded_at INTEGER NOT NULL,
+ PRIMARY KEY(campaign_id,generation)
+);
+CREATE TRIGGER IF NOT EXISTS su1_curve_monotone BEFORE INSERT ON su1_campaign_curve
+BEGIN
+ SELECT CASE WHEN EXISTS(SELECT 1 FROM su1_campaign_curve c WHERE c.campaign_id=NEW.campaign_id AND (c.generation>=NEW.generation OR c.champion_val_fitness>NEW.champion_val_fitness))
+ THEN RAISE(ABORT,'SU1_CHAMPION_CURVE_ORDER') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_curve_immutable BEFORE UPDATE ON su1_campaign_curve
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;

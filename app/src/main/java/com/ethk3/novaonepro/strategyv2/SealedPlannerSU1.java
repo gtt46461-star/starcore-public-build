@@ -15,7 +15,7 @@ public final class SealedPlannerSU1 {
         if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_sealed_plan p WHERE NOT EXISTS(SELECT 1 FROM su1_sealed_cancelled x WHERE x.campaign_id=p.campaign_id) AND NOT EXISTS(SELECT 1 FROM su1_sealed_result r WHERE r.plan_campaign=p.campaign_id)"))return;
         List<StrategyFoundrySU1.Ranked> finalists=new ArrayList<>(state.foundry.ranked().subList(0,Math.min(4,state.foundry.ranked().size())));
         finalists.sort(Comparator.comparingDouble((StrategyFoundrySU1.Ranked r)->r.valFitness).reversed().thenComparing(r->r.genome.key()));
-        StrategyFoundrySU1.Ranked champion=finalists.get(0);if(champion.valFitness<=-1)return;
+        StrategyFoundrySU1.Ranked champion=state.foundry.champion()==null?finalists.get(0):state.foundry.champion();if(champion.valFitness<=-1)return;
         // Completion can be hours after the training snapshot. Choose from the wall clock,
         // the canonical latest issue and the training boundary, never an already seen target.
         long clockSequence=TargetIssueResolver.firstUnseenOrdinalSU1(now)-1;

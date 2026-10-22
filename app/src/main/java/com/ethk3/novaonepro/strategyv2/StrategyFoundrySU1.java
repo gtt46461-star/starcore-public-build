@@ -33,6 +33,18 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
     private final List<Ranked> best=new ArrayList<>(),screenTop=new ArrayList<>();
     private final List<Genome> generationQueue=new ArrayList<>();
     private final Set<String> seen=new HashSet<>();
+    public static final class Curve {
+        public final int generation;public final double dev,val;public final String family;
+        Curve(int generation,double dev,double val,String family){this.generation=generation;this.dev=dev;this.val=val;this.family=family;}
+    }
+    private Ranked champion;
+    private final List<Curve> curves=new ArrayList<>();
+    public Ranked champion(){return champion;}
+    public List<Curve> curves(){return Collections.unmodifiableList(curves);}
+    private void finishGeneration(){
+        for(int i=0;i<Math.min(4,best.size());i++){Ranked r=best.get(i);if(champion==null||r.valFitness>champion.valFitness||r.valFitness==champion.valFitness&&r.genome.key().compareTo(champion.genome.key())<0)champion=r;}
+        if(champion!=null)curves.add(new Curve(generation,best.get(0).fitness,champion.valFitness,champion.genome.family));
+    }
     private Genome current;
     private ReplayCursorSU1 cursor;
     public StrategyFoundrySU1(int[][] draws,String datasetHash,long seed,int population,int generations){
@@ -53,7 +65,7 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
         if(phase==3){
             if(generation>=generations){phase=4;return null;}
             if(generationQueue.isEmpty())newGeneration();
-            if(index>=generationQueue.size()){generation++;index=0;generationQueue.clear();macros.learn(best);for(MacroLibrarySU1.Macro m:macros.all())if(m.support>=3)director.add("EMERGENT:"+m.id);return proposal();}
+            if(index>=generationQueue.size()){finishGeneration();generation++;index=0;generationQueue.clear();macros.learn(best);for(MacroLibrarySU1.Macro m:macros.all())if(m.support>=3)director.add("EMERGENT:"+m.id);return proposal();}
             return generationQueue.get(index);
         }
         return null;
@@ -87,8 +99,9 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
     }
     public String checkpoint(){
         try{ByteArrayOutputStream raw=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new GZIPOutputStream(raw))){
-            out.writeInt(0x53553146);out.writeInt(2);out.writeUTF(datasetHash);out.writeLong(seed);out.writeInt(population);out.writeInt(generations);out.writeInt(phase);out.writeInt(index);out.writeInt(generation);out.writeInt(evaluated);
+            out.writeInt(0x53553146);out.writeInt(3);out.writeUTF(datasetHash);out.writeLong(seed);out.writeInt(population);out.writeInt(generations);out.writeInt(phase);out.writeInt(index);out.writeInt(generation);out.writeInt(evaluated);
             director.write(out);macros.write(out);out.writeInt(best.size());for(Ranked r:best)r.write(out);out.writeInt(screenTop.size());for(Ranked r:screenTop)r.write(out);out.writeInt(generationQueue.size());for(Genome g:generationQueue)g.write(out);
+            out.writeBoolean(champion!=null);if(champion!=null)champion.write(out);out.writeInt(curves.size());for(Curve c:curves){out.writeInt(c.generation);out.writeDouble(c.dev);out.writeDouble(c.val);out.writeUTF(c.family);}
             out.writeBoolean(current!=null);if(current!=null){current.write(out);cursor.write(out);}
         }String wire=Base64.getEncoder().encodeToString(raw.toByteArray());if(wire.length()>60000)throw new IllegalStateException("SU1_CHECKPOINT_QUOTA");return wire;
         }catch(IOException impossible){throw new IllegalStateException(impossible);}
@@ -105,10 +118,11 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
     public static StrategyFoundrySU1 restore(int[][] draws,String expectedDataset,String wire){
         if(wire==null||wire.length()>60000)throw new IllegalArgumentException("SU1_CHECKPOINT_SIZE");
         try(DataInputStream in=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(wire))))){
-            if(in.readInt()!=0x53553146||in.readInt()!=2||!expectedDataset.equals(in.readUTF()))throw new IOException("SU1_CHECKPOINT_IDENTITY");
+            if(in.readInt()!=0x53553146||in.readInt()!=3||!expectedDataset.equals(in.readUTF()))throw new IOException("SU1_CHECKPOINT_IDENTITY");
             StrategyFoundrySU1 f=new StrategyFoundrySU1(draws,expectedDataset,in.readLong(),in.readInt(),in.readInt());f.phase=in.readInt();f.index=in.readInt();f.generation=in.readInt();f.evaluated=in.readInt();
             if(f.phase<0||f.phase>4||f.index<0||f.index>4000||f.generation<0||f.generation>f.generations||f.evaluated<0)throw new IOException("SU1_CHECKPOINT_CURSOR");
             f.director=ResearchDirectorPolicySU1.read(in);f.macros=MacroLibrarySU1.read(in);int n=bounded(in,32);for(int i=0;i<n;i++)f.best.add(Ranked.read(in));n=bounded(in,8);for(int i=0;i<n;i++)f.screenTop.add(Ranked.read(in));n=bounded(in,32);for(int i=0;i<n;i++)f.generationQueue.add(Genome.read(in));
+            if(in.readBoolean())f.champion=Ranked.read(in);n=bounded(in,12);double prior=-Double.MAX_VALUE;for(int i=0;i<n;i++){Curve c=new Curve(in.readInt(),in.readDouble(),in.readDouble(),in.readUTF());if(!Double.isFinite(c.dev)||!Double.isFinite(c.val)||c.val<prior)throw new IOException("SU1_CHAMPION_CURVE");f.curves.add(c);prior=c.val;}
             if(in.readBoolean()){f.current=Genome.read(in);f.cursor=ReplayCursorSU1.read(in,draws);}if(in.read()!=-1)throw new IOException("SU1_CHECKPOINT_TAIL");return f;
         }catch(IOException|IllegalArgumentException invalid){throw new IllegalArgumentException("SU1_CHECKPOINT_CORRUPT",invalid);}
     }

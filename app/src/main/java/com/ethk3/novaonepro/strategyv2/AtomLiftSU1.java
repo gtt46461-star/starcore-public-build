@@ -10,6 +10,7 @@ public final class AtomLiftSU1 implements AutoCloseable {
     private final int[][] draws;
     private final AtomWindowCP4[] windows=new AtomWindowCP4[10];
     private int through=-1;
+    private final LinkedHashMap<String,Double> medians=new LinkedHashMap<String,Double>(65,.75f,true){protected boolean removeEldestEntry(Map.Entry<String,Double> e){return size()>64;}};
     private final MemoryBudgetCP4 memory=new MemoryBudgetCP4(24L<<20);
     public AtomLiftSU1(int[][] history){this.draws=history;for(int p=0;p<10;p++)windows[p]=new AtomWindowCP4(memory);}
     private void seek(int target,BudgetTokenSU1 budget){
@@ -40,10 +41,10 @@ public final class AtomLiftSU1 implements AutoCloseable {
     private double scalar(String family,int q,String params,int t,BudgetTokenSU1 budget){seek(t,budget);AtomEvaluatorCP4.Result r=AtomEvaluatorCP4.evaluate(spec(family,params,0),windows[q],null,t);return r.present?Math.rint(r.value*1e12)/1e12:0;}
     public boolean condition(String family,int q,String params,int t,BudgetTokenSU1 budget){
         AtomCatalogSU1.requireCondition(family,params);if(t<300)return false;
-        int block=300+((t-300)/50)*50;double[] past=new double[300];
+        int block=300+((t-300)/50)*50;String key=family+"|"+q+"|"+params+"|"+block;Double cached=medians.get(key);if(cached!=null)return scalar(family,q,params,t,budget)>cached;double[] past=new double[300];
         // This secondary cursor is independent of the current-target cursor and never consumes the label at t.
         try(AtomLiftSU1 prior=new AtomLiftSU1(draws)){for(int i=0;i<300;i++)past[i]=prior.scalar(family,q,params,block-300+i,budget);}
-        Arrays.sort(past);double median=(past[149]+past[150])*.5;
+        Arrays.sort(past);double median=(past[149]+past[150])*.5;medians.put(key,median);
         return scalar(family,q,params,t,budget)>median;
     }
     @Override public void close(){for(AtomWindowCP4 w:windows)w.close();}

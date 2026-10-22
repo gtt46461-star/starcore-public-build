@@ -8,12 +8,15 @@ public final class ResearchDirectorPolicySU1 {
     public static final String[] OPERATORS={"mutate","structural","crossover","fusion"};
     final LinkedHashMap<String,double[]> arms=new LinkedHashMap<>();
     final LinkedHashMap<String,int[]> ops=new LinkedHashMap<>();
+    final LinkedHashMap<String,double[]> live=new LinkedHashMap<>();
+    public void live(String arm,long actions,long hits){if(!Arrays.asList(FAMILIES).contains(arm)&&!arm.startsWith("EMERGENT:"))return;if(actions<0||hits<0||hits>actions)throw new IllegalArgumentException("SU1_LIVE_REWARD");add(arm);if(arms.containsKey(arm))live.put(arm,new double[]{actions,hits});}
     public ResearchDirectorPolicySU1(){for(String family:FAMILIES)add(family);for(String op:OPERATORS)ops.put(op,new int[]{0,0});}
     public void add(String arm){if(arms.size()<64)arms.putIfAbsent(arm,new double[]{0,0});}
     public String pick(int total,Map<String,Integer> generation,int population){
         String best=null;double bestValue=-Double.MAX_VALUE;int cap=Math.max(2,(int)(.35*population));
         for(Map.Entry<String,double[]> e:arms.entrySet()){
             if(generation.getOrDefault(e.getKey(),0)>=cap)continue;double n=1+e.getValue()[0];double value=(.01+e.getValue()[1])/n+.02*Math.sqrt(2*Math.log(total+2)/n);
+            double[] feedback=live.get(e.getKey());if(feedback!=null&&feedback[0]>0)value+=.05*(feedback[1]/feedback[0]-.30)*feedback[0]/(feedback[0]+200);
             if(value>bestValue){bestValue=value;best=e.getKey();}
         }
         if(best==null)throw new IllegalStateException("SU1_ARM_CAP_EXHAUSTED");return best;

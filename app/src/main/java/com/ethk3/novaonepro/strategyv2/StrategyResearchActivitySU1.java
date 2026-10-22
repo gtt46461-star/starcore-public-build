@@ -50,6 +50,9 @@ public final class StrategyResearchActivitySU1 extends Activity {
                     out.append("已锁定未来测试：").append(StrategyRepositorySU1.count(store.readable(),"SELECT count(*) FROM su1_sealed_plan")).append("；已完成：").append(StrategyRepositorySU1.count(store.readable(),"SELECT count(*) FROM su1_sealed_result")).append('\n');
                     out.append("独立确认声明：").append(StrategyRepositorySU1.count(store.readable(),"SELECT count(*) FROM su1_eval_cohort WHERE evidence_role='CONFIRM'")).append("；证书记录：").append(StrategyRepositorySU1.count(store.readable(),"SELECT count(*) FROM su1_certificate")).append('\n');
                     try(Cursor budget=store.readable().rawQuery("SELECT coalesce(sum(amount),0) FROM su1_alpha_reservation",null)){if(budget.moveToFirst())out.append(String.format(Locale.CHINA,"本数据库累计错误预算占用：%.8f / 0.05\n",budget.getDouble(0)));}
+                    try(Cursor alpha=store.readable().rawQuery("SELECT family_alpha,global_claim_ordinal,planned_opportunities FROM su1_eval_cohort WHERE evidence_role='CONFIRM' ORDER BY created_at DESC,global_claim_ordinal DESC LIMIT 1",null)){
+                        if(alpha.moveToFirst()){double j=alpha.getDouble(1),lookAlpha=alpha.getDouble(0)/(j*(j+1)*2);long needed=(long)Math.ceil(2*Math.log(1/lookAlpha)/(.02*.02));out.append(String.format(Locale.CHINA,"最近声明 α：%.10f；固定计划：%d机会\n下界半径降至2%%需约%d个完整配对机会。\n",lookAlpha,alpha.getInt(2),needed));}
+                    }
                     out.append("独立资格须以有效证书为准；历史成绩不会自动取得主链授权。\n");
                     try(Cursor c=store.readable().rawQuery("SELECT phase,detail FROM su1_health_event ORDER BY id DESC LIMIT 3",null)){while(c.moveToNext())out.append("最近状态：").append(c.getString(0)).append(' ').append(c.getString(1)).append('\n');}
                     result=out.toString();

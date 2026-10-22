@@ -22,6 +22,9 @@ public final class CertificateSU1 {
         double bv=Double.valueOf((String)b),ev=Double.valueOf((String)e),nv=Double.valueOf((String)base);if(!Double.isFinite(bv)||!Double.isFinite(ev)||bv>.24||bv>=nv||ev>.04||((Number)m.get("probabilityN")).intValue()<240||((Number)m.get("maxLossStreak")).intValue()>30)return false;
         List<?> blocks=(List<?>)m.get("blocks");if(blocks.size()!=4)return false;for(Object block:blocks){List<?> a=(List<?>)block;int n=((Number)a.get(0)).intValue(),k=((Number)a.get(1)).intValue();if(n<30||k/(double)n<=.30)return false;}return true;
     }
+    private static boolean controlsComplete(SQLiteDatabase db,String family,String evidence){
+        try(Cursor c=db.rawQuery("SELECT count(DISTINCT m.model_kind) FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id JOIN su1_strategy_version v ON v.strategy_id=c.strategy_id JOIN su1_model_artifact m ON m.artifact_hash=v.artifact_hash JOIN su1_eval_cohort main ON main.cohort_id=(SELECT cohort_id FROM su1_evidence_look WHERE evidence_hash=?) WHERE c.first_issue=main.first_issue AND c.planned_opportunities=main.planned_opportunities AND c.family_root_hash=? AND c.claim_kind='NULL_CONTROL' AND e.result_state='FAIL' AND e.coverage>=0.95 AND m.model_kind IN('NULL_BASELINE','SU1_SHUFFLED_LABEL_CONTROL')",new String[]{evidence,family})){c.moveToFirst();return c.getInt(0)==2;}
+    }
     public static Authority read(SQLiteDatabase db,String certificate,long now,boolean requireMainline){
         if(requireMainline&&!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='MAINLINE_ADAPTER' AND contract_hash=?",MainlineAdapterSU1.CONTRACT))return null;
         String baseline,kernel,descriptor,primaryMetrics;
@@ -32,7 +35,7 @@ public final class CertificateSU1 {
         CalibrationSU1 cal=CalibrationSU1.decode(CampaignStateSU1.localBlob(db,a.calibration));if(!cal.valid())return null;
         Map<String,Object> quality=StrictCanonicalJson.readObject(CampaignStateSU1.localBlob(db,a.quality));double latency=Double.valueOf((String)quality.get("latencyP95Ms"));if(!Double.isFinite(latency)||latency>100||((Number)quality.get("runs")).intValue()!=7||!a.strategy.equals(quality.get("strategy"))||!kernel.equals(quality.get("kernel")))return null;
         if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id WHERE c.family_root_hash=? AND c.claim_kind='NULL_CONTROL' AND e.result_state='PASS'",a.family))return null;
-        if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id WHERE c.family_root_hash=? AND c.claim_kind='NULL_CONTROL' AND e.result_state='FAIL' AND e.coverage>=0.95",a.family))return null;
+        if(!controlsComplete(db,a.family,baseline))return null;
         if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_runtime_program WHERE strategy_id=? AND kernel_hash=? AND coverage>=0.999",a.strategy,kernel))return null;
         return a;
     }
@@ -49,7 +52,7 @@ public final class CertificateSU1 {
         try(Cursor c=store.readable().rawQuery("SELECT c.strategy_id,e.evidence_hash,c.family_root_hash,e.source_chain_hash,e.metrics_json FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id JOIN su1_strategy_version v ON v.strategy_id=c.strategy_id JOIN su1_runtime_program k ON k.strategy_id=v.strategy_id WHERE c.claim_kind='VS_NULL_BASELINE' AND c.evidence_role='CONFIRM' AND e.result_state='PASS' AND v.calibration_state='FROZEN' AND k.kernel_hash=? AND NOT EXISTS(SELECT 1 FROM su1_certificate x WHERE x.baseline_evidence_hash=e.evidence_hash) ORDER BY e.recorded_at LIMIT 1",new String[]{TrainingCodeIdentityR964.SHA256})){while(c.moveToNext()){String[] row=new String[5];for(int i=0;i<5;i++)row[i]=c.getString(i);candidates.add(row);}}
         for(String[] r:candidates){
             if(!EvidenceQualitySU1.verifiedPass(store.readable(),r[1])||!metrics(r[4]))continue;
-            if(!StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id WHERE c.family_root_hash=? AND c.claim_kind='NULL_CONTROL' AND e.result_state='FAIL' AND e.coverage>=0.95",r[2]))continue;
+            if(!controlsComplete(store.readable(),r[2],r[1]))continue;
             String primary=r[1],source=r[3],parent=null;try(Cursor c=store.readable().rawQuery("SELECT parent_id FROM su1_runtime_program WHERE strategy_id=?",new String[]{r[0]})){if(c.moveToFirst())parent=c.getString(0);}
             if(parent!=null){try(Cursor c=store.readable().rawQuery("SELECT e.evidence_hash,e.source_chain_hash,e.metrics_json FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id WHERE c.strategy_id=? AND c.parent_strategy_id=? AND c.family_root_hash=? AND c.claim_kind='PARENT_CHILD' AND e.result_state='PASS' ORDER BY e.recorded_at DESC LIMIT 1",new String[]{r[0],parent,r[2]})){if(!c.moveToFirst()||!EvidenceQualitySU1.verifiedPass(store.readable(),c.getString(0))||!metrics(c.getString(2)))continue;primary=c.getString(0);source=c.getString(1);}}
             String quality=resource(store,r[0]);if(quality==null)continue;Map<String,Object> measured=StrictCanonicalJson.readObject(quality);if(Double.valueOf((String)measured.get("latencyP95Ms"))>100)continue;

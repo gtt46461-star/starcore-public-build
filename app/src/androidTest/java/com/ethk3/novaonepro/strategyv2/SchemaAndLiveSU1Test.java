@@ -22,9 +22,9 @@ public final class SchemaAndLiveSU1Test {
     @Test public void migrationRollbackAndRestartPreserveLegacyRows(){
         try(SQLiteDatabase db=database()){
             db.execSQL("INSERT INTO draws VALUES('202610210001',0,100,1,2,3,4,5,6,7,8,9,10)");
-            StrategySchemaSU1.advance(db);int before=StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_migration_unit");
+            StrategySchemaSU1.advance(db);int before=StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_migration_unit_v2");
             db.beginTransaction();try{StrategySchemaSU1.advance(db);}finally{db.endTransaction();}
-            assertEquals(before,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_migration_unit"));ready(db);assertTrue(StrategySchemaSU1.ready(db));
+            assertEquals(before,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_migration_unit_v2"));ready(db);assertTrue(StrategySchemaSU1.ready(db));
             assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM draws WHERE n1=1 AND n10=10"));
             db.execSQL("DROP TRIGGER su1_live_shadow_settle");assertFalse("READY ignored missing trigger",StrategySchemaSU1.ready(db));
         }
@@ -48,6 +48,7 @@ public final class SchemaAndLiveSU1Test {
             try{settle(db,draw,hash,open+10);fail("non-completed label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
             db.execSQL("UPDATE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" SET status='COMPLETED'");
             assertEquals(1,settle(db,draw,hash,open+10));assertEquals(0,settle(db,draw,hash,open+10));
+            assertEquals(1,StrategyRepositorySU1.count(db,"SELECT actions FROM su1_live_arm_stats WHERE arm='EXPERT_MIX'"));
             draw.numbers[0]=2;draw.numbers[1]=1;try{settle(db,draw,hash,open+10);fail("forged canonical label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
             try(Cursor c=db.rawQuery("SELECT hit FROM su1_live_shadow",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getInt(0));}
             LiveShadowLoopSU1.closeDays(db,20261022);assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_live_daily WHERE actions=1 AND hits=1"));
@@ -69,6 +70,33 @@ public final class SchemaAndLiveSU1Test {
             db.beginTransaction();try{EvidenceQualitySU1.publish(db,look);db.setTransactionSuccessful();}finally{db.endTransaction();}
             assertFalse(EvidenceQualitySU1.verifiedPass(db,look.hash));assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_opportunity_outcome"));
             try(Cursor c=db.rawQuery("PRAGMA foreign_key_check",null)){assertFalse(c.moveToFirst());}
+        }
+    }
+    @Test public void lifetimeBudgetCannotBeRefundedAndMainlineStaysClosed(){
+        try(SQLiteDatabase db=database()){
+            ready(db);assertNull(CertificateSU1.read(db,HashingSU1.text("no certificate"),System.currentTimeMillis(),true));
+            db.beginTransaction();try{
+                String root=HashingSU1.text("lifetime root"),claim=HashingSU1.text("claim");double alpha=AlphaLedgerSU1.family(db,root);AlphaLedgerSU1.reserveClaim(db,claim,alpha,1);
+                int count=StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation");AlphaLedgerSU1.reserveClaim(db,claim,alpha,1);assertEquals(count,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));
+                try{db.execSQL("DELETE FROM su1_alpha_reservation");fail("alpha refunded");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+                try{db.execSQL("INSERT INTO su1_alpha_reservation VALUES('overspend','SU1',0.05,1)");fail("global cap exceeded");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+                db.setTransactionSuccessful();
+            }finally{db.endTransaction();}
+        }
+    }
+    @Test public void sameNamedReplacementTriggerDoesNotCountAsReady(){
+        try(SQLiteDatabase db=database()){
+            ready(db);db.execSQL("DROP TRIGGER su1_live_shadow_settle");db.execSQL("CREATE TRIGGER su1_live_shadow_settle BEFORE UPDATE ON su1_live_shadow BEGIN SELECT 1; END");assertFalse("altered trigger was accepted",StrategySchemaSU1.ready(db));
+        }
+    }
+    @Test public void previewUpgradeKeepsV1ReceiptsAndAssets()throws Exception{
+        try(SQLiteDatabase db=database();java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("su1_preview_v1.json")){
+            java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] block=new byte[4096];int length;while((length=input.read(block))!=-1)bytes.write(block,0,length);
+            org.json.JSONArray old=new org.json.JSONArray(bytes.toString("UTF-8"));db.execSQL("CREATE TABLE su1_migration_unit(unit INTEGER PRIMARY KEY,sql_hash TEXT NOT NULL,installed_at INTEGER NOT NULL)");
+            for(int i=0;i<old.length();i++){String sql=old.getString(i);db.execSQL(sql);db.execSQL("INSERT INTO su1_migration_unit VALUES(?,?,1)",new Object[]{i,HashingSU1.text(sql)});}
+            String asset;db.beginTransaction();try{asset=PromotionPipelineSU1.nullBaseline(db);db.setTransactionSuccessful();}finally{db.endTransaction();}
+            assertFalse(StrategySchemaSU1.ready(db));ready(db);assertTrue(StrategySchemaSU1.ready(db));assertEquals(old.length(),StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_migration_unit"));
+            assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=?",asset));assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM pragma_table_info('su1_runtime_program') WHERE name='kernel_hash'"));
         }
     }
 }

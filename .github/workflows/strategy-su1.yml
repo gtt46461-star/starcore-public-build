@@ -40,7 +40,7 @@ jobs:
       - name: Verify and name the installable APK
         run: |
           mkdir -p delivered-apk
-          cp app/build/outputs/apk/debug/app-debug.apk delivered-apk/STARCORE-SU1.apk
+          python3 -c 'from pathlib import Path; import shutil; files=list(Path("app/build/outputs/apk/debug").glob("*.apk")); assert len(files)==1,files; shutil.copyfile(files[0],"delivered-apk/STARCORE-SU1.apk")' 
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs delivered-apk/STARCORE-SU1.apk > delivered-apk/signature.txt
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging delivered-apk/STARCORE-SU1.apk > delivered-apk/package.txt
           python3 -c 'from pathlib import Path; p=Path("delivered-apk/package.txt").read_text(); assert "com.starcore.research.su1" in p and "星核创研 SU1" in p, p'
@@ -91,7 +91,7 @@ jobs:
             adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
             adb shell am instrument -w -e class com.ethk3.novaonepro.strategyv2.SchemaAndLiveSU1Test com.starcore.research.su1.test/androidx.test.runner.AndroidJUnitRunner > android-su1.txt
             cat android-su1.txt
-            python3 -c 'from pathlib import Path; x=Path("android-su1.txt").read_text(); assert "OK (3 tests)" in x and "FAILURES" not in x, x'
+            python3 -c 'from pathlib import Path; x=Path("android-su1.txt").read_text(); assert "OK (6 tests)" in x and "FAILURES" not in x, x'
             adb shell am start -n com.starcore.research.su1/com.ethk3.novaonepro.MainActivity
             adb shell screencap -p /sdcard/su1-launch.png
             adb pull /sdcard/su1-launch.png su1-launch.png

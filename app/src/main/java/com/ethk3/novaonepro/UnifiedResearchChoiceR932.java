@@ -187,7 +187,12 @@ public final class UnifiedResearchChoiceR932 {
                 if(choice.moveToFirst()){
                     com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority a=com.ethk3.novaonepro.strategyv2.CertificateSU1.read(store.readable(),choice.getString(1),System.currentTimeMillis(),true);
                     if(a==null||com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.authority(store,choice.getString(0),a.program,target,a.certificate)==null)return null;
-                    return new Evidence(a.candidate(),a.program,a.certificate,a.evidence,new HashMap<String,Double>());
+                    Map<String,Double> metrics=new HashMap<String,Double>();
+                    try(Cursor look=store.readable().rawQuery("SELECT planned_opportunities,paired_n,child_hits,coverage,paired_delta,metrics_json FROM su1_evidence_look WHERE evidence_hash=?",new String[]{a.evidence})){
+                        if(!look.moveToFirst())return null;int n=look.getInt(1),k=look.getInt(2);metrics.put("FUTURE_N",(double)look.getInt(0));metrics.put("PAIRED_N",(double)n);metrics.put("HIT_RATE",n==0?Double.NaN:k/(double)n);metrics.put("WILSON_LOWER",n==0?Double.NaN:com.ethk3.novaonepro.strategyv2.FoldStabilityFitnessSU1.wilsonLower(k,n));metrics.put("COVERAGE",look.getDouble(3));metrics.put("PAIRED_DELTA",look.isNull(4)?Double.NaN:look.getDouble(4));
+                        Map<String,Object> quality=com.ethk3.novaonepro.r952.StrictCanonicalJson.readObject(look.getString(5));metrics.put("BRIER",Double.valueOf((String)quality.get("brier")));metrics.put("ECE",Double.valueOf((String)quality.get("ece")));
+                    }
+                    return new Evidence(a.candidate(),a.program,a.certificate,a.evidence,metrics);
                 }
             }
         }
