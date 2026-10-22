@@ -3379,10 +3379,7 @@ public final class MainActivity extends Activity {
                 : snapshot.state.serviceStatus;
         String apiLine = snapshot.state == null ? stateOf(snapshot, "api_line")
                 : snapshot.state.apiLine;
-        setText(txtApiLine, KeyProvider.isKeyReady()
-                ? "接口：" + UiFormatter.apiLineText(apiLine)
-                    + (KeyProvider.usesReleaseDefault() ? "｜已内置密钥，可点击修改" : "｜设备密钥，可点击修改")
-                : "接口凭据未就绪｜点击配置");
+        setText(txtApiLine, ApiCredentialSettingsCP12.endpointStatus(apiLine));
         setText(txtRuntimeStatus, buildRuntimeText(snapshot.state, status, snapshot)
                 + "\n状态读取目标=" + safeDash(snapshot.targetIssue)
                 + "｜当前显示目标=" + safeDash(displayedTarget)
@@ -3788,9 +3785,7 @@ public final class MainActivity extends Activity {
             setText(txtTargetIssue, "目标期：" + safeDash(targetIssue));
 
             String apiLine = state == null ? stateOf(snapshot, "api_line") : state.apiLine;
-            setText(txtApiLine, KeyProvider.isKeyReady()?"接口：" + UiFormatter.apiLineText(apiLine)
-                    + (KeyProvider.usesReleaseDefault()?"｜已内置密钥，可点击修改":"｜设备密钥，可点击修改")
-                    :"接口凭据未就绪｜点击配置");
+            setText(txtApiLine, ApiCredentialSettingsCP12.endpointStatus(apiLine));
 
             String runtime = buildRuntimeText(state, status, snapshot);
             setText(txtRuntimeStatus, runtime);

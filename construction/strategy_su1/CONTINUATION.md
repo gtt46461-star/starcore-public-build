@@ -15,7 +15,7 @@
 
 ## 接口打包
 
-`BinanceGameContract` 内置主 `https://api.duoqu.online/data` 和备 `https://api1.duoqu.online/data`，游戏代码 `Binance1-PK10`。首次安装不用手填地址。当前缺少服务要求的 API key，之前空key构建不能自动取数。本工作流读取 Actions secret `DUOQU_API_KEY` 注入，不公开密钥；凭据非空时 Android 还实际请求、解析并验证最新开奖。没有凭据时继续编译数值/Android测试，但最终可直接取数的安装包发布保持阻断。打包时的 `API_CONFIGURATION.txt` 明确是否内置凭据，不输出密钥值。
+`BinanceGameContract` 内置主 `https://api.duoqu.online/data` 和备 `https://api1.duoqu.online/data`，游戏代码 `Binance1-PK10`。首次安装不用手填地址；首页、凭据设置页及研究页均显示主/备完整地址。当前缺少服务要求的 API key，之前空key构建不能自动取数。本工作流读取 Actions secret `DUOQU_API_KEY` 注入，不公开密钥；凭据非空时 Android 还实际请求、解析并验证最新开奖。没有凭据时继续编译数值/Android测试，但最终可直接取数的安装包发布保持阻断。打包时的 `API_CONFIGURATION.txt` 明确是否内置凭据，不输出密钥值。
 
 ## 数值回执和验收边界
 

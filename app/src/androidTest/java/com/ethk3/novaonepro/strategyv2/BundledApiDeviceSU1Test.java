@@ -15,6 +15,11 @@ public final class BundledApiDeviceSU1Test {
         assertEquals("https://api.duoqu.online/data", BinanceGameContract.primary().endpoint());
         assertEquals("https://api1.duoqu.online/data", BinanceGameContract.backup().endpoint());
         assertEquals("Binance1-PK10", BinanceGameContract.GAME_CODE);
+        assertEquals(com.ethk3.novaonepro.AppConfig.API_PRIMARY_BASE, BinanceGameContract.PRIMARY_BASE);
+        assertEquals(com.ethk3.novaonepro.AppConfig.API_BACKUP_BASE, BinanceGameContract.BACKUP_BASE);
+        String visible=com.ethk3.novaonepro.ApiCredentialSettingsCP12.endpointStatus("");
+        assertTrue("Main screen hides the bundled primary endpoint",visible.contains(BinanceGameContract.primary().endpoint()));
+        assertTrue("Main screen hides the bundled backup endpoint",visible.contains(BinanceGameContract.backup().endpoint()));
         boolean configured = !(BuildConfig.DUOQU_API_KEY_A + BuildConfig.DUOQU_API_KEY_B).trim().isEmpty();
         assertEquals("Bundled credential readiness disagrees with compiled configuration", configured, KeyProvider.isKeyReady());
         if (configured) {

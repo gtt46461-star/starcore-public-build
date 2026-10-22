@@ -3,6 +3,10 @@ import android.app.*;import android.content.DialogInterface;import android.os.Bu
 /** Foreground private credential entry; keystore/file work is owned by KeyProvider's worker. */
 public final class ApiCredentialSettingsCP12 {
  private ApiCredentialSettingsCP12(){}
+ public static String endpointStatus(String apiLine){
+  return "主接口："+BinanceGameContract.primary().endpoint()+"\n备用接口："+BinanceGameContract.backup().endpoint()
+   +"\n"+(KeyProvider.isKeyReady()?"连接："+UiFormatter.apiLineText(apiLine)+(KeyProvider.usesReleaseDefault()?"｜凭据已内置，可点击修改":"｜设备凭据，可点击修改"):"访问凭据未就绪｜点击配置");
+ }
  public static void show(Activity activity,Runnable afterSaved){
   EditText input=new EditText(activity);input.setSingleLine(true);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128)});input.setHint("数据接口 API Key");
   if(Build.VERSION.SDK_INT>=26)input.setImeOptions(input.getImeOptions()|EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
