@@ -20,7 +20,10 @@ BUILD_INPUTS = ('scripts/cp4_compile_catalog.py', 'scripts/cp4_compile_molecule_
                 'scripts/verify_catalog_assets_cp12.py', 'scripts/r817_generate_provenance.sh',
                 'scripts/r815_generate_provenance.py', 'scripts/r815_generate_provenance.sh',
                 'scripts/r926_release_manifest.py', 'scripts/r997_construction_assets.py',
-                'scripts/opt299_stage_build.py')
+                'scripts/opt299_stage_build.py', 'scripts/generate_strategy_su1_schema.py',
+                'scripts/prepare_strategy_su1_identity.py', 'scripts/verify_strategy_su1.py',
+                'release/strategy_su1_reviewed_inputs.json', 'schema/strategy_su1.sql',
+                'schema/strategy_su1_foundry.sql', 'schema/strategy_su1_runtime.sql')
 
 def canonical(value):
     return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(',', ':'), allow_nan=False)

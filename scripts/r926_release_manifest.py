@@ -42,7 +42,7 @@ def load() -> dict:
         raise SystemExit("R926_MANIFEST_MISSING_SCHEMA:" + ",".join(missing))
     if obj["formatVersion"] != 1:
         raise SystemExit("R926_MANIFEST_FORMAT_UNSUPPORTED")
-    if obj["applicationId"] != "com.ethk3.novaonepro":
+    if (obj["applicationId"], obj["product"]) not in (("com.ethk3.novaonepro", "STARCORE_TIANSHU"), ("com.starcore.research.su1", "STARCORE_SU1_RESEARCH")):
         raise SystemExit("R926_APPLICATION_ID_DRIFT")
     if obj["gameCode"] != "Binance1-PK10":
         raise SystemExit("R926_GAME_CODE_DRIFT")

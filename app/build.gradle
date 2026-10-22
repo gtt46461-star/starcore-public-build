@@ -59,7 +59,7 @@ def releaseApiKeySplit = releaseApiKey.length().intdiv(2)
 def releaseApiKeyA = releaseApiKey.substring(0, releaseApiKeySplit)
 def releaseApiKeyB = releaseApiKey.substring(releaseApiKeySplit)
 android {
-    namespace requiredIdentity('applicationId')
+    namespace 'com.ethk3.novaonepro'
     buildToolsVersion '36.0.0'
     compileSdk Integer.parseInt(requiredIdentity('compileSdk'))
     ndkVersion "28.2.13676358"

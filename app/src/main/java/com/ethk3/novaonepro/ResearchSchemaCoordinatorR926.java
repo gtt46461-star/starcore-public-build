@@ -80,7 +80,8 @@ public final class ResearchSchemaCoordinatorR926 {
                     && com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.readyR80(db)
                     && MultiHorizonProbeR80.readyR80(db)
                     && com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(db)
-                    && com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.ready(db)) {
+                    && com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.ready(db)
+                    && com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.ready(db)) {
                 state = "READY"; cursor = "COMPLETE"; error = ""; failureCause=null; return true;
             }
             long now = System.currentTimeMillis();
@@ -99,6 +100,8 @@ public final class ResearchSchemaCoordinatorR926 {
                     // additive helper commits per writer callback; its DDL, journal and updated
                     // baseline fingerprint commit together, so restart never replays old units.
                     cursor = nextAdditiveStep(db);
+                    if (com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(cursor)
+                            && !com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db)) return false;
                     installAdditiveStep(db, contract, cursor, true);
                     if (!"VERIFY".equals(nextAdditiveStep(db))) {
                         state="INITIALIZING"; cursor=nextAdditiveStep(db); error=""; return false;
@@ -131,6 +134,8 @@ public final class ResearchSchemaCoordinatorR926 {
                         return false;
                     SchemaDomainCoordinatorR926.runStep(db, contract, step, x -> {});
                 } else if (isAdditiveStep(step)) {
+                    if (com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(step)
+                            && !com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db)) return false;
                     installAdditiveStep(db, contract, step, false);
                 }
                 String remaining = nextStep(db, contract);
@@ -181,7 +186,8 @@ public final class ResearchSchemaCoordinatorR926 {
         return "R79_MATRIX_READY_ORDER_V1".equals(step) || "R79_LEGACY_ORIGINAL_PROOF_V1".equals(step)
                 || "R80_BOUND_ATOM_ORIGINAL_INPUT_V1".equals(step) || "R80_MULTI_HORIZON_PROBE_V1".equals(step)
                 || com.ethk3.novaonepro.r952.LongScaleSummaryR80.SCHEMA_STEP.equals(step)
-                || com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SCHEMA_STEP.equals(step);
+                || com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SCHEMA_STEP.equals(step)
+                || com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(step);
     }
 
     private static void installAdditiveStep(SQLiteDatabase db, SchemaDomainCoordinatorR926.Contract contract,
@@ -215,6 +221,8 @@ public final class ResearchSchemaCoordinatorR926 {
                     } else if (com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SCHEMA_STEP.equals(step)) {
                         com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.schema(x);
                         if (!com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.ready(x)) throw new IllegalStateException("LONG_REGISTRATION_SCHEMA_NOT_READY");
+                    } else if (com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP.equals(step)) {
+                        if (!com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.ready(x)) throw new IllegalStateException("SU1_SCHEMA_NOT_READY");
                     } else throw new IllegalStateException("UNKNOWN_ADDITIVE_STEP:" + step);
                 });
             }
@@ -230,6 +238,7 @@ public final class ResearchSchemaCoordinatorR926 {
         if (!MultiHorizonProbeR80.readyR80(db)) return "R80_MULTI_HORIZON_PROBE_V1";
         if (!com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(db)) return com.ethk3.novaonepro.r952.LongScaleSummaryR80.SCHEMA_STEP;
         if (!com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.ready(db)) return com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.SCHEMA_STEP;
+        if (!com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.ready(db)) return com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.STEP;
         return "VERIFY";
     }
 

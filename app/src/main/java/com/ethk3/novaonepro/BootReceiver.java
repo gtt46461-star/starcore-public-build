@@ -254,6 +254,7 @@ public final class BootReceiver extends BroadcastReceiver {
                         AppConfig.SERVICE_WATCHDOG_ALARM_DELAY_MS,
                         AppConfig.B07R2_RUNTIME_GUARD_INTERVAL_MS));
         scheduleJobWatchdog(context, reason);
+        com.ethk3.novaonepro.strategyv2.ReplayBurstSchedulerSU1.schedule(appContext(context));
     }
 
     public static void scheduleWatchdog(Context context, String reason, long delayMs) {
@@ -352,6 +353,7 @@ public final class BootReceiver extends BroadcastReceiver {
 
     public static void cancelAllRecovery(Context context, String reason) {
         if (context == null) return;
+        com.ethk3.novaonepro.strategyv2.ReplayBurstSchedulerSU1.cancel(appContext(context));
         Context app = appContext(context);
         try {
             AlarmManager am = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);

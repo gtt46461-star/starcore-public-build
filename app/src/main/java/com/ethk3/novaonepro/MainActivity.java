@@ -1089,6 +1089,8 @@ public final class MainActivity extends Activity {
                         }
                     });
         }
+        View su1Research=findViewById(R.id.btn_su1_research);
+        if(su1Research!=null)su1Research.setOnClickListener(v->startActivity(new Intent(MainActivity.this,com.ethk3.novaonepro.strategyv2.StrategyResearchActivitySU1.class)));
         if (btnOpenDatabaseHealth != null) {
             btnOpenDatabaseHealth.setOnClickListener(
                     new View.OnClickListener() {
@@ -9456,5 +9458,13 @@ public final class MainActivity extends Activity {
         } catch (Throwable e) {
             throw new IllegalStateException("B15_DBSTORE_RESOLVE_FAILED", e);
         }
+    }
+    @Override public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        menu.add(0,0x535531,0,R.string.su1_research_title);
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        if(item.getItemId()==0x535531){startActivity(new Intent(this,com.ethk3.novaonepro.strategyv2.StrategyResearchActivitySU1.class));return true;}
+        return super.onOptionsItemSelected(item);
     }
 }

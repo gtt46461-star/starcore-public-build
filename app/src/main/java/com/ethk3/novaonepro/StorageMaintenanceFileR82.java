@@ -82,12 +82,16 @@ public final class StorageMaintenanceFileR82 {
         if(current.equals(newHash)) {requireHash(old,oldHash,"retained original backup");p.setProperty("state","INSTALLED");write(receipt(db),p);if(out.exists())throw new IOException("duplicate candidate after installation");remove(j);return "RECOVERED_INSTALLED_VERIFIED_COPY_BACKUP_RETAINED";}
         throw new IOException("uncertain interrupted swap: preserved all files for recovery");
     }
+    // Physical free bytes on the exact database filesystem are a conservative preflight.
+    // Quotas/other writers can still reject I/O; verified-copy failures preserve the original.
+    @SuppressWarnings("UsableSpace")
     public static Receipt rebuildAndSwap(File database)throws IOException {
         File db=database.getCanonicalFile();recover(db);File out=candidate(db),old=backup(db),j=journal(db);
         if(!db.isFile())throw new IOException("original database missing");
         if(old.exists()||receipt(db).exists())throw new IOException("retained backup must be handled before another rebuild");
         if(out.exists())throw new IOException("unowned rebuilt file exists; preserved");clearClosedSidecars(db);
         long before=db.length();long free=db.getParentFile().getUsableSpace();
+        if(free<=0)throw new IOException("filesystem free-byte measurement unavailable or empty; source preserved");
         long required=before>Long.MAX_VALUE/2?Long.MAX_VALUE:before+Math.max(64L*1024*1024,before/10);
         if(free<required)throw new IOException("insufficient free space for verified offline copy: required="+required+" available="+free);
         String oldHash=sha256(db),proof=nativeRebuild(db.getPath(),out.getPath());

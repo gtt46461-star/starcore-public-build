@@ -1,0 +1,101 @@
+﻿requirement_id,capability,requirement,design_chapter,implementation_batch,acceptance_id,status,evidence_required
+SU1-R001,基线,以完整源码 SHA 固定构建、测试、模型接口及旧证据；不得以 main 签名归档分支代替软件基线,docs/07_Batches_Compatibility_Acceptance.md,U01,A-U01-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R002,兼容,逐项保留 C025-C030 语义并记录 base/current/theirs 哈希与方法级冲突决策,docs/07_Batches_Compatibility_Acceptance.md,U01,A-U01-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R003,构建,解决已存在的三项 lint 阻断并运行标准 Android unit/lint，禁止仅用 host stub 代替,docs/07_Batches_Compatibility_Acceptance.md,U01,A-U01-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R004,兼容,AST3 旧策略的解析、结构身份、模型参数和历史预测 golden 不变,docs/01_System_Contracts_And_Integration.md,U01,A-U01-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R005,身份,SU1 采用独立前缀、包名和严格协议，未知字段/算子/版本明确拒绝,docs/01_System_Contracts_And_Integration.md,U02,A-U02-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R006,身份,结构、数据、训练、选择、校准、状态更新和运行语义分别绑定且整体可追溯,docs/01_System_Contracts_And_Integration.md,U02,A-U02-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R007,迁移,DDL 作为字段唯一权威；su1_* 表增量安装和索引验证完成后才标 READY,docs/05_Storage_Runtime_Integration.md,U02,A-U02-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R008,迁移,每迁移步骤支持重复执行和崩溃恢复；既有开奖/模型/历史证据不删除,docs/05_Storage_Runtime_Integration.md,U02,A-U02-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R009,时点,所有训练及预测快照满足 sourceIssue < targetIssue，禁止当前/未来标签读取,docs/05_Storage_Runtime_Integration.md,U02,A-U02-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R010,来源,快照包含来源版本、maxSourceIssue、缺失掩码和内容 hash，重放不查询当前态替代,docs/02_Atomic_Relation_Matrix.md,U02,A-U02-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R011,原子,每种实体和关系明确输入类型、位置/号码/时间轴、单位、方向、滞后、合法域,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R012,原子,把事实、结构约束、统计估计、研究假说分型，不能把 1+4=5 组合等同生成原因,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R013,关系,实现多位置、号码集合、转移、相对位移、状态条件与不同记忆尺度的可组合关系,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R014,矩阵,矩阵存储支持度、分母、条件切片、时间范围、缺失状态及收缩前后估计,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R015,矩阵,低支持关系执行收缩或 UNKNOWN，不能用默认零冒充无关系,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R016,约束,同期开奖不重复等确定性排列约束与下一期预测增益分别验收,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R017,消融,关系删除、置乱和替换消融以共同样本计增量，输出负对照结果,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R018,效率,稀疏关系增量更新与全量重算一致，缓存身份含数据/关系/时间边界,docs/02_Atomic_Relation_Matrix.md,U03,A-U03-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R019,DSL,策略包含表示、状态、专家、选择、拒绝及更新策略，而非只有一个标量公式,docs/04_Creation_Evolution.md,U04,A-U04-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R020,DSL,SET10/SCORE10/BOOL 等类型不能隐式互换，非法号码和越界 shape 编译即拒绝,docs/04_Creation_Evolution.md,U04,A-U04-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R021,DSL,程序依赖图无环且无未来访问；循环状态限定步数和可更新时机,docs/04_Creation_Evolution.md,U04,A-U04-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R022,DSL,编译估计内存/算力/历史窗口并拒绝超预算完整程序,docs/04_Creation_Evolution.md,U04,A-U04-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R023,DSL,结构规范化和确定性执行使同输入/同状态产生同预测及相同解释链,docs/04_Creation_Evolution.md,U04,A-U04-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R024,DSL,状态初始化、读取、结算后更新和产物续训边界有明确事务规则,docs/04_Creation_Evolution.md,U04,A-U04-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R025,集成,SU1 独立 parser/compiler，旧 CandidateCompiler 仅加协议路由桥,docs/04_Creation_Evolution.md,U04,A-U04-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R026,学习,关系编码、时间状态和号码/专家输出联合训练，登记每层参数与梯度路径,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R027,学习,训练日志证明真实参数更新且更新后的权重被导出和推理消费,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R028,学习,损失函数明确概率目标、状态平滑、校准/复杂度/资源项及选择数据边界,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R029,学习,使用相同时间块对照父模型、简单基准、无关系、无记忆及随机标签模型,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R030,学习,按时间分离训练、结构选择、校准、独立评估；归一化只拟合训练段,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R031,学习,状态识别只用过去信息；禁止用已知事后行情分段提升验证成绩,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R032,学习,模型失败按误差/漂移/样本支持/资源等来源拆解，训练命中率不作自然资格,docs/03_Trainable_Relational_State_Model.md,U05,A-U05-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R033,导出,产物清单绑定图结构、算子、张量形状、归一化、数据、参数和协议 hash,docs/03_Trainable_Relational_State_Model.md,U06,A-U06-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R034,推理,Python 与 Java 对同输入逐层和最终输出比较，容差和并列 top3 规则预先固定,docs/03_Trainable_Relational_State_Model.md,U06,A-U06-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R035,产物,损坏、缺项、错误协议、未支持算子产物不能激活；激活需原子指针切换,docs/05_Storage_Runtime_Integration.md,U06,A-U06-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R036,续训,续训绑定父产物、优化器、状态和数据版本，变化不得冒用父代正式证据,docs/03_Trainable_Relational_State_Model.md,U06,A-U06-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R037,校准,四校准旧合同保留；SU1 校准使用独立拟合/选择/检验口径和产物身份,docs/03_Trainable_Relational_State_Model.md,U06,A-U06-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R038,创造,搜索关系子图、记忆机制、专家构造、门控和决策程序等结构空间,docs/04_Creation_Evolution.md,U07,A-U07-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R039,创造,类型合法变异必须改变真实执行图且重新编译、训练、导出、登记身份,docs/04_Creation_Evolution.md,U07,A-U07-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R040,创造,保留多策略族档案并对语义等价候选去重，禁止仅换名称产生新资产,docs/04_Creation_Evolution.md,U07,A-U07-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R041,创造,建立静态筛查→廉价训练→开发滚动检验→独立冻结试验的逐级成本控制,docs/04_Creation_Evolution.md,U07,A-U07-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R042,创造,保存所有候选尝试和淘汰原因，错误预算包含被筛选的尝试而非仅最终赢家,docs/04_Creation_Evolution.md,U07,A-U07-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R043,研究策略,研究任务调度依据情境、失败类型、历史收益和成本，同时保留显式探索预算,docs/04_Creation_Evolution.md,U07,A-U07-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R044,归因,缺失/时点失真/状态错判/排序/校准/覆盖/资源失败分开编码并可复现,docs/04_Creation_Evolution.md,U08,A-U08-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R045,归因,研究归因由共同样本诊断与受控消融支持，不用单次中奖或号码解释代替因果,docs/04_Creation_Evolution.md,U08,A-U08-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R046,融合,候选融合以共同样本残差互补和可预测门控为依据，联合训练后重开证据,docs/04_Creation_Evolution.md,U08,A-U08-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R047,融合,高相似同错误双亲不能靠平均分自动晋级，额外复杂度成本必须计入,docs/04_Creation_Evolution.md,U08,A-U08-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R048,研究记忆,情境、假设、动作、成本、结果和证据形成可检索记录并实际改变后续提议,docs/04_Creation_Evolution.md,U08,A-U08-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R049,研究记忆,禁用记忆对照能测动作质量/重复失败/资源收益，不以记忆条数验收智能,docs/04_Creation_Evolution.md,U08,A-U08-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R050,谱系,多个研究分支与单一正式晋级主干分离；失败子代不得前移生产指针,docs/04_Creation_Evolution.md,U08,A-U08-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R051,冻结,在开奖结果可用前持久冻结目标、策略、模型、快照、状态、概率及号码选择,docs/05_Storage_Runtime_Integration.md,U09,A-U09-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R052,冻结,冻结记录不可修改；重复请求必须比较内容身份，不得静默覆盖,docs/05_Storage_Runtime_Integration.md,U09,A-U09-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R053,结算,结算只能来自已完成的 canonical draw；每预测仅产生一条一致结算,docs/05_Storage_Runtime_Integration.md,U09,A-U09-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R054,恢复,post-COMPLETED 通知与持久 outbox/补扫联合保证断电、重复、乱序不漏结算,docs/05_Storage_Runtime_Integration.md,U09,A-U09-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R055,统计,每个命中率显示冻结/结算/命中/拒绝/可用机会计数和清晰覆盖分母,docs/06_Evidence_Quality_Promotion.md,U09,A-U09-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R056,统计,n=0 和样本不足必须 UNKNOWN/WAIT；不能把默认 Brier/ECE=1 当实测值,docs/06_Evidence_Quality_Promotion.md,U09,A-U09-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R057,统计,父子在共同机会集合比较配对提升，同时检验覆盖、校准与风险,docs/06_Evidence_Quality_Promotion.md,U09,A-U09-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R058,统计,固定样本/重复监测统计口径预先冻结；不得反复看普通 Wilson 后择时晋级,docs/06_Evidence_Quality_Promotion.md,U09,A-U09-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R059,统计,多候选尝试记入误差控制，最终独立队列不回灌同轮搜索后重复使用,docs/06_Evidence_Quality_Promotion.md,U09,A-U09-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R060,证书,证书绑定完整身份、队列、协议、有效期和撤销；训练/开发赢家不能直接签证,docs/06_Evidence_Quality_Promotion.md,U09,A-U09-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R061,主链,研究器只产候选，DecisionGateEngine 和 SettlementEngine 保持原唯一 owner,docs/05_Storage_Runtime_Integration.md,U10,A-U10-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R062,主链,无证、过期、错目标、错模型、撤销或健康失败在进入 REAL 前拒绝,docs/05_Storage_Runtime_Integration.md,U10,A-U10-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R063,主链,单期最多一条 REAL、既有位置/固定 3 号码规则与并发幂等保持不变,docs/05_Storage_Runtime_Integration.md,U10,A-U10-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R064,晋级,父子晋级规则预登记，命中、下界、覆盖、稳定、成本作为联合约束,docs/06_Evidence_Quality_Promotion.md,U10,A-U10-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R065,晋级,主干只在满足证据条件后前移，不合格时继续父代并保留研究分支,docs/06_Evidence_Quality_Promotion.md,U10,A-U10-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R066,隔离,SU1 先 shadow，研究任务不能阻塞开奖写事务/原抓取/原结算,docs/05_Storage_Runtime_Integration.md,U10,A-U10-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R067,保留,活动模型/未结算/开放队列/证书/谱系依赖都有传递 pin 与可核验归档收据,docs/05_Storage_Runtime_Integration.md,U11,A-U11-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R068,保留,归档→校验→CAS确认→回收的顺序固定，崩溃不会丢正式证据,docs/05_Storage_Runtime_Integration.md,U11,A-U11-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R069,预算,训练、搜索、预测、读取均有内存/时间/磁盘/并发预算与取消/续做语义,docs/05_Storage_Runtime_Integration.md,U11,A-U11-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R070,设备,性能指标在目标 Android 设备测 P50/P95/P99、峰值内存和持续热负载,docs/05_Storage_Runtime_Integration.md,U11,A-U11-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R071,诊断,能力链逐项报告实际输入/输出/更新次数/阻断/支持度；不以模块存在即算有效,docs/05_Storage_Runtime_Integration.md,U11,A-U11-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R072,展示,排行榜只读真实冻结结算证据，同口径展示命中、区间、覆盖、模型代次和状态,docs/06_Evidence_Quality_Promotion.md,U11,A-U11-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R073,组合验收,同一源码 SHA 下累积执行类型、PIT、训练、并发、迁移、结算、主链、资源合同,docs/07_Batches_Compatibility_Acceptance.md,U12,A-U12-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R074,发布,使用原生成任务更新语义和构建身份，generated 文件禁止手工造证,docs/07_Batches_Compatibility_Acceptance.md,U12,A-U12-01,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R075,安装,同签名覆盖安装验证旧数据库、旧资产、未结算和新表保留，版本号真实递增,docs/07_Batches_Compatibility_Acceptance.md,U12,A-U12-02,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R076,证据,工程测试、设备运行、独立自然样本资格分别报告，WAIT 不得改名为 PASS,docs/07_Batches_Compatibility_Acceptance.md,U12,A-U12-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R077,回滚,代码/模型/开关可独立回滚，数据库只前向兼容，预测结算和证书撤销保留,docs/07_Batches_Compatibility_Acceptance.md,U12,A-U12-03,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R078,统计,错误预算只有一个不可改删的全安装终身根；家族按序号取 α_k≤α/(k(k+1))，新根/新版本/重装不能重获 α,docs/09_Null_Baseline_Power_And_Review.md,U02,A-U02-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R079,统计,实现 SU1_NULL_BASELINE_V1：只依赖登记前种子与目标期的均匀伪策略，Python/Java 逐字节一致，每个机会都冻结,docs/09_Null_Baseline_Power_And_Review.md,U09,A-U09-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R080,证书,任何证书必须具备对零优势伪策略的 VS_NULL_BASELINE 确认声明；仅胜过父代不能签证,docs/09_Null_Baseline_Power_And_Review.md,U10,A-U10-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R081,统计,SHAM_PAIR 与 SHUFFLED_LABEL 负对照共享候选机会集；任一 PASS 触发家族告警并阻断签证与主链绑定,docs/09_Null_Baseline_Power_And_Review.md,U09,A-U09-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R082,统计,"下界半径由 α 与 n 在读取器和签发器两处独立重算；SQL 绑定 lower_bound=max(-1,mean-radius)",docs/09_Null_Baseline_Power_And_Review.md,U09,A-U09-05,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R083,证书,证书带硬有效期；过期不能绑定主链，续期只能来自新前瞻声明,docs/09_Null_Baseline_Power_And_Review.md,U10,A-U10-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R084,披露,自然资格报告披露声明数、已花 α、当前 α 与检测预设最小改善所需期数；未达期数保持 WAIT,docs/09_Null_Baseline_Power_And_Review.md,U12,A-U12-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R085,合同,文档命名的每个 SU1 公共类型有批次归属，同一职责唯一接口名,docs/09_Null_Baseline_Power_And_Review.md,U01,A-U01-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R086,回放,历史高速回放：训练、结算、反馈、进化以 CPU 速度在历史上前推，严格因果，不依赖实时开奖节奏,docs/10_Historical_Replay_Strategy_Foundry.md,U05,A-U05-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R087,创造,多家族策略工厂持续生成完整程序，至少含专家组合、关系发现、交叉交集选择、深度评分四类，支持跨家族融合,docs/10_Historical_Replay_Strategy_Foundry.md,U07,A-U07-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R088,统筹,研究统筹器按实测改进分配家族与算子，记录全部尝试，并可与关闭统筹的同预算对照比较,docs/10_Historical_Replay_Strategy_Foundry.md,U08,A-U08-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R089,披露,每次研究活动同时报告真实、时间打乱、植入规律三组的 DEV/VAL/SEALED 结果,docs/10_Historical_Replay_Strategy_Foundry.md,U12,A-U12-05,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R090,矩阵,跨位置转移矩阵作为可组合原子进入预测，严格因果、滑动窗口、可增量,docs/11_Capability_Gap_Upgrade_R12.md,U03,A-U03-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R091,动态迭代,HEDGE 在线权重：每期结算后按组件命中实时调整，决策只用已结算信息,docs/11_Capability_Gap_Upgrade_R12.md,U07,A-U07-05,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R092,稳定,进化适应度以多折稳定评分为主，命中率高但时段波动大的程序被淘汰,docs/11_Capability_Gap_Upgrade_R12.md,U07,A-U07-05,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R093,资产,旧进化资产统一在回放引擎重测并公开开发段与前瞻段对照,docs/11_Capability_Gap_Upgrade_R12.md,U12,A-U12-06,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R094,创造,原子语法创造：系统从历史查询、映射、算术、比较、条件分支、矩阵等原子自行组装全新策略程序，不限于预设模板，并输出可读公式,docs/11_Capability_Gap_Upgrade_R12.md,U07,A-U07-06,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R095,创造,原子世界扫描：进化前系统检验每个原子单独及在各类条件下的效果，并全部入账,docs/12_Final_Construction_Plan_Continuous_Creation.md,U07,A-U07-07,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R096,创造,宏提炼与家族自生成：优秀程序中反复出现的子结构成为宏，支持度≥3 自动成为新家族,docs/12_Final_Construction_Plan_Continuous_Creation.md,U08,A-U08-05,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R097,实时,历史 + 实时双轨：研究池全部程序每期冻结、结算、反馈；每 300 期刷新活动的子代立即进入实时轨,docs/12_Final_Construction_Plan_Continuous_Creation.md,U10,A-U10-05,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R098,证据,封存段只开一次并由数据库强制；研究声明使用独立序号空间,docs/12_Final_Construction_Plan_Continuous_Creation.md,U09,A-U09-06,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R099,一致性,GRAMMAR 解释器 Python/Java 逐位一致；动作头 V2 平局规则确定,docs/12_Final_Construction_Plan_Continuous_Creation.md,U07,A-U07-08,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列
+SU1-R100,原子,注册表原子按 AtomEvaluatorCP4 语义提升为评分/条件原子并对拍,docs/12_Final_Construction_Plan_Continuous_Creation.md,U03,A-U03-04,DESIGN_NOT_IMPLEMENTED,相同 source SHA 的可复核合同回执；自然效果另需真实冻结队列

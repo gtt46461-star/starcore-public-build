@@ -25,6 +25,7 @@ public final class ResearchDirectorR952 {
         // Such a stale target is no longer a legal pre-draw input, but it must not abort the
         // current-period research owner.  Return no work before bootstrap/freeze owners run.
         if (drawExists(store.readable(), target)) return 0;
+        com.ethk3.novaonepro.strategyv2.StrategyRuntimeSU1.capture(store,target);
         ResearchModuleRegistryR952.reconcile(store);
         bootstrap(store,target);
         ResearchEvaluationRunR967.enroll(store,target);
@@ -169,6 +170,7 @@ public final class ResearchDirectorR952 {
             } catch(RuntimeException bad) { failure[0]=bad; throw bad; }
         }},null);
         if(labels==null)throw new IllegalStateException("R958_LABEL_TRANSACTION_FAILED|target="+draw.issue,failure[0]);
+        com.ethk3.novaonepro.strategyv2.StrategyRuntimeSU1.completed(store,draw,settlementHash,completedAt);
         return labels;
     }
 

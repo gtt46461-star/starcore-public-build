@@ -110,10 +110,13 @@ public final class DrawDependencyInputCP12 {
                 + "'r958_frozen_predraw','r952_research_outbox','atomic_tool_context_r943',"
                 + "'v57_algorithm_predraw_r908','v57_research_predraw_r817','research_new_asset_freeze_v41',"
                 + "'research_fixed_pair_r932','research_candidate_cal_observation_r932','research_candidate_cal_study_r932',"
-                + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label')",null)) {
+                + "'research_challenge_prediction_r932','research_legacy_asset_head_audit_r80','research_bound_source_r80','research_bound_cohort_r80','research_bound_input_r80','r80_probe_forecast','r80_probe_label','su1_live_target','su1_pending_settlement','su1_opportunity','su1_opportunity_outcome')",null)) {
             while(schema.moveToNext())installed.add(schema.getString(0));
         }
         List<String> clauses = new ArrayList<>();
+        if(installed.contains("su1_live_target"))clauses.add("EXISTS(SELECT 1 FROM su1_live_target s WHERE s.target_issue="+issue+" AND s.completed_at IS NULL)");
+        if(installed.contains("su1_pending_settlement"))clauses.add("EXISTS(SELECT 1 FROM su1_pending_settlement s WHERE CAST(s.target_issue AS TEXT)="+issue+")");
+        if(installed.contains("su1_opportunity")&&installed.contains("su1_opportunity_outcome"))clauses.add("EXISTS(SELECT 1 FROM su1_opportunity s WHERE CAST(s.target_issue AS TEXT)="+issue+" AND NOT EXISTS(SELECT 1 FROM su1_opportunity_outcome o WHERE o.opportunity_id=s.opportunity_id))");
         if(installed.contains("v57_research_input_pin_r967")!=installed.contains("v57_research_task_r967"))
             throw new IllegalStateException("CP12_DRAW_DEPENDENCY_PARTIAL_PIN_SCHEMA");
         if(installed.contains("v57_research_input_pin_r967"))clauses.add("EXISTS(SELECT 1 FROM v57_research_input_pin_r967 p"

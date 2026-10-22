@@ -26,7 +26,7 @@ public final class DatabaseHealthActivity extends Activity {
     }
     private void confirm(boolean cleanup){new AlertDialog.Builder(this).setTitle(cleanup?"单独清理已验证备份":"完整副本重建数据库")
         .setMessage(cleanup?"将停止运行，校验并删除保留的旧数据库备份。删除后无法通过该备份回退；不会自动恢复运行。":"将停止运行，离线逐表复制并验证行号、类型、值、结构与外键后安全换库。需要至少一份完整副本空间。旧库备份保留，实际磁盘空间需之后单独清理备份才释放；完成后请手动启动运行。安全换库阶段请勿强制停止。")
-        .setNegativeButton("取消",null).setPositiveButton(cleanup?"确认清理备份":"确认停止并重建",(d,w)->{try{StorageMaintenanceServiceR82.request(getApplicationContext(),cleanup);refresh();}catch(RuntimeException failure){text.setText("维护未开始："+DatabaseCoordinator.describeCauseChain(failure,1200));}}).show();}
+        .setNegativeButton("取消",null).setPositiveButton(cleanup?"确认清理备份":"确认停止并重建",(d,w)->{try{StorageMaintenanceServiceR82.request(getApplicationContext(),cleanup);refresh();}catch(RuntimeException failure){text.setText(getString(R.string.maintenance_not_started,DatabaseCoordinator.describeCauseChain(failure,1200)));}}).show();}
     private void refresh(){long token=generation.incrementAndGet();if(cancel!=null)cancel.cancel();if(future!=null)future.cancel(true);cancel=new CancellationSignal();final CancellationSignal signal=cancel;text.setText("正在后台读取；返回将取消读取。不会修改数据库。");
         future=reader.submit(()->{String result;try{result=readHealthR82(getApplicationContext(),signal);}catch(OperationCanceledException canceled){result="读取已取消或超时；数据库未修改。";}catch(Throwable failure){result="读取失败，数据未删除。\n"+DatabaseCoordinator.describeCauseChain(failure,1600);}final String shown=result;main.post(()->{if(generation.get()==token)text.setText(shown);});});
         main.postDelayed(()->{if(generation.get()==token&&!signal.isCanceled())signal.cancel();},5000);

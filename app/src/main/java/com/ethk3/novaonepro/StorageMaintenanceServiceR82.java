@@ -24,9 +24,12 @@ public final class StorageMaintenanceServiceR82 extends Service {
             if(Build.VERSION.SDK_INT>=26)app.startForegroundService(intent);else app.startService(intent);
         }catch(RuntimeException failure){DatabaseCoordinator.endExplicitMaintenanceR82();record(app,"START_FAILED",failure.toString());throw failure;}
     }
+    // Durable phase receipt is used for interrupted maintenance recovery; apply() cannot acknowledge disk failure.
+    @android.annotation.SuppressLint("ApplySharedPref")
     private static void record(Context c,String phase,String detail) {
-        c.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().putString("phase",phase).putString("detail",detail)
+        boolean durable=c.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().putString("phase",phase).putString("detail",detail)
                 .putLong("sample_wall_ms",System.currentTimeMillis()).commit();
+        if(!durable)throw new IllegalStateException("R82_MAINTENANCE_PHASE_NOT_DURABLE");
     }
     public static String summary(Context context) {
         Context app=context.getApplicationContext();android.content.SharedPreferences p=app.getSharedPreferences(PREF,Context.MODE_PRIVATE);
