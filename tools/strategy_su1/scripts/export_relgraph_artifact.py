@@ -2,7 +2,7 @@
 """Package a fitted RELGRAPH18 Adam state for the phone. No evidence or authority fields are accepted."""
 import argparse,base64,hashlib,struct
 from pathlib import Path
-from export_fitted_model import canonical,java_hex
+from export_fitted_model import canonical,java_hex,fields
 
 PROTOCOL='SU1_RELGRAPH10_V1|FLOAT64|WINDOW_RESET|ISSUE_MEAN_CE|IMMUTABLE_FACTS|CANONICAL_EDGES'
 FEATURES=hashlib.sha256(b'SU1_RELGRAPH_FEATURES_V1|POSITION_NUMBER_EVENTS|FREQ24:PROBABILITY_ESTIMATE|XT3_1000:PROBABILITY_ESTIMATE|MASK_SEPARATE|XT3_XT1_CONTEXT_HYPEREDGES_LOG_LIFT|2_ROLES_2_TYPES|SUPPORT_REAL_ISSUES|FIXED_SCALE_NO_FIT').hexdigest()
@@ -27,21 +27,27 @@ def inspect_state(wire):
             if any(not math.isfinite(v) or group==2 and v<0 for v in values):raise ValueError('RELGRAPH_NONFINITE_OR_VARIANCE')
     if at!=len(data):raise ValueError('RELGRAPH_STATE_TAIL')
     return d,steps
-def checkpoint(state,window,dataset,through,parent='0'*64,rate=.001,clip=1):
+def checkpoint(state,window,dataset,through,parent='0'*64,rate=.001,clip=1,objective=None):
     d,steps=inspect_state(state)
     if not 1<=window<=256:raise ValueError('RELGRAPH_WINDOW')
-    return {'format':'SU1_RELGRAPH10_CHECKPOINT_V1','kernel':'RELGRAPH10_SU1','protocol':PROTOCOL,'features':FEATURES,'dtype':'FLOAT64','stateMode':'WINDOW_RESET',
+    result={'format':'SU1_RELGRAPH10_CHECKPOINT_V1','kernel':'RELGRAPH10_SU1','protocol':PROTOCOL,'features':FEATURES,'dtype':'FLOAT64','stateMode':'WINDOW_RESET',
         'normalizer':'FIXED_PROBABILITY_AND_LOG_LIFT_WITH_SEPARATE_MASKS','operators':'EVENT_FEATURE>ROLE_HYPEREDGE_TANH>INCOMING_SOFTMAX>MESSAGE_SUM>RECURRENT_TANH>EVENT_AND_STATE_HEAD>SOFTMAX',
         'width':d,'channels':2,'roles':2,'types':2,'window':window,'optimizer':'ADAM_BETA_09_0999_EPS_1E8_V1','steps':steps,'stateWire':state,'stateHash':hashlib.sha256(state.encode()).hexdigest(),
         'dataset':dataset,'trainedThroughIssue':through,'parent':parent,'learningRateHex':java_hex(rate),'clipHex':java_hex(clip)}
+    if objective is not None:
+        import math
+        if len(objective)!=4 or any(not math.isfinite(x) or x<0 or x>1 for x in objective):raise ValueError('RELGRAPH_OBJECTIVE')
+        values=[java_hex(x) for x in objective]
+        result.update(format='SU1_RELGRAPH10_JOINT_CHECKPOINT_V2',objective=values,objectiveHash=fields('SU1_JOINT_LOSS_V2|CE_DRAW_MEAN|BRIER_MULTICLASS_DRAW_MEAN|SMOOTH_LAYER_MEAN|L2_PARAM_MEAN|RESOURCE_PARAM_COUNT',*values))
+    return result
 def portable(cp):
     wire=canonical(cp);key=hashlib.sha256(wire.encode()).hexdigest()
     payload={'format':'SU1_PORTABLE_FITTED_RELGRAPH_V3','program':f'GMODEL({key},{cp["window"]})','coverageHex':'0x1.0p0','marginGate':False,
         'datasetSha256':cp['dataset'],'trainedThroughIssue':cp['trainedThroughIssue'],'numericProtocol':'SU1_ATOM_CONDITION_V2_1E12','graphModel':wire}
     return {'payload':payload,'sha256':hashlib.sha256(canonical(payload).encode()).hexdigest()}
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--state',required=True,type=Path);p.add_argument('--history',required=True,type=Path);p.add_argument('--window',required=True,type=int);p.add_argument('--trained-through-issue',required=True);p.add_argument('--parent-checkpoint-sha',default='0'*64);p.add_argument('--out',required=True,type=Path);a=p.parse_args()
-    cp=checkpoint(a.state.read_text().strip(),a.window,hashlib.sha256(a.history.read_bytes()).hexdigest(),a.trained_through_issue,a.parent_checkpoint_sha);wire=canonical(portable(cp))+'\n'
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--state',required=True,type=Path);p.add_argument('--history',required=True,type=Path);p.add_argument('--window',required=True,type=int);p.add_argument('--trained-through-issue',required=True);p.add_argument('--parent-checkpoint-sha',default='0'*64);p.add_argument('--out',required=True,type=Path);p.add_argument('--objective',nargs=4,type=float,metavar=('BRIER','SMOOTH','L2','RESOURCE'));a=p.parse_args()
+    cp=checkpoint(a.state.read_text().strip(),a.window,hashlib.sha256(a.history.read_bytes()).hexdigest(),a.trained_through_issue,a.parent_checkpoint_sha,objective=a.objective);wire=canonical(portable(cp))+'\n'
     if len(wire.encode())>262144:p.error('phone artifact exceeds 256 KiB')
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(wire);print('EXPORTED_RELGRAPH_RESEARCH_ONLY',hashlib.sha256(canonical(cp).encode()).hexdigest())
 if __name__=='__main__':main()

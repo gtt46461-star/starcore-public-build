@@ -30,6 +30,13 @@ public final class RelGraphContractsSU1Test {
                 check(Math.abs((plus-minus)/(2*epsilon)-g[i])<2e-7,"finite difference mismatch "+key+"["+i+"]");
             }
         }
+        TrainingObjectiveSU1 joint=new TrainingObjectiveSU1(.3,.2,.1,.000001);RelGraphModelSU1.Gradient jointGradient=RelGraphModelSU1.gradient(weights,x,label,budget(),joint);
+        check(Math.abs(jointGradient.loss-jointGradient.crossEntropyLoss-jointGradient.brierLoss-jointGradient.smoothnessLoss-jointGradient.l2Loss-jointGradient.resourceLoss)<1e-12,"joint graph objective components do not add up");
+        check(jointGradient.brierLoss>0&&jointGradient.smoothnessLoss>0&&jointGradient.l2Loss>0&&jointGradient.resourceLoss>0,"joint graph objective is missing a declared term");
+        for(String key:RelGraphModelSU1.GROUPS)for(int i=0;i<weights.get(key).length;i++){
+            double old=weights.get(key)[i],epsilon=1e-4;weights.get(key)[i]=old+epsilon;double plus=RelGraphModelSU1.gradient(weights,x,label,budget(),joint).loss;weights.get(key)[i]=old-epsilon;double minus=RelGraphModelSU1.gradient(weights,x,label,budget(),joint).loss;weights.get(key)[i]=old;
+            check(Math.abs((plus-minus)/(2*epsilon)-jointGradient.tensors.get(key)[i])<2e-7,"joint objective derivative mismatch "+key+"["+i+"]");
+        }
         RelGraphOptimizerSU1 state=RelGraphOptimizerSU1.initial(weights),updated=state.apply(gradient,.001,1);for(String key:RelGraphModelSU1.GROUPS)check(!Arrays.equals(state.weights.get(key),updated.weights.get(key)),"no actual parameter update: "+key);
         String wire=RelGraphCodecSU1.encode(updated);RelGraphOptimizerSU1 restored=RelGraphCodecSU1.decode(wire,HashingSU1.text(wire));check(Arrays.deepEquals(RelGraphModelSU1.predict(updated.weights,x,budget()),RelGraphModelSU1.predict(restored.weights,x,budget())),"graph state transport altered inference");
         RelGraphModelSU1.Gradient nextGradient=RelGraphModelSU1.gradient(updated.weights,x,label,budget());check(RelGraphCodecSU1.encode(updated.apply(nextGradient,.001,1)).equals(RelGraphCodecSU1.encode(restored.apply(nextGradient,.001,1))),"graph Adam continuation diverged");

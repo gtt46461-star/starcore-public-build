@@ -39,6 +39,11 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                 long feedbackEnd=SystemClock.elapsedRealtime()+2000;
                 for(int i=0;i<512&&!cancelled.get()&&SystemClock.elapsedRealtime()<feedbackEnd;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}
                 final DbStore owner=store;
+                long modelAuditStop=Math.min(stop,SystemClock.elapsedRealtime()+4000);
+                while(!cancelled.get()&&SystemClock.elapsedRealtime()<modelAuditStop){
+                    if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure())return;
+                    if(!ModelAblationStoreSU1.advanceOne(store,new BudgetTokenSU1(2000,30000000,()->cancelled.get()||SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure())))break;
+                }
                 long auditStop=Math.min(stop,SystemClock.elapsedRealtime()+10000);
                 while(!cancelled.get()&&SystemClock.elapsedRealtime()<auditStop){
                     if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure())return;

@@ -60,6 +60,17 @@ def forward(w,steps,trace=False):
             for name,array in (('event',x),('edge',q),('attention',attention),('value',v),('state',state)):layers[f'{name}:{t}']=[java_hex(a) for a in array.ravel()]
     probabilities=softmax(state@w['Wo']+(v@w['vout']).reshape(10,10)+w['c'])
     return probabilities,layers
+def joint_loss(w,steps,actual,objective):
+    p,layers=forward(w,steps,True)
+    ce=-np.log(p[np.arange(10),actual]).mean();target=np.eye(10)[actual]
+    brier=np.square(p-target).sum()/10
+    previous=np.zeros((10,D));smooth=0
+    for t in range(len(steps)):
+        state=np.array([float.fromhex(x) for x in layers[f'state:{t}']]).reshape(10,D)
+        smooth+=np.square(state-previous).sum()/(len(steps)*10*D);previous=state
+    count=sum(x.size for x in w.values());l2=sum(np.square(x).sum() for x in w.values())/(2*count)
+    terms=(float(ce),float(objective[0]*brier),float(objective[1]*smooth),float(objective[2]*l2),float(objective[3]*count))
+    return sum(terms),terms
 def build():
     rng=np.random.default_rng(197);weights={k:rng.normal(0,.15,size=shape) for k,shape in zip(GROUPS,SHAPES)};steps=inputs();actual=(np.arange(10)+3)%10
     probability,layers=forward(weights,steps,True)
@@ -71,12 +82,20 @@ def build():
             old=float(tensor[index]);epsilon=1e-4;tensor[index]=old+epsilon;plus=loss();tensor[index]=old-epsilon;minus=loss();tensor[index]=old;grad[index]=(plus-minus)/(2*epsilon)
         gradients[key]=grad
     norm=np.sqrt(sum(np.sum(v*v) for v in gradients.values()));scale=.03*min(1,1/max(norm,1e-300));updated={k:w-scale*gradients[k] for k,w in weights.items()}
+    objective=(.3,.2,.1,.000001);joint_before,joint_terms=joint_loss(weights,steps,actual,objective);joint_gradients={}
+    for key in GROUPS:
+        tensor=weights[key];grad=np.empty_like(tensor)
+        for index in np.ndindex(tensor.shape):
+            old=float(tensor[index]);epsilon=1e-4;tensor[index]=old+epsilon;plus=joint_loss(weights,steps,actual,objective)[0];tensor[index]=old-epsilon;minus=joint_loss(weights,steps,actual,objective)[0];tensor[index]=old;grad[index]=(plus-minus)/(2*epsilon)
+        joint_gradients[key]=grad
     state=state_wire(weights);source=input_wire(steps)
     export_state=state_wire(weights,export_relgraph_artifact.FEATURES)
     export=export_relgraph_artifact.portable(export_relgraph_artifact.checkpoint(export_state,4,hashlib.sha256(b'graph transport fixture').hexdigest(),'202610210001'))
     result={'protocol':'SU1_RELGRAPH_PARITY_V1','scope':'SYNTHETIC_NUMERICS_NO_NATURAL_AUTHORITY','input':source,'inputHash':hashlib.sha256(source.encode()).hexdigest(),'state':state,'stateHash':hashlib.sha256(state.encode()).hexdigest(),
         'label':(actual+1).tolist(),'layers':layers,'probability':[java_hex(v) for v in probability.ravel()],'loss':java_hex(before),
         'gradientMethod':'INDEPENDENT_NUMPY_FORWARD_CENTRAL_DIFFERENCE_EPS_1E4','gradients':{k:[java_hex(v) for v in g.ravel()] for k,g in gradients.items()},'updated':{k:[java_hex(v) for v in g.ravel()] for k,g in updated.items()},'portableGraph':canonical(export)}
+    joint_export=export_relgraph_artifact.portable(export_relgraph_artifact.checkpoint(export_state,4,hashlib.sha256(b'graph joint transport fixture').hexdigest(),'202610210001',objective=objective))
+    result.update(jointObjective=[java_hex(v) for v in objective],jointLoss=java_hex(joint_before),jointTerms=[java_hex(v) for v in joint_terms],jointGradients={k:[java_hex(v) for v in g.ravel()] for k,g in joint_gradients.items()},jointPortableGraph=canonical(joint_export))
     wire=canonical(result)+'\n';(ROOT/'reference/fixtures/relgraph_parity.json').write_text(wire);(ROOT.parents[1]/'app/src/androidTest/assets/su1_relgraph_parity.json').write_text(wire)
     print('RELGRAPH_GOLDEN bytes',len(wire),'values',sum(len(v) for v in layers.values()),'groups',len(gradients),'sha256',hashlib.sha256(wire.encode()).hexdigest())
 if __name__=='__main__':build()

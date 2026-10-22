@@ -353,3 +353,38 @@ CREATE TRIGGER IF NOT EXISTS su1_retention_audit_insert AFTER INSERT ON su1_camp
 BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
 CREATE TRIGGER IF NOT EXISTS su1_retention_audit_update AFTER UPDATE ON su1_campaign_audit
 BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+-- Paired model ablations are historical research and own no qualification or alpha allocation.
+CREATE TABLE IF NOT EXISTS su1_model_ablation (
+ source_campaign TEXT PRIMARY KEY NOT NULL REFERENCES su1_campaign(campaign_id),
+ dataset_blob TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64),
+ generation INTEGER NOT NULL CHECK(generation>=0),
+ phase TEXT NOT NULL CHECK(phase IN ('TRAIN','LOCKED','DONE','RETIRED')),
+ checkpoint_hash TEXT REFERENCES su1_blob(blob_hash),
+ frozen_hash TEXT CHECK(frozen_hash IS NULL OR length(frozen_hash)=64),
+ report_hash TEXT REFERENCES su1_blob(blob_hash),
+ updated_at INTEGER NOT NULL,
+ CHECK(phase NOT IN ('LOCKED','DONE') OR checkpoint_hash IS NOT NULL AND frozen_hash IS NOT NULL),
+ CHECK(phase<>'DONE' OR report_hash IS NOT NULL)
+);
+CREATE TRIGGER IF NOT EXISTS su1_model_ablation_start BEFORE INSERT ON su1_model_ablation
+BEGIN
+ SELECT CASE WHEN NEW.phase<>'TRAIN' OR NEW.generation<>0 OR NEW.checkpoint_hash IS NOT NULL OR NEW.frozen_hash IS NOT NULL OR NEW.report_hash IS NOT NULL
+ THEN RAISE(ABORT,'SU1_MODEL_AUDIT_START') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_model_ablation_advance BEFORE UPDATE ON su1_model_ablation
+BEGIN
+ SELECT CASE WHEN OLD.phase IN ('DONE','RETIRED') OR NEW.generation<>OLD.generation+1 OR NEW.source_campaign<>OLD.source_campaign OR NEW.dataset_blob<>OLD.dataset_blob OR NEW.kernel_hash<>OLD.kernel_hash OR NEW.updated_at<OLD.updated_at
+ OR OLD.frozen_hash IS NOT NULL AND NEW.frozen_hash IS NOT OLD.frozen_hash
+ OR OLD.phase='TRAIN' AND NEW.phase NOT IN ('TRAIN','LOCKED','RETIRED')
+ OR OLD.phase='LOCKED' AND NEW.phase NOT IN ('LOCKED','DONE','RETIRED')
+ OR NEW.phase='DONE' AND (OLD.phase<>'LOCKED' OR NEW.report_hash IS NULL)
+ OR NEW.report_hash IS NOT NULL AND NEW.phase<>'DONE'
+ THEN RAISE(ABORT,'SU1_MODEL_AUDIT_FROZEN_OR_CAS') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_model_ablation_no_delete BEFORE DELETE ON su1_model_ablation
+BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;
+CREATE TRIGGER IF NOT EXISTS su1_model_ablation_retention_insert AFTER INSERT ON su1_model_ablation
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_model_ablation_retention_update AFTER UPDATE ON su1_model_ablation
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;

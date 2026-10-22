@@ -123,22 +123,56 @@ public final class RelGraphModelSU1 {
     }
     public static double[][] predict(Weights weights,Input input,BudgetTokenSU1 budget){return forward(weights,input,budget,null).probabilities;}
     public static double[][] predict(Weights weights,Input input,BudgetTokenSU1 budget,Trace trace){return forward(weights,input,budget,trace).probabilities;}
+    /** Controlled historical manipulations are explicitly reconstructed research inputs, never online facts. */
+    public static Input controlInput(Input input,String mode,long seed){
+        if(!Arrays.asList("NO_RELATION","SHUFFLED_RELATION","REPLACED_RELATION").contains(mode))throw new IllegalArgumentException("SU1_GRAPH_ABLATION_MODE");
+        Step[] steps=new Step[input.steps.length];
+        for(int t=0;t<steps.length;t++){
+            Step old=input.steps[t];String root=HashingSU1.fields("SU1_GRAPH_CONTROL_V1",old.receiptRoot,mode,String.valueOf(seed));double[] features=old.features.clone();boolean[] mask=old.mask.clone();List<Edge> edges=new ArrayList<>();
+            int[] permutation=new int[10];for(int p=0;p<10;p++)permutation[p]=p;
+            if(mode.equals("SHUFFLED_RELATION")){Random random=new Random(seed^old.issue);for(int p=9;p>0;p--){int q=random.nextInt(p+1),v=permutation[p];permutation[p]=permutation[q];permutation[q]=v;}}
+            int[] remap=new int[100];for(int node=0;node<100;node++){int wantedPosition=permutation[old.positions[node]],wantedNumber=old.numbers[node];for(int other=0;other<100;other++)if(old.positions[other]==wantedPosition&&old.numbers[other]==wantedNumber){remap[node]=other;break;}}
+            for(int node=0;node<100;node++)for(int c=1;c<old.channels;c++){
+                if(mode.equals("NO_RELATION")){features[node*old.channels+c]=0;mask[node*old.channels+c]=false;}
+                else if(mode.equals("REPLACED_RELATION")){features[node*old.channels+c]=.1;}
+                else{features[remap[node]*old.channels+c]=old.features[node*old.channels+c];mask[remap[node]*old.channels+c]=old.mask[node*old.channels+c];}
+            }
+            if(!mode.equals("NO_RELATION"))for(Edge edge:old.edges){int[] sources=edge.sources.clone();for(int i=0;i<sources.length;i++)sources[i]=remap[sources[i]];edges.add(new Edge(remap[edge.receiver],edge.type,sources,edge.roles,mode.equals("REPLACED_RELATION")?0:edge.value,edge.support,edge.sourceIssue,root));}
+            steps[t]=new Step(old.issue,old.availableAt,root,old.draw,old.positions,old.numbers,features,mask,old.channels,edges.toArray(new Edge[0]));
+        }
+        return new Input(input.featureSchemaHash,input.targetIssue,input.cutoff,"HISTORICAL_RECONSTRUCTED",steps);
+    }
+    public static double[][] frequencyBaseline(Input input){
+        Step step=input.steps[input.steps.length-1];double[][] probabilities=new double[10][10];for(int node=0;node<100;node++)probabilities[step.positions[node]][step.numbers[node]]=.01+(step.mask[node*step.channels]?Math.max(0,step.features[node*step.channels]):0);
+        for(double[] row:probabilities){double total=0;for(double v:row)total+=v;for(int n=0;n<10;n++)row[n]/=total;}return probabilities;
+    }
     public static final class Gradient {
-        public final double loss;public final double[][] probabilities;final Map<String,double[]> tensors;
+        public final double loss;public double crossEntropyLoss,brierLoss,smoothnessLoss,l2Loss,resourceLoss;public final double[][] probabilities;final Map<String,double[]> tensors;
         Gradient(double loss,double[][] probabilities,Map<String,double[]> tensors){this.loss=loss;this.probabilities=probabilities;this.tensors=tensors;}
         public Map<String,double[]> parameters(){Map<String,double[]> out=new LinkedHashMap<>();for(String key:GROUPS)out.put(key,tensors.get(key).clone());return out;}
         public double norm(String key){double sum=0;for(double v:tensors.get(key))sum+=v*v;return Math.sqrt(sum);}
     }
-    public static Gradient gradient(Weights w,Input input,int[] actual,BudgetTokenSU1 budget){
-        RelationalStateInference.validateDraw(actual);Forward f=forward(w,input,budget,null);int d=w.d,c=w.channels,length=f.tape.length;double loss=0;
+    public static Gradient gradient(Weights w,Input input,int[] actual,BudgetTokenSU1 budget){return gradient(w,input,actual,budget,TrainingObjectiveSU1.crossEntropy());}
+    public static Gradient gradient(Weights w,Input input,int[] actual,BudgetTokenSU1 budget,TrainingObjectiveSU1 objective){
+        if(objective==null)throw new IllegalArgumentException("SU1_GRAPH_OBJECTIVE_REQUIRED");
+        RelationalStateInference.validateDraw(actual);Forward f=forward(w,input,budget,null);int d=w.d,c=w.channels,length=f.tape.length;double ce=0,brier=0,smooth=0,l2=0;long parameters=0;
+        for(String key:GROUPS){parameters+=w.get(key).length;if(objective.l2>0)for(double value:w.get(key))l2+=value*value/2;}
+        l2/=parameters;
+        for(int t=0;t<length;t++){double[] previous=t==0?new double[10*d]:f.tape[t-1].h;for(int i=0;i<10*d;i++){double change=f.tape[t].h[i]-previous[i];smooth+=change*change/(length*10*d);}}
+        for(int p=0;p<10;p++)for(int n=0;n<10;n++){double error=f.probabilities[p][n]-(actual[p]==n+1?1:0);brier+=error*error/10;if(actual[p]==n+1)ce-=Math.log(Math.max(1e-300,f.probabilities[p][n]))/10;}
+        double loss=ce+objective.brier*brier+objective.smoothness*smooth+objective.l2*l2+objective.resource*parameters;
         Map<String,double[]> g=new LinkedHashMap<>();for(String key:GROUPS)g.put(key,new double[w.get(key).length]);double[][] delta=new double[10][10];double[] dh=new double[10*d],gr=new double[100],lastDv=new double[100*d];Tape last=f.tape[length-1];Step lastStep=input.steps[length-1];
-        for(int p=0;p<10;p++)for(int n=0;n<10;n++){
-            double value=(f.probabilities[p][n]-(actual[p]==n+1?1:0))/10;delta[p][n]=value;if(actual[p]==n+1)loss-=Math.log(Math.max(1e-300,f.probabilities[p][n]))/10;g.get("c")[n]+=value;
-            for(int j=0;j<d;j++){g.get("Wo")[j*10+n]+=last.h[p*d+j]*value;dh[p*d+j]+=value*w.get("Wo")[j*10+n];}
+        for(int p=0;p<10;p++){
+            double weightedError=0;for(int n=0;n<10;n++)weightedError+=f.probabilities[p][n]*(f.probabilities[p][n]-(actual[p]==n+1?1:0));
+            for(int n=0;n<10;n++){
+                double error=f.probabilities[p][n]-(actual[p]==n+1?1:0),value=error/10+objective.brier*2*f.probabilities[p][n]*(error-weightedError)/10;delta[p][n]=value;g.get("c")[n]+=value;
+                for(int j=0;j<d;j++){g.get("Wo")[j*10+n]+=last.h[p*d+j]*value;dh[p*d+j]+=value*w.get("Wo")[j*10+n];}
+            }
         }
         for(int node=0;node<100;node++)for(int j=0;j<d;j++){double value=delta[lastStep.positions[node]][lastStep.numbers[node]];lastDv[node*d+j]+=value*w.get("vout")[j];g.get("vout")[j]+=value*last.v[node*d+j];}
         for(int t=length-1;t>=0;t--){
             budget.checkpointOrYield();Step step=input.steps[t];Tape a=f.tape[t];double[] previous=t==0?new double[10*d]:f.tape[t-1].h,dprevious=new double[10*d],dz=new double[10*d],dm=new double[10*d],dv=t==length-1?lastDv:new double[100*d];
+            for(int i=0;i<10*d;i++){double change=2*objective.smoothness*(a.h[i]-previous[i])/(length*10*d);dh[i]+=change;dprevious[i]-=change;}
             for(int p=0;p<10;p++)for(int j=0;j<d;j++){
                 double da=dh[p*d+j]*(1-a.h[p*d+j]*a.h[p*d+j]);g.get("b")[j]+=da;
                 for(int k=0;k<d;k++){g.get("Wx")[k*d+j]+=a.z[p*d+k]*da;g.get("Wm")[k*d+j]+=a.m[p*d+k]*da;g.get("Wh")[k*d+j]+=previous[p*d+k]*da;dz[p*d+k]+=w.get("Wx")[k*d+j]*da;dm[p*d+k]+=w.get("Wm")[k*d+j]*da;dprevious[p*d+k]+=w.get("Wh")[k*d+j]*da;}
@@ -163,7 +197,9 @@ public final class RelGraphModelSU1 {
             }dh=dprevious;
         }
         for(int p=0;p<10;p++){double mean=0;for(int q=0;q<10;q++)mean+=gr[p*10+q]*f.relation[p*10+q];for(int q=0;q<10;q++)g.get("R")[p*10+q]=f.relation[p*10+q]*(gr[p*10+q]-mean);}
-        if(!Double.isFinite(loss))throw new IllegalArgumentException("SU1_GRAPH_NONFINITE_LOSS");for(double[] group:g.values())for(double v:group)if(!Double.isFinite(v))throw new IllegalArgumentException("SU1_GRAPH_NONFINITE_GRADIENT");return new Gradient(loss,f.probabilities,g);
+        if(objective.l2>0)for(String key:GROUPS)for(int i=0;i<w.get(key).length;i++)g.get(key)[i]+=objective.l2*w.get(key)[i]/parameters;
+        if(!Double.isFinite(loss))throw new IllegalArgumentException("SU1_GRAPH_NONFINITE_LOSS");for(double[] group:g.values())for(double v:group)if(!Double.isFinite(v))throw new IllegalArgumentException("SU1_GRAPH_NONFINITE_GRADIENT");
+        Gradient result=new Gradient(loss,f.probabilities,g);result.crossEntropyLoss=ce;result.brierLoss=objective.brier*brier;result.smoothnessLoss=objective.smoothness*smooth;result.l2Loss=objective.l2*l2;result.resourceLoss=objective.resource*parameters;return result;
     }
     public static Weights update(Weights w,Gradient g,double rate,double clip){
         if(!Double.isFinite(rate)||rate<=0||!Double.isFinite(clip)||clip<=0)throw new IllegalArgumentException("SU1_GRAPH_OPTIMIZER");double sum=0;for(String key:GROUPS)for(double value:g.tensors.get(key))sum+=value*value;double scale=rate*Math.min(1,clip/Math.max(1e-300,Math.sqrt(sum)));Map<String,double[]> values=new LinkedHashMap<>();

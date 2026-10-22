@@ -9,6 +9,7 @@ import java.util.*;
 public final class CampaignAuditStoreSU1 {
     private CampaignAuditStoreSU1() {}
     public static void enqueue(SQLiteDatabase db,CampaignStateSU1 source,long now){
+        ModelAblationStoreSU1.enqueue(db,source,now);
         for(CampaignControlsSU1.Variant variant:CampaignControlsSU1.Variant.values()){
             if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_campaign_audit WHERE source_campaign=? AND variant=?",source.campaign,variant.name()))continue;
             String config="{\"kind\":\"MATCHED_HISTORICAL_AUDIT_RESEARCH_ONLY\",\"source\":\""+source.campaign+"\",\"variant\":\""+variant.name()+"\",\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}";

@@ -89,7 +89,7 @@ public final class StrategyRepositorySU1 {
         ProgramContractSU1 compiled=ProgramContractSU1.compile(ProgramTextSU1.parse(text));
         String semanticManifest=blob(db,compiled.manifest,"SU1_PROGRAM_CONTRACT_V1",now);
         dependency(db,"PROGRAM",program,"BLOB",semanticManifest,"SEMANTICS_AND_STATIC_RESOURCE_MANIFEST",now);
-        String report=graph!=null?blob(db,graph.wire,RelGraphCheckpointSU1.FORMAT,now):fitted==null?blob(db,"STRUCTURE_SELECTION|"+datasetHash+"|"+through+"|"+Double.toHexString(fitness),"SU1_SEARCH_RECEIPT_V1",now):blob(db,fitted.wire,fitted.optimizer.kind==OptimizerStateSU1.Kind.SGD_NO_MOMENTUM_V1?TrainingCheckpointSU1.FORMAT:TrainingCheckpointSU1.ADAM_FORMAT,now);
+        String report=graph!=null?blob(db,graph.wire,graph.format,now):fitted==null?blob(db,"STRUCTURE_SELECTION|"+datasetHash+"|"+through+"|"+Double.toHexString(fitness),"SU1_SEARCH_RECEIPT_V1",now):blob(db,fitted.wire,fitted.optimizer.kind==OptimizerStateSU1.Kind.SGD_NO_MOMENTUM_V1?TrainingCheckpointSU1.FORMAT:TrainingCheckpointSU1.ADAM_FORMAT,now);
         if(fitted!=null||graph!=null){dependency(db,"PROGRAM",program,"BLOB",report,"FITTED_GRAPH_PARAMETER_OPTIMIZER_MANIFEST",now);dependency(db,"BLOB",report,"BLOB",weights,"EXACT_TRAINED_WEIGHTS",now);}
         if(!exists(db,"SELECT 1 FROM su1_program WHERE program_hash=?",program))db.execSQL("INSERT INTO su1_program VALUES(?,?,?,?,?,?,?,?)",new Object[]{program,HashingSU1.text(ProgramTreeSU1.PROTOCOL),HashingSU1.text("PK10_10X10_PIT_V1"),ir,UPDATE,compiled.stateBytes,compiled.operationUnits,now});
         long trainLast=imported?parameterThrough:Math.max(1,through-1000),valFirst=trainLast+1,valLast=Math.max(valFirst,through);

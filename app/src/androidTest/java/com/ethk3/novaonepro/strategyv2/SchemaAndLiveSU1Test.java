@@ -151,13 +151,15 @@ public final class SchemaAndLiveSU1Test {
             db.execSQL("UPDATE su1_campaign_audit SET phase='DONE',generation=2");assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool"));
         }
     }
-    @Test public void priorSu1V2BuildUpgradesWithoutRewritingItsMigrationReceipts()throws Exception{
-        try(SQLiteDatabase db=database();java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("su1_preview_v2.json")){
+    @Test public void priorSu1V2AndV3BuildsUpgradeWithoutRewritingTheirMigrationReceipts()throws Exception{
+        for(String fixture:new String[]{"su1_preview_v2.json","su1_preview_v3.json"}){
+        try(SQLiteDatabase db=database();java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open(fixture)){
             java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] block=new byte[4096];int n;while((n=input.read(block))!=-1)bytes.write(block,0,n);org.json.JSONArray old=new org.json.JSONArray(bytes.toString("UTF-8"));
             db.execSQL("CREATE TABLE su1_migration_unit_v2(unit INTEGER PRIMARY KEY,sql_hash TEXT NOT NULL,installed_at INTEGER NOT NULL)");
             for(int i=0;i<old.length();i++){String sql=old.getString(i);db.execSQL(sql);db.execSQL("INSERT INTO su1_migration_unit_v2 VALUES(?,?,1)",new Object[]{i,HashingSU1.text(sql)});}
             assertFalse(StrategySchemaSU1.ready(db));ready(db);assertTrue(StrategySchemaSU1.ready(db));
             try(Cursor c=db.rawQuery("SELECT unit,sql_hash,installed_at FROM su1_migration_unit_v2 WHERE unit<? ORDER BY unit",new String[]{String.valueOf(old.length())})){int count=0;while(c.moveToNext()){assertEquals(count,c.getInt(0));assertEquals(HashingSU1.text(old.getString(count)),c.getString(1));assertEquals(1,c.getLong(2));count++;}assertEquals(old.length(),count);}
+        }
         }
     }
     @Test public void fittedGraphParametersArePublishedAndActuallyConsumedWithoutInheritedEvidence()throws Exception{
@@ -194,6 +196,19 @@ public final class SchemaAndLiveSU1Test {
             for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(ProgramTreeSU1.clean(Math.log(Math.max(1e-12,stateExpected[p][n]))),stateActual[p][n],0);
             assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_model_artifact m JOIN su1_strategy_version v ON v.artifact_hash=m.artifact_hash WHERE v.strategy_id=? AND m.trained_through_sequence=?",stateStrategy,String.valueOf(sequence)));
             assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_prediction"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_certificate"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=? AND calibration_state='MISSING'",strategy));
+        }
+    }
+    @Test public void modelAblationFreezeCannotChangeAndReportsNeverGrantAlpha(){
+        try(SQLiteDatabase db=database()){
+            ready(db);long now=System.currentTimeMillis();String source=StrategyRepositorySU1.beginCampaign(db,"HISTORY_REPLAY",100,"{\"modelAudit\":true}",now),data=StrategyRepositorySU1.blob(db,"model audit input","TEST",now),checkpoint=StrategyRepositorySU1.blob(db,"model audit checkpoint","TEST",now),report=StrategyRepositorySU1.blob(db,"model audit report","TEST",now),frozen=HashingSU1.text("locked model set");
+            StrategyRepositorySU1.row(db,"su1_model_ablation","source_campaign",source,"dataset_blob",data,"kernel_hash",com.ethk3.novaonepro.TrainingCodeIdentityR964.SHA256,"generation",0,"phase","TRAIN","updated_at",now);
+            try{db.execSQL("UPDATE su1_model_ablation SET phase='DONE',generation=1,checkpoint_hash=?,frozen_hash=?,report_hash=?",new Object[]{checkpoint,frozen,report});fail("model report skipped durable freeze");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            db.execSQL("UPDATE su1_model_ablation SET phase='LOCKED',generation=1,checkpoint_hash=?,frozen_hash=?",new Object[]{checkpoint,frozen});
+            try{db.execSQL("UPDATE su1_model_ablation SET generation=2,frozen_hash=?",new Object[]{HashingSU1.text("replacement model set")});fail("frozen models changed");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            db.execSQL("UPDATE su1_model_ablation SET phase='DONE',generation=2,report_hash=?",new Object[]{report});
+            try{db.execSQL("UPDATE su1_model_ablation SET generation=3,phase='TRAIN'");fail("model holdout reopened");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            try{db.execSQL("DELETE FROM su1_model_ablation");fail("model audit deleted");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_certificate"));
         }
     }
 }

@@ -64,6 +64,19 @@ public final class ResearchDashboardSU1 {
                 }
             }
         }
+        out.append("\n模型共同样本对照（历史研究，不授予资格）\n");
+        try(Cursor c=db.rawQuery("SELECT source_campaign,phase,report_hash FROM su1_model_ablation ORDER BY updated_at DESC,source_campaign LIMIT 3",null)){
+            while(c.moveToNext()){
+                budget.checkpointOrYield();out.append(shortId(c.getString(0))).append(" · ").append(c.getString(1)).append('\n');
+                if(!c.isNull(2)){
+                    Map<String,Object> report=com.ethk3.novaonepro.r952.StrictCanonicalJson.readContextObject(CampaignStateSU1.localBlob(db,c.getString(2)));
+                    for(Object item:(List<?>)report.get("variants")){Map<?,?> row=(Map<?,?>)item;long n=((Number)row.get("actions")).longValue(),k=((Number)row.get("hits")).longValue();
+                        out.append(row.get("variant")).append("：").append(k).append('/').append(n).append(" = ").append(percent(k,n)).append("；配对机会 ").append(row.get("pairedN")).append("；真实训练更新 ").append(row.get("trainUpdates")).append('\n')
+                           .append("平均概率损失 ").append(String.format(Locale.CHINA,"%.4f",Double.valueOf((String)row.get("meanLogLossHex")))).append("；计算毫秒 ").append(((Number)row.get("computeElapsedMicros")).longValue()/1000).append("；训练模型相对本组胜/负 ").append(row.get("trainedWinsComparator")).append('/').append(row.get("trainedLossesComparator")).append('\n');
+                    }
+                }
+            }
+        }
         out.append("\n能力链实际回执\n输入快照 ").append(scalar(db,"SELECT count(*) FROM su1_snapshot"))
                 .append("；关系切片审计 ").append(scalar(db,"SELECT count(*) FROM su1_dependency WHERE reason='RELATION_SUPPORT_AUDIT'"))
                 .append("；已训练参数模型 ").append(scalar(db,"SELECT count(*) FROM su1_model_artifact WHERE model_kind='SU1_FITTED_RELSTATE10'")).append('\n')
