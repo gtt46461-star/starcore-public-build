@@ -17,7 +17,18 @@ bash ./gradlew --no-daemon :app:compileDebugJavaWithJavac -x :app:generateR982So
 python3 scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
 python3 scripts/prepare_strategy_su1_identity.py
 record_generated 'Record call index from compiled SU1 production classes'
-bash ./gradlew --no-daemon --stacktrace :app:verifyCanonicalPlanBuildCP3 :app:assembleDebug :app:assembleDebugAndroidTest
+build_status=0
+bash ./gradlew --no-daemon --stacktrace :app:verifyCanonicalPlanBuildCP3 :app:assembleDebug :app:assembleDebugAndroidTest || build_status=$?
+python3 - <<'PY'
+from pathlib import Path
+import xml.etree.ElementTree as ET
+for report in Path('app/build/reports').glob('lint-results-*.xml'):
+    for issue in ET.parse(report).getroot().findall('issue'):
+        if issue.get('severity') in ('Error','Fatal'):
+            location=issue.find('location')
+            print('LINT_BLOCKER',issue.get('id'),issue.get('message'),location.attrib if location is not None else {},flush=True)
+PY
+if [[ "$build_status" != 0 ]]; then exit "$build_status"; fi
 if [[ "${GITHUB_ACTIONS:-false}" == true ]]; then
     git push origin HEAD:construction/su1-20261022
 fi

@@ -34,6 +34,20 @@ CREATE TABLE IF NOT EXISTS su1_runtime_program (
  parent_id TEXT REFERENCES su1_strategy_version(strategy_id),
  created_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS su1_cohort_runtime (
+ cohort_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_eval_cohort(cohort_id),
+ last_issue TEXT NOT NULL,
+ policy_revision TEXT NOT NULL CHECK(policy_revision='SU1_ALL_CALENDAR_K3_CONFIRM_V1')
+);
+CREATE TRIGGER IF NOT EXISTS su1_cohort_runtime_immutable BEFORE UPDATE ON su1_cohort_runtime
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_quality_receipt (
+ strategy_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_strategy_version(strategy_id),
+ payload_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ recorded_at INTEGER NOT NULL
+);
+CREATE TRIGGER IF NOT EXISTS su1_quality_receipt_immutable BEFORE UPDATE ON su1_quality_receipt
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS su1_runtime_program_immutable BEFORE UPDATE ON su1_runtime_program
 BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS su1_runtime_program_no_delete BEFORE DELETE ON su1_runtime_program

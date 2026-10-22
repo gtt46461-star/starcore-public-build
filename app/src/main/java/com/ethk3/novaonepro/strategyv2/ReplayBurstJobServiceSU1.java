@@ -26,7 +26,12 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                     ResearchSchemaCoordinatorR926.ensureToReady(store.coordinatorForResearchR952(),8);
                 }
                 if(!StrategySchemaSU1.ready(store.readable()))return;
+                if(StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='DISABLED' AND reason='USER_CONTROL'")){retry=false;return;}
                 LiveShadowLoopSU1.recover(store,32);
+                EvidenceLoopSU1.recover(store);
+                EvidenceQualitySU1.maintain(store);
+                long feedbackEnd=SystemClock.elapsedRealtime()+2000;
+                for(int i=0;i<512&&!cancelled.get()&&SystemClock.elapsedRealtime()<feedbackEnd;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}
                 final DbStore owner=store;
                 Models.Draw last=store.getLatestDraw();if(last!=null&&TargetIssueResolver.isValid(last.issue))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_DAILY_CLOSE",db->{LiveShadowLoopSU1.closeDays(db,Integer.parseInt(last.issue.substring(0,8)));return 0;});
                 try(CampaignStateSU1 state=CampaignStateSU1.open(store)){

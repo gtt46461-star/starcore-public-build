@@ -5,7 +5,8 @@ public final class CalibrationSU1 {
     public final double intercept,slope,brier,ece;
     public final int fitN,validationN;
     public final String hash;
-    private CalibrationSU1(double a,double b,double brier,double ece,int fitN,int validationN,String source){intercept=a;slope=b;this.brier=brier;this.ece=ece;this.fitN=fitN;this.validationN=validationN;hash=HashingSU1.fields("SU1_CAL_LOGISTIC_V1",Double.toHexString(a),Double.toHexString(b),String.valueOf(fitN),String.valueOf(validationN),source);}
+    public final String sourceHash;
+    private CalibrationSU1(double a,double b,double brier,double ece,int fitN,int validationN,String source){intercept=a;slope=b;this.brier=brier;this.ece=ece;this.fitN=fitN;this.validationN=validationN;sourceHash=HashingSU1.sha(source);hash=HashingSU1.text(payload());}
     private static double feature(double score){if(!Double.isFinite(score)||score<0||score>1)throw new IllegalArgumentException("SU1_CAL_SCORE");double p=Math.max(1e-6,Math.min(1-1e-6,score));return Math.log(p/(1-p));}
     private static double sigmoid(double x){return 1/(1+Math.exp(-Math.max(-40,Math.min(40,x))));}
     public double predict(double raw){return sigmoid(intercept+slope*feature(raw));}
@@ -19,4 +20,11 @@ public final class CalibrationSU1 {
         return new CalibrationSU1(a,b,brier,ece,trainEnd,n,sourceHash);
     }
     public boolean valid(){return validationN>=120&&Double.isFinite(brier)&&Double.isFinite(ece)&&brier<=.24&&ece<=.04;}
+    public String payload(){java.util.Map<String,Object> m=new java.util.TreeMap<>();m.put("protocol","SU1_CAL_LOGISTIC_V1");m.put("a",Double.toHexString(intercept));m.put("b",Double.toHexString(slope));m.put("brier",Double.toHexString(brier));m.put("ece",Double.toHexString(ece));m.put("fitN",fitN);m.put("validationN",validationN);m.put("source",sourceHash);return com.ethk3.novaonepro.r952.StrictCanonicalJson.write(m);}
+    public static CalibrationSU1 decode(String json){
+        java.util.Map<String,Object> m=com.ethk3.novaonepro.r952.StrictCanonicalJson.readObject(json);
+        if(!m.keySet().equals(new java.util.HashSet<>(java.util.Arrays.asList("protocol","a","b","brier","ece","fitN","validationN","source")))||!"SU1_CAL_LOGISTIC_V1".equals(m.get("protocol")))throw new IllegalArgumentException("SU1_CALIBRATION_PROTOCOL");
+        CalibrationSU1 cal=new CalibrationSU1(Double.valueOf((String)m.get("a")),Double.valueOf((String)m.get("b")),Double.valueOf((String)m.get("brier")),Double.valueOf((String)m.get("ece")),((Number)m.get("fitN")).intValue(),((Number)m.get("validationN")).intValue(),(String)m.get("source"));
+        if(!Double.isFinite(cal.intercept)||!Double.isFinite(cal.slope)||!cal.payload().equals(json))throw new IllegalArgumentException("SU1_CALIBRATION_NONCANONICAL");return cal;
+    }
 }
