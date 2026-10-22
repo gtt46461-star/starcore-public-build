@@ -70,7 +70,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
             }
             for(StrategyFoundrySU1.Curve curve:foundry.curves())if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_campaign_curve WHERE campaign_id=? AND generation=?",campaign,String.valueOf(curve.generation)))StrategyRepositorySU1.row(db,"su1_campaign_curve","campaign_id",campaign,"generation",curve.generation,"dev_fitness",curve.dev,"champion_val_fitness",curve.val,"champion_family",curve.family,"recorded_at",now);
             if(foundry.done()){
-                SealedPlannerSU1.plan(db,this,now,latest==null?null:latest.issue);persistMacros(db,now);String memory=foundry.memory();db.execSQL("INSERT INTO su1_director_state VALUES(?,?,?)",new Object[]{campaign,memory,HashingSU1.text(memory)});
+                SealedPlannerSU1.plan(db,this,now,latest);persistMacros(db,now);String memory=foundry.memory();db.execSQL("INSERT INTO su1_director_state VALUES(?,?,?)",new Object[]{campaign,memory,HashingSU1.text(memory)});
                 db.execSQL("UPDATE su1_campaign SET status='DONE',finished_at=?,programs_evaluated=? WHERE campaign_id=? AND status='RUNNING'",new Object[]{now,foundry.evaluated,campaign});
             }
             return 0;

@@ -9,17 +9,16 @@ import java.util.*;
 /** One champion, chosen before a disjoint future span; never opens a second winner on that span. */
 public final class SealedPlannerSU1 {
     private SealedPlannerSU1() {}
-    public static void plan(SQLiteDatabase db,CampaignStateSU1 state,long now,String latestIssue){
+    public static void plan(SQLiteDatabase db,CampaignStateSU1 state,long now,Models.Draw latest){
         if(!db.inTransaction())throw new IllegalStateException("SU1_PLAN_OWNER");
-        if(!TargetIssueResolver.isValid(latestIssue)||state.foundry.ranked().isEmpty())return;
+        if(latest==null||!TargetIssueResolver.isValid(latest.issue)||state.foundry.ranked().isEmpty())return;
         if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_sealed_plan p WHERE NOT EXISTS(SELECT 1 FROM su1_sealed_cancelled x WHERE x.campaign_id=p.campaign_id) AND NOT EXISTS(SELECT 1 FROM su1_sealed_result r WHERE r.plan_campaign=p.campaign_id)"))return;
         List<StrategyFoundrySU1.Ranked> finalists=new ArrayList<>(state.foundry.ranked().subList(0,Math.min(4,state.foundry.ranked().size())));
         finalists.sort(Comparator.comparingDouble((StrategyFoundrySU1.Ranked r)->r.valFitness).reversed().thenComparing(r->r.genome.key()));
         StrategyFoundrySU1.Ranked champion=state.foundry.champion()==null?finalists.get(0):state.foundry.champion();if(champion.valFitness<=-1)return;
         // Completion can be hours after the training snapshot. Choose from the wall clock,
         // the canonical latest issue and the training boundary, never an already seen target.
-        long clockSequence=TargetIssueResolver.firstUnseenOrdinalSU1(now)-1;
-        long first=Math.max(clockSequence+1,Math.max(state.through,TargetIssueResolver.sequenceOrdinalSU1(latestIssue))+1);
+        long first=Math.max(state.through+1,TargetIssueResolver.firstFutureOrdinalSU1(latest,now));
         long last=first+1439,offset=state.through-state.foundry.valEnd+1;
         String parent=StrategyRepositorySU1.findParent(db,champion.genome.parent);if(!champion.genome.parent.isEmpty()&&parent==null)return;
         String id=StrategyRepositorySU1.candidate(db,champion.genome.text,champion.genome.coverage,champion.genome.margin,champion.genome.arm,parent,state.campaign,state.through,state.datasetBlob,champion.fitness,now);
@@ -50,7 +49,7 @@ public final class SealedPlannerSU1 {
                 StrategyRepositorySU1.row(db,"su1_sealed_result","plan_campaign",r[0],"open_campaign",campaign,"eligibility",passes?"PASS_SCREEN":"FAIL_SCREEN","recorded_at",now);
                 db.execSQL("UPDATE su1_campaign SET status='DONE',finished_at=?,programs_evaluated=1 WHERE campaign_id=?",new Object[]{now,campaign});
                 if(passes&&StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_runtime_program WHERE strategy_id=? AND coverage>=0.999 AND EXISTS(SELECT 1 FROM su1_strategy_version v WHERE v.strategy_id=su1_runtime_program.strategy_id AND v.calibration_state='FROZEN')",r[1])){
-                    Models.Draw latest=store.getLatestDraw();if(latest!=null){String next=issue(Math.max(TargetIssueResolver.firstUnseenOrdinalSU1(now),TargetIssueResolver.sequenceOrdinalSU1(latest.issue)+1));String parent=null;try(Cursor ancestry=db.rawQuery("SELECT parent_id FROM su1_runtime_program WHERE strategy_id=?",new String[]{r[1]})){if(ancestry.moveToFirst())parent=ancestry.getString(0);}
+                    Models.Draw latest=store.getLatestDraw();if(latest!=null){String next=issue(TargetIssueResolver.firstFutureOrdinalSU1(latest,now));String parent=null;try(Cursor ancestry=db.rawQuery("SELECT parent_id FROM su1_runtime_program WHERE strategy_id=?",new String[]{r[1]})){if(ancestry.moveToFirst())parent=ancestry.getString(0);}
                     PromotionPipelineSU1.fromSealed(db,campaign,r[1],parent,HashingSU1.fields("SU1_FOUNDRY_LINEAGE_V1",TrainingCodeIdentityR964.SHA256),next,TargetIssueResolver.sequenceOrdinalSU1(latest.issue),4096);}
                 }
                 return 0;

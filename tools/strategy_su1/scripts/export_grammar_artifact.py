@@ -26,6 +26,7 @@ def main():
         p.error("coverage/program limits")
     result = portable(a.program, a.coverage, a.margin_gate,
                       hashlib.sha256(Path(a.history).read_bytes()).hexdigest(), a.trained_through_issue)
+    Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(result, sort_keys=True, ensure_ascii=False, separators=(",", ":")) + "\n")
     print("EXPORTED_RESEARCH_ONLY", result["sha256"])
 

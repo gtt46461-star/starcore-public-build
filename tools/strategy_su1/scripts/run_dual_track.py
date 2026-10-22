@@ -49,6 +49,7 @@ def main():
         print(name, "SYSTEM OUTPUT", s["hits"], "/", s["actions"], s["hit_rate"], "p=", round(s["binomial_p_vs_30"], 4),
               "blocks", s["block_hit_rates"], r["seconds"], "s", flush=True)
         gc.collect()
+    Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps({"engine": "SU1_DUAL_TRACK_V1", "span": [a.start, len(D)],
                                        "refresh_every": a.refresh, "pool": a.pool, "results": results},
                                       ensure_ascii=False, indent=2) + "\n")

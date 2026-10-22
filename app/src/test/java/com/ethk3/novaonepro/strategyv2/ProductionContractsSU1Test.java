@@ -54,5 +54,8 @@ public final class ProductionContractsSU1Test {
         assertEquals(1,com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1("202001010001"));
         long last=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1("202610211440");assertEquals("202610220001",com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(last+1));
         assertEquals(2,com.ethk3.novaonepro.TargetIssueResolver.firstUnseenOrdinalSU1(1577836800000L));
+        com.ethk3.novaonepro.Models.Draw draw=new com.ethk3.novaonepro.Models.Draw();draw.issue="202610211440";draw.openTime=1577836800000L;for(int i=0;i<10;i++)draw.numbers[i]=i+1;
+        assertEquals(last+2,com.ethk3.novaonepro.TargetIssueResolver.firstFutureOrdinalSU1(draw,draw.openTime+1000));
+        assertEquals(last+5,com.ethk3.novaonepro.TargetIssueResolver.firstFutureOrdinalSU1(draw,draw.openTime+181000));
     }
 }

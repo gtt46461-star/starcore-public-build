@@ -204,6 +204,14 @@ public final class TargetIssueResolver {
         if(distance==Integer.MIN_VALUE||distance<0)throw new IllegalArgumentException("SU1_SEQUENCE");return distance+1L;
     }
     /** Conservative future calendar boundary; never use issue-number arithmetic in adapters. */
+    /** Advance from the canonical source clock, without assuming an issue-date timezone. */
+    public static long firstFutureOrdinalSU1(Models.Draw latest,long now){
+        long nextOpen=predrawDeadlineWallR20261008(latest);
+        if(latest.openTime>now)throw new IllegalArgumentException("SU1_SOURCE_CLOCK_IN_FUTURE");
+        long additional=now<nextOpen?0L:(now-nextOpen)/60000L+1L;
+        // Leave a full minute for registration and predraw freezing.
+        return Math.addExact(sequenceOrdinalSU1(latest.issue),Math.addExact(additional,2L));
+    }
     public static long firstUnseenOrdinalSU1(long wallTime) {
         if(wallTime<1577836800000L)throw new IllegalArgumentException("SU1_CLOCK_RANGE");
         return (wallTime-1577836800000L)/60000L+2;

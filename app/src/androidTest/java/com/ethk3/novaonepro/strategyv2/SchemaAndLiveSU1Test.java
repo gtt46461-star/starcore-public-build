@@ -99,4 +99,16 @@ public final class SchemaAndLiveSU1Test {
             assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=?",asset));assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM pragma_table_info('su1_runtime_program') WHERE name='kernel_hash'"));
         }
     }
+    @Test public void researchCohortsHaveSeparateOrdinalsAndSpendNoAlpha(){
+        try(SQLiteDatabase db=database()){
+            ready(db);long seq=LiveShadowLoopSU1.sequence("202610220001"),now=System.currentTimeMillis();String family=HashingSU1.text("role namespaces");
+            db.beginTransaction();try{
+                String campaign=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",seq-1,"{\"test\":true}",now),id=StrategyRepositorySU1.candidate(db,"EXPERT(0)",1,false,"EXPERT_MIX",null,campaign,seq-1,HashingSU1.text("dataset"),-1,now);
+                String research=PromotionPipelineSU1.register(db,id,null,family,"202610220001",seq-1,1,"PARENT_CHILD","RESEARCH_FUTURE");
+                assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(1000000,StrategyRepositorySU1.count(db,"SELECT global_claim_ordinal FROM su1_eval_cohort WHERE evidence_role='RESEARCH_FUTURE'"));
+                String confirm=PromotionPipelineSU1.register(db,id,PromotionPipelineSU1.nullBaseline(db),family,"202610220001",seq-1,1,"VS_NULL_BASELINE","CONFIRM");
+                assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(1,StrategyRepositorySU1.count(db,"SELECT global_claim_ordinal FROM su1_eval_cohort WHERE evidence_role='CONFIRM'"));assertNotEquals(research,confirm);db.setTransactionSuccessful();
+            }finally{db.endTransaction();}
+        }
+    }
 }

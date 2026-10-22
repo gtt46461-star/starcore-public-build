@@ -1,0 +1,4501 @@
+{
+  "engine": "SU1_HRE_V1 + SU1_FOUNDRY_V2 (R12: atom-world screening + 8 seed families + system-created EMERGENT families; GRAMMAR over lifted registry atoms; per-position HOTT; macro distillation; fold-stability fitness)",
+  "history_file": "history.csv",
+  "first_period": 202603010251,
+  "last_period": 202603110295,
+  "data_check": {
+    "periods": 10000,
+    "minute_gaps": 70,
+    "position_number_chi2": 101.88,
+    "chi2_df": 90,
+    "chi2_note": "df=90; values near 90 are what uniform draws produce"
+  },
+  "atom_catalog": {
+    "registry_atoms": 25350,
+    "registry_families": 28,
+    "lifted_atoms": 16950,
+    "lifted_families": [
+      "DRIFT_JS",
+      "ENTROPY",
+      "FREQUENCY",
+      "FREQUENCY_SLOPE",
+      "GAP_LAST_GAP",
+      "HOT_COLD_Z",
+      "LAG_DIGIT_EQ",
+      "MARKOV_SCORE",
+      "MUTUAL_INFORMATION",
+      "OMISSION",
+      "OMISSION_RATE",
+      "PERIODICITY",
+      "ROLLING_VARIANCE_INDICATOR"
+    ],
+    "not_lifted_families": [
+      "CONDITIONAL_ENTROPY",
+      "CONFIDENCE_TEMPLATE",
+      "DELTA_NUMERIC",
+      "DIRECTION",
+      "DRIFT_PSI",
+      "GAP_GAP_Z",
+      "GAP_MEAN_GAP",
+      "GAP_VAR_GAP",
+      "LOSS_STREAK_TEMPLATE",
+      "REGIME_SCORE",
+      "RESIDUAL_MEAN_TEMPLATE",
+      "ROLLING_MEAN_DIGIT",
+      "ROLLING_VARIANCE_DIGIT",
+      "STRATEGY_DISAGREEMENT_TEMPLATE",
+      "TRANSITION_P1"
+    ],
+    "score_tensors": 168,
+    "condition_series": 150
+  },
+  "budget": {
+    "generations": 10,
+    "population": 32,
+    "seed": 11
+  },
+  "results": [
+    {
+      "dataset": "REAL",
+      "seconds": 199.3,
+      "periods": 10000,
+      "eras": {
+        "warmup": [
+          0,
+          1500
+        ],
+        "dev": [
+          1500,
+          6175
+        ],
+        "val": [
+          6175,
+          7875
+        ],
+        "sealed": [
+          7875,
+          10000
+        ]
+      },
+      "evaluated_programs": 2495,
+      "history": [
+        {
+          "generation": 0,
+          "dev_best_fitness": 0.29764,
+          "dev_best_hit_rate": 0.33478639930252835,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 3,
+            "XI_SELECTOR": 4,
+            "DEEP": 3,
+            "MATRIX": 3,
+            "HEDGE": 2,
+            "REGIME": 2,
+            "GRAMMAR": 12
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.0
+            },
+            "family_trials": {
+              "EXPERT_MIX": 0,
+              "RELATION": 0,
+              "XI_SELECTOR": 0,
+              "DEEP": 0,
+              "MATRIX": 0,
+              "HEDGE": 0,
+              "REGIME": 0,
+              "GRAMMAR": 0
+            },
+            "operator_success": {
+              "mutate": 0.0,
+              "structural": 0.0,
+              "crossover": 0.0,
+              "fuse": 0.0
+            }
+          },
+          "elapsed_s": 4.4
+        },
+        {
+          "generation": 1,
+          "dev_best_fitness": 0.29764,
+          "dev_best_hit_rate": 0.33478639930252835,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 2,
+            "RELATION": 2,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 5,
+            "GRAMMAR": 19
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00808,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.01768,
+              "GRAMMAR": 0.00209
+            },
+            "family_trials": {
+              "EXPERT_MIX": 2,
+              "RELATION": 2,
+              "XI_SELECTOR": 1,
+              "DEEP": 1,
+              "MATRIX": 1,
+              "HEDGE": 1,
+              "REGIME": 5,
+              "GRAMMAR": 11
+            },
+            "operator_success": {
+              "mutate": 0.364,
+              "structural": 0.0,
+              "crossover": 0.2,
+              "fuse": 0.25
+            }
+          },
+          "elapsed_s": 8.8
+        },
+        {
+          "generation": 2,
+          "dev_best_fitness": 0.29764,
+          "dev_best_hit_rate": 0.33478639930252835,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 2,
+            "DEEP": 1,
+            "MATRIX": 2,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 23,
+            "EMERGENT:M026b88560f": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00606,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00503,
+              "DEEP": 0.0,
+              "MATRIX": 5e-05,
+              "HEDGE": 0.0,
+              "REGIME": 0.01539,
+              "GRAMMAR": 0.0011,
+              "EMERGENT:M026b88560f": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 3,
+              "XI_SELECTOR": 3,
+              "DEEP": 2,
+              "MATRIX": 3,
+              "HEDGE": 2,
+              "REGIME": 6,
+              "GRAMMAR": 26,
+              "EMERGENT:M026b88560f": 0
+            },
+            "operator_success": {
+              "mutate": 0.222,
+              "structural": 0.0,
+              "crossover": 0.308,
+              "fuse": 0.182
+            }
+          },
+          "elapsed_s": 13.8
+        },
+        {
+          "generation": 3,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 0,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 22,
+            "EMERGENT:M026b88560f": 3
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01268,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00403,
+              "DEEP": 0.0008,
+              "MATRIX": 5e-05,
+              "HEDGE": 0.00022,
+              "REGIME": 0.01347,
+              "GRAMMAR": 0.00102,
+              "EMERGENT:M026b88560f": 0.00378
+            },
+            "family_trials": {
+              "EXPERT_MIX": 6,
+              "RELATION": 3,
+              "XI_SELECTOR": 4,
+              "DEEP": 3,
+              "MATRIX": 3,
+              "HEDGE": 3,
+              "REGIME": 7,
+              "GRAMMAR": 40,
+              "EMERGENT:M026b88560f": 3
+            },
+            "operator_success": {
+              "mutate": 0.24,
+              "structural": 0.091,
+              "crossover": 0.25,
+              "fuse": 0.25
+            }
+          },
+          "elapsed_s": 16.6
+        },
+        {
+          "generation": 4,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 2,
+            "MATRIX": 1,
+            "HEDGE": 2,
+            "REGIME": 1,
+            "GRAMMAR": 17,
+            "EMERGENT:M026b88560f": 6,
+            "EMERGENT:Maa298fa0fb": 0,
+            "EMERGENT:M82e9f564a5": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01214,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00403,
+              "DEEP": 0.00542,
+              "MATRIX": 4e-05,
+              "HEDGE": 0.00517,
+              "REGIME": 0.01197,
+              "GRAMMAR": 0.00104,
+              "EMERGENT:M026b88560f": 0.00168,
+              "EMERGENT:Maa298fa0fb": 0.01,
+              "EMERGENT:M82e9f564a5": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 9,
+              "RELATION": 3,
+              "XI_SELECTOR": 4,
+              "DEEP": 5,
+              "MATRIX": 4,
+              "HEDGE": 5,
+              "REGIME": 8,
+              "GRAMMAR": 50,
+              "EMERGENT:M026b88560f": 8,
+              "EMERGENT:Maa298fa0fb": 0,
+              "EMERGENT:M82e9f564a5": 0
+            },
+            "operator_success": {
+              "mutate": 0.207,
+              "structural": 0.188,
+              "crossover": 0.25,
+              "fuse": 0.217
+            }
+          },
+          "elapsed_s": 21.2
+        },
+        {
+          "generation": 5,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 0,
+            "HEDGE": 0,
+            "REGIME": 1,
+            "GRAMMAR": 15,
+            "EMERGENT:M026b88560f": 1,
+            "EMERGENT:Maa298fa0fb": 5,
+            "EMERGENT:M82e9f564a5": 7
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01214,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00336,
+              "DEEP": 0.00465,
+              "MATRIX": 4e-05,
+              "HEDGE": 0.00517,
+              "REGIME": 0.01078,
+              "GRAMMAR": 0.0009,
+              "EMERGENT:M026b88560f": 0.00168,
+              "EMERGENT:Maa298fa0fb": 0.00497,
+              "EMERGENT:M82e9f564a5": 0.0067
+            },
+            "family_trials": {
+              "EXPERT_MIX": 9,
+              "RELATION": 4,
+              "XI_SELECTOR": 5,
+              "DEEP": 6,
+              "MATRIX": 4,
+              "HEDGE": 5,
+              "REGIME": 9,
+              "GRAMMAR": 58,
+              "EMERGENT:M026b88560f": 8,
+              "EMERGENT:Maa298fa0fb": 5,
+              "EMERGENT:M82e9f564a5": 7
+            },
+            "operator_success": {
+              "mutate": 0.176,
+              "structural": 0.143,
+              "crossover": 0.257,
+              "fuse": 0.2
+            }
+          },
+          "elapsed_s": 26.5
+        },
+        {
+          "generation": 6,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 4,
+            "RELATION": 2,
+            "XI_SELECTOR": 1,
+            "DEEP": 0,
+            "MATRIX": 1,
+            "HEDGE": 2,
+            "REGIME": 1,
+            "GRAMMAR": 16,
+            "EMERGENT:M026b88560f": 2,
+            "EMERGENT:Maa298fa0fb": 2,
+            "EMERGENT:M82e9f564a5": 1
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01535,
+              "RELATION": 0.00345,
+              "XI_SELECTOR": 0.00288,
+              "DEEP": 0.00465,
+              "MATRIX": 0.00047,
+              "HEDGE": 0.00654,
+              "REGIME": 0.01028,
+              "GRAMMAR": 0.00078,
+              "EMERGENT:M026b88560f": 0.00151,
+              "EMERGENT:Maa298fa0fb": 0.00389,
+              "EMERGENT:M82e9f564a5": 0.00599
+            },
+            "family_trials": {
+              "EXPERT_MIX": 13,
+              "RELATION": 6,
+              "XI_SELECTOR": 6,
+              "DEEP": 6,
+              "MATRIX": 5,
+              "HEDGE": 7,
+              "REGIME": 10,
+              "GRAMMAR": 67,
+              "EMERGENT:M026b88560f": 9,
+              "EMERGENT:Maa298fa0fb": 7,
+              "EMERGENT:M82e9f564a5": 8
+            },
+            "operator_success": {
+              "mutate": 0.268,
+              "structural": 0.167,
+              "crossover": 0.302,
+              "fuse": 0.167
+            }
+          },
+          "elapsed_s": 30.3
+        },
+        {
+          "generation": 7,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 2,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 2,
+            "GRAMMAR": 16,
+            "EMERGENT:M026b88560f": 6,
+            "EMERGENT:Maa298fa0fb": 0,
+            "EMERGENT:M82e9f564a5": 2,
+            "EMERGENT:Meedc5b8366": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01358,
+              "RELATION": 0.00345,
+              "XI_SELECTOR": 0.00288,
+              "DEEP": 0.00957,
+              "MATRIX": 0.00047,
+              "HEDGE": 0.00687,
+              "REGIME": 0.00923,
+              "GRAMMAR": 0.00098,
+              "EMERGENT:M026b88560f": 0.00101,
+              "EMERGENT:Maa298fa0fb": 0.00389,
+              "EMERGENT:M82e9f564a5": 0.0054,
+              "EMERGENT:Meedc5b8366": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 16,
+              "RELATION": 6,
+              "XI_SELECTOR": 6,
+              "DEEP": 8,
+              "MATRIX": 5,
+              "HEDGE": 8,
+              "REGIME": 12,
+              "GRAMMAR": 77,
+              "EMERGENT:M026b88560f": 14,
+              "EMERGENT:Maa298fa0fb": 7,
+              "EMERGENT:M82e9f564a5": 9,
+              "EMERGENT:Meedc5b8366": 0
+            },
+            "operator_success": {
+              "mutate": 0.255,
+              "structural": 0.154,
+              "crossover": 0.3,
+              "fuse": 0.171
+            }
+          },
+          "elapsed_s": 33.8
+        },
+        {
+          "generation": 8,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 6,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 6,
+            "EMERGENT:M026b88560f": 6,
+            "EMERGENT:Maa298fa0fb": 0,
+            "EMERGENT:M82e9f564a5": 2,
+            "EMERGENT:Meedc5b8366": 8
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01283,
+              "RELATION": 0.00302,
+              "XI_SELECTOR": 0.00537,
+              "DEEP": 0.01114,
+              "MATRIX": 0.00047,
+              "HEDGE": 0.00619,
+              "REGIME": 0.00923,
+              "GRAMMAR": 0.00096,
+              "EMERGENT:M026b88560f": 0.00084,
+              "EMERGENT:Maa298fa0fb": 0.00389,
+              "EMERGENT:M82e9f564a5": 0.0049,
+              "EMERGENT:Meedc5b8366": 0.00514
+            },
+            "family_trials": {
+              "EXPERT_MIX": 17,
+              "RELATION": 7,
+              "XI_SELECTOR": 7,
+              "DEEP": 14,
+              "MATRIX": 5,
+              "HEDGE": 9,
+              "REGIME": 12,
+              "GRAMMAR": 79,
+              "EMERGENT:M026b88560f": 17,
+              "EMERGENT:Maa298fa0fb": 7,
+              "EMERGENT:M82e9f564a5": 10,
+              "EMERGENT:Meedc5b8366": 8
+            },
+            "operator_success": {
+              "mutate": 0.268,
+              "structural": 0.2,
+              "crossover": 0.278,
+              "fuse": 0.17
+            }
+          },
+          "elapsed_s": 42.5
+        },
+        {
+          "generation": 9,
+          "dev_best_fitness": 0.30049,
+          "dev_best_hit_rate": 0.3377635197066911,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.28517,
+          "champion_val_hit_rate": 0.3195402298850575,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 2,
+            "DEEP": 3,
+            "MATRIX": 1,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 6,
+            "EMERGENT:M026b88560f": 11,
+            "EMERGENT:Maa298fa0fb": 1,
+            "EMERGENT:M82e9f564a5": 6,
+            "EMERGENT:Meedc5b8366": 2
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01283,
+              "RELATION": 0.00302,
+              "XI_SELECTOR": 0.00557,
+              "DEEP": 0.01307,
+              "MATRIX": 0.00041,
+              "HEDGE": 0.00619,
+              "REGIME": 0.00923,
+              "GRAMMAR": 0.00092,
+              "EMERGENT:M026b88560f": 0.00061,
+              "EMERGENT:Maa298fa0fb": 0.00373,
+              "EMERGENT:M82e9f564a5": 0.00337,
+              "EMERGENT:Meedc5b8366": 0.00421
+            },
+            "family_trials": {
+              "EXPERT_MIX": 17,
+              "RELATION": 7,
+              "XI_SELECTOR": 9,
+              "DEEP": 17,
+              "MATRIX": 6,
+              "HEDGE": 9,
+              "REGIME": 12,
+              "GRAMMAR": 82,
+              "EMERGENT:M026b88560f": 24,
+              "EMERGENT:Maa298fa0fb": 8,
+              "EMERGENT:M82e9f564a5": 15,
+              "EMERGENT:Meedc5b8366": 10
+            },
+            "operator_success": {
+              "mutate": 0.286,
+              "structural": 0.205,
+              "crossover": 0.242,
+              "fuse": 0.154
+            }
+          },
+          "elapsed_s": 49.2
+        }
+      ],
+      "champion": "GRAMMAR | 评分 = 若{位置7的分布漂移(recent=30,reference=200)高于近300期中位数}则(−原子·滞后重现(lag=8) − −原子·滞后重现(lag=8))否则−原子·滞后重现(lag=8) | cover=0.25 gate=MASS | 节点=8",
+      "director_final": {
+        "family_mean_gain": {
+          "EXPERT_MIX": 0.01334,
+          "RELATION": 0.00271,
+          "XI_SELECTOR": 0.00507,
+          "DEEP": 0.01315,
+          "MATRIX": 0.00041,
+          "HEDGE": 0.00846,
+          "REGIME": 0.00858,
+          "GRAMMAR": 0.00089,
+          "EMERGENT:M026b88560f": 0.00049,
+          "EMERGENT:Maa298fa0fb": 0.00373,
+          "EMERGENT:M82e9f564a5": 0.00337,
+          "EMERGENT:Meedc5b8366": 0.00421
+        },
+        "family_trials": {
+          "EXPERT_MIX": 23,
+          "RELATION": 8,
+          "XI_SELECTOR": 10,
+          "DEEP": 20,
+          "MATRIX": 6,
+          "HEDGE": 12,
+          "REGIME": 13,
+          "GRAMMAR": 85,
+          "EMERGENT:M026b88560f": 30,
+          "EMERGENT:Maa298fa0fb": 8,
+          "EMERGENT:M82e9f564a5": 15,
+          "EMERGENT:Meedc5b8366": 10
+        },
+        "operator_success": {
+          "mutate": 0.292,
+          "structural": 0.25,
+          "crossover": 0.25,
+          "fuse": 0.145
+        }
+      },
+      "top10_dev_programs": [
+        {
+          "key": "6184af46e88db929",
+          "family": "GRAMMAR",
+          "origin": "fuse<490463e678d7a064+a3a3883d140842a5",
+          "dev_fitness": 0.30049,
+          "dev_hit_rate": 0.3377635197066911,
+          "dev_actions": 2182,
+          "seconds": 0.029
+        },
+        {
+          "key": "1cdc8f704ea9c917",
+          "family": "GRAMMAR",
+          "origin": "mutate<6184af46e88db929",
+          "dev_fitness": 0.30049,
+          "dev_hit_rate": 0.3377635197066911,
+          "dev_actions": 2182,
+          "seconds": 0.028
+        },
+        {
+          "key": "60c3b5375317e727",
+          "family": "GRAMMAR",
+          "origin": "fuse<6184af46e88db929+1cdc8f704ea9c917",
+          "dev_fitness": 0.30049,
+          "dev_hit_rate": 0.3377635197066911,
+          "dev_actions": 2182,
+          "seconds": 0.036
+        },
+        {
+          "key": "49ba48127320b00e",
+          "family": "GRAMMAR",
+          "origin": "cross<9268a92c586ef17f+6184af46e88db929",
+          "dev_fitness": 0.29802,
+          "dev_hit_rate": 0.330672748004561,
+          "dev_actions": 3508,
+          "seconds": 0.029
+        },
+        {
+          "key": "fa02905bb4461a5b",
+          "family": "GRAMMAR",
+          "origin": "screen:cond",
+          "dev_fitness": 0.29764,
+          "dev_hit_rate": 0.33478639930252835,
+          "dev_actions": 2294,
+          "seconds": 0.024
+        },
+        {
+          "key": "51bebc216326a46b",
+          "family": "GRAMMAR",
+          "origin": "screen:cond",
+          "dev_fitness": 0.29764,
+          "dev_hit_rate": 0.33478639930252835,
+          "dev_actions": 2294,
+          "seconds": 0.032
+        },
+        {
+          "key": "af5b28cdf61cdd9f",
+          "family": "GRAMMAR",
+          "origin": "cross<fa02905bb4461a5b+a3a3883d140842a5",
+          "dev_fitness": 0.29764,
+          "dev_hit_rate": 0.33478639930252835,
+          "dev_actions": 2294,
+          "seconds": 0.029
+        },
+        {
+          "key": "dd6f46ba2b43b627",
+          "family": "GRAMMAR",
+          "origin": "fuse<51bebc216326a46b+fa02905bb4461a5b",
+          "dev_fitness": 0.29764,
+          "dev_hit_rate": 0.33478639930252835,
+          "dev_actions": 2294,
+          "seconds": 0.028
+        },
+        {
+          "key": "af79f78017b46554",
+          "family": "GRAMMAR",
+          "origin": "mutate<af5b28cdf61cdd9f",
+          "dev_fitness": 0.29764,
+          "dev_hit_rate": 0.33478639930252835,
+          "dev_actions": 2294,
+          "seconds": 0.028
+        },
+        {
+          "key": "114cbf1ac2041e03",
+          "family": "GRAMMAR",
+          "origin": "fuse<51bebc216326a46b+dd6f46ba2b43b627",
+          "dev_fitness": 0.29764,
+          "dev_hit_rate": 0.33478639930252835,
+          "dev_actions": 2294,
+          "seconds": 0.026
+        }
+      ],
+      "created_families": [
+        {
+          "generation": 2,
+          "family": "EMERGENT:M026b88560f",
+          "formula": "若{位置5的分布漂移(recent=20,reference=120)高于近300期中位数}则[位置+1前2期号码+1]否则([位置+1前2期号码+1] − [位置+1前2期号码+1])"
+        },
+        {
+          "generation": 4,
+          "family": "EMERGENT:Maa298fa0fb",
+          "formula": "若{遗漏近30期已结算命中率>30%}则[位置+7与位置+8的前1期号码之和mod10]否则([位置+7与位置+8的前1期号码之和mod10] − [位置+7与位置+8的前1期号码之和mod10])"
+        },
+        {
+          "generation": 4,
+          "family": "EMERGENT:M82e9f564a5",
+          "formula": "若{遗漏近30期已结算命中率>30%}则[位置+8与位置+7的前1期号码之和mod10]否则([位置+8与位置+7的前1期号码之和mod10] − [位置+8与位置+7的前1期号码之和mod10])"
+        },
+        {
+          "generation": 7,
+          "family": "EMERGENT:Meedc5b8366",
+          "formula": "若{位置10前1期号码为奇数}则([位置+1前2期号码+1] − [位置+1前2期号码+1])否则[位置+1前2期号码+1]"
+        }
+      ],
+      "learned_macros": [
+        {
+          "id": "Maa298fa0fb",
+          "support": 5,
+          "best_dev_fitness": 0.29764,
+          "born_generation": 3,
+          "formula": "若{遗漏近30期已结算命中率>30%}则[位置+7与位置+8的前1期号码之和mod10]否则([位置+7与位置+8的前1期号码之和mod10] − [位置+7与位置+8的前1期号码之和mod10])"
+        },
+        {
+          "id": "M82e9f564a5",
+          "support": 5,
+          "best_dev_fitness": 0.29764,
+          "born_generation": 3,
+          "formula": "若{遗漏近30期已结算命中率>30%}则[位置+8与位置+7的前1期号码之和mod10]否则([位置+8与位置+7的前1期号码之和mod10] − [位置+8与位置+7的前1期号码之和mod10])"
+        },
+        {
+          "id": "Meedc5b8366",
+          "support": 4,
+          "best_dev_fitness": 0.30049,
+          "born_generation": 3,
+          "formula": "若{位置10前1期号码为奇数}则([位置+1前2期号码+1] − [位置+1前2期号码+1])否则[位置+1前2期号码+1]"
+        },
+        {
+          "id": "M026b88560f",
+          "support": 3,
+          "best_dev_fitness": 0.30049,
+          "born_generation": 1,
+          "formula": "若{位置5的分布漂移(recent=20,reference=120)高于近300期中位数}则[位置+1前2期号码+1]否则([位置+1前2期号码+1] − [位置+1前2期号码+1])"
+        },
+        {
+          "id": "Ma8812b74bc",
+          "support": 2,
+          "best_dev_fitness": 0.29764,
+          "born_generation": 4,
+          "formula": "若{位置10前1期号码为奇数}则([位置+3前1期号码+1] − [位置+3前1期号码+1])否则[位置+3前1期号码+1]"
+        },
+        {
+          "id": "Mb0fc682d80",
+          "support": 2,
+          "best_dev_fitness": 0.29724,
+          "born_generation": 0,
+          "formula": "−原子·滞后重现(lag=8)"
+        }
+      ],
+      "screening": {
+        "singles": 662,
+        "conditionals": 1456,
+        "top": [
+          {
+            "dev_fitness": 0.29764,
+            "formula": "若{遗漏近30期已结算命中率>30%}则[位置+7与位置+8的前1期号码之和mod10]否则([位置+7与位置+8的前1期号码之和mod10] − [位置+7与位置+8的前1期号码之和mod10])"
+          },
+          {
+            "dev_fitness": 0.29764,
+            "formula": "若{遗漏近30期已结算命中率>30%}则[位置+8与位置+7的前1期号码之和mod10]否则([位置+8与位置+7的前1期号码之和mod10] − [位置+8与位置+7的前1期号码之和mod10])"
+          },
+          {
+            "dev_fitness": 0.29739,
+            "formula": "若{位置10前1期号码为奇数}则([位置+3前1期号码+1] − [位置+3前1期号码+1])否则[位置+3前1期号码+1]"
+          },
+          {
+            "dev_fitness": 0.29724,
+            "formula": "若{位置7的分布漂移(recent=30,reference=200)高于近300期中位数}则(−原子·滞后重现(lag=8) − −原子·滞后重现(lag=8))否则−原子·滞后重现(lag=8)"
+          },
+          {
+            "dev_fitness": 0.29555,
+            "formula": "若{位置10前1期号码为奇数}则([位置+1前2期号码+1] − [位置+1前2期号码+1])否则[位置+1前2期号码+1]"
+          },
+          {
+            "dev_fitness": 0.29536,
+            "formula": "若{位置5的分布漂移(recent=20,reference=120)高于近300期中位数}则[位置+1前2期号码+1]否则([位置+1前2期号码+1] − [位置+1前2期号码+1])"
+          }
+        ]
+      },
+      "sealed_once": {
+        "champion": {
+          "periods": 2125,
+          "actions": 1096,
+          "hits": 302,
+          "hit_rate": 0.2755474452554745,
+          "coverage": 0.5157647058823529,
+          "always_rank1_k3_hit_rate": 0.2837647058823529,
+          "wilson_lower_95": 0.2539214455489125,
+          "binomial_p_vs_30": 0.9648439408188402,
+          "block_hit_rates": [
+            0.2647,
+            0.3205,
+            0.2545,
+            0.2656
+          ]
+        },
+        "seed_cross_intersection": {
+          "periods": 2125,
+          "actions": 307,
+          "hits": 77,
+          "hit_rate": 0.250814332247557,
+          "coverage": 0.14447058823529413,
+          "always_rank1_k3_hit_rate": 0.2898823529411765,
+          "wilson_lower_95": 0.21241599947435735,
+          "binomial_p_vs_30": 0.9755094105659352,
+          "block_hit_rates": [
+            0.2989,
+            0.2128,
+            0.2206,
+            0.2476
+          ]
+        }
+      }
+    },
+    {
+      "dataset": "TIME_SHUFFLED",
+      "seconds": 205.5,
+      "periods": 10000,
+      "eras": {
+        "warmup": [
+          0,
+          1500
+        ],
+        "dev": [
+          1500,
+          6175
+        ],
+        "val": [
+          6175,
+          7875
+        ],
+        "sealed": [
+          7875,
+          10000
+        ]
+      },
+      "evaluated_programs": 2495,
+      "history": [
+        {
+          "generation": 0,
+          "dev_best_fitness": 0.29203,
+          "dev_best_hit_rate": 0.3271391529818496,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 3,
+            "XI_SELECTOR": 4,
+            "DEEP": 3,
+            "MATRIX": 3,
+            "HEDGE": 2,
+            "REGIME": 2,
+            "GRAMMAR": 12
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.0
+            },
+            "family_trials": {
+              "EXPERT_MIX": 0,
+              "RELATION": 0,
+              "XI_SELECTOR": 0,
+              "DEEP": 0,
+              "MATRIX": 0,
+              "HEDGE": 0,
+              "REGIME": 0,
+              "GRAMMAR": 0
+            },
+            "operator_success": {
+              "mutate": 0.0,
+              "structural": 0.0,
+              "crossover": 0.0,
+              "fuse": 0.0
+            }
+          },
+          "elapsed_s": 4.3
+        },
+        {
+          "generation": 1,
+          "dev_best_fitness": 0.29203,
+          "dev_best_hit_rate": 0.3271391529818496,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 2,
+            "RELATION": 1,
+            "XI_SELECTOR": 2,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 2,
+            "GRAMMAR": 22
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00169,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00219,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.00351,
+              "GRAMMAR": 0.00482
+            },
+            "family_trials": {
+              "EXPERT_MIX": 2,
+              "RELATION": 1,
+              "XI_SELECTOR": 2,
+              "DEEP": 1,
+              "MATRIX": 1,
+              "HEDGE": 1,
+              "REGIME": 2,
+              "GRAMMAR": 14
+            },
+            "operator_success": {
+              "mutate": 0.4,
+              "structural": 0.2,
+              "crossover": 0.167,
+              "fuse": 0.25
+            }
+          },
+          "elapsed_s": 8.3
+        },
+        {
+          "generation": 2,
+          "dev_best_fitness": 0.29203,
+          "dev_best_hit_rate": 0.3271391529818496,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 3,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 23,
+            "EMERGENT:M23e712f46b": 0,
+            "EMERGENT:M142acd4199": 0,
+            "EMERGENT:M4a53bac79a": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00127,
+              "RELATION": 0.0115,
+              "XI_SELECTOR": 0.00659,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.00263,
+              "GRAMMAR": 0.00401,
+              "EMERGENT:M23e712f46b": 0.01,
+              "EMERGENT:M142acd4199": 0.01,
+              "EMERGENT:M4a53bac79a": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 4,
+              "XI_SELECTOR": 3,
+              "DEEP": 2,
+              "MATRIX": 2,
+              "HEDGE": 2,
+              "REGIME": 3,
+              "GRAMMAR": 29,
+              "EMERGENT:M23e712f46b": 0,
+              "EMERGENT:M142acd4199": 0,
+              "EMERGENT:M4a53bac79a": 0
+            },
+            "operator_success": {
+              "mutate": 0.273,
+              "structural": 0.273,
+              "crossover": 0.182,
+              "fuse": 0.2
+            }
+          },
+          "elapsed_s": 11.7
+        },
+        {
+          "generation": 3,
+          "dev_best_fitness": 0.29203,
+          "dev_best_hit_rate": 0.3271391529818496,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 3,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 3,
+            "REGIME": 0,
+            "GRAMMAR": 14,
+            "EMERGENT:M23e712f46b": 3,
+            "EMERGENT:M142acd4199": 3,
+            "EMERGENT:M4a53bac79a": 3
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00127,
+              "RELATION": 0.01719,
+              "XI_SELECTOR": 0.00527,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.01629,
+              "REGIME": 0.00263,
+              "GRAMMAR": 0.00334,
+              "EMERGENT:M23e712f46b": 0.00266,
+              "EMERGENT:M142acd4199": 0.0025,
+              "EMERGENT:M4a53bac79a": 0.0025
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 7,
+              "XI_SELECTOR": 4,
+              "DEEP": 3,
+              "MATRIX": 3,
+              "HEDGE": 5,
+              "REGIME": 3,
+              "GRAMMAR": 35,
+              "EMERGENT:M23e712f46b": 3,
+              "EMERGENT:M142acd4199": 3,
+              "EMERGENT:M4a53bac79a": 3
+            },
+            "operator_success": {
+              "mutate": 0.348,
+              "structural": 0.286,
+              "crossover": 0.125,
+              "fuse": 0.158
+            }
+          },
+          "elapsed_s": 16.6
+        },
+        {
+          "generation": 4,
+          "dev_best_fitness": 0.29203,
+          "dev_best_hit_rate": 0.3271391529818496,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 3,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 3,
+            "REGIME": 1,
+            "GRAMMAR": 21,
+            "EMERGENT:M23e712f46b": 1,
+            "EMERGENT:M142acd4199": 1,
+            "EMERGENT:M4a53bac79a": 1
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00101,
+              "RELATION": 0.01432,
+              "XI_SELECTOR": 0.00527,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.01203,
+              "REGIME": 0.0021,
+              "GRAMMAR": 0.00246,
+              "EMERGENT:M23e712f46b": 0.00213,
+              "EMERGENT:M142acd4199": 0.002,
+              "EMERGENT:M4a53bac79a": 0.002
+            },
+            "family_trials": {
+              "EXPERT_MIX": 4,
+              "RELATION": 10,
+              "XI_SELECTOR": 4,
+              "DEEP": 3,
+              "MATRIX": 3,
+              "HEDGE": 8,
+              "REGIME": 4,
+              "GRAMMAR": 48,
+              "EMERGENT:M23e712f46b": 4,
+              "EMERGENT:M142acd4199": 4,
+              "EMERGENT:M4a53bac79a": 4
+            },
+            "operator_success": {
+              "mutate": 0.267,
+              "structural": 0.222,
+              "crossover": 0.16,
+              "fuse": 0.13
+            }
+          },
+          "elapsed_s": 20.2
+        },
+        {
+          "generation": 5,
+          "dev_best_fitness": 0.29203,
+          "dev_best_hit_rate": 0.3271391529818496,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 3,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 26,
+            "EMERGENT:M23e712f46b": 0,
+            "EMERGENT:M142acd4199": 0,
+            "EMERGENT:M4a53bac79a": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00101,
+              "RELATION": 0.01432,
+              "XI_SELECTOR": 0.00759,
+              "DEEP": 0.00135,
+              "MATRIX": 0.0,
+              "HEDGE": 0.01082,
+              "REGIME": 0.0021,
+              "GRAMMAR": 0.00221,
+              "EMERGENT:M23e712f46b": 0.00213,
+              "EMERGENT:M142acd4199": 0.002,
+              "EMERGENT:M4a53bac79a": 0.002
+            },
+            "family_trials": {
+              "EXPERT_MIX": 4,
+              "RELATION": 10,
+              "XI_SELECTOR": 7,
+              "DEEP": 4,
+              "MATRIX": 4,
+              "HEDGE": 9,
+              "REGIME": 4,
+              "GRAMMAR": 66,
+              "EMERGENT:M23e712f46b": 4,
+              "EMERGENT:M142acd4199": 4,
+              "EMERGENT:M4a53bac79a": 4
+            },
+            "operator_success": {
+              "mutate": 0.211,
+              "structural": 0.24,
+              "crossover": 0.133,
+              "fuse": 0.185
+            }
+          },
+          "elapsed_s": 27.0
+        },
+        {
+          "generation": 6,
+          "dev_best_fitness": 0.29249,
+          "dev_best_hit_rate": 0.32741116751269034,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 2,
+            "XI_SELECTOR": 0,
+            "DEEP": 1,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 22,
+            "EMERGENT:M23e712f46b": 1,
+            "EMERGENT:M142acd4199": 1,
+            "EMERGENT:M4a53bac79a": 2
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00105,
+              "RELATION": 0.01211,
+              "XI_SELECTOR": 0.00759,
+              "DEEP": 0.00112,
+              "MATRIX": 0.0,
+              "HEDGE": 0.01097,
+              "REGIME": 0.00175,
+              "GRAMMAR": 0.00297,
+              "EMERGENT:M23e712f46b": 0.00178,
+              "EMERGENT:M142acd4199": 0.00167,
+              "EMERGENT:M4a53bac79a": 0.00418
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 12,
+              "XI_SELECTOR": 7,
+              "DEEP": 5,
+              "MATRIX": 4,
+              "HEDGE": 10,
+              "REGIME": 5,
+              "GRAMMAR": 80,
+              "EMERGENT:M23e712f46b": 5,
+              "EMERGENT:M142acd4199": 5,
+              "EMERGENT:M4a53bac79a": 6
+            },
+            "operator_success": {
+              "mutate": 0.205,
+              "structural": 0.235,
+              "crossover": 0.121,
+              "fuse": 0.242
+            }
+          },
+          "elapsed_s": 30.9
+        },
+        {
+          "generation": 7,
+          "dev_best_fitness": 0.29249,
+          "dev_best_hit_rate": 0.32741116751269034,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 2,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 21,
+            "EMERGENT:M23e712f46b": 1,
+            "EMERGENT:M142acd4199": 1,
+            "EMERGENT:M4a53bac79a": 1
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00337,
+              "RELATION": 0.01125,
+              "XI_SELECTOR": 0.00674,
+              "DEEP": 0.00096,
+              "MATRIX": 6e-05,
+              "HEDGE": 0.01005,
+              "REGIME": 0.00221,
+              "GRAMMAR": 0.00256,
+              "EMERGENT:M23e712f46b": 0.00152,
+              "EMERGENT:M142acd4199": 0.00143,
+              "EMERGENT:M4a53bac79a": 0.0048
+            },
+            "family_trials": {
+              "EXPERT_MIX": 7,
+              "RELATION": 13,
+              "XI_SELECTOR": 8,
+              "DEEP": 6,
+              "MATRIX": 5,
+              "HEDGE": 11,
+              "REGIME": 6,
+              "GRAMMAR": 93,
+              "EMERGENT:M23e712f46b": 6,
+              "EMERGENT:M142acd4199": 6,
+              "EMERGENT:M4a53bac79a": 7
+            },
+            "operator_success": {
+              "mutate": 0.184,
+              "structural": 0.273,
+              "crossover": 0.108,
+              "fuse": 0.211
+            }
+          },
+          "elapsed_s": 36.0
+        },
+        {
+          "generation": 8,
+          "dev_best_fitness": 0.29249,
+          "dev_best_hit_rate": 0.32741116751269034,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 3,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 21,
+            "EMERGENT:M23e712f46b": 3,
+            "EMERGENT:M142acd4199": 1,
+            "EMERGENT:M4a53bac79a": 1
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00337,
+              "RELATION": 0.01125,
+              "XI_SELECTOR": 0.00735,
+              "DEEP": 0.00111,
+              "MATRIX": 0.00051,
+              "HEDGE": 0.01644,
+              "REGIME": 0.00221,
+              "GRAMMAR": 0.00228,
+              "EMERGENT:M23e712f46b": 0.00107,
+              "EMERGENT:M142acd4199": 0.00125,
+              "EMERGENT:M4a53bac79a": 0.00427
+            },
+            "family_trials": {
+              "EXPERT_MIX": 7,
+              "RELATION": 13,
+              "XI_SELECTOR": 11,
+              "DEEP": 7,
+              "MATRIX": 6,
+              "HEDGE": 12,
+              "REGIME": 6,
+              "GRAMMAR": 106,
+              "EMERGENT:M23e712f46b": 9,
+              "EMERGENT:M142acd4199": 7,
+              "EMERGENT:M4a53bac79a": 8
+            },
+            "operator_success": {
+              "mutate": 0.179,
+              "structural": 0.314,
+              "crossover": 0.1,
+              "fuse": 0.2
+            }
+          },
+          "elapsed_s": 43.9
+        },
+        {
+          "generation": 9,
+          "dev_best_fitness": 0.29249,
+          "dev_best_hit_rate": 0.32741116751269034,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.27219,
+          "champion_val_hit_rate": 0.3062015503875969,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 3,
+            "HEDGE": 7,
+            "REGIME": 1,
+            "GRAMMAR": 19,
+            "EMERGENT:M23e712f46b": 0,
+            "EMERGENT:M142acd4199": 0,
+            "EMERGENT:M4a53bac79a": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00439,
+              "RELATION": 0.0105,
+              "XI_SELECTOR": 0.00735,
+              "DEEP": 0.00111,
+              "MATRIX": 0.00742,
+              "HEDGE": 0.01367,
+              "REGIME": 0.00194,
+              "GRAMMAR": 0.00307,
+              "EMERGENT:M23e712f46b": 0.00107,
+              "EMERGENT:M142acd4199": 0.00125,
+              "EMERGENT:M4a53bac79a": 0.00427
+            },
+            "family_trials": {
+              "EXPERT_MIX": 8,
+              "RELATION": 14,
+              "XI_SELECTOR": 11,
+              "DEEP": 7,
+              "MATRIX": 9,
+              "HEDGE": 19,
+              "REGIME": 7,
+              "GRAMMAR": 117,
+              "EMERGENT:M23e712f46b": 9,
+              "EMERGENT:M142acd4199": 7,
+              "EMERGENT:M4a53bac79a": 8
+            },
+            "operator_success": {
+              "mutate": 0.183,
+              "structural": 0.322,
+              "crossover": 0.152,
+              "fuse": 0.235
+            }
+          },
+          "elapsed_s": 49.6
+        }
+      ],
+      "champion": "GRAMMAR | 评分 = 若{位置3的分布漂移(recent=30,reference=200)高于近300期中位数}则[位置+8与位置+2的前1期号码之和mod10]否则([位置+8与位置+2的前1期号码之和mod10] − [位置+8与位置+2的前1期号码之和mod10]) | cover=0.25 gate=MASS | 节点=5",
+      "director_final": {
+        "family_mean_gain": {
+          "EXPERT_MIX": 0.00435,
+          "RELATION": 0.00984,
+          "XI_SELECTOR": 0.00678,
+          "DEEP": 0.00111,
+          "MATRIX": 0.00977,
+          "HEDGE": 0.01243,
+          "REGIME": 0.00194,
+          "GRAMMAR": 0.00346,
+          "EMERGENT:M23e712f46b": 0.00107,
+          "EMERGENT:M142acd4199": 0.00125,
+          "EMERGENT:M4a53bac79a": 0.00384
+        },
+        "family_trials": {
+          "EXPERT_MIX": 9,
+          "RELATION": 15,
+          "XI_SELECTOR": 12,
+          "DEEP": 7,
+          "MATRIX": 14,
+          "HEDGE": 21,
+          "REGIME": 7,
+          "GRAMMAR": 130,
+          "EMERGENT:M23e712f46b": 9,
+          "EMERGENT:M142acd4199": 7,
+          "EMERGENT:M4a53bac79a": 9
+        },
+        "operator_success": {
+          "mutate": 0.185,
+          "structural": 0.288,
+          "crossover": 0.208,
+          "fuse": 0.25
+        }
+      },
+      "top10_dev_programs": [
+        {
+          "key": "ce64804087f1e07a",
+          "family": "GRAMMAR",
+          "origin": "struct<3942b247e1d0d8c8",
+          "dev_fitness": 0.29249,
+          "dev_hit_rate": 0.32741116751269034,
+          "dev_actions": 2364,
+          "seconds": 0.038
+        },
+        {
+          "key": "3942b247e1d0d8c8",
+          "family": "GRAMMAR",
+          "origin": "screen:cond",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.028
+        },
+        {
+          "key": "25dd275b63b0df7a",
+          "family": "GRAMMAR",
+          "origin": "screen:cond",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.025
+        },
+        {
+          "key": "5e7b39135bc48e7d",
+          "family": "GRAMMAR",
+          "origin": "fuse<3942b247e1d0d8c8+25dd275b63b0df7a",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.03
+        },
+        {
+          "key": "c2e78c3101e3fb89",
+          "family": "GRAMMAR",
+          "origin": "fuse<5e7b39135bc48e7d+3942b247e1d0d8c8",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.029
+        },
+        {
+          "key": "1d03c2d7a5f226b8",
+          "family": "GRAMMAR",
+          "origin": "cross<3942b247e1d0d8c8+6cc60c88e0a9e397",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.027
+        },
+        {
+          "key": "040d26b667482188",
+          "family": "GRAMMAR",
+          "origin": "mutate<3942b247e1d0d8c8",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.055
+        },
+        {
+          "key": "389d040201501dc4",
+          "family": "GRAMMAR",
+          "origin": "mutate<c2e78c3101e3fb89",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.049
+        },
+        {
+          "key": "8684b67e9719436b",
+          "family": "GRAMMAR",
+          "origin": "cross<3942b247e1d0d8c8+25dd275b63b0df7a",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.027
+        },
+        {
+          "key": "4d606044a0517912",
+          "family": "GRAMMAR",
+          "origin": "struct<1d03c2d7a5f226b8",
+          "dev_fitness": 0.29203,
+          "dev_hit_rate": 0.3271391529818496,
+          "dev_actions": 2314,
+          "seconds": 0.765
+        }
+      ],
+      "created_families": [
+        {
+          "generation": 2,
+          "family": "EMERGENT:M23e712f46b",
+          "formula": "若{位置2前2期号码≥6}则[本位置前3期号码]否则([本位置前3期号码] − [本位置前3期号码])"
+        },
+        {
+          "generation": 2,
+          "family": "EMERGENT:M142acd4199",
+          "formula": "若{位置2前2期号码≥6}则原子·滞后重现(lag=3)否则(原子·滞后重现(lag=3) − 原子·滞后重现(lag=3))"
+        },
+        {
+          "generation": 2,
+          "family": "EMERGENT:M4a53bac79a",
+          "formula": "若{位置3的分布漂移(recent=30,reference=200)高于近300期中位数}则[位置+8与位置+2的前1期号码之和mod10]否则([位置+8与位置+2的前1期号码之和mod10] − [位置+8与位置+2的前1期号码之和mod10])"
+        }
+      ],
+      "learned_macros": [
+        {
+          "id": "M23e712f46b",
+          "support": 7,
+          "best_dev_fitness": 0.29203,
+          "born_generation": 1,
+          "formula": "若{位置2前2期号码≥6}则[本位置前3期号码]否则([本位置前3期号码] − [本位置前3期号码])"
+        },
+        {
+          "id": "M142acd4199",
+          "support": 7,
+          "best_dev_fitness": 0.29203,
+          "born_generation": 1,
+          "formula": "若{位置2前2期号码≥6}则原子·滞后重现(lag=3)否则(原子·滞后重现(lag=3) − 原子·滞后重现(lag=3))"
+        },
+        {
+          "id": "M4a53bac79a",
+          "support": 4,
+          "best_dev_fitness": 0.2917,
+          "born_generation": 1,
+          "formula": "若{位置3的分布漂移(recent=30,reference=200)高于近300期中位数}则[位置+8与位置+2的前1期号码之和mod10]否则([位置+8与位置+2的前1期号码之和mod10] − [位置+8与位置+2的前1期号码之和mod10])"
+        }
+      ],
+      "screening": {
+        "singles": 662,
+        "conditionals": 1456,
+        "top": [
+          {
+            "dev_fitness": 0.29203,
+            "formula": "若{位置2前2期号码≥6}则[本位置前3期号码]否则([本位置前3期号码] − [本位置前3期号码])"
+          },
+          {
+            "dev_fitness": 0.29203,
+            "formula": "若{位置2前2期号码≥6}则原子·滞后重现(lag=3)否则(原子·滞后重现(lag=3) − 原子·滞后重现(lag=3))"
+          },
+          {
+            "dev_fitness": 0.2917,
+            "formula": "若{位置3的分布漂移(recent=30,reference=200)高于近300期中位数}则[位置+8与位置+2的前1期号码之和mod10]否则([位置+8与位置+2的前1期号码之和mod10] − [位置+8与位置+2的前1期号码之和mod10])"
+          },
+          {
+            "dev_fitness": 0.29165,
+            "formula": "若{位置1前1期号码 > 位置8前2期号码}则([本位置前3期号码] − [本位置前3期号码])否则[本位置前3期号码]"
+          },
+          {
+            "dev_fitness": 0.2902,
+            "formula": "若{位置6前1期号码≥6}则[本位置前3期号码]否则([本位置前3期号码] − [本位置前3期号码])"
+          },
+          {
+            "dev_fitness": 0.2902,
+            "formula": "若{位置6前1期号码≥6}则原子·滞后重现(lag=3)否则(原子·滞后重现(lag=3) − 原子·滞后重现(lag=3))"
+          }
+        ]
+      },
+      "sealed_once": {
+        "champion": {
+          "periods": 2125,
+          "actions": 1098,
+          "hits": 356,
+          "hit_rate": 0.3242258652094718,
+          "coverage": 0.5167058823529411,
+          "always_rank1_k3_hit_rate": 0.30729411764705883,
+          "wilson_lower_95": 0.3014464141220781,
+          "binomial_p_vs_30": 0.04356954038237881,
+          "block_hit_rates": [
+            0.3144,
+            0.305,
+            0.3484,
+            0.3264
+          ]
+        },
+        "seed_cross_intersection": {
+          "periods": 2125,
+          "actions": 323,
+          "hits": 101,
+          "hit_rate": 0.3126934984520124,
+          "coverage": 0.152,
+          "always_rank1_k3_hit_rate": 0.31011764705882355,
+          "wilson_lower_95": 0.27196746532614063,
+          "binomial_p_vs_30": 0.3286781367398393,
+          "block_hit_rates": [
+            0.2857,
+            0.3226,
+            0.338,
+            0.3067
+          ]
+        }
+      }
+    },
+    {
+      "dataset": "PLANTED_SIGNAL",
+      "seconds": 217.6,
+      "periods": 10000,
+      "eras": {
+        "warmup": [
+          0,
+          1500
+        ],
+        "dev": [
+          1500,
+          6175
+        ],
+        "val": [
+          6175,
+          7875
+        ],
+        "sealed": [
+          7875,
+          10000
+        ]
+      },
+      "evaluated_programs": 2490,
+      "history": [
+        {
+          "generation": 0,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 3,
+            "XI_SELECTOR": 4,
+            "DEEP": 3,
+            "MATRIX": 3,
+            "HEDGE": 2,
+            "REGIME": 2,
+            "GRAMMAR": 12
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.0
+            },
+            "family_trials": {
+              "EXPERT_MIX": 0,
+              "RELATION": 0,
+              "XI_SELECTOR": 0,
+              "DEEP": 0,
+              "MATRIX": 0,
+              "HEDGE": 0,
+              "REGIME": 0,
+              "GRAMMAR": 0
+            },
+            "operator_success": {
+              "mutate": 0.0,
+              "structural": 0.0,
+              "crossover": 0.0,
+              "fuse": 0.0
+            }
+          },
+          "elapsed_s": 4.2
+        },
+        {
+          "generation": 1,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 2,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 2,
+            "MATRIX": 2,
+            "HEDGE": 1,
+            "REGIME": 2,
+            "GRAMMAR": 21
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0009,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.00994,
+              "MATRIX": 0.00228,
+              "HEDGE": 0.0,
+              "REGIME": 0.00501,
+              "GRAMMAR": 0.00619
+            },
+            "family_trials": {
+              "EXPERT_MIX": 2,
+              "RELATION": 1,
+              "XI_SELECTOR": 1,
+              "DEEP": 2,
+              "MATRIX": 2,
+              "HEDGE": 1,
+              "REGIME": 2,
+              "GRAMMAR": 13
+            },
+            "operator_success": {
+              "mutate": 0.333,
+              "structural": 0.0,
+              "crossover": 0.333,
+              "fuse": 0.375
+            }
+          },
+          "elapsed_s": 10.1
+        },
+        {
+          "generation": 2,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 6,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 21
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0009,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.02799,
+              "MATRIX": 0.00171,
+              "HEDGE": 0.0,
+              "REGIME": 0.00614,
+              "GRAMMAR": 0.00333
+            },
+            "family_trials": {
+              "EXPERT_MIX": 2,
+              "RELATION": 2,
+              "XI_SELECTOR": 2,
+              "DEEP": 8,
+              "MATRIX": 3,
+              "HEDGE": 2,
+              "REGIME": 3,
+              "GRAMMAR": 26
+            },
+            "operator_success": {
+              "mutate": 0.357,
+              "structural": 0.25,
+              "crossover": 0.2,
+              "fuse": 0.364
+            }
+          },
+          "elapsed_s": 20.5
+        },
+        {
+          "generation": 3,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 1,
+            "XI_SELECTOR": 2,
+            "DEEP": 6,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 18,
+            "EMERGENT:M11acb87005": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00642,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00398,
+              "DEEP": 0.01884,
+              "MATRIX": 0.00171,
+              "HEDGE": 0.0,
+              "REGIME": 0.00491,
+              "GRAMMAR": 0.00248,
+              "EMERGENT:M11acb87005": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 3,
+              "XI_SELECTOR": 4,
+              "DEEP": 14,
+              "MATRIX": 3,
+              "HEDGE": 3,
+              "REGIME": 4,
+              "GRAMMAR": 36,
+              "EMERGENT:M11acb87005": 0
+            },
+            "operator_success": {
+              "mutate": 0.316,
+              "structural": 0.25,
+              "crossover": 0.3,
+              "fuse": 0.294
+            }
+          },
+          "elapsed_s": 29.7
+        },
+        {
+          "generation": 4,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 2,
+            "MATRIX": 2,
+            "HEDGE": 0,
+            "REGIME": 1,
+            "GRAMMAR": 16,
+            "EMERGENT:M11acb87005": 11,
+            "EMERGENT:M567a9f4548": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00642,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00398,
+              "DEEP": 0.02097,
+              "MATRIX": 0.00655,
+              "HEDGE": 0.0,
+              "REGIME": 0.00409,
+              "GRAMMAR": 0.00204,
+              "EMERGENT:M11acb87005": 0.0174,
+              "EMERGENT:M567a9f4548": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 3,
+              "XI_SELECTOR": 4,
+              "DEEP": 16,
+              "MATRIX": 5,
+              "HEDGE": 3,
+              "REGIME": 5,
+              "GRAMMAR": 44,
+              "EMERGENT:M11acb87005": 11,
+              "EMERGENT:M567a9f4548": 0
+            },
+            "operator_success": {
+              "mutate": 0.28,
+              "structural": 0.333,
+              "crossover": 0.231,
+              "fuse": 0.417
+            }
+          },
+          "elapsed_s": 34.7
+        },
+        {
+          "generation": 5,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 18,
+            "EMERGENT:M11acb87005": 4,
+            "EMERGENT:M567a9f4548": 5
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00642,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00332,
+              "DEEP": 0.0198,
+              "MATRIX": 0.00715,
+              "HEDGE": 0.00081,
+              "REGIME": 0.00409,
+              "GRAMMAR": 0.00405,
+              "EMERGENT:M11acb87005": 0.01492,
+              "EMERGENT:M567a9f4548": 0.0034
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 4,
+              "XI_SELECTOR": 5,
+              "DEEP": 17,
+              "MATRIX": 6,
+              "HEDGE": 4,
+              "REGIME": 5,
+              "GRAMMAR": 56,
+              "EMERGENT:M11acb87005": 13,
+              "EMERGENT:M567a9f4548": 5
+            },
+            "operator_success": {
+              "mutate": 0.25,
+              "structural": 0.32,
+              "crossover": 0.206,
+              "fuse": 0.424
+            }
+          },
+          "elapsed_s": 41.4
+        },
+        {
+          "generation": 6,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 0,
+            "REGIME": 1,
+            "GRAMMAR": 18,
+            "EMERGENT:M11acb87005": 8,
+            "EMERGENT:M567a9f4548": 2,
+            "EMERGENT:M7ba30d2375": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01098,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00285,
+              "DEEP": 0.0198,
+              "MATRIX": 0.00715,
+              "HEDGE": 0.00081,
+              "REGIME": 0.00351,
+              "GRAMMAR": 0.0038,
+              "EMERGENT:M11acb87005": 0.01049,
+              "EMERGENT:M567a9f4548": 0.00255,
+              "EMERGENT:M7ba30d2375": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 6,
+              "RELATION": 5,
+              "XI_SELECTOR": 6,
+              "DEEP": 17,
+              "MATRIX": 6,
+              "HEDGE": 4,
+              "REGIME": 6,
+              "GRAMMAR": 68,
+              "EMERGENT:M11acb87005": 19,
+              "EMERGENT:M567a9f4548": 7,
+              "EMERGENT:M7ba30d2375": 0
+            },
+            "operator_success": {
+              "mutate": 0.219,
+              "structural": 0.281,
+              "crossover": 0.175,
+              "fuse": 0.4
+            }
+          },
+          "elapsed_s": 46.5
+        },
+        {
+          "generation": 7,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 0,
+            "XI_SELECTOR": 1,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 12,
+            "EMERGENT:M11acb87005": 7,
+            "EMERGENT:M567a9f4548": 0,
+            "EMERGENT:M7ba30d2375": 11,
+            "EMERGENT:M22ef058110": 0,
+            "EMERGENT:M41cb33b072": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01012,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00308,
+              "DEEP": 0.0198,
+              "MATRIX": 0.00715,
+              "HEDGE": 0.00081,
+              "REGIME": 0.00351,
+              "GRAMMAR": 0.00345,
+              "EMERGENT:M11acb87005": 0.0089,
+              "EMERGENT:M567a9f4548": 0.00255,
+              "EMERGENT:M7ba30d2375": 0.04111,
+              "EMERGENT:M22ef058110": 0.01,
+              "EMERGENT:M41cb33b072": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 7,
+              "RELATION": 5,
+              "XI_SELECTOR": 7,
+              "DEEP": 17,
+              "MATRIX": 6,
+              "HEDGE": 4,
+              "REGIME": 6,
+              "GRAMMAR": 75,
+              "EMERGENT:M11acb87005": 23,
+              "EMERGENT:M567a9f4548": 7,
+              "EMERGENT:M7ba30d2375": 11,
+              "EMERGENT:M22ef058110": 0,
+              "EMERGENT:M41cb33b072": 0
+            },
+            "operator_success": {
+              "mutate": 0.257,
+              "structural": 0.257,
+              "crossover": 0.271,
+              "fuse": 0.42
+            }
+          },
+          "elapsed_s": 49.3
+        },
+        {
+          "generation": 8,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 12,
+            "EMERGENT:M11acb87005": 2,
+            "EMERGENT:M567a9f4548": 1,
+            "EMERGENT:M7ba30d2375": 11,
+            "EMERGENT:M22ef058110": 3,
+            "EMERGENT:M41cb33b072": 3
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01012,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00308,
+              "DEEP": 0.0198,
+              "MATRIX": 0.00715,
+              "HEDGE": 0.00081,
+              "REGIME": 0.00351,
+              "GRAMMAR": 0.00324,
+              "EMERGENT:M11acb87005": 0.00855,
+              "EMERGENT:M567a9f4548": 0.01042,
+              "EMERGENT:M7ba30d2375": 0.04795,
+              "EMERGENT:M22ef058110": 0.0025,
+              "EMERGENT:M41cb33b072": 0.01554
+            },
+            "family_trials": {
+              "EXPERT_MIX": 7,
+              "RELATION": 5,
+              "XI_SELECTOR": 7,
+              "DEEP": 17,
+              "MATRIX": 6,
+              "HEDGE": 4,
+              "REGIME": 6,
+              "GRAMMAR": 80,
+              "EMERGENT:M11acb87005": 24,
+              "EMERGENT:M567a9f4548": 8,
+              "EMERGENT:M7ba30d2375": 22,
+              "EMERGENT:M22ef058110": 3,
+              "EMERGENT:M41cb33b072": 3
+            },
+            "operator_success": {
+              "mutate": 0.289,
+              "structural": 0.286,
+              "crossover": 0.268,
+              "fuse": 0.446
+            }
+          },
+          "elapsed_s": 53.3
+        },
+        {
+          "generation": 9,
+          "dev_best_fitness": 0.38609,
+          "dev_best_hit_rate": 0.4482758620689655,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.35229,
+          "champion_val_hit_rate": 0.41379310344827586,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 2,
+            "MATRIX": 1,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 13,
+            "EMERGENT:M11acb87005": 2,
+            "EMERGENT:M567a9f4548": 1,
+            "EMERGENT:M7ba30d2375": 11,
+            "EMERGENT:M22ef058110": 0,
+            "EMERGENT:M41cb33b072": 2
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01012,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00308,
+              "DEEP": 0.01896,
+              "MATRIX": 0.01043,
+              "HEDGE": 0.00081,
+              "REGIME": 0.00351,
+              "GRAMMAR": 0.00325,
+              "EMERGENT:M11acb87005": 0.00806,
+              "EMERGENT:M567a9f4548": 0.00938,
+              "EMERGENT:M7ba30d2375": 0.03455,
+              "EMERGENT:M22ef058110": 0.0025,
+              "EMERGENT:M41cb33b072": 0.01475
+            },
+            "family_trials": {
+              "EXPERT_MIX": 7,
+              "RELATION": 5,
+              "XI_SELECTOR": 7,
+              "DEEP": 19,
+              "MATRIX": 7,
+              "HEDGE": 4,
+              "REGIME": 6,
+              "GRAMMAR": 85,
+              "EMERGENT:M11acb87005": 26,
+              "EMERGENT:M567a9f4548": 9,
+              "EMERGENT:M7ba30d2375": 33,
+              "EMERGENT:M22ef058110": 3,
+              "EMERGENT:M41cb33b072": 5
+            },
+            "operator_success": {
+              "mutate": 0.283,
+              "structural": 0.292,
+              "crossover": 0.286,
+              "fuse": 0.458
+            }
+          },
+          "elapsed_s": 60.1
+        }
+      ],
+      "champion": "GRAMMAR | 评分 = [位置+0→本位置转移矩阵] | cover=0.25 gate=MASS | 节点=1",
+      "director_final": {
+        "family_mean_gain": {
+          "EXPERT_MIX": 0.009,
+          "RELATION": 0.0,
+          "XI_SELECTOR": 0.00308,
+          "DEEP": 0.01896,
+          "MATRIX": 0.01043,
+          "HEDGE": 0.00081,
+          "REGIME": 0.00307,
+          "GRAMMAR": 0.0042,
+          "EMERGENT:M11acb87005": 0.00843,
+          "EMERGENT:M567a9f4548": 0.00938,
+          "EMERGENT:M7ba30d2375": 0.03637,
+          "EMERGENT:M22ef058110": 0.01075,
+          "EMERGENT:M41cb33b072": 0.0137
+        },
+        "family_trials": {
+          "EXPERT_MIX": 8,
+          "RELATION": 5,
+          "XI_SELECTOR": 7,
+          "DEEP": 19,
+          "MATRIX": 7,
+          "HEDGE": 4,
+          "REGIME": 7,
+          "GRAMMAR": 90,
+          "EMERGENT:M11acb87005": 28,
+          "EMERGENT:M567a9f4548": 9,
+          "EMERGENT:M7ba30d2375": 44,
+          "EMERGENT:M22ef058110": 4,
+          "EMERGENT:M41cb33b072": 8
+        },
+        "operator_success": {
+          "mutate": 0.26,
+          "structural": 0.264,
+          "crossover": 0.319,
+          "fuse": 0.485
+        }
+      },
+      "top10_dev_programs": [
+        {
+          "key": "2adb80d3fe95d33b",
+          "family": "GRAMMAR",
+          "origin": "screen:cond",
+          "dev_fitness": 0.38609,
+          "dev_hit_rate": 0.4482758620689655,
+          "dev_actions": 1189,
+          "seconds": 0.033
+        },
+        {
+          "key": "2c6a0e04659b2ef5",
+          "family": "GRAMMAR",
+          "origin": "mutate<2adb80d3fe95d33b",
+          "dev_fitness": 0.38609,
+          "dev_hit_rate": 0.4482758620689655,
+          "dev_actions": 1189,
+          "seconds": 0.041
+        },
+        {
+          "key": "cfd4583029b0cfc2",
+          "family": "GRAMMAR",
+          "origin": "cross<2adb80d3fe95d33b+2c6a0e04659b2ef5",
+          "dev_fitness": 0.38609,
+          "dev_hit_rate": 0.4482758620689655,
+          "dev_actions": 1189,
+          "seconds": 0.042
+        },
+        {
+          "key": "21ebf7f2cc6644f3",
+          "family": "GRAMMAR",
+          "origin": "fuse<2c6a0e04659b2ef5+7e8cd2c2daf33210",
+          "dev_fitness": 0.38609,
+          "dev_hit_rate": 0.4482758620689655,
+          "dev_actions": 1189,
+          "seconds": 0.058
+        },
+        {
+          "key": "c6cbe4f092f2634e",
+          "family": "GRAMMAR",
+          "origin": "cross<cfd4583029b0cfc2+2c6a0e04659b2ef5",
+          "dev_fitness": 0.38609,
+          "dev_hit_rate": 0.4482758620689655,
+          "dev_actions": 1189,
+          "seconds": 0.037
+        },
+        {
+          "key": "46bd1d86b6035f5d",
+          "family": "GRAMMAR",
+          "origin": "struct<2adb80d3fe95d33b",
+          "dev_fitness": 0.38609,
+          "dev_hit_rate": 0.4482758620689655,
+          "dev_actions": 1189,
+          "seconds": 0.047
+        },
+        {
+          "key": "92c8bd4f2c3c0eee",
+          "family": "GRAMMAR",
+          "origin": "fuse<7e8cd2c2daf33210+ccac6c8d44122036",
+          "dev_fitness": 0.38395,
+          "dev_hit_rate": 0.44172297297297297,
+          "dev_actions": 1184,
+          "seconds": 0.048
+        },
+        {
+          "key": "ccac6c8d44122036",
+          "family": "GRAMMAR",
+          "origin": "fuse<98c531a5e893d31b+2adb80d3fe95d33b",
+          "dev_fitness": 0.3832,
+          "dev_hit_rate": 0.4435831180017227,
+          "dev_actions": 1161,
+          "seconds": 0.035
+        },
+        {
+          "key": "3eb4b8152e964c09",
+          "family": "GRAMMAR",
+          "origin": "cross<92c8bd4f2c3c0eee+2adb80d3fe95d33b",
+          "dev_fitness": 0.38265,
+          "dev_hit_rate": 0.4453924914675768,
+          "dev_actions": 1172,
+          "seconds": 0.073
+        },
+        {
+          "key": "7e8cd2c2daf33210",
+          "family": "GRAMMAR",
+          "origin": "fuse<ccac6c8d44122036+ccac6c8d44122036",
+          "dev_fitness": 0.38011,
+          "dev_hit_rate": 0.44235695986336465,
+          "dev_actions": 1171,
+          "seconds": 0.04
+        }
+      ],
+      "created_families": [
+        {
+          "generation": 3,
+          "family": "EMERGENT:M11acb87005",
+          "formula": "若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+        },
+        {
+          "generation": 4,
+          "family": "EMERGENT:M567a9f4548",
+          "formula": "若{位置10前2期号码≥6}则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])否则[位置+0→本位置转移矩阵]"
+        },
+        {
+          "generation": 6,
+          "family": "EMERGENT:M7ba30d2375",
+          "formula": "−[号码8偏好]"
+        },
+        {
+          "generation": 7,
+          "family": "EMERGENT:M22ef058110",
+          "formula": "排名([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+        },
+        {
+          "generation": 7,
+          "family": "EMERGENT:M41cb33b072",
+          "formula": "若{位置10前2期号码≥6}则排名([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])否则[位置+0→本位置转移矩阵]"
+        }
+      ],
+      "learned_macros": [
+        {
+          "id": "M11acb87005",
+          "support": 8,
+          "best_dev_fitness": 0.38609,
+          "born_generation": 3,
+          "formula": "若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+        },
+        {
+          "id": "M567a9f4548",
+          "support": 7,
+          "best_dev_fitness": 0.38609,
+          "born_generation": 3,
+          "formula": "若{位置10前2期号码≥6}则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])否则[位置+0→本位置转移矩阵]"
+        },
+        {
+          "id": "M7ba30d2375",
+          "support": 6,
+          "best_dev_fitness": 0.38395,
+          "born_generation": 5,
+          "formula": "−[号码8偏好]"
+        },
+        {
+          "id": "M22ef058110",
+          "support": 3,
+          "best_dev_fitness": 0.38609,
+          "born_generation": 3,
+          "formula": "排名([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+        },
+        {
+          "id": "M41cb33b072",
+          "support": 3,
+          "best_dev_fitness": 0.38609,
+          "born_generation": 6,
+          "formula": "若{位置10前2期号码≥6}则排名([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])否则[位置+0→本位置转移矩阵]"
+        },
+        {
+          "id": "M885826f920",
+          "support": 2,
+          "best_dev_fitness": 0.38395,
+          "born_generation": 8,
+          "formula": "若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则[位置+0→本位置转移矩阵]"
+        },
+        {
+          "id": "M3bd8dc9d73",
+          "support": 2,
+          "best_dev_fitness": 0.38395,
+          "born_generation": 8,
+          "formula": "(若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则[位置+0→本位置转移矩阵] + −[号码8偏好])"
+        },
+        {
+          "id": "M8ffdaa45aa",
+          "support": 2,
+          "best_dev_fitness": 0.3774,
+          "born_generation": 6,
+          "formula": "若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+        }
+      ],
+      "screening": {
+        "singles": 662,
+        "conditionals": 1456,
+        "top": [
+          {
+            "dev_fitness": 0.38609,
+            "formula": "若{位置10前2期号码≥6}则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])否则[位置+0→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.3764,
+            "formula": "若{位置5前2期号码为奇数}则[位置+0→本位置转移矩阵]否则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.37022,
+            "formula": "若{位置9前1期号码≥6}则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])否则[位置+0→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.36995,
+            "formula": "[位置+0→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.36955,
+            "formula": "若{位置7的分布漂移(recent=80,reference=500)高于近300期中位数}则[位置+0→本位置转移矩阵]否则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.36728,
+            "formula": "若{位置2前1期号码 > 位置10前2期号码}则[位置+0→本位置转移矩阵]否则([位置+0→本位置转移矩阵] − [位置+0→本位置转移矩阵])"
+          }
+        ]
+      },
+      "sealed_once": {
+        "champion": {
+          "periods": 2125,
+          "actions": 527,
+          "hits": 227,
+          "hit_rate": 0.4307400379506641,
+          "coverage": 0.248,
+          "always_rank1_k3_hit_rate": 0.38023529411764706,
+          "wilson_lower_95": 0.3957016729718813,
+          "binomial_p_vs_30": 1.4999435055033676e-10,
+          "block_hit_rates": [
+            0.4161,
+            0.5429,
+            0.4022,
+            0.3766
+          ]
+        },
+        "seed_cross_intersection": {
+          "periods": 2125,
+          "actions": 323,
+          "hits": 95,
+          "hit_rate": 0.29411764705882354,
+          "coverage": 0.152,
+          "always_rank1_k3_hit_rate": 0.3247058823529412,
+          "wilson_lower_95": 0.2542635496561329,
+          "binomial_p_vs_30": 0.6117570262030596,
+          "block_hit_rates": [
+            0.2576,
+            0.24,
+            0.3978,
+            0.2656
+          ]
+        }
+      }
+    },
+    {
+      "dataset": "PLANTED_REGIME_CROSS",
+      "seconds": 183.4,
+      "periods": 10000,
+      "eras": {
+        "warmup": [
+          0,
+          1500
+        ],
+        "dev": [
+          1500,
+          6175
+        ],
+        "val": [
+          6175,
+          7875
+        ],
+        "sealed": [
+          7875,
+          10000
+        ]
+      },
+      "evaluated_programs": 2491,
+      "history": [
+        {
+          "generation": 0,
+          "dev_best_fitness": 0.33738,
+          "dev_best_hit_rate": 0.45652173913043476,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 3,
+            "XI_SELECTOR": 4,
+            "DEEP": 3,
+            "MATRIX": 3,
+            "HEDGE": 2,
+            "REGIME": 2,
+            "GRAMMAR": 12
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.0
+            },
+            "family_trials": {
+              "EXPERT_MIX": 0,
+              "RELATION": 0,
+              "XI_SELECTOR": 0,
+              "DEEP": 0,
+              "MATRIX": 0,
+              "HEDGE": 0,
+              "REGIME": 0,
+              "GRAMMAR": 0
+            },
+            "operator_success": {
+              "mutate": 0.0,
+              "structural": 0.0,
+              "crossover": 0.0,
+              "fuse": 0.0
+            }
+          },
+          "elapsed_s": 4.2
+        },
+        {
+          "generation": 1,
+          "dev_best_fitness": 0.3573,
+          "dev_best_hit_rate": 0.4533639143730887,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 2,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 3,
+            "GRAMMAR": 22,
+            "EMERGENT:M059c966efd": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0,
+              "RELATION": 0.01663,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.00643,
+              "REGIME": 0.01993,
+              "GRAMMAR": 0.00289,
+              "EMERGENT:M059c966efd": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 1,
+              "RELATION": 2,
+              "XI_SELECTOR": 1,
+              "DEEP": 1,
+              "MATRIX": 1,
+              "HEDGE": 1,
+              "REGIME": 3,
+              "GRAMMAR": 14,
+              "EMERGENT:M059c966efd": 0
+            },
+            "operator_success": {
+              "mutate": 0.0,
+              "structural": 0.286,
+              "crossover": 0.429,
+              "fuse": 0.429
+            }
+          },
+          "elapsed_s": 9.0
+        },
+        {
+          "generation": 2,
+          "dev_best_fitness": 0.38754,
+          "dev_best_hit_rate": 0.4825662482566248,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 2,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 22,
+            "EMERGENT:M059c966efd": 2,
+            "EMERGENT:M575cb3e8ea": 0,
+            "EMERGENT:M0d91ba75f9": 0,
+            "EMERGENT:Maa7301e470": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00898,
+              "RELATION": 0.01247,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.01472,
+              "HEDGE": 0.00428,
+              "REGIME": 0.01945,
+              "GRAMMAR": 0.00666,
+              "EMERGENT:M059c966efd": 0.00333,
+              "EMERGENT:M575cb3e8ea": 0.01,
+              "EMERGENT:M0d91ba75f9": 0.01,
+              "EMERGENT:Maa7301e470": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 3,
+              "XI_SELECTOR": 2,
+              "DEEP": 2,
+              "MATRIX": 2,
+              "HEDGE": 2,
+              "REGIME": 4,
+              "GRAMMAR": 28,
+              "EMERGENT:M059c966efd": 2,
+              "EMERGENT:M575cb3e8ea": 0,
+              "EMERGENT:M0d91ba75f9": 0,
+              "EMERGENT:Maa7301e470": 0
+            },
+            "operator_success": {
+              "mutate": 0.143,
+              "structural": 0.286,
+              "crossover": 0.286,
+              "fuse": 0.538
+            }
+          },
+          "elapsed_s": 12.7
+        },
+        {
+          "generation": 3,
+          "dev_best_fitness": 0.38754,
+          "dev_best_hit_rate": 0.4825662482566248,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 1,
+            "HEDGE": 0,
+            "REGIME": 1,
+            "GRAMMAR": 12,
+            "EMERGENT:M059c966efd": 0,
+            "EMERGENT:M575cb3e8ea": 3,
+            "EMERGENT:M0d91ba75f9": 7,
+            "EMERGENT:Maa7301e470": 7,
+            "EMERGENT:Ma37789473c": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00898,
+              "RELATION": 0.00998,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.01104,
+              "HEDGE": 0.00428,
+              "REGIME": 0.01765,
+              "GRAMMAR": 0.00612,
+              "EMERGENT:M059c966efd": 0.00333,
+              "EMERGENT:M575cb3e8ea": 0.00558,
+              "EMERGENT:M0d91ba75f9": 0.02043,
+              "EMERGENT:Maa7301e470": 0.0259,
+              "EMERGENT:Ma37789473c": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 4,
+              "XI_SELECTOR": 2,
+              "DEEP": 2,
+              "MATRIX": 3,
+              "HEDGE": 2,
+              "REGIME": 5,
+              "GRAMMAR": 32,
+              "EMERGENT:M059c966efd": 2,
+              "EMERGENT:M575cb3e8ea": 3,
+              "EMERGENT:M0d91ba75f9": 7,
+              "EMERGENT:Maa7301e470": 7,
+              "EMERGENT:Ma37789473c": 0
+            },
+            "operator_success": {
+              "mutate": 0.143,
+              "structural": 0.364,
+              "crossover": 0.364,
+              "fuse": 0.571
+            }
+          },
+          "elapsed_s": 16.5
+        },
+        {
+          "generation": 4,
+          "dev_best_fitness": 0.38949,
+          "dev_best_hit_rate": 0.494488188976378,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 12,
+            "EMERGENT:M059c966efd": 2,
+            "EMERGENT:M575cb3e8ea": 0,
+            "EMERGENT:M0d91ba75f9": 0,
+            "EMERGENT:Maa7301e470": 4,
+            "EMERGENT:Ma37789473c": 11,
+            "EMERGENT:Mdfac57bedb": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00898,
+              "RELATION": 0.00998,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.00883,
+              "HEDGE": 0.00335,
+              "REGIME": 0.01572,
+              "GRAMMAR": 0.00518,
+              "EMERGENT:M059c966efd": 0.00953,
+              "EMERGENT:M575cb3e8ea": 0.00558,
+              "EMERGENT:M0d91ba75f9": 0.02043,
+              "EMERGENT:Maa7301e470": 0.02072,
+              "EMERGENT:Ma37789473c": 0.0248,
+              "EMERGENT:Mdfac57bedb": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 4,
+              "XI_SELECTOR": 2,
+              "DEEP": 2,
+              "MATRIX": 4,
+              "HEDGE": 3,
+              "REGIME": 6,
+              "GRAMMAR": 38,
+              "EMERGENT:M059c966efd": 4,
+              "EMERGENT:M575cb3e8ea": 3,
+              "EMERGENT:M0d91ba75f9": 7,
+              "EMERGENT:Maa7301e470": 9,
+              "EMERGENT:Ma37789473c": 11,
+              "EMERGENT:Mdfac57bedb": 0
+            },
+            "operator_success": {
+              "mutate": 0.091,
+              "structural": 0.346,
+              "crossover": 0.3,
+              "fuse": 0.586
+            }
+          },
+          "elapsed_s": 18.8
+        },
+        {
+          "generation": 5,
+          "dev_best_fitness": 0.38949,
+          "dev_best_hit_rate": 0.494488188976378,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 0,
+            "XI_SELECTOR": 1,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 0,
+            "REGIME": 1,
+            "GRAMMAR": 10,
+            "EMERGENT:M059c966efd": 0,
+            "EMERGENT:M575cb3e8ea": 0,
+            "EMERGENT:M0d91ba75f9": 7,
+            "EMERGENT:Maa7301e470": 1,
+            "EMERGENT:Ma37789473c": 8,
+            "EMERGENT:Mdfac57bedb": 3
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00719,
+              "RELATION": 0.00998,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.00883,
+              "HEDGE": 0.00335,
+              "REGIME": 0.01376,
+              "GRAMMAR": 0.00517,
+              "EMERGENT:M059c966efd": 0.00953,
+              "EMERGENT:M575cb3e8ea": 0.00558,
+              "EMERGENT:M0d91ba75f9": 0.02369,
+              "EMERGENT:Maa7301e470": 0.01884,
+              "EMERGENT:Ma37789473c": 0.02184,
+              "EMERGENT:Mdfac57bedb": 0.00353
+            },
+            "family_trials": {
+              "EXPERT_MIX": 4,
+              "RELATION": 4,
+              "XI_SELECTOR": 3,
+              "DEEP": 2,
+              "MATRIX": 4,
+              "HEDGE": 3,
+              "REGIME": 7,
+              "GRAMMAR": 43,
+              "EMERGENT:M059c966efd": 4,
+              "EMERGENT:M575cb3e8ea": 3,
+              "EMERGENT:M0d91ba75f9": 14,
+              "EMERGENT:Maa7301e470": 10,
+              "EMERGENT:Ma37789473c": 16,
+              "EMERGENT:Mdfac57bedb": 3
+            },
+            "operator_success": {
+              "mutate": 0.077,
+              "structural": 0.353,
+              "crossover": 0.286,
+              "fuse": 0.526
+            }
+          },
+          "elapsed_s": 22.9
+        },
+        {
+          "generation": 6,
+          "dev_best_fitness": 0.38949,
+          "dev_best_hit_rate": 0.494488188976378,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4047,
+          "champion_val_hit_rate": 0.46866485013623976,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 2,
+            "XI_SELECTOR": 0,
+            "DEEP": 1,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 15,
+            "EMERGENT:M059c966efd": 4,
+            "EMERGENT:M575cb3e8ea": 1,
+            "EMERGENT:M0d91ba75f9": 0,
+            "EMERGENT:Maa7301e470": 0,
+            "EMERGENT:Ma37789473c": 8,
+            "EMERGENT:Mdfac57bedb": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00719,
+              "RELATION": 0.00713,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.00883,
+              "HEDGE": 0.0056,
+              "REGIME": 0.01376,
+              "GRAMMAR": 0.00577,
+              "EMERGENT:M059c966efd": 0.01354,
+              "EMERGENT:M575cb3e8ea": 0.0062,
+              "EMERGENT:M0d91ba75f9": 0.02369,
+              "EMERGENT:Maa7301e470": 0.01884,
+              "EMERGENT:Ma37789473c": 0.01687,
+              "EMERGENT:Mdfac57bedb": 0.00353
+            },
+            "family_trials": {
+              "EXPERT_MIX": 4,
+              "RELATION": 6,
+              "XI_SELECTOR": 3,
+              "DEEP": 3,
+              "MATRIX": 4,
+              "HEDGE": 4,
+              "REGIME": 7,
+              "GRAMMAR": 53,
+              "EMERGENT:M059c966efd": 8,
+              "EMERGENT:M575cb3e8ea": 4,
+              "EMERGENT:M0d91ba75f9": 14,
+              "EMERGENT:Maa7301e470": 10,
+              "EMERGENT:Ma37789473c": 21,
+              "EMERGENT:Mdfac57bedb": 3
+            },
+            "operator_success": {
+              "mutate": 0.125,
+              "structural": 0.359,
+              "crossover": 0.262,
+              "fuse": 0.489
+            }
+          },
+          "elapsed_s": 27.5
+        },
+        {
+          "generation": 7,
+          "dev_best_fitness": 0.39658,
+          "dev_best_hit_rate": 0.49421487603305786,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.43391,
+          "champion_val_hit_rate": 0.48214285714285715,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 14,
+            "EMERGENT:M059c966efd": 0,
+            "EMERGENT:M575cb3e8ea": 1,
+            "EMERGENT:M0d91ba75f9": 2,
+            "EMERGENT:Maa7301e470": 2,
+            "EMERGENT:Ma37789473c": 8,
+            "EMERGENT:Mdfac57bedb": 1,
+            "EMERGENT:M4b68603d68": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00744,
+              "RELATION": 0.00713,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.00736,
+              "HEDGE": 0.00505,
+              "REGIME": 0.01339,
+              "GRAMMAR": 0.00531,
+              "EMERGENT:M059c966efd": 0.01354,
+              "EMERGENT:M575cb3e8ea": 0.00517,
+              "EMERGENT:M0d91ba75f9": 0.0209,
+              "EMERGENT:Maa7301e470": 0.01594,
+              "EMERGENT:Ma37789473c": 0.01762,
+              "EMERGENT:Mdfac57bedb": 0.00284,
+              "EMERGENT:M4b68603d68": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 6,
+              "XI_SELECTOR": 3,
+              "DEEP": 3,
+              "MATRIX": 5,
+              "HEDGE": 5,
+              "REGIME": 8,
+              "GRAMMAR": 61,
+              "EMERGENT:M059c966efd": 8,
+              "EMERGENT:M575cb3e8ea": 5,
+              "EMERGENT:M0d91ba75f9": 16,
+              "EMERGENT:Maa7301e470": 12,
+              "EMERGENT:Ma37789473c": 27,
+              "EMERGENT:Mdfac57bedb": 4,
+              "EMERGENT:M4b68603d68": 0
+            },
+            "operator_success": {
+              "mutate": 0.2,
+              "structural": 0.349,
+              "crossover": 0.255,
+              "fuse": 0.448
+            }
+          },
+          "elapsed_s": 31.5
+        },
+        {
+          "generation": 8,
+          "dev_best_fitness": 0.39658,
+          "dev_best_hit_rate": 0.49421487603305786,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.43391,
+          "champion_val_hit_rate": 0.48214285714285715,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 7,
+            "EMERGENT:M059c966efd": 5,
+            "EMERGENT:M575cb3e8ea": 2,
+            "EMERGENT:M0d91ba75f9": 0,
+            "EMERGENT:Maa7301e470": 1,
+            "EMERGENT:Ma37789473c": 4,
+            "EMERGENT:Mdfac57bedb": 0,
+            "EMERGENT:M4b68603d68": 11
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00744,
+              "RELATION": 0.00624,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.00736,
+              "HEDGE": 0.00433,
+              "REGIME": 0.01339,
+              "GRAMMAR": 0.00514,
+              "EMERGENT:M059c966efd": 0.01208,
+              "EMERGENT:M575cb3e8ea": 0.00388,
+              "EMERGENT:M0d91ba75f9": 0.0209,
+              "EMERGENT:Maa7301e470": 0.0148,
+              "EMERGENT:Ma37789473c": 0.01701,
+              "EMERGENT:Mdfac57bedb": 0.00284,
+              "EMERGENT:M4b68603d68": 0.03263
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 7,
+              "XI_SELECTOR": 3,
+              "DEEP": 3,
+              "MATRIX": 5,
+              "HEDGE": 6,
+              "REGIME": 8,
+              "GRAMMAR": 63,
+              "EMERGENT:M059c966efd": 13,
+              "EMERGENT:M575cb3e8ea": 7,
+              "EMERGENT:M0d91ba75f9": 16,
+              "EMERGENT:Maa7301e470": 13,
+              "EMERGENT:Ma37789473c": 28,
+              "EMERGENT:Mdfac57bedb": 4,
+              "EMERGENT:M4b68603d68": 11
+            },
+            "operator_success": {
+              "mutate": 0.217,
+              "structural": 0.34,
+              "crossover": 0.245,
+              "fuse": 0.457
+            }
+          },
+          "elapsed_s": 34.9
+        },
+        {
+          "generation": 9,
+          "dev_best_fitness": 0.39658,
+          "dev_best_hit_rate": 0.49421487603305786,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.43391,
+          "champion_val_hit_rate": 0.48214285714285715,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 0,
+            "MATRIX": 2,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 6,
+            "EMERGENT:M059c966efd": 0,
+            "EMERGENT:M575cb3e8ea": 1,
+            "EMERGENT:M0d91ba75f9": 0,
+            "EMERGENT:Maa7301e470": 1,
+            "EMERGENT:Ma37789473c": 9,
+            "EMERGENT:Mdfac57bedb": 0,
+            "EMERGENT:M4b68603d68": 11
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00744,
+              "RELATION": 0.01192,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.00552,
+              "HEDGE": 0.00433,
+              "REGIME": 0.01339,
+              "GRAMMAR": 0.00498,
+              "EMERGENT:M059c966efd": 0.01208,
+              "EMERGENT:M575cb3e8ea": 0.00344,
+              "EMERGENT:M0d91ba75f9": 0.0209,
+              "EMERGENT:Maa7301e470": 0.01381,
+              "EMERGENT:Ma37789473c": 0.01607,
+              "EMERGENT:Mdfac57bedb": 0.00284,
+              "EMERGENT:M4b68603d68": 0.02398
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 8,
+              "XI_SELECTOR": 4,
+              "DEEP": 3,
+              "MATRIX": 7,
+              "HEDGE": 6,
+              "REGIME": 8,
+              "GRAMMAR": 65,
+              "EMERGENT:M059c966efd": 13,
+              "EMERGENT:M575cb3e8ea": 8,
+              "EMERGENT:M0d91ba75f9": 16,
+              "EMERGENT:Maa7301e470": 14,
+              "EMERGENT:Ma37789473c": 33,
+              "EMERGENT:Mdfac57bedb": 4,
+              "EMERGENT:M4b68603d68": 22
+            },
+            "operator_success": {
+              "mutate": 0.323,
+              "structural": 0.321,
+              "crossover": 0.222,
+              "fuse": 0.449
+            }
+          },
+          "elapsed_s": 37.5
+        }
+      ],
+      "champion": "GRAMMAR | 评分 = ((若{该子程序[[位置+5→本位置转移矩阵]]在本位置近60期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵]) + (若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵]) + 若{位置3前2期号码≥6}则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵]))) + ((若{该子程序[[位置+5→本位置转移矩阵]]在本位置近60期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵]) × tanh[位置+6→本位置转移矩阵]) + (若{该子程序[[位置+5→本位置转移矩阵]]在本位置近30期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵]) + 若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])))) | cover=0.10 gate=MASS | 节点=40",
+      "director_final": {
+        "family_mean_gain": {
+          "EXPERT_MIX": 0.008,
+          "RELATION": 0.01491,
+          "XI_SELECTOR": 0.0,
+          "DEEP": 0.0,
+          "MATRIX": 0.00552,
+          "HEDGE": 0.00433,
+          "REGIME": 0.01214,
+          "GRAMMAR": 0.00484,
+          "EMERGENT:M059c966efd": 0.01208,
+          "EMERGENT:M575cb3e8ea": 0.00344,
+          "EMERGENT:M0d91ba75f9": 0.01945,
+          "EMERGENT:Maa7301e470": 0.01381,
+          "EMERGENT:Ma37789473c": 0.01293,
+          "EMERGENT:Mdfac57bedb": 0.00284,
+          "EMERGENT:M4b68603d68": 0.02178
+        },
+        "family_trials": {
+          "EXPERT_MIX": 6,
+          "RELATION": 9,
+          "XI_SELECTOR": 4,
+          "DEEP": 4,
+          "MATRIX": 7,
+          "HEDGE": 6,
+          "REGIME": 9,
+          "GRAMMAR": 67,
+          "EMERGENT:M059c966efd": 13,
+          "EMERGENT:M575cb3e8ea": 8,
+          "EMERGENT:M0d91ba75f9": 18,
+          "EMERGENT:Maa7301e470": 14,
+          "EMERGENT:Ma37789473c": 46,
+          "EMERGENT:Mdfac57bedb": 4,
+          "EMERGENT:M4b68603d68": 25
+        },
+        "operator_success": {
+          "mutate": 0.316,
+          "structural": 0.345,
+          "crossover": 0.222,
+          "fuse": 0.433
+        }
+      },
+      "top10_dev_programs": [
+        {
+          "key": "d9b09d39a542d9fe",
+          "family": "GRAMMAR",
+          "origin": "fuse<d87f16da4cdd0046+6ab6cb98d4c4b016",
+          "dev_fitness": 0.39658,
+          "dev_hit_rate": 0.49421487603305786,
+          "dev_actions": 605,
+          "seconds": 0.06
+        },
+        {
+          "key": "929f218279955f86",
+          "family": "GRAMMAR",
+          "origin": "mutate<1e947849430a3492",
+          "dev_fitness": 0.39088,
+          "dev_hit_rate": 0.47081413210445466,
+          "dev_actions": 1302,
+          "seconds": 0.064
+        },
+        {
+          "key": "1e947849430a3492",
+          "family": "GRAMMAR",
+          "origin": "mutate<c08ba11407535f77",
+          "dev_fitness": 0.39068,
+          "dev_hit_rate": 0.47113163972286376,
+          "dev_actions": 1299,
+          "seconds": 0.066
+        },
+        {
+          "key": "c08ba11407535f77",
+          "family": "GRAMMAR",
+          "origin": "fuse<e539a1755d3b89a3+f8da81b218bbd687",
+          "dev_fitness": 0.38949,
+          "dev_hit_rate": 0.494488188976378,
+          "dev_actions": 635,
+          "seconds": 0.032
+        },
+        {
+          "key": "6ab6cb98d4c4b016",
+          "family": "GRAMMAR",
+          "origin": "struct<c08ba11407535f77",
+          "dev_fitness": 0.38949,
+          "dev_hit_rate": 0.494488188976378,
+          "dev_actions": 635,
+          "seconds": 0.047
+        },
+        {
+          "key": "15cf0d5f5db4b64b",
+          "family": "GRAMMAR",
+          "origin": "fuse<c08ba11407535f77+f8da81b218bbd687",
+          "dev_fitness": 0.38949,
+          "dev_hit_rate": 0.494488188976378,
+          "dev_actions": 635,
+          "seconds": 0.068
+        },
+        {
+          "key": "3f174d20bebf28a6",
+          "family": "GRAMMAR",
+          "origin": "mutate<c08ba11407535f77",
+          "dev_fitness": 0.38949,
+          "dev_hit_rate": 0.494488188976378,
+          "dev_actions": 635,
+          "seconds": 0.585
+        },
+        {
+          "key": "9f09c39476dc56f1",
+          "family": "GRAMMAR",
+          "origin": "mutate<c08ba11407535f77",
+          "dev_fitness": 0.38949,
+          "dev_hit_rate": 0.494488188976378,
+          "dev_actions": 635,
+          "seconds": 0.054
+        },
+        {
+          "key": "8b9e4216ad4fae66",
+          "family": "GRAMMAR",
+          "origin": "fuse<1e947849430a3492+15cf0d5f5db4b64b",
+          "dev_fitness": 0.38949,
+          "dev_hit_rate": 0.494488188976378,
+          "dev_actions": 635,
+          "seconds": 0.067
+        },
+        {
+          "key": "56e763b1787b6726",
+          "family": "GRAMMAR",
+          "origin": "fuse<4424c3f5f08cebd1+a530ce8561323311",
+          "dev_fitness": 0.38754,
+          "dev_hit_rate": 0.4825662482566248,
+          "dev_actions": 1434,
+          "seconds": 0.027
+        }
+      ],
+      "created_families": [
+        {
+          "generation": 1,
+          "family": "EMERGENT:M059c966efd",
+          "formula": "若{位置6前2期号码为奇数}则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])否则[位置+5→本位置转移矩阵]"
+        },
+        {
+          "generation": 2,
+          "family": "EMERGENT:M575cb3e8ea",
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "generation": 2,
+          "family": "EMERGENT:M0d91ba75f9",
+          "formula": "若{位置3前2期号码≥6}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "generation": 2,
+          "family": "EMERGENT:Maa7301e470",
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近30期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "generation": 3,
+          "family": "EMERGENT:Ma37789473c",
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近60期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "generation": 4,
+          "family": "EMERGENT:Mdfac57bedb",
+          "formula": "排名若{该子程序[[位置+5→本位置转移矩阵]]在本位置近30期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "generation": 7,
+          "family": "EMERGENT:M4b68603d68",
+          "formula": "tanh[位置+6→本位置转移矩阵]"
+        }
+      ],
+      "learned_macros": [
+        {
+          "id": "M575cb3e8ea",
+          "support": 11,
+          "best_dev_fitness": 0.39658,
+          "born_generation": 1,
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "id": "Ma37789473c",
+          "support": 9,
+          "best_dev_fitness": 0.39658,
+          "born_generation": 1,
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近60期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "id": "Maa7301e470",
+          "support": 8,
+          "best_dev_fitness": 0.39658,
+          "born_generation": 2,
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近30期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "id": "M0d91ba75f9",
+          "support": 8,
+          "best_dev_fitness": 0.39068,
+          "born_generation": 1,
+          "formula": "若{位置3前2期号码≥6}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "id": "M4b68603d68",
+          "support": 3,
+          "best_dev_fitness": 0.39658,
+          "born_generation": 5,
+          "formula": "tanh[位置+6→本位置转移矩阵]"
+        },
+        {
+          "id": "Mdfac57bedb",
+          "support": 3,
+          "best_dev_fitness": 0.37912,
+          "born_generation": 4,
+          "formula": "排名若{该子程序[[位置+5→本位置转移矩阵]]在本位置近30期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "id": "M059c966efd",
+          "support": 3,
+          "best_dev_fitness": 0.32515,
+          "born_generation": 1,
+          "formula": "若{位置6前2期号码为奇数}则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])否则[位置+5→本位置转移矩阵]"
+        },
+        {
+          "id": "Mb55e0bd673",
+          "support": 2,
+          "best_dev_fitness": 0.39068,
+          "born_generation": 6,
+          "formula": "排名若{该子程序[[位置+5→本位置转移矩阵]]在本位置近60期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        },
+        {
+          "id": "M496e5190d8",
+          "support": 2,
+          "best_dev_fitness": 0.35338,
+          "born_generation": 3,
+          "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+        }
+      ],
+      "screening": {
+        "singles": 662,
+        "conditionals": 1456,
+        "top": [
+          {
+            "dev_fitness": 0.33738,
+            "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近120期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.33418,
+            "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近60期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.32324,
+            "formula": "若{位置3前2期号码≥6}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.3204,
+            "formula": "若{该子程序[[位置+5→本位置转移矩阵]]在本位置近30期命中率>36%}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.32029,
+            "formula": "若{位置2前1期号码 > 位置10前2期号码}则[位置+5→本位置转移矩阵]否则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.32002,
+            "formula": "若{位置6前2期号码为奇数}则([位置+5→本位置转移矩阵] − [位置+5→本位置转移矩阵])否则[位置+5→本位置转移矩阵]"
+          }
+        ]
+      },
+      "sealed_once": {
+        "champion": {
+          "periods": 2125,
+          "actions": 275,
+          "hits": 131,
+          "hit_rate": 0.4763636363636364,
+          "coverage": 0.12941176470588237,
+          "always_rank1_k3_hit_rate": 0.38070588235294117,
+          "wilson_lower_95": 0.42729516062824974,
+          "binomial_p_vs_30": 6.284704777251319e-10,
+          "block_hit_rates": [
+            0.2857,
+            0.5034,
+            0.4375,
+            0.4607
+          ]
+        },
+        "seed_cross_intersection": {
+          "periods": 2125,
+          "actions": 308,
+          "hits": 88,
+          "hit_rate": 0.2857142857142857,
+          "coverage": 0.14494117647058824,
+          "always_rank1_k3_hit_rate": 0.2936470588235294,
+          "wilson_lower_95": 0.24538233098118803,
+          "binomial_p_vs_30": 0.7270569370731894,
+          "block_hit_rates": [
+            0.2321,
+            0.3678,
+            0.2444,
+            0.28
+          ]
+        }
+      }
+    },
+    {
+      "dataset": "PLANTED_CONDITIONAL",
+      "seconds": 206.6,
+      "periods": 10000,
+      "eras": {
+        "warmup": [
+          0,
+          1500
+        ],
+        "dev": [
+          1500,
+          6175
+        ],
+        "val": [
+          6175,
+          7875
+        ],
+        "sealed": [
+          7875,
+          10000
+        ]
+      },
+      "evaluated_programs": 2525,
+      "history": [
+        {
+          "generation": 0,
+          "dev_best_fitness": 0.47059,
+          "dev_best_hit_rate": 0.5591666666666667,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.4678,
+          "champion_val_hit_rate": 0.5338541666666666,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 3,
+            "XI_SELECTOR": 4,
+            "DEEP": 3,
+            "MATRIX": 3,
+            "HEDGE": 2,
+            "REGIME": 2,
+            "GRAMMAR": 12
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.0,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.0,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.0
+            },
+            "family_trials": {
+              "EXPERT_MIX": 0,
+              "RELATION": 0,
+              "XI_SELECTOR": 0,
+              "DEEP": 0,
+              "MATRIX": 0,
+              "HEDGE": 0,
+              "REGIME": 0,
+              "GRAMMAR": 0
+            },
+            "operator_success": {
+              "mutate": 0.0,
+              "structural": 0.0,
+              "crossover": 0.0,
+              "fuse": 0.0
+            }
+          },
+          "elapsed_s": 4.2
+        },
+        {
+          "generation": 1,
+          "dev_best_fitness": 0.48344,
+          "dev_best_hit_rate": 0.566694987255735,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.46852,
+          "champion_val_hit_rate": 0.5241730279898219,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 3,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 23,
+            "EMERGENT:M9edccdf190": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.01192,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00363,
+              "DEEP": 0.0,
+              "MATRIX": 0.0,
+              "HEDGE": 0.00487,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.0078,
+              "EMERGENT:M9edccdf190": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 3,
+              "RELATION": 1,
+              "XI_SELECTOR": 1,
+              "DEEP": 1,
+              "MATRIX": 1,
+              "HEDGE": 1,
+              "REGIME": 1,
+              "GRAMMAR": 15,
+              "EMERGENT:M9edccdf190": 0
+            },
+            "operator_success": {
+              "mutate": 0.333,
+              "structural": 0.25,
+              "crossover": 0.2,
+              "fuse": 0.556
+            }
+          },
+          "elapsed_s": 9.4
+        },
+        {
+          "generation": 2,
+          "dev_best_fitness": 0.48344,
+          "dev_best_hit_rate": 0.566694987255735,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.46852,
+          "champion_val_hit_rate": 0.5241730279898219,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 2,
+            "MATRIX": 2,
+            "HEDGE": 4,
+            "REGIME": 1,
+            "GRAMMAR": 16,
+            "EMERGENT:M9edccdf190": 4,
+            "EMERGENT:M65f8e970dd": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.0118,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.00242,
+              "DEEP": 0.00534,
+              "MATRIX": 0.00952,
+              "HEDGE": 0.01162,
+              "REGIME": 0.0,
+              "GRAMMAR": 0.00794,
+              "EMERGENT:M9edccdf190": 0.01338,
+              "EMERGENT:M65f8e970dd": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 4,
+              "RELATION": 2,
+              "XI_SELECTOR": 2,
+              "DEEP": 3,
+              "MATRIX": 3,
+              "HEDGE": 5,
+              "REGIME": 2,
+              "GRAMMAR": 23,
+              "EMERGENT:M9edccdf190": 4,
+              "EMERGENT:M65f8e970dd": 0
+            },
+            "operator_success": {
+              "mutate": 0.25,
+              "structural": 0.3,
+              "crossover": 0.5,
+              "fuse": 0.643
+            }
+          },
+          "elapsed_s": 17.5
+        },
+        {
+          "generation": 3,
+          "dev_best_fitness": 0.48422,
+          "dev_best_hit_rate": 0.56731583403895,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.47106,
+          "champion_val_hit_rate": 0.5289672544080605,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 3,
+            "DEEP": 4,
+            "MATRIX": 1,
+            "HEDGE": 0,
+            "REGIME": 1,
+            "GRAMMAR": 13,
+            "EMERGENT:M9edccdf190": 4,
+            "EMERGENT:M65f8e970dd": 4,
+            "EMERGENT:M3203997ab7": 0,
+            "EMERGENT:M7577d55c8b": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00983,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.01111,
+              "DEEP": 0.01914,
+              "MATRIX": 0.00762,
+              "HEDGE": 0.01162,
+              "REGIME": 0.00072,
+              "GRAMMAR": 0.00973,
+              "EMERGENT:M9edccdf190": 0.01089,
+              "EMERGENT:M65f8e970dd": 0.00479,
+              "EMERGENT:M3203997ab7": 0.01,
+              "EMERGENT:M7577d55c8b": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 3,
+              "XI_SELECTOR": 5,
+              "DEEP": 7,
+              "MATRIX": 4,
+              "HEDGE": 5,
+              "REGIME": 3,
+              "GRAMMAR": 30,
+              "EMERGENT:M9edccdf190": 6,
+              "EMERGENT:M65f8e970dd": 4,
+              "EMERGENT:M3203997ab7": 0,
+              "EMERGENT:M7577d55c8b": 0
+            },
+            "operator_success": {
+              "mutate": 0.316,
+              "structural": 0.375,
+              "crossover": 0.4,
+              "fuse": 0.591
+            }
+          },
+          "elapsed_s": 24.4
+        },
+        {
+          "generation": 4,
+          "dev_best_fitness": 0.48422,
+          "dev_best_hit_rate": 0.56731583403895,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.47106,
+          "champion_val_hit_rate": 0.5289672544080605,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 1,
+            "DEEP": 2,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 13,
+            "EMERGENT:M9edccdf190": 7,
+            "EMERGENT:M65f8e970dd": 0,
+            "EMERGENT:M3203997ab7": 4,
+            "EMERGENT:M7577d55c8b": 4
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00983,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.01166,
+              "DEEP": 0.01583,
+              "MATRIX": 0.00762,
+              "HEDGE": 0.00996,
+              "REGIME": 0.00072,
+              "GRAMMAR": 0.00773,
+              "EMERGENT:M9edccdf190": 0.00771,
+              "EMERGENT:M65f8e970dd": 0.00479,
+              "EMERGENT:M3203997ab7": 0.00626,
+              "EMERGENT:M7577d55c8b": 0.00531
+            },
+            "family_trials": {
+              "EXPERT_MIX": 5,
+              "RELATION": 3,
+              "XI_SELECTOR": 6,
+              "DEEP": 9,
+              "MATRIX": 4,
+              "HEDGE": 6,
+              "REGIME": 3,
+              "GRAMMAR": 38,
+              "EMERGENT:M9edccdf190": 10,
+              "EMERGENT:M65f8e970dd": 4,
+              "EMERGENT:M3203997ab7": 4,
+              "EMERGENT:M7577d55c8b": 4
+            },
+            "operator_success": {
+              "mutate": 0.318,
+              "structural": 0.333,
+              "crossover": 0.304,
+              "fuse": 0.5
+            }
+          },
+          "elapsed_s": 29.9
+        },
+        {
+          "generation": 5,
+          "dev_best_fitness": 0.48977,
+          "dev_best_hit_rate": 0.5688926458157227,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.47106,
+          "champion_val_hit_rate": 0.5289672544080605,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 0,
+            "XI_SELECTOR": 2,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 14,
+            "EMERGENT:M9edccdf190": 5,
+            "EMERGENT:M65f8e970dd": 0,
+            "EMERGENT:M3203997ab7": 1,
+            "EMERGENT:M7577d55c8b": 7,
+            "EMERGENT:M6a24aa1425": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00843,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.01163,
+              "DEEP": 0.01534,
+              "MATRIX": 0.00635,
+              "HEDGE": 0.00996,
+              "REGIME": 0.00072,
+              "GRAMMAR": 0.01292,
+              "EMERGENT:M9edccdf190": 0.00652,
+              "EMERGENT:M65f8e970dd": 0.00479,
+              "EMERGENT:M3203997ab7": 0.00522,
+              "EMERGENT:M7577d55c8b": 0.02888,
+              "EMERGENT:M6a24aa1425": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 6,
+              "RELATION": 3,
+              "XI_SELECTOR": 8,
+              "DEEP": 10,
+              "MATRIX": 5,
+              "HEDGE": 6,
+              "REGIME": 3,
+              "GRAMMAR": 47,
+              "EMERGENT:M9edccdf190": 12,
+              "EMERGENT:M65f8e970dd": 4,
+              "EMERGENT:M3203997ab7": 5,
+              "EMERGENT:M7577d55c8b": 11,
+              "EMERGENT:M6a24aa1425": 0
+            },
+            "operator_success": {
+              "mutate": 0.308,
+              "structural": 0.37,
+              "crossover": 0.241,
+              "fuse": 0.579
+            }
+          },
+          "elapsed_s": 35.7
+        },
+        {
+          "generation": 6,
+          "dev_best_fitness": 0.48977,
+          "dev_best_hit_rate": 0.5688926458157227,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.47106,
+          "champion_val_hit_rate": 0.5289672544080605,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 1,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 1,
+            "REGIME": 1,
+            "GRAMMAR": 16,
+            "EMERGENT:M9edccdf190": 0,
+            "EMERGENT:M65f8e970dd": 1,
+            "EMERGENT:M3203997ab7": 0,
+            "EMERGENT:M7577d55c8b": 8,
+            "EMERGENT:M6a24aa1425": 4
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00843,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.01163,
+              "DEEP": 0.01534,
+              "MATRIX": 0.00635,
+              "HEDGE": 0.00942,
+              "REGIME": 0.00058,
+              "GRAMMAR": 0.0126,
+              "EMERGENT:M9edccdf190": 0.00652,
+              "EMERGENT:M65f8e970dd": 0.00502,
+              "EMERGENT:M3203997ab7": 0.00522,
+              "EMERGENT:M7577d55c8b": 0.02047,
+              "EMERGENT:M6a24aa1425": 0.002
+            },
+            "family_trials": {
+              "EXPERT_MIX": 6,
+              "RELATION": 4,
+              "XI_SELECTOR": 8,
+              "DEEP": 10,
+              "MATRIX": 5,
+              "HEDGE": 7,
+              "REGIME": 4,
+              "GRAMMAR": 55,
+              "EMERGENT:M9edccdf190": 12,
+              "EMERGENT:M65f8e970dd": 5,
+              "EMERGENT:M3203997ab7": 5,
+              "EMERGENT:M7577d55c8b": 19,
+              "EMERGENT:M6a24aa1425": 4
+            },
+            "operator_success": {
+              "mutate": 0.314,
+              "structural": 0.353,
+              "crossover": 0.226,
+              "fuse": 0.591
+            }
+          },
+          "elapsed_s": 39.4
+        },
+        {
+          "generation": 7,
+          "dev_best_fitness": 0.48977,
+          "dev_best_hit_rate": 0.5688926458157227,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.47106,
+          "champion_val_hit_rate": 0.5289672544080605,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 0,
+            "XI_SELECTOR": 1,
+            "DEEP": 2,
+            "MATRIX": 1,
+            "HEDGE": 1,
+            "REGIME": 0,
+            "GRAMMAR": 14,
+            "EMERGENT:M9edccdf190": 0,
+            "EMERGENT:M65f8e970dd": 6,
+            "EMERGENT:M3203997ab7": 1,
+            "EMERGENT:M7577d55c8b": 4,
+            "EMERGENT:M6a24aa1425": 1
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00737,
+              "RELATION": 0.0,
+              "XI_SELECTOR": 0.01122,
+              "DEEP": 0.01447,
+              "MATRIX": 0.00544,
+              "HEDGE": 0.00893,
+              "REGIME": 0.00058,
+              "GRAMMAR": 0.01617,
+              "EMERGENT:M9edccdf190": 0.00652,
+              "EMERGENT:M65f8e970dd": 0.01286,
+              "EMERGENT:M3203997ab7": 0.00447,
+              "EMERGENT:M7577d55c8b": 0.02079,
+              "EMERGENT:M6a24aa1425": 0.00167
+            },
+            "family_trials": {
+              "EXPERT_MIX": 7,
+              "RELATION": 4,
+              "XI_SELECTOR": 9,
+              "DEEP": 12,
+              "MATRIX": 6,
+              "HEDGE": 8,
+              "REGIME": 4,
+              "GRAMMAR": 61,
+              "EMERGENT:M9edccdf190": 12,
+              "EMERGENT:M65f8e970dd": 11,
+              "EMERGENT:M3203997ab7": 6,
+              "EMERGENT:M7577d55c8b": 23,
+              "EMERGENT:M6a24aa1425": 5
+            },
+            "operator_success": {
+              "mutate": 0.316,
+              "structural": 0.35,
+              "crossover": 0.222,
+              "fuse": 0.611
+            }
+          },
+          "elapsed_s": 47.7
+        },
+        {
+          "generation": 8,
+          "dev_best_fitness": 0.49178,
+          "dev_best_hit_rate": 0.566213921901528,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.49047,
+          "champion_val_hit_rate": 0.5443037974683544,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": true,
+          "population_by_family": {
+            "EXPERT_MIX": 1,
+            "RELATION": 1,
+            "XI_SELECTOR": 1,
+            "DEEP": 1,
+            "MATRIX": 1,
+            "HEDGE": 0,
+            "REGIME": 2,
+            "GRAMMAR": 22,
+            "EMERGENT:M9edccdf190": 0,
+            "EMERGENT:M65f8e970dd": 1,
+            "EMERGENT:M3203997ab7": 0,
+            "EMERGENT:M7577d55c8b": 2,
+            "EMERGENT:M6a24aa1425": 0,
+            "EMERGENT:M00f57e376a": 0,
+            "EMERGENT:Mee35f2b599": 0,
+            "EMERGENT:Mdb953c067d": 0
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00759,
+              "RELATION": 0.00023,
+              "XI_SELECTOR": 0.0102,
+              "DEEP": 0.01344,
+              "MATRIX": 0.00476,
+              "HEDGE": 0.00893,
+              "REGIME": 0.0051,
+              "GRAMMAR": 0.0185,
+              "EMERGENT:M9edccdf190": 0.00652,
+              "EMERGENT:M65f8e970dd": 0.01187,
+              "EMERGENT:M3203997ab7": 0.00447,
+              "EMERGENT:M7577d55c8b": 0.01919,
+              "EMERGENT:M6a24aa1425": 0.00167,
+              "EMERGENT:M00f57e376a": 0.01,
+              "EMERGENT:Mee35f2b599": 0.01,
+              "EMERGENT:Mdb953c067d": 0.01
+            },
+            "family_trials": {
+              "EXPERT_MIX": 8,
+              "RELATION": 5,
+              "XI_SELECTOR": 10,
+              "DEEP": 13,
+              "MATRIX": 7,
+              "HEDGE": 8,
+              "REGIME": 6,
+              "GRAMMAR": 75,
+              "EMERGENT:M9edccdf190": 12,
+              "EMERGENT:M65f8e970dd": 12,
+              "EMERGENT:M3203997ab7": 6,
+              "EMERGENT:M7577d55c8b": 25,
+              "EMERGENT:M6a24aa1425": 5,
+              "EMERGENT:M00f57e376a": 0,
+              "EMERGENT:Mee35f2b599": 0,
+              "EMERGENT:Mdb953c067d": 0
+            },
+            "operator_success": {
+              "mutate": 0.317,
+              "structural": 0.347,
+              "crossover": 0.216,
+              "fuse": 0.6
+            }
+          },
+          "elapsed_s": 52.7
+        },
+        {
+          "generation": 9,
+          "dev_best_fitness": 0.49178,
+          "dev_best_hit_rate": 0.566213921901528,
+          "dev_best_family": "GRAMMAR",
+          "champion_val_fitness": 0.49047,
+          "champion_val_hit_rate": 0.5443037974683544,
+          "champion_family": "GRAMMAR",
+          "champion_replaced": false,
+          "population_by_family": {
+            "EXPERT_MIX": 0,
+            "RELATION": 0,
+            "XI_SELECTOR": 0,
+            "DEEP": 0,
+            "MATRIX": 0,
+            "HEDGE": 0,
+            "REGIME": 0,
+            "GRAMMAR": 8,
+            "EMERGENT:M9edccdf190": 0,
+            "EMERGENT:M65f8e970dd": 0,
+            "EMERGENT:M3203997ab7": 0,
+            "EMERGENT:M7577d55c8b": 0,
+            "EMERGENT:M6a24aa1425": 0,
+            "EMERGENT:M00f57e376a": 6,
+            "EMERGENT:Mee35f2b599": 11,
+            "EMERGENT:Mdb953c067d": 7
+          },
+          "director": {
+            "family_mean_gain": {
+              "EXPERT_MIX": 0.00759,
+              "RELATION": 0.00023,
+              "XI_SELECTOR": 0.0102,
+              "DEEP": 0.01344,
+              "MATRIX": 0.00476,
+              "HEDGE": 0.00893,
+              "REGIME": 0.0051,
+              "GRAMMAR": 0.0185,
+              "EMERGENT:M9edccdf190": 0.00652,
+              "EMERGENT:M65f8e970dd": 0.01187,
+              "EMERGENT:M3203997ab7": 0.00447,
+              "EMERGENT:M7577d55c8b": 0.01919,
+              "EMERGENT:M6a24aa1425": 0.00167,
+              "EMERGENT:M00f57e376a": 0.03265,
+              "EMERGENT:Mee35f2b599": 0.07823,
+              "EMERGENT:Mdb953c067d": 0.05322
+            },
+            "family_trials": {
+              "EXPERT_MIX": 8,
+              "RELATION": 5,
+              "XI_SELECTOR": 10,
+              "DEEP": 13,
+              "MATRIX": 7,
+              "HEDGE": 8,
+              "REGIME": 6,
+              "GRAMMAR": 75,
+              "EMERGENT:M9edccdf190": 12,
+              "EMERGENT:M65f8e970dd": 12,
+              "EMERGENT:M3203997ab7": 6,
+              "EMERGENT:M7577d55c8b": 25,
+              "EMERGENT:M6a24aa1425": 5,
+              "EMERGENT:M00f57e376a": 6,
+              "EMERGENT:Mee35f2b599": 11,
+              "EMERGENT:Mdb953c067d": 7
+            },
+            "operator_success": {
+              "mutate": 0.341,
+              "structural": 0.333,
+              "crossover": 0.225,
+              "fuse": 0.628
+            }
+          },
+          "elapsed_s": 56.5
+        }
+      ],
+      "champion": "GRAMMAR | 评分 = (若{位置2前1期号码为奇数}则tanh([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵] + (若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵]) + 若{位置2前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则排名[位置+7→本位置转移矩阵])) | cover=0.25 gate=MASS | 节点=19",
+      "director_final": {
+        "family_mean_gain": {
+          "EXPERT_MIX": 0.00759,
+          "RELATION": 0.00023,
+          "XI_SELECTOR": 0.00934,
+          "DEEP": 0.01344,
+          "MATRIX": 0.00476,
+          "HEDGE": 0.00893,
+          "REGIME": 0.0051,
+          "GRAMMAR": 0.01899,
+          "EMERGENT:M9edccdf190": 0.00652,
+          "EMERGENT:M65f8e970dd": 0.02411,
+          "EMERGENT:M3203997ab7": 0.00391,
+          "EMERGENT:M7577d55c8b": 0.01848,
+          "EMERGENT:M6a24aa1425": 0.00167,
+          "EMERGENT:M00f57e376a": 0.03265,
+          "EMERGENT:Mee35f2b599": 0.06744,
+          "EMERGENT:Mdb953c067d": 0.04725
+        },
+        "family_trials": {
+          "EXPERT_MIX": 8,
+          "RELATION": 5,
+          "XI_SELECTOR": 12,
+          "DEEP": 13,
+          "MATRIX": 7,
+          "HEDGE": 8,
+          "REGIME": 6,
+          "GRAMMAR": 79,
+          "EMERGENT:M9edccdf190": 12,
+          "EMERGENT:M65f8e970dd": 14,
+          "EMERGENT:M3203997ab7": 7,
+          "EMERGENT:M7577d55c8b": 26,
+          "EMERGENT:M6a24aa1425": 5,
+          "EMERGENT:M00f57e376a": 6,
+          "EMERGENT:Mee35f2b599": 22,
+          "EMERGENT:Mdb953c067d": 10
+        },
+        "operator_success": {
+          "mutate": 0.339,
+          "structural": 0.31,
+          "crossover": 0.244,
+          "fuse": 0.635
+        }
+      },
+      "top10_dev_programs": [
+        {
+          "key": "b629452ee0e83b33",
+          "family": "GRAMMAR",
+          "origin": "mutate<051b341992a34f1b",
+          "dev_fitness": 0.49178,
+          "dev_hit_rate": 0.566213921901528,
+          "dev_actions": 1178,
+          "seconds": 0.066
+        },
+        {
+          "key": "c6480d97862f553e",
+          "family": "GRAMMAR",
+          "origin": "fuse<72bc8b8a35b57273+5864cf8e8bd12f67",
+          "dev_fitness": 0.49001,
+          "dev_hit_rate": 0.5691399662731872,
+          "dev_actions": 1186,
+          "seconds": 0.036
+        },
+        {
+          "key": "f57e0ba6bdf8d611",
+          "family": "GRAMMAR",
+          "origin": "fuse<5864cf8e8bd12f67+608953ebd5e3767d",
+          "dev_fitness": 0.48977,
+          "dev_hit_rate": 0.5688926458157227,
+          "dev_actions": 1183,
+          "seconds": 0.037
+        },
+        {
+          "key": "12bb16ce8276ff60",
+          "family": "GRAMMAR",
+          "origin": "fuse<5864cf8e8bd12f67+5864cf8e8bd12f67",
+          "dev_fitness": 0.48977,
+          "dev_hit_rate": 0.5688926458157227,
+          "dev_actions": 1183,
+          "seconds": 0.039
+        },
+        {
+          "key": "05190642dcd7db74",
+          "family": "GRAMMAR",
+          "origin": "emergent<EMERGENT:M3203997ab7",
+          "dev_fitness": 0.48644,
+          "dev_hit_rate": 0.5741216795201372,
+          "dev_actions": 1167,
+          "seconds": 0.029
+        },
+        {
+          "key": "72bc8b8a35b57273",
+          "family": "GRAMMAR",
+          "origin": "mutate<5864cf8e8bd12f67",
+          "dev_fitness": 0.48454,
+          "dev_hit_rate": 0.565365025466893,
+          "dev_actions": 1178,
+          "seconds": 0.15
+        },
+        {
+          "key": "34a664a0dfb28d36",
+          "family": "GRAMMAR",
+          "origin": "fuse<aff73099a0f5999b+5864cf8e8bd12f67",
+          "dev_fitness": 0.48447,
+          "dev_hit_rate": 0.5675675675675675,
+          "dev_actions": 1184,
+          "seconds": 0.039
+        },
+        {
+          "key": "5471a4150055e6e4",
+          "family": "GRAMMAR",
+          "origin": "fuse<c6480d97862f553e+c6480d97862f553e",
+          "dev_fitness": 0.48442,
+          "dev_hit_rate": 0.569023569023569,
+          "dev_actions": 1188,
+          "seconds": 0.04
+        },
+        {
+          "key": "051b341992a34f1b",
+          "family": "GRAMMAR",
+          "origin": "fuse<73d95b116c021f23+5864cf8e8bd12f67",
+          "dev_fitness": 0.48422,
+          "dev_hit_rate": 0.56731583403895,
+          "dev_actions": 1181,
+          "seconds": 0.042
+        },
+        {
+          "key": "7dc1e408a35270e1",
+          "family": "GRAMMAR",
+          "origin": "fuse<f57e0ba6bdf8d611+12bb16ce8276ff60",
+          "dev_fitness": 0.48384,
+          "dev_hit_rate": 0.5682967959527825,
+          "dev_actions": 1186,
+          "seconds": 0.034
+        }
+      ],
+      "created_families": [
+        {
+          "generation": 1,
+          "family": "EMERGENT:M9edccdf190",
+          "formula": "若{位置2前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "generation": 2,
+          "family": "EMERGENT:M65f8e970dd",
+          "formula": "若{位置10的分布漂移(recent=50,reference=300)高于近300期中位数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "generation": 3,
+          "family": "EMERGENT:M3203997ab7",
+          "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "generation": 3,
+          "family": "EMERGENT:M7577d55c8b",
+          "formula": "若{位置3前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "generation": 5,
+          "family": "EMERGENT:M6a24aa1425",
+          "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "generation": 8,
+          "family": "EMERGENT:M00f57e376a",
+          "formula": "若{位置2前1期号码为奇数}则tanh([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "generation": 8,
+          "family": "EMERGENT:Mee35f2b599",
+          "formula": "(原子·最近间隔(window=300) − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "generation": 8,
+          "family": "EMERGENT:Mdb953c067d",
+          "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则(原子·最近间隔(window=300) − [位置+7→本位置转移矩阵])"
+        }
+      ],
+      "learned_macros": [
+        {
+          "id": "M3203997ab7",
+          "support": 11,
+          "best_dev_fitness": 0.49178,
+          "born_generation": 1,
+          "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "id": "M9edccdf190",
+          "support": 11,
+          "best_dev_fitness": 0.49001,
+          "born_generation": 1,
+          "formula": "若{位置2前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "id": "M00f57e376a",
+          "support": 4,
+          "best_dev_fitness": 0.49178,
+          "born_generation": 3,
+          "formula": "若{位置2前1期号码为奇数}则tanh([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "id": "M6a24aa1425",
+          "support": 4,
+          "best_dev_fitness": 0.48447,
+          "born_generation": 5,
+          "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "id": "Mee35f2b599",
+          "support": 3,
+          "best_dev_fitness": 0.49001,
+          "born_generation": 8,
+          "formula": "(原子·最近间隔(window=300) − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "id": "Mdb953c067d",
+          "support": 3,
+          "best_dev_fitness": 0.49001,
+          "born_generation": 8,
+          "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则(原子·最近间隔(window=300) − [位置+7→本位置转移矩阵])"
+        },
+        {
+          "id": "M7577d55c8b",
+          "support": 3,
+          "best_dev_fitness": 0.43751,
+          "born_generation": 2,
+          "formula": "若{位置3前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "id": "M65f8e970dd",
+          "support": 3,
+          "best_dev_fitness": 0.38363,
+          "born_generation": 1,
+          "formula": "若{位置10的分布漂移(recent=50,reference=300)高于近300期中位数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+        },
+        {
+          "id": "Mb336bf413f",
+          "support": 2,
+          "best_dev_fitness": 0.37935,
+          "born_generation": 1,
+          "formula": "若{位置6的熵(window=5)高于近300期中位数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+        }
+      ],
+      "screening": {
+        "singles": 662,
+        "conditionals": 1456,
+        "top": [
+          {
+            "dev_fitness": 0.47059,
+            "formula": "若{位置1前1期号码为奇数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+          },
+          {
+            "dev_fitness": 0.38599,
+            "formula": "若{位置2前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.38363,
+            "formula": "若{位置10的分布漂移(recent=50,reference=300)高于近300期中位数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.38146,
+            "formula": "若{位置3前1期号码为奇数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.38002,
+            "formula": "若{位置3的熵(window=200)高于近300期中位数}则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])否则[位置+7→本位置转移矩阵]"
+          },
+          {
+            "dev_fitness": 0.37935,
+            "formula": "若{位置6的熵(window=5)高于近300期中位数}则[位置+7→本位置转移矩阵]否则([位置+7→本位置转移矩阵] − [位置+7→本位置转移矩阵])"
+          }
+        ]
+      },
+      "sealed_once": {
+        "champion": {
+          "periods": 2125,
+          "actions": 545,
+          "hits": 290,
+          "hit_rate": 0.5321100917431193,
+          "coverage": 0.2564705882352941,
+          "always_rank1_k3_hit_rate": 0.38023529411764706,
+          "wilson_lower_95": 0.49688088994865026,
+          "binomial_p_vs_30": 1.4993571639742434e-29,
+          "block_hit_rates": [
+            0.5669,
+            0.5649,
+            0.4492,
+            0.5324
+          ]
+        },
+        "seed_cross_intersection": {
+          "periods": 2125,
+          "actions": 287,
+          "hits": 96,
+          "hit_rate": 0.3344947735191638,
+          "coverage": 0.13505882352941176,
+          "always_rank1_k3_hit_rate": 0.30823529411764705,
+          "wilson_lower_95": 0.2904178235594785,
+          "binomial_p_vs_30": 0.11367798592416752,
+          "block_hit_rates": [
+            0.3654,
+            0.2714,
+            0.3529,
+            0.3492
+          ]
+        }
+      }
+    }
+  ]
+}

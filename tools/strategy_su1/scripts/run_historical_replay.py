@@ -121,6 +121,7 @@ def main():
            "data_check": hre.data_report(ms, D), "atom_catalog": atom_cov,
            "budget": {"generations": a.generations, "population": a.population, "seed": a.seed},
            "results": [run(n, d, a.generations, a.population, a.seed, hashlib.sha256(Path(a.history).read_bytes()).hexdigest(), str(periods[-1])) for n, d in sets]}
+    Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n")
     for r in out["results"]:
         c, s = r["sealed_once"]["champion"], r["sealed_once"]["seed_cross_intersection"]

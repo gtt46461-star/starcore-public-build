@@ -47,7 +47,7 @@ public final class ArchiveStoreSU1 {
         for(String hash:roots)if(!existing.contains(hash))StrategyRepositorySU1.row(db,"su1_retention_pin","pin_id",HashingSU1.fields("SU1_TRANSITIVE_PIN_V1",hash,String.valueOf(now)),"object_kind","BLOB","object_id",hash,"reason","ACTIVE_STRATEGY","created_at",now);
     }
     private static void prepareDaily(DbStore store){
-        long cutoff=TargetIssueResolver.firstUnseenOrdinalSU1(System.currentTimeMillis())-10080;
+        Models.Draw latest=store.getLatestDraw();if(latest==null)return;long cutoff=TargetIssueResolver.firstFutureOrdinalSU1(latest,System.currentTimeMillis())-10080;
         String strategy=null;int day=0,expectedN=0,expectedK=0;
         try(Cursor c=store.readable().rawQuery("SELECT d.strategy_id,d.day_key,d.actions,d.hits FROM su1_live_daily d WHERE NOT EXISTS(SELECT 1 FROM su1_live_day_archive a WHERE a.strategy_id=d.strategy_id AND a.day_key=d.day_key) AND NOT EXISTS(SELECT 1 FROM su1_live_shadow l WHERE l.strategy_id=d.strategy_id AND l.day_key=d.day_key AND l.sequence_ordinal>=?) AND NOT EXISTS(SELECT 1 FROM su1_live_shadow l JOIN su1_sealed_plan p ON p.strategy_id=l.strategy_id AND l.sequence_ordinal BETWEEN p.first_sequence AND p.last_sequence WHERE l.strategy_id=d.strategy_id AND l.day_key=d.day_key AND NOT EXISTS(SELECT 1 FROM su1_sealed_result r WHERE r.plan_campaign=p.campaign_id) AND NOT EXISTS(SELECT 1 FROM su1_sealed_cancelled x WHERE x.campaign_id=p.campaign_id)) ORDER BY d.day_key,d.strategy_id LIMIT 1",new String[]{String.valueOf(cutoff)})){if(c.moveToFirst()){strategy=c.getString(0);day=c.getInt(1);expectedN=c.getInt(2);expectedK=c.getInt(3);}}if(strategy==null)return;
         List<Object> rows=new ArrayList<>();int hits=0;
