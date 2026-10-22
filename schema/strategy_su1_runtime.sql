@@ -1,4 +1,20 @@
 -- Runtime bindings and durable burst cursor. All writes use the existing research owner.
+CREATE TABLE IF NOT EXISTS su1_alpha_reservation (
+ reservation_id TEXT PRIMARY KEY NOT NULL,
+ origin TEXT NOT NULL CHECK(origin IN ('LEGACY_CP3','LEGACY_R932','SU1')),
+ amount REAL NOT NULL CHECK(amount>0 AND amount<=0.05),
+ created_at INTEGER NOT NULL
+);
+CREATE TRIGGER IF NOT EXISTS su1_alpha_reservation_cap BEFORE INSERT ON su1_alpha_reservation
+BEGIN
+ SELECT CASE WHEN NEW.amount+(SELECT coalesce(sum(amount),0) FROM su1_alpha_reservation)>
+ (SELECT global_alpha FROM su1_alpha_root WHERE singleton=1)+0.000000000001
+ THEN RAISE(ABORT,'SU1_LIFETIME_GLOBAL_ALPHA_EXHAUSTED') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_alpha_reservation_update BEFORE UPDATE ON su1_alpha_reservation
+BEGIN SELECT RAISE(ABORT,'SU1_ALPHA_IRREVOCABLE'); END;
+CREATE TRIGGER IF NOT EXISTS su1_alpha_reservation_delete BEFORE DELETE ON su1_alpha_reservation
+BEGIN SELECT RAISE(ABORT,'SU1_ALPHA_IRREVOCABLE'); END;
 CREATE TABLE IF NOT EXISTS su1_source_clock (
  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
  generation INTEGER NOT NULL CHECK(generation>=0)

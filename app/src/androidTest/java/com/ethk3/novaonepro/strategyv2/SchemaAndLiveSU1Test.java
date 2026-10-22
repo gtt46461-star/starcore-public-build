@@ -36,7 +36,7 @@ public final class SchemaAndLiveSU1Test {
                 id=StrategyRepositorySU1.candidate(db,"EXPERT(0)",1,false,"EXPERT_MIX",null,campaign,seq-1,data,-1,now);
                 long[] issues=new long[20],available=new long[20];int[][] history=new int[20][10];for(int t=0;t<20;t++){issues[t]=202610210001L+t;available[t]=now-1000;for(int p=0;p<10;p++)history[t][p]=p+1;}
                 EventFrameSU1 frame=new EventFrameSU1(Long.parseLong(target),open,now,"CANONICAL_PK10_V1",issues,available,history);
-                StrategyRepositorySU1.snapshot(db,frame,"test-fixture-input");
+                StrategyRepositorySU1.snapshot(db,frame,SnapshotPayloadSU1.prepare(frame));
                 db.execSQL("INSERT INTO su1_live_target(sequence_ordinal,target_issue,target_open_time,snapshot_hash) VALUES(?,?,?,?)",new Object[]{seq,target,open,frame.contentHash});
                 db.execSQL("INSERT INTO su1_live_shadow(strategy_id,sequence_ordinal,day_key,position,number_mask,captured_at,target_open_time) VALUES(?,?,20261021,1,7,?,?)",new Object[]{id,seq,now,open});
                 db.execSQL("INSERT INTO su1_live_attempt VALUES(?,?,'FROZEN','',?)",new Object[]{id,seq,now});db.setTransactionSuccessful();

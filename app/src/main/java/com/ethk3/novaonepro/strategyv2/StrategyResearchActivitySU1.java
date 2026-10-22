@@ -41,7 +41,7 @@ public final class StrategyResearchActivitySU1 extends Activity {
                     try(Cursor c=store.readable().rawQuery("SELECT phase,detail FROM su1_health_event ORDER BY id DESC LIMIT 3",null)){while(c.moveToNext())out.append("最近状态：").append(c.getString(0)).append(' ').append(c.getString(1)).append('\n');}
                     result=out.toString();store.close();
                 }
-            }catch(RuntimeException failure){result=getString(R.string.su1_error,DatabaseCoordinator.describeCauseChain(failure,1200));}
+            }catch(RuntimeException failure){result=getString(R.string.su1_error,DiagnosticsSU1.cause(failure,1200));}
             String shown=result;if(!destroyed)runOnUiThread(()->{if(!destroyed)text.setText(shown);});
         });
     }

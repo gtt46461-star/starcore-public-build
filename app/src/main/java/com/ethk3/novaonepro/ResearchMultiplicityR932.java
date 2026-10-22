@@ -81,6 +81,7 @@ public final class ResearchMultiplicityR932 {
                     familyAlpha=allocation(TOTAL_ALPHA,ordinal);db.execSQL("INSERT INTO "+FAMILY+" VALUES(?,?,?,?)",new Object[]{family,ordinal,familyAlpha,issue});
                 }
                 long ordinal=1;try(Cursor h=db.rawQuery("SELECT COALESCE(MAX(ordinal),0)+1 FROM "+HYPOTHESIS+" WHERE family=?",new String[]{family})){if(h.moveToFirst())ordinal=h.getLong(0);}
+                com.ethk3.novaonepro.strategyv2.AlphaLedgerSU1.reserveLegacy(db,hypothesis,allocation(familyAlpha,ordinal),false);
                 db.execSQL("INSERT INTO "+HYPOTHESIS+" VALUES(?,?,?,?,?,?)",new Object[]{hypothesis,structure,family,ordinal,allocation(familyAlpha,ordinal),issue});
             }
         }

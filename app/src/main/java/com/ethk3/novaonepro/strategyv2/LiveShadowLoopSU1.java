@@ -61,7 +61,7 @@ public final class LiveShadowLoopSU1 {
                 catch(IllegalArgumentException failure){prepared.add(new Prepared(m,0,0,"COMPUTE_FAILED",failure.toString()));}
             }
         }
-        if(prepared.isEmpty())return 0;String packed=packed(frame);
+        if(prepared.isEmpty())return 0;SnapshotPayloadSU1 packed=SnapshotPayloadSU1.prepare(frame);
         return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_LIVE_FREEZE",db->{
             if(!EventFrameBuilderSU1.unchanged(store,frame))return 0;
             String snapshot=frame.contentHash;

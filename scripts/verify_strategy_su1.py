@@ -20,7 +20,7 @@ def main():
     prod=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2'
     sources=[p for p in prod.glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
     r952=ROOT/'app/src/main/java/com/ethk3/novaonepro/r952'
-    sources += [r952/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java']]
+    sources += [r952/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
     sources += list((HOST/'reference/java/com/ethk3/novaonepro/strategyv2').glob('*Test.java'))
     compiled=run('deployed_java_compile',['java','com.sun.tools.javac.Main','-source','17','-target','17','-d',classes]+sources)
     okay=compiled and okay

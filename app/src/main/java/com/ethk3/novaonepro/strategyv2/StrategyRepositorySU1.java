@@ -35,10 +35,21 @@ public final class StrategyRepositorySU1 {
                 new Object[]{hash,payload.getBytes(StandardCharsets.UTF_8).length,codec,payload,now});
         return hash;
     }
-    public static void snapshot(SQLiteDatabase db,EventFrameSU1 frame,String preparedPayload){
-        long now=System.currentTimeMillis();String payload=blob(db,preparedPayload,"SU1_PIT_GZIP_BASE64_V1",now);
+    public static void snapshot(SQLiteDatabase db,EventFrameSU1 frame,SnapshotPayloadSU1 preparedPayload){
+        long now=System.currentTimeMillis();
+        for(Map.Entry<String,String> chunk:preparedPayload.chunks.entrySet())blob(db,chunk.getValue(),"SU1_PIT_CHUNK_GZIP_BASE64_V1",now);
+        String payload=blob(db,preparedPayload.manifest,"SU1_PIT_CHUNKS64_MANIFEST_V1",now);
         if(exists(db,"SELECT 1 FROM su1_snapshot WHERE snapshot_hash=?",frame.contentHash))return;
         db.execSQL("INSERT INTO su1_snapshot VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{frame.contentHash,"Binance1-PK10",frame.targetIssue,frame.targetOpenTime,frame.sourceMaxIssue,frame.sourceAvailableAt,frame.cutoff,frame.sourceEpoch,frame.sourceVersionHash,payload});
+        dependency(db,"SNAPSHOT",frame.contentHash,"BLOB",payload,"PIT_MANIFEST",now);
+        for(String chunk:preparedPayload.chunks.keySet())dependency(db,"BLOB",payload,"BLOB",chunk,"PIT_CHUNK",now);
+    }
+    public static void dependency(SQLiteDatabase db,String sourceKind,String source,String targetKind,String target,String reason,long now){
+        if(!exists(db,"SELECT 1 FROM su1_dependency WHERE source_kind=? AND source_id=? AND target_kind=? AND target_id=?",sourceKind,source,targetKind,target))db.execSQL("INSERT INTO su1_dependency VALUES(?,?,?,?,?,?)",new Object[]{sourceKind,source,targetKind,target,reason,now});
+    }
+    public static void row(SQLiteDatabase db,String table,Object... fields){
+        if(!table.matches("su1_[a-z0-9_]+")||fields.length%2!=0)throw new IllegalArgumentException("SU1_ROW");
+        android.content.ContentValues values=new android.content.ContentValues();for(int i=0;i<fields.length;i+=2){String key=(String)fields[i];Object v=fields[i+1];if(v==null)values.putNull(key);else if(v instanceof String)values.put(key,(String)v);else if(v instanceof Double)values.put(key,(Double)v);else if(v instanceof Integer)values.put(key,(Integer)v);else if(v instanceof Long)values.put(key,(Long)v);else throw new IllegalArgumentException("SU1_ROW_VALUE");}db.insertOrThrow(table,null,values);
     }
     public static String beginCampaign(SQLiteDatabase db,String kind,long through,String config,long now){
         String configHash=HashingSU1.text(config),id=HashingSU1.fields("SU1_CAMPAIGN_V1",kind,String.valueOf(through),configHash);

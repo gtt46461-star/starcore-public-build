@@ -126,6 +126,7 @@ public final class MultipleComparisonRegistryR930 {
         if(index<0||index==Long.MAX_VALUE)throw new IllegalStateException("CP4_ALPHA_INDEX_EXHAUSTED");
         long next=index+1;double alpha=.05/(double)next/((double)next+1d);
         if(!finite(alpha)||alpha<=0||available+1e-15<alpha)throw new IllegalStateException("CP4_ALPHA_BUDGET_EXHAUSTED");
+        com.ethk3.novaonepro.strategyv2.AlphaLedgerSU1.reserveLegacy(db,r.hypothesisId,alpha,true);
         long now=System.currentTimeMillis();ContentValues v=new ContentValues();v.put("family",r.statisticalFamily);v.put("initial_alpha",.05);v.put("available_alpha",available-alpha);v.put("global_index",next);v.put("updated_at",now);
         if(db.insertWithOnConflict(Batch34SchemaR930.TABLE_ALPHA_LEDGER,null,v,SQLiteDatabase.CONFLICT_REPLACE)<0)throw new IllegalStateException("CP4_ALPHA_LEDGER_WRITE");
         v=new ContentValues();v.put("hypothesis_id",r.hypothesisId);v.put("family",r.statisticalFamily);v.put("global_index",next);v.put("alpha",alpha);v.put("window_id",r.windowId);v.put("state",State.RESERVED.name());v.putNull("p_value");v.put("evidence_sha256","");v.put("reserved_at",now);v.put("decided_at",0L);
