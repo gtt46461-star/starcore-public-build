@@ -18,6 +18,7 @@ public final class SchemaAndLiveSU1Test {
         return db;
     }
     private static void ready(SQLiteDatabase db){int steps=0;while(!StrategySchemaSU1.ready(db)){assertTrue("migration did not terminate",steps++<1000);StrategySchemaSU1.advance(db);}}
+    private static int settle(SQLiteDatabase db,Models.Draw draw,String hash,long at){db.beginTransaction();try{int n=LiveShadowLoopSU1.settleWithin(db,draw,hash,at);db.setTransactionSuccessful();return n;}finally{db.endTransaction();}}
     @Test public void migrationRollbackAndRestartPreserveLegacyRows(){
         try(SQLiteDatabase db=database()){
             db.execSQL("INSERT INTO draws VALUES('202610210001',0,100,1,2,3,4,5,6,7,8,9,10)");
@@ -44,12 +45,30 @@ public final class SchemaAndLiveSU1Test {
             String hash=HashingSU1.text("canonical completed");Models.Draw draw=new Models.Draw();draw.issue=target;draw.openTime=open;for(int p=0;p<10;p++)draw.numbers[p]=p+1;
             db.execSQL("INSERT INTO draws VALUES(?,0,?,1,2,3,4,5,6,7,8,9,10)",new Object[]{target,open});
             db.execSQL("INSERT INTO "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" VALUES(?,'RUNNING',?,?)",new Object[]{target,hash,open+10});
-            try{LiveShadowLoopSU1.settleWithin(db,draw,hash,open+10);fail("non-completed label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
+            try{settle(db,draw,hash,open+10);fail("non-completed label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
             db.execSQL("UPDATE "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" SET status='COMPLETED'");
-            assertEquals(1,LiveShadowLoopSU1.settleWithin(db,draw,hash,open+10));assertEquals(0,LiveShadowLoopSU1.settleWithin(db,draw,hash,open+10));
-            draw.numbers[0]=2;draw.numbers[1]=1;try{LiveShadowLoopSU1.settleWithin(db,draw,hash,open+10);fail("forged canonical label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
+            assertEquals(1,settle(db,draw,hash,open+10));assertEquals(0,settle(db,draw,hash,open+10));
+            draw.numbers[0]=2;draw.numbers[1]=1;try{settle(db,draw,hash,open+10);fail("forged canonical label accepted");}catch(IllegalStateException expected){assertNotNull(expected.getMessage());}
             try(Cursor c=db.rawQuery("SELECT hit FROM su1_live_shadow",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getInt(0));}
             LiveShadowLoopSU1.closeDays(db,20261022);assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_live_daily WHERE actions=1 AND hits=1"));
+        }
+    }
+    @Test public void bothMissingConfirmKeepsCanonicalDenominatorAndNeverPasses(){
+        try(SQLiteDatabase db=database()){
+            ready(db);long now=System.currentTimeMillis(),open=now+60000;String issue="202610210021",family=HashingSU1.text("test family"),hash=HashingSU1.text("settlement");long seq=LiveShadowLoopSU1.sequence(issue);String cohort;
+            db.beginTransaction();try{
+                String campaign=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",seq-1,"{\"test\":true}",now);
+                String id=StrategyRepositorySU1.candidate(db,"EXPERT(0)",1,false,"EXPERT_MIX",null,campaign,seq-1,HashingSU1.text("input"),-1,now);
+                cohort=PromotionPipelineSU1.register(db,id,PromotionPipelineSU1.nullBaseline(db),family,issue,seq-1,1,"VS_NULL_BASELINE","CONFIRM");
+                db.execSQL("INSERT INTO draws VALUES(?,0,?,1,2,3,4,5,6,7,8,9,10)",new Object[]{issue,open});
+                db.execSQL("INSERT INTO "+DbHelper.TABLE_R36_SETTLEMENT_TASK+" VALUES(?,'COMPLETED',?,?)",new Object[]{issue,hash,open+1});
+                Models.Draw draw=new Models.Draw();draw.issue=issue;draw.openTime=open;for(int p=0;p<10;p++)draw.numbers[p]=p+1;
+                EvidenceLoopSU1.settleWithin(db,draw,hash,open+1);db.setTransactionSuccessful();
+            }finally{db.endTransaction();}
+            EvidenceQualitySU1.Look look=EvidenceQualitySU1.prepare(db,cohort,open+2,new BudgetTokenSU1(10000,100000,null));assertNotNull(look);assertEquals(1,look.n);assertEquals(1,look.unpaired);assertEquals("INSUFFICIENT",look.state);
+            db.beginTransaction();try{EvidenceQualitySU1.publish(db,look);db.setTransactionSuccessful();}finally{db.endTransaction();}
+            assertFalse(EvidenceQualitySU1.verifiedPass(db,look.hash));assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_opportunity_outcome"));
+            try(Cursor c=db.rawQuery("PRAGMA foreign_key_check",null)){assertFalse(c.moveToFirst());}
         }
     }
 }

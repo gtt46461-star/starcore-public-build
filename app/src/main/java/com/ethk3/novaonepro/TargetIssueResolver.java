@@ -197,4 +197,22 @@ public final class TargetIssueResolver {
             return date + sequenceTextCP12(sequence);
         }
     }
+
+    /** SU1 adapters use this owner's UTC calendar, including cross-day rollover. */
+    public static long sequenceOrdinalSU1(String issue) {
+        int distance=distance("202001010001",issue);
+        if(distance==Integer.MIN_VALUE||distance<0)throw new IllegalArgumentException("SU1_SEQUENCE");return distance+1L;
+    }
+    /** Conservative future calendar boundary; never use issue-number arithmetic in adapters. */
+    public static long firstUnseenOrdinalSU1(long wallTime) {
+        if(wallTime<1577836800000L)throw new IllegalArgumentException("SU1_CLOCK_RANGE");
+        return (wallTime-1577836800000L)/60000L+2;
+    }
+    public static String fromSequenceOrdinalSU1(long ordinal) {
+        if(ordinal<1||ordinal>50000000)throw new IllegalArgumentException("SU1_SEQUENCE_RANGE");
+        long day=utcDayIndex("20200101")+(ordinal-1)/ISSUES_PER_DAY;
+        SimpleDateFormat format=new SimpleDateFormat("yyyyMMdd",Locale.US);format.setLenient(false);format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String result=format.format(new Date(day*86400000L))+sequenceTextCP12((int)((ordinal-1)%ISSUES_PER_DAY)+1);
+        if(!isValid(result)||result.compareTo("210012311440")>0)throw new IllegalArgumentException("SU1_SEQUENCE_RANGE");return result;
+    }
 }

@@ -5236,6 +5236,7 @@ public final class DbStore {
         if(result.contract.certifiedPrediction!=null){
             CertifiedPredictionR974.Proof p=result.contract.certifiedPrediction;
             db.execSQL("INSERT INTO r974_exact_real_receipt VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{target,id,p.candidate,p.modelHash,p.certificate,p.hash,V51ChecksumEngine.sha256(p.recipe),p.actionHash,result.authorized.authorizationHash,System.currentTimeMillis()});
+            com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.bind(db,p,result.authorized.authorizationHash);
             db.execSQL("INSERT INTO research_exact_probability_f05(game_code,target_issue,trade_id,candidate_id,model_hash,certificate_hash,calibration_hash,selection_hash,scope_policy_hash,selected_hit_p,proof_hash,action_hash,authorization_hash,captured_at,committed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     new Object[]{V51Repository.GAME_CODE,target,id,p.candidate,p.modelHash,p.certificate,p.calibrationHash,p.selectionHash,p.scopePolicyHash,p.selectedHitP,p.hash,p.actionHash,result.authorized.authorizationHash,p.capturedAt,commitAt});
         }

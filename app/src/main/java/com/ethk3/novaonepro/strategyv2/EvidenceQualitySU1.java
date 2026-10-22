@@ -46,7 +46,7 @@ public final class EvidenceQualitySU1 {
         }
     }
     public static void maintain(DbStore store){
-        List<String> ids=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT cohort_id FROM su1_eval_cohort c WHERE evidence_role='CONFIRM' AND NOT EXISTS(SELECT 1 FROM su1_evidence_look e WHERE e.cohort_id=c.cohort_id AND look_ordinal=1) ORDER BY created_at LIMIT 8",null)){while(c.moveToNext())ids.add(c.getString(0));}
+        List<String> ids=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT cohort_id FROM su1_eval_cohort c WHERE evidence_role='CONFIRM' AND EXISTS(SELECT 1 FROM su1_cohort_runtime r WHERE r.cohort_id=c.cohort_id AND r.state<>'STOPPED') AND NOT EXISTS(SELECT 1 FROM su1_evidence_look e WHERE e.cohort_id=c.cohort_id AND look_ordinal=1) ORDER BY created_at LIMIT 8",null)){while(c.moveToNext())ids.add(c.getString(0));}
         for(String id:ids){Look look=prepare(store.readable(),id,System.currentTimeMillis(),new BudgetTokenSU1(2000,1000000,SettlementExecutionGateR819::isActive));if(look!=null)store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_PAIRED_LOOK",db->{publish(db,look);return 0;});}
     }
 }

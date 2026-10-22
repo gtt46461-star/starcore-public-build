@@ -128,6 +128,10 @@ public final class UnifiedResearchChoiceR932 {
                 roster.append('|').append(auth.reason);
             }
         }
+        if(consumer.isEmpty()){
+            com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority su1=com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.first(store,target);
+            if(su1!=null){consumer="INVENTED_ALGORITHM";candidate=su1.candidate();structure=su1.program;certificate=su1.certificate;roster.append("|SU1_EXACT:").append(su1.certificate);}
+        }
         if(consumer.isEmpty()&&rejections.isEmpty()){
             String latest="NO_CERTIFICATE_RECORD";
             try(Cursor last=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE
@@ -178,6 +182,16 @@ public final class UnifiedResearchChoiceR932 {
         public int count(String key){double n=metric(key);return Double.isFinite(n)?(int)n:0;}
     }
     public static Evidence selected(DbStore store,String target,CertificateBundleServiceR929.Consumer consumer) {
+        if(consumer==CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM&&com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.ready(store.readable())){
+            try(Cursor choice=store.readable().rawQuery("SELECT candidate_id,certificate_hash FROM "+TABLE+" WHERE target_issue=? AND consumer=? AND candidate_id LIKE 'SU1-F-%'",new String[]{target,consumer.name()})){
+                if(choice.moveToFirst()){
+                    com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority a=com.ethk3.novaonepro.strategyv2.CertificateSU1.read(store.readable(),choice.getString(1),System.currentTimeMillis(),true);
+                    if(a==null||com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.authority(store,choice.getString(0),a.program,target,a.certificate)==null)return null;
+                    return new Evidence(a.candidate(),a.program,a.certificate,a.evidence,new HashMap<String,Double>());
+                }
+            }
+        }
+
         try(Cursor c=store.readable().rawQuery("SELECT c.candidate_id,c.structural_hash,c.certificate_hash,c.evidence_hash FROM "+TABLE+" s JOIN "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" c ON c.certificate_hash=s.certificate_hash WHERE s.target_issue=? AND s.consumer=? AND c.state='ACTIVE'",new String[]{target,consumer.name()})){
             if(!c.moveToFirst())return null;
             String id=c.getString(0),structure=c.getString(1),certificate=c.getString(2),evidence=c.getString(3);

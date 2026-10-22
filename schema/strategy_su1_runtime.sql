@@ -32,21 +32,92 @@ CREATE TABLE IF NOT EXISTS su1_runtime_program (
  coverage REAL NOT NULL CHECK(coverage>0 AND coverage<=1),
  margin_gate INTEGER NOT NULL CHECK(margin_gate IN (0,1)),
  parent_id TEXT REFERENCES su1_strategy_version(strategy_id),
- created_at INTEGER NOT NULL
+ created_at INTEGER NOT NULL,
+ kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64)
+);
+CREATE TABLE IF NOT EXISTS su1_kernel_state (
+ singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+ kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64),
+ updated_at INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS su1_cohort_runtime (
  cohort_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_eval_cohort(cohort_id),
  last_issue TEXT NOT NULL,
- policy_revision TEXT NOT NULL CHECK(policy_revision='SU1_ALL_CALENDAR_K3_CONFIRM_V1')
+ policy_revision TEXT NOT NULL CHECK(policy_revision='SU1_ALL_CALENDAR_K3_CONFIRM_V1'),
+ state TEXT NOT NULL DEFAULT 'OPEN' CHECK(state IN ('OPEN','STOPPED','CLOSED')),
+ stop_reason TEXT NOT NULL DEFAULT ''
 );
 CREATE TRIGGER IF NOT EXISTS su1_cohort_runtime_immutable BEFORE UPDATE ON su1_cohort_runtime
-BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+BEGIN
+ SELECT CASE WHEN NEW.cohort_id<>OLD.cohort_id OR NEW.last_issue<>OLD.last_issue OR NEW.policy_revision<>OLD.policy_revision
+ OR OLD.state<>'OPEN' OR NEW.state NOT IN ('STOPPED','CLOSED')
+ THEN RAISE(ABORT,'SU1_COHORT_RUNTIME_TRANSITION') END;
+END;
 CREATE TABLE IF NOT EXISTS su1_quality_receipt (
  strategy_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_strategy_version(strategy_id),
  payload_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
  recorded_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS su1_sealed_plan (
+ campaign_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_campaign(campaign_id),
+ strategy_id TEXT NOT NULL REFERENCES su1_strategy_version(strategy_id),
+ dev_first INTEGER NOT NULL,
+ dev_last INTEGER NOT NULL,
+ val_first INTEGER NOT NULL,
+ val_last INTEGER NOT NULL,
+ first_sequence INTEGER NOT NULL,
+ last_sequence INTEGER NOT NULL,
+ selected_at INTEGER NOT NULL,
+ CHECK(dev_first<=dev_last AND dev_last<val_first AND val_first<=val_last AND val_last<first_sequence AND first_sequence<=last_sequence)
+);
+CREATE TRIGGER IF NOT EXISTS su1_sealed_plan_immutable BEFORE UPDATE ON su1_sealed_plan
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_sealed_cancelled (
+ campaign_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_sealed_plan(campaign_id),
+ reason TEXT NOT NULL,
+ cancelled_at INTEGER NOT NULL
+);
+CREATE TRIGGER IF NOT EXISTS su1_sealed_cancelled_immutable BEFORE UPDATE ON su1_sealed_cancelled
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_sealed_result (
+ plan_campaign TEXT PRIMARY KEY NOT NULL REFERENCES su1_sealed_plan(campaign_id),
+ open_campaign TEXT UNIQUE NOT NULL REFERENCES su1_campaign(campaign_id),
+ eligibility TEXT NOT NULL CHECK(eligibility IN ('PASS_SCREEN','FAIL_SCREEN')),
+ recorded_at INTEGER NOT NULL
+);
+CREATE TRIGGER IF NOT EXISTS su1_sealed_result_immutable BEFORE UPDATE ON su1_sealed_result
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_calibration_attempt (
+ source_strategy TEXT PRIMARY KEY NOT NULL REFERENCES su1_strategy_version(strategy_id),
+ result_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ calibrated_strategy TEXT UNIQUE REFERENCES su1_strategy_version(strategy_id),
+ first_sequence INTEGER NOT NULL,
+ last_sequence INTEGER NOT NULL,
+ recorded_at INTEGER NOT NULL,
+ CHECK(first_sequence<last_sequence)
+);
+CREATE TRIGGER IF NOT EXISTS su1_calibration_attempt_immutable BEFORE UPDATE ON su1_calibration_attempt
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_portable_import (
+ artifact_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64),
+ strategy_id TEXT NOT NULL REFERENCES su1_strategy_version(strategy_id),
+ source_through_issue TEXT NOT NULL,
+ recorded_at INTEGER NOT NULL,
+ PRIMARY KEY(artifact_hash,kernel_hash)
+);
+CREATE TRIGGER IF NOT EXISTS su1_portable_import_immutable BEFORE UPDATE ON su1_portable_import
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS su1_quality_receipt_immutable BEFORE UPDATE ON su1_quality_receipt
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TABLE IF NOT EXISTS su1_certificate_runtime (
+ certificate_id TEXT PRIMARY KEY NOT NULL REFERENCES su1_certificate(certificate_id),
+ kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64),
+ quality_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ family_root_hash TEXT NOT NULL REFERENCES su1_family_budget(family_root_hash),
+ descriptor_hash TEXT NOT NULL CHECK(length(descriptor_hash)=64)
+);
+CREATE TRIGGER IF NOT EXISTS su1_certificate_runtime_immutable BEFORE UPDATE ON su1_certificate_runtime
 BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
 CREATE TRIGGER IF NOT EXISTS su1_runtime_program_immutable BEFORE UPDATE ON su1_runtime_program
 BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
@@ -108,3 +179,38 @@ CREATE TABLE IF NOT EXISTS su1_health_event (
  elapsed_micros INTEGER NOT NULL CHECK(elapsed_micros>=0),
  created_at INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS su1_retention_clock(singleton INTEGER PRIMARY KEY CHECK(singleton=1),generation INTEGER NOT NULL);
+INSERT OR IGNORE INTO su1_retention_clock VALUES(1,0);
+CREATE TRIGGER IF NOT EXISTS su1_retention_research_pool_insert AFTER INSERT ON su1_research_pool
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_research_pool_update AFTER UPDATE ON su1_research_pool
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_cohort_runtime_insert AFTER INSERT ON su1_cohort_runtime
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_cohort_runtime_update AFTER UPDATE ON su1_cohort_runtime
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_certificate_insert AFTER INSERT ON su1_certificate
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_certificate_update AFTER UPDATE ON su1_certificate
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_burst_checkpoint_insert AFTER INSERT ON su1_burst_checkpoint
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_burst_checkpoint_update AFTER UPDATE ON su1_burst_checkpoint
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_live_target_insert AFTER INSERT ON su1_live_target
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_live_target_update AFTER UPDATE ON su1_live_target
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_prediction_insert AFTER INSERT ON su1_prediction
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_prediction_update AFTER UPDATE ON su1_prediction
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_settlement_insert AFTER INSERT ON su1_settlement
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_settlement_update AFTER UPDATE ON su1_settlement
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_research_task_insert AFTER INSERT ON su1_research_task
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_research_task_update AFTER UPDATE ON su1_research_task
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;

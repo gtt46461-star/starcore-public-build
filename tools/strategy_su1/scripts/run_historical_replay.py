@@ -14,6 +14,8 @@ SEALED is opened exactly once per dataset, after evolution has finished.
 """
 import argparse
 import gc
+import hashlib
+from export_grammar_artifact import portable
 import json
 from pathlib import Path
 import sys
@@ -71,11 +73,13 @@ def planted_conditional(T, seed=6, rate=0.35):
     return D
 
 
-def run(name, D, generations, population, seed):
+def run(name, D, generations, population, seed, dataset_sha, through_issue):
     t0 = time.perf_counter()
     rep = forge.campaign(D, generations=generations, population=population, seed=seed, screen=True,
                          log=lambda h: print(name, json.dumps({k: h[k] for k in ("generation", "dev_best_hit_rate", "dev_best_family", "champion_val_hit_rate", "champion_family", "elapsed_s")}), flush=True))
     screening = rep.get("screening")
+    winner=rep["champion"]
+    exported=portable(grammar.canonical(winner.tree),winner.coverage,winner.gate=="MARGIN",dataset_sha,through_issue) if winner.family=="GRAMMAR" else None
     sealed = forge.open_sealed(rep)
     led = sorted(rep["ledger"], key=lambda x: -x["dev_fitness"])
     created, macros = rep.get("created_families", []), rep.get("macros", [])
@@ -85,6 +89,7 @@ def run(name, D, generations, population, seed):
     return {"dataset": name, "seconds": round(time.perf_counter() - t0, 1),
             "periods": int(len(D)), "eras": rep["eras"], "evaluated_programs": rep["evaluated_programs"],
             "history": rep["history"], "champion": rep["champion_description"],
+            "portable_grammar_research_only": exported,
             "director_final": rep["director"], "top10_dev_programs": led[:10],
             "created_families": created, "learned_macros": macros, "screening": screening,
             "sealed_once": sealed}
@@ -115,7 +120,7 @@ def main():
            "first_period": int(periods[0]), "last_period": int(periods[-1]),
            "data_check": hre.data_report(ms, D), "atom_catalog": atom_cov,
            "budget": {"generations": a.generations, "population": a.population, "seed": a.seed},
-           "results": [run(n, d, a.generations, a.population, a.seed) for n, d in sets]}
+           "results": [run(n, d, a.generations, a.population, a.seed, hashlib.sha256(Path(a.history).read_bytes()).hexdigest(), str(periods[-1])) for n, d in sets]}
     Path(a.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n")
     for r in out["results"]:
         c, s = r["sealed_once"]["champion"], r["sealed_once"]["seed_cross_intersection"]

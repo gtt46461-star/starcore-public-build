@@ -27,9 +27,14 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                 }
                 if(!StrategySchemaSU1.ready(store.readable()))return;
                 if(StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='DISABLED' AND reason='USER_CONTROL'")){retry=false;return;}
+                Models.Draw canonicalLatest=store.getLatestDraw();if(canonicalLatest!=null)KernelTransitionSU1.ensure(store,LiveShadowLoopSU1.sequence(canonicalLatest.issue));
                 LiveShadowLoopSU1.recover(store,32);
                 EvidenceLoopSU1.recover(store);
                 EvidenceQualitySU1.maintain(store);
+                SealedPlannerSU1.maintain(store);
+                CalibrationPipelineSU1.maintain(store);
+                CertificateSU1.maintain(store);
+                ArchiveStoreSU1.maintain(store);
                 long feedbackEnd=SystemClock.elapsedRealtime()+2000;
                 for(int i=0;i<512&&!cancelled.get()&&SystemClock.elapsedRealtime()<feedbackEnd;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}
                 final DbStore owner=store;

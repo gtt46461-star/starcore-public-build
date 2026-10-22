@@ -479,6 +479,11 @@ public final class ResearchPlatformStoreR929 {
     public static Authorization authorizeCurrent(DbStore store,CertificateBundleServiceR929.Consumer consumer,
             String id,String structural,String target,double requested){
         if(store==null||consumer==null)return Authorization.denied("AUTHORIZATION_INPUT_INVALID");
+        if(consumer==CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM&&id!=null&&id.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)){
+            try{com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority a=com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.authority(store,id,structural,target,"");
+                return a==null||!Double.isFinite(requested)||requested<=0?Authorization.denied("SU1_EXACT_CERTIFICATE_REQUIRED"):new Authorization(true,Math.min(.05,requested),"L6",a.certificate,ModelBundleRuntimeR932.current().hash,"SU1_VERIFIED_EXACT_K3");
+            }catch(RuntimeException unavailable){return Authorization.denied("SU1_AUTHORITY_UNAVAILABLE:"+unavailable.getClass().getSimpleName());}
+        }
         String prefix=consumer.name().equals("INVENTED_ALGORITHM")?"algorithm":consumer.name().equals("GENESIS_ASSET")?"genesis":"formula";
         try {
             if(ResearchLifecycleR932.managed(store.readable(),prefix+":"+id)){
