@@ -34,6 +34,7 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                 SealedPlannerSU1.maintain(store);
                 CalibrationPipelineSU1.maintain(store);
                 CertificateSU1.maintain(store);
+                MainlineHeadSU1.maintain(store);
                 ArchiveStoreSU1.maintain(store);
                 long feedbackEnd=SystemClock.elapsedRealtime()+2000;
                 for(int i=0;i<512&&!cancelled.get()&&SystemClock.elapsedRealtime()<feedbackEnd;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}

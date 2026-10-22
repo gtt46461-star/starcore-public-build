@@ -31,14 +31,40 @@ public final class ArchiveStoreSU1 {
         if(!manifestHash.equals(HashingSU1.text(json))||!locator.equals(manifestHash+".su1a"))throw new IllegalStateException("SU1_ARCHIVE_MANIFEST");
         try{File file=new File(directory(db),locator);if(!file.getCanonicalFile().getParentFile().equals(directory(db).getCanonicalFile()))throw new IOException("SU1_ARCHIVE_PATH");List<Entry> entries=readFile(file);Map<String,Object> m=StrictCanonicalJson.readObject(json);if(!json.equals(manifest(entries,(String)m.get("graph"))))throw new IOException("SU1_ARCHIVE_MANIFEST_CONTENT");for(Entry e:entries)if(e.hash.equals(hash)){if(e.bytes!=bytes||!e.codec.equals(codec))throw new IOException("SU1_ARCHIVE_METADATA");return e.payload;}throw new IOException("SU1_ARCHIVE_MISSING_ENTRY");}catch(IOException invalid){throw new IllegalStateException("SU1_ARCHIVE_RESTORE_FAILED",invalid);}
     }
-    private static Set<String> roots(SQLiteDatabase db){
-        Set<String> roots=new TreeSet<>();
-        String live="v.strategy_id IN(SELECT strategy_id FROM su1_research_pool WHERE state='ACTIVE') OR v.strategy_id IN(SELECT strategy_id FROM su1_eval_cohort c JOIN su1_cohort_runtime r ON r.cohort_id=c.cohort_id WHERE r.state='OPEN') OR v.strategy_id IN(SELECT parent_strategy_id FROM su1_eval_cohort c JOIN su1_cohort_runtime r ON r.cohort_id=c.cohort_id WHERE r.state='OPEN') OR v.strategy_id IN(SELECT strategy_id FROM su1_certificate WHERE expires_at>"+System.currentTimeMillis()+")";
-        try(Cursor c=db.rawQuery("SELECT p.typed_ir_hash,m.weights_hash,m.training_report_hash,v.calibration_hash FROM su1_strategy_version v JOIN su1_program p ON p.program_hash=v.program_hash JOIN su1_model_artifact m ON m.artifact_hash=v.artifact_hash WHERE "+live,null)){while(c.moveToNext())for(int i=0;i<4;i++)if(!c.isNull(i))roots.add(c.getString(i));}
-        String[] sql={"SELECT dataset_hash FROM su1_burst_checkpoint","SELECT s.payload_hash FROM su1_live_target t JOIN su1_snapshot s ON s.snapshot_hash=t.snapshot_hash WHERE t.completed_at IS NULL","SELECT s.payload_hash FROM su1_prediction p JOIN su1_snapshot s ON s.snapshot_hash=p.snapshot_hash WHERE NOT EXISTS(SELECT 1 FROM su1_settlement x WHERE x.prediction_id=p.prediction_id)","SELECT probability_hash FROM su1_prediction p WHERE NOT EXISTS(SELECT 1 FROM su1_settlement x WHERE x.prediction_id=p.prediction_id)","SELECT period_state_hash FROM su1_prediction p WHERE NOT EXISTS(SELECT 1 FROM su1_settlement x WHERE x.prediction_id=p.prediction_id)","SELECT checkpoint_hash FROM su1_research_task WHERE state='LEASED' AND checkpoint_hash IS NOT NULL"};
-        for(String query:sql)try(Cursor c=db.rawQuery(query,null)){while(c.moveToNext())roots.add(c.getString(0));}
-        ArrayDeque<String> todo=new ArrayDeque<>(roots);while(!todo.isEmpty()){String id=todo.removeFirst();try(Cursor c=db.rawQuery("SELECT target_id FROM su1_dependency WHERE source_kind='BLOB' AND source_id=? AND target_kind='BLOB'",new String[]{id})){while(c.moveToNext())if(roots.add(c.getString(0)))todo.add(c.getString(0));}if(roots.size()>100000)throw new IllegalStateException("SU1_PIN_GRAPH_BUDGET");}return roots;
+    private static final class Ref {
+        final String kind,id;
+        Ref(String kind,String id){this.kind=kind;this.id=id;}
     }
+    /** Traverse typed dependencies, including all knowledge ancestors of an active strategy. */
+    public static Set<String> pinnedBlobRoots(SQLiteDatabase db,BudgetTokenSU1 budget){
+        Set<String> roots=new TreeSet<>(),visited=new HashSet<>();ArrayDeque<Ref> todo=new ArrayDeque<>();
+        String active="SELECT strategy_id FROM su1_research_pool WHERE state='ACTIVE' UNION SELECT c.strategy_id FROM su1_eval_cohort c JOIN su1_cohort_runtime r ON r.cohort_id=c.cohort_id WHERE r.state='OPEN' UNION SELECT c.parent_strategy_id FROM su1_eval_cohort c JOIN su1_cohort_runtime r ON r.cohort_id=c.cohort_id WHERE r.state='OPEN' AND c.parent_strategy_id IS NOT NULL UNION SELECT strategy_id FROM su1_certificate WHERE expires_at>"+System.currentTimeMillis()+" UNION SELECT strategy_id FROM su1_mainline_head_event WHERE generation=(SELECT max(generation) FROM su1_mainline_head_event) AND strategy_id IS NOT NULL";
+        try(Cursor c=db.rawQuery(active,null)){while(c.moveToNext())todo.add(new Ref("STRATEGY",c.getString(0)));}
+        String[] blobs={"SELECT dataset_hash FROM su1_burst_checkpoint","SELECT probability_hash FROM su1_prediction p WHERE NOT EXISTS(SELECT 1 FROM su1_settlement x WHERE x.prediction_id=p.prediction_id)","SELECT period_state_hash FROM su1_prediction p WHERE NOT EXISTS(SELECT 1 FROM su1_settlement x WHERE x.prediction_id=p.prediction_id)","SELECT checkpoint_hash FROM su1_research_task WHERE state='LEASED' AND checkpoint_hash IS NOT NULL","SELECT r.quality_hash FROM su1_certificate_runtime r JOIN su1_certificate c ON c.certificate_id=r.certificate_id WHERE c.expires_at>"+System.currentTimeMillis()};
+        for(String query:blobs)try(Cursor c=db.rawQuery(query,null)){while(c.moveToNext())todo.add(new Ref("BLOB",c.getString(0)));}
+        String snapshots="SELECT snapshot_hash FROM su1_live_target WHERE completed_at IS NULL UNION SELECT p.snapshot_hash FROM su1_prediction p WHERE NOT EXISTS(SELECT 1 FROM su1_settlement x WHERE x.prediction_id=p.prediction_id) UNION SELECT p.snapshot_hash FROM su1_prediction p JOIN su1_opportunity o ON o.opportunity_id=p.opportunity_id JOIN su1_evidence_look e ON e.cohort_id=o.cohort_id JOIN su1_certificate c ON c.evidence_hash=e.evidence_hash OR c.baseline_evidence_hash=e.evidence_hash WHERE c.expires_at>"+System.currentTimeMillis();
+        try(Cursor c=db.rawQuery(snapshots,null)){while(c.moveToNext())todo.add(new Ref("SNAPSHOT",c.getString(0)));}
+        while(!todo.isEmpty()){
+            budget.checkpointOrYield();Ref ref=todo.removeFirst();if(!visited.add(ref.kind+"|"+ref.id))continue;
+            if(visited.size()>100000)throw new IllegalStateException("SU1_PIN_GRAPH_BUDGET");
+            if(ref.kind.equals("BLOB"))roots.add(ref.id);
+            if(ref.kind.equals("STRATEGY")){
+                try(Cursor c=db.rawQuery("SELECT program_hash,artifact_hash,calibration_hash FROM su1_strategy_version WHERE strategy_id=?",new String[]{ref.id})){if(c.moveToFirst()){todo.add(new Ref("PROGRAM",c.getString(0)));todo.add(new Ref("ARTIFACT",c.getString(1)));if(!c.isNull(2))todo.add(new Ref("BLOB",c.getString(2)));}}
+                try(Cursor c=db.rawQuery("SELECT parent_strategy_id,task_id FROM su1_lineage WHERE child_strategy_id=?",new String[]{ref.id})){while(c.moveToNext()){todo.add(new Ref("STRATEGY",c.getString(0)));todo.add(new Ref("TASK",c.getString(1)));}}
+            }else if(ref.kind.equals("PROGRAM")){
+                try(Cursor c=db.rawQuery("SELECT typed_ir_hash FROM su1_program WHERE program_hash=?",new String[]{ref.id})){if(c.moveToFirst())todo.add(new Ref("BLOB",c.getString(0)));}
+            }else if(ref.kind.equals("ARTIFACT")){
+                try(Cursor c=db.rawQuery("SELECT weights_hash,training_report_hash FROM su1_model_artifact WHERE artifact_hash=?",new String[]{ref.id})){if(c.moveToFirst()){todo.add(new Ref("BLOB",c.getString(0)));todo.add(new Ref("BLOB",c.getString(1)));}}
+            }else if(ref.kind.equals("SNAPSHOT")){
+                try(Cursor c=db.rawQuery("SELECT payload_hash FROM su1_snapshot WHERE snapshot_hash=?",new String[]{ref.id})){if(c.moveToFirst())todo.add(new Ref("BLOB",c.getString(0)));}
+            }else if(ref.kind.equals("TASK")){
+                try(Cursor c=db.rawQuery("SELECT checkpoint_hash,output_hash FROM su1_research_task WHERE task_id=?",new String[]{ref.id})){if(c.moveToFirst())for(int i=0;i<2;i++)if(!c.isNull(i))todo.add(new Ref("BLOB",c.getString(i)));}
+            }
+            try(Cursor c=db.rawQuery("SELECT target_kind,target_id FROM su1_dependency WHERE source_kind=? AND source_id=?",new String[]{ref.kind,ref.id})){while(c.moveToNext())todo.add(new Ref(c.getString(0),c.getString(1)));}
+        }
+        return roots;
+    }
+    private static Set<String> roots(SQLiteDatabase db){return pinnedBlobRoots(db,new BudgetTokenSU1(2000,200000,SettlementExecutionGateR819::isActive));}
     private static long clock(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT generation FROM su1_retention_clock WHERE singleton=1",null)){if(!c.moveToFirst())throw new IllegalStateException("SU1_RETENTION_CLOCK");return c.getLong(0);}}
     public static boolean canCreate(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT coalesce(sum(byte_count),0) FROM su1_blob",null)){c.moveToFirst();return c.getLong(0)<TOTAL_LIMIT;}}
     private static void pin(SQLiteDatabase db,Set<String> roots,long now){
@@ -64,6 +90,14 @@ public final class ArchiveStoreSU1 {
             db.execSQL("DELETE FROM su1_live_shadow WHERE strategy_id=? AND day_key=?",new Object[]{strategy,key});db.execSQL("UPDATE su1_live_day_archive SET compacted_at=? WHERE strategy_id=? AND day_key=? AND compacted_at IS NULL",new Object[]{System.currentTimeMillis(),strategy,key});return 0;
         });
     }
+    private static Map<String,ProgramTreeSU1.Fitted> archiveModels(SQLiteDatabase db,String text){
+        Map<String,ProgramTreeSU1.Fitted> models=new HashMap<>();
+        for(ProgramTextSU1.Term term:ProgramTextSU1.subtrees(ProgramTextSU1.parse(text),false))if(term.op.equals("MODEL")){
+            String hash=term.args.get(0).toString();TrainingCheckpointSU1 cp=TrainingCheckpointSU1.decode(CampaignStateSU1.localBlob(db,hash));
+            if(!cp.hash.equals(hash))throw new IllegalArgumentException("SU1_ARCHIVE_MODEL_HASH");models.put(hash,new ProgramTreeSU1.Fitted(cp.weights,0));
+        }
+        return models;
+    }
     public static void maintain(DbStore store){
         prepareDaily(store);compactDaily(store);
         long epoch=clock(store.readable());Set<String> roots=roots(store.readable());if(epoch!=clock(store.readable()))return;long now=System.currentTimeMillis();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_TRANSITIVE_PINS",db->{if(clock(db)!=epoch)return 0;pin(db,roots,now);return 0;});
@@ -75,8 +109,8 @@ public final class ArchiveStoreSU1 {
             List<Entry> replay=readFile(dest);if(!json.equals(manifest(replay,graph)))throw new IOException("SU1_ARCHIVE_REPLAY_HASH");
             // Re-execute archived grammar definitions on a fixed valid causal prefix,
             // and compare the restored program with the original byte-for-byte execution.
-            int[][] fixture=new int[64][10];for(int t=0;t<64;t++)for(int p=0;p<10;p++)fixture[t][p]=(t+p)%10+1;
-            for(int i=0;i<entries.size();i++){Entry a=entries.get(i),b=replay.get(i);if(!a.payload.equals(b.payload))throw new IOException("SU1_ARCHIVE_REPLAY_BYTES");if(a.codec.equals("SU1_GRAMMAR_TEXT_V1")){String left=ProgramTextSU1.canonical(a.payload),right=ProgramTextSU1.canonical(b.payload);if(!left.equals(right))throw new IOException("SU1_ARCHIVE_PROGRAM_REPLAY");try(AtomLiftSU1 atoms=new AtomLiftSU1(fixture)){double[][] x=ProgramTreeSU1.parse(left).score(new ProgramTreeSU1.Context(fixture,64,atoms,new ScoreHistoryCacheSU1(64),new BudgetTokenSU1(250,1000000,SettlementExecutionGateR819::isActive)));double[][] y=ProgramTreeSU1.parse(right).score(new ProgramTreeSU1.Context(fixture,64,atoms,new ScoreHistoryCacheSU1(64),new BudgetTokenSU1(250,1000000,SettlementExecutionGateR819::isActive)));if(!Arrays.deepEquals(x,y))throw new IOException("SU1_ARCHIVE_PROGRAM_REPLAY_VALUES");}}}
+            int[][] fixture=new int[256][10];for(int t=0;t<256;t++)for(int p=0;p<10;p++)fixture[t][p]=(t+p)%10+1;
+            for(int i=0;i<entries.size();i++){Entry a=entries.get(i),b=replay.get(i);if(!a.payload.equals(b.payload))throw new IOException("SU1_ARCHIVE_REPLAY_BYTES");if(a.codec.equals("SU1_GRAMMAR_TEXT_V1")){String left=ProgramTextSU1.canonical(a.payload),right=ProgramTextSU1.canonical(b.payload);if(!left.equals(right))throw new IOException("SU1_ARCHIVE_PROGRAM_REPLAY");try(AtomLiftSU1 atoms=new AtomLiftSU1(fixture)){double[][] x=ProgramTreeSU1.parse(left).score(new ProgramTreeSU1.Context(fixture,256,atoms,new ScoreHistoryCacheSU1(64),new BudgetTokenSU1(250,1000000,SettlementExecutionGateR819::isActive)).withFitted(archiveModels(store.readable(),left)));double[][] y=ProgramTreeSU1.parse(right).score(new ProgramTreeSU1.Context(fixture,256,atoms,new ScoreHistoryCacheSU1(64),new BudgetTokenSU1(250,1000000,SettlementExecutionGateR819::isActive)).withFitted(archiveModels(store.readable(),right)));if(!Arrays.deepEquals(x,y))throw new IOException("SU1_ARCHIVE_PROGRAM_REPLAY_VALUES");}}}
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_VERIFIED_ARCHIVE_COMMIT",db->{
                 if(clock(db)!=epoch)return 0;for(Entry e:entries)if(roots.contains(e.hash))return 0;
                 if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_archive_receipt WHERE receipt_id=?",receipt))StrategyRepositorySU1.row(db,"su1_archive_receipt","receipt_id",receipt,"archive_locator",dest.getName(),"manifest_hash",hash,"dependency_graph_hash",graph,"verified_at",now,"replay_verified",1,"manifest_json",json);

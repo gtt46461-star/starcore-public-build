@@ -56,12 +56,18 @@ public final class CampaignStateSU1 implements AutoCloseable {
     public void checkpoint(StrategyFoundrySU1.Attempt attempt){
         Map<String,Object> state=new TreeMap<>();state.put("campaign",campaign);state.put("dataset",datasetBlob);state.put("through",through);state.put("kernel",TrainingCodeIdentityR964.SHA256);state.put("session",foundry.checkpoint());
         String json=StrictCanonicalJson.writeContext(state);if(json.length()>65000)throw new IllegalStateException("SU1_CHECKPOINT_BYTES");String hash=HashingSU1.text(json);long now=System.currentTimeMillis();Models.Draw latest=store.getLatestDraw();
+        String experience=attempt==null?null:foundry.knowledge(attempt);
+        long cost=attempt==null?0:ProgramContractSU1.compile(ProgramTextSU1.parse(attempt.genome.text)).operationUnits;
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_FOUNDRY_COMMIT",db->{
             if(generation<0){if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_burst_checkpoint WHERE singleton=1"))throw new IllegalStateException("SU1_CHECKPOINT_CAS");db.execSQL("INSERT INTO su1_burst_checkpoint VALUES(1,0,?,?,?,?)",new Object[]{datasetBlob,json,hash,now});}
             else{db.execSQL("UPDATE su1_burst_checkpoint SET generation=generation+1,dataset_hash=?,cursor_json=?,state_hash=?,updated_at=? WHERE singleton=1 AND generation=? AND state_hash=?",new Object[]{datasetBlob,json,hash,now,generation,oldHash});if(StrategyRepositorySU1.count(db,"SELECT changes()")!=1)throw new IllegalStateException("SU1_CHECKPOINT_CAS");}
             if(attempt!=null){
                 StrategyFoundrySU1.Genome g=attempt.genome;String id=HashingSU1.fields(campaign,String.valueOf(foundry.phase),String.valueOf(foundry.generation),String.valueOf(foundry.index),g.key());
                 if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_search_attempt WHERE attempt_id=?",id))db.execSQL("INSERT INTO su1_search_attempt(attempt_id,genome_key,campaign_id,program_text,arm,operator,parent_id,dev_fitness,val_fitness,result,detail,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{id,g.key(),campaign,g.text,g.arm,g.operator,g.parent,attempt.ranked==null?null:attempt.ranked.fitness,attempt.ranked==null?null:attempt.ranked.valFitness,attempt.result,attempt.detail,now});
+                if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_research_knowledge WHERE attempt_id=?",id)){
+                    String payload=StrategyRepositorySU1.blob(db,experience,"SU1_RESEARCH_EXPERIENCE_V1",now);
+                    StrategyRepositorySU1.row(db,"su1_research_knowledge","attempt_id",id,"context_key",foundry.researchContext.key,"hypothesis",g.arm,"action",g.operator,"cost_units",cost,"result",attempt.result,"payload_hash",payload,"recorded_at",now);
+                }
                 if(attempt.ranked!=null&&attempt.ranked.fitness>-1&&attempt.ranked.valFitness>-1){
                     boolean useful=StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool WHERE state='ACTIVE'")<32;
                     if(!useful)try(Cursor c=db.rawQuery("SELECT min(prior_fitness) FROM su1_research_pool WHERE state='ACTIVE'",null)){c.moveToFirst();useful=attempt.ranked.fitness>c.getDouble(0);}

@@ -23,12 +23,16 @@ public final class RelationalStateInference {
             this.b=vector(b,d);this.wo=matrix(wo,d,10);this.c=vector(c,10);
         }
     }
-    public static double[][] predict(Weights w,int[][] history) {
+    public interface Trace { void layer(String name,int step,double[][] values); }
+    public static double[][] predict(Weights w,int[][] history) {return predict(w,history,null);}
+    public static double[][] predict(Weights w,int[][] history,Trace trace) {
         if(w==null||history==null||history.length<1||history.length>256)
             throw new IllegalArgumentException("HISTORY");
         double[][] a=new double[10][];
         for(int p=0;p<10;p++)a[p]=softmax(w.r[p]);
+        if(trace!=null)trace.layer("relation",-1,a);
         double[][] h=new double[10][w.d];
+        int step=0;
         for(int[] draw:history) {
             validateDraw(draw);
             double[][] z=new double[10][w.d],m=new double[10][w.d],next=new double[10][w.d];
@@ -41,6 +45,7 @@ public final class RelationalStateInference {
                 next[p][j]=Math.tanh(v);
             }
             h=next;
+            if(trace!=null){trace.layer("embedding",step,z);trace.layer("message",step,m);trace.layer("state",step,h);}step++;
         }
         double[][] probabilities=new double[10][10];
         for(int p=0;p<10;p++){
@@ -48,6 +53,7 @@ public final class RelationalStateInference {
             for(int n=0;n<10;n++)for(int k=0;k<w.d;k++)scores[n]+=h[p][k]*w.wo[k][n];
             probabilities[p]=softmax(scores);
         }
+        if(trace!=null)trace.layer("probability",step,probabilities);
         return probabilities;
     }
     /** One-based position followed by three one-based numbers; stable exact ties. */

@@ -9,6 +9,7 @@ public final class HistoricalReplayEngineSU1 {
         public final boolean[] act,hit;
         public final int[] position,mask;
         public final double[] gate;
+        public final String[] probeScores=new String[64];
         Replay(int n){act=new boolean[n];hit=new boolean[n];position=new int[n];mask=new int[n];gate=new double[n];Arrays.fill(gate,Double.NaN);}
         public int actions(int a,int b){int n=0;for(int t=a;t<b;t++)if(act[t])n++;return n;}
         public int hits(int a,int b){int n=0;for(int t=a;t<b;t++)if(act[t]&&hit[t])n++;return n;}
@@ -40,9 +41,11 @@ public final class HistoricalReplayEngineSU1 {
         ScoreHistoryCacheSU1 cache=new ScoreHistoryCacheSU1(2048);
         int from=Math.max(0,start-720);
         try(AtomLiftSU1 atoms=new AtomLiftSU1(draws)){
+            ProgramTreeSU1.Context root=new ProgramTreeSU1.Context(draws,from,atoms,cache,budget);
             for(int t=from;t<end;t++){
-                budget.checkpointOrYield();double[][] s=program.score(new ProgramTreeSU1.Context(draws,t,atoms,cache,budget));int[] a=ProgramTreeSU1.action(s);
+                budget.checkpointOrYield();double[][] s=program.score(root.atTarget(t));int[] a=ProgramTreeSU1.action(s);
                 r.gate[t]=gateValue(s,a[0],margin);r.position[t]=a[0];r.mask[t]=(1<<(a[1]-1))|(1<<(a[2]-1))|(1<<(a[3]-1));r.hit[t]=(r.mask[t]&(1<<(draws[t][a[0]-1]-1)))!=0;
+                int probe=BehaviorSignatureSU1.probeIndex(t,start,end);if(probe>=0)r.probeScores[probe]=BehaviorSignatureSU1.scoreHash(s);
             }
         }
         for(int b=start;b<end;b+=50){double threshold=coverage>=.999?Double.NEGATIVE_INFINITY:quantileLinear(r.gate,Math.max(0,b-720),b,1-coverage);

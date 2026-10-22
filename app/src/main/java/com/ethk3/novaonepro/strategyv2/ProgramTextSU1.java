@@ -18,9 +18,17 @@ public final class ProgramTextSU1 {
         if(text==null||text.length()<3||text.length()>4096)throw new IllegalArgumentException("SU1_PROGRAM_SIZE");
         Reader r=new Reader(text.trim());Object value=r.item(0);
         if(r.i!=r.s.length()||!(value instanceof Term))throw new IllegalArgumentException("SU1_PROGRAM_SYNTAX");
-        Term t=(Term)value;validate(t,false);if(cost(t)>1000000)throw new IllegalArgumentException("SU1_PROGRAM_COST");return t;
+        Term t=(Term)value;validate(t,false);if(cost(t)>1000000)throw new IllegalArgumentException("SU1_PROGRAM_COST");ProgramContractSU1.compile(t);return t;
     }
     public static String canonical(String text){return parse(text).toString();}
+    /** Only proven scalar-score rewrites. Matching finite probes is deliberately a separate concept. */
+    public static String semanticCanonical(String text){return normalized(parse(text)).toString();}
+    private static Term normalized(Term term){
+        List<Object> args=new ArrayList<>();for(Object arg:term.args)args.add(arg instanceof Term?normalized((Term)arg):arg);
+        if(Arrays.asList("ADD","MUL","MAX").contains(term.op)&&args.get(0).toString().compareTo(args.get(1).toString())>0)Collections.swap(args,0,1);
+        if(term.op.equals("SUB")&&args.get(0).toString().equals(args.get(1).toString()))return new Term("SUB",Arrays.asList(new Term("NUMIS",Arrays.asList("0")),new Term("NUMIS",Arrays.asList("0"))));
+        return new Term(term.op,args);
+    }
     private static final class Reader {
         final String s;int i,count;
         Reader(String s){this.s=s;}
@@ -46,6 +54,8 @@ public final class ProgramTextSU1 {
             case "XI":arity(t,3);number(t,0,0,7);number(t,1,0,7);number(t,2,0,9);break;
             case "HEDGE":arity(t,2);number(t,0,30,360);number(t,1,1,8000);break;
             case "DEEP":arity(t,3);number(t,0,2,8);number(t,1,8,32);number(t,2,0,2147483647);break;
+            case "MODEL":arity(t,2);HashingSU1.sha(t.args.get(0).toString());number(t,1,1,256);break;
+            case "FUSE":arity(t,3);child(t,0,false);child(t,1,false);number(t,2,30,120);break;
             case "REL":arity(t,4);if(!Arrays.asList("SAME","PLUS1","MINUS1","MIRROR","SUM").contains(t.args.get(0)))throw new IllegalArgumentException("SU1_REL_KIND");number(t,1,1,5000);number(t,2,0,9);number(t,3,0,9);break;
             case "ODD":case "BIG":arity(t,2);number(t,0,0,9);number(t,1,1,5000);break;
             case "GT":arity(t,4);number(t,0,0,9);number(t,1,1,5000);number(t,2,0,9);number(t,3,1,5000);break;
@@ -58,7 +68,7 @@ public final class ProgramTextSU1 {
             default:throw new IllegalArgumentException("SU1_UNKNOWN_OPERATOR:"+t.op);
         }
     }
-    private static long cost(Term t){long c=t.op.equals("DEEP")?300000:1;for(Object a:t.args)if(a instanceof Term)c+=cost((Term)a);return t.op.equals("HOTT")?c*Integer.parseInt(t.args.get(0).toString())*10:c;}
+    private static long cost(Term t){long c=t.op.equals("DEEP")?300000:t.op.equals("FUSE")?100000:1;for(Object a:t.args)if(a instanceof Term)c+=cost((Term)a);return t.op.equals("HOTT")?c*Integer.parseInt(t.args.get(0).toString())*10:c;}
     public static boolean constant(Term t){
         if(t.op.equals("NUMIS"))return true;
         if(t.op.equals("SUB")&&t.args.get(0).toString().equals(t.args.get(1).toString()))return true;

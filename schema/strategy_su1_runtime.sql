@@ -258,3 +258,52 @@ BEGIN
 END;
 CREATE TRIGGER IF NOT EXISTS su1_curve_immutable BEFORE UPDATE ON su1_campaign_curve
 BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+
+CREATE TABLE IF NOT EXISTS su1_mainline_head_event (
+ generation INTEGER PRIMARY KEY CHECK(generation>=1),
+ event_hash TEXT NOT NULL UNIQUE CHECK(length(event_hash)=64),
+ previous_hash TEXT NOT NULL CHECK(length(previous_hash)=64),
+ strategy_id TEXT REFERENCES su1_strategy_version(strategy_id),
+ certificate_id TEXT REFERENCES su1_certificate(certificate_id),
+ operation TEXT NOT NULL CHECK(operation IN ('BOOTSTRAP','PROMOTE','RENEW','FALLBACK','REVOKE','USER_ROLLBACK')),
+ policy_hash TEXT NOT NULL CHECK(length(policy_hash)=64),
+ recorded_at INTEGER NOT NULL,
+ CHECK((strategy_id IS NULL AND certificate_id IS NULL AND operation='REVOKE') OR
+       (strategy_id IS NOT NULL AND certificate_id IS NOT NULL))
+);
+CREATE TRIGGER IF NOT EXISTS su1_mainline_head_sequence BEFORE INSERT ON su1_mainline_head_event
+BEGIN
+ SELECT CASE WHEN NEW.generation<>coalesce((SELECT max(generation)+1 FROM su1_mainline_head_event),1)
+   THEN RAISE(ABORT,'SU1_MAINLINE_HEAD_GENERATION') END;
+ SELECT CASE WHEN NEW.previous_hash<>coalesce((SELECT event_hash FROM su1_mainline_head_event ORDER BY generation DESC LIMIT 1),'0000000000000000000000000000000000000000000000000000000000000000')
+   THEN RAISE(ABORT,'SU1_MAINLINE_HEAD_PREVIOUS') END;
+ SELECT CASE WHEN NEW.certificate_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM su1_certificate c WHERE c.certificate_id=NEW.certificate_id AND c.strategy_id=NEW.strategy_id AND c.issued_at<=NEW.recorded_at AND c.expires_at>NEW.recorded_at AND NOT EXISTS(SELECT 1 FROM su1_certificate_revocation r WHERE r.certificate_id=c.certificate_id))
+   THEN RAISE(ABORT,'SU1_MAINLINE_HEAD_CERTIFICATE') END;
+END;
+CREATE TRIGGER IF NOT EXISTS su1_mainline_head_no_update BEFORE UPDATE ON su1_mainline_head_event
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS su1_mainline_head_no_delete BEFORE DELETE ON su1_mainline_head_event
+BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_dependency_insert AFTER INSERT ON su1_dependency
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_lineage_insert AFTER INSERT ON su1_lineage
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_head_insert AFTER INSERT ON su1_mainline_head_event
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TRIGGER IF NOT EXISTS su1_retention_revocation_insert AFTER INSERT ON su1_certificate_revocation
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+CREATE TABLE IF NOT EXISTS su1_research_knowledge (
+ attempt_id TEXT PRIMARY KEY REFERENCES su1_search_attempt(attempt_id),
+ context_key TEXT NOT NULL,
+ hypothesis TEXT NOT NULL,
+ action TEXT NOT NULL,
+ cost_units INTEGER NOT NULL CHECK(cost_units>=1),
+ result TEXT NOT NULL,
+ payload_hash TEXT NOT NULL REFERENCES su1_blob(blob_hash),
+ recorded_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS su1_knowledge_lookup ON su1_research_knowledge(context_key,action,result,recorded_at);
+CREATE TRIGGER IF NOT EXISTS su1_research_knowledge_immutable BEFORE UPDATE ON su1_research_knowledge
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS su1_research_knowledge_no_delete BEFORE DELETE ON su1_research_knowledge
+BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;

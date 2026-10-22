@@ -9,7 +9,7 @@ import java.util.*;
 public final class StrategyRepositorySU1 {
     private StrategyRepositorySU1() {}
     public static final String ACTION=HashingSU1.text("SU1_ACTION_HEAD_V2|ONE_POSITION|FIXED_K3|FLOAT64_MASS_ROUND_1E9|LOW_POSITION_TIE");
-    public static final String UPDATE=HashingSU1.text("SU1_WINDOW_RESET_V2|DEEP_SGD_CAUSAL_BLOCK50|HEDGE_SETTLED_PREFIX|NO_PARENT_EVIDENCE_INHERITANCE");
+    public static final String UPDATE=HashingSU1.fields("SU1_WINDOW_RESET_V3|DEEP_SGD_CAUSAL_BLOCK50|HEDGE_SETTLED_PREFIX|FROZEN_IMPORTED_MODEL|NO_PARENT_EVIDENCE_INHERITANCE",TrainingObjectiveSU1.research().hash,FusionKernelSU1.PROTOCOL);
     public static final class Member {
         public final String id,text,arm,parent;
         public final double coverage,fitness;
@@ -44,6 +44,13 @@ public final class StrategyRepositorySU1 {
         dependency(db,"SNAPSHOT",frame.contentHash,"BLOB",payload,"PIT_MANIFEST",now);
         for(String chunk:preparedPayload.chunks.keySet())dependency(db,"BLOB",payload,"BLOB",chunk,"PIT_CHUNK",now);
     }
+    public static void relationAudit(SQLiteDatabase db,String snapshot,java.util.List<SparseConditionalCountsSU1.Estimate> estimates,long now){
+        for(SparseConditionalCountsSU1.Estimate estimate:estimates){
+            String payload=estimate.payload();if(payload.length()>262144)throw new IllegalArgumentException("SU1_RELATION_PAYLOAD_BUDGET");
+            String hash=blob(db,payload,"SU1_RELATION_AUDIT_V1",now);
+            dependency(db,"SNAPSHOT",snapshot,"BLOB",hash,"RELATION_SUPPORT_AUDIT",now);
+        }
+    }
     public static void dependency(SQLiteDatabase db,String sourceKind,String source,String targetKind,String target,String reason,long now){
         if(!exists(db,"SELECT 1 FROM su1_dependency WHERE source_kind=? AND source_id=? AND target_kind=? AND target_id=?",sourceKind,source,targetKind,target))db.execSQL("INSERT INTO su1_dependency VALUES(?,?,?,?,?,?)",new Object[]{sourceKind,source,targetKind,target,reason,now});
     }
@@ -58,17 +65,27 @@ public final class StrategyRepositorySU1 {
     }
     public static String candidate(SQLiteDatabase db,String text,double coverage,boolean margin,String arm,String parent,
             String campaign,long through,String datasetHash,double fitness,long now){
+        return candidate(db,text,coverage,margin,arm,parent,campaign,through,datasetHash,fitness,now,null);
+    }
+    public static String candidate(SQLiteDatabase db,String text,double coverage,boolean margin,String arm,String parent,
+            String campaign,long through,String datasetHash,double fitness,long now,TrainingCheckpointSU1 fitted){
         text=ProgramTextSU1.canonical(text);if(!Double.isFinite(fitness)||coverage<=0||coverage>1)throw new IllegalArgumentException("SU1_CANDIDATE");
+        boolean usesModel=false;for(ProgramTextSU1.Term term:ProgramTextSU1.subtrees(ProgramTextSU1.parse(text),false))usesModel|=term.op.equals("MODEL");
+        if(usesModel&&(fitted==null||!text.equals("MODEL("+fitted.hash+","+fitted.window+")")))throw new IllegalArgumentException("SU1_CANDIDATE_MODEL_MANIFEST_REQUIRED");
         String program=HashingSU1.text(ProgramTreeSU1.PROTOCOL+"|"+text);
-        String ir=blob(db,text,"SU1_GRAMMAR_TEXT_V1",now),weights=blob(db,"CAUSAL_WINDOW_PROGRAM|"+UPDATE+"|"+text,"SU1_EXECUTABLE_WINDOW_ALGORITHM_V2",now);
-        String report=blob(db,"STRUCTURE_SELECTION|"+datasetHash+"|"+through+"|"+Double.toHexString(fitness),"SU1_SEARCH_RECEIPT_V1",now);
-        if(!exists(db,"SELECT 1 FROM su1_program WHERE program_hash=?",program))db.execSQL("INSERT INTO su1_program VALUES(?,?,?,?,?,?,?,?)",new Object[]{program,HashingSU1.text(ProgramTreeSU1.PROTOCOL),HashingSU1.text("PK10_10X10_PIT_V1"),ir,UPDATE,0,1000000,now});
-        long trainLast=Math.max(1,through-1000),valFirst=trainLast+1,valLast=Math.max(valFirst,through);
-        String protocolJson="{\"kind\":\"CAUSAL_WINDOW_STRUCTURE_SEARCH\",\"dataset\":\""+datasetHash+"\",\"trainLast\":"+trainLast+",\"validationFirst\":"+valFirst+",\"validationLast\":"+valLast+"}";
+        String ir=blob(db,text,"SU1_GRAMMAR_TEXT_V1",now),weights=fitted==null?blob(db,"CAUSAL_WINDOW_PROGRAM|"+UPDATE+"|"+text,"SU1_EXECUTABLE_WINDOW_ALGORITHM_V2",now):blob(db,fitted.weightsWire,"SU1_RELSTATE10_BINARY_BASE64_V1",now);
+        ProgramContractSU1 compiled=ProgramContractSU1.compile(ProgramTextSU1.parse(text));
+        String semanticManifest=blob(db,compiled.manifest,"SU1_PROGRAM_CONTRACT_V1",now);
+        dependency(db,"PROGRAM",program,"BLOB",semanticManifest,"SEMANTICS_AND_STATIC_RESOURCE_MANIFEST",now);
+        String report=fitted==null?blob(db,"STRUCTURE_SELECTION|"+datasetHash+"|"+through+"|"+Double.toHexString(fitness),"SU1_SEARCH_RECEIPT_V1",now):blob(db,fitted.wire,TrainingCheckpointSU1.FORMAT,now);
+        if(fitted!=null){dependency(db,"PROGRAM",program,"BLOB",report,"FITTED_GRAPH_PARAMETER_OPTIMIZER_MANIFEST",now);dependency(db,"BLOB",report,"BLOB",weights,"EXACT_TRAINED_WEIGHTS",now);}
+        if(!exists(db,"SELECT 1 FROM su1_program WHERE program_hash=?",program))db.execSQL("INSERT INTO su1_program VALUES(?,?,?,?,?,?,?,?)",new Object[]{program,HashingSU1.text(ProgramTreeSU1.PROTOCOL),HashingSU1.text("PK10_10X10_PIT_V1"),ir,UPDATE,compiled.stateBytes,compiled.operationUnits,now});
+        long trainLast=fitted==null?Math.max(1,through-1000):LiveShadowLoopSU1.sequence(fitted.throughIssue),valFirst=trainLast+1,valLast=Math.max(valFirst,through);
+        String protocolJson="{\"kind\":\""+(fitted==null?"CAUSAL_WINDOW_STRUCTURE_SEARCH":"IMPORTED_FIXED_MODEL_LOCAL_VALIDATION_PENDING")+"\",\"dataset\":\""+datasetHash+"\",\"trainLast\":"+trainLast+",\"validationFirst\":"+valFirst+",\"validationLast\":"+valLast+"}";
         String protocol=HashingSU1.fields("SU1_SEARCH_PROTOCOL_V1",program,protocolJson);
         if(!exists(db,"SELECT 1 FROM su1_train_protocol WHERE protocol_hash=?",protocol))db.execSQL("INSERT INTO su1_train_protocol VALUES(?,?,?,?,?,?,?,?,?,?,?)",new Object[]{protocol,program,datasetHash,HashingSU1.fields(String.valueOf(trainLast),String.valueOf(valLast)),protocolJson,Math.max(1,trainLast-3200),trainLast,valFirst,valLast,ACTION,now});
         String artifact=HashingSU1.fields("SU1_INTERPRETED_ARTIFACT_V1",protocol,program,weights,report);
-        if(!exists(db,"SELECT 1 FROM su1_model_artifact WHERE artifact_hash=?",artifact))db.execSQL("INSERT INTO su1_model_artifact VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{artifact,protocol,program,"CAUSAL_WINDOW_PROGRAM",HashingSU1.text("ATOM_EVALUATOR_CP4_V1"),weights,through,report,now});
+        if(!exists(db,"SELECT 1 FROM su1_model_artifact WHERE artifact_hash=?",artifact))db.execSQL("INSERT INTO su1_model_artifact VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{artifact,protocol,program,fitted==null?"CAUSAL_WINDOW_PROGRAM":"SU1_FITTED_RELSTATE10",HashingSU1.text(fitted==null?"ATOM_EVALUATOR_CP4_V1":"RELSTATE10_CATEGORICAL_ONE_HOT_V1"),weights,fitted==null?through:LiveShadowLoopSU1.sequence(fitted.throughIssue),report,now});
         String selector=HashingSU1.fields("SU1_CAUSAL_QUANTILE_V1",Double.toHexString(coverage),String.valueOf(margin),"720|50|LINEAR");
         String id=new StrategyIdentitySU1(program,protocol,artifact,UPDATE,selector,HashingSU1.text("CALIBRATION_MISSING"),HashingSU1.fields("SU1_ATOM_CONDITION_V2_1E12|JAVA17_FLOAT32_NODES_V1",com.ethk3.novaonepro.TrainingCodeIdentityR964.SHA256,String.valueOf(parent))).hash;
         if(!exists(db,"SELECT 1 FROM su1_strategy_version WHERE strategy_id=?",id)){
@@ -87,7 +104,7 @@ public final class StrategyRepositorySU1 {
     public static String findParent(SQLiteDatabase db,String genome){
         if(genome==null||genome.isEmpty())return null;
         try(Cursor c=db.rawQuery("SELECT strategy_id,canonical_text,coverage,margin_gate FROM su1_runtime_program WHERE kernel_hash=? ORDER BY created_at DESC",new String[]{com.ethk3.novaonepro.TrainingCodeIdentityR964.SHA256})){
-            while(c.moveToNext())if(HashingSU1.fields("SU1_FOUNDRY_GENOME_V1",c.getString(1),Double.toHexString(c.getDouble(2)),String.valueOf(c.getInt(3)==1)).equals(genome))return c.getString(0);
+            while(c.moveToNext())if(HashingSU1.fields("SU1_FOUNDRY_GENOME_V2",ProgramTextSU1.semanticCanonical(c.getString(1)),Double.toHexString(c.getDouble(2)),String.valueOf(c.getInt(3)==1)).equals(genome))return c.getString(0);
         }return null;
     }
     public static void lineage(SQLiteDatabase db,String parent,String child,String kind,long through,String output,long now){

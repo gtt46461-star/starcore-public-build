@@ -19,7 +19,7 @@ public final class GrammarFamilySU1 {
         try{return bounded(ProgramTextSU1.replace(root,selected,ProgramTextSU1.parse(replacement)).toString(),text);}catch(IllegalArgumentException invalid){return text;}
     }
     public static String crossover(String a,String b,Random r){ProgramTextSU1.Term root=ProgramTextSU1.parse(a),other=ProgramTextSU1.parse(b);List<ProgramTextSU1.Term> as=ProgramTextSU1.subtrees(root,false),bs=ProgramTextSU1.subtrees(other,false);return bounded(ProgramTextSU1.replace(root,as.get(r.nextInt(as.size())),bs.get(r.nextInt(bs.size()))).toString(),a);}
-    public static String fuse(String a,String b,Random r){String proposal="ADD("+a+","+b+")";String result=bounded(proposal,"");return result.isEmpty()?crossover(a,b,r):result;}
+    public static String fuse(String a,String b,Random r){String proposal="FUSE("+a+","+b+",60)";String result=bounded(proposal,"");return result.isEmpty()?crossover(a,b,r):result;}
     public static String seed(String family,Random r){
         switch(family){
             case "EXPERT_MIX":return "ADD(EXPERT("+r.nextInt(8)+"),NEG(EXPERT("+r.nextInt(8)+")))";

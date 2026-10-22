@@ -56,6 +56,8 @@ public final class SchemaAndLiveSU1Test {
             db.execSQL("UPDATE draws SET n1=1,n2=2 WHERE issue=?",new Object[]{target});
             try(Cursor c=db.rawQuery("SELECT hit FROM su1_live_shadow",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getInt(0));}
             LiveShadowLoopSU1.closeDays(db,20261022);assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_live_daily WHERE actions=1 AND hits=1"));
+            String dashboard=ResearchDashboardSU1.render(db);assertTrue(dashboard.contains("命中 1 / 结算 1 = 100.00%"));assertTrue(dashboard.contains("冻结 1；待结算 0"));assertTrue(dashboard.contains("预算拒绝 0"));
+            assertEquals(0,MainlineHeadSU1.read(db).generation);
         }
     }
     @Test public void bothMissingConfirmKeepsCanonicalDenominatorAndNeverPasses(){
@@ -113,6 +115,28 @@ public final class SchemaAndLiveSU1Test {
                 String confirm=PromotionPipelineSU1.register(db,id,PromotionPipelineSU1.nullBaseline(db),family,"202610220001",seq-1,1,"VS_NULL_BASELINE","CONFIRM");
                 assertEquals(1,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(1,StrategyRepositorySU1.count(db,"SELECT global_claim_ordinal FROM su1_eval_cohort WHERE evidence_role='CONFIRM'"));assertNotEquals(research,confirm);db.setTransactionSuccessful();
             }finally{db.endTransaction();}
+        }
+    }
+    @Test public void transitivePinsKeepActiveLineageAndCompiledManifests(){
+        try(SQLiteDatabase db=database()){
+            ready(db);long now=System.currentTimeMillis();String data=HashingSU1.text("pin data");String parent,child,extra;
+            db.beginTransaction();try{
+                String campaign=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",10,"{}",now);
+                parent=StrategyRepositorySU1.candidate(db,"EXPERT(0)",1,false,"GRAMMAR",null,campaign,10,data,-1,now);
+                child=StrategyRepositorySU1.candidate(db,"ADD(EXPERT(0),XT(3))",1,false,"GRAMMAR",parent,campaign,10,data,-1,now);
+                db.execSQL("UPDATE su1_research_pool SET state='RETIRED',retired_sequence=11,retire_reason='TEST' WHERE strategy_id=?",new Object[]{parent});
+                extra=StrategyRepositorySU1.blob(db,"nested pinned input","SU1_TEST_PIN",now);
+                String program;try(Cursor c=db.rawQuery("SELECT program_hash FROM su1_strategy_version WHERE strategy_id=?",new String[]{parent})){assertTrue(c.moveToFirst());program=c.getString(0);}
+                StrategyRepositorySU1.dependency(db,"PROGRAM",program,"BLOB",extra,"TEST_TRANSITIVE",now);db.setTransactionSuccessful();
+            }finally{db.endTransaction();}
+            java.util.Set<String> roots=ArchiveStoreSU1.pinnedBlobRoots(db,new BudgetTokenSU1(10000,100000,null));assertTrue(roots.contains(extra));
+            try(Cursor c=db.rawQuery("SELECT p.typed_ir_hash,m.weights_hash,m.training_report_hash FROM su1_strategy_version v JOIN su1_program p ON p.program_hash=v.program_hash JOIN su1_model_artifact m ON m.artifact_hash=v.artifact_hash WHERE v.strategy_id IN (?,?)",new String[]{parent,child})){while(c.moveToNext())for(int i=0;i<3;i++)assertTrue(roots.contains(c.getString(i)));}
+        }
+    }
+    @Test public void mainlineHeadCannotBeFabricatedOrReplaced(){
+        try(SQLiteDatabase db=database()){
+            ready(db);assertEquals(0,MainlineHeadSU1.read(db).generation);assertFalse(MainlineHeadSU1.rollback(db,System.currentTimeMillis()));
+            try{db.execSQL("INSERT INTO su1_mainline_head_event VALUES(2,?,?,NULL,NULL,'REVOKE',?,1)",new Object[]{HashingSU1.text("bad generation"),new String(new char[64]).replace('\0','0'),MainlineHeadSU1.POLICY});fail("skipped head generation accepted");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
         }
     }
 }

@@ -20,7 +20,8 @@ public final class MainlineAdapterSU1 {
     }
     public static CertificateSU1.Authority first(DbStore store,String target){
         if(!StrategySchemaSU1.ready(store.readable())||!StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='MAINLINE_ADAPTER' AND contract_hash=?",CONTRACT))return null;
-        List<String[]> rows=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT c.certificate_id,c.strategy_id,v.program_hash FROM su1_certificate c JOIN su1_strategy_version v ON v.strategy_id=c.strategy_id ORDER BY c.issued_at DESC,c.strategy_id LIMIT 32",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1),c.getString(2)});}
+        MainlineHeadSU1.maintain(store);
+        List<String[]> rows=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT c.certificate_id,c.strategy_id,v.program_hash FROM su1_mainline_head_event h JOIN su1_certificate c ON c.certificate_id=h.certificate_id JOIN su1_strategy_version v ON v.strategy_id=c.strategy_id WHERE h.generation=(SELECT max(generation) FROM su1_mainline_head_event)",null)){while(c.moveToNext())rows.add(new String[]{c.getString(0),c.getString(1),c.getString(2)});}
         for(String[] r:rows){CertificateSU1.Authority a=authority(store,CertificateSU1.PREFIX+r[1],r[2],target,r[0]);if(a==null)continue;freeze(store,a,target);return a;}return null;
     }
     private static void freeze(DbStore store,CertificateSU1.Authority a,String target){
@@ -43,7 +44,7 @@ public final class MainlineAdapterSU1 {
         K3ActionSpaceEngine.validateOrThrow(actions);EventFrameSU1 frame=EventFrameBuilderSU1.capture(store,context.targetIssue);
         if(!String.valueOf(frame.sourceMaxIssue).equals(context.baseIssue))throw new IllegalStateException("SU1_EXACT_SOURCE_SCOPE");
         String text;try(Cursor c=store.readable().rawQuery("SELECT canonical_text FROM su1_runtime_program WHERE strategy_id=? AND kernel_hash=?",new String[]{a.strategy,TrainingCodeIdentityR964.SHA256})){if(!c.moveToFirst())throw new IllegalStateException("SU1_EXACT_PROGRAM");text=c.getString(0);}
-        int[][] history=frame.history();double[][] scores;try(AtomLiftSU1 atoms=new AtomLiftSU1(history)){scores=ProgramTreeSU1.parse(text).score(new ProgramTreeSU1.Context(history,history.length,atoms,new ScoreHistoryCacheSU1(2048),new BudgetTokenSU1(250,1000000,SettlementExecutionGateR819::isActive)));}
+        int[][] history=frame.history();double[][] scores;try(AtomLiftSU1 atoms=new AtomLiftSU1(history)){scores=ProgramTreeSU1.parse(text).score(new ProgramTreeSU1.Context(history,history.length,atoms,new ScoreHistoryCacheSU1(2048),new BudgetTokenSU1(250,1000000,SettlementExecutionGateR819::isActive)).withFitted(ModelAssetsSU1.load(store.readable(),text,frame)));}
         int[] head=ProgramTreeSU1.action(scores);Arrays.sort(head,1,4);int headOrdinal=K3ActionSpaceEngine.globalOrdinal(head[0],head[1],head[2],head[3]);
         double[][] probabilities=new double[10][10];for(int p=0;p<10;p++){double max=-Double.MAX_VALUE,total=0;for(double v:scores[p])max=Math.max(max,v);for(int n=0;n<10;n++){probabilities[p][n]=Math.exp(scores[p][n]-max);total+=probabilities[p][n];}for(int n=0;n<10;n++)probabilities[p][n]/=total;}
         double[] mass=new double[1200];int headIndex=-1;for(int i=0;i<1200;i++){V51Models.PositionAction action=actions[i];int ordinal=K3ActionSpaceEngine.globalOrdinal(action.position,action.n1,action.n2,action.n3);if(ordinal==headOrdinal)headIndex=i;double[] p=probabilities[action.position-1];mass[i]=Math.round((p[action.n1-1]+p[action.n2-1]+p[action.n3-1])*1e9)/1e9;}
@@ -57,6 +58,7 @@ public final class MainlineAdapterSU1 {
     }
     public static boolean verifyFrozen(SQLiteDatabase db,CertifiedPredictionR974.Proof proof,V51Models.PositionAction action){
         Map<String,Object> r=StrictCanonicalJson.readObject(proof.recipe);if(!CONTRACT.equals(r.get("contract"))||!proof.candidate.equals(CertificateSU1.PREFIX+r.get("strategy"))||!proof.certificate.equals(r.get("certificate"))||!proof.target.equals(r.get("target"))||!proof.modelHash.equals(r.get("artifact"))||!proof.calibrationHash.equals(r.get("calibration"))||!proof.selectionHash.equals(r.get("selector")))return false;
+        if(!MainlineHeadSU1.isHead(db,(String)r.get("strategy"),proof.certificate))return false;
         if(!(r.get("generation") instanceof Number))return false;
         try(Cursor clock=db.rawQuery("SELECT generation FROM su1_source_clock WHERE singleton=1",null)){if(!clock.moveToFirst()||clock.getLong(0)!=((Number)r.get("generation")).longValue())return false;}
         try(Cursor c=db.rawQuery("SELECT p.record_hash,p.position,p.n1,p.n2,p.n3,p.selected_hit_p,p.calibration_hash,s.source_version_hash FROM su1_prediction p JOIN su1_snapshot s ON s.snapshot_hash=p.snapshot_hash WHERE p.prediction_id=? AND p.strategy_id=? AND CAST(p.target_issue AS TEXT)=?",new String[]{(String)r.get("prediction"),(String)r.get("strategy"),proof.target})){

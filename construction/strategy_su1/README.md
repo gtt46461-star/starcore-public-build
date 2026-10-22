@@ -1,3 +1,5 @@
+本轮继续施工及接口打包修复详见 [CONTINUATION.md](CONTINUATION.md)。当前分支的新构建仍须以其 CI 结果为准；下文保留上一交付的验收范围。
+
 # 星核创研 SU1 工程交付
 
 这是实际修改源码、可编译并可独立安装的研究版。**不声明方案 100/100 已完成验收**。100 条要求逐项记录在 [requirements-delivered.csv](requirements-delivered.csv)，其中 `PARTIAL` 明确指出尚缺的代码或验证，不能把“已有类名”当作能力验收通过。

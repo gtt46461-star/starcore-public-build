@@ -6,7 +6,9 @@ public final class ApiCredentialSettingsCP12 {
  public static void show(Activity activity,Runnable afterSaved){
   EditText input=new EditText(activity);input.setSingleLine(true);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(128)});input.setHint("数据接口 API Key");
   if(Build.VERSION.SDK_INT>=26)input.setImeOptions(input.getImeOptions()|EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
-  AlertDialog dialog=new AlertDialog.Builder(activity).setTitle("修改数据接口密钥（可选）").setMessage("主备接口和旧版默认密钥已内置，无需填写即可抓取。这里仅用于替换为自己的密钥；保存后加密保存在本设备，覆盖更新继续读取。8—128 位字母或数字。").setView(input).setNegativeButton("取消",(d,w)->input.getText().clear()).setPositiveButton("保存",null).create();
+  String addresses="主接口："+BinanceGameContract.primary().endpoint()+"\n备用："+BinanceGameContract.backup().endpoint()+"\n数据代码："+BinanceGameContract.GAME_CODE+"\n\n";
+  String status=KeyProvider.isKeyReady()?"接口地址和访问凭据已就绪。此处仅用于替换你自己的密钥。":"接口地址已内置，当前安装包未配置有效访问凭据。请输入已授权的 API Key。";
+  AlertDialog dialog=new AlertDialog.Builder(activity).setTitle(KeyProvider.isKeyReady()?"修改数据接口密钥（可选）":"配置数据接口密钥").setMessage(addresses+status+"保存后加密保存在本设备，覆盖更新继续读取。8—128 位字母或数字。").setView(input).setNegativeButton("取消",(d,w)->input.getText().clear()).setPositiveButton("保存",null).create();
   WeakReference<Activity> owner=new WeakReference<>(activity);WeakReference<AlertDialog> window=new WeakReference<>(dialog);WeakReference<EditText> field=new WeakReference<>(input);android.content.Context app=activity.getApplicationContext();
   dialog.setOnShowListener(ignored->{dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(view->{
    char[] chars=new char[input.length()];input.getText().getChars(0,chars.length,chars,0);input.getText().clear();dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);

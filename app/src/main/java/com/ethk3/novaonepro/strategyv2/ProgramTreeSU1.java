@@ -21,12 +21,18 @@ import java.util.Map;
 public final class ProgramTreeSU1 {
     public static final String PROTOCOL = "SU1_GRAMMAR_V1";
     private static final int[] WINDOWS = {12, 24, 48, 96, 360};
+    public static final class Fitted {
+        public final RelationalStateInference.Weights weights;public final int firstTarget;
+        public Fitted(RelationalStateInference.Weights weights,int firstTarget){this.weights=weights;this.firstTarget=firstTarget;}
+    }
 
     /** History context for one target. draws[u][p] is the number (1..10) at position p of row u. */
     public static final class Context {
         final int[][] draws; final int t;
         final AtomLiftSU1 atoms; final ScoreHistoryCacheSU1 cache; final BudgetTokenSU1 budget;
         java.util.LinkedHashMap<String,RelationalStateInference.Weights> models=new java.util.LinkedHashMap<>(8,.75f,true);
+        java.util.LinkedHashMap<String,FusionKernelSU1.Model> fusions=new java.util.LinkedHashMap<>(8,.75f,true);
+        private Map<String,Fitted> fitted=java.util.Collections.emptyMap();
         private final Map<Integer, double[][]> experts = new HashMap<>();
         private final Map<Integer, double[][]> xtrans = new HashMap<>();
         public Context(int[][] draws, int target) {
@@ -36,17 +42,18 @@ public final class ProgramTreeSU1 {
             if(draws==null||target<0||target>draws.length)throw new IllegalArgumentException("TARGET");
             this.draws=draws;this.t=target;this.atoms=atoms;this.cache=cache;this.budget=budget;
         }
-        Context atTarget(int target){Context c=new Context(draws,target,atoms,cache,budget);c.models=models;return c;}
+        public Context withFitted(Map<String,Fitted> bindings){fitted=bindings;return this;}
+        Context atTarget(int target){Context c=new Context(draws,target,atoms,cache,budget);c.models=models;c.fusions=fusions;c.fitted=fitted;return c;}
         double[][] cached(String text,java.util.function.Supplier<double[][]> fn){budget.checkpointOrYield();return cache.score(text,t,fn);}
         int lagValue(int q, int lag) { return t >= lag ? draws[t - lag][q] : 0; }
         double[][] expert(int e) {
             double[][] v = experts.get(e);
-            if (v == null) { v = Experts.z(draws, t, e); experts.put(e, v); }
+            if (v == null) { v = cache.score("EXPERT("+e+")",t,()->Experts.z(draws,t,e)); experts.put(e, v); }
             return v;
         }
         double[][] xt(int off) {
             double[][] v = xtrans.get(off);
-            if (v == null) { v = Experts.crossTransition(draws, t, off, 1000); xtrans.put(off, v); }
+            if (v == null) { v = cache.transition(draws,t,off,budget); xtrans.put(off, v); }
             return v;
         }
     }
@@ -128,6 +135,18 @@ public final class ProgramTreeSU1 {
                 if(w==null){w=RelationalTrainerSU1.trainCausal(c.draws,block,width,window,seed,c.budget);c.models.put(key,w);while(c.models.size()>8)c.models.remove(c.models.keySet().iterator().next());}
                 if(c.t==0)return new double[10][10];double[][] probabilities=RelationalStateInference.predict(w,java.util.Arrays.copyOfRange(c.draws,Math.max(0,c.t-window),c.t));
                 for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
+            };}
+            case "MODEL": {final String hash=x.s(0);final int window=x.i(1);return c->{
+                Fitted fitted=c.fitted.get(hash);
+                if(fitted==null)throw new IllegalArgumentException("SU1_FITTED_MODEL_DEPENDENCY_MISSING");
+                if(c.t<fitted.firstTarget||c.t<window)throw new IllegalArgumentException("SU1_FITTED_MODEL_TRAINING_BOUNDARY");
+                c.budget.checkpointOrYield();double[][] probabilities=RelationalStateInference.predict(fitted.weights,java.util.Arrays.copyOfRange(c.draws,c.t-window,c.t));
+                for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
+            };}
+            case "FUSE": {final Node left=build(x.t(0)),right=build(x.t(1));final int window=x.i(2);final String identity=x.toString();return c->{
+                String key=identity+"|"+(c.t/50);FusionKernelSU1.Model model=c.fusions.get(key);
+                if(model==null){model=FusionKernelSU1.train(left,right,c,window);c.fusions.put(key,model);while(c.fusions.size()>8)c.fusions.remove(c.fusions.keySet().iterator().next());}
+                return FusionKernelSU1.score(model,left.score(c),right.score(c));
             };}
             case "NUMIS": { final int k = x.i(0); return c -> { double[][] o = new double[10][10];
                 for (int p = 0; p < 10; p++) o[p][k] = 1.0; return o; }; }
