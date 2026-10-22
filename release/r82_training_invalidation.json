@@ -5,13 +5,31 @@
   "controlled_baseline_sha256": "a01f962a253d97879d7498d6e2c881719ac777bff64557a94310b84bdf7a0024",
   "controlled_changes": [
     {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "8f00f4f84e0f320c100ef58245a88825378aa2c3121bcf1baa68d3d30e9727df",
+      "before_role": "BUILD_CONTRACT",
+      "before_sha256": "944d1d5d69f441246328258271546dfce78fa6f2ad91c2ba71717b95db886cc2",
+      "path": "app/build.gradle",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
       "after_role": "PRESENTATION",
-      "after_sha256": "db016d7647111c5e886a25a12c792e9877ae673d0ab2d13ea2c394b446260d54",
+      "after_sha256": "0d5d3ea5d56a0a61f407b0f6807c42b0ca475a0c69b3526502ea9ee713c380ca",
       "before_role": "PRESENTATION",
       "before_sha256": "8e95947c5bae693960cd0730336d144b7967a5551bb2a3d4d7281f458a7368e8",
       "path": "app/src/main/AndroidManifest.xml",
-      "rationale": "C024 registers the verified maintenance foreground service only; the independent C028 UI Manifest later adds MatrixBrowserActivity when its actual class exists. This complete source avoids premature missing-UI declarations.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "d4765fa66144b8c29654f2a04cb34435e9cf33d5902bd60072c1cd87353dc46c",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/assets/strategy_su1/atom_catalog_lifted.json",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "BUILD_CONTRACT",
@@ -19,8 +37,8 @@
       "before_role": "BUILD_CONTRACT",
       "before_sha256": "c1f0b65efae4e53898733e53f77e7cce52e3ff33380105d97be2dde4e99c9838",
       "path": "app/src/main/cpp/report_native_cp4.c",
-      "rationale": "Append the independent native offline maintenance implementation without modifying prior report native functions or pretending host compilation proves Android device behavior.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "BUILD_CONTRACT",
@@ -28,8 +46,8 @@
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/cpp/storage_maintenance_r82.inc",
-      "rationale": "Implement verified SQLite copy/rebuild with explicit rowid preservation, original DDL and type/value/FK checks before atomic source replacement.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -37,8 +55,17 @@
       "before_role": "NUMERIC",
       "before_sha256": "ef3f71d7d1391b72cbf889dd59a068c5e2c08a3e35e6fa6478e87379dcbd249a",
       "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
-      "rationale": "Preserve C019 startup queue rejection recovery, cancellation and liveness-thread teardown; merge only C022 bounded per-prediction wake lease and lifecycle gate changes.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "e34a09bc8b53f4cc05b12e3690ea3686a5dfb4a5447e454dfc83a49c0219349d",
+      "before_role": "NUMERIC",
+      "before_sha256": "e8187a4b3fe214aafd76e6c4a7fa979c898e05f7f72321a4ccd7631a7a9223ab",
+      "path": "app/src/main/java/com/ethk3/novaonepro/BootReceiver.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "PRESENTATION",
@@ -46,8 +73,8 @@
       "before_role": "PRESENTATION",
       "before_sha256": "b4c96809e0d95a1ba0756fe6e64f4d36aa4f9420e2494ac1bb16a90da5bb4652",
       "path": "app/src/main/java/com/ethk3/novaonepro/BusinessFunnelCP12.java",
-      "rationale": "Parenthesize status disjunctions inside the exact TRAINING, POST_TRAIN and VALIDATION kind predicates so failed tasks of other kinds cannot inflate a funnel stage.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -55,17 +82,17 @@
       "before_role": "NUMERIC",
       "before_sha256": "25f82b067254b385d620c052ae628df9c11d55c900f7a2cc60377ae11d162f6a",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-      "rationale": "Fence every original database owner around explicit maintenance and close/reopen transitions, ensuring the compact/swap cannot race fetch, training, report or UI readers.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "6d977b14adba81d1b4d2a528755f87b4d87e2c90043e6cd8d75308e44fca65c5",
+      "after_sha256": "81da4cd1bb4c18cb7359ee50813095d6146a5e81bd820ecefbf09e8d20558e7e",
       "before_role": "NUMERIC",
       "before_sha256": "3ccd36a573681396896d03f9712568b2828bb4f670ffef57534f9ce60742676d",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
-      "rationale": "Display actual maintenance progress and real database health asynchronously, retaining explicit manual start/stop actions and avoiding main-thread writer work.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -73,8 +100,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "667a09f1734ffa07efe450aa31df0bd5b649365d4c99b2e4c6fc85b50ad755a6",
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseIntegrityVerifier.java",
-      "rationale": "Read genuine database integrity and maintenance state through the original ownership boundary, representing unavailable health as unknown instead of healthy.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -82,8 +109,17 @@
       "before_role": "NUMERIC",
       "before_sha256": "754c01343d9fe165c24869495a07190878fb0d4e68012a4ebe92b550423c8382",
       "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
-      "rationale": "Retain C019 transaction-local schema-column cache with failure invalidation; verified previous schema semantics and transaction boundaries stay unchanged.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "9ed9f2a340b4d8fbe08c95ace2192a424584d7e5abeaeb3930691c6972afd789",
+      "before_role": "NUMERIC",
+      "before_sha256": "9e2364ddafaecc196302584ebc84c03768004adb34f913665a1581290795e943",
+      "path": "app/src/main/java/com/ethk3/novaonepro/DrawDependencyInputCP12.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -91,17 +127,26 @@
       "before_role": "NUMERIC",
       "before_sha256": "eb1e99dcba9f5d8d44e96ba7714250968803d31451f82348961c1b9de0b54143",
       "path": "app/src/main/java/com/ethk3/novaonepro/FixedResearchWindowR932.java",
-      "rationale": "Retain pre-C020 missing fixed-window evidence presentation; no zero probability, synthesized sample, historical Future migration or qualification inheritance.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "PRESENTATION",
-      "after_sha256": "b574b77a22a870d686cc9ca4e5e6db5364e9d5b8b59456655130aea46b420f92",
+      "after_sha256": "69926f95844967371eba847372b147f2f1b559b20251f199d0bcd132347cbd53",
       "before_role": "PRESENTATION",
       "before_sha256": "f2adb8ba66500c3f014210bc8eaa1341f66104ebaf8af1e0d4635f97ba3f9941",
       "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
-      "rationale": "Preserve C019 truthful initialization-stalled wording while integrating C024 explicit maintenance admission and preventing automatic restart during offline maintenance.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "0ec9c65e1a018a4a4bd61841a97d24279197cee711352a12ff78e501f5485f5c",
+      "before_role": "NUMERIC",
+      "before_sha256": "a4de9051fd209f6cc758a9d526220ff49e218b8545baeeb580558408d94ce335",
+      "path": "app/src/main/java/com/ethk3/novaonepro/MultipleComparisonRegistryR930.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -109,8 +154,8 @@
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
-      "rationale": "Own a bounded per-attempt wake lock, consume the original monotonic remaining deadline and release exactly once after canonical commit or failure.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -118,8 +163,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "210825377aa27fdb7b62aed8ed24d77a8ad385216d009a295b4d87426a642613",
       "path": "app/src/main/java/com/ethk3/novaonepro/ProductionPredictionDispatcherR815.java",
-      "rationale": "Carry the same explicit bounded wake lease through the existing production dispatch API and release it after the actual durable canonical commit.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -127,8 +172,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "db380466ffa8b042269e4b543218c914692867445658fac824824de0a6893859",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-      "rationale": "Respect maintenance read ownership and cancellation throughout report export, without marking absent required attachments or interrupted reads complete.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -136,8 +181,26 @@
       "before_role": "NUMERIC",
       "before_sha256": "aba22123d0dd6938f43d807ddeb1f662f9f449c1f9d9f28bdd3571d0d0dba22e",
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportNativeCP4.java",
-      "rationale": "Expose the new verified offline-copy native interface while retaining the existing report export ABI, source identity and native error boundary.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "579e63dae282883fb8edf2f33ad7539fc0a645bfa26b2d2f7fe3fc4ae4a33256",
+      "before_role": "NUMERIC",
+      "before_sha256": "bef4ed62e2fee52daa463c30d7890aff439d7527aa8bc95d30b6fc21318f5ad3",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchMultiplicityR932.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "79589d24e5f2a1d8430cdc8844275fa44eceeb9c5ef6e3b67232352200b85175",
+      "before_role": "NUMERIC",
+      "before_sha256": "500dc743e129386c416e1759c60799224fad69091080b960dd6b50aa015f5572",
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -145,8 +208,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "ea2caa7d8d2aea28082e5fcae3799f41f8dc1193b96fd38592d6ed796a016372",
       "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeEventLedgerR926.java",
-      "rationale": "Retain prior bounded outbox recovery and realtime admission ownership; original writer transactions still fully complete once admitted, with no extra source writer.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -154,8 +217,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "0a6a5f34ccb81d3bd25317a6577f730fb8a98c460351b47eb576b1138c4e1488",
       "path": "app/src/main/java/com/ethk3/novaonepro/RuntimeExternalEventWriterR926.java",
-      "rationale": "Retain prior bounded original-thread outbox recovery with limited row and monotonic time budget; current prediction deadline retains priority over historical work.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -163,8 +226,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "5df02033dc65ea99cca42e45a59cbdc3840dc3326bc9246fbda309b46778655f",
       "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
-      "rationale": "Serialize user-enable and UI-start requests with explicit maintenance state, refusing service restart during the swap and recording the actual refusal reason.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -172,26 +235,26 @@
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
-      "rationale": "Account for active original-source readers so maintenance waits for real read completion rather than swapping a database while a report or UI read is alive.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "46c2d189b4492b886587c815750ceb2729e0bd63dcf13a871b5d219af2257de2",
+      "after_sha256": "42cbcaeda4bdb22af5cf9d9c9e05e3015703eba33f0aa3add789023c48bea3d6",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
-      "rationale": "Journal the verified rebuild/swap/restore phases, preserve rowids and exact source authority, and recover interrupted maintenance without replacing an unvalidated original database.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
-      "after_sha256": "14a38a247d5a759915b3cd5b8148873e6f0ca18a777a1f581221564c3494565b",
+      "after_sha256": "7e1b13b900dc8214cef1b282c65dc4156d36f4e07ab6eb53e032ea5e260233a5",
       "before_role": "",
       "before_sha256": "",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
-      "rationale": "Execute explicit foreground offline maintenance with real stop/exclusivity/free-space guards and verified native copying; it grants no training or prediction authority.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -199,8 +262,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "6eeea90e1836f6c707cc3c19d3d0702b557a83b04ebf522ad7b4bf2870aac58f",
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
-      "rationale": "Turn legacy physical compaction into an explicit offline maintenance operation with original-owner exclusivity, verified copy/swap/recovery and honest backup space reporting.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -208,8 +271,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "4f652dffe99bd19a0aa23ee67bbdc57029cc6af23b8da5839fb827a2ce926590",
       "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
-      "rationale": "Reject the maximum-date rollover when it no longer produces an eight-digit valid Gregorian date, retaining the unique target owner and original failure interface.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -217,8 +280,8 @@
       "before_role": "NUMERIC",
       "before_sha256": "0ab0fe6a7097ff20862193323fd28291925ae8c82cc8453964d4b8e8183b7f55",
       "path": "app/src/main/java/com/ethk3/novaonepro/V51AutoFetchBridge.java",
-      "rationale": "Forward the explicitly owned per-attempt wake lease to the existing orchestrator without a shared mutable thread-local owner or changed public four-argument caller contract.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "NUMERIC",
@@ -226,75 +289,888 @@
       "before_role": "NUMERIC",
       "before_sha256": "105bc06fdda0f5a7c203fe4a51604ae83fb342976f8f0ad92496965fd445ae79",
       "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
-      "rationale": "Explicit cumulative C022 source for V51RuntimeOrchestrator.java: Explicit WakeLease only; original two-argument domain certify caller. The predeclared API dependencies for later stages are deliberately absent here; this is an independently frozen complete AFTER, not a patched final hash.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "567f7410e49b75a2930d6885a945a85a734d6513135803882c4d2f8b42c89088",
+      "before_role": "NUMERIC",
+      "before_sha256": "06728a0fe86772ce81d561cfa326186be9a89e6dfd67ddc353c277af57ff7c2c",
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchDirectorR952.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "00fce7cc665d809b190312bab63fe9b1e33ddf639fb815d9b2df4b02f7afff06",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AlphaLedgerSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "7f0820afd5cde1afedc5fe9746a7dc87f622c5d5b9ccdf02fcb29eb7b4f8e4a9",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomCatalogSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "6964bee4494344b3d273038bda0b4c332c281166ef22857f89550698770cf8a4",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomLiftSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "5a12049af518e1fdc0485a5a5f0356c6c7efae1c28edb4cf3302c95447458b36",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldScreenerSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "8c927f7429e56e2128d8842eb61424e3397fca96472725ed2ae3bbe6323140a5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "37cd2246924c15bd6513d263d8f3f3808b34212b95b81f785a186b0275e8498b",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "3a1cbee86520f867446520340c8e0856966e5cda23f994b9fa629bee4bc6b5c8",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CampaignStateSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "a311e12793640f5774d867848aae8c8b065afe1fcac54b1c1a867d54e0cdedd5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosticsSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "8a43fc104bcac869d63c551d1ae566ea5393eb7d6167b3d877348a9b1f637726",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EraManagerSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "4d1d5d7398df9f64549c6c59a83b4610cf06eca160229bb09eab444fd7b113e5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "072bb8f30b073f152bb146c66ba8884659241f1b69f462f1937649d247eee160",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "cc9d3b6c2006e6fdef83f8351cde23330179abfb676cb9162331ddeffa11eb50",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceLoopSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "ab7357db095622cd7686940659e542204476e0f0394885277b43f76a72d6d2a5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceQualitySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "fb078812989297eb0cf85b8bf8edacdcf795aff8fd72523e6965adf0595495c5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoldStabilityFitnessSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "3cd315b38ea63b22029bed670997bdb4b2114b4e5be4ff8e0022a4d8f4c860cd",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GrammarFamilySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "5f0757a4374d1ff88babbfcfa306f96aee2a988ee91132743764ad1f4d18dc1a",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HashingSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "cfcf6949ce796f847b27723ad47bcaeb7356f0a7698c625ace4d93b5d9d15d9c",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoricalReplayEngineSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "844c43563e90271754f4e323280fa784d11888737c06f28c3382ece8a1bb095f",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowLoopSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "997a49f8c91b8731402e474bbe002f6f15c68d69a3923a80655443bfec2c2366",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MacroLibrarySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "a1c370ed4da465b20950e100b8d7e91d4b056634e2e83c2f4ff7105271ebff3e",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullBaseline.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "0b5266c44c4a2c8f9109ef162e48f273bf8baf98d3925ed53b52d34916c1cc2b",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedEvidence.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "6cbc702ce3005fabfec0dbaeab06e75302c004af4850cc5097f8882ee95ecb75",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramTextSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "d8974170f614b41aea846e40c18c04f3b82121381e000b1ba78e51c72bbfea32",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramTreeSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "4f6102a48adaf84d75a1e8e437813c2fe6c8a8c882a7c6c8e5d9c2d6dca361d4",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PromotionPipelineSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "92422f2456a185c55a220b8bdfa77dec5215a4dd582cf5d2e6ab813f96a3232c",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelationalModelCodecSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "4a2e78dd37acc16b6bba766cf987f488485d713b0cd3404e07ee83725dc9d81c",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelationalStateInference.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "2983e05ab5a0075a128b935db9271af6b3cdefc7665883716f5be91b38035c2a",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelationalTrainerSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "8306d5fb0b68b6f0266a78f191023caf2108dc29fd50b8ab2ec989a8e199e996",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "f545edf8ae23370e3019e71ee08be8c28c8547ce9bc99e2f7365a5ccac47d7a1",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstSchedulerSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "02a1685aac45ade5bb96d75182aa190c690ed449a60b7cd53c96417e7e0f87bd",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayCursorSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "7f384e0ca14ae7fc769ca7a298e5a22b14bf77a1b7246fe0308a049d100b3101",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDirectorPolicySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "aa7ffc4e2bd352267d112484d07120ddc21936099251c2b2a9a9a5de662084a7",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFeedbackSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "f331e65c512ee527bafd8441728313af9d4aa4661b206d1763a39ecd20398b58",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ScoreHistoryCacheSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "90270d124705a3c61bf6c3fb250f0b442b1d1ace632cc83262b4a33e18240be4",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SnapshotPayloadSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "8fe8c08b8b3d2847f093014153eb5c4ec4e4ecdc431f5d4a02854e2c6444bfcf",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SqlStatementsSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "5c470da613f1f4bd3026fb7c5f92ed225c2055b799b38fbf6aa427f23e3bb34a",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "90b09661895c5c7019004c9a768594305d455a7cdc043733118e8db003a4dd64",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyIdentitySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "284e8d4e59d6a7e6604c5e48ed9c172d69fadce5f5c4535b91d49b21cd31611d",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyRepositorySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "fefcd414d7f1511e82560f8ab8911352a6796b2f8b3d3e41f960780fefbc45a6",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyResearchActivitySU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "9c417d7538ff5980694eeed51d8bc6515fae1c0c3cb865b9a8d35b5fc1de1edd",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyRuntimeSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "832b512ca0ea0695194edbfb4c52e4516de8f61a375a3f5ab27477c6d1e64f89",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU1.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "NUMERIC",
+      "after_sha256": "7c23f7385978920e0a1be716770da288a0efdcdceee01119e7c9775f27dd43a5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedProgram.java",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "a7b51c1351d5af9027dfbe6c5f2330d8fd3c97b82120ffdd2f1fd727912c9bad",
+      "before_role": "PRESENTATION",
+      "before_sha256": "638076fb8eb186ab9302546b8b7eae27eeb679083182ea6705272020cd05a637",
+      "path": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "4340292e7072ce4772ffa3dffb48ae17f04d613e9b0682b00ee6c3a796c2c85d",
+      "before_role": "PRESENTATION",
+      "before_sha256": "a8c8f6028cf8300557b7013c14e9664dc483e10e89f2dece60d469f79567d990",
+      "path": "app/src/main/res/layout-sw600dp/activity_main.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "4340292e7072ce4772ffa3dffb48ae17f04d613e9b0682b00ee6c3a796c2c85d",
+      "before_role": "PRESENTATION",
+      "before_sha256": "a8c8f6028cf8300557b7013c14e9664dc483e10e89f2dece60d469f79567d990",
+      "path": "app/src/main/res/layout/activity_main.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "a7b51c1351d5af9027dfbe6c5f2330d8fd3c97b82120ffdd2f1fd727912c9bad",
+      "before_role": "PRESENTATION",
+      "before_sha256": "e896552c60529004cced330d13d7a7f05d079a41fc0004545bee3a1959a74718",
+      "path": "app/src/main/res/mipmap-anydpi/ic_launcher.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "a7b51c1351d5af9027dfbe6c5f2330d8fd3c97b82120ffdd2f1fd727912c9bad",
+      "before_role": "PRESENTATION",
+      "before_sha256": "e896552c60529004cced330d13d7a7f05d079a41fc0004545bee3a1959a74718",
+      "path": "app/src/main/res/mipmap-anydpi/ic_launcher_round.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "fed1e04638c1b6e5e6312e8474bf49ba75fd2ce175987ac8ba633caa19efdb34",
+      "before_role": "PRESENTATION",
+      "before_sha256": "856754dd71997ded54da08fcdd476eb525742bf8f8349c1c21b9ae94019e681d",
+      "path": "app/src/main/res/values/ic_launcher_background.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "PRESENTATION",
+      "after_sha256": "efcc9b4989131e6195ce379d0c84dea3c17b1cc1823a3961b8dceb5c5bb21c82",
+      "before_role": "PRESENTATION",
+      "before_sha256": "3707fe4690b79e94177fc127720ffe7be8302ecef6058e80d37e92fedd85c22e",
+      "path": "app/src/main/res/values/strings.xml",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     },
     {
       "after_role": "BUILD_CONTRACT",
-      "after_sha256": "9f7be130b46c067c400f498869878a74f01ebdcc8167a4e7f832a9300d18d2b8",
+      "after_sha256": "b49bb13446305c859ead5349ac4cd88b24d01ee53af486b4c3f700bc0633f39b",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "schema/strategy_su1.sql",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "b1a97e9583e78bb9e43b56e51597ae82335eb9c84a2ae82d06e7ce8c05d3b4ec",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "schema/strategy_su1_foundry.sql",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "3dd0687d441a4f541908ccc7fecfc2b91a96ccc417fb876acb3ccefa4ce1a814",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "schema/strategy_su1_runtime.sql",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "f198b55b530bc8b70714a14daeeba480de9e9f8be5f66f73be2a53fbbc59de59",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "scripts/generate_strategy_su1_schema.py",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "bac731f1c776594ee904317b357a57b034fc8c6a120d4a16dc48497cb5a99073",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "scripts/prepare_strategy_su1_identity.py",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "9f826700ebbfda264f9a6765884401269f3e19bb08cf21482cc683951ef86eac",
+      "before_role": "BUILD_CONTRACT",
+      "before_sha256": "44a955e40219440e2c31250512f30e2983748c8283c22d91a9a095e918eec615",
+      "path": "scripts/r926_release_manifest.py",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "8ca3ff35966797906c08dc43e59779f751248c28d0088019ff690f7d1e31d492",
       "before_role": "BUILD_CONTRACT",
       "before_sha256": "b132348a354663f8a6b2159f17938e99b695ffa3a343ca06f1a52e2f3de46a1c",
       "path": "scripts/r967_semantic_identity.py",
-      "rationale": "Add a strict separate R82 zero-predecessor invalidation branch pinned to exact old R81 semantics and controlled-role maps; validate every current source difference and bind offline drift exporter inputs when they arrive.",
-      "reviewer": "STARCORE C021-C024 exact-source construction review"
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
+    },
+    {
+      "after_role": "BUILD_CONTRACT",
+      "after_sha256": "f369b1b9587aee1f01dce800f75b130dd9ffb232002d7b870b8fc308a14032c5",
+      "before_role": "",
+      "before_sha256": "",
+      "path": "scripts/verify_strategy_su1.py",
+      "rationale": "User-authorized SU1 implementation and isolated install identity. Preserve old evidence bytes; invalidate all prior numerical qualification.",
+      "reviewer": "Codex SU1 source integration"
     }
   ],
-  "current_controlled_roles_sha256": "0dced8d2c98bf89809f5cb058af207fe23034c2cf08e762a76fe7a2d28fd998c",
+  "current_controlled_roles_sha256": "3daa7aa5ebea232b1ba91bc73fe5a8bc7cc5855f31bbbf476438e74340a5b7a7",
   "decision": "INVALIDATE_OLD_RULE",
   "new_role_reviews": [
     {
+      "path": "app/src/main/assets/strategy_su1/atom_catalog_lifted.json",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
       "path": "app/src/main/cpp/storage_maintenance_r82.inc",
-      "rationale": "Implement verified SQLite copy/rebuild with explicit rowid preservation, original DDL and type/value/FK checks before atomic source replacement.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "BUILD_CONTRACT"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/PredrawWakeLeaseR81.java",
-      "rationale": "Own a bounded per-attempt wake lock, consume the original monotonic remaining deadline and release exactly once after canonical commit or failure.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
-      "rationale": "Account for active original-source readers so maintenance waits for real read completion rather than swapping a database while a report or UI read is alive.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceFileR82.java",
-      "rationale": "Journal the verified rebuild/swap/restore phases, preserve rowids and exact source authority, and recover interrupted maintenance without replacing an unvalidated original database.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageMaintenanceServiceR82.java",
-      "rationale": "Execute explicit foreground offline maintenance with real stop/exclusivity/free-space guards and verified native copying; it grants no training or prediction authority.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AlphaLedgerSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomCatalogSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomLiftSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldScreenerSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CampaignStateSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosticsSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EraManagerSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceLoopSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceQualitySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoldStabilityFitnessSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/GrammarFamilySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HashingSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoricalReplayEngineSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowLoopSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MacroLibrarySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullBaseline.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PairedEvidence.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramTextSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramTreeSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PromotionPipelineSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelationalModelCodecSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelationalStateInference.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelationalTrainerSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstSchedulerSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayCursorSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDirectorPolicySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchFeedbackSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ScoreHistoryCacheSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SnapshotPayloadSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SqlStatementsSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyIdentitySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyRepositorySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyResearchActivitySU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "PRESENTATION"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyRuntimeSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU1.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "NUMERIC"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedProgram.java",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "NUMERIC"
     },
     {
       "path": "release/r81_controlled_source_baseline.json",
-      "rationale": "Preserve the exact old R81 controlled path/role/source-hash map, including presentation inputs absent from the numeric dependency list, for independent strict R82 difference review.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "PROVENANCE"
     },
     {
       "path": "release/r81_semantic_baseline.json",
-      "rationale": "Preserve the exact old shipped R81 generated semantic manifest bytes as immutable provenance; it cannot authorize numerical compatibility with the new R82 matrix and model semantics.",
-      "reviewer": "R82_LITERAL_SOURCE_AND_CUMULATIVE_STAGE_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "PROVENANCE"
     },
     {
       "path": "release/r82_training_invalidation.json",
-      "rationale": "The generated proof binds exact current non-provenance sources, manually reviewed roles, immutable old R81 baselines and ZERO predecessors; self-hashing is excluded while schema and all source differences are independently validated.",
-      "reviewer": "R82_IDENTITY_INTERPRETER_REVIEW",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
       "role": "PROVENANCE"
+    },
+    {
+      "path": "release/strategy_su1_reviewed_inputs.json",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "PROVENANCE"
+    },
+    {
+      "path": "schema/strategy_su1.sql",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "BUILD_CONTRACT"
+    },
+    {
+      "path": "schema/strategy_su1_foundry.sql",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "BUILD_CONTRACT"
+    },
+    {
+      "path": "schema/strategy_su1_runtime.sql",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "BUILD_CONTRACT"
+    },
+    {
+      "path": "scripts/generate_strategy_su1_schema.py",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "BUILD_CONTRACT"
+    },
+    {
+      "path": "scripts/prepare_strategy_su1_identity.py",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "BUILD_CONTRACT"
+    },
+    {
+      "path": "scripts/verify_strategy_su1.py",
+      "rationale": "Explicitly classified production source/build input for SU1. Presentation and provenance carry no prediction-quality authority.",
+      "reviewer": "Codex SU1 source integration",
+      "role": "BUILD_CONTRACT"
     }
   ],
   "old_training_rule_sha256": "8cb79ed71b7ac30d55b85123071c6b1e951c16323eed3047b35c7543d93f657f",
   "predecessors": [],
-  "reviewed_input_provenance_sha256": "ccaef44d9144f9d93fbbb68b522013c2ec46d8b1c31b35913e94911eb12107cd",
+  "reviewed_input_provenance_sha256": "4b178c1a771952d59615605c2733be0de2e259aacfdfca0a01314d32b9d4938e",
   "revision": "R82_NUMERIC_SEMANTICS_INVALIDATION_V1",
-  "runtime_contract_sha256": "fb7e18a7c135df68dca1e1b4f3ea5f64a6bbd21a7f789467bd244ea8b7db3705",
+  "runtime_contract_sha256": "db68092d83e0185bf8cd55dc2b774a650e2cf485757fa165e026f6aabe194b8c",
   "scope": "INVALIDATE_OLD_RULE_PRESERVE_DEV_MODELS_LABELS_NO_QUALIFICATION_MIGRATION"
 }
