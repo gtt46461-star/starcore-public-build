@@ -7,6 +7,7 @@ record_generated() {
         git -c user.name='STARCORE Build' -c user.email='starcore-build@users.noreply.github.com' commit -m "$1"
     fi
 }
+python3 scripts/r926_release_manifest.py --check
 python3 scripts/prepare_strategy_su1_identity.py
 record_generated 'Record generated SU1 source identities'
 python3 scripts/verify_catalog_assets_cp12.py --check
