@@ -30,11 +30,14 @@ public final class StrategyResearchActivitySU1 extends Activity {
         text.setText(R.string.su1_initializing);
         reader.execute(()->{
             String result;
-            try{DbStore store=new DbStore(getApplicationContext());
-                try{
-                if(!StrategySchemaSU1.ready(store.readable()))result="新引擎正在等待数据库升级。启动服务后，将在后台逐步完成。";
+            try{
+                // Reading this screen must not start cold DDL, runtime epochs or recovery writes.
+                // The service owns initialization; a missing owner is a real waiting state.
+                DatabaseCoordinator owner=DatabaseCoordinator.peek();
+                if(owner==null||!owner.isCriticalSchemaReady())result=waitingForDatabase(owner==null);
+                else if(!StrategySchemaSU1.ready(owner.readable()))result=waitingForDatabase(false);
                 else{
-                    if(mode!=null)store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_USER_MODE",db->{
+                    if(mode!=null)owner.runAtomicWriteOrThrowF01("SU1_USER_MODE",db->{
                         if(mode.equals("ROLLBACK_MODEL")){lastAction=MainlineHeadSU1.rollback(db,System.currentTimeMillis())?"已回退到仍持有效证书的父代；自动晋级已暂停。":"没有仍持有效证书的父代，已保留当前策略和原始证据。";return 0;}
                         if(mode.equals("MAINLINE_ADAPTER")){
                             boolean valid=false;try(Cursor c=db.rawQuery("SELECT certificate_id FROM su1_certificate ORDER BY issued_at DESC LIMIT 32",null)){while(c.moveToNext())if(CertificateSU1.read(db,c.getString(0),System.currentTimeMillis(),false)!=null){valid=true;break;}}
@@ -42,12 +45,16 @@ public final class StrategyResearchActivitySU1 extends Activity {
                         }
                         db.execSQL("UPDATE su1_runtime_control SET mode=?,contract_hash=?,updated_at=?,reason='USER_CONTROL' WHERE singleton=1",new Object[]{mode,mode.equals("MAINLINE_ADAPTER")?MainlineAdapterSU1.CONTRACT:StrategyRepositorySU1.ACTION,System.currentTimeMillis()});return 0;
                     });
-                    result=(lastAction.isEmpty()?"":lastAction+"\n\n")+ResearchDashboardSU1.render(store.readable());
+                    result=(lastAction.isEmpty()?"":lastAction+"\n\n")+ResearchDashboardSU1.render(owner.readable());
                 }
-                }finally{store.close();}
             }catch(RuntimeException failure){result=getString(R.string.su1_error,DiagnosticsSU1.cause(failure,1200));}
             String shown=result;if(!destroyed)runOnUiThread(()->{if(!destroyed)text.setText(shown);});
         });
+    }
+    private String waitingForDatabase(boolean notStarted){
+        return ApiCredentialSettingsCP12.endpointStatus("")+"\n\n"+(notStarted
+                ?"数据库尚未启动。请先在首页启动服务，再刷新研究状态。"
+                :"数据库尚未准备就绪。请在首页查看启动状态；后台升级完成后刷新此页。");
     }
     @Override protected void onActivityResult(int request,int result,android.content.Intent data){
         super.onActivityResult(request,result,data);if(request!=5101||result!=RESULT_OK||data==null||data.getData()==null)return;android.net.Uri uri=data.getData();
