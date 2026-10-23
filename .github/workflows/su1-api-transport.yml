@@ -1,0 +1,25 @@
+name: SU1 API credential encryption key
+on:
+  push:
+    branches: ['construction/su1-20261022']
+    paths: ['.github/workflows/su1-api-transport.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-encryption-key:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/cache@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+      - name: Create the private transport key inside CI and export only its public key
+        run: |
+          umask 077
+          mkdir -p ~/.starcore/su1-api-transport
+          if [ ! -f ~/.starcore/su1-api-transport/private.pem ]; then
+            openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out ~/.starcore/su1-api-transport/private.pem 2>/dev/null
+          fi
+          openssl pkey -in ~/.starcore/su1-api-transport/private.pem -pubout
