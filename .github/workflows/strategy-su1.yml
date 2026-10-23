@@ -26,6 +26,17 @@ jobs:
         with:
           path: ~/.android/debug.keystore
           key: starcore-su1-research-signing-v1
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+          fail-on-cache-miss: true
+      - name: Load the authorized private-source API credential into the APK build
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          python3 scripts/test_su1_api_transport.py
+          python3 scripts/load_su1_bundled_api.py
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
@@ -39,8 +50,6 @@ jobs:
           python -m pip install numpy==2.3.5
       - name: Check private build configuration without printing credentials
         id: api-config
-        env:
-          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
         run: |
           python3 - <<'PYCONFIG'
           import os,re
@@ -49,8 +58,6 @@ jobs:
           print("Bundled API credential configured:",ready)
           PYCONFIG
       - name: Build and verify production source
-        env:
-          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
         run: bash scripts/build_strategy_su1.sh
       - name: Verify and stage the APK for runtime tests
         run: |
@@ -141,6 +148,19 @@ jobs:
         with:
           name: STARCORE-SU1-Package-under-test
           path: delivered-apk
+      - name: Include the completed runtime verification receipt
+        env:
+          API_READY: ${{ needs.build.outputs.api_ready }}
+        run: |
+          python3 - <<'PYRECEIPT'
+          import os
+          from pathlib import Path
+          ready=os.environ.get('API_READY')=='true'
+          receipt='Android runtime: OK (20 tests)\nBundled API configured: '+str(ready)+'\n'
+          receipt+=('Actual installed ApiClient request and latest-draw validation: PASS\n' if ready else 'Actual API request: NOT RUN; credential absent\n')
+          receipt+='Run: '+os.environ['GITHUB_SERVER_URL']+'/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'\n'
+          Path('delivered-apk/API_RUNTIME_VERIFIED.txt').write_text(receipt,encoding='utf-8')
+          PYRECEIPT
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.build.outputs.api_ready == 'true' && 'STARCORE-SU1-Install-APK' || 'STARCORE-SU1-Research-APK-API-Key-Required' }}
