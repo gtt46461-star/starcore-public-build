@@ -37,6 +37,7 @@ public final class ProgramTreeSU1 {
         java.util.LinkedHashMap<String,RelationalStateInference.Weights> models=new java.util.LinkedHashMap<>(8,.75f,true);
         java.util.LinkedHashMap<String,FusionKernelSU1.Model> fusions=new java.util.LinkedHashMap<>(8,.75f,true);
         java.util.LinkedHashMap<String,RelGraphOptimizerSU1> graphModels=new java.util.LinkedHashMap<>(8,.75f,true);
+        TrainingFidelitySU1 fidelity=TrainingFidelitySU1.FULL;
         private Map<String,Fitted> fitted=java.util.Collections.emptyMap();
         private Map<String,GraphFitted> graphFitted=java.util.Collections.emptyMap();
         private final Map<Integer, double[][]> experts = new HashMap<>();
@@ -48,10 +49,11 @@ public final class ProgramTreeSU1 {
             if(draws==null||target<0||target>draws.length)throw new IllegalArgumentException("TARGET");
             this.draws=draws;this.t=target;this.atoms=atoms;this.cache=cache;this.budget=budget;
         }
+        public Context withTrainingFidelity(TrainingFidelitySU1 value){if(value==null)throw new IllegalArgumentException("SU1_TRAINING_FIDELITY");fidelity=value;return this;}
         public Context withFitted(Map<String,Fitted> bindings){fitted=bindings;return this;}
         public Context withGraphFitted(Map<String,GraphFitted> bindings){graphFitted=bindings;return this;}
-        Context atTarget(int target){Context c=new Context(draws,target,atoms,cache,budget);c.models=models;c.fusions=fusions;c.graphModels=graphModels;c.fitted=fitted;c.graphFitted=graphFitted;return c;}
-        double[][] cached(String text,java.util.function.Supplier<double[][]> fn){budget.checkpointOrYield();return cache.score(text,t,fn);}
+        Context atTarget(int target){Context c=new Context(draws,target,atoms,cache,budget);c.models=models;c.fusions=fusions;c.graphModels=graphModels;c.fitted=fitted;c.graphFitted=graphFitted;c.fidelity=fidelity;return c;}
+        double[][] cached(String text,java.util.function.Supplier<double[][]> fn){budget.checkpointOrYield();return cache.score(fidelity.name()+"|"+text,t,fn);}
         int lagValue(int q, int lag) { return t >= lag ? draws[t - lag][q] : 0; }
         double[][] expert(int e) {
             double[][] v = experts.get(e);
@@ -137,9 +139,9 @@ public final class ProgramTreeSU1 {
                 double[][] out=new double[10][10];for(int e=0;e<8;e++){double[][] score=c.expert(e);for(int p=0;p<10;p++)for(int n=0;n<10;n++)out[p][n]+=weights[e]/total*score[p][n];}for(double[] row:out)for(int n=0;n<10;n++)row[n]=clean(row[n]);return out;
             };}
             case "DEEP": {final int width=x.i(0),window=x.i(1),seed=x.i(2);return c->{
-                int block=c.t/50*50;String key=width+"|"+window+"|"+seed+"|"+block;
+                int block=c.t/50*50;String key=c.fidelity.name()+"|"+width+"|"+window+"|"+seed+"|"+block;
                 RelationalStateInference.Weights w=c.models.get(key);
-                if(w==null){w=RelationalTrainerSU1.trainCausal(c.draws,block,width,window,seed,c.budget);c.models.put(key,w);while(c.models.size()>8)c.models.remove(c.models.keySet().iterator().next());}
+                if(w==null){w=RelationalTrainerSU1.trainCausal(c.draws,block,width,window,seed,c.budget,c.fidelity);c.models.put(key,w);while(c.models.size()>8)c.models.remove(c.models.keySet().iterator().next());}
                 if(c.t==0)return new double[10][10];double[][] probabilities=ModelKernelRegistrySU1.predict(ModelKernelRegistrySU1.RELSTATE,w,java.util.Arrays.copyOfRange(c.draws,Math.max(0,c.t-window),c.t));
                 for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
             };}
@@ -152,12 +154,12 @@ public final class ProgramTreeSU1 {
             };}
             case "GDEEP": {final int width=x.i(0),window=x.i(1),seed=x.i(2);return c->{
                 if(c.t<window)throw new IllegalArgumentException("SU1_GRAPH_COMPLETE_WINDOW_REQUIRED");
-                int boundary=c.t/50*50;String key=width+"|"+window+"|"+seed+"|"+boundary;RelationTensorAdapterSU1.Factory factory=c.cache.graphFactory(c.draws);RelGraphOptimizerSU1 model=c.graphModels.get(key);
-                if(model==null){model=RelGraphTrainerSU1.trainCausal(factory,c.draws,boundary,width,window,seed,c.budget);c.graphModels.put(key,model);while(c.graphModels.size()>8)c.graphModels.remove(c.graphModels.keySet().iterator().next());}
+                int boundary=c.t/50*50;String key=c.fidelity.name()+"|"+width+"|"+window+"|"+seed+"|"+boundary;RelationTensorAdapterSU1.Factory factory=c.cache.graphFactory(c.draws);RelGraphOptimizerSU1 model=c.graphModels.get(key);
+                if(model==null){model=RelGraphTrainerSU1.trainCausal(factory,c.draws,boundary,width,window,seed,c.budget,c.fidelity);c.graphModels.put(key,model);while(c.graphModels.size()>8)c.graphModels.remove(c.graphModels.keySet().iterator().next());}
                 double[][] probabilities=ModelKernelRegistrySU1.predict(ModelKernelRegistrySU1.RELGRAPH,model.weights,factory.input(c.t,window,c.budget),c.budget);for(double[] row:probabilities)for(int n=0;n<10;n++)row[n]=clean(Math.log(Math.max(1e-12,row[n])));return probabilities;
             };}
             case "FUSE": {final Node left=build(x.t(0)),right=build(x.t(1));final int window=x.i(2);final String identity=x.toString();return c->{
-                String key=identity+"|"+(c.t/50);FusionKernelSU1.Model model=c.fusions.get(key);
+                String key=c.fidelity.name()+"|"+identity+"|"+(c.t/50);FusionKernelSU1.Model model=c.fusions.get(key);
                 if(model==null){model=FusionKernelSU1.train(left,right,c,window);c.fusions.put(key,model);while(c.fusions.size()>8)c.fusions.remove(c.fusions.keySet().iterator().next());}
                 return FusionKernelSU1.score(model,left.score(c),right.score(c));
             };}

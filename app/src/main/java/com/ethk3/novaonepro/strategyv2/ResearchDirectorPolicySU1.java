@@ -4,6 +4,7 @@ import java.io.*;
 
 /** UCB over measured gains. Priors are explicit and are not observations or evidence. */
 public final class ResearchDirectorPolicySU1 {
+    public static final String PROTOCOL="SU1_CONTEXT_COST_UCB_V3|EXPLORATION20_CAP35|OBSERVED_FAILURE_TYPE_WEIGHTED";
     public static final String[] FAMILIES={"EXPERT_MIX","RELATION","XI_SELECTOR","DEEP","MATRIX","HEDGE","REGIME","GRAMMAR"};
     public static final String[] OPERATORS={"mutate","structural","crossover","fusion"};
     final LinkedHashMap<String,double[]> arms=new LinkedHashMap<>();
@@ -37,6 +38,11 @@ public final class ResearchDirectorPolicySU1 {
         add(arm);double baseline=parent<=-1?.30:parent,gain=Math.max(0,child-baseline);double[] x=arms.get(arm);if(x==null)return;x[0]++;x[1]+=gain;
         int[] o=ops.computeIfAbsent(op,k->new int[]{0,0});o[0]++;if(child>baseline)o[1]++;
         String key=context+'|'+arm;double[] local=contexts.get(key);if(local==null&&contexts.size()<512){local=new double[4];contexts.put(key,local);}if(local!=null){local[0]++;local[1]+=gain;local[2]+=costUnits;if(resourceFailure)local[3]++;}
+    }
+    public void failure(String arm,String op,double parent,ResearchFailureSU1 failure,long costUnits){
+        if(failure==null||!failure.rejectCandidate)throw new IllegalArgumentException("SU1_NOT_A_CANDIDATE_FAILURE");
+        record(arm,op,parent,-1,costUnits,false);
+        double[] local=contexts.get(context+'|'+arm);if(local!=null)local[3]+=failure.schedulingPenalty();
     }
     public void write(DataOutput out)throws IOException{
         out.writeInt(0x53553150);out.writeInt(2);out.writeBoolean(enabled);out.writeUTF(context);

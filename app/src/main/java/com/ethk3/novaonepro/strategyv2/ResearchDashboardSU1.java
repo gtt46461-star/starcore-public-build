@@ -27,6 +27,8 @@ public final class ResearchDashboardSU1 {
         out.append("历史活动：").append(scalar(db,"SELECT count(*) FROM su1_campaign"))
                 .append("；已完成实际检验：").append(scalar(db,"SELECT count(*) FROM su1_search_attempt WHERE result='EVALUATED'"))
                 .append("；拒绝：").append(scalar(db,"SELECT count(*) FROM su1_search_attempt WHERE result='REJECTED'")).append('\n');
+        out.append("廉价开发检验已完成 ").append(scalar(db,"SELECT count(*) FROM su1_search_attempt WHERE detail LIKE '%SCOUT_N=%'"))
+                .append("；廉价检验拒绝 ").append(scalar(db,"SELECT count(*) FROM su1_search_attempt WHERE result='REJECTED' AND detail LIKE '%SCOUT_UPPER_BELOW025%'")).append("（仅开发筛查，不计正式证据）\n");
         out.append("已提炼结构：").append(scalar(db,"SELECT count(*) FROM su1_macro WHERE state='ACTIVE'"))
                 .append("；新家族：").append(scalar(db,"SELECT count(*) FROM su1_emergent_family")).append("\n\n");
 
@@ -55,7 +57,7 @@ public final class ResearchDashboardSU1 {
                     .append(String.format(Locale.CHINA,"保守改善下界 %.4f；配对覆盖 %.2f%%；%s\n",c.getDouble(7),100*c.getDouble(8),c.getString(9)));
         }}
         out.append("\n历史活动对照（独立封存重放，属于研究数据）\n");
-        try(Cursor c=db.rawQuery("SELECT a.source_campaign,a.variant,a.phase,o.report_hash FROM su1_campaign_audit a LEFT JOIN su1_campaign_audit_open o ON o.source_campaign=a.source_campaign AND o.variant=a.variant ORDER BY a.updated_at DESC,a.variant LIMIT 15",null)){
+        try(Cursor c=db.rawQuery("SELECT a.source_campaign,a.variant,CASE WHEN EXISTS(SELECT 1 FROM su1_campaign_audit_cancelled x WHERE x.source_campaign=a.source_campaign AND x.variant=a.variant) THEN '旧版本活动已停止' ELSE a.phase END,o.report_hash FROM su1_campaign_audit a LEFT JOIN su1_campaign_audit_open o ON o.source_campaign=a.source_campaign AND o.variant=a.variant ORDER BY a.updated_at DESC,a.variant LIMIT 15",null)){
             while(c.moveToNext()){
                 budget.checkpointOrYield();out.append(shortId(c.getString(0))).append(' ').append(c.getString(1)).append(" · ").append(c.getString(2)).append('\n');
                 if(!c.isNull(3)){

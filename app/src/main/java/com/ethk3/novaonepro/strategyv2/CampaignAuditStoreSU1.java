@@ -19,13 +19,13 @@ public final class CampaignAuditStoreSU1 {
     }
     public static boolean advanceOne(DbStore store,BudgetTokenSU1 budget){
         String[] row;
-        try(Cursor c=store.readable().rawQuery("SELECT a.source_campaign,a.variant,a.audit_campaign,a.dataset_blob,a.generation,a.checkpoint_hash,a.phase,a.selected_hash,a.selected_program,s.data_through_sequence FROM su1_campaign_audit a JOIN su1_campaign s ON s.campaign_id=a.source_campaign WHERE a.phase IN ('SEARCH','SEALED') AND s.config_json LIKE ? ORDER BY a.updated_at,a.source_campaign,a.variant LIMIT 1",new String[]{"%"+TrainingCodeIdentityR964.SHA256+"%"})){
+        try(Cursor c=store.readable().rawQuery("SELECT a.source_campaign,a.variant,a.audit_campaign,a.dataset_blob,a.generation,a.checkpoint_hash,a.phase,a.selected_hash,a.selected_program,s.data_through_sequence FROM su1_campaign_audit a JOIN su1_campaign s ON s.campaign_id=a.source_campaign WHERE a.phase IN ('SEARCH','SEALED') AND NOT EXISTS(SELECT 1 FROM su1_campaign_audit_cancelled x WHERE x.source_campaign=a.source_campaign AND x.variant=a.variant) AND s.config_json LIKE ? ORDER BY a.updated_at,a.source_campaign,a.variant LIMIT 1",new String[]{"%"+TrainingCodeIdentityR964.SHA256+"%"})){
             if(!c.moveToFirst())return false;row=new String[10];for(int i=0;i<row.length;i++)row[i]=c.isNull(i)?null:c.getString(i);
         }
         int[][] raw=CampaignStateSU1.unpack(CampaignStateSU1.localBlob(store.readable(),row[3]));
         try(CampaignAuditSessionSU1 session=row[5]==null?new CampaignAuditSessionSU1(raw,row[3],CampaignControlsSU1.Variant.valueOf(row[1]),Long.parseLong(row[9])):CampaignAuditSessionSU1.restore(raw,row[3],CampaignStateSU1.localBlob(store.readable(),row[5]))){
             if(!session.phase.equals(row[6])||!Objects.equals(session.selectedHash(),row[7])||!Objects.equals(session.selectedText(),row[8]))throw new IllegalStateException("SU1_AUDIT_SELECTED_IDENTITY");
-            List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result='EVALUATED'",new String[]{row[2]})){while(c.moveToNext())seen.add(c.getString(0));}session.foundry.restoreSeen(seen);
+            List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result IN ('EVALUATED','REJECTED')",new String[]{row[2]})){while(c.moveToNext())seen.add(c.getString(0));}session.foundry.restoreSeen(seen);
             try{session.advance(budget);}catch(BudgetTokenSU1.Yield yielded){/* The exact cursor is durable, including a partial held-out replay. */}
             String checkpoint=session.checkpoint(),result=session.phase.equals("DONE")?session.result():null;long now=System.currentTimeMillis(),generation=Long.parseLong(row[4]);
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_HISTORICAL_AUDIT_CHECKPOINT",db->{

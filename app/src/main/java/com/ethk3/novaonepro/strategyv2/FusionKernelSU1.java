@@ -17,8 +17,8 @@ public final class FusionKernelSU1 {
         return new double[]{mass,entropy};
     }
     public static Model train(ProgramTreeSU1.Node left,ProgramTreeSU1.Node right,ProgramTreeSU1.Context c,int window){
-        int boundary=c.t/50*50,first=Math.max(1,boundary-Math.min(32,window));double[] theta=new double[5];
-        for(int epoch=0;epoch<2;epoch++)for(int u=first;u<boundary;u++){
+        int boundary=c.t/50*50,first=Math.max(1,boundary-Math.min(c.fidelity.fusionExamples,window));double[] theta=new double[5];
+        for(int epoch=0;epoch<c.fidelity.fusionEpochs;epoch++)for(int u=first;u<boundary;u++){
             c.budget.checkpointOrYield();ProgramTreeSU1.Context prior=c.atTarget(u);
             double[][] a=left.score(prior),b=right.score(prior);double[] gradient=new double[5];
             double ta=Math.exp(theta[3]),tb=Math.exp(theta[4]);

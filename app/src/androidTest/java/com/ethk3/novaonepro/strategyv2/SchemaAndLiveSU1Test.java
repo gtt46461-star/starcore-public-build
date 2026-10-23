@@ -148,11 +148,20 @@ public final class SchemaAndLiveSU1Test {
             try{db.execSQL("UPDATE su1_campaign_audit SET selected_hash=NULL,selected_program=NULL,generation=2,phase='DONE'");fail("selected champion cleared");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
             StrategyRepositorySU1.row(db,"su1_campaign_audit_open","source_campaign",source,"variant","REAL","selected_hash",selected,"report_hash",report,"opened_at",now);
             try{StrategyRepositorySU1.row(db,"su1_campaign_audit_open","source_campaign",source,"variant","REAL","selected_hash",selected,"report_hash",report,"opened_at",now);fail("sealed audit opened twice");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
-            db.execSQL("UPDATE su1_campaign_audit SET phase='DONE',generation=2");assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool"));
+            String cancelledCampaign=StrategyRepositorySU1.beginCampaign(db,"HISTORY_REPLAY",5000,"{\"auditCancelled\":true}",now),oldCheckpoint=StrategyRepositorySU1.blob(db,"old checkpoint","SU1_TEST_DATA",now);
+            StrategyRepositorySU1.row(db,"su1_campaign_audit","source_campaign",source,"variant","TIME_SHUFFLED","audit_campaign",cancelledCampaign,"dataset_blob",data,"generation",0,"phase","SEARCH","updated_at",now);
+            db.execSQL("UPDATE su1_campaign_audit SET phase='SEALED',selected_hash=?,selected_program='EXPERT(0)',checkpoint_hash=?,generation=1 WHERE variant='TIME_SHUFFLED'",new Object[]{selected,oldCheckpoint});
+            assertTrue(ArchiveStoreSU1.pinnedBlobRoots(db,new BudgetTokenSU1(5000,200000,null)).contains(oldCheckpoint));
+            StrategyRepositorySU1.row(db,"su1_campaign_audit_cancelled","source_campaign",source,"variant","TIME_SHUFFLED","reason","EXECUTION_KERNEL_CHANGED","cancelled_at",now);
+            assertFalse(ArchiveStoreSU1.pinnedBlobRoots(db,new BudgetTokenSU1(5000,200000,null)).contains(oldCheckpoint));
+            assertTrue(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_campaign_audit WHERE source_campaign=? AND variant='TIME_SHUFFLED' AND phase='SEALED' AND selected_hash=?",source,selected));
+            assertFalse(StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_campaign_audit_open WHERE source_campaign=? AND variant='TIME_SHUFFLED'",source));
+            try{db.execSQL("DELETE FROM su1_campaign_audit_cancelled");fail("cancellation receipt deleted");}catch(android.database.sqlite.SQLiteException expected){assertNotNull(expected.getMessage());}
+            db.execSQL("UPDATE su1_campaign_audit SET phase='DONE',generation=2 WHERE variant='REAL'");assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_alpha_reservation"));assertEquals(0,StrategyRepositorySU1.count(db,"SELECT count(*) FROM su1_research_pool"));
         }
     }
-    @Test public void priorSu1V2AndV3BuildsUpgradeWithoutRewritingTheirMigrationReceipts()throws Exception{
-        for(String fixture:new String[]{"su1_preview_v2.json","su1_preview_v3.json"}){
+    @Test public void priorSu1V2V3AndV4BuildsUpgradeWithoutRewritingTheirMigrationReceipts()throws Exception{
+        for(String fixture:new String[]{"su1_preview_v2.json","su1_preview_v3.json","su1_preview_v4.json"}){
         try(SQLiteDatabase db=database();java.io.InputStream input=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getContext().getAssets().open(fixture)){
             java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();byte[] block=new byte[4096];int n;while((n=input.read(block))!=-1)bytes.write(block,0,n);org.json.JSONArray old=new org.json.JSONArray(bytes.toString("UTF-8"));
             db.execSQL("CREATE TABLE su1_migration_unit_v2(unit INTEGER PRIMARY KEY,sql_hash TEXT NOT NULL,installed_at INTEGER NOT NULL)");

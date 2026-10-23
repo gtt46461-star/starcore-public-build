@@ -388,3 +388,18 @@ CREATE TRIGGER IF NOT EXISTS su1_model_ablation_retention_insert AFTER INSERT ON
 BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
 CREATE TRIGGER IF NOT EXISTS su1_model_ablation_retention_update AFTER UPDATE ON su1_model_ablation
 BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;
+-- Stop obsolete research checkpoints without changing a frozen champion or manufacturing a report.
+CREATE TABLE IF NOT EXISTS su1_campaign_audit_cancelled (
+ source_campaign TEXT NOT NULL,
+ variant TEXT NOT NULL,
+ reason TEXT NOT NULL CHECK(reason='EXECUTION_KERNEL_CHANGED'),
+ cancelled_at INTEGER NOT NULL,
+ PRIMARY KEY(source_campaign,variant),
+ FOREIGN KEY(source_campaign,variant) REFERENCES su1_campaign_audit(source_campaign,variant)
+);
+CREATE TRIGGER IF NOT EXISTS su1_audit_cancelled_no_update BEFORE UPDATE ON su1_campaign_audit_cancelled
+BEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;
+CREATE TRIGGER IF NOT EXISTS su1_audit_cancelled_no_delete BEFORE DELETE ON su1_campaign_audit_cancelled
+BEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;
+CREATE TRIGGER IF NOT EXISTS su1_audit_cancelled_retention AFTER INSERT ON su1_campaign_audit_cancelled
+BEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;

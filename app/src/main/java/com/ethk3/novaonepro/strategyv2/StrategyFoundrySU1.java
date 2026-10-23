@@ -29,7 +29,8 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
     }
     public static final class Attempt {
         public final Genome genome;public final Ranked ranked;public final String result,detail;
-        Attempt(Genome g,Ranked r,String result,String detail){genome=g;ranked=r;this.result=result;this.detail=detail;}
+        public final int scoutActions,scoutHits;public final double scoutFitness;
+        Attempt(Genome g,Ranked r,String result,String detail,int n,int hits,double fitness){genome=g;ranked=r;this.result=result;this.detail=detail;scoutActions=n;scoutHits=hits;scoutFitness=fitness;}
     }
     private final int[][] draws;
     public final String datasetHash;
@@ -59,6 +60,9 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
     }
     private Genome current;
     private ReplayCursorSU1 cursor;
+    private int fidelityStage,scoutN,scoutHits;
+    private double scoutFitness=-1;
+    public static final String SCREENING_PROTOCOL="SU1_STATIC_SCOUT_FULL_SEALED_V1|SCOUT_DEV192|MIN32_ACTIONS|DESCRIPTIVE_WILSON90_CUTOFF025|SCOUT_PARAMETERS_NEVER_PUBLISHED";
     public StrategyFoundrySU1(int[][] draws,String datasetHash,long seed,int population,int generations){
         if(draws.length<3400||draws.length>20000||population<8||population>32||generations<1||generations>12)throw new IllegalArgumentException("SU1_FOUNDRY_INPUT");
         this.draws=draws;this.datasetHash=HashingSU1.sha(datasetHash);this.seed=seed;this.population=population;this.generations=generations;
@@ -111,25 +115,44 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
             generationQueue.add(new Genome(child,"GRAMMAR",arm,op,parent==null?"":parent.genome.key(),parent==null?-1:parent.fitness,new double[]{.10,.15,.25,1}[rng.nextInt(4)],rng.nextBoolean(),secondaryParent));
         }
     }
+    private Attempt outcome(Genome genome,Ranked ranked,String result,String detail){return new Attempt(genome,ranked,result,detail,scoutN,scoutHits,scoutFitness);}
     /** Returns one durable attempt; a yield preserves the exact current replay cursor. */
     public Attempt next(BudgetTokenSU1 budget){
         while(!done()){
             budget.checkpointOrYield();
-            if(current==null){current=proposal();if(current==null)return null;if(seen.contains(current.key())){Genome duplicate=current;current=null;index++;return new Attempt(duplicate,null,"REJECTED","SEMANTIC_DUPLICATE");}
-                cursor=new ReplayCursorSU1(draws,current.text,current.coverage,current.margin,devStart,valEnd,devEnd);}
+            try{
+            if(current==null){current=proposal();if(current==null)return null;fidelityStage=0;scoutN=0;scoutHits=0;scoutFitness=-1;if(seen.contains(current.key())){Genome duplicate=current;ResearchFailureSU1 diagnostic=ResearchFailureSU1.code("SEMANTIC_DUPLICATE");director.failure(duplicate.arm,duplicate.operator,duplicate.parentFitness,diagnostic,0);current=null;index++;return outcome(duplicate,null,"REJECTED",diagnostic.payload(datasetHash,researchContext.key,HashingSU1.text(duplicate.text)));}
+                int end=Math.min(devEnd,devStart+192);cursor=new ReplayCursorSU1(draws,current.text,current.coverage,current.margin,devStart,end,end,TrainingFidelitySU1.SCOUT);}
             if(cursor.advance(budget)){
+                if(fidelityStage==0){
+                    int end=Math.min(devEnd,devStart+192);scoutN=cursor.replay.actions(devStart,end);scoutHits=cursor.replay.hits(devStart,end);scoutFitness=FoldStabilityFitnessSU1.fitness(cursor.replay,devStart,end);
+                    double upper=scoutN==0?1:1-FoldStabilityFitnessSU1.wilsonLower(scoutN-scoutHits,scoutN);
+                    if(scoutN>=32&&upper<.25){
+                        Genome rejected=current;ResearchFailureSU1 diagnostic=ResearchFailureSU1.code("SCOUT_UPPER_BELOW025");director.failure(rejected.arm,rejected.operator,rejected.parentFitness,diagnostic,ProgramContractSU1.compile(ProgramTextSU1.parse(rejected.text)).operationUnits);seen.add(rejected.key());
+                        String detail="SCOUT_N="+scoutN+"|SCOUT_HITS="+scoutHits+"|UPPER90="+Double.toHexString(upper)+"|"+SCREENING_PROTOCOL+"|"+diagnostic.payload(datasetHash,researchContext.key,HashingSU1.text(rejected.text));
+                        current=null;cursor.close();cursor=null;index++;return outcome(rejected,null,"REJECTED",detail);
+                    }
+                    cursor.close();fidelityStage=1;cursor=new ReplayCursorSU1(draws,current.text,current.coverage,current.margin,devStart,valEnd,devEnd,TrainingFidelitySU1.FULL);continue;
+                }
                 ProgramContractSU1 compiled=ProgramContractSU1.compile(ProgramTextSU1.parse(current.text));double penalty=Math.min(.1,compiled.nodes*.00005+compiled.operations*1e-9);
                 Ranked r=new Ranked(current,FoldStabilityFitnessSU1.folds(cursor.replay,devStart,devEnd)-penalty,FoldStabilityFitnessSU1.fitness(cursor.replay,valStart,valEnd)-penalty,BehaviorSignatureSU1.from(cursor.replay,devStart,devEnd,datasetHash),cursor.replay.actions(devStart,devEnd),cursor.replay.hits(devStart,devEnd),cursor.replay.actions(valStart,valEnd),cursor.replay.hits(valStart,valEnd));
                 if(!Double.isFinite(r.fitness)||!Double.isFinite(r.valFitness))throw new IllegalArgumentException("SU1_NONFINITE_FITNESS");
                 remember(r,best,32);if(phase==0)remember(r,screenTop,8);seen.add(current.key());evaluated++;
-                director.record(current.arm,current.operator,current.parentFitness,r.fitness,compiled.operationUnits,false);Attempt result=new Attempt(current,r,"EVALUATED","CONTEXT="+researchContext.key+"|COST_UNITS="+compiled.operationUnits+"|DEV_PROBE="+r.behavior.distributionHash+"|ACTION_PROBE="+r.behavior.actionHash+"|COMPLEXITY_COST="+Double.toHexString(penalty));current=null;cursor.close();cursor=null;index++;return result;
+                director.record(current.arm,current.operator,current.parentFitness,r.fitness,compiled.operationUnits,false);Attempt result=outcome(current,r,"EVALUATED","SCOUT_N="+scoutN+"|SCOUT_HITS="+scoutHits+"|SCOUT_FITNESS="+Double.toHexString(scoutFitness)+"|FINAL_FIDELITY=FULL|CONTEXT="+researchContext.key+"|COST_UNITS="+compiled.operationUnits+"|DEV_PROBE="+r.behavior.distributionHash+"|ACTION_PROBE="+r.behavior.actionHash+"|COMPLEXITY_COST="+Double.toHexString(penalty));current=null;cursor.close();cursor=null;index++;return result;
+            }
+            }catch(IllegalArgumentException failed){
+                ResearchFailureSU1 diagnostic=ResearchFailureSU1.observe(failed);
+                if(current==null||!diagnostic.rejectCandidate)throw failed;
+                Genome rejected=current;long cost=ProgramContractSU1.compile(ProgramTextSU1.parse(rejected.text)).operationUnits;
+                director.failure(rejected.arm,rejected.operator,rejected.parentFitness,diagnostic,cost);seen.add(rejected.key());current=null;if(cursor!=null)cursor.close();cursor=null;index++;
+                return outcome(rejected,null,"REJECTED",diagnostic.payload(datasetHash,researchContext.key,HashingSU1.text(rejected.text)));
             }
         }
         return null;
     }
     public String checkpoint(){
         try{ByteArrayOutputStream raw=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new GZIPOutputStream(raw))){
-            out.writeInt(0x53553146);out.writeInt(7);out.writeUTF(datasetHash);out.writeLong(seed);out.writeInt(population);out.writeInt(generations);out.writeInt(phase);out.writeInt(index);out.writeInt(generation);out.writeInt(evaluated);out.writeBoolean(memoryEnabled);out.writeBoolean(fullScan);out.writeInt(refreshSeeds.size());for(Genome g:refreshSeeds)g.write(out);
+            out.writeInt(0x53553146);out.writeInt(8);out.writeUTF(datasetHash);out.writeLong(seed);out.writeInt(population);out.writeInt(generations);out.writeInt(phase);out.writeInt(index);out.writeInt(generation);out.writeInt(evaluated);out.writeBoolean(memoryEnabled);out.writeBoolean(fullScan);out.writeInt(fidelityStage);out.writeDouble(scoutFitness);out.writeInt(scoutN);out.writeInt(scoutHits);out.writeInt(refreshSeeds.size());for(Genome g:refreshSeeds)g.write(out);
             director.write(out);macros.write(out);out.writeInt(best.size());for(Ranked r:best)r.write(out);out.writeInt(screenTop.size());for(Ranked r:screenTop)r.write(out);out.writeInt(generationQueue.size());for(Genome g:generationQueue)g.write(out);
             out.writeBoolean(champion!=null);if(champion!=null)champion.write(out);out.writeInt(curves.size());for(Curve c:curves){out.writeInt(c.generation);out.writeDouble(c.dev);out.writeDouble(c.val);out.writeUTF(c.family);}
             out.writeBoolean(current!=null);if(current!=null){current.write(out);cursor.write(out);}
@@ -148,20 +171,20 @@ public final class StrategyFoundrySU1 implements AutoCloseable {
     public static StrategyFoundrySU1 restore(int[][] draws,String expectedDataset,String wire){
         if(wire==null||wire.length()>60000)throw new IllegalArgumentException("SU1_CHECKPOINT_SIZE");
         try(DataInputStream in=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(wire))))){
-            if(in.readInt()!=0x53553146||in.readInt()!=7||!expectedDataset.equals(in.readUTF()))throw new IOException("SU1_CHECKPOINT_IDENTITY");
+            if(in.readInt()!=0x53553146||in.readInt()!=8||!expectedDataset.equals(in.readUTF()))throw new IOException("SU1_CHECKPOINT_IDENTITY");
             StrategyFoundrySU1 f=new StrategyFoundrySU1(draws,expectedDataset,in.readLong(),in.readInt(),in.readInt());f.phase=in.readInt();f.index=in.readInt();f.generation=in.readInt();f.evaluated=in.readInt();
-            f.memoryEnabled=in.readBoolean();f.fullScan=in.readBoolean();int seeds=bounded(in,12);for(int i=0;i<seeds;i++)f.refreshSeeds.add(Genome.read(in));
+            f.memoryEnabled=in.readBoolean();f.fullScan=in.readBoolean();f.fidelityStage=in.readInt();f.scoutFitness=in.readDouble();f.scoutN=in.readInt();f.scoutHits=in.readInt();if(f.fidelityStage<0||f.fidelityStage>1||!Double.isFinite(f.scoutFitness)||f.scoutN<0||f.scoutHits<0||f.scoutHits>f.scoutN)throw new IOException("SU1_SCOUT_CHECKPOINT");int seeds=bounded(in,12);for(int i=0;i<seeds;i++)f.refreshSeeds.add(Genome.read(in));
             if(f.phase<0||f.phase>4||f.index<0||f.index>4000||f.generation<0||f.generation>f.generations||f.evaluated<0)throw new IOException("SU1_CHECKPOINT_CURSOR");
             f.director=ResearchDirectorPolicySU1.read(in);f.macros=MacroLibrarySU1.read(in);int n=bounded(in,32);for(int i=0;i<n;i++)f.best.add(Ranked.read(in));n=bounded(in,8);for(int i=0;i<n;i++)f.screenTop.add(Ranked.read(in));n=bounded(in,32);for(int i=0;i<n;i++)f.generationQueue.add(Genome.read(in));
             if(in.readBoolean())f.champion=Ranked.read(in);n=bounded(in,12);double prior=-Double.MAX_VALUE;for(int i=0;i<n;i++){Curve c=new Curve(in.readInt(),in.readDouble(),in.readDouble(),in.readUTF());if(!Double.isFinite(c.dev)||!Double.isFinite(c.val)||c.val<prior)throw new IOException("SU1_CHAMPION_CURVE");f.curves.add(c);prior=c.val;}
-            if(in.readBoolean()){f.current=Genome.read(in);f.cursor=ReplayCursorSU1.read(in,draws);}if(in.read()!=-1)throw new IOException("SU1_CHECKPOINT_TAIL");return f;
+            if(in.readBoolean()){f.current=Genome.read(in);f.cursor=ReplayCursorSU1.read(in,draws,f.fidelityStage==0?TrainingFidelitySU1.SCOUT:TrainingFidelitySU1.FULL);if(!f.current.text.equals(f.cursor.text)||f.current.coverage!=f.cursor.coverage||f.current.margin!=f.cursor.margin||f.cursor.start!=f.devStart||f.cursor.end!=(f.fidelityStage==0?Math.min(f.devEnd,f.devStart+192):f.valEnd))throw new IOException("SU1_SCOUT_PROGRAM_CURSOR_BINDING");}if(in.read()!=-1)throw new IOException("SU1_CHECKPOINT_TAIL");return f;
         }catch(IOException|IllegalArgumentException invalid){throw new IllegalArgumentException("SU1_CHECKPOINT_CORRUPT",invalid);}
     }
     private static int bounded(DataInput in,int max)throws IOException{int n=in.readInt();if(n<0||n>max)throw new IOException("SU1_CHECKPOINT_COUNT");return n;}
     @Override public void close(){if(cursor!=null)cursor.close();}
     public String knowledge(Attempt attempt){
         Map<String,Object> m=new TreeMap<>();ProgramContractSU1 compiled=ProgramContractSU1.compile(ProgramTextSU1.parse(attempt.genome.text));
-        m.put("protocol","SU1_RESEARCH_EXPERIENCE_V1");m.put("context",researchContext.key);m.put("contextSource",researchContext.sourceHash);m.put("dataset",datasetHash);
+        m.put("protocol","SU1_RESEARCH_EXPERIENCE_V2");m.put("controllerProtocol",ResearchDirectorPolicySU1.PROTOCOL);m.put("screeningProtocol",SCREENING_PROTOCOL);m.put("scoutFitnessHex",Double.toHexString(attempt.scoutFitness));m.put("scoutActions",attempt.scoutActions);m.put("scoutHits",attempt.scoutHits);m.put("context",researchContext.key);m.put("contextSource",researchContext.sourceHash);m.put("dataset",datasetHash);
         m.put("hypothesis",attempt.genome.operator+":"+attempt.genome.arm);m.put("program",attempt.genome.text);m.put("parent",attempt.genome.parent);m.put("secondaryParent",attempt.genome.secondaryParent);m.put("costUnits",compiled.operationUnits);
         m.put("result",attempt.result);m.put("detail",attempt.detail);m.put("fitnessHex",attempt.ranked==null?"UNKNOWN":Double.toHexString(attempt.ranked.fitness));
         m.put("evidenceRole","DEVELOPMENT_ONLY");m.put("falsification","NO_MATCHED_VALIDATION_GAIN_OR_NEW_FUTURE_PAIRED_FAILURE");

@@ -8,7 +8,7 @@ public final class StrategyRuntimeSU1 {
     private StrategyRuntimeSU1() {}
     public static void failure(DbStore store,String phase,RuntimeException failure){
         Log.w("STARCORE_SU1",phase,failure);
-        try{if(StrategySchemaSU1.ready(store.readable()))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_HEALTH",db->{StrategyRepositorySU1.health(db,phase,DiagnosticsSU1.cause(failure,1800),0);return 0;});}
+        try{if(StrategySchemaSU1.ready(store.readable()))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_HEALTH",db->{StrategyRepositorySU1.health(db,phase,"CATEGORY="+ResearchFailureSU1.observe(failure).category+"|CODE="+ResearchFailureSU1.observe(failure).code+"|"+DiagnosticsSU1.cause(failure,1400),0);return 0;});}
         catch(RuntimeException unavailable){Log.w("STARCORE_SU1","health receipt deferred",unavailable);}
     }
     public static void capture(DbStore store,String target){

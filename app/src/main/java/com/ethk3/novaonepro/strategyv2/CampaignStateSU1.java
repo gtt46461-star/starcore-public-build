@@ -37,7 +37,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
             if(!TrainingCodeIdentityR964.SHA256.equals(state.get("kernel")))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_INVALIDATE_CHECKPOINT_KERNEL",db->{db.execSQL("UPDATE su1_campaign SET status='FAILED',finished_at=? WHERE campaign_id=? AND status='RUNNING'",new Object[]{System.currentTimeMillis(),campaign});return 0;});
             try(Cursor status=store.readable().rawQuery("SELECT status FROM su1_campaign WHERE campaign_id=?",new String[]{campaign})){if(status.moveToFirst()&&status.getString(0).equals("RUNNING")){
                 String payload=localBlob(store.readable(),blob);StrategyFoundrySU1 f=StrategyFoundrySU1.restore(unpack(payload),HashingSU1.text(payload),(String)state.get("session"));
-                List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result='EVALUATED'",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(store.readable(),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
+                List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result IN ('EVALUATED','REJECTED')",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(store.readable(),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
             }}
         }
         List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));Collections.reverse(rows);if(rows.size()<3400)return null;
@@ -73,7 +73,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
                 StrategyFoundrySU1.Genome g=attempt.genome;String id=HashingSU1.fields(campaign,String.valueOf(foundry.phase),String.valueOf(foundry.generation),String.valueOf(foundry.index),g.key());
                 if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_search_attempt WHERE attempt_id=?",id))db.execSQL("INSERT INTO su1_search_attempt(attempt_id,genome_key,campaign_id,program_text,arm,operator,parent_id,dev_fitness,val_fitness,result,detail,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{id,g.key(),campaign,g.text,g.arm,g.operator,g.parent,attempt.ranked==null?null:attempt.ranked.fitness,attempt.ranked==null?null:attempt.ranked.valFitness,attempt.result,attempt.detail,now});
                 if(!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_research_knowledge WHERE attempt_id=?",id)){
-                    String payload=StrategyRepositorySU1.blob(db,experience,"SU1_RESEARCH_EXPERIENCE_V1",now);
+                    String payload=StrategyRepositorySU1.blob(db,experience,"SU1_RESEARCH_EXPERIENCE_V2",now);
                     StrategyRepositorySU1.row(db,"su1_research_knowledge","attempt_id",id,"context_key",foundry.researchContext.key,"hypothesis",g.arm,"action",g.operator,"cost_units",cost,"result",attempt.result,"payload_hash",payload,"recorded_at",now);
                 }
                 if(attempt.ranked!=null&&!g.operator.equals("survivor_retest")&&attempt.ranked.fitness>-1&&attempt.ranked.valFitness>-1){

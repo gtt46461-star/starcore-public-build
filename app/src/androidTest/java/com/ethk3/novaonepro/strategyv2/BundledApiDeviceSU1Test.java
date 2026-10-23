@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
-/** Runs in a fresh app sandbox; no manual entry or network response is needed to inspect packaging. */
+/** Fresh-sandbox endpoint packaging and startup UI; configured builds must also fetch validated live data. */
 @RunWith(AndroidJUnit4.class)
 public final class BundledApiDeviceSU1Test {
     @Test public void endpointsAndBuildCredentialAreActuallyPackaged() {
@@ -17,6 +17,9 @@ public final class BundledApiDeviceSU1Test {
         assertEquals("Binance1-PK10", BinanceGameContract.GAME_CODE);
         assertEquals(com.ethk3.novaonepro.AppConfig.API_PRIMARY_BASE, BinanceGameContract.PRIMARY_BASE);
         assertEquals(com.ethk3.novaonepro.AppConfig.API_BACKUP_BASE, BinanceGameContract.BACKUP_BASE);
+        String startup=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext().getString(com.ethk3.novaonepro.R.string.placeholder_api);
+        assertTrue("Startup hides the packaged primary endpoint",startup.contains(BinanceGameContract.primary().endpoint()));
+        assertTrue("Startup hides the packaged backup endpoint",startup.contains(BinanceGameContract.backup().endpoint()));
         String visible=com.ethk3.novaonepro.ApiCredentialSettingsCP12.endpointStatus("");
         assertTrue("Main screen hides the bundled primary endpoint",visible.contains(BinanceGameContract.primary().endpoint()));
         assertTrue("Main screen hides the bundled backup endpoint",visible.contains(BinanceGameContract.backup().endpoint()));

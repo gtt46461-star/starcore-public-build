@@ -22,7 +22,7 @@ public final class RunPhoneCampaignsSU1 {
             try(CampaignAuditSessionSU1 active=session){
                 while(!session.phase.equals("DONE")){
                     try{session.advance(new BudgetTokenSU1(2000,30000000,null));}catch(BudgetTokenSU1.Yield yielded){/* same numerical slice cap as the Android job */}
-                    if(session.attempt!=null&&session.attempt.ranked!=null)seen.add(session.attempt.genome.key());
+                    if(session.attempt!=null)seen.add(session.attempt.genome.key());
                     Map<String,Object> saved=new TreeMap<>();saved.put("session",session.checkpoint());saved.put("seen",new ArrayList<>(seen));durable(state,StrictCanonicalJson.writeContext(saved));
                     if(session.attempt!=null)System.out.println(variant+" attempt="+session.attempts+" evaluated="+session.foundry.evaluated+" result="+session.attempt.result+" phase="+session.phase);
                 }

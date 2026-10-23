@@ -72,9 +72,11 @@ public final class RelationalTrainerSU1 {
         double rate=learningRate*Math.min(1,clip/Math.max(1e-300,Math.sqrt(g.squaredNorm())));
         return new RelationalStateInference.Weights(step(w.e,g.e,rate),step(w.u,g.u,rate),step(w.r,g.r,rate),step(w.wx,g.wx,rate),step(w.wm,g.wm,rate),step(w.wh,g.wh,rate),step(w.b,g.b,rate),step(w.wo,g.wo,rate),step(w.c,g.c,rate));
     }
-    public static RelationalStateInference.Weights trainCausal(int[][] draws,int throughExclusive,int width,int window,long seed,BudgetTokenSU1 budget){
+    public static RelationalStateInference.Weights trainCausal(int[][] draws,int throughExclusive,int width,int window,long seed,BudgetTokenSU1 budget){return trainCausal(draws,throughExclusive,width,window,seed,budget,TrainingFidelitySU1.FULL);}
+    public static RelationalStateInference.Weights trainCausal(int[][] draws,int throughExclusive,int width,int window,long seed,BudgetTokenSU1 budget,TrainingFidelitySU1 fidelity){
+        if(fidelity==null||throughExclusive<0||throughExclusive>draws.length)throw new IllegalArgumentException("SU1_TRAINING_FIDELITY_BOUNDARY");
         RelationalStateInference.Weights w=initial(width,seed);
-        int first=Math.max(window,throughExclusive-32);
+        int first=Math.max(window,throughExclusive-fidelity.stateExamples);
         for(int u=first;u<throughExclusive;u++){
             int[][] history=Arrays.copyOfRange(draws,u-window,u);Gradient g=gradient(w,history,draws[u],budget,TrainingObjectiveSU1.research());w=update(w,g,.03,1);
         }
