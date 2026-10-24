@@ -22,8 +22,11 @@ public final class FeatureManifestR952 {
     public final List<LongSummaryBindingsR80.Ref> summarySpecRefs;
     public final int requiredHistory,inputDimension;
     public final long estimatedStateBytes;
+    public final boolean hasPhysicalMetadataR82;
+    public final List<FeatureMetadataR82.Dimension> physicalDimensionsR82;
     private final String modernCanonical;
     private FeatureManifestR952(List<Feature> input){
+        hasPhysicalMetadataR82=false;physicalDimensionsR82=Collections.emptyList();
         modern=false;revision="R952_FEATURES_V1";graphHash="";normalizerPolicy="";modernCanonical="";
         orderedFeatureIds=featureTypes=atomSpecHashes=bindingHashes=missingPolicyPerFeature=Collections.emptyList();
         matrixSpecRefs=Collections.emptyList();summarySpecRefs=Collections.emptyList();requiredHistory=120;inputDimension=10;estimatedStateBytes=0;
@@ -41,17 +44,18 @@ public final class FeatureManifestR952 {
             CandidateAstR952.keys(value,"type","partitionRule","manifest");
             type=CandidateAstR952.str(value,"type");partitionRule=CandidateAstR952.str(value,"partitionRule");
             manifest=CandidateCompilerR952.Modern.hashText(CandidateAstR952.str(value,"manifest"));
-            CandidateAstR952.need(type.matches("[A-Za-z][A-Za-z0-9_]{1,63}")&&!partitionRule.isEmpty()&&partitionRule.length()<=256,"MATRIX_REF");
+            CandidateAstR952.need(type.matches("[A-Za-z][A-Za-z0-9_]{1,63}")&&!partitionRule.isEmpty()&&partitionRule.length()<=512,"MATRIX_REF");
             new MatrixBindingsCP12.Ref(this);
         }
         String key(){return type+'\u0000'+partitionRule+'\u0000'+manifest;}
     }
     private FeatureManifestR952(Map<String,Object> obj) {
         boolean longRevision=LongSummaryBindingsR80.FEATURE_REVISION.equals(obj.get("revision"));
-        if(longRevision)CandidateAstR952.keys(obj,"revision","graphHash","orderedFeatureIds","featureTypes","requiredHistory","atomSpecHashes",
-            "bindingHashes","matrixSpecRefs","normalizerPolicy","missingPolicyPerFeature","inputDimension","estimatedStateBytes","summarySpecRefs");
-        else CandidateAstR952.keys(obj,"revision","graphHash","orderedFeatureIds","featureTypes","requiredHistory","atomSpecHashes",
-            "bindingHashes","matrixSpecRefs","normalizerPolicy","missingPolicyPerFeature","inputDimension","estimatedStateBytes");
+        Set<String> expected=new HashSet<>(Arrays.asList("revision","graphHash","orderedFeatureIds","featureTypes","requiredHistory","atomSpecHashes",
+            "bindingHashes","matrixSpecRefs","normalizerPolicy","missingPolicyPerFeature","inputDimension","estimatedStateBytes"));
+        if(longRevision)expected.add("summarySpecRefs");
+        hasPhysicalMetadataR82=obj.containsKey("featureMetadataR82");if(hasPhysicalMetadataR82)expected.add("featureMetadataR82");
+        CandidateAstR952.need(obj.keySet().equals(expected),"FEATURE_MANIFEST_KEYS");
         // Reparse to ensure the entire immutable manifest is valid canonical JSON.
         modernCanonical=StrictCanonicalJson.write(obj);Map<String,Object> o=StrictCanonicalJson.readObject(modernCanonical);
         modern=true;features=Collections.emptyList();revision=CandidateAstR952.str(o,"revision");
@@ -78,6 +82,7 @@ public final class FeatureManifestR952 {
         ArrayList<LongSummaryBindingsR80.Ref> summaries=new ArrayList<>();String previousSummary=null;
         if(longRevision)for(Object value:CandidateAstR952.array(o.get("summarySpecRefs"))){LongSummaryBindingsR80.Ref ref=new LongSummaryBindingsR80.Ref(CandidateAstR952.object(value));CandidateAstR952.need(previousSummary==null||previousSummary.compareTo(ref.nodeId)<0,"LONG_REF_ORDER");previousSummary=ref.nodeId;summaries.add(ref);}
         CandidateAstR952.need(summaries.size()<=16&&(!longRevision||!summaries.isEmpty()),"LONG_REF_COUNT");summarySpecRefs=Collections.unmodifiableList(summaries);
+        physicalDimensionsR82=hasPhysicalMetadataR82?FeatureMetadataR82.parse(o.get("featureMetadataR82"),inputDimension):Collections.<FeatureMetadataR82.Dimension>emptyList();
         hash=V51ChecksumEngine.sha256(modernCanonical);
     }
     private static List<String> sortedHashes(Map<String,Object> o,String key,int max) {

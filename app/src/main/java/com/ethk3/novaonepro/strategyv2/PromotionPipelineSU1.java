@@ -48,7 +48,12 @@ public final class PromotionPipelineSU1 {
         List<?> blocks=(List<?>)report.get("blocks");if(blocks.size()!=4)throw new IllegalStateException("SU1_SEALED_BLOCKS");for(Object b:blocks){List<?> pair=(List<?>)b;int bn=((Number)pair.get(0)).intValue(),bk=((Number)pair.get(1)).intValue();if(bn<30||bk/(double)bn<=.30)throw new IllegalStateException("SU1_SEALED_UNSTABLE");}
         // V1 confirm opportunities are a fixed calendar sequence. Selective discoveries
         // remain in research until their complete, full-coverage policy passes a new sealed test.
-        try(Cursor c=db.rawQuery("SELECT coverage FROM su1_runtime_program WHERE strategy_id=?",new String[]{strategy})){if(!c.moveToFirst()||c.getDouble(0)<.999)throw new IllegalStateException("SU1_CONFIRM_FULL_COVERAGE_POLICY_REQUIRED");}
+        // R13-P27: a selective strategy (15-30%) is no longer rejected; it joins the league and is judged by
+        // ACT-conditioned live evidence (CertificateSU2). Full-coverage SU1 certificates keep their protocol.
+        try(Cursor c=db.rawQuery("SELECT coverage FROM su1_runtime_program WHERE strategy_id=?",new String[]{strategy})){
+            if(!c.moveToFirst())throw new IllegalStateException("SU1_RUNTIME_PROGRAM_MISSING");
+            if(c.getDouble(0)<.999){if(StrategySchemaSU2.ready(db))ModelStoreSU2.joinLeague(db,"SU1:"+strategy,"SU1",family+"@selective",null,registeredSequence);return new ArrayList<>();}
+        }
         List<String> ids=new ArrayList<>();String baseline=nullBaseline(db);ids.add(register(db,strategy,baseline,family,nextIssue,registeredSequence,planned,"VS_NULL_BASELINE","CONFIRM"));if(parent!=null)ids.add(register(db,strategy,parent,family,nextIssue,registeredSequence,planned,"PARENT_CHILD","CONFIRM"));ids.add(register(db,nullControl(db),baseline,family,nextIssue,registeredSequence,planned,"NULL_CONTROL","CONFIRM"));ids.add(register(db,shuffledControl(db),baseline,family,nextIssue,registeredSequence,planned,"NULL_CONTROL","CONFIRM"));return ids;
     }
 }

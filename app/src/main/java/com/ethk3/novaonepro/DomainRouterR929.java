@@ -32,13 +32,21 @@ public final class DomainRouterR929 {
 
     public static Decision route(final DbStore store,final String targetIssue,final V51Models.StateTrajectorySnapshot state,
                                  final DomainEvidence evidence,final boolean runtimeHealthy){
+        return routeWithEvidenceR82(store,targetIssue,state,evidence,runtimeHealthy,runtimeHealthy?"":"RUNTIME_HEALTH_NAMESPACE_PAUSE",null,null);
+    }
+    /** Same router/writer and hysteresis owner, now consuming actual runtime and frozen TUNE proof. */
+    public static Decision routeWithEvidenceR82(final DbStore store,final String targetIssue,final V51Models.StateTrajectorySnapshot state,
+            final DomainEvidence evidence,final boolean runtimeHealthy,final String runtimeReason,
+            final FrozenDriftPolicyR82.Policy driftPolicy,final FrozenDriftPolicyR82.Observation drift){
         final String target=required(targetIssue);
-        final String schema=evidence==null?V51ChecksumEngine.sha256("NO_DOMAIN_SCHEMA"):evidence.domainSchemaHash;
+        final String sourceSchema=evidence==null?V51ChecksumEngine.sha256("NO_DOMAIN_SCHEMA"):evidence.domainSchemaHash;
+        final String schema=drift==null?sourceSchema:V51ChecksumEngine.sha256(sourceSchema+"|DRIFT_POLICY|"+drift.policyHash);
         if(state==null)return new Decision(Route.PAUSE,"UNKNOWN","STATE_MISSING",0.0d,schema,target);
         if(!target.equals(state.targetIssue)||state.position<1||state.position>10)
             return new Decision(Route.PAUSE,"UNKNOWN","STATE_TARGET_OR_POSITION_MISMATCH",0,schema,target);
         final String current=required(state.domainId);
         final String binding=V51ChecksumEngine.sha256(schema+'|'+state.checksum+'|'+current+'|'+runtimeHealthy+'|'
+                +(drift==null?"LEGACY_ROUTER_INPUT":drift.receiptJson)+"|"+runtimeReason+"|"
                 +(evidence==null?"NO_CERT":evidence.certificateHash+'|'+evidence.calibrationN+'|'+evidence.futureN+'|'+evidence.ece+'|'+evidence.pairedDelta+'|'+evidence.certificateActive));
         if(store==null)return new Decision(Route.GLOBAL_FALLBACK,current,"PERSISTENCE_REQUIRED_FOR_HYSTERESIS",0,binding,target);
         Decision result=store.coordinatorR36().runAtomicWrite("R932_DOMAIN_ROUTE",new DatabaseCoordinator.WriteCallable<Decision>(){
@@ -57,7 +65,14 @@ public final class DomainRouterR929 {
                 int streak=sameSchema?parseInt(read(db,key+"streak"),0):0;
                 boolean supported=evidence!=null&&current.equals(evidence.domainId)&&evidence.supported();
                 Route route;String reason;
-                if(!runtimeHealthy){route=Route.PAUSE;reason="RUNTIME_HEALTH_NAMESPACE_PAUSE";streak=0;}
+                long cooldown=0;try{cooldown=Long.parseLong(read(db,key+"drift_cooldown_until"));}catch(NumberFormatException absent){}
+                if(!sameSchema)cooldown=0;
+                if(!runtimeHealthy){route=Route.PAUSE;reason="RUNTIME_HEALTH_NAMESPACE_PAUSE|"+(runtimeReason==null?"UNKNOWN":runtimeReason);streak=0;}
+                else if(drift!=null&&!drift.ready){route=Route.GLOBAL_FALLBACK;reason=drift.reason;streak=0;}
+                else if(drift!=null&&(drift.triggered||drift.targetOrdinal<=cooldown)){
+                    route=Route.PAUSE;reason=drift.triggered?"FROZEN_TUNE_MARKET_DRIFT":"FROZEN_TUNE_DRIFT_COOLDOWN";streak=0;
+                    if(drift.triggered&&driftPolicy!=null)cooldown=drift.targetOrdinal+driftPolicy.cooldownIssues;
+                }
                 else if(!supported){route=Route.GLOBAL_FALLBACK;reason="DOMAIN_UNSUPPORTED_OR_CERT_MISMATCH";streak=0;}
                 else{
                     streak=current.equals(candidate)?Math.min(DEFAULT_HYSTERESIS_ISSUES,streak+1):1;
@@ -67,7 +82,9 @@ public final class DomainRouterR929 {
                 java.util.Map<String,String> values=new java.util.LinkedHashMap<String,String>();
                 values.put(key+"issue",target);values.put(key+"binding",binding);values.put(key+"schema",schema);
                 values.put(key+"active",prior);values.put(key+"candidate",supported?current:"");values.put(key+"streak",String.valueOf(streak));
-                values.put(key+"route",route.name());values.put(key+"reason",reason);DbStore.putStatesR36(db,values);
+                values.put(key+"route",route.name());values.put(key+"reason",reason);
+                if(drift!=null){values.put(key+"drift_policy_hash",drift.policyHash);values.put(key+"drift_observation",drift.receiptJson);values.put(key+"drift_observation_hash",V51ChecksumEngine.sha256(drift.receiptJson));values.put(key+"drift_cooldown_until",Long.toString(cooldown));values.put(key+"runtime_health_reason",runtimeReason==null?"UNKNOWN":runtimeReason);}
+                DbStore.putStatesR36(db,values);
                 return new Decision(route,current,reason,route==Route.DOMAIN?1:0,binding,target);
             }},null);
         if(result==null)throw new IllegalStateException("R932_DOMAIN_ROUTE_COMMIT_FAILED");return result;

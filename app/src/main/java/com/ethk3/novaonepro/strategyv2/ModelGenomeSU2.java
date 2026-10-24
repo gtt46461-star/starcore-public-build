@@ -1,0 +1,120 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import java.util.*;
+
+/**
+ * A complete R13 strategy (P18): members (online models), pooling, permutation
+ * consistency, action gate and target frequency. Canonical text is the identity:
+ *
+ *   SU2|POOL=BMA|SINK=1|GATE=META:0.2|COV=0.30|M=HMM{K=3,lr=0.01,seed=0,stay=0.995,temper=0.6}*1;RELBAYES{...}*0.5
+ *
+ * Parameters are written in sorted key order with fixed formatting so that the
+ * same program always hashes to the same key on the phone, on the desktop tool
+ * and in the Python reference.
+ */
+public final class ModelGenomeSU2 {
+    public static final String[] KINDS = {"MSDIR", "BOCPD", "HMM", "LOGLIN", "KALMAN", "RELBAYES"};
+    /** Adapter members (not generated at random): an SU1 grammar program / lifted atom inside an SU2 strategy (P18/P10). */
+    public static final String[] ADAPTER_KINDS = {"SU1PROG"};
+    public static final double[] COVERAGES = {0.15, 0.20, 0.30, 0.50, 1.0};
+
+    public static final class Member {
+        public final String kind; public final TreeMap<String, String> params; public final double weight;
+        public Member(String kind, Map<String, String> params, double weight) {
+            if (Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
+            if (!(weight > 0 && weight <= 3.0)) throw new IllegalArgumentException("SU2_MEMBER_WEIGHT");
+            this.kind = kind; this.params = new TreeMap<>(params); this.weight = weight;
+        }
+        public String modelKey() {
+            StringBuilder b = new StringBuilder(kind).append('{');
+            boolean first = true;
+            for (Map.Entry<String, String> e : params.entrySet()) { if (!first) b.append(','); first = false; b.append(e.getKey()).append('=').append(e.getValue()); }
+            return b.append('}').toString();
+        }
+        String text() { return modelKey() + "*" + fmt(weight); }
+    }
+
+    public final List<Member> members; public final String pool, gate; public final boolean sink; public final double coverage, metaC;
+
+    public ModelGenomeSU2(List<Member> members, String pool, boolean sink, String gate, double coverage, double metaC) {
+        if (members == null || members.isEmpty() || members.size() > 4) throw new IllegalArgumentException("SU2_GENOME_MEMBERS");
+        if (!pool.equals("STATIC") && !pool.equals("BMA") && !pool.equals("GATED")) throw new IllegalArgumentException("SU2_GENOME_POOL");
+        if (!gate.equals("MASS") && !gate.equals("META")) throw new IllegalArgumentException("SU2_GENOME_GATE");
+        boolean ok = false; for (double c : COVERAGES) ok |= c == coverage;
+        if (!ok || !(metaC > 0 && metaC <= 5)) throw new IllegalArgumentException("SU2_GENOME_FREQUENCY");
+        this.members = Collections.unmodifiableList(new ArrayList<>(members));
+        this.pool = pool; this.sink = sink; this.gate = gate; this.coverage = coverage; this.metaC = metaC;
+    }
+
+    public String text() {
+        StringBuilder b = new StringBuilder("SU2|POOL=").append(pool).append("|SINK=").append(sink ? 1 : 0)
+            .append("|GATE=").append(gate).append(gate.equals("META") ? ":" + fmt(metaC) : "")
+            .append("|COV=").append(String.format(Locale.ROOT, "%.2f", coverage)).append("|M=");
+        for (int i = 0; i < members.size(); i++) { if (i > 0) b.append(';'); b.append(members.get(i).text()); }
+        return b.toString();
+    }
+
+    public String key() { return HashingSU1.text("SU2_MODEL_GENOME_V1|" + text()); }
+
+    /** Readable formula shown in the research dashboard and the report. */
+    public String formula() {
+        StringBuilder b = new StringBuilder("P = softmax(");
+        boolean mix = !pool.equals("STATIC") && members.size() > 1;
+        if (mix) b.append(pool).append('[');
+        for (int i = 0; i < members.size(); i++) {
+            if (i > 0) b.append(mix ? "; " : " + ");
+            if (!mix) b.append(fmt(members.get(i).weight)).append("*log ");
+            b.append(members.get(i).modelKey());
+        }
+        if (mix) b.append(']');
+        b.append(')');
+        String body = sink ? "SINKHORN(" + b + ")" : b.toString();
+        return body + " -> best position Top3 | " + (gate.equals("META") ? "applicability gate META(C=" + fmt(metaC) + ")" : "confidence gate MASS")
+            + " | target frequency " + Math.round(coverage * 100) + "%";
+    }
+
+    public static ModelGenomeSU2 parse(String text) {
+        if (text == null || text.length() > 2048 || !text.startsWith("SU2|")) throw new IllegalArgumentException("SU2_GENOME_TEXT");
+        String[] f = text.split("\\|");
+        if (f.length != 6) throw new IllegalArgumentException("SU2_GENOME_FIELDS");
+        String pool = value(f[1], "POOL"), sinkS = value(f[2], "SINK"), gateS = value(f[3], "GATE"), cov = value(f[4], "COV"), mem = value(f[5], "M");
+        String gate = gateS; double c = 0.2;
+        if (gateS.startsWith("META:")) { gate = "META"; c = Double.parseDouble(gateS.substring(5)); }
+        List<Member> ms = new ArrayList<>();
+        for (String m : mem.split(";")) {
+            int brace = m.indexOf('{'), close = m.indexOf("}*");
+            if (brace < 1 || close < brace) throw new IllegalArgumentException("SU2_GENOME_MEMBER_TEXT");
+            String kind = m.substring(0, brace);
+            TreeMap<String, String> params = new TreeMap<>();
+            String body = m.substring(brace + 1, close);
+            if (!body.isEmpty()) for (String kv : splitTop(body)) { int eq = kv.indexOf('='); if (eq < 1) throw new IllegalArgumentException("SU2_GENOME_PARAM"); params.put(kv.substring(0, eq), kv.substring(eq + 1)); }
+            ms.add(new Member(kind, params, Double.parseDouble(m.substring(close + 2))));
+        }
+        ModelGenomeSU2 g = new ModelGenomeSU2(ms, pool, sinkS.equals("1"), gate, Double.parseDouble(cov), c);
+        if (!g.text().equals(text)) throw new IllegalArgumentException("SU2_GENOME_NOT_CANONICAL");
+        return g;
+    }
+
+    /** Split "a=1,b=(1, 2),c=3" on commas that are outside parentheses. */
+    static List<String> splitTop(String s) {
+        List<String> out = new ArrayList<>(); int depth = 0, start = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch == '(') depth++; else if (ch == ')') depth--; else if (ch == ',' && depth == 0) { out.add(s.substring(start, i)); start = i + 1; }
+        }
+        out.add(s.substring(start));
+        return out;
+    }
+
+    private static String value(String field, String name) {
+        if (!field.startsWith(name + "=")) throw new IllegalArgumentException("SU2_GENOME_FIELD_" + name);
+        return field.substring(name.length() + 1);
+    }
+
+    static String fmt(double v) {
+        String s = String.format(Locale.ROOT, "%.4g", v);
+        if (s.contains("e") || s.contains("E")) return s;
+        if (s.contains(".")) { s = s.replaceAll("0+$", ""); if (s.endsWith(".")) s = s.substring(0, s.length() - 1); }
+        return s;
+    }
+}

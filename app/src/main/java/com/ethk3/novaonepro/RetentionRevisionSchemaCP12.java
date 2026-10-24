@@ -140,4 +140,15 @@ db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_archive_guard_research_formal_obse
         db.execSQL("INSERT OR IGNORE INTO research_row_revision_v2(source_table,source_rowid) SELECT 'diagnosis_case_log',rowid FROM \"diagnosis_case_log\";");
         db.execSQL("CREATE TRIGGER IF NOT EXISTS cp12_archive_guard_diagnosis_case_log BEFORE DELETE ON \"diagnosis_case_log\" WHEN NOT EXISTS(SELECT 1 FROM research_retention_permit_v2 p JOIN research_evidence_archive_v2 a ON a.archive_id=p.archive_id WHERE p.source_table='diagnosis_case_log' AND p.source_rowid=OLD.rowid AND p.source_generation=COALESCE((SELECT r.generation FROM research_row_revision_v2 r WHERE r.source_table='diagnosis_case_log' AND r.source_rowid=OLD.rowid),0) AND a.state IN('VERIFIED','REFERENCED','PRUNED')) BEGIN SELECT RAISE(ABORT,'CP12_RAW_DELETE_REQUIRES_VERIFIED_ARCHIVE'); END;");
     }
+    /** Additive migration unit: original probabilities and their fixed champion stay pinned during CAL. */
+    public static void championProbabilitySchemaR82(SQLiteDatabase db){
+        ChampionProbabilityEvidenceR82.schema(db);
+        String table=ChampionProbabilityEvidenceR82.TABLE;
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r82_champion_probability_revision_insert AFTER INSERT ON "+table+" BEGIN INSERT OR REPLACE INTO research_row_revision_v2(source_table,source_rowid) VALUES('"+table+"',NEW.rowid); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r82_champion_probability_revision_delete AFTER DELETE ON "+table+" BEGIN DELETE FROM research_row_revision_v2 WHERE source_table='"+table+"' AND source_rowid=OLD.rowid; END");
+        db.execSQL("INSERT OR IGNORE INTO research_row_revision_v2(source_table,source_rowid) SELECT '"+table+"',rowid FROM "+table);
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r82_champion_probability_archive_guard BEFORE DELETE ON "+table+" WHEN NOT EXISTS(SELECT 1 FROM research_retention_permit_v2 p JOIN research_evidence_archive_v2 a ON a.archive_id=p.archive_id WHERE p.source_table='"+table+"' AND p.source_rowid=OLD.rowid AND p.source_generation=COALESCE((SELECT r.generation FROM research_row_revision_v2 r WHERE r.source_table='"+table+"' AND r.source_rowid=OLD.rowid),0) AND a.state IN('VERIFIED','REFERENCED','PRUNED')) BEGIN SELECT RAISE(ABORT,'R82_CHAMPION_PROBABILITY_VERIFIED_ARCHIVE_REQUIRED'); END");
+        for(String source:new String[]{table,FixedResearchWindowR932.CHAMPION})db.execSQL("CREATE TRIGGER IF NOT EXISTS r82_calibration_pin_"+source+" BEFORE DELETE ON "+source+" WHEN "+ChampionProbabilityEvidenceR82.activeCalibrationPin("OLD.target_issue")+" BEGIN SELECT RAISE(ABORT,'R82_ACTIVE_CALIBRATION_CHAMPION_PIN'); END");
+    }
+
 }

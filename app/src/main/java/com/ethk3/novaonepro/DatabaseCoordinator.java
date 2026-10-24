@@ -780,6 +780,11 @@ public final class DatabaseCoordinator {
         return op.equals("R932_BUNDLE_CAPTURE")
                 || op.equals("R932_FREEZE_ONE_RESEARCH_CONSUMER")
                 || op.startsWith("R914_DRAW_SAVE_ATOMIC")
+                // Draw fetch ledger rows bind each HTTP request to its canonical draw (C029).
+                // A 250ms background slice let research writers reject them on device.
+                || op.equals("R925_FETCH_BEGIN")
+                || op.equals("R925_FETCH_PAYLOAD")
+                || op.equals("R925_FETCH_COMPLETE")
                 || op.equals("R914_DRAW_HISTORY_BATCH")
                 || op.startsWith("R914_SETTLEMENT_HANDOFF_CURRENT")
                 || op.startsWith("R36_CANONICAL")

@@ -14,7 +14,7 @@ public final class MatrixBindingsCP12 {
   Ref(FeatureManifestR952.MatrixRef ref){
    String[] p=ref.partitionRule.split("/",-1);need(p.length==5&&p[0].equals("CP12")&&p[1].matches("[1-9][0-9]{0,3}"),"MATRIX_PARTITION_RULE");
    type=MatrixProjectionCP12.Type.valueOf(ref.type);window=Integer.parseInt(p[1]);selector=p[2];metric=p[3];nodeId=p[4];manifest=ref.manifest;
-   need(selector.equals("POSITION")||selector.equals("CROSSNEXT")||selector.matches("POSLAG_[1-9][0-9]{0,3}")||selector.matches("POSLAG_[1-9][0-9]{0,3}_REGIME_[0-4]")||selector.matches("L_[A-Za-z0-9_-]{1,180}"),"MATRIX_SELECTOR");
+   need(selector.equals("POSITION")||selector.equals("CROSSNEXT")||selector.matches("POSLAG_[1-9][0-9]{0,3}")||selector.matches("POSLAG_[1-9][0-9]{0,3}_REGIME_[0-4]")||selector.matches("L_[A-Za-z0-9_-]{1,342}"),"MATRIX_SELECTOR");
    need(nodeId.matches("n[0-9]{1,3}")&&metric.matches("[A-Za-z][A-Za-z0-9_]{0,63}(~[0-9])?"),"MATRIX_METRIC_NODE");
    validateMetric(type,metric);
    metricSourceCP13(1); // Explicit V2 row metrics must resolve a real lagged draw partition.
@@ -39,23 +39,23 @@ public final class MatrixBindingsCP12 {
  }
  public static void validateMetric(MatrixProjectionCP12.Type type,String metric){
   String pattern;switch(type){
-   case TransitionMatrix:pattern="(row0_[0-9]|latestRow|smoothedRow0_[0-9]|latestSmoothedRow|sourceRowV2|sourceSmoothedRowV2)~[0-9]";break;
-   case ConditionalTransitionMatrix:pattern="row[0-4]_[0-9]~[0-9]";break;
-   case CoOccurrenceMatrix:pattern="jointMiss";break;
-   case FrequencyMatrix:pattern="probabilities~[0-9]";break;
-   case OmissionMatrix:pattern="(omission|gapVariance)[0-9]";break;
-   case AtomTargetMatrix:pattern="missing|mutualInformation|correlation|meanDifference";break;
-   case AtomRegimeMatrix:pattern="availability|ablationMean|ablationSE|scoreMean|scoreVariance";break;
-   case CandidateWindowMatrix:pattern="coverage|hitRate|wilsonLower|brier|ece|maxLossStreak";break;
-   case CandidateErrorMatrix:pattern="missingCapture|missBuckets~[0-9]";break;
-   case CandidateSimilarityMatrix:pattern="jaccard";break;
-   case CandidateDiversityMatrix:pattern="diversity|jointMiss|residualCorrelation";break;
-   case ParentChildMatrix:pattern="mean|pairedSE|ci95Lower|ci95Upper|pairedTailBound";break;
-   case DriftMatrix:pattern="js|psi";break;
-   case ConfidenceMatrix:pattern="ece|brier";break;
+   case TransitionMatrix:pattern="(rowCounts0_[0-9]|row0_[0-9]|latestRow|smoothedRow0_[0-9]|latestSmoothedRow|sourceRowV2|sourceSmoothedRowV2)~[0-9]";break;
+   case ConditionalTransitionMatrix:pattern="(rowCounts[0-4]_[0-9]|row[0-4]_[0-9])~[0-9]";break;
+   case CoOccurrenceMatrix:pattern="N|jointMiss|(eventCounts|eventRates)~[0-3]";break;
+   case FrequencyMatrix:pattern="N|(probabilities|count|rate|z)~[0-9]";break;
+   case OmissionMatrix:pattern="(omission|gapVariance|lastSeen|gap|gapMean|gapSupport)[0-9]";break;
+   case AtomTargetMatrix:pattern="N|contributionN|oosContribution|oosContributionSE|missing|mutualInformation|correlation|meanDifference";break;
+   case AtomRegimeMatrix:pattern="N|scoreKSLikeDrift|driftReferenceN|driftRecentN|availability|ablationMean|ablationSE|scoreMean|scoreVariance";break;
+   case CandidateWindowMatrix:pattern="N|eligibleN|coverage|hitRate|wilsonLower|brier|ece|maxLossStreak";break;
+   case CandidateErrorMatrix:pattern="N|missingCapture|missSeverity[0-9]|(missCounts|missSeverityN|missBuckets)~[0-9]";break;
+   case CandidateSimilarityMatrix:pattern="N|jaccard|predictionCorrelation";break;
+   case CandidateDiversityMatrix:pattern="N|diversity|jointMiss|residualCorrelation|predictionCorrelation|errorCorrelation|disagreement|complementarity|verifiedRegimeN|regimeSupport~[0-3]|regimeComplementarity[0-3]";break;
+   case ParentChildMatrix:pattern="N|resourceN|resourceElapsedNanosDelta|resourceHeapBytesDelta|mean|pairedSE|ci95Lower|ci95Upper|pairedTailBound";break;
+   case DriftMatrix:pattern="js|psi|ksLike|referenceN|recentN";break;
+   case ConfidenceMatrix:pattern="N|rawConfidenceN|raw_conf|cal_conf|LCB|ece|brier";break;
    case LatencyMatrix:pattern="p50Micros|p95Micros|p99Micros|count";break;
-   case TeacherMatrix:pattern="agreement|brierDelta";break;
-   case RuleHealthMatrix:pattern="missingRate|integrityRate|coverage|successRate|bins~[0-9]";break;
+   case TeacherMatrix:pattern="support|agreement|utility|hitUtility|brierDelta";break;
+   case RuleHealthMatrix:pattern="drift|driftKSLike|driftReferenceN|driftRecentN|missingRate|integrityRate|coverage|successRate|bins~[0-9]";break;
    case FreezeMatrix:pattern="componentCount";break;
    case FailureMatrix:pattern="failureCount|severityCounts~[0-3]|recoveryLagMean";break;
    case ResidualMatrix:pattern="mean|bias|variance|lag1Correlation";break;

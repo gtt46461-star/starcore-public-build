@@ -270,7 +270,7 @@ public final class Batch2GateEvidenceR926 {
                             + SchemaRevisionR925.TABLE_FETCH_LEDGER
                             + " WHERE latest_issue=? AND first_available_at>0 AND first_available_at<=?"
                             + " AND received_at>0 AND received_at<=?"
-                            + " AND status IN ('BUSINESS_ACCEPTED','ACCEPTED_DUPLICATE')"
+                            + " AND status IN ('HTTP_PAYLOAD_ACCEPTED','BUSINESS_ACCEPTED','ACCEPTED_DUPLICATE')"
                             + " ORDER BY first_available_at DESC,received_at DESC LIMIT 1",
                     new String[] {request.baseIssue, String.valueOf(cutoffAt), String.valueOf(cutoffAt)});
             if (!c.moveToFirst())
@@ -297,7 +297,7 @@ public final class Batch2GateEvidenceR926 {
                     && effectiveDrawAt > 0L
                     && Batch2ContractCoreR926.isSha256(clockEpoch)
                     && labelVersion.length() > 0
-                    && ("BUSINESS_ACCEPTED".equals(status) || "ACCEPTED_DUPLICATE".equals(status));
+                    && ("HTTP_PAYLOAD_ACCEPTED".equals(status) || "BUSINESS_ACCEPTED".equals(status) || "ACCEPTED_DUPLICATE".equals(status));
             if (rowDrawAt > 0L && canonicalDrawAt > 0L && rowDrawAt != canonicalDrawAt) valid = false;
             if (!valid) return new SourceEvidence("", "SOURCE_EVENT_INVALID_BEFORE_PIT", cutoffAt);
 

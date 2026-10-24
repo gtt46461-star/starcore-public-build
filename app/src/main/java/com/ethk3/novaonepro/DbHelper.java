@@ -305,7 +305,9 @@ public final class DbHelper extends SQLiteOpenHelper {
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
         if (db == null) return;
-        try { db.execSQL("PRAGMA auto_vacuum=INCREMENTAL"); db.execSQL("PRAGMA journal_size_limit=8388608"); }
+        // R13-P32: auto_vacuum set here never converts an existing NONE database (needs a VACUUM);
+        // DatabaseCompactionSU2 performs that one-time conversion. Keep WAL and journal bounded.
+        try { db.execSQL("PRAGMA journal_size_limit=8388608"); try(android.database.Cursor c=db.rawQuery("PRAGMA wal_autocheckpoint=1000",null)){c.moveToFirst();} }
         catch (Exception ignored) { /* Reclaim reports actual page/free-list state. */ }
         try {
             db.setForeignKeyConstraintsEnabled(true);

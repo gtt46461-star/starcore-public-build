@@ -22,6 +22,11 @@ public final class ReportMetadataStreamR81 {
 
     public static long writeRows(SQLiteDatabase db,String table,List<String> columns,
             Writer out,ReportNativeCP4.Control control)throws IOException {
+        return writeRows(db,table,columns,out,control,Long.MIN_VALUE);
+    }
+    /** R13-P33: rows with rowid >= fromRowid only (latest rows of very large tables). */
+    public static long writeRows(SQLiteDatabase db,String table,List<String> columns,
+            Writer out,ReportNativeCP4.Control control,long fromRowid)throws IOException {
         if(db==null||!db.isReadOnly()||columns==null||columns.isEmpty()
                 ||columns.size()>1024||out==null||control==null)
             throw new IOException("REPORT_METADATA_INPUT");
@@ -31,7 +36,7 @@ public final class ReportMetadataStreamR81 {
         for(String column:columns) {
             sql.append(',').append(descriptor(ident(column)));
         }
-        sql.append(" FROM ").append(id).append(" ORDER BY ").append(rowid);
+        sql.append(" FROM ").append(id);if(fromRowid!=Long.MIN_VALUE)sql.append(" WHERE ").append(rowid).append(">=").append(fromRowid);sql.append(" ORDER BY ").append(rowid);
         long count=0;
         try(Cursor rows=db.rawQuery(sql.toString(),null)) {
             while(rows.moveToNext()) {

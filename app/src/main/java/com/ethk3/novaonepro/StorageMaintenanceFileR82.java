@@ -84,7 +84,7 @@ public final class StorageMaintenanceFileR82 {
     }
     // Physical free bytes on the exact database filesystem are a conservative preflight.
     // Quotas/other writers can still reject I/O; verified-copy failures preserve the original.
-    @SuppressWarnings("UsableSpace")
+    @android.annotation.SuppressLint("UsableSpace")
     public static Receipt rebuildAndSwap(File database)throws IOException {
         File db=database.getCanonicalFile();recover(db);File out=candidate(db),old=backup(db),j=journal(db);
         if(!db.isFile())throw new IOException("original database missing");

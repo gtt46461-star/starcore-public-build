@@ -1,0 +1,206 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import java.util.*;
+
+/**
+ * Complete R13 strategy replay (P18/P19): members -> pool -> optional Sinkhorn ->
+ * best position Top3 -> gate (MASS or the META applicability learner) -> block-causal
+ * frequency threshold. Every period is computed and settled (hit is defined for
+ * every t), which is what the applicability learner trains on.
+ *
+ * Mirrors foundry13.evaluate() in the Python reference.
+ */
+public final class ModelReplaySU2 {
+    private ModelReplaySU2() {}
+
+    public static final class Result {
+        public final boolean[] act, hit; public final int[] position, mask; public final double[] gscore, phat;
+        Result(int n) { act = new boolean[n]; hit = new boolean[n]; position = new int[n]; mask = new int[n]; gscore = new double[n]; phat = new double[n]; Arrays.fill(phat, Double.NaN); }
+        public int actions(int a, int b) { int n = 0; for (int t = a; t < b; t++) if (act[t]) n++; return n; }
+        public int hits(int a, int b) { int n = 0; for (int t = a; t < b; t++) if (act[t] && hit[t]) n++; return n; }
+    }
+
+    /** Caches every (kind, parameters) model once per dataset; bounded by bytes (P30 budget). */
+    public static final class Library {
+        final int[][] draws; final long byteCap; long bytes;
+        final LinkedHashMap<String, OnlineModelsSU2.Output> cache = new LinkedHashMap<>(16, .75f, true);
+        public Library(int[][] draws, long byteCap) { OnlineModelsSU2.requireDraws(draws); this.draws = draws; this.byteCap = byteCap; }
+        public OnlineModelsSU2.Output get(ModelGenomeSU2.Member m) {
+            String key = m.modelKey();
+            OnlineModelsSU2.Output o = cache.get(key);
+            if (o != null) return o;
+            o = compute(draws, m.kind, m.params);
+            cache.put(key, o); bytes += o.bytes();
+            Iterator<Map.Entry<String, OnlineModelsSU2.Output>> it = cache.entrySet().iterator();
+            while (bytes > byteCap && cache.size() > 1 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key)) continue; bytes -= e.getValue().bytes(); it.remove(); }
+            return o;
+        }
+    }
+
+    static double d(Map<String, String> p, String k) { String v = p.get(k); if (v == null) throw new IllegalArgumentException("SU2_PARAM_MISSING:" + k); return Double.parseDouble(v); }
+    static double[] tuple(String s) {
+        String t = s.replace("(", "").replace(")", "").trim();
+        if (t.endsWith(",")) t = t.substring(0, t.length() - 1);
+        String[] f = t.split(",");
+        double[] out = new double[f.length];
+        for (int i = 0; i < f.length; i++) out[i] = Double.parseDouble(f[i].trim());
+        return out;
+    }
+    static int[][] pairs(String s) {
+        double[] flat = tuple(s);
+        if (flat.length % 2 != 0) throw new IllegalArgumentException("SU2_SOURCES");
+        int[][] out = new int[flat.length / 2][2];
+        for (int i = 0; i < out.length; i++) { out[i][0] = (int) flat[2 * i]; out[i][1] = (int) flat[2 * i + 1]; }
+        return out;
+    }
+
+    public interface Adapter { OnlineModelsSU2.Model build(Map<String, String> params); }
+    /** Adapter kinds registered by the app at start (ProgramModelSU2.register()); the core stays pure Java. */
+    public static final Map<String, Adapter> ADAPTERS = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Builds the stepwise model named by a member (same constructor the live loop uses). */
+    public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
+        Adapter adapter = ADAPTERS.get(kind);
+        if (adapter != null) return adapter.build(p);
+        switch (kind) {
+            case "MSDIR": return new OnlineModelsSU2.MsDir(tuple(p.get("scales")), d(p, "alpha"), d(p, "share"));
+            case "BOCPD": return new OnlineModelsSU2.Bocpd(d(p, "hazard"), d(p, "alpha"), (int) d(p, "R"));
+            case "HMM": return new OnlineModelsSU2.Hmm((int) d(p, "K"), d(p, "stay"), d(p, "lr"), (long) d(p, "seed"), d(p, "temper"));
+            case "LOGLIN": return new OnlineModelsSU2.LogLin(pairs(p.get("sources")), d(p, "lr"), d(p, "l2"));
+            case "KALMAN": return new OnlineModelsSU2.Kalman(d(p, "q_level"), d(p, "q_slope"), 0.09, d(p, "horizon"), d(p, "temp"));
+            case "RELBAYES": {
+                double[] l = tuple(p.get("lags")); int[] lags = new int[l.length]; for (int i = 0; i < l.length; i++) lags[i] = (int) l[i];
+                return new OnlineModelsSU2.RelBayes(lags, d(p, "decay"), d(p, "kappa"), true, 1.0);
+            }
+            default: throw new IllegalArgumentException("SU2_KIND");
+        }
+    }
+
+    public static OnlineModelsSU2.Output compute(int[][] draws, String kind, Map<String, String> p) {
+        return OnlineModelsSU2.run(build(kind, p), draws);
+    }
+
+    public static Result evaluate(ModelGenomeSU2 g, Library lib, int startMeta, int window, int refit) {
+        int T = lib.draws.length;
+        int M = g.members.size();
+        float[][][][] Ps = new float[M][][][];
+        float[][][] STs = new float[M][][];
+        double[] w = new double[M];
+        for (int m = 0; m < M; m++) { OnlineModelsSU2.Output o = lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; w[m] = g.members.get(m).weight; }
+        float[][][] P = M == 1 ? Ps[0] : g.pool.equals("BMA") ? ModelOpsSU2.poolBma(Ps, lib.draws, 0.02, 0.995)
+            : g.pool.equals("GATED") ? ModelOpsSU2.poolGated(Ps, STs, lib.draws, 0.03, 1e-3) : ModelOpsSU2.poolStatic(Ps, w);
+        if (g.sink) P = ModelOpsSU2.sink(P, 20);
+        Result r = new Result(T);
+        int[][] k3 = new int[T][3]; double[] conf = new double[T], margin = new double[T], ent = new double[T];
+        Integer[] ord = new Integer[10];
+        for (int t = 0; t < T; t++) {
+            double[] mass = new double[10]; int[][] top = new int[10][3];
+            for (int p = 0; p < 10; p++) {
+                final float[] row = P[t][p];
+                for (int i = 0; i < 10; i++) ord[i] = i;
+                Arrays.sort(ord, (a, b) -> Double.compare((double) row[b] - b * 1e-12, (double) row[a] - a * 1e-12));
+                double s = 0; for (int i = 0; i < 3; i++) { top[p][i] = ord[i]; s += (double) row[ord[i]]; }
+                mass[p] = Math.rint(s * 1e9) / 1e9;
+            }
+            int p1 = 0; for (int p = 1; p < 10; p++) if (mass[p] > mass[p1]) p1 = p;
+            int p2 = p1 == 0 ? 1 : 0; for (int p = 0; p < 10; p++) if (p != p1 && mass[p] > mass[p2]) p2 = p;
+            k3[t] = top[p1]; r.position[t] = p1 + 1;
+            r.mask[t] = (1 << top[p1][0]) | (1 << top[p1][1]) | (1 << top[p1][2]);
+            int x = lib.draws[t][p1] - 1;
+            r.hit[t] = top[p1][0] == x || top[p1][1] == x || top[p1][2] == x;
+            conf[t] = mass[p1]; margin[t] = mass[p1] - mass[p2];
+            double e = 0; for (int n = 0; n < 10; n++) { double v = P[t][p1][n]; e -= v * Math.log(v + 1e-12); } ent[t] = e / Math.log(10);
+        }
+        if (g.gate.equals("META")) {
+            List<double[]> cols = new ArrayList<>();
+            cols.add(conf); cols.add(margin); cols.add(ent); cols.add(rollingZ(conf, 720));
+            for (int k : new int[]{5, 7}) {
+                double[] mean = new double[T], min = new double[T];
+                for (int t = 0; t < T; t++) {
+                    double s = 0, mn = 1e9; int p1 = r.position[t] - 1;
+                    for (int m = 0; m < M; m++) {
+                        final float[] row = Ps[m][t][p1];
+                        for (int i = 0; i < 10; i++) ord[i] = i;
+                        Arrays.sort(ord, (a, b) -> Float.compare(row[b], row[a]));
+                        int in = 0; for (int j = 0; j < 3; j++) for (int i = 0; i < k; i++) if (ord[i] == k3[t][j]) { in++; break; }
+                        double sup = in / 3.0; s += sup; mn = Math.min(mn, sup);
+                    }
+                    mean[t] = s / M; min[t] = mn;
+                }
+                cols.add(mean); cols.add(min);
+            }
+            for (int m = 0; m < M; m++) for (int j = 0; j < STs[m][0].length; j++) { double[] c = new double[T]; for (int t = 0; t < T; t++) c[t] = STs[m][t][j]; cols.add(c); }
+            for (int half : new int[]{12, 48, 200}) cols.add(emaHits(r.hit, half));
+            int F = cols.size();
+            double[][] X = new double[T][F];
+            for (int j = 0; j < F; j++) { double[] c = cols.get(j); for (int t = 0; t < T; t++) X[t][j] = Double.isFinite(c[t]) ? c[t] : 0.0; }
+            double[] wt = null, mu = new double[F], sd = new double[F]; int last = Integer.MIN_VALUE / 2;
+            for (int t = startMeta; t < T; t++) {
+                if (wt == null || t - last >= refit) {
+                    int lo = Math.max(0, t - window), n = t - lo;
+                    if (n >= 400) {
+                        for (int j = 0; j < F; j++) { double s = 0; for (int i = lo; i < t; i++) s += X[i][j]; mu[j] = s / n; double v = 0; for (int i = lo; i < t; i++) { double q = X[i][j] - mu[j]; v += q * q; } sd[j] = Math.sqrt(v / n) + 1e-9; }
+                        double[][] Z = new double[n][F]; double[] y = new double[n];
+                        for (int i = 0; i < n; i++) { for (int j = 0; j < F; j++) Z[i][j] = (X[lo + i][j] - mu[j]) / sd[j]; y[i] = r.hit[lo + i] ? 1 : 0; }
+                        wt = LogisticRidgeSU2.fit(Z, y, n, g.metaC, 12); last = t;
+                    }
+                }
+                if (wt != null) {
+                    double z = wt[0]; for (int j = 0; j < F; j++) z += (X[t][j] - mu[j]) / sd[j] * wt[j + 1];
+                    z = Math.max(-30, Math.min(30, z));
+                    r.phat[t] = 1.0 / (1.0 + Math.exp(-z));
+                }
+            }
+            for (int t = 0; t < T; t++) r.gscore[t] = Double.isNaN(r.phat[t]) ? -1.0 : r.phat[t];
+        } else {
+            for (int t = 0; t < T; t++) { r.gscore[t] = conf[t]; r.phat[t] = conf[t]; }
+        }
+        if (g.coverage >= .999) { for (int t = startMeta; t < T; t++) r.act[t] = true; }
+        else for (int b = startMeta; b < T; b += 50) {
+            int lo = Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, b - 720);
+            double[] hist = new double[b - lo]; int n = 0;
+            for (int t = lo; t < b; t++) if (r.gscore[t] > -1) hist[n++] = r.gscore[t];
+            if (n < 100) continue;
+            double thr = quantileLinear(Arrays.copyOf(hist, n), 1 - g.coverage);
+            for (int t = b; t < Math.min(b + 50, T); t++) r.act[t] = r.gscore[t] >= thr && r.gscore[t] > -1;
+        }
+        return r;
+    }
+
+    static double quantileLinear(double[] x, double q) {
+        Arrays.sort(x); double pos = (x.length - 1) * q; int i = (int) Math.floor(pos);
+        return i + 1 < x.length ? x[i] + (pos - i) * (x[i + 1] - x[i]) : x[i];
+    }
+
+    static double[] emaHits(boolean[] hit, int half) {
+        double a = 1.0 - Math.pow(0.5, 1.0 / half), v = 0.3; double[] out = new double[hit.length];
+        for (int t = 0; t < hit.length; t++) { out[t] = v; v = (1 - a) * v + a * (hit[t] ? 1.0 : 0.0); }
+        return out;
+    }
+
+    static double[] rollingZ(double[] v, int w) {
+        int T = v.length; double[] c1 = new double[T + 1], c2 = new double[T + 1], z = new double[T];
+        for (int t = 0; t < T; t++) { c1[t + 1] = c1[t] + v[t]; c2[t + 1] = c2[t] + v[t] * v[t]; }
+        for (int t = 0; t < T; t++) {
+            int lo = Math.max(t - w, 0), n = Math.max(t - lo, 1);
+            double mu = (c1[t] - c1[lo]) / n, var = Math.max((c2[t] - c2[lo]) / n - mu * mu, 1e-12);
+            double s = (v[t] - mu) / Math.sqrt(var);
+            z[t] = t < 30 ? 0 : Math.max(-6, Math.min(6, s));
+        }
+        return z;
+    }
+
+    /** Frequency-aware stability fitness (P26): shrunk fold rates, mean - 0.25 spread, frequency floor. */
+    public static double fitness(Result r, int a, int b, int folds, double minCov, double kappa) {
+        double[] v = new double[folds]; int nAll = 0;
+        for (int f = 0; f < folds; f++) {
+            int x = a + (int) Math.floor((b - a) * (double) f / folds), y = a + (int) Math.floor((b - a) * (double) (f + 1) / folds);
+            int n = r.actions(x, y), k = r.hits(x, y); nAll += n;
+            v[f] = (k + 0.3 * kappa) / (n + kappa);
+        }
+        double mean = 0, mx = -1, mn = 2; for (double q : v) { mean += q; mx = Math.max(mx, q); mn = Math.min(mn, q); }
+        mean /= folds;
+        double cov = nAll / (double) (b - a), pen = cov >= minCov ? 0 : (minCov - cov) * 2;
+        return mean - 0.25 * (mx - mn) - pen;
+    }
+}

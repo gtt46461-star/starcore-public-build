@@ -82,6 +82,14 @@ public final class CanonicalObservationWriterR36 {
         cv.put("runtime_version", AppConfig.R36_RUNTIME_REPAIR_VERSION);
         long id = db.insertOrThrow(DbHelper.TABLE_R35_SHADOW_OBSERVATION, null, cv);
         if (id < 0L) throw new IllegalStateException("R36_CANONICAL_INSERT_FAILED");
+        try {
+            // Owner-requested ~30% exploration lane, frozen with the same pre-draw row.
+            ExplorationLaneR83.decideWithinTransaction(db, record.targetIssue, record.position,
+                    record.n1, record.n2, record.n3, record.selectedHitP, record.predictability,
+                    record.decisionAction);
+        } catch (RuntimeException explorationUnavailable) {
+            // Display lane only; the canonical commit never depends on it.
+        }
         repairActivationBoundaryFromCanonicalWithinTransaction(db);
         setR811ActivationBoundaryOnceWithinTransaction(db);
         setR922ActivationBoundaryOnceWithinTransaction(db);

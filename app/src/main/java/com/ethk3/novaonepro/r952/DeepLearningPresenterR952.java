@@ -1,46 +1,14 @@
 package com.ethk3.novaonepro.r952;
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.CancellationSignal;
-import android.os.Handler;
-import android.os.Looper;
-import com.ethk3.novaonepro.AppConfig;
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.*;
-
-/** Async read/cancel/render lifecycle shared by the four evidence presenters. */
+import android.content.Context;import android.database.Cursor;import android.database.sqlite.SQLiteDatabase;import android.os.*;import com.ethk3.novaonepro.*;import java.io.File;import java.util.*;import java.util.concurrent.*;
+import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
+/** One bounded worker captures text and all four chart pages under one checked database revision. */
 public class DeepLearningPresenterR952 implements AutoCloseable {
-    public interface View { void render(ResearchPageRepositoryR952.PageResult result); }
-    private final ResearchPageRepositoryR952 repository;
-    private final ExecutorService worker=Executors.newSingleThreadExecutor();
-    private final Handler ui=new Handler(Looper.getMainLooper());
-    private View view;private long epoch;private CancellationSignal pending;private boolean closed;
-    public DeepLearningPresenterR952(Context context){
-        final File file=context.getApplicationContext().getDatabasePath(AppConfig.DB_NAME);
-        repository=new ResearchPageRepositoryR952(new ResearchPageRepositoryR952.ReadPort(){
-            public List<ResearchPageRepositoryR952.Row> read(CancellationSignal cancel){
-                if(!file.isFile())throw new IllegalStateException("DB_NOT_READY");
-                SQLiteDatabase db=SQLiteDatabase.openDatabase(file.getAbsolutePath(),null,SQLiteDatabase.OPEN_READONLY);
-                try{return ResearchPageRepositoryR952.readDatabase(db,cancel);}finally{db.close();}
-            }
-        });
-    }
-    protected String page(){return "deep";}
-    public void attach(View value){if(closed)throw new IllegalStateException("PRESENTER_CLOSED");view=value;}
-    public void load(final String snapshot,final String after,final String filter){
-        if(closed||view==null)return;
-        if(pending!=null)pending.cancel();
-        final CancellationSignal cancel=new CancellationSignal();pending=cancel;final long generation=++epoch;
-        final Runnable timeout=new Runnable(){public void run(){cancel.cancel();}};
-        ui.postDelayed(timeout,2500L);
-        worker.execute(new Runnable(){public void run(){
-            final ResearchPageRepositoryR952.PageResult result=repository.load(page(),snapshot,after,filter,30,cancel);
-            ui.removeCallbacks(timeout);
-            ui.post(new Runnable(){public void run(){if(!closed&&view!=null&&generation==epoch)view.render(result);}});
-        }});
-    }
-    public void detach(){view=null;epoch++;if(pending!=null)pending.cancel();}
-    public void close(){detach();closed=true;worker.shutdownNow();ui.removeCallbacksAndMessages(null);}
+ public interface View{void render(ResearchPageRepositoryR952.PageResult result);}public interface VisualView extends View{void renderVisual(Dashboard dashboard);}
+ private static final Map<String,Dashboard> VISUAL_CACHE=new LinkedHashMap<>();private final ResearchPageRepositoryR952 repository;
+ private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(1),new ThreadPoolExecutor.DiscardOldestPolicy());private final Handler ui=new Handler(Looper.getMainLooper());private View view;private long epoch;private CancellationSignal pending;private Future<?> future;private boolean closed;private String exactCandidate="",readCandidate="";private Dashboard captured;
+ public DeepLearningPresenterR952(Context context){final Context app=context.getApplicationContext();final File file=app.getDatabasePath(AppConfig.DB_NAME),cache=new File(app.getCacheDir(),"r82-ui-pages");repository=new ResearchPageRepositoryR952(cancel->{if(!file.isFile())throw new IllegalStateException("DB_NOT_READY");try(SourceReadLeaseR82 lease=SourceReadLeaseR82.acquire(app,file,cancel)){SQLiteDatabase db=SQLiteDatabase.openDatabase(file.getAbsolutePath(),null,SQLiteDatabase.OPEN_READONLY);List<ResearchPageRepositoryR952.Row> rows=null;boolean accepted=false;try{String before=version(db,cancel);rows=ResearchPageRepositoryR952.readDatabase(db,cancel,cache);String asOf="";try(Cursor c=db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null,cancel)){if(c.moveToFirst())asOf=c.getString(0);}CancellationSignal chartCancel=new CancellationSignal();cancel.setOnCancelListener(()->chartCancel.cancel());Dashboard d;try{d=ResearchVisualRepositoryR82.load(db,"overview",asOf,readCandidate,chartCancel);}finally{cancel.setOnCancelListener(null);}cancel.throwIfCanceled();List<Panel> panels=new ArrayList<>(d.panels);if(!asOf.isEmpty())panels.addAll(ResearchVisualExtrasR82.load(db,asOf,cancel));cancel.throwIfCanceled();if(!before.equals(version(db,cancel))||d.status.startsWith("STALE"))throw new IllegalStateException("SNAPSHOT_CHANGED_DURING_READ");captured=new Dashboard("overview",d.status,asOf,d.exactCandidate,d.candidateKey,before,d.sourceVersion,d.note,panels);accepted=true;return rows;}finally{if(!accepted)ResearchPageRepositoryR952.discardRead(rows);db.close();}}catch(java.io.IOException e){throw new IllegalStateException("MAINTENANCE_SOURCE_READER_BUSY",e);}});}
+ private static String version(SQLiteDatabase db,CancellationSignal cancel){StringBuilder s=new StringBuilder();for(String sql:new String[]{"PRAGMA data_version","PRAGMA schema_version","SELECT total_changes()"})try(Cursor c=db.rawQuery(sql,null,cancel)){if(!c.moveToFirst())throw new IllegalStateException("SNAPSHOT_VERSION_UNAVAILABLE");s.append(c.getLong(0)).append('|');}return s.toString();}
+ protected String page(){return "deep";}public String pageId(){return page();}public void setCandidate(String id){exactCandidate=id==null?"":id.trim();}public void attach(View v){if(closed)throw new IllegalStateException("PRESENTER_CLOSED");view=v;}public void load(String snapshot,String after,String filter){submit(snapshot,after,filter,null);}public void detail(String snapshot,String key){submit(snapshot,"","",key);}
+ private void submit(final String snapshot,final String after,final String filter,final String detail){if(closed||view==null)return;cancelPending();final CancellationSignal cancel=new CancellationSignal();pending=cancel;final long generation=++epoch;final String wanted=exactCandidate;Runnable timeout=()->cancel.cancel();ui.postDelayed(timeout,10000);future=worker.submit(()->{captured=null;readCandidate=wanted;ResearchPageRepositoryR952.PageResult result=detail==null?repository.load(page(),snapshot,after,filter,30,cancel):repository.detail(snapshot,page(),detail,cancel);Dashboard dashboard; synchronized(VISUAL_CACHE){if(captured!=null&&!result.snapshotId.isEmpty()){VISUAL_CACHE.put(result.snapshotId,captured);while(VISUAL_CACHE.size()>4)VISUAL_CACHE.remove(VISUAL_CACHE.keySet().iterator().next());}dashboard=VISUAL_CACHE.get(result.snapshotId);}final Dashboard ready=dashboard;ui.removeCallbacks(timeout);ui.post(()->{if(!closed&&view!=null&&generation==epoch){view.render(result);if(view instanceof VisualView)((VisualView)view).renderVisual(ready);}});});}
+ private void cancelPending(){if(pending!=null)pending.cancel();if(future!=null)future.cancel(true);worker.getQueue().clear();}public void detach(){view=null;epoch++;cancelPending();}public void close(){detach();closed=true;worker.shutdownNow();ui.removeCallbacksAndMessages(null);}
 }

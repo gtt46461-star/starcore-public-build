@@ -1089,6 +1089,10 @@ public final class MainActivity extends Activity {
                         }
                     });
         }
+        Button btnOpenChartsR83 = (Button) findViewById(R.id.btn_open_charts);
+        if (btnOpenChartsR83 != null) {
+            btnOpenChartsR83.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ChartsActivityR83.class)));
+        }
         View su1Research=findViewById(R.id.btn_su1_research);
         if(su1Research!=null)su1Research.setOnClickListener(v->startActivity(new Intent(MainActivity.this,com.ethk3.novaonepro.strategyv2.StrategyResearchActivitySU1.class)));
         if (btnOpenDatabaseHealth != null) {
@@ -1576,6 +1580,7 @@ public final class MainActivity extends Activity {
             s.latestDraw = db.getLatestDraw();
 
             AlgorithmAttributionR943.load(db,s.states);
+            ExplorationLaneR83.load(db,s.states);
 
             s.currentIssue = resolveCurrentIssue(s.state, s.states, s.latestDraw);
             s.targetIssue = resolveTargetIssue(s.state, s.states, s.latestDraw);
@@ -4763,6 +4768,14 @@ public final class MainActivity extends Activity {
                             + decision.position
                             + "位置  "
                             + UiFormatter.numberGroup(decision.n1, decision.n2, decision.n3));
+        } else if (decision.position > 0 && Models.isValidK3Mask(decision.k3Mask)
+                && ExplorationLaneR83.isExplore(snapshot.states, decision.targetIssue)) {
+            setText(
+                    txtPositionNumbers,
+                    "出手（探索·未经验证） 第"
+                            + decision.position
+                            + "位置  "
+                            + UiFormatter.numberGroup(decision.n1, decision.n2, decision.n3));
         } else if (AppConfig.DECISION_SHADOW.equals(d)) {
             if (decision.position > 0 && Models.isValidK3Mask(decision.k3Mask)) {
                 setText(
@@ -4788,7 +4801,9 @@ public final class MainActivity extends Activity {
         }
 
         String summary = buildFastDecisionSummary(decision, trade, snapshot);
-        setText(txtDecisionSummary, AlgorithmAttributionR943.line(snapshot.states,decision.targetIssue)+"\n"+translateLooseText(summary));
+        String exploreLine = ExplorationLaneR83.homeLine(snapshot.states, decision.targetIssue);
+        setText(txtDecisionSummary, (exploreLine.isEmpty() ? "" : exploreLine + "\n")
+                + AlgorithmAttributionR943.line(snapshot.states,decision.targetIssue)+"\n"+translateLooseText(summary));
     }
 
     private String buildFastDecisionSummary(

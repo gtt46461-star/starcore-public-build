@@ -210,6 +210,8 @@ public final class ReportJobJournalCP12 implements Closeable {
             if(!job.snapshotSha.isEmpty()&&candidate.isFile()&&candidate.length()==job.snapshotBytes
                     &&job.snapshotSha.equals(ReportArchiveCP4.hash(candidate,()->true)))snapshot=candidate;
         }
+        // R13-P34: a recovery package never carries the whole database unless raw evidence was requested and it is small
+        if(snapshot!=null&&!ReportBudgetSU2.recoveryMayIncludeDatabase(ReportArchiveVerifierCP12.inside(root,"requests/"+requestId+".json"),snapshot.length()))snapshot=null;
         File directory=ReportArchiveVerifierCP12.inside(root,"recovery/"+requestId);
         if(!directory.isDirectory()&&!directory.mkdirs())throw new IOException("REPORT_RECOVERY_DIRECTORY");
         File partial=File.createTempFile("recovery-",".partial",directory);

@@ -48,8 +48,13 @@ public final class MatrixSnapshotBusR952 {
     }
     /** A null return means absent/too-new checkpoint; caller schedules bounded PIT replay, never uses future data. */
     public static CheckpointCP4 readAtCP4(SQLiteDatabase db,String matrixId,String manifest,String target) {
+        return readAtCP4(db,matrixId,manifest,target,null);
+    }
+    /** Same identity/codec/hash verifier, with lifecycle cancellation for read-only charts. */
+    public static CheckpointCP4 readAtCP4(SQLiteDatabase db,String matrixId,String manifest,String target,android.os.CancellationSignal cancellation) {
+        if(cancellation!=null)cancellation.throwIfCanceled();
         if(!TargetIssueResolver.isValid(target)||!hashCP4(matrixId)||!hashCP4(manifest))throw new IllegalArgumentException("CP4_MATRIX_READ");
-        try(Cursor c=db.rawQuery("SELECT matrix_type,partition_key,window_size,feature_manifest_hash,schema_hash,version,through_issue,last_receipt,sample_count,payload,payload_hash,payload_codec FROM research_matrix_checkpoint_v2 WHERE matrix_id=? AND feature_manifest_hash=? AND through_issue<?",new String[]{matrixId,manifest,target})) {
+        try(Cursor c=db.rawQuery("SELECT matrix_type,partition_key,window_size,feature_manifest_hash,schema_hash,version,through_issue,last_receipt,sample_count,payload,payload_hash,payload_codec FROM research_matrix_checkpoint_v2 WHERE matrix_id=? AND feature_manifest_hash=? AND through_issue<?",new String[]{matrixId,manifest,target},cancellation)) {
             if(!c.moveToFirst())return null;
             if(!"BINARY_V1".equals(c.getString(11)))throw new IllegalStateException("CP4_MATRIX_CODEC");
             CheckpointCP4 found=new CheckpointCP4(c.getString(0),c.getString(1),c.getInt(2),c.getString(3),c.getString(4),c.getLong(5),c.getString(6),c.getString(7),c.getLong(8),c.getBlob(9));

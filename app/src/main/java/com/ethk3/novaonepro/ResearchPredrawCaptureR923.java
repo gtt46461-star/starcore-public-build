@@ -89,18 +89,25 @@ public final class ResearchPredrawCaptureR923 {
         // R979: independent trained-model evaluations must not wait behind full legacy
         // cohort preparation. Give training, frozen evaluation and general cohorts a
         // durable first slot. An interrupted callback advances priority, not evidence.
-        int preflight=ResearchScheduleR924.phase(store.getState("r979_predraw_preflight","0"),3);
-        store.setState("r979_predraw_preflight",Integer.toString((preflight+1)%3));
+        // Every issue freezes both modern candidates and trained-model evaluations. The old
+        // three-way rotation captured each only every third draw (and neither on the third),
+        // so candidates received one training label per three draws. The rotation now only
+        // decides which owner goes first; a budget yield still resumes on the next pulse.
+        int preflight=ResearchScheduleR924.phase(store.getState("r979_predraw_preflight","0"),2);
+        store.setState("r979_predraw_preflight",Integer.toString((preflight+1)%2));
         int frozenEvaluations=0;
-        try {
-            if(preflight==0)com.ethk3.novaonepro.r952.ResearchDirectorR952.capturePredraw(store,target,row.hash,16);
-            else if(preflight==1)frozenEvaluations=FrozenCandidateAdapterR958.capture(store,snapshot);
-        } catch (ResearchWorkBudgetR927.Yield yielded) {
-            throw yielded;
-        } catch (RuntimeResourceAuditR927.BudgetExceeded yielded) {
-            throw yielded;
-        } catch (RuntimeException failure) {
-            store.setState("r958_extension_predraw_error",target+"|"+boundedFailure(failure));
+        for(int step=0;step<2;step++){
+            boolean candidatesFirst=((preflight+step)%2)==0;
+            try {
+                if(candidatesFirst)com.ethk3.novaonepro.r952.ResearchDirectorR952.capturePredraw(store,target,row.hash,16);
+                else frozenEvaluations+=FrozenCandidateAdapterR958.capture(store,snapshot);
+            } catch (ResearchWorkBudgetR927.Yield yielded) {
+                throw yielded;
+            } catch (RuntimeResourceAuditR927.BudgetExceeded yielded) {
+                throw yielded;
+            } catch (RuntimeException failure) {
+                store.setState("r958_extension_predraw_error",target+"|"+boundedFailure(failure));
+            }
         }
         GlobalResearchScheduleR932.prepareExecutionFirst(store,target,snapshot.recordHash);
         long acceptedBudget = Math.max(500L, Math.min(MAX_TOTAL_BUDGET_MS, budgetMs));

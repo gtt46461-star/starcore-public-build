@@ -3,11 +3,13 @@ package com.ethk3.novaonepro;
 import java.util.Map;
 
 /** Optional UI/diagnostic projections on live owners; never leases, cursors or eligibility.
- * The 2ms bound covers writer admission only. SQLite transaction duration is still measured
+ * The bound covers writer admission only. SQLite transaction duration is still measured
  * by the existing coordinator; no latency or success is fabricated when a projection drops.
+ * 2ms also expired on uncontended admission (deadline check after lock acquisition), so
+ * heartbeats dropped on slow devices; 20ms still never waits out a held writer slice.
  */
 final class LiveTelemetryProjectionR81 {
-    static final long MAX_WRITER_WAIT_MS = 2L;
+    static final long MAX_WRITER_WAIT_MS = 20L;
     private LiveTelemetryProjectionR81() {}
 
     static boolean tryWrite(DbStore store, Map<String,String> values) {

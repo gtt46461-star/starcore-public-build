@@ -76,6 +76,7 @@ public final class ApiClient {
         if (parsed == null) return Models.ApiResult.fail("PARSE_EMPTY", "最新开奖解析为空");
         parsed.rawJson = raw.rawJson;
         parsed.setSourceLine(raw.sourceLine);
+        FetchLedgerR925.bindParsedResultR82(raw,parsed);
         if (parsed.latestDraw != null && parsed.latestDraw.isValid()) {
             TIANSHU_TRANSPORT.recordSuccessfulIssue(parsed.latestDraw.issue, raw.sourceLine);
             ProviderFreshnessGateR3611.Decision selectedFreshness =
@@ -130,6 +131,7 @@ public final class ApiClient {
         if (parsed == null) return Models.ApiResult.fail("PARSE_EMPTY", "历史开奖解析为空");
         parsed.rawJson = raw.rawJson;
         parsed.setSourceLine(raw.sourceLine);
+        FetchLedgerR925.bindParsedResultR82(raw,parsed);
         parsed.latestDraw = latestValidDraw(parsed);
         if (parsed.latestDraw != null && parsed.latestDraw.isValid()) {
             TIANSHU_TRANSPORT.recordSuccessfulIssue(parsed.latestDraw.issue, raw.sourceLine);
@@ -180,6 +182,7 @@ public final class ApiClient {
         if (parsed == null) return Models.ApiResult.fail("PARSE_EMPTY", "日期回补解析为空");
         parsed.rawJson = raw.rawJson;
         parsed.setSourceLine(raw.sourceLine);
+        FetchLedgerR925.bindParsedResultR82(raw,parsed);
         parsed.latestDraw = latestValidDraw(parsed);
         if (parsed.latestDraw != null && parsed.latestDraw.isValid()) {
             ProviderFreshnessGateR3611.Decision selectedFreshness =
@@ -240,6 +243,7 @@ public final class ApiClient {
                         && parsedToday.history.size() > 0) {
                     parsedToday.rawJson = raw.rawJson;
                     parsedToday.setSourceLine(raw.sourceLine);
+                    FetchLedgerR925.bindParsedResultR82(raw,parsedToday);
                     return parsedToday;
                 }
             }
@@ -263,6 +267,7 @@ public final class ApiClient {
 
         parsed.rawJson = raw.rawJson;
         parsed.setSourceLine(raw.sourceLine);
+        FetchLedgerR925.bindParsedResultR82(raw,parsed);
         return parsed;
     }
 
@@ -301,6 +306,7 @@ public final class ApiClient {
 
         parsed.rawJson = raw.rawJson;
         parsed.setSourceLine(raw.sourceLine);
+        FetchLedgerR925.bindParsedResultR82(raw,parsed);
         return parsed;
     }
 
@@ -501,6 +507,7 @@ public final class ApiClient {
         api.sourceLine = line == null ? AppConfig.API_LINE_PRIMARY : line;
         api.apiLine = api.sourceLine;
         api.fromBackup = AppConfig.API_LINE_BACKUP.equals(api.sourceLine);
+        FetchLedgerR925.bindRawResultR82(api,ledgerStoreR925==null?null:ledgerRequestR925.get());
         return api;
     }
 

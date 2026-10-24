@@ -30,9 +30,10 @@ public final class StorageReclaimR943 {
                         long deadline=TimeSourceR811.monoNowMs()+40L;
                         for(int i=0;i<8&&!RealtimePressureGateR811.hasActiveCriticalWork()
                                 &&TimeSourceR811.monoNowMs()<deadline;i++)reclaimPage(db,16);
-                    } else if(mode==0&&free>1024&&free*2>pages) {
-                        return "LEGACY_COMPACTION_REQUIRED|reusablePages="+free
-                            +"|reason=LEGACY_SCOPE_EXPLICIT_VERIFIED_COPY_REBUILD_REQUIRED";
+                    } else if(mode==0) {
+                        // R13-P32: convert once (auto_vacuum=INCREMENTAL + VACUUM) instead of reporting forever
+                        String converted=DatabaseCompactionSU2.convertIfNeeded(db,new android.os.StatFs(f.getParent()).getAvailableBytes());
+                        if(!converted.equals("SMALL_NO_ACTION"))return "LEGACY_"+converted;
                     }
                     try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(PASSIVE)",null)){
                         if(!c.moveToFirst())return "WAL_STATUS_MISSING_RETRY";

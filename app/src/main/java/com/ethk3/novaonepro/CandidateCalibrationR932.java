@@ -12,7 +12,7 @@ public final class CandidateCalibrationR932 {
     public static final String OBS="research_candidate_cal_observation_r932",MODEL="research_candidate_cal_model_r932",STUDY="research_candidate_cal_study_r932";
     public static final int OBSERVATIONS=241;
     public static final String QUALITY_CP12="research_calibration_quality_cp12";
-    public static final String QUALITY_POLICY_CP12="CP12_CAL_LOGISTIC_FIT120_EMBARGO1_VALID120_EPOCH160_L2.1_STEP.05_ECE.04_BRIER.24_RELATIVE.3_V1";
+    public static final String QUALITY_POLICY_CP12="R82_CAL_COMPARE_LOGISTIC_BETA_ISOTONIC_SCORE_DOMAIN_SHRINK_FIT80_SELECT40_REFIT120_EMBARGO1_VALID120_ECE.04_BRIER.24_RELATIVE.3_V1";
     public static final String QUALITY_POLICY_HASH_CP12=V51ChecksumEngine.sha256(QUALITY_POLICY_CP12);
     public enum CalibrationInputState {COLLECTING,READY_TO_FIT,FITTED,BLOCKED_INVALID_INPUT,UNKNOWN}
     public enum QualificationState {UNFITTED,CALIBRATION_QUALIFIED,FITTED_BUT_NOT_QUALIFIED}
@@ -110,8 +110,8 @@ public final class CandidateCalibrationR932 {
             }
             return new ResearchSemanticsR967.Builder("R969_STATIC_DISJOINT_CALIBRATION").hash("hypothesis",hypothesis).hash("evaluation",structure).hash("bundle",bundle).hash("selector",selector).hash("rule",rule).hash("cal_policy",QUALITY_POLICY_HASH_CP12).hash("integrity",V51ChecksumEngine.sha256(AlgorithmProofRecoveryR948.epoch(db,key))).text("split",ResearchEvaluationRunR967.SPLIT).text("protocol","FIT120_EMBARGO1_VALIDATION120").text("selected_scope_protocol",CalibrationRuntimeIdentityF04.EXACT_SCOPE_POLICY_F04).digest();
         }
-        return CalibrationRuntimeIdentityF04.legacyCalibrationBase(key,hypothesis,structure,bundle,selector,
-                V51ChecksumEngine.sha256(AlgorithmProofRecoveryR948.epoch(db,key)));
+        return V51ChecksumEngine.sha256(CalibrationRuntimeIdentityF04.legacyCalibrationBase(key,hypothesis,structure,bundle,selector,
+                V51ChecksumEngine.sha256(AlgorithmProofRecoveryR948.epoch(db,key)))+"|"+QUALITY_POLICY_HASH_CP12);
     }
     static final class Probability {final double value;final String hash;Probability(double value,String hash){this.value=value;this.hash=hash;}}
     static Probability captureOrPredict(SQLiteDatabase db,String key,String structure,String bundle,String selector,String target,String prediction,double score,int position,int n1,int n2,int n3) {
@@ -243,20 +243,30 @@ public final class CandidateCalibrationR932 {
 
     static final class FitSnapshot {
         final String study,key;final double[] scores=new double[OBSERVATIONS],hits=new double[OBSERVATIONS];
-        final String[] issues=new String[OBSERVATIONS];String evidenceHash;private String preparedModelJson;
-        FitSnapshot(String study,String key){this.study=study;this.key=key;}
+        final String[] issues=new String[OBSERVATIONS];final double[] championP=new double[OBSERVATIONS],championHits=new double[OBSERVATIONS];String evidenceHash;private String preparedModelJson;
+        FitSnapshot(String study,String key){this.study=study;this.key=key;Arrays.fill(championP,Double.NaN);Arrays.fill(championHits,Double.NaN);}
     }
     static FitSnapshot loadFit(SQLiteDatabase db,String wanted) {
         FitSnapshot fit=null;
         String sql="SELECT study_hash,candidate_key FROM "+STUDY+" WHERE state='READY'"+(wanted==null?" ORDER BY first_issue,study_hash LIMIT 1":" AND study_hash=?");
         try(Cursor c=db.rawQuery(sql,wanted==null?null:new String[]{wanted})){if(c.moveToFirst())fit=new FitSnapshot(c.getString(0),c.getString(1));}
         if(fit==null)return null;
+        try(Cursor identity=db.rawQuery("SELECT structure_hash,bundle_hash,selection_hash FROM "+OBS+" WHERE study_hash=? ORDER BY target_issue LIMIT 1",new String[]{fit.study})){
+            if(!identity.moveToFirst())throw new IllegalStateException("R932_CAL_FIXED_SUPPORT");
+            if(!fit.study.equals(study(db,fit.key,identity.getString(0),identity.getString(1),identity.getString(2))))throw new IllegalStateException("R82_CAL_POLICY_OR_CURRENT_HEAD_MISMATCH");
+        }
         StringBuilder evidence=new StringBuilder(fit.study);int n=0;
         // Indexed issue join, not the wide UNION history view. Only when no hot
         // row exists, authenticate the immutable retained input by its original hash.
         try(Cursor c=db.rawQuery("SELECT o.target_issue,o.raw_score,o.hit,o.prediction_hash,o.frozen_at,"
-                +"CASE WHEN d.dirty=0 THEN d.open_time ELSE 0 END,d.issue "
+                +"CASE WHEN d.dirty=0 THEN d.open_time ELSE 0 END,d.issue,"
+                +"ch.prediction_hash,ch.input_hash,ch.selection_hash,ch.bundle_hash,ch.position,ch.n1,ch.n2,ch.n3,ch.frozen_at,"
+                +"cp.probability,cp.calibration_hash,cp.status,cp.proof_json,cp.proof_hash,cp.frozen_at,"
+                +"CASE ch.position WHEN 1 THEN COALESCE(d.n1,rd.n1) WHEN 2 THEN COALESCE(d.n2,rd.n2) WHEN 3 THEN COALESCE(d.n3,rd.n3) WHEN 4 THEN COALESCE(d.n4,rd.n4) WHEN 5 THEN COALESCE(d.n5,rd.n5) WHEN 6 THEN COALESCE(d.n6,rd.n6) WHEN 7 THEN COALESCE(d.n7,rd.n7) WHEN 8 THEN COALESCE(d.n8,rd.n8) WHEN 9 THEN COALESCE(d.n9,rd.n9) WHEN 10 THEN COALESCE(d.n10,rd.n10) END "
                 +"FROM "+OBS+" o LEFT JOIN "+DbHelper.TABLE_DRAWS+" d ON d.issue=o.target_issue "
+                +"LEFT JOIN "+DrawDependencyInputCP12.TABLE+" rd ON rd.issue=o.target_issue AND d.issue IS NULL "
+                +"LEFT JOIN "+FixedResearchWindowR932.CHAMPION+" ch ON ch.target_issue=o.target_issue AND ch.bundle_hash=o.bundle_hash AND ch.selection_hash=o.selection_hash "
+                +"LEFT JOIN "+ChampionProbabilityEvidenceR82.TABLE+" cp ON cp.target_issue=ch.target_issue AND cp.bundle_hash=ch.bundle_hash AND cp.champion_prediction_hash=ch.prediction_hash AND cp.input_hash=ch.input_hash AND cp.selection_hash=ch.selection_hash AND cp.position=ch.position AND cp.n1=ch.n1 AND cp.n2=ch.n2 AND cp.n3=ch.n3 "
                 +"WHERE o.study_hash=? ORDER BY o.target_issue LIMIT 242",new String[]{fit.study})) {
             while(c.moveToNext()) {
                 if(n>=OBSERVATIONS)throw new IllegalStateException("R948_CAL_EXTRA_OBSERVATIONS");
@@ -267,7 +277,11 @@ public final class CandidateCalibrationR932 {
                 if(!TargetIssueResolver.isValid(fit.issues[n])||!Double.isFinite(fit.scores[n])||(fit.hits[n]!=0&&fit.hits[n]!=1)
                         ||n>0&&fit.issues[n].compareTo(fit.issues[n-1])<=0)throw new IllegalStateException("R948_CAL_INVALID_FIXED_OBSERVATION");
                 if(ResearchEvaluationRunR967.versioned(fit.key)&&(!ResearchEvaluationRunR967.eligibleEvaluation(fit.key,fit.issues[n])||n>0&&!fit.issues[n].equals(ResearchEvaluationRunR967.nextEvaluation(fit.key,fit.issues[n-1]))))throw new IllegalStateException("R969_CAL_EVALUATION_SCHEDULE_GAP");
-                evidence.append('|').append(fit.issues[n]).append(':').append(c.getString(3)).append(':').append(Double.toHexString(fit.scores[n])).append(':').append(fit.hits[n]);n++;
+                if(n>=121&&!c.isNull(7)&&!c.isNull(22)&&c.getLong(15)>0&&c.getLong(15)<openTime&&DecisionGateEngine.b12K3(c.getInt(12),c.getInt(13),c.getInt(14))){
+                    double original=ChampionProbabilityEvidenceR82.verifiedProbability(c,16,fit.issues[n],c.getString(10),c.getString(7),c.getString(8),c.getString(9),c.getInt(11),c.getInt(12),c.getInt(13),c.getInt(14),openTime);
+                    int actual=c.getInt(22);if(Double.isFinite(original)&&actual>=1&&actual<=10){fit.championP[n]=original;fit.championHits[n]=(actual==c.getInt(12)||actual==c.getInt(13)||actual==c.getInt(14))?1:0;}
+                }
+                evidence.append('|').append(fit.issues[n]).append(':').append(c.getString(3)).append(':').append(Double.toHexString(fit.scores[n])).append(':').append(fit.hits[n]).append(':').append(Double.toHexString(fit.championP[n])).append(':').append(Double.toHexString(fit.championHits[n])).append(':').append(c.getString(20));n++;
             }
         }
         if(n!=OBSERVATIONS)throw new IllegalStateException("R932_CAL_FIXED_SUPPORT");
@@ -275,13 +289,15 @@ public final class CandidateCalibrationR932 {
     }
     static String fitModel(FitSnapshot fit) {
         try {
-            JSONObject model=ResearchLogisticCalibrationR932.fit(fit.scores,fit.hits);model.put("revision","R932_CANDIDATE_CAL_LOGISTIC_V1");
+            JSONObject model=ResearchLogisticCalibrationR932.fitCompared(fit.scores,fit.hits);model.put("revision","R82_CANDIDATE_CAL_COMPARE_V1");
             model.put("study_hash",fit.study);model.put("fit_first",fit.issues[0]);model.put("fit_last",fit.issues[119]);model.put("embargo_issue",fit.issues[120]);model.put("validation_first",fit.issues[121]);model.put("validation_last",fit.issues[240]);
             model.put("evidence_hash",fit.evidenceHash);model.put("scope","CANDIDATE_ONLY_NOT_FINAL_MIXED_ACTION");
             ResearchLogisticCalibrationR932.validate(model,fit.scores,fit.hits);
+            int championN=0;double championBrier=0,championNll=0;for(int i=121;i<241;i++)if(Double.isFinite(fit.championP[i])&&(fit.championHits[i]==0||fit.championHits[i]==1)){championN++;double p=fit.championP[i],y=fit.championHits[i];championBrier+=(p-y)*(p-y)/120;double bounded=Math.max(1e-12,Math.min(1-1e-12,p));championNll-=(y*Math.log(bounded)+(1-y)*Math.log1p(-bounded))/120;}
+            model.put("validation_champion_probability_n",championN);model.put("validation_champion_probability_scope","SAME_OUTER120_ORIGINAL_RANK1_CALIBRATED_PROBABILITY_REAL_POSITION_LABELS");model.put("validation_champion_probability_status",championN==120?"COMPLETE":"N_A_MISSING_ORIGINAL_PROBABILITY");model.put("validation_champion_brier",championN==120?championBrier:JSONObject.NULL);model.put("validation_champion_nll",championN==120?championNll:JSONObject.NULL);
             model.put("quality_policy_hash",QUALITY_POLICY_HASH_CP12);
             Qualification quality=evaluateQualityCP12(model,fit.study);model.put("quality_state",quality.state.name());model.put("quality_reason",quality.reason);
-            String json=model.toString();fit.preparedModelJson=json;return json;
+            String json=model.toString();if(json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>65536)throw new IllegalArgumentException("R932_CAL_FIT_MODEL_BOUND");fit.preparedModelJson=json;return json;
         }catch(JSONException error){throw new IllegalStateException("R932_CAL_MODEL_SERIALIZATION",error);}
     }
     static boolean publishFit(SQLiteDatabase db,FitSnapshot fit,String json) {
@@ -305,7 +321,7 @@ public final class CandidateCalibrationR932 {
         try{fit=loadFit(store.readable(),selected);}catch(final IllegalStateException invalid){
             String message=String.valueOf(invalid.getMessage());
             if(!(message.equals("R948_CAL_EXTRA_OBSERVATIONS")||message.equals("R948_CAL_INVALID_FIXED_OBSERVATION")||message.equals("R969_CAL_EVALUATION_SCHEDULE_GAP")||message.equals("R932_CAL_FIXED_SUPPORT")
-                    ||message.equals("R77_CAL_STRICT_TIME_REJECTED")||message.equals("R77_CAL_DRAW_TIME_UNAVAILABLE")||message.equals("R77_CAL_RETAINED_INPUT_INVALID")))throw invalid;
+                    ||message.equals("R77_CAL_STRICT_TIME_REJECTED")||message.equals("R77_CAL_DRAW_TIME_UNAVAILABLE")||message.equals("R77_CAL_RETAINED_INPUT_INVALID")||message.equals("R82_CAL_POLICY_OR_CURRENT_HEAD_MISMATCH")||message.equals("R969_CAL_FROZEN_VERSION_DRIFT")||message.equals("R932_CAL_UNREGISTERED_CANDIDATE")))throw invalid;
             // One corrupt/partial READY study must not monopolize all later studies.
             // Preserve every original observation and its failure; no invented labels.
             boolean marked=store.coordinatorR36().runAtomicWrite("R975_CAL_INVALID_INPUT",new DatabaseCoordinator.WriteRunnable(){public void run(SQLiteDatabase db){

@@ -77,7 +77,7 @@ public final class ReportDiagnosticEvidenceR64 {
                     MultiHorizonProbeR80.INPUT, MultiHorizonProbeR80.FORECAST, MultiHorizonProbeR80.LABEL, MultiHorizonProbeR80.OPPORTUNITY, MultiHorizonProbeR80.DIAGNOSTIC_REF,
                     "research_bound_cohort_r80", "research_bound_parent_r80", "research_bound_source_r80", "research_bound_input_r80",
                     "research_lifecycle_r932", "r975_evolution_review",
-                    "research_fixed_window_r932", "research_fixed_pair_r932",
+                    "research_fixed_window_r932", "research_fixed_pair_r932", ChampionProbabilityEvidenceR82.TABLE,
                     "research_window_publication_r932", "research_certificate_r929",
                     "research_mainline_contribution_r929", "research_calibration_quality_cp12",
                     "research_candidate_cal_study_r932", "research_candidate_cal_model_r932",
@@ -113,12 +113,13 @@ public final class ReportDiagnosticEvidenceR64 {
                         + ",\"scope\":\"ALL_ROWS_FULL_METADATA_TEXT\",\"rows\":[");
                 // Bounded projections keep large checkpoint/model metadata out of
                 // CursorWindow. Text is streamed losslessly from this same snapshot.
-                long exportedRows=ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control);
-                try(Cursor total=snapshot.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)) {
-                    if(!total.moveToFirst()||total.getLong(0)!=exportedRows)
-                        throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
-                }
-                out.write("],\"exportedRows\":"+exportedRows+",\"complete\":true}");
+                // R13-P33: a table above 20,000 rows exports its latest 5,000 rows plus the exact total;
+                // the full table remains available through the explicit raw-evidence export.
+                long totalRows;try(Cursor total=snapshot.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)){if(!total.moveToFirst())throw new IOException("R66_METADATA_ROW_COUNT_MISSING:"+table);totalRows=total.getLong(0);}
+                long from=Long.MIN_VALUE;if(totalRows>20000){try(Cursor cut=snapshot.rawQuery("SELECT rowid FROM "+ident(table)+" ORDER BY rowid DESC LIMIT 1 OFFSET 4999",null)){if(cut.moveToFirst())from=cut.getLong(0);}}
+                long exportedRows=ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control,from);
+                if(from==Long.MIN_VALUE&&totalRows!=exportedRows)throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
+                out.write("],\"exportedRows\":"+exportedRows+",\"totalRows\":"+totalRows+",\"complete\":"+(exportedRows==totalRows)+"}");
             }
             out.write("],\"multiHorizonProbeResearch\":"+MultiHorizonProbeR80.reportJson(snapshot,()->control.shouldContinue())+",\"researchSchedulerState\":[");first=true;
             // Exact allow-list: never export unrelated app_state credentials or preferences.
@@ -138,6 +139,7 @@ public final class ReportDiagnosticEvidenceR64 {
                 checkpoint(control);if(!first)out.write(',');first=false;
                 ReportMetadataStreamR81.writeState(snapshot,key,out,control);
             }
+            for(int position=1;position<=10;position++)for(String suffix:new String[]{"issue","route","reason","drift_policy_hash","drift_observation","drift_observation_hash","drift_cooldown_until","runtime_health_reason"}){checkpoint(control);if(!first)out.write(',');first=false;ReportMetadataStreamR81.writeState(snapshot,"r932_domain_position_"+position+"_"+suffix,out,control);}
             out.write("]}"); out.flush(); fd.getFD().sync();
         }
         return result;

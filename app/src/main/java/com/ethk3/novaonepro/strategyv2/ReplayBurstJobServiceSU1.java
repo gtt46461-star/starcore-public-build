@@ -36,6 +36,21 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                 CertificateSU1.maintain(store);
                 MainlineHeadSU1.maintain(store);
                 ArchiveStoreSU1.maintain(store);
+                // R13-P07: SU2 schema, retention, league choice, certificates and continuous creation
+                if(!StrategySchemaSU2.ready(store.readable()))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_SCHEMA",db->{StrategySchemaSU2.ensure(db);return 0;});
+                ProgramModelSU2.register();
+                IncumbentLoopSU2.seed(store,1);
+                Models.Draw su2Latest=store.getLatestDraw();
+                if(su2Latest!=null&&TargetIssueResolver.isValid(su2Latest.issue)){
+                    final long su2Seq=LiveShadowLoopSU1.sequence(su2Latest.issue)+1;final String su2Target=TargetIssueResolver.next(su2Latest.issue).targetIssue;
+                    store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_RETENTION",db->{com.ethk3.novaonepro.RetentionRulesSU2.foldDecisions(db,su2Seq,System.currentTimeMillis());com.ethk3.novaonepro.RetentionRulesSU2.pruneResearchGenomes(db);return 0;});
+                    MainlineBridgeSU2.chooseIfDue(store,su2Seq);
+                    CertificateSU2.maintain(store,su2Seq);
+                    long su2Stop=Math.min(stop,SystemClock.elapsedRealtime()+20000);
+                    while(!cancelled.get()&&SystemClock.elapsedRealtime()<su2Stop&&!SettlementExecutionGateR819.isActive()&&!RealtimePressureGateR811.isUnderPressure()){
+                        String su2=ModelFoundryJobSU2.slice(store,su2Target);if(!su2.startsWith("SU2_GENERATION_DONE"))break;
+                    }
+                }
                 long feedbackEnd=SystemClock.elapsedRealtime()+2000;
                 for(int i=0;i<512&&!cancelled.get()&&SystemClock.elapsedRealtime()<feedbackEnd;i++){if(SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.isUnderPressure()||!ResearchFeedbackSU1.drainOne(store))break;}
                 final DbStore owner=store;

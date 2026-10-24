@@ -164,7 +164,7 @@ public final class V51RuntimeOrchestrator {
             mark = trace.begin("SELECTION_POLICY");
             V51Models.StateTrajectorySnapshot state = states[rankOne.position - 1];
             V51Models.DomainCertificate domain =
-                    new V51DomainCertificateEngine().certify(store, state);
+                    new V51DomainCertificateEngine().certify(store, state, input.history, context.baseIssue);
             /* Deterministic active call: no elapsed-time skip branch. */
             V51TianshuEvidenceBridge.Result tianshu =
                     new V51TianshuEvidenceBridgeR923()

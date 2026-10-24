@@ -1,64 +1,21 @@
 package com.ethk3.novaonepro;
-
-import android.app.Activity;
-import android.content.*;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.*;
-import com.ethk3.novaonepro.r952.*;
-import java.util.ArrayList;
-
-/** Read-only evidence view; subclasses choose a page, never a training or business writer. */
-public class DeepLearningActivity extends Activity implements DeepLearningPresenterR952.View {
-    private DeepLearningPresenterR952 presenter;private TextView output;private EditText filter;
-    private Button next,back;private String snapshot="",after="",nextKey="",copy="",activeFilter="";
-    private final ArrayList<String> history=new ArrayList<String>();private boolean valid;
-    protected String pageTitle(){return "深度学习与逐算法训练";}
-    protected DeepLearningPresenterR952 createPresenter(){return new DeepLearningPresenterR952(this);}
-    public static Intent createIntent(Context context,String game,String candidate){
-        return new Intent(context,DeepLearningActivity.class).putExtra("game",game).putExtra("candidate",candidate);
-    }
-    @Override protected void onCreate(Bundle state){
-        super.onCreate(state);
-        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(16,12,16,12);
-        TextView title=new TextView(this);title.setText(pageTitle());title.setTextSize(21);root.addView(title);
-        TextView scope=new TextView(this);scope.setText("历史训练、Future评价、证书与主链采用分别显示。进化页保留最近30期应用，创造页保留最近200次尝试。缺失指标不表示0或通过。");root.addView(scope);
-        Button routes=new Button(this);routes.setText("切换能力页面（沿用快照）");root.addView(routes);
-        routes.setOnClickListener(new View.OnClickListener(){public void onClick(View v){
-            new android.app.AlertDialog.Builder(DeepLearningActivity.this).setItems(new String[]{"深度学习","动态迭代","创造能力","原子与分子质量"},new DialogInterface.OnClickListener(){public void onClick(DialogInterface d,int which){
-                String[] pages={"deep","evolution","creation","atoms"};
-                startActivity(FullbloodPageProviderR952.intent(DeepLearningActivity.this,pages[which],snapshot,""));
-            }}).show();
-        }});
-        filter=new EditText(this);filter.setSingleLine(true);filter.setHint("按名称或标识筛选");root.addView(filter);
-        LinearLayout actions=new LinearLayout(this);root.addView(actions);
-        Button search=new Button(this);search.setText("筛选");actions.addView(search);
-        Button refresh=new Button(this);refresh.setText("读取新快照");actions.addView(refresh);
-        Button copyButton=new Button(this);copyButton.setText("复制本页");actions.addView(copyButton);
-        ScrollView scroll=new ScrollView(this);output=new TextView(this);output.setTextSize(15);output.setTextIsSelectable(true);scroll.addView(output);
-        root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
-        LinearLayout pagination=new LinearLayout(this);back=new Button(this);back.setText("上一页");next=new Button(this);next.setText("下一页");pagination.addView(back);pagination.addView(next);root.addView(pagination);
-        setContentView(root);
-        String game=getIntent().getStringExtra("game");valid=game==null||V51Repository.GAME_CODE.equals(game);
-        if(!valid){output.setText("INVALID_GAME：只支持当前 Binance1-PK10 数据。");return;}
-        if(state!=null){snapshot=state.getString("snapshot","");after=state.getString("after","");activeFilter=state.getString("filter","");ArrayList<String> saved=state.getStringArrayList("history");if(saved!=null)history.addAll(saved);}
-        else{snapshot=value(getIntent().getStringExtra("snapshot"));activeFilter=value(getIntent().getStringExtra("candidate"));}
-        filter.setText(activeFilter);presenter=createPresenter();
-        search.setOnClickListener(new View.OnClickListener(){public void onClick(View v){activeFilter=filter.getText().toString().trim();after="";history.clear();request();}});
-        refresh.setOnClickListener(new View.OnClickListener(){public void onClick(View v){snapshot="";after="";history.clear();request();}});
-        copyButton.setOnClickListener(new View.OnClickListener(){public void onClick(View v){ClipboardManager cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);if(cm!=null&&!copy.isEmpty()){cm.setPrimaryClip(ClipData.newPlainText(pageTitle(),copy));Toast.makeText(DeepLearningActivity.this,"已复制当前快照的本页内容",Toast.LENGTH_SHORT).show();}}});
-        next.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!nextKey.isEmpty()){history.add(after);after=nextKey;request();}}});
-        back.setOnClickListener(new View.OnClickListener(){public void onClick(View v){if(!history.isEmpty()){after=history.remove(history.size()-1);request();}}});
-    }
-    private static String value(String s){return s==null?"":s;}
-    private void request(){if(presenter==null)return;next.setEnabled(false);back.setEnabled(false);output.setText("正在读取同一快照……");presenter.load(snapshot,after,activeFilter);}
-    @Override protected void onStart(){super.onStart();if(valid&&presenter!=null){presenter.attach(this);request();}}
-    @Override protected void onStop(){if(presenter!=null)presenter.detach();super.onStop();}
-    @Override protected void onDestroy(){if(presenter!=null)presenter.close();super.onDestroy();}
-    @Override protected void onSaveInstanceState(Bundle state){state.putString("snapshot",snapshot);state.putString("after",after);state.putString("filter",activeFilter);state.putStringArrayList("history",history);super.onSaveInstanceState(state);}
-    public void render(ResearchPageRepositoryR952.PageResult result){
-        if(!result.snapshotId.isEmpty())snapshot=result.snapshotId;nextKey=result.nextKey;copy=result.text();
-        output.setText(copy+(result.error.equals("SNAPSHOT_EXPIRED")?"\n快照已失效，请点击“读取新快照”。":""));
-        next.setEnabled(!nextKey.isEmpty());back.setEnabled(!history.isEmpty());
-    }
+import android.app.*;import android.content.*;import android.os.Bundle;import android.graphics.Color;import android.graphics.Typeface;import android.graphics.drawable.GradientDrawable;import android.view.View;import android.widget.*;import com.ethk3.novaonepro.r952.*;import java.util.*;
+import static com.ethk3.novaonepro.ResearchVisualDataR82.*;
+/** Four native read-only pages share one immutable evidence snapshot. */
+// Native programmatic Chinese diagnostic UI: status lines join fixed labels with exact evidence values.
+@android.annotation.SuppressLint("SetTextI18n")
+public class DeepLearningActivity extends Activity implements DeepLearningPresenterR952.VisualView {
+ private DeepLearningPresenterR952 presenter;private EditText filter,candidate;private TextView status,duties;private LinearLayout records,charts;private Button next,back;private String snapshot="",after="",nextKey="",copy="",activeFilter="",model="";private final ArrayList<String> history=new ArrayList<>();private boolean valid;private int ink=Color.rgb(229,239,250),muted=Color.rgb(165,184,205);private ResearchPageRepositoryR952.PageResult latest;
+ protected String pageTitle(){return "深度学习与逐算法训练";}protected DeepLearningPresenterR952 createPresenter(){return new DeepLearningPresenterR952(this);}public static Intent createIntent(Context c,String game,String candidate){return new Intent(c,DeepLearningActivity.class).putExtra("game",game).putExtra("candidate",candidate);}
+ private int dp(float n){return Math.round(n*getResources().getDisplayMetrics().density);}private TextView text(String s,int size){TextView v=new TextView(this);v.setText(s);v.setTextSize(size);v.setTextColor(ink);v.setPadding(dp(10),dp(8),dp(10),dp(8));return v;}
+ private LinearLayout card(LinearLayout parent){LinearLayout c=new LinearLayout(this);c.setOrientation(LinearLayout.VERTICAL);GradientDrawable bg=new GradientDrawable();bg.setColor(Color.rgb(19,34,53));bg.setCornerRadius(dp(12));c.setBackground(bg);LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.bottomMargin=dp(10);parent.addView(c,p);return c;}
+ private Button button(LinearLayout p,String label,Runnable task){Button b=new Button(this);b.setText(label);b.setAllCaps(false);b.setMinHeight(dp(44));p.addView(b);b.setOnClickListener(v->task.run());return b;}
+ @Override protected void onCreate(Bundle state){super.onCreate(state);LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(Color.rgb(11,23,39));root.setPadding(dp(12),dp(8),dp(12),dp(4));TextView title=text(pageTitle(),22);title.setTypeface(null,Typeface.BOLD);root.addView(title);LinearLayout nav=new LinearLayout(this);root.addView(nav);button(nav,"切换能力页",()->new AlertDialog.Builder(this).setItems(new String[]{"深度学习","动态迭代","创造能力","原子与矩阵"},(d,which)->{String[] pages={"deep","evolution","creation","atoms"};startActivity(FullbloodPageProviderR952.intent(this,pages[which],snapshot,model));}).show());button(nav,"矩阵浏览器",()->startActivity(new Intent(this,MatrixBrowserActivityR82.class)));
+  ScrollView scroll=new ScrollView(this);LinearLayout content=new LinearLayout(this);content.setOrientation(LinearLayout.VERTICAL);scroll.addView(content);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));LinearLayout tools=card(content);filter=new EditText(this);filter.setTextColor(ink);filter.setHintTextColor(muted);filter.setHint("条目名称或标识（筛选当前快照）");filter.setSingleLine();tools.addView(filter);LinearLayout actions=new LinearLayout(this);tools.addView(actions);button(actions,"筛选",()->{activeFilter=filter.getText().toString().trim();after="";history.clear();request();});button(actions,"新快照",()->refresh());button(actions,"复制本页",()->{ClipboardManager cm=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);if(cm!=null&&!copy.isEmpty()){cm.setPrimaryClip(ClipData.newPlainText(pageTitle(),copy));Toast.makeText(this,"已复制本页真实证据",Toast.LENGTH_SHORT).show();}});candidate=new EditText(this);candidate.setTextColor(ink);candidate.setHintTextColor(muted);candidate.setSingleLine();candidate.setHint("图表精确学习器ID或 algorithm:候选ID；空=最近模型");tools.addView(candidate);button(tools,"读取此模型证据",()->{model=candidate.getText().toString().trim();if(presenter!=null)presenter.setCandidate(model);refresh();});status=text("正在读取……",13);content.addView(status);duties=text("",14);content.addView(duties);charts=new LinearLayout(this);charts.setOrientation(LinearLayout.VERTICAL);content.addView(charts);records=new LinearLayout(this);records.setOrientation(LinearLayout.VERTICAL);content.addView(records);LinearLayout pagination=new LinearLayout(this);root.addView(pagination);back=button(pagination,"上一页",()->{if(!history.isEmpty()){after=history.remove(history.size()-1);request();}});next=button(pagination,"下一页",()->{if(!nextKey.isEmpty()){history.add(after);after=nextKey;request();}});setContentView(root);
+  String game=getIntent().getStringExtra("game");valid=game==null||V51Repository.GAME_CODE.equals(game);if(!valid){status.setText("INVALID_GAME：只支持当前 Binance1-PK10 数据。");return;}if(state!=null){snapshot=state.getString("snapshot","");after=state.getString("after","");activeFilter=state.getString("filter","");model=state.getString("model","");ArrayList<String> old=state.getStringArrayList("history");if(old!=null)history.addAll(old);}else{snapshot=value(getIntent().getStringExtra("snapshot"));model=value(getIntent().getStringExtra("candidate"));}filter.setText(activeFilter);candidate.setText(model);presenter=createPresenter();presenter.setCandidate(model);
+ }
+ private static String value(String s){return s==null?"":s;}private void refresh(){snapshot="";after="";history.clear();request();}private void request(){if(presenter==null)return;next.setEnabled(false);back.setEnabled(false);status.setText("正在读取同一版本的资料与图表……");presenter.load(snapshot,after,activeFilter);}
+ @Override protected void onStart(){super.onStart();if(valid&&presenter!=null){presenter.attach(this);request();}}@Override protected void onStop(){if(presenter!=null)presenter.detach();super.onStop();}@Override protected void onDestroy(){if(presenter!=null)presenter.close();super.onDestroy();}@Override protected void onSaveInstanceState(Bundle b){b.putString("snapshot",snapshot);b.putString("after",after);b.putString("filter",activeFilter);b.putString("model",model);b.putStringArrayList("history",history);super.onSaveInstanceState(b);}
+ public void render(ResearchPageRepositoryR952.PageResult r){latest=r;if(!r.snapshotId.isEmpty())snapshot=r.snapshotId;nextKey=r.nextKey;copy=r.text();status.setText("状态："+r.status+" / "+r.error+"\n快照期号："+r.asOfIssue+"\n读取时间："+(r.capturedAt==0?"未读取":new Date(r.capturedAt))+"\n资料快照："+r.snapshotId+"\n本页 "+r.rows.size()+"；匹配 "+r.total+(r.error.equals("SNAPSHOT_EXPIRED")?"\n请点击新快照。":""));records.removeAllViews();for(ResearchPageRepositoryR952.Row row:r.rows){LinearLayout c=card(records);TextView t=text(row.title,17);t.setTypeface(null,Typeface.BOLD);c.addView(t);TextView body=text("标识："+row.key+"\n"+row.detail,14);body.setTextIsSelectable(true);c.addView(body);button(c,"读取同一快照的完整条目",()->presenter.detail(snapshot,row.key));}next.setEnabled(!nextKey.isEmpty());back.setEnabled(!history.isEmpty());}
+ public void renderVisual(Dashboard d){charts.removeAllViews();if(d==null){charts.addView(text("图表快照已失效或未建立，请读取新快照；不会混入当前数据库的新图表。",14));return;}String duty=presenter.pageId().equals("deep")?"训练、独立Future、校准分别核对":presenter.pageId().equals("evolution")?"追溯真实父代、变异融合及共同Future结果":presenter.pageId().equals("creation")?"核对创造动作、冻结教师与NO_OP原因":"核对原子质量、矩阵与长周期支持";String recent=latest==null||latest.rows.isEmpty()?"当前页无记录":latest.rows.get(0).title;duties.setText("① 职责："+duty+"\n② 当前记录："+recent+"（页面排序，非时间排名）\n③ 输入："+d.asOfIssue+" / 模型 "+d.exactCandidate+"\n④ 产物：下方条目、收据与图表\n⑤ 样本：逐点N与窗口，不跨版本相加\n⑥ 独立提升：固定Future配对，未知留空\n⑦ 卡门：面板状态、证书和阻断原文\n⑧ 主链贡献：实际采用/权重，不由图形授予REAL");charts.addView(text("图表状态："+d.status+"；数据库版本："+d.dataVersion+"\n"+d.note,13));for(Panel p:d.panels){if(!p.page.equals(presenter.pageId()))continue;LinearLayout c=card(charts);TextView t=text(p.title,17);t.setTypeface(null,Typeface.BOLD);c.addView(t);c.addView(text("状态："+p.status+"\n窗口："+p.window+"\n"+p.note,12));c.addView(new ResearchChartViewR82(this,p),new LinearLayout.LayoutParams(-1,dp(p.kind.equals("GRAPH")?340:270)));c.addView(text("点击图形查看值、区间、样本、来源与证据。",12));}}
 }

@@ -212,6 +212,9 @@ public final class ReportExportServiceCP4 extends Service {
                         ReportMemberPlanCP12.append(members,scope.getName(),scope.getName(),ReportArchiveCP4.hash(scope,active),scope.length());
                     }
                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
+                    // R13-P31: byte census by category on the first page of every report
+                    File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');}
+                    ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
                     ReportMemberPlanCP12.append(members,inventory.getName(),inventory.getName(),ReportArchiveCP4.hash(inventory,active),inventory.length());
                     for(File page:catalog.indexFiles)ReportMemberPlanCP12.append(members,page.getName(),"catalog/"+page.getName(),ReportArchiveCP4.hash(page,active),page.length());
                     File renderRefs=new File(directory,"render-artifacts.jsonl");if(renderRefs.exists())try(ReportArchiveVerifierCP12.LineReader refs=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(renderRefs),8192)){byte[] line;while((line=refs.next())!=null){active.checkpoint();members.write(new String(line,StandardCharsets.UTF_8));}}
@@ -252,7 +255,7 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private void reserveDisk(ReportJobJournalCP12.Job job,ReportJobJournalCP12 journal)throws Exception {
         File source=getDatabasePath(AppConfig.DB_NAME);long raw=Math.addExact(source.length(),new File(source.getPath()+"-wal").length());
-        long available=new StatFs(getFilesDir().getPath()).getAvailableBytes();job.temporaryReservationBytes=Math.addExact(Math.multiplyExact(2L,raw),64*MiB);job.publishedQuotaBytes=Long.MAX_VALUE;
+        long available=new StatFs(getFilesDir().getPath()).getAvailableBytes();job.temporaryReservationBytes=Math.addExact(Math.multiplyExact(2L,raw),64*MiB);job.publishedQuotaBytes=ReportBudgetSU2.PUBLISHED_QUOTA_BYTES;
         if(available<job.temporaryReservationBytes)throw new IOException("REPORT_DISK_BUDGET");journal.checkpoint(job,System.currentTimeMillis());
     }
     private boolean validSnapshot(ReportJobJournalCP12.Job job,File snapshot,ActiveControl active)throws Exception {
@@ -268,6 +271,7 @@ public final class ReportExportServiceCP4 extends Service {
         ReportPublicationCP12.prepareSingleZip(directory,archive,job.jobId,job.manifestSha,job.evidenceComplete,job.checksComplete,job.allChecksPassed,active);
         pointer.put("deliveryIndexSha256",ReportArchiveCP4.hash(new File(directory,"delivery/index.json"),active));
         ReportPublicationCP12.pruneOldReports(journal.root(),directory,System.currentTimeMillis());
+        ReportPublicationCP12.enforceQuota(journal.root(),directory,job.publishedQuotaBytes);   // R13-P34: the quota existed but was never called
         ReportJobJournalCP12.writeAtomic(new File(directory,"published.json"),pointer.toString());
         journal.transition(job,ReportJobJournalCP12.Stage.READY_TO_SHARE,System.currentTimeMillis());
         // The sealed verified ZIP is now the durable delivery. Remove redundant private parts only
@@ -315,7 +319,7 @@ public final class ReportExportServiceCP4 extends Service {
         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile long deadline=Long.MAX_VALUE,lastRead;private long stageStarted,lastProgressWrite;
         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;}
-        void enter(String stage,long milliseconds){stopReason="";stageStarted=SystemClock.elapsedRealtime();lastProgressWrite=0;deadline=job.mode.equals("FULL_REPORT")?Long.MAX_VALUE:stageStarted+milliseconds;
+        void enter(String stage,long milliseconds){stopReason="";stageStarted=SystemClock.elapsedRealtime();lastProgressWrite=0;deadline=ReportBudgetSU2.deadline(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
             try{ReportJobJournalCP12.writeAtomic(new File(new File(root,"jobs/"+job.jobId),"stage-progress.json"),new JSONObject().put("stage",stage).put("startedWallMs",System.currentTimeMillis()).toString());}
             catch(Exception error){stopReason="REPORT_PROGRESS_WRITE_FAILED";}}
         @Override public synchronized void onBackupProgress(long totalPages,long remainingPages,int nativeCode){

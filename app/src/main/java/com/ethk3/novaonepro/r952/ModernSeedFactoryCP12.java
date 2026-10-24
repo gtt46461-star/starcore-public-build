@@ -40,6 +40,7 @@ public final class ModernSeedFactoryCP12 {
    String output=renamed.get(str(g,"outputId"));need(output!=null,"SEED_ROOT");int at=Integer.parseInt(output.substring(1));need(at>=0&&at<nodes.size(),"SEED_ROOT");String type=str(map(nodes.get(at)),"outputType");outputType=type.equals("BOOLEAN")?"BOOL":"SCALAR";
    root.put("nodes",nodes);root.put("featureOutputIds",Collections.singletonList(output));
    root.put("featureManifest",fields("revision","CP4_FEATURE_1","graphHash",CandidateAstR952.hashGraphKernelWithoutManifest(root),"orderedFeatureIds",Collections.singletonList(output),"featureTypes",Collections.singletonList(type),"requiredHistory",minimum,"atomSpecHashes",new ArrayList<>(specHashes),"bindingHashes",new ArrayList<>(),"matrixSpecRefs",new ArrayList<>(),"normalizerPolicy","TRAIN_ONLY_ZSCORE_V1","missingPolicyPerFeature",Collections.singletonList("MASK"),"inputDimension",2,"estimatedStateBytes",8*1024*1024));
+   FeatureMetadataR82.decorate(root,specs);
    ast=CandidateAstR952.parse("AST3:"+StrictCanonicalJson.write(root));CandidateCompilerR952.compile(ast,ast.graphSpec.manifest,specs);
   }
  }

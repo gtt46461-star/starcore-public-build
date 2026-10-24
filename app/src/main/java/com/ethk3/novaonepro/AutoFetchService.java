@@ -68,7 +68,24 @@ import java.util.List;
  */
 public final class AutoFetchService extends Service {
     private static volatile boolean lifecycleActiveR82;
+    private static volatile AutoFetchService activeInstanceR82;
     private static volatile Thread[] teardownThreadsR82 = new Thread[0];
+    /** Reads existing live owners and validated provider facts; performs no SQL or side effects. */
+    public static String runtimeHealthBlockerR82(String baseIssue,String targetIssue) {
+        AutoFetchService service=activeInstanceR82;
+        if(service==null||!lifecycleActiveR82||!service.running||service.userRequestedStopV5||!service.runtimeInitialized)
+            return "RUNTIME_SERVICE_NOT_RUNNING";
+        if(service.fetchThread==null||!service.fetchThread.isAlive())return "RUNTIME_FETCH_OWNER_NOT_ALIVE";
+        if(service.analysisThread==null||!service.analysisThread.isAlive())return "RUNTIME_ANALYSIS_OWNER_NOT_ALIVE";
+        if(!TargetIssueResolver.exact(baseIssue,targetIssue).valid)return "RUNTIME_TARGET_IDENTITY_INVALID";
+        if(TimeSourceR811.detectSkew().excessive)return "RUNTIME_CLOCK_SKEW";
+        ProviderFreshnessGateR3611.Candidate selected=ProviderFreshnessGateR3611.snapshot().selected;
+        if(selected==null||!baseIssue.equals(selected.issue)||!"FRESH".equals(selected.code))return "RUNTIME_PROVIDER_BASE_NOT_FRESH";
+        long now=System.currentTimeMillis(),age=now-selected.observedAt;
+        if(selected.observedAt<=0L||age<0L||selected.ageMs<0L||age>ProviderFreshnessGateR3611.STALE_MS
+                ||selected.ageMs>ProviderFreshnessGateR3611.STALE_MS-age)return "RUNTIME_PROVIDER_OBSERVATION_STALE";
+        return "";
+    }
     public static boolean isLifecycleActiveR82() {
         if (lifecycleActiveR82) return true;
         // quitSafely() is asynchronous. Maintenance must wait for those workers too.
@@ -1058,6 +1075,7 @@ public final class AutoFetchService extends Service {
     @Override
     public void onCreate() {
         lifecycleActiveR82 = true;
+        activeInstanceR82 = this;
         super.onCreate();
         serviceMainThreadR3610 = Thread.currentThread();
         RuntimeOwnerAuditR815.register(
@@ -1860,7 +1878,7 @@ public final class AutoFetchService extends Service {
         }
         super.onDestroy();
     
-        } finally { lifecycleActiveR82 = false; }
+        } finally { if(activeInstanceR82==this)activeInstanceR82=null; lifecycleActiveR82 = false; }
     }
 
     @Override
@@ -3074,7 +3092,7 @@ public final class AutoFetchService extends Service {
             if (result.latestDraw != null && result.latestDraw.isValid()) {
                 Models.Draw previous = store.getDrawByIssue(result.latestDraw.issue);
                 long row = DrawPollingReplayR67.alreadyDurable(previous,result.latestDraw)
-                        ? 0L : store.saveDraw(result.latestDraw);
+                        && !FetchLedgerR925.hasDrawBindingR82(result.latestDraw) ? 0L : store.saveDraw(result.latestDraw);
                 Models.Draw committed = store.getDrawByIssue(result.latestDraw.issue);
                 latestDurableR50 = committed != null && committed.isValid()
                         && java.util.Arrays.equals(committed.numbers, result.latestDraw.numbers);
@@ -3089,8 +3107,8 @@ public final class AutoFetchService extends Service {
                 try {
                     ArrayList<Models.Draw> changed = new ArrayList<Models.Draw>();
                     for(Models.Draw draw:result.draws) {
-                        if(draw!=null&&!DrawPollingReplayR67.alreadyDurable(
-                                store.getDrawByIssue(draw.issue),draw))changed.add(draw);
+                        if(draw!=null&&(!DrawPollingReplayR67.alreadyDurable(
+                                store.getDrawByIssue(draw.issue),draw)||FetchLedgerR925.hasDrawBindingR82(draw)))changed.add(draw);
                     }
                     if(!changed.isEmpty())inserted += store.saveDraws(changed);
                     store.setState("draw_history_backfill_error", "");

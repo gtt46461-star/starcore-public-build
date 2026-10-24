@@ -49,6 +49,7 @@ public final class FixedResearchWindowR932 {
                 schema(db);if(drawExists(db,snapshot.targetIssue))throw new IllegalStateException("R932_CHAMPION_DRAW_ALREADY_EXISTS");
                 db.execSQL("INSERT OR IGNORE INTO "+CHAMPION+" VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{snapshot.targetIssue,bundle,snapshot.recordHash,selector,selected.position,selected.n1,selected.n2,selected.n3,hash,System.currentTimeMillis()});
                 try(Cursor c=db.rawQuery("SELECT prediction_hash FROM "+CHAMPION+" WHERE target_issue=? AND bundle_hash=?",new String[]{snapshot.targetIssue,bundle})) {if(!c.moveToFirst()||!hash.equals(c.getString(0)))throw new IllegalStateException("R932_CHAMPION_REPLAY_DRIFT");}
+                ChampionProbabilityEvidenceR82.freeze(db,snapshot,selected,bundle,selector,hash);
             }});
             if(!ok)throw new IllegalStateException("R932_CHAMPION_FREEZE_COMMIT_FAILED");
         }

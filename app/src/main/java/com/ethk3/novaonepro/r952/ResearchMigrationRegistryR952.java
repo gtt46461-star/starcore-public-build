@@ -26,8 +26,8 @@ public final class ResearchMigrationRegistryR952 {
     /** One durable migration unit per existing research callback, then release the sole writer. */
     public static boolean advanceR64(SQLiteDatabase db) {
         if (db == null) throw new IllegalArgumentException("R952_MIGRATION_DB_NULL");
-        if (TransactionSchemaCacheR941.readyCommitted(db, "R64_INCREMENTAL_RESEARCH_SCHEMA")
-                && readyOrderR79(db)) return true;
+        if (TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
+                && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) return true;
         SchemaDomainCoordinatorR926.ensureInfrastructure(db);
         java.util.Set<String> completed = new java.util.HashSet<>();
         try (Cursor rows=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
@@ -239,8 +239,12 @@ public final class ResearchMigrationRegistryR952 {
             if (runPendingR64(db,completed,"CP12_MOLECULE_SEEK_DDL_V1", target -> {
                 ModernSeedFactoryCP12.checkpointSchemaCP12(target);
             })) return false;
+            if (runPendingR64(db,completed,"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1", target -> {
+                com.ethk3.novaonepro.RetentionRevisionSchemaCP12.championProbabilitySchemaR82(target);
+            })) return false;
+            if (!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db)) { ensureChampionProbabilityR82(db); return false; }
             if (!readyOrderR79(db)) { ensureReadyOrderR79(db); return false; }
-            TransactionSchemaCacheR941.markCommitted(db,"R64_INCREMENTAL_RESEARCH_SCHEMA");
+            TransactionSchemaCacheR941.markCommitted(db,"R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1");
             TransactionSchemaCacheR941.markCommitted(db,"CP12_CANONICAL_PLAN_DIAG_RETENTION_SEEK_V1");
             return true;
         } catch (com.ethk3.novaonepro.ResearchWorkBudgetR927.Yield | com.ethk3.novaonepro.RuntimeResourceAuditR927.BudgetExceeded yielded) {
@@ -270,6 +274,16 @@ public final class ResearchMigrationRegistryR952 {
             if(!readyOrderR79(db))throw new IllegalStateException("R79_MATRIX_READY_ORDER_NOT_VERIFIED");
             if(ownTx)db.setTransactionSuccessful();
         } finally { if(ownTx)db.endTransaction(); }
+    }
+    /** Repair only this additive schema unit; no old studies or probabilities are rewritten. */
+    private static void ensureChampionProbabilityR82(SQLiteDatabase db)throws Exception{
+        if(com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db))return;
+        boolean own=!db.inTransaction();if(own)db.beginTransaction();
+        try{
+            db.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" SET status='REPAIR_REQUIRED',error_code='R82_CHAMPION_PROBABILITY_SCHEMA_MISSING' WHERE domain=? AND revision=? AND step_id='R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1' AND status='COMPLETED'",new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract().revision});
+            SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(),"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1",target->com.ethk3.novaonepro.RetentionRevisionSchemaCP12.championProbabilitySchemaR82(target));
+            if(!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db))throw new IllegalStateException("R82_CHAMPION_SCHEMA_REPAIR_NOT_INSTALLED");if(own)db.setTransactionSuccessful();
+        }finally{if(own)db.endTransaction();}
     }
     private static boolean runPendingR64(SQLiteDatabase db,java.util.Set<String> completed,String id,SchemaDomainCoordinatorR926.Step step) throws Exception {
         if (completed.contains(id)) return false;

@@ -35,6 +35,12 @@ public final class CandidateExecutionAuditR932 {
         private void sampleHeapCp4(){heapPeak=Math.max(heapPeak,usedHeapCp4());heapSamples++;}
         private int count;
         private double error;
+        private String stabilityJson,atomCostJson;
+        public void atomCostsR82(JSONObject diagnostic){if(atomCostJson!=null||diagnostic==null)throw new IllegalStateException("R82_ATOM_COST_DUPLICATE");String json=diagnostic.toString();if(json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>32768)throw new IllegalArgumentException("R82_ATOM_COST_BOUND");atomCostJson=json;}
+        public void stabilityR82(JSONObject diagnostic){
+            if(stabilityJson!=null||diagnostic==null)throw new IllegalStateException("R82_STABILITY_DUPLICATE");
+            String json=diagnostic.toString();if(json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>16384)throw new IllegalArgumentException("R82_STABILITY_BOUND");stabilityJson=json;
+        }
         public void add(int ordinal, double score, double replayScore, int tieRank) {
             if (ordinal < 0 || ordinal >= 1200 || seen[ordinal])
                 throw new IllegalArgumentException("R932_AUDIT_ACTION_IDENTITY");
@@ -70,17 +76,20 @@ public final class CandidateExecutionAuditR932 {
             return new Proof(selected, V51ChecksumEngine.sha256(ranks.toString()),
                     V51ChecksumEngine.sha256(values.toString()),
                     V51ChecksumEngine.sha256(programBefore), V51ChecksumEngine.sha256(stateBefore),
-                    error, Math.max(1L, System.nanoTime() - started),Math.max(0L,heapPeak-heapStart),heapSamples);
+                    error, Math.max(1L, System.nanoTime() - started),Math.max(0L,heapPeak-heapStart),heapSamples,stabilityJson,scores[selected],atomCostJson);
         }
     }
 
     public static final class Proof {
         public final int selectedOrdinal;
         public final String rankingHash, scoreHash, programHash, stateHash;
-        public final double maxError;
+        public final double maxError,selectedScoreR82;
+        private final String stabilityJson,atomCostJson;
         public final long elapsedNs,heapIncrementCp4; public final int heapSamplesCp4;
         private Proof(int selected, String ranking, String score, String program,
-                String state, double error, long elapsed,long heapIncrement,int heapSamples) {
+                String state, double error, long elapsed,long heapIncrement,int heapSamples,String stabilityJson,double selectedScore,String atomCostJson) {
+            this.atomCostJson=atomCostJson;
+            this.stabilityJson=stabilityJson;this.selectedScoreR82=selectedScore;
             selectedOrdinal=selected; rankingHash=ranking; scoreHash=score;
             programHash=program; stateHash=state; maxError=error; elapsedNs=elapsed;heapIncrementCp4=heapIncrement;heapSamplesCp4=heapSamples;
         }
@@ -101,6 +110,7 @@ public final class CandidateExecutionAuditR932 {
                 value.put("candidate_key",key); value.put("structural_hash",structure);
                 value.put("input_hash",input); value.put("base_issue",base); value.put("target_issue",target);
                 value.put("prediction_hash",prediction); value.put("selected_ordinal",selectedOrdinal);
+                value.put("selected_score",selectedScoreR82);value.put("selected_score_hex",Double.toHexString(selectedScoreR82));
                 value.put("ranking_hash",rankingHash); value.put("score_hash",scoreHash);
                 value.put("program_hash",programHash); value.put("state_hash",stateHash);
                 value.put("model_bundle_hash",ModelBundleRuntimeR932.current().hash);
@@ -114,6 +124,8 @@ public final class CandidateExecutionAuditR932 {
                 value.put("action_count",1200); value.put("max_error",maxError);
                 value.put("parity_scope","FULL1200_SERIALIZED_PROGRAM_STATE_REEXECUTION");
                 value.put("may_authorize_real",false);
+                if(stabilityJson!=null){value.put("frozen_input_stability_r82",new JSONObject(stabilityJson));value.put("frozen_input_stability_sha256",V51ChecksumEngine.sha256(stabilityJson));}
+                if(atomCostJson!=null){value.put("atom_cost_r82",new JSONObject(atomCostJson));value.put("atom_cost_sha256_r82",V51ChecksumEngine.sha256(atomCostJson));}
                 String payload=value.toString(), proof=V51ChecksumEngine.sha256(payload);
                 db.execSQL("INSERT OR IGNORE INTO " + TABLE + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                         new Object[]{key,target,structure,input,base,prediction,rankingHash,scoreHash,

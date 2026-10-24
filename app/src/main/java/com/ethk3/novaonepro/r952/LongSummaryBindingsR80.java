@@ -70,8 +70,9 @@ public final class LongSummaryBindingsR80 {
         }
         private Map<String,Object> object(){return fields("ref",ref.canonicalObject(),"source",source.object());}
     }
-    private static Source readSource(SQLiteDatabase db,String epoch,String through){
-        try(Cursor c=db.rawQuery("SELECT s.snapshot_hash,s.payload_json,s.prepared_at,p.available_at,p.mode,p.clock_session,p.receipt_hash FROM "+LongScaleSummaryR80.SNAPSHOT+" s JOIN "+LongScaleSummaryR80.PUBLICATION+" p ON p.snapshot_hash=s.snapshot_hash WHERE s.epoch_hash=? AND s.through_issue=?",new String[]{epoch,through})){
+    private static Source readSource(SQLiteDatabase db,String epoch,String through){return readSource(db,epoch,through,null);}
+    private static Source readSource(SQLiteDatabase db,String epoch,String through,android.os.CancellationSignal cancel){
+        try(Cursor c=db.rawQuery("SELECT s.snapshot_hash,s.payload_json,s.prepared_at,p.available_at,p.mode,p.clock_session,p.receipt_hash FROM "+LongScaleSummaryR80.SNAPSHOT+" s JOIN "+LongScaleSummaryR80.PUBLICATION+" p ON p.snapshot_hash=s.snapshot_hash WHERE s.epoch_hash=? AND s.through_issue=?",new String[]{epoch,through},cancel)){
             if(!c.moveToFirst())throw new DevelopmentProductionCP12.Wait("WAIT_LONG_ORIGINAL_SUMMARY");String json=c.getString(1);need(json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length<=16384,"LONG_SOURCE_BYTES");
             Source source=new Source(fields("snapshotHash",c.getString(0),"snapshot",StrictCanonicalJson.readContextObject(json),"publication",fields("availableAt",c.getLong(3),"mode",c.getString(4),"clockSession",c.getString(5),"receiptHash",c.getString(6))));need(source.epoch.equals(epoch)&&source.through.equals(through)&&source.prepared==c.getLong(2),"LONG_SOURCE_ROW_IDENTITY");return source;
         }
@@ -251,4 +252,21 @@ public final class LongSummaryBindingsR80 {
     private static String hash(String value){need(value!=null&&value.matches("[0-9a-f]{64}"),"LONG_HASH");return value;}
     private static void keys(Map<String,Object> o,String... keys){need(o.keySet().equals(new HashSet<>(Arrays.asList(keys))),"LONG_KEYS");}
     private static void need(boolean good,String reason){if(!good)throw new IllegalArgumentException(reason);}
+
+    /** Immutable visualization copy; production Source verifies hashes, protocol and counters. */
+    public static final class VisualR82 {
+        public final String epoch,through,snapshotHash,receiptHash;public final long available;
+        private final long[][][] counts;private final int[] support;
+        private VisualR82(Source s){epoch=s.epoch;through=s.through;snapshotHash=s.snapshotHash;receiptHash=s.receiptHash;available=s.available;counts=new long[3][10][10];support=s.support.clone();for(int w=0;w<3;w++)for(int p=0;p<10;p++)counts[w][p]=s.counts[w][p].clone();}
+        public int support(int window){return support[scale(window)];}
+        public long[] counts(int window,int position){need(position>=1&&position<=10,"LONG_VISUAL_POSITION");return counts[scale(window)][position-1].clone();}
+    }
+    public static VisualR82 visualR82(SQLiteDatabase db,String issue){return visualR82(db,issue,null);}
+    public static VisualR82 visualR82(SQLiteDatabase db,String issue,android.os.CancellationSignal cancel){
+        need(db!=null&&db.isReadOnly()&&TargetIssueResolver.isValid(issue),"LONG_VISUAL_READ_ONLY");String epoch="",through="";
+        try(Cursor c=db.rawQuery("SELECT s.epoch_hash,s.through_issue FROM "+LongScaleSummaryR80.SNAPSHOT+" s JOIN "+LongScaleSummaryR80.PUBLICATION+" p ON p.snapshot_hash=s.snapshot_hash JOIN "+LongScaleSummaryR80.HEAD+" h ON h.epoch_hash=s.epoch_hash AND h.status='ACTIVE' WHERE s.through_issue<=? AND length(CAST(s.payload_json AS BLOB))<=16384 ORDER BY s.through_issue DESC LIMIT 1",new String[]{issue},cancel)){
+            if(!c.moveToFirst())throw new DevelopmentProductionCP12.Wait("WAIT_LONG_PUBLISHED_SUMMARY");epoch=c.getString(0);through=c.getString(1);
+        }
+        need(LongScaleSummaryR80.activeEpoch(db,epoch),"LONG_SOURCE_EPOCH_INVALID");return new VisualR82(readSource(db,epoch,through,cancel));
+    }
 }

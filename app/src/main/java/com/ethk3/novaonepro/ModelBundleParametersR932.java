@@ -136,6 +136,7 @@ public final class ModelBundleParametersR932 {
         }
     }
     public static final class Policy {
+        public final FrozenDriftPolicyR82.Policy DRIFT_POLICY_R82;
         public final String ARTIFACT_ID;
         public final String DATA_SHA256;
         public final boolean MODEL_GATE_PASSED;
@@ -152,6 +153,7 @@ public final class ModelBundleParametersR932 {
                 OOS_HIT_RATE=p==null?V51PolicySurfaceArtifact.OOS_HIT_RATE:number(p,"OOS_HIT_RATE");
                 OOS_ECE=p==null?V51PolicySurfaceArtifact.OOS_ECE:number(p,"OOS_ECE");
                 CELLS=p==null?V51PolicySurfaceArtifact.CELLS:cells(p.getJSONArray("CELLS"));
+                DRIFT_POLICY_R82=p==null?null:FrozenDriftPolicyR82.parse(p.optJSONObject("drift_policy_r82"));
             } catch(Exception e) {throw new IllegalArgumentException("R932_POLICY_PARAMETERS",e);}
         }
     }

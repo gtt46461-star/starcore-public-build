@@ -2193,11 +2193,13 @@ public final class DbStore {
                         boolean owns = !db.inTransaction();
                         if (owns) db.beginTransaction();
                         try {
+                            FetchLedgerR925.observeDrawWithinR82(db,draw);
                             long rowId = insertDrawInternal(db, draw);
                             if (rowId == R811_DRAW_CONFLICT_BLOCKED || rowId == CP12_DRAW_RETENTION_DEFERRED || rowId == CP12_DRAW_OUTSIDE_HISTORY_TAIL) {
                                 if (owns) db.setTransactionSuccessful();
                                 return Long.valueOf(rowId);
                             }
+                            FetchLedgerR925.canonicalDrawWithinR82(db,draw);
                             SettlementTaskStoreR36.enqueueConfirmedWithinWrite(
                                     db, draw, System.currentTimeMillis(),
                                     SettlementTaskStoreR36.BACKLOG,
@@ -2206,7 +2208,7 @@ public final class DbStore {
                             RuntimeEventLedgerR926.appendWithinTransaction(db,
                                     RuntimeEventLedgerR926.Event.of(draw.issue, "", "", "FETCH", "CANONICAL_ACCEPTED",
                                             RuntimeEventLedgerR926.RANK_ACCEPTED,
-                                            "numbers=" + draw.numbersText() + "|source=" + draw.sourceLine + "|draw_at=" + draw.openTime,
+                                            "numbers=" + draw.numbersText() + "|source=" + draw.sourceLine + "|draw_at=" + draw.openTime+"|"+FetchLedgerR925.canonicalBindingSummaryR82(draw),
                                             "DbStore.saveDraw", "DRAW_ACCEPTED|" + draw.issue + "|" + V51ChecksumEngine.sha256(draw.numbersText())));
                             if (owns) db.setTransactionSuccessful();
                             return Long.valueOf(rowId);
@@ -2391,8 +2393,10 @@ public final class DbStore {
                             try {
                                 for (int i = 0; i < batch.size(); i++) {
                                     Models.Draw draw = batch.get(i);
+                                    FetchLedgerR925.observeDrawWithinR82(db,draw);
                                     long rowId = insertDrawInternal(db, draw);
                                     if (rowId == R811_DRAW_CONFLICT_BLOCKED || rowId == CP12_DRAW_RETENTION_DEFERRED || rowId == CP12_DRAW_OUTSIDE_HISTORY_TAIL) continue;
+                                    FetchLedgerR925.canonicalDrawWithinR82(db,draw);
                                     if (rowId >= 0L) count++;
                                     SettlementTaskStoreR36.enqueueConfirmedWithinWrite(
                                             db, draw, System.currentTimeMillis(),
@@ -22101,11 +22105,11 @@ public static final long CP12_DRAW_RETENTION_DEFERRED=-3L,CP12_DRAW_OUTSIDE_HIST
 public int replayRetentionDeferredDrawsCP12(int limit){
         if(android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("DRAW_RETENTION_REPLAY_MAIN_THREAD");
         ArrayList<Models.Draw> pending=new ArrayList<>();
-        String sql="SELECT p.parsed_issue,p.server_open_time,p.observed_at,p.source_line,p.permutation FROM "+DbHelper.TABLE_R811_DRAW_PROVENANCE+" p JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=p.parsed_issue WHERE c.status='CONFIRMED_CANONICAL_DRAW' AND NOT EXISTS(SELECT 1 FROM draws d WHERE d.issue=p.parsed_issue) AND p.draw_hash=c.canonical_draw_hash AND ((SELECT COUNT(*) FROM draws WHERE dirty=0)<5000 OR p.parsed_issue>(SELECT MIN(issue) FROM draws WHERE dirty=0)) AND p.provenance_id=(SELECT v.provenance_id FROM "+DbHelper.TABLE_R811_DRAW_PROVENANCE+" v WHERE v.parsed_issue=p.parsed_issue AND v.draw_hash=p.draw_hash ORDER BY v.observed_at,v.provenance_id LIMIT 1) ORDER BY p.parsed_issue DESC LIMIT "+Math.max(1,Math.min(8,limit));
+        String sql="SELECT p.parsed_issue,p.server_open_time,p.observed_at,p.source_line,p.permutation,p.raw_payload_sha256,p.draw_hash FROM "+DbHelper.TABLE_R811_DRAW_PROVENANCE+" p JOIN "+DbHelper.TABLE_R811_DRAW_CANONICAL+" c ON c.target_issue=p.parsed_issue WHERE c.status='CONFIRMED_CANONICAL_DRAW' AND NOT EXISTS(SELECT 1 FROM draws d WHERE d.issue=p.parsed_issue) AND p.draw_hash=c.canonical_draw_hash AND ((SELECT COUNT(*) FROM draws WHERE dirty=0)<5000 OR p.parsed_issue>(SELECT MIN(issue) FROM draws WHERE dirty=0)) AND p.provenance_id=(SELECT v.provenance_id FROM "+DbHelper.TABLE_R811_DRAW_PROVENANCE+" v WHERE v.parsed_issue=p.parsed_issue AND v.draw_hash=p.draw_hash ORDER BY v.observed_at,v.provenance_id LIMIT 1) ORDER BY p.parsed_issue DESC LIMIT "+Math.max(1,Math.min(8,limit));
         try(Cursor c=readable().rawQuery(sql,null)){while(c.moveToNext()){
             Models.Draw d=new Models.Draw();d.issue=c.getString(0);d.openTime=c.getLong(1);d.fetchTime=c.getLong(2);d.sourceLine=c.getString(3);d.rawJson="";
             String text=safeString(c.getString(4));if(text.length()>40)throw new IllegalStateException("DRAW_RETENTION_PERMUTATION_BOUND");String[] values=text.split(",",-1);if(values.length!=10)throw new IllegalStateException("DRAW_RETENTION_PERMUTATION_COUNT");
-            for(int i=0;i<10;i++)d.numbers[i]=Integer.parseInt(values[i].trim());if(!d.isValid())throw new IllegalStateException("DRAW_RETENTION_PROVENANCE_INVALID");pending.add(d);
+            for(int i=0;i<10;i++)d.numbers[i]=Integer.parseInt(values[i].trim());if(!d.isValid())throw new IllegalStateException("DRAW_RETENTION_PROVENANCE_INVALID");FetchLedgerR925.restoreDeferredDrawR82(readable(),d,c.getString(5),c.getString(6));pending.add(d);
         }}
         java.util.Collections.reverse(pending); // Most recent page, applied in chronological order.
         int applied=0;for(Models.Draw draw:pending){long saved=saveDraw(draw);if(saved==CP12_DRAW_RETENTION_DEFERRED)break;if(saved>=0)applied++;}return applied;

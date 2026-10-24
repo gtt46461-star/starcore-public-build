@@ -147,8 +147,11 @@ public final class FetchLedgerR925 {
                                 if (c != null) c.close();
                             }
 
-                            String status = Batch2ContractCoreR926.classifyFetch(
+                            String classified = Batch2ContractCoreR926.classifyFetch(
                                     true, httpCode, accepted, reason);
+                            // PayloadGate acceptance precedes DbStore's transaction; never
+                            // advertise that transport parsing as canonical business commit.
+                            String status=accepted?"HTTP_PAYLOAD_ACCEPTED":classified;
                             finalStatus[0] = status;
                             long drawAt = drawAt(db, issue);
                             long firstAvailableAt = accepted
@@ -302,6 +305,102 @@ public final class FetchLedgerR925 {
                         RuntimeEventLedgerR926.RANK_ACCEPTED,
                         payload, "FetchLedgerR925",
                         "FETCH|" + safe(issue) + '|' + safe(requestId) + '|' + safe(status)));
+    }
+
+    private static final java.util.Map<Models.ApiResult,RawBindingR82> RAW_R82=
+            java.util.Collections.synchronizedMap(new java.util.WeakHashMap<Models.ApiResult,RawBindingR82>());
+    private static final java.util.Map<Models.Draw,DrawBindingR82> DRAW_R82=
+            java.util.Collections.synchronizedMap(new java.util.WeakHashMap<Models.Draw,DrawBindingR82>());
+    private static final class RawBindingR82 {
+        final String request,payload;RawBindingR82(String r,String p){request=r;payload=p;}
+    }
+    private static final class DrawBindingR82 {
+        final String request,payload,rawHash,fingerprint,source,issue,drawHash;final long drawAt,observedAt;
+        final boolean restored;
+        DrawBindingR82(String request,String payload,Models.Draw d,String rawHash,boolean restored){
+            this.request=safe(request);this.payload=safe(payload);this.rawHash=rawHash;
+            source=safe(d.sourceLine);issue=safe(d.issue);drawAt=d.openTime;observedAt=d.fetchTime;
+            drawHash=DrawHashR36.sha256V2(d);fingerprint=drawFingerprintR82(d,rawHash);this.restored=restored;
+        }
+    }
+    /** Only the exact successful raw transport object supplies its request identity. */
+    static void bindRawResultR82(Models.ApiResult raw,String request) {
+        if(raw!=null&&request!=null)RAW_R82.put(raw,new RawBindingR82(request,V51ChecksumEngine.sha256(safe(raw.rawJson))));
+    }
+    /** No SQL and no lookup by issue: bind the actual objects returned by ApiParser. */
+    static void bindParsedResultR82(Models.ApiResult raw,Models.ApiResult parsed) {
+        RawBindingR82 b=RAW_R82.get(raw);if(b==null||parsed==null)return;
+        if(!b.payload.equals(V51ChecksumEngine.sha256(safe(raw.rawJson))))throw new IllegalStateException("HTTP_RAW_BINDING_MUTATED");
+        java.util.Set<Models.Draw> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Models.Draw,Boolean>());
+        if(parsed.latestDraw!=null)seen.add(parsed.latestDraw);
+        if(parsed.history!=null)seen.addAll(parsed.history);if(parsed.draws!=null)seen.addAll(parsed.draws);
+        for(Models.Draw draw:seen)if(draw!=null&&draw.isValid())DRAW_R82.put(draw,new DrawBindingR82(b.request,b.payload,draw,V51ChecksumEngine.sha256(safe(draw.rawJson)),false));
+    }
+    public static boolean hasDrawBindingR82(Models.Draw draw){return draw!=null&&DRAW_R82.containsKey(draw);}
+    public static String canonicalBindingSummaryR82(Models.Draw draw) {
+        DrawBindingR82 b=DRAW_R82.get(draw);
+        return b==null?"http_request_scope=LEGACY_UNKNOWN|request_id=LEGACY_UNKNOWN|http_payload_sha256=LEGACY_UNKNOWN":
+                "http_request_scope=EXACT_REQUEST_BOUND_R82|request_id="+b.request+"|http_payload_sha256="+b.payload+"|draw_fingerprint="+b.fingerprint;
+    }
+    private static String drawFingerprintR82(Models.Draw d,String rawHash) {
+        return V51ChecksumEngine.sha256("REQUEST_DRAW_R82|"+safe(d.issue)+"|"+DrawHashR36.sha256V2(d)+"|"+safe(d.sourceLine)+"|"+d.openTime+"|"+d.fetchTime+"|"+rawHash);
+    }
+    private static DrawBindingR82 checkedBindingR82(SQLiteDatabase db,Models.Draw draw) {
+        if(db==null||!db.inTransaction())throw new IllegalStateException("HTTP_CANONICAL_BINDING_TRANSACTION_REQUIRED");
+        DrawBindingR82 b=DRAW_R82.get(draw);if(b==null)return null;
+        String rawHash=V51ChecksumEngine.sha256(safe(draw.rawJson));
+        if(!b.fingerprint.equals(drawFingerprintR82(draw,b.rawHash))||(!b.rawHash.equals(rawHash)&&!(b.restored&&safe(draw.rawJson).isEmpty())))
+            throw new IllegalStateException("HTTP_DRAW_BINDING_MUTATED");
+        if(b.request.isEmpty()||!b.payload.matches("[0-9a-f]{64}"))throw new IllegalStateException("HTTP_REQUEST_RECEIPT_NOT_DURABLE");
+        try(Cursor c=db.rawQuery("SELECT payload_hash,source_line,status,http_code,received_at FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{b.request})){
+            if(!c.moveToFirst()||!b.payload.equals(c.getString(0)))throw new IllegalStateException("HTTP_REQUEST_PAYLOAD_IDENTITY_MISMATCH");
+            String source=safe(c.getString(1)),status=safe(c.getString(2));int http=c.getInt(3);
+            if((!source.isEmpty()&&!source.equals(b.source))||http<200||http>=300||c.getLong(4)<=0
+                    ||!(status.equals("HTTP_PAYLOAD_ACCEPTED")||status.equals("HTTP_OK_BODY_RECEIVED")||status.equals("BUSINESS_ACCEPTED")||status.equals("ACCEPTED_DUPLICATE")))
+                throw new IllegalStateException("HTTP_REQUEST_NOT_ACCEPTED_SOURCE_RECEIPT");
+        }
+        return b;
+    }
+    private static String bindingJsonR82(DrawBindingR82 b,long row)throws org.json.JSONException {
+        org.json.JSONObject o=new org.json.JSONObject();o.put("version","HTTP_CANONICAL_BINDING_R82_1");o.put("request_id",b.request);
+        o.put("http_payload_sha256",b.payload);o.put("draw_raw_sha256",b.rawHash);o.put("draw_hash",b.drawHash);
+        o.put("draw_fingerprint",b.fingerprint);o.put("issue",b.issue);o.put("source",b.source);o.put("draw_at",b.drawAt);o.put("draw_observed_at",b.observedAt);
+        if(row>0)o.put("draw_rowid",row);return o.toString();
+    }
+    private static void exactAppendR82(SQLiteDatabase db,RuntimeEventLedgerR926.Event e) {
+        RuntimeEventLedgerR926.appendWithinTransaction(db,e);
+        try(Cursor c=db.rawQuery("SELECT payload_hash FROM "+RuntimeEventLedgerR926.TABLE_EVENT+" WHERE dedup_key=?",new String[]{e.dedupKey})){
+            if(!c.moveToFirst()||!e.payloadHash.equals(c.getString(0)))throw new IllegalStateException("HTTP_BINDING_EVENT_IDEMPOTENCY_CONFLICT");
+        }
+    }
+    /** Persisted even when a current draw is deferred by retention; rolled back with its owner TX. */
+    public static void observeDrawWithinR82(SQLiteDatabase db,Models.Draw draw) {
+        DrawBindingR82 b=checkedBindingR82(db,draw);if(b==null)return;
+        try{exactAppendR82(db,RuntimeEventLedgerR926.Event.of(b.issue,b.fingerprint,b.request,"FETCH_BINDING_R82","PARSED_DRAW",RuntimeEventLedgerR926.RANK_REQUESTED,
+                bindingJsonR82(b,0),"ApiClient.ApiParser","HTTP_DRAW_BOUND_R82|"+b.request+"|"+b.fingerprint));}
+        catch(org.json.JSONException invalid){throw new IllegalStateException("HTTP_BINDING_JSON",invalid);}
+    }
+    /** Same transaction as draws/settlement enqueue and canonical acceptance event. */
+    public static void canonicalDrawWithinR82(SQLiteDatabase db,Models.Draw draw) {
+        DrawBindingR82 b=checkedBindingR82(db,draw);if(b==null)return;
+        long row=0;try(Cursor c=db.rawQuery("SELECT rowid,draw_hash_v2,draw_hash_version,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue=?",new String[]{b.issue})){
+            if(!c.moveToFirst()||!DrawHashR36.matchesPersisted(c.getString(1),c.getInt(2),draw))throw new IllegalStateException("HTTP_CANONICAL_DRAW_NOT_DURABLE");row=c.getLong(0);
+            for(int i=0;i<10;i++)if(c.getInt(i+3)!=draw.numbers[i])throw new IllegalStateException("HTTP_CANONICAL_NUMBERS_CONFLICT");
+        }
+        try{exactAppendR82(db,RuntimeEventLedgerR926.Event.of(b.issue,b.fingerprint,b.request,"FETCH_CANONICAL_BINDING_R82","DRAW_COMMIT_LINKED",RuntimeEventLedgerR926.RANK_ACCEPTED,
+                bindingJsonR82(b,row),"DbStore.saveDraw/HistoryBatch","CANONICAL_REQUEST_LINK_R82|"+b.request+"|"+b.fingerprint));}
+        catch(org.json.JSONException invalid){throw new IllegalStateException("HTTP_CANONICAL_JSON",invalid);}
+    }
+    /** Restore only the exact immutable source tuple, never just a matching issue. */
+    static void restoreDeferredDrawR82(SQLiteDatabase db,Models.Draw draw,String rawHash,String originalDrawHash) {
+        if(!originalDrawHash.equals(DrawHashR36.sha256V2(draw)))throw new IllegalStateException("HTTP_DEFERRED_DRAW_HASH_MISMATCH");
+        String fingerprint=drawFingerprintR82(draw,rawHash);
+        try(Cursor c=db.rawQuery("SELECT attempt_id,payload_text FROM "+RuntimeEventLedgerR926.TABLE_EVENT+" WHERE target_issue=? AND epoch_id=? AND event_type='FETCH_BINDING_R82' AND stage='PARSED_DRAW' ORDER BY seq LIMIT 1",new String[]{draw.issue,fingerprint})){
+            if(!c.moveToFirst())return; // Old rows stay explicitly unbound; no synthetic request is invented.
+            org.json.JSONObject o=new org.json.JSONObject(c.getString(1));String request=c.getString(0);
+            if(!"HTTP_CANONICAL_BINDING_R82_1".equals(o.getString("version"))||!safe(draw.issue).equals(o.getString("issue"))||draw.openTime!=o.getLong("draw_at")||draw.fetchTime!=o.getLong("draw_observed_at")||!request.equals(o.getString("request_id"))||!fingerprint.equals(o.getString("draw_fingerprint"))||!rawHash.equals(o.getString("draw_raw_sha256"))||!originalDrawHash.equals(o.getString("draw_hash"))||!safe(draw.sourceLine).equals(o.getString("source")))throw new IllegalStateException("HTTP_DEFERRED_BINDING_IDENTITY");
+            DRAW_R82.put(draw,new DrawBindingR82(request,o.getString("http_payload_sha256"),draw,rawHash,true));
+        }catch(org.json.JSONException invalid){throw new IllegalStateException("HTTP_DEFERRED_BINDING_JSON",invalid);}
     }
 
     private static String trim(String s, int max) {

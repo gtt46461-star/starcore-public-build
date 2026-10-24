@@ -134,6 +134,8 @@ public final class MatrixProjectionCP12 {
         if(t==Type.CandidateSimilarityMatrix||t==Type.CandidateDiversityMatrix||t==Type.TeacherMatrix)MatrixMetricsCP11.jaccard(r.maskA,r.maskB);
         if(t==Type.CandidateWindowMatrix||t==Type.CandidateDiversityMatrix||t==Type.ConfidenceMatrix||t==Type.TeacherMatrix||t==Type.ResidualMatrix)need(r.x>=0&&r.x<=1,"ORIGINAL_PREDRAW_PROBABILITY");
         if(t==Type.CandidateDiversityMatrix||t==Type.TeacherMatrix)need(r.y>=0&&r.y<=1,"ORIGINAL_PAIRED_PROBABILITY");
+        if(t==Type.CandidateDiversityMatrix&&r.c==255)need(r.z>=0&&r.z<=3&&r.z==Math.rint(r.z),"MATRIX_VERIFIED_REGIME");
+        if(t==Type.ConfidenceMatrix&&r.c==255)need(r.y>=0&&r.y<=1,"ORIGINAL_RAW_CONFIDENCE");
         if(t==Type.LatencyMatrix)need(r.x>=0&&r.x<=9007199254740991d&&r.x==Math.rint(r.x),"MONOTONIC_MICROS");
         if(t==Type.FailureMatrix)need(r.a<4&&(!r.has(RECOVERED)||r.z>=0),"FAILURE_RECOVERY");
         if(t==Type.AtomTargetMatrix||t==Type.AtomRegimeMatrix)need(Math.abs(r.x)<=1e100&&Math.abs(r.z)<=1e100,"MOMENT_OVERFLOW_BOUND");
@@ -164,8 +166,61 @@ public final class MatrixProjectionCP12 {
         case FailureMatrix:put(out,"failureCount",s[0]);out.put("severityCounts",Arrays.copyOfRange(s,1,5));if(s[6]>0)put(out,"recoveryLagMean",s[5]/s[6]);break;
         case ResidualMatrix:if(s[0]>0){put(out,"mean",s[1]/s[0]);put(out,"bias",s[1]/s[0]);put(out,"variance",MatrixMetricsCP11.meanVariance((long)s[0],s[1],s[2]));}if(s[3]>1){try{put(out,"lag1Correlation",MatrixMetricsCP11.correlation((long)s[3],s[4],s[5],s[6],s[7],s[8]));}catch(IllegalArgumentException e){if(!e.getMessage().equals("ZERO_VARIANCE"))throw e;}}break;
         }
+        enrichR82(st,out);
         return Collections.unmodifiableMap(out);
     }
+    /** Additional views are recomputed from the bounded immutable ring. The SCM4V1
+     * sufficient-statistic field counts, old metric values and 43-byte rows stay unchanged.
+     * Marker c=255 is emitted only by R82 sources after validating the original receipt;
+     * legacy c=0 does not assert that an unavailable confidence/resource value was zero. */
+    private static void enrichR82(State st,Map<String,double[]> out){
+        int n=st.ring.size();double[] s=st.s;
+        switch(st.spec.type){
+        case TransitionMatrix:case ConditionalTransitionMatrix:
+            for(int regime=0;regime<(st.spec.type==Type.TransitionMatrix?1:5);regime++)for(int a=0;a<10;a++){
+                double[] counts=Arrays.copyOfRange(s,regime*100+a*10,regime*100+a*10+10);
+                out.put("rowCounts"+regime+"_"+a,counts);put(out,"rowSupport"+regime+"_"+a,sum(counts));
+            }break;
+        case CoOccurrenceMatrix:out.put("eventCounts",s.clone());put(out,"N",n);break;
+        case FrequencyMatrix:
+            out.put("count",s.clone());put(out,"N",n);
+            if(n>0){double[] rate=s.clone(),z=new double[10];for(int d=0;d<10;d++){rate[d]/=n;z[d]=(s[d]-.1*n)/Math.sqrt(.09*n);}out.put("rate",rate);out.put("z",z);}break;
+        case OmissionMatrix:
+            for(int d=0;d<10;d++){ArrayDeque<Long> q=st.occurrences[d];int k=d*3;put(out,"gapSupport"+d,s[k]);
+                if(!q.isEmpty()){put(out,"lastSeen"+d,q.peekLast());put(out,"gap"+d,st.through-q.peekLast());}
+                if(s[k]>0)put(out,"gapMean"+d,s[k+1]/s[k]);
+            }break;
+        case AtomTargetMatrix:{put(out,"N",s[0]);double total=0,squares=0;int paired=0;for(Sample r:st.ring)if(r.has(PAIRED)&&!r.has(MISSING)){total+=r.z;squares+=r.z*r.z;paired++;}put(out,"contributionN",paired);if(paired>0)put(out,"oosContribution",total/paired);if(paired>1)put(out,"oosContributionSE",MatrixMetricsCP11.pairedSE(paired,total,squares));break;}
+        case AtomRegimeMatrix:{put(out,"N",s[0]-s[1]);ArrayList<Double> older=new ArrayList<>(),recent=new ArrayList<>();long split=st.through-st.spec.window/2+1;
+            for(Sample r:st.ring)if(!r.has(MISSING))(r.ordinal<split?older:recent).add(r.x);
+            put(out,"driftReferenceN",older.size());put(out,"driftRecentN",recent.size());if(!older.isEmpty()&&!recent.isEmpty())put(out,"scoreKSLikeDrift",ksSamplesR82(older,recent));break;}
+        case CandidateWindowMatrix:put(out,"N",s[1]);put(out,"eligibleN",s[0]);break;
+        case CandidateErrorMatrix:{double[] counts=new double[10],severity=new double[10],severityN=new double[10];
+            for(Sample r:st.ring)if(r.has(OBSERVED)&&!r.has(HIT_A)){counts[r.a]++;severity[r.a]+=r.x*r.x;severityN[r.a]++;}
+            put(out,"N",s[0]);out.put("missCounts",counts);out.put("missSeverityN",severityN);
+            for(int d=0;d<10;d++)if(severityN[d]>0)put(out,"missSeverity"+d,severity[d]/severityN[d]);break;}
+        case CandidateSimilarityMatrix:put(out,"N",n);correlationR82(out,"predictionCorrelation",st.ring,0);break;
+        case CandidateDiversityMatrix:{put(out,"N",n);double disagreement=0,unionMiss=0;for(Sample r:st.ring){boolean a=r.has(HIT_A),b=r.has(HIT_B);if(a!=b)disagreement++;if(!a||!b)unionMiss++;}
+            if(n>0)put(out,"disagreement",disagreement/n);if(unionMiss>0)put(out,"complementarity",disagreement/unionMiss);
+            correlationR82(out,"predictionCorrelation",st.ring,0);correlationR82(out,"errorCorrelation",st.ring,1);
+            double[] support=new double[4],rescue=new double[4],missUnion=new double[4];int verified=0;for(Sample r:st.ring)if(r.c==255){int group=(int)r.z;need(group>=0&&group<4&&group==r.z,"MATRIX_VERIFIED_REGIME");support[group]++;verified++;boolean a=r.has(HIT_A),b=r.has(HIT_B);if(a!=b)rescue[group]++;if(!a||!b)missUnion[group]++;}out.put("regimeSupport",support);put(out,"verifiedRegimeN",verified);for(int g=0;g<4;g++)if(missUnion[g]>0)put(out,"regimeComplementarity"+g,rescue[g]/missUnion[g]);break;}
+        case ParentChildMatrix:{put(out,"N",n);double elapsed=0,heap=0;int known=0;for(Sample r:st.ring)if(r.c==255){elapsed+=r.x;heap+=r.y;known++;}
+            put(out,"resourceN",known);if(known>0){put(out,"resourceElapsedNanosDelta",elapsed/known);put(out,"resourceHeapBytesDelta",heap/known);}break;}
+        case DriftMatrix:{double[] ref=Arrays.copyOfRange(s,0,10),recent=Arrays.copyOfRange(s,10,20);put(out,"referenceN",sum(ref));put(out,"recentN",sum(recent));
+            if(sum(ref)>0&&sum(recent)>0)put(out,"ksLike",ksBinsR82(ref,recent));break;}
+        case ConfidenceMatrix:{put(out,"N",s[30]);double cal=0,hits=0,raw=0;int known=0;for(Sample r:st.ring)if(r.has(OBSERVED)){cal+=r.x;if(r.has(HIT_A))hits++;if(r.c==255){raw+=r.y;known++;}}
+            put(out,"rawConfidenceN",known);if(s[30]>0){put(out,"cal_conf",cal/s[30]);put(out,"LCB",MatrixMetricsCP11.wilsonLower((long)hits,(long)s[30],1.959963984540054));}if(known>0)put(out,"raw_conf",raw/known);break;}
+        case TeacherMatrix:put(out,"support",s[0]);if(s[0]>0){put(out,"utility",s[2]/s[0]);double h=0;for(Sample r:st.ring)h+=(r.has(HIT_A)?1:0)-(r.has(HIT_B)?1:0);put(out,"hitUtility",h/s[0]);}break;
+        case RuleHealthMatrix:{double[] old=new double[10],recent=new double[10];long split=st.through-st.spec.window/2+1;
+            for(Sample r:st.ring)if(!r.has(MISSING))(r.ordinal<split?old:recent)[r.c]++;
+            put(out,"driftReferenceN",sum(old));put(out,"driftRecentN",sum(recent));if(sum(old)>0&&sum(recent)>0){put(out,"drift",MatrixMetricsCP11.js(MatrixMetricsCP11.smoothed(old,.5),MatrixMetricsCP11.smoothed(recent,.5)));put(out,"driftKSLike",ksBinsR82(old,recent));}break;}
+        default:break;
+        }
+    }
+    private static double ksBinsR82(double[] a,double[] b){double na=sum(a),nb=sum(b),ca=0,cb=0,result=0;for(int i=0;i<a.length;i++){ca+=a[i]/na;cb+=b[i]/nb;result=Math.max(result,Math.abs(ca-cb));}return Math.min(1,result);}
+    private static double ksSamplesR82(ArrayList<Double> a,ArrayList<Double> b){Collections.sort(a);Collections.sort(b);int i=0,j=0;double result=0;while(i<a.size()||j<b.size()){double x=i>=a.size()?b.get(j):j>=b.size()?a.get(i):Math.min(a.get(i),b.get(j));while(i<a.size()&&Double.compare(a.get(i),x)<=0)i++;while(j<b.size()&&Double.compare(b.get(j),x)<=0)j++;result=Math.max(result,Math.abs(i/(double)a.size()-j/(double)b.size()));}return result;}
+    private static void correlationR82(Map<String,double[]> out,String name,Collection<Sample> rows,int kind){long n=0;double sx=0,sy=0,sxx=0,syy=0,sxy=0;for(Sample r:rows){double x=kind==0?r.x:(r.has(HIT_A)?0:1),y=kind==0?r.y:(r.has(HIT_B)?0:1);n++;sx+=x;sy+=y;sxx+=x*x;syy+=y*y;sxy+=x*y;}if(n<2)return;
+        try{put(out,name,MatrixMetricsCP11.correlation(n,sx,sy,sxx,syy,sxy));}catch(IllegalArgumentException e){if(!"ZERO_VARIANCE".equals(e.getMessage())&&!"CORRELATION_SUPPORT".equals(e.getMessage()))throw e;}}
     public static final String POLICY_VIEWS_HASH=hash("CP12_POLICY_MATRICES_MASTER300/DERIVED20_50_100_300/V1");
     public static Map<String,double[]> metricsWindow(State master,int window){
         need(master.spec.window==300&&(window==20||window==50||window==100||window==300),"MATRIX_POLICY_VIEW_WINDOW");

@@ -1,0 +1,291 @@
+{
+ "status": "PASS",
+ "layers_run": [
+  "L1",
+  "L2",
+  "L3"
+ ],
+ "not_run_here": [
+  "L3-Gradle assembleRelease (Android SDK)",
+  "L4 device 30-day storage/report test",
+  "L5 real frozen forward evidence (>=600 live acts per strategy)"
+ ],
+ "checks": [
+  {
+   "layer": "L1",
+   "name": "L1:sql_constraints",
+   "ok": true,
+   "seconds": 0.25,
+   "tail": "PASS su2 sql: upsert-free genome save keeps LEAGUE sticky; 13000 decisions settled once; retention folded (3, 2919) removed 2919 remaining (10081, 2920)\nPASS incumbent genome row: constraints hold, idempotent, excluded from the SU2 live set"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:ipm_fixture",
+   "ok": true,
+   "seconds": 0.13,
+   "tail": "{\n \"keep_xi\": {\n  \"steps\": 30,\n  \"switch_events\": [],\n  \"final\": \"XI_INCUMBENT:XI_INCUMBENT_V1\"\n },\n \"switch\": {\n  \"steps\": 30,\n  \"switch_events\": [\n   \"3750 SU2:edge SWITCH_CHALLENGER_BEATS_CURRENT\"\n  ],\n  \"final\": \"SU2:edge\"\n },\n \"demote\": {\n  \"steps\": 30,\n  \"switch_events\": [\n   \"3250 SU2:decay SWITCH_CHALLENGER_BEATS_CURRENT\",\n   \"7750 XI_INCUMBENT:XI_INCUMBENT_V1 DEMOTE_TO_INCUMBENT\"\n  ],\n  \"final\": \"XI_INCUMBENT:XI_INCUMBENT_V1\"\n },\n \"insample\": {\n  \"steps\": 30,\n  \"switch_events\": [],\n  \"final\": \"XI_INCUMBENT:XI_INCUMBENT_V1\"\n },\n \"lowcov\": {\n  \"steps\": 30,\n  \"switch_events\": [],\n  \"final\": \"XI_INCUMBENT:XI_INCUMBENT_V1\"\n }\n}\nR13_IPM_FIXTURE_OK"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:javac_release8",
+   "ok": true,
+   "seconds": 1.66,
+   "tail": ""
+  },
+  {
+   "layer": "L1",
+   "name": "L1:TypedProgramTest",
+   "ok": true,
+   "seconds": 0.1,
+   "tail": "TYPED_PROGRAM_REFERENCE_PASS checks=42 scope=JDK_REFERENCE_ONLY_NOT_ANDROID_OR_PREDICTION_QUALITY"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:PairedEvidenceTest",
+   "ok": true,
+   "seconds": 0.43,
+   "tail": "PairedEvidenceTest PASS checks=64 scope=PURE_JAVA_REFERENCE_NOT_ANDROID_NOT_REAL_PERFORMANCE"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:NullBaselineTest",
+   "ok": true,
+   "seconds": 0.19,
+   "tail": "NullBaselineTest PASS checks=65 scope=PURE_JAVA_REFERENCE_NOT_ANDROID_NOT_REAL_PERFORMANCE"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:ProgramTreeSU1Test",
+   "ok": true,
+   "seconds": 0.24,
+   "tail": "ProgramTreeSU1Test PASS checks=16348 values=16000 worst_rel_err=4.589675152832597E-7 actions=155 near_tie_skipped=5 scope=PURE_JAVA_REFERENCE_NOT_ANDROID"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:OnlineModelsSU2Test",
+   "ok": true,
+   "seconds": 2.13,
+   "tail": "MSDIR     maxAbsP=0.00 maxRelState=2.98e-08 time=62ms PASS\nBOCPD     maxAbsP=0.00 maxRelState=2.98e-08 time=382ms PASS\nHMM       maxAbsP=7.45e-09 maxRelState=0.00 time=17ms PASS\nLOGLIN    maxAbsP=0.00 maxRelState=0.00 time=91ms PASS\nKALMAN    maxAbsP=0.00 maxRelState=0.00 time=23ms PASS\nRELBAYES  maxAbsP=0.00 maxRelState=0.00 time=106ms PASS\nSU2|POOL=STATIC|SINK=0|GATE=MASS|COV=0.30|M=HMM{K=3,lr=0.01,seed=1,stay=0.995,temper=0.6}* actMismatch=0 hitMismatch=0 PASS\nSU2|POOL=STATIC|SINK=0|GATE=META:0.2|COV=0.15|M=MSDIR{alpha=1,scales=(0.95, 0.99, 0.998),s actMismatch=0 hitMismatch=0 PASS\nSU2|POOL=STATIC|SINK=0|GATE=MASS|COV=0.50|M=RELBAYES{decay=0.995,kappa=100,lags=(1, 2)}*1; actMismatch=0 hitMismatch=0 PASS\nSU2|POOL=BMA|SINK=1|GATE=META:0.2|COV=0.30|M=BOCPD{R=160,alpha=1,hazard=0.005}*1;LOGLIN{l2 actMismatch=0 hitMismatch=0 PASS\nSU2|POOL=BMA|SINK=0|GATE=META:0.1|COV=0.20|M=HMM{K=3,lr=0.01,seed=1,stay=0.995,temper=0.6} actMismatch=0 hitMismatch=0 PASS\nSU2|POOL=GATED|SINK=0|GATE=META:0.2|COV=0.30|M=HMM{K=3,lr=0.01,seed=1,stay=0.995,temper=0. actMismatch=0 hitMismatch=0 PASS\nR13_PARITY_PASS"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:ModelLiveSU2Test",
+   "ok": true,
+   "seconds": 3.11,
+   "tail": "state bytes at t=3000: 2375585\nlive==replay SU2|POOL=STATIC|SINK=0|GATE=MASS|COV=0.30|M=HMM{K=3,lr=0.01, mismatches=0 PASS\nlive==replay SU2|POOL=STATIC|SINK=0|GATE=META:0.2|COV=0.15|M=MSDIR{alpha= mismatches=0 PASS\nlive==replay SU2|POOL=STATIC|SINK=0|GATE=MASS|COV=0.50|M=RELBAYES{decay=0 mismatches=0 PASS\nlive==replay SU2|POOL=BMA|SINK=1|GATE=META:0.2|COV=0.30|M=BOCPD{R=160,alp mismatches=0 PASS\nlive==replay SU2|POOL=BMA|SINK=0|GATE=META:0.1|COV=0.20|M=HMM{K=3,lr=0.01 mismatches=0 PASS\nlive==replay SU2|POOL=GATED|SINK=0|GATE=META:0.2|COV=0.30|M=HMM{K=3,lr=0. mismatches=0 PASS\nlate-born bootstrap mismatches=0 PASS\nR13_LIVE_EQUALS_REPLAY_PASS"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:XiIncumbentSU2Test",
+   "ok": true,
+   "seconds": 4.84,
+   "tail": "java acts=544 hits=177 rate=0.3254 | python acts=544 hits=177 rate=0.3254 | actMismatch=0 (0.00%) hitMismatch=0 positionMismatch=0 | 1s\ndecideNext/decideNextFull (act, position, K3, phat, table) == replay at 5 targets: mismatches=0  genomeKey=35992c827c068919...\nXI_INCUMBENT_PARITY_PASS"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:MainlinePolicySU2Test",
+   "ok": true,
+   "seconds": 0.09,
+   "tail": "keep_xi steps=30 mismatches=0 final=XI_INCUMBENT:XI_INCUMBENT_V1 events=[]\nswitch steps=30 mismatches=0 final=SU2:edge events=[3750:SU2:edge:SWITCH_CHALLENGER_BEATS_CURRENT]\ndemote steps=30 mismatches=0 final=XI_INCUMBENT:XI_INCUMBENT_V1 events=[3250:SU2:decay:SWITCH_CHALLENGER_BEATS_CURRENT, 7750:XI_INCUMBENT:XI_INCUMBENT_V1:DEMOTE_TO_INCUMBENT]\ninsample steps=30 mismatches=0 final=XI_INCUMBENT:XI_INCUMBENT_V1 events=[]\nlowcov steps=30 mismatches=0 final=XI_INCUMBENT:XI_INCUMBENT_V1 events=[]\nR13_IPM_PARITY_PASS steps=150"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:ModelEvolutionSU2Test",
+   "ok": true,
+   "seconds": 96.47,
+   "tail": "REGIME world:\n  checkpoint 6000 champion=P = softmax(BMA[LOGLIN{l2=0.001,lr=0.05,sources=((3, 1), (7, 1), (0, 2))}; KALMAN{horizon=1,q_level=5e-06,q_slope=0,temp=8}]) -> best position Top3 | confidence gate MASS | target frequency 30% forward=237/626\n  checkpoint 8000 champion=P = softmax(BMA[LOGLIN{l2=0.0001,lr=0.05,sources=((3, 1), (7, 1), (0, 2))}; KALMAN{horizon=1,q_level=5e-06,q_slope=0,temp=8}]) -> best position Top3 | confidence gate MASS | target frequency 30% forward=183/539\n  effectiveGenerations=5 repairNotes=14 e.g. PARENT_LOSES_WHEN_BOCPD_STATE_LOW|rate=0.3193|n=238|gap=-0.0164|CHILD_ADDS_BOCPD_AND_APPLICABILITY_GATE|parentDev=0.3053|childDev=0.2961\nNULL world:\n  checkpoint 6000 champion=P = softmax(1*log MSDIR{alpha=1,scales=(0.95, 0.99, 0.998),share=0.01}) -> best position Top3 | confidence gate MASS | target frequency 20% forward=106/416\n  checkpoint 8000 champion=P = softmax(1*log KALMAN{horizon=20,q_level=2e-05,q_slope=2e-08,temp=16} + 1*log KALMAN{horizon=1,q_level=2e-05,q_slope=2e-08,temp=16} + 1*log BOCPD{R=160,alpha=3,hazard=0.005}) -> best position Top3 | applicability gate META(C=0.2) | target frequency 50% forward=303/968\n  effectiveGenerations=5 repairNotes=25 e.g. PARENT_LOSES_WHEN_HMM_STATE_LOW|rate=0.2808|n=146|gap=-0.0409|CHILD_ADDS_HMM_AND_APPLICABILITY_GATE|parentDev=0.3088|childDev=0.3090\nREGIME forward 0.3605 (Wilson95 0.3377)  NULL forward 0.2955  time 96s\nR13_JAVA_FOUNDRY_PASS"
+  },
+  {
+   "layer": "L1",
+   "name": "L1:ReportStorageSU2Test",
+   "ok": true,
+   "seconds": 0.1,
+   "tail": "20 failed full reports, raw=false: OLD recovery bytes=5,443,256,320 (20 packages)  NEW=12,288 (3 packages) PASS\n20 failed full reports, raw=true: OLD recovery bytes=5,443,256,320 (20 packages)  NEW=12,288 (3 packages) PASS\nraw request: >256MB attached=false  1MB attached=true\nabandoned job dirs: unreadable+25h=true fresh=false published=false PASS\nFULL_REPORT stage deadline = start + 30 min (was Long.MAX_VALUE)\nSTORAGE_CENSUS_SU2|total=598553928|entries=16|truncated=false|CACHE=1024|DATABASE=272158720|MODEL_BUNDLES=0|OTHER=0|REPORTS=52428800|REPORT_RECOVERY=272162816|RESEARCH_CAS=1048576|TRAINING_CAS=0|WAL=753992|largest=files/r981_reports/recovery/0000000000000000000000000000000000000000000000000000000000000002/r.zip:272162816;databases/ethk3.db:272158720;files/r981_reports/published/a/report.zip:524288 PASS\nR13_REPORT_STORAGE_PASS"
+  },
+  {
+   "layer": "L2",
+   "name": "L2:rules",
+   "ok": true,
+   "rules": [
+    {
+     "rule": "never_worse_than_XI:world_NULL",
+     "ok": true,
+     "detail": "mainline 0.2852 vs XI 0.2852, p(worse)=0.500, periods on XI 10000/10000"
+    },
+    {
+     "rule": "frequency_floor:world_NULL",
+     "ok": true,
+     "detail": "mainline coverage 0.152"
+    },
+    {
+     "rule": "never_worse_than_XI:world_REGIME",
+     "ok": true,
+     "detail": "mainline 0.3316 vs XI 0.3211, p(worse)=0.795, periods on XI 1000/10000"
+    },
+    {
+     "rule": "frequency_floor:world_REGIME",
+     "ok": true,
+     "detail": "mainline coverage 0.918"
+    },
+    {
+     "rule": "never_worse_than_XI:world_CROSS",
+     "ok": true,
+     "detail": "mainline 0.2846 vs XI 0.2974, p(worse)=0.189, periods on XI 8500/10000"
+    },
+    {
+     "rule": "frequency_floor:world_CROSS",
+     "ok": true,
+     "detail": "mainline coverage 0.279"
+    },
+    {
+     "rule": "never_worse_than_XI:world_DRIFT",
+     "ok": true,
+     "detail": "mainline 0.3119 vs XI 0.3119, p(worse)=0.500, periods on XI 10000/10000"
+    },
+    {
+     "rule": "frequency_floor:world_DRIFT",
+     "ok": true,
+     "detail": "mainline coverage 0.146"
+    },
+    {
+     "rule": "never_worse_than_XI:world_MIX",
+     "ok": true,
+     "detail": "mainline 0.3171 vs XI 0.3171, p(worse)=0.500, periods on XI 10000/10000"
+    },
+    {
+     "rule": "frequency_floor:world_MIX",
+     "ok": true,
+     "detail": "mainline coverage 0.156"
+    },
+    {
+     "rule": "never_worse_than_XI:real_repo_10k",
+     "ok": true,
+     "detail": "mainline 0.2816 vs XI 0.2816, p(worse)=0.500, periods on XI 6000/6000"
+    },
+    {
+     "rule": "frequency_floor:real_repo_10k",
+     "ok": true,
+     "detail": "mainline coverage 0.150"
+    },
+    {
+     "rule": "never_worse_than_XI:real_report_543",
+     "ok": true,
+     "detail": "mainline 0.3344 vs XI 0.3344, p(worse)=0.500, periods on XI 1995/1995"
+    },
+    {
+     "rule": "frequency_floor:real_report_543",
+     "ok": true,
+     "detail": "mainline coverage 0.162"
+    },
+    {
+     "rule": "never_worse_than_XI:control_repo_shuffled",
+     "ok": true,
+     "detail": "mainline 0.3004 vs XI 0.3004, p(worse)=0.500, periods on XI 6000/6000"
+    },
+    {
+     "rule": "frequency_floor:control_repo_shuffled",
+     "ok": true,
+     "detail": "mainline coverage 0.154"
+    },
+    {
+     "rule": "never_worse_than_XI:control_report_shuffled",
+     "ok": true,
+     "detail": "mainline 0.2997 vs XI 0.2997, p(worse)=0.500, periods on XI 1995/1995"
+    },
+    {
+     "rule": "frequency_floor:control_report_shuffled",
+     "ok": true,
+     "detail": "mainline coverage 0.149"
+    },
+    {
+     "rule": "no_false_edge:world_NULL",
+     "ok": true,
+     "detail": "mainline 0.2852, p=0.9023"
+    },
+    {
+     "rule": "no_false_edge:control_repo_shuffled",
+     "ok": true,
+     "detail": "mainline 0.3004, p=0.5010"
+    },
+    {
+     "rule": "no_false_edge:control_report_shuffled",
+     "ok": true,
+     "detail": "mainline 0.2997, p=0.5269"
+    },
+    {
+     "rule": "structure_captured:world_REGIME",
+     "ok": true,
+     "detail": "best tier 0.3276@1.00 wilson 0.3199"
+    },
+    {
+     "rule": "structure_captured:world_CROSS",
+     "ok": true,
+     "detail": "best tier 0.3158@1.00 wilson 0.3082"
+    },
+    {
+     "rule": "structure_captured:world_DRIFT",
+     "ok": true,
+     "detail": "best tier 0.3300@1.00 wilson 0.3223"
+    },
+    {
+     "rule": "structure_captured:world_MIX",
+     "ok": true,
+     "detail": "best tier 0.3238@1.00 wilson 0.3162"
+    },
+    {
+     "rule": "mainline_beats_30_on_REGIME",
+     "ok": true,
+     "detail": "0.3316@0.92 wilson 0.3236"
+    }
+   ]
+  },
+  {
+   "layer": "L3",
+   "name": "L3:worktree",
+   "ok": true,
+   "seconds": 0.48,
+   "tail": "HEAD is now at 0f1fb60 Record generated SU1 source identities\nPreparing worktree (detached HEAD 0f1fb60)"
+  },
+  {
+   "layer": "L3",
+   "name": "L3:before_sha",
+   "ok": true,
+   "mismatch": []
+  },
+  {
+   "layer": "L3",
+   "name": "L3:git_am_01_to_10",
+   "ok": true,
+   "seconds": 0.43,
+   "tail": ""
+  },
+  {
+   "layer": "L3",
+   "name": "L3:javac_patched_SU2_(29_files)",
+   "ok": true,
+   "seconds": 1.57,
+   "tail": ""
+  },
+  {
+   "layer": "L3",
+   "name": "L3:javac_parse_15_modified_files",
+   "ok": true,
+   "seconds": 0.52,
+   "tail": ""
+  },
+  {
+   "layer": "L3",
+   "name": "L3:ProgramModelSU2Test",
+   "ok": true,
+   "seconds": 1.31,
+   "tail": "EXPERT(1)                                rowSum=1.000000 state=[0.38077867, 3.237843, 0.3198] msPerPeriod=0.03\nADD(EXPERT(2),XT(3))                     rowSum=1.000000 state=[0.45836604, 5.0996366, 0.3198] msPerPeriod=0.56\nATOM(FREQUENCY,window=80)                rowSum=1.000000 state=[0.38071066, 3.3329155, 0.3198] msPerPeriod=0.14\nPROGRAM_ADAPTER_PASS"
+  },
+  {
+   "layer": "L3",
+   "name": "L3:worktree_remove",
+   "ok": true,
+   "seconds": 0.05,
+   "tail": ""
+  }
+ ]
+}

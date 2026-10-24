@@ -11319,6 +11319,12 @@ public final class DecisionGateEngine {
                                     ? V51Enums.RejectCode.DUPLICATE_TRADE
                                     : V51Enums.RejectCode.MODEL_NOT_PROVEN;
         }
+        // R13-P04: a certified selective SU2 lane is governed at run time by its certificate, its frozen
+        // ACT decision and the user's explicit switch - not by compile-time constants that are always false.
+        if (c.certifiedPrediction != null && c.certifiedPrediction.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX))
+            return com.ethk3.novaonepro.strategyv2.RealAuthoritySU2.allows(store, c.certifiedPrediction.candidate,
+                    c.certifiedPrediction.certificate, c.certifiedPrediction.target, c.certifiedPrediction.deadlineAt)
+                    ? V51Enums.RejectCode.NONE : V51Enums.RejectCode.MODEL_NOT_PROVEN;
         if (!AppConfig.R35_REAL_AUTO_UNLOCK_ENABLED) return V51Enums.RejectCode.MODEL_NOT_PROVEN;
         if (c.policy.realEligible) {
             if (!V51NumberModelArtifact.PROVEN

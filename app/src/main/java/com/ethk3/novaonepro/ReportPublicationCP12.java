@@ -96,10 +96,17 @@ public final class ReportPublicationCP12 {
  }
  private static void cleanChildren(File directory,Set<String> keep)throws IOException{File[] files=directory.listFiles();if(files==null)throw new IOException("REPORT_CLEANUP_LIST");if(files.length>4096)throw new IOException("REPORT_CLEANUP_DIRECTORY_LIMIT");for(File file:files){if(keep.contains(file.getName()))continue;if(!file.getAbsoluteFile().equals(file.getCanonicalFile()))throw new IOException("REPORT_CLEANUP_SYMLINK");if(file.isDirectory())cleanChildren(file,Collections.<String>emptySet());if(!file.delete())throw new IOException("REPORT_CLEANUP_FAILED");}}
 
- public static void pruneTerminal(File root,String current)throws Exception{File jobs=new File(root,"jobs");File[] dirs=jobs.listFiles();if(dirs==null)return;if(dirs.length>48)throw new IOException("REPORT_JOB_DIRECTORY_LIMIT");for(File d:dirs){if(d.getName().equals(current))continue;ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(d,"job.json"),65536));if(new File(d,"published.json").exists()){if(state.stage.equals("READY_TO_SHARE"))try{cleanRaw(d,state.publishedDir);}catch(IOException cleanup){ReportJobJournalCP12.writeAtomic(new File(d,"cleanup-pending.json"),new JSONObject().put("state","UNVERIFIED_DELIVERY_PRESERVED").put("reason",String.valueOf(cleanup.getMessage())).toString());}continue;}if(state.stage.equals("FAILED")||state.stage.equals("CANCELLED")||state.stage.equals("RETENTION_READY")){cleanChildren(d,Collections.<String>emptySet());if(!d.delete())throw new IOException("REPORT_TERMINAL_CLEANUP");ReportJobJournalCP12.removeCancellation(root,state.jobId);}}}
+ public static void pruneTerminal(File root,String current)throws Exception{File jobs=new File(root,"jobs");File[] dirs=jobs.listFiles();if(dirs==null)return;
+  // R13-P34: >48 job directories or one unreadable job.json used to throw here; cleanup then stopped for good and
+  // every later failed full report left one more jobs/<id>/snapshot.db behind. Both cases now clean instead.
+  for(File d:dirs){if(d.getName().equals(current))continue;ReportJobJournalCP12.Job state;
+   try{state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(d,"job.json"),65536));}
+   catch(Exception unreadable){if(ReportBudgetSU2.abandoned(d,System.currentTimeMillis())){cleanChildren(d,Collections.<String>emptySet());if(!d.delete())throw new IOException("REPORT_TERMINAL_CLEANUP");}continue;}
+   if(new File(d,"published.json").exists()){if(state.stage.equals("READY_TO_SHARE"))try{cleanRaw(d,state.publishedDir);}catch(IOException cleanup){ReportJobJournalCP12.writeAtomic(new File(d,"cleanup-pending.json"),new JSONObject().put("state","UNVERIFIED_DELIVERY_PRESERVED").put("reason",String.valueOf(cleanup.getMessage())).toString());}continue;}if(state.stage.equals("FAILED")||state.stage.equals("CANCELLED")||state.stage.equals("RETENTION_READY")){cleanChildren(d,Collections.<String>emptySet());if(!d.delete())throw new IOException("REPORT_TERMINAL_CLEANUP");ReportJobJournalCP12.removeCancellation(root,state.jobId);}}}
 
  /** Expire terminal metadata, including failures before request publication. Pending work is protected. */
  public static void pruneRequestMetadata(File root,long now)throws Exception {
+  ReportBudgetSU2.pruneHeavyRecovery(root,now);   // R13-P34: heavy recovery/saf parts: newest 3, at most 24h
   File requests=new File(root,"requests");File[] files=requests.listFiles();if(files==null)return;
   // Clean old installations before enforcing retention. A historical backlog is not an export failure.
   Set<String> pending=ReportRequestQueueCP12.pendingIds(root);List<File> terminal=new ArrayList<>();

@@ -1,0 +1,116 @@
+-- STARCORE SU2 (R13) schema: complete model strategies, every-period live ledger,
+-- league / mainline choice, retained lineage, bounded storage.
+-- Applied by StrategySchemaSU2.ensure(db) inside the research writer transaction.
+-- All tables are additive; SU1 tables are untouched. Byte growth of every table
+-- below is bounded by RetentionRulesSU2 (P33) and registered in su2_storage_budget (P31).
+
+CREATE TABLE IF NOT EXISTS su2_model_genome(
+  genome_key TEXT PRIMARY KEY CHECK(length(genome_key)=64),
+  canonical_text TEXT NOT NULL CHECK(length(canonical_text) BETWEEN 20 AND 2048 AND substr(canonical_text,1,4)='SU2|'),
+  formula TEXT NOT NULL,
+  tier TEXT NOT NULL CHECK(tier IN ('F15','F30','F100')),
+  origin_op TEXT NOT NULL,
+  parent_key TEXT CHECK(parent_key IS NULL OR length(parent_key)=64),
+  repair_note TEXT NOT NULL DEFAULT '' CHECK(length(repair_note)<=512),
+  born_campaign TEXT NOT NULL,
+  born_sequence INTEGER NOT NULL,
+  dev_fitness REAL, val_fitness REAL,
+  state TEXT NOT NULL DEFAULT 'RESEARCH' CHECK(state IN ('RESEARCH','HALL_OF_FAME','LEAGUE','RETIRED')),
+  created_at INTEGER NOT NULL
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS su2_model_genome_state ON su2_model_genome(state,tier);
+
+CREATE TABLE IF NOT EXISTS su2_lineage(
+  child_key TEXT NOT NULL, parent_key TEXT NOT NULL, op TEXT NOT NULL, campaign_id TEXT NOT NULL,
+  parent_dev REAL, child_dev REAL, note TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY(child_key,parent_key)
+) WITHOUT ROWID;
+
+CREATE TABLE IF NOT EXISTS su2_campaign(
+  campaign_id TEXT PRIMARY KEY, through_sequence INTEGER NOT NULL,
+  dev_start INTEGER NOT NULL, dev_end INTEGER NOT NULL, val_start INTEGER NOT NULL, val_end INTEGER NOT NULL,
+  generations INTEGER NOT NULL CHECK(generations BETWEEN 1 AND 64), population INTEGER NOT NULL CHECK(population BETWEEN 8 AND 64),
+  effective_generations INTEGER NOT NULL DEFAULT 0, evaluated INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL CHECK(status IN ('RUNNING','DONE','ABANDONED')), started_at INTEGER NOT NULL, finished_at INTEGER,
+  CHECK(dev_start<dev_end AND dev_end<=val_start AND val_start<val_end AND val_end<=through_sequence+1)
+) WITHOUT ROWID;
+
+-- one row: the evolution never restarts (population, hall of fame, director, tier champions)
+CREATE TABLE IF NOT EXISTS su2_evolution_state(
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1), campaign_id TEXT NOT NULL,
+  state_blob BLOB NOT NULL, byte_count INTEGER NOT NULL CHECK(byte_count=length(state_blob) AND byte_count<=4194304),
+  updated_at INTEGER NOT NULL
+);
+
+-- live online state of the shared models and of every live strategy (P06/P07)
+CREATE TABLE IF NOT EXISTS su2_live_state(
+  owner TEXT PRIMARY KEY,                  -- 'HUB' or a genome_key
+  through_sequence INTEGER NOT NULL,       -- last settled sequence folded into the state
+  state_blob BLOB NOT NULL, byte_count INTEGER NOT NULL CHECK(byte_count=length(state_blob) AND byte_count<=16777216),
+  updated_at INTEGER NOT NULL
+) WITHOUT ROWID;
+
+-- every live strategy, every period, acted or not (training + settlement + feedback)
+CREATE TABLE IF NOT EXISTS su2_live_decision(
+  genome_key TEXT NOT NULL, sequence_ordinal INTEGER NOT NULL,
+  position INTEGER NOT NULL CHECK(position BETWEEN 1 AND 10),
+  number_mask INTEGER NOT NULL CHECK(number_mask BETWEEN 7 AND 896),
+  act INTEGER NOT NULL CHECK(act IN (0,1)),
+  gscore REAL NOT NULL, phat REAL,
+  frozen_at INTEGER NOT NULL, target_open_time INTEGER NOT NULL CHECK(frozen_at<target_open_time),
+  hit INTEGER CHECK(hit IS NULL OR hit IN (0,1)), settled_at INTEGER,
+  PRIMARY KEY(genome_key,sequence_ordinal)
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS su2_live_decision_seq ON su2_live_decision(sequence_ordinal);
+CREATE TRIGGER IF NOT EXISTS su2_live_decision_freeze BEFORE UPDATE OF genome_key,sequence_ordinal,position,number_mask,act,gscore,phat,frozen_at,target_open_time ON su2_live_decision
+BEGIN SELECT RAISE(ABORT,'SU2_DECISION_FROZEN'); END;
+CREATE TRIGGER IF NOT EXISTS su2_live_decision_settle_once BEFORE UPDATE OF hit ON su2_live_decision WHEN OLD.hit IS NOT NULL
+BEGIN SELECT RAISE(ABORT,'SU2_DECISION_SETTLED_ONCE'); END;
+CREATE TRIGGER IF NOT EXISTS su2_live_decision_popcount BEFORE INSERT ON su2_live_decision
+WHEN ((NEW.number_mask&1)+((NEW.number_mask>>1)&1)+((NEW.number_mask>>2)&1)+((NEW.number_mask>>3)&1)+((NEW.number_mask>>4)&1)+((NEW.number_mask>>5)&1)+((NEW.number_mask>>6)&1)+((NEW.number_mask>>7)&1)+((NEW.number_mask>>8)&1)+((NEW.number_mask>>9)&1))<>3
+BEGIN SELECT RAISE(ABORT,'SU2_DECISION_NOT_K3'); END;
+
+-- bounded daily aggregate kept after raw decisions expire
+CREATE TABLE IF NOT EXISTS su2_live_daily(
+  genome_key TEXT NOT NULL, day_key INTEGER NOT NULL, periods INTEGER NOT NULL, actions INTEGER NOT NULL, hits INTEGER NOT NULL,
+  closed_at INTEGER NOT NULL, PRIMARY KEY(genome_key,day_key), CHECK(hits<=actions AND actions<=periods)
+) WITHOUT ROWID;
+
+-- league: every tier champion ever produced, the user's original method as INCUMBENT, certified legacy
+CREATE TABLE IF NOT EXISTS su2_league(
+  member_id TEXT PRIMARY KEY, kind TEXT NOT NULL CHECK(kind IN ('SU2','SU1','XI_INCUMBENT','LEGACY')),
+  name TEXT NOT NULL, genome_key TEXT, joined_sequence INTEGER NOT NULL,
+  state TEXT NOT NULL DEFAULT 'ACTIVE' CHECK(state IN ('ACTIVE','RETIRED'))
+) WITHOUT ROWID;
+
+CREATE TABLE IF NOT EXISTS su2_mainline_choice(
+  from_sequence INTEGER PRIMARY KEY, member_id TEXT NOT NULL, score REAL NOT NULL, incumbent_score REAL,
+  reason TEXT NOT NULL, window_start INTEGER NOT NULL, chosen_at INTEGER NOT NULL
+);
+
+-- P31: physical byte ledger (census + per-category caps)
+CREATE TABLE IF NOT EXISTS su2_storage_budget(
+  category TEXT PRIMARY KEY, cap_bytes INTEGER NOT NULL CHECK(cap_bytes>0), measured_bytes INTEGER NOT NULL DEFAULT 0,
+  measured_at INTEGER NOT NULL DEFAULT 0, action TEXT NOT NULL DEFAULT ''
+) WITHOUT ROWID;
+INSERT OR IGNORE INTO su2_storage_budget(category,cap_bytes) VALUES
+ ('DATABASE',402653184),('WAL',67108864),('REPORTS',536870912),('REPORT_RECOVERY',134217728),
+ ('RESEARCH_CAS',268435456),('TRAINING_CAS',134217728),('MODEL_BUNDLES',201326592),('CACHE',67108864),('OTHER',134217728),('TOTAL',1610612736);
+
+-- P27: selective certificates (ACT-conditioned evidence on live records; 24h expiry; bound to the genome text)
+CREATE TABLE IF NOT EXISTS su2_certificate(
+  certificate_id TEXT PRIMARY KEY CHECK(length(certificate_id)=64),
+  genome_key TEXT NOT NULL, program_hash TEXT NOT NULL, window_start INTEGER NOT NULL, window_end INTEGER NOT NULL,
+  acts INTEGER NOT NULL, hits INTEGER NOT NULL, lower_bound REAL NOT NULL CHECK(lower_bound>0.30), coverage REAL NOT NULL CHECK(coverage>=0.15),
+  worst_block REAL NOT NULL, paired_upper REAL, look INTEGER NOT NULL CHECK(look>=1), alpha REAL NOT NULL,
+  calibration_a REAL NOT NULL, calibration_b REAL NOT NULL, ece REAL NOT NULL CHECK(ece<=0.04),
+  issued_at INTEGER NOT NULL, expires_at INTEGER NOT NULL CHECK(expires_at>issued_at AND expires_at<=issued_at+86400000)
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS su2_certificate_genome ON su2_certificate(genome_key,issued_at);
+CREATE TABLE IF NOT EXISTS su2_alpha_look(genome_key TEXT PRIMARY KEY, looks INTEGER NOT NULL CHECK(looks>=0)) WITHOUT ROWID;
+
+-- P30: one mainline binding per target (exactly one REAL per period, through the existing owner)
+CREATE TABLE IF NOT EXISTS su2_mainline_binding(
+  target_issue INTEGER PRIMARY KEY, genome_key TEXT NOT NULL, certificate_id TEXT NOT NULL, decision_hash TEXT NOT NULL,
+  selected_hit_p REAL NOT NULL CHECK(selected_hit_p>0 AND selected_hit_p<1), bound_at INTEGER NOT NULL
+);

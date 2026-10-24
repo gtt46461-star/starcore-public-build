@@ -10,6 +10,7 @@ import numpy as np
 from cryptography.hazmat.primitives import hashes,serialization
 from cryptography.hazmat.primitives.asymmetric import padding,rsa
 from training.r929 import pipeline as p,deep_candidates as d
+from training.r932 import drift_policy_r82 as drift
 
 def export(directory:Path,contract_path:Path,key_path:Path,output:Path,valid_until_ms:int):
     contract=p.read_json(contract_path);_x,_y,issues,dataset=p.load_dataset(directory)
@@ -42,6 +43,11 @@ def export(directory:Path,contract_path:Path,key_path:Path,output:Path,valid_unt
     c=components['CALIBRATION'];c['parameters']['TRAINED_MODEL']=cal['model'];c['trained_until_issue']=issues[dataset['splits']['calibration'][1]-1]
     m=cal['metrics'];c['parameters'].update(INPUT_SCHEMA_SHA256=contract['meta_schema_sha256'],OOS_BRIER=m['brier'],OOS_ECE=m['ece'],CALIBRATION_SUPPORT_N=m['n'],CALIBRATION_HITS=m['hits'],RELIABILITY_BIN_MIN_N=m['reliability_bin_min_n'])
     components['POLICY']['trained_until_issue']=issues[dataset['splits']['policy'][1]-1]
+    drift_path=directory/'drift_policy_r82.json'
+    if drift_path.exists():
+        monitor=drift.validate(p.read_json(drift_path),issues[dataset['splits']['tune'][1]-1])
+        if monitor['tune_first']<issues[dataset['splits']['tune'][0]]:raise ValueError('R82_DRIFT_TUNE_OUTSIDE_DECLARED_SPLIT')
+        components['POLICY']['parameters']['drift_policy_r82']=monitor
     files={};entries=[];artifact_hashes={};selector=''
     for name in ('NUMBER','GATE','RANKER','CALIBRATION','PREDICTABILITY','POLICY'):
         component=components[name];params=component['parameters']

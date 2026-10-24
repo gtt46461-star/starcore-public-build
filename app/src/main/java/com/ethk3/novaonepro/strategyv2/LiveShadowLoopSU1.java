@@ -58,7 +58,9 @@ public final class LiveShadowLoopSU1 {
                         else{for(int u=lo;u<block;u++){double[][] prior=program.score(new ProgramTreeSU1.Context(history,u,atoms,cache,budget).withFitted(fitted).withGraphFitted(graph));int[] a=ProgramTreeSU1.action(prior);gate[u]=HistoricalReplayEngineSU1.gateValue(prior,a[0],m.margin);}
                             act=HistoricalReplayEngineSU1.gateValue(scores,action[0],m.margin)>=HistoricalReplayEngineSU1.quantileLinear(gate,lo,block,1-m.coverage);}
                     }
-                    prepared.add(new Prepared(m,action[0],(1<<(action[1]-1))|(1<<(action[2]-1))|(1<<(action[3]-1)),act?"FROZEN":"GATE_SKIP","RAW_K3_HEX="+Double.toHexString(HistoricalReplayEngineSU1.positionMasses(scores)[action[0]-1])));
+                    int k3mask=(1<<(action[1]-1))|(1<<(action[2]-1))|(1<<(action[3]-1));
+                    // R13-P06: a GATE_SKIP period keeps its would-be action, so it is settled and trains the gate too
+                    prepared.add(new Prepared(m,action[0],k3mask,act?"FROZEN":"GATE_SKIP","POS="+action[0]+"|MASK="+k3mask+"|RAW_K3_HEX="+Double.toHexString(HistoricalReplayEngineSU1.positionMasses(scores)[action[0]-1])));
                 }catch(BudgetTokenSU1.Yield yield){prepared.add(new Prepared(m,0,0,"BUDGET_SKIP",yield.getMessage()));}
                 catch(IllegalArgumentException failure){prepared.add(new Prepared(m,0,0,"COMPUTE_FAILED",failure.toString()));}
             }

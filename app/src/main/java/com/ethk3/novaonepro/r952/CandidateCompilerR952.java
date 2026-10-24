@@ -42,6 +42,7 @@ public final class CandidateCompilerR952 {
         LongSummaryBindingsR80.validate(ast,manifest,new ArrayList<>(indexed.values()));
         Modern.need(requiredHistory==manifest.requiredHistory,"HISTORY_MANIFEST_MISMATCH");
         Modern.need(estimateStateBytes(ast,indexed.values())<=manifest.estimatedStateBytes,"MEMORY_ESTIMATE_MISMATCH");
+        FeatureMetadataR82.validate(ast,manifest,new ArrayList<>(indexed.values()));
         return new Program(ast,manifest,new ArrayList<>(indexed.values()));
     }
     /** Same sufficient-statistic sharing keys as AtomWindowCP4; budget includes bindings and graph values. */

@@ -313,7 +313,9 @@ public final class FrozenCandidateAdapterR958 {
         Collections.sort(newest,(a,b)->b.issue.compareTo(a.issue));
         if(newest.size()<ast.lookback)throw new IllegalStateException("R958_EVAL_HISTORY_SUPPORT");
         CandidateExecutionAuditR932.Builder proof=audit?new CandidateExecutionAuditR932.Builder():null;
-        double[] probabilities=model.probabilities(CandidateCompilerR952.compile(ast).features(newest));
+        double[] frozenFeaturesR82=CandidateCompilerR952.compile(ast).features(newest);
+        double[] probabilities=model.probabilities(frozenFeaturesR82);
+        if(proof!=null)try{proof.stabilityR82(FrozenInputStabilityR82.evaluate(model,frozenFeaturesR82));}catch(JSONException bad){throw new IllegalStateException("R82_STABILITY_JSON",bad);}
         double[] replay=CandidateCompilerR952.Model.parse(model.payload()).probabilities(CandidateCompilerR952.compile(CandidateAstR952.parse(ast.canonical)).features(newest));
         K3ActionSpaceEngine.ActionIdentity[] actions=K3ActionSpaceEngine.enumerateIdentityUniverse();
         double[] scores=new double[actions.length];int best=0;
@@ -441,9 +443,11 @@ public final class FrozenCandidateAdapterR958 {
                     if(node.kind!=TypedAtomMoleculeGraphR930.NodeKind.ATOM||matrixNodeIds.contains(node.qualifiedId()))continue;
                     AtomSpecCP4 spec=program.specById(node.source);if(spec.requiresSummary)continue;AtomEvaluatorCP4.Binding bound=bindings.get(spec.atomId);
                     if(spec.requiresBinding&&inputsR80!=null){TypedAtomMoleculeGraphR930.Value value=inputsR80.atoms.get(node.qualifiedId());if(value==null)throw new IllegalStateException("BOUND_LIVE_NODE_MISSING");atomValues.put(node.qualifiedId(),value);continue;}
+                    long atomStartedR82=System.nanoTime();
                     AtomEvaluatorCP4.Result result=AtomEvaluatorCP4.evaluate(spec.mathSpec,window,bound,pit.history.size());
+                    long atomElapsedR82=Math.max(1L,System.nanoTime()-atomStartedR82);
                     String source=V51ChecksumEngine.sha256("CP8_ATOM|"+pit.snapshotHash+'|'+spec.specHash+'|'+(bound==null?"":bound.payloadHash));
-                    atomValues.put(node.qualifiedId(),new TypedAtomMoleculeGraphR930.Value(new double[]{result.value},new boolean[]{result.present},pit.lastIssue,at,0,source));
+                    atomValues.put(node.qualifiedId(),new TypedAtomMoleculeGraphR930.Value(new double[]{result.value},new boolean[]{result.present},pit.lastIssue,at,atomElapsedR82,source));
                 }
             }
             ArrayList<FrozenGraphContextCP4.ExpertPrediction> experts=new ArrayList<FrozenGraphContextCP4.ExpertPrediction>();
@@ -518,6 +522,8 @@ public final class FrozenCandidateAdapterR958 {
         double[] replay=CandidateCompilerR952.Model.parse(model.payload()).probabilities(CandidateCompilerR952.decodeInput(prediction.features,model.inputDimension(),false));
         K3ActionSpaceEngine.ActionIdentity[] actions=K3ActionSpaceEngine.enumerateIdentityUniverse();
         CandidateExecutionAuditR932.Builder builder=audit?new CandidateExecutionAuditR932.Builder():null;
+        if(builder!=null)try{builder.stabilityR82(FrozenInputStabilityR82.evaluate(model,CandidateCompilerR952.decodeInput(prediction.features,model.inputDimension(),false)));}catch(JSONException bad){throw new IllegalStateException("R82_STABILITY_JSON",bad);}
+        if(builder!=null)try{builder.atomCostsR82(atomCostsR82(program,ctx));}catch(JSONException bad){throw new IllegalStateException("R82_ATOM_COST_JSON",bad);}
         double[] scores=new double[actions.length];int best=0;
         for(K3ActionSpaceEngine.ActionIdentity x:actions){int i=x.globalOrdinal;
             scores[i]=x.position==ast.position?p[x.n1-1]+p[x.n2-1]+p[x.n3-1]:0;
@@ -525,6 +531,17 @@ public final class FrozenCandidateAdapterR958 {
             if(builder!=null)builder.add(i,scores[i],other,i);if(scores[i]>scores[best])best=i;
         }
         return new Scored(scores,best,builder==null?null:builder.finish(best,ast.canonical,ast.canonical,model.payload(),model.payload(),model.payload()));
+    }
+    /** Costs are evidence, deliberately outside the deterministic inference/context hash. */
+    static JSONObject atomCostsR82(CandidateCompilerR952.Program program,FrozenGraphContextCP4 ctx)throws JSONException{
+        JSONArray records=new JSONArray();int measured=0;long total=0;
+        for(TypedAtomMoleculeGraphR930.NodeSpec node:program.ast.graphSpec.nodes){
+            if(node.kind!=TypedAtomMoleculeGraphR930.NodeKind.ATOM)continue;
+            AtomSpecCP4 spec=program.specById(node.source);TypedAtomMoleculeGraphR930.Value value=ctx.replayFrozenAtoms.get(node.qualifiedId());
+            if(value==null)throw new IllegalStateException("R82_ATOM_COST_CLOSURE");JSONObject row=new JSONObject();row.put("atom_id",spec.atomId);row.put("spec_hash",spec.specHash);row.put("node_id",node.qualifiedId());row.put("input_hash",value.sourceHash);row.put("output_hash",value.valueHash);row.put("target_issue",ctx.target);row.put("max_source_issue",value.maxSourceIssue);
+            row.put("scope","ORIGINAL_SINGLE_ATOM_EVALUATE_NO_PREPARATION_OR_OTHER_NODE_COST");row.put("cost_ns",value.latencyNs>0?value.latencyNs:JSONObject.NULL);row.put("status",value.latencyNs>0?"MEASURED":"MISSING_ORIGINAL_MEASUREMENT");if(value.latencyNs>0){measured++;total+=value.latencyNs;}records.put(row);
+        }
+        JSONObject out=new JSONObject();out.put("revision","R82_ORIGINAL_ATOM_COST_V1");out.put("target_issue",ctx.target);out.put("model_hash",ctx.modelHash);out.put("pit_hash",ctx.pitHash);out.put("atom_n",records.length());out.put("measured_n",measured);out.put("missing_n",records.length()-measured);out.put("measured_total_ns",measured>0?total:JSONObject.NULL);out.put("records",records);out.put("may_authorize_real",false);return out;
     }
     static Scored scoreRecipeCP8(FrozenConsumerRecipeR932.Recipe recipe,CandidateAstR952 ast,CandidateCompilerR952.Model model){
         if(ast.formatVersion!=3)return score(ast,model,recipe.frozenHistory,false);

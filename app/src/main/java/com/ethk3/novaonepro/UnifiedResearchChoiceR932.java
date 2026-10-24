@@ -132,6 +132,13 @@ public final class UnifiedResearchChoiceR932 {
             com.ethk3.novaonepro.strategyv2.CertificateSU1.Authority su1=com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.first(store,target);
             if(su1!=null){consumer="INVENTED_ALGORITHM";candidate=su1.candidate();structure=su1.program;certificate=su1.certificate;roster.append("|SU1_EXACT:").append(su1.certificate);}
         }
+        if(consumer.isEmpty()){
+            // R13-P30: league choice; ACT + valid selective certificate -> certified lane, otherwise shadow only
+            com.ethk3.novaonepro.strategyv2.MainlineBridgeSU2.Intent su2=com.ethk3.novaonepro.strategyv2.MainlineBridgeSU2.intent(store.readable(),TargetIssueResolver.sequenceOrdinalSU1(target));
+            if(su2!=null&&su2.real){com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a2=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),su2.genomeKey,System.currentTimeMillis());
+                if(a2!=null){consumer="INVENTED_ALGORITHM";candidate=a2.candidate();structure=a2.program;certificate=a2.certificate;roster.append("|SU2_EXACT:").append(a2.certificate);}}
+            else if(su2!=null)roster.append("|SU2_SHADOW_ONLY:").append(su2.gate);
+        }
         if(consumer.isEmpty()&&rejections.isEmpty()){
             String latest="NO_CERTIFICATE_RECORD";
             try(Cursor last=store.readable().rawQuery("SELECT state,reason FROM "+ResearchPlatformStoreR929.TABLE_CERTIFICATE

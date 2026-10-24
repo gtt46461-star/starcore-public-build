@@ -23,6 +23,8 @@ public final class StrategyResearchActivitySU1 extends Activity {
         add(root,R.string.su1_import,()->{android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT);intent.setType("*/*");intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);startActivityForResult(intent,5101);});
         add(root,R.string.su1_use_verified,()->refresh("MAINLINE_ADAPTER"));
         add(root,R.string.su1_rollback_model,()->refresh("ROLLBACK_MODEL"));
+        add(root,R.string.su2_real_enable,()->new android.app.AlertDialog.Builder(this).setTitle(R.string.su2_real_enable).setMessage("仅允许持有有效样本外证书、且本期已在开奖前冻结出手的策略进入主链。没有有效证书时仍不出手；历史成绩不保证后续结果。").setNegativeButton("取消",null).setPositiveButton("确认启用",(d,w)->refresh("SU2_REAL_ON")).show());
+        add(root,R.string.su2_real_disable,()->refresh("SU2_REAL_OFF"));
         ScrollView scroll=new ScrollView(this);text=new TextView(this);text.setTextSize(15);text.setTextIsSelectable(true);scroll.addView(text);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);refresh(null);
     }
     private void add(LinearLayout parent,int label,Runnable action){Button button=new Button(this);button.setText(label);button.setOnClickListener(v->action.run());parent.addView(button);}
@@ -38,6 +40,16 @@ public final class StrategyResearchActivitySU1 extends Activity {
                 else if(!StrategySchemaSU1.ready(owner.readable()))result=waitingForDatabase(false);
                 else{
                     if(mode!=null)owner.runAtomicWriteOrThrowF01("SU1_USER_MODE",db->{
+                        if(mode.equals("SU2_REAL_ON")||mode.equals("SU2_REAL_OFF")){
+                            boolean enabled=mode.equals("SU2_REAL_ON");
+                            if(enabled){
+                                boolean valid=false;
+                                if(StrategySchemaSU2.ready(db))try(Cursor c=db.rawQuery("SELECT genome_key FROM su2_model_genome WHERE state='LEAGUE' LIMIT 32",null)){while(c.moveToNext())if(CertificateSU2.read(db,c.getString(0),System.currentTimeMillis())!=null){valid=true;break;}}
+                                if(!valid){lastAction="尚无有效样本外证书，实盘授权保持关闭。";return 0;}
+                            }
+                            db.execSQL("INSERT OR REPLACE INTO app_state(state_key,state_value,updated_at) VALUES(?,?,?)",new Object[]{RealAuthoritySU2.USER_SWITCH,enabled?"1":"0",System.currentTimeMillis()});
+                            lastAction=enabled?"已启用：仍须逐期通过证书、冻结出手与唯一主链校验。":"已关闭实盘授权；继续影子观察与训练。";return 0;
+                        }
                         if(mode.equals("ROLLBACK_MODEL")){lastAction=MainlineHeadSU1.rollback(db,System.currentTimeMillis())?"已回退到仍持有效证书的父代；自动晋级已暂停。":"没有仍持有效证书的父代，已保留当前策略和原始证据。";return 0;}
                         if(mode.equals("MAINLINE_ADAPTER")){
                             boolean valid=false;try(Cursor c=db.rawQuery("SELECT certificate_id FROM su1_certificate ORDER BY issued_at DESC LIMIT 32",null)){while(c.moveToNext())if(CertificateSU1.read(db,c.getString(0),System.currentTimeMillis(),false)!=null){valid=true;break;}}
