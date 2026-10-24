@@ -2,9 +2,21 @@
   "base_commit": "f3e249ce3aef9a8975abe0be38cbe2d1183e4078",
   "inputs": [
     {
+      "path": ".github/r13-signing.sealed.json",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "144b9c474139f4338768410d541cbe3cada2fb2a59f70d33299147736efab120"
+    },
+    {
       "path": ".github/su1-api-credential.sealed.json",
       "role": "NUMERIC",
       "sha256": "257892cc4531cde5b326073841dc6e678e1c6983c5f660a34c1b9d8d451ecc8e"
+    },
+    {
+      "path": ".github/workflows/r13.yml",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "5e4fce262ec7b699d9ad0c291e69d0eec55152e023fdb500c872f384fc8c3132"
     },
     {
       "path": ".github/workflows/strategy-su1.yml",
@@ -19,7 +31,13 @@
     {
       "path": "app/build.gradle",
       "role": "BUILD_CONTRACT",
-      "sha256": "8f47d77ec75945034cdb9195c69e3e8fe464038618084341db95f365e7f3fd67"
+      "sha256": "7766ad1492643e99e682b82d0af857dc2e842d3f1cb35abda3aa786e59e51ec9"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/SchemaAndChartsR13Test.java",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "PROVENANCE",
+      "sha256": "0c1c8bbf25bdcc769c0389c3ac4e261df51631b025fa3d07e990a155dd77dc71"
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
@@ -199,7 +217,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
       "role": "PROVENANCE",
-      "sha256": "3f087aedfb575d8ff6841490b7e8e3d959e42e17b72e8a212bcdf34403b5b534"
+      "sha256": "aa24a24e2fd80d8650118f31b741576d30debfea73118b1e1d55338f48c3cbf4"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
@@ -290,6 +308,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
       "role": "NUMERIC",
       "sha256": "f1dd234a3c059b24d53edab8158c229a38fc21e4ee5315db23fe4d7ef29ad261"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "NUMERIC",
+      "sha256": "508642fd214a60a228c4c0f127d264a42000c3766bcf4d23b85f8da410bdbb34"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
@@ -997,9 +1021,15 @@
       "sha256": "65da3bcddf9cdaf9f945397a283c1786de4187b376b422dba985a72bf4b184cf"
     },
     {
+      "path": "release/release_identity.properties",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "PROVENANCE",
+      "sha256": "1aa056e9d54713c9f96b6deaf4f288e5f25e3758f089e9d60c5faa2877fd5e54"
+    },
+    {
       "path": "release/release_manifest.json",
       "role": "NUMERIC",
-      "sha256": "af3a4fe0a8b913027a747bd75973fc03ee5ee0e98f8410f5f133d0ecc219ed9c"
+      "sha256": "d2a139997c8def3173c857629d0c335e89eb9b7a3eaf640084f1f3b8ff2b6023"
     },
     {
       "path": "schema/strategy_su1.sql",
@@ -1022,6 +1052,12 @@
       "sha256": "f198b55b530bc8b70714a14daeeba480de9e9f8be5f66f73be2a53fbbc59de59"
     },
     {
+      "path": "scripts/load_r13_signing.py",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "c19779abac7ac901307df140b2391874d9edd6dfa0ad5ac1e9b59f2008110d3c"
+    },
+    {
       "path": "scripts/load_su1_bundled_api.py",
       "role": "BUILD_CONTRACT",
       "sha256": "8fc29c15b672401f7d7539a4d8d8943c0fc04d326abcbec721444252d90ea26e"
@@ -1034,7 +1070,7 @@
     {
       "path": "scripts/r926_release_manifest.py",
       "role": "BUILD_CONTRACT",
-      "sha256": "9f826700ebbfda264f9a6765884401269f3e19bb08cf21482cc683951ef86eac"
+      "sha256": "5de2507c327c55ef381b0c7e254de11f1fdd7dffc1109c1b971a7b59a7a58607"
     },
     {
       "path": "scripts/r967_semantic_identity.py",
@@ -1042,9 +1078,21 @@
       "sha256": "8ca3ff35966797906c08dc43e59779f751248c28d0088019ff690f7d1e31d492"
     },
     {
+      "path": "scripts/run_android_r13.sh",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "a81a468637e7091404cacdfce9f217c9b2bfd516dc08eccb50421391143a2534"
+    },
+    {
       "path": "scripts/run_android_su1.sh",
       "role": "NUMERIC",
       "sha256": "224a86db3de467dce53702e5a8f5d664274c8cdbbb105717edea7ecf1970bf6d"
+    },
+    {
+      "path": "scripts/test_r13_signing_transport.py",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "0faf3cb895f074a95614f63e188fdb267ca8ec1b94edc37bcff6a350440751c3"
     },
     {
       "path": "scripts/test_su1_api_transport.py",
@@ -1065,6 +1113,12 @@
       "path": "training/r932/export_bundle.py",
       "role": "BUILD_CONTRACT",
       "sha256": "3f935f5a6608ff1a6446b2485c89f52e8fcfa47f27038d400e635011bf3b91e9"
+    },
+    {
+      "path": "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "role": "PROVENANCE",
+      "sha256": "89dfe8915e8bd8d02654ec1edf2abc6c4fd6fe2a6ebb09af08e928afce1a081a"
     }
   ],
   "qualification_inheritance": false,

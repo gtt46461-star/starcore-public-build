@@ -37,7 +37,7 @@ public final class SourceReadLeaseR82 implements AutoCloseable {
     }
     private static SourceReadLeaseR82 acquire(File database,boolean exclusive,CancellationSignal cancel,java.util.function.BooleanSupplier continuing,long maxWaitMs)throws IOException {
         File db=database.getCanonicalFile(),parent=db.getParentFile();
-        if(!AppConfig.DB_NAME.equals(db.getName())||parent==null||!"databases".equals(parent.getName())||parent.getParentFile()==null||!"com.ethk3.novaonepro".equals(parent.getParentFile().getName()))
+        if(!AppConfig.DB_NAME.equals(db.getName())||parent==null||!"databases".equals(parent.getName())||parent.getParentFile()==null||!ReleaseManifestR926.APPLICATION_ID.equals(parent.getParentFile().getName()))
             throw new IOException("untrusted source database path");
         File lockFile=new File(parent,db.getName()+".r82-source-read.lock");
         if(!lockFile.getCanonicalFile().equals(lockFile))throw new IOException("source lock symlink refused");

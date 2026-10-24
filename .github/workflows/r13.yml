@@ -21,15 +21,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: starcore-su1-research-signing-v1
       - uses: actions/cache/restore@v4
         with:
           path: ~/.starcore/su1-api-transport
           key: starcore-su1-api-transport-v1
           fail-on-cache-miss: true
+      - name: Restore fixed independent R13 signing identity
+        run: |
+          python3 -m pip install "cryptography>=41,<51"
+          python3 scripts/test_r13_signing_transport.py
+          python3 scripts/load_r13_signing.py
       - name: Load existing API configuration privately
         run: python3 scripts/load_su1_bundled_api.py
       - uses: android-actions/setup-android@v3
@@ -51,6 +52,8 @@ jobs:
           git rev-parse HEAD > package-receipt/source-commit.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/debug/*.apk > package-receipt/signature.txt
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/*.apk > package-receipt/package.txt
+          grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature.txt
+          python3 -c 'from pathlib import Path; p=Path("package-receipt/package.txt").read_text(); assert "com.starcore.research.r13" in p and "星核创研 R13" in p'
           sha256sum app/build/outputs/apk/debug/*.apk > package-receipt/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()

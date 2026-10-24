@@ -37,6 +37,7 @@ public final class SchemaAndChartsR13Test {
         }
     }
     @Test public void restoredChartsActivityLaunches() throws Exception {
+        try(com.ethk3.novaonepro.SourceReadLeaseR82 foreign=com.ethk3.novaonepro.SourceReadLeaseR82.acquire(new java.io.File("/data/user/0/com.ethk3.novaonepro/databases/"+com.ethk3.novaonepro.AppConfig.DB_NAME))){fail("private app data path accepted");}catch(java.io.IOException expected){assertNotNull(expected.getMessage());}
         try(ActivityScenario<ChartsActivityR83> scenario=ActivityScenario.launch(ChartsActivityR83.class)){
             java.util.concurrent.atomic.AtomicBoolean ready=new java.util.concurrent.atomic.AtomicBoolean();
             for(int i=0;i<200&&!ready.get();i++){

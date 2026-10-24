@@ -1,33 +1,37 @@
-# STARCORE Public Build
+# 星核创研 R13 · 公有独立版
 
-STARCORE 完整软件源码的公开构建副本，迁移日期：2026-10-22。
+公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.02-2026.10.24`，versionCode `577251061`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
 
-来源施工分支：`construction/c021-c024-20261021`。来源提交：`9ec590cafbd7cbcd1265a11b63a59df53ba78fcd`。
+## 本轮来源与升级
 
-当前应用标识：`com.ethk3.novaonepro`；版本：`V57.21.2.0.95-R5.4.2.95-1021-C024`；versionCode：`577251054`。
+- 私有成功发布的 5.4.3.00 源码：`f29ab95633b966e3a27906f99abba404d134f479`。
+- 私有最新产品分支 `ccr-18baf6f2-no1yow`：`aae63bc692a1ca602fe4db7aacf87958d5f3fbd7`，源码版本已到 5.4.3.01。
+- 保留公有 SU1 升级基线 `0f1fb606a2e49f5065ff46c02c46917216eea02e`，补齐最新图表、研究可视化和训练相关源码，再接入用户提供的 R13 35项施工方案及10个补丁。
+- 对私有最新 `app/src` 的1063个文件逐项核对，零缺失。相同文件保持原字节；合并文件保留 SU1/R13 接线和公有独立身份。
 
-## 包含内容
+[源码核对清单](construction/r13/source-reconciliation.json) · [施工说明与修复记录](construction/r13/README.md)。根目录 `SOURCE_COPY_MANIFEST.json` 记录的是此前 C024 首次导入，不能代替本轮最新核对清单。
 
-保留完整 `app` Java/C/C++ 源码、Android 资源、运行资产、Gradle wrapper、构建脚本、训练工具、验证测试、release 身份清单、源调用索引和构建依赖的施工清单。逐文件来源、Git blob 哈希和 SHA-256 见 `SOURCE_COPY_MANIFEST.json`。
+## 已接入的功能
 
-原私有库历史工作流保存在 `ci/legacy-workflows/`，便于查看原构建流程。当前可执行的工作流为 `.github/workflows/build-apk.yml`，只通过手动运行启动。
+走势图表入口及14类图表；六类在线模型与持续训练；策略进化、频率分层、联盟主链选择；开奖前冻结和开奖后结算；证书与共享检验预算；存储统计、报告维护和研究控制页面。
 
-未迁入签名私钥、密码、实际 API 凭据、APK/AAB、私有 Git 历史，以及大型历史运行输出、重复源码备份和施工方案包。应用功能源码保持来源提交的原始字节；仅扩展 `.gitignore`，设置 `gradlew` 可执行权限，并调整历史工作流存放位置。
+图表读取已提交数据，缺少样本时说明原因。REAL 授权默认关闭，有效证书、当期冻结和唯一主链校验仍逐期生效。编译、模拟与自动测试不构成真实预测有效性或未来收益证明。
 
-## 本地构建
+## 构建与验证
 
-需要 JDK 17、Android SDK 36、Build Tools 36.0.0、NDK 28.2.13676358、CMake 3.22.1、Python 3。
+当前构建流程为 `.github/workflows/r13.yml`。在 Actions 的 **R13 restored latest APK** 中选择 `construction/su1-20261022` 分支，使用经认证加密的固定 R13 签名包及该分支的配置传输密钥缓存；不使用私有原版签名。
+
+工具链：JDK17、Android SDK36、Build Tools36.0.0、NDK28.2.13676358、CMake3.22.1、Python3与NumPy2.3.5。
+
+本地构建需要配置 Android SDK 路径，并从私有签名备份设置 `R13_SIGNING_P12` 与 `R13_SIGNING_PASSWORD`；有效接口配置通过本地环境变量 `DUOQU_API_KEY` 提供，凭据不得提交到源码。
 
 ```sh
-cp local.properties.example local.properties
-# 按本机 SDK 路径修改 local.properties。
-./gradlew --no-daemon :app:assembleDebug
+python3 scripts/prepare_strategy_su1_identity.py
+python3 scripts/test_r13_production_ddl.py
+python3 scripts/verify_strategy_su1.py
+./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleDebug :app:assembleDebugAndroidTest
 ```
 
-也可以在 GitHub 的 **Actions → Build APK → Run workflow** 中构建 Debug APK。
+自动检查覆盖生产 Java/Python/SQLite、Android单测与lint、APK签名和包名、模拟器安装、真实接口请求及图表页面。最新交付记录见 `construction/r13/delivery.json`；用户真实设备持续运行和自然前推仍须单独验证。
 
-Release 构建保持原项目的外部配置与原签名校验要求：`DUOQU_API_KEY`、`STARCORE_SIGNING_P12`、`STARCORE_SIGNING_PASSWORD`、`STARCORE_SIGNING_ALIAS`、`STARCORE_EXPECTED_CERT_SHA256`，以及按需使用的 `STARCORE_SIGNING_TYPE` / `STARCORE_SIGNING_KEY_PASSWORD`。这些值由构建环境私下提供，不能提交进公开仓库。Debug 签名与原安装版签名不同，不能作为原签名覆盖安装包。
-
-## 已完成的迁移校验
-
-4,809 个来源文件全部通过原始 Git blob 哈希校验。原子/分子目录、R967 语义标识、源调用索引的现有生成校验均通过。扫描覆盖来源文件和 347 个压缩归档成员，未发现需要迁入的真实凭据。本次为源码迁移，不代表 C024 的软件运行验收或现有 lint 问题已经完成。
+私有 Git 历史、私钥和明文凭据未迁入本仓库。

@@ -91,6 +91,23 @@ android {
         debug { minifyEnabled false }
         release { minifyEnabled false; shrinkResources false; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' }
     }
+    def r13SigningFile = System.getenv('R13_SIGNING_P12')
+    if (r13SigningFile) {
+        signingConfigs {
+            r13Independent {
+                storeFile rootProject.file(r13SigningFile)
+                storeType 'PKCS12'
+                storePassword System.getenv('R13_SIGNING_PASSWORD')
+                keyAlias 'starcore-r13'
+                keyPassword System.getenv('R13_SIGNING_PASSWORD')
+            }
+        }
+        buildTypes.debug.signingConfig signingConfigs.r13Independent
+    }
+    if (requiredIdentity('applicationId') == 'com.starcore.research.r13' &&
+        gradle.startParameter.taskNames.any { it.tokenize(':').last() ==~ /(?:assemble|package)Debug(?:AndroidTest)?/ } && !r13SigningFile) {
+        throw new GradleException('R13_FIXED_SIGNING_KEY_REQUIRED')
+    }
     // Packaging requires the existing signing identity. Lint/unit tasks need no secrets.
     def signingFile = System.getenv('STARCORE_SIGNING_P12')
     if (signingFile) {
