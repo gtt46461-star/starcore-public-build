@@ -25,9 +25,13 @@ public final class StrategyResearchActivitySU1 extends Activity {
         add(root,R.string.su1_rollback_model,()->refresh("ROLLBACK_MODEL"));
         add(root,R.string.su2_real_enable,()->new android.app.AlertDialog.Builder(this).setTitle(R.string.su2_real_enable).setMessage("仅允许持有有效样本外证书、且本期已在开奖前冻结出手的策略进入主链。没有有效证书时仍不出手；历史成绩不保证后续结果。").setNegativeButton("取消",null).setPositiveButton("确认启用",(d,w)->refresh("SU2_REAL_ON")).show());
         add(root,R.string.su2_real_disable,()->refresh("SU2_REAL_OFF"));
-        ScrollView scroll=new ScrollView(this);text=new TextView(this);text.setTextSize(15);text.setTextIsSelectable(true);scroll.addView(text);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);refresh(null);
+        text=new TextView(this);text.setTextSize(15);text.setTextIsSelectable(true);root.addView(text);ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.addView(root);setContentView(scroll);refresh(null);
     }
-    private void add(LinearLayout parent,int label,Runnable action){Button button=new Button(this);button.setText(label);button.setOnClickListener(v->action.run());parent.addView(button);}
+    private void add(LinearLayout parent,int label,Runnable action){
+        LinearLayout row=parent.getChildCount()==0?null:(LinearLayout)parent.getChildAt(parent.getChildCount()-1);
+        if(row==null||row.getChildCount()==2){row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);parent.addView(row);}
+        Button button=new Button(this);button.setText(label);button.setOnClickListener(v->action.run());row.addView(button,new LinearLayout.LayoutParams(0,-2,1));
+    }
     private void refresh(String mode){
         text.setText(R.string.su1_initializing);
         reader.execute(()->{

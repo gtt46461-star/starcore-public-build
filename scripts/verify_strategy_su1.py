@@ -27,7 +27,7 @@ def main():
     compiled=run('deployed_java_compile',['java','com.sun.tools.javac.Main','-source','17','-target','17','-d',classes]+sources)
     okay=compiled and okay
     if compiled:
-        for name in ['ProgramTreeSU1Test','TypedProgramTest','PairedEvidenceTest','NullBaselineTest','ProductionKernelSU1Test','AdvancedContractsSU1Test','TrainingParitySU1Test','AuditControlsSU1Test','RelGraphContractsSU1Test','RelGraphParitySU1Test','ModelAblationsSU1Test','ResearchFailureSU1Test','TrainingFidelitySU1Test']:
+        for name in ['ProgramTreeSU1Test','TypedProgramTest','PairedEvidenceTest','NullBaselineTest','ProductionKernelSU1Test','AdvancedContractsSU1Test','TrainingParitySU1Test','AuditControlsSU1Test','RelGraphContractsSU1Test','RelGraphParitySU1Test','ModelAblationsSU1Test','ResearchFailureSU1Test','TrainingFidelitySU1Test','ProductionR13Test']:
             okay=run(name,['java','-cp',classes,'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
     okay=run('python_schema_learning_and_null_suites',[sys.executable,'-m','unittest','discover','-s','reference/python','-p','test_*.py','-v'],HOST) and okay
     okay=run('python_replay_and_creation_suites',[sys.executable,'-m','unittest','discover','-s','reference/replay','-p','test_*.py','-v'],HOST) and okay

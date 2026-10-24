@@ -36,9 +36,20 @@ public final class SchemaAndChartsR13Test {
             }finally{db.endTransaction();}
         }
     }
-    @Test public void restoredChartsActivityLaunches(){
+    @Test public void restoredChartsActivityLaunches() throws Exception {
         try(ActivityScenario<ChartsActivityR83> scenario=ActivityScenario.launch(ChartsActivityR83.class)){
-            scenario.onActivity(a->{assertFalse(a.isFinishing());assertNotNull(a.getWindow().getDecorView());});
+            java.util.concurrent.atomic.AtomicBoolean ready=new java.util.concurrent.atomic.AtomicBoolean();
+            for(int i=0;i<200&&!ready.get();i++){
+                scenario.onActivity(a->{
+                    assertFalse(a.isFinishing());java.util.ArrayList<android.view.View> labels=new java.util.ArrayList<>();
+                    a.getWindow().getDecorView().findViewsWithText(labels,"张图，",android.view.View.FIND_VIEWS_WITH_TEXT);ready.set(!labels.isEmpty());
+                });
+                if(!ready.get())android.os.SystemClock.sleep(100);
+            }
+            assertTrue("charts did not finish loading real database panels",ready.get());
+            android.graphics.Bitmap screenshot=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();assertNotNull(screenshot);
+            java.io.File cache=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir();
+            try(java.io.FileOutputStream out=new java.io.FileOutputStream(new java.io.File(cache,"r13-charts.png"))){assertTrue(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out));}finally{screenshot.recycle();}
         }
     }
 }
