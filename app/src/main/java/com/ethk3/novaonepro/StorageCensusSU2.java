@@ -38,7 +38,7 @@ public final class StorageCensusSU2 {
 
     public static Census measure(File appDataDir) {
         Census c = new Census(); for (String k : CATEGORIES) c.bytes.put(k, 0L);
-        PriorityQueue<long[]> top = new PriorityQueue<>(Comparator.comparingLong(a -> a[0]));
+        PriorityQueue<long[]> top = new PriorityQueue<>(8, Comparator.comparingLong(a -> a[0]));
         List<String> names = new ArrayList<>();
         Deque<Object[]> stack = new ArrayDeque<>(); stack.push(new Object[]{appDataDir, "", 0});
         while (!stack.isEmpty()) {
