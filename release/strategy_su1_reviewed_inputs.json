@@ -13,10 +13,16 @@
       "sha256": "257892cc4531cde5b326073841dc6e678e1c6983c5f660a34c1b9d8d451ecc8e"
     },
     {
+      "path": ".github/workflows/r13-startup.yml",
+      "rationale": "Cold/startup regression probe; verify process identity, fresh READY timestamp and moving heartbeat. No model qualification.",
+      "role": "PROVENANCE",
+      "sha256": "2ef407ec12123d89d1a701322b9c7c66ff1e050c6f3b7734f6292308478fb9bd"
+    },
+    {
       "path": ".github/workflows/r13.yml",
-      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
       "role": "BUILD_CONTRACT",
-      "sha256": "5e4fce262ec7b699d9ad0c291e69d0eec55152e023fdb500c872f384fc8c3132"
+      "sha256": "b679c92ddaa3b88014912833190f21a43100deb67c00565544c93679938f1b3c"
     },
     {
       "path": ".github/workflows/strategy-su1.yml",
@@ -191,8 +197,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
       "role": "PRESENTATION",
-      "sha256": "c962fcc4f83e82309380f16b39e1cd8a43b78ec68160af0ecfc451b176b9b8b5"
+      "sha256": "d8997ae52e689d915962804caaaeb058c9dc0bf8598852f929d190c7dbc52548"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/MatrixBrowserActivityR82.java",
@@ -217,7 +224,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
       "role": "PROVENANCE",
-      "sha256": "aa24a24e2fd80d8650118f31b741576d30debfea73118b1e1d55338f48c3cbf4"
+      "sha256": "e75c57374f3c6cfd7c9e14cf6f699bb0a90000b8cdedf2ec246a2c7b0124b80c"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
@@ -1024,12 +1031,13 @@
       "path": "release/release_identity.properties",
       "rationale": "R13 independent app signing and current-application database lease verification.",
       "role": "PROVENANCE",
-      "sha256": "1aa056e9d54713c9f96b6deaf4f288e5f25e3758f089e9d60c5faa2877fd5e54"
+      "sha256": "c057ca3a6a8a00f684c2554adffc0554b95388de318334cbb10c7c67d27ca8ca"
     },
     {
       "path": "release/release_manifest.json",
+      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
       "role": "NUMERIC",
-      "sha256": "d2a139997c8def3173c857629d0c335e89eb9b7a3eaf640084f1f3b8ff2b6023"
+      "sha256": "0dac0e7557b21b9ebfc12f5ed1b13b36ad4edfea71a3c630a9d6b1ad7718197f"
     },
     {
       "path": "schema/strategy_su1.sql",
@@ -1068,6 +1076,12 @@
       "sha256": "bac731f1c776594ee904317b357a57b034fc8c6a120d4a16dc48497cb5a99073"
     },
     {
+      "path": "scripts/probe_r13_startup.py",
+      "rationale": "Cold/startup regression probe; verify process identity, fresh READY timestamp and moving heartbeat. No model qualification.",
+      "role": "PROVENANCE",
+      "sha256": "7fc3f180e4fb7e85a5b6f09eb622e5b0cc71a7397526ea8e395cc6455c4f4903"
+    },
+    {
       "path": "scripts/r926_release_manifest.py",
       "role": "BUILD_CONTRACT",
       "sha256": "5de2507c327c55ef381b0c7e254de11f1fdd7dffc1109c1b971a7b59a7a58607"
@@ -1079,9 +1093,9 @@
     },
     {
       "path": "scripts/run_android_r13.sh",
-      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
       "role": "BUILD_CONTRACT",
-      "sha256": "a81a468637e7091404cacdfce9f217c9b2bfd516dc08eccb50421391143a2534"
+      "sha256": "4ecdcb23b029d1ee3382edffc1bb8078c0997108eefac28c80b46d6ab219fcf3"
     },
     {
       "path": "scripts/run_android_su1.sh",
@@ -1118,7 +1132,7 @@
       "path": "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
       "rationale": "R13 independent app signing and current-application database lease verification.",
       "role": "PROVENANCE",
-      "sha256": "89dfe8915e8bd8d02654ec1edf2abc6c4fd6fe2a6ebb09af08e928afce1a081a"
+      "sha256": "9bfb9f9136d345f81850581fdba5f838aa8071f10f271d5e99dbbed7363f8290"
     }
   ],
   "qualification_inheritance": false,

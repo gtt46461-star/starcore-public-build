@@ -644,8 +644,12 @@ public final class MainActivity extends Activity {
                             if (hb.isUserEnabled()) {
                                 hb.markBusinessStage(
                                         "UI_FIRST_FRAME_STABLE_R3610", AppConfig.B07R32_VERSION);
-                                BootReceiver.startAutoFetchService(
-                                        getApplicationContext(), "ui_first_frame_stable_r3610");
+                                // A persisted fresh heartbeat can belong to a process Android
+                                // just killed. Deliver an idempotent START to the service owner
+                                // on every new Activity launch instead of skipping "healthy"
+                                // historical state. The user-enabled guard above remains intact.
+                                BootReceiver.reconcileAutoFetchService(
+                                        getApplicationContext(), "ui_first_frame_stable_r13");
                             }
                         } catch (Throwable e) {
                             CrashRecorder.recordCaught(

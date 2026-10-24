@@ -2,7 +2,7 @@ name: R13 restored latest APK
 on:
   push:
     branches: ['construction/su1-20261022']
-    paths-ignore: ['release/r982_source_calls*', 'release/r82_training_invalidation.json', 'release/research_dependencies_r967.json']
+    paths-ignore: ['.github/workflows/r13-startup.yml', 'scripts/probe_r13_startup.py', 'release/r982_source_calls*', 'release/r82_training_invalidation.json', 'release/research_dependencies_r967.json']
   workflow_dispatch:
 permissions:
   contents: write
@@ -66,6 +66,10 @@ jobs:
             package-receipt/
           if-no-files-found: error
   android-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 35, 36]
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -82,16 +86,18 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: ${{ matrix.api }}
           arch: x86_64
           target: default
           disable-animations: true
-          script: bash scripts/run_android_r13.sh
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 1
+          script: bash scripts/run_android_r13.sh ${{ matrix.api }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R13-Android-runtime
+          name: R13-Android-runtime-${{ matrix.api }}
           path: |
             android-r13.txt
             android-logcat.txt
             r13-*.png
+            startup-evidence/
