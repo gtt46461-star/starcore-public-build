@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [29, 35]
+        api: [29, 35, 36]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -34,6 +34,7 @@ jobs:
           arch: x86_64
           target: default
           disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 1
           script: python3 scripts/probe_r13_startup.py
       - uses: actions/upload-artifact@v4
         if: always()

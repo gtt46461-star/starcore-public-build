@@ -16,14 +16,26 @@ adb('logcat','-c')
 print(adb('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity'),flush=True)
 rows=[];ready=False
 try:
-    for i in range(60):
-        p=prefs('v20_service_runtime_light')
-        row={k:v for k,v in p.items() if k.startswith('init_') or k in ('service_ready_at','user_enabled')}
-        rows.append(row)
-        if i%5==0 or row.get('init_last_error'):print(json.dumps(row,ensure_ascii=False),flush=True)
-        if row.get('init_status')=='READY':ready=True;break
-        if row.get('init_last_error'):break
-        time.sleep(2)
+    for phase in ('cold', 'restart'):
+        if phase=='restart':
+            adb('shell','am','force-stop',PKG)
+            print(adb('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity'),flush=True)
+        deadline=time.monotonic()+180;ready_since=None;previous=None
+        while time.monotonic()<deadline:
+            p=prefs('v20_service_runtime_light')
+            row={k:v for k,v in p.items() if k.startswith('init_') or k in ('service_ready_at','user_enabled')}
+            row['phase']=phase;rows.append(row)
+            if row!=previous:print(json.dumps(row,ensure_ascii=False),flush=True);previous=row
+            assert not row.get('init_last_error'), 'STARTUP_ERROR: '+row.get('init_last_error','')
+            assert row.get('init_retry_count','0')=='0','STARTUP_RETRIED'
+            if row.get('init_status')=='READY':
+                if ready_since is None:ready_since=time.monotonic()
+                if time.monotonic()-ready_since>=60:break
+            else:ready_since=None
+            time.sleep(2)
+        else:raise AssertionError('Startup never remained READY for 60 seconds: '+phase)
+        assert not prefs('v20_crash_snapshot').get('type'),'Caught failure: '+json.dumps(prefs('v20_crash_snapshot'))
+    ready=True
 finally:
     (out/'startup.json').write_text(json.dumps({'ready':ready,'samples':rows,'crash':prefs('v20_crash_snapshot')},ensure_ascii=False,indent=2))
     print(json.dumps(prefs('v20_crash_snapshot'),ensure_ascii=False),flush=True)
