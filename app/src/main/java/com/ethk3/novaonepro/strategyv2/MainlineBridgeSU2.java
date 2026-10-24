@@ -69,6 +69,7 @@ public final class MainlineBridgeSU2 {
      * (or has no frozen decision - MISSING is never turned into an action).
      */
     public static Intent intent(SQLiteDatabase db, long seq) {
+        if (!StrategySchemaSU2.ready(db)) return null;
         String member = ModelStoreSU2.currentChoice(db, seq);
         // SU2 members and the XI incumbent use this lane (XI's frozen pick IS the mainline pick when IPM keeps it);
         // selective SU1 members keep their existing lane

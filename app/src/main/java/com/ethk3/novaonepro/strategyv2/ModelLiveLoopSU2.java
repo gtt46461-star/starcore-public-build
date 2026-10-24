@@ -33,6 +33,7 @@ public final class ModelLiveLoopSU2 {
         long pendingSeq = -1;
     }
     private static Runtime RT;
+    private static final Object CAPTURE_LOCK = new Object();
 
     static long sequence(String issue) { return TargetIssueResolver.sequenceOrdinalSU1(issue); }
 
@@ -114,14 +115,20 @@ public final class ModelLiveLoopSU2 {
     }
 
     /** Before the draw. Returns the number of frozen decisions. */
-    public static synchronized int capture(DbStore store, String target) {
+    public static int capture(DbStore store, String target) {
+        synchronized (CAPTURE_LOCK) { return captureSerial(store, target); }
+    }
+
+    private static int captureSerial(DbStore store, String target) {
         if (!StrategySchemaSU2.ready(store.readable())) return 0;
         ProgramModelSU2.register();
         long seq = sequence(target);
         EventFrameSU1 frame = EventFrameBuilderSU1.capture(store, target);
-        Runtime rt = ensure(store, frame, seq);
-        if (rt.pendingSeq == seq) return 0;
+        final Runtime rt;
         final Map<String, ModelLiveSU2.Decision> decisions = new LinkedHashMap<>();
+        synchronized (ModelLiveLoopSU2.class) {
+        rt = ensure(store, frame, seq);
+        if (rt.pendingSeq == seq) return 0;
         long started = System.nanoTime();
         // rotate the start so a budget overrun never starves the same strategies (P08)
         List<Map.Entry<String, ModelLiveSU2>> order = new ArrayList<>(rt.lives.entrySet());
@@ -130,6 +137,7 @@ public final class ModelLiveLoopSU2 {
             if (System.nanoTime() - started > PREDRAW_BUDGET_NANOS || SettlementExecutionGateR819.isActive()) break;   // rest are MISSING
             decisions.put(e.getKey(), e.getValue().decide());
         }
+        } // Release the model monitor before waiting on the single DB writer.
         final long open = frame.targetOpenTime;
         int frozen = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_LIVE_FREEZE", db -> {
             if (!EventFrameBuilderSU1.unchanged(store, frame)) return 0;
@@ -137,7 +145,9 @@ public final class ModelLiveLoopSU2 {
             int n = 0; for (Map.Entry<String, ModelLiveSU2.Decision> e : decisions.entrySet()) { ModelStoreSU2.insertDecision(db, e.getKey(), seq, e.getValue(), now, open); n++; }
             return n;
         });
-        if(frozen>0)rt.pendingSeq=seq;
+        synchronized (ModelLiveLoopSU2.class) {
+            if (frozen > 0 && RT == rt && rt.through == seq - 1) rt.pendingSeq = seq;
+        }
         return frozen;
     }
 
