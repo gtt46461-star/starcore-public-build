@@ -1,6 +1,8 @@
 # 星核创研 R13 · 公有独立版
 
-公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.02-2026.10.24`，versionCode `577251061`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
+公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.03-2026.10.24`，versionCode `577251062`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
+
+本次 5.4.3.03 修复进程退出后遗留心跳状态和恢复锁阻止服务重新启动的问题，可直接更新既有 R13 并保留其数据。[启动修复与验收说明](construction/r13/startup-fix-54303.md)。
 
 ## 本轮来源与升级
 
@@ -32,6 +34,6 @@ python3 scripts/verify_strategy_su1.py
 ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleDebug :app:assembleDebugAndroidTest
 ```
 
-自动检查覆盖生产 Java/Python/SQLite、Android单测与lint、APK签名和包名、模拟器安装、真实接口请求及图表页面。本轮72项单测、21组生产主机检查、24项Android模拟器检查及lint通过。[构建与运行记录](https://github.com/gtt46461-star/starcore-public-build/actions/runs/40066618076)。最新交付记录见 [delivery.json](construction/r13/delivery.json)；用户真实设备持续运行和自然前推仍须单独验证。
+自动检查覆盖生产 Java/Python/SQLite、Android单测与lint、APK签名和包名、模拟器安装、真实接口请求及图表页面。本轮72项单测、21组生产主机检查、26项Android模拟器检查（Android 10、双核2 GB、测试类分别运行）及lint通过；另在 Android 10、15、16 上分别验证默认启用服务时的冷启动和强制停止后重启，每阶段检查新进程初始化及持续60秒的心跳。[构建与运行记录](https://github.com/gtt46461-star/starcore-public-build/actions/runs/40080151500)。[Android 10 分组测试](https://github.com/gtt46461-star/starcore-public-build/actions/runs/40082044526)。单核2 GB模拟器的高强度计算测试仍有系统低内存终止记录，详见启动修复说明；该限制不计为测试通过。最新交付记录见 [delivery.json](construction/r13/delivery.json)；用户真实设备持续运行和自然前推仍须单独验证。
 
 私有 Git 历史、私钥和明文凭据未迁入本仓库。
