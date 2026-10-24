@@ -64,7 +64,7 @@ jobs:
           #!/usr/bin/env bash
           set -euo pipefail
           trap 'adb logcat -d > android-logcat.txt || true' EXIT
-          python3 scripts/probe_r13_startup.py
+          adb install -r delivered/app/build/outputs/apk/debug/*.apk
           adb shell pm clear com.starcore.research.r13
           adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
           python3 - <<'PYTEST'
@@ -76,6 +76,7 @@ jobs:
               for name in classes:
                   subprocess.run(['adb','shell','am','force-stop','com.starcore.research.r13'],check=True)
                   run=subprocess.run(['adb','shell','am','instrument','-w','-e','class','com.ethk3.novaonepro.strategyv2.'+name,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'],capture_output=True,text=True,timeout=600)
+                  Path('memory-'+name+'.txt').write_text(subprocess.run(['adb','shell','dumpsys','meminfo','com.starcore.research.r13'],capture_output=True,text=True).stdout)
                   report.write(run.stdout+run.stderr);report.flush();print(run.stdout,flush=True)
                   match=re.search(r'OK \((\d+) tests?\)',run.stdout)
                   assert run.returncode==0 and match and 'FAILURES' not in run.stdout,name+' failed'
@@ -92,14 +93,15 @@ jobs:
           arch: x86_64
           target: default
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 1
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash /tmp/r13-isolated.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R13-candidate-29-isolated
+          name: R13-candidate-29-dual-core
           path: |
             startup-evidence/
             android-r13.txt
             android-logcat.txt
+            memory-*.txt
             r13-*.png
