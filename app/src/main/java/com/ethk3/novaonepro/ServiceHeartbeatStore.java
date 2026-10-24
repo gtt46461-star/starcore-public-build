@@ -608,18 +608,24 @@ public final class ServiceHeartbeatStore {
             long until = getLong("recovery_lease_until", 0L);
             long acquired = getLong("recovery_lease_acquired_at", 0L);
             long ready = getLong("service_ready_at", 0L);
+            // Recovery and service run in the app's main process. A new main PID
+            // proves that a lease from the previous PID cannot still own a start.
+            // Fall back to the heartbeat owner for pre-R13 leases without this field.
+            boolean previousProcess = isPreviousMainProcessR13(
+                    getInt("recovery_lease_process_id", getInt("process_id", 0)));
             boolean abandoned =
-                    until > now
-                            && acquired > 0L
+                    until > now && (previousProcess || (acquired > 0L
                             && ready < acquired
                             && now - acquired > AppConfig.B07_RECOVERY_LEASE_STEAL_MS
-                            && isHeartbeatExpired();
+                            && isHeartbeatExpired()));
             if (until > now && !abandoned) return false;
             RuntimePatch p = new RuntimePatch();
             p.putLong("recovery_lease_until", now + AppConfig.RECOVERY_LEASE_MS);
             p.putString("recovery_lease_reason", safe(reason));
             p.putLong("recovery_lease_acquired_at", now);
-            p.putString("recovery_lease_mode", abandoned ? "STEAL_ABANDONED" : "NORMAL");
+            p.putInt("recovery_lease_process_id", safePid());
+            p.putString("recovery_lease_mode", abandoned && previousProcess
+                    ? "STEAL_PREVIOUS_PROCESS" : abandoned ? "STEAL_ABANDONED" : "NORMAL");
             commitPatchLocked(p);
             return true;
         }
@@ -672,7 +678,15 @@ public final class ServiceHeartbeatStore {
         renewRuntimeLease(reason);
     }
 
+    private boolean isPreviousMainProcessR13(int recordedPid) {
+        // Diagnostic exports use a secondary process and must observe the main
+        // service's evidence rather than compare it with their own diagnostic PID.
+        return recordedPid > 0 && recordedPid != safePid()
+                && StarcoreApplication.isMainRuntimeProcess(app);
+    }
+
     public boolean isServiceHealthyForRecovery() {
+        if (isPreviousMainProcessR13(getInt("process_id", 0))) return false;
         if (isHeartbeatExpired()) return false;
         if (!isRuntimeLeaseFresh()) return false;
         return !isBusinessStale() || isAnalysisWorkFresh();
@@ -1003,6 +1017,7 @@ public final class ServiceHeartbeatStore {
 
     public String runtimeTruthState() {
         if (!isUserEnabled()) return "STOPPED_BY_USER";
+        if (isPreviousMainProcessR13(getInt("process_id", 0))) return "STALE_WAIT_RECOVERY";
         long now = System.currentTimeMillis();
         long age = getHeartbeatAgeMs();
         long foreground = getForegroundNotificationAt();

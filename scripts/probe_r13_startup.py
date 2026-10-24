@@ -15,7 +15,7 @@ def prefs(name):
     except ET.ParseError:return {}
 def snapshot(phase):
     p=prefs('v20_service_runtime_light')
-    row={k:v for k,v in p.items() if k.startswith('init_') or k in ('service_ready_at','user_enabled','process_id','heartbeat_at')}
+    row={k:v for k,v in p.items() if k.startswith(('init_','recovery_lease_','last_recovery_')) or k in ('service_ready_at','user_enabled','process_id','heartbeat_at')}
     row.update(phase=phase,observed_at_ms=int(adb('shell','date','+%s').strip())*1000,
                actual_pid=adb('shell','pidof',PKG,check=False).strip())
     return row

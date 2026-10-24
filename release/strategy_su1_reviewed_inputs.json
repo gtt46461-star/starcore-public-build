@@ -46,6 +46,12 @@
       "sha256": "0c1c8bbf25bdcc769c0389c3ac4e261df51631b025fa3d07e990a155dd77dc71"
     },
     {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/StartupLeaseR13Test.java",
+      "rationale": "Bind runtime heartbeat/recovery lease to the actual main process; reject dead-PID readiness and retain duplicate/user-stop protection.",
+      "role": "PROVENANCE",
+      "sha256": "d389ea89336e11bcc0bc649f56d025aa0581fb5bedcbb5e540f7d7aba42521f2"
+    },
+    {
       "path": "app/src/main/AndroidManifest.xml",
       "role": "PRESENTATION",
       "sha256": "f733310a2d0d5d238e2306b18377608ec73b314344b37bb4ba5df95d6c586767"
@@ -315,6 +321,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/RetentionTableRegistryCP12.java",
       "role": "NUMERIC",
       "sha256": "f1dd234a3c059b24d53edab8158c229a38fc21e4ee5315db23fe4d7ef29ad261"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ServiceHeartbeatStore.java",
+      "rationale": "Bind runtime heartbeat/recovery lease to the actual main process; reject dead-PID readiness and retain duplicate/user-stop protection.",
+      "role": "NUMERIC",
+      "sha256": "e4bcdc2dcead78cff1a73995285353c9d22edb1a07a4b5c42dfbc40dde7cf68a"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/SourceReadLeaseR82.java",
@@ -1077,9 +1089,9 @@
     },
     {
       "path": "scripts/probe_r13_startup.py",
-      "rationale": "Cold/startup regression probe; verify process identity, fresh READY timestamp and moving heartbeat. No model qualification.",
+      "rationale": "Bind runtime heartbeat/recovery lease to the actual main process; reject dead-PID readiness and retain duplicate/user-stop protection.",
       "role": "PROVENANCE",
-      "sha256": "7fc3f180e4fb7e85a5b6f09eb622e5b0cc71a7397526ea8e395cc6455c4f4903"
+      "sha256": "204a8ccc930ab24dea3173d3876097153a33f66602ee99c17e59ba268b21fa12"
     },
     {
       "path": "scripts/r926_release_manifest.py",
@@ -1093,9 +1105,9 @@
     },
     {
       "path": "scripts/run_android_r13.sh",
-      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
+      "rationale": "Bind runtime heartbeat/recovery lease to the actual main process; reject dead-PID readiness and retain duplicate/user-stop protection.",
       "role": "BUILD_CONTRACT",
-      "sha256": "4ecdcb23b029d1ee3382edffc1bb8078c0997108eefac28c80b46d6ab219fcf3"
+      "sha256": "1a3a378e63d34e3879613226f430d9411bfd06f4a3afb0dd9560de417a16e24b"
     },
     {
       "path": "scripts/run_android_su1.sh",
