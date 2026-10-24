@@ -32,6 +32,6 @@ python3 scripts/verify_strategy_su1.py
 ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleDebug :app:assembleDebugAndroidTest
 ```
 
-自动检查覆盖生产 Java/Python/SQLite、Android单测与lint、APK签名和包名、模拟器安装、真实接口请求及图表页面。最新交付记录见 `construction/r13/delivery.json`；用户真实设备持续运行和自然前推仍须单独验证。
+自动检查覆盖生产 Java/Python/SQLite、Android单测与lint、APK签名和包名、模拟器安装、真实接口请求及图表页面。本轮72项单测、21组生产主机检查、24项Android模拟器检查及lint通过。[构建与运行记录](https://github.com/gtt46461-star/starcore-public-build/actions/runs/40066618076)。最新交付记录见 [delivery.json](construction/r13/delivery.json)；用户真实设备持续运行和自然前推仍须单独验证。
 
 私有 Git 历史、私钥和明文凭据未迁入本仓库。
