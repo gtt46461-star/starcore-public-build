@@ -41,3 +41,65 @@ jobs:
         with:
           name: R13-startup-${{ matrix.api }}
           path: startup-evidence/
+
+  candidate29:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          run-id: 40080151500
+          github-token: ${{ github.token }}
+          path: delivered
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prepare isolated instrumentation harness
+        run: |
+          cat > /tmp/r13-isolated.sh <<'SHELL'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          trap 'adb logcat -d > android-logcat.txt || true' EXIT
+          python3 scripts/probe_r13_startup.py
+          adb shell pm clear com.starcore.research.r13
+          adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
+          python3 - <<'PYTEST'
+          import subprocess,re
+          from pathlib import Path
+          classes="ResearchUiDeviceSU1Test SchemaAndLiveSU1Test ProgramTreeDeviceSU1Test AtomKernelDeviceSU1Test TrainingParityDeviceSU1Test BundledApiDeviceSU1Test RelGraphDeviceSU1Test ResearchSchedulingDeviceSU1Test SchemaAndChartsR13Test StartupLeaseR13Test".split()
+          total=0
+          with open('android-r13.txt','w') as report:
+              for name in classes:
+                  subprocess.run(['adb','shell','am','force-stop','com.starcore.research.r13'],check=True)
+                  run=subprocess.run(['adb','shell','am','instrument','-w','-e','class','com.ethk3.novaonepro.strategyv2.'+name,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'],capture_output=True,text=True,timeout=600)
+                  report.write(run.stdout+run.stderr);report.flush();print(run.stdout,flush=True)
+                  match=re.search(r'OK \((\d+) tests?\)',run.stdout)
+                  assert run.returncode==0 and match and 'FAILURES' not in run.stdout,name+' failed'
+                  total+=int(match.group(1))
+              assert total==26,total
+              report.write('Isolated class aggregate: OK (26 tests)\n')
+          PYTEST
+          adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
+          adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-charts.png
+          SHELL
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 1
+          script: bash /tmp/r13-isolated.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R13-candidate-29-isolated
+          path: |
+            startup-evidence/
+            android-r13.txt
+            android-logcat.txt
+            r13-*.png
