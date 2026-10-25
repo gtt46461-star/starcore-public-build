@@ -63,6 +63,8 @@ jobs:
             app/build/outputs/apk/
             app/build/reports/
             build/strategy_su1-verification.json
+            build/plan1025/*.json
+            build/plan1025/*.log
             package-receipt/
           if-no-files-found: error
   android-runtime:
@@ -90,7 +92,7 @@ jobs:
           arch: x86_64
           target: default
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 1
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash scripts/run_android_r13.sh ${{ matrix.api }}
       - uses: actions/upload-artifact@v4
         if: always()

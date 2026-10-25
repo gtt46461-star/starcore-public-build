@@ -14,15 +14,15 @@
     },
     {
       "path": ".github/workflows/r13-startup.yml",
-      "rationale": "Cold/startup regression probe; verify process identity, fresh READY timestamp and moving heartbeat. No model qualification.",
+      "rationale": "Reviewed 10.25 build identity and isolated Android acceptance pipeline; startup probe workflow retained from public HEAD. No inherited qualification.",
       "role": "PROVENANCE",
-      "sha256": "2ef407ec12123d89d1a701322b9c7c66ff1e050c6f3b7734f6292308478fb9bd"
+      "sha256": "b29885848720e44ea34f7f85dfdf07480684d5d6195154c85cf4288d86075503"
     },
     {
       "path": ".github/workflows/r13.yml",
-      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
+      "rationale": "Reviewed 10.25 build identity and isolated Android acceptance pipeline; startup probe workflow retained from public HEAD. No inherited qualification.",
       "role": "BUILD_CONTRACT",
-      "sha256": "b679c92ddaa3b88014912833190f21a43100deb67c00565544c93679938f1b3c"
+      "sha256": "857104a46c1402a3871c967e469f2974c20049c97156e8f8eba286bde854e6f1"
     },
     {
       "path": ".github/workflows/strategy-su1.yml",
@@ -36,8 +36,9 @@
     },
     {
       "path": "app/build.gradle",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "BUILD_CONTRACT",
-      "sha256": "7766ad1492643e99e682b82d0af857dc2e842d3f1cb35abda3aa786e59e51ec9"
+      "sha256": "caec3058e0a572d7f0e9af0d423d462e09006457d029a65f53946bbefb6a8461"
     },
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/SchemaAndChartsR13Test.java",
@@ -229,8 +230,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "PROVENANCE",
-      "sha256": "e75c57374f3c6cfd7c9e14cf6f699bb0a90000b8cdedf2ec246a2c7b0124b80c"
+      "sha256": "f05e7f1f3159b392e33f012264a6e8cbf833b05bd44735d622cb9f47befc4b98"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
@@ -244,8 +246,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "c3f17214a4872af67300fdb1d99b6172e4803df477ed0f965917369a9b8bfdc3"
+      "sha256": "bc95fde3131e684bc710717662f176796a98a477fdc869fa6ae134642c29baeb"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
@@ -500,6 +503,18 @@
       "sha256": "d24e494b4674079fe0bbdb672385c870180e4c654f64810846a9495d4a612e4f"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "5cf31c889973c1f4b7a65edfe012210d00b352d899274594b6f2838fdba2a4ca"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomStreamSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "65c29dc85028b1ef317563879b71570ef54a43d35e3c90f86e05d9b3cb18ea08"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldScreenerSU1.java",
       "role": "NUMERIC",
       "sha256": "5a12049af518e1fdc0485a5a5f0356c6c7efae1c28edb4cf3302c95447458b36"
@@ -523,6 +538,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU1.java",
       "role": "NUMERIC",
       "sha256": "37cd2246924c15bd6513d263d8f3f3808b34212b95b81f785a186b0275e8498b"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "c6b66dc4da41ddb3d2c37a7ee87a34f32695f2581fa4082989b5bc2c4a7baeb5"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CampaignAuditSessionSU1.java",
@@ -555,9 +576,39 @@
       "sha256": "a75155272405f39c81bde20b1d20450d52552b972622e015d4ea1bfe8d1a82d3"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeLiveSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "12b0a7e2ee049b53d840a395bdffda68a2cb472fa895943288e90a60d7a18c0c"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "1e97ae4c67978648c1f05ba27cdf53c54925fe406ffafb7f663b50e303afc8c3"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "a4e83e26ae0403630497abbc278c0bba896c5ea9dfd734544c849cacef10e588"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DeterministicRandomSU2.java",
       "role": "NUMERIC",
       "sha256": "da3bf9f5404183520dd81ba781abbec1bcd4e3e9729ef7f4887a3d2c540e7ed9"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "92dd9f7477adbcf1760a0e420356458df6850a7791fd92393fef08f80bf27950"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTextSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "fea94a6d7ef268ba103a8b987c596b4a8885b21007277aaefb554f1c35d1c8f8"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosticsSU1.java",
@@ -625,6 +676,12 @@
       "sha256": "3cd47c10748e627aed8473bfaabe48fb0c0f527d0217a8cab90db08dd8d51906"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "ec27154e2f42e424d1c7d5960130bb55b2a7c1d77fe8f80199cc192cfc6e04b6"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/KernelTransitionSU1.java",
       "role": "NUMERIC",
       "sha256": "6971a0b2ab343d7ab754a6d73ff7bac801139bb92196672cf7f8c448b0aef56b"
@@ -643,6 +700,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowLoopSU1.java",
       "role": "NUMERIC",
       "sha256": "182054cfecd189beb2973672554de30410eda9f83510baf4679e602465206015"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStrategySU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "44c928cf6292502a5f58d7fe66b91ea805b600e19ac6608f9de1f7ba78adcd54"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java",
@@ -701,18 +764,21 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "93e5e04e13c653d95214b5be8349c04ff0671c10019eb8507058c4d04501ddd1"
+      "sha256": "c98e451e00ffef3bfe8a543e7e8d59926d0ff5cdb366f677b954f17e5fbc4d9f"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "312c1e64feaad7dc71f2dd0d8a045849fa3054296f7d75d7955ffdb56df84386"
+      "sha256": "387a32670df0725a32410c41a0825ceb470cc572caea30ce5b0f373d2193472c"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "4f53ba8ba9d6f78b4fefdc2677fe759ba368be76a1a25b551d58a1a9688ea73d"
+      "sha256": "295e807067940cbd072bee7eb76babf0b7d06a5e971d8b3aecf695a94db10399"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelKernelRegistrySU1.java",
@@ -721,13 +787,15 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "7585893c218106cf36100cc5684deb68bdd2656d733df27f5405d6c890562198"
+      "sha256": "a0c2634662b859c43d14a298a9c54dd49528ac18c28609063a43a0428ab2b32e"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "24534deb5110c459c60a26affa090f7adf9ddaceefe44b2a934bc1b8e4b32653"
+      "sha256": "d420af87d32bf48c0011fd2aa5d1d247e26325866416930687d69331d2c299e9"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelOpsSU2.java",
@@ -736,18 +804,21 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "972bd47bdfe3eaae55e962d5ec35905f37fbfe4ca0e18f21939a312b128d3b7c"
+      "sha256": "52456df9522bffeeeb98c4c7ed23f9651b2b535420947a862bd24915dc1e6d5c"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStateCodecSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "97e2a86a5ea4e275fe350cc959a9840308bfb172db1772692edb8deb7eb09f6c"
+      "sha256": "17214638be0440ff7010850a4ce711a46c60d896acdc7961017966b67f1bbdd1"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "1bb1104c8c0b7ba6616b627c0c035591ad3941229b7331a183f797318f131d4d"
+      "sha256": "206f9c383f56472af43baae75f5de135ae2e36407065a6f250ae77d596702b86"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullBaseline.java",
@@ -756,8 +827,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "d13aba1c2a6500fe99d19e3ea28dbb8c4a22be89362d17b629449f9ad586dd8a"
+      "sha256": "3120a27d6dada7be220d2b97b3cd69e2261c23480b36f1a5c0edae9912fbf690"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OptimizerStateSU1.java",
@@ -861,8 +933,9 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "2389c89bfa6b28f5ae789f6424e6a68cafe22ad679288601f924ae01a17f87c1"
+      "sha256": "68a74c6247caddf5d081f7745af00f1944c526ccc8f4514cd3ae180a18aedd33"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstSchedulerSU1.java",
@@ -940,6 +1013,24 @@
       "sha256": "712374b414366dbe89b8f47c30bddfbbf59261b3dd3a9f61d31615b67752248a"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageLayerSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "79fb6312ab2740624d3b0d2d3e62ee725585270aae6b9bbc3e25a62ce348d15d"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageStoreSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "1e01fdc45566e8ab1beeb68ac165b09142bc305f46756144e44f869a56d74418"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageStrategySU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "16dcb71e00bfd71c2fcbcdc2a8d6a8c6ff0d26088e4a79f7697064465839c1db"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
       "role": "NUMERIC",
       "sha256": "5a897f3c989930128883aecb4db49137ca3b0af828e999db12a0302daa5b39f8"
@@ -971,8 +1062,15 @@
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "NUMERIC",
-      "sha256": "25a23489448a9a7192defdbd724f321d445be455dc5f3d261caacf22ed153538"
+      "sha256": "6041fb852c2b30a3c02fbbf051ee6b27777ed9a1fa71cb467a6a4e2f8b83b759"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TeacherPoolSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "0c2f6d0b2c59253609f6cfa3ac993d8084537f095753e0c8c358e53ef17009ff"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingCheckpointSU1.java",
@@ -993,6 +1091,12 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedProgram.java",
       "role": "NUMERIC",
       "sha256": "7c23f7385978920e0a1be716770da288a0efdcdceee01119e7c9775f27dd43a5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "fc2e2d35c531a14ee90940330bf11240baefe3bea3dbc63ace473284d9c7e64d"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/VariableRefSU1.java",
@@ -1041,15 +1145,15 @@
     },
     {
       "path": "release/release_identity.properties",
-      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "rationale": "Reviewed 10.25 build identity and isolated Android acceptance pipeline; startup probe workflow retained from public HEAD. No inherited qualification.",
       "role": "PROVENANCE",
-      "sha256": "c057ca3a6a8a00f684c2554adffc0554b95388de318334cbb10c7c67d27ca8ca"
+      "sha256": "b56aafb29ea0daf1e11ae6beb756dcce90497a028de731560882208916b93e7a"
     },
     {
       "path": "release/release_manifest.json",
-      "rationale": "R13 startup recovery: force idempotent service reconcile after launcher process recreation, validate fresh-process heartbeat on Android 10/15/16.",
+      "rationale": "Reviewed 10.25 build identity and isolated Android acceptance pipeline; startup probe workflow retained from public HEAD. No inherited qualification.",
       "role": "NUMERIC",
-      "sha256": "0dac0e7557b21b9ebfc12f5ed1b13b36ad4edfea71a3c630a9d6b1ad7718197f"
+      "sha256": "1d5ff211dde1df19432025ebe4b9549829220be197cbf1436698662721fe1eaa"
     },
     {
       "path": "schema/strategy_su1.sql",
@@ -1070,6 +1174,12 @@
       "path": "scripts/generate_strategy_su1_schema.py",
       "role": "BUILD_CONTRACT",
       "sha256": "f198b55b530bc8b70714a14daeeba480de9e9f8be5f66f73be2a53fbbc59de59"
+    },
+    {
+      "path": "scripts/generate_strategy_su2_schema.py",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "ca03ece7bfcfc22cc586f4bd6f23ea9a1db129a4c87b4171d9295d1ef961ef59"
     },
     {
       "path": "scripts/load_r13_signing.py",
@@ -1100,19 +1210,26 @@
     },
     {
       "path": "scripts/r967_semantic_identity.py",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
       "role": "BUILD_CONTRACT",
-      "sha256": "8ca3ff35966797906c08dc43e59779f751248c28d0088019ff690f7d1e31d492"
+      "sha256": "60e4a4f535dd79126a4ab4ba1580aa8afba3cda3b53d8347dd3ee59e8379d85e"
     },
     {
       "path": "scripts/run_android_r13.sh",
-      "rationale": "Bind runtime heartbeat/recovery lease to the actual main process; reject dead-PID readiness and retain duplicate/user-stop protection.",
+      "rationale": "Reviewed 10.25 build identity and isolated Android acceptance pipeline; startup probe workflow retained from public HEAD. No inherited qualification.",
       "role": "BUILD_CONTRACT",
-      "sha256": "1a3a378e63d34e3879613226f430d9411bfd06f4a3afb0dd9560de417a16e24b"
+      "sha256": "ac8a7d8626f9a6b272bb805aabeece70b734895b47e46fd5363e2c772a3e1d8f"
     },
     {
       "path": "scripts/run_android_su1.sh",
       "role": "NUMERIC",
       "sha256": "224a86db3de467dce53702e5a8f5d664274c8cdbbb105717edea7ecf1970bf6d"
+    },
+    {
+      "path": "scripts/test_plan1025_storage.py",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "727a89cc0abe7e85171b931972233c9b22809f3e5faf6b2b566b7fa70bdea23f"
     },
     {
       "path": "scripts/test_r13_signing_transport.py",
@@ -1126,9 +1243,21 @@
       "sha256": "ddd1ff33d42e16642cda337540a58ed0df98ba86407c318a9c79f545aabcd5b2"
     },
     {
+      "path": "scripts/verify_plan1025.py",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "BUILD_CONTRACT",
+      "sha256": "4ae4804d730488c3038d5e2248a15781d3df36459edf7c8fbf8c9b3887360761"
+    },
+    {
       "path": "scripts/verify_strategy_su1.py",
       "role": "BUILD_CONTRACT",
       "sha256": "f87fad7dd0f2c6c746f321c06fad1247f982f5621eb78867432065c8c642dc49"
+    },
+    {
+      "path": "tools/strategy_su2/schema/strategy_su2.sql",
+      "rationale": "2026-10-25 user-authorized R14-R16/P49/P50 production integration; preserve shared certificate budget, fixed app identity and startup repairs; no inherited prediction qualification.",
+      "role": "NUMERIC",
+      "sha256": "6f898bf51b5e11405a00a4c73cf7e1b4a48fb8f8c617c2a9e9e995e521ddba9c"
     },
     {
       "path": "training/r932/drift_policy_r82.py",
@@ -1142,11 +1271,11 @@
     },
     {
       "path": "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
-      "rationale": "R13 independent app signing and current-application database lease verification.",
+      "rationale": "Reviewed 10.25 build identity and isolated Android acceptance pipeline; startup probe workflow retained from public HEAD. No inherited qualification.",
       "role": "PROVENANCE",
-      "sha256": "9bfb9f9136d345f81850581fdba5f838aa8071f10f271d5e99dbbed7363f8290"
+      "sha256": "134f501de867ff7c15abb36d557dc592fc15c032cf70716370f0496a7df13960"
     }
   ],
   "qualification_inheritance": false,
-  "scope": "USER_AUTHORIZED_SU1_CONSTRUCTION_AND_COEXISTING_PACKAGE"
+  "scope": "Reviewed SU1/R13 source plus 2026-10-25 R14-R16/P49/P50 production integration. Evidence and source identity are separate."
 }

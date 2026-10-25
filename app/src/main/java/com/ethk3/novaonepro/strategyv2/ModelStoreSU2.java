@@ -15,6 +15,13 @@ public final class ModelStoreSU2 {
     static boolean exists(SQLiteDatabase db, String sql, String... args) { try (Cursor c = db.rawQuery(sql, args)) { return c.moveToFirst(); } }
 
     // ------------------------------------------------------------- genomes / lineage
+    /** R14: a committee champion is stored like a genome (its canonical text starts with SU2C|) and joins the league. */
+    public static void saveCommittee(SQLiteDatabase db, CommitteeSU2 c, String tier, String campaign, long seq, double judge, long now) {
+        writer(db);
+        db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            new Object[]{c.key(), c.text(), c.formula(), tier, "COMMITTEE", null, "", campaign, seq, null, judge, "LEAGUE", now});
+    }
+
     public static void saveGenome(SQLiteDatabase db, ModelEvolutionSU2.Ranked r, String campaign, long seq, double dev, double val, String state, long now) {
         writer(db);
         // minSdk 21 ships SQLite 3.8: no UPSERT. Insert once, then update scores; LEAGUE/RETIRED are sticky.

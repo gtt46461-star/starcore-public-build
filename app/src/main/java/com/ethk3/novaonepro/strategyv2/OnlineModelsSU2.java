@@ -32,6 +32,7 @@ public final class OnlineModelsSU2 {
     public static final class Output {
         public final float[][][] p; public final float[][] state;
         Output(int t, int s) { p = new float[t][10][10]; state = new float[t][s]; }
+        Output(float[][][] p, float[][] state) { this.p = p; this.state = state; }
         public long bytes() { return (long) p.length * 100L * 4L + (long) state.length * state[0].length * 4L; }
     }
 
@@ -199,6 +200,149 @@ public final class OnlineModelsSU2 {
         }
         public void write(DataOutput o) throws IOException { writeArr(o, E); writeArr(o, a); }
         public void read(DataInput in) throws IOException { readArr(in, E); readArr(in, a); }
+    }
+
+    // ----------------------------------------------------------------- R16 regime memory (P48)
+    /**
+     * REGMEM: hidden regimes with an ANCHORED null state (uniform, never updated) and K learned regime patterns; a
+     * pattern moves only with its own posterior, so it survives while its regime is absent and is recognised as soon
+     * as it returns (regmem.regmem in the Python reference). State: (null posterior, entropy over the active states,
+     * strongest active posterior).
+     */
+    public static final class RegMem implements Model {
+        final int K, S1; final double stay, lr, temper; final double[] E, A, a, pi, ll;
+        public RegMem(int K, double stay, double lr, long seed, double temper, double init) {
+            if (K < 1 || K > 6) throw new IllegalArgumentException("SU2_REGMEM_K");
+            this.K = K; S1 = K + 1; this.stay = stay; this.lr = lr; this.temper = temper;
+            double[] z = DeterministicRandomSU2.normals(seed, K * 100);
+            E = new double[S1 * 100];
+            for (int k = 0; k < S1; k++) for (int p = 0; p < 10; p++) {
+                double sum = 0;
+                for (int n = 0; n < 10; n++) { double v = 0.1; if (k > 0) v *= Math.exp(init * z[(k - 1) * 100 + p * 10 + n]); E[k * 100 + p * 10 + n] = v; }
+                sum = ModelOpsSU2.pairwise(E, k * 100 + p * 10, 10);
+                for (int n = 0; n < 10; n++) E[k * 100 + p * 10 + n] /= sum;
+            }
+            A = new double[S1 * S1];
+            for (int i = 0; i < S1; i++) for (int j = 0; j < S1; j++) A[i * S1 + j] = i == j ? stay : (1 - stay) / K;
+            a = new double[S1]; Arrays.fill(a, 1.0 / S1); pi = new double[S1]; ll = new double[S1];
+        }
+        public int stateWidth() { return 3; }
+        private void prior() { for (int j = 0; j < S1; j++) { double s = 0; for (int i = 0; i < S1; i++) s += a[i] * A[i * S1 + j]; pi[j] = s; } }
+        public void predict(float[][] out, float[] st) {
+            prior();
+            for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) { double v = 0; for (int k = 0; k < S1; k++) v += pi[k] * E[k * 100 + p * 10 + n]; out[p][n] = (float) v; }
+            regimeState(pi, K, st);
+        }
+        public void update(int[] d) {
+            requireDraw(d);
+            prior();
+            double lmax = Double.NEGATIVE_INFINITY;
+            double[] lg = new double[10];
+            for (int k = 0; k < S1; k++) { for (int p = 0; p < 10; p++) lg[p] = Math.log(E[k * 100 + p * 10 + d[p] - 1]); ll[k] = temper * ModelOpsSU2.pairwise(lg, 0, 10); lmax = Math.max(lmax, ll[k]); }
+            double z = 0; for (int k = 0; k < S1; k++) { a[k] = pi[k] * Math.exp(ll[k] - lmax); z += a[k]; }
+            for (int k = 0; k < S1; k++) a[k] /= z;
+            for (int k = 1; k < S1; k++) { double g = lr * a[k]; for (int p = 0; p < 10; p++) { for (int n = 0; n < 10; n++) E[k * 100 + p * 10 + n] *= (1 - g); E[k * 100 + p * 10 + d[p] - 1] += g; } }
+        }
+        public void write(DataOutput o) throws IOException { writeArr(o, E); writeArr(o, a); }
+        public void read(DataInput in) throws IOException { readArr(in, E); readArr(in, a); }
+    }
+
+    static void regimeState(double[] pi, int K, float[] st) {
+        double s = 0, mx = 0; for (int k = 1; k <= K; k++) { s += pi[k]; mx = Math.max(mx, pi[k]); }
+        double den = Math.max(1e-12, s), ent = 0;
+        for (int k = 1; k <= K; k++) { double v = pi[k] / den; ent -= v * Math.log(v + 1e-12); }
+        st[0] = (float) pi[0]; st[1] = (float) (ent / Math.log(Math.max(2, K))); st[2] = (float) mx;
+    }
+
+    /**
+     * RELMEM: relation-regime memory - anchored null state + K active states whose emission is CONDITIONAL on earlier
+     * draws: z_k[p,n] = b_k[p,n] + sum_{l,q,f} w_k[p,l,q,f] [n == f(D[t-l,q])] (f = SAME/PLUS1/MINUS1/MIRROR)
+     * + sum_s V_k[s,p,D[t-lag_s,p+off_s],n] (arbitrary learned maps for chosen sources). Posterior-weighted,
+     * RMS-normalised online gradient (regmem.relmem in the Python reference).
+     */
+    public static final class RelMem implements Model {
+        final int K, S1, L, S, maxlag; final int[] lags; final int[][] sources; final double stay, lr, l2, gd, temper;
+        final double[] b, Ab, W, AW, V, AV, A, a, pi, ll, E, g; final int[][] recent; final int[] tg, av; int seen;
+        public RelMem(int K, int[] lags, int[][] sources, double stay, double lr, double l2, double gd, double temper, long seed, double init) {
+            if (K < 1 || K > 4) throw new IllegalArgumentException("SU2_RELMEM_K");
+            int ml = 0;
+            for (int l : lags) { if (l < 1 || l > 5) throw new IllegalArgumentException("SU2_RELMEM_LAG"); ml = Math.max(ml, l); }
+            for (int[] s : sources) { if (s[0] < 0 || s[0] > 9 || s[1] < 1 || s[1] > 5) throw new IllegalArgumentException("SU2_RELMEM_SOURCE"); ml = Math.max(ml, s[1]); }
+            this.K = K; S1 = K + 1; this.lags = lags.clone(); L = lags.length; S = sources.length; maxlag = ml;
+            this.sources = new int[S][]; for (int i = 0; i < S; i++) this.sources[i] = sources[i].clone();
+            this.stay = stay; this.lr = lr; this.l2 = l2; this.gd = gd; this.temper = temper;
+            double[] z = DeterministicRandomSU2.normals(seed, K * 100);
+            b = new double[K * 100]; for (int i = 0; i < K * 100; i++) b[i] = init * z[i];
+            Ab = new double[K * 100]; Arrays.fill(Ab, 1e-3);
+            W = new double[K * 10 * L * 10 * 4]; AW = new double[W.length]; Arrays.fill(AW, 1e-3);
+            V = new double[K * S * 1000]; AV = new double[V.length]; Arrays.fill(AV, 1e-3);
+            A = new double[S1 * S1];
+            for (int i = 0; i < S1; i++) for (int j = 0; j < S1; j++) A[i * S1 + j] = i == j ? stay : (1 - stay) / K;
+            a = new double[S1]; Arrays.fill(a, 1.0 / S1); pi = new double[S1]; ll = new double[S1];
+            E = new double[K * 100]; g = new double[K * 100];
+            recent = new int[Math.max(1, maxlag)][10]; tg = new int[L * 40]; av = new int[S * 10];
+        }
+        public int stateWidth() { return 3; }
+        private boolean ready() { return seen >= maxlag; }
+        private int[] lagged(int lag) { return recent[(seen - lag) % maxlag]; }
+        private void prior() { for (int j = 0; j < S1; j++) { double s = 0; for (int i = 0; i < S1; i++) s += a[i] * A[i * S1 + j]; pi[j] = s; } }
+        private void emissions() {
+            boolean r = ready();
+            if (r) {
+                for (int l = 0; l < L; l++) { int[] src = lagged(lags[l]); for (int q = 0; q < 10; q++) { int s = src[q] - 1, o = (l * 10 + q) * 4; tg[o] = s; tg[o + 1] = (s + 1) % 10; tg[o + 2] = (s + 9) % 10; tg[o + 3] = 9 - s; } }
+                for (int s = 0; s < S; s++) { int[] src = lagged(sources[s][1]); for (int p = 0; p < 10; p++) av[s * 10 + p] = src[(p + sources[s][0]) % 10] - 1; }
+            }
+            double[] zz = new double[10];
+            for (int k = 0; k < K; k++) for (int p = 0; p < 10; p++) {
+                for (int n = 0; n < 10; n++) zz[n] = b[k * 100 + p * 10 + n];
+                if (r) {
+                    double[] add = new double[10];
+                    for (int l = 0; l < L; l++) for (int q = 0; q < 10; q++) for (int f = 0; f < 4; f++) add[tg[(l * 10 + q) * 4 + f]] += W[(((k * 10 + p) * L + l) * 10 + q) * 4 + f];
+                    if (L > 0) for (int n = 0; n < 10; n++) zz[n] += add[n];
+                    if (S > 0) { double[] vs = new double[10]; for (int s = 0; s < S; s++) { int base = (((k * S + s) * 10 + p) * 10 + av[s * 10 + p]) * 10; for (int n = 0; n < 10; n++) vs[n] += V[base + n]; } for (int n = 0; n < 10; n++) zz[n] += vs[n]; }
+                }
+                double m = Double.NEGATIVE_INFINITY; for (int n = 0; n < 10; n++) m = Math.max(m, zz[n]);
+                for (int n = 0; n < 10; n++) E[k * 100 + p * 10 + n] = Math.exp(zz[n] - m);
+                double sum = ModelOpsSU2.pairwise(E, k * 100 + p * 10, 10);
+                for (int n = 0; n < 10; n++) E[k * 100 + p * 10 + n] /= sum;
+            }
+        }
+        public void predict(float[][] out, float[] st) {
+            emissions(); prior();
+            for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) { double v = 0; for (int k = 0; k < K; k++) v += pi[k + 1] * E[k * 100 + p * 10 + n]; out[p][n] = (float) (pi[0] * 0.1 + v); }
+            regimeState(pi, K, st);
+        }
+        public void update(int[] d) {
+            requireDraw(d);
+            emissions(); prior();
+            ll[0] = 10 * Math.log(0.1) * temper; double lmax = ll[0];
+            double[] lg = new double[10];
+            for (int k = 0; k < K; k++) { for (int p = 0; p < 10; p++) lg[p] = Math.log(E[k * 100 + p * 10 + d[p] - 1]); ll[k + 1] = ModelOpsSU2.pairwise(lg, 0, 10) * temper; lmax = Math.max(lmax, ll[k + 1]); }
+            double z = 0; for (int k = 0; k < S1; k++) { a[k] = pi[k] * Math.exp(ll[k] - lmax); z += a[k]; }
+            for (int k = 0; k < S1; k++) a[k] /= z;
+            for (int k = 0; k < K; k++) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) { int i = k * 100 + p * 10 + n; g[i] = (E[i] - (n == d[p] - 1 ? 1.0 : 0.0)) * a[k + 1]; }
+            for (int i = 0; i < K * 100; i++) { double gb = g[i] + l2 * b[i]; Ab[i] = gd * Ab[i] + gb * gb; b[i] -= lr * gb / Math.sqrt(Ab[i]); }
+            if (ready()) {
+                for (int k = 0; k < K; k++) for (int p = 0; p < 10; p++) for (int l = 0; l < L; l++) for (int q = 0; q < 10; q++) for (int f = 0; f < 4; f++) {
+                    int i = (((k * 10 + p) * L + l) * 10 + q) * 4 + f; double gw = g[k * 100 + p * 10 + tg[(l * 10 + q) * 4 + f]] + l2 * W[i];
+                    AW[i] = gd * AW[i] + gw * gw; W[i] -= lr * gw / Math.sqrt(AW[i]);
+                }
+                for (int k = 0; k < K; k++) for (int s = 0; s < S; s++) for (int p = 0; p < 10; p++) {
+                    int base = (((k * S + s) * 10 + p) * 10 + av[s * 10 + p]) * 10;
+                    for (int n = 0; n < 10; n++) { double cur = V[base + n], gv = g[k * 100 + p * 10 + n] + l2 * cur; AV[base + n] = gd * AV[base + n] + gv * gv; V[base + n] = cur - lr * gv / Math.sqrt(AV[base + n]); }
+                }
+            }
+            if (maxlag > 0) System.arraycopy(d, 0, recent[seen % maxlag], 0, 10);
+            seen++;
+        }
+        public void write(DataOutput o) throws IOException {
+            writeArr(o, b); writeArr(o, Ab); writeArr(o, W); writeArr(o, AW); writeArr(o, V); writeArr(o, AV); writeArr(o, a);
+            o.writeInt(seen); for (int[] r : recent) for (int v : r) o.writeByte(v);
+        }
+        public void read(DataInput in) throws IOException {
+            readArr(in, b); readArr(in, Ab); readArr(in, W); readArr(in, AW); readArr(in, V); readArr(in, AV); readArr(in, a);
+            seen = in.readInt(); for (int[] r : recent) for (int i = 0; i < 10; i++) r[i] = in.readByte();
+        }
     }
 
     // ----------------------------------------------------------------- LOGLIN

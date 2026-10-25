@@ -215,6 +215,10 @@ public final class ReportExportServiceCP4 extends Service {
                     // R13-P31: byte census by category on the first page of every report
                     File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
+                    String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
+                    for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
+                        try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(diag),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
+                        ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
                     ReportMemberPlanCP12.append(members,inventory.getName(),inventory.getName(),ReportArchiveCP4.hash(inventory,active),inventory.length());
                     for(File page:catalog.indexFiles)ReportMemberPlanCP12.append(members,page.getName(),"catalog/"+page.getName(),ReportArchiveCP4.hash(page,active),page.length());
                     File renderRefs=new File(directory,"render-artifacts.jsonl");if(renderRefs.exists())try(ReportArchiveVerifierCP12.LineReader refs=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(renderRefs),8192)){byte[] line;while((line=refs.next())!=null){active.checkpoint();members.write(new String(line,StandardCharsets.UTF_8));}}

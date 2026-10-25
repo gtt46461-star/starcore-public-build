@@ -1,0 +1,32 @@
+{
+ "keep_xi": {
+  "steps": 30,
+  "switch_events": [],
+  "final": "XI_INCUMBENT:XI_INCUMBENT_V1"
+ },
+ "switch": {
+  "steps": 30,
+  "switch_events": [
+   "3750 SU2:edge SWITCH_CHALLENGER_BEATS_CURRENT"
+  ],
+  "final": "SU2:edge"
+ },
+ "demote": {
+  "steps": 30,
+  "switch_events": [
+   "3250 SU2:decay SWITCH_CHALLENGER_BEATS_CURRENT",
+   "7750 XI_INCUMBENT:XI_INCUMBENT_V1 DEMOTE_TO_INCUMBENT"
+  ],
+  "final": "XI_INCUMBENT:XI_INCUMBENT_V1"
+ },
+ "insample": {
+  "steps": 30,
+  "switch_events": [],
+  "final": "XI_INCUMBENT:XI_INCUMBENT_V1"
+ },
+ "lowcov": {
+  "steps": 30,
+  "switch_events": [],
+  "final": "XI_INCUMBENT:XI_INCUMBENT_V1"
+ }
+}

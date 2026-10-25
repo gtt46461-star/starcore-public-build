@@ -274,6 +274,12 @@ def generateR997ConstructionAssets = tasks.register('generateR997ConstructionAss
 android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r997'))
 tasks.named('preBuild').configure { dependsOn generateR997ConstructionAssets }
 tasks.named('preBuild').configure { dependsOn verifyR967Semantics, verifyCatalogAssetsCP12 }
+def verifyPlan1025Schema = tasks.register('verifyPlan1025Schema', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/generate_strategy_su2_schema.py').absolutePath, '--check'
+    outputs.upToDateWhen { false }
+}
+tasks.named('preBuild').configure { dependsOn verifyPlan1025Schema }
 tasks.withType(JavaCompile).configureEach { dependsOn verifyR967Semantics }
 
 // Canonical acceptance has no dependency on a connected physical device.

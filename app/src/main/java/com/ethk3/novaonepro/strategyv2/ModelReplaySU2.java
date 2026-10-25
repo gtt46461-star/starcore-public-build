@@ -13,6 +13,8 @@ import java.util.*;
 public final class ModelReplaySU2 {
     private ModelReplaySU2() {}
 
+    public static final double INFORMATIVE = 0.3 + 1e-6;
+
     public static final class Result {
         public final boolean[] act, hit; public final int[] position, mask; public final double[] gscore, phat;
         Result(int n) { act = new boolean[n]; hit = new boolean[n]; position = new int[n]; mask = new int[n]; gscore = new double[n]; phat = new double[n]; Arrays.fill(phat, Double.NaN); }
@@ -35,6 +37,22 @@ public final class ModelReplaySU2 {
             while (bytes > byteCap && cache.size() > 1 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key)) continue; bytes -= e.getValue().bytes(); it.remove(); }
             return o;
         }
+        final Map<Integer, float[][]> stateSeries = new HashMap<>();
+        /** R15 (P45): indicator series of registry state atom j over this history (teacher matrix pool). */
+        public float[][] states(int j) { return stateSeries.computeIfAbsent(j, k -> TeacherPoolSU2.states(draws, k)); }
+        /** R14 (P36): the member's table temperature-calibrated online (CalibrationSU2), cached separately. */
+        public OnlineModelsSU2.Output getCal(ModelGenomeSU2.Member m) {
+            String key = m.modelKey() + "|CAL";
+            OnlineModelsSU2.Output o = cache.get(key);
+            if (o != null) return o;
+            OnlineModelsSU2.Output raw = get(m);
+            o = new OnlineModelsSU2.Output(CalibrationSU2.calibrate(raw.p, draws), raw.state);
+            cache.put(key, o); bytes += (long) o.p.length * 400L;
+            Iterator<Map.Entry<String, OnlineModelsSU2.Output>> it = cache.entrySet().iterator();
+            while (bytes > byteCap && cache.size() > 2 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key) || e.getKey().equals(m.modelKey())) continue; bytes -= e.getValue().bytes(); it.remove(); }
+            return o;
+        }
+        public int[][] draws() { return draws; }
     }
 
     static double d(Map<String, String> p, String k) { String v = p.get(k); if (v == null) throw new IllegalArgumentException("SU2_PARAM_MISSING:" + k); return Double.parseDouble(v); }
@@ -46,6 +64,16 @@ public final class ModelReplaySU2 {
         for (int i = 0; i < f.length; i++) out[i] = Double.parseDouble(f[i].trim());
         return out;
     }
+    /** "()" / "(1,)" / "(1, 2)" -> int[] (empty allowed). */
+    static int[] ints(String s) {
+        String t = s.replace("(", "").replace(")", "").replace(" ", "");
+        if (t.endsWith(",")) t = t.substring(0, t.length() - 1);
+        if (t.isEmpty()) return new int[0];
+        String[] f = t.split(","); int[] out = new int[f.length];
+        for (int i = 0; i < f.length; i++) out[i] = Integer.parseInt(f[i]);
+        return out;
+    }
+    static int[][] pairsOrNone(String s) { return s.replace("(", "").replace(")", "").replace(",", "").trim().isEmpty() ? new int[0][] : pairs(s); }
     static int[][] pairs(String s) {
         double[] flat = tuple(s);
         if (flat.length % 2 != 0) throw new IllegalArgumentException("SU2_SOURCES");
@@ -67,6 +95,10 @@ public final class ModelReplaySU2 {
             case "BOCPD": return new OnlineModelsSU2.Bocpd(d(p, "hazard"), d(p, "alpha"), (int) d(p, "R"));
             case "HMM": return new OnlineModelsSU2.Hmm((int) d(p, "K"), d(p, "stay"), d(p, "lr"), (long) d(p, "seed"), d(p, "temper"));
             case "LOGLIN": return new OnlineModelsSU2.LogLin(pairs(p.get("sources")), d(p, "lr"), d(p, "l2"));
+            case "ATOMNET": return AtomNetSU2.of(p);
+            case "CONTMAT": return new ContMatSU2();
+            case "REGMEM": return new OnlineModelsSU2.RegMem((int) d(p, "K"), d(p, "stay"), d(p, "lr"), (long) d(p, "seed"), d(p, "temper"), 0.05);
+            case "RELMEM": return new OnlineModelsSU2.RelMem((int) d(p, "K"), ints(p.get("lags")), pairsOrNone(p.get("sources")), d(p, "stay"), d(p, "lr"), d(p, "l2"), 0.999, d(p, "temper"), (long) d(p, "seed"), 0.05);
             case "KALMAN": return new OnlineModelsSU2.Kalman(d(p, "q_level"), d(p, "q_slope"), 0.09, d(p, "horizon"), d(p, "temp"));
             case "RELBAYES": {
                 double[] l = tuple(p.get("lags")); int[] lags = new int[l.length]; for (int i = 0; i < l.length; i++) lags[i] = (int) l[i];
@@ -80,16 +112,54 @@ public final class ModelReplaySU2 {
         return OnlineModelsSU2.run(build(kind, p), draws);
     }
 
+    /** Member tables (calibrated when the genome says so) -> pool -> optional Sinkhorn. R14: STATIC weights normalised. */
+    public static float[][][] pooledTable(ModelGenomeSU2 g, Library lib) {
+        int M = g.members.size();
+        float[][][][] Ps = new float[M][][][]; float[][][] STs = new float[M][][]; double[] w = new double[M]; double ws = 0;
+        for (int m = 0; m < M; m++) { OnlineModelsSU2.Output o = g.calibrated ? lib.getCal(g.members.get(m)) : lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; w[m] = g.members.get(m).weight; ws += w[m]; }
+        if (g.calibrated) for (int m = 0; m < M; m++) w[m] /= ws;
+        float[][][] P = M == 1 ? Ps[0] : TeacherPoolSU2.isTeacher(g.pool) ? TeacherPoolSU2.pool(Ps, lib.draws, lib.states(TeacherPoolSU2.stateOf(g.pool)))
+            : g.pool.equals("BMA") ? ModelOpsSU2.poolBma(Ps, lib.draws, 0.02, 0.995)
+            : g.pool.equals("GATED") ? ModelOpsSU2.poolGated(Ps, STs, lib.draws, 0.03, 1e-3) : ModelOpsSU2.poolStatic(Ps, w);
+        if (g.sink) P = ModelOpsSU2.sink(P, 20);
+        return P;
+    }
+
+    /** A probability table used as a strategy with the confidence gate at `coverage` (block-causal threshold). */
+    public static Result evaluateTable(float[][][] P, int[][] draws, double coverage, int startMeta) {
+        int T = draws.length; Result r = new Result(T); Integer[] ord = new Integer[10];
+        for (int t = 0; t < T; t++) {
+            double[] mass = new double[10]; int[][] top = new int[10][3];
+            for (int p = 0; p < 10; p++) {
+                final float[] row = P[t][p];
+                for (int i = 0; i < 10; i++) ord[i] = i;
+                Arrays.sort(ord, (a, b) -> Double.compare((double) row[b] - b * 1e-12, (double) row[a] - a * 1e-12));
+                double s = 0; for (int i = 0; i < 3; i++) { top[p][i] = ord[i]; s += (double) row[ord[i]]; }
+                mass[p] = Math.rint(s * 1e9) / 1e9;
+            }
+            int p1 = 0; for (int p = 1; p < 10; p++) if (mass[p] > mass[p1]) p1 = p;
+            r.position[t] = p1 + 1; r.mask[t] = (1 << top[p1][0]) | (1 << top[p1][1]) | (1 << top[p1][2]);
+            int x = draws[t][p1] - 1; r.hit[t] = top[p1][0] == x || top[p1][1] == x || top[p1][2] == x;
+            r.gscore[t] = mass[p1]; r.phat[t] = mass[p1];
+        }
+        // R14: a calibrated table at (or below) chance has nothing to say - never act on it
+        if (coverage >= .999) { for (int t = startMeta; t < T; t++) r.act[t] = r.gscore[t] > INFORMATIVE; }
+        else for (int b = startMeta; b < T; b += 50) {
+            int lo = Math.max(startMeta - 720, b - 720); int n = b - lo;
+            if (n < 100) continue;
+            double thr = quantileLinear(Arrays.copyOfRange(r.gscore, lo, b), 1 - coverage);
+            for (int t = b; t < Math.min(b + 50, T); t++) r.act[t] = r.gscore[t] >= thr && r.gscore[t] > INFORMATIVE;
+        }
+        return r;
+    }
+
     public static Result evaluate(ModelGenomeSU2 g, Library lib, int startMeta, int window, int refit) {
         int T = lib.draws.length;
         int M = g.members.size();
         float[][][][] Ps = new float[M][][][];
         float[][][] STs = new float[M][][];
-        double[] w = new double[M];
-        for (int m = 0; m < M; m++) { OnlineModelsSU2.Output o = lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; w[m] = g.members.get(m).weight; }
-        float[][][] P = M == 1 ? Ps[0] : g.pool.equals("BMA") ? ModelOpsSU2.poolBma(Ps, lib.draws, 0.02, 0.995)
-            : g.pool.equals("GATED") ? ModelOpsSU2.poolGated(Ps, STs, lib.draws, 0.03, 1e-3) : ModelOpsSU2.poolStatic(Ps, w);
-        if (g.sink) P = ModelOpsSU2.sink(P, 20);
+        for (int m = 0; m < M; m++) { OnlineModelsSU2.Output o = g.calibrated ? lib.getCal(g.members.get(m)) : lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; }
+        float[][][] P = pooledTable(g, lib);
         Result r = new Result(T);
         int[][] k3 = new int[T][3]; double[] conf = new double[T], margin = new double[T], ent = new double[T];
         Integer[] ord = new Integer[10];
@@ -155,14 +225,15 @@ public final class ModelReplaySU2 {
         } else {
             for (int t = 0; t < T; t++) { r.gscore[t] = conf[t]; r.phat[t] = conf[t]; }
         }
-        if (g.coverage >= .999) { for (int t = startMeta; t < T; t++) r.act[t] = true; }
+        final boolean chanceGuard = g.calibrated && g.gate.equals("MASS");     // R14: never act on a chance-level table
+        if (g.coverage >= .999) { for (int t = startMeta; t < T; t++) r.act[t] = !chanceGuard || r.gscore[t] > INFORMATIVE; }
         else for (int b = startMeta; b < T; b += 50) {
             int lo = Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, b - 720);
             double[] hist = new double[b - lo]; int n = 0;
             for (int t = lo; t < b; t++) if (r.gscore[t] > -1) hist[n++] = r.gscore[t];
             if (n < 100) continue;
             double thr = quantileLinear(Arrays.copyOf(hist, n), 1 - g.coverage);
-            for (int t = b; t < Math.min(b + 50, T); t++) r.act[t] = r.gscore[t] >= thr && r.gscore[t] > -1;
+            for (int t = b; t < Math.min(b + 50, T); t++) r.act[t] = r.gscore[t] >= thr && r.gscore[t] > -1 && (!chanceGuard || r.gscore[t] > INFORMATIVE);
         }
         return r;
     }
