@@ -50,11 +50,12 @@ jobs:
         run: |
           mkdir -p package-receipt
           git rev-parse HEAD > package-receipt/source-commit.txt
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/debug/*.apk > package-receipt/signature.txt
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/*.apk > package-receipt/package.txt
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/*.apk > package-receipt/signature.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/release/*.apk > package-receipt/package.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree app/build/outputs/apk/release/*.apk AndroidManifest.xml > package-receipt/release-manifest.txt
           grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature.txt
           python3 -c 'from pathlib import Path; p=Path("package-receipt/package.txt").read_text(); assert "com.starcore.research.r13" in p and "星核创研 R13" in p'
-          sha256sum app/build/outputs/apk/debug/*.apk > package-receipt/SHA256SUMS.txt
+          sha256sum app/build/outputs/apk/release/*.apk > package-receipt/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -103,3 +104,4 @@ jobs:
             android-logcat.txt
             r13-*.png
             startup-evidence/
+            release-*.txt

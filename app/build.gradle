@@ -103,6 +103,7 @@ android {
             }
         }
         buildTypes.debug.signingConfig signingConfigs.r13Independent
+        buildTypes.release.signingConfig signingConfigs.r13Independent
     }
     if (requiredIdentity('applicationId') == 'com.starcore.research.r13' &&
         gradle.startParameter.taskNames.any { it.tokenize(':').last() ==~ /(?:assemble|package)Debug(?:AndroidTest)?/ } && !r13SigningFile) {
@@ -110,7 +111,7 @@ android {
     }
     // Packaging requires the existing signing identity. Lint/unit tasks need no secrets.
     def signingFile = System.getenv('STARCORE_SIGNING_P12')
-    if (signingFile) {
+    if (signingFile && requiredIdentity('applicationId') != 'com.starcore.research.r13') {
         signingConfigs {
             originalRelease {
                 storeFile rootProject.file(signingFile)
@@ -133,8 +134,9 @@ gradle.taskGraph.whenReady { graph ->
         if (!(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
             throw new GradleException('R995_RELEASE_DEFAULT_API_KEY_REQUIRED')
         }
-        def config = android.signingConfigs.findByName('originalRelease')
-        def expectedCert = (System.getenv('STARCORE_EXPECTED_CERT_SHA256') ?: '').toLowerCase()
+        def independentR13 = requiredIdentity('applicationId') == 'com.starcore.research.r13'
+        def config = android.signingConfigs.findByName(independentR13 ? 'r13Independent' : 'originalRelease')
+        def expectedCert = (System.getenv(independentR13 ? 'R13_EXPECTED_CERT_SHA256' : 'STARCORE_EXPECTED_CERT_SHA256') ?: '').toLowerCase()
         if (config == null || !config.storeFile.isFile() || !config.storePassword || !config.keyPassword
                 || !(expectedCert ==~ /[0-9a-f]{64}/)) {
             throw new GradleException('CP12_ORIGINAL_RELEASE_SIGNING_INPUTS_REQUIRED')

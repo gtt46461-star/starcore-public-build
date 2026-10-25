@@ -148,3 +148,16 @@ CREATE TABLE IF NOT EXISTS su2_track_cursor(
   member_id TEXT PRIMARY KEY,
   folded_through INTEGER NOT NULL
 ) WITHOUT ROWID;
+
+-- P46: eight immutable checkpoints, with incrementally accumulated natural forward reason evidence.
+CREATE TABLE IF NOT EXISTS su2_matrix_snapshot(
+  genome_key TEXT NOT NULL,
+  checkpoint_sequence INTEGER NOT NULL,
+  snapshot_json TEXT NOT NULL CHECK(length(CAST(snapshot_json AS BLOB))<=262144),
+  factors_blob BLOB NOT NULL CHECK(length(factors_blob)<=262144),
+  reason_state BLOB NOT NULL CHECK(length(reason_state)<=262144),
+  stats_json TEXT NOT NULL DEFAULT '{}' CHECK(length(CAST(stats_json AS BLOB))<=65536),
+  graded_through INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY(genome_key,checkpoint_sequence)
+) WITHOUT ROWID;

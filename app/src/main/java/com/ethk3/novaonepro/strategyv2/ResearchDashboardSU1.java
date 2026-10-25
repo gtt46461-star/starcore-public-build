@@ -97,6 +97,7 @@ public final class ResearchDashboardSU1 {
             out.append(String.format(Locale.CHINA,"最近声明单项 α %.12f；固定计划 %d机会\n预设改善2%%，保守下界半径≤2%%需约%d个完整日历机会；不足保持 WAIT。\n",alpha,c.getInt(2),needed));
         }}
         out.append(LeagueBoardSU2.render(db));   // R13-P30: research / shadow / real boards with N, bound, frequency
+        out.append(MatrixStoreSU2.render(db));
         try(Cursor c=db.rawQuery("SELECT phase,detail FROM su1_health_event ORDER BY id DESC LIMIT 4",null)){while(c.moveToNext())out.append("最近阻断：").append(c.getString(0)).append(' ').append(c.getString(1)).append('\n');}
         return out.toString();
     }

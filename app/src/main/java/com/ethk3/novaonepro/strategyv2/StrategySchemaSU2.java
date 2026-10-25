@@ -34,6 +34,7 @@ public final class StrategySchemaSU2 {
         "CREATE TABLE IF NOT EXISTS su2_diag_shadow( issue_key TEXT PRIMARY KEY, shadow_key TEXT NOT NULL, base_key TEXT NOT NULL, since_sequence INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'ACTIVE' CHECK(state IN ('ACTIVE','RETIRED')) ) WITHOUT ROWID",
         "CREATE TABLE IF NOT EXISTS su2_stage_bundle( genome_key TEXT PRIMARY KEY CHECK(length(genome_key)=64), bundle BLOB NOT NULL, byte_count INTEGER NOT NULL CHECK(byte_count=length(bundle) AND byte_count<=262144), created_at INTEGER NOT NULL ) WITHOUT ROWID",
         "CREATE TABLE IF NOT EXISTS su2_track_cursor( member_id TEXT PRIMARY KEY, folded_through INTEGER NOT NULL ) WITHOUT ROWID",
+        "CREATE TABLE IF NOT EXISTS su2_matrix_snapshot( genome_key TEXT NOT NULL, checkpoint_sequence INTEGER NOT NULL, snapshot_json TEXT NOT NULL CHECK(length(CAST(snapshot_json AS BLOB))<=262144), factors_blob BLOB NOT NULL CHECK(length(factors_blob)<=262144), reason_state BLOB NOT NULL CHECK(length(reason_state)<=262144), stats_json TEXT NOT NULL DEFAULT '{}' CHECK(length(CAST(stats_json AS BLOB))<=65536), graded_through INTEGER NOT NULL, updated_at INTEGER NOT NULL, PRIMARY KEY(genome_key,checkpoint_sequence) ) WITHOUT ROWID",
     };
     /** Inside the research writer transaction (DatabaseCoordinator). Idempotent. */
     public static void ensure(SQLiteDatabase db) {
@@ -59,8 +60,8 @@ public final class StrategySchemaSU2 {
         return sql != null && sql.contains("8192") && sql.contains("'SU2C'") && sql.contains("'SU2S'");
     }
     public static boolean ready(SQLiteDatabase db) {
-        try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_live_decision','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor')", null)) {
-            return c.moveToFirst() && c.getInt(0) == 10 && supportsCommittees(genomeDefinition(db));
+        try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_live_decision','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor','su2_matrix_snapshot')", null)) {
+            return c.moveToFirst() && c.getInt(0) == 11 && supportsCommittees(genomeDefinition(db));
         }
     }
 }

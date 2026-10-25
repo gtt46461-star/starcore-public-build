@@ -53,6 +53,8 @@ public final class ModelFoundryJobSU2 {
             for (ModelEvolutionSU2.Ranked x : s.population) scores.add(new double[]{evo.dev(x.g, e), evo.val(x.g, e)});
             // P49: fitting and validation stay outside the single database writer and pre-draw path.
             final List<StageStrategySU2.Definition> stages = finished ? StageStrategySU2.prepare(fs, lib, through) : Collections.emptyList();
+            final CommitteeSU2 matrixChampion = fs.committees.get("F15");
+            final MatrixSnapshotSU2.Data matrices = finished && matrixChampion != null ? MatrixSnapshotSU2.capture(matrixChampion, lib, through) : null;
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_CAMPAIGN_SLICE", db -> {
                 for (int i = 0; i < fs.population.size(); i++) ModelStoreSU2.saveGenome(db, fs.population.get(i), id, through, scores.get(i)[0], scores.get(i)[1], "RESEARCH", now);
                 for (ModelEvolutionSU2.Ranked x : fs.hallOfFame) ModelStoreSU2.saveGenome(db, x, id, through, evo.dev(x.g, e), evo.val(x.g, e), "HALL_OF_FAME", now);
@@ -66,6 +68,7 @@ public final class ModelFoundryJobSU2 {
                         ModelStoreSU2.joinLeague(db, "SU2:" + c.key(), "SU2", t.getKey() + "@" + through + "·委员会", c.key(), through + 1);
                     }
                     StageStoreSU2.save(db, stages, id, through, now);
+                    if (matrices != null) MatrixStoreSU2.save(db, matrixChampion.key(), through, matrices, now);
                     db.execSQL("UPDATE su2_campaign SET status='DONE',finished_at=? WHERE campaign_id=? AND status='RUNNING'", new Object[]{now, id});
                 } else if (finished) {
                     for (Map.Entry<String, ModelEvolutionSU2.Ranked> t : fs.tiers.entrySet()) {

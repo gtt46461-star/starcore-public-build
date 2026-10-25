@@ -44,6 +44,7 @@ public final class ReplayBurstJobServiceSU1 extends JobService {
                 if(su2Latest!=null&&TargetIssueResolver.isValid(su2Latest.issue)){
                     final long su2Seq=LiveShadowLoopSU1.sequence(su2Latest.issue)+1;final String su2Target=TargetIssueResolver.next(su2Latest.issue).targetIssue;
                     // Fold diagnosis statistics before raw decision retention removes old rows.
+                    MatrixStoreSU2.maintain(store,su2Target);
                     DiagnosisStoreSU2.maintain(store,su2Target);
                     store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_RETENTION",db->{com.ethk3.novaonepro.RetentionRulesSU2.foldDecisions(db,su2Seq,System.currentTimeMillis());com.ethk3.novaonepro.RetentionRulesSU2.pruneResearchGenomes(db);return 0;});
                     MainlineBridgeSU2.chooseIfDue(store,su2Seq);

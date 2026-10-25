@@ -56,4 +56,43 @@ public final class Plan1025DeviceTest {
             Set<String> cals = new HashSet<>(); for (String text : lives) cals.addAll(ModelLiveLoopSU2.calibratedMembers(text)); assertTrue(cals.size() <= 48);
         }
     }
+    @Test public void stageBundlePersistsAndRejectsModifiedTrainedParameters() {
+        try (SQLiteDatabase db = SQLiteDatabase.create(null)) {
+            ensure(db); Map<String,String> p=new TreeMap<>();p.put("alpha","1");p.put("scales","(0.9, 0.97, 0.99, 0.997, 1.0)");p.put("share","0.003");
+            ModelGenomeSU2 g=new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("MSDIR",p,1)),"STATIC",false,"MASS",.3,.2,true);
+            double[][] mu=new double[1][93],var=new double[1][93];Arrays.fill(var[0],1);double[] sd=new double[93];Arrays.fill(sd,1);
+            StageLayerSU2.Gmm mixture=new StageLayerSU2.Gmm(mu,var,new double[]{1},1);
+            StageLayerSU2.Layer layer=new StageLayerSU2.Layer(mixture,new double[93],sd,new double[1][4],new double[]{1});
+            double[] seed=new double[720];Arrays.fill(seed,.4);
+            StageStrategySU2.Definition d=new StageStrategySU2.Definition("F15",.15,3000,Collections.singletonList(g.text()),layer,seed,0,45,15,42,12);
+            db.beginTransaction();try{StageStoreSU2.save(db,Collections.singletonList(d),"test",3000,1);db.setTransactionSuccessful();}finally{db.endTransaction();}
+            StageStoreSU2.load(db,d.text());assertEquals(d.key(),StageStrategySU2.definition(d.text()).key());
+            assertEquals(1,scalar(db,"SELECT count(*) FROM su2_stage_bundle"));
+            byte[] changed=d.bytes();changed[changed.length-1]^=1;
+            db.execSQL("UPDATE su2_stage_bundle SET bundle=? WHERE genome_key=?",new Object[]{changed,d.key()});
+            try{StageStoreSU2.load(db,d.text());fail("tampered stage model accepted");}catch(IllegalStateException expected){assertTrue(expected.getMessage().contains("HASH"));}
+        }
+    }
+    @Test public void matrixReportAndDashboardReadTheSameBoundedSnapshots() throws Exception {
+        try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+            ensure(db);String key=HashingSU1.text("matrix");
+            db.beginTransaction();try{
+                for(int i=0;i<10;i++){
+                    String json="{\"checkpoint_sequence\":"+i+",\"factor_matrix\":[],\"teacher_matrix\":[],\"atomic_explanation\":{},\"reason_grades\":{}}";
+                    MatrixStoreSU2.save(db,key,i,new MatrixSnapshotSU2.Data(json,Collections.emptyList(),new AtomStreamSU2()),i);
+                }
+                db.setTransactionSuccessful();
+            }finally{db.endTransaction();}
+            assertEquals(8,scalar(db,"SELECT count(*) FROM su2_matrix_snapshot"));
+            org.json.JSONObject latest=new org.json.JSONObject(MatrixStoreSU2.report(db)).getJSONArray("snapshots").getJSONObject(0);
+            assertEquals(9,latest.getLong("checkpoint_sequence"));assertEquals(0,latest.getJSONObject("reason_grades").length());
+            assertTrue(MatrixStoreSU2.render(db).contains("冻结序号 9"));
+            db.execSQL("UPDATE su2_matrix_snapshot SET stats_json=? WHERE checkpoint_sequence=9",new Object[]{"{\"FREQUENCY\":[200,90,200,45]}"});
+            latest=new org.json.JSONObject(MatrixStoreSU2.report(db)).getJSONArray("snapshots").getJSONObject(0);
+            assertEquals("A_VALID",latest.getJSONObject("reason_grades").getJSONObject("FREQUENCY").getString("grade"));
+            db.execSQL("UPDATE su2_matrix_snapshot SET stats_json=? WHERE checkpoint_sequence=9",new Object[]{"{\"FREQUENCY\":[200,90,200,45],\"__MISSING_SOURCE\":[1,0,0,0]}"});
+            latest=new org.json.JSONObject(MatrixStoreSU2.report(db)).getJSONArray("snapshots").getJSONObject(0);
+            assertEquals("C_EXPLAIN_ONLY",latest.getJSONObject("reason_grades").getJSONObject("FREQUENCY").getString("grade"));
+        }
+    }
 }

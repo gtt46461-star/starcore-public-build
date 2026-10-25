@@ -55,6 +55,7 @@ def main():
         ('UpgradeDiagnosisSU2Test', ['r16_diag'], 'R16_DIAG_PARITY_PASS'),
         ('InformationProbeSU2Test', ['r16_probe'], 'R16_PROBE_PARITY_PASS'),
         ('StageDeploymentSU2Test', ['r13_worlds'], 'P49_STAGE_DEPLOYMENT_PASS'),
+        ('MatrixSnapshotSU2Test', ['r13_worlds'], 'P46_MATRIX_SNAPSHOT_PASS'),
     ]
     if args.evolution:
         tests.append(('ModelEvolutionR16Test', ['r13_worlds'], 'R16_JAVA_FOUNDRY_PASS'))
