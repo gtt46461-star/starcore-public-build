@@ -1,10 +1,17 @@
 name: Build APK
 on:
   workflow_dispatch:
+    inputs:
+      publish_verified_1025:
+        description: Publish the already verified 10.25 APK as a direct download
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 jobs:
   debug-apk:
+    if: ${{ !inputs.publish_verified_1025 }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -28,3 +35,56 @@ jobs:
           name: STARCORE-C024-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+  publish-verified-1025:
+    if: ${{ inputs.publish_verified_1025 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          run-id: 40167769430
+          github-token: ${{ github.token }}
+          path: verified
+      - name: Verify and stage the exact tested release APK
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil
+          expected='4567df77d768005cbcc19ab2aa3a2ab346c6d90d226d7ee1f670fb60721cf21d'
+          apks=list(Path('verified/app/build/outputs/apk/release').glob('*.apk'))
+          assert len(apks)==1
+          assert apks[0].stat().st_size==26727292
+          assert hashlib.sha256(apks[0].read_bytes()).hexdigest()==expected
+          receipt=json.loads(Path('construction/plan1025/delivery.json').read_text())
+          assert receipt['apk_sha256']==expected and receipt['runtime_verification']=='PASS_API29_35_36'
+          out=Path('release-download');out.mkdir()
+          name='STARCORE-10.25-R16-P50-release.apk'
+          shutil.copyfile(apks[0],out/name)
+          (out/'SHA256SUMS.txt').write_text(expected+'  '+name+'\n')
+          shutil.copyfile('construction/plan1025/delivery.json',out/'STARCORE-10.25-delivery.json')
+          PY
+      - name: Upload checked files and publish the download page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view r13-5.4.3.04-20261025 --json isDraft > release-state.json
+          python3 -c 'import json; assert json.load(open("release-state.json"))["isDraft"]'
+          gh release upload r13-5.4.3.04-20261025 release-download/* --clobber
+          gh api repos/gtt46461-star/starcore-public-build/releases/423190826 > uploaded-release.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('uploaded-release.json'))
+          assets={a['name']:a for a in j['assets']}
+          a=assets['STARCORE-10.25-R16-P50-release.apk']
+          assert a['size']==26727292
+          assert a.get('digest') in (None,'sha256:4567df77d768005cbcc19ab2aa3a2ab346c6d90d226d7ee1f670fb60721cf21d')
+          assert 'SHA256SUMS.txt' in assets and 'STARCORE-10.25-delivery.json' in assets
+          PY
+          gh release edit r13-5.4.3.04-20261025 --draft=false --prerelease --latest=false
+          echo 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r13-5.4.3.04-20261025/STARCORE-10.25-R16-P50-release.apk' >> "$GITHUB_STEP_SUMMARY"
