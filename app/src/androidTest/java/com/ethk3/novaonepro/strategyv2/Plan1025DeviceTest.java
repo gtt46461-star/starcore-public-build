@@ -35,6 +35,11 @@ public final class Plan1025DeviceTest {
                 DiagnosisStoreSU2.foldTrackBlocks(db, 21000); DiagnosisStoreSU2.foldTrackBlocks(db, 21000);
                 assertEquals(3, scalar(db, "SELECT sum(periods) FROM su2_track_block")); assertEquals(2, scalar(db, "SELECT sum(actions) FROM su2_track_block")); assertEquals(1, scalar(db, "SELECT sum(hits) FROM su2_track_block"));
                 assertEquals(1, scalar(db, "SELECT count(*) FROM su2_track_block WHERE block_index=-1"));
+                com.ethk3.novaonepro.RetentionRulesSU2.foldDecisions(db,10082,1);
+                com.ethk3.novaonepro.RetentionRulesSU2.foldDecisions(db,10083,2);
+                com.ethk3.novaonepro.RetentionRulesSU2.foldDecisions(db,10582,3);
+                com.ethk3.novaonepro.RetentionRulesSU2.foldDecisions(db,10582,4);
+                assertEquals(3,scalar(db,"SELECT sum(periods) FROM su2_live_daily"));assertEquals(2,scalar(db,"SELECT sum(actions) FROM su2_live_daily"));assertEquals(1,scalar(db,"SELECT sum(hits) FROM su2_live_daily"));
                 db.setTransactionSuccessful();
             } finally { db.endTransaction(); }
         }

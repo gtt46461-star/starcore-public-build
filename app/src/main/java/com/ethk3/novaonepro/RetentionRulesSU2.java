@@ -27,11 +27,24 @@ public final class RetentionRulesSU2 {
     public static int foldDecisions(SQLiteDatabase db, long currentSequence, long now) {
         if (!db.inTransaction()) throw new IllegalStateException("SU2_RETENTION_WRITER");
         long cut = currentSequence - RAW_DECISION_PERIODS;
+        long low;
+        try (Cursor first = db.rawQuery("SELECT min(sequence_ordinal) FROM su2_live_decision WHERE hit IS NOT NULL AND sequence_ordinal<?", new String[]{String.valueOf(cut)})) {
+            if (!first.moveToFirst() || first.isNull(0)) return 0;
+            low = first.getLong(0);
+        }
+        long high = Math.min(cut, low + 60);
+        // Aggregate exactly the rows this bounded transaction will remove. A day
+        // can arrive in many slices; INSERT OR IGNORE of its first partial total lost later rows.
         db.execSQL("INSERT OR IGNORE INTO su2_live_daily(genome_key,day_key,periods,actions,hits,closed_at) "
-            + "SELECT genome_key,CAST(sequence_ordinal/1440 AS INTEGER),count(*),sum(act),sum(CASE WHEN act=1 THEN hit ELSE 0 END),? FROM su2_live_decision "
-            + "WHERE sequence_ordinal<? AND hit IS NOT NULL GROUP BY genome_key,CAST(sequence_ordinal/1440 AS INTEGER)", new Object[]{now, cut});
-        // WITHOUT ROWID table and minSdk-21 SQLite (no row values): delete a bounded range of the oldest periods
-        db.execSQL("DELETE FROM su2_live_decision WHERE hit IS NOT NULL AND sequence_ordinal<? AND sequence_ordinal<(SELECT min(sequence_ordinal)+60 FROM su2_live_decision)", new Object[]{cut});
+            + "SELECT genome_key,CAST(sequence_ordinal/1440 AS INTEGER),0,0,0,? FROM su2_live_decision "
+            + "WHERE sequence_ordinal>=? AND sequence_ordinal<? AND hit IS NOT NULL GROUP BY genome_key,CAST(sequence_ordinal/1440 AS INTEGER)", new Object[]{now, low, high});
+        db.execSQL("UPDATE su2_live_daily SET "
+            + "periods=periods+(SELECT count(*) FROM su2_live_decision d WHERE d.genome_key=su2_live_daily.genome_key AND d.sequence_ordinal/1440=su2_live_daily.day_key AND d.hit IS NOT NULL AND d.sequence_ordinal>=? AND d.sequence_ordinal<?),"
+            + "actions=actions+(SELECT coalesce(sum(act),0) FROM su2_live_decision d WHERE d.genome_key=su2_live_daily.genome_key AND d.sequence_ordinal/1440=su2_live_daily.day_key AND d.hit IS NOT NULL AND d.sequence_ordinal>=? AND d.sequence_ordinal<?),"
+            + "hits=hits+(SELECT coalesce(sum(CASE WHEN act=1 THEN hit ELSE 0 END),0) FROM su2_live_decision d WHERE d.genome_key=su2_live_daily.genome_key AND d.sequence_ordinal/1440=su2_live_daily.day_key AND d.hit IS NOT NULL AND d.sequence_ordinal>=? AND d.sequence_ordinal<?),closed_at=? "
+            + "WHERE day_key>=? AND day_key<=? AND EXISTS(SELECT 1 FROM su2_live_decision d WHERE d.genome_key=su2_live_daily.genome_key AND d.hit IS NOT NULL AND d.sequence_ordinal>=? AND d.sequence_ordinal<?)",
+            new Object[]{low,high,low,high,low,high,now,low/1440,(high-1)/1440,low,high});
+        db.execSQL("DELETE FROM su2_live_decision WHERE hit IS NOT NULL AND sequence_ordinal>=? AND sequence_ordinal<?", new Object[]{low,high});
         return changes(db);
     }
 

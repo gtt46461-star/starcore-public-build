@@ -22,6 +22,21 @@ def fold(db, sequence):
         db.execute(sql, params)
 
 
+def fold_daily(db, cut):
+    source = (ROOT / 'app/src/main/java/com/ethk3/novaonepro/RetentionRulesSU2.java').read_text()
+    body = source.split('public static int foldDecisions(', 1)[1].split('public static int pruneResearchGenomes(', 1)[0]
+    first = db.execute('SELECT min(sequence_ordinal) FROM su2_live_decision WHERE hit IS NOT NULL AND sequence_ordinal<?', (cut,)).fetchone()[0]
+    if first is None: return
+    high = min(cut, first + 60)
+    values = {'now': 10, 'low': first, 'high': high, 'low/1440': first // 1440, '(high-1)/1440': (high - 1) // 1440}
+    for match in re.finditer(r'db\.execSQL\((.*?)\);', body, re.S):
+        call = match[1]
+        sql_part = call.split('new Object[]{', 1)[0]
+        sql = ''.join(json.loads(s) for s in re.findall(r'"(?:\\.|[^"\\])*"', sql_part))
+        args = re.search(r'new Object\[\]\{([^}]+)\}', call)
+        db.execute(sql, [values[a.strip()] for a in args[1].split(',')])
+
+
 def main():
     with sqlite3.connect(':memory:') as db:
         for statement in statements(): db.execute(statement)
@@ -40,7 +55,23 @@ def main():
         # A later closed block adds once after old raw rows have been removed.
         db.execute(insert,(key,22001,1,1));fold(db,22500);fold(db,22500)
         assert db.execute('SELECT sum(periods),sum(actions),sum(hits) FROM su2_track_block WHERE member_id=?',(key,)).fetchone()==(4,3,2)
-    print('P50 production SQL: exact lifetime totals, idempotent folding and raw-retention independence PASS')
+    with sqlite3.connect(':memory:') as db:
+        for statement in statements(): db.execute(statement)
+        db.executemany(insert,[(key,0,1,1),(key,1,1,0),(key,2,0,1)])
+        for cut in [1,2,3,3]: fold_daily(db,cut)
+        assert db.execute('SELECT sum(periods),sum(actions),sum(hits) FROM su2_live_daily').fetchone()==(3,2,1)
+        assert db.execute('SELECT count(*) FROM su2_live_decision').fetchone()[0]==0
+        db.execute(insert,(key,4,1,1));db.commit()
+        db.execute('BEGIN');fold_daily(db,5);db.rollback()
+        assert db.execute('SELECT count(*) FROM su2_live_decision').fetchone()[0]==1
+        assert db.execute('SELECT sum(periods),sum(actions),sum(hits) FROM su2_live_daily').fetchone()==(3,2,1)
+        # An old unresolved prediction must not prevent settled rows from being reclaimed.
+        db.execute('INSERT INTO su2_live_decision(genome_key,sequence_ordinal,position,number_mask,act,gscore,phat,frozen_at,target_open_time) VALUES(?,0,1,7,1,.5,.4,1,2)',(key,))
+        db.execute(insert,(key,100,1,1))
+        for _ in range(3):fold_daily(db,200)
+        assert db.execute('SELECT sequence_ordinal,hit FROM su2_live_decision').fetchall()==[(0,None)]
+        assert db.execute('SELECT sum(periods),sum(actions),sum(hits) FROM su2_live_daily').fetchone()==(5,4,3)
+    print('P50 production SQL: exact lifetime/daily totals, partial batches, idempotence and atomic rollback PASS')
 
 
 if __name__=='__main__': main()
