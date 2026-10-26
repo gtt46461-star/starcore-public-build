@@ -1,0 +1,11 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS r26_session(session_id TEXT PRIMARY KEY,user_enabled INTEGER NOT NULL CHECK(user_enabled IN(0,1)),boot_id TEXT NOT NULL,state TEXT NOT NULL,heartbeat INTEGER NOT NULL,actual_progress INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS r26_policy(policy_hash TEXT PRIMARY KEY,canonical_spec TEXT NOT NULL,birth_ordinal INTEGER NOT NULL CHECK(birth_ordinal>=0),mode TEXT NOT NULL CHECK(mode IN('ADAPTIVE','STATIC')));
+CREATE TABLE IF NOT EXISTS r26_checkpoint(checkpoint_hash TEXT PRIMARY KEY,policy_hash TEXT NOT NULL REFERENCES r26_policy(policy_hash),parent TEXT REFERENCES r26_checkpoint(checkpoint_hash),trained_through INTEGER NOT NULL,state_json TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS r26_active(policy_hash TEXT PRIMARY KEY REFERENCES r26_policy(policy_hash),checkpoint_hash TEXT NOT NULL REFERENCES r26_checkpoint(checkpoint_hash),version INTEGER NOT NULL CHECK(version>=0));
+CREATE TABLE IF NOT EXISTS r26_consumption(event_id TEXT NOT NULL REFERENCES r26_feedback(event_id),policy_hash TEXT NOT NULL REFERENCES r26_policy(policy_hash),checkpoint_hash TEXT NOT NULL REFERENCES r26_checkpoint(checkpoint_hash),PRIMARY KEY(event_id,policy_hash));
+CREATE TABLE IF NOT EXISTS r26_task(task_id TEXT PRIMARY KEY,lane TEXT NOT NULL CHECK(lane IN('P0','P1','P2','P3')),mechanism TEXT NOT NULL,snapshot_hash TEXT NOT NULL,cursor INTEGER NOT NULL DEFAULT 0 CHECK(cursor>=0),fence INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,owner TEXT,status TEXT NOT NULL DEFAULT 'READY' CHECK(status IN('READY','RUNNING','YIELDED','BLOCKED','DONE','FAILED','CANCELLED')),blocked_reason TEXT);
+CREATE TABLE IF NOT EXISTS r26_progress(receipt_id INTEGER PRIMARY KEY,task_id TEXT NOT NULL REFERENCES r26_task(task_id),fence INTEGER NOT NULL,cursor_before INTEGER NOT NULL,cursor_after INTEGER NOT NULL,cpu_ms INTEGER NOT NULL CHECK(cpu_ms>=0),blocked_reason TEXT);
+CREATE INDEX IF NOT EXISTS r26_task_dispatch ON r26_task(status,lane,lease_until);
+CREATE INDEX IF NOT EXISTS r26_feedback_order ON r26_feedback(issue_ordinal);

@@ -1,0 +1,95 @@
+{
+  "scope": "HOST_CONTRACTS_AND_LEGACY_REGRESSIONS_ONLY",
+  "runs": [
+    {
+      "name": "r26_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.642,
+      "python_tests": 29,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "source_a_r25_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.342,
+      "python_tests": 35,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_a/upgrade_r25/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "source_b_r25_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.124,
+      "python_tests": 36,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "shared_r24_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.095,
+      "python_tests": 27,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/baseline_R24/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "shared_r23_python",
+      "status": "FAIL",
+      "returncode": 1,
+      "seconds": 0.218,
+      "python_tests": 9,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/baseline_R23/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "java",
+      "status": "NOT_RUN",
+      "reason": "JDK_MISSING"
+    }
+  ],
+  "all_required_pass": false,
+  "python_tests_total": 136,
+  "android": "NOT_RUN",
+  "device": "NOT_RUN",
+  "new_prospective_quality": "NOT_RUN"
+}

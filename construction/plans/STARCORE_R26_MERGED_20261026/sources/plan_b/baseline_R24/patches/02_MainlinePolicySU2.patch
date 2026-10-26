@@ -1,0 +1,25 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2.java
+@@ -27,7 +27,7 @@
+  */
+ public final class MainlinePolicySU2 {
+     private MainlinePolicySU2() {}
+-    public static final int MIN_PERIODS = 1000, MIN_ACTS = 250, DEMOTE_WINDOW = 1500;
++    public static final int MIN_PERIODS = 1000, MIN_ACTS = 250, DEMOTE_WINDOW = 1667;
+     /** From the repeated-look error budget, checked on known-truth leagues (reference/replay/ipm_oc.py). */
+     public static final double MIN_COVERAGE = 0.15, ALPHA_SWITCH = 0.02, ALPHA_DEMOTE = 0.02, BASE = 0.30;
+ 
+@@ -91,8 +91,11 @@
+     static boolean demotable(Member m, Member xi, int c) {
+         int a = Math.max(Math.max(m.birth, xi.birth), c - DEMOTE_WINDOW);
+         int[] cc = nk(m, a, c), xx = nk(xi, a, c);
+-        boolean ok = c - a >= MIN_PERIODS && cc[0] >= MIN_ACTS && cc[0] / (double) (c - a) >= MIN_COVERAGE;
+-        if (!ok) return true;
++        // R24: insufficient evidence is not evidence of degradation.
++        int periods = c - a;
++        if (periods < MIN_PERIODS) return false;
++        if (cc[0] / (double) periods < MIN_COVERAGE) return true;
++        if (cc[0] < MIN_ACTS) return false;
+         double belowBase = (BASE - cc[1] / (double) cc[0]) / Math.sqrt(BASE * (1 - BASE) / cc[0]);   // below the 30% baseline
+         return normSf(zBetter(xx[0], xx[1], cc[0], cc[1])) <= ALPHA_DEMOTE || normSf(belowBase) <= ALPHA_DEMOTE;
+     }

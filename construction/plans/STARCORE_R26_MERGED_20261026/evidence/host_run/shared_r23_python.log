@@ -1,0 +1,29 @@
+test_atomic_settlement_failure (test_durable_learning.DurableTests.test_atomic_settlement_failure) ... ok
+test_immutable_prediction_and_label (test_durable_learning.DurableTests.test_immutable_prediction_and_label) ... ok
+test_label_settlement_queue_idempotency (test_durable_learning.DurableTests.test_label_settlement_queue_idempotency) ... ok
+test_live_backfill_forbidden (test_durable_learning.DurableTests.test_live_backfill_forbidden) ... ok
+test_missing_artifact_and_label_gap_rejected (test_durable_learning.DurableTests.test_missing_artifact_and_label_gap_rejected) ... ok
+test_new_model_bootstraps_existing_history (test_durable_learning.DurableTests.test_new_model_bootstraps_existing_history) ... ok
+test_no_prediction_still_trains (test_durable_learning.DurableTests.test_no_prediction_still_trains) ... ok
+test_publish_failure_cannot_advance_cursor (test_durable_learning.DurableTests.test_publish_failure_cannot_advance_cursor) ... ok
+test_r23 (unittest.loader._FailedTest.test_r23) ... ERROR
+
+======================================================================
+ERROR: test_r23 (unittest.loader._FailedTest.test_r23)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_r23
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+  File "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/baseline_R23/tests/test_r23.py", line 4, in <module>
+    import unittest,numpy as np,torch
+ModuleNotFoundError: No module named 'torch'
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.007s
+
+FAILED (errors=1)

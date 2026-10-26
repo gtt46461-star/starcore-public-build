@@ -1,0 +1,1174 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STARCORE R25 最终施工方案</title><style>body{margin:0;background:#f3f5f8;color:#162335;font-family:system-ui,"Noto Sans CJK SC","Microsoft YaHei",sans-serif;line-height:1.85}main{max-width:1150px;margin:auto;background:white;padding:40px 5% 70px}header{background:#132a43;color:white;padding:36px 6%;border-bottom:7px solid #2b9a9d}h1{font-size:2em;line-height:1.45}h2{margin-top:2.6em;border-bottom:2px solid #d5e2ea;padding-bottom:.4em;color:#173e61}h3{color:#23577a;margin-top:1.8em}table{display:block;overflow-x:auto;border-collapse:collapse;width:100%;font-size:.93em}th,td{border:1px solid #d2dce5;padding:10px 12px;vertical-align:top;min-width:100px}th{background:#e7f0f5;text-align:left}tr:nth-child(even){background:#f8fafb}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef3f7;padding:16px;border-left:4px solid #2b9a9d;border-radius:4px}code{font-family:ui-monospace,monospace;font-size:.92em;overflow-wrap:anywhere}a{color:#08658e}nav{background:#eaf3f7;padding:18px;border-radius:8px}nav a{display:inline-block;margin:6px 16px 6px 0}.badge{display:inline-block;padding:4px 10px;background:#29516f;border-radius:20px;margin:5px 8px 5px 0;font-size:.9em}.note{border-left:4px solid #c68a24;background:#fff7e9;padding:14px 18px}p{overflow-wrap:anywhere}@media(max-width:700px){main{padding:20px 16px}h1{font-size:1.65em}header{padding:24px 18px}table{font-size:.86em}}@media print{header{background:white;color:black}main{max-width:none;padding:0}h1,h2,h3{break-after:avoid}tr,pre{break-inside:avoid}a{color:inherit}body{font-size:10pt;background:white}}</style></head><body><header><div>STARCORE · CONSTRUCTION BLUEPRINT · 2026-10-26</div><h1>持续创造，真实学习，可验证进化</h1><div class="badge">24家族 / 16专家</div><div class="badge">48张继承卡 + 32张新增卡</div><div class="badge">203项主机测试/检查</div><p>固定单位置K3 · 每期最多1个REAL · 质量优先，争取至少15%频率</p></header><main><div class="note"><strong>交付边界：</strong>施工规范、实际源码缺陷复现与可运行主机参考。未声称Android已完工、全994份正文已审计或35%/40%自然胜率已达标。</div><nav><strong>阅读顺序：</strong>主方案 → 源码修改说明 → 24家族 → 32张施工卡 → 接口与验收 → 来源 → 报告 → 冲突覆盖。全部内容在本页，无外部脚本依赖。</nav><h1>STARCORE R25｜持续创造、可验证进化与主链闭环最终施工方案</h1>
+<p>版本：2026-10-26。适用：STARCORE / Binance1-PK10 安卓工程。交付性质：基于附件R24、匹配源码、实际历史记录和本轮复现结果形成的施工规范与主机参考实现，不是已完工APK，也不是已经达成35%/40%胜率的证明。</p>
+<h2>0. 总结：此次真正升级什么</h2>
+<p>R25不是把“遗传算法、强化学习、深度学习、AutoML”再堆一遍，而是修复五个决定系统能否成长的基础问题：可执行策略的身份是否可靠；每期学习后的策略如何合法累积证据；创造是否真的改变机制与行为；选择、融合、校准和出手是否作为同一条策略接受检验；优秀策略如何在不绕开唯一Owner的情况下进入主链并继续受监督。</p>
+<p>本轮实际完成：核对994条源码清单与40份正文的SHA；编译其中32份无Android依赖的Java正文；复现原Java的身份碰撞、持久化数值变化、成员参数可变与非劣判定方向问题；重跑R23/R24已有主机检查；新增36项R25参考测试；重新按4,836期原始开奖核算已有预测，未发现这批记录的结算命中标注不一致。没有完成954份缺失源码的逐文件审计、Android全量构建、真机测试或新策略自然前瞻验证。所有未完成项作为硬阻塞保留，不能填成PASS。</p>
+<p>最终能力定义：系统应持续产出“可执行、可训练、可恢复、可解释其改变、可被反例推翻”的候选资产，并只把通过预先规定的未来数据检验者称为高质量资产。生成数量、家族名字、历史最高分、训练轮数和代数都不能替代这一结果。</p>
+<h2>1. 证据基线、原方案保全与优先级</h2>
+<h3>1.1 施工基线</h3>
+<p>已通过连接的GitHub读取公共库 <code>gtt46461-star/starcore-public-build</code>。施工分支 <code>construction/su1-20261022</code> 核实提交为 <code>cd7f058a8345de7c9c89c308c7c91416a1596760</code>；默认main为 <code>92d06bbce000dd46cefcf7aff7c63678021ddada</code>，不能因为main默认可见就错误覆盖施工分支。附件R24记录的安装源码基线为 <code>5b598012193291ef56f39d583514857516b48ab4</code>。施工前必须再次读取HEAD并比较，若已变化，禁止盲套旧行号。</p>
+<p>原附件字节数130,956,719；SHA256：<code>082504220d21d6bcc56722a50d74bd9bd6132b7136c0fc9c70d9e611bb4a4588</code>。完整保全版包含这个原件，不重新压缩其内部文件冒充相同原包。</p>
+<p>读取范围分为：SOURCE_INDEX、BODY_AVAILABLE、BODY_REVIEWED、HOST_EXECUTED、ANDROID_EXECUTED、DEVICE_VERIFIED、PROSPECTIVE_QUALIFIED。40份正文均与索引哈希一致，但“有正文”不等于每个方法已完整证明正确；关键方法审查见附录。程序编译也不等于所有分支已执行。</p>
+<h3>1.2 不能删减的继承项</h3>
+<p>保留原1832条要求、299张历史卡、P001—P124、R24-001—R24-048、24家族、16专家、28章检测契约、96检查原文、旧策略和已冻结证据。R25新增卡用独立编号；状态不因复制文件、写好计划或修复一个函数而批量变绿。</p>
+<p>规则优先级：用户明确红线 → R25显式冲突覆盖表 → 未被覆盖的R24规范 → 历史原文。R25对R24的“权重变化必须重置证据”“全局代数”“非劣方向”等做精确升级；其余原要求保持。原始文件留在 <code>baseline_R24</code>，实施者不能借R25重命名抹掉原债务。</p>
+<h2>2. 对所贴深度研究报告的逐项纠正</h2>
+<table>
+<thead>
+<tr>
+  <th>报告内容</th>
+  <th>本项目处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>源码、数据、业务均未提供</td>
+  <td>删除这一假设。已有具体安卓源码片段、994索引、4,836期数据、冻结预测、SQL和检测材料。缺的是954份正文与真机完整证据，不是所有资料。</td>
+</tr>
+<tr>
+  <td>胜率≥60%、误判率&lt;5%</td>
+  <td>不采用。这与单位置10选3、35/37/40目标及现有实测不对应。概率误差和结果未命中不是同一指标。</td>
+</tr>
+<tr>
+  <td>夏普、滑点、仓位、交易成本</td>
+  <td>不作为当前开奖预测主验收。未提供真实赔率和费用时，不把命中率等同净收益。禁止引入马丁或加倍。</td>
+</tr>
+<tr>
+  <td>众包标注、SMOTE扩充开奖标签</td>
+  <td>不采用。开奖结果自动生成标签；合成数据只用于机制/泄漏/负控测试，不能增大真实证据样本量。</td>
+</tr>
+<tr>
+  <td>DQN/PPO/AlphaZero作为主要提升手段</td>
+  <td>不设为主线。预测行为不改变下一期开奖，首先是有拒绝选项的全信息序列预测；研究预算分配可采用受约束调度，不把交易式RL硬套进去。</td>
+</tr>
+<tr>
+  <td>加4块GPU、HDFS、Kubernetes、Cassandra</td>
+  <td>删除无依据的固定采购和分布式重构。先在安卓资源边界内修复闭环；可选离线训练节点不能成为手机基础功能前提。</td>
+</tr>
+<tr>
+  <td>1—3年通用阶段表</td>
+  <td>改成有依赖、有验收、有回滚的施工批次，不用年月跨度掩盖具体缺陷。</td>
+</tr>
+<tr>
+  <td>多模型组合即可显著增强</td>
+  <td>改成待检验假设。附件里投影、融合、校准均出现过无增益或零出手，必须统一日历比较。</td>
+</tr>
+<tr>
+  <td>因果推断自动证明底层规律</td>
+  <td>改成时间因果可见性、结构假设和干预式消融。观察性相关不能自动命名为彩票开奖的真实因果机制。</td>
+</tr>
+<tr>
+  <td>自动再训练后直接发布</td>
+  <td>改成策略规则冻结、检查点原子发布、出生后证据、资格状态机和唯一授权入口。</td>
+</tr>
+</tbody>
+</table>
+<p>保留该报告有用的模块化、版本化、监控、回滚和测试思想，但全部重写为本工程可实施契约。[S1—S8]</p>
+<h2>3. 已确认的现状及它们意味着什么</h2>
+<h3>3.1 数据与历史表现</h3>
+<p>4,836条有效排列数据从202610211440到202610250627；旧4,743条重叠部分未变化，新增93条。在202610250485与202610250598之间缺112期，不能按数组相邻当连续开奖。需要32期完整历史的模型，只能把新增前63期作为原冻结模型的连续扩展评估；缺口后30期不能伪造补齐。</p>
+<p>本轮从原始开奖记录逐条重新核算已有记录：</p>
+<table>
+<thead>
+<tr>
+  <th>既有策略</th>
+  <th style="text-align:right">机会</th>
+  <th style="text-align:right">出手/命中</th>
+  <th style="text-align:right">命中率</th>
+  <th style="text-align:right">频率</th>
+  <th style="text-align:right">最长连挂</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>因果TCN</td>
+  <td style="text-align:right">2243</td>
+  <td style="text-align:right">435 / 134</td>
+  <td style="text-align:right">30.80%</td>
+  <td style="text-align:right">19.39%</td>
+  <td style="text-align:right">17</td>
+</tr>
+<tr>
+  <td>LSTM</td>
+  <td style="text-align:right">2243</td>
+  <td style="text-align:right">628 / 158</td>
+  <td style="text-align:right">25.16%</td>
+  <td style="text-align:right">28.00%</td>
+  <td style="text-align:right">20</td>
+</tr>
+<tr>
+  <td>时间注意力</td>
+  <td style="text-align:right">2243</td>
+  <td style="text-align:right">396 / 110</td>
+  <td style="text-align:right">27.78%</td>
+  <td style="text-align:right">17.65%</td>
+  <td style="text-align:right">12</td>
+</tr>
+<tr>
+  <td>关系图模型</td>
+  <td style="text-align:right">2243</td>
+  <td style="text-align:right">452 / 120</td>
+  <td style="text-align:right">26.55%</td>
+  <td style="text-align:right">20.15%</td>
+  <td style="text-align:right">16</td>
+</tr>
+<tr>
+  <td>等权边际融合</td>
+  <td style="text-align:right">2243</td>
+  <td style="text-align:right">478 / 159</td>
+  <td style="text-align:right">33.26%</td>
+  <td style="text-align:right">21.31%</td>
+  <td style="text-align:right">15</td>
+</tr>
+</tbody>
+</table>
+<p>最后一项描述性Wilson 95%区间约29.19%—37.61%。这是已看过的历史记录，不是R25新模型成绩，也不是修正搜索偏差后的资格证书。全部原记录的 <code>settled_hit</code> 与原始开奖重算一致，不意味着预测存在优势或无其他泄漏。</p>
+<p>结论不是“所有方法只能随机”，而是：这批具名模型及当前筛选方式尚未证明达到目标；不能把增大模型数量当作有效升级，也不能凭这批结果否定用户所述旧优秀策略。旧策略须独立定位、冻结、同口径复现和前瞻对照，保留为受保护母本。</p>
+<h3>3.2 运行闭环</h3>
+<p>R24检测材料记录研究域初始化未完成、SU2表缺失、抓取与研究业务心跳过期、正式REAL=0、部分报告只返回error或PENDING、部分日志截断。其根因有已定位的调度/迁移路径，也有尚待真机隔离的问题。不能将所有“没有高胜率资产”都归咎模型弱：模型没有初始化、没有拿到标签、没有被授权，与模型训练后预测差，是不同故障。</p>
+<p>先恢复基础链条，再比较算法质量；但不借“工程已正常”宣称算法达标。</p>
+<h2>4. 本轮新增的源码级缺陷与修复边界</h2>
+<h3>4.1 策略身份不够精确</h3>
+<p><code>ModelGenomeSU2.java</code> 的 <code>fmt</code> 使用 <code>%.4g</code>，<code>Member.text</code> 与 <code>key</code> 依赖该文本。原Java测试中1.23441与1.23449生成相同身份；解析后变成1.234。<code>Member.params</code>还是公开可修改TreeMap，外部可在创建后改变身份。</p>
+<p>处理：新建版本化 <code>PolicyIdentityR25</code>，对浮点使用固定端序IEEE754字节或有跨语言规范的无损数值编码；所有字段带类型和长度，参数深拷贝并只读；禁止NaN/Inf。把展示公式与身份编码分离。旧SU2解析器继续只读旧资产，不偷偷重写旧hash和证书。旧资产导入生成“legacy identity→new policy identity”映射，若原记录已丢失精度，只能标 <code>LEGACY_PRECISION_UNRECOVERABLE</code>，不得假装恢复了原值。</p>
+<h3>4.2 非劣性方向错误</h3>
+<p><code>SelectiveEvidenceSU2.evaluate</code>以配对差异上界≥0作为通过条件。这最多表示“没有足够证据判定更差”，不能证明非劣。原Java合成反例：同1,000期全出手，候选40%，对照45%，均通过块底线；上界约0.03589，旧逻辑仍PASS。</p>
+<p>修复为预注册容忍幅度δ，要求 <code>LCB(Δ) ≥ -δ</code>；宣称真实提升要求 <code>LCB(Δ)&gt;0</code>。δ由策略政策固定，默认严格比较可用0，允许微小退步的探索不得伪装升级。配对效用与出手命中率分别呈现；一方不出手时不能把两个不同样本分母做普通独立比例z检验。缺失、迟到、无效状态统一进入运行完整性闸门，不能某段忽略、另一段计命中。</p>
+<h3>4.3 历史裁判与证书混淆</h3>
+<p><code>ModelEvolutionSU2.val</code>实际评分区间为DEV到valEnd；<code>judgeEb</code>引入κ=300教师先验；<code>effectiveGenerations</code>可随历史裁判改善递增。它们可以用于研究排序，但不是新未来数据证明，更不应充当主链资格。</p>
+<p>保留教师为训练辅助/候选排序之一，输出 <code>teacherContribution</code>；另设纯真实标签、同机会、出生后证据的独立资格裁判。消融必须比较“无教师、冻结旧教师、当前教师”，排查自我确认。历史搜索最佳提升记 <code>researchAccepted</code>，不能增加 <code>verifiedImprovement</code>。</p>
+<h3>4.4 已有R24问题继续施工</h3>
+<p><code>MainlinePolicySU2</code> 的250样本与1500期×15%=225矛盾，本轮重跑R24原缺陷/补丁测试得到6项通过；不能只扩大窗口就宣称整体资格逻辑正确。必须把 <code>INSUFFICIENT_EVIDENCE</code> 与 <code>DEGRADED</code> 拆开。</p>
+<p><code>ModelReplaySU2</code>的过去分位数门控不等同质量保证；<code>ModelEvolutionSU2</code>多个LRU按对象数量限额不等于统一字节预算；<code>ModelLiveSU2</code>的训练、校准与恢复状态需要端到端游标一致性验收。具体文件/函数、冲突和施工卡见附录。</p>
+<h2>5. 固定业务契约与目标，不再互相冲突</h2>
+<p>每个目标期最多一条REAL；一个位置、三个不重复号码；研究可看100个位置—号码面和全部1200个K3动作，但不能将其当成1200期独立证据。一个合法排列恰好对应360个命中K3动作，所有这些标签高度共享同一结果。</p>
+<p>定义全日历机会N_schedule、按事先规则合法机会N_eligible、赛前冻结N_frozen、实际授权N_real、已结算N_settled，分别披露。REAL频率=N_real/N_schedule；模型研究频率还可报ACT/N_eligible。不能通过事后缩小eligible分母把频率做成15%。缺口、晚抓取、暖机各自列明。</p>
+<p>目标政策以R24为默认：总体真实频率至少约15%，不设人为上限；研究初始命中目标35%，37%健康优先，40%更优。旧34%档只可作为显式登记的旧政策，不默默下调新档。质量不合格时宁可明确“目标未达成”，不得为了15%放低门槛出手。</p>
+<p>两个证据档必须区别：A档“观测命中率≥35%且对30%参考零假设有经修正证据”，不能写成真实胜率下限35%；B档“修正下置信界≥35%”，才可称达到更强的35%下界要求。37/40同理。30%只是均匀排列、赛前固定单位置K3假设下的数学对照，不是事先判定数据不存在结构。</p>
+<p>风险约束保留：预注册的连续观察窗最长连挂≤6为目标，达到7触发风险处置；不得因暂停、换模型、改名或清表重置全局REAL连挂。恢复须有新资格条件，恢复出手后的第一挂仍接续原连挂，直到真正命中。</p>
+<h2>6. 解决“每期训练”与“证据永远凑不够”的关键设计</h2>
+<h3>6.1 三层身份</h3>
+<p><code>structureHash</code>：可执行计算图、类型、连接、状态转移、集合构造方式和更新机制的结构指纹；不把仅修改连续参数、随机种子或显示名算新机制。</p>
+<p><code>policyHash</code>：结构＋完整更新算法＋允许的学习率/正则计划＋特征与标签契约＋校准规则＋选择门控＋失效/恢复规则＋证据协议。一个自动在线学习策略的整个行为规则必须在出生前确定。</p>
+<p><code>checkpointHash</code>：某一期具体权重、优化器、RNG、归一化器、校准器、状态机、训练游标与父检查点。每次有效训练可以产生新checkpoint，不必每次重置policy证据。</p>
+<h3>6.2 允许与禁止</h3>
+<p>在已冻结policy规定的更新规则内逐期学习，是同一个“自适应策略”的轨迹；其每次预测都必须先绑定当时checkpoint，再等结果，再更新。可对这条前瞻轨迹累积证据。证据说明的是该轨迹与规则下的观察表现，不保证未来任意状态继续相同。</p>
+<p>改变网络边、特征定义、更新规则、事后改学习率政策、校准政策或门控政策，必须新policy出生；可以继承父权重，不能继承父策略命中样本或把父证书直接挂到子策略。学习率由已冻结调度规则在训练中改变，与人为看过结果后更换规则不同。</p>
+<p>元选择器、融合器也属于policy。不能每期事后挑选表现最好的专家再拼成一个“主链曲线”。零改动权重或checkpoint不同也不自动增加有效代数。</p>
+<h3>6.3 在线执行顺序</h3>
+<pre><code class="language-text">读取已提交开奖t → SettlementEngine结算此前冻结的t → 同事务写标签与Outbox
+→ 以t为输入上界构建下一期请求 → 读取一个已提交的不可变checkpoint
+→ 预测t+1 → DecisionGateEngine唯一资格审查 → canonical原子冻结
+→ 提交成功后展示/广播 → 后台有预算地消费Outbox、训练并提交下一checkpoint
+</code></pre>
+<p>预测所用模型可以暂落后最新标签，但必须明确 <code>trainedThrough ≤ inputThrough &lt; target</code>，且不能混用旧权重与新归一化器。优先保障预测截止时间，禁止为了“本期全部模型都训练完”阻塞主链。每期都有反馈事件；完成多少训练、延迟多少期如实可见。</p>
+<h2>7. 数学原子：从名称表变成可训练的有类型计算单元</h2>
+<p>每个原子包含：<code>atomId/semanticVersion/inputTypes/outputType/shape/unit/causalLag/stateSchema/forward/update/serialization/costBound/missingPolicy/validDomain/falsifier</code>。原子不必都独立学习，但凡声称可学习者必须有明确目标、更新和可复现实验；常量、特征变换、参数化状态转移分别标注。</p>
+<p>类型至少区分：DrawPermutation、HistoryWindow、PositionNumberLogits、DoublyStochasticMarginals、SetMask3、SetProbability、UncalibratedScore、StatePosterior、GraphEdges、BoundedRiskScore。打分不能隐式当概率；Top3值的总和在合法边际下才是该位置K3概率。风险分数不能伪装预测胜率。</p>
+<p>时序规则：对目标t，输入开奖最大只能是t−1；归一化、图构造、特征选择、检索索引、伪标签老师、校准、门控阈值均受同一边界。完整历史训练中未来归一化或先全样本选特征再切分同样属于泄漏。</p>
+<p>结构规则：图必须可达、类型一致、无非法反馈环；递归只能通过显式状态跨时间边；新增死节点、乘0分支、永不激活的if、同义宏展开不能算新策略。浮点代数不随意做“等价简化”，防止改变舍入语义。图规范化、行为探针和数学等价证明是不同证据层。</p>
+<p>六尺度8/32/128/512/2048/5000保留，但通过稀疏尺度连接和共享编码器降低成本；不足尺度用mask，不复制或零填充成真实5000期。缺口在窗口内必须被显式处理；不同模型可按其已声明missingPolicy停用、重暖机或使用间隔感知转移。</p>
+<h2>8. 完整数学策略的最低合同</h2>
+<p>一个策略不是一个算式字符串，而是对象：</p>
+<p><code>S=(InputContract, Representation, StateTransition, Predictor, Readout, Calibrator, Selector, Updater, Stop/ResumeRule, CheckpointCodec, EvidenceProtocol)</code>。</p>
+<p>以分层条件策略为例：</p>
+<p><code>z_t = Encoder(H_{&lt;t}, gapMask, multiScaleMask)</code>；
+<code>r_t(s) = P(state_t=s | H_{&lt;t})</code>；
+<code>score[p,n] = b[p,n] + sparseLag(z_t) + Σ_s r_t(s) relationalExpert_s(z_t)[p,n]</code>；
+<code>P_t(π) ∝ exp(Σ_p score[p,π_p])</code>（这里只是可精确求解的一元排列能量子模型）；
+<code>q_t(p,A)=Σ_{n∈A}P_t(π_p=n)</code>，<code>|A|=3</code>；
+<code>a*_t=argmax_{p,A} calibratedRiskUtility_t(p,A)</code>，质量门拒绝时ABSTAIN。</p>
+<p>训练必须明示标签目标：排列负对数似然/边际负对数似然、集合Brier与选择风险、稀疏/复杂度惩罚。不要把多个维度直接凭任意权重加成“品质总分”决定放行；放行采用硬完整性条件＋质量/频率/稳定性约束＋帕累托排序。加权损失只用于研究优化，权重固定并登记所有尝试。</p>
+<p>若集合评分器含集合交互残差，可用于排序风险效用，但不能声称一个位置中三个互斥号码有额外概率交互项；真实命中概率始终等于对应边际之和。独立1200个sigmoid概率必须接受跨集合一致性校验或改为从共享边际导出。</p>
+<h2>9. 24家族如何落实，而不是再增加24个名字</h2>
+<p>F01—F24原ID及原公式全部保留。实施顺序按结构差异、可验证性和资源分层，不按模型名字流行程度。</p>
+<p>第一组先做可解释与关系结构：F01稀疏跨位置滞后、F10变点局部、F11相似窗口检索、F12结构自动机、F13类型符号程序、F21层级条件贝叶斯、F23旧策略蒸馏。它们可形成相互独立的假设，便于找出数据确有哪类可用关系。</p>
+<p>第二组做可训练表示：F03时滞超图、F04因果多尺度卷积、F05稀疏注意力、F06选择性状态空间、F07图递归、F08隐状态专家、F09持续时间模型、F19低秩关系张量、F20片段记忆。不能只改层数/学习率宣称出现新家族；需展示新增算子与结构的决定性消融。</p>
+<p>第三组做联合输出与程序组合：F02排列因子图、F14程序宏、F15完整K3评分、F16软分支集合解码、F17排列能量、F18排列自回归、F22失败残差、F24互补融合。集成器本身应重新做独立前瞻验证，不能把成员证书相加。</p>
+<p>每家族必须具备真实 <code>build/predict/trainStep/save/restore/mutate/ablate</code>，同时通过：输出形状与概率；有效样本更新非零；冻结父本不被子训练改写；恢复后下一预测/梯度一致；缺口和未来输入反例；结构消融；小规模可枚举真值；运行预算；统一历史协议；出生后赛前证据。只写接口或返回同一默认模型者判 <code>SHELL</code>，没有真实Android执行者不能标 <code>FULL_PRODUCTION</code>。</p>
+<p>本包新增的一元排列能量参考核支持10×10、最多1024子集状态，使用log-domain前向/后向计算分区函数和边际，含梯度数值校验。它是F17/F02可用的精确子机制，不是任意二阶/高阶排列能量的完整解。一般pairwise模型必须另选可验证的推断结构或明确近似误差与预算，不能把Sinkhorn当精确联合推断。</p>
+<h2>10. 创造引擎：假设驱动、结构搜索与多样性档案</h2>
+<p>每次研究任务先冻结输入清单和预算，再取失败簇，提出可证伪假设，生成有类型AST差异，训练，比较，存档。禁止“随机换几个数字→重命名→新增家族→代数+1”。</p>
+<p>允许的结构操作包括：新增/删除跨位置滞后边；二元关系升级受支持的超边；局部因子拆分/合并；引入显式持续时间状态；从独立边际切换到排列联合头；学习并调用有类型宏；添加有界外存检索；对特定条件残差构建分支；从固定融合改为受历史状态驱动的可训练门。每种操作必须带独立的数学预期和消融办法。</p>
+<p>参数优化仍允许且必要，但只记 <code>PARAMETER_VARIANT</code>。结构变异也可能没价值；不同不等于好。质量—多样性档案可采用MAP-Elites思路，按“机制、记忆范围、关系阶数、状态依赖、出手行为、资源”建立预注册的少量离散档位；不能无限细分档位为每个候选造冠军。该方法提供保存不同解的组织方式，不证明本数据存在更高胜率。[S1]</p>
+<p>三层去重：结构指纹；固定无未来数据探针上的行为距离；同历史块的残差/失败相关度。概率距离、动作Jaccard和拒绝行为均保存，相关性用有效支持样本数报告；极少出手不得因“看起来不同”获得多样性奖励。</p>
+<p>初始手机预算建议仅作为可测配置：同时训练1个重任务、活跃预测不超过8个完整策略、重训练候选16个、研究档案64个可加载精英；其余资产压缩归档按需调入。这些是并发/内存上限，不是总家族上限。具体字节配额通过设备内存等级与实测校准，不能把100万个原子同时加载称为满血。</p>
+<h2>11. 16专家不是16段提示词</h2>
+<p>保留E01—E16职责。每个专家必须返回 <code>Proposal{failureCluster,hypothesis,ASTdiff,affectedNodes,expectedMechanism,falsifier,ablation,comparisonCohort,maxCpu,maxBytes,stopRule}</code>；输出纯中文建议但没有可执行diff与实验，不计完成。</p>
+<p>E01拒绝泄漏；E02复现老资产；E03/04解释状态与尺度；E05/06设计跨位置与集合关系；E07产生可训练表示；E08做程序组合；E09针对真实失败修正；E10找互补而非复制；E11跨状态迁移；E12校准/门控；E13漂移与失效；E14资源；E15证据与资格；E16检测和修复卡。</p>
+<p>研究调度依据：每单位预算的可复现研究增益、结构新颖性、信息需求、任务饥饿、工程风险。不得直接把未来资格数据的详细错误反馈反复用于优化同一待授证policy；观察后改规则就是新policy，后续重新出生。失败任务也写入试验账本，禁止只保存胜利者。</p>
+<h2>12. 走势结构窗口：从回看解释到赛前可检验预测</h2>
+<p>把用户要求的“先广后窄、跨位置多号码结构窗口”落为两个不同任务。任务A判断当前可观察历史处于何种状态；任务B预测下一期/下一段的结构标签。任务B的标签可在开奖后计算，但其预测只能使用先前历史。不能用下一期实际号码先划定好窗口再统计命中。</p>
+<p>结构标签按训练段冻结：跨位置集合共现、置换邻接关系、状态持续时长、关系强度、残差失配模式等，不限冷热遗漏。标签定义、状态数、窗口开启/结束规则必须纳入policyHash；若用隐状态，训练后从过滤后验预测，不把包含未来的平滑后验拿来赛前选点。</p>
+<p>七层漏斗保留可解释路径：合法全体→状态支持→跨位置关系→号码组→软分支候选→K3候选→单REAL资格。中间层必须保存每层进入/淘汰原因及反例。早期不做不可逆硬围号；使用软支持或保留独立分支，防止第一层误判把真命中永远删掉。最终只能单位置K3，不得把中间多个位置视作多位置实投。</p>
+<p>评价窗口检测的精度、提前量、覆盖、假阳性、持续时间校准；评价最终K3命中；两者不得互相替代。结构发现成功但最终收益无改善，报告应明确“表示有信息，但决策未获益”。</p>
+<h2>13. 训练—结算—反馈闭环的事务与状态</h2>
+<p>数据表与伪代码见接口/SQL附录。正式开奖、REAL、正式结算继续使用原表和原Owner；新增R25表只用于资产身份、研究任务、证据、Outbox关联和发布状态，禁止第二套正式结算。</p>
+<p>结算事务写入结果及反馈事件；反馈按 <code>(eventId,consumerPolicyHash)</code> 唯一。消费者先读取已提交checkpoint，离线计算新状态，写内容寻址临时文件，fsync并校验，再在短事务内CAS更新checkpoint指针与消费游标；事务提交后方可发布内存快照。崩溃发生在文件写后事务前，重启识别孤儿文件；发生在事务后发布前，重启从已提交指针恢复。不要笼统说“消息只会执行一次”：保证的是重复消费的幂等效果与提交原子性。</p>
+<p>模型manifest必须绑定权重、优化器、RNG、归一化器、校准器、特征字典、所有递归状态、数据游标、schema版本与父checkpoint。恢复验收不是“能打开文件”，而是下一步预测与下一步训练更新与未中断参考一致。</p>
+<p>每期有 <code>LABEL_READY/CONSUMED/SKIPPED_BY_DECLARED_POLICY/BLOCKED</code> 回执，最后两种必须写原因；没有梯度变化不自动判失败，因为某些样本梯度可为零，但连续任务应显示样本、loss、gradientNorm、stateDelta、耗时与可验证更新。不能用“训练按钮转了”证明训练完成。</p>
+<h2>14. 真实进化：定义代数与成就分开计数</h2>
+<p>保存 <code>attempts、uniquePolicies、structuralCandidates、behaviorNovel、researchAccepted、prospectiveQualified、verifiedImprovements</code>。界面可显示谱系深度，但不得把深度称为性能增长。</p>
+<p><code>VERIFIED_IMPROVEMENT</code>须同时满足：非NO_OP；机制/行为改变有证据；父子使用可比日历；统计协议和容忍幅度预先固定；子策略满足自身质量、频率、稳定性、完整性和资源约束；相对父策略的改进下界&gt;0或预先声明的多目标改善通过对应检验；资格证据来自policy出生后的赛前预测。</p>
+<p>每代可以产生失败者、平局者或待证者。系统“越来越强”的可交付定义是保护已验证冠军、累积可复用机制和反例、允许成功时升级，而不是要求每个随机子代或每一天的命中率单调增加。承诺每代都更高会诱发挑窗口、清零和隐藏失败，必须在规则层杜绝。</p>
+<h2>15. 评价协议：防止持续搜索持续骗自己</h2>
+<h3>15.1 数据层级</h3>
+<p>DEV用于模型/结构学习，TUNE用于研究筛选；被反复查看的验证集只能称TUNE。SEALED用于一次性独立比较，打开后不得再次称未看过。LIVE从policy出生后的真实赛前冻结起算。老模型已有冻结扩展可以保留其来源，但不能据它改完新policy后把同一段再授证。</p>
+<p>外层前推验证每折固定预测代码、学习规则、门控和超参数；内层搜索只看外折之前。特征最大滞后不必机械从历史边界额外扣掉5000期，历史上下文本就可用于未来预测；需要隔离的是训练标签区间、跨界标签、全样本归一化与相同样本重用。若标签含后续多期结构窗口，按标签终点做purge/embargo，不可只按特征起点。</p>
+<h3>15.2 多重与连续检验</h3>
+<p>所有候选、所有看数次数、所有资格端点共享永久预算账本；新建策略名、重启App、删任务不得重置预算。参考保守分配：<code>alpha(j,k,e)=alphaRoot*w_e/[j(j+1)k(k+1)]</code>，各端点权重和≤1，候选j和检查k预登记。它透明但大规模搜索时可能非常保守，应将大部分候选留在研究阶段，只把真正少量冻结候选送未来验证。</p>
+<p>可采用有明确假设的confidence sequence/e-process以支持连续观察；不能只画普通Wilson区间反复看够高就停。时间一致方法仍有条件，不自动解决数据泄漏、不可预测选择、任意漂移或多候选预算。[S2] 回测过拟合研究说明反复选择历史优胜者需要额外防护，但金融文献不是此系统已达标的证明。[S3]</p>
+<p>对于条件零假设 <code>E[hit_t | past, ACT_t]≤0.3</code>，使用赛前可预测的q_t≥0.3构建检验过程；q_t不能看当前标签。对单纯“长期平均30%”但允许任意条件结构的更弱假设，不能不加说明直接套同一条件检验。报告应把零假设原文、可见信息、选择规则与边界计算一并导出。</p>
+<h3>15.3 非劣与提升</h3>
+<p>统一日历上 <code>u_t=ACT_t*(hit_t−0.3)</code>，配对差 <code>Δ_t=u_child−u_parent∈[-1,1]</code>。它衡量每期相对参考的超额命中，不是金钱收益。报告同时给各自出手率、出手命中率、配对效用差、区间、缺失数。候选频率不同情况下，不能只凭这个效用通过全部质量要求。</p>
+<p>保守参考下界 <code>mean(Δ)−sqrt(2 log(1/alpha)/N)</code> 用于其声明的有界鞅条件；按预算分配的look检查。非劣下界≥−δ；提升下界&gt;0；缺失超限先失败运行完整性。可以使用验证过的更紧界替代，但不得方向改反。</p>
+<h2>16. 样本量、稳定性与频率的可行性检查</h2>
+<p>250次出手只是最低证据数量，不是35%高质量证明。15%频率至少需要约1667个机会才能获得250次出手；5000期窗口平均约750次。若持续换policy导致证据归零，必须用第6章的政策/状态分离解决，而不是缩短统计门槛。</p>
+<p>固定单次、独立伯努利、单侧检验的正态近似用于资源规划：辨别30%对35%、80%功效，alpha=.05约534次出手、15%下约3560期；alpha=.001约1322次、约8814期。这不是正式证书算法；实际顺序、多重、漂移和相关性可能需要更多证据。旧原始数据可以滚动≤5000，合规的不可变预测证据摘要、哈希和充分统计可跨窗口留存；但近期表现仍要单独监控，不能用远古累计优势掩盖衰退。</p>
+<p>连挂目标与平均命中率必须分别优化。作为透明的数学压力测试，假设每次独立命中40%，250次出手里至少出现一次7连挂的概率约95.07%；750次约99.989%。这不是对真实数据的随机性断言，而是说明“平均40%”不能推出“长期最长6挂”。R25保留低连挂目标，并要求建模序列风险、做固定窗压力测试和失效处置；禁止用改名/停手把既有连挂抹掉。无法同时达成的组合应显示具体差距，而非偷偷放松或造假。</p>
+<h2>17. 校准、15%频率和主链选择如何联合优化</h2>
+<p>先得到合法概率，再选择位置/集合，再评价选择后的概率。边际整体ECE低不代表“选最高的K3”的概率准；必须按固定风险档、出手状态、位置与时间块检查选择后Brier/校准差及样本不确定度。神经网络校准文献支持校准这一工程问题存在，不证明温度缩放必然提高本项目命中率。[S4]</p>
+<p>研究目标可写为：在事先固定的候选政策中最大化合格覆盖，约束命中/下界、稳定性、完整性与延迟。分位数只用于提出阈值候选，不能保证优质。阈值在过去训练段确定，验证段冻结；真实阶段只能按已冻结的更新规则变化。选择性预测研究可提供风险—覆盖联合学习思路，项目必须重新验证，不能直接移植论文分数。[S5]</p>
+<p>组合多个策略扩大频率时，计算实际出手日历的并集，不相加各频率。冲突时用赛前固定路由器选一个，不多位置REAL。路由器必须有自身policyHash、出生游标和总体证据。所有策略都不合格时输出明确NO_QUALIFIED_POLICY，频率目标失败；同时产生研究任务，不制造低质量出手。</p>
+<h2>18. 资格状态机：既不能乱放行，也不能永远堵死</h2>
+<p>状态顺序：DRAFT → EXECUTABLE → TRAINED → HISTORICAL_RESEARCH_PASS → PROSPECTIVE_SHADOW → QUALIFIED → ACTIVE；另有INSUFFICIENT_EVIDENCE、SUSPENDED、DEGRADED、RETIRED。</p>
+<p>每个状态转换都有必要证据、Owner、触发条件和原因码；QUALIFIED不是已经REAL。DecisionGateEngine在目标期再次检查证书有效、policy/checkpoint绑定、数据新鲜、风险未触发、时间未过期；原canonical事务提交后才形成REAL，SettlementEngine按原冻结动作结算。</p>
+<p>证书字段包括policyHash、birthOrdinal、proofScope、evaluationProtocolHash、budgetReceipt、qualityTier、qualifiedThrough、expiryRule、allowedCheckpointTransitionRule、revocationReason。它可以授权同一政策内合法学习状态，不授权任意改规则的模型。失效时保留证据，不删除。旧冠军只有当前证书和运行条件仍有效时才能承接，否则SHADOW，不因“是旧冠军”绕过门槛。</p>
+<p>验收必须双向：构造全部通过的受控测试证据，证明能进入并完成唯一REAL结算；去掉任意一个必要条件，证明不能进入。合成资格只用于链路测试，报告必须标SYNTHETIC，不能混入自然统计。</p>
+<h2>19. 安卓资源、时序与后台现实约束</h2>
+<p>任务分四优先级：P0抓取/校验/结算/下一期冻结；P1轻量标签反馈/初始化推进/健康检查；P2有界训练/研究；P3报告、压缩、GC。P0不等待重训练，P2可取消、可续跑，P3不得持有长写事务。</p>
+<p>总内存预算覆盖所有LRU、Java数组对象、模型权重、优化器、原子环、概率表、报告缓存和native内存，不只算float数组payload。不缓存每个候选的整段5000×100概率表；同历史批特征共享，评分流式累积，小批候选轮换。以最大活跃模型数与byteCap双重约束，触顶要丢弃可重建缓存或暂停研究，不影响正式结算。</p>
+<p>建议验收目标而非既成结果：request→canonical freeze P95≤5000ms；有效开奖首次收到到落库/结算P95≤1000ms（须分别给上游发布时间、网络时间和本地耗时）；取消响应P95≤100ms；无主线程磁盘同步。每项需明确设备、N、P50/P95/P99/max、超时率，14条观测不够证明稳定SLO。</p>
+<p>主链50—55秒抓取策略必须基于服务端期号/时间与上游实测发布规律，不用手机计时器猜未来已开奖。倒计时显示截止时间减单调时钟估算，并显示时间同步误差；超时记录NO_PREDRAW，不从开奖后补一个赛前结果。</p>
+<p>WorkManager周期任务最短15分钟且非精确定时，不可承担逐分钟预测。[S6] 前台服务也不是永久后台豁免；适用版本中dataSync等类型有累计时限，应核对targetSdk、类型、权限和onTimeout处理。[S7] 使用合法前台服务、可见通知、业务心跳、系统限制状态和恢复续点；用户强制停止、系统限制、断网不能承诺仍不漏期。</p>
+<p>SQLite WAL仍只允许一个写者，训练计算不得放进写事务；统一writer队列、短CAS事务、分块迁移、快照只读导出。[S8] 把lease更新从主线程同步SharedPreferences移出，同时保留持久化一致性，不简单换apply后忽略崩溃恢复。</p>
+<h2>20. 数据保留、报告和界面</h2>
+<p>原始开奖表≤5000；新入库与淘汰事务化；训练任务冻结所需快照的hash/游标和缺口mask，超过预算不能无限pin旧数据。长期原始副本若用户未授权不得藏在研究目录；只保存必要资产、不可变决策证据及可解释聚合摘要。需要完整重放的独立审计归档由显式导出形成，不伪装手机滚动库。</p>
+<p>沿用28章，增加身份冲突、策略/检查点谱系、全局检验预算、可行性压力测试四组字段。报告段失败要有status、errorChain、缺失对象、修复卡；<code>{&quot;error&quot;:true}</code>不合格。每段输出expected/exported/omitted，日志截断不得让整体报告声称完整。</p>
+<p>界面至少有：真实主链排行与独立影子排行；有效样本、命中率和区间；当前政策/检查点/训练游标；35/37/40观测档和下界档分别显示；真实频率与模型覆盖分别显示；全局连挂不重置；原子/家族的注册、执行、训练、验证数量分列；每期研究进度和阻塞原因；结构窗口与100面/1200动作的赛前快照。</p>
+<p>报告导出支持取消、分卷与恢复；读取冻结payload完成延后证据，不用后来的权重重算历史。无法恢复的证据明确UNRECOVERABLE，不能造数据补洞。</p>
+<h2>21. 施工批次与依赖</h2>
+<table>
+<thead>
+<tr>
+  <th>批次</th>
+  <th>必须交付</th>
+  <th>放行条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>B00 基线与保全</td>
+  <td>HEAD对齐、994正文获取计划/实际清单、原1832/299/P124/R24映射、当前APK身份</td>
+  <td>无错误基线覆盖；缺失正文不标已审计</td>
+</tr>
+<tr>
+  <td>B01 基础链恢复</td>
+  <td>schema推进、轻重任务分离、抓取/倒计时/单Owner/反馈Outbox</td>
+  <td>每期冻结与结算回执闭合，重启/重复不破坏</td>
+</tr>
+<tr>
+  <td>B02 身份与证据修复</td>
+  <td>无损identity、不可变参数、配对下界、缺失枚举、全局预算</td>
+  <td>旧缺陷反例失败，新正确例通过；旧资产只读兼容</td>
+</tr>
+<tr>
+  <td>B03 自适应政策闭环</td>
+  <td>policy/checkpoint分离、完整恢复、CAS发布、训练游标</td>
+  <td>连续预测—更新—恢复与不中断参考一致</td>
+</tr>
+<tr>
+  <td>B04 原子与家族第一组</td>
+  <td>有类型编译器、旧优秀资产复现、7类独立机制</td>
+  <td>每类七接口、梯度/状态、反例、消融和预算齐全</td>
+</tr>
+<tr>
+  <td>B05 表示与联合机制</td>
+  <td>其余家族按卡实现、精确子核/近似边界、24类能力矩阵</td>
+  <td>不以统一回退模型冒充不同家族</td>
+</tr>
+<tr>
+  <td>B06 创造与研究记忆</td>
+  <td>16专家Proposal、结构算子、多样性档案、失败闭环</td>
+  <td>不同结构/行为实测、NO_OP无计代、全试验留痕</td>
+</tr>
+<tr>
+  <td>B07 选择与资格</td>
+  <td>选择后校准、风险—覆盖、元策略、证书与REAL状态机</td>
+  <td>合格能入、不合格不能入；目标失败不伪装通过</td>
+</tr>
+<tr>
+  <td>B08 报告与交付</td>
+  <td>28章、UI、性能/真机矩阵、APK和源码/测试证据绑定</td>
+  <td>工程、能力、质量、发布四类验收分别出结论</td>
+</tr>
+</tbody>
+</table>
+<p>不提供没有测量依据的“必须几年/必须几卡”承诺。依赖先后固定，耗时/资源估算由每张卡原型实测回填，不作为拖延具体工程设计的理由。</p>
+<h2>22. 最终验收：四个结果必须分别报告</h2>
+<p>工程合格：能安装、启动、迁移、后台受限可解释、按期冻结、唯一结算、恢复、资源可控、报告不吞错。能力合格：24家族/16专家/原子组合实质实现，真实训练产生可复用资产且恢复一致。策略质量合格：预注册范围达到命中/下界、频率、稳定性、多重修正和完整性。发布合格：当前证书、唯一授权、真实结算统计与APK身份全部一致。</p>
+<p>四者不得互相代替。失败应输出 <code>requirementId→evidence→rootCause→affectedFiles→crossFileConflict→patchAction→test→nextTrigger</code>；没有资格资产时必须写目标未达成，不能删除门槛。另一方面，所有条件已具备时必须触发主链状态转换，不能长期停在“研究完成但主链应用=0”。</p>
+<p>本R25包给出了新增可运行参考核、原缺陷反例与已执行主机结果；其余安卓施工项仍明确标PLANNED。它把持续成长拆成了可执行、可检验的工程，不把尚未取得的胜率写成完成事实。</p>
+<h2>23. 配套文件导航</h2>
+<p><code>02_源码审计与精确修改说明.md</code>：实际文件/行号/原缺陷/新接口/跨文件冲突；<code>03_24家族完整实现合同.md</code>：逐家族公式、更新、状态、变异、反例；<code>04_R25施工卡与旧要求映射.md</code>：新增卡、依赖和验收；<code>05_接口_SQL_测试_发布.md</code>：接口、事务、测试矩阵与交付；<code>06_研究来源与适用边界.md</code>：原始研究与官方文档；<code>07_检测报告增补契约.md</code>：28章增补和状态字段；<code>08_原方案冲突覆盖表.md</code>：不删旧文的精确覆盖规则。</p>
+<p>实际执行证据在 <code>evidence/</code>；新增参考核在 <code>code/reference_r25.py</code>；新增测试在 <code>tests/</code>；原R24规范、注册表、40份源码及数据在 <code>baseline_R24/</code>。完整保全包另含用户原始ZIP。</p>
+<hr />
+<h1>R25 源码审计与修改说明</h1>
+<h2>阅读范围与证据</h2>
+<p>全部路径前缀为 <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/</code>，除非另行注明。行号针对附件中SHA匹配正文，仅是定位锚点；实际施工必须按hash和方法确认，不能把行号强套新提交。40份正文SHA核对通过；32份纯Java正文一起编译通过；排除ProgramModelSU2是其依赖的5份SU1正文不在当前完整正文集合，不以stub伪造完整构建。Android依赖类未做安卓构建。</p>
+<p><code>evidence/source_coverage_994.json</code>列出994条源文件、正文可得性、哈希结果；不能把缺失954份正文的静态调用索引当成已阅读源代码。当前仓库连接可读取特定文件，但容器无法通过DNS拉取整库；本轮没有取得全仓checkout。</p>
+<h2>A01｜ModelGenomeSU2身份与不可变性</h2>
+<p>证据：27—40行公开TreeMap；65—73行text/key；92—117行parse；132—137行4位有效数字fmt。本轮原Java反例见 <code>legacy_defects_reproduced.json</code>。</p>
+<p>禁止只把 <code>%.4g</code> 改成 <code>%.17g</code> 就直接覆盖全部旧资产。还要解决类型、字符串分隔符、跨语言语义、parse/serialize、所有缓存key和证书绑定。</p>
+<p>实施：新增 <code>PolicyIdentityR25.java</code> 与 <code>GenomeCodecR25.java</code>，协议域分别<code>STARCORE_POLICY_R25_V1</code>与<code>GENOME_R25_V1</code>；参数改成不可变结构，构造时深拷贝；持久化中浮点固定8字节大端，所有字符串UTF-8长度前缀；集合明确顺序/无序语义；空值、整数、浮点、字符串分类型。展示的公式保留最多数位不影响identity。旧ModelGenomeSU2只用于旧格式载入；新增格式不复用旧SU2魔数。</p>
+<p>调用点：ModelEvolutionSU2候选键/缓存；ModelReplaySU2.Library缓存键；ModelLiveSU2.Hub模型键；ModelStateCodecSU2编码；ModelStoreSU2资产查找；委员会/教师/证书/报告键均使用统一映射。研究资产升级和正式证据迁移分开。若旧输入文本已截断，不凭空恢复原权重，重新导入后新policy出生。</p>
+<p>验收：相近浮点不碰撞；类型不同不碰撞；JSON字段顺序不影响语义；外部map修改不影响策略；保存恢复后的预测一致；旧文本仍能读；旧证书不会自动附给新ID；跨Java/Python黄金字节逐字一致。</p>
+<h2>A02｜SelectiveEvidenceSU2配对证据</h2>
+<p>证据：36—65行evaluate；57行上界；65行仅paired&lt;0拒绝。原例1000期、40%对45%仍PASS，是反例而非实盘结果。</p>
+<p>修改：新增 <code>PairedQualificationR25.evaluate(TrialCalendar, Protocol, AlphaReservation)</code> 返回 <code>INSUFFICIENT/NONINFERIOR/IMPROVED/INFERIOR/INVALID</code>及lower/upper，不返回含混布尔；以<code>lower &gt;= -margin</code>判非劣，<code>lower&gt;0</code>判改善。margin来自冻结Protocol，不允许调用者看结果后传较大δ。样本不足不能归DEGRADED。</p>
+<p>删除生产授权调用路径上对 <code>SelectiveEvidenceSU2.pass</code> 的直接信赖；旧函数可保留为LEGACY_REPLAY_ONLY以重现历史。调用图中所有消费者必须逐个替换并导出静态检查，没有取得全文的消费者列BLOCKED_SOURCE_MISSING，不擅自伪称全部替换。</p>
+<p>缺失修复：用枚举的TrialRow替换可矛盾的act/hit/missing布尔组合。MISSING不能同时有settledHit=true；ABSTAIN不记命中/失误；迟到预测不得进入前瞻证据；数据无效、网络缺失、模型拒绝分别统计。运行完整性先于统计判定。示例下界实现见reference_r25.py，生产需绑定预算账本和前瞻可见性，而不是只复制一个sqrt。</p>
+<h2>A03｜ModelEvolutionSU2裁判与代数</h2>
+<p>证据：91行val实际用DEV+VAL；139行judgeEb；641行committeeJudge改善即增加effectiveGenerations。已有多种真实建模结构，不应整体删除。</p>
+<p>改名：<code>val</code>→<code>researchSelectionScore</code>，<code>valFit</code>→<code>researchFitCache</code>；修改日志/报告字段同批进行，兼容旧键只读。保留教师排序，但不得作为资格下界。增设独立QualificationEvaluatorR25，读取冻结TrialCalendar，不接受任意历史概率表。</p>
+<p>旧effectiveGenerations迁移到legacyResearchGenerations；新增七类计数，并让verifiedImprovements只由不可变资格事件写入。结构相同只调参数不增加structuralCandidates；结构新但行为退化为原模型只记attempt。创建日志必须保留失败者。</p>
+<p>缓存key还须加入policyHash、datasetManifestHash、splitHash、teacherSnapshotHash、scorerVersion；不能同策略在不同输入快照沿用旧分数。每个任务开始冻结这些字段，新增开奖不改变进行中的campaign输入。</p>
+<h2>A04｜ModelReplaySU2概率、门控与缓存</h2>
+<p>定位Library 26—55行、构建器build、pooledTable、evaluate/门控分段。真实模型构建必须保留；旧ADAPTERS注册需核对真实接线。</p>
+<p>概率输出接口分开 <code>RawLogits/Marginals/ActionProbability/UtilityScore</code>；无条件把score叫phat禁止。多位置K3统一从合法边际求和；risk加成不写入概率列。quantile历史阈值只能标targetCoverage，不标qualityPass。</p>
+<p>新增SharedFeatureFrameR25与GlobalResearchBudgetR25。Library、Evolution的tables/results/cumLL、ModelLive的Hub和校准环共享预算；禁止多份同历史T×10×10复制。超过bytecap时单个模型过大必须返回RESOURCE_BLOCKED，不能因为“cache只剩1个”继续突破预算。</p>
+<p>验收：不同数据hash不能命中同结果缓存；缓存清空不改变预测；float/对象/native内存分别测；全1200动作和最优Top3一致；zero-act报告coverageFailed而不是qualityPassed。</p>
+<h2>A05｜ModelLiveSU2 / ModelStateCodecSU2 / ModelStoreSU2</h2>
+<p>定位ModelLive.Hub.adopt/adoptCalibrated、predict/update、readModelsInto/readInto；ModelStateCodec.writeRanked/readRanked 71—74行；ModelStore.settle及状态落库。</p>
+<p>新增PolicyManifest、CheckpointManifest、PublishIntent与CommittedSnapshot。生命周期是冻结规则、更新状态、提交状态、再激活。Checkpoint必须覆盖教师状态、校准环、meta gate状态、归一化器、RNG、递归状态和游标；单独保存权重不足。</p>
+<p>Codec新版本含policyHash和状态schema。若压缩长度/展开长度/矩阵形状/CRC/hash不匹配，拒绝并回落到上一个已提交合法checkpoint，不重置出生日期、不把已结算标签再消费。共享Hub恢复必须保证所有成员与calibrator游标一致，不能仅检查models.size。</p>
+<p>接口：<code>PreparedCheckpoint prepare(ReadSnapshot, FeedbackBatch, SliceBudget)</code>在写事务外运行；<code>commit(expectedCheckpoint, prepared, consumedEventIds)</code>由原DB写Owner在短事务中完成；<code>publish(committedId)</code>只读已提交记录。取消的prepared只可进入GC，不发布。</p>
+<h2>A06｜MainlinePolicySU2 / MainlineAdapterSU2 / RealAuthoritySU2</h2>
+<p>已有R24补丁保留，但不能把它当完整R25。MainlinePolicy 30行250/1500、91—98行demotable，需状态化而不是一个boolean。计划修复应把旧比较方法替换为同日历下界与永久预算。</p>
+<p>MainlineAdapter只向DecisionGateEngine交PreparedDecision及冻结证据引用，不自行产生第二条REAL。RealAuthority验证policy证书允许的checkpoint演化规则；旧策略fallback也要验证当前资格。所有hardcoded全局false/SHADOW_ONLY的解除须经过双向授权测试与独立配置审查，不能为了让应用次数&gt;0直接硬编码true。</p>
+<h2>A07｜OnlineModelsSU2 / AtomStreamSU2 / AtomNetSU2</h2>
+<p>OnlineModels具有真实预测/更新实现，run先predict后update；保留这个顺序并增加prefix-test。AtomStream现有RING=1600，不应声称已经覆盖5000尺度；扩展为共享history view和独立状态缓冲，不能每个原子分配5000×100数组。</p>
+<p>AtomNet的predict/update须绑定相同featureFrameId；防止反馈时用已更新的当前状态重新算上一期特征。梯度、状态量、训练样本和权重差分别导出。将原子线性/交互/非线性贡献做受控消融；credit高并非因果证明，credit只用于提出下一次实验。</p>
+<h2>A08｜未取得正文的正式主链文件</h2>
+<p>DecisionGateEngine、SettlementEngine、DbStore、策略迁移/调度/报告Owner等部分正文不在40份匹配集合内，当前索引可定位但不能提供未经验证的“替换第几字符”。施工者应在B00从实际checkout补足，再执行以下前置断言：只有一个正式REAL写入口；只有一个正式结算入口；canonical冻结在截止前；数据库迁移继续原游标；报告为只读。</p>
+<p>R25卡中对这些文件的修改以语义锚点、前置断言、输出契约和测试指定，标SOURCE_BODY_REQUIRED；拿到全文后生成受hash保护的patch。拒绝为了看似精确而编造不存在的行号。</p>
+<h2>本轮实际测试边界</h2>
+<p>R23 Python30、Java104；R24 Python27、Java补丁6；R25 Python36；原Java缺陷反例一组。R23自带脚本的Java阶段因本环境中文路径解析失败，本轮复制同字节源文件到ASCII临时路径重跑通过，原失败日志一并保留。32份原Java编译通过，但未覆盖所有方法。没有安卓安装、真机发热/内存、前台服务、原库迁移或自然前瞻达标结论。</p>
+<hr />
+<h1>24家族完整实现合同（R25）</h1>
+<p>原F01—F24编号与R23/R24所有合同保留。本表是实施设计，不代表24类已完成Android实现。每家族拟建<code>FamilyFxxKernelR25.java</code>，接入统一接口而非另起主链。</p>
+<p>共同七接口：build(spec)、predict(frame,snapshot)、trainStep(batch,budget)、save(state)、restore(manifest)、mutate(typedProposal)、ablate(controlSpec)。所有更新必须产生明确训练回执；所有readout都区分概率与风险；禁止用统一默认模型承接未实现family。</p>
+<h2>F01｜稀疏跨位置滞后交互</h2>
+<p><strong>输入与用途：</strong> 过去排列、位置对和滞后边；替换纯独立边际，检验跨位置增益。</p>
+<p><strong>数学与输出：</strong> logits=b+ΣW_lqr·onehot(y[t−l,q])；对位置/滞后边做group proximal shrinkage。</p>
+<p><strong>训练目标：</strong> 逐位置分类NLL＋组稀疏惩罚。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 稀疏边表、bias、梯度累积、组范数、训练游标。</p>
+<p><strong>真正结构操作：</strong> 新增有支持的跨位置滞后边或二→三阶交互；只改λ不算结构。</p>
+<p><strong>决定性反例/消融：</strong> 把所有跨位置边切断，检验优势是否随机制消失；置乱时间只做负控。</p>
+<p><strong>边界与预算：</strong> 小支持边向层级先验收缩；先做稀疏CPU参考。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF01KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F02｜排列因子图</h2>
+<p><strong>输入与用途：</strong> 同一期历史排列的互斥与关系图；解除相互矛盾的位置预测。</p>
+<p><strong>数学与输出：</strong> P(π)∝exp(Σunary+Σfactor)，合法排列支持集不变。</p>
+<p><strong>训练目标：</strong> 排列联合NLL＋边际校准。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 因子势、图拓扑、消息、推断容忍误差与版本。</p>
+<p><strong>真正结构操作：</strong> 改变因子连接/阶数/消元顺序，不以多跑迭代冒充新机制。</p>
+<p><strong>决定性反例/消融：</strong> 3—5号码全排列核对Z/边际；10号码报告近似残差与截断质量。</p>
+<p><strong>边界与预算：</strong> 小图精确；大图先限树宽或已批准近似；禁止声称任意因子精确可解。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF02KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F03｜时滞关系超图</h2>
+<p><strong>输入与用途：</strong> 位置—号码—时滞超边；发现不止两位置的组合结构。</p>
+<p><strong>数学与输出：</strong> h_v′=φ(h_v,Σ_e∋v α_e ψ({h_u:u∈e}))；softmax读出。</p>
+<p><strong>训练目标：</strong> 分类NLL＋边稀疏＋跨块稳定惩罚。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 超边类型/成员、消息权重、优化器、节点映射、gapMask。</p>
+<p><strong>真正结构操作：</strong> 二元超边→三元；关系类型替换、连接稀疏化。</p>
+<p><strong>决定性反例/消融：</strong> 切超边、随机连边和同参数量独立网络对照。</p>
+<p><strong>边界与预算：</strong> 按期聚合梯度，100节点不是100个独立检验样本。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF03KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F04｜因果多尺度卷积</h2>
+<p><strong>输入与用途：</strong> 过去8/32/128/512期排列嵌入；区分短期窗口与长期背景。</p>
+<p><strong>数学与输出：</strong> h_l(t)=σ(Σ_k W_lk h_{l−1}(t−d_l k))；严格左因果padding。</p>
+<p><strong>训练目标：</strong> 分类NLL＋多尺度一致性。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 卷积核、膨胀连接、每层因果缓存、优化器。</p>
+<p><strong>真正结构操作：</strong> 改变多尺度分支/有效感受野连接；morphism只作为安全初始化。</p>
+<p><strong>决定性反例/消融：</strong> 前缀不变性；删除长尺度支路和同成本短尺度对照。</p>
+<p><strong>边界与预算：</strong> R23因果TCN参考保留；不能将历史30.8%改标高品质。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF04KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F05｜因果稀疏注意力</h2>
+<p><strong>输入与用途：</strong> 时间与位置双轴token，明确可见性mask；学习长短期关系而非固定窗口相加。</p>
+<p><strong>数学与输出：</strong> Attention=softmax(QKᵀ/√d+causalMask+sparseRelationMask)V。</p>
+<p><strong>训练目标：</strong> 分类NLL＋注意力稀疏约束。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 投影矩阵、稀疏拓扑、位置/时滞编码、KV缓存、优化器。</p>
+<p><strong>真正结构操作：</strong> 全局连接改关系稀疏；增加合法跨位置头或记忆读取。</p>
+<p><strong>决定性反例/消融：</strong> 篡改未来输入不影响前缀；删除关系mask与同预算TCN比较。</p>
+<p><strong>边界与预算：</strong> 禁止当前位置未知标签进入KV；限制缓存与注意力连接数。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF05KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F06｜选择性状态空间</h2>
+<p><strong>输入与用途：</strong> 每期排列嵌入及递推隐状态；用低成本递推替代每期全历史重算。</p>
+<p><strong>数学与输出：</strong> s_t=A(z_t)s_{t−1}+B(z_t)x_t；logits=C(z_t)s_t。</p>
+<p><strong>训练目标：</strong> 顺序NLL＋状态稳定正则。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 条件转移参数、递归状态、归一化器、稳定性约束、优化器。</p>
+<p><strong>真正结构操作：</strong> 固定线性转移→内容条件转移；新增独立状态通道。</p>
+<p><strong>决定性反例/消融：</strong> 固定A对照；状态重置/交换消融；验证长间隔传播。</p>
+<p><strong>边界与预算：</strong> 限制谱半径或有界参数化；不是仅重命名LSTM。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF06KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F07｜图递归状态</h2>
+<p><strong>输入与用途：</strong> 历史位置关系图和节点记忆；使关系本身随时间演化。</p>
+<p><strong>数学与输出：</strong> m_p=Σ_q A_pq φ(h_q,x_q)；h_p′=GRU(h_p,m_p)。</p>
+<p><strong>训练目标：</strong> 节点NLL＋关系重建。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 邻接、消息函数、GRU状态和全部优化器。</p>
+<p><strong>真正结构操作：</strong> 增加跨位置通信路径/有向关系类型。</p>
+<p><strong>决定性反例/消融：</strong> 同参数量无图GRU、打乱边及重放恢复对照。</p>
+<p><strong>边界与预算：</strong> 训练时仅历史节点；每次预测不能先喂当前开奖。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF07KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F08｜隐状态专家混合</h2>
+<p><strong>输入与用途：</strong> 只用过去估计的状态后验；避免全局平均抹掉窗口优势。</p>
+<p><strong>数学与输出：</strong> r_t∝Tᵀr_{t−1}⊙L(x_{t−1})；P_t=Σ_s r_t(s)P_s。</p>
+<p><strong>训练目标：</strong> 过滤似然＋专家NLL。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 状态转移、发射/专家参数、过滤后验、EM或SGD统计。</p>
+<p><strong>真正结构操作：</strong> 拆分有证据的状态、增加不同机制专家。</p>
+<p><strong>决定性反例/消融：</strong> 固定等权/单专家/无状态转移对照。</p>
+<p><strong>边界与预算：</strong> 只用过滤后验，禁止含未来的平滑后验选期。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF08KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F09｜状态持续时间模型</h2>
+<p><strong>输入与用途：</strong> 状态进入时间与过去持续长度；区分状态延续与即将结束。</p>
+<p><strong>数学与输出：</strong> r_t(s,d)按持续时间hazard递推；残留时长进入P_t。</p>
+<p><strong>训练目标：</strong> 持续时间似然＋条件号码NLL。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 状态×持续时长分布、hazard参数、截断尾部质量。</p>
+<p><strong>真正结构操作：</strong> 几何驻留→半马尔可夫持续时间；增加duration特征。</p>
+<p><strong>决定性反例/消融：</strong> 去duration退化HMM；模拟已知duration机制检验可恢复。</p>
+<p><strong>边界与预算：</strong> 尾部截断透明；状态数增加需额外支持与惩罚。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF09KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F10｜变点后的局部模型</h2>
+<p><strong>输入与用途：</strong> 过去误差与状态分布变动；控制全局历史对新状态的拖累。</p>
+<p><strong>数学与输出：</strong> r_t(run)∝predictiveLikelihood×hazardTransition；局部专家收缩至长期先验。</p>
+<p><strong>训练目标：</strong> 预测NLL＋重启成本。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> run-length后验、局部充分统计、hazard模型和截断误差。</p>
+<p><strong>真正结构操作：</strong> 固定重训窗口→可预测变点后局部重建。</p>
+<p><strong>决定性反例/消融：</strong> 无变点、假变点、已植入变点三组；检验检测延迟。</p>
+<p><strong>边界与预算：</strong> 单次偶然连挂不自动宣称变点；漂移重启须是已冻结规则。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF10KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F11｜可学习相似窗口检索</h2>
+<p><strong>输入与用途：</strong> 历史窗口嵌入，检索只到t-1；从类似但非相邻的场景学习。</p>
+<p><strong>数学与输出：</strong> w_i=softmax(−distance(E(H_t),E(H_i))/τ)；P_t=Σw_i labelDistribution_i。</p>
+<p><strong>训练目标：</strong> 对比损失＋预测NLL。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 历史索引、encoder/metric参数、样本时间戳、淘汰索引。</p>
+<p><strong>真正结构操作：</strong> 距离结构学习、关系子空间检索、检索＋参数专家残差。</p>
+<p><strong>决定性反例/消融：</strong> 随机检索/固定距离/去近邻对照；禁止取当前或未来邻居。</p>
+<p><strong>边界与预算：</strong> 索引随5000滚动淘汰，不能用全数据归一化距离。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF11KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F12｜序列结构自动机</h2>
+<p><strong>输入与用途：</strong> 排列关系事件序列，不以号码热冷替代；挖掘可解释重复结构。</p>
+<p><strong>数学与输出：</strong> a_t=δ(a_{t−1},symbol(H_t))；P_t由终态条件分布输出。</p>
+<p><strong>训练目标：</strong> 状态转移NLL＋最短描述长度。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 离散化规则、自动机拓扑、终态分布、最小描述长度惩罚。</p>
+<p><strong>真正结构操作：</strong> 状态分裂合并、改变模式路径，不仅调阈值。</p>
+<p><strong>决定性反例/消融：</strong> 删除特定路径后指定模式增益消失；乱序负控。</p>
+<p><strong>边界与预算：</strong> 低支持路径回退受保护先验；训练集学离散化。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF12KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F13｜有类型符号程序</h2>
+<p><strong>输入与用途：</strong> 位置/号码集合、时间算子、条件节点；创造结构公式，不只是调参数。</p>
+<p><strong>数学与输出：</strong> typed AST输出10×10 logits；符号结构与可学习系数分开。</p>
+<p><strong>训练目标：</strong> 走步验证目标＋复杂度惩罚。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 规范化AST、算子版本、系数/优化器、状态节点。</p>
+<p><strong>真正结构操作：</strong> 类型安全子树替换、增加合法状态算子、关系组合。</p>
+<p><strong>决定性反例/消融：</strong> 死代码/常量折叠/同义重排识别；手算小例与解释一致。</p>
+<p><strong>边界与预算：</strong> 每个算子有单位/范围/边界；非法概率组合编译拒绝。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF13KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F14｜可复用程序宏</h2>
+<p><strong>输入与用途：</strong> 通过验证的程序子图和失败分解；把成功思路积累成下一代可用工具。</p>
+<p><strong>数学与输出：</strong> macro=fθ(subgraphInputs)；主程序调用宏并保持类型/时间契约。</p>
+<p><strong>训练目标：</strong> 压缩收益＋跨任务预测损失。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 宏体哈希、参数绑定、版本依赖、调用图和展开预算。</p>
+<p><strong>真正结构操作：</strong> 重复有益子图抽为宏；在另一结构中验证复用。</p>
+<p><strong>决定性反例/消融：</strong> 内联与调用数值一致；移除宏/随机宏/未使用宏不算新能力。</p>
+<p><strong>边界与预算：</strong> 宏注册不继承使用它的父策略证书；递归有界。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF14KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F15｜完整K3集合评分</h2>
+<p><strong>输入与用途：</strong> 十位置×120组三码，共1200动作；不让7→5的错误永久删除正确三元组。</p>
+<p><strong>数学与输出：</strong> q(p,A)=ΣP[p,n]；utility=q−λrisk(p,A,state)，q与utility分栏。</p>
+<p><strong>训练目标：</strong> 每期成组BCE/排序损失＋概率一致性。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 共享概率模型、集合风险头、校准器、优化器。</p>
+<p><strong>真正结构操作：</strong> 边际模型＋集合状态风险评估；合法新的集合特征。</p>
+<p><strong>决定性反例/消融：</strong> 1200遍历对照Top3；互斥概率恒等式；独立集合头不一致测试。</p>
+<p><strong>边界与预算：</strong> 号码同时出现于同位置不可能，禁止人为乘积“交集概率”。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF15KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F16｜软分支多层集合解码</h2>
+<p><strong>输入与用途：</strong> 7码/5码/3码候选及关系约束；减少不可恢复的逐层缩减损失。</p>
+<p><strong>数学与输出：</strong> Σ_branch w_b(H)P_b，经一致读出；分层集合为解释不是额外事实。</p>
+<p><strong>训练目标：</strong> 三层覆盖损失＋最终K3命中校准。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 软分支门、各分支模型、层级支持、剪枝误差。</p>
+<p><strong>真正结构操作：</strong> 硬单一路径→软多分支；不同围号机制分支融合。</p>
+<p><strong>决定性反例/消融：</strong> 第一层误删反例；去分支/硬围号/完整1200对照。</p>
+<p><strong>边界与预算：</strong> 保留候选质量和概率质量，不把被剪路径当零风险。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF16KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F17｜精确排列能量模型</h2>
+<p><strong>输入与用途：</strong> 全局10×10关系势；保持整体排列一致并检验新增预测贡献。</p>
+<p><strong>数学与输出：</strong> 一元子核P(π)∝expΣS[p,πp]；logZ子集DP，∂NLL/∂S=P−Y。</p>
+<p><strong>训练目标：</strong> 联合排列负对数似然。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 评分网络、匹配读出版本、优化器；DP为临时状态。</p>
+<p><strong>真正结构操作：</strong> 独立softmax→合法排列联合头；扩展因子需新可解性合同。</p>
+<p><strong>决定性反例/消融：</strong> 小n枚举、梯度差分、行列边际、全1200一致。</p>
+<p><strong>边界与预算：</strong> 本轮已运行的是一元子核，不是一般二阶能量；手机耗时待测。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF17KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F18｜排列自回归模型</h2>
+<p><strong>输入与用途：</strong> 仅过去历史作条件；下一期排列作为联合标签；模拟下一期整体结构，不偷看真实当期前排。</p>
+<p><strong>数学与输出：</strong> P(π)=Π_p P(π_p|H,π_&lt;p,unused)，每步mask已用号码。</p>
+<p><strong>训练目标：</strong> 全排列链式似然。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 自回归解码器、顺序规则、优化器、采样/beam协议。</p>
+<p><strong>真正结构操作：</strong> 位置顺序结构变更、解码依赖替换、共享上下文。</p>
+<p><strong>决定性反例/消融：</strong> 小n全枚举边际；训练teacher-forcing与部署未知前缀明确分离。</p>
+<p><strong>边界与预算：</strong> 推断不能用当前真实前缀；beam截断遗漏概率需披露。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF18KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F19｜关系张量低秩模型</h2>
+<p><strong>输入与用途：</strong> 位置×号码×滞后×状态张量；减少高阶结构样本稀疏。</p>
+<p><strong>数学与输出：</strong> W[p,n,q,r,l]≈Σ_k U_pk V_nk A_qk B_rk C_lk。</p>
+<p><strong>训练目标：</strong> NLL＋秩/稀疏约束。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 低秩因子、秩结构、稀疏项、优化器。</p>
+<p><strong>真正结构操作：</strong> 增加关系mode或稀疏残差；单改rank不自动算新家族。</p>
+<p><strong>决定性反例/消融：</strong> 重构小张量、去跨位置mode、同参数量dense对照。</p>
+<p><strong>边界与预算：</strong> CP分解尺度不唯一，结构身份与参数身份分开。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF19KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F20｜状态片段记忆</h2>
+<p><strong>输入与用途：</strong> 因果状态片段、进入和退出事件；识别同类状态重现而非只看最近频数。</p>
+<p><strong>数学与输出：</strong> memory_i=(stateSignature,expertState,validity)；retrieve→有界融合。</p>
+<p><strong>训练目标：</strong> 检索损失＋NLL＋遗忘约束。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 片段签名、时间、失效状态、专家快照和索引。</p>
+<p><strong>真正结构操作：</strong> 加入可验证状态片段/替换检索组合，不复制同一专家。</p>
+<p><strong>决定性反例/消融：</strong> 无memory、错配memory、过期memory与状态复现测试。</p>
+<p><strong>边界与预算：</strong> 过往片段只作为先验/初始化，不能继承过去资格样本。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF20KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F21｜层级条件贝叶斯网络</h2>
+<p><strong>输入与用途：</strong> 位置/号码组/状态的条件计数；提高稀有结构下界而非追小样本高分。</p>
+<p><strong>数学与输出：</strong> P(y_p|parents)=层级Dirichlet收缩或条件softmax；结构稀疏。</p>
+<p><strong>训练目标：</strong> 后验预测NLL。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> DAG/时滞父节点、计数或参数、先验和充分统计。</p>
+<p><strong>真正结构操作：</strong> 父节点增删、条件交互、层级共享结构变更。</p>
+<p><strong>决定性反例/消融：</strong> 无父节点退化、父变量置乱、已植入条件依赖恢复。</p>
+<p><strong>边界与预算：</strong> DAG只含过去可见父变量；观察性依赖不叫已证实因果。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF21KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F22｜失败残差修正</h2>
+<p><strong>输入与用途：</strong> 冻结父代输出和之后揭晓的失败类型；把失败反馈变为定向结构改变。</p>
+<p><strong>数学与输出：</strong> logits_new=logits_parent+g(H)·residual(H)；gate只看过去。</p>
+<p><strong>训练目标：</strong> 父子配对损失＋残差幅度限制。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 冻结父hash、残差网络、门、优化器与失败簇版本。</p>
+<p><strong>真正结构操作：</strong> 新增条件残差结构；父本冻结独立对照。</p>
+<p><strong>决定性反例/消融：</strong> 无残差/常开残差/随机失败簇；修复目标失误但不伤其他块。</p>
+<p><strong>边界与预算：</strong> 失败簇从训练段取，未来证据不回流同次授证。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF22KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F23｜旧优秀策略蒸馏</h2>
+<p><strong>输入与用途：</strong> 原执行器输出、真实标签、完整原始版本；保留旧方法知识，不继承旧命中次数。</p>
+<p><strong>数学与输出：</strong> L=α KL(P_teacher||P_student)+(1−α)NLL(real labels)。</p>
+<p><strong>训练目标：</strong> 标签NLL＋教师KL，权重由DEV选择。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 老师冻结hash、学生结构、温度/α规则、优化器。</p>
+<p><strong>真正结构操作：</strong> 老师机制蒸馏到不同学生结构；非等价复制。</p>
+<p><strong>决定性反例/消融：</strong> 老师/学生/无蒸馏同日历对照；只统计学生前瞻结果。</p>
+<p><strong>边界与预算：</strong> 继承知识不继承老师证书；不能凭teacher置信当真标签。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF23KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<h2>F24｜互补专家联合预测</h2>
+<p><strong>输入与用途：</strong> 前瞻专家概率、因果状态和误差相关矩阵；提高组合覆盖和稳定性，不靠重复模型凑数。</p>
+<p><strong>数学与输出：</strong> P_t=Σ_m w_m(H_&lt;t)P_m；w来自过去对数损失/训练门。</p>
+<p><strong>训练目标：</strong> 选择后NLL＋互补覆盖约束。训练输出包含lossBefore/lossAfter、sampleIds、gradientNorm或充分统计变化、stateDelta、checkpointHash；单步loss不保证每步下降，须用固定微型问题验证学习机制。</p>
+<p><strong>必须保存：</strong> 成员policy与checkpoint、路由/门、残差相关、校准状态。</p>
+<p><strong>真正结构操作：</strong> 加入不同机制互补专家；重构状态路由不是只调常数权重。</p>
+<p><strong>决定性反例/消融：</strong> 独立最佳/等权/打乱权重/去互补专家同日历比较。</p>
+<p><strong>边界与预算：</strong> 融合策略独立出生；成员频率并集不直接求和。按8/32/128/512/2048/5000声明实际支持尺度；无支持尺度明示mask。</p>
+<p><strong>交付与验收：</strong> FamilyF24KernelR25.java＋独立测试＋模型状态样本＋运行成本＋回放报告＋出生后证据。功能/机制/质量分别判定；达不到质量不删除该实验，标未达标并输入失败专家。</p>
+<hr />
+<h1>R25新增32张施工卡及旧要求保全</h1>
+<p>状态一律PLANNED_NOT_PRODUCTION_APPLIED，除卡中明确引用的主机反例/参考测试。一个施工卡完成不自动使所有映射的旧卡完成。当前已有48张R24卡继续有效，因此合计80张当期施工卡；历史299卡与1832条仍独立保留。</p>
+<h2>R25-001｜P0｜取得完整源码与保护原基线</h2>
+<p><strong>根因：</strong> 缺正文不得称全仓审计；HEAD与安装身份易混。</p>
+<p><strong>文件/接口：</strong> SourceAuditManifestR25；原994源文件。</p>
+<p><strong>精确施工动作：</strong> 读取真实HEAD→保留差异→正文hash与索引比对→导出关键方法调用链，不以旧压缩包覆盖当前源码。</p>
+<p><strong>跨文件依赖：</strong> 无；作为入口；继承R24-001,R24-045。</p>
+<p><strong>验收：</strong> 994/994正文清单或逐项阻塞；关键Owner有实际正文审查；0误覆盖。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-002｜P0｜无损策略身份与只读参数</h2>
+<p><strong>根因：</strong> 4位有效数字合并不同执行参数；TreeMap可变。</p>
+<p><strong>文件/接口：</strong> ModelGenomeSU2；NEW PolicyIdentityR25/GenomeCodecR25。</p>
+<p><strong>精确施工动作：</strong> 新协议带类型/长度/IEEE754字节；参数深拷贝；旧SU2只读导入；身份与显示分离。</p>
+<p><strong>跨文件依赖：</strong> R25-001；继承R24-018,R24-029。</p>
+<p><strong>验收：</strong> 原碰撞反例在新协议不碰撞；Java/Python字节一致；旧证书不继承。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-003｜P0｜正确非劣与提升下界</h2>
+<p><strong>根因：</strong> 把不能证明显著差当作非劣。</p>
+<p><strong>文件/接口：</strong> SelectiveEvidenceSU2；NEW PairedQualificationR25。</p>
+<p><strong>精确施工动作：</strong> 生产弃用旧pass；Trial枚举和配对下界；margin/alpha预算出生前固定。</p>
+<p><strong>跨文件依赖：</strong> R25-001；继承R24-028,R24-015。</p>
+<p><strong>验收：</strong> 1000期40%对45%例拒绝；改善/平局/不足/缺失分别正确。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-004｜P0｜策略政策与训练状态分离</h2>
+<p><strong>根因：</strong> 每次训练重置证据或子策略继承证书均错误。</p>
+<p><strong>文件/接口：</strong> ModelLiveSU2/ModelStateCodecSU2；NEW PolicyManifestR25。</p>
+<p><strong>精确施工动作：</strong> policy固定更新机制；checkpoint记录状态；合法更新同policy；改结构/规则新出生。</p>
+<p><strong>跨文件依赖：</strong> R25-002；继承R24-018,R24-024。</p>
+<p><strong>验收：</strong> 100期学习有100个状态但同policy；改规则强制新出生。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-005｜P0｜研究初始化不依赖充电空闲</h2>
+<p><strong>根因：</strong> 基础schema与重研究被同一空闲条件阻挡。</p>
+<p><strong>文件/接口：</strong> 迁移Owner/ReplayBurstSchedulerSU1（须补正文）。</p>
+<p><strong>精确施工动作：</strong> 独立有界P1初始化pump，续已提交游标，输出剩余DDL/阻塞Owner。</p>
+<p><strong>跨文件依赖：</strong> R25-001；继承R24-002,R24-003。</p>
+<p><strong>验收：</strong> 不充电也能推进到READY；逐DDL杀进程无丢失；不绕过迁移。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-006｜P0｜轻重任务与截止时间隔离</h2>
+<p><strong>根因：</strong> 整代计算饿死赛前与反馈。</p>
+<p><strong>文件/接口：</strong> ModelFoundryJobSU2/主链调度（须补正文）。</p>
+<p><strong>精确施工动作：</strong> P0预测结算、P1反馈、P2训练、P3报告；可取消切片与游标。</p>
+<p><strong>跨文件依赖：</strong> R25-005；继承R24-004,R24-005,R24-037。</p>
+<p><strong>验收：</strong> 重训练时P95冻结≤5000ms且取消P95≤100ms；设备实测。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-007｜P0｜唯一结算与反馈原子Outbox</h2>
+<p><strong>根因：</strong> 训练/结算事件可重复或丢失。</p>
+<p><strong>文件/接口：</strong> SettlementEngine/DbStore（须补正文）。</p>
+<p><strong>精确施工动作：</strong> 在原正式结算事务加入不可变feedback引用；消费唯一键＋CAS游标。</p>
+<p><strong>跨文件依赖：</strong> R25-001, R25-005；继承R24-011,R24-018。</p>
+<p><strong>验收：</strong> 重复/崩溃/冲突开奖不重复训练或结算；冲突隔离。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-008｜P0｜完整checkpoint提交发布</h2>
+<p><strong>根因：</strong> 模型/校准/优化器/游标可能分裂。</p>
+<p><strong>文件/接口：</strong> ModelStoreSU2/ModelLiveSU2。</p>
+<p><strong>精确施工动作：</strong> 准备文件→hash验证→短事务CAS＋消费游标→提交后publish；恢复孤儿GC。</p>
+<p><strong>跨文件依赖：</strong> R25-004, R25-007；继承R24-008,R24-018。</p>
+<p><strong>验收：</strong> 各故障注入点恢复后一阶预测/梯度与不中断一致。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-009｜P0｜全局研究缓存字节预算</h2>
+<p><strong>根因：</strong> 各LRU对象数量上限无法控制总内存。</p>
+<p><strong>文件/接口：</strong> ModelReplaySU2.Library/ModelEvolutionSU2/Hub。</p>
+<p><strong>精确施工动作：</strong> 全域bytecap＋活跃数量双限；共享特征；流式分数；过大单体拒绝。</p>
+<p><strong>跨文件依赖：</strong> R25-006；继承R24-007,R24-035。</p>
+<p><strong>验收：</strong> 缓存开启/清空数值一致；连续5000期无OOM；峰值分设备达标。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-010｜P0｜期号与缺口可见性</h2>
+<p><strong>根因：</strong> 112期缺口被数组相邻掩盖。</p>
+<p><strong>文件/接口：</strong> TargetIssueResolver/history builder（须补正文）。</p>
+<p><strong>精确施工动作：</strong> 按规则期号ordinal对齐；有效排列、重复、冲突、缺口mask；声明各模型missingPolicy。</p>
+<p><strong>跨文件依赖：</strong> R25-001；继承R24-009,R24-010。</p>
+<p><strong>验收：</strong> 本数据112缺口准确；32窗口新增仅63期可延续；跨日不误报。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-011｜P0｜报告失败不吞成空壳</h2>
+<p><strong>根因：</strong> error:true或截断被当完整。</p>
+<p><strong>文件/接口：</strong> ReportEnvelope/UPGRADE_DIAGNOSIS（补正文）。</p>
+<p><strong>精确施工动作：</strong> 段级状态/数量/错误链/修复卡；全局报告只读；取消与分卷。</p>
+<p><strong>跨文件依赖：</strong> R25-001；继承R24-032,R24-033,R24-047。</p>
+<p><strong>验收：</strong> 必需段即使异常也可解释；expected=exported+omitted。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-012｜P1｜有类型因果原子编译器</h2>
+<p><strong>根因：</strong> 注册数不代表可计算/可学习；score与prob混淆。</p>
+<p><strong>文件/接口：</strong> AtomStreamSU2/TypedProgram相关；NEW TypedAtomIRR25。</p>
+<p><strong>精确施工动作：</strong> 类型/形状/单位/可见边界/状态/成本检查；死代码和不支持原子拒绝。</p>
+<p><strong>跨文件依赖：</strong> R25-002, R25-010；继承R24-021,R24-044。</p>
+<p><strong>验收：</strong> 未来注入无影响；错误类型拒绝；训练原子有真实更新证据。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-013｜P1｜六尺度共享状态</h2>
+<p><strong>根因：</strong> 现有1600环与5000尺度宣传不对应。</p>
+<p><strong>文件/接口：</strong> AtomStreamSU2/FeatureFrameR25。</p>
+<p><strong>精确施工动作：</strong> 统一共享窗口与稀疏尺度边；不足mask；缺口规则不伪造真实数据。</p>
+<p><strong>跨文件依赖：</strong> R25-009, R25-012；继承R24-019。</p>
+<p><strong>验收：</strong> 各尺度feature前缀/边界/内存正确；不把不足5000视为满5000。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-014｜P1｜七类可解释机制先落实</h2>
+<p><strong>根因：</strong> 同一种启发式无法支撑大量不同假设。</p>
+<p><strong>文件/接口：</strong> F01/F10/F11/F12/F13/F21/F23。</p>
+<p><strong>精确施工动作：</strong> 按03附录逐核实现七接口、状态、反例、成本，保留旧母本。</p>
+<p><strong>跨文件依赖：</strong> R25-012, R25-013；继承R24-020,R24-030。</p>
+<p><strong>验收：</strong> 7类机制独立；统一stub/fallback禁止；全失败也完整报告。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-015｜P1｜九类表示与记忆机制</h2>
+<p><strong>根因：</strong> 模型名不同不等于新机制。</p>
+<p><strong>文件/接口：</strong> F03/F04/F05/F06/F07/F08/F09/F19/F20。</p>
+<p><strong>精确施工动作：</strong> 不同消息/状态/持续时间/检索结构逐类实现；所有状态可恢复。</p>
+<p><strong>跨文件依赖：</strong> R25-008, R25-013；继承R24-020。</p>
+<p><strong>验收：</strong> 9类决定性消融和时间泄漏测试；缺省不能全走同一网络。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-016｜P1｜八类联合读出与组合机制</h2>
+<p><strong>根因：</strong> 集合概率不一致与泛化精确推断误称。</p>
+<p><strong>文件/接口：</strong> F02/F14/F15/F16/F17/F18/F22/F24。</p>
+<p><strong>精确施工动作：</strong> 逐类实现；F17先一元精确子核，通用因子另验；集合风险与概率分列。</p>
+<p><strong>跨文件依赖：</strong> R25-012, R25-014；继承R24-020,R24-023。</p>
+<p><strong>验收：</strong> 小n枚举、梯度、1200动作、未知前缀mask、成本边界通过。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-017｜P1｜16专家可执行Proposal</h2>
+<p><strong>根因：</strong> 文字专家没有可落地结构变更。</p>
+<p><strong>文件/接口：</strong> NEW ExpertTaskRunnerR25/ProposalR25。</p>
+<p><strong>精确施工动作：</strong> 每专家产ASTdiff/假设/反例/消融/预算；任务结果强类型。</p>
+<p><strong>跨文件依赖：</strong> R25-012, R25-014；继承R24-022,R24-031。</p>
+<p><strong>验收：</strong> 16类至少各一完整受控任务；纯文本产物不得计完成。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-018｜P1｜质量多样性档案</h2>
+<p><strong>根因：</strong> 简单换参数刷家族/高分独占。</p>
+<p><strong>文件/接口：</strong> ModelEvolutionSU2；NEW DiversityArchiveR25。</p>
+<p><strong>精确施工动作：</strong> 机制档位、结构/行为/残差三去重；有界active＋长期archive。</p>
+<p><strong>跨文件依赖：</strong> R25-014, R25-017；继承R24-029。</p>
+<p><strong>验收：</strong> 同义重排、死分支、随机种子不刷新家族；低样本不获虚假新颖奖励。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-019｜P1｜真实代际与历史裁判改名</h2>
+<p><strong>根因：</strong> 历史DEV+VAL和教师分数被误称独立验证。</p>
+<p><strong>文件/接口：</strong> ModelEvolutionSU2.val/judgeEb/effectiveGenerations。</p>
+<p><strong>精确施工动作：</strong> 研究裁判改名并记录teacher贡献；七计数；verified由资格事件独占。</p>
+<p><strong>跨文件依赖：</strong> R25-003, R25-018；继承R24-006,R24-016,R24-017,R24-024。</p>
+<p><strong>验收：</strong> 历史升分不增verified；原代数保留legacy字段；NO_OP=0。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-020｜P1｜预测走势结构与软分支</h2>
+<p><strong>根因：</strong> 事后结构解释伪装赛前捕获。</p>
+<p><strong>文件/接口：</strong> F08/F09/F16/结构窗口UI。</p>
+<p><strong>精确施工动作：</strong> 固定结构标签、过去过滤后验、下一期结构预测、软漏斗＋反例。</p>
+<p><strong>跨文件依赖：</strong> R25-015, R25-016；继承R24-040,R24-044。</p>
+<p><strong>验收：</strong> 未来平滑后验禁用；第一层错误不强制永久剪掉真候选。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-021｜P0｜永久检验预算与数据暴露账本</h2>
+<p><strong>根因：</strong> 不断改策略反复看验证造成伪提升。</p>
+<p><strong>文件/接口：</strong> NEW ExposureLedgerR25/AlphaLedgerR25。</p>
+<p><strong>精确施工动作：</strong> 候选/端点/looks预登记；已看SEALED转EXPOSED；budget不随重启归零。</p>
+<p><strong>跨文件依赖：</strong> R25-003, R25-004；继承R24-017,R24-028,R24-042。</p>
+<p><strong>验收：</strong> 重复打开拒绝；百万候选模拟总预算不超root；索引不回收。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-022｜P1｜选择后校准与风险覆盖</h2>
+<p><strong>根因：</strong> 分位数凑频率与边际ECE代替选择后质量。</p>
+<p><strong>文件/接口：</strong> ModelReplaySU2/CalibrationSU2/MetaSelectorR25。</p>
+<p><strong>精确施工动作：</strong> 过去训练联合风险覆盖；选择后校准；路由器独立policy；质量失败不出手。</p>
+<p><strong>跨文件依赖：</strong> R25-016, R25-021；继承R24-025,R24-026,R24-027。</p>
+<p><strong>验收：</strong> 零出手判频率失败；全覆盖需独立通过；路由无后验选优。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-023｜P0｜资格与REAL双向接线</h2>
+<p><strong>根因：</strong> 主链永远0或绕证书放开两种错误。</p>
+<p><strong>文件/接口：</strong> MainlinePolicy/Adapter/RealAuthority；DecisionGate（补正文）。</p>
+<p><strong>精确施工动作：</strong> 状态化资格；当前证书校验；合格触发唯一授权，失败报精确阻塞。</p>
+<p><strong>跨文件依赖：</strong> R25-005, R25-008, R25-021, R25-022；继承R24-013,R24-014,R24-015,R24-044。</p>
+<p><strong>验收：</strong> 合成全通过可入；删任一证据即拒；自然统计不混合成。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-024｜P1｜全局连挂与可行性</h2>
+<p><strong>根因：</strong> 暂停/换名掩盖连挂；样本门槛冲突。</p>
+<p><strong>文件/接口：</strong> RiskMonitorR25/报告。</p>
+<p><strong>精确施工动作：</strong> 保持ACT序列连挂；固定资格窗；压力测试与功效规划；不足不强行晋级。</p>
+<p><strong>跨文件依赖：</strong> R25-021, R25-023；继承R24-014,R24-041。</p>
+<p><strong>验收：</strong> 跨模型/暂停仍接续；独立40%压力例能复算；7挂处置有回执。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-025｜P1｜旧优质资产的保护与复验</h2>
+<p><strong>根因：</strong> 过早丢弃老版本或盲信其历史高分。</p>
+<p><strong>文件/接口：</strong> XiIncumbentSU2/旧资产目录。</p>
+<p><strong>精确施工动作：</strong> 按源hash、公式、门控、数据/时点恢复；同日历冻结母本；不先判无优势。</p>
+<p><strong>跨文件依赖：</strong> R25-001, R25-010, R25-021；继承R24-030。</p>
+<p><strong>验收：</strong> 旧声称35/43逐笔定位；现有记录/前瞻结果分别展示。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-026｜P1｜失败结构→修复→验证闭环</h2>
+<p><strong>根因：</strong> 同一失败反复调参无根因。</p>
+<p><strong>文件/接口：</strong> FailureTaxonomy/Proposal/消融。</p>
+<p><strong>精确施工动作：</strong> 先分数据/运行/模型/选择；定位可证伪假设；原始失败+修复反例两方向。</p>
+<p><strong>跨文件依赖：</strong> R25-017, R25-021；继承R24-031,R24-047。</p>
+<p><strong>验收：</strong> delayHit不改当期结果；无支持时返回INSUFFICIENT非编造原因。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-027｜P0｜后台与主线程恢复</h2>
+<p><strong>根因：</strong> 服务RUNNING却业务停止；UI同步fsync。</p>
+<p><strong>文件/接口：</strong> 服务/lease/倒计时（补正文）。</p>
+<p><strong>精确施工动作：</strong> 业务心跳与服务心跳分开；合法FGS类型/timeout；原子持久lease移出UI。</p>
+<p><strong>跨文件依赖：</strong> R25-006, R25-007；继承R24-009,R24-012,R24-038。</p>
+<p><strong>验收：</strong> 亮灭屏/断网/时钟变化/进程杀死/强停各有预期和证据。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-028｜P1｜5000期、报告与模型GC</h2>
+<p><strong>根因：</strong> 原始数据隐藏副本和无限pin突破限制。</p>
+<p><strong>文件/接口：</strong> DatabaseCompactionSU2/ReportBudgetSU2/模型存储。</p>
+<p><strong>精确施工动作：</strong> raw上限5000；资产引用计数；不删除尚用checkpoint；报告取消回收。</p>
+<p><strong>跨文件依赖：</strong> R25-008, R25-011；继承R24-035,R24-036。</p>
+<p><strong>验收：</strong> 5001输入后5000留存；宕机GC不删活跃状态；历史证据不抹掉。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-029｜P1｜排行、100面与1200动作</h2>
+<p><strong>根因：</strong> 研究/真实/概率/分数混标。</p>
+<p><strong>文件/接口：</strong> 排行榜/UI/DeferredEvidence。</p>
+<p><strong>精确施工动作：</strong> 按冻结来源区分；展示样本、区间、全局连挂和policy/checkpoint；延后仅读冻结payload。</p>
+<p><strong>跨文件依赖：</strong> R25-011, R25-022, R25-023；继承R24-039,R24-044,R24-048。</p>
+<p><strong>验收：</strong> 图表与SQL逐笔相同；缺冻结payload不可后算补写。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-030｜P0｜负控与植入机制全链测试</h2>
+<p><strong>根因：</strong> 有偏测试只展示成功；能力无法证明。</p>
+<p><strong>文件/接口：</strong> 实验Runner/24家族/资格。</p>
+<p><strong>精确施工动作：</strong> 独立合法排列负控；多重/提前看数；植入可控跨位置/状态/变点机制；真数据与合成分表。</p>
+<p><strong>跨文件依赖：</strong> R25-014, R25-015, R25-016, R25-021；继承R24-043。</p>
+<p><strong>验收：</strong> 负控不批量出高质量证书；植入机制可学且消融失效；synthetic不得REAL资格。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-031｜P0｜完整报告与能力分母</h2>
+<p><strong>根因：</strong> 少数检查PASS被误称全部完成。</p>
+<p><strong>文件/接口：</strong> 28章ReportContract/994/1832/299/P124。</p>
+<p><strong>精确施工动作：</strong> 四类结论独立；保留所有旧ID和新卡；expected/exported/omitted及未运行原因。</p>
+<p><strong>跨文件依赖：</strong> R25-011, R25-019, R25-029；继承R24-033,R24-034,R24-047。</p>
+<p><strong>验收：</strong> 0遗失要求；部分结果不冒充全仓/真机/质量通过。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<h2>R25-032｜P0｜可交付APK与不可造假发布</h2>
+<p><strong>根因：</strong> 旧APK当新交付或换数据才可启动。</p>
+<p><strong>文件/接口：</strong> CI/签名/安装/回滚（补正文）。</p>
+<p><strong>精确施工动作：</strong> 绑定HEAD/tree/生成代码/APKhash；干净/覆盖安装；迁移/回滚；密钥隔离。</p>
+<p><strong>跨文件依赖：</strong> R25-023, R25-027, R25-028, R25-030, R25-031；继承R24-001,R24-038,R24-045,R24-046。</p>
+<p><strong>验收：</strong> 指定APK可启动且旧数据可保留；设备证据齐；未验收项保持未完成。</p>
+<p><strong>回滚与状态：</strong> 只回退已验证激活指针；保留所有新旧证据；DDL回退另验，不清空用户数据；PLANNED_NOT_PRODUCTION_APPLIED。</p>
+<hr />
+<h1>接口、SQL、状态机、测试与发布合同</h1>
+<h2>1. 拟新增接口（不是声称仓库已有这些文件）</h2>
+<pre><code class="language-java">interface StrategyKernelR25 {
+  CapabilityManifest capability();
+  Prediction predict(EventFrame frozenFrame, CommittedSnapshot state, DeadlineToken token);
+  PreparedCheckpoint trainSlice(CommittedSnapshot base, FeedbackBatch labels, SliceBudget budget);
+  MutationProposal mutate(CommittedSnapshot parent, TypedStructuralProposal proposal);
+  AblationSpec ablate(AblationRequest request);
+  byte[] serialize(CommittedSnapshot state);
+  CommittedSnapshot restore(ArtifactManifest manifest, byte[] bytes);
+}
+</code></pre>
+<p>Prediction包含policyHash/checkpointHash/featureFrameHash/inputThrough/target、10×10边际、必要风险分数、可执行单位置K3或明确拒绝、缺尺度与gap说明。校准概率、边际和风险分数不可混用字段。infer不得修改CommittedSnapshot；想更新状态必须返回PreparedCheckpoint。</p>
+<p>PreparedCheckpoint包含baseVersion、新完整状态、训练事件列表、训练游标、耗时、取消状态和内容hash。必须走原数据库Owner的commit路径：旧版本已变则CAS失败，重读重算或按已注册确定性合并规则，不允许“最后写者赢”。</p>
+<pre><code class="language-text">begin short writer transaction
+  verify active_snapshot.version == expectedVersion
+  verify every consumed event is committed and matches draw_hash
+  insert checkpoint manifest referring to already verified immutable bytes
+  insert feedback_consumed(eventId, policyHash, checkpointHash)  // uniqueness
+  update active_snapshot ... where version=expectedVersion
+  require affectedRows == 1
+commit
+publish immutable snapshot from committed pointer
+</code></pre>
+<p>重复标签与冲突标签不同：前者幂等，后者隔离并报警，不用ON CONFLICT REPLACE静默覆盖。多模型独立消费按(event,policy)区分；公共特征统计由独立consumerId和游标控制，不因8个策略使用同特征而更新8次。</p>
+<h2>2. SQL参考的范围</h2>
+<p><code>sql/r25_research_metadata.sql</code>只提供10张研究元数据/关联表；它不创建第二套draw、REAL、正式settlement，也不授权新数据库文件。正式链中的既有表名、主键及FK要在B00拿到全文后绑定。DDL由既有版本化单语句迁移执行，不得在业务循环临时execSQL整包。</p>
+<p>AlphaReservation必须在揭示数据前事务化登记并受永久root余额限制。唯一键只能防重复ID，不能自行证明总alpha不超支；预算引擎要校验candidate/endpoint分配、同policy禁重复出生、关闭任务不回收已花预算。</p>
+<h2>3. 测试矩阵：按功能而不是按类数验收</h2>
+<table>
+<thead>
+<tr>
+  <th>类别</th>
+  <th>必测反例/正例</th>
+  <th>所需证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>身份</td>
+  <td>相近double、NaN/Inf、类型差异、外部map变化、跨语言编码、旧协议只读</td>
+  <td>黄金字节、hash、旧资产映射</td>
+</tr>
+<tr>
+  <td>时序</td>
+  <td>未来标签/归一化/索引/校准泄漏；前缀扰动</td>
+  <td>每层inputThrough与prefix diff</td>
+</tr>
+<tr>
+  <td>原子/家族</td>
+  <td>输出形状、状态更新、恢复、结构消融、随机种子/死代码假多样性</td>
+  <td>逐家族独立结果，不用一个公共测试替代所有机制</td>
+</tr>
+<tr>
+  <td>精确读出</td>
+  <td>小n全排列、梯度差分、10×10行列和、1200集合概率</td>
+  <td>绝对/相对误差和可复算输入</td>
+</tr>
+<tr>
+  <td>训练</td>
+  <td>预测先于标签、消费幂等、真实权重/状态变化、取消任务不发布</td>
+  <td>feedback/checkpoint链</td>
+</tr>
+<tr>
+  <td>恢复</td>
+  <td>文件写前/后、DB提交前/后、发布前/后分别崩溃</td>
+  <td>与不中断参考的下一预测及更新对比</td>
+</tr>
+<tr>
+  <td>证据</td>
+  <td>UCB误判反例、低样本、高缺失、连续look、多候选、已暴露测试集</td>
+  <td>永久budget与cohort ledger</td>
+</tr>
+<tr>
+  <td>稳定性</td>
+  <td>暂停/改名/换冠军不清零、假变点、长跑漂移</td>
+  <td>全局ACT连挂和风险状态</td>
+</tr>
+<tr>
+  <td>授权</td>
+  <td>全条件满足能入；每个条件删掉都不能入</td>
+  <td>DecisionGate→canonical→Settlement全链，合成与真实分表</td>
+</tr>
+<tr>
+  <td>资源</td>
+  <td>全24家族登记但限并发、bytecap、报告压力、取消</td>
+  <td>设备P50/P95/P99、OOM、CPU/温度、writer等待</td>
+</tr>
+<tr>
+  <td>数据</td>
+  <td>重复、冲突、112缺口、跨日、5001→5000</td>
+  <td>原始hash与事务审计</td>
+</tr>
+<tr>
+  <td>报告</td>
+  <td>错误段、截断、分卷、取消、未知与0区别</td>
+  <td>28章齐全和数量守恒</td>
+</tr>
+</tbody>
+</table>
+<p>负控必须跑“整个搜索与选优流程”，不只是用一个固定模型在随机数据测30%；否则无法测到挑选偏差。植入测试需至少包括跨位置滞后、状态持续时间、变点和组合模式四种已知机制，并验证相应消融使信号消失。合成测试检验能力，不增加一条自然样本。</p>
+<h2>4. 安卓设备与运行场景</h2>
+<p>沿用原T29—T34，不改旧ID：在实际可得设备上覆盖支持的API、低内存、用户当前机型同级配置。每次绑定设备型号/API/targetSdk/APKhash/数据库升级来源/省电设置/网络/屏幕状态/样本数。场景至少包括干净安装、保留数据覆盖安装、旧大报告取消、熄屏长跑、网络中断恢复、系统回收、用户强停后重开、前台服务timeout、数据库空间不足、时钟调整。</p>
+<p>系统不允许后台运行时应显示限制与漏期原因，而不是制造“零漏期”。用户强制停止与普通任务被回收区别处理。真实无法测试的机型填NOT_RUN，不能用一个模拟器结果复制六行PASS。</p>
+<h2>5. CI与发布</h2>
+<p>流水线：source identity → secrets scan → unit/property tests → Java/Python parity → legacy migration fixtures → Android build → install/startup smoke → performance/device scenarios → report validation → reproducible manifest → signed artifact。</p>
+<p>未授权修改公开/私有库或上传密钥。签名材料不进入源码/报告/压缩包。本次只交施工文档、参考代码和证据；没有签名或生成新APK。未来每批交付绑定提交、生成代码hash、APKhash、测试日志、未完成项，不能将旧APK更名冒充新版本。</p>
+<p>回滚只切回此前仍有效的已提交模型指针及兼容App版本；数据库已前向迁移时必须验证旧App能读，不能默认安装旧APK即安全。模型回滚不回滚时间、证据、连挂或预算。</p>
+<h2>6. 一条本地复核命令</h2>
+<pre><code class="language-bash">python run_host_checks.py
+</code></pre>
+<p>需要Python（R25纯标准库）、JDK；重跑R23神经参考还需要numpy与torch。依赖缺失应明确FAIL/NOT_RUN，不假装通过；可分别执行R25标准库测试。所有日志写入新的<code>evidence/current_run/</code>，不覆盖本轮保留的原始证据。该脚本只跑主机验证，不会授权REAL、上传仓库或操作用户设备。</p>
+<hr />
+<h1>研究来源、原始证据与适用边界</h1>
+<p>检索/访问日期：2026-10-26。只把原始论文或官方文档用作技术依据；任何论文都不是STARCORE已经达到高胜率的证据。</p>
+<p><strong>S1｜Mouret &amp; Clune，Illuminating search spaces by mapping elites（2015）</strong><br />
+<a href="https://arxiv.org/abs/1504.04909">https://arxiv.org/abs/1504.04909</a><br />
+用途：质量—多样性档案的设计来源，保存不同特征区域中的候选。边界：本文演示领域不是本开奖数据；R25的档位、行为距离、评价协议须自己验证。不能从“能找到不同的高分解”推出“此数据一定存在35%/40%优势”。</p>
+<p><strong>S2｜Howard、Ramdas、McAuliffe、Sekhon，Time-uniform, nonparametric, nonasymptotic confidence sequences</strong><br />
+<a href="https://arxiv.org/abs/1810.08240">https://arxiv.org/abs/1810.08240</a><br />
+用途：连续观察需要时间一致的统计协议。边界：仍须满足相应概率条件、可预测选择和全局多重预算；不能将普通区间反复查看后挑时点停止，也不能把任意漂移下的未来质量当作已证明。</p>
+<p><strong>S3｜Bailey等，The Probability of Backtest Overfitting（2017）</strong><br />
+<a href="https://scholarworks.wmich.edu/math_pubs/42/">https://scholarworks.wmich.edu/math_pubs/42/</a><br />
+用途：研究阶段反复选历史优胜者的过拟合风险。边界：金融回测背景不等于本项目交易策略；本项目采用前推和出生后证据，不照搬金融绩效阈值。</p>
+<p><strong>S4｜Guo等，On Calibration of Modern Neural Networks（ICML 2017）</strong><br />
+<a href="https://proceedings.mlr.press/v70/guo17a.html">https://proceedings.mlr.press/v70/guo17a.html</a><br />
+用途：预测置信度需要独立校准验证。边界：温度缩放不必然提高排序或命中；本项目尤其要测选择后概率，而不仅边际总体ECE。</p>
+<p><strong>S5｜Geifman &amp; El-Yaniv，SelectiveNet（ICML 2019）</strong><br />
+<a href="https://proceedings.mlr.press/v97/geifman19a.html">https://proceedings.mlr.press/v97/geifman19a.html</a><br />
+用途：有拒绝选项的风险—覆盖联合学习。边界：不保证15%覆盖同时满足本项目质量；项目应冻结选择政策并用自身数据验证。</p>
+<p><strong>S6｜Android官方：Define work requests</strong><br />
+<a href="https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work">https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work</a><br />
+用途：PeriodicWorkRequest最短重复间隔15分钟，执行时间受系统与约束影响。不得用它保证逐分钟赛前预测。</p>
+<p><strong>S7｜Android官方：Foreground service timeouts / Android 15 behavior changes</strong><br />
+<a href="https://developer.android.com/develop/background-work/services/fgs/timeout">https://developer.android.com/develop/background-work/services/fgs/timeout</a><br />
+<a href="https://developer.android.com/about/versions/15/behavior-changes-15">https://developer.android.com/about/versions/15/behavior-changes-15</a><br />
+用途：核实适用版本/targetSdk下dataSync、mediaProcessing等服务的累计时限及onTimeout义务。边界：不是所有FGS类型都同样六小时；必须按实际App manifest与平台核对，不能靠误标服务类型绕过限制。</p>
+<p><strong>S8｜SQLite官方：Write-Ahead Logging</strong><br />
+<a href="https://www.sqlite.org/wal.html">https://www.sqlite.org/wal.html</a><br />
+用途：WAL允许读写并行但仍仅一个写者，检查点受活跃读者影响。对应本项目短事务、单写Owner、训练计算移出写锁和报告快照设计。</p>
+<h2>项目原始证据索引</h2>
+<p>用户原件：10.26方案.zip，SHA见delivery_status。施工HEAD通过GitHub连接实际读取：cd7f058a8345de7c9c89c308c7c91416a1596760；ModelEvolutionSU2前100行从当前施工分支读取并与附件代码机制核对。没有把默认main当施工分支。</p>
+<p><code>baseline_R24/evidence/source_verified/</code>：40份SHA匹配生产正文；<code>evidence/source_coverage_994.json</code>：完整索引覆盖情况；<code>baseline_R24/evidence/draws_4836_sorted.csv</code>：重算输入；<code>baseline_R23/predraw_settlement.jsonl</code>：已存在历史冻结记录；<code>evidence/r25_recomputed_historical_metrics.json</code>：本轮按原开奖重新核算结果。</p>
+<p><code>evidence/legacy_defects_reproduced.json</code>：运行原Java的合成反例，不是新策略胜率；<code>code/reference_r25.py</code>：新身份/证据/精确一元匹配参考；<code>evidence/r25_reference_tests.log</code>：36项标准库检查。原R23/R24重跑日志全部保留，初次中文路径javac失败与ASCII路径重跑均不隐瞒。</p>
+<h2>证据强度用语</h2>
+<p>设计：只代表给出可施工规格。编译：只代表相关代码被编译器接受。主机测试：只证明被测试输入/契约。合成机制：检验数学机制和反例。历史复算：既有历史结果重验。安卓/真机：需要真实APK与设备日志。自然前瞻：必须出生后、赛前冻结、唯一结算。任何一层都不能未经验证替代下一层。</p>
+<hr />
+<h1>28章检测报告R25增补契约</h1>
+<p>不另建一份只覆盖新功能的小报告。以原28章为完整骨架，继续保留96检查、1832要求、299卡、P001—P124、48张R24卡，再加入32张R25卡。各旧状态原样保留，不能因有映射而自动完成。</p>
+<h2>统一Envelope</h2>
+<pre><code class="language-json">{
+  &quot;sectionId&quot;: &quot;TRAINING&quot;,
+  &quot;status&quot;: &quot;PASS|FAIL|INSUFFICIENT|NOT_RUN|UNKNOWN|INCOMPLETE&quot;,
+  &quot;repoCommit&quot;: &quot;实际提交&quot;,
+  &quot;apkHash&quot;: &quot;实际APK或null&quot;,
+  &quot;snapshotHash&quot;: &quot;只读数据快照&quot;,
+  &quot;scope&quot;: &quot;HOST|ANDROID|DEVICE|PROSPECTIVE&quot;,
+  &quot;ordinalFrom&quot;: 0,
+  &quot;ordinalThrough&quot;: 0,
+  &quot;expectedRows&quot;: 0,
+  &quot;exportedRows&quot;: 0,
+  &quot;omittedRows&quot;: 0,
+  &quot;evidenceRefs&quot;: [],
+  &quot;errors&quot;: [],
+  &quot;repairCards&quot;: [],
+  &quot;nextTrigger&quot;: &quot;具体所需事件或证据&quot;
+}
+</code></pre>
+<p>示例中的0为格式占位，不代表当前实际为0；实际未知字段用null/UNKNOWN并说明。status字段实际必须是单个枚举值，不能把上方竖线字符串原样写入报告。</p>
+<h2>逐章增补</h2>
+<table>
+<thead>
+<tr>
+  <th>原章</th>
+  <th>R25新增必需字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>IDENTITY</td>
+  <td>policyHash/checkpointHash/structureHash、编码协议、legacy映射、精度丢失状态</td>
+</tr>
+<tr>
+  <td>REQUIREMENTS</td>
+  <td>R25-001—032、原状态保全hash、覆盖映射、冲突裁决</td>
+</tr>
+<tr>
+  <td>DATA</td>
+  <td>期号ordinal规则版本、gapMask、不同模型暖机可用尺度</td>
+</tr>
+<tr>
+  <td>OPPORTUNITY</td>
+  <td>scheduled/eligible/frozen/ACT/ABSTAIN/MISSING/INVALID/REAL分别分母</td>
+</tr>
+<tr>
+  <td>FETCH</td>
+  <td>上游发布/本地接收/校验/提交时间与时钟不确定度</td>
+</tr>
+<tr>
+  <td>SETTLEMENT</td>
+  <td>canonicalSettlementId、fullDrawHash、OutboxId、冲突结果隔离</td>
+</tr>
+<tr>
+  <td>FREEZE</td>
+  <td>policy/checkpoint/feature三hash、trainedThrough、inputThrough、单调时钟deadline</td>
+</tr>
+<tr>
+  <td>AUTHORITY</td>
+  <td>证书允许的状态更新规则、当前阻塞、过期/吊销、下一触发条件</td>
+</tr>
+<tr>
+  <td>ATOMS</td>
+  <td>原子类型、真实执行/状态更新/消融、非法或空壳数量</td>
+</tr>
+<tr>
+  <td>FAMILIES</td>
+  <td>24家族逐一七接口状态、参考/安卓/真机/自然证据分列</td>
+</tr>
+<tr>
+  <td>EXPERTS</td>
+  <td>Proposal ASTdiff、可证伪假设、预算、失败任务不遗漏</td>
+</tr>
+<tr>
+  <td>TRAINING</td>
+  <td>consumed/skipped/blocked游标、优化器/归一化/校准一致性、恢复差异</td>
+</tr>
+<tr>
+  <td>EVOLUTION</td>
+  <td>七类计数、legacy代数、verified事件与父子比较</td>
+</tr>
+<tr>
+  <td>FAILURES</td>
+  <td>数据/运行/建模/选择四根类；causeKey非因果断言；delayHit只附加</td>
+</tr>
+<tr>
+  <td>ABLATION</td>
+  <td>候选总数、失败候选、同日历区间、未通过项和teacher贡献</td>
+</tr>
+<tr>
+  <td>EVIDENCE</td>
+  <td>policy出生、已暴露cohort、root/endpoint/look预算、零假设原文</td>
+</tr>
+<tr>
+  <td>CALIBRATION</td>
+  <td>选择后概率、边际概率、risk分开；固定bins和区间；同支持基准</td>
+</tr>
+<tr>
+  <td>RANKING</td>
+  <td>主链/影子/研究排行分开；策略路由也有独立证据</td>
+</tr>
+<tr>
+  <td>ACTION_SURFACE</td>
+  <td>100边际、1200集合、每期360命中恒等校验；不得放大N</td>
+</tr>
+<tr>
+  <td>OWNER</td>
+  <td>每次REAL/结算实际写者和冲突回执；报告不得写正式动作</td>
+</tr>
+<tr>
+  <td>PERFORMANCE</td>
+  <td>全局缓存字节、对象/native、取消耗时、writerWait、deadlineMiss</td>
+</tr>
+<tr>
+  <td>BACKGROUND</td>
+  <td>服务心跳与业务心跳；API/targetSdk/FGS类型/timeout状态</td>
+</tr>
+<tr>
+  <td>RETENTION</td>
+  <td>raw≤5000、隐含副本、pins、模型/日志/报告/孤儿GC</td>
+</tr>
+<tr>
+  <td>RECOVERY</td>
+  <td>文件/事务/发布不同故障点、提交指针、下一预测/更新一致性</td>
+</tr>
+<tr>
+  <td>UI</td>
+  <td>观测率档与下界档；训练状态与policy；全局连挂不可清零</td>
+</tr>
+<tr>
+  <td>SOURCE</td>
+  <td>994索引/40正文/32编译等各自范围，不能混成总完成率</td>
+</tr>
+<tr>
+  <td>DEVICE</td>
+  <td>T29—T34原编号、设备/APK身份、真实场景与NOT_RUN</td>
+</tr>
+<tr>
+  <td>CONCLUSION</td>
+  <td>工程/能力/质量/发布四结论；频率/稳定性冲突与具体修复卡</td>
+</tr>
+</tbody>
+</table>
+<h2>机器可判定的红线</h2>
+<p>有MISSING却全完整通过；仅历史数据却PROSPECTIVE_PASS；未测设备却DEVICE_PASS；空家族返回公共模型却FULL；补写赛后结果标赛前；alpha预算超支仍授证；同一期多REAL；新policy继承旧命中；全局连挂被版本切换清零；报告截断不标数量；0动作仍称达到频率；缺正文称全仓审计。这些都应使最终结论FAIL，而不是警告后继续发布。</p>
+<hr />
+<h1>R25显式覆盖规则：原文保留，不暗中降级</h1>
+<table>
+<thead>
+<tr>
+  <th>原位置/规则</th>
+  <th>新规则</th>
+  <th>原资产处置</th>
+  <th>验收</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>R24：权重/校准变化均须新版本和新证据</td>
+  <td>分离policy与checkpoint；已冻结规则内合法更新积累同一自适应政策轨迹；改规则才新policy</td>
+  <td>旧hash及证据只读，建立映射，不迁移胜率</td>
+  <td>每期更新不停重置；事后改学习规则一定新出生</td>
+</tr>
+<tr>
+  <td>SU2 fmt截短文本作为身份</td>
+  <td>新版本无损、带类型身份；展示格式独立</td>
+  <td>旧协议不重写；不可恢复精度标记</td>
+  <td>相近浮点、跨语言、保存恢复黄金测试</td>
+</tr>
+<tr>
+  <td>SelectiveEvidence 上界≥0即非劣</td>
+  <td>LCB≥−δ；提升LCB&gt;0</td>
+  <td>旧PASS标LEGACY_PROTOCOL，重新评估</td>
+  <td>40%对45%反例不得通过</td>
+</tr>
+<tr>
+  <td>effectiveGenerations随历史分数+1</td>
+  <td>七类计数，verified仅来自未来比较</td>
+  <td>旧值迁到legacyResearchGenerations</td>
+  <td>NO_OP/参数变体/研究优胜不增verified</td>
+</tr>
+<tr>
+  <td>val命名但使用DEV+VAL</td>
+  <td>正式命名researchSelectionScore；资格裁判独立</td>
+  <td>不删除原研究排序，清楚标用途</td>
+  <td>历史反复看过不能成为fresh</td>
+</tr>
+<tr>
+  <td>250/1500且15%下不足即降级</td>
+  <td>insufficient与degraded分开；观察窗与样本明确</td>
+  <td>继承R24最小补丁并完善统计协议</td>
+  <td>225次不是自动判差，仍不可自动晋级</td>
+</tr>
+<tr>
+  <td>家族登记即可算能力存在</td>
+  <td>注册/执行/训练/恢复/机制/Android/前瞻七层</td>
+  <td>原24家族规格全部保留</td>
+  <td>fallback同一模型判SHELL</td>
+</tr>
+<tr>
+  <td>15%作为硬凑单额度</td>
+  <td>质量约束内争取至少15%，未达如实失败</td>
+  <td>不降低原频率目标，不放松质量</td>
+  <td>零出手不能标完成</td>
+</tr>
+<tr>
+  <td>≤6最长连挂的无限期模糊承诺</td>
+  <td>保留预注册窗目标与7挂风险响应，持续全局连挂</td>
+  <td>不删除旧连挂，不跨版本清零</td>
+  <td>暂停/换名后连挂接续</td>
+</tr>
+<tr>
+  <td>所贴通用报告SMOTE/众包标注/GPU四卡</td>
+  <td>不纳入当前真实标签或强制资源</td>
+  <td>报告仅作为被纠正输入</td>
+  <td>合成样本永不成为自然资格</td>
+</tr>
+</tbody>
+</table>
+<p>其余R24-001—048、1832要求、299卡、P001—P124全部继续有效。若旧要求相互冲突，新增ConflictRecord标出原ID、冲突语句、新裁决、未满足项和回归，不删除旧记录来提高完成率。</p>
+</main></body></html>
