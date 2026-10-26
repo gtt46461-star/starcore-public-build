@@ -1,0 +1,319 @@
+[
+  {
+    "topic": "业务背景缺失",
+    "decision": "纠正",
+    "implementation": "STARCORE 安卓 Binance1 PK10；已有业务及固定K3约束",
+    "cards": [
+      "R25-001",
+      "R25-002"
+    ]
+  },
+  {
+    "topic": "源码数据未提供",
+    "decision": "纠正",
+    "implementation": "已有源索引40正文9远程文件及4836期；全文审计仍欠缺",
+    "cards": [
+      "R25-001"
+    ]
+  },
+  {
+    "topic": "资源和预算",
+    "decision": "改写",
+    "implementation": "CPU默认 实测再申请GPU 单价待报价",
+    "cards": [
+      "R25-029"
+    ]
+  },
+  {
+    "topic": "团队和人力",
+    "decision": "采用",
+    "implementation": "按53至97人日和分工规划 不假定无限人员",
+    "cards": [
+      "R25-032"
+    ]
+  },
+  {
+    "topic": "法律许可",
+    "decision": "采用",
+    "implementation": "依赖和资产逐项许可证清单 状态未知保留",
+    "cards": [
+      "R25-030"
+    ]
+  },
+  {
+    "topic": "源码模块审计",
+    "decision": "采用",
+    "implementation": "替换通用Python文件名为实际Java方法和构建文件",
+    "cards": [
+      "R25-001"
+    ]
+  },
+  {
+    "topic": "数据采集",
+    "decision": "采用",
+    "implementation": "可得时间 数据hash 原始与修订版本",
+    "cards": [
+      "R25-003"
+    ]
+  },
+  {
+    "topic": "标签管理",
+    "decision": "改写",
+    "implementation": "开奖自动标签且后于赛前冻结 无人工众包必要",
+    "cards": [
+      "R25-005"
+    ]
+  },
+  {
+    "topic": "数据清洗",
+    "decision": "采用",
+    "implementation": "排列 唯一期号 缺口 迟到 乱序分项",
+    "cards": [
+      "R25-003"
+    ]
+  },
+  {
+    "topic": "SMOTE和增强",
+    "decision": "限制",
+    "implementation": "不插值原始排列 训练来源隔离 不计证据",
+    "cards": [
+      "R25-006"
+    ]
+  },
+  {
+    "topic": "特征库",
+    "decision": "改写",
+    "implementation": "端上有界共享FeatureFrame与semantic hash",
+    "cards": [
+      "R25-007"
+    ]
+  },
+  {
+    "topic": "离线回测",
+    "decision": "采用",
+    "implementation": "逐期因果和可得时刻两种回放",
+    "cards": [
+      "R25-015"
+    ]
+  },
+  {
+    "topic": "交易胜率收益夏普回撤",
+    "decision": "纠正",
+    "implementation": "命中率覆盖校准连挂；未知赔率无净利润结论",
+    "cards": [
+      "R25-002"
+    ]
+  },
+  {
+    "topic": "在线A B",
+    "decision": "改写",
+    "implementation": "同期冻结影子配对 整体路由验证 唯一REAL",
+    "cards": [
+      "R25-018"
+    ]
+  },
+  {
+    "topic": "自动反馈",
+    "decision": "采用",
+    "implementation": "同事务Outbox与消费幂等 更新状态可恢复",
+    "cards": [
+      "R25-005",
+      "R25-014"
+    ]
+  },
+  {
+    "topic": "遗传程序",
+    "decision": "采用",
+    "implementation": "typed DAG及语义去重 真实结构diff",
+    "cards": [
+      "R25-009"
+    ]
+  },
+  {
+    "topic": "DQN PPO A3C",
+    "decision": "延期",
+    "implementation": "缺少可干预开奖环境；计算调度有依据再比较",
+    "cards": [
+      "R25-012"
+    ]
+  },
+  {
+    "topic": "监督模型",
+    "decision": "采用",
+    "implementation": "24机制共同标签损失 分母一致",
+    "cards": [
+      "R25-010"
+    ]
+  },
+  {
+    "topic": "AutoML",
+    "decision": "改写",
+    "implementation": "约束结构搜索而非无界调参",
+    "cards": [
+      "R25-009",
+      "R25-012"
+    ]
+  },
+  {
+    "topic": "元学习",
+    "decision": "采用",
+    "implementation": "学习已结束实验资料 保持cohort隔离",
+    "cards": [
+      "R25-012",
+      "R25-015"
+    ]
+  },
+  {
+    "topic": "时间序列信号处理",
+    "decision": "改写",
+    "implementation": "作为可检验原子 不直接搬GARCH交易规则",
+    "cards": [
+      "R25-007"
+    ]
+  },
+  {
+    "topic": "集成与组合",
+    "decision": "采用",
+    "implementation": "整体策略资格及同败互补 不靠数量投票",
+    "cards": [
+      "R25-013",
+      "R25-018"
+    ]
+  },
+  {
+    "topic": "模块化替换",
+    "decision": "采用",
+    "implementation": "既有Owner内接口 化整为有预算可恢复组件",
+    "cards": [
+      "R25-007",
+      "R25-008"
+    ]
+  },
+  {
+    "topic": "因果分析",
+    "decision": "限制",
+    "implementation": "预测可见性与反证 不因名字cause证明因果",
+    "cards": [
+      "R25-003",
+      "R25-011"
+    ]
+  },
+  {
+    "topic": "模糊测试",
+    "decision": "采用",
+    "implementation": "未来污染 坏维度 非法数值 生命周期中断",
+    "cards": [
+      "R25-026"
+    ]
+  },
+  {
+    "topic": "日志诊断",
+    "decision": "采用",
+    "implementation": "结构化观察与根因假设分离",
+    "cards": [
+      "R25-023",
+      "R25-025"
+    ]
+  },
+  {
+    "topic": "单元集成回归",
+    "decision": "采用",
+    "implementation": "HOST ART 真机和前瞻分别记录",
+    "cards": [
+      "R25-026",
+      "R25-027"
+    ]
+  },
+  {
+    "topic": "压力测试",
+    "decision": "采用",
+    "implementation": "5000期24家族与导出共存 测总资源",
+    "cards": [
+      "R25-029"
+    ]
+  },
+  {
+    "topic": "可用率99.9延迟200ms",
+    "decision": "改写",
+    "implementation": "按工程机会和完整链预算设初始SLO",
+    "cards": [
+      "R25-025"
+    ]
+  },
+  {
+    "topic": "误判率低于5",
+    "decision": "纠正",
+    "implementation": "不是固定K3质量目标 不虚设95%正确率",
+    "cards": [
+      "R25-002"
+    ]
+  },
+  {
+    "topic": "CI CD",
+    "decision": "采用",
+    "implementation": "在已有GitHub Actions上固定工件身份 机器回执",
+    "cards": [
+      "R25-028"
+    ]
+  },
+  {
+    "topic": "模型注册",
+    "decision": "采用",
+    "implementation": "本地PolicySpec checkpoint manifest 可选离线服务",
+    "cards": [
+      "R25-014",
+      "R25-019"
+    ]
+  },
+  {
+    "topic": "热更新回滚",
+    "decision": "改写",
+    "implementation": "受限模型数据包双槽 APK需签名安装",
+    "cards": [
+      "R25-019",
+      "R25-020",
+      "R25-021"
+    ]
+  },
+  {
+    "topic": "四张GPU HDFS Cassandra",
+    "decision": "延期",
+    "implementation": "端上任务没有该需求 量测后再选",
+    "cards": [
+      "R25-029"
+    ]
+  },
+  {
+    "topic": "云价格示例",
+    "decision": "纠正",
+    "implementation": "无实时供应商报价不写确定美元成本",
+    "cards": [
+      "R25-029"
+    ]
+  },
+  {
+    "topic": "短中长期计划",
+    "decision": "改写",
+    "implementation": "12批53至97人日 工程与自然证据分开",
+    "cards": [
+      "R25-032"
+    ]
+  },
+  {
+    "topic": "安全审计与依赖扫描",
+    "decision": "采用",
+    "implementation": "SBOM 锁文件 凭据不入公开工件",
+    "cards": [
+      "R25-030"
+    ]
+  },
+  {
+    "topic": "最终蓝图与培训",
+    "decision": "采用",
+    "implementation": "保留旧分母 每卡路径diff反例验收与回退",
+    "cards": [
+      "R25-031",
+      "R25-032"
+    ]
+  }
+]

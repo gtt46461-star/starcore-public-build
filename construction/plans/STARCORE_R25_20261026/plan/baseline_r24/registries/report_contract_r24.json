@@ -1,0 +1,403 @@
+{
+  "schema": "R24_REPORT_CONTRACT_1",
+  "statuses": [
+    "PASS",
+    "FAIL",
+    "PARTIAL",
+    "NOT_RUN",
+    "INSUFFICIENT",
+    "NOT_APPLICABLE",
+    "ERROR"
+  ],
+  "required_envelope_fields": [
+    "sectionId",
+    "schemaVersion",
+    "status",
+    "reason",
+    "sourceSnapshotId",
+    "sourceCommit",
+    "apkHash",
+    "asOfIssue",
+    "expectedRows",
+    "exportedRows",
+    "omittedRows",
+    "truncated",
+    "errorChain",
+    "evidenceRefs",
+    "repairCardIds"
+  ],
+  "sections": [
+    {
+      "id": "IDENTITY",
+      "title": "版本与原件",
+      "required_metrics": [
+        "repoCommit",
+        "generatedHash",
+        "apkHash",
+        "snapshotHash",
+        "exportedAt"
+      ],
+      "required": true
+    },
+    {
+      "id": "REQUIREMENTS",
+      "title": "历史要求保全",
+      "required_metrics": [
+        "1832Legacy",
+        "299Cards",
+        "P001_P124",
+        "newCards",
+        "statusCounts"
+      ],
+      "required": true
+    },
+    {
+      "id": "DATA",
+      "title": "开奖与缺口",
+      "required_metrics": [
+        "rowCount",
+        "permutationValidity",
+        "duplicates",
+        "gaps",
+        "dirty",
+        "firstSeen"
+      ],
+      "required": true
+    },
+    {
+      "id": "OPPORTUNITY",
+      "title": "全期机会与覆盖",
+      "required_metrics": [
+        "scheduled",
+        "eligible",
+        "frozen",
+        "late",
+        "abstain",
+        "real",
+        "missingReason"
+      ],
+      "required": true
+    },
+    {
+      "id": "FETCH",
+      "title": "抓取时序",
+      "required_metrics": [
+        "request",
+        "response",
+        "upstreamPublished",
+        "validation",
+        "commit",
+        "rejectReason"
+      ],
+      "required": true
+    },
+    {
+      "id": "SETTLEMENT",
+      "title": "正式结算",
+      "required_metrics": [
+        "pending",
+        "completed",
+        "noPredraw",
+        "duplicate",
+        "conflictingDraw",
+        "owner"
+      ],
+      "required": true
+    },
+    {
+      "id": "FREEZE",
+      "title": "赛前冻结与延后证据",
+      "required_metrics": [
+        "inputThrough",
+        "freezeTime",
+        "deadline",
+        "hash",
+        "deferredBlocks"
+      ],
+      "required": true
+    },
+    {
+      "id": "AUTHORITY",
+      "title": "主链资格与REAL",
+      "required_metrics": [
+        "assetState",
+        "certificate",
+        "expiry",
+        "authorization",
+        "blockReason",
+        "nextTrigger"
+      ],
+      "required": true
+    },
+    {
+      "id": "ATOMS",
+      "title": "原子世界",
+      "required_metrics": [
+        "registered",
+        "executed",
+        "trained",
+        "support",
+        "ablation",
+        "100Surfaces"
+      ],
+      "required": true
+    },
+    {
+      "id": "FAMILIES",
+      "title": "24家族",
+      "required_metrics": [
+        "mechanism",
+        "codeHash",
+        "updateState",
+        "performance",
+        "cost",
+        "status"
+      ],
+      "required": true
+    },
+    {
+      "id": "EXPERTS",
+      "title": "16专家",
+      "required_metrics": [
+        "task",
+        "proposal",
+        "ASTdiff",
+        "falsifier",
+        "experiment",
+        "acceptedReason"
+      ],
+      "required": true
+    },
+    {
+      "id": "TRAINING",
+      "title": "持续训练与恢复",
+      "required_metrics": [
+        "labelsConsumed",
+        "weightDelta",
+        "optimizer",
+        "checkpoint",
+        "CAS",
+        "lag"
+      ],
+      "required": true
+    },
+    {
+      "id": "EVOLUTION",
+      "title": "代际与谱系",
+      "required_metrics": [
+        "parent",
+        "child",
+        "NO_OP",
+        "attempted",
+        "structural",
+        "research",
+        "verified"
+      ],
+      "required": true
+    },
+    {
+      "id": "FAILURES",
+      "title": "原九类失败树",
+      "required_metrics": [
+        "rootCause",
+        "counterEvidence",
+        "hit0",
+        "delayHit",
+        "owner",
+        "repairCard"
+      ],
+      "required": true
+    },
+    {
+      "id": "ABLATION",
+      "title": "消融与冲突",
+      "required_metrics": [
+        "variant",
+        "commonIssues",
+        "delta",
+        "interval",
+        "budget",
+        "allAttempts"
+      ],
+      "required": true
+    },
+    {
+      "id": "EVIDENCE",
+      "title": "历史与自然证据",
+      "required_metrics": [
+        "history",
+        "holdout",
+        "prospective",
+        "birth",
+        "exposure",
+        "alphaBudget"
+      ],
+      "required": true
+    },
+    {
+      "id": "CALIBRATION",
+      "title": "概率与校准",
+      "required_metrics": [
+        "selectedP",
+        "rawP",
+        "bins",
+        "ECE",
+        "Brier",
+        "matchedBaseline",
+        "uncertainty"
+      ],
+      "required": true
+    },
+    {
+      "id": "RANKING",
+      "title": "Rank1/2/3",
+      "required_metrics": [
+        "rankIdentity",
+        "hitRate",
+        "sample",
+        "MRR",
+        "NDCG",
+        "denominator"
+      ],
+      "required": true
+    },
+    {
+      "id": "ACTION_SURFACE",
+      "title": "100面与1200动作",
+      "required_metrics": [
+        "identity",
+        "probability",
+        "completeCount",
+        "checksum",
+        "nested7Stages"
+      ],
+      "required": true
+    },
+    {
+      "id": "OWNER",
+      "title": "Owner红线",
+      "required_metrics": [
+        "runtimeOwner",
+        "betOwner",
+        "settlementOwner",
+        "conflicts",
+        "activeReceipts"
+      ],
+      "required": true
+    },
+    {
+      "id": "PERFORMANCE",
+      "title": "资源与时延",
+      "required_metrics": [
+        "P50",
+        "P95",
+        "P99",
+        "max",
+        "OOM",
+        "CPU",
+        "heap",
+        "writerWait",
+        "deadlineMiss"
+      ],
+      "required": true
+    },
+    {
+      "id": "BACKGROUND",
+      "title": "后台与活性",
+      "required_metrics": [
+        "serviceBeat",
+        "businessBeat",
+        "screenState",
+        "fgsType",
+        "OSRestriction"
+      ],
+      "required": true
+    },
+    {
+      "id": "RETENTION",
+      "title": "淘汰与磁盘",
+      "required_metrics": [
+        "rawDraws<=5000",
+        "pins",
+        "DB",
+        "WAL",
+        "models",
+        "reports",
+        "temp",
+        "GC"
+      ],
+      "required": true
+    },
+    {
+      "id": "RECOVERY",
+      "title": "异常与恢复",
+      "required_metrics": [
+        "crash",
+        "stall",
+        "IOError",
+        "lease",
+        "checkpoint",
+        "duplicates",
+        "recoveryResult"
+      ],
+      "required": true
+    },
+    {
+      "id": "UI",
+      "title": "界面与排行",
+      "required_metrics": [
+        "sourceMapping",
+        "unknownLabels",
+        "chartConsistency",
+        "mainThreadCost"
+      ],
+      "required": true
+    },
+    {
+      "id": "SOURCE",
+      "title": "源码审计覆盖",
+      "required_metrics": [
+        "filesIndexed",
+        "bodiesAvailable",
+        "reviewed",
+        "staticCalls",
+        "runtimeReceipts"
+      ],
+      "required": true
+    },
+    {
+      "id": "DEVICE",
+      "title": "真机矩阵",
+      "required_metrics": [
+        "device",
+        "API",
+        "APKhash",
+        "scenario",
+        "logHash",
+        "result",
+        "openLimit"
+      ],
+      "required": true
+    },
+    {
+      "id": "CONCLUSION",
+      "title": "目标差距和修复",
+      "required_metrics": [
+        "engineeringPass",
+        "qualityPass",
+        "coveragePass",
+        "mainlinePass",
+        "missingEvidence"
+      ],
+      "required": true
+    }
+  ],
+  "invariants": [
+    "No missing/ERROR section may become PASS",
+    "NOT_APPLICABLE requires reason",
+    "expectedRows=exportedRows+omittedRows for enumerable scopes",
+    "static/source presence is not runtime proof",
+    "history,shadow,internal_REAL,external_execution must be separated",
+    "summary truncation never changes detailed counts"
+  ]
+}

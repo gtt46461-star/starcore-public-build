@@ -1,0 +1,48 @@
+crashCount=0
+oomCount=0
+stackOverflowCount=0
+windowCrashCount10m=0
+windowCrashCountScope=NO_ROLLING_TIMESTAMP_LOG;UNKNOWN_WHEN_RECENT_EVENT
+recordedCrashWindowCount=0
+recordedCrashWindowStart=0
+crashObservedAt=1792929658576
+lastAt=0
+thread=
+type=
+message=
+stage=
+targetIssue=
+dbQueue=0
+freeMemory=0
+totalMemory=0
+maxMemory=0
+fingerprint=
+stack=
+
+R963_LIFECYCLE_HEALTH|stallIsObservedDelayNotAnrVerdict=1
+SYSTEM_EXIT_HISTORY|noRecordsDoesNotProveNoCrash=1
+at=1792835763007|reason=10|status=0|importance=125|pssKiB=67398|rssKiB=118772|detail=[FORCE STOP] stop com.starcore.research.r13 due to single-cleaner
+
+mainStallAt=1792910622254|delayMs=4820|version=R13-5.4.3.04-2026.10.25
+mainStack=java.io.FileDescriptor.sync(Native Method)
+android.os.FileUtils.sync(FileUtils.java:257)
+android.app.SharedPreferencesImpl.writeToFile(SharedPreferencesImpl.java:807)
+android.app.SharedPreferencesImpl.-$$Nest$mwriteToFile(Unknown Source:0)
+android.app.SharedPreferencesImpl$2.run(SharedPreferencesImpl.java:672)
+android.app.SharedPreferencesImpl.enqueueDiskWrite(SharedPreferencesImpl.java:691)
+android.app.SharedPreferencesImpl.-$$Nest$menqueueDiskWrite(Unknown Source:0)
+android.app.SharedPreferencesImpl$EditorImpl.commit(SharedPreferencesImpl.java:604)
+com.ethk3.novaonepro.ServiceHeartbeatStore.commitPatchLocked(ServiceHeartbeatStore.java:1330)
+com.ethk3.novaonepro.ServiceHeartbeatStore.commitPatch(ServiceHeartbeatStore.java:1317)
+com.ethk3.novaonepro.ServiceHeartbeatStore.renewRuntimeLease(ServiceHeartbeatStore.java:670)
+com.ethk3.novaonepro.AutoFetchService$10.run(AutoFetchService.java:820)
+android.os.Handler.handleCallback(Handler.java:1013)
+android.os.Handler.dispatchMessage(Handler.java:101)
+android.os.Looper.loopOnce(Looper.java:226)
+android.os.Looper.loop(Looper.java:328)
+android.app.ActivityThread.main(ActivityThread.java:9236)
+java.lang.reflect.Method.invoke(Native Method)
+com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:594)
+com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1099)
+
+recoveryError=

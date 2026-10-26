@@ -1,0 +1,156 @@
+name: SU1 verified APK
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: su1-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      api_ready: ${{ steps.api-config.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: starcore-su1-research-signing-v1
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+          fail-on-cache-miss: true
+      - name: Load the authorized private-source API credential into the APK build
+        env:
+          DUOQU_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          python3 scripts/test_su1_api_transport.py
+          python3 scripts/load_su1_bundled_api.py
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned build and research tools
+        run: |
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+          python -m pip install numpy==2.3.5
+      - name: Check private build configuration without printing credentials
+        id: api-config
+        run: |
+          python3 - <<'PYCONFIG'
+          import os,re
+          ready=bool(re.fullmatch(r"[A-Za-z0-9]{8,128}",os.environ.get("DUOQU_API_KEY", "").strip()))
+          with open(os.environ["GITHUB_OUTPUT"],"a") as output: output.write("ready="+str(ready).lower()+"\n")
+          print("Bundled API credential configured:",ready)
+          PYCONFIG
+      - name: Build and verify production source
+        run: bash scripts/build_strategy_su1.sh
+      - name: Verify and stage the APK for runtime tests
+        run: |
+          mkdir -p delivered-apk
+          python3 -c 'from pathlib import Path; import shutil; files=list(Path("app/build/outputs/apk/debug").glob("*.apk")); assert len(files)==1,files; shutil.copyfile(files[0],"delivered-apk/STARCORE-SU1.apk")' 
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs delivered-apk/STARCORE-SU1.apk > delivered-apk/signature.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging delivered-apk/STARCORE-SU1.apk > delivered-apk/package.txt
+          python3 -c 'from pathlib import Path; p=Path("delivered-apk/package.txt").read_text(); assert "com.starcore.research.su1" in p and "星核创研 SU1" in p, p'
+          sha256sum delivered-apk/STARCORE-SU1.apk > delivered-apk/SHA256SUMS.txt
+          python3 -c 'from pathlib import Path; ready="${{ steps.api-config.outputs.ready }}"=="true"; Path("delivered-apk/API_CONFIGURATION.txt").write_text("Primary: https://api.duoqu.online/data\nBackup: https://api1.duoqu.online/data\nGame: Binance1-PK10\nBundled credential configured: "+str(ready)+"\n"+("Runtime API check required before delivery.\n" if ready else "API key required: endpoints are bundled; automatic data access is unavailable.\n"))'
+          cp construction/strategy_su1/INSTALL.txt delivered-apk/
+          cp construction/strategy_su1/README.md delivered-apk/CONSTRUCTION.md
+          cp construction/strategy_su1/CONTINUATION.md delivered-apk/
+          cp -R construction/strategy_su1/validation/phone-controls-v8 delivered-apk/
+          cp -R construction/strategy_su1/validation/model-controls-v2 delivered-apk/
+          cp construction/strategy_su1/requirements-delivered.csv delivered-apk/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: STARCORE-SU1-Package-under-test
+          path: delivered-apk/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: STARCORE-SU1-APK-and-evidence
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/androidTest/debug/*.apk
+            app/build/reports/
+            build/strategy_su1-verification.json
+            app/build/generated/r967/semantic_manifest.json
+            release/r82_training_invalidation.json
+            release/research_dependencies_r967.json
+          if-no-files-found: warn
+  android-runtime:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: STARCORE-SU1-APK-and-evidence
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android SQLite, migration and canonical settlement contracts
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          disable-animations: true
+          script: bash scripts/run_android_su1.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: STARCORE-SU1-Android-runtime
+          path: |
+            android-su1.txt
+            android-logcat.txt
+            su1-launch.png
+            su1-research.png
+
+  deliver-install:
+    needs: [build, android-runtime]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record whether the installable package can use bundled API access
+        env:
+          API_READY: ${{ needs.build.outputs.api_ready }}
+        run: |
+          python3 -c 'import os; ready=os.environ.get("API_READY")=="true"; print("Verified APK: bundled API access checked" if ready else "Installable research APK: endpoints bundled; valid API key required for automatic data access")'
+      - uses: actions/download-artifact@v4
+        with:
+          name: STARCORE-SU1-Package-under-test
+          path: delivered-apk
+      - name: Include the completed runtime verification receipt
+        env:
+          API_READY: ${{ needs.build.outputs.api_ready }}
+        run: |
+          python3 - <<'PYRECEIPT'
+          import os
+          from pathlib import Path
+          ready=os.environ.get('API_READY')=='true'
+          receipt='Android runtime: OK (21 tests)\nBundled API configured: '+str(ready)+'\n'
+          receipt+=('Actual installed ApiClient request and latest-draw validation: PASS\n' if ready else 'Actual API request: NOT RUN; credential absent\n')
+          receipt+='Run: '+os.environ['GITHUB_SERVER_URL']+'/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['GITHUB_RUN_ID']+'\n'
+          Path('delivered-apk/API_RUNTIME_VERIFIED.txt').write_text(receipt,encoding='utf-8')
+          PYRECEIPT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.api_ready == 'true' && 'STARCORE-SU1-Install-APK' || 'STARCORE-SU1-Research-APK-API-Key-Required' }}
+          path: delivered-apk/
+          if-no-files-found: error

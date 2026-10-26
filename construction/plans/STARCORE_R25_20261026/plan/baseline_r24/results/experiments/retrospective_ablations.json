@@ -1,0 +1,211 @@
+{
+  "protocol": {
+    "all_variants": [
+      "A0_equal_original",
+      "A1_equal_permutation_projection",
+      "A2_past_NLL_adaptive_mixture",
+      "A3_adaptive_projection_calibrated_gate"
+    ],
+    "fixed_hyperparameters": {
+      "sinkhorn_steps": 30,
+      "expert_eta": 0.5,
+      "forget": 0.995,
+      "calibration_bin_width": 0.025,
+      "calibration_prior_count": 30,
+      "calibration_prior_mean": 0.3,
+      "minimum_bin_labels": 120,
+      "calibrated_gate": 0.35
+    },
+    "scope": "RETROSPECTIVE_RESEARCH_ALREADY_EXPOSED",
+    "no_hyperparameter_search": true,
+    "not_proof_of_deployment_improvement": true,
+    "common_comparison_drop": 120
+  },
+  "all_periods": {
+    "A0_equal_original": {
+      "opportunities": 2243,
+      "actions": 478,
+      "hits": 159,
+      "coverage": 0.21310744538564422,
+      "hit_rate": 0.33263598326359833,
+      "wilson95_descriptive": [
+        0.29188014724014383,
+        0.37606042310513194
+      ],
+      "max_losing_streak": 15,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.22229645059204384,
+      "matched_constant_0p30_brier": 0.2230543933054393,
+      "mean_probability": 0.3434859452511975,
+      "calibration_gap": 0.010849961987599188,
+      "ece_fixed10": 0.010849961987599188,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 478,
+          "p": 0.3434859452511975,
+          "hit": 0.33263598326359833
+        }
+      ]
+    },
+    "A1_equal_permutation_projection": {
+      "opportunities": 2243,
+      "actions": 410,
+      "hits": 130,
+      "coverage": 0.18279090503789566,
+      "hit_rate": 0.3170731707317073,
+      "wilson95_descriptive": [
+        0.27390602136254816,
+        0.3636363350087821
+      ],
+      "max_losing_streak": 12,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.21737987747880827,
+      "matched_constant_0p30_brier": 0.2168292682926829,
+      "mean_probability": 0.34342944783544005,
+      "calibration_gap": 0.026356277103732728,
+      "ece_fixed10": 0.026356277103732728,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 410,
+          "p": 0.34342944783544005,
+          "hit": 0.3170731707317073
+        }
+      ]
+    },
+    "A2_past_NLL_adaptive_mixture": {
+      "opportunities": 2243,
+      "actions": 370,
+      "hits": 123,
+      "coverage": 0.16495764600980828,
+      "hit_rate": 0.3324324324324324,
+      "wilson95_descriptive": [
+        0.28636993219919854,
+        0.381938659386214
+      ],
+      "max_losing_streak": 13,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.22219001265138474,
+      "matched_constant_0p30_brier": 0.22297297297297294,
+      "mean_probability": 0.3400127613789134,
+      "calibration_gap": 0.007580328946480974,
+      "ece_fixed10": 0.007580328946480975,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 370,
+          "p": 0.3400127613789134,
+          "hit": 0.3324324324324324
+        }
+      ]
+    },
+    "A3_adaptive_projection_calibrated_gate": {
+      "opportunities": 2243,
+      "actions": 0,
+      "hits": 0,
+      "coverage": 0.0,
+      "hit_rate": null,
+      "wilson95_descriptive": [
+        null,
+        null
+      ],
+      "max_losing_streak": 0,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE"
+    }
+  },
+  "common_tail": {
+    "A0_equal_original": {
+      "opportunities": 2123,
+      "actions": 447,
+      "hits": 147,
+      "coverage": 0.21055110692416393,
+      "hit_rate": 0.3288590604026846,
+      "wilson95_descriptive": [
+        0.2869269230524042,
+        0.373707659223557
+      ],
+      "max_losing_streak": 15,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.2211057008388392,
+      "matched_constant_0p30_brier": 0.2215436241610738,
+      "mean_probability": 0.34405158500143346,
+      "calibration_gap": 0.015192524598748869,
+      "ece_fixed10": 0.015192524598748869,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 447,
+          "p": 0.34405158500143346,
+          "hit": 0.3288590604026846
+        }
+      ]
+    },
+    "A1_equal_permutation_projection": {
+      "opportunities": 2123,
+      "actions": 410,
+      "hits": 130,
+      "coverage": 0.1931229392369289,
+      "hit_rate": 0.3170731707317073,
+      "wilson95_descriptive": [
+        0.27390602136254816,
+        0.3636363350087821
+      ],
+      "max_losing_streak": 12,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.21737987747880827,
+      "matched_constant_0p30_brier": 0.2168292682926829,
+      "mean_probability": 0.34342944783544005,
+      "calibration_gap": 0.026356277103732728,
+      "ece_fixed10": 0.026356277103732728,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 410,
+          "p": 0.34342944783544005,
+          "hit": 0.3170731707317073
+        }
+      ]
+    },
+    "A2_past_NLL_adaptive_mixture": {
+      "opportunities": 2123,
+      "actions": 370,
+      "hits": 123,
+      "coverage": 0.17428167687235044,
+      "hit_rate": 0.3324324324324324,
+      "wilson95_descriptive": [
+        0.28636993219919854,
+        0.381938659386214
+      ],
+      "max_losing_streak": 13,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.22219001265138474,
+      "matched_constant_0p30_brier": 0.22297297297297294,
+      "mean_probability": 0.3400127613789134,
+      "calibration_gap": 0.007580328946480974,
+      "ece_fixed10": 0.007580328946480975,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 370,
+          "p": 0.3400127613789134,
+          "hit": 0.3324324324324324
+        }
+      ]
+    },
+    "A3_adaptive_projection_calibrated_gate": {
+      "opportunities": 2123,
+      "actions": 0,
+      "hits": 0,
+      "coverage": 0.0,
+      "hit_rate": null,
+      "wilson95_descriptive": [
+        null,
+        null
+      ],
+      "max_losing_streak": 0,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE"
+    }
+  },
+  "projection_changes_action_count": 713
+}
