@@ -85,5 +85,16 @@ public final class R26DeviceTest {
             db.setTransactionSuccessful();
         }finally{db.endTransaction();}
     }}
+    @Test public void lagRecoveryKeepsWeightsAndRespectsFamilyCapacity(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);db.beginTransaction();try{StrategySchemaSU2.ensure(db);byte[] weights={2,6,10};String active=null,recovered=null,blocked=null;
+            for(int i=0;i<3;i++){ModelGenomeSU2 g=FamilyRegistryR26.genome(i==1?"F18":"F17").bindBirth(PolicyIdentityR26.sha256("SYNTHETIC_LAG:"+i),0);if(i==0)active=g.key();else if(i==1)recovered=g.key();else blocked=g.key();
+                db.execSQL("INSERT INTO r26_live_model(policy_hash,canonical_text,state,state_hash,checkpoint_hash,parent_hash,through_ordinal,genesis_ordinal,born_ordinal,status,updated_at,family_id) VALUES(?,?,?,?,?,'',1,1,2,?,?,?)",new Object[]{g.key(),g.text(),weights,"SYNTHETIC_HASH","SYNTHETIC_CHECKPOINT:"+i,i==0?"ACTIVE":"BLOCKED_RETENTION_LAG",i,i==1?"F18":"F17"});}
+            String certificate=PolicyIdentityR26.sha256("SYNTHETIC_LAG_CERT");db.execSQL("INSERT INTO su2_certificate VALUES(?,?,'h',0,1,600,240,.31,.15,.28,NULL,1,.01,0,1,.01,1000,2000)",new Object[]{certificate,active});
+            RetentionR26.prune(db,6001);RetentionR26.prune(db,6001);
+            try(Cursor c=db.rawQuery("SELECT policy_hash,status,state,through_ordinal FROM r26_live_model",null)){int count=0;while(c.moveToNext()){count++;assertArrayEquals(weights,c.getBlob(2));assertEquals(1,c.getLong(3));assertEquals(c.getString(0).equals(blocked)?"BLOCKED_RETENTION_LAG":"ACTIVE",c.getString(1));}assertEquals(3,count);}
+            try(Cursor c=db.rawQuery("SELECT certificate_id,reason FROM r26_certificate_revocation",null)){assertTrue(c.moveToFirst());assertEquals(certificate,c.getString(0));assertEquals("FEEDBACK_RETENTION_LAG",c.getString(1));assertFalse(c.moveToNext());}
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
     @Test public void retiredPlatformJobNeverBecomesTheTrainingOwner(){Context app=InstrumentationRegistry.getInstrumentation().getTargetContext();ReplayBurstSchedulerSU1.schedule(app);JobScheduler jobs=(JobScheduler)app.getSystemService(Context.JOB_SCHEDULER_SERVICE);if(jobs!=null)assertNull(jobs.getPendingJob(ReplayBurstSchedulerSU1.JOB_ID));}
 }

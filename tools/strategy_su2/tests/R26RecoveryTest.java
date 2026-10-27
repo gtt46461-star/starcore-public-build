@@ -33,18 +33,21 @@ public final class R26RecoveryTest {
         String single=program("MSDIR").text();
         String committee=new CommitteeSU2(Arrays.asList(program("MSDIR"),program("HMM")),.3).text();
         StageStrategySU2.Definition def=stage(single);StageStrategySU2.register(def);
-        LegacyReplayStateR26 a=new LegacyReplayStateR26(Arrays.asList(single,committee,def.text()),1000);
+        ModelGenomeSU2 calibrated=new ModelGenomeSU2(program("MSDIR").members,"STATIC",false,"MASS",.3,.2,true);
+        LegacyReplayStateR26 a=new LegacyReplayStateR26(Arrays.asList(single,committee,def.text(),calibrated.text()),1000);
         for(int t=0;t<37;t++)a.advance(draw(t));
         LegacyReplayStateR26 b=LegacyReplayStateR26.decode(a.encode());equalForecast(a,b);
         a.advance(draw(37));b.advance(draw(37));check(Arrays.equals(a.encode(),b.encode()),"next update changed after resume");
         // A missing calendar period resets temporal/gate context, retaining fitted model counts.
         byte[] learnedBefore=modelBytes(a.hub.models.values().iterator().next());
         a.onGap();check(Arrays.equals(learnedBefore,modelBytes(a.hub.models.values().iterator().next())),"gap reseeded learned MSDIR counts");
+        check(!a.hub.cal.isEmpty(),"calibrated gap fixture missing");for(CalibrationSU2.Live c:a.hub.cal.values())check(c.filled==0,"gap retained raw calibration history");
         a.advance(draw(38),1042);b=LegacyReplayStateR26.decode(a.encode());equalForecast(a,b);
         check(a.samples()==39&&a.through()==1042,"ordinal incorrectly conflated with learned labels");
         a.advance(draw(39),1043);b.advance(draw(39),1043);check(Arrays.equals(a.encode(),b.encode()),"gap context lost on restart");
         try{a.advance(draw(40),1043);throw new AssertionError("duplicate label learned");}catch(IOException good){}
-        byte[] bad=a.encode();bad[bad.length/2]^=1;
+        // Flip the gzip CRC, rather than an arbitrary bit that may be unused deflate padding.
+        byte[] bad=a.encode();bad[bad.length-8]^=1;
         try{LegacyReplayStateR26.decode(bad);throw new AssertionError("damaged checkpoint accepted");}catch(IOException good){}
         System.out.println("LEGACY_PROGRAM_COMMITTEE_STAGE_GAP_RESUME_PASS");
     }
@@ -106,5 +109,14 @@ public final class R26RecoveryTest {
         }
         System.out.println("CACHED_PROGRAM_COMMITTEE_STAGE_BOOTSTRAP_NEXT_STEP_PARITY_PASS");
     }
-    public static void main(String[] args)throws Exception {continuation();legacy();consensus();closedIdentity();cachedBootstrap();System.out.println("R26_RECOVERY_PASS");}
+    static void calibrationGap()throws Exception {
+        CalibrationSU2.Live c=new CalibrationSU2.Live();c.t=CalibrationSU2.START;c.beta=.625;c.filled=1;c.ring[(int)c.t-1]=CalibrationSU2.uniform();c.ringY[(int)c.t-1]=new byte[10];
+        c.resetTemporalContextR26();check(c.t==CalibrationSU2.START&&c.beta==.625&&c.filled==0,"calibration reset changed fitted parameters or clock");
+        float[][] raw=CalibrationSU2.uniform();raw[0][0]=.55f;for(int n=1;n<10;n++)raw[0][n]=.05f;
+        float[][] forecast=c.predict(raw);check(Float.isFinite(forecast[0][0])&&forecast[0][0]>.1,"empty gap ring fitted NaN or reset temperature");
+        ByteArrayOutputStream bytes=new ByteArrayOutputStream();c.write(new DataOutputStream(bytes));CalibrationSU2.Live restored=new CalibrationSU2.Live();restored.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));
+        check(Arrays.equals(forecast[0],restored.predict(raw)[0]),"gap calibration changed after restart");restored.settle(raw,draw(0));check(restored.filled==1&&restored.t==CalibrationSU2.START+1&&restored.beta==.625,"post-gap calibration did not resume causally");
+        System.out.println("CALIBRATION_GAP_PARAMETER_CLOCK_RETENTION_EMPTY_REFIT_RESUME_PASS");
+    }
+    public static void main(String[] args)throws Exception {continuation();legacy();calibrationGap();consensus();closedIdentity();cachedBootstrap();System.out.println("R26_RECOVERY_PASS");}
 }

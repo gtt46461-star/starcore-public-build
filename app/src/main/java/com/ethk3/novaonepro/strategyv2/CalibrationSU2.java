@@ -85,6 +85,7 @@ public final class CalibrationSU2 {
         private long fittedAt = -1;
         private void refitIfDue() {
             if (fittedAt == t) return;
+            if (filled == 0) { fittedAt = t; return; }
             int n = filled; double[][][] L = new double[n][10][]; int[][] y = new int[n][10];
             for (int i = 0; i < n; i++) { int j = (int) ((t - n + i) % WINDOW); for (int p = 0; p < 10; p++) { L[i][p] = logRow(ring[j][p]); y[i][p] = ringY[j][p]; } }
             beta = fitBeta(L, y, n, beta); fittedAt = t;
@@ -97,6 +98,10 @@ public final class CalibrationSU2 {
             ring[j] = l; ringY[j] = y; if (filled < WINDOW) filled++; t++;
         }
         public double beta() { return beta; }
+        /** Preserve fitted temperature and lifetime clock; unknown periods cannot remain in raw rings. */
+        public void resetTemporalContextR26() {
+            Arrays.fill(ring,null);Arrays.fill(ringY,null);filled=0;fittedAt=-1;
+        }
         public void write(java.io.DataOutput o) throws java.io.IOException {
             o.writeLong(t); o.writeDouble(beta); o.writeLong(fittedAt); o.writeInt(filled);
             for (int i = 0; i < filled; i++) { int j = (int) ((t - filled + i) % WINDOW); for (int p = 0; p < 10; p++) { o.writeByte(ringY[j][p]); for (int k = 0; k < 10; k++) o.writeFloat(ring[j][p][k]); } }

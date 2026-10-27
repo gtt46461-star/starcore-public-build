@@ -2,7 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
 import com.ethk3.novaonepro.ResearchSemanticsGeneratedR967;
 import android.database.sqlite.SQLiteDatabase;
-/** Bounded raw feedback and freeze history. Slow learners block explicitly before evidence expires. */
+/** Bounded raw feedback and freeze history. Lag revokes authority without discarding learned parameters. */
 public final class RetentionR26 {
     private RetentionR26() {}
     private static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
@@ -10,8 +10,14 @@ public final class RetentionR26 {
     public static long prune(SQLiteDatabase db,long seq){
         if(!db.inTransaction())throw new IllegalStateException("R26_RETENTION_WRITER");
         long cut=seq-5000;
-        db.execSQL("INSERT OR IGNORE INTO r26_certificate_revocation SELECT c.certificate_id,'FEEDBACK_RETENTION_LAG',? FROM su2_certificate c JOIN r26_live_model l ON l.policy_hash=c.genome_key WHERE l.status='ACTIVE' AND l.through_ordinal<?",new Object[]{System.currentTimeMillis(),cut});
-        db.execSQL("UPDATE r26_live_model SET status='BLOCKED_RETENTION_LAG' WHERE status='ACTIVE' AND through_ordinal<?",new Object[]{cut});
+        db.execSQL("INSERT OR IGNORE INTO r26_certificate_revocation SELECT c.certificate_id,'FEEDBACK_RETENTION_LAG',? FROM su2_certificate c JOIN r26_live_model l ON l.policy_hash=c.genome_key WHERE l.status IN ('ACTIVE','BLOCKED_RETENTION_LAG') AND l.through_ordinal<?",new Object[]{System.currentTimeMillis(),cut});
+        // P0 already requires through_ordinal=target-1. Keep P2 eligible so a lagged model can
+        // catch up from retained canonical labels; actual holes reset temporal context, not weights.
+        // Recover the earlier status only when its family and global capacity remain available.
+        try(Cursor c=db.rawQuery("SELECT policy_hash,canonical_text,family_id FROM r26_live_model l WHERE status='BLOCKED_RETENTION_LAG' AND NOT EXISTS(SELECT 1 FROM r26_live_model a WHERE a.family_id=l.family_id AND a.status='ACTIVE') ORDER BY updated_at,policy_hash LIMIT 1",null)){
+            if(c.moveToFirst()&&CurrentPolicyR26.matches(c.getString(1),c.getString(0))&&count(db,"SELECT count(*) FROM r26_live_model WHERE status='ACTIVE'")<32&&(!c.getString(2).startsWith("L:")||count(db,"SELECT count(*) FROM r26_live_model WHERE status='ACTIVE' AND family_id LIKE 'L:%'")<8))
+                db.execSQL("UPDATE r26_live_model SET status='ACTIVE' WHERE policy_hash=? AND status='BLOCKED_RETENTION_LAG'",new Object[]{c.getString(0)});
+        }
         db.execSQL("UPDATE r26_foundry SET status='EXPIRED_RETENTION',snapshot=X'' WHERE source_first<? AND length(snapshot)>0",new Object[]{cut});
         db.execSQL("DELETE FROM r26_candidate WHERE campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI'))");
         // Expired generations must not pin a hidden raw calendar or a cache of old per-period outputs.

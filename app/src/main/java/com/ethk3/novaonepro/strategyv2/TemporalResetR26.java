@@ -15,5 +15,5 @@ public final class TemporalResetR26 {
         if(m instanceof OnlineModelsSU2.MsDir)return;
         throw new IllegalArgumentException("R26_GAP_POLICY_UNSUPPORTED:"+m.getClass().getName());
     }
-    public static boolean reset(ModelLiveSU2.Hub hub,ModelLiveSU2 live){for(OnlineModelsSU2.Model m:hub.models.values())if(!supported(m))return false;for(OnlineModelsSU2.Model m:hub.models.values())reset(m);hub.predicted=false;hub.p.clear();hub.st.clear();hub.pc.clear();live.resetGateContextR26();return true;}
+    public static boolean reset(ModelLiveSU2.Hub hub,ModelLiveSU2 live){for(OnlineModelsSU2.Model m:hub.models.values())if(!supported(m))return false;for(OnlineModelsSU2.Model m:hub.models.values())reset(m);for(CalibrationSU2.Live c:hub.cal.values())c.resetTemporalContextR26();hub.predicted=false;hub.p.clear();hub.st.clear();hub.pc.clear();live.resetGateContextR26();return true;}
 }
