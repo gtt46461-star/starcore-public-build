@@ -1258,7 +1258,7 @@
     "instrumentationTests": 74,
     "productionCompile": "PASS_OFFICIAL_SDK36_COMPILE_ONLY_WITH_GENERATED_CONFIG_RESOURCE_STUBS",
     "newTestCompile": "PASS_COMPILE_ONLY_WITH_JUNIT_AND_ANDROIDX_API_STUBS",
-    "cloudValidation": "NOT_RUN_UNPUSHED",
+    "cloudValidation": "PENDING_CI_SOURCE_SUBMITTED_VIA_GITHUB_CONNECTOR",
     "changes": [
       "Measured candidate CPU scheduling instead of sample cursor fairness",
       "Per-complete-candidate publication before remaining campaign peers",
@@ -1266,7 +1266,7 @@
       "Future private learner waits for terminal feedback; ready prebirth catchup peers can advance",
       "Corrupt research checkpoint quarantined without deleting blob or stopping healthy peer"
     ],
-    "blockingCondition": "Managed execution environment connectivity offline; no usable execution environment. Merge/rebinding/push operation did not return a completion receipt."
+    "blockingCondition": "Local executor offline; the reviewed source/test changes are now submitted through GitHub. Existing build script regenerates and checks identities in CI."
   },
   "executionBlock": {
     "observedAt": "2026-10-27T19:18:00Z",
@@ -1276,5 +1276,19 @@
     "commandError": "No usable execution environment is available",
     "sourceWriteGate": "Local new source not promoted or claimed validated",
     "approvalRequired": false
+  },
+  "remoteContinuation": {
+    "method": "GitHub connector atomic tree/commit/ref; existing build_r13.sh owns identity regeneration",
+    "instrumentationClasses": 19,
+    "instrumentationTests": 74,
+    "status": "PENDING_CLOUD_BUILD_AND_ANDROID_RUNTIME",
+    "sourceFiles": [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/LivePoolR26.java",
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
+      "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26PublicationDeviceTest.java"
+    ],
+    "qualificationInheritance": false,
+    "checksWeakened": false
   }
 }

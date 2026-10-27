@@ -63,6 +63,7 @@ public final class RuntimeSchemaR26 {
         column(db,"r26_cohort","family_alpha","REAL NOT NULL DEFAULT 0");column(db,"r26_cohort","checked_sequence","INTEGER NOT NULL DEFAULT -1");
         column(db,"r26_foundry","numerical_abi","TEXT NOT NULL DEFAULT ''");column(db,"r26_foundry","source_first","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_live_model","family_id","TEXT NOT NULL DEFAULT ''");
+        column(db,"r26_candidate","service_cpu_ms","INTEGER NOT NULL DEFAULT 0");column(db,"r26_candidate","last_served","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_candidate","state_hash","TEXT NOT NULL DEFAULT ''");column(db,"r26_candidate","checkpoint_hash","TEXT NOT NULL DEFAULT ''");
         // Old engineering checkpoints remain preserved. Their missing hash is explicitly blocked.
     }
