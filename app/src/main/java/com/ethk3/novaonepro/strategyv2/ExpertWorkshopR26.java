@@ -26,8 +26,10 @@ public final class ExpertWorkshopR26 {
         if(snapshot==null||snapshot.length==0){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_EXPERT_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_expert_experiment SET status='EXPIRED_SOURCE_RETENTION' WHERE experiment_id=?",new Object[]{id});return 0;});return 1;}
         state=CheckpointArtifactsR26.resolve(store,state);if(!LiveStateR26.hash(snapshot).equals(hash)||!LiveStateR26.hash(state).equals(expected))throw new IOException("R26_EXPERT_SOURCE_OR_STATE_HASH");
         FoundryCampaignR26.Snapshot source=FoundryCampaignR26.Snapshot.decode(snapshot);ExpertExperimentR26.Pair pair=ExpertExperimentR26.Pair.decode(state);if(pair.cursor!=before)throw new IOException("R26_EXPERT_CURSOR_CAS");
+        // First service is a completed numerical pair, followed by normal full batches.
+        int sampleLimit=8;if(before==0)try(Cursor served=store.readable().rawQuery("SELECT last_progress FROM r26_capability WHERE mechanism=?",new String[]{expert})){if(served.moveToFirst()&&served.getLong(0)==0)sampleLimit=1;}
         byte[] lastGood=state;int after=before;long start=budget.activeNanos(),stop=start+150_000_000L;
-        while(after<source.draws.length&&after-before<8&&budget.activeNanos()<stop){try{
+        while(after<source.draws.length&&after-before<sampleLimit&&budget.activeNanos()<stop){try{
             budget.checkpointOrYield();LegacyTeacherOwnerR26.enter(source.issues,source.opened,source.available,source.draws,after);
             pair.advance(source.draws[after],after>0&&source.ordinal[after]!=source.ordinal[after-1]+1);lastGood=pair.encode();after++;
         }catch(BudgetTokenSU1.Yield yield){break;}finally{LegacyTeacherOwnerR26.leave();}}

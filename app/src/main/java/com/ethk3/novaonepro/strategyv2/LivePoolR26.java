@@ -40,6 +40,7 @@ public final class LivePoolR26 {
         Row r=null;try(Cursor c=store.readable().rawQuery("SELECT "+COLUMNS+" FROM r26_live_model WHERE status='ACTIVE' AND through_ordinal<? ORDER BY updated_at,policy_hash LIMIT 1",new String[]{String.valueOf(latestOrdinal)})){if(c.moveToFirst())r=row(c);}if(r==null)return 0;
         final Row failed=r;
         try{return trainRow(store,claims,budget,r);}catch(BudgetTokenSU1.Yield yielded){throw yielded;}catch(IOException|IllegalArgumentException failure){
+            if(String.valueOf(failure.getMessage()).contains("CAPACITY_WAIT_FOR_RETENTION")){claims.get().reason("CHECKPOINT_CAPACITY_WAIT_FOR_RETENTION");return 0;}
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_QUARANTINE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_live_model SET status='BLOCKED_INPUT_OR_STATE' WHERE policy_hash=? AND checkpoint_hash=?",new Object[]{failed.policy,failed.checkpoint});db.execSQL("INSERT OR REPLACE INTO r26_live_failure VALUES(?,?,?,?)",new Object[]{failed.policy,failed.through+1,failure.toString(),System.currentTimeMillis()});return 0;});return 0;
         }
     }
