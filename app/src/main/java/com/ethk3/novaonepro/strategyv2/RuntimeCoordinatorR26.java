@@ -117,6 +117,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "daily-close":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_DAILY_CLOSE",db->{requireFence(db,c);LiveShadowLoopSU1.closeDays(db,Integer.parseInt(latest.issue.substring(0,8)));return 0;});break;
             default:throw new IllegalStateException("R26_UNKNOWN_TASK:"+c.task);
         }
-        claim.completedEventCursor=seq;return 1;
+        c.completedEventCursor=seq;return 1;
     }
 }

@@ -1,5 +1,6 @@
 package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
+import com.ethk3.novaonepro.ResearchSemanticsGeneratedR967;
 import android.database.sqlite.SQLiteDatabase;
 /** Bounded raw feedback and freeze history. Slow learners block explicitly before evidence expires. */
 public final class RetentionR26 {
