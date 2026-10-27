@@ -63,6 +63,7 @@ public final class R26RuntimeDeviceTest {
                 if(i%25==0){CountDownLatch responsive=new CountDownLatch(1);assertTrue(ui.post(responsive::countDown));assertTrue("main looper stalled under research pressure",responsive.await(2,TimeUnit.SECONDS));Thread.sleep(10);}RuntimeCoordinatorR26.wake();
             }
             Arrays.sort(latency);result.put("canonicalDrawWriteP50Ms",latency[499]).put("canonicalDrawWriteP95Ms",latency[949]).put("canonicalDrawWriteP99Ms",latency[989]).put("canonicalDrawWriteMaxMs",latency[999]);assertTrue("writer p99 exceeded critical owner's 2s envelope",latency[989]<2000);
+            endurance(app,store,db,first,result);
             long before=scalar(db,"SELECT coalesce(sum(cursor),0) FROM r26_candidate"),progress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session");assertTrue(before>0);result.put("committedCandidateSamplesBeforeRestart",before).put("actualProgressBeforeRestart",progress);
             RuntimeCoordinatorR26.Claim stale=null;end=System.nanoTime()+2_000_000_000L;while(stale==null&&System.nanoTime()<end){try(Cursor c=db.rawQuery("SELECT task_id,owner,fence,cursor FROM r26_task WHERE status='RUNNING' AND owner IS NOT NULL LIMIT 1",null)){if(c.moveToFirst())stale=new RuntimeCoordinatorR26.Claim(c.getString(0),c.getString(1),c.getLong(2),c.getLong(3));}if(stale==null)Thread.sleep(5);}
             runtime.close();drain(runtime);waitStopped(db);if(stale!=null)try{RuntimeCoordinatorR26.requireFence(db,stale);fail("stopped owner could commit");}catch(IllegalStateException expected){}
@@ -77,5 +78,29 @@ public final class R26RuntimeDeviceTest {
             File receipt=new File(original.getCacheDir(),"r26-runtime-synthetic.json");try(FileOutputStream output=new FileOutputStream(receipt)){output.write(result.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));output.getFD().sync();}
             remove(app.root);
         }
+    }
+    /** Optional one-hour emulator engineering scenario. It never changes the standard test deadline. */
+    private static void endurance(Sandbox app,DbStore store,SQLiteDatabase db,long first,JSONObject result)throws Exception {
+        int seconds=Integer.parseInt(InstrumentationRegistry.getArguments().getString("r26EnduranceSeconds","0"));
+        assertTrue("endurance must be disabled or a full 60 minutes",seconds==0||seconds==3600);if(seconds==0)return;
+        String scenario=InstrumentationRegistry.getArguments().getString("r26EnduranceScreen","BRIGHT");assertTrue(scenario.equals("BRIGHT")||scenario.equals("LOCKED"));
+        JSONObject receipt=new JSONObject().put("scope","EMULATOR_SYNTHETIC_ENGINEERING_ONLY; NOT_USER_PHONE_OR_NATURAL_FORWARD_QUALITY").put("requestedSeconds",seconds).put("screen",scenario).put("chargingRequiredForResearch",false);
+        JSONArray samples=new JSONArray();receipt.put("samples",samples);result.put("endurance",receipt);
+        long start=android.os.SystemClock.elapsedRealtime(),finish=start+seconds*1000L,nextSample=start+60000,nextDraw=start;long lastProgress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session"),maxWrite=0;int labels=0;Handler ui=new Handler(Looper.getMainLooper());
+        while(android.os.SystemClock.elapsedRealtime()<finish){
+            long now=android.os.SystemClock.elapsedRealtime();
+            if(now>=nextDraw){Models.Draw label=draw(first,4400+labels,0);label.openTime=System.currentTimeMillis()-2000;label.fetchTime=label.openTime+500;RealtimePressureGateR811.beginSettlement();long entered=System.nanoTime();try{assertTrue(store.saveDraw(label)>=0);}finally{maxWrite=Math.max(maxWrite,(System.nanoTime()-entered)/1000000);RealtimePressureGateR811.endSettlement();}labels++;RuntimeCoordinatorR26.wake();nextDraw=now+5000;}
+            CountDownLatch responsive=new CountDownLatch(1);assertTrue(ui.post(responsive::countDown));assertTrue("main looper stalled during endurance",responsive.await(2,TimeUnit.SECONDS));
+            if(now>=nextSample){
+                android.content.Intent battery=app.registerReceiver(null,new android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED));assertNotNull("battery telemetry unavailable",battery);int plugged=battery.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED,-1);assertEquals("unplugged scenario changed",0,plugged);
+                android.os.PowerManager power=(android.os.PowerManager)app.getSystemService(Context.POWER_SERVICE);assertNotNull(power);boolean interactive=power.isInteractive();assertEquals("requested screen scenario changed",scenario.equals("BRIGHT"),interactive);
+                long progress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session");assertTrue("research stopped advancing for a complete minute",progress>lastProgress);
+                JSONObject sample=new JSONObject().put("elapsedMs",now-start).put("syntheticLabels",labels).put("actualProgress",progress).put("progressDelta",progress-lastProgress).put("pssKb",android.os.Debug.getPss()).put("javaHeapUsedBytes",Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()).put("javaHeapLimitBytes",Runtime.getRuntime().maxMemory()).put("checkpointBytes",CheckpointArtifactsR26.forStore(store).bytes()).put("maxCanonicalWriteMsSoFar",maxWrite).put("pluggedTelemetry",plugged).put("interactive",interactive).put("capacityFailReceipts",scalar(db,"SELECT count(*) FROM r26_progress WHERE blocked_reason LIKE 'CAPACITY_FAIL:%'"));
+                JSONArray tasks=new JSONArray();try(Cursor c=db.rawQuery("SELECT task_id,cursor,last_progress,last_cpu_ms,blocked_reason FROM r26_task ORDER BY task_id",null)){while(c.moveToNext())tasks.put(new JSONObject().put("task",c.getString(0)).put("cursor",c.getLong(1)).put("lastActualProgress",c.getLong(2)).put("lastCpuMs",c.getLong(3)).put("blocker",c.isNull(4)?JSONObject.NULL:c.getString(4)));}sample.put("tasks",tasks);samples.put(sample);lastProgress=progress;nextSample=now+60000;
+                System.out.println("R26_ENDURANCE_MINUTE="+sample.toString());
+            }
+            Thread.sleep(250);
+        }
+        receipt.put("elapsedMs",android.os.SystemClock.elapsedRealtime()-start).put("syntheticLabelsAdded",labels).put("result","COMPLETED_EMULATOR_ENGINEERING_SCENARIO");assertTrue(receipt.getLong("elapsedMs")>=3600000);assertTrue(samples.length()>=59);
     }
 }

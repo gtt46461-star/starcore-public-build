@@ -2,7 +2,19 @@
 set -euo pipefail
 # Emulator-runner executes each YAML line in a fresh shell; keep the failure trap
 # and all real checks together in this process so a failing test retains logcat.
-trap 'adb logcat -d > android-logcat.txt || true; adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json 2>/dev/null || true' EXIT
+collect_runtime_evidence() {
+  adb logcat -d > android-logcat.txt || true
+  # Release is not debuggable. Keep the already collected debug receipt if run-as is denied
+  # after the coverage upgrade, instead of truncating the successful receipt in the exit trap.
+  local receipt_tmp
+  receipt_tmp=$(mktemp r26-runtime-receipt-XXXXXX.json)
+  if adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > "$receipt_tmp" 2>/dev/null && python3 -c 'import json,sys; assert isinstance(json.load(open(sys.argv[1])),dict)' "$receipt_tmp"; then
+    mv "$receipt_tmp" r26-runtime-synthetic.json
+  else
+    rm -f "$receipt_tmp"
+  fi
+}
+trap collect_runtime_evidence EXIT
 adb install -r delivered/app/build/outputs/apk/debug/*.apk
 if [[ "${1:-29}" == "29" ]]; then
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
