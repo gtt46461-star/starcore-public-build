@@ -1,30 +1,17 @@
 package com.ethk3.novaonepro.strategyv2;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.*;
+import java.io.*;
+import java.util.function.Supplier;
 
-/**
- * The user's original cross-intersection method runs every period as the league's
- * protected INCUMBENT (P03). Its decision for the next target is computed in the quiet
- * time right after settlement (the burst job), frozen like every other decision, and
- * settled by ModelStoreSU2.settle. A decision not ready before the cutoff is MISSING and
- * counts against the incumbent exactly as it would against a challenger.
- */
+/** The protected original method uses the same fenced, preemptible research owner as its challengers. */
 public final class IncumbentLoopSU2 {
     private IncumbentLoopSU2() {}
-    public static final String KEY = XiIncumbentSU2.GENOME_KEY, MEMBER = "XI_INCUMBENT:" + KEY;
-    /** Pooled table of the frozen decision for the pending target (ranks the other 1,199 actions in the certified lane). */
-    private static volatile long pendingSeq = -1; private static volatile float[][] pendingTable;
-    public static float[][] pendingTable(long seq) { float[][] t = pendingTable; return pendingSeq == seq && t != null ? t : null; }
-    private static final java.util.concurrent.ExecutorService WORKER = java.util.concurrent.Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "su2-incumbent"); t.setDaemon(true); t.setPriority(Thread.MIN_PRIORITY); return t; });
-
-    /** Called right after settlement of `settledIssue`: the next target's decision is computed off the settlement thread. */
-    public static void scheduleAfterSettlement(DbStore store, String settledIssue) {
-        if (!TargetIssueResolver.isValid(settledIssue)) return;
-        final String target = TargetIssueResolver.next(settledIssue).targetIssue;
-        final long seq = TargetIssueResolver.sequenceOrdinalSU1(target);
-        WORKER.execute(() -> { try { freezeNext(store, target, seq); } catch (RuntimeException failure) { StrategyRuntimeSU1.failure(store, "SU2_INCUMBENT_FAILED", failure); } });
-    }
+    public static final String KEY=XiIncumbentSU2.GENOME_KEY,MEMBER="XI_INCUMBENT:"+KEY;
+    /** Settlement wakes the owner; it never creates a second numerical executor. */
+    public static void scheduleAfterSettlement(DbStore store,String settledIssue){if(TargetIssueResolver.isValid(settledIssue))RuntimeCoordinatorR26.wake();}
 
     public static void seed(DbStore store,long seq){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_INCUMBENT_SEED",db->{seedWithin(db,seq);return 0;});}
     /** Own-strategy metadata only: no dependency on the complete legacy research overlay. */
@@ -36,19 +23,39 @@ public final class IncumbentLoopSU2 {
         ModelStoreSU2.joinLeague(db, MEMBER, "XI_INCUMBENT", "用户原方法·多位置多号码交叉交集", KEY, seq);
     }
 
-    /** Freeze the incumbent's decision for `target` (sequence seq) if not yet frozen. */
-    public static String freezeNext(DbStore store, String target, long seq) {
-        if (!StrategySchemaSU2.ready(store.readable())) return "SU2_SCHEMA_PENDING";
-        try (Cursor c = store.readable().rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?", new String[]{KEY, String.valueOf(seq)})) { if (c.moveToFirst()) return "ALREADY_FROZEN"; }
-        EventFrameSU1 frame = EventFrameBuilderSU1.capture(store, target);
-        XiIncumbentSU2.Decision x = XiIncumbentSU2.decideNextFull(frame.history());
-        if (x == null) return "INCUMBENT_HISTORY_SHORT";
-        final ModelLiveSU2.Decision d = new ModelLiveSU2.Decision(seq, x.position, x.mask(), x.act, Double.NaN, x.phat);   // phat feeds post-selection calibration
-        pendingTable = x.table; pendingSeq = seq;
-        final long open = frame.targetOpenTime;
-        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_INCUMBENT_FREEZE", db -> {
-            long now = System.currentTimeMillis(); if (now >= open) return "MISSING_AFTER_OPEN";
-            ModelStoreSU2.insertDecision(db, KEY, seq, d, now, open); return d.act ? "FROZEN_ACT" : "FROZEN_ABSTAIN";
+
+    public static long prepareNext(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget,long seq)throws IOException{
+        if(!StrategySchemaSU2.ready(store.readable())){claims.get().reason("SU2_SCHEMA_PENDING");return 0;}
+        try(Cursor c=store.readable().rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?",new String[]{KEY,String.valueOf(seq)})){if(c.moveToFirst()){claims.get().reason("INCUMBENT_ALREADY_FROZEN; MISSING_OLD_PREFERENCES_NOT_RECONSTRUCTED");return 0;}}
+        Models.Draw latest=store.getLatestDraw();if(latest==null||TargetIssueResolver.sequenceOrdinalSU1(latest.issue)!=seq-1){claims.get().reason("INCUMBENT_SUPERSEDED_TARGET");return 0;}
+        long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(latest);if(System.currentTimeMillis()>=deadline){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}
+        budget.checkpointOrYield();EventFrameSU1 frame;
+        try{frame=EventFrameBuilderSU1.capture(store,TargetIssueResolver.fromSequenceOrdinalSU1(seq));}catch(IllegalArgumentException crossed){if(System.currentTimeMillis()>=deadline){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}throw crossed;}
+        if(System.currentTimeMillis()>=frame.targetOpenTime){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}
+        XiIncumbentSU2.Decision x=XiIncumbentSU2.decideNextFull(frame.history());
+        if(x==null){claims.get().reason("INCUMBENT_HISTORY_SHORT");return 0;}
+        budget.checkpointOrYield();return commitPrepared(store,claims,frame,x);
+    }
+    /** Original decision and original preferences commit together, only before the source-bound deadline. */
+    static long commitPrepared(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,EventFrameSU1 frame,XiIncumbentSU2.Decision x)throws IOException{
+        final byte[] preferences=LegacyPreferenceTableR26.encode(x.table);final String hash=LiveStateR26.hash(preferences);final long seq=TargetIssueResolver.sequenceOrdinalSU1(String.valueOf(frame.targetIssue));
+        final ModelLiveSU2.Decision d=new ModelLiveSU2.Decision(seq,x.position,x.mask(),x.act,Double.NaN,x.phat);
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_INCUMBENT_FREEZE",db->{
+            RuntimeCoordinatorR26.requireFence(db,claims.get());long now=System.currentTimeMillis();
+            if(!EventFrameBuilderSU1.unchanged(store,frame)||now>=frame.targetOpenTime){claims.get().reason("INCUMBENT_SOURCE_CHANGED_OR_DEADLINE");return 0L;}
+            try(Cursor c=db.rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?",new String[]{KEY,String.valueOf(seq)})){if(c.moveToFirst())return 0L;}
+            IncumbentLoopSU2.seedWithin(db,seq);
+            ModelStoreSU2.insertDecision(db,KEY,seq,d,now,frame.targetOpenTime);
+            db.execSQL("INSERT INTO r26_incumbent_frozen VALUES(?,?,?,?,?,?,?,?,?)",new Object[]{seq,seq-1,frame.sourceVersionHash,frame.sourceGeneration,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,now,frame.targetOpenTime,preferences,hash});
+            return 1L;
         });
+    }
+    /** Read persisted original preferences after restart; never project them into claimed joint marginals. */
+    public static float[][] pendingTable(SQLiteDatabase db,long seq){
+        if(!RuntimeSchemaR26.ready(db))return null;
+        try(Cursor installed=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_incumbent_frozen'",null)){if(!installed.moveToFirst())return null;}
+        try(Cursor c=db.rawQuery("SELECT f.preference_table,f.payload_hash,f.source_generation FROM r26_incumbent_frozen f JOIN su2_live_decision d ON d.genome_key=? AND d.sequence_ordinal=f.target_ordinal AND d.frozen_at=f.frozen_at AND d.target_open_time=f.deadline_at WHERE f.target_ordinal=? AND f.input_through=f.target_ordinal-1 AND f.frozen_at<f.deadline_at AND f.numerical_abi=?",new String[]{KEY,String.valueOf(seq),ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256})){
+            if(!c.moveToFirst()||c.getLong(2)!=EventFrameBuilderSU1.generation(db))return null;byte[] bytes=c.getBlob(0);if(!LiveStateR26.hash(bytes).equals(c.getString(1)))throw new IOException("R26_INCUMBENT_PREFERENCE_HASH");return LegacyPreferenceTableR26.decode(bytes);
+        }catch(IOException corrupt){android.util.Log.w("STARCORE_R26","original preference freeze corrupt",corrupt);return null;}
     }
 }

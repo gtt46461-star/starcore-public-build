@@ -16,8 +16,8 @@ public final class R26PublicationDeviceTest {
     private static long scalar(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()&&!c.isNull(0)?c.getLong(0):0;}}
     private static final class Fixture implements AutoCloseable {
         final R26RuntimeDeviceTest.Sandbox app;
-        final DbStore store;
-        final SQLiteDatabase db;
+        DbStore store;
+        SQLiteDatabase db;
         final long first=TargetIssueResolver.sequenceOrdinalSU1("202610220001");
         final RuntimeCoordinatorR26.Claim claim=new RuntimeCoordinatorR26.Claim("publication-test","SYNTHETIC",1,0);
         Fixture(int count)throws Exception{
@@ -67,6 +67,51 @@ public final class R26PublicationDeviceTest {
             FoundryCampaignR26.Snapshot s=f.prefix(128);String campaign=f.campaign(s);ModelGenomeSU2 light=f.genome("F17",s),heavy=f.genome("F01",s);f.candidate(campaign,light,f.trained(light,s,8),8,"READY",0);f.candidate(campaign,heavy,null,0,"READY",100000);
             assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);assertEquals(0,scalar(f.db,"SELECT cursor FROM r26_candidate WHERE service_cpu_ms=100000"));assertTrue(scalar(f.db,"SELECT service_cpu_ms FROM r26_candidate WHERE policy_hash='"+light.key()+"'")>0);
             ModelGenomeSU2 corrupt=f.genome("F18",s);f.candidate(campaign,corrupt,new byte[]{1,2,3},1,"READY",0);assertEquals(0,FoundryCampaignR26.step(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE status='BLOCKED_CHECKPOINT_OR_PROGRAM' AND length(state)=3"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_live_failure"));assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);
+        }
+    }
+
+    private static XiIncumbentSU2.Decision originalFixture(){
+        float[][] raw=new float[10][10];for(float[] row:raw){Arrays.fill(row,.08f);row[0]=.28f;}
+        return new XiIncumbentSU2.Decision(false,1,new int[]{1,2,3},.3,raw);
+    }
+    @Test public void protectedOriginalFreezeIsAtomicPersistentAndSourceFenced()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            assertTrue(f.store.saveDraw(f.draw(128,System.currentTimeMillis()-2000))>=0);
+            String target=TargetIssueResolver.fromSequenceOrdinalSU1(f.first+129);EventFrameSU1 frame=EventFrameBuilderSU1.capture(f.store,target);XiIncumbentSU2.Decision x=originalFixture();
+            RuntimeCoordinatorR26.Claim stale=new RuntimeCoordinatorR26.Claim("publication-test","SYNTHETIC",2,0);
+            try{IncumbentLoopSU2.commitPrepared(f.store,()->stale,frame,x);fail("stale owner froze original");}catch(RuntimeException expected){}
+            assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM su2_live_decision"));
+            assertTrue(f.store.saveDraw(f.draw(129,System.currentTimeMillis()-2000))>=0);assertEquals(0,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,frame,x));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));
+            long seq=f.first+130;EventFrameSU1 fresh=EventFrameBuilderSU1.capture(f.store,TargetIssueResolver.fromSequenceOrdinalSU1(seq));assertEquals(1,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,fresh,x));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM su2_live_decision"));
+            f.store.close();f.store=new DbStore(f.app);f.db=f.store.readable();float[][] restored=IncumbentLoopSU2.pendingTable(f.db,seq);assertNotNull(restored);
+            for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(Float.floatToIntBits(x.table[p][n]),Float.floatToIntBits(restored[p][n]));assertTrue(restored[0][0]*10>2);
+            assertNull(CertificateSU2.read(f.db,IncumbentLoopSU2.KEY,System.currentTimeMillis()));
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_OLD_OPTIONAL_LAYOUT",w->{w.execSQL("DROP TABLE r26_incumbent_frozen");return 0;});assertTrue(RuntimeSchemaR26.ready(f.db));assertNull(IncumbentLoopSU2.pendingTable(f.db,seq));
+        }
+    }
+    @Test public void protectedOriginalFreezeRejectsExpiredDeadlineAndReplacement()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            assertTrue(f.store.saveDraw(f.draw(128,System.currentTimeMillis()-2000))>=0);
+            EventFrameSU1 fresh=EventFrameBuilderSU1.capture(f.store,TargetIssueResolver.fromSequenceOrdinalSU1(f.first+129));long[] issues=new long[fresh.size()],available=new long[fresh.size()];for(int i=0;i<issues.length;i++){issues[i]=fresh.issue(i);available[i]=fresh.availableAt(i);}
+            long now=System.currentTimeMillis();EventFrameSU1 expired=new EventFrameSU1(fresh.targetIssue,now-500,now-1000,fresh.sourceEpoch,issues,available,fresh.history(),fresh.sourceGeneration);XiIncumbentSU2.Decision x=originalFixture();
+            assertEquals(0,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,expired,x));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM su2_live_decision"));
+            assertEquals(1,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,fresh,x));assertEquals(0,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,fresh,x));
+            try{f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_IMMUTABLE_ORIGINAL_FREEZE",w->{w.execSQL("INSERT OR REPLACE INTO r26_incumbent_frozen SELECT * FROM r26_incumbent_frozen");return 0;});fail("original preferences replaced");}catch(RuntimeException expected){}
+            assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));
+        }
+    }
+
+    @Test public void protectedOriginalRunsThroughTheFencedContinuationOnActualCanonicalHistory()throws Exception{
+        try(Fixture f=new Fixture(1600)){
+            try{
+                assertTrue(f.store.saveDraw(f.draw(1600,System.currentTimeMillis()-2000))>=0);long target=f.first+1601;
+                f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_ORIGINAL_OWNER_TASK",w->{w.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('incumbent-forecast','P1','incumbent-forecast',1,?,'SYNTHETIC','RUNNING')",new Object[]{System.currentTimeMillis()+120000});return 0;});
+                RuntimeCoordinatorR26.Claim claim=new RuntimeCoordinatorR26.Claim("incumbent-forecast","SYNTHETIC",1,0);long stop=System.nanoTime()+55_000_000_000L,done=0;int slices=0;
+                while(done==0&&System.nanoTime()<stop){done=TaskContinuationR26.step(f.store,claim,f.budget(),target);slices++;}
+                assertEquals("Original method did not finish before its real next-target cutoff",1,done);assertTrue(slices>0);
+                assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen WHERE target_ordinal="+target+" AND input_through="+(target-1)+" AND frozen_at<deadline_at"));
+                assertNotNull(IncumbentLoopSU2.pendingTable(f.db,target));assertEquals(1,scalar(f.db,"SELECT count(*) FROM su2_live_decision WHERE sequence_ordinal="+target+" AND hit IS NULL"));
+            }finally{TaskContinuationR26.cancel("SYNTHETIC");assertTrue("Original helper did not drain before database close",CooperativeContinuationR26.awaitOwnerStopped("SYNTHETIC",10000));}
         }
     }
 }
