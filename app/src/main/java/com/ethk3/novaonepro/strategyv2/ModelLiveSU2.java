@@ -31,6 +31,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         }
         /** Late calibrated member: replay the model and its calibrator over the stored history. */
         public void adoptCalibrated(ModelGenomeSU2.Member m, int[][] history) {
+            if(WarmModelSeedR26.has(m.params))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");
             String k = m.modelKey();
             if (cal.containsKey(k)) return;
             if (history.length != t) throw new IllegalStateException("SU2_HUB_ADOPT_HISTORY_LENGTH");
@@ -51,6 +52,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         }
         /** A member first used after genesis is rebuilt by replaying the stored history (same code path). */
         public void adopt(ModelGenomeSU2.Member m, int[][] history) {
+            if(WarmModelSeedR26.has(m.params))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");
             String k = m.modelKey();
             if (models.containsKey(k)) return;
             if (history.length != t) throw new IllegalStateException("SU2_HUB_ADOPT_HISTORY_LENGTH");
@@ -120,6 +122,11 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
     float[][] lastPooled; long lastPooledT = -1;
 
     public ModelLiveSU2(ModelGenomeSU2 g, Hub hub, int startMeta, int window, int refit) {
+        this(g,hub,startMeta,window,refit,false);
+    }
+    /** Structural allocation only; caller must read a verified complete state or kernel initializer. */
+    ModelLiveSU2(ModelGenomeSU2 g, Hub hub, int startMeta, int window, int refit,boolean verifiedRestore) {
+        if(!verifiedRestore&&WarmModelSeedR26.has(g))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED");
         this.g = g; this.hub = hub; this.startMeta = g.gateWarmup(startMeta); this.window = window; this.refit = refit;
         M = g.members.size(); keys = new String[M]; w = new double[M];
         int stw = 0;
@@ -293,6 +300,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
 
     /** A strategy born after genesis: replay the stored history through a private hub, then join the shared hub. */
     public static ModelLiveSU2 bootstrap(ModelGenomeSU2 g, Hub shared, int[][] history, int startMeta, int window, int refit) {
+        if(WarmModelSeedR26.has(g))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");
         for (ModelGenomeSU2.Member m : g.members) { shared.adopt(m, history); if (g.calibrated) shared.adoptCalibrated(m, history); }
         Hub own = new Hub();
         ModelLiveSU2 live = new ModelLiveSU2(g, own, startMeta, window, refit);

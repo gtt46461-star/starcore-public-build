@@ -160,6 +160,70 @@ public final class R26PublicationDeviceTest {
         }
     }
 
+    private static void laterWindow(Fixture f,int first)throws Exception{
+        List<Models.Draw> draws=new ArrayList<>();for(int i=0;i<128;i++)draws.add(f.draw(first+i,System.currentTimeMillis()-(129-i)*60000L));assertEquals(128,f.store.saveDraws(draws));
+        f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_RAW_SOURCE_EXPIRY",w->{RetentionR26.prune(w,f.first+first+128);return 0;});
+    }
+    private static ModelGenomeSU2 expiredLearnedParent(Fixture f)throws Exception{
+        FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 parent=f.genome("F20",source);f.candidate(campaign,parent,null,0,"READY",0);
+        assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);assertTrue(scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+parent.key()+"'")>0);
+        laterWindow(f,6000);assertEquals(0,scalar(f.db,"SELECT length(snapshot) FROM r26_foundry WHERE campaign_id='"+campaign+"'"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE status='WAITING_WARM_FORK'"));return parent;
+    }
+    @Test public void expiredPrivateWeightsForkFromVerifiedKernelsAndOnlyLaterLabels()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            ModelGenomeSU2 parent=expiredLearnedParent(f);byte[] oldReference;String oldHash,kernelHash;long exposed=f.first+127;
+            try(Cursor c=f.db.rawQuery("SELECT state,state_hash FROM r26_candidate WHERE policy_hash=?",new String[]{parent.key()})){assertTrue(c.moveToFirst());oldReference=c.getBlob(0);oldHash=c.getString(1);LiveStateR26 old=LiveStateR26.decode(parent.text(),CheckpointArtifactsR26.resolve(f.store,oldReference),oldHash);old.onGap();kernelHash=((FamilyF20KernelR26)old.hub.models.values().iterator().next()).learnedParameterHash();}
+            RuntimeCoordinatorR26.Claim stale=new RuntimeCoordinatorR26.Claim("publication-test","SYNTHETIC",2,0);try{WarmCandidateR26.step(f.store,()->stale,f.budget());fail("Stale owner transferred learned state");}catch(IllegalStateException expected){}
+            assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_warm_initialization"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE status='WAITING_WARM_FORK'"));
+            assertEquals(1,WarmCandidateR26.step(f.store,()->f.claim,f.budget()));assertEquals(0,WarmCandidateR26.step(f.store,()->f.claim,f.budget()));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE policy_hash='"+parent.key()+"'"));
+            String child;byte[] initializerReference;
+            try(Cursor c=f.db.rawQuery("SELECT c.policy_hash,c.canonical_text,c.state,c.state_hash,c.cursor,i.state,i.parent_trained_through,i.parent_exposed_through,f.snapshot FROM r26_candidate c JOIN r26_warm_initialization i ON i.policy_hash=c.policy_hash JOIN r26_foundry f ON f.campaign_id=c.campaign_id",null)){
+                assertTrue(c.moveToFirst());child=c.getString(0);assertNotEquals(parent.key(),child);assertEquals(0,c.getInt(4));assertEquals(exposed,c.getLong(7));assertTrue(c.getLong(6)<=exposed);initializerReference=c.getBlob(5);
+                ModelGenomeSU2 program=ModelGenomeSU2.parse(c.getString(1));LiveStateR26 seeded=LiveStateR26.decode(program.text(),CheckpointArtifactsR26.resolve(f.store,c.getBlob(2)),c.getString(3));assertEquals(0,seeded.samples());assertEquals(kernelHash,((FamilyF20KernelR26)seeded.hub.models.values().iterator().next()).learnedParameterHash());
+                byte[] initial=CheckpointArtifactsR26.resolve(f.store,initializerReference);assertEquals(program.members.get(0).params.get("_warm_kernel"),LiveStateR26.hash(initial));assertTrue(FoundryCampaignR26.Snapshot.decode(c.getBlob(8)).ordinal[0]>exposed);assertTrue(CheckpointReferencesR26.hashes(f.db).contains(CheckpointArtifactsR26.referenceHash(initializerReference)));
+            }
+            assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_cohort"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM su2_certificate"));
+            try{f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_IMMUTABLE_INIT",w->{w.execSQL("UPDATE r26_warm_initialization SET initializer_hash='changed'");return 0;});fail("Initializer provenance was mutable");}catch(RuntimeException expected){}
+            int slices=0;while(scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+child+"'")<128&&slices++<130)assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);
+            assertTrue(slices<=130);assertEquals(1,LivePoolR26.publishOne(f.store,()->f.claim,f.budget()));assertEquals(f.first+6128,scalar(f.db,"SELECT from_sequence FROM r26_cohort WHERE genome_key='"+child+"'"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_cohort"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM su2_certificate"));
+            CheckpointArtifactsR26 files=CheckpointArtifactsR26.forStore(f.store);files.prune(()->CheckpointReferencesR26.hashes(f.db),System.currentTimeMillis()+120000,0,256);assertNotNull(CheckpointArtifactsR26.resolve(f.store,initializerReference));try{CheckpointArtifactsR26.resolve(f.store,oldReference);fail("Expired parent raw context remained pinned");}catch(java.io.IOException expected){}
+            assertNotNull(PolicyIdentityLedgerR26.canonical(f.db,parent.key()));
+        }
+    }
+    @Test public void initializedButUnservedChildSurvivesAnotherRawWindowExpiry()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            expiredLearnedParent(f);assertEquals(1,WarmCandidateR26.step(f.store,()->f.claim,f.budget()));String firstInitializer;
+            try(Cursor c=f.db.rawQuery("SELECT initializer_hash FROM r26_warm_initialization",null)){assertTrue(c.moveToFirst());firstInitializer=c.getString(0);}
+            laterWindow(f,12000);assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE cursor=0 AND status='WAITING_WARM_FORK' AND length(state)>0"));
+            assertEquals(1,WarmCandidateR26.step(f.store,()->f.claim,f.budget()));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_cohort"));
+            try(Cursor c=f.db.rawQuery("SELECT i.initializer_hash,i.parent_exposed_through,f.source_first FROM r26_warm_initialization i JOIN r26_candidate c ON c.policy_hash=i.policy_hash JOIN r26_foundry f ON f.campaign_id=c.campaign_id",null)){assertTrue(c.moveToFirst());assertEquals(firstInitializer,c.getString(0));assertEquals(f.first+6127,c.getLong(1));assertTrue(c.getLong(2)>c.getLong(1));}
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_INIT_GC",w->{WarmCandidateR26.pruneInitializers(w);return 0;});assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_warm_initialization"));
+            assertEquals(2,CheckpointReferencesR26.hashes(f.db).size()); // Seed state plus its complete kernel initializer.
+        }
+    }
+    @Test public void badWarmParentIsPreservedAndDoesNotBlockAValidParent()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            ModelGenomeSU2 good=expiredLearnedParent(f);String campaign;try(Cursor c=f.db.rawQuery("SELECT campaign_id FROM r26_candidate",null)){assertTrue(c.moveToFirst());campaign=c.getString(0);}ModelGenomeSU2 bad=FamilyRegistryR26.genome("F18").bindBirth(PolicyIdentityR26.sha256("SYNTHETIC_BAD_PARENT_SOURCE"),f.first+127);
+            f.candidate(campaign,bad,new byte[]{1,2,3},1,"WAITING_WARM_FORK",0);String malformed=String.join("",Collections.nCopies(64,"0"));f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_BAD_PARENT_KEY",w->{w.execSQL("UPDATE r26_candidate SET policy_hash=? WHERE policy_hash=?",new Object[]{malformed,bad.key()});return 0;});
+            assertEquals(0,WarmCandidateR26.step(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE policy_hash='"+malformed+"' AND status='BLOCKED_WARM_CHECKPOINT_PRESERVED' AND length(state)=3"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE policy_hash='"+good.key()+"' AND status='WAITING_WARM_FORK'"));assertEquals(1,WarmCandidateR26.step(f.store,()->f.claim,f.budget()));
+        }
+    }
+    @Test public void missingWarmCheckpointCannotSilentlyBecomeColdTraining()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);LiveStateR26 old=new LiveStateR26(FamilyRegistryR26.genome("F20").bindBirth(PolicyIdentityR26.sha256("SYNTHETIC_EARLIER_SOURCE"),f.first-10));for(int i=0;i<16;i++)old.learn(new int[]{1,2,3,4,5,6,7,8,9,10});byte[] bytes=old.encode();WarmModelSeedR26.Seed seed=WarmModelSeedR26.prepare(old.genome.text(),bytes,LiveStateR26.hash(bytes),PolicyIdentityR26.sha256("SYNTHETIC_EARLIER_CP"),f.first-20,LiveStateR26.hash(source.encode()),source.ordinal[0],source.through);
+            f.candidate(campaign,seed.genome,null,0,"READY",0);ModelGenomeSU2 peer=f.genome("F17",source);f.candidate(campaign,peer,null,0,"READY",1000000);
+            assertEquals(0,FoundryCampaignR26.step(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE status='BLOCKED_CHECKPOINT_OR_PROGRAM' AND cursor=0 AND state IS NULL"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_cohort"));assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);
+        }
+    }
+
+    @Test public void campaignQueueCountsOnlyUnfinishedMemberCpu()throws Exception{
+        try(Fixture f=new Fixture(129)){
+            FoundryCampaignR26.Snapshot a=f.prefix(128),b=f.prefix(129);String first=f.campaign(a),second=f.campaign(b);ModelGenomeSU2 ready=f.genome("F17",a),done=f.genome("F18",a),peer=f.genome("F17",b);
+            f.candidate(first,done,f.trained(done,a,128),128,"DONE",1000000000);f.candidate(first,ready,null,0,"READY",0);f.candidate(second,peer,null,0,"READY",1000000);
+            assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);assertTrue(scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+ready.key()+"'")>0);assertEquals(0,scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+peer.key()+"'"));
+        }
+    }
+
     @Test public void completedFirstServiceDoesNotStarveAblationFromCpuQueue()throws Exception{
         try(Fixture f=new Fixture(128)){
             FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 parent=f.genome("F08",source),control=StructuralProposalR26.mechanismChildren(parent).get(1).genome;

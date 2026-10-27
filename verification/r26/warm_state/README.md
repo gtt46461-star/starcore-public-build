@@ -1,0 +1,5 @@
+`WarmRetention.java` runs the unmodified production `preserveExpired` method and runtime DDL using `verification/r64/adapters/android/database/sqlite/SQLiteDatabase.java` and the real SQLite bridge. Compile the adapter and driver ahead of the SDK-compiled production classes and Android API jar. Pass `verification/r64/sqlite_bridge.py` to the driver.
+
+The eight cases cover a learned candidate, an initialized child with no new samples, untrained/empty/missing state, a quarantined parent, incompatible numerical ABI and a running source. It checks writer ownership, unchanged learned bytes and idempotence. It does not establish Android process recovery or latency.
+
+The source-bound Android publication suite separately executes actual learning, raw source expiry, stale-owner rejection, atomic warm birth, subsequent training and publication, initializer immutability and file retention, two successive expiries, damaged-parent isolation, missing-state rejection, and CPU scheduling across campaigns. These checks do not provide natural quality qualification.

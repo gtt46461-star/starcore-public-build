@@ -50,7 +50,9 @@ jobs:
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           python -m pip install numpy==2.3.5
       - name: Verify engineering receipt scope
-        run: python3 scripts/summarize_r26_runtime.py --self-test
+        run: |
+          python3 scripts/summarize_r26_runtime.py --self-test
+          python3 scripts/verify_r26_emulator_heap.py --self-test
       - name: Build, unit tests and lint
         run: bash scripts/build_r13.sh
       - name: Record package identity and signature

@@ -28,11 +28,12 @@ public final class ModelReplaySU2 {
         final String snapshotBinding;final long sourceThrough;
         public interface DurableOutputs {OnlineModelsSU2.Output raw(ModelGenomeSU2.Member member,int[][] draws);OnlineModelsSU2.Output calibrated(ModelGenomeSU2.Member member,int[][] draws,OnlineModelsSU2.Output raw);OnlineModelsSU2.Model trained(ModelGenomeSU2.Member member,int through);CalibrationSU2.Live calibrator(ModelGenomeSU2.Member member,int through);}
         final DurableOutputs durable;
-        public ModelGenomeSU2 bind(ModelGenomeSU2 g){return snapshotBinding==null?g:g.bindBirth(snapshotBinding,sourceThrough);}
+        public ModelGenomeSU2 bind(ModelGenomeSU2 g){if(WarmModelSeedR26.has(g))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");return snapshotBinding==null?g:g.bindBirth(snapshotBinding,sourceThrough);}
         final LinkedHashMap<String, OnlineModelsSU2.Output> cache = new LinkedHashMap<>(16, .75f, true);
         public Library(int[][] draws,long byteCap){this(draws,byteCap,null,0,null);}
         public Library(int[][] draws,long byteCap,String snapshot,long through,DurableOutputs durable){OnlineModelsSU2.requireDraws(draws);this.draws=draws;this.byteCap=byteCap;snapshotBinding=snapshot;sourceThrough=through;this.durable=durable;}
         public OnlineModelsSU2.Output get(ModelGenomeSU2.Member m) {
+            if(WarmModelSeedR26.has(m.params))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");
             String key = m.modelKey();
             OnlineModelsSU2.Output o = cache.get(key);
             if (o != null) return o;
@@ -93,6 +94,7 @@ public final class ModelReplaySU2 {
 
     /** Builds the stepwise model named by a member (same constructor the live loop uses). */
     public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
+        if(WarmModelSeedR26.has(p))return build(kind,WarmModelSeedR26.structuralParameters(p));
         if(p.containsKey("_birth_snapshot")||p.containsKey("_birth_through")){Map<String,String> raw=new TreeMap<>(p);String birth=raw.remove("_birth_snapshot"),through=raw.remove("_birth_through");if(birth==null||!birth.matches("[0-9a-f]{64}")||through==null||!through.matches("[0-9]+"))throw new IllegalArgumentException("R26_BIRTH_BINDING");return build(kind,raw);}
 
         if(p.containsKey("_legal_head")){if(!"PERMUTATION_V1".equals(p.get("_legal_head")))throw new IllegalArgumentException("R26_LEGAL_HEAD");Map<String,String> raw=new TreeMap<>(p);raw.remove("_legal_head");return build(kind,raw);}
@@ -129,6 +131,7 @@ public final class ModelReplaySU2 {
     }
 
     public static OnlineModelsSU2.Output compute(int[][] draws, String kind, Map<String, String> p) {
+        if(WarmModelSeedR26.has(p))throw new IllegalArgumentException("R26_WARM_INITIALIZER_REQUIRED_FOR_REPLAY");
         return OnlineModelsSU2.run(build(kind, p), draws);
     }
 

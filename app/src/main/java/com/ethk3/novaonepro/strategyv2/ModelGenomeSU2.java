@@ -95,7 +95,7 @@ public final class ModelGenomeSU2 {
         List<Object> graphMembers=new ArrayList<>();for(Member member:members){Map<String,Object> node=new TreeMap<>();node.put("kind",member.kind);node.put("parameters",member.params);node.put("weight",member.weight);graphMembers.add(node);}
         rules.put("graph",Arrays.asList(sink,graphMembers)); rules.put("features", "SU2_CAUSAL_RETAINED_5000_V1");
         rules.put("updater", "SU2_ONLINE_STATE_CODEC_R26_V1"); rules.put("update_schedule", "REVEALED_LABEL_ORDERED_EXACTLY_ONCE");
-        rules.put("initial_state", members.get(0).params.containsKey("_birth_snapshot")?Arrays.asList("DETERMINISTIC_MEMBER_INIT_THEN_BOUND_BOOTSTRAP",members.get(0).params.get("_birth_snapshot"),members.get(0).params.get("_birth_through")):"MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
+        rules.put("initial_state",WarmModelSeedR26.has(this)?WarmModelSeedR26.identity(this):members.get(0).params.containsKey("_birth_snapshot")?Arrays.asList("DETERMINISTIC_MEMBER_INIT_THEN_BOUND_BOOTSTRAP",members.get(0).params.get("_birth_snapshot"),members.get(0).params.get("_birth_through")):"MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
         rules.put("gate", Arrays.asList(gate, metaC, coverage)); rules.put("router", pool);
         rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
         rules.put("resource_schedule", "R26_CAPABILITY_WEIGHTED_CPU_SERVICE_200MS_V2");

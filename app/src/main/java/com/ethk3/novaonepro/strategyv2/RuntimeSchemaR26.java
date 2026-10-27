@@ -10,6 +10,9 @@ public final class RuntimeSchemaR26 {
     public static final String FEEDBACK = "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)";
     public static final String[] DDL = {
         FEEDBACK,
+        "CREATE TABLE IF NOT EXISTS r26_warm_initialization(policy_hash TEXT PRIMARY KEY,parent_policy TEXT NOT NULL,parent_checkpoint TEXT NOT NULL,parent_state_hash TEXT NOT NULL,parent_trained_through INTEGER NOT NULL,parent_exposed_through INTEGER NOT NULL,initializer_hash TEXT NOT NULL,state BLOB NOT NULL CHECK(length(state)<=4194304),child_campaign TEXT NOT NULL,seed_checkpoint TEXT NOT NULL,numerical_abi TEXT NOT NULL,created_at INTEGER NOT NULL)",
+        "CREATE TRIGGER IF NOT EXISTS r26_warm_initialization_no_update BEFORE UPDATE ON r26_warm_initialization BEGIN SELECT RAISE(ABORT,'R26_WARM_INITIALIZER_IMMUTABLE'); END",
+        "CREATE TRIGGER IF NOT EXISTS r26_warm_initialization_no_replace BEFORE INSERT ON r26_warm_initialization WHEN EXISTS(SELECT 1 FROM r26_warm_initialization WHERE policy_hash=NEW.policy_hash) BEGIN SELECT RAISE(ABORT,'R26_WARM_INITIALIZER_IMMUTABLE'); END",
         "CREATE TABLE IF NOT EXISTS r26_service_total(session_id TEXT PRIMARY KEY,source_commit TEXT NOT NULL,numerical_abi TEXT NOT NULL,api_level INTEGER NOT NULL,device_model TEXT NOT NULL,slices INTEGER NOT NULL DEFAULT 0 CHECK(slices>=0),cpu_ms INTEGER NOT NULL DEFAULT 0 CHECK(cpu_ms>=0),wall_ms INTEGER NOT NULL DEFAULT 0 CHECK(wall_ms>=0),capacity_failures INTEGER NOT NULL DEFAULT 0 CHECK(capacity_failures>=0))",
         "CREATE TABLE IF NOT EXISTS r26_shadow_admission(policy_hash TEXT PRIMARY KEY,family_id TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('BASE','CHALLENGER')),birth_sequence INTEGER NOT NULL,expires_sequence INTEGER NOT NULL,parent_hash TEXT NOT NULL,CHECK((role='BASE' AND expires_sequence=0) OR (role='CHALLENGER' AND expires_sequence>birth_sequence)))",
         "CREATE TRIGGER IF NOT EXISTS r26_shadow_admission_immutable BEFORE UPDATE ON r26_shadow_admission BEGIN SELECT RAISE(ABORT,'R26_SHADOW_ADMISSION_IMMUTABLE'); END",
@@ -75,8 +78,21 @@ public final class RuntimeSchemaR26 {
         try(Cursor c=db.rawQuery("SELECT numerical_abi FROM r26_capability_source WHERE singleton=1",null)){if(c.moveToFirst()&&abi.equals(c.getString(0)))return false;}
         // Historical progress remains in receipts/checkpoints. A different numerical program
         // must earn its current capability service record; learner weights are not modified.
+        java.util.List<String> incompatible=new java.util.ArrayList<>();
+        try(Cursor c=db.rawQuery("SELECT policy_hash,canonical_text FROM r26_live_model WHERE status='ACTIVE'",null)){while(c.moveToNext())if(!CurrentPolicyR26.matches(c.getString(1),c.getString(0)))incompatible.add(c.getString(0));}
+        boolean league=table(db,"su2_league"),genomes=table(db,"su2_model_genome"),certificates=table(db,"su2_certificate");long now=System.currentTimeMillis();
+        for(String policy:incompatible){
+            // An obsolete executable identity cannot occupy a current shadow slot indefinitely.
+            // This is an ABI boundary, never a quality comparison or an alpha refund.
+            db.execSQL("UPDATE r26_live_model SET status='BLOCKED_NUMERICAL_ABI_PRESERVED' WHERE policy_hash=? AND status='ACTIVE'",new Object[]{policy});
+            db.execSQL("UPDATE r26_cohort SET state='NUMERICAL_ABI_ARCHIVED_NO_EVIDENCE_TRANSFER' WHERE genome_key=?",new Object[]{policy});
+            if(league)db.execSQL("UPDATE su2_league SET state='RETIRED' WHERE genome_key=?",new Object[]{policy});
+            if(genomes)db.execSQL("UPDATE su2_model_genome SET state='RETIRED' WHERE genome_key=?",new Object[]{policy});
+            if(certificates)db.execSQL("INSERT OR IGNORE INTO r26_certificate_revocation SELECT certificate_id,'NUMERICAL_ABI_CHANGED_WEIGHTS_PRESERVED',? FROM su2_certificate WHERE genome_key=?",new Object[]{now,policy});
+        }
         db.execSQL("UPDATE r26_capability SET last_progress=0");db.execSQL("INSERT OR REPLACE INTO r26_capability_source VALUES(1,?)",new Object[]{abi});return true;
     }
+    private static boolean table(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
     private static void column(SQLiteDatabase db,String table,String name,String type){try(Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))return;}db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+name+" "+type);}
 
     /** Called only by SettlementEngine, inside its sole-owner terminal transaction. */
