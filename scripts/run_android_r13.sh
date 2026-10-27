@@ -28,6 +28,7 @@ with open('android-r13.txt','w') as report:
 PYTEST
 adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-charts.png
+adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json
 fi
 python3 scripts/probe_r13_startup.py
 # The deliverable is the release variant. Confirm the same fixed certificate
