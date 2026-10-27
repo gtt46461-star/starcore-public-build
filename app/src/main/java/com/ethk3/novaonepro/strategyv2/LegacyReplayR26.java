@@ -61,7 +61,7 @@ public final class LegacyReplayR26 {
             while(after-before<1&&budget.activeNanos()<stop){budget.checkpointOrYield();int[] draw;long ordinal;
                 if(snapshot!=null&&after<snapshot.draws.length){draw=snapshot.draws[after];ordinal=snapshot.ordinal[after];}
                 else{
-                    String[] event=nextInput(store,newThrough);if(event==null)break;ordinal=Long.parseLong(event[3]);Models.Draw actual=store.getDrawByIssue(event[1]);if(actual==null||!DrawHashR36.sha256V2(actual).equals(event[2]))throw new IOException("R26_LEGACY_EVENT_SOURCE");draw=actual.numbers.clone();if(!event[0].isEmpty())events.add(event);
+                    String[] event=nextInput(store,newThrough);if(event==null)break;if(event[0].isEmpty()){claims.get().reason("WAITING_TERMINAL_FEEDBACK");break;}ordinal=Long.parseLong(event[3]);Models.Draw actual=store.getDrawByIssue(event[1]);if(actual==null||!DrawHashR36.sha256V2(actual).equals(event[2]))throw new IOException("R26_LEGACY_EVENT_SOURCE");draw=actual.numbers.clone();if(!event[0].isEmpty())events.add(event);
                 }
                 state.advance(draw,ordinal);lastGood=CheckpointArtifactsR26.forStore(store).prepareLegacy(state);after++;newThrough=ordinal;
                 if(snapshot!=null&&after==snapshot.draws.length)break;

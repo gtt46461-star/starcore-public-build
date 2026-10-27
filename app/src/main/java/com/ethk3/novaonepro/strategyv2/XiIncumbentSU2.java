@@ -33,33 +33,36 @@ public final class XiIncumbentSU2 {
      * dtypes follow hre.ExpertBank exactly: window frequencies and momentum are float64
      * (float32 counts divided by int64 lengths), omission and markov are float32.
      */
+    private static double[][][][] doubleBank(int banks,int samples){double[][][][] out=new double[banks][samples][][];for(int e=0;e<banks;e++)for(int t=0;t<samples;t++){ExecutionBudgetR26.poll();out[e][t]=new double[10][10];}return out;}
+    private static float[][][][] floatBank(int banks,int samples){float[][][][] out=new float[banks][samples][][];for(int e=0;e<banks;e++)for(int t=0;t<samples;t++){ExecutionBudgetR26.poll();out[e][t]=new float[10][10];}return out;}
+    private static byte[][][][] rankBank(int banks,int samples){byte[][][][] out=new byte[banks][samples][][];for(int e=0;e<banks;e++)for(int t=0;t<samples;t++){ExecutionBudgetR26.poll();out[e][t]=new byte[10][10];}return out;}
     static float[][][][] experts(int[][] d) {
         int T = d.length;
-        double[][][][] r64 = new double[6][T][10][10];     // 0..4 windows, 5 momentum
-        float[][][][] r32 = new float[2][T][10][10];       // 0 omission, 1 markov
-        float[][][] C = new float[T + 1][10][10];
-        for (int t = 0; t < T; t++) { for (int p = 0; p < 10; p++) C[t + 1][p] = C[t][p].clone(); for (int p = 0; p < 10; p++) C[t + 1][p][d[t][p] - 1] += 1f; }
+        double[][][][] r64 = doubleBank(6,T);     // 0..4 windows, 5 momentum
+        float[][][][] r32 = floatBank(2,T);       // 0 omission, 1 markov
+        float[][][] C = new float[T + 1][][];C[0]=new float[10][10];
+        for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll(); C[t+1]=new float[10][];for (int p = 0; p < 10; p++) C[t + 1][p] = C[t][p].clone(); for (int p = 0; p < 10; p++) C[t + 1][p][d[t][p] - 1] += 1f; }
         int[] wins = {12, 24, 48, 96, 360};
-        for (int wi = 0; wi < 5; wi++) for (int t = 0; t < T; t++) {
+        for (int wi = 0; wi < 5; wi++) for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll();
             int lo = Math.max(t - wins[wi], 0); long den = Math.max(t - lo, 1);
             for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) r64[wi][t][p][n] = (double) (C[t][p][n] - C[lo][p][n]) / (double) den;
         }
-        for (int t = 0; t < T; t++) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) r64[5][t][p][n] = r64[1][t][p][n] - r64[4][t][p][n];
+        for (int t = 0; t < T; t++) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) { if(p==0&&n==0)ExecutionBudgetR26.poll();r64[5][t][p][n] = r64[1][t][p][n] - r64[4][t][p][n]; }
         long[][] last = new long[10][10]; for (long[] r : last) Arrays.fill(r, -1);
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll();
             for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) r32[0][t][p][n] = (float) Math.log1p((float) (last[p][n] >= 0 ? t - last[p][n] : t + 1));
             for (int p = 0; p < 10; p++) last[p][d[t][p] - 1] = t;
         }
         float[][][] M = new float[10][10][10];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll();
             if (t >= 2) { for (int p = 0; p < 10; p++) M[p][d[t - 2][p] - 1][d[t - 1][p] - 1] += 1; if (t - 2 - 720 >= 0) for (int p = 0; p < 10; p++) M[p][d[t - 2 - 720][p] - 1][d[t - 1 - 720][p] - 1] -= 1; }
             if (t >= 1) for (int p = 0; p < 10; p++) { float[] row = M[p][d[t - 1][p] - 1]; float s = pairwise10(row); for (int n = 0; n < 10; n++) r32[1][t][p][n] = (row[n] + 1.0f) / (s + 10.0f); }
             else for (int p = 0; p < 10; p++) Arrays.fill(r32[1][t][p], 0.1f);
         }
-        float[][][][] Z = new float[8][T][10][10];
+        float[][][][] Z = floatBank(8,T);
         int[] map = {0, 1, 2, 3, 4, -1, -2, 5};           // expert -> r64 index, or -1 omission, -2 markov
         for (int e = 0; e < 8; e++) for (int t = 0; t < T; t++) for (int p = 0; p < 10; p++) {
-            if (map[e] >= 0) {
+            ExecutionBudgetR26.poll();if (map[e] >= 0) {
                 double[] v = r64[map[e]][t][p]; double mu = 0; for (double x : v) mu += x;   // float64 pairwise == sequential to < 1 ulp here
                 mu /= 10; double var = 0; for (double x : v) var += (x - mu) * (x - mu); double sd = Math.sqrt(var / 10) + 1e-6;
                 for (int n = 0; n < 10; n++) Z[e][t][p][n] = (float) ((v[n] - mu) / sd);
@@ -81,16 +84,16 @@ public final class XiIncumbentSU2 {
     public static Result evaluate(int[][] d, int start, int end) {
         int T = d.length; float[][][][] Z = experts(d);
         // ranks with tie-break toward the lower number
-        byte[][][][] rank = new byte[8][T][10][10];
+        byte[][][][] rank = rankBank(8,T);
         Integer[] ord = new Integer[10];
         for (int e = 0; e < 8; e++) for (int t = 0; t < T; t++) for (int p = 0; p < 10; p++) {
-            final float[] z = Z[e][t][p]; for (int i = 0; i < 10; i++) ord[i] = i;
+            ExecutionBudgetR26.poll();final float[] z = Z[e][t][p]; for (int i = 0; i < 10; i++) ord[i] = i;
             Arrays.sort(ord, (a, b) -> Float.compare(z[b] - b * 1e-4f, z[a] - a * 1e-4f));
             for (int r = 0; r < 10; r++) rank[e][t][p][ord[r]] = (byte) r;
         }
         Result res = new Result(T);
         int nf = 19; double[][] F = new double[T][nf]; double[] base = new double[T];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll();
             float[][] S = new float[10][10];
             for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) { float s = 0; for (int e = 0; e < 8; e++) s += (float) WEIGHTS[e] * Z[e][t][p][n]; S[p][n] = s; }
             float[][] P = new float[10][10]; int[][] top = new int[10][4]; float[] mass = new float[10];
@@ -137,11 +140,11 @@ public final class XiIncumbentSU2 {
         }
         double[][] X = new double[T][nf * 5];
         for (int t = 0; t < T; t++) System.arraycopy(F[t], 0, X[t], 0, nf);
-        for (int wi = 0; wi < 4; wi++) {
+        for (int wi = 0; wi < 4; wi++) { ExecutionBudgetR26.poll();
             int w = ROLL[wi]; double[] c1 = new double[nf], c2 = new double[nf];
             double[][] C1 = new double[T + 1][], C2 = new double[T + 1][]; C1[0] = new double[nf]; C2[0] = new double[nf];
-            for (int t = 0; t < T; t++) { C1[t + 1] = C1[t].clone(); C2[t + 1] = C2[t].clone(); for (int k = 0; k < nf; k++) { C1[t + 1][k] += F[t][k]; C2[t + 1][k] += F[t][k] * F[t][k]; } }
-            for (int t = 0; t < T; t++) {
+            for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll(); C1[t + 1] = C1[t].clone(); C2[t + 1] = C2[t].clone(); for (int k = 0; k < nf; k++) { C1[t + 1][k] += F[t][k]; C2[t + 1][k] += F[t][k] * F[t][k]; } }
+            for (int t = 0; t < T; t++) { ExecutionBudgetR26.poll();
                 int lo = Math.max(t - w, 0), n = Math.max(t - lo, 1);
                 for (int k = 0; k < nf; k++) {
                     double mu = (C1[t][k] - C1[lo][k]) / n, var = Math.max((C2[t][k] - C2[lo][k]) / n - mu * mu, 1e-9);
@@ -151,18 +154,18 @@ public final class XiIncumbentSU2 {
             }
         }
         boolean[] pool = new boolean[T];
-        for (int t = 30; t < end; t++) { int lo = Math.max(0, t - 720); pool[t] = base[t] >= ModelReplaySU2.quantileLinear(Arrays.copyOfRange(base, lo, t), 1 - POOL); }
+        for (int t = 30; t < end; t++) { ExecutionBudgetR26.poll(); int lo = Math.max(0, t - 720); pool[t] = base[t] >= ModelReplaySU2.quantileLinear(Arrays.copyOfRange(base, lo, t), 1 - POOL); }
         double keep = Math.min(1.0, COVERAGE / POOL);
         double[] prob = res.prob;
         double[] wt = null, mu = null, sd = null; int lastFit = 0; int D = nf * 5;
-        for (int t = Math.max(start, WARMUP); t < end; t++) {
+        for (int t = Math.max(start, WARMUP); t < end; t++) { ExecutionBudgetR26.poll();
             if (!pool[t]) continue;
             if (wt == null || t - lastFit >= RETRAIN) {
                 lastFit = t; int lo = Math.max(0, t - TRAIN_WINDOW);
                 List<Integer> idx = new ArrayList<>(); for (int u = lo; u < t; u++) if (pool[u]) idx.add(u);
                 if (idx.size() >= 60) {
                     int n = idx.size(); mu = new double[D]; sd = new double[D];
-                    for (int k = 0; k < D; k++) { double s = 0; for (int u : idx) s += X[u][k]; mu[k] = s / n; double v = 0; for (int u : idx) { double q = X[u][k] - mu[k]; v += q * q; } sd[k] = Math.sqrt(v / n) + 1e-9; }
+                    for (int k = 0; k < D; k++) { ExecutionBudgetR26.poll();double s = 0; for (int u : idx) s += X[u][k]; mu[k] = s / n; double v = 0; for (int u : idx) { double q = X[u][k] - mu[k]; v += q * q; } sd[k] = Math.sqrt(v / n) + 1e-9; }
                     double[][] Zs = new double[n][D]; double[] y = new double[n];
                     for (int i = 0; i < n; i++) { int u = idx.get(i); for (int k = 0; k < D; k++) Zs[i][k] = (X[u][k] - mu[k]) / sd[k]; y[i] = res.hit[u] ? 1 : 0; }
                     wt = LogisticRidgeSU2.fit(Zs, y, n, C, 12);

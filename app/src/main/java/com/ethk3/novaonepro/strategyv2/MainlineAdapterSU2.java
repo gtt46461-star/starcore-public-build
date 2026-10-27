@@ -35,7 +35,7 @@ public final class MainlineAdapterSU2 {
             position = c.getInt(0); mask = c.getInt(1); act = c.getInt(2) == 1; phat = c.isNull(3) ? Double.NaN : c.getDouble(3);
         }
         if (!act) return null;                                             // the strategy waits for its window
-        float[][] P = incumbent ? IncumbentLoopSU2.pendingTable(seq) : LivePoolR26.frozenTable(store.readable(),genome,seq);
+        float[][] P = incumbent ? IncumbentLoopSU2.pendingTable(store.readable(),seq) : LivePoolR26.frozenTable(store.readable(),genome,seq);
         if(P==null&&!incumbent)P=ModelLiveLoopSU2.pendingTable(genome,seq);
         if (P == null) return null;                                         // never re-derive after the freeze
         int[] k = new int[3]; int j = 0; for (int n = 0; n < 10; n++) if ((mask & (1 << n)) != 0) k[j++] = n + 1;
