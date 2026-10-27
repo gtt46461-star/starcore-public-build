@@ -29,13 +29,13 @@
     "Use streamed state checkpoints for private committee/stage publication, recovery and subsequent live updates"
   ],
   "host": {
-    "r26Groups": 13,
+    "r26Groups": 14,
     "priorStrategyGroups": 21,
     "priorPlanGroups": 20,
     "status": "PASS",
-    "compileOnlySources": 1065,
+    "compileOnlySources": 1066,
     "compileOnlyStatus": "PASS_OFFICIAL_SDK36",
-    "apkAuthority": "PENDING_SOURCE_MATCHED_67_TEST_ANDROID_CI"
+    "apkAuthority": "PENDING_SOURCE_MATCHED_ANDROID_AND_ENDURANCE"
   },
   "syntheticPower": {
     "scope": "SYNTHETIC_ONLY_NOT_NATURAL_QUALITY",
@@ -52,13 +52,14 @@
   },
   "androidTests": {
     "classes": 18,
-    "tests": 67,
+    "tests": 68,
     "status": "PENDING_CURRENT_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
       "Two challenger slots preserve all base slots; expiry keeps weights, mainline, certificates and birth alpha",
-      "Non-atomic legacy writer releases before numerical continuation may park"
+      "Non-atomic legacy writer releases before numerical continuation may park",
+      "Migration journal update/delete/replacement is immutable; warm readiness rejects an extra unit"
     ]
   },
   "physicalDevice": "NOT_RUN",
@@ -74,7 +75,27 @@
     {
       "path": ".github/workflows/r13.yml",
       "beforeSha256": "f3853652170ff43b939d2296d4687d3fefbe2e1e02f56ee4cc8fd8153a4c3ebe",
-      "afterSha256": "450b7d0111533ea44035144f7bf2890965c807a00f79317c131c9e15a7850f35"
+      "afterSha256": "7c9bb7a74c2d9fe626f883cc696b78bcd30fb92b8bf5c241c248b4dfa50aeae3"
+    },
+    {
+      "path": "app/build.gradle",
+      "beforeSha256": "e9090fcc3658aad9670035cb7b186cbb5ede4c7207147db33c6bacfce2bb0b36",
+      "afterSha256": "5908665d1d1814942e02a2072f9df237be71620ade6f590762fe86c68001a66e"
+    },
+    {
+      "path": "app/build/generated/r967/semantic_manifest.json",
+      "beforeSha256": "7ca9342a96c0a187ac6218221920b946bf239f740ac5a5cbc8035e1bcace1cec",
+      "afterSha256": "321b34b681d49c244b9a1101de5e9cacb891c91bfde11c705162e95c64877583"
+    },
+    {
+      "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+      "beforeSha256": "012237cf3a2fc7042bb5233713197c9f5da18091704b4e9c5c2334a08186ee97",
+      "afterSha256": "6f1a32769f59ceb7950dd3a4b4207bcaaa973a79ef4f0946fc804e6d75e3531d"
+    },
+    {
+      "path": "app/src/androidTest/AndroidManifest.xml",
+      "beforeSha256": null,
+      "afterSha256": "eff318ff672cd99648d9bf22b944edc857a436dbc6a5eae2d1ee8643957a338b"
     },
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26CheckpointDeviceTest.java",
@@ -84,7 +105,7 @@
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26DeviceTest.java",
       "beforeSha256": "1c9202009148b5c5412d94f9a55fdca0ae48592d944b05e43e2e38b1b8f1a1a5",
-      "afterSha256": "a456c310ac7f42201385dd580af4466beef378820b3e9aab5051dbe55b583d46"
+      "afterSha256": "b53f7241add44ff45a0a040de1dea1de6718efad91e54cff161f85d6e291890f"
     },
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26EvidenceDeviceTest.java",
@@ -104,7 +125,17 @@
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java",
       "beforeSha256": null,
-      "afterSha256": "ee33ccab2e0fb145b4d820f00b8a44cebbeeb63fb69632bba92fe8fefcbc24e0"
+      "afterSha256": "5af8b63a52990fad0647cf720b0ad8cfa88b81b84a67e9e9f118b96069fa04b7"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26WriterDeviceTest.java",
+      "beforeSha256": null,
+      "afterSha256": "a70882a404db1c50d838abc1a76fa179df1539a9b3143c49b516fe9b85064215"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/SchemaAndLiveSU1Test.java",
+      "beforeSha256": "407b1d8f2f5b6d126efa1e72cdd7824238deffcd2739b9dbb9987548f1efa892",
+      "afterSha256": "35417f19af31d893415285639e4fab447aaf35226e8dbb678dfb6e3e70d57def"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
@@ -114,7 +145,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "beforeSha256": "9666031fbedb35ff1e3d7a1800bae16a109d5f1538c6dc97d059c20756d08ac2",
-      "afterSha256": "0e38f836a5cecd7dc9e9b25694d77743730b1b18f2697c1a3a099f27df4ce109"
+      "afterSha256": "c0aba1ffeffc96c5f033cee3a343f363304221c150959f0fa1a24d3cf6fc8d23"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
@@ -170,6 +201,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CampaignStateSU1.java",
       "beforeSha256": "4fffcde85f084cbc5d0d1f69376bdea5a764d2b6e9de2caf00994b03764179f8",
       "afterSha256": "88261c0e96017e73a17ea40553678f2b51a6740309bbd423ad8b8f9d978becc3"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityServiceR26.java",
+      "beforeSha256": null,
+      "afterSha256": "7e35803ea37f16c2db30c80c75e63c8e8271f5509e9c750409380e52ae0f771c"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
@@ -239,7 +275,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceAccumulatorR26.java",
       "beforeSha256": null,
-      "afterSha256": "8a51646fde73bea0a2d4c9a57233e47cdf31b64c6a58f452734c2e67a55f7758"
+      "afterSha256": "425690f5afdaf6e03f12f90b2c72eb636fe3d7f752abb5f15599265bd6a25c1d"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvidenceBlockR26.java",
@@ -262,9 +298,24 @@
       "afterSha256": "2109c16d356f3f0a00626cced7d8c82fe57cc77823a63de7787fb139e2391d61"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyF01KernelR26.java",
+      "beforeSha256": "da2baf2f3b7ad896b8ad6d026dd8c22470925ae0f3e52e3761224dc5d0d07401",
+      "afterSha256": "7cca4f07f809dce9fbdfd8435839bb62dd81ceaf737741c186889154fd8b702a"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyF02KernelR26.java",
+      "beforeSha256": "45e1e30071fff35d4ad5e849dbc9e078bde1f5ab382dba10b8521fb1bf032456",
+      "afterSha256": "8c9d27a070f27a115c980253589f66a0988ab9df6f4c8cd950a7bb58b3e6241f"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ForecastSnapshotR26.java",
+      "beforeSha256": null,
+      "afterSha256": "d3694dc0d2e99008c48863027c2b780ece42e95efb72ddf96eee61749383509d"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
       "beforeSha256": "55c9e1255040278cf7cbaa1b6e043257e15cd820885059f0efda3f1d836228be",
-      "afterSha256": "89c25a63053bf78688692a28e06e93692a57a0db07ae38065b98950bd5208ef3"
+      "afterSha256": "73b00f9746c401827ef9c1fd58d180812782e47c96763183d61406dd0508bc7e"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenSurfaceR26.java",
@@ -289,7 +340,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPublicationR26.java",
       "beforeSha256": null,
-      "afterSha256": "e4fd620e52ac7a01d4ed276d0ee219d87206e389e1facf57de1dfd97d3040ca1"
+      "afterSha256": "003e9e5e86532d1312d974ff1e8cb24d1f479f07d55ad7c6cd9890fbcbff5a73"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java",
@@ -314,7 +365,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LivePoolR26.java",
       "beforeSha256": "aa42daa8105b1585348b3cd87fe263bf72935666e269ee42c9f8bec6d13f435c",
-      "afterSha256": "8a8fefe6adfae97b790cf7c37b4227752c5c36832d1c0c62438e7cf57644d62b"
+      "afterSha256": "2ffc9cc7b7683817a2039dda163e57396e1f10d1b1416b33ea62e5eff94b40a7"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStateR26.java",
@@ -344,7 +395,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
       "beforeSha256": "a018dd52713a7a068887f19a2dfefb94e39e464a513c9e0b74f54e25283a0036",
-      "afterSha256": "4b5ce0af8251bee492935e9eef578fa1382dd3412a45a41cfcb313d7cfb266ac"
+      "afterSha256": "fe2d80ca927149e93f72788b890f12a76cb1208c774939b6cb090f882f9de489"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
@@ -364,7 +415,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
       "beforeSha256": "c03396eb5c23e3bb086420ae4b25620b2375fd128038d4beb7001df1db3705d5",
-      "afterSha256": "cc4c27a2f7c60b7b32647653538ee884fee5b38346f56044e39ddd9cc62c6f28"
+      "afterSha256": "f67d50c1883468ec0288989b38dc2f78007f78addb990fc67f75b82f5d1c8e3d"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
@@ -375,6 +426,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
       "beforeSha256": "3120a27d6dada7be220d2b97b3cd69e2261c23480b36f1a5c0edae9912fbf690",
       "afterSha256": "1e9888bcf36b6e4e75a45bdca238fe4be0a22c78a7b773eea036d79df063eb8e"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PermutationChainR26.java",
+      "beforeSha256": null,
+      "afterSha256": "d01b5ea316cc77528a932ea457fb362bdc0d049a9fef0e2175dbccffef4bf545"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyCheckpointR26.java",
@@ -390,6 +446,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyRuntimeR26.java",
       "beforeSha256": null,
       "afterSha256": "004805a946bd60fd8efece6ad6d6f76835367bfc40051c16849a1b209a0b12cd"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedForecastStoreR26.java",
+      "beforeSha256": null,
+      "afterSha256": "fc3904060fc85fece2703d44661f6942a680cf64e475f18f480ccb35651c05cc"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramModelSU2.java",
@@ -414,12 +475,12 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
       "beforeSha256": "965e5b79af388563cff28a12c542923970f78bf710dae8f0e018252c79f3ed32",
-      "afterSha256": "b0a85fb83326103018a76737b4d93673f6043942429dcd428ff7c2c8f089f30c"
+      "afterSha256": "4c4d0de82c09df21c6a789dcd5ae54e562105c9b4392965bd6ac3d23cb0e992a"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
       "beforeSha256": "391e22bc186641de1c91caad40f60a60f3af3a6acaafef47050bec7a6b755557",
-      "afterSha256": "f9f8ce23ceda4b2ec61c03657a109161818299dacb0c4fd51ac548602a5d9547"
+      "afterSha256": "e06abd45b7885fb067a271b459494e2b725856a81553d5c747977329d54a6191"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
@@ -429,7 +490,12 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
       "beforeSha256": "9c7f9dd76afcac1aac7aa93aa9f9ec056577afee39d0f934b59480d8a30ae7fc",
-      "afterSha256": "cef01530f7147be38baca605aee8b0db0301dc358c9167bfa02eb2d56a423b61"
+      "afterSha256": "86379020f3007dea9907619311aef15f53e5df281530454eef24f9e4bc8131f5"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ShadowAdmissionR26.java",
+      "beforeSha256": null,
+      "afterSha256": "1a7f4567dc52aaa7454d81844baf324ecdf7d6cc5e1765046b7b0d00e2d9482b"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageLayerSU2.java",
@@ -449,17 +515,22 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyPolicyIdentityR26.java",
       "beforeSha256": null,
-      "afterSha256": "c8afc3ae4490d34e11a442a355194c6a441f66724f75c548a9f7c944c94649ca"
+      "afterSha256": "f026bf15c23e3cd98f67bbf8dcaa1642bfb832816c611214fccd1375b8419b33"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU1.java",
       "beforeSha256": "8c244286edc6be2f6e304fa05bb0d2e76a79220c9559c9c960127d07e5a65ac2",
-      "afterSha256": "5ab31192e4f02b6f96f408f50baf43ba30bea3a5ded24bcbe38e9a687493d2d6"
+      "afterSha256": "3b488b66ae9edd78aa3368b19b050fd0b785ff1a19817f6d1d73cd35be9ebafc"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructuralProposalR26.java",
+      "beforeSha256": "fb07875218ef67c6ab210002eada8001594d62de45f950d703d6b5d18d18b7a5",
+      "afterSha256": "2132d299bc3931345e261ae6391e26fac21d3c08544b7083cf1aa0464e57adf2"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
       "beforeSha256": null,
-      "afterSha256": "46ed2465bd20d52a93db9173bc02c39ca3f4d20ba6c17516205033865f827a2a"
+      "afterSha256": "f9de853a505b2f5c054d229491d9aa544c4d2baef34bcff74dc0dfa94a82c056"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TeacherPoolSU2.java",
@@ -472,9 +543,284 @@
       "afterSha256": "e191405f815b228a56aae3a86f1f2e63c62a7edd94d1c8efe258311f5e27ca78"
     },
     {
+      "path": "construction/r26/README.md",
+      "beforeSha256": "ecc9534b6b961ce520cad0d656c682015cbc58501319e3af7273d66ff563f862",
+      "afterSha256": "ebecea0cad143ac757573b0de78f063879fc38245bd4f9749483acf43bd0efa4"
+    },
+    {
+      "path": "construction/r26/STATUS.zh.md",
+      "beforeSha256": "34ef6a3c1c02a3850c1575b9ea33fba297cd415c8364ea03a92dfc5720c269df",
+      "afterSha256": "1b07670caeadcc77b8859c251f4816f187cd1aa31c266b88c6f55aabc3215b29"
+    },
+    {
+      "path": "construction/r26/continuation/android36-compile-only.log",
+      "beforeSha256": null,
+      "afterSha256": "c618f5aaf25ec5beda4265f53790cd7f7b694ba14dadce118c3326813b56e49b"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-55-failures.json",
+      "beforeSha256": null,
+      "afterSha256": "12f08f66f4965fb9ebf3703528b352576fa227387b77e5d9dd77cf2968b72152"
+    },
+    {
+      "path": "construction/r26/continuation/evidence-power.log",
+      "beforeSha256": null,
+      "afterSha256": "996dcb58e292ae12c309ac08b1e29fa24216edb13f834cff65c0a12e8b1b233f"
+    },
+    {
+      "path": "construction/r26/continuation/family-controls-host.log",
+      "beforeSha256": null,
+      "afterSha256": "af92e02d44e825eeee3e7488e4de6ec2b887ce53180720770f83b76c593059fd"
+    },
+    {
+      "path": "construction/r26/continuation/family-controls-mechanism-evidence.log",
+      "beforeSha256": null,
+      "afterSha256": "714a5ef12887beef1a280ed3a7b7dc3a2d1a4b8a91a90240319958a843a6c87b"
+    },
+    {
+      "path": "construction/r26/continuation/family-controls-native.log",
+      "beforeSha256": null,
+      "afterSha256": "aa61292ee21df9ca7722ee06413ccc48bd1bb48f1352cb7e0ae8cf3879f25392"
+    },
+    {
+      "path": "construction/r26/continuation/family-controls-plan.log",
+      "beforeSha256": null,
+      "afterSha256": "f2849b04ef8b6954615836ad8c5f0e3943ff876eceaa17aa7bc80ad77d208a29"
+    },
+    {
+      "path": "construction/r26/continuation/family-controls-strategy.log",
+      "beforeSha256": null,
+      "afterSha256": "c4bfb8603fe53d77219d56d9d0fd2225254ca46f2be574f8bdefbe35f02179fb"
+    },
+    {
+      "path": "construction/r26/continuation/forecast-admission-host.log",
+      "beforeSha256": null,
+      "afterSha256": "c7511077982d66f9fb836b259507bc3bf58deb73cdb109f2a70fcb4c512a2400"
+    },
+    {
+      "path": "construction/r26/continuation/forecast-admission-native.log",
+      "beforeSha256": null,
+      "afterSha256": "38ddc90b73be8277dbbb697199995f9af7e67045bf8f2211f1b48ec88214f8bf"
+    },
+    {
+      "path": "construction/r26/continuation/next-compile-only.log",
+      "beforeSha256": null,
+      "afterSha256": "48b67984561197454526699debd949578e2b279e04af6e4167288f5eb95d58ef"
+    },
+    {
+      "path": "construction/r26/continuation/next-host.log",
+      "beforeSha256": null,
+      "afterSha256": "c23c0d998e89040eb4ce600c0143b5caa8d9dea466f45a9d93a4a8b5b80a042a"
+    },
+    {
+      "path": "construction/r26/continuation/next-plan-host.log",
+      "beforeSha256": null,
+      "afterSha256": "f2849b04ef8b6954615836ad8c5f0e3943ff876eceaa17aa7bc80ad77d208a29"
+    },
+    {
+      "path": "construction/r26/continuation/next-strategy-host.log",
+      "beforeSha256": null,
+      "afterSha256": "c4bfb8603fe53d77219d56d9d0fd2225254ca46f2be574f8bdefbe35f02179fb"
+    },
+    {
+      "path": "construction/r26/continuation/own-storage-android36-compile-only.log",
+      "beforeSha256": null,
+      "afterSha256": "4375b5d070c560bcef7079f648756a1d43138009875b9e5e20f94bf7e14d132f"
+    },
+    {
+      "path": "construction/r26/continuation/own-storage-host.log",
+      "beforeSha256": null,
+      "afterSha256": "9bb30ba3154406d9a07027ac847fcea57f915e20cba3d325f7f749a84a8ca9ca"
+    },
+    {
+      "path": "construction/r26/continuation/prior-plan.log",
+      "beforeSha256": null,
+      "afterSha256": "f2849b04ef8b6954615836ad8c5f0e3943ff876eceaa17aa7bc80ad77d208a29"
+    },
+    {
+      "path": "construction/r26/continuation/prior-strategy.log",
+      "beforeSha256": null,
+      "afterSha256": "c4bfb8603fe53d77219d56d9d0fd2225254ca46f2be574f8bdefbe35f02179fb"
+    },
+    {
+      "path": "construction/r26/continuation/r26-endurance-29-bright-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "c3796a0081f7522fafbabc18078e3c1076ba54eab9d0c709a1578e8928875df2"
+    },
+    {
+      "path": "construction/r26/continuation/r26-endurance-29-locked-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "197284de00d11d84fee5871bf9e55e976da7dfd505756dd945b7b55f241767d0"
+    },
+    {
+      "path": "construction/r26/continuation/r26-endurance-35-bright-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "4501f08da056628a1f4d16f2a135a648331eff362a704ac5dadaa219fd684f43"
+    },
+    {
+      "path": "construction/r26/continuation/r26-endurance-35-locked-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "bd6a05fcca827fabc05d163c89883e3f5b7182ed1af3015be805fbfee3cc5aa0"
+    },
+    {
+      "path": "construction/r26/continuation/r26-endurance-36-bright-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "22288611c46f17d549d3e55f469b4470d762361fc62d08e55ba6de18d25ca57f"
+    },
+    {
+      "path": "construction/r26/continuation/r26-endurance-36-locked-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "7ac401dbe037f84688f993c89093ded17a323b44a7d6e51ecefc31d3f3ee871d"
+    },
+    {
+      "path": "construction/r26/continuation/r26-host.log",
+      "beforeSha256": null,
+      "afterSha256": "aa999f9146869d784391bc7c1506eb3d4ed505c13fa30ef2cf7ccd6cff2cc174"
+    },
+    {
+      "path": "construction/r26/continuation/recovery.log",
+      "beforeSha256": null,
+      "afterSha256": "8eba371dd997b774b7655f8053130672af87d4cccad3ae984551a9a9eede3f00"
+    },
+    {
+      "path": "construction/r26/continuation/renewed-host.log",
+      "beforeSha256": null,
+      "afterSha256": "f364a69cfd326c8ffba4e91d55cd817f2cd9379474926e49220b47b64ab4689c"
+    },
+    {
+      "path": "construction/r26/continuation/renewed-native.log",
+      "beforeSha256": null,
+      "afterSha256": "76dc3fbd8762d618755f31a6de72f7bb14e0c09eb7865abb33bf4874b7eb752b"
+    },
+    {
+      "path": "construction/r26/continuation/renewed-plan.log",
+      "beforeSha256": null,
+      "afterSha256": "aef307606901b39daa00409b512af99980a76d8dac52e5a7efa714e121dee62d"
+    },
+    {
+      "path": "construction/r26/continuation/renewed-strategy.log",
+      "beforeSha256": null,
+      "afterSha256": "c4bfb8603fe53d77219d56d9d0fd2225254ca46f2be574f8bdefbe35f02179fb"
+    },
+    {
+      "path": "construction/r26/continuation/report-android36-compile-only.log",
+      "beforeSha256": null,
+      "afterSha256": "4375b5d070c560bcef7079f648756a1d43138009875b9e5e20f94bf7e14d132f"
+    },
+    {
+      "path": "construction/r26/continuation/report-host.log",
+      "beforeSha256": null,
+      "afterSha256": "9bb30ba3154406d9a07027ac847fcea57f915e20cba3d325f7f749a84a8ca9ca"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-55-pass.json",
+      "beforeSha256": null,
+      "afterSha256": "c91595bb3ffc8ff1ae0fa69ed3c8601852cf1a7ef25d44cecc9a618468dd2e07"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-62-locked-writer-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "e4d7e2a18f75529a8541dbeaab9c8ecee7a16aba162257ba32a69001f456f8ce"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-62-pass.json",
+      "beforeSha256": null,
+      "afterSha256": "e3aa769ede8d69f08012994f6e8aa3f27748e6be5a69fc2aa66625827c853b9e"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-63-oom-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "e8b076e268f6f020989f5417697063dba50f0857831de1f6aee5742ecb2d3753"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-67-independent-signature.txt",
+      "beforeSha256": null,
+      "afterSha256": "d53805c96768d48174f70649b4070352a683d72869418f7914a90f3c4cc0e53e"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-67-pass.json",
+      "beforeSha256": null,
+      "afterSha256": "c986225a3267dbfba86fd3afec168a4fe23aca3b276d55a1d2b85850ed3d3c78"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-schema-priority-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "db033aa39a332934a3cfb554aacf809300ac76a2636287ff39cbea3249d88411"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-serialization-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "785b35fde45baff166bf2e62e3f96e34fe3626834404c9d04e924c5ae1b6c67d"
+    },
+    {
+      "path": "construction/r26/continuation/schema-count-host.log",
+      "beforeSha256": null,
+      "afterSha256": "af92e02d44e825eeee3e7488e4de6ec2b887ce53180720770f83b76c593059fd"
+    },
+    {
+      "path": "construction/r26/continuation/schema-count-native.log",
+      "beforeSha256": null,
+      "afterSha256": "aa61292ee21df9ca7722ee06413ccc48bd1bb48f1352cb7e0ae8cf3879f25392"
+    },
+    {
+      "path": "construction/r26/continuation/single-blob-capacity-failure.log",
+      "beforeSha256": null,
+      "afterSha256": "8b05d942da30fb62912aee97984a52f86a079a6a597e9772cf4058b762350023"
+    },
+    {
+      "path": "construction/r26/continuation/streaming-capacity-host.log",
+      "beforeSha256": null,
+      "afterSha256": "61c15f2320c9b90ac1fb0f182620107415cd7cf23ea9d9c61c9955fef6ef8310"
+    },
+    {
+      "path": "construction/r26/continuation/streaming-compile-only.log",
+      "beforeSha256": null,
+      "afterSha256": "607f1adb2411384d6a5b77829e78ab13ff29283df85c6c7e1e380274a31e5ec6"
+    },
+    {
+      "path": "construction/r26/continuation/streaming-host.log",
+      "beforeSha256": null,
+      "afterSha256": "c23c0d998e89040eb4ce600c0143b5caa8d9dea466f45a9d93a4a8b5b80a042a"
+    },
+    {
+      "path": "construction/r26/continuation/streaming-plan-host.log",
+      "beforeSha256": null,
+      "afterSha256": "f2849b04ef8b6954615836ad8c5f0e3943ff876eceaa17aa7bc80ad77d208a29"
+    },
+    {
+      "path": "construction/r26/continuation/streaming-strategy-host.log",
+      "beforeSha256": null,
+      "afterSha256": "c4bfb8603fe53d77219d56d9d0fd2225254ca46f2be574f8bdefbe35f02179fb"
+    },
+    {
+      "path": "construction/r26/continuation/writer-host.log",
+      "beforeSha256": null,
+      "afterSha256": "c7511077982d66f9fb836b259507bc3bf58deb73cdb109f2a70fcb4c512a2400"
+    },
+    {
+      "path": "construction/r26/continuation/writer-plan.log",
+      "beforeSha256": null,
+      "afterSha256": "f2849b04ef8b6954615836ad8c5f0e3943ff876eceaa17aa7bc80ad77d208a29"
+    },
+    {
+      "path": "construction/r26/continuation/writer-strategy.log",
+      "beforeSha256": null,
+      "afterSha256": "c4bfb8603fe53d77219d56d9d0fd2225254ca46f2be574f8bdefbe35f02179fb"
+    },
+    {
       "path": "release/r82_training_invalidation.json",
       "beforeSha256": "4bc2817d5c02047fa45896eb7499eb812317974f162c5ba807b1bb1e25e4154e",
-      "afterSha256": "23b8b1156ab414d982636af7b89610ddbc5da9a69f82997f5b7a671270542659"
+      "afterSha256": "b247e8cc04c9c3eb61f40b4ec5ce606c0ba14412a86b968094ff369716ffa4ae"
+    },
+    {
+      "path": "release/r982_source_calls.manifest.json",
+      "beforeSha256": "1b1c3874227916c45b393d1649ac342bde919b8a9af58d40d922197d93e256a8",
+      "afterSha256": "71f036d5c953e7073413879c92d3696ac07d0557249e7ef197ec7824ef92304b"
+    },
+    {
+      "path": "release/r982_source_calls.tsv.gz",
+      "beforeSha256": "e358899b34b027ef37f8895aff398d2043e50eefb8cc483fcad0bb13cd69defa",
+      "afterSha256": "76a4d12d7c1db9b0dcd0ec9f2d8bdd0c4d2e9a4f6578d489c906949fc05853b2"
     },
     {
       "path": "release/release_identity.properties",
@@ -489,12 +835,12 @@
     {
       "path": "release/research_dependencies_r967.json",
       "beforeSha256": "889a0dbe2beceeedff548dfe998312fee8ec71ae51ed2ea1e9110ae15b8d8b3d",
-      "afterSha256": "bf4e603a16bfe753368949c90f87aff452d01e1f9f51d8c75071607d51421d13"
+      "afterSha256": "d71fab32a2d7b4b6d5b8857eb5ae64ef039a23a198513bf724918cdd2c8a7456"
     },
     {
       "path": "release/strategy_su1_reviewed_inputs.json",
       "beforeSha256": "19d9455c0a517207036c23145c5981eb60a971b4e8db2fb7c80076d253abcd5c",
-      "afterSha256": "04eae041ef1a7a345777a35a8da75525911e3b477e5f087dcb5156b9aabc292e"
+      "afterSha256": "ba5e86f0c39ed297fa837adaabdb602877133a1e121441c991a48229a5508dc7"
     },
     {
       "path": "scripts/run_android_r13.sh",
@@ -509,7 +855,12 @@
     {
       "path": "scripts/verify_r26.py",
       "beforeSha256": "639ad0f270d04672fa29e505c6601319d089f268815a85aebd278714d48a425d",
-      "afterSha256": "0cc662bc362a67080e0e54f5053b38da6feeffe88353225db1545f729449a8f4"
+      "afterSha256": "5e3970e4a6a364cc41777cdfeaa66fa871bcc5614d9b7620d463ffb212561276"
+    },
+    {
+      "path": "tools/strategy_su2/tests/R26CapabilityServiceTest.java",
+      "beforeSha256": null,
+      "afterSha256": "57072fead19db144f35c48958421692df25e056d78bac1525321b246ee27a43b"
     },
     {
       "path": "tools/strategy_su2/tests/R26ChunkedCheckpointTest.java",
@@ -520,6 +871,16 @@
       "path": "tools/strategy_su2/tests/R26EvidenceTest.java",
       "beforeSha256": null,
       "afterSha256": "482f98db839fce4ea34086af3cf35896c9ce32c75dfd35f6e5fae80fa71377af"
+    },
+    {
+      "path": "tools/strategy_su2/tests/R26FamilyMechanismTest.java",
+      "beforeSha256": null,
+      "afterSha256": "bc85ffadd2d2bf3972b280aa71e3284c9985b10f1c0df98775b67506fc4c5029"
+    },
+    {
+      "path": "tools/strategy_su2/tests/R26ForecastSnapshotTest.java",
+      "beforeSha256": null,
+      "afterSha256": "eede4c9d3c794778bbd1022642e10d2642008de2c6500f2f029101c6ba2ca14f"
     },
     {
       "path": "tools/strategy_su2/tests/R26FrozenSurfaceTest.java",
@@ -540,6 +901,11 @@
       "path": "tools/strategy_su2/tests/R26StreamCapacityProbe.java",
       "beforeSha256": null,
       "afterSha256": "15a6422d68fc6c8dd60d0388fd5fa2c7f8ea3b51c687fdc469a5fa74a737faca"
+    },
+    {
+      "path": "verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java",
+      "beforeSha256": "96671462bfd38f3b6e052097380f9d96bee8b4652131553130fb904d3ac53937",
+      "afterSha256": "9fd4d49f0a9f22bc08a4cc7815e6cd526fdfec83c3bb9c3f753138aafb353c7c"
     }
   ],
   "firstCurrentCi": {
@@ -646,6 +1012,43 @@
     "log": "construction/r26/continuation/streaming-capacity-host.log"
   },
   "lastPassedStandardRuntime": {
+    "runId": 40546738092,
+    "source": "cba7678a37d1",
+    "compiledSource": "2eb70bae9043f6a8e63bdc44afe9f002801e35d0",
+    "api29": "PASS_67_TESTS_18_CLASSES",
+    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "apkSha256": "a725feecfdea56821eddf7450e5233ae7296ec0186575726803634e025fedc38",
+    "fixedCertificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+    "independentV1V2Signature": "PASS",
+    "publicReleasePublished": false,
+    "receipt": "construction/r26/continuation/runtime-67-pass.json",
+    "api": 29,
+    "engineeringWriteProbes": 1000,
+    "fullPredrawOpportunitySloClaimed": false,
+    "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+    "javaHeapLimitAtStart": 536870912,
+    "targetLargeHeapFlag": true,
+    "familyMechanismsWithCommittedProgress": 24,
+    "expertsWithActualReceipts": 16,
+    "allMechanismsServiceMillis": 150955,
+    "strategyReadyToAllMechanismsWallMs": 72811,
+    "firstServiceTargetMs": 60000,
+    "firstServiceTargetObservedWithin": false,
+    "canonicalDrawWriteP50Ms": 6,
+    "canonicalDrawWriteP95Ms": 12,
+    "canonicalDrawWriteP99Ms": 14,
+    "canonicalDrawWriteMaxMs": 21,
+    "retentionBoundaryRenewed": true,
+    "committedCandidateSamplesBeforeRestart": 216,
+    "actualProgressBeforeRestart": 789,
+    "committedCandidateSamplesAfterRestart": 224,
+    "restartResumed": true,
+    "staleOwnerRejected": true,
+    "capacityFailReceipts": 0,
+    "checkpointFileBytes": 479967
+  },
+  "previousPassedStandardRuntime": {
     "runId": 40536423771,
     "source": "18fdfeac1253695a6569b6fa23971594327da717",
     "api29": "PASS_62_TESTS_17_CLASSES",
@@ -664,33 +1067,11 @@
     "capacityFailReceipts": 0,
     "fullPredrawOpportunitySloClaimed": false
   },
-  "previousPassedStandardRuntime": {
-    "runId": 40523546895,
-    "source": "d59d613f653f66c4b7c63383ebb112566330dfdf",
-    "compiledSource": "f8243e4",
-    "api29": "PASS_55_TESTS",
-    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
-    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
-    "actualFamilyProgress": 24,
-    "actualExpertReceipts": 16,
-    "firstServiceMillis": 231330,
-    "canonicalWriteProbes": 1000,
-    "writeP50Ms": 5,
-    "writeP95Ms": 8,
-    "writeP99Ms": 9,
-    "writeMaxMs": 16,
-    "fullPredrawOpportunitySloClaimed": false,
-    "candidateCursorBeforeRestart": 242,
-    "candidateCursorAfterRestart": 258,
-    "staleOwnerRejected": true,
-    "unslicedCapacityFailReceipts": 0,
-    "receipt": "construction/r26/continuation/runtime-55-pass.json"
-  },
   "cpuFairness": {
     "status": "HOST_PASS_ANDROID_PENDING",
-    "policy": "CPU service divided by executable mechanisms per task; aggregate foundry weight 24, live-model training weight active model count, experts weight 1; measured P2 reserve 20 percent",
+    "policy": "First real service prioritizes unserved available families/experts; normal measured mechanism-weighted CPU service resumes afterwards. P2 keeps a measured 20 percent reserve.",
     "hostDispatches": 10000,
-    "firstService60s": "PREVIOUS_SOURCE_FAIL_117037MS; CURRENT_SOURCE_PENDING"
+    "firstService60s": "CBA_67_SOURCE_FAIL_72811MS; PRIORITY_BOOTSTRAP_FIX_PENDING_CURRENT_CI"
   },
   "lastSourceCi": {
     "runId": 40542555379,
@@ -742,5 +1123,34 @@
     "rawOrStateQuotaRaised": false,
     "weightsRetained": true,
     "birthAndAlphaRefunded": false
-  }
+  },
+  "familyMechanismControls": {
+    "status": "HOST_PASS_ANDROID_PENDING",
+    "families": [
+      "F01",
+      "F02"
+    ],
+    "f01": "Executed 3-to-5 lag path mutations and a cross-position-edge removal control; separate held-out planted inputs show NLL 2.23998754120145 full vs 2.3050033973337647 removed",
+    "f02": "Executed rewired pairwise chains, removable factors, exact subset/last-number partition and all node/edge marginals checked against independent 3..5-number permutation enumeration",
+    "restore": "Current variants reject changed graphs; old default codecs preserve weights and exact next updates",
+    "accounting": "Controls have a separate MECHANISM_ABLATION category, no capability credit and no live publication",
+    "naturalQualityClaim": false,
+    "receipt": "construction/r26/continuation/family-controls-mechanism-evidence.log"
+  },
+  "activeCi": {
+    "runId": 40546738092,
+    "source": "cba7678a37d1",
+    "scope": "Writer/forecast/challenger/heap changes; before family-control changes",
+    "build": "PASS",
+    "api35": "PASS",
+    "api36": "PASS",
+    "api29": "PASS_67_TESTS_18_CLASSES",
+    "endurance": "RUNNING_SIX_REAL_HOUR_EMULATOR_SCENARIOS"
+  },
+  "migrationStartup": {
+    "status": "ANDROID_PENDING",
+    "fix": "Count incomplete journal before validating full prefix; validate all hashes and SQL objects at completion, protect immutable cached journal with update/delete/replace guards and count-before-cache",
+    "assertionsRelaxed": false
+  },
+  "sourceChangesScope": "Current staged/working delta from baseCommit; validation.json excluded to avoid a recursive self-hash. APK authority is the independently source-bound CI package receipt."
 }

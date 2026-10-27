@@ -8,9 +8,15 @@ public final class StrategySchemaSU1 {
     public static final String JOURNAL="su1_migration_unit_v2";
     public static final String STEP="SU1_STORAGE_FOUNDRY_RUNTIME_V1";
     private static final java.util.Map<SQLiteDatabase,Integer> VERIFIED=java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    private static final String[] JOURNAL_GUARDS={
+        "CREATE TRIGGER IF NOT EXISTS su1_migration_v2_no_update BEFORE UPDATE ON su1_migration_unit_v2 BEGIN SELECT RAISE(ABORT,'SU1_MIGRATION_JOURNAL_IMMUTABLE'); END",
+        "CREATE TRIGGER IF NOT EXISTS su1_migration_v2_no_delete BEFORE DELETE ON su1_migration_unit_v2 BEGIN SELECT RAISE(ABORT,'SU1_MIGRATION_JOURNAL_IMMUTABLE'); END",
+        "CREATE TRIGGER IF NOT EXISTS su1_migration_v2_no_replace BEFORE INSERT ON su1_migration_unit_v2 WHEN EXISTS(SELECT 1 FROM su1_migration_unit_v2 WHERE unit=NEW.unit) BEGIN SELECT RAISE(ABORT,'SU1_MIGRATION_JOURNAL_IMMUTABLE'); END"
+    };
     private StrategySchemaSU1() {}
     public static boolean advance(SQLiteDatabase db){
         db.execSQL("CREATE TABLE IF NOT EXISTS su1_migration_unit_v2(unit INTEGER PRIMARY KEY,sql_hash TEXT NOT NULL,installed_at INTEGER NOT NULL)");
+        for(String guard:JOURNAL_GUARDS)db.execSQL(guard);
         if(upgradePreview(db))return false;
         int installed;
         try(Cursor c=db.rawQuery("SELECT count(*) FROM su1_migration_unit_v2",null)){c.moveToFirst();installed=c.getInt(0);}
@@ -27,22 +33,22 @@ public final class StrategySchemaSU1 {
         return ready(db);
     }
     public static boolean ready(SQLiteDatabase db){
-        int version;
-        try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())return false;version=c.getInt(0);}
-        Integer known=VERIFIED.get(db);if(known!=null&&known==version)return true;
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_migration_unit_v2'",null)){if(!c.moveToFirst())return false;}
+        // An incomplete journal can never be READY. Do not rehash its growing prefix on
+        // every service quantum; verify every immutable unit and object once it is complete.
+        try(Cursor c=db.rawQuery("SELECT count(*) FROM su1_migration_unit_v2",null)){if(!c.moveToFirst()||c.getInt(0)!=SqlStatementsSU1.SQL.length)return false;}
+        int version;try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())return false;version=c.getInt(0);}
+        Integer known=VERIFIED.get(db);if(known!=null&&known==version)return true;
         try(Cursor c=db.rawQuery("SELECT unit,sql_hash FROM su1_migration_unit_v2 ORDER BY unit",null)){
             int n=0;while(c.moveToNext()){if(n>=SqlStatementsSU1.SQL.length||c.getInt(0)!=n||!HashingSU1.text(SqlStatementsSU1.SQL[n]).equals(c.getString(1)))return false;n++;}
             if(n!=SqlStatementsSU1.SQL.length)return false;
         }catch(android.database.sqlite.SQLiteException absent){return false;}
-        for(String sql:SqlStatementsSU1.SQL){
-            java.util.regex.Matcher m=java.util.regex.Pattern.compile("^CREATE (?:UNIQUE )?(?:TABLE|INDEX|TRIGGER) IF NOT EXISTS ([a-z0-9_]+)").matcher(sql);
-            if(!m.find())continue;
-            try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{m.group(1)})){if(!c.moveToFirst()||!normal(sql).equals(normal(c.getString(0))))return false;}
-        }
+        for(String sql:JOURNAL_GUARDS)if(!objectMatches(db,sql))return false;
+        for(String sql:SqlStatementsSU1.SQL)if(!objectMatches(db,sql))return false;
         VERIFIED.put(db,version);
         return true;
     }
+    private static boolean objectMatches(SQLiteDatabase db,String sql){java.util.regex.Matcher m=java.util.regex.Pattern.compile("^CREATE (?:UNIQUE )?(?:TABLE|INDEX|TRIGGER) IF NOT EXISTS ([a-z0-9_]+)").matcher(sql);if(!m.find())return true;try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{m.group(1)})){return c.moveToFirst()&&normal(sql).equals(normal(c.getString(0)));}}
     private static boolean column(SQLiteDatabase db,String table,String name){try(Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))return true;return false;}}
     private static boolean upgradePreview(SQLiteDatabase db){
         // Preserve the immutable V1 journal and all its evidence. Each ALTER is one atomic
