@@ -17,7 +17,7 @@ public final class FamilyRegistryR26 {
         case "F23":{ModelReplaySU2.Adapter adapter=ModelReplaySU2.ADAPTERS.get("R26F23");if(adapter==null)throw new IllegalArgumentException("F23_ORIGINAL_TEACHER_NOT_BOUND");return adapter.build(teacherBinding);}
         case "F22":return new ResidualFamilyR26();
         case "F01":return new FamilyF01KernelR26();
-        case "F08":return ModelReplaySU2.build("HMM",ModelEvolutionSU2.centralParams("HMM"));
+        case "F08":return new FamilyF08KernelR26();
         case "F09":return new FamilyF09KernelR26();
         case "F10":return ModelReplaySU2.build("BOCPD",ModelEvolutionSU2.centralParams("BOCPD"));
         case "F11":return new FamilyF11KernelR26(.02);
@@ -28,6 +28,6 @@ public final class FamilyRegistryR26 {
         case "F21":return ModelReplaySU2.build("RELBAYES",ModelEvolutionSU2.centralParams("RELBAYES"));
         default:throw new IllegalArgumentException("R26_FAMILY_IMPLEMENTATION_BLOCKED:"+id);
     }}
-    public static String implementation(String id){switch(id){case "F23":return teacherBinding.isEmpty()?"":"DistillationFamilyR26:original-VM-preference-projection";case "F22":return "ResidualFamilyR26";case "F15":case "F16":return "SetFamilyR26:"+id;case "F13":case "F14":return "SymbolicFamilyR26:"+id;case "F24":return "PortfolioFamilyR26";case "F02":return "FamilyF02KernelR26";case "F18":return "FamilyF18KernelR26";case "F03":case "F04":case "F05":case "F06":case "F07":return "NeuralFamilyR26:"+id;case "F01":return "FamilyF01KernelR26";case "F09":return "FamilyF09KernelR26";case "F11":return "FamilyF11KernelR26";case "F12":return "FamilyF12KernelR26";case "F17":return "PermutationModelR26";case "F19":return "FamilyF19KernelR26";case "F08":return "OnlineModelsSU2.Hmm";case "F10":return "OnlineModelsSU2.Bocpd";case "F20":return "OnlineModelsSU2.RegMem";case "F21":return "OnlineModelsSU2.RelBayes";default:return "";}}
+    public static String implementation(String id){switch(id){case "F23":return teacherBinding.isEmpty()?"":"DistillationFamilyR26:original-VM-preference-projection";case "F22":return "ResidualFamilyR26";case "F15":case "F16":return "SetFamilyR26:"+id;case "F13":case "F14":return "SymbolicFamilyR26:"+id;case "F24":return "PortfolioFamilyR26";case "F02":return "FamilyF02KernelR26";case "F18":return "FamilyF18KernelR26";case "F03":case "F04":case "F05":case "F06":case "F07":return "NeuralFamilyR26:"+id;case "F01":return "FamilyF01KernelR26";case "F09":return "FamilyF09KernelR26";case "F11":return "FamilyF11KernelR26";case "F12":return "FamilyF12KernelR26";case "F17":return "PermutationModelR26";case "F19":return "FamilyF19KernelR26";case "F08":return "FamilyF08KernelR26:causal-filter-router";case "F10":return "OnlineModelsSU2.Bocpd";case "F20":return "OnlineModelsSU2.RegMem";case "F21":return "OnlineModelsSU2.RelBayes";default:return "";}}
     public static ModelGenomeSU2 genome(String id){if(!EXECUTABLE.contains(id))throw new IllegalArgumentException("R26_BLOCKED_FAMILY");return new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("R26"+id,id.equals("F23")?teacherBinding:Collections.singletonMap("abi","1"),1)),"STATIC",true,"MASS",.15,.2,false);}
 }
