@@ -16,12 +16,13 @@ def main():
     sources=[p for p in (prod/'strategyv2').glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
     sources += [ROOT / 'app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
     sources += [prod/'r952'/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
-    sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java','R26ExpertTest.java','R26RecoveryTest.java','R26EvidenceTest.java','R26FrozenSurfaceTest.java']]
+    sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java','R26ExpertTest.java','R26RecoveryTest.java','R26EvidenceTest.java','R26FrozenSurfaceTest.java','R26ChunkedCheckpointTest.java']]
     classes=OUT/'classes';classes.mkdir(exist_ok=True)
     run('compile',['java','com.sun.tools.javac.Main','-encoding','UTF-8','-d',classes]+sources)
     log=run('kernels',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26KernelTest']);assert 'R26_KERNEL_PASS' in log
     run('experts',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26ExpertTest'])
     run('recovery',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26RecoveryTest'])
+    run('chunked_checkpoint',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26ChunkedCheckpointTest'])
     run('evidence',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26EvidenceTest'])
     run('frozen_surface',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26FrozenSurfaceTest'])
     plan=ROOT/'construction/plans/STARCORE_R26_MERGED_20261026'

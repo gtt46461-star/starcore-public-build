@@ -23,11 +23,11 @@ public final class CheckpointArtifactsR26 {
     private final File root;
     private Usage usage(){return USAGE.get(root.getPath());}
     public final class Prepared implements AutoCloseable {
-        private final String hash;private boolean closed;
+        private final String hash;private boolean closed;private List<Prepared> children=Collections.emptyList();
         private Prepared(String hash){this.hash=hash;}
         public byte[] reference(){return (PREFIX+hash).getBytes(StandardCharsets.US_ASCII);}
         public String hash(){return hash;}
-        @Override public void close(){synchronized(FILES_LOCK){if(closed)return;closed=true;String key=root.getPath()+"/"+hash;int count=IN_FLIGHT.getOrDefault(key,1)-1;if(count==0)IN_FLIGHT.remove(key);else IN_FLIGHT.put(key,count);}}
+        @Override public void close(){synchronized(FILES_LOCK){if(closed)return;closed=true;String key=root.getPath()+"/"+hash;int count=IN_FLIGHT.getOrDefault(key,1)-1;if(count==0)IN_FLIGHT.remove(key);else IN_FLIGHT.put(key,count);for(Prepared child:children)child.close();}}
     }
     public CheckpointArtifactsR26(File directory)throws IOException {
         root=directory.getCanonicalFile();
@@ -83,10 +83,30 @@ public final class CheckpointArtifactsR26 {
     public byte[] resolve(byte[] value)throws IOException {if(!reference(value))return value;return readHash(new String(value,PREFIX.length(),64,StandardCharsets.US_ASCII));}
     public static byte[] resolve(DbStore store,byte[] value)throws IOException {return reference(value)?forStore(store).resolve(value):value;}
     public static Prepared prepareLease(DbStore store,byte[] value)throws IOException {return forStore(store).prepareLease(value);}
+    private ChunkedCheckpointR26.Store readStore(){return new ChunkedCheckpointR26.Store(){public String put(byte[] bytes)throws IOException{throw new IOException("R26_READ_ONLY_CHUNK_STORE");}public InputStream open(String hash)throws IOException{return new ByteArrayInputStream(readHash(hash));}};}
+    public Prepared prepareLegacy(LegacyReplayStateR26 state)throws IOException {
+        return prepareState(state::writeInflated);
+    }
+    public Prepared prepareState(ChunkedCheckpointR26.StateWriter state)throws IOException {
+        List<Prepared> parts=new ArrayList<>();boolean complete=false;
+        try{byte[] manifest=ChunkedCheckpointR26.write(state,new ChunkedCheckpointR26.Store(){
+            public String put(byte[] bytes)throws IOException{Prepared part=prepareLease(bytes);parts.add(part);return part.hash();}
+            public InputStream open(String hash)throws IOException{return new ByteArrayInputStream(readHash(hash));}
+        });Prepared result=prepareLease(manifest);result.children=new ArrayList<>(parts);complete=true;return result;
+        }finally{if(!complete)for(Prepared part:parts)part.close();}
+    }
+    public LegacyReplayStateR26 restoreLegacy(byte[] reference,String expectedStateHash)throws IOException {
+        byte[] root=resolve(reference);if(!LiveStateR26.hash(root).equals(expectedStateHash))throw new IOException("R26_LEGACY_CHECKPOINT_HASH");
+        return ChunkedCheckpointR26.isManifest(root)?LegacyReplayStateR26.readInflated(ChunkedCheckpointR26.open(root,readStore())):LegacyReplayStateR26.decode(root);
+    }
+    public InputStream openState(byte[] reference)throws IOException{return ChunkedCheckpointR26.open(resolve(reference),readStore());}
+    public Set<String> reachableHashes(Set<String> roots)throws IOException {
+        Set<String> closure=new TreeSet<>(roots);for(String hash:roots){byte[] header=new byte[4];int n;try(InputStream in=new FileInputStream(path(hash))){n=in.read(header);}if(n==4&&ChunkedCheckpointR26.isManifest(header))closure.addAll(ChunkedCheckpointR26.children(readHash(hash)));}return closure;
+    }
     /** Called with DB references frozen by the P3 owner. New, not-yet-committed files have an age grace. */
     public long prune(Set<String> references,long now,long graceMillis,int limit)throws IOException {return prune(()->references,now,graceMillis,limit);}
     public long prune(java.util.function.Supplier<Set<String>> referenceSource,long now,long graceMillis,int limit)throws IOException {
-        synchronized(FILES_LOCK){Set<String> references=referenceSource.get();File[] files=root.listFiles();if(files==null)throw new IOException("R26_ARTIFACT_LIST");Arrays.sort(files,Comparator.comparingLong(File::lastModified));long removed=0;int count=0;
+        synchronized(FILES_LOCK){Set<String> references=reachableHashes(referenceSource.get());File[] files=root.listFiles();if(files==null)throw new IOException("R26_ARTIFACT_LIST");Arrays.sort(files,Comparator.comparingLong(File::lastModified));long removed=0;int count=0;
         for(File file:files){if(count>=limit)break;String name=file.getName();if(now-file.lastModified()<graceMillis)continue;
             boolean temporary=name.startsWith(".tmp-");if(temporary&&IN_FLIGHT.keySet().stream().anyMatch(k->k.startsWith(root.getPath()+"/")))continue;String hash=name.endsWith(".bin")?name.substring(0,name.length()-4):"";
             if(!temporary&&(references.contains(hash)||IN_FLIGHT.containsKey(root.getPath()+"/"+hash)||!hash.matches("[0-9a-f]{64}")))continue;

@@ -12,6 +12,7 @@ public final class BudgetTokenSU1 {
     static void setPauseClock(PauseClock clock){if(clock==null)PAUSE_CLOCK.remove();else PAUSE_CLOCK.set(clock);}
     private final PauseClock clock=PAUSE_CLOCK.get();
     private long now(){return System.nanoTime()-(clock==null?0:clock.pausedNanos());}
+    public long activeNanos(){return now();}
     private final long deadlineNanos;
     private final BooleanSupplier preempt;
     private long remainingOperations;

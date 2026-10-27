@@ -37,7 +37,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     private void sessionBlocked(String reason){long now=System.currentTimeMillis();String state=reason==null?"RUNNING":"BLOCKED:"+reason;if(state.equals(recordedSessionState)&&now-heartbeat<1000)return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STATUS",db->{db.execSQL("UPDATE r26_session SET state=?,heartbeat=? WHERE session_id=? AND user_enabled=1",new Object[]{state,now,owner});return 0;});heartbeat=now;recordedSessionState=state;}
 
-    @Override public void close(){cancelled=true;LegacyGenerationR26.cancel(owner);wake();worker.interrupt();}
+    @Override public void close(){cancelled=true;LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);wake();worker.interrupt();}
     /** The service must not close a shared connection while a slice is draining. */
     public void closeAndReleaseStore(){closeStore=true;close();if(!worker.isAlive())store.close();}
     public boolean isRunning(){return !cancelled && worker.isAlive();}
@@ -101,7 +101,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             // Empty maintenance work waits for its next data event, never spins to fabricate progress.
             if(delta==0)await(10);
         }}catch(Exception failure){android.util.Log.e("STARCORE_R26","runtime blocked",failure);try{store.setState("r26_runtime_error",failure.toString());}catch(Exception ignored){}}
-        finally{LegacyGenerationR26.cancel(owner);Thread.interrupted();try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STOP",db->{if(RuntimeSchemaR26.ready(db)){db.execSQL("UPDATE r26_session SET state=?,user_enabled=0,heartbeat=? WHERE session_id=?",new Object[]{cancelled?"STOPPED":"FAILED",System.currentTimeMillis(),owner});db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0 WHERE owner=? AND status='RUNNING'",new Object[]{owner});}return 0;});}catch(Exception ignored){}if(active==this)active=null;if(closeStore)store.close();}
+        finally{LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);Thread.interrupted();try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STOP",db->{if(RuntimeSchemaR26.ready(db)){db.execSQL("UPDATE r26_session SET state=?,user_enabled=0,heartbeat=? WHERE session_id=?",new Object[]{cancelled?"STOPPED":"FAILED",System.currentTimeMillis(),owner});db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0 WHERE owner=? AND status='RUNNING'",new Object[]{owner});}return 0;});}catch(Exception ignored){}if(active==this)active=null;if(closeStore)store.close();}
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{
@@ -123,16 +123,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
-        if(c.task.startsWith("expert-"))return ExpertWorkshopR26.step(store,c,budget,seq+1);
+        if(c.task.startsWith("expert-"))return TaskContinuationR26.step(store,c,budget,seq+1);
         switch(c.task){
             case "legacy-generation":return LegacyGenerationR26.step(store,c,budget);
-            case "legacy-replay":return LegacyReplayR26.step(store,c,budget);
+            case "legacy-replay":return LegacyReplayContinuationR26.step(store,c,budget);
             case "artifact-retention":return ArtifactMaintenanceR26.step(store,c,budget);
             case "qualification":return CertificateSU2.maintainOne(store,seq+1);
             case "aggregate-evidence":return EvidenceAccumulatorR26.stepOne(store,c,budget,seq+1);
-            case "publish-models":return LivePoolR26.publishOne(store,c,budget);
-            case "live-model-training":return LivePoolR26.trainOne(store,c,budget);
-            case "foundry-su2":return FoundryCampaignR26.step(store,c,budget);
+            case "publish-models":return TaskContinuationR26.step(store,c,budget,seq+1);
+            case "live-model-training":return TaskContinuationR26.step(store,c,budget,seq+1);
+            case "foundry-su2":return TaskContinuationR26.step(store,c,budget,seq+1);
             case "feedback":return ResearchFeedbackSU1.drainOne(store)?1:0;
             case "ablation":return ModelAblationStoreSU1.advanceOne(store,budget)?1:0;
             case "campaign-audit":return CampaignAuditStoreSU1.advanceOne(store,budget)?1:0;

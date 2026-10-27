@@ -92,4 +92,21 @@ public final class R26CheckpointDeviceTest {
             }
         }finally{clear(directory);}
     }
+    @Test public void streamedCheckpointPinsAllPartsAndRetainedRootsCloseTheBackupGraph()throws Exception {
+        File directory=root();try{
+            CheckpointArtifactsR26 files=new CheckpointArtifactsR26(directory);byte[] state=new byte[2<<20];new Random(2626).nextBytes(state);byte[] reference;String root;
+            try(CheckpointArtifactsR26.Prepared checkpoint=files.prepareState(out->out.write(state))){reference=checkpoint.reference();root=checkpoint.hash();assertTrue(files.reachableHashes(Collections.singleton(root)).size()>2);assertEquals(0,files.prune(Collections.emptySet(),System.currentTimeMillis()+120000,60000,8192));}
+            files.prepare(bytes("unreachable"));assertEquals(11,files.prune(Collections.singleton(root),System.currentTimeMillis()+120000,60000,8192));
+            try(InputStream input=files.openState(reference);ByteArrayOutputStream restored=new ByteArrayOutputStream()){byte[] buffer=new byte[7777];int n;while((n=input.read(buffer))!=-1)restored.write(buffer,0,n);assertArrayEquals(state,restored.toByteArray());}
+            assertTrue(files.prune(Collections.emptySet(),System.currentTimeMillis()+120000,60000,8192)>0);assertEquals(0,files.bytes());
+        }finally{clear(directory);}
+    }
+    @Test public void corruptStreamPartCannotRestoreBehindAnIntactRoot()throws Exception {
+        File directory=root();try{
+            CheckpointArtifactsR26 files=new CheckpointArtifactsR26(directory);byte[] state=new byte[100000];new Random(2627).nextBytes(state);
+            try(CheckpointArtifactsR26.Prepared checkpoint=files.prepareState(out->out.write(state))){String part=ChunkedCheckpointR26.children(files.resolve(checkpoint.reference())).iterator().next();File path=new File(directory,part+".bin");try(RandomAccessFile corrupt=new RandomAccessFile(path,"rw")){corrupt.seek(path.length()-8);int original=corrupt.readUnsignedByte();corrupt.seek(path.length()-8);corrupt.write(original^1);corrupt.getFD().sync();}
+                try(InputStream input=files.openState(checkpoint.reference())){byte[] buffer=new byte[8192];while(input.read(buffer)!=-1){}fail("corrupt child accepted through intact root");}catch(IOException expected){assertTrue(expected.getMessage().contains("CORRUPT"));}
+            }
+        }finally{clear(directory);}
+    }
 }
