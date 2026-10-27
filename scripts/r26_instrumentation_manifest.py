@@ -12,7 +12,7 @@ def main():
         assert len(methods)==len(re.findall(r'@(?:org\.junit\.)?Test\b',source)),f'Unparsed @Test annotation: {path}'
         assert len(methods)==len(set(methods)),f'Duplicate test method: {path}'
         package=re.search(r'^package\s+([\w.]+)\s*;',source,re.M)[1]
-        rows.append(dict(className=package+'.'+path.stem,methods=methods,count=len(methods),sourcePath=str(path.relative_to(ROOT)),sourceSha256=hashlib.sha256(path.read_bytes()).hexdigest()))
+        rows.append(dict(className=package+'.'+path.stem,methods=methods,count=len(methods),sourcePath=str(path.relative_to(ROOT)),sourceSha256=hashlib.sha256(path.read_bytes()).hexdigest(),isolateEachMethod=path.stem=='R26PublicationDeviceTest'))
     assert rows,'Empty instrumentation manifest'
     out=ROOT/'package-receipt/instrumentation-tests.json';out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps(dict(schema='R26_INSTRUMENTATION_MANIFEST_V1',classes=rows,total=sum(x['count'] for x in rows)),indent=2)+'\n')

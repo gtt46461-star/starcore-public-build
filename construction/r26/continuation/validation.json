@@ -1297,22 +1297,52 @@
     "source": "10018f4c1e6e2c0d3f78f67ff0f40d9842ba6433",
     "compiledSource": "3198e464216b0864695c306565083f31212a7355",
     "build": "PASS_UNIT_LINT_PACKAGE",
-    "android": "API29_35_36_RUNNING",
+    "api29": "FAIL_FIXTURE_PROCESS_ISOLATION",
+    "api35": "PASS",
+    "api36": "PASS",
     "instrumentationClasses": 19,
-    "instrumentationTests": 74
+    "instrumentationTests": 74,
+    "receipt": "construction/r26/continuation/runtime-74-fixture-failure.json",
+    "endurance": "SKIPPED_STANDARD_GATE_FAILED"
   },
   "currentInstrumentation": {
     "classes": 19,
-    "tests": 77,
-    "validation": "PENDING_NEW_SOURCE_CI"
+    "tests": 78,
+    "validation": "PENDING_SOURCE_MATCHED_CI_WITH_METHOD_ISOLATION"
   },
   "protectedOriginalMigration": {
     "sourceBranch": "construction/r26-incumbent-owner-20261027",
     "sourceCommit": "94ea622b445eedb36cbed246efd2cc33e4440bab",
-    "status": "SUBMITTED_FOR_SOURCE_MATCHED_CI",
+    "status": "HOST_77_PASS_ANDROID_PENDING; PROCESS_ISOLATION_FIX_ADDED_IN_NEXT_SOURCE",
     "scope": "Original arithmetic retained; own cooperative scheduler and atomic persisted original preference freeze; not natural quality",
     "requiredHostGroups": 15,
     "newAndroidTests": 3,
-    "record": "construction/r26/continuation/incumbent-owner-migration.json"
+    "record": "construction/r26/continuation/incumbent-owner-migration.json",
+    "build77": {
+      "runId": 40570919141,
+      "source": "a671f19991b3882ac25ceb97c12b989aed4e8733",
+      "compiledSource": "bd3d161797dd80da9e3fc2e7582b98fb586fdca1",
+      "numericalAbi": "85c271951ff6b37d3190f1845f5d0341feef08de62c9807ff11d291f0c23fa57",
+      "build": "PASS_UNIT_LINT_PACKAGE",
+      "independentOriginalXiParity": "PASS",
+      "cooperativeOriginalDecisionAndPreferenceParity": "PASS",
+      "hostR26Groups": 15,
+      "api29": "RUNNING_WITH_KNOWN_METHOD_ISOLATION_FIX_PENDING",
+      "api35": "RUNNING",
+      "api36": "RUNNING"
+    }
+  },
+  "fixtureIsolation": {
+    "status": "SOURCE_SUBMITTED_FOR_CI",
+    "testClass": "R26PublicationDeviceTest",
+    "execution": "Each source-bound method selector is invoked in a fresh force-stopped instrumentation process, preserving source declaration order",
+    "restart": "Separate persisted-sandbox producer and consumer across process replacement; DbStore facade recreation is not described as restart",
+    "assertionsRelaxed": false
+  },
+  "engineeringReceiptSummary": {
+    "status": "PENDING_CI",
+    "script": "scripts/summarize_r26_runtime.py",
+    "scope": "Bounded metrics and owner capacity event metadata only; no canonical history labels; missing counters remain null; receipt-ring failures do not overwrite monotonic totals",
+    "selfTests": 4
   }
 }
