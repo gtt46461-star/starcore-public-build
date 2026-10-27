@@ -32,8 +32,8 @@
     "r26Groups": 14,
     "priorStrategyGroups": 21,
     "priorPlanGroups": 20,
-    "status": "PASS",
-    "compileOnlySources": 1066,
+    "status": "PASS_CURRENT_PURE_AND_SDK; Android-current pending",
+    "compileOnlySources": 1067,
     "compileOnlyStatus": "PASS_OFFICIAL_SDK36",
     "apkAuthority": "PENDING_SOURCE_MATCHED_ANDROID_AND_ENDURANCE"
   },
@@ -52,14 +52,16 @@
   },
   "androidTests": {
     "classes": 18,
-    "tests": 68,
+    "tests": 70,
     "status": "PENDING_CURRENT_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
       "Two challenger slots preserve all base slots; expiry keeps weights, mainline, certificates and birth alpha",
       "Non-atomic legacy writer releases before numerical continuation may park",
-      "Migration journal update/delete/replacement is immutable; warm readiness rejects an extra unit"
+      "Migration journal update/delete/replacement is immutable; warm readiness rejects an extra unit",
+      "First birth binds a nonempty benchmark before alpha and keeps the cohort immutable",
+      "Committed service totals survive ring and old-session retention; missing telemetry is unknown"
     ]
   },
   "physicalDevice": "NOT_RUN",
@@ -69,13 +71,13 @@
     "Complete forty-chapter device/report acceptance",
     "Persistent-cache capacity, 1000-opportunity tail SLO and 60-minute unplugged bright/locked device matrix",
     "Natural forward evidence for 35/37/40 quality and user phone acceptance",
-    "Complete source-matched 67-test Android and all six 60-minute emulator scenarios after forecast/admission/writer/heap fixes"
+    "Complete source-matched 70-test Android and all six 60-minute emulator scenarios after cohort/telemetry changes"
   ],
   "sourceChanges": [
     {
       "path": ".github/workflows/r13.yml",
       "beforeSha256": "f3853652170ff43b939d2296d4687d3fefbe2e1e02f56ee4cc8fd8153a4c3ebe",
-      "afterSha256": "7c9bb7a74c2d9fe626f883cc696b78bcd30fb92b8bf5c241c248b4dfa50aeae3"
+      "afterSha256": "c847f010cd61f651315b155f2bcb3dbf50580f8037e477b7b15f51d38a42a1fb"
     },
     {
       "path": "app/build.gradle",
@@ -85,12 +87,12 @@
     {
       "path": "app/build/generated/r967/semantic_manifest.json",
       "beforeSha256": "7ca9342a96c0a187ac6218221920b946bf239f740ac5a5cbc8035e1bcace1cec",
-      "afterSha256": "321b34b681d49c244b9a1101de5e9cacb891c91bfde11c705162e95c64877583"
+      "afterSha256": "9f1c34303416440d80e413db8fe51adb5e5031b9809706bdec7aaab1eaea28ed"
     },
     {
       "path": "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
       "beforeSha256": "012237cf3a2fc7042bb5233713197c9f5da18091704b4e9c5c2334a08186ee97",
-      "afterSha256": "6f1a32769f59ceb7950dd3a4b4207bcaaa973a79ef4f0946fc804e6d75e3531d"
+      "afterSha256": "f7a4afe600dc7307c9714e528df2e4633f9890efe466ada437c218235fd63336"
     },
     {
       "path": "app/src/androidTest/AndroidManifest.xml",
@@ -105,7 +107,7 @@
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26DeviceTest.java",
       "beforeSha256": "1c9202009148b5c5412d94f9a55fdca0ae48592d944b05e43e2e38b1b8f1a1a5",
-      "afterSha256": "b53f7241add44ff45a0a040de1dea1de6718efad91e54cff161f85d6e291890f"
+      "afterSha256": "7a17f546bd3717c2a681f5628953d327055ba4352fefadcf2b867ea51f9769d6"
     },
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26EvidenceDeviceTest.java",
@@ -125,7 +127,7 @@
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java",
       "beforeSha256": null,
-      "afterSha256": "5af8b63a52990fad0647cf720b0ad8cfa88b81b84a67e9e9f118b96069fa04b7"
+      "afterSha256": "4907c56973cb93bade211f98b55a5f32f6691324db12e22b6f0a904347d0abe1"
     },
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26WriterDeviceTest.java",
@@ -210,7 +212,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
       "beforeSha256": "6322ae71de0bdcecc6a13cd380a7ff4dbfbaf381da59e1da353abaccde4ab73a",
-      "afterSha256": "f793781791287d30f14345ee1728367b7d0b575200310e56aad1d1d2bbf8e87f"
+      "afterSha256": "97132038bfc9dabc572c7f468f28d8a2fe31a0f99cba6e1c61acf0262433ec30"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
@@ -326,6 +328,11 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenSurfaceStoreR26.java",
       "beforeSha256": null,
       "afterSha256": "a9ebb13e5592c9be9c322d162e65066d694aefc3ea59dda654d82ec40ed6529e"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java",
+      "beforeSha256": "3cd47c10748e627aed8473bfaabe48fb0c0f527d0217a8cab90db08dd8d51906",
+      "afterSha256": "6c3eed399d226d810f28d1b1807f41af679d29469b2e4d3277ae501e7c4ac5ab"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyBootstrapR26.java",
@@ -475,22 +482,27 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
       "beforeSha256": "965e5b79af388563cff28a12c542923970f78bf710dae8f0e018252c79f3ed32",
-      "afterSha256": "4c4d0de82c09df21c6a789dcd5ae54e562105c9b4392965bd6ac3d23cb0e992a"
+      "afterSha256": "ad7637d3416546858092e95475a2d7c4f824fdff7baeb18117b5144a27db69f3"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
       "beforeSha256": "391e22bc186641de1c91caad40f60a60f3af3a6acaafef47050bec7a6b755557",
-      "afterSha256": "e06abd45b7885fb067a271b459494e2b725856a81553d5c747977329d54a6191"
+      "afterSha256": "80d379cd4db87d2eb98ab42797d454b5b73eb7099b8ad4b6687d6de7dbde2410"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
       "beforeSha256": "04ba1c4caf7f0cb3fa528927eae6351eab6a6d85587e7b8ef24601fc51f2ff76",
-      "afterSha256": "03cd2094111a9a486618dd4174b7daeddf65fc89ce15cca90f7567ed3196e65c"
+      "afterSha256": "10b7bc91cf69ba8b7b373dbc8812bc5e437bc9d6cb7217c2f81e7934a39d55c0"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
       "beforeSha256": "9c7f9dd76afcac1aac7aa93aa9f9ec056577afee39d0f934b59480d8a30ae7fc",
-      "afterSha256": "86379020f3007dea9907619311aef15f53e5df281530454eef24f9e4bc8131f5"
+      "afterSha256": "1ff8880d6d24a785b9af405753b9e22ab4c0ac06661f7ea3b6fd9a357283280a"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ServiceTotalsR26.java",
+      "beforeSha256": null,
+      "afterSha256": "5927fee05384ed0c22e3cd5e199d3a7c3f8ae9913968fc6ee5834b1e89961655"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ShadowAdmissionR26.java",
@@ -545,12 +557,12 @@
     {
       "path": "construction/r26/README.md",
       "beforeSha256": "ecc9534b6b961ce520cad0d656c682015cbc58501319e3af7273d66ff563f862",
-      "afterSha256": "ebecea0cad143ac757573b0de78f063879fc38245bd4f9749483acf43bd0efa4"
+      "afterSha256": "9dea770e1f52c82fea910bc7728359c95ec537bed0b88af719b96b3c6ef46550"
     },
     {
       "path": "construction/r26/STATUS.zh.md",
       "beforeSha256": "34ef6a3c1c02a3850c1575b9ea33fba297cd415c8364ea03a92dfc5720c269df",
-      "afterSha256": "1b07670caeadcc77b8859c251f4816f187cd1aa31c266b88c6f55aabc3215b29"
+      "afterSha256": "c035dd2aeb33c5ccf308c7f5334bbdf998040adfeaf7b1855ce352bd8eafc9f9"
     },
     {
       "path": "construction/r26/continuation/android36-compile-only.log",
@@ -561,6 +573,36 @@
       "path": "construction/r26/continuation/endurance-55-failures.json",
       "beforeSha256": null,
       "afterSha256": "12f08f66f4965fb9ebf3703528b352576fa227387b77e5d9dd77cf2968b72152"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-67-29-bright.json.gz",
+      "beforeSha256": null,
+      "afterSha256": "984c6981c07f4ddb29375c183a196c56415244061f74b2ae88ea958481110b46"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-67-35-bright.json.gz",
+      "beforeSha256": null,
+      "afterSha256": "90dcc78ddc29aec6614e382a97be767dabcfa6c5e6ad494404dd83e6d31256ec"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-67-35-locked.json.gz",
+      "beforeSha256": null,
+      "afterSha256": "7f353af6f9abfea21d8bea12f215e73dfdc1e5ebfb301796931142bdd50637af"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-67-36-bright.json.gz",
+      "beforeSha256": null,
+      "afterSha256": "00cecc4c4ed9ad9a53f94eb1cdad85193673c41719049a9655f7bae89204e94b"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-67-36-locked.json.gz",
+      "beforeSha256": null,
+      "afterSha256": "d5f511650df4f8d25cec7591f35bb6dd099d612df3bdf4195af88a0a1340d8a6"
+    },
+    {
+      "path": "construction/r26/continuation/endurance-67-summary.json",
+      "beforeSha256": null,
+      "afterSha256": "6e63b784706819ba5f30b12a93550497ccf667b0d301f9b7add7b9dd02afce1d"
     },
     {
       "path": "construction/r26/continuation/evidence-power.log",
@@ -738,9 +780,19 @@
       "afterSha256": "d53805c96768d48174f70649b4070352a683d72869418f7914a90f3c4cc0e53e"
     },
     {
+      "path": "construction/r26/continuation/runtime-67-locked-first-service-failure.json",
+      "beforeSha256": null,
+      "afterSha256": "9cb59359e12ab88874c51872dd591f67c266fb390faf4925abbb1ac83f92b3b1"
+    },
+    {
       "path": "construction/r26/continuation/runtime-67-pass.json",
       "beforeSha256": null,
       "afterSha256": "c986225a3267dbfba86fd3afec168a4fe23aca3b276d55a1d2b85850ed3d3c78"
+    },
+    {
+      "path": "construction/r26/continuation/runtime-68-pass.json",
+      "beforeSha256": null,
+      "afterSha256": "28f9295914e4a8a590d30907e9ad4fb8a5e5cede72542731b078335ce32cf409"
     },
     {
       "path": "construction/r26/continuation/runtime-schema-priority-failure.json",
@@ -761,6 +813,16 @@
       "path": "construction/r26/continuation/schema-count-native.log",
       "beforeSha256": null,
       "afterSha256": "aa61292ee21df9ca7722ee06413ccc48bd1bb48f1352cb7e0ae8cf3879f25392"
+    },
+    {
+      "path": "construction/r26/continuation/service-telemetry-host.log",
+      "beforeSha256": null,
+      "afterSha256": "af92e02d44e825eeee3e7488e4de6ec2b887ce53180720770f83b76c593059fd"
+    },
+    {
+      "path": "construction/r26/continuation/service-telemetry-native.log",
+      "beforeSha256": null,
+      "afterSha256": "abfe3f0c3e9dacb0c2e4012db31715087a2d952e6eb2b1e03e5aa3093d4a8087"
     },
     {
       "path": "construction/r26/continuation/single-blob-capacity-failure.log",
@@ -810,17 +872,17 @@
     {
       "path": "release/r82_training_invalidation.json",
       "beforeSha256": "4bc2817d5c02047fa45896eb7499eb812317974f162c5ba807b1bb1e25e4154e",
-      "afterSha256": "b247e8cc04c9c3eb61f40b4ec5ce606c0ba14412a86b968094ff369716ffa4ae"
+      "afterSha256": "f19b895ef71d55351839f47d608b1e351b5e4ed81cae29eac13381831b325c72"
     },
     {
       "path": "release/r982_source_calls.manifest.json",
       "beforeSha256": "1b1c3874227916c45b393d1649ac342bde919b8a9af58d40d922197d93e256a8",
-      "afterSha256": "71f036d5c953e7073413879c92d3696ac07d0557249e7ef197ec7824ef92304b"
+      "afterSha256": "c37638bc24a67f81efc04482a384bb68738815d2041c89109998739969d3947d"
     },
     {
       "path": "release/r982_source_calls.tsv.gz",
       "beforeSha256": "e358899b34b027ef37f8895aff398d2043e50eefb8cc483fcad0bb13cd69defa",
-      "afterSha256": "76a4d12d7c1db9b0dcd0ec9f2d8bdd0c4d2e9a4f6578d489c906949fc05853b2"
+      "afterSha256": "9900dfacd6cf6c5f95ba5836181cf8aba4f1d9e21957bde40908547e61c1c2a4"
     },
     {
       "path": "release/release_identity.properties",
@@ -835,22 +897,22 @@
     {
       "path": "release/research_dependencies_r967.json",
       "beforeSha256": "889a0dbe2beceeedff548dfe998312fee8ec71ae51ed2ea1e9110ae15b8d8b3d",
-      "afterSha256": "d71fab32a2d7b4b6d5b8857eb5ae64ef039a23a198513bf724918cdd2c8a7456"
+      "afterSha256": "5f56eff4230883378b507379688c5e86d0c2192e0ac20f303c6acc7e97f2f2a8"
     },
     {
       "path": "release/strategy_su1_reviewed_inputs.json",
       "beforeSha256": "19d9455c0a517207036c23145c5981eb60a971b4e8db2fb7c80076d253abcd5c",
-      "afterSha256": "ba5e86f0c39ed297fa837adaabdb602877133a1e121441c991a48229a5508dc7"
+      "afterSha256": "d64994bb0cfbb9b95fd9039dacad33cade396a4eee7f7a191449b03db69a9488"
     },
     {
       "path": "scripts/run_android_r13.sh",
       "beforeSha256": "0672f6b452dfeb2dbce577bb2edfcf101f8e7962b4bd2bcf3dcd9b35d58c02d8",
-      "afterSha256": "f90b3403f8acb359bea473a48211bb9223c2b5875be81753bfb9497918f6edb6"
+      "afterSha256": "25cb30a61252e420f4c7543615f63c694f1ca0ed93e3ca44fcfc6ee7118aae0e"
     },
     {
       "path": "scripts/run_r26_endurance.sh",
       "beforeSha256": null,
-      "afterSha256": "d0b05ac94f4a323012b1c739989016c08147a508d489680913fa44f29760e11a"
+      "afterSha256": "b63ac8feb3035afbfd450ebaf9d771a79b169265f9d3bc20437c1732104755f4"
     },
     {
       "path": "scripts/verify_r26.py",
@@ -880,7 +942,7 @@
     {
       "path": "tools/strategy_su2/tests/R26ForecastSnapshotTest.java",
       "beforeSha256": null,
-      "afterSha256": "eede4c9d3c794778bbd1022642e10d2642008de2c6500f2f029101c6ba2ca14f"
+      "afterSha256": "c5588c8339bba7d446af2aa3a4f383c134a180e3007448b9ecd69316099660fb"
     },
     {
       "path": "tools/strategy_su2/tests/R26FrozenSurfaceTest.java",
@@ -1012,6 +1074,39 @@
     "log": "construction/r26/continuation/streaming-capacity-host.log"
   },
   "lastPassedStandardRuntime": {
+    "runId": 40552687429,
+    "source": "9b023b3ed0c3bbf8e396ed8480ab6239477800ce",
+    "compiledSource": "04193e4",
+    "api29": "PASS_68_TESTS_18_CLASSES",
+    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "receipt": "construction/r26/continuation/runtime-68-pass.json",
+    "api": 29,
+    "engineeringWriteProbes": 1000,
+    "fullPredrawOpportunitySloClaimed": false,
+    "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+    "javaHeapLimitAtStart": 536870912,
+    "targetLargeHeapFlag": true,
+    "familyMechanismsWithCommittedProgress": 24,
+    "expertsWithActualReceipts": 16,
+    "allMechanismsServiceMillis": 90755,
+    "strategyReadyToAllMechanismsWallMs": 9090,
+    "firstServiceTargetMs": 60000,
+    "firstServiceTargetObservedWithin": true,
+    "canonicalDrawWriteP50Ms": 6,
+    "canonicalDrawWriteP95Ms": 12,
+    "canonicalDrawWriteP99Ms": 14,
+    "canonicalDrawWriteMaxMs": 20,
+    "retentionBoundaryRenewed": true,
+    "committedCandidateSamplesBeforeRestart": 31,
+    "actualProgressBeforeRestart": 715,
+    "committedCandidateSamplesAfterRestart": 47,
+    "restartResumed": true,
+    "staleOwnerRejected": true,
+    "capacityFailReceipts": 1,
+    "checkpointFileBytes": 455120
+  },
+  "previousPassedStandardRuntime": {
     "runId": 40546738092,
     "source": "cba7678a37d1",
     "compiledSource": "2eb70bae9043f6a8e63bdc44afe9f002801e35d0",
@@ -1048,30 +1143,11 @@
     "capacityFailReceipts": 0,
     "checkpointFileBytes": 479967
   },
-  "previousPassedStandardRuntime": {
-    "runId": 40536423771,
-    "source": "18fdfeac1253695a6569b6fa23971594327da717",
-    "api29": "PASS_62_TESTS_17_CLASSES",
-    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
-    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
-    "receipt": "construction/r26/continuation/runtime-62-pass.json",
-    "familyMechanismsWithCommittedProgress": 24,
-    "expertsWithActualReceipts": 16,
-    "allMechanismsServiceMillis": 125718,
-    "strategyReadyToAllMechanismsWallMs": 117037,
-    "firstServiceTargetObservedWithin": false,
-    "canonicalDrawWriteP99Ms": 10,
-    "canonicalDrawWriteMaxMs": 14,
-    "restartResumed": true,
-    "staleOwnerRejected": true,
-    "capacityFailReceipts": 0,
-    "fullPredrawOpportunitySloClaimed": false
-  },
   "cpuFairness": {
     "status": "HOST_PASS_ANDROID_PENDING",
     "policy": "First real service prioritizes unserved available families/experts; normal measured mechanism-weighted CPU service resumes afterwards. P2 keeps a measured 20 percent reserve.",
     "hostDispatches": 10000,
-    "firstService60s": "CBA_67_SOURCE_FAIL_72811MS; PRIORITY_BOOTSTRAP_FIX_PENDING_CURRENT_CI"
+    "firstService60s": "PASS_ON_68_TEST_SOURCE_9090MS_AFTER_STORAGE_READY; COLD_TOTAL_90755MS"
   },
   "lastSourceCi": {
     "runId": 40542555379,
@@ -1125,7 +1201,7 @@
     "birthAndAlphaRefunded": false
   },
   "familyMechanismControls": {
-    "status": "HOST_PASS_ANDROID_PENDING",
+    "status": "HOST_AND_ANDROID_68_PASS; NOT_FULL_FAMILY_OR_NATURAL_QUALITY_ACCEPTANCE",
     "families": [
       "F01",
       "F02"
@@ -1138,19 +1214,41 @@
     "receipt": "construction/r26/continuation/family-controls-mechanism-evidence.log"
   },
   "activeCi": {
-    "runId": 40546738092,
-    "source": "cba7678a37d1",
-    "scope": "Writer/forecast/challenger/heap changes; before family-control changes",
+    "runId": 40552687429,
+    "source": "9b023b3ed0c3bbf8e396ed8480ab6239477800ce",
+    "scope": "Before current cohort-birth/service-telemetry changes",
     "build": "PASS",
+    "api29": "PASS_68_TESTS",
     "api35": "PASS",
     "api36": "PASS",
-    "api29": "PASS_67_TESTS_18_CLASSES",
-    "endurance": "RUNNING_SIX_REAL_HOUR_EMULATOR_SCENARIOS"
+    "endurance": "SIX_RUNNING"
   },
   "migrationStartup": {
-    "status": "ANDROID_PENDING",
+    "status": "ANDROID_68_PASS",
     "fix": "Count incomplete journal before validating full prefix; validate all hashes and SQL objects at completion, protect immutable cached journal with update/delete/replace guards and count-before-cache",
     "assertionsRelaxed": false
   },
-  "sourceChangesScope": "Current staged/working delta from baseCommit; validation.json excluded to avoid a recursive self-hash. APK authority is the independently source-bound CI package receipt."
+  "sourceChangesScope": "Current staged/working delta from baseCommit; validation.json excluded to avoid a recursive self-hash. APK authority is the independently source-bound CI package receipt.",
+  "endurance67": {
+    "runId": 40546738092,
+    "source": "cba7678a37d1823c0daab0d0c9e53cb118905ca5",
+    "status": "FINAL_FAIL_29_LOCKED_STARTUP; FIVE_OTHER_SCENARIOS_PASS_FULL_HOUR",
+    "failedScenario": "API29_LOCKED",
+    "failure": "240s startup asserted 16 experts; actual 14, with E06/E10 still paused in real checkpoint/input work",
+    "elapsedHourClaimed": false,
+    "familyProgress": 24,
+    "expertProgress": 14,
+    "strategyReadyToFirstServiceObservedMs": 155092,
+    "jvmHeapBytes": 536870912,
+    "fixAlreadyInNextSource": "Initial real-service priority and fast incomplete migration count in 9b023b3; await its own Android validation",
+    "receipt": "construction/r26/continuation/runtime-67-locked-first-service-failure.json",
+    "summary": "construction/r26/continuation/endurance-67-summary.json",
+    "fullHourEngineeringPasses": 5
+  },
+  "currentAdditions": {
+    "cohortBirth": "Register benchmark availability in the same transaction before the first alpha reservation; birth, benchmark, protocol and family-alpha fields are immutable; old missing-benchmark cohorts remain explicitly blocked",
+    "fittedForecastCache": "MASS/META/calibrated gates tested after 1510 actual synthetic updates with exact next-step equality",
+    "serviceCounters": "Source/runtime/device-tagged committed CPU/wall/capacity counters survive receipt/session pruning; snapshot without telemetry reports NOT_INSTALLED, not zero; controlled owner trace preserved before startup log clearing",
+    "androidValidation": "PENDING_70_TEST_CURRENT_SOURCE"
+  }
 }
