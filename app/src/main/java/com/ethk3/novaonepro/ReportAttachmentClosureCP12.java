@@ -62,6 +62,11 @@ public final class ReportAttachmentClosureCP12 {
                 }
             }
             File installed=new File(app.getApplicationInfo().sourceDir).getCanonicalFile();if(!installed.isFile())throw new IOException("REPORT_INSTALLED_APK_MISSING");source.put("installedApkBytes",installed.length());source.put("installedApkIncluded",!compact);if(!compact){descriptor(out,"installed-app.apk",apkBefore,installed.length(),"INSTALLED_APK",installed.getPath(),"");source.put("installedApkMember","installed-app.apk");}
+            long r26Bytes=0;java.util.Set<String> r26Checkpoints=com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26.hashes(copy);
+            File r26Root=new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile();
+            for(String hash:r26Checkpoints){checkpoint(control);File input=ReportArchiveVerifierCP12.inside(r26Root,hash+".bin");long size=input.length();if(!input.isFile()||size<1||size>com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.MAX_BYTES)throw new IOException("REPORT_R26_CHECKPOINT_MISSING_OR_INVALID:"+hash);r26Bytes=Math.addExact(r26Bytes,size);
+                if(!compact)descriptor(out,"r26-checkpoint-"+hash+".bin",hash,size,"R26_CHECKPOINT",input.getPath(),"");}
+            source.put("r26CheckpointObjects",r26Checkpoints.size()).put("r26CheckpointBytes",r26Bytes).put("r26CheckpointBodiesIncluded",!compact).put("r26CheckpointByteValidation",compact?"NOT_RUN_COMPACT_BYTE_BUDGET":"EACH_INCLUDED_BODY_SHA256_VERIFIED").put("r26CheckpointScope","Referenced complete states, durable replay outputs and retained parents of this exact SQLite snapshot; older historical states are not claimed");
             String last="";
             try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(seedFd,StandardCharsets.UTF_8),8192)) {
             while(hasTable(copy,ResearchPlatformStoreR929.TABLE_BUNDLE)) {
@@ -145,6 +150,7 @@ public final class ReportAttachmentClosureCP12 {
                         if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(root.getPath()+File.separator))throw new IOException("REPORT_OBSERVATION_SOURCE_PATH");
                         // Unique request files are immutable after queue publication. Copy verifies every original byte.
                         try(InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
+                    else if(kind.equals("R26_CHECKPOINT")){File expected=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile(),hash+".bin");if(!expected.getPath().equals(input))throw new IOException("REPORT_R26_CHECKPOINT_SOURCE_PATH");try(InputStream in=new FileInputStream(expected)){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("FILE")){File file=new File(input);if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(app.getFilesDir().getCanonicalPath()+File.separator))throw new IOException("REPORT_ATTACHMENT_SOURCE_PATH");
                         try(SharedLease lease=shared(new File(lock));InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
                     else throw new IOException("REPORT_ATTACHMENT_KIND");
