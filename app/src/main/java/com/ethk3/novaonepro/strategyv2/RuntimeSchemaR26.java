@@ -10,6 +10,7 @@ public final class RuntimeSchemaR26 {
     public static final String FEEDBACK = "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)";
     public static final String[] DDL = {
         FEEDBACK,
+        "CREATE TABLE IF NOT EXISTS r26_prepared_forecast(policy_hash TEXT PRIMARY KEY,checkpoint_hash TEXT NOT NULL,state_hash TEXT NOT NULL,input_through INTEGER NOT NULL,target_ordinal INTEGER NOT NULL,payload BLOB NOT NULL CHECK(length(payload)=437),payload_hash TEXT NOT NULL,prepared_at INTEGER NOT NULL,CHECK(target_ordinal=input_through+1))",
         "CREATE TABLE IF NOT EXISTS r26_policy_identity(policy_hash TEXT PRIMARY KEY,canonical_policy TEXT NOT NULL CHECK(length(canonical_policy)<=65536),genotype_text TEXT NOT NULL,numerical_abi TEXT NOT NULL,created_at INTEGER NOT NULL)",
         "CREATE TRIGGER IF NOT EXISTS r26_policy_identity_immutable BEFORE UPDATE ON r26_policy_identity BEGIN SELECT RAISE(ABORT,'R26_POLICY_IDENTITY_IMMUTABLE'); END",
         "CREATE TABLE IF NOT EXISTS r26_capability_source(singleton INTEGER PRIMARY KEY CHECK(singleton=1),numerical_abi TEXT NOT NULL)",
@@ -52,7 +53,7 @@ public final class RuntimeSchemaR26 {
         "CREATE INDEX IF NOT EXISTS r26_task_dispatch ON r26_task(status,lane,next_at,lease_until)",
         "CREATE INDEX IF NOT EXISTS r26_feedback_order ON r26_feedback(issue_ordinal)"
     };
-    public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r26_capability','r26_live_model','r26_certificate_revocation','r26_legacy_runtime','r26_checkpoint_artifact','r26_member_replay','r26_legacy_campaign','r26_work_total','r26_prepared_policy','r26_evidence_cursor','r26_evidence_block','r26_qualification_result')",null)){return c.moveToFirst()&&c.getInt(0)==12;}}
+    public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r26_capability','r26_live_model','r26_certificate_revocation','r26_legacy_runtime','r26_checkpoint_artifact','r26_member_replay','r26_legacy_campaign','r26_work_total','r26_prepared_policy','r26_evidence_cursor','r26_evidence_block','r26_qualification_result','r26_prepared_forecast')",null)){return c.moveToFirst()&&c.getInt(0)==13;}}
     public static void ensure(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R26_WRITER_REQUIRED");for(String sql:DDL)db.execSQL(sql);
         column(db,"r26_task","last_served","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_cohort","family_alpha","REAL NOT NULL DEFAULT 0");column(db,"r26_cohort","checked_sequence","INTEGER NOT NULL DEFAULT -1");
