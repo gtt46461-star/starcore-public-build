@@ -76,6 +76,9 @@ android {
         buildConfigField 'String', 'DUOQU_API_KEY_A', '"' + releaseApiKeyA + '"'
         buildConfigField 'String', 'DUOQU_API_KEY_B', '"' + releaseApiKeyB + '"'
         buildConfigField 'String', 'RELEASE_MANIFEST_SHA256', '"' + manifestSha256 + '"'
+        def sourceCommitR26 = providers.exec { commandLine "git", "rev-parse", "HEAD" }.standardOutput.asText.get().trim()
+        if (!(sourceCommitR26 ==~ /[0-9a-f]{40}/)) throw new GradleException("R26_SOURCE_COMMIT_UNAVAILABLE")
+        buildConfigField 'String', 'SOURCE_COMMIT_R26', '"' + sourceCommitR26 + '"'
         buildConfigField 'int', 'DB_USER_VERSION', requiredIdentity('dbVersion')
         buildConfigField 'int', 'LEGACY_R906_SCHEMA_REVISION', requiredIdentity('legacyR906Revision')
         buildConfigField 'String', 'R925_SCHEMA_REVISION', '"' + requiredIdentity('r925Revision') + '"'

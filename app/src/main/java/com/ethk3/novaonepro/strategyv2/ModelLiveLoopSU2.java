@@ -51,7 +51,8 @@ public final class ModelLiveLoopSU2 {
     static List<String> liveGenomes(SQLiteDatabase db) {
         List<String> cand = new ArrayList<>(); String main = null;
         try (Cursor c = db.rawQuery("SELECT member_id FROM su2_mainline_choice ORDER BY from_sequence DESC LIMIT 1", null)) { if (c.moveToFirst()) main = c.getString(0); }
-        try (Cursor c = db.rawQuery("SELECT g.canonical_text,'SU2:'||g.genome_key FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.origin_op<>'INCUMBENT' AND g.origin_op<>'R26_LIVE' AND l.state='ACTIVE' AND NOT EXISTS(SELECT 1 FROM r26_prepared_policy p WHERE p.policy_hash=g.genome_key) AND NOT EXISTS(SELECT 1 FROM r26_live_model a WHERE a.policy_hash=g.genome_key) ORDER BY CASE WHEN l.member_id=? THEN 0 ELSE 1 END,g.born_sequence DESC,g.genome_key LIMIT 96", new String[]{main == null ? "" : main})) {
+        String managedOwnership=RuntimeSchemaR26.ready(db)?" AND NOT EXISTS(SELECT 1 FROM r26_prepared_policy p WHERE p.policy_hash=g.genome_key) AND NOT EXISTS(SELECT 1 FROM r26_live_model a WHERE a.policy_hash=g.genome_key)":"";
+        try (Cursor c = db.rawQuery("SELECT g.canonical_text,'SU2:'||g.genome_key FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.origin_op<>'INCUMBENT' AND g.origin_op<>'R26_LIVE' AND l.state='ACTIVE'"+managedOwnership+" ORDER BY CASE WHEN l.member_id=? THEN 0 ELSE 1 END,g.born_sequence DESC,g.genome_key LIMIT 96", new String[]{main == null ? "" : main})) {
             while (c.moveToNext()) {
                 String text = c.getString(0);
                 if (StageStrategySU2.isStage(text)) StageStoreSU2.load(db, text);
