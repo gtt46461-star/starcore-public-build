@@ -55,8 +55,10 @@ public final class FoundryCampaignR26 {
         Snapshot snap=Snapshot.decode(snapshotBytes);ModelGenomeSU2 g=ModelGenomeSU2.parse(text);ModelLiveSU2.Hub hub=new ModelLiveSU2.Hub();ModelLiveSU2 live=new ModelLiveSU2(g,hub,ModelLiveLoopSU2.START_META,ModelLiveLoopSU2.WINDOW,ModelLiveLoopSU2.REFIT);
         if(state!=null){state=CheckpointArtifactsR26.resolve(store,state);if(!PolicyIdentityR26.sha256(Base64.getEncoder().encodeToString(state)).equals(expectedStateHash))throw new IOException("R26_CHECKPOINT_HASH_MISMATCH");try(DataInputStream in=new DataInputStream(new BufferedInputStream(new CooperativeInputStreamR26(new GZIPInputStream(new ByteArrayInputStream(state))),32768))){hub.readInto(in);live.readInto(in);if(in.read()!=-1)throw new IOException("R26_CHECKPOINT_TRAILING");}}
         byte[] lastGood=state==null?encode(hub,live):state;
+        // Give each unserved family a complete learned checkpoint before longer batches.
+        int sampleLimit=16;if(cursor==0)for(ModelGenomeSU2.Member member:g.members){String family=member.kind.equals("MATCHING")?"F17":member.kind.startsWith("R26F")?member.kind.substring(3):"";if(!family.isEmpty())try(Cursor served=r.rawQuery("SELECT last_progress FROM r26_capability WHERE mechanism=?",new String[]{family})){if(served.moveToFirst()&&served.getLong(0)==0)sampleLimit=1;}}
         int before=cursor;long stop=budget.activeNanos()+160_000_000L;int devEnd=snap.draws.length*3/5;
-        while(cursor<snap.draws.length&&cursor-before<16&&budget.activeNanos()<stop){
+        while(cursor<snap.draws.length&&cursor-before<sampleLimit&&budget.activeNanos()<stop){
             try{budget.checkpointOrYield();}catch(BudgetTokenSU1.Yield yield){break;}
             // A missing issue is never represented as an adjacent observed transition.
             if(cursor>0&&snap.ordinal[cursor]!=snap.ordinal[cursor-1]+1&&!TemporalResetR26.reset(hub,live)){

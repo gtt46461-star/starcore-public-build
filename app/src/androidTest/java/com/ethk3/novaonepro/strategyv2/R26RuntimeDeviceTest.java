@@ -56,7 +56,9 @@ public final class R26RuntimeDeviceTest {
                 assertTrue("research coordinator exited",runtime.isRunning());Thread.sleep(100);
             }
             result.put("familyMechanismsWithCommittedProgress",families).put("expertsWithActualReceipts",experts).put("allMechanismsServiceMillis",(System.nanoTime()-start)/1000000);
+            long readyAt=scalar(db,"SELECT last_progress FROM r26_task WHERE task_id='schema'");long readyService=readyAt>0?Math.max(0,System.currentTimeMillis()-readyAt):-1;result.put("strategyReadyToAllMechanismsWallMs",readyService<0?JSONObject.NULL:readyService).put("firstServiceTargetMs",60000).put("firstServiceTargetObservedWithin",readyService<0?JSONObject.NULL:readyService<=60000);
             assertEquals("Each family must commit real numerical work",24,families);assertEquals("Each expert must complete a pair sample or an audit",16,experts);
+            assertEquals("consecutive canonical history was rejected by the original foundry",0,scalar(db,"SELECT count(*) FROM r26_progress WHERE blocked_reason LIKE '%SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE%'"));
             long[] latency=new long[1000];Handler ui=new Handler(Looper.getMainLooper());
             for(int i=0;i<1000;i++){
                 RealtimePressureGateR811.beginSettlement();long t=System.nanoTime();try{assertTrue("canonical probe write rejected",store.saveDraw(draw(first,3400+i,opened))>=0);}finally{latency[i]=(System.nanoTime()-t)/1000000;RealtimePressureGateR811.endSettlement();}

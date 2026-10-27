@@ -10,6 +10,7 @@ public final class RuntimeSchemaR26 {
     public static final String FEEDBACK = "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)";
     public static final String[] DDL = {
         FEEDBACK,
+        "CREATE TABLE IF NOT EXISTS r26_capability_source(singleton INTEGER PRIMARY KEY CHECK(singleton=1),numerical_abi TEXT NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r26_legacy_proposal(attempt_id TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,generation INTEGER NOT NULL,policy_hash TEXT NOT NULL,canonical_text TEXT NOT NULL,parent_hash TEXT NOT NULL,parent_canonical TEXT NOT NULL,operation TEXT NOT NULL,category TEXT NOT NULL,created_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r26_prepared_policy(policy_hash TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL,family_id TEXT NOT NULL,canonical_text TEXT NOT NULL,state BLOB NOT NULL,state_hash TEXT NOT NULL,checkpoint_hash TEXT NOT NULL,genesis_ordinal INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,numerical_abi TEXT NOT NULL,status TEXT NOT NULL,prepared_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r26_evidence_cursor(policy_hash TEXT PRIMARY KEY,protocol TEXT NOT NULL,through_ordinal INTEGER NOT NULL,partial BLOB NOT NULL,source_chain TEXT NOT NULL)",
@@ -57,6 +58,13 @@ public final class RuntimeSchemaR26 {
         column(db,"r26_live_model","family_id","TEXT NOT NULL DEFAULT ''");
         column(db,"r26_candidate","state_hash","TEXT NOT NULL DEFAULT ''");column(db,"r26_candidate","checkpoint_hash","TEXT NOT NULL DEFAULT ''");
         // Old engineering checkpoints remain preserved. Their missing hash is explicitly blocked.
+    }
+    public static boolean bindCapabilitySource(SQLiteDatabase db,String abi){
+        if(!db.inTransaction()||abi==null||!abi.matches("[0-9a-f]{64}"))throw new IllegalStateException("R26_CAPABILITY_SOURCE_OWNER");
+        try(Cursor c=db.rawQuery("SELECT numerical_abi FROM r26_capability_source WHERE singleton=1",null)){if(c.moveToFirst()&&abi.equals(c.getString(0)))return false;}
+        // Historical progress remains in receipts/checkpoints. A different numerical program
+        // must earn its current capability service record; learner weights are not modified.
+        db.execSQL("UPDATE r26_capability SET last_progress=0");db.execSQL("INSERT OR REPLACE INTO r26_capability_source VALUES(1,?)",new Object[]{abi});return true;
     }
     private static void column(SQLiteDatabase db,String table,String name,String type){try(Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))return;}db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+name+" "+type);}
 

@@ -97,6 +97,11 @@ public final class R26DeviceTest {
         }finally{db.endTransaction();}
     }}
     private static Models.Draw historical(int issue){Models.Draw row=new Models.Draw();row.issue=String.format(java.util.Locale.ROOT,"20261027%04d",issue);row.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};row.openTime=System.currentTimeMillis()-600000+issue*60000;row.fetchTime=row.openTime+1000;return row;}
+    @Test public void capabilityServiceIsBoundToNumericalSourceWhileWeightsStayPreserved(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);db.beginTransaction();try{String before=PolicyIdentityR26.sha256("SYNTHETIC_OLD_ABI"),after=PolicyIdentityR26.sha256("SYNTHETIC_NEW_ABI");assertTrue(RuntimeSchemaR26.bindCapabilitySource(db,before));db.execSQL("INSERT INTO r26_capability VALUES('F01','FAMILY','SYNTHETIC','TRAINED','SYNTHETIC',42)");byte[] weights={2,6,1};db.execSQL("INSERT INTO r26_live_model(policy_hash,canonical_text,state,state_hash,checkpoint_hash,parent_hash,through_ordinal,genesis_ordinal,born_ordinal,updated_at) VALUES('SYNTHETIC','SYNTHETIC',?,'SYNTHETIC','SYNTHETIC','',10,1,11,1)",new Object[]{weights});
+            assertFalse(RuntimeSchemaR26.bindCapabilitySource(db,before));try(Cursor c=db.rawQuery("SELECT last_progress FROM r26_capability",null)){c.moveToFirst();assertEquals(42,c.getLong(0));}assertTrue(RuntimeSchemaR26.bindCapabilitySource(db,after));try(Cursor c=db.rawQuery("SELECT last_progress FROM r26_capability",null)){c.moveToFirst();assertEquals(0,c.getLong(0));}try(Cursor c=db.rawQuery("SELECT state,through_ordinal FROM r26_live_model",null)){c.moveToFirst();assertArrayEquals(weights,c.getBlob(0));assertEquals(10,c.getLong(1));}db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
     @Test public void chronologicalStoreHistoryFeedsTheOriginalFoundryWithoutWeakeningInputChecks(){
         Models.Draw first=historical(1),second=historical(2),third=historical(3);List<Models.Draw> ascending=Arrays.asList(first,second,third);assertEquals(ascending,CampaignStateSU1.chronologicalHistory(ascending));
         List<Models.Draw> descending=Arrays.asList(third,second,first);assertEquals(ascending,CampaignStateSU1.chronologicalHistory(descending));assertSame(third,descending.get(0));
