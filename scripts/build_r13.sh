@@ -20,5 +20,6 @@ bash ./gradlew --no-daemon :app:compileReleaseJavaWithJavac -x :app:generateR982
 python3 scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes
 python3 scripts/prepare_strategy_su1_identity.py
 record_generated 'Bind compiled R13 call inventory'
+python3 scripts/r26_instrumentation_manifest.py
 bash ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest
 git push origin HEAD:"${GITHUB_REF_NAME}"

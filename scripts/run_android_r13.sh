@@ -7,19 +7,24 @@ adb install -r delivered/app/build/outputs/apk/debug/*.apk
 if [[ "${1:-29}" == "29" ]]; then
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
 python3 - <<'PYTEST'
-import re, subprocess
-classes='ResearchUiDeviceSU1Test SchemaAndLiveSU1Test ProgramTreeDeviceSU1Test AtomKernelDeviceSU1Test TrainingParityDeviceSU1Test BundledApiDeviceSU1Test RelGraphDeviceSU1Test ResearchSchedulingDeviceSU1Test SchemaAndChartsR13Test StartupLeaseR13Test Plan1025DeviceTest R26DeviceTest'.split()
+import json,re,subprocess
+from pathlib import Path
+manifest=json.loads(Path('delivered/package-receipt/instrumentation-tests.json').read_text())
+assert manifest['schema']=='R26_INSTRUMENTATION_MANIFEST_V1'
+classes=manifest['classes'];assert classes and manifest['total']==sum(c['count'] for c in classes)
 total=0
 with open('android-r13.txt','w') as report:
-    for name in classes:
+    for item in classes:
+        name=item['className']
         subprocess.run(['adb','shell','am','force-stop','com.starcore.research.r13'],check=True)
-        run=subprocess.run(['adb','shell','am','instrument','-w','-e','class','com.ethk3.novaonepro.strategyv2.'+name,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'],capture_output=True,text=True,timeout=600)
+        run=subprocess.run(['adb','shell','am','instrument','-w','-e','class',name,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'],capture_output=True,text=True,timeout=600)
         report.write(run.stdout+run.stderr);report.flush();print(run.stdout,flush=True)
         match=re.search(r'OK \((\d+) tests?\)',run.stdout)
         assert run.returncode==0 and match and 'FAILURES' not in run.stdout,name+' failed'
+        assert int(match.group(1))==item['count'],f'{name}: executed {match.group(1)} expected {item["count"]}'
         total+=int(match.group(1))
-    assert total==37,total
-    report.write('Isolated class aggregate: OK (37 tests)\n')
+    assert total==manifest['total'],total
+    report.write(f'Isolated class aggregate: OK ({total} tests)\n')
 PYTEST
 adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-charts.png
