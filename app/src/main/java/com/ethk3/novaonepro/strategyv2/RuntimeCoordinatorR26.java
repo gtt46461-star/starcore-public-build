@@ -136,7 +136,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "feedback":return ResearchFeedbackSU1.drainOne(store)?1:0;
             case "ablation":return ModelAblationStoreSU1.advanceOne(store,budget)?1:0;
             case "campaign-audit":return CampaignAuditStoreSU1.advanceOne(store,budget)?1:0;
-            case "foundry-su1":try(CampaignStateSU1 state=CampaignStateSU1.open(store)){if(state==null||state.foundry.done())return 0;try{StrategyFoundrySU1.Attempt a=state.foundry.next(budget);state.checkpoint(a);return 1;}catch(BudgetTokenSU1.Yield y){state.checkpoint(null);throw y;}}
+            case "foundry-su1":return TaskContinuationR26.step(store,c,budget,seq+1);
             default:break;
         }
         if(!c.task.equals("retention")&&!store.coordinatorForResearchR952().isR811ResearchSchemaReady()){c.reason("WAITING_LEGACY_RESEARCH_SCHEMA:"+ResearchSchemaCoordinatorR926.summary());return 0;}

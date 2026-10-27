@@ -96,5 +96,12 @@ public final class R26DeviceTest {
             db.setTransactionSuccessful();
         }finally{db.endTransaction();}
     }}
+    private static Models.Draw historical(int issue){Models.Draw row=new Models.Draw();row.issue=String.format(java.util.Locale.ROOT,"20261027%04d",issue);row.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};row.openTime=System.currentTimeMillis()-600000+issue*60000;row.fetchTime=row.openTime+1000;return row;}
+    @Test public void chronologicalStoreHistoryFeedsTheOriginalFoundryWithoutWeakeningInputChecks(){
+        Models.Draw first=historical(1),second=historical(2),third=historical(3);List<Models.Draw> ascending=Arrays.asList(first,second,third);assertEquals(ascending,CampaignStateSU1.chronologicalHistory(ascending));
+        List<Models.Draw> descending=Arrays.asList(third,second,first);assertEquals(ascending,CampaignStateSU1.chronologicalHistory(descending));assertSame(third,descending.get(0));
+        for(List<Models.Draw> invalid:Arrays.asList(Arrays.asList(first,third),Arrays.asList(first,first,second))){try{CampaignStateSU1.chronologicalHistory(invalid);fail("invalid calendar accepted");}catch(IllegalStateException expected){assertEquals("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE",expected.getMessage());}}
+        third.fetchTime=System.currentTimeMillis()+60000;try{CampaignStateSU1.chronologicalHistory(ascending);fail("future availability accepted");}catch(IllegalStateException expected){assertEquals("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE",expected.getMessage());}
+    }
     @Test public void retiredPlatformJobNeverBecomesTheTrainingOwner(){Context app=InstrumentationRegistry.getInstrumentation().getTargetContext();ReplayBurstSchedulerSU1.schedule(app);JobScheduler jobs=(JobScheduler)app.getSystemService(Context.JOB_SCHEDULER_SERVICE);if(jobs!=null)assertNull(jobs.getPendingJob(ReplayBurstSchedulerSU1.JOB_ID));}
 }
