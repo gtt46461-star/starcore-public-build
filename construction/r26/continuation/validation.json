@@ -19,14 +19,22 @@
     "Complete 100-cell and 1200-K3 action expansion from one immutable predraw event; no outcome input",
     "Full SQLite reports include referenced R26 checkpoint bodies and verify each SHA256; shared reference-counted pins prevent concurrent expiry",
     "Lag recovery keeps numerical parameters and lifetime clocks, clears missing-period calibration/context, revokes old authority, and respects active-family capacity",
-    "Fresh strategy storage prerequisites are the only eligible task until they commit; dependent tasks wake together afterwards"
+    "Fresh strategy storage prerequisites are the only eligible task until they commit; dependent tasks wake together afterwards",
+    "Streaming content-defined legacy state chunks; immutable root and child leases; SHA-verified recovery and full-report dependency closure",
+    "Buffered cooperative state serialization and owner-tagged continuation shutdown; no partial computation is recorded as committed progress"
   ],
   "host": {
-    "r26Groups": 10,
+    "r26Groups": 11,
     "priorPlanGroups": 20,
     "priorStrategyGroups": 21,
-    "status": "PASS_ON_RECORDED_SOURCES",
-    "apkAuthority": "PENDING_CURRENT_CI"
+    "status": "PASS_CURRENT_SOURCE",
+    "apkAuthority": "PENDING_55_TEST_CI",
+    "checks": [
+      "R26 11 groups",
+      "prior strategy 21 groups",
+      "prior 10.25 plan 20 groups"
+    ],
+    "compileOnlySources": 1059
   },
   "syntheticPower": {
     "scope": "SYNTHETIC_ONLY_NOT_NATURAL_QUALITY",
@@ -43,8 +51,8 @@
   },
   "androidTests": {
     "classes": 16,
-    "expectedTests": 53,
-    "status": "49_PASSED_ON_PREVIOUS_SOURCE; ACTUAL_OWNER_LOAD_STILL_FAILS; 53_TEST_GATE_PENDING"
+    "expectedTests": 55,
+    "status": "PENDING_CURRENT_SOURCE; PREVIOUS_ACTUAL_OWNER_REGRESSION_FAILS"
   },
   "physicalDevice": "NOT_RUN",
   "naturalQuality": "INSUFFICIENT",
@@ -56,9 +64,14 @@
   ],
   "sourceChanges": [
     {
+      "path": ".github/workflows/r13.yml",
+      "beforeSha256": "f3853652170ff43b939d2296d4687d3fefbe2e1e02f56ee4cc8fd8153a4c3ebe",
+      "afterSha256": "9b32c891f251f460ceda217c4966883aa93acab81d0690a70297ed933d87a388"
+    },
+    {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26CheckpointDeviceTest.java",
       "beforeSha256": null,
-      "afterSha256": "45bd34d1202c4483d040e1dfad41324da6b1a9584ac9a7ca405d82994e1af257"
+      "afterSha256": "4352755f55611f15b674aaff78177c0f859f07805898d07c88bfed9e1354128c"
     },
     {
       "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26DeviceTest.java",
@@ -71,6 +84,21 @@
       "afterSha256": "d827e7f2e7411c12db320963053b9900e6b59dbe1905468a95ed07eaa6ac5fee"
     },
     {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26ReportDeviceTest.java",
+      "beforeSha256": null,
+      "afterSha256": "2e0373aba4f7a8742b1fb39839d5784debdc743103db623c96fbe10cffa8acbf"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java",
+      "beforeSha256": null,
+      "afterSha256": "6f9459349ecb86201d38b5947aa4da6ff14e7a0e0296df1d694c1ab30ad04b3e"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java",
+      "beforeSha256": "b535ee57f6c9db464a0eaa0c115eb69f50a90ffd291e3fe6fb01c01a1995d4a6",
+      "afterSha256": "53722821457cb5a510d5f565fbe149609db6920e6f357fcf5514a9776a5d8e4e"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "beforeSha256": "9666031fbedb35ff1e3d7a1800bae16a109d5f1538c6dc97d059c20756d08ac2",
       "afterSha256": "0e38f836a5cecd7dc9e9b25694d77743730b1b18f2697c1a3a099f27df4ce109"
@@ -79,6 +107,26 @@
       "path": "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
       "beforeSha256": "dbcbd48abf3066ff91a6dcd7a838bc15f362f00a749a159e7d289be53542de1f",
       "afterSha256": "8dae06823ba053fbbed21bfc140ff6bbd9e426e50809be36889abd8dd58d80fc"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportAttachmentClosureCP12.java",
+      "beforeSha256": "1eae3bc0597be6dfd60274b8b8f30b20ab85c412ba0d6f32ef138c8476d07a8c",
+      "afterSha256": "59531df58ce12b2c783c746dd7ad90982f8f419c14ce28c09c2f17fced1cf9d2"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "beforeSha256": "d60dc7458face51111fb2c81baef89fe2d420416715fe7be14e48077dc75f7e3",
+      "afterSha256": "8b15536b71f16fc22b40b0ea2de00175bf2b08df691587c8d59c40f28fd6b5ba"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportInputsLeaseCP12.java",
+      "beforeSha256": "5da65a39c3843b7697d807e19d4c32344be5fe57a3cd5e54d187d0f3c5f00693",
+      "afterSha256": "e2b4ea534ed2332a142e88c9f7e0ccf64c2cebf51c88db303861bfc915038046"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+      "beforeSha256": "79589d24e5f2a1d8430cdc8844275fa44eceeb9c5ef6e3b67232352200b85175",
+      "afterSha256": "55e479453b52f27c1672cde7a7a9b842f9d3c78a2d7c4a54efb67354127c8802"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ArtifactMaintenanceR26.java",
@@ -98,12 +146,12 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BudgetTokenSU1.java",
       "beforeSha256": "8c927f7429e56e2128d8842eb61424e3397fca96472725ed2ae3bbe6323140a5",
-      "afterSha256": "12d2da24069295439b3514c0f1343b9f3bff1e96b3ea5af8d97001e485455e44"
+      "afterSha256": "59ef56fbd8a6d922d2d5b249f87c3a3d3ea4b26ac6a8fab3607f587fbd9ac6ef"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU2.java",
       "beforeSha256": "c6b66dc4da41ddb3d2c37a7ee87a34f32695f2581fa4082989b5bc2c4a7baeb5",
-      "afterSha256": "78d1e7842b52a63f073f0091dc81e2b940a2af6d498116879f0818f65be33d90"
+      "afterSha256": "ca74bcfd3c462f62e20995bd250d51b976be8177e1bbebfe34f1aed175f99fd2"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
@@ -113,12 +161,27 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointArtifactsR26.java",
       "beforeSha256": null,
-      "afterSha256": "911de32d704a6de930434f3b2183e5ef7610cfcc1822f295a0698b7e9fdaecc4"
+      "afterSha256": "174f3286789c08895947f130910a804a47c40b3cda4ddd0445e765868a6e28b4"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointManifestR26.java",
       "beforeSha256": null,
       "afterSha256": "692955f592fbb37d2ef9dcd5be1b9d764cd0a9d6c7f0d0eae0f20548a9184f12"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointPruneGuardR26.java",
+      "beforeSha256": null,
+      "afterSha256": "080b0774fa76684cc990b52275a87efef63132e30049a0a581338a80e0b17541"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+      "beforeSha256": null,
+      "afterSha256": "b415fd6212699182dc205f958b67d9a61447ee6cb3f3d35ab8d9796f9ad23db4"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChunkedCheckpointR26.java",
+      "beforeSha256": null,
+      "afterSha256": "895208f671c33ed315f1e8c231f8bc268a664cba5378b6bbb90dc46c34932c40"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeLiveSU2.java",
@@ -138,7 +201,17 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
       "beforeSha256": null,
-      "afterSha256": "d5a2891c0981eaafa751b45fe64b82d9a80a3ddc16535527b97b615ea56510bc"
+      "afterSha256": "aeb1089871bb0910e56d430d2aaa8da723b29b8a1617c9a183e04691298f68e7"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeInputStreamR26.java",
+      "beforeSha256": null,
+      "afterSha256": "9d70231d50493ba1a3383744fd558a3540c61c1f6116fa9af27c48d2cf92a644"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeOutputStreamR26.java",
+      "beforeSha256": null,
+      "afterSha256": "c1f3f4c6ae8462ed606322280378268c2eea051ecbf4b7617850bf5d0ed188b0"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CurrentPolicyR26.java",
@@ -161,14 +234,29 @@
       "afterSha256": "fc7c5065231a6506dcad0e9e0a5aed880950fb4074806a2bcd207da87b452a01"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertExperimentR26.java",
+      "beforeSha256": "258dbebbd86f46550bbca8309f90ab92d37dd7ae8d5b20050978089d720e5906",
+      "afterSha256": "23b87e992f2bd28fdaaf0365fa6ca4fab4a7bb7b02322880f7201b796c592c89"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
       "beforeSha256": "4402d9db03bcea18c5f3919fb9f52d56ea1c64f18be040ed612ccdd9306e3b74",
-      "afterSha256": "299523695add0408624079877f82bd05fa59e38fd759c16408cd242fc756e0f2"
+      "afterSha256": "fe61d4cebaa31df2120772f86c33574c8a4617b1e6f8eca82edf03f9990cec04"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java",
       "beforeSha256": "55c9e1255040278cf7cbaa1b6e043257e15cd820885059f0efda3f1d836228be",
-      "afterSha256": "780f41905c56196dee8e33e4f9c5fd7ff89fab42913e7589ecefaf20f196be09"
+      "afterSha256": "8eaba938349833264771478d1cd97b44223b0a8c1523d75c00d99ce577633cbf"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenSurfaceR26.java",
+      "beforeSha256": null,
+      "afterSha256": "c2d6e551109dedc2de355d1a185a3ff771e7246d0041c659b2e9f138a3984fdc"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenSurfaceStoreR26.java",
+      "beforeSha256": null,
+      "afterSha256": "a9ebb13e5592c9be9c322d162e65066d694aefc3ea59dda654d82ec40ed6529e"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyBootstrapR26.java",
@@ -178,22 +266,27 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
       "beforeSha256": null,
-      "afterSha256": "c0d8d0c9e4aeaa7c41fae44b612d276db35808a8e8c74024850937baeab4a1e8"
+      "afterSha256": "2587021af5f89c4db9929314b5f3d8c359632d80b27f582fc112d5ad471ce679"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPublicationR26.java",
       "beforeSha256": null,
-      "afterSha256": "3912ad89c8af6c86336724674c7bd36e1468816ce04ec42021ad77c63a78a0cb"
+      "afterSha256": "349f98f4384ae66e5c1651b958c2e28ac34f982b85ec4bee7039924fa5aa9530"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayContinuationR26.java",
+      "beforeSha256": null,
+      "afterSha256": "d45dd1f1892d79e1a83797f6c5fe209efeebf1607cd5cf44fd201d855eb82ce8"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayR26.java",
       "beforeSha256": null,
-      "afterSha256": "9112d6873aa8ec6b71ddcca0c376ef73b610c1919f58fbc47de9815019c1fb25"
+      "afterSha256": "40d9e74935d9f94f8e7e18d3df9b2a00b43cd212eaa064e20644617ae52e1594"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayStateR26.java",
       "beforeSha256": null,
-      "afterSha256": "599fe5485c682b8d31f8477dfb95a498bca7761687f905369e675e1e7f79e8d9"
+      "afterSha256": "53d0738eab926f0be5b3f2f949ea6fd5a7a8ac708bbbfb4875069afe9d7bf20f"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegalReadoutR26.java",
@@ -203,7 +296,12 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LivePoolR26.java",
       "beforeSha256": "aa42daa8105b1585348b3cd87fe263bf72935666e269ee42c9f8bec6d13f435c",
-      "afterSha256": "47fade37b726042ecf67c586aed53a429e57a923a7a080d8c417979e4f7d19f6"
+      "afterSha256": "1c9b352b32320ee16a124321f284fcd30eebb3de5cf3c795be8e50656c609cd6"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStateR26.java",
+      "beforeSha256": "e562bb4792edf12ae345b0d8065622a7ac6049c55bebe087c0a5db2ab11ed6db",
+      "afterSha256": "e806d93fcf152a6d2ecc88a264677913563e2c13702606577bb242dc9afa6a6e"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java",
@@ -273,7 +371,12 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayWorkspaceR26.java",
       "beforeSha256": null,
-      "afterSha256": "0bf9d0e98115f2efa05b5a0ae6aa47a6da94bf884a6de48b6caf2cbbc10ee329"
+      "afterSha256": "b78e02c97c7d8c6474d6000e227c1786d1e59369f91c07267217526315c849f1"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportMetricContractR26.java",
+      "beforeSha256": null,
+      "afterSha256": "f13f9a24e90e6ffeb57bf12fe65b9e48b514ef600e4e9d89cc94ad6c7c6e06e6"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java",
@@ -283,7 +386,7 @@
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
       "beforeSha256": "391e22bc186641de1c91caad40f60a60f3af3a6acaafef47050bec7a6b755557",
-      "afterSha256": "35411f75a119a8b14857548898b75e46139fcfa50f292768109c085c5f48be37"
+      "afterSha256": "a420b2d075f83a07c146fd969e65cba34938a2926b0b0eff2aa26f61ae4c9ac6"
     },
     {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
@@ -316,9 +419,29 @@
       "afterSha256": "97cd28c350564f3d269cb47d7a28853f4f10078c9f028beae63fe00c4f9f94af"
     },
     {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU1.java",
+      "beforeSha256": "8c244286edc6be2f6e304fa05bb0d2e76a79220c9559c9c960127d07e5a65ac2",
+      "afterSha256": "5ab31192e4f02b6f96f408f50baf43ba30bea3a5ded24bcbe38e9a687493d2d6"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskContinuationR26.java",
+      "beforeSha256": null,
+      "afterSha256": "9557074cc1ecba718ff748f63d03e6c25a00846aa61d740da25dbc30f60e83d3"
+    },
+    {
       "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TeacherPoolSU2.java",
       "beforeSha256": "0c2f6d0b2c59253609f6cfa3ac993d8084537f095753e0c8c358e53ef17009ff",
       "afterSha256": "24aa7fa376a96e1560389965ed41a781aee57d96331c92af248b7bc1b6e42f53"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TemporalResetR26.java",
+      "beforeSha256": "ae2d78c689323376ed102c32f3c5de4f8ed0076727ee7061825070464c86e543",
+      "afterSha256": "e191405f815b228a56aae3a86f1f2e63c62a7edd94d1c8efe258311f5e27ca78"
+    },
+    {
+      "path": "release/r82_training_invalidation.json",
+      "beforeSha256": "4bc2817d5c02047fa45896eb7499eb812317974f162c5ba807b1bb1e25e4154e",
+      "afterSha256": "45dca230db5d62a681fa03fb4a3f7f4a4f66675f7c3a140fb7013d6c31f87448"
     },
     {
       "path": "release/release_identity.properties",
@@ -331,14 +454,44 @@
       "afterSha256": "f9a9668f76d79195d9473d7c963db55b787859c063a8cc14fd23ef4d9f45a5f9"
     },
     {
+      "path": "release/research_dependencies_r967.json",
+      "beforeSha256": "889a0dbe2beceeedff548dfe998312fee8ec71ae51ed2ea1e9110ae15b8d8b3d",
+      "afterSha256": "a4ca807a148f53254883ddd550b2807259c38ebb31e308c8d1b484f801c6fed7"
+    },
+    {
+      "path": "release/strategy_su1_reviewed_inputs.json",
+      "beforeSha256": "19d9455c0a517207036c23145c5981eb60a971b4e8db2fb7c80076d253abcd5c",
+      "afterSha256": "14cbf1c84aaa308465f080af07172b61f788b9eb021ffba204cd347a9226ac5f"
+    },
+    {
+      "path": "scripts/run_android_r13.sh",
+      "beforeSha256": "0672f6b452dfeb2dbce577bb2edfcf101f8e7962b4bd2bcf3dcd9b35d58c02d8",
+      "afterSha256": "f90b3403f8acb359bea473a48211bb9223c2b5875be81753bfb9497918f6edb6"
+    },
+    {
+      "path": "scripts/run_r26_endurance.sh",
+      "beforeSha256": null,
+      "afterSha256": "d0b05ac94f4a323012b1c739989016c08147a508d489680913fa44f29760e11a"
+    },
+    {
       "path": "scripts/verify_r26.py",
       "beforeSha256": "639ad0f270d04672fa29e505c6601319d089f268815a85aebd278714d48a425d",
-      "afterSha256": "335ffc0a82462098234da7587589d37c158b114f19a1ea32fc2b278965e709c4"
+      "afterSha256": "0cc662bc362a67080e0e54f5053b38da6feeffe88353225db1545f729449a8f4"
+    },
+    {
+      "path": "tools/strategy_su2/tests/R26ChunkedCheckpointTest.java",
+      "beforeSha256": null,
+      "afterSha256": "c013448c464e965946bcbbba66d06b2948259fb4a06b422aa89dc03bc3f5fd31"
     },
     {
       "path": "tools/strategy_su2/tests/R26EvidenceTest.java",
       "beforeSha256": null,
       "afterSha256": "482f98db839fce4ea34086af3cf35896c9ce32c75dfd35f6e5fae80fa71377af"
+    },
+    {
+      "path": "tools/strategy_su2/tests/R26FrozenSurfaceTest.java",
+      "beforeSha256": null,
+      "afterSha256": "3a1aca59a20b59663d28964e0b365d6a2b0ef1c5731d15e908297fd465513b5b"
     },
     {
       "path": "tools/strategy_su2/tests/R26KernelTest.java",
@@ -348,7 +501,12 @@
     {
       "path": "tools/strategy_su2/tests/R26RecoveryTest.java",
       "beforeSha256": null,
-      "afterSha256": "7f9dc0bf6407d8364f50b51a84b59421a8be8738eed73f67f02e37d5d3d80bf1"
+      "afterSha256": "8f95c8907dacb5857eefa5e6cbeb7c872f5f1e204d8707fa5aa6623d48467708"
+    },
+    {
+      "path": "tools/strategy_su2/tests/R26StreamCapacityProbe.java",
+      "beforeSha256": null,
+      "afterSha256": "15a6422d68fc6c8dd60d0388fd5fa2c7f8ea3b51c687fdc469a5fa74a737faca"
     }
   ],
   "firstCurrentCi": {
@@ -403,5 +561,61 @@
     "fix": "Only schema is eligible until independent SU1/SU2 storage verifies; blocked tasks are atomically released afterwards. No test deadline or 24/16 assertion weakened.",
     "fixValidation": "PENDING_NEXT_CI",
     "receipt": "construction/r26/continuation/runtime-schema-priority-failure.json"
+  },
+  "serializationRegression": {
+    "runId": 40516866598,
+    "source": "ec66c0cfdb97d00906a50f7b7835b31b5c4a4e1f",
+    "build": "PASS",
+    "api35": "PASS",
+    "api36": "PASS",
+    "api29": "FAIL_ACTUAL_OWNER",
+    "actualFamilyProgress": 0,
+    "actualExpertReceipts": 3,
+    "elapsedMs": 240062,
+    "diagnosis": "Independent schema completed (267 units), but primitive arrays entered zlib as small writes; 2-4 second state preparation restarted after 200ms budgets. Foundry also used wall-clock batch deadlines that included paused time.",
+    "fix": [
+      "Buffered raw state IO with cooperative polls",
+      "Owner-fenced private continuations retain partially prepared numerical work between service quanta",
+      "Active compute clocks exclude parked time",
+      "Previously unserved registered families are selected before parameter variants",
+      "Owned numerical workers drain after session invalidation and before database release"
+    ],
+    "assertionsRelaxed": false,
+    "validation": "PENDING_NEXT_CI",
+    "receipt": "construction/r26/continuation/runtime-serialization-failure.json"
+  },
+  "endurance": {
+    "status": "NOT_RUN",
+    "configuredScenarios": 6,
+    "apis": [
+      29,
+      35,
+      36
+    ],
+    "screens": [
+      "BRIGHT",
+      "LOCKED"
+    ],
+    "secondsPerScenario": 3600,
+    "scope": "EMULATOR_SYNTHETIC_ENGINEERING_ONLY; physical user phone and natural forward quality remain separate",
+    "requiresStandardRuntimeSuccess": true,
+    "automaticPassClaimed": false
+  },
+  "streamingCapacityProbe": {
+    "scope": "SYNTHETIC_HOST_BYTE_STORE; NOT_ANDROID_FS_OR_USER_DEVICE_ENDURANCE",
+    "members": 48,
+    "labels": 2501,
+    "rootBytes": 49468,
+    "parts": 700,
+    "compressedChunkBytesAfter2500": 42369557,
+    "compressedChunkBytesAfter2501": 47691629,
+    "nextUpdateEqualsContinuousReference": "PASS",
+    "singleBlobCounterexample": "R26_LEGACY_STATE_CAPACITY before streaming; original failing log retained",
+    "fileQuotaRaised": false,
+    "commands": [
+      "javac -cp build/r26/classes -d build/r26/classes tools/strategy_su2/tests/R26StreamCapacityProbe.java",
+      "java -Xmx768m -cp build/r26/classes com.ethk3.novaonepro.strategyv2.R26StreamCapacityProbe 48"
+    ],
+    "log": "construction/r26/continuation/streaming-capacity-host.log"
   }
 }

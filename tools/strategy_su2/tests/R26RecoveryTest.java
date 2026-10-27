@@ -70,8 +70,8 @@ public final class R26RecoveryTest {
             check(s.done&&s.error==null&&s.result==8,"park time consumed numerical budget: "+s.error);
             check(System.nanoTime()-start>100000000L&&resume.get()>=8,"test did not cross wall deadline");
         }
-        CooperativeContinuationR26<Void> cancelled=new CooperativeContinuationR26<>("continuation-cancel",()->{for(;;)CooperativeContinuationR26.poll();},()->false,null,()->ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime());
-        cancelled.slice(5);cancelled.close();long end=System.nanoTime()+1000000000L;while(!cancelled.isDone()&&System.nanoTime()<end)Thread.yield();check(cancelled.isDone(),"cancelled helper kept computing");
+        CooperativeContinuationR26<Void> cancelled=new CooperativeContinuationR26<>("continuation-cancel",()->{for(;;)CooperativeContinuationR26.poll();},()->false,null,()->ManagementFactory.getThreadMXBean().getCurrentThreadCpuTime(),"SYNTHETIC_CANCEL_OWNER");
+        cancelled.slice(5);cancelled.close();long end=System.nanoTime()+1000000000L;while(!cancelled.isDone()&&System.nanoTime()<end)Thread.yield();check(cancelled.isDone(),"cancelled helper kept computing");check(CooperativeContinuationR26.awaitOwnerStopped("SYNTHETIC_CANCEL_OWNER",1000),"owned numerical worker was released before it stopped");
         System.out.println("COOPERATIVE_PREEMPT_CRITICAL_PAUSE_CLOCK_CANCEL_PASS");
     }
     static void consensus(){

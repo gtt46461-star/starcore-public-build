@@ -7,10 +7,19 @@ import java.util.function.*;
  * Durable numerical progress remains the repository's checkpoint, never this thread's existence. */
 public final class CooperativeContinuationR26<T> implements AutoCloseable,BudgetTokenSU1.PauseClock {
     private static final ThreadLocal<CooperativeContinuationR26<?>> CURRENT=new ThreadLocal<>();
+    private static final java.util.Map<String,java.util.Set<CooperativeContinuationR26<?>>> OWNED=new java.util.HashMap<>();
+    private final String owner;
     private final Object monitor=new Object();private final Callable<T> body;private final BooleanSupplier preempt;private final Runnable resume;private final LongSupplier cpuClock;
     private final Thread thread;private volatile boolean closed,done,paused=true;private volatile long endNanos,pausedSince,totalPaused,cpuTotal,cpuOrigin,maxPollGap,lastPoll;private int criticalDepth;private volatile Throwable error;private volatile T result;
     public static final class Slice<T>{public final boolean done;public final T result;public final Throwable error;public final long cpuNanos,maxPollGapNanos;Slice(boolean done,T result,Throwable error,long cpu,long gap){this.done=done;this.result=result;this.error=error;cpuNanos=cpu;maxPollGapNanos=gap;}}
-    public CooperativeContinuationR26(String name,Callable<T> body,BooleanSupplier preempt,Runnable resume,LongSupplier cpuClock){this.body=body;this.preempt=preempt;this.resume=resume;this.cpuClock=cpuClock;thread=new Thread(this::run,name);thread.setDaemon(true);pausedSince=System.nanoTime();thread.start();}
+    public CooperativeContinuationR26(String name,Callable<T> body,BooleanSupplier preempt,Runnable resume,LongSupplier cpuClock){this(name,body,preempt,resume,cpuClock,"");}
+    public CooperativeContinuationR26(String name,Callable<T> body,BooleanSupplier preempt,Runnable resume,LongSupplier cpuClock,String owner){this.owner=owner;this.body=body;this.preempt=preempt;this.resume=resume;this.cpuClock=cpuClock;thread=new Thread(this::run,name);thread.setDaemon(true);pausedSince=System.nanoTime();synchronized(OWNED){OWNED.computeIfAbsent(owner,key->new java.util.HashSet<>()).add(this);}thread.start();}
+    public static boolean awaitOwnerStopped(String owner,long millis){
+        long deadline=System.nanoTime()+millis*1000000L;
+        for(;;){java.util.List<CooperativeContinuationR26<?>> tasks;synchronized(OWNED){java.util.Set<CooperativeContinuationR26<?>> live=OWNED.get(owner);if(live==null||live.isEmpty())return true;tasks=new java.util.ArrayList<>(live);}
+            for(CooperativeContinuationR26<?> task:tasks){long left=deadline-System.nanoTime();if(left<=0)return false;try{TimeUnit.NANOSECONDS.timedJoin(task.thread,left);}catch(InterruptedException stopping){/* cleanup still owns these resources */}}
+        }
+    }
     public Slice<T> slice(long millis)throws InterruptedException{
         if(millis<1||millis>200)throw new IllegalArgumentException("R26_CONTINUATION_QUANTUM");
         synchronized(monitor){long cpuBefore=cpuTotal;if(!done){endNanos=System.nanoTime()+millis*1000000L;paused=false;monitor.notifyAll();long hard=System.nanoTime()+(millis+1000)*1000000L;
@@ -22,7 +31,7 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
         CURRENT.set(this);BudgetTokenSU1.setPauseClock(this);cpuOrigin=cpuClock.getAsLong();
         try{awaitPermit();ExecutionBudgetR26.enter(new BudgetTokenSU1(3600000,Long.MAX_VALUE/4,()->closed));lastPoll=System.nanoTime();result=body.call();}
         catch(Throwable failure){error=failure;}
-        finally{ExecutionBudgetR26.leave();BudgetTokenSU1.setPauseClock(null);CURRENT.remove();synchronized(monitor){cpuTotal=Math.max(0,cpuClock.getAsLong()-cpuOrigin);done=true;paused=true;monitor.notifyAll();}}
+        finally{ExecutionBudgetR26.leave();BudgetTokenSU1.setPauseClock(null);CURRENT.remove();synchronized(monitor){cpuTotal=Math.max(0,cpuClock.getAsLong()-cpuOrigin);done=true;paused=true;monitor.notifyAll();}synchronized(OWNED){java.util.Set<CooperativeContinuationR26<?>> tasks=OWNED.get(owner);if(tasks!=null){tasks.remove(this);if(tasks.isEmpty())OWNED.remove(owner);}}}
     }
     private void awaitPermit()throws InterruptedException{
         synchronized(monitor){while((paused||endNanos==0)&&!closed)monitor.wait();if(closed)throw new InterruptedException("R26_CONTINUATION_CANCELLED");long now=System.nanoTime();if(pausedSince!=0){totalPaused+=now-pausedSince;pausedSince=0;}if(resume!=null)resume.run();lastPoll=now;}

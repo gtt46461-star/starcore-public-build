@@ -35,7 +35,7 @@ public final class LegacyGenerationR26 {
             }
             FoundryCampaignR26.Snapshot frozen=FoundryCampaignR26.Snapshot.decode(snapshot);if(latestOrdinal-frozen.ordinal[0]>=5000){final String expired=id;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_EXPIRE",db->{db.execSQL("UPDATE r26_legacy_campaign SET status='EXPIRED_RETENTION',snapshot=X'' WHERE campaign_id=?",new Object[]{expired});return 0;});return carry;}
             Context context=new Context(id,source,abi,frozen,generation,ModelStateCodecSU2.encode(ModelStoreSU2.loadEvolution(store.readable())));context.claim=claim;
-            context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-generation",()->compute(store,context),()->RuntimeCoordinatorR26.hasCriticalPressure(),()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L);active=context;
+            context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-generation",()->compute(store,context),()->RuntimeCoordinatorR26.hasCriticalPressure(),()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);active=context;
         }
         Context context=active;context.claim=claim;budget.checkpointOrYield();CooperativeContinuationR26.Slice<Result> slice=context.work.slice(150);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
         long committed=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(committed);long delta=Math.max(0,committed-claim.cursor);

@@ -12,7 +12,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: r13-${{ github.ref }}
+  group: ${{ github.event_name == 'workflow_dispatch' && inputs.endurance && 'r26-endurance' || 'r13' }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -116,7 +116,7 @@ jobs:
             r26-runtime-synthetic.json
   android-endurance:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.endurance }}
-    needs: build
+    needs: [build, android-runtime]
     strategy:
       fail-fast: false
       matrix:
