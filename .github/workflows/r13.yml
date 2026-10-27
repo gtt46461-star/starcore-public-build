@@ -49,6 +49,8 @@ jobs:
         run: |
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           python -m pip install numpy==2.3.5
+      - name: Verify engineering receipt scope
+        run: python3 scripts/summarize_r26_runtime.py --self-test
       - name: Build, unit tests and lint
         run: bash scripts/build_r13.sh
       - name: Record package identity and signature
@@ -105,6 +107,9 @@ jobs:
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash scripts/run_android_r13.sh ${{ matrix.api }}
+      - name: Print bounded R26 engineering receipt summary
+        if: always()
+        run: python3 scripts/summarize_r26_runtime.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -148,6 +153,9 @@ jobs:
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash scripts/run_r26_endurance.sh ${{ matrix.screen }}
+      - name: Print bounded R26 engineering receipt summary
+        if: always()
+        run: python3 scripts/summarize_r26_runtime.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:

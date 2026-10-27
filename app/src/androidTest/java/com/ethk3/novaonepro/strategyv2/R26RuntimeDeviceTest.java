@@ -26,7 +26,8 @@ public final class R26RuntimeDeviceTest {
     private static final int HISTORY=4200,WRITE_PROBES=1000;
     static final class Sandbox extends Application {
         final File root;final String prefix;
-        Sandbox(Context base)throws IOException {attachBaseContext(base);prefix="r26-synthetic-"+UUID.randomUUID();root=new File(base.getCacheDir(),prefix).getCanonicalFile();if(!root.mkdirs())throw new IOException("sandbox directory");}
+        Sandbox(Context base)throws IOException {this(base,"r26-synthetic-"+UUID.randomUUID());}
+        Sandbox(Context base,String name)throws IOException {attachBaseContext(base);if(!name.matches("r26-synthetic-[A-Za-z0-9-]{1,120}"))throw new IOException("sandbox name");prefix=name;root=new File(base.getCacheDir(),prefix).getCanonicalFile();if(!root.isDirectory()&&!root.mkdirs())throw new IOException("sandbox directory");}
         @Override public Context getApplicationContext(){return this;}
         @Override public Context createDeviceProtectedStorageContext(){return this;}
         @Override public SharedPreferences getSharedPreferences(String name,int mode){return super.getSharedPreferences(prefix+"-"+name,mode);}

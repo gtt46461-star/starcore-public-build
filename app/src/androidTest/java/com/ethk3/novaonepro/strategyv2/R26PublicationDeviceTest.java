@@ -18,11 +18,16 @@ public final class R26PublicationDeviceTest {
         final R26RuntimeDeviceTest.Sandbox app;
         DbStore store;
         SQLiteDatabase db;
+        final boolean keepFiles;
         final long first=TargetIssueResolver.sequenceOrdinalSU1("202610220001");
         final RuntimeCoordinatorR26.Claim claim=new RuntimeCoordinatorR26.Claim("publication-test","SYNTHETIC",1,0);
-        Fixture(int count)throws Exception{
-            assertNull(DatabaseCoordinator.peek());app=new R26RuntimeDeviceTest.Sandbox(InstrumentationRegistry.getInstrumentation().getTargetContext());store=new DbStore(app);db=store.readable();
+        Fixture(int count)throws Exception{this(count,null,true,false);}
+        Fixture(int count,String name,boolean initialize,boolean keep)throws Exception{
+            assertNull("Each fixture must start in a fresh instrumentation process",DatabaseCoordinator.peek());keepFiles=keep;
+            app=name==null?new R26RuntimeDeviceTest.Sandbox(InstrumentationRegistry.getInstrumentation().getTargetContext()):new R26RuntimeDeviceTest.Sandbox(InstrumentationRegistry.getInstrumentation().getTargetContext(),name);store=new DbStore(app);db=store.readable();
+            if(initialize){
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_PUBLICATION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);for(String sql:SqlStatementsSU1.SQL)w.execSQL(sql);StrategySchemaSU2.ensure(w);long now=System.currentTimeMillis();w.execSQL("INSERT INTO r26_session VALUES('SYNTHETIC',1,'SYNTHETIC','RUNNING',?,0)",new Object[]{now});w.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('publication-test','P2','test',1,?,'SYNTHETIC','RUNNING')",new Object[]{now+600000});return 0;});
+            }
             List<Models.Draw> history=new ArrayList<>();for(int i=0;i<count;i++)history.add(draw(i,System.currentTimeMillis()-(count-i+1L)*60000));assertEquals(count,store.saveDraws(history));
         }
         Models.Draw draw(int index,long opened){Models.Draw d=new Models.Draw();d.issue=TargetIssueResolver.fromSequenceOrdinalSU1(first+index);d.numbers=new int[10];for(int p=0;p<10;p++)d.numbers[p]=(p+index%7)%10+1;d.openTime=opened;d.fetchTime=opened+500;return d;}
@@ -33,7 +38,7 @@ public final class R26PublicationDeviceTest {
         byte[] trained(ModelGenomeSU2 g,FoundryCampaignR26.Snapshot s,int count)throws Exception{LiveStateR26 state=new LiveStateR26(g);for(int i=0;i<count;i++)state.learn(s.draws[i]);return state.encode();}
         void candidate(String campaign,ModelGenomeSU2 g,byte[] bytes,int cursor,String status,long cpu)throws Exception{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_CANDIDATE",w->{w.execSQL("INSERT INTO r26_candidate(campaign_id,policy_hash,canonical_text,cursor,state,state_hash,checkpoint_hash,status,operation,service_cpu_ms) VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{campaign,g.key(),g.text(),cursor,bytes,bytes==null?"":LiveStateR26.hash(bytes),"SYNTHETIC:"+g.key(),status,"REGISTERED_SEED",cpu});return 0;});}
         void live(ModelGenomeSU2 g,byte[] bytes,long through,long born,long updated){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_LIVE",w->{w.execSQL("INSERT INTO r26_live_model(policy_hash,canonical_text,state,state_hash,checkpoint_hash,parent_hash,through_ordinal,genesis_ordinal,born_ordinal,updated_at,family_id) VALUES(?,?,?,?,?,'',?,?,?,?,?)",new Object[]{g.key(),g.text(),bytes,LiveStateR26.hash(bytes),"SYNTHETIC:"+g.key(),through,first,born,updated,"F17"});return 0;});}
-        @Override public void close(){store.close();R26RuntimeDeviceTest.remove(app.root);}
+        @Override public void close(){store.close();if(!keepFiles)R26RuntimeDeviceTest.remove(app.root);}
     }
 
     @Test public void completedCandidatePublishesBeforePeersAndFutureLabelRequiresTerminalFeedback()throws Exception{
@@ -75,7 +80,8 @@ public final class R26PublicationDeviceTest {
         return new XiIncumbentSU2.Decision(false,1,new int[]{1,2,3},.3,raw);
     }
     @Test public void protectedOriginalFreezeIsAtomicPersistentAndSourceFenced()throws Exception{
-        try(Fixture f=new Fixture(128)){
+        java.io.File prior=new java.io.File(InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir(),"r26-synthetic-original-freeze-restart");if(prior.exists())R26RuntimeDeviceTest.remove(prior);
+        try(Fixture f=new Fixture(128,"r26-synthetic-original-freeze-restart",true,true)){
             assertTrue(f.store.saveDraw(f.draw(128,System.currentTimeMillis()-2000))>=0);
             String target=TargetIssueResolver.fromSequenceOrdinalSU1(f.first+129);EventFrameSU1 frame=EventFrameBuilderSU1.capture(f.store,target);XiIncumbentSU2.Decision x=originalFixture();
             RuntimeCoordinatorR26.Claim stale=new RuntimeCoordinatorR26.Claim("publication-test","SYNTHETIC",2,0);
@@ -83,12 +89,23 @@ public final class R26PublicationDeviceTest {
             assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM su2_live_decision"));
             assertTrue(f.store.saveDraw(f.draw(129,System.currentTimeMillis()-2000))>=0);assertEquals(0,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,frame,x));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));
             long seq=f.first+130;EventFrameSU1 fresh=EventFrameBuilderSU1.capture(f.store,TargetIssueResolver.fromSequenceOrdinalSU1(seq));assertEquals(1,IncumbentLoopSU2.commitPrepared(f.store,()->f.claim,fresh,x));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM su2_live_decision"));
-            f.store.close();f.store=new DbStore(f.app);f.db=f.store.readable();float[][] restored=IncumbentLoopSU2.pendingTable(f.db,seq);assertNotNull(restored);
+            float[][] restored=IncumbentLoopSU2.pendingTable(f.db,seq);assertNotNull(restored);
             for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(Float.floatToIntBits(x.table[p][n]),Float.floatToIntBits(restored[p][n]));assertTrue(restored[0][0]*10>2);
             assertNull(CertificateSU2.read(f.db,IncumbentLoopSU2.KEY,System.currentTimeMillis()));
+
+        }
+    }
+
+    /** Ordered after its producer by the source-bound manifest; the harness force-stops between methods. */
+    @Test public void protectedOriginalFreezeSurvivesFreshInstrumentationProcess()throws Exception{
+        try(Fixture f=new Fixture(0,"r26-synthetic-original-freeze-restart",false,false)){
+            long seq=f.first+130;assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM su2_live_decision"));
+            float[][] restored=IncumbentLoopSU2.pendingTable(f.db,seq);assertNotNull("Original preferences were not persisted across process replacement",restored);XiIncumbentSU2.Decision x=originalFixture();
+            for(int p=0;p<10;p++)for(int n=0;n<10;n++)assertEquals(Float.floatToIntBits(x.table[p][n]),Float.floatToIntBits(restored[p][n]));
             f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_OLD_OPTIONAL_LAYOUT",w->{w.execSQL("DROP TABLE r26_incumbent_frozen");return 0;});assertTrue(RuntimeSchemaR26.ready(f.db));assertNull(IncumbentLoopSU2.pendingTable(f.db,seq));
         }
     }
+
     @Test public void protectedOriginalFreezeRejectsExpiredDeadlineAndReplacement()throws Exception{
         try(Fixture f=new Fixture(128)){
             assertTrue(f.store.saveDraw(f.draw(128,System.currentTimeMillis()-2000))>=0);
