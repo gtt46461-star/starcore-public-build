@@ -17,6 +17,7 @@ assert hashlib.sha256(Path(c['sourcePath']).read_bytes()).hexdigest()==c['source
 PY
 adb install -r delivered/app/build/outputs/apk/debug/*.apk
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
+python3 scripts/verify_r26_emulator_heap.py
 adb shell am force-stop com.starcore.research.r13
 adb shell dumpsys battery unplug
 adb shell settings put system screen_off_timeout 7200000

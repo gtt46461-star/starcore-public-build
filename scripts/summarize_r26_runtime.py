@@ -9,6 +9,17 @@ def integer(value):
 def summary(receipt,owner_text=""):
     if not isinstance(receipt,dict):
         return {"availability":"NO_VALID_RUNTIME_RECEIPT","scope":"NO_ACCEPTANCE_EVIDENCE"}
+    if "capacityFailureBoundaryMs" in receipt:
+        out={key:receipt[key] for key in ("result","scope") if isinstance(receipt.get(key),str)}
+        out["availability"]="SCHEMA_RECEIPT"
+        for key in ("capacityFailureBoundaryMs","coldMaximumWriterCallMs","repairMaximumWriterCallMs"):
+            out[key]=integer(receipt.get(key))
+        for key in ("coldSlowCalls","repairSlowCalls"):
+            calls=receipt.get(key)
+            out[key]=[{field:integer(call.get(field)) for field in ("wallMs","cpuMs")}
+                      for call in (calls if isinstance(calls,list) else [])[-32:] if isinstance(call,dict)]
+        out["fullPredrawOpportunitySloClaimed"]=False
+        return out
     keys=("result","scope","api","familyMechanismsWithCommittedProgress","expertsWithActualReceipts",
           "allMechanismsServiceMillis","strategyReadyToAllMechanismsWallMs","firstServiceTargetMs",
           "firstServiceTargetObservedWithin","canonicalDrawWriteP50Ms","canonicalDrawWriteP95Ms",
@@ -63,6 +74,15 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual([{"task":"foundry-su2","wallMs":1200,"cpuMs":8,"kernelWallMs":1200}],result["retainedOwnerCapacityEvents"])
         self.assertNotIn("PRIVATE",json.dumps(result))
         self.assertNotIn("credential",json.dumps(result))
+    def test_schema_budget_is_not_full_opportunity_evidence(self):
+        result=summary({"capacityFailureBoundaryMs":1000,"coldMaximumWriterCallMs":810,
+            "coldSlowCalls":[{"wallMs":810,"cpuMs":790,"before":"PRIVATE_LABEL"}],
+            "payload":"PRIVATE_HISTORY","fullPredrawOpportunitySloClaimed":True})
+        self.assertEqual("SCHEMA_RECEIPT",result["availability"])
+        self.assertEqual(810,result["coldMaximumWriterCallMs"])
+        self.assertFalse(result["fullPredrawOpportunitySloClaimed"])
+        self.assertNotIn("PRIVATE",json.dumps(result))
+        self.assertNotIn("canonicalDrawWriteP99Ms",result)
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
@@ -77,6 +97,8 @@ def main():
     except (OSError,ValueError):receipt=None
     try:owner=Path(args.owner).read_text(errors="replace")
     except OSError:owner=""
-    print("R26_RUNTIME_ENGINEERING_SUMMARY="+json.dumps(summary(receipt,owner),sort_keys=True,separators=(",",":"),ensure_ascii=False))
+    result=summary(receipt,owner)
+    prefix="R26_SCHEMA_ENGINEERING_SUMMARY=" if result.get("availability")=="SCHEMA_RECEIPT" else "R26_RUNTIME_ENGINEERING_SUMMARY="
+    print(prefix+json.dumps(result,sort_keys=True,separators=(",",":"),ensure_ascii=False))
     return 0
 if __name__=="__main__":sys.exit(main())

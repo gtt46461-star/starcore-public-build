@@ -109,7 +109,11 @@ jobs:
           script: bash scripts/run_android_r13.sh ${{ matrix.api }}
       - name: Print bounded R26 engineering receipt summary
         if: always()
-        run: python3 scripts/summarize_r26_runtime.py
+        run: |
+          python3 scripts/summarize_r26_runtime.py
+          if test -f r26-schema-migration-synthetic.json; then
+            python3 scripts/summarize_r26_runtime.py --receipt r26-schema-migration-synthetic.json
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -122,6 +126,8 @@ jobs:
             startup-evidence/
             release-*.txt
             r26-runtime-synthetic.json
+            r26-schema-migration-synthetic.json
+            r26-emulator-environment.json
   android-endurance:
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance) }}
     needs: [build, android-runtime]
@@ -165,6 +171,7 @@ jobs:
             android-logcat.txt
             r26-owner-logcat.txt
             r26-runtime-synthetic.json
+            r26-emulator-environment.json
   prior-engineering-evidence:
     if: ${{ github.event_name == 'push' }}
     needs: build

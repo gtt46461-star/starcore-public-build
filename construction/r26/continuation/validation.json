@@ -29,11 +29,11 @@
     "Use streamed state checkpoints for private committee/stage publication, recovery and subsequent live updates"
   ],
   "host": {
-    "r26Groups": 14,
+    "r26Groups": 16,
     "priorStrategyGroups": 21,
     "priorPlanGroups": 20,
-    "status": "PASS_CURRENT_PURE_AND_SDK; Android-current pending",
-    "compileOnlySources": 1067,
+    "status": "PASS_16_R26_21_STRATEGY_20_PLAN_AND_OFFICIAL_SDK_COMPILE; CURRENT_ANDROID_PENDING",
+    "compileOnlySources": 1069,
     "compileOnlyStatus": "PASS_OFFICIAL_SDK36",
     "apkAuthority": "PENDING_SOURCE_MATCHED_ANDROID_AND_ENDURANCE"
   },
@@ -51,9 +51,9 @@
     "uniformTrials": 1000
   },
   "androidTests": {
-    "classes": 18,
-    "tests": 70,
-    "status": "PENDING_CURRENT_SOURCE_CI",
+    "classes": 21,
+    "tests": 81,
+    "status": "PENDING_SCHEMA_AND_EMULATOR_PREFLIGHT_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
@@ -1332,9 +1332,9 @@
     "api29NextSourceValidation": "PASS_78_TEST_SOURCE_40572678850"
   },
   "currentInstrumentation": {
-    "classes": 19,
-    "tests": 79,
-    "validation": "PENDING_F08_CONTROL_FAIRNESS_AND_ACTUAL_OWNER_INTEGRATION_SOURCE_CI"
+    "classes": 21,
+    "tests": 81,
+    "validation": "PENDING_SCHEMA_AND_EMULATOR_PREFLIGHT_SOURCE_CI"
   },
   "protectedOriginalMigration": {
     "sourceBranch": "construction/r26-incumbent-owner-20261027",
@@ -1375,10 +1375,10 @@
     "assertionsRelaxed": false
   },
   "engineeringReceiptSummary": {
-    "status": "SELF_TESTS_AND_ANDROID_78_REPORTING_PASS",
+    "status": "FIVE_SCOPE_SELF_TESTS_PASS; CURRENT_SCHEMA_NATIVE_SUMMARY_PENDING",
     "script": "scripts/summarize_r26_runtime.py",
     "scope": "Bounded metrics and owner capacity event metadata only; no canonical history labels; missing counters remain null; receipt-ring failures do not overwrite monotonic totals",
-    "selfTests": 4
+    "selfTests": 5
   },
   "endurance70": {
     "runId": 40562783679,
@@ -1387,24 +1387,65 @@
     "status": "SIX_FULL_HOUR_ENGINEERING_SCENARIOS_PASS_WITH_STATED_SCOPE",
     "scope": "SYNTHETIC_EMULATOR_NOT_PHONE_OR_NATURAL_OR_FULL_OPPORTUNITY_SLO",
     "summary": "construction/r26/continuation/endurance-70-summary.json",
-    "detailedTelemetry": "Pending readback of original artifacts, not inferred from job pass"
+    "detailedTelemetry": "construction/r26/continuation/endurance-70-telemetry-readback.json",
+    "capacityFailuresByScenario": {
+      "29-BRIGHT": 6,
+      "29-LOCKED": 6,
+      "35-BRIGHT": 1,
+      "35-LOCKED": 1,
+      "36-BRIGHT": 1,
+      "36-LOCKED": 1
+    },
+    "capacityAcceptance": "FAIL_SCHEMA_BASE_UNSLICED_1042_TO_2141_MS; JOB_PASS_DOES_NOT_MEAN_ZERO_FAILURES"
   },
   "controlCpuFairness": {
-    "status": "PENDING_ANDROID_79",
+    "status": "PASS_ANDROID_79_ACTUAL_SCHEDULER_REGRESSION",
     "fix": "After available unserved families complete initial service, mechanism controls share measured CPU service instead of waiting for all ordinary models to finish",
     "controlsReceiveFamilyCredit": false
   },
   "terminalFeedbackOwner": {
-    "status": "PRODUCTION_CALL_CHAIN_AUDITED; ACTUAL_OWNER_ANDROID_TEST_PENDING_NEXT_SOURCE",
+    "status": "PASS_ANDROID_79_ACTUAL_SOLE_OWNER",
     "record": "construction/r26/continuation/terminal-feedback-owner-path.json",
-    "scope": "Existing 78-source lifecycle test used isolated direct feedback fixture; next source exercises SettlementCoordinatorR815 and verifies NO_PREDRAW terminal, duplicate idempotence and subsequent learning"
+    "scope": "Calls SettlementCoordinatorR815, verifies NO_PREDRAW canonical terminal, duplicate idempotence, then private learning and next freeze"
   },
   "currentSourceValidation": {
     "status": "PENDING_PUSH_TRIGGERED_CI",
     "hostProtocolGroups": 16,
-    "instrumentationClasses": 19,
-    "instrumentationTests": 79,
+    "instrumentationClasses": 21,
+    "instrumentationTests": 81,
     "checksRelaxed": false,
     "publicReleasePublished": false
+  },
+  "lastCompletedStandardValidation": {
+    "runId": 40576912670,
+    "source": "5c19eaf3b24356018f99d11c33b1509f975fb477",
+    "compiledSource": "87720e8cdc9390c23210b7e2061a08e4ef6b0787",
+    "build": "PASS_UNIT_LINT_PACKAGE",
+    "api29": "PASS_79_TESTS",
+    "api35": "PASS_STARTUP_RESTART_RELEASE",
+    "api36": "PASS_STARTUP_RESTART_RELEASE",
+    "endurance": "API29_BRIGHT_FAILED_16M_HEAP_BEFORE_FIRST_SERVICE; OTHER_FIVE_RUNNING",
+    "scope": "Before current schema query and emulator environment corrections"
+  },
+  "schemaQueryReduction": {
+    "scope": "HOST_REAL_SQLITE_WITH_ANDROID_API_ADAPTER; NOT_ANDROID_PERFORMANCE_OR_PHONE_SLO",
+    "productionSource": "app/src/main/java/com/ethk3/novaonepro/SchemaDomainCoordinatorR926.java",
+    "productionSha256": "ab0191f46f877c206a1902486d69d11502d9d6ab2c26d729d04ac6efd63b318c",
+    "fingerprintAssertions": 48,
+    "objectMembershipAssertions": 28,
+    "requiredResearchObjects": 269,
+    "membershipCatalogueQueries": 1,
+    "readinessCacheAdded": false,
+    "fingerprintReference": "verification/report1015_r80/combined/schema/fingerprint_filter/FingerprintFilterR80.java",
+    "membershipReference": "verification/r26/schema_queries/Presence.java",
+    "sdkCompile": "1069 Java sources against official SDK36 jar; generated config/resource stubs; CI APK remains authority",
+    "nativeRegressions": "Two new actual SQLite Android tests: original hash parity and complete legacy cold migration plus same-version dropped-trigger repair; source-bound CI pending"
+  },
+  "emulatorEnvironmentCorrection": {
+    "status": "PENDING_NATIVE_CI",
+    "historicalFailure": "construction/r26/continuation/runtime-79-29-bright-heap-failure.json",
+    "script": "scripts/verify_r26_emulator_heap.py",
+    "productionMemoryGuardRelaxed": false,
+    "requestedHeapBytes": 536870912
   }
 }

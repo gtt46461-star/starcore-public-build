@@ -4,6 +4,13 @@ set -euo pipefail
 # and all real checks together in this process so a failing test retains logcat.
 collect_runtime_evidence() {
   adb logcat -d > android-logcat.txt || true
+  local schema_tmp
+  schema_tmp=$(mktemp r26-schema-receipt-XXXXXX.json)
+  if adb exec-out run-as com.starcore.research.r13 cat cache/r26-schema-migration-synthetic.json > "$schema_tmp" 2>/dev/null && python3 -c 'import json,sys; assert isinstance(json.load(open(sys.argv[1])),dict)' "$schema_tmp"; then
+    mv "$schema_tmp" r26-schema-migration-synthetic.json
+  else
+    rm -f "$schema_tmp"
+  fi
   # Release is not debuggable. Keep the already collected debug receipt if run-as is denied
   # after the coverage upgrade, instead of truncating the successful receipt in the exit trap.
   local receipt_tmp
@@ -18,6 +25,7 @@ trap collect_runtime_evidence EXIT
 adb install -r delivered/app/build/outputs/apk/debug/*.apk
 if [[ "${1:-29}" == "29" ]]; then
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
+python3 scripts/verify_r26_emulator_heap.py
 python3 - <<'PYTEST'
 import hashlib,json,re,subprocess
 from pathlib import Path
@@ -48,6 +56,7 @@ PYTEST
 adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-charts.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json
+adb exec-out run-as com.starcore.research.r13 cat cache/r26-schema-migration-synthetic.json > r26-schema-migration-synthetic.json
 fi
 python3 scripts/probe_r13_startup.py
 # The deliverable is the release variant. Confirm the same fixed certificate
