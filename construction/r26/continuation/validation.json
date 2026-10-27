@@ -29,27 +29,13 @@
     "Use streamed state checkpoints for private committee/stage publication, recovery and subsequent live updates"
   ],
   "host": {
-    "r26Groups": 11,
-    "priorPlanGroups": 20,
+    "r26Groups": 13,
     "priorStrategyGroups": 21,
-    "status": "PASS_CURRENT_SOURCE",
-    "apkAuthority": "PENDING_62_TEST_CI",
-    "checks": [
-      "R26 11 groups",
-      "prior strategy 21 groups",
-      "prior 10.25 plan 20 groups"
-    ],
-    "compileOnlySources": 1061,
-    "renewedCpuAndRetention": {
-      "r26Groups": 12,
-      "r26Status": "PASS",
-      "oldStrategyGroups": 21,
-      "oldStrategyStatus": "PASS",
-      "planStatus": "RUNNING_LOCAL",
-      "sdk36SourceCount": 1062,
-      "sdk36Compile": "PASS",
-      "apkAuthority": "SOURCE_MATCHED_CI_REQUIRED"
-    }
+    "priorPlanGroups": 20,
+    "status": "PASS",
+    "compileOnlySources": 1065,
+    "compileOnlyStatus": "PASS_OFFICIAL_SDK36",
+    "apkAuthority": "PENDING_SOURCE_MATCHED_67_TEST_ANDROID_CI"
   },
   "syntheticPower": {
     "scope": "SYNTHETIC_ONLY_NOT_NATURAL_QUALITY",
@@ -65,10 +51,15 @@
     "uniformTrials": 1000
   },
   "androidTests": {
-    "classes": 17,
-    "tests": 63,
+    "classes": 18,
+    "tests": 67,
     "status": "PENDING_CURRENT_SOURCE_CI",
-    "newRegression": "Protected incumbent parent exclusion and renewed numerical campaign beyond 5000-period retention"
+    "newRegressions": [
+      "Next forecast equals direct output and subsequent learning",
+      "Prepared forecasts reject stale/corrupt state",
+      "Two challenger slots preserve all base slots; expiry keeps weights, mainline, certificates and birth alpha",
+      "Non-atomic legacy writer releases before numerical continuation may park"
+    ]
   },
   "physicalDevice": "NOT_RUN",
   "naturalQuality": "INSUFFICIENT",
@@ -77,7 +68,7 @@
     "Complete forty-chapter device/report acceptance",
     "Persistent-cache capacity, 1000-opportunity tail SLO and 60-minute unplugged bright/locked device matrix",
     "Natural forward evidence for 35/37/40 quality and user phone acceptance",
-    "Complete source-matched 62-test Android and six 60-minute scenarios after latest history/report/identity fixes"
+    "Complete source-matched 67-test Android and all six 60-minute emulator scenarios after forecast/admission/writer/heap fixes"
   ],
   "sourceChanges": [
     {
@@ -700,5 +691,56 @@
     "policy": "CPU service divided by executable mechanisms per task; aggregate foundry weight 24, live-model training weight active model count, experts weight 1; measured P2 reserve 20 percent",
     "hostDispatches": 10000,
     "firstService60s": "PREVIOUS_SOURCE_FAIL_117037MS; CURRENT_SOURCE_PENDING"
+  },
+  "lastSourceCi": {
+    "runId": 40542555379,
+    "source": "dd86acab759a",
+    "compiledSource": "0d225c346091bef34fc6873c537af91fb1d88e29",
+    "build": "PASS",
+    "api35": "PASS_START_RESTART_UPGRADE",
+    "api36": "PASS_START_RESTART_UPGRADE",
+    "api29": "FAIL_RUNTIME_TEST_OOM",
+    "error": "java.lang.OutOfMemoryError: target footprint/growth limit 16777216 bytes",
+    "endurance": "SKIPPED_BECAUSE_STANDARD_RUNTIME_FAILED",
+    "artifactId": 12753195687,
+    "publicReleasePublished": false,
+    "observations": [
+      "Product debug APK manifest independently confirms largeHeap=true",
+      "Instrument APK had no largeHeap flag",
+      "Emulator launch reported qemu.dalvik.vm.heapsize=512m while runtime OOM growth limit was 16MiB"
+    ],
+    "fixesPendingRetest": [
+      "Align instrumentation largeHeap flag to target",
+      "Set explicit 2048M RAM/512M heap in emulator configuration",
+      "Record actual heap limit and target flag at runtime start",
+      "Fail closed with MEMORY_PRESSURE if research JVM heap limit is below 64MiB"
+    ]
+  },
+  "endurance62Retry": {
+    "runId": 40536423771,
+    "scenario": "API29_LOCKED",
+    "status": "FAIL_AFTER_THREE_MINUTE_SAMPLES_NOT_FULL_HOUR",
+    "observedFailure": "F01_WRITE_FAILED/R914_DRAW_SAVE_ATOMIC caused by CP3_DB_BUSY_DEADLINE",
+    "receipt": "construction/r26/continuation/runtime-62-locked-writer-failure.json",
+    "fix": "Close continuation-parking gap on every DatabaseCoordinator writer entry, including legacy non-atomic callers; direct reproduction pending Android gate",
+    "rootCauseFullyProved": false
+  },
+  "preparedForecast": {
+    "status": "HOST_PASS_ANDROID_PENDING",
+    "payloadBytes": 437,
+    "scope": "Exact selected action and complete marginal table, bound to policy/state/checkpoint/next ordinal; P0 still validates live checkpoint and deadline",
+    "worker": "P2 prepares after each committed learning update and replenishes missing caches after process replacement",
+    "qualityClaim": false
+  },
+  "futureChallengers": {
+    "status": "ANDROID_PENDING",
+    "baseSlots": 32,
+    "reservedChallengerSlots": 2,
+    "maxActivePerFamily": 2,
+    "maxActiveTotal": 34,
+    "retirement": "Preregistered first future window has ended and been evaluated, no current certificate/mainline, another family member remains active",
+    "rawOrStateQuotaRaised": false,
+    "weightsRetained": true,
+    "birthAndAlphaRefunded": false
   }
 }

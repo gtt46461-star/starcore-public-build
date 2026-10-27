@@ -1,0 +1,24 @@
+{
+  "runId": 40542555379,
+  "source": "dd86acab759a",
+  "compiledSource": "0d225c346091bef34fc6873c537af91fb1d88e29",
+  "build": "PASS",
+  "api35": "PASS_START_RESTART_UPGRADE",
+  "api36": "PASS_START_RESTART_UPGRADE",
+  "api29": "FAIL_RUNTIME_TEST_OOM",
+  "error": "java.lang.OutOfMemoryError: target footprint/growth limit 16777216 bytes",
+  "endurance": "SKIPPED_BECAUSE_STANDARD_RUNTIME_FAILED",
+  "artifactId": 12753195687,
+  "publicReleasePublished": false,
+  "observations": [
+    "Product debug APK manifest independently confirms largeHeap=true",
+    "Instrument APK had no largeHeap flag",
+    "Emulator launch reported qemu.dalvik.vm.heapsize=512m while runtime OOM growth limit was 16MiB"
+  ],
+  "fixesPendingRetest": [
+    "Align instrumentation largeHeap flag to target",
+    "Set explicit 2048M RAM/512M heap in emulator configuration",
+    "Record actual heap limit and target flag at runtime start",
+    "Fail closed with MEMORY_PRESSURE if research JVM heap limit is below 64MiB"
+  ]
+}

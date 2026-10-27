@@ -630,6 +630,7 @@ public final class DatabaseCoordinator {
             for (int attempt = 0; attempt <= AppConfig.DB_LOCK_RETRY_COUNT; attempt++) {
                 long acquireStartedR927 = TimeSourceR811.monoNowMs();
                 boolean waitRecordedR927 = false;
+                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationWriteCriticalR26=null;
                 try {
                     while (true) {
                         long remainingCP3 = writeDeadlineCP3 - TimeSourceR811.monoNowMs();
@@ -637,6 +638,9 @@ public final class DatabaseCoordinator {
                             throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
                         if (writeLock.tryLock(Math.min(50L, remainingCP3), TimeUnit.MILLISECONDS)) {
                             locked = true;
+                            // Every writer entry, including legacy non-transaction wrappers, must
+                            // release the sole writer before a numerical continuation may park.
+                            continuationWriteCriticalR26=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
                             if (TimeSourceR811.monoNowMs() >= writeDeadlineCP3)
                                 throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
                             break;
@@ -701,6 +705,7 @@ public final class DatabaseCoordinator {
                         }
                         locked = false;
                     }
+                    if(continuationWriteCriticalR26!=null)continuationWriteCriticalR26.close();
                 }
             }
         } finally {

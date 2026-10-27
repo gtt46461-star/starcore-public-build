@@ -35,6 +35,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         android.app.ActivityManager manager=(android.app.ActivityManager)store.contextForR26().getSystemService(android.content.Context.ACTIVITY_SERVICE);
         if(manager!=null){android.app.ActivityManager.MemoryInfo memory=new android.app.ActivityManager.MemoryInfo();manager.getMemoryInfo(memory);if(memory.lowMemory)reason="MEMORY_PRESSURE";}
         if(android.os.Build.VERSION.SDK_INT>=29){android.os.PowerManager power=(android.os.PowerManager)store.contextForR26().getSystemService(android.content.Context.POWER_SERVICE);if(power!=null&&power.getCurrentThermalStatus()>=android.os.PowerManager.THERMAL_STATUS_SEVERE)reason="THERMAL_SEVERE";}
+        if(Runtime.getRuntime().maxMemory()<(64L<<20))reason="MEMORY_PRESSURE:JVM_HEAP_BELOW_64M_RESEARCH_MINIMUM";
         resourceBlocked=reason;
     }
     private void sessionBlocked(String reason){long now=System.currentTimeMillis();String state=reason==null?"RUNNING":"BLOCKED:"+reason;if(state.equals(recordedSessionState)&&now-heartbeat<1000)return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STATUS",db->{db.execSQL("UPDATE r26_session SET state=?,heartbeat=? WHERE session_id=? AND user_enabled=1",new Object[]{state,now,owner});return 0;});heartbeat=now;recordedSessionState=state;}

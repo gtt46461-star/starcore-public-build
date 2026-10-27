@@ -101,6 +101,8 @@ jobs:
           arch: x86_64
           target: default
           disable-animations: true
+          ram-size: 2048M
+          heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash scripts/run_android_r13.sh ${{ matrix.api }}
       - uses: actions/upload-artifact@v4
@@ -141,6 +143,8 @@ jobs:
           arch: x86_64
           target: default
           disable-animations: true
+          ram-size: 2048M
+          heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash scripts/run_r26_endurance.sh ${{ matrix.screen }}
       - uses: actions/upload-artifact@v4
