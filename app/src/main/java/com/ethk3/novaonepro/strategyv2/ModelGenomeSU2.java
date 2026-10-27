@@ -98,7 +98,7 @@ public final class ModelGenomeSU2 {
         rules.put("initial_state", members.get(0).params.containsKey("_birth_snapshot")?Arrays.asList("DETERMINISTIC_MEMBER_INIT_THEN_BOUND_BOOTSTRAP",members.get(0).params.get("_birth_snapshot"),members.get(0).params.get("_birth_through")):"MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
         rules.put("gate", Arrays.asList(gate, metaC, coverage)); rules.put("router", pool);
         rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
-        rules.put("resource_schedule", "R26_SINGLE_RESEARCH_WORKER_FAIR_200MS_V1");
+        rules.put("resource_schedule", "R26_CAPABILITY_WEIGHTED_CPU_SERVICE_200MS_V2");
         rules.put("evidence_protocol", QualificationWindowR26.PROTOCOL); rules.put("runtime_abi", "SU2_R26_1:"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
         return cachedPolicy=new PolicyIdentityR26.Policy(rules);
     }
