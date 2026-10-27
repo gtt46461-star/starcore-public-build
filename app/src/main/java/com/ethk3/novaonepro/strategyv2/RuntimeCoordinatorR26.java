@@ -119,7 +119,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
                 boolean advanced=result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready;c.reason((advanced?"COOPERATIVE_":"")+result.status+":"+result.detail);return advanced?1:0;
             }
-            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);return 0;});return 1;}
+            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){
@@ -135,6 +135,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "legacy-generation":return LegacyGenerationR26.step(store,c,budget);
             case "legacy-replay":return LegacyReplayContinuationR26.step(store,c,budget);
             case "artifact-retention":return ArtifactMaintenanceR26.step(store,c,budget);
+            case "seed-incumbent":IncumbentLoopSU2.seed(store,seq+1);c.completedEventCursor=seq;return 1;
             case "qualification":return CertificateSU2.maintainOne(store,seq+1);
             case "aggregate-evidence":return EvidenceAccumulatorR26.stepOne(store,c,budget,seq+1);
             case "publish-models":return TaskContinuationR26.step(store,c,budget,seq+1);
@@ -158,7 +159,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "sealed-planner":SealedPlannerSU1.maintain(store);break;
             case "calibration":CalibrationPipelineSU1.maintain(store);break;
             case "su1-certificate":CertificateSU1.maintain(store);MainlineHeadSU1.maintain(store);break;
-            case "seed-incumbent":IncumbentLoopSU2.seed(store,1);break;
             case "su2-mainline":MainlineBridgeSU2.chooseIfDue(store,seq+1);break;
             case "su2-certificate":CertificateSU2.maintain(store,seq+1);break;
             case "archive":ArchiveStoreSU1.maintain(store);break;

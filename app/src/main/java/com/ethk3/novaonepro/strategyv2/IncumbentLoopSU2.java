@@ -26,12 +26,14 @@ public final class IncumbentLoopSU2 {
         WORKER.execute(() -> { try { freezeNext(store, target, seq); } catch (RuntimeException failure) { StrategyRuntimeSU1.failure(store, "SU2_INCUMBENT_FAILED", failure); } });
     }
 
-    public static void seed(DbStore store, long seq) {
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_INCUMBENT_SEED", db -> {
-            // the incumbent is certified, chosen and bound exactly like any league member: one genome row for its program
-            db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                new Object[]{KEY, XiIncumbentSU2.CANONICAL, "XI = 用户原方法：8 专家 Top6/7/8/9 交叉交集支持度 -> 岭回归 Logistic 适用门 -> 25% 基池 -> 15% 出手", "F15", "INCUMBENT", null, "", "INCUMBENT", seq, null, null, "LEAGUE", System.currentTimeMillis()});
-            ModelStoreSU2.joinLeague(db, MEMBER, "XI_INCUMBENT", "用户原方法·多位置多号码交叉交集", KEY, seq); return 0; });
+    public static void seed(DbStore store,long seq){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_INCUMBENT_SEED",db->{seedWithin(db,seq);return 0;});}
+    /** Own-strategy metadata only: no dependency on the complete legacy research overlay. */
+    public static void seedWithin(android.database.sqlite.SQLiteDatabase db,long seq){
+        if(!db.inTransaction())throw new IllegalStateException("SU2_INCUMBENT_SEED_WRITER");
+        // Register the protected method; historical scores grant no certificate.
+        db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            new Object[]{KEY, XiIncumbentSU2.CANONICAL, "XI = 用户原方法：8 专家 Top6/7/8/9 交叉交集支持度 -> 岭回归 Logistic 适用门 -> 25% 基池 -> 15% 出手", "F15", "INCUMBENT", null, "", "INCUMBENT", seq, null, null, "LEAGUE", System.currentTimeMillis()});
+        ModelStoreSU2.joinLeague(db, MEMBER, "XI_INCUMBENT", "用户原方法·多位置多号码交叉交集", KEY, seq);
     }
 
     /** Freeze the incumbent's decision for `target` (sequence seq) if not yet frozen. */

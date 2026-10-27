@@ -59,6 +59,12 @@ public final class R26DeviceTest {
         draws[40]=new int[]{10,9,8,7,6,5,4,3,2,1};try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);b=com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame();}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}assertEquals(a,b);
         available[39]=open[40]+1;try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);assertEquals("INSUFFICIENT_CAUSAL_INPUT",com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame().get("availability"));}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}
     }
+    @Test public void firstPolicyBirthCannotRegisterAnEmptyOrMutableBenchmark(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);db.beginTransaction();try{StrategySchemaSU2.ensure(db);for(String sql:SqlStatementsSU1.SQL)if(sql.startsWith("CREATE TABLE IF NOT EXISTS su1_family_budget")||sql.startsWith("CREATE TABLE IF NOT EXISTS su1_alpha_reservation"))db.execSQL(sql);String policy=HashingSU1.text("SYNTHETIC_FIRST_POLICY_BIRTH");CertificateSU2.preregister(db,policy,100);assertFalse(ModelStoreSU2.league(db).isEmpty());
+            try(Cursor c=db.rawQuery("SELECT from_sequence,incumbent,family_alpha FROM r26_cohort WHERE genome_key=?",new String[]{policy})){assertTrue(c.moveToFirst());assertEquals(100,c.getLong(0));assertEquals(IncumbentLoopSU2.KEY,c.getString(1));assertTrue(c.getDouble(2)>0);}
+            assertNull(CertificateSU2.read(db,IncumbentLoopSU2.KEY,System.currentTimeMillis()));for(String mutation:new String[]{"incumbent='different'","from_sequence=99","family_alpha=.5"})try{db.execSQL("UPDATE r26_cohort SET "+mutation);fail("birth preregistration changed");}catch(android.database.sqlite.SQLiteException expected){assertTrue(expected.getMessage().contains("R26_COHORT_BIRTH_IMMUTABLE"));}db.execSQL("UPDATE r26_cohort SET checked_sequence=101,state='SYNTHETIC_CHECKED'");CertificateSU2.preregister(db,policy,999);try(Cursor c=db.rawQuery("SELECT from_sequence,checked_sequence FROM r26_cohort WHERE genome_key=?",new String[]{policy})){c.moveToFirst();assertEquals(100,c.getLong(0));assertEquals(101,c.getLong(1));}db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
     @Test public void birthBudgetIsIrrevocableAndFrozenForecastsAreImmutable(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
         schema(db);db.beginTransaction();try{
             StrategySchemaSU2.ensure(db);
