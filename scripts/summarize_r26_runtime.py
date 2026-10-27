@@ -18,6 +18,12 @@ def summary(receipt,owner_text=""):
             calls=receipt.get(key)
             out[key]=[{field:integer(call.get(field)) for field in ("wallMs","cpuMs")}
                       for call in (calls if isinstance(calls,list) else [])[-32:] if isinstance(call,dict)]
+        profile=receipt.get("completedCatalogueProfile")
+        if isinstance(profile,dict):
+            out["completedCatalogueProfile"]={key:integer(profile.get(key)) for key in ("catalogueObjects","catalogueSqlCharacters")}
+            for key in ("constructContract","freshFingerprint","requiredObjects","infrastructure","journalRead","strategyReadiness"):
+                measured=profile.get(key)
+                if isinstance(measured,dict):out["completedCatalogueProfile"][key]={field:integer(measured.get(field)) for field in ("wallMs","cpuMs")}
         out["fullPredrawOpportunitySloClaimed"]=False
         return out
     keys=("result","scope","api","familyMechanismsWithCommittedProgress","expertsWithActualReceipts",
@@ -77,10 +83,12 @@ class ScopeTests(unittest.TestCase):
     def test_schema_budget_is_not_full_opportunity_evidence(self):
         result=summary({"capacityFailureBoundaryMs":1000,"coldMaximumWriterCallMs":810,
             "coldSlowCalls":[{"wallMs":810,"cpuMs":790,"before":"PRIVATE_LABEL"}],
+            "completedCatalogueProfile":{"catalogueObjects":1200,"freshFingerprint":{"wallMs":200,"cpuMs":190,"sql":"PRIVATE_SQL"}},
             "payload":"PRIVATE_HISTORY","fullPredrawOpportunitySloClaimed":True})
         self.assertEqual("SCHEMA_RECEIPT",result["availability"])
         self.assertEqual(810,result["coldMaximumWriterCallMs"])
         self.assertFalse(result["fullPredrawOpportunitySloClaimed"])
+        self.assertEqual(200,result["completedCatalogueProfile"]["freshFingerprint"]["wallMs"])
         self.assertNotIn("PRIVATE",json.dumps(result))
         self.assertNotIn("canonicalDrawWriteP99Ms",result)
 

@@ -2,12 +2,14 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 import java.util.*;
 /** Exact retained windows; unavailable 8/32/128/512/2048/5000 scales have zero router weight. */
-public final class ScaleEncoderR26 implements TemporalModelR26 {
+public final class ScaleEncoderR26 implements TemporalModelR26,ScaleInputR26 {
     public static final int[] SCALES={8,32,128,512,2048,5000};
     private final boolean six;private final int[][] ring=new int[5000][10];private final int[][][] counts=new int[6][10][10];
     private final double[] logits=new double[6];private long t;
     public ScaleEncoderR26(boolean six){this.six=six;}
     public int mask(){int mask=0;for(int s=0;s<(six?6:1);s++)if(t>=SCALES[s])mask|=1<<s;return mask;}
+    public int configuredScaleMask(){return six?63:1;}
+    public int availableScaleMask(){return mask();}
     private double[] weights(){double[] w=new double[6];double z=0,max=-Double.MAX_VALUE;for(int s=0;s<6;s++)if((mask()&(1<<s))!=0)max=Math.max(max,logits[s]);for(int s=0;s<6;s++)if((mask()&(1<<s))!=0){w[s]=Math.exp(logits[s]-max);z+=w[s];}if(z>0)for(int s=0;s<6;s++)w[s]/=z;return w;}
     private double[][] mixed(double[] w){double[][] q=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++){if(mask()==0)q[p][n]=.1;else for(int s=0;s<6;s++)q[p][n]+=w[s]*(counts[s][p][n]+.5)/(SCALES[s]+5.0);}return q;}
     private double[][] score(double[][] q){double[][] score=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++)score[p][n]=Math.log(Math.max(1e-12,q[p][n]));return score;}

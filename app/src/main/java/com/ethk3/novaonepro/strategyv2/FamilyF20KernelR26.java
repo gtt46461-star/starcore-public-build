@@ -7,7 +7,7 @@ import java.util.*;
  * expert's sufficient statistics, its immutable initial prior and validity times.
  * Only revealed labels update an expert; retrieval never observes the next label.
  * A fragment supplies a prior, never qualification samples or live authority. */
-public final class FamilyF20KernelR26 implements TemporalModelR26 {
+public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 {
     private static final int MAGIC=0x26200001,HISTORY=8,DIM=200;
     public enum Retrieval { MATCH, NONE, MISMATCH, EXPIRED }
     private static final class Fragment {
@@ -23,6 +23,8 @@ public final class FamilyF20KernelR26 implements TemporalModelR26 {
         this.capacity=capacity;this.mode=mode;fragments=new Fragment[capacity];Arrays.fill(global,.1);
     }
     public int stateWidth(){return 6;}
+    public int configuredScaleMask(){return mode==Retrieval.NONE?0:1;}
+    public int availableScaleMask(){return seen==HISTORY?configuredScaleMask():0;}
     /** Context supports 8 observed labels; fragment validity is capped at 5000
      * update periods. It does not claim 32/128/512/2048-label feature encoders. */
     public void resetTemporalContext(){seen=0;active=-1;for(int[] row:recent)Arrays.fill(row,0);}

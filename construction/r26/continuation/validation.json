@@ -32,8 +32,8 @@
     "r26Groups": 17,
     "priorStrategyGroups": 21,
     "priorPlanGroups": 20,
-    "status": "PASS_17_R26_21_STRATEGY_20_PLAN_AND_OFFICIAL_SDK; CURRENT_ANDROID_PENDING",
-    "compileOnlySources": 1070,
+    "status": "PASS_CURRENT_17_R26_AND_OFFICIAL_SDK; PRIOR_21_STRATEGY_20_PLAN_F20_SOURCE_PASS; CI_REPEATS_ALL",
+    "compileOnlySources": 1071,
     "compileOnlyStatus": "PASS_OFFICIAL_SDK36",
     "apkAuthority": "PENDING_SOURCE_MATCHED_ANDROID_AND_ENDURANCE"
   },
@@ -52,8 +52,8 @@
   },
   "androidTests": {
     "classes": 21,
-    "tests": 82,
-    "status": "PENDING_FRAGMENT_MEMORY_SOURCE_CI",
+    "tests": 83,
+    "status": "PENDING_EXPERT_MASKS_AND_INFRASTRUCTURE_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
@@ -1333,8 +1333,8 @@
   },
   "currentInstrumentation": {
     "classes": 21,
-    "tests": 82,
-    "validation": "PENDING_F20_ACTUAL_FOUNDRY_AND_CONTROL_PUBLICATION_SOURCE_CI"
+    "tests": 83,
+    "validation": "PENDING_EXPERT_MASKS_AND_INFRASTRUCTURE_SOURCE_CI"
   },
   "protectedOriginalMigration": {
     "sourceBranch": "construction/r26-incumbent-owner-20261027",
@@ -1409,10 +1409,10 @@
     "scope": "Calls SettlementCoordinatorR815, verifies NO_PREDRAW canonical terminal, duplicate idempotence, then private learning and next freeze"
   },
   "currentSourceValidation": {
-    "status": "LOCAL_VERIFIED; PENDING_F20_PUSH_AND_CI",
+    "status": "LOCAL_17_GROUPS_PASS; PUSH_PENDING",
     "hostProtocolGroups": 17,
     "instrumentationClasses": 21,
-    "instrumentationTests": 82,
+    "instrumentationTests": 83,
     "checksRelaxed": false,
     "publicReleasePublished": false
   },
@@ -1424,7 +1424,7 @@
     "api29": "PASS_79_TESTS",
     "api35": "PASS_STARTUP_RESTART_RELEASE",
     "api36": "PASS_STARTUP_RESTART_RELEASE",
-    "endurance": "API29_BRIGHT_FAILED_16M_HEAP_BEFORE_FIRST_SERVICE; OTHER_FIVE_RUNNING",
+    "endurance": "FIVE_FULL_HOUR_COMPLETED_WITH_SCHEMA_CAPACITY_FAILURES; API29_BRIGHT_FAILED_16M_HEAP",
     "scope": "Before current schema query and emulator environment corrections"
   },
   "schemaQueryReduction": {
@@ -1443,7 +1443,7 @@
     "androidSource": {
       "runId": 40585098068,
       "source": "b902826425589228c9e58b4d461c862e93761796",
-      "status": "BUILD_RUNNING; 81_TESTS_PENDING"
+      "status": "FAILED_COLD_1702MS_REPAIR_1774MS; FULL_FINGERPRINT_PARITY_AND_DATA_PRESERVATION_PASS"
     }
   },
   "emulatorEnvironmentCorrection": {
@@ -1456,7 +1456,7 @@
   "fragmentMemoryMechanism": {
     "scope": "FUNCTIONAL_AND_SYNTHETIC_MECHANISM_ONLY; NOT_FULL_FAMILY_EXPERT_ACCEPTANCE_OR_NATURAL_QUALITY",
     "source": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyF20KernelR26.java",
-    "sourceSha256": "85692e6fe1e00eb6da2db10a94c91e4742f2198d68eeb41524edab183a6240d9",
+    "sourceSha256": "b410e0179f8800edf5bf1a29cc323986da31129a52cf47809854666df704b8f0",
     "modelStateSampleBytes": 20415,
     "modelStateSampleSha256": "7e7d1c614a88b1a140a7c850180af6b73458ecf2397943747191e0ea75d00819",
     "sourceBoundParameters": {
@@ -1487,7 +1487,15 @@
       "immediate cooperative cancellation keeps original state",
       "old RegMem original bytes and forecasts preserved"
     ],
-    "android": "Pending actual foundry/checkpoint/publication regression in 82-test source",
+    "android": {
+      "runId": 40587052886,
+      "source": "645e6b91c7be33c69a3f11419e5c551b38a90da6",
+      "compiledSource": "61e545bb55514713490059a1deffc7627f5c4700",
+      "build": "PASS_UNIT_LINT_PACKAGE",
+      "api35": "PASS_STARTUP_RESTART_RELEASE",
+      "api36": "PASS_STARTUP_RESTART_RELEASE",
+      "api29": "RUNNING; KNOWN_OLD_SCHEMA_CAPACITY_FIX_NOT_INCLUDED"
+    },
     "remaining": [
       "All seven family interfaces and per-step typed learning receipts",
       "Failure-driven expert-generated fragment admission and retriever-loss/forgetting validation",
@@ -1508,5 +1516,82 @@
     },
     "allCapacityEventsTask": "schema-base",
     "readback": "construction/r26/continuation/endurance-78-telemetry-readback.json"
+  },
+  "schemaCapacity81": {
+    "runId": 40585098068,
+    "source": "b902826425589228c9e58b4d461c862e93761796",
+    "compiledSource": "523bc13c9f20deca54c27cb65a2e90ca0d6d4897",
+    "api29JobId": 122480651916,
+    "artifactId": 12772872298,
+    "artifactSha256": "86d9b96accf5c14cc4e0a9543c83fc58b68df1b5ea1b0a674979f4ac16ef05d9",
+    "status": "FAIL_SCHEMA_CAPACITY_REGRESSION; ENDURANCE_SKIPPED",
+    "sourceInstrumentationTests": 81,
+    "apkBuildUnitLint": "PASS",
+    "api35": "PASS_STARTUP_RESTART_RELEASE",
+    "api36": "PASS_STARTUP_RESTART_RELEASE",
+    "fingerprintParity": "PASS_ANDROID_SQLITE",
+    "coldSchemaCompletenessAndRepairDataMarker": "PASS_BEFORE_BUDGET_ASSERTIONS",
+    "capacityFailureBoundaryMs": 1000,
+    "coldMaximumWriterCallMs": 1702,
+    "repairMaximumWriterCallMs": 1774,
+    "coldCallsAtLeast100ms": 224,
+    "repairCallsAtLeast100ms": 219,
+    "runtimeFirstService": {
+      "familyMechanismsWithCommittedProgress": 24,
+      "expertsWithActualReceipts": 16,
+      "allMechanismsServiceMillis": 83798,
+      "strategyReadyToAllMechanismsWallMs": 7502,
+      "canonicalDrawWriteP99Ms": 13,
+      "canonicalDrawWriteMaxMs": 23,
+      "restartResumed": true,
+      "staleOwnerRejected": true
+    },
+    "scope": "SYNTHETIC_SCHEMA_AND_ENGINEERING_ONLY; NOT_COMPLETE_PLAN_DELIVERY",
+    "raw": [
+      {
+        "path": "construction/r26/continuation/runtime-81-r26-schema-migration-synthetic.json.gz",
+        "sha256": "5cddd4d1d15a69e24e4646b5b2c1c3bd0283a2ba34bded25303f518c4b1eb7f3"
+      },
+      {
+        "path": "construction/r26/continuation/runtime-81-r26-runtime-synthetic.json.gz",
+        "sha256": "379df43237ab41df0f23198b18b1b1b52afa7c80c7269cadfb54ec2107d278e9"
+      },
+      {
+        "path": "construction/r26/continuation/runtime-81-r26-emulator-environment.json.gz",
+        "sha256": "d7183a2da5702aa30bb7b3ba7222f7221c0549fe7e0c981a266d8c251a33d3fb"
+      }
+    ]
+  },
+  "expertScaleMasks": {
+    "scope": "HOST_AND_COMPILE_ONLY; ANDROID_SCALE_REPORT_AND_INFRASTRUCTURE_COST_PENDING",
+    "reportedScaleSupport": "Only declared masks of executed model instances; no inference from total history",
+    "persistedCounters": "Per-policy pre-label availability counts, including temporal gap resets",
+    "oldCheckpoint": "Old-format state begins counters at its restore cursor; earlier counts remain unmeasured, not reconstructed",
+    "sourceBinding": "Restore verifies expert owner and both birth-bound programs against the immutable snapshot",
+    "synthetic42Draws": {
+      "shortScale8": 34,
+      "shortScale32": "NOT_DECLARED",
+      "sixScale32": 10,
+      "gap8PredictionsIncrement": 0
+    },
+    "infrastructure": "Fresh typed object census skips three no-op creates only when both metadata tables and migration-status index exist; dropped index reinstalled",
+    "readinessCacheAdded": false,
+    "hostFingerprintAssertions": 48,
+    "hostInfrastructureAndMembershipAssertions": 32,
+    "fullSchemaNativeBaseline": "1702ms cold / 1774ms repair remains FAIL; no boundary relaxation",
+    "newNativeInventory": 83
+  },
+  "endurance79": {
+    "runId": 40576912670,
+    "source": "5c19eaf3b24356018f99d11c33b1509f975fb477",
+    "status": "FIVE_FULL_HOUR_COMPLETED_WITH_SCHEMA_FAILURES; API29_BRIGHT_FAILED_BEFORE_SERVICE",
+    "capacityFailuresByScenario": {
+      "29-LOCKED": 6,
+      "35-BRIGHT": 1,
+      "35-LOCKED": 1,
+      "36-BRIGHT": 1,
+      "36-LOCKED": 1
+    },
+    "readback": "construction/r26/continuation/endurance-79-telemetry-readback.json"
   }
 }

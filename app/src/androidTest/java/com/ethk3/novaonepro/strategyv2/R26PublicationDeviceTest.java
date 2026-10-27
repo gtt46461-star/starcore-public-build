@@ -149,6 +149,17 @@ public final class R26PublicationDeviceTest {
         }
     }
 
+    @Test public void expertScaleReportUsesExecutedMasksAndPersistsObservedCounts()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            f.campaign(f.prefix(128));RuntimeCoordinatorR26.Claim expert=new RuntimeCoordinatorR26.Claim("expert-E04","SYNTHETIC",1,0);
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_SCALE_EXPERT",w->{w.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('expert-E04','P2','expert-E04',1,?,'SYNTHETIC','RUNNING')",new Object[]{System.currentTimeMillis()+600000});return 0;});
+            int calls=0;while(scalar(f.db,"SELECT coalesce(max(cursor),0) FROM r26_expert_experiment WHERE expert_id='E04'")<40&&calls++<130)assertTrue(ExpertWorkshopR26.step(f.store,()->expert,f.budget(),f.first+128)>0);
+            try(Cursor row=f.db.rawQuery("SELECT cursor,state,result_json FROM r26_expert_experiment WHERE expert_id='E04'",null)){assertTrue(row.moveToFirst());int count=row.getInt(0);assertTrue(count>=40);org.json.JSONObject result=new org.json.JSONObject(row.getString(2));org.json.JSONArray scales=result.getJSONArray("scaleAvailability");assertEquals(6,scales.length());org.json.JSONArray scale8=scales.getJSONObject(0).getJSONArray("members"),scale32=scales.getJSONObject(1).getJSONArray("members");assertEquals(count-8,scale8.getJSONObject(0).getInt("pastOnlySupportedPredictions"));assertFalse(scale32.getJSONObject(0).getBoolean("implementationDeclaresScale"));assertTrue(scale32.getJSONObject(0).isNull("pastOnlySupportedPredictions"));assertEquals("NOT_DECLARED_BY_EXECUTED_MODEL",scale32.getJSONObject(0).getString("availability"));assertEquals(count-32,scale32.getJSONObject(1).getInt("pastOnlySupportedPredictions"));
+                ExpertExperimentR26.Pair restored=ExpertExperimentR26.Pair.decode(CheckpointArtifactsR26.resolve(f.store,row.getBlob(1)));assertEquals(count-8,restored.scalePredictions[0][0]);int previous=restored.scalePredictions[1][1];restored.advance(f.draw(128,System.currentTimeMillis()).numbers,true);assertEquals("Gap must mask unavailable long context",previous,restored.scalePredictions[1][1]);
+            }
+        }
+    }
+
     @Test public void completedFirstServiceDoesNotStarveAblationFromCpuQueue()throws Exception{
         try(Fixture f=new Fixture(128)){
             FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 parent=f.genome("F08",source),control=StructuralProposalR26.mechanismChildren(parent).get(1).genome;

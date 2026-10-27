@@ -209,6 +209,22 @@ public final class SchemaDomainCoordinatorR926 {
 
     public static void ensureInfrastructure(SQLiteDatabase db) {
         if (db == null) throw new IllegalArgumentException("R926_SCHEMA_DB_NULL");
+        // Read paths call this repeatedly while the legacy catalogue is growing.
+        // CREATE IF NOT EXISTS still makes Android compile a schema statement each time.
+        // A fresh, typed census is equivalent to those no-op creates when all three
+        // objects already exist; missing objects still execute the original DDL below.
+        // No schema_version, domain fingerprint or READY result is cached.
+        int present=0;
+        try(Cursor c=db.rawQuery("SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)",
+                new String[]{TABLE_DOMAIN,TABLE_JOURNAL,"idx_r926_migration_status"})){
+            while(c.moveToNext()){
+                String name=c.getString(0),type=c.getString(1);
+                if(TABLE_DOMAIN.equals(name)&&"table".equals(type))present|=1;
+                if(TABLE_JOURNAL.equals(name)&&"table".equals(type))present|=2;
+                if("idx_r926_migration_status".equals(name)&&"index".equals(type))present|=4;
+            }
+        }
+        if(present==7)return;
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_DOMAIN
                 + "(domain TEXT PRIMARY KEY,revision INTEGER NOT NULL,contract_hash TEXT NOT NULL,"
                 + "fingerprint TEXT NOT NULL,state TEXT NOT NULL,cursor TEXT NOT NULL DEFAULT '',"
