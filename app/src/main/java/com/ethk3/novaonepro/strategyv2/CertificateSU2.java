@@ -43,6 +43,8 @@ public final class CertificateSU2 {
         if(!db.inTransaction())throw new IllegalStateException("R26_COHORT_WRITER");
         try(Cursor c=db.rawQuery("SELECT 1 FROM r26_cohort WHERE genome_key=?",new String[]{genome})){if(c.moveToFirst())return;}
         String benchmark="";for(String[] m:ModelStoreSU2.league(db))if(m[1].equals("XI_INCUMBENT")){benchmark=m[3];break;}
+        // Birth, benchmark availability and alpha reservation commit in the same writer.
+        if(benchmark.isEmpty()){IncumbentLoopSU2.seedWithin(db,birth);benchmark=IncumbentLoopSU2.KEY;}
         double alpha=AlphaLedgerSU1.family(db,HashingSU1.fields("SU2_LIFETIME_FAMILY",genome));
         db.execSQL("INSERT INTO r26_cohort(genome_key,from_sequence,to_sequence,incumbent,protocol,family_alpha) VALUES(?,?,?,?,?,?)",new Object[]{genome,birth,Math.addExact(birth,QualificationWindowR26.LENGTH),benchmark,QualificationWindowR26.PROTOCOL,alpha});
     }
@@ -71,6 +73,7 @@ public final class CertificateSU2 {
         }
         if(birth<0){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_COHORT_PREREGISTER",db->{preregister(db,genome,seq);return 0;});return "R26_CERT_COHORT_PREREGISTERED";}
         if(!QualificationWindowR26.PROTOCOL.equals(protocol)||!(registeredAlpha>0))return "R26_CERT_PREREGISTRATION_REBIND_REQUIRED";
+        if(!incumbent&&benchmark.isEmpty())return "R26_CERT_BENCHMARK_MISSING_FROM_BIRTH_REQUIRES_NEW_IDENTITY";
         QualificationWindowR26.Window window=QualificationWindowR26.completed(birth,seq);
         if(window==null)return "R26_CERT_ACCUMULATING:"+Math.max(0,seq-birth)+"/"+QualificationWindowR26.LENGTH;
         final long from=window.from,endpoint=window.to;

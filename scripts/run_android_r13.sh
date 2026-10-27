@@ -30,6 +30,9 @@ with open('android-r13.txt','w') as report:
         name=item['className']
         subprocess.run(['adb','shell','am','force-stop','com.starcore.research.r13'],check=True)
         run=subprocess.run(['adb','shell','am','instrument','-w','-e','class',name,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'],capture_output=True,text=True,timeout=600)
+        if name.endswith('.R26RuntimeDeviceTest'):
+            with open('r26-owner-logcat.txt','w') as trace:
+                subprocess.run(['adb','logcat','-d','-s','STARCORE_R26:V','TestRunner:V','AndroidRuntime:E','*:S'],stdout=trace,stderr=subprocess.STDOUT,check=False)
         report.write(run.stdout+run.stderr);report.flush();print(run.stdout,flush=True)
         match=re.search(r'OK \((\d+) tests?\)',run.stdout)
         assert run.returncode==0 and match and 'FAILURES' not in run.stdout,name+' failed'

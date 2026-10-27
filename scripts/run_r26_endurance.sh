@@ -32,6 +32,8 @@ screen=sys.argv[1]
 args=['adb','shell','am','instrument','-w','-e','class','com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest','-e','r26EnduranceSeconds','3600','-e','r26EnduranceScreen',screen,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner']
 run=subprocess.run(args,capture_output=True,text=True,timeout=5000)
 Path('android-r13.txt').write_text(run.stdout+run.stderr)
+with open('r26-owner-logcat.txt','w') as trace:
+    subprocess.run(['adb','logcat','-d','-s','STARCORE_R26:V','TestRunner:V','AndroidRuntime:E','*:S'],stdout=trace,stderr=subprocess.STDOUT,check=False)
 print(run.stdout,flush=True)
 assert run.returncode==0 and re.search(r'OK \(1 test\)',run.stdout) and 'FAILURES' not in run.stdout,'60-minute engineering scenario failed'
 receipt=subprocess.check_output(['adb','exec-out','run-as','com.starcore.research.r13','cat','cache/r26-runtime-synthetic.json'])

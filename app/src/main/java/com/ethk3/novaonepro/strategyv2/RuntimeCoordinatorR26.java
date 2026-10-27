@@ -101,9 +101,11 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             catch(Exception failure){reason=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());android.util.Log.w("STARCORE_R26",claim.task,failure);}
             finally{ExecutionBudgetR26.leave();WRITING_CLAIM.remove();}
             final long work=delta,nextCursor=claim.completedEventCursor>=0?claim.completedEventCursor:claim.cursor+delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu)+claim.workerCpuMillis;final String blocked=elapsed>1000?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
+            if(elapsed>1000)android.util.Log.w("STARCORE_R26","task="+claim.task+"|wallMs="+elapsed+"|cpuMs="+cpuMs+"|"+blocked);
             service.served(claim.task,claim.lane,cpuMs);
             try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{nextCursor,blocked==null||blocked.startsWith("COOPERATIVE")?"YIELDED":"BLOCKED",now+(work>0||"CRITICAL_DEADLINE".equals(blocked)||blocked!=null&&blocked.startsWith("COOPERATIVE")?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
                 db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,nextCursor,cpuMs,blocked,now});db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
+                ServiceTotalsR26.record(db,owner,cpuMs,elapsed,elapsed>1000);
                 db.execSQL("UPDATE r26_session SET heartbeat=?,actual_progress=actual_progress+? WHERE session_id=?",new Object[]{now,work,owner});return 0;});}catch(RuntimeException failure){android.util.Log.w("STARCORE_R26","receipt not committed",failure);}
             // Empty maintenance work waits for its next data event, never spins to fabricate progress.
             if(delta==0)await(10);
@@ -119,7 +121,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
                 boolean advanced=result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready;c.reason((advanced?"COOPERATIVE_":"")+result.status+":"+result.detail);return advanced?1:0;
             }
-            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);return 0;});return 1;}
+            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){
@@ -135,6 +137,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "legacy-generation":return LegacyGenerationR26.step(store,c,budget);
             case "legacy-replay":return LegacyReplayContinuationR26.step(store,c,budget);
             case "artifact-retention":return ArtifactMaintenanceR26.step(store,c,budget);
+            case "seed-incumbent":IncumbentLoopSU2.seed(store,seq+1);c.completedEventCursor=seq;return 1;
             case "qualification":return CertificateSU2.maintainOne(store,seq+1);
             case "aggregate-evidence":return EvidenceAccumulatorR26.stepOne(store,c,budget,seq+1);
             case "publish-models":return TaskContinuationR26.step(store,c,budget,seq+1);
@@ -158,7 +161,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "sealed-planner":SealedPlannerSU1.maintain(store);break;
             case "calibration":CalibrationPipelineSU1.maintain(store);break;
             case "su1-certificate":CertificateSU1.maintain(store);MainlineHeadSU1.maintain(store);break;
-            case "seed-incumbent":IncumbentLoopSU2.seed(store,1);break;
             case "su2-mainline":MainlineBridgeSU2.chooseIfDue(store,seq+1);break;
             case "su2-certificate":CertificateSU2.maintain(store,seq+1);break;
             case "archive":ArchiveStoreSU1.maintain(store);break;
