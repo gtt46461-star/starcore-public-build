@@ -41,6 +41,7 @@ public final class LegacyReplayStateR26 {
     public void onGap()throws IOException {
         for(OnlineModelsSU2.Model model:hub.models.values())if(!TemporalResetR26.supported(model))throw new IOException("R26_LEGACY_GAP_MODEL:"+model.getClass().getSimpleName());
         for(OnlineModelsSU2.Model model:hub.models.values())TemporalResetR26.reset(model);
+        for(CalibrationSU2.Live calibrator:hub.cal.values())calibrator.resetTemporalContextR26();
         hub.predicted=false;hub.p.clear();hub.pc.clear();hub.st.clear();gapStart=hub.t;
         for(LiveStrategySU2 live:lives.values())resetContext(live,gapStart);
     }
