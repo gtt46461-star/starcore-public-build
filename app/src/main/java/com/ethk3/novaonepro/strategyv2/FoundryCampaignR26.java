@@ -33,7 +33,7 @@ public final class FoundryCampaignR26 {
             // The exact unary matching head is a real trainable candidate, not a renamed fallback.
             seeds.add(new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("MATCHING",Collections.singletonMap("lr","0.02"),1)),"STATIC",false,"MASS",0.15,0.2,false));
             List<StructuralProposalR26.Proposal> proposals=new ArrayList<>();
-            for(ModelGenomeSU2 seed:seeds)proposals.add(new StructuralProposalR26.Proposal(seed.bindBirth(hash,through),"","REGISTERED_SEED","REGISTERED_SEED"));
+            for(ModelGenomeSU2 seed:seeds){ModelGenomeSU2 bound=seed.bindBirth(hash,through);proposals.add(new StructuralProposalR26.Proposal(bound,"","REGISTERED_SEED","REGISTERED_SEED"));List<StructuralProposalR26.Proposal> graphChildren=StructuralProposalR26.neuralChildren(bound);if(!graphChildren.isEmpty())proposals.add(graphChildren.get(0));}
             // Preserve actual saved parents; do not inherit their hits or qualification.
             List<ModelGenomeSU2> parents=new ArrayList<>();
             try(Cursor c=r.rawQuery("SELECT canonical_text FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') AND substr(canonical_text,1,4)='SU2|' ORDER BY coalesce(val_fitness,-1) DESC,genome_key LIMIT 3",null)){while(c.moveToNext())parents.add(ModelGenomeSU2.parse(c.getString(0)));}

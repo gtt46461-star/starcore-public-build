@@ -61,7 +61,7 @@ public final class RuntimeReportR26 {
         case "CONTINUOUS_RUNTIME":case "BACKGROUND":return "SELECT task_id,lane,cursor,status,blocked_reason,last_progress,steps,last_cpu_ms FROM r26_task ORDER BY task_id";
         case "TRAINING":case "PUBLICATION_RECOVERY":return "SELECT campaign_id,policy_hash,cursor,dev_n,dev_k,val_n,val_k,status FROM r26_candidate ORDER BY campaign_id,policy_hash";
         case "FAMILIES":return "SELECT * FROM r26_capability WHERE kind='FAMILY' ORDER BY mechanism";
-        case "EXPERTS":return "SELECT * FROM r26_capability WHERE kind='EXPERT' ORDER BY mechanism";
+        case "EXPERTS":return "SELECT expert_id,experiment_id,campaign_id,cursor,status,proposal_json,result_json FROM r26_expert_experiment UNION ALL SELECT expert_id,audit_id,'',0,'AUDIT',receipt_json,'{}' FROM r26_expert_audit ORDER BY expert_id";
         case "FAIR_CAPABILITY_SERVICE":return "SELECT * FROM r26_capability ORDER BY mechanism";
         case "EVOLUTION":return "SELECT count(*) attempts,count(DISTINCT policy_hash) uniquePolicies,sum(category='STRUCTURAL_CANDIDATE') structuralCandidates,sum(behavior_novel) behaviorNovel,sum(research_accepted) researchAccepted,sum(prospective_qualified) prospectiveQualified,sum(verified_improvement) verifiedImprovements FROM r26_evolution";
         case "EXPERIMENT_LEDGER":return "SELECT campaign_id,snapshot_hash,source_through,status,created_at FROM r26_foundry ORDER BY created_at";

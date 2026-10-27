@@ -18,6 +18,9 @@ public final class RetentionR26 {
         long removed=count(db,"SELECT changes()");fold(db,"feedback_rows",removed);
         db.execSQL("DELETE FROM r26_frozen WHERE rowid IN (SELECT rowid FROM r26_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
         long frozen=count(db,"SELECT changes()");fold(db,"frozen_rows",frozen);
+        db.execSQL("DELETE FROM r26_expert_audit WHERE rowid IN (SELECT rowid FROM r26_expert_audit ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
+        db.execSQL("DELETE FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND status<>'RUNNING'");
+        db.execSQL("UPDATE r26_expert_experiment SET status='NUMERICAL_ABI_CHANGED' WHERE numerical_abi<>? AND status='RUNNING'",new Object[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         // Current policy checkpoints own their full state. Superseded sample receipts are bounded metadata.
         db.execSQL("DELETE FROM r26_checkpoint_receipt WHERE rowid IN (SELECT rowid FROM r26_checkpoint_receipt ORDER BY created_at DESC,rowid DESC LIMIT 256 OFFSET 4096)");
         db.execSQL("DELETE FROM r26_live_failure WHERE rowid IN (SELECT rowid FROM r26_live_failure ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");

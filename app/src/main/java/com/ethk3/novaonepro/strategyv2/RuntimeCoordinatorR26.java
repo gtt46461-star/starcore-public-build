@@ -44,13 +44,13 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
             add(db,"schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
             add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
-            for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++)registerCapability(db,String.format(Locale.ROOT,"E%02d",i),"EXPERT");return 0;});
+            for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}return 0;});
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
     private static void add(SQLiteDatabase db,String id,String lane){db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism) VALUES(?,?,?)",new Object[]{id,lane,id});}
     private static void registerCapability(SQLiteDatabase db,String id,String kind){
-        String implementation=FamilyRegistryR26.implementation(id);String state=implementation.isEmpty()?"BLOCKED":"EXECUTABLE";
-        String reason=implementation.isEmpty()?"Full R26 mechanism integration and decisive experiments pending; no fallback substituted":"Concrete numerical kernel registered; complete family experiments and natural quality pending";
+        String implementation=kind.equals("EXPERT")?ExpertWorkshopR26.implementation(id):FamilyRegistryR26.implementation(id);String state=implementation.isEmpty()?"BLOCKED":"EXECUTABLE";
+        String reason=kind.equals("EXPERT")&&!implementation.isEmpty()?"Concrete resumable paired experiment or evidence audit; full proposal and expert acceptance pending":implementation.isEmpty()?"Full R26 mechanism integration and decisive experiments pending; no fallback substituted":"Concrete numerical kernel registered; complete family experiments and natural quality pending";
         db.execSQL("INSERT OR REPLACE INTO r26_capability(mechanism,kind,implementation,state,reason,last_progress) VALUES(?,?,?,?,?,coalesce((SELECT last_progress FROM r26_capability WHERE mechanism=?),0))",new Object[]{id,kind,implementation,state,reason,id});
     }
     private Claim claim(){for(int attempt=0;attempt<SLOTS.length;attempt++){String lane=SLOTS[slot++%SLOTS.length];Claim result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{long now=System.currentTimeMillis();String id=null;long fence=0,cursor=0;try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor FROM r26_task WHERE lane=? AND status IN ('READY','YIELDED','BLOCKED','RUNNING') AND lease_until<=? AND next_at<=? ORDER BY last_progress,task_id LIMIT 1",new String[]{lane,String.valueOf(now),String.valueOf(now)})){if(c.moveToFirst()){id=c.getString(0);fence=c.getLong(1)+1;cursor=c.getLong(2);}}if(id==null)return null;db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,id});return new Claim(id,owner,fence,cursor);});if(result!=null)return result;}return null;}
@@ -86,6 +86,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(!StrategySchemaSU1.ready(store.readable())||!StrategySchemaSU2.ready(store.readable()))return 0;
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
+        if(c.task.startsWith("expert-"))return ExpertWorkshopR26.step(store,c,budget,seq+1);
         switch(c.task){
             case "qualification":return CertificateSU2.maintainOne(store,seq+1);
             case "publish-models":return LivePoolR26.publishOne(store,c,budget);

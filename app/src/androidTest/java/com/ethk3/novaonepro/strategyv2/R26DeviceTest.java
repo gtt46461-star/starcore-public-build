@@ -48,6 +48,15 @@ public final class R26DeviceTest {
         java.io.ByteArrayOutputStream left=new java.io.ByteArrayOutputStream(),right=new java.io.ByteArrayOutputStream();a.write(new java.io.DataOutputStream(left));b.write(new java.io.DataOutputStream(right));assertArrayEquals(left.toByteArray(),right.toByteArray());
         float[] stats=new float[3];a.predict(new float[10][10],stats);assertTrue(stats[1]>0);
     }
+    @Test public void originalVmRepeatsExactlyAndRejectsLateAvailableTeacherInputs()throws Exception{
+        com.ethk3.novaonepro.LegacyTeacherOwnerR26.register(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        int count=45;long[] issues=new long[count],open=new long[count],available=new long[count];int[][] draws=new int[count][10];
+        for(int i=0;i<count;i++){issues[i]=202610270001L+i;open[i]=1793059200000L+i*60000;available[i]=open[i]+1;for(int p=0;p<10;p++)draws[i][p]=(i+p)%10+1;}
+        Map<String,Object> a,b;try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);a=com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame();}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}
+        assertEquals("ORIGINAL_VM_EXECUTED",a.get("availability"));assertTrue(a.containsKey("originalVMActionDigest"));
+        draws[40]=new int[]{10,9,8,7,6,5,4,3,2,1};try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);b=com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame();}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}assertEquals(a,b);
+        available[39]=open[40]+1;try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);assertEquals("INSUFFICIENT_CAUSAL_INPUT",com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame().get("availability"));}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}
+    }
     @Test public void birthBudgetIsIrrevocableAndFrozenForecastsAreImmutable(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
         schema(db);db.beginTransaction();try{
             StrategySchemaSU2.ensure(db);

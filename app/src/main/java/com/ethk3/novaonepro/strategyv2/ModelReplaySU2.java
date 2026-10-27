@@ -92,6 +92,8 @@ public final class ModelReplaySU2 {
 
         Adapter adapter = ADAPTERS.get(kind);
         if (adapter != null) return adapter.build(p);
+        if(kind.equals("R26SCALE")){if(!"1".equals(p.get("abi"))||p.size()!=2||!("SIX".equals(p.get("mode"))||"SHORT".equals(p.get("mode"))))throw new IllegalArgumentException("R26_SCALE_PARAMETERS");return new ScaleEncoderR26("SIX".equals(p.get("mode")));}
+        if(kind.matches("R26F0[3-7]")&&p.containsKey("graph")){if(!"1".equals(p.get("abi"))||p.size()!=2||!p.get("graph").matches("[0-2]"))throw new IllegalArgumentException("R26_NEURAL_GRAPH_PARAMETERS");return new NeuralFamilyR26(kind.substring(3),Integer.parseInt(p.get("graph")));}
         if(kind.startsWith("R26")){if(!"1".equals(p.get("abi"))||p.size()!=1)throw new IllegalArgumentException("R26_FAMILY_ABI");return FamilyRegistryR26.build(kind.substring(3));}
         switch (kind) {
             case "MATCHING": return new PermutationModelR26(d(p,"lr"));

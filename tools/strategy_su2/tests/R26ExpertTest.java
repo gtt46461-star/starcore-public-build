@@ -1,0 +1,24 @@
+package com.ethk3.novaonepro.strategyv2;
+import java.util.*;
+import java.io.*;
+public final class R26ExpertTest {
+    static void require(boolean ok,String why){if(!ok)throw new AssertionError(why);}
+    public static void main(String[] args)throws Exception{
+        Set<String> ids=new HashSet<>(),ops=new HashSet<>();for(ExpertExperimentR26.Spec spec:ExpertExperimentR26.SPECS){require(ids.add(spec.id),"duplicate expert");require(ops.add(spec.operation),"same operator disguised as different experts");require(!spec.left.equals(spec.right),"empty paired ablation");require(!spec.hypothesis.isEmpty()&&!spec.falsifier.isEmpty()&&!spec.ablation.isEmpty(),"missing decisive experiment");}
+        require(ids.size()==12,"paired protocol denominator");
+        ScaleEncoderR26 model=new ScaleEncoderR26(true);int[] draw={1,2,3,4,5,6,7,8,9,10};
+        for(int i=0;i<7;i++)model.update(draw);require(model.mask()==0,"unavailable scale fabricated");model.update(draw);require(model.mask()==1,"scale8 missing");
+        for(int i=8;i<32;i++)model.update(draw);require(model.mask()==3,"scale32 unavailable or long scale fabricated");
+        ByteArrayOutputStream b=new ByteArrayOutputStream();model.write(new DataOutputStream(b));ScaleEncoderR26 copy=new ScaleEncoderR26(true);copy.read(new DataInputStream(new ByteArrayInputStream(b.toByteArray())));model.update(draw);copy.update(draw);ByteArrayOutputStream a=new ByteArrayOutputStream(),c=new ByteArrayOutputStream();model.write(new DataOutputStream(a));copy.write(new DataOutputStream(c));require(Arrays.equals(a.toByteArray(),c.toByteArray()),"scale window/learned-router resume drift");
+        String snapshot=PolicyIdentityR26.sha256("EXPLICIT_SYNTHETIC_TEST_INPUT");ExpertExperimentR26.Pair pair=new ExpertExperimentR26.Pair(ExpertExperimentR26.spec("E08"),snapshot,500);
+        for(int i=0;i<42;i++){int[] row=new int[10];for(int p=0;p<10;p++)row[p]=(p+i)%10+1;pair.advance(row,false);}
+        byte[] saved=pair.encode();ExpertExperimentR26.Pair restored=ExpertExperimentR26.Pair.decode(saved);require(restored.cursor==42&&restored.left.samples()==42,"paired full cursor");pair.advance(draw,true);restored.advance(draw,true);require(Arrays.equals(pair.encode(),restored.encode()),"paired next sample or gap resume drift");require(pair.gaps==1,"gap not explicitly recorded");require(!pair.left.genome.key().equals(pair.right.genome.key()),"different programs share policy identity");
+        byte[] unchanged=saved.clone();pair.advance(draw,false);require(Arrays.equals(saved,unchanged),"parent bytes changed");
+        for(String family:Arrays.asList("F03","F04","F05","F06","F07")){
+            ModelGenomeSU2 parent=FamilyRegistryR26.genome(family);List<StructuralProposalR26.Proposal> proposals=StructuralProposalR26.neuralChildren(parent);require(proposals.size()==2,"missing actual neural graph rewrites");
+            ModelGenomeSU2 child=proposals.get(0).genome;require(proposals.get(0).category.equals("STRUCTURAL_CANDIDATE"),"graph surgery counted only as weights");require(!StructuralProposalR26.structure(parent).equals(StructuralProposalR26.structure(child)),"graph fingerprint unchanged");OnlineModelsSU2.Model a0=ModelReplaySU2.build(parent.members.get(0).kind,parent.members.get(0).params),a1=ModelReplaySU2.build(child.members.get(0).kind,child.members.get(0).params);
+            for(int i=0;i<18;i++){int[] row=new int[10];for(int pos=0;pos<10;pos++)row[pos]=(i+pos)%10+1;a0.update(row);a1.update(row);}float[][] q0=new float[10][10],q1=new float[10][10];a0.predict(q0,new float[3]);a1.predict(q1,new float[3]);boolean differs=false;for(int pos=0;pos<10;pos++)differs|=!Arrays.equals(q0[pos],q1[pos]);require(differs,family+" graph edit did not change executable behavior");ByteArrayOutputStream out=new ByteArrayOutputStream();a1.write(new DataOutputStream(out));OnlineModelsSU2.Model re=ModelReplaySU2.build(child.members.get(0).kind,child.members.get(0).params);re.read(new DataInputStream(new ByteArrayInputStream(out.toByteArray())));a1.update(draw);re.update(draw);ByteArrayOutputStream l=new ByteArrayOutputStream(),rr=new ByteArrayOutputStream();a1.write(new DataOutputStream(l));re.write(new DataOutputStream(rr));require(Arrays.equals(l.toByteArray(),rr.toByteArray()),"edited graph lost optimizer or topology on resume");
+        }
+        System.out.println("R26_EXPERT_PROTOCOLS_PASS|12_paired_protocols+4_audit_owners|synthetic_only");
+    }
+}
