@@ -13,10 +13,13 @@
     "69120-period preregistered evidence calendars with 720-period immutable sufficient-statistic blocks",
     "Held-later quantized selected-ACT calibration; unchanged quality/coverage/stability/paired-LCB gates",
     "Irrevocable alpha/look ledger and revalidated current-identity certificate issuance",
-    "Bounded source snapshots; expiry, lease/session fences and fair dispatch by last service"
+    "Bounded source snapshots; expiry, lease/session fences and fair dispatch by last service",
+    "Source commit/APK/snapshot identity in exported report",
+    "Every required metric of the forty chapters has an evidence value or explicit missing state",
+    "Complete 100-cell and 1200-K3 action expansion from one immutable predraw event; no outcome input"
   ],
   "host": {
-    "r26Groups": 9,
+    "r26Groups": 10,
     "priorPlanGroups": 20,
     "priorStrategyGroups": 21,
     "status": "PASS_ON_RECORDED_SOURCES",
@@ -36,9 +39,9 @@
     "uniformTrials": 1000
   },
   "androidTests": {
-    "classes": 14,
-    "expectedTests": 47,
-    "status": "PENDING_CI"
+    "classes": 15,
+    "expectedTests": 49,
+    "status": "PENDING_RETEST"
   },
   "physicalDevice": "NOT_RUN",
   "naturalQuality": "INSUFFICIENT",
@@ -344,5 +347,18 @@
       "beforeSha256": null,
       "afterSha256": "83898647386a99858713f619db89f559366e4190f222758a108b55ca977a0f46"
     }
-  ]
+  ],
+  "firstCurrentCi": {
+    "runId": 40503008644,
+    "headCommit": "928cef6d6ff5bf447bcb60290da608165e9cdc05",
+    "compiledCommit": "a2ff073a7275b3069d2a00b2680a0d7731419957",
+    "build": "PASS",
+    "api35": "PASS",
+    "api36": "PASS",
+    "api29": "FAIL",
+    "failure": "Plan1025DeviceTest.mainlineIsKeptWhenMoreThan96NewerGenomesExist: legacy schema has no r26_prepared_policy",
+    "fix": "Guard managed ownership exclusions by complete R26 migration readiness; retain the original regression unchanged",
+    "artifactSha256": "b39d0341f0b82ae19ce996a07d28c9fdc9b349309e14ee6cbefe33070918cccd",
+    "publicReleasePublished": false
+  }
 }
