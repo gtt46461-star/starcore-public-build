@@ -4,6 +4,11 @@ on:
     branches: ['construction/su1-20261022']
     paths-ignore: ['.github/workflows/r13-startup.yml', 'scripts/probe_r13_startup.py', 'release/r982_source_calls*', 'release/r82_training_invalidation.json', 'release/research_dependencies_r967.json']
   workflow_dispatch:
+    inputs:
+      endurance:
+        description: 'Run additional 60-minute unplugged BRIGHT/LOCKED synthetic emulator scenarios'
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -108,4 +113,41 @@ jobs:
             r13-*.png
             startup-evidence/
             release-*.txt
+            r26-runtime-synthetic.json
+  android-endurance:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.endurance }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 35, 36]
+        screen: [BRIGHT, LOCKED]
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash scripts/run_r26_endurance.sh ${{ matrix.screen }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R26-Endurance-${{ matrix.api }}-${{ matrix.screen }}
+          path: |
+            android-r13.txt
+            android-logcat.txt
             r26-runtime-synthetic.json
