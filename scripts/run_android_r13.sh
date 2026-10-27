@@ -2,7 +2,7 @@
 set -euo pipefail
 # Emulator-runner executes each YAML line in a fresh shell; keep the failure trap
 # and all real checks together in this process so a failing test retains logcat.
-trap 'adb logcat -d > android-logcat.txt || true' EXIT
+trap 'adb logcat -d > android-logcat.txt || true; adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json 2>/dev/null || true' EXIT
 adb install -r delivered/app/build/outputs/apk/debug/*.apk
 if [[ "${1:-29}" == "29" ]]; then
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk

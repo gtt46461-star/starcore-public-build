@@ -14,7 +14,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static void checkThreadFence(SQLiteDatabase db){Claim c=WRITING_CLAIM.get();if(c!=null)requireFence(db,c);}
     private final DbStore store;private final String owner=UUID.randomUUID().toString();
     private final Object signal=new Object();private volatile boolean cancelled,closeStore;
-    private final Thread worker;private int slot;private long heartbeat;private volatile String resourceBlocked;private long resourceChecked;
+    private final Thread worker;private int slot;private long heartbeat;private String recordedSessionState;private boolean strategyStorageReady;private volatile String resourceBlocked;private long resourceChecked;
     private static final String[] SLOTS={"P1","P2","P2","P3"};
     public static final class Claim {
         public final String task,owner;public final long fence,cursor;private long completedEventCursor=-1,workerCpuMillis;private String reason;
@@ -35,7 +35,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(android.os.Build.VERSION.SDK_INT>=29){android.os.PowerManager power=(android.os.PowerManager)store.contextForR26().getSystemService(android.content.Context.POWER_SERVICE);if(power!=null&&power.getCurrentThermalStatus()>=android.os.PowerManager.THERMAL_STATUS_SEVERE)reason="THERMAL_SEVERE";}
         resourceBlocked=reason;
     }
-    private void sessionBlocked(String reason){long now=System.currentTimeMillis();if(now-heartbeat<1000)return;heartbeat=now;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STATUS",db->{db.execSQL("UPDATE r26_session SET state=?,heartbeat=? WHERE session_id=?",new Object[]{reason==null?"RUNNING":"BLOCKED:"+reason,now,owner});return 0;});}
+    private void sessionBlocked(String reason){long now=System.currentTimeMillis();String state=reason==null?"RUNNING":"BLOCKED:"+reason;if(state.equals(recordedSessionState)&&now-heartbeat<1000)return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STATUS",db->{db.execSQL("UPDATE r26_session SET state=?,heartbeat=? WHERE session_id=? AND user_enabled=1",new Object[]{state,now,owner});return 0;});heartbeat=now;recordedSessionState=state;}
+
     @Override public void close(){cancelled=true;LegacyGenerationR26.cancel(owner);wake();worker.interrupt();}
     /** The service must not close a shared connection while a slice is draining. */
     public void closeAndReleaseStore(){closeStore=true;close();if(!worker.isAlive())store.close();}
@@ -48,7 +49,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1");
             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status='RUNNING'");
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
-            add(db,"schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
+            add(db,"schema","P1");add(db,"schema-base","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
             add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}return 0;});
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
@@ -88,8 +89,22 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{
-        if(c.task.equals("schema")){if(!StrategySchemaSU1.ready(store.readable())){ResearchSchemaCoordinatorR926.ensureToReady(store.coordinatorForResearchR952(),1);return 1;}if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);return 0;});return 1;}ProgramModelSU2.register();return 0;}
-        if(!StrategySchemaSU1.ready(store.readable())||!StrategySchemaSU2.ready(store.readable()))return 0;
+        if(c.task.equals("schema")){
+            if(strategyStorageReady)return 0;
+            if(!StrategySchemaSU1.ready(store.readable())){
+                ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());
+                if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
+                boolean advanced=result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready;c.reason((advanced?"COOPERATIVE_":"")+result.status+":"+result.detail);return advanced?1:0;
+            }
+            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);return 0;});return 1;}
+            ProgramModelSU2.register();strategyStorageReady=true;return 1;
+        }
+        if(c.task.equals("schema-base")){
+            if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
+            if(store.coordinatorForResearchR952().isR811ResearchSchemaReady())return 0;
+            ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureOneStepResult(store.coordinatorForResearchR952());c.reason("LEGACY_SCHEMA:"+result.status+":"+result.detail);return result.ready?1:0;
+        }
+        if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
         if(c.task.startsWith("expert-"))return ExpertWorkshopR26.step(store,c,budget,seq+1);
@@ -108,6 +123,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "foundry-su1":try(CampaignStateSU1 state=CampaignStateSU1.open(store)){if(state==null||state.foundry.done())return 0;try{StrategyFoundrySU1.Attempt a=state.foundry.next(budget);state.checkpoint(a);return 1;}catch(BudgetTokenSU1.Yield y){state.checkpoint(null);throw y;}}
             default:break;
         }
+        if(!c.task.equals("retention")&&!store.coordinatorForResearchR952().isR811ResearchSchemaReady()){c.reason("WAITING_LEGACY_RESEARCH_SCHEMA:"+ResearchSchemaCoordinatorR926.summary());return 0;}
         // A persisted event cursor prevents repeated maintenance over unchanged evidence.
         if(c.cursor>=seq)return 0;budget.checkpointOrYield();
         switch(c.task){

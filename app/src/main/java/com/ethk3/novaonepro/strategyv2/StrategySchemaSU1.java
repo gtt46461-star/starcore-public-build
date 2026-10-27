@@ -30,6 +30,7 @@ public final class StrategySchemaSU1 {
         int version;
         try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())return false;version=c.getInt(0);}
         Integer known=VERIFIED.get(db);if(known!=null&&known==version)return true;
+        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_migration_unit_v2'",null)){if(!c.moveToFirst())return false;}
         try(Cursor c=db.rawQuery("SELECT unit,sql_hash FROM su1_migration_unit_v2 ORDER BY unit",null)){
             int n=0;while(c.moveToNext()){if(n>=SqlStatementsSU1.SQL.length||c.getInt(0)!=n||!HashingSU1.text(SqlStatementsSU1.SQL[n]).equals(c.getString(1)))return false;n++;}
             if(n!=SqlStatementsSU1.SQL.length)return false;

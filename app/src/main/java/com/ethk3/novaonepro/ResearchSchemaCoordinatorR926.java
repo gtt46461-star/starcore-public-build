@@ -32,6 +32,23 @@ public final class ResearchSchemaCoordinatorR926 {
         return ensureOneStepResult(owner).ready;
     }
 
+    /** SU1's self-contained storage must not wait behind the entire legacy research overlay.
+     * The same existing writer commits one statement; this does not stamp the legacy domain READY. */
+    public static StepResult ensureStrategyStorageOneStep(final DatabaseCoordinator owner) {
+        if(owner==null)return new StepResult(false,false,"WRITER_FAILED","OWNER_REQUIRED",null);
+        try{return owner.runAtomicWriteOrThrowF01("R26_STRATEGY_STORAGE_UNIT",db->{
+            int before=0;try(android.database.Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(c.moveToFirst())before=c.getInt(0);}
+            int unitsBefore=strategyUnits(db);boolean ready=com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db);
+            int after=0;try(android.database.Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(c.moveToFirst())after=c.getInt(0);}
+            int unitsAfter=strategyUnits(db);boolean changed=before!=after||unitsBefore!=unitsAfter;
+            return new StepResult(ready,true,ready?"STRATEGY_STORAGE_READY":changed?"STRATEGY_UNIT_COMMITTED":"STRATEGY_NO_UNIT_PROGRESS",unitsBefore+"->"+unitsAfter,null);
+        });}catch(Exception failure){return new StepResult(false,false,"STRATEGY_STORAGE_FAILED",DatabaseCoordinator.describeCauseChain(failure,1800),failure);}
+    }
+    private static int strategyUnits(SQLiteDatabase db){
+        try(android.database.Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_migration_unit_v2'",null)){if(!c.moveToFirst())return 0;}
+        try(android.database.Cursor c=db.rawQuery("SELECT count(*) FROM su1_migration_unit_v2",null)){return c.moveToFirst()?c.getInt(0):0;}
+    }
+
     public static StepResult ensureOneStepResult(final DatabaseCoordinator owner) {
         if (owner == null) return new StepResult(false,false,"WRITER_FAILED","OWNER_REQUIRED",null);
         final boolean[] entered = {false};
