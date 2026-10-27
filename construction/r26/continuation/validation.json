@@ -52,8 +52,8 @@
   },
   "androidTests": {
     "classes": 21,
-    "tests": 88,
-    "status": "PENDING_WARM_CONTINUATION_SOURCE_CI",
+    "tests": 89,
+    "status": "PENDING_SERIALIZATION_YIELD_FIX_SOURCE_CI; PREVIOUS_88_SOURCE_BUILD_PASS_ANDROID_RUNNING",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
@@ -66,7 +66,8 @@
       "An initialized but unserved child survives a second raw source expiry",
       "Damaged warm parent keeps its bytes and does not block a valid parent",
       "Missing warm checkpoint is quarantined instead of cold training",
-      "Campaign CPU fairness excludes completed members"
+      "Campaign CPU fairness excludes completed members",
+      "Interrupt sample 42 during serialization: persist only sample 41 with matching loss/actions/hits/manifest; subsequent learning exactly matches uninterrupted state"
     ]
   },
   "physicalDevice": "NOT_RUN",
@@ -1618,5 +1619,10 @@
       "Inactive/blocked model archive quota requires final acceptance"
     ],
     "sqliteRetentionRegression": "PASS_8_CASES_PRODUCTION_METHOD_AND_REAL_SQLITE"
+  },
+  "serializationYieldFix": {
+    "status": "PRE_FIX_REPRODUCED_FIXED_HOST_PASS_ANDROID_PENDING",
+    "evidence": "checkpoint-yield-host-verification.json",
+    "rule": "Cursor, metrics and bytes advance only after complete serialization"
   }
 }

@@ -77,7 +77,10 @@ public final class FoundryCampaignR26 {
             try {
             ModelLiveSU2.Decision decision=live.decide();float[][] p=live.pendingTable(hub.t);double sampleLoss=0;for(int j=0;j<10;j++)sampleLoss-=Math.log(Math.max(1e-12,p[j][snap.draws[cursor][j]-1]));
             boolean hit=live.settle(snap.draws[cursor]);hub.update(snap.draws[cursor]);
-            if(cursor>=32){loss+=sampleLoss/10;if(decision.act){if(cursor<devEnd){dn++;if(hit)dk++;}else{vn++;if(hit)vk++;}}}cursor++;lastGood=encode(hub,live);
+            // Serialization can yield too. Advance neither the cursor nor its metrics
+            // until a complete checkpoint exists for this exact sample.
+            byte[] completed=encode(hub,live);
+            if(cursor>=32){loss+=sampleLoss/10;if(decision.act){if(cursor<devEnd){dn++;if(hit)dk++;}else{vn++;if(hit)vk++;}}}cursor++;lastGood=completed;
             } catch(BudgetTokenSU1.Yield yielded) { break; } finally { LegacyTeacherOwnerR26.leave(); }
         }
         if(cursor==before)return 0;

@@ -224,6 +224,29 @@ public final class R26PublicationDeviceTest {
         }
     }
 
+    @Test public void yieldDuringSerializationCommitsOnlyTheLastCompleteSampleAndMetrics()throws Exception{
+        ModelReplaySU2.Adapter prior=ModelReplaySU2.ADAPTERS.get("R26F18");java.util.concurrent.atomic.AtomicBoolean yielded=new java.util.concurrent.atomic.AtomicBoolean();
+        ModelReplaySU2.ADAPTERS.put("R26F18",parameters->new OnlineModelsSU2.Model(){
+            final FamilyF18KernelR26 delegate=new FamilyF18KernelR26();int updates;
+            public int stateWidth(){return delegate.stateWidth();}
+            public void predict(float[][] p,float[] state){delegate.predict(p,state);}
+            public void update(int[] draw){delegate.update(draw);updates++;}
+            public void write(java.io.DataOutput out)throws java.io.IOException{delegate.write(out);if(updates==42&&yielded.compareAndSet(false,true))throw new BudgetTokenSU1.Yield("SYNTHETIC_SERIALIZATION_PREEMPTION");out.writeInt(updates);}
+            public void read(java.io.DataInput in)throws java.io.IOException{delegate.read(in);updates=in.readInt();}
+        });
+        try(Fixture f=new Fixture(128)){
+            FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 genome=f.genome("F18",source);byte[] before=f.trained(genome,source,40);f.candidate(campaign,genome,before,40,"READY",0);
+            LiveStateR26 expected=LiveStateR26.decode(genome.text(),before,LiveStateR26.hash(before));ModelLiveSU2.Decision decision=expected.forecast();float[][] table=expected.table();double loss=0;for(int p=0;p<10;p++)loss-=Math.log(Math.max(1e-12,table[p][source.draws[40][p]-1]))/10;expected.learn(source.draws[40]);byte[] complete=expected.encode();
+            assertEquals(1,FoundryCampaignR26.step(f.store,()->f.claim,f.budget()));assertTrue(yielded.get());
+            try(Cursor c=f.db.rawQuery("SELECT cursor,state,state_hash,loss_sum,dev_n,dev_k,checkpoint_hash FROM r26_candidate WHERE policy_hash=?",new String[]{genome.key()})){
+                assertTrue(c.moveToFirst());assertEquals(41,c.getInt(0));byte[] persisted=CheckpointArtifactsR26.resolve(f.store,c.getBlob(1));assertArrayEquals(complete,persisted);assertEquals(41,LiveStateR26.decode(genome.text(),persisted,c.getString(2)).samples());assertEquals(loss,c.getDouble(3),1e-12);assertEquals(decision.act?1:0,c.getInt(4));assertEquals(decision.act&&(decision.mask&(1<<(source.draws[40][decision.position-1]-1)))!=0?1:0,c.getInt(5));
+                try(Cursor manifest=f.db.rawQuery("SELECT trained_through FROM r26_checkpoint_artifact WHERE checkpoint_hash=?",new String[]{c.getString(6)})){assertTrue(manifest.moveToFirst());assertEquals(source.ordinal[40],manifest.getLong(0));}
+            }
+            assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);
+            try(Cursor c=f.db.rawQuery("SELECT cursor,state,state_hash FROM r26_candidate WHERE policy_hash=?",new String[]{genome.key()})){assertTrue(c.moveToFirst());assertTrue(c.getInt(0)>41);for(int i=41;i<c.getInt(0);i++)expected.learn(source.draws[i]);assertArrayEquals(expected.encode(),CheckpointArtifactsR26.resolve(f.store,c.getBlob(1)));}
+        }finally{if(prior==null)ModelReplaySU2.ADAPTERS.remove("R26F18");else ModelReplaySU2.ADAPTERS.put("R26F18",prior);}
+    }
+
     @Test public void completedFirstServiceDoesNotStarveAblationFromCpuQueue()throws Exception{
         try(Fixture f=new Fixture(128)){
             FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 parent=f.genome("F08",source),control=StructuralProposalR26.mechanismChildren(parent).get(1).genome;

@@ -1,0 +1,7 @@
+This driver executes SDK-compiled production `FoundryCampaignR26.step`, model/codec, checkpoint file owner, manifest, fence query and SQLite DDL/updates. The injected synthetic model delegates to F18 and throws once while serializing sample 42. It checks that only sample 41, its loss/actions/hits and its manifest commit, then checks exact subsequent learning.
+
+Compile this directory's Java sources, `verification/r64/adapters/android/database/sqlite/SQLiteDatabase.java` and `verification/r73/adapters/android/system/Os.java` ahead of the SDK-compiled production classes and Android API jar. Run `com.ethk3.novaonepro.strategyv2.CheckpointYield verification/r64/sqlite_bridge.py`.
+
+The host adapters transport in-memory synthetic source rows, CPU time, SQLite transactions and directory fsync. They do not represent the Android coordinator's connection pool, scheduler or process lifecycle. The source-bound Android publication suite contains the corresponding native regression.
+
+Run `com.ethk3.novaonepro.strategyv2.WarmBirth verification/r64/sqlite_bridge.py` on the same classpath to exercise actual parent learning, authenticated warm birth, stale-fence rejection, full exposure ordering, two successive expiries (including an unserved seed), immutable initialization, shared file GC closure, removal of expired raw checkpoints and subsequent initialized learning. It does not exercise Android publication; that remains a native test.
