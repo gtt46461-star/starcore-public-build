@@ -33,7 +33,7 @@
     "priorStrategyGroups": 21,
     "priorPlanGroups": 20,
     "status": "PASS_18_R26_21_STRATEGY_20_PLAN; CURRENT_APK_RUNTIME_PENDING",
-    "compileOnlySources": 1073,
+    "compileOnlySources": 1074,
     "compileOnlyStatus": "PASS_OFFICIAL_SDK36_AND_CHANGED_INSTRUMENTATION_SOURCES",
     "apkAuthority": "PENDING_WARM_CONTINUATION_SOURCE_MATCHED_ANDROID_AND_ENDURANCE"
   },
@@ -52,8 +52,8 @@
   },
   "androidTests": {
     "classes": 21,
-    "tests": 89,
-    "status": "PENDING_SERIALIZATION_YIELD_FIX_SOURCE_CI; PREVIOUS_88_SOURCE_BUILD_PASS_ANDROID_RUNNING",
+    "tests": 90,
+    "status": "PENDING_EXACT_DDL_CENSUS_AND_SEPARATE_FINAL_VERIFY_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
@@ -67,7 +67,8 @@
       "Damaged warm parent keeps its bytes and does not block a valid parent",
       "Missing warm checkpoint is quarantined instead of cold training",
       "Campaign CPU fairness excludes completed members",
-      "Interrupt sample 42 during serialization: persist only sample 41 with matching loss/actions/hits/manifest; subsequent learning exactly matches uninterrupted state"
+      "Interrupt sample 42 during serialization: persist only sample 41 with matching loss/actions/hits/manifest; subsequent learning exactly matches uninterrupted state",
+      "Fresh exact DDL census preserves missing/duplicate/SQL-byte/same-version drift checks; final verification gets its own writer callback"
     ]
   },
   "physicalDevice": "NOT_RUN",
@@ -1608,7 +1609,7 @@
   "scaleLongKernel": "construction/r26/continuation/scale-10000-kernel-retention.json",
   "latestStandardAndroidEvidence": "runtime-83-engineering-summary.json",
   "warmKernelContinuation": {
-    "status": "IMPLEMENTED_HOST_PASS_ANDROID_PENDING",
+    "status": "ANDROID_ALL_FIVE_NEW_REGRESSIONS_PASS_SOURCE_A553C95; OVERALL_SOURCE_FAILS_COLD_SCHEMA_BOUNDARY",
     "rawRetentionWindow": 5000,
     "newSourceRule": "Strictly after the maximum of parent consumed-through and all birth/development source exposure-through",
     "preserved": "Kernel parameters and optimizer; incompatible ABI bytes retained but never silently executed as a current policy",
@@ -1632,5 +1633,6 @@
     "capacityBoundaryMs": 1000,
     "childJournalTimings": true,
     "reason": "Real one-hour API35/36 locked receipts found one R952_EXTENSION overrun each despite empty-database standard regression passing"
-  }
+  },
+  "source88AndroidEvidence": "runtime-88-warm-pass-schema-failure.json"
 }

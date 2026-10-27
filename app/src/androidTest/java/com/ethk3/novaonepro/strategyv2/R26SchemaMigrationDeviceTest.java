@@ -27,6 +27,8 @@ public final class R26SchemaMigrationDeviceTest {
         measured(profile,"infrastructure",()->SchemaDomainCoordinatorR926.ensureInfrastructure(db));
         measured(profile,"journalRead",()->assertTrue(SchemaDomainCoordinatorR926.stepComplete(db,contract,"R811_RESEARCH")));
         measured(profile,"strategyReadiness",()->assertTrue(StrategySchemaSU1.ready(db)));
+        measured(profile,"longSummaryReadiness",()->assertTrue(com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(db)));
+        measured(profile,"longRegistrationReadiness",()->assertTrue(com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.ready(db)));
         return profile;
     }
     private static long complete(DbStore store,JSONArray timings)throws Exception{
@@ -34,7 +36,7 @@ public final class R26SchemaMigrationDeviceTest {
         while(SystemClock.elapsedRealtime()<stop){String before=ResearchSchemaCoordinatorR926.summary();long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureOneStepResult(store.coordinatorForResearchR952());long wall=SystemClock.elapsedRealtime()-start;max=Math.max(max,wall);calls++;
             if(wall>=100){JSONObject measured=new JSONObject().put("before",before).put("after",ResearchSchemaCoordinatorR926.summary()).put("wallMs",wall).put("cpuMs",SystemClock.currentThreadTimeMillis()-cpu).put("status",result.status);JSONArray children=new JSONArray();
                 try(android.database.Cursor c=store.readable().rawQuery("SELECT step_id,completed_at-started_at FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE completed_at>0 ORDER BY completed_at DESC,step_id DESC LIMIT 3",null)){while(c.moveToNext())children.put(new JSONObject().put("step",c.getString(0)).put("journalElapsedMs",c.getLong(1)));}measured.put("recentCompletedChildSteps",children);timings.put(measured);}
-            if(result.cause!=null)throw new AssertionError(result.detail,result.cause);if(result.ready)return max;
+            if(result.cause!=null)throw new AssertionError(result.detail,result.cause);if(result.ready){assertTrue("Final integrity verification shared the last installation callback",before.contains("cursor=VERIFY"));return max;}
         }throw new AssertionError("Legacy schema did not finish; calls="+calls+"; "+ResearchSchemaCoordinatorR926.summary());
     }
     @Test public void legacySchemaAndDriftRepairKeepDataAndStayBelowCapacityFailureBoundary()throws Exception{

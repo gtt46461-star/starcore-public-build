@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.ethk3.novaonepro.SchemaDomainCoordinatorR926;
 import com.ethk3.novaonepro.V51ChecksumEngine;
+import com.ethk3.novaonepro.SchemaObjectSnapshotR26;
 import java.util.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +48,20 @@ public final class R26SchemaFingerprintDeviceTest {
                 try(Cursor v=db.rawQuery("PRAGMA schema_version",null)){v.moveToFirst();assertEquals("Same-version edits must not be hidden behind a schema-version cache",version,v.getLong(0));}
             }finally{db.execSQL("PRAGMA writable_schema=OFF");db.endTransaction();}
             parity(db,c);
+        }
+    }
+    private static boolean originalExact(SQLiteDatabase db,Map<String,String> expected){for(Map.Entry<String,String> e:expected.entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})){if(!c.moveToFirst()||!e.getValue().equals(c.getString(0))||c.moveToNext())return false;}return true;}
+    private static void exactParity(SQLiteDatabase db,Map<String,String> expected){assertEquals(originalExact(db,expected),SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));}
+    @Test public void exactObjectCensusPreservesDdlDuplicateAndSameVersionDriftChecks(){
+        try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+            db.execSQL("CREATE TABLE sample(value TEXT)");db.execSQL("CREATE TABLE \"雪 x\"(value TEXT)");db.execSQL("CREATE TRIGGER keep_sample AFTER INSERT ON sample BEGIN SELECT 1; END");Map<String,String> expected=new LinkedHashMap<>();
+            try(Cursor c=db.rawQuery("SELECT name,sql FROM sqlite_master WHERE name IN ('sample','雪 x','keep_sample')",null)){while(c.moveToNext())expected.put(c.getString(0),c.getString(1));}
+            assertEquals(3,expected.size());exactParity(db,expected);assertTrue(SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));
+            db.execSQL("DROP TRIGGER keep_sample");exactParity(db,expected);assertFalse(SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));
+            db.execSQL(expected.get("keep_sample"));db.execSQL("CREATE TRIGGER sample AFTER INSERT ON sample BEGIN SELECT 2; END");exactParity(db,expected);assertFalse(SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));db.execSQL("DROP TRIGGER sample");
+            Map<String,String> large=new LinkedHashMap<>(expected);for(int i=0;i<500;i++)large.put("missing_"+i,"missing");exactParity(db,large);exactParity(db,Collections.emptyMap());large=new LinkedHashMap<>();large.put(null,"missing");exactParity(db,large);
+            db.beginTransaction();try{db.execSQL("PRAGMA writable_schema=ON");db.execSQL("UPDATE sqlite_master SET sql=sql||' ' WHERE name='keep_sample'");exactParity(db,expected);assertFalse(SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));}finally{db.execSQL("PRAGMA writable_schema=OFF");db.endTransaction();}
+            exactParity(db,expected);assertTrue(SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));
         }
     }
 }

@@ -129,7 +129,14 @@ public final class ResearchSchemaCoordinatorR926 {
             String step = nextStep(db, contract);
                 cursor = step;
                 SchemaDomainCoordinatorR926.markState(db, contract, state, cursor, "");
-                if ("R811_RESEARCH".equals(step)) {
+                if ("VERIFY".equals(step)) {
+                    // Final verification has its own writer callback. Do not append the
+                    // complete integrity/readiness scan to the last DDL installation unit.
+                    R811SchemaIntegrityVerifier.Report report = R811SchemaIntegrityVerifier.verifyResearch(db);
+                    if (!report.passed) throw new IllegalStateException("R926_RESEARCH_INTEGRITY:" + report.detail);
+                    SchemaDomainCoordinatorR926.verifyAndStamp(db, contract);
+                    state = "READY"; cursor = "COMPLETE"; error = ""; failureCause=null; return true;
+                } else if ("R811_RESEARCH".equals(step)) {
                     SchemaDomainCoordinatorR926.runStep(db, contract, step,
                             new SchemaDomainCoordinatorR926.Step() { public void run(SQLiteDatabase x) { DbHelper.ensureR811ResearchSchema(x); }});
                 } else if ("R815_RESEARCH".equals(step)) {
@@ -157,10 +164,7 @@ public final class ResearchSchemaCoordinatorR926 {
                 }
                 String remaining = nextStep(db, contract);
                 if ("VERIFY".equals(remaining)) {
-                    R811SchemaIntegrityVerifier.Report report = R811SchemaIntegrityVerifier.verifyResearch(db);
-                    if (!report.passed) throw new IllegalStateException("R926_RESEARCH_INTEGRITY:" + report.detail);
-                    SchemaDomainCoordinatorR926.verifyAndStamp(db, contract);
-                    state = "READY"; cursor = "COMPLETE"; error = ""; failureCause=null; return true;
+                    state = "INITIALIZING"; cursor = "VERIFY"; return false;
                 }
                 state = "INITIALIZING"; cursor = remaining; return false;
             } catch (ResearchWorkBudgetR927.Yield yielded) {
