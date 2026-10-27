@@ -1,0 +1,23 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java
+@@ -34,6 +34,10 @@
+             if (!c.moveToFirst()) return null;
+             position = c.getInt(0); mask = c.getInt(1); act = c.getInt(2) == 1; phat = c.isNull(3) ? Double.NaN : c.getDouble(3);
+         }
++        // R24 fail closed: invalid frozen actions/probabilities are not a 30% forecast.
++        if (position < 1 || position > 10 || mask < 0 || (mask & ~1023) != 0
++                || Integer.bitCount(mask) != 3 || Double.isNaN(phat)
++                || Double.isInfinite(phat) || phat < 0.0 || phat > 1.0) return null;
+         if (!act) return null;                                             // the strategy waits for its window
+         float[][] P = incumbent ? IncumbentLoopSU2.pendingTable(seq) : ModelLiveLoopSU2.pendingTable(genome, seq);
+         if (P == null) return null;                                         // never re-derive after the freeze
+@@ -50,7 +54,8 @@
+         final int hi = headIndex; Integer[] order = new Integer[1200]; for (int i = 0; i < 1200; i++) order[i] = i;
+         Arrays.sort(order, (x, y) -> { if (x == hi) return y == hi ? 0 : -1; if (y == hi) return 1; int d = Double.compare(mass[y], mass[x]);
+             return d != 0 ? d : Integer.compare(K3ActionSpaceEngine.globalOrdinal(actions[x].position, actions[x].n1, actions[x].n2, actions[x].n3), K3ActionSpaceEngine.globalOrdinal(actions[y].position, actions[y].n1, actions[y].n2, actions[y].n3)); });
+-        double p = Double.isNaN(phat) ? 0.30 : new SelectiveCalibrationSU2.Platt(a.a, a.b).apply(phat);
++        double p = new SelectiveCalibrationSU2.Platt(a.a, a.b).apply(phat);
++        if (Double.isNaN(p) || Double.isInfinite(p) || p < 0.0 || p > 1.0) return null;
+         String recipe = "{\"contract\":\"" + CONTRACT + "\",\"certificate\":\"" + a.certificate + "\",\"genome\":\"" + genome + "\",\"program\":\"" + a.program + "\",\"target\":\"" + context.targetIssue + "\",\"position\":" + position + ",\"mask\":" + mask + "}";
+         String digest = HashingSU1.text(recipe);
+         V51Models.PositionAction[] out = new V51Models.PositionAction[1200];

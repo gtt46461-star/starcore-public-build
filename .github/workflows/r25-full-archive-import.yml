@@ -1,0 +1,36 @@
+name: R25 complete archive import
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release containing the unchanged full R25 ZIP
+        required: true
+        default: r25-full-20261026
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: r25-complete-archive-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.repository == 'gtt46461-star/starcore-public-build' && (github.event_name == 'workflow_dispatch' || github.event.release.tag_name == 'r25-full-20261026')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Read current main without replacing application source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Verify full archive and import every original R25 payload file
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: python tools/r25_upload/import_full_archive.py

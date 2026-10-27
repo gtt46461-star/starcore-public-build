@@ -1,0 +1,95 @@
+{
+  "apk_sha256": "4567df77d768005cbcc19ab2aa3a2ab346c6d90d226d7ee1f670fb60721cf21d",
+  "source": "DEX string table; candidate SQL constants, not a decompilation of the SQL array identity",
+  "candidate_object_count": 261,
+  "differences": [
+    {
+      "name": "su1_model_ablation",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TABLE IF NOT EXISTS su1_model_ablation (\n source_campaign TEXT PRIMARY KEY NOT NULL REFERENCES su1_campaign(campaign_id),\n dataset_blob TEXT NOT NULL REFERENCES su1_blob(blob_hash),\n kernel_hash TEXT NOT NULL CHECK(length(kernel_hash)=64),\n generation INTEGER NOT NULL CHECK(generation>=0),\n phase TEXT NOT NULL CHECK(phase IN ('TRAIN','LOCKED','DONE','RETIRED')),\n checkpoint_hash TEXT REFERENCES su1_blob(blob_hash),\n frozen_hash TEXT CHECK(frozen_hash IS NULL OR length(frozen_hash)=64),\n report_hash TEXT REFERENCES su1_blob(blob_hash),\n updated_at INTEGER NOT NULL,\n CHECK(phase NOT IN ('LOCKED','DONE') OR checkpoint_hash IS NOT NULL AND frozen_hash IS NOT NULL),\n CHECK(phase<>'DONE' OR report_hash IS NOT NULL)\n);"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_model_ablation_no_delete",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_model_ablation_no_delete BEFORE DELETE ON su1_model_ablation\nBEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_model_ablation_retention_insert",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_model_ablation_retention_insert AFTER INSERT ON su1_model_ablation\nBEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_campaign_audit_cancelled",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TABLE IF NOT EXISTS su1_campaign_audit_cancelled (\n source_campaign TEXT NOT NULL,\n variant TEXT NOT NULL,\n reason TEXT NOT NULL CHECK(reason='EXECUTION_KERNEL_CHANGED'),\n cancelled_at INTEGER NOT NULL,\n PRIMARY KEY(source_campaign,variant),\n FOREIGN KEY(source_campaign,variant) REFERENCES su1_campaign_audit(source_campaign,variant)\n);"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_model_ablation_start",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_model_ablation_start BEFORE INSERT ON su1_model_ablation\nBEGIN\n SELECT CASE WHEN NEW.phase<>'TRAIN' OR NEW.generation<>0 OR NEW.checkpoint_hash IS NOT NULL OR NEW.frozen_hash IS NOT NULL OR NEW.report_hash IS NOT NULL\n THEN RAISE(ABORT,'SU1_MODEL_AUDIT_START') END;\nEND;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_model_ablation_retention_update",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_model_ablation_retention_update AFTER UPDATE ON su1_model_ablation\nBEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_audit_cancelled_no_update",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_audit_cancelled_no_update BEFORE UPDATE ON su1_campaign_audit_cancelled\nBEGIN SELECT RAISE(ABORT,'SU1_IMMUTABLE'); END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_audit_cancelled_retention",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_audit_cancelled_retention AFTER INSERT ON su1_campaign_audit_cancelled\nBEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_audit_cancelled_no_delete",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_audit_cancelled_no_delete BEFORE DELETE ON su1_campaign_audit_cancelled\nBEGIN SELECT RAISE(ABORT,'SU1_EVIDENCE_DELETE_DISABLED_V1'); END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_retention_audit_update",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_retention_audit_update AFTER UPDATE ON su1_campaign_audit\nBEGIN UPDATE su1_retention_clock SET generation=generation+1 WHERE singleton=1; END;"
+      ],
+      "actual": null
+    },
+    {
+      "name": "su1_model_ablation_advance",
+      "status": "ABSENT",
+      "apk_candidates": [
+        "CREATE TRIGGER IF NOT EXISTS su1_model_ablation_advance BEFORE UPDATE ON su1_model_ablation\nBEGIN\n SELECT CASE WHEN OLD.phase IN ('DONE','RETIRED') OR NEW.generation<>OLD.generation+1 OR NEW.source_campaign<>OLD.source_campaign OR NEW.dataset_blob<>OLD.dataset_blob OR NEW.kernel_hash<>OLD.kernel_hash OR NEW.updated_at<OLD.updated_at\n OR OLD.frozen_hash IS NOT NULL AND NEW.frozen_hash IS NOT OLD.frozen_hash\n OR OLD.phase='TRAIN' AND NEW.phase NOT IN ('TRAIN','LOCKED','RETIRED')\n OR OLD.phase='LOCKED' AND NEW.phase NOT IN ('LOCKED','DONE','RETIRED')\n OR NEW.phase='DONE' AND (OLD.phase<>'LOCKED' OR NEW.report_hash IS NULL)\n OR NEW.report_hash IS NOT NULL AND NEW.phase<>'DONE'\n THEN RAISE(ABORT,'SU1_MODEL_AUDIT_FROZEN_OR_CAS') END;\nEND;"
+      ],
+      "actual": null
+    }
+  ]
+}

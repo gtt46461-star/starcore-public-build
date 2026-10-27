@@ -1,0 +1,239 @@
+{
+  "extension": {
+    "causal_tcn": {
+      "opportunities": 63,
+      "actions": 7,
+      "hits": 0,
+      "coverage": 0.1111111111111111,
+      "hit_rate": 0.0,
+      "wilson95_descriptive": [
+        5.551115123125783e-17,
+        0.35433043506668743
+      ],
+      "max_losing_streak": 7,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.1547209617257848,
+      "matched_constant_0p30_brier": 0.09,
+      "mean_probability": 0.393247018967356,
+      "calibration_gap": 0.393247018967356,
+      "ece_fixed10": 0.393247018967356,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 6,
+          "p": 0.38989511504769325,
+          "hit": 0.0
+        },
+        {
+          "bin": 4,
+          "n": 1,
+          "p": 0.4133584424853325,
+          "hit": 0.0
+        }
+      ]
+    },
+    "lstm": {
+      "opportunities": 63,
+      "actions": 26,
+      "hits": 5,
+      "coverage": 0.4126984126984127,
+      "hit_rate": 0.19230769230769232,
+      "wilson95_descriptive": [
+        0.0850706114894241,
+        0.3787625711931699
+      ],
+      "max_losing_streak": 10,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.18119309600211977,
+      "matched_constant_0p30_brier": 0.16692307692307692,
+      "mean_probability": 0.35227608480132544,
+      "calibration_gap": 0.15996839249363312,
+      "ece_fixed10": 0.15996839249363312,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 26,
+          "p": 0.35227608480132544,
+          "hit": 0.19230769230769232
+        }
+      ]
+    },
+    "temporal_attention": {
+      "opportunities": 63,
+      "actions": 21,
+      "hits": 6,
+      "coverage": 0.3333333333333333,
+      "hit_rate": 0.2857142857142857,
+      "wilson95_descriptive": [
+        0.1381386295212213,
+        0.49956380716085597
+      ],
+      "max_losing_streak": 8,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.21975088620366254,
+      "matched_constant_0p30_brier": 0.20428571428571424,
+      "mean_probability": 0.41833027061961947,
+      "calibration_gap": 0.13261598490533377,
+      "ece_fixed10": 0.13261598490533374,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 1,
+          "p": 0.39792317897081375,
+          "hit": 0.0
+        },
+        {
+          "bin": 4,
+          "n": 20,
+          "p": 0.41935062520205973,
+          "hit": 0.3
+        }
+      ]
+    },
+    "relation_graph": {
+      "opportunities": 63,
+      "actions": 6,
+      "hits": 4,
+      "coverage": 0.09523809523809523,
+      "hit_rate": 0.6666666666666666,
+      "wilson95_descriptive": [
+        0.299993315138392,
+        0.9032285888942195
+      ],
+      "max_losing_streak": 1,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.3237286725344615,
+      "matched_constant_0p30_brier": 0.35666666666666663,
+      "mean_probability": 0.3481295530994733,
+      "calibration_gap": -0.31853711356719333,
+      "ece_fixed10": 0.31853711356719333,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 6,
+          "p": 0.3481295530994733,
+          "hit": 0.6666666666666666
+        }
+      ]
+    },
+    "equal_marginal_mixture": {
+      "opportunities": 63,
+      "actions": 25,
+      "hits": 8,
+      "coverage": 0.3968253968253968,
+      "hit_rate": 0.32,
+      "wilson95_descriptive": [
+        0.17205190306907978,
+        0.5158973072689775
+      ],
+      "max_losing_streak": 6,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.21862748096382434,
+      "matched_constant_0p30_brier": 0.21799999999999997,
+      "mean_probability": 0.3477867487072945,
+      "calibration_gap": 0.027786748707294473,
+      "ece_fixed10": 0.027786748707294473,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 25,
+          "p": 0.3477867487072945,
+          "hit": 0.32
+        }
+      ]
+    }
+  },
+  "ablations_common_tail": {
+    "A0_equal_original": {
+      "opportunities": 2123,
+      "actions": 447,
+      "hits": 147,
+      "coverage": 0.21055110692416393,
+      "hit_rate": 0.3288590604026846,
+      "wilson95_descriptive": [
+        0.2869269230524042,
+        0.373707659223557
+      ],
+      "max_losing_streak": 15,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.2211057008388392,
+      "matched_constant_0p30_brier": 0.2215436241610738,
+      "mean_probability": 0.34405158500143346,
+      "calibration_gap": 0.015192524598748869,
+      "ece_fixed10": 0.015192524598748869,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 447,
+          "p": 0.34405158500143346,
+          "hit": 0.3288590604026846
+        }
+      ]
+    },
+    "A1_equal_permutation_projection": {
+      "opportunities": 2123,
+      "actions": 410,
+      "hits": 130,
+      "coverage": 0.1931229392369289,
+      "hit_rate": 0.3170731707317073,
+      "wilson95_descriptive": [
+        0.27390602136254816,
+        0.3636363350087821
+      ],
+      "max_losing_streak": 12,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.21737987747880827,
+      "matched_constant_0p30_brier": 0.2168292682926829,
+      "mean_probability": 0.34342944783544005,
+      "calibration_gap": 0.026356277103732728,
+      "ece_fixed10": 0.026356277103732728,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 410,
+          "p": 0.34342944783544005,
+          "hit": 0.3170731707317073
+        }
+      ]
+    },
+    "A2_past_NLL_adaptive_mixture": {
+      "opportunities": 2123,
+      "actions": 370,
+      "hits": 123,
+      "coverage": 0.17428167687235044,
+      "hit_rate": 0.3324324324324324,
+      "wilson95_descriptive": [
+        0.28636993219919854,
+        0.381938659386214
+      ],
+      "max_losing_streak": 13,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE",
+      "brier": 0.22219001265138474,
+      "matched_constant_0p30_brier": 0.22297297297297294,
+      "mean_probability": 0.3400127613789134,
+      "calibration_gap": 0.007580328946480974,
+      "ece_fixed10": 0.007580328946480975,
+      "bins": [
+        {
+          "bin": 3,
+          "n": 370,
+          "p": 0.3400127613789134,
+          "hit": 0.3324324324324324
+        }
+      ]
+    },
+    "A3_adaptive_projection_calibrated_gate": {
+      "opportunities": 2123,
+      "actions": 0,
+      "hits": 0,
+      "coverage": 0.0,
+      "hit_rate": null,
+      "wilson95_descriptive": [
+        null,
+        null
+      ],
+      "max_losing_streak": 0,
+      "qualification": "NOT_PROSPECTIVE_RELEASE_EVIDENCE"
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "scope": "HOST_CONTRACTS_AND_LEGACY_REGRESSIONS_ONLY",
+  "runs": [
+    {
+      "name": "r26_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.642,
+      "python_tests": 29,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "source_a_r25_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.342,
+      "python_tests": 35,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_a/upgrade_r25/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "source_b_r25_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.124,
+      "python_tests": 36,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "shared_r24_python",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.095,
+      "python_tests": 27,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/baseline_R24/tests",
+        "-v"
+      ]
+    },
+    {
+      "name": "shared_r23_neural",
+      "status": "NOT_RUN",
+      "required": false,
+      "reason": "UNCHANGED_LEGACY_TORCH_DEPENDENCY_NOT_INSTALLED; original evidence preserved, not counted as rerun"
+    },
+    {
+      "name": "shared_r23_durable",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.073,
+      "python_tests": 8,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/baseline_R23/tests",
+        "-p",
+        "test_durable_learning.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "r26_javac",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.621,
+      "python_tests": null,
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-d",
+        "/tmp/r26-host-b7fa6229",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/code/ContinuousSchedulerR26.java",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/tests/ContinuousSchedulerR26Test.java"
+      ]
+    },
+    {
+      "name": "r26_java",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.058,
+      "python_tests": null,
+      "command": [
+        "java",
+        "-cp",
+        "/tmp/r26-host-b7fa6229",
+        "ContinuousSchedulerR26Test"
+      ]
+    },
+    {
+      "name": "source_a_java",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.87,
+      "python_tests": null,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_a/upgrade_r25/code/run_java_contracts.py"
+      ]
+    },
+    {
+      "name": "shared_r24_java",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 1.501,
+      "python_tests": null,
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/686b9c6bb32f/r26_workspace/construction/plans/STARCORE_R26_MERGED_20261026/sources/plan_b/baseline_R24/code/run_java_regression.py"
+      ]
+    },
+    {
+      "name": "source_b_legacy_compile",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 1.847,
+      "python_tests": null,
+      "command": [
+        "javac",
+        "-encoding",
+        "UTF-8",
+        "-d",
+        "/tmp/r26-original-ihoqpf2g/classes",
+        "/tmp/r26-original-ihoqpf2g/src/OnlineModelsSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/ContMatSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/ModelOpsSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/DiagnosisTextSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/UpgradeDiagnosisSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/InformationProbeSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/CalibrationSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/AtomNetSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/DeterministicRandomSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/ModelLiveSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/SelectiveEvidenceSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/RelationalStateInference.java",
+        "/tmp/r26-original-ihoqpf2g/src/LiveStrategySU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/LogisticRidgeSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/ModelGenomeSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/XiIncumbentSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/MainlinePolicySU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/TeacherPoolSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/LegacyAuditSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/AtomStreamSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/CommitteeLiveSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/PairedEvidence.java",
+        "/tmp/r26-original-ihoqpf2g/src/R25LegacyDefectReproducer.java",
+        "/tmp/r26-original-ihoqpf2g/src/SelectiveCalibrationSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/ModelEvolutionSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/NullBaseline.java",
+        "/tmp/r26-original-ihoqpf2g/src/StageLayerSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/CommitteeSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/TypedProgram.java",
+        "/tmp/r26-original-ihoqpf2g/src/ModelStateCodecSU2.java",
+        "/tmp/r26-original-ihoqpf2g/src/HashingSU1.java",
+        "/tmp/r26-original-ihoqpf2g/src/EventFrameSU1.java",
+        "/tmp/r26-original-ihoqpf2g/src/ModelReplaySU2.java"
+      ]
+    },
+    {
+      "name": "source_b_legacy_defects",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 0.131,
+      "python_tests": null,
+      "command": [
+        "java",
+        "-cp",
+        "/tmp/r26-original-ihoqpf2g/classes",
+        "com.ethk3.novaonepro.strategyv2.R25LegacyDefectReproducer"
+      ]
+    }
+  ],
+  "all_required_pass": true,
+  "all_including_optional_pass": false,
+  "python_tests_passed": 135,
+  "android": "NOT_RUN",
+  "device": "NOT_RUN",
+  "new_prospective_quality": "NOT_RUN"
+}

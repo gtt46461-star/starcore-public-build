@@ -1,0 +1,29 @@
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java
+@@ -55,9 +55,16 @@
+             final List<StageStrategySU2.Definition> stages = finished ? StageStrategySU2.prepare(fs, lib, through) : Collections.emptyList();
+             final CommitteeSU2 matrixChampion = fs.committees.get("F15");
+             final MatrixSnapshotSU2.Data matrices = finished && matrixChampion != null ? MatrixSnapshotSU2.capture(matrixChampion, lib, through) : null;
++            // R25: materialize all evaluation results before entering the single writer.
++            final Map<String, double[]> hallScores = new HashMap<>();
++            for (ModelEvolutionSU2.Ranked x : fs.hallOfFame)
++                hallScores.put(x.g.key(), new double[]{evo.dev(x.g, e), evo.val(x.g, e)});
++            final Map<String, double[]> tierScores = new HashMap<>();
++            if (finished && !evo.r14) for (ModelEvolutionSU2.Ranked x : fs.tiers.values())
++                tierScores.put(x.g.key(), new double[]{evo.dev(x.g, e), evo.val(x.g, e)});
+             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_CAMPAIGN_SLICE", db -> {
+                 for (int i = 0; i < fs.population.size(); i++) ModelStoreSU2.saveGenome(db, fs.population.get(i), id, through, scores.get(i)[0], scores.get(i)[1], "RESEARCH", now);
+-                for (ModelEvolutionSU2.Ranked x : fs.hallOfFame) ModelStoreSU2.saveGenome(db, x, id, through, evo.dev(x.g, e), evo.val(x.g, e), "HALL_OF_FAME", now);
++                for (ModelEvolutionSU2.Ranked x : fs.hallOfFame) ModelStoreSU2.saveGenome(db, x, id, through, hallScores.get(x.g.key())[0], hallScores.get(x.g.key())[1], "HALL_OF_FAME", now);
+                 ModelStoreSU2.saveEvolution(db, id, fs, now);
+                 db.execSQL("UPDATE su2_campaign SET evaluated=evaluated+?,effective_generations=? WHERE campaign_id=?", new Object[]{fs.population.size(), fs.effectiveGenerations, id});
+                 if (finished && evo.r14) {
+@@ -73,7 +80,7 @@
+                 } else if (finished) {
+                     for (Map.Entry<String, ModelEvolutionSU2.Ranked> t : fs.tiers.entrySet()) {
+                         ModelEvolutionSU2.Ranked x = t.getValue();
+-                        ModelStoreSU2.saveGenome(db, x, id, through, evo.dev(x.g, e), evo.val(x.g, e), "LEAGUE", now);
++                        ModelStoreSU2.saveGenome(db, x, id, through, tierScores.get(x.g.key())[0], tierScores.get(x.g.key())[1], "LEAGUE", now);
+                         ModelStoreSU2.joinLeague(db, "SU2:" + x.g.key(), "SU2", t.getKey() + "@" + through, x.g.key(), through + 1);
+                     }
+                     db.execSQL("UPDATE su2_campaign SET status='DONE',finished_at=? WHERE campaign_id=? AND status='RUNNING'", new Object[]{now, id});
