@@ -20,7 +20,7 @@ public final class EvidenceAccumulatorR26 {
     }
     public static long stepOne(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget,long nextTarget)throws IOException {
         String policy=null,benchmark=null;long birth=0,through=0;byte[] partial=null;String chain="";
-        try(Cursor c=store.readable().rawQuery("SELECT q.genome_key,q.incumbent,q.from_sequence,coalesce(a.through_ordinal,q.from_sequence-1),a.partial,a.source_chain FROM r26_cohort q LEFT JOIN r26_evidence_cursor a ON a.policy_hash=q.genome_key WHERE q.protocol=? AND coalesce(a.through_ordinal,q.from_sequence-1)<? ORDER BY coalesce(a.through_ordinal,q.from_sequence-1),q.genome_key LIMIT 1",new String[]{QualificationWindowR26.PROTOCOL,String.valueOf(nextTarget-1)})){
+        try(Cursor c=store.readable().rawQuery("SELECT q.genome_key,q.incumbent,q.from_sequence,coalesce(a.through_ordinal,q.from_sequence-1),a.partial,a.source_chain FROM r26_cohort q LEFT JOIN r26_evidence_cursor a ON a.policy_hash=q.genome_key WHERE EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=q.genome_key AND l.status='ACTIVE') AND q.protocol=? AND coalesce(a.through_ordinal,q.from_sequence-1)<? ORDER BY coalesce(a.through_ordinal,q.from_sequence-1),q.genome_key LIMIT 1",new String[]{QualificationWindowR26.PROTOCOL,String.valueOf(nextTarget-1)})){
             if(c.moveToFirst()){policy=c.getString(0);benchmark=c.getString(1);birth=c.getLong(2);through=c.getLong(3);partial=c.isNull(4)?null:c.getBlob(4);chain=c.isNull(5)?"":c.getString(5);}
         }
         if(policy==null)return 0;final String key=policy,incumbent=benchmark;final long born=birth,oldThrough=through;EvidenceBlockR26 block=partial==null?new EvidenceBlockR26():EvidenceBlockR26.read(partial);
