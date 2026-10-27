@@ -165,3 +165,38 @@ jobs:
             android-logcat.txt
             r26-owner-logcat.txt
             r26-runtime-synthetic.json
+  prior-engineering-evidence:
+    if: ${{ github.event_name == 'push' }}
+    needs: build
+    permissions:
+      contents: read
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read historical source-bound endurance receipts
+        id: prior
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 40562783679
+          pattern: R26-Endurance-*
+          path: prior-engineering-evidence
+      - name: Summarize historical engineering metadata
+        if: steps.prior.outcome == 'success'
+        run: |
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from summarize_r26_runtime import summary
+          paths=sorted(Path('prior-engineering-evidence').rglob('r26-runtime-synthetic.json'))
+          print('R26_HISTORICAL_REFERENCE_AVAILABILITY='+json.dumps({'runId':40562783679,'availableScenarios':len(paths),'expectedScenarios':6,'complete':len(paths)==6,'scope':'HISTORICAL_SOURCE_ONLY'}))
+          for path in paths:
+              owner=path.parent/'r26-owner-logcat.txt'
+              result=summary(json.loads(path.read_text()),owner.read_text(errors='replace') if owner.exists() else '')
+              print('R26_HISTORICAL_REFERENCE='+json.dumps({'runId':40562783679,'artifact':path.parent.name,'scope':'HISTORICAL_SOURCE_ONLY; NOT_CURRENT_SOURCE_ACCEPTANCE','receipt':result},sort_keys=True,separators=(',',':'),ensure_ascii=False))
+          PY
