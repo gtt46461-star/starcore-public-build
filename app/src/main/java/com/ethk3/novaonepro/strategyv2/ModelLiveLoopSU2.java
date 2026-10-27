@@ -38,12 +38,7 @@ public final class ModelLiveLoopSU2 {
     static long sequence(String issue) { return TargetIssueResolver.sequenceOrdinalSU1(issue); }
 
     /** Pooled table of a live strategy's pending decision for `seq`, or null (then the mainline abstains). */
-    public static synchronized float[][] pendingTable(String genomeKey, long seq) {
-        Runtime rt = RT; if (rt == null || rt.pendingSeq != seq) return null;
-        LiveStrategySU2 l = rt.lives.get(genomeKey); if (l == null) return null;
-        float[][] P = l.pendingTable(seq - rt.genesisSeq); if (P == null) return null;
-        float[][] out = new float[10][]; for (int p = 0; p < 10; p++) out[p] = P[p].clone(); return out;
-    }
+    public static float[][] pendingTable(String genomeKey,long seq){return LegacyReplayR26.pendingTable(genomeKey,seq);}
 
     /** P50 memory budget: at most 32 live strategies and 48 distinct calibrated members (~1 MB calibration ring each). */
     public static final int MAX_LIVE = 32, MAX_HUB_CALIBRATORS = 48;
@@ -56,7 +51,7 @@ public final class ModelLiveLoopSU2 {
     static List<String> liveGenomes(SQLiteDatabase db) {
         List<String> cand = new ArrayList<>(); String main = null;
         try (Cursor c = db.rawQuery("SELECT member_id FROM su2_mainline_choice ORDER BY from_sequence DESC LIMIT 1", null)) { if (c.moveToFirst()) main = c.getString(0); }
-        try (Cursor c = db.rawQuery("SELECT g.canonical_text,'SU2:'||g.genome_key FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.origin_op<>'INCUMBENT' AND g.origin_op<>'R26_LIVE' AND l.state='ACTIVE' ORDER BY CASE WHEN l.member_id=? THEN 0 ELSE 1 END,g.born_sequence DESC,g.genome_key LIMIT 96", new String[]{main == null ? "" : main})) {
+        try (Cursor c = db.rawQuery("SELECT g.canonical_text,'SU2:'||g.genome_key FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.origin_op<>'INCUMBENT' AND g.origin_op<>'R26_LIVE' AND l.state='ACTIVE' AND NOT EXISTS(SELECT 1 FROM r26_prepared_policy p WHERE p.policy_hash=g.genome_key) AND NOT EXISTS(SELECT 1 FROM r26_live_model a WHERE a.policy_hash=g.genome_key) ORDER BY CASE WHEN l.member_id=? THEN 0 ELSE 1 END,g.born_sequence DESC,g.genome_key LIMIT 96", new String[]{main == null ? "" : main})) {
             while (c.moveToNext()) {
                 String text = c.getString(0);
                 if (StageStrategySU2.isStage(text)) StageStoreSU2.load(db, text);
@@ -64,7 +59,7 @@ public final class ModelLiveLoopSU2 {
             }
         }
         int availableSlots=MAX_LIVE;
-        if(RuntimeSchemaR26.ready(db))try(Cursor c=db.rawQuery("SELECT count(*) FROM r26_live_model WHERE status='ACTIVE'",null)){if(c.moveToFirst())availableSlots=Math.max(1,MAX_LIVE-c.getInt(0));}
+        if(RuntimeSchemaR26.ready(db))try(Cursor c=db.rawQuery("SELECT count(*) FROM r26_live_model WHERE status='ACTIVE'",null)){if(c.moveToFirst())availableSlots=Math.max(0,MAX_LIVE-c.getInt(0));}
         List<String> out = new ArrayList<>(); Set<String> cals = new HashSet<>();
         for (String text : cand) {
             if (out.size() >= availableSlots) break;
@@ -128,7 +123,7 @@ public final class ModelLiveLoopSU2 {
             if (hubBlob == null) return null;
             DataInputStream hin = new DataInputStream(new ByteArrayInputStream(ModelStoreSU2.gunzip(hubBlob)));
             long genesisSeq = hin.readLong();
-            if (genesisSeq < first) return null;                                   // checkpoint older than retained draws
+            if (genesisSeq < 1 || through[0] < genesisSeq-1) return null;                                   // checkpoint older than retained draws
             Runtime rt = new Runtime(); rt.genesisSeq = genesisSeq;
             for (String g : genomes) rt.lives.put(keyOf(g), make(g, rt.hub, genesisSeq));
             rt.hub.readModelsInto(hin);                                            // P50: calibration rings are separate rows
@@ -162,41 +157,7 @@ public final class ModelLiveLoopSU2 {
     }
 
     /** Before the draw. Returns the number of frozen decisions. */
-    public static int capture(DbStore store, String target) {
-        synchronized (CAPTURE_LOCK) { return captureSerial(store, target); }
-    }
-
-    private static int captureSerial(DbStore store, String target) {
-        if (!StrategySchemaSU2.ready(store.readable())) return 0;
-        ProgramModelSU2.register();
-        long seq = sequence(target);
-        EventFrameSU1 frame = EventFrameBuilderSU1.capture(store, target);
-        final Runtime rt;
-        final Map<String, ModelLiveSU2.Decision> decisions = new LinkedHashMap<>();
-        synchronized (ModelLiveLoopSU2.class) {
-        rt = ensure(store, frame, seq);
-        if (rt.pendingSeq == seq) return 0;
-        long started = System.nanoTime();
-        // rotate the start so a budget overrun never starves the same strategies (P08)
-        List<Map.Entry<String, LiveStrategySU2>> order = new ArrayList<>(rt.lives.entrySet());
-        if (!order.isEmpty()) Collections.rotate(order, (int) (seq % order.size()));
-        for (Map.Entry<String, LiveStrategySU2> e : order) {
-            if (System.nanoTime() - started > PREDRAW_BUDGET_NANOS || SettlementExecutionGateR819.isActive()) break;   // rest are MISSING
-            decisions.put(e.getKey(), e.getValue().decide());
-        }
-        } // Release the model monitor before waiting on the single DB writer.
-        final long open = frame.targetOpenTime;
-        int frozen = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_LIVE_FREEZE", db -> {
-            if (!EventFrameBuilderSU1.unchanged(store, frame)) return 0;
-            long now = System.currentTimeMillis(); if (now >= open) return 0;      // never freeze after open
-            int n = 0; for (Map.Entry<String, ModelLiveSU2.Decision> e : decisions.entrySet()) { ModelStoreSU2.insertDecision(db, e.getKey(), seq, e.getValue(), now, open); n++; }
-            return n;
-        });
-        synchronized (ModelLiveLoopSU2.class) {
-            if (frozen > 0 && RT == rt && rt.through == seq - 1) rt.pendingSeq = seq;
-        }
-        return frozen;
-    }
+    public static int capture(DbStore store,String target){return LegacyReplayR26.capture(store,target);}
 
     /** Inside the original settlement owner transaction (same place as LiveShadowLoopSU1.settleWithin). */
     public static synchronized int settleWithin(SQLiteDatabase db, Models.Draw draw, long completedAt) throws IOException {
@@ -204,13 +165,8 @@ public final class ModelLiveLoopSU2 {
         long seq = sequence(draw.issue);
         int[] d = new int[10]; for (int p = 0; p < 10; p++) d[p] = draw.getNumberAtPosition(p + 1);
         int labelled = ModelStoreSU2.settle(db, seq, d, completedAt);
-        Runtime rt = RT;
-        if (rt != null && rt.pendingSeq == seq && rt.through == seq - 1) {
-            for (LiveStrategySU2 l : rt.lives.values()) { if (!l.hasPending()) l.decide(); l.settle(d); }   // MISSING ones still train
-            rt.hub.update(d); rt.through = seq; rt.pendingSeq = -1;
-            if (seq % CHECKPOINT_EVERY == 0) checkpoint(db, rt, completedAt);
-        }
-        // a process restart between capture and settle simply catches up from history at the next capture
+        // Numerical learning runs only in the fenced P2 replay queue after the sole owner commits feedback.
+        RuntimeCoordinatorR26.wake();
         return labelled;
     }
 }

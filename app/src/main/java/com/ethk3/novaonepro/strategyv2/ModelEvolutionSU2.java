@@ -59,6 +59,8 @@ public final class ModelEvolutionSU2 {
     }
 
     final ModelReplaySU2.Library lib; final Random rng; final int startMeta, window, refit;
+    public interface ProposalObserver {void record(Ranked child,Ranked parent);}
+    public ProposalObserver proposalObserver;
     final Map<String, Double> devFit = new HashMap<>(), valFit = new HashMap<>();
     final Map<String, ModelReplaySU2.Result> results = new LinkedHashMap<String, ModelReplaySU2.Result>(64, .75f, true) {
         protected boolean removeEldestEntry(Map.Entry<String, ModelReplaySU2.Result> e) { return size() > 400; }
@@ -94,7 +96,7 @@ public final class ModelEvolutionSU2 {
     /** Consensus Q[t][p][n] for the current generation (uniform before CalibrationSU2.START). */
     float[][][] Q;
     final Map<String, float[][][]> tables = new LinkedHashMap<String, float[][][]>(32, .75f, true) {
-        protected boolean removeEldestEntry(Map.Entry<String, float[][][]> e) { return size() > 40; } };
+        protected boolean removeEldestEntry(Map.Entry<String, float[][][]> e) { return size() > Math.max(2,Math.min(40,(int)(lib.byteCap/Math.max(1L,400L*lib.draws.length)))); } };
     final Map<String, double[]> cumLL = new LinkedHashMap<String, double[]>(32, .75f, true) {
         protected boolean removeEldestEntry(Map.Entry<String, double[]> e) { return size() > 200; } };
 
@@ -111,25 +113,23 @@ public final class ModelEvolutionSU2 {
     double[] cum(ModelGenomeSU2 g) {
         return cumLL.computeIfAbsent(tableKey(g), k -> {
             float[][][] P = table(g); int T = P.length; double[] c = new double[T + 1]; double[] row = new double[10];
-            for (int t = 0; t < T; t++) { for (int p = 0; p < 10; p++) row[p] = Math.log(Math.min(1.0, Math.max(1e-9, (double) P[t][p][lib.draws()[t][p] - 1]))); c[t + 1] = c[t] + ModelOpsSU2.pairwise(row, 0, 10); }
+            for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll(); for (int p = 0; p < 10; p++) row[p] = Math.log(Math.min(1.0, Math.max(1e-9, (double) P[t][p][lib.draws()[t][p] - 1]))); c[t + 1] = c[t] + ModelOpsSU2.pairwise(row, 0, 10); }
             return c;
         });
     }
 
     /** Bayesian model average of the programs' tables, weights from the trailing-window log-likelihood. */
     void buildConsensus(List<ModelGenomeSU2> progs) {
-        int T = lib.draws().length, M = progs.size(); float[][][][] tabs = new float[M][][][]; double[][] cs = new double[M][];
-        for (int m = 0; m < M; m++) { tabs[m] = table(progs.get(m)); cs[m] = cum(progs.get(m)); }
-        float[][][] q = new float[T][10][10];
-        for (int t = 0; t < Math.min(CalibrationSU2.START, T); t++) for (int p = 0; p < 10; p++) Arrays.fill(q[t][p], 0.1f);
-        for (int t0 = CalibrationSU2.START; t0 < T; t0 += CalibrationSU2.REFIT) {
-            int lo = Math.max(0, t0 - CalibrationSU2.WINDOW); double[] s = new double[M]; double mx = Double.NEGATIVE_INFINITY;
-            for (int m = 0; m < M; m++) { s[m] = cs[m][t0] - cs[m][lo]; mx = Math.max(mx, s[m]); }
-            double[] w = new double[M]; for (int m = 0; m < M; m++) w[m] = Math.exp(s[m] - mx); double z = ModelOpsSU2.pairwise(w, 0, M); for (int m = 0; m < M; m++) w[m] /= z;
-            for (int t = t0; t < Math.min(t0 + CalibrationSU2.REFIT, T); t++) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) {
-                double v = 0; for (int m = 0; m < M; m++) v += w[m] * tabs[m][t][p][n]; q[t][p][n] = (float) v; }
+        int T=lib.draws().length,M=progs.size();double[][] cs=new double[M][];for(int m=0;m<M;m++){ExecutionBudgetR26.poll();cs[m]=cum(progs.get(m));}
+        int blocks=Math.max(0,(T-CalibrationSU2.START+CalibrationSU2.REFIT-1)/CalibrationSU2.REFIT);double[][] weights=new double[blocks][M];
+        for(int block=0;block<blocks;block++){ExecutionBudgetR26.poll();
+            ExecutionBudgetR26.poll();int t0=CalibrationSU2.START+block*CalibrationSU2.REFIT,lo=Math.max(0,t0-CalibrationSU2.WINDOW);double[] score=new double[M];double max=Double.NEGATIVE_INFINITY;
+            for(int m=0;m<M;m++){ExecutionBudgetR26.poll();score[m]=cs[m][t0]-cs[m][lo];max=Math.max(max,score[m]);}for(int m=0;m<M;m++)weights[block][m]=Math.exp(score[m]-max);double z=ModelOpsSU2.pairwise(weights[block],0,M);for(int m=0;m<M;m++)weights[block][m]/=z;
         }
-        Q = q;
+        // Preserve the original per-cell double sum order while retaining one table at a time.
+        double[][][] sum=new double[T][10][10];
+        for(int m=0;m<M;m++){ExecutionBudgetR26.poll();float[][][] probability=table(progs.get(m));for(int t=CalibrationSU2.START;t<T;t++){ExecutionBudgetR26.poll();double weight=weights[(t-CalibrationSU2.START)/CalibrationSU2.REFIT][m];for(int pos=0;pos<10;pos++)for(int n=0;n<10;n++)sum[t][pos][n]+=weight*probability[t][pos][n];}}
+        float[][][] q=new float[T][10][10];for(int t=0;t<T;t++){ExecutionBudgetR26.poll();for(int pos=0;pos<10;pos++)for(int n=0;n<10;n++)q[t][pos][n]=t<CalibrationSU2.START?.1f:(float)sum[t][pos][n];}Q=q;
     }
 
     static final double EB_KAPPA = 300;
@@ -242,7 +242,7 @@ public final class ModelEvolutionSU2 {
     Map<String, Double> credit(ModelGenomeSU2.Member m) {
         if (curEras == null) return null;
         int end = Math.min(curEras.valEnd, lib.draws().length);
-        return creditCache.computeIfAbsent(m.modelKey() + "@" + end, k -> { AtomNetSU2 net = AtomNetSU2.of(m.params); for (int t = 0; t < end; t++) net.update(lib.draws()[t]); return net.credit(); });
+        return creditCache.computeIfAbsent(m.modelKey() + "@" + end, k -> { AtomNetSU2 net;if(lib.durable!=null)net=(AtomNetSU2)lib.durable.trained(m,end);else{net=AtomNetSU2.of(m.params);for(int t=0;t<end;t++){ExecutionBudgetR26.poll();net.update(lib.draws()[t]);}}return net.credit(); });
     }
     /** Research memory: every atom network credited at this checkpoint reports what it learned (once per program). */
     void updatePrior(State s) {
@@ -279,7 +279,7 @@ public final class ModelEvolutionSU2 {
     public static Distilled distill(float[][][] P, int[][] draws, List<Integer> cand, int end, int k) {
         int F = cand.size(); double[][] XtX = new double[F][F]; double[] Xty = new double[F], sx = new double[F], sxx = new double[F]; double ss = 0; long n = 0, nx = 0;
         AtomStreamSU2 st = new AtomStreamSU2(); double[][] x = new double[F][10];
-        for (int t = 0; t < end; t++) {
+        for (int t = 0; t < end; t++) {ExecutionBudgetR26.poll();
             if (t >= 1500 && (t - 1500) % DISTILL_STRIDE == 0) {
                 float[][][] A = new float[F][][]; for (int f = 0; f < F; f++) A[f] = st.atom(cand.get(f));
                 for (int p = 0; p < 10; p++) {
@@ -492,7 +492,7 @@ public final class ModelEvolutionSU2 {
             double q1 = ModelReplaySU2.quantileLinear(sorted.clone(), 1 / 3.0), q2 = ModelReplaySU2.quantileLinear(sorted.clone(), 2 / 3.0);
             for (int side = 0; side < 2; side++) {
                 int cnt = 0, hit = 0;
-                for (int t = 0; t < n; t++) {
+                for (int t = 0; t < n; t++) {ExecutionBudgetR26.poll();
                     boolean sel = side == 0 ? v[t] <= q1 : v[t] >= q2; int u = e.devStart + t;
                     if (sel && (nAct > 150 ? r.act[u] : true)) { cnt++; if (r.hit[u]) hit++; }
                 }
@@ -591,10 +591,10 @@ public final class ModelEvolutionSU2 {
         }
         String[] kinds = kinds();
         while (s.population.size() < population) s.population.add(new Ranked(randomGenome(kinds[s.population.size() % kinds.length]), "random", "", ""));
-        double champVal = s.champion == null ? -9 : val(s.champion.g, e);
-        Map<String, Double> tierVal = new TreeMap<>(); for (Map.Entry<String, Ranked> t : s.tiers.entrySet()) tierVal.put(t.getKey(), val(t.getValue().g, e));
+        double champVal = s.champion == null || r14 ? -9 : val(s.champion.g, e);
+        Map<String, Double> tierVal = new TreeMap<>(); if(!r14)for (Map.Entry<String, Ranked> t : s.tiers.entrySet()) tierVal.put(t.getKey(), val(t.getValue().g, e));
         int evaluated = 0;
-        for (int gen = 0; gen < generations; gen++) {
+        for (int gen = 0; gen < generations; gen++) {ExecutionBudgetR26.poll();
             if (r14) {                                                    // consensus of the central models and the hall of fame
                 List<ModelGenomeSU2> progs = centralPrograms(r14b, r16);
                 Map<String, Integer> perFamily = new HashMap<>();
@@ -607,6 +607,9 @@ public final class ModelEvolutionSU2 {
                     progs.add(h);
                 }
                 buildConsensus(progs); devFit.clear(); valFit.clear();
+                // Old scores belong to another source/consensus. Compare both retained parents and children here.
+                champVal=s.champion==null?-9:val(s.champion.g,e);tierVal.clear();for(Map.Entry<String,Ranked> t:s.tiers.entrySet())tierVal.put(t.getKey(),val(t.getValue().g,e));
+                CommitteeSU2 previous=s.committees.get("F15");s.committeeJudge=previous==null?-9:judge(CommitteeSU2.evaluate(previous,lib,startMeta),e.devStart,e.valEnd,4);
             }
             List<Ranked> scored = new ArrayList<>(s.population);
             scored.sort(Comparator.comparingDouble((Ranked r) -> -dev(r.g, e)).thenComparing(r -> r.g.key()));
@@ -650,7 +653,9 @@ public final class ModelEvolutionSU2 {
                 if (rng.nextDouble() < .2) { parent = new Ranked(randomGenome(pickKind(s, evaluated)), "random", "", ""); op = "mutate"; }
                 else parent = parents.get(rng.nextInt(parents.size()));
                 Ranked child = apply(op, parent, s.hallOfFame, e);
+                if(proposalObserver!=null)proposalObserver.record(child,parent);
                 if (!keys.add(child.g.key())) { child = apply("mutate", child, s.hallOfFame, e); keys.add(child.g.key()); }
+                if(proposalObserver!=null)proposalObserver.record(child,parent);
                 double pf = dev(parent.g, e), cf = dev(child.g, e); evaluated++;
                 double[] os = s.opStats.computeIfAbsent(op, k -> new double[]{1, 1}); os[0]++; if (cf > pf) os[1]++;
                 for (ModelGenomeSU2.Member m : child.g.members) { double[] ks = s.kindStats.computeIfAbsent(m.kind, k -> new double[]{1, 0}); ks[0]++; ks[1] += Math.max(0, cf - pf); }

@@ -25,13 +25,18 @@ public final class ModelReplaySU2 {
     /** Caches every (kind, parameters) model once per dataset; bounded by bytes (P30 budget). */
     public static final class Library {
         final int[][] draws; final long byteCap; long bytes;
+        final String snapshotBinding;final long sourceThrough;
+        public interface DurableOutputs {OnlineModelsSU2.Output raw(ModelGenomeSU2.Member member,int[][] draws);OnlineModelsSU2.Output calibrated(ModelGenomeSU2.Member member,int[][] draws,OnlineModelsSU2.Output raw);OnlineModelsSU2.Model trained(ModelGenomeSU2.Member member,int through);CalibrationSU2.Live calibrator(ModelGenomeSU2.Member member,int through);}
+        final DurableOutputs durable;
+        public ModelGenomeSU2 bind(ModelGenomeSU2 g){return snapshotBinding==null?g:g.bindBirth(snapshotBinding,sourceThrough);}
         final LinkedHashMap<String, OnlineModelsSU2.Output> cache = new LinkedHashMap<>(16, .75f, true);
-        public Library(int[][] draws, long byteCap) { OnlineModelsSU2.requireDraws(draws); this.draws = draws; this.byteCap = byteCap; }
+        public Library(int[][] draws,long byteCap){this(draws,byteCap,null,0,null);}
+        public Library(int[][] draws,long byteCap,String snapshot,long through,DurableOutputs durable){OnlineModelsSU2.requireDraws(draws);this.draws=draws;this.byteCap=byteCap;snapshotBinding=snapshot;sourceThrough=through;this.durable=durable;}
         public OnlineModelsSU2.Output get(ModelGenomeSU2.Member m) {
             String key = m.modelKey();
             OnlineModelsSU2.Output o = cache.get(key);
             if (o != null) return o;
-            o = compute(draws, m.kind, m.params);
+            o = durable==null?compute(draws,m.kind,m.params):durable.raw(m,draws);
             cache.put(key, o); bytes += o.bytes();
             Iterator<Map.Entry<String, OnlineModelsSU2.Output>> it = cache.entrySet().iterator();
             while (bytes > byteCap && cache.size() > 1 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key)) continue; bytes -= e.getValue().bytes(); it.remove(); }
@@ -46,7 +51,7 @@ public final class ModelReplaySU2 {
             OnlineModelsSU2.Output o = cache.get(key);
             if (o != null) return o;
             OnlineModelsSU2.Output raw = get(m);
-            o = new OnlineModelsSU2.Output(CalibrationSU2.calibrate(raw.p, draws), raw.state);
+            o = durable==null?new OnlineModelsSU2.Output(CalibrationSU2.calibrate(raw.p,draws),raw.state):durable.calibrated(m,draws,raw);
             cache.put(key, o); bytes += (long) o.p.length * 400L;
             Iterator<Map.Entry<String, OnlineModelsSU2.Output>> it = cache.entrySet().iterator();
             while (bytes > byteCap && cache.size() > 2 && it.hasNext()) { Map.Entry<String, OnlineModelsSU2.Output> e = it.next(); if (e.getKey().equals(key) || e.getKey().equals(m.modelKey())) continue; bytes -= e.getValue().bytes(); it.remove(); }
@@ -90,6 +95,7 @@ public final class ModelReplaySU2 {
     public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
         if(p.containsKey("_birth_snapshot")||p.containsKey("_birth_through")){Map<String,String> raw=new TreeMap<>(p);String birth=raw.remove("_birth_snapshot"),through=raw.remove("_birth_through");if(birth==null||!birth.matches("[0-9a-f]{64}")||through==null||!through.matches("[0-9]+"))throw new IllegalArgumentException("R26_BIRTH_BINDING");return build(kind,raw);}
 
+        if(p.containsKey("_legal_head")){if(!"PERMUTATION_V1".equals(p.get("_legal_head")))throw new IllegalArgumentException("R26_LEGAL_HEAD");Map<String,String> raw=new TreeMap<>(p);raw.remove("_legal_head");return build(kind,raw);}
         Adapter adapter = ADAPTERS.get(kind);
         if (adapter != null) return adapter.build(p);
         if(kind.equals("R26SCALE")){if(!"1".equals(p.get("abi"))||p.size()!=2||!("SIX".equals(p.get("mode"))||"SHORT".equals(p.get("mode"))))throw new IllegalArgumentException("R26_SCALE_PARAMETERS");return new ScaleEncoderR26("SIX".equals(p.get("mode")));}
@@ -120,21 +126,23 @@ public final class ModelReplaySU2 {
 
     /** Member tables (calibrated when the genome says so) -> pool -> optional Sinkhorn. R14: STATIC weights normalised. */
     public static float[][][] pooledTable(ModelGenomeSU2 g, Library lib) {
+        g=lib.bind(g);
         int M = g.members.size();
         float[][][][] Ps = new float[M][][][]; float[][][] STs = new float[M][][]; double[] w = new double[M]; double ws = 0;
-        for (int m = 0; m < M; m++) { OnlineModelsSU2.Output o = g.calibrated ? lib.getCal(g.members.get(m)) : lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; w[m] = g.members.get(m).weight; ws += w[m]; }
+        for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); OnlineModelsSU2.Output o = g.calibrated ? lib.getCal(g.members.get(m)) : lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; w[m] = g.members.get(m).weight; ws += w[m]; }
         if (g.calibrated) for (int m = 0; m < M; m++) w[m] /= ws;
         float[][][] P = M == 1 ? Ps[0] : TeacherPoolSU2.isTeacher(g.pool) ? TeacherPoolSU2.pool(Ps, lib.draws, lib.states(TeacherPoolSU2.stateOf(g.pool)))
             : g.pool.equals("BMA") ? ModelOpsSU2.poolBma(Ps, lib.draws, 0.02, 0.995)
             : g.pool.equals("GATED") ? ModelOpsSU2.poolGated(Ps, STs, lib.draws, 0.03, 1e-3) : ModelOpsSU2.poolStatic(Ps, w);
-        if (g.sink) P = ModelOpsSU2.sink(P, 20);
+        if(g.legalReadoutR26()){float[][][] legal=new float[P.length][][];for(int t=0;t<P.length;t++){ExecutionBudgetR26.poll();legal[t]=LegalReadoutR26.project(P[t]);}P=legal;}
+        else if (g.sink) P = ModelOpsSU2.sink(P, 20);
         return P;
     }
 
     /** A probability table used as a strategy with the confidence gate at `coverage` (block-causal threshold). */
     public static Result evaluateTable(float[][][] P, int[][] draws, double coverage, int startMeta) {
         int T = draws.length; Result r = new Result(T); Integer[] ord = new Integer[10];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
             double[] mass = new double[10]; int[][] top = new int[10][3];
             for (int p = 0; p < 10; p++) {
                 final float[] row = P[t][p];
@@ -150,7 +158,7 @@ public final class ModelReplaySU2 {
         }
         // R14: a calibrated table at (or below) chance has nothing to say - never act on it
         if (coverage >= .999) { for (int t = startMeta; t < T; t++) r.act[t] = r.gscore[t] > INFORMATIVE; }
-        else for (int b = startMeta; b < T; b += 50) {
+        else for (int b = startMeta; b < T; b += 50) {ExecutionBudgetR26.poll();
             int lo = Math.max(startMeta - 720, b - 720); int n = b - lo;
             if (n < 100) continue;
             double thr = quantileLinear(Arrays.copyOfRange(r.gscore, lo, b), 1 - coverage);
@@ -160,22 +168,23 @@ public final class ModelReplaySU2 {
     }
 
     public static Result evaluate(ModelGenomeSU2 g, Library lib, int startMeta, int window, int refit) {
+        g=lib.bind(g);
         startMeta=g.gateWarmup(startMeta);
         if(g.members.size()==1&&(g.members.get(0).kind.equals("R26F15")||g.members.get(0).kind.equals("R26F16"))){
             int[][] draws=lib.draws;Result result=new Result(draws.length);ModelLiveSU2.Hub hub=new ModelLiveSU2.Hub();ModelLiveSU2 live=new ModelLiveSU2(g,hub,startMeta,window,refit);
-            for(int t=0;t<draws.length;t++){ModelLiveSU2.Decision d=live.decide();result.act[t]=d.act;result.position[t]=d.position;result.mask[t]=d.mask;result.gscore[t]=d.gscore;result.phat[t]=d.phat;result.hit[t]=live.settle(draws[t]);hub.update(draws[t]);}return result;
+            for(int t=0;t<draws.length;t++){ExecutionBudgetR26.poll();ModelLiveSU2.Decision d=live.decide();result.act[t]=d.act;result.position[t]=d.position;result.mask[t]=d.mask;result.gscore[t]=d.gscore;result.phat[t]=d.phat;result.hit[t]=live.settle(draws[t]);hub.update(draws[t]);}return result;
         }
 
         int T = lib.draws.length;
         int M = g.members.size();
         float[][][][] Ps = new float[M][][][];
         float[][][] STs = new float[M][][];
-        for (int m = 0; m < M; m++) { OnlineModelsSU2.Output o = g.calibrated ? lib.getCal(g.members.get(m)) : lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; }
+        for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); OnlineModelsSU2.Output o = g.calibrated ? lib.getCal(g.members.get(m)) : lib.get(g.members.get(m)); Ps[m] = o.p; STs[m] = o.state; }
         float[][][] P = pooledTable(g, lib);
         Result r = new Result(T);
         int[][] k3 = new int[T][3]; double[] conf = new double[T], margin = new double[T], ent = new double[T];
         Integer[] ord = new Integer[10];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
             double[] mass = new double[10]; int[][] top = new int[10][3];
             for (int p = 0; p < 10; p++) {
                 final float[] row = P[t][p];
@@ -198,9 +207,9 @@ public final class ModelReplaySU2 {
             cols.add(conf); cols.add(margin); cols.add(ent); cols.add(rollingZ(conf, 720));
             for (int k : new int[]{5, 7}) {
                 double[] mean = new double[T], min = new double[T];
-                for (int t = 0; t < T; t++) {
+                for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
                     double s = 0, mn = 1e9; int p1 = r.position[t] - 1;
-                    for (int m = 0; m < M; m++) {
+                    for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll();
                         final float[] row = Ps[m][t][p1];
                         for (int i = 0; i < 10; i++) ord[i] = i;
                         Arrays.sort(ord, (a, b) -> Float.compare(row[b], row[a]));
@@ -217,7 +226,7 @@ public final class ModelReplaySU2 {
             double[][] X = new double[T][F];
             for (int j = 0; j < F; j++) { double[] c = cols.get(j); for (int t = 0; t < T; t++) X[t][j] = Double.isFinite(c[t]) ? c[t] : 0.0; }
             double[] wt = null, mu = new double[F], sd = new double[F]; int last = Integer.MIN_VALUE / 2;
-            for (int t = startMeta; t < T; t++) {
+            for (int t = startMeta; t < T; t++) {ExecutionBudgetR26.poll();
                 if (wt == null || t - last >= refit) {
                     int lo = Math.max(0, t - window), n = t - lo;
                     if (n >= 400) {
@@ -235,11 +244,11 @@ public final class ModelReplaySU2 {
             }
             for (int t = 0; t < T; t++) r.gscore[t] = Double.isNaN(r.phat[t]) ? -1.0 : r.phat[t];
         } else {
-            for (int t = 0; t < T; t++) { r.gscore[t] = conf[t]; r.phat[t] = conf[t]; }
+            for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll(); r.gscore[t] = conf[t]; r.phat[t] = conf[t]; }
         }
         final boolean chanceGuard = g.calibrated && g.gate.equals("MASS");     // R14: never act on a chance-level table
         if (g.coverage >= .999) { for (int t = startMeta; t < T; t++) r.act[t] = !chanceGuard || r.gscore[t] > INFORMATIVE; }
-        else for (int b = startMeta; b < T; b += 50) {
+        else for (int b = startMeta; b < T; b += 50) {ExecutionBudgetR26.poll();
             int lo = Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, b - 720);
             double[] hist = new double[b - lo]; int n = 0;
             for (int t = lo; t < b; t++) if (r.gscore[t] > -1) hist[n++] = r.gscore[t];
@@ -247,6 +256,7 @@ public final class ModelReplaySU2 {
             double thr = quantileLinear(Arrays.copyOf(hist, n), 1 - g.coverage);
             for (int t = b; t < Math.min(b + 50, T); t++) r.act[t] = r.gscore[t] >= thr && r.gscore[t] > -1 && (!chanceGuard || r.gscore[t] > INFORMATIVE);
         }
+        if(g.legalReadoutR26())System.arraycopy(conf,0,r.phat,0,T);
         return r;
     }
 
@@ -257,14 +267,14 @@ public final class ModelReplaySU2 {
 
     static double[] emaHits(boolean[] hit, int half) {
         double a = 1.0 - Math.pow(0.5, 1.0 / half), v = 0.3; double[] out = new double[hit.length];
-        for (int t = 0; t < hit.length; t++) { out[t] = v; v = (1 - a) * v + a * (hit[t] ? 1.0 : 0.0); }
+        for (int t = 0; t < hit.length; t++) {ExecutionBudgetR26.poll(); out[t] = v; v = (1 - a) * v + a * (hit[t] ? 1.0 : 0.0); }
         return out;
     }
 
     static double[] rollingZ(double[] v, int w) {
         int T = v.length; double[] c1 = new double[T + 1], c2 = new double[T + 1], z = new double[T];
-        for (int t = 0; t < T; t++) { c1[t + 1] = c1[t] + v[t]; c2[t + 1] = c2[t] + v[t] * v[t]; }
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll(); c1[t + 1] = c1[t] + v[t]; c2[t + 1] = c2[t] + v[t] * v[t]; }
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
             int lo = Math.max(t - w, 0), n = Math.max(t - lo, 1);
             double mu = (c1[t] - c1[lo]) / n, var = Math.max((c2[t] - c2[lo]) / n - mu * mu, 1e-12);
             double s = (v[t] - mu) / Math.sqrt(var);

@@ -46,7 +46,7 @@ public final class StageStoreSU2 {
                 String base = d.candidates.get(d.baseIndex);
                 String baseKey = CommitteeSU2.isCommittee(base) ? CommitteeSU2.parse(base).key() : ModelGenomeSU2.parse(base).key();
                 long[] mine = totals(db, d.key()), old = totals(db, baseKey);
-                out.append("stage\t").append(d.coverage).append('\t').append(d.layer.stages()).append("\t1\t")
+                out.append("stage\t").append(d.coverage).append('\t').append(d.stages()).append("\t1\t")
                     .append(rate(d.validationHits, d.validationActs)).append('\t').append(rate(d.baseHits, d.baseActs)).append('\t')
                     .append(rate(mine[1], mine[0])).append('\t').append(mine[0]).append('\t').append(rate(old[1], old[0])).append('\t').append(old[0]).append('\n');
             } catch (IOException invalid) { throw new IllegalStateException("SU2_STAGE_DIAG_BUNDLE", invalid); }

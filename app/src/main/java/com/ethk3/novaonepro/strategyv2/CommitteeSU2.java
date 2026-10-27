@@ -35,7 +35,8 @@ public final class CommitteeSU2 {
         return b.toString();
     }
 
-    public String key() { return HashingSU1.text("SU2_COMMITTEE_V1|" + text()); }
+    public boolean legalReadoutR26(){for(ModelGenomeSU2 g:subs)if(!g.legalReadoutR26())return false;return true;}
+    public String key(){return legalReadoutR26()?StrategyPolicyIdentityR26.current(text(),"DETERMINISTIC_BOOTSTRAP_OF_BOUND_MEMBER_DATASETS"):HashingSU1.text("SU2_COMMITTEE_V1|"+text());}
 
     public String formula() {
         StringBuilder b = new StringBuilder("P = geometric-mean fusion[");
@@ -74,7 +75,7 @@ public final class CommitteeSU2 {
         float[][][][] tabs = new float[c.subs.size()][][][];
         for (int k = 0; k < tabs.length; k++) tabs[k] = ModelReplaySU2.pooledTable(c.subs.get(k), lib);
         int T = tabs[0].length; float[][][] out = new float[T][][]; float[][][] at = new float[tabs.length][][];
-        for (int t = 0; t < T; t++) { for (int k = 0; k < tabs.length; k++) at[k] = tabs[k][t]; out[t] = fuse(at); }
+        for (int t = 0; t < T; t++) { for (int k = 0; k < tabs.length; k++) at[k] = tabs[k][t]; out[t] = c.legalReadoutR26()||lib.snapshotBinding!=null?LegalReadoutR26.project(fuse(at)):fuse(at); }
         return out;
     }
 

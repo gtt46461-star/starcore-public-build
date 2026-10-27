@@ -12,6 +12,14 @@ public final class RetentionR26 {
         long cut=seq-5000;
         db.execSQL("INSERT OR IGNORE INTO r26_certificate_revocation SELECT c.certificate_id,'FEEDBACK_RETENTION_LAG',? FROM su2_certificate c JOIN r26_live_model l ON l.policy_hash=c.genome_key WHERE l.status='ACTIVE' AND l.through_ordinal<?",new Object[]{System.currentTimeMillis(),cut});
         db.execSQL("UPDATE r26_live_model SET status='BLOCKED_RETENTION_LAG' WHERE status='ACTIVE' AND through_ordinal<?",new Object[]{cut});
+        db.execSQL("UPDATE r26_foundry SET status='EXPIRED_RETENTION',snapshot=X'' WHERE source_first<? AND length(snapshot)>0",new Object[]{cut});
+        db.execSQL("DELETE FROM r26_candidate WHERE campaign_id IN (SELECT campaign_id FROM r26_foundry WHERE status IN ('EXPIRED_RETENTION','ABANDONED_NUMERICAL_ABI'))");
+        // Expired generations must not pin a hidden raw calendar or a cache of old per-period outputs.
+        db.execSQL("UPDATE r26_legacy_campaign SET status='EXPIRED_RETENTION',snapshot=X'' WHERE source_first<? AND length(snapshot)>0",new Object[]{cut});
+        db.execSQL("UPDATE r26_legacy_campaign SET status='NUMERICAL_ABI_CHANGED',snapshot=X'' WHERE numerical_abi<>? AND status='RUNNING'",new Object[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
+        db.execSQL("DELETE FROM r26_replay_output_chunk WHERE rowid IN (SELECT o.rowid FROM r26_replay_output_chunk o JOIN r26_legacy_campaign c ON c.campaign_id=o.campaign_id WHERE c.source_first<? OR c.numerical_abi<>? LIMIT 256)",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
+        db.execSQL("DELETE FROM r26_member_replay WHERE rowid IN (SELECT m.rowid FROM r26_member_replay m JOIN r26_legacy_campaign c ON c.campaign_id=m.campaign_id WHERE (c.source_first<? OR c.numerical_abi<>?) AND NOT EXISTS(SELECT 1 FROM r26_replay_output_chunk o WHERE o.campaign_id=m.campaign_id AND o.cache_key=m.cache_key) LIMIT 64)",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
+        db.execSQL("DELETE FROM r26_prepared_policy WHERE genesis_ordinal<? OR numerical_abi<>?",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         String oldEvents="SELECT event_id FROM r26_feedback WHERE issue_ordinal<"+cut+" ORDER BY issue_ordinal LIMIT 256";
         long n=count(db,"SELECT count(*) FROM r26_consumption WHERE event_id IN ("+oldEvents+")");
         fold(db,"consumed_feedback_rows",n);db.execSQL("DELETE FROM r26_consumption WHERE event_id IN ("+oldEvents+")");

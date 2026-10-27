@@ -15,7 +15,7 @@ import java.util.*;
  *   atoms=3-7-12, pairs=none|3x7-..., lags=none|1-2, group=0|1, lr, l2, gd
  * The learned weights are the per-atom CREDIT that evolution feeds back to the children (credit()).
  */
-public final class AtomNetSU2 implements OnlineModelsSU2.Model {
+public final class AtomNetSU2 implements TemporalModelR26 {
     final int[] atoms; final int[][] pairs, mols; final int[] lags; final boolean group; final double lr, l2, gd;
     final int Fd, Fr, maxlag;
     final double[] b = new double[100], Gb = new double[100];
@@ -64,6 +64,7 @@ public final class AtomNetSU2 implements OnlineModelsSU2.Model {
             Double.parseDouble(p.get("lr")), Double.parseDouble(p.get("l2")), Double.parseDouble(p.get("gd")));
     }
 
+    public void resetTemporalContext(){try{ByteArrayOutputStream bytes=new ByteArrayOutputStream();new AtomStreamSU2().write(new DataOutputStream(bytes));stream.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));}catch(IOException impossible){throw new IllegalStateException("R26_ATOM_CONTEXT_RESET",impossible);}featT=-1;X=null;ridx=null;Arrays.fill(pr,0);}
     public int stateWidth() { return 3; }
 
     private void features() {
@@ -90,7 +91,7 @@ public final class AtomNetSU2 implements OnlineModelsSU2.Model {
         }
         ridx = new int[10 * Fr];
         int r = 0;
-        for (int l : lags) for (int d = 0; d < 10; d++) for (int m = 0; m < 4; m++) {
+        for (int l : lags) for (int d = 0; d < 10; d++) for (int m = 0; m < 4; m++) {ExecutionBudgetR26.poll();
             for (int p = 0; p < 10; p++) {
                 int src = stream.lastDraw((p + d) % 10, l);
                 ridx[p * Fr + r] = src < 0 ? -1 : (m == 0 ? src : m == 1 ? (src + 1) % 10 : m == 2 ? (src + 9) % 10 : 9 - src);

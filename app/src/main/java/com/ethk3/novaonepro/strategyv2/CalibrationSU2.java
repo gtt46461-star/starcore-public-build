@@ -24,7 +24,7 @@ public final class CalibrationSU2 {
 
     /** Newton update of beta on rows L[i][p][n] with realised numbers y[i][p] (0-based); returns the new beta. */
     static double fitBeta(double[][][] L, int[][] y, int n, double beta) {
-        for (int it = 0; it < ITERS; it++) {
+        for (int it = 0; it < ITERS; it++) {ExecutionBudgetR26.poll();
             double gs = 0, hs = 0; long cnt = 0;
             for (int i = 0; i < n; i++) for (int p = 0; p < 10; p++) {
                 double[] l = L[i][p]; double mx = Double.NEGATIVE_INFINITY;
@@ -62,7 +62,7 @@ public final class CalibrationSU2 {
         int T = P.length; float[][][] out = new float[T][][];
         for (int t = 0; t < Math.min(START, T); t++) out[t] = uniform();
         double beta = 1.0;
-        for (int t0 = START; t0 < T; t0 += REFIT) {
+        for (int t0 = START; t0 < T; t0 += REFIT) {ExecutionBudgetR26.poll();
             int lo = Math.max(0, t0 - WINDOW), n = t0 - lo;
             double[][][] L = new double[n][10][]; int[][] y = new int[n][10];
             for (int i = 0; i < n; i++) for (int p = 0; p < 10; p++) { L[i][p] = logRow(P[lo + i][p]); y[i][p] = draws[lo + i][p] - 1; }

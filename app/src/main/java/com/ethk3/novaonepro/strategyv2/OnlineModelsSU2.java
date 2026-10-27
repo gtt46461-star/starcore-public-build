@@ -49,7 +49,7 @@ public final class OnlineModelsSU2 {
     public static Output run(Model m, int[][] d) {
         requireDraws(d);
         Output out = new Output(d.length, m.stateWidth());
-        for (int t = 0; t < d.length; t++) { m.predict(out.p[t], out.state[t]); m.update(d[t]); }
+        for (int t = 0; t < d.length; t++) {ExecutionBudgetR26.poll(); m.predict(out.p[t], out.state[t]); m.update(d[t]); }
         return out;
     }
 
@@ -416,7 +416,7 @@ public final class OnlineModelsSU2 {
         }
         public void predict(float[][] out, float[] st) {
             double[][] score = new double[10][10];
-            if (preds()) for (int p = 0; p < 10; p++) for (int q = 0; q < 10; q++) for (int li = 0; li < L; li++) for (int m = 0; m < 4; m++) {
+            if (preds()) for (int p = 0; p < 10; p++) for (int q = 0; q < 10; q++) for (int li = 0; li < L; li++) for (int m = 0; m < 4; m++) {ExecutionBudgetR26.poll();
                 int i = ((p * 10 + q) * L + li) * 4 + m;
                 double rho = (s[i] + 0.1 * kappa) / (n[i] + kappa), w = Math.log(rho / 0.1) / temp;
                 if (positiveOnly) w = Math.max(w, 0.0);
@@ -437,7 +437,7 @@ public final class OnlineModelsSU2 {
             requireDraw(d);
             if (preds()) for (int p = 0; p < 10; p++) {
                 int x = d[p] - 1;
-                for (int q = 0; q < 10; q++) for (int li = 0; li < L; li++) for (int m = 0; m < 4; m++) {
+                for (int q = 0; q < 10; q++) for (int li = 0; li < L; li++) for (int m = 0; m < 4; m++) {ExecutionBudgetR26.poll();
                     int i = ((p * 10 + q) * L + li) * 4 + m;
                     s[i] = decay * s[i] + (pred[(q * L + li) * 4 + m] == x ? 1.0 : 0.0); n[i] = decay * n[i] + 1.0;
                 }

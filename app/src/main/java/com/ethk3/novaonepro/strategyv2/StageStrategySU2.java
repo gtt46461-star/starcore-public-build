@@ -5,7 +5,7 @@ import java.util.*;
 
 /** P49 deployment: an immutable fitted layer, causal frequency gate and ordinary frozen league evidence. */
 public final class StageStrategySU2 implements LiveStrategySU2 {
-    public static final String PREFIX = "SU2S|1|";
+    public static final String PREFIX = "SU2S|1|", PREFIX_R26="SU2S|2|";
     public static final int MAX_CANDIDATES = 12, MAX_BUNDLE_BYTES = 262144;
     private static final Map<String, Definition> DEFINITIONS = new LinkedHashMap<>();
     static final ModelGenomeSU2.Member REGIME = regime();
@@ -15,8 +15,9 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
         return new ModelGenomeSU2.Member("REGMEM", p, 1);
     }
 
-    public static boolean isStage(String text) { return text != null && text.startsWith(PREFIX); }
-    public static String keyOf(String text) { return HashingSU1.text("SU2_STAGE_V1|" + text); }
+    public static boolean isStage(String text) { return text != null && (text.startsWith(PREFIX)||text.startsWith(PREFIX_R26)); }
+    public static String keyOf(String text){if(text.startsWith(PREFIX_R26)){String[] parts=text.split("\\|");if(parts.length!=4||!parts[2].matches("[0-9a-f]{64}")||!parts[3].matches("[0-9a-f]{64}"))throw new IllegalArgumentException("R26_STAGE_POLICY_TEXT");return StrategyPolicyIdentityR26.hash(text,"FITTED_BUNDLE_AND_BOUND_BOOTSTRAP",parts[2]);}return HashingSU1.text("SU2_STAGE_V1|"+text);}
+    public static boolean currentPolicy(String text){return text!=null&&text.startsWith(PREFIX_R26+com.ethk3.novaonepro.ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256+"|");}
     public static synchronized void register(Definition d) {
         DEFINITIONS.put(d.text(), d);
         while (DEFINITIONS.size() > 64) DEFINITIONS.remove(DEFINITIONS.keySet().iterator().next());
@@ -30,23 +31,44 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
         return CommitteeSU2.isCommittee(text) ? CommitteeSU2.parse(text).subs : Collections.singletonList(ModelGenomeSU2.parse(text));
     }
     public static final class Definition {
-        public final String tier; public final double coverage; public final long through;
+        public final String tier; public final double coverage; public final long through;final int version;final String numericalAbi;private final byte[] frozen;
         public final int baseIndex, validationActs, validationHits, baseActs, baseHits;
-        public final List<String> candidates; final StageLayerSU2.Layer layer; final double[] seedScores;
+        public final List<String> candidates; private final StageLayerSU2.Layer layer; private final double[] seedScores;
+        public int stages(){return layer.stages();}
         public Definition(String tier, double coverage, long through, List<String> candidates, StageLayerSU2.Layer layer, double[] seedScores) {
             this(tier, coverage, through, candidates, layer, seedScores, 0, 0, 0, 0, 0);
         }
         public Definition(String tier, double coverage, long through, List<String> candidates, StageLayerSU2.Layer layer, double[] seedScores, int baseIndex, int validationActs, int validationHits, int baseActs, int baseHits) {
+            this(tier,coverage,through,candidates,layer,seedScores,baseIndex,validationActs,validationHits,baseActs,baseHits,2,com.ethk3.novaonepro.ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
+        }
+        private Definition(String tier,double coverage,long through,List<String> candidates,StageLayerSU2.Layer layer,double[] seedScores,int baseIndex,int validationActs,int validationHits,int baseActs,int baseHits,int version,String abi){
+            this.version=version;this.numericalAbi=abi;
             if (candidates.isEmpty() || candidates.size() > MAX_CANDIDATES || seedScores.length > 720 || seedScores.length < 100 || coverage <= 0 || coverage > 1)
                 throw new IllegalArgumentException("SU2_STAGE_SHAPE");
+            validate(layer,candidates.size(),seedScores);
+            if(!Double.isFinite(coverage)||through<0||baseIndex<0||baseIndex>=candidates.size()||validationHits<0||validationActs<validationHits||baseHits<0||baseActs<baseHits)throw new IllegalArgumentException("R26_STAGE_FITTED_METADATA");
             this.tier = tier; this.coverage = coverage; this.through = through;
-            this.candidates = Collections.unmodifiableList(new ArrayList<>(candidates)); this.layer = layer; this.seedScores = seedScores.clone();
-            this.baseIndex = baseIndex; this.validationActs = validationActs; this.validationHits = validationHits; this.baseActs = baseActs; this.baseHits = baseHits;
+            this.candidates = Collections.unmodifiableList(new ArrayList<>(candidates)); this.layer = new StageLayerSU2.Layer(new StageLayerSU2.Gmm(copy(layer.gmm.mu),copy(layer.gmm.var),layer.gmm.w.clone(),layer.gmm.bic),layer.mu.clone(),layer.sd.clone(),copy(layer.W),layer.last.clone()); this.seedScores = seedScores.clone();
+            this.baseIndex = baseIndex; this.validationActs = validationActs; this.validationHits = validationHits; this.baseActs = baseActs; this.baseHits = baseHits;frozen=encode();
         }
-        public byte[] bytes() {
+        private static double[][] copy(double[][] x){double[][] copy=new double[x.length][];for(int i=0;i<x.length;i++)copy[i]=x[i].clone();return copy;}
+        private static void validate(StageLayerSU2.Layer l,int candidates,double[] seed){
+            int columns=StageLayerSU2.BASE_COLS+candidates,k=l.stages();
+            if(k<1||k>6||l.mu.length!=columns||l.sd.length!=columns||l.gmm.mu.length!=k||l.gmm.var.length!=k||l.last.length!=k||l.W.length!=candidates||!Double.isFinite(l.gmm.bic))throw new IllegalArgumentException("R26_STAGE_FITTED_SHAPE");
+            double weights=0,posterior=0;for(int i=0;i<k;i++){
+                if(l.gmm.mu[i].length!=columns||l.gmm.var[i].length!=columns||!Double.isFinite(l.gmm.w[i])||l.gmm.w[i]<=0||!Double.isFinite(l.last[i])||l.last[i]<0)throw new IllegalArgumentException("R26_STAGE_FITTED_GMM");weights+=l.gmm.w[i];posterior+=l.last[i];
+                for(int j=0;j<columns;j++)if(!Double.isFinite(l.gmm.mu[i][j])||!Double.isFinite(l.gmm.var[i][j])||l.gmm.var[i][j]<=0)throw new IllegalArgumentException("R26_STAGE_FITTED_VARIANCE");
+            }
+            if(Math.abs(weights-1)>1e-5||Math.abs(posterior-1)>1e-5)throw new IllegalArgumentException("R26_STAGE_FITTED_SIMPLEX");
+            for(int i=0;i<columns;i++)if(!Double.isFinite(l.mu[i])||!Double.isFinite(l.sd[i])||l.sd[i]<=0)throw new IllegalArgumentException("R26_STAGE_FITTED_NORMALIZER");
+            for(double[] row:l.W){if(row.length!=2+2*k)throw new IllegalArgumentException("R26_STAGE_FITTED_COEFFICIENT_SHAPE");for(double x:row)if(!Double.isFinite(x))throw new IllegalArgumentException("R26_STAGE_FITTED_COEFFICIENT");}
+            for(double x:seed)if(!Double.isFinite(x)||x<0||x>1)throw new IllegalArgumentException("R26_STAGE_FITTED_GATE");
+        }
+        public byte[] bytes(){return frozen.clone();}
+        private byte[] encode() {
             try {
                 ByteArrayOutputStream b = new ByteArrayOutputStream(); DataOutputStream o = new DataOutputStream(b);
-                o.writeInt(1); o.writeUTF(tier); o.writeDouble(coverage); o.writeLong(through);
+                o.writeInt(version);if(version==2)o.writeUTF(numericalAbi); o.writeUTF(tier); o.writeDouble(coverage); o.writeLong(through);
                 o.writeInt(baseIndex); o.writeInt(validationActs); o.writeInt(validationHits); o.writeInt(baseActs); o.writeInt(baseHits); o.writeInt(candidates.size());
                 for (String c : candidates) o.writeUTF(c);
                 matrix(o, layer.gmm.mu); matrix(o, layer.gmm.var); vector(o, layer.gmm.w); o.writeDouble(layer.gmm.bic);
@@ -55,7 +77,7 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
                 return b.toByteArray();
             } catch (IOException impossible) { throw new IllegalStateException(impossible); }
         }
-        public String text() { return PREFIX + HashingSU1.bytes(bytes()); }
+        public String text(){return (version==1?PREFIX:PREFIX_R26+numericalAbi+"|")+HashingSU1.bytes(frozen);}
         public String key() { return keyOf(text()); }
         public String formula() { return "阶段层·" + layer.stages() + "阶段·" + candidates.size() + "候选·前" + Math.round(coverage * 100) + "%择期（独立验证优于委员会后部署）"; }
         public Set<String> calibrators() {
@@ -66,14 +88,14 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
         public static Definition read(byte[] bytes) throws IOException {
             if (bytes.length > MAX_BUNDLE_BYTES) throw new IOException("SU2_STAGE_BUNDLE_BUDGET");
             DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
-            if (in.readInt() != 1) throw new IOException("SU2_STAGE_VERSION");
+            int version=in.readInt();if(version!=1&&version!=2)throw new IOException("SU2_STAGE_VERSION");String abi=version==2?in.readUTF():"";if(version==2&&!abi.matches("[0-9a-f]{64}"))throw new IOException("R26_STAGE_NUMERICAL_ABI");
             String tier = in.readUTF(); double cov = in.readDouble(); long seq = in.readLong();
             int base = count(in, MAX_CANDIDATES), va = count(in, 100000), vh = count(in, va), ba = count(in, 100000), bh = count(in, ba);
             int n = count(in, MAX_CANDIDATES); List<String> cand = new ArrayList<>();
             for (int i = 0; i < n; i++) { String text = in.readUTF(); programs(text); cand.add(text); }
             StageLayerSU2.Gmm g = new StageLayerSU2.Gmm(matrix(in), matrix(in), vector(in), in.readDouble());
             StageLayerSU2.Layer l = new StageLayerSU2.Layer(g, vector(in), vector(in), matrix(in), vector(in));
-            Definition d = new Definition(tier, cov, seq, cand, l, vector(in), base, va, vh, ba, bh);
+            Definition d = new Definition(tier,cov,seq,cand,l,vector(in),base,va,vh,ba,bh,version,abi);
             if (in.available() != 0 || base >= n || l.W.length != n || l.mu.length != StageLayerSU2.BASE_COLS + n) throw new IOException("SU2_STAGE_BUNDLE_SHAPE");
             return d;
         }
@@ -86,7 +108,7 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
 
     final Definition def; final ModelLiveSU2.Hub hub; final LiveStrategySU2[] subs; final StageLayerSU2.Live filter;
     final int[][] history = new int[120][]; final boolean[][] hits; final double[] scores = new double[720];
-    final long start; long t; int historyN; double threshold; ModelLiveSU2.Decision pending;
+    long start; long t,contextStartR26; int historyN; double threshold; ModelLiveSU2.Decision pending;
     ModelLiveSU2.Decision[] choices; float[][] pooled;
 
     public StageStrategySU2(Definition d, ModelLiveSU2.Hub hub, long genesis, int warmup, int window, int refit) {
@@ -107,21 +129,22 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
         choices = new ModelLiveSU2.Decision[subs.length]; double[] conf = new double[subs.length], perf = new double[subs.length];
         for (int i = 0; i < subs.length; i++) { choices[i] = subs[i].decide(); conf[i] = choices[i].phat; int n = (int) Math.min(t, 50); int k = 0; for (int u = 0; u < n; u++) if (hits[i][u]) k++; perf[i] = n < 50 ? .3 : k / 50.0; }
         int chosen = 0; double score = conf[0]; boolean act = false;
-        if (t >= start) {
+        if (t >= Math.max(start,contextStartR26)) {
             int[][] h = new int[historyN][]; for (int i = 0; i < historyN; i++) h[i] = history[Math.floorMod(t - historyN + i, 120)];
             hub.predict(); float[] st = hub.st.get(REGIME.modelKey());
             double[] p = filter.step(StageLayerSU2.row(h, h.length, st[0], perf), conf);
             for (int i = 1; i < p.length; i++) if (p[i] > p[chosen]) chosen = i;
             score = p[chosen];
             if ((t - start) % 25 == 0 || t == 0) {
-                int n = (int) Math.min(720, def.seedScores.length + Math.max(0, t - start));
+                int n = contextStartR26>0?(int)Math.min(720,t-Math.max(start,contextStartR26)):(int)Math.min(720,def.seedScores.length+Math.max(0,t-start));
                 double[] previous = new double[n]; for (int i = 0; i < n; i++) previous[i] = scores[Math.floorMod(t - n + i, 720)];
                 threshold = ModelReplaySU2.quantileLinear(previous, 1 - def.coverage);
             }
-            act = score >= threshold && conf[chosen] > ModelReplaySU2.INFORMATIVE;
+            act = (contextStartR26==0||t-contextStartR26>=100) && score >= threshold && conf[chosen] > ModelReplaySU2.INFORMATIVE;
         }
         ModelLiveSU2.Decision pick = choices[chosen]; pooled = subs[chosen].pendingTable(t);
-        pending = new ModelLiveSU2.Decision(t, pick.position, pick.mask, act, score, score);
+        double probability=score;if(def.version==2){pooled=LegalReadoutR26.project(pooled);probability=0;for(int number=0;number<10;number++)if((pick.mask&(1<<number))!=0)probability+=pooled[pick.position-1][number];}
+        pending=new ModelLiveSU2.Decision(t,pick.position,pick.mask,act,score,probability);
         return pending;
     }
     public boolean settle(int[] draw) {
@@ -154,10 +177,10 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
         if (T - V < 1800 || state.committees.isEmpty()) return Collections.emptyList();
         List<String> texts = new ArrayList<>(); Map<String, Integer> tierIndex = new LinkedHashMap<>(); Set<String> cals = new HashSet<>();
         for (String tier : ModelEvolutionSU2.TIERS) { CommitteeSU2 c = state.committees.get(tier); if (c != null && add(texts, cals, c.text())) tierIndex.put(tier, texts.indexOf(c.text())); }
-        for (ModelEvolutionSU2.Ranked r : state.hallOfFame.subList(0, Math.min(8, state.hallOfFame.size()))) add(texts, cals, r.g.text());
+        for (ModelEvolutionSU2.Ranked r : state.hallOfFame.subList(0, Math.min(8, state.hallOfFame.size()))) add(texts,cals,lib.bind(r.g).text());
         ModelGenomeSU2 contmat = new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("CONTMAT", Collections.emptyMap(), 1)), "STATIC", false, "MASS", 1, .2, true);
         if (texts.size() == MAX_CANDIDATES) texts.remove(texts.size() - 1);
-        add(texts, cals, contmat.text());
+        add(texts,cals,lib.bind(contmat).text());
         int S = texts.size(); double[][] conf = new double[S][]; boolean[][] hit = new boolean[S][];
         for (int i = 0; i < S; i++) { String text = texts.get(i); ModelReplaySU2.Result r = CommitteeSU2.isCommittee(text) ? CommitteeSU2.evaluate(CommitteeSU2.parse(text), lib, 1500) : ModelReplaySU2.evaluate(ModelGenomeSU2.parse(text), lib, 1500, 2500, 250); conf[i] = r.phat; hit[i] = r.hit; }
         float[][] rs = lib.get(REGIME).state; double[] st0 = new double[T]; for (int i = 0; i < T; i++) st0[i] = rs[i][0];

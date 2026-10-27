@@ -10,7 +10,7 @@ import java.util.*;
  * CommitteeSU2.evaluate on the same draws (CommitteeLiveSU2Test, including save/restore and late birth).
  */
 public final class CommitteeLiveSU2 implements LiveStrategySU2 {
-    final CommitteeSU2 c; final ModelLiveSU2[] subs; final int startMeta; long t;
+    final CommitteeSU2 c; final ModelLiveSU2[] subs; final int startMeta; long t,contextStartR26;
     final double[] gsRing = new double[720]; double thr = Double.NaN; boolean thrValid;
     int curP1 = -1; int[] curK3 = new int[3]; double curGs; float[][] lastPooled; long lastPooledT = -1;
 
@@ -27,7 +27,7 @@ public final class CommitteeLiveSU2 implements LiveStrategySU2 {
     public ModelLiveSU2.Decision decide() {
         float[][][] tabs = new float[subs.length][][];
         for (int k = 0; k < subs.length; k++) { subs[k].decide(); tabs[k] = subs[k].lastPooled; }
-        float[][] P = CommitteeSU2.fuse(tabs);
+        float[][] P=CommitteeSU2.fuse(tabs);if(c.legalReadoutR26())P=LegalReadoutR26.project(P);
         lastPooled = P; lastPooledT = t;
         double[] mass = new double[10]; int[][] top = new int[10][3]; Integer[] ord = new Integer[10];
         for (int p = 0; p < 10; p++) {
@@ -50,7 +50,7 @@ public final class CommitteeLiveSU2 implements LiveStrategySU2 {
     }
 
     private void blockThreshold() {
-        long lo = Math.max(startMeta - 720, t - 720); int n = (int) (t - lo);
+        long lo = Math.max(contextStartR26,Math.max(startMeta - 720, t - 720)); int n = (int) (t - lo);
         if (n < 100) { thrValid = false; return; }
         double[] hist = new double[n]; for (int i = 0; i < n; i++) hist[i] = gsRing[(int) ((lo + i) % 720)];
         thr = ModelReplaySU2.quantileLinear(hist, 1 - c.coverage); thrValid = true;

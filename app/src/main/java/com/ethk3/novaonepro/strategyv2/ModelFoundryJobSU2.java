@@ -13,10 +13,10 @@ public final class ModelFoundryJobSU2 {
     public static final int GENERATIONS = 8, POPULATION = 24, HALL_OF_FAME = 12, VAL_LEN = 1200, REFRESH_EVERY = 300;
     public static final long MODEL_BYTES = 96L << 20;
 
-    /** Returns a short status for the dashboard; never throws into the scheduler. */
+    /** Compatibility wake-up; the complete legacy engine is owned by LegacyGenerationR26. */
     @Deprecated public static String slice(DbStore store, String target) {
         RuntimeCoordinatorR26.wake();
-        return "SU2_FOUNDRY_OWNED_BY_DURABLE_R26_SAMPLE_QUEUE";
+        return "SU2_FOUNDRY_OWNED_BY_R26_CONTINUOUS_LEGACY_GENERATION";
     }
 
     static long seed(String campaign, int generation) { return Long.parseLong(campaign.substring(0, 15), 16) ^ (0x9E3779B97F4A7C15L * (generation + 1)); }

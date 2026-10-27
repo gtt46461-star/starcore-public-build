@@ -66,7 +66,11 @@ public final class RuntimeReportR26 {
         case "EVOLUTION":return "SELECT count(*) attempts,count(DISTINCT policy_hash) uniquePolicies,sum(category='STRUCTURAL_CANDIDATE') structuralCandidates,sum(behavior_novel) behaviorNovel,sum(research_accepted) researchAccepted,sum(prospective_qualified) prospectiveQualified,sum(verified_improvement) verifiedImprovements FROM r26_evolution";
         case "EXPERIMENT_LEDGER":return "SELECT campaign_id,snapshot_hash,source_through,status,created_at FROM r26_foundry ORDER BY created_at";
         case "TEST_BUDGET":return "SELECT genome_key,cohort,evidence_digest,look,family_alpha FROM r26_look ORDER BY genome_key,look";
-        case "EVIDENCE":return "SELECT * FROM r26_cohort ORDER BY genome_key";
+        case "EVIDENCE":return "SELECT q.*,a.through_ordinal AS aggregate_through FROM r26_cohort q LEFT JOIN r26_evidence_cursor a ON a.policy_hash=q.genome_key ORDER BY q.genome_key";
+        case "CALIBRATION":case "AUTHORITY":return "SELECT * FROM r26_qualification_result ORDER BY checked_at DESC";
+        case "RETENTION":return "SELECT * FROM r26_storage_measurement ORDER BY kind";
+        case "FREEZE":return "SELECT policy_hash,count(*) frozen,min(target_ordinal) first_target,max(target_ordinal) last_target,sum(input_through>=target_ordinal OR frozen_at>=deadline_at) invalid FROM r26_frozen GROUP BY policy_hash";
+        case "RECOVERY":return "SELECT policy_hash,source_hash,parent_hash,trained_through,created_at FROM r26_checkpoint_artifact ORDER BY created_at DESC";
         case "SETTLEMENT":return "SELECT count(*) event_count,min(issue_ordinal) first_ordinal,max(issue_ordinal) last_ordinal FROM r26_feedback";
         case "PERFORMANCE":case "SLO_BUDGET":return "SELECT task_id,count(*) slices,sum(cpu_ms) cpu_ms,max(cpu_ms) max_cpu_ms,sum(blocked_reason LIKE 'CAPACITY_FAIL%') capacity_fail FROM r26_progress GROUP BY task_id";
         case "POLICY_IDENTITY":case "LOSSLESS_IDENTITY":return "SELECT policy_hash,canonical_text,parent,operation FROM r26_candidate ORDER BY policy_hash";

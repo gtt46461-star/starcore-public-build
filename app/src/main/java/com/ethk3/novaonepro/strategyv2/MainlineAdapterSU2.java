@@ -51,7 +51,7 @@ public final class MainlineAdapterSU2 {
         final int hi = headIndex; Integer[] order = new Integer[1200]; for (int i = 0; i < 1200; i++) order[i] = i;
         Arrays.sort(order, (x, y) -> { if (x == hi) return y == hi ? 0 : -1; if (y == hi) return 1; int d = Double.compare(mass[y], mass[x]);
             return d != 0 ? d : Integer.compare(K3ActionSpaceEngine.globalOrdinal(actions[x].position, actions[x].n1, actions[x].n2, actions[x].n3), K3ActionSpaceEngine.globalOrdinal(actions[y].position, actions[y].n1, actions[y].n2, actions[y].n3)); });
-        double p = Double.isNaN(phat) ? 0.30 : new SelectiveCalibrationSU2.Platt(a.a, a.b).apply(phat);
+        double p = Double.isNaN(phat) ? 0.30 : new SelectiveCalibrationSU2.Platt(a.a, a.b).apply(EvidenceBlockR26.quantized(phat));
         String recipe = "{\"contract\":\"" + CONTRACT + "\",\"certificate\":\"" + a.certificate + "\",\"genome\":\"" + genome + "\",\"program\":\"" + a.program + "\",\"target\":\"" + context.targetIssue + "\",\"position\":" + position + ",\"mask\":" + mask + "}";
         String digest = HashingSU1.text(recipe);
         V51Models.PositionAction[] out = new V51Models.PositionAction[1200];

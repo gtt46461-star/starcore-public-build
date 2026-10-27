@@ -78,9 +78,10 @@ public final class ModelGenomeSU2 {
         return b.toString();
     }
 
+    public boolean legalReadoutR26(){for(Member member:members)if(!"PERMUTATION_V1".equals(member.params.get("_legal_head")))return false;return true;}
     public boolean r26Family(){for(Member member:members)if(member.kind.startsWith("R26F")||member.kind.equals("R26SCALE"))return true;return false;}
     public int gateWarmup(int requested){return r26Family()&&gate.equals("MASS")?Math.min(requested,128):requested;}
-    public ModelGenomeSU2 bindBirth(String snapshot,long through){if(!snapshot.matches("[0-9a-f]{64}")||through<0)throw new IllegalArgumentException("R26_BIRTH");List<Member> bound=new ArrayList<>();for(Member member:members){Map<String,String> p=new TreeMap<>(member.params);p.put("_birth_snapshot",snapshot);p.put("_birth_through",Long.toString(through));bound.add(new Member(member.kind,p,member.weight));}return new ModelGenomeSU2(bound,pool,sink,gate,coverage,metaC,calibrated);}
+    public ModelGenomeSU2 bindBirth(String snapshot,long through){if(!snapshot.matches("[0-9a-f]{64}")||through<0)throw new IllegalArgumentException("R26_BIRTH");List<Member> bound=new ArrayList<>();for(Member member:members){Map<String,String> p=new TreeMap<>(member.params);p.put("_legal_head","PERMUTATION_V1");p.put("_birth_snapshot",snapshot);p.put("_birth_through",Long.toString(through));bound.add(new Member(member.kind,p,member.weight));}return new ModelGenomeSU2(bound,pool,sink,gate,coverage,metaC,calibrated);}
     public String key() {
         String ready=cachedKey;if(ready!=null)return ready;
         if (legacyText != null) return cachedKey=HashingSU1.text("SU2_MODEL_GENOME_V1|" + legacyText);

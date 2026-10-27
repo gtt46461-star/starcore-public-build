@@ -564,7 +564,7 @@ public final class AtomStreamSU2 {
                 for (int p = 0; p < 10; p++) {
                     double[][] J = new double[10][10]; for (long q = u - w; q < u; q++) J[x(q - l, p)][x(q, p)] += 1;
                     double h = 0;
-                    for (int a = 0; a < 10; a++) { double n = 0; for (int b = 0; b < 10; b++) n += J[a][b]; for (int b = 0; b < 10; b++) { double c = J[a][b]; if (c > 0) h -= c / w * Math.log(c / n); } }
+                    for (int a = 0; a < 10; a++) { double n = 0; for (int b = 0; b < 10; b++) n += J[a][b]; for (int b = 0; b < 10; b++) {ExecutionBudgetR26.poll(); double c = J[a][b]; if (c > 0) h -= c / w * Math.log(c / n); } }
                     v[p] = h;
                 }
                 return v;

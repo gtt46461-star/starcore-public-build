@@ -3,8 +3,8 @@ package com.ethk3.novaonepro.strategyv2;
 /** Calendar fixed at publication. Missed or failed windows never recycle earlier alpha. */
 public final class QualificationWindowR26 {
     private QualificationWindowR26() {}
-    public static final String PROTOCOL="R26_PREREGISTERED_ROLLING_LCB_V2";
-    public static final int LENGTH=4000, STRIDE=720;
+    public static final String PROTOCOL="R26_PREREGISTERED_AGGREGATE_LCB_V3";
+    public static final int LENGTH=69120, STRIDE=720;
     public static final class Window {
         public final long from,to; public final int look;
         private Window(long from,long to,int look){this.from=from;this.to=to;this.look=look;}

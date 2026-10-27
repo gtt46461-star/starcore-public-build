@@ -28,7 +28,7 @@ public final class TeacherPoolSU2 {
     /** State indicator series s[t][p] of registry state j over a history (replay). */
     public static float[][] states(int[][] draws, int j) {
         AtomStreamSU2 st = new AtomStreamSU2(); float[][] s = new float[draws.length][];
-        for (int t = 0; t < draws.length; t++) { s[t] = st.state(j).clone(); st.update(draws[t]); }
+        for (int t = 0; t < draws.length; t++) {ExecutionBudgetR26.poll(); s[t] = st.state(j).clone(); st.update(draws[t]); }
         return s;
     }
 
@@ -41,7 +41,7 @@ public final class TeacherPoolSU2 {
             float sig = si - 1;
             for (int p = 0; p < 10; p++) {
                 double[] sc = new double[M]; int cnt = 0;
-                for (int m = 0; m < M; m++) {
+                for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll();
                     int k = 0;
                     for (int i = 0; i < n; i++) if (sig == 0f || sWin[i][p] == sig) sel[k++] = llWin[i][m * 10 + p];
                     sc[m] = ModelOpsSU2.pairwise(sel, 0, k); cnt = k;
@@ -72,14 +72,14 @@ public final class TeacherPoolSU2 {
         int M = Ps.length, T = draws.length; float[][][] out = new float[T][][];
         double[][][] W = new double[3][10][M]; for (double[][] a : W) for (double[] b : a) Arrays.fill(b, 1.0 / M);
         float[][][] at = new float[M][][];
-        for (int t0 = 0; t0 < T; t0 += REFIT) {
+        for (int t0 = 0; t0 < T; t0 += REFIT) {ExecutionBudgetR26.poll();
             if (t0 >= START) {
                 int lo = Math.max(0, t0 - WINDOW), n = t0 - lo;
                 double[][] L = new double[n][M * 10]; float[][] S = new float[n][];
                 for (int i = 0; i < n; i++) { int u = lo + i; S[i] = s[u]; for (int m = 0; m < M; m++) for (int p = 0; p < 10; p++) L[i][m * 10 + p] = ll(Ps[m][u], p, draws[u][p] - 1); }
                 weights(L, S, n, M, W);
             }
-            for (int t = t0; t < Math.min(t0 + REFIT, T); t++) { for (int m = 0; m < M; m++) at[m] = Ps[m][t]; out[t] = combine(at, s[t], W); }
+            for (int t = t0; t < Math.min(t0 + REFIT, T); t++) {ExecutionBudgetR26.poll(); for (int m = 0; m < M; m++) at[m] = Ps[m][t]; out[t] = combine(at, s[t], W); }
         }
         return out;
     }

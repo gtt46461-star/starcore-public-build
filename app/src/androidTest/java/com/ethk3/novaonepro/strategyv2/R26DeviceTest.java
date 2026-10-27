@@ -27,9 +27,11 @@ public final class R26DeviceTest {
         d.numbers=new int[]{2,1,3,4,5,6,7,8,9,10};db.beginTransaction();try{RuntimeSchemaR26.feedbackWithinTransaction(db,d);fail("conflict accepted");}catch(IllegalStateException expected){assertTrue(expected.getMessage().contains("CONFLICT"));}finally{db.endTransaction();}
     }}
     @Test public void oldWorkerCannotCommitAfterFenceOrLeaseChanges(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
-        schema(db);long now=System.currentTimeMillis();db.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('t','P2','kernel',2,?,'new','RUNNING')",new Object[]{now+60000});
+        schema(db);long now=System.currentTimeMillis();db.execSQL("INSERT INTO r26_session VALUES('new',1,'boot','RUNNING',?,0)",new Object[]{now});db.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,fence,lease_until,owner,status) VALUES('t','P2','kernel',2,?,'new','RUNNING')",new Object[]{now+60000});
         try{RuntimeCoordinatorR26.requireFence(db,new RuntimeCoordinatorR26.Claim("t","old",1,0));fail("old fence");}catch(IllegalStateException expected){}
-        RuntimeCoordinatorR26.requireFence(db,new RuntimeCoordinatorR26.Claim("t","new",2,0));db.execSQL("UPDATE r26_task SET lease_until=0");
+        RuntimeCoordinatorR26.requireFence(db,new RuntimeCoordinatorR26.Claim("t","new",2,0));db.execSQL("UPDATE r26_session SET state='STOPPED',user_enabled=0");
+        try{RuntimeCoordinatorR26.requireFence(db,new RuntimeCoordinatorR26.Claim("t","new",2,0));fail("stopped session");}catch(IllegalStateException expected){}
+        db.execSQL("UPDATE r26_session SET state='RUNNING',user_enabled=1");db.execSQL("UPDATE r26_task SET lease_until=0");
         try{RuntimeCoordinatorR26.requireFence(db,new RuntimeCoordinatorR26.Claim("t","new",2,0));fail("expired lease");}catch(IllegalStateException expected){}
     }}
     @Test public void fortyChaptersKeepMissingEvidenceVisible()throws Exception{try(SQLiteDatabase db=SQLiteDatabase.create(null)){

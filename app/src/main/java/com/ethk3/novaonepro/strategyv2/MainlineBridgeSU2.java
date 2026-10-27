@@ -49,10 +49,15 @@ public final class MainlineBridgeSU2 {
         SQLiteDatabase r = store.readable();
         if (!StrategySchemaSU2.ready(r)) return "";
         String current = ModelStoreSU2.currentChoice(r, seq);
-        if (!current.isEmpty() && seq % BLOCK != 0) return current;
+        boolean currentQualified=false;long now=System.currentTimeMillis();
+        if(current.startsWith("SU2:")||current.startsWith("XI_INCUMBENT:"))currentQualified=CertificateSU2.read(r,current.substring(current.indexOf(':')+1),now)!=null;
+        if (currentQualified && seq % BLOCK != 0) return current;
         long from = seq - WINDOW;
         List<MainlinePolicySU2.Member> league = members(r, from, seq);
         if (league.isEmpty()) return current;
+        List<MainlinePolicySU2.Member> qualified=new ArrayList<>();for(MainlinePolicySU2.Member m:league)if((m.id.startsWith("SU2:")||m.id.startsWith("XI_INCUMBENT:"))&&CertificateSU2.read(r,m.id.substring(m.id.indexOf(':')+1),now)!=null)qualified.add(m);
+        if(!qualified.isEmpty())league=qualified;
+        else if(!current.isEmpty()&&seq%BLOCK!=0)return current;
         // indices are relative to `from`; the policy scores [max(birth, 0), WINDOW)
         final MainlinePolicySU2.Choice ch = MainlinePolicySU2.choose(league, current, WINDOW, WINDOW);
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_MAINLINE_CHOICE", db -> { ModelStoreSU2.recordChoice(db, seq, ch, from, System.currentTimeMillis()); return 0; });

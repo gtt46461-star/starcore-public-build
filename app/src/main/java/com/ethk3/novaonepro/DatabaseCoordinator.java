@@ -723,6 +723,7 @@ public final class DatabaseCoordinator {
     private <T> WriteCallable<T> atomicCallableF01(final String operation,final WriteCallable<T> task) {
         return new WriteCallable<T>() {
             @Override public T call(SQLiteDatabase db) throws Exception {
+                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationCritical=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
                 boolean owns = !db.inTransaction();
                 long beginNanos=-1L,bodyNanos=-1L,endNanos=-1L;
                 String outcome=owns?"BEGIN_FAILED":"EXTERNAL_ENTER_FAILED";
@@ -762,8 +763,8 @@ public final class DatabaseCoordinator {
                         } finally { TransactionSchemaCacheR941.leave(schemaScope); }
                     }
                 } finally {
-                    RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
-                            beginNanos,bodyNanos,endNanos,outcome);
+                    try{RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
+                            beginNanos,bodyNanos,endNanos,outcome);}finally{continuationCritical.close();}
                 }
             }
         };

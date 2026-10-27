@@ -19,7 +19,7 @@ import java.util.*;
  * the calibrated table never passes the INFORMATIVE guard. verified() is the human-readable continuation / reversal report.
  * State: (verified patterns / 100, largest added logit, share of positions with an active verified pattern).
  */
-public final class ContMatSU2 implements OnlineModelsSU2.Model {
+public final class ContMatSU2 implements TemporalModelR26 {
     static final int START = 1500, BLOCK = 500, MIN_N = 200, MAX_BLOCKS = 40;   // verification uses the last 40 settled blocks
     static final double Z_ALL = 2.5, Z_POS = 3.5;
     static final float THR = 1.645f;
@@ -38,7 +38,7 @@ public final class ContMatSU2 implements OnlineModelsSU2.Model {
     final List<int[]> verPat = new ArrayList<>();                                // {pattern, scope}
     final List<Double> verLog = new ArrayList<>(), verRate = new ArrayList<>();
     final List<Long> verCells = new ArrayList<>();
-    long t;
+    long t,contextStart;
     boolean[][][] active;                                                        // [pattern][p][n] for the current target
     final double[] zraw = new double[100];
 
@@ -63,7 +63,7 @@ public final class ContMatSU2 implements OnlineModelsSU2.Model {
         for (int k = 0; k < 4; k++) for (int r : RUNS) { for (int p = 0; p < 10; p++) if (runLen[k][p] >= r) for (int n = 0; n < 10; n++) active[j][p][n] = sel(k, n); j++; }
         for (int wi = 0; wi < WINDOWS.length; wi++) {
             int W = WINDOWS[wi];
-            if (t >= W) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) {
+            if (t-contextStart >= W) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) {
                 double z = (win[wi][p][n] - W / 10.0) / Math.sqrt(W * 0.09);
                 active[j][p][n] = z <= -2; active[j + 1][p][n] = z >= 2;
             }
@@ -110,7 +110,7 @@ public final class ContMatSU2 implements OnlineModelsSU2.Model {
         int R = ring.length;
         for (int wi = 0; wi < WINDOWS.length; wi++) {
             int W = WINDOWS[wi];
-            if (t >= W) { int[] old = ring[(int) ((t - W) % R)]; for (int p = 0; p < 10; p++) win[wi][p][old[p] - 1]--; }
+            if (t-contextStart >= W) { int[] old = ring[(int) ((t - W) % R)]; for (int p = 0; p < 10; p++) win[wi][p][old[p] - 1]--; }
             for (int p = 0; p < 10; p++) win[wi][p][d[p] - 1]++;
         }
         System.arraycopy(d, 0, ring[(int) (t % R)], 0, 10);
@@ -145,8 +145,12 @@ public final class ContMatSU2 implements OnlineModelsSU2.Model {
         return out;
     }
 
+    public void resetTemporalContext(){
+        try{ByteArrayOutputStream bytes=new ByteArrayOutputStream();new AtomStreamSU2().write(new DataOutputStream(bytes));atoms.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));}catch(IOException impossible){throw new IllegalStateException("R26_CONTMAT_CONTEXT_RESET",impossible);}
+        contextStart=t;for(int[] row:runLen)Arrays.fill(row,0);for(int[] row:ring)Arrays.fill(row,0);for(int[][] window:win)for(int[] row:window)Arrays.fill(row,0);active=null;Arrays.fill(zraw,0);
+    }
     public void write(DataOutput o) throws IOException {
-        o.writeLong(t); atoms.write(o);
+        o.writeLong(Long.MIN_VALUE);o.writeInt(2);o.writeLong(t);o.writeLong(contextStart);atoms.write(o);
         for (int[] r : runLen) for (int v : r) o.writeInt(v);
         for (int[] r : ring) for (int v : r) o.writeByte(v);
         for (int[][] w : win) for (int[] r : w) for (int v : r) o.writeInt(v);
@@ -156,13 +160,13 @@ public final class ContMatSU2 implements OnlineModelsSU2.Model {
         for (int v = 0; v < verPat.size(); v++) { o.writeInt(verPat.get(v)[0]); o.writeInt(verPat.get(v)[1]); o.writeDouble(verLog.get(v)); o.writeDouble(verRate.get(v)); o.writeLong(verCells.get(v)); }
     }
     public void read(DataInput in) throws IOException {
-        t = in.readLong(); atoms.read(in);
+        long header=in.readLong();if(header==Long.MIN_VALUE){if(in.readInt()!=2)throw new IOException("R26_CONTMAT_STATE_ABI");t=in.readLong();contextStart=in.readLong();}else{t=header;contextStart=0;}if(t<0||contextStart<0||contextStart>t)throw new IOException("R26_CONTMAT_STATE_CURSOR");atoms.read(in);
         for (int[] r : runLen) for (int i = 0; i < r.length; i++) r[i] = in.readInt();
         for (int[] r : ring) for (int i = 0; i < r.length; i++) r[i] = in.readByte();
         for (int[][] w : win) for (int[] r : w) for (int i = 0; i < r.length; i++) r[i] = in.readInt();
-        blockBase = in.readInt(); int nb = in.readInt(); blkN.clear(); blkK.clear();
+        blockBase = in.readInt(); int nb = in.readInt();if(nb<0||nb>MAX_BLOCKS+1)throw new IOException("R26_CONTMAT_BLOCK_BOUND"); blkN.clear(); blkK.clear();
         for (int b = 0; b < nb; b++) { double[] a = new double[nPat * 11], c = new double[nPat * 11]; for (int i = 0; i < a.length; i++) a[i] = in.readDouble(); for (int i = 0; i < c.length; i++) c[i] = in.readDouble(); blkN.add(a); blkK.add(c); }
-        int nv = in.readInt(); verPat.clear(); verLog.clear(); verRate.clear(); verCells.clear();
+        int nv = in.readInt();if(nv<0||nv>nPat*11)throw new IOException("R26_CONTMAT_VERIFICATION_BOUND"); verPat.clear(); verLog.clear(); verRate.clear(); verCells.clear();
         for (int v = 0; v < nv; v++) { verPat.add(new int[]{in.readInt(), in.readInt()}); verLog.add(in.readDouble()); verRate.add(in.readDouble()); verCells.add(in.readLong()); }
         active = null;
     }

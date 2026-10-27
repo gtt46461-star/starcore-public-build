@@ -46,7 +46,7 @@ public final class StageLayerSU2 {
                 double odd = 0, big = 0; for (int n = 0; n < 10; n += 2) odd += cnt[p][n]; for (int n = 5; n < 10; n++) big += cnt[p][n];
                 blocks[2][p] = odd / w - 0.5; blocks[3][p] = big / w - 0.5;
             }
-            for (int b = 0; b < 4; b++) { System.arraycopy(blocks[b], 0, f, col, 10); col += 10; blockMeans[blk++] = blocks[b]; }
+            for (int b = 0; b < 4; b++) {ExecutionBudgetR26.poll(); System.arraycopy(blocks[b], 0, f, col, 10); col += 10; blockMeans[blk++] = blocks[b]; }
         }
         double rep30 = 0, nb30 = 0;
         if (t >= 30) for (int u = t - 30; u < t; u++) { if (u < 1) continue; int r = 0, nb = 0; for (int p = 0; p < 10; p++) { if (D[u][p] == D[u - 1][p]) r++; if (Math.abs(D[u][p] - D[u - 1][p]) == 1) nb++; } rep30 += r / 10.0; nb30 += nb / 10.0; }
@@ -65,7 +65,7 @@ public final class StageLayerSU2 {
     /** Batch fingerprints for t = 0..T-1; hits[s][t] = candidate s hit at t; st0[t] from a RegMem model run over D. */
     public static double[][] fingerprints(int[][] D, boolean[][] hits, double[] st0) {
         int T = D.length, S = hits.length; double[][] F = new double[T][];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
             double[] perf = new double[S];
             for (int s = 0; s < S; s++) { if (t < 50) { perf[s] = 0.3; continue; } int k = 0; for (int u = t - 50; u < t; u++) if (hits[s][u]) k++; perf[s] = k / 50.0; }
             F[t] = row(D, t, st0[t], perf);
@@ -90,7 +90,7 @@ public final class StageLayerSU2 {
         if (n > 1) for (double[] r : X) for (int i = 0; i < d; i++) { double a = r[i] - mean[i]; for (int j = 0; j < d; j++) C[i][j] += a * (r[j] - mean[j]); }
         for (int i = 0; i < d; i++) for (int j = 0; j < d; j++) C[i][j] = n > 1 ? C[i][j] / (n - 1) : (i == j ? 1 : 0);
         double[] v = new double[d]; Arrays.fill(v, 1 / Math.sqrt(d));
-        for (int it = 0; it < PI_ITERS; it++) { double[] u = new double[d]; for (int i = 0; i < d; i++) { double s = 0; for (int j = 0; j < d; j++) s += C[i][j] * v[j]; u[i] = s; } double nr = 0; for (double a : u) nr += a * a; nr = Math.sqrt(nr) + 1e-12; for (int i = 0; i < d; i++) v[i] = u[i] / nr; }
+        for (int it = 0; it < PI_ITERS; it++) {ExecutionBudgetR26.poll(); double[] u = new double[d]; for (int i = 0; i < d; i++) { double s = 0; for (int j = 0; j < d; j++) s += C[i][j] * v[j]; u[i] = s; } double nr = 0; for (double a : u) nr += a * a; nr = Math.sqrt(nr) + 1e-12; for (int i = 0; i < d; i++) v[i] = u[i] / nr; }
         double[] proj = new double[n]; for (int i = 0; i < n; i++) { double s = 0; for (int j = 0; j < d; j++) s += X[i][j] * v[j]; proj[i] = s; }
         Integer[] ord = new Integer[n]; for (int i = 0; i < n; i++) ord[i] = i;
         Arrays.sort(ord, (a, b) -> proj[a] != proj[b] ? Double.compare(proj[a], proj[b]) : Integer.compare(a, b));
@@ -99,7 +99,7 @@ public final class StageLayerSU2 {
         for (int j = 0; j < d; j++) { double s = 0; for (double[] r : X) { double a = r[j] - mean[j]; s += a * a; } colVar[j] = s / n + 1e-3; }
         for (int k = 0; k < K; k++) { mu[k] = X[ord[(int) ((k + 0.5) / K * (n - 1))]].clone(); var[k] = colVar.clone(); w[k] = 1.0 / K; }
         double[][] R = new double[n][K];
-        for (int it = 0; it < EM_ITERS; it++) {
+        for (int it = 0; it < EM_ITERS; it++) {ExecutionBudgetR26.poll();
             for (int i = 0; i < n; i++) { double[] ll = loglik(X[i], mu, var, w); double m = Double.NEGATIVE_INFINITY; for (double a : ll) m = Math.max(m, a); double s = 0; for (int k = 0; k < K; k++) { R[i][k] = Math.exp(ll[k] - m); s += R[i][k]; } for (int k = 0; k < K; k++) R[i][k] /= s; }
             double[] Nk = new double[K]; for (double[] r : R) for (int k = 0; k < K; k++) Nk[k] += r[k]; for (int k = 0; k < K; k++) Nk[k] += 1e-9;
             for (int k = 0; k < K; k++) {
@@ -135,7 +135,7 @@ public final class StageLayerSU2 {
 
     static double[] logitFit(double[][] X, double[] y) {
         int n = X.length, d = X[0].length; double[] w = new double[d];
-        for (int it = 0; it < NEWTON; it++) {
+        for (int it = 0; it < NEWTON; it++) {ExecutionBudgetR26.poll();
             double[] g = new double[d]; double[][] H = new double[d][d];
             for (int i = 0; i < n; i++) { double z = 0; for (int j = 0; j < d; j++) z += X[i][j] * w[j]; double p = sigm(z), r = p - y[i], q = p * (1 - p); for (int j = 0; j < d; j++) { g[j] += X[i][j] * r; for (int k = 0; k < d; k++) H[j][k] += X[i][j] * q * X[i][k]; } }
             for (int j = 0; j < d; j++) { g[j] += LAMBDA * w[j]; H[j][j] += LAMBDA; }

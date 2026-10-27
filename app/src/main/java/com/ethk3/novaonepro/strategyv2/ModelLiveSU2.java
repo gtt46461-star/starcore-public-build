@@ -62,7 +62,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         public void predict() {
             if (predicted) return;
             for (Map.Entry<String, OnlineModelsSU2.Model> e : models.entrySet()) {
-                float[][] q = new float[10][10]; float[] s = new float[e.getValue().stateWidth()];
+                ExecutionBudgetR26.poll();float[][] q = new float[10][10]; float[] s = new float[e.getValue().stateWidth()];
                 e.getValue().predict(q, s); p.put(e.getKey(), q); st.put(e.getKey(), s);
                 CalibrationSU2.Live c = cal.get(e.getKey()); if (c != null) pc.put(e.getKey(), c.predict(q));
             }
@@ -71,7 +71,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         public void update(int[] draw) {
             if (!predicted) predict();
             for (Map.Entry<String, CalibrationSU2.Live> e : cal.entrySet()) e.getValue().settle(p.get(e.getKey()), draw);
-            for (OnlineModelsSU2.Model m : models.values()) m.update(draw); predicted = false; t++;
+            for (OnlineModelsSU2.Model m : models.values()){ExecutionBudgetR26.poll();m.update(draw);} predicted = false; t++;
         }
         public void write(DataOutput o) throws IOException {
             o.writeLong(t); o.writeInt(models.size()); for (Map.Entry<String, OnlineModelsSU2.Model> e : models.entrySet()) { o.writeUTF(e.getKey()); e.getValue().write(o); }
@@ -159,7 +159,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
                 for (int n = 0; n < 10; n++) P[p][n] = (float) (L[n] / s);
             }
         }
-        if (g.sink) P = ModelOpsSU2.sink(new float[][][]{P}, 20)[0];
+        if (g.legalReadoutR26())P=LegalReadoutR26.project(P);else if (g.sink) P = ModelOpsSU2.sink(new float[][][]{P}, 20)[0];
         return P;
     }
 
@@ -223,7 +223,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
             }
         }
         int mask = (1 << curK3[0]) | (1 << curK3[1]) | (1 << curK3[2]);
-        return new Decision(t, p1 + 1, mask, act, gs, phat);
+        return new Decision(t, p1 + 1, mask, act, gs, g.legalReadoutR26()?conf:phat);
     }
 
     private double rollingZ(double v) {
@@ -253,6 +253,8 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         thr = ModelReplaySU2.quantileLinear(Arrays.copyOf(hist, n), 1 - g.coverage); thrValid = true;
     }
 
+    long gateContextStartR26(){return gateHistoryStartR26;}
+    void restoreGateContextStartR26(long start){if(start<0||start>t)throw new IllegalArgumentException("R26_GATE_CONTEXT_CURSOR");gateHistoryStartR26=start;}
     void resetGateContextR26(){gateHistoryStartR26=t;curP1=-1;lastPooled=null;lastPooledT=-1;thrValid=false;wt=null;mu=null;sd=null;ema12=ema48=ema200=0;c1=c2=0;java.util.Arrays.fill(gsRing,-1);java.util.Arrays.fill(c1Ring,0);java.util.Arrays.fill(c2Ring,0);java.util.Arrays.fill(lab,false);for(double[] row:feat)java.util.Arrays.fill(row,0);}
     public boolean hasPending() { return curP1 >= 0; }
     public String key() { return g.key(); }
