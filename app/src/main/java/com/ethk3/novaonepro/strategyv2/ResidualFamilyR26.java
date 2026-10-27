@@ -2,8 +2,9 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Predeclared parent-bootstrap phase, frozen parent parameters, then gated residual training.
  * No parent evidence transfers. Parent is a new F01 model, not an invented old winning asset. */
-public final class ResidualFamilyR26 implements OnlineModelsSU2.Model {
+public final class ResidualFamilyR26 implements TemporalModelR26 {
     private static final int BOOTSTRAP=128;private final FamilyF01KernelR26 parent=new FamilyF01KernelR26();private final double[][] residual=new double[100][3];private final double[] gate=new double[2];private final double[] drift=new double[10];private int[] previous;private long t;private String frozenParent="";
+    public void resetTemporalContext(){TemporalResetR26.reset(parent);previous=null;java.util.Arrays.fill(drift,0);}
     public int stateWidth(){return 3;}
     private double[] feature(int p){return new double[]{1,previous==null?0:(previous[p]-5.5)/4.5,drift[p]};}
     private double g(){double x=0;for(double v:drift)x+=Math.abs(v)/10;return 1/(1+Math.exp(-Math.max(-20,Math.min(20,gate[0]+gate[1]*x))));}

@@ -2,7 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Typed FEATURE AST -> LOGIT coefficients -> exact probability readout.
  * F14 shares a stateful relation macro across output heads; all lags are strictly positive. */
-public final class SymbolicFamilyR26 implements OnlineModelsSU2.Model {
+public final class SymbolicFamilyR26 implements TemporalModelR26 {
     enum Type { FEATURE, LOGIT }
     static abstract class Feature {final Type type=Type.FEATURE;abstract double eval(SymbolicFamilyR26 m,int p);}
     static final class Lag extends Feature {final int delay,offset;Lag(int d,int o){if(d<1||d>3||o<0||o>9)throw new IllegalArgumentException("R26_AST_LAG");delay=d;offset=o;}double eval(SymbolicFamilyR26 m,int p){if(m.t<delay)return 0;return (m.ring[(int)((m.t-delay)%3)][(p+offset)%10]-5.5)/4.5;}}
@@ -12,6 +12,7 @@ public final class SymbolicFamilyR26 implements OnlineModelsSU2.Model {
     public SymbolicFamilyR26(String family){if(!family.equals("F13")&&!family.equals("F14"))throw new IllegalArgumentException("R26_SYMBOLIC_FAMILY");this.family=family;Feature relation=new Product(new Lag(1,0),new Lag(1,1));features=new Feature[]{new Lag(1,0),new Lag(2,0),relation,family.equals("F14")?new Macro(new Product(relation,new Lag(3,2))):new Product(new Lag(1,3),new Lag(2,5))};}
     private double[][] featureTable(){double[][] f=new double[10][5];for(int p=0;p<10;p++){f[p][0]=1;for(int j=0;j<4;j++)f[p][j+1]=features[j].eval(this,p);}return f;}
     private double[][] scores(double[][] f){double[][] s=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++)for(int j=0;j<5;j++)s[p][n]+=weight[p*10+n][j]*f[p][j];return s;}
+    public void resetTemporalContext(){t=0;for(int[] row:ring)java.util.Arrays.fill(row,0);java.util.Arrays.fill(ema,0);}
     public int stateWidth(){return 2;}
     public void predict(float[][] p,float[] st){ExactPermutationR26.Result r=ExactPermutationR26.infer(scores(featureTable()),null);for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)r.marginal[i][j];st[0]=(float)Math.log1p(t);st[1]=family.equals("F14")?1:0;}
     public void update(int[] draw){OnlineModelsSU2.requireDraw(draw);double[][] f=featureTable();ExactPermutationR26.Result r=ExactPermutationR26.infer(scores(f),null);for(int p=0;p<10;p++)for(int n=0;n<10;n++)for(int j=0;j<5;j++){double g=(r.marginal[p][n]-(draw[p]==n+1?1:0))*f[p][j];momentum[p*10+n][j]=.9*momentum[p*10+n][j]+.1*g;weight[p*10+n][j]=Math.max(-8,Math.min(8,weight[p*10+n][j]-.03*momentum[p*10+n][j]));}if(family.equals("F14"))for(int p=0;p<10;p++)ema[p]=.9*ema[p]+.1*(draw[p]-draw[(p+1)%10])/9.0;ring[(int)(t%3)]=draw.clone();t++;}

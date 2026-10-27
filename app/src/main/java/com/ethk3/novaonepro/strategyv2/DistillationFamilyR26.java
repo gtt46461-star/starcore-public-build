@@ -2,11 +2,12 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** KL distillation from an explicitly bound legacy preference projection, plus real-label NLL.
  * Teacher preference is not represented as calibrated hit probability or transferred evidence. */
-public final class DistillationFamilyR26 implements OnlineModelsSU2.Model {
+public final class DistillationFamilyR26 implements TemporalModelR26 {
     public interface Teacher {double[][] marginal();String identity();}
     private final Teacher teacher;private final String teacherId;private final double[][] bias=new double[10][10],context=new double[100][10];private int[] previous;private long t,distilled;
     public DistillationFamilyR26(Teacher teacher){if(teacher==null||teacher.identity()==null||teacher.identity().isEmpty())throw new IllegalArgumentException("F23_TEACHER_REQUIRED");this.teacher=teacher;teacherId=teacher.identity();}
     private double[][] scores(){double[][] s=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++)s[p][n]=bias[p][n]+(previous==null?0:context[p*10+n][previous[p]-1]);return s;}
+    public void resetTemporalContext(){previous=null;}
     public int stateWidth(){return 3;}
     public void predict(float[][] p,float[] st){ExactPermutationR26.Result r=ExactPermutationR26.infer(scores(),null);for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)r.marginal[i][j];st[0]=(float)Math.log1p(t);st[1]=(float)Math.log1p(distilled);st[2]=0;}
     public void update(int[] draw){OnlineModelsSU2.requireDraw(draw);if(!teacherId.equals(teacher.identity()))throw new IllegalStateException("F23_TEACHER_IDENTITY_DRIFT");double[][] target=teacher.marginal();double alpha=target==null?0:.35;

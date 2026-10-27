@@ -88,6 +88,8 @@ public final class ModelReplaySU2 {
 
     /** Builds the stepwise model named by a member (same constructor the live loop uses). */
     public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
+        if(p.containsKey("_birth_snapshot")||p.containsKey("_birth_through")){Map<String,String> raw=new TreeMap<>(p);String birth=raw.remove("_birth_snapshot"),through=raw.remove("_birth_through");if(birth==null||!birth.matches("[0-9a-f]{64}")||through==null||!through.matches("[0-9]+"))throw new IllegalArgumentException("R26_BIRTH_BINDING");return build(kind,raw);}
+
         Adapter adapter = ADAPTERS.get(kind);
         if (adapter != null) return adapter.build(p);
         if(kind.startsWith("R26")){if(!"1".equals(p.get("abi"))||p.size()!=1)throw new IllegalArgumentException("R26_FAMILY_ABI");return FamilyRegistryR26.build(kind.substring(3));}
@@ -156,6 +158,7 @@ public final class ModelReplaySU2 {
     }
 
     public static Result evaluate(ModelGenomeSU2 g, Library lib, int startMeta, int window, int refit) {
+        startMeta=g.gateWarmup(startMeta);
         if(g.members.size()==1&&(g.members.get(0).kind.equals("R26F15")||g.members.get(0).kind.equals("R26F16"))){
             int[][] draws=lib.draws;Result result=new Result(draws.length);ModelLiveSU2.Hub hub=new ModelLiveSU2.Hub();ModelLiveSU2 live=new ModelLiveSU2(g,hub,startMeta,window,refit);
             for(int t=0;t<draws.length;t++){ModelLiveSU2.Decision d=live.decide();result.act[t]=d.act;result.position[t]=d.position;result.mask[t]=d.mask;result.gscore[t]=d.gscore;result.phat[t]=d.phat;result.hit[t]=live.settle(draws[t]);hub.update(draws[t]);}return result;

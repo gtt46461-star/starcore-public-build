@@ -33,11 +33,11 @@ public final class FoundryCampaignR26 {
             // The exact unary matching head is a real trainable candidate, not a renamed fallback.
             seeds.add(new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("MATCHING",Collections.singletonMap("lr","0.02"),1)),"STATIC",false,"MASS",0.15,0.2,false));
             List<StructuralProposalR26.Proposal> proposals=new ArrayList<>();
-            for(ModelGenomeSU2 seed:seeds)proposals.add(new StructuralProposalR26.Proposal(seed,"","REGISTERED_SEED","REGISTERED_SEED"));
+            for(ModelGenomeSU2 seed:seeds)proposals.add(new StructuralProposalR26.Proposal(seed.bindBirth(hash,through),"","REGISTERED_SEED","REGISTERED_SEED"));
             // Preserve actual saved parents; do not inherit their hits or qualification.
             List<ModelGenomeSU2> parents=new ArrayList<>();
             try(Cursor c=r.rawQuery("SELECT canonical_text FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') AND substr(canonical_text,1,4)='SU2|' ORDER BY coalesce(val_fitness,-1) DESC,genome_key LIMIT 3",null)){while(c.moveToNext())parents.add(ModelGenomeSU2.parse(c.getString(0)));}
-            for(int i=0;i<parents.size();i++)proposals.addAll(StructuralProposalR26.from(parents.get(i),seeds.get(i%seeds.size()).members.get(0)));
+            for(int i=0;i<parents.size();i++)for(StructuralProposalR26.Proposal proposal:StructuralProposalR26.from(parents.get(i),seeds.get(i%seeds.size()).members.get(0)))proposals.add(new StructuralProposalR26.Proposal(proposal.genome.bindBirth(hash,through),proposal.parent,proposal.operation,proposal.category));
             final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("INSERT OR IGNORE INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi) VALUES(?,?,?,?,'RUNNING',?,?)",new Object[]{id,hash,source,frozen,System.currentTimeMillis(),numericalAbi});int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ModelGenomeSU2 g=proposal.genome;
                 db.execSQL("INSERT OR IGNORE INTO r26_candidate(campaign_id,policy_hash,canonical_text,parent,operation) VALUES(?,?,?,?,?)",new Object[]{id,g.key(),g.text(),proposal.parent,proposal.operation});
@@ -58,7 +58,9 @@ public final class FoundryCampaignR26 {
         while(cursor<snap.draws.length&&cursor-before<16&&System.nanoTime()<stop){
             try{budget.checkpointOrYield();}catch(BudgetTokenSU1.Yield yield){break;}
             // A missing issue is never represented as an adjacent observed transition.
-            if(cursor>0&&snap.ordinal[cursor]!=snap.ordinal[cursor-1]+1){hub=new ModelLiveSU2.Hub();live=new ModelLiveSU2(g,hub,ModelLiveLoopSU2.START_META,ModelLiveLoopSU2.WINDOW,ModelLiveLoopSU2.REFIT);}
+            if(cursor>0&&snap.ordinal[cursor]!=snap.ordinal[cursor-1]+1&&!TemporalResetR26.reset(hub,live)){
+                final String blockedPolicy=key;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_GAP_POLICY_BLOCK",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("UPDATE r26_candidate SET status='BLOCKED_HISTORY_GAP' WHERE campaign_id=? AND policy_hash=?",new Object[]{id,blockedPolicy});return 0;});return 0;
+            }
             LegacyTeacherOwnerR26.enter(snap.issues,snap.opened,snap.available,snap.draws,cursor);
             try {
             ModelLiveSU2.Decision decision=live.decide();float[][] p=live.pendingTable(hub.t);double sampleLoss=0;for(int j=0;j<10;j++)sampleLoss-=Math.log(Math.max(1e-12,p[j][snap.draws[cursor][j]-1]));

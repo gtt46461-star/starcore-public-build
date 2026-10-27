@@ -2,9 +2,10 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Full 1200-action risk scoring. F16 adds two soft probability branches and seven support layers.
  * Set utility is never substituted for the selected set's marginal probability. */
-public final class SetFamilyR26 implements OnlineModelsSU2.Model,SetReadoutR26 {
+public final class SetFamilyR26 implements TemporalModelR26,SetReadoutR26 {
     private final String family;private final OnlineModelsSU2.Model left=new FamilyF01KernelR26(),right=new FamilyF11KernelR26(.02);private final double[][] risk=new double[10][57];private final double[] router=new double[2];private long t;
     public SetFamilyR26(String family){if(!family.equals("F15")&&!family.equals("F16"))throw new IllegalArgumentException("R26_SET_FAMILY");this.family=family;}
+    public void resetTemporalContext(){TemporalResetR26.reset(left);TemporalResetR26.reset(right);}
     public int stateWidth(){return 3;}
     private double route(){return 1/(1+Math.exp(-Math.max(-20,Math.min(20,router[0]))));}
     private float[][] table(){float[][] a=new float[10][10];left.predict(a,new float[left.stateWidth()]);if(family.equals("F16")){float[][] b=new float[10][10];right.predict(b,new float[right.stateWidth()]);double w=route();for(int p=0;p<10;p++)for(int n=0;n<10;n++)a[p][n]=(float)(w*a[p][n]+(1-w)*b[p][n]);}return a;}

@@ -2,9 +2,10 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 import java.util.*;
 /** Past-only episodic retrieval with trained diagonal categorical distance. No future neighbors. */
-public final class FamilyF11KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF11KernelR26 implements TemporalModelR26 {
     private static final int CAP=256;private final int[][] keys=new int[CAP][10],labels=new int[CAP][10];private final double[] metric=new double[10];private int[] previous;private int size,next;private long t;private final double lr;
     public FamilyF11KernelR26(double lr){if(!Double.isFinite(lr)||lr<=0||lr>.1)throw new IllegalArgumentException("F11_LR");this.lr=lr;Arrays.fill(metric,1);}
+    public void resetTemporalContext(){previous=null;}
     public int stateWidth(){return 2;}
     private double[] weights(){double[] w=new double[size];if(previous==null||size==0)return w;double max=-1e30,z=0;for(int i=0;i<size;i++){double s=0;for(int q=0;q<10;q++)if(keys[i][q]!=previous[q])s-=metric[q];w[i]=s;max=Math.max(max,s);}for(int i=0;i<size;i++){w[i]=Math.exp(w[i]-max);z+=w[i];}for(int i=0;i<size;i++)w[i]/=z;return w;}
     private double[][] table(double[] w){double[][] p=new double[10][10];for(double[] row:p)Arrays.fill(row,.01);if(previous==null||size==0){for(double[] row:p)Arrays.fill(row,.1);return p;}for(int i=0;i<size;i++)for(int q=0;q<10;q++)p[q][labels[i][q]-1]+=.9*w[i];return p;}

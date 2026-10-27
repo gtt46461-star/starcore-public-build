@@ -114,12 +114,13 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
     double ema12 = 0.3, ema48 = 0.3, ema200 = 0.3; double thr = Double.NaN; boolean thrValid;
     double[] wt, mu, sd; long last = Long.MIN_VALUE / 2;
     // pending decision for the current target
+    long gateHistoryStartR26;
     int curP1 = -1; int[] curK3 = new int[3]; double[] curRow; double curGs;
     /** Pooled table of the current pending decision (read by MainlineAdapterSU2 to rank the 1200 K3 actions). */
     float[][] lastPooled; long lastPooledT = -1;
 
     public ModelLiveSU2(ModelGenomeSU2 g, Hub hub, int startMeta, int window, int refit) {
-        this.g = g; this.hub = hub; this.startMeta = startMeta; this.window = window; this.refit = refit;
+        this.g = g; this.hub = hub; this.startMeta = g.gateWarmup(startMeta); this.window = window; this.refit = refit;
         M = g.members.size(); keys = new String[M]; w = new double[M];
         int stw = 0;
         double ws = 0;
@@ -235,7 +236,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
     }
 
     private void refitLogistic() {
-        long lo = Math.max(0, t - window); int n = (int) (t - lo);
+        long lo = Math.max(gateHistoryStartR26, Math.max(0, t - window)); int n = (int) (t - lo);
         if (n < 400) return;
         double[] m = new double[F], s = new double[F];
         for (int j = 0; j < F; j++) { double a = 0; for (long i = lo; i < t; i++) a += feat[(int) (i % window)][j]; m[j] = a / n; double v = 0; for (long i = lo; i < t; i++) { double q = feat[(int) (i % window)][j] - m[j]; v += q * q; } s[j] = Math.sqrt(v / n) + 1e-9; }
@@ -245,13 +246,14 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
     }
 
     private void blockThreshold() {
-        long lo = Math.max(0, Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, t - 720));
+        long lo = Math.max(gateHistoryStartR26, Math.max(0, Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, t - 720)));
         double[] hist = new double[(int) (t - lo)]; int n = 0;
         for (long u = lo; u < t; u++) { double v = gsRing[(int) (u % 720)]; if (v > -1) hist[n++] = v; }
         if (n < 100) { thrValid = false; return; }
         thr = ModelReplaySU2.quantileLinear(Arrays.copyOf(hist, n), 1 - g.coverage); thrValid = true;
     }
 
+    void resetGateContextR26(){gateHistoryStartR26=t;curP1=-1;lastPooled=null;lastPooledT=-1;thrValid=false;wt=null;mu=null;sd=null;ema12=ema48=ema200=0;c1=c2=0;java.util.Arrays.fill(gsRing,-1);java.util.Arrays.fill(c1Ring,0);java.util.Arrays.fill(c2Ring,0);java.util.Arrays.fill(lab,false);for(double[] row:feat)java.util.Arrays.fill(row,0);}
     public boolean hasPending() { return curP1 >= 0; }
     public String key() { return g.key(); }
     public float[][] pendingTable(long tt) { return lastPooledT == tt ? lastPooled : null; }
@@ -310,6 +312,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         o.writeLong(last);
         if (gated != null) gated.write(o);
         if (teacher != null) teacher.write(o);
+        if(!g.legacyIdentity())o.writeLong(gateHistoryStartR26);
     }
 
     public void readInto(DataInput in) throws IOException {
@@ -325,5 +328,6 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         last = in.readLong(); curP1 = -1;
         if (gated != null) gated.read(in);
         if (teacher != null) teacher.read(in);
+        gateHistoryStartR26=g.legacyIdentity()?0:in.readLong();if(gateHistoryStartR26<0||gateHistoryStartR26>t)throw new IOException("R26_GATE_CONTEXT_CURSOR");
     }
 }

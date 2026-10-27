@@ -1,0 +1,33 @@
+package com.ethk3.novaonepro.strategyv2;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+/** Bounded raw feedback and freeze history. Slow learners block explicitly before evidence expires. */
+public final class RetentionR26 {
+    private RetentionR26() {}
+    private static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
+    private static void fold(SQLiteDatabase db,String kind,long n){if(n==0)return;db.execSQL("INSERT OR IGNORE INTO r26_retention_total VALUES(?,0)",new Object[]{kind});db.execSQL("UPDATE r26_retention_total SET folded=folded+? WHERE kind=?",new Object[]{n,kind});}
+    public static long prune(SQLiteDatabase db,long seq){
+        if(!db.inTransaction())throw new IllegalStateException("R26_RETENTION_WRITER");
+        long cut=seq-5000;
+        db.execSQL("INSERT OR IGNORE INTO r26_certificate_revocation SELECT c.certificate_id,'FEEDBACK_RETENTION_LAG',? FROM su2_certificate c JOIN r26_live_model l ON l.policy_hash=c.genome_key WHERE l.status='ACTIVE' AND l.through_ordinal<?",new Object[]{System.currentTimeMillis(),cut});
+        db.execSQL("UPDATE r26_live_model SET status='BLOCKED_RETENTION_LAG' WHERE status='ACTIVE' AND through_ordinal<?",new Object[]{cut});
+        String oldEvents="SELECT event_id FROM r26_feedback WHERE issue_ordinal<"+cut+" ORDER BY issue_ordinal LIMIT 256";
+        long n=count(db,"SELECT count(*) FROM r26_consumption WHERE event_id IN ("+oldEvents+")");
+        fold(db,"consumed_feedback_rows",n);db.execSQL("DELETE FROM r26_consumption WHERE event_id IN ("+oldEvents+")");
+        db.execSQL("DELETE FROM r26_feedback WHERE event_id IN ("+oldEvents+")");
+        long removed=count(db,"SELECT changes()");fold(db,"feedback_rows",removed);
+        db.execSQL("DELETE FROM r26_frozen WHERE rowid IN (SELECT rowid FROM r26_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
+        long frozen=count(db,"SELECT changes()");fold(db,"frozen_rows",frozen);
+        // Current policy checkpoints own their full state. Superseded sample receipts are bounded metadata.
+        db.execSQL("DELETE FROM r26_checkpoint_receipt WHERE rowid IN (SELECT rowid FROM r26_checkpoint_receipt ORDER BY created_at DESC,rowid DESC LIMIT 256 OFFSET 4096)");
+        db.execSQL("DELETE FROM r26_live_failure WHERE rowid IN (SELECT rowid FROM r26_live_failure ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
+        db.execSQL("DELETE FROM r26_gap_receipt WHERE rowid IN (SELECT rowid FROM r26_gap_receipt ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
+        db.execSQL("DELETE FROM r26_session WHERE session_id IN (SELECT session_id FROM r26_session WHERE state<>'RUNNING' ORDER BY heartbeat DESC LIMIT 32 OFFSET 32)");
+        // No removed campaign may keep a second hidden copy of raw labels or per-sample consumption.
+        String orphan="SELECT c.rowid FROM r26_consumption c WHERE NOT EXISTS(SELECT 1 FROM r26_feedback f WHERE f.event_id=c.event_id) AND NOT EXISTS(SELECT 1 FROM r26_candidate a WHERE a.policy_hash=c.policy_hash) LIMIT 512";
+        db.execSQL("DELETE FROM r26_consumption WHERE rowid IN ("+orphan+")");
+        String oldEvolution="SELECT rowid FROM r26_evolution WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) LIMIT 512";
+        long attempts=count(db,"SELECT count(*) FROM r26_evolution WHERE rowid IN ("+oldEvolution+")");fold(db,"historical_evolution_attempts",attempts);
+        db.execSQL("DELETE FROM r26_evolution WHERE rowid IN ("+oldEvolution+")");return removed+frozen+attempts;
+    }
+}

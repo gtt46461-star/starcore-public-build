@@ -27,6 +27,12 @@ public final class R26KernelTest {
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();model.write(new DataOutputStream(bytes));PermutationModelR26 restored=new PermutationModelR26(.02);restored.read(new DataInputStream(new ByteArrayInputStream(bytes.toByteArray())));model.update(draw);restored.update(draw);float[][] p2=new float[10][10];model.predict(pred,st);restored.predict(p2,new float[3]);for(int i=0;i<10;i++)check(Arrays.equals(pred[i],p2[i]),"resume next step");
         int n=1000;boolean[] act=new boolean[n],hit=new boolean[n],incHit=new boolean[n];Arrays.fill(act,true);for(int i=0;i<n;i++){hit[i]=i%20<8;incHit[i]=i%20<9;}SelectiveEvidenceSU2.Verdict v=SelectiveEvidenceSU2.evaluate(act,hit,null,act,incHit,0,n,1,.05,250,.28,.15);check(!v.pass&&v.pairedLower<-.01,"40 vs45 regression");check(v.pairedUpper>0,"counterexample must expose old UCB defect");
         Arrays.fill(hit,true);v=SelectiveEvidenceSU2.evaluate(act,hit,null,null,null,0,n,1,.05,250,.28,.15);check(v.pass,"qualified synthetic path unreachable");boolean[] missing=new boolean[n];missing[3]=true;check(!SelectiveEvidenceSU2.evaluate(act,hit,missing,null,null,0,n,1,.05,250,.28,.15).pass,"missing integrity");
+        check(QualificationWindowR26.completed(100,4099)==null,"qualification used unavailable future endpoint");
+        QualificationWindowR26.Window w1=QualificationWindowR26.completed(100,4100),w2=QualificationWindowR26.completed(100,4820),w4=QualificationWindowR26.completed(100,6260);
+        check(w1.look==1&&w1.from==100&&w1.to==4100,"first fixed window");
+        check(w2.look==2&&w2.from==820&&w2.to==4820,"fixed renewal window");
+        check(w4.look==4&&w4.from==2260,"failed or missed looks recycled alpha");
+        near(SelectiveEvidenceSU2.alphaForLook(.01,w4.look),.0005,1e-15,"predeclared alpha index");
         System.out.println("R26_KERNEL_PASS");
     }
 }

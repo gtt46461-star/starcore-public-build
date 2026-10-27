@@ -1,9 +1,10 @@
 package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Explicit-duration semi-Markov filter, exact unary permutation emissions and online gradients. */
-public final class FamilyF09KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF09KernelR26 implements TemporalModelR26 {
     private static final int K=3,D=32;private final double[][] logits=new double[K][100],prior=new double[K][D],post=new double[K][D],exit=new double[K][D],stay=new double[K][D];private long t;
     public FamilyF09KernelR26(){for(int s=0;s<K;s++){prior[s][0]=1.0/K;for(int d=0;d<D;d++){exit[s][d]=1;stay[s][d]=9+s*3;}for(int j=0;j<100;j++)logits[s][j]=.03*Math.sin((s+1)*(j+1));}}
+    public void resetTemporalContext(){for(int s=0;s<K;s++){java.util.Arrays.fill(prior[s],0);java.util.Arrays.fill(post[s],0);prior[s][0]=1.0/K;}}
     public int stateWidth(){return 3;}
     private double hazard(int s,int d){return d==D-1?1:exit[s][d]/(exit[s][d]+stay[s][d]);}
     private ExactPermutationR26.Result[] emissions(){ExactPermutationR26.Result[] out=new ExactPermutationR26.Result[K];for(int s=0;s<K;s++){double[][] a=new double[10][10];for(int p=0;p<10;p++)System.arraycopy(logits[s],p*10,a[p],0,10);out[s]=ExactPermutationR26.infer(a,null);}return out;}

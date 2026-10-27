@@ -1,8 +1,9 @@
 package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Relation-symbol suffix automaton with supported state splits and hierarchical shrinkage. */
-public final class FamilyF12KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF12KernelR26 implements TemporalModelR26 {
     private final double[][][] count=new double[111][10][10];private final long[] support=new long[111];private int previous=-1,older=-1;private long t;
+    public void resetTemporalContext(){previous=-1;older=-1;}
     public int stateWidth(){return 3;}
     private int state(){if(previous<0)return 0;int first=1+previous,deep=older<0?-1:11+older*10+previous;return deep>=0&&support[first]>=20&&support[deep]>=4?deep:first;}
     private double prob(int state,int p,int n){if(state==0)return (count[0][p][n]+1)/(support[0]+10.0);int parent=state<11?0:1+(state-11)%10;return (count[state][p][n]+10*prob(parent,p,n))/(support[state]+10.0);}

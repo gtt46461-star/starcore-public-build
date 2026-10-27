@@ -48,5 +48,31 @@ public final class R26DeviceTest {
         java.io.ByteArrayOutputStream left=new java.io.ByteArrayOutputStream(),right=new java.io.ByteArrayOutputStream();a.write(new java.io.DataOutputStream(left));b.write(new java.io.DataOutputStream(right));assertArrayEquals(left.toByteArray(),right.toByteArray());
         float[] stats=new float[3];a.predict(new float[10][10],stats);assertTrue(stats[1]>0);
     }
+    @Test public void birthBudgetIsIrrevocableAndFrozenForecastsAreImmutable(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);db.beginTransaction();try{
+            StrategySchemaSU2.ensure(db);
+            for(String sql:SqlStatementsSU1.SQL)if(sql.startsWith("CREATE TABLE IF NOT EXISTS su1_family_budget")||sql.startsWith("CREATE TABLE IF NOT EXISTS su1_alpha_reservation"))db.execSQL(sql);
+            String policy=HashingSU1.text("synthetic-fixed-birth");
+            CertificateSU2.preregister(db,policy,100);CertificateSU2.preregister(db,policy,999);
+            try(Cursor c=db.rawQuery("SELECT from_sequence,family_alpha,protocol FROM r26_cohort",null)){assertTrue(c.moveToFirst());assertEquals(100,c.getLong(0));assertTrue(c.getDouble(1)>0);assertEquals(QualificationWindowR26.PROTOCOL,c.getString(2));}
+            long before;try(Cursor c=db.rawQuery("SELECT count(*) FROM su1_family_budget",null)){c.moveToFirst();before=c.getLong(0);}
+            CertificateSU2.preregister(db,policy,1000);
+            try(Cursor c=db.rawQuery("SELECT count(*) FROM su1_family_budget",null)){c.moveToFirst();assertEquals(before,c.getLong(0));}
+            db.execSQL("INSERT INTO r26_frozen VALUES(?,101,100,'checkpoint','state','source',1,1000,1001,zeroblob(400))",new Object[]{policy});
+            try{db.execSQL("UPDATE r26_frozen SET state_hash='different'");fail("frozen state changed");}catch(android.database.sqlite.SQLiteException expected){assertTrue(expected.getMessage().contains("IMMUTABLE"));}
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
+    @Test public void retentionPreservesRecentFeedbackAndFoldsOldRowsOnce(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);db.beginTransaction();try{StrategySchemaSU2.ensure(db);
+            db.execSQL("INSERT INTO r26_feedback VALUES('old',1,'s','p',1)");db.execSQL("INSERT INTO r26_feedback VALUES('new',6000,'s','p',1)");
+            db.execSQL("INSERT INTO r26_consumption VALUES('old','p','checkpoint','REVEALED_LIVE_LABEL')");
+            RetentionR26.prune(db,6001);RetentionR26.prune(db,6001);
+            try(Cursor c=db.rawQuery("SELECT event_id FROM r26_feedback",null)){assertTrue(c.moveToFirst());assertEquals("new",c.getString(0));assertFalse(c.moveToNext());}
+            try(Cursor c=db.rawQuery("SELECT folded FROM r26_retention_total WHERE kind='feedback_rows'",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getLong(0));}
+            try(Cursor c=db.rawQuery("SELECT folded FROM r26_retention_total WHERE kind='consumed_feedback_rows'",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getLong(0));}
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
     @Test public void retiredPlatformJobNeverBecomesTheTrainingOwner(){Context app=InstrumentationRegistry.getInstrumentation().getTargetContext();ReplayBurstSchedulerSU1.schedule(app);JobScheduler jobs=(JobScheduler)app.getSystemService(Context.JOB_SCHEDULER_SERVICE);if(jobs!=null)assertNull(jobs.getPendingJob(ReplayBurstSchedulerSU1.JOB_ID));}
 }

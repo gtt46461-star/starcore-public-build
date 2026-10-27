@@ -56,16 +56,18 @@ public final class ModelLiveLoopSU2 {
     static List<String> liveGenomes(SQLiteDatabase db) {
         List<String> cand = new ArrayList<>(); String main = null;
         try (Cursor c = db.rawQuery("SELECT member_id FROM su2_mainline_choice ORDER BY from_sequence DESC LIMIT 1", null)) { if (c.moveToFirst()) main = c.getString(0); }
-        try (Cursor c = db.rawQuery("SELECT g.canonical_text,'SU2:'||g.genome_key FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.origin_op<>'INCUMBENT' AND l.state='ACTIVE' ORDER BY CASE WHEN l.member_id=? THEN 0 ELSE 1 END,g.born_sequence DESC,g.genome_key LIMIT 96", new String[]{main == null ? "" : main})) {
+        try (Cursor c = db.rawQuery("SELECT g.canonical_text,'SU2:'||g.genome_key FROM su2_model_genome g JOIN su2_league l ON l.genome_key=g.genome_key WHERE g.state='LEAGUE' AND g.origin_op<>'INCUMBENT' AND g.origin_op<>'R26_LIVE' AND l.state='ACTIVE' ORDER BY CASE WHEN l.member_id=? THEN 0 ELSE 1 END,g.born_sequence DESC,g.genome_key LIMIT 96", new String[]{main == null ? "" : main})) {
             while (c.moveToNext()) {
                 String text = c.getString(0);
                 if (StageStrategySU2.isStage(text)) StageStoreSU2.load(db, text);
                 if (c.getString(1).equals(main)) cand.add(0, text); else cand.add(text);
             }
         }
+        int availableSlots=MAX_LIVE;
+        if(RuntimeSchemaR26.ready(db))try(Cursor c=db.rawQuery("SELECT count(*) FROM r26_live_model WHERE status='ACTIVE'",null)){if(c.moveToFirst())availableSlots=Math.max(1,MAX_LIVE-c.getInt(0));}
         List<String> out = new ArrayList<>(); Set<String> cals = new HashSet<>();
         for (String text : cand) {
-            if (out.size() >= MAX_LIVE) break;
+            if (out.size() >= availableSlots) break;
             Set<String> mine = calibratedMembers(text); Set<String> union = new HashSet<>(cals); union.addAll(mine);
             if (union.size() > MAX_HUB_CALIBRATORS) continue;
             cals = union; out.add(text);

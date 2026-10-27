@@ -2,7 +2,7 @@ package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 import java.util.*;
 /** Exact permutation chain factor graph. Pairwise adjacency, not arbitrary high-order inference. */
-public final class FamilyF02KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF02KernelR26 implements TemporalModelR26 {
     private final double[][] unary=new double[10][10],context=new double[100][10];private final double[][][] pair=new double[9][10][10];private int[] previous;private long t;private transient Inference cached;
     private static final class Inference {double z;double[][] p=new double[10][10];double[][][] edge=new double[9][10][10];}
     private static double add(double a,double b){if(a==Double.NEGATIVE_INFINITY)return b;if(b==Double.NEGATIVE_INFINITY)return a;double m=Math.max(a,b);return m+Math.log1p(Math.exp(Math.min(a,b)-m));}
@@ -14,6 +14,7 @@ public final class FamilyF02KernelR26 implements OnlineModelsSU2.Model {
         for(int mask=1;mask<1023;mask++){if((mask&31)==0)ExecutionBudgetR26.poll();int p=Integer.bitCount(mask);for(int last=0;last<10;last++)if((mask&(1<<last))!=0)for(int n=0;n<10;n++)if((mask&(1<<n))==0){double mass=Math.exp(f[mask][last]+s[p][n]+pair[p-1][last][n]+b[mask|1<<n][n]-r.z);r.p[p][n]+=mass;r.edge[p-1][last][n]+=mass;}}
         cached=r;return r;
     }
+    public void resetTemporalContext(){previous=null;cached=null;}
     public int stateWidth(){return 2;}
     public void predict(float[][] p,float[] st){Inference r=infer();for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)r.p[i][j];st[0]=(float)Math.log1p(t);st[1]=9;}
     public void update(int[] draw){OnlineModelsSU2.requireDraw(draw);Inference r=infer();for(int p=0;p<10;p++)for(int n=0;n<10;n++){double g=r.p[p][n]-(draw[p]==n+1?1:0);unary[p][n]=bound(unary[p][n]-.02*g);if(previous!=null)context[p*10+n][previous[p]-1]=bound(context[p*10+n][previous[p]-1]-.02*g);}for(int p=0;p<9;p++)for(int a=0;a<10;a++)for(int n=0;n<10;n++){double g=r.edge[p][a][n]-(draw[p]==a+1&&draw[p+1]==n+1?1:0);pair[p][a][n]=bound(pair[p][a][n]-.02*g);}previous=draw.clone();t++;cached=null;}

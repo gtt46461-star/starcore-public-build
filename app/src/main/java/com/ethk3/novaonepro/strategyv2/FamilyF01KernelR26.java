@@ -1,8 +1,9 @@
 package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Three-lag sparse cross-position groups with proximal L2 group shrinkage and exact joint head. */
-public final class FamilyF01KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF01KernelR26 implements TemporalModelR26 {
     private static final int L=3;private final double[][] w=new double[L*10][1000],bias=new double[10][10];private final int[][] ring=new int[L][10];private long t;
+    public void resetTemporalContext(){t=0;for(int[] row:ring)java.util.Arrays.fill(row,0);}
     public int stateWidth(){return 2;}
     double[][] scores(){double[][] s=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++){s[p][n]=bias[p][n];for(int l=0;l<Math.min(t,L);l++)for(int q=0;q<10;q++)s[p][n]+=w[l*10+q][(p*10+n)*10+ring[(int)((t-1-l)%L)][q]-1]/10;}return s;}
     public void predict(float[][] p,float[] st){ExactPermutationR26.Result r=ExactPermutationR26.infer(scores(),null);int groups=0;for(double[] row:w){double z=0;for(double x:row)z+=x*x;if(z>1e-20)groups++;}for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)r.marginal[i][j];st[0]=groups;st[1]=(float)Math.log1p(t);}

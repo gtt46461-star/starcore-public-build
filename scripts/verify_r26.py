@@ -45,7 +45,16 @@ def main():
         db.execute('BEGIN');db.execute("UPDATE r26_candidate SET cursor=2 WHERE campaign_id='c'");raise RuntimeError('injected')
     except RuntimeError:db.rollback()
     assert db.execute('SELECT cursor FROM r26_candidate').fetchone()[0]==1
-    checks.append(dict(name='actual_sql_migration_fencing_cas_rollback',returncode=0))
+    db.execute("INSERT INTO r26_frozen VALUES('p',10,9,'ck','state','source',1,100,101,zeroblob(400))")
+    try:
+        db.execute("UPDATE r26_frozen SET source_hash='changed' WHERE policy_hash='p'")
+        raise AssertionError('mutable frozen evidence')
+    except sqlite3.IntegrityError:pass
+    try:
+        db.execute("INSERT INTO r26_frozen VALUES('bad',10,10,'ck','state','source',1,100,101,zeroblob(400))")
+        raise AssertionError('target leaked into frozen input')
+    except sqlite3.IntegrityError:pass
+    checks.append(dict(name='actual_sql_migration_fencing_cas_rollback_immutable_freeze',returncode=0))
     with tempfile.TemporaryDirectory(prefix='r26-reference-') as tmp:
         copied=Path(tmp)/'plan'
         shutil.copytree(plan,copied,ignore=shutil.ignore_patterns('archive','downloads','__pycache__','.work'))

@@ -42,8 +42,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE state='RUNNING'");
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
-            add(db,"schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
-            add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
+            add(db,"schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
+            add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++)registerCapability(db,String.format(Locale.ROOT,"E%02d",i),"EXPERT");return 0;});
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
@@ -72,7 +72,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             catch(Exception failure){reason=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());android.util.Log.w("STARCORE_R26",claim.task,failure);}
             finally{ExecutionBudgetR26.leave();WRITING_CLAIM.remove();}
             final long work=delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu);final String blocked=elapsed>1000?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
-            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=cursor+?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{work,blocked==null?"YIELDED":"BLOCKED",now+(work>0?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
+            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=cursor+?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{work,blocked==null?"YIELDED":"BLOCKED",now+(work>0||"CRITICAL_DEADLINE".equals(blocked)?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
                 db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,claim.cursor+work,cpuMs,blocked,now});db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
                 db.execSQL("UPDATE r26_session SET heartbeat=?,actual_progress=actual_progress+? WHERE session_id=?",new Object[]{now,work,owner});return 0;});}catch(RuntimeException failure){android.util.Log.w("STARCORE_R26","receipt not committed",failure);}
             // Empty maintenance work waits for its next data event, never spins to fabricate progress.
@@ -87,6 +87,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;
         long seq=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);String target=TargetIssueResolver.next(latest.issue).targetIssue;
         switch(c.task){
+            case "qualification":return CertificateSU2.maintainOne(store,seq+1);
+            case "publish-models":return LivePoolR26.publishOne(store,c,budget);
+            case "live-model-training":return LivePoolR26.trainOne(store,c,budget);
             case "foundry-su2":return FoundryCampaignR26.step(store,c,budget);
             case "feedback":return ResearchFeedbackSU1.drainOne(store)?1:0;
             case "ablation":return ModelAblationStoreSU1.advanceOne(store,budget)?1:0;
@@ -109,7 +112,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "su2-certificate":CertificateSU2.maintain(store,seq+1);break;
             case "archive":ArchiveStoreSU1.maintain(store);break;
             case "diagnosis":MatrixStoreSU2.maintain(store,target);DiagnosisStoreSU2.maintain(store,target);break;
-            case "retention":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RETENTION",db->{requireFence(db,c);RetentionRulesSU2.foldDecisions(db,seq+1,System.currentTimeMillis());RetentionRulesSU2.pruneResearchGenomes(db);return 0;});break;
+            case "retention":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RETENTION",db->{requireFence(db,c);RetentionRulesSU2.foldDecisions(db,seq+1,System.currentTimeMillis());RetentionRulesSU2.pruneResearchGenomes(db);RetentionR26.prune(db,seq+1);return 0;});break;
             case "daily-close":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_DAILY_CLOSE",db->{requireFence(db,c);LiveShadowLoopSU1.closeDays(db,Integer.parseInt(latest.issue.substring(0,8)));return 0;});break;
             default:throw new IllegalStateException("R26_UNKNOWN_TASK:"+c.task);
         }

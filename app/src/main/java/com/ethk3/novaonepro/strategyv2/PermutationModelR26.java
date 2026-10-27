@@ -4,11 +4,12 @@ import java.io.*;
 
 /** F17: trained cross-position lag-one scores with exact legal-permutation readout.
  * Online SGD minimizes permutation NLL; no row-softmax probability substitution. */
-public final class PermutationModelR26 implements OnlineModelsSU2.Model {
+public final class PermutationModelR26 implements TemporalModelR26 {
     private final double lr;private final double[][] bias=new double[10][10];
     private final double[][][] weights=new double[100][10][10];
     private int[] previous;private long updates;private double lastLoss;
     public PermutationModelR26(double lr){if(!Double.isFinite(lr)||lr<=0||lr>0.1)throw new IllegalArgumentException("R26_MATCH_LR");this.lr=lr;}
+    public void resetTemporalContext(){previous=null;}
     public int stateWidth(){return 3;}
     private double[][] scores(){double[][] s=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++){s[p][n]=bias[p][n];if(previous!=null)for(int q=0;q<10;q++)s[p][n]+=weights[p*10+n][q][previous[q]-1]/10;}return s;}
     public void predict(float[][] p,float[] st){ExactPermutationR26.Result r=ExactPermutationR26.infer(scores(),null);for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)r.marginal[i][j];st[0]=(float)Math.log1p(updates);st[1]=(float)lastLoss;st[2]=previous==null?0:1;}

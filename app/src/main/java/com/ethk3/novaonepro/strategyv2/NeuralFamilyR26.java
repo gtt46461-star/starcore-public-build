@@ -4,7 +4,7 @@ import java.util.*;
 /** Five different causal computational graphs, trained end-to-end through exact permutation NLL.
  * F03 typed triple messages; F04 dilated TCN; F05 temporal attention; F06 selective SSM;
  * F07 graph GRU. Recurrent gradients use declared one-step truncation. */
-public final class NeuralFamilyR26 implements OnlineModelsSU2.Model {
+public final class NeuralFamilyR26 implements TemporalModelR26 {
     private static final int W=4,H=8,PARAMETERS=4096;private final String family;private final double[] weights=new double[PARAMETERS],momentum=new double[PARAMETERS],recurrent=new double[40];private final int[][] ring=new int[H][10];private long t;private double lastLoss,gradientNorm;private final AutoDiffR26 tape=new AutoDiffR26(PARAMETERS);private int[] stateNodes;
     public NeuralFamilyR26(String family){if(!Arrays.asList("F03","F04","F05","F06","F07").contains(family))throw new IllegalArgumentException("R26_NEURAL_FAMILY");this.family=family;long seed=Long.parseLong(family.substring(1))*1234567+71;for(int i=0;i<PARAMETERS;i++){seed^=seed<<13;seed^=seed>>>7;seed^=seed<<17;weights[i]=(Math.floorMod(seed,10000)/10000.0-.5)*.2;}}
     private int w(int i){return tape.weight(i,weights);}
@@ -29,6 +29,7 @@ public final class NeuralFamilyR26 implements OnlineModelsSU2.Model {
     private int[] forward(){tape.reset();stateNodes=null;int[] h=null;int[][] graph=null;switch(family){case "F03":graph=graph(true);break;case "F04":h=tcn();break;case "F05":h=attention();break;case "F06":h=ssm();break;case "F07":graph=graph(false);break;default:throw new AssertionError();}int[] output=new int[100];for(int p=0;p<10;p++)for(int n=0;n<10;n++){int j=p*10+n,z=w(1500+j);for(int k=0;k<W;k++)z=sum(z,mul(w(1000+j*W+k),graph==null?h[k]:graph[p][k]));output[j]=z;}return output;}
     private double[][] table(int[] output){double[][] s=new double[10][10];for(int i=0;i<100;i++)s[i/10][i%10]=tape.value(output[i]);return s;}
     double objective(int[] draw){int[] out=forward(),target=new int[10];for(int p=0;p<10;p++)target[p]=draw[p]-1;double[][] s=table(out);return ExactPermutationR26.nll(s,target,ExactPermutationR26.infer(s,null));}
+    public void resetTemporalContext(){t=0;for(int[] row:ring)java.util.Arrays.fill(row,0);java.util.Arrays.fill(recurrent,0);lastLoss=0;gradientNorm=0;tape.reset();}
     public int stateWidth(){return 3;}
     public void predict(float[][] p,float[] st){ExactPermutationR26.Result r=ExactPermutationR26.infer(table(forward()),null);for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)r.marginal[i][j];st[0]=(float)Math.log1p(t);st[1]=(float)lastLoss;st[2]=(float)gradientNorm;}
     public void update(int[] draw){OnlineModelsSU2.requireDraw(draw);int[] out=forward();double[][] s=table(out);ExactPermutationR26.Result r=ExactPermutationR26.infer(s,null);double[] seed=new double[100];int[] target=new int[10];for(int p=0;p<10;p++){target[p]=draw[p]-1;for(int n=0;n<10;n++)seed[p*10+n]=r.marginal[p][n]-(draw[p]==n+1?1:0);}lastLoss=ExactPermutationR26.nll(s,target,r);double[] gradient=tape.backward(out,seed);gradientNorm=0;for(double x:gradient)gradientNorm+=x*x;gradientNorm=Math.sqrt(gradientNorm);double scale=gradientNorm>5?5/gradientNorm:1;

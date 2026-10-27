@@ -11,10 +11,12 @@ public final class EventFrameBuilderSU1 {
     public static long generation(android.database.sqlite.SQLiteDatabase db){
         try(android.database.Cursor c=db.rawQuery("SELECT generation FROM su1_source_clock WHERE singleton=1",null)){if(!c.moveToFirst())throw new IllegalStateException("SU1_SOURCE_CLOCK");return c.getLong(0);}
     }
-    public static EventFrameSU1 capture(DbStore store,String target) {
+    public static EventFrameSU1 capture(DbStore store,String target) {return capture(store,target,true);}
+    public static EventFrameSU1 captureWithGapsR26(DbStore store,String target){return capture(store,target,false);}
+    private static EventFrameSU1 capture(DbStore store,String target,boolean consecutive) {
         long generation=generation(store.readable());
         PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,5000);
-        pit.requireConsecutive();
+        if(consecutive)pit.requireConsecutive();
         long now=System.currentTimeMillis();
         long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(pit.history.get(0));
         int n=pit.history.size();long[] issues=new long[n],availability=new long[n];int[][] values=new int[n][10];

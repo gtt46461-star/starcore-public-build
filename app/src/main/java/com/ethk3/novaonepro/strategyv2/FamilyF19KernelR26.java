@@ -1,12 +1,13 @@
 package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Trainable CP relation tensor U[p,k]V[n,k]A[q,k]B[r,k]C[lag,k]. */
-public final class FamilyF19KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF19KernelR26 implements TemporalModelR26 {
     private static final int R=3,L=3;private final double[][] u=new double[10][R],v=new double[10][R],a=new double[10][R],b=new double[10][R],c=new double[L][R];
     private final int[][] ring=new int[L][10];private long t;private final double lr;
     public FamilyF19KernelR26(double lr){if(lr<=0||lr>.1||!Double.isFinite(lr))throw new IllegalArgumentException("F19_LR");this.lr=lr;long seed=1719;for(double[][] m:new double[][][]{u,v,a,b,c})for(double[] row:m)for(int k=0;k<R;k++){seed^=seed<<13;seed^=seed>>>7;seed^=seed<<17;row[k]=(Math.floorMod(seed,10000)/10000.0-.5)*.4;}}
     private double[] context(){double[] h=new double[R];for(int l=0;l<Math.min(t,L);l++)for(int q=0;q<10;q++){int n=ring[(int)((t-1-l)%L)][q]-1;for(int k=0;k<R;k++)h[k]+=a[q][k]*b[n][k]*c[l][k];}return h;}
     private double[][] scores(double[] h){double[][] s=new double[10][10];for(int p=0;p<10;p++)for(int n=0;n<10;n++)for(int k=0;k<R;k++)s[p][n]+=u[p][k]*v[n][k]*h[k];return s;}
+    public void resetTemporalContext(){t=0;for(int[] row:ring)java.util.Arrays.fill(row,0);}
     public int stateWidth(){return 2;}
     public void predict(float[][] out,float[] st){ExactPermutationR26.Result p=ExactPermutationR26.infer(scores(context()),null);for(int i=0;i<10;i++)for(int j=0;j<10;j++)out[i][j]=(float)p.marginal[i][j];st[0]=(float)Math.log1p(t);st[1]=R;}
     public void update(int[] draw){OnlineModelsSU2.requireDraw(draw);double[] h=context(),gh=new double[R];ExactPermutationR26.Result pred=ExactPermutationR26.infer(scores(h),null);double[][] du=new double[10][R],dv=new double[10][R],da=new double[10][R],db=new double[10][R],dc=new double[L][R];

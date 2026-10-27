@@ -76,13 +76,16 @@ public final class ModelGenomeSU2 {
         return b.toString();
     }
 
+    public boolean r26Family(){for(Member member:members)if(member.kind.startsWith("R26F"))return true;return false;}
+    public int gateWarmup(int requested){return r26Family()&&gate.equals("MASS")?Math.min(requested,128):requested;}
+    public ModelGenomeSU2 bindBirth(String snapshot,long through){if(!snapshot.matches("[0-9a-f]{64}")||through<0)throw new IllegalArgumentException("R26_BIRTH");List<Member> bound=new ArrayList<>();for(Member member:members){Map<String,String> p=new TreeMap<>(member.params);p.put("_birth_snapshot",snapshot);p.put("_birth_through",Long.toString(through));bound.add(new Member(member.kind,p,member.weight));}return new ModelGenomeSU2(bound,pool,sink,gate,coverage,metaC,calibrated);}
     public String key() {
         String ready=cachedKey;if(ready!=null)return ready;
         if (legacyText != null) return cachedKey=HashingSU1.text("SU2_MODEL_GENOME_V1|" + legacyText);
         Map<String,Object> rules = new HashMap<>();
         rules.put("graph", text()); rules.put("features", "SU2_CAUSAL_RETAINED_5000_V1");
         rules.put("updater", "SU2_ONLINE_STATE_CODEC_R26_V1"); rules.put("update_schedule", "REVEALED_LABEL_ORDERED_EXACTLY_ONCE");
-        rules.put("initial_state", "MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
+        rules.put("initial_state", members.get(0).params.containsKey("_birth_snapshot")?Arrays.asList("DETERMINISTIC_MEMBER_INIT_THEN_BOUND_BOOTSTRAP",members.get(0).params.get("_birth_snapshot"),members.get(0).params.get("_birth_through")):"MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
         rules.put("gate", Arrays.asList(gate, metaC, coverage)); rules.put("router", pool);
         rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
         rules.put("resource_schedule", "R26_SINGLE_RESEARCH_WORKER_FAIR_200MS_V1");

@@ -1,8 +1,9 @@
 package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Contextual soft router over three distinct probability mechanisms, with independent states. */
-public final class PortfolioFamilyR26 implements OnlineModelsSU2.Model {
+public final class PortfolioFamilyR26 implements TemporalModelR26 {
     private final OnlineModelsSU2.Model[] models={new FamilyF01KernelR26(),new FamilyF09KernelR26(),new FamilyF11KernelR26(.02)};private final double[][] gate=new double[3][3],momentum=new double[3][3];private double entropy=.0,previousLoss=2.302585;private long t;
+    public void resetTemporalContext(){for(OnlineModelsSU2.Model m:models)TemporalResetR26.reset(m);entropy=0;previousLoss=2.302585;}
     public int stateWidth(){return 3;}
     private double[] feature(){return new double[]{1,entropy,Math.max(-2,Math.min(2,previousLoss-2.302585))};}
     private double[] routing(){double[] x=feature(),w=new double[3];double max=-1e30,z=0;for(int i=0;i<3;i++){for(int j=0;j<3;j++)w[i]+=gate[i][j]*x[j];max=Math.max(max,w[i]);}for(int i=0;i<3;i++){w[i]=Math.exp(w[i]-max);z+=w[i];}for(int i=0;i<3;i++)w[i]/=z;return w;}

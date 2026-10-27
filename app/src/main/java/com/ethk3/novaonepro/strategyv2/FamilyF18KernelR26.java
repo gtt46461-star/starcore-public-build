@@ -1,8 +1,9 @@
 package com.ethk3.novaonepro.strategyv2;
 import java.io.*;
 /** Masked autoregression whose dependency is the used set. Exact subset-flow marginals. */
-public final class FamilyF18KernelR26 implements OnlineModelsSU2.Model {
+public final class FamilyF18KernelR26 implements TemporalModelR26 {
     private final double[][] bias=new double[10][10],context=new double[100][10],prefix=new double[10][10];private int[] previous;private long t;
+    public void resetTemporalContext(){previous=null;}
     public int stateWidth(){return 2;}
     private double[] conditional(int mask){int p=Integer.bitCount(mask);double[] prob=new double[10];double max=-1e30,z=0;for(int n=0;n<10;n++)if((mask&(1<<n))==0){double s=bias[p][n]+(previous==null?0:context[p*10+n][previous[p]-1]);if(p>0)for(int used=0;used<10;used++)if((mask&(1<<used))!=0)s+=prefix[n][used]/p;prob[n]=s;max=Math.max(max,s);}for(int n=0;n<10;n++)if((mask&(1<<n))==0){prob[n]=Math.exp(prob[n]-max);z+=prob[n];}for(int n=0;n<10;n++)if((mask&(1<<n))==0)prob[n]/=z;return prob;}
     public void predict(float[][] p,float[] st){double[] mass=new double[1024];mass[0]=1;double[][] result=new double[10][10];for(int mask=0;mask<1023;mask++){if((mask&31)==0)ExecutionBudgetR26.poll();int position=Integer.bitCount(mask);double[] prob=conditional(mask);for(int n=0;n<10;n++)if((mask&(1<<n))==0){double flow=mass[mask]*prob[n];result[position][n]+=flow;mass[mask|1<<n]+=flow;}}for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=(float)result[i][j];st[0]=(float)Math.log1p(t);st[1]=(float)mass[1023];}
