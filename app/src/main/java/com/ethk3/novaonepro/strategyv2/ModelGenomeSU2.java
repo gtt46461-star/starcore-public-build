@@ -1,6 +1,7 @@
 package com.ethk3.novaonepro.strategyv2;
 
 import java.util.*;
+import com.ethk3.novaonepro.ResearchSemanticsGeneratedR967;
 
 /**
  * A complete R13 strategy (P18): members (online models), pooling, permutation
@@ -58,6 +59,7 @@ public final class ModelGenomeSU2 {
         if (!gate.equals("MASS") && !gate.equals("META")) throw new IllegalArgumentException("SU2_GENOME_GATE");
         boolean ok = false; for (double c : COVERAGES) ok |= c == coverage;
         if (!ok || !(metaC > 0 && metaC <= 5)) throw new IllegalArgumentException("SU2_GENOME_FREQUENCY");
+        if(members.size()>1)for(Member member:members)if(member.kind.equals("R26F15")||member.kind.equals("R26F16"))throw new IllegalArgumentException("R26_SET_HEAD_MUST_BE_FINAL_READOUT");
         this.members = Collections.unmodifiableList(new ArrayList<>(members));
         this.pool = pool; this.sink = sink; this.gate = gate; this.coverage = coverage; this.metaC = metaC; this.calibrated = calibrated;
     }
@@ -84,7 +86,7 @@ public final class ModelGenomeSU2 {
         rules.put("gate", Arrays.asList(gate, metaC, coverage)); rules.put("router", pool);
         rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
         rules.put("resource_schedule", "R26_SINGLE_RESEARCH_WORKER_FAIR_200MS_V1");
-        rules.put("evidence_protocol", "R26_LCB_FIXED_CALENDAR_V1"); rules.put("runtime_abi", "SU2_R26_1");
+        rules.put("evidence_protocol", "R26_LCB_FIXED_CALENDAR_V1"); rules.put("runtime_abi", "SU2_R26_1:"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
         return cachedKey=new PolicyIdentityR26.Policy(rules).hash;
     }
 

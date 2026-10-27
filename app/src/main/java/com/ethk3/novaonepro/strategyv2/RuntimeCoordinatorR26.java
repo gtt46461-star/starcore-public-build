@@ -37,6 +37,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public boolean isRunning(){return !cancelled && worker.isAlive();}
     public static void requireFence(SQLiteDatabase db,Claim claim){try(Cursor c=db.rawQuery("SELECT 1 FROM r26_task WHERE task_id=? AND owner=? AND fence=? AND status='RUNNING' AND lease_until>?",new String[]{claim.task,claim.owner,String.valueOf(claim.fence),String.valueOf(System.currentTimeMillis())})){if(!c.moveToFirst())throw new IllegalStateException("R26_STALE_FENCE_OR_LEASE");}}
     private void initialize(){
+        try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE state='RUNNING'");

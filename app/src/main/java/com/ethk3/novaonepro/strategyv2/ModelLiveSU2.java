@@ -182,6 +182,10 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
         int p2 = p1 == 0 ? 1 : 0; for (int p = 0; p < 10; p++) if (p != p1 && mass[p] > mass[p2]) p2 = p;
         curP1 = p1; curK3 = top[p1].clone();
         double conf = mass[p1];
+        if(M==1&&hub.models.get(keys[0]) instanceof SetReadoutR26){
+            SetReadoutR26.Action selected=((SetReadoutR26)hub.models.get(keys[0])).choose(P);
+            p1=selected.position;curP1=p1;curK3=new int[]{selected.a,selected.b,selected.c};conf=selected.probability;
+        }
         double gs, phat;
         if (g.gate.equals("META")) {
             double[] row = new double[F]; int j = 0;
@@ -241,7 +245,7 @@ public final class ModelLiveSU2 implements LiveStrategySU2 {
     }
 
     private void blockThreshold() {
-        long lo = Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, t - 720);
+        long lo = Math.max(0, Math.max(g.gate.equals("META") ? startMeta : startMeta - 720, t - 720));
         double[] hist = new double[(int) (t - lo)]; int n = 0;
         for (long u = lo; u < t; u++) { double v = gsRing[(int) (u % 720)]; if (v > -1) hist[n++] = v; }
         if (n < 100) { thrValid = false; return; }

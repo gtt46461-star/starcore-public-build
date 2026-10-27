@@ -13,7 +13,7 @@ public final class RuntimeSchemaR26 {
         "CREATE TABLE IF NOT EXISTS r26_session(session_id TEXT PRIMARY KEY,user_enabled INTEGER NOT NULL,boot_id TEXT NOT NULL,state TEXT NOT NULL,heartbeat INTEGER NOT NULL,actual_progress INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r26_task(task_id TEXT PRIMARY KEY,lane TEXT NOT NULL,mechanism TEXT NOT NULL,snapshot_hash TEXT NOT NULL DEFAULT '',cursor INTEGER NOT NULL DEFAULT 0,fence INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,owner TEXT,status TEXT NOT NULL DEFAULT 'READY',blocked_reason TEXT,next_at INTEGER NOT NULL DEFAULT 0,last_progress INTEGER NOT NULL DEFAULT 0,steps INTEGER NOT NULL DEFAULT 0,last_cpu_ms INTEGER NOT NULL DEFAULT 0)",
         "CREATE TABLE IF NOT EXISTS r26_progress(receipt_id INTEGER PRIMARY KEY,task_id TEXT NOT NULL,fence INTEGER NOT NULL,cursor_before INTEGER NOT NULL,cursor_after INTEGER NOT NULL,cpu_ms INTEGER NOT NULL,blocked_reason TEXT,recorded_at INTEGER NOT NULL)",
-        "CREATE TABLE IF NOT EXISTS r26_foundry(campaign_id TEXT PRIMARY KEY,snapshot_hash TEXT NOT NULL,source_through INTEGER NOT NULL,snapshot BLOB NOT NULL CHECK(length(snapshot)<=524288),status TEXT NOT NULL,created_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS r26_foundry(campaign_id TEXT PRIMARY KEY,snapshot_hash TEXT NOT NULL,source_through INTEGER NOT NULL,snapshot BLOB NOT NULL CHECK(length(snapshot)<=524288),status TEXT NOT NULL,created_at INTEGER NOT NULL,numerical_abi TEXT NOT NULL DEFAULT '')",
         "CREATE TABLE IF NOT EXISTS r26_candidate(campaign_id TEXT NOT NULL,policy_hash TEXT NOT NULL,canonical_text TEXT NOT NULL,cursor INTEGER NOT NULL DEFAULT 0,state BLOB,state_hash TEXT NOT NULL DEFAULT '',checkpoint_hash TEXT NOT NULL DEFAULT '',dev_n INTEGER NOT NULL DEFAULT 0,dev_k INTEGER NOT NULL DEFAULT 0,val_n INTEGER NOT NULL DEFAULT 0,val_k INTEGER NOT NULL DEFAULT 0,loss_sum REAL NOT NULL DEFAULT 0,status TEXT NOT NULL DEFAULT 'READY',parent TEXT,operation TEXT NOT NULL,PRIMARY KEY(campaign_id,policy_hash))",
         "CREATE TABLE IF NOT EXISTS r26_look(genome_key TEXT NOT NULL,cohort TEXT NOT NULL,evidence_digest TEXT NOT NULL,look INTEGER NOT NULL,family_alpha REAL NOT NULL,PRIMARY KEY(genome_key,cohort,evidence_digest))",
         "CREATE TABLE IF NOT EXISTS r26_cohort(genome_key TEXT PRIMARY KEY,from_sequence INTEGER NOT NULL,to_sequence INTEGER NOT NULL,incumbent TEXT NOT NULL,protocol TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'ACCUMULATING')",
@@ -26,7 +26,13 @@ public final class RuntimeSchemaR26 {
         "CREATE INDEX IF NOT EXISTS r26_feedback_order ON r26_feedback(issue_ordinal)"
     };
     public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_capability'",null)){return c.moveToFirst();}}
-    public static void ensure(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R26_WRITER_REQUIRED");for(String sql:DDL)db.execSQL(sql);}
+    public static void ensure(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R26_WRITER_REQUIRED");for(String sql:DDL)db.execSQL(sql);
+        column(db,"r26_foundry","numerical_abi","TEXT NOT NULL DEFAULT ''");
+        column(db,"r26_candidate","state_hash","TEXT NOT NULL DEFAULT ''");column(db,"r26_candidate","checkpoint_hash","TEXT NOT NULL DEFAULT ''");
+        // Old engineering checkpoints remain preserved. Their missing hash is explicitly blocked.
+    }
+    private static void column(SQLiteDatabase db,String table,String name,String type){try(Cursor c=db.rawQuery("PRAGMA table_info("+table+")",null)){while(c.moveToNext())if(name.equals(c.getString(1)))return;}db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+name+" "+type);}
+
     /** Called only by SettlementEngine, inside its sole-owner terminal transaction. */
     public static void feedbackWithinTransaction(SQLiteDatabase db,Models.Draw draw){
         if(!db.inTransaction()||draw==null||!draw.isValid())throw new IllegalArgumentException("R26_FEEDBACK_OWNER");

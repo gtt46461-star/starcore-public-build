@@ -27,6 +27,9 @@ public final class CertificateSU2 {
         try (Cursor c = db.rawQuery("SELECT c.certificate_id,c.program_hash,c.calibration_a,c.calibration_b,c.issued_at,c.expires_at,g.canonical_text FROM su2_certificate c JOIN su2_model_genome g ON g.genome_key=c.genome_key "
             + "WHERE EXISTS(SELECT 1 FROM r26_certificate_protocol p WHERE p.certificate_id=c.certificate_id AND p.protocol='R26_FIXED_ENDPOINT_LCB_V1') AND c.genome_key=? AND c.issued_at<=? AND c.expires_at>? AND g.state='LEAGUE' ORDER BY c.issued_at DESC LIMIT 1", new String[]{genome, String.valueOf(now), String.valueOf(now)})) {
             if (!c.moveToFirst()) return null;
+            String canonical=c.getString(6);
+            if(!canonical.contains("|ID=R26|"))return null;
+            if(canonical.startsWith("SU2|")&&!ModelGenomeSU2.parse(canonical).key().equals(genome))return null;
             if (!HashingSU1.text(c.getString(6)).equals(c.getString(1))) return null;        // certificate bound to the exact program
             return new Authority(c.getString(0), genome, c.getString(1), c.getDouble(2), c.getDouble(3), c.getLong(4), c.getLong(5));
         }
@@ -41,6 +44,13 @@ public final class CertificateSU2 {
         String genome = member.substring(member.indexOf(':') + 1);
         if (read(r, genome, System.currentTimeMillis()) != null) return "SU2_CERT_VALID";
         if (!RuntimeSchemaR26.ready(r)) return "R26_CERT_SCHEMA_PENDING";
+        try(Cursor c=r.rawQuery("SELECT canonical_text FROM su2_model_genome WHERE genome_key=?",new String[]{genome})){
+            if(!c.moveToFirst())return "R26_CERT_POLICY_MISSING";
+            String canonical=c.getString(0);
+            if(!canonical.contains("|ID=R26|"))return "R26_CERT_LEGACY_POLICY_REBIND_REQUIRED";
+            if(canonical.startsWith("SU2|")&&!ModelGenomeSU2.parse(canonical).key().equals(genome))return "R26_CERT_NUMERICAL_ABI_CHANGED";
+        }
+
         // Freeze the calendar and benchmark before seeing any of this cohort's outcomes.
         long cohortFrom = -1, cohortTo = -1; String benchmark = "";
         try (Cursor c = r.rawQuery("SELECT from_sequence,to_sequence,incumbent FROM r26_cohort WHERE genome_key=?",new String[]{genome})) {

@@ -18,6 +18,7 @@ public final class StructuralProposalR26 {
     public static List<Proposal> from(ModelGenomeSU2 parent,ModelGenomeSU2.Member complementary){
         List<Proposal> out=new ArrayList<>();ModelGenomeSU2 base=copy(parent,parent.members,parent.pool);
         out.add(new Proposal(base,parent.key(),"PRESERVE_PARENT_STRUCTURE",base.key().equals(parent.key())?"NO_OP":"IDENTITY_MIGRATION"));
+        for(ModelGenomeSU2.Member member:parent.members)if(member.kind.equals("R26F15")||member.kind.equals("R26F16"))return out;
         List<ModelGenomeSU2.Member> mem=new ArrayList<>(parent.members);boolean present=false;for(ModelGenomeSU2.Member m:mem)present|=m.modelKey().equals(complementary.modelKey());
         if(!present&&mem.size()<4){mem.add(complementary);add(out,parent,copy(parent,mem,"BMA"),"ADD_COMPLEMENTARY_MEMBER");}
         if(parent.members.size()>1){mem=new ArrayList<>(parent.members);mem.remove(mem.size()-1);add(out,parent,copy(parent,mem,parent.pool),"REMOVE_MEMBER");}

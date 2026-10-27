@@ -36,5 +36,17 @@ public final class R26DeviceTest {
         schema(db);JSONObject report=new JSONObject(RuntimeReportR26.json(db));assertEquals("INCOMPLETE",report.getString("overallAcceptance"));JSONArray sections=report.getJSONArray("sections");assertEquals(40,sections.length());
         for(int i=0;i<sections.length();i++){JSONObject s=sections.getJSONObject(i);assertFalse(s.getString("status").equals("PASS"));assertTrue(s.has("omittedRows"));assertTrue(s.has("errorChain"));}
     }}
+    @Test public void originalPublicAssetTeacherBindsStateAndCannotReadTargetLabel()throws Exception {
+        Context app=InstrumentationRegistry.getInstrumentation().getTargetContext();com.ethk3.novaonepro.LegacyTeacherOwnerR26.register(app);
+        assertTrue(FamilyRegistryR26.EXECUTABLE.contains("F23"));ModelGenomeSU2 g=FamilyRegistryR26.genome("F23");assertTrue(g.members.get(0).params.get("scope").startsWith("LEGACY_REPORTED"));
+        long[] issues=new long[60],open=new long[60],available=new long[60];int[][] draws=new int[60][10];
+        for(int i=0;i<60;i++){issues[i]=202610270001L+i;open[i]=1793059200000L+i*60000;available[i]=open[i]+1000;for(int p=0;p<10;p++)draws[i][p]=(p+i)%10+1;}
+        int[] observed=draws[40].clone();OnlineModelsSU2.Model a=FamilyRegistryR26.build("F23"),b=FamilyRegistryR26.build("F23");
+        try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);a.update(observed);}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}
+        draws[40]=new int[]{10,9,8,7,6,5,4,3,2,1};
+        try{com.ethk3.novaonepro.LegacyTeacherOwnerR26.enter(issues,open,available,draws,40);b.update(observed);}finally{com.ethk3.novaonepro.LegacyTeacherOwnerR26.leave();}
+        java.io.ByteArrayOutputStream left=new java.io.ByteArrayOutputStream(),right=new java.io.ByteArrayOutputStream();a.write(new java.io.DataOutputStream(left));b.write(new java.io.DataOutputStream(right));assertArrayEquals(left.toByteArray(),right.toByteArray());
+        float[] stats=new float[3];a.predict(new float[10][10],stats);assertTrue(stats[1]>0);
+    }
     @Test public void retiredPlatformJobNeverBecomesTheTrainingOwner(){Context app=InstrumentationRegistry.getInstrumentation().getTargetContext();ReplayBurstSchedulerSU1.schedule(app);JobScheduler jobs=(JobScheduler)app.getSystemService(Context.JOB_SCHEDULER_SERVICE);if(jobs!=null)assertNull(jobs.getPendingJob(ReplayBurstSchedulerSU1.JOB_ID));}
 }

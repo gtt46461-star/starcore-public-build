@@ -18,8 +18,8 @@ with open('android-r13.txt','w') as report:
         match=re.search(r'OK \((\d+) tests?\)',run.stdout)
         assert run.returncode==0 and match and 'FAILURES' not in run.stdout,name+' failed'
         total+=int(match.group(1))
-    assert total==36,total
-    report.write('Isolated class aggregate: OK (36 tests)\n')
+    assert total==37,total
+    report.write('Isolated class aggregate: OK (37 tests)\n')
 PYTEST
 adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-charts.png

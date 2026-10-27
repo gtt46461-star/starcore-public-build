@@ -14,6 +14,7 @@ def main():
         return p.stdout
     prod=ROOT/'app/src/main/java/com/ethk3/novaonepro'
     sources=[p for p in (prod/'strategyv2').glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
+    sources += [ROOT / 'app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
     sources += [prod/'r952'/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
     sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java']]
     classes=OUT/'classes';classes.mkdir(exist_ok=True)
@@ -35,7 +36,7 @@ def main():
     db.execute("UPDATE r26_task SET fence=fence+1,owner='new',lease_until=300,status='RUNNING' WHERE task_id='train'")
     assert db.execute("SELECT 1 FROM r26_task WHERE task_id='train' AND owner='old' AND fence=0 AND lease_until>200").fetchone() is None
     # A stale-parent sample CAS cannot silently consume a second sample.
-    db.execute("INSERT INTO r26_foundry VALUES('c','s',2,X'0000','RUNNING',1)")
+    db.execute("INSERT INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at) VALUES('c','s',2,X'0000','RUNNING',1)")
     db.execute("INSERT INTO r26_candidate(campaign_id,policy_hash,canonical_text,operation) VALUES('c','p','spec','test')")
     assert db.execute("UPDATE r26_candidate SET cursor=1 WHERE campaign_id='c' AND policy_hash='p' AND cursor=0").rowcount==1
     assert db.execute("UPDATE r26_candidate SET cursor=2 WHERE campaign_id='c' AND policy_hash='p' AND cursor=0").rowcount==0

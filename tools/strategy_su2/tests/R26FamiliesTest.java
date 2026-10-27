@@ -24,7 +24,15 @@ public final class R26FamiliesTest {
             byte[] beforeCancel=save(m);ExecutionBudgetR26.enter(new BudgetTokenSU1(1000,100000,()->true));try{m.update(fixed);throw new AssertionError("uncancellable tape");}catch(BudgetTokenSU1.Yield expected){}finally{ExecutionBudgetR26.leave();}check(Arrays.equals(beforeCancel,save(m)),id+" immediate cancellation changed state");
         }
         check(states.size()==FamilyRegistryR26.EXECUTABLE.size(),"families share identical state");
+        for(String id:Arrays.asList("F15","F16")){
+            ModelGenomeSU2 g=FamilyRegistryR26.genome(id);int[][] draws=new int[160][10];for(int t=0;t<160;t++)for(int p=0;p<10;p++)draws[t][p]=(p+t%3)%10+1;
+            ModelReplaySU2.Result replay=ModelReplaySU2.evaluate(g,new ModelReplaySU2.Library(draws,4<<20),32,256,64);ModelLiveSU2.Hub hub=new ModelLiveSU2.Hub();ModelLiveSU2 live=new ModelLiveSU2(g,hub,32,256,64);
+            for(int t=0;t<160;t++){ModelLiveSU2.Decision d=live.decide();float[][] probabilities=live.pendingTable(t);double mass=0;for(int n=0;n<10;n++)if((d.mask&(1<<n))!=0)mass+=probabilities[d.position-1][n];check(Math.abs(d.phat-mass)<1e-6,"utility relabelled as probability");check(d.mask==replay.mask[t]&&d.position==replay.position[t]&&d.act==replay.act[t],"set replay/live mismatch");boolean hit=live.settle(draws[t]);check(hit==replay.hit[t],"set hit mismatch");hub.update(draws[t]);}
+        }
         try{FamilyRegistryR26.build("F23");throw new AssertionError("missing original teacher silently substituted");}catch(IllegalArgumentException expected){}
+        Map<String,String> fixture=new TreeMap<>();fixture.put("abi","1");fixture.put("teacher",PolicyIdentityR26.sha256("SYNTHETIC_TEACHER_ONLY"));fixture.put("state",PolicyIdentityR26.sha256("SYNTHETIC_STATE_ONLY"));fixture.put("scope","SYNTHETIC_TEST_ONLY");
+        FamilyRegistryR26.bindLegacyTeacher(fixture,params->new DistillationFamilyR26(new DistillationFamilyR26.Teacher(){public String identity(){return "SYNTHETIC_TEST_ONLY";}public double[][] marginal(){double[][] p=new double[10][10];for(double[] row:p)Arrays.fill(row,.1);return p;}}));
+        OnlineModelsSU2.Model distilled=FamilyRegistryR26.build("F23");double initial=loss(distilled,fixed);for(int i=0;i<220;i++)distilled.update(fixed);check(loss(distilled,fixed)<initial-.01,"distillation did not learn");byte[] state=save(distilled);OnlineModelsSU2.Model restored=FamilyRegistryR26.build("F23");restored.read(new DataInputStream(new ByteArrayInputStream(state)));distilled.update(fixed);restored.update(fixed);check(Arrays.equals(save(distilled),save(restored)),"distillation resume");check(FamilyRegistryR26.EXECUTABLE.size()==24,"family denominator");
         System.out.println("R26_FAMILIES_PASS");
     }
 }

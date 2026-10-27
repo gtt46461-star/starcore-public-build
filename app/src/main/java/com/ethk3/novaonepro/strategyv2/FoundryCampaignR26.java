@@ -12,19 +12,22 @@ import java.util.zip.*;
 public final class FoundryCampaignR26 {
     private FoundryCampaignR26() {}
     static final class Snapshot {
-        long[] ordinal;int[][] draws;String hash;long through;
-        byte[] encode()throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();try(DataOutputStream o=new DataOutputStream(b)){o.writeInt(draws.length);for(int i=0;i<draws.length;i++){o.writeLong(ordinal[i]);for(int x:draws[i])o.writeByte(x);}}return b.toByteArray();}
-        static Snapshot decode(byte[] b)throws IOException{Snapshot s=new Snapshot();try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(b))){int n=in.readInt();if(n<32||n>5000)throw new IOException("R26_SNAPSHOT_SIZE");s.ordinal=new long[n];s.draws=new int[n][10];for(int i=0;i<n;i++){s.ordinal[i]=in.readLong();if(i>0&&s.ordinal[i]<=s.ordinal[i-1])throw new IOException("R26_SNAPSHOT_ORDER");for(int p=0;p<10;p++)s.draws[i][p]=in.readUnsignedByte();OnlineModelsSU2.requireDraw(s.draws[i]);}if(in.read()!=-1)throw new IOException("R26_SNAPSHOT_TRAILING");}s.through=s.ordinal[s.ordinal.length-1];return s;}
+        static final int MAGIC=0x26360001;
+        long[] ordinal,issues,opened,available;int[][] draws;long through;
+        byte[] encode()throws IOException{ByteArrayOutputStream b=new ByteArrayOutputStream();try(DataOutputStream o=new DataOutputStream(b)){o.writeInt(MAGIC);o.writeInt(draws.length);for(int i=0;i<draws.length;i++){o.writeLong(ordinal[i]);o.writeLong(issues[i]);o.writeLong(opened[i]);o.writeLong(available[i]);for(int x:draws[i])o.writeByte(x);}}return b.toByteArray();}
+        static Snapshot decode(byte[] b)throws IOException{Snapshot s=new Snapshot();try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(b))){int header=in.readInt();boolean complete=header==MAGIC;int n=complete?in.readInt():header;if(n<32||n>5000)throw new IOException("R26_SNAPSHOT_SIZE");s.ordinal=new long[n];s.issues=new long[n];s.opened=new long[n];s.available=new long[n];s.draws=new int[n][10];for(int i=0;i<n;i++){s.ordinal[i]=in.readLong();if(complete){s.issues[i]=in.readLong();s.opened[i]=in.readLong();s.available[i]=in.readLong();}if(i>0&&s.ordinal[i]<=s.ordinal[i-1])throw new IOException("R26_SNAPSHOT_ORDER");for(int p=0;p<10;p++)s.draws[i][p]=in.readUnsignedByte();OnlineModelsSU2.requireDraw(s.draws[i]);}if(in.read()!=-1)throw new IOException("R26_SNAPSHOT_TRAILING");}s.through=s.ordinal[s.ordinal.length-1];return s;}
     }
-    private static Snapshot capture(DbStore store){List<Models.Draw> ds=store.getRecentDraws(5000);if(ds.size()<64)return null;Snapshot s=new Snapshot();s.ordinal=new long[ds.size()];s.draws=new int[ds.size()][10];for(int i=0;i<ds.size();i++){Models.Draw d=ds.get(i);if(!d.isValid())throw new IllegalStateException("R26_BAD_SOURCE");s.ordinal[i]=TargetIssueResolver.sequenceOrdinalSU1(d.issue);for(int p=0;p<10;p++)s.draws[i][p]=d.getNumberAtPosition(p+1);}s.through=s.ordinal[ds.size()-1];return s;}
+    private static Snapshot capture(DbStore store){List<Models.Draw> ds=store.getRecentDraws(5000);if(ds.size()<64)return null;Snapshot s=new Snapshot();s.ordinal=new long[ds.size()];s.issues=new long[ds.size()];s.opened=new long[ds.size()];s.available=new long[ds.size()];s.draws=new int[ds.size()][10];for(int i=0;i<ds.size();i++){Models.Draw d=ds.get(i);if(!d.isValid())throw new IllegalStateException("R26_BAD_SOURCE");s.ordinal[i]=TargetIssueResolver.sequenceOrdinalSU1(d.issue);s.issues[i]=Long.parseLong(d.issue);s.opened[i]=d.openTime;s.available[i]=d.fetchTime;for(int p=0;p<10;p++)s.draws[i][p]=d.getNumberAtPosition(p+1);}s.through=s.ordinal[ds.size()-1];return s;}
     /** No model training is executed inside the writer. Returns a count of committed samples. */
     public static long step(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget)throws IOException{
+        final String numericalAbi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_ABI_GUARD",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("UPDATE r26_foundry SET status='ABANDONED_NUMERICAL_ABI' WHERE status='RUNNING' AND numerical_abi<>?",new Object[]{numericalAbi});return 0;});
         SQLiteDatabase r=store.readable();String campaign=null;byte[] snapshotBytes=null;long through=0;
         try(Cursor c=r.rawQuery("SELECT campaign_id,snapshot,source_through FROM r26_foundry WHERE status='RUNNING' ORDER BY created_at LIMIT 1",null)){if(c.moveToFirst()){campaign=c.getString(0);snapshotBytes=c.getBlob(1);through=c.getLong(2);}}
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);
         if(campaign==null){
-            try(Cursor c=r.rawQuery("SELECT max(source_through) FROM r26_foundry WHERE status='DONE'",null)){if(c.moveToFirst()&&!c.isNull(0)&&c.getLong(0)>=latestOrdinal)return 0;}
-            budget.checkpointOrYield();Snapshot s=capture(store);if(s==null)return 0;snapshotBytes=s.encode();String hash=PolicyIdentityR26.sha256(Base64.getEncoder().encodeToString(snapshotBytes));campaign=hash;through=s.through;
+            try(Cursor c=r.rawQuery("SELECT max(source_through) FROM r26_foundry WHERE status='DONE' AND numerical_abi=?",new String[]{numericalAbi})){if(c.moveToFirst()&&!c.isNull(0)&&c.getLong(0)>=latestOrdinal)return 0;}
+            budget.checkpointOrYield();Snapshot s=capture(store);if(s==null)return 0;snapshotBytes=s.encode();String hash=PolicyIdentityR26.sha256(Base64.getEncoder().encodeToString(snapshotBytes));campaign=HashingSU1.fields("R26_CAMPAIGN_V2",hash,numericalAbi);through=s.through;
             List<ModelGenomeSU2> seeds=ModelEvolutionSU2.centralPrograms(true,true);
             for(String family:FamilyRegistryR26.EXECUTABLE)seeds.add(FamilyRegistryR26.genome(family));
             // The exact unary matching head is a real trainable candidate, not a renamed fallback.
@@ -36,7 +39,7 @@ public final class FoundryCampaignR26 {
             try(Cursor c=r.rawQuery("SELECT canonical_text FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') AND substr(canonical_text,1,4)='SU2|' ORDER BY coalesce(val_fitness,-1) DESC,genome_key LIMIT 3",null)){while(c.moveToNext())parents.add(ModelGenomeSU2.parse(c.getString(0)));}
             for(int i=0;i<parents.size();i++)proposals.addAll(StructuralProposalR26.from(parents.get(i),seeds.get(i%seeds.size()).members.get(0)));
             final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("INSERT OR IGNORE INTO r26_foundry VALUES(?,?,?,?,'RUNNING',?)",new Object[]{id,hash,source,frozen,System.currentTimeMillis()});int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ModelGenomeSU2 g=proposal.genome;
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("INSERT OR IGNORE INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi) VALUES(?,?,?,?,'RUNNING',?,?)",new Object[]{id,hash,source,frozen,System.currentTimeMillis(),numericalAbi});int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ModelGenomeSU2 g=proposal.genome;
                 db.execSQL("INSERT OR IGNORE INTO r26_candidate(campaign_id,policy_hash,canonical_text,parent,operation) VALUES(?,?,?,?,?)",new Object[]{id,g.key(),g.text(),proposal.parent,proposal.operation});
                 db.execSQL("INSERT OR IGNORE INTO r26_evolution(attempt_id,campaign_id,policy_hash,parent,operation,category,structure_hash) VALUES(?,?,?,?,?,?,?)",new Object[]{id+":"+(index++),id,g.key(),proposal.parent,proposal.operation,proposal.category,StructuralProposalR26.structure(g)});
             }return 0;});
@@ -56,11 +59,12 @@ public final class FoundryCampaignR26 {
             try{budget.checkpointOrYield();}catch(BudgetTokenSU1.Yield yield){break;}
             // A missing issue is never represented as an adjacent observed transition.
             if(cursor>0&&snap.ordinal[cursor]!=snap.ordinal[cursor-1]+1){hub=new ModelLiveSU2.Hub();live=new ModelLiveSU2(g,hub,ModelLiveLoopSU2.START_META,ModelLiveLoopSU2.WINDOW,ModelLiveLoopSU2.REFIT);}
+            LegacyTeacherOwnerR26.enter(snap.issues,snap.opened,snap.available,snap.draws,cursor);
             try {
             ModelLiveSU2.Decision decision=live.decide();float[][] p=live.pendingTable(hub.t);double sampleLoss=0;for(int j=0;j<10;j++)sampleLoss-=Math.log(Math.max(1e-12,p[j][snap.draws[cursor][j]-1]));
             boolean hit=live.settle(snap.draws[cursor]);hub.update(snap.draws[cursor]);
             if(cursor>=32){loss+=sampleLoss/10;if(decision.act){if(cursor<devEnd){dn++;if(hit)dk++;}else{vn++;if(hit)vk++;}}}cursor++;lastGood=encode(hub,live);
-            } catch(BudgetTokenSU1.Yield yielded) { break; }
+            } catch(BudgetTokenSU1.Yield yielded) { break; } finally { LegacyTeacherOwnerR26.leave(); }
         }
         if(cursor==before)return 0;
         byte[] checkpoint=lastGood;if(checkpoint.length>4<<20)throw new IOException("R26_CHECKPOINT_CAPACITY");

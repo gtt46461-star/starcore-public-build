@@ -32,6 +32,7 @@ def main():
     ok = run('production_sql', ['python3', 'scripts/test_r13_production_ddl.py']) and ok
     prod = ROOT / 'app/src/main/java/com/ethk3/novaonepro'
     sources = [p for p in (prod / 'strategyv2').glob('*.java') if not any(s in p.read_text() for s in ['import android.', 'import com.ethk3.novaonepro.DbStore;', 'import com.ethk3.novaonepro.*;'])]
+    sources += [ROOT / 'app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
     sources += [prod / 'r952' / name for name in ['AtomEvaluatorCP4.java', 'AtomWindowCP4.java', 'MemoryBudgetCP4.java', 'MatrixMetricsCP11.java', 'StrictCanonicalJson.java']]
     sources += list((BASE / 'tests').glob('*.java'))
     classes = logs / 'classes'; classes.mkdir(exist_ok=True)
