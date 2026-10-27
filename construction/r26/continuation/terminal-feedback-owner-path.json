@@ -1,0 +1,29 @@
+{
+  "status": "SOURCE_AUDITED_ANDROID_REAL_OWNER_TEST_PENDING",
+  "source": "e94ee7ac756794109982ccafb4e051ea29e69508",
+  "path": [
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+      "method": "executeFromCoordinatorR815",
+      "order": "mark terminal, canonical event hooks, RuntimeSchemaR26.feedbackWithinTransaction in the existing sole settlement transaction"
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "method": "critical schema",
+      "order": "R26_FEEDBACK_SCHEMA installs the tiny feedback table before canonical settlement"
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LivePoolR26.java",
+      "method": "trainOne/trainRow",
+      "order": "Future training requires committed feedback; prebirth known-history catchup remains allowed"
+    },
+    {
+      "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayR26.java",
+      "method": "step",
+      "order": "Shared legacy live training waits for committed terminal feedback"
+    }
+  ],
+  "androidCheck": "Replace the synthetic direct-feedback insert with actual SettlementCoordinatorR815.settleNow, assert NO_PREDRAW terminal and exactly one feedback across duplicate owner invocation, then train/freeze the private state",
+  "scope": "ISOLATED_SYNTHETIC_OWNER_INTEGRATION; NOT_NATURAL_OR_PHONE_SLO",
+  "qualityRule": "A NO_PREDRAW terminal reveals a canonical training label; it does not manufacture an OOS decision or grant future qualification"
+}

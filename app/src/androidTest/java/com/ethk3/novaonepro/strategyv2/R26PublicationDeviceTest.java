@@ -47,8 +47,10 @@ public final class R26PublicationDeviceTest {
             assertEquals(1,LivePoolR26.publishOne(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_foundry WHERE status='RUNNING'"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_candidate WHERE status='READY' AND cursor=0"));assertEquals(f.first+128,scalar(f.db,"SELECT born_ordinal FROM r26_live_model"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_cohort WHERE incumbent<>''"));assertNull(CertificateSU2.read(f.db,complete.key(),System.currentTimeMillis()));
             Models.Draw future=f.draw(128,System.currentTimeMillis()-2000);assertTrue(f.store.saveDraw(future)>=0);
             assertEquals("Raw future data cannot bypass terminal feedback",0,LivePoolR26.trainOne(f.store,()->f.claim,f.budget()));assertEquals(f.first+127,scalar(f.db,"SELECT through_ordinal FROM r26_live_model"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_consumption"));
-            // Synthetic terminal event fixture, not a claim that the full product settlement path was exercised.
-            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_TERMINAL_EVENT",w->{RuntimeSchemaR26.feedbackWithinTransaction(w,future);RuntimeSchemaR26.feedbackWithinTransaction(w,future);return 0;});
+            // Actual sole settlement owner on the isolated synthetic DB, with no invented pre-draw OOS row.
+            SettlementCoordinatorR815.settleNow(f.store,future,SettlementCoordinatorR815.Reason.AUTHORITATIVE_LATEST);
+            SettlementTaskStoreR36.Terminal terminal=SettlementTaskStoreR36.terminal(f.store,future.issue);assertNotNull("Sole settlement owner did not commit a terminal",terminal);assertEquals(SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL,terminal.status);
+            assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_feedback"));SettlementCoordinatorR815.settleNow(f.store,future,SettlementCoordinatorR815.Reason.AUTHORITATIVE_LATEST);assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_feedback"));
             assertEquals(1,LivePoolR26.trainOne(f.store,()->f.claim,f.budget()));assertEquals(0,LivePoolR26.trainOne(f.store,()->f.claim,f.budget()));assertEquals(f.first+128,scalar(f.db,"SELECT through_ordinal FROM r26_live_model"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_consumption"));
             String target=TargetIssueResolver.fromSequenceOrdinalSU1(f.first+129);assertEquals(1,LivePoolR26.capture(f.store,target));float[][] table=LivePoolR26.frozenTable(f.db,complete.key(),f.first+129);assertNotNull(table);assertEquals(10,table.length);assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_frozen WHERE input_through<target_ordinal AND frozen_at<deadline_at AND length(probability_table)=400"));
         }
@@ -129,6 +131,16 @@ public final class R26PublicationDeviceTest {
                 assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_incumbent_frozen WHERE target_ordinal="+target+" AND input_through="+(target-1)+" AND frozen_at<deadline_at"));
                 assertNotNull(IncumbentLoopSU2.pendingTable(f.db,target));assertEquals(1,scalar(f.db,"SELECT count(*) FROM su2_live_decision WHERE sequence_ordinal="+target+" AND hit IS NULL"));
             }finally{TaskContinuationR26.cancel("SYNTHETIC");assertTrue("Original helper did not drain before database close",CooperativeContinuationR26.awaitOwnerStopped("SYNTHETIC",10000));}
+        }
+    }
+
+    @Test public void completedFirstServiceDoesNotStarveAblationFromCpuQueue()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 parent=f.genome("F08",source),control=StructuralProposalR26.mechanismChildren(parent).get(1).genome;
+            f.candidate(campaign,parent,f.trained(parent,source,16),16,"READY",100000);f.candidate(campaign,control,null,0,"READY",0);
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_SERVED_FAMILY_CONTROL",w->{w.execSQL("INSERT INTO r26_capability(kind,mechanism,implementation,state,last_progress,reason) VALUES('FAMILY','F08','FamilyF08KernelR26','TRAINED',123,'SYNTHETIC')");w.execSQL("UPDATE r26_candidate SET operation='REMOVE_HIDDEN_TRANSITION_MEMORY' WHERE policy_hash=?",new Object[]{control.key()});return 0;});
+            assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);assertTrue("Ablation starved behind an already-served expensive parent",scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+control.key()+"'")>0);
+            assertEquals(16,scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+parent.key()+"'"));assertEquals("Control work must not receive family capability credit",123,scalar(f.db,"SELECT last_progress FROM r26_capability WHERE mechanism='F08'"));
         }
     }
 }
