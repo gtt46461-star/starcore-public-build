@@ -108,6 +108,7 @@ public final class CalibrationSU2 {
         }
         public void read(java.io.DataInput in) throws java.io.IOException {
             t = in.readLong(); beta = in.readDouble(); fittedAt = in.readLong(); filled = in.readInt();
+            if(t<0||!Double.isFinite(beta)||beta<0||beta>2||fittedAt< -1||fittedAt>t||filled<0||filled>WINDOW||filled>t)throw new java.io.IOException("R26_CALIBRATION_STATE_SHAPE");
             for (int i = 0; i < filled; i++) { int j = (int) ((t - filled + i) % WINDOW); ringY[j] = new byte[10]; ring[j] = new float[10][10];
                 for (int p = 0; p < 10; p++) { ringY[j][p] = in.readByte(); for (int k = 0; k < 10; k++) ring[j][p][k] = in.readFloat(); } }
         }

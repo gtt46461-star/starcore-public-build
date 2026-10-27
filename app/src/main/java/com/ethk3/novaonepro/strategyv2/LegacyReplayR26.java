@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.*;
 import java.io.*;
 import java.util.*;
+import java.util.function.Supplier;
 import org.json.*;
 
 /** Legacy creation/bootstrap/catch-up is P2 work. P0 reads only the fully committed cohort. */
@@ -28,57 +29,60 @@ public final class LegacyReplayR26 {
     }
     private static String roster(List<String> canonical){return HashingSU1.fields("R26_LEGACY_ROSTER_V1",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,PolicyIdentityR26.canonical(canonical));}
     private static LegacyReplayStateR26 decode(DbStore store,Row r)throws IOException {
-        byte[] bytes=CheckpointArtifactsR26.resolve(store,r.state);if(!LiveStateR26.hash(bytes).equals(r.stateHash))throw new IOException("R26_LEGACY_CHECKPOINT_HASH");LegacyReplayStateR26 state=LegacyReplayStateR26.decode(bytes);
+        LegacyReplayStateR26 state=CheckpointArtifactsR26.forStore(store).restoreLegacy(r.state,r.stateHash);
         if(state.through()!=r.through||state.genesis!=r.genesis)throw new IOException("R26_LEGACY_CHECKPOINT_CURSOR");return state;
     }
-    public static long step(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget)throws IOException,JSONException {
+    static void clearWorking(){working=null;workingCheckpoint="";}
+    public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException,JSONException {
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);Row r=row(store.readable());
         List<String> wanted=ModelLiveLoopSU2.liveGenomes(store.readable());String desired=roster(wanted),abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         if(wanted.isEmpty()){active=null;working=null;return 0;}
         if(r==null||!abi.equals(r.abi)||(!desired.equals(r.roster)&&r.status.equals("LIVE"))||r.status.startsWith("EXPIRED")){
             FoundryCampaignR26.Snapshot snapshot=FoundryCampaignR26.capture(store);if(snapshot==null)return 0;budget.checkpointOrYield();
             ModelLiveLoopSU2.Runtime imported=r==null?ModelLiveLoopSU2.restore(store.readable(),wanted,snapshot.draws,snapshot.ordinal[0]):null;
-            LegacyReplayStateR26 state=imported!=null&&imported.through<=latestOrdinal?LegacyReplayStateR26.imported(wanted,imported.genesisSeq,imported.through,imported.hub,imported.lives):new LegacyReplayStateR26(wanted,snapshot.ordinal[0]);boolean restored=imported!=null&&imported.through<=latestOrdinal;byte[] bytes=state.encode();String hash=LiveStateR26.hash(bytes),source=LiveStateR26.hash(snapshot.encode()),checkpoint=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",desired,source,"0",hash);String previous=r==null?"":r.checkpoint;
-            try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,bytes)){
+            LegacyReplayStateR26 state=imported!=null&&imported.through<=latestOrdinal?LegacyReplayStateR26.imported(wanted,imported.genesisSeq,imported.through,imported.hub,imported.lives):new LegacyReplayStateR26(wanted,snapshot.ordinal[0]);boolean restored=imported!=null&&imported.through<=latestOrdinal;String source=LiveStateR26.hash(snapshot.encode());String previous=r==null?"":r.checkpoint;
+            try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.forStore(store).prepareLegacy(state)){
+                String hash=LiveStateR26.hash(CheckpointArtifactsR26.forStore(store).resolve(file.reference())),checkpoint=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",desired,source,"0",hash);
                 final byte[] snapshotBytes=snapshot.encode();final String old=previous;
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BOOTSTRAP_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claim);Row current=row(db);if(!old.equals(current==null?"":current.checkpoint))throw new IllegalStateException("R26_LEGACY_BIRTH_CAS");
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BOOTSTRAP_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());Row current=row(db);if(!old.equals(current==null?"":current.checkpoint))throw new IllegalStateException("R26_LEGACY_BIRTH_CAS");
                     db.execSQL("INSERT OR REPLACE INTO r26_legacy_runtime(singleton,roster_hash,snapshot_hash,snapshot,source_through,genesis_ordinal,through_ordinal,cursor,state,state_hash,checkpoint_hash,parent_hash,numerical_abi,status,updated_at) VALUES(1,?,?,?,?,?,?,0,?,?,?,'',?,?,?)",new Object[]{desired,source,restored?new byte[0]:snapshotBytes,snapshot.through,state.genesis,state.through(),file.reference(),hash,checkpoint,abi,restored?"LIVE":"BOOTSTRAP",System.currentTimeMillis()});
                     CheckpointManifestR26.record(db,checkpoint,"LEGACY:"+desired,source,"",state.through(),file.reference());return 0;});
+                working=state;workingCheckpoint=checkpoint;return 1;
             }
-            working=state;workingCheckpoint=checkpoint;return 1;
         }
         if(!abi.equals(r.abi)||r.status.startsWith("BLOCKED"))return 0;
         final Row previous=r;
-        if(r.status.equals("BOOTSTRAP")&&latestOrdinal-FoundryCampaignR26.Snapshot.decode(r.snapshot).ordinal[0]>=5000){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BOOTSTRAP_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',snapshot=X'' WHERE singleton=1 AND checkpoint_hash=?",new Object[]{previous.checkpoint});return 0;});working=null;return 1;}
+        if(r.status.equals("BOOTSTRAP")&&latestOrdinal-FoundryCampaignR26.Snapshot.decode(r.snapshot).ordinal[0]>=5000){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BOOTSTRAP_EXPIRE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',snapshot=X'' WHERE singleton=1 AND checkpoint_hash=?",new Object[]{previous.checkpoint});return 0;});working=null;return 1;}
         LegacyReplayStateR26 state=working!=null&&workingCheckpoint.equals(r.checkpoint)?working:decode(store,r);
         FoundryCampaignR26.Snapshot snapshot=r.status.equals("BOOTSTRAP")?FoundryCampaignR26.Snapshot.decode(r.snapshot):null;
-        int before=r.cursor,after=before;long oldThrough=r.through,newThrough=oldThrough;byte[] lastGood=null;List<String[]> events=new ArrayList<>();
-        boolean interrupted=false;long stop=System.nanoTime()+140_000_000L;
+        int before=r.cursor,after=before;long oldThrough=r.through,newThrough=oldThrough;CheckpointArtifactsR26.Prepared lastGood=null;List<String[]> events=new ArrayList<>();
+        boolean interrupted=false;long stop=budget.activeNanos()+140_000_000L;
         try{
-            while(after-before<1&&System.nanoTime()<stop){budget.checkpointOrYield();int[] draw;long ordinal;
+            while(after-before<1&&budget.activeNanos()<stop){budget.checkpointOrYield();int[] draw;long ordinal;
                 if(snapshot!=null&&after<snapshot.draws.length){draw=snapshot.draws[after];ordinal=snapshot.ordinal[after];}
                 else{
                     String[] event=nextInput(store,newThrough);if(event==null)break;ordinal=Long.parseLong(event[3]);Models.Draw actual=store.getDrawByIssue(event[1]);if(actual==null||!DrawHashR36.sha256V2(actual).equals(event[2]))throw new IOException("R26_LEGACY_EVENT_SOURCE");draw=actual.numbers.clone();if(!event[0].isEmpty())events.add(event);
                 }
-                state.advance(draw,ordinal);lastGood=state.encode();after++;newThrough=ordinal;
+                state.advance(draw,ordinal);lastGood=CheckpointArtifactsR26.forStore(store).prepareLegacy(state);after++;newThrough=ordinal;
                 if(snapshot!=null&&after==snapshot.draws.length)break;
             }
         }catch(BudgetTokenSU1.Yield yielded){working=null;interrupted=true;}
-        catch(IOException|IllegalArgumentException invalid){working=null;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BLOCK_INPUT",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("UPDATE r26_legacy_runtime SET status='BLOCKED_INPUT_OR_STATE' WHERE singleton=1 AND checkpoint_hash=?",new Object[]{previous.checkpoint});db.execSQL("INSERT OR REPLACE INTO r26_live_failure VALUES(?,?,?,?)",new Object[]{"LEGACY:"+previous.roster,previous.through+1,invalid.toString(),System.currentTimeMillis()});return 0;});return 0;}
+        catch(IOException|IllegalArgumentException invalid){working=null;if(String.valueOf(invalid.getMessage()).contains("CAPACITY_WAIT_FOR_RETENTION")){claims.get().reason("CHECKPOINT_CAPACITY_WAIT_FOR_RETENTION");return 0;}store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_BLOCK_INPUT",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_legacy_runtime SET status='BLOCKED_INPUT_OR_STATE' WHERE singleton=1 AND checkpoint_hash=?",new Object[]{previous.checkpoint});db.execSQL("INSERT OR REPLACE INTO r26_live_failure VALUES(?,?,?,?)",new Object[]{"LEGACY:"+previous.roster,previous.through+1,invalid.toString(),System.currentTimeMillis()});return 0;});return 0;}
         if(lastGood==null){working=interrupted?null:state;workingCheckpoint=r.checkpoint;if(r.status.equals("LIVE")&&r.through==latestOrdinal)activate(store,r);return 0;}
         // Discard any partially updated sample after the last complete encoding.
-        final byte[] complete=lastGood;final int committedCursor=after;final long committedThrough=newThrough;final String hash=LiveStateR26.hash(complete),checkpoint=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",r.roster,r.source,r.checkpoint,String.valueOf(newThrough),hash);final boolean bootDone=snapshot!=null&&after>=snapshot.draws.length;
-        try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,complete)){
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_REPLAY_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claim);
+        final int committedCursor=after;final long committedThrough=newThrough;final boolean bootDone=snapshot!=null&&after>=snapshot.draws.length;
+        try(CheckpointArtifactsR26.Prepared file=lastGood){
+            final String hash=LiveStateR26.hash(CheckpointArtifactsR26.forStore(store).resolve(file.reference())),checkpoint=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",r.roster,r.source,r.checkpoint,String.valueOf(committedThrough),hash);
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_REPLAY_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());
                 db.execSQL("UPDATE r26_legacy_runtime SET cursor=?,through_ordinal=?,state=?,state_hash=?,parent_hash=?,checkpoint_hash=?,status=?,snapshot=CASE WHEN ?=1 THEN X'' ELSE snapshot END,updated_at=? WHERE singleton=1 AND checkpoint_hash=? AND through_ordinal=?",new Object[]{committedCursor,committedThrough,file.reference(),hash,previous.checkpoint,checkpoint,bootDone?"LIVE":previous.status,bootDone?1:0,System.currentTimeMillis(),previous.checkpoint,oldThrough});
                 try(Cursor c=db.rawQuery("SELECT changes()",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R26_LEGACY_PARENT_CAS");}
                 CheckpointManifestR26.record(db,checkpoint,"LEGACY:"+previous.roster,previous.source,previous.checkpoint,committedThrough,file.reference());
                 for(String[] event:events){long ordinal=Long.parseLong(event[3]);if(ordinal>committedThrough)continue;try(Cursor c=db.rawQuery("SELECT 1 FROM r26_feedback WHERE event_id=? AND source_hash=?",new String[]{event[0],event[2]})){if(!c.moveToFirst())throw new IllegalStateException("R26_LEGACY_EVENT_CAS");}for(String text:state.canonical)db.execSQL("INSERT OR IGNORE INTO r26_consumption VALUES(?,?,?,'REVEALED_LIVE_LABEL')",new Object[]{event[0],LegacyReplayStateR26.key(text),checkpoint});}
                 return 0;});
+            working=state;workingCheckpoint=checkpoint;
+            Row committed=row(store.readable());if(committed!=null&&committed.status.equals("LIVE")&&committed.through==latestOrdinal)activate(store,committed);
+            return after-before;
         }
-        working=LegacyReplayStateR26.decode(complete);workingCheckpoint=checkpoint;
-        Row committed=row(store.readable());if(committed!=null&&committed.status.equals("LIVE")&&committed.through==latestOrdinal)activate(store,committed);
-        return after-before;
     }
     static String[] nextInput(DbStore store,long through){
         String after=TargetIssueResolver.fromSequenceOrdinalSU1(Math.max(1,through+1));String issue=null;

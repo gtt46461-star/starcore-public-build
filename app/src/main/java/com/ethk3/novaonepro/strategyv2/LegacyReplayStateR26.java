@@ -70,16 +70,23 @@ public final class LegacyReplayStateR26 {
     }
     public byte[] encode()throws IOException {
         ByteArrayOutputStream bytes=new ByteArrayOutputStream();
-        try(DataOutputStream out=new DataOutputStream(new GZIPOutputStream(bytes){{def.setLevel(Deflater.BEST_SPEED);}})){
-            out.writeInt(0x264c5301);out.writeLong(genesis);out.writeLong(through);out.writeLong(gapStart);out.writeInt(canonical.size());
-            for(String text:canonical){out.writeUTF(text);if(StageStrategySU2.isStage(text)){byte[] bundle=((StageStrategySU2)lives.get(key(text))).def.bytes();out.writeInt(bundle.length);out.write(bundle);}}
-            hub.write(out);for(LiveStrategySU2 live:lives.values()){live.write(out);writeContext(out,live);}
+        try(DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new CooperativeOutputStreamR26(new GZIPOutputStream(bytes){{def.setLevel(Deflater.BEST_SPEED);}}),32768))){
+            writeInflated(out);
         }
         if(bytes.size()>MAX_BYTES)throw new IOException("R26_LEGACY_STATE_CAPACITY");return bytes.toByteArray();
     }
+    /** Production file checkpoints stream this wire without allocating the entire compressed state. */
+    public void writeInflated(DataOutput out)throws IOException {
+        out.writeInt(0x264c5301);out.writeLong(genesis);out.writeLong(through);out.writeLong(gapStart);out.writeInt(canonical.size());
+        for(String text:canonical){out.writeUTF(text);if(StageStrategySU2.isStage(text)){byte[] bundle=((StageStrategySU2)lives.get(key(text))).def.bytes();out.writeInt(bundle.length);out.write(bundle);}}
+        hub.write(out);for(LiveStrategySU2 live:lives.values()){live.write(out);writeContext(out,live);}
+    }
     public static LegacyReplayStateR26 decode(byte[] bytes)throws IOException {
         if(bytes==null||bytes.length>MAX_BYTES)throw new IOException("R26_LEGACY_STATE_CAPACITY");
-        try(DataInputStream in=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes)))){
+        return readInflated(new GZIPInputStream(new ByteArrayInputStream(bytes)));
+    }
+    public static LegacyReplayStateR26 readInflated(InputStream raw)throws IOException {
+        try(DataInputStream in=new DataInputStream(new BufferedInputStream(new CooperativeInputStreamR26(raw),32768))){
             if(in.readInt()!=0x264c5301)throw new IOException("R26_LEGACY_STATE_ABI");long genesis=in.readLong(),through=in.readLong(),gap=in.readLong();int n=in.readInt();if(genesis<0||n<0||n>MAX_MEMBERS)throw new IOException("R26_LEGACY_STATE_SHAPE");List<String> canonical=new ArrayList<>();
             for(int i=0;i<n;i++){String text=in.readUTF();canonical.add(text);if(StageStrategySU2.isStage(text)){int size=in.readInt();if(size<1||size>StageStrategySU2.MAX_BUNDLE_BYTES)throw new IOException("R26_LEGACY_STAGE_SIZE");byte[] bundle=new byte[size];in.readFully(bundle);StageStrategySU2.Definition def=StageStrategySU2.Definition.read(bundle);if(!def.text().equals(text))throw new IOException("R26_LEGACY_STAGE_IDENTITY");StageStrategySU2.register(def);}}
             LegacyReplayStateR26 state=new LegacyReplayStateR26(canonical,genesis);state.hub.readInto(in);for(LiveStrategySU2 live:state.lives.values()){live.readInto(in);readContext(in,live);}

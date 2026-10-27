@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.*;
 import java.io.*;
 import java.util.*;
+import java.util.function.Supplier;
 /** Pretrained private snapshots. P0 only forecasts; feedback training stays in the fenced P2 queue. */
 public final class LivePoolR26 {
     private LivePoolR26() {}
@@ -13,8 +14,8 @@ public final class LivePoolR26 {
     private static final String COLUMNS="policy_hash,canonical_text,state,state_hash,checkpoint_hash,through_ordinal,genesis_ordinal,born_ordinal";
     private static int changes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()?c.getInt(0):0;}}
     /** One complete state is verified off-writer and atomically installed. Existing family parents stay active. */
-    public static long publishOne(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget)throws IOException{
-        long legacyPublished=LegacyPublicationR26.publishOne(store,claim,budget);if(legacyPublished>0)return legacyPublished;
+    public static long publishOne(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
+        long legacyPublished=LegacyPublicationR26.publishOne(store,claims,budget);if(legacyPublished>0)return legacyPublished;
         Set<String> activeFamilies=new HashSet<>();try(Cursor c=store.readable().rawQuery("SELECT family_id FROM r26_live_model WHERE status='ACTIVE'",null)){while(c.moveToNext())activeFamilies.add(c.getString(0));}
         if(activeFamilies.stream().filter(f->!f.startsWith("L:")).count()>=24)return 0;
         Row prepared=null;String campaign=null;long through=0;String abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
@@ -24,7 +25,7 @@ public final class LivePoolR26 {
             Row r=new Row();r.policy=g.key();r.text=g.text();r.state=c.getBlob(2);r.hash=c.getString(3);r.checkpoint=c.getString(4);r.through=c.getLong(5);r.genesis=source.ordinal[0];r.born=r.through+1;r.family=family;prepared=r;through=r.through;campaign=c.getString(6);break;
         }}
         if(prepared==null)return 0;budget.checkpointOrYield();final Row r=prepared;final String birthCampaign=campaign;final long sourceThrough=through;
-        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_PUBLICATION",db->{RuntimeCoordinatorR26.requireFence(db,claim);long now=System.currentTimeMillis();
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_PUBLICATION",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());long now=System.currentTimeMillis();
             // Freeze birth against the writer's current raw and terminal cursors, never the historical bootstrap.
             try(Cursor latest=db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(latest.moveToFirst())r.born=Math.max(r.born,TargetIssueResolver.sequenceOrdinalSU1(latest.getString(0))+1);}
             try(Cursor latest=db.rawQuery("SELECT max(issue_ordinal) FROM r26_feedback",null)){if(latest.moveToFirst()&&!latest.isNull(0))r.born=Math.max(r.born,latest.getLong(0)+1);}
@@ -34,16 +35,16 @@ public final class LivePoolR26 {
             db.execSQL("INSERT INTO r26_live_model(policy_hash,canonical_text,state,state_hash,checkpoint_hash,parent_hash,through_ordinal,genesis_ordinal,born_ordinal,updated_at,family_id) VALUES(?,?,?,?,?,'',?,?,?,?,?)",new Object[]{r.policy,r.text,r.state,r.hash,r.checkpoint,r.through,r.genesis,r.born,now,r.family});
             ModelGenomeSU2 g=ModelGenomeSU2.parse(r.text);ModelEvolutionSU2.Ranked ranked=new ModelEvolutionSU2.Ranked(g,"R26_LIVE","","SHADOW ONLY UNTIL NEW FUTURE QUALIFICATION");ModelStoreSU2.saveGenome(db,ranked,birthCampaign,sourceThrough,0,0,"RESEARCH",now);db.execSQL("UPDATE su2_model_genome SET origin_op='R26_LIVE' WHERE genome_key=?",new Object[]{r.policy});ModelStoreSU2.joinLeague(db,"SU2:"+r.policy,"SU2",r.family+"·R26未来影子·待资格",r.policy,r.born);CertificateSU2.preregister(db,r.policy,r.born);return 1L;});
     }
-    public static long trainOne(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget)throws IOException{
+    public static long trainOne(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);
         Row r=null;try(Cursor c=store.readable().rawQuery("SELECT "+COLUMNS+" FROM r26_live_model WHERE status='ACTIVE' AND through_ordinal<? ORDER BY updated_at,policy_hash LIMIT 1",new String[]{String.valueOf(latestOrdinal)})){if(c.moveToFirst())r=row(c);}if(r==null)return 0;
         final Row failed=r;
-        try{return trainRow(store,claim,budget,r);}catch(BudgetTokenSU1.Yield yielded){throw yielded;}catch(IOException|IllegalArgumentException failure){
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_QUARANTINE",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("UPDATE r26_live_model SET status='BLOCKED_INPUT_OR_STATE' WHERE policy_hash=? AND checkpoint_hash=?",new Object[]{failed.policy,failed.checkpoint});db.execSQL("INSERT OR REPLACE INTO r26_live_failure VALUES(?,?,?,?)",new Object[]{failed.policy,failed.through+1,failure.toString(),System.currentTimeMillis()});return 0;});return 0;
+        try{return trainRow(store,claims,budget,r);}catch(BudgetTokenSU1.Yield yielded){throw yielded;}catch(IOException|IllegalArgumentException failure){
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_QUARANTINE",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_live_model SET status='BLOCKED_INPUT_OR_STATE' WHERE policy_hash=? AND checkpoint_hash=?",new Object[]{failed.policy,failed.checkpoint});db.execSQL("INSERT OR REPLACE INTO r26_live_failure VALUES(?,?,?,?)",new Object[]{failed.policy,failed.through+1,failure.toString(),System.currentTimeMillis()});return 0;});return 0;
         }
     }
-    private static long trainRow(DbStore store,RuntimeCoordinatorR26.Claim claim,BudgetTokenSU1 budget,Row r)throws IOException{
-        final Row previous=r;if(!CurrentPolicyR26.matches(r.text,r.policy)){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_ABI_BLOCK",db->{RuntimeCoordinatorR26.requireFence(db,claim);db.execSQL("UPDATE r26_live_model SET status='NUMERICAL_ABI_CHANGED' WHERE policy_hash=?",new Object[]{previous.policy});return 0;});return 0;}
+    private static long trainRow(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget,Row r)throws IOException{
+        final Row previous=r;if(!CurrentPolicyR26.matches(r.text,r.policy)){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_ABI_BLOCK",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_live_model SET status='NUMERICAL_ABI_CHANGED' WHERE policy_hash=?",new Object[]{previous.policy});return 0;});return 0;}
         String[] input=LegacyReplayR26.nextInput(store,r.through);if(input==null)return 0;
         final long ordinal=Long.parseLong(input[3]);final boolean gap=ordinal>r.through+1;String event=input[0],source=input[2];
         Models.Draw actual=store.getDrawByIssue(input[1]);if(actual==null||!source.equals(DrawHashR36.sha256V2(actual)))throw new IOException("R26_LIVE_SOURCE_MISSING_OR_REVISED");int[] draw=actual.numbers.clone();
@@ -54,7 +55,7 @@ public final class LivePoolR26 {
             learner.learn(draw,ordinal);
         }finally{LegacyTeacherOwnerR26.leave();}
         final byte[] state=learner.encode();final String stateHash=LiveStateR26.hash(state),eventId=event,sourceHash=source,checkpoint=HashingSU1.fields("R26_LIVE_CHECKPOINT_V1",r.policy,r.checkpoint,event,stateHash);
-        try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,state)){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_LEARN_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claim);
+        try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,state)){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_LEARN_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());
             db.execSQL("UPDATE r26_live_model SET state=?,state_hash=?,checkpoint_hash=?,parent_hash=?,through_ordinal=?,updated_at=? WHERE policy_hash=? AND checkpoint_hash=? AND through_ordinal=? AND status='ACTIVE'",new Object[]{file.reference(),stateHash,checkpoint,previous.checkpoint,ordinal,System.currentTimeMillis(),previous.policy,previous.checkpoint,previous.through});if(changes(db)!=1)throw new IllegalStateException("R26_LIVE_PARENT_CAS");
             if(!eventId.isEmpty())try(Cursor c=db.rawQuery("SELECT 1 FROM r26_feedback WHERE event_id=? AND source_hash=?",new String[]{eventId,sourceHash})){if(!c.moveToFirst())throw new IllegalStateException("R26_LIVE_EVENT_CAS");}
             CheckpointManifestR26.record(db,checkpoint,previous.policy,sourceHash,previous.checkpoint,ordinal,file.reference());
