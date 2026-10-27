@@ -15,11 +15,12 @@ def main():
     prod=ROOT/'app/src/main/java/com/ethk3/novaonepro'
     sources=[p for p in (prod/'strategyv2').glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
     sources += [prod/'r952'/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
-    sources += [ROOT/'tools/strategy_su2/tests/R26KernelTest.java']
+    sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java']]
     classes=OUT/'classes';classes.mkdir(exist_ok=True)
     run('compile',['java','com.sun.tools.javac.Main','-encoding','UTF-8','-d',classes]+sources)
     log=run('kernels',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26KernelTest']);assert 'R26_KERNEL_PASS' in log
     plan=ROOT/'construction/plans/STARCORE_R26_MERGED_20261026'
+    family_log=run('families',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26FamiliesTest']);assert 'R26_FAMILIES_PASS' in family_log
     expected=json.loads((plan/'evidence/identity_golden_vectors.json').read_text())['vectors']
     actual=[line.split('\t')[1:] for line in log.splitlines() if line.startswith('GOLDEN\t')]
     assert actual==[[x['canonical'],x['sha256']] for x in expected]

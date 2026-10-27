@@ -16,6 +16,9 @@ public final class R26KernelTest {
         ModelGenomeSU2 g=new ModelGenomeSU2(Collections.singletonList(m),"STATIC",false,"META",.15,1.23441);
         ModelGenomeSU2 g2=new ModelGenomeSU2(Collections.singletonList(new ModelGenomeSU2.Member("MATCHING",m.params,1.23449)),"STATIC",false,"META",.15,1.23449);
         check(!g.key().equals(g2.key()),"lossy collision");check(ModelGenomeSU2.parse(g.text()).key().equals(g.key()),"roundtrip identity");
+        List<StructuralProposalR26.Proposal> same=StructuralProposalR26.from(g,m);check(same.size()==1&&same.get(0).category.equals("NO_OP"),"duplicate mechanism counted as structure");
+        ModelGenomeSU2.Member extra=new ModelGenomeSU2.Member("MSDIR",ModelEvolutionSU2.centralParams("MSDIR"),1);
+        List<StructuralProposalR26.Proposal> changed=StructuralProposalR26.from(g,extra);check(changed.size()==2&&changed.get(1).category.equals("STRUCTURAL_CANDIDATE"),"real member graph not distinguished");check(!changed.get(1).genome.key().equals(g.key()),"structural child same policy");
         String legacy="SU2|POOL=STATIC|SINK=0|GATE=MASS|COV=0.15|M=HMM{K=3,lr=0.01,seed=0,stay=0.995,temper=0.6}*1";check(ModelGenomeSU2.parse(legacy).text().equals(legacy),"legacy preservation");
         double[][] s={{.2,-.1,.8},{.7,.5,-.8},{-.4,.2,.1}};double[] z={0};double[][] mass=new double[3][3];perm(s,0,0,new int[3],z,mass);ExactPermutationR26.Result r=ExactPermutationR26.infer(s,null);near(r.logZ,Math.log(z[0]),1e-12,"brute logZ");
         for(int i=0;i<3;i++)for(int j=0;j<3;j++){near(r.marginal[i][j],mass[i][j]/z[0],1e-12,"brute marg");double eps=1e-5;s[i][j]+=eps;double plus=ExactPermutationR26.infer(s,null).logZ;s[i][j]-=2*eps;double minus=ExactPermutationR26.infer(s,null).logZ;s[i][j]+=eps;near((plus-minus)/(2*eps),r.marginal[i][j],1e-8,"NLL gradient");}

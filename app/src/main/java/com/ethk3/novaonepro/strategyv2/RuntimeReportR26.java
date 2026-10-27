@@ -52,31 +52,32 @@ public final class RuntimeReportR26 {
         {"LOSSLESS_IDENTITY","无损身份与缺陷回归"}
     };
     private static JSONArray rows(SQLiteDatabase db,String sql)throws JSONException {
-        JSONArray out=new JSONArray();try(Cursor c=db.rawQuery(sql,null)){while(c.moveToNext()){
+        JSONArray out=new JSONArray();try(Cursor c=db.rawQuery(sql,null)){while(out.length()<64&&c.moveToNext()){
             if(Thread.currentThread().isInterrupted())throw new IllegalStateException("REPORT_CANCELLED");
             JSONObject row=new JSONObject();for(int i=0;i<c.getColumnCount();i++){Object v=c.isNull(i)?JSONObject.NULL:c.getType(i)==Cursor.FIELD_TYPE_INTEGER?c.getLong(i):c.getType(i)==Cursor.FIELD_TYPE_FLOAT?c.getDouble(i):c.getString(i);row.put(c.getColumnName(i),v);}out.put(row);
         }}return out;
     }
     private static String query(String id){switch(id){
         case "CONTINUOUS_RUNTIME":case "BACKGROUND":return "SELECT task_id,lane,cursor,status,blocked_reason,last_progress,steps,last_cpu_ms FROM r26_task ORDER BY task_id";
-        case "TRAINING":case "PUBLICATION_RECOVERY":return "SELECT campaign_id,policy_hash,cursor,dev_n,dev_k,val_n,val_k,status FROM r26_candidate ORDER BY campaign_id,policy_hash LIMIT 64";
+        case "TRAINING":case "PUBLICATION_RECOVERY":return "SELECT campaign_id,policy_hash,cursor,dev_n,dev_k,val_n,val_k,status FROM r26_candidate ORDER BY campaign_id,policy_hash";
         case "FAMILIES":return "SELECT * FROM r26_capability WHERE kind='FAMILY' ORDER BY mechanism";
         case "EXPERTS":return "SELECT * FROM r26_capability WHERE kind='EXPERT' ORDER BY mechanism";
         case "FAIR_CAPABILITY_SERVICE":return "SELECT * FROM r26_capability ORDER BY mechanism";
+        case "EVOLUTION":return "SELECT count(*) attempts,count(DISTINCT policy_hash) uniquePolicies,sum(category='STRUCTURAL_CANDIDATE') structuralCandidates,sum(behavior_novel) behaviorNovel,sum(research_accepted) researchAccepted,sum(prospective_qualified) prospectiveQualified,sum(verified_improvement) verifiedImprovements FROM r26_evolution";
         case "EXPERIMENT_LEDGER":return "SELECT campaign_id,snapshot_hash,source_through,status,created_at FROM r26_foundry ORDER BY created_at";
-        case "TEST_BUDGET":return "SELECT genome_key,cohort,evidence_digest,look,family_alpha FROM r26_look ORDER BY genome_key,look LIMIT 64";
-        case "EVIDENCE":return "SELECT * FROM r26_cohort ORDER BY genome_key LIMIT 64";
+        case "TEST_BUDGET":return "SELECT genome_key,cohort,evidence_digest,look,family_alpha FROM r26_look ORDER BY genome_key,look";
+        case "EVIDENCE":return "SELECT * FROM r26_cohort ORDER BY genome_key";
         case "SETTLEMENT":return "SELECT count(*) event_count,min(issue_ordinal) first_ordinal,max(issue_ordinal) last_ordinal FROM r26_feedback";
         case "PERFORMANCE":case "SLO_BUDGET":return "SELECT task_id,count(*) slices,sum(cpu_ms) cpu_ms,max(cpu_ms) max_cpu_ms,sum(blocked_reason LIKE 'CAPACITY_FAIL%') capacity_fail FROM r26_progress GROUP BY task_id";
-        case "POLICY_IDENTITY":case "LOSSLESS_IDENTITY":return "SELECT policy_hash,canonical_text,parent,operation FROM r26_candidate ORDER BY policy_hash LIMIT 64";
+        case "POLICY_IDENTITY":case "LOSSLESS_IDENTITY":return "SELECT policy_hash,canonical_text,parent,operation FROM r26_candidate ORDER BY policy_hash";
         default:return null;
     }}
     public static String json(SQLiteDatabase db){try{
         long start=System.nanoTime();JSONObject root=new JSONObject();root.put("schema","R26_REPORT_1");root.put("overallAcceptance","INCOMPLETE");root.put("naturalQuality","INSUFFICIENT");root.put("physicalDevice","NOT_RUN");JSONArray sections=new JSONArray();
-        for(String[] spec:SECTIONS){JSONObject s=new JSONObject();s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_1");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("sourceSnapshotId","REPORT_FROZEN_DB");s.put("sourceCommit","SEE_DELIVERY_RECEIPT");s.put("apkHash","SEE_DELIVERY_RECEIPT");s.put("asOfIssue",JSONObject.NULL);s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
-            String sql=query(spec[0]);JSONArray data=new JSONArray();String status="NOT_RUN",reason="Full chapter acceptance evidence has not been collected; existing report catalog is retained";
-            if(sql!=null&&RuntimeSchemaR26.ready(db))try{data=rows(db,sql);status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";}catch(Exception e){status="ERROR";reason=e.toString();JSONArray chain=new JSONArray();for(Throwable x=e;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);}
-            s.put("status",status);s.put("reason",reason);s.put("denominator",data.length());s.put("expectedRows",spec[0].equals("FAMILIES")?24:spec[0].equals("EXPERTS")?16:spec[0].equals("FAIR_CAPABILITY_SERVICE")?40:data.length());s.put("exportedRows",data.length());s.put("omittedRows",Math.max(0,s.getInt("expectedRows")-data.length()));s.put("metrics",data);s.put("elapsedMs",(System.nanoTime()-start)/1000000);sections.put(s);
+        for(String[] spec:SECTIONS){long chapterStart=System.nanoTime();JSONObject s=new JSONObject();s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_1");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("sourceSnapshotId","REPORT_FROZEN_DB");s.put("sourceCommit","SEE_DELIVERY_RECEIPT");s.put("apkHash","SEE_DELIVERY_RECEIPT");s.put("asOfIssue",JSONObject.NULL);s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
+            String sql=query(spec[0]);JSONArray data=new JSONArray();long expectedRows=0;String status="NOT_RUN",reason="Full chapter acceptance evidence has not been collected; existing report catalog is retained";
+            if(sql!=null&&RuntimeSchemaR26.ready(db))try{try(Cursor count=db.rawQuery("SELECT count(*) FROM ("+sql+")",null)){if(count.moveToFirst())expectedRows=count.getLong(0);}data=rows(db,sql);status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";}catch(Exception e){status="ERROR";reason=e.toString();JSONArray chain=new JSONArray();for(Throwable x=e;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);}
+            s.put("status",status);s.put("reason",reason);s.put("denominator",data.length());s.put("expectedRows",spec[0].equals("FAMILIES")?24:spec[0].equals("EXPERTS")?16:spec[0].equals("FAIR_CAPABILITY_SERVICE")?40:expectedRows);s.put("exportedRows",data.length());s.put("omittedRows",Math.max(0,s.getLong("expectedRows")-data.length()));s.put("truncated",s.getLong("omittedRows")>0);s.put("metrics",data);s.put("elapsedMs",(System.nanoTime()-chapterStart)/1000000);sections.put(s);
         }root.put("sections",sections);root.put("expectedSections",40);root.put("exportedSections",sections.length());return root.toString(2);
     }catch(JSONException e){throw new IllegalStateException("R26_REPORT_ENVELOPE",e);}}
     public static String render(SQLiteDatabase db){

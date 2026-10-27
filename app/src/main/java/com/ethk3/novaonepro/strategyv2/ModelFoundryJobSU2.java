@@ -6,14 +6,8 @@ import com.ethk3.novaonepro.*;
 import java.io.IOException;
 import java.util.*;
 
-/**
- * Fast historical creation on the phone (P05/P07/P20-P25): one slice = one
- * generation of the continuing evolution on the retained history, run by the
- * continuous durable R26 queue (FoundryCampaignR26). When a
- * campaign completes, its frequency-tier champions join the league and go live
- * immediately (bootstrapped from history), and the evolution state is kept for
- * the next campaign - nothing restarts, parents are never discarded.
- */
+/** Compatibility API. Continuous sample-level research belongs to FoundryCampaignR26.
+ * Legacy campaign rows and evolution state remain readable for audit/parent protection. */
 public final class ModelFoundryJobSU2 {
     private ModelFoundryJobSU2() {}
     public static final int GENERATIONS = 8, POPULATION = 24, HALL_OF_FAME = 12, VAL_LEN = 1200, REFRESH_EVERY = 300;

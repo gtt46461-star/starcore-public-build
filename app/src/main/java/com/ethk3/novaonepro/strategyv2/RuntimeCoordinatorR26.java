@@ -14,7 +14,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static void checkThreadFence(SQLiteDatabase db){Claim c=WRITING_CLAIM.get();if(c!=null)requireFence(db,c);}
     private final DbStore store;private final String owner=UUID.randomUUID().toString();
     private final Object signal=new Object();private volatile boolean cancelled,closeStore;
-    private final Thread worker;private int slot;private long heartbeat;
+    private final Thread worker;private int slot;private long heartbeat;private volatile String resourceBlocked;private long resourceChecked;
     private static final String[] SLOTS={"P1","P2","P2","P3"};
     public static final class Claim {
         public final String task,owner;public final long fence,cursor;
@@ -22,7 +22,15 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     public RuntimeCoordinatorR26(DbStore store){this.store=Objects.requireNonNull(store);worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);active=this;worker.start();}
     public static void wake(){RuntimeCoordinatorR26 a=active;if(a!=null)synchronized(a.signal){a.signal.notifyAll();}}
-    private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.hasActiveCriticalWork();}
+    private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||resourceBlocked!=null||SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.hasActiveCriticalWork();}
+    private void resources(){
+        long mono=SystemClock.elapsedRealtime();if(mono-resourceChecked<1000)return;resourceChecked=mono;String reason=null;
+        android.app.ActivityManager manager=(android.app.ActivityManager)store.contextForR26().getSystemService(android.content.Context.ACTIVITY_SERVICE);
+        if(manager!=null){android.app.ActivityManager.MemoryInfo memory=new android.app.ActivityManager.MemoryInfo();manager.getMemoryInfo(memory);if(memory.lowMemory)reason="MEMORY_PRESSURE";}
+        if(android.os.Build.VERSION.SDK_INT>=29){android.os.PowerManager power=(android.os.PowerManager)store.contextForR26().getSystemService(android.content.Context.POWER_SERVICE);if(power!=null&&power.getCurrentThermalStatus()>=android.os.PowerManager.THERMAL_STATUS_SEVERE)reason="THERMAL_SEVERE";}
+        resourceBlocked=reason;
+    }
+    private void sessionBlocked(String reason){long now=System.currentTimeMillis();if(now-heartbeat<1000)return;heartbeat=now;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STATUS",db->{db.execSQL("UPDATE r26_session SET state=?,heartbeat=? WHERE session_id=?",new Object[]{reason==null?"RUNNING":"BLOCKED:"+reason,now,owner});return 0;});}
     @Override public void close(){cancelled=true;wake();worker.interrupt();}
     /** The service must not close a shared connection while a slice is draining. */
     public void closeAndReleaseStore(){closeStore=true;close();if(!worker.isAlive())store.close();}
@@ -32,7 +40,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE state='RUNNING'");
-            db.execSQL("INSERT INTO r26_session VALUES(?,1,?,'RUNNING',?,0)",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now});
+            db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
             add(db,"schema","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
             add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++)registerCapability(db,String.format(Locale.ROOT,"E%02d",i),"EXPERT");return 0;});
@@ -40,21 +48,28 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     private static void add(SQLiteDatabase db,String id,String lane){db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism) VALUES(?,?,?)",new Object[]{id,lane,id});}
     private static void registerCapability(SQLiteDatabase db,String id,String kind){
-        String implementation=id.equals("F17")?"PermutationModelR26":"";String state=id.equals("F17")?"EXECUTABLE":"BLOCKED";
-        String reason=id.equals("F17")?"Exact unary head; natural quality and complete family experiments pending":"Full R26 mechanism integration and decisive experiments pending; no fallback substituted";
+        String implementation=FamilyRegistryR26.implementation(id);String state=implementation.isEmpty()?"BLOCKED":"EXECUTABLE";
+        String reason=implementation.isEmpty()?"Full R26 mechanism integration and decisive experiments pending; no fallback substituted":"Concrete numerical kernel registered; complete family experiments and natural quality pending";
         db.execSQL("INSERT OR REPLACE INTO r26_capability(mechanism,kind,implementation,state,reason,last_progress) VALUES(?,?,?,?,?,coalesce((SELECT last_progress FROM r26_capability WHERE mechanism=?),0))",new Object[]{id,kind,implementation,state,reason,id});
     }
     private Claim claim(){for(int attempt=0;attempt<SLOTS.length;attempt++){String lane=SLOTS[slot++%SLOTS.length];Claim result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{long now=System.currentTimeMillis();String id=null;long fence=0,cursor=0;try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor FROM r26_task WHERE lane=? AND status IN ('READY','YIELDED','BLOCKED','RUNNING') AND lease_until<=? AND next_at<=? ORDER BY last_progress,task_id LIMIT 1",new String[]{lane,String.valueOf(now),String.valueOf(now)})){if(c.moveToFirst()){id=c.getString(0);fence=c.getLong(1)+1;cursor=c.getLong(2);}}if(id==null)return null;db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,id});return new Claim(id,owner,fence,cursor);});if(result!=null)return result;}return null;}
     private void run(){
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        try{initialize();while(!cancelled){
+        try{
+            boolean initialized=false;
+            while(!cancelled&&!initialized){try{initialize();initialized=true;}catch(RuntimeException retry){android.util.Log.w("STARCORE_R26","initialization retry",retry);await(500);}}
+            while(!cancelled){
             if(!new ServiceHeartbeatStore(store.contextForR26()).isUserEnabled()){cancelled=true;break;}
-            if(preempt()){await(50);continue;}
-            Claim claim=claim();if(claim==null){await(250);continue;}long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();long delta=0;String reason="DATA_NOT_READY";
-            try{WRITING_CLAIM.set(claim);BudgetTokenSU1 budget=new BudgetTokenSU1(200,3000000,this::preempt);delta=execute(claim,budget);reason=delta>0?null:"DATA_NOT_READY";}
-            catch(BudgetTokenSU1.Yield yield){reason=preempt()?"CRITICAL_DEADLINE":"SLICE_BUDGET";}
+            resources();
+            if(preempt()){try{sessionBlocked(resourceBlocked==null?"CRITICAL_DEADLINE":resourceBlocked);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","blocked receipt retry",busy);}await(50);continue;}
+            try{sessionBlocked(null);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","session status retry",busy);}
+            Claim claim;
+            try{claim=claim();}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","dispatch retry",busy);await(250);continue;}
+            if(claim==null){await(250);continue;}long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();long delta=0;String reason="DATA_NOT_READY";
+            try{WRITING_CLAIM.set(claim);BudgetTokenSU1 budget=new BudgetTokenSU1(200,3000000,this::preempt);ExecutionBudgetR26.enter(budget);delta=execute(claim,budget);reason=delta>0?null:"DATA_NOT_READY";}
+            catch(BudgetTokenSU1.Yield yield){reason=resourceBlocked!=null?resourceBlocked:preempt()?"CRITICAL_DEADLINE":"SLICE_BUDGET";}
             catch(Exception failure){reason=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());android.util.Log.w("STARCORE_R26",claim.task,failure);}
-            finally{WRITING_CLAIM.remove();}
+            finally{ExecutionBudgetR26.leave();WRITING_CLAIM.remove();}
             final long work=delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu);final String blocked=elapsed>1000?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
             try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=cursor+?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{work,blocked==null?"YIELDED":"BLOCKED",now+(work>0?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
                 db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,claim.cursor+work,cpuMs,blocked,now});db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");

@@ -88,6 +88,7 @@ public final class ModelReplaySU2 {
 
     /** Builds the stepwise model named by a member (same constructor the live loop uses). */
     public static OnlineModelsSU2.Model build(String kind, Map<String, String> p) {
+        if(kind.startsWith("R26")){if(!"1".equals(p.get("abi"))||p.size()!=1)throw new IllegalArgumentException("R26_FAMILY_ABI");return FamilyRegistryR26.build(kind.substring(3));}
         Adapter adapter = ADAPTERS.get(kind);
         if (adapter != null) return adapter.build(p);
         switch (kind) {

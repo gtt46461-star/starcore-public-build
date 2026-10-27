@@ -27,7 +27,7 @@ public final class ModelGenomeSU2 {
     public static final class Member {
         public final String kind; public final SortedMap<String, String> params; public final double weight;
         public Member(String kind, Map<String, String> params, double weight) {
-            if (!kind.equals("MATCHING") && Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0 && Arrays.asList(R14B_KINDS).indexOf(kind) < 0 && Arrays.asList(R16_KINDS).indexOf(kind) < 0 && Arrays.asList(P49_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
+            if (!(kind.startsWith("R26") && FamilyRegistryR26.EXECUTABLE.contains(kind.substring(3))) && !kind.equals("MATCHING") && Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0 && Arrays.asList(R14B_KINDS).indexOf(kind) < 0 && Arrays.asList(R16_KINDS).indexOf(kind) < 0 && Arrays.asList(P49_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
             if (!(weight > 0 && weight <= 3.0)) throw new IllegalArgumentException("SU2_MEMBER_WEIGHT");
             this.kind = kind; this.params = Collections.unmodifiableSortedMap(new TreeMap<>(params)); this.weight = weight;
         }

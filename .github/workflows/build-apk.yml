@@ -7,11 +7,16 @@ on:
         type: boolean
         required: false
         default: false
+      verified_run_id:
+        description: Successful R26 workflow run to publish as a direct APK download
+        required: false
+        default: ''
+        type: string
 permissions:
   contents: read
 jobs:
   debug-apk:
-    if: ${{ !inputs.publish_verified_1025 }}
+    if: ${{ !inputs.publish_verified_1025 && inputs.verified_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -88,3 +93,68 @@ jobs:
           PY
           gh release edit r13-5.4.3.04-20261025 --draft=false --prerelease --latest=false
           echo 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r13-5.4.3.04-20261025/STARCORE-10.25-R16-P50-release.apk' >> "$GITHUB_STEP_SUMMARY"
+  publish-r26:
+    if: ${{ inputs.verified_run_id != '' }}
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate completed source workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_RUN: ${{ inputs.verified_run_id }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          run=os.environ['VERIFIED_RUN'];assert run.isdecimal()
+          repo=os.environ['GITHUB_REPOSITORY']
+          def api(path):return json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/{path}'],text=True))
+          r=api(f'actions/runs/{run}')
+          assert r['status']=='completed' and r['conclusion']=='success',r['conclusion']
+          assert r['path']=='.github/workflows/r13.yml'
+          assert r['head_branch']=='construction/su1-20261022'
+          jobs=api(f'actions/runs/{run}/jobs')['jobs']
+          names={j['name']:j for j in jobs}
+          for name in ['build','android-runtime (29)','android-runtime (35)','android-runtime (36)']:
+              assert names[name]['conclusion']=='success',name
+          open('verified-workflow.json','w').write(json.dumps({'run_id':int(run),'workflow_head':r['head_sha'],'url':r['html_url'],'jobs':{j['name']:j['conclusion'] for j in jobs}},indent=2)+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          path: verified
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.verified_run_id }}
+      - name: Verify signed package receipt and prepare public assets
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re,shutil
+          root=pathlib.Path('verified');apks=list(root.glob('app/build/outputs/apk/release/*.apk'));assert len(apks)==1
+          apk=apks[0];receipt=root/'package-receipt'
+          badging=(receipt/'package.txt').read_text();signature=(receipt/'signature.txt').read_text()
+          assert "name='com.starcore.research.r13'" in badging
+          assert "versionName='R26-2026.10.27-engineering'" in badging
+          assert "versionCode='577271026'" in badging
+          assert '9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca' in signature
+          digest=hashlib.sha256(apk.read_bytes()).hexdigest();assert digest in (receipt/'SHA256SUMS.txt').read_text()
+          source=(receipt/'source-commit.txt').read_text().strip();assert re.fullmatch('[0-9a-f]{40}',source)
+          protocol=json.loads((root/'build/r26/verification.json').read_text());assert protocol['status']=='PASS'
+          out=pathlib.Path('public-assets');out.mkdir();name='STARCORE-R26-20261027-release.apk';shutil.copy2(apk,out/name)
+          (out/'SHA256SUMS.txt').write_text(digest+'  '+name+'\n')
+          metadata={'source_commit':source,'apk':name,'bytes':apk.stat().st_size,'sha256':digest,'package':'com.starcore.research.r13','versionName':'R26-2026.10.27-engineering','versionCode':577271026,'certificate_sha256':'9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca','overallAcceptance':'INCOMPLETE','naturalQuality':'INSUFFICIENT','physicalDevice':'NOT_RUN','workflow':json.load(open('verified-workflow.json'))}
+          (out/'R26-delivery.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n')
+          shutil.copy2(root/'build/r26/verification.json',out/'R26-protocol-verification.json')
+          pathlib.Path('release-notes.md').write_text('R26 工程验证版，尚未完成全方案验收。\n\n已加入持续研究队列、固定快照切片、无损策略身份、精确排列训练核、配对下界资格与40章状态报告。24家族/16专家完整机制、自然35/37/40%质量、用户真机与60分钟压力验收仍有缺项，不能视为100%完成。\n\n固定包名和签名，可覆盖此前R13版本。实际源码、APK校验值和CI回执见附件 R26-delivery.json。\n')
+          pathlib.Path('release-target.txt').write_text(source)
+          PY
+      - name: Publish verified engineering prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          target="$(cat release-target.txt)"
+          gh release create r26-20261027-engineering --target "$target" --title 'STARCORE R26 · 工程验证版（未完成全方案验收）' --notes-file release-notes.md --draft --prerelease --latest=false
+          gh release upload r26-20261027-engineering public-assets/*
+          gh release edit r26-20261027-engineering --draft=false --prerelease --latest=false

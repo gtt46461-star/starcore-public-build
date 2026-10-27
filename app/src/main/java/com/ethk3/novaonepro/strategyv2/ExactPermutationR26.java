@@ -12,6 +12,7 @@ public final class ExactPermutationR26 {
     }
     private static double add(double a,double b){if(a==Double.NEGATIVE_INFINITY)return b;if(b==Double.NEGATIVE_INFINITY)return a;double m=Math.max(a,b);return m+Math.log1p(Math.exp(Math.min(a,b)-m));}
     public static Result infer(double[][] s,BudgetTokenSU1 budget){
+        if(budget==null)budget=ExecutionBudgetR26.current();
         int n=s.length;if(n<1||n>10)throw new IllegalArgumentException("R26_SCORE_SHAPE");
         for(double[] row:s){if(row.length!=n)throw new IllegalArgumentException("R26_SCORE_SHAPE");for(double x:row)if(!Double.isFinite(x))throw new IllegalArgumentException("R26_SCORE_NON_FINITE");}
         int total=1<<n,full=total-1;double[] f=new double[total],b=new double[total];Arrays.fill(f,Double.NEGATIVE_INFINITY);Arrays.fill(b,Double.NEGATIVE_INFINITY);f[0]=0;b[full]=0;
