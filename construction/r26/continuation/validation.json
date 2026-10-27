@@ -370,5 +370,19 @@
     "api35": "PASS_DEBUG_AND_RELEASE_STARTUP_RESTART_UPGRADE",
     "api36": "PASS_DEBUG_AND_RELEASE_STARTUP_RESTART_UPGRADE",
     "scope": "EMULATOR_NOT_USER_PHONE; NO_NEW_NATURAL_QUALITY_CLAIM"
+  },
+  "ownerLoadCi": {
+    "runId": 40507717705,
+    "headCommit": "069082abd40ae0dd242e1946bd74409f2f900da6",
+    "build": "PASS",
+    "api35": "PASS",
+    "api36": "PASS",
+    "api29": "FAIL_ACTUAL_OWNER_TEST",
+    "observedFamiliesWithCommittedProgress": 0,
+    "requiredFamilies": 24,
+    "testWaitSeconds": 240,
+    "diagnosis": "Research entry waited on the complete legacy research overlay before advancing the independent strategy storage journal; no training was committed",
+    "fix": "Existing ResearchSchemaCoordinator now commits standalone strategy DDL units first; full legacy overlay has its own task and readiness state. Resume-state transitions are persisted immediately. Same 24/16 actual-progress assertions retained.",
+    "status": "PENDING_RETEST"
   }
 }
