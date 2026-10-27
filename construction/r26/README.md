@@ -1,6 +1,6 @@
 # R26 implementation and delivery evidence
 
-Effective specification: `construction/plans/STARCORE_R26_MERGED_20261026`, imported from main `7c66b07`. Implementation starts from the prior verified 10.25 branch (`cd7f058`) merged with current main; it preserves that branch's P46/P49/P50 and startup/retention fixes.
+Effective specification: `construction/plans/STARCORE_R26_MERGED_20261026`, imported from main `7c66b07`. Verified APK source is `d8a510038b924548824cd168235fb82bdda32d01` (R13-5.4.3.04, versionCode 577251063). `cd7f058` has identical production application source. Main contains the R26 plan but its application is still R13-5.4.3.03; the older restore branch is .02. Full comparisons and the 11 plan-audited input hashes are recorded in `baseline-audit.json`. Implementation starts from the verified .04 branch merged with current main; it preserves that branch's P46/P49/P50 and startup/retention fixes.
 
 This is an **incomplete engineering candidate**, not a declaration that the 128 cards, 1832 historical requirements, all 24 families/16 experts, natural strategy quality, or user physical-device acceptance have passed.
 
