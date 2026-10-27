@@ -115,7 +115,7 @@ jobs:
             release-*.txt
             r26-runtime-synthetic.json
   android-endurance:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.endurance }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance) }}
     needs: [build, android-runtime]
     strategy:
       fail-fast: false

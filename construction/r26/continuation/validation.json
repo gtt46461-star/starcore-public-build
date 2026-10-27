@@ -39,7 +39,17 @@
       "prior strategy 21 groups",
       "prior 10.25 plan 20 groups"
     ],
-    "compileOnlySources": 1061
+    "compileOnlySources": 1061,
+    "renewedCpuAndRetention": {
+      "r26Groups": 12,
+      "r26Status": "PASS",
+      "oldStrategyGroups": 21,
+      "oldStrategyStatus": "PASS",
+      "planStatus": "RUNNING_LOCAL",
+      "sdk36SourceCount": 1062,
+      "sdk36Compile": "PASS",
+      "apkAuthority": "SOURCE_MATCHED_CI_REQUIRED"
+    }
   },
   "syntheticPower": {
     "scope": "SYNTHETIC_ONLY_NOT_NATURAL_QUALITY",
@@ -56,8 +66,9 @@
   },
   "androidTests": {
     "classes": 17,
-    "expectedTests": 62,
-    "status": "55_PASSED_ON_PREVIOUS_SOURCE; 62_TEST_GATE_PENDING"
+    "tests": 63,
+    "status": "PENDING_CURRENT_SOURCE_CI",
+    "newRegression": "Protected incumbent parent exclusion and renewed numerical campaign beyond 5000-period retention"
   },
   "physicalDevice": "NOT_RUN",
   "naturalQuality": "INSUFFICIENT",
@@ -616,22 +627,15 @@
     "receipt": "construction/r26/continuation/runtime-serialization-failure.json"
   },
   "endurance": {
-    "status": "RUNNING_ON_PREVIOUS_55_TEST_SOURCE; NEW_SOURCE_REQUIRES_OWN_RUN",
-    "configuredScenarios": 6,
-    "apis": [
-      29,
-      35,
-      36
-    ],
-    "screens": [
-      "BRIGHT",
-      "LOCKED"
-    ],
+    "status": "FAIL_ALL_SIX_AFTER_FULL_HOUR",
+    "runId": 40523546895,
+    "scenarios": 6,
     "secondsPerScenario": 3600,
-    "scope": "EMULATOR_SYNTHETIC_ENGINEERING_ONLY; physical user phone and natural forward quality remain separate",
-    "requiresStandardRuntimeSuccess": true,
-    "automaticPassClaimed": false,
-    "runId": 40523546895
+    "diagnosis": "Retention expiry removed initial candidates; the next birth parsed the protected XI method as mutable SU2 genome and raised SU2_GENOME_FIELDS. Historical aggregate progress concealed this per-engine renewal failure.",
+    "fix": "Exclude origin_op INCUMBENT from mutable parents; add unit regression and require renewed campaign learning after 4200+1000 labels; verify durable task cursor on runtime replacement.",
+    "fixValidation": "PENDING_SOURCE_MATCHED_ANDROID_RETEST",
+    "summary": "construction/r26/continuation/endurance-55-failures.json",
+    "scope": "SYNTHETIC_EMULATOR; NOT_PHYSICAL_PHONE_OR_NATURAL_QUALITY"
   },
   "streamingCapacityProbe": {
     "scope": "SYNTHETIC_HOST_BYTE_STORE; NOT_ANDROID_FS_OR_USER_DEVICE_ENDURANCE",
@@ -651,6 +655,25 @@
     "log": "construction/r26/continuation/streaming-capacity-host.log"
   },
   "lastPassedStandardRuntime": {
+    "runId": 40536423771,
+    "source": "18fdfeac1253695a6569b6fa23971594327da717",
+    "api29": "PASS_62_TESTS_17_CLASSES",
+    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "receipt": "construction/r26/continuation/runtime-62-pass.json",
+    "familyMechanismsWithCommittedProgress": 24,
+    "expertsWithActualReceipts": 16,
+    "allMechanismsServiceMillis": 125718,
+    "strategyReadyToAllMechanismsWallMs": 117037,
+    "firstServiceTargetObservedWithin": false,
+    "canonicalDrawWriteP99Ms": 10,
+    "canonicalDrawWriteMaxMs": 14,
+    "restartResumed": true,
+    "staleOwnerRejected": true,
+    "capacityFailReceipts": 0,
+    "fullPredrawOpportunitySloClaimed": false
+  },
+  "previousPassedStandardRuntime": {
     "runId": 40523546895,
     "source": "d59d613f653f66c4b7c63383ebb112566330dfdf",
     "compiledSource": "f8243e4",
@@ -671,5 +694,11 @@
     "staleOwnerRejected": true,
     "unslicedCapacityFailReceipts": 0,
     "receipt": "construction/r26/continuation/runtime-55-pass.json"
+  },
+  "cpuFairness": {
+    "status": "HOST_PASS_ANDROID_PENDING",
+    "policy": "CPU service divided by executable mechanisms per task; aggregate foundry weight 24, live-model training weight active model count, experts weight 1; measured P2 reserve 20 percent",
+    "hostDispatches": 10000,
+    "firstService60s": "PREVIOUS_SOURCE_FAIL_117037MS; CURRENT_SOURCE_PENDING"
   }
 }
