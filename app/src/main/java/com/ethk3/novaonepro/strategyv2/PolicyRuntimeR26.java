@@ -18,5 +18,6 @@ public final class PolicyRuntimeR26 {
     public void learn(int[] draw,long ordinal)throws IOException {if(family!=null)family.learn(draw);else legacy.advance(draw,ordinal);}
     public void onGap()throws IOException {if(family!=null)family.onGap();else legacy.onGap();}
     public byte[] encode()throws IOException{return family!=null?family.encode():legacy.encode();}
+    public LegacyReplayStateR26 legacyState(){return legacy;}
     public float[][] table(){return live.pendingTable(family!=null?family.samples():legacy.samples());}
 }

@@ -109,4 +109,13 @@ public final class R26CheckpointDeviceTest {
             }
         }finally{clear(directory);}
     }
+    @Test public void privatePolicyUsesStreamedStateAndKeepsTheNextLearnedUpdate()throws Exception {
+        File directory=root();try{
+            CheckpointArtifactsR26 files=new CheckpointArtifactsR26(directory);ModelGenomeSU2 genome=FamilyRegistryR26.genome("F17").bindBirth(PolicyIdentityR26.sha256("SYNTHETIC_PRIVATE_SOURCE"),1000);LegacyReplayStateR26 state=new LegacyReplayStateR26(Collections.singletonList(genome.text()),1000);int[] draw={1,2,3,4,5,6,7,8,9,10};for(int i=0;i<40;i++)state.advance(draw);PolicyRuntimeR26 live=PolicyRuntimeR26.legacy(state),resumed;
+            try(CheckpointArtifactsR26.Prepared checkpoint=PolicyCheckpointR26.prepare(files,live)){byte[] root=files.resolve(checkpoint.reference());assertTrue(ChunkedCheckpointR26.isManifest(root));resumed=PolicyCheckpointR26.restore(files,genome.text(),checkpoint.reference(),LiveStateR26.hash(root));}
+            ModelLiveSU2.Decision left=live.forecast(),right=resumed.forecast();assertEquals(left.position,right.position);assertEquals(left.mask,right.mask);assertEquals(left.phat,right.phat,0);live.learn(draw,1040);resumed.learn(draw,1040);
+            try(CheckpointArtifactsR26.Prepared a=PolicyCheckpointR26.prepare(files,live);CheckpointArtifactsR26.Prepared b=PolicyCheckpointR26.prepare(files,resumed)){assertEquals(a.hash(),b.hash());}
+            LiveStateR26 family=new LiveStateR26(genome);family.forecast();family.learn(draw);byte[] bytes=family.encode();try(CheckpointArtifactsR26.Prepared inline=files.prepareLease(bytes)){PolicyRuntimeR26 restored=PolicyCheckpointR26.restore(files,genome.text(),inline.reference(),LiveStateR26.hash(bytes));assertNull(restored.legacyState());assertEquals(family.forecast().mask,restored.forecast().mask);}
+        }finally{clear(directory);}
+    }
 }

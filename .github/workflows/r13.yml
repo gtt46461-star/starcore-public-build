@@ -12,7 +12,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: ${{ github.event_name == 'workflow_dispatch' && inputs.endurance && 'r26-endurance' || 'r13' }}-${{ github.ref }}
+  group: ${{ github.event_name == 'workflow_dispatch' && inputs.endurance && format('r26-endurance-{0}-{1}', github.ref, github.sha) || format('r13-{0}', github.ref) }}
   cancel-in-progress: true
 jobs:
   build:
