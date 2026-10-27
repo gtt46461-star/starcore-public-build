@@ -1074,6 +1074,29 @@
     "log": "construction/r26/continuation/streaming-capacity-host.log"
   },
   "lastPassedStandardRuntime": {
+    "runId": 40562783679,
+    "source": "e36b380421286db2b90e6bad45169e29256ecd3d",
+    "compiledSource": "050ad3d759195ba5d84909a5f01e3c33067ef69d",
+    "build": "PASS_UNIT_LINT_PACKAGE",
+    "api29": "PASS_70_TESTS_18_CLASSES_AND_START_RESTART_RELEASE_UPGRADE",
+    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
+    "artifactId": 12762472986,
+    "artifactUrl": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/40562783679/artifacts/12762472986",
+    "strategyReadyToAllMechanismsWallMs": 8786,
+    "firstServiceTargetMs": 60000,
+    "firstServiceTargetObservedWithin": true,
+    "canonicalDrawWriteP99Ms": 14,
+    "engineeringWriteProbes": 1000,
+    "fullPredrawOpportunitySloClaimed": false,
+    "capacityFailReceipts": 0,
+    "committedCapacityFailures": 0,
+    "retentionBoundaryRenewed": true,
+    "restartResumed": true,
+    "scope": "SYNTHETIC_EMULATOR_NOT_USER_PHONE_OR_NATURAL_QUALITY",
+    "publicReleasePublished": false
+  },
+  "previousPassedStandardRuntime": {
     "runId": 40552687429,
     "source": "9b023b3ed0c3bbf8e396ed8480ab6239477800ce",
     "compiledSource": "04193e4",
@@ -1105,43 +1128,6 @@
     "staleOwnerRejected": true,
     "capacityFailReceipts": 1,
     "checkpointFileBytes": 455120
-  },
-  "previousPassedStandardRuntime": {
-    "runId": 40546738092,
-    "source": "cba7678a37d1",
-    "compiledSource": "2eb70bae9043f6a8e63bdc44afe9f002801e35d0",
-    "api29": "PASS_67_TESTS_18_CLASSES",
-    "api35": "PASS_START_RESTART_RELEASE_UPGRADE",
-    "api36": "PASS_START_RESTART_RELEASE_UPGRADE",
-    "apkSha256": "a725feecfdea56821eddf7450e5233ae7296ec0186575726803634e025fedc38",
-    "fixedCertificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
-    "independentV1V2Signature": "PASS",
-    "publicReleasePublished": false,
-    "receipt": "construction/r26/continuation/runtime-67-pass.json",
-    "api": 29,
-    "engineeringWriteProbes": 1000,
-    "fullPredrawOpportunitySloClaimed": false,
-    "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
-    "javaHeapLimitAtStart": 536870912,
-    "targetLargeHeapFlag": true,
-    "familyMechanismsWithCommittedProgress": 24,
-    "expertsWithActualReceipts": 16,
-    "allMechanismsServiceMillis": 150955,
-    "strategyReadyToAllMechanismsWallMs": 72811,
-    "firstServiceTargetMs": 60000,
-    "firstServiceTargetObservedWithin": false,
-    "canonicalDrawWriteP50Ms": 6,
-    "canonicalDrawWriteP95Ms": 12,
-    "canonicalDrawWriteP99Ms": 14,
-    "canonicalDrawWriteMaxMs": 21,
-    "retentionBoundaryRenewed": true,
-    "committedCandidateSamplesBeforeRestart": 216,
-    "actualProgressBeforeRestart": 789,
-    "committedCandidateSamplesAfterRestart": 224,
-    "restartResumed": true,
-    "staleOwnerRejected": true,
-    "capacityFailReceipts": 0,
-    "checkpointFileBytes": 479967
   },
   "cpuFairness": {
     "status": "HOST_PASS_ANDROID_PENDING",
@@ -1214,21 +1200,20 @@
     "receipt": "construction/r26/continuation/family-controls-mechanism-evidence.log"
   },
   "activeCi": {
-    "runId": 40552687429,
-    "source": "9b023b3ed0c3bbf8e396ed8480ab6239477800ce",
-    "scope": "Before current cohort-birth/service-telemetry changes",
+    "runId": 40562783679,
+    "source": "e36b380421286db2b90e6bad45169e29256ecd3d",
     "build": "PASS",
-    "api29": "PASS_68_TESTS",
+    "api29": "PASS_70_TESTS",
     "api35": "PASS",
     "api36": "PASS",
-    "endurance": "SIX_RUNNING"
+    "endurance": "SIX_RUNNING_AS_OF_2026_10_27_19_16_UTC"
   },
   "migrationStartup": {
     "status": "ANDROID_68_PASS",
     "fix": "Count incomplete journal before validating full prefix; validate all hashes and SQL objects at completion, protect immutable cached journal with update/delete/replace guards and count-before-cache",
     "assertionsRelaxed": false
   },
-  "sourceChangesScope": "Current staged/working delta from baseCommit; validation.json excluded to avoid a recursive self-hash. APK authority is the independently source-bound CI package receipt.",
+  "sourceChangesScope": "Historical staged/working delta captured by source e36b380421286db2b90e6bad45169e29256ecd3d from baseCommit; validation.json excluded for recursive self-hash. This is not an inventory of subsequent documentation-only status updates. APK authority remains the source-bound CI package receipt.",
   "endurance67": {
     "runId": 40546738092,
     "source": "cba7678a37d1823c0daab0d0c9e53cb118905ca5",
@@ -1249,6 +1234,47 @@
     "cohortBirth": "Register benchmark availability in the same transaction before the first alpha reservation; birth, benchmark, protocol and family-alpha fields are immutable; old missing-benchmark cohorts remain explicitly blocked",
     "fittedForecastCache": "MASS/META/calibrated gates tested after 1510 actual synthetic updates with exact next-step equality",
     "serviceCounters": "Source/runtime/device-tagged committed CPU/wall/capacity counters survive receipt/session pruning; snapshot without telemetry reports NOT_INSTALLED, not zero; controlled owner trace preserved before startup log clearing",
-    "androidValidation": "PENDING_70_TEST_CURRENT_SOURCE"
+    "androidValidation": "PASS_70_TEST_CURRENT_SOURCE; NOT_COMPLETE_PLAN_ACCEPTANCE"
+  },
+  "endurance68": {
+    "runId": 40552687429,
+    "source": "9b023b3ed0c3bbf8e396ed8480ab6239477800ce",
+    "status": "SIX_FULL_HOUR_ENGINEERING_SCENARIOS_PASS_WITH_RECORDED_SLICE_VIOLATIONS",
+    "scenarios": 6,
+    "secondsPerScenario": 3600,
+    "minuteSamplesEach": 59,
+    "firstServiceRangeMs": [
+      3311,
+      9047
+    ],
+    "maximumRetainedSliceFailureCount": 6,
+    "summary": "construction/r26/continuation/endurance-68-summary.json",
+    "scope": "SYNTHETIC_EMULATOR; NOT_USER_PHONE; NOT_NATURAL_QUALITY; NOT_FULL_PREDRAW_SLO"
+  },
+  "localUnpublishedChanges": {
+    "localBranch": "construction/r26-candidate-service",
+    "localCommitAbbreviation": "ac22fff",
+    "instrumentationClasses": 19,
+    "instrumentationTests": 74,
+    "productionCompile": "PASS_OFFICIAL_SDK36_COMPILE_ONLY_WITH_GENERATED_CONFIG_RESOURCE_STUBS",
+    "newTestCompile": "PASS_COMPILE_ONLY_WITH_JUNIT_AND_ANDROIDX_API_STUBS",
+    "cloudValidation": "NOT_RUN_UNPUSHED",
+    "changes": [
+      "Measured candidate CPU scheduling instead of sample cursor fairness",
+      "Per-complete-candidate publication before remaining campaign peers",
+      "Snapshot/cursor/state/birth binding at publication",
+      "Future private learner waits for terminal feedback; ready prebirth catchup peers can advance",
+      "Corrupt research checkpoint quarantined without deleting blob or stopping healthy peer"
+    ],
+    "blockingCondition": "Managed execution environment connectivity offline; no usable execution environment. Merge/rebinding/push operation did not return a completion receipt."
+  },
+  "executionBlock": {
+    "observedAt": "2026-10-27T19:18:00Z",
+    "provider": "cloud",
+    "observedPhase": "running",
+    "connectivity": "offline",
+    "commandError": "No usable execution environment is available",
+    "sourceWriteGate": "Local new source not promoted or claimed validated",
+    "approvalRequired": false
   }
 }
