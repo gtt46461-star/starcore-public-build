@@ -1,3 +1,5 @@
+> 当前 R26 施工验收为 **INCOMPLETE**，未发布完整成品 APK。最近通过的是 e94ee7a 来源的 78 项 Android 测试与三系统常规检查；当前 79 项来源继续验证。完整进度与证据见 [R26 施工记录](construction/r26/STATUS.zh.md)。下文保留既有 R13 发布基线说明。
+
 # 星核创研 R13 · 公有独立版
 
 公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.04-2026.10.25`，versionCode `577251063`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
