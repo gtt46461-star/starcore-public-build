@@ -17,7 +17,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private final Thread worker;private int slot;private long heartbeat;private volatile String resourceBlocked;private long resourceChecked;
     private static final String[] SLOTS={"P1","P2","P2","P3"};
     public static final class Claim {
-        public final String task,owner;public final long fence,cursor;
+        public final String task,owner;public final long fence,cursor;private long completedEventCursor=-1;
         Claim(String task,String owner,long fence,long cursor){this.task=task;this.owner=owner;this.fence=fence;this.cursor=cursor;}
     }
     public RuntimeCoordinatorR26(DbStore store){this.store=Objects.requireNonNull(store);worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);active=this;worker.start();}
@@ -71,9 +71,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             catch(BudgetTokenSU1.Yield yield){reason=resourceBlocked!=null?resourceBlocked:preempt()?"CRITICAL_DEADLINE":"SLICE_BUDGET";}
             catch(Exception failure){reason=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());android.util.Log.w("STARCORE_R26",claim.task,failure);}
             finally{ExecutionBudgetR26.leave();WRITING_CLAIM.remove();}
-            final long work=delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu);final String blocked=elapsed>1000?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
-            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=cursor+?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{work,blocked==null?"YIELDED":"BLOCKED",now+(work>0||"CRITICAL_DEADLINE".equals(blocked)?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
-                db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,claim.cursor+work,cpuMs,blocked,now});db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
+            final long work=delta,nextCursor=claim.completedEventCursor>=0?claim.completedEventCursor:claim.cursor+delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu);final String blocked=elapsed>1000?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
+            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{nextCursor,blocked==null?"YIELDED":"BLOCKED",now+(work>0||"CRITICAL_DEADLINE".equals(blocked)?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
+                db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,nextCursor,cpuMs,blocked,now});db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
                 db.execSQL("UPDATE r26_session SET heartbeat=?,actual_progress=actual_progress+? WHERE session_id=?",new Object[]{now,work,owner});return 0;});}catch(RuntimeException failure){android.util.Log.w("STARCORE_R26","receipt not committed",failure);}
             // Empty maintenance work waits for its next data event, never spins to fabricate progress.
             if(delta==0)await(10);
@@ -117,6 +117,6 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "daily-close":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_DAILY_CLOSE",db->{requireFence(db,c);LiveShadowLoopSU1.closeDays(db,Integer.parseInt(latest.issue.substring(0,8)));return 0;});break;
             default:throw new IllegalStateException("R26_UNKNOWN_TASK:"+c.task);
         }
-        return seq-c.cursor;
+        claim.completedEventCursor=seq;return 1;
     }
 }
