@@ -28,8 +28,10 @@ public final class ModelGenomeSU2 {
     public static final class Member {
         public final String kind; public final SortedMap<String, String> params; public final double weight;
         public Member(String kind, Map<String, String> params, double weight) {
-            if (!(kind.startsWith("R26") && FamilyRegistryR26.EXECUTABLE.contains(kind.substring(3))) && !kind.equals("MATCHING") && Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0 && Arrays.asList(R14B_KINDS).indexOf(kind) < 0 && Arrays.asList(R16_KINDS).indexOf(kind) < 0 && Arrays.asList(P49_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
+            if (!(kind.startsWith("R26") && FamilyRegistryR26.EXECUTABLE.contains(kind.substring(3))) && !kind.equals("MATCHING") && !kind.equals("R26SCALE") && Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0 && Arrays.asList(R14B_KINDS).indexOf(kind) < 0 && Arrays.asList(R16_KINDS).indexOf(kind) < 0 && Arrays.asList(P49_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
             if (!(weight > 0 && weight <= 3.0)) throw new IllegalArgumentException("SU2_MEMBER_WEIGHT");
+            if(!kind.matches("[A-Z][A-Z0-9_]*"))throw new IllegalArgumentException("R26_MEMBER_KIND");
+            for(Map.Entry<String,String> entry:params.entrySet()){String k=entry.getKey(),v=entry.getValue();if(k==null||!k.matches("[A-Za-z_][A-Za-z0-9_]*")||v==null||v.matches("(?s).*[|;{}*\\r\\n].*"))throw new IllegalArgumentException("R26_MEMBER_DELIMITER");int depth=0;for(int at=0;at<v.length();at++){char ch=v.charAt(at);if(ch=='(')depth++;else if(ch==')'){if(--depth<0)throw new IllegalArgumentException("R26_MEMBER_PARENTHESES");}else if(ch==','&&depth==0)throw new IllegalArgumentException("R26_MEMBER_COMMA");}if(depth!=0)throw new IllegalArgumentException("R26_MEMBER_PARENTHESES");}
             this.kind = kind; this.params = Collections.unmodifiableSortedMap(new TreeMap<>(params)); this.weight = weight;
         }
         public String modelKey() {
@@ -70,8 +72,8 @@ public final class ModelGenomeSU2 {
     public String text() {
         if (legacyText != null) return legacyText;
         StringBuilder b = new StringBuilder("SU2|ID=R26|").append(calibrated ? "CAL=1|" : "").append("POOL=").append(pool).append("|SINK=").append(sink ? 1 : 0)
-            .append("|GATE=").append(gate).append(gate.equals("META") ? ":" + Double.toString(metaC) : "")
-            .append("|COV=").append(String.format(Locale.ROOT, "%.2f", coverage)).append("|M=");
+            .append("|GATE=").append(gate).append(":" + Double.toString(metaC))
+            .append("|COV=").append(Double.toString(coverage)).append("|M=");
         for (int i = 0; i < members.size(); i++) { if (i > 0) b.append(';'); b.append(members.get(i).text()); }
         return b.toString();
     }
@@ -83,13 +85,14 @@ public final class ModelGenomeSU2 {
         String ready=cachedKey;if(ready!=null)return ready;
         if (legacyText != null) return cachedKey=HashingSU1.text("SU2_MODEL_GENOME_V1|" + legacyText);
         Map<String,Object> rules = new HashMap<>();
-        rules.put("graph", text()); rules.put("features", "SU2_CAUSAL_RETAINED_5000_V1");
+        List<Object> graphMembers=new ArrayList<>();for(Member member:members){Map<String,Object> node=new TreeMap<>();node.put("kind",member.kind);node.put("parameters",member.params);node.put("weight",member.weight);graphMembers.add(node);}
+        rules.put("graph",Arrays.asList(sink,graphMembers)); rules.put("features", "SU2_CAUSAL_RETAINED_5000_V1");
         rules.put("updater", "SU2_ONLINE_STATE_CODEC_R26_V1"); rules.put("update_schedule", "REVEALED_LABEL_ORDERED_EXACTLY_ONCE");
         rules.put("initial_state", members.get(0).params.containsKey("_birth_snapshot")?Arrays.asList("DETERMINISTIC_MEMBER_INIT_THEN_BOUND_BOOTSTRAP",members.get(0).params.get("_birth_snapshot"),members.get(0).params.get("_birth_through")):"MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
         rules.put("gate", Arrays.asList(gate, metaC, coverage)); rules.put("router", pool);
         rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
         rules.put("resource_schedule", "R26_SINGLE_RESEARCH_WORKER_FAIR_200MS_V1");
-        rules.put("evidence_protocol", "R26_LCB_FIXED_CALENDAR_V1"); rules.put("runtime_abi", "SU2_R26_1:"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
+        rules.put("evidence_protocol", QualificationWindowR26.PROTOCOL); rules.put("runtime_abi", "SU2_R26_1:"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
         return cachedKey=new PolicyIdentityR26.Policy(rules).hash;
     }
 
@@ -111,8 +114,9 @@ public final class ModelGenomeSU2 {
     }
 
     public static ModelGenomeSU2 parse(String text) {
-        if (text == null || text.length() > 2048 || !text.startsWith("SU2|")) throw new IllegalArgumentException("SU2_GENOME_TEXT");
+        if (text == null || text.length() > 8192 || !text.startsWith("SU2|")) throw new IllegalArgumentException("SU2_GENOME_TEXT");
         boolean legacy = !text.startsWith("SU2|ID=R26|");
+        if(legacy&&text.length()>2048)throw new IllegalArgumentException("SU2_LEGACY_TEXT_BOUND");
         String parseText = legacy ? text : text.replaceFirst("SU2\\|ID=R26\\|", "SU2|");
         String[] f0 = parseText.split("\\|");
         boolean cal = f0.length == 7 && f0[1].equals("CAL=1");
@@ -120,7 +124,7 @@ public final class ModelGenomeSU2 {
         if (f.length != 6) throw new IllegalArgumentException("SU2_GENOME_FIELDS");
         String pool = value(f[1], "POOL"), sinkS = value(f[2], "SINK"), gateS = value(f[3], "GATE"), cov = value(f[4], "COV"), mem = value(f[5], "M");
         String gate = gateS; double c = 0.2;
-        if (gateS.startsWith("META:")) { gate = "META"; c = Double.parseDouble(gateS.substring(5)); }
+        if (gateS.startsWith("META:")||gateS.startsWith("MASS:")) { gate = gateS.substring(0,4); c = Double.parseDouble(gateS.substring(5)); }
         List<Member> ms = new ArrayList<>();
         for (String m : mem.split(";")) {
             int brace = m.indexOf('{'), close = m.indexOf("}*");
