@@ -49,7 +49,7 @@ public final class RuntimeSchemaR26 {
         "CREATE INDEX IF NOT EXISTS r26_task_dispatch ON r26_task(status,lane,next_at,lease_until)",
         "CREATE INDEX IF NOT EXISTS r26_feedback_order ON r26_feedback(issue_ordinal)"
     };
-    public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r26_capability','r26_live_model','r26_certificate_revocation','r26_legacy_runtime','r26_checkpoint_artifact','r26_member_replay','r26_legacy_campaign','r26_work_total')",null)){return c.moveToFirst()&&c.getInt(0)==8;}}
+    public static boolean ready(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('r26_capability','r26_live_model','r26_certificate_revocation','r26_legacy_runtime','r26_checkpoint_artifact','r26_member_replay','r26_legacy_campaign','r26_work_total','r26_prepared_policy','r26_evidence_cursor','r26_evidence_block','r26_qualification_result')",null)){return c.moveToFirst()&&c.getInt(0)==12;}}
     public static void ensure(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("R26_WRITER_REQUIRED");for(String sql:DDL)db.execSQL(sql);
         column(db,"r26_task","last_served","INTEGER NOT NULL DEFAULT 0");
         column(db,"r26_cohort","family_alpha","REAL NOT NULL DEFAULT 0");column(db,"r26_cohort","checked_sequence","INTEGER NOT NULL DEFAULT -1");

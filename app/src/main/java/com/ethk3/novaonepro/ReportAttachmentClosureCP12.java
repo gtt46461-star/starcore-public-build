@@ -34,7 +34,8 @@ public final class ReportAttachmentClosureCP12 {
         File plans=new File(job,"attachments-plan-"+UUID.randomUUID().toString().replace("-","")+".jsonl");
         File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,request.getJSONObject("observation").toString());
         ReportMemberPlanCP12.append(members,"runtime-observation.json",observation.getName(),ReportArchiveCP4.hash(observation,control),observation.length());
-        String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
+        String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
+        BuildProvenanceR815.Snapshot runtimeIdentity=BuildProvenanceR815.lastSnapshot();if(runtimeIdentity!=null&&runtimeIdentity.valid&&apkBefore.equals(runtimeIdentity.apkSha256))source.put("signingCertificateSha256",runtimeIdentity.certSha256);else source.put("signingCertificateState","MATCHED_RUNTIME_FINGERPRINT_UNAVAILABLE");
         JSONObject registries=new JSONObject();
         for(String table:new String[]{ResearchPlatformStoreR929.TABLE_BUNDLE,"research_evidence_archive_v2","research_training_input_v2","research_training_attachment_cp12"})
             registries.put(table,hasTable(copy,table)?"PRESENT":"MISSING_SCHEMA");
