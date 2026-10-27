@@ -42,6 +42,7 @@ public final class R26RuntimeDeviceTest {
     private static boolean table(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
     private static Models.Draw draw(long first,int index,long opened){Models.Draw d=new Models.Draw();d.issue=TargetIssueResolver.fromSequenceOrdinalSU1(first+index);d.numbers=new int[10];for(int p=0;p<10;p++)d.numbers[p]=(p+index%7)%10+1;d.openTime=opened+index*60000L;d.fetchTime=d.openTime+1000;return d;}
     private static void waitStopped(SQLiteDatabase db)throws Exception {long end=System.nanoTime()+10_000_000_000L;while(System.nanoTime()<end){if(scalar(db,"SELECT count(*) FROM r26_session WHERE user_enabled=1")==0)return;Thread.sleep(20);}fail("coordinator did not persist stop");}
+    private static void drain(RuntimeCoordinatorR26 runtime)throws Exception {java.lang.reflect.Field field=RuntimeCoordinatorR26.class.getDeclaredField("worker");field.setAccessible(true);Thread worker=(Thread)field.get(runtime);worker.join(10000);assertFalse("coordinator thread did not drain",worker.isAlive());}
     private static void remove(File f){File[] children=f.listFiles();if(children!=null)for(File child:children)remove(child);if(f.exists())assertTrue(f.delete());}
 
     @Test public void allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()throws Exception {
@@ -64,13 +65,15 @@ public final class R26RuntimeDeviceTest {
             Arrays.sort(latency);result.put("canonicalDrawWriteP50Ms",latency[499]).put("canonicalDrawWriteP95Ms",latency[949]).put("canonicalDrawWriteP99Ms",latency[989]).put("canonicalDrawWriteMaxMs",latency[999]);assertTrue("writer p99 exceeded critical owner's 2s envelope",latency[989]<2000);
             long before=scalar(db,"SELECT coalesce(sum(cursor),0) FROM r26_candidate"),progress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session");assertTrue(before>0);result.put("committedCandidateSamplesBeforeRestart",before).put("actualProgressBeforeRestart",progress);
             RuntimeCoordinatorR26.Claim stale=null;end=System.nanoTime()+2_000_000_000L;while(stale==null&&System.nanoTime()<end){try(Cursor c=db.rawQuery("SELECT task_id,owner,fence,cursor FROM r26_task WHERE status='RUNNING' AND owner IS NOT NULL LIMIT 1",null)){if(c.moveToFirst())stale=new RuntimeCoordinatorR26.Claim(c.getString(0),c.getString(1),c.getLong(2),c.getLong(3));}if(stale==null)Thread.sleep(5);}
-            runtime.close();waitStopped(db);if(stale!=null)try{RuntimeCoordinatorR26.requireFence(db,stale);fail("stopped owner could commit");}catch(IllegalStateException expected){}
+            runtime.close();drain(runtime);waitStopped(db);if(stale!=null)try{RuntimeCoordinatorR26.requireFence(db,stale);fail("stopped owner could commit");}catch(IllegalStateException expected){}
             runtime=new RuntimeCoordinatorR26(store);end=System.nanoTime()+30_000_000_000L;while(System.nanoTime()<end&&scalar(db,"SELECT coalesce(sum(cursor),0) FROM r26_candidate")<=before)Thread.sleep(50);
             long after=scalar(db,"SELECT coalesce(sum(cursor),0) FROM r26_candidate");assertTrue("restart lost or stopped numerical progress",after>before);result.put("committedCandidateSamplesAfterRestart",after).put("restartResumed",true).put("staleOwnerRejected",stale!=null);
             result.put("capacityFailReceipts",scalar(db,"SELECT count(*) FROM r26_progress WHERE blocked_reason LIKE 'CAPACITY_FAIL:%'")).put("checkpointFileBytes",CheckpointArtifactsR26.forStore(store).bytes()).put("result","PASS_WITH_STATED_ENGINEERING_SCOPE");
-        }catch(Throwable failure){result.put("result","FAIL").put("error",failure.toString());throw failure;}
+        }catch(Throwable failure){result.put("result","FAIL").put("error",failure.toString());
+            if(store!=null&&table(store.readable(),"r26_task")){JSONArray tasks=new JSONArray();try(Cursor c=store.readable().rawQuery("SELECT task_id,cursor,status,blocked_reason,last_progress,last_cpu_ms FROM r26_task ORDER BY task_id",null)){while(c.moveToNext())tasks.put(new JSONObject().put("task",c.getString(0)).put("cursor",c.getLong(1)).put("status",c.getString(2)).put("reason",c.isNull(3)?JSONObject.NULL:c.getString(3)).put("lastProgress",c.getLong(4)).put("cpuMs",c.getLong(5)));}result.put("tasksAtFailure",tasks);}
+            throw failure;}
         finally{
-            if(runtime!=null){new ServiceHeartbeatStore(app).setUserEnabled(false);runtime.close();if(store!=null&&table(store.readable(),"r26_session"))waitStopped(store.readable());}if(store!=null)store.close();
+            if(runtime!=null){new ServiceHeartbeatStore(app).setUserEnabled(false);runtime.close();drain(runtime);if(store!=null&&table(store.readable(),"r26_session"))waitStopped(store.readable());}if(store!=null)store.close();
             File receipt=new File(original.getCacheDir(),"r26-runtime-synthetic.json");try(FileOutputStream output=new FileOutputStream(receipt)){output.write(result.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));output.getFD().sync();}
             remove(app.root);
         }
