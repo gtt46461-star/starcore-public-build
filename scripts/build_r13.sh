@@ -15,6 +15,7 @@ python3 scripts/test_plan1025_storage.py
 python3 scripts/verify_catalog_assets_cp12.py --check
 python3 scripts/verify_strategy_su1.py
 python3 scripts/verify_plan1025.py
+python3 scripts/verify_r26.py
 bash ./gradlew --no-daemon :app:compileReleaseJavaWithJavac -x :app:generateR982SourceCallAsset
 python3 scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes
 python3 scripts/prepare_strategy_su1_identity.py

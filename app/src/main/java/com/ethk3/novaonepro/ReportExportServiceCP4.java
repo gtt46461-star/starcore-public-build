@@ -215,6 +215,9 @@ public final class ReportExportServiceCP4 extends Service {
                     // R13-P31: byte census by category on the first page of every report
                     File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
+                    File r26Report=new File(directory,"R26_REPORT.json");
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy));}
+                    ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
                     String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
                     for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
                         try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(diag),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}

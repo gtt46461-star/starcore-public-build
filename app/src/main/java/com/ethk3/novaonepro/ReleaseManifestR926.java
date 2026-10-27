@@ -2,10 +2,10 @@ package com.ethk3.novaonepro;
 
 /** GENERATED from release/release_manifest.json by scripts/r926_release_manifest.py. */
 public final class ReleaseManifestR926 {
-    public static final String MANIFEST_SHA256 = "1d5ff211dde1df19432025ebe4b9549829220be197cbf1436698662721fe1eaa";
+    public static final String MANIFEST_SHA256 = "3329b584385e0e73965618ed12761778410df1fbb716171aa2e99444f884679f";
     public static final String APPLICATION_ID = "com.starcore.research.r13";
-    public static final String VERSION_NAME = "R13-5.4.3.04-2026.10.25";
-    public static final int VERSION_CODE = 577251063;
+    public static final String VERSION_NAME = "R26-2026.10.27-engineering";
+    public static final int VERSION_CODE = 577271026;
     public static final int COMPILE_SDK = 36;
     public static final int MIN_SDK = 21;
     public static final int TARGET_SDK = 28;
@@ -15,7 +15,7 @@ public final class ReleaseManifestR926 {
     public static final int LEGACY_R815_REVISION = 3;
     public static final int LEGACY_R906_REVISION = 4;
     public static final String R925_REVISION = "R925_SCHEMA_7";
-    public static final int CRITICAL_DOMAIN_REVISION = 5;
+    public static final int CRITICAL_DOMAIN_REVISION = 6;
     public static final int RESEARCH_DOMAIN_REVISION = 16;
     public static final int LEGACY_DOMAIN_REVISION = 1;
     public static final int EVENT_LEDGER_REVISION = 1;

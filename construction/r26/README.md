@@ -1,0 +1,19 @@
+# R26 implementation and delivery evidence
+
+Effective specification: `construction/plans/STARCORE_R26_MERGED_20261026`, imported from main `7c66b07`. Implementation starts from the prior verified 10.25 branch (`cd7f058`) merged with current main; it preserves that branch's P46/P49/P50 and startup/retention fixes.
+
+This is an **incomplete engineering candidate**, not a declaration that the 128 cards, 1832 historical requirements, all 24 families/16 experts, natural strategy quality, or user physical-device acceptance have passed.
+
+Implemented production changes:
+
+- User-opened AutoFetchService owns a continuous background research worker. The charging/idle periodic training job is cancelled and its component cannot open another database owner. All 20 former job duties are explicitly registered in P1/P2/P3. Power/screen/Wi-Fi are not eligibility inputs.
+- Additive critical feedback table; sole SettlementEngine inserts a deduplicated, conflict-checked event in its terminal transaction. Research session/task leases, fencing, persisted progress and blocked reasons use the existing single database coordinator. Stale claims are checked before and after atomic writer bodies, including legacy maintenance adapters.
+- A new SU2 campaign freezes at most 5000 retained draws once, preserves ordinal gaps, restores complete private hub/calibrator/strategy state, and CAS-commits sample-level progress. Chronological development/selection scores run outside write transactions. They remain exposed-history research scores. Old champions and league records are retained.
+- Typed R26 identity matches the supplied Python golden bytes, preserves IEEE754 doubles and negative zero, rejects invalid values/surrogates, snapshots immutable maps, and preserves legacy text/IDs read-only. New identities include policy/update/resource/evidence rules. Legacy certificates cannot automatically authorize R26.
+- Trainable F17 unary permutation head uses exact subset DP and permutation-NLL SGD. It is integrated into the actual live/replay model factory and durable candidate queue. Tiny brute force, finite-difference gradients, planted signal, exact row/column sums and next-update restoration are independently tested. This is not arbitrary high-order exact inference.
+- Selective qualification uses a predeclared fixed calendar and benchmark, correct paired lower bound with a fixed 1-point noninferiority margin, complete calendars, observed rate >=35% and held-out calibration preflight. An evidence digest reserves one persistent look; unchanged evidence does not spend again. The original lifetime budget remains intact. Synthetic pass and 40%-vs-45% rejection paths are tested.
+- The research UI exports actual task/capability states. A forty-envelope R26 report is added to existing exports, preserving original catalogs, diagnosis and matrices. Missing mechanisms and unmeasured chapters are visibly BLOCKED/PARTIAL/NOT_RUN, never inferred PASS.
+
+Remaining acceptance work is explicitly tracked in `acceptance.json`. The full F01–F24/E01–E16 mechanisms, fair service for those mechanisms, legacy kernel inner-loop cancellation, all event-to-policy consumption and checkpoint manifests, structural generation/experiment lineage, complete measured forty-chapter metrics, renewal cohorts, 60-minute device stress, all API/device cells and natural 35/37/40% evidence are not complete. A 20-duty adapter registry or a host contract does not establish those results.
+
+The package and fixed signing certificate remain compatible with the previous installed R13 package. Version name identifies this R26 engineering build. REAL remains under the existing DecisionGateEngine and SettlementEngine; no research score grants authorization.

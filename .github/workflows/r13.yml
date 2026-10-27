@@ -1,4 +1,4 @@
-name: R13 restored latest APK
+name: STARCORE R26 APK and runtime verification
 on:
   push:
     branches: ['construction/su1-20261022']
@@ -66,6 +66,9 @@ jobs:
             build/strategy_su1-verification.json
             build/plan1025/*.json
             build/plan1025/*.log
+            build/r26/*.json
+            build/r26/*.log
+            build/r26/plan-reference/
             package-receipt/
           if-no-files-found: error
   android-runtime:

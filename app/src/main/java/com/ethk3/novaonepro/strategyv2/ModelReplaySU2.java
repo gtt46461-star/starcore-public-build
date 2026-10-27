@@ -91,6 +91,7 @@ public final class ModelReplaySU2 {
         Adapter adapter = ADAPTERS.get(kind);
         if (adapter != null) return adapter.build(p);
         switch (kind) {
+            case "MATCHING": return new PermutationModelR26(d(p,"lr"));
             case "MSDIR": return new OnlineModelsSU2.MsDir(tuple(p.get("scales")), d(p, "alpha"), d(p, "share"));
             case "BOCPD": return new OnlineModelsSU2.Bocpd(d(p, "hazard"), d(p, "alpha"), (int) d(p, "R"));
             case "HMM": return new OnlineModelsSU2.Hmm((int) d(p, "K"), d(p, "stay"), d(p, "lr"), (long) d(p, "seed"), d(p, "temper"));

@@ -50,6 +50,7 @@ public final class SchemaDomainCoordinatorR926 {
                 DOMAIN_CRITICAL,
                 ReleaseManifestR926.CRITICAL_DOMAIN_REVISION,
                 new String[] {
+                    "r26_feedback",
                     DbHelper.TABLE_DRAWS,
                     DrawDependencyInputCP12.TABLE,
                     DrawDependencyInputCP12.SOURCE,

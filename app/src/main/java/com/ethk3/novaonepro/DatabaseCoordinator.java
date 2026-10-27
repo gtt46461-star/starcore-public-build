@@ -436,6 +436,7 @@ public final class DatabaseCoordinator {
                         new SchemaDomainCoordinatorR926.Step() {
                             public void run(SQLiteDatabase x) { RuntimeEventLedgerR926.ensureSchema(x); }
                         });
+                SchemaDomainCoordinatorR926.runStep(db, critical, "R26_FEEDBACK_SCHEMA", x -> x.execSQL(com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.FEEDBACK));
                 if (initializer != null) {
                     criticalSchemaStage = "STORE_CRITICAL_SCHEMA";
                     initializer.run(db);
@@ -653,6 +654,7 @@ public final class DatabaseCoordinator {
                     if (backgroundR909) ResearchWorkBudgetR927.checkpoint();
                     long bodyStartedR927 = TimeSourceR811.monoNowMs();
                     try {
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(writable());
                         T result = task.call(writable());
                         recordSuccess(operation, started);
                         return result;
@@ -735,7 +737,9 @@ public final class DatabaseCoordinator {
                     outcome=owns?"BODY_FAILED":"EXTERNAL_BODY_FAILED";
                     long bodyStarted=System.nanoTime();
                     try {
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
                         T result = task.call(db);
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
                         if (owns) {
                             db.setTransactionSuccessful();
                             successful = true;
@@ -800,7 +804,7 @@ public final class DatabaseCoordinator {
 
     private boolean isBackgroundOperationR909(String operation) {
         String op = safe(operation).toUpperCase(java.util.Locale.US);
-        return op.indexOf("RESEARCH") >= 0
+        return op.startsWith("R26_") || op.indexOf("RESEARCH") >= 0
                 || op.indexOf("DEFERRED") >= 0
                 || op.indexOf("ARTIFACT") >= 0
                 || op.indexOf("EVOLUTION") >= 0

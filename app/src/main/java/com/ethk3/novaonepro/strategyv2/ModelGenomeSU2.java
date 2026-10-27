@@ -25,11 +25,11 @@ public final class ModelGenomeSU2 {
     public static final double[] COVERAGES = {0.15, 0.20, 0.30, 0.50, 1.0};
 
     public static final class Member {
-        public final String kind; public final TreeMap<String, String> params; public final double weight;
+        public final String kind; public final SortedMap<String, String> params; public final double weight;
         public Member(String kind, Map<String, String> params, double weight) {
-            if (Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0 && Arrays.asList(R14B_KINDS).indexOf(kind) < 0 && Arrays.asList(R16_KINDS).indexOf(kind) < 0 && Arrays.asList(P49_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
+            if (!kind.equals("MATCHING") && Arrays.asList(KINDS).indexOf(kind) < 0 && Arrays.asList(ADAPTER_KINDS).indexOf(kind) < 0 && Arrays.asList(R14B_KINDS).indexOf(kind) < 0 && Arrays.asList(R16_KINDS).indexOf(kind) < 0 && Arrays.asList(P49_KINDS).indexOf(kind) < 0) throw new IllegalArgumentException("SU2_MEMBER_KIND");
             if (!(weight > 0 && weight <= 3.0)) throw new IllegalArgumentException("SU2_MEMBER_WEIGHT");
-            this.kind = kind; this.params = new TreeMap<>(params); this.weight = weight;
+            this.kind = kind; this.params = Collections.unmodifiableSortedMap(new TreeMap<>(params)); this.weight = weight;
         }
         public String modelKey() {
             StringBuilder b = new StringBuilder(kind).append('{');
@@ -37,12 +37,15 @@ public final class ModelGenomeSU2 {
             for (Map.Entry<String, String> e : params.entrySet()) { if (!first) b.append(','); first = false; b.append(e.getKey()).append('=').append(e.getValue()); }
             return b.append('}').toString();
         }
-        String text() { return modelKey() + "*" + fmt(weight); }
+        String text() { return modelKey() + "*" + Double.toString(weight); }
     }
 
     public final List<Member> members; public final String pool, gate; public final boolean sink; public final double coverage, metaC;
     /** R14 (P36): members are temperature-calibrated online and STATIC pooling uses normalised weights. */
     public final boolean calibrated;
+    private String legacyText;
+    private volatile String cachedKey;
+    public boolean legacyIdentity() { return legacyText != null; }
 
     public ModelGenomeSU2(List<Member> members, String pool, boolean sink, String gate, double coverage, double metaC) {
         this(members, pool, sink, gate, coverage, metaC, false);
@@ -63,14 +66,27 @@ public final class ModelGenomeSU2 {
     public ModelGenomeSU2 asTier(double cov) { return new ModelGenomeSU2(members, pool, sink, "MASS", cov, 0.2, calibrated); }
 
     public String text() {
-        StringBuilder b = new StringBuilder("SU2|").append(calibrated ? "CAL=1|" : "").append("POOL=").append(pool).append("|SINK=").append(sink ? 1 : 0)
-            .append("|GATE=").append(gate).append(gate.equals("META") ? ":" + fmt(metaC) : "")
+        if (legacyText != null) return legacyText;
+        StringBuilder b = new StringBuilder("SU2|ID=R26|").append(calibrated ? "CAL=1|" : "").append("POOL=").append(pool).append("|SINK=").append(sink ? 1 : 0)
+            .append("|GATE=").append(gate).append(gate.equals("META") ? ":" + Double.toString(metaC) : "")
             .append("|COV=").append(String.format(Locale.ROOT, "%.2f", coverage)).append("|M=");
         for (int i = 0; i < members.size(); i++) { if (i > 0) b.append(';'); b.append(members.get(i).text()); }
         return b.toString();
     }
 
-    public String key() { return HashingSU1.text("SU2_MODEL_GENOME_V1|" + text()); }
+    public String key() {
+        String ready=cachedKey;if(ready!=null)return ready;
+        if (legacyText != null) return cachedKey=HashingSU1.text("SU2_MODEL_GENOME_V1|" + legacyText);
+        Map<String,Object> rules = new HashMap<>();
+        rules.put("graph", text()); rules.put("features", "SU2_CAUSAL_RETAINED_5000_V1");
+        rules.put("updater", "SU2_ONLINE_STATE_CODEC_R26_V1"); rules.put("update_schedule", "REVEALED_LABEL_ORDERED_EXACTLY_ONCE");
+        rules.put("initial_state", "MEMBER_PARAMETERS_AND_SEED_IN_GRAPH"); rules.put("rng", "MEMBER_SEEDED_V1");
+        rules.put("gate", Arrays.asList(gate, metaC, coverage)); rules.put("router", pool);
+        rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
+        rules.put("resource_schedule", "R26_SINGLE_RESEARCH_WORKER_FAIR_200MS_V1");
+        rules.put("evidence_protocol", "R26_LCB_FIXED_CALENDAR_V1"); rules.put("runtime_abi", "SU2_R26_1");
+        return cachedKey=new PolicyIdentityR26.Policy(rules).hash;
+    }
 
     /** Readable formula shown in the research dashboard and the report. */
     public String formula() {
@@ -91,7 +107,9 @@ public final class ModelGenomeSU2 {
 
     public static ModelGenomeSU2 parse(String text) {
         if (text == null || text.length() > 2048 || !text.startsWith("SU2|")) throw new IllegalArgumentException("SU2_GENOME_TEXT");
-        String[] f0 = text.split("\\|");
+        boolean legacy = !text.startsWith("SU2|ID=R26|");
+        String parseText = legacy ? text : text.replaceFirst("SU2\\|ID=R26\\|", "SU2|");
+        String[] f0 = parseText.split("\\|");
         boolean cal = f0.length == 7 && f0[1].equals("CAL=1");
         String[] f = cal ? new String[]{f0[0], f0[2], f0[3], f0[4], f0[5], f0[6]} : f0;
         if (f.length != 6) throw new IllegalArgumentException("SU2_GENOME_FIELDS");
@@ -109,6 +127,12 @@ public final class ModelGenomeSU2 {
             ms.add(new Member(kind, params, Double.parseDouble(m.substring(close + 2))));
         }
         ModelGenomeSU2 g = new ModelGenomeSU2(ms, pool, sinkS.equals("1"), gate, Double.parseDouble(cov), c, cal);
+        if (legacy) {
+            StringBuilder old=new StringBuilder("SU2|").append(cal ? "CAL=1|" : "").append("POOL=").append(pool).append("|SINK=").append(g.sink?1:0).append("|GATE=").append(gate).append(gate.equals("META")?":"+fmt(c):"").append("|COV=").append(String.format(Locale.ROOT,"%.2f",g.coverage)).append("|M=");
+            for(int i=0;i<ms.size();i++){if(i>0)old.append(';');old.append(ms.get(i).modelKey()).append('*').append(fmt(ms.get(i).weight));}
+            if(!old.toString().equals(text))throw new IllegalArgumentException("SU2_LEGACY_NOT_CANONICAL");
+            g.legacyText = text;
+        }
         if (!g.text().equals(text)) throw new IllegalArgumentException("SU2_GENOME_NOT_CANONICAL");
         return g;
     }

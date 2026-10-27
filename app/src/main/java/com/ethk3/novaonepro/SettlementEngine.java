@@ -196,6 +196,7 @@ public final class SettlementEngine {
                                                     now);
                                             RuntimeEventHooksR926.settledWithinTransaction(
                                                     db, draw.issue, settlementHash, terminalStatus, claim.drawHash);
+                                            com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.feedbackWithinTransaction(db, draw);
                                             SettlementReport report = new SettlementReport();
                                             report.ok = oos.success ? 1 : 0;
                                             report.issue = draw.issue;

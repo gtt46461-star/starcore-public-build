@@ -390,6 +390,7 @@ public final class AutoFetchService extends Service {
 
 
     private DbStore store;
+    private volatile com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 continuousRuntimeR26;
     private ApiClient apiClient;
     private DataGuard dataGuard;
     private CountdownClock countdownClock;
@@ -1003,7 +1004,8 @@ public final class AutoFetchService extends Service {
 
     private void releasePartialObjectGraphR3610() {
         try {
-            if (store != null) store.close();
+            if (continuousRuntimeR26 != null) { continuousRuntimeR26.closeAndReleaseStore(); continuousRuntimeR26 = null; }
+            else if (store != null) store.close();
         } catch (Throwable ignore) {
         }
         store = null;
@@ -1867,7 +1869,8 @@ public final class AutoFetchService extends Service {
         quitThread(researchThreadR908);
         quitThread(microThread);
         try {
-            if (store != null) store.close();
+            if (continuousRuntimeR26 != null) { continuousRuntimeR26.closeAndReleaseStore(); continuousRuntimeR26 = null; }
+            else if (store != null) store.close();
         } catch (Throwable e) {
             CrashRecorder.recordCaught(getApplicationContext(), e, "R815_SERVICE_STORE_CLOSE");
         }
@@ -2362,11 +2365,17 @@ public final class AutoFetchService extends Service {
         startWorkR3610OffMain();
     }
 
+    private synchronized void ensureContinuousRuntimeR26() {
+        if (store != null && (continuousRuntimeR26 == null || !continuousRuntimeR26.isRunning()))
+            continuousRuntimeR26 = new com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26(store);
+    }
+
     private void startWorkR3610OffMain() {
         if (userRequestedStopV5 || !heartbeatStateV8().isUserEnabled()) {
             stopSelf();
             return;
         }
+        ensureContinuousRuntimeR26();
         if (running) {
             refreshBuildIdentityAndModuleState("startWork_running");
             forceRefresh = true;
@@ -2503,6 +2512,7 @@ public final class AutoFetchService extends Service {
     }
 
     private void stopWork() {
+        if (continuousRuntimeR26 != null) continuousRuntimeR26.close();
         cancelExitedAnalysisReleasesR77();
         running = false;
         // Preserve the active legal pre-draw issue before callbacks are cleared.
