@@ -36,6 +36,8 @@ public final class RetentionR26 {
         db.execSQL("DELETE FROM r26_expert_audit WHERE rowid IN (SELECT rowid FROM r26_expert_audit ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
         db.execSQL("DELETE FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND status<>'RUNNING'");
         db.execSQL("UPDATE r26_expert_experiment SET status='NUMERICAL_ABI_CHANGED' WHERE numerical_abi<>? AND status='RUNNING'",new Object[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
+        // Keep complete identities for live/retained candidates plus a bounded historical tail.
+        db.execSQL("DELETE FROM r26_policy_identity WHERE policy_hash IN (SELECT p.policy_hash FROM r26_policy_identity p WHERE p.policy_hash NOT IN (SELECT policy_hash FROM r26_live_model UNION SELECT policy_hash FROM r26_candidate UNION SELECT policy_hash FROM r26_prepared_policy UNION SELECT genome_key FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME')) ORDER BY p.created_at DESC,p.policy_hash LIMIT 256 OFFSET 4096)");
         // Current policy checkpoints own their full state. Superseded sample receipts are bounded metadata.
         db.execSQL("DELETE FROM r26_checkpoint_receipt WHERE rowid IN (SELECT rowid FROM r26_checkpoint_receipt ORDER BY created_at DESC,rowid DESC LIMIT 256 OFFSET 4096)");
         db.execSQL("DELETE FROM r26_live_failure WHERE rowid IN (SELECT rowid FROM r26_live_failure ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");

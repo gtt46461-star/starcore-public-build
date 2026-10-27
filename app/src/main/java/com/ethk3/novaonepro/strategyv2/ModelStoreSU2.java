@@ -17,13 +17,13 @@ public final class ModelStoreSU2 {
     // ------------------------------------------------------------- genomes / lineage
     /** R14: a committee champion is stored like a genome (its canonical text starts with SU2C|) and joins the league. */
     public static void saveCommittee(SQLiteDatabase db, CommitteeSU2 c, String tier, String campaign, long seq, double judge, long now) {
-        writer(db);
+        writer(db);PolicyIdentityLedgerR26.record(db,c.text(),c.key());
         db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
             new Object[]{c.key(), c.text(), c.formula(), tier, "COMMITTEE", null, "", campaign, seq, null, judge, "LEAGUE", now});
     }
 
     public static void saveGenome(SQLiteDatabase db, ModelEvolutionSU2.Ranked r, String campaign, long seq, double dev, double val, String state, long now) {
-        writer(db);
+        writer(db);PolicyIdentityLedgerR26.record(db,r.g.text(),r.g.key());
         // minSdk 21 ships SQLite 3.8: no UPSERT. Insert once, then update scores; LEAGUE/RETIRED are sticky.
         db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,parent_key,repair_note,born_campaign,born_sequence,dev_fitness,val_fitness,state,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
             new Object[]{r.g.key(), r.g.text(), r.g.formula(), ModelEvolutionSU2.tierOf(r.g), r.origin, r.parent.isEmpty() ? null : r.parent,

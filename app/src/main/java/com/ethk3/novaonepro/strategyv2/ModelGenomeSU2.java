@@ -48,6 +48,7 @@ public final class ModelGenomeSU2 {
     public final boolean calibrated;
     private String legacyText;
     private volatile String cachedKey;
+    private volatile PolicyIdentityR26.Policy cachedPolicy;
     public boolean legacyIdentity() { return legacyText != null; }
 
     public ModelGenomeSU2(List<Member> members, String pool, boolean sink, String gate, double coverage, double metaC) {
@@ -85,6 +86,11 @@ public final class ModelGenomeSU2 {
     public String key() {
         String ready=cachedKey;if(ready!=null)return ready;
         if (legacyText != null) return cachedKey=HashingSU1.text("SU2_MODEL_GENOME_V1|" + legacyText);
+        return cachedKey=identityR26().hash;
+    }
+    public PolicyIdentityR26.Policy identityR26(){
+        if(legacyText!=null)throw new IllegalStateException("LEGACY_POLICY_HAS_NO_R26_CANONICAL");
+        PolicyIdentityR26.Policy ready=cachedPolicy;if(ready!=null)return ready;
         Map<String,Object> rules = new HashMap<>();
         List<Object> graphMembers=new ArrayList<>();for(Member member:members){Map<String,Object> node=new TreeMap<>();node.put("kind",member.kind);node.put("parameters",member.params);node.put("weight",member.weight);graphMembers.add(node);}
         rules.put("graph",Arrays.asList(sink,graphMembers)); rules.put("features", "SU2_CAUSAL_RETAINED_5000_V1");
@@ -94,7 +100,7 @@ public final class ModelGenomeSU2 {
         rules.put("calibration", calibrated); rules.put("missing_policy", "ABSTAIN_MISSING_NOT_A_LOSS");
         rules.put("resource_schedule", "R26_SINGLE_RESEARCH_WORKER_FAIR_200MS_V1");
         rules.put("evidence_protocol", QualificationWindowR26.PROTOCOL); rules.put("runtime_abi", "SU2_R26_1:"+ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);
-        return cachedKey=new PolicyIdentityR26.Policy(rules).hash;
+        return cachedPolicy=new PolicyIdentityR26.Policy(rules);
     }
 
     /** Readable formula shown in the research dashboard and the report. */

@@ -218,6 +218,9 @@ public final class ReportExportServiceCP4 extends Service {
                     File r26Report=new File(directory,"R26_REPORT.json");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
                     ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
+                    File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
+                    com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
+                    ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());
                     File r26Surface=new File(directory,"R26_FROZEN_SURFACE.json");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Surface),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
                     ReportMemberPlanCP12.append(members,r26Surface.getName(),r26Surface.getName(),ReportArchiveCP4.hash(r26Surface,active),r26Surface.length());

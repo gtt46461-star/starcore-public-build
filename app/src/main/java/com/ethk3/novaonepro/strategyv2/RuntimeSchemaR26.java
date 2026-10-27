@@ -10,6 +10,8 @@ public final class RuntimeSchemaR26 {
     public static final String FEEDBACK = "CREATE TABLE IF NOT EXISTS r26_feedback(event_id TEXT PRIMARY KEY,issue_ordinal INTEGER NOT NULL UNIQUE CHECK(issue_ordinal>=0),source_hash TEXT NOT NULL,payload TEXT NOT NULL,ready_at INTEGER NOT NULL)";
     public static final String[] DDL = {
         FEEDBACK,
+        "CREATE TABLE IF NOT EXISTS r26_policy_identity(policy_hash TEXT PRIMARY KEY,canonical_policy TEXT NOT NULL CHECK(length(canonical_policy)<=65536),genotype_text TEXT NOT NULL,numerical_abi TEXT NOT NULL,created_at INTEGER NOT NULL)",
+        "CREATE TRIGGER IF NOT EXISTS r26_policy_identity_immutable BEFORE UPDATE ON r26_policy_identity BEGIN SELECT RAISE(ABORT,'R26_POLICY_IDENTITY_IMMUTABLE'); END",
         "CREATE TABLE IF NOT EXISTS r26_capability_source(singleton INTEGER PRIMARY KEY CHECK(singleton=1),numerical_abi TEXT NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r26_legacy_proposal(attempt_id TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,generation INTEGER NOT NULL,policy_hash TEXT NOT NULL,canonical_text TEXT NOT NULL,parent_hash TEXT NOT NULL,parent_canonical TEXT NOT NULL,operation TEXT NOT NULL,category TEXT NOT NULL,created_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r26_prepared_policy(policy_hash TEXT PRIMARY KEY,campaign_id TEXT NOT NULL,snapshot_hash TEXT NOT NULL,family_id TEXT NOT NULL,canonical_text TEXT NOT NULL,state BLOB NOT NULL,state_hash TEXT NOT NULL,checkpoint_hash TEXT NOT NULL,genesis_ordinal INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,numerical_abi TEXT NOT NULL,status TEXT NOT NULL,prepared_at INTEGER NOT NULL)",

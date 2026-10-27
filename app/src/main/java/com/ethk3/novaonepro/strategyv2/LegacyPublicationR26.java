@@ -16,7 +16,7 @@ public final class LegacyPublicationR26 {
         }
         LegacyReplayStateR26 bootstrap=LegacyBootstrapR26.build(text,ordinals,library);byte[] bytes=bootstrap.encode();String hash=LiveStateR26.hash(bytes),checkpoint=HashingSU1.fields("R26_PREPARED_POLICY_V1",policy,source,hash);
         try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.prepareLease(store,bytes)){
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_PREPARED_POLICY_COMMIT",db->{db.execSQL("INSERT OR IGNORE INTO r26_prepared_policy VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{policy,campaign,source,family,text,file.reference(),hash,checkpoint,ordinals[0],ordinals[ordinals.length-1],abi,"READY",System.currentTimeMillis()});CheckpointManifestR26.record(db,checkpoint,policy,source,"",bootstrap.through(),file.reference());return 0;});
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_PREPARED_POLICY_COMMIT",db->{PolicyIdentityLedgerR26.record(db,text,policy);db.execSQL("INSERT OR IGNORE INTO r26_prepared_policy VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",new Object[]{policy,campaign,source,family,text,file.reference(),hash,checkpoint,ordinals[0],ordinals[ordinals.length-1],abi,"READY",System.currentTimeMillis()});CheckpointManifestR26.record(db,checkpoint,policy,source,"",bootstrap.through(),file.reference());return 0;});
         }
     }
     public static long publishOne(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException {

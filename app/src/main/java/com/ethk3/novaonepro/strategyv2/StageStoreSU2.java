@@ -22,6 +22,7 @@ public final class StageStoreSU2 {
     public static void save(SQLiteDatabase db, List<StageStrategySU2.Definition> defs, String campaign, long through, long now) {
         if (!db.inTransaction()) throw new IllegalStateException("SU2_STAGE_WRITER_REQUIRED");
         for (StageStrategySU2.Definition d : defs) {
+            PolicyIdentityLedgerR26.record(db,d.text(),d.key());
             byte[] b = d.bytes();
             db.execSQL("INSERT OR IGNORE INTO su2_stage_bundle(genome_key,bundle,byte_count,created_at) VALUES(?,?,?,?)", new Object[]{d.key(), b, b.length, now});
             db.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,repair_note,born_campaign,born_sequence,state,created_at) VALUES(?,?,?,?,'STAGE','',?,?,'LEAGUE',?)",
