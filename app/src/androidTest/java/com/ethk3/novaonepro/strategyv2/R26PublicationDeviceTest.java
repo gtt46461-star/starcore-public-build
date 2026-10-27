@@ -134,6 +134,21 @@ public final class R26PublicationDeviceTest {
         }
     }
 
+    @Test public void fragmentMemoryCheckpointsRunThroughFoundryAndDestructiveControlsCannotPublish()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 full=f.genome("F20",source);
+            List<StructuralProposalR26.Proposal> proposals=StructuralProposalR26.mechanismChildren(full);
+            for(int i=1;i<proposals.size();i++){ModelGenomeSU2 control=proposals.get(i).genome;assertTrue(StructuralProposalR26.control(control));f.candidate(campaign,control,f.trained(control,source,128),128,"DONE",0);}
+            assertEquals("Destructive memory controls must not receive future qualification",0,LivePoolR26.publishOne(f.store,()->f.claim,f.budget()));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_cohort"));
+            f.candidate(campaign,full,null,0,"READY",0);int slices=0;
+            while(scalar(f.db,"SELECT cursor FROM r26_candidate WHERE policy_hash='"+full.key()+"'")<128&&slices++<130)assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);
+            assertTrue("Fragment model did not finish actual numerical continuation",slices<=130);
+            try(Cursor row=f.db.rawQuery("SELECT state,state_hash,status FROM r26_candidate WHERE policy_hash=?",new String[]{full.key()})){assertTrue(row.moveToFirst());assertEquals("DONE",row.getString(2));byte[] reference=row.getBlob(0);assertFalse(CheckpointArtifactsR26.referenceHash(reference).isEmpty());LiveStateR26 restored=LiveStateR26.decode(full.text(),CheckpointArtifactsR26.resolve(f.store,reference),row.getString(1));assertEquals(128,restored.samples());assertTrue(restored.hub.models.values().iterator().next() instanceof FamilyF20KernelR26);assertTrue(((FamilyF20KernelR26)restored.hub.models.values().iterator().next()).occupied()>0);}
+            assertEquals(1,LivePoolR26.publishOne(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_live_model WHERE family_id='F20' AND status='ACTIVE'"));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_live_model"));
+            assertEquals("Bootstrap memory is not forward qualification",0,scalar(f.db,"SELECT count(*) FROM su2_certificate"));
+        }
+    }
+
     @Test public void completedFirstServiceDoesNotStarveAblationFromCpuQueue()throws Exception{
         try(Fixture f=new Fixture(128)){
             FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 parent=f.genome("F08",source),control=StructuralProposalR26.mechanismChildren(parent).get(1).genome;

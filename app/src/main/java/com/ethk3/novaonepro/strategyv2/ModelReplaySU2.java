@@ -102,6 +102,11 @@ public final class ModelReplaySU2 {
         if(kind.equals("R26F01")&&p.containsKey("lags")){if(!"1".equals(p.get("abi"))||p.size()!=3||!p.get("lags").matches("[1-8]")||!Arrays.asList("true","false").contains(p.get("cross")))throw new IllegalArgumentException("F01_GRAPH_PARAMETERS");return new FamilyF01KernelR26(Integer.parseInt(p.get("lags")),Boolean.parseBoolean(p.get("cross")));}
         if(kind.equals("R26F02")&&p.containsKey("graph")){if(!"1".equals(p.get("abi"))||p.size()!=3||!p.get("graph").matches("[0-2]")||!Arrays.asList("true","false").contains(p.get("factors")))throw new IllegalArgumentException("F02_GRAPH_PARAMETERS");return new FamilyF02KernelR26(Integer.parseInt(p.get("graph")),Boolean.parseBoolean(p.get("factors")));}
         if(kind.equals("R26F08")&&p.containsKey("K")){if(!"1".equals(p.get("abi"))||p.size()!=3||!String.valueOf(p.get("K")).matches("[2-6]")||!Arrays.asList("true","false").contains(p.get("transition")))throw new IllegalArgumentException("F08_GRAPH_PARAMETERS");return new FamilyF08KernelR26(Integer.parseInt(p.get("K")),Boolean.parseBoolean(p.get("transition")));}
+        if(kind.equals("R26F20")){
+            if(p.equals(Collections.singletonMap("abi","1")))return build("REGMEM",ModelEvolutionSU2.centralParams("REGMEM"));
+            if(!"1".equals(p.get("abi"))||!"1".equals(p.get("fragments"))||p.size()!=4||!Arrays.asList("8","16","24","32").contains(p.get("slots"))||!Arrays.asList("MATCH","NONE","MISMATCH","EXPIRED").contains(p.get("retrieval")))throw new IllegalArgumentException("F20_GRAPH_PARAMETERS");
+            return new FamilyF20KernelR26(Integer.parseInt(p.get("slots")),FamilyF20KernelR26.Retrieval.valueOf(p.get("retrieval")));
+        }
         if(kind.matches("R26F0[3-7]")&&p.containsKey("graph")){if(!"1".equals(p.get("abi"))||p.size()!=2||!p.get("graph").matches("[0-2]"))throw new IllegalArgumentException("R26_NEURAL_GRAPH_PARAMETERS");return new NeuralFamilyR26(kind.substring(3),Integer.parseInt(p.get("graph")));}
         if(kind.startsWith("R26")){if(!"1".equals(p.get("abi"))||p.size()!=1)throw new IllegalArgumentException("R26_FAMILY_ABI");return FamilyRegistryR26.build(kind.substring(3));}
         switch (kind) {

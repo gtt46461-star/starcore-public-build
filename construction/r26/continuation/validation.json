@@ -29,11 +29,11 @@
     "Use streamed state checkpoints for private committee/stage publication, recovery and subsequent live updates"
   ],
   "host": {
-    "r26Groups": 16,
+    "r26Groups": 17,
     "priorStrategyGroups": 21,
     "priorPlanGroups": 20,
-    "status": "PASS_16_R26_21_STRATEGY_20_PLAN_AND_OFFICIAL_SDK_COMPILE; CURRENT_ANDROID_PENDING",
-    "compileOnlySources": 1069,
+    "status": "PASS_17_R26_21_STRATEGY_20_PLAN_AND_OFFICIAL_SDK; CURRENT_ANDROID_PENDING",
+    "compileOnlySources": 1070,
     "compileOnlyStatus": "PASS_OFFICIAL_SDK36",
     "apkAuthority": "PENDING_SOURCE_MATCHED_ANDROID_AND_ENDURANCE"
   },
@@ -52,8 +52,8 @@
   },
   "androidTests": {
     "classes": 21,
-    "tests": 81,
-    "status": "PENDING_SCHEMA_AND_EMULATOR_PREFLIGHT_SOURCE_CI",
+    "tests": 82,
+    "status": "PENDING_FRAGMENT_MEMORY_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
@@ -1333,8 +1333,8 @@
   },
   "currentInstrumentation": {
     "classes": 21,
-    "tests": 81,
-    "validation": "PENDING_SCHEMA_AND_EMULATOR_PREFLIGHT_SOURCE_CI"
+    "tests": 82,
+    "validation": "PENDING_F20_ACTUAL_FOUNDRY_AND_CONTROL_PUBLICATION_SOURCE_CI"
   },
   "protectedOriginalMigration": {
     "sourceBranch": "construction/r26-incumbent-owner-20261027",
@@ -1409,10 +1409,10 @@
     "scope": "Calls SettlementCoordinatorR815, verifies NO_PREDRAW canonical terminal, duplicate idempotence, then private learning and next freeze"
   },
   "currentSourceValidation": {
-    "status": "PENDING_PUSH_TRIGGERED_CI",
-    "hostProtocolGroups": 16,
+    "status": "LOCAL_VERIFIED; PENDING_F20_PUSH_AND_CI",
+    "hostProtocolGroups": 17,
     "instrumentationClasses": 21,
-    "instrumentationTests": 81,
+    "instrumentationTests": 82,
     "checksRelaxed": false,
     "publicReleasePublished": false
   },
@@ -1439,7 +1439,12 @@
     "fingerprintReference": "verification/report1015_r80/combined/schema/fingerprint_filter/FingerprintFilterR80.java",
     "membershipReference": "verification/r26/schema_queries/Presence.java",
     "sdkCompile": "1069 Java sources against official SDK36 jar; generated config/resource stubs; CI APK remains authority",
-    "nativeRegressions": "Two new actual SQLite Android tests: original hash parity and complete legacy cold migration plus same-version dropped-trigger repair; source-bound CI pending"
+    "nativeRegressions": "Two new actual SQLite Android tests: original hash parity and complete legacy cold migration plus same-version dropped-trigger repair; source-bound CI pending",
+    "androidSource": {
+      "runId": 40585098068,
+      "source": "b902826425589228c9e58b4d461c862e93761796",
+      "status": "BUILD_RUNNING; 81_TESTS_PENDING"
+    }
   },
   "emulatorEnvironmentCorrection": {
     "status": "PENDING_NATIVE_CI",
@@ -1447,5 +1452,61 @@
     "script": "scripts/verify_r26_emulator_heap.py",
     "productionMemoryGuardRelaxed": false,
     "requestedHeapBytes": 536870912
+  },
+  "fragmentMemoryMechanism": {
+    "scope": "FUNCTIONAL_AND_SYNTHETIC_MECHANISM_ONLY; NOT_FULL_FAMILY_EXPERT_ACCEPTANCE_OR_NATURAL_QUALITY",
+    "source": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyF20KernelR26.java",
+    "sourceSha256": "85692e6fe1e00eb6da2db10a94c91e4742f2198d68eeb41524edab183a6240d9",
+    "modelStateSampleBytes": 20415,
+    "modelStateSampleSha256": "7e7d1c614a88b1a140a7c850180af6b73458ecf2397943747191e0ea75d00819",
+    "sourceBoundParameters": {
+      "abi": "1",
+      "fragments": "1",
+      "slots": "16",
+      "retrieval": "MATCH"
+    },
+    "legacyAbiOneWithoutFragments": "Original RegMem arithmetic and raw checkpoint bytes preserved; new fragment identity is distinct",
+    "heldLaterSyntheticPeriods": 4000,
+    "recurrenceMarginalNll": {
+      "MATCH": 0.1926079648228753,
+      "NONE": 0.8542983324368293,
+      "MISMATCH": 2.7619643540783403,
+      "EXPIRED": 0.5780705755405268
+    },
+    "iidMarginalNll": {
+      "MATCH": 2.378762507343105,
+      "NONE": 2.378762507343105
+    },
+    "functionalChecks": [
+      "actual family builder and strict canonical parameters",
+      "typed slot-count proposal and destructive memory controls",
+      "capacity and temporal context bounds",
+      "exact complete-state/next-update restore",
+      "gap keeps learned fragment parameters and lifetime clock",
+      "malformed checkpoint restore is atomic",
+      "immediate cooperative cancellation keeps original state",
+      "old RegMem original bytes and forecasts preserved"
+    ],
+    "android": "Pending actual foundry/checkpoint/publication regression in 82-test source",
+    "remaining": [
+      "All seven family interfaces and per-step typed learning receipts",
+      "Failure-driven expert-generated fragment admission and retriever-loss/forgetting validation",
+      "Independent prospective natural quality and user-phone runtime costs"
+    ]
+  },
+  "endurance78": {
+    "runId": 40572678850,
+    "source": "e94ee7ac756794109982ccafb4e051ea29e69508",
+    "status": "SIX_FULL_HOUR_SCENARIOS_COMPLETED; FOUR_HAVE_CAPACITY_FAILURES",
+    "capacityFailuresByScenario": {
+      "29-BRIGHT": 6,
+      "29-LOCKED": 8,
+      "35-BRIGHT": 0,
+      "35-LOCKED": 2,
+      "36-BRIGHT": 0,
+      "36-LOCKED": 2
+    },
+    "allCapacityEventsTask": "schema-base",
+    "readback": "construction/r26/continuation/endurance-78-telemetry-readback.json"
   }
 }
