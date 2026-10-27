@@ -51,7 +51,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             db.execSQL("INSERT OR REPLACE INTO r26_session VALUES(?,1,?,'RUNNING',?,coalesce((SELECT actual_progress FROM r26_session WHERE session_id=?),0))",new Object[]{owner,String.valueOf(now-SystemClock.elapsedRealtime()),now,owner});
             add(db,"schema","P1");add(db,"schema-base","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");
             add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
-            for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}return 0;});
+            for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}
+            db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema'");return 0;});
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
     private static void add(SQLiteDatabase db,String id,String lane){db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism) VALUES(?,?,?)",new Object[]{id,lane,id});}
@@ -60,7 +61,22 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         String reason=kind.equals("EXPERT")&&!implementation.isEmpty()?"Concrete resumable paired experiment or evidence audit; full proposal and expert acceptance pending":implementation.isEmpty()?"Full R26 mechanism integration and decisive experiments pending; no fallback substituted":"Concrete numerical kernel registered; complete family experiments and natural quality pending";
         db.execSQL("INSERT OR REPLACE INTO r26_capability(mechanism,kind,implementation,state,reason,last_progress) VALUES(?,?,?,?,?,coalesce((SELECT last_progress FROM r26_capability WHERE mechanism=?),0))",new Object[]{id,kind,implementation,state,reason,id});
     }
-    private Claim claim(){for(int attempt=0;attempt<SLOTS.length;attempt++){String lane=SLOTS[slot++%SLOTS.length];Claim result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{long now=System.currentTimeMillis();String id=null;long fence=0,cursor=0;try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor FROM r26_task WHERE lane=? AND status IN ('READY','YIELDED','BLOCKED','RUNNING') AND lease_until<=? AND next_at<=? ORDER BY last_served,task_id LIMIT 1",new String[]{lane,String.valueOf(now),String.valueOf(now)})){if(c.moveToFirst()){id=c.getString(0);fence=c.getLong(1)+1;cursor=c.getLong(2);}}if(id==null)return null;db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,now,id});return new Claim(id,owner,fence,cursor);});if(result!=null)return result;}return null;}
+    private Claim claim(){
+        // Dependency-blocked tasks are not ready work. Polling forty of them between migration
+        // units made a fresh installation spend minutes without reaching its first model sample.
+        final String dependency=strategyStorageReady?"":" AND task_id='schema'";
+        for(int attempt=0;attempt<SLOTS.length;attempt++){
+            String lane=SLOTS[slot++%SLOTS.length];
+            Claim result=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{
+                long now=System.currentTimeMillis();String id=null;long fence=0,cursor=0;
+                try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor FROM r26_task WHERE lane=? AND status IN ('READY','YIELDED','BLOCKED','RUNNING') AND lease_until<=? AND next_at<=?"+dependency+" ORDER BY last_served,task_id LIMIT 1",new String[]{lane,String.valueOf(now),String.valueOf(now)})){
+                    if(c.moveToFirst()){id=c.getString(0);fence=c.getLong(1)+1;cursor=c.getLong(2);}
+                }
+                if(id==null)return null;
+                db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,now,id});return new Claim(id,owner,fence,cursor);
+            });if(result!=null)return result;
+        }return null;
+    }
     private void run(){
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         try{
@@ -97,7 +113,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 boolean advanced=result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready;c.reason((advanced?"COOPERATIVE_":"")+result.status+":"+result.detail);return advanced?1:0;
             }
             if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);return 0;});return 1;}
-            ProgramModelSU2.register();strategyStorageReady=true;return 1;
+            ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){
             if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
