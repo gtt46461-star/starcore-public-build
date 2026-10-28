@@ -1,0 +1,30 @@
+{
+  "runId": 40618409622,
+  "jobId": 122594449094,
+  "scope": "CI_TRANSPORT_FAILURE_BEFORE_APP_START",
+  "classification": "One initial debug APK installation returned Success; a subsequent installation from probe_r13_startup.py failed adb: device offline. This locates the failure but does not prove a root cause in the duplicate install.",
+  "change": "Bounded read-only transport/boot/service stability preflight, and skip duplicate install while preserving pm clear and the original app acceptance checks.",
+  "excerpt": [
+    "2026-10-28T02:27:51.6886552Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.",
+    "2026-10-28T02:27:51.7558191Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0",
+    "2026-10-28T02:27:51.8310079Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0",
+    "2026-10-28T02:27:51.8981365Z ##[endgroup]",
+    "2026-10-28T02:27:51.8998934Z [command]/usr/bin/sh -c bash scripts/run_android_r13.sh 35",
+    "2026-10-28T02:27:53.8302234Z Performing Streamed Install",
+    "2026-10-28T02:27:53.8322776Z Success",
+    "2026-10-28T02:27:54.1486471Z Traceback (most recent call last):",
+    "2026-10-28T02:27:54.1509221Z   File \"/home/runner/work/starcore-public-build/starcore-public-build/scripts/probe_r13_startup.py\", line 28, in <module>",
+    "2026-10-28T02:27:54.1563331Z     print(adb('install','-r',glob.glob('delivered/app/build/outputs/apk/debug/*.apk')[0]),flush=True)",
+    "2026-10-28T02:27:54.1564247Z           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "2026-10-28T02:27:54.1565238Z   File \"/home/runner/work/starcore-public-build/starcore-public-build/scripts/probe_r13_startup.py\", line 10, in adb",
+    "2026-10-28T02:27:54.1566236Z     if check and r.returncode:raise RuntimeError('ADB_FAILED: '+r.stderr)",
+    "2026-10-28T02:27:54.1566860Z                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "2026-10-28T02:27:54.1567421Z RuntimeError: ADB_FAILED: adb: device offline",
+    "2026-10-28T02:27:54.1567774Z ",
+    "2026-10-28T02:27:54.1749087Z - waiting for device -",
+    "2026-10-28T02:27:54.2218640Z WARNING      | adb command '/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell am broadcast -a com.android.emulator.multidisplay.START -n com.android.emulator.multidisplay/.MultiDisplayServiceReceiver --user 0 ' failed: 'adb: device offline'",
+    "2026-10-28T02:27:54.7091924Z Traceback (most recent call last):",
+    "2026-10-28T02:27:54.7092904Z   File \"<string>\", line 1, in <module>",
+    "2026-10-28T02:27:54.7093581Z   File \"/usr/lib/python3.12/json/__init__.py\", line 293, in load"
+  ]
+}

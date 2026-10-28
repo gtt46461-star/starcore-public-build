@@ -2,7 +2,8 @@
 """Real launcher/service regression; historical READY preferences are never acceptance."""
 import argparse, subprocess, time, glob, json, xml.etree.ElementTree as ET
 from pathlib import Path
-parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--installed',action='store_true');args=parser.parse_args()
+from wait_r13_android_ready import wait_ready
+parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--installed',action='store_true');parser.add_argument('--apk-already-installed',action='store_true');args=parser.parse_args()
 PKG='com.starcore.research.r13'
 out=Path('startup-evidence');out.mkdir(exist_ok=True)
 def adb(*argv,check=True):
@@ -24,8 +25,11 @@ def capture(label):
     adb('pull','/sdcard/startup.xml',str(out/(label+'.xml')),check=False)
     adb('shell','screencap','-p','/sdcard/startup.png')
     adb('pull','/sdcard/startup.png',str(out/(label+'.png')))
+wait_ready()
 if not args.installed:
-    print(adb('install','-r',glob.glob('delivered/app/build/outputs/apk/debug/*.apk')[0]),flush=True)
+    if not args.apk_already_installed:
+        print(adb('install','-r',glob.glob('delivered/app/build/outputs/apk/debug/*.apk')[0]),flush=True)
+        wait_ready()
     assert 'Success' in adb('shell','pm','clear',PKG)
 adb('logcat','-c')
 rows=[];passed=False;baseline_reproduced=False;previous_pid='';previous_ready=0

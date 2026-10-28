@@ -39,6 +39,32 @@ public final class R26SchemaMigrationDeviceTest {
             if(result.cause!=null)throw new AssertionError(result.detail,result.cause);if(result.ready){assertTrue("Final integrity verification shared the last installation callback",before.contains("cursor=VERIFY"));return max;}
         }throw new AssertionError("Legacy schema did not finish; calls="+calls+"; "+ResearchSchemaCoordinatorR926.summary());
     }
+    private static long populatedDiagnosisRepair(DbStore store,JSONObject receipt)throws Exception{
+        java.lang.reflect.Field tableField=DbHelper.class.getDeclaredField("DIAGNOSIS_TABLES_CP12"),createField=DbHelper.class.getDeclaredField("DIAGNOSIS_CREATE_CP12");tableField.setAccessible(true);createField.setAccessible(true);
+        String[] tables=(String[])tableField.get(null),creates=(String[])createField.get(null);String[] keys={"case_key","cache_key","promotion_key","freeze_key","judge_key","plan_key"};
+        // Reproduce missing common columns on the full, already migrated legacy catalogue.
+        // This fixture transaction is deliberately excluded from migration timings.
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_DIAGNOSIS_LEGACY_FIXTURE",w->{
+            for(int i=0;i<tables.length;i++){
+                w.execSQL("DROP TABLE \""+tables[i]+"\"");w.execSQL("DELETE FROM research_row_revision_v2 WHERE source_table=?",new Object[]{tables[i]});w.execSQL(creates[i]);
+                w.execSQL("WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<4096) INSERT INTO \""+tables[i]+"\"(\""+keys[i]+"\") SELECT 'legacy-'||i FROM n");
+            }
+            w.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" SET status='REPAIR_REQUIRED' WHERE domain=? AND revision=? AND (step_id='CP12_RUNTIME_DIAGNOSIS_RETENTION_V1' OR step_id GLOB 'R26_CP12_DIAGNOSIS_TABLE_*')",new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract().revision});return 0;
+        });
+        JSONArray calls=new JSONArray();receipt.put("populatedDiagnosisRepairCalls",calls).put("legacyDiagnosisRowsPerTable",4096);
+        long max=0;boolean ready=false;
+        for(int call=0;call<12&&!ready;call++){
+            long started=SystemClock.elapsedRealtime();ready=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_DIAGNOSIS_RESUME",w->com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(w));long elapsed=SystemClock.elapsedRealtime()-started;max=Math.max(max,elapsed);calls.put(new JSONObject().put("call",call).put("wallMs",elapsed).put("ready",ready));
+            // Each callback releases the writer; subsequent reads authenticate committed child receipts.
+            try(android.database.Cursor c=store.readable().rawQuery("SELECT count(*) FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE domain=? AND revision=? AND step_id GLOB 'R26_CP12_DIAGNOSIS_TABLE_*' AND status='COMPLETED'",new String[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,String.valueOf(SchemaDomainCoordinatorR926.researchContract().revision)})){assertTrue(c.moveToFirst());assertEquals(Math.min(call+1,6),c.getInt(0));}
+        }
+        assertTrue("Diagnosis migration did not resume",ready);assertEquals(8,calls.length());
+        for(String table:tables){
+            try(android.database.Cursor c=store.readable().rawQuery("SELECT count(*) FROM \""+table+"\" d JOIN research_row_revision_v2 r ON r.source_rowid=d.rowid AND r.source_table=?",new String[]{table})){assertTrue(c.moveToFirst());assertEquals(4096,c.getInt(0));}
+            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_UNPERMITTED_DELETE",w->{w.execSQL("DELETE FROM \""+table+"\" WHERE rowid=1");return 0;});fail("Missing archive guard: "+table);}catch(RuntimeException expected){boolean guarded=false;for(Throwable cause=expected;cause!=null;cause=cause.getCause())guarded|=cause.toString().contains("CP12_RAW_DELETE_REQUIRES_VERIFIED_ARCHIVE");assertTrue(expected.toString(),guarded);}
+        }
+        receipt.put("populatedDiagnosisMaximumWriterCallMs",max);assertTrue("Populated diagnosis repair exceeded unchanged capacity boundary: "+max,max<=1000);return max;
+    }
     @Test public void legacySchemaAndDriftRepairKeepDataAndStayBelowCapacityFailureBoundary()throws Exception{
         android.content.Context original=InstrumentationRegistry.getInstrumentation().getTargetContext();assertNull(DatabaseCoordinator.peek());R26RuntimeDeviceTest.Sandbox app=new R26RuntimeDeviceTest.Sandbox(original);DbStore store=null;
         JSONObject receipt=new JSONObject().put("scope","SYNTHETIC_LEGACY_SCHEMA_ONLY; NOT_FULL_PREDRAW_SLO_OR_USER_PHONE").put("capacityFailureBoundaryMs",1000);JSONArray cold=new JSONArray(),repair=new JSONArray();receipt.put("coldSlowCalls",cold).put("repairSlowCalls",repair);
@@ -51,6 +77,7 @@ public final class R26SchemaMigrationDeviceTest {
             long coldMax=complete(store,cold);receipt.put("coldMaximumWriterCallMs",coldMax);assertTrue(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.researchContract()));receipt.put("completedCatalogueProfile",profile(db));
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_SCHEMA_DRIFT",w->{w.execSQL("DROP TRIGGER r969_run_no_replace");return 0;});assertFalse(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.researchContract()));
             long repairMax=complete(store,repair);receipt.put("repairMaximumWriterCallMs",repairMax);assertTrue(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.researchContract()));assertEquals("PRESERVE",store.getState("r26_schema_fixture_marker",""));try(android.database.Cursor c=db.rawQuery("SELECT count(*) FROM draws WHERE dirty=0",null)){assertTrue(c.moveToFirst());assertEquals(4200,c.getInt(0));}
+            populatedDiagnosisRepair(store,receipt);
             assertTrue("Cold legacy migration exceeded the unchanged capacity-failure boundary: "+coldMax,coldMax<=1000);assertTrue("Repair exceeded the unchanged capacity-failure boundary: "+repairMax,repairMax<=1000);receipt.put("result","PASS_SCHEMA_ONLY_WITH_STATED_SCOPE");
         }catch(Throwable failure){receipt.put("result","FAIL").put("error",failure.toString());throw failure;}
         finally{

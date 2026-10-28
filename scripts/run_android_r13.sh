@@ -29,9 +29,12 @@ collect_runtime_evidence() {
   fi
 }
 trap collect_runtime_evidence EXIT
+python3 scripts/wait_r13_android_ready.py
 adb install -r delivered/app/build/outputs/apk/debug/*.apk
+python3 scripts/wait_r13_android_ready.py
 if [[ "${1:-29}" == "29" ]]; then
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
+python3 scripts/wait_r13_android_ready.py
 python3 scripts/verify_r26_emulator_heap.py
 python3 scripts/run_r26_instrumentation.py
 adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
@@ -41,10 +44,11 @@ adb exec-out run-as com.starcore.research.r13 cat cache/r26-schema-migration-syn
 fi
 # The startup probe clears app data; preserve every validated receipt first.
 collect_runtime_evidence
-python3 scripts/probe_r13_startup.py
+python3 scripts/probe_r13_startup.py --apk-already-installed
 # The deliverable is the release variant. Confirm the same fixed certificate
 # permits an in-place update, then exercise its actual launcher on every API.
 adb install -r delivered/app/build/outputs/apk/release/*.apk
+python3 scripts/wait_r13_android_ready.py
 adb shell am force-stop com.starcore.research.r13
 adb logcat -c
 adb shell am start -W -n com.starcore.research.r13/com.ethk3.novaonepro.MainActivity > release-launcher.txt

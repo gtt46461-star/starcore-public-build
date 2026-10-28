@@ -1,0 +1,299 @@
+{
+  "source": "53425db",
+  "compiledSource": "23fd45076c1da170d14817fb05c7aa86809e61ef",
+  "runId": 40612510496,
+  "status": "FOUR_FAILED_SCENARIOS_RETAINED; NOT_A_FULL_MATRIX_PASS",
+  "scope": "SOURCE_BOUND_ENGINEERING_NOT_NATURAL_QUALITY",
+  "note": "API29 LOCKED stopped progressing after seven minute samples and contains multiple large wall durations with much smaller CPU durations. Cause remains under investigation; failures are not waived. The three other failed scenarios completed one hour with one schema-base capacity failure each.",
+  "failedJobs": [
+    {
+      "jobId": 122575319376,
+      "summary": {
+        "allMechanismsServiceMillis": 73606,
+        "api": 36,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 11,
+        "canonicalDrawWriteP50Ms": 2,
+        "canonicalDrawWriteP95Ms": 4,
+        "canonicalDrawWriteP99Ms": 7,
+        "checkpointFileBytes": 9470075,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600047,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "BRIGHT"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "cf28ee51440792bace2b925eedc09e1cb8f30f144525c20d46503774ed84f617"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "FAIL",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1045,
+            "kernelWallMs": 1053,
+            "task": "schema-base",
+            "wallMs": 1053
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "23fd45076c1da170d14817fb05c7aa86809e61ef"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 4110,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "errors": [
+        "java.lang.AssertionError: Committed capacity failures remain failures after diagnostic-ring pruning or restart expected:<0> but was:<1>"
+      ],
+      "trace": []
+    },
+    {
+      "jobId": 122575319407,
+      "summary": {
+        "allMechanismsServiceMillis": 100127,
+        "api": 29,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 31,
+        "canonicalDrawWriteP50Ms": 10,
+        "canonicalDrawWriteP95Ms": 20,
+        "canonicalDrawWriteP99Ms": 22,
+        "committedCapacityFailuresSinceInstallation": 11,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": null,
+          "maximumCommittedSliceFailures": 9,
+          "maximumRetainedSliceFailures": 9,
+          "minuteSamples": 7,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "LOCKED"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "cf28ee51440792bace2b925eedc09e1cb8f30f144525c20d46503774ed84f617"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "result": "FAIL",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 5,
+            "kernelWallMs": 1289,
+            "task": "expert-E16",
+            "wallMs": 1289
+          },
+          {
+            "cpuMs": 1,
+            "kernelWallMs": 1428,
+            "task": "foundry-su2",
+            "wallMs": 1428
+          },
+          {
+            "cpuMs": 1,
+            "kernelWallMs": 1313,
+            "task": "expert-E09",
+            "wallMs": 1313
+          },
+          {
+            "cpuMs": 0,
+            "kernelWallMs": 4643,
+            "task": "foundry-su2",
+            "wallMs": 4643
+          },
+          {
+            "cpuMs": 103,
+            "kernelWallMs": 3895,
+            "task": "schema-base",
+            "wallMs": 3895
+          },
+          {
+            "cpuMs": 16,
+            "kernelWallMs": 4315,
+            "task": "retention",
+            "wallMs": 4315
+          },
+          {
+            "cpuMs": 9,
+            "kernelWallMs": 4892,
+            "task": "artifact-retention",
+            "wallMs": 4892
+          },
+          {
+            "cpuMs": 0,
+            "kernelWallMs": 5884,
+            "task": "campaign-audit",
+            "wallMs": 5884
+          },
+          {
+            "cpuMs": 34,
+            "kernelWallMs": 4929,
+            "task": "artifact-retention",
+            "wallMs": 4929
+          },
+          {
+            "cpuMs": 16,
+            "kernelWallMs": 4950,
+            "task": "incumbent-forecast",
+            "wallMs": 4950
+          },
+          {
+            "cpuMs": 11,
+            "kernelWallMs": 5601,
+            "task": "artifact-retention",
+            "wallMs": 5601
+          },
+          {
+            "cpuMs": 95,
+            "kernelWallMs": 6082,
+            "task": "schema-base",
+            "wallMs": 6082
+          },
+          {
+            "cpuMs": 10,
+            "kernelWallMs": 1386,
+            "task": "ablation",
+            "wallMs": 1386
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "23fd45076c1da170d14817fb05c7aa86809e61ef"
+        ],
+        "strategyReadyToAllMechanismsWallMs": 14526,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "errors": [
+        "java.lang.AssertionError: research stopped advancing for a complete minute"
+      ],
+      "trace": []
+    },
+    {
+      "jobId": 122575319424,
+      "summary": {
+        "allMechanismsServiceMillis": 73522,
+        "api": 35,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 8,
+        "canonicalDrawWriteP50Ms": 1,
+        "canonicalDrawWriteP95Ms": 4,
+        "canonicalDrawWriteP99Ms": 5,
+        "checkpointFileBytes": 13667489,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600033,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "LOCKED"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "cf28ee51440792bace2b925eedc09e1cb8f30f144525c20d46503774ed84f617"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "FAIL",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1018,
+            "kernelWallMs": 1022,
+            "task": "schema-base",
+            "wallMs": 1022
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "23fd45076c1da170d14817fb05c7aa86809e61ef"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 3612,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "errors": [
+        "java.lang.AssertionError: Committed capacity failures remain failures after diagnostic-ring pruning or restart expected:<0> but was:<1>"
+      ],
+      "trace": []
+    },
+    {
+      "jobId": 122575319476,
+      "summary": {
+        "allMechanismsServiceMillis": 75029,
+        "api": 36,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 15,
+        "canonicalDrawWriteP50Ms": 2,
+        "canonicalDrawWriteP95Ms": 6,
+        "canonicalDrawWriteP99Ms": 11,
+        "checkpointFileBytes": 9525494,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600128,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "LOCKED"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "cf28ee51440792bace2b925eedc09e1cb8f30f144525c20d46503774ed84f617"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "FAIL",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1808,
+            "kernelWallMs": 1831,
+            "task": "schema-base",
+            "wallMs": 1831
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "23fd45076c1da170d14817fb05c7aa86809e61ef"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 5049,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "errors": [
+        "java.lang.AssertionError: Committed capacity failures remain failures after diagnostic-ring pruning or restart expected:<0> but was:<1>"
+      ],
+      "trace": []
+    }
+  ]
+}

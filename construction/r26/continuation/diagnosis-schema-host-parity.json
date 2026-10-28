@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "scope": "HOST_SQLITE_SQL_AND_DATA_PARITY_ONLY; NOT_ANDROID_WRITER_TIMING_OR_NATURAL_QUALITY",
+  "oldSource": "64d1472088d51d1e28032bfb1b094d2c39113658",
+  "oracleSha256": "d36cfa636ad04a42a386a643e260ea3b83dfd140fc835821c5fabb491d5d809a",
+  "schemaFixtureObjects": 3400,
+  "rowsPerTable": 4096,
+  "checks": [
+    "exact_60_SQL_statements_and_18_column_definitions",
+    "final_schema_rows_and_generation_identity",
+    "rollback_restores_unit_ddl_and_data",
+    "database_reopen_between_six_units",
+    "idempotent_reentry",
+    "all_24576_row_versions_backfilled",
+    "unpermitted_and_stale_generation_delete_rejected",
+    "retained_fixture_marker"
+  ],
+  "units": [
+    {
+      "table": "diagnosis_fix_plan",
+      "hostSqliteMs": 73.27
+    },
+    {
+      "table": "dynamic_freeze_matrix",
+      "hostSqliteMs": 68.221
+    },
+    {
+      "table": "module_effect_cache",
+      "hostSqliteMs": 67.816
+    },
+    {
+      "table": "shadow_promotion_cache",
+      "hostSqliteMs": 71.592
+    },
+    {
+      "table": "adaptive_judge_log",
+      "hostSqliteMs": 29.261
+    },
+    {
+      "table": "diagnosis_case_log",
+      "hostSqliteMs": 21.274
+    }
+  ]
+}

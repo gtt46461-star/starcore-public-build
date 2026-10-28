@@ -8464,265 +8464,95 @@ public final class DbHelper extends SQLiteOpenHelper {
     }
     /* STARCORE_TIANSHU_B03_STORAGE_END */
 
-    /** Additive diagnostic DDL; called only by the research migration Owner's atomic step. */
+    // Exact legacy SQL; the incremental Owner installs and protects one table per transaction.
+    private static final String[] DIAGNOSIS_TABLES_CP12 = {
+        "diagnosis_case_log",
+        "module_effect_cache",
+        "shadow_promotion_cache",
+        "dynamic_freeze_matrix",
+        "adaptive_judge_log",
+        "diagnosis_fix_plan",
+    };
+    private static final String[] DIAGNOSIS_CREATE_CP12 = {
+        "CREATE TABLE IF NOT EXISTS diagnosis_case_log (_id INTEGER PRIMARY KEY AUTOINCREMENT,case_key TEXT UNIQUE,source_type TEXT,created_at INTEGER DEFAULT 0,updated_at INTEGER DEFAULT 0,base_issue TEXT,target_issue TEXT,decision_type TEXT,stat_scope TEXT,position INTEGER DEFAULT 0,n1 INTEGER DEFAULT 0,n2 INTEGER DEFAULT 0,n3 INTEGER DEFAULT 0,k3_mask INTEGER DEFAULT 0,actual_number INTEGER DEFAULT 0,result TEXT,hit INTEGER DEFAULT 0,pnl REAL DEFAULT 0,final_p REAL DEFAULT 0,dynamic_gate REAL DEFAULT 0,edge REAL DEFAULT 0,raw_p REAL DEFAULT 0,calibrated_p REAL DEFAULT 0,teacher_status TEXT,teacher_sample INTEGER DEFAULT 0,teacher_hit_rate REAL DEFAULT 0,teacher_confidence REAL DEFAULT 0,teacher_recent_validity REAL DEFAULT 0,v20_status TEXT,v20_support REAL DEFAULT 0,v20_risk REAL DEFAULT 0,evidence_contribution REAL DEFAULT 0,counter_contribution REAL DEFAULT 0,sample_reliability REAL DEFAULT 0,recent_validity REAL DEFAULT 0,window_state_key TEXT,similar_window_sample INTEGER DEFAULT 0,similar_window_hit_rate REAL DEFAULT 0,miss_reason TEXT,failure_type TEXT,responsible_module TEXT,fix_hint TEXT,module_name TEXT,module_status TEXT,freeze_key TEXT,freeze_level TEXT,judge_status TEXT,judge_score REAL DEFAULT 0,judge_risk REAL DEFAULT 0,shadow_would_hit INTEGER DEFAULT 0,promotion_hint TEXT,summary_text TEXT,detail_text TEXT,ext_json TEXT)",
+        "CREATE TABLE IF NOT EXISTS module_effect_cache (_id INTEGER PRIMARY KEY AUTOINCREMENT,cache_key TEXT UNIQUE,module_name TEXT,created_at INTEGER DEFAULT 0,updated_at INTEGER DEFAULT 0,support_count INTEGER DEFAULT 0,bet_count INTEGER DEFAULT 0,hit_count INTEGER DEFAULT 0,miss_count INTEGER DEFAULT 0,hit_rate REAL DEFAULT 0,avg_final_p REAL DEFAULT 0,avg_gate REAL DEFAULT 0,avg_edge REAL DEFAULT 0,profit REAL DEFAULT 0,shadow_would_hit_rate REAL DEFAULT 0,reliability REAL DEFAULT 0,recent_effectiveness REAL DEFAULT 0,effect_status TEXT,problem TEXT,fix_advice TEXT,summary_text TEXT,detail_text TEXT,ext_json TEXT)",
+        "CREATE TABLE IF NOT EXISTS shadow_promotion_cache (_id INTEGER PRIMARY KEY AUTOINCREMENT,promotion_key TEXT UNIQUE,domain_key TEXT,domain_type TEXT,created_at INTEGER DEFAULT 0,updated_at INTEGER DEFAULT 0,total_shadow INTEGER DEFAULT 0,would_hit INTEGER DEFAULT 0,would_miss INTEGER DEFAULT 0,would_hit_rate REAL DEFAULT 0,real_bet_rate REAL DEFAULT 0,promotion_status TEXT,promotion_score REAL DEFAULT 0,reliability REAL DEFAULT 0,watch_count INTEGER DEFAULT 0,blocked_count INTEGER DEFAULT 0,summary_text TEXT,detail_text TEXT,ext_json TEXT)",
+        "CREATE TABLE IF NOT EXISTS dynamic_freeze_matrix (_id INTEGER PRIMARY KEY AUTOINCREMENT,freeze_key TEXT UNIQUE,freeze_type TEXT,freeze_value TEXT,freeze_level TEXT,created_at INTEGER DEFAULT 0,updated_at INTEGER DEFAULT 0,frozen INTEGER DEFAULT 0,freeze_until_issue TEXT,freeze_until_time INTEGER DEFAULT 0,real_count INTEGER DEFAULT 0,real_hit INTEGER DEFAULT 0,real_miss INTEGER DEFAULT 0,real_hit_rate REAL DEFAULT 0,shadow_review_count INTEGER DEFAULT 0,shadow_hit INTEGER DEFAULT 0,shadow_miss INTEGER DEFAULT 0,shadow_hit_rate REAL DEFAULT 0,recover_need_hits INTEGER DEFAULT 0,recover_need_rate REAL DEFAULT 0,freeze_reason TEXT,recover_hint TEXT,summary_text TEXT,detail_text TEXT,ext_json TEXT)",
+        "CREATE TABLE IF NOT EXISTS adaptive_judge_log (_id INTEGER PRIMARY KEY AUTOINCREMENT,judge_key TEXT UNIQUE,created_at INTEGER DEFAULT 0,updated_at INTEGER DEFAULT 0,base_issue TEXT,target_issue TEXT,position INTEGER DEFAULT 0,n1 INTEGER DEFAULT 0,n2 INTEGER DEFAULT 0,n3 INTEGER DEFAULT 0,k3_mask INTEGER DEFAULT 0,final_p REAL DEFAULT 0,dynamic_gate REAL DEFAULT 0,edge REAL DEFAULT 0,teacher_status TEXT,v20_status TEXT,window_state_key TEXT,judge_status TEXT,judge_score REAL DEFAULT 0,judge_risk REAL DEFAULT 0,pass INTEGER DEFAULT 0,downgrade_to_shadow INTEGER DEFAULT 0,freeze INTEGER DEFAULT 0,promote_shadow_candidate INTEGER DEFAULT 0,freeze_key TEXT,freeze_level TEXT,reason_text TEXT,module_advice TEXT,summary_text TEXT,detail_text TEXT,ext_json TEXT)",
+        "CREATE TABLE IF NOT EXISTS diagnosis_fix_plan (_id INTEGER PRIMARY KEY AUTOINCREMENT,plan_key TEXT UNIQUE,created_at INTEGER DEFAULT 0,updated_at INTEGER DEFAULT 0,file_name TEXT,priority INTEGER DEFAULT 0,overall_problem TEXT,problem_evidence TEXT,why_this_file TEXT,what_to_change TEXT,expected_effect TEXT,risk_if_not_change TEXT,dependency TEXT,new_engine_needed INTEGER DEFAULT 0,strategy_gap TEXT,risk_warning TEXT,summary_text TEXT,detail_text TEXT,ext_json TEXT)",
+    };
+    private static final String[] DIAGNOSIS_COLUMNS_CP12 = {
+        "record_key TEXT",
+        "source_type TEXT",
+        "created_at INTEGER DEFAULT 0",
+        "updated_at INTEGER DEFAULT 0",
+        "base_issue TEXT",
+        "target_issue TEXT",
+        "position INTEGER DEFAULT 0",
+        "final_p REAL DEFAULT 0",
+        "dynamic_gate REAL DEFAULT 0",
+        "edge REAL DEFAULT 0",
+        "teacher_status TEXT",
+        "v20_status TEXT",
+        "window_state_key TEXT",
+        "module_name TEXT",
+        "status TEXT",
+        "summary_text TEXT",
+        "detail_text TEXT",
+        "ext_json TEXT",
+    };
+    private static final String[][] DIAGNOSIS_INDEXES_CP12 = {
+        {
+            "CREATE INDEX IF NOT EXISTS idx_diag_case_target ON diagnosis_case_log(target_issue,position)",
+            "CREATE INDEX IF NOT EXISTS idx_diag_case_created ON diagnosis_case_log(created_at)",
+            "CREATE INDEX IF NOT EXISTS idx_diag_case_failure ON diagnosis_case_log(failure_type,responsible_module)",
+            "CREATE INDEX IF NOT EXISTS idx_diag_case_shadow ON diagnosis_case_log(decision_type,shadow_would_hit)",
+        },
+        {
+            "CREATE INDEX IF NOT EXISTS idx_module_effect_name ON module_effect_cache(module_name,effect_status)",
+            "CREATE INDEX IF NOT EXISTS idx_module_effect_update ON module_effect_cache(updated_at)",
+        },
+        {
+            "CREATE INDEX IF NOT EXISTS idx_shadow_promotion_domain ON shadow_promotion_cache(domain_type,domain_key)",
+            "CREATE INDEX IF NOT EXISTS idx_shadow_promotion_status ON shadow_promotion_cache(promotion_status,promotion_score)",
+        },
+        {
+            "CREATE INDEX IF NOT EXISTS idx_freeze_matrix_level ON dynamic_freeze_matrix(freeze_level,frozen)",
+            "CREATE INDEX IF NOT EXISTS idx_freeze_matrix_type ON dynamic_freeze_matrix(freeze_type,freeze_value)",
+            "CREATE INDEX IF NOT EXISTS idx_freeze_matrix_until ON dynamic_freeze_matrix(freeze_until_time)",
+        },
+        {
+            "CREATE INDEX IF NOT EXISTS idx_adaptive_judge_target ON adaptive_judge_log(target_issue,position)",
+            "CREATE INDEX IF NOT EXISTS idx_adaptive_judge_status ON adaptive_judge_log(judge_status,judge_score,judge_risk)",
+            "CREATE INDEX IF NOT EXISTS idx_adaptive_judge_created ON adaptive_judge_log(created_at)",
+        },
+        {
+            "CREATE INDEX IF NOT EXISTS idx_fix_plan_priority ON diagnosis_fix_plan(priority,file_name)",
+            "CREATE INDEX IF NOT EXISTS idx_fix_plan_update ON diagnosis_fix_plan(updated_at)",
+        },
+    };
+    /** Synchronous compatibility path; incremental research uses one table at a time. */
     public static void installDiagnosisLoopSchemaCP12(SQLiteDatabase db) {
-        if (db == null || !db.inTransaction()) throw new IllegalStateException("DIAGNOSIS_SCHEMA_OWNER");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "
-                            + "diagnosis_case_log"
-                            + " ("
-                            + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + "case_key TEXT UNIQUE,"
-                            + "source_type TEXT,"
-                            + "created_at INTEGER DEFAULT 0,"
-                            + "updated_at INTEGER DEFAULT 0,"
-                            + "base_issue TEXT,"
-                            + "target_issue TEXT,"
-                            + "decision_type TEXT,"
-                            + "stat_scope TEXT,"
-                            + "position INTEGER DEFAULT 0,"
-                            + "n1 INTEGER DEFAULT 0,"
-                            + "n2 INTEGER DEFAULT 0,"
-                            + "n3 INTEGER DEFAULT 0,"
-                            + "k3_mask INTEGER DEFAULT 0,"
-                            + "actual_number INTEGER DEFAULT 0,"
-                            + "result TEXT,"
-                            + "hit INTEGER DEFAULT 0,"
-                            + "pnl REAL DEFAULT 0,"
-                            + "final_p REAL DEFAULT 0,"
-                            + "dynamic_gate REAL DEFAULT 0,"
-                            + "edge REAL DEFAULT 0,"
-                            + "raw_p REAL DEFAULT 0,"
-                            + "calibrated_p REAL DEFAULT 0,"
-                            + "teacher_status TEXT,"
-                            + "teacher_sample INTEGER DEFAULT 0,"
-                            + "teacher_hit_rate REAL DEFAULT 0,"
-                            + "teacher_confidence REAL DEFAULT 0,"
-                            + "teacher_recent_validity REAL DEFAULT 0,"
-                            + "v20_status TEXT,"
-                            + "v20_support REAL DEFAULT 0,"
-                            + "v20_risk REAL DEFAULT 0,"
-                            + "evidence_contribution REAL DEFAULT 0,"
-                            + "counter_contribution REAL DEFAULT 0,"
-                            + "sample_reliability REAL DEFAULT 0,"
-                            + "recent_validity REAL DEFAULT 0,"
-                            + "window_state_key TEXT,"
-                            + "similar_window_sample INTEGER DEFAULT 0,"
-                            + "similar_window_hit_rate REAL DEFAULT 0,"
-                            + "miss_reason TEXT,"
-                            + "failure_type TEXT,"
-                            + "responsible_module TEXT,"
-                            + "fix_hint TEXT,"
-                            + "module_name TEXT,"
-                            + "module_status TEXT,"
-                            + "freeze_key TEXT,"
-                            + "freeze_level TEXT,"
-                            + "judge_status TEXT,"
-                            + "judge_score REAL DEFAULT 0,"
-                            + "judge_risk REAL DEFAULT 0,"
-                            + "shadow_would_hit INTEGER DEFAULT 0,"
-                            + "promotion_hint TEXT,"
-                            + "summary_text TEXT,"
-                            + "detail_text TEXT,"
-                            + "ext_json TEXT"
-                            + ")");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "
-                            + "module_effect_cache"
-                            + " ("
-                            + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + "cache_key TEXT UNIQUE,"
-                            + "module_name TEXT,"
-                            + "created_at INTEGER DEFAULT 0,"
-                            + "updated_at INTEGER DEFAULT 0,"
-                            + "support_count INTEGER DEFAULT 0,"
-                            + "bet_count INTEGER DEFAULT 0,"
-                            + "hit_count INTEGER DEFAULT 0,"
-                            + "miss_count INTEGER DEFAULT 0,"
-                            + "hit_rate REAL DEFAULT 0,"
-                            + "avg_final_p REAL DEFAULT 0,"
-                            + "avg_gate REAL DEFAULT 0,"
-                            + "avg_edge REAL DEFAULT 0,"
-                            + "profit REAL DEFAULT 0,"
-                            + "shadow_would_hit_rate REAL DEFAULT 0,"
-                            + "reliability REAL DEFAULT 0,"
-                            + "recent_effectiveness REAL DEFAULT 0,"
-                            + "effect_status TEXT,"
-                            + "problem TEXT,"
-                            + "fix_advice TEXT,"
-                            + "summary_text TEXT,"
-                            + "detail_text TEXT,"
-                            + "ext_json TEXT"
-                            + ")");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "
-                            + "shadow_promotion_cache"
-                            + " ("
-                            + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + "promotion_key TEXT UNIQUE,"
-                            + "domain_key TEXT,"
-                            + "domain_type TEXT,"
-                            + "created_at INTEGER DEFAULT 0,"
-                            + "updated_at INTEGER DEFAULT 0,"
-                            + "total_shadow INTEGER DEFAULT 0,"
-                            + "would_hit INTEGER DEFAULT 0,"
-                            + "would_miss INTEGER DEFAULT 0,"
-                            + "would_hit_rate REAL DEFAULT 0,"
-                            + "real_bet_rate REAL DEFAULT 0,"
-                            + "promotion_status TEXT,"
-                            + "promotion_score REAL DEFAULT 0,"
-                            + "reliability REAL DEFAULT 0,"
-                            + "watch_count INTEGER DEFAULT 0,"
-                            + "blocked_count INTEGER DEFAULT 0,"
-                            + "summary_text TEXT,"
-                            + "detail_text TEXT,"
-                            + "ext_json TEXT"
-                            + ")");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "
-                            + "dynamic_freeze_matrix"
-                            + " ("
-                            + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + "freeze_key TEXT UNIQUE,"
-                            + "freeze_type TEXT,"
-                            + "freeze_value TEXT,"
-                            + "freeze_level TEXT,"
-                            + "created_at INTEGER DEFAULT 0,"
-                            + "updated_at INTEGER DEFAULT 0,"
-                            + "frozen INTEGER DEFAULT 0,"
-                            + "freeze_until_issue TEXT,"
-                            + "freeze_until_time INTEGER DEFAULT 0,"
-                            + "real_count INTEGER DEFAULT 0,"
-                            + "real_hit INTEGER DEFAULT 0,"
-                            + "real_miss INTEGER DEFAULT 0,"
-                            + "real_hit_rate REAL DEFAULT 0,"
-                            + "shadow_review_count INTEGER DEFAULT 0,"
-                            + "shadow_hit INTEGER DEFAULT 0,"
-                            + "shadow_miss INTEGER DEFAULT 0,"
-                            + "shadow_hit_rate REAL DEFAULT 0,"
-                            + "recover_need_hits INTEGER DEFAULT 0,"
-                            + "recover_need_rate REAL DEFAULT 0,"
-                            + "freeze_reason TEXT,"
-                            + "recover_hint TEXT,"
-                            + "summary_text TEXT,"
-                            + "detail_text TEXT,"
-                            + "ext_json TEXT"
-                            + ")");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "
-                            + "adaptive_judge_log"
-                            + " ("
-                            + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + "judge_key TEXT UNIQUE,"
-                            + "created_at INTEGER DEFAULT 0,"
-                            + "updated_at INTEGER DEFAULT 0,"
-                            + "base_issue TEXT,"
-                            + "target_issue TEXT,"
-                            + "position INTEGER DEFAULT 0,"
-                            + "n1 INTEGER DEFAULT 0,"
-                            + "n2 INTEGER DEFAULT 0,"
-                            + "n3 INTEGER DEFAULT 0,"
-                            + "k3_mask INTEGER DEFAULT 0,"
-                            + "final_p REAL DEFAULT 0,"
-                            + "dynamic_gate REAL DEFAULT 0,"
-                            + "edge REAL DEFAULT 0,"
-                            + "teacher_status TEXT,"
-                            + "v20_status TEXT,"
-                            + "window_state_key TEXT,"
-                            + "judge_status TEXT,"
-                            + "judge_score REAL DEFAULT 0,"
-                            + "judge_risk REAL DEFAULT 0,"
-                            + "pass INTEGER DEFAULT 0,"
-                            + "downgrade_to_shadow INTEGER DEFAULT 0,"
-                            + "freeze INTEGER DEFAULT 0,"
-                            + "promote_shadow_candidate INTEGER DEFAULT 0,"
-                            + "freeze_key TEXT,"
-                            + "freeze_level TEXT,"
-                            + "reason_text TEXT,"
-                            + "module_advice TEXT,"
-                            + "summary_text TEXT,"
-                            + "detail_text TEXT,"
-                            + "ext_json TEXT"
-                            + ")");
-        db.execSQL("CREATE TABLE IF NOT EXISTS "
-                            + "diagnosis_fix_plan"
-                            + " ("
-                            + "_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + "plan_key TEXT UNIQUE,"
-                            + "created_at INTEGER DEFAULT 0,"
-                            + "updated_at INTEGER DEFAULT 0,"
-                            + "file_name TEXT,"
-                            + "priority INTEGER DEFAULT 0,"
-                            + "overall_problem TEXT,"
-                            + "problem_evidence TEXT,"
-                            + "why_this_file TEXT,"
-                            + "what_to_change TEXT,"
-                            + "expected_effect TEXT,"
-                            + "risk_if_not_change TEXT,"
-                            + "dependency TEXT,"
-                            + "new_engine_needed INTEGER DEFAULT 0,"
-                            + "strategy_gap TEXT,"
-                            + "risk_warning TEXT,"
-                            + "summary_text TEXT,"
-                            + "detail_text TEXT,"
-                            + "ext_json TEXT"
-                            + ")");
-        String[] tables = new String[]{"diagnosis_case_log","module_effect_cache","shadow_promotion_cache","dynamic_freeze_matrix","adaptive_judge_log","diagnosis_fix_plan"};
-        String[] definitions = new String[]{"record_key TEXT","source_type TEXT","created_at INTEGER DEFAULT 0","updated_at INTEGER DEFAULT 0","base_issue TEXT","target_issue TEXT","position INTEGER DEFAULT 0","final_p REAL DEFAULT 0","dynamic_gate REAL DEFAULT 0","edge REAL DEFAULT 0","teacher_status TEXT","v20_status TEXT","window_state_key TEXT","module_name TEXT","status TEXT","summary_text TEXT","detail_text TEXT","ext_json TEXT"};
-        for (String table : tables) {
-            java.util.HashSet<String> columns = new java.util.HashSet<>();
-            try (Cursor cursor = db.rawQuery("PRAGMA table_info(\"" + table + "\")", null)) {
-                while (cursor.moveToNext()) columns.add(cursor.getString(cursor.getColumnIndexOrThrow("name")));
-            }
-            for (String definition : definitions) {
-                String name = definition.substring(0, definition.indexOf(' '));
-                if (!columns.contains(name)) db.execSQL("ALTER TABLE \"" + table + "\" ADD COLUMN " + definition);
-            }
-        }
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_diag_case_target ON "
-                            + "diagnosis_case_log"
-                            + "(target_issue,position)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_diag_case_created ON "
-                            + "diagnosis_case_log"
-                            + "(created_at)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_diag_case_failure ON "
-                            + "diagnosis_case_log"
-                            + "(failure_type,responsible_module)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_diag_case_shadow ON "
-                            + "diagnosis_case_log"
-                            + "(decision_type,shadow_would_hit)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_module_effect_name ON "
-                            + "module_effect_cache"
-                            + "(module_name,effect_status)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_module_effect_update ON "
-                            + "module_effect_cache"
-                            + "(updated_at)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_shadow_promotion_domain ON "
-                            + "shadow_promotion_cache"
-                            + "(domain_type,domain_key)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_shadow_promotion_status ON "
-                            + "shadow_promotion_cache"
-                            + "(promotion_status,promotion_score)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_freeze_matrix_level ON "
-                            + "dynamic_freeze_matrix"
-                            + "(freeze_level,frozen)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_freeze_matrix_type ON "
-                            + "dynamic_freeze_matrix"
-                            + "(freeze_type,freeze_value)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_freeze_matrix_until ON "
-                            + "dynamic_freeze_matrix"
-                            + "(freeze_until_time)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_adaptive_judge_target ON "
-                            + "adaptive_judge_log"
-                            + "(target_issue,position)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_adaptive_judge_status ON "
-                            + "adaptive_judge_log"
-                            + "(judge_status,judge_score,judge_risk)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_adaptive_judge_created ON "
-                            + "adaptive_judge_log"
-                            + "(created_at)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_fix_plan_priority ON "
-                            + "diagnosis_fix_plan"
-                            + "(priority,file_name)");
-        db.execSQL("CREATE INDEX IF NOT EXISTS idx_fix_plan_update ON "
-                            + "diagnosis_fix_plan"
-                            + "(updated_at)");
+        for (String table : DIAGNOSIS_TABLES_CP12) installDiagnosisLoopSchemaUnitCP12(db, table);
         requireDiagnosisLoopSchemaCP12(db);
+    }
+
+    /** Called with the matching retention unit in the same Owner transaction. No readiness cache. */
+    public static void installDiagnosisLoopSchemaUnitCP12(SQLiteDatabase db, String table) {
+        if (db == null || !db.inTransaction()) throw new IllegalStateException("DIAGNOSIS_SCHEMA_OWNER");
+        int unit = -1;
+        for (int i = 0; i < DIAGNOSIS_TABLES_CP12.length; i++) if (DIAGNOSIS_TABLES_CP12[i].equals(table)) unit = i;
+        if (unit < 0) throw new IllegalArgumentException("DIAGNOSIS_SCHEMA_TABLE");
+        db.execSQL(DIAGNOSIS_CREATE_CP12[unit]);
+        java.util.HashSet<String> columns = new java.util.HashSet<>();
+        try (Cursor cursor = db.rawQuery("PRAGMA table_info(\"" + table + "\")", null)) {
+            while (cursor.moveToNext()) columns.add(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+        }
+        for (String definition : DIAGNOSIS_COLUMNS_CP12) {
+            String name = definition.substring(0, definition.indexOf(' '));
+            if (!columns.contains(name)) db.execSQL("ALTER TABLE \"" + table + "\" ADD COLUMN " + definition);
+        }
+        for (String sql : DIAGNOSIS_INDEXES_CP12[unit]) db.execSQL(sql);
     }
 
     /** Runtime readers never create schema or write a migration receipt. */
