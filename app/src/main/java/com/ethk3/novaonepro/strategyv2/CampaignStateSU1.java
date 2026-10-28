@@ -21,13 +21,26 @@ public final class CampaignStateSU1 implements AutoCloseable {
         try{ByteArrayOutputStream raw=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new CooperativeOutputStreamR26(new GZIPOutputStream(raw)),32768))){out.writeInt(0x53553144);out.writeInt(rows.size());for(Models.Draw row:rows){out.writeUTF(row.issue);out.writeLong(row.openTime);out.writeLong(row.fetchTime);for(int p=1;p<=10;p++)out.writeByte(row.getNumberAtPosition(p));}}return Base64.getEncoder().encodeToString(raw.toByteArray());}
         catch(IOException impossible){throw new IllegalStateException(impossible);}
     }
-    /** Canonical store history is already ascending; normalize by issue rather than reversing it. */
-    static List<Models.Draw> chronologicalHistory(List<Models.Draw> source){
-        List<Models.Draw> rows=new ArrayList<>(source);long captured=System.currentTimeMillis();
-        for(Models.Draw row:rows)if(row==null||!row.isValid()||row.dirty!=0||!TargetIssueResolver.isValid(row.issue)||row.fetchTime<=0||row.fetchTime>captured)throw new IllegalStateException("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE");
-        Collections.sort(rows,(left,right)->left.issue.compareTo(right.issue));String previous=null;
-        for(Models.Draw row:rows){ExecutionBudgetR26.poll();if(previous!=null&&!TargetIssueResolver.exact(previous,row.issue).valid)throw new IllegalStateException("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE");previous=row.issue;}return rows;
+    /** R27-017: segment-aware history. Invalid/dirty/future-fetched rows are excluded (counted), never repaired;
+     * a missing issue starts a new causally consecutive segment instead of throwing. The SU1 kernel needs one
+     * consecutive sequence, so it receives the newest segment; rows of older segments are SKIPPED_GAP. */
+    static final class Segmented {
+        final List<Models.Draw> rows;final int segments,invalid,skippedGap;
+        Segmented(List<Models.Draw> rows,int segments,int invalid,int skippedGap){this.rows=rows;this.segments=segments;this.invalid=invalid;this.skippedGap=skippedGap;}
     }
+    static Segmented segmentedHistory(List<Models.Draw> source){
+        List<Models.Draw> rows=new ArrayList<>();long captured=System.currentTimeMillis();int invalid=0;
+        for(Models.Draw row:source){if(row==null||!row.isValid()||row.dirty!=0||!TargetIssueResolver.isValid(row.issue)||row.fetchTime<=0||row.fetchTime>captured)invalid++;else rows.add(row);}
+        Collections.sort(rows,(left,right)->left.issue.compareTo(right.issue));
+        int start=0,segments=rows.isEmpty()?0:1;String previous=null;
+        for(int i=0;i<rows.size();i++){ExecutionBudgetR26.poll();String issue=rows.get(i).issue;
+            if(previous!=null&&!TargetIssueResolver.exact(previous,issue).valid){start=i;segments++;}
+            previous=issue;}
+        return new Segmented(new ArrayList<>(rows.subList(start,rows.size())),segments,invalid,start);
+    }
+    /** Canonical store history is already ascending; normalize by issue rather than reversing it.
+     * Returns the newest consecutive segment (R27-017; previously any gap threw SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE). */
+    static List<Models.Draw> chronologicalHistory(List<Models.Draw> source){return segmentedHistory(source).rows;}
     static int[][] unpack(String payload){
         if(payload==null||payload.length()>1048576)throw new IllegalArgumentException("SU1_DATASET_BYTES");
         try(DataInputStream in=new DataInputStream(new BufferedInputStream(new CooperativeInputStreamR26(new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(payload)))),32768))){
@@ -47,7 +60,10 @@ public final class CampaignStateSU1 implements AutoCloseable {
                 List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result IN ('EVALUATED','REJECTED')",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(store.readable(),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
             }}
         }
-        List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));if(rows.size()<3400)return null;rows=chronologicalHistory(rows);
+        List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));if(rows.size()<3400)return null;
+        Segmented segmented=segmentedHistory(rows);rows=segmented.rows;
+        store.setState("r27_su1_history_segments","segments="+segmented.segments+"|invalid="+segmented.invalid+"|SKIPPED_GAP="+segmented.skippedGap+"|newestSegmentRows="+rows.size());
+        if(rows.size()<3400)return null; // newest consecutive segment too short: wait for more draws (reported, not thrown)
         long through=LiveShadowLoopSU1.sequence(rows.get(rows.size()-1).issue);
         try(Cursor c=store.readable().rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%CONTINUOUS_CREATION%'",null)){if(c.moveToFirst()&&!c.isNull(0)&&through-c.getLong(0)<300)return null;}
         String payload=dataset(rows),hash=HashingSU1.text(payload);int[][] d=unpack(payload);StrategyFoundrySU1 f=new StrategyFoundrySU1(d,hash,through,24,3);

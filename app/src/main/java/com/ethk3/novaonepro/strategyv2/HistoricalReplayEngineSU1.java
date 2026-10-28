@@ -10,6 +10,8 @@ public final class HistoricalReplayEngineSU1 {
         public final int[] position,mask;
         public final double[] gate;
         public final String[] probeScores=new String[64];
+        /** R27-017 rows not acted on because their window crosses a missing issue. */
+        public int skippedGap;
         Replay(int n){act=new boolean[n];hit=new boolean[n];position=new int[n];mask=new int[n];gate=new double[n];Arrays.fill(gate,Double.NaN);}
         public int actions(int a,int b){int n=0;for(int t=a;t<b;t++)if(act[t])n++;return n;}
         public int hits(int a,int b){int n=0;for(int t=a;t<b;t++)if(act[t]&&hit[t])n++;return n;}
@@ -33,6 +35,15 @@ public final class HistoricalReplayEngineSU1 {
         if(lo<0||hi>v.length||lo>=hi||q<0||q>1)throw new IllegalArgumentException("SU1_QUANTILE");
         double[] x=Arrays.copyOfRange(v,lo,hi);for(double d:x)if(!Double.isFinite(d))throw new IllegalArgumentException("SU1_GATE_HISTORY_MISSING");
         Arrays.sort(x);double pos=(x.length-1)*q;int i=(int)Math.floor(pos);return i+1<x.length?x[i]+(pos-i)*(x[i+1]-x[i]):x[i];
+    }
+    /** R27-017 segment-aware replay: rows whose lag window crosses a missing issue (gapBefore[t] true for the first
+     * row after a hole, and the following 720-row warm-up of the new segment) are SKIPPED_GAP: no action, counted. */
+    public static Replay run(int[][] draws,boolean[] gapBefore,String text,double coverage,boolean margin,int start,int end,BudgetTokenSU1 budget){
+        Replay r=run(draws,text,coverage,margin,start,end,budget);
+        if(gapBefore==null)return r;
+        int lastGap=Integer.MIN_VALUE/2;
+        for(int t=0;t<end;t++){if(t<gapBefore.length&&gapBefore[t])lastGap=t;if(t-lastGap<720&&t>=lastGap){r.act[t]=false;r.skippedGap++;}}
+        return r;
     }
     public static Replay run(int[][] draws,String text,double coverage,boolean margin,int start,int end,BudgetTokenSU1 budget){
         if(start<1||end<=start||end>draws.length||draws.length>20000||coverage<=0||coverage>1)throw new IllegalArgumentException("SU1_REPLAY_RANGE");
