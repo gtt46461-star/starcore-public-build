@@ -51,18 +51,19 @@ def full_report_job():
 
 
 def main():
-    receipt={'schema':'R26_REPORT_UI_TO_ZIP_V1','status':'RUNNING','scope':'API29_ACTUAL_APP_UI_AND_DIAGNOSTIC_EXPORT_NOT_USER_DATABASE_OR_STRATEGY_QUALITY','sourceCommit':Path('delivered/package-receipt/source-commit.txt').read_text().strip(),'packageVersion':577271028}
-    assert receipt['sourceCommit']=='60f2bfad6d75ae55e1ef1faa6053c1941c5fd8fa'
+    receipt={'schema':'R26_REPORT_UI_TO_ZIP_V1','status':'RUNNING','scope':'API29_ACTUAL_APP_UI_AND_DIAGNOSTIC_EXPORT_NOT_USER_DATABASE_OR_STRATEGY_QUALITY','sourceCommit':Path('delivered/package-receipt/source-commit.txt').read_text().strip(),'packageVersion':577271029}
+    assert re.fullmatch('[0-9a-f]{40}',receipt['sourceCommit'])
     started=time.monotonic();stages=[]
     try:
         wait_ready();apk=glob.glob('delivered/app/build/outputs/apk/debug/*.apk');assert len(apk)==1
         adb('shell','input','keyevent','224');adb('shell','wm','dismiss-keyguard',check=False)
         adb('shell','settings','put','system','screen_off_timeout','1800000')
         adb('shell','svc','power','stayon','true',check=False)
+        receipt['debugApkSha256']=hashlib.sha256(Path(apk[0]).read_bytes()).hexdigest()
         assert b'Success' in adb('install','-r',apk[0]);assert b'Success' in adb('shell','pm','clear',PKG)
         receipt['appPrivateDirectory']=adb('exec-out','run-as',PKG,'pwd').decode('utf-8','replace').strip()
         receipt['appPrivateFilesCanonical']=adb('exec-out','run-as',PKG,'readlink','-f','files',check=False).decode('utf-8','replace').strip()
-        package=adb('shell','dumpsys','package',PKG).decode('utf-8','replace');assert 'versionCode=577271028' in package
+        package=adb('shell','dumpsys','package',PKG).decode('utf-8','replace');assert 'versionCode=577271029' in package
         adb('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity')
         deadline=time.monotonic()+180
         while time.monotonic()<deadline:

@@ -27,8 +27,13 @@ on:
         type: string
         required: false
         default: ''
+      reportfix_ui_run_id:
+        description: Successful actual UI-to-ZIP probe matching the repair package
+        type: string
+        required: false
+        default: ''
       probe_report_export:
-        description: Exercise the actual UI to final report ZIP for the fixed source119 APK
+        description: Exercise the actual UI to final report ZIP for the fixed source120 APK
         type: boolean
         required: false
         default: false
@@ -233,41 +238,43 @@ jobs:
           GH_REPO: ${{ github.repository }}
           VERIFIED_RUN: ${{ inputs.reportfix_run_id }}
           VERIFIED_SHA: ${{ inputs.reportfix_apk_sha256 }}
+          VERIFIED_UI_RUN: ${{ inputs.reportfix_ui_run_id }}
         run: |
           python3 - <<'PY'
           import os,re
-          assert os.environ['VERIFIED_RUN']=='40653752513'
+          assert os.environ['VERIFIED_RUN']=='40661966851'
+          assert os.environ['VERIFIED_UI_RUN'].isdecimal()
           assert re.fullmatch('[0-9a-f]{64}',os.environ['VERIFIED_SHA'])
           PY
           gh api repos/$GH_REPO/actions/runs/$VERIFIED_RUN > repair-workflow.json
           gh api 'repos/'$GH_REPO'/actions/runs/'$VERIFIED_RUN'/jobs?per_page=100' > repair-jobs.json
           gh run download "$VERIFIED_RUN" --name R13-build-and-evidence --dir verified-repair
           gh run download "$VERIFIED_RUN" --name R13-Android-runtime-29 --dir runtime-repair
-          gh api repos/$GH_REPO/actions/runs/40655824356 > repair-ui-workflow.json
+          gh api repos/$GH_REPO/actions/runs/$VERIFIED_UI_RUN > repair-ui-workflow.json
           python3 - <<'PY'
-          import json
+          import json,os
           r=json.load(open('repair-ui-workflow.json'))
-          assert r['id']==40655824356 and r['status']=='completed' and r['conclusion']=='success'
+          assert r['id']==int(os.environ['VERIFIED_UI_RUN']) and r['path']=='.github/workflows/build-apk.yml' and r['status']=='completed' and r['conclusion']=='success'
           PY
-          gh run download 40655824356 --name R26-report-export-ui-to-zip-source119 --dir repair-ui
-          python3 scripts/stage_r26_report_export_repair.py --build verified-repair --runtime runtime-repair --workflow repair-workflow.json --jobs repair-jobs.json --sha256 "$VERIFIED_SHA" --ui-probe repair-ui/receipt.json --out repair-public-assets
+          gh run download "$VERIFIED_UI_RUN" --name R26-report-export-ui-to-zip-source120 --dir repair-ui
+          python3 scripts/stage_r26_report_export_repair.py --build verified-repair --runtime runtime-repair --workflow repair-workflow.json --jobs repair-jobs.json --sha256 "$VERIFIED_SHA" --ui-probe repair-ui/receipt.json --ui-run-id "$VERIFIED_UI_RUN" --out repair-public-assets
       - name: Upload checked repair package and publish
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           target="$(cat repair-public-assets/source-commit.txt)"
-          gh release create r26-20261028-reportfix1 --target "$target" --title 'STARCORE R26 · 完整检测报告导出修复' --notes-file repair-public-assets/release-notes.md --draft --prerelease --latest=false
-          gh release upload r26-20261028-reportfix1 repair-public-assets/*
-          gh release view r26-20261028-reportfix1 --json assets > repair-uploaded.json
+          gh release create r26-20261028-reportfix2 --target "$target" --title 'STARCORE R26 · 完整检测报告导出修复' --notes-file repair-public-assets/release-notes.md --draft --prerelease --latest=false
+          gh release upload r26-20261028-reportfix2 repair-public-assets/*
+          gh release view r26-20261028-reportfix2 --json assets > repair-uploaded.json
           python3 - <<'PY'
           import json
           a={x['name']:x for x in json.load(open('repair-uploaded.json'))['assets']}
           r=json.load(open('repair-public-assets/R26-report-repair-delivery.json'))
-          assert a['STARCORE-R26-20261028-reportfix1.apk']['size']==r['bytes']
+          assert a['STARCORE-R26-20261028-reportfix2.apk']['size']==r['bytes']
           assert {'SHA256SUMS.txt','R26-report-repair-delivery.json','R26-native-results.json','R26-runtime-results.json'}<=a.keys()
           PY
-          gh release edit r26-20261028-reportfix1 --draft=false --prerelease --latest=false
+          gh release edit r26-20261028-reportfix2 --draft=false --prerelease --latest=false
   probe-report-export:
     if: ${{ inputs.probe_report_export }}
     runs-on: ubuntu-latest
@@ -280,7 +287,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: R13-build-and-evidence
-          run-id: 40653752513
+          run-id: 40661966851
           github-token: ${{ github.token }}
           path: delivered
       - name: Enable emulator acceleration
@@ -301,6 +308,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R26-report-export-ui-to-zip-source119
+          name: R26-report-export-ui-to-zip-source120
           path: report-export-probe/
           if-no-files-found: error
