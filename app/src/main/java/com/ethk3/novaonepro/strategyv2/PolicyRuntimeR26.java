@@ -19,5 +19,6 @@ public final class PolicyRuntimeR26 {
     public void onGap()throws IOException {if(family!=null)family.onGap();else legacy.onGap();}
     public byte[] encode()throws IOException{return family!=null?family.encode():legacy.encode();}
     public LegacyReplayStateR26 legacyState(){return legacy;}
+    ModelLiveSU2.Hub diagnosticHub(){return family!=null?family.hub:legacy.hub;}
     public float[][] table(){return live.pendingTable(family!=null?family.samples():legacy.samples());}
 }

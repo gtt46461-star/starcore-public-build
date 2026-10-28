@@ -51,7 +51,7 @@ public final class R26SchemaFingerprintDeviceTest {
         }
     }
     private static boolean originalExact(SQLiteDatabase db,Map<String,String> expected){for(Map.Entry<String,String> e:expected.entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})){if(!c.moveToFirst()||!e.getValue().equals(c.getString(0))||c.moveToNext())return false;}return true;}
-    private static void exactParity(SQLiteDatabase db,Map<String,String> expected){assertEquals(originalExact(db,expected),SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));}
+    private static void exactParity(SQLiteDatabase db,Map<String,String> expected){boolean before;try{before=originalExact(db,expected);}catch(RuntimeException original){try{SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected);fail("Batch census hid the original binding exception");}catch(RuntimeException same){assertEquals(original.getClass(),same.getClass());}return;}assertEquals(before,SchemaObjectSnapshotR26.read(db,expected.keySet()).matches(expected));}
     @Test public void exactObjectCensusPreservesDdlDuplicateAndSameVersionDriftChecks(){
         try(SQLiteDatabase db=SQLiteDatabase.create(null)){
             db.execSQL("CREATE TABLE sample(value TEXT)");db.execSQL("CREATE TABLE \"雪 x\"(value TEXT)");db.execSQL("CREATE TRIGGER keep_sample AFTER INSERT ON sample BEGIN SELECT 1; END");Map<String,String> expected=new LinkedHashMap<>();

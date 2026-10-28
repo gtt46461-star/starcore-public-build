@@ -20,6 +20,14 @@ public final class R26DeviceTest {
         db.beginTransaction();try{db.execSQL("INSERT INTO r26_task(task_id,lane,mechanism) VALUES('test','P2','test')");}finally{db.endTransaction();}
         try(Cursor c=db.rawQuery("SELECT count(*) FROM r26_task",null)){assertTrue(c.moveToFirst());assertEquals(0,c.getInt(0));}
     }}
+    @Test public void measuredTrainingDetailQuotaFoldsCountsAndRejectsUnownedTrimming(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);try{TrainingStepStoreR26.trim(db);fail("Unowned training detail pruning");}catch(IllegalStateException expected){}
+        db.beginTransaction();try{
+            db.execSQL("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<8193) INSERT INTO r26_training_step(policy_hash,campaign_id,sample_ordinal,sample_issue,member_key,source_hash,source_kind,kernel_update,loss_before,loss_after,gradient_norm,parameter_delta_norm,input_hash,objective,before_state_hash,after_state_hash,gap_reset,optimizer,scope,batch_checkpoint,receipt_hash,recorded_at) SELECT 'SYNTHETIC_POLICY','SYNTHETIC_QUOTA',x,CAST(x AS TEXT),'SYNTHETIC_MEMBER','SYNTHETIC_SOURCE','SYNTHETIC_QUOTA_FIXTURE',x,0,0,0,0,'SYNTHETIC_INPUT','SYNTHETIC_QUOTA_ONLY','before','after',0,'SYNTHETIC','SYNTHETIC_ONLY','SYNTHETIC_CHECKPOINT',lower(hex(zeroblob(32))),x FROM n");
+            TrainingStepStoreR26.trim(db);try(Cursor c=db.rawQuery("SELECT count(*),min(sample_ordinal),max(sample_ordinal) FROM r26_training_step",null)){assertTrue(c.moveToFirst());assertEquals(8192,c.getInt(0));assertEquals(2,c.getInt(1));assertEquals(8193,c.getInt(2));}TrainingStepStoreR26.trim(db);try(Cursor c=db.rawQuery("SELECT folded FROM r26_retention_total WHERE kind='training_step_details'",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getInt(0));}
+            assertFalse("Synthetic quota placeholders must not validate as measured receipts",TrainingStepStoreR26.verify(db));db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
     @Test public void feedbackIsUniqueAndConflictingSourceRollsBack(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
         schema(db);Models.Draw d=new Models.Draw();d.issue="202610270001";d.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};d.openTime=1000;d.fetchTime=1001;
         db.beginTransaction();try{RuntimeSchemaR26.feedbackWithinTransaction(db,d);RuntimeSchemaR26.feedbackWithinTransaction(db,d);db.setTransactionSuccessful();}finally{db.endTransaction();}

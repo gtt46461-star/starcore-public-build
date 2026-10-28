@@ -104,6 +104,13 @@ public final class ModelReplaySU2 {
         if(kind.equals("R26F01")&&p.containsKey("lags")){if(!"1".equals(p.get("abi"))||p.size()!=3||!p.get("lags").matches("[1-8]")||!Arrays.asList("true","false").contains(p.get("cross")))throw new IllegalArgumentException("F01_GRAPH_PARAMETERS");return new FamilyF01KernelR26(Integer.parseInt(p.get("lags")),Boolean.parseBoolean(p.get("cross")));}
         if(kind.equals("R26F02")&&p.containsKey("graph")){if(!"1".equals(p.get("abi"))||p.size()!=3||!p.get("graph").matches("[0-2]")||!Arrays.asList("true","false").contains(p.get("factors")))throw new IllegalArgumentException("F02_GRAPH_PARAMETERS");return new FamilyF02KernelR26(Integer.parseInt(p.get("graph")),Boolean.parseBoolean(p.get("factors")));}
         if(kind.equals("R26F08")&&p.containsKey("K")){if(!"1".equals(p.get("abi"))||p.size()!=3||!String.valueOf(p.get("K")).matches("[2-6]")||!Arrays.asList("true","false").contains(p.get("transition")))throw new IllegalArgumentException("F08_GRAPH_PARAMETERS");return new FamilyF08KernelR26(Integer.parseInt(p.get("K")),Boolean.parseBoolean(p.get("transition")));}
+        if(kind.equals("R26F19")){
+            if(p.equals(Collections.singletonMap("abi","1")))return new FamilyF19KernelR26(.02);
+            if(p.size()!=6||!"1".equals(p.get("abi"))||!"2".equals(p.get("tensor"))||!"ADAGRAD_V1".equals(p.get("optimizer"))||!Arrays.asList("true","false").contains(p.get("position"))||!Arrays.asList("NONE","FIRST_POSITION_HALF").contains(p.get("state"))||!Arrays.asList("NONE","NO_POSITION","NO_STATE").contains(p.get("control")))throw new IllegalArgumentException("F19_TENSOR_PARAMETERS");
+            boolean position=Boolean.parseBoolean(p.get("position")),state=!"NONE".equals(p.get("state"));String control=p.get("control");
+            if(!position&&state||control.equals("NONE")&&!position||control.equals("NO_POSITION")&&(position||state)||control.equals("NO_STATE")&&(!position||state))throw new IllegalArgumentException("F19_TENSOR_CONTROL_GRAPH");
+            return new FamilyF19TensorR26(.02,position,state);
+        }
         if(kind.equals("R26F20")){
             if(p.equals(Collections.singletonMap("abi","1")))return build("REGMEM",ModelEvolutionSU2.centralParams("REGMEM"));
             if(!"1".equals(p.get("abi"))||!"1".equals(p.get("fragments"))||p.size()!=4||!Arrays.asList("8","16","24","32").contains(p.get("slots"))||!Arrays.asList("MATCH","NONE","MISMATCH","EXPIRED").contains(p.get("retrieval")))throw new IllegalArgumentException("F20_GRAPH_PARAMETERS");

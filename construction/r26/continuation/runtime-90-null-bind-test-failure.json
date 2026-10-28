@@ -1,0 +1,22 @@
+{
+  "runId": 40603064640,
+  "source": "a4ed163135747b67c444d9503801f759ca9b3ca5",
+  "compiledSource": "c308a7a0b51b1f144f6b9f4a6f070a81d0811161",
+  "api29JobId": 122540490790,
+  "artifactId": 12779947874,
+  "artifactSha256": "62109d1742b40a3f5b131d8293caa32475deeb499f3a59e1c24223174f401e3a",
+  "status": "NATIVE_EXACT_CENSUS_TEST_HARNESS_FAILURE; SCHEMA_MIGRATION_CLASS_NOT_RUN; ENDURANCE_SKIPPED",
+  "cause": "The original predicate correctly threw Android IllegalArgumentException for a null rawQuery String argument. The new parity test did not yet compare exceptions. The product long DDL maps use non-null names.",
+  "fix": "Retain the null case and compare the exception class; host test transport now enforces the Android bind contract. No product binding exception is suppressed.",
+  "scope": "SYNTHETIC_ENGINEERING_FAILURE_RECORD_NOT_ACCEPTANCE",
+  "raw": [
+    {
+      "path": "raw/source90-api29-runtime.json.gz",
+      "uncompressedSha256": "388361c4d206f7839bb851418542a93a0a4d8a828c862568c3975e10ec9b4de7"
+    },
+    {
+      "path": "raw/source90-api29-instrumentation.txt.gz",
+      "uncompressedSha256": "e79b4b19f1a57b50b41af4fddb9c07179fa69256dd37800230d8c8482943faae"
+    }
+  ]
+}
