@@ -1,0 +1,106 @@
+# STARCORE R27 交付说明
+
+- **分支**：`construction/r27-20261028`。从 `fix/r26-report-export-20261028@1713d114ebbd07ebd6544a29acfbce1bd883215c` 开出；未改 main，未删任何分支。
+- **方案**：`construction/plans/STARCORE_R27_FINAL_20261028`，从 main@4b28696 原样复制。
+- **版本**：R27-2026.10.28，versionCode **577271030**（基线为 577271029）。
+
+## 1. 结论
+
+### 四项签收（docs/12）
+
+| 签收项 | 状态 |
+|---|---|
+| 工程完成（58卡全部“已修改”，HOST H01–H18 通过，构建身份一致） | **部分完成**。H01–H18 全部通过（本地 + CI）；构建身份一致。58 卡中 42 张“已修改待设备验证”，16 张仍为“未施工”，缺项见第4节。 |
+| 能力完成（真机 24 小时） | **未执行**：本施工环境没有真机。 |
+| 质量报告（R27-01..04 + 19 章） | 代码已接数据源，空数据只显示 INSUFFICIENT。真实报告须在设备上导出核对：**未执行**。 |
+| 设备矩阵 + 可回滚到 1713d11 | 真机**未执行**。CI 模拟器（API 34）做了升级→回滚→再升级，结果见第3节。模拟器结果不计为设备验证。 |
+
+### 主链规则未改
+
+以下文件与 1713d11 **逐字节相同**：DecisionGateEngine、SettlementEngine、V51DecisionGateCore、CertificateBundleServiceR929、AppConfig、MainlineAdapterSU2、DbStore。H15 测试已核对 SHA256。规则不加严，也不放松：
+
+- HR≥34% 且质量门通过才可 REAL；每期最多一次 REAL。
+- 不设频率配额；禁止追期、马丁、加倍、补单、多位置真实、动态K。
+
+R27 影子拿到 ACTIVE 证书后，只作为“意图”交给现有授权链，**没有新增任何 REAL 授权路径**。
+
+## 2. APK
+
+| 项目 | 值 |
+|---|---|
+| 构建 | GitHub Actions run 40758444513，commit 301c6f7 |
+| 下载 | https://github.com/gtt46461-star/starcore-public-build/actions/runs/40758444513/artifacts/12847302905 （`R27-build-and-evidence`） |
+| 文件 | `Starcore-Tianshu-R27-2026.10.28-debug.apk` |
+| SHA256 | `f58fb441c12fbcffb45cc6e866911b423df4a4e0a05c29eb93f72ec59c0ba5e5` |
+| 包名 / versionCode / versionName | com.starcore.research.r13 / 577271030 / R27-2026.10.28 |
+| 签名证书 SHA-256 | `709f1fca2c80f4af3f1a3a5917f7f99b5ca4cbc84969f6bcb4fb6b110afb6e0b` —— **CI 临时密钥，不是正式 R13 签名** |
+
+**如实说明（签名）**
+
+1. 正式签名私钥在 Actions 缓存 `starcore-su1-api-transport-v1` 中。该缓存建于 `construction/su1-20261022` 分支，本分支读不到。
+2. 因此本 APK 用临时 CI 密钥签名，**不能覆盖安装到现有正式版之上**（签名不同）。正式版证书 SHA-256 为 9e6d5dc7…3eca。
+3. release 变体需要同一缓存中的内置 API 凭据（R995），所以只构建了 debug 变体。
+4. 要得到正式签名包，需要在能访问该缓存的分支上运行，或由您用正式密钥签名。workflow 已支持：缓存可读时自动走正式签名和 release 构建。
+
+## 3. 测试摘要
+
+| 测试 | 结果 | 证据 |
+|---|---|---|
+| H01 泄漏（23 叶子 × 138 检查，240 原子） | 通过 | evidence/r27/host/junit_r27_local.log |
+| H02/H03 回放逐位一致、缺口切片 | 通过 | 同上 |
+| H04/H05 出生门枚举、无效变异 | 通过 | 同上 |
+| H06 植入信号 → VERIFIED（留出 HR 63.9%） | 通过 | 同上 |
+| H07 无信号 100 次 → VERIFIED 率 0% | 通过 | 同上 |
+| H08 1000 个零策略 × 20000 期，错误授证 0 | 通过 | 同上 |
+| H09 HR35% 中位停时 7676 期（≤10000） | 通过 | 同上 |
+| H10/H11 语义 ABI：只改界面全部 EQUIVALENT；改 fdecay 只有 2 个相关策略 CHANGED，首差正确 | 通过 | 同上 |
+| H12 进化 18 步逐步杀进程恢复，事件完全一致 | 通过 | 同上 |
+| H13 校准注入 5% 迟到行，逐行剔除不整批作废 | 通过 | 同上 |
+| H14 100 面 / 1200 动作，最大误差 2.8e-14 | 通过 | 同上 |
+| H15 主链红线（Java + SQL：无证书 / 过期 / 吊销 / 同期第二次 / 冻结改写 / 结算后追单 全部拒绝） | 通过 | 同上 + evidence/r27/host/migration.log |
+| H16 AtomNet：植入信号带下界>0；无信号带含0（3 种子） | 通过 | junit 日志 |
+| H17 空数据报告全部 INSUFFICIENT，无 PASS | 通过 | 同上 |
+| H18 零假设脚本复现发表结果（431 项，最大差 0） | 通过 | evidence/r27/host/h18_compare.log |
+| R27-056 Java 同构（A ±0.47pp，D 完全一致） | 通过 | junit 日志 |
+| 迁移 M1–M6（1713d11 形态数据库增量升级、无数据丢失、可重复、七计数） | 通过 | migration.log |
+| 仓库原有套件 verify_strategy_su1 / verify_plan1025 / verify_r26、全部 testDebugUnitTest、lintRelease | 通过（CI） | CI run 40758444513 |
+| 模拟器 API 34：1713d11 → R27 → 回滚 1713d11 → R27 | 运行中，结果补在 PR 中 | CI 工件 `R27-emulator-api34` |
+
+本地共 31 个 R27 JUnit 测试 `OK (31 tests)`，用时 428 秒。
+
+## 4. 未完成项与原因（如实）
+
+16 张卡仍为“未施工”，每张的缺项写在 `evidence/r27/<卡>/card.json` 和注册表的 `construction_note` 中。
+
+| 卡 | 状态与原因 |
+|---|---|
+| R27-003 / 004 / 009 | 代码已提交（线程池、写队列、启动/停止顺序）。行为需要 Android SQLite 与真机测量；HOST 无法测试。 |
+| R27-012 | 语义 ABI 已接入 LegacyReplayR26；BLOCKED_NUMERICAL_ABI_PRESERVED=0 须在有 R26 数据的设备上升级后观察。R26 live_model 身份仍含源码ABI，未改。 |
+| R27-018 / 019 / 048 | 代码已提交，无 HOST 测试。R908 基因组是有状态程序，全部记为 LEGACY_NOT_REPRODUCIBLE。 |
+| R27-020 | 旧学习器/R943 网络权重形状与 AtomNetR27 不同，**没有做热启动**。验收“导入后立即有回放成绩”未达成。 |
+| R27-039 | 只实现了 R27 冠军消融；R26 反馈/审计任务未改。 |
+| R27-046 / 047 | 退役开关已加，观察期未运行；数据库归档压缩**未实施**（门控在旧链退役之后）。 |
+| R27-049 / 050 / 053 | 图表与 19 章数据源已接；首屏耗时、24 小时 READY、真实报告须真机核对。 |
+| R27-057 | 真机设备矩阵**未执行**（本环境没有真机）。 |
+| R27-058 | 没有正式签名包（见第2节）；真机覆盖安装与回滚未执行。回滚方案见 `release/R27_ROLLBACK_PLAN.md`。 |
+
+### 其他偏差与需要您决定的事项
+
+- **思路族文件位置**：14 个思路族文件平铺在 `strategyv2/`，方案写的是 `idea/` 子目录。功能等价。
+- **AtomNet 训练入口**：`AtomicToolWorldR943` 未改为调用 AtomNetR27。旧网络并行保留；R27 训练在 `RuntimeR27` 的 atomnet 任务中。
+- **原子评分口径（R27-043，需您决定）**：
+  - 按 docs/07“上界<0 即 HARMFUL”，纯噪声原子因 5 分箱估计方差常被判 HARMFUL，而不是 NEUTRAL。
+  - 这只影响生成器权重（×0.25），不影响资格。
+  - 未改口径。是否改为与打乱对照配对比较，需要您决定。
+- **AtomNet 样本量**：HOST 实测，只用 3000 条训练样本时，无信号数据上有 4/12 次显著差于基线（过拟合）。按方案的样本量（约 5 万）为 12/12 含 0。这说明历史预训练的样本量很重要。
+- **提交粒度**：提交按 4 组完成（方案 / 纯计算核心 / Android 接入 / 身份与证据），未按 8 个批次逐一提交，因为 Android 接入文件被多个批次共用。每个提交都单独做了 javac 编译检查；完整 Gradle 构建只在最终提交上执行。
+
+## 5. 复现命令
+
+```
+./gradlew :app:testDebugUnitTest                      # H01–H17、R27-056 及全部原有单测
+CLASSES=<javac classes> ANDROID_JAR=<android.jar> tools/r27/run_host_tests.sh   # H18、迁移、H15 SQL
+python3 tools/r27/make_evidence.py                     # 重新生成 evidence/r27 与卡片状态
+```
+
+**质量结论**由安装后的报告 R27-01 章按数据自动选择模板。“未发现在 FUTURE 上显著优于随机的策略”是合法结论。本交付不预设、不手写任何质量结论。
