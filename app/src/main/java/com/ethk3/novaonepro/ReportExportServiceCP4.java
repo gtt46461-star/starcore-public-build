@@ -97,7 +97,7 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private static void kick(Context app,String action,String id){Intent intent=new Intent(app,ReportExportServiceCP4.class).setAction(action).putExtra("id",id);
         if(Build.VERSION.SDK_INT>=26)app.startForegroundService(intent);else app.startService(intent);}
-    private static File requestRoot(Context app)throws IOException{File root=new File(app.getFilesDir(),"r981_reports");if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_ROOT_CREATE");return root;}
+    private static File requestRoot(Context app)throws IOException{return ReportDirectoriesCP12.root(app.getFilesDir());}
     private static void requestFailure(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));File root=requestRoot(app);try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error));}catch(Exception unavailable){failure.put("recoveryFailure",boundedReason(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage()));}ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
     private static String id(String mode){return RetentionArchiveProtocolCP12.sha(("REPORT_CP12|"+ReleaseManifestR926.MANIFEST_SHA256+"|"+mode+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));}
     private static void requireHash(String value)throws IOException{if(value==null||!value.matches("[0-9a-f]{64}"))throw new IOException("REPORT_HASH");}
