@@ -60,6 +60,8 @@ def main():
         adb('shell','settings','put','system','screen_off_timeout','1800000')
         adb('shell','svc','power','stayon','true',check=False)
         assert b'Success' in adb('install','-r',apk[0]);assert b'Success' in adb('shell','pm','clear',PKG)
+        receipt['appPrivateDirectory']=adb('exec-out','run-as',PKG,'pwd').decode('utf-8','replace').strip()
+        receipt['appPrivateFilesCanonical']=adb('exec-out','run-as',PKG,'readlink','-f','files',check=False).decode('utf-8','replace').strip()
         package=adb('shell','dumpsys','package',PKG).decode('utf-8','replace');assert 'versionCode=577271028' in package
         adb('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity')
         deadline=time.monotonic()+180
@@ -87,6 +89,11 @@ def main():
         x=(selected[0]+selected[2])//2;y=(selected[1]+selected[3])//2
         adb('shell','input','tap',str(x),str(y))
         receipt['uiTrigger']='VISIBLE_MAIN_ACTIVITY_DIAGNOSIS_BUTTON'
+        time.sleep(2);opened=dump_ui('diagnosis-opened')
+        for node in opened.iter('node'):
+            if node.get('resource-id','').endswith(':id/txt_diagnosis_full'):
+                text=node.get('text','')
+                if text.startswith(('完整报告','完整检测','检测报告状态','详情未通过')):receipt['uiExportStatus']=text[:512]
         deadline=time.monotonic()+480;job=None;firstPoll=time.monotonic()
         while time.monotonic()<deadline:
             pointer=json_file(ROOT+'/current-job.json')
@@ -127,6 +134,7 @@ def main():
             try:
                 dump_ui('failure-ui')
                 listing=adb('exec-out','run-as',PKG,'find',ROOT,'-maxdepth','3','-type','f',check=False);(OUT/'report-files.txt').write_bytes(listing)
+                receipt['reportRootCanonical']=adb('exec-out','run-as',PKG,'readlink','-f',ROOT,check=False).decode('utf-8','replace').strip()
                 (OUT/'report-logcat.txt').write_bytes(adb('logcat','-d','-s','ReportExportCP12:V','AndroidRuntime:E','*:S',check=False))
                 failures=[]
                 for path in listing.decode('utf-8','replace').splitlines():
