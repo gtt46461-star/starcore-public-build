@@ -1,0 +1,28 @@
+{
+  "status": "PASS_HOST_LEASE_LIFECYCLE_AND_SDK_COMPILE_PENDING_MATCHING_SOURCE_ANDROID_RUNTIME",
+  "scope": "ENGINEERING_ONLY_NO_CLAIM_OF_LOCKED_ENDURANCE_FIX_YET",
+  "triggerEvidence": "endurance-102-locked-suspend-failure.json",
+  "sourceSha256": "ee2cd6ecc9672f1d6cdfead7c8d74379ee9b3b2381eb682122281235bc8dc821",
+  "lease": {
+    "owner": "Explicitly enabled RuntimeCoordinator session",
+    "type": "PARTIAL_WAKE_LOCK",
+    "maxHoldMs": 60000,
+    "renewAfterMs": 15000,
+    "stop": "finally after worker drain, independent from prediction lease",
+    "powerEligibility": "No screen or charging prerequisite",
+    "deadlineMetric": "Original elapsedRealtime wall deadlines unchanged"
+  },
+  "hostTest": "R26_POWER_LEASE_BOUNDED_RENEWAL_STOP_PASS",
+  "sdkProductionSources": 1081,
+  "changedNativeCompile": "PASS",
+  "nativeTestCount": 109,
+  "nativeRuntime": "PENDING",
+  "telemetry": [
+    "held and renewal count",
+    "elapsedRealtime minus uptimeMillis deep sleep delta",
+    "process importance",
+    "battery optimization status",
+    "dumpsys power and deviceidle on exit"
+  ],
+  "protocolRegression": "PASS_26_R26_GROUPS"
+}

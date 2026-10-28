@@ -16086,8 +16086,8 @@ public final class AutoFetchService extends Service {
         }
     }
 
-    // R81: no service-lifetime or heartbeat wake lease. Each current prediction
-    // owns a bounded PredrawWakeLeaseR81 from PIT freeze to durable canonical commit.
+    // Prediction keeps its bounded R81 PIT-to-canonical lease. R26 continuous
+    // research separately owns an OS-timed CPU lease while the user session is enabled.
 
     private void ensureRuntimeLoopsAliveV17(String reason) {
         if (!running || userRequestedStopV5 || !runtimeInitialized) return;

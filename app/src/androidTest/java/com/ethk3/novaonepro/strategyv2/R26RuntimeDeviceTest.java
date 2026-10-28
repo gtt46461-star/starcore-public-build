@@ -44,7 +44,7 @@ public final class R26RuntimeDeviceTest {
     private static boolean table(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
     private static Models.Draw draw(long first,int index,long opened){Models.Draw d=new Models.Draw();d.issue=TargetIssueResolver.fromSequenceOrdinalSU1(first+index);d.numbers=new int[10];for(int p=0;p<10;p++)d.numbers[p]=(p+index%7)%10+1;d.openTime=opened+index*60000L;d.fetchTime=d.openTime+1000;return d;}
     private static void waitStopped(SQLiteDatabase db)throws Exception {long end=System.nanoTime()+10_000_000_000L;while(System.nanoTime()<end){if(scalar(db,"SELECT count(*) FROM r26_session WHERE user_enabled=1")==0)return;Thread.sleep(20);}fail("coordinator did not persist stop");}
-    private static void drain(RuntimeCoordinatorR26 runtime)throws Exception {java.lang.reflect.Field field=RuntimeCoordinatorR26.class.getDeclaredField("worker");field.setAccessible(true);Thread worker=(Thread)field.get(runtime);worker.join(10000);assertFalse("coordinator thread did not drain",worker.isAlive());}
+    private static void drain(RuntimeCoordinatorR26 runtime)throws Exception {java.lang.reflect.Field field=RuntimeCoordinatorR26.class.getDeclaredField("worker");field.setAccessible(true);Thread worker=(Thread)field.get(runtime);worker.join(10000);assertFalse("coordinator thread did not drain",worker.isAlive());assertFalse("stopped coordinator retained its CPU lease",runtime.isCpuLeaseHeld());}
     static void remove(File f){File[] children=f.listFiles();if(children!=null)for(File child:children)remove(child);if(f.exists())assertTrue(f.delete());}
 
     @Test public void allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()throws Exception {
@@ -59,7 +59,7 @@ public final class R26RuntimeDeviceTest {
             }
             result.put("familyMechanismsWithCommittedProgress",families).put("expertsWithActualReceipts",experts).put("allMechanismsServiceMillis",(System.nanoTime()-start)/1000000);
             long readyAt=scalar(db,"SELECT last_progress FROM r26_task WHERE task_id='schema'");long readyService=readyAt>0?Math.max(0,System.currentTimeMillis()-readyAt):-1;result.put("strategyReadyToAllMechanismsWallMs",readyService<0?JSONObject.NULL:readyService).put("firstServiceTargetMs",60000).put("firstServiceTargetObservedWithin",readyService<0?JSONObject.NULL:readyService<=60000);
-            assertEquals("Each family must commit real numerical work",24,families);assertEquals("Each expert must complete a pair sample or an audit",16,experts);
+            assertEquals("Each family must commit real numerical work",24,families);assertEquals("Each expert must complete a pair sample or an audit",16,experts);assertTrue("enabled research has no CPU lease",runtime.isCpuLeaseHeld());result.put("cpuLeaseHeldBeforePressure",true).put("cpuLeaseMaxHoldMs",RuntimePowerLeaseR26.MAX_HOLD_MS).put("cpuLeaseRenewAfterMs",RuntimePowerLeaseR26.RENEW_AFTER_MS);
             assertEquals("consecutive canonical history was rejected by the original foundry",0,scalar(db,"SELECT count(*) FROM r26_progress WHERE blocked_reason LIKE '%SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE%'"));
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_PROTECTED_PARENT_FIXTURE",writer->{writer.execSQL("INSERT OR IGNORE INTO su2_model_genome(genome_key,canonical_text,formula,tier,origin_op,born_campaign,born_sequence,state,created_at) VALUES(?,?,'SYNTHETIC','F15','INCUMBENT','SYNTHETIC',0,'LEAGUE',1)",new Object[]{IncumbentLoopSU2.KEY,XiIncumbentSU2.CANONICAL});writer.execSQL("UPDATE su2_model_genome SET val_fitness=99 WHERE genome_key=?",new Object[]{IncumbentLoopSU2.KEY});return 0;});
             long[] latency=new long[1000];Handler ui=new Handler(Looper.getMainLooper());
@@ -71,7 +71,7 @@ public final class R26RuntimeDeviceTest {
             long cut=first+HISTORY+WRITE_PROBES-5000,renewEnd=System.nanoTime()+120_000_000_000L;
             while(System.nanoTime()<renewEnd&&scalar(db,"SELECT count(*) FROM r26_foundry f JOIN r26_candidate c ON c.campaign_id=f.campaign_id WHERE f.status='RUNNING' AND f.source_first>="+cut+" AND c.cursor>0")==0)Thread.sleep(100);
             assertTrue("foundry did not renew and learn past raw retention with the protected incumbent present",scalar(db,"SELECT count(*) FROM r26_foundry f JOIN r26_candidate c ON c.campaign_id=f.campaign_id WHERE f.status='RUNNING' AND f.source_first>="+cut+" AND c.cursor>0")>0);result.put("retentionBoundaryRenewed",true);
-            endurance(app,store,db,first,result);
+            endurance(app,store,db,first,result,runtime);
             long before=scalar(db,"SELECT coalesce(cursor,0) FROM r26_task WHERE task_id='foundry-su2'"),progress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session");assertTrue("no committed numerical sample before restart",before>0);result.put("committedCandidateSamplesBeforeRestart",before).put("actualProgressBeforeRestart",progress);
             RuntimeCoordinatorR26.Claim stale=null;end=System.nanoTime()+2_000_000_000L;while(stale==null&&System.nanoTime()<end){try(Cursor c=db.rawQuery("SELECT task_id,owner,fence,cursor FROM r26_task WHERE status='RUNNING' AND owner IS NOT NULL LIMIT 1",null)){if(c.moveToFirst())stale=new RuntimeCoordinatorR26.Claim(c.getString(0),c.getString(1),c.getLong(2),c.getLong(3));}if(stale==null)Thread.sleep(5);}
             runtime.close();drain(runtime);waitStopped(db);if(stale!=null)try{RuntimeCoordinatorR26.requireFence(db,stale);fail("stopped owner could commit");}catch(IllegalStateException expected){}
@@ -91,12 +91,13 @@ public final class R26RuntimeDeviceTest {
         }
     }
     /** Optional one-hour emulator engineering scenario. It never changes the standard test deadline. */
-    private static void endurance(Sandbox app,DbStore store,SQLiteDatabase db,long first,JSONObject result)throws Exception {
+    private static void endurance(Sandbox app,DbStore store,SQLiteDatabase db,long first,JSONObject result,RuntimeCoordinatorR26 runtime)throws Exception {
         int seconds=Integer.parseInt(InstrumentationRegistry.getArguments().getString("r26EnduranceSeconds","0"));
         assertTrue("endurance must be disabled or a full 60 minutes",seconds==0||seconds==3600);if(seconds==0)return;
         String scenario=InstrumentationRegistry.getArguments().getString("r26EnduranceScreen","BRIGHT");assertTrue(scenario.equals("BRIGHT")||scenario.equals("LOCKED"));
         JSONObject receipt=new JSONObject().put("scope","EMULATOR_SYNTHETIC_ENGINEERING_ONLY; NOT_USER_PHONE_OR_NATURAL_FORWARD_QUALITY").put("requestedSeconds",seconds).put("screen",scenario).put("chargingRequiredForResearch",false);
         JSONArray samples=new JSONArray();receipt.put("samples",samples);result.put("endurance",receipt);
+        long suspendedAtStart=android.os.SystemClock.elapsedRealtime()-android.os.SystemClock.uptimeMillis();receipt.put("cpuLeasePolicy","USER_ENABLED_RESEARCH_SESSION_OS_TIMED_PARTIAL_WAKE_LOCK; NO_SCREEN_OR_CHARGING_ELIGIBILITY");
         long start=android.os.SystemClock.elapsedRealtime(),finish=start+seconds*1000L,nextSample=start+60000,nextDraw=start;long lastProgress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session"),maxWrite=0;int labels=0;Handler ui=new Handler(Looper.getMainLooper());
         while(android.os.SystemClock.elapsedRealtime()<finish){
             long now=android.os.SystemClock.elapsedRealtime();
@@ -105,8 +106,10 @@ public final class R26RuntimeDeviceTest {
             if(now>=nextSample){
                 android.content.Intent battery=app.registerReceiver(null,new android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED));assertNotNull("battery telemetry unavailable",battery);int plugged=battery.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED,-1);assertEquals("unplugged scenario changed",0,plugged);
                 android.os.PowerManager power=(android.os.PowerManager)app.getSystemService(Context.POWER_SERVICE);assertNotNull(power);boolean interactive=power.isInteractive();assertEquals("requested screen scenario changed",scenario.equals("BRIGHT"),interactive);
+                assertTrue("enabled research CPU lease expired during endurance",runtime.isCpuLeaseHeld());
                 long progress=scalar(db,"SELECT coalesce(max(actual_progress),0) FROM r26_session");assertTrue("research stopped advancing for a complete minute",progress>lastProgress);
                 JSONObject sample=new JSONObject().put("elapsedMs",now-start).put("syntheticLabels",labels).put("actualProgress",progress).put("progressDelta",progress-lastProgress).put("pssKb",android.os.Debug.getPss()).put("javaHeapUsedBytes",Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory()).put("javaHeapLimitBytes",Runtime.getRuntime().maxMemory()).put("checkpointBytes",CheckpointArtifactsR26.forStore(store).bytes()).put("maxCanonicalWriteMsSoFar",maxWrite).put("pluggedTelemetry",plugged).put("interactive",interactive).put("capacityFailReceipts",scalar(db,"SELECT count(*) FROM r26_progress WHERE blocked_reason LIKE 'CAPACITY_FAIL:%'")).put("committedServiceCapacityFailures",ServiceTotalsR26.failures(db));
+                android.app.ActivityManager.RunningAppProcessInfo process=new android.app.ActivityManager.RunningAppProcessInfo();android.app.ActivityManager.getMyMemoryState(process);sample.put("cpuLeaseHeld",runtime.isCpuLeaseHeld()).put("cpuLeaseRenewals",runtime.cpuLeaseRenewals()).put("systemDeepSleepSinceStartMs",Math.max(0,(android.os.SystemClock.elapsedRealtime()-android.os.SystemClock.uptimeMillis())-suspendedAtStart)).put("processImportance",process.importance).put("ignoresBatteryOptimizations",android.os.Build.VERSION.SDK_INT>=23?power.isIgnoringBatteryOptimizations(app.getPackageName()):JSONObject.NULL);
                 JSONArray tasks=new JSONArray();try(Cursor c=db.rawQuery("SELECT task_id,cursor,last_progress,last_cpu_ms,blocked_reason FROM r26_task ORDER BY task_id",null)){while(c.moveToNext())tasks.put(new JSONObject().put("task",c.getString(0)).put("cursor",c.getLong(1)).put("lastActualProgress",c.getLong(2)).put("lastCpuMs",c.getLong(3)).put("blocker",c.isNull(4)?JSONObject.NULL:c.getString(4)));}sample.put("tasks",tasks);samples.put(sample);lastProgress=progress;nextSample=now+60000;
                 System.out.println("R26_ENDURANCE_MINUTE="+sample.toString());
             }

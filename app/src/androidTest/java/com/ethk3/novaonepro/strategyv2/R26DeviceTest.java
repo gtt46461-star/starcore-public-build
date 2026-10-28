@@ -14,6 +14,11 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public final class R26DeviceTest {
     private static void schema(SQLiteDatabase db){db.beginTransaction();try{RuntimeSchemaR26.ensure(db);db.setTransactionSuccessful();}finally{db.endTransaction();}}
+    @Test public void enabledResearchCpuLeaseHasBoundedRenewalAndCannotRestartAfterClose(){
+        java.util.concurrent.atomic.AtomicLong now=new java.util.concurrent.atomic.AtomicLong();
+        final class TimedBackend implements RuntimePowerLeaseR26.Backend {long deadline;int acquires,releases;boolean held;public void acquire(long millis){assertEquals(60000,millis);acquires++;held=true;deadline=now.get()+millis;}public boolean isHeld(){return held&&now.get()<deadline;}public void release(){releases++;held=false;}}
+        TimedBackend backend=new TimedBackend();RuntimePowerLeaseR26 lease=new RuntimePowerLeaseR26(backend,now::get);assertFalse(lease.isHeld());assertEquals(0,lease.renewals());lease.keepAlive();assertTrue(lease.isHeld());assertEquals(1,backend.acquires);assertEquals(60000,lease.expiresAtElapsedMs());now.set(14999);lease.keepAlive();assertEquals(1,backend.acquires);now.set(15000);lease.keepAlive();assertEquals(2,backend.acquires);assertEquals(75000,lease.expiresAtElapsedMs());backend.held=false;now.set(16000);lease.keepAlive();assertEquals(3,backend.acquires);now.set(lease.expiresAtElapsedMs()+1);assertFalse(lease.isHeld());lease.keepAlive();assertEquals(4,backend.acquires);assertEquals(now.get()+60000,lease.expiresAtElapsedMs());lease.close();lease.close();assertEquals(1,backend.releases);assertFalse(lease.isHeld());try{lease.keepAlive();fail("Closed research power owner restarted from a heartbeat");}catch(IllegalStateException expected){}assertEquals(4,backend.acquires);assertEquals(4,lease.renewals());
+    }
     @Test public void additiveMigrationPreservesFeedbackAndTransactionRollback(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
         db.execSQL(RuntimeSchemaR26.FEEDBACK);db.execSQL("INSERT INTO r26_feedback VALUES('old',1,'s','p',1)");schema(db);schema(db);
         try(Cursor c=db.rawQuery("SELECT count(*) FROM r26_feedback",null)){assertTrue(c.moveToFirst());assertEquals(1,c.getInt(0));}

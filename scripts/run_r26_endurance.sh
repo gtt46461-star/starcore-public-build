@@ -4,6 +4,8 @@ screen_case=${1:?BRIGHT or LOCKED required}
 [[ "$screen_case" == BRIGHT || "$screen_case" == LOCKED ]]
 collect() {
   adb logcat -d > android-logcat.txt || true
+  timeout 20s adb shell dumpsys power > r26-power-state.txt 2>&1 || true
+  timeout 20s adb shell dumpsys deviceidle > r26-device-idle-state.txt 2>&1 || true
   adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json 2>/dev/null || true
   adb shell dumpsys battery reset || true
 }
