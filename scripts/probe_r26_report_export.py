@@ -29,6 +29,23 @@ def json_file(path):
     except (ValueError,UnicodeError):return None
 
 
+def dump_ui(name):
+    adb('shell','uiautomator','dump','/sdcard/report-probe.xml',check=False)
+    raw=adb('exec-out','cat','/sdcard/report-probe.xml',check=False);(OUT/(name+'.xml')).write_bytes(raw)
+    return ET.fromstring(raw)
+
+
+def full_report_job():
+    # Retention work can advance the shared current pointer after a report publishes.
+    listing=adb('exec-out','run-as',PKG,'find',ROOT+'/jobs','-name','job.json',check=False).decode('utf-8','replace')
+    found=[]
+    for path in listing.splitlines():
+        if re.fullmatch(re.escape(ROOT)+r'/jobs/[0-9a-f]{64}/job.json',path):
+            row=json_file(path)
+            if row and row.get('mode')=='FULL_REPORT':found.append(row)
+    return max(found,key=lambda x:x['createdWallMs']) if found else None
+
+
 def main():
     receipt={'schema':'R26_REPORT_UI_TO_ZIP_V1','status':'RUNNING','scope':'API29_ACTUAL_APP_UI_AND_DIAGNOSTIC_EXPORT_NOT_USER_DATABASE_OR_STRATEGY_QUALITY','sourceCommit':Path('delivered/package-receipt/source-commit.txt').read_text().strip(),'packageVersion':577271028}
     assert receipt['sourceCommit']=='60f2bfad6d75ae55e1ef1faa6053c1941c5fd8fa'
@@ -46,15 +63,25 @@ def main():
             if values.get('init_status')=='READY' and values.get('init_stage')=='BUSINESS_READY':break
             time.sleep(1)
         else:raise RuntimeError('APP_NOT_READY_FOR_REPORT')
-        # Own UID starts its own unexported screen. This is the same production UI adapter.
-        launch=adb('shell','run-as',PKG,'am','start','--user','0','-W','-n',PKG+'/com.ethk3.novaonepro.DiagnosisActivity').decode('utf-8','replace')
-        assert 'Error' not in launch and 'Exception' not in launch,launch
-        deadline=time.monotonic()+480;job=None
+        # Trigger the visible production long-press handler; no unexported-activity shell shortcut.
+        view=dump_ui('before-export');selected=None
+        for node in view.iter('node'):
+            if node.get('resource-id','').endswith(':id/txt_runtime_status'):
+                bounds=list(map(int,re.findall(r'\d+',node.get('bounds',''))))
+                if len(bounds)==4 and bounds[2]>bounds[0] and bounds[3]>bounds[1]:selected=bounds;break
+        assert selected is not None,'VISIBLE_REPORT_LONG_PRESS_TARGET_MISSING'
+        x=(selected[0]+selected[2])//2;y=(selected[1]+selected[3])//2
+        adb('shell','input','swipe',str(x),str(y),str(x),str(y),'1400')
+        receipt['uiTrigger']='VISIBLE_MAIN_ACTIVITY_RUNTIME_STATUS_LONG_PRESS'
+        deadline=time.monotonic()+480;job=None;firstPoll=time.monotonic()
         while time.monotonic()<deadline:
             pointer=json_file(ROOT+'/current-job.json')
             if pointer and re.fullmatch('[0-9a-f]{64}',pointer.get('jobId','')):
                 candidate=json_file(ROOT+'/jobs/'+pointer['jobId']+'/job.json')
                 if candidate and candidate.get('mode')=='FULL_REPORT':job=candidate
+            if job is None or time.monotonic()-firstPoll>10:job=full_report_job() or job
+            if job is None and time.monotonic()-firstPoll>45:
+                raise RuntimeError('UI_EXPORT_DID_NOT_REGISTER_FULL_REPORT_JOB')
             if job:
                 stage=job['stage']
                 if not stages or stages[-1]['stage']!=stage:stages.append({'stage':stage,'elapsedSeconds':round(time.monotonic()-started,3)});print('REPORT_EXPORT_STAGE='+json.dumps(stages[-1]),flush=True)
@@ -82,6 +109,18 @@ def main():
     except Exception as error:
         receipt.update(status='FAIL',error=repr(error),stages=stages);raise
     finally:
+        if receipt['status']=='FAIL':
+            try:
+                dump_ui('failure-ui')
+                listing=adb('exec-out','run-as',PKG,'find',ROOT,'-maxdepth','3','-type','f',check=False);(OUT/'report-files.txt').write_bytes(listing)
+                (OUT/'report-logcat.txt').write_bytes(adb('logcat','-d','-s','ReportExportCP12:V','AndroidRuntime:E','*:S',check=False))
+                failures=[]
+                for path in listing.decode('utf-8','replace').splitlines():
+                    if re.fullmatch(re.escape(ROOT)+r'/requests/[0-9a-f]{64}\.ack\.json',path):
+                        row=json_file(path)
+                        if row:failures.append({k:row.get(k) for k in ['requestId','jobId','mode','stage','reason']})
+                receipt['requestAcknowledgements']=failures
+            except Exception as observation:receipt['failureObservationError']=repr(observation)
         (OUT/'receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
         print('REPORT_EXPORT_UI_TO_ZIP_RECEIPT='+json.dumps(receipt,ensure_ascii=False),flush=True)
 
