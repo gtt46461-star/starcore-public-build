@@ -1,12 +1,12 @@
 {
   "revision": "R967_SEMANTIC_BUILD_V1",
-  "training_rule_sha256": "969d9a47587b281cf3297f55ba718752cbe14d106999890e9bcc1f3058e35244",
+  "training_rule_sha256": "795e8e93aeaf3ef24960c50b50a13f268821e083ae1a68de890c82011e50da10",
   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
-  "manifest_sha256": "826f2ab2a56833552dc8355146a68363f35d1c644ba24be6f903394e0a5394cf",
-  "controlled_file_count": 1267,
-  "numeric_dependency_count": 1150,
-  "source_provenance_sha256": "322b324260fac1efabbbd61572985ac3a5bc7fc162f5663e8565cec27c4d00ca",
+  "manifest_sha256": "ad71c01b4c10df5a56d827a0f86322d0417164b04bd6170731b760ad5d962551",
+  "controlled_file_count": 1269,
+  "numeric_dependency_count": 1152,
+  "source_provenance_sha256": "bf79d5e69770329b12104c28b510aed1780b4049907e405f0742fd58be51f471",
   "dependencies": [
     [
       "app/build.gradle",
@@ -4921,7 +4921,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyF08KernelR26.java",
       "NUMERIC",
-      "da548b90d099337adb9dd966808fb409af05205d6f2009ce9f77446abf6be9ec"
+      "f252406df34e635a2d603fd7d11352e681e9812d8944c1c36d27a32ef720d11d"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/FamilyF09KernelR26.java",
@@ -5431,12 +5431,12 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
       "NUMERIC",
-      "f4a69df90cc4a848d477b114ec0af253fb71c0a23041456c3cf3ad5f12def8eb"
+      "486a7f7b26716125bf3fb53ab3d933a9e8ea93a18ace37bd6b5ec60b71b75434"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java",
       "NUMERIC",
-      "9d21cddcc7be49614aae33c36344e03428042b974d1f731c2877439c4d30cffa"
+      "02486f12d25c12f9905de62e6d9aaf67adcb9269c5f89ebdf497ecc79b10efd6"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ScaleEncoderR26.java",
@@ -5522,6 +5522,16 @@
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageStrategySU2.java",
       "NUMERIC",
       "d80ad5bef1d0c366562d2420aedf6a839445e315ee4fb71907e29484cd528908"
+    ],
+    [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatisticalTrainingDiagnosticsR26.java",
+      "NUMERIC",
+      "cd1820ad88e0b8fce6be77c45585cc1d0897c3cef6d27646683ea7042ea0c0b3"
+    ],
+    [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/StatisticalTrainingStepStoreR26.java",
+      "NUMERIC",
+      "8cc9aff20c73652de9c77e641066d1e8c17ad4591cd048ffaa98be0ee881eb6b"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyFoundrySU1.java",
@@ -5611,7 +5621,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/TrainingStepStoreR26.java",
       "NUMERIC",
-      "7d91216031586de28f78e09ee1d13d28da7c8e107997d7b25126e1a9f889f200"
+      "d24c0da1a68bd37b075679951dd4b9feb07b1217733c1e86e9abefbec6c3dfe1"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/TypedProgram.java",
@@ -5761,6 +5771,6 @@
   ],
   "compatible_predecessor_rule_sha256": "",
   "compatible_predecessor_rules_sha256": [],
-  "continuation_proof_sha256": "5e64d546b5bcae9a0d1d9d6d99ce421a7a794cdc6d3442f199b3589806281457",
+  "continuation_proof_sha256": "ee50e88761b55268caa50c421634925a31b8a7bbe998d4aec110763773b404f7",
   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
 }

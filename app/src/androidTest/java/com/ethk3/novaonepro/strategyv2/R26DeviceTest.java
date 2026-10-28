@@ -28,6 +28,15 @@ public final class R26DeviceTest {
             assertFalse("Synthetic quota placeholders must not validate as measured receipts",TrainingStepStoreR26.verify(db));db.setTransactionSuccessful();
         }finally{db.endTransaction();}
     }}
+    @Test public void mixedGradientAndStatisticDetailsShareOneQuotaAndSingleEvictionSnapshot(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
+        schema(db);try{TrainingStepStoreR26.trim(db);fail("Unowned mixed detail pruning");}catch(IllegalStateException expected){}
+        db.beginTransaction();try{
+            db.execSQL("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<4098) INSERT INTO r26_training_step SELECT 'SYNTHETIC_G','QUOTA',x,CAST(x AS TEXT),'MEMBER','SOURCE','SYNTHETIC_QUOTA',x,0,0,0,0,'INPUT','OBJECTIVE','before','after',0,'SYNTHETIC','SYNTHETIC_ONLY','CK',lower(hex(zeroblob(32))),x FROM n");
+            db.execSQL("WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x<4098) INSERT INTO r26_statistic_training_step SELECT 'SYNTHETIC_S','QUOTA',x,CAST(x AS TEXT),'MEMBER','SOURCE','SYNTHETIC_QUOTA',x,0,0,0,0,'INPUT','OBJECTIVE','STATISTIC','before','after',0,'SYNTHETIC','SYNTHETIC_ONLY','CK',lower(hex(zeroblob(32))),x FROM n");
+            TrainingStepStoreR26.trim(db);for(String table:new String[]{"r26_training_step","r26_statistic_training_step"})try(Cursor c=db.rawQuery("SELECT count(*),min(sample_ordinal) FROM "+table,null)){assertTrue(c.moveToFirst());assertEquals(4096,c.getInt(0));assertEquals(3,c.getInt(1));}
+            TrainingStepStoreR26.trim(db);try(Cursor c=db.rawQuery("SELECT count(*),sum(folded),min(folded),max(folded) FROM r26_retention_total WHERE kind IN ('training_step_details','statistic_training_step_details')",null)){assertTrue(c.moveToFirst());assertEquals(2,c.getInt(0));assertEquals(4,c.getInt(1));assertEquals(2,c.getInt(2));assertEquals(2,c.getInt(3));}assertFalse(TrainingStepStoreR26.verify(db));db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }}
     @Test public void feedbackIsUniqueAndConflictingSourceRollsBack(){try(SQLiteDatabase db=SQLiteDatabase.create(null)){
         schema(db);Models.Draw d=new Models.Draw();d.issue="202610270001";d.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};d.openTime=1000;d.fetchTime=1001;
         db.beginTransaction();try{RuntimeSchemaR26.feedbackWithinTransaction(db,d);RuntimeSchemaR26.feedbackWithinTransaction(db,d);db.setTransactionSuccessful();}finally{db.endTransaction();}
