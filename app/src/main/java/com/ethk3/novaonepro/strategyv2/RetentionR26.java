@@ -48,6 +48,7 @@ public final class RetentionR26 {
         db.execSQL("DELETE FROM r26_gap_receipt WHERE rowid IN (SELECT rowid FROM r26_gap_receipt ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
         db.execSQL("DELETE FROM r26_session WHERE session_id IN (SELECT session_id FROM r26_session WHERE state<>'RUNNING' ORDER BY heartbeat DESC LIMIT 32 OFFSET 32)");
         ServiceTotalsR26.foldExpired(db);
+        if(FailureDirectedResearchR26.installed(db))db.execSQL("DELETE FROM r26_failure_research_cursor WHERE parent_policy IN (SELECT parent_policy FROM r26_failure_research_cursor f WHERE NOT EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=f.parent_policy) LIMIT 256)");
         // No removed campaign may keep a second hidden copy of raw labels or per-sample consumption.
         String orphan="SELECT c.rowid FROM r26_consumption c WHERE NOT EXISTS(SELECT 1 FROM r26_feedback f WHERE f.event_id=c.event_id) AND NOT EXISTS(SELECT 1 FROM r26_candidate a WHERE a.policy_hash=c.policy_hash) LIMIT 512";
         db.execSQL("DELETE FROM r26_consumption WHERE rowid IN ("+orphan+")");

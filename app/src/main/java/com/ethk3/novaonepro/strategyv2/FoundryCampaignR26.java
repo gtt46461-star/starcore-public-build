@@ -44,11 +44,12 @@ public final class FoundryCampaignR26 {
             // Preserve actual saved parents; do not inherit their hits or qualification.
             List<ModelGenomeSU2> parents=savedParents(r);
             for(int i=0;i<parents.size();i++)for(StructuralProposalR26.Proposal proposal:StructuralProposalR26.from(parents.get(i),seeds.get(i%seeds.size()).members.get(0)))proposals.add(new StructuralProposalR26.Proposal(proposal.genome.bindBirth(hash,through),proposal.parent,proposal.operation,proposal.category));
+            final List<FailureDirectedResearchR26.Batch> failureResearch;try{failureResearch=FailureDirectedResearchR26.select(r,hash,through);}catch(org.json.JSONException malformed){throw new IOException("R26_FAILURE_RESEARCH_METADATA",malformed);}for(FailureDirectedResearchR26.Batch batch:failureResearch)proposals.addAll(batch.proposals);
             final String id=campaign;final byte[] frozen=snapshotBytes;final long source=through;
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_CAMPAIGN_BIRTH",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("INSERT OR IGNORE INTO r26_foundry(campaign_id,snapshot_hash,source_through,snapshot,status,created_at,numerical_abi,source_first) VALUES(?,?,?,?,'RUNNING',?,?,?)",new Object[]{id,hash,source,frozen,System.currentTimeMillis(),numericalAbi,s.ordinal[0]});int index=0;for(StructuralProposalR26.Proposal proposal:proposals){ModelGenomeSU2 g=proposal.genome;PolicyIdentityLedgerR26.record(db,g.text(),g.key());
                 db.execSQL("INSERT OR IGNORE INTO r26_candidate(campaign_id,policy_hash,canonical_text,parent,operation) VALUES(?,?,?,?,?)",new Object[]{id,g.key(),g.text(),proposal.parent,proposal.operation});
                 db.execSQL("INSERT OR IGNORE INTO r26_evolution(attempt_id,campaign_id,policy_hash,parent,operation,category,structure_hash) VALUES(?,?,?,?,?,?,?)",new Object[]{id+":"+(index++),id,g.key(),proposal.parent,proposal.operation,proposal.category,StructuralProposalR26.structure(g)});
-            }return 0;});
+            }FailureDirectedResearchR26.recordWithin(db,id,failureResearch);return 0;});
             return 0;
         }
         final String id=campaign;

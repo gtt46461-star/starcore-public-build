@@ -7,3 +7,5 @@
 - 错误记录清空相应质量数据；一项策略错误不掩盖其他策略。最多64项策略，明确列出未导出的数量。
 
 验证：`ReportAssessmentHost verification/r64/sqlite_bridge.py` 调用与Android原生用例相同的检查，覆盖空数据、一次命中、正式窗口、坏通过记录、缺段、65策略截断与错误隔离。`synthetic-report.json.gz` 是故意含坏数据的合成测试样本，不代表用户软件胜率。
+
+`failureDirectedResearch` 记录已登记的失败驱动研究。`birthRecord` 保留原失败窗口、样本、证据摘要和反证条件；`currentChildren` 从实际候选表读取训练状态、已消费标签和保留的诊断条数。固定窗口只消费一次，重新出生不继承父代胜率或资格。普通种子与对照定义相同时共用同一候选。`FailureResearchHost` 调用与原生相同的工厂出生、失败回滚、重复游标及子代真实训练用例。它使用合成失败记录验证执行能力，不证明策略质量。
