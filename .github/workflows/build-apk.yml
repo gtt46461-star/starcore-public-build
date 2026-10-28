@@ -17,11 +17,21 @@ on:
         type: boolean
         required: false
         default: false
+      reportfix_run_id:
+        description: Publish the report export repair after matching Android verification
+        type: string
+        required: false
+        default: ''
+      reportfix_apk_sha256:
+        description: Independently checked SHA256 of the exact report repair APK
+        type: string
+        required: false
+        default: ''
 permissions:
   contents: read
 jobs:
   debug-apk:
-    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && inputs.verified_run_id == '' }}
+    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && inputs.verified_run_id == '' && inputs.reportfix_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -203,3 +213,46 @@ jobs:
           assert {'R26-delivery.json','SHA256SUMS.txt','R26-native-117-results.json','R26-runtime-117-results.json'}<=a.keys()
           PY
           gh release edit r26-20261028-runtime-117 --draft=false --prerelease --latest=false --notes-file public-assets117/release-notes.md
+  publish-report-export-repair:
+    if: ${{ inputs.reportfix_run_id != '' }}
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch source-bound repair package and executed regression
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERIFIED_RUN: ${{ inputs.reportfix_run_id }}
+          VERIFIED_SHA: ${{ inputs.reportfix_apk_sha256 }}
+        run: |
+          python3 - <<'PY'
+          import os,re
+          assert os.environ['VERIFIED_RUN']=='40653752513'
+          assert re.fullmatch('[0-9a-f]{64}',os.environ['VERIFIED_SHA'])
+          PY
+          gh api repos/$GH_REPO/actions/runs/$VERIFIED_RUN > repair-workflow.json
+          gh api 'repos/'$GH_REPO'/actions/runs/'$VERIFIED_RUN'/jobs?per_page=100' > repair-jobs.json
+          gh run download "$VERIFIED_RUN" --name R13-build-and-evidence --dir verified-repair
+          gh run download "$VERIFIED_RUN" --name R13-Android-runtime-29 --dir runtime-repair
+          python3 scripts/stage_r26_report_export_repair.py --build verified-repair --runtime runtime-repair --workflow repair-workflow.json --jobs repair-jobs.json --sha256 "$VERIFIED_SHA" --out repair-public-assets
+      - name: Upload checked repair package and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          target="$(cat repair-public-assets/source-commit.txt)"
+          gh release create r26-20261028-reportfix1 --target "$target" --title 'STARCORE R26 · 完整检测报告导出修复' --notes-file repair-public-assets/release-notes.md --draft --prerelease --latest=false
+          gh release upload r26-20261028-reportfix1 repair-public-assets/*
+          gh release view r26-20261028-reportfix1 --json assets > repair-uploaded.json
+          python3 - <<'PY'
+          import json
+          a={x['name']:x for x in json.load(open('repair-uploaded.json'))['assets']}
+          r=json.load(open('repair-public-assets/R26-report-repair-delivery.json'))
+          assert a['STARCORE-R26-20261028-reportfix1.apk']['size']==r['bytes']
+          assert {'SHA256SUMS.txt','R26-report-repair-delivery.json','R26-native-results.json','R26-runtime-results.json'}<=a.keys()
+          PY
+          gh release edit r26-20261028-reportfix1 --draft=false --prerelease --latest=false
