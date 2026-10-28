@@ -48,7 +48,9 @@ jobs:
             pw=$(python3 -c 'import secrets;print(secrets.token_hex(16))'); echo "::add-mask::$pw"
             keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r27-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 30 \
               -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R27 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY"
-            { echo "R13_SIGNING_P12=$RUNNER_TEMP/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R27_SIGNING=TEMPORARY_CI_KEY"; } >> "$GITHUB_ENV"
+            cert=$(keytool -exportcert -keystore "$RUNNER_TEMP/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
+            { echo "R13_SIGNING_P12=$RUNNER_TEMP/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R27_SIGNING=TEMPORARY_CI_KEY"; echo "R13_EXPECTED_CERT_SHA256=$cert"; } >> "$GITHUB_ENV"
+            echo "temporary certificate SHA-256: $cert"
             # Data-site API key (api.duoqu.online, param "key") embedded as the R995 release default; it comes from the
             # repository secret DUOQU_API_KEY and is never written to tracked files.
             if [ -n "$R27_API_KEY" ]; then echo "::add-mask::$R27_API_KEY"; echo "DUOQU_API_KEY=$R27_API_KEY" >> "$GITHUB_ENV"; else echo "R27_API_KEY_SECRET_NOT_SET"; fi
@@ -103,7 +105,7 @@ jobs:
             "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/$v/*.apk > package-receipt/signature-$v.txt
             "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/$v/*.apk | head -n 3 > package-receipt/package-$v.txt
           done
-          if [ "$R27_SIGNING" = "OFFICIAL_R13" ]; then grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature-release.txt; fi
+          if [ -f package-receipt/signature-release.txt ]; then grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature-release.txt; fi
           grep -hF "versionCode='577271030'" package-receipt/package-*.txt
           sha256sum app/build/outputs/apk/*/*.apk baseline-apk/*.apk > package-receipt/SHA256SUMS.txt
           cat package-receipt/signing-identity.txt package-receipt/SHA256SUMS.txt
