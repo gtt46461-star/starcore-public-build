@@ -1,0 +1,32 @@
+{
+  "status": "PASS_24_FROZEN_R26_GROUPS_PRODUCTION_OWNER_FAILURE_ROLLBACK_CONTINUATION_SDK_AND_CHANGED_NATIVE_COMPILE",
+  "scope": "HOST_ENGINEERING_ONLY_NOT_ANDROID_MATRIX_FULL_EXPERT_ACCEPTANCE_OR_NATURAL_QUALITY",
+  "baseline": "e70e490d971eff2822a27d3d5f7dafe4b8976867",
+  "numericalAbi": "1e2c904f3b644c687c7ec2750d19de577a09abab03d2f5ee9ec0268ee6f96f22",
+  "productionSourceSha256": "869c05bed75f01d1f83c2a94917237e454dc61c68fce3bebb4ab90f6efa0ea2f",
+  "before": "Exception in thread \"main\" java.lang.AssertionError: Completed expert pair has no two measured training rows\n\tat com.ethk3.novaonepro.strategyv2.ExpertTrainingReceipts.check(ExpertTrainingReceipts.java:12)\n\tat com.ethk3.novaonepro.strategyv2.ExpertTrainingReceipts.main(ExpertTrainingReceipts.java:31)\n",
+  "after": "R26_EXPERT_TRAINING_RECEIPTS_PASS|completedPairedSamples=88|committedRows=176|serialization42CommitsOnly41=true|receiptInsertRollbackAndStaleFence=true|bothSidesFullPrecisionAndSourceCheckpointHash=true|manifestBound=true|subsequentStateExactlyUninterrupted=true|immutableNoQualification=true|scope=HOST_PRODUCTION_OWNER_SQLITE_AND_FILES_WITH_ANDROID_TRANSPORT_ADAPTERS\n",
+  "continuation": "R26_EXPERT_WARM_PASS|bothNumericalModelsAndOptimizersRetained=true|newEpochMetricsZero=true|twoExpiriesIncludingUnserved=true|strictExposureAndSourceFirstBinding=true|staleFenceRejected=true|expiredParentRawStateUnpinnedAndPruned=true|actualWorkshopNextUpdatesExact=true|corruptAndOldAbiPreserved=true|noQualification=true|scope=HOST_PRODUCTION_SQLITE_FILES_WITH_ANDROID_TRANSPORT_ADAPTERS_AND_ORG_JSON\n",
+  "semantics": {
+    "capture": "Only supported diagnostic kernels; both branches and complete pair encode must finish before pending rows can advance",
+    "atomicCommit": "Same owner fence and parent CAS transaction as pair checkpoint UPDATE and shared manifest",
+    "rowScope": "campaign_id is experiment_id, independent of shared model policy/member hashes and ordinary Foundry training",
+    "source": "Actual frozen snapshot hash and sample issue/ordinal; source_kind EXPERT_PAIRED_FROZEN_SNAPSHOT",
+    "stateHash": "Full serialized pair state commitments before and after each complete sample; batch_checkpoint is the actual shared expert manifest",
+    "failure": "Right branch serialization42 commits only complete sample41, injected receipt INSERT failure rolls checkpoint and rows back, stale fence commits neither",
+    "provenance": "Two source expiries retain lifetime; new-epoch first measured updates are41 at first+12000, not restarted update1 or old source rows",
+    "qualification": "None; unsupported families remain unmeasured; complete expert proposals/admission contracts remain incomplete"
+  },
+  "androidNative": {
+    "classes": 21,
+    "tests": 104,
+    "status": "PENDING_MATCHING_SOURCE_CI"
+  },
+  "compile": {
+    "sdkProductionSources": 1078,
+    "sdkStatus": "PASS_OFFICIAL_SDK36_CONFIG_RESOURCE_STUBS",
+    "changedNativeSources": "PASS",
+    "androidNativeTests": 104,
+    "androidRuntime": "PENDING_MATCHING_SOURCE_CI"
+  }
+}

@@ -3,7 +3,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import java.util.*;
 
-/** Fenced caller commits diagnostics only with its completed candidate checkpoint.
+/** Fenced caller commits diagnostics only with its completed candidate, live or expert-pair checkpoint.
  * Intermediate state digests are commitments; only batch_checkpoint names a durable file manifest. */
 public final class TrainingStepStoreR26 {
     public static final String SCOPE="FIXED_INPUT_KERNEL_UPDATE_DIAGNOSTIC_NOT_QUALIFICATION";
