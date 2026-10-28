@@ -243,7 +243,14 @@ jobs:
           gh api 'repos/'$GH_REPO'/actions/runs/'$VERIFIED_RUN'/jobs?per_page=100' > repair-jobs.json
           gh run download "$VERIFIED_RUN" --name R13-build-and-evidence --dir verified-repair
           gh run download "$VERIFIED_RUN" --name R13-Android-runtime-29 --dir runtime-repair
-          python3 scripts/stage_r26_report_export_repair.py --build verified-repair --runtime runtime-repair --workflow repair-workflow.json --jobs repair-jobs.json --sha256 "$VERIFIED_SHA" --out repair-public-assets
+          gh api repos/$GH_REPO/actions/runs/40655824356 > repair-ui-workflow.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('repair-ui-workflow.json'))
+          assert r['id']==40655824356 and r['status']=='completed' and r['conclusion']=='success'
+          PY
+          gh run download 40655824356 --name R26-report-export-ui-to-zip-source119 --dir repair-ui
+          python3 scripts/stage_r26_report_export_repair.py --build verified-repair --runtime runtime-repair --workflow repair-workflow.json --jobs repair-jobs.json --sha256 "$VERIFIED_SHA" --ui-probe repair-ui/receipt.json --out repair-public-assets
       - name: Upload checked repair package and publish
         env:
           GH_TOKEN: ${{ github.token }}
