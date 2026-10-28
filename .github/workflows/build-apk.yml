@@ -27,11 +27,16 @@ on:
         type: string
         required: false
         default: ''
+      probe_report_export:
+        description: Exercise the actual UI to final report ZIP for the fixed source119 APK
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 jobs:
   debug-apk:
-    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && inputs.verified_run_id == '' && inputs.reportfix_run_id == '' }}
+    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && !inputs.probe_report_export && inputs.verified_run_id == '' && inputs.reportfix_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -256,3 +261,39 @@ jobs:
           assert {'SHA256SUMS.txt','R26-report-repair-delivery.json','R26-native-results.json','R26-runtime-results.json'}<=a.keys()
           PY
           gh release edit r26-20261028-reportfix1 --draft=false --prerelease --latest=false
+  probe-report-export:
+    if: ${{ inputs.probe_report_export }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          run-id: 40653752513
+          github-token: ${{ github.token }}
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: python3 scripts/probe_r26_report_export.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R26-report-export-ui-to-zip-source119
+          path: report-export-probe/
+          if-no-files-found: error
