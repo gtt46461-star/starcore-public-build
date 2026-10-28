@@ -55,4 +55,23 @@ public final class ReportMetadataExportDeviceTest {
         try{try(SQLiteDatabase db=SQLiteDatabase.openOrCreateDatabase(database,null)){fixture(db);}try(SQLiteDatabase snapshot=SQLiteDatabase.openDatabase(database.getAbsolutePath(),null,SQLiteDatabase.OPEN_READONLY)){verify(snapshot,root);}}
         finally{File[] files=root.listFiles();if(files!=null)for(File f:files)assertTrue(f.delete());assertTrue(root.delete());}
     }
+    public static void verifyDirectoryAliases(File directory)throws Exception{
+        java.nio.file.Path root=directory.toPath(),data=root.resolve("data");Files.createDirectories(data.resolve("app/files"));Files.createSymbolicLink(root.resolve("user0"),data);
+        File aliased=root.resolve("user0/app/files").toFile();File canonical=ReportDirectoriesCP12.root(aliased);assertEquals(data.resolve("app/files/r981_reports").toFile().getCanonicalFile(),canonical);
+        String id=String.join("",Collections.nCopies(64,"a"));
+        try(ReportJobJournalCP12 journal=ReportJobJournalCP12.tryClaim(aliased)){
+            assertNotNull(journal);ReportJobJournalCP12.Job job=new ReportJobJournalCP12.Job(id,id,id,"FULL_REPORT",1234);journal.create(job);journal.transition(job,ReportJobJournalCP12.Stage.BACKUP,1235);
+            assertEquals("BACKUP",ReportJobJournalCP12.latestFullReport(canonical).stage);assertTrue(new File(canonical,"requests/"+id+".ack.json").isFile());
+        }
+        File outside=root.resolve("outside").toFile();assertTrue(outside.mkdir());java.nio.file.Path bad=root.resolve("bad/files");Files.createDirectories(bad);Files.createSymbolicLink(bad.resolve("r981_reports"),outside.toPath());
+        try{ReportDirectoriesCP12.root(bad.toFile());fail("Report root symlink accepted");}catch(IOException expected){assertEquals("REPORT_ROOT_SYMLINK",expected.getMessage());}
+        Files.createDirectories(root.resolve("files-link-app"));Files.createSymbolicLink(root.resolve("files-link-app/files"),outside.toPath());
+        try{ReportDirectoriesCP12.root(root.resolve("files-link-app/files").toFile());fail("Files node symlink accepted");}catch(IOException expected){assertEquals("REPORT_FILES_SYMLINK",expected.getMessage());}
+        assertEquals(0,Objects.requireNonNull(outside.list()).length);
+    }
+    @Test public void androidAppDirectoryAncestorAliasCanPersistReportJobsWithoutAllowingPrivateNodeLinks()throws Exception{
+        android.content.Context app=InstrumentationRegistry.getInstrumentation().getTargetContext();File root=new File(app.getCacheDir(),"report-app-alias-"+UUID.randomUUID());assertTrue(root.mkdirs());
+        try{verifyDirectoryAliases(root);File actual=ReportDirectoriesCP12.root(app.getFilesDir());assertEquals(actual.getCanonicalFile(),actual);try(ReportJobJournalCP12 claim=ReportJobJournalCP12.tryClaim(app.getFilesDir())){if(claim!=null)assertEquals(actual,claim.root());}}
+        finally{try(java.util.stream.Stream<java.nio.file.Path> paths=Files.walk(root.toPath())){for(java.nio.file.Path p:(Iterable<java.nio.file.Path>)paths.sorted(Comparator.reverseOrder())::iterator)Files.delete(p);}}
+    }
 }

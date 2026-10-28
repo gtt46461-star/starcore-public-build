@@ -56,7 +56,7 @@ public final class ReportAttachmentClosureCP12 {
             if(observations!=null){if(observations.length()>8)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
                 for(int i=0;i<observations.length();i++){JSONObject ref=observations.getJSONObject(i);String key=ref.getString("key"),requestId=request.getString("requestId"),hash=ref.getString("sha256");
                     if(!key.matches("[A-Za-z][A-Za-z0-9]{0,63}")||!requestId.matches("[0-9a-f]{64}")||!ref.getString("path").equals("observations/"+requestId+"/"+key+".txt"))throw new IOException("REPORT_OBSERVATION_REFERENCE_PATH");requireHash(hash);
-                    File original=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r981_reports"),ref.getString("path"));
+                    File original=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),ref.getString("path"));
                     if(!original.isFile()||original.length()!=ref.getLong("bytes")||!hash.equals(ReportArchiveCP4.hash(original,control)))throw new IOException("REPORT_OBSERVATION_CHANGED");
                     descriptor(out,"runtime-observation-"+key+".txt",hash,original.length(),"OBSERVATION",original.getPath(),"");
                 }

@@ -15,7 +15,7 @@ public final class ReportTaskControlR69 {
     }
     /** Queue snapshot first: a claimed request is durable as a job before leaving the FIFO. */
     public static String request(File files,boolean clear)throws Exception {
-        File root=new File(files,"r981_reports");if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_CONTROL_ROOT");
+        File root=ReportDirectoriesCP12.root(files);if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_CONTROL_ROOT");
         Set<String> requests=new TreeSet<>();JSONArray queued=ReportRequestQueueCP12.pending(root);
         for(int i=0;i<queued.length();i++){
             JSONObject row=queued.getJSONObject(i);
@@ -47,7 +47,7 @@ public final class ReportTaskControlR69 {
         return false;
     }
     public static JSONObject status(File files,String command)throws Exception {
-        id(command);File root=new File(files,"r981_reports"),status=path(root,"status-"+command+".json");
+        id(command);File root=ReportDirectoriesCP12.root(files),status=path(root,"status-"+command+".json");
         return status.exists()?new JSONObject(ReportJobJournalCP12.readAtomic(status,4096)):
                 new JSONObject().put("id",command).put("stage","STOPPING");
     }
