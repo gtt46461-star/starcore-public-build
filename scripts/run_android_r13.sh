@@ -11,6 +11,13 @@ collect_runtime_evidence() {
   else
     rm -f "$schema_tmp"
   fi
+  local api_tmp
+  api_tmp=$(mktemp r26-api-receipt-XXXXXX.json)
+  if adb exec-out run-as com.starcore.research.r13 cat cache/r26-bundled-api-environment.json > "$api_tmp" 2>/dev/null && python3 -c 'import json,sys; assert isinstance(json.load(open(sys.argv[1])),dict)' "$api_tmp"; then
+    mv "$api_tmp" r26-bundled-api-environment.json
+  else
+    rm -f "$api_tmp"
+  fi
   # Release is not debuggable. Keep the already collected debug receipt if run-as is denied
   # after the coverage upgrade, instead of truncating the successful receipt in the exit trap.
   local receipt_tmp
@@ -26,33 +33,7 @@ adb install -r delivered/app/build/outputs/apk/debug/*.apk
 if [[ "${1:-29}" == "29" ]]; then
 adb install -r delivered/app/build/outputs/apk/androidTest/debug/*.apk
 python3 scripts/verify_r26_emulator_heap.py
-python3 - <<'PYTEST'
-import hashlib,json,re,subprocess
-from pathlib import Path
-manifest=json.loads(Path('delivered/package-receipt/instrumentation-tests.json').read_text())
-assert manifest['schema']=='R26_INSTRUMENTATION_MANIFEST_V1'
-classes=manifest['classes'];assert classes and manifest['total']==sum(c['count'] for c in classes)
-total=0
-with open('android-r13.txt','w') as report:
-    for item in classes:
-        name=item['className']
-        assert hashlib.sha256(Path(item['sourcePath']).read_bytes()).hexdigest()==item['sourceSha256'],'instrumentation source/artifact mismatch: '+name
-        selectors=[(name+'#'+method,1) for method in item['methods']] if item.get('isolateEachMethod',False) else [(name,item['count'])]
-        assert selectors and sum(count for _,count in selectors)==item['count']
-        for selector,expected_count in selectors:
-            subprocess.run(['adb','shell','am','force-stop','com.starcore.research.r13'],check=True)
-            run=subprocess.run(['adb','shell','am','instrument','-w','-e','class',selector,'com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'],capture_output=True,text=True,timeout=600)
-            if name.endswith('.R26RuntimeDeviceTest'):
-                with open('r26-owner-logcat.txt','w') as trace:
-                    subprocess.run(['adb','logcat','-d','-s','STARCORE_R26:V','TestRunner:V','AndroidRuntime:E','*:S'],stdout=trace,stderr=subprocess.STDOUT,check=False)
-            report.write(run.stdout+run.stderr);report.flush();print(run.stdout,flush=True)
-            match=re.search(r'OK \((\d+) tests?\)',run.stdout)
-            assert run.returncode==0 and match and 'FAILURES' not in run.stdout,selector+' failed'
-            assert int(match.group(1))==expected_count,f'{selector}: executed {match.group(1)} expected {expected_count}'
-            total+=int(match.group(1))
-    assert total==manifest['total'],total
-    report.write(f'Isolated class aggregate: OK ({total} tests)\n')
-PYTEST
+python3 scripts/run_r26_instrumentation.py
 adb exec-out run-as com.starcore.research.r13 cat cache/su1-research.png > r13-research.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-charts.png
 adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json

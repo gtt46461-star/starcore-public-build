@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 /** Fresh-sandbox endpoint packaging and startup UI; configured builds must also fetch validated live data. */
 @RunWith(AndroidJUnit4.class)
 public final class BundledApiDeviceSU1Test {
-    @Test public void endpointsAndBuildCredentialAreActuallyPackaged() {
+    @Test public void endpointsAndBuildCredentialAreActuallyPackaged() throws Exception {
         assertEquals("https://api.duoqu.online/data", BinanceGameContract.primary().endpoint());
         assertEquals("https://api1.duoqu.online/data", BinanceGameContract.backup().endpoint());
         assertEquals("Binance1-PK10", BinanceGameContract.GAME_CODE);
@@ -30,8 +30,11 @@ public final class BundledApiDeviceSU1Test {
             assertEquals("AUTHORIZED_LEGACY_RELEASE_DEFAULT", KeyProvider.credentialSource());
             assertFalse(KeyProvider.redact("key=" + KeyProvider.getApiKey()).contains(KeyProvider.getApiKey()));
             com.ethk3.novaonepro.Models.ApiResult result=new com.ethk3.novaonepro.ApiClient().fetchLatest();
+            org.json.JSONObject receipt=new org.json.JSONObject().put("scope","PACKAGED_API_REAL_CLIENT_ATTEMPT_NOT_STRATEGY_QUALITY").put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26).put("at",System.currentTimeMillis()).put("configured",true).put("responsePresent",result!=null).put("success",result!=null&&(result.success||result.ok)).put("validatedDraw",result!=null&&result.latestDraw!=null&&result.latestDraw.isValid());
+            if(result!=null){String code=KeyProvider.redact(result.errorCode==null?"":result.errorCode);receipt.put("code",code.matches("[A-Z0-9_]{1,100}")?code:"UNCLASSIFIED");String message=KeyProvider.redact(result.errorMessage==null?"":result.errorMessage);String[] parts=message.split("\\|",4);java.util.Set<String> outcomes=new java.util.HashSet<>();for(com.ethk3.novaonepro.ApiTransportGovernanceEngine.Outcome outcome:com.ethk3.novaonepro.ApiTransportGovernanceEngine.Outcome.values())outcomes.add(outcome.name());receipt.put("outcome",parts.length>0&&outcomes.contains(parts[0])?parts[0]:"UNCLASSIFIED");if(parts.length>1&&parts[1].matches("[A-Z0-9_]{1,100}"))receipt.put("publicCode",parts[1]);java.util.regex.Matcher http=java.util.regex.Pattern.compile("\\bHTTP_([1-5][0-9]{2})\\b").matcher(message);if(http.find())receipt.put("httpStatus",Integer.parseInt(http.group(1)));for(String known:new String[]{"SSLHandshakeException","UnknownHostException","SocketTimeoutException","ConnectException","CertificateException"})if(message.contains(known))receipt.put("transportException",known);}
+            java.io.File file=new java.io.File(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir(),"r26-bundled-api-environment.json");try(java.io.FileOutputStream out=new java.io.FileOutputStream(file)){out.write(receipt.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));out.getFD().sync();}System.out.println("R26_PACKAGED_API_ATTEMPT="+receipt.toString());
             assertNotNull("Bundled API returned no response",result);
-            assertTrue("Bundled API did not return current validated data through the actual app client",result.success||result.ok);
+            assertTrue("Bundled API did not return current validated data through the actual app client; "+receipt.toString(),result.success||result.ok);
             assertNotNull("Bundled API returned no latest draw",result.latestDraw);
             assertTrue("Bundled API returned invalid numbers",result.latestDraw.isValid());
         }

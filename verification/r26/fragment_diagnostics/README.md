@@ -1,0 +1,3 @@
+The pure diagnostic test independently reconstructs the fixed-input count head for all four retrieval modes, checks every count-coordinate finite difference and actual before/after count-vector distance, and rejects target-dependent input hashes or invented restore/gap measurements.
+
+Compile and run `WireParity.java` once against baseline 9420d628 and once against the current production classpath. All eight prediction/checkpoint digests must be identical; the driver never calls the new diagnostics. Committed results are in `construction/r26/continuation/fragment-training-host-verification.json`. These synthetic checks do not establish natural strategy quality.

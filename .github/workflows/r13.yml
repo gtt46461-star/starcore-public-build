@@ -53,6 +53,7 @@ jobs:
         run: |
           python3 scripts/summarize_r26_runtime.py --self-test
           python3 scripts/verify_r26_emulator_heap.py --self-test
+          python3 scripts/run_r26_instrumentation.py --self-test
       - name: Build, unit tests and lint
         run: bash scripts/build_r13.sh
       - name: Record package identity and signature
@@ -131,6 +132,8 @@ jobs:
             r26-runtime-synthetic.json
             r26-schema-migration-synthetic.json
             r26-emulator-environment.json
+            r26-instrumentation-results.json
+            r26-bundled-api-environment.json
   android-endurance:
     if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance) }}
     needs: [build, android-runtime]
@@ -175,6 +178,8 @@ jobs:
             r26-owner-logcat.txt
             r26-runtime-synthetic.json
             r26-emulator-environment.json
+            r26-instrumentation-results.json
+            r26-bundled-api-environment.json
   prior-engineering-evidence:
     if: ${{ github.event_name == 'push' }}
     needs: build

@@ -7,7 +7,7 @@ import java.util.*;
  * expert's sufficient statistics, its immutable initial prior and validity times.
  * Only revealed labels update an expert; retrieval never observes the next label.
  * A fragment supplies a prior, never qualification samples or live authority. */
-public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 {
+public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26,TrainingDiagnosticsR26 {
     private static final int MAGIC=0x26200001,HISTORY=8,DIM=200;
     public enum Retrieval { MATCH, NONE, MISMATCH, EXPIRED }
     private static final class Fragment {
@@ -16,7 +16,7 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
     }
     private final int capacity;private final Retrieval mode;private final Fragment[] fragments;
     private final double[] global=new double[100];private final int[][] recent=new int[HISTORY][10];
-    private long t;private int seen,active=-1;
+    private long t;private int seen,active=-1;private TrainingDiagnosticsR26.Step last;
     public FamilyF20KernelR26(){this(16,Retrieval.MATCH);}
     public FamilyF20KernelR26(int capacity,Retrieval mode){
         if(capacity<8||capacity>32||capacity%8!=0||mode==null)throw new IllegalArgumentException("F20_MEMORY_GRAPH");
@@ -27,7 +27,10 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
     public int availableScaleMask(){return seen==HISTORY?configuredScaleMask():0;}
     /** Context supports 8 observed labels; fragment validity is capped at 5000
      * update periods. It does not claim 32/128/512/2048-label feature encoders. */
-    public void resetTemporalContext(){seen=0;active=-1;for(int[] row:recent)Arrays.fill(row,0);}
+    public void resetTemporalContext(){seen=0;active=-1;last=null;for(int[] row:recent)Arrays.fill(row,0);}
+    public TrainingDiagnosticsR26.Step lastTrainingStep(){return last;}
+    public long completedTrainingUpdates(){return t;}
+    public String optimizerProtocol(){return "EXP_DECAY_DIRICHLET_GLOBAL_FRAGMENT_COUNTS_V1";}
     private double[] signature(){
         double[] signature=new double[DIM];if(seen<HISTORY)return signature;
         for(int lag=0;lag<HISTORY;lag++){int[] d=recent[(int)((t-1-lag)%HISTORY)];for(int p=0;p<10;p++)signature[p*10+d[p]-1]+=1.0/HISTORY;}
@@ -35,10 +38,14 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
         return signature;
     }
     private static double distance(double[] a,double[] b){double sum=0;for(int i=0;i<DIM;i++){double delta=a[i]-b[i];sum+=delta*delta;}return sum/20;}
-    private boolean valid(Fragment fragment){return fragment!=null&&fragment.updates>0&&t-fragment.lastUsed<=(mode==Retrieval.EXPIRED?32:5000);}
+    private boolean valid(Fragment fragment){return valid(fragment,t);}
+    private boolean valid(Fragment fragment,long clock){return fragment!=null&&fragment.updates>0&&clock-fragment.lastUsed<=(mode==Retrieval.EXPIRED?32:5000);}
     private int select(double[] signature,boolean mismatched){
+        return selectAt(signature,mismatched,t,true);
+    }
+    private int selectAt(double[] signature,boolean mismatched,long clock,boolean poll){
         int selected=-1;double best=mismatched?-1:Double.POSITIVE_INFINITY;
-        for(int i=0;i<capacity;i++){ExecutionBudgetR26.poll();if(!valid(fragments[i]))continue;double distance=distance(signature,fragments[i].signature);
+        for(int i=0;i<capacity;i++){if(poll)ExecutionBudgetR26.poll();if(!valid(fragments[i],clock))continue;double distance=distance(signature,fragments[i].signature);
             if(mismatched?distance>best:distance<best){best=distance;selected=i;}}
         return selected;
     }
@@ -56,6 +63,20 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
         state[0]=occupied/(float)capacity;state[1]=valid/(float)capacity;state[2]=(float)blend;state[3]=nearest<0?1:(float)Math.min(1,match);state[4]=seen/(float)HISTORY;state[5]=(float)Math.log1p(t);
     }
     private static long index(double[] signature){long hash=0xcbf29ce484222325L;for(double value:signature){hash^=Math.round(value*4096);hash*=0x100000001b3L;}return hash;}
+    private static final class Head {double loss,gradientSquared;}
+    /** The input signature, availability and input clock stay frozen; current model
+     * routing/parameters may change. Gradients cover the declared count coordinates. */
+    private Head countHead(double[] signature,boolean available,long clock,int[] draw){
+        int nearest=available&&mode!=Retrieval.NONE?selectAt(signature,false,clock,false):-1,selected=nearest<0?-1:mode==Retrieval.MISMATCH?selectAt(signature,true,clock,false):nearest;double blend=0;
+        if(selected>=0){double match=distance(signature,fragments[nearest].signature);if(match<=.35)blend=.9*fragments[selected].updates/(fragments[selected].updates+8.0)*Math.exp(-3*match);}
+        Fragment expert=selected<0?null:fragments[selected];Head result=new Head();
+        for(int p=0;p<10;p++){
+            double globalSum=0,expertSum=0;for(int n=0;n<10;n++){globalSum+=global[p*10+n];if(expert!=null)expertSum+=expert.expert[p*10+n];}int label=draw[p]-1;double base=global[p*10+label],local=expert==null?0:expert.expert[p*10+label];double probability=(1-blend)*base/globalSum+(blend>0?blend*local/expertSum:0);result.loss-=Math.log(Math.max(1e-12,probability))/10;
+            if(probability<=1e-12)continue;for(int n=0;n<10;n++){double g=-(1-blend)*((n==label?globalSum:0)-base)/(10*probability*globalSum*globalSum);result.gradientSquared+=g*g;if(blend>0){double e=-blend*((n==label?expertSum:0)-local)/(10*probability*expertSum*expertSum);result.gradientSquared+=e*e;}}
+        }return result;
+    }
+    private double[] countVector(){double[] values=new double[100*(capacity+1)];System.arraycopy(global,0,values,0,100);for(int slot=0;slot<capacity;slot++)if(fragments[slot]!=null)System.arraycopy(fragments[slot].expert,0,values,100*(slot+1),100);return values;}
+    private double countDelta(double[] before){double sum=0;for(int i=0;i<100;i++){double delta=global[i]-before[i];sum+=delta*delta;}for(int slot=0;slot<capacity;slot++)for(int i=0;i<100;i++){double delta=(fragments[slot]==null?0:fragments[slot].expert[i])-before[100*(slot+1)+i];sum+=delta*delta;}return Math.sqrt(sum);}
     private int allocate(double[] signature){
         int chosen=0;for(int i=0;i<capacity;i++){if(fragments[i]==null){chosen=i;break;}if(fragments[i].lastUsed<fragments[chosen].lastUsed)chosen=i;}
         Fragment fragment=new Fragment();fragment.entered=t;fragment.lastUsed=t;System.arraycopy(signature,0,fragment.signature,0,DIM);fragment.index=index(signature);
@@ -63,7 +84,7 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
         fragments[chosen]=fragment;return chosen;
     }
     public void update(int[] draw){
-        OnlineModelsSU2.requireDraw(draw);ExecutionBudgetR26.poll();double[] signature=signature();
+        OnlineModelsSU2.requireDraw(draw);ExecutionBudgetR26.poll();if(t==Long.MAX_VALUE)throw new IllegalStateException("F20_UPDATE_CLOCK_CAPACITY");double[] signature=signature();long inputClock=t;boolean available=seen==HISTORY;Head before=countHead(signature,available,inputClock,draw);if(!Double.isFinite(before.loss)||!Double.isFinite(before.gradientSquared))throw new IllegalStateException("F20_COUNT_DIAGNOSTICS_NONFINITE");double[] counts=countVector();StringBuilder input=new StringBuilder("F20_FIXED_COUNT_INPUT_V1|").append(capacity).append('|').append(mode).append('|').append(t).append('|').append(seen);for(double value:signature)input.append('|').append(Double.toHexString(value));String inputHash=PolicyIdentityR26.sha256(input.toString());
         int selected=seen==HISTORY&&mode!=Retrieval.NONE?select(signature,false):-1;
         // All cooperative polls precede mutation; one update is a bounded 32-slot operation.
         if(seen==HISTORY&&mode!=Retrieval.NONE){
@@ -77,6 +98,7 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
         }
         for(int i=0;i<100;i++)global[i]*=.97;for(int p=0;p<10;p++)global[p*10+draw[p]-1]++;
         recent[(int)(t%HISTORY)]=draw.clone();seen=Math.min(HISTORY,seen+1);t++;
+        Head after=countHead(signature,available,inputClock,draw);last=new TrainingDiagnosticsR26.Step(t,before.loss,after.loss,Math.sqrt(before.gradientSquared),countDelta(counts),inputHash,"DOUBLE_COUNT_HEAD_MEAN_NLL_FIXED_PRE_LABEL_SIGNATURE;GRADIENT_AND_DELTA_COORDINATES_GLOBAL_AND_FRAGMENT_COUNTS");
     }
     int occupied(){int n=0;for(Fragment f:fragments)if(f!=null)n++;return n;}
     int validFragments(){int n=0;for(Fragment f:fragments)if(valid(f))n++;return n;}
@@ -99,7 +121,7 @@ public final class FamilyF20KernelR26 implements TemporalModelR26,ScaleInputR26 
             if(f.index!=index(f.signature))throw new IOException("F20_CHECKPOINT_INDEX");for(int p=0;p<10;p++){double initial=0,expert=0,a=0,b=0;for(int n=0;n<10;n++){initial+=f.initial[p*10+n];expert+=f.expert[p*10+n];a+=f.signature[p*10+n];b+=f.signature[100+p*10+n];}if(Math.abs(initial-1)>1e-8||expert<=0||Math.abs(a-1)>1e-8||Math.abs(b-1)>1e-8)throw new IOException("F20_CHECKPOINT_NORMALIZATION");}restored[slot]=f;}
         if(current>=0&&restored[current]==null||mode==Retrieval.NONE&&(current>=0||Arrays.stream(restored).anyMatch(Objects::nonNull)))throw new IOException("F20_CHECKPOINT_ACTIVE");
         for(int p=0;p<10;p++){double sum=0;for(int n=0;n<10;n++)sum+=base[p*10+n];if(sum<=0)throw new IOException("F20_CHECKPOINT_GLOBAL");}
-        t=clock;seen=context;active=current;for(int i=0;i<HISTORY;i++)System.arraycopy(history[i],0,recent[i],0,10);System.arraycopy(base,0,global,0,100);System.arraycopy(restored,0,fragments,0,capacity);
+        t=clock;seen=context;active=current;for(int i=0;i<HISTORY;i++)System.arraycopy(history[i],0,recent[i],0,10);System.arraycopy(base,0,global,0,100);System.arraycopy(restored,0,fragments,0,capacity);last=null;
     }
     private static double number(DataInput in,double max)throws IOException{double value=in.readDouble();if(!Double.isFinite(value)||value<0||value>max)throw new IOException("F20_CHECKPOINT_NUMBER");return value;}
 }
