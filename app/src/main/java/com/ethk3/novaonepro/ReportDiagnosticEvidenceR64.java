@@ -108,17 +108,15 @@ public final class ReportDiagnosticEvidenceR64 {
                 }
                 if (columns.isEmpty()) continue;
                 if (!first) out.write(','); first = false;
-                out.write("{\"table\":" + JSONObject.quote(table)
-                        + ",\"columns\":" + new org.json.JSONArray(columns).toString()
-                        + ",\"scope\":\"ALL_ROWS_FULL_METADATA_TEXT\",\"rows\":[");
                 // Bounded projections keep large checkpoint/model metadata out of
                 // CursorWindow. Text is streamed losslessly from this same snapshot.
-                // R13-P33: a table above 20,000 rows exports its latest 5,000 rows plus the exact total;
+                // R13-P33: above 20,000 rows export the last 5,000 in explicit stable table order;
                 // the full table remains available through the explicit raw-evidence export.
                 long totalRows;try(Cursor total=snapshot.rawQuery("SELECT COUNT(*) FROM "+ident(table),null)){if(!total.moveToFirst())throw new IOException("R66_METADATA_ROW_COUNT_MISSING:"+table);totalRows=total.getLong(0);}
-                long from=Long.MIN_VALUE;if(totalRows>20000){try(Cursor cut=snapshot.rawQuery("SELECT rowid FROM "+ident(table)+" ORDER BY rowid DESC LIMIT 1 OFFSET 4999",null)){if(cut.moveToFirst())from=cut.getLong(0);}}
-                long exportedRows=ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control,from);
-                if(from==Long.MIN_VALUE&&totalRows!=exportedRows)throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
+                boolean bounded=totalRows>20000;
+                out.write("{\"table\":"+JSONObject.quote(table)+",\"columns\":"+new org.json.JSONArray(columns).toString()+",\"scope\":"+JSONObject.quote(bounded?"LAST_5000_IN_STABLE_TABLE_ORDER":"ALL_ROWS_FULL_METADATA_TEXT")+",\"rowOrder\":"+JSONObject.quote(ReportMetadataStreamR81.rowOrder(snapshot,table))+",\"rows\":[");
+                long exportedRows=bounded?ReportMetadataStreamR81.writeLastRows(snapshot,table,columns,out,control,5000):ReportMetadataStreamR81.writeRows(snapshot,table,columns,out,control);
+                if(exportedRows!=(bounded?5000:totalRows))throw new IOException("R66_METADATA_ROW_COUNT_MISMATCH:"+table);
                 out.write("],\"exportedRows\":"+exportedRows+",\"totalRows\":"+totalRows+",\"complete\":"+(exportedRows==totalRows)+"}");
             }
             out.write("],\"multiHorizonProbeResearch\":"+MultiHorizonProbeR80.reportJson(snapshot,()->control.shouldContinue())+",\"researchSchedulerState\":[");first=true;

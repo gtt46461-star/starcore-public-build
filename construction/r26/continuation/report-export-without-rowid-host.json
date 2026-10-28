@@ -1,0 +1,32 @@
+{
+  "status": "PASS_HOST_REPRODUCTION_AND_FIX",
+  "scope": "REPORT_EXPORT_FAILURE_REPAIR_NOT_FULL_CONSTRUCTION_ACCEPTANCE",
+  "inputZipSha256": "e3febd546ec5bea82f4f8224b5061a6c28db4242050a6233e18670498cbd2f98",
+  "inputBoundary": "Recovery-only ZIP, no database snapshot or completed checks; private user observations are not copied into this repository",
+  "originalFailure": "no such column: rowid; SELECT MIN(rowid),COUNT(*) FROM su2_campaign GROUP BY status",
+  "oldCodeReproduced": true,
+  "oldHostException": "Exception in thread \"main\" java.lang.IllegalStateException: no such column: rowid | SELECT MIN(rowid),COUNT(*) FROM \"su2_campaign\" GROUP BY \"status\"",
+  "fixedHostReceipt": "R26_REPORT_EXPORT_WITHOUT_ROWID_PASS|actualSU2CampaignSchema=true|compositeTextBlobPrimaryKey=true|longUnicodeNullAndBinaryPreserved=true|rowidShadowAndNoCaseGroups=true|last5000Of20005Exact=true|fullDiagnosticEvidenceGenerated=true|readonlySnapshotBytesUnchanged=true|cancellation=true|scope=HOST_PRODUCTION_SQLITE_NOT_USER_DEVICE_OR_ALL_REPORT_CHECKS",
+  "productionSources": {
+    "app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java": "ab19b0ddb82622ea1dbf501a69fdf70ffc33fa0abc89c14a6ebecf2d522de631",
+    "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java": "107d07358a16fe0e6f7f859d86188b8ce0bfb087fe9c5a9fd41726896d3f8569"
+  },
+  "compile": {
+    "productionSources": 1084,
+    "sdk": "PASS_API36_COMPILE_ONLY",
+    "nativeTestSources": "NEW_REPORT_TEST_PASS_SDK_WITH_TEST_ANNOTATION_STUBS",
+    "nativeTestCount": 119,
+    "nativeExecution": "PENDING_MATCHING_SOURCE",
+    "nativeTestSourceScope": "Only the added report regression was compiled locally; complete Android dependency build is pending CI"
+  },
+  "package": {
+    "versionName": "R26-2026.10.28-reportfix1",
+    "versionCode": 577271028,
+    "applicationId": "com.starcore.research.r13"
+  },
+  "limits": [
+    "User database is not present in the recovery ZIP; it has not been replayed",
+    "Real Android regression and full package verification still required",
+    "This repair does not close other construction or natural strategy quality requirements"
+  ]
+}

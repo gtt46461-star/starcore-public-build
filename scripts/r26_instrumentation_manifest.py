@@ -5,7 +5,7 @@ import hashlib,json,re
 ROOT=Path(__file__).resolve().parents[1]
 def main():
     rows=[]
-    for path in sorted((ROOT/'app/src/androidTest/java/com/ethk3/novaonepro/strategyv2').rglob('*.java'),key=lambda p:(p.stem!='ResearchUiDeviceSU1Test',p.name)):
+    for path in sorted((ROOT/'app/src/androidTest/java/com/ethk3/novaonepro/strategyv2').rglob('*.java'),key=lambda p:(0 if p.stem=='ResearchUiDeviceSU1Test' else 1 if p.stem=='ReportMetadataExportDeviceTest' else 2,p.name)):
         source=path.read_text()
         methods=re.findall(r'@(?:org\.junit\.)?Test(?:\([^)]*\))?\s+(?:public\s+)?void\s+(\w+)\s*\(',source)
         if not methods:continue
