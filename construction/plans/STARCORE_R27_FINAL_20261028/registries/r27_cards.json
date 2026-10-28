@@ -1,0 +1,900 @@
+{
+ "plan": "STARCORE_R27_FINAL_20261028",
+ "baseline_commit": "1713d114ebbd07ebd6544a29acfbce1bd883215c",
+ "report_source_commit": "4dcddd2aba61c8364c44e80cbb23e39c5993fa61",
+ "batches": {
+  "B00": {
+   "title": "基线冻结与度量埋点",
+   "engineer_days": "1—2"
+  },
+  "B01": {
+   "title": "运行主干：研究线程池、写队列、真实阻塞原因",
+   "engineer_days": "4—6"
+  },
+  "B02": {
+   "title": "升级不清零：语义ABI与证据连续性",
+   "engineer_days": "3—5"
+  },
+  "B03": {
+   "title": "历史回放数据集、评估器、四段切分",
+   "engineer_days": "5—8"
+  },
+  "B04": {
+   "title": "统一单系统：旧R9xx研究链并入并退役",
+   "engineer_days": "4—7"
+  },
+  "B05": {
+   "title": "创造引擎与进化：思路族、变异、融合、淘汰、负对照",
+   "engineer_days": "8—12"
+  },
+  "B06": {
+   "title": "持续深度学习：AtomNet预训练、续训、误差图",
+   "engineer_days": "3—5"
+  },
+  "B07": {
+   "title": "校准链修复与其他功能",
+   "engineer_days": "3—5"
+  },
+  "B08": {
+   "title": "序贯检验、证书、主链衔接",
+   "engineer_days": "3—5"
+  },
+  "B09": {
+   "title": "原子世界、分子、矩阵",
+   "engineer_days": "3—4"
+  },
+  "B10": {
+   "title": "图表、界面、检测报告",
+   "engineer_days": "5—7"
+  },
+  "B11": {
+   "title": "测试、设备矩阵、发布",
+   "engineer_days": "4—6"
+  }
+ },
+ "cards": [
+  {
+   "id": "R27-001",
+   "batch": "B00",
+   "title": "固定施工基线",
+   "files": "fix/r26-report-export-20261028@1713d11 全仓",
+   "change": "以 1713d11 为基线开分支 construction/r27-*；记录全部将修改文件的 before SHA256",
+   "test": "脚本比对 before 哈希",
+   "acceptance": "哈希清单入库 evidence/r27/baseline.json",
+   "depends": [],
+   "r26_refs": [
+    "R26-014"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-002",
+   "batch": "B00",
+   "title": "度量埋点",
+   "files": "RuntimeCoordinatorR26、ServiceTotalsR26",
+   "change": "记录研究线程CPU/墙钟、每任务每片 wait 原因原值",
+   "test": "HOST 单测",
+   "acceptance": "报告可算出改造前研究CPU占比（预期≈4%）作为对照",
+   "depends": [
+    "R27-001"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-003",
+   "batch": "B01",
+   "title": "研究线程池",
+   "files": "新增 ResearchPoolR27；RuntimeCoordinatorR26.run/claim",
+   "change": "单线程轮询→线程池；每线程只读WAL连接；取消令牌",
+   "test": "多线程HOST测试+真机",
+   "acceptance": "研究CPU占比≥50%×线程数（60分钟）",
+   "depends": [
+    "R27-002"
+   ],
+   "r26_refs": [
+    "R26-002",
+    "R26-003"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-004",
+   "batch": "B01",
+   "title": "写入队列与毫秒级让路",
+   "files": "新增 ResearchWriteQueueR27；DatabaseCoordinator",
+   "change": "提交≤20ms/≤500行；只在P0写或截止前3s等待≤200ms",
+   "test": "压力测试：P0连续写+研究满负荷",
+   "acceptance": "冻结准时率≥99%；写等待>200ms ≤5次/小时",
+   "depends": [
+    "R27-003"
+   ],
+   "r26_refs": [
+    "B:R25-006"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-005",
+   "batch": "B01",
+   "title": "删除会话级CRITICAL_DEADLINE整段让出",
+   "files": "RuntimeCoordinatorR26.java:99 preempt()",
+   "change": "只保留 MEMORY/THERMAL/用户停止；截止前3s线程池降到1",
+   "test": "真机60分钟",
+   "acceptance": "session.state 不再长期 BLOCKED:CRITICAL_DEADLINE",
+   "depends": [
+    "R27-004"
+   ],
+   "r26_refs": [
+    "R24-004"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-006",
+   "batch": "B01",
+   "title": "真实阻塞原因枚举",
+   "files": "RuntimeCoordinatorR26.java:103-111；RuntimeSchemaR26 r26_task 加列",
+   "change": "DATA_NOT_READY→PROGRESS/NO_NEW_EVENT/DEPENDENCY/DEADLINE_MISSED/RESOURCE/ERROR/DISABLED_BY_USER",
+   "test": "单测：每类各造一个",
+   "acceptance": "报告无 DATA_NOT_READY；卡住>30分钟与从未运行任务告警可触发",
+   "depends": [
+    "R27-003"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-007",
+   "batch": "B01",
+   "title": "错误隔离与重试上限",
+   "files": "新表 r27_task_error",
+   "change": "5次/10分钟后 QUARANTINED；全栈留存",
+   "test": "注入异常",
+   "acceptance": "同一异常不无限循环",
+   "depends": [
+    "R27-006"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-008",
+   "batch": "B01",
+   "title": "准备—冻结分离",
+   "files": "IncumbentLoopSU2.java:31-34；PreparedForecastStoreR26；ResearchPredrawCaptureR923",
+   "change": "结算后立即准备下一期预测；冻结只做小写入",
+   "test": "真机连续1440期",
+   "acceptance": "INCUMBENT_MISSING_AFTER_OPEN=0；DEADLINE_MISSED≤1%",
+   "depends": [
+    "R27-004"
+   ],
+   "r26_refs": [
+    "A:R25-005"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-009",
+   "batch": "B01",
+   "title": "服务启动/停止顺序",
+   "files": "AutoFetchService.java:2370 及 onDestroy",
+   "change": "DbStore→P0→ResearchScheduler；停止时取消→等待→关连接",
+   "test": "杀进程/覆盖安装",
+   "acceptance": "无连接泄漏、无旧工作者写入（fence生效）",
+   "depends": [
+    "R27-003"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-010",
+   "batch": "B02",
+   "title": "运算符黄金测试",
+   "files": "新增 OperatorGoldenR27；assets/r27/golden_512.bin",
+   "change": "每运算符/家族一个小黄金测试；语义ABI=指纹集合",
+   "test": "HOST",
+   "acceptance": "改界面代码重建：指纹集合不变",
+   "depends": [
+    "R27-001"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-011",
+   "batch": "B02",
+   "title": "策略语义指纹与等价检查",
+   "files": "新增 SemanticAbiR27；表 r27_abi_continuity",
+   "change": "升级后对影子池/有资格/有证书策略重算指纹",
+   "test": "故意改一个运算符",
+   "acceptance": "只有受影响策略 CHANGED，其余 EQUIVALENT",
+   "depends": [
+    "R27-010"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-012",
+   "batch": "B02",
+   "title": "替换 TRAINING_RULE_SHA256 比较点",
+   "files": "LegacyReplayR26.java:40,55,99；RuntimeSchemaR26.bindCapabilitySource；ResearchEvaluationRunR967",
+   "change": "改为 SemanticAbiR27.isEquivalent；不等价走 ABI_REBIRTH",
+   "test": "升级安装测试",
+   "acceptance": "BLOCKED_NUMERICAL_ABI_PRESERVED=0；FUTURE样本数不因升级减少",
+   "depends": [
+    "R27-011"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-013",
+   "batch": "B03",
+   "title": "回放数据集",
+   "files": "新增 ReplayDatasetR27；表 r27_replay_dataset",
+   "change": "draws→排列矩阵+片段+datasetHash；增量追加",
+   "test": "HOST：缺口切片正确",
+   "acceptance": "缺口数=片段数−1",
+   "depends": [
+    "R27-001"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-014",
+   "batch": "B03",
+   "title": "共享特征缓存与泄漏测试",
+   "files": "新增 FeatureCacheR27、ReplayLeakageTestR27",
+   "change": "240原子PIT预计算；改t期不影响t期特征",
+   "test": "240原子逐个测试",
+   "acceptance": "全部通过",
+   "depends": [
+    "R27-013"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-015",
+   "batch": "B03",
+   "title": "逐期前推评估器",
+   "files": "新增 ReplayEvaluatorR27、ReplayScoreR27；表 r27_replay_score",
+   "change": "H_TRAIN训练/H_SELECT与H_HOLDOUT按登记在线规则评估",
+   "test": "与实时冻结输出对照200期",
+   "acceptance": "逐位一致；线性候选5000期≤50ms",
+   "depends": [
+    "R27-014"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-016",
+   "batch": "B03",
+   "title": "四段切分与留出曝光账",
+   "files": "新增 HoldoutLedgerR27；表 r27_holdout_exposure",
+   "change": "每720期新封存块；单块曝光>64次降级",
+   "test": "HOST",
+   "acceptance": "曝光计数准确；降级生效",
+   "depends": [
+    "R27-015"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-017",
+   "batch": "B03",
+   "title": "缺期不再抛异常",
+   "files": "CampaignStateSU1.java:27,29；HistoricalReplayEngineSU1",
+   "change": "按片段返回，跨片段样本 SKIPPED_GAP",
+   "test": "含112缺口真实库",
+   "acceptance": "foundry-su1 无 SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE",
+   "depends": [
+    "R27-013"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-018",
+   "batch": "B03",
+   "title": "历史CSV导入",
+   "files": "设置页“导入历史”；SAF",
+   "change": "与库内同期逐期哈希比对，冲突不导入",
+   "test": "导入仓库10000期CSV",
+   "acceptance": "冲突期列表；导入后回放可用",
+   "depends": [
+    "R27-013"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-019",
+   "batch": "B04",
+   "title": "旧算法导出为 PolicySpec",
+   "files": "R908 算法表；新增 LegacyPolicyExportR27",
+   "change": "可复现的→F22/F23种子；不可复现标 LEGACY_NOT_REPRODUCIBLE",
+   "test": "逐个复现最近200期旧冻结输出",
+   "acceptance": "复现率与不可复现原因入报告",
+   "depends": [
+    "R27-021"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-020",
+   "batch": "B04",
+   "title": "旧学习器/原子网络权重导入",
+   "files": "r967_numeric_training_run；AtomicToolWorldR943",
+   "change": "作为 warm start；旧未来样本不继承",
+   "test": "HOST",
+   "acceptance": "导入后立即有回放成绩",
+   "depends": [
+    "R27-015",
+    "R27-033"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-021",
+   "batch": "B05",
+   "title": "统一策略对象",
+   "files": "新增 PolicySpecR27、PolicyAstR27；表 r27_policy",
+   "change": "五段结构；规范化与无损哈希",
+   "test": "往返序列化",
+   "acceptance": "哈希稳定；小数不截断",
+   "depends": [
+    "R27-001"
+   ],
+   "r26_refs": [
+    "B:R25 无损身份"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-022",
+   "batch": "B05",
+   "title": "出生门",
+   "files": "新增 BirthGateR27；扩展 TypedProgram",
+   "change": "类型/范围/因果/成本/合法输出/行为去重",
+   "test": "每类拒绝各一例",
+   "acceptance": "拒绝原因全部在枚举内",
+   "depends": [
+    "R27-021"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-023",
+   "batch": "B05",
+   "title": "14个思路族生成器",
+   "files": "新增 idea/I00…I13",
+   "change": "每族生成器+专属变异+先验；公平配额",
+   "test": "每族生成1000个",
+   "acceptance": "每族通过率>0",
+   "depends": [
+    "R27-022"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-024",
+   "batch": "B05",
+   "title": "专家提案接入",
+   "files": "ExpertWorkshopR26",
+   "change": "输出 ProposalR27 进出生队列（≤25%名额）",
+   "test": "HOST",
+   "acceptance": "专家提案存活率进报告",
+   "depends": [
+    "R27-023"
+   ],
+   "r26_refs": [
+    "R26 专家合同"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-025",
+   "batch": "B05",
+   "title": "变异/交叉/融合算子",
+   "files": "新增 MutationOpsR27、CrossoverOpsR27、FusionOpsR27",
+   "change": "5.3/5.4全部算子；NO_OP检测",
+   "test": "每算子单测",
+   "acceptance": "融合产物为新policyHash；成员不变",
+   "depends": [
+    "R27-022"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-026",
+   "batch": "B05",
+   "title": "连续减半淘汰",
+   "files": "新增 SuccessiveHalvingR27；退役 ResearchPruningR965",
+   "change": "R0/R1/R2规则；淘汰留档",
+   "test": "HOST",
+   "acceptance": "淘汰原因可查；档案可复用",
+   "depends": [
+    "R27-015"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-027",
+   "batch": "B05",
+   "title": "岛屿与多样性档案",
+   "files": "新增 IslandModelR27、EliteArchiveR27",
+   "change": "13岛+160格MAP-Elites；每5代迁移",
+   "test": "HOST",
+   "acceptance": "多样性指标（冠军相关度）入报告",
+   "depends": [
+    "R27-026"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-028",
+   "batch": "B05",
+   "title": "进化主循环与断点",
+   "files": "新增 EvolutionLoopR27；表 r27_generation、r27_lineage、r27_evolution_cursor",
+   "change": "5.6九步；每步游标",
+   "test": "每步杀进程",
+   "acceptance": "出生不重复；谱系不重复",
+   "depends": [
+    "R27-023",
+    "R27-025",
+    "R27-027"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-029",
+   "batch": "B05",
+   "title": "代际提升判定",
+   "files": "EvolutionLoopR27 第6步",
+   "change": "H_HOLDOUT 配对LCB>0 且优于I00与负对照",
+   "test": "模拟：有植入信号/无信号两种数据",
+   "acceptance": "植入信号能被判 VERIFIED；无信号时 VERIFIED 率≤5%",
+   "depends": [
+    "R27-016",
+    "R27-030"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-030",
+   "batch": "B05",
+   "title": "负对照进化",
+   "files": "新增 NullEvolutionR27",
+   "change": "同流程10%算力、打乱标签",
+   "test": "HOST",
+   "acceptance": "每代有负对照冠军成绩",
+   "depends": [
+    "R27-028"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-031",
+   "batch": "B05",
+   "title": "旧 Foundry/Evolution 并入",
+   "files": "ModelFoundryJobSU2(REFRESH_EVERY=300)、ModelEvolutionSU2、FoundryCampaignR26、WarmCandidateR26、DirectedResearchCreationR932",
+   "change": "作为岛；删除300期总门槛；失败簇来自H_SELECT",
+   "test": "HOST",
+   "acceptance": "r26_evolution 七计数持续增长",
+   "depends": [
+    "R27-028"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-032",
+   "batch": "B05",
+   "title": "晋升实时影子池",
+   "files": "LivePoolR26.publishOne/trainOne",
+   "change": "VERIFIED 冠军进影子池（上限32）；判退回档案",
+   "test": "真机",
+   "acceptance": "影子池非空且有轮换记录",
+   "depends": [
+    "R27-029",
+    "R27-040"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-033",
+   "batch": "B06",
+   "title": "AtomNetR27 模型与训练器",
+   "files": "新增 AtomNetR27、AtomNetTrainerR27；AtomicToolWorldR943.java:139",
+   "change": "预训练+经验回放续训+回滚",
+   "test": "HOST：植入信号数据能学会",
+   "acceptance": "真机：60分钟续训步数≥55",
+   "depends": [
+    "R27-015"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-034",
+   "batch": "B06",
+   "title": "训练样本与冻结解耦",
+   "files": "AtomicToolWorldR943.prepareLearningF03",
+   "change": "训练用PIT开奖样本；冻结只算FUTURE",
+   "test": "真机：故意让冻结迟到",
+   "acceptance": "训练不中断",
+   "depends": [
+    "R27-033"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-035",
+   "batch": "B06",
+   "title": "误差图A/B/C",
+   "files": "ChartsRepositoryR27；表 r27_brier_pair、r27_atomnet_epoch",
+   "change": "累计BSS+置信带；滚动200+噪声带；训练/留出损失",
+   "test": "截图对照",
+   "acceptance": "N<200显示样本不足",
+   "depends": [
+    "R27-033",
+    "R27-050"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-036",
+   "batch": "B06",
+   "title": "FTRL 同步改造",
+   "files": "LogisticRidgeSU2/FTRL入口",
+   "change": "预训练+增量+同一BSS图",
+   "test": "HOST",
+   "acceptance": "—",
+   "depends": [
+    "R27-033"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-037",
+   "batch": "B07",
+   "title": "校准逐行剔除",
+   "files": "CandidateCalibrationR932.java:238-240,276-277；GlobalResearchScheduleR932.java:210",
+   "change": "迟到/缺期行跳过不作废整批；细分失败原因",
+   "test": "注入迟到行",
+   "acceptance": "不再出现 BLOCKED_INVALID_INPUT 笼统原因",
+   "depends": [
+    "R27-008"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-038",
+   "batch": "B07",
+   "title": "校准拟合可用回放、验证用FUTURE",
+   "files": "CandidateCalibrationR932.fitOne/publishFit",
+   "change": "拟合段可取H_SELECT同口径输出",
+   "test": "HOST",
+   "acceptance": "24小时内≥1个校准模型",
+   "depends": [
+    "R27-015",
+    "R27-037"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-039",
+   "batch": "B07",
+   "title": "反馈/消融/审计启用",
+   "files": "ResearchFeedbackSU1、ModelAblationStoreSU1、CampaignAuditStoreSU1",
+   "change": "结算Outbox消费；每20代消融；每代账目审计",
+   "test": "真机",
+   "acceptance": "三个任务游标>0且持续前进",
+   "depends": [
+    "R27-006"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-040",
+   "batch": "B08",
+   "title": "序贯检验",
+   "files": "新增 SequentialQualificationR27；替换 QualificationWindowR26；表 r27_eprocess",
+   "change": "双向e-过程；α按永久序号分配",
+   "test": "1000个无优势策略模拟",
+   "acceptance": "错误授证≤5%；HR35%中位停时≤10000期",
+   "depends": [
+    "R27-012"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-041",
+   "batch": "B08",
+   "title": "证书质量门",
+   "files": "CertificateSU2.java",
+   "change": "34%/250/ECE0.04/最差块26%/连挂/语义ABI/优于负对照",
+   "test": "红线测试",
+   "acceptance": "门槛数值与现行一致",
+   "depends": [
+    "R27-040"
+   ],
+   "r26_refs": [
+    "R26 资格条款"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-042",
+   "batch": "B08",
+   "title": "主链选择",
+   "files": "MainlineBridgeSU2.chooseIfDue",
+   "change": "按 e值×校准质量 选；无证书保持FALLBACK",
+   "test": "红线测试",
+   "acceptance": "每期REAL≤1；无证书不出手",
+   "depends": [
+    "R27-041"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-043",
+   "batch": "B09",
+   "title": "原子回放评分",
+   "files": "AtomicToolWorldR943 质量表；新增 AtomScoreR27",
+   "change": "USEFUL/NEUTRAL/HARMFUL/MASKED",
+   "test": "HOST",
+   "acceptance": "165个原子样本≥1000",
+   "depends": [
+    "R27-015"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-044",
+   "batch": "B09",
+   "title": "派生原子与分子",
+   "files": "新增 DerivedAtomR27、MoleculeR27",
+   "change": "每50代派生；每代32分子",
+   "test": "HOST",
+   "acceptance": "24小时后有记录或给出无派生原因",
+   "depends": [
+    "R27-028",
+    "R27-043"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-045",
+   "batch": "B09",
+   "title": "矩阵一致性与父子矩阵改读",
+   "files": "MatrixStoreSU2、MatrixSourceRouterCP12、MatrixRegistrationR75",
+   "change": "父子矩阵读 r27_lineage；一致性单测",
+   "test": "HOST",
+   "acceptance": "100面/1200动作误差<1e-9",
+   "depends": [
+    "R27-028"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-046",
+   "batch": "B04",
+   "title": "旧链并行观察与退役开关",
+   "files": "ResearchLearningContinuityR912；设置 r27_legacy_research_enabled",
+   "change": "并行≥1440期后关闭旧lane调度",
+   "test": "真机",
+   "acceptance": "关闭后无功能缺失（报告对照表全绿）",
+   "depends": [
+    "R27-032",
+    "R27-050"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-047",
+   "batch": "B07",
+   "title": "数据库归档压缩",
+   "files": "RetentionTableRegistryCP12、RetentionR26",
+   "change": "旧大表归档；权重GC",
+   "test": "真机",
+   "acceptance": "DB≤1GB；历史证据可查",
+   "depends": [
+    "R27-046"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-048",
+   "batch": "B07",
+   "title": "抓取写入拒绝原因",
+   "files": "AutoFetchService 落库路径",
+   "change": "WRITE_REJECTED 细分并计数",
+   "test": "HOST",
+   "acceptance": "报告 FETCH 章有分布",
+   "depends": [
+    "R27-006"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-049",
+   "batch": "B10",
+   "title": "图表预聚合缓存",
+   "files": "新增 ChartCacheR27；表 r27_chart_cache",
+   "change": "每期/每代更新",
+   "test": "真机",
+   "acceptance": "首屏P95≤300ms",
+   "depends": [
+    "R27-028"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-050",
+   "batch": "B10",
+   "title": "14张图",
+   "files": "新增 ChartsRepositoryR27；调用者改接",
+   "change": "10.1全表",
+   "test": "截图",
+   "acceptance": "24小时后除主链权重外全部READY",
+   "depends": [
+    "R27-049"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-051",
+   "batch": "B10",
+   "title": "报告R27-01胜率真相章",
+   "files": "RuntimeReportR26/StrategyAssessmentR26",
+   "change": "自动结论模板三选一",
+   "test": "HOST：三种数据各生成一次",
+   "acceptance": "结论可回溯到表行",
+   "depends": [
+    "R27-040",
+    "R27-030"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-052",
+   "batch": "B10",
+   "title": "报告R27-02/03/04章",
+   "files": "同上",
+   "change": "进化真实性/持续运行/升级连续性",
+   "test": "HOST",
+   "acceptance": "字段齐全",
+   "depends": [
+    "R27-028",
+    "R27-006",
+    "R27-011"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-053",
+   "batch": "B10",
+   "title": "补全19个NOT_RUN章",
+   "files": "RuntimeReportR26、ReportMetricContractR26",
+   "change": "10.3表",
+   "test": "导出报告",
+   "acceptance": "仅DEVICE可NOT_RUN且有原因",
+   "depends": [
+    "R27-050"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-054",
+   "batch": "B10",
+   "title": "构建身份打包",
+   "files": "build.gradle 生成 build-identity.json 进 assets",
+   "change": "commit/tree/APK/依赖",
+   "test": "CI",
+   "acceptance": "报告 IDENTITY 章与运行时一致",
+   "depends": [
+    "R27-001"
+   ],
+   "r26_refs": [
+    "R24-001"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-055",
+   "batch": "B11",
+   "title": "HOST测试套件",
+   "files": "app/src/test/…；tools/",
+   "change": "第12章全部HOST测试",
+   "test": "CI",
+   "acceptance": "全部通过，日志入 evidence/r27/host",
+   "depends": [
+    "全部"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-056",
+   "batch": "B11",
+   "title": "零假设模拟",
+   "files": "tools/r27_null_baseline.py + Java 同构测试",
+   "change": "负对照、运气上限、序贯检验错误率",
+   "test": "CI",
+   "acceptance": "与 results/ 中数值同量级",
+   "depends": [
+    "R27-040"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-057",
+   "batch": "B11",
+   "title": "设备矩阵",
+   "files": "真机 V2353A（API34）+ 至少1台其他品牌",
+   "change": "亮屏/息屏/锁屏/拔插电/覆盖安装/杀进程/断网",
+   "test": "真机",
+   "acceptance": "第12章设备表全部记录",
+   "depends": [
+    "全部"
+   ],
+   "r26_refs": [
+    "R26-B11"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R27-058",
+   "batch": "B11",
+   "title": "发布与回滚",
+   "files": "签名构建；ROLLBACK_PLAN.md",
+   "change": "APK哈希、签名指纹、versionCode、迁移回执",
+   "test": "覆盖安装",
+   "acceptance": "可回滚到1713d11构建且数据不丢",
+   "depends": [
+    "R27-057"
+   ],
+   "r26_refs": [],
+   "status": "未施工"
+  }
+ ]
+}
