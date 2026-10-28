@@ -80,7 +80,9 @@ jobs:
       - name: Assemble debug + release (and lint, as the canonical plan build)
         run: |
           set -o pipefail
-          ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleRelease :app:assembleDebug 2>&1 | tail -n 200 | tee evidence/r27/ci/gradle_assemble.log
+          # assembleRelease needs the bundled API credential (R995), available only with the official transport cache.
+          if [ "$R27_SIGNING" = "OFFICIAL_R13" ] && [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else REL=""; echo "RELEASE_NOT_BUILT: no official signing/API credential" | tee evidence/r27/ci/release_status.txt; fi
+          ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 $REL :app:assembleDebug 2>&1 | tail -n 200 | tee evidence/r27/ci/gradle_assemble.log
       - name: Baseline 1713d11 debug APK with the same key (upgrade/rollback evidence)
         run: |
           git worktree add "$RUNNER_TEMP/baseline" 1713d114ebbd07ebd6544a29acfbce1bd883215c
@@ -92,11 +94,12 @@ jobs:
           git rev-parse HEAD > package-receipt/source-commit.txt
           echo "$R27_SIGNING" > package-receipt/signing-identity.txt
           for v in release debug; do
+            ls app/build/outputs/apk/$v/*.apk >/dev/null 2>&1 || continue
             "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/$v/*.apk > package-receipt/signature-$v.txt
             "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/$v/*.apk | head -n 3 > package-receipt/package-$v.txt
           done
           if [ "$R27_SIGNING" = "OFFICIAL_R13" ]; then grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature-release.txt; fi
-          grep -F "versionCode='577271030'" package-receipt/package-release.txt
+          grep -hF "versionCode='577271030'" package-receipt/package-*.txt
           sha256sum app/build/outputs/apk/*/*.apk baseline-apk/*.apk > package-receipt/SHA256SUMS.txt
           cat package-receipt/signing-identity.txt package-receipt/SHA256SUMS.txt
           grep -h "Signer #1 certificate SHA-256" package-receipt/signature-*.txt
