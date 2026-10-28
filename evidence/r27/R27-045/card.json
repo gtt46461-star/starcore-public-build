@@ -1,0 +1,53 @@
+{
+ "card": "R27-045",
+ "title": "矩阵一致性与父子矩阵改读",
+ "batch": "B09",
+ "acceptance": "100面/1200动作误差<1e-9",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixConsistencyR27.java",
+   "before_sha256": null,
+   "after_sha256": "b5271c7c1d7af5d89974287bdef57d4fef25d58315d739746ff125d7e790cc33",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java",
+   "before_sha256": "5a0d753ec14ba4ca1f7c46e5f100551e9b77f21eab7257b6986adf0e5a8c53c8",
+   "after_sha256": "0cb5cd37861f70c8b3458d21567d5d402f3d6356bb08d31ac1f65515418ac43f",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_lineage",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_lineage(child_hash TEXT NOT NULL,parent_hash TEXT NOT NULL,role TEXT NOT NULL,operator TEXT NOT NULL,generation INTEGER NOT NULL,created_at INTEGER NOT NULL,origin TEXT NOT NULL DEFAULT 'R27',created_issue TEXT NOT NULL DEFAULT '',PRIMARY KEY(child_hash,parent_hash,role))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H14_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H14_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "RANKING、ACTION_SURFACE",
+  "field": "maxError"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

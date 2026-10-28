@@ -1,0 +1,19 @@
+R27_MIGRATION|BASELINE_DDL|OK|applied=58 statements from app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26.java@1713d11 skippedForeign=['no such table: main.r26_feedback']
+R27_MIGRATION|M1_NO_DATA_LOSS|OK|tables=43 rows=306
+R27_MIGRATION|M2_GUARDED_COLUMNS|OK|missing=[] rows=[('task0', 0, 1800000000000, 0, '', 0), ('task1', 1000, 1800000000000, 1000, '', 0), ('task2', 0, 1800000000000, 0, '', 0), ('task3', 3000, 1800000000000, 3000, '', 0), ('task4', 0, 1800000000000, 0, '', 0), ('task5', 5000, 1800000000000, 5000, '', 0)]
+R27_MIGRATION|M3_IDEMPOTENT|OK|objects=165
+R27_MIGRATION|M4_NO_DROP_OR_DELETE|OK|statements=37
+R27_MIGRATION|M5_R27_TABLES|OK|r27_tables=32
+R27_MIGRATION|M6_R26_EVOLUTION_SEVEN_COUNTERS|OK|before={'attempts': 0, 'uniquePolicies': 0, 'structuralCandidates': None, 'behaviorNovel': None, 'researchAccepted': None, 'prospectiveQualified': None, 'verifiedImprovements': None} after={'attempts': 10, 'uniquePolicies': 10, 'structuralCandidates': 5, 'behaviorNovel': 8, 'researchAccepted': 4, 'prospectiveQualified': 1, 'verifiedImprovements': 1} replayed={'attempts': 10, 'uniquePolicies': 10, 'structuralCandidates': 5, 'behaviorNovel': 8, 'researchAccepted': 4, 'prospectiveQualified': 1, 'verifiedImprovements': 1}
+R27_MIGRATION|H15_SQL_CERTIFIED_ROW|OK|rows=1
+R27_MIGRATION|H15_SQL_REJECT_NO_CERT|OK|rows=0
+R27_MIGRATION|H15_SQL_REJECT_EXPIRED|OK|rows=0
+R27_MIGRATION|H15_SQL_REJECT_REVOKED|OK|rows=0
+R27_MIGRATION|H15_SQL_REJECT_NOT_QUALIFIED|OK|rows=0
+R27_MIGRATION|H15_SQL_REJECT_RETIRED_SHADOW|OK|rows=0
+R27_MIGRATION|H15_SQL_SECOND_DECISION_SAME_PERIOD|OK|REJECTED:UNIQUE constraint failed: r27_live_frozen.policy_hash, r27_live_frozen.target_ordinal
+R27_MIGRATION|H15_SQL_FROZEN_REWRITE|OK|REJECTED:R27_FROZEN_IMMUTABLE
+R27_MIGRATION|H15_SQL_NO_REQUEST_AFTER_SETTLEMENT|OK|rows=0
+R27_MIGRATION|H15_SQL_NO_UNFROZEN_NEXT_PERIOD_REQUEST|OK|rows=0 (a loss never creates a request for the next period)
+R27_MIGRATION|RESULT|ALL_OK
+MIGRATION dump_rc=0 test_rc=0

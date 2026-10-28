@@ -1,0 +1,71 @@
+{
+ "card": "R27-040",
+ "title": "序贯检验",
+ "batch": "B08",
+ "acceptance": "错误授证≤5%；HR35%中位停时≤10000期",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+   "before_sha256": null,
+   "after_sha256": "282fba834c5b8beb78c57858b04f7c9bfd431b11b1097860eb87e2ad509aabf7",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+   "before_sha256": null,
+   "after_sha256": "26a2deef40fe48447ccdac95ee83a4d9e90e86e5e305e0aa267b4f5a71b93693",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_eprocess",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_eprocess(policy_hash TEXT PRIMARY KEY,global_index INTEGER NOT NULL UNIQUE,alpha REAL NOT NULL,log_e_up REAL NOT NULL,log_e_down REAL NOT NULL,n INTEGER NOT NULL,acts INTEGER NOT NULL DEFAULT 0,hits INTEGER NOT NULL DEFAULT 0,sum_u REAL NOT NULL,sum_u2 REAL NOT NULL,last_ordinal INTEGER NOT NULL,state TEXT NOT NULL,target_rate REAL NOT NULL DEFAULT 0.15,updated_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H08_PASS",
+   "class": "R27SequentialTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27SequentialTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H08_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H09_PASS",
+   "class": "R27SequentialTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27SequentialTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H09_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "ALPHA",
+   "class": "R27SequentialTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27SequentialTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "ALPHA",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.truth",
+  "field": "futureShadows[].logE/threshold/sequentialState"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

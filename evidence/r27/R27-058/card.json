@@ -1,0 +1,45 @@
+{
+ "card": "R27-058",
+ "title": "发布与回滚",
+ "batch": "B11",
+ "acceptance": "可回滚到1713d11构建且数据不丢",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "release/R27_ROLLBACK_PLAN.md",
+   "before_sha256": null,
+   "after_sha256": "39774d1f114c24cf2b44c720c5c1727bc788773300a08e640528891c323d189d",
+   "change": "NEW"
+  },
+  {
+   "path": "release/release_manifest.json",
+   "before_sha256": "f8be365e037516e34bbaa65ddd28da58ff15bc293bfc25100bb5432dc62271ad",
+   "after_sha256": "dbf2af7dc5a0bcf9cf42f5d821d29a1d9011423d58270c1de0d1803c629c458e",
+   "change": "MODIFIED"
+  },
+  {
+   "path": ".github/workflows/r27.yml",
+   "before_sha256": null,
+   "after_sha256": "3b682ef3e9dd3521cb1b03c17900369bebc3faa861f8719a2b4b2e58a632f63a",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [],
+ "reportField": {
+  "source": "package-receipt",
+  "field": "APK SHA256 / 签名指纹 / versionCode"
+ },
+ "openItems": [
+  "正式签名需要 CI 缓存中的 R13 私钥；覆盖安装与回滚到 1713d11 须真机执行（模拟器回执见 CI）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

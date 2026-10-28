@@ -1,0 +1,51 @@
+{
+ "card": "R27-018",
+ "title": "历史CSV导入",
+ "batch": "B03",
+ "acceptance": "冲突期列表；导入后回放可用",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java",
+   "before_sha256": null,
+   "after_sha256": "69d64fae0078083e5d93184928c7055d915c04c0b014b6523f9ccb12dfa55fd0",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+   "before_sha256": null,
+   "after_sha256": "2a30ddb036774295c4cbf83db18abb205546eeab1264b60819a97ffd56b7a460",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+   "before_sha256": "d6ddceb9f01437ed6ef41f214ac39f36f59665464c2b0932f6f00704e4ee6652",
+   "after_sha256": "fda178361734bbebf64e8ed46c6323b82e0634b034aa4bcfe2923da170103987",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_history_import",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_history_import(issue TEXT PRIMARY KEY,ordinal INTEGER NOT NULL,numbers TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('IMPORTED','CONFLICT','MATCH')),db_numbers TEXT,source TEXT NOT NULL,imported_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "RuntimeReportR26",
+  "field": "HISTORY_IMPORT 冲突期列表"
+ },
+ "openItems": [
+  "CSV 导入走 Android 文件选择器，无 HOST 测试"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

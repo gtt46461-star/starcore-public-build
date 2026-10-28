@@ -1,0 +1,55 @@
+{
+ "card": "R27-054",
+ "title": "构建身份打包",
+ "batch": "B10",
+ "acceptance": "报告 IDENTITY 章与运行时一致",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "tools/r27/build_identity.py",
+   "before_sha256": null,
+   "after_sha256": "2e509335a37978c8abc2c26392e268a6d1675f8c40697f0c987336471b4622b1",
+   "change": "NEW"
+  },
+  {
+   "path": "app/build.gradle",
+   "before_sha256": "5908665d1d1814942e02a2072f9df237be71620ade6f590762fe86c68001a66e",
+   "after_sha256": "72d31b16774f3d524e3b42fdfca2539c2bfe292944663c7f445a8f2a607d0752",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [
+  {
+   "test": "BUILD_IDENTITY",
+   "class": null,
+   "command": "python3 tools/r27/build_identity.py <out>",
+   "log": "evidence/r27/host/build_identity.log",
+   "marker": "R27_BUILD_IDENTITY_WRITTEN",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "assets r27/build-identity.json",
+  "field": "IDENTITY.commit/tree/versionCode"
+ },
+ "openItems": [
+  "报告 IDENTITY 章与运行时一致须在安装后的 App 上核对"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

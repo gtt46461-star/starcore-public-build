@@ -1,0 +1,73 @@
+{
+ "card": "R27-011",
+ "title": "策略语义指纹与等价检查",
+ "batch": "B02",
+ "acceptance": "只有受影响策略 CHANGED，其余 EQUIVALENT",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SemanticAbiR27.java",
+   "before_sha256": null,
+   "after_sha256": "0d2f147287cdaa87f90030ee8aa8b87de8c45b544173e37d63c6934e95eeacc6",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+   "before_sha256": null,
+   "after_sha256": "26a2deef40fe48447ccdac95ee83a4d9e90e86e5e305e0aa267b4f5a71b93693",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+   "before_sha256": null,
+   "after_sha256": "68ca8270752a9c0781cdb6cbe68f0353123784a0bd03e118cb345486bc9742fb",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_semantic_fingerprint",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_semantic_fingerprint(policy_hash TEXT NOT NULL,build TEXT NOT NULL,fingerprint TEXT NOT NULL,operator_abi TEXT NOT NULL,rows_blob BLOB,computed_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,build))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_abi_continuity",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_abi_continuity(policy_hash TEXT NOT NULL,old_build TEXT NOT NULL,new_build TEXT NOT NULL,result TEXT NOT NULL CHECK(result IN ('EQUIVALENT','CHANGED','ERROR')),first_diff_issue TEXT,first_diff_field TEXT,checked_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,new_build))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H11_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H11_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H10_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H10_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.upgrade",
+  "field": "equivalent/changed/rows[].firstDiffIssue"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

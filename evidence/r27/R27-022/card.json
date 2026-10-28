@@ -1,0 +1,56 @@
+{
+ "card": "R27-022",
+ "title": "出生门",
+ "batch": "B05",
+ "acceptance": "拒绝原因全部在枚举内",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+   "before_sha256": null,
+   "after_sha256": "f3a9025ad64a454bb539dd58174ec51023cf449b0533396784bcc4d70522353f",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_policy.state_reason",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_policy(policy_hash TEXT PRIMARY KEY,spec_json TEXT NOT NULL,idea_family TEXT NOT NULL,birth_generation INTEGER NOT NULL,birth_issue TEXT NOT NULL,dataset_hash TEXT NOT NULL,state TEXT NOT NULL,state_reason TEXT NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL DEFAULT 0)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H04_PASS",
+   "class": "R27BirthGateTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27BirthGateTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H04_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H05_PASS",
+   "class": "R27BirthGateTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27BirthGateTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H05_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.evolution",
+  "field": "rejectReasons"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

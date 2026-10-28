@@ -1,0 +1,66 @@
+{
+ "card": "R27-032",
+ "title": "晋升实时影子池",
+ "batch": "B05",
+ "acceptance": "影子池非空且有轮换记录",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+   "before_sha256": null,
+   "after_sha256": "2a30ddb036774295c4cbf83db18abb205546eeab1264b60819a97ffd56b7a460",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+   "before_sha256": null,
+   "after_sha256": "26a2deef40fe48447ccdac95ee83a4d9e90e86e5e305e0aa267b4f5a71b93693",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_live_shadow",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_live_shadow(policy_hash TEXT PRIMARY KEY,spec_json TEXT NOT NULL,temperature REAL NOT NULL,bias BLOB NOT NULL,global_index INTEGER NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,promoted_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,through_ordinal INTEGER NOT NULL DEFAULT -1,base_policy TEXT NOT NULL DEFAULT '',semantic_abi TEXT NOT NULL DEFAULT '')",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_eprocess",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_eprocess(policy_hash TEXT PRIMARY KEY,global_index INTEGER NOT NULL UNIQUE,alpha REAL NOT NULL,log_e_up REAL NOT NULL,log_e_down REAL NOT NULL,n INTEGER NOT NULL,acts INTEGER NOT NULL DEFAULT 0,hits INTEGER NOT NULL DEFAULT 0,sum_u REAL NOT NULL,sum_u2 REAL NOT NULL,last_ordinal INTEGER NOT NULL,state TEXT NOT NULL,target_rate REAL NOT NULL DEFAULT 0.15,updated_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H15_SQL_CERTIFIED_ROW",
+   "class": null,
+   "command": "tools/r27/run_host_tests.sh",
+   "log": "evidence/r27/host/migration.log",
+   "marker": "H15_SQL_CERTIFIED_ROW",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.truth",
+  "field": "futureShadows"
+ },
+ "openItems": [
+  "影子池非空/轮换只能在运行中的 App 上观察"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

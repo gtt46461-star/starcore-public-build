@@ -1,0 +1,53 @@
+{
+ "card": "R27-027",
+ "title": "岛屿与多样性档案",
+ "batch": "B05",
+ "acceptance": "多样性指标（冠军相关度）入报告",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java",
+   "before_sha256": null,
+   "after_sha256": "481257619e10ed3532f9f39dbf29b625b8fc285f5f240ce6bfaff80d3bdee852",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java",
+   "before_sha256": null,
+   "after_sha256": "0b5802070624a12268736c4eef21f63359c9399e9b27240fec8828fe2937214d",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_generation.detail_json",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_generation(generation INTEGER NOT NULL,loop TEXT NOT NULL DEFAULT 'MAIN',dataset_hash TEXT NOT NULL,births INTEGER NOT NULL,rejected INTEGER NOT NULL,no_op INTEGER NOT NULL,duplicates INTEGER NOT NULL,survivors INTEGER NOT NULL,retired INTEGER NOT NULL,champion_hash TEXT,champion_select_u REAL,champion_holdout_hr REAL,prev_champion_holdout_hr REAL,null_champion_holdout_hr REAL,i00_champion_holdout_hr REAL,paired_lcb REAL,verified INTEGER NOT NULL,detail_json TEXT NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL,PRIMARY KEY(loop,generation))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H12_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H12_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "r27_generation.detail_json",
+  "field": "islandChampionSimilarity, archiveCells"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

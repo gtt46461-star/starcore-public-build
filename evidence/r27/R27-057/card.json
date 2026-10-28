@@ -1,0 +1,45 @@
+{
+ "card": "R27-057",
+ "title": "设备矩阵",
+ "batch": "B11",
+ "acceptance": "第12章设备表全部记录",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "tools/r27/emulator_r27.sh",
+   "before_sha256": null,
+   "after_sha256": "f8891d8646d46b2e9f111197f43c1ed2110dbce5513abdcfa60e1c5a9c5151b2",
+   "change": "NEW"
+  },
+  {
+   "path": "tools/r27/emulator_receipt.py",
+   "before_sha256": null,
+   "after_sha256": "58304bc917bd8f245d1543af2817f5b13bafd7c894eaf1609502e0edc6a1958d",
+   "change": "NEW"
+  },
+  {
+   "path": ".github/workflows/r27.yml",
+   "before_sha256": null,
+   "after_sha256": "3b682ef3e9dd3521cb1b03c17900369bebc3faa861f8719a2b4b2e58a632f63a",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [],
+ "reportField": {
+  "source": "DEVICE",
+  "field": "第12章设备表"
+ },
+ "openItems": [
+  "真机设备矩阵（V2353A API34 + 另一品牌，亮屏/息屏/锁屏/插拔电/覆盖安装/杀进程/断网）未执行：本环境无真机。CI 只能提供模拟器回执（EMULATOR，不计为设备验证）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

@@ -1,0 +1,39 @@
+{
+ "card": "R27-053",
+ "title": "补全19个NOT_RUN章",
+ "batch": "B10",
+ "acceptance": "仅DEVICE可NOT_RUN且有原因",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
+   "before_sha256": "c8eeee308a69f27a5f19abd4a31fef359d516767d55ee949dafaa92727f5a883",
+   "after_sha256": "44370b89876c9743a4b6667738ebe025d8d8209c8d9c45f31a4dabe845d057ff",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+   "before_sha256": null,
+   "after_sha256": "61f2bfaf1a2fbdcdecaf95c0f173cedae2c8552e9bf68d2fb8376980a6ffb6bb",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [],
+ "reportField": {
+  "source": "RuntimeReportR26",
+  "field": "19 chapters"
+ },
+ "openItems": [
+  "19章数据源已接；导出的真实报告需在设备上生成后核对（仅 DEVICE 可 NOT_RUN）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

@@ -1,0 +1,39 @@
+{
+ "card": "R27-004",
+ "title": "写入队列与毫秒级让路",
+ "batch": "B01",
+ "acceptance": "冻结准时率≥99%；写等待>200ms ≤5次/小时",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+   "before_sha256": null,
+   "after_sha256": "31a4cdb7d93feaa611ce94dbeb7781d3adf9c9d58a32f5b5a34146c14400dd9c",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_write_wait",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_write_wait(hour_start INTEGER PRIMARY KEY,submits INTEGER NOT NULL DEFAULT 0,waits_over_200ms INTEGER NOT NULL DEFAULT 0,max_wait_ms INTEGER NOT NULL DEFAULT 0,requeues INTEGER NOT NULL DEFAULT 0)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "ReportR27.runtime",
+  "field": "writeWaitsOver200msLastHour, freezeOnTimeRate"
+ },
+ "openItems": [
+  "写队列让路行为无 HOST 测试（需要 Android SQLite）；冻结准时率/写等待须真机测量"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

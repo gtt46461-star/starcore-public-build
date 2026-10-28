@@ -1,0 +1,45 @@
+{
+ "card": "R27-019",
+ "title": "旧算法导出为 PolicySpec",
+ "batch": "B04",
+ "acceptance": "复现率与不可复现原因入报告",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java",
+   "before_sha256": null,
+   "after_sha256": "b07421d3e87cc3fc169f9936cf0f2124cba726f4a075b89711a67669ddf85a8e",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_legacy_export",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_legacy_export(source_id TEXT PRIMARY KEY,source_table TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,policy_hash TEXT,reproduced INTEGER NOT NULL DEFAULT 0,compared INTEGER NOT NULL DEFAULT 0,exported_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "RuntimeReportR26",
+  "field": "LEGACY_EXPORT 复现率与原因"
+ },
+ "openItems": [
+  "R908 基因组全部是有状态程序，记为 LEGACY_NOT_REPRODUCIBLE；无 HOST 测试"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

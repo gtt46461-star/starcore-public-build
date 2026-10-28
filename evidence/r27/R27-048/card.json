@@ -1,0 +1,45 @@
+{
+ "card": "R27-048",
+ "title": "抓取写入拒绝原因",
+ "batch": "B07",
+ "acceptance": "报告 FETCH 章有分布",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+   "before_sha256": "fe54a2441710d1f879feef4bfd024a4e7de91f9a5054fe57e2aa060adff5cecb",
+   "after_sha256": "b016534f5769ef1b992354aebbfce1c7a2308fd61ac1dc141ab5ea76a7826b62",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_fetch_reject",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_fetch_reject(reason TEXT PRIMARY KEY,count INTEGER NOT NULL,last_issue TEXT,last_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "FETCH",
+  "field": "WRITE_REJECTED 原因分布"
+ },
+ "openItems": [
+  "无 HOST 测试"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

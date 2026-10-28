@@ -1,0 +1,58 @@
+{
+ "card": "R27-030",
+ "title": "负对照进化",
+ "batch": "B05",
+ "acceptance": "每代有负对照冠军成绩",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+   "before_sha256": null,
+   "after_sha256": "0c81f9e381888cec784650c97bc7eabbe237918f3f6268685989e43551fc1c05",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI00RandomBaselineR27.java",
+   "before_sha256": null,
+   "after_sha256": "1681b3b2aed3eef417fe895803eebf2924d8e1e5dac908fd4a16f8923fa45e7d",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_generation.null_champion_holdout_hr",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_generation(generation INTEGER NOT NULL,loop TEXT NOT NULL DEFAULT 'MAIN',dataset_hash TEXT NOT NULL,births INTEGER NOT NULL,rejected INTEGER NOT NULL,no_op INTEGER NOT NULL,duplicates INTEGER NOT NULL,survivors INTEGER NOT NULL,retired INTEGER NOT NULL,champion_hash TEXT,champion_select_u REAL,champion_holdout_hr REAL,prev_champion_holdout_hr REAL,null_champion_holdout_hr REAL,i00_champion_holdout_hr REAL,paired_lcb REAL,verified INTEGER NOT NULL,detail_json TEXT NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL,PRIMARY KEY(loop,generation))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_generation.i00_champion_holdout_hr",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_generation(generation INTEGER NOT NULL,loop TEXT NOT NULL DEFAULT 'MAIN',dataset_hash TEXT NOT NULL,births INTEGER NOT NULL,rejected INTEGER NOT NULL,no_op INTEGER NOT NULL,duplicates INTEGER NOT NULL,survivors INTEGER NOT NULL,retired INTEGER NOT NULL,champion_hash TEXT,champion_select_u REAL,champion_holdout_hr REAL,prev_champion_holdout_hr REAL,null_champion_holdout_hr REAL,i00_champion_holdout_hr REAL,paired_lcb REAL,verified INTEGER NOT NULL,detail_json TEXT NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL,PRIMARY KEY(loop,generation))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H07_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H07_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.evolution",
+  "field": "championLines[].shuffledLabelControl / i00RandomBaseline"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

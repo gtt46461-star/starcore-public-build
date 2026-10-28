@@ -1,0 +1,66 @@
+{
+ "card": "R27-008",
+ "title": "准备—冻结分离",
+ "batch": "B01",
+ "acceptance": "INCUMBENT_MISSING_AFTER_OPEN=0；DEADLINE_MISSED≤1%",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+   "before_sha256": null,
+   "after_sha256": "26a2deef40fe48447ccdac95ee83a4d9e90e86e5e305e0aa267b4f5a71b93693",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+   "before_sha256": "4b2ea25678c2a7c546abf0e5df4ff84f749f76a6fa62b468f6b6993474f0e930",
+   "after_sha256": "2aa5c96b5fca960b54cba84177cb8290dcecf5a7c4ec6dfc4ac67c975256c339",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_live_frozen",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_live_frozen(policy_hash TEXT NOT NULL,target_ordinal INTEGER NOT NULL,target_issue TEXT NOT NULL,position INTEGER NOT NULL,probabilities BLOB NOT NULL,n1 INTEGER NOT NULL,n2 INTEGER NOT NULL,n3 INTEGER NOT NULL,act INTEGER NOT NULL,status TEXT NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,hit INTEGER NOT NULL DEFAULT -1,settled_at INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(policy_hash,target_ordinal))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_opportunity",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_opportunity(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,scheduled INTEGER NOT NULL,frozen INTEGER NOT NULL,acted INTEGER NOT NULL,settled INTEGER NOT NULL,deadline_missed INTEGER NOT NULL,recorded_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H15_SQL_FROZEN_REWRITE",
+   "class": null,
+   "command": "tools/r27/run_host_tests.sh",
+   "log": "evidence/r27/host/migration.log",
+   "marker": "H15_SQL_FROZEN_REWRITE",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.runtime",
+  "field": "freezeScheduled24h, deadlineMissed24h"
+ },
+ "openItems": [
+  "INCUMBENT_MISSING_AFTER_OPEN=0、DEADLINE_MISSED≤1% 须在运行中的 App 上测量（emulator/DEVICE）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

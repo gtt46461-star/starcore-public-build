@@ -1,0 +1,55 @@
+{
+ "card": "R27-034",
+ "title": "训练样本与冻结解耦",
+ "batch": "B06",
+ "acceptance": "训练不中断",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+   "before_sha256": null,
+   "after_sha256": "a13e7411ed219ad2c2126697a9e9c82124fbccfcc0466de205a61a4820a489b9",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+   "before_sha256": null,
+   "after_sha256": "21cea9bb39d7a8c6454e8c510f5f56ecb4bc47dc6c43c759a03372a50ca10e39",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_brier_pair",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_brier_pair(target_issue TEXT NOT NULL,source TEXT NOT NULL CHECK(source IN ('FUTURE','REPLAY')),model TEXT NOT NULL DEFAULT 'ATOMNET',p_model REAL NOT NULL,p_base REAL NOT NULL,hit INTEGER NOT NULL,d REAL NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(target_issue,source,model))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H01_ATOMS_PASS",
+   "class": "R27LeakageTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27LeakageTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H01_ATOMS_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ChartCacheR27",
+  "field": "AtomNet 样本数"
+ },
+ "openItems": [
+  "训练不中断须真机观察"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

@@ -1,0 +1,46 @@
+{
+ "card": "R27-012",
+ "title": "替换 TRAINING_RULE_SHA256 比较点",
+ "batch": "B02",
+ "acceptance": "BLOCKED_NUMERICAL_ABI_PRESERVED=0；FUTURE样本数不因升级减少",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayR26.java",
+   "before_sha256": "54ab64441c4b9855131b1dd3a9dc1dde1da1f62cae5e5f7da8997bbff546ab2d",
+   "after_sha256": "a6035a935a13bf33ad3b00eb7844d52ec7c85b9e20d5585d5bf4ed6328442da7",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+   "before_sha256": null,
+   "after_sha256": "68ca8270752a9c0781cdb6cbe68f0353123784a0bd03e118cb345486bc9742fb",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_legacy_roster_alias",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_legacy_roster_alias(checkpoint_hash TEXT PRIMARY KEY,minted_roster TEXT NOT NULL,recorded_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "ReportR27.upgrade",
+  "field": "legacyRuntimeBlockedByNumericalAbi, r26LiveModelsArchivedBySourceAbi"
+ },
+ "openItems": [
+  "BLOCKED_NUMERICAL_ABI_PRESERVED=0 须在已有 R26 数据的设备上升级后观察",
+  "R26 live_model 身份仍含源码ABI（单列计数，未改）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

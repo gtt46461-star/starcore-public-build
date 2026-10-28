@@ -1,0 +1,64 @@
+{
+ "card": "R27-015",
+ "title": "逐期前推评估器",
+ "batch": "B03",
+ "acceptance": "逐位一致；线性候选5000期≤50ms",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+   "before_sha256": null,
+   "after_sha256": "65110e03c52119db2cd093e9873139ecc1bf29257f004db1905890293cb7e8c3",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayScoreR27.java",
+   "before_sha256": null,
+   "after_sha256": "74f7abe6d0fb8b7f536d98777ef0d2ddfd1966cd9690e6c1b4d826651fa4dcc3",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_replay_score",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_replay_score(policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,split TEXT NOT NULL CHECK(split IN ('H_TRAIN','H_SELECT','H_HOLDOUT')),n_sched INTEGER NOT NULL,n_act INTEGER NOT NULL,hits INTEGER NOT NULL,brier REAL,logloss REAL,ece REAL,worst_block_hr REAL,max_losing_streak INTEGER NOT NULL,paired_u_mean REAL NOT NULL,paired_u_lcb REAL,skipped_gap INTEGER NOT NULL DEFAULT 0,computed_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,dataset_hash,split))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H02_PASS",
+   "class": "R27ReplayTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27ReplayTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H02_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "REPLAY_SPEED",
+   "class": "R27ReplayTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27ReplayTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "REPLAY_SPEED",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.runtime",
+  "field": "candidateReplayP95Ms"
+ },
+ "openItems": [
+  "≤50ms 是手机目标；HOST 实测 4.5ms，真机须复测"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

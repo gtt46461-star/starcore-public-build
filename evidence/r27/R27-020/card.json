@@ -1,0 +1,39 @@
+{
+ "card": "R27-020",
+ "title": "旧学习器/原子网络权重导入",
+ "batch": "B04",
+ "acceptance": "导入后立即有回放成绩",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java",
+   "before_sha256": null,
+   "after_sha256": "b07421d3e87cc3fc169f9936cf0f2124cba726f4a075b89711a67669ddf85a8e",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_legacy_export",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_legacy_export(source_id TEXT PRIMARY KEY,source_table TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,policy_hash TEXT,reproduced INTEGER NOT NULL DEFAULT 0,compared INTEGER NOT NULL DEFAULT 0,exported_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "RuntimeReportR26",
+  "field": "LEGACY_EXPORT"
+ },
+ "openItems": [
+  "旧学习器/R943 网络权重形状与 AtomNetR27 不同，未做热启动（如实记录原因）；验收“导入后立即有回放成绩”未达成"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

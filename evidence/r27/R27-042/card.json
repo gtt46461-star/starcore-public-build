@@ -1,0 +1,70 @@
+{
+ "card": "R27-042",
+ "title": "主链选择",
+ "batch": "B08",
+ "acceptance": "每期REAL≤1；无证书不出手",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+   "before_sha256": "1f37fb851896ef03802ce9c5953b98f790e1252ec710f49a91c4b04ab8c36e4e",
+   "after_sha256": "a63ce4b4a6f215115f2c497d323a2f4a692617edf3092e4c23941bf06216c200",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+   "before_sha256": "76011bd5b0b45ad9a92a86b168e84e3383e95515534f951bd542b4184383b9ec",
+   "after_sha256": "ef953b32ac9e0c67471c5ec509629616c84c1f2f6b2f080c632c4526e245305c",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+   "before_sha256": null,
+   "after_sha256": "26a2deef40fe48447ccdac95ee83a4d9e90e86e5e305e0aa267b4f5a71b93693",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_chart_cache(mainline)",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_chart_cache(panel_id TEXT NOT NULL,key TEXT NOT NULL,payload_json TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(panel_id,key))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H15_JAVA_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H15_JAVA_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H15_SQL_SECOND_DECISION_SAME_PERIOD",
+   "class": null,
+   "command": "tools/r27/run_host_tests.sh",
+   "log": "evidence/r27/host/migration.log",
+   "marker": "H15_SQL_SECOND_DECISION_SAME_PERIOD",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "OWNER",
+  "field": "主链红线测试结果"
+ },
+ "openItems": [
+  "R27 意图仍需经过现有 R929 授权链；未新增任何 REAL 授权路径（主链规则未改一个字）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

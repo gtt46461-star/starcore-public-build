@@ -1,0 +1,51 @@
+{
+ "card": "R27-003",
+ "title": "研究线程池",
+ "batch": "B01",
+ "acceptance": "研究CPU占比≥50%×线程数（60分钟）",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+   "before_sha256": null,
+   "after_sha256": "ba0523c6b4de3b934caea7fcaa63626f6e3c3233002c55450b6f7dc407561ae3",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+   "before_sha256": "4b2ea25678c2a7c546abf0e5df4ff84f749f76a6fa62b468f6b6993474f0e930",
+   "after_sha256": "2aa5c96b5fca960b54cba84177cb8290dcecf5a7c4ec6dfc4ac67c975256c339",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_thread_cpu",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_thread_cpu(session_id TEXT NOT NULL,thread_name TEXT NOT NULL,cpu_ms INTEGER NOT NULL DEFAULT 0,wall_ms INTEGER NOT NULL DEFAULT 0,slices INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL,PRIMARY KEY(session_id,thread_name))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "ReportR27.runtime",
+  "field": "researchCpuShare, researchThreads"
+ },
+ "openItems": [
+  "无多线程 HOST 测试（需要 Android SQLite）；研究CPU占比≥50%×线程数须真机60分钟测量"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

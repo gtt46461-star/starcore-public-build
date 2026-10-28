@@ -1,0 +1,39 @@
+{
+ "card": "R27-009",
+ "title": "服务启动/停止顺序",
+ "batch": "B01",
+ "acceptance": "无连接泄漏、无旧工作者写入（fence生效）",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+   "before_sha256": null,
+   "after_sha256": "ba0523c6b4de3b934caea7fcaa63626f6e3c3233002c55450b6f7dc407561ae3",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+   "before_sha256": "4b2ea25678c2a7c546abf0e5df4ff84f749f76a6fa62b468f6b6993474f0e930",
+   "after_sha256": "2aa5c96b5fca960b54cba84177cb8290dcecf5a7c4ec6dfc4ac67c975256c339",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [],
+ "tests": [],
+ "reportField": {
+  "source": "r27_task_error",
+  "field": "无 fence 失效写入"
+ },
+ "openItems": [
+  "启动/停止顺序与连接泄漏只能在 Android 进程上验证（emulator/DEVICE）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

@@ -1,0 +1,69 @@
+{
+ "card": "R27-028",
+ "title": "进化主循环与断点",
+ "batch": "B05",
+ "acceptance": "出生不重复；谱系不重复",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+   "before_sha256": null,
+   "after_sha256": "1f9194a661d1f2a82c74851a2ecca774d781823ac4794fe8eb9d2ea410c3958a",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java",
+   "before_sha256": null,
+   "after_sha256": "f5366b0bb427322aa363ae1079e0d0db4c50240ebe3e3a9a6c11a389e77bc689",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+   "before_sha256": null,
+   "after_sha256": "2a30ddb036774295c4cbf83db18abb205546eeab1264b60819a97ffd56b7a460",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_evolution_cursor",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_evolution_cursor(loop TEXT PRIMARY KEY,generation INTEGER NOT NULL,step INTEGER NOT NULL,dataset_hash TEXT NOT NULL,rng_state INTEGER NOT NULL,snapshot TEXT NOT NULL,updated_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_generation",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_generation(generation INTEGER NOT NULL,loop TEXT NOT NULL DEFAULT 'MAIN',dataset_hash TEXT NOT NULL,births INTEGER NOT NULL,rejected INTEGER NOT NULL,no_op INTEGER NOT NULL,duplicates INTEGER NOT NULL,survivors INTEGER NOT NULL,retired INTEGER NOT NULL,champion_hash TEXT,champion_select_u REAL,champion_holdout_hr REAL,prev_champion_holdout_hr REAL,null_champion_holdout_hr REAL,i00_champion_holdout_hr REAL,paired_lcb REAL,verified INTEGER NOT NULL,detail_json TEXT NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL,PRIMARY KEY(loop,generation))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_lineage",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_lineage(child_hash TEXT NOT NULL,parent_hash TEXT NOT NULL,role TEXT NOT NULL,operator TEXT NOT NULL,generation INTEGER NOT NULL,created_at INTEGER NOT NULL,origin TEXT NOT NULL DEFAULT 'R27',created_issue TEXT NOT NULL DEFAULT '',PRIMARY KEY(child_hash,parent_hash,role))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H12_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H12_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.evolution",
+  "field": "championLines"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

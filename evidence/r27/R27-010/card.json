@@ -1,0 +1,59 @@
+{
+ "card": "R27-010",
+ "title": "运算符黄金测试",
+ "batch": "B02",
+ "acceptance": "改界面代码重建：指纹集合不变",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OperatorGoldenR27.java",
+   "before_sha256": null,
+   "after_sha256": "17a9ba085f10d86f8a68b4adc961ffa2b18b6976f5542a4624cf407ba6eef4df",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/assets/r27/golden_512.bin",
+   "before_sha256": null,
+   "after_sha256": "3cd1f137d11a71459f14a8323918eecf6a00a5f533c0c798380770e231e6d913",
+   "change": "NEW"
+  },
+  {
+   "path": "tools/r27/make_golden.py",
+   "before_sha256": null,
+   "after_sha256": "3be6196dd4b206a4f830dc90813a2b0b7ea5f29e20472f125e4f3561656dae96",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_semantic_fingerprint",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_semantic_fingerprint(policy_hash TEXT NOT NULL,build TEXT NOT NULL,fingerprint TEXT NOT NULL,operator_abi TEXT NOT NULL,rows_blob BLOB,computed_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,build))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H10_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H10_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.upgrade",
+  "field": "R27_04_UPGRADE_CONTINUITY.rows"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

@@ -1,0 +1,47 @@
+{
+ "card": "R27-052",
+ "title": "报告R27-02/03/04章",
+ "batch": "B10",
+ "acceptance": "字段齐全",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+   "before_sha256": null,
+   "after_sha256": "767aa0730106ca2fb3a93b277e3044099fc1a231491d786c9a7119a139d6a510",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+   "before_sha256": null,
+   "after_sha256": "61f2bfaf1a2fbdcdecaf95c0f173cedae2c8552e9bf68d2fb8376980a6ffb6bb",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [
+  {
+   "test": "H17_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H17_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.evolution/runtime/upgrade",
+  "field": "R27_02/03/04"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

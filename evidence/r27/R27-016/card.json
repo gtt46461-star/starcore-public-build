@@ -1,0 +1,62 @@
+{
+ "card": "R27-016",
+ "title": "四段切分与留出曝光账",
+ "batch": "B03",
+ "acceptance": "曝光计数准确；降级生效",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java",
+   "before_sha256": null,
+   "after_sha256": "567e1a7db682d1b83f1199654d92809c987a6ab9e5194b4236b71230a829d7a7",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java",
+   "before_sha256": null,
+   "after_sha256": "f5c551577fb2f597fd1f433fb5ad6fc0e6a5922ebfa92f2cac09dadc360b53e9",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_holdout_exposure",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_holdout_exposure(block_id INTEGER NOT NULL,policy_hash TEXT NOT NULL,looked_at INTEGER NOT NULL,PRIMARY KEY(block_id,policy_hash))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H07_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H07_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H06_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H06_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "r27_generation.detail_json",
+  "field": "holdout.blockExposures"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

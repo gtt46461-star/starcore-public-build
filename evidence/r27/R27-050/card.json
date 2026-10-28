@@ -1,0 +1,63 @@
+{
+ "card": "R27-050",
+ "title": "14张图",
+ "batch": "B10",
+ "acceptance": "24小时后除主链权重外全部READY",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+   "before_sha256": null,
+   "after_sha256": "4c4a44655ea73d7b2cece14c93ab786ce02de6ad70e24a28657efa71adc11b24",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+   "before_sha256": "d6ddceb9f01437ed6ef41f214ac39f36f59665464c2b0932f6f00704e4ee6652",
+   "after_sha256": "fda178361734bbebf64e8ed46c6323b82e0634b034aa4bcfe2923da170103987",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/ResearchVisualDataR82.java",
+   "before_sha256": "dfb9da386f47655ceeaf6871892efba5752b9960d9f903f7f6476a6fd9f3fb82",
+   "after_sha256": "61ca338a1b28f98aedc290e518958feff0b401c4526ed44aaa08b81350bec280",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
+   "before_sha256": "b6a83aa1c98b47e7344709fcccdde8b6f96adfbc7c7bfdea964d5f860d2fc02b",
+   "after_sha256": "d90cee8e1352e2fc776f6f804f3db456d9aacc66925f47be0be562e8df8197e7",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+   "before_sha256": null,
+   "after_sha256": "21585b805a56e1fbf29c321faeebf49131b050a49862d6980b4f5167802349f2",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_chart_cache",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_chart_cache(panel_id TEXT NOT NULL,key TEXT NOT NULL,payload_json TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(panel_id,key))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "ChartCacheR27.PANELS",
+  "field": "14 panels"
+ },
+ "openItems": [
+  "图表渲染无 HOST 测试；24小时 READY 须真机观察"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

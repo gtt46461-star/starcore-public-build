@@ -1,0 +1,72 @@
+{
+ "card": "R27-033",
+ "title": "AtomNetR27 模型与训练器",
+ "batch": "B06",
+ "acceptance": "真机：60分钟续训步数≥55",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+   "before_sha256": null,
+   "after_sha256": "cf65dc06f322454e09b373de18426a684e5249c945fe880c3af82c090f146a34",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+   "before_sha256": null,
+   "after_sha256": "daf19f9a3289fe8a20801a49b3751f19d44b8f7000397e5f1aa6e86a4ca551da",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+   "before_sha256": null,
+   "after_sha256": "21cea9bb39d7a8c6454e8c510f5f56ecb4bc47dc6c43c759a03372a50ca10e39",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_atomnet_state",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_atomnet_state(owner TEXT PRIMARY KEY,artifact BLOB NOT NULL,artifact_hash TEXT NOT NULL,trained_through TEXT NOT NULL,online_steps INTEGER NOT NULL,learning_rate REAL NOT NULL,last_check_logloss REAL,updated_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_atomnet_epoch",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_atomnet_epoch(run_id TEXT NOT NULL,epoch INTEGER NOT NULL,split TEXT NOT NULL,logloss REAL NOT NULL,brier REAL NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(run_id,epoch,split))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  },
+  {
+   "table": "r27_atomnet_pending",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_atomnet_pending(target_issue TEXT NOT NULL,model TEXT NOT NULL DEFAULT 'ATOMNET',p_model REAL NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,PRIMARY KEY(target_issue,model))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H16_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H16_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ChartCacheR27",
+  "field": "p09 AtomNet 图A/B/C"
+ },
+ "openItems": [
+  "真机：60分钟续训步数≥55（DEVICE）",
+  "AtomicToolWorldR943 未改为调用 AtomNetR27（旧网络并行保留，R27 训练在 RuntimeR27 atomnet 任务中）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

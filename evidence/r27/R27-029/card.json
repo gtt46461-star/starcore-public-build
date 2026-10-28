@@ -1,0 +1,56 @@
+{
+ "card": "R27-029",
+ "title": "代际提升判定",
+ "batch": "B05",
+ "acceptance": "植入信号能被判 VERIFIED；无信号时 VERIFIED 率≤5%",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+   "before_sha256": null,
+   "after_sha256": "1f9194a661d1f2a82c74851a2ecca774d781823ac4794fe8eb9d2ea410c3958a",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_generation.verified",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_generation(generation INTEGER NOT NULL,loop TEXT NOT NULL DEFAULT 'MAIN',dataset_hash TEXT NOT NULL,births INTEGER NOT NULL,rejected INTEGER NOT NULL,no_op INTEGER NOT NULL,duplicates INTEGER NOT NULL,survivors INTEGER NOT NULL,retired INTEGER NOT NULL,champion_hash TEXT,champion_select_u REAL,champion_holdout_hr REAL,prev_champion_holdout_hr REAL,null_champion_holdout_hr REAL,i00_champion_holdout_hr REAL,paired_lcb REAL,verified INTEGER NOT NULL,detail_json TEXT NOT NULL,started_at INTEGER NOT NULL,finished_at INTEGER NOT NULL,PRIMARY KEY(loop,generation))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H06_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H06_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H07_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H07_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.evolution",
+  "field": "verifiedGenerations, championLines[].verified"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

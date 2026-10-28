@@ -1,0 +1,45 @@
+{
+ "card": "R27-049",
+ "title": "图表预聚合缓存",
+ "batch": "B10",
+ "acceptance": "首屏P95≤300ms",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+   "before_sha256": null,
+   "after_sha256": "21585b805a56e1fbf29c321faeebf49131b050a49862d6980b4f5167802349f2",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_chart_cache",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_chart_cache(panel_id TEXT NOT NULL,key TEXT NOT NULL,payload_json TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(panel_id,key))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "UI",
+  "field": "图表加载耗时"
+ },
+ "openItems": [
+  "首屏P95≤300ms 须真机测量"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

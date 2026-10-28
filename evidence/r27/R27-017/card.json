@@ -1,0 +1,47 @@
+{
+ "card": "R27-017",
+ "title": "缺期不再抛异常",
+ "batch": "B03",
+ "acceptance": "foundry-su1 无 SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CampaignStateSU1.java",
+   "before_sha256": "88261c0e96017e73a17ea40553678f2b51a6740309bbd423ad8b8f9d978becc3",
+   "after_sha256": "141a6dc0140e87186ab789ec826be3bb11fd009ee2cbc63629a3228035dff922",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoricalReplayEngineSU1.java",
+   "before_sha256": "50ce3088668928780145d307f48300039f35ea21faf0ae4bc0625442c72d0ce9",
+   "after_sha256": "67523eb8875e33be9738615ebbae21c01df9e9691c847d1f73a1c302d7d61633",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [],
+ "tests": [
+  {
+   "test": "R27-017_PASS",
+   "class": "R27ReplayTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27ReplayTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "R27-017_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "r26_task",
+  "field": "foundry-su1 blocked_reason 不再是 SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

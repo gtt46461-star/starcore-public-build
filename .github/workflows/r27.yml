@@ -1,0 +1,147 @@
+name: STARCORE R27 build, HOST tests and emulator evidence
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths-ignore: ['evidence/r27/ci/**', 'evidence/r27/device/**', 'R27_DELIVERY_README_ZH.md']
+  workflow_dispatch:
+    inputs:
+      emulator_minutes:
+        description: 'Minutes the R27 APK runs on the emulator after the upgrade'
+        default: '20'
+permissions:
+  contents: read
+concurrency:
+  group: r27-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python dependencies
+        run: python -m pip install numpy==2.3.5 "cryptography>=41,<51"
+      - id: transport
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+      - name: Signing identity (official when the transport cache is reachable, otherwise a labelled temporary CI key)
+        run: |
+          if [ "${{ steps.transport.outputs.cache-hit }}" = "true" ]; then
+            python3 scripts/test_r13_signing_transport.py
+            python3 scripts/load_r13_signing.py
+            python3 scripts/load_su1_bundled_api.py || echo "API credential not loaded"
+            echo "R27_SIGNING=OFFICIAL_R13" >> "$GITHUB_ENV"
+          else
+            pw=$(python3 -c 'import secrets;print(secrets.token_hex(16))'); echo "::add-mask::$pw"
+            keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r27-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 30 \
+              -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R27 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY"
+            { echo "R13_SIGNING_P12=$RUNNER_TEMP/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R27_SIGNING=TEMPORARY_CI_KEY"; } >> "$GITHUB_ENV"
+          fi
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - name: Android SDK packages
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Repository verifiers (identity, schema, SU1/SU2/R26 suites)
+        run: |
+          mkdir -p evidence/r27/ci
+          set -o pipefail
+          python3 scripts/prepare_strategy_su1_identity.py
+          git diff --exit-code -- release/ || (echo "R27_IDENTITY_NOT_COMMITTED"; exit 1)
+          python3 scripts/r926_release_manifest.py --check
+          python3 scripts/r967_semantic_identity.py --check
+          python3 scripts/test_r13_production_ddl.py
+          python3 scripts/generate_strategy_su2_schema.py --check
+          python3 scripts/test_plan1025_storage.py
+          python3 scripts/verify_catalog_assets_cp12.py --check
+          python3 scripts/verify_strategy_su1.py 2>&1 | tail -n 40 | tee evidence/r27/ci/verify_strategy_su1.log
+          python3 scripts/verify_plan1025.py 2>&1 | tail -n 40 | tee evidence/r27/ci/verify_plan1025.log
+          python3 scripts/verify_r26.py 2>&1 | tail -n 40 | tee evidence/r27/ci/verify_r26.log
+      - name: Unit tests (H01–H17, R27-056 and every existing suite)
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee evidence/r27/ci/gradle_testDebugUnitTest.log
+      - name: HOST checks outside JUnit (H18, migration, H15 SQL)
+        run: |
+          CLASSES=$(ls -d app/build/intermediates/javac/debug/*/classes | head -1)
+          CLASSES="$CLASSES" ANDROID_JAR="$ANDROID_HOME/platforms/android-36/android.jar" OUT=evidence/r27/ci/host bash tools/r27/run_host_tests.sh
+      - name: Assemble debug + release (and lint, as the canonical plan build)
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleRelease :app:assembleDebug 2>&1 | tail -n 200 | tee evidence/r27/ci/gradle_assemble.log
+      - name: Baseline 1713d11 debug APK with the same key (upgrade/rollback evidence)
+        run: |
+          git worktree add "$RUNNER_TEMP/baseline" 1713d114ebbd07ebd6544a29acfbce1bd883215c
+          (cd "$RUNNER_TEMP/baseline" && ./gradlew --no-daemon :app:assembleDebug > "$GITHUB_WORKSPACE/evidence/r27/ci/baseline_assemble.log" 2>&1) || (tail -n 80 evidence/r27/ci/baseline_assemble.log; exit 1)
+          mkdir -p baseline-apk && cp "$RUNNER_TEMP"/baseline/app/build/outputs/apk/debug/*.apk baseline-apk/
+      - name: Package identity and signature
+        run: |
+          mkdir -p package-receipt
+          git rev-parse HEAD > package-receipt/source-commit.txt
+          echo "$R27_SIGNING" > package-receipt/signing-identity.txt
+          for v in release debug; do
+            "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/$v/*.apk > package-receipt/signature-$v.txt
+            "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/$v/*.apk | head -n 3 > package-receipt/package-$v.txt
+          done
+          if [ "$R27_SIGNING" = "OFFICIAL_R13" ]; then grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature-release.txt; fi
+          grep -F "versionCode='577271030'" package-receipt/package-release.txt
+          sha256sum app/build/outputs/apk/*/*.apk baseline-apk/*.apk > package-receipt/SHA256SUMS.txt
+          cat package-receipt/signing-identity.txt package-receipt/SHA256SUMS.txt
+          grep -h "Signer #1 certificate SHA-256" package-receipt/signature-*.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R27-build-and-evidence
+          path: |
+            app/build/outputs/apk/
+            baseline-apk/
+            app/build/test-results/testDebugUnitTest/
+            app/build/reports/tests/
+            evidence/r27/ci/
+            package-receipt/
+          if-no-files-found: warn
+  emulator:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: R27-build-and-evidence
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 4
+          script: bash tools/r27/emulator_r27.sh "$(ls delivered/baseline-apk/*.apk | head -1)" "$(ls delivered/app/build/outputs/apk/debug/*.apk | head -1)" evidence/r27/ci/emulator-api34 ${{ github.event.inputs.emulator_minutes || '20' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R27-emulator-api34
+          path: evidence/r27/ci/emulator-api34/

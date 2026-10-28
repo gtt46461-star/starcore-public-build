@@ -1,0 +1,33 @@
+{
+ "card": "R27-047",
+ "title": "数据库归档压缩",
+ "batch": "B07",
+ "acceptance": "DB≤1GB；历史证据可查",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [],
+ "reportField": {
+  "source": "RuntimeReportR26",
+  "field": "dbSize"
+ },
+ "openItems": [
+  "数据库归档压缩未实施：门控在旧链退役之后（只记录 DB 大小）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

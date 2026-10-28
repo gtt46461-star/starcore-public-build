@@ -1,0 +1,56 @@
+{
+ "card": "R27-013",
+ "title": "回放数据集",
+ "batch": "B03",
+ "acceptance": "缺口数=片段数−1",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+   "before_sha256": null,
+   "after_sha256": "babeaf5bff6e2ffa55cce20b2813ddeaad624b933eb62c256cf30aba684f8943",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_replay_dataset",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_replay_dataset(dataset_hash TEXT PRIMARY KEY,from_issue TEXT NOT NULL,to_issue TEXT NOT NULL,rows INTEGER NOT NULL,segments INTEGER NOT NULL,split TEXT NOT NULL,built_at INTEGER NOT NULL,build_ms INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "R27-013_PASS",
+   "class": "R27ReplayTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27ReplayTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "R27-013_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H03_PASS",
+   "class": "R27ReplayTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27ReplayTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H03_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportDataR27/RuntimeReportR26",
+  "field": "REPLAY.r27_replay_dataset(rows,segments)"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

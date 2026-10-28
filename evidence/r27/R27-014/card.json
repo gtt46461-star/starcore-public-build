@@ -1,0 +1,56 @@
+{
+ "card": "R27-014",
+ "title": "共享特征缓存与泄漏测试",
+ "batch": "B03",
+ "acceptance": "全部通过",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+   "before_sha256": null,
+   "after_sha256": "59798c5a52fb11cb0055e20952749218dc134302389d7519e1d0676f0cec0598",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+   "before_sha256": null,
+   "after_sha256": "a13e7411ed219ad2c2126697a9e9c82124fbccfcc0466de205a61a4820a489b9",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [
+  {
+   "test": "H01_LEAVES_PASS",
+   "class": "R27LeakageTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27LeakageTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H01_LEAVES_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H01_ATOMS_PASS",
+   "class": "R27LeakageTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27LeakageTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H01_ATOMS_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.evolution",
+  "field": "rejectReasons.CAUSAL"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

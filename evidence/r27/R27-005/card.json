@@ -1,0 +1,58 @@
+{
+ "card": "R27-005",
+ "title": "删除会话级CRITICAL_DEADLINE整段让出",
+ "batch": "B01",
+ "acceptance": "session.state 不再长期 BLOCKED:CRITICAL_DEADLINE",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+   "before_sha256": "4b2ea25678c2a7c546abf0e5df4ff84f749f76a6fa62b468f6b6993474f0e930",
+   "after_sha256": "2aa5c96b5fca960b54cba84177cb8290dcecf5a7c4ec6dfc4ac67c975256c339",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r26_session",
+   "ddl": "CREATE TABLE IF NOT EXISTS r26_session(session_id TEXT PRIMARY KEY,user_enabled INTEGER NOT NULL,boot_id TEXT NOT NULL,state TEXT NOT NULL,heartbeat INTEGER NOT NULL,actual_progress INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "R27-005_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "R27-005_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "WAITKIND_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "WAITKIND_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.runtime",
+  "field": "waitKindDistribution（无 CRITICAL_DEADLINE）"
+ },
+ "openItems": [
+  "会话状态不再长期 BLOCKED:CRITICAL_DEADLINE 只能在运行中的 App 上观察（emulator/DEVICE）"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

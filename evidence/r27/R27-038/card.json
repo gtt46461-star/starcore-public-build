@@ -1,0 +1,49 @@
+{
+ "card": "R27-038",
+ "title": "校准拟合可用回放、验证用FUTURE",
+ "batch": "B07",
+ "acceptance": "24小时内≥1个校准模型",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+   "before_sha256": null,
+   "after_sha256": "124c229b82b96b90991a3935a9e908ede51f80cdea9e85839248b4f12b6edac8",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_calibration.fit_source",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_calibration(policy_hash TEXT PRIMARY KEY,method TEXT NOT NULL,fit_source TEXT NOT NULL,fit_rows INTEGER NOT NULL,validation_rows INTEGER NOT NULL,excluded_late INTEGER NOT NULL,excluded_gap INTEGER NOT NULL,a REAL,b REAL,ece REAL,ece_by_stratum TEXT NOT NULL,state TEXT NOT NULL,reason TEXT NOT NULL,updated_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H13_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H13_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "r27_calibration",
+  "field": "fit_source=REPLAY+FUTURE validation"
+ },
+ "openItems": [
+  "24小时内≥1个校准模型须在运行中的 App 上观察"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

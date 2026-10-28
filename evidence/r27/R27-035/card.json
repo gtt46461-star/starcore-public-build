@@ -1,0 +1,53 @@
+{
+ "card": "R27-035",
+ "title": "误差图A/B/C",
+ "batch": "B06",
+ "acceptance": "N<200显示样本不足",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BrierSkillR27.java",
+   "before_sha256": null,
+   "after_sha256": "13e341151b05eb7105a48172c55b0612030cbdc5ac395c13c5f02c6e7e914abf",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+   "before_sha256": null,
+   "after_sha256": "21585b805a56e1fbf29c321faeebf49131b050a49862d6980b4f5167802349f2",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_brier_pair",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_brier_pair(target_issue TEXT NOT NULL,source TEXT NOT NULL CHECK(source IN ('FUTURE','REPLAY')),model TEXT NOT NULL DEFAULT 'ATOMNET',p_model REAL NOT NULL,p_base REAL NOT NULL,hit INTEGER NOT NULL,d REAL NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(target_issue,source,model))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H16_PASS",
+   "class": "R27QualityTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27QualityTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H16_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "BrierSkillR27.summary",
+  "field": "verdict=INSUFFICIENT when N<200"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

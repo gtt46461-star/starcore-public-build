@@ -1,0 +1,41 @@
+{
+ "card": "R27-001",
+ "title": "固定施工基线",
+ "batch": "B00",
+ "acceptance": "哈希清单入库 evidence/r27/baseline.json",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "tools/r27/make_evidence.py",
+   "before_sha256": null,
+   "after_sha256": "7506e6ebb5b78d7afd9d3fa5ce80fa5cf96d91823c3a289f1d91c9e0f4e1827a",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [
+  {
+   "test": "BASELINE_HASHES",
+   "class": null,
+   "command": "python3 tools/r27/make_evidence.py",
+   "log": "evidence/r27/baseline.json",
+   "marker": "before_sha256",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "evidence/r27/source_audit.json → assets r27/source-audit.json",
+  "field": "SOURCE.files[].before_sha256/after_sha256"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

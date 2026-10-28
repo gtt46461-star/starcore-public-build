@@ -1,0 +1,45 @@
+{
+ "card": "R27-046",
+ "title": "旧链并行观察与退役开关",
+ "batch": "B04",
+ "acceptance": "关闭后无功能缺失（报告对照表全绿）",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+   "before_sha256": "a5798f5119e48eae96eec9f690857eaabbb74f1b7ef413f086a2e68c85505692",
+   "after_sha256": "e1d53862254dd4b624d22c537cf77c60b74f01f36da664c94c6e67cc48fd30a4",
+   "change": "MODIFIED"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+   "before_sha256": null,
+   "after_sha256": "ad600c8e7fd68dbf7921965da0897f53f38fd852f5f1c9d622b8a495a477be85",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/ChartsActivityR83.java",
+   "before_sha256": "d6ddceb9f01437ed6ef41f214ac39f36f59665464c2b0932f6f00704e4ee6652",
+   "after_sha256": "fda178361734bbebf64e8ed46c6323b82e0634b034aa4bcfe2923da170103987",
+   "change": "MODIFIED"
+  }
+ ],
+ "ddl": [],
+ "tests": [],
+ "reportField": {
+  "source": "MERGE",
+  "field": "旧链退役开关"
+ },
+ "openItems": [
+  "退役开关已加，观察期对照表未运行"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

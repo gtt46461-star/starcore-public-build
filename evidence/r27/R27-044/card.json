@@ -1,0 +1,49 @@
+{
+ "card": "R27-044",
+ "title": "派生原子与分子",
+ "batch": "B09",
+ "acceptance": "24小时后有记录或给出无派生原因",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+   "before_sha256": null,
+   "after_sha256": "5b23bc8971610c70b03fb1092b67369dcec4bc72512aade73a1dbc4f817b0e94",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_molecule",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_molecule(molecule_hash TEXT PRIMARY KEY,definition TEXT NOT NULL,generation INTEGER NOT NULL,state TEXT NOT NULL,select_gain REAL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "R27-044_PASS",
+   "class": "R27ComponentTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27ComponentTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "R27-044_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "r27_molecule",
+  "field": "派生原子"
+ },
+ "openItems": [
+  "24小时后有记录须在运行中的 App 上观察"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

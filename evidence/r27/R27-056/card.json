@@ -1,0 +1,56 @@
+{
+ "card": "R27-056",
+ "title": "零假设模拟",
+ "batch": "B11",
+ "acceptance": "与 results/ 中数值同量级",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27NullBaselineTest.java",
+   "before_sha256": null,
+   "after_sha256": "9304f9a9ff697e2558f33f81c025d967d6aa9527f0ddfcf494de520a50b9cae7",
+   "change": "NEW"
+  },
+  {
+   "path": "tools/r27/compare_null_baseline.py",
+   "before_sha256": null,
+   "after_sha256": "4fdaa84beacc13584f16d459fef91ab116541e08f486baae2d8f065a6948e060",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [],
+ "tests": [
+  {
+   "test": "R27_056_JAVA_ISOMORPH_PASS",
+   "class": "R27NullBaselineTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27NullBaselineTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "R27_056_JAVA_ISOMORPH_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H18|RESULT|PASS_WITHIN_1PP",
+   "class": null,
+   "command": "tools/r27/run_host_tests.sh",
+   "log": "evidence/r27/host/h18_compare.log",
+   "marker": "PASS_WITHIN_1PP",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ReportR27.truth",
+  "field": "luckCeiling"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

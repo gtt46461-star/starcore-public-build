@@ -1,0 +1,45 @@
+{
+ "card": "R27-039",
+ "title": "反馈/消融/审计启用",
+ "batch": "B07",
+ "acceptance": "三个任务游标>0且持续前进",
+ "status": "未施工",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": false,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+   "before_sha256": null,
+   "after_sha256": "1f9194a661d1f2a82c74851a2ecca774d781823ac4794fe8eb9d2ea410c3958a",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+   "before_sha256": null,
+   "after_sha256": "2a30ddb036774295c4cbf83db18abb205546eeab1264b60819a97ffd56b7a460",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_ablation",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_ablation(generation INTEGER NOT NULL,champion_hash TEXT NOT NULL,node_index INTEGER NOT NULL,removed_child INTEGER NOT NULL,branch TEXT NOT NULL,delta_u REAL,delta_logloss REAL,PRIMARY KEY(generation,node_index,removed_child))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [],
+ "reportField": {
+  "source": "r27_ablation",
+  "field": "消融结果"
+ },
+ "openItems": [
+  "只实现了 R27 冠军消融；R26 反馈/审计任务未改，三个游标>0 未验证"
+ ],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}

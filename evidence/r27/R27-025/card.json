@@ -1,0 +1,68 @@
+{
+ "card": "R27-025",
+ "title": "变异/交叉/融合算子",
+ "batch": "B05",
+ "acceptance": "融合产物为新policyHash；成员不变",
+ "status": "已修改待设备验证",
+ "deliverables": {
+  "diffAndHashes": true,
+  "ddlAndMigration": true,
+  "testCommandRcLog": true,
+  "reportField": true,
+  "gapsRecorded": true
+ },
+ "files": [
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+   "before_sha256": null,
+   "after_sha256": "65bcc54db727ae685f2a9f860f3c9480fc7573dfd94ce6de6bf91a882315e3a9",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CrossoverOpsR27.java",
+   "before_sha256": null,
+   "after_sha256": "0f271a4f473125a1ccb534226c6a13104a8c5678ff904197dcf2dbc7219eec85",
+   "change": "NEW"
+  },
+  {
+   "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+   "before_sha256": null,
+   "after_sha256": "d25a1d136be457a1bf0d93f56525c765124ee808574be05c84b5fbfaed169bdb",
+   "change": "NEW"
+  }
+ ],
+ "ddl": [
+  {
+   "table": "r27_lineage",
+   "ddl": "CREATE TABLE IF NOT EXISTS r27_lineage(child_hash TEXT NOT NULL,parent_hash TEXT NOT NULL,role TEXT NOT NULL,operator TEXT NOT NULL,generation INTEGER NOT NULL,created_at INTEGER NOT NULL,origin TEXT NOT NULL DEFAULT 'R27',created_issue TEXT NOT NULL DEFAULT '',PRIMARY KEY(child_hash,parent_hash,role))",
+   "migration": "evidence/r27/host/migration.log (M1–M6)"
+  }
+ ],
+ "tests": [
+  {
+   "test": "H05_PASS",
+   "class": "R27BirthGateTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27BirthGateTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H05_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  },
+  {
+   "test": "H12_PASS",
+   "class": "R27EvolutionTest",
+   "command": "./gradlew :app:testDebugUnitTest (local: tools/r27 runner, JUnitCore) --tests R27EvolutionTest",
+   "log": "evidence/r27/host/junit_r27_local.log",
+   "marker": "H12_PASS",
+   "logPresent": true,
+   "passedInLog": true
+  }
+ ],
+ "reportField": {
+  "source": "ChartCacheR27",
+  "field": "p05_lineage"
+ },
+ "openItems": [],
+ "ciRun": null,
+ "statusRule": "HOST/CI → 已修改待设备验证 at most; 已验证 only with real-device evidence"
+}
