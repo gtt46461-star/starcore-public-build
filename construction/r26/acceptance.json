@@ -4,7 +4,7 @@
   "engineering": "PARTIAL",
   "algorithm_capabilities": "INCOMPLETE",
   "natural_quality": "INSUFFICIENT",
-  "user_physical_device": "NOT_RUN",
+  "user_physical_device": "USER_WAIVED_NOT_PERFORMED",
   "denominators": {
     "unified_cards": 128,
     "historical_requirements": 1832,
@@ -75,9 +75,10 @@
       "id": "R26-001",
       "batch": "R26-B01",
       "title": "双R25编号与要求合并",
-      "status": "PARTIAL",
+      "status": "PASS",
       "acceptance": "覆盖A32/B32/R2448及全部原分母，重复ID为0",
-      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+      "reason": "Full stated denominator and namespace-merge acceptance independently verified; algorithm/quality statuses remain separate",
+      "evidence": "continuation/merged-requirements-acceptance.json"
     },
     {
       "id": "R26-014",
@@ -1087,19 +1088,57 @@
   ],
   "fully_accepted_experts": [],
   "new_candidate_live_protocol": "IMPLEMENTED; COMPILED_AND_CORE_ANDROID_REGRESSIONS_PASS; FULL_ADVERSARIAL_ACCEPTANCE_PENDING",
-  "qualification_protocol": "PREREGISTERED_ROLLING_4000_STRIDE720; FUTURE_NATURAL_EVIDENCE_PENDING",
-  "legacy_predraw_bootstrap": "EXISTING_UNSLICED_PATH; NOT_R26_SLO_ACCEPTED",
-  "legacy_committee_stage_generation": "FULL_RESUMABLE_MIGRATION_PENDING; STATIC_IMPLEMENTATIONS_AND_SAVED_PARENTS_PRESERVED",
-  "fixed_window_statistical_power": "FAILED_SYNTHETIC_TARGET_POWER: 15% coverage / 40% probability, 0/300 passed the 4000-period paired bound; protocol redesign and predeclared sufficient-statistics retention required",
-  "compiled_source": "96b7921438624c0d4c7ca6e8deeabad487820f05",
-  "apk_sha256": "9cf9b19be3e130edbb99ad9bcaef0ea5c2d561e2a07bd13fffbd18e94d6b1b33",
+  "qualification_protocol": "R26_PREREGISTERED_AGGREGATE_LCB_V3;69120_PERIODS_STRIDE720;NATURAL_EVIDENCE_INSUFFICIENT",
+  "legacy_predraw_bootstrap": "RESUMABLE_REPLAY_AND_BOUNDED_OWNER_PARTS_IMPLEMENTED;FULL_LEGACY_ACCEPTANCE_PENDING",
+  "legacy_committee_stage_generation": "PARTIAL_RESUMABLE_GENERATION_AND_CONTINUATION_VERIFIED;PRIVATE_TRAINING_ROSTER_PERSISTENCE_ACCEPTANCE_PENDING",
+  "fixed_window_statistical_power": "Historical4000-period failure retained in historicalDeliveryRecords; current69120 calendar does not establish actual natural strategy quality",
+  "compiled_source": "5df8f40823aeff35ca948a020dc2276a84c939fd",
+  "apk_sha256": "7531f6b40f63e9f4710d64ed4bf364946625f2af4028b7479ca016b809eed20a",
   "android_ci": {
-    "run_id": 40484847604,
+    "run_id": 40641977193,
     "build": "PASS",
-    "api_29": "PASS",
-    "api_35": "PASS",
-    "api_36": "PASS",
-    "api_29_instrumentation_tests": 40,
-    "physical_device": "NOT_RUN"
+    "api_29_native": {
+      "declaredTests": 116,
+      "executedTests": 116,
+      "failedSelectors": 1,
+      "notExecutedTests": 0,
+      "status": "FAIL",
+      "source": "aabb0a37bf7e9c1f819041adb4afd38f76cc83a6",
+      "compiledSource": "d8378176803118047253ceb746024c4db198b94a",
+      "api": 29,
+      "evidence": "construction/r26/continuation/runtime-116-failure-observed.json",
+      "scope": "MATCHING_SOURCE_EXECUTION_RESULT_INCLUDING_FAILURES; NOT_CURRENT_UNEXECUTED_TESTS_OR_NATURAL_QUALITY",
+      "runtimeEngineeringResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "durableCommittedCapacityFailures": 0
+    },
+    "api_35_scope": "STARTUP_RESTART_RELEASE_SURVIVAL_ONLY",
+    "api_36_scope": "STARTUP_RESTART_RELEASE_SURVIVAL_ONLY",
+    "physical_device": "USER_WAIVED_NOT_PERFORMED"
+  },
+  "historicalDeliveryRecords": [
+    {
+      "compiled_source": "96b7921438624c0d4c7ca6e8deeabad487820f05",
+      "apk_sha256": "9cf9b19be3e130edbb99ad9bcaef0ea5c2d561e2a07bd13fffbd18e94d6b1b33",
+      "android_ci": {
+        "run_id": 40484847604,
+        "build": "PASS",
+        "api_29": "PASS",
+        "api_35": "PASS",
+        "api_36": "PASS",
+        "api_29_instrumentation_tests": 40,
+        "physical_device": "NOT_RUN"
+      },
+      "qualification_protocol": "PREREGISTERED_ROLLING_4000_STRIDE720; FUTURE_NATURAL_EVIDENCE_PENDING",
+      "fixed_window_statistical_power": "FAILED_SYNTHETIC_TARGET_POWER: 15% coverage / 40% probability, 0/300 passed the 4000-period paired bound; protocol redesign and predeclared sufficient-statistics retention required",
+      "legacy_predraw_bootstrap": "EXISTING_UNSLICED_PATH; NOT_R26_SLO_ACCEPTED",
+      "legacy_committee_stage_generation": "FULL_RESUMABLE_MIGRATION_PENDING; STATIC_IMPLEMENTATIONS_AND_SAVED_PARENTS_PRESERVED"
+    }
+  ],
+  "latestVerifiedPackage": {
+    "evidence": "construction/r26/continuation/package-114-independent.json",
+    "source": "6fb58bb31e14789efb395a47530f4250fed9557d",
+    "compiledSource": "5df8f40823aeff35ca948a020dc2276a84c939fd",
+    "apkSha256": "7531f6b40f63e9f4710d64ed4bf364946625f2af4028b7479ca016b809eed20a",
+    "scope": "INDEPENDENTLY_VERIFIED_HISTORICAL_ENGINEERING_APK_NOT_CURRENT_OR_COMPLETE_DELIVERY"
   }
 }

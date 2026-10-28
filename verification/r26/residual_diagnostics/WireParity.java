@@ -1,0 +1,5 @@
+package com.ethk3.novaonepro.strategyv2;
+import java.io.*;import java.security.*;import java.util.*;
+public final class WireParity {
+ public static void main(String[] args)throws Exception{MessageDigest digest=MessageDigest.getInstance("SHA-256");for(int seed:new int[]{22,126}){ResidualFamilyR26 m=new ResidualFamilyR26();Random r=new Random(seed);for(int step=0;step<170;step++){if(step==37||step==145)m.resetTemporalContext();int[] d=new int[10];for(int i=0;i<10;i++)d[i]=i+1;for(int i=9;i>0;i--){int j=r.nextInt(i+1),v=d[i];d[i]=d[j];d[j]=v;}m.update(d);ByteArrayOutputStream b=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(b);m.write(out);byte[] raw=b.toByteArray();float[][] p=new float[10][10];float[] state=new float[3];m.predict(p,state);for(float[] row:p)for(float x:row)out.writeFloat(x);for(float x:state)out.writeFloat(x);digest.update(b.toByteArray());if(step==140){m=new ResidualFamilyR26();m.read(new DataInputStream(new ByteArrayInputStream(raw)));}}}StringBuilder hex=new StringBuilder();for(byte x:digest.digest())hex.append(String.format("%02x",x&255));System.out.println("F22_FULL_RAW_WIRE_AND_PREDICTIONS_2X170="+hex);}
+}
