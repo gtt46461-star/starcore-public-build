@@ -1,0 +1,45 @@
+{
+  "status": "PASS_25_FROZEN_R26_GROUPS_KERNEL_DIFFERENTIAL_PRODUCTION_FOUNDRY_SDK_AND_CHANGED_NATIVE_COMPILE",
+  "scope": "HOST_ENGINEERING_AND_SYNTHETIC_KERNEL_ONLY_NOT_NATURAL_QUALITY",
+  "baseline": "62fd2b7",
+  "numericalAbi": "969d9a47587b281cf3297f55ba718752cbe14d106999890e9bcc1f3058e35244",
+  "objective": "Filtered exact-permutation mixture joint NLL + 0.5e-5 * squared norm of the300 emission logits",
+  "gradientScope": "Actual SGD gradient of all300 emission logits at fixed pre-label filtering prior; duration counts use an expected-count update for the next prior, not a claimed SGD gradient",
+  "parameterDeltaScope": "All emission logits plus learned exit/stay counts; the new filtering prior/posterior is context and excluded from parameter norm",
+  "rawCodec": "Original0x26090001 and all arrays unchanged; t is the actual lifetime update count and survives missing-context resets",
+  "wireParity": {
+    "cases": 2,
+    "updatesPerCase": 300,
+    "seeds": [
+      "original initialization",
+      "+/-7.99 logits near clipping"
+    ],
+    "gaps": [
+      23,
+      195
+    ],
+    "restore": 150,
+    "everyPredictionFeatureAndCompleteRawStateIdentical": true,
+    "sha256": "140026a649314b1a8b159e08756fc59cff0b7f6394fef1327c1fe7caa85b6b4a"
+  },
+  "derivativeTest": "R26_DURATION_DIAGNOSTICS_PASS|causalContexts=3|numericCoordinates=900|maxDerivativeError=1.8155524306173731E-10|filteredJointMixturePlusLogitL2=true|fixedPreLabelPrior=true|gradientScopeEmissionLogits=true|durationExpectedCountsIncludedInDelta=true|restoreNextGapCancelAtomic=true|scope=SYNTHETIC_KERNEL_NOT_NATURAL_QUALITY",
+  "actualFoundry": "R26_MEASURED_RECEIPTS_PASS|family=F09|committedSamples=128|measuredGradientAndParameterDelta=true|sourceCheckpointAndFullPrecisionHashesMatch=true|immutable=true|noQualification=true|detailLimit8192WithIdempotentFold=true|syntheticPlaceholdersRejected=true|scope=HOST_PRODUCTION_FOUNDRY_SQLITE_AND_FILES_WITH_ANDROID_TRANSPORT_ADAPTERS",
+  "compile": {
+    "sdkSources": 1078,
+    "sdkStatus": "PASS_OFFICIAL_SDK36_CONFIG_RESOURCE_STUBS",
+    "nativeTests": 105,
+    "changedNativeCompile": "PASS",
+    "runtime": "PENDING_MATCHING_SOURCE_CI"
+  },
+  "stateSample": {
+    "schema": "R26_SYNTHETIC_KERNEL_STATE_SAMPLE_V1",
+    "family": "F09",
+    "codecMagic": "0x26090001",
+    "rawCodecUnchanged": true,
+    "numericalAbi": "969d9a47587b281cf3297f55ba718752cbe14d106999890e9bcc1f3058e35244",
+    "bytes": 5484,
+    "sha256": "e68f134315d5171f4bae50fe39b873479f3f17414c8d0f231455bec1d2424560",
+    "sourceSha256": "c9543417437cb136183032dc8c68bc4076e5ae317bde4d7b639de1d2f63c2c9e",
+    "scope": "SYNTHETIC_ISOLATED_DURATION_KERNEL_NOT_POLICY_OR_NATURAL_QUALITY"
+  }
+}
