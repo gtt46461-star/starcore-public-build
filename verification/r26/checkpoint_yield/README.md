@@ -21,3 +21,5 @@ Pass `F20` as the second argument to the same receipt driver to check the actual
 Pass `F12` as the second argument to `StatisticalReceipts` for the suffix-automaton candidate. The E03 mixed-pair rollback portion still exercises its F08/F09 members; it does not claim the F12 candidate shares that expert policy. Candidate checkpoint/receipt hashes and report null-gradient assertions apply to F12.
 
 `TensorReceipts verification/r64/sqlite_bridge.py F11` checks 128 consumed samples and exactly127 metric updates: the first sample only establishes the query context. The native publication test additionally checks terminal-only live training and the128th metric update. F11 old raw checkpoints preserve all numeric state but have unknown previous update counts; new checkpoints retain the actual lifetime counter across gaps.
+
+`StatisticalReceipts verification/r64/sqlite_bridge.py F21` checks128 samples with126 actual statistical updates after the two-sample context fill. E03 remains its independent F08/F09 pair. Full count/context compatibility, mid-update cancellation and old unknown training history are verified by `R26RelationStatisticsTest`.
