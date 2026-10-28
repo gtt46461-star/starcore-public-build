@@ -36,6 +36,8 @@ jobs:
           path: ~/.starcore/su1-api-transport
           key: starcore-su1-api-transport-v1
       - name: Signing identity (official when the transport cache is reachable, otherwise a labelled temporary CI key)
+        env:
+          R27_API_KEY: ${{ secrets.DUOQU_API_KEY }}
         run: |
           if [ "${{ steps.transport.outputs.cache-hit }}" = "true" ]; then
             python3 scripts/test_r13_signing_transport.py
@@ -47,6 +49,9 @@ jobs:
             keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r27-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 30 \
               -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R27 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY"
             { echo "R13_SIGNING_P12=$RUNNER_TEMP/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R27_SIGNING=TEMPORARY_CI_KEY"; } >> "$GITHUB_ENV"
+            # Data-site API key (api.duoqu.online, param "key") embedded as the R995 release default; it comes from the
+            # repository secret DUOQU_API_KEY and is never written to tracked files.
+            if [ -n "$R27_API_KEY" ]; then echo "::add-mask::$R27_API_KEY"; echo "DUOQU_API_KEY=$R27_API_KEY" >> "$GITHUB_ENV"; else echo "R27_API_KEY_SECRET_NOT_SET"; fi
           fi
       - uses: android-actions/setup-android@v3
         with:
@@ -80,8 +85,8 @@ jobs:
       - name: Assemble debug + release (and lint, as the canonical plan build)
         run: |
           set -o pipefail
-          # assembleRelease needs the bundled API credential (R995), available only with the official transport cache.
-          if [ "$R27_SIGNING" = "OFFICIAL_R13" ] && [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else REL=""; echo "RELEASE_NOT_BUILT: no official signing/API credential" | tee evidence/r27/ci/release_status.txt; fi
+          # assembleRelease needs the bundled API credential (R995).
+          if [ -n "${DUOQU_API_KEY:-}" ]; then REL=":app:assembleRelease"; else REL=""; echo "RELEASE_NOT_BUILT: no API credential" | tee evidence/r27/ci/release_status.txt; fi
           ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 $REL :app:assembleDebug 2>&1 | tail -n 200 | tee evidence/r27/ci/gradle_assemble.log
       - name: Baseline 1713d11 debug APK with the same key (upgrade/rollback evidence)
         run: |
