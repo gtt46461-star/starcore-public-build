@@ -221,9 +221,11 @@ public final class R26PublicationDeviceTest {
     @Test public void autoregressiveTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas()throws Exception{measuredTrainingReceipts("F18",false);}
     @Test public void sparseTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas()throws Exception{measuredTrainingReceipts("F01",false);}
     @Test public void durationTrainingReceiptsFollowCandidateAndTerminalLiveCheckpointCas()throws Exception{measuredTrainingReceipts("F09",false);}
-    @Test public void statisticalTrainingReceiptsPreserveNoGradientAndFollowTerminalLiveCheckpoint()throws Exception{
+    @Test public void statisticalTrainingReceiptsPreserveNoGradientAndFollowTerminalLiveCheckpoint()throws Exception{statisticalTrainingReceipts("F08");}
+    @Test public void suffixStatisticsFollowCandidateAndTerminalLiveCheckpoint()throws Exception{statisticalTrainingReceipts("F12");}
+    private void statisticalTrainingReceipts(String family)throws Exception{
         try(Fixture f=new Fixture(128)){
-            FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 full=f.genome("F08",source);f.candidate(campaign,full,null,0,"READY",0);int slices=0;
+            FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 full=f.genome(family,source);f.candidate(campaign,full,null,0,"READY",0);int slices=0;
             while(scalar(f.db,"SELECT cursor FROM r26_candidate")<128&&slices++<130)assertTrue(FoundryCampaignR26.step(f.store,()->f.claim,f.budget())>0);
             assertEquals(128,scalar(f.db,"SELECT count(*) FROM r26_statistic_training_step"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_training_step"));assertTrue(TrainingStepStoreR26.verify(f.db));
             try(Cursor c=f.db.rawQuery("SELECT state,state_hash FROM r26_candidate",null)){assertTrue(c.moveToFirst());LiveStateR26 state=LiveStateR26.decode(full.text(),CheckpointArtifactsR26.resolve(f.store,c.getBlob(0)),c.getString(1));OnlineModelsSU2.Model kernel=state.hub.models.values().iterator().next();assertTrue(kernel instanceof StatisticalTrainingDiagnosticsR26);assertFalse(kernel instanceof TrainingDiagnosticsR26);assertEquals(128,((StatisticalTrainingDiagnosticsR26)kernel).completedTrainingUpdates());assertNull(((StatisticalTrainingDiagnosticsR26)kernel).lastStatisticalTrainingStep());}
