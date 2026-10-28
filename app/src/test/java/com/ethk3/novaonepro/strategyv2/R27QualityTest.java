@@ -216,6 +216,20 @@ public final class R27QualityTest {
         R27TestSupport.log("H17_PASS chapters=" + ch.size() + " template=" + ch.get(0).get("conclusionTemplate") + " otherTemplates=QUALIFIED,NONE");
     }
 
+    // ------------------------------------------------------------------ R27.1 writer priority (10.29 device report)
+    @Test public void r27ResearchWritesYieldToCriticalBusiness() throws Exception {
+        Class<?> dc = Class.forName("com.ethk3.novaonepro.DatabaseCoordinator");
+        java.lang.reflect.Method bg = dc.getDeclaredMethod("isBackgroundOperationR909", String.class), crit = dc.getDeclaredMethod("isCriticalBusinessOperationR914", String.class);
+        bg.setAccessible(true); crit.setAccessible(true);
+        for (String op : new String[] {"R27_EVOLUTION_STEP", "R27_PRIORITY_CLAIM", "R27_WRITE_WAIT", "R27_LIVE_FREEZE", "R26_STRATEGY_STORAGE_UNIT"})
+            assertTrue(op + " must be background (yields to critical writers)", (Boolean) bg.invoke(null, op));
+        for (String op : new String[] {"R925_FETCH_BEGIN", "R925_FETCH_PAYLOAD", "R925_FETCH_COMPLETE", "R914_DRAW_HISTORY_BATCH", "R914_DRAW_SAVE_ATOMIC"}) {
+            assertTrue(op + " stays critical", (Boolean) crit.invoke(null, op));
+            assertFalse(op + " is not background", (Boolean) bg.invoke(null, op));
+        }
+        R27TestSupport.log("R27_1_WRITER_PRIORITY_PASS");
+    }
+
     // ------------------------------------------------------------------ R27-005 no session-level CRITICAL_DEADLINE yield
     @Test public void r27005ResearchSessionNoLongerYieldsToDeadlines() throws Exception {
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java").toPath()), "UTF-8");

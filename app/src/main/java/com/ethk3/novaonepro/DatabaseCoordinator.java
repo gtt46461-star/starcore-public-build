@@ -808,9 +808,10 @@ public final class DatabaseCoordinator {
                 || op.startsWith("R900_SETTLEMENT");
     }
 
-    private boolean isBackgroundOperationR909(String operation) {
+    static boolean isBackgroundOperationR909(String operation) {
         String op = safe(operation).toUpperCase(java.util.Locale.US);
-        return op.startsWith("R26_") || op.indexOf("RESEARCH") >= 0
+        // R27 research writes (thread pool + batch queue) yield to critical business writers exactly like R26.
+        return op.startsWith("R26_") || op.startsWith("R27_") || op.indexOf("RESEARCH") >= 0
                 || op.indexOf("DEFERRED") >= 0
                 || op.indexOf("ARTIFACT") >= 0
                 || op.indexOf("EVOLUTION") >= 0

@@ -4,7 +4,8 @@
 #   1. install the 1713d11 baseline debug APK, run it, snapshot its database;
 #   2. install the R27 debug APK over it (same signing key), run it, snapshot again  -> upgrade without data loss;
 #   3. downgrade back to the baseline (adb install -r -d), run it                    -> rollback keeps working;
-#   4. upgrade to R27 again                                                          -> R27 evidence continues.
+#   4. upgrade to R27 again                                                          -> R27 evidence continues;
+#   5. uninstall and install R27 fresh                                               -> research ready time, coverage.
 # Usage: emulator_r27.sh <baseline.apk> <r27.apk> <out_dir> <minutes_r27_run>
 set -uo pipefail
 BASE_APK=$1; R27_APK=$2; OUT=$3; MIN=${4:-15}
@@ -40,6 +41,13 @@ sleep 180; wake; step rollback_alive alive; step rollback_no_fatal fatal rollbac
 log "re-upgrade to R27"; step reupgrade_install adb install -r "$R27_APK"
 adb logcat -c; step reupgrade_launch launch reupgrade
 sleep 300; wake; step reupgrade_alive alive; step reupgrade_no_fatal fatal reupgrade; snapshot reupgrade
+
+# 5. Fresh install (what a user gets after uninstalling): how fast research storage becomes ready, and how many of
+#    the periods drawn while the app runs get a pre-draw prediction (with the embedded data key).
+log "fresh install R27"; adb uninstall $PKG >/dev/null 2>&1; step fresh_install adb install "$R27_APK"
+adb logcat -c; date +%s > "$OUT/fresh_start_epoch.txt"; step fresh_launch launch fresh
+for i in 1 2 3 5 10 15; do while [ $(( $(date +%s) - $(cat "$OUT/fresh_start_epoch.txt") )) -lt $((i*60)) ]; do sleep 10; wake; done; snapshot "fresh-${i}m"; done
+step fresh_alive alive; step fresh_no_fatal fatal fresh
 
 python3 tools/r27/emulator_receipt.py "$OUT" | tee "$OUT/receipt.txt"; r=${PIPESTATUS[0]}; [ $r -eq 0 ] || rc=1
 log "EMULATOR_R27 rc=$rc"; exit $rc

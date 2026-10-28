@@ -110,12 +110,28 @@ jobs:
           sha256sum app/build/outputs/apk/*/*.apk baseline-apk/*.apk > package-receipt/SHA256SUMS.txt
           cat package-receipt/signing-identity.txt package-receipt/SHA256SUMS.txt
           grep -h "Signer #1 certificate SHA-256" package-receipt/signature-*.txt
+      # The download for users contains ONLY the R27 APKs (release first) and their receipt. The 1713d11 comparison
+      # APK is used by the emulator upgrade/rollback test and lives in a separate, clearly named artifact.
+      - name: Stage the user download
+        if: success()
+        run: |
+          mkdir -p r27-apk
+          for v in release debug; do for f in app/build/outputs/apk/$v/*.apk; do [ -f "$f" ] && cp "$f" "r27-apk/STARCORE-R27-2026.10.28-$v.apk"; done; done
+          cp package-receipt/* r27-apk/ 2>/dev/null || true
+          (cd r27-apk && sha256sum *.apk > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          printf '安装 STARCORE-R27-2026.10.28-release.apk（内置数据秘钥）。debug 包仅供排查。\n' > r27-apk/README-安装说明.txt
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: R27-APK
+          path: r27-apk/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R27-build-and-evidence
+          name: R27-test-evidence-NOT-FOR-INSTALL
           path: |
-            app/build/outputs/apk/
+            app/build/outputs/apk/debug/
             baseline-apk/
             app/build/test-results/testDebugUnitTest/
             app/build/reports/tests/
@@ -133,7 +149,7 @@ jobs:
           python-version: '3.12'
       - uses: actions/download-artifact@v4
         with:
-          name: R27-build-and-evidence
+          name: R27-test-evidence-NOT-FOR-INSTALL
           path: delivered
       - name: Enable emulator acceleration
         run: |

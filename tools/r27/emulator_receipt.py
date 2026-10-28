@@ -66,6 +66,31 @@ if r27 and re_:
         keep[t] = (count(r27, t), count(re_, t))
     check("U4_R27_EVIDENCE_KEPT_ACROSS_ROLLBACK", all(isinstance(a, int) and isinstance(b, int) and b >= a for a, b in keep.values()), keep)
 
+# ---------------------------------------------------------------- fresh install (R27.1)
+fresh = {}
+for m in (1, 2, 3, 5, 10, 15):
+    db = open_snap("fresh-%dm" % m)
+    if db is None:
+        continue
+    def one(sql, default=None):
+        try:
+            r = db.execute(sql).fetchone()
+            return r[0] if r else default
+        except sqlite3.Error as e:
+            return "ERROR:" + str(e)
+    waiting = one("SELECT count(*) FROM r26_task WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'")
+    units = one("SELECT count(*) FROM su1_migration_unit_v2", 0)
+    draws = one("SELECT count(*) FROM draws WHERE dirty=0", 0)
+    frozen = one("SELECT count(DISTINCT target_issue) FROM v57_shadow_observation_r35 WHERE pre_draw_frozen=1", 0)
+    gens = one("SELECT count(*) FROM r27_generation", 0)
+    fresh[m] = {"tasksWaitingForStorage": waiting, "storageUnits": units, "cleanDraws": draws, "preDrawFrozenTargets": frozen, "r27Generations": gens}
+R["observations"]["freshInstall"] = fresh
+if fresh:
+    ready_at = next((m for m, v in sorted(fresh.items()) if v["tasksWaitingForStorage"] == 0), None)
+    check("F1_RESEARCH_STORAGE_READY_WITHIN_15_MIN", ready_at is not None, {"readyAtMinute": ready_at, "byMinute": fresh})
+    last = fresh[max(fresh)]
+    print("R27_EMULATOR_OBS|freshCoverage|%s" % json.dumps({"preDrawFrozenTargets": last["preDrawFrozenTargets"], "cleanDraws": last["cleanDraws"]}))
+
 snap = re_ or r27
 if snap:
     obs = R["observations"]

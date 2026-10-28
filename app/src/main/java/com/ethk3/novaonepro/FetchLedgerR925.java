@@ -37,6 +37,8 @@ public final class FetchLedgerR925 {
         }
     }
 
+    static final int BEGIN_ATTEMPTS = 3;
+
     public static String begin(final DbStore store, final String method, String url) {
         if (store == null) return "";
         reconcileInterruptedOnce(store);
@@ -45,18 +47,23 @@ public final class FetchLedgerR925 {
         final String verb = safe(method).length() == 0 ? "GET" : safe(method);
         final long requestAt = TimeSourceR811.wallNowMs();
         try {
-            boolean saved = store.coordinatorR36().runWrite(
-                    "R925_FETCH_BEGIN",
-                    new DatabaseCoordinator.WriteRunnable() {
+            DatabaseCoordinator.WriteRunnable insert = new DatabaseCoordinator.WriteRunnable() {
                         @Override public void run(SQLiteDatabase db) {
                             db.execSQL(
-                                    "INSERT INTO " + SchemaRevisionR925.TABLE_FETCH_LEDGER
+                                    "INSERT OR IGNORE INTO " + SchemaRevisionR925.TABLE_FETCH_LEDGER
                                             + "(request_id,method,endpoint,request_at,status,error_code,clock_epoch,label_version)"
                                             + " VALUES (?,?,?,?,?,?,?,?)",
                                     new Object[] {id, verb, path, requestAt, "REQUESTED", "",
                                             CLOCK_EPOCH, SOURCE_EVENT_LABEL_VERSION});
                         }
-                    });
+                    };
+            // R27.1: without this receipt the draw cannot be bound (HTTP_REQUEST_RECEIPT_NOT_DURABLE) and the whole
+            // period is lost (NO_ANALYSIS_REQUEST). A busy writer is transient: retry up to 3 times (2 s each).
+            boolean saved = false;
+            for (int attempt = 0; attempt < BEGIN_ATTEMPTS && !saved; attempt++) {
+                if (attempt > 0) rejectedR27(store, "BEGIN_RETRY");
+                saved = store.coordinatorR36().runWrite("R925_FETCH_BEGIN", insert);
+            }
             if (!saved) {
                 lastWriteError = "BEGIN:WRITE_REJECTED:" + rejectedR27(store, "BEGIN");
                 return "";

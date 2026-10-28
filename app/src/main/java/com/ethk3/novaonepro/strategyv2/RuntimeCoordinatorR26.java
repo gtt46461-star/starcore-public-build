@@ -151,13 +151,20 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);Thread.interrupted();try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STOP",db->{if(RuntimeSchemaR26.ready(db)){db.execSQL("UPDATE r26_session SET state=?,user_enabled=0,heartbeat=? WHERE session_id=?",new Object[]{cancelled?"STOPPED":"FAILED",System.currentTimeMillis(),owner});db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0 WHERE owner=? AND status='RUNNING'",new Object[]{owner});}return 0;});}catch(Exception ignored){}while(!CooperativeContinuationR26.awaitOwnerStopped(owner,10000))android.util.Log.e("STARCORE_R26","waiting for cancelled numerical workers before releasing shared database");if(active==this)active=null;if(closeStore)store.close();}finally{RuntimePowerLeaseR26 lease=powerLease;if(lease!=null)lease.close();}}
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
+    static final long SCHEMA_BATCH_MS=200;
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{
         if(c.task.equals("schema")){
             if(strategyStorageReady)return 0;
             if(!StrategySchemaSU1.ready(store.readable())){
-                ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());
-                if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
-                boolean advanced=result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready;c.reason((advanced?"COOPERATIVE_":"")+result.status+":"+result.detail);return advanced?1:0;
+                // R27.1: a fresh install has ~265 journaled units; one unit per scheduler pass kept every research task
+                // waiting for hours on device. Apply units back-to-back for up to SCHEMA_BATCH_MS per slice; each unit is
+                // still its own short transaction (background writer class, so P0 fetch/draw writes go first).
+                long until=SystemClock.elapsedRealtime()+SCHEMA_BATCH_MS;int units=0;ResearchSchemaCoordinatorR926.StepResult result;
+                do{result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());
+                    if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
+                    if(result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready)units++;else break;
+                }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);
+                c.reason((units>0?"COOPERATIVE_":"")+result.status+":units="+units+":"+result.detail);return units;
             }
             if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
