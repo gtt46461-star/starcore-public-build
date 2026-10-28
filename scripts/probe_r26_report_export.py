@@ -31,8 +31,12 @@ def json_file(path):
 
 def dump_ui(name):
     adb('shell','uiautomator','dump','/sdcard/report-probe.xml',check=False)
-    raw=adb('exec-out','cat','/sdcard/report-probe.xml',check=False);(OUT/(name+'.xml')).write_bytes(raw)
-    return ET.fromstring(raw)
+    raw=adb('exec-out','cat','/sdcard/report-probe.xml',check=False);view=ET.fromstring(raw)
+    safe=ET.fromstring(raw)
+    for node in safe.iter('node'):
+        for key in ['text','content-desc','hint']:node.attrib.pop(key,None)
+    (OUT/(name+'.xml')).write_bytes(ET.tostring(safe,encoding='utf-8'))
+    return view
 
 
 def full_report_job():
@@ -64,11 +68,18 @@ def main():
             time.sleep(1)
         else:raise RuntimeError('APP_NOT_READY_FOR_REPORT')
         # Trigger the visible production long-press handler; no unexported-activity shell shortcut.
-        view=dump_ui('before-export');selected=None
-        for node in view.iter('node'):
-            if node.get('resource-id','').endswith(':id/txt_runtime_status'):
-                bounds=list(map(int,re.findall(r'\d+',node.get('bounds',''))))
-                if len(bounds)==4 and bounds[2]>bounds[0] and bounds[3]>bounds[1]:selected=bounds;break
+        selected=None
+        for scroll in range(8):
+            view=dump_ui('before-export-'+str(scroll))
+            for node in view.iter('node'):
+                if node.get('resource-id','').endswith(':id/txt_runtime_status'):
+                    bounds=list(map(int,re.findall(r'\d+',node.get('bounds',''))))
+                    if len(bounds)==4 and bounds[2]>bounds[0] and bounds[3]-bounds[1]>24:selected=bounds;break
+            if selected is not None:break
+            screen=list(map(int,re.findall(r'\d+',next(view.iter('node')).get('bounds',''))))
+            width,height=screen[2],screen[3]
+            adb('shell','input','swipe',str(width//2),str(height*4//5),str(width//2),str(height//3),'450')
+            time.sleep(.5)
         assert selected is not None,'VISIBLE_REPORT_LONG_PRESS_TARGET_MISSING'
         x=(selected[0]+selected[2])//2;y=(selected[1]+selected[3])//2
         adb('shell','input','swipe',str(x),str(y),str(x),str(y),'1400')
