@@ -239,8 +239,12 @@ public final class ResearchLearningContinuityR912 {
         }catch(Exception error){return 1000L;}
         return 250L;
     }
+    /** R27-046: old 22-lane scheduling stays on (parallel observation, default "1") until the switch is set to "0"
+     * after ≥1440 periods of side-by-side R27 operation; old tables stay readable either way. */
+    public static final String R27_LEGACY_SWITCH="r27_legacy_research_enabled";
     public static Result pulseWithinR927(final DbStore store,long budgetMs) {
         if(store==null)return Result.fail("STORE_NULL");
+        if("0".equals(store.getState(R27_LEGACY_SWITCH,"1")))return Result.fail("R27_LEGACY_RESEARCH_RETIRED_BY_SWITCH");
         if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())return Result.fail("YIELD_P0_PRESSURE");
         long started=TimeSourceR811.monoNowMs();
         try {

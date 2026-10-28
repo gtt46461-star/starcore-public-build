@@ -37,7 +37,7 @@ public final class LegacyGenerationR26 {
             Context context=new Context(id,source,abi,frozen,generation,ModelStateCodecSU2.encode(ModelStoreSU2.loadEvolution(store.readable())));context.claim=claim;
             context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-generation",()->compute(store,context),()->RuntimeCoordinatorR26.hasCriticalPressure(),()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);active=context;
         }
-        Context context=active;context.claim=claim;budget.checkpointOrYield();CooperativeContinuationR26.Slice<Result> slice=context.work.slice(150);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
+        Context context=active;context.claim=claim;budget.checkpointOrYield();CooperativeContinuationR26.Slice<Result> slice=context.work.slice(CooperativeContinuationR26.SLICE_MS);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
         long committed=scalar(store.readable(),"SELECT completed FROM r26_work_total WHERE task_id='legacy-generation'");claim.advanceCursorTo(committed);long delta=Math.max(0,committed-claim.cursor);
         if(!slice.done){claim.reason("COOPERATIVE_LEGACY_GENERATION:"+context.generation);return delta;}
         if(slice.error!=null){active=null;context.work.close();if(slice.error instanceof InterruptedException||slice.error instanceof BudgetTokenSU1.Yield){claim.reason("LEGACY_CONTINUATION_RESTART_FROM_COMMITTED_REPLAY");return delta;}throw new IllegalStateException("R26_LEGACY_GENERATION",slice.error);}

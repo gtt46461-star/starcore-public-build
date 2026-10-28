@@ -58,7 +58,7 @@ public final class FetchLedgerR925 {
                         }
                     });
             if (!saved) {
-                lastWriteError = "BEGIN:WRITE_REJECTED";
+                lastWriteError = "BEGIN:WRITE_REJECTED:" + rejectedR27(store, "BEGIN");
                 return "";
             }
             return id;
@@ -102,7 +102,7 @@ public final class FetchLedgerR925 {
                                             SOURCE_EVENT_LABEL_VERSION, id});
                         }
                     });
-            if (!saved) lastWriteError = "COMPLETE:WRITE_REJECTED";
+            if (!saved) lastWriteError = "COMPLETE:WRITE_REJECTED:" + rejectedR27(store, "COMPLETE");
         } catch (Throwable failure) {
             lastWriteError = "COMPLETE:" + failure.getClass().getSimpleName();
         }
@@ -178,7 +178,7 @@ public final class FetchLedgerR925 {
                         }
                     });
             if (!saved) {
-                lastWriteError = "PAYLOAD:WRITE_REJECTED";
+                lastWriteError = "PAYLOAD:WRITE_REJECTED:" + rejectedR27(store, "PAYLOAD");
                 return;
             }
 
@@ -205,7 +205,7 @@ public final class FetchLedgerR925 {
                                     new String[] {String.valueOf(cutoff)});
                         }
                     });
-            if (!saved) lastWriteError = "RECONCILE:WRITE_REJECTED";
+            if (!saved) lastWriteError = "RECONCILE:WRITE_REJECTED:" + rejectedR27(store, "RECONCILE");
         } catch (Throwable failure) {
             lastWriteError = "RECONCILE:" + failure.getClass().getSimpleName();
         }
@@ -434,4 +434,25 @@ public static String reportSnapshotCP4(com.ethk3.novaonepro.ReportReadContextCP4
     }
 
 public static String reportWriteErrorObservationCP12(){return lastWriteError;}
+
+    // R27-048: WRITE_REJECTED is split by cause (busy deadline / duplicate-or-conflict / maintenance / other) and
+    // counted; the R27 health task persists the counts into r27_fetch_reject for the report FETCH chapter.
+    private static final java.util.concurrent.ConcurrentHashMap<String, long[]> REJECTS_R27 = new java.util.concurrent.ConcurrentHashMap<>();
+    private static String rejectedR27(DbStore store, String phase) {
+        String error = "";
+        try { error = store.coordinatorR36().snapshotB03().lastError; } catch (RuntimeException ignored) { }
+        String cause = error.contains("CP3_DB_BUSY_DEADLINE") || error.contains("locked") || error.contains("BUSY") ? "BUSY_DEADLINE"
+                : error.contains("UNIQUE") || error.contains("constraint") || error.contains("CONFLICT") ? "DUPLICATE_OR_CONFLICT"
+                : error.contains("MAINTENANCE") ? "MAINTENANCE" : error.isEmpty() ? "UNKNOWN_NO_COORDINATOR_ERROR" : "OTHER";
+        String key = phase + ":" + cause;
+        long[] c = REJECTS_R27.computeIfAbsent(key, k -> new long[2]);
+        synchronized (c) { c[0]++; c[1] = System.currentTimeMillis(); }
+        return cause;
+    }
+    /** Snapshot of the counts since process start: reason → {count, lastAt}. */
+    public static java.util.Map<String, long[]> rejectCountsR27() {
+        java.util.Map<String, long[]> out = new java.util.TreeMap<>();
+        for (java.util.Map.Entry<String, long[]> e : REJECTS_R27.entrySet()) synchronized (e.getValue()) { out.put(e.getKey(), e.getValue().clone()); }
+        return out;
+    }
 }

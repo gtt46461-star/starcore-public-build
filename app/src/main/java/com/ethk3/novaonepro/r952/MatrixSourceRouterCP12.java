@@ -132,7 +132,12 @@ public final class MatrixSourceRouterCP12 {
   if(issue==null)return null;Formal a=loadFormalCP12(db,pair[0],issue),b=loadFormalCP12(db,pair[1],issue);if(a==null||b==null)return null;
   if(a.position!=b.position)throw new IllegalStateException("MATRIX_PAIR_POSITION_MISMATCH");
   if(a.actual!=b.actual)throw new IllegalStateException("MATRIX_PAIR_LABEL_SNAPSHOT_CHANGED");
-  if(spec.type==MatrixProjectionCP12.Type.ParentChildMatrix){try(Cursor lineage=db.rawQuery("SELECT 1 FROM r974_model_lineage l JOIN r967_frozen_evaluation_v2 child ON child.learner_id=l.child_id JOIN r967_frozen_evaluation_v2 parent ON parent.learner_id=l.parent_id WHERE parent.structural_hash=? AND child.structural_hash=? AND l.created_issue<=? AND child.created_issue<=?",new String[]{pair[0],pair[1],issue,issue})){if(!lineage.moveToFirst())throw new IllegalStateException("MATRIX_PARENT_CHILD_LINEAGE_PROOF");}}
+  if(spec.type==MatrixProjectionCP12.Type.ParentChildMatrix){
+      // R27-045: parent/child proof reads the unified r27_lineage (R974 rows are imported with their issue);
+      // the legacy table is consulted only while the old chain still writes rows not yet synchronized.
+      boolean proven;try(Cursor lineage=db.rawQuery("SELECT 1 FROM r27_lineage l JOIN r967_frozen_evaluation_v2 child ON child.learner_id=l.child_hash JOIN r967_frozen_evaluation_v2 parent ON parent.learner_id=l.parent_hash WHERE l.origin='R974' AND parent.structural_hash=? AND child.structural_hash=? AND l.created_issue<=? AND child.created_issue<=?",new String[]{pair[0],pair[1],issue,issue})){proven=lineage.moveToFirst();}catch(RuntimeException r27Pending){proven=false;}
+      if(!proven)try(Cursor lineage=db.rawQuery("SELECT 1 FROM r974_model_lineage l JOIN r967_frozen_evaluation_v2 child ON child.learner_id=l.child_id JOIN r967_frozen_evaluation_v2 parent ON parent.learner_id=l.parent_id WHERE parent.structural_hash=? AND child.structural_hash=? AND l.created_issue<=? AND child.created_issue<=?",new String[]{pair[0],pair[1],issue,issue})){proven=lineage.moveToFirst();}
+      if(!proven)throw new IllegalStateException("MATRIX_PARENT_CHILD_LINEAGE_PROOF");}
   if(spec.type==MatrixProjectionCP12.Type.TeacherMatrix&&!MatrixRegistrationR75.teacherPair(db,pair[0],pair[1],issue))throw new IllegalStateException("MATRIX_TEACHER_RELATION_PROOF");
   int flags=MatrixProjectionCP12.ELIGIBLE|MatrixProjectionCP12.OBSERVED|MatrixProjectionCP12.PAIRED|(a.hit==1?MatrixProjectionCP12.HIT_A:0)|(b.hit==1?MatrixProjectionCP12.HIT_B:0);
   ResourceR82 ra=null,rb=null;if(spec.type==MatrixProjectionCP12.Type.ParentChildMatrix||spec.type==MatrixProjectionCP12.Type.CandidateDiversityMatrix){ra=resourceR82(db,pair[0],issue,a);rb=resourceR82(db,pair[1],issue,b);}

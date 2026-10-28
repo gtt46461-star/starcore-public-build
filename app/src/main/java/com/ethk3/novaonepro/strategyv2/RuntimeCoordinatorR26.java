@@ -14,7 +14,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static void checkThreadFence(SQLiteDatabase db){Claim c=WRITING_CLAIM.get();if(c!=null)requireFence(db,c);}
     private final DbStore store;private final String owner=UUID.randomUUID().toString();
     private final Object signal=new Object();private volatile boolean cancelled,closeStore;
-    private final Thread worker;private int slot;private long heartbeat;private String recordedSessionState;private boolean strategyStorageReady;private volatile String resourceBlocked;private long resourceChecked;
+    private final Thread worker;private int slot;private volatile RuntimeR27 r27;private long lastIncumbentSeq=-1;private long heartbeat;private String recordedSessionState;private boolean strategyStorageReady;private volatile String resourceBlocked;private long resourceChecked;
     private final CapabilityServiceR26 service=new CapabilityServiceR26();
     private volatile RuntimePowerLeaseR26 powerLease;
     private static final String[] SLOTS={"P1","P2","P2","P3"};
@@ -28,9 +28,13 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     public RuntimeCoordinatorR26(DbStore store){this.store=Objects.requireNonNull(store);worker=new Thread(this::run,"starcore-r26-continuous-research");worker.setDaemon(true);synchronized(RuntimeCoordinatorR26.class){RuntimeCoordinatorR26 previous=active;if(previous!=null)previous.close();active=this;}worker.start();}
     static void bindBackgroundClaim(Claim claim){WRITING_CLAIM.set(claim);}
-    static boolean hasCriticalPressure(){RuntimeCoordinatorR26 a=active;return a!=null&&(a.cancelled||a.resourceBlocked!=null)||SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.hasActiveCriticalWork();}
+    /** Pause signal for numerical continuation workers. R27-005: the minutes-long realtime-analysis pressure gate is
+     * no longer a pause reason; only stop, real resources and the millisecond settlement write window are. */
+    static boolean hasCriticalPressure(){RuntimeCoordinatorR26 a=active;return a!=null&&(a.cancelled||a.resourceBlocked!=null)||SettlementExecutionGateR819.isActive();}
     public static void wake(){RuntimeCoordinatorR26 a=active;if(a!=null)synchronized(a.signal){a.signal.notifyAll();}}
-    private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||resourceBlocked!=null||SettlementExecutionGateR819.isActive()||RealtimePressureGateR811.hasActiveCriticalWork();}
+    /** R27-005: research computation no longer yields to the realtime-pressure gate for whole minutes. Only user stop,
+     * interruption and real resources (memory, thermal) pre-empt a slice; writes yield in millisecond windows. */
+    private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||resourceBlocked!=null;}
     private void resources(){
         long mono=SystemClock.elapsedRealtime();if(mono-resourceChecked<1000)return;resourceChecked=mono;String reason=null;
         android.app.ActivityManager manager=(android.app.ActivityManager)store.contextForR26().getSystemService(android.content.Context.ACTIVITY_SERVICE);
@@ -41,7 +45,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     private void sessionBlocked(String reason){long now=System.currentTimeMillis();String state=reason==null?"RUNNING":"BLOCKED:"+reason;if(state.equals(recordedSessionState)&&now-heartbeat<1000)return;store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STATUS",db->{db.execSQL("UPDATE r26_session SET state=?,heartbeat=? WHERE session_id=? AND user_enabled=1",new Object[]{state,now,owner});return 0;});heartbeat=now;recordedSessionState=state;}
 
-    @Override public void close(){cancelled=true;LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);wake();worker.interrupt();}
+    @Override public void close(){cancelled=true;RuntimeR27 runtime=r27;if(runtime!=null)runtime.pool().setResource("USER_STOP");LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);wake();worker.interrupt();}
     /** The service must not close a shared connection while a slice is draining. */
     public void closeAndReleaseStore(){closeStore=true;close();if(!worker.isAlive())store.close();}
     public boolean isRunning(){return !cancelled && worker.isAlive();}
@@ -50,7 +54,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static void requireFence(SQLiteDatabase db,Claim claim){try(Cursor c=db.rawQuery("SELECT 1 FROM r26_task t JOIN r26_session s ON s.session_id=t.owner WHERE t.task_id=? AND t.owner=? AND t.fence=? AND t.status='RUNNING' AND t.lease_until>? AND s.user_enabled=1 AND s.state='RUNNING'",new String[]{claim.task,claim.owner,String.valueOf(claim.fence),String.valueOf(System.currentTimeMillis())})){if(!c.moveToFirst())throw new IllegalStateException("R26_STALE_FENCE_OR_LEASE_OR_SESSION");}}
     private void initialize(){
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1");
             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status='RUNNING'");
@@ -58,7 +62,10 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             add(db,"schema","P1");add(db,"schema-base","P1");add(db,"kernel","P1");add(db,"shadow-recover","P1");add(db,"evidence-recover","P1");add(db,"evidence-quality","P1");add(db,"sealed-planner","P1");add(db,"calibration","P2");add(db,"su1-certificate","P1");add(db,"su2-mainline","P1");add(db,"su2-certificate","P1");add(db,"qualification","P1");add(db,"aggregate-evidence","P1");add(db,"feedback","P1");add(db,"seed-incumbent","P1");add(db,"incumbent-forecast","P1");
             add(db,"legacy-generation","P2");add(db,"legacy-replay","P2");add(db,"artifact-retention","P3");add(db,"warm-candidates","P2");add(db,"publish-models","P2");add(db,"live-model-training","P2");add(db,"live-forecast-preparation","P2");add(db,"foundry-su2","P2");add(db,"foundry-su1","P2");add(db,"ablation","P2");add(db,"campaign-audit","P2");add(db,"archive","P3");add(db,"retention","P3");add(db,"diagnosis","P3");add(db,"daily-close","P3");
             for(int i=1;i<=24;i++)registerCapability(db,String.format(Locale.ROOT,"F%02d",i),"FAMILY");for(int i=1;i<=16;i++){String id=String.format(Locale.ROOT,"E%02d",i);registerCapability(db,id,"EXPERT");add(db,"expert-"+id,"P2");}
-            db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema'");return 0;});
+            db.execSQL("UPDATE r26_task SET status='BLOCKED',blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE',next_at=0 WHERE task_id<>'schema' AND lane<>'R27'");
+            for(String r27Task:new String[]{"r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
+                db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{r27Task,r27Task,now});
+            return 0;});
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
     private static void add(SQLiteDatabase db,String id,String lane){db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism) VALUES(?,?,?)",new Object[]{id,lane,id});}
@@ -68,6 +75,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         db.execSQL("INSERT OR REPLACE INTO r26_capability(mechanism,kind,implementation,state,reason,last_progress) VALUES(?,?,?,?,?,coalesce((SELECT last_progress FROM r26_capability WHERE mechanism=?),0))",new Object[]{id,kind,implementation,state,reason,id});
     }
     private Claim claim(){
+        // R27-008: right after a new draw the incumbent forecast for the next target is prepared first, so the
+        // freeze is a small write long before the open time instead of INCUMBENT_MISSING_AFTER_OPEN.
+        if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
         // Dependency-blocked tasks are not ready work. Polling forty of them between migration
         // units made a fresh installation spend minutes without reaching its first model sample.
         final String dependency=strategyStorageReady?"":" AND task_id='schema'";
@@ -86,6 +96,14 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             });if(result!=null)return result;
         }return null;
     }
+    private long latestSequence(){try{Models.Draw latest=store.getLatestDraw();return latest==null||!TargetIssueResolver.isValid(latest.issue)?-1:TargetIssueResolver.sequenceOrdinalSU1(latest.issue);}catch(RuntimeException e){return -1;}}
+    private Claim claimTask(String task,String lane){
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_PRIORITY_CLAIM",db->{long now=System.currentTimeMillis();
+            try(Cursor c=db.rawQuery("SELECT fence,cursor FROM r26_task WHERE task_id=? AND status IN ('READY','YIELDED','BLOCKED') AND lease_until<=?",new String[]{task,String.valueOf(now)})){
+                if(!c.moveToFirst())return null;long fence=c.getLong(0)+1,cursor=c.getLong(1);
+                db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,now,task});return new Claim(task,owner,fence,cursor,lane);}});
+    }
+    public RuntimeR27 r27(){return r27;}
     private void run(){
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         try{
@@ -93,29 +111,44 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             powerLease=new RuntimePowerLeaseR26(store.contextForR26(),owner);powerLease.keepAlive();
             boolean initialized=false;
             while(!cancelled&&!initialized){if(!user.isUserEnabled()){cancelled=true;break;}powerLease.keepAlive();try{initialize();initialized=true;}catch(RuntimeException retry){android.util.Log.w("STARCORE_R26","initialization retry",retry);await(500);}}
+            // R27-003/009: DbStore → P0 (service) → research scheduler. The R27 pool owns the R27 tasks.
+            if(!cancelled){RuntimeR27 runtime=new RuntimeR27(store,owner);r27=runtime;runtime.start();}
             while(!cancelled){
             if(!user.isUserEnabled()){cancelled=true;break;}powerLease.keepAlive();
             resources();
-            if(preempt()){try{sessionBlocked(resourceBlocked==null?"CRITICAL_DEADLINE":resourceBlocked);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","blocked receipt retry",busy);}await(50);continue;}
+            RuntimeR27 pool=r27;if(pool!=null)pool.pool().setResource(resourceBlocked);
+            if(preempt()){try{sessionBlocked(resourceBlocked==null?"STOPPING":resourceBlocked);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","blocked receipt retry",busy);}await(250);continue;}
             try{sessionBlocked(null);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","session status retry",busy);}
             Claim claim;
             try{claim=claim();}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","dispatch retry",busy);await(250);continue;}
-            if(claim==null){await(250);continue;}long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();long delta=0;String reason="DATA_NOT_READY";
-            try{WRITING_CLAIM.set(claim);BudgetTokenSU1 budget=new BudgetTokenSU1(200,3000000,this::preempt);ExecutionBudgetR26.enter(budget);delta=execute(claim,budget);reason=claim.reason!=null?claim.reason:delta>0?null:"DATA_NOT_READY";}
-            catch(BudgetTokenSU1.Yield yield){reason=resourceBlocked!=null?resourceBlocked:preempt()?"CRITICAL_DEADLINE":"SLICE_BUDGET";}
-            catch(Exception failure){reason=failure.getClass().getSimpleName()+":"+String.valueOf(failure.getMessage());android.util.Log.w("STARCORE_R26",claim.task,failure);}
+            if(claim==null){await(250);continue;}long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();long delta=0;String reason=null;Throwable failed=null;
+            try{WRITING_CLAIM.set(claim);BudgetTokenSU1 budget=new BudgetTokenSU1((int)CooperativeContinuationR26.SLICE_MS,3000000,this::preempt);ExecutionBudgetR26.enter(budget);delta=execute(claim,budget);reason=claim.reason;}
+            catch(BudgetTokenSU1.Yield yield){reason=resourceBlocked!=null?resourceBlocked:"SLICE_BUDGET";}
+            catch(Exception failure){failed=failure;android.util.Log.w("STARCORE_R26",claim.task,failure);}
             finally{ExecutionBudgetR26.leave();WRITING_CLAIM.remove();}
-            final long work=delta,nextCursor=claim.completedEventCursor>=0?claim.completedEventCursor:claim.cursor+delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu)+claim.workerCpuMillis;final String blocked=elapsed>1000?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
-            if(elapsed>1000)android.util.Log.w("STARCORE_R26","task="+claim.task+"|wallMs="+elapsed+"|cpuMs="+cpuMs+"|"+blocked);
+            // R27-006: a real wait kind instead of the blanket DATA_NOT_READY.
+            final WaitKindR27.Wait wait=WaitKindR27.classify(delta,reason,failed,claim.cursor,latestSequence(),resourceBlocked,false);
+            final String waitStack=failed==null?null:ResearchPoolR27.stack(failed);final Throwable sliceFailure=failed;
+            if(failed!=null)reason=failed.getClass().getSimpleName()+":"+String.valueOf(failed.getMessage());else if(reason==null&&delta==0)reason=wait.blockedReason();
+            final long work=delta,nextCursor=claim.completedEventCursor>=0?claim.completedEventCursor:claim.cursor+delta,elapsed=SystemClock.elapsedRealtime()-start,cpuMs=Math.max(0,SystemClock.currentThreadTimeMillis()-cpu)+claim.workerCpuMillis;final String blocked=elapsed>2*CooperativeContinuationR26.SLICE_MS?"CAPACITY_FAIL:UNSLICED_KERNEL:"+elapsed+"ms|"+reason:reason;
+            if(elapsed>2*CooperativeContinuationR26.SLICE_MS)android.util.Log.w("STARCORE_R26","task="+claim.task+"|wallMs="+elapsed+"|cpuMs="+cpuMs+"|"+blocked);
             service.served(claim.task,claim.lane,cpuMs);
             try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_RECEIPT",db->{requireFence(db,claim);long now=System.currentTimeMillis();db.execSQL("UPDATE r26_task SET cursor=?,status=?,lease_until=0,next_at=?,blocked_reason=?,last_progress=CASE WHEN ?>0 THEN ? ELSE last_progress END,steps=steps+CASE WHEN ?>0 THEN 1 ELSE 0 END,last_cpu_ms=? WHERE task_id=? AND fence=?",new Object[]{nextCursor,blocked==null||blocked.startsWith("COOPERATIVE")?"YIELDED":"BLOCKED",now+(work>0||"CRITICAL_DEADLINE".equals(blocked)||blocked!=null&&blocked.startsWith("COOPERATIVE")?0:1000),blocked,work,now,work,cpuMs,claim.task,claim.fence});
-                db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,nextCursor,cpuMs,blocked,now});db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
-                ServiceTotalsR26.record(db,owner,cpuMs,elapsed,elapsed>1000);
+                db.execSQL("INSERT INTO r26_progress(task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at) VALUES(?,?,?,?,?,?,?)",new Object[]{claim.task,claim.fence,claim.cursor,nextCursor,cpuMs,blocked,now});
+                if(SchemaR27.ready(db)){
+                    db.execSQL("UPDATE r26_task SET wait_kind=?,wait_detail=?,wait_since=CASE WHEN wait_kind=? THEN wait_since ELSE ? END,first_progress_at=CASE WHEN first_progress_at=0 AND ?>0 THEN ? ELSE first_progress_at END WHERE task_id=?",new Object[]{wait.kind,wait.detail,wait.kind,now,work,now,claim.task});
+                    if(sliceFailure!=null){long ws=0,cnt=0;try(Cursor e=db.rawQuery("SELECT error_window_start,error_count FROM r26_task WHERE task_id=?",new String[]{claim.task})){if(e.moveToFirst()){ws=e.getLong(0);cnt=e.getLong(1);}}
+                        long[] err=WaitKindR27.recordError(ws,cnt,now);
+                        db.execSQL("INSERT INTO r27_task_error(task_id,error_class,message,stack,recorded_at) VALUES(?,?,?,?,?)",new Object[]{claim.task,sliceFailure.getClass().getName(),String.valueOf(sliceFailure.getMessage()),waitStack,now});
+                        db.execSQL("UPDATE r26_task SET error_window_start=?,error_count=?,status=CASE WHEN ? THEN 'QUARANTINED' ELSE status END,wait_kind=CASE WHEN ? THEN 'QUARANTINED' ELSE wait_kind END WHERE task_id=?",new Object[]{err[0],err[1],WaitKindR27.quarantine(err[1])?1:0,WaitKindR27.quarantine(err[1])?1:0,claim.task});}
+                }db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
+                ServiceTotalsR26.record(db,owner,cpuMs,elapsed,elapsed>2*CooperativeContinuationR26.SLICE_MS);
                 db.execSQL("UPDATE r26_session SET heartbeat=?,actual_progress=actual_progress+? WHERE session_id=?",new Object[]{now,work,owner});return 0;});}catch(RuntimeException failure){android.util.Log.w("STARCORE_R26","receipt not committed",failure);}
             // Empty maintenance work waits for its next data event, never spins to fabricate progress.
             if(delta==0)await(10);
         }}catch(Exception failure){android.util.Log.e("STARCORE_R26","runtime blocked",failure);try{store.setState("r26_runtime_error",failure.toString());}catch(Exception ignored){}}
-        finally{try{LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);Thread.interrupted();try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STOP",db->{if(RuntimeSchemaR26.ready(db)){db.execSQL("UPDATE r26_session SET state=?,user_enabled=0,heartbeat=? WHERE session_id=?",new Object[]{cancelled?"STOPPED":"FAILED",System.currentTimeMillis(),owner});db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0 WHERE owner=? AND status='RUNNING'",new Object[]{owner});}return 0;});}catch(Exception ignored){}while(!CooperativeContinuationR26.awaitOwnerStopped(owner,10000))android.util.Log.e("STARCORE_R26","waiting for cancelled numerical workers before releasing shared database");if(active==this)active=null;if(closeStore)store.close();}finally{RuntimePowerLeaseR26 lease=powerLease;if(lease!=null)lease.close();}}
+        finally{try{RuntimeR27 runtime=r27;r27=null;if(runtime!=null)runtime.close(); // cancel token → join ≤10 s → close read-only connections
+            LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);Thread.interrupted();try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STOP",db->{if(RuntimeSchemaR26.ready(db)){db.execSQL("UPDATE r26_session SET state=?,user_enabled=0,heartbeat=? WHERE session_id=?",new Object[]{cancelled?"STOPPED":"FAILED",System.currentTimeMillis(),owner});db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0 WHERE owner=? AND status='RUNNING'",new Object[]{owner});}return 0;});}catch(Exception ignored){}while(!CooperativeContinuationR26.awaitOwnerStopped(owner,10000))android.util.Log.e("STARCORE_R26","waiting for cancelled numerical workers before releasing shared database");if(active==this)active=null;if(closeStore)store.close();}finally{RuntimePowerLeaseR26 lease=powerLease;if(lease!=null)lease.close();}}
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{

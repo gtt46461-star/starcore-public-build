@@ -6,6 +6,9 @@ import java.util.function.*;
 /** A private compute continuation, parked outside DB critical sections between service quanta.
  * Durable numerical progress remains the repository's checkpoint, never this thread's existence. */
 public final class CooperativeContinuationR26<T> implements AutoCloseable,BudgetTokenSU1.PauseClock {
+    /** R27 (docs/02 2.2.1): the R26 research thread no longer shares a thread with P0, so a slice is budget-sized
+     * (default 1000 ms) instead of 150 ms. */
+    public static final long SLICE_MS = 1000;
     private static final ThreadLocal<CooperativeContinuationR26<?>> CURRENT=new ThreadLocal<>();
     private static final java.util.Map<String,java.util.Set<CooperativeContinuationR26<?>>> OWNED=new java.util.HashMap<>();
     private final String owner;

@@ -285,6 +285,14 @@ def verifyPlan1025Schema = tasks.register('verifyPlan1025Schema', Exec) {
     outputs.upToDateWhen { false }
 }
 tasks.named('preBuild').configure { dependsOn verifyPlan1025Schema }
+// R27-054: build identity, card registry, source audit and merge status as report assets (generated outputs only).
+def generateR27BuildIdentity = tasks.register('generateR27BuildIdentity', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('tools/r27/build_identity.py').absolutePath, layout.buildDirectory.dir('generated/assets/r27b').get().asFile.absolutePath
+    outputs.upToDateWhen { false }
+}
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r27b'))
+tasks.named('preBuild').configure { dependsOn generateR27BuildIdentity }
 tasks.withType(JavaCompile).configureEach { dependsOn verifyR967Semantics }
 
 // Canonical acceptance has no dependency on a connected physical device.

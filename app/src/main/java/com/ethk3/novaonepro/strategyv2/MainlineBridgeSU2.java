@@ -74,6 +74,11 @@ public final class MainlineBridgeSU2 {
      * (or has no frozen decision - MISSING is never turned into an action).
      */
     public static Intent intent(SQLiteDatabase db, long seq) {
+        // R27-042: an R27 shadow with an ACTIVE certificate (FUTURE e-process + unchanged quality gates) is the
+        // first candidate, chosen by logE × calibration quality. The intent is still only a request: the single
+        // DecisionGateEngine decides REAL under its unchanged rules (≤1 REAL per issue, no chase/doubling).
+        Intent r27 = r27Intent(db, seq);
+        if (r27 != null) return r27;
         if (!StrategySchemaSU2.ready(db)) return null;
         String member = ModelStoreSU2.currentChoice(db, seq);
         // SU2 members and the XI incumbent use this lane (XI's frozen pick IS the mainline pick when IPM keeps it);
@@ -89,5 +94,26 @@ public final class MainlineBridgeSU2 {
         // REAL needs a valid selective certificate (issued by CertificateSU2.maintain from live evidence)
         CertificateSU2.Authority cert = CertificateSU2.read(db, genome, System.currentTimeMillis());
         return new Intent(member, genome, position, mask, phat, cert != null, cert != null ? "CERTIFIED:" + cert.certificate : "NO_VALID_SU2_CERTIFICATE_SHADOW_ONLY");
+    }
+
+    /** The R27 request query (also executed by tools/r27/test_r27_migration.py, H15): only a FROZEN, acting,
+     * unsettled row of a shadow with an unexpired ACTIVE certificate and a QUALIFIED FUTURE e-process qualifies;
+     * the (policy_hash, target_ordinal) key allows at most one row per period. */
+    public static final String R27_INTENT_SQL = "SELECT f.position,f.n1,f.n2,f.n3,f.act,f.probabilities,f.status FROM r27_live_frozen f JOIN r27_certificate k ON k.policy_hash=f.policy_hash JOIN r27_live_shadow s ON s.policy_hash=f.policy_hash JOIN r27_eprocess e ON e.policy_hash=f.policy_hash"
+            + " WHERE f.policy_hash=? AND f.target_ordinal=? AND f.hit=-1 AND k.status='ACTIVE' AND k.expires_at>? AND s.status='ACTIVE' AND e.state=?";
+
+    static Intent r27Intent(SQLiteDatabase db, long seq) {
+        String choice;
+        try (Cursor c = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null)) {
+            if (!c.moveToFirst()) return null; Object v = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("choice"); choice = v == null ? null : v.toString();
+        } catch (RuntimeException schemaPending) { return null; }
+        if (choice == null || choice.startsWith("PRODUCTION_FALLBACK")) return null;
+        long now = System.currentTimeMillis();
+        try (Cursor c = db.rawQuery(R27_INTENT_SQL, new String[] {choice, String.valueOf(seq), String.valueOf(now), SequentialQualificationR27.QUALIFIED})) {
+            if (!c.moveToFirst() || !"FROZEN".equals(c.getString(6)) || c.getInt(4) != 1) return null; // MISSING / abstain is never turned into an action
+            int position = c.getInt(0), n1 = c.getInt(1), n2 = c.getInt(2), n3 = c.getInt(3); double[] p = StoreR27.unpack(c.getBlob(5));
+            int mask = (1 << (n1 - 1)) | (1 << (n2 - 1)) | (1 << (n3 - 1));
+            return new Intent("R27:" + choice, choice, position, mask, p[n1 - 1] + p[n2 - 1] + p[n3 - 1], true, "R27_CERTIFIED:" + choice);
+        } catch (RuntimeException schemaPending) { return null; }
     }
 }

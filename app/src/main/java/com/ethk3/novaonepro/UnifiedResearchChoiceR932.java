@@ -135,7 +135,12 @@ public final class UnifiedResearchChoiceR932 {
         if(consumer.isEmpty()){
             // R13-P30: league choice; ACT + valid selective certificate -> certified lane, otherwise shadow only
             com.ethk3.novaonepro.strategyv2.MainlineBridgeSU2.Intent su2=com.ethk3.novaonepro.strategyv2.MainlineBridgeSU2.intent(store.readable(),TargetIssueResolver.sequenceOrdinalSU1(target));
-            if(su2!=null&&su2.real){com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a2=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),su2.genomeKey,System.currentTimeMillis());
+            if(su2!=null&&su2.real&&su2.memberId.startsWith("R27:")){
+                // R27-042: a certified R27 intent is recorded; REAL still requires the existing authorization chain
+                // (ResearchPlatformStoreR929.authorizeCurrent → DecisionGateEngine), which R27 certificates do not bypass.
+                roster.append("|R27_CERTIFIED_INTENT:").append(su2.gate).append(":AWAITING_EXISTING_AUTHORIZATION_CHAIN");
+            }
+            else if(su2!=null&&su2.real){com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a2=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),su2.genomeKey,System.currentTimeMillis());
                 if(a2!=null){consumer="INVENTED_ALGORITHM";candidate=a2.candidate();structure=a2.program;certificate=a2.certificate;roster.append("|SU2_EXACT:").append(a2.certificate);}}
             else if(su2!=null)roster.append("|SU2_SHADOW_ONLY:").append(su2.gate);
         }

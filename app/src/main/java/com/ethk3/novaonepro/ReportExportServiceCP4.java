@@ -218,6 +218,17 @@ public final class ReportExportServiceCP4 extends Service {
                     File r26Report=new File(directory,"R26_REPORT.json");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
                     ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
+                    // R27-051: readable automatic R27 chapters and the summary used for "compare with previous report".
+                    File r27Summary=new File(new File(getFilesDir(),"r27"),"last_report_summary.json");
+                    File r27Report=new File(directory,"R27_REPORT.md");
+                    try{
+                        if(r27Summary.isFile())com.ethk3.novaonepro.strategyv2.ReportDataR27.previousSummary=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(new String(java.nio.file.Files.readAllBytes(r27Summary.toPath()),StandardCharsets.UTF_8));
+                        java.util.List<java.util.Map<String,Object>> r27Chapters=com.ethk3.novaonepro.strategyv2.ReportDataR27.chapters(copy);
+                        try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r27Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdown(r27Chapters));}
+                        Object summary=r27Chapters.isEmpty()?null:r27Chapters.get(0).get("summary");
+                        if(summary!=null){r27Summary.getParentFile().mkdirs();java.nio.file.Files.write(r27Summary.toPath(),com.ethk3.novaonepro.strategyv2.JsonR27.write(summary).getBytes(StandardCharsets.UTF_8));}
+                    }catch(Exception r27Failure){try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r27Report),StandardCharsets.UTF_8)){w.write("# R27 报告生成失败\n\n"+r27Failure);}}
+                    ReportMemberPlanCP12.append(members,r27Report.getName(),r27Report.getName(),ReportArchiveCP4.hash(r27Report,active),r27Report.length());
                     File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
                     com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
                     ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());

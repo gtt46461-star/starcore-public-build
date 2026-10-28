@@ -37,7 +37,7 @@ public final class LegacyReplayR26 {
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);Row r=row(store.readable());
         List<String> wanted=ModelLiveLoopSU2.liveGenomes(store.readable());String desired=roster(wanted),abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         if(wanted.isEmpty()){active=null;working=null;return 0;}
-        if(r!=null&&!abi.equals(r.abi)){preserveBlocked(store,claims,r,"BLOCKED_NUMERICAL_ABI_PRESERVED");return 0;}
+        if(r!=null&&!abi.equals(r.abi)){return adoptAbi(store,claims,r,abi,wanted);}
         if(r!=null&&r.status.equals("EXPIRED_RETENTION"))return resumeExpired(store,claims,budget);
         if(r==null||(!desired.equals(r.roster)&&r.status.equals("LIVE"))){
             FoundryCampaignR26.Snapshot snapshot=FoundryCampaignR26.capture(store);if(snapshot==null)return 0;budget.checkpointOrYield();
@@ -86,6 +86,26 @@ public final class LegacyReplayR26 {
             return after-before;
         }
     }
+    /** R27-012 (docs/08): a different source-tree ABI no longer blocks the learned legacy kernels forever. The R27
+     * semantic check (LegacyContinuityR27, run on the research pool) compares the golden-set trajectory of the legacy
+     * kernels under the previous and the current build. EQUIVALENT → the same runtime continues; CHANGED (including
+     * "no prior fingerprint", e.g. the first upgrade from 1713d11) → ABI_REBIRTH: weights and optimizer state are
+     * inherited, the runtime is re-keyed to the current ABI, and no qualification or FUTURE evidence is carried over
+     * (the old cohort stays archived). Until the check has run, the task waits with a DEPENDENCY reason. */
+    private static long adoptAbi(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,Row r,String abi,List<String> wanted){
+        String decision=LegacyContinuityR27.decision(store.readable(),r.abi,abi);
+        if(decision==null){claims.get().reason("WAITING_R27_SEMANTIC_ABI_CHECK:old="+r.abi.substring(0,12)+",new="+abi.substring(0,12));return 0;}
+        final String desired=roster(wanted.isEmpty()?decodeCanonical(store,r):wanted);
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_LEGACY_ABI_CONTINUITY",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());
+            db.execSQL("UPDATE r26_legacy_runtime SET numerical_abi=?,roster_hash=?,status=CASE WHEN status LIKE 'BLOCKED%' THEN 'LIVE' ELSE status END WHERE singleton=1 AND checkpoint_hash=? AND numerical_abi=?",new Object[]{abi,desired,r.checkpoint,r.abi});
+            // Re-key the retained checkpoint manifest to the continuing roster so warm resume keeps the weights.
+            db.execSQL("UPDATE r26_checkpoint_artifact SET policy_hash=? WHERE checkpoint_hash=? AND policy_hash=?",new Object[]{"LEGACY:"+desired,r.checkpoint,"LEGACY:"+r.roster});
+            LegacyContinuityR27.recordMintedRoster(db,r.checkpoint,r.roster);
+            if(!LegacyContinuityR27.EQUIVALENT.equals(decision))db.execSQL("INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,'ABI_REBIRTH','ABI_REBIRTH',-1,?,'R26_LEGACY')",new Object[]{"LEGACY:"+desired,"LEGACY:"+r.roster,System.currentTimeMillis()});
+            return 0;});
+        working=null;active=null;claims.get().reason("COOPERATIVE_R27_ABI_"+decision+"_WEIGHTS_CONTINUE_NO_EVIDENCE_TRANSFER");return 1;
+    }
+    private static List<String> decodeCanonical(DbStore store,Row r){try{return decode(store,r).canonical;}catch(IOException e){throw new IllegalStateException("R27_LEGACY_ABI_DECODE",e);}}
     private static void preserveBlocked(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,Row prior,String status){
         if(prior.status.equals(status))return;
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_PRESERVE_BLOCKED",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_legacy_runtime SET status=? WHERE singleton=1 AND checkpoint_hash=? AND state_hash=?",new Object[]{status,prior.checkpoint,prior.stateHash});return 0;});
@@ -96,10 +116,12 @@ public final class LegacyReplayR26 {
      * retained labels beyond ALL prior bootstrap exposure. No qualification is copied. */
     static long resumeExpired(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException {
         Row prior=row(store.readable());if(prior==null||!prior.status.equals("EXPIRED_RETENTION"))return 0;
-        if(!ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256.equals(prior.abi)){preserveBlocked(store,claims,prior,"BLOCKED_NUMERICAL_ABI_PRESERVED");return 0;}
+        if(!ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256.equals(prior.abi)){List<String> wanted=ModelLiveLoopSU2.liveGenomes(store.readable());return adoptAbi(store,claims,prior,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,wanted);}
         budget.checkpointOrYield();LegacyReplayStateR26 state;FoundryCampaignR26.Snapshot source;
         try{
-            String expected=prior.parent.isEmpty()?HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",prior.roster,prior.source,"0",prior.stateHash):HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",prior.roster,prior.source,prior.parent,Long.toString(prior.through),prior.stateHash);
+            // R27-012: a checkpoint minted before an ABI re-key carries the roster it was minted under.
+            String idRoster=LegacyContinuityR27.mintedRoster(store,prior.checkpoint,prior.roster);
+            String expected=prior.parent.isEmpty()?HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",idRoster,prior.source,"0",prior.stateHash):HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",idRoster,prior.source,prior.parent,Long.toString(prior.through),prior.stateHash);
             if(!expected.equals(prior.checkpoint))throw new IOException("R26_LEGACY_WARM_CHECKPOINT_IDENTITY");
             try(Cursor manifest=store.readable().rawQuery("SELECT artifact_hash,policy_hash,source_hash,parent_hash,trained_through FROM r26_checkpoint_artifact WHERE checkpoint_hash=?",new String[]{prior.checkpoint})){
                 if(!manifest.moveToFirst()||!CheckpointArtifactsR26.referenceHash(prior.state).equals(manifest.getString(0))||!("LEGACY:"+prior.roster).equals(manifest.getString(1))||!prior.source.equals(manifest.getString(2))||!prior.parent.equals(manifest.getString(3))||prior.through!=manifest.getLong(4))throw new IOException("R26_LEGACY_WARM_MANIFEST");
