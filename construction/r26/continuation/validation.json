@@ -52,8 +52,8 @@
   },
   "androidTests": {
     "classes": 21,
-    "tests": 92,
-    "status": "PENDING_F19_F20_RECEIPTS_AND_SCHEMA_SOURCE_CI",
+    "tests": 93,
+    "status": "PENDING_LEGACY_WARM_BOOTSTRAP_MONOTONIC_CAPACITY_GATE_AND_PRIOR_RECEIPTS_SOURCE_CI",
     "newRegressions": [
       "Next forecast equals direct output and subsequent learning",
       "Prepared forecasts reject stale/corrupt state",
@@ -71,7 +71,10 @@
       "Fresh exact DDL census preserves missing/duplicate/SQL-byte/same-version drift checks; final verification gets its own writer callback",
       "F19 actual tensor candidate receipts bind measured fixed-input objectives/gradients/deltas and complete checkpoint CAS; controls cannot publish",
       "Post-birth tensor live updates wait for terminal feedback and atomically bind a new witness to the current live checkpoint",
-      "8192-detail bound folds omitted counts once, rejects unowned pruning and synthetic placeholders"
+      "8192-detail bound folds omitted counts once, rejects unowned pruning and synthetic placeholders",
+      "Expired unpublished legacy program/committee/stage retain all learned state and lifetime across two raw windows, including an unserved continuation; strict exposure, fence/parent CAS and corruption/ABI preservation",
+      "Stage with zero post-gap gate history resumes without quantile crash and cannot act before 100 fresh gate samples",
+      "Endurance acceptance reads durable service capacity failures after coordinator shutdown, not the pruned detail ring"
     ]
   },
   "physicalDevice": "NOT_RUN_USER_WAIVED_DEVICE_SPECIFIC_ACCEPTANCE",
@@ -81,7 +84,7 @@
     "Complete forty-chapter device/report acceptance",
     "Persistent-cache capacity, 1000-opportunity tail SLO and 60-minute unplugged bright/locked device matrix",
     "Natural forward evidence for 35/37/40 quality",
-    "Complete latest source-matched 92-test Android and all six 60-minute emulator scenarios after cohort/telemetry changes"
+    "Complete latest source-matched 93-test Android and all six 60-minute emulator scenarios after cohort/telemetry changes"
   ],
   "sourceChanges": [
     {
@@ -1610,7 +1613,7 @@
     "readback": "construction/r26/continuation/endurance-79-telemetry-readback.json"
   },
   "scaleLongKernel": "construction/r26/continuation/scale-10000-kernel-retention.json",
-  "latestStandardAndroidEvidence": "runtime-83-engineering-summary.json",
+  "latestStandardAndroidEvidence": "runtime-89-standard-pass.json",
   "warmKernelContinuation": {
     "status": "ANDROID_ALL_FIVE_NEW_REGRESSIONS_PASS_SOURCE_A553C95; OVERALL_SOURCE_FAILS_COLD_SCHEMA_BOUNDARY",
     "rawRetentionWindow": 5000,
@@ -1663,5 +1666,7 @@
   "physicalDeviceBlocking": false,
   "physicalDeviceScope": "User replied 不知道，不用管 on 2026-10-28. Continue repository/APK and emulator work without waiting for a phone model or device report. No physical test is claimed.",
   "source92FailureEvidence": "runtime-92-packaged-api-failure.json",
-  "fragmentTrainingEvidence": "fragment-training-host-verification.json"
+  "fragmentTrainingEvidence": "fragment-training-host-verification.json",
+  "source89EnduranceReadback": "endurance-89-telemetry-readback.json",
+  "legacyWarmBootstrap": "legacy-warm-bootstrap-host-verification.json"
 }

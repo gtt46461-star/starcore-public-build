@@ -37,7 +37,9 @@ public final class LegacyReplayR26 {
         Models.Draw latest=store.getLatestDraw();if(latest==null)return 0;long latestOrdinal=TargetIssueResolver.sequenceOrdinalSU1(latest.issue);Row r=row(store.readable());
         List<String> wanted=ModelLiveLoopSU2.liveGenomes(store.readable());String desired=roster(wanted),abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
         if(wanted.isEmpty()){active=null;working=null;return 0;}
-        if(r==null||!abi.equals(r.abi)||(!desired.equals(r.roster)&&r.status.equals("LIVE"))||r.status.startsWith("EXPIRED")){
+        if(r!=null&&!abi.equals(r.abi)){preserveBlocked(store,claims,r,"BLOCKED_NUMERICAL_ABI_PRESERVED");return 0;}
+        if(r!=null&&r.status.equals("EXPIRED_RETENTION"))return resumeExpired(store,claims,budget);
+        if(r==null||(!desired.equals(r.roster)&&r.status.equals("LIVE"))){
             FoundryCampaignR26.Snapshot snapshot=FoundryCampaignR26.capture(store);if(snapshot==null)return 0;budget.checkpointOrYield();
             ModelLiveLoopSU2.Runtime imported=r==null?ModelLiveLoopSU2.restore(store.readable(),wanted,snapshot.draws,snapshot.ordinal[0]):null;
             LegacyReplayStateR26 state=imported!=null&&imported.through<=latestOrdinal?LegacyReplayStateR26.imported(wanted,imported.genesisSeq,imported.through,imported.hub,imported.lives):new LegacyReplayStateR26(wanted,snapshot.ordinal[0]);boolean restored=imported!=null&&imported.through<=latestOrdinal;String source=LiveStateR26.hash(snapshot.encode());String previous=r==null?"":r.checkpoint;
@@ -82,6 +84,40 @@ public final class LegacyReplayR26 {
             working=state;workingCheckpoint=checkpoint;
             Row committed=row(store.readable());if(committed!=null&&committed.status.equals("LIVE")&&committed.through==latestOrdinal)activate(store,committed);
             return after-before;
+        }
+    }
+    private static void preserveBlocked(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,Row prior,String status){
+        if(prior.status.equals(status))return;
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_PRESERVE_BLOCKED",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());db.execSQL("UPDATE r26_legacy_runtime SET status=? WHERE singleton=1 AND checkpoint_hash=? AND state_hash=?",new Object[]{status,prior.checkpoint,prior.stateHash});return 0;});
+        working=null;active=null;claims.get().reason(status+":FULL_LEARNED_CHECKPOINT_RETAINED");
+    }
+    /** Resume an unpublished bootstrap after its raw window expires. Keep every learned
+     * model/optimizer and lifetime clock; clear raw/gate/calibration context and use only
+     * retained labels beyond ALL prior bootstrap exposure. No qualification is copied. */
+    static long resumeExpired(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException {
+        Row prior=row(store.readable());if(prior==null||!prior.status.equals("EXPIRED_RETENTION"))return 0;
+        if(!ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256.equals(prior.abi)){preserveBlocked(store,claims,prior,"BLOCKED_NUMERICAL_ABI_PRESERVED");return 0;}
+        budget.checkpointOrYield();LegacyReplayStateR26 state;FoundryCampaignR26.Snapshot source;
+        try{
+            String expected=prior.parent.isEmpty()?HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",prior.roster,prior.source,"0",prior.stateHash):HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",prior.roster,prior.source,prior.parent,Long.toString(prior.through),prior.stateHash);
+            if(!expected.equals(prior.checkpoint))throw new IOException("R26_LEGACY_WARM_CHECKPOINT_IDENTITY");
+            try(Cursor manifest=store.readable().rawQuery("SELECT artifact_hash,policy_hash,source_hash,parent_hash,trained_through FROM r26_checkpoint_artifact WHERE checkpoint_hash=?",new String[]{prior.checkpoint})){
+                if(!manifest.moveToFirst()||!CheckpointArtifactsR26.referenceHash(prior.state).equals(manifest.getString(0))||!("LEGACY:"+prior.roster).equals(manifest.getString(1))||!prior.source.equals(manifest.getString(2))||!prior.parent.equals(manifest.getString(3))||prior.through!=manifest.getLong(4))throw new IOException("R26_LEGACY_WARM_MANIFEST");
+            }
+            state=decode(store,prior);if(!roster(state.canonical).equals(prior.roster))throw new IOException("R26_LEGACY_WARM_ROSTER");
+            source=WarmCandidateR26.retainedSuffix(FoundryCampaignR26.capture(store),Math.max(prior.sourceThrough,prior.through));
+            if(source==null){claims.get().reason("LEGACY_WAITING_64_RETAINED_LABELS_AFTER_ALL_PARENT_EXPOSURE; WEIGHTS_PRESERVED");return 0;}
+            state.onGap();
+        }catch(IOException|IllegalArgumentException invalid){preserveBlocked(store,claims,prior,"BLOCKED_WARM_STATE_PRESERVED");claims.get().reason("LEGACY_WARM_STATE_PRESERVED:"+invalid.getClass().getSimpleName()+":"+String.valueOf(invalid.getMessage()));return 0;}
+        byte[] snapshot=source.encode();String sourceHash=LiveStateR26.hash(snapshot);budget.checkpointOrYield();
+        try(CheckpointArtifactsR26.Prepared file=CheckpointArtifactsR26.forStore(store).prepareLegacy(state)){
+            String hash=LiveStateR26.hash(CheckpointArtifactsR26.forStore(store).resolve(file.reference())),checkpoint=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",prior.roster,sourceHash,prior.checkpoint,Long.toString(prior.through),hash);
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LEGACY_WARM_BOOTSTRAP",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());
+                try(Cursor latest=db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(!latest.moveToFirst()||TargetIssueResolver.sequenceOrdinalSU1(latest.getString(0))-source.ordinal[0]>=5000)throw new IllegalStateException("R26_LEGACY_WARM_SOURCE_EXPIRED");}
+                db.execSQL("UPDATE r26_legacy_runtime SET snapshot_hash=?,snapshot=?,source_through=?,cursor=0,state=?,state_hash=?,checkpoint_hash=?,parent_hash=?,status='BOOTSTRAP',updated_at=? WHERE singleton=1 AND checkpoint_hash=? AND state_hash=? AND status='EXPIRED_RETENTION' AND numerical_abi=? AND source_through=?",new Object[]{sourceHash,snapshot,source.through,file.reference(),hash,checkpoint,prior.checkpoint,System.currentTimeMillis(),prior.checkpoint,prior.stateHash,prior.abi,prior.sourceThrough});
+                try(Cursor changed=db.rawQuery("SELECT changes()",null)){if(!changed.moveToFirst()||changed.getInt(0)!=1)throw new IllegalStateException("R26_LEGACY_WARM_PARENT_CAS");}
+                CheckpointManifestR26.record(db,checkpoint,"LEGACY:"+prior.roster,sourceHash,prior.checkpoint,prior.through,file.reference());return 0;
+            });working=state;workingCheckpoint=checkpoint;active=null;claims.get().reason("LEGACY_LEARNED_KERNELS_CONTINUE_ON_STRICTLY_LATER_RETAINED_SOURCE; NO_QUALIFICATION_TRANSFER");return 1;
         }
     }
     static String[] nextInput(DbStore store,long through){

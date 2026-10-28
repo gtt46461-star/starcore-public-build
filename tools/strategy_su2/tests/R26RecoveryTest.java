@@ -49,6 +49,9 @@ public final class R26RecoveryTest {
         // Flip the gzip CRC, rather than an arbitrary bit that may be unused deflate padding.
         byte[] bad=a.encode();bad[bad.length-8]^=1;
         try{LegacyReplayStateR26.decode(bad);throw new AssertionError("damaged checkpoint accepted");}catch(IOException good){}
+        StageStrategySU2.Definition early=stage(single);StageStrategySU2.register(early);LegacyReplayStateR26 coldGap=new LegacyReplayStateR26(Collections.singletonList(early.text()),1000);
+        for(int i=0;i<3;i++)coldGap.advance(draw(i),1000+i);coldGap.onGap();LegacyReplayStateR26 resumed=LegacyReplayStateR26.decode(coldGap.encode());
+        for(int i=0;i<105;i++){for(LegacyReplayStateR26 state:new LegacyReplayStateR26[]{coldGap,resumed}){StageStrategySU2 strategy=(StageStrategySU2)state.lives.values().iterator().next();if(i>0&&i<100)check(!strategy.decide().act,"Stage used pre-gap qualification context");state.advance(draw(i),7000+i);}if(i%25==0)check(Arrays.equals(coldGap.encode(),resumed.encode()),"Empty gate history/repeated stage refit did not resume exactly");}
         System.out.println("LEGACY_PROGRAM_COMMITTEE_STAGE_GAP_RESUME_PASS");
     }
     static byte[] modelBytes(OnlineModelsSU2.Model model)throws Exception {ByteArrayOutputStream b=new ByteArrayOutputStream();model.write(new DataOutputStream(b));return b.toByteArray();}

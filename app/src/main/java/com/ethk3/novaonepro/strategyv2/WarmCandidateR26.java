@@ -47,7 +47,7 @@ public final class WarmCandidateR26 {
             if(!expected.equals(p.checkpoint))throw new IOException("R26_WARM_PARENT_CHECKPOINT_BINDING");
         }
     }
-    private static FoundryCampaignR26.Snapshot suffix(FoundryCampaignR26.Snapshot source,long through){
+    static FoundryCampaignR26.Snapshot retainedSuffix(FoundryCampaignR26.Snapshot source,long through){
         if(source==null)return null;List<Integer> keep=new ArrayList<>();long cut=source.through-4999;
         for(int i=0;i<source.draws.length;i++)if(source.ordinal[i]>through&&source.ordinal[i]>=cut)keep.add(i);
         if(keep.size()<64)return null;int n=keep.size();FoundryCampaignR26.Snapshot s=new FoundryCampaignR26.Snapshot();s.ordinal=new long[n];s.issues=new long[n];s.opened=new long[n];s.available=new long[n];s.draws=new int[n][];
@@ -57,7 +57,7 @@ public final class WarmCandidateR26 {
         budget.checkpointOrYield();SQLiteDatabase db=store.readable();Parent p=parent(db);if(p==null)return 0;
         FoundryCampaignR26.Snapshot source;WarmModelSeedR26.Seed seed;byte[] snapshot;String sourceHash;
         try{
-            authenticate(db,p);source=suffix(FoundryCampaignR26.capture(store),p.exposure);
+            authenticate(db,p);source=retainedSuffix(FoundryCampaignR26.capture(store),p.exposure);
             if(source==null){claims.get().reason("WAITING_64_RETAINED_CANONICAL_LABELS_STRICTLY_AFTER_PARENT; WEIGHTS_PRESERVED");return 0;}
             snapshot=source.encode();sourceHash=LiveStateR26.hash(snapshot);byte[] parentState=CheckpointArtifactsR26.resolve(store,p.reference);
             seed=WarmModelSeedR26.prepare(p.text,parentState,p.hash,p.checkpoint,p.through,sourceHash,source.ordinal[0],source.through);

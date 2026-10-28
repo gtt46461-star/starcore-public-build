@@ -41,6 +41,7 @@ receipt=subprocess.check_output(['adb','exec-out','run-as','com.starcore.researc
 Path('r26-runtime-synthetic.json').write_bytes(receipt)
 r=json.loads(receipt)
 assert r['result']=='PASS_WITH_STATED_ENGINEERING_SCOPE' and r['endurance']['elapsedMs']>=3600000
+assert r['committedResearchService']['committedCapacityFailuresSinceInstallation']==0,'Durable capacity failures cannot age out of acceptance'
 assert r['endurance']['screen']==screen and len(r['endurance']['samples'])>=59
 assert r['familyMechanismsWithCommittedProgress']==24 and r['expertsWithActualReceipts']==16 and r['restartResumed']
 print('R26_ENDURANCE_ENGINEERING_PASS; physical user phone and natural quality are separate evidence')

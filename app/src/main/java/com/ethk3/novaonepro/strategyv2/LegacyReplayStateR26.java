@@ -48,7 +48,7 @@ public final class LegacyReplayStateR26 {
     private static void resetContext(LiveStrategySU2 live,long start){
         if(live instanceof ModelLiveSU2)((ModelLiveSU2)live).resetGateContextR26();
         else if(live instanceof CommitteeLiveSU2){CommitteeLiveSU2 c=(CommitteeLiveSU2)live;c.contextStartR26=start;c.curP1=-1;c.lastPooled=null;c.lastPooledT=-1;c.thrValid=false;Arrays.fill(c.gsRing,-1);for(ModelLiveSU2 sub:c.subs)resetContext(sub,start);}
-        else if(live instanceof StageStrategySU2){StageStrategySU2 s=(StageStrategySU2)live;s.contextStartR26=start;s.pending=null;s.pooled=null;s.historyN=0;Arrays.fill(s.history,null);Arrays.fill(s.scores,-1);for(boolean[] row:s.hits)Arrays.fill(row,false);Arrays.fill(s.filter.a,1.0/s.filter.a.length);for(LiveStrategySU2 sub:s.subs)resetContext(sub,start);}
+        else if(live instanceof StageStrategySU2){StageStrategySU2 s=(StageStrategySU2)live;s.contextStartR26=start;s.pending=null;s.choices=null;s.pooled=null;s.threshold=Double.POSITIVE_INFINITY;s.historyN=0;Arrays.fill(s.history,null);Arrays.fill(s.scores,-1);for(boolean[] row:s.hits)Arrays.fill(row,false);Arrays.fill(s.filter.a,1.0/s.filter.a.length);for(LiveStrategySU2 sub:s.subs)resetContext(sub,start);}
         else throw new IllegalArgumentException("R26_LEGACY_GAP_STRATEGY");
     }
     private static void restoreContextStart(LiveStrategySU2 live,long start){

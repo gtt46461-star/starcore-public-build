@@ -127,7 +127,7 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
     public ModelLiveSU2.Decision decide() {
         if (pending != null) return pending;
         choices = new ModelLiveSU2.Decision[subs.length]; double[] conf = new double[subs.length], perf = new double[subs.length];
-        for (int i = 0; i < subs.length; i++) { choices[i] = subs[i].decide(); conf[i] = choices[i].phat; int n = (int) Math.min(t, 50); int k = 0; for (int u = 0; u < n; u++) if (hits[i][u]) k++; perf[i] = n < 50 ? .3 : k / 50.0; }
+        for (int i = 0; i < subs.length; i++) { choices[i] = subs[i].decide(); conf[i] = choices[i].phat; int n = (int) Math.min(t-contextStartR26, 50); int k = 0; for (int u = 0; u < n; u++) if (hits[i][u]) k++; perf[i] = n < 50 ? .3 : k / 50.0; }
         int chosen = 0; double score = conf[0]; boolean act = false;
         if (t >= Math.max(start,contextStartR26)) {
             int[][] h = new int[historyN][]; for (int i = 0; i < historyN; i++) h[i] = history[Math.floorMod(t - historyN + i, 120)];
@@ -138,7 +138,7 @@ public final class StageStrategySU2 implements LiveStrategySU2 {
             if ((t - start) % 25 == 0 || t == 0) {
                 int n = contextStartR26>0?(int)Math.min(720,t-Math.max(start,contextStartR26)):(int)Math.min(720,def.seedScores.length+Math.max(0,t-start));
                 double[] previous = new double[n]; for (int i = 0; i < n; i++) previous[i] = scores[Math.floorMod(t - n + i, 720)];
-                threshold = ModelReplaySU2.quantileLinear(previous, 1 - def.coverage);
+                threshold = n==0?Double.POSITIVE_INFINITY:ModelReplaySU2.quantileLinear(previous, 1 - def.coverage);
             }
             act = (contextStartR26==0||t-contextStartR26>=100) && score >= threshold && conf[chosen] > ModelReplaySU2.INFORMATIVE;
         }

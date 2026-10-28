@@ -134,6 +134,35 @@ public final class R26PublicationDeviceTest {
         }
     }
 
+    private static StageStrategySU2.Definition warmStage(String text,long through){
+        int columns=StageLayerSU2.BASE_COLS+1;double[][] variance=new double[1][columns];Arrays.fill(variance[0],1);double[] sd=new double[columns];Arrays.fill(sd,1);double[] seed=new double[100];Arrays.fill(seed,.3);
+        StageLayerSU2.Layer layer=new StageLayerSU2.Layer(new StageLayerSU2.Gmm(new double[1][columns],variance,new double[]{1},0),new double[columns],sd,new double[1][4],new double[]{1});
+        return new StageStrategySU2.Definition("F30",.3,through,Collections.singletonList(text),layer,seed);
+    }
+    @Test public void expiredLegacyProgramCommitteeAndStageKeepLearnedStateAcrossTwoRawWindows()throws Exception{
+        try(Fixture f=new Fixture(128)){
+            FoundryCampaignR26.Snapshot oldSource=f.prefix(128);String sourceHash=LiveStateR26.hash(oldSource.encode());ModelGenomeSU2 first=FamilyRegistryR26.genome("F20").bindBirth(sourceHash,oldSource.through),second=FamilyRegistryR26.genome("F19").bindBirth(sourceHash,oldSource.through);
+            StageStrategySU2.Definition stage=warmStage(first.text(),oldSource.through);StageStrategySU2.register(stage);List<String> canonical=Arrays.asList(first.text(),new CommitteeSU2(Arrays.asList(first,second),.3).text(),stage.text());LegacyReplayStateR26 old=new LegacyReplayStateR26(canonical,f.first);for(int i=0;i<37;i++)old.advance(oldSource.draws[i],oldSource.ordinal[i]);
+            String roster=HashingSU1.fields("R26_LEGACY_ROSTER_V1",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256,PolicyIdentityR26.canonical(canonical));CheckpointArtifactsR26 files=CheckpointArtifactsR26.forStore(f.store);String parent;
+            try(CheckpointArtifactsR26.Prepared file=files.prepareLegacy(old)){
+                String hash=LiveStateR26.hash(files.resolve(file.reference()));parent=HashingSU1.fields("R26_LEGACY_CHECKPOINT_V1",roster,sourceHash,"0",hash);final String checkpoint=parent;
+                f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_EXPIRED_LEGACY",db->{db.execSQL("INSERT INTO r26_legacy_runtime(singleton,roster_hash,snapshot_hash,snapshot,source_through,genesis_ordinal,through_ordinal,cursor,state,state_hash,checkpoint_hash,parent_hash,numerical_abi,status,updated_at) VALUES(1,?,?,X'',?,?,?,?,?,?,?,'',?,'EXPIRED_RETENTION',1)",new Object[]{roster,sourceHash,oldSource.through,f.first,old.through(),37,file.reference(),hash,checkpoint,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});CheckpointManifestR26.record(db,checkpoint,"LEGACY:"+roster,sourceHash,"",old.through(),file.reference());return 0;});
+            }
+            old.onGap();
+            for(int window=1;window<=2;window++){
+                List<Models.Draw> later=new ArrayList<>();for(int i=0;i<64;i++)later.add(f.draw(window*6000+i,System.currentTimeMillis()-(65-i)*60000L));assertEquals(64,f.store.saveDraws(later));final String expectedParent=parent;
+                if(window==1){RuntimeCoordinatorR26.Claim stale=new RuntimeCoordinatorR26.Claim(f.claim.task,f.claim.owner,0,0);try{LegacyReplayR26.resumeExpired(f.store,()->stale,f.budget());fail("Stale legacy owner forked state");}catch(IllegalStateException expected){}assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_legacy_runtime WHERE status='BOOTSTRAP'"));}
+                assertEquals(1,LegacyReplayR26.resumeExpired(f.store,()->f.claim,f.budget()));
+                try(Cursor row=f.db.rawQuery("SELECT snapshot,state,state_hash,checkpoint_hash,parent_hash,cursor,source_through FROM r26_legacy_runtime",null)){assertTrue(row.moveToFirst());FoundryCampaignR26.Snapshot suffix=FoundryCampaignR26.Snapshot.decode(row.getBlob(0));assertEquals(64,suffix.draws.length);assertEquals(f.first+window*6000,suffix.ordinal[0]);assertTrue(suffix.ordinal[0]>oldSource.through);LegacyReplayStateR26 restored=files.restoreLegacy(row.getBlob(1),row.getString(2));assertArrayEquals(old.encode(),restored.encode());assertEquals(37,restored.samples());assertEquals(expectedParent,row.getString(4));assertEquals(0,row.getInt(5));parent=row.getString(3);
+                    LegacyReplayStateR26 reference=LegacyReplayStateR26.decode(old.encode());restored.advance(suffix.draws[0],suffix.ordinal[0]);reference.advance(suffix.draws[0],suffix.ordinal[0]);assertArrayEquals(reference.encode(),restored.encode());assertEquals(38,restored.samples());}
+                assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_cohort"));assertEquals(0,scalar(f.db,"SELECT count(*) FROM r26_live_model"));assertEquals(window+1,scalar(f.db,"SELECT count(*) FROM r26_checkpoint_artifact WHERE policy_hash='LEGACY:"+roster+"'"));
+                if(window==1)f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_UNSERVED_LEGACY_EXPIRY",db->{db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',snapshot=X''");return 0;});
+            }
+            byte[] preserved;try(Cursor row=f.db.rawQuery("SELECT state FROM r26_legacy_runtime",null)){assertTrue(row.moveToFirst());preserved=row.getBlob(0);}
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_DAMAGED_LEGACY_BINDING",db->{db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',state_hash='DAMAGED'");return 0;});assertEquals(0,LegacyReplayR26.resumeExpired(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_legacy_runtime WHERE status='BLOCKED_WARM_STATE_PRESERVED'"));try(Cursor row=f.db.rawQuery("SELECT state FROM r26_legacy_runtime",null)){assertTrue(row.moveToFirst());assertArrayEquals(preserved,row.getBlob(0));}
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_OLD_LEGACY_ABI",db->{db.execSQL("UPDATE r26_legacy_runtime SET status='EXPIRED_RETENTION',numerical_abi='OLD'");return 0;});assertEquals(0,LegacyReplayR26.resumeExpired(f.store,()->f.claim,f.budget()));assertEquals(1,scalar(f.db,"SELECT count(*) FROM r26_legacy_runtime WHERE status='BLOCKED_NUMERICAL_ABI_PRESERVED'"));
+        }
+    }
     @Test public void fragmentMemoryCheckpointsRunThroughFoundryAndDestructiveControlsCannotPublish()throws Exception{
         try(Fixture f=new Fixture(128)){
             FoundryCampaignR26.Snapshot source=f.prefix(128);String campaign=f.campaign(source);ModelGenomeSU2 full=f.genome("F20",source);
