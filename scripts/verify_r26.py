@@ -16,7 +16,7 @@ def main():
     sources=[p for p in (prod/'strategyv2').glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
     sources += [ROOT / 'app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
     sources += [prod/'r952'/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
-    sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java','R26ExpertTest.java','R26RecoveryTest.java','R26EvidenceTest.java','R26FrozenSurfaceTest.java','R26ChunkedCheckpointTest.java','R26CapabilityServiceTest.java','R26ForecastSnapshotTest.java','R26FamilyMechanismTest.java','R26IncumbentBudgetTest.java','R26F08MechanismTest.java','R26F20MechanismTest.java','R26WarmSeedTest.java','R26TensorMechanismTest.java','R26FragmentDiagnosticsTest.java','R26MatchingDiagnosticsTest.java']]
+    sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java','R26ExpertTest.java','R26RecoveryTest.java','R26EvidenceTest.java','R26FrozenSurfaceTest.java','R26ChunkedCheckpointTest.java','R26CapabilityServiceTest.java','R26ForecastSnapshotTest.java','R26FamilyMechanismTest.java','R26IncumbentBudgetTest.java','R26F08MechanismTest.java','R26F20MechanismTest.java','R26WarmSeedTest.java','R26TensorMechanismTest.java','R26FragmentDiagnosticsTest.java','R26MatchingDiagnosticsTest.java','R26NeuralDiagnosticsTest.java']]
     classes=OUT/'classes';classes.mkdir(exist_ok=True)
     run('compile',['java','com.sun.tools.javac.Main','-encoding','UTF-8','-d',classes]+sources)
     log=run('kernels',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26KernelTest']);assert 'R26_KERNEL_PASS' in log
@@ -31,6 +31,8 @@ def main():
     run('tensor_mechanism',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26TensorMechanismTest',OUT/'f19-tensor-state-sample.bin'])
     run('fragment_training_diagnostics',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26FragmentDiagnosticsTest'])
     run('matching_training_diagnostics',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26MatchingDiagnosticsTest',OUT/'f17-state-sample.bin'])
+    neuralSamples=OUT/'neural-state-samples';neuralSamples.mkdir(exist_ok=True)
+    run('neural_training_diagnostics',['java','-Xmx768m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26NeuralDiagnosticsTest',neuralSamples])
     run('incumbent_budget',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26IncumbentBudgetTest'])
     run('family_mechanisms',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26FamilyMechanismTest'])
     run('evidence',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26EvidenceTest'])
