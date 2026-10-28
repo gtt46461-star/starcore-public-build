@@ -37,7 +37,8 @@ public final class RetentionR26 {
         db.execSQL("DELETE FROM r26_frozen WHERE rowid IN (SELECT rowid FROM r26_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
         long frozen=count(db,"SELECT changes()");fold(db,"frozen_rows",frozen);
         db.execSQL("DELETE FROM r26_expert_audit WHERE rowid IN (SELECT rowid FROM r26_expert_audit ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
-        db.execSQL("DELETE FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND status<>'RUNNING'");
+        ExpertContinuationR26.preserveExpired(db);
+        db.execSQL("DELETE FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='')");
         db.execSQL("UPDATE r26_expert_experiment SET status='NUMERICAL_ABI_CHANGED' WHERE numerical_abi<>? AND status='RUNNING'",new Object[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         // Keep complete identities for live/retained candidates plus a bounded historical tail.
         db.execSQL("DELETE FROM r26_policy_identity WHERE policy_hash IN (SELECT p.policy_hash FROM r26_policy_identity p WHERE instr(p.genotype_text,'_warm_kernel=')=0 AND p.policy_hash NOT IN (SELECT policy_hash FROM r26_live_model UNION SELECT policy_hash FROM r26_candidate UNION SELECT policy_hash FROM r26_prepared_policy UNION SELECT genome_key FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') UNION SELECT substr(genotype_text,instr(genotype_text,'_warm_parent=')+13,64) FROM r26_policy_identity WHERE instr(genotype_text,'_warm_parent=')>0) ORDER BY p.created_at DESC,p.policy_hash LIMIT 256 OFFSET 4096)");

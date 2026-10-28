@@ -39,6 +39,8 @@ adb exec-out run-as com.starcore.research.r13 cat cache/r13-charts.png > r13-cha
 adb exec-out run-as com.starcore.research.r13 cat cache/r26-runtime-synthetic.json > r26-runtime-synthetic.json
 adb exec-out run-as com.starcore.research.r13 cat cache/r26-schema-migration-synthetic.json > r26-schema-migration-synthetic.json
 fi
+# The startup probe clears app data; preserve every validated receipt first.
+collect_runtime_evidence
 python3 scripts/probe_r13_startup.py
 # The deliverable is the release variant. Confirm the same fixed certificate
 # permits an in-place update, then exercise its actual launcher on every API.
