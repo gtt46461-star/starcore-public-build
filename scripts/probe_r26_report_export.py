@@ -56,6 +56,9 @@ def main():
     started=time.monotonic();stages=[]
     try:
         wait_ready();apk=glob.glob('delivered/app/build/outputs/apk/debug/*.apk');assert len(apk)==1
+        adb('shell','input','keyevent','224');adb('shell','wm','dismiss-keyguard',check=False)
+        adb('shell','settings','put','system','screen_off_timeout','1800000')
+        adb('shell','svc','power','stayon','true',check=False)
         assert b'Success' in adb('install','-r',apk[0]);assert b'Success' in adb('shell','pm','clear',PKG)
         package=adb('shell','dumpsys','package',PKG).decode('utf-8','replace');assert 'versionCode=577271028' in package
         adb('shell','am','start','-W','-n',PKG+'/com.ethk3.novaonepro.MainActivity')
@@ -67,12 +70,12 @@ def main():
             if values.get('init_status')=='READY' and values.get('init_stage')=='BUSINESS_READY':break
             time.sleep(1)
         else:raise RuntimeError('APP_NOT_READY_FOR_REPORT')
-        # Trigger the visible production long-press handler; no unexported-activity shell shortcut.
+        # Use the ordinary visible diagnosis button, with the screen awake throughout.
         selected=None
-        for scroll in range(8):
+        for scroll in range(30):
             view=dump_ui('before-export-'+str(scroll))
             for node in view.iter('node'):
-                if node.get('resource-id','').endswith(':id/txt_runtime_status'):
+                if node.get('resource-id','').endswith(':id/btn_open_diagnosis'):
                     bounds=list(map(int,re.findall(r'\d+',node.get('bounds',''))))
                     if len(bounds)==4 and bounds[2]>bounds[0] and bounds[3]-bounds[1]>24:selected=bounds;break
             if selected is not None:break
@@ -80,10 +83,10 @@ def main():
             width,height=screen[2],screen[3]
             adb('shell','input','swipe',str(width//2),str(height*4//5),str(width//2),str(height//3),'450')
             time.sleep(.5)
-        assert selected is not None,'VISIBLE_REPORT_LONG_PRESS_TARGET_MISSING'
+        assert selected is not None,'VISIBLE_DIAGNOSIS_BUTTON_MISSING'
         x=(selected[0]+selected[2])//2;y=(selected[1]+selected[3])//2
-        adb('shell','input','swipe',str(x),str(y),str(x),str(y),'1400')
-        receipt['uiTrigger']='VISIBLE_MAIN_ACTIVITY_RUNTIME_STATUS_LONG_PRESS'
+        adb('shell','input','tap',str(x),str(y))
+        receipt['uiTrigger']='VISIBLE_MAIN_ACTIVITY_DIAGNOSIS_BUTTON'
         deadline=time.monotonic()+480;job=None;firstPoll=time.monotonic()
         while time.monotonic()<deadline:
             pointer=json_file(ROOT+'/current-job.json')
