@@ -14,9 +14,9 @@
     "scope": "WHOLE_CARD_ACCEPTANCE_ONLY_NOT_A_SOFTWARE_IMPLEMENTATION_PERCENT"
   },
   "trainingDiagnostics": {
-    "implemented": 19,
+    "implemented": 20,
     "total": 24,
-    "percent": 79.16666666666667,
+    "percent": 83.33333333333333,
     "families": [
       "F01",
       "F02",
@@ -36,16 +36,16 @@
       "F19",
       "F20",
       "F21",
-      "F22"
+      "F22",
+      "F23"
     ],
     "pending": [
       "F10",
       "F15",
       "F16",
-      "F23",
       "F24"
     ],
-    "scope": "DEFAULT_KERNEL_DIAGNOSTIC_INTERFACE_ONLY_NOT_FULL_FAMILY_CONTRACT_OR_QUALITY",
+    "scope": "DEFAULT_KERNEL_DIAGNOSTIC_IMPLEMENTATION;F23_CLASS_INSPECTION_REQUIRES_ANDROID_TEACHER_BINDING;NOT_FULL_FAMILY_OR_QUALITY",
     "inventory": [
       {
         "id": "F01",
@@ -159,7 +159,7 @@
       },
       {
         "id": "F23",
-        "diagnostics": false,
+        "diagnostics": true,
         "requiresAndroidTeacherBinding": true
       },
       {
@@ -175,34 +175,34 @@
     "scope": "ENVELOPES_ONLY_NOT_ALL_REQUIRED_METRICS_ACCEPTED"
   },
   "protocolGroups": {
-    "passed": 31,
+    "passed": 32,
     "evidence": "build/r26/verification.json",
     "scope": "Production pure Java math/identity and additive SQLite; reference contracts separately labelled. No physical-device or natural-quality inference."
   },
   "latestVerifiedNativeSuite": {
-    "declaredTests": 116,
-    "executedTests": 116,
-    "failedSelectors": 1,
+    "declaredTests": 117,
+    "executedTests": 117,
+    "failedSelectors": 0,
     "notExecutedTests": 0,
-    "status": "FAIL",
-    "source": "aabb0a37bf7e9c1f819041adb4afd38f76cc83a6",
-    "compiledSource": "d8378176803118047253ceb746024c4db198b94a",
+    "status": "PASS",
+    "source": "fc1402f8ea426b0d19ea0796f7dd19aaeebb11f3",
+    "compiledSource": "a7f0052459331988ab58ccd667fa1fe43ccacd9d",
     "api": 29,
-    "evidence": "construction/r26/continuation/runtime-116-failure-observed.json",
+    "evidence": "construction/r26/continuation/runtime-117-residual-failure-research-pass.json",
     "scope": "MATCHING_SOURCE_EXECUTION_RESULT_INCLUDING_FAILURES; NOT_CURRENT_UNEXECUTED_TESTS_OR_NATURAL_QUALITY",
     "runtimeEngineeringResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
     "durableCommittedCapacityFailures": 0
   },
   "latestPassedNativeSuite": {
-    "source": "6fb58bb31e14789efb395a47530f4250fed9557d",
-    "compiledSource": "5df8f40823aeff35ca948a020dc2276a84c939fd",
-    "runId": 40638322830,
-    "evidence": "construction/r26/continuation/runtime-114-relation-symbolic-pass.json",
+    "source": "fc1402f8ea426b0d19ea0796f7dd19aaeebb11f3",
+    "compiledSource": "a7f0052459331988ab58ccd667fa1fe43ccacd9d",
+    "runId": 40645360647,
+    "evidence": "construction/r26/continuation/runtime-117-residual-failure-research-pass.json",
     "schema": "R26_INSTRUMENTATION_RESULT_V1",
     "scope": "SOURCE_BOUND_ENGINEERING_NOT_NATURAL_QUALITY",
-    "manifestSha256": "b8071bf5fc79f8f03c64f4df58e3a244454b7ee033b777dce7b3855cef73ac2a",
-    "declaredTests": 114,
-    "executedTests": 114,
+    "manifestSha256": "a2a5774fe879919d43f09d841f2470f70ab6dbbe269eddf118af4679493384b7",
+    "declaredTests": 117,
+    "executedTests": 117,
     "notExecutedTests": 0,
     "failedSelectors": 0,
     "status": "PASS"

@@ -12,11 +12,16 @@ on:
         required: false
         default: ''
         type: string
+      publish_runtime_117:
+        description: Publish the signed source117 package after its matching runtime checks
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 jobs:
   debug-apk:
-    if: ${{ !inputs.publish_verified_1025 && inputs.verified_run_id == '' }}
+    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && inputs.verified_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -158,3 +163,43 @@ jobs:
           gh release create r26-20261027-engineering --target "$target" --title 'STARCORE R26 · 工程验证版（未完成全方案验收）' --notes-file release-notes.md --draft --prerelease --latest=false
           gh release upload r26-20261027-engineering public-assets/*
           gh release edit r26-20261027-engineering --draft=false --prerelease --latest=false
+  publish-r26-runtime-117:
+    if: ${{ inputs.publish_runtime_117 }}
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact source117 build and runtime evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api repos/$GH_REPO/actions/runs/40645360647 > source117-workflow.json
+          gh api 'repos/'$GH_REPO'/actions/runs/40645360647/jobs?per_page=100' > source117-jobs.json
+          gh run download 40645360647 --name R13-build-and-evidence --dir verified117
+          gh run download 40645360647 --name R13-Android-runtime-29 --dir runtime117
+      - name: Verify immutable package and matching executed native tests
+        run: python3 scripts/stage_r26_runtime_117.py --build verified117 --runtime runtime117 --workflow source117-workflow.json --jobs source117-jobs.json --out public-assets117
+      - name: Upload verified assets and publish download
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view r26-20261028-runtime-117 --json isDraft,targetCommitish > source117-release.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('source117-release.json'))
+          assert r['isDraft'] and r['targetCommitish']=='a7f0052459331988ab58ccd667fa1fe43ccacd9d'
+          PY
+          gh release upload r26-20261028-runtime-117 public-assets117/* --clobber
+          gh release view r26-20261028-runtime-117 --json assets > source117-assets.json
+          python3 - <<'PY'
+          import json
+          a={x['name']:x for x in json.load(open('source117-assets.json'))['assets']}
+          assert a['STARCORE-R26-20261028-117-release.apk']['size']==27047093
+          assert {'R26-delivery.json','SHA256SUMS.txt','R26-native-117-results.json','R26-runtime-117-results.json'}<=a.keys()
+          PY
+          gh release edit r26-20261028-runtime-117 --draft=false --prerelease --latest=false --notes-file public-assets117/release-notes.md
