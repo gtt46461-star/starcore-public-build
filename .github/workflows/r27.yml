@@ -35,6 +35,13 @@ jobs:
         with:
           path: ~/.starcore/su1-api-transport
           key: starcore-su1-api-transport-v1
+      # R27.2: the temporary CI key is generated once and kept in the Actions cache, so later R27 builds install over
+      # earlier ones (same certificate) and the phone keeps its data. It is still NOT the official R13 identity.
+      - id: tempkey
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
       - name: Signing identity (official when the transport cache is reachable, otherwise a labelled temporary CI key)
         env:
           R27_API_KEY: ${{ secrets.DUOQU_API_KEY }}
@@ -45,9 +52,15 @@ jobs:
             python3 scripts/load_su1_bundled_api.py || echo "API credential not loaded"
             echo "R27_SIGNING=OFFICIAL_R13" >> "$GITHUB_ENV"
           else
-            pw=$(python3 -c 'import secrets;print(secrets.token_hex(16))'); echo "::add-mask::$pw"
-            keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r27-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 30 \
-              -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R27 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY"
+            K="$HOME/.starcore/r27-ci-temp-key"
+            if [ -f "$K/r27-ci.p12" ] && [ -f "$K/pw" ]; then
+              pw=$(cat "$K/pw"); echo "::add-mask::$pw"; cp "$K/r27-ci.p12" "$RUNNER_TEMP/r27-ci.p12"; echo "reusing the cached temporary key"
+            else
+              pw=$(python3 -c 'import secrets;print(secrets.token_hex(16))'); echo "::add-mask::$pw"
+              keytool -genkeypair -storetype PKCS12 -keystore "$RUNNER_TEMP/r27-ci.p12" -alias starcore-r13 -keyalg RSA -keysize 3072 -validity 3650 \
+                -storepass "$pw" -keypass "$pw" -dname "CN=STARCORE R27 CI TEMPORARY KEY - NOT THE RELEASE IDENTITY"
+              mkdir -p "$K" && cp "$RUNNER_TEMP/r27-ci.p12" "$K/r27-ci.p12" && printf '%s' "$pw" > "$K/pw" && echo "R27_TEMP_KEY_NEW=1" >> "$GITHUB_ENV"
+            fi
             cert=$(keytool -exportcert -keystore "$RUNNER_TEMP/r27-ci.p12" -storetype PKCS12 -alias starcore-r13 -storepass "$pw" | sha256sum | cut -c1-64)
             { echo "R13_SIGNING_P12=$RUNNER_TEMP/r27-ci.p12"; echo "R13_SIGNING_PASSWORD=$pw"; echo "R27_SIGNING=TEMPORARY_CI_KEY"; echo "R13_EXPECTED_CERT_SHA256=$cert"; } >> "$GITHUB_ENV"
             echo "temporary certificate SHA-256: $cert"
@@ -55,6 +68,11 @@ jobs:
             # repository secret DUOQU_API_KEY and is never written to tracked files.
             if [ -n "$R27_API_KEY" ]; then echo "::add-mask::$R27_API_KEY"; echo "DUOQU_API_KEY=$R27_API_KEY" >> "$GITHUB_ENV"; else echo "R27_API_KEY_SECRET_NOT_SET"; fi
           fi
+      - if: env.R27_TEMP_KEY_NEW == '1'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
