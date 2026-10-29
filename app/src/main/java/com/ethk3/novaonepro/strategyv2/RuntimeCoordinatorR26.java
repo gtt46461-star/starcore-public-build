@@ -56,7 +56,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
-            db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED' AND task_id IN (SELECT task_id FROM r27_task_error WHERE message='R26_CONTINUATION_QUANTUM')");RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
+            db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED' AND task_id IN (SELECT task_id FROM r27_task_error WHERE message='R26_CONTINUATION_QUANTUM' OR (message LIKE 'F01_WRITE_FAILED%' AND stack LIKE '%CP3_DB_BUSY_DEADLINE%'))");RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
             db.execSQL("UPDATE r26_session SET state='INTERRUPTED',user_enabled=0 WHERE user_enabled=1");
             db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,fence=fence+1,owner=NULL WHERE status='RUNNING'");
@@ -126,7 +126,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             if(claim==null){await(250);continue;}long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();long delta=0;String reason=null;Throwable failed=null;
             try{WRITING_CLAIM.set(claim);BudgetTokenSU1 budget=new BudgetTokenSU1((int)CooperativeContinuationR26.SLICE_MS,3000000,this::preempt);ExecutionBudgetR26.enter(budget);delta=execute(claim,budget);reason=claim.reason;}
             catch(BudgetTokenSU1.Yield yield){reason=resourceBlocked!=null?resourceBlocked:"SLICE_BUDGET";}
-            catch(Exception failure){failed=failure;android.util.Log.w("STARCORE_R26",claim.task,failure);}
+            catch(Exception failure){if(ResearchWriteQueueR27.writerBusy(failure))reason="COOPERATIVE_WRITER_BUSY"; // R27.2: a wait, not a task error
+                else{failed=failure;android.util.Log.w("STARCORE_R26",claim.task,failure);}}
             finally{ExecutionBudgetR26.leave();WRITING_CLAIM.remove();}
             // R27-006: a real wait kind instead of the blanket DATA_NOT_READY.
             final WaitKindR27.Wait wait=WaitKindR27.classify(delta,reason,failed,claim.cursor,latestSequence(),resourceBlocked,false);
@@ -153,16 +154,19 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             LegacyGenerationR26.cancel(owner);LegacyReplayContinuationR26.cancel(owner);TaskContinuationR26.cancel(owner);Thread.interrupted();try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SESSION_STOP",db->{if(RuntimeSchemaR26.ready(db)){db.execSQL("UPDATE r26_session SET state=?,user_enabled=0,heartbeat=? WHERE session_id=?",new Object[]{cancelled?"STOPPED":"FAILED",System.currentTimeMillis(),owner});db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0 WHERE owner=? AND status='RUNNING'",new Object[]{owner});}return 0;});}catch(Exception ignored){}while(!CooperativeContinuationR26.awaitOwnerStopped(owner,10000))android.util.Log.e("STARCORE_R26","waiting for cancelled numerical workers before releasing shared database");if(active==this)active=null;if(closeStore)store.close();}finally{RuntimePowerLeaseR26 lease=powerLease;if(lease!=null)lease.close();}}
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
-    static final long SCHEMA_BATCH_MS=200;
+    static final long SCHEMA_BATCH_MS=800;
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{
         if(c.task.equals("schema")){
             if(strategyStorageReady)return 0;
             if(!StrategySchemaSU1.ready(store.readable())){
                 // R27.1: a fresh install has ~265 journaled units; one unit per scheduler pass kept every research task
-                // waiting for hours on device. Apply units back-to-back for up to SCHEMA_BATCH_MS per slice; each unit is
+                // waiting for hours on device. Apply units back-to-back for up to SCHEMA_BATCH_MS per slice (below the
+                // 2×SLICE_MS capacity limit; ~54 ms per unit was measured on device); each unit is
                 // still its own short transaction (background writer class, so P0 fetch/draw writes go first).
                 long until=SystemClock.elapsedRealtime()+SCHEMA_BATCH_MS;int units=0;ResearchSchemaCoordinatorR926.StepResult result;
                 do{result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());
+                    // R27.2 (device: 152/265 units in 12 min): a busy writer retries inside this slice instead of failing it.
+                    if(result.cause!=null&&ResearchWriteQueueR27.writerBusy(result.cause)){SystemClock.sleep(20);continue;}
                     if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
                     if(result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready)units++;else break;
                 }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);

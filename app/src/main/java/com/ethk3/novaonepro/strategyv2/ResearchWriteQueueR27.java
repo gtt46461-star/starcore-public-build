@@ -50,11 +50,22 @@ public final class ResearchWriteQueueR27 {
         while (i < batch.ops.size() || first) {
             final int from = i, to = Math.min(batch.ops.size(), i + chunk); final boolean runBefore = first;
             long t0 = System.nanoTime();
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_" + operation, db -> {
-                if (runBefore && batch.before != null) { Integer ok = batch.before.call(db); if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation); }
-                for (int k = from; k < to; k++) { Op op = batch.ops.get(k); db.execSQL(op.sql, op.args); }
-                return 0;
-            });
+            try {
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_" + operation, db -> {
+                    if (runBefore && batch.before != null) { Integer ok = batch.before.call(db); if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation); }
+                    for (int k = from; k < to; k++) { Op op = batch.ops.get(k); db.execSQL(op.sql, op.args); }
+                    return 0;
+                });
+            } catch (IllegalStateException failure) {
+                // R27.2: a writer busy past the background deadline is a wait, not a task error (device: evolution, live
+                // and AtomNet were quarantined by F01_WRITE_FAILED ← CP3_DB_BUSY_DEADLINE while P0 held the writer).
+                if (!writerBusy(failure)) throw failure;
+                if (first) { stat(System.currentTimeMillis() - start, true); return false; } // nothing committed: re-queue
+                if (cancelled.getAsBoolean()) return false;
+                // Earlier chunks are committed; retry this chunk (its statements are independent and idempotent).
+                try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
+                chunk = Math.max(25, chunk / 2); continue;
+            }
             long ms = (System.nanoTime() - t0) / 1_000_000L;
             if (ms > MAX_CHUNK_MS && chunk > 25) chunk /= 2;
             i = to; first = false;
@@ -68,6 +79,16 @@ public final class ResearchWriteQueueR27 {
         }
         stat(waited, false);
         return true;
+    }
+
+    /** True when the failure is the single writer being busy (deadline/interrupt), as opposed to a real write error. */
+    static boolean writerBusy(Throwable failure) {
+        for (Throwable t = failure; t != null; t = t.getCause()) {
+            String m = String.valueOf(t.getMessage());
+            if (m.contains("CP3_DB_BUSY_DEADLINE") || t instanceof InterruptedException || t instanceof android.database.sqlite.SQLiteDatabaseLockedException) return true;
+            if (t.getCause() == t) break;
+        }
+        return false;
     }
 
     private synchronized void stat(long waited, boolean requeued) {

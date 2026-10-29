@@ -111,6 +111,7 @@ public final class ChartsActivityR83 extends Activity {
         final File file = getApplicationContext().getDatabasePath(AppConfig.DB_NAME);
         ui.postDelayed(cancel::cancel, READ_TIMEOUT_MS);
         future = worker.submit(() -> {
+            try { android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND); } catch (Throwable ignored) { }
             List<Panel> panels = null;
             String error = "";
             long started = System.currentTimeMillis();
@@ -122,13 +123,15 @@ public final class ChartsActivityR83 extends Activity {
                 }
             } catch (OperationCanceledException canceled) {
                 error = "读取超时或已取消，请点刷新重试。";
+            } catch (OutOfMemoryError memory) {
+                panels = null; error = "内存不足，图表未加载（不影响后台运行）；请稍后点刷新。";
             } catch (Throwable failure) {
                 error = "读取失败：" + DatabaseCoordinator.describeCauseChain(failure, 600);
             }
             final List<Panel> ready = panels;
             final String message = error;
             final long cost = System.currentTimeMillis() - started;
-            if (ready != null) recordLoadR27(cost);
+            if (ready != null) try { recordLoadR27(cost); } catch (RuntimeException ignored) { }
             ui.post(() -> {
                 if (epoch != generation || isFinishing()) return;
                 if (ready == null) {
@@ -145,6 +148,16 @@ public final class ChartsActivityR83 extends Activity {
         int ready = 0;
         for (Panel panel : panels) {
             if ("READY".equals(panel.status)) ready++;
+            // R27.2: one bad panel shows its error instead of closing the page (device video 10.29 09:57: the app
+            // restarted while this page loaded).
+            try { addPanel(panel); }
+            catch (RuntimeException failure) { charts.addView(text(panel.title + "：本图显示失败（" + failure.getClass().getSimpleName() + "），其他图不受影响。", 13, muted)); }
+        }
+        status.setText("共" + panels.size() + "张图，" + ready + "张已有数据；读取耗时" + cost + "ms。数据随运行持续积累。");
+    }
+
+    private void addPanel(Panel panel) {
+        {
             LinearLayout card = new LinearLayout(this);
             card.setOrientation(LinearLayout.VERTICAL);
             GradientDrawable bg = new GradientDrawable();
@@ -161,7 +174,6 @@ public final class ChartsActivityR83 extends Activity {
             card.addView(text("怎么看：" + panel.note, 12, muted));
             charts.addView(card, params);
         }
-        status.setText("共" + panels.size() + "张图，" + ready + "张已有数据；读取耗时" + cost + "ms。数据随运行持续积累。");
     }
 
     private static final int IMPORT_CSV_R27 = 27018;
@@ -169,12 +181,13 @@ public final class ChartsActivityR83 extends Activity {
         worker.submit(() -> {
             DbStore store = new DbStore(getApplicationContext());
             String legacy = store.getState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "1");
-            ui.post(() -> new android.app.AlertDialog.Builder(this).setTitle("R27 工具")
+            // R27.2: the device crashed here (BadTokenException) when the page closed before the read returned.
+            ui.post(() -> { if (isFinishing() || isDestroyed()) return; new android.app.AlertDialog.Builder(this).setTitle("R27 工具")
                     .setItems(new String[] {"导入历史CSV（与库内同期逐期比对，冲突不导入）", "旧R9xx研究链并行：" + ("0".equals(legacy) ? "已关闭（点此重新开启）" : "开启中（并行观察≥1440期后再关闭）"), "重试全部已隔离（QUARANTINED）的研究任务"}, (d, which) -> {
                         if (which == 0) { android.content.Intent i = new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT); i.addCategory(android.content.Intent.CATEGORY_OPENABLE); i.setType("*/*"); startActivityForResult(i, IMPORT_CSV_R27); }
                         else if (which == 1) worker.submit(() -> { store.setState(ResearchLearningContinuityR912.R27_LEGACY_SWITCH, "0".equals(legacy) ? "1" : "0"); ui.post(() -> status.setText("旧研究链开关已改为 " + ("0".equals(legacy) ? "开启" : "关闭") + "；旧表保留只读。")); });
                         else worker.submit(() -> { int n = com.ethk3.novaonepro.strategyv2.HistoryImportR27.retryQuarantined(store); ui.post(() -> status.setText("已重置隔离任务：" + n + "个")); });
-                    }).show());
+                    }).show(); });
         });
     }
 

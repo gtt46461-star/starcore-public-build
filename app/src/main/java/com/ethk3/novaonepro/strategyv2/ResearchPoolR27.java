@@ -53,12 +53,15 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public final int size;
     private final ExecutorService compute;
 
+    public static final int BACKGROUND_PRIORITY = android.os.Process.THREAD_PRIORITY_BACKGROUND + 1;
     public static int defaultThreads() { int cores = Runtime.getRuntime().availableProcessors(); return Math.max(1, Math.min(4, cores - 2)); }
 
     public ResearchPoolR27(DbStore store, String session, int threads) {
         this.store = store; this.session = session; this.size = Math.max(1, threads); this.writes = new ResearchWriteQueueR27(store);
         // Shared helper executor for data-parallel replay inside one task (evolution REPLAY step).
-        compute = new ThreadPoolExecutor(size, size, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), r -> { Thread t = new Thread(r, "starcore-r27-compute"); t.setDaemon(true); return t; });
+        // R27.2: the helpers run at the workers' background priority. They used to inherit the default priority and,
+        // with up to four of them replaying at once, took the CPU from the realtime analysis thread on device.
+        compute = new ThreadPoolExecutor(size, size, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), r -> { Thread t = new Thread(() -> { try { android.os.Process.setThreadPriority(BACKGROUND_PRIORITY); } catch (Throwable ignored) { } r.run(); }, "starcore-r27-compute"); t.setDaemon(true); return t; });
     }
     public ResearchWriteQueueR27 writes() { return writes; }
     public ExecutorService compute() { return compute; }
@@ -77,14 +80,16 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
 
     private void loop(Worker w) {
-        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND + 1);
+        android.os.Process.setThreadPriority(BACKGROUND_PRIORITY);
         long cpuStart = android.os.Debug.threadCpuTimeNanos(), wallStart = SystemClock.elapsedRealtime(), flushed = wallStart;
         long slices = 0;
         while (!closed) {
             try {
                 if (resource != null) { sleep(500); continue; }
                 // Freeze guard: the last 3 s before a deadline run with one active research worker (not zero).
-                if (writes.freezeWindow(System.currentTimeMillis()) && active.get() >= 1 && !w.name.endsWith("-0")) { sleep(100); continue; }
+                // R27.2: the same one-worker floor while P0 analysis/settlement runs (device: request→commit P95 20.5 s with
+                // MODEL_BUNDLE_OPEN 10.6 s wall / 0.13 s CPU while every worker ran). Research never drops to zero.
+                if (narrow(System.currentTimeMillis()) && active.get() >= 1 && !w.name.endsWith("-0")) { sleep(100); continue; }
                 Task t = next();
                 if (t == null) { sleep(250); continue; }
                 active.incrementAndGet();
@@ -99,6 +104,9 @@ public final class ResearchPoolR27 implements AutoCloseable {
             if (now - flushed > 15_000) { flushCpu(w.name, android.os.Debug.threadCpuTimeNanos() - cpuStart, now - wallStart, slices); flushed = now; }
         }
     }
+
+    /** Freeze window or active P0 work: the pool runs with one worker (R27.2). */
+    boolean narrow(long now) { return writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing(); }
 
     private synchronized Task next() {
         long now = System.currentTimeMillis();

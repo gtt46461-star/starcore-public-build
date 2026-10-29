@@ -259,6 +259,38 @@ public final class R27QualityTest {
         R27TestSupport.log("R27_1_WRITER_PRIORITY_PASS");
     }
 
+    // ------------------------------------------------------------------ R27.2 second device report (3b84648, V2353A)
+    @Test public void r27BusyWriterIsAWaitNotATaskError() throws Exception {
+        Throwable busy = new IllegalStateException("F01_WRITE_FAILED|operation=R27_EVOLUTION_STEP_HOLDOUT", new IllegalStateException("CP3_DB_BUSY_DEADLINE"));
+        Throwable afterAcquire = new IllegalStateException("R26_STRATEGY_SCHEMA", new IllegalStateException("F01_WRITE_FAILED|operation=R26_STRATEGY_STORAGE_UNIT", new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE")));
+        Throwable real = new IllegalStateException("F01_WRITE_FAILED|operation=R27_LIVE_SETTLE", new RuntimeException("UNIQUE constraint failed: r27_live_shadow.id"));
+        assertTrue(ResearchWriteQueueR27.writerBusy(busy));
+        assertTrue(ResearchWriteQueueR27.writerBusy(afterAcquire));
+        assertFalse(ResearchWriteQueueR27.writerBusy(real));
+        assertFalse(ResearchWriteQueueR27.writerBusy(new IllegalStateException("R27_WRITE_PRECONDITION:LIVE_FREEZE")));
+        File dir = new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2");
+        String queue = new String(Files.readAllBytes(new File(dir, "ResearchWriteQueueR27.java").toPath()), "UTF-8");
+        assertTrue("busy writer re-queues instead of throwing", queue.contains("if (!writerBusy(failure)) throw failure;"));
+        String coordinator = new String(Files.readAllBytes(new File(dir, "RuntimeCoordinatorR26.java").toPath()), "UTF-8");
+        assertTrue("R26 slice: busy writer is cooperative", coordinator.contains("ResearchWriteQueueR27.writerBusy(failure))reason=\"COOPERATIVE_WRITER_BUSY\""));
+        assertTrue("startup releases busy-only quarantines", coordinator.contains("message LIKE 'F01_WRITE_FAILED%' AND stack LIKE '%CP3_DB_BUSY_DEADLINE%'"));
+        R27TestSupport.log("R27_2_BUSY_WRITER_PASS");
+    }
+
+    @Test public void r27ComputeHelpersRunAtBackgroundPriorityAndNarrowDuringP0() throws Exception {
+        File dir = new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2");
+        String pool = new String(Files.readAllBytes(new File(dir, "ResearchPoolR27.java").toPath()), "UTF-8");
+        int factory = pool.indexOf("\"starcore-r27-compute\""); assertTrue(factory > 0);
+        String line = pool.substring(pool.lastIndexOf("compute = new ThreadPoolExecutor", factory), factory);
+        assertTrue("compute helpers set the background priority", line.contains("setThreadPriority(BACKGROUND_PRIORITY)"));
+        assertEquals(android.os.Process.THREAD_PRIORITY_BACKGROUND + 1, ResearchPoolR27.BACKGROUND_PRIORITY);
+        assertTrue("one-worker floor also while P0 runs", pool.contains("narrow(System.currentTimeMillis()) && active.get() >= 1"));
+        assertTrue(pool.contains("return writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing();"));
+        String evo = new String(Files.readAllBytes(new File(dir, "EvolutionLoopR27.java").toPath()), "UTF-8");
+        assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || ResearchWriteQueueR27.p0Writing())"));
+        R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
+    }
+
     // ------------------------------------------------------------------ R27-005 no session-level CRITICAL_DEADLINE yield
     @Test public void r27005ResearchSessionNoLongerYieldsToDeadlines() throws Exception {
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java").toPath()), "UTF-8");

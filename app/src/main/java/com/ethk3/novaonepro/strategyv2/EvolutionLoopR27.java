@@ -216,7 +216,8 @@ public final class EvolutionLoopR27 {
     void stepReplay() {
         long t0 = System.nanoTime(); candidateReplayMs.clear();
         List<Pending> born = new ArrayList<>(); for (Pending p : pending) if (p.state.equals("BORN")) born.add(p);
-        if (executor == null) for (Pending p : born) replayOne(p);
+        // R27.2: data-parallel replay only while no P0 analysis/settlement is running; otherwise one thread.
+        if (executor == null || ResearchWriteQueueR27.p0Writing()) for (Pending p : born) replayOne(p);
         else {
             List<java.util.concurrent.Future<?>> fs = new ArrayList<>();
             for (Pending p : born) fs.add(executor.submit(() -> replayOne(p)));

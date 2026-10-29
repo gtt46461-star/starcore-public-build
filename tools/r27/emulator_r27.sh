@@ -21,6 +21,21 @@ snapshot() {  # copy db + wal + shm; "stop" first force-stops the app so the cop
 }
 alive() { local pid; pid=$(adb shell pidof $PKG | tr -d '\r'); [ -n "$pid" ]; }
 fatal() { adb logcat -d > "$OUT/logcat-$1.txt" 2>&1; ! grep -q "FATAL EXCEPTION\|ANR in $PKG" "$OUT/logcat-$1.txt"; }
+# R27.2: open the 走势图表 page (device video 10.29: app restarted while it loaded). The activity is not exported, so the
+# shell start falls back to the emulator's root shell. Any FATAL stack goes straight into the job log.
+charts() {
+  adb logcat -c
+  adb shell am start -W -n $PKG/com.ethk3.novaonepro.ChartsActivityR83 > "$OUT/charts-$1.txt" 2>&1
+  grep -q "Status: ok" "$OUT/charts-$1.txt" || adb shell su 0 am start -W -n $PKG/com.ethk3.novaonepro.ChartsActivityR83 >> "$OUT/charts-$1.txt" 2>&1
+  sed 's/^/R27_EMULATOR_CHARTS_START|/' "$OUT/charts-$1.txt" | head -n 12
+  sleep 30; adb shell input swipe 500 1500 500 400 300 >/dev/null 2>&1; sleep 5
+  adb exec-out screencap -p > "$OUT/charts-$1.png" 2>/dev/null
+  adb logcat -d > "$OUT/logcat-charts-$1.txt" 2>&1
+  grep -A40 "FATAL EXCEPTION\|ANR in $PKG\|Fatal signal" "$OUT/logcat-charts-$1.txt" | head -n 80 | sed 's/^/R27_EMULATOR_CHARTS_CRASH|/'
+  adb shell am start -n $PKG/com.ethk3.novaonepro.MainActivity >/dev/null 2>&1
+  ! grep -q "FATAL EXCEPTION\|ANR in $PKG\|Fatal signal" "$OUT/logcat-charts-$1.txt" && alive
+}
+fatal_stack() { grep -A40 "FATAL EXCEPTION\|ANR in $PKG\|Fatal signal" "$OUT/logcat-$1.txt" 2>/dev/null | head -n 60 | sed "s/^/R27_EMULATOR_FATAL_$1|/"; }
 rc=0; step() { local name=$1; shift; if "$@"; then log "STEP $name OK"; else log "STEP $name FAILED"; rc=1; fi; }
 
 python3 scripts/wait_r13_android_ready.py; wake
@@ -32,23 +47,25 @@ sleep 240; wake; step baseline_alive alive; step baseline_no_fatal fatal baselin
 log "upgrade to R27"; step r27_install_over_baseline adb install -r "$R27_APK"
 adb logcat -c; step r27_launch launch r27
 for i in $(seq 1 "$MIN"); do sleep 60; wake; [ $((i % 5)) -eq 0 ] && snapshot "r27-${i}m"; done
-step r27_alive alive; step r27_no_fatal fatal r27; snapshot r27 stop
+step r27_alive alive; step r27_no_fatal fatal r27; fatal_stack r27; snapshot r27 stop
 
 log "rollback to baseline"; step rollback_install adb install -r -d "$BASE_APK"
 adb logcat -c; step rollback_launch launch rollback
-sleep 180; wake; step rollback_alive alive; step rollback_no_fatal fatal rollback; snapshot rollback stop
+sleep 180; wake; step rollback_alive alive; step rollback_no_fatal fatal rollback; fatal_stack rollback; snapshot rollback stop
 
 log "re-upgrade to R27"; step reupgrade_install adb install -r "$R27_APK"
 adb logcat -c; step reupgrade_launch launch reupgrade
-sleep 300; wake; step reupgrade_alive alive; step reupgrade_no_fatal fatal reupgrade; snapshot reupgrade stop
+sleep 300; wake; step reupgrade_alive alive; step reupgrade_no_fatal fatal reupgrade; fatal_stack reupgrade
+step reupgrade_charts_page charts reupgrade; snapshot reupgrade stop
 
 # 5. Fresh install (what a user gets after uninstalling): how fast research storage becomes ready, and how many of
 #    the periods drawn while the app runs get a pre-draw prediction (with the embedded data key).
 log "fresh install R27"; adb uninstall $PKG >/dev/null 2>&1; step fresh_install adb install "$R27_APK"
 adb logcat -c; date +%s > "$OUT/fresh_start_epoch.txt"; step fresh_launch launch fresh
 for i in 1 2 3 5 10 15; do while [ $(( $(date +%s) - $(cat "$OUT/fresh_start_epoch.txt") )) -lt $((i*60)) ]; do sleep 10; wake; done; snapshot "fresh-${i}m"; done
-step fresh_alive alive; step fresh_no_fatal fatal fresh
+step fresh_alive alive; step fresh_no_fatal fatal fresh; fatal_stack fresh
 grep -iE "fetch|R925|R914|draw|api|http" "$OUT/logcat-fresh.txt" | grep -i "$PKG\|starcore\|r925\|r914\|fetch" | tail -n 60 | sed 's/^/R27_EMULATOR_LOGCAT|/' | tee "$OUT/logcat-fresh-fetch.txt"
+step fresh_charts_page charts fresh
 
 python3 tools/r27/emulator_receipt.py "$OUT" | tee "$OUT/receipt.txt"; r=${PIPESTATUS[0]}; [ $r -eq 0 ] || rc=1
 log "EMULATOR_R27 rc=$rc"; exit $rc
