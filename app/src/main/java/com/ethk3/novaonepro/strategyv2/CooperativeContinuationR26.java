@@ -12,6 +12,8 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
     /** Largest quantum {@link #slice(long)} accepts (1..200 ms). Continuations are always resumed with this value;
      * R27 briefly passed SLICE_MS here, which threw R26_CONTINUATION_QUANTUM and quarantined every expert task. */
     public static final long CONTINUATION_SLICE_MS = 200;
+    /** R27.4: run first on every continuation thread (set by RuntimeR27 to android background priority). */
+    public static volatile Runnable threadStartHook;
     private static final ThreadLocal<CooperativeContinuationR26<?>> CURRENT=new ThreadLocal<>();
     private static final java.util.Map<String,java.util.Set<CooperativeContinuationR26<?>>> OWNED=new java.util.HashMap<>();
     private final String owner;
@@ -36,8 +38,9 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
     private void run(){
         // R27.4: a new Thread starts at normal (nice 0) scheduling priority whatever its creator runs at, so every R26
         // expert/foundry continuation competed with the realtime analysis thread (device 10.29: request→commit P95 25 s,
-        // ACTION_BUILD_FUNNEL_META_RANK 27.9 s wall for 4.0 s CPU). Research runs at background priority, never paused.
-        try{android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);}catch(Throwable hostOrDenied){/* host JVM: no-op */}
+        // ACTION_BUILD_FUNNEL_META_RANK 27.9 s wall for 4.0 s CPU). The Android runtime installs a hook that lowers the
+        // thread to background priority; this class stays pure Java. Research is never paused by it.
+        Runnable hook=threadStartHook;if(hook!=null)try{hook.run();}catch(Throwable denied){/* keep running at the default priority */}
         CURRENT.set(this);BudgetTokenSU1.setPauseClock(this);cpuOrigin=cpuClock.getAsLong();
         try{awaitPermit();ExecutionBudgetR26.enter(new BudgetTokenSU1(3600000,Long.MAX_VALUE/4,()->closed));lastPoll=System.nanoTime();result=body.call();}
         catch(Throwable failure){error=failure;}

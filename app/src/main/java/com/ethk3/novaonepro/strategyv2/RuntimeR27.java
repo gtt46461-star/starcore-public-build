@@ -35,6 +35,7 @@ public final class RuntimeR27 implements AutoCloseable {
 
     public RuntimeR27(DbStore store, String session) {
         this.store = store;
+        CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());

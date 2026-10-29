@@ -378,7 +378,10 @@ public final class R27QualityTest {
         assertTrue(svc.contains("new HandlerThread(\"eth_k3_analysis_channel\", Process.THREAD_PRIORITY_FOREGROUND)"));
         assertTrue(svc.contains("new HandlerThread(\"eth_k3_fetch_channel\", Process.THREAD_PRIORITY_FOREGROUND)"));
         int i = cont.indexOf("private void run(){"); assertTrue(i >= 0);
-        assertTrue(cont.substring(i, cont.indexOf("CURRENT.set(this);", i)).contains("THREAD_PRIORITY_BACKGROUND"));
+        assertTrue(cont.substring(i, cont.indexOf("CURRENT.set(this);", i)).contains("threadStartHook"));
+        assertFalse("continuations stay pure Java (host verifiers compile them without android.jar)", cont.contains("android."));
+        String rt = new String(Files.readAllBytes(new File(root + "strategyv2/RuntimeR27.java").toPath()), "UTF-8");
+        assertTrue(rt.contains("CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);"));
         R27TestSupport.log("R27_4_PRIORITY_PASS");
     }
 
