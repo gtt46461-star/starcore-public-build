@@ -1,8 +1,10 @@
-# STARCORE R29 最终施工方案 · 2026-10-29
+# STARCORE R29 最终施工方案 · 2026-10-29 · 复核修订 R29.1
 
 本包已核对10.29报告、R28原包和真实R27应用分支，形成**11批次、52张施工卡、36项工程指标和8项质量指标**。保留1832条原需求、299张原文件卡，42张R28卡全部映射到R29。
 
 **本次是方案交付：未修改应用代码、未构建新APK，未宣称已达到高胜率。** 已运行的是报告复算、方案完整性验证和独立SQL合同检查；不会把这些测试当手机运行或未来质量证据。
+
+本次复核修订仍使用同一R29目录、11批次、52张卡、44项指标；新增校准支持规则、缺期开奖恢复及乱序资格消费的具体合同。详见[最终复核修订](docs/12_最终复核与修订.md)。新增规则为待施工的 `R29_GATE_V2`，不修改已有应用证书。
 
 ## 立即阅读
 
@@ -36,6 +38,7 @@
 
 ```bash
 python3 tools/validate_package.py
+python3 tools/verify_revision.py --out /tmp/r29_revision_checks.json
 python3 tools/recompute_report.py /path/to/STARCORE_FULL_REPORT.zip --out /tmp/r29_report_recomputed.json
 python3 tools/gate_feasibility.py --out /tmp/r29_gate_feasibility.json
 ```

@@ -357,10 +357,15 @@
         "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueCommitR29.java",
         "action": "ADD_PROPOSED",
         "symbol_scope": "IssueCommitR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27.settle"
       }
     ],
-    "change": "准备计算在事务外，绑定history/lease/decision/freeze于实时短事务",
-    "acceptance_test": "每一步注入错误整体不发布半成品；同issue不可重复REAL",
+    "change": "准备计算在事务外，绑定history/lease/decision/freeze于实时短事务；补充LiveShadowsR27.settle：PENDING_DRAW可重试，取消“两期后hit=-2且查询永不返回”的终态；待补抓公平调度。",
+    "acceptance_test": "每一步注入错误整体不发布半成品；同issue不可重复REAL；先缺开奖结果、跨3期后补回，原合法冻结仅结算一次；迟到预测仍不得补填。",
     "metrics": [
       "M03",
       "M06",
@@ -377,7 +382,8 @@
       "host_test_log",
       "device_report_or_NOT_RUN"
     ],
-    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
   },
   {
     "id": "R29-011",
@@ -1297,8 +1303,8 @@
         "symbol_scope": "CalibrationRowsR27"
       }
     ],
-    "change": "扩ACTIVE之外合法确认对象；fit/validation/apply隔离与hash身份",
-    "acceptance_test": "有冻结证据即可评估；无样本不空白；禁止同数据拟合并验证",
+    "change": "扩ACTIVE之外合法确认对象；fit/validation/apply隔离与hash身份；采用R29_GATE_V2的支持域校准；删去至少5非空箱要求，保留全部样本加权ECE和稀疏质量；fit先于未来登记。",
+    "acceptance_test": "有冻结证据即可评估；无样本不空白；禁止同数据拟合并验证；恒定0.34且68/200的构造样本不得仅因单箱失败；明显失准和稀疏尾部必须可见；构造样本不授证。",
     "metrics": [
       "M26",
       "Q05"
@@ -1314,7 +1320,8 @@
       "host_test_log",
       "device_report_or_NOT_RUN"
     ],
-    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
   },
   {
     "id": "R29-035",
@@ -1335,10 +1342,15 @@
         "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
         "action": "MODIFY",
         "symbol_scope": "LiveShadowsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "consumeContiguous; receipt and cursor transaction"
       }
     ],
-    "change": "发现池可换榜、16确认候选锁定；永久index首次注册；老观察不回填",
-    "acceptance_test": "短期掉榜不驱逐；再入不重置alpha；坏数据阻断",
+    "change": "发现池可换榜、16确认候选锁定；永久index首次注册；老观察不回填；按experiment+ordinal持久pending与receipt，连续资格游标不得越过未解决ACT期；重入不重置预算。",
+    "acceptance_test": "短期掉榜不驱逐；再入不重置alpha；坏数据阻断；1/3先到、2后到与1/2/3顺序重放一致；任一点重启、重复投递不漏计不重计。",
     "metrics": [
       "M27",
       "M29",
@@ -1355,7 +1367,8 @@
       "host_test_log",
       "device_report_or_NOT_RUN"
     ],
-    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
   },
   {
     "id": "R29-036",
@@ -1373,8 +1386,8 @@
         "symbol_scope": "SequentialQualificationR27"
       }
     ],
-    "change": "保留旧门；验证R29_GATE_V1；连挂风险改动单列规则版本与证据",
-    "acceptance_test": "旧新规则同分布功效比较；无统计优势不准入；断电预算连续",
+    "change": "保留旧门；验证R29_GATE_V2；连挂风险改动单列规则版本与证据；验证R29_GATE_V2；在完整主链质量门前分别报告支持、统计、频率和健康状态，不替换旧证书规则。",
+    "acceptance_test": "旧新规则同分布功效比较；无统计优势不准入；断电预算连续；零信号、真实支持窄概率、缺期、乱序和优势检出力联合验证；无统计优势不准入。",
     "metrics": [
       "M27",
       "M36",
@@ -1393,7 +1406,8 @@
       "host_test_log",
       "device_report_or_NOT_RUN"
     ],
-    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
   },
   {
     "id": "R29-037",
@@ -1416,8 +1430,8 @@
         "symbol_scope": "SelectorPolicyR29"
       }
     ],
-    "change": "单成员和组合选择器分开认证；不因成员合格就给meta-policy授证",
-    "acceptance_test": "ACT质量差时定位选择损失；15%目标不能变强制下注",
+    "change": "单成员和组合选择器分开认证；不因成员合格就给meta-policy授证；资格前用FUTURE ACT/注册期机会；部署后Q02用REAL/部署期机会，避免先REAL才能授证的循环。",
+    "acceptance_test": "ACT质量差时定位选择损失；15%目标不能变强制下注；新候选REAL=0仍可积累资格；漏期不缩分母；质量未过不为15%目标凑出手。",
     "metrics": [
       "M30",
       "Q01",
@@ -1435,7 +1449,8 @@
       "host_test_log",
       "device_report_or_NOT_RUN"
     ],
-    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
   },
   {
     "id": "R29-038",
@@ -1504,8 +1519,8 @@
         "symbol_scope": "ReportR29"
       }
     ],
-    "change": "同watermark统一MetricResult；44节兼容与新12章摘要；不拼混口径",
-    "acceptance_test": "JSON/HTML/UI同值；缺失null；60展示不冒充106名单总量",
+    "change": "同watermark统一MetricResult；44节兼容与新12章摘要；不拼混口径；导出连续游标、待结果/待资格两队列、迟到回补和校准支持；新增NOT_DEPLOYED状态。",
+    "acceptance_test": "JSON/HTML/UI同值；缺失null；60展示不冒充106名单总量；报告能区分合法预测晚结算与晚预测；频率、命中、缺失每项可回到同口径明细。",
     "metrics": [
       "M17",
       "M31",
@@ -1522,7 +1537,8 @@
       "host_test_log",
       "device_report_or_NOT_RUN"
     ],
-    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
   },
   {
     "id": "R29-040",

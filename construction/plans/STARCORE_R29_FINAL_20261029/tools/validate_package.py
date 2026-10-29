@@ -33,8 +33,26 @@ def run(root):
         try:db.execute(stmt)
         except sqlite3.IntegrityError:rejected+=1
     assert rejected==4
+    batches=read('registries/batches.json');assert len(batches)==11
+    batch_cards=[i for b in batches for i in b['cards']]
+    assert len(batch_cards)==52 and set(batch_cards)==ids
+    assert len({x['r28'] for x in cross})==42
+    defaults=read('registries/r29_policy_defaults.json')
+    assert defaults['policy_version']=='R29_GATE_V2'
+    from verify_revision import run as verify_revision
+    assert verify_revision(root)['result']=='PASS'
+    db.execute("INSERT INTO qualification_cursor VALUES('e',0,'s0')")
+    db.commit()
+    try:
+        db.execute('BEGIN')
+        db.execute("INSERT INTO qualification_receipt VALUES('e',1,'f','payload','s1')")
+        db.execute("UPDATE qualification_cursor SET last_contiguous_ordinal=1,state_hash='s1' WHERE experiment_id='e'")
+        raise RuntimeError('injected failure before commit')
+    except RuntimeError: db.rollback()
+    assert db.execute('SELECT count(*) FROM qualification_receipt').fetchone()[0]==0
+    assert db.execute('SELECT last_contiguous_ordinal FROM qualification_cursor').fetchone()[0]==0
     if (root/'MANIFEST.json').exists():
         for x in read('MANIFEST.json')['files']:assert hashlib.sha256((root/x['path']).read_bytes()).hexdigest()==x['sha256'],x['path']
-    return {'scope':'PLAN_PACKAGE_AND_STANDALONE_SQL_ONLY','result':'PASS','cards':52,'metrics':44,'legacy_requirements':1832,'legacy_cards':299,'r28_crosswalk':42,'sql_invalid_cases_rejected':rejected,'android_build':'NOT_RUN','device_validation':'NOT_RUN','natural_future_quality':'NOT_RUN'}
+    return {'scope':'PLAN_PACKAGE_AND_STANDALONE_SQL_ONLY','result':'PASS','revision':'R29.1','batches':11,'cards':52,'metrics':44,'legacy_requirements':1832,'legacy_cards':299,'r28_crosswalk':42,'sql_invalid_cases_rejected':rejected,'qualification_transaction_rollback':'PASS_STANDALONE_SQL','revision_contract_checks':'PASS','android_build':'NOT_RUN','device_validation':'NOT_RUN','natural_future_quality':'NOT_RUN'}
 
 if __name__=='__main__':print(json.dumps(run(Path(__file__).resolve().parents[1]),ensure_ascii=False,indent=2))

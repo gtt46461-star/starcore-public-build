@@ -1,6 +1,7 @@
-<!DOCTYPE html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STARCORE R29 最终施工方案</title><style>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>STARCORE R29 最终施工方案 · R29.1</title><style>
 *{box-sizing:border-box}body{margin:0;background:#f4f6fa;color:#182638;font:16px/1.75 system-ui,"Noto Sans CJK SC","Microsoft YaHei",sans-serif}header{background:#112c43;color:white;padding:48px 6vw}header h1{margin:0 0 12px;font-size:34px}header p{max-width:1000px}nav{display:flex;gap:9px;flex-wrap:wrap;padding:24px 6vw;background:#e5edf4}nav a{padding:5px 10px;border-radius:5px;background:white;color:#124867;text-decoration:none}main{max-width:1240px;margin:auto;padding:32px}section{background:white;border:1px solid #dce3eb;margin:0 0 32px;padding:36px;border-radius:10px}h1,h2,h3{line-height:1.4;color:#153f59}h1{font-size:27px}h2{font-size:22px;margin-top:35px}p{overflow-wrap:anywhere}code{font-family:ui-monospace,monospace;background:#edf2f6;padding:2px 4px;overflow-wrap:anywhere}pre{white-space:pre-wrap;background:#edf2f6;padding:20px;border-left:4px solid #2b8197;overflow:auto}pre code{padding:0}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:18px 0}th,td{text-align:left;vertical-align:top;border:1px solid #cdd9e1;padding:10px;min-width:90px;overflow-wrap:anywhere}th{background:#edf5f7}tr:nth-child(even){background:#fafcfd}.item{padding-left:10px}a{color:#086a8a}@media(max-width:650px){main{padding:10px}section{padding:18px}header{padding:28px 20px}header h1{font-size:27px}}@media print{nav{display:none}body{background:white;font-size:10pt}main{padding:0}section{border:none;padding:0;break-before:page}table{font-size:8pt}header{background:white;color:black;padding:15px}}
-</style><header><h1>STARCORE R29 最终施工方案</h1><p>2026年10月29日 · 报告复核 + 精确改造 + 检测报告升级</p><p><strong>11批次 / 52张施工卡 / 44项验收指标 / 1832条原需求保全</strong></p><p>以真实R27源码与10.29运行报告为基线。当前交付为施工规范，应用改造、设备验收及未来质量仍待执行。</p></header><nav><a href="#chapter0">00 · 实施总纲</a><a href="#chapter1">01 · 报告复核与冲突裁决</a><a href="#chapter2">02 · 运行闭环与分库迁移</a><a href="#chapter3">03 · 历史训练与统计资格</a><a href="#chapter4">04 · 完整策略创造引擎</a><a href="#chapter5">05 · 深度学习原子分子矩阵</a><a href="#chapter6">06 · 检测报告升级合同</a><a href="#chapter7">07 · 验收设备发布</a><a href="#chapter8">08 · 接口与数据库合同</a><a href="#chapter9">09 · 研究依据与适用限制</a><a href="#chapter10">10 · 批次与52张施工卡</a><a href="#chapter11">11 · 44项验收指标</a></nav><main><section id="chapter0"><h1>R29 最终施工总纲：连续创造、真实评价、能力保全</h1>
+
+header h1{color:white}@media print{header h1{color:#153f59}}</style></head><body><header><h1>STARCORE R29 最终施工方案</h1><p>2026年10月29日 · 最终复核修订 R29.1</p><p><strong>11批次 / 52张施工卡 / 44项验收指标 / 1832条原需求与299张原卡保全</strong></p><p>报告复算、源码定位、完整策略创造与检测报告升级。当前交付是施工规范；应用实施、设备验收与自然质量仍待完成。</p></header><nav><a href="#chapter0">00 · 实施总纲</a><a href="#chapter1">01 · 报告复核与冲突裁决</a><a href="#chapter2">02 · 运行闭环与分库迁移</a><a href="#chapter3">03 · 历史训练与统计资格</a><a href="#chapter4">04 · 完整策略创造引擎</a><a href="#chapter5">05 · 深度学习原子分子矩阵</a><a href="#chapter6">06 · 检测报告升级合同</a><a href="#chapter7">07 · 验收设备发布</a><a href="#chapter8">08 · 接口与数据库合同</a><a href="#chapter9">09 · 研究依据与适用限制</a><a href="#chapter10">10 · 批次与52张施工卡</a><a href="#chapter11">11 · 44项验收指标</a><a href="#chapter12">12 · 最终复核与修订</a></nav><main><section id="chapter0"><h1>R29 最终施工总纲：连续创造、真实评价、能力保全</h1>
 <p>日期：2026-10-29（北京时间）。交付类型：经过源码与报告核对的施工规范、机器清单、复核脚本；不是已完成的应用或APK。</p>
 <h2>1. 唯一施工入口与目标</h2>
 <p>文档发布仓库为 <code>gtt46461-star/starcore-public-build</code> 的 main；应用施工基线是 <code>construction/r27-20261028@f9bdddb97291d9d96b5aba940b31d03369c220e2</code>，其最新应用代码提交为 <code>7d3e0e2271ce2a734ca69f2fca8527c00222bba7</code>。不得直接用main较旧应用代码开工。报告对应后一个提交，快照期号202610290593。后续开工须重查分支头，有新增代码时先核对差异，不能覆盖新工作。</p>
@@ -12,73 +13,255 @@
 <h2>3. 连续运行与资源</h2>
 <p>取消闲时、充电、手工点击才训练等前置条件。每期结果进入持久事件队列，必须结算、投递训练和反馈；数值更新通过可恢复小切片持续消化。计算受设备上限约束，必须报告积压和原因，不能把“任务已投递”写成“每期训练已完成”。发热时缩减并行度，保留进度；系统强停/断网期间无法保证在线抓取，恢复后补抓和结算，绝不补造赛前冻结。</p>
 <h2>4. 验收分层</h2>
-<div class="tablewrap"><table><thead><tr><th>层级</th><th>通过条件</th><th>不能替代的事项</th></tr></thead><tbody>
-<tr><td>源码与合同</td><td>编译、接口、迁移、PIT、数据完整性通过</td><td>手机性能、未来质量</td></tr>
-<tr><td>设备运行</td><td>目标机前台/后台/息屏、故障恢复、时延与存储实测</td><td>策略有优势</td></tr>
-<tr><td>自然质量</td><td>预登记后真实冻结和结算，统计门与业务门通过</td><td>未来永久高胜率</td></tr>
-<tr><td>交付</td><td>APK、签名指纹、版本、源码提交、报告、账本一致</td><td>只编译成功不能签收全部目标</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>通过条件</th>
+<th>不能替代的事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>源码与合同</td>
+<td>编译、接口、迁移、PIT、数据完整性通过</td>
+<td>手机性能、未来质量</td>
+</tr>
+<tr>
+<td>设备运行</td>
+<td>目标机前台/后台/息屏、故障恢复、时延与存储实测</td>
+<td>策略有优势</td>
+</tr>
+<tr>
+<td>自然质量</td>
+<td>预登记后真实冻结和结算，统计门与业务门通过</td>
+<td>未来永久高胜率</td>
+</tr>
+<tr>
+<td>交付</td>
+<td>APK、签名指纹、版本、源码提交、报告、账本一致</td>
+<td>只编译成功不能签收全部目标</td>
+</tr>
 </tbody></table></div>
-<p>工程发布可以先修复故障；未达质量目标时必须明确 <code>ENGINEERING_READY / QUALITY_NOT_MET / REAL_BLOCKED</code>，继续研究，不把零证书伪装成“高胜率系统已完工”。</p></section><section id="chapter1"><h1>报告真实状态与R28冲突裁决</h1>
+<p>工程发布可以先修复故障；未达质量目标时必须明确 <code>ENGINEERING_READY / QUALITY_NOT_MET / REAL_BLOCKED</code>，继续研究，不把零证书伪装成“高胜率系统已完工”。</p>
+</section>
+<section id="chapter1"><h1>报告真实状态与R28冲突裁决</h1>
 <h2>1. 重新提取的事实</h2>
-<div class="tablewrap"><table><thead><tr><th>范围/来源</th><th>实测</th><th>正确解读</th></tr></thead><tbody>
-<tr><td>RSEC-034</td><td>93/313=29.7125%，Wilson下界24.9205%</td><td>旧生产严格OOS口径，不能当成R27观察策略或真实下注胜率</td></tr>
-<tr><td>R27_REPORT观察展示行</td><td>507/1651=30.7087%；按规则ACT为176/659=26.7071%</td><td>60条展示策略汇总；同一期跨策略相关，不能当1651个独立开奖</td></tr>
-<tr><td>完整表普查 r27_live_shadow</td><td>106行：24 OBSERVE、80 RETIRED、2 CONTROL</td><td>“累计60个策略”只是截取展示，报告需列出完整分母</td></tr>
-<tr><td>r27_live_frozen</td><td>2478 FROZEN、368 DEADLINE_MISSED，共2846行</td><td>与656次调度/46次超时不是同一单位，不能混算覆盖率</td></tr>
-<tr><td>R27_03</td><td>656次冻结调度、46次超时；准时率92.9878%；写等待≥200ms计14932次</td><td>注明窗口、任务和源码；是严重运行问题，不能直接断言全由一条锁造成</td></tr>
-<tr><td>RSEC-030</td><td>RequestToCommit P95=23523ms；最近120个clean draws覆盖110/120</td><td>分段性能另有22257ms等口径，必须标注样本范围；不可拼成一组统计</td></tr>
-<tr><td>R27_02</td><td>35713尝试、33769 uniquePolicies、21041 behaviorNovel、17111 structuralCandidates、1588 researchAccepted、verifiedImprovements=0</td><td>计数定义不同，结构新颖与实盘有效性不同</td></tr>
-<tr><td>r27_policy表</td><td>56231记录，512 ACTIVE、20645 REJECTED、35074 RETIRED</td><td>累计存量与某窗口35713尝试不是矛盾，也不能混算存活率</td></tr>
-<tr><td>R27原子</td><td>170行：156 NEUTRAL、9 HARMFUL、5 DERIVED；ATOMS展示64行/总170行</td><td>已导出评分行含3486 SELECT与720 HOLDOUT，不是全部只有94样本</td></tr>
-<tr><td>新AtomNet</td><td>state=1、epoch=43、brier_pair=2060</td><td>已有训练/评分记录；不能说“根本没训练”，也不足以证明输出有效或已供策略消费</td></tr>
-<tr><td>分子与消融</td><td>16167分子，394 SURVIVED；r27_ablation=204</td><td>RSEC-068说旧生产消融缺失，不等于R27 AST消融不存在</td></tr>
-<tr><td>校准/证书</td><td>r27_calibration=0；r27_certificate=0；仅2条CONTROL_NOT_ELIGIBLE eprocess</td><td>资格、校准链尚未形成有效产出</td></tr>
-<tr><td>矩阵/诊断</td><td>矩阵快照空；升级诊断称需2000期</td><td>报告实际4824条draw，说明诊断使用的输入/前置条件需定位；不能简单说“历史数据不足”</td></tr>
-<tr><td>报告整体</td><td>44节：39 PARTIAL、1 INSUFFICIENT、3 OBSERVED、1 NOT_RUN</td><td>章节齐全不等于指标齐全。ATOMS截断106行；大量metricResults仍为null</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>范围/来源</th>
+<th>实测</th>
+<th>正确解读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RSEC-034</td>
+<td>93/313=29.7125%，Wilson下界24.9205%</td>
+<td>旧生产严格OOS口径，不能当成R27观察策略或真实下注胜率</td>
+</tr>
+<tr>
+<td>R27_REPORT观察展示行</td>
+<td>507/1651=30.7087%；按规则ACT为176/659=26.7071%</td>
+<td>60条展示策略汇总；同一期跨策略相关，不能当1651个独立开奖</td>
+</tr>
+<tr>
+<td>完整表普查 r27_live_shadow</td>
+<td>106行：24 OBSERVE、80 RETIRED、2 CONTROL</td>
+<td>“累计60个策略”只是截取展示，报告需列出完整分母</td>
+</tr>
+<tr>
+<td>r27_live_frozen</td>
+<td>2478 FROZEN、368 DEADLINE_MISSED，共2846行</td>
+<td>与656次调度/46次超时不是同一单位，不能混算覆盖率</td>
+</tr>
+<tr>
+<td>R27_03</td>
+<td>656次冻结调度、46次超时；准时率92.9878%；写等待≥200ms计14932次</td>
+<td>注明窗口、任务和源码；是严重运行问题，不能直接断言全由一条锁造成</td>
+</tr>
+<tr>
+<td>RSEC-030</td>
+<td>RequestToCommit P95=23523ms；最近120个clean draws覆盖110/120</td>
+<td>分段性能另有22257ms等口径，必须标注样本范围；不可拼成一组统计</td>
+</tr>
+<tr>
+<td>R27_02</td>
+<td>35713尝试、33769 uniquePolicies、21041 behaviorNovel、17111 structuralCandidates、1588 researchAccepted、verifiedImprovements=0</td>
+<td>计数定义不同，结构新颖与实盘有效性不同</td>
+</tr>
+<tr>
+<td>r27_policy表</td>
+<td>56231记录，512 ACTIVE、20645 REJECTED、35074 RETIRED</td>
+<td>累计存量与某窗口35713尝试不是矛盾，也不能混算存活率</td>
+</tr>
+<tr>
+<td>R27原子</td>
+<td>170行：156 NEUTRAL、9 HARMFUL、5 DERIVED；ATOMS展示64行/总170行</td>
+<td>已导出评分行含3486 SELECT与720 HOLDOUT，不是全部只有94样本</td>
+</tr>
+<tr>
+<td>新AtomNet</td>
+<td>state=1、epoch=43、brier_pair=2060</td>
+<td>已有训练/评分记录；不能说“根本没训练”，也不足以证明输出有效或已供策略消费</td>
+</tr>
+<tr>
+<td>分子与消融</td>
+<td>16167分子，394 SURVIVED；r27_ablation=204</td>
+<td>RSEC-068说旧生产消融缺失，不等于R27 AST消融不存在</td>
+</tr>
+<tr>
+<td>校准/证书</td>
+<td>r27_calibration=0；r27_certificate=0；仅2条CONTROL_NOT_ELIGIBLE eprocess</td>
+<td>资格、校准链尚未形成有效产出</td>
+</tr>
+<tr>
+<td>矩阵/诊断</td>
+<td>矩阵快照空；升级诊断称需2000期</td>
+<td>报告实际4824条draw，说明诊断使用的输入/前置条件需定位；不能简单说“历史数据不足”</td>
+</tr>
+<tr>
+<td>报告整体</td>
+<td>44节：39 PARTIAL、1 INSUFFICIENT、3 OBSERVED、1 NOT_RUN</td>
+<td>章节齐全不等于指标齐全。ATOMS截断106行；大量metricResults仍为null</td>
+</tr>
 </tbody></table></div>
 <p>以上为报告字节重新提取与求和；未重新运行手机、未取得原始SQLite或模型权重。<code>report_facts_recomputed.json</code>保存来源值，脚本可复核。完整报告含开奖元数据，可检查排列和时间，但不能仅靠元数据重放全部原模型。</p>
 <h2>2. 对原文和R28的最终裁决</h2>
-<div class="tablewrap"><table><thead><tr><th>旧条款</th><th>R29执行裁决</th><th>理由/落点</th></tr></thead><tbody>
-<tr><td>AlphaZero、自对弈、近战/远程、投资VaR、旋转图像</td><td>删除此类不适用建议</td><td>开奖预测没有可由策略改变结果的对局环境；“资产”指策略资产</td></tr>
-<tr><td>预期提高3—5%、2%、调参再提高3%</td><td>删除无实验依据的收益承诺</td><td>每项改造绑定消融实验与实测差值，不能把预期相加</td></tr>
-<tr><td>当前无模型/无优化器</td><td>按源码记录已有AtomNet、Adam、FTRL、家族核及其接线</td><td>既有能力不能凭通用模板否定</td></tr>
-<tr><td>数据没有可利用规律，任何版本都改不了</td><td>改为“当前方法、样本和评价尚未证明可复现优势”</td><td>现有检验未证伪全部可能模型；也不反向保证一定找到优势</td></tr>
-<tr><td>立即退役旧研究链、教师矩阵与未训练模块</td><td>先隔离重复调度→迁移消费者→逐项等价回归→再移除冗余入口</td><td>保留算法语义和有效功能；R29-007/008/032</td></tr>
-<tr><td>43指标替换1832要求</td><td>新增指标作摘要，保留1832要求与299卡闭环</td><td>不能删要求来制造完成率</td></tr>
-<tr><td>亮屏充电CPU≥某比例</td><td>全状态持续服务；按积压年龄、进度和P0时延验收</td><td>CPU占用率不是有用计算量；R29-006</td></tr>
-<tr><td>thermalHeadroom&lt;0.2才降速</td><td>按系统热状态及接近1的headroom降速；处理NaN、API版本和滞回</td><td>原比较方向错误；见官方PowerManager文档</td></tr>
-<tr><td>每期全历史从头训练</td><td>全历史用于初训/计划回放，平时增量更新；共享特征与状态检查点</td><td>重复全量回放会挤占P0，不增加独立信息</td></tr>
-<tr><td>5000期×10位置=5万独立样本</td><td>可生成5万训练行，统计独立单位仍是最多5000个期号</td><td>同期开奖十位置互相约束，分割/区间按期号聚类</td></tr>
-<tr><td>观察池换榜即停跟踪</td><td>发现池可换榜，确认队列锁定队列和验证起点</td><td>避免每个候选只有几十期、永远证据不足</td></tr>
-<tr><td>e-BH与永久alpha同时宣称终身错误概率≤5%</td><td>资格仅使用一套永久预算的全局e过程；e-BH不接REAL门</td><td>FDR与至少一次错误的概率不同，反复筛选不能混用</td></tr>
-<tr><td>允许重复64次HOLDOUT并称验证提升</td><td>确认块一次性使用；重复读/按结果调复杂度后标SELECT</td><td>曝光计数不是多重检验校正；AtomScore也要登记读取</td></tr>
-<tr><td>无优势算法永远不会过线</td><td>改为“错误通过概率受约束，仍非零”</td><td>统计检验不是零错误保证</td></tr>
-<tr><td>最长连挂≤6作为永久硬准入</td><td>当前规则原样记录；R29另设新版本可行性评审与风险规则，禁止静默放宽旧证书</td><td>独立命中率34%、250次出手下该条件通过概率仅约0.47%，见精确递推附录</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>旧条款</th>
+<th>R29执行裁决</th>
+<th>理由/落点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AlphaZero、自对弈、近战/远程、投资VaR、旋转图像</td>
+<td>删除此类不适用建议</td>
+<td>开奖预测没有可由策略改变结果的对局环境；“资产”指策略资产</td>
+</tr>
+<tr>
+<td>预期提高3—5%、2%、调参再提高3%</td>
+<td>删除无实验依据的收益承诺</td>
+<td>每项改造绑定消融实验与实测差值，不能把预期相加</td>
+</tr>
+<tr>
+<td>当前无模型/无优化器</td>
+<td>按源码记录已有AtomNet、Adam、FTRL、家族核及其接线</td>
+<td>既有能力不能凭通用模板否定</td>
+</tr>
+<tr>
+<td>数据没有可利用规律，任何版本都改不了</td>
+<td>改为“当前方法、样本和评价尚未证明可复现优势”</td>
+<td>现有检验未证伪全部可能模型；也不反向保证一定找到优势</td>
+</tr>
+<tr>
+<td>立即退役旧研究链、教师矩阵与未训练模块</td>
+<td>先隔离重复调度→迁移消费者→逐项等价回归→再移除冗余入口</td>
+<td>保留算法语义和有效功能；R29-007/008/032</td>
+</tr>
+<tr>
+<td>43指标替换1832要求</td>
+<td>新增指标作摘要，保留1832要求与299卡闭环</td>
+<td>不能删要求来制造完成率</td>
+</tr>
+<tr>
+<td>亮屏充电CPU≥某比例</td>
+<td>全状态持续服务；按积压年龄、进度和P0时延验收</td>
+<td>CPU占用率不是有用计算量；R29-006</td>
+</tr>
+<tr>
+<td>thermalHeadroom&lt;0.2才降速</td>
+<td>按系统热状态及接近1的headroom降速；处理NaN、API版本和滞回</td>
+<td>原比较方向错误；见官方PowerManager文档</td>
+</tr>
+<tr>
+<td>每期全历史从头训练</td>
+<td>全历史用于初训/计划回放，平时增量更新；共享特征与状态检查点</td>
+<td>重复全量回放会挤占P0，不增加独立信息</td>
+</tr>
+<tr>
+<td>5000期×10位置=5万独立样本</td>
+<td>可生成5万训练行，统计独立单位仍是最多5000个期号</td>
+<td>同期开奖十位置互相约束，分割/区间按期号聚类</td>
+</tr>
+<tr>
+<td>观察池换榜即停跟踪</td>
+<td>发现池可换榜，确认队列锁定队列和验证起点</td>
+<td>避免每个候选只有几十期、永远证据不足</td>
+</tr>
+<tr>
+<td>e-BH与永久alpha同时宣称终身错误概率≤5%</td>
+<td>资格仅使用一套永久预算的全局e过程；e-BH不接REAL门</td>
+<td>FDR与至少一次错误的概率不同，反复筛选不能混用</td>
+</tr>
+<tr>
+<td>允许重复64次HOLDOUT并称验证提升</td>
+<td>确认块一次性使用；重复读/按结果调复杂度后标SELECT</td>
+<td>曝光计数不是多重检验校正；AtomScore也要登记读取</td>
+</tr>
+<tr>
+<td>无优势算法永远不会过线</td>
+<td>改为“错误通过概率受约束，仍非零”</td>
+<td>统计检验不是零错误保证</td>
+</tr>
+<tr>
+<td>最长连挂≤6作为永久硬准入</td>
+<td>当前规则原样记录；R29另设新版本可行性评审与风险规则，禁止静默放宽旧证书</td>
+<td>独立命中率34%、250次出手下该条件通过概率仅约0.47%，见精确递推附录</td>
+</tr>
 </tbody></table></div>
-<p>R29任何新增模型、门限、选择器或语义变化都必须新建策略版本。原证书不得换规则后继续沿用。</p></section><section id="chapter2"><h1>实时链、研究链与可恢复分库</h1>
+<p>R29任何新增模型、门限、选择器或语义变化都必须新建策略版本。原证书不得换规则后继续沿用。</p>
+</section>
+<section id="chapter2"><h1>实时链、研究链与可恢复分库</h1>
 <h2>1. 每期责任与时序</h2>
-<p><code>source available → first observed → validated draw → draw committed → settlement committed → training event → candidate prepared → predraw frozen → next result</code>。</p>
-<p>每个节点记录issue、eventId、来源哈希、wall time、monotonic elapsed、session、成功/错误码。开奖首次可见时间未知时标UNKNOWN，不能把首次收到当源端发布时间。用户要求“倒计时50秒时拿到开奖”分解为源延迟和本机延迟；源端尚未发布时不伪造开奖。</p>
+<p><code>source available → first observed → validated draw → draw committed → settlement committed → training event → candidate prepared → predraw frozen → next result</code>。
+每个节点记录issue、eventId、来源哈希、wall time、monotonic elapsed、session、成功/错误码。开奖首次可见时间未知时标UNKNOWN，不能把首次收到当源端发布时间。用户要求“倒计时50秒时拿到开奖”分解为源延迟和本机延迟；源端尚未发布时不伪造开奖。</p>
 <p>健康网络期抓取目标1秒一次，单flight、请求超时与抖动退避；不得多个Service各自轮询。校验期号/十数排列/来源一致，冲突隔离。目标机首次有效收到到draw+正式结算P95≤1000ms；分析请求到结果持久化P95≤5000ms，同时有效赛前结果必须在下一截止前≥5秒提交。超时为MISSING/LATE，不能补成当期FUTURE。允许SKIP真实出手，但必须有当期SHADOW或明确阻断记录。</p>
 <h2>2. 三个域，两套写者</h2>
-<div class="tablewrap"><table><thead><tr><th>域</th><th>存放</th><th>责任</th></tr></thead><tbody>
-<tr><td>realtime</td><td>draw、opportunity、正式freeze/decision、settlement、outbox、cert projection</td><td>单写者短事务；禁止训练、长查询、导出压缩进入事务</td></tr>
-<tr><td>research</td><td>R27研究表、模型元数据、实验/训练/观察/资格账</td><td>独立SQLite文件、独立单写者；读快照，批量提交</td></tr>
-<tr><td>artifact</td><td>不可变模型/checkpoint/压缩历史回放块</td><td>先写临时文件、校验、原子发布后提交引用；有pin与回收账</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>域</th>
+<th>存放</th>
+<th>责任</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>realtime</td>
+<td>draw、opportunity、正式freeze/decision、settlement、outbox、cert projection</td>
+<td>单写者短事务；禁止训练、长查询、导出压缩进入事务</td>
+</tr>
+<tr>
+<td>research</td>
+<td>R27研究表、模型元数据、实验/训练/观察/资格账</td>
+<td>独立SQLite文件、独立单写者；读快照，批量提交</td>
+</tr>
+<tr>
+<td>artifact</td>
+<td>不可变模型/checkpoint/压缩历史回放块</td>
+<td>先写临时文件、校验、原子发布后提交引用；有pin与回收账</td>
+</tr>
 </tbody></table></div>
 <p>仅拆SQLite而继续共享DatabaseCoordinator串行队列不会消除阻塞。修改 <code>ResearchWriteQueueR27</code>、<code>ResearchPoolR27.Worker</code>、<code>StoreR27</code> 与所有跨库读消费者；生成表所有权注册表，禁止研究写入实时连接。WAL仍只有一个写者，跨ATTACH库不是一笔原子事务。默认实时权威记录采用满足持久要求的同步设置；研究可重算缓存与不可丢检验预算/冻结证据分级，不能把整个研究库都视为可丢缓存。</p>
 <h2>3. Outbox/inbox协议（新增ResearchEventBridgeR29）</h2>
-<p class="item">1. 实时事务写draw、幂等结算及outbox(event_id,issue,kind,payload_hash)，成功后返回UI；唯一键防重复。</p>
-<p class="item">2. 研究读取已提交outbox，研究事务 <code>INSERT OR IGNORE inbox(event_id)</code>；仅首次消费执行状态增量、训练任务和cursor更新。</p>
-<p class="item">3. 研究提交成功才回传ack。ack丢失重投也不会重复训练/计分。原子变更包括模型引用、学习游标、已消费事件；大量评分明细可分块，但只有complete manifest可见。</p>
-<p class="item">4. 证书在研究库完成不可变审计，发布cert projection到实时库；DecisionGate只读projection并核验版本、hash、有效期、撤销epoch与当期冻结。</p>
-<p class="item">5. 不允许持有realtime写锁等待research写锁。故障注入覆盖两库每次commit前后、ack丢失、重复事件与磁盘满。</p>
+<ol>
+<li>实时事务写draw、幂等结算及outbox(event_id,issue,kind,payload_hash)，成功后返回UI；唯一键防重复。</li>
+<li>研究读取已提交outbox，研究事务 <code>INSERT OR IGNORE inbox(event_id)</code>；仅首次消费执行状态增量、训练任务和cursor更新。</li>
+<li>研究提交成功才回传ack。ack丢失重投也不会重复训练/计分。原子变更包括模型引用、学习游标、已消费事件；大量评分明细可分块，但只有complete manifest可见。</li>
+<li>证书在研究库完成不可变审计，发布cert projection到实时库；DecisionGate只读projection并核验版本、hash、有效期、撤销epoch与当期冻结。</li>
+<li>不允许持有realtime写锁等待research写锁。故障注入覆盖两库每次commit前后、ack丢失、重复事件与磁盘满。</li>
+</ol>
 <h2>4. 迁移状态机</h2>
 <p><code>PREPARED → COPYING → VERIFIED → CATCHING_UP → CUTOVER → OBSERVING → ARCHIVED</code>。原库备份和迁移manifest先落盘；复制期间旧Owner仍唯一写入且记录增量watermark；分块复制按主键校验行数及规范化行哈希；追平后短暂停旧研究写者，记录watermark、切换路由，开启新写者。至少一次冷启动/杀进程/升级恢复及完整回归后才封存旧表。旧表清理必须由引用计数、回滚窗口和空间预算共同决定，不在首次启动执行DROP/VACUUM。</p>
 <p>R28“复制完直接DROP”的方案由此取代。保全的旧策略/模型若无法恢复，记录具体缺失算子、参数、数据范围、消费者；禁止把全部旧资产都转成几个数值参数或只读文案。</p>
 <h2>5. 调度与内存</h2>
 <p>Realtime协调器负责fetch/settle/freeze；ResearchPool唯一安排各家族、专家、AtomNet、回放、校准和诊断。旧任务经adapter注册，可重复调度入口停止，但算法类保留。截止优先队列给freeze/settle高优先级；训练切片目标10—50ms且可中断，禁止单个预训练调用占用数秒后才检查取消。线程数先设2个计算worker并由真机基准调整至1—4，不能用核数强制满载。</p>
-<p>每任务有ready条件、last_started/last_committed、work_cursor、pending_count、oldest_pending_issue、blocking_dependency、retry_at。区分“执行但无有效样本”“等新开奖”“有样本未调度”；有积压时连续5期无提交即诊断告警。积压不能通过清队列处理。共享增量特征缓存按(dataset hash, trainedThrough, feature ABI, position)索引，模型切换只读不可变版本。图表读分页物化视图，主线程不拼长文、不全表扫描。</p></section><section id="chapter3"><h1>历史训练、时间隔离与自然资格</h1>
+<p>每任务有ready条件、last_started/last_committed、work_cursor、pending_count、oldest_pending_issue、blocking_dependency、retry_at。区分“执行但无有效样本”“等新开奖”“有样本未调度”；有积压时连续5期无提交即诊断告警。积压不能通过清队列处理。共享增量特征缓存按(dataset hash, trainedThrough, feature ABI, position)索引，模型切换只读不可变版本。图表读分页物化视图，主线程不拼长文、不全表扫描。</p>
+<h2>6. 迟到结果与资格顺序</h2>
+<p>已冻结但尚无开奖结果的预测保留PENDING_DRAW；不得因为落后两期便写成终态而永不重试。调度公平队列优先处理已有结果的结算，同时维护待补抓队列，避免缺失行占满LIMIT批次。正式结算可按结果到达分别完成；每个实验的序贯资格另设连续游标，后续结果先入pending表，不越过未解决的早期ACT期。receipt+资格状态+游标在研究库同一事务提交。重复数据相同则幂等，修订开奖或hash冲突先隔离和撤销受影响证书，按不可变冻结记录确定性重放。详细SQL、反例及测试见docs/12。</p>
+</section>
+<section id="chapter3"><h1>历史训练、时间隔离与自然资格</h1>
 <h2>1. 历史训练必须保留并升级</h2>
 <p>继续利用已有真实开奖快速筛垃圾、修策略、做消融。ReplayDataset支持连续段、去重、脏数据、来源/firstSeen和导入manifest。实时热库滚动5000期；研究历史需要更长时使用单独不可变压缩回放块并设置总量上限、数据集hash和pin。历史导入不改变firstSeen，不能反写为当时已知。</p>
 <p>时间顺序划分 <code>TRAIN → SELECT → CONFIRM → FUTURE</code>。TRAIN拟合参数；SELECT选择结构、超参和阈值；CONFIRM为冻结候选包的一次确认；FUTURE从注册后的真实冻结开始。同一期所有位置、派生窗口与模型样本必须处于同一时间角色。历史特征窗口可以读取更早历史，但标签/参数/归一化状态绝不可读取评估时尚未可见的未来。边界重叠标签需purge；不采用打乱K折。</p>
@@ -94,29 +277,93 @@
 <p>发现池目标128真实候选+16负对照；不足不复制凑数。确认池16个名额（作为首版资源参数），历史SELECT/一次CONFIRM选入，按家族与行为聚类去重。确认前冻结选择理由、队列、样本计划、停止条件。确认池不因新一代排名变化被挤掉；安全错误、预登记无效停止条件或完成确认才退出，账本永久保留。发现池榜单不能自动发证。</p>
 <p>准入需HR≥34%、N_act≥250、有效e证据、语义/PIT/覆盖通过、校准可靠、跨时间区块稳定和主链组合验证。250只是最低记录数，不是足够证据承诺。对父子比较用相同期号的机会收益差；按期号/连续块重采样或有效序贯配对方法处理相关性，不使用独立两样本Z检验冒充配对结论。所有质量结果列出效应量、区间、样本数和未满足原因。</p>
 <h2>5. 准入可行性修复（不可静默放宽）</h2>
-<p>当前CertificateGate要求最长连挂≤6。本包精确递推显示，独立命中率34%、250次出手时此项通过率约0.00470025；40%时也可能经常失败。这只是规则可行性算例，不能代表设备策略表现。保持旧规则和旧证书语义不变；新增 <code>R29_GATE_V1</code> 实验配置，把连挂作为风险监测项，用事前确定窗口内的预测分布尾部概率及收益回撤报告替代“任意时长永远≤6”。启用新规则必须通过负对照误授证、注入优势检出力、漂移退出测试，并把变更写进发布报告。</p>
+<p>当前CertificateGate要求最长连挂≤6。本包精确递推显示，独立命中率34%、250次出手时此项通过率约0.00470025；40%时也可能经常失败。这只是规则可行性算例，不能代表设备策略表现。保持旧规则和旧证书语义不变；新增 <code>R29_GATE_V2</code> 实验配置，把连挂作为风险监测项，用事前确定窗口内的预测分布尾部概率及收益回撤报告替代“任意时长永远≤6”。启用新规则必须通过负对照误授证、注入优势检出力、漂移退出测试，并把变更写进发布报告。</p>
 <p>同时维持HR≥34%、有效优势证据、校准、覆盖及唯一REAL责任，不靠连挂门修改制造命中率。未完成上述规则验证时，旧主链保持原有资格门，不得绕过。目标15%是研究优化目标；不能为了补足出手次数强制ACT。若有效策略仅覆盖10%，明确未达到频率目标并研究互补窗口；若质量支持更高频率，不人为限15%。</p>
 <h2>6. 首版固定配置与调整纪律</h2>
-<p>具体默认值统一于 <code>registries/r29_policy_defaults.json</code>：确认池16、发现候选128+16对照；稳定性采用事前固定的3个完整720期区块，每块至少80次ACT且最低块HR≥26%；校准验证至少200次ACT，固定10个概率分箱，至少5个箱各20个样本且ECE≤0.04。样本支持不足必须等待或报告未达标，不合并事后好看的区块。连挂风险尾部阈值0.01仅用于事前固定窗口检查，反复监测须有效序贯方法。</p>
-<p>这些数值是明确可施工的初始规则，需在完整负对照和优势检出力实验中检查可行性；不足时输出功效报告并另立新policy版本，不追溯修改旧实验或把工程参数调优当预测效果。所有门通过仍不保证未来收益。</p></section><section id="chapter4"><h1>完整策略、思路族与失败驱动进化</h1>
+<p>具体默认值统一于 <code>registries/r29_policy_defaults.json</code>：确认池16、发现候选128+16对照；稳定性采用事前固定的3个完整720期区块，每块至少80次ACT且最低块HR≥26%；校准验证至少200次ACT，固定10个等宽概率分箱；ECE由全部验证样本按箱样本比例加权，空箱权重为0，不强制填满5箱。已占用箱中样本≥20的箱需覆盖至少90%的验证样本；稀疏箱仍计入ECE并单列不确定性。ECE目标≤0.04，只说明实际支持概率区间的验证表现；区间、支持范围及漂移必须并报。样本支持不足必须等待或报告未达标，不合并事后好看的区块。连挂风险尾部阈值0.01仅用于事前固定窗口检查，反复监测须有效序贯方法。</p>
+<p>这些数值是明确可施工的初始规则，需在完整负对照和优势检出力实验中检查可行性；不足时输出功效报告并另立新policy版本，不追溯修改旧实验或把工程参数调优当预测效果。所有门通过仍不保证未来收益。</p>
+<h2>7. 避免资格流程互相等待</h2>
+<p>校准拟合使用TRAIN/SELECT的合法时序预测，冻结校准器hash后再注册完整策略的未来确认。不能等“已授证ACTIVE”才允许拟合，又把拟合成功作为进入ACTIVE的前提。若确认过程中重新拟合校准器，新版完整策略从新起点验证，旧版证据保留但不拼接。资格前评估FUTURE ACT机会频率，主链部署后另评Q02真实频率；不得要求零REAL的新候选先具有15%真实出手才能授证。目标未达到仍如实报告，不强迫出手。</p>
+<p>资格状态只按连续期号推进。迟到开奖与缺失期的恢复合同见docs/12；迟到的<strong>开奖结果</strong>可以结算已经合法冻结的预测，迟到的<strong>预测</strong>绝不补造FUTURE。</p>
+</section>
+<section id="chapter4"><h1>完整策略、思路族与失败驱动进化</h1>
 <h2>1. 每个资产必须是一份完整可运行决策</h2>
 <p>新增PolicyContractR29：hypothesis（业务假设）、domain、PIT feature set、score/probability、position selector、K3 rule、ACT rule、online update、calibration、failure conditions、complexity budget、parents、semantic delta、train lineage。缺任一核心可执行部件就拒绝，不能随机拼一个数学式后起个名字。typed AST保留，增加编译期单位检查、常数折叠、等价消除、NaN/缺失传播、行为指纹；数学正确不等于预测有效。</p>
 <p>生成路径：假设提案→数据支持统计→类型图生成→模型/参数拟合→成本与PIT校验→分层回放淘汰→多样性档案→一次确认→冻结观察→资格→主链→结算反馈。原有512活动种群和连续减半可以复用；计算吞吐、结构新颖、行为新颖、研究存活、自然达标分别计数。</p>
 <h2>2. 现有族要有真正不同的结构</h2>
-<div class="tablewrap"><table><thead><tr><th>族</th><th>具体升级</th><th>失败证据与修复</th></tr></thead><tbody>
-<tr><td>I01频率/回归</td><td>多尺度Dirichlet平滑频率；趋势/回归两种方向在TRAIN/SELECT选择</td><td>按尺度与漂移分桶，禁止“久没出就必出”</td></tr>
-<tr><td>I02间隔/周期</td><td>离散生存风险、截尾支持数、分层收缩</td><td>样本稀疏退回基准，周期未复现则降权</td></tr>
-<tr><td>I03转移</td><td>一/二阶及跨位置条件转移，计数收缩、阶数惩罚</td><td>避免稀疏高阶偶然高分</td></tr>
-<tr><td>I04跨位置</td><td>从历史跨位转移形成号码集合候选，再用一致性与置信收缩排名</td><td>同期开奖尚未公布的其他位置禁止读取</td></tr>
-<tr><td>I05排列一致性</td><td>100格概率→双随机近似校正→1200个位置K3动作评分</td><td>行列残差、校正前后损失与配对消融</td></tr>
-<tr><td>I06体制</td><td>基于已发生数据的变化点、熵、集中度与窗口寿命估计</td><td>事后挑高胜率区间禁止；预测体制和真结果分开</td></tr>
-<tr><td>I07片段检索</td><td>严格历史近邻、重叠去重、距离校准、时间衰减</td><td>检索不到足够相似样本就明确弃权</td></tr>
-<tr><td>I08神经表示</td><td>新AtomNet/轻量时序核的版本化概率面接入AST</td><td>不能继续只以family叶子冒充新网络输出</td></tr>
-<tr><td>I09符号公式</td><td>有类型与意义的变换：平滑、相对频率、条件概率、残差、置信度</td><td>拒绝重复同构式、无作用子树、复杂度膨胀</td></tr>
-<tr><td>I10失败修复</td><td>依据失败分群给出修改部位和可检验假设</td><td>只改阈值与真正替换评分/体制/学习器分开计数</td></tr>
-<tr><td>I11互补融合</td><td>验证残差相关性、非负权重、按情境门控或学习型stacking</td><td>融合器训练只用交叉时序预测，整体再确认</td></tr>
-<tr><td>I12旧资产</td><td>保留可执行旧VM/算子/参数与适配层，黄金回放对齐</td><td>无法恢复列缺件，不把旧分数当新证书</td></tr>
-<tr><td>I13选择器</td><td>单独研究何时ACT、选哪个位置/资产，预测输入PIT固定</td><td>完整“评分+选择”作为一个策略评价，不能事后挑赢的位置</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>族</th>
+<th>具体升级</th>
+<th>失败证据与修复</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>I01频率/回归</td>
+<td>多尺度Dirichlet平滑频率；趋势/回归两种方向在TRAIN/SELECT选择</td>
+<td>按尺度与漂移分桶，禁止“久没出就必出”</td>
+</tr>
+<tr>
+<td>I02间隔/周期</td>
+<td>离散生存风险、截尾支持数、分层收缩</td>
+<td>样本稀疏退回基准，周期未复现则降权</td>
+</tr>
+<tr>
+<td>I03转移</td>
+<td>一/二阶及跨位置条件转移，计数收缩、阶数惩罚</td>
+<td>避免稀疏高阶偶然高分</td>
+</tr>
+<tr>
+<td>I04跨位置</td>
+<td>从历史跨位转移形成号码集合候选，再用一致性与置信收缩排名</td>
+<td>同期开奖尚未公布的其他位置禁止读取</td>
+</tr>
+<tr>
+<td>I05排列一致性</td>
+<td>100格概率→双随机近似校正→1200个位置K3动作评分</td>
+<td>行列残差、校正前后损失与配对消融</td>
+</tr>
+<tr>
+<td>I06体制</td>
+<td>基于已发生数据的变化点、熵、集中度与窗口寿命估计</td>
+<td>事后挑高胜率区间禁止；预测体制和真结果分开</td>
+</tr>
+<tr>
+<td>I07片段检索</td>
+<td>严格历史近邻、重叠去重、距离校准、时间衰减</td>
+<td>检索不到足够相似样本就明确弃权</td>
+</tr>
+<tr>
+<td>I08神经表示</td>
+<td>新AtomNet/轻量时序核的版本化概率面接入AST</td>
+<td>不能继续只以family叶子冒充新网络输出</td>
+</tr>
+<tr>
+<td>I09符号公式</td>
+<td>有类型与意义的变换：平滑、相对频率、条件概率、残差、置信度</td>
+<td>拒绝重复同构式、无作用子树、复杂度膨胀</td>
+</tr>
+<tr>
+<td>I10失败修复</td>
+<td>依据失败分群给出修改部位和可检验假设</td>
+<td>只改阈值与真正替换评分/体制/学习器分开计数</td>
+</tr>
+<tr>
+<td>I11互补融合</td>
+<td>验证残差相关性、非负权重、按情境门控或学习型stacking</td>
+<td>融合器训练只用交叉时序预测，整体再确认</td>
+</tr>
+<tr>
+<td>I12旧资产</td>
+<td>保留可执行旧VM/算子/参数与适配层，黄金回放对齐</td>
+<td>无法恢复列缺件，不把旧分数当新证书</td>
+</tr>
+<tr>
+<td>I13选择器</td>
+<td>单独研究何时ACT、选哪个位置/资产，预测输入PIT固定</td>
+<td>完整“评分+选择”作为一个策略评价，不能事后挑赢的位置</td>
+</tr>
 </tbody></table></div>
 <p>I00仅作负对照，不进入有效策略数量。新增I14集合交集缩减、I15关系图、I16多尺度混合、I17残差校正、I18结构窗口寿命、I19低相关专家组合六族；每族必须有独立假设、生成器、结构算子、样本/资源预算、对照和失败树。F01—F24是模型/策略核层，E01—E16是分析专家层，I族是生成与搜索层，不能把三层加起来宣称同一种策略数量。先使20个I标识（含I00）功能闭环，再按有效新机制扩充，不以名称数量验收。</p>
 <h2>3. 多位置多号码交叉交集与短期结构窗口</h2>
@@ -125,7 +372,9 @@
 <h2>4. 失败驱动的结构进化</h2>
 <p>失败树至少包括NUMBER、RANK、THIRD、WINDOW、REGIME、MOTIF、RELATION、CONSENSUS、CALIBRATION及ENGINEERING/PIT故障。每条ResearchFinding含evidence rows、支持/反证、关联而非因果标识、拟修改节点、父代hash、预测改进指标、禁止变化的约束。</p>
 <p>具体算子：替换概率核、增加带支持门的条件分支、窗口尺度重组、检索距离变化、跨位图边剪枝、分子插入/移除、低相关模型融合、校准器更新、在线遗忘规则变化。变异后独立hash与新证据起点。真实失败可指导搜索，但不直接宣称“原因已证明”。至少比较父代、结构修复子代、参数微调子代、等预算随机搜索子代；同一期配对考察修复到底有效没有。</p>
-<p>研究资源首版建议：60%成熟有支持家族、20%故障修复、20%新假设；各族至少有一个可恢复实验队列，长时间无进展必须给原因。配额是可调工程参数，预算变化本身不能消耗确认结果来调优。选拔采用多目标档案：SELECT机会优势、校准、复杂度、频率、跨块稳定、行为距离；确认结果只决定是否替换，不回流同一确认块继续搜索。</p></section><section id="chapter5"><h1>AtomNet、原子分子、20类矩阵与校准</h1>
+<p>研究资源首版建议：60%成熟有支持家族、20%故障修复、20%新假设；各族至少有一个可恢复实验队列，长时间无进展必须给原因。配额是可调工程参数，预算变化本身不能消耗确认结果来调优。选拔采用多目标档案：SELECT机会优势、校准、复杂度、频率、跨块稳定、行为距离；确认结果只决定是否替换，不回流同一确认块继续搜索。</p>
+</section>
+<section id="chapter5"><h1>AtomNet、原子分子、20类矩阵与校准</h1>
 <h2>1. 现有接线的精确修改</h2>
 <p><code>AtomReplayR27.build</code>当前按ordinal轮换一个位置、用历史频率top3构造action；<code>AtomWorldR27.samples</code>每期加一条样本。改为按期号批处理10位置，输入显式含position、action/候选定义、缺失mask和历史截止；输出 <code>[10][10]</code> 位置号码分布及可选K3命中辅助头。号码损失采用真实号码交叉熵；K3辅助头采用同一事前K3的二元损失。不能把轮换单位置K3二元模型直接当任意位置100格号码模型。</p>
 <p><code>IdeaI08NeuralRepresentationR27.generate</code>当前仅建family叶子。新增 <code>model_surface(modelId, checkpointHash, position)</code> 叶子及FeatureCache接口，显式绑定trainedThrough、featureABI、时间角色和缺失原因。回放评分必须使用该历史时点以前训练的模型/确定性重放状态，不能用已训练至今天的网络回测过去并称OOS。改变checkpoint或更新规则按PolicyContract登记。</p>
@@ -139,81 +388,342 @@
 <p>单原子评分应在同一期与基准/去除该原子的模型进行配对；打乱标签用于整套搜索管线负对照和过拟合诊断，不能把一个随机打乱样本的差值当成严格可交换的因果对照。仅当前区间跨0标 <code>NO_ESTABLISHED_GAIN</code>，不是“证明无效”。有害判定需统一效应方向、置信区间、多重比较控制及样本支持。多个相关原子成组消融；分子以typed子图、子节点hash、训练来源、成本和行为差异登记，不因换常数虚增分子种类。</p>
 <h2>4. 20类矩阵的最低生产—消费合同</h2>
 <p>矩阵必须有真实producer、consumer、asOfIssue、tensor dimensions、inputHash、modelHash、rows/support、validity；缺数据记录MISSING，不写全零当成功。每期只增量更新必要状态，完整诊断快照低频物化。</p>
-<div class="tablewrap"><table><thead><tr><th>编号</th><th>矩阵</th><th>生产输入/输出</th><th>消费与验证</th></tr></thead><tbody>
-<tr><td>M01</td><td>Transition</td><td>历史相邻期号码条件计数</td><td>I03；行归一化/稀疏回退</td></tr>
-<tr><td>M02</td><td>ConditionalTransition</td><td>跨位/体制条件转移</td><td>I03/I04；仅历史条件</td></tr>
-<tr><td>M03</td><td>CoOccurrence</td><td>历史跨位置联合约束</td><td>I04/I15；不得用未开奖同期数据</td></tr>
-<tr><td>M04</td><td>Frequency</td><td>多窗口位置号码频率</td><td>I01/AtomNet；每位置归一化</td></tr>
-<tr><td>M05</td><td>Omission</td><td>遗漏与生存风险</td><td>I02；截尾与支持数</td></tr>
-<tr><td>M06</td><td>AtomTarget</td><td>原子对目标损失差</td><td>生成器/消融；按期聚类</td></tr>
-<tr><td>M07</td><td>AtomRegime</td><td>原子在事前体制下表现</td><td>I06/权重；防事后分组</td></tr>
-<tr><td>M08</td><td>CandidateWindow</td><td>策略×窗口表现</td><td>I18/选择器；确认段隔离</td></tr>
-<tr><td>M09</td><td>CandidateError</td><td>冻结预测残差</td><td>失败研究；绑定freezeId</td></tr>
-<tr><td>M10</td><td>CandidateSimilarity</td><td>K3/ACT行为相关</td><td>去重/融合；不能等同源码hash</td></tr>
-<tr><td>M11</td><td>CandidateDiversity</td><td>族×结构×频率格覆盖</td><td>档案/生成预算</td></tr>
-<tr><td>M12</td><td>ParentChild</td><td>父子结构差与配对结果</td><td>进化替换/谱系图</td></tr>
-<tr><td>M13</td><td>Drift</td><td>输入/残差分布变化</td><td>研究优先级/降级；基线窗口固定</td></tr>
-<tr><td>M14</td><td>Residual</td><td>模型误差分群</td><td>I17修复；附反证</td></tr>
-<tr><td>M15</td><td>Confidence</td><td>分层可靠性/校准分箱</td><td>ACT门/报告；不回看当前标签</td></tr>
-<tr><td>M16</td><td>Latency</td><td>各阶段wall time/队列</td><td>调度/性能报告</td></tr>
-<tr><td>M17</td><td>RuleHealth</td><td>规则触发/错误/陈旧度</td><td>DecisionGate健康门</td></tr>
-<tr><td>M18</td><td>Failure</td><td>失败层与实验动作</td><td>专家/生成器；支持数</td></tr>
-<tr><td>M19</td><td>Teacher</td><td>旧教师预测及独立回放</td><td>旧能力适配/消融；有消费者才发布，未迁移不删除</td></tr>
-<tr><td>M20</td><td>Freeze</td><td>每策略每期冻结/结算状态</td><td>资格/审计/报告；迟到不可补填</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>矩阵</th>
+<th>生产输入/输出</th>
+<th>消费与验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M01</td>
+<td>Transition</td>
+<td>历史相邻期号码条件计数</td>
+<td>I03；行归一化/稀疏回退</td>
+</tr>
+<tr>
+<td>M02</td>
+<td>ConditionalTransition</td>
+<td>跨位/体制条件转移</td>
+<td>I03/I04；仅历史条件</td>
+</tr>
+<tr>
+<td>M03</td>
+<td>CoOccurrence</td>
+<td>历史跨位置联合约束</td>
+<td>I04/I15；不得用未开奖同期数据</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>Frequency</td>
+<td>多窗口位置号码频率</td>
+<td>I01/AtomNet；每位置归一化</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>Omission</td>
+<td>遗漏与生存风险</td>
+<td>I02；截尾与支持数</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>AtomTarget</td>
+<td>原子对目标损失差</td>
+<td>生成器/消融；按期聚类</td>
+</tr>
+<tr>
+<td>M07</td>
+<td>AtomRegime</td>
+<td>原子在事前体制下表现</td>
+<td>I06/权重；防事后分组</td>
+</tr>
+<tr>
+<td>M08</td>
+<td>CandidateWindow</td>
+<td>策略×窗口表现</td>
+<td>I18/选择器；确认段隔离</td>
+</tr>
+<tr>
+<td>M09</td>
+<td>CandidateError</td>
+<td>冻结预测残差</td>
+<td>失败研究；绑定freezeId</td>
+</tr>
+<tr>
+<td>M10</td>
+<td>CandidateSimilarity</td>
+<td>K3/ACT行为相关</td>
+<td>去重/融合；不能等同源码hash</td>
+</tr>
+<tr>
+<td>M11</td>
+<td>CandidateDiversity</td>
+<td>族×结构×频率格覆盖</td>
+<td>档案/生成预算</td>
+</tr>
+<tr>
+<td>M12</td>
+<td>ParentChild</td>
+<td>父子结构差与配对结果</td>
+<td>进化替换/谱系图</td>
+</tr>
+<tr>
+<td>M13</td>
+<td>Drift</td>
+<td>输入/残差分布变化</td>
+<td>研究优先级/降级；基线窗口固定</td>
+</tr>
+<tr>
+<td>M14</td>
+<td>Residual</td>
+<td>模型误差分群</td>
+<td>I17修复；附反证</td>
+</tr>
+<tr>
+<td>M15</td>
+<td>Confidence</td>
+<td>分层可靠性/校准分箱</td>
+<td>ACT门/报告；不回看当前标签</td>
+</tr>
+<tr>
+<td>M16</td>
+<td>Latency</td>
+<td>各阶段wall time/队列</td>
+<td>调度/性能报告</td>
+</tr>
+<tr>
+<td>M17</td>
+<td>RuleHealth</td>
+<td>规则触发/错误/陈旧度</td>
+<td>DecisionGate健康门</td>
+</tr>
+<tr>
+<td>M18</td>
+<td>Failure</td>
+<td>失败层与实验动作</td>
+<td>专家/生成器；支持数</td>
+</tr>
+<tr>
+<td>M19</td>
+<td>Teacher</td>
+<td>旧教师预测及独立回放</td>
+<td>旧能力适配/消融；有消费者才发布，未迁移不删除</td>
+</tr>
+<tr>
+<td>M20</td>
+<td>Freeze</td>
+<td>每策略每期冻结/结算状态</td>
+<td>资格/审计/报告；迟到不可补填</td>
+</tr>
 </tbody></table></div>
 <p>F01—F24、E01—E16、I00—I19、每个原子/分子/矩阵都要逐一进入能力注册表，运行状态与效果状态分列。注册数量不能代替实际训练调用。矩阵名称相同但schema不同必须保留namespace与版本。</p>
 <h2>5. 校准与主链</h2>
 <p><code>LiveShadowsR27.calibrate</code>当前只处理ACTIVE，而R27正式影子为空。扩为已冻结的确认候选和可评估观察候选，REPLAY拟合与FUTURE验证严格分开。fit、validation、application三个时间界限落库；校准模型hash属于策略身份。验证不通过可以继续观察，不能用回放ECE自授证。</p>
-<p>主链选择器作为完整meta-policy单独冻结评价：已合格成员不保证“每期择优挑其中一个”的组合也合格。保留单一成员直接上主链的合法路径；成员组合择优规则需独立确认。跨库后 <code>MainlineBridgeSU2.R27_INTENT_SQL</code> 的旧同库JOIN改为校验过的projection，不静默查空。只有DecisionGate最终授权REAL，SettlementEngine唯一正式结算。每条REAL绑定当期freeze、certificate、selector、model、赔率版本；相同issue唯一索引。</p></section><section id="chapter6"><h1>检测报告必须自动指出问题、证据与具体修复</h1>
+<p>主链选择器作为完整meta-policy单独冻结评价：已合格成员不保证“每期择优挑其中一个”的组合也合格。保留单一成员直接上主链的合法路径；成员组合择优规则需独立确认。跨库后 <code>MainlineBridgeSU2.R27_INTENT_SQL</code> 的旧同库JOIN改为校验过的projection，不静默查空。只有DecisionGate最终授权REAL，SettlementEngine唯一正式结算。每条REAL绑定当期freeze、certificate、selector、model、赔率版本；相同issue唯一索引。</p>
+<h3>R29.1校准落地补充</h3>
+<p>沿用StatsR27.ece的样本加权口径，不以概率跨度或非空箱数量代替校准好坏。新增支持统计与验证样本哈希，保存每箱count/sumP/sumY、区间、supportedMass、fitThrough、validationFrom/To；样本少显示INSUFFICIENT。校准器的fit不依赖证书，验证不回流fit；当前预测超出已验证支持范围时标OUT_OF_SUPPORT并回到观察。恒定概率的正确反例只验证计量规则，不作为真实优势证据。</p>
+</section>
+<section id="chapter6"><h1>检测报告必须自动指出问题、证据与具体修复</h1>
 <h2>1. 报告与计算共享同一个指标实现</h2>
 <p>新增ReportR29、MetricEvaluatorR29、DiagnosisRulesR29；保留R26/R27原始章节作兼容源，界面与HTML/JSON都读统一结果，不能三个出口各算一套。导出snapshot必须绑定source/APK/schema/featureABI、两个库的eventWatermark、时区、设备会话、采样时段、所有指标定义版本。跨库watermark不一致应标CONSISTENCY_PENDING，不能拼成同一瞬间快照。</p>
 <p>每个MetricResult包含：metricId、definition、unit、population、numerator、denominator、value、timeRange、sampleCount、sourceSnapshot、evidenceRefs、uncertainty、status、missingReason、nextTrigger、repairCardIds。空数据=null/INSUFFICIENT；从未运行=NEVER_RUN；运行失败=ERROR；本项不适用=N/A且给理由。不得以0填缺失，或用相邻链的表填当前链。</p>
 <h2>2. 固定12章</h2>
-<div class="tablewrap"><table><thead><tr><th>章</th><th>必须回答</th><th>具体证据</th></tr></thead><tbody>
-<tr><td>01身份/施工</td><td>安装的到底是哪份代码；哪些卡已验证</td><td>source、APK、签名指纹、卡→测试→运行报告</td></tr>
-<tr><td>02时钟/抓取</td><td>开奖何时可见、何时抓到、哪期缺失</td><td>scheduledIssue、firstSeen、source hash、网络错误</td></tr>
-<tr><td>03冻结/结算</td><td>影子每期是否齐；是否重复或补造</td><td>完整机会表左连接冻结结算，缺期列表</td></tr>
-<tr><td>04主链与胜率</td><td>REAL、SHADOW、OBSERVE、REPLAY各自表现</td><td>各自分母、ACT率、HR、区间、对照、费用</td></tr>
-<tr><td>05任务与资源</td><td>谁没运行、谁阻塞、为何变慢</td><td>ready与progress差异、依赖图、P50/95/99、CPU、heap</td></tr>
-<tr><td>06策略生成</td><td>究竟生成了什么、是不是结构创新</td><td>AST/模型合同、语义与行为去重、拒绝原因</td></tr>
-<tr><td>07训练与深度学习</td><td>每期是否训练、新网络有没有供消费者使用</td><td>事件游标、uniqueIssues、optimizer状态、模型消费回执</td></tr>
-<tr><td>08进化/变异/融合</td><td>父子到底改变哪里，独立结果是否更好</td><td>diff、配对delta、置信范围、族覆盖、七计数</td></tr>
-<tr><td>09原子/分子/矩阵/家族/专家</td><td>每个对象当前能力、数据和消费者</td><td>全量registry LEFT JOIN runtime/effect，分页不漏项</td></tr>
-<tr><td>10诊断与升级建议</td><td>为什么差、还有哪些解释、下一步怎么改</td><td>结构化Finding、证据强度、反证、施工卡、预期可测变化</td></tr>
-<tr><td>11长期稳定与存储</td><td>后台、重启、热控、5000热数据和总空间</td><td>设备场景、积压、回收账、失败恢复</td></tr>
-<tr><td>12验收差距</td><td>工程/设备/质量各缺什么</td><td>逐项PASS/FAIL/INSUFFICIENT/NOT_RUN，不能总括为通过</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>章</th>
+<th>必须回答</th>
+<th>具体证据</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01身份/施工</td>
+<td>安装的到底是哪份代码；哪些卡已验证</td>
+<td>source、APK、签名指纹、卡→测试→运行报告</td>
+</tr>
+<tr>
+<td>02时钟/抓取</td>
+<td>开奖何时可见、何时抓到、哪期缺失</td>
+<td>scheduledIssue、firstSeen、source hash、网络错误</td>
+</tr>
+<tr>
+<td>03冻结/结算</td>
+<td>影子每期是否齐；是否重复或补造</td>
+<td>完整机会表左连接冻结结算，缺期列表</td>
+</tr>
+<tr>
+<td>04主链与胜率</td>
+<td>REAL、SHADOW、OBSERVE、REPLAY各自表现</td>
+<td>各自分母、ACT率、HR、区间、对照、费用</td>
+</tr>
+<tr>
+<td>05任务与资源</td>
+<td>谁没运行、谁阻塞、为何变慢</td>
+<td>ready与progress差异、依赖图、P50/95/99、CPU、heap</td>
+</tr>
+<tr>
+<td>06策略生成</td>
+<td>究竟生成了什么、是不是结构创新</td>
+<td>AST/模型合同、语义与行为去重、拒绝原因</td>
+</tr>
+<tr>
+<td>07训练与深度学习</td>
+<td>每期是否训练、新网络有没有供消费者使用</td>
+<td>事件游标、uniqueIssues、optimizer状态、模型消费回执</td>
+</tr>
+<tr>
+<td>08进化/变异/融合</td>
+<td>父子到底改变哪里，独立结果是否更好</td>
+<td>diff、配对delta、置信范围、族覆盖、七计数</td>
+</tr>
+<tr>
+<td>09原子/分子/矩阵/家族/专家</td>
+<td>每个对象当前能力、数据和消费者</td>
+<td>全量registry LEFT JOIN runtime/effect，分页不漏项</td>
+</tr>
+<tr>
+<td>10诊断与升级建议</td>
+<td>为什么差、还有哪些解释、下一步怎么改</td>
+<td>结构化Finding、证据强度、反证、施工卡、预期可测变化</td>
+</tr>
+<tr>
+<td>11长期稳定与存储</td>
+<td>后台、重启、热控、5000热数据和总空间</td>
+<td>设备场景、积压、回收账、失败恢复</td>
+</tr>
+<tr>
+<td>12验收差距</td>
+<td>工程/设备/质量各缺什么</td>
+<td>逐项PASS/FAIL/INSUFFICIENT/NOT_RUN，不能总括为通过</td>
+</tr>
 </tbody></table></div>
 <h2>3. 诊断规则必须具体且可证伪</h2>
-<div class="tablewrap"><table><thead><tr><th>触发证据</th><th>可输出结论</th><th>对应改动/验证</th></tr></thead><tbody>
-<tr><td>r27_calibration=0且只有OBSERVE</td><td>校准输入对象缺失/状态筛选导致无任务产出</td><td>LiveShadows.calibrate扩确认对象；R29-034；构造合法冻结后模型应产生</td></tr>
-<tr><td>I08只有family leaf且无AtomNet模型消费收据</td><td>新网络未直接参与该族决策</td><td>FeatureCache model_surface；R29-029；消费hash一致+消融</td></tr>
-<tr><td>draws&gt;2000但诊断章空</td><td>诊断入口口径或任务依赖不匹配</td><td>UpgradeDiagnosis输入适配；R29-041；先生成历史研究部分，未来不足单列</td></tr>
-<tr><td>ACT HR低于全期HR，支持不足</td><td>当前选时可能无效，尚不能定因果</td><td>I13选择器配对消融；R29-022/037</td></tr>
-<tr><td>shadow=0但观察有数据</td><td>确认入口/留出条件/队列需诊断，不能仅“继续等”</td><td>列每个资格条件和最近失败事件；R29-035</td></tr>
-<tr><td>跨族行为高度相似</td><td>名称多但有效多样性不足</td><td>行为聚类与结构替换；R29-025</td></tr>
-<tr><td>父子差置信范围跨0</td><td>尚未证实改善</td><td>保留冠军、继续新样本；不得强行代代换冠军</td></tr>
-<tr><td>ready积压且无进度+长锁等</td><td>工程饥饿，预测质量暂不可判定</td><td>独立writer与事务审计；R29-005/006</td></tr>
-<tr><td>控制组排名很高</td><td>搜索选择偏差风险</td><td>等预算空信号对照与新确认；不能结论“数据永无规律”</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>触发证据</th>
+<th>可输出结论</th>
+<th>对应改动/验证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>r27_calibration=0且只有OBSERVE</td>
+<td>校准输入对象缺失/状态筛选导致无任务产出</td>
+<td>LiveShadows.calibrate扩确认对象；R29-034；构造合法冻结后模型应产生</td>
+</tr>
+<tr>
+<td>I08只有family leaf且无AtomNet模型消费收据</td>
+<td>新网络未直接参与该族决策</td>
+<td>FeatureCache model_surface；R29-029；消费hash一致+消融</td>
+</tr>
+<tr>
+<td>draws&gt;2000但诊断章空</td>
+<td>诊断入口口径或任务依赖不匹配</td>
+<td>UpgradeDiagnosis输入适配；R29-041；先生成历史研究部分，未来不足单列</td>
+</tr>
+<tr>
+<td>ACT HR低于全期HR，支持不足</td>
+<td>当前选时可能无效，尚不能定因果</td>
+<td>I13选择器配对消融；R29-022/037</td>
+</tr>
+<tr>
+<td>shadow=0但观察有数据</td>
+<td>确认入口/留出条件/队列需诊断，不能仅“继续等”</td>
+<td>列每个资格条件和最近失败事件；R29-035</td>
+</tr>
+<tr>
+<td>跨族行为高度相似</td>
+<td>名称多但有效多样性不足</td>
+<td>行为聚类与结构替换；R29-025</td>
+</tr>
+<tr>
+<td>父子差置信范围跨0</td>
+<td>尚未证实改善</td>
+<td>保留冠军、继续新样本；不得强行代代换冠军</td>
+</tr>
+<tr>
+<td>ready积压且无进度+长锁等</td>
+<td>工程饥饿，预测质量暂不可判定</td>
+<td>独立writer与事务审计；R29-005/006</td>
+</tr>
+<tr>
+<td>控制组排名很高</td>
+<td>搜索选择偏差风险</td>
+<td>等预算空信号对照与新确认；不能结论“数据永无规律”</td>
+</tr>
 </tbody></table></div>
 <p>每条结论标OBSERVED（直接实测）、SUPPORTED_CAUSE（故障注入/消融支持）、HYPOTHESIS（待验证推断）、UNKNOWN。自动诊断可以提出可检验修改，不可能自动保证找到真正根因或必然提高胜率；没有证据时输出缺什么数据、去哪里补。</p>
 <h2>4. 完整但不膨胀</h2>
 <p>导出job状态QUEUED/RUNNING/CANCELLING/CANCELLED/COMPLETE/FAILED；每个分页/压缩块检查取消；取消延迟目标≤2秒。默认摘要+全部能力/指标清单+必要证据索引，不复制多个巨型数据库快照。每个大表记录expected/exported/omitted；分页覆盖需可重建。完整证据按需导出，保留manifest/CRC/SHA与不可变定位。Zip写临时路径，完成验证后rename发布；取消和失败清理本job临时文件，不能删别的成功报告。</p>
-<p>默认压缩报告目标≤20MiB；若完整证据超过上限则输出有分卷manifest的独立完整附件，不截断JSON、不裁掉失败行。只保留最近2个默认导出与用户pin文件，磁盘统计包含数据库/WAL/artifact/report/tmp，5000期不等于总磁盘有界。报告中保留1832要求的状态汇总和可定位索引，不每次复制所有历史正文。</p></section><section id="chapter7"><h1>设备验收、测试设计与每批交付</h1>
+<p>默认压缩报告目标≤20MiB；若完整证据超过上限则输出有分卷manifest的独立完整附件，不截断JSON、不裁掉失败行。只保留最近2个默认导出与用户pin文件，磁盘统计包含数据库/WAL/artifact/report/tmp，5000期不等于总磁盘有界。报告中保留1832要求的状态汇总和可定位索引，不每次复制所有历史正文。</p>
+<h2>5. R29.1新增诊断字段</h2>
+<p>每个确认实验必须导出pendingDrawIssues、pendingQualificationIssues、lastContiguousOrdinal、lateResultsRecovered、duplicateReceipts、conflictingDrawHashes。报告中区分结果迟到但预测合法与预测本身迟到。添加校准分箱支持和unsupportedMass；禁止因只有1—4个非空概率箱就断言失准。Q02主链部署前显示NOT_DEPLOYED，并展示FUTURE_ACT_RATE作为研究频率；两个分母和时间起点分别落库。对应卡R29-010/034/035/036/037/039。</p>
+</section>
+<section id="chapter7"><h1>设备验收、测试设计与每批交付</h1>
 <h2>1. 基本规则</h2>
 <p>不采用先写“完成”再补证据。每张卡状态为PLANNED→IMPLEMENTED→HOST_VERIFIED→DEVICE_VERIFIED；涉及自然质量另有FUTURE_QUALIFIED。报告导出、代码合入、编译成功均不能推导DEVICE_VERIFIED。没有手机测量就在账本写NOT_RUN。</p>
 <p>每批提交准确改动文件、before/after hash、变更理由、测试命令和原始日志；生成可安装APK并提升versionCode，保持公有版包名 <code>com.starcore.research.r13</code> 和既有公有版签名指纹，允许覆盖公有版；不覆盖私有版 <code>com.ethk3.novaonepro</code>。签名密钥不进入公有仓库。安装失败、签名不一致或开机崩溃时，本批不能签收。</p>
 <h2>2. 测试套件</h2>
-<div class="tablewrap"><table><thead><tr><th>测试</th><th>输入/故障</th><th>必须观察到</th></tr></thead><tbody>
-<tr><td>PIT反证</td><td>替换当前/未来开奖标签及firstSeen，保留过去</td><td>既有事前特征/ACT/K3/hash不变；变化必须报泄漏</td></tr>
-<tr><td>零信号全管线</td><td>独立均匀排列、相同搜索预算/选择/停止策略</td><td>错误准入率的二项区间，不能只做1次“没过线”就宣称安全</td></tr>
-<tr><td>正对照检出</td><td>预登记弱信号和结构切换，K3优势34/37/40%，15/30/100%频率</td><td>检出概率与所需自然期数曲线，不把合成结果说成真实胜率</td></tr>
-<tr><td>父子修复</td><td>同一期父/子/参数微调/随机同预算</td><td>结构变更、配对delta、区间可重算</td></tr>
-<tr><td>复现</td><td>相同dataset/seed/artifact，重启于任一切片</td><td>预测、优化器、随机游标和一次性消费一致</td></tr>
-<tr><td>分库迁移</td><td>复制一半/切换前后杀进程；ack丢失</td><td>无丢事件、无重复正式结算/资格累加，旧库可回退</td></tr>
-<tr><td>冻结竞态</td><td>迟到准备、时钟跳动、结果先到、重复提交</td><td>迟到拒绝；绝不能以开奖后当前时钟回写predraw</td></tr>
-<tr><td>报告</td><td>全空/部分表/64行以上/大报告/取消/重建</td><td>状态准确、分页完整、取消≤2秒、校验可重现</td></tr>
-<tr><td>门槛可行性</td><td>既有连挂门与R29提议门均跑同分布</td><td>列功效/误放风险，参数变更有独立版本和变更记录</td></tr>
-<tr><td>性能</td><td>候选/模型/观察同时满载、导出同时运行</td><td>端到端P95、写锁等待和积压均满足目标，无OOM</td></tr>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>测试</th>
+<th>输入/故障</th>
+<th>必须观察到</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PIT反证</td>
+<td>替换当前/未来开奖标签及firstSeen，保留过去</td>
+<td>既有事前特征/ACT/K3/hash不变；变化必须报泄漏</td>
+</tr>
+<tr>
+<td>零信号全管线</td>
+<td>独立均匀排列、相同搜索预算/选择/停止策略</td>
+<td>错误准入率的二项区间，不能只做1次“没过线”就宣称安全</td>
+</tr>
+<tr>
+<td>正对照检出</td>
+<td>预登记弱信号和结构切换，K3优势34/37/40%，15/30/100%频率</td>
+<td>检出概率与所需自然期数曲线，不把合成结果说成真实胜率</td>
+</tr>
+<tr>
+<td>父子修复</td>
+<td>同一期父/子/参数微调/随机同预算</td>
+<td>结构变更、配对delta、区间可重算</td>
+</tr>
+<tr>
+<td>复现</td>
+<td>相同dataset/seed/artifact，重启于任一切片</td>
+<td>预测、优化器、随机游标和一次性消费一致</td>
+</tr>
+<tr>
+<td>分库迁移</td>
+<td>复制一半/切换前后杀进程；ack丢失</td>
+<td>无丢事件、无重复正式结算/资格累加，旧库可回退</td>
+</tr>
+<tr>
+<td>冻结竞态</td>
+<td>迟到准备、时钟跳动、结果先到、重复提交</td>
+<td>迟到拒绝；绝不能以开奖后当前时钟回写predraw</td>
+</tr>
+<tr>
+<td>报告</td>
+<td>全空/部分表/64行以上/大报告/取消/重建</td>
+<td>状态准确、分页完整、取消≤2秒、校验可重现</td>
+</tr>
+<tr>
+<td>门槛可行性</td>
+<td>既有连挂门与R29提议门均跑同分布</td>
+<td>列功效/误放风险，参数变更有独立版本和变更记录</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>候选/模型/观察同时满载、导出同时运行</td>
+<td>端到端P95、写锁等待和积压均满足目标，无OOM</td>
+</tr>
 </tbody></table></div>
 <p>真实数据回放用于比较与筛选；已反复研究过的4824期及仓库1万期不可再叫全新最终测试集。最终质量仍依赖注册后的未来数据。</p>
 <h2>3. 目标机矩阵</h2>
@@ -221,9 +731,11 @@
 <p>72小时是工程稳定性窗口，不代表足够统计样本。每期抓取、冻结、结算、训练游标、后台heartbeat全部留证；平均耗时不足以替代P95/P99。测试在受支持网络/设备条件下记录，源未发布与本机故障分别统计。发现P0错误立即阻止当批发布。</p>
 <h2>4. 发布与回滚</h2>
 <p>发布包由APK、来源提交、source tree hash、依赖/构建identity、签名证书指纹、plan hash、测试清单、真实设备报告、数据库迁移版本组成。模型通过完整写入+校验+原子指针切换，撤销证书和切回稳定artifact的目标≤5秒；整APK/数据库回滚不能承诺5秒。迁移允许版本检查和可恢复路径，不能要求用户清数据解决启动失败。</p>
-<p>仓库已有 <code>.github/workflows/r13.yml</code> 与 <code>tools/r27/run_host_tests.sh</code>；施工应在实际源分支检查脚本参数后复用，新增R29验证并接入既有流水线，不能另建与Android工程无关的Python model.py项目。根README指向当前方案与真实施工分支，避免用户从旧main构建。</p></section><section id="chapter8"><h1>新增接口、SQL与关键伪代码</h1>
+<p>仓库已有 <code>.github/workflows/r13.yml</code> 与 <code>tools/r27/run_host_tests.sh</code>；施工应在实际源分支检查脚本参数后复用，新增R29验证并接入既有流水线，不能另建与Android工程无关的Python model.py项目。根README指向当前方案与真实施工分支，避免用户从旧main构建。</p>
+</section>
+<section id="chapter8"><h1>新增接口、SQL与关键伪代码</h1>
 <p>以下是待施工合同，新增类均为拟新增，不声称存在或已编译。保持项目现有Java17与Android兼容范围，SQLite不假定支持现代UPSERT；持久化键使用明确主键与INSERT OR IGNORE。</p>
-<pre><code>interface ResearchEventBridgeR29 {
+<pre><code class="language-java">interface ResearchEventBridgeR29 {
   // 调用方已在realtime事务内；不能隐式打开research事务
   void appendDrawSettled(RealtimeTx tx, Event event);
   SliceResult consumeCommitted(ResearchTx tx, Event event);
@@ -239,9 +751,10 @@ interface StrategyGeneratorR29 {
 interface CapabilityReporterR29 {
   // 输入固定跨库watermark快照；绝不触发训练、DDL或授证
   CapabilityResult evaluate(ConsistentSnapshot snapshot, String capabilityId);
-}</code></pre>
+}
+</code></pre>
 <p>冻结合同：<code>policyHash,targetIssue,position,k3Mask,act,probabilities,featureHash,modelHash,trainedThrough,availableAt,preparedAt,frozenAt,deadlineAt,eventWatermark</code>。约束：1≤position≤10、mask恰3个合法位、trainedThrough&lt;target、所有可见性时间≤freeze≤deadline−5000ms、概率非负且行和容差内为1；校准未可用可观测但不能伪造p。</p>
-<pre><code>onDraw(raw):
+<pre><code class="language-text">onDraw(raw):
   draw = validateAndDeduplicate(raw)
   realtime.transaction:
     persistDraw(draw)
@@ -268,573 +781,1128 @@ qualify(candidate):
   checkFrozenExperimentAndPermanentIndex()
   consumeOnlyPostRegistrationValidFutureOnce()
   evaluateVersionedStatisticalAndBusinessGates()
-  publishAuditedCertificateProjectionIfEligible()</code></pre>
+  publishAuditedCertificateProjectionIfEligible()
+</code></pre>
 <p>新增SQL样例在 <code>contracts/r29_contract.sql</code>，用于约束唯一性和字段命名，正式迁移必须与原schema做对照。图表/报告必须从同一合同生成，不直接读取训练中可变内存。研究库大批写：先落pages与batch manifest，最后commit标识使整批对读者可见；游标最后一并更新。不可把 <code>Batch.before</code> 与末尾cursor跨500条分块提交后称为“一次原子更新”。</p>
-<p>主链安全边界：资格只是可选择；当期数据健康、冻结完整、模型可用、已确认meta-selector与用户REAL开关都通过后，唯一DecisionGate决定。报告列“有证书但没出手”的具体拒绝项。每笔intent来源可追溯到策略/模型/证书/本期冻结，不能因观察池有高分就绕过证书。</p></section><section id="chapter9"><h1>技术依据与适用限制</h1>
+<p>主链安全边界：资格只是可选择；当期数据健康、冻结完整、模型可用、已确认meta-selector与用户REAL开关都通过后，唯一DecisionGate决定。报告列“有证书但没出手”的具体拒绝项。每笔intent来源可追溯到策略/模型/证书/本期冻结，不能因观察池有高分就绕过证书。</p>
+</section>
+<section id="chapter9"><h1>技术依据与适用限制</h1>
 <p>本方案的工程设计来自已读取源码、10.29报告与R28原包；下列主源仅支持相应通用机制，不证明本软件会获得高胜率。访问日期2026-10-29。</p>
-<p class="item">1. SQLite WAL：https://www.sqlite.org/wal.html 。WAL允许读写并行但仍单写者；跨ATTACH数据库事务不整体原子。因此采用分库独立写者与outbox/inbox，而非依赖跨库原子承诺。</p>
-<p class="item">2. SQLite事务：https://www.sqlite.org/lang_transaction.html 。读写事务、IMMEDIATE和busy行为用于迁移与锁等待设计。</p>
-<p class="item">3. Android PowerManager：https://developer.android.com/reference/android/os/PowerManager 。getThermalHeadroom接近1对应严重限频尺度；未知/NaN需独立处理，不按“数值越小越热”。</p>
-<p class="item">4. Android前台服务后台启动限制：https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start 。持续服务须符合实际SDK/启动状态约束；不能保证用户强停后永远运行。</p>
-<p class="item">5. Howard等，Time-uniform, nonparametric, nonasymptotic confidence sequences：https://arxiv.org/abs/1810.08240 。重复监测应使用时间一致的统计方法及明确假设，不能复用固定样本95%区间无限择时。</p>
-<p class="item">6. Wang与Ramdas，False discovery rate control with e-values：https://arxiv.org/abs/2009.02824 。e-BH控制的是FDR；不得与永久预算的FWER声明混淆。</p>
-<p class="item">7. sklearn TimeSeriesSplit：https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html 。时间顺序评估与gap的参考；实际PIT还需模型和firstSeen时间。</p>
-<p>统计假设、效应与样本量必须写进实验manifest。没有发现显著优势不等于证明所有可想象方法无效；发现一次高分也不等于可复制优势。合成数据只用来验证检出能力与反作弊/故障逻辑，不计入真实质量。</p></section><section id="chapter10"><h1>11批次、52张精确施工卡</h1>
-<div class="tablewrap"><table><thead><tr><th>批次</th><th>范围</th><th>目标</th><th>交付门</th></tr></thead><tbody>
-<tr><td>B00</td><td>R29-001—R29-003</td><td>基线与保全</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B01</td><td>R29-004—R29-008</td><td>分库与统一调度</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B02</td><td>R29-009—R29-013</td><td>抓取冻结结算后台</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B03</td><td>R29-014—R29-018</td><td>历史训练与PIT</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B04</td><td>R29-019—R29-025</td><td>完整策略与结构创造</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B05</td><td>R29-026—R29-030</td><td>进化与神经训练</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B06</td><td>R29-031—R29-034</td><td>原子矩阵与校准</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B07</td><td>R29-035—R29-038</td><td>资格与主链</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B08</td><td>R29-039—R29-043</td><td>报告与存储</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B09</td><td>R29-044—R29-047</td><td>图表与综合验证</td><td>HOST+APK+真实待验状态</td></tr>
-<tr><td>B10</td><td>R29-048—R29-052</td><td>真机自然质量与交付</td><td>HOST+APK+真实待验状态</td></tr>
+<ol>
+<li>SQLite WAL：<a href="https://www.sqlite.org/wal.html">https://www.sqlite.org/wal.html</a> 。WAL允许读写并行但仍单写者；跨ATTACH数据库事务不整体原子。因此采用分库独立写者与outbox/inbox，而非依赖跨库原子承诺。</li>
+<li>SQLite事务：<a href="https://www.sqlite.org/lang_transaction.html">https://www.sqlite.org/lang_transaction.html</a> 。读写事务、IMMEDIATE和busy行为用于迁移与锁等待设计。</li>
+<li>Android PowerManager：<a href="https://developer.android.com/reference/android/os/PowerManager">https://developer.android.com/reference/android/os/PowerManager</a> 。getThermalHeadroom接近1对应严重限频尺度；未知/NaN需独立处理，不按“数值越小越热”。</li>
+<li>Android前台服务后台启动限制：<a href="https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start">https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start</a> 。持续服务须符合实际SDK/启动状态约束；不能保证用户强停后永远运行。</li>
+<li>Howard等，Time-uniform, nonparametric, nonasymptotic confidence sequences：<a href="https://arxiv.org/abs/1810.08240">https://arxiv.org/abs/1810.08240</a> 。重复监测应使用时间一致的统计方法及明确假设，不能复用固定样本95%区间无限择时。</li>
+<li>Wang与Ramdas，False discovery rate control with e-values：<a href="https://arxiv.org/abs/2009.02824">https://arxiv.org/abs/2009.02824</a> 。e-BH控制的是FDR；不得与永久预算的FWER声明混淆。</li>
+<li>sklearn TimeSeriesSplit：<a href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html">https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html</a> 。时间顺序评估与gap的参考；实际PIT还需模型和firstSeen时间。</li>
+</ol>
+<p>统计假设、效应与样本量必须写进实验manifest。没有发现显著优势不等于证明所有可想象方法无效；发现一次高分也不等于可复制优势。合成数据只用来验证检出能力与反作弊/故障逻辑，不计入真实质量。</p>
+</section>
+<section id="chapter10"><h1>11批次、52张精确施工卡</h1>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>批次</th>
+<th>范围</th>
+<th>目标</th>
+<th>交付门</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B00</td>
+<td>R29-001—R29-003</td>
+<td>基线与保全</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B01</td>
+<td>R29-004—R29-008</td>
+<td>分库与统一调度</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B02</td>
+<td>R29-009—R29-013</td>
+<td>抓取冻结结算后台</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B03</td>
+<td>R29-014—R29-018</td>
+<td>历史训练与PIT</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B04</td>
+<td>R29-019—R29-025</td>
+<td>完整策略与结构创造</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B05</td>
+<td>R29-026—R29-030</td>
+<td>进化与神经训练</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B06</td>
+<td>R29-031—R29-034</td>
+<td>原子矩阵与校准</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B07</td>
+<td>R29-035—R29-038</td>
+<td>资格与主链</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B08</td>
+<td>R29-039—R29-043</td>
+<td>报告与存储</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B09</td>
+<td>R29-044—R29-047</td>
+<td>图表与综合验证</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
+<tr>
+<td>B10</td>
+<td>R29-048—R29-052</td>
+<td>真机自然质量与交付</td>
+<td>HOST+APK+真实待验状态</td>
+</tr>
 </tbody></table></div>
 <p>按依赖施工，批次可合并但不能跳过验证。每批APK不等于自然质量已通过；质量不达标继续研究并禁止虚报。</p>
 <h2>R29-001 锁定当前源码与报告</h2>
 <p>批次：B00；前置：无。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</p>
-<p>具体实现：记录f9bdddb/7d3e0e2、APK/报告hash；创建R29施工分支；确认main只发布方案。</p>
-<p>验证：比对远端源码提交、报告identity和被修改文件before hash。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</li>
+</ul>
+<p>具体实现：记录f9bdddb/7d3e0e2、APK/报告hash；创建R29施工分支；确认main只发布方案</p>
+<p>验证：比对远端源码提交、报告identity和被修改文件before hash</p>
 <p>验收指标：M01。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-002 1832要求与299卡保全回归</h2>
 <p>批次：B00；前置：R29-001。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java</code> — MODIFY；LegacyContinuityR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java</code> — MODIFY；LegacyPolicyExportR27</p>
-<p>具体实现：为每条原要求保留正文、旧状态、责任和回归证据；禁止因新方案覆盖而清账。</p>
-<p>验证：清单计数/唯一ID/原文hash；图表历史训练等保全场景全过。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java</code> — MODIFY；LegacyContinuityR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java</code> — MODIFY；LegacyPolicyExportR27</li>
+</ul>
+<p>具体实现：为每条原要求保留正文、旧状态、责任和回归证据；禁止因新方案覆盖而清账</p>
+<p>验证：清单计数/唯一ID/原文hash；图表历史训练等保全场景全过</p>
 <p>验收指标：M02, M33。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-003 统一指标与分母</h2>
 <p>批次：B00；前置：R29-002。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code> — MODIFY；ReportDataR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java</code> — MODIFY；ReportR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java</code> — ADD_PROPOSED；MetricEvaluatorR29</p>
-<p>具体实现：实现44个指标定义、来源/窗口/分母；未知值null；旧口径并列。</p>
-<p>验证：空报告和跨策略重复期fixture不能产生假PASS或独立样本膨胀。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code> — MODIFY；ReportDataR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java</code> — MODIFY；ReportR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java</code> — ADD_PROPOSED；MetricEvaluatorR29</li>
+</ul>
+<p>具体实现：实现44个指标定义、来源/窗口/分母；未知值null；旧口径并列</p>
+<p>验证：空报告和跨策略重复期fixture不能产生假PASS或独立样本膨胀</p>
 <p>验收指标：M01, M32。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-004 双库可恢复迁移</h2>
 <p>批次：B01；前置：R29-003。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java</code> — MODIFY；SchemaR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java</code> — ADD_PROPOSED；ResearchDatabaseR29</p>
-<p>具体实现：迁移manifest+watermark+规范化行hash；观察回滚前不DROP旧表。</p>
-<p>验证：每阶段杀进程/重入/磁盘满，记录无丢行和重复迁移。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java</code> — MODIFY；SchemaR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java</code> — ADD_PROPOSED；ResearchDatabaseR29</li>
+</ul>
+<p>具体实现：迁移manifest+watermark+规范化行hash；观察回滚前不DROP旧表</p>
+<p>验证：每阶段杀进程/重入/磁盘满，记录无丢行和重复迁移</p>
 <p>验收指标：M08, M09。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-005 独立writer与事件投递</h2>
 <p>批次：B01；前置：R29-004。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java</code> — MODIFY；ResearchWriteQueueR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code> — MODIFY；ResearchPoolR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java</code> — ADD_PROPOSED；ResearchEventBridgeR29</p>
-<p>具体实现：研究独立写者；outbox/inbox；批次manifest原子可见；cursor最后提交。</p>
-<p>验证：并发压力、部分500条提交、ack丢失和重复event；资格不得重复累加。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java</code> — MODIFY；ResearchWriteQueueR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code> — MODIFY；ResearchPoolR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java</code> — ADD_PROPOSED；ResearchEventBridgeR29</li>
+</ul>
+<p>具体实现：研究独立写者；outbox/inbox；批次manifest原子可见；cursor最后提交</p>
+<p>验证：并发压力、部分500条提交、ack丢失和重复event；资格不得重复累加</p>
 <p>验收指标：M07, M08, M09, M10。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-006 持续调度与正确温控</h2>
 <p>批次：B01；前置：R29-005。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code> — MODIFY；ResearchPoolR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code> — MODIFY；RuntimeCoordinatorR26</p>
-<p>具体实现：全部状态持续服务；ready优先/截止优先；headroom接近1降速、NaN回退、恢复滞回。</p>
-<p>验证：前台/后台/热值0.1和0.95/NaN、有积压队列，进度无假阳性。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code> — MODIFY；ResearchPoolR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code> — MODIFY；RuntimeCoordinatorR26</li>
+</ul>
+<p>具体实现：全部状态持续服务；ready优先/截止优先；headroom接近1降速、NaN回退、恢复滞回</p>
+<p>验证：前台/后台/热值0.1和0.95/NaN、有积压队列，进度无假阳性</p>
 <p>验收指标：M11, M12, M13, M14。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-007 旧算法能力适配</h2>
 <p>批次：B01；前置：R29-006。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java</code> — MODIFY；LegacyPolicyExportR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java</code> — MODIFY；LegacyContinuityR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java</code> — ADD_PROPOSED；LegacyCapabilityAdapterR29</p>
-<p>具体实现：保留旧VM/模型/教师依赖；导出完整state和算子ABI；只停重复调度入口。</p>
-<p>验证：旧策略黄金输入逐期输出/状态对齐；不可复现给缺件清单。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java</code> — MODIFY；LegacyPolicyExportR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java</code> — MODIFY；LegacyContinuityR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java</code> — ADD_PROPOSED；LegacyCapabilityAdapterR29</li>
+</ul>
+<p>具体实现：保留旧VM/模型/教师依赖；导出完整state和算子ABI；只停重复调度入口</p>
+<p>验证：旧策略黄金输入逐期输出/状态对齐；不可复现给缺件清单</p>
 <p>验收指标：M02, M20, M23。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-008 重复任务入口收敛</h2>
 <p>批次：B01；前置：R29-007。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code> — MODIFY；RuntimeCoordinatorR26</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</p>
-<p>具体实现：建立唯一owner注册表；迁移成功才关闭旧scheduler；家族专家作为新池插件。</p>
-<p>验证：同一任务无双worker；生命周期回归不丢预测、训练、图表、结算。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code> — MODIFY；RuntimeCoordinatorR26</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</li>
+</ul>
+<p>具体实现：建立唯一owner注册表；迁移成功才关闭旧scheduler；家族专家作为新池插件</p>
+<p>验证：同一任务无双worker；生命周期回归不丢预测、训练、图表、结算</p>
 <p>验收指标：M02, M08, M12。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-009 抓取与时钟校准</h2>
 <p>批次：B02；前置：R29-008。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java</code> — MODIFY；TargetIssueResolver</p>
-<p>具体实现：单flight约1秒轮询；firstSeen/sourceTime分列；期号/十数排列/冲突校验。</p>
-<p>验证：迟到、乱序、重复、跨日、断网恢复；不能补造开奖时间。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java</code> — MODIFY；TargetIssueResolver</li>
+</ul>
+<p>具体实现：单flight约1秒轮询；firstSeen/sourceTime分列；期号/十数排列/冲突校验</p>
+<p>验证：迟到、乱序、重复、跨日、断网恢复；不能补造开奖时间</p>
 <p>验收指标：M04, M05, M18。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-010 实时短事务闭环</h2>
 <p>批次：B02；前置：R29-009。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java</code> — MODIFY；AnalysisRequestStoreR36</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code> — MODIFY；V51RuntimeOrchestrator</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueCommitR29.java</code> — ADD_PROPOSED；IssueCommitR29</p>
-<p>具体实现：准备计算在事务外，绑定history/lease/decision/freeze于实时短事务。</p>
-<p>验证：每一步注入错误整体不发布半成品；同issue不可重复REAL。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java</code> — MODIFY；AnalysisRequestStoreR36</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code> — MODIFY；V51RuntimeOrchestrator</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueCommitR29.java</code> — ADD_PROPOSED；IssueCommitR29</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27.settle</li>
+</ul>
+<p>具体实现：准备计算在事务外，绑定history/lease/decision/freeze于实时短事务；补充LiveShadowsR27.settle：PENDING_DRAW可重试，取消“两期后hit=-2且查询永不返回”的终态；待补抓公平调度。</p>
+<p>验证：每一步注入错误整体不发布半成品；同issue不可重复REAL；先缺开奖结果、跨3期后补回，原合法冻结仅结算一次；迟到预测仍不得补填。</p>
 <p>验收指标：M03, M06, M07。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-011 观察准备与冻结分离</h2>
 <p>批次：B02；前置：R29-010。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedForecastR29.java</code> — ADD_PROPOSED；PreparedForecastR29</p>
-<p>具体实现：共享特征准备128候选+16对照；单次提交冻结manifest；不足不凑数。</p>
-<p>验证：截止边界、结果先到、准备迟到均不可进入FUTURE。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedForecastR29.java</code> — ADD_PROPOSED；PreparedForecastR29</li>
+</ul>
+<p>具体实现：共享特征准备128候选+16对照；单次提交冻结manifest；不足不凑数</p>
+<p>验证：截止边界、结果先到、准备迟到均不可进入FUTURE</p>
 <p>验收指标：M03, M05, M18。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-012 幂等结算与补缺</h2>
 <p>批次：B02；前置：R29-011。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code> — MODIFY；SettlementEngine</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</p>
-<p>具体实现：结果事件幂等；REAL/SHADOW/OBSERVE独立账；缺口恢复只补合法结算。</p>
-<p>验证：重复/错序开奖、重启、pending恢复，无重复hit/evidence。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code> — MODIFY；SettlementEngine</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</li>
+</ul>
+<p>具体实现：结果事件幂等；REAL/SHADOW/OBSERVE独立账；缺口恢复只补合法结算</p>
+<p>验证：重复/错序开奖、重启、pending恢复，无重复hit/evidence</p>
 <p>验收指标：M04, M06, M10。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-013 后台与UI延迟</h2>
 <p>批次：B02；前置：R29-012。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code> — MODIFY；MainActivity</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code> — MODIFY；ChartsRepositoryR27</p>
-<p>具体实现：前台服务按SDK合法运行；图表物化读；长文本异步；业务游标heartbeat。</p>
-<p>验证：息屏6h、重启、UI图表打开并发导出，端到端P95与ANR。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code> — MODIFY；MainActivity</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code> — MODIFY；ChartsRepositoryR27</li>
+</ul>
+<p>具体实现：前台服务按SDK合法运行；图表物化读；长文本异步；业务游标heartbeat</p>
+<p>验证：息屏6h、重启、UI图表打开并发导出，端到端P95与ANR</p>
 <p>验收指标：M03, M13, M14, M33。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-014 真实历史数据治理</h2>
 <p>批次：B03；前置：R29-013。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java</code> — MODIFY；HistoryImportR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java</code> — MODIFY；ReplayDatasetR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</p>
-<p>具体实现：保留导入/长历史压缩回放；热库5000滚动；来源hash/firstSeen/缺口。</p>
-<p>验证：导入现有真实数据、重复导入、未来可见性、断点续传。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java</code> — MODIFY；HistoryImportR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java</code> — MODIFY；ReplayDatasetR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</li>
+</ul>
+<p>具体实现：保留导入/长历史压缩回放；热库5000滚动；来源hash/firstSeen/缺口</p>
+<p>验证：导入现有真实数据、重复导入、未来可见性、断点续传</p>
 <p>验收指标：M15, M18。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-015 时间角色与曝光账</h2>
 <p>批次：B03；前置：R29-014。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java</code> — MODIFY；SplitR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java</code> — MODIFY；HoldoutLedgerR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java</code> — MODIFY；AtomScoreR27</p>
-<p>具体实现：TRAIN/SELECT/一次CONFIRM/FUTURE；所有读取消费者登记；重复确认降级。</p>
-<p>验证：原子权重/早停/报告反馈读确认结果后不能再称未见测试。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java</code> — MODIFY；SplitR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java</code> — MODIFY；HoldoutLedgerR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java</code> — MODIFY；AtomScoreR27</li>
+</ul>
+<p>具体实现：TRAIN/SELECT/一次CONFIRM/FUTURE；所有读取消费者登记；重复确认降级</p>
+<p>验证：原子权重/早停/报告反馈读确认结果后不能再称未见测试</p>
 <p>验收指标：M18, M19。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-016 每期增量特征与回放</h2>
 <p>批次：B03；前置：R29-015。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java</code> — MODIFY；FeatureCacheR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code> — MODIFY；ReplayEvaluatorR27</p>
-<p>具体实现：追加新一期，共享递推状态；按计划全历史重放；避免每期从头扫5000。</p>
-<p>验证：增量与全量相同输入输出一致；缺口重置语义正确。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java</code> — MODIFY；FeatureCacheR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code> — MODIFY；ReplayEvaluatorR27</li>
+</ul>
+<p>具体实现：追加新一期，共享递推状态；按计划全历史重放；避免每期从头扫5000</p>
+<p>验证：增量与全量相同输入输出一致；缺口重置语义正确</p>
 <p>验收指标：M03, M11, M18。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-017 训练游标与可恢复状态</h2>
 <p>批次：B03；前置：R29-016。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java</code> — MODIFY；AtomNetTrainerR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code> — MODIFY；AtomWorldR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java</code> — ADD_PROPOSED；ModelArtifactR29</p>
-<p>具体实现：保存权重/optimizer/RNG/normalizer/replay cursor；同事件只学习一次。</p>
-<p>验证：每个切片重启后下一预测/更新一致；数据hash变化不随意清零。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java</code> — MODIFY；AtomNetTrainerR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code> — MODIFY；AtomWorldR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java</code> — ADD_PROPOSED；ModelArtifactR29</li>
+</ul>
+<p>具体实现：保存权重/optimizer/RNG/normalizer/replay cursor；同事件只学习一次</p>
+<p>验证：每个切片重启后下一预测/更新一致；数据hash变化不随意清零</p>
 <p>验收指标：M10, M20。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-018 统一真实回放评价器</h2>
 <p>批次：B03；前置：R29-017。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayScoreR27.java</code> — MODIFY；ReplayScoreR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code> — MODIFY；ReplayEvaluatorR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java</code> — MODIFY；EvalContextR27</p>
-<p>具体实现：同目标/同ACT/同机会分母；时间配对差与缺期统计；真实回放不改名FUTURE。</p>
-<p>验证：手工可核对fixture+时间污染反例；旧报告口径复算。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayScoreR27.java</code> — MODIFY；ReplayScoreR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code> — MODIFY；ReplayEvaluatorR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java</code> — MODIFY；EvalContextR27</li>
+</ul>
+<p>具体实现：同目标/同ACT/同机会分母；时间配对差与缺期统计；真实回放不改名FUTURE</p>
+<p>验证：手工可核对fixture+时间污染反例；旧报告口径复算</p>
 <p>验收指标：M18, M19, Q05, Q06。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-019 完整策略合同</h2>
 <p>批次：B04；前置：R29-018。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java</code> — MODIFY；PolicySpecR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java</code> — MODIFY；PolicyAstR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR29.java</code> — ADD_PROPOSED；PolicyContractR29</p>
-<p>具体实现：绑定特征、模型、选位、K3、ACT、更新、校准、失败条件和资源预算。</p>
-<p>验证：缺核心字段/非法类型/不合法K3拒绝；hash覆盖每个行为字段。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java</code> — MODIFY；PolicySpecR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java</code> — MODIFY；PolicyAstR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR29.java</code> — ADD_PROPOSED；PolicyContractR29</li>
+</ul>
+<p>具体实现：绑定特征、模型、选位、K3、ACT、更新、校准、失败条件和资源预算</p>
+<p>验证：缺核心字段/非法类型/不合法K3拒绝；hash覆盖每个行为字段</p>
 <p>验收指标：M21, M22。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-020 现有13业务思路族增强</h2>
 <p>批次：B04；前置：R29-019。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java</code> — MODIFY；IdeaFamilyR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java</code> — MODIFY；ExpertProposalsR27</p>
-<p>具体实现：按docs/04升级I01-I13机制；F24/E16/I层分别登记；I00只作控制。</p>
-<p>验证：每族可独立运行、不同结构/行为可证明，禁止仅换标签。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java</code> — MODIFY；IdeaFamilyR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java</code> — MODIFY；ExpertProposalsR27</li>
+</ul>
+<p>具体实现：按docs/04升级I01-I13机制；F24/E16/I层分别登记；I00只作控制</p>
+<p>验证：每族可独立运行、不同结构/行为可证明，禁止仅换标签</p>
 <p>验收指标：M21, M23。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-021 短期结构窗口和集合缩减</h2>
 <p>批次：B04；前置：R29-020。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureWindowR29.java</code> — ADD_PROPOSED；StructureWindowR29</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR29.java</code> — ADD_PROPOSED；SetIntersectionPolicyR29</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI04CrossPositionR27.java</code> — MODIFY；IdeaI04CrossPositionR27</p>
-<p>具体实现：实现窗口检测→4至7号码集合→相关性折扣交集→K3，输入均为历史。</p>
-<p>验证：整条链时间回放；逐层覆盖损失；不用事后赢家窗口。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureWindowR29.java</code> — ADD_PROPOSED；StructureWindowR29</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR29.java</code> — ADD_PROPOSED；SetIntersectionPolicyR29</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI04CrossPositionR27.java</code> — MODIFY；IdeaI04CrossPositionR27</li>
+</ul>
+<p>具体实现：实现窗口检测→4至7号码集合→相关性折扣交集→K3，输入均为历史</p>
+<p>验证：整条链时间回放；逐层覆盖损失；不用事后赢家窗口</p>
 <p>验收指标：M18, M21, Q01。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-022 选时选位与ACT条件</h2>
 <p>批次：B04；前置：R29-021。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java</code> — MODIFY；IdeaI13SelectorOnlyR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR29.java</code> — ADD_PROPOSED；SelectorPolicyR29</p>
-<p>具体实现：ACT阈值在SELECT定；发现候选可达15/30/100%频率梯度；不得配额补手。</p>
-<p>验证：评分器不变的选择器消融；同周期不同频率列命中/区间。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java</code> — MODIFY；IdeaI13SelectorOnlyR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR29.java</code> — ADD_PROPOSED；SelectorPolicyR29</li>
+</ul>
+<p>具体实现：ACT阈值在SELECT定；发现候选可达15/30/100%频率梯度；不得配额补手</p>
+<p>验证：评分器不变的选择器消融；同周期不同频率列命中/区间</p>
 <p>验收指标：M18, M30, Q01, Q02。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-023 新增六类结构生成器</h2>
 <p>批次：B04；前置：R29-022。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java</code> — MODIFY；IdeaFamilyR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR29.java</code> — ADD_PROPOSED；StructureGeneratorRegistryR29</p>
-<p>具体实现：I14-I19实现集合、图、多尺度、残差、窗口寿命、互补专家生成器。</p>
-<p>验证：各族有独立假设和可执行训练/预测/失败算子，正负对照。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java</code> — MODIFY；IdeaFamilyR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR29.java</code> — ADD_PROPOSED；StructureGeneratorRegistryR29</li>
+</ul>
+<p>具体实现：I14-I19实现集合、图、多尺度、残差、窗口寿命、互补专家生成器</p>
+<p>验证：各族有独立假设和可执行训练/预测/失败算子，正负对照</p>
 <p>验收指标：M21, M23, M36。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-024 失败驱动结构修复</h2>
 <p>批次：B04；前置：R29-023。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java</code> — MODIFY；ExpertProposalsR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java</code> — MODIFY；MutationOpsR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CrossoverOpsR27.java</code> — MODIFY；CrossoverOpsR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java</code> — MODIFY；FusionOpsR27</p>
-<p>具体实现：Finding绑定证据/反证/修改节点；输出结构子代和参数对照；子代独立证据。</p>
-<p>验证：父代/结构子代/参数子代/随机子代等预算配对；无继承Future。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java</code> — MODIFY；ExpertProposalsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java</code> — MODIFY；MutationOpsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CrossoverOpsR27.java</code> — MODIFY；CrossoverOpsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java</code> — MODIFY；FusionOpsR27</li>
+</ul>
+<p>具体实现：Finding绑定证据/反证/修改节点；输出结构子代和参数对照；子代独立证据</p>
+<p>验证：父代/结构子代/参数子代/随机子代等预算配对；无继承Future</p>
 <p>验收指标：M19, M21, Q06。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-025 有效多样性与语义去重</h2>
 <p>批次：B04；前置：R29-024。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java</code> — MODIFY；BirthGateR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java</code> — MODIFY；EliteArchiveR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java</code> — MODIFY；IslandModelR27</p>
-<p>具体实现：源码结构hash+K3/ACT行为聚类；族配额与MAP格覆盖；不重复凑128。</p>
-<p>验证：同构AST合并、异名同策略识别、族饥饿检查。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java</code> — MODIFY；BirthGateR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java</code> — MODIFY；EliteArchiveR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java</code> — MODIFY；IslandModelR27</li>
+</ul>
+<p>具体实现：源码结构hash+K3/ACT行为聚类；族配额与MAP格覆盖；不重复凑128</p>
+<p>验证：同构AST合并、异名同策略识别、族饥饿检查</p>
 <p>验收指标：M22, M23。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-026 进化与确认隔离</h2>
 <p>批次：B05；前置：R29-025。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java</code> — MODIFY；EvolutionLoopR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java</code> — MODIFY；HoldoutLedgerR27</p>
-<p>具体实现：SELECT负责搜索；冻结候选一次CONFIRM；更强只有独立配对提升。</p>
-<p>验证：反复64次同holdout不能累计verified；父子退步保留冠军。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java</code> — MODIFY；EvolutionLoopR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java</code> — MODIFY；HoldoutLedgerR27</li>
+</ul>
+<p>具体实现：SELECT负责搜索；冻结候选一次CONFIRM；更强只有独立配对提升</p>
+<p>验证：反复64次同holdout不能累计verified；父子退步保留冠军</p>
 <p>验收指标：M19, Q06。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-027 全管线对照与功效</h2>
 <p>批次：B05；前置：R29-026。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java</code> — MODIFY；NullEvolutionR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java</code> — MODIFY；SequentialQualificationR27</p>
-<p>具体实现：同预算标签打乱/均匀排列负对照；弱信号/漂移正对照；完整选择停止流程。</p>
-<p>验证：输出误授证率CI与检出力曲线；不靠单次不发证说安全。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java</code> — MODIFY；NullEvolutionR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java</code> — MODIFY；SequentialQualificationR27</li>
+</ul>
+<p>具体实现：同预算标签打乱/均匀排列负对照；弱信号/漂移正对照；完整选择停止流程</p>
+<p>验证：输出误授证率CI与检出力曲线；不靠单次不发证说安全</p>
 <p>验收指标：M36, Q08。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-028 多位置AtomNet真实训练输入</h2>
 <p>批次：B05；前置：R29-027。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java</code> — MODIFY；AtomReplayR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code> — MODIFY；AtomWorldR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java</code> — MODIFY；AtomNetR27</p>
-<p>具体实现：单轮换位置改按issue分组10位置；号码分布和K3辅助头；缺失mask。</p>
-<p>验证：输入/标签时序、概率归一化、同issue不可跨split。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java</code> — MODIFY；AtomReplayR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code> — MODIFY；AtomWorldR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java</code> — MODIFY；AtomNetR27</li>
+</ul>
+<p>具体实现：单轮换位置改按issue分组10位置；号码分布和K3辅助头；缺失mask</p>
+<p>验证：输入/标签时序、概率归一化、同issue不可跨split</p>
 <p>验收指标：M18, M20, Q05。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-029 神经表示接入策略消费者</h2>
 <p>批次：B05；前置：R29-028。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI08NeuralRepresentationR27.java</code> — MODIFY；IdeaI08NeuralRepresentationR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java</code> — MODIFY；FeatureCacheR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR29.java</code> — ADD_PROPOSED；ModelSurfaceProviderR29</p>
-<p>具体实现：新增model_surface叶子并绑定checkpoint/trainedThrough，禁止当前模型回看历史。</p>
-<p>验证：冻结记录含模型消费hash；关闭该叶子消融；实际预测变化可复算。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI08NeuralRepresentationR27.java</code> — MODIFY；IdeaI08NeuralRepresentationR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java</code> — MODIFY；FeatureCacheR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR29.java</code> — ADD_PROPOSED；ModelSurfaceProviderR29</li>
+</ul>
+<p>具体实现：新增model_surface叶子并绑定checkpoint/trainedThrough，禁止当前模型回看历史</p>
+<p>验证：冻结记录含模型消费hash；关闭该叶子消融；实际预测变化可复算</p>
 <p>验收指标：M21, M24, Q05。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-030 NumberQ排序器与学习模型统一</h2>
 <p>批次：B05；前置：R29-029。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java</code> — MODIFY；AtomNetTrainerR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java</code> — ADD_PROPOSED；ModelArtifactR29</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR29.java</code> — ADD_PROPOSED；NumberRankerAdapterR29</p>
-<p>具体实现：对可恢复现有号码/动作模型建立同一artifact与训练协议；未训练显示原因。</p>
-<p>验证：按期分组号码面/1200动作排名指标，重启续训和小基准比较。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java</code> — MODIFY；AtomNetTrainerR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java</code> — ADD_PROPOSED；ModelArtifactR29</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR29.java</code> — ADD_PROPOSED；NumberRankerAdapterR29</li>
+</ul>
+<p>具体实现：对可恢复现有号码/动作模型建立同一artifact与训练协议；未训练显示原因</p>
+<p>验证：按期分组号码面/1200动作排名指标，重启续训和小基准比较</p>
 <p>验收指标：M20, M24, Q05。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-031 原子分子贡献评分</h2>
 <p>批次：B06；前置：R29-030。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java</code> — MODIFY；AtomScoreR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code> — MODIFY；AtomWorldR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java</code> — MODIFY；DerivedAtomR27</p>
-<p>具体实现：保留240定义/已有分子；贡献与支持数、多重性/组消融；CONFIRM隔离。</p>
-<p>验证：165可评分口径对齐；区间跨0不能说有效或证明无效。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java</code> — MODIFY；AtomScoreR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code> — MODIFY；AtomWorldR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java</code> — MODIFY；DerivedAtomR27</li>
+</ul>
+<p>具体实现：保留240定义/已有分子；贡献与支持数、多重性/组消融；CONFIRM隔离</p>
+<p>验证：165可评分口径对齐；区间跨0不能说有效或证明无效</p>
 <p>验收指标：M19, M22, Q05。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-032 20矩阵与教师能力迁移</h2>
 <p>批次：B06；前置：R29-031。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java</code> — MODIFY；MatrixSnapshotSU2</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java</code> — MODIFY；MatrixSnapshotFeedbackR930</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR29.java</code> — ADD_PROPOSED；MatrixRegistryR29</p>
-<p>具体实现：按docs/05逐项producer/consumer、hash/时点；教师有用逻辑保全。</p>
-<p>验证：20清单完整；空值MISSING；有生产无消费自动诊断。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java</code> — MODIFY；MatrixSnapshotSU2</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java</code> — MODIFY；MatrixSnapshotFeedbackR930</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR29.java</code> — ADD_PROPOSED；MatrixRegistryR29</li>
+</ul>
+<p>具体实现：按docs/05逐项producer/consumer、hash/时点；教师有用逻辑保全</p>
+<p>验证：20清单完整；空值MISSING；有生产无消费自动诊断</p>
 <p>验收指标：M02, M25。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-033 能力逐对象注册表</h2>
 <p>批次：B06；前置：R29-032。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code> — MODIFY；ReportDataR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR29.java</code> — ADD_PROPOSED；CapabilityRegistryR29</p>
-<p>具体实现：F24/E16/I20/全部atom/molecule/matrix运行与效果双状态。</p>
-<p>验证：全量registry左连接记录，不因未运行漏掉对象；分页总数守恒。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code> — MODIFY；ReportDataR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR29.java</code> — ADD_PROPOSED；CapabilityRegistryR29</li>
+</ul>
+<p>具体实现：F24/E16/I20/全部atom/molecule/matrix运行与效果双状态</p>
+<p>验证：全量registry左连接记录，不因未运行漏掉对象；分页总数守恒</p>
 <p>验收指标：M17, M23, M25。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-034 校准链打通与隔离</h2>
 <p>批次：B06；前置：R29-033。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java</code> — MODIFY；CalibrationRowsR27</p>
-<p>具体实现：扩ACTIVE之外合法确认对象；fit/validation/apply隔离与hash身份。</p>
-<p>验证：有冻结证据即可评估；无样本不空白；禁止同数据拟合并验证。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java</code> — MODIFY；CalibrationRowsR27</li>
+</ul>
+<p>具体实现：扩ACTIVE之外合法确认对象；fit/validation/apply隔离与hash身份；采用R29_GATE_V2的支持域校准；删去至少5非空箱要求，保留全部样本加权ECE和稀疏质量；fit先于未来登记。</p>
+<p>验证：有冻结证据即可评估；无样本不空白；禁止同数据拟合并验证；恒定0.34且68/200的构造样本不得仅因单箱失败；明显失准和稀疏尾部必须可见；构造样本不授证。</p>
 <p>验收指标：M26, Q05。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-035 确认队列和晋级通道</h2>
 <p>批次：B07；前置：R29-034。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</p>
-<p>具体实现：发现池可换榜、16确认候选锁定；永久index首次注册；老观察不回填。</p>
-<p>验证：短期掉榜不驱逐；再入不重置alpha；坏数据阻断。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java</code> — ADD_PROPOSED；consumeContiguous; receipt and cursor transaction</li>
+</ul>
+<p>具体实现：发现池可换榜、16确认候选锁定；永久index首次注册；老观察不回填；按experiment+ordinal持久pending与receipt，连续资格游标不得越过未解决ACT期；重入不重置预算。</p>
+<p>验证：短期掉榜不驱逐；再入不重置alpha；坏数据阻断；1/3先到、2后到与1/2/3顺序重放一致；任一点重启、重复投递不漏计不重计。</p>
 <p>验收指标：M27, M29, Q03。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-036 可行资格门与风险规则版本</h2>
 <p>批次：B07；前置：R29-035。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code> — MODIFY；CertificateGateR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java</code> — MODIFY；SequentialQualificationR27</p>
-<p>具体实现：保留旧门；验证R29_GATE_V1；连挂风险改动单列规则版本与证据。</p>
-<p>验证：旧新规则同分布功效比较；无统计优势不准入；断电预算连续。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code> — MODIFY；CertificateGateR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java</code> — MODIFY；SequentialQualificationR27</li>
+</ul>
+<p>具体实现：保留旧门；验证R29_GATE_V2；连挂风险改动单列规则版本与证据；验证R29_GATE_V2；在完整主链质量门前分别报告支持、统计、频率和健康状态，不替换旧证书规则。</p>
+<p>验证：旧新规则同分布功效比较；无统计优势不准入；断电预算连续；零信号、真实支持窄概率、缺期、乱序和优势检出力联合验证；无统计优势不准入。</p>
 <p>验收指标：M27, M36, Q01, Q03, Q04。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-037 频率与主链选择器独立评价</h2>
 <p>批次：B07；前置：R29-036。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code> — MODIFY；CertificateGateR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code> — MODIFY；MainlineBridgeSU2</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR29.java</code> — ADD_PROPOSED；SelectorPolicyR29</p>
-<p>具体实现：单成员和组合选择器分开认证；不因成员合格就给meta-policy授证。</p>
-<p>验证：ACT质量差时定位选择损失；15%目标不能变强制下注。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code> — MODIFY；CertificateGateR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code> — MODIFY；MainlineBridgeSU2</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR29.java</code> — ADD_PROPOSED；SelectorPolicyR29</li>
+</ul>
+<p>具体实现：单成员和组合选择器分开认证；不因成员合格就给meta-policy授证；资格前用FUTURE ACT/注册期机会；部署后Q02用REAL/部署期机会，避免先REAL才能授证的循环。</p>
+<p>验证：ACT质量差时定位选择损失；15%目标不能变强制下注；新候选REAL=0仍可积累资格；漏期不缩分母；质量未过不为15%目标凑出手。</p>
 <p>验收指标：M30, Q01, Q02, Q06。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-038 跨库证书投影到唯一REAL</h2>
 <p>批次：B07；前置：R29-037。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code> — MODIFY；MainlineBridgeSU2</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java</code> — MODIFY；DecisionGateEngine</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code> — MODIFY；SettlementEngine</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateProjectionR29.java</code> — ADD_PROPOSED；CertificateProjectionR29</p>
-<p>具体实现：替换同库R27_INTENT_SQL读路由；校验证书/冻结/模型/selector/用户开关。</p>
-<p>验证：合法注入正例贯通，过期/撤销/错误hash/重复issue拦截。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code> — MODIFY；MainlineBridgeSU2</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java</code> — MODIFY；DecisionGateEngine</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code> — MODIFY；SettlementEngine</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateProjectionR29.java</code> — ADD_PROPOSED；CertificateProjectionR29</li>
+</ul>
+<p>具体实现：替换同库R27_INTENT_SQL读路由；校验证书/冻结/模型/selector/用户开关</p>
+<p>验证：合法注入正例贯通，过期/撤销/错误hash/重复issue拦截</p>
 <p>验收指标：M06, M28, M35。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-039 12章报告统一出数</h2>
 <p>批次：B08；前置：R29-038。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java</code> — MODIFY；ReportR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code> — MODIFY；ReportDataR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code> — ADD_PROPOSED；ReportR29</p>
-<p>具体实现：同watermark统一MetricResult；44节兼容与新12章摘要；不拼混口径。</p>
-<p>验证：JSON/HTML/UI同值；缺失null；60展示不冒充106名单总量。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java</code> — MODIFY；ReportR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code> — MODIFY；ReportDataR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code> — ADD_PROPOSED；ReportR29</li>
+</ul>
+<p>具体实现：同watermark统一MetricResult；44节兼容与新12章摘要；不拼混口径；导出连续游标、待结果/待资格两队列、迟到回补和校准支持；新增NOT_DEPLOYED状态。</p>
+<p>验证：JSON/HTML/UI同值；缺失null；60展示不冒充106名单总量；报告能区分合法预测晚结算与晚预测；频率、命中、缺失每项可回到同口径明细。</p>
 <p>验收指标：M17, M31, M32。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-040 诊断规则与具体代码行动</h2>
 <p>批次：B08；前置：R29-039。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR29.java</code> — ADD_PROPOSED；DiagnosisRulesR29</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code> — ADD_PROPOSED；ReportR29</p>
-<p>具体实现：每条finding包含证据强度/反证/函数/卡号/前后测试，未知给采集步骤。</p>
-<p>验证：无输入不瞎判根因；同证据输出稳定；运行故障不归咎数据随机。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR29.java</code> — ADD_PROPOSED；DiagnosisRulesR29</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code> — ADD_PROPOSED；ReportR29</li>
+</ul>
+<p>具体实现：每条finding包含证据强度/反证/函数/卡号/前后测试，未知给采集步骤</p>
+<p>验证：无输入不瞎判根因；同证据输出稳定；运行故障不归咎数据随机</p>
 <p>验收指标：M31, M32。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-041 升级诊断与消融空章修复</h2>
 <p>批次：B08；前置：R29-040。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java</code> — MODIFY；UpgradeDiagnosisSU2</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code> — ADD_PROPOSED；ReportR29</p>
-<p>具体实现：历史研究立刻可诊断，Future不足分列；R27 AST与旧生产消融分scope。</p>
-<p>验证：4824历史有数据却门槛不足的反例；204条AST消融不显示全空。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java</code> — MODIFY；UpgradeDiagnosisSU2</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code> — ADD_PROPOSED；ReportR29</li>
+</ul>
+<p>具体实现：历史研究立刻可诊断，Future不足分列；R27 AST与旧生产消融分scope</p>
+<p>验证：4824历史有数据却门槛不足的反例；204条AST消融不显示全空</p>
 <p>验收指标：M17, M31, Q06。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-042 导出取消重建与完整分页</h2>
 <p>批次：B08；前置：R29-041。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java</code> — MODIFY；ReportExportServiceCP4</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java</code> — MODIFY；ReportTaskControlR69</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java</code> — MODIFY；ReportPublicationCP12</p>
-<p>具体实现：分块取消、manifest/CRC/SHA、临时文件原子发布、默认20MiB策略。</p>
-<p>验证：导出中取消/重建/磁盘满；无损完整ZIP；不截断能力清单。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java</code> — MODIFY；ReportExportServiceCP4</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java</code> — MODIFY；ReportTaskControlR69</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java</code> — MODIFY；ReportPublicationCP12</li>
+</ul>
+<p>具体实现：分块取消、manifest/CRC/SHA、临时文件原子发布、默认20MiB策略</p>
+<p>验证：导出中取消/重建/磁盘满；无损完整ZIP；不截断能力清单</p>
 <p>验收指标：M16, M17, M32。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-043 总存储和证据保留</h2>
 <p>批次：B08；前置：R29-042。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR29.java</code> — ADD_PROPOSED；ResearchRetentionR29</p>
-<p>具体实现：5000热期、模型pin、研究回放压缩块、报告最近2份与用户pin；淘汰有账。</p>
-<p>验证：72h稳定增长测试；仍在证据引用的数据不能回收。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code> — MODIFY；StoreR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR29.java</code> — ADD_PROPOSED；ResearchRetentionR29</li>
+</ul>
+<p>具体实现：5000热期、模型pin、研究回放压缩块、报告最近2份与用户pin；淘汰有账</p>
+<p>验证：72h稳定增长测试；仍在证据引用的数据不能回收</p>
 <p>验收指标：M15, M17。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-044 保全图表与实盘排行榜</h2>
 <p>批次：B09；前置：R29-043。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java</code> — MODIFY；ChartCacheR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code> — MODIFY；ChartsRepositoryR27</p>
-<p>具体实现：全部旧入口可用；榜单HR区间/ACT/覆盖/样本角色/模型版本明示。</p>
-<p>验证：无样本、稀疏、过期、错误、取消空态与大量行不卡。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java</code> — MODIFY；ChartCacheR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code> — MODIFY；ChartsRepositoryR27</li>
+</ul>
+<p>具体实现：全部旧入口可用；榜单HR区间/ACT/覆盖/样本角色/模型版本明示</p>
+<p>验证：无样本、稀疏、过期、错误、取消空态与大量行不卡</p>
 <p>验收指标：M02, M33。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-045 代际与能力可视化</h2>
 <p>批次：B09；前置：R29-044。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java</code> — MODIFY；ChartCacheR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code> — MODIFY；ChartsRepositoryR27</p>
-<p>具体实现：父子结构diff/独立delta、族覆盖、窗口缩减损失、BSS同对照。</p>
-<p>验证：训练曲线不标Future提升；数据点可追到manifest。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java</code> — MODIFY；ChartCacheR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code> — MODIFY；ChartsRepositoryR27</li>
+</ul>
+<p>具体实现：父子结构diff/独立delta、族覆盖、窗口缩减损失、BSS同对照</p>
+<p>验证：训练曲线不标Future提升；数据点可追到manifest</p>
 <p>验收指标：M32, M33, Q06。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-046 全链故障注入与回归</h2>
 <p>批次：B09；前置：R29-045。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java</code> — ADD_PROPOSED；ResearchEventBridgeR29</p>
-<p>具体实现：组合PIT、迁移、结果乱序、进程终止、旧资产恢复、图表保全测试。</p>
-<p>验证：每类故障有预期状态和恢复输出，无假授证/丢结算。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code> — MODIFY；LiveShadowsR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java</code> — ADD_PROPOSED；ResearchEventBridgeR29</li>
+</ul>
+<p>具体实现：组合PIT、迁移、结果乱序、进程终止、旧资产恢复、图表保全测试</p>
+<p>验证：每类故障有预期状态和恢复输出，无假授证/丢结算</p>
 <p>验收指标：M02, M06, M09, M18, M20, M28。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-047 性能剖析与实际瓶颈修复</h2>
 <p>批次：B09；前置：R29-046。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code> — MODIFY；ResearchPoolR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java</code> — MODIFY；ResearchWriteQueueR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</p>
-<p>具体实现：按同source/session剖析CPU/IO/writer/queue；修最慢真实路径。</p>
-<p>验证：满载研究+144观察+导出下真实端到端目标；不能只跑CPU微基准。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code> — MODIFY；ResearchPoolR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java</code> — MODIFY；ResearchWriteQueueR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code> — MODIFY；RuntimeR27</li>
+</ul>
+<p>具体实现：按同source/session剖析CPU/IO/writer/queue；修最慢真实路径</p>
+<p>验证：满载研究+144观察+导出下真实端到端目标；不能只跑CPU微基准</p>
 <p>验收指标：M03, M04, M07, M11, M14。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-048 真机长时场景验收</h2>
 <p>批次：B10；前置：R29-047。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code> — MODIFY；MainActivity</p>
-<p>具体实现：执行目标机前台/息屏/72h/跨日/重启/断网/热/低存储矩阵。</p>
-<p>验证：每场景新APK报告绑定签名与源码；未运行明确NOT_RUN。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code> — MODIFY；AutoFetchService</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code> — MODIFY；MainActivity</li>
+</ul>
+<p>具体实现：执行目标机前台/息屏/72h/跨日/重启/断网/热/低存储矩阵</p>
+<p>验证：每场景新APK报告绑定签名与源码；未运行明确NOT_RUN</p>
 <p>验收指标：M05, M13, M14, M15, M34。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-049 自然质量与主链闭环验收</h2>
 <p>批次：B10；前置：R29-048。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code> — MODIFY；CertificateGateR27</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code> — MODIFY；MainlineBridgeSU2</p>
-<p>具体实现：注册后真实未来验收Q01-Q07；不要求先造出非0证书。</p>
-<p>验证：报告全体失败候选和主链完整账；未达标QUALITY_NOT_MET。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code> — MODIFY；CertificateGateR27</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code> — MODIFY；MainlineBridgeSU2</li>
+</ul>
+<p>具体实现：注册后真实未来验收Q01-Q07；不要求先造出非0证书</p>
+<p>验证：报告全体失败候选和主链完整账；未达标QUALITY_NOT_MET</p>
 <p>验收指标：Q01, Q02, Q03, Q04, Q05, Q06, Q07。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-050 每批可安装APK与签名来源</h2>
 <p>批次：B10；前置：R29-049。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>.github/workflows/r13.yml</code> — MODIFY；existing Android release workflow</p>
-<p class="item">- <code>tools/r29/verify_delivery.py</code> — ADD_PROPOSED；APK/source/signature receipt verification</p>
-<p>具体实现：复用r13现有构建脚本；公有包名签名不变、versionCode增加；源码/日志/APK绑定。</p>
-<p>验证：覆盖安装及两次启动，APK/签名/报告identity逐项核对。</p>
+<ul>
+<li><code>.github/workflows/r13.yml</code> — MODIFY；existing Android release workflow</li>
+<li><code>tools/r29/verify_delivery.py</code> — ADD_PROPOSED；APK/source/signature receipt verification</li>
+</ul>
+<p>具体实现：复用r13现有构建脚本；公有包名签名不变、versionCode增加；源码/日志/APK绑定</p>
+<p>验证：覆盖安装及两次启动，APK/签名/报告identity逐项核对</p>
 <p>验收指标：M01, M34。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-051 模型撤销和迁移回滚演练</h2>
 <p>批次：B10；前置：R29-050。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateProjectionR29.java</code> — ADD_PROPOSED；CertificateProjectionR29</p>
-<p class="item">- <code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java</code> — ADD_PROPOSED；ResearchDatabaseR29</p>
-<p>具体实现：证书撤销即时传播；模型原子回退；数据库按manifest恢复。</p>
-<p>验证：失效模型≤5秒不再选；APK回滚另列；禁止清数据恢复。</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateProjectionR29.java</code> — ADD_PROPOSED；CertificateProjectionR29</li>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java</code> — ADD_PROPOSED；ResearchDatabaseR29</li>
+</ul>
+<p>具体实现：证书撤销即时传播；模型原子回退；数据库按manifest恢复</p>
+<p>验证：失效模型≤5秒不再选；APK回滚另列；禁止清数据恢复</p>
 <p>验收指标：M09, M35。</p>
 <p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
 <h2>R29-052 最终发布账本与单一入口</h2>
 <p>批次：B10；前置：R29-051。状态：未施工。</p>
 <p>修改位置：</p>
-<p class="item">- <code>CURRENT_FINAL_PLAN.md</code> — MODIFY；canonical plan pointer</p>
-<p class="item">- <code>construction/r29/STATUS.zh.md</code> — ADD_PROPOSED；implementation ledger</p>
-<p>具体实现：更新CURRENT_FINAL_PLAN与每批交付表，关联全部原要求/新卡/证据；不删历史方案。</p>
-<p>验证：52卡/44指标/42旧R28映射均完整；无NOT_RUN冒充完成。</p>
+<ul>
+<li><code>CURRENT_FINAL_PLAN.md</code> — MODIFY；canonical plan pointer</li>
+<li><code>construction/r29/STATUS.zh.md</code> — ADD_PROPOSED；implementation ledger</li>
+</ul>
+<p>具体实现：更新CURRENT_FINAL_PLAN与每批交付表，关联全部原要求/新卡/证据；不删历史方案</p>
+<p>验证：52卡/44指标/42旧R28映射均完整；无NOT_RUN冒充完成</p>
 <p>验收指标：M01, M02, M17, M32。</p>
-<p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p></section><section id="chapter11"><h1>36项工程指标与8项质量指标</h1>
-<div class="tablewrap"><table><thead><tr><th>编号</th><th>指标</th><th>定义与分母</th><th>目标</th><th>级别</th></tr></thead><tbody>
-<tr><td>M01</td><td>源码与安装身份</td><td>source/APK/签名/plan可互证</td><td>全部一致</td><td>ENGINEERING</td></tr>
-<tr><td>M02</td><td>功能保全覆盖</td><td>1832要求及299卡逐项有状态、Owner与证据路径</td><td>100%有记录；无凭空VERIFIED</td><td>ENGINEERING</td></tr>
-<tr><td>M03</td><td>准时预测持久化</td><td>request→durable，近1440可用期；缺失单列</td><td>P95≤5000ms</td><td>ENGINEERING</td></tr>
-<tr><td>M04</td><td>抓到后正式结算</td><td>first valid observed→draw+settlement commit</td><td>P95≤1000ms</td><td>ENGINEERING</td></tr>
-<tr><td>M05</td><td>赛前有效覆盖</td><td>截止前5秒合法冻结/全部应有期，缺网仍列全分母</td><td>目标100%；受支持健康场景≥99.5%</td><td>ENGINEERING</td></tr>
-<tr><td>M06</td><td>唯一正式结算</td><td>同issue REAL重复、非法补冻结与结算重复</td><td>均为0</td><td>ENGINEERING</td></tr>
-<tr><td>M07</td><td>实时写事务</td><td>单次事务wall time及busy失败</td><td>P95≤200ms；24h失败0</td><td>ENGINEERING</td></tr>
-<tr><td>M08</td><td>分库隔离</td><td>research写realtime表与跨库持锁等待计数</td><td>0</td><td>ENGINEERING</td></tr>
-<tr><td>M09</td><td>迁移一致性</td><td>主键行hash/事件watermark/中断恢复</td><td>全部一致；丢失/重复0</td><td>ENGINEERING</td></tr>
-<tr><td>M10</td><td>每期训练投递</td><td>结果事件数与训练inbox唯一事件数</td><td>100%；重复消费0</td><td>ENGINEERING</td></tr>
-<tr><td>M11</td><td>训练完成新鲜度</td><td>有样本ready任务的已提交学习游标</td><td>正常负载最老积压≤5期；超限必须FAIL</td><td>ENGINEERING</td></tr>
-<tr><td>M12</td><td>任务活性</td><td>有ready积压但连续5期无提交的任务</td><td>0；等依赖/等数据单列</td><td>ENGINEERING</td></tr>
-<tr><td>M13</td><td>前后台连续性</td><td>前台60min、息屏6h、连续72h的业务游标和缺期</td><td>受支持场景不丢已投递任务；缺口全记录</td><td>ENGINEERING</td></tr>
-<tr><td>M14</td><td>进程稳定性</td><td>测试窗口OOM/ANR/crash</td><td>0</td><td>ENGINEERING</td></tr>
-<tr><td>M15</td><td>热库与总磁盘</td><td>开奖热表及所有文件分类预算</td><td>draws≤5000；未超配置总预算且可恢复</td><td>ENGINEERING</td></tr>
-<tr><td>M16</td><td>报告取消</td><td>cancel request→job停止且清本job临时文件</td><td>≤2000ms</td><td>ENGINEERING</td></tr>
-<tr><td>M17</td><td>报告完整性</td><td>registered对象与导出对象、expected/exported/omitted</td><td>全量索引100%；默认ZIP≤20MiB或明确分卷</td><td>ENGINEERING</td></tr>
-<tr><td>M18</td><td>PIT泄漏反证</td><td>改当前/未来标签后既有predraw输出差异</td><td>0</td><td>ENGINEERING</td></tr>
-<tr><td>M19</td><td>训练分割污染</td><td>CONFIRM进入生成/调参/原子权重的未记账次数</td><td>0</td><td>ENGINEERING</td></tr>
-<tr><td>M20</td><td>全状态续训恢复</td><td>权重、优化器、RNG、cursor断点前后差异</td><td>按已登记浮点容差一致；不重复学习</td><td>ENGINEERING</td></tr>
-<tr><td>M21</td><td>策略完整合同</td><td>出生候选的必要字段、可执行图、hash</td><td>100%；空壳拒绝</td><td>ENGINEERING</td></tr>
-<tr><td>M22</td><td>结构与行为去重</td><td>结构/行为/参数计数分列且可复算</td><td>计数与ledger一致</td><td>ENGINEERING</td></tr>
-<tr><td>M23</td><td>族专家覆盖</td><td>F24/E16/I20全量对象有producer/consumer/ready/status</td><td>全部注册与可执行；没有证据不标有效</td><td>ENGINEERING</td></tr>
-<tr><td>M24</td><td>模型实际消费</td><td>I08冻结引用model artifact且trainedThrough合法</td><td>100%匹配或明确BLOCKED；不得伪造调用</td><td>ENGINEERING</td></tr>
-<tr><td>M25</td><td>矩阵接线</td><td>20矩阵producer→consumer、schema与watermark</td><td>全部可追溯；未产出有明确原因</td><td>ENGINEERING</td></tr>
-<tr><td>M26</td><td>校准时间隔离</td><td>fitEnd&lt;validateStart及apply时版本可见</td><td>100%；零模型需可定位原因</td><td>ENGINEERING</td></tr>
-<tr><td>M27</td><td>资格预算连续</td><td>永久index唯一、旧观察不回填、重启预算不重置</td><td>全部通过</td><td>ENGINEERING</td></tr>
-<tr><td>M28</td><td>主链闭环</td><td>证书→projection→当期intent→REAL→结算</td><td>合法正对照贯通；非法/过期全部拦截</td><td>ENGINEERING</td></tr>
-<tr><td>M29</td><td>确认队列连续</td><td>锁定候选被仅因榜单变化驱逐次数</td><td>0</td><td>ENGINEERING</td></tr>
-<tr><td>M30</td><td>主链选择器身份</td><td>多成员择优作为完整meta-policy冻结评价</td><td>未确认组合不能REAL</td><td>ENGINEERING</td></tr>
-<tr><td>M31</td><td>诊断可追溯</td><td>每条缺陷含证据、强度、代码位置、卡号与验证</td><td>100%或UNKNOWN并给采集动作</td><td>ENGINEERING</td></tr>
-<tr><td>M32</td><td>报告口径一致</td><td>JSON/HTML/UI同metric同snapshot值差异</td><td>0</td><td>ENGINEERING</td></tr>
-<tr><td>M33</td><td>图表回归</td><td>原图表入口、排行榜、谱系、BSS/覆盖与空态</td><td>全部场景可打开且口径一致</td><td>ENGINEERING</td></tr>
-<tr><td>M34</td><td>签名覆盖安装</td><td>保持公有版签名及包名，版本递增且保留数据库</td><td>成功；首启/二启无崩溃</td><td>ENGINEERING</td></tr>
-<tr><td>M35</td><td>失效模型撤销</td><td>模型撤销到主链不再采纳的耗时</td><td>目标≤5000ms；不含APK回滚</td><td>ENGINEERING</td></tr>
-<tr><td>M36</td><td>同池对照</td><td>每个实验有同预算负对照和合法正对照</td><td>有可复算输出；合成不计真实质量</td><td>ENGINEERING</td></tr>
-<tr><td>Q01</td><td>自然ACT命中</td><td>注册后合法ACT命中/已结算ACT</td><td>≥34%，优先≥37%；未达不得宣称达标</td><td>QUALITY</td></tr>
-<tr><td>Q02</td><td>真实频率</td><td>REAL期数/全部应有期</td><td>目标≥15%；质量支持扩大；不得补配额</td><td>QUALITY</td></tr>
-<tr><td>Q03</td><td>真实统计优势</td><td>有效序贯证据相对预登记p0</td><td>e≥1/alpha，假设与预算成立</td><td>QUALITY</td></tr>
-<tr><td>Q04</td><td>跨块稳定</td><td>预登记时间块命中/区间/回撤/漂移</td><td>窗口规则事前冻结；不得事后选好块</td><td>QUALITY</td></tr>
-<tr><td>Q05</td><td>校准与BSS</td><td>同一目标同一ACT条件样本</td><td>ECE目标≤0.04且支持充分；BSS及区间如实报告</td><td>QUALITY</td></tr>
-<tr><td>Q06</td><td>进化提升</td><td>父子同一期机会收益配对差</td><td>有效区间下界&gt;0才计验证改善</td><td>QUALITY</td></tr>
-<tr><td>Q07</td><td>有效资产产量</td><td>同时满足Q01/03/04/05的独立资产数</td><td>目标≥1，继续寻找多个互补资产；0必须如实</td><td>QUALITY</td></tr>
-<tr><td>Q08</td><td>空信号与优势检出力</td><td>全搜索/选择/停止管线试验</td><td>报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收</td><td>QUALITY</td></tr>
+<p>回滚：本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚。</p>
+</section>
+<section id="chapter11"><h1>36项工程指标与8项质量指标</h1>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>指标</th>
+<th>定义与分母</th>
+<th>目标</th>
+<th>级别</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>M01</td>
+<td>源码与安装身份</td>
+<td>source/APK/签名/plan可互证</td>
+<td>全部一致</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M02</td>
+<td>功能保全覆盖</td>
+<td>1832要求及299卡逐项有状态、Owner与证据路径</td>
+<td>100%有记录；无凭空VERIFIED</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M03</td>
+<td>准时预测持久化</td>
+<td>request→durable，近1440可用期；缺失单列</td>
+<td>P95≤5000ms</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>抓到后正式结算</td>
+<td>first valid observed→draw+settlement commit</td>
+<td>P95≤1000ms</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>赛前有效覆盖</td>
+<td>截止前5秒合法冻结/全部应有期，缺网仍列全分母</td>
+<td>目标100%；受支持健康场景≥99.5%</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>唯一正式结算</td>
+<td>同issue REAL重复、非法补冻结与结算重复</td>
+<td>均为0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M07</td>
+<td>实时写事务</td>
+<td>单次事务wall time及busy失败</td>
+<td>P95≤200ms；24h失败0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M08</td>
+<td>分库隔离</td>
+<td>research写realtime表与跨库持锁等待计数</td>
+<td>0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M09</td>
+<td>迁移一致性</td>
+<td>主键行hash/事件watermark/中断恢复</td>
+<td>全部一致；丢失/重复0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M10</td>
+<td>每期训练投递</td>
+<td>结果事件数与训练inbox唯一事件数</td>
+<td>100%；重复消费0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M11</td>
+<td>训练完成新鲜度</td>
+<td>有样本ready任务的已提交学习游标</td>
+<td>正常负载最老积压≤5期；超限必须FAIL</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M12</td>
+<td>任务活性</td>
+<td>有ready积压但连续5期无提交的任务</td>
+<td>0；等依赖/等数据单列</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M13</td>
+<td>前后台连续性</td>
+<td>前台60min、息屏6h、连续72h的业务游标和缺期</td>
+<td>受支持场景不丢已投递任务；缺口全记录</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M14</td>
+<td>进程稳定性</td>
+<td>测试窗口OOM/ANR/crash</td>
+<td>0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M15</td>
+<td>热库与总磁盘</td>
+<td>开奖热表及所有文件分类预算</td>
+<td>draws≤5000；未超配置总预算且可恢复</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M16</td>
+<td>报告取消</td>
+<td>cancel request→job停止且清本job临时文件</td>
+<td>≤2000ms</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M17</td>
+<td>报告完整性</td>
+<td>registered对象与导出对象、expected/exported/omitted</td>
+<td>全量索引100%；默认ZIP≤20MiB或明确分卷</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M18</td>
+<td>PIT泄漏反证</td>
+<td>改当前/未来标签后既有predraw输出差异</td>
+<td>0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M19</td>
+<td>训练分割污染</td>
+<td>CONFIRM进入生成/调参/原子权重的未记账次数</td>
+<td>0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M20</td>
+<td>全状态续训恢复</td>
+<td>权重、优化器、RNG、cursor断点前后差异</td>
+<td>按已登记浮点容差一致；不重复学习</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M21</td>
+<td>策略完整合同</td>
+<td>出生候选的必要字段、可执行图、hash</td>
+<td>100%；空壳拒绝</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M22</td>
+<td>结构与行为去重</td>
+<td>结构/行为/参数计数分列且可复算</td>
+<td>计数与ledger一致</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M23</td>
+<td>族专家覆盖</td>
+<td>F24/E16/I20全量对象有producer/consumer/ready/status</td>
+<td>全部注册与可执行；没有证据不标有效</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M24</td>
+<td>模型实际消费</td>
+<td>I08冻结引用model artifact且trainedThrough合法</td>
+<td>100%匹配或明确BLOCKED；不得伪造调用</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M25</td>
+<td>矩阵接线</td>
+<td>20矩阵producer→consumer、schema与watermark</td>
+<td>全部可追溯；未产出有明确原因</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M26</td>
+<td>校准时间隔离</td>
+<td>fitEnd&lt;validateStart及apply时版本可见</td>
+<td>100%；零模型需可定位原因</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M27</td>
+<td>资格预算连续</td>
+<td>永久index唯一、旧观察不回填、重启预算不重置</td>
+<td>全部通过</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M28</td>
+<td>主链闭环</td>
+<td>证书→projection→当期intent→REAL→结算</td>
+<td>合法正对照贯通；非法/过期全部拦截</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M29</td>
+<td>确认队列连续</td>
+<td>锁定候选被仅因榜单变化驱逐次数</td>
+<td>0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M30</td>
+<td>主链选择器身份</td>
+<td>多成员择优作为完整meta-policy冻结评价</td>
+<td>未确认组合不能REAL</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M31</td>
+<td>诊断可追溯</td>
+<td>每条缺陷含证据、强度、代码位置、卡号与验证</td>
+<td>100%或UNKNOWN并给采集动作</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M32</td>
+<td>报告口径一致</td>
+<td>JSON/HTML/UI同metric同snapshot值差异</td>
+<td>0</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M33</td>
+<td>图表回归</td>
+<td>原图表入口、排行榜、谱系、BSS/覆盖与空态</td>
+<td>全部场景可打开且口径一致</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M34</td>
+<td>签名覆盖安装</td>
+<td>保持公有版签名及包名，版本递增且保留数据库</td>
+<td>成功；首启/二启无崩溃</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M35</td>
+<td>失效模型撤销</td>
+<td>模型撤销到主链不再采纳的耗时</td>
+<td>目标≤5000ms；不含APK回滚</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>M36</td>
+<td>同池对照</td>
+<td>每个实验有同预算负对照和合法正对照</td>
+<td>有可复算输出；合成不计真实质量</td>
+<td>ENGINEERING</td>
+</tr>
+<tr>
+<td>Q01</td>
+<td>自然ACT命中</td>
+<td>注册后合法ACT命中/已结算ACT</td>
+<td>≥34%，优先≥37%；未达不得宣称达标</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q02</td>
+<td>真实频率</td>
+<td>部署后REAL期数/部署后全部应有期；部署前另列FUTURE_ACT_RATE</td>
+<td>目标≥15%；质量支持扩大；不得补配额</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q03</td>
+<td>真实统计优势</td>
+<td>有效序贯证据相对预登记p0</td>
+<td>e≥1/alpha，假设与预算成立</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q04</td>
+<td>跨块稳定</td>
+<td>预登记时间块命中/区间/回撤/漂移</td>
+<td>窗口规则事前冻结；不得事后选好块</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q05</td>
+<td>校准与BSS</td>
+<td>同一目标同一ACT条件样本</td>
+<td>ECE目标≤0.04；验证≥200且支持箱质量≥90%；不要求5非空箱；BSS、区间与支持范围如实报告</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q06</td>
+<td>进化提升</td>
+<td>父子同一期机会收益配对差</td>
+<td>有效区间下界&gt;0才计验证改善</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q07</td>
+<td>有效资产产量</td>
+<td>同时满足Q01/03/04/05的独立资产数</td>
+<td>目标≥1，继续寻找多个互补资产；0必须如实</td>
+<td>QUALITY</td>
+</tr>
+<tr>
+<td>Q08</td>
+<td>空信号与优势检出力</td>
+<td>全搜索/选择/停止管线试验</td>
+<td>报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收</td>
+<td>QUALITY</td>
+</tr>
 </tbody></table></div>
-<p>所有数值均为待测目标；当前验收状态为NOT_RUN。不得将数值示例写入实际报告。每指标必须关联source、snapshot、时间窗、分母和原始回执。</p></section></main></html>
+<p>所有数值均为待测目标；当前验收状态为NOT_RUN。不得将数值示例写入实际报告。每指标必须关联source、snapshot、时间窗、分母和原始回执。</p>
+<p>Q02在主链部署前为NOT_DEPLOYED，不作首次资格前置；研究ACT频率另列，不能用它冒充REAL频率。</p>
+</section>
+<section id="chapter12"><h1>最终复核修订 R29.1：修正规则死角，保持唯一施工入口</h1>
+<p>2026-10-29，北京时间。修订的是同一份R29施工方案；11批次、52张施工卡和44项指标不变，不另建一套R30。应用源码尚未修改，APK尚未构建。当前拟实施资格配置为 <code>R29_GATE_V2</code>，旧提案完整保留在 <code>reference/R29_GATE_V1_original.json</code>；现有应用证书不可套用新规则。</p>
+<h2>1. 再次核验所得</h2>
+<p>原R29包与公有仓库 <code>d4c46596aea4c26dc1810ce0c16a688c749e5a7f</code> 中ZIP的Git blob完全一致，60个文件CRC正常。复跑原包验证通过：52卡、44指标、1832原要求、299原卡、42张R28卡映射和4项SQL反例均通过。对本次附的报告重新复算得到4824个唯一开奖期号，无重复期号、非法十数排列或dirty标记；这仅检查导出的数据字段，不能证明源端真实性或所有未来预测有效。</p>
+<p>观察展示明细仍为507/1651=30.7087%；按预先ACT规则为176/659=26.7071%。不同策略的同期预测相关，不能把1651条策略期记录当1651个独立开奖。报告内主链严格OOS的93/313=29.7125%是另一个总体，不能混为REAL或R27新策略成绩。35,713次尝试与0次verifiedImprovements的结论未变。</p>
+<p>当前应用分支仍是 <code>construction/r27-20261028@f9bdddb97291d9d96b5aba940b31d03369c220e2</code>；main是方案发布位置。针对本修订重新读取的源码范围见 <code>evidence/revision_source_inventory.json</code>，并未声称逐行审计全部应用。</p>
+<h2>2. 校准不能靠“填满概率箱”验收</h2>
+<p>原R29提案写“10个等宽概率箱至少5箱各20个样本”，这给预测值的跨度加了不必要限制。例如200条预测均为0.34、实际68次命中，样本ECE为0，但只有一个非空箱，原条件一定拒绝。它是计量反例，不是软件真实胜率，也不是未来高质量证明。</p>
+<p>ECE按全部样本加权：<code>sum_b (n_b/N) × abs(mean_probability_b − observed_rate_b)</code>。空箱权重为0；不要为了填箱人为把0.34改成0.8。项目现有 <code>StatsR27.ece</code> 已使用这一加权方式，需修正的是方案的支持门及新增报告字段。<a href="https://proceedings.mlr.press/v70/guo17a/guo17a.pdf">Guo等原始论文</a>给出该定义；下面的支持规则是本项目的工程提案，不是论文证明的通用阈值。</p>
+<p>R29_GATE_V2首版合同：</p>
+<ul>
+<li>固定10等宽箱、边界在验证前冻结；验证ACT≥200，空数据为INSUFFICIENT。</li>
+<li>每箱≥20条视为“有基本样本支持”；这些箱覆盖的验证样本比例须≥90%。少样本箱仍参与ECE，不能删掉高误差尾部。</li>
+<li>样本ECE≤0.04；并列箱计数、平均预测、实际频率、区间、时间块敏感性、支持区间与unsupportedMass。仅在验证支持范围内使用校准结论。</li>
+<li>不要求概率值横跨5个箱。新预测落到未验证区域应标OUT_OF_SUPPORT，不外推成“已经可靠”。</li>
+<li>拟合只用TRAIN/SELECT中的时序预测；校准器冻结后注册未来确认，确认数据不得反用于当版校准拟合。改变校准器须新策略版本或事前固定且已验证的更新规则。</li>
+</ul>
+<p>样本ECE达标只是完整质量门的一部分，仍需真实优势、命中、稳定性、PIT、覆盖、资源与主链验证。样本有限时区间可能很宽；本修订不把“低样本ECE”升级为未来误差保证。修改落点：R29-034、036、039，默认值与Q05同步。</p>
+<h2>3. 缺期开奖与乱序到达：修复两个具体漏洞条件</h2>
+<p><code>LiveShadowsR27.settle</code> 的查询只选 <code>hit=-1</code>。某期结果未到且落后超过2期时，代码将其改成 <code>hit=-2</code>；在此方法里该行以后不再进入补结算查询。另一个条件是缺失早期结果时继续处理后期结果；<code>SequentialQualificationR27.State.observe</code> 以 <code>ordinal&lt;=lastOrdinal</code> 直接忽略，从而后补早期结果可能被结算表记账，却未计入资格状态。当前方法虽然有ORDER BY，但不能保证前面缺失的开奖结果在下一批补回时仍保持整体顺序。</p>
+<p>这两个条件由当前源代码和对应SQL/控制流反例支持；不据此声称用户手机已实际发生了指定次数。<code>tools/verify_revision.py</code>复现的是SQL筛选与控制流，未运行Android或Java应用。源码定位：</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>现有位置</th>
+<th>问题条件</th>
+<th>施工动作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LiveShadowsR27.settle</td>
+<td>缺失draw超过两期写hit=-2</td>
+<td>改为PENDING_DRAW+retryAt；补抓成功后仍可结算原合法冻结</td>
+</tr>
+<tr>
+<td>同方法循环</td>
+<td>前一期缺结果，后一期先更新e状态</td>
+<td>结果可以分别入账；资格提交通过独立连续消费器，不能越过未解决的早期ACT</td>
+</tr>
+<tr>
+<td>SequentialQualificationR27.State.observe</td>
+<td>以最大ordinal代替去重与完整性</td>
+<td>receipt唯一键去重；lastContiguousOrdinal表示连续已处理期，而非最大已见期</td>
+</tr>
+<tr>
+<td>StoreR27.writeEprocess/ResearchWriteQueueR27</td>
+<td>状态和回执跨批次可见性</td>
+<td>receipt、e状态、游标同一事务提交；明细分块须有complete manifest</td>
+</tr>
+</tbody></table></div>
+<p>新增 <code>QualificationInboxR29</code>，以 <code>(experiment_id,target_ordinal)</code> 为幂等键。结果摘要相同的重复事件无操作；摘要冲突先隔离，不能INSERT OR REPLACE覆盖事实。无合法冻结为工程缺口，不补造预测；已有合法冻结、只是开奖晚到则正常补结算。</p>
+<p>处理顺序：</p>
+<pre><code class="language-text">resultArrived(experiment, issue, draw):
+  verify original predraw freeze and result identity
+  persist unique result receipt or conflict marker
+  enqueue qualification pending row
+
+consumeContiguous(experiment):
+  while next registered opportunity is resolvable:
+    transaction:
+      verify next issue and matching frozen identity
+      if an ACT result is still missing: stop, keep pending
+      apply the pre-registered scoring rule exactly once
+      persist consumption receipt + e-process state + next cursor
+</code></pre>
+<p>无ACT机会可按事前规则以零增量推进，但不得把“ACT但缺开奖结果”临时改成无ACT。长期无法恢复的ACT缺失：保持缺口并停止授证，或执行实验登记时就确定的保守计分/证据段关闭规则；不可根据输赢决定删期。为了公平调度，待补抓与可结算队列分开分页，不让最早缺失行长期占满LIMIT。旧库已hit=-2的记录通过原freeze+draw哈希恢复，旧证书受影响时先撤销并重建，不悄悄修改历史胜率。</p>
+<p>测试：1、3先到，2后到，应与1、2、3顺序消费得到同样状态；每步杀进程、重复重投、摘要冲突均不得漏计或双计。补回结果可修复统计，但绝不能提高原来的赛前冻结覆盖率。落点R29-010、035、036、039。</p>
+<h2>4. 初次准入不以已经REAL为前提</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>频率分子</th>
+<th>分母</th>
+<th>状态用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>未来确认</td>
+<td>合法赛前ACT决策期数</td>
+<td>注册后的全部应有期</td>
+<td>FUTURE_ACT_RATE；研究目标≥15%，质量支持时更高</td>
+</tr>
+<tr>
+<td>主链部署后</td>
+<td>正式REAL决策期数</td>
+<td>部署起点后的全部应有期</td>
+<td>Q02真实频率；漏期和系统故障仍在分母</td>
+</tr>
+<tr>
+<td>尚未部署</td>
+<td>无REAL观测范围</td>
+<td>不存在部署窗口</td>
+<td>Q02=NOT_DEPLOYED，不能当首张证书的前置门</td>
+</tr>
+</tbody></table></div>
+<p>同时分列ACT决策数、已结算ACT、待结算ACT；HR只能用已结算ACT作分母。不得用未来确认ACT冒充REAL，也不能给新候选设置“先有15% REAL才能授证”的闭环死锁。单个符合质量条件的策略允许先应用；若部署后频率不足，产品频率目标仍标未达，继续寻找互补窗口，禁止凑配额。</p>
+<h2>5. 继续施工的顺序和交付边界</h2>
+<p>先B00锁定身份与指标，再B01—B02把分库、调度、抓取、冻结、结算恢复做实；B03—B06保留并升级历史训练、完整策略、神经接线与校准；B07贯通确认→证书→唯一主链；B08—B10完成可诊断报告、设备稳定性和自然质量验证。各批依赖不变，允许相邻批一起施工，但每次交付须有对应源码和可安装公有版APK。</p>
+<p>本次运行的检查是方案引用/哈希/SQL、报告复算及明确标注的构造反例；它们不等于手机性能验收或已找到高胜率策略。无需等待未来2000期才能出工程诊断：已有历史和每个任务的输入/输出/错误立即可报告；未来质量不足按条件列出缺口，不能留一张空白诊断书。</p>
+<p>参考核验：<a href="https://proceedings.mlr.press/v70/guo17a/guo17a.pdf">ECE原始定义</a>、<a href="https://arxiv.org/abs/1810.08240">有效序贯推断的条件与时间一致区间</a>、<a href="https://developer.android.com/reference/android/os/PowerManager#getThermalHeadroom(int)">Android PowerManager热状态API</a>。本方案沿用热包络接近1意味着更接近严重限频的方向，处理NaN和API版本差异；没有将普通置信区间误写成可无限重复查看的检验。</p>
+</section></main></body></html>

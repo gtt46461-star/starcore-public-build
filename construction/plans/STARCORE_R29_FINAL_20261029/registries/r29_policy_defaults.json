@@ -1,7 +1,7 @@
 {
-  "schema": "R29_POLICY_DEFAULTS_1",
+  "schema": "R29_POLICY_DEFAULTS_2",
   "status": "PROPOSED_IMPLEMENTATION_CONFIG_NOT_ENABLED",
-  "policy_version": "R29_GATE_V1",
+  "policy_version": "R29_GATE_V2",
   "runtime": {
     "fetch_interval_ms_healthy": 1000,
     "single_flight": true,
@@ -56,9 +56,16 @@
       "validation_acts_min": 200,
       "ece_max": 0.04,
       "probability_bins": 10,
-      "minimum_populated_bins": 5,
-      "minimum_samples_per_used_bin": 20,
-      "allow_rebin_using_outcomes": false
+      "allow_rebin_using_outcomes": false,
+      "binning": "equal-width [0,1], fixed before validation; p=1 belongs to last bin",
+      "minimum_occupied_bins": 1,
+      "minimum_samples_per_supported_bin": 20,
+      "minimum_supported_validation_mass": 0.9,
+      "empty_bin_policy": "zero weight in ECE; NOT_EVALUATED outside observed support",
+      "sparse_bin_policy": "include all samples in ECE; report unsupported mass; never discard sparse errors",
+      "uncertainty": "report per-bin intervals and time-block sensitivity; point ECE is not a future calibration guarantee",
+      "evaluation_role": "fixed post-fit calibration validation; no reuse for fitting",
+      "certificate_identity": "calibrator fitted before future registration; changing it starts a new policy evaluation"
     },
     "loss_streak": {
       "old_gate_preserved_for_old_certificates": true,
@@ -70,7 +77,31 @@
     },
     "meta_selector_separate_confirmation": true,
     "real_per_issue_max": 1,
-    "k": 3
+    "k": 3,
+    "settlement_order": {
+      "key": [
+        "experiment_id",
+        "target_ordinal"
+      ],
+      "consume_order": "registered calendar order with contiguous cursor",
+      "out_of_order": "buffer later outcomes; block e-process cursor at unresolved earlier ACT outcome",
+      "missing_draw": "persist pending and retry; never permanently mark unscorable after two issues",
+      "terminal_missing": "pre-registered conservative accounting or evidence-segment closure; no observed-outcome-driven exclusions",
+      "duplicate_receipt": "same key and payload -> no-op; different payload -> conflict; no new evidence",
+      "atomic_write": [
+        "receipt",
+        "e-process state",
+        "contiguous cursor"
+      ]
+    },
+    "frequency_scope": {
+      "pre_activation": "FUTURE ACT decisions / all scheduled confirmation opportunities",
+      "post_activation": "REAL decisions / all scheduled deployment opportunities",
+      "Q02_before_activation": "NOT_DEPLOYED, not an admission prerequisite",
+      "missed_periods_in_denominator": true,
+      "backfill_REAL": false
+    }
   },
-  "publication_condition": "These defaults require host fault/negative-control/power verification, device verification and policy-versioned activation; never silently replace historical certificate conditions."
+  "publication_condition": "These defaults require host fault/negative-control/power verification, device verification and policy-versioned activation; never silently replace historical certificate conditions. R29.1 corrects the proposed calibration support rule only; old app certificates are not reinterpreted.",
+  "plan_revision": "R29.1"
 }

@@ -21,3 +21,19 @@ CREATE TABLE real_decision(issue TEXT PRIMARY KEY, freeze_id TEXT NOT NULL, cert
 CREATE TABLE capability_finding(finding_id TEXT PRIMARY KEY, capability_id TEXT NOT NULL, snapshot_hash TEXT NOT NULL,
  evidence_strength TEXT NOT NULL CHECK(evidence_strength IN('OBSERVED','SUPPORTED_CAUSE','HYPOTHESIS','UNKNOWN')),
  evidence_ref TEXT NOT NULL, repair_card TEXT NOT NULL, next_test TEXT NOT NULL);
+
+-- R29.1 proposed ordered qualification inbox. Application code validates identity,
+-- experiment/freeze membership and registered calendar adjacency before consuming.
+CREATE TABLE qualification_pending(experiment_id TEXT NOT NULL REFERENCES experiment(experiment_id),
+ target_ordinal INTEGER NOT NULL, freeze_id TEXT NOT NULL REFERENCES frozen_prediction(freeze_id),
+ payload_hash TEXT, hit INTEGER CHECK(hit IN(0,1)),
+ status TEXT NOT NULL CHECK(status IN('PENDING_DRAW','READY','CONFLICT')),
+ PRIMARY KEY(experiment_id,target_ordinal));
+CREATE TABLE qualification_cursor(experiment_id TEXT PRIMARY KEY REFERENCES experiment(experiment_id),
+ last_contiguous_ordinal INTEGER NOT NULL, state_hash TEXT NOT NULL);
+CREATE TABLE qualification_receipt(experiment_id TEXT NOT NULL REFERENCES experiment(experiment_id),
+ target_ordinal INTEGER NOT NULL, freeze_id TEXT NOT NULL UNIQUE REFERENCES frozen_prediction(freeze_id),
+ payload_hash TEXT NOT NULL, state_after_hash TEXT NOT NULL,
+ PRIMARY KEY(experiment_id,target_ordinal));
+-- Write receipt, state reference and cursor in one research-DB transaction.
+-- Do not advance a cursor across an unresolved ACT outcome or overwrite a receipt.
