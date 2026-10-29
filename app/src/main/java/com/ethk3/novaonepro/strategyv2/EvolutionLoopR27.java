@@ -304,13 +304,13 @@ public final class EvolutionLoopR27 {
                 h.put("previousHoldout", ReplayScoreR27.of(SplitR27.HOLDOUT, pv, sp.holdoutFrom, sp.holdoutTo).json());
             }
             if (i00Champion != null) {
-                ReplayEvaluatorR27.Trace iv = look(i00Champion, i00Tau, null);
+                ReplayEvaluatorR27.Trace iv = look(i00Champion, i00Tau, null, true);
                 StatsR27.Moments d = ReplayScoreR27.paired(ch, iv, sp.holdoutFrom, sp.holdoutTo);
                 vsI00 = d.lcb(StatsR27.Z95_ONE_SIDED) > 0; h.put("pairedLcbVsI00", fin(d.lcb(StatsR27.Z95_ONE_SIDED)));
                 h.put("i00Holdout", ReplayScoreR27.of(SplitR27.HOLDOUT, iv, sp.holdoutFrom, sp.holdoutTo).json());
             }
             if (cfg.nullControl && nullEvolution.champion != null) {
-                ReplayEvaluatorR27.Trace nv = look(nullEvolution.champion, nullEvolution.championTau, nullEvolution.labels(ctx.cache, sp));
+                ReplayEvaluatorR27.Trace nv = look(nullEvolution.champion, nullEvolution.championTau, nullEvolution.labels(ctx.cache, sp), true);
                 StatsR27.Moments d = ReplayScoreR27.paired(ch, nv, sp.holdoutFrom, sp.holdoutTo);
                 vsNull = d.lcb(StatsR27.Z95_ONE_SIDED) > 0; h.put("pairedLcbVsNull", fin(d.lcb(StatsR27.Z95_ONE_SIDED)));
                 h.put("nullHoldout", ReplayScoreR27.of(SplitR27.HOLDOUT, nv, sp.holdoutFrom, sp.holdoutTo).json());
@@ -318,13 +318,15 @@ public final class EvolutionLoopR27 {
             verified = vsPrev && vsI00 && vsNull;
             why = verified ? "VERIFIED_IMPROVEMENT" : "UNVERIFIED:" + (vsPrev ? "" : "NOT_ABOVE_PREVIOUS;") + (vsI00 ? "" : "NOT_ABOVE_I00;") + (vsNull ? "" : "NOT_ABOVE_SHUFFLED_LABEL_CONTROL;");
         }
-        h.put("verified", verified); h.put("reason", why); h.put("holdoutBlock", block); h.put("blockExposures", (long) ledger.exposures(block));
+        h.put("verified", verified); h.put("reason", why); h.put("holdoutBlock", block); h.put("blockExposures", (long) ledger.exposures(block)); h.put("controlExposures", (long) ledger.controlExposures(block));
         genStats.put("holdout", h);
         if (verified) { count("verifiedImprovements", 1); generationsWithoutVerified = 0; } else generationsWithoutVerified++;
     }
 
-    private ReplayEvaluatorR27.Trace look(PolicySpecR27 s, double tau, int[][] labels) {
-        if (ledger.look(ctx.split.holdoutBlock, s.policyHash())) sink.holdoutLook(ctx.split.holdoutBlock, s.policyHash());
+    private ReplayEvaluatorR27.Trace look(PolicySpecR27 s, double tau, int[][] labels) { return look(s, tau, labels, false); }
+    private ReplayEvaluatorR27.Trace look(PolicySpecR27 s, double tau, int[][] labels, boolean control) {
+        long block = ctx.split.holdoutBlock;
+        if (control ? ledger.lookControl(block, s.policyHash()) : ledger.look(block, s.policyHash())) sink.holdoutLook(block, s.policyHash());
         // Shuffled-label control: its online state passes its own (shuffled) H_TRAIN/H_SELECT labels; H_HOLDOUT labels are real.
         int[][] l = labels == null ? ctx.labels : labels;
         return ReplayEvaluatorR27.run(s, ctx.scores(s), ctx.data, l, tau, ctx.split.trainFrom, ctx.split.holdoutTo);
@@ -479,6 +481,7 @@ public final class EvolutionLoopR27 {
         Map<String, Object> fs = new LinkedHashMap<>(); for (Map.Entry<String, Integer> e : familySurvivors.entrySet()) fs.put(e.getKey(), (long) e.getValue()); s.put("familySurvivors", fs);
         s.put("opWeights", opWeights); s.put("gateMaxDepth", (long) gateMaxDepth); s.put("depthCooldown", (long) depthCooldown); s.put("noVerified", (long) generationsWithoutVerified);
         Map<String, Object> lg = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.snapshot().entrySet()) lg.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("ledger", lg);
+        Map<String, Object> cl = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.controlSnapshot().entrySet()) cl.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("controlLedger", cl);
         s.put("genStats", genStats); s.put("startedAt", startedAt);
         return JsonR27.write(s);
     }
@@ -489,6 +492,7 @@ public final class EvolutionLoopR27 {
         EvolutionLoopR27 l = new EvolutionLoopR27(cfg, cache, sink, clock);
         l.generation = (int) JsonR27.num(s.get("generation")); l.step = (int) JsonR27.num(s.get("step")); l.rng.state = ((Number) s.get("rng")).longValue();
         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("ledger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restore(Long.parseLong(e.getKey()), (String) h);
+        if (s.get("controlLedger") instanceof Map) for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("controlLedger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restoreControl(Long.parseLong(e.getKey()), (String) h);
         l.bind(cache);
         if (!cache.data.datasetHash.equals(s.get("datasetHash")) && l.step != 1) throw new IllegalStateException("R27_RESTORE_DATASET_MISMATCH_MID_GENERATION");
         l.champion = spec(s.get("champion")); l.championTau = JsonR27.num(s.get("championTau"));

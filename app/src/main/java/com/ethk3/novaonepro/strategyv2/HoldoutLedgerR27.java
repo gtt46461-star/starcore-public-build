@@ -12,6 +12,21 @@ public final class HoldoutLedgerR27 {
     public static final int MAX_DISTINCT_LOOKS = 64;
     private final Map<Long, Set<String>> looks = new HashMap<>();
 
+    private final Map<Long, Set<String>> controlLooks = new HashMap<>();
+    /** R27.3: a look by a negative control (I00 random baseline, shuffled-label champion). Controls are never promoted, so
+     * their looks are recorded but do not spend the block's {@link #MAX_DISTINCT_LOOKS} budget, which belongs to the main
+     * line (champion and its challengers). Device 10.29: regenerated controls spent the budget in ~16 generations. */
+    public synchronized boolean lookControl(long block, String policyHash) {
+        return controlLooks.computeIfAbsent(block, k -> new LinkedHashSet<>()).add(policyHash);
+    }
+    public synchronized Map<Long, Set<String>> controlSnapshot() {
+        Map<Long, Set<String>> out = new HashMap<>();
+        for (Map.Entry<Long, Set<String>> e : controlLooks.entrySet()) out.put(e.getKey(), new LinkedHashSet<>(e.getValue()));
+        return out;
+    }
+    public synchronized void restoreControl(long block, String policyHash) { lookControl(block, policyHash); }
+    public synchronized int controlExposures(long block) { Set<String> s = controlLooks.get(block); return s == null ? 0 : s.size(); }
+
     /** Records a look; returns true when the look is new. */
     public synchronized boolean look(long block, String policyHash) {
         return looks.computeIfAbsent(block, k -> new LinkedHashSet<>()).add(policyHash);

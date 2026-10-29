@@ -305,6 +305,21 @@ public final class R27QualityTest {
         R27TestSupport.log("R27_3_CRITICAL_FIRST_WRITER_PASS");
     }
 
+    @Test public void r27ControlLooksDoNotSpendTheHoldoutBudget() throws Exception {
+        HoldoutLedgerR27 l = new HoldoutLedgerR27();
+        for (int g = 0; g < 500; g++) { l.lookControl(7, "i00-" + g); l.lookControl(7, "null-" + g); }
+        assertFalse("regenerated controls alone never degrade a block", l.degraded(7));
+        assertEquals(1000, l.controlExposures(7));
+        for (int i = 0; i <= HoldoutLedgerR27.MAX_DISTINCT_LOOKS; i++) l.look(7, "champion-" + i);
+        assertTrue("main-line looks still spend the budget", l.degraded(7));
+        String evo = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java").toPath()), "UTF-8");
+        assertTrue(evo.contains("look(i00Champion, i00Tau, null, true)"));
+        assertTrue(evo.contains("nullEvolution.labels(ctx.cache, sp), true)"));
+        String frame = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java").toPath()), "UTF-8");
+        assertTrue("SU1 frames use the newest contiguous run", frame.contains("pit=pit.newestContiguous();pit.requireConsecutive();"));
+        R27TestSupport.log("R27_3_HOLDOUT_BUDGET_PASS");
+    }
+
     // ------------------------------------------------------------------ R27-005 no session-level CRITICAL_DEADLINE yield
     @Test public void r27005ResearchSessionNoLongerYieldsToDeadlines() throws Exception {
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java").toPath()), "UTF-8");

@@ -16,7 +16,7 @@ public final class EventFrameBuilderSU1 {
     private static EventFrameSU1 capture(DbStore store,String target,boolean consecutive) {
         long generation=generation(store.readable());
         PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,5000);
-        if(consecutive)pit.requireConsecutive();
+        if(consecutive){pit=pit.newestContiguous();pit.requireConsecutive();}
         long now=System.currentTimeMillis();
         long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(pit.history.get(0));
         int n=pit.history.size();long[] issues=new long[n],availability=new long[n];int[][] values=new int[n][10];

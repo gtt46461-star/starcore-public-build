@@ -59,6 +59,15 @@ public final class PITSnapshotContractR952 {
         if(expectedHash!=null&&!hash.equals(expectedHash))throw new IllegalArgumentException("FROZEN_PIT_HASH");
         return new PITSnapshotContractR952(target,rows,hash);
     }
+    /** R27.3: the newest run of consecutive draws (at least 20), newest first. A fresh install back-fills history with
+     * provider gaps; requiring all 5000 rows to be consecutive failed every SU1 frame (HISTORY_SEQUENCE_GAP) and
+     * quarantined incumbent-forecast on device. Deterministic for a given history, so preparation and freeze agree. */
+    public PITSnapshotContractR952 newestContiguous() {
+        int k=1;
+        while(k<history.size()&&TargetIssueResolver.exact(history.get(k).issue,history.get(k-1).issue).valid)k++;
+        if(k==history.size()||k<20)return this;
+        return prepare(targetIssue,new ArrayList<Models.Draw>(history.subList(0,k)),null);
+    }
     /** Modern temporal atoms require contiguous support and the immediately previous draw. */
     public void requireConsecutive() {
         if(!TargetIssueResolver.exact(lastIssue,targetIssue).valid)throw new IllegalArgumentException("PIT_TARGET_GAP");
