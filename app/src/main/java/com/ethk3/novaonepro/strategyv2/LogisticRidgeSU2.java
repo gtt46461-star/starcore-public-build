@@ -11,10 +11,10 @@ public final class LogisticRidgeSU2 {
         double[] g = new double[k];
         double[][] H = new double[k][k];
         double[] xb = new double[k];
-        for (int it = 0; it < iters; it++) {
+        for (int it = 0; it < iters; it++) { ExecutionBudgetR26.poll();
             java.util.Arrays.fill(g, 0);
             for (double[] r : H) java.util.Arrays.fill(r, 0);
-            for (int i = 0; i < rows; i++) {
+            for (int i = 0; i < rows; i++) { if((i&7)==0)ExecutionBudgetR26.poll();
                 xb[0] = 1; System.arraycopy(X[i], 0, xb, 1, d);
                 double z = 0; for (int j = 0; j < k; j++) z += xb[j] * w[j];
                 z = Math.max(-30, Math.min(30, z));
@@ -36,7 +36,7 @@ public final class LogisticRidgeSU2 {
         double[][] A = new double[n][];
         for (int i = 0; i < n; i++) A[i] = A0[i].clone();
         double[] b = b0.clone();
-        for (int c = 0; c < n; c++) {
+        for (int c = 0; c < n; c++) { ExecutionBudgetR26.poll();
             int piv = c; for (int r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
             double[] tr = A[c]; A[c] = A[piv]; A[piv] = tr; double tb = b[c]; b[c] = b[piv]; b[piv] = tb;
             if (Math.abs(A[c][c]) < 1e-300) throw new IllegalStateException("SU2_LOGISTIC_SINGULAR");

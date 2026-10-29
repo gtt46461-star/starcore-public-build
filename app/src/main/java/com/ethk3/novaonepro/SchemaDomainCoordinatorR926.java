@@ -50,6 +50,7 @@ public final class SchemaDomainCoordinatorR926 {
                 DOMAIN_CRITICAL,
                 ReleaseManifestR926.CRITICAL_DOMAIN_REVISION,
                 new String[] {
+                    "r26_feedback",
                     DbHelper.TABLE_DRAWS,
                     DrawDependencyInputCP12.TABLE,
                     DrawDependencyInputCP12.SOURCE,
@@ -208,6 +209,22 @@ public final class SchemaDomainCoordinatorR926 {
 
     public static void ensureInfrastructure(SQLiteDatabase db) {
         if (db == null) throw new IllegalArgumentException("R926_SCHEMA_DB_NULL");
+        // Read paths call this repeatedly while the legacy catalogue is growing.
+        // CREATE IF NOT EXISTS still makes Android compile a schema statement each time.
+        // A fresh, typed census is equivalent to those no-op creates when all three
+        // objects already exist; missing objects still execute the original DDL below.
+        // No schema_version, domain fingerprint or READY result is cached.
+        int present=0;
+        try(Cursor c=db.rawQuery("SELECT name,type FROM sqlite_master WHERE name IN (?,?,?)",
+                new String[]{TABLE_DOMAIN,TABLE_JOURNAL,"idx_r926_migration_status"})){
+            while(c.moveToNext()){
+                String name=c.getString(0),type=c.getString(1);
+                if(TABLE_DOMAIN.equals(name)&&"table".equals(type))present|=1;
+                if(TABLE_JOURNAL.equals(name)&&"table".equals(type))present|=2;
+                if("idx_r926_migration_status".equals(name)&&"index".equals(type))present|=4;
+            }
+        }
+        if(present==7)return;
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_DOMAIN
                 + "(domain TEXT PRIMARY KEY,revision INTEGER NOT NULL,contract_hash TEXT NOT NULL,"
                 + "fingerprint TEXT NOT NULL,state TEXT NOT NULL,cursor TEXT NOT NULL DEFAULT '',"
@@ -408,9 +425,15 @@ public final class SchemaDomainCoordinatorR926 {
                 if (i > 0) marks.append(',');
                 marks.append('?');
             }
-            String trimChars = "char(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32)";
-            sql += " AND (trim(name," + trimChars + ") COLLATE BINARY IN (" + marks + ")"
-                    + " OR trim(tbl_name," + trimChars + ") COLLATE BINARY IN (" + marks + ")"
+            // Ordinary identifiers take the direct membership path. Edge controls, NUL,
+            // NULL and non-TEXT values are retained for the authoritative Java trim/filter.
+            // This is a lossless prefilter; it never caches a catalogue or a READY decision.
+            sql += " AND (name COLLATE BINARY IN (" + marks + ")"
+                    + " OR tbl_name COLLATE BINARY IN (" + marks + ")"
+                    + " OR unicode(substr(name,1,1)) BETWEEN 1 AND 32"
+                    + " OR unicode(substr(name,-1,1)) BETWEEN 1 AND 32"
+                    + " OR unicode(substr(tbl_name,1,1)) BETWEEN 1 AND 32"
+                    + " OR unicode(substr(tbl_name,-1,1)) BETWEEN 1 AND 32"
                     + " OR instr(name,char(0))>0 OR instr(tbl_name,char(0))>0"
                     + " OR typeof(name)<>'text' OR typeof(tbl_name)<>'text')";
             values.addAll(new ArrayList<String>(values));
@@ -434,14 +457,42 @@ public final class SchemaDomainCoordinatorR926 {
 
     public static void verifyObjects(SQLiteDatabase db, Contract contract) {
         ArrayList<String> missing = new ArrayList<String>();
-        for (String name : contract.objects) if (!schemaObjectExists(db, name)) missing.add(name);
+        Set<String> present = existingSchemaObjects(db, contract);
+        for (String name : contract.objects)
+            if (present == null ? !schemaObjectExists(db, name) : !present.contains(name)) missing.add(name);
         if (!missing.isEmpty()) throw new IllegalStateException("R926_" + contract.domain + "_OBJECTS_MISSING:" + join(missing));
     }
 
     private static boolean allObjectsPresent(SQLiteDatabase db, Contract contract) {
         if (db == null || contract == null) return false;
-        for (String name : contract.objects) if (!schemaObjectExists(db, name)) return false;
+        Set<String> present = existingSchemaObjects(db, contract);
+        for (String name : contract.objects)
+            if (present == null ? !schemaObjectExists(db, name) : !present.contains(name)) return false;
         return true;
+    }
+
+    /** Fresh bounded membership query, never a cache. Keep the original per-name path for
+     * unusual identifiers and oversized contracts so their SQLite equality semantics stay intact. */
+    private static Set<String> existingSchemaObjects(SQLiteDatabase db, Contract contract) {
+        if (contract.objects.length == 0) return Collections.emptySet();
+        if (contract.objects.length > 499) return null;
+        StringBuilder marks = new StringBuilder();
+        for (String name : contract.objects) {
+            if (name == null || name.length() == 0) return null;
+            for (int i = 0; i < name.length(); i++) {
+                char ch = name.charAt(i);
+                if (!((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+                        || (ch >= '0' && ch <= '9') || ch == '_')) return null;
+            }
+            if (marks.length() > 0) marks.append(',');
+            marks.append('?');
+        }
+        Set<String> present = new HashSet<String>();
+        try (Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE name COLLATE BINARY IN ("
+                + marks + ")", contract.objects)) {
+            while (c.moveToNext()) present.add(c.getString(0));
+        }
+        return present;
     }
 
     private static boolean schemaObjectExists(SQLiteDatabase db, String name) {

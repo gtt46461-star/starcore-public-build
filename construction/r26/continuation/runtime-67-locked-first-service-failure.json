@@ -1,0 +1,641 @@
+{
+  "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+  "api": 29,
+  "engineeringWriteProbes": 1000,
+  "fullPredrawOpportunitySloClaimed": false,
+  "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+  "javaHeapLimitAtStart": 536870912,
+  "targetLargeHeapFlag": true,
+  "familyMechanismsWithCommittedProgress": 24,
+  "expertsWithActualReceipts": 14,
+  "allMechanismsServiceMillis": 240046,
+  "strategyReadyToAllMechanismsWallMs": 155092,
+  "firstServiceTargetMs": 60000,
+  "firstServiceTargetObservedWithin": false,
+  "result": "FAIL",
+  "error": "java.lang.AssertionError: Each expert must complete a pair sample or an audit expected:<16> but was:<14>",
+  "researchThreadsAtFailure": [
+    {
+      "name": "starcore-r26-expert-E08",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeOutputStreamR26.write(CooperativeOutputStreamR26.java:10)",
+        "java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)",
+        "java.io.BufferedOutputStream.write(BufferedOutputStream.java:126)",
+        "java.io.DataOutputStream.writeLong(DataOutputStream.java:224)",
+        "java.io.DataOutputStream.writeDouble(DataOutputStream.java:259)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2.write(ModelLiveSU2.java:308)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.encode(LiveStateR26.java:12)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.encode(ExpertExperimentR26.java:58)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-foundry-su1",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)",
+        "com.ethk3.novaonepro.strategyv2.CampaignStateSU1.chronologicalHistory(CampaignStateSU1.java:29)",
+        "com.ethk3.novaonepro.strategyv2.CampaignStateSU1.open(CampaignStateSU1.java:50)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E13",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.BudgetTokenSU1.checkpointOrYield(BudgetTokenSU1.java:25)",
+        "com.ethk3.novaonepro.strategyv2.ExactPermutationR26.infer(ExactPermutationR26.java:19)",
+        "com.ethk3.novaonepro.strategyv2.FamilyF09KernelR26.emissions(FamilyF09KernelR26.java:10)",
+        "com.ethk3.novaonepro.strategyv2.FamilyF09KernelR26.update(FamilyF09KernelR26.java:12)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2$Hub.update(ModelLiveSU2.java:74)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.learn(LiveStateR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.advance(ExpertExperimentR26.java:56)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E03",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.BudgetTokenSU1.checkpointOrYield(BudgetTokenSU1.java:25)",
+        "com.ethk3.novaonepro.strategyv2.ExactPermutationR26.infer(ExactPermutationR26.java:22)",
+        "com.ethk3.novaonepro.strategyv2.FamilyF09KernelR26.emissions(FamilyF09KernelR26.java:10)",
+        "com.ethk3.novaonepro.strategyv2.FamilyF09KernelR26.predict(FamilyF09KernelR26.java:11)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2$Hub.predict(ModelLiveSU2.java:66)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2.decide(ModelLiveSU2.java:172)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.forecast(LiveStateR26.java:14)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.advance(ExpertExperimentR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E11",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeOutputStreamR26.write(CooperativeOutputStreamR26.java:10)",
+        "java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)",
+        "java.io.BufferedOutputStream.write(BufferedOutputStream.java:126)",
+        "java.io.DataOutputStream.writeLong(DataOutputStream.java:224)",
+        "java.io.DataOutputStream.writeDouble(DataOutputStream.java:259)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2.write(ModelLiveSU2.java:308)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.encode(LiveStateR26.java:12)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.encode(ExpertExperimentR26.java:58)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E06",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeOutputStreamR26.write(CooperativeOutputStreamR26.java:10)",
+        "java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)",
+        "java.io.BufferedOutputStream.write(BufferedOutputStream.java:126)",
+        "java.io.DataOutputStream.writeLong(DataOutputStream.java:224)",
+        "java.io.DataOutputStream.writeDouble(DataOutputStream.java:259)",
+        "com.ethk3.novaonepro.strategyv2.FamilyF01KernelR26.write(FamilyF01KernelR26.java:16)",
+        "com.ethk3.novaonepro.strategyv2.SetFamilyR26.write(SetFamilyR26.java:21)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2$Hub.write(ModelLiveSU2.java:77)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.encode(LiveStateR26.java:12)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.result(ExpertWorkshopR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:39)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E04",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeOutputStreamR26.write(CooperativeOutputStreamR26.java:10)",
+        "java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:82)",
+        "java.io.BufferedOutputStream.write(BufferedOutputStream.java:95)",
+        "java.io.DataOutputStream.writeInt(DataOutputStream.java:197)",
+        "com.ethk3.novaonepro.strategyv2.ScaleEncoderR26.write(ScaleEncoderR26.java:20)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2$Hub.write(ModelLiveSU2.java:77)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.encode(LiveStateR26.java:12)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.encode(ExpertExperimentR26.java:58)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E14",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.BudgetTokenSU1.checkpointOrYield(BudgetTokenSU1.java:25)",
+        "com.ethk3.novaonepro.strategyv2.ExactPermutationR26.infer(ExactPermutationR26.java:19)",
+        "com.ethk3.novaonepro.strategyv2.PermutationModelR26.predict(PermutationModelR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2$Hub.predict(ModelLiveSU2.java:66)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2.decide(ModelLiveSU2.java:172)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.forecast(LiveStateR26.java:14)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.advance(ExpertExperimentR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-continuous-research",
+      "state": "TIMED_WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.await(RuntimeCoordinatorR26.java:112)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:108)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    },
+    {
+      "name": "starcore-r26-expert-E10",
+      "state": "WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:442)",
+        "java.lang.Object.wait(Object.java:568)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:37)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:47)",
+        "com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeInputStreamR26.read(CooperativeInputStreamR26.java:8)",
+        "java.io.BufferedInputStream.fill(BufferedInputStream.java:248)",
+        "java.io.BufferedInputStream.read1(BufferedInputStream.java:288)",
+        "java.io.BufferedInputStream.read(BufferedInputStream.java:347)",
+        "java.io.DataInputStream.readFully(DataInputStream.java:198)",
+        "java.io.DataInputStream.readLong(DataInputStream.java:413)",
+        "java.io.DataInputStream.readDouble(DataInputStream.java:465)",
+        "com.ethk3.novaonepro.strategyv2.FamilyF01KernelR26.read(FamilyF01KernelR26.java:17)",
+        "com.ethk3.novaonepro.strategyv2.PortfolioFamilyR26.read(PortfolioFamilyR26.java:16)",
+        "com.ethk3.novaonepro.strategyv2.ModelLiveSU2$Hub.readInto(ModelLiveSU2.java:95)",
+        "com.ethk3.novaonepro.strategyv2.LiveStateR26.decode(LiveStateR26.java:11)",
+        "com.ethk3.novaonepro.strategyv2.ExpertExperimentR26$Pair.decode(ExpertExperimentR26.java:59)",
+        "com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:38)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$5(TaskContinuationR26.java:15)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:32)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:919)"
+      ]
+    }
+  ],
+  "tasksAtFailure": [
+    {
+      "task": "ablation",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "aggregate-evidence",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "archive",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "artifact-retention",
+      "cursor": 18,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 1793122235848,
+      "cpuMs": 16
+    },
+    {
+      "task": "calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "campaign-audit",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 4
+    },
+    {
+      "task": "daily-close",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 5
+    },
+    {
+      "task": "diagnosis",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "evidence-quality",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "evidence-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "expert-E01",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 1793122082900,
+      "cpuMs": 2
+    },
+    {
+      "task": "expert-E02",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793122200152,
+      "cpuMs": 87
+    },
+    {
+      "task": "expert-E03",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122179031,
+      "cpuMs": 120
+    },
+    {
+      "task": "expert-E04",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122187358,
+      "cpuMs": 154
+    },
+    {
+      "task": "expert-E05",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793122200490,
+      "cpuMs": 151
+    },
+    {
+      "task": "expert-E06",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122102391,
+      "cpuMs": 148
+    },
+    {
+      "task": "expert-E07",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793122179361,
+      "cpuMs": 123
+    },
+    {
+      "task": "expert-E08",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122178953,
+      "cpuMs": 133
+    },
+    {
+      "task": "expert-E09",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793122194943,
+      "cpuMs": 123
+    },
+    {
+      "task": "expert-E10",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122100993,
+      "cpuMs": 145
+    },
+    {
+      "task": "expert-E11",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122203272,
+      "cpuMs": 146
+    },
+    {
+      "task": "expert-E12",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793122186369,
+      "cpuMs": 136
+    },
+    {
+      "task": "expert-E13",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122169523,
+      "cpuMs": 149
+    },
+    {
+      "task": "expert-E14",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 1793122182240,
+      "cpuMs": 122
+    },
+    {
+      "task": "expert-E15",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 1793122083847,
+      "cpuMs": 0
+    },
+    {
+      "task": "expert-E16",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 1793122083865,
+      "cpuMs": 15
+    },
+    {
+      "task": "feedback",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "foundry-su1",
+      "cursor": 0,
+      "status": "YIELDED",
+      "reason": "COOPERATIVE_NUMERICAL_STATE_AND_CHECKPOINT",
+      "lastProgress": 0,
+      "cpuMs": 143
+    },
+    {
+      "task": "foundry-su2",
+      "cursor": 206,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793122235820,
+      "cpuMs": 106
+    },
+    {
+      "task": "kernel",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "legacy-generation",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "SLICE_BUDGET",
+      "lastProgress": 0,
+      "cpuMs": 168
+    },
+    {
+      "task": "legacy-replay",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 9
+    },
+    {
+      "task": "live-forecast-preparation",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 18
+    },
+    {
+      "task": "live-model-training",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "publish-models",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 14
+    },
+    {
+      "task": "qualification",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "retention",
+      "cursor": 3584040,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 1793122089301,
+      "cpuMs": 0
+    },
+    {
+      "task": "schema",
+      "cursor": 267,
+      "status": "BLOCKED",
+      "reason": "DATA_NOT_READY",
+      "lastProgress": 1793122082687,
+      "cpuMs": 0
+    },
+    {
+      "task": "schema-base",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "LEGACY_SCHEMA:INITIALIZING:",
+      "lastProgress": 0,
+      "cpuMs": 527
+    },
+    {
+      "task": "sealed-planner",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "seed-incumbent",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "shadow-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "su1-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "su2-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "su2-mainline",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R952_EXTENSION|error=",
+      "lastProgress": 0,
+      "cpuMs": 4
+    }
+  ],
+  "legacySchema": "INITIALIZING|cursor=R952_EXTENSION|error="
+}

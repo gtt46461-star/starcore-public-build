@@ -1,0 +1,22 @@
+{
+  "runId": 40568664921,
+  "source": "10018f4c1e6e2c0d3f78f67ff0f40d9842ba6433",
+  "compiledSource": "3198e464216b0864695c306565083f31212a7355",
+  "overall": "FAIL_ANDROID_29_FIXTURE_PROCESS_ISOLATION",
+  "build": "PASS",
+  "api35": "PASS",
+  "api36": "PASS",
+  "api29": "FAIL",
+  "endurance": "SKIPPED_DUE_STANDARD_FAILURE",
+  "class": "R26PublicationDeviceTest",
+  "testCount": 4,
+  "failures": 3,
+  "firstCasePassed": "forgedCompletionCannotAllocateFutureQualification",
+  "error": "Fixture expected no DatabaseCoordinator singleton, but the previous fixture had left the intentional process singleton alive",
+  "diagnosis": "DbStore.close() intentionally does not close the process-shared helper. Each test method created a different Sandbox in one instrumentation process. Do not change product DB sharing or remove the isolation assertion.",
+  "fix": "Source-bound manifest marks this private-fixture class for method isolation. Each method is invoked by class#method after am force-stop. Add a persisted sandbox producer/consumer pair across genuinely fresh processes, replacing the false same-process DbStore-facade restart.",
+  "assertionsRelaxed": false,
+  "jobId": 122423522410,
+  "logsUrl": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/40568664921/job/122423522410",
+  "scope": "TEST_HARNESS_FAILURE; NOT_A_PRODUCTION_LIFECYCLE_PASS"
+}

@@ -22,6 +22,8 @@ BUILD_INPUTS = ('scripts/cp4_compile_catalog.py', 'scripts/cp4_compile_molecule_
                 'scripts/r926_release_manifest.py', 'scripts/r997_construction_assets.py',
                 'scripts/opt299_stage_build.py', 'scripts/generate_strategy_su1_schema.py',
                 'scripts/prepare_strategy_su1_identity.py', 'scripts/verify_strategy_su1.py',
+                'scripts/generate_strategy_su2_schema.py', 'scripts/verify_plan1025.py',
+                'scripts/test_plan1025_storage.py', 'tools/strategy_su2/schema/strategy_su2.sql',
                 'release/strategy_su1_reviewed_inputs.json', 'schema/strategy_su1.sql',
                 'schema/strategy_su1_foundry.sql', 'schema/strategy_su1_runtime.sql')
 

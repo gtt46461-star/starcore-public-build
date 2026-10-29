@@ -1,0 +1,87 @@
+{
+  "runId": 40590011517,
+  "source": "e08f686aa43d24079cfbddc299f8364588f19ea9",
+  "compiledSource": "b38d62b54192833515837b4932c1c792fcc1097c",
+  "scope": "FOUR_SYNTHETIC_ONE_HOUR_SCENARIOS; TWO_OTHER_SCENARIOS_FAILED_BEFORE_RESEARCH; NOT_USER_PHONE_OR_FULL_PLAN_ACCEPTANCE",
+  "status": "API29_BRIGHT_LOCKED_ZERO_CAPACITY; API35_36_LOCKED_ONE_R952_EXTENSION_CAPACITY_EACH; TWO_BRIGHT_PREFLIGHT_FAILURES",
+  "scenarios": [
+    {
+      "scenario": "29-BRIGHT",
+      "artifactId": 12779180623,
+      "jobId": 122500546217,
+      "artifactSha256": "2492992348d94976c5509d454e78ab86fbc988a6ee2953279789ab00b8d02d97",
+      "elapsedMs": 3600215,
+      "samples": 59,
+      "syntheticLabels": 717,
+      "jobResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "committedCapacityFailures": 0,
+      "failureOwnerLog": [],
+      "firstMinuteCapacityFailures": 0,
+      "maxPssKb": 209584,
+      "raw": "raw/source83-29-bright-runtime.json.gz",
+      "rawSha256": "1a83f9c28ce9ee7a8f85d5dbfd83761de250105306519b8d9a2230f5146cdc45",
+      "ownerLog": "raw/source83-29-bright-owner-logcat.txt.gz",
+      "ownerLogSha256": "c2ab1f70f6a6d4182105a2c2809eb5807d0cad6af3b5fcbd512a7e262ac7fb70"
+    },
+    {
+      "scenario": "29-LOCKED",
+      "artifactId": 12778441366,
+      "jobId": 122500546170,
+      "artifactSha256": "2e257a047ada3d4a8715ec0089bfb631a20e916bcc5eb3e56263d808f084ded7",
+      "elapsedMs": 3600040,
+      "samples": 59,
+      "syntheticLabels": 716,
+      "jobResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "committedCapacityFailures": 0,
+      "failureOwnerLog": [],
+      "firstMinuteCapacityFailures": 0,
+      "maxPssKb": 204542,
+      "raw": "raw/source83-29-locked-runtime.json.gz",
+      "rawSha256": "e0957e1b9ba30689a41cdefc05315358073fae5010f80f77d0c08373d0a0a1b4",
+      "ownerLog": "raw/source83-29-locked-owner-logcat.txt.gz",
+      "ownerLogSha256": "e17dbc9e04d3bf987c02c4f7808fd70e5184c8e38c9a745d0329b1c809e6f5ee"
+    },
+    {
+      "scenario": "35-LOCKED",
+      "artifactId": 12778146629,
+      "jobId": 122500546200,
+      "artifactSha256": "0fbe462e801b1696e91c3fa2f07a003e3360c315cb75dbf6dc6b6df9e4426f58",
+      "elapsedMs": 3600220,
+      "samples": 59,
+      "syntheticLabels": 717,
+      "jobResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "committedCapacityFailures": 1,
+      "failureOwnerLog": [
+        "10-27 22:20:00.030  3445  3671 W STARCORE_R26: task=schema-base|wallMs=1380|cpuMs=1378|CAPACITY_FAIL:UNSLICED_KERNEL:1380ms|LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:"
+      ],
+      "firstMinuteCapacityFailures": 0,
+      "maxPssKb": 248082,
+      "raw": "raw/source83-35-locked-runtime.json.gz",
+      "rawSha256": "e7011d8a1982a614329a81ab12d8c70cc939284fc10461ac5e00d59e65080a37",
+      "ownerLog": "raw/source83-35-locked-owner-logcat.txt.gz",
+      "ownerLogSha256": "403203e62a79049d954643eb572bba654cf5aa07b3b080677c04853a2aae140d"
+    },
+    {
+      "scenario": "36-LOCKED",
+      "artifactId": 12778856324,
+      "jobId": 122500546300,
+      "artifactSha256": "d6a2eb0d5797d9271760d6db1c11d944bc88e7ab92b95ed8cc3bb4bd4c817189",
+      "elapsedMs": 3600060,
+      "samples": 59,
+      "syntheticLabels": 717,
+      "jobResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "committedCapacityFailures": 1,
+      "failureOwnerLog": [
+        "10-27 22:20:11.721  3658  3939 W STARCORE_R26: task=schema-base|wallMs=1505|cpuMs=1498|CAPACITY_FAIL:UNSLICED_KERNEL:1505ms|LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:"
+      ],
+      "firstMinuteCapacityFailures": 0,
+      "maxPssKb": 259524,
+      "raw": "raw/source83-36-locked-runtime.json.gz",
+      "rawSha256": "b6c0175c47450bc732d5f399322e60d732abab74348aaa371c122d0f8d77ed50",
+      "ownerLog": "raw/source83-36-locked-owner-logcat.txt.gz",
+      "ownerLogSha256": "8a6050e17c7c495d8f3c623d60ad153eeb9c42d1a4deacecfb793da24250a4bd"
+    }
+  ],
+  "preflightFailures": "endurance-83-preflight-failures.json",
+  "nextAction": "Repeat full migration with 4200 retained synthetic draws and capture child migration journal timings; retain unchanged 1000ms boundary. Root child unit not yet established by the parent R952_EXTENSION label."
+}

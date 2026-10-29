@@ -240,7 +240,7 @@ public final class FrozenConsumerRecipeR932 {
             V51Models.PositionAction selected=reranked[order[0].intValue()];
         return new Mixed(reranked,selected);
     }
-    private static double[] inputs(
+    static double[] inputs(
             HistoricalStrategyInventionR908.Profile profile, int position, int number) {
         double[] x = new double[AlgorithmGenomeR908.INPUTS];
         x[0] = profile.atom("position_transition_lift", position, number);

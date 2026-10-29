@@ -10,11 +10,16 @@ record_generated() {
 python3 scripts/prepare_strategy_su1_identity.py
 record_generated 'Bind restored R13 source identities'
 python3 scripts/test_r13_production_ddl.py
+python3 scripts/generate_strategy_su2_schema.py --check
+python3 scripts/test_plan1025_storage.py
 python3 scripts/verify_catalog_assets_cp12.py --check
 python3 scripts/verify_strategy_su1.py
-bash ./gradlew --no-daemon :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset
-python3 scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+python3 scripts/verify_plan1025.py
+python3 scripts/verify_r26.py
+bash ./gradlew --no-daemon :app:compileReleaseJavaWithJavac -x :app:generateR982SourceCallAsset
+python3 scripts/r982_source_call_asset.py --freeze --classes app/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes
 python3 scripts/prepare_strategy_su1_identity.py
 record_generated 'Bind compiled R13 call inventory'
-bash ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleDebug :app:assembleDebugAndroidTest
+python3 scripts/r26_instrumentation_manifest.py
+bash ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 :app:assembleRelease :app:assembleDebug :app:assembleDebugAndroidTest
 git push origin HEAD:"${GITHUB_REF_NAME}"

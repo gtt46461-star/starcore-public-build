@@ -1,0 +1,325 @@
+{
+  "runId": 40576912670,
+  "source": "5c19eaf3b24356018f99d11c33b1509f975fb477",
+  "compiledSource": "87720e8cdc9390c23210b7e2061a08e4ef6b0787",
+  "status": "FIVE_FULL_HOUR_SCENARIOS_COMPLETED_WITH_SCHEMA_CAPACITY_FAILURES; API29_BRIGHT_FAILED_BEFORE_SERVICE",
+  "scope": "HISTORICAL_SOURCE_ONLY; NOT_CURRENT_ACCEPTANCE",
+  "failedScenario": "construction/r26/continuation/runtime-79-29-bright-heap-failure.json",
+  "scenarios": [
+    {
+      "job": "android-endurance (29, LOCKED)",
+      "jobId": 122456869862,
+      "summary": {
+        "allMechanismsServiceMillis": 88924,
+        "api": 29,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 18,
+        "canonicalDrawWriteP50Ms": 6,
+        "canonicalDrawWriteP95Ms": 11,
+        "canonicalDrawWriteP99Ms": 14,
+        "checkpointFileBytes": 4464574,
+        "committedCapacityFailuresSinceInstallation": 6,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600053,
+          "maximumCommittedSliceFailures": 6,
+          "maximumRetainedSliceFailures": 6,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "LOCKED"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "a41069d52cd3b82200c1c3c40cf4db674242c4b7a7ec1256ebe5d70eba3cf584"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1434,
+            "kernelWallMs": 1458,
+            "task": "schema-base",
+            "wallMs": 1458
+          },
+          {
+            "cpuMs": 1346,
+            "kernelWallMs": 1379,
+            "task": "schema-base",
+            "wallMs": 1379
+          },
+          {
+            "cpuMs": 1418,
+            "kernelWallMs": 1469,
+            "task": "schema-base",
+            "wallMs": 1469
+          },
+          {
+            "cpuMs": 1491,
+            "kernelWallMs": 1513,
+            "task": "schema-base",
+            "wallMs": 1513
+          },
+          {
+            "cpuMs": 1601,
+            "kernelWallMs": 1620,
+            "task": "schema-base",
+            "wallMs": 1620
+          },
+          {
+            "cpuMs": 2049,
+            "kernelWallMs": 2138,
+            "task": "schema-base",
+            "wallMs": 2138
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "87720e8cdc9390c23210b7e2061a08e4ef6b0787"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 8697,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "artifact": {
+        "id": 12772823330,
+        "name": "R26-Endurance-29-LOCKED",
+        "digest": "sha256:d3f7a1dffcb795a9d4d50939388216f5df497e77fc02ae914ece3864826fc1f8"
+      }
+    },
+    {
+      "job": "android-endurance (35, BRIGHT)",
+      "jobId": 122456869879,
+      "summary": {
+        "allMechanismsServiceMillis": 73511,
+        "api": 35,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 11,
+        "canonicalDrawWriteP50Ms": 2,
+        "canonicalDrawWriteP95Ms": 4,
+        "canonicalDrawWriteP99Ms": 5,
+        "checkpointFileBytes": 22350586,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600047,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "BRIGHT"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "a41069d52cd3b82200c1c3c40cf4db674242c4b7a7ec1256ebe5d70eba3cf584"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1519,
+            "kernelWallMs": 1532,
+            "task": "schema-base",
+            "wallMs": 1532
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "87720e8cdc9390c23210b7e2061a08e4ef6b0787"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 4181,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "artifact": {
+        "id": 12773291076,
+        "name": "R26-Endurance-35-BRIGHT",
+        "digest": "sha256:ee6bf61d9121e0baaeaba0adef4d644a885bd72e1fe912d20072af1526a5a799"
+      }
+    },
+    {
+      "job": "android-endurance (35, LOCKED)",
+      "jobId": 122456869931,
+      "summary": {
+        "allMechanismsServiceMillis": 72143,
+        "api": 35,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 7,
+        "canonicalDrawWriteP50Ms": 1,
+        "canonicalDrawWriteP95Ms": 3,
+        "canonicalDrawWriteP99Ms": 4,
+        "checkpointFileBytes": 27164374,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600153,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "LOCKED"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "a41069d52cd3b82200c1c3c40cf4db674242c4b7a7ec1256ebe5d70eba3cf584"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1221,
+            "kernelWallMs": 1225,
+            "task": "schema-base",
+            "wallMs": 1225
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "87720e8cdc9390c23210b7e2061a08e4ef6b0787"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 3530,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "artifact": {
+        "id": 12772962721,
+        "name": "R26-Endurance-35-LOCKED",
+        "digest": "sha256:cd4677dc57b964e700da0542aabcf55471cece7022a7bcd58012c3eda9453f2c"
+      }
+    },
+    {
+      "job": "android-endurance (36, BRIGHT)",
+      "jobId": 122456869978,
+      "summary": {
+        "allMechanismsServiceMillis": 72149,
+        "api": 36,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 11,
+        "canonicalDrawWriteP50Ms": 1,
+        "canonicalDrawWriteP95Ms": 3,
+        "canonicalDrawWriteP99Ms": 4,
+        "checkpointFileBytes": 19775341,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600139,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "BRIGHT"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "a41069d52cd3b82200c1c3c40cf4db674242c4b7a7ec1256ebe5d70eba3cf584"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1423,
+            "kernelWallMs": 1426,
+            "task": "schema-base",
+            "wallMs": 1426
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "87720e8cdc9390c23210b7e2061a08e4ef6b0787"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 3630,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "artifact": {
+        "id": 12774145101,
+        "name": "R26-Endurance-36-BRIGHT",
+        "digest": "sha256:24a2498bd943d55bf100f5c18127a5fab50a6be9fff5486617d25a5d8c3aeb33"
+      }
+    },
+    {
+      "job": "android-endurance (36, LOCKED)",
+      "jobId": 122456870009,
+      "summary": {
+        "allMechanismsServiceMillis": 73042,
+        "api": 36,
+        "availability": "RUNTIME_RECEIPT",
+        "canonicalDrawWriteMaxMs": 15,
+        "canonicalDrawWriteP50Ms": 1,
+        "canonicalDrawWriteP95Ms": 4,
+        "canonicalDrawWriteP99Ms": 7,
+        "checkpointFileBytes": 15203009,
+        "committedCapacityFailuresSinceInstallation": 1,
+        "committedServiceScope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source/runtime/device; historical folds span sources; not P0 or a full opportunity SLO",
+        "durableServiceCounterAvailability": "INSTALLED",
+        "endurance": {
+          "elapsedMs": 3600068,
+          "maximumCommittedSliceFailures": 1,
+          "maximumRetainedSliceFailures": 1,
+          "minuteSamples": 59,
+          "retainedCounterScope": "Bounded receipt ring; may decrease; never substitutes for monotonic totals",
+          "screen": "LOCKED"
+        },
+        "expertsWithActualReceipts": 16,
+        "familyMechanismsWithCommittedProgress": 24,
+        "firstServiceTargetMs": 60000,
+        "firstServiceTargetObservedWithin": true,
+        "fullPredrawOpportunitySloClaimed": false,
+        "numericalAbis": [
+          "a41069d52cd3b82200c1c3c40cf4db674242c4b7a7ec1256ebe5d70eba3cf584"
+        ],
+        "ownerCapacityEventsOmitted": 0,
+        "restartResumed": true,
+        "result": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+        "retainedOwnerCapacityEvents": [
+          {
+            "cpuMs": 1110,
+            "kernelWallMs": 1118,
+            "task": "schema-base",
+            "wallMs": 1118
+          }
+        ],
+        "retentionBoundaryRenewed": true,
+        "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+        "sourceCommits": [
+          "87720e8cdc9390c23210b7e2061a08e4ef6b0787"
+        ],
+        "staleOwnerRejected": true,
+        "strategyReadyToAllMechanismsWallMs": 3928,
+        "writeProbeScope": "Canonical draw writes only; not full prediction opportunities"
+      },
+      "artifact": {
+        "id": 12772604938,
+        "name": "R26-Endurance-36-LOCKED",
+        "digest": "sha256:12627d01e61d5cf62546b2a7adea78e3408ecf2300184923dab6007ed949a3ff"
+      }
+    }
+  ]
+}

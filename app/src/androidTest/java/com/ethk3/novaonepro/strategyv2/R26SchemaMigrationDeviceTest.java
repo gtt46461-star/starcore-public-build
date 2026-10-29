@@ -1,0 +1,87 @@
+package com.ethk3.novaonepro.strategyv2;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.SystemClock;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.ethk3.novaonepro.*;
+import java.io.*;
+import java.util.*;
+import org.json.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
+
+/** Actual legacy migration and same-version repair, isolated synthetic DB; not a full P0 or phone SLO. */
+@RunWith(AndroidJUnit4.class)
+public final class R26SchemaMigrationDeviceTest {
+    private static void measured(JSONObject profile,String name,Runnable action)throws Exception{
+        long wall=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();action.run();profile.put(name,new JSONObject().put("wallMs",SystemClock.elapsedRealtime()-wall).put("cpuMs",SystemClock.currentThreadTimeMillis()-cpu));
+    }
+    private static JSONObject profile(SQLiteDatabase db)throws Exception{
+        JSONObject profile=new JSONObject().put("scope","INDIVIDUAL_SCHEMA_FUNCTION_DIAGNOSTIC; NOT_FULL_OPPORTUNITY_SLO");
+        try(android.database.Cursor c=db.rawQuery("SELECT count(*),coalesce(sum(length(sql)),0) FROM sqlite_master",null)){assertTrue(c.moveToFirst());profile.put("catalogueObjects",c.getLong(0)).put("catalogueSqlCharacters",c.getLong(1));}
+        SchemaDomainCoordinatorR926.Contract contract=SchemaDomainCoordinatorR926.researchContract();
+        measured(profile,"constructContract",()->SchemaDomainCoordinatorR926.researchContract());
+        measured(profile,"freshFingerprint",()->SchemaDomainCoordinatorR926.fingerprint(db,contract));
+        measured(profile,"requiredObjects",()->SchemaDomainCoordinatorR926.verifyObjects(db,contract));
+        measured(profile,"infrastructure",()->SchemaDomainCoordinatorR926.ensureInfrastructure(db));
+        measured(profile,"journalRead",()->assertTrue(SchemaDomainCoordinatorR926.stepComplete(db,contract,"R811_RESEARCH")));
+        measured(profile,"strategyReadiness",()->assertTrue(StrategySchemaSU1.ready(db)));
+        measured(profile,"longSummaryReadiness",()->assertTrue(com.ethk3.novaonepro.r952.LongScaleSummaryR80.ready(db)));
+        measured(profile,"longRegistrationReadiness",()->assertTrue(com.ethk3.novaonepro.r952.LongCandidateLifecycleR81.ready(db)));
+        return profile;
+    }
+    private static long complete(DbStore store,JSONArray timings)throws Exception{
+        long stop=SystemClock.elapsedRealtime()+240000,max=0;int calls=0;
+        while(SystemClock.elapsedRealtime()<stop){String before=ResearchSchemaCoordinatorR926.summary();long start=SystemClock.elapsedRealtime(),cpu=SystemClock.currentThreadTimeMillis();ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureOneStepResult(store.coordinatorForResearchR952());long wall=SystemClock.elapsedRealtime()-start;max=Math.max(max,wall);calls++;
+            if(wall>=100){JSONObject measured=new JSONObject().put("before",before).put("after",ResearchSchemaCoordinatorR926.summary()).put("wallMs",wall).put("cpuMs",SystemClock.currentThreadTimeMillis()-cpu).put("status",result.status);JSONArray children=new JSONArray();
+                try(android.database.Cursor c=store.readable().rawQuery("SELECT step_id,completed_at-started_at FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE completed_at>0 ORDER BY completed_at DESC,step_id DESC LIMIT 3",null)){while(c.moveToNext())children.put(new JSONObject().put("step",c.getString(0)).put("journalElapsedMs",c.getLong(1)));}measured.put("recentCompletedChildSteps",children);timings.put(measured);}
+            if(result.cause!=null)throw new AssertionError(result.detail,result.cause);if(result.ready){assertTrue("Final integrity verification shared the last installation callback",before.contains("cursor=VERIFY"));return max;}
+        }throw new AssertionError("Legacy schema did not finish; calls="+calls+"; "+ResearchSchemaCoordinatorR926.summary());
+    }
+    private static long populatedDiagnosisRepair(DbStore store,JSONObject receipt)throws Exception{
+        java.lang.reflect.Field tableField=DbHelper.class.getDeclaredField("DIAGNOSIS_TABLES_CP12"),createField=DbHelper.class.getDeclaredField("DIAGNOSIS_CREATE_CP12");tableField.setAccessible(true);createField.setAccessible(true);
+        String[] tables=(String[])tableField.get(null),creates=(String[])createField.get(null);String[] keys={"case_key","cache_key","promotion_key","freeze_key","judge_key","plan_key"};
+        // Reproduce missing common columns on the full, already migrated legacy catalogue.
+        // This fixture transaction is deliberately excluded from migration timings.
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_DIAGNOSIS_LEGACY_FIXTURE",w->{
+            for(int i=0;i<tables.length;i++){
+                w.execSQL("DROP TABLE \""+tables[i]+"\"");w.execSQL("DELETE FROM research_row_revision_v2 WHERE source_table=?",new Object[]{tables[i]});w.execSQL(creates[i]);
+                w.execSQL("WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<4096) INSERT INTO \""+tables[i]+"\"(\""+keys[i]+"\") SELECT 'legacy-'||i FROM n");
+            }
+            w.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" SET status='REPAIR_REQUIRED' WHERE domain=? AND revision=? AND (step_id='CP12_RUNTIME_DIAGNOSIS_RETENTION_V1' OR step_id GLOB 'R26_CP12_DIAGNOSIS_TABLE_*')",new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract().revision});return 0;
+        });
+        JSONArray calls=new JSONArray();receipt.put("populatedDiagnosisRepairCalls",calls).put("legacyDiagnosisRowsPerTable",4096);
+        long max=0;boolean ready=false;
+        for(int call=0;call<12&&!ready;call++){
+            long started=SystemClock.elapsedRealtime();ready=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_DIAGNOSIS_RESUME",w->com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.advanceR64(w));long elapsed=SystemClock.elapsedRealtime()-started;max=Math.max(max,elapsed);calls.put(new JSONObject().put("call",call).put("wallMs",elapsed).put("ready",ready));
+            // Each callback releases the writer; subsequent reads authenticate committed child receipts.
+            try(android.database.Cursor c=store.readable().rawQuery("SELECT count(*) FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE domain=? AND revision=? AND step_id GLOB 'R26_CP12_DIAGNOSIS_TABLE_*' AND status='COMPLETED'",new String[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,String.valueOf(SchemaDomainCoordinatorR926.researchContract().revision)})){assertTrue(c.moveToFirst());assertEquals(Math.min(call+1,6),c.getInt(0));}
+        }
+        assertTrue("Diagnosis migration did not resume",ready);assertEquals(8,calls.length());
+        for(String table:tables){
+            try(android.database.Cursor c=store.readable().rawQuery("SELECT count(*) FROM \""+table+"\" d JOIN research_row_revision_v2 r ON r.source_rowid=d.rowid AND r.source_table=?",new String[]{table})){assertTrue(c.moveToFirst());assertEquals(4096,c.getInt(0));}
+            try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_UNPERMITTED_DELETE",w->{w.execSQL("DELETE FROM \""+table+"\" WHERE rowid=1");return 0;});fail("Missing archive guard: "+table);}catch(RuntimeException expected){boolean guarded=false;for(Throwable cause=expected;cause!=null;cause=cause.getCause())guarded|=cause.toString().contains("CP12_RAW_DELETE_REQUIRES_VERIFIED_ARCHIVE");assertTrue(expected.toString(),guarded);}
+        }
+        receipt.put("populatedDiagnosisMaximumWriterCallMs",max);assertTrue("Populated diagnosis repair exceeded unchanged capacity boundary: "+max,max<=1000);return max;
+    }
+    @Test public void legacySchemaAndDriftRepairKeepDataAndStayBelowCapacityFailureBoundary()throws Exception{
+        android.content.Context original=InstrumentationRegistry.getInstrumentation().getTargetContext();assertNull(DatabaseCoordinator.peek());R26RuntimeDeviceTest.Sandbox app=new R26RuntimeDeviceTest.Sandbox(original);DbStore store=null;
+        JSONObject receipt=new JSONObject().put("scope","SYNTHETIC_LEGACY_SCHEMA_ONLY; NOT_FULL_PREDRAW_SLO_OR_USER_PHONE").put("capacityFailureBoundaryMs",1000);JSONArray cold=new JSONArray(),repair=new JSONArray();receipt.put("coldSlowCalls",cold).put("repairSlowCalls",repair);
+        try{
+            store=new DbStore(app);store.setState("r26_schema_fixture_marker","PRESERVE");SQLiteDatabase db=store.readable();
+            long first=TargetIssueResolver.sequenceOrdinalSU1("202610220001"),opened=System.currentTimeMillis()-4201L*60000;java.util.List<Models.Draw> history=new java.util.ArrayList<>();for(int i=0;i<4200;i++){Models.Draw d=new Models.Draw();d.issue=TargetIssueResolver.fromSequenceOrdinalSU1(first+i);d.numbers=new int[10];for(int p=0;p<10;p++)d.numbers[p]=(p+i%7)%10+1;d.openTime=opened+i*60000L;d.fetchTime=d.openTime+500;history.add(d);}assertEquals(4200,store.saveDraws(history));receipt.put("retainedSyntheticDraws",4200);
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_RUNTIME_SCHEMA",w->{RuntimeSchemaR26.ensure(w);return 0;});
+            boolean own=false;for(int i=0;i<1000&&!own;i++){ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());if(result.cause!=null)throw new AssertionError(result.detail,result.cause);own=result.ready;}assertTrue(own);
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_SU2_SCHEMA",w->{StrategySchemaSU2.ensure(w);return 0;});
+            long coldMax=complete(store,cold);receipt.put("coldMaximumWriterCallMs",coldMax);assertTrue(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.researchContract()));receipt.put("completedCatalogueProfile",profile(db));
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_SCHEMA_DRIFT",w->{w.execSQL("DROP TRIGGER r969_run_no_replace");return 0;});assertFalse(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.researchContract()));
+            long repairMax=complete(store,repair);receipt.put("repairMaximumWriterCallMs",repairMax);assertTrue(SchemaDomainCoordinatorR926.matches(db,SchemaDomainCoordinatorR926.researchContract()));assertEquals("PRESERVE",store.getState("r26_schema_fixture_marker",""));try(android.database.Cursor c=db.rawQuery("SELECT count(*) FROM draws WHERE dirty=0",null)){assertTrue(c.moveToFirst());assertEquals(4200,c.getInt(0));}
+            populatedDiagnosisRepair(store,receipt);
+            assertTrue("Cold legacy migration exceeded the unchanged capacity-failure boundary: "+coldMax,coldMax<=1000);assertTrue("Repair exceeded the unchanged capacity-failure boundary: "+repairMax,repairMax<=1000);receipt.put("result","PASS_SCHEMA_ONLY_WITH_STATED_SCOPE");
+        }catch(Throwable failure){receipt.put("result","FAIL").put("error",failure.toString());throw failure;}
+        finally{
+            if(store!=null)store.close();File target=new File(original.getCacheDir(),"r26-schema-migration-synthetic.json");try(FileOutputStream output=new FileOutputStream(target)){output.write(receipt.toString(2).getBytes(java.nio.charset.StandardCharsets.UTF_8));output.getFD().sync();}System.out.println("R26_SCHEMA_MIGRATION_RECEIPT="+receipt);R26RuntimeDeviceTest.remove(app.root);
+        }
+    }
+}

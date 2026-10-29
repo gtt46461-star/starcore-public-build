@@ -241,6 +241,7 @@ public final class RuntimeEventLedgerR926 {
     /** Critical-schema owner. Never call this from a canonical/settlement/FULL transaction. */
     public static void ensureSchema(SQLiteDatabase db) {
         if (db == null) throw new IllegalArgumentException("R926_EVENT_DB_NULL");
+        db.execSQL(com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.FEEDBACK);
         db.execSQL(
                 "CREATE TABLE IF NOT EXISTS "
                         + TABLE_EVENT

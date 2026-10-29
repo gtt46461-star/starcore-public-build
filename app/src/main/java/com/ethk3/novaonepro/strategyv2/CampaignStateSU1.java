@@ -18,12 +18,19 @@ public final class CampaignStateSU1 implements AutoCloseable {
     private String oldHash;
     private CampaignStateSU1(DbStore store,String campaign,String datasetBlob,long through,StrategyFoundrySU1 f,long generation,String hash){this.store=store;this.campaign=campaign;this.datasetBlob=datasetBlob;this.through=through;foundry=f;this.generation=generation;oldHash=hash;}
     private static String dataset(List<Models.Draw> rows){
-        try{ByteArrayOutputStream raw=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new GZIPOutputStream(raw))){out.writeInt(0x53553144);out.writeInt(rows.size());for(Models.Draw row:rows){out.writeUTF(row.issue);out.writeLong(row.openTime);out.writeLong(row.fetchTime);for(int p=1;p<=10;p++)out.writeByte(row.getNumberAtPosition(p));}}return Base64.getEncoder().encodeToString(raw.toByteArray());}
+        try{ByteArrayOutputStream raw=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(new BufferedOutputStream(new CooperativeOutputStreamR26(new GZIPOutputStream(raw)),32768))){out.writeInt(0x53553144);out.writeInt(rows.size());for(Models.Draw row:rows){out.writeUTF(row.issue);out.writeLong(row.openTime);out.writeLong(row.fetchTime);for(int p=1;p<=10;p++)out.writeByte(row.getNumberAtPosition(p));}}return Base64.getEncoder().encodeToString(raw.toByteArray());}
         catch(IOException impossible){throw new IllegalStateException(impossible);}
+    }
+    /** Canonical store history is already ascending; normalize by issue rather than reversing it. */
+    static List<Models.Draw> chronologicalHistory(List<Models.Draw> source){
+        List<Models.Draw> rows=new ArrayList<>(source);long captured=System.currentTimeMillis();
+        for(Models.Draw row:rows)if(row==null||!row.isValid()||row.dirty!=0||!TargetIssueResolver.isValid(row.issue)||row.fetchTime<=0||row.fetchTime>captured)throw new IllegalStateException("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE");
+        Collections.sort(rows,(left,right)->left.issue.compareTo(right.issue));String previous=null;
+        for(Models.Draw row:rows){ExecutionBudgetR26.poll();if(previous!=null&&!TargetIssueResolver.exact(previous,row.issue).valid)throw new IllegalStateException("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE");previous=row.issue;}return rows;
     }
     static int[][] unpack(String payload){
         if(payload==null||payload.length()>1048576)throw new IllegalArgumentException("SU1_DATASET_BYTES");
-        try(DataInputStream in=new DataInputStream(new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(payload))))){
+        try(DataInputStream in=new DataInputStream(new BufferedInputStream(new CooperativeInputStreamR26(new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(payload)))),32768))){
             if(in.readInt()!=0x53553144)throw new IOException("SU1_DATASET_VERSION");int n=in.readInt();if(n<3400||n>20000)throw new IOException("SU1_DATASET_ROWS");int[][] d=new int[n][10];String prior=null;
             for(int i=0;i<n;i++){String issue=in.readUTF();long open=in.readLong(),available=in.readLong();if(!TargetIssueResolver.isValid(issue)||prior!=null&&!TargetIssueResolver.exact(prior,issue).valid||open<=0||available<=0)throw new IOException("SU1_DATASET_SOURCE");prior=issue;for(int p=0;p<10;p++)d[i][p]=in.readUnsignedByte();RelationalStateInference.validateDraw(d[i]);}if(in.read()!=-1)throw new IOException("SU1_DATASET_TAIL");return d;
         }catch(IOException invalid){throw new IllegalArgumentException("SU1_DATASET_CORRUPT",invalid);}
@@ -40,8 +47,7 @@ public final class CampaignStateSU1 implements AutoCloseable {
                 List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result IN ('EVALUATED','REJECTED')",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(store.readable(),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
             }}
         }
-        List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));Collections.reverse(rows);if(rows.size()<3400)return null;
-        String previous=null;for(Models.Draw r:rows){if(r==null||!r.isValid()||r.dirty!=0||r.fetchTime<=0||r.fetchTime>System.currentTimeMillis()||previous!=null&&!TargetIssueResolver.exact(previous,r.issue).valid)throw new IllegalStateException("SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE");previous=r.issue;}
+        List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));if(rows.size()<3400)return null;rows=chronologicalHistory(rows);
         long through=LiveShadowLoopSU1.sequence(rows.get(rows.size()-1).issue);
         try(Cursor c=store.readable().rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%CONTINUOUS_CREATION%'",null)){if(c.moveToFirst()&&!c.isNull(0)&&through-c.getLong(0)<300)return null;}
         String payload=dataset(rows),hash=HashingSU1.text(payload);int[][] d=unpack(payload);StrategyFoundrySU1 f=new StrategyFoundrySU1(d,hash,through,24,3);

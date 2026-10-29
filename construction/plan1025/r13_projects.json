@@ -1,0 +1,5027 @@
+{
+ "plan": "R13",
+ "source_sha256": "4e41d787a27ae0f55fbcf73ab9be904819b0561a2d62bd8b4e0c39368b39cfe2",
+ "baseline": {
+  "public_commit": "0f1fb606a2e49f5065ff46c02c46917216eea02e",
+  "private_commit": "9ec590cafbd7cbcd1265a11b63a59df53ba78fcd"
+ },
+ "before_sha256": {
+  "DecisionGateEngine.java": "6b23e180c28a5bcc2a55ce9a8ed5623ad2ce42a669d43da7b20ac79c3b6ba0d0",
+  "UnifiedResearchChoiceR932.java": "a953dd694140184a111ff92f15a3d67bf33e049d548da22a6d250d91033e87f4",
+  "CertifiedPredictionR974.java": "3622875aa9c0b48eda298a1af13692542ce1072f4c924cef15e44186d39de2d0",
+  "ReportExportServiceCP4.java": "7f0adce4a7b03a21220673b7fcfd46ccd58eafdc6c32b2136875e53c6183718f",
+  "ReportJobJournalCP12.java": "7eeeb9f1901a6160363f919ceeffe03efc940c0c30492ef530848338fb58df82",
+  "ReportPublicationCP12.java": "89361bf6c0e1ace0627bf596a4f5c3ca824886afd5fc538184f63cd2980eecda",
+  "DbHelper.java": "ecc021c659d31635c0fbea4cde821403424725f77b9a661dd1b206162a448957",
+  "StorageReclaimR943.java": "4e5a657a931266da08c51efa994ef903251b15cb051703f68680b34c1fbcc243",
+  "ReportDiagnosticEvidenceR64.java": "817da0d9e2dddd0926982079046644cd3fd6d8f6dbd3d8d29cd4aa47fa69a1bf",
+  "ReportMetadataStreamR81.java": "85871c72291ee9acaee2a9e597e48d96c366969d0660d245991e87452fe2375b",
+  "strategyv2/StrategyRuntimeSU1.java": "48fbda07504a09207389a8aa02b9a5faeade580f28bcbeecde8cf9bf5d7a22dc",
+  "strategyv2/LiveShadowLoopSU1.java": "0219fe9f26ccaef5174cf845f0332ec61baa90ef68788c8230d97f8fab22e92a",
+  "strategyv2/PromotionPipelineSU1.java": "70a4791b229ab40c96e864ecb2cbec2f250d25a13f5b8c76a4427a842259808b",
+  "strategyv2/ReplayBurstJobServiceSU1.java": "0a8cd7eb3839f38d8ec509715694f49627b1352f90b67d0a943a492245a3c881",
+  "strategyv2/ResearchDashboardSU1.java": "c7d5821dcd3e27fe740f3d3622605662235cf291779b1a6e7c2ccd8a4d954177"
+ },
+ "patches": [
+  "01-P05.patch",
+  "02-P06.patch",
+  "03-P27.patch",
+  "04-P04.patch",
+  "05-P07.patch",
+  "06-P30.patch",
+  "07-P31.patch",
+  "08-P32.patch",
+  "09-P33.patch",
+  "10-P34.patch",
+  "11-P50.patch"
+ ],
+ "batches": {
+  "A": "基线·真相·不劣于旧版",
+  "B": "高速历史训练 + 每期实时训练结算反馈",
+  "C": "原子世界·矩阵·状态模型（有底层逻辑的数学模型）",
+  "D": "策略语言·持续创造·进化（一代比一代强）",
+  "E": "统计·证书·主链出手",
+  "F": "存储·检测报告·验收出口",
+  "G": "R14/R14b 创造引擎深化（校准·裁判·委员会·原子网络·反馈进化）",
+  "H": "R15 原子世界·分子·矩阵·研究记忆·原子蒸馏",
+  "I": "R16 结果分析→反馈→升级：区制记忆（模式与关系在区制消失时不被遗忘）；P49 阶段与窗口层（阶段识别·延续/方向矩阵·观察出手·择期）",
+  "J": "P50 检测报告 = 升级诊断书（实盘自动发现问题→原因→所需能力→升级做法→预计效果→影子实测）；体积与内存有界、重要内容完整保留"
+ },
+ "projects": [
+  {
+   "id": "P01",
+   "batch": "A",
+   "priority": "P0",
+   "deps": [],
+   "title": "双仓基线冻结与统一需求台账",
+   "problem": [
+    "私有仓库最新 Java 树 9ec590ca（R5.4.2.95-C024，与 5.4.3.00 报告 850 个 Java 文件身份一致）与公共 SU1 分支 0f1fb606（SU1-2026.10.23.6）是两条线，以前的 299 项/1832 需求、35 项、SU1 R001–R100、R10–R12 与本轮要求散落在不同文档里，无法逐条核对“是否做到”。",
+    "检测报告 5.4.3.00（sha a383e0bb…）是唯一的实机证据：4,995 期（202610191440–202610230674），无缺期。"
+   ],
+   "goal": "一张台账：每条用户要求 → 落实项目 → 代码文件 → 验收命令与阈值 → 当前状态；两条源码基线和报告用 SHA-256 冻结。",
+   "design": [
+    "基线：公共 0f1fb606a2e49f5065ff46c02c46917216eea02e 为施工基线（SU2 层依赖 SU1）；私有 9ec590ca 只接收与 SU1 无关的存储/报告补丁（07–10 号补丁已验证可直接应用）。",
+    "台账 manifests/r13_requirements.csv：R13-U01…U24 为本轮逐句拆出的要求；旧编号（SU1-R001–R100、299/1832、35 项 P001–P035）以映射列保留，不删除任何旧要求。",
+    "每个项目在 manifests/r13_projects.json 中有文件、动作、BEFORE SHA-256、补丁号、验收命令。",
+    "scripts/audit_r13.py 在交付前检查：每个 BEFORE SHA 与基线一致、每个补丁按顺序 git am 成功、每条要求至少有一个项目和一个验收。"
+   ],
+   "files": [
+    {
+     "path": "manifests/r13_requirements.csv",
+     "action": "DOC 文档/台账",
+     "note": "要求→项目→验收",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "manifests/r13_projects.json",
+     "action": "DOC 文档/台账",
+     "note": "机器可读项目卡",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/audit_r13.py",
+     "action": "TEST 检查",
+     "note": "交付一致性审计",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "scripts/audit_r13.py",
+     "marker": "PY:def main"
+    }
+   ],
+   "patch": "",
+   "acceptance": [
+    "python3 scripts/audit_r13.py 输出 R13_AUDIT_PASS",
+    "35 个项目、24 条要求全部有验收行；粗糙方案 35 卡全部有落点"
+   ],
+   "rollback": "纯文档，无运行时影响。",
+   "requirements": [
+    "U15",
+    "U17",
+    "U18",
+    "U24"
+   ],
+   "rough_cards": [
+    "P001"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "N/A",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P02",
+   "batch": "A",
+   "priority": "P0",
+   "deps": [
+    "P01"
+   ],
+   "title": "旧版高胜率档案三级证据与机制审计（查清 35/40% 从哪来）",
+   "problem": [
+    "R908 进化档案 125 个算法中 114 个有前瞻：合计 3,936/12,899 = 30.5%；开发段与前瞻段胜率相关系数 −0.19；前瞻 ≥35% 的 15 个，而 114 个“恰为 30%”的策略按各约 120 期纯随机预期约 14 个。",
+    "最高一条 70/152 = 46.05%，后来同一算法累计 79/196 = 40.3%：多出的 44 期只中 9 期（20.5%）。“40.3%”是高窗口与之后回落的平均。",
+    "旧 VM 探针：最高 5 条基因组的评分在保存状态与 200 步更新中都是常数（0.4345 / 0.5），真正选号的是外层 localSpread 规则；常数评分在新 1,440 期窗口上 29.3%。",
+    "同口径复现（本轮新做，validation/r13_v1/oldcaliber_*.json）：在真实开奖上按旧报告的展示方法（125 个策略、72 期开发、152 期前瞻、取最好）——旧式池最好 36.8%–40.1%、新池最好 38.2%–42.8%，≥35% 的有 4–18 个；纯随机的同一统计期望“最好 39.8%、≥35% 约 10.3 个”。这些“最好”的前 5 名在之后 200 次出手上 26.6%–31.4%。"
+   ],
+   "goal": "旧记录不删、不改、不冒充：分 LEGACY_REPORTED / ROW_VERIFIED / REPLAY_VERIFIED 三级；任何展示都同时给出“旧展示口径”和“前推口径”，让 35/40% 的来源一目了然。",
+   "design": [
+    "LegacyAuditSU2.probe：对旧基因组回放评分程序，记录评分/动作/状态是否真的变化；常数评分的成绩归属外层规则而不是该基因组。",
+    "LegacyAuditSU2.bestOfChance：给出“N 个恰为 30% 的策略在 n 期里最好的那个 ≥k 次命中”的概率，报告和界面在每个旧高分旁边显示。",
+    "旧档案以 LEGACY_REPORTED 原样保留；只有恢复了逐期冻结号码与结算行才升为 ROW_VERIFIED；原 VM+原特征重放一致才升为 REPLAY_VERIFIED。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyAuditSU2.java",
+     "action": "ADD 新增",
+     "note": "三级证据、机制探针、展示口径概率",
+     "before": "—（新文件）",
+     "after": "42 行 · sha256 328dd1627aa26ebb…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/LegacyAuditSU2.java",
+     "marker": "public static double bestOfChance"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "python3 reference/replay/oldcaliber13.py 复现同口径表（两份真实数据各 3–4 个起点）",
+    "旧 125 条档案字节校验一致；无一条被改写或删除"
+   ],
+   "rollback": "新增类，不影响旧档案读取。",
+   "requirements": [
+    "U01",
+    "U04",
+    "U20",
+    "U21"
+   ],
+   "rough_cards": [
+    "P002",
+    "P003"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P03",
+   "batch": "A",
+   "priority": "P0",
+   "deps": [
+    "P05",
+    "P06"
+   ],
+   "title": "用户原方法（多位置多号码交叉交集）复刻为“受保护的在任者”，升级必须在同一批期次上胜过它",
+   "problem": [
+    "用户提供的实盘：223 次出手 80 中（35.87%），同期“固定 Rank1 K3 每期出手”在这 223 期 77 中（34.5%）：选号只多 3 中，大部分来自“挑期”；四块 39.29/42.86/35.71/25.45%，最后一块回落。",
+    "本轮验证发现的方案缺陷：v2 主链按“最近 W 期最好”在联赛里挑，而新冠军正是在这 W 期上被选出来的（样本内、赢家诅咒），XI 却是样本外——于是挑战者总是“赢”，在 5.4.3 报告数据上主链 26.5% 反而低于 XI 35.1%，违反“不得劣于旧版”。IPM 即为此重写。",
+    "本轮把该方法逐行移植为 Java（XiIncumbentSU2，与 Python 参考 0 差异）：5.4.3 报告 4,995 期上 1500–4995 期 177/544 = 32.5%（覆盖 15.6%）；与手机端一样连续运行时最后 1,995 期 33.4%（108/323），每 700 期重启的旧验证口径下 35.1%（93/265，p=0.042）；3 月份仓库 1 万期上 27.8%。",
+    "SU1 里的 XI(…) 原子只是三集合投票，不是用户的完整方法；旧版没有“新方案必须在同样期次上不输给原方法”的规则，所以出现“升级后反而不如以前”而无人能证实或否定。"
+   ],
+   "goal": "原方法每期都在实时跑、冻结、结算，作为联赛的 INCUMBENT；新策略必须在同一批期次上不显著差于它才能替换它进入主链——“升级不得劣于旧版”变成可执行规则。",
+   "design": [
+    "XiIncumbentSU2：ExpertBank（8 专家）→ Top6/7/8/9 支持度、投影、清晰度等 19 个特征 + 4 个滚动 z 窗 → 2,500 期岭回归 Logistic（C=0.20，每 250 期重训）→ 25% 基池 → 15% 出手。dtype 与 numpy 逐位一致（float32 两两求和）。",
+    "IncumbentLoopSU2：每期结算后在后台线程算下一期决定并冻结；来不及在开盘前冻结记为 MISSING，与挑战者同样计入。",
+    "XI 与所有联赛成员走同一条车道（本轮验证中补上）：IncumbentLoopSU2.seed 为 XI 程序写一行 genome（origin_op=INCUMBENT，键 = 规范文本 SHA-256，不进入 SU2 模型实时集）；冻结时同时保存 XI 的 P(命中|状态)（供选择后校准）与融合表（供认证车道给其余 1,199 个动作排序）。IPM 选中 XI 时，主链显示的就是 XI 的冻结出号；XI 也只有在同样的选择性证书 + 用户开关下才可 REAL——旧方法和新策略用同一把尺子。",
+    "MainlinePolicySU2（IPM，在任者保护主链，本轮验证中重写）：每 250 期用已结算记录重选一次；①只用每个成员“入联赛之后”的样本外记录（birth = su2_league.joined_sequence），彻底排除训练/选择期；②主链起点和底线都是用户原方法 XI；③挑战者 C 要替换当前成员 U，必须在同一批期次 [max(birth_C,birth_U,c−4000),c) 上：≥1,000 期、≥250 次出手、频率 ≥15%，单侧两比例 z 检验 p ≤ 0.02/k（k=当期合格挑战者数，Bonferroni），3 个等分子块中至少赢 2 块，且不低于 XI 的点估计，且自身此刻不可降级；④当前成员在最近 1,500 期显著差于 XI（α=0.02）、或显著低于 30% 基线、或频率跌破 15%，立即降回 XI。",
+    "阈值不是在验证数据上调出来的：每 250 期一看、窗口重叠，按“每 1 万期误切换 ≤ 约 10%”的预算定 α，再用已知真相的合成联赛测工作特性（reference/replay/ipm_oc.py，300 次）：挑战者比 XI 差 2 点时误切换 2.3%、平均损失 0.02 点；挑战者真有 +5 点优势时 89% 被采用、主链平均 +3.6 点；挑战者崩溃到 25% 时中位 1,500 期内降回。",
+    "LeagueBoardSU2：研究/影子/真实三榜，每行给 N、胜率、下界、频率、最长连挂、区间；★ 标出在任者。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java",
+     "action": "ADD 新增",
+     "note": "用户原方法完整移植",
+     "before": "—（新文件）",
+     "after": "201 行 · sha256 ba022fb7b330563e…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java",
+     "action": "ADD 新增",
+     "note": "每期冻结在任者决定",
+     "before": "—（新文件）",
+     "after": "52 行 · sha256 3cd47c10748e627a…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2.java",
+     "action": "ADD 新增",
+     "note": "IPM：样本外·XI 底线·同期显著胜出·降级",
+     "before": "—（新文件）",
+     "after": "137 行 · sha256 f3d0c0abda87cbb9…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LeagueBoardSU2.java",
+     "action": "ADD 新增",
+     "note": "三榜展示",
+     "before": "—（新文件）",
+     "after": "48 行 · sha256 a174ee450128704e…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+     "action": "ADD 新增",
+     "note": "把 joined_sequence 作为 birth 传给 IPM（同 P27 文件）",
+     "before": "—（新文件）",
+     "after": "87 行 · sha256 90a8c633da1a5f76…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+     "action": "ADD 新增",
+     "note": "league() 返回 joined_sequence（同 P09 文件）",
+     "before": "—（新文件）",
+     "after": "104 行 · sha256 206f9c383f56472a…"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2Test.java",
+     "action": "TEST 检查",
+     "note": "Python/Java 决策逐步一致（150 步）",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDashboardSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "研究面板追加联赛三榜",
+     "before": "c7d5821dcd3e27fe…（102 行；仅公共 SU1 基线）",
+     "after": "补丁 06-P30"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/MainlinePolicySU2.java",
+     "marker": "public static Choice choose"
+    },
+    {
+     "file": "strategyv2/MainlinePolicySU2.java",
+     "marker": "static boolean demotable"
+    },
+    {
+     "file": "strategyv2/MainlineBridgeSU2.java",
+     "marker": "static List<MainlinePolicySU2.Member> members"
+    },
+    {
+     "file": "strategyv2/XiIncumbentSU2.java",
+     "marker": "public static int[] decideNext"
+    },
+    {
+     "file": "strategyv2/IncumbentLoopSU2.java",
+     "marker": "public static String freezeNext"
+    }
+   ],
+   "patch": "01-P05, 02-P06, 06-P30",
+   "acceptance": [
+    "java …XiIncumbentSU2Test reference/fixtures/r13_parity → 544 次出手 177 中，与 Python 0 差异；decideNext/decideNextFull（出手、位置、三码、phat、融合表）与回放 5/5 一致",
+    "test_su2_sql.py：XI 的 genome 行满足约束、可重复写入、不进入 SU2 模型实时集",
+    "java …MainlinePolicySU2Test reference/fixtures/r13_ipm → R13_IPM_PARITY_PASS（5 个场景 150 步：保持 XI / 真优势切换 / 崩溃降级 / 训练期假优势被忽略 / 低频不合格）",
+    "全部 9 个验证数据集：主链相对 XI 的“更差”单侧 p > 0.05（docs/15 表 2），即主链在同一批期次上从未显著差于旧方法",
+    "联赛每次重选写入 su2_mainline_choice（成员、得分、在任者得分、理由）"
+   ],
+   "rollback": "删除 su2_league 中 XI_INCUMBENT 行即停止；不影响 SU1。",
+   "requirements": [
+    "U01",
+    "U03",
+    "U08",
+    "U16",
+    "U21",
+    "U28"
+   ],
+   "rough_cards": [
+    "P003",
+    "P029"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P04",
+   "batch": "A",
+   "priority": "P0",
+   "deps": [
+    "P27"
+   ],
+   "title": "主链“有算法也不出手”的根因修复：编译期常量锁 → 运行期证书 + 冻结 ACT + 用户开关",
+   "problem": [
+    "两个仓库都有：AppConfig.R35_REAL_AUTO_UNLOCK_ENABLED = false（AppConfig.java:187），V51NumberModelArtifact / V51ExpertGateArtifact / V51ActionRankerArtifact / V51SelectedCalibrationArtifact .PROVEN = false、V51PolicySurfaceArtifact.MODEL_GATE_PASSED = false——全是编译期常量。",
+    "DecisionGateEngine.b12Reject（:11322）遇到它们一律返回 MODEL_NOT_PROVEN：无论算法多好，REAL 都不可能发生。另有 isFastAcceptBet 的绝对门槛 finalP ≥ 0.390/0.405/0.420、rawP ≥ 0.340–0.350（:5317 附近）——对校准后的 K3 概率（30% 附近）几乎不可达。",
+    "5.4.3 报告：RSEC-020 列出 14 个门失败（D01_DATASET_MANIFEST_NULL … C01_CERTIFICATE_NULL）；ProofRule 要求 N≥480、命中≥45%、Wilson≥40%；研究算法只有 N=1–9 的前瞻；主链最近 33 期 8 中（24.2%）。"
+   ],
+   "goal": "认证过的选择性策略可以出手：条件是有效证书、该期冻结决定为 ACT、开盘前、用户显式打开“实盘授权”。默认关闭，不改变旧车道。",
+   "design": [
+    "DecisionGateEngine.b12Reject：在编译期常量判断之前插入 SU2 车道判断，调用 RealAuthoritySU2.allows。",
+    "RealAuthoritySU2.allows：用户开关 su2_real_authorized_by_user=1；CertificateSU2.read 有效且证书号一致；当前联赛选择正是该成员；su2_live_decision 该期 act=1 且未结算；未过截止。",
+    "绝对概率门槛不再作用于 SU2 车道：出手资格由证书的选择后下界与在任者对照决定（P27–P29）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+     "action": "MODIFY 锚点修改",
+     "note": "b12Reject 插入 SU2 运行期判断",
+     "before": "6b23e180c28a5bcc…（11361 行；私有 9ec590ca 相同）",
+     "after": "补丁 04-P04"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
+     "action": "ADD 新增",
+     "note": "运行期授权",
+     "before": "—（新文件）",
+     "after": "34 行 · sha256 facfb9cbeff954d2…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/RealAuthoritySU2.java",
+     "marker": "public static boolean allows"
+    }
+   ],
+   "patch": "04-P04",
+   "acceptance": [
+    "开关关闭时 SU2 候选恒为 MODEL_NOT_PROVEN；打开且证书有效、ACT 时为 NONE",
+    "ABSTAIN 期不进入车道；每期最多 1 个 REAL（su2_mainline_binding 主键 target_issue）"
+   ],
+   "rollback": "关闭用户开关即回到原行为；补丁只多一个 if 分支。",
+   "requirements": [
+    "U05"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P05",
+   "batch": "B",
+   "priority": "P0",
+   "deps": [
+    "P01"
+   ],
+   "title": "模型策略高速历史回放（与实时同一套代码）",
+   "problem": [
+    "私有版本研究算法靠实时一期一期攒样本（报告里 N=1–9），没有历史高速训练；SU1 的 HistoricalReplayEngineSU1 只能回放语法程序，且每期从头重算全部历史。",
+    "R12 的 Python 引擎证明了高速回放可行，但手机端没有对应的有状态在线模型。"
+   ],
+   "goal": "任何 SU2 策略在保留的 ≤5,000 期历史上几秒内完成“每期预测→结算→训练”的严格因果回放，结果与实时逐期运行逐位相同。",
+   "design": [
+    "OnlineModelsSU2：六族模型都实现 predict()/update()；批量回放 = predict/update 循环（同一代码路径）。",
+    "ModelReplaySU2.Library：按 (族,参数) 只算一次、按字节上限 LRU（手机 96 MB）；evaluate()：成员→融合→可选 Sinkhorn→最优位置 Top3→门→分块因果频率阈值。",
+    "Java/Python 参考在 5.4.3 报告 4,995 期上：六族模型概率表最大差 0–7.5e-9，6 个策略（含 META 门、BMA、GATED、Sinkhorn）出手/命中 0 差异；BOCPD 0.8 s、其余 <0.3 s。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "六族在线模型",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelOpsSU2.java",
+     "action": "ADD 新增",
+     "note": "Sinkhorn/融合",
+     "before": "—（新文件）",
+     "after": "128 行 · sha256 ee7ec82eb2b7cfe2…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "回放与适应度",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DeterministicRandomSU2.java",
+     "action": "ADD 新增",
+     "note": "跨语言确定性随机",
+     "before": "—（新文件）",
+     "after": "27 行 · sha256 da3bf9f540418352…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java",
+     "action": "ADD 新增",
+     "note": "岭回归 Logistic",
+     "before": "—（新文件）",
+     "after": "49 行 · sha256 40f631f54187bcb1…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelReplaySU2.java",
+     "marker": "public static Result evaluate"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "java …OnlineModelsSU2Test reference/fixtures/r13_parity → R13_PARITY_PASS",
+    "4,995 期全部六族 <1 s/族（桌面 JVM）"
+   ],
+   "rollback": "新增类；不接线则无运行影响。",
+   "requirements": [
+    "U13"
+   ],
+   "rough_cards": [
+    "P005",
+    "P026"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P06",
+   "batch": "B",
+   "priority": "P0",
+   "deps": [
+    "P05"
+   ],
+   "title": "每期全量计算-结算-训练反馈（不出手的期也算、也结算、也训练）",
+   "problem": [
+    "公共 SU1 LiveShadowLoopSU1：只有 FROZEN（出手）的期写入 su1_live_shadow 并结算；GATE_SKIP 只记一行 attempt，没有号码，无法结算——“不出手的期也要计算训练，才能学会判断窗口”这条要求没做到。",
+    "SU1 门限每期为每个成员重算过去 720 期的评分（LiveShadowLoopSU1:58），预算紧时大量 BUDGET_SKIP。"
+   ],
+   "goal": "每个实时策略每期：开盘前给出决定（ACT 或 ABSTAIN，都带位置和三码）→ 冻结；开奖后在同一结算事务里全部贴标签 → 共享模型和适用状态学习器训练。",
+   "design": [
+    "ModelLiveSU2：decide()/settle()；内部环形缓冲保存特征行、标签、门分数与累计和，门限阈值每 50 期按过去 720 期分块计算，与回放完全一致。",
+    "ModelLiveLoopSU2：capture() 在 StrategyRuntimeSU1.capture 中调用；settleWithin() 在 SU1_COMPLETED_BRIDGE 结算事务中调用；每 240 期检查点，进程重启后从检查点按历史精确追平；新成员用保留历史自举。",
+    "LiveShadowLoopSU1：GATE_SKIP 也记录 POS/MASK，SU1 的不出手期从此可结算。",
+    "验证：5 个策略从创世逐期 decide/settle，与批量回放 0 差异；t=3000 存档恢复后继续 0 差异；t=4000 新生策略自举后 0 差异。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java",
+     "action": "ADD 新增",
+     "note": "增量执行",
+     "before": "—（新文件）",
+     "after": "325 行 · sha256 d420af87d32bf48c…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+     "action": "ADD 新增",
+     "note": "冻结/结算/检查点",
+     "before": "—（新文件）",
+     "after": "196 行 · sha256 6361f4898201e8e0…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyRuntimeSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "capture/completed 接线",
+     "before": "48fbda07504a0920…（26 行；仅公共 SU1 基线）",
+     "after": "补丁 02-P06"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowLoopSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "GATE_SKIP 保留拟出手",
+     "before": "0219fe9f26ccaef5…（124 行；仅公共 SU1 基线）",
+     "after": "补丁 02-P06"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelLiveSU2.java",
+     "marker": "public Decision decide()"
+    },
+    {
+     "file": "strategyv2/ModelLiveSU2.java",
+     "marker": "public boolean settle(int[] draw)"
+    },
+    {
+     "file": "strategyv2/ModelLiveLoopSU2.java",
+     "marker": "public static synchronized int settleWithin"
+    }
+   ],
+   "patch": "02-P06",
+   "acceptance": [
+    "java …ModelLiveSU2Test → R13_LIVE_EQUALS_REPLAY_PASS（含存档恢复、晚生自举）",
+    "su2_live_decision 每期每策略一行；hit 只能写一次（触发器）"
+   ],
+   "rollback": "StrategyRuntimeSU1 中两行调用可注释；表保留不影响 SU1。",
+   "requirements": [
+    "U07",
+    "U14"
+   ],
+   "rough_cards": [
+    "P004",
+    "P005",
+    "P009"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P07",
+   "batch": "B",
+   "priority": "P0",
+   "deps": [
+    "P06",
+    "P20"
+   ],
+   "title": "历史+实时双轨：后台连续创造，新子代立即上实时轨",
+   "problem": [
+    "SU1 的 StrategyFoundrySU1 每次刷新从固定家族与语法重新开始，宏库/统筹器状态依赖单次活动；R12 的“研究池每 300 期刷新”在手机端没有模型策略的实现。"
+   ],
+   "goal": "后台每个安静窗口跑一代进化（24 个子代，每个都在历史上回放；本轮验证把 16 提到 24：Java 进化在 4 代×16 的轻预算下 REGIME 前推 32.0%/Wilson 29.5% 不达标，8 代×24 时 32.7%/30.8% 达标）；8 代完成一次活动，频率分层冠军进入联赛并立即开始实时冻结；进化状态跨活动延续，从不重启。",
+   "design": [
+    "ModelFoundryJobSU2.slice：读取保留历史→Library（96 MB）→恢复进化状态→跑 1 代→写回基因组、名人堂、谱系与状态；第 8 代时把 F15/F30/F100 冠军写入 su2_league。",
+    "ReplayBurstJobServiceSU1：在 ArchiveStoreSU1.maintain 之后接入 SU2 架构、保留期、联赛重选、证书维护和最多 20 s 的创造切片；遇到结算或实时压力立即让出。",
+    "DEV = 保留历史中 [1500, T−1200)，VAL = 最后 1,200 期；冠军按 DEV+VAL 四折选择（v2）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+     "action": "ADD 新增",
+     "note": "后台创造切片",
+     "before": "—（新文件）",
+     "after": "90 行 · sha256 eae00b1d28ecd91b…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "接入 SU2 维护与创造",
+     "before": "0a8cd7eb3839f38d…（70 行；仅公共 SU1 基线）",
+     "after": "补丁 05-P07, 11-P50"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelFoundryJobSU2.java",
+     "marker": "public static String slice"
+    }
+   ],
+   "patch": "05-P07",
+   "acceptance": [
+    "连续 3 次活动后 su2_evolution_state 中种群/名人堂延续（effective_generations 单调不减）",
+    "结算进行中 slice 返回 SU2_FOUNDRY_YIELD_REALTIME"
+   ],
+   "rollback": "删去 burst 中 SU2 段；状态表保留。",
+   "requirements": [
+    "U13"
+   ],
+   "rough_cards": [
+    "P010",
+    "P026"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P08",
+   "batch": "B",
+   "priority": "P0",
+   "deps": [
+    "P06"
+   ],
+   "title": "赛前计算预算与训练争用分离",
+   "problem": [
+    "SU1 实时循环在赛前重算历史，预算用尽时整批 BUDGET_SKIP；训练、证书、维护与赛前计算抢同一窗口。"
+   ],
+   "goal": "赛前只做 O(1) 的增量决定（每策略毫秒级），总预算 1.5 s；超出的策略记 MISSING（并照常训练），不阻塞冻结；重活只在结算后的安静窗口。",
+   "design": [
+    "ModelLiveLoopSU2.capture：轮转起点（seq % n），逐个 decide，超过 PREDRAW_BUDGET_NANOS 或结算开始即停；未决定者在 settleWithin 里先 decide 再 settle，状态连续。",
+    "创造、证书、保留期、在任者计算全部在 burst 作业或结算后的后台线程。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+     "action": "ADD 新增",
+     "note": "预算与 MISSING（同 P06 文件）",
+     "before": "—（新文件）",
+     "after": "196 行 · sha256 6361f4898201e8e0…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelLiveLoopSU2.java",
+     "marker": "public static synchronized int capture"
+    }
+   ],
+   "patch": "02-P06",
+   "acceptance": [
+    "人为把预算设为 0：所有策略 MISSING，冻结 0 行，结算后状态仍与回放一致",
+    "MISSING 在证书证据中按“出手且未中”计入（SelectiveEvidenceSU2）"
+   ],
+   "rollback": "调大预算常量即可。",
+   "requirements": [
+    "U07"
+   ],
+   "rough_cards": [
+    "P004",
+    "P008",
+    "P010"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P09",
+   "batch": "B",
+   "priority": "P0",
+   "deps": [
+    "P06"
+   ],
+   "title": "因果时点与冻结身份",
+   "problem": [
+    "研究记录若可改写、可在开盘后冻结、可二次结算，所有胜率都不可信。"
+   ],
+   "goal": "每条决定：开盘前冻结、字段不可改、只结算一次、必须是 K3（三码）。",
+   "design": [
+    "schema/strategy_su2.sql：su2_live_decision CHECK(frozen_at<target_open_time)；触发器 su2_live_decision_freeze（禁止改决定字段）、su2_live_decision_settle_once、su2_live_decision_popcount（掩码恰 3 位）。",
+    "ModelLiveLoopSU2.capture 在写入前检查 EventFrameBuilderSU1.unchanged 与 now<open；历史帧必须连续（序号逐一）。",
+    "StrategySchemaSU2 由 SQL 文件生成（scripts/gen_schema_su2.py），避免两处定义不一致；不用 UPSERT/行值（minSdk 21 的 SQLite 3.8）。"
+   ],
+   "files": [
+    {
+     "path": "schema/strategy_su2.sql",
+     "action": "DOC 文档/台账",
+     "note": "表/索引/触发器",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java",
+     "action": "ADD 新增",
+     "note": "由 SQL 生成",
+     "before": "—（新文件）",
+     "after": "48 行 · sha256 34eec8de14318f6f…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+     "action": "ADD 新增",
+     "note": "持久化",
+     "before": "—（新文件）",
+     "after": "104 行 · sha256 206f9c383f56472a…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelStoreSU2.java",
+     "marker": "public static int settle"
+    }
+   ],
+   "patch": "02-P06",
+   "acceptance": [
+    "python3 reference/python/test_su2_sql.py → PASS（13,000 条决定结算一次、改写被拒、开盘后冻结被拒、非 K3 被拒）"
+   ],
+   "rollback": "新表，可整体删除。",
+   "requirements": [
+    "U07"
+   ],
+   "rough_cards": [
+    "P011"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P10",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "原子世界成为策略的“成员”和“状态”，而不是标签",
+   "problem": [
+    "25,350 个原子 / 28 族在 R12 已按 AtomEvaluatorCP4 语义提升为 168 个评分原子 + 150 个条件原子，但只能出现在 SU1 语法程序里；不能与深层数学模型融合，也不能作为“当前状态”的输入。"
+   ],
+   "goal": "任何 SU1 语法程序（含 ATOM(…)、XI(…)、REL(…)）都能作为 SU2 策略的一个成员：P = softmax(τ·score)，与状态模型融合、被适用状态门学习、被证书检验。",
+   "design": [
+    "ProgramModelSU2：成员种类 SU1PROG（参数 text_hex = 程序 UTF-8 十六进制、tau），predict 用 ProgramTreeSU1 在当前历史上评分；需要拟合资产的 DEEP/GRAPH 程序仍留在 SU1。",
+    "ModelReplaySU2.ADAPTERS 注册表让核心保持纯 Java；应用启动时 ProgramModelSU2.register()。",
+    "Python 参考中对应成员 ATOM（168 个评分原子）参与 v2 全部模拟。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramModelSU2.java",
+     "action": "ADD 新增",
+     "note": "SU1 程序/原子 → SU2 成员",
+     "before": "—（新文件）",
+     "after": "46 行 · sha256 d80371df3fc4087e…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ProgramModelSU2.java",
+     "marker": "public void predict"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ProgramModelSU2Test：EXPERT(1)、ADD(EXPERT(2),XT(3))、ATOM(FREQUENCY,window=80) 三个程序行和=1，0.1–2 ms/期"
+   ],
+   "rollback": "不注册适配器即不可用。",
+   "requirements": [
+    "U09",
+    "U10",
+    "U27"
+   ],
+   "rough_cards": [
+    "P012",
+    "P017"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P11",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "跨位置关系可靠度图 RELBAYES（每条关系都是一个会随状态开关的假设）",
+   "problem": [
+    "SU1 的 REL(…) 关系是固定权重；关系“这段时间有效、那段时间无效”无法表达。"
+   ],
+   "goal": "10 目标位 × 10 源位 × 滞后 × 4 种映射（同号/+1/−1/镜像）共 400–1,200 条关系，每条带遗忘 Beta 可靠度；可靠度 log(ρ/0.1) 为它预测的号码投票。",
+   "design": [
+    "OnlineModelsSU2.RelBayes：每期先预测（只用已结算），再按是否应验更新 s,n（衰减 decay）；先验强度 kappa。状态输出：最强证据、平均可靠度、置信。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "RelBayes",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class RelBayes"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "CROSS 世界（真实存在的跨位关系）前推命中高于 30%；NULL 世界不高于 30%（validation/r13）"
+   ],
+   "rollback": "不选用该族即可。",
+   "requirements": [
+    "U06",
+    "U10"
+   ],
+   "rough_cards": [
+    "P013"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P12",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "条件因果图 LOGLIN（多源·多滞后·在线学习）",
+   "problem": [
+    "XTRANS 只用一个源位置做计数矩阵；多个源同时影响一个位置时无法组合。"
+   ],
+   "goal": "P(位置 p 出 n) ∝ exp(b[p,n] + Σ_s W_s[p, 源号码, n])，源 = (位移, 滞后) 的任意组合，AdaGrad + L2 在线学习。",
+   "design": [
+    "OnlineModelsSU2.LogLin：保留最近 maxlag 期；每期预测→按对数损失梯度更新；状态输出：最大概率均值、权重规模、熵。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "LogLin",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class LogLin"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "与 Python 参考 P 表差 0"
+   ],
+   "rollback": "不选用该族即可。",
+   "requirements": [
+    "U06",
+    "U10"
+   ],
+   "rough_cards": [
+    "P013",
+    "P017"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P13",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "多尺度趋势窗口 MSDIR（当前哪种记忆长度最能解释走势）",
+   "problem": [
+    "冷热/遗漏只看单一窗口，窗口长度是人为参数；走势变化时窗口不会自己变。"
+   ],
+   "goal": "多个遗忘率（0.8–1.0）的 Dirichlet 计数并行，按每期结算的似然做贝叶斯平均并固定份额切换——系统自己判断“现在该看多长的历史”。",
+   "design": [
+    "OnlineModelsSU2.MsDir；状态：尺度权重熵、有效记忆长度（对数）、置信。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "MsDir",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class MsDir"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "DRIFT 世界前推高于 30%，NULL 世界不高于"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U06"
+   ],
+   "rough_cards": [
+    "P015"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P14",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "变点检测 BOCPD（当前状态已经持续多久、是否刚刚变了）",
+   "problem": [
+    "没有“走势刚变”的概率量；策略在旧状态的规律失效后仍继续出手。"
+   ],
+   "goal": "Adams–MacKay 贝叶斯在线变点：每个位置一个运行长度后验（截断 R），预测为各运行长度下 Dirichlet 预测的混合。",
+   "design": [
+    "OnlineModelsSU2.Bocpd；状态：最近 10 期内变点概率、期望运行长度（对数）、置信——直接作为适用状态门的输入。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "Bocpd",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class Bocpd"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "与 Python 参考 P 表差 0；4,995 期 0.8 s"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U06"
+   ],
+   "rough_cards": [
+    "P015"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P15",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "隐区制 HMM（整体状态：现在处于哪一种出号机制）",
+   "problem": [
+    "旧“区制”只是诊断标签，不进入预测。"
+   ],
+   "goal": "K 个隐状态，每个状态有自己的 10×10 位置-号码发射表；前向滤波得到状态后验，预测为后验加权；在线 EM 带遗忘，似然温度化防止被噪声带跑。",
+   "design": [
+    "OnlineModelsSU2.Hmm（初值用 SplitMix64 确定性正态，Java/Python 逐位一致）；状态：最大后验、熵、主状态编号。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "Hmm",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DeterministicRandomSU2.java",
+     "action": "ADD 新增",
+     "note": "确定性初值",
+     "before": "—（新文件）",
+     "after": "27 行 · sha256 da3bf9f540418352…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class Hmm"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "REGIME 世界：HMM 系策略前推 35%+（见 §5）"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U06"
+   ],
+   "rough_cards": [
+    "P015"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P16",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "趋势 Kalman（水平+斜率+不确定度的走势外推）",
+   "problem": [
+    "“动量”只是两个窗口频率相减，没有不确定度，也不区分噪声与趋势。"
+   ],
+   "goal": "每个 (位置,号码) 一个局部线性趋势卡尔曼滤波，预测 = 水平 + horizon × 斜率，温度 softmax；状态：平均斜率、不确定度、置信。",
+   "design": [
+    "OnlineModelsSU2.Kalman（预测步只做一次，update 前可单独调用 predict，实时与回放一致）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "Kalman",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class Kalman"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "与 Python 参考 P 表差 0"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U06"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P17",
+   "batch": "C",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "置换一致性与三种融合（静态对数线性 / 在线贝叶斯平均 / 状态门控专家混合）",
+   "problem": [
+    "每个位置独立打分忽略了“一期里每个号码只出现一次”；多个模型简单相加会互相稀释。"
+   ],
+   "goal": "Sinkhorn 把 10×10 表投影为双随机矩阵；STATIC 固定权重对数线性池；BMA 每期按结算似然更新权重；GATED 用各成员自己的状态（区制后验、变点风险、记忆尺度…）学习“什么时候信谁”。",
+   "design": [
+    "ModelOpsSU2.sink / poolStatic / poolBma / poolGated（GatedState 同时供回放与实时使用；numpy 两两求和顺序复刻）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelOpsSU2.java",
+     "action": "ADD 新增",
+     "note": "Sinkhorn/STATIC/BMA/GATED",
+     "before": "—（新文件）",
+     "after": "128 行 · sha256 ee7ec82eb2b7cfe2…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelOpsSU2.java",
+     "marker": "public static final class GatedState"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "GATED 策略 Java/Python 出手/命中 0 差异，实时 = 回放 0 差异"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U06",
+    "U16"
+   ],
+   "rough_cards": [
+    "P014",
+    "P017",
+    "P023"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P18",
+   "batch": "D",
+   "priority": "P1",
+   "deps": [
+    "P05"
+   ],
+   "title": "完整策略语言：SU2 基因组 + 可读数学公式",
+   "problem": [
+    "SU1 策略是语法树文本，没有成员模型、融合、门与频率的完整表达；同一程序在手机、桌面、参考代码之间需要同一身份。"
+   ],
+   "goal": "一条策略 = 成员（1–4 个在线模型/程序）+ 融合方式 + 置换一致性 + 门（MASS/META）+ 目标频率；规范文本即身份（SHA-256），并输出可读公式。",
+   "design": [
+    "ModelGenomeSU2：规范文本 SU2|POOL=…|SINK=…|GATE=…|COV=…|M=…；参数按键排序、格式与 Python 一致；parse 后必须重新生成同一文本。",
+    "公式示例：P = softmax(BMA[HMM{K=3,…}; RELBAYES{…}]) -> best position Top3 | applicability gate META(C=0.2) | target frequency 30%"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+     "action": "ADD 新增",
+     "note": "基因组/公式/身份",
+     "before": "—（新文件）",
+     "after": "138 行 · sha256 295e807067940cbd…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelGenomeSU2.java",
+     "marker": "public String formula()"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "parse(text).text() == text；Python su2_text 与 Java text 对 6 个夹具策略逐字相同"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U06"
+   ],
+   "rough_cards": [
+    "P016"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P19",
+   "batch": "D",
+   "priority": "P0",
+   "deps": [
+    "P05",
+    "P06"
+   ],
+   "title": "适用状态学习门 META：把交叉交集“挑期”的原理推广到所有策略",
+   "problem": [
+    "用户方法真正起作用的是“挑期”（同期基线 34.5% vs 全期约 30%）；但这个能力只存在于一种固定特征上，其他策略只能按自身置信度机械地取前 x%。"
+   ],
+   "goal": "每个策略每期都计算并结算；一个前推 Logistic 学习 P(本期命中 | 当前状态)，输入包括：置信、清晰度、熵、滚动 z、多模型 Top-5/Top-7 交集支持（交叉交集的推广）、各成员的状态量、策略自己最近 12/48/200 期表现；按目标频率在“最像自己窗口”的期出手。",
+   "design": [
+    "ModelReplaySU2.evaluate / ModelLiveSU2.decide 中的 META 分支：2,500 期窗口、每 250 期重训、≥400 行才启用；阈值每 50 期按过去 720 期的门分数分位数确定。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "META 门（回放）",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java",
+     "action": "ADD 新增",
+     "note": "META 门（实时）",
+     "before": "—（新文件）",
+     "after": "325 行 · sha256 d420af87d32bf48c…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelReplaySU2.java",
+     "marker": "LINES:if (g.gate.equals(\"META\")) {:2:44"
+    },
+    {
+     "file": "strategyv2/ModelLiveSU2.java",
+     "marker": "LINES:if (g.gate.equals(\"META\")) {:2:30"
+    }
+   ],
+   "patch": "01-P05, 02-P06",
+   "acceptance": [
+    "META 策略 Java/Python 0 差异；实时 = 回放 0 差异",
+    "REGIME 世界中 META 门策略的前推胜率高于同成员 MASS 门（§5）"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U02",
+    "U08",
+    "U16"
+   ],
+   "rough_cards": [
+    "P018"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P20",
+   "batch": "D",
+   "priority": "P0",
+   "deps": [
+    "P18"
+   ],
+   "title": "多家族持续创造与研究统筹（家族可以被创造）",
+   "problem": [
+    "固定八家族：DEV 上看起来强的往往是噪声；统筹器只记录单次活动。"
+   ],
+   "goal": "成员种类（六族模型 + EXPERT + XTRANS + ATOM/SU1 程序）× 融合 × 门 × 频率组成的开放空间里持续生成；统筹器按“实际带来的 DEV 改进”给种类和算子分配算力（UCB），并跨活动保留。",
+   "design": [
+    "ModelEvolutionSU2：首代系统筛查（每族中心参数 × 两种门 × 两种频率），之后 20% 随机新种 + 80% 由父代经算子产生；GRID 字符串与 Python 完全一致以共享缓存。",
+    "确定性：本轮发现 Python 参考的 crossover 用 set 合并成员，进程间结果随 PYTHONHASHSEED 变化（同一数据两次运行 F15 层 32.1% vs 28.7%）；改为有序并集（与 Java 相同语义），并验证不同哈希种子两次运行结果逐字段相同。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "创造/统筹",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "public State campaign"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ModelEvolutionSU2Test（8 代×24）：REGIME 世界前推 Wilson 下界 >30%，NULL 世界前推不高于 30% 的显著界",
+    "PYTHONHASHSEED=1 与 =2 两次 rolling13 运行结果完全一致"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U09"
+   ],
+   "rough_cards": [
+    "P020",
+    "P021"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P21",
+   "batch": "D",
+   "priority": "P1",
+   "deps": [
+    "P20"
+   ],
+   "title": "结构变异·交叉·融合·去除无效复杂度",
+   "problem": [
+    "旧进化以调参为主；复杂度增加了却不贡献（旧 VM 大量死指令）。"
+   ],
+   "goal": "11 种算子：mutate、add、remove、reweight、pool、gate、coverage、crossover、fusion（从名人堂借成员）、diagnose（见 P22）、prune（删去对 DEV 无贡献的成员）。",
+   "design": [
+    "ModelEvolutionSU2.apply；成员按 (种类,参数) 去重；算子成功率被记住并用于抽样。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "算子",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "Ranked apply(String op"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "每代记录算子成功率；prune 产生的子代成员数严格减少且 DEV 不降"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U09",
+    "U11"
+   ],
+   "rough_cards": [
+    "P022",
+    "P023"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P22",
+   "batch": "D",
+   "priority": "P0",
+   "deps": [
+    "P20"
+   ],
+   "title": "失败诊断→定向修复（父代的问题分析反馈给子代）",
+   "problem": [
+    "旧系统未中就“讲因果”，但不改变下一代；父代输在哪里没人知道。"
+   ],
+   "goal": "对父代在 DEV 已结算行上按各状态量（变点风险、区制后验、记忆尺度、关系可靠度）三分位分组，找出它输得最多的状态；子代加入能感知该状态的成员并启用适用状态门，学会在那种状态下不出手。",
+   "design": [
+    "ModelEvolutionSU2.diagnose → apply(\"diagnose\")；修复说明写入 su2_lineage.note 与界面，例如：PARENT_LOSES_WHEN_BOCPD_STATE_LOW|rate=0.3193|n=238|gap=-0.0164|CHILD_ADDS_BOCPD_AND_APPLICABILITY_GATE。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "diagnose",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "String[] diagnose"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "每次活动的修复记录 ≥1 条并入库；子代 DEV 适应度与父代并列可查"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U12"
+   ],
+   "rough_cards": [
+    "P019",
+    "P020"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P23",
+   "batch": "D",
+   "priority": "P0",
+   "deps": [
+    "P20"
+   ],
+   "title": "父代不丢弃：名人堂·谱系·跨活动延续",
+   "problem": [
+    "SU1 刷新时种群从固定种子重来；优秀父代下一次活动不再参与。"
+   ],
+   "goal": "精英直接进入下一代；名人堂保留历代最好的 12 个并持续作为父代；进化状态（种群、名人堂、分层冠军、统筹统计、修复记录）压缩存库，下次活动接着跑；谱系表记录每个子代的父代与算子。",
+   "design": [
+    "ModelEvolutionSU2.State + ModelStateCodecSU2（gzip，≤4 MB）+ su2_lineage。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStateCodecSU2.java",
+     "action": "ADD 新增",
+     "note": "状态编解码",
+     "before": "—（新文件）",
+     "after": "80 行 · sha256 17214638be0440ff…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelStateCodecSU2.java",
+     "marker": "public static byte[] encode"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "encode→decode→encode 字节相同；跨 5 个检查点名人堂延续（rolling13 日志）"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U11",
+    "U12"
+   ],
+   "rough_cards": [
+    "P024"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P24",
+   "batch": "D",
+   "priority": "P1",
+   "deps": [
+    "P20"
+   ],
+   "title": "“代”只在证实改进时才算数",
+   "problem": [
+    "旧档案第 40 代并不比第 1 代强；代数增长被误读为进步。"
+   ],
+   "goal": "effective_generations 只在冠军在 DEV+VAL 选择分上被严格超过时加一；界面显示“有效代 / 总代”。",
+   "design": [
+    "ModelEvolutionSU2.campaign：if (bestV > champVal) effectiveGenerations++。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "有效代",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "LINES:if (bestV > champVal):6:3"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "有效代单调不减；无改进的代不增加"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U11",
+    "U26"
+   ],
+   "rough_cards": [
+    "P025"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P25",
+   "batch": "D",
+   "priority": "P0",
+   "deps": [
+    "P20"
+   ],
+   "title": "频率分层冠军 F15 / F30 / F100（最低 15%，优先 30%，很强才 100%）",
+   "problem": [
+    "单一冠军要么频率太低、要么为了频率牺牲胜率；SU1 只允许 0.10/0.15/0.25/1.0 四档且证书只认 100%。"
+   ],
+   "goal": "三层各有自己的冠军：F15（15–20%）、F30（30–50%）、F100（每期出手，只给很强的）；全部进入联赛，由前推记录决定主链用哪一层。",
+   "design": [
+    "ModelEvolutionSU2.tierOf / campaign 中按层比较；联赛 MainlinePolicySU2 在三层与在任者之间选择。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "分层",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "public static String tierOf"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "每次活动后三层冠军都写入联赛（若该层有合格候选）"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U02",
+    "U03"
+   ],
+   "rough_cards": [
+    "P007"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P26",
+   "batch": "D",
+   "priority": "P0",
+   "deps": [
+    "P20"
+   ],
+   "title": "稳定·频率感知适应度与冠军选择窗口",
+   "problem": [
+    "Wilson 下界会把高频平庸策略排在前面，VAL 只有 1,500 期时在 15–30% 频率下几乎没有前推信号（实测：VAL 分与未来命中的相关 −0.02 / −0.10）。"
+   ],
+   "goal": "每折命中率向 30% 收缩（κ=200 伪期）→ 均值 − 0.25×折间极差 − 频率不足惩罚；冠军/分层/联赛用 DEV+VAL 全部历史（四折）选择（实测相关 0.34–0.35）。",
+   "design": [
+    "ModelReplaySU2.fitness；ModelEvolutionSU2.val（v2）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "fitness",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelReplaySU2.java",
+     "marker": "public static double fitness"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "llrtest：DEV+VAL 选择分与未来命中相关 ≥0.3（REGIME、MIX 两个世界）"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U02",
+    "U03",
+    "U20"
+   ],
+   "rough_cards": [
+    "P007",
+    "P018"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P27",
+   "batch": "E",
+   "priority": "P0",
+   "deps": [
+    "P06"
+   ],
+   "title": "选择性证书全链（15–30% 的策略也能被证明）",
+   "problem": [
+    "公共 SU1：PromotionPipelineSU1:51 对 coverage<0.999 直接抛 SU1_CONFIRM_FULL_COVERAGE_POLICY_REQUIRED，CertificateSU1:40 读证书时再要求 coverage≥0.999——选择性策略永远拿不到证书。"
+   ],
+   "goal": "证书只看实时冻结并结算的记录：出手期的命中（MISSING 按未中计）、下界 > 30%、频率 ≥15%、四块都不低于 28%、在同一批期次上不显著差于在任者；24 小时有效，每天重评。",
+   "design": [
+    "SelectiveEvidenceSU2.evaluate（Hoeffding 下界在本次 look 的 α 上；配对超额命中差的上界 ≥0）。",
+    "CertificateSU2.maintain：每次评估都消耗一次 look（无论通过与否），通过才写 su2_certificate；绑定程序文本哈希。",
+    "PromotionPipelineSU1：选择性 SU1 程序不再被拒，写入联赛参与影子与选择；全覆盖 SU1 证书保持原协议。",
+    "XI 在任者同样可被发证（不与自己做配对比较）；证书绑定 XI 的规范文本哈希。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectiveEvidenceSU2.java",
+     "action": "ADD 新增",
+     "note": "选择性证据",
+     "before": "—（新文件）",
+     "after": "67 行 · sha256 b1cb606ece00636a…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+     "action": "ADD 新增",
+     "note": "证书发放/读取",
+     "before": "—（新文件）",
+     "after": "71 行 · sha256 58a078a37b6f3b0f…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+     "action": "ADD 新增",
+     "note": "联赛选择/意图",
+     "before": "—（新文件）",
+     "after": "87 行 · sha256 90a8c633da1a5f76…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PromotionPipelineSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "选择性不再抛异常",
+     "before": "70a4791b229ab40c…（54 行；仅公共 SU1 基线）",
+     "after": "补丁 03-P27"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/SelectiveEvidenceSU2.java",
+     "marker": "public static Verdict evaluate"
+    },
+    {
+     "file": "strategyv2/CertificateSU2.java",
+     "marker": "public static String maintain"
+    }
+   ],
+   "patch": "03-P27",
+   "acceptance": [
+    "对照组（时间打乱真实数据）上的“32.45%”在证书层被拒：Hoeffding 下界 0.287 < 0.30",
+    "su2_certificate CHECK：lower_bound>0.30、coverage≥0.15、ece≤0.04、有效期≤24h"
+   ],
+   "rollback": "不发证书则 SU2 只在影子榜。",
+   "requirements": [
+    "U02",
+    "U05",
+    "U20"
+   ],
+   "rough_cards": [
+    "P006"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P28",
+   "batch": "E",
+   "priority": "P0",
+   "deps": [
+    "P27"
+   ],
+   "title": "终身 α 预算与多重搜索控制",
+   "problem": [
+    "一天跑上千个程序，看得越多越容易“看出”40%；每次重新评估都等于再抽一次奖。"
+   ],
+   "goal": "每个基因组的第 k 次评估只能用 α_k = 0.05/(k(k+1))，所有评估加起来不超过 0.05；评估次数入库不可回退。",
+   "design": [
+    "su2_alpha_look（looks 只增）；SelectiveEvidenceSU2.alphaForLook。"
+   ],
+   "files": [
+    {
+     "path": "schema/strategy_su2.sql",
+     "action": "DOC 文档/台账",
+     "note": "su2_alpha_look",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/SelectiveEvidenceSU2.java",
+     "marker": "public static double alphaForLook"
+    }
+   ],
+   "patch": "03-P27",
+   "acceptance": [
+    "looks 递增；第 k 次评估的 α 与公式一致"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U16",
+    "U20"
+   ],
+   "rough_cards": [
+    "P027"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P29",
+   "batch": "E",
+   "priority": "P1",
+   "deps": [
+    "P27"
+   ],
+   "title": "选择后校准：界面上的“本期命中概率”必须对得上",
+   "problem": [
+    "被选中的期天然偏乐观；直接显示原始 phat 会高估。"
+   ],
+   "goal": "只用该策略此前的 ACT 期做 Platt 校准（向“原样”收缩），ECE ≤ 0.04 才能出证书；主链显示校准后的值。",
+   "design": [
+    "SelectiveCalibrationSU2.fit / ece；MainlineAdapterSU2 用证书里的 (a,b) 计算 selectedHitP。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectiveCalibrationSU2.java",
+     "action": "ADD 新增",
+     "note": "Platt/ECE",
+     "before": "—（新文件）",
+     "after": "40 行 · sha256 84a12d7f0f6731e1…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/SelectiveCalibrationSU2.java",
+     "marker": "public static Platt fit"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ece 计算与 10 箱定义一致；证书表 ece≤0.04 的 CHECK 生效"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U16"
+   ],
+   "rough_cards": [
+    "P028"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P30",
+   "batch": "E",
+   "priority": "P0",
+   "deps": [
+    "P03",
+    "P04",
+    "P27"
+   ],
+   "title": "主链消费：联赛选择 → 唯一认证车道；ABSTAIN 就不出手",
+   "problem": [
+    "公共 SU1 的 MainlineAdapterSU1.prepare 每期都产生 1,200 动作排序，没有“本期不出手”的路径；排行榜是训练分，不是实际出手记录。"
+   ],
+   "goal": "联赛选中的成员本期冻结为 ACT 且持有有效证书 → 进入 R974 认证车道（唯一 DecisionGate、唯一结算 owner）；ABSTAIN、缺冻结表或证书变化 → 本期不出手。",
+   "design": [
+    "UnifiedResearchChoiceR932：SU1 之后增加 SU2 意图；无证书则在 roster 记录 SU2_SHADOW_ONLY。",
+    "CertifiedPredictionR974：SU2 前缀分支、Prepared/Proof 构造与 verifyCertificate 校验。",
+    "MainlineAdapterSU2.prepare：头部 = 冻结的位置与三码，其余 1,199 个动作按冻结时的融合表排序；概率 = 证书校准值。",
+    "ResearchDashboardSU1 追加 LeagueBoardSU2 三榜。",
+    "MainlineBridgeSU2.intent / MainlineAdapterSU2.prepare / RealAuthoritySU2.allows 同时接受 SU2 成员与 XI 在任者；XI 的融合表取自 IncumbentLoopSU2.pendingTable。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java",
+     "action": "ADD 新增",
+     "note": "认证车道投影",
+     "before": "—（新文件）",
+     "after": "65 行 · sha256 e536cfd112c51048…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LeagueBoardSU2.java",
+     "action": "ADD 新增",
+     "note": "三榜",
+     "before": "—（新文件）",
+     "after": "48 行 · sha256 a174ee450128704e…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+     "action": "MODIFY 锚点修改",
+     "note": "SU2 意图",
+     "before": "a953dd694140184a…（239 行；仅公共 SU1 基线）",
+     "after": "补丁 06-P30"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+     "action": "MODIFY 锚点修改",
+     "note": "SU2 分支/证明/校验",
+     "before": "3622875aa9c0b48e…（319 行；仅公共 SU1 基线）",
+     "after": "补丁 06-P30"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDashboardSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "三榜",
+     "before": "c7d5821dcd3e27fe…（102 行；仅公共 SU1 基线）",
+     "after": "补丁 06-P30"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/MainlineAdapterSU2.java",
+     "marker": "public static Prepared prepare"
+    }
+   ],
+   "patch": "06-P30",
+   "acceptance": [
+    "ABSTAIN 期 CertifiedPredictionR974.prepare 返回 null",
+    "每期最多一条 su2_mainline_binding"
+   ],
+   "rollback": "删除 UnifiedResearchChoiceR932 中 SU2 段即回到 SU1/R958 车道。",
+   "requirements": [
+    "U01",
+    "U05"
+   ],
+   "rough_cards": [
+    "P014",
+    "P029"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P31",
+   "batch": "F",
+   "priority": "P0",
+   "deps": [
+    "P01"
+   ],
+   "title": "全软件物理字节预算 + 目录普查（报告第一页就能看出 30 GB 在哪）",
+   "problem": [
+    "5.4.3 报告只量了数据库 272,158,720 字节与 WAL（实时 753,992），完全看不到 files/ 下的报告任务、恢复包、CAS、训练输入、模型包——“两条 30 G”无从定位。"
+   ],
+   "goal": "每次报告与研究面板都给出按类别的实际字节：DATABASE / WAL / REPORTS / REPORT_RECOVERY / RESEARCH_CAS / TRAINING_CAS / MODEL_BUNDLES / CACHE / OTHER，及最大的 8 个文件；su2_storage_budget 记录每类上限（总 1.5 GB）。",
+   "design": [
+    "StorageCensusSU2.measure：有界遍历（20 万项、深度 12、不跟随符号链接）。",
+    "ReportExportServiceCP4：在文件清单之后写入 STORAGE_CENSUS.txt 成员。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java",
+     "action": "ADD 新增",
+     "note": "普查",
+     "before": "—（新文件）",
+     "after": "61 行 · sha256 9685d26c08891dc3…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+     "action": "MODIFY 锚点修改",
+     "note": "报告成员",
+     "before": "7f0adce4a7b03a21…（444 行；私有 9ec590ca 相同）",
+     "after": "补丁 07-P31, 10-P34, 11-P50"
+    }
+   ],
+   "code": [
+    {
+     "file": "StorageCensusSU2.java",
+     "marker": "public static String category"
+    }
+   ],
+   "patch": "07-P31",
+   "acceptance": [
+    "ReportStorageSU2Test：合成应用目录（库 272,158,720 B、WAL、恢复包、已发布报告、CAS、缓存）普查各类相加 = total，最大文件指向 recovery/",
+    "报告包含 STORAGE_CENSUS.txt"
+   ],
+   "rollback": "删去 3 行写入即可。",
+   "requirements": [
+    "U22",
+    "U40"
+   ],
+   "rough_cards": [
+    "P030"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P32",
+   "batch": "F",
+   "priority": "P0",
+   "deps": [
+    "P31"
+   ],
+   "title": "数据库文件真正缩小（auto_vacuum 一次性转换）",
+   "problem": [
+    "DbHelper.onConfigure（:308）每次打开都执行 PRAGMA auto_vacuum=INCREMENTAL——对已用 NONE 建库的数据库无效（必须 VACUUM 后才生效）；StorageReclaimR943（:33–36）在 mode==0 时只返回 LEGACY_COMPACTION_REQUIRED 并进入冷却，从不压缩。5000 期上限删行后，文件永远停在历史最高水位。"
+   ],
+   "goal": "安静窗口里一次性执行 auto_vacuum=INCREMENTAL + VACUUM + WAL TRUNCATE；之后 StorageReclaimR943 的增量回收路径真正生效；超过 768 MB 的库走现有 R82 离线重建。",
+   "design": [
+    "DatabaseCompactionSU2.convertIfNeeded：检查事务/实时压力/空闲页比例（≥25%）/磁盘余量（≥2×库+64 MB）。",
+    "DbHelper：去掉无效 pragma，保留 journal_size_limit，增加 wal_autocheckpoint=1000。",
+    "StorageReclaimR943：mode 0 分支调用转换。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCompactionSU2.java",
+     "action": "ADD 新增",
+     "note": "一次性转换",
+     "before": "—（新文件）",
+     "after": "39 行 · sha256 4d49a3a7743521a9…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/DbHelper.java",
+     "action": "MODIFY 锚点修改",
+     "note": "onConfigure",
+     "before": "ecc021c659d31635…（8733 行；私有 9ec590ca 相同）",
+     "after": "补丁 08-P32"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java",
+     "action": "MODIFY 锚点修改",
+     "note": "mode 0 分支",
+     "before": "4e5a657a931266da…（107 行；私有 9ec590ca 相同）",
+     "after": "补丁 08-P32"
+    }
+   ],
+   "code": [
+    {
+     "file": "DatabaseCompactionSU2.java",
+     "marker": "public static String convertIfNeeded"
+    }
+   ],
+   "patch": "08-P32",
+   "acceptance": [
+    "转换后 PRAGMA auto_vacuum=2；删除 30% 行后增量回收使文件字节下降",
+    "磁盘不足时返回 DISK_TOO_FULL_FOR_VACUUM 而不尝试"
+   ],
+   "rollback": "不调用转换即保持原状；已转换的库与旧代码兼容。",
+   "requirements": [
+    "U22"
+   ],
+   "rough_cards": [
+    "P032"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P33",
+   "batch": "F",
+   "priority": "P0",
+   "deps": [
+    "P31"
+   ],
+   "title": "每期增长的表有寿命；报告大表只导出最新行",
+   "problem": [
+    "5.4.3 报告：research_row_revision_v2 184,964 行、v57_runtime_event_r926 72,883 行，而开奖只有 4,995 期（3.5 天）；runtime_event 只能经存档协议删除（触发器 trg_r926_runtime_event_no_delete），归档进 CAS 只是换地方累积。",
+    "ReportDiagnosticEvidenceR64 把约 90 张表的“全部行全部文本”写进一个 JSON（本次 121,368,680 字节），表越大报告越大。"
+   ],
+   "goal": "SU2 自己的每期记录有上限：原始决定保留 10,080 期后折叠为日汇总；过期研究基因组清理；报告中超过 20,000 行的表只导出最新 5,000 行 + 精确总数（完整表仍可通过显式原始导出取得）。",
+   "design": [
+    "RetentionRulesSU2.foldDecisions / pruneResearchGenomes（每次最多 2,000 行，短事务；WITHOUT ROWID 表按序号区间删除，兼容 SQLite 3.8）。",
+    "ReportMetadataStreamR81.writeRows 增加 fromRowid 重载；ReportDiagnosticEvidenceR64 按行数分支。",
+    "runtime_event 的去重/TTL 作为 R926 写入端的后续卡（P33-b），本包给出规则：同 (stage,target,detail) 合并为首末次+计数。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/RetentionRulesSU2.java",
+     "action": "ADD 新增",
+     "note": "SU2 保留期",
+     "before": "—（新文件）",
+     "after": "44 行 · sha256 3f45b66a07a98e0d…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java",
+     "action": "MODIFY 锚点修改",
+     "note": "大表只导最新行",
+     "before": "817da0d9e2dddd09…（182 行；私有 9ec590ca 相同）",
+     "after": "补丁 09-P33"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java",
+     "action": "MODIFY 锚点修改",
+     "note": "fromRowid 重载",
+     "before": "85871c72291ee9ac…（189 行；私有 9ec590ca 相同）",
+     "after": "补丁 09-P33"
+    }
+   ],
+   "code": [
+    {
+     "file": "RetentionRulesSU2.java",
+     "marker": "public static int foldDecisions"
+    }
+   ],
+   "patch": "05-P07, 09-P33",
+   "acceptance": [
+    "test_su2_sql：13,000 期决定折叠为日汇总，剩余 ≥ 当前−10,080",
+    "报告 JSON 中大表 complete=false 且 totalRows 精确"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U16",
+    "U22",
+    "U40"
+   ],
+   "rough_cards": [
+    "P031",
+    "P032",
+    "P033"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P34",
+   "batch": "F",
+   "priority": "P0",
+   "deps": [
+    "P31"
+   ],
+   "title": "检测报告体积预算：失败恢复包不再复制整库、恢复包有界、配额真正执行",
+   "problem": [
+    "根因 1：ReportJobJournalCP12.writeFailureArtifact（:201–247）每次完整报告失败，都把整个 snapshot.db 复制进 recovery/<请求>/<sha>.zip——与是否勾选原始证据无关。",
+    "根因 2：ReportPublicationCP12.pruneRequestMetadata（:121）对这些恢复目录保留最多 256 个、7 天。报告导不出来→再点导出→每次多一份整库副本：几十次就是几十 GB。",
+    "根因 3：ReportPublicationCP12.enforceQuota 写了但从未被调用；ReportExportServiceCP4（:255）publishedQuotaBytes=Long.MAX_VALUE；FULL_REPORT 阶段截止时间为 Long.MAX_VALUE（:318），任务可无限挂起。"
+   ],
+   "goal": "恢复包只含异常、请求与观测（只有用户勾选原始证据且库 ≤256 MB 时才附库）；重恢复物最多保留最近 3 个、24 小时；已发布报告总额 512 MB 并在发布时强制执行；每阶段最长 30 分钟后让出并续传。",
+   "design": [
+    "ReportBudgetSU2：recoveryMayIncludeDatabase、pruneHeavyRecovery、PUBLISHED_QUOTA_BYTES、deadline。",
+    "四处补丁：writeFailureArtifact 前置判断；pruneRequestMetadata 开头清理；reserveDisk 配额；publish 中调用 enforceQuota；ActiveControl.enter 截止时间。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java",
+     "action": "ADD 新增",
+     "note": "预算",
+     "before": "—（新文件）",
+     "after": "72 行 · sha256 00c12c7e26c0afdc…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+     "action": "MODIFY 锚点修改",
+     "note": "恢复包",
+     "before": "7eeeb9f1901a6160…（261 行；私有 9ec590ca 相同）",
+     "after": "补丁 10-P34"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+     "action": "MODIFY 锚点修改",
+     "note": "清理",
+     "before": "89361bf6c0e1ace0…（144 行；私有 9ec590ca 相同）",
+     "after": "补丁 10-P34"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+     "action": "MODIFY 锚点修改",
+     "note": "配额/截止",
+     "before": "7f0adce4a7b03a21…（444 行；私有 9ec590ca 相同）",
+     "after": "补丁 07-P31, 10-P34, 11-P50"
+    }
+   ],
+   "code": [
+    {
+     "file": "ReportBudgetSU2.java",
+     "marker": "public static boolean recoveryMayIncludeDatabase"
+    },
+    {
+     "file": "ReportBudgetSU2.java",
+     "marker": "public static int pruneHeavyRecovery"
+    }
+   ],
+   "patch": "10-P34",
+   "acceptance": [
+    "ReportStorageSU2Test 模拟 20 次失败的完整报告（每小时一次）：旧规则 recovery/ 5,443,256,320 字节（20 份整库副本）；新规则 12,288 字节（3 个包、无库）；勾选原始证据但库 >256 MB 时仍不附库",
+    "FULL_REPORT 阶段截止 = 开始 + 30 分钟（原 Long.MAX_VALUE）",
+    "设备上（L4）：第 9 个已发布报告触发配额清理；超额且受保护时发布失败而不是无限增长"
+   ],
+   "rollback": "补丁均为加法；去掉调用即回到原行为。",
+   "requirements": [
+    "U22",
+    "U40"
+   ],
+   "rough_cards": [
+    "P032",
+    "P033",
+    "P034"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P35",
+   "batch": "F",
+   "priority": "P0",
+   "deps": [
+    "P01"
+   ],
+   "title": "分层验收与施工出口",
+   "problem": [
+    "以往“参考测试通过”被当成“软件已达标”；手机构建、迁移、设备验收与真实冻结前推是不同层次。"
+   ],
+   "goal": "五层出口：L1 参考一致（Java=Python、实时=回放、SQL 约束）；L2 模拟（结构世界抓到、无结构世界不报假、旧口径对照）；L3 构建（10 个补丁按序 git am + Gradle assembleRelease）；L4 设备（30 天等效压力下字节不超预算、报告可导出）；L5 真实前推（每个上线策略 ≥600 次实时出手后才可能有证书）。",
+   "design": [
+    "scripts/run_r13_checks.sh → run_r13_checks.py：L1 = SQL 约束、IPM 夹具、Java release-8 编译全部参考类（含 Android 桩）+ 10 个 Java 测试；L2 = 读取 validation/r13 的 9 个数据集按 docs/15 的验收规则判定（--rerun 先重跑 run_r13_batch.sh，约 30 分钟）；L3 = 给出公共仓库路径时：15 个 MODIFY 文件 BEFORE SHA-256、10 个补丁按序 git am、补丁后 29 个 SU2 类对真实 SU1 源码做符号级编译、ProgramModelSU2Test。",
+    "L3-Gradle（assembleRelease）、L4（设备 30 天等效压力、报告可导出）、L5（真实冻结前推：每个上线策略 ≥600 次实时出手后才可能有证书）由施工方在设备上执行并回填 manifests/r13_projects.json 的 status。"
+   ],
+   "files": [
+    {
+     "path": "scripts/run_r13_checks.sh",
+     "action": "TEST 检查",
+     "note": "一键检查入口",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/run_r13_checks.py",
+     "action": "TEST 检查",
+     "note": "L1/L2/L3 实现",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/run_r13_batch.sh",
+     "action": "TEST 检查",
+     "note": "重跑全部模拟",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/python/test_su2_sql.py",
+     "action": "TEST 检查",
+     "note": "SQL 约束",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/stubs",
+     "action": "TEST 检查",
+     "note": "Android/应用桩（只用于宿主编译）",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "scripts/run_r13_checks.py",
+     "marker": "PY:def l2"
+    },
+    {
+     "file": "scripts/run_r13_checks.py",
+     "marker": "PY:def l3"
+    }
+   ],
+   "patch": "",
+   "acceptance": [
+    "run_r13_checks.sh 全部 PASS；任何一层未过不得宣称达到要求"
+   ],
+   "rollback": "—",
+   "requirements": [
+    "U01",
+    "U19",
+    "U23"
+   ],
+   "rough_cards": [
+    "P035"
+   ],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "N/A",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P36",
+   "batch": "G",
+   "priority": "P0",
+   "deps": [
+    "P05",
+    "P17"
+   ],
+   "title": "在线温度校准：每个成员的概率先校准，再融合、再门控（CAL）",
+   "problem": [
+    "已知真相世界上逐族诊断（reference/replay/diagnose_engine.py）：六族模型的预测对数似然全部低于均匀分布——过度自信约 2.5–3 倍。漂移世界 seed 2 前推 [6000,16000)：KALMAN 比均匀差 0.427 nat/位置·期，MSDIR 差 0.004，HMM 差 0.005；校准后全部转正（+0.0004 至 +0.0019）。",
+    "过度自信直接伤害两件事：置信门（MASS）挑出的是“最自信”而不是“最准”的期；静态融合被最尖锐的成员支配。R13 的 gate 在已知真相世界上平均丢掉 4–7 个百分点（同一模型的选号，理想挑期 vs 自身置信挑期）。",
+    "真实数据上（两份）六族的最优 β 都≈0：模型在真实开奖上没有可校准的信息——校准后表接近均匀，系统据此不出手而不是硬出手（INFORMATIVE 守卫）。"
+   ],
+   "goal": "P_cal(t)[p] = softmax(β·log P(t)[p])，β∈[0,2] 每 250 期用最近 2,500 期全部 10 个位置的对数似然以 Newton 法重估（凹函数，3 步，热启动）；1,500 期前输出均匀表；严格因果。校准后的表若最佳位置 top3 质量 ≤ 0.3（机会水平）则任何门都不出手。",
+   "design": [
+    "CalibrationSU2.calibrate（回放）与 CalibrationSU2.Live（每期）：同一 Newton 步、同一窗口，输出逐位一致；Live 状态 = 2,500 期原始表环 + 标签（每成员约 1 MB），写入检查点。",
+    "ModelGenomeSU2 增加 calibrated 标志（规范文本 SU2|CAL=1|…，旧文本仍可解析）；STATIC 融合在校准程序里用归一化权重（几何平均，不再相加放大）。",
+    "ModelReplaySU2：Library.getCal(member)、evaluateTable（MASS 门 + INFORMATIVE 守卫）；ModelLiveSU2.Hub 为每个成员维护校准器，predict 时出校准表、settle 时喂标签。",
+    "Python 参考 foundry14.calibrate / Workbench14：所有 R14 模拟都在校准表上进行。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU2.java",
+     "action": "ADD 新增",
+     "note": "在线温度校准（回放/实时同式）",
+     "before": "—（新文件）",
+     "after": "110 行 · sha256 c6b66dc4da41ddb3…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+     "action": "ADD 新增",
+     "note": "CAL=1 文本、asTier（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "138 行 · sha256 295e807067940cbd…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "getCal、evaluateTable、INFORMATIVE（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java",
+     "action": "ADD 新增",
+     "note": "Hub 校准器（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "325 行 · sha256 d420af87d32bf48c…"
+    },
+    {
+     "path": "reference/replay/foundry14.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/diagnose_engine.py",
+     "action": "TEST 检查",
+     "note": "过度自信/门损失诊断",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/CalibrationSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/CalibrationSU2.java",
+     "marker": "static double fitBeta"
+    },
+    {
+     "file": "strategyv2/CalibrationSU2.java",
+     "marker": "public static float[][][] calibrate"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "CalibrationSU2Test 输出 R14_CALIBRATION_PASS：6 族真实数据表与 Python 一致（β≈0），9,000 期规则世界 HMM β=0.293、末 1,000 期表差 ≤1e-6；Live 与回放逐期一致",
+    "NULL 世界与时间打乱对照：校准后 F100 只在 ~60% 的期“有信息”，命中 29.6–31.3%（不报假）"
+   ],
+   "rollback": "genome 不带 CAL=1 时行为与 R13 完全相同；校准器只在 R14 程序里创建。",
+   "requirements": [
+    "U06",
+    "U16"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P37",
+   "batch": "G",
+   "priority": "P0",
+   "deps": [
+    "P36",
+    "P38"
+   ],
+   "title": "委员会冠军：每个频率层的冠军是裁判选出的前 5 个不同概率表的几何平均融合",
+   "problem": [
+    "R13 每个频率层只取一个“最好”的程序，挑中幸运者的概率高（赢家诅咒，见 P38）。select_study.py：在同一批创造出的程序上，前 5 名几何平均委员会在 15% 频率比被选中的单个程序高 2–4 个百分点（规则世界 37.3–37.7% vs 33.3%，交叉 33.2–33.3%，漂移 33.3–33.4%，混合 33.0–33.4%）。",
+    "委员会必须和单个程序一样可冻结、可结算、可检查点、可进联赛、可上主链，否则只是离线数字。"
+   ],
+   "goal": "CommitteeSU2：P = normalise(exp(mean_k log P_k))，K ≤ 5、成员概率表互不相同（同表不同门不重复计数）；最佳位置 top3、MASS 门按层频率 15%/30%/100%。规范文本 SU2C|COV=0.15|G=<成员文本>##… 是身份；与单程序走同一条实时车道（LiveStrategySU2）。",
+   "design": [
+    "CommitteeSU2.fuse 与 Python 逐位一致（numpy 同序两两求和）；evaluate = 融合表 + evaluateTable。",
+    "LiveStrategySU2 接口：ModelLiveSU2（单程序）与 CommitteeLiveSU2（委员会）都实现 decide/settle/pendingTable/write/readInto；ModelLiveLoopSU2 的运行时集合改为 LinkedHashMap<String, LiveStrategySU2>，按文本前缀创建。",
+    "CommitteeLiveSU2：成员子策略共享 Hub（同一模型只算一次），720 期置信环做块因果门；n<100 不出手。",
+    "存储：schema canonical_text CHECK 接受 'SU2|' 与 'SU2C' 前缀；ModelStoreSU2.saveCommittee（origin_op=COMMITTEE，state=LEAGUE）；ModelStateCodecSU2 魔数 0x53553214（旧 0x53553213 仍可读）保存委员会；ModelFoundryJobSU2 第 8 代把三层委员会写入联赛（“·委员会”标签）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeSU2.java",
+     "action": "ADD 新增",
+     "note": "委员会身份/融合/回放",
+     "before": "—（新文件）",
+     "after": "84 行 · sha256 1e97ae4c67978648…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStrategySU2.java",
+     "action": "ADD 新增",
+     "note": "实时策略接口",
+     "before": "—（新文件）",
+     "after": "15 行 · sha256 44c928cf6292502a…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeLiveSU2.java",
+     "action": "ADD 新增",
+     "note": "委员会每期冻结结算",
+     "before": "—（新文件）",
+     "after": "88 行 · sha256 12b0a7e2ee049b53…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+     "action": "ADD 新增",
+     "note": "运行时集合泛化（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "196 行 · sha256 6361f4898201e8e0…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStateCodecSU2.java",
+     "action": "ADD 新增",
+     "note": "委员会进化状态编码（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "80 行 · sha256 17214638be0440ff…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java",
+     "action": "ADD 新增",
+     "note": "saveCommittee（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "104 行 · sha256 206f9c383f56472a…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java",
+     "action": "ADD 新增",
+     "note": "委员会入联赛（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "90 行 · sha256 eae00b1d28ecd91b…"
+    },
+    {
+     "path": "schema/strategy_su2.sql",
+     "action": "DOC 文档/台账",
+     "note": "SU2C 前缀约束",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java",
+     "action": "ADD 新增",
+     "note": "由 gen_schema_su2.py 生成",
+     "before": "—（新文件）",
+     "after": "48 行 · sha256 34eec8de14318f6f…"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/CommitteeSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/CommitteeLiveSU2Test.java",
+     "action": "TEST 检查",
+     "note": "实时=回放",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/CommitteeSU2.java",
+     "marker": "public static float[][] fuse"
+    },
+    {
+     "file": "strategyv2/CommitteeLiveSU2.java",
+     "marker": "public ModelLiveSU2.Decision decide()"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "CommitteeSU2Test：R14_COMMITTEE_PARITY_PASS（4 个程序 + 2 个委员会 0 差异）",
+    "CommitteeLiveSU2Test：R14_LIVE_EQUALS_REPLAY_PASS（t=5000 检查点 7.26 MB，晚出生委员会自举一致）",
+    "test_su2_sql.py：SU2C 行写入成功，其他前缀被 CHECK 拒绝（OR IGNORE 静默丢弃 → 断言不存在）"
+   ],
+   "rollback": "R14 关闭时不生成委员会；已存委员会行 state 改 RETIRED 即退出实时集。",
+   "requirements": [
+    "U11",
+    "U25",
+    "U29",
+    "U33"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P38",
+   "batch": "G",
+   "priority": "P0",
+   "deps": [
+    "P26"
+   ],
+   "title": "共识裁判：用无噪声的“期望命中”而不是幸运的实现命中来挑程序",
+   "problem": [
+    "select_study.py（已知真相世界，4 世界 × 多种子）：程序过去的实现胜率与它未来的真实质量秩相关只有 0.03–0.60，而程序自身质量在过去/未来之间很稳定（无噪声质量相关 0.65–0.96）——R13 的选择主要在挑运气（赢家诅咒），这是 R13 丢边际的最大来源。",
+    "用模型共识 Q 下“这些出手的期望命中”评分，秩相关升到 0.63–0.95；但它只看模型自己相信的东西——这一缺陷在 R14 验证中暴露（P40）。"
+   ],
+   "goal": "Q = 中心模型 + 名人堂的校准表按最近 2,500 期全位置对数似然做贝叶斯平均（每代重建）；程序得分 = 其出手期在 Q 下的期望命中（折内收缩 κ=200、折间极差惩罚、覆盖不足惩罚）。R14b 起改为经验贝叶斯混合（P40）。",
+   "design": [
+    "ModelEvolutionSU2.buildConsensus / judge / cum（每程序每期全位置对数似然的前缀和）/ tableKey（门与频率不改变表）。",
+    "dev/val 适应度在 r14 下都用裁判；名人堂、层冠军、委员会成员都按裁判排序；有效代 = F15 委员会裁判值创新高。",
+    "Python：foundry14.consensus / judge_fitness / central_programs。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "共识与裁判（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    },
+    {
+     "path": "reference/replay/select_study.py",
+     "action": "TEST 检查",
+     "note": "生成 vs 选择的损失分解",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "void buildConsensus"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ModelEvolutionR14Test：规则世界前推 F15 36.86%（n=860，Wilson 34.20%）、F30 36.59%、F100 34.65%；NULL 世界无假边际（R14_JAVA_FOUNDRY_PASS）"
+   ],
+   "rollback": "r14=false 即回到 R13 适应度。",
+   "requirements": [
+    "U16",
+    "U26"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P39",
+   "batch": "G",
+   "priority": "P0",
+   "deps": [
+    "P10",
+    "P36"
+   ],
+   "title": "原子网络族 ATOMNET：原子世界成为可学习的底层基（不再是一次一个固定温度的原子）",
+   "problem": [
+    "R13 的原子成员 P = softmax(τ·原子)：符号、温度固定，一次一个；168 个提升原子彼此孤立，不能学到“遗漏只在某些位置有用”“短窗频率与长窗频率要互相权衡”；而且 Java 进化从不生成原子成员（只有 Python 参考有 ATOM 种类）——原子世界在手机上并未真正支撑策略。",
+    "留出结构世界（worlds_x.py：R13 六族不是为它们设计的）静态检查：HOTCOLD（动量/回补两种状态）上最好的 R13 族 MSDIR 15% 频率 38.1%，ATOMNET 41.3%（理论上限 45.7%）；PARITY（奇偶/大小组偏）HMM 35.6%，ATOMNET 36.1%；PERIODIC（每 8 期相位）与 LAG2MAP（滞后 2 任意映射）上所有 R13 族都≈30%（抓不到）。",
+    "注册表的 PERIODICITY 原子只说“号码是否以周期 m 重复”，不说“当前相位该出哪个号”，所以周期结构无法被预测利用。"
+   ],
+   "goal": "ATOMNET 在线多项对数线性模型：z[p,n] = b + Σ_f A[p,n,f]·(u[f]+v[p,f]) + Σ_r [n==map_r(D[t−l,p+d])]·w[p,r]；A = 选中的注册表原子（10 族 118 个，AtomEvaluatorCP4 语义）+ 新增 PHASE_FREQUENCY 原子（周期 2–24 × 窗 20/60，共 20 个）+ 原子×原子交叉项（原子级的“交叉交集”）+ 奇偶/大小组原子（3 尺度 + 上期）；r = 跨位置关系原子（滞后 × 源偏移 × SAME/PLUS1/MINUS1/MIRROR）。u 全位置共享、v/w 分位置；RMS 归一化在线步长 + L2 + 累加器衰减（可跟随状态切换）。学到的权重就是每个原子的“贡献”，反馈给子代（P41）。",
+   "design": [
+    "AtomStreamSU2：每期从 1,600 期环（整数计数，结果与 Python 累加和形式逐位相同）计算 138 个原子；缺失值按行均值填补、按位置 z 标准化（numpy 同序两两求和）、截断 ±4；检查点保存环与最近两次出现时刻。目录顺序由 scripts/gen_atom_catalog_su2.py 从 Python 目录生成。",
+    "AtomNetSU2：OnlineModelsSU2.Model 实现；参数文本 atoms=1-3-6…, pairs=none|ixj, lags=none|1-2, group=0|1, lr, l2, gd；credit() 输出每原子 |u|+mean|v|、组原子均值、关系最大 |w|。",
+    "ModelReplaySU2.build 增加 ATOMNET；ModelGenomeSU2.R14B_KINDS 接受 ATOMNET；实时 Hub/检查点/校准与其他族相同。",
+    "Python 参考 atomnet.py（规约顺序固定，Java 可逐位复现）；foundry14：Workbench14 承载 ATOMNET 并保存学习贡献；中心模型加入默认 ATOMNET（12 个多尺度原子），让共识 Q 认识原子世界里的结构。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomStreamSU2.java",
+     "action": "ADD 新增",
+     "note": "因果原子流（138 原子 + 组原子 + 交叉项）",
+     "before": "—（新文件）",
+     "after": "728 行 · sha256 65c29dc85028b1ef…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2.java",
+     "action": "ADD 新增",
+     "note": "原子网络在线学习 + 贡献",
+     "before": "—（新文件）",
+     "after": "195 行 · sha256 5cf31c889973c1f4…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "build: ATOMNET（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+     "action": "ADD 新增",
+     "note": "R14B_KINDS（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "138 行 · sha256 295e807067940cbd…"
+    },
+    {
+     "path": "reference/replay/atomnet.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/worlds_x.py",
+     "action": "TEST 检查",
+     "note": "留出结构世界",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/gen_atom_catalog_su2.py",
+     "action": "TEST 检查",
+     "note": "目录生成",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_r14b_atomnet_fixture.py",
+     "action": "TEST 检查",
+     "note": "夹具",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/AtomStreamSU2.java",
+     "marker": "double[][] raw(Spec s)"
+    },
+    {
+     "file": "strategyv2/AtomNetSU2.java",
+     "marker": "public void update(int[] draw)"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "AtomNetSU2Test：138 个原子 + 2 个交叉项 + 组原子在 31 个抽样期与 Python 差 0；3 种配置 5,000 期概率表/状态差 0、选号 0 差异；第 2,500 期检查点续跑一致（R14B_ATOMNET_PARITY_PASS）；0.11–0.29 ms/期",
+    "留出世界上 R14b 滚动部署（validation/r14b）抓到 HOTCOLD/PARITY 结构，NULL 不报假（docs/17）"
+   ],
+   "rollback": "R14b 关闭时不生成 ATOMNET 成员；已存 ATOMNET 程序照常回放（模型类保留）。",
+   "requirements": [
+    "U06",
+    "U09",
+    "U10",
+    "U25",
+    "U27",
+    "U29",
+    "U32"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P40",
+   "batch": "G",
+   "priority": "P0",
+   "deps": [
+    "P38"
+   ],
+   "title": "经验贝叶斯裁判 + 名人堂家族上限：堵住“共识自我强化”的漏洞",
+   "problem": [
+    "R14 验证中发现（validation/r14，漂移世界 seed 2）：R13 部署了 HMM + 适用状态门（15% 频率前推期望命中 33.8%），R14 却部署了清一色 MSDIR 的委员会（32.5%），而校准后的 HMM 表本身更好（同门 34.3% vs 32.4%）——R14 在这个世界上比 R13 差，违反“不得劣于旧版”。",
+    "根因：裁判按共识 Q 下的期望命中打分，Q 又由名人堂喂入；名人堂被裁判选进来的 MSDIR 近亲占满后，Q 成了“MSDIR 的意见”，与它一致的程序得分更高——自我强化回路（日志 consensus_top_weight 第 1 代 0.899 后由 MSDIR 家族合计占据）。",
+    "judge_study.py（6 个世界/种子/检查点）：前 5 委员会前推期望命中，纯 Q 裁判 vs 经验贝叶斯：规则 s2 44.0→46.7、规则 s3 38.1→43.7、交叉 s2 32.6→32.9、交叉 s3 35.1→35.0、漂移 s2 34.0→34.0、漂移 s3 33.9→34.8；平均 +1.5 个百分点，没有一例差 0.1 以上。留一族共识（LOFO）在交叉世界失败（秩相关 −0.14），已否决。"
+   ],
+   "goal": "J = (实现命中 + κ·出手期在 Q 下的平均期望命中)/(出手数 + κ) − 覆盖惩罚，κ=300：实现部分无偏但有噪声，Q 部分精确但有偏，二者按样本量加权；共识 Q 中名人堂每个家族签名最多 2 个程序。",
+   "design": [
+    "foundry14.judge_eb / diverse；ModelEvolutionSU2.judgeEb，r14b 时 judge() 走经验贝叶斯，buildConsensus 前对名人堂按家族签名截断。",
+    "κ 的选择来自已知真相世界（100/300/1000 三档结果几乎相同，取中间值），不在真实数据上调。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "judgeEb、家族上限（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    },
+    {
+     "path": "reference/replay/judge_study.py",
+     "action": "TEST 检查",
+     "note": "裁判偏差研究",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "double judgeEb"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "validation/r14b：漂移世界 R14b F15 前推期望命中 ≥ R13（docs/17 表）",
+    "ModelEvolutionR14bTest：R14B_JAVA_FOUNDRY_PASS"
+   ],
+   "rollback": "r14b=false 回到 R14 裁判。",
+   "requirements": [
+    "U16",
+    "U26",
+    "U33"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P41",
+   "batch": "G",
+   "priority": "P0",
+   "deps": [
+    "P21",
+    "P22",
+    "P39"
+   ],
+   "title": "反馈驱动的进化：原子贡献引导子代 + 开放关系搜索（一代比一代强的机制）",
+   "problem": [
+    "R13/R14 的逐代曲线几乎是平的（validation/r14 漂移世界：8 代内 F15 委员会期望命中 32.2–32.8%）：成员参数只在 3–4 档网格上，第 0–1 代就把可达空间搜完了，后续代没有更好的东西可找。",
+    "LAG2MAP 留出世界（滞后 2、任意号码映射）：LOGLIN 只有 5 种固定源组合，RELBAYES 只有 4 种映射，结构在搜索空间之外，任何代数都找不到。"
+   ],
+   "goal": "搜索空间变成组合式的，而且子代沿着父代的分析结果走：ATOMNET 子代读取父代在检查点前学到的原子贡献——删去贡献最低的原子、探索贡献最高原子的同族邻域、把两个最强原子做交叉项、按贡献开关组原子/关系原子；LOGLIN 子代可增删移动任意 (源偏移, 滞后) 对。新算子 credit：给没有原子网络的父代嫁接默认原子网络。所有改动记入修复日志（父代分、子代分、原因）。",
+   "design": [
+    "foundry14：_credit_child / _loglin_child / op_apply14 / Director14 / screen_seeds14（加入 4 个 ATOMNET 种子）/ register_r14b（只在 R14b 引擎注册，R13/R14 搜索空间逐位不变）。",
+    "ModelEvolutionSU2（r14b）：OPS_R14B 增加 credit；randomMember/jitter 处理 ATOMNET 与开放 LOGLIN；credit(member) 只用 valEnd 之前的开奖重放计算（不泄漏未来）；种子与 Director 的种类集合包含 ATOMNET。",
+    "贡献注记格式：ATOM_<原子>_LOWEST_CREDIT=…|CHILD_DROPS_IT、…_HIGHEST_CREDIT|CHILD_EXPLORES_<邻域原子>、TWO_STRONGEST_ATOMS_CROSSED|… 等，写入 repairNotes 并进入报告。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "creditChild、loglinChild、credit 算子（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionR14bTest.java",
+     "action": "TEST 检查",
+     "note": "R14b vs R14 同数据同种子",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "ModelGenomeSU2.Member creditChild"
+    },
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "ModelGenomeSU2.Member loglinChild"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ModelEvolutionR14bTest：HOTCOLD F15 R14b ≥ R14 − 1pt 且 Wilson95 > 30%；规则世界 Wilson95 > 30%；NULL 三层都在机会 99% 带内；至少一条原子贡献反馈注记",
+    "validation/r14b 逐代曲线（generation_curves）如实报告：哪些世界后续代有提升、哪些没有"
+   ],
+   "rollback": "r14b=false。",
+   "requirements": [
+    "U09",
+    "U11",
+    "U12",
+    "U25",
+    "U26",
+    "U29",
+    "U32",
+    "U33",
+    "U34",
+    "U39"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P42",
+   "batch": "G",
+   "priority": "P1",
+   "deps": [
+    "P35"
+   ],
+   "title": "可证伪的引擎诊断与留出结构世界（回答“到底有没有能做到不错胜率的公式”）",
+   "problem": [
+    "“已经知道确实有算法公式可以做到不错的胜率和稳定性”这句话只有在能被证伪的设定下才有意义：已知真相世界里我们知道理论上限，能分清是创造不出、选不出还是门控丢掉；真实数据上只能看冻结前推。",
+    "只用 R13 自己设计的世界验证，会把“为这些世界设计的模型”误当成“通用的创造能力”。"
+   ],
+   "goal": "三类证据并列：①已知真相世界（R13 五个 + 留出四个）上的理论上限、各族上限、选择损失、门控损失；②同数据同种子 R13 / R14 / R14b 滚动部署前推（实现命中 + 无噪声期望命中）；③真实数据与时间打乱对照上的同一流程。任何结论都同时给出对照组。",
+   "design": [
+    "diagnose_engine.py：ORACLE / PICK_IDEAL / PICK_ALL / GATE_MASS / INFO 分解；select_study.py：生成 vs 选择；judge_study.py：裁判偏差；worlds_x.py：HOTCOLD / PARITY / PERIODIC / LAG2MAP。",
+    "rolling14.py：--engine 13|14、--atomnet、--judge；输出 tier_tracks（实现）、tier_expected（无噪声）、generation_curves、IPM 主链 vs XI。",
+    "结果与限制写入 docs/17，L2 规则读取 validation/r14 与 validation/r14b。"
+   ],
+   "files": [
+    {
+     "path": "reference/replay/rolling14.py",
+     "action": "TEST 检查",
+     "note": "R13/R14/R14b 同口径滚动部署",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/select_study.py",
+     "action": "TEST 检查",
+     "note": "选择研究",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/judge_study.py",
+     "action": "TEST 检查",
+     "note": "裁判研究",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/worlds_x.py",
+     "action": "TEST 检查",
+     "note": "留出世界",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "docs/17_创造引擎深化_源码分析与验证.md",
+     "action": "DOC 文档/台账",
+     "note": "源码分析、诊断、方案、结果",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "reference/replay/rolling14.py",
+     "marker": "PY:def run"
+    }
+   ],
+   "patch": "",
+   "acceptance": [
+    "docs/17 的每个数字都能由 validation/r14* 的 JSON 复算；NULL/打乱对照不报假"
+   ],
+   "rollback": "纯验证工具。",
+   "requirements": [
+    "U16",
+    "U19",
+    "U20",
+    "U25",
+    "U28",
+    "U34",
+    "U35",
+    "U36",
+    "U38"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "N/A",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P43",
+   "batch": "H",
+   "priority": "P0",
+   "deps": [
+    "P39"
+   ],
+   "title": "原子世界补全 + 学习型分子：注册表 28 族全部可用，分子由学习而不是固定模板产生",
+   "problem": [
+    "源码与 5.4.3 报告核查：research_atom_spec_v2 25,350 行中 25,220 行停在 DISCOVERED；research_atom_admission_cp12 0 行。准入规则是“单个原子、样本外 ≥240 期、均值−4 倍标准误 > 0”（r952/AtomAdmissionCP12.java:8 POLICY_HASH、:24），弱信号的单个原子几乎不可能通过——而弱信号恰恰要联合起来才有用。",
+    "25,350 个原子是 28 个公式族在“位置×号码×窗口”上的重复：独立可计算张量只有 168 个评分 + 150 个条件序列（R12 已提升 13 族）。GAP 均值/方差/Z、熵、条件熵、数字均值/方差、差分、方向、JS/PSI 漂移、区制分数 12 族从未能在策略里计算。",
+    "分子：assets/research/cp4_molecule_seeds.jsonl 4,200 个种子只有 4 种模板（阈值、两原子加权和、两种条件），常数固定为 0/0.1/0.3，角色全部 FEATURE_ONLY；导入 4,995 期只完成 893 个（research_molecule_import_cp12 = IMPORTING），用分子建家族的工厂在 4,200 个全部导入前一律等待（r952/ModernFamilyFactoryCP12.java:28、:173 guardComplete → WAIT_MOLECULE_CATALOG_VERIFICATION），research_molecule_use_cp12 与 research_family_creation_cp12 都是 0 行。",
+    "实测（已知真相世界，family 静态检查）：把 GAP、XI、16 个分子一次堆进同一个原子网络，15% 层前推期望命中：动量/回补世界 41.3%→38.5%（只加 16 个分子 38.7%）、规则世界 37.9%→37.0%、漂移世界 33.8%→32.2%、奇偶世界 34.8%→32.2%——噪声输入稀释信号。原子必须由按贡献筛选的进化来选，不能全部堆入。"
+   ],
+   "goal": "注册表全部有用的族都能被策略计算：评分原子 165 个（R12 的 118 + 相位 20 + GAP×3 族×5 窗 + 用户 XI 方法拆出的 8 个专家 + 4 个 Top-k 支持度），状态原子 112 个（9 族全部注册表参数）；分子 = 原子 × 状态（状态高/低时分别学权重），由进化按贡献生成与删除。准入不再逐个原子过门，而是整条策略在样本外过证书（P27）。",
+   "design": [
+    "atoms_r15.py：GAP 统计按 AtomWindowCP4.Window.gap 语义；状态序列按 AtomEvaluatorCP4 语义（缺失=NaN），状态指示 = 高于自身前 300 个有效值的中位数为 +1，否则 −1，不足 100 个为 0；不提升的族及原因：TRANSITION_P1（以末位号码为 from 即 MARKOV_SCORE α=0，已提升）、MUTUAL_INFORMATION（无符号，只说滞后有信息不说哪个号）、4 个策略记录模板（由 IPM 降级检验与适用状态门承担）。",
+    "fixtures/atom_catalog_r15.json 由 scripts/build_atom_catalog_r15.py 从真实注册表（sha256 记录在文件内）生成；AtomStreamSU2 的原子与状态目录由 scripts/gen_atom_catalog_su2.py 生成，与 Python 逐项同序。",
+    "atomnet.mols：分子输入 = 原子 i × 状态 j 指示；贡献引导子代可“让最强原子随某状态变化”或删去贡献最低的分子。",
+    "旧分子导入与旧矩阵引擎保持原样（删除 0，回滚安全），SU2 不依赖它们；它们占用的 IMPORT 时间片是否关闭，留到 L4 设备验收时按 CPU 预算决定。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomStreamSU2.java",
+     "action": "ADD 新增",
+     "note": "R15 原子族、XI 专家、状态原子（R14b 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "728 行 · sha256 65c29dc85028b1ef…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2.java",
+     "action": "ADD 新增",
+     "note": "分子输入（R14b 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "195 行 · sha256 5cf31c889973c1f4…"
+    },
+    {
+     "path": "reference/replay/atoms_r15.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_atom_catalog_r15.py",
+     "action": "TEST 检查",
+     "note": "从注册表生成状态目录",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/fixtures/atom_catalog_r15.json",
+     "action": "TEST 检查",
+     "note": "状态目录",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_r15_fixture.py",
+     "action": "TEST 检查",
+     "note": "夹具",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/AtomNetR15Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/AtomStreamSU2.java",
+     "marker": "double[] stateAt(Spec s, long u)"
+    },
+    {
+     "file": "strategyv2/AtomStreamSU2.java",
+     "marker": "public float[] state(int j)"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "AtomNetR15Test：27 个新原子 37 个抽样期差 ≤7e-7；112 条状态序列相对差 3e-17、指示 41,440 个 0 差异；两种配置 5,000 期概率表差 ≤1.5e-8（R15_ATOMNET_PARITY_PASS）"
+   ],
+   "rollback": "R15 关闭时原子全集退回 R14b 的 138 个（索引不变），状态原子不被创建。",
+   "requirements": [
+    "U29",
+    "U30"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P44",
+   "batch": "H",
+   "priority": "P1",
+   "deps": [
+    "P41"
+   ],
+   "title": "研究记忆：系统越用越会挑方向（原子先验）",
+   "problem": [
+    "R14b 的新原子网络从目录里均匀随机抽原子：已经在几十个程序里证明有用或无用的原子，下一次创造时仍和其他原子同等对待——系统不会“积累经验”。"
+   ],
+   "goal": "每个被评估的原子网络在检查点报告自己学到的原子贡献（只用检查点前的开奖）；研究记忆保存每个原子的“被用次数、归一化贡献的滑动均值”，跨检查点、跨活动延续，并写入进化状态；新程序与探索性变异按“记忆贡献 + 0.02 探索”比例抽原子。",
+   "design": [
+    "foundry14._prior_pick / campaign 更新 prior（每个程序每个检查点只记一次）；ModelEvolutionSU2.updatePrior / priorPick；ModelStateCodecSU2 魔数 0x53553215（旧 0x53553214/13 仍可读）保存 atomPrior。",
+    "rolling14 输出每个检查点的记忆前 10 原子（docs/17 §7）。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "研究记忆（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStateCodecSU2.java",
+     "action": "ADD 新增",
+     "note": "记忆持久化（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "80 行 · sha256 17214638be0440ff…"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "void updatePrior(State s)"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ModelEvolutionR15Test 输出研究记忆的已记原子数与前 5 原子；状态编码/解码往返一致"
+   ],
+   "rollback": "r15=false 时不读不写记忆。",
+   "requirements": [
+    "U34",
+    "U39"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P45",
+   "batch": "H",
+   "priority": "P1",
+   "deps": [
+    "P17",
+    "P43"
+   ],
+   "title": "教师矩阵：按可观测状态评估每个成员（教师）的可靠度，并直接用于融合",
+   "problem": [
+    "TeacherMatrixEngine / TeacherNumberMatrixEngine（合计约 9,800 行）只给 V20 旧链候选贴“教师命中/置信/五级可靠度”字段，最终由 DecisionGate 决定；5.4.3 报告中 teacher_number_matrix、teacher_matrix_* 表全部 0 行（旧链已退役，research_mainline_contribution_r922 显示 LEGACY_MAINLINE_RETIRED）。",
+    "实测（已知真相世界，7 个中心模型池，4 个状态原子分别试）：与不分状态的按位置贝叶斯平均相比，15% 层前推期望命中在规则世界 0 至 +0.5 点、漂移 −0.3 至 +0.3、混合 −0.1 至 +0.1、动量/回补 −0.2 至 +0.2——有时有用、幅度小，所以只作为可进化的融合选项，由裁判决定是否采用、按哪个状态。"
+   ],
+   "goal": "融合方式 TEACHER:<j>：每 250 期用最近 2,500 期、按状态原子 j 在每个位置的高/低分别累计各成员的对数似然，softmax 得到“教师矩阵” W[成员, 位置, 状态]；当期按状态取对应的一行融合。",
+   "design": [
+    "teacher.py / TeacherPoolSU2（回放 + 实时，规约顺序固定）；ModelGenomeSU2 接受 POOL=TEACHER:<j>；ModelReplaySU2.pooledTable 与 ModelLiveSU2 接入；进化的 pool 算子可选择教师矩阵与状态。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/TeacherPoolSU2.java",
+     "action": "ADD 新增",
+     "note": "教师矩阵融合",
+     "before": "—（新文件）",
+     "after": "127 行 · sha256 0c2f6d0b2c592536…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java",
+     "action": "ADD 新增",
+     "note": "实时教师矩阵（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "325 行 · sha256 d420af87d32bf48c…"
+    },
+    {
+     "path": "reference/replay/teacher.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/LiveR15Test.java",
+     "action": "TEST 检查",
+     "note": "实时=回放",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/TeacherPoolSU2.java",
+     "marker": "public static float[][][] pool"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "AtomNetR15Test：教师矩阵回放 vs Python 差 1.5e-8，实时 vs 回放 0 差异（含检查点）",
+    "LiveR15Test：3 个 R15 策略 + 1 个委员会 5,000 期实时=回放 0 不一致（含 t=3000 存取）"
+   ],
+   "rollback": "不选 TEACHER 融合即无影响。",
+   "requirements": [
+    "U31"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P46",
+   "batch": "H",
+   "priority": "P1",
+   "deps": [
+    "P39",
+    "P45"
+   ],
+   "title": "因子矩阵 / 原因矩阵 / 教师矩阵快照：每条上线策略都能用底层因子解释，原因在样本外分级",
+   "problem": [
+    "CausalFactorMatrixEngine（11 类“因”）、PositionCauseMatrixEngine、ReasonCausalMatrixEngine（A–E 原因分级）只对旧链候选做手工打分与 Wilson 分级，每个原因单独评，且不改变概率；5.4.3 报告中 causal_factor_matrix、position_cause_matrix 表 0 行。",
+    "用户要求：好策略必须有可解释的底层逻辑和底层原子/因子/分子基础，并能据此分析优缺点、从底层进化。"
+   ],
+   "goal": "每个检查点为上线的 F15 委员会冻结：因子矩阵（其中每个原子网络在每个位置对每个因子学到的有符号权重）；原因矩阵（每次出手各因子族对所选 3 码的支持度，在随后样本外区间分级 A_VALID / B_USEFUL / C_EXPLAIN_ONLY / E_FALSE）；教师矩阵（每个成员在 5 个状态原子高/低时的对数似然增益）；委员会整体的原子解释（P47）。",
+   "design": [
+    "reference/replay/matrices.py；rolling14 --engine 15 每个检查点写入 matrices；报告与研究面板展示同一结构（施工时由 ResearchDashboard 读取联赛行的快照 JSON）。"
+   ],
+   "files": [
+    {
+     "path": "reference/replay/matrices.py",
+     "action": "TEST 检查",
+     "note": "矩阵快照与分级",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "reference/replay/matrices.py",
+     "marker": "PY:def snapshot"
+    }
+   ],
+   "patch": "",
+   "acceptance": [
+    "validation/r15 每个检查点的 matrices 字段可复算；docs/17 §8 给出示例"
+   ],
+   "rollback": "纯报告。",
+   "requirements": [
+    "U31",
+    "U32"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "N/A",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P47",
+   "batch": "H",
+   "priority": "P0",
+   "deps": [
+    "P39",
+    "P43",
+    "P44"
+   ],
+   "title": "原子蒸馏：任何策略（任何家族）都被拆到底层原子并从底层重建、继续进化",
+   "problem": [
+    "六族数学模型、XI、融合与委员会不是由原子直接组成的：以前只能整体比较，无法说清“它实际上依赖哪些原子、哪里强哪里弱”，也无法从底层改进。",
+    "实测（动量/回补世界，15% 层前推期望命中）：对中心模型做原子蒸馏并按其最强原子重建子代——BOCPD 37.7%→38.9%、HMM 34.5%→38.4%、KALMAN 36.0%→39.0%、XI 基线 32.9%→38.8%；MSDIR 38.1%→36.8%、原子网络本身 41.3%→36.9% 变差。所以蒸馏是一个“有时更好”的创造路径，由进化与裁判决定去留，而不是替换父代。"
+   ],
+   "goal": "distill：在检查点前的开奖上，用岭回归把父代校准表的中心化对数概率拟合到中心化原子输入上，得到 R²（父代有多大比例能被原子解释）和每个原子的有符号权重（父代的原子基因）；取最强 8 个原子重建为原子网络子代，在线学习自己的权重。上线委员会的原子解释写入矩阵快照。",
+   "design": [
+    "distill.py（候选 = 默认原子 + R15 原子 + 研究记忆前 12 + 10 个随机）；foundry14.distill_child 与 OPS15 的 distill 算子；ModelEvolutionSU2.distill / distillChild 与 OPS_R15。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "原子蒸馏算子（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    },
+    {
+     "path": "reference/replay/distill.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionR15Test.java",
+     "action": "TEST 检查",
+     "note": "R15 vs R14b 同数据同种子",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ModelEvolutionSU2.java",
+     "marker": "public static Distilled distill"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "AtomNetR15Test：蒸馏 R² 与 Python 相同（6 位小数）、权重相对差 1.7e-7、前 8 原子相同",
+    "ModelEvolutionR15Test：R15_JAVA_FOUNDRY_PASS"
+   ],
+   "rollback": "r15=false。",
+   "requirements": [
+    "U29",
+    "U30",
+    "U32",
+    "U33",
+    "U39"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P48",
+   "batch": "I",
+   "priority": "P0",
+   "deps": [
+    "P13",
+    "P15",
+    "P41",
+    "P42"
+   ],
+   "title": "区制记忆族 REGMEM / RELMEM：系统记住出现过的结构，结构重现时立即认出（由 R15 验证结果分析得出）",
+   "problem": [
+    "R15 验证（区制世界，留出种子 2）逐检查点分析：第 12000–14000 期理论上限 46.6%（15% 层），冻结的 R15 委员会只有 30.0%（R13 35.1%）；第 8000 段上限 48.4%，R15 38.1%、R13 38.5%。新旧两版在同一处丢分：一个以前出现过的强结构区制重新出现，没有被认出。",
+    "根因（regmem_study.py 定量确认）：委员会依赖的在线 HMM 所有状态都是可学习的，后验必须落在某个状态上，长时间无结构时概率最大的那个状态吸收噪声，学到的模式被冲淡成均匀分布；校准后表退化为机会水平——R15 委员会里的 HMM 在第 10000 与 12000 段 15% 层恰好 30.0%。模式重现时只能从头再学。",
+    "同类问题也出现在跨位置关系上：关系在“开/关”区制间切换（CROSS 世界开启比例 48%），遗忘型关系可靠度（RELBAYES）关掉期间把关系忘掉——最好的配置只抓到可得边际的 62%。"
+   ],
+   "goal": "两个新数学族（不是调参）：① REGMEM：K+1 状态前向滤波，状态 0 是锚定的“无结构”状态（均匀发射、永不更新），状态 1..K 是学到的区制模式，模式只按自身后验更新——区制不在时模式被保存，重现时前几期就被认出；② RELMEM：同样的锚定无结构状态 + K 个“关系区制”，发射是条件分布 z_k[p,n] = b_k[p,n] + Σ_{l,q,f} w_k[p,l,q,f]·[n = f(D[t−l,q])]（SAME/PLUS1/MINUS1/MIRROR）+ Σ_s V_k[s,p,D[t−lag_s,p+off_s],n]（任意映射，来源由开放关系搜索进化），权重按自身后验加权的对数似然梯度在线学习。两族都进入创造空间、共识 Q、种子、失败诊断（定向修复可加区制记忆成员）。",
+   "design": [
+    "Python 参考 reference/replay/regmem.py（regmem / relmem / GRID / RELGRID）；foundry14.register_r16 只在 R16 引擎注册（R13–R15 的搜索空间逐位不变）；_relmem_child 对 RELMEM 的来源做增/删/移（与 LOGLIN 开放关系搜索同规则）；rolling14 --engine 16。",
+    "Java：OnlineModelsSU2.RegMem / RelMem（规约顺序与 numpy 一致，pairwise 求和）、ModelReplaySU2.build、ModelGenomeSU2.R16_KINDS、ModelEvolutionSU2.r16（种类、中心程序、种子、失败诊断、relmemChild）；ModelStateCodecSU2 魔数 0x53553216（R13–R15 状态仍可读；旧版应用读到 R16 状态会从头开始而不是崩溃）。",
+    "静态实测（regmem_study.py，留出种子 2，每个模型单独、校准、自身置信门 15%，前推 [6000,16000)）：区制世界 HMM 39.1% → REGMEM 43.5%（K=4；逐段 48.4/45.5/36.6/38.7/43.6，上限 48.4/48.4/38.0/46.6/48.4）；混合世界 34.4% → 37.9%；奇偶 35.6% → 37.3%；周期 30.7% → 31.4%；跨位置关系世界 RELBAYES 最好 34.6% → RELMEM 36.2%（上限 37.4%）；漂移、动量/回补世界 HMM 更好（REGMEM −1 至 −3 点）——所以它们是新增成员族，由裁判按数据选择，不替换 HMM；无结构世界与两份真实开奖：校准后对数似然增益 ≈0、15% 门 30.0%（不报假）。",
+    "工程（验证中发现）：两个 Python 参考进程同时运行时被内存 cgroup（6.27 GB）杀死 → SU2_LOWMEM 缓存上限（结果逐位相同，只是多重算）；手机端由 ModelReplaySU2.Library 的字节上限控制，不受影响。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java",
+     "action": "ADD 新增",
+     "note": "RegMem / RelMem（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "493 行 · sha256 3120a27d6dada7be…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "build: REGMEM / RELMEM（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+     "action": "ADD 新增",
+     "note": "R16_KINDS（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "138 行 · sha256 295e807067940cbd…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java",
+     "action": "ADD 新增",
+     "note": "r16：种类、中心程序、种子、诊断、relmemChild（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "664 行 · sha256 c98e451e00ffef3b…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStateCodecSU2.java",
+     "action": "ADD 新增",
+     "note": "魔数 0x53553216（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "80 行 · sha256 17214638be0440ff…"
+    },
+    {
+     "path": "reference/replay/regmem.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/regmem_study.py",
+     "action": "TEST 检查",
+     "note": "静态实测",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_r16_fixture.py",
+     "action": "TEST 检查",
+     "note": "夹具",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/RegMemSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python、检查点续跑、实时=回放",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionR16Test.java",
+     "action": "TEST 检查",
+     "note": "R16 vs R15 同数据同种子",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class RegMem"
+    },
+    {
+     "file": "strategyv2/OnlineModelsSU2.java",
+     "marker": "public static final class RelMem"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "RegMemSU2Test：5 种配置成员文本与 Python 相同、概率表差 ≤7.5e-9（RELMEM 逐位相同）、t=2500 检查点续跑 0 差异；3 个策略 + 1 个委员会 5,000 期实时=回放 0 不一致（R16_REGMEM_PARITY_PASS）",
+    "validation/r16：区制世界 R16 15% 层前推期望命中 ≥ R13 与 R15；无结构世界与打乱对照不报假；任何世界不比 R13 差 0.5 点以上（run_r13_checks L2b）"
+   ],
+   "rollback": "r16=false：不生成、不读取新族；已存 REGMEM/RELMEM 程序照常回放（模型类保留）。",
+   "requirements": [
+    "U11",
+    "U34",
+    "U36",
+    "U37"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P49",
+   "batch": "I",
+   "priority": "P0",
+   "deps": [
+    "P48",
+    "P43",
+    "P45",
+    "P03"
+   ],
+   "title": "阶段与窗口层：阶段识别、原子延续/方向矩阵、观察—出手、择期出手（抓住阶段窗口，频率越多越好，质量不降）",
+   "problem": [
+    "用户要求：抓的是某一时间段的走势结构——每个算法公式有自己需要的走势结构，符合的位置进入观察，达到出手程度选最佳公式与位置；要能准确判断走势是否延续、是否转换、转换成什么；连续形态（如某位置连出十期大）之后下一期、下十期怎么走要有底层原子解释；频率 15–30% 以上越多越好。",
+    "R16 之前这些只有零散部件（区制记忆、变点、教师矩阵、适用状态门），没有以“阶段”为中心的完整层；也没有每期更新的“形态出现后延续/转向”的统计。",
+    "原型实测（docs/17 §6e、§6h）：按策略近期命中追窗口（窗口引擎）比模型自身置信度差（区制世界 39.4% 对 42.5%）——命中只有 0/1，噪声大；“阶段 × 置信度”融合在区制世界相同频率下比最好的单家族高 1.3–1.9 点并能提高频率，但在动量/回补世界不如最好家族 → 必须带验证保护。"
+   ],
+   "goal": "一个部署层（不改变进化与主链规则）：① 原子延续/方向矩阵 ContMatSU2：165 个原子的极端值、大/小/奇/偶连续 3/5/7/10 期、100/200 期偏少/偏多，按“全位置 + 每个位置”逐块计数“出现后号码是否到来”，前后两半同向显著（|z| ≥ 2.5 / 3.5）才算已证实，输出每期的延续/转向报告与概率表；② 阶段层 StageLayerSU2：窗口原子指纹 → 阶段库（高斯混合，BIC 选阶段数）→ 粘滞阶段后验 → 每个候选策略的“阶段 × 置信度”命中概率；③ 观察—出手：候选 = 三层委员会 + 名人堂前 8 + 延续矩阵，每期取预测命中最高者，在近 720 期该值的前 15% / 30% / 50% 出手；④ 保护：在检查点前的验证段上不如三层委员会就不启用（主链仍由 IPM 决定，永不劣于 XI）。",
+   "design": [
+    "Python 参考：contmat.py（流式，与 Java 逐位一致）、stagelayer_core.py（确定性：幂迭代主成分分位初始化、60 次 EM、IRLS 8 步）、stage_layer.py（在 rolling14 每个检查点保存的部署策略上评估，含验证保护）；研究原型 window_engine.py / stage_engine.py / observe_engine.py / multiperiod_scan.py / direction_scan.py / continuation_scan.py。",
+    "Java：ContMatSU2（OnlineModelsSU2.Model，成员种类 CONTMAT；块计数最多保留 40 块 = 2 万期，约 0.6 MB 状态）、StageLayerSU2（fingerprint/row、fit、apply、Live 每期一步；与 Python 差 ≤1e-13，实时=批量 0 差异）。",
+    "接入：检查点（ModelFoundryJobSU2 每次活动结束）用已存开奖与候选回放结果 fit；实时车道每期 Live.step；联赛中以“·阶段层”标签与三层委员会并列冻结结算；只有其样本外记录在 IPM 下胜过主链才可能上主链。",
+    "真实数据（docs/17 §6b–§6i）：两份真实开奖上延续矩阵各次重拟合 0 条已证实规律（不出手）；阶段层前推 30.5–31.5%、观察—出手 31.0–33.1%（不显著），与打乱对照同一区间；所有数字原样写入。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java",
+     "action": "ADD 新增",
+     "note": "原子延续/方向矩阵",
+     "before": "—（新文件）",
+     "after": "169 行 · sha256 a4e83e26ae040363…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageLayerSU2.java",
+     "action": "ADD 新增",
+     "note": "阶段层（指纹/阶段库/融合/实时）",
+     "before": "—（新文件）",
+     "after": "207 行 · sha256 79fb6312ab274062…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java",
+     "action": "ADD 新增",
+     "note": "P49_KINDS（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "138 行 · sha256 295e807067940cbd…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java",
+     "action": "ADD 新增",
+     "note": "build: CONTMAT（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "277 行 · sha256 52456df9522bffee…"
+    },
+    {
+     "path": "reference/replay/contmat.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/stagelayer_core.py",
+     "action": "TEST 检查",
+     "note": "Python 参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/stage_layer.py",
+     "action": "TEST 检查",
+     "note": "部署评估",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/observe_engine.py",
+     "action": "TEST 检查",
+     "note": "观察—出手原型",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/multiperiod_scan.py",
+     "action": "TEST 检查",
+     "note": "多期择期",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/direction_scan.py",
+     "action": "TEST 检查",
+     "note": "多期方向",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_r16_contmat_fixture.py",
+     "action": "TEST 检查",
+     "note": "夹具",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_r16_stage_fixture.py",
+     "action": "TEST 检查",
+     "note": "夹具",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/ContMatSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/StageLayerSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python、实时=批量",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/ContMatSU2.java",
+     "marker": "private void refit()"
+    },
+    {
+     "file": "strategyv2/StageLayerSU2.java",
+     "marker": "public static Layer fit"
+    }
+   ],
+   "patch": "01-P05",
+   "acceptance": [
+    "ContMatSU2Test：12 次重拟合的已证实报告与 Python 完全相同、概率表与状态差 0、t=4100 检查点续跑一致（R16_CONTMAT_PARITY_PASS）",
+    "StageLayerSU2Test：指纹相对差 ≤1e-13、阶段数与 BIC 相同、P(hit) 差 ≤5e-14、2,000 期最佳候选 0 分歧、实时=批量 0 差异（R16_STAGE_PARITY_PASS）",
+    "validation/r16/*.stage.json：有阶段结构的世界上阶段层不劣于三层委员会（验证保护生效）；无结构与打乱对照不报假"
+   ],
+   "rollback": "不启用阶段层即无影响；ContMat 只作为候选，不进入进化。",
+   "requirements": [
+    "U37"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  },
+  {
+   "id": "P50",
+   "batch": "J",
+   "priority": "P0",
+   "deps": [
+    "P31",
+    "P33",
+    "P34",
+    "P42",
+    "P48",
+    "P49"
+   ],
+   "title": "检测报告 = 升级诊断书：实盘自动诊断“差在哪·缺什么能力·怎么升级·升级后到多少·怎么验证”，创造能力重点体检；体积与内存有界、重要内容完整保留",
+   "problem": [
+    "用户要求：检测报告要能反映到底如何升级、需要什么能力、怎么做才能高胜率高稳定高品质，要具体详细；软件实盘运行中会发现所有问题并找到解决办法；创造能力是重中之重，创造的算法公式如何优化升级、各项能力如何动态迭代、升级后能到什么胜率稳定品质都要说清楚；同时体积内存不能无限堆积、重要的东西必须完整保留。",
+    "以往的检测报告（5.4.3）是“全部表全部行”的数据堆积（单个 JSON 121 MB），既看不出问题，也不说怎么升级；P31–P34 只解决了报告本身的体积。",
+    "源码核查（P50 期间）：① 实时 HUB 检查点把所有校准环（每个 ≈1 MB）写进同一行，su2_live_state 的 CHECK(byte_count ≤ 16 MB) 在约 16 个校准成员时就会失败，而失败发生在结算事务内；② liveGenomes 按 genome_key 字母序取 32 个，最新冠军可能不在实时集合里，且成员数无上限（内存随联赛增长）；③ su2_live_daily、su2_mainline_binding（每期一行）、su2_mainline_choice、su2_certificate、旧的 su2_live_state 所有者没有寿命。"
+   ],
+   "goal": "每 500 期自动生成一份《升级诊断书》（UPGRADE_DIAGNOSIS.md ≤64 KB + .json ≤256 KB，随检测报告导出）：一页结论（主链/XI/各层实测、距 35% 差多少、还要多少次出手才能证明、现有能力预计可达最高并做多重比较校正）→ 创造能力体检（逐代前推对照、算子成效与下一轮配比、家族成效×信息探针、原子分级、父子修复、选择衰减）→ 当前公式逐条诊断（教师矩阵：哪种状态下赢/输 → 加门或换成员）→ 结构探测（9 个家族信息探针、延续矩阵、阶段、区制）→ 诊断码（证据/原因/需要的能力/具体做法/升级后预计/验证）→ 12 项能力动态迭代表 → 影子处方实测 → 问题台账 → 存储与内存。所有存储有固定上限，重要状态以充分统计量完整保留。",
+   "design": [
+    "信息探针 InformationProbeSU2（diagnosis_probe.py）：MSDIR/BOCPD/HMM/LOGLIN/RELBAYES/KALMAN/REGMEM/RELMEM/CONTMAT 各一个代表配置，每期 模型→在线校准→最佳位置前三→因果门（近 720 期 15%/30% 分位，INFORMATIVE 守卫：均匀表不出手）；只保留最近 40 个 500 期块的充分统计量（期数、对数似然增益和与平方和、两档门的出手/命中/预测命中、REGMEM 无结构后验）+ 终身累计。在突发任务里按 2 秒片段追赶，不进开奖前/结算路径。",
+    "诊断引擎 UpgradeDiagnosisSU2（diagnosis.py）：快照文本（≤16 KB，唯一输入）→ 固定规则 22 条诊断码（G1–G5 目标/频率/稳定/主链；S1–S9 信息瓶颈/转化瓶颈/阶段依赖/延续/阶段层/区制；Q1–Q4 校准/选择衰减/层级倒挂/虚假原子；E1–E3 逐代/算子/修复；M1 存储）→ 预计 = 实测命中向 30% 经验贝叶斯收缩（κ=200）+ 90% 区间，“最高”做 Bonferroni 校正 → 文本单一来源 diagnosis_text.py 生成 DiagnosisTextSU2.java；数字格式按二进制精确值 half-even，Java 与 Python 逐字节一致。",
+    "处方三类：SHADOW（ADD_MEMBER 家族成员、TIER_COVERAGE 频率）自动生成影子挑战者委员会进联赛冻结结算，满 600 次与基线同期配对判定 有效/无效/有害（无效与有害自动退役，有效者留给 IPM）；AUTO（算子配比、原子先验——进化引擎本来就按成效执行，诊断书把实际配比写出来）；MANUAL（校准上限、裁判 κ、阶段层启用条件等参数，下一轮施工执行）。问题台账跨报告合并：新发现/持续/改善中/已解决/回退，≤256 条（先淘汰已解决、再低优先级，当前 P0 永不淘汰）；逐代曲线 ≤512 点（抽稀保留首点、最近 64 点、最好点，权重与和精确）。",
+    "体积与内存（DiagnosisStoreSU2 + 实时循环）：su2_track_block 每个成员最近 40 块 + 终身一行（总数精确）；su2_live_daily 90 天；su2_mainline_binding 10,080 期；su2_mainline_choice 保留每次换人 + 最近 2,000 行（任一期的主链成员不变）；证书过期 30 天后删除；不在联赛/名人堂的实时状态删除；诊断快照 8 份；HUB 检查点拆分为模型一行 + 每个校准环一行（每行 ≈1 MB，远低于 16 MB）；实时集合 = 当前主链成员 + 最新成员，最多 32 个策略、48 个校准成员（内存上限约 48 MB 校准环 + 模型）；StrategySchemaSU2 版本 R13_2，ready() 含新表（旧库下次自动建表）。",
+    "实测（validation/r16/diagnosis，4 个数据集 16 份诊断书）：真实开奖 543 → 判定 D（全部 9 个家族探针前推增益不显著大于 0，最高 KALMAN 15% 门 33.3% 但预计 32.2%（29.0–35.4%），主链=XI 33.4%，诊断码 S1 信息瓶颈 + G1/Q2/Q3/S7…）；时间打乱对照 → 判定 D（不报假）；区制世界 → 判定 A（探针 REGMEM 预计 39.0%，校正后下界 36.6% > 35%，诊断码 S2·REGMEM/HMM 转化瓶颈 + Q1 校准）；跨位置世界 → 判定 B（探针 RELMEM 预计 34.8%，S2·RELMEM）。同一套规则在有结构时指出该加哪个家族、在无结构时如实说明瓶颈在信息而不是搜索。"
+   ],
+   "files": [
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+     "action": "ADD 新增",
+     "note": "诊断引擎：快照解析、22 条诊断码、预计与区间、渲染（≤64 KB）、JSON、问题台账、影子处方",
+     "before": "—（新文件）",
+     "after": "884 行 · sha256 fc2e2d35c531a14e…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTextSU2.java",
+     "action": "ADD 新增",
+     "note": "诊断书文本（由 diagnosis_text.py 生成）",
+     "before": "—（新文件）",
+     "after": "324 行 · sha256 fea94a6d7ef268ba…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java",
+     "action": "ADD 新增",
+     "note": "9 个家族信息探针（有界充分统计量）",
+     "before": "—（新文件）",
+     "after": "198 行 · sha256 ec27154e2f42e424…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+     "action": "ADD 新增",
+     "note": "手机端：探针追赶、块统计折叠、每 500 期诊断、影子开设与结算、保留规则、报告读取",
+     "before": "—（新文件）",
+     "after": "299 行 · sha256 49950ddd90ff71d5…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java",
+     "action": "ADD 新增",
+     "note": "实时集合内存上限 + HUB 检查点拆分（R13 新文件内修改）",
+     "before": "—（新文件）",
+     "after": "196 行 · sha256 6361f4898201e8e0…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java",
+     "action": "ADD 新增",
+     "note": "Hub.writeModels / readModelsInto / writeCal / readCal（R13 新文件内扩展）",
+     "before": "—（新文件）",
+     "after": "325 行 · sha256 d420af87d32bf48c…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java",
+     "action": "ADD 新增",
+     "note": "su2_track_block / su2_diag_state / su2_diag_snapshot / su2_diag_shadow（生成）",
+     "before": "—（新文件）",
+     "after": "48 行 · sha256 34eec8de14318f6f…"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java",
+     "action": "MODIFY 锚点修改",
+     "note": "突发任务里调用 DiagnosisStoreSU2.maintain",
+     "before": "0a8cd7eb3839f38d…（70 行；仅公共 SU1 基线）",
+     "after": "补丁 05-P07, 11-P50"
+    },
+    {
+     "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+     "action": "MODIFY 锚点修改",
+     "note": "报告写入 UPGRADE_DIAGNOSIS.md / .json 成员",
+     "before": "7f0adce4a7b03a21…（444 行；私有 9ec590ca 相同）",
+     "after": "补丁 07-P31, 10-P34, 11-P50"
+    },
+    {
+     "path": "reference/replay/diagnosis.py",
+     "action": "TEST 检查",
+     "note": "Python 参考 + 演示",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/diagnosis_text.py",
+     "action": "TEST 检查",
+     "note": "文本单一来源",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/replay/diagnosis_probe.py",
+     "action": "TEST 检查",
+     "note": "探针参考",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/gen_diagnosis_text_su2.py",
+     "action": "TEST 检查",
+     "note": "生成 Java 文本类",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "scripts/build_r16_probe_fixture.py",
+     "action": "TEST 检查",
+     "note": "探针夹具",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python 逐字节 + 有界性",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2Test.java",
+     "action": "TEST 检查",
+     "note": "Java=Python + 检查点续跑",
+     "before": "—",
+     "after": "包内"
+    },
+    {
+     "path": "reference/python/test_su2_sql.py",
+     "action": "TEST 检查",
+     "note": "块统计折叠与保留规则的 SQL",
+     "before": "—",
+     "after": "包内"
+    }
+   ],
+   "code": [
+    {
+     "file": "strategyv2/UpgradeDiagnosisSU2.java",
+     "marker": "public static Diagnosis diagnose"
+    },
+    {
+     "file": "strategyv2/DiagnosisStoreSU2.java",
+     "marker": "static void foldTrackBlocks"
+    },
+    {
+     "file": "strategyv2/InformationProbeSU2.java",
+     "marker": "private void stepProbe"
+    }
+   ],
+   "patch": "11-P50",
+   "acceptance": [
+    "UpgradeDiagnosisSU2Test：4 个数据集 16 份诊断书的 .md/.json 与 Python 逐字节相同、问题台账文本相同；5,000 次诊断 × 600 个问题键 → 台账 ≤256 条、当前 P0 永不淘汰；10,000 次活动 → 逐代曲线 ≤512 点、首点/最近 64 点/最好点保留、权重与和精确；快照 8 份各 ≤16 KB；超大报告截断到 ≤64 KB 并注明（R16_DIAG_PARITY_PASS）",
+    "InformationProbeSU2Test：真实开奖 4,995 期 9 个探针 63 个块，出手/命中逐个相同，对数似然与预测和相对差 ≤1e-9；t=3,210 检查点续跑一致（R16_PROBE_PARITY_PASS）",
+    "test_su2_sql：3 个策略 + 主链 × 30,000 期 → 每成员 ≤41 行、终身总数与原始逐期完全相同；主链切换日志压缩后任一期的主链成员不变；过期实时状态与旧校准行被删；快照 >16 KB 被拒绝",
+    "设备上（L4）：每 500 期 UPGRADE_DIAGNOSIS 更新；检测报告含 UPGRADE_DIAGNOSIS.md/.json；30 天压力下 SU2 表与实时状态字节不随时间增长"
+   ],
+   "rollback": "不调用 DiagnosisStoreSU2.maintain 即无诊断（报告里写“尚无诊断”）；新表可留空；实时集合上限与 HUB 拆分可回退到单行写入（旧检查点不可读时自动从历史重建）。",
+   "requirements": [
+    "U38",
+    "U39",
+    "U40"
+   ],
+   "rough_cards": [],
+   "status": {
+    "L1_reference": "PASS",
+    "L2_simulation": "PASS",
+    "L3_git_am": "PASS",
+    "L3_gradle": "PENDING",
+    "L4_device": "PENDING",
+    "L5_live_forward": "PENDING"
+   }
+  }
+ ],
+ "requirements": [
+  {
+   "id": "U01",
+   "text": "升级后不得劣于旧版（绝对禁止）",
+   "projects": [
+    "P03",
+    "P02",
+    "P30",
+    "P35"
+   ],
+   "evidence": "IPM：主链底线 = 用户原方法 XI；9 个数据集上主链从未显著差于 XI"
+  },
+  {
+   "id": "U02",
+   "text": "高胜率、高稳定、高品质",
+   "projects": [
+    "P19",
+    "P25",
+    "P26",
+    "P27"
+   ],
+   "evidence": "稳定性适应度（折间极差惩罚）+ 选择性证书（下界>30%、四块≥28%）"
+  },
+  {
+   "id": "U03",
+   "text": "出手频率：最低 15%，希望 ≥30%，越多越好；很强才 100%",
+   "projects": [
+    "P25",
+    "P26",
+    "P03"
+   ],
+   "evidence": "F15/F30/F100 三层冠军；IPM 频率底线 15%"
+  },
+  {
+   "id": "U04",
+   "text": "查清旧版高胜率算法是否真实（35/40% 从哪来）",
+   "projects": [
+    "P02"
+   ],
+   "evidence": "三级证据 + 同口径复现（docs/14 §1）"
+  },
+  {
+   "id": "U05",
+   "text": "查清“已能创造 35% 算法但主链不出手”的原因并修复",
+   "projects": [
+    "P04",
+    "P27",
+    "P30"
+   ],
+   "evidence": "编译期常量锁/绝对门槛/全覆盖证书三处根因与补丁"
+  },
+  {
+   "id": "U06",
+   "text": "算法必须是有底层逻辑、能计算整体状态走势的数学公式，不是冷热遗漏/小规律/调参",
+   "projects": [
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P16",
+    "P17",
+    "P18",
+    "P36",
+    "P39"
+   ],
+   "evidence": "六族在线概率模型 + 三种融合 + 可读公式；R14 在线校准；R14b 原子网络（原子是输入，权重在线学习）"
+  },
+  {
+   "id": "U07",
+   "text": "每期都计算、训练、结算、反馈（不出手的期也算）",
+   "projects": [
+    "P06",
+    "P08",
+    "P09"
+   ],
+   "evidence": "live == replay；GATE_SKIP 也保留拟出手并结算"
+  },
+  {
+   "id": "U08",
+   "text": "核查多位置多号码交叉交集的算法，作为对照并要被超越",
+   "projects": [
+    "P03",
+    "P19"
+   ],
+   "evidence": "XI 完整移植（0 差异）+ 在任者；META 门把“挑期”推广到所有策略"
+  },
+  {
+   "id": "U09",
+   "text": "创造能力多元化：多维度、多尺度、多家族，不是一个思路调参",
+   "projects": [
+    "P10",
+    "P20",
+    "P21",
+    "P39",
+    "P41"
+   ],
+   "evidence": "成员种类 × 融合 × 门 × 频率的开放空间 + 结构算子；R14b 原子网络组合空间（138 原子 × 交叉项 × 组/关系原子）+ 开放关系搜索"
+  },
+  {
+   "id": "U10",
+   "text": "原子世界：每个号码/每期/各指标的底层关系与因果，成为可计算素材",
+   "projects": [
+    "P10",
+    "P11",
+    "P12",
+    "P39"
+   ],
+   "evidence": "原子/SU1 程序作成员；跨位置关系可靠度图；条件因果图；R14b：Java 原子流逐位等于 Python，原子网络成为手机端可进化成员"
+  },
+  {
+   "id": "U11",
+   "text": "迭代进化变异融合有效，一代比一代强",
+   "projects": [
+    "P21",
+    "P23",
+    "P24",
+    "P37",
+    "P41",
+    "P48"
+   ],
+   "evidence": "有效代只在证实改进时+1；委员会融合；R14b 贡献引导子代；逐代曲线如实报告（docs/17）"
+  },
+  {
+   "id": "U12",
+   "text": "优秀父代不丢弃，通过反馈分析让子代更强",
+   "projects": [
+    "P22",
+    "P23",
+    "P41"
+   ],
+   "evidence": "名人堂/谱系/跨活动延续；diagnose 定向修复；R14b 原子贡献反馈"
+  },
+  {
+   "id": "U13",
+   "text": "保留历史数据快速训练回放",
+   "projects": [
+    "P05",
+    "P07"
+   ],
+   "evidence": "4,995 期每族 <1 s；后台连续创造"
+  },
+  {
+   "id": "U14",
+   "text": "实时开奖每一期也要训练结算反馈",
+   "projects": [
+    "P06"
+   ],
+   "evidence": "settleWithin 在结算事务内训练全部策略"
+  },
+  {
+   "id": "U15",
+   "text": "保留以前所有有用的要求与思路",
+   "projects": [
+    "P01"
+   ],
+   "evidence": "台账映射：本轮 24 条、粗糙 35 卡、R10–R12；旧 1832 条保留身份映射"
+  },
+  {
+   "id": "U16",
+   "text": "分析出其他需要的能力功能并补上",
+   "projects": [
+    "P03",
+    "P17",
+    "P19",
+    "P28",
+    "P29",
+    "P33",
+    "P36",
+    "P38",
+    "P40",
+    "P42"
+   ],
+   "evidence": "新增：IPM 样本外主链、状态门控融合、适用状态学习、终身 α、选择后校准、表寿命；R14 校准/裁判；R14b 经验贝叶斯裁判、留出世界"
+  },
+  {
+   "id": "U17",
+   "text": "统合本对话分析、旧方案（299/35）、公共仓库方案、两仓最新源码",
+   "projects": [
+    "P01"
+   ],
+   "evidence": "docs/14 源码核查（带文件:行号）"
+  },
+  {
+   "id": "U18",
+   "text": "每个项目：编号、做什么、为什么、怎么做、几个文件、哪些文件、修改/删除/重写、代码",
+   "projects": [
+    "P01"
+   ],
+   "evidence": "docs/13 每项卡片 + 文件表 + 代码摘录 + 补丁"
+  },
+  {
+   "id": "U19",
+   "text": "用最终方案模拟验证是否达到要求，不达标继续优化",
+   "projects": [
+    "P35",
+    "P42"
+   ],
+   "evidence": "docs/15、docs/17；R13 验证修正 4 个缺陷，R14 验证又发现并修正“共识自我强化”（P40）"
+  },
+  {
+   "id": "U20",
+   "text": "不得迎合现有数据做一个“胜率很高”的算法",
+   "projects": [
+    "P26",
+    "P27",
+    "P28",
+    "P02",
+    "P42"
+   ],
+   "evidence": "NULL 世界/时间打乱对照不报假；IPM 阈值、κ、校准窗口都来自已知真相模拟而非真实数据"
+  },
+  {
+   "id": "U21",
+   "text": "不接受“都是随机”的敷衍：必须仔细分析旧版 35/40%",
+   "projects": [
+    "P02",
+    "P03"
+   ],
+   "evidence": "docs/14 §1：口径、机制探针、同口径复现、XI 的挑期成分"
+  },
+  {
+   "id": "U22",
+   "text": "检测报告体积：两条 30 GB、导不出、5000 期上限下仍无限堆积——查源码根因并解决",
+   "projects": [
+    "P31",
+    "P32",
+    "P33",
+    "P34"
+   ],
+   "evidence": "四个根因（带文件:行号）+ 补丁 07–10 + 宿主复现"
+  },
+  {
+   "id": "U23",
+   "text": "不施工，现在是验证矫正方案，一步一步看问题、优化完美、输出方案步骤",
+   "projects": [
+    "P35"
+   ],
+   "evidence": "docs/13 §1 验证矫正步骤 + §4 施工步骤"
+  },
+  {
+   "id": "U24",
+   "text": "必须是 35 批次那种详细方案",
+   "projects": [
+    "P01"
+   ],
+   "evidence": "47 项 × 8 批次（R13 35 项 + R14/R14b 7 项 + R15 5 项），逐项卡片"
+  },
+  {
+   "id": "U25",
+   "text": "深度分析研究，多维度多尺度全方位多元化持续创造，厚度不低于多位置多号码交叉交集且更强、更高胜率更稳定",
+   "projects": [
+    "P37",
+    "P39",
+    "P41",
+    "P42"
+   ],
+   "evidence": "原子网络（原子×原子交叉项 = 原子级交叉交集）+ 委员会融合；同数据同种子 R13/R14/R14b 对照（docs/17）"
+  },
+  {
+   "id": "U26",
+   "text": "历史数据快速训练结算反馈分析，动态针对性进化变异融合迭代，一代比一代强",
+   "projects": [
+    "P40",
+    "P41",
+    "P38",
+    "P24"
+   ],
+   "evidence": "经验贝叶斯裁判；原子贡献引导子代；开放关系搜索；逐代曲线"
+  },
+  {
+   "id": "U27",
+   "text": "原子世界与各种矩阵必须完美运行，成为策略确定的底层逻辑",
+   "projects": [
+    "P39",
+    "P10"
+   ],
+   "evidence": "AtomStreamSU2 138 原子与 Python 逐位一致；原子网络是可进化、可冻结、可检查点的成员"
+  },
+  {
+   "id": "U28",
+   "text": "承认“确实存在能做到不错胜率和稳定性的公式”",
+   "projects": [
+    "P42",
+    "P03"
+   ],
+   "evidence": "可证伪的回答：已知真相世界上有（docs/17 §4 给出达到理论上限的比例）；真实数据上以冻结前推为准，XI 是底线"
+  },
+  {
+   "id": "U29",
+   "text": "不要围绕多位置多号码交叉交集；它只证明存在好算法；要持续创造出不同的、比它更好的策略",
+   "projects": [
+    "P37",
+    "P39",
+    "P41",
+    "P43",
+    "P47"
+   ],
+   "evidence": "XI 只做主链底线与一个“拆解种子”；创造由六族模型、原子网络、分子、委员会、蒸馏等多条路径完成"
+  },
+  {
+   "id": "U30",
+   "text": "分析源码：原子世界两万多原子、几千分子因子是否有用；必须升级优化",
+   "projects": [
+    "P43",
+    "P47"
+   ],
+   "evidence": "docs/17 §1：25,220/25,350 停在 DISCOVERED、准入 0 行、分子 893/4,200 导入且使用 0 行（带文件:行号）；28 族中 25 族可用、分子改为学习型"
+  },
+  {
+   "id": "U31",
+   "text": "推理矩阵、教师矩阵、因果矩阵的定位和能力不足，研究升级",
+   "projects": [
+    "P45",
+    "P46"
+   ],
+   "evidence": "旧矩阵引擎表全为 0 行（旧链退役）；教师矩阵改为真实融合方式，因子/原因/教师矩阵每个检查点冻结并在样本外分级"
+  },
+  {
+   "id": "U32",
+   "text": "好策略要有可解释的底层逻辑和原子/因子/分子基础，并能从底层分析优缺点、从底层进化",
+   "projects": [
+    "P46",
+    "P47",
+    "P39",
+    "P41"
+   ],
+   "evidence": "原子网络本身由底层成分组成；任何其他家族由原子蒸馏拆到底层并重建；贡献引导子代在底层成分上进化"
+  },
+  {
+   "id": "U33",
+   "text": "创造出来就要品质不错，再持续训练进化；进化不能只是改参数",
+   "projects": [
+    "P37",
+    "P40",
+    "P41",
+    "P47"
+   ],
+   "evidence": "每个子代先在历史上回放、经验贝叶斯裁判打分，上线的是前 5 程序的委员会；结构算子（删/加/交叉/分子/蒸馏/嫁接/教师矩阵）而非只调参数"
+  },
+  {
+   "id": "U34",
+   "text": "深度学习智能分析越来越聪明；整个软件与各功能越来越聪明稳定强大",
+   "projects": [
+    "P44",
+    "P41",
+    "P42",
+    "P48"
+   ],
+   "evidence": "研究记忆跨检查点累积并指导创造；统筹器按实际改进分配算子；区制记忆：系统记住出现过的结构并在重现时认出；深度隐层已实测（无可测增益，不作为默认）"
+  },
+  {
+   "id": "U35",
+   "text": "上述只是想法建议，最终以真实达成目标为准",
+   "projects": [
+    "P42"
+   ],
+   "evidence": "每个想法都在已知真相世界/真实数据上实测，docs/17 §3 列出采纳与不采纳及数字"
+  },
+  {
+   "id": "U36",
+   "text": "拿到结果后分析结果、反馈、继续思考研究优化升级",
+   "projects": [
+    "P48",
+    "P42"
+   ],
+   "evidence": "R15 验证逐检查点对照理论上限 → 定位“区制重现认不出”（HMM 模式被噪声冲淡）→ 设计并实测区制记忆族 → 并入 R16 → 同口径重跑（docs/17 §4b）"
+  },
+  {
+   "id": "U37",
+   "text": "抓阶段窗口：每个公式需要的走势结构、观察—出手、走势是否延续/转换、连续形态之后的多期方向，频率越多越好",
+   "projects": [
+    "P49",
+    "P48"
+   ],
+   "evidence": "阶段层 + 原子延续/方向矩阵 + 观察—出手 + 验证保护；Java 与 Python 逐位一致；真实数据检验结果见 docs/17 §6b–§6i"
+  },
+  {
+   "id": "U38",
+   "text": "检测报告必须反映到底如何升级、需要什么能力、怎么做才能高胜率高稳定高品质，具体详细；实盘运行中发现问题并找到解决办法",
+   "projects": [
+    "P50",
+    "P42"
+   ],
+   "evidence": "每 500 期《升级诊断书》：22 条诊断码（证据→原因→需要的能力→具体做法→升级后预计→验证）、12 项能力动态迭代表、影子处方实盘配对实测、跨报告问题台账（docs/18）"
+  },
+  {
+   "id": "U39",
+   "text": "创造能力是重中之重：报告说明创造的算法公式如何优化升级、各项能力如何动态迭代、升级后能到什么胜率稳定品质",
+   "projects": [
+    "P50",
+    "P41",
+    "P44",
+    "P47"
+   ],
+   "evidence": "诊断书第 1 节创造能力体检（逐代前推、算子配比、家族×探针、原子分级、修复、选择衰减）+ 第 2 节公式逐条诊断（教师矩阵→加门/换成员）+ 每个动作的预计胜率/频率/最差块/校准（经验贝叶斯 + 区间）"
+  },
+  {
+   "id": "U40",
+   "text": "体积内存不能无限堆积，同时重要的东西必须完整保留",
+   "projects": [
+    "P50",
+    "P31",
+    "P33",
+    "P34"
+   ],
+   "evidence": "全部 SU2 表与实时状态有上限；终身充分统计量精确保留；HUB 检查点拆分（避免 16 MB 约束在结算事务内失败）；实时集合 ≤32 策略 / ≤48 校准成员；报告 ≤64 KB/256 KB"
+  }
+ ],
+ "rough_cards": {
+  "P001 冻结基线与统一需求口径": [
+   "P01"
+  ],
+  "P002 恢复125个旧算法与高胜率证据": [
+   "P02"
+  ],
+  "P003 建立同口径旧新版比较": [
+   "P02",
+   "P03"
+  ],
+  "P004 分开主动跳过与执行缺失": [
+   "P06",
+   "P08"
+  ],
+  "P005 统一历史与实盘选择器": [
+   "P05",
+   "P06"
+  ],
+  "P006 改造选择性晋级与证书全链": [
+   "P27"
+  ],
+  "P007 胜率—频率—稳定性的多目标资产前沿": [
+   "P25",
+   "P26"
+  ],
+  "P008 赛前五秒预算与训练争用分离": [
+   "P08"
+  ],
+  "P009 每期训练结算反馈闭环": [
+   "P06"
+  ],
+  "P010 公平调度与抢占后精确续训": [
+   "P07",
+   "P08"
+  ],
+  "P011 因果时点与游戏数据身份": [
+   "P09"
+  ],
+  "P012 原子世界成为可计算证据而非标签": [
+   "P10"
+  ],
+  "P013 有方向有条件的关系与超图": [
+   "P11",
+   "P12"
+  ],
+  "P014 矩阵—模型—动作的实际消费闭环": [
+   "P17",
+   "P30"
+  ],
+  "P015 多尺度状态与窗口发现": [
+   "P13",
+   "P14",
+   "P15"
+  ],
+  "P016 完整策略语言与数学契约": [
+   "P18"
+  ],
+  "P017 图学习与深度训练能力保留升级": [
+   "P10",
+   "P12",
+   "P17"
+  ],
+  "P018 训练目标同时服务概率、K3与选择质量": [
+   "P19",
+   "P26"
+  ],
+  "P019 失败结构分析而非单次未中讲因果": [
+   "P22"
+  ],
+  "P020 有证据的问题驱动假设生成": [
+   "P20",
+   "P22"
+  ],
+  "P021 多思路家族与持续创造": [
+   "P20"
+  ],
+  "P022 结构变异与去除无效复杂度": [
+   "P21"
+  ],
+  "P023 残差互补融合与双亲继承": [
+   "P17",
+   "P21"
+  ],
+  "P024 父代与优秀资产的可恢复保留": [
+   "P23"
+  ],
+  "P025 只对证实改进计有效代次": [
+   "P24"
+  ],
+  "P026 快速历史训练与实时双轨": [
+   "P05",
+   "P07"
+  ],
+  "P027 多重搜索、漂移与有效样本治理": [
+   "P28"
+  ],
+  "P028 选择后校准与质量证书": [
+   "P29"
+  ],
+  "P029 主链消费与真实排行榜": [
+   "P03",
+   "P30"
+  ],
+  "P030 全软件物理字节总预算": [
+   "P31"
+  ],
+  "P031 5000期与研究证据生命周期": [
+   "P33"
+  ],
+  "P032 任务、快照、修订日志去重与回收": [
+   "P32",
+   "P33",
+   "P34"
+  ],
+  "P033 精简报告与全量证据分离、可复原分卷": [
+   "P33",
+   "P34"
+  ],
+  "P034 报告任务配额、取消、续传与旧任务清理": [
+   "P34"
+  ],
+  "P035 完整分层验收与施工出口": [
+   "P35"
+  ]
+ },
+ "gaps": [
+  {
+   "id": "G01",
+   "missing": "旧 152 期赛前账本与原输入",
+   "projects": "P02",
+   "status": "OPEN（无法关闭）：库里只有展示记录，没有逐期冻结号码与原输入；按 LEGACY_REPORTED 保留，同时用同口径复现说明 35–40% 的来源。"
+  },
+  {
+   "id": "G02",
+   "missing": "逐文件完整 Android AFTER",
+   "projects": "P01/P35",
+   "status": "大部分关闭：15 个 MODIFY 文件给出 BEFORE SHA-256 + 精确锚点补丁，10 个补丁在 0f1fb606 上按序 git am 通过；补丁后 29 个 SU2 类对真实 SU1 源码符号级编译通过。未关闭部分：Gradle assembleRelease（无 Android SDK）。"
+  },
+  {
+   "id": "G03",
+   "missing": "旧需求逐项语义矩阵",
+   "projects": "P01",
+   "status": "部分关闭：本轮 24 条要求 + 粗糙方案 35 卡 + R10–R12 逐条映射到项目与验收；旧 1832 条需求未逐条语义复核（只保留身份映射），列为施工前 P01 的人工复核项。"
+  },
+  {
+   "id": "G04",
+   "missing": "真机存储与延迟",
+   "projects": "P31–P34",
+   "status": "根因已在源码中定位并修复、宿主测试复现（20 次失败导出：旧 5.44 GB → 新 12 KB）；真机 30 天压力与 P95 延迟属 L4，未执行。"
+  },
+  {
+   "id": "G05",
+   "missing": "独立自然效果",
+   "projects": "P27/P35",
+   "status": "OPEN（L5）：真实数据上没有任何策略在样本外达到证书标准；主链由 IPM 保证在同一批期次上不显著差于旧方法；真实效果只能由上线后的冻结前推证明。"
+  }
+ ],
+ "files": {
+  "manifests/r13_requirements.csv": {
+   "action": "DOC",
+   "projects": [
+    "P01"
+   ]
+  },
+  "manifests/r13_projects.json": {
+   "action": "DOC",
+   "projects": [
+    "P01"
+   ]
+  },
+  "scripts/audit_r13.py": {
+   "action": "TEST",
+   "projects": [
+    "P01"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyAuditSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P02"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P03"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P03"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P03"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/LeagueBoardSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P03",
+    "P30"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P03",
+    "P27"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStoreSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P03",
+    "P09",
+    "P37"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/MainlinePolicySU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P03"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDashboardSU1.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P03",
+    "P30"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P04"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P04"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineModelsSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P05",
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P15",
+    "P16",
+    "P48"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelOpsSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P05",
+    "P17"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelReplaySU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P05",
+    "P19",
+    "P26",
+    "P36",
+    "P39",
+    "P48",
+    "P49"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/DeterministicRandomSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P05",
+    "P15"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/LogisticRidgeSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P05"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P06",
+    "P19",
+    "P36",
+    "P45",
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelLiveLoopSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P06",
+    "P08",
+    "P37",
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategyRuntimeSU1.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P06"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowLoopSU1.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P06"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelFoundryJobSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P07",
+    "P37"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayBurstJobServiceSU1.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P07",
+    "P50"
+   ]
+  },
+  "schema/strategy_su2.sql": {
+   "action": "DOC",
+   "projects": [
+    "P09",
+    "P28",
+    "P37"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P09",
+    "P37",
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ProgramModelSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P10"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelGenomeSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P18",
+    "P36",
+    "P39",
+    "P48",
+    "P49"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P20",
+    "P21",
+    "P22",
+    "P24",
+    "P25",
+    "P38",
+    "P40",
+    "P41",
+    "P44",
+    "P47",
+    "P48"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelStateCodecSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P23",
+    "P37",
+    "P44",
+    "P48"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectiveEvidenceSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P27"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P27"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/PromotionPipelineSU1.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P27"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectiveCalibrationSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P29"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineAdapterSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P30"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P30"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P30"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/StorageCensusSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P31"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P31",
+    "P34",
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DatabaseCompactionSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P32"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/DbHelper.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P32"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/StorageReclaimR943.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P32"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/RetentionRulesSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P33"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ReportDiagnosticEvidenceR64.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P33"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ReportMetadataStreamR81.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P33"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ReportBudgetSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P34"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P34"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java": {
+   "action": "MODIFY",
+   "projects": [
+    "P34"
+   ]
+  },
+  "scripts/run_r13_checks.sh": {
+   "action": "TEST",
+   "projects": [
+    "P35"
+   ]
+  },
+  "scripts/run_r13_checks.py": {
+   "action": "TEST",
+   "projects": [
+    "P35"
+   ]
+  },
+  "scripts/run_r13_batch.sh": {
+   "action": "TEST",
+   "projects": [
+    "P35"
+   ]
+  },
+  "reference/python/test_su2_sql.py": {
+   "action": "TEST",
+   "projects": [
+    "P35",
+    "P50"
+   ]
+  },
+  "reference/stubs": {
+   "action": "TEST",
+   "projects": [
+    "P35"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P36"
+   ]
+  },
+  "reference/replay/foundry14.py": {
+   "action": "TEST",
+   "projects": [
+    "P36"
+   ]
+  },
+  "reference/replay/diagnose_engine.py": {
+   "action": "TEST",
+   "projects": [
+    "P36"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/CalibrationSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P36"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P37"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveStrategySU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P37"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/CommitteeLiveSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P37"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/CommitteeSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P37"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/CommitteeLiveSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P37"
+   ]
+  },
+  "reference/replay/select_study.py": {
+   "action": "TEST",
+   "projects": [
+    "P38",
+    "P42"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomStreamSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P39",
+    "P43"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P39",
+    "P43"
+   ]
+  },
+  "reference/replay/atomnet.py": {
+   "action": "TEST",
+   "projects": [
+    "P39"
+   ]
+  },
+  "reference/replay/worlds_x.py": {
+   "action": "TEST",
+   "projects": [
+    "P39",
+    "P42"
+   ]
+  },
+  "scripts/gen_atom_catalog_su2.py": {
+   "action": "TEST",
+   "projects": [
+    "P39"
+   ]
+  },
+  "scripts/build_r14b_atomnet_fixture.py": {
+   "action": "TEST",
+   "projects": [
+    "P39"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/AtomNetSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P39"
+   ]
+  },
+  "reference/replay/judge_study.py": {
+   "action": "TEST",
+   "projects": [
+    "P40",
+    "P42"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionR14bTest.java": {
+   "action": "TEST",
+   "projects": [
+    "P41"
+   ]
+  },
+  "reference/replay/rolling14.py": {
+   "action": "TEST",
+   "projects": [
+    "P42"
+   ]
+  },
+  "docs/17_创造引擎深化_源码分析与验证.md": {
+   "action": "DOC",
+   "projects": [
+    "P42"
+   ]
+  },
+  "reference/replay/atoms_r15.py": {
+   "action": "TEST",
+   "projects": [
+    "P43"
+   ]
+  },
+  "scripts/build_atom_catalog_r15.py": {
+   "action": "TEST",
+   "projects": [
+    "P43"
+   ]
+  },
+  "reference/fixtures/atom_catalog_r15.json": {
+   "action": "TEST",
+   "projects": [
+    "P43"
+   ]
+  },
+  "scripts/build_r15_fixture.py": {
+   "action": "TEST",
+   "projects": [
+    "P43"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/AtomNetR15Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P43"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/TeacherPoolSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P45"
+   ]
+  },
+  "reference/replay/teacher.py": {
+   "action": "TEST",
+   "projects": [
+    "P45"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/LiveR15Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P45"
+   ]
+  },
+  "reference/replay/matrices.py": {
+   "action": "TEST",
+   "projects": [
+    "P46"
+   ]
+  },
+  "reference/replay/distill.py": {
+   "action": "TEST",
+   "projects": [
+    "P47"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionR15Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P47"
+   ]
+  },
+  "reference/replay/regmem.py": {
+   "action": "TEST",
+   "projects": [
+    "P48"
+   ]
+  },
+  "reference/replay/regmem_study.py": {
+   "action": "TEST",
+   "projects": [
+    "P48"
+   ]
+  },
+  "scripts/build_r16_fixture.py": {
+   "action": "TEST",
+   "projects": [
+    "P48"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/RegMemSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P48"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/ModelEvolutionR16Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P48"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/ContMatSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P49"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/StageLayerSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/replay/contmat.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/replay/stagelayer_core.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/replay/stage_layer.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/replay/observe_engine.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/replay/multiperiod_scan.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/replay/direction_scan.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "scripts/build_r16_contmat_fixture.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "scripts/build_r16_stage_fixture.py": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/ContMatSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/StageLayerSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P49"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisTextSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P50"
+   ]
+  },
+  "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java": {
+   "action": "ADD",
+   "projects": [
+    "P50"
+   ]
+  },
+  "reference/replay/diagnosis.py": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  },
+  "reference/replay/diagnosis_text.py": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  },
+  "reference/replay/diagnosis_probe.py": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  },
+  "scripts/gen_diagnosis_text_su2.py": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  },
+  "scripts/build_r16_probe_fixture.py": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  },
+  "reference/java/com/ethk3/novaonepro/strategyv2/InformationProbeSU2Test.java": {
+   "action": "TEST",
+   "projects": [
+    "P50"
+   ]
+  }
+ },
+ "file_totals": {
+  "add_java": 42,
+  "modify": 15,
+  "delete": 0,
+  "rewrite": 0,
+  "doc_test": 57
+ }
+}

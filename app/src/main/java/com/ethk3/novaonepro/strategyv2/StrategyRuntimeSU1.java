@@ -15,6 +15,7 @@ public final class StrategyRuntimeSU1 {
         if(StrategySchemaSU1.ready(store.readable())&&StrategyRepositorySU1.exists(store.readable(),"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='DISABLED' AND reason='USER_CONTROL'"))return;
         try{LiveShadowLoopSU1.capture(store,target);EvidenceLoopSU1.capture(store,target);}catch(BudgetTokenSU1.Yield yield){failure(store,"PREDRAW_YIELD",yield);}
         catch(RuntimeException failed){failure(store,"PREDRAW_FAILED",failed);}
+        try{LivePoolR26.capture(store,target);}catch(RuntimeException failed){failure(store,"R26_PREDRAW_FAILED",failed);}
         // R13-P06: every SU2 strategy decides every period (act or not); frozen before open
         try{ModelLiveLoopSU2.capture(store,target);}catch(RuntimeException failed){failure(store,"SU2_PREDRAW_FAILED",failed);}
     }

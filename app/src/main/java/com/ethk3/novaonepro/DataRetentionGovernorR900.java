@@ -254,9 +254,8 @@ public final class DataRetentionGovernorR900 {
     }
     private static String expireOneArchiveCP12(final DbStore store,File files)throws IOException{
         File directory=new File(files,"retention-cas-cp12");if(!directory.isDirectory())return "RETENTION_EXPIRY_NONE";
-        try(RandomAccessFile publication=new RandomAccessFile(new File(directory,"publication.lock"),"rw")){
-            FileLock global;try{global=publication.getChannel().tryLock();}catch(OverlappingFileLockException busy){return "RETENTION_EXPIRY_NONE";}if(global==null)return "RETENTION_EXPIRY_NONE";
-            try{
+        try(ReportInputsLeaseCP12 publication=ReportInputsLeaseCP12.tryAcquireExclusive(files)){
+            if(publication==null)return "RETENTION_EXPIRY_NONE";
                 final String archive,hash;
                 try(Cursor c=store.readable().rawQuery("SELECT a.archive_id,a.archive_hash FROM research_evidence_archive_v2 a WHERE (a.state='EXPIRED_SUMMARIZED' AND NOT EXISTS(SELECT 1 FROM app_state k WHERE k.state_key='retention_cp12_unlinked_'||a.archive_id AND k.state_value='1')) OR (a.state='PRUNED' AND a.expires_at>0 AND a.expires_at<=? AND NOT EXISTS(SELECT 1 FROM research_evidence_locator_v2 l WHERE l.archive_id=a.archive_id) AND NOT EXISTS(SELECT 1 FROM research_task_input_binding_v2 b WHERE b.archive_id=a.archive_id)) ORDER BY CASE WHEN a.state='EXPIRED_SUMMARIZED' THEN 0 ELSE 1 END,a.expires_at,a.archive_id LIMIT 1",new String[]{Long.toString(System.currentTimeMillis())})){if(!c.moveToFirst())return "RETENTION_EXPIRY_NONE";archive=c.getString(0);hash=c.getString(1);RetentionArchiveProtocolCP12.hash(hash);}
                 File cas=RetentionArchiveProtocolCP12.casFile(files,hash);
@@ -271,7 +270,6 @@ public final class DataRetentionGovernorR900 {
                         store.setState("retention_cp12_unlinked_"+archive,"1");return "RETENTION_ARCHIVE_SUMMARIZED:"+archive;
                     }finally{lease.release();}
                 }
-            }finally{global.release();}
         }
     }
 

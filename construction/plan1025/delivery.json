@@ -1,0 +1,117 @@
+{
+  "application_id": "com.starcore.research.r13",
+  "version_name": "R13-5.4.3.04-2026.10.25",
+  "version_code": 577251063,
+  "build_type": "release",
+  "debuggable": false,
+  "apk_file": "STARCORE-10.25-R16-P50-release.apk",
+  "apk_bytes": 26727292,
+  "apk_sha256": "4567df77d768005cbcc19ab2aa3a2ab346c6d90d226d7ee1f670fb60721cf21d",
+  "certificate_sha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+  "native_abis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86_64"
+  ],
+  "source_commit": "d8a510038b924548824cd168235fb82bdda32d01",
+  "workflow_run": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/40167769430",
+  "pull_request": "https://github.com/gtt46461-star/starcore-public-build/pull/2",
+  "apk_hash_matches_ci": true,
+  "local_v1_certificate_matches_fixed_identity": true,
+  "ci_v1_v2_signature_verification": "PASS",
+  "runtime_verification": "PASS_API29_35_36",
+  "overall_acceptance": "INCOMPLETE: see known-validation-gaps.json; no natural prediction qualification claimed",
+  "build_artifact_id": 12589381339,
+  "automated_checks": {
+    "unit_tests": {
+      "passed": 72,
+      "failures": 0,
+      "ignored": 0
+    },
+    "production_host_checks": {
+      "passed": 21
+    },
+    "plan_kernel_checks": {
+      "passed": 20
+    },
+    "android_lint": "PASS",
+    "android_api29_isolated_device_tests": {
+      "passed": 31
+    },
+    "debug_variant_startup_restart_heartbeats": {
+      "29": {
+        "cold": {
+          "pid": "4099",
+          "ready_at": 1792909050520,
+          "observed_ms": 61000,
+          "heartbeat_advanced": true
+        },
+        "restart": {
+          "pid": "4458",
+          "ready_at": 1792909118460,
+          "observed_ms": 61000,
+          "heartbeat_advanced": true
+        }
+      },
+      "35": {
+        "cold": {
+          "pid": "2157",
+          "ready_at": 1792909006824,
+          "observed_ms": 62000,
+          "heartbeat_advanced": true
+        },
+        "restart": {
+          "pid": "2710",
+          "ready_at": 1792909075198,
+          "observed_ms": 61000,
+          "heartbeat_advanced": true
+        }
+      },
+      "36": {
+        "cold": {
+          "pid": "2276",
+          "ready_at": 1792909002986,
+          "observed_ms": 62000,
+          "heartbeat_advanced": true
+        },
+        "restart": {
+          "pid": "2781",
+          "ready_at": 1792909072771,
+          "observed_ms": 61000,
+          "heartbeat_advanced": true
+        }
+      }
+    },
+    "release_variant_runtime": {
+      "29": {
+        "launcher_and_15_second_process_survival": "PASS",
+        "same_certificate_in_place_install": "PASS",
+        "receipt": "Release launcher and process survival PASS; package=com.starcore.research.r13; pid=4840"
+      },
+      "35": {
+        "launcher_and_15_second_process_survival": "PASS",
+        "same_certificate_in_place_install": "PASS",
+        "receipt": "Release launcher and process survival PASS; package=com.starcore.research.r13; pid=3126"
+      },
+      "36": {
+        "launcher_and_15_second_process_survival": "PASS",
+        "same_certificate_in_place_install": "PASS",
+        "receipt": "Release launcher and process survival PASS; package=com.starcore.research.r13; pid=3258"
+      }
+    },
+    "regime_null_rolling_forward": "PASS_LOCAL_SEPARATE",
+    "host_30_day_storage": {
+      "status": "PASS",
+      "synthetic_period_records": 1382400,
+      "strategies": 32,
+      "maximum_database_bytes": 123576320
+    }
+  },
+  "known_failed_check": {
+    "name": "HOTCOLD_F15_NONINFERIORITY",
+    "r16": "302/796",
+    "r14b": "257/627",
+    "fixed_margin": -0.01,
+    "status": "FAIL"
+  }
+}

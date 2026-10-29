@@ -1,0 +1,1144 @@
+{
+  "effective_plan": "STARCORE_R26_MERGED_20261026",
+  "overall": "INCOMPLETE",
+  "engineering": "PARTIAL",
+  "algorithm_capabilities": "INCOMPLETE",
+  "natural_quality": "INSUFFICIENT",
+  "user_physical_device": "USER_WAIVED_NOT_PERFORMED",
+  "denominators": {
+    "unified_cards": 128,
+    "historical_requirements": 1832,
+    "historical_cards": 299,
+    "prior_subitems": 156,
+    "families": 24,
+    "experts": 16,
+    "report_sections": 40
+  },
+  "cards": [
+    {
+      "id": "R24-001",
+      "batch": "R26-B01",
+      "title": "基线与审计范围不能冒充全仓完成",
+      "status": "PARTIAL",
+      "acceptance": "994/994源码可取得并哈希匹配；关键路径逐方法有评审签名；安装APK/提交/生成代码三者绑定",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-034",
+      "batch": "R26-B01",
+      "title": "96检查执行完成不等于全部要求通过",
+      "status": "PARTIAL",
+      "acceptance": "4套分母各自展示；零“已验证”不能渲染总体100%通过；本交付只新增证据，不改旧状态为PASS",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-046",
+      "batch": "R26-B01",
+      "title": "错误报告与代码不能暴露签名、授权或个人敏感数据",
+      "status": "PARTIAL",
+      "acceptance": "公开包扫描0已确认密钥；脱敏字段有数量/规则而非泄露值；用户授权前不公开上传",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-001",
+      "batch": "R26-B01",
+      "title": "源码和构建身份审计",
+      "status": "PARTIAL",
+      "acceptance": "错包名、缺正文、生成物漂移分别拒绝；未审文件不允许PASS",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-002",
+      "batch": "R26-B01",
+      "title": "命中率覆盖率与稳定口径",
+      "status": "PARTIAL",
+      "acceptance": "250除1667边界不直接当精确15%；缺失结果不算输赢；7连挂必留痕",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-031",
+      "batch": "R26-B01",
+      "title": "全部旧要求可追溯保全",
+      "status": "PARTIAL",
+      "acceptance": "逐文件hash匹配；统一80卡各出现一次；1770未检查不得批量PASS",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-001",
+      "batch": "R26-B01",
+      "title": "取得完整源码与保护原基线",
+      "status": "PARTIAL",
+      "acceptance": "994/994正文清单或逐项阻塞；关键Owner有实际正文审查；0误覆盖",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-001",
+      "batch": "R26-B01",
+      "title": "双R25编号与要求合并",
+      "status": "PASS",
+      "acceptance": "覆盖A32/B32/R2448及全部原分母，重复ID为0",
+      "reason": "Full stated denominator and namespace-merge acceptance independently verified; algorithm/quality statuses remain separate",
+      "evidence": "continuation/merged-requirements-acceptance.json"
+    },
+    {
+      "id": "R26-014",
+      "batch": "R26-B01",
+      "title": "当前源码hash前置与方法接线",
+      "status": "PARTIAL",
+      "acceptance": "before/after hash、调用图和拒绝错基线；不修改无关新提交",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-002",
+      "batch": "R26-B02",
+      "title": "研究域初始化未完成且诊断无对象差异",
+      "status": "PARTIAL",
+      "acceptance": "复原旧库升级；逐DDL杀进程恢复；连续三轮游标不变必须报确定原因；新旧数据行数和证据哈希不丢",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-003",
+      "batch": "R26-B02",
+      "title": "SU2初始化与创造只挂在充电空闲Job",
+      "status": "PARTIAL",
+      "acceptance": "不充电、屏幕交互、后台三种状态均能完成建表并推进反馈；重训练不能侵占冻结与结算预算",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-004",
+      "batch": "R26-B02",
+      "title": "外层压力返回使内层防饥饿机制失效",
+      "status": "PARTIAL",
+      "acceptance": "注入陈旧压力标记后可恢复；活跃结算时不争用；连续等待超SLO显示阻塞者与租约，不只显示YIELD",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-005",
+      "batch": "R26-B02",
+      "title": "结算反馈与增量消费幂等",
+      "status": "PARTIAL",
+      "acceptance": "提交前杀进程重试一次生效；提交后重放不重复；冲突drawHash隔离",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-005",
+      "batch": "R26-B02",
+      "title": "研究初始化不依赖充电空闲",
+      "status": "PARTIAL",
+      "acceptance": "不充电也能推进到READY；逐DDL杀进程无丢失；不绕过迁移",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-006",
+      "batch": "R26-B02",
+      "title": "轻重任务与截止时间隔离",
+      "status": "PARTIAL",
+      "acceptance": "重训练时P95冻结≤5000ms且取消P95≤100ms；设备实测",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-002",
+      "batch": "R26-B02",
+      "title": "全功能持续运行取消充电闲时门",
+      "status": "PARTIAL",
+      "acceptance": "电源/屏幕/idle变化不改变可运行任务集合",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-003",
+      "batch": "R26-B02",
+      "title": "Job全部职责迁移与唯一租约",
+      "status": "PARTIAL",
+      "acceptance": "全部旧任务有新Owner，双入口只能一个fence提交",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-004",
+      "batch": "R26-B02",
+      "title": "防饥饿公平队列与真实进度",
+      "status": "PARTIAL",
+      "acceptance": "持续负载下逐任务cursor推进；关键区释放后恢复，无充电判断",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-009",
+      "batch": "R26-B03",
+      "title": "抓取业务陈旧与PAYLOAD写入拒绝",
+      "status": "PARTIAL",
+      "acceptance": "断网/延迟/重复/非法排列/DB忙五类故障能定位；网络恢复后补齐合法缺口；API未发布与本机处理慢分开计时",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-010",
+      "batch": "R26-B03",
+      "title": "连续112期缺口会污染时序训练",
+      "status": "PARTIAL",
+      "acceptance": "本次93条增量中63条可用、30条因32期历史缺口排除；断点两侧测试必须拒绝或走明确mask协议",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-011",
+      "batch": "R26-B03",
+      "title": "历史补录不能伪造赛前SHADOW或结算",
+      "status": "PARTIAL",
+      "acceptance": "真实冻结重复结算0新增；已有结果重复到达幂等；缺冻结不补造命中率；每类分母、积压年龄和责任Owner公开",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-012",
+      "batch": "R26-B03",
+      "title": "主线程同步持久化造成4.82秒卡顿",
+      "status": "PARTIAL",
+      "acceptance": "StrictMode无主线程磁盘写；慢盘注入UI不阻塞；进程杀死后租约保守恢复；真实授权没有持久化窗口",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-037",
+      "batch": "R26-B03",
+      "title": "实时性要按完整链分段，而非只看UI倒计时计时",
+      "status": "PARTIAL",
+      "acceptance": "连续有效机会至少1200期，给P50/P95/P99/max和超时原因；迟到冻结0；后台/慢网分组；无API发布承诺50秒必有结果",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-003",
+      "batch": "R26-B03",
+      "title": "可见时间与迟到数据",
+      "status": "PARTIAL",
+      "acceptance": "晚到标签不能进入早先冻结；回拨时钟不延长截止；缺112期保持gap",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-007",
+      "batch": "R26-B03",
+      "title": "唯一结算与反馈原子Outbox",
+      "status": "PARTIAL",
+      "acceptance": "重复/崩溃/冲突开奖不重复训练或结算；冲突隔离",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-010",
+      "batch": "R26-B03",
+      "title": "期号与缺口可见性",
+      "status": "PARTIAL",
+      "acceptance": "本数据112缺口准确；32窗口新增仅63期可延续；跨日不误报",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-005",
+      "batch": "R26-B04",
+      "title": "单代研究并非可中断的2秒切片",
+      "status": "PARTIAL",
+      "acceptance": "强制20ms/200ms/2s预算均可中止与恢复；最后持久化游标无倒退；取消不新发REAL、不丢结算",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-006",
+      "batch": "R26-B04",
+      "title": "同一campaign输入快照可能跨代漂移",
+      "status": "PARTIAL",
+      "acceptance": "一campaign中途新增100期，已有父子比较仍读同一快照；滚动淘汰不改变已注册分割；缺快照则过期终止而非悄悄重建",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-007",
+      "batch": "R26-B04",
+      "title": "研究重放缓存每片重建且内存预算不完整",
+      "status": "PARTIAL",
+      "acceptance": "内存峰值按设备等级有上限；cache命中前后逐期输出一致；超cap对象不能偷偷保留；OOM后checkpoint可恢复",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-008",
+      "batch": "R26-B04",
+      "title": "数据库写事务内仍可能触发研究评估",
+      "status": "PARTIAL",
+      "acceptance": "使用故意冷缓存的测试，事务回调不执行evaluator；写锁P95目标<50ms、P99<100ms，最终由真机测定",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-018",
+      "batch": "R26-B04",
+      "title": "模型学习状态与演化结构状态要分离保全",
+      "status": "PARTIAL",
+      "acceptance": "重启前后下一步梯度/权重/输出一致；崩溃前后反馈恰好一次；不支持状态迁移的子代显式重新训练且不继承证据",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-036",
+      "batch": "R26-B04",
+      "title": "5000期滚动淘汰必须保全必要状态而不暗藏无限原始历史",
+      "status": "PARTIAL",
+      "acceptance": "10000期流式夹具中原始表始终≤5000；重启状态连续；缺原始证据不得宣称能完整重放旧证书",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-004",
+      "batch": "R26-B04",
+      "title": "固定研究快照和5000期上限",
+      "status": "PARTIAL",
+      "acceptance": "两片之间加入新开奖仍用同hash；快照缺失不得悄悄改历史；取消释放依赖",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-008",
+      "batch": "R26-B04",
+      "title": "真正可中断的研究任务",
+      "status": "PARTIAL",
+      "acceptance": "预算触发不发布；恢复数值等价；旧租约复活写失败；关键事务内无模型评估",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-004",
+      "batch": "R26-B04",
+      "title": "策略政策与训练状态分离",
+      "status": "PARTIAL",
+      "acceptance": "100期学习有100个状态但同policy；改规则强制新出生",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-009",
+      "batch": "R26-B04",
+      "title": "全局研究缓存字节预算",
+      "status": "PARTIAL",
+      "acceptance": "缓存开启/清空数值一致；连续5000期无OOM；峰值分设备达标",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-005",
+      "batch": "R26-B04",
+      "title": "真正切片固定快照",
+      "status": "PARTIAL",
+      "acceptance": "杀进程恢复与未中断一致；不可取消内核判失败",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-006",
+      "batch": "R26-B04",
+      "title": "标签与全状态原子消费",
+      "status": "PARTIAL",
+      "acceptance": "事务前后故障、重复包、失效工作者均不重复有效消费",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-013",
+      "batch": "R26-B05",
+      "title": "冻结动作及概率非法值进入主链接口",
+      "status": "PARTIAL",
+      "acceptance": "NaN、∞、负值、越界、K2/K4一律拒绝；合法K3排序和checksum保持既有契约；Android适配测试另验",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-016",
+      "batch": "R26-B05",
+      "title": "教师共识参与质量评分会自证偏高",
+      "status": "PARTIAL",
+      "acceptance": "训练辅助改善不得等同晋级；q变大而真实hit不变不允许提高“实证质量”；以逐期结算验证排序",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-023",
+      "batch": "R26-B05",
+      "title": "K3集合概率与1200动作统计必须一致",
+      "status": "PARTIAL",
+      "acceptance": "全枚举与top3一致；概率和/边际一致；100面/1200动作保留但统计样本量每期最多1主策略机会",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-030",
+      "batch": "R26-B05",
+      "title": "旧优秀资产必须原样复现后再迁移",
+      "status": "PARTIAL",
+      "acceptance": "原始资产可复现率逐条给出；缺失状态UNKNOWN；历史成绩与新版本前瞻成绩分列",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-006",
+      "batch": "R26-B05",
+      "title": "真实样本和增强样本隔离",
+      "status": "PARTIAL",
+      "acceptance": "加入万条增强行不改变自然N或hits；非法排列拒绝；保留原始标签",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-007",
+      "batch": "R26-B05",
+      "title": "数学原子的类型数值可见性合同",
+      "status": "PARTIAL",
+      "acceptance": "除零NaN无限递归未来边越界均拒绝；原子状态往返一致；去原子消融存在",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-002",
+      "batch": "R26-B05",
+      "title": "无损策略身份与只读参数",
+      "status": "PARTIAL",
+      "acceptance": "原碰撞反例在新协议不碰撞；Java/Python字节一致；旧证书不继承",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-012",
+      "batch": "R26-B05",
+      "title": "有类型因果原子编译器",
+      "status": "PARTIAL",
+      "acceptance": "未来注入无影响；错误类型拒绝；训练原子有真实更新证据",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-013",
+      "batch": "R26-B05",
+      "title": "六尺度共享状态",
+      "status": "PARTIAL",
+      "acceptance": "各尺度feature前缀/边界/内存正确；不把不足5000视为满5000",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-025",
+      "batch": "R26-B05",
+      "title": "旧优质资产的保护与复验",
+      "status": "PARTIAL",
+      "acceptance": "旧声称35/43逐笔定位；现有记录/前瞻结果分别展示",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-007",
+      "batch": "R26-B05",
+      "title": "跨模块无损身份规范",
+      "status": "PARTIAL",
+      "acceptance": "相近浮点/类型/Unicode/可变输入/恢复黄金向量；Java适配另验",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-019",
+      "batch": "R26-B06",
+      "title": "R23模型只有32期窗口并不等于六尺度能力",
+      "status": "PARTIAL",
+      "acceptance": "每尺度有输入hash/可用mask/成本/消融差；不足5000期不伪装有5000期；打乱某尺度仅作负对照",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-020",
+      "batch": "R26-B06",
+      "title": "24机制必须逐家族可执行而非扩充标签",
+      "status": "PARTIAL",
+      "acceptance": "每家族通过前缀因果、梯度/统计更新、恢复、结构反例、同预算消融、时延内存六关才计EXECUTABLE",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-021",
+      "batch": "R26-B06",
+      "title": "原子世界有目录但没有闭环学习证据",
+      "status": "PARTIAL",
+      "acceptance": "每位置每号码100面板能追溯原子；负对照和移除消融能区分真增益；causeKey仅假设ID不冒充因果证明",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-022",
+      "batch": "R26-B06",
+      "title": "16专家要产出可执行实验而非文案",
+      "status": "PARTIAL",
+      "acceptance": "每次专家工作都有输入hash/任务ID/产物hash/试验结果/拒绝原因；空文案、同义改名不增加创造量",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-024",
+      "batch": "R26-B06",
+      "title": "代数增长不等于质量代际进步",
+      "status": "PARTIAL",
+      "acceptance": "同义AST/改名/随机种子/无输出变化不增有效代；保留父子共同机会差和完整回滚指针",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-029",
+      "batch": "R26-B06",
+      "title": "多样性要按行为与机制而非程序数量",
+      "status": "PARTIAL",
+      "acceptance": "输出语义相同的1000个重命名程序只计一个；互补但低质量不因新颖性进入REAL",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-031",
+      "batch": "R26-B06",
+      "title": "“失败→假设→变异→复核”必须可追踪",
+      "status": "PARTIAL",
+      "acceptance": "每新资产至少关联一条失败簇和反证；失败数与结算总数对齐；归因可多标签但不能重复计样本",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-040",
+      "batch": "R26-B06",
+      "title": "短期结构窗口须可预测而非事后切段",
+      "status": "PARTIAL",
+      "acceptance": "按进入前已知状态统计全部窗口，含失败窗口；回看最优分割仅归研究，不能补作当时出手理由",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "A:R25-009",
+      "batch": "R26-B06",
+      "title": "有类型结构变异与真实代数",
+      "status": "PARTIAL",
+      "acceptance": "交换可交换子节点不加代；新超边改变行为但未前瞻只计研究代；父代hash不变",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "A:R25-010",
+      "batch": "R26-B06",
+      "title": "24家族逐层完工与预算实验",
+      "status": "PARTIAL",
+      "acceptance": "24项各自可查源码产物；同预算去机制后效果；不以4个HOST网络充当24项完成",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "A:R25-011",
+      "batch": "R26-B06",
+      "title": "16专家的可执行研究工作流",
+      "status": "PARTIAL",
+      "acceptance": "每专家一次真实任务和反例；空提案不计完成；delayHit不覆盖hit0",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "A:R25-012",
+      "batch": "R26-B06",
+      "title": "元学习与计算调度",
+      "status": "PARTIAL",
+      "acceptance": "被封cohort结果不可读；失败任务消耗记账；RL不控制真实加注或开奖",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "A:R25-013",
+      "batch": "R26-B06",
+      "title": "多样性档案与真实标签评分",
+      "status": "PARTIAL",
+      "acceptance": "教师概率人为提高不改变真实胜率与证书；重复策略不增有效家族",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-014",
+      "batch": "R26-B06",
+      "title": "七类可解释机制先落实",
+      "status": "PARTIAL",
+      "acceptance": "7类机制独立；统一stub/fallback禁止；全失败也完整报告",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-015",
+      "batch": "R26-B06",
+      "title": "九类表示与记忆机制",
+      "status": "PARTIAL",
+      "acceptance": "9类决定性消融和时间泄漏测试；缺省不能全走同一网络",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-016",
+      "batch": "R26-B06",
+      "title": "八类联合读出与组合机制",
+      "status": "PARTIAL",
+      "acceptance": "小n枚举、梯度、1200动作、未知前缀mask、成本边界通过",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-017",
+      "batch": "R26-B06",
+      "title": "16专家可执行Proposal",
+      "status": "PARTIAL",
+      "acceptance": "16类至少各一完整受控任务；纯文本产物不得计完成",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-018",
+      "batch": "R26-B06",
+      "title": "质量多样性档案",
+      "status": "PARTIAL",
+      "acceptance": "同义重排、死分支、随机种子不刷新家族；低样本不获虚假新颖奖励",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-020",
+      "batch": "R26-B06",
+      "title": "预测走势结构与软分支",
+      "status": "PARTIAL",
+      "acceptance": "未来平滑后验禁用；第一层错误不强制永久剪掉真候选",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "B:R25-026",
+      "batch": "R26-B06",
+      "title": "失败结构→修复→验证闭环",
+      "status": "PARTIAL",
+      "acceptance": "delayHit不改当期结果；无支持时返回INSUFFICIENT非编造原因",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R26-009",
+      "batch": "R26-B06",
+      "title": "24家族全功能持续训练",
+      "status": "PARTIAL",
+      "acceptance": "24项各有predict/train/mutate/ablate/restore及实测时间，SHELL为0才全能力通过",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R26-010",
+      "batch": "R26-B06",
+      "title": "16专家到结构实验闭环",
+      "status": "PARTIAL",
+      "acceptance": "16项均有可执行提案和失败/成功收据；无任务给出依据",
+      "reason": "Concrete F01-F24 kernels implemented; F23 original-VM adapter awaiting Android validation. Full mechanism ablations, expert workflows, live publication and acceptance remain outstanding"
+    },
+    {
+      "id": "R24-017",
+      "batch": "R26-B07",
+      "title": "复用同一验证集搜索导致选择乐观",
+      "status": "PARTIAL",
+      "acceptance": "污染金丝雀标签必须触发隔离；打开sealed后不能再次用同cohort授证；所有搜索尝试包括失败纳入台账",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-026",
+      "batch": "R26-B07",
+      "title": "校准必须匹配最终选中策略与号码",
+      "status": "PARTIAL",
+      "acceptance": "calibration gap/ECE/Brier全有定义与分母；空箱不填0；低样本显示UNKNOWN；NaN禁止授证",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-028",
+      "batch": "R26-B07",
+      "title": "频繁晋级检验和候选相关性需统一错误预算",
+      "status": "PARTIAL",
+      "acceptance": "同真值模拟检验错误率；所有alpha支出可加总；子代不继承父代样本；不同时使用互相矛盾的置信口径",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-042",
+      "batch": "R26-B07",
+      "title": "新增样本延伸验证不能伪装自然实盘证书",
+      "status": "PARTIAL",
+      "acceptance": "重复运行结果一致；30条缺口后数据不硬接；不能从4/6推广66.7%真实胜率",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-043",
+      "batch": "R26-B07",
+      "title": "反事实、置乱与植入信号测试要各司其职",
+      "status": "PARTIAL",
+      "acceptance": "系统能拒绝无信号假阳性、恢复已知植入规律；任何合成结果不能写REAL/自然OOS栏",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-014",
+      "batch": "R26-B07",
+      "title": "学习政策身份与检查点链",
+      "status": "PARTIAL",
+      "acceptance": "规则相同且标签严格过去可续链；修改门控或结构必须新policy；父证据不复制",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-015",
+      "batch": "R26-B07",
+      "title": "数据暴露与新cohort",
+      "status": "PARTIAL",
+      "acceptance": "旧历史不能写成未见自然样本；开封失败也保持已暴露；新提案新队列",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-016",
+      "batch": "R26-B07",
+      "title": "检验预算与无新证据幂等",
+      "status": "PARTIAL",
+      "acceptance": "同一digest调用100次只占一次；新增证据才候选新look；预检失败不扣预算",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-017",
+      "batch": "R26-B07",
+      "title": "选择后校准与概率语义",
+      "status": "PARTIAL",
+      "acceptance": "同批动作计算比较；0.30 Brier不固定写0.21；不足120校准样本明确不足而非质量失败",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-003",
+      "batch": "R26-B07",
+      "title": "正确非劣与提升下界",
+      "status": "PARTIAL",
+      "acceptance": "1000期40%对45%例拒绝；改善/平局/不足/缺失分别正确",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-019",
+      "batch": "R26-B07",
+      "title": "真实代际与历史裁判改名",
+      "status": "PARTIAL",
+      "acceptance": "历史升分不增verified；原代数保留legacy字段；NO_OP=0",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-021",
+      "batch": "R26-B07",
+      "title": "永久检验预算与数据暴露账本",
+      "status": "PARTIAL",
+      "acceptance": "重复打开拒绝；百万候选模拟总预算不超root；索引不回收",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-024",
+      "batch": "R26-B07",
+      "title": "全局连挂与可行性",
+      "status": "PARTIAL",
+      "acceptance": "跨模型/暂停仍接续；独立40%压力例能复算；7挂处置有回执",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-008",
+      "batch": "R26-B07",
+      "title": "配对下界与永久look统一",
+      "status": "PARTIAL",
+      "acceptance": "40%对45%反例不通过；同digest100次只一次；NO_OP不计提升",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-014",
+      "batch": "R26-B08",
+      "title": "15%频率与250/1500门槛冲突",
+      "status": "NOT_RUN",
+      "acceptance": "原代码反例可复现；修补后6项回归通过；弱策略仍降级；不能靠补满250次强行出手",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "R24-015",
+      "batch": "R26-B08",
+      "title": "证书与REAL路径必须闭环而非硬开开关",
+      "status": "NOT_RUN",
+      "acceptance": "合成夹具可验路径但不计真实质量；自然证据合格后能进入主链并结算；无证书绝不REAL；每期最多一个",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "R24-025",
+      "batch": "R26-B08",
+      "title": "85%分位门控不是35%质量保证",
+      "status": "NOT_RUN",
+      "acceptance": "低质量期允许ABSTAIN且报告目标未达；达标且不同窗口互补时可超过15%，不设人为上限；分母所有应处理期公开",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "R24-027",
+      "batch": "R26-B08",
+      "title": "动态混合和排列投影不能被直接称为升级有效",
+      "status": "NOT_RUN",
+      "acceptance": "预先指定主指标；同时报告代价/频率/连挂；无动作不能显示100%安全或高质量",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "R24-041",
+      "batch": "R26-B08",
+      "title": "连挂风险和停手不可靠重置统计变好",
+      "status": "NOT_RUN",
+      "acceptance": "人工插入跨模型7次失败必须显示7；窗口≤6是验收目标不是无限未来保证；最大连挂与频率并报",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "A:R25-018",
+      "batch": "R26-B08",
+      "title": "同期配对和组合整体资格",
+      "status": "NOT_RUN",
+      "acceptance": "完全重合的3个5%覆盖仍5%；赢家选择后新政策不可继承各自证书；仅一REAL",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "B:R25-022",
+      "batch": "R26-B08",
+      "title": "选择后校准与风险覆盖",
+      "status": "NOT_RUN",
+      "acceptance": "零出手判频率失败；全覆盖需独立通过；路由无后验选优",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "B:R25-023",
+      "batch": "R26-B08",
+      "title": "资格与REAL双向接线",
+      "status": "NOT_RUN",
+      "acceptance": "合成全通过可入；删任一证据即拒；自然统计不混合成",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "A:R25-019",
+      "batch": "R26-B09",
+      "title": "持久化双槽模型发布",
+      "status": "NOT_RUN",
+      "acceptance": "5个崩溃点都恢复一致；CAS失败不激活；同策略模型hash与calibrator匹配",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "A:R25-020",
+      "batch": "R26-B09",
+      "title": "受限模型包与格式兼容",
+      "status": "NOT_RUN",
+      "acceptance": "超长维度坏hash未知算子拒绝；拒绝时旧模型仍可用；无任意代码加载",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "A:R25-021",
+      "batch": "R26-B09",
+      "title": "回退兼容与旧Champion保护",
+      "status": "NOT_RUN",
+      "acceptance": "证书过期的旧模型不可REAL；旧库升级不清数据；迁移中断可续",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "A:R25-029",
+      "batch": "R26-B09",
+      "title": "资源容量与成本预算",
+      "status": "NOT_RUN",
+      "acceptance": "5000期24家族与导出共存测总PSS；预算满可恢复让出；无无界磁盘归档",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "B:R25-008",
+      "batch": "R26-B09",
+      "title": "完整checkpoint提交发布",
+      "status": "NOT_RUN",
+      "acceptance": "各故障注入点恢复后一阶预测/梯度与不中断一致",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "B:R25-028",
+      "batch": "R26-B09",
+      "title": "5000期、报告与模型GC",
+      "status": "NOT_RUN",
+      "acceptance": "5001输入后5000留存；宕机GC不删活跃状态；历史证据不抹掉",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "R26-011",
+      "batch": "R26-B09",
+      "title": "原始数据与模型证据保留",
+      "status": "NOT_RUN",
+      "acceptance": "原始累计副本不无限增长；当前/待结算引用不被删",
+      "reason": "Full mechanism and acceptance not implemented in this engineering candidate"
+    },
+    {
+      "id": "R24-032",
+      "batch": "R26-B10",
+      "title": "升级诊断返回error=true却无原因",
+      "status": "PARTIAL",
+      "acceptance": "故意删SU2表、SQL列不符、IO失败时仍导出完整错误段；总报告不得自称全部能力完整",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-033",
+      "batch": "R26-B10",
+      "title": "体积变小不代表信息完整",
+      "status": "PARTIAL",
+      "acceptance": "每段expected/exported/omitted之和可核；尾部截断不能静默；需要完整证据的验收在PARTIAL时自动BLOCK",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-035",
+      "batch": "R26-B10",
+      "title": "报告磁盘与运行内存需分别核算",
+      "status": "PARTIAL",
+      "acceptance": "取消大报告后临时文件清理；失败不删除上一份有效报告；总磁盘/堆内存峰值/压缩包字节各有独立趋势",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-039",
+      "batch": "R26-B10",
+      "title": "算法排行榜及基础预测图需真实证据驱动",
+      "status": "PARTIAL",
+      "acceptance": "排行榜与明细SQL逐项一致；0样本用“无证据”而非0%/100%；图表不触发重训练或长查询主线程",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-044",
+      "batch": "R26-B10",
+      "title": "报告必须覆盖100面、1200动作和Owner红线",
+      "status": "PARTIAL",
+      "acceptance": "独立报告验证器逐章检查；漏任一必需段即INCOMPLETE；报告大小不是完整度判据",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-047",
+      "batch": "R26-B10",
+      "title": "报告根因与影响模板不一致，可能指导错误返修",
+      "status": "PARTIAL",
+      "acceptance": "构造只有runtime stale而ownerConflict=0夹具：禁止输出“发现重复Owner”；不同P95范围能对账；总FAIL不覆盖子项事实",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-048",
+      "batch": "R26-B10",
+      "title": "Canonical提交成功但完整延后证据长期PENDING",
+      "status": "PARTIAL",
+      "acceptance": "冻结后立刻杀进程再启动：续写1200唯一动作与100面完成且hash相同；故意删块报PARTIAL；没有原payload时明确不可恢复，不伪造",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-022",
+      "batch": "R26-B10",
+      "title": "36章报告机器完整性",
+      "status": "PARTIAL",
+      "acceptance": "缺任一章整体不完整；79402导出5000需omitted74402；取消不删旧成功报告",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-023",
+      "batch": "R26-B10",
+      "title": "证据驱动根因与返修卡",
+      "status": "PARTIAL",
+      "acceptance": "explicitConflict=false不能输出已确认双Owner；未知不填无问题；故障注入命中正确卡",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-024",
+      "batch": "R26-B10",
+      "title": "真实排行预测图和学习进度",
+      "status": "PARTIAL",
+      "acceptance": "未冻结不显示已完成下一期；4/6标小样本；切换策略不清全局连挂",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-011",
+      "batch": "R26-B10",
+      "title": "报告失败不吞成空壳",
+      "status": "PARTIAL",
+      "acceptance": "必需段即使异常也可解释；expected=exported+omitted",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-029",
+      "batch": "R26-B10",
+      "title": "排行、100面与1200动作",
+      "status": "PARTIAL",
+      "acceptance": "图表与SQL逐笔相同；缺冻结payload不可后算补写",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-031",
+      "batch": "R26-B10",
+      "title": "完整报告与能力分母",
+      "status": "PARTIAL",
+      "acceptance": "0遗失要求；部分结果不冒充全仓/真机/质量通过",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-012",
+      "batch": "R26-B10",
+      "title": "40章与全能力进度图表",
+      "status": "PARTIAL",
+      "acceptance": "40/40章节、原96/100面/1200完整，错误不能PASS",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-038",
+      "batch": "R26-B11",
+      "title": "Android后台限制与真机覆盖不足",
+      "status": "PARTIAL",
+      "acceptance": "覆盖安装保留数据、冷启动、锁屏、切后台、掉电、断网、权限拒绝、Job取消；每格有APKhash/日志/截图/限制，不允许空格写PASS",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-025",
+      "batch": "R26-B11",
+      "title": "SLO与业务活性",
+      "status": "PARTIAL",
+      "acceptance": "无新开奖但心跳活跃仍STALE；慢于5秒的样本不能被删除；P95写明N",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-026",
+      "batch": "R26-B11",
+      "title": "故障与对抗验收",
+      "status": "PARTIAL",
+      "acceptance": "所有反例有预期拒绝状态；发布恢复不损旧模型；零假设误授证率统计公开",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-027",
+      "batch": "R26-B11",
+      "title": "后台版本设备矩阵",
+      "status": "PARTIAL",
+      "acceptance": "每格有安装APK系统target结果；强停不能虚报继续；target28不套target35限定故障",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-028",
+      "batch": "R26-B11",
+      "title": "固定工件与机器CI回执",
+      "status": "PARTIAL",
+      "acceptance": "修改待测APK后hash失配阻断；API未执行不PASS；无密钥单测可跑",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-030",
+      "batch": "R26-B11",
+      "title": "许可证依赖与凭据边界",
+      "status": "PARTIAL",
+      "acceptance": "公开包无私钥或token；许可证UNKNOWN阻止声称已清；不在测试输出密钥",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-027",
+      "batch": "R26-B11",
+      "title": "后台与主线程恢复",
+      "status": "PARTIAL",
+      "acceptance": "亮灭屏/断网/时钟变化/进程杀死/强停各有预期和证据",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-030",
+      "batch": "R26-B11",
+      "title": "负控与植入机制全链测试",
+      "status": "PARTIAL",
+      "acceptance": "负控不批量出高质量证书；植入机制可学且消融失效；synthetic不得REAL资格",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-013",
+      "batch": "R26-B11",
+      "title": "非充电全负载真机矩阵",
+      "status": "PARTIAL",
+      "acceptance": "各格记录启用能力、真实服务量、延迟/内存/恢复；未测NOT_RUN",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R24-045",
+      "batch": "R26-B12",
+      "title": "发布不能用旧APK冒充本次升级完成",
+      "status": "PARTIAL",
+      "acceptance": "CI检查交付声明必须逐项对应证据；UI版本与构建源码一致；本R24总包不能被自动当成已部署版本",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "A:R25-032",
+      "batch": "R26-B12",
+      "title": "公开完整实验与四项放行",
+      "status": "PARTIAL",
+      "acceptance": "无前瞻证书则质量NOT_PROVEN；每批真实APK身份；低分和NO_OP不隐藏",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "B:R25-032",
+      "batch": "R26-B12",
+      "title": "可交付APK与不可造假发布",
+      "status": "PARTIAL",
+      "acceptance": "指定APK可启动且旧数据可保留；设备证据齐；未验收项保持未完成",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-015",
+      "batch": "R26-B12",
+      "title": "文件级保全与原子替换旧目录",
+      "status": "PARTIAL",
+      "acceptance": "新目录可读、旧路径不存在、其他源码hash不变、B142映射全命中",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    },
+    {
+      "id": "R26-016",
+      "batch": "R26-B12",
+      "title": "四类验收与可施工交付",
+      "status": "PARTIAL",
+      "acceptance": "无伪PASS；资格满足能REAL，不满足不能；规划不冒充APK",
+      "reason": "Related production changes require the complete original card acceptance; no automatic PASS"
+    }
+  ],
+  "executable_kernel_families": [
+    "F01",
+    "F02",
+    "F03",
+    "F04",
+    "F05",
+    "F06",
+    "F07",
+    "F08",
+    "F09",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+    "F14",
+    "F15",
+    "F16",
+    "F17",
+    "F18",
+    "F19",
+    "F20",
+    "F21",
+    "F22",
+    "F23",
+    "F24"
+  ],
+  "fully_accepted_families": [],
+  "executable_initial_expert_workflows": [
+    "E01",
+    "E02",
+    "E03",
+    "E04",
+    "E05",
+    "E06",
+    "E07",
+    "E08",
+    "E09",
+    "E10",
+    "E11",
+    "E12",
+    "E13",
+    "E14",
+    "E15",
+    "E16"
+  ],
+  "fully_accepted_experts": [],
+  "new_candidate_live_protocol": "IMPLEMENTED; COMPILED_AND_CORE_ANDROID_REGRESSIONS_PASS; FULL_ADVERSARIAL_ACCEPTANCE_PENDING",
+  "qualification_protocol": "R26_PREREGISTERED_AGGREGATE_LCB_V3;69120_PERIODS_STRIDE720;NATURAL_EVIDENCE_INSUFFICIENT",
+  "legacy_predraw_bootstrap": "RESUMABLE_REPLAY_AND_BOUNDED_OWNER_PARTS_IMPLEMENTED;FULL_LEGACY_ACCEPTANCE_PENDING",
+  "legacy_committee_stage_generation": "PARTIAL_RESUMABLE_GENERATION_AND_CONTINUATION_VERIFIED;PRIVATE_TRAINING_ROSTER_PERSISTENCE_ACCEPTANCE_PENDING",
+  "fixed_window_statistical_power": "Historical4000-period failure retained in historicalDeliveryRecords; current69120 calendar does not establish actual natural strategy quality",
+  "compiled_source": "a7f0052459331988ab58ccd667fa1fe43ccacd9d",
+  "apk_sha256": "739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433",
+  "android_ci": {
+    "run_id": 40645360647,
+    "build": "PASS",
+    "api_29_native": {
+      "declaredTests": 117,
+      "executedTests": 117,
+      "failedSelectors": 0,
+      "notExecutedTests": 0,
+      "status": "PASS",
+      "source": "fc1402f8ea426b0d19ea0796f7dd19aaeebb11f3",
+      "compiledSource": "a7f0052459331988ab58ccd667fa1fe43ccacd9d",
+      "api": 29,
+      "evidence": "construction/r26/continuation/runtime-117-residual-failure-research-pass.json",
+      "scope": "MATCHING_SOURCE_EXECUTION_RESULT_INCLUDING_FAILURES; NOT_CURRENT_UNEXECUTED_TESTS_OR_NATURAL_QUALITY",
+      "runtimeEngineeringResult": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "durableCommittedCapacityFailures": 0
+    },
+    "api_35_scope": "STARTUP_RESTART_RELEASE_SURVIVAL_ONLY",
+    "api_36_scope": "STARTUP_RESTART_RELEASE_SURVIVAL_ONLY",
+    "physical_device": "USER_WAIVED_NOT_PERFORMED"
+  },
+  "historicalDeliveryRecords": [
+    {
+      "compiled_source": "96b7921438624c0d4c7ca6e8deeabad487820f05",
+      "apk_sha256": "9cf9b19be3e130edbb99ad9bcaef0ea5c2d561e2a07bd13fffbd18e94d6b1b33",
+      "android_ci": {
+        "run_id": 40484847604,
+        "build": "PASS",
+        "api_29": "PASS",
+        "api_35": "PASS",
+        "api_36": "PASS",
+        "api_29_instrumentation_tests": 40,
+        "physical_device": "NOT_RUN"
+      },
+      "qualification_protocol": "PREREGISTERED_ROLLING_4000_STRIDE720; FUTURE_NATURAL_EVIDENCE_PENDING",
+      "fixed_window_statistical_power": "FAILED_SYNTHETIC_TARGET_POWER: 15% coverage / 40% probability, 0/300 passed the 4000-period paired bound; protocol redesign and predeclared sufficient-statistics retention required",
+      "legacy_predraw_bootstrap": "EXISTING_UNSLICED_PATH; NOT_R26_SLO_ACCEPTED",
+      "legacy_committee_stage_generation": "FULL_RESUMABLE_MIGRATION_PENDING; STATIC_IMPLEMENTATIONS_AND_SAVED_PARENTS_PRESERVED"
+    }
+  ],
+  "latestVerifiedPackage": {
+    "evidence": "construction/r26/continuation/package-117-independent.json",
+    "source": "fc1402f8ea426b0d19ea0796f7dd19aaeebb11f3",
+    "compiledSource": "a7f0052459331988ab58ccd667fa1fe43ccacd9d",
+    "apkSha256": "739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433",
+    "scope": "INDEPENDENTLY_VERIFIED_HISTORICAL_ENGINEERING_APK_NOT_CURRENT_OR_COMPLETE_DELIVERY"
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "status": "PASS",
+  "scope": "deployed pure Java source + independent Python and SQLite; Android/physical device and natural prediction qualification are separate",
+  "checks": [
+    {
+      "name": "schema_and_catalog_reproducibility",
+      "returncode": 0,
+      "seconds": 0.039,
+      "output": "SU1_SCHEMA_AND_CATALOG_VERIFIED\n"
+    },
+    {
+      "name": "independent_atom_golden",
+      "returncode": 0,
+      "seconds": 6.093,
+      "output": "SU1_ATOM_GOLDEN_GENERATED scores=84000 conditions=750\n"
+    },
+    {
+      "name": "independent_training_golden",
+      "returncode": 0,
+      "seconds": 0.145,
+      "output": "TRAINING_GOLDEN ed2d6cced5918d997c99109e4fc2a7035b8452f0aa780c4c858a8f7012e14ac2 bytes 52474\n"
+    },
+    {
+      "name": "independent_relgraph_golden",
+      "returncode": 0,
+      "seconds": 2.692,
+      "output": "RELGRAPH_GOLDEN bytes 147194 values 3060 groups 18 sha256 e2194d12514403feaf4d5e8dd773823199428427faa0cebd2717895046f90775\n"
+    },
+    {
+      "name": "deployed_java_compile",
+      "returncode": 0,
+      "seconds": 4.107,
+      "output": ""
+    },
+    {
+      "name": "ProgramTreeSU1Test",
+      "returncode": 0,
+      "seconds": 0.648,
+      "output": "ProgramTreeSU1Test PASS checks=16348 values=16000 worst_rel_err=4.589675152832597E-7 actions=155 near_tie_skipped=5 scope=PURE_JAVA_REFERENCE_NOT_ANDROID\n"
+    },
+    {
+      "name": "TypedProgramTest",
+      "returncode": 0,
+      "seconds": 0.157,
+      "output": "TYPED_PROGRAM_REFERENCE_PASS checks=42 scope=JDK_REFERENCE_ONLY_NOT_ANDROID_OR_PREDICTION_QUALITY\n"
+    },
+    {
+      "name": "PairedEvidenceTest",
+      "returncode": 0,
+      "seconds": 0.646,
+      "output": "PairedEvidenceTest PASS checks=64 scope=PURE_JAVA_REFERENCE_NOT_ANDROID_NOT_REAL_PERFORMANCE\n"
+    },
+    {
+      "name": "NullBaselineTest",
+      "returncode": 0,
+      "seconds": 0.292,
+      "output": "NullBaselineTest PASS checks=65 scope=PURE_JAVA_REFERENCE_NOT_ANDROID_NOT_REAL_PERFORMANCE\n"
+    },
+    {
+      "name": "ProductionKernelSU1Test",
+      "returncode": 0,
+      "seconds": 1.838,
+      "output": "SU1_PRODUCTION_KERNEL_PASS checks=84968 atom_values=84000 atom_conditions=750 worst=3.910377357689964E-8\n"
+    },
+    {
+      "name": "AdvancedContractsSU1Test",
+      "returncode": 0,
+      "seconds": 0.798,
+      "output": "SU1_ADVANCED_CONTRACTS_PASS checks=487\n"
+    },
+    {
+      "name": "TrainingParitySU1Test",
+      "returncode": 0,
+      "seconds": 0.21,
+      "output": "SU1_TRAINING_PARITY_PASS values=1407\n"
+    },
+    {
+      "name": "AuditControlsSU1Test",
+      "returncode": 0,
+      "seconds": 1.083,
+      "output": "SU1_AUDIT_CONTROLS_PASS checks=39 variants=5 scope=actual_first_replay_and_restart_not_completed_campaign_effectiveness\n"
+    },
+    {
+      "name": "RelGraphContractsSU1Test",
+      "returncode": 0,
+      "seconds": 1.928,
+      "output": "SU1_RELGRAPH_CONTRACTS_PASS checks=596 groups=18 synthetic_ce_before=2.375691862188555 after=0.012207640880246538 scope=synthetic_numerics_not_prediction_quality\n"
+    },
+    {
+      "name": "RelGraphParitySU1Test",
+      "returncode": 0,
+      "seconds": 0.465,
+      "output": "SU1_RELGRAPH_PARITY_PASS values=3939 groups=18\n"
+    },
+    {
+      "name": "ModelAblationsSU1Test",
+      "returncode": 0,
+      "seconds": 23.844,
+      "output": "SU1_MODEL_ABLATIONS_PASS checks=41 variants=8 commonN=1440 updates=64 scope=synthetic_execution_not_natural_effectiveness\n"
+    },
+    {
+      "name": "ResearchFailureSU1Test",
+      "returncode": 0,
+      "seconds": 0.38,
+      "output": "SU1_RESEARCH_FAILURE_PASS checks=13 scope=typed_contracts_and_real_campaign_failure_recovery_no_causal_gain_claim\n"
+    },
+    {
+      "name": "TrainingFidelitySU1Test",
+      "returncode": 0,
+      "seconds": 2.303,
+      "output": "SU1_TRAINING_FIDELITY_PASS checks=96 scope=real_smaller_joint_fit_cache_isolation_DEV_only_screen_and_full_decision_parity\n"
+    },
+    {
+      "name": "ProductionR13Test",
+      "returncode": 0,
+      "seconds": 2.379,
+      "output": "R13_PRODUCTION_PASS: 24 strategies, six model families, 2200 draws, checkpoint/live/replay/K3, missing-evidence penalty and alpha bound; synthetic contracts only\n"
+    },
+    {
+      "name": "python_schema_learning_and_null_suites",
+      "returncode": 0,
+      "seconds": 5.608,
+      "output": "test_era_order_and_sealed_opened_once (test_foundry_schema.FoundrySchemaTests.test_era_order_and_sealed_opened_once) ... ok\ntest_idempotent_install (test_foundry_schema.FoundrySchemaTests.test_idempotent_install) ... ok\ntest_live_shadow_freeze_settle_compact (test_foundry_schema.FoundrySchemaTests.test_live_shadow_freeze_settle_compact) ... ok\ntest_macro_and_emergent_family (test_foundry_schema.FoundrySchemaTests.test_macro_and_emergent_family) ... ok\ntest_pool_single_active_and_retire_only (test_foundry_schema.FoundrySchemaTests.test_pool_single_active_and_retire_only) ... ok\ntest_research_cohorts_do_not_dilute_confirm_ordinals (test_foundry_schema.FoundrySchemaTests.test_research_cohorts_do_not_dilute_confirm_ordinals) ... ok\ntest_golden_numerics_and_actions (test_java_parity.JavaParity.test_golden_numerics_and_actions) ... ok\ntest_invalid_permutation_rejected (test_java_parity.JavaParity.test_invalid_permutation_rejected) ... ok\ntest_uniform_tie_is_deterministic (test_java_parity.JavaParity.test_uniform_tie_is_deterministic) ... ok\ntest_no_false_confirmations_under_fair_draws (test_null_baseline.NegativeControlTests.test_no_false_confirmations_under_fair_draws) ... ok\ntest_power_table_is_monotone_in_claims (test_null_baseline.NegativeControlTests.test_power_table_is_monotone_in_claims) ... ok\ntest_real_synthetic_edge_is_detectable (test_null_baseline.NegativeControlTests.test_real_synthetic_edge_is_detectable)\nProves the gate is not 'never pass': a genuine 40% vs 30% edge confirms. ... ok\ntest_domain_and_inputs (test_null_baseline.NullBaselineChoiceTests.test_domain_and_inputs) ... ok\ntest_golden_vectors_match_committed_fixture (test_null_baseline.NullBaselineChoiceTests.test_golden_vectors_match_committed_fixture) ... ok\ntest_uniform_marginals_and_exact_thirty_percent_on_biased_draws (test_null_baseline.NullBaselineChoiceTests.test_uniform_marginals_and_exact_thirty_percent_on_biased_draws) ... ok\ntest_both_claims_certify_then_expiry_and_null_alarm_block_binding (test_null_baseline.PromotionGateSchemaTests.test_both_claims_certify_then_expiry_and_null_alarm_block_binding) ... ok\ntest_claim_kind_binds_roles (test_null_baseline.PromotionGateSchemaTests.test_claim_kind_binds_roles) ... ok\ntest_failed_null_baseline_claim_cannot_certify (test_null_baseline.PromotionGateSchemaTests.test_failed_null_baseline_claim_cannot_certify) ... ok\ntest_forged_radius_cannot_shift_lower_bound (test_null_baseline.PromotionGateSchemaTests.test_forged_radius_cannot_shift_lower_bound) ... ok\ntest_new_family_cannot_mint_fresh_alpha (test_null_baseline.PromotionGateSchemaTests.test_new_family_cannot_mint_fresh_alpha) ... ok\ntest_null_strategies_never_hold_certificates (test_null_baseline.PromotionGateSchemaTests.test_null_strategies_never_hold_certificates) ... ok\ntest_parent_win_alone_cannot_certify (test_null_baseline.PromotionGateSchemaTests.test_parent_win_alone_cannot_certify) ... ok\ntest_adam_checkpoint_resumes_identical_update (test_relational_state_model.RelationalStateModelTest.test_adam_checkpoint_resumes_identical_update) ... ok\ntest_all_parameter_gradients_by_finite_difference (test_relational_state_model.RelationalStateModelTest.test_all_parameter_gradients_by_finite_difference) ... ok\ntest_frozen_replay_hash_and_live_mutation_isolation (test_relational_state_model.RelationalStateModelTest.test_frozen_replay_hash_and_live_mutation_isolation) ... ok\ntest_future_mutation_cannot_affect_input_or_prediction (test_relational_state_model.RelationalStateModelTest.test_future_mutation_cannot_affect_input_or_prediction) ... ok\ntest_invalid_draw_and_nonfinite_weights_rejected (test_relational_state_model.RelationalStateModelTest.test_invalid_draw_and_nonfinite_weights_rejected) ... ok\ntest_late_source_duplicate_and_gap_rejected (test_relational_state_model.RelationalStateModelTest.test_late_source_duplicate_and_gap_rejected) ... ok\ntest_prediction_is_read_only_and_history_order_matters (test_relational_state_model.RelationalStateModelTest.test_prediction_is_read_only_and_history_order_matters) ... ok\ntest_probability_and_action_contract (test_relational_state_model.RelationalStateModelTest.test_probability_and_action_contract) ... ok\ntest_training_updates_every_parameter_group_and_decreases_loss (test_relational_state_model.RelationalStateModelTest.test_training_updates_every_parameter_group_and_decreases_loss) ... ok\ntest_archive_requires_receipt_and_released_pin (test_schema.SchemaTests.test_archive_requires_receipt_and_released_pin) ... ok\ntest_both_missing_still_requires_and_preserves_canonical_outcome (test_schema.SchemaTests.test_both_missing_still_requires_and_preserves_canonical_outcome) ... ok\ntest_bridge_requires_completed_terminal_exact_hash (test_schema.SchemaTests.test_bridge_requires_completed_terminal_exact_hash) ... ok\ntest_child_and_legacy_counts_never_seed_future_ledger (test_schema.SchemaTests.test_child_and_legacy_counts_never_seed_future_ledger) ... ok\ntest_effect_and_ack_same_transaction_crash_then_retry (test_schema.SchemaTests.test_effect_and_ack_same_transaction_crash_then_retry) ... ok\ntest_foreign_keys_and_fixed_strategy_identity (test_schema.SchemaTests.test_foreign_keys_and_fixed_strategy_identity) ... ok\ntest_freeze_and_outbox_are_atomic_and_exact_replay_is_noop (test_schema.SchemaTests.test_freeze_and_outbox_are_atomic_and_exact_replay_is_noop) ... ok\ntest_late_or_future_input_invalid_k3_and_uncalibrated_probability_rejected (test_schema.SchemaTests.test_late_or_future_input_invalid_k3_and_uncalibrated_probability_rejected) ... ok\ntest_lease_reclaim_stale_ack_and_done_is_terminal (test_schema.SchemaTests.test_lease_reclaim_stale_ack_and_done_is_terminal) ... ok\ntest_look_waits_for_legal_frozen_predictions_to_settle (test_schema.SchemaTests.test_look_waits_for_legal_frozen_predictions_to_settle) ... ok\ntest_migration_idempotent_preserves_legacy_and_default_closed (test_schema.SchemaTests.test_migration_idempotent_preserves_legacy_and_default_closed) ... ok\ntest_migration_interruption_rolls_back_units_in_host_harness (test_schema.SchemaTests.test_migration_interruption_rolls_back_units_in_host_harness) ... ok\ntest_no_posthoc_look_schedule_or_complete_case_look (test_schema.SchemaTests.test_no_posthoc_look_schedule_or_complete_case_look) ... ok\ntest_pair_denominator_missing_periods_and_alpha_cannot_be_discarded (test_schema.SchemaTests.test_pair_denominator_missing_periods_and_alpha_cannot_be_discarded) ... ok\ntest_pending_event_survives_process_reopen (test_schema.SchemaTests.test_pending_event_survives_process_reopen) ... ok\ntest_settle_exact_label_no_recompute_duplicate_conflict_and_transaction (test_schema.SchemaTests.test_settle_exact_label_no_recompute_duplicate_conflict_and_transaction) ... ok\n\n----------------------------------------------------------------------\nRan 47 tests in 5.403s\n\nOK\n"
+    },
+    {
+      "name": "python_replay_and_creation_suites",
+      "returncode": 0,
+      "seconds": 43.941,
+      "output": "test_every_lifted_atom_family_is_causal (test_replay.AtomCausalityTests.test_every_lifted_atom_family_is_causal) ... ok\ntest_grammar_trees_render_and_respect_depth (test_replay.AtomCausalityTests.test_grammar_trees_render_and_respect_depth) ... ok\ntest_expert_bank_rows_use_only_the_past (test_replay.CausalityTests.test_expert_bank_rows_use_only_the_past) ... ok\ntest_future_rewrite_does_not_change_past_decisions (test_replay.CausalityTests.test_future_rewrite_does_not_change_past_decisions) ... ok\ntest_relation_primitive_reads_lagged_rows_only (test_replay.CausalityTests.test_relation_primitive_reads_lagged_rows_only) ... ok\ntest_foundry_finds_a_planted_pattern_and_improves (test_replay.LearningTests.test_foundry_finds_a_planted_pattern_and_improves) ... ok\ntest_noise_does_not_survive_sealed (test_replay.LearningTests.test_noise_does_not_survive_sealed) ... ok\ntest_population_is_multi_family_and_ledger_keeps_losers (test_replay.LearningTests.test_population_is_multi_family_and_ledger_keeps_losers) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 43.767s\n\nOK\n"
+    }
+  ]
+}

@@ -1,13 +1,18 @@
-name: R13 restored latest APK
+name: STARCORE R26 APK and runtime verification
 on:
   push:
     branches: ['construction/su1-20261022']
     paths-ignore: ['.github/workflows/r13-startup.yml', 'scripts/probe_r13_startup.py', 'release/r982_source_calls*', 'release/r82_training_invalidation.json', 'release/research_dependencies_r967.json']
   workflow_dispatch:
+    inputs:
+      endurance:
+        description: 'Run additional 60-minute unplugged BRIGHT/LOCKED synthetic emulator scenarios'
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
-  group: r13-${{ github.ref }}
+  group: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance)) && format('r26-endurance-{0}-{1}', github.ref, github.sha) || format('r13-{0}', github.ref) }}
   cancel-in-progress: true
 jobs:
   build:
@@ -44,17 +49,25 @@ jobs:
         run: |
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
           python -m pip install numpy==2.3.5
+      - name: Verify engineering receipt scope
+        run: |
+          python3 scripts/summarize_r26_runtime.py --self-test
+          python3 scripts/verify_r26_emulator_heap.py --self-test
+          python3 scripts/run_r26_instrumentation.py --self-test
+          python3 scripts/wait_r13_android_ready.py --self-test
+          python3 scripts/verify_r26_diagnosis_schema.py
       - name: Build, unit tests and lint
         run: bash scripts/build_r13.sh
       - name: Record package identity and signature
         run: |
           mkdir -p package-receipt
           git rev-parse HEAD > package-receipt/source-commit.txt
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/debug/*.apk > package-receipt/signature.txt
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/*.apk > package-receipt/package.txt
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/*.apk > package-receipt/signature.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/release/*.apk > package-receipt/package.txt
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree app/build/outputs/apk/release/*.apk AndroidManifest.xml > package-receipt/release-manifest.txt
           grep -F "$R13_EXPECTED_CERT_SHA256" package-receipt/signature.txt
           python3 -c 'from pathlib import Path; p=Path("package-receipt/package.txt").read_text(); assert "com.starcore.research.r13" in p and "星核创研 R13" in p'
-          sha256sum app/build/outputs/apk/debug/*.apk > package-receipt/SHA256SUMS.txt
+          sha256sum app/build/outputs/apk/release/*.apk > package-receipt/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -63,6 +76,14 @@ jobs:
             app/build/outputs/apk/
             app/build/reports/
             build/strategy_su1-verification.json
+            build/plan1025/*.json
+            build/plan1025/*.log
+            build/r26/*.json
+            build/r26/*.log
+            build/r26/*.bin
+            build/r26/neural-state-samples/
+            build/r26/structured-state-samples/
+            build/r26/plan-reference/
             package-receipt/
           if-no-files-found: error
   android-runtime:
@@ -90,8 +111,17 @@ jobs:
           arch: x86_64
           target: default
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 1
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash scripts/run_android_r13.sh ${{ matrix.api }}
+      - name: Print bounded R26 engineering receipt summary
+        if: always()
+        run: |
+          python3 scripts/summarize_r26_runtime.py
+          if test -f r26-schema-migration-synthetic.json; then
+            python3 scripts/summarize_r26_runtime.py --receipt r26-schema-migration-synthetic.json
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -99,5 +129,99 @@ jobs:
           path: |
             android-r13.txt
             android-logcat.txt
+            r26-owner-logcat.txt
+            r26-power-state.txt
+            r26-device-idle-state.txt
             r13-*.png
             startup-evidence/
+            release-*.txt
+            r26-runtime-synthetic.json
+            r26-schema-migration-synthetic.json
+            r26-emulator-environment.json
+            r26-instrumentation-results.json
+            r26-bundled-api-environment.json
+            r26-adb-preflight.json
+  android-endurance:
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance) }}
+    needs: [build, android-runtime]
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [29, 35, 36]
+        screen: [BRIGHT, LOCKED]
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash scripts/run_r26_endurance.sh ${{ matrix.screen }}
+      - name: Print bounded R26 engineering receipt summary
+        if: always()
+        run: python3 scripts/summarize_r26_runtime.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R26-Endurance-${{ matrix.api }}-${{ matrix.screen }}
+          path: |
+            android-r13.txt
+            android-logcat.txt
+            r26-owner-logcat.txt
+            r26-power-state.txt
+            r26-device-idle-state.txt
+            r26-runtime-synthetic.json
+            r26-emulator-environment.json
+            r26-instrumentation-results.json
+            r26-bundled-api-environment.json
+            r26-adb-preflight.json
+  prior-engineering-evidence:
+    if: ${{ github.event_name == 'push' }}
+    needs: build
+    permissions:
+      contents: read
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read historical source-bound endurance receipts
+        id: prior
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 40562783679
+          pattern: R26-Endurance-*
+          path: prior-engineering-evidence
+      - name: Summarize historical engineering metadata
+        if: steps.prior.outcome == 'success'
+        run: |
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from summarize_r26_runtime import summary
+          paths=sorted(Path('prior-engineering-evidence').rglob('r26-runtime-synthetic.json'))
+          print('R26_HISTORICAL_REFERENCE_AVAILABILITY='+json.dumps({'runId':40562783679,'availableScenarios':len(paths),'expectedScenarios':6,'complete':len(paths)==6,'scope':'HISTORICAL_SOURCE_ONLY'}))
+          for path in paths:
+              owner=path.parent/'r26-owner-logcat.txt'
+              result=summary(json.loads(path.read_text()),owner.read_text(errors='replace') if owner.exists() else '')
+              print('R26_HISTORICAL_REFERENCE='+json.dumps({'runId':40562783679,'artifact':path.parent.name,'scope':'HISTORICAL_SOURCE_ONLY; NOT_CURRENT_SOURCE_ACCEPTANCE','receipt':result},sort_keys=True,separators=(',',':'),ensure_ascii=False))
+          PY

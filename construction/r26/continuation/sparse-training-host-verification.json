@@ -1,0 +1,65 @@
+{
+  "status": "PASS_24_FROZEN_R26_GROUPS_KERNEL_DIFFERENTIAL_PRODUCTION_FOUNDRY_SDK_AND_CHANGED_NATIVE_COMPILE",
+  "scope": "HOST_ENGINEERING_AND_SYNTHETIC_MECHANISM_ONLY_NOT_NATURAL_QUALITY",
+  "baseline": "9fdccbe9b67f715d7c3f609a4b082623a74c7a82",
+  "numericalAbi": "908c4290978b3fd55a4346fc0be260bb094138bdcb1599e122fe0c899e2da870",
+  "wireParity": {
+    "cases": 32,
+    "lags": "1..8",
+    "cross": [
+      false,
+      true
+    ],
+    "updatesPerCase": 160,
+    "gapResets": [
+      23,
+      95
+    ],
+    "observationOnlyAt": [
+      17,
+      50
+    ],
+    "restoreAt": 70,
+    "seedCases": "zero weights and +/-1e-7 weights exercising shrink-to-zero",
+    "allPredictionsFeaturesAndOldNumericBytesIdentical": true,
+    "sha256": "57e4109d98dc168cce2fca844145b0221c3b643f63b358e0b7ab785e6b3ad2e3"
+  },
+  "mathematics": {
+    "objective": "Exact permutation joint NLL + 0.0005 * sum(group L2 norms), before and after parameters at the identical pre-label raw lag context",
+    "gradientNorm": "Composite objective subgradient; select the valid zero regularizer subgradient at a zero group",
+    "optimizer": "Original smooth NLL step 0.02 followed by exact group proximal shrinkage with threshold 0.02 * 0.0005; all numeric operations retain their old ordering",
+    "independentGradientOracle": "Invert the actual nonzero proximal result to recover the smooth gradient, then add the regularizer subgradient; compare 64 numerical directional derivatives",
+    "rawTestOutput": "R26_SPARSE_DIAGNOSTICS_PASS|cases=16|directionalChecks=64|maxDirectionalDerivativeError=5.770221279954857E-11|maxInverseProxNormError=1.7763568394002505E-15|compositeJointNllGroupL2=true|fixedPreLabelInput=true|observeOnlyNotTraining=true|oldV1V2HistoryUnknown=true|restoreNextGapCancelAtomic=true|scope=SYNTHETIC_KERNEL_NOT_NATURAL_QUALITY"
+  },
+  "counterProvenance": {
+    "fresh": "Complete known training updates; observeOnly never increments this counter; gaps retain it",
+    "oldV1V2": "Unknown prior training history. Start counting actual updates since import from zero; old context clock can include observation-only events and is not inferred to be a lower bound for training updates.",
+    "v3": "Original v2 numeric prefix plus int64 update counter and provenance byte; previous numeric projection preserved"
+  },
+  "productionFoundry": {
+    "rawTestOutput": "R26_MEASURED_RECEIPTS_PASS|family=F01|committedSamples=128|measuredGradientAndParameterDelta=true|sourceCheckpointAndFullPrecisionHashesMatch=true|immutable=true|noQualification=true|detailLimit8192WithIdempotentFold=true|syntheticPlaceholdersRejected=true|scope=HOST_PRODUCTION_FOUNDRY_SQLITE_AND_FILES_WITH_ANDROID_TRANSPORT_ADAPTERS",
+    "committedSamples": 128,
+    "fullPrecisionSqlAndSourceManifestHashes": true,
+    "immutable": true,
+    "quota8192AndFold": true,
+    "terminalOnlyLivePublication": "PENDING_MATCHING_NATIVE_SOURCE"
+  },
+  "compile": {
+    "sdkProductionSources": 1078,
+    "sdkStatus": "PASS_OFFICIAL_SDK36_CONFIG_RESOURCE_STUBS",
+    "nativeManifestTests": 103,
+    "nativeRuntimeStatus": "PENDING_SOURCE_CI"
+  },
+  "sample": {
+    "schema": "R26_SYNTHETIC_KERNEL_STATE_SAMPLE_V1",
+    "family": "F01",
+    "lags": 3,
+    "cross": true,
+    "codecMagic": "0x26010003",
+    "numericalAbi": "908c4290978b3fd55a4346fc0be260bb094138bdcb1599e122fe0c899e2da870",
+    "sha256": "ed209a2c096d794dc446ba20b59ae6632da57f2fd8e20ef36fb555a4da885451",
+    "bytes": 240946,
+    "scope": "SYNTHETIC_SPARSE_KERNEL_STATE_ONLY_NOT_POLICY_OR_QUALITY",
+    "sourceSha256": "cfd8eef79aff282f6d8e65b07ead7ce0501cb7acc5b229271fd1d37ba38a1cd9"
+  }
+}

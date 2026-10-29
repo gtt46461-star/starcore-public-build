@@ -1,0 +1,58 @@
+{
+  "runId": 40590011517,
+  "source": "e08f686aa43d24079cfbddc299f8364588f19ea9",
+  "compiledSource": "b38d62b54192833515837b4932c1c792fcc1097c",
+  "scope": "SYNTHETIC_CI_ENVIRONMENT_FAILURE; NOT_ONE_HOUR_RESEARCH_PASS",
+  "cause": "Preflight unnecessarily restarted healthy 576 MiB heaps because it required exact 512 MiB, then checked package readiness before activity and battery services were ready.",
+  "fix": "Require measured heap at least 512 MiB and largeHeap. Repair undersized emulators only, wait for a different system_server PID, completed boot and package/activity/battery services. Product guard unchanged.",
+  "failures": [
+    {
+      "api": 35,
+      "mode": "BRIGHT",
+      "jobId": 122500546208,
+      "artifactId": 12775056946,
+      "artifactSha256": "b781a35c8ed5d51081d4303f184e21ee30d2903767d74dc285a61de3011d75d7",
+      "environment": {
+        "scope": "CI_EMULATOR_CONFIGURATION_ONLY; NOT_USER_PHONE_OR_RESEARCH_ACCEPTANCE",
+        "expectedHeapBytes": 536870912,
+        "repairAttempted": true,
+        "result": "FAIL",
+        "initial": {
+          "api": 35,
+          "maxMemoryBytes": 603979776,
+          "largeHeapFlag": true,
+          "dalvikHeapProperty": "576m",
+          "qemuHeapProperty": ""
+        },
+        "error": "Command '['adb', 'shell', 'am', 'force-stop', 'com.starcore.research.r13']' returned non-zero exit status 20."
+      },
+      "raw": "raw/source83-api35-bright-environment.json.gz",
+      "rawSha256": "57d63585ad558227fc76730250e8af5c74c1dbcaea04a7177bc5425f49d10353",
+      "researchStarted": false
+    },
+    {
+      "api": 36,
+      "mode": "BRIGHT",
+      "jobId": 122500546289,
+      "artifactId": 12775595636,
+      "artifactSha256": "4abb74d7bb53d96bfc17898ca7c0c1f1a39a2c8606177b010cfa27aba1d6eb95",
+      "environment": {
+        "scope": "CI_EMULATOR_CONFIGURATION_ONLY; NOT_USER_PHONE_OR_RESEARCH_ACCEPTANCE",
+        "expectedHeapBytes": 536870912,
+        "repairAttempted": true,
+        "result": "FAIL",
+        "initial": {
+          "api": 36,
+          "maxMemoryBytes": 603979776,
+          "largeHeapFlag": true,
+          "dalvikHeapProperty": "576m",
+          "qemuHeapProperty": ""
+        },
+        "error": "Command '['adb', 'shell', 'am', 'force-stop', 'com.starcore.research.r13']' returned non-zero exit status 20."
+      },
+      "raw": "raw/source83-api36-bright-environment.json.gz",
+      "rawSha256": "37176115ea52d6f17b8a34c65bebc724f417b21fea8a2ef57115fb10cfaba845",
+      "researchStarted": false
+    }
+  ]
+}

@@ -91,7 +91,7 @@ public final class ReportJobJournalCP12 implements Closeable {
     private final File root;private final RandomAccessFile lock;private final FileLock lease;private boolean closed;
     private ReportJobJournalCP12(File root,RandomAccessFile lock,FileLock lease){this.root=root;this.lock=lock;this.lease=lease;}
     public static ReportJobJournalCP12 tryClaim(File files)throws IOException {
-        File root=new File(files,"r981_reports");if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_ROOT_CREATE");
+        File root=ReportDirectoriesCP12.root(files);
         if(!root.getAbsoluteFile().equals(root.getCanonicalFile()))throw new IOException("REPORT_ROOT_SYMLINK");
         RandomAccessFile lock=new RandomAccessFile(new File(root,"job.lock"),"rw");FileLock lease=null;
         try{try{lease=lock.getChannel().tryLock();}catch(OverlappingFileLockException busy){return null;}

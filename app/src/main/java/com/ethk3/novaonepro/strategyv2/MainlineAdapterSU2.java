@@ -35,7 +35,8 @@ public final class MainlineAdapterSU2 {
             position = c.getInt(0); mask = c.getInt(1); act = c.getInt(2) == 1; phat = c.isNull(3) ? Double.NaN : c.getDouble(3);
         }
         if (!act) return null;                                             // the strategy waits for its window
-        float[][] P = incumbent ? IncumbentLoopSU2.pendingTable(seq) : ModelLiveLoopSU2.pendingTable(genome, seq);
+        float[][] P = incumbent ? IncumbentLoopSU2.pendingTable(store.readable(),seq) : LivePoolR26.frozenTable(store.readable(),genome,seq);
+        if(P==null&&!incumbent)P=ModelLiveLoopSU2.pendingTable(genome,seq);
         if (P == null) return null;                                         // never re-derive after the freeze
         int[] k = new int[3]; int j = 0; for (int n = 0; n < 10; n++) if ((mask & (1 << n)) != 0) k[j++] = n + 1;
         int headOrdinal = K3ActionSpaceEngine.globalOrdinal(position, k[0], k[1], k[2]);
@@ -50,7 +51,7 @@ public final class MainlineAdapterSU2 {
         final int hi = headIndex; Integer[] order = new Integer[1200]; for (int i = 0; i < 1200; i++) order[i] = i;
         Arrays.sort(order, (x, y) -> { if (x == hi) return y == hi ? 0 : -1; if (y == hi) return 1; int d = Double.compare(mass[y], mass[x]);
             return d != 0 ? d : Integer.compare(K3ActionSpaceEngine.globalOrdinal(actions[x].position, actions[x].n1, actions[x].n2, actions[x].n3), K3ActionSpaceEngine.globalOrdinal(actions[y].position, actions[y].n1, actions[y].n2, actions[y].n3)); });
-        double p = Double.isNaN(phat) ? 0.30 : new SelectiveCalibrationSU2.Platt(a.a, a.b).apply(phat);
+        double p = Double.isNaN(phat) ? 0.30 : new SelectiveCalibrationSU2.Platt(a.a, a.b).apply(EvidenceBlockR26.quantized(phat));
         String recipe = "{\"contract\":\"" + CONTRACT + "\",\"certificate\":\"" + a.certificate + "\",\"genome\":\"" + genome + "\",\"program\":\"" + a.program + "\",\"target\":\"" + context.targetIssue + "\",\"position\":" + position + ",\"mask\":" + mask + "}";
         String digest = HashingSU1.text(recipe);
         V51Models.PositionAction[] out = new V51Models.PositionAction[1200];

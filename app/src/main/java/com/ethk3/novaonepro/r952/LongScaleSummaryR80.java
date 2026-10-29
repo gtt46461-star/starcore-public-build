@@ -61,16 +61,15 @@ public final class LongScaleSummaryR80 {
     public static boolean ready(SQLiteDatabase db){
         if(db==null)return false;
         if(TransactionSchemaCacheR941.readyCommitted(db,SCHEMA_STEP))return true;
-        for(Map.Entry<String,String> e:DDL.entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})){
-            if(!c.moveToFirst()||!e.getValue().equals(c.getString(0))||c.moveToNext())return false;
-        }
+        if(!com.ethk3.novaonepro.SchemaObjectSnapshotR26.read(db,DDL.keySet()).matches(DDL))return false;
         TransactionSchemaCacheR941.markCommitted(db,SCHEMA_STEP);return true;
     }
     /** Called only by the existing additive research migration owner. */
     public static void schema(SQLiteDatabase db){
         need(db!=null&&db.inTransaction(),"LONG_SCHEMA_WRITER");
-        for(Map.Entry<String,String> e:DDL.entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})){
-            if(c.moveToFirst()){need(e.getValue().equals(c.getString(0)),"LONG_SCHEMA_DRIFT:"+e.getKey());continue;}
+        com.ethk3.novaonepro.SchemaObjectSnapshotR26 present=com.ethk3.novaonepro.SchemaObjectSnapshotR26.read(db,DDL.keySet());
+        for(Map.Entry<String,String> e:DDL.entrySet()){
+            if(present.contains(e.getKey())){need(e.getValue().equals(present.firstSql(e.getKey())),"LONG_SCHEMA_DRIFT:"+e.getKey());continue;}
             db.execSQL(e.getValue());
         }
         db.execSQL("INSERT OR IGNORE INTO "+TOKEN+" VALUES(1,0)");

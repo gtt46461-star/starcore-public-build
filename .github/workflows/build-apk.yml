@@ -1,10 +1,42 @@
 name: Build APK
 on:
   workflow_dispatch:
+    inputs:
+      publish_verified_1025:
+        description: Publish the already verified 10.25 APK as a direct download
+        type: boolean
+        required: false
+        default: false
+      verified_run_id:
+        description: Successful R26 workflow run to publish as a direct APK download
+        required: false
+        default: ''
+        type: string
+      publish_runtime_117:
+        description: Publish the signed source117 package after its matching runtime checks
+        type: boolean
+        required: false
+        default: false
+      reportfix_run_id:
+        description: Publish the report export repair after matching Android verification
+        type: string
+        required: false
+        default: ''
+      reportfix_apk_sha256:
+        description: Independently checked SHA256 of the exact report repair APK
+        type: string
+        required: false
+        default: ''
+      probe_report_export:
+        description: Exercise the actual UI to final report ZIP for the fixed source119 APK
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 jobs:
   debug-apk:
+    if: ${{ !inputs.publish_verified_1025 && !inputs.publish_runtime_117 && !inputs.probe_report_export && inputs.verified_run_id == '' && inputs.reportfix_run_id == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -27,4 +59,248 @@ jobs:
         with:
           name: STARCORE-C024-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+  publish-verified-1025:
+    if: ${{ inputs.publish_verified_1025 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          run-id: 40167769430
+          github-token: ${{ github.token }}
+          path: verified
+      - name: Verify and stage the exact tested release APK
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,shutil
+          expected='4567df77d768005cbcc19ab2aa3a2ab346c6d90d226d7ee1f670fb60721cf21d'
+          apks=list(Path('verified/app/build/outputs/apk/release').glob('*.apk'))
+          assert len(apks)==1
+          assert apks[0].stat().st_size==26727292
+          assert hashlib.sha256(apks[0].read_bytes()).hexdigest()==expected
+          receipt=json.loads(Path('construction/plan1025/delivery.json').read_text())
+          assert receipt['apk_sha256']==expected and receipt['runtime_verification']=='PASS_API29_35_36'
+          out=Path('release-download');out.mkdir()
+          name='STARCORE-10.25-R16-P50-release.apk'
+          shutil.copyfile(apks[0],out/name)
+          (out/'SHA256SUMS.txt').write_text(expected+'  '+name+'\n')
+          shutil.copyfile('construction/plan1025/delivery.json',out/'STARCORE-10.25-delivery.json')
+          PY
+      - name: Upload checked files and publish the download page
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view r13-5.4.3.04-20261025 --json isDraft > release-state.json
+          python3 -c 'import json; assert json.load(open("release-state.json"))["isDraft"]'
+          gh release upload r13-5.4.3.04-20261025 release-download/* --clobber
+          gh api repos/gtt46461-star/starcore-public-build/releases/423190826 > uploaded-release.json
+          python3 - <<'PY'
+          import json
+          j=json.load(open('uploaded-release.json'))
+          assets={a['name']:a for a in j['assets']}
+          a=assets['STARCORE-10.25-R16-P50-release.apk']
+          assert a['size']==26727292
+          assert a.get('digest') in (None,'sha256:4567df77d768005cbcc19ab2aa3a2ab346c6d90d226d7ee1f670fb60721cf21d')
+          assert 'SHA256SUMS.txt' in assets and 'STARCORE-10.25-delivery.json' in assets
+          PY
+          gh release edit r13-5.4.3.04-20261025 --draft=false --prerelease --latest=false
+          echo 'https://github.com/gtt46461-star/starcore-public-build/releases/download/r13-5.4.3.04-20261025/STARCORE-10.25-R16-P50-release.apk' >> "$GITHUB_STEP_SUMMARY"
+  publish-r26:
+    if: ${{ inputs.verified_run_id != '' }}
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate completed source workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFIED_RUN: ${{ inputs.verified_run_id }}
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          run=os.environ['VERIFIED_RUN'];assert run.isdecimal()
+          repo=os.environ['GITHUB_REPOSITORY']
+          def api(path):return json.loads(subprocess.check_output(['gh','api',f'repos/{repo}/{path}'],text=True))
+          r=api(f'actions/runs/{run}')
+          assert r['status']=='completed' and r['conclusion']=='success',r['conclusion']
+          assert r['path']=='.github/workflows/r13.yml'
+          assert r['head_branch']=='construction/su1-20261022'
+          jobs=api(f'actions/runs/{run}/jobs')['jobs']
+          names={j['name']:j for j in jobs}
+          for name in ['build','android-runtime (29)','android-runtime (35)','android-runtime (36)']:
+              assert names[name]['conclusion']=='success',name
+          open('verified-workflow.json','w').write(json.dumps({'run_id':int(run),'workflow_head':r['head_sha'],'url':r['html_url'],'jobs':{j['name']:j['conclusion'] for j in jobs}},indent=2)+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          path: verified
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.verified_run_id }}
+      - name: Verify signed package receipt and prepare public assets
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib,re,shutil
+          root=pathlib.Path('verified');apks=list(root.glob('app/build/outputs/apk/release/*.apk'));assert len(apks)==1
+          apk=apks[0];receipt=root/'package-receipt'
+          badging=(receipt/'package.txt').read_text();signature=(receipt/'signature.txt').read_text()
+          assert "name='com.starcore.research.r13'" in badging
+          assert "versionName='R26-2026.10.27-engineering'" in badging
+          assert "versionCode='577271026'" in badging
+          assert '9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca' in signature
+          digest=hashlib.sha256(apk.read_bytes()).hexdigest();assert digest in (receipt/'SHA256SUMS.txt').read_text()
+          source=(receipt/'source-commit.txt').read_text().strip();assert re.fullmatch('[0-9a-f]{40}',source)
+          protocol=json.loads((root/'build/r26/verification.json').read_text());assert protocol['status']=='PASS'
+          out=pathlib.Path('public-assets');out.mkdir();name='STARCORE-R26-20261027-release.apk';shutil.copy2(apk,out/name)
+          (out/'SHA256SUMS.txt').write_text(digest+'  '+name+'\n')
+          metadata={'source_commit':source,'apk':name,'bytes':apk.stat().st_size,'sha256':digest,'package':'com.starcore.research.r13','versionName':'R26-2026.10.27-engineering','versionCode':577271026,'certificate_sha256':'9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca','overallAcceptance':'INCOMPLETE','naturalQuality':'INSUFFICIENT','physicalDevice':'NOT_RUN','workflow':json.load(open('verified-workflow.json'))}
+          (out/'R26-delivery.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n')
+          shutil.copy2(root/'build/r26/verification.json',out/'R26-protocol-verification.json')
+          pathlib.Path('release-notes.md').write_text('R26 工程验证版，尚未完成全方案验收。\n\n已加入持续研究队列、固定快照切片、无损策略身份、精确排列训练核、配对下界资格与40章状态报告。24家族/16专家完整机制、自然35/37/40%质量、用户真机与60分钟压力验收仍有缺项，不能视为100%完成。\n\n固定包名和签名，可覆盖此前R13版本。实际源码、APK校验值和CI回执见附件 R26-delivery.json。\n')
+          pathlib.Path('release-target.txt').write_text(source)
+          PY
+      - name: Publish verified engineering prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          target="$(cat release-target.txt)"
+          gh release create r26-20261027-engineering --target "$target" --title 'STARCORE R26 · 工程验证版（未完成全方案验收）' --notes-file release-notes.md --draft --prerelease --latest=false
+          gh release upload r26-20261027-engineering public-assets/*
+          gh release edit r26-20261027-engineering --draft=false --prerelease --latest=false
+  publish-r26-runtime-117:
+    if: ${{ inputs.publish_runtime_117 }}
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact source117 build and runtime evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api repos/$GH_REPO/actions/runs/40645360647 > source117-workflow.json
+          gh api 'repos/'$GH_REPO'/actions/runs/40645360647/jobs?per_page=100' > source117-jobs.json
+          gh run download 40645360647 --name R13-build-and-evidence --dir verified117
+          gh run download 40645360647 --name R13-Android-runtime-29 --dir runtime117
+      - name: Verify immutable package and matching executed native tests
+        run: python3 scripts/stage_r26_runtime_117.py --build verified117 --runtime runtime117 --workflow source117-workflow.json --jobs source117-jobs.json --out public-assets117
+      - name: Upload verified assets and publish download
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view r26-20261028-runtime-117 --json isDraft,targetCommitish > source117-release.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('source117-release.json'))
+          assert r['isDraft'] and r['targetCommitish']=='a7f0052459331988ab58ccd667fa1fe43ccacd9d'
+          PY
+          gh release upload r26-20261028-runtime-117 public-assets117/* --clobber
+          gh release view r26-20261028-runtime-117 --json assets > source117-assets.json
+          python3 - <<'PY'
+          import json
+          a={x['name']:x for x in json.load(open('source117-assets.json'))['assets']}
+          assert a['STARCORE-R26-20261028-117-release.apk']['size']==27047093
+          assert {'R26-delivery.json','SHA256SUMS.txt','R26-native-117-results.json','R26-runtime-117-results.json'}<=a.keys()
+          PY
+          gh release edit r26-20261028-runtime-117 --draft=false --prerelease --latest=false --notes-file public-assets117/release-notes.md
+  publish-report-export-repair:
+    if: ${{ inputs.reportfix_run_id != '' }}
+    permissions:
+      contents: write
+      actions: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch source-bound repair package and executed regression
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERIFIED_RUN: ${{ inputs.reportfix_run_id }}
+          VERIFIED_SHA: ${{ inputs.reportfix_apk_sha256 }}
+        run: |
+          python3 - <<'PY'
+          import os,re
+          assert os.environ['VERIFIED_RUN']=='40653752513'
+          assert re.fullmatch('[0-9a-f]{64}',os.environ['VERIFIED_SHA'])
+          PY
+          gh api repos/$GH_REPO/actions/runs/$VERIFIED_RUN > repair-workflow.json
+          gh api 'repos/'$GH_REPO'/actions/runs/'$VERIFIED_RUN'/jobs?per_page=100' > repair-jobs.json
+          gh run download "$VERIFIED_RUN" --name R13-build-and-evidence --dir verified-repair
+          gh run download "$VERIFIED_RUN" --name R13-Android-runtime-29 --dir runtime-repair
+          gh api repos/$GH_REPO/actions/runs/40655824356 > repair-ui-workflow.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open('repair-ui-workflow.json'))
+          assert r['id']==40655824356 and r['status']=='completed' and r['conclusion']=='success'
+          PY
+          gh run download 40655824356 --name R26-report-export-ui-to-zip-source119 --dir repair-ui
+          python3 scripts/stage_r26_report_export_repair.py --build verified-repair --runtime runtime-repair --workflow repair-workflow.json --jobs repair-jobs.json --sha256 "$VERIFIED_SHA" --ui-probe repair-ui/receipt.json --out repair-public-assets
+      - name: Upload checked repair package and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          target="$(cat repair-public-assets/source-commit.txt)"
+          gh release create r26-20261028-reportfix1 --target "$target" --title 'STARCORE R26 · 完整检测报告导出修复' --notes-file repair-public-assets/release-notes.md --draft --prerelease --latest=false
+          gh release upload r26-20261028-reportfix1 repair-public-assets/*
+          gh release view r26-20261028-reportfix1 --json assets > repair-uploaded.json
+          python3 - <<'PY'
+          import json
+          a={x['name']:x for x in json.load(open('repair-uploaded.json'))['assets']}
+          r=json.load(open('repair-public-assets/R26-report-repair-delivery.json'))
+          assert a['STARCORE-R26-20261028-reportfix1.apk']['size']==r['bytes']
+          assert {'SHA256SUMS.txt','R26-report-repair-delivery.json','R26-native-results.json','R26-runtime-results.json'}<=a.keys()
+          PY
+          gh release edit r26-20261028-reportfix1 --draft=false --prerelease --latest=false
+  probe-report-export:
+    if: ${{ inputs.probe_report_export }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: R13-build-and-evidence
+          run-id: 40653752513
+          github-token: ${{ github.token }}
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: python3 scripts/probe_r26_report_export.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R26-report-export-ui-to-zip-source119
+          path: report-export-probe/
           if-no-files-found: error

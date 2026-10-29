@@ -436,6 +436,7 @@ public final class DatabaseCoordinator {
                         new SchemaDomainCoordinatorR926.Step() {
                             public void run(SQLiteDatabase x) { RuntimeEventLedgerR926.ensureSchema(x); }
                         });
+                SchemaDomainCoordinatorR926.runStep(db, critical, "R26_FEEDBACK_SCHEMA", x -> x.execSQL(com.ethk3.novaonepro.strategyv2.RuntimeSchemaR26.FEEDBACK));
                 if (initializer != null) {
                     criticalSchemaStage = "STORE_CRITICAL_SCHEMA";
                     initializer.run(db);
@@ -629,6 +630,7 @@ public final class DatabaseCoordinator {
             for (int attempt = 0; attempt <= AppConfig.DB_LOCK_RETRY_COUNT; attempt++) {
                 long acquireStartedR927 = TimeSourceR811.monoNowMs();
                 boolean waitRecordedR927 = false;
+                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationWriteCriticalR26=null;
                 try {
                     while (true) {
                         long remainingCP3 = writeDeadlineCP3 - TimeSourceR811.monoNowMs();
@@ -636,6 +638,9 @@ public final class DatabaseCoordinator {
                             throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
                         if (writeLock.tryLock(Math.min(50L, remainingCP3), TimeUnit.MILLISECONDS)) {
                             locked = true;
+                            // Every writer entry, including legacy non-transaction wrappers, must
+                            // release the sole writer before a numerical continuation may park.
+                            continuationWriteCriticalR26=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
                             if (TimeSourceR811.monoNowMs() >= writeDeadlineCP3)
                                 throw new IllegalStateException("CP3_DB_BUSY_DEADLINE_AFTER_ACQUIRE");
                             break;
@@ -653,6 +658,7 @@ public final class DatabaseCoordinator {
                     if (backgroundR909) ResearchWorkBudgetR927.checkpoint();
                     long bodyStartedR927 = TimeSourceR811.monoNowMs();
                     try {
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(writable());
                         T result = task.call(writable());
                         recordSuccess(operation, started);
                         return result;
@@ -699,6 +705,7 @@ public final class DatabaseCoordinator {
                         }
                         locked = false;
                     }
+                    if(continuationWriteCriticalR26!=null)continuationWriteCriticalR26.close();
                 }
             }
         } finally {
@@ -721,6 +728,7 @@ public final class DatabaseCoordinator {
     private <T> WriteCallable<T> atomicCallableF01(final String operation,final WriteCallable<T> task) {
         return new WriteCallable<T>() {
             @Override public T call(SQLiteDatabase db) throws Exception {
+                com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationCritical=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
                 boolean owns = !db.inTransaction();
                 long beginNanos=-1L,bodyNanos=-1L,endNanos=-1L;
                 String outcome=owns?"BEGIN_FAILED":"EXTERNAL_ENTER_FAILED";
@@ -735,7 +743,9 @@ public final class DatabaseCoordinator {
                     outcome=owns?"BODY_FAILED":"EXTERNAL_BODY_FAILED";
                     long bodyStarted=System.nanoTime();
                     try {
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
                         T result = task.call(db);
+                        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(db);
                         if (owns) {
                             db.setTransactionSuccessful();
                             successful = true;
@@ -758,8 +768,8 @@ public final class DatabaseCoordinator {
                         } finally { TransactionSchemaCacheR941.leave(schemaScope); }
                     }
                 } finally {
-                    RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
-                            beginNanos,bodyNanos,endNanos,outcome);
+                    try{RuntimeResourceAuditR927.transactionTimingR75(operation,owns,
+                            beginNanos,bodyNanos,endNanos,outcome);}finally{continuationCritical.close();}
                 }
             }
         };
@@ -800,7 +810,7 @@ public final class DatabaseCoordinator {
 
     private boolean isBackgroundOperationR909(String operation) {
         String op = safe(operation).toUpperCase(java.util.Locale.US);
-        return op.indexOf("RESEARCH") >= 0
+        return op.startsWith("R26_") || op.indexOf("RESEARCH") >= 0
                 || op.indexOf("DEFERRED") >= 0
                 || op.indexOf("ARTIFACT") >= 0
                 || op.indexOf("EVOLUTION") >= 0

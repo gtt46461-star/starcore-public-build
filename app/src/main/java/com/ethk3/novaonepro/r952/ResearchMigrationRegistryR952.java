@@ -229,9 +229,19 @@ public final class ResearchMigrationRegistryR952 {
                 if(c.moveToFirst())throw new IllegalStateException("CP12_FOREIGN_KEY_CHECK_FAILED");
                 }
             })) return false;
+            // Keep an already completed legacy seal valid. Partial installs resume from durable child receipts.
+            if (!completed.contains("CP12_RUNTIME_DIAGNOSIS_RETENTION_V1")) {
+                for (int i = 0; i < com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaUnitCountCP12(); i++) {
+                    final int unit = i;
+                    final String table = com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaTableCP12(unit);
+                    if (runPendingR64(db,completed,"R26_CP12_DIAGNOSIS_TABLE_" + table, target -> {
+                        com.ethk3.novaonepro.DbHelper.installDiagnosisLoopSchemaUnitCP12(target,table);
+                        com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaUnitCP12(target,unit);
+                    })) return false;
+                }
+            }
             if (runPendingR64(db,completed,"CP12_RUNTIME_DIAGNOSIS_RETENTION_V1", target -> {
-                com.ethk3.novaonepro.DbHelper.installDiagnosisLoopSchemaCP12(target);
-                com.ethk3.novaonepro.RetentionRevisionSchemaCP12.diagnosisSchemaCP12(target);
+                com.ethk3.novaonepro.DbHelper.requireDiagnosisLoopSchemaCP12(target);
                 try(Cursor c=target.rawQuery("PRAGMA foreign_key_check",null)){
                 if(c.moveToFirst())throw new IllegalStateException("CP12_FOREIGN_KEY_CHECK_FAILED");
                 }

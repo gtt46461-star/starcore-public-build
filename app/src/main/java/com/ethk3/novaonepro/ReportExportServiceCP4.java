@@ -97,7 +97,7 @@ public final class ReportExportServiceCP4 extends Service {
     }
     private static void kick(Context app,String action,String id){Intent intent=new Intent(app,ReportExportServiceCP4.class).setAction(action).putExtra("id",id);
         if(Build.VERSION.SDK_INT>=26)app.startForegroundService(intent);else app.startService(intent);}
-    private static File requestRoot(Context app)throws IOException{File root=new File(app.getFilesDir(),"r981_reports");if(!root.isDirectory()&&!root.mkdirs())throw new IOException("REPORT_ROOT_CREATE");return root;}
+    private static File requestRoot(Context app)throws IOException{return ReportDirectoriesCP12.root(app.getFilesDir());}
     private static void requestFailure(Context app,String id,Throwable error){try{JSONObject failure=new JSONObject();failure.put("requestId",id);failure.put("stage","FAILED");failure.put("reason",boundedReason(error.getClass().getSimpleName()+":"+String.valueOf(error.getMessage())));File root=requestRoot(app);try{failure.put("recovery",ReportJobJournalCP12.writeFailureArtifact(root,id,error));}catch(Exception unavailable){failure.put("recoveryFailure",boundedReason(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage()));}ReportJobJournalCP12.writeAtomic(new File(root,"requests/"+id+".ack.json"),failure.toString());}catch(Exception ignored){/* No success acknowledgement is generated. */}}
     private static String id(String mode){return RetentionArchiveProtocolCP12.sha(("REPORT_CP12|"+ReleaseManifestR926.MANIFEST_SHA256+"|"+mode+"|"+UUID.randomUUID()).getBytes(StandardCharsets.UTF_8));}
     private static void requireHash(String value)throws IOException{if(value==null||!value.matches("[0-9a-f]{64}"))throw new IOException("REPORT_HASH");}
@@ -215,6 +215,22 @@ public final class ReportExportServiceCP4 extends Service {
                     // R13-P31: byte census by category on the first page of every report
                     File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');}
                     ReportMemberPlanCP12.append(members,census.getName(),census.getName(),ReportArchiveCP4.hash(census,active),census.length());
+                    File r26Report=new File(directory,"R26_REPORT.json");
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Report),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.RuntimeReportR26.json(copy,new org.json.JSONObject(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536))));}
+                    ReportMemberPlanCP12.append(members,r26Report.getName(),r26Report.getName(),ReportArchiveCP4.hash(r26Report,active),r26Report.length());
+                    File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
+                    com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
+                    ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());
+                    File r26Surface=new File(directory,"R26_FROZEN_SURFACE.json");
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r26Surface),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.FrozenSurfaceStoreR26.exportJson(copy));}
+                    ReportMemberPlanCP12.append(members,r26Surface.getName(),r26Surface.getName(),ReportArchiveCP4.hash(r26Surface,active),r26Surface.length());
+                    String[] su2Diagnosis=com.ethk3.novaonepro.strategyv2.DiagnosisStoreSU2.report(copy);
+                    for(int su2i=0;su2i<2;su2i++){File diag=new File(directory,su2i==0?"UPGRADE_DIAGNOSIS.md":"UPGRADE_DIAGNOSIS.json");
+                        try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(diag),StandardCharsets.UTF_8)){w.write(su2Diagnosis[su2i]);}
+                        ReportMemberPlanCP12.append(members,diag.getName(),diag.getName(),ReportArchiveCP4.hash(diag,active),diag.length());}
+                    File su2Matrices=new File(directory,"STRATEGY_MATRICES.json");
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(su2Matrices),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.MatrixStoreSU2.report(copy));}
+                    ReportMemberPlanCP12.append(members,su2Matrices.getName(),su2Matrices.getName(),ReportArchiveCP4.hash(su2Matrices,active),su2Matrices.length());
                     ReportMemberPlanCP12.append(members,inventory.getName(),inventory.getName(),ReportArchiveCP4.hash(inventory,active),inventory.length());
                     for(File page:catalog.indexFiles)ReportMemberPlanCP12.append(members,page.getName(),"catalog/"+page.getName(),ReportArchiveCP4.hash(page,active),page.length());
                     File renderRefs=new File(directory,"render-artifacts.jsonl");if(renderRefs.exists())try(ReportArchiveVerifierCP12.LineReader refs=new ReportArchiveVerifierCP12.LineReader(new FileInputStream(renderRefs),8192)){byte[] line;while((line=refs.next())!=null){active.checkpoint();members.write(new String(line,StandardCharsets.UTF_8));}}

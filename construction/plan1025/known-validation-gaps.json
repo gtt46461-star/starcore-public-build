@@ -1,0 +1,33 @@
+{
+  "overall_acceptance": "INCOMPLETE",
+  "failed_checks": [
+    {
+      "name": "FINAL_HOTCOLD_F15",
+      "r16_hits": 302,
+      "r16_acts": 796,
+      "r14b_hits": 257,
+      "r14b_acts": 627,
+      "minimum_rate_difference": -0.01,
+      "actual_rate_difference": -0.03049137233215521,
+      "status": "FAIL",
+      "engine_sha256": "c98e451e00ffef3bfe8a543e7e8d59926d0ff5cdb366f677b954f17e5fbc4d9f",
+      "dataset_sha256": "c192545f2bfef9d708375f2f7ff922e7a347b7462baeb16ce9e966880b3a8504",
+      "threshold_changed": false,
+      "next_step": "Original plan docs/19 section 8: P50 S2/E1 shadow validation; do not count as passed"
+    }
+  ],
+  "not_executed": [
+    "User physical-device endurance",
+    "30-day equivalent physical storage stress",
+    "At least 600 natural frozen actions per deployed strategy",
+    "Complete rerun of all nine archived research datasets"
+  ],
+  "supplemental_host_storage_stress": {
+    "status": "PASS",
+    "scope": "Actual production DDL/retention SQL on host SQLite; excludes full Android database, physical-device endurance and report filesystem",
+    "virtual_days": 30,
+    "strategies": 32,
+    "maximum_database_bytes": 123576320,
+    "actual_period_rows": 1382400
+  }
+}

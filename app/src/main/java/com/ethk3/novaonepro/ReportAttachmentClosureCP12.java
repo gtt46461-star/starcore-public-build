@@ -34,7 +34,8 @@ public final class ReportAttachmentClosureCP12 {
         File plans=new File(job,"attachments-plan-"+UUID.randomUUID().toString().replace("-","")+".jsonl");
         File observation=new File(job,"runtime-observation.json");ReportJobJournalCP12.writeAtomic(observation,request.getJSONObject("observation").toString());
         ReportMemberPlanCP12.append(members,"runtime-observation.json",observation.getName(),ReportArchiveCP4.hash(observation,control),observation.length());
-        String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
+        String apkBefore=ReportArchiveCP4.hash(new File(app.getApplicationInfo().sourceDir),control);JSONObject source=new JSONObject();source.put("releaseSha256",request.getString("releaseHash"));source.put("apkSha256",apkBefore);source.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26);source.put("sourceTreeSha256",SourceManifestR815.SOURCE_TREE_SHA256);source.put("generatedRuleSha256",ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);source.put("sourceIndexAsset",RuntimeChainDiagnosisR975.INDEX);
+        BuildProvenanceR815.Snapshot runtimeIdentity=BuildProvenanceR815.lastSnapshot();if(runtimeIdentity!=null&&runtimeIdentity.valid&&apkBefore.equals(runtimeIdentity.apkSha256))source.put("signingCertificateSha256",runtimeIdentity.certSha256);else source.put("signingCertificateState","MATCHED_RUNTIME_FINGERPRINT_UNAVAILABLE");
         JSONObject registries=new JSONObject();
         for(String table:new String[]{ResearchPlatformStoreR929.TABLE_BUNDLE,"research_evidence_archive_v2","research_training_input_v2","research_training_attachment_cp12"})
             registries.put(table,hasTable(copy,table)?"PRESENT":"MISSING_SCHEMA");
@@ -55,12 +56,17 @@ public final class ReportAttachmentClosureCP12 {
             if(observations!=null){if(observations.length()>8)throw new IOException("REPORT_OBSERVATION_REFERENCE_BOUND");
                 for(int i=0;i<observations.length();i++){JSONObject ref=observations.getJSONObject(i);String key=ref.getString("key"),requestId=request.getString("requestId"),hash=ref.getString("sha256");
                     if(!key.matches("[A-Za-z][A-Za-z0-9]{0,63}")||!requestId.matches("[0-9a-f]{64}")||!ref.getString("path").equals("observations/"+requestId+"/"+key+".txt"))throw new IOException("REPORT_OBSERVATION_REFERENCE_PATH");requireHash(hash);
-                    File original=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r981_reports"),ref.getString("path"));
+                    File original=ReportArchiveVerifierCP12.inside(ReportDirectoriesCP12.root(app.getFilesDir()),ref.getString("path"));
                     if(!original.isFile()||original.length()!=ref.getLong("bytes")||!hash.equals(ReportArchiveCP4.hash(original,control)))throw new IOException("REPORT_OBSERVATION_CHANGED");
                     descriptor(out,"runtime-observation-"+key+".txt",hash,original.length(),"OBSERVATION",original.getPath(),"");
                 }
             }
             File installed=new File(app.getApplicationInfo().sourceDir).getCanonicalFile();if(!installed.isFile())throw new IOException("REPORT_INSTALLED_APK_MISSING");source.put("installedApkBytes",installed.length());source.put("installedApkIncluded",!compact);if(!compact){descriptor(out,"installed-app.apk",apkBefore,installed.length(),"INSTALLED_APK",installed.getPath(),"");source.put("installedApkMember","installed-app.apk");}
+            File r26Root=new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile();
+            long r26Bytes=0;java.util.Set<String> r26Checkpoints=new com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26(r26Root).reachableHashes(com.ethk3.novaonepro.strategyv2.CheckpointReferencesR26.hashes(copy));
+            for(String hash:r26Checkpoints){checkpoint(control);File input=ReportArchiveVerifierCP12.inside(r26Root,hash+".bin");long size=input.length();if(!input.isFile()||size<1||size>com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.MAX_BYTES)throw new IOException("REPORT_R26_CHECKPOINT_MISSING_OR_INVALID:"+hash);r26Bytes=Math.addExact(r26Bytes,size);
+                if(!compact)descriptor(out,"r26-checkpoint-"+hash+".bin",hash,size,"R26_CHECKPOINT",input.getPath(),"");}
+            source.put("r26CheckpointObjects",r26Checkpoints.size()).put("r26CheckpointBytes",r26Bytes).put("r26CheckpointBodiesIncluded",!compact).put("r26CheckpointByteValidation",compact?"NOT_RUN_COMPACT_BYTE_BUDGET":"EACH_INCLUDED_BODY_SHA256_VERIFIED").put("r26CheckpointScope","Referenced complete states, durable replay outputs and retained parents of this exact SQLite snapshot; older historical states are not claimed");
             String last="";
             try(FileOutputStream seedFd=new FileOutputStream(seedEvidence);Writer seeds=new BufferedWriter(new OutputStreamWriter(seedFd,StandardCharsets.UTF_8),8192)) {
             while(hasTable(copy,ResearchPlatformStoreR929.TABLE_BUNDLE)) {
@@ -144,6 +150,7 @@ public final class ReportAttachmentClosureCP12 {
                         if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(root.getPath()+File.separator))throw new IOException("REPORT_OBSERVATION_SOURCE_PATH");
                         // Unique request files are immutable after queue publication. Copy verifies every original byte.
                         try(InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
+                    else if(kind.equals("R26_CHECKPOINT")){File expected=ReportArchiveVerifierCP12.inside(new File(app.getFilesDir(),"r26-checkpoints").getCanonicalFile(),hash+".bin");if(!expected.getPath().equals(input))throw new IOException("REPORT_R26_CHECKPOINT_SOURCE_PATH");try(InputStream in=new FileInputStream(expected)){copy(in,fixed,bytes,hash,control);}}
                     else if(kind.equals("FILE")){File file=new File(input);if(!file.getCanonicalFile().equals(file.getAbsoluteFile())||!file.getCanonicalPath().startsWith(app.getFilesDir().getCanonicalPath()+File.separator))throw new IOException("REPORT_ATTACHMENT_SOURCE_PATH");
                         try(SharedLease lease=shared(new File(lock));InputStream in=new FileInputStream(file)){copy(in,fixed,bytes,hash,control);}}
                     else throw new IOException("REPORT_ATTACHMENT_KIND");

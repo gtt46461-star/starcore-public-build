@@ -19,6 +19,12 @@ public final class SchemaAndLiveSU1Test {
     }
     private static void ready(SQLiteDatabase db){int steps=0;while(!StrategySchemaSU1.ready(db)){assertTrue("migration did not terminate",steps++<1000);StrategySchemaSU1.advance(db);}}
     private static int settle(SQLiteDatabase db,Models.Draw draw,String hash,long at){db.beginTransaction();try{int n=LiveShadowLoopSU1.settleWithin(db,draw,hash,at);db.setTransactionSuccessful();return n;}finally{db.endTransaction();}}
+    @Test public void completedMigrationJournalCannotChangeOrBypassWarmReadiness(){
+        try(SQLiteDatabase db=database()){ready(db);assertTrue(StrategySchemaSU1.ready(db));
+            for(String sql:new String[]{"UPDATE su1_migration_unit_v2 SET sql_hash='changed' WHERE unit=0","DELETE FROM su1_migration_unit_v2 WHERE unit=0","INSERT OR REPLACE INTO su1_migration_unit_v2 VALUES(0,'changed',1)"})try{db.execSQL(sql);fail("immutable migration journal changed");}catch(android.database.sqlite.SQLiteException expected){assertTrue(expected.getMessage().contains("SU1_MIGRATION_JOURNAL_IMMUTABLE"));}
+            assertTrue(StrategySchemaSU1.ready(db));db.execSQL("INSERT INTO su1_migration_unit_v2 VALUES(?,'SYNTHETIC_AHEAD',1)",new Object[]{SqlStatementsSU1.SQL.length});assertFalse("warm cache hid an ahead journal",StrategySchemaSU1.ready(db));try{StrategySchemaSU1.advance(db);fail("ahead journal accepted");}catch(IllegalStateException expected){assertEquals("SU1_MIGRATION_AHEAD",expected.getMessage());}
+        }
+    }
     @Test public void migrationRollbackAndRestartPreserveLegacyRows(){
         try(SQLiteDatabase db=database()){
             db.execSQL("INSERT INTO draws VALUES('202610210001',0,100,1,2,3,4,5,6,7,8,9,10)");

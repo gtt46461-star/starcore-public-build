@@ -108,6 +108,7 @@ public final class DbStore {
     private static final double FIELD_CHAIN_THIRD_NUMBER_MIN = 0.088d;
 
     private final Context researchAppCP12;
+    public Context contextForR26() { return researchAppCP12; }
     private final java.io.File researchInputRootCP11;
     private final DatabaseCoordinator coordinator;
     private final DbHelper helper;

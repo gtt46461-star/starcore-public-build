@@ -10,9 +10,9 @@ public final class ModelOpsSU2 {
         int T = P.length;
         float[][][] out = new float[T][10][10];
         double[][] M = new double[10][10];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
             for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) M[p][n] = (double) P[t][p][n] + 1e-9;
-            for (int it = 0; it < iters; it++) {
+            for (int it = 0; it < iters; it++) {ExecutionBudgetR26.poll();
                 for (int p = 0; p < 10; p++) { double s = 0; for (int n = 0; n < 10; n++) s += M[p][n]; for (int n = 0; n < 10; n++) M[p][n] /= s; }
                 for (int n = 0; n < 10; n++) { double s = 0; for (int p = 0; p < 10; p++) s += M[p][n]; for (int p = 0; p < 10; p++) M[p][n] /= s; }
             }
@@ -40,10 +40,10 @@ public final class ModelOpsSU2 {
         int T = Ps[0].length, M = Ps.length;
         double[][] logw = new double[M][10], w = new double[M][10];
         float[][][] out = new float[T][10][10];
-        for (int t = 0; t < T; t++) {
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
             for (int p = 0; p < 10; p++) {
                 double mx = Double.NEGATIVE_INFINITY; for (int m = 0; m < M; m++) mx = Math.max(mx, logw[m][p]);
-                double z = 0; for (int m = 0; m < M; m++) { w[m][p] = Math.exp(logw[m][p] - mx); z += w[m][p]; }
+                double z = 0; for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); w[m][p] = Math.exp(logw[m][p] - mx); z += w[m][p]; }
                 for (int m = 0; m < M; m++) w[m][p] /= z;
                 for (int n = 0; n < 10; n++) { double v = 0; for (int m = 0; m < M; m++) v += w[m][p] * (double) Ps[m][t][p][n]; out[t][p][n] = (float) v; }
             }
@@ -51,8 +51,8 @@ public final class ModelOpsSU2 {
                 int x = d[t][p] - 1;
                 for (int m = 0; m < M; m++) logw[m][p] = decay * logw[m][p] + Math.log(Math.max((double) Ps[m][t][p][x], EPS));
                 double mx = Double.NEGATIVE_INFINITY; for (int m = 0; m < M; m++) mx = Math.max(mx, logw[m][p]);
-                double z = 0; for (int m = 0; m < M; m++) { w[m][p] = Math.exp(logw[m][p] - mx); z += w[m][p]; }
-                for (int m = 0; m < M; m++) { w[m][p] = (1 - share) * (w[m][p] / z) + share / M; logw[m][p] = Math.log(w[m][p]); }
+                double z = 0; for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); w[m][p] = Math.exp(logw[m][p] - mx); z += w[m][p]; }
+                for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); w[m][p] = (1 - share) * (w[m][p] / z) + share / M; logw[m][p] = Math.log(w[m][p]); }
             }
         }
         return out;
@@ -81,8 +81,8 @@ public final class ModelOpsSU2 {
         GatedState g = new GatedState(Ps.length, STs);
         int T = Ps[0].length; float[][][] out = new float[T][][];
         float[][][] cur = new float[Ps.length][][]; float[][] st = new float[Ps.length][];
-        for (int t = 0; t < T; t++) {
-            for (int m = 0; m < Ps.length; m++) { cur[m] = Ps[m][t]; st[m] = STs[m][t]; }
+        for (int t = 0; t < T; t++) {ExecutionBudgetR26.poll();
+            for (int m = 0; m < Ps.length; m++) {ExecutionBudgetR26.poll(); cur[m] = Ps[m][t]; st[m] = STs[m][t]; }
             out[t] = g.predict(cur, st);
             g.update(cur, st, d[t], lr, l2);
         }
@@ -102,7 +102,7 @@ public final class ModelOpsSU2 {
         public float[][] predict(float[][][] P, float[][] st) {
             double[] s = stateVector(st); f = new double[D]; f[0] = 1.0;
             for (int k = 0; k < S; k++) { double z = (s[k] - mu[k]) / Math.sqrt(var[k] + 1e-9); f[k + 1] = Math.max(-5, Math.min(5, z)); }
-            double[] a = new double[M]; for (int m = 0; m < M; m++) { double v = 0; for (int k = 0; k < D; k++) v += W[m * D + k] * f[k]; a[m] = v; }
+            double[] a = new double[M]; for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); double v = 0; for (int k = 0; k < D; k++) v += W[m * D + k] * f[k]; a[m] = v; }
             lp = new double[M][100]; for (int m = 0; m < M; m++) for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) lp[m][p * 10 + n] = Math.log(Math.max((double) P[m][p][n], EPS));
             q = new double[100]; float[][] out = new float[10][10];
             for (int p = 0; p < 10; p++) {
@@ -116,7 +116,7 @@ public final class ModelOpsSU2 {
         public void update(float[][][] P, float[][] st, int[] draw, double lr, double l2) {
             if (f == null) predict(P, st);
             double[] gm = new double[M], prod = new double[100];
-            for (int m = 0; m < M; m++) { for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) prod[p * 10 + n] = (q[p * 10 + n] - (draw[p] - 1 == n ? 1.0 : 0.0)) * lp[m][p * 10 + n]; gm[m] = pairwise(prod, 0, 100); }
+            for (int m = 0; m < M; m++) {ExecutionBudgetR26.poll(); for (int p = 0; p < 10; p++) for (int n = 0; n < 10; n++) prod[p * 10 + n] = (q[p * 10 + n] - (draw[p] - 1 == n ? 1.0 : 0.0)) * lp[m][p * 10 + n]; gm[m] = pairwise(prod, 0, 100); }
             for (int m = 0; m < M; m++) for (int k = 0; k < D; k++) { int i = m * D + k; double g = gm[m] * f[k] + l2 * W[i]; G[i] += g * g; W[i] -= lr * g / Math.sqrt(G[i]); }
             double[] s = stateVector(st); cnt++; double div = Math.min(cnt, 2000);
             for (int k = 0; k < S; k++) { double delta = s[k] - mu[k]; mu[k] += delta / div; var[k] += (delta * (s[k] - mu[k]) - var[k]) / div; }

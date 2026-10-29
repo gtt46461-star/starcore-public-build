@@ -1,0 +1,66 @@
+{
+  "source": "9fdccbe9b67f715d7c3f609a4b082623a74c7a82",
+  "compiledSource": "2ff1369aafec6c6e05efb071978b2e3859458bf4",
+  "runId": 40624927603,
+  "jobId": 122614515666,
+  "artifactId": 12791900481,
+  "artifactZipSha256": "536831cbc0e38b26f6984edbf4218de6098ed718aeb9fa2cfcd326f8786addde",
+  "status": "FAIL_API29_LOCKED; NOT_A_FULL_MATRIX_PASS",
+  "scope": "SOURCE_BOUND_ENGINEERING_NOT_NATURAL_QUALITY",
+  "error": "research stopped advancing for a complete minute",
+  "completedMinuteSamples": 32,
+  "durableCommittedCapacityFailures": 77,
+  "lastCompletedMinuteRingCapacityFailures": 76,
+  "finalRingCapacityFailures": null,
+  "firstCapacityEvents": [
+    "10-28 03:37:42.088  3554  3618 W STARCORE_R26: task=incumbent-forecast|wallMs=1269|cpuMs=3|CAPACITY_FAIL:UNSLICED_KERNEL:1269ms|IllegalStateException:R26_UNSLICED_COMPUTATION_CAPACITY",
+    "10-28 03:37:44.216  3554  3618 W STARCORE_R26: task=expert-E16|wallMs=1367|cpuMs=18|CAPACITY_FAIL:UNSLICED_KERNEL:1367ms|IllegalStateException:R26_UNSLICED_COMPUTATION_CAPACITY",
+    "10-28 03:38:20.716  3554  3618 W STARCORE_R26: task=retention|wallMs=5905|cpuMs=4|CAPACITY_FAIL:UNSLICED_KERNEL:5905ms|SLICE_BUDGET",
+    "10-28 03:38:57.691  3554  3618 W STARCORE_R26: task=incumbent-forecast|wallMs=4976|cpuMs=4|CAPACITY_FAIL:UNSLICED_KERNEL:4976ms|IllegalStateException:R26_UNSLICED_COMPUTATION_CAPACITY"
+  ],
+  "systemSuspendResumeCountInCapturedLog": 367,
+  "firstSystemSuspendResumes": [
+    "10-28 03:37:39.734  1907  1923 I BatteryStatsService: In wakeup_callback: resumed from suspend",
+    "10-28 03:37:48.687  1907  3539 I BatteryStatsService: In wakeup_callback: resumed from suspend",
+    "10-28 03:37:53.718  1907  2937 I BatteryStatsService: In wakeup_callback: resumed from suspend",
+    "10-28 03:37:59.712  1907  2937 I BatteryStatsService: In wakeup_callback: resumed from suspend"
+  ],
+  "slowestMigrationUnits": [
+    {
+      "step": "R64_CP8_DDL_126",
+      "journalElapsedMs": 5932
+    },
+    {
+      "step": "R906_RESEARCH_R64_VERIFIED",
+      "journalElapsedMs": 329
+    },
+    {
+      "step": "R932_UNIFIED",
+      "journalElapsedMs": 215
+    },
+    {
+      "step": "R925_RESEARCH",
+      "journalElapsedMs": 61
+    },
+    {
+      "step": "R64_CP8_DDL_78",
+      "journalElapsedMs": 57
+    }
+  ],
+  "investigation": "Many task wall durations are5\u20136s with only a few CPU milliseconds and367 system suspend resumes. RuntimeCoordinator currently has no research CPU wake lease; AutoFetchService only owns the bounded PIT-to-canonical prediction lease. Investigate a bounded renewable lease owned by explicitly enabled continuous research. Keep capacity/minute-progress gates; do not whitelist the device, disable Doze or waive failures.",
+  "otherFiveJobs": "Completed successfully; full raw durable readback remains to be archived separately.",
+  "raw": [
+    {
+      "path": "raw/source102-29-locked-r26-runtime-synthetic.json.gz",
+      "uncompressedSha256": "823b95804a96700076840727b3563aa27abb7e670fa3fc67e635ca440d5ebf2a"
+    },
+    {
+      "path": "raw/source102-29-locked-r26-owner-logcat.txt.gz",
+      "uncompressedSha256": "cbba0ed401436437303521d212f03798f26e479b2ec6a4d44b7a3b71f9f4655a"
+    },
+    {
+      "path": "raw/source102-29-locked-r26-emulator-environment.json.gz",
+      "uncompressedSha256": "44bd6e186eaaa799e0f90dae6dd04bbbf751b4c277a1554519e10fce74e93b34"
+    }
+  ]
+}
