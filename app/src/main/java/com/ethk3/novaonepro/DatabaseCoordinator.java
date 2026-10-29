@@ -636,7 +636,16 @@ public final class DatabaseCoordinator {
                         long remainingCP3 = writeDeadlineCP3 - TimeSourceR811.monoNowMs();
                         if (remainingCP3 <= 0L)
                             throw new IllegalStateException("CP3_DB_BUSY_DEADLINE");
-                        if (writeLock.tryLock(Math.min(50L, remainingCP3), TimeUnit.MILLISECONDS)) {
+                        // R27.3: a background writer never joins the (fair) writer queue while a critical business
+                        // writer waits; it waits outside the queue until its own deadline (device 10.29 04:05:
+                        // R914_DRAW_SAVE_ATOMIC lost its 2 s window behind queued background writers).
+                        if (backgroundR909 && !reentrantWriterR914 && criticalBusinessWaitersR914.get() > 0) {
+                            Thread.sleep(Math.min(4L, remainingCP3));
+                            RuntimeResourceAuditR927.checkpoint("DB_LOCK_WAIT");
+                            ResearchWorkBudgetR927.checkpoint();
+                            continue;
+                        }
+                        if (writeLock.tryLock(Math.min(backgroundR909 ? 10L : 50L, remainingCP3), TimeUnit.MILLISECONDS)) {
                             locked = true;
                             // Every writer entry, including legacy non-transaction wrappers, must
                             // release the sole writer before a numerical continuation may park.

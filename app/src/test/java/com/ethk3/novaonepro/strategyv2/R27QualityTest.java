@@ -293,6 +293,18 @@ public final class R27QualityTest {
         R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
     }
 
+    // ------------------------------------------------------------------ R27.3 third device report (3cc41ff, fresh install)
+    @Test public void r27BackgroundWritersNeverQueueAheadOfCriticalWriters() throws Exception {
+        String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java").toPath()), "UTF-8");
+        int gate = src.indexOf("if (backgroundR909 && !reentrantWriterR914 && criticalBusinessWaitersR914.get() > 0) {");
+        int lock = src.indexOf("if (writeLock.tryLock(Math.min(backgroundR909 ? 10L : 50L, remainingCP3), TimeUnit.MILLISECONDS)) {");
+        assertTrue("background writers wait outside the writer queue while a critical writer waits", gate > 0 && lock > gate && lock - gate < 800);
+        assertTrue(src.indexOf("CP3_DB_BUSY_DEADLINE\")") < gate);
+        String report = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java").toPath()), "UTF-8");
+        assertTrue("report carries app thread stacks", report.contains("collectObservation(root,id,observation,\"threadStacks\",ReportExportServiceCP4::threadStacksR27)"));
+        R27TestSupport.log("R27_3_CRITICAL_FIRST_WRITER_PASS");
+    }
+
     // ------------------------------------------------------------------ R27-005 no session-level CRITICAL_DEADLINE yield
     @Test public void r27005ResearchSessionNoLongerYieldsToDeadlines() throws Exception {
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java").toPath()), "UTF-8");

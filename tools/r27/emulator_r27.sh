@@ -26,8 +26,12 @@ fatal() { adb logcat -d > "$OUT/logcat-$1.txt" 2>&1; ! grep -q "FATAL EXCEPTION\
 charts() {
   adb logcat -c
   adb shell am start -W -n $PKG/com.ethk3.novaonepro.ChartsActivityR83 > "$OUT/charts-$1.txt" 2>&1
-  grep -q "Status: ok" "$OUT/charts-$1.txt" || adb shell su 0 am start -W -n $PKG/com.ethk3.novaonepro.ChartsActivityR83 >> "$OUT/charts-$1.txt" 2>&1
-  sed 's/^/R27_EMULATOR_CHARTS_START|/' "$OUT/charts-$1.txt" | head -n 12
+  if ! grep -q "Status: ok" "$OUT/charts-$1.txt"; then
+    adb root >/dev/null 2>&1; sleep 3; adb wait-for-device
+    adb shell am start -W -n $PKG/com.ethk3.novaonepro.ChartsActivityR83 > "$OUT/charts-$1.txt" 2>&1
+  fi
+  sed 's/^/R27_EMULATOR_CHARTS_START|/' "$OUT/charts-$1.txt" | head -n 6
+  grep -q "Status: ok" "$OUT/charts-$1.txt" || { echo "R27_EMULATOR_CHARTS_START|NOT_STARTED"; return 1; }
   sleep 30; adb shell input swipe 500 1500 500 400 300 >/dev/null 2>&1; sleep 5
   adb exec-out screencap -p > "$OUT/charts-$1.png" 2>/dev/null
   adb logcat -d > "$OUT/logcat-charts-$1.txt" 2>&1
@@ -64,6 +68,24 @@ log "fresh install R27"; adb uninstall $PKG >/dev/null 2>&1; step fresh_install 
 adb logcat -c; date +%s > "$OUT/fresh_start_epoch.txt"; step fresh_launch launch fresh
 for i in 1 2 3 5 10 15; do while [ $(( $(date +%s) - $(cat "$OUT/fresh_start_epoch.txt") )) -lt $((i*60)) ]; do sleep 10; wake; done; snapshot "fresh-${i}m"; done
 step fresh_alive alive; step fresh_no_fatal fatal fresh; fatal_stack fresh
+# R27.3: thread stacks of the fresh-install run (debug build logs them every 60 s): the last two rounds for the
+# business threads, so a stalled fetch/analysis/settlement thread shows its blocking frame in the job log.
+python3 - "$OUT/logcat-fresh.txt" <<'PY' | head -n 400
+import re, sys
+t = open(sys.argv[1], errors="replace").read().split("\n")
+blocks, cur = [], None
+for line in t:
+    if "STARCORE_STACK" not in line: continue
+    body = line.split("STARCORE_STACK", 1)[1].lstrip(": ")
+    if body.startswith("round="): cur = [body]; blocks.append(cur)
+    elif cur is not None: cur.append(body)
+rounds = sorted({int(re.match(r"round=(\d+)", b[0]).group(1)) for b in blocks}) if blocks else []
+keep = set(rounds[-2:])
+for b in blocks:
+    r = int(re.match(r"round=(\d+)", b[0]).group(1))
+    if r in keep and any(k in b[0] for k in ("eth_k3_fetch", "eth_k3_analysis", "eth_k3_background", "settle", "starcore_r908", "starcore-r27-research-0")):
+        for l in b: print("R27_EMULATOR_STACK|" + l)
+PY
 grep -iE "fetch|R925|R914|draw|api|http" "$OUT/logcat-fresh.txt" | grep -i "$PKG\|starcore\|r925\|r914\|fetch" | tail -n 60 | sed 's/^/R27_EMULATOR_LOGCAT|/' | tee "$OUT/logcat-fresh-fetch.txt"
 step fresh_charts_page charts fresh
 

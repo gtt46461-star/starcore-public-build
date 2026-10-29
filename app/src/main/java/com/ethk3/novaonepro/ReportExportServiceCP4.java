@@ -56,6 +56,8 @@ public final class ReportExportServiceCP4 extends Service {
 
             ReportJobJournalCP12.collectObservation(root,id,observation,"crashSummary",()->CrashRecorder.detailedSummary(app));ReportJobJournalCP12.collectObservation(root,id,observation,"heartbeatSummary",()->new ServiceHeartbeatStore(app).detailedSummary());
             DatabaseCoordinator coordinator=DatabaseCoordinator.peek();if(coordinator!=null){observation.put("dbWaitMs",coordinator.lastDbLockWaitMs());observation.put("dbWaitMaxMs",coordinator.longestDbLockWaitMs());observation.put("researchSchemaReady",coordinator.isR811ResearchSchemaReady());ReportJobJournalCP12.collectObservation(root,id,observation,"schemaStartupSummary",()->coordinator.startupSchemaSummary());}observation.put("realtimePressure",RealtimePressureGateR811.isUnderPressure());ReportJobJournalCP12.collectObservation(root,id,observation,"fetchWriteError",()->FetchLedgerR925.reportWriteErrorObservationCP12());
+            // R27.3: where every app thread is right now (a stalled business loop names its blocking frame).
+            ReportJobJournalCP12.collectObservation(root,id,observation,"threadStacks",ReportExportServiceCP4::threadStacksR27);
             RealtimePressureGateR811.Snapshot pressure=RealtimePressureGateR811.snapshot();
             observation.put("analysisDepth",pressure.analysisDepth).put("settlementDepth",pressure.settlementDepth)
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());
@@ -63,6 +65,18 @@ public final class ReportExportServiceCP4 extends Service {
             enqueueUserRequest(root,id,"FULL_REPORT",request,generation);kick(app,ACTION_EXPORT,id);
         }catch(Throwable error){requestFailure(app,id,error);}});}catch(RejectedExecutionException full){requestFailure(app,id,new IOException("REPORT_REQUEST_QUEUE_FULL"));}
         return id;
+    }
+    static String threadStacksR27() {
+        StringBuilder b = new StringBuilder();
+        java.util.List<java.util.Map.Entry<Thread, StackTraceElement[]>> all = new java.util.ArrayList<>(Thread.getAllStackTraces().entrySet());
+        java.util.Collections.sort(all, (x, y) -> x.getKey().getName().compareTo(y.getKey().getName()));
+        for (java.util.Map.Entry<Thread, StackTraceElement[]> e : all) {
+            Thread t = e.getKey(); StackTraceElement[] st = e.getValue();
+            b.append("THREAD|").append(t.getName()).append('|').append(t.getState()).append("|prio=").append(t.getPriority()).append('\n');
+            for (int i = 0; i < st.length && i < 30; i++) b.append("  at ").append(st[i]).append('\n');
+            if (b.length() > 200000) { b.append("TRUNCATED\n"); break; }
+        }
+        return b.toString();
     }
     public static String requestRetentionPage(Context context,File immutableRequest)throws IOException {
         try {

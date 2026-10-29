@@ -108,6 +108,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public RuntimeR27 r27(){return r27;}
     private void run(){
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        com.ethk3.novaonepro.StallStacksR27.start();
         try{
             ServiceHeartbeatStore user=new ServiceHeartbeatStore(store.contextForR26());if(!user.isUserEnabled()){cancelled=true;return;}
             powerLease=new RuntimePowerLeaseR26(store.contextForR26(),owner);powerLease.keepAlive();
