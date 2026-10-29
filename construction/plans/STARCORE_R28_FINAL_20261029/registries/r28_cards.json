@@ -1,0 +1,709 @@
+{
+ "plan": "STARCORE_R28_FINAL_20261029",
+ "baseline": "construction/r27-20261028@f9bdddb (report source 7d3e0e2)",
+ "batches": [
+  {
+   "id": "B0",
+   "title": "基线与验收仪表",
+   "person_days": "1—2"
+  },
+  {
+   "id": "B1",
+   "title": "数据库拆分与实时链（P0）",
+   "person_days": "5—8"
+  },
+  {
+   "id": "B2",
+   "title": "统一单系统：退役旧研究链、瘦身",
+   "person_days": "5—8"
+  },
+  {
+   "id": "B3",
+   "title": "研究引擎满血",
+   "person_days": "5—7"
+  },
+  {
+   "id": "B4",
+   "title": "深度学习、原子、分子、矩阵、校准",
+   "person_days": "4—6"
+  },
+  {
+   "id": "B5",
+   "title": "检测报告三章与修复",
+   "person_days": "4—6"
+  },
+  {
+   "id": "B6",
+   "title": "图表与界面",
+   "person_days": "2—3"
+  },
+  {
+   "id": "B7",
+   "title": "测试、真机、发布",
+   "person_days": "4—6"
+  }
+ ],
+ "status_rule": "未施工 → 已修改待真机验证（代码合入 + HOST 通过）→ 已验证（绑定的全部 ENGINEERING 指标在真机报告 R28-03 章 PASS）",
+ "cards": [
+  {
+   "id": "R28-001",
+   "batch": "B0",
+   "title": "固定施工基线",
+   "files": "construction/r27-20261028@f9bdddb 全仓",
+   "change": "从该提交开 construction/r28-*；记录将修改文件的 before SHA256 到 evidence/r28/baseline.json",
+   "test": "脚本比对",
+   "metrics": [
+    "M37"
+   ],
+   "depends": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-002",
+   "batch": "B0",
+   "title": "验收仪表",
+   "files": "新增 assets/r28/r28_acceptance_metrics.json、r28_cards.json；ReportR27",
+   "change": "构建时把 registries/ 打包进 assets；运行时逐项求值",
+   "test": "HOST：空库全部 INSUFFICIENT",
+   "metrics": [
+    "M29",
+    "M37"
+   ],
+   "depends": [
+    "R28-001"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-010",
+   "batch": "B1",
+   "title": "研究库独立",
+   "files": "新增 ResearchDatabaseR28（starcore_research_r28.db, WAL）；StoreR27 建表改到新库",
+   "change": "r27_* 表迁移：ATTACH 只读复制→逐表行数+哈希比对→回执→主库 DROP；失败保留旧表",
+   "test": "HOST：迁移、重复迁移、中断恢复",
+   "metrics": [
+    "M05",
+    "M07",
+    "M15",
+    "M17"
+   ],
+   "depends": [
+    "R28-001"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-011",
+   "batch": "B1",
+   "title": "研究读写改道",
+   "files": "ResearchWriteQueueR27、ResearchPoolR27.Worker(ro)、MainlineBridgeSU2、ReportDataR27、ChartCacheR27",
+   "change": "写只进 research.db；开奖/结算经 realtime 只读连接读取；删除 p0Writing 让路",
+   "test": "HOST：并发写压力（实时写 + 研究满负荷）",
+   "metrics": [
+    "M05",
+    "M07"
+   ],
+   "depends": [
+    "R28-010"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-012",
+   "batch": "B1",
+   "title": "实时链事务合并",
+   "files": "新增 IssueCommitR28；AnalysisRequestStoreR36.bindHistoryHash(第742行)、V51RuntimeOrchestrator.commitCanonicalBundleVerifiedR368、R932 bundle capture/domain route",
+   "change": "一期一个 BEGIN IMMEDIATE；失败按步骤记 r28_issue_commit_failure；R932 domain route 若仅服务已退役链则删除",
+   "test": "HOST：注入每一步失败整体回滚；真机 1440 期",
+   "metrics": [
+    "M01",
+    "M02",
+    "M05"
+   ],
+   "depends": [
+    "R28-011"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-013",
+   "batch": "B1",
+   "title": "观察冻结准备—冻结分离",
+   "files": "LiveShadowsR27、新表 r28_prepared",
+   "change": "开奖后立即准备下一期全部观察/对照 K3；截止前一次批量 INSERT；迟到记 PREPARE_LATE 不补",
+   "test": "真机 1440 期",
+   "metrics": [
+    "M03",
+    "M04",
+    "M22"
+   ],
+   "depends": [
+    "R28-011"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-014",
+   "batch": "B1",
+   "title": "线程优先级",
+   "files": "AutoFetchService 通道创建处；ResearchPoolR27",
+   "change": "实时链 FOREGROUND；研究 BACKGROUND；研究线程数 cores−2（2..6）；温控降级",
+   "test": "HOST：优先级断言；真机 CPU 采样",
+   "metrics": [
+    "M01",
+    "M18"
+   ],
+   "depends": [
+    "R28-001"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-015",
+   "batch": "B1",
+   "title": "主线程渲染",
+   "files": "MainActivity.buildDecisionV20Text/buildDecisionRenderKey/removePnlText",
+   "change": "确认一次编译正则生效；文本拼接移到 eth_k3_ui_read_channel",
+   "test": "真机 StrictMode + mainStall 采样",
+   "metrics": [
+    "M08"
+   ],
+   "depends": [
+    "R28-001"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-016",
+   "batch": "B1",
+   "title": "抓取写入独立短事务",
+   "files": "AutoFetchService 落库路径；r27_fetch_reject",
+   "change": "只写 draw 行与回执；拒绝原因计数",
+   "test": "HOST + 真机",
+   "metrics": [
+    "M06",
+    "M09"
+   ],
+   "depends": [
+    "R28-011"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-020",
+   "batch": "B2",
+   "title": "旧系统种子与档案导出",
+   "files": "LegacyPolicyExportR27；IdeaI12LegacyAssetR27",
+   "change": "R908 15 算法、R26 F01–F24/E01–E16、CP12 学习器参数→I12 种子或 LEGACY_NOT_REPRODUCIBLE 档案",
+   "test": "HOST：逐个复现或给原因",
+   "metrics": [
+    "M12"
+   ],
+   "depends": [
+    "R28-010"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-021",
+   "batch": "B2",
+   "title": "停用 R908 自主研究",
+   "files": "AutoFetchService：researchThreadR908 创建(1417行)、看门狗重建(16180–16186行)、researchSelfLoopR908(2245/2455行)",
+   "change": "不创建、不重建、不 post；保留 settlement_recovery 线程",
+   "test": "HOST：线程清单断言；真机",
+   "metrics": [
+    "M11",
+    "M12"
+   ],
+   "depends": [
+    "R28-020"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-022",
+   "batch": "B2",
+   "title": "停用 R912/R9xx 研究调度",
+   "files": "ResearchLearningContinuityR912（AutoFetchService 5274–5304行）；R932 校准/固定窗口；R967 队列",
+   "change": "迁移置 r27_legacy_research_enabled=0 并移除默认值 1；调度入口删除",
+   "test": "真机 24h 无旧 lane 写入",
+   "metrics": [
+    "M12",
+    "M13"
+   ],
+   "depends": [
+    "R28-020"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-023",
+   "batch": "B2",
+   "title": "R26 协调器只留主链任务",
+   "files": "RuntimeCoordinatorR26（第64–65行任务表、第118行启动 R27）；ExpertWorkshopR26；FoundryCampaignR26；LegacyGenerationR26；IncumbentLoopSU2；CooperativeContinuationR26",
+   "change": "删除研究/铸造/专家任务与线程；RuntimeR27 改由 AutoFetchService.startWorkR3610OffMain 启动",
+   "test": "HOST：任务表断言；真机线程清单",
+   "metrics": [
+    "M11",
+    "M12",
+    "M13",
+    "M14"
+   ],
+   "depends": [
+    "R28-020"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-024",
+   "batch": "B2",
+   "title": "13 个从未运行任务处置",
+   "files": "RuntimeCoordinatorR26 任务表；RuntimeR27 r27-calibration",
+   "change": "逐项：并入 R27（列出对应任务）或删除；r27-calibration 由 R28-044 激活",
+   "test": "报告 neverRunTasks",
+   "metrics": [
+    "M13"
+   ],
+   "depends": [
+    "R28-023"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-025",
+   "batch": "B2",
+   "title": "守护线程合并",
+   "files": "starcore_b07_*、starcore_r817_liveness、r927-*、CP4-recovery-*、starcore_ui_diagnostics、starcore-ui-funnel-deadline",
+   "change": "合并为 HealthMonitorR28 单线程调度",
+   "test": "真机线程清单",
+   "metrics": [
+    "M11"
+   ],
+   "depends": [
+    "R28-021"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-026",
+   "batch": "B2",
+   "title": "表与存储瘦身",
+   "files": "RetentionR26、DataRetentionGovernorR900、RetentionTableRegistryCP12；新增 starcore_archive_r28.db",
+   "change": "退役表 VACUUM INTO 归档库后删除；旧 .bak 在新备份校验后删除；报告快照导出后删除，目录≤300MB",
+   "test": "真机前后存储普查",
+   "metrics": [
+    "M15",
+    "M16",
+    "M17",
+    "M30"
+   ],
+   "depends": [
+    "R28-021",
+    "R28-022",
+    "R28-023"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-027",
+   "batch": "B2",
+   "title": "施工总账替换",
+   "files": "diagnostics/construction-current-*；CompleteReportFileR927",
+   "change": "1832/299 冻结为历史档案；报告改读 R28 卡与指标",
+   "test": "导出报告",
+   "metrics": [
+    "M37"
+   ],
+   "depends": [
+    "R28-002"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-030",
+   "batch": "B3",
+   "title": "研究池满载",
+   "files": "ResearchPoolR27；ServiceTotalsR26",
+   "change": "分库后去掉写让路；充电/电池分开统计 CPU 份额",
+   "test": "真机 60 分钟",
+   "metrics": [
+    "M18",
+    "M19"
+   ],
+   "depends": [
+    "R28-011",
+    "R28-023"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-031",
+   "batch": "B3",
+   "title": "每期增量回放",
+   "files": "ReplayDatasetR27、FeatureCacheR27、HoldoutLedgerR27；设置页导入历史 CSV",
+   "change": "开奖后 ≤2s 完成追加/增量特征/补评；真机导入 1 万期",
+   "test": "HOST：增量=全量逐位一致",
+   "metrics": [
+    "M19"
+   ],
+   "depends": [
+    "R28-030"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-032",
+   "batch": "B3",
+   "title": "进化多样性与复杂度",
+   "files": "EvolutionLoopR27、IslandModelR27、EliteArchiveR27、BirthGateR27",
+   "change": "自适应复杂度 3–8；每族最低配额 4%；MAP-Elites 覆盖率与冠军相关度入报告；冠军不换原因入报告",
+   "test": "HOST：植入信号 H06/无信号 H07 复跑",
+   "metrics": [
+    "M19",
+    "Q02"
+   ],
+   "depends": [
+    "R28-031"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-033",
+   "batch": "B3",
+   "title": "观察池 128 + 对照 16",
+   "files": "LiveShadowsR27、RuntimeR27",
+   "change": "前 128 名（每族≤16）+ 8 个 I00 + 8 个打乱冠军；逐期冻结结算",
+   "test": "真机 24h",
+   "metrics": [
+    "M20",
+    "M21",
+    "M22"
+   ],
+   "depends": [
+    "R28-013"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-034",
+   "batch": "B3",
+   "title": "观察池晋级通道",
+   "files": "SequentialQualificationR27、CertificateGateR27、MainlineBridgeSU2",
+   "change": "首次进入领取永久全局 α 序号；只喂 FUTURE；过线→CHALLENGER→证书门（门槛不变）",
+   "test": "HOST：1000 零优势观察×20000 期错误授证≤5%；植入 40% 信号可过线",
+   "metrics": [
+    "M32",
+    "Q04"
+   ],
+   "depends": [
+    "R28-033"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-035",
+   "batch": "B3",
+   "title": "失败研究闭环",
+   "files": "新增 ResearchFindingR28；IdeaI10FailureRepairR27",
+   "change": "连挂≥2 触发；输出只改出生配额；子代 FUTURE N=0",
+   "test": "HOST",
+   "metrics": [
+    "Q02"
+   ],
+   "depends": [
+    "R28-033"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-040",
+   "batch": "B4",
+   "title": "AtomNet 正式接管",
+   "files": "AtomNetR27、AtomNetTrainerR27、AtomWorldR27；AtomicToolWorldR943.java:139",
+   "change": "≥5 万样本预训练；每期续训；回滚；删除旧逐期 SGD；BSS 图",
+   "test": "HOST H16 复跑；真机 24h",
+   "metrics": [
+    "M23",
+    "Q05"
+   ],
+   "depends": [
+    "R28-031"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-041",
+   "batch": "B4",
+   "title": "原子配对评分",
+   "files": "AtomScoreR27、AtomReplayR27",
+   "change": "回放样本≥1000；与打乱对照配对区间；USEFUL/NEUTRAL/HARMFUL/MASKED",
+   "test": "HOST：纯噪声原子 HARMFUL 率≤2.5%",
+   "metrics": [
+    "M24",
+    "Q06"
+   ],
+   "depends": [
+    "R28-031"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-042",
+   "batch": "B4",
+   "title": "派生原子与分子真机验证",
+   "files": "DerivedAtomR27、AtomWorldR27（写 r27_molecule）",
+   "change": "每50代派生、每代32分子；无产出给原因",
+   "test": "真机 24h",
+   "metrics": [
+    "M27"
+   ],
+   "depends": [
+    "R28-041"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-043",
+   "batch": "B4",
+   "title": "矩阵快照与矩阵清单",
+   "files": "MatrixSnapshotSU2.capture、MatrixStoreSU2",
+   "change": "由 R27 冠军每50代生成；Teacher 矩阵退役",
+   "test": "HOST：1200/100 一致性",
+   "metrics": [
+    "M25"
+   ],
+   "depends": [
+    "R28-032"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-044",
+   "batch": "B4",
+   "title": "校准出模型",
+   "files": "LiveShadowsR27.calibrate（第193行只取 ACTIVE）、CalibrationRowsR27",
+   "change": "对象扩展为影子+观察前32；拟合用回放、验证用 FUTURE",
+   "test": "真机 24h ≥1 模型",
+   "metrics": [
+    "M26",
+    "M13"
+   ],
+   "depends": [
+    "R28-033"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-045",
+   "batch": "B4",
+   "title": "九专家/NumberQ/Ranker 处置",
+   "files": "V51PermutationNumberModelEngine、V51ExpertGateEngine、V51ActionRankerEngine 报告入口",
+   "change": "可回放训练的进 I08；其余从报告/界面退役；生产链不改",
+   "test": "HOST",
+   "metrics": [
+    "M29"
+   ],
+   "depends": [
+    "R28-031"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-050",
+   "batch": "B5",
+   "title": "报告章 R28-01 胜率为什么低",
+   "files": "新增 ReportR28；ReportDataR27",
+   "change": "docs/07 7.1 A–G；结论三选一自动选择",
+   "test": "HOST：三类数据各生成一次",
+   "metrics": [
+    "M29",
+    "Q01",
+    "Q03"
+   ],
+   "depends": [
+    "R28-033"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-051",
+   "batch": "B5",
+   "title": "报告章 R28-02 功能效果诊断书",
+   "files": "ReportR28.nextAction 规则表",
+   "change": "24 功能逐行：运行量/状态/效果/结论/根因/下一步/卡号",
+   "test": "HOST：规则表单测",
+   "metrics": [
+    "M29"
+   ],
+   "depends": [
+    "R28-050"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-052",
+   "batch": "B5",
+   "title": "报告章 R28-03 施工与验收核对",
+   "files": "ReportR28；assets/r28/*",
+   "change": "43 项指标逐项判定；卡状态只认真机指标",
+   "test": "HOST",
+   "metrics": [
+    "M29",
+    "M37"
+   ],
+   "depends": [
+    "R28-002"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-053",
+   "batch": "B5",
+   "title": "升级诊断书用回放",
+   "files": "UpgradeDiagnosisSU2、DiagnosisStoreSU2",
+   "change": "输入改为 ReplayDatasetR27；实盘段单列",
+   "test": "HOST",
+   "metrics": [
+    "M28"
+   ],
+   "depends": [
+    "R28-031"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-054",
+   "batch": "B5",
+   "title": "消融汇总",
+   "files": "StoreR27(r27_ablation)、ReportDataR27 ABLATION；生产链离线消融",
+   "change": "每20代按族/原子组/算子汇总；R36 漏斗模块离线消融",
+   "test": "HOST",
+   "metrics": [
+    "M27"
+   ],
+   "depends": [
+    "R28-032"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-055",
+   "batch": "B5",
+   "title": "报告精简",
+   "files": "CompleteReportFileR927、ReportExportServiceCP4",
+   "change": "默认不含 R925 静态审计/历史需求原文；每章一句话结论；快照导出后删除",
+   "test": "真机导出",
+   "metrics": [
+    "M30"
+   ],
+   "depends": [
+    "R28-052"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-060",
+   "batch": "B6",
+   "title": "观察榜与运气上限",
+   "files": "ChartsRepositoryR83（全部算法逐期实盘榜）、ChartCacheR27",
+   "change": "每行 HR+区间；E_max(k,N) 线；对照灰色标出",
+   "test": "截图",
+   "metrics": [
+    "M36",
+    "Q03"
+   ],
+   "depends": [
+    "R28-033"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-061",
+   "batch": "B6",
+   "title": "功能效果页与真实阻断",
+   "files": "MainActivity 功能卡；DiagnosticStateRendererR906",
+   "change": "每个功能卡显示 R28-02 一行；每个 0 显示真实阻断原因（USR-28）",
+   "test": "截图",
+   "metrics": [
+    "M29"
+   ],
+   "depends": [
+    "R28-051"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-062",
+   "batch": "B6",
+   "title": "图表缓存首屏",
+   "files": "ChartCacheR27（读 research.db）",
+   "change": "预聚合；首屏 P95≤300ms",
+   "test": "真机",
+   "metrics": [
+    "M36"
+   ],
+   "depends": [
+    "R28-011"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-070",
+   "batch": "B7",
+   "title": "HOST 测试套件",
+   "files": "app/src/test/…；tools/r27、tools/r28",
+   "change": "R27 H01–H18 复跑 + R28 新增（迁移、事务合并、晋级通道错误率、配对评分、报告规则表）",
+   "test": "CI",
+   "metrics": [
+    "全部 ENG 中 HOST 可测项"
+   ],
+   "depends": [
+    "全部"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-071",
+   "batch": "B7",
+   "title": "真机 24h 矩阵",
+   "files": "V2353A（API34）+ 另一品牌",
+   "change": "亮屏/息屏/锁屏/充电/电池/断网恢复/覆盖安装/强杀/低内存/连续24h；导出报告",
+   "test": "真机",
+   "metrics": [
+    "M01–M37"
+   ],
+   "depends": [
+    "R28-070"
+   ],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-072",
+   "batch": "B7",
+   "title": "正式签名（需用户决定）",
+   "files": "CI 配置；construction/su1-20261022 的私钥",
+   "change": "用户把正式 R13 私钥作为仓库 Secret 提供，或确认继续用 CI 临时密钥",
+   "test": "签名指纹核对",
+   "metrics": [
+    "M34"
+   ],
+   "depends": [],
+   "status": "未施工"
+  },
+  {
+   "id": "R28-073",
+   "batch": "B7",
+   "title": "发布与回滚",
+   "files": "release/R28_ROLLBACK_PLAN.md",
+   "change": "APK 哈希、签名指纹、versionCode、迁移回执；可回滚到 R27.4 且数据不丢（研究库回滚时可重新迁回）",
+   "test": "真机覆盖安装/回滚",
+   "metrics": [
+    "M34"
+   ],
+   "depends": [
+    "R28-071"
+   ],
+   "status": "未施工"
+  }
+ ]
+}

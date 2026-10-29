@@ -1,0 +1,142 @@
+{
+ "input": "research_data/ethpk10_draws_20260316_201059.csv",
+ "draws": 10000,
+ "position_chi2_df9": [
+  3.8,
+  11.24,
+  19.54,
+  3.56,
+  19.86,
+  15.0,
+  7.84,
+  9.56,
+  6.54,
+  4.95
+ ],
+ "position_chi2_crit5pct": 16.92,
+ "lag1": {
+  "pairs": 100,
+  "df": 81,
+  "crit5pct": 103.0,
+  "observed_mean": 83.84,
+  "observed_exceed5pct": 14,
+  "observed_max": 129.4,
+  "perm_null_median_mean": 81.13,
+  "perm_null_median_exceed": 5.0,
+  "perm_p_mean": 0.02,
+  "perm_p_exceed": 0.0,
+  "perm_p_max": 0.04,
+  "permutations": 200
+ },
+ "lag1_by_half": {
+  "first_exceed5pct": 8,
+  "second_exceed5pct": 6
+ },
+ "replication": {
+  "pair_prev_pos": 5,
+  "pair_target_pos": 8,
+  "first_half_chi2": 111.0,
+  "second_half_walk_forward_hit_rate": 0.296,
+  "second_half_n": 5000,
+  "se": 0.0065
+ },
+ "walk_forward_cumulative_top3_by_position": {
+  "hit_rate": [
+   0.2951,
+   0.3063,
+   0.305,
+   0.2957,
+   0.3074,
+   0.3032,
+   0.3018,
+   0.3064,
+   0.2984,
+   0.2953
+  ],
+  "mean": 0.3015,
+  "n_each": 9000,
+  "se": 0.0048
+ },
+ "duplicates": {
+  "observed": 13,
+  "expected_if_random": 13.8
+ },
+ "economics": {
+  "stake_per_bet": 3.0,
+  "gross_return_on_hit": 9.9,
+  "net_hit": 6.9,
+  "net_miss": -3.0,
+  "breakeven_hit_rate": 0.303,
+  "ev_per_bet_at_30pct": -0.03,
+  "ev_pct_of_stake_at_30pct": -1.0
+ },
+ "power_acted_periods_needed": [
+  {
+   "true_hit_rate": 0.31,
+   "single_test_alpha5pct": 26997,
+   "bonferroni_1000_candidates": 90643
+  },
+  {
+   "true_hit_rate": 0.32,
+   "single_test_alpha5pct": 4581,
+   "bonferroni_1000_candidates": 15339
+  },
+  {
+   "true_hit_rate": 0.33,
+   "single_test_alpha5pct": 1824,
+   "bonferroni_1000_candidates": 6091
+  },
+  {
+   "true_hit_rate": 0.34,
+   "single_test_alpha5pct": 975,
+   "bonferroni_1000_candidates": 3251
+  },
+  {
+   "true_hit_rate": 0.36,
+   "single_test_alpha5pct": 415,
+   "bonferroni_1000_candidates": 1376
+  },
+  {
+   "true_hit_rate": 0.4,
+   "single_test_alpha5pct": 145,
+   "bonferroni_1000_candidates": 479
+  }
+ ],
+ "luck_ceiling": [
+  {
+   "strategies": 24,
+   "acts_each": 30,
+   "median_best_hit_rate": 0.467
+  },
+  {
+   "strategies": 60,
+   "acts_each": 30,
+   "median_best_hit_rate": 0.5
+  },
+  {
+   "strategies": 60,
+   "acts_each": 60,
+   "median_best_hit_rate": 0.433
+  },
+  {
+   "strategies": 128,
+   "acts_each": 120,
+   "median_best_hit_rate": 0.408
+  },
+  {
+   "strategies": 24,
+   "acts_each": 120,
+   "median_best_hit_rate": 0.375
+  },
+  {
+   "strategies": 1000,
+   "acts_each": 500,
+   "median_best_hit_rate": 0.366
+  },
+  {
+   "strategies": 33769,
+   "acts_each": 512,
+   "median_best_hit_rate": 0.385
+  }
+ ]
+}

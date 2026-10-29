@@ -1,0 +1,166 @@
+{
+ "report_job": "fb32242320b1eedeb83e0c174594c1e20a8fa9dd0e02dd5aab70f62e5c20550f",
+ "source_commit": "7d3e0e2271ce2a734ca69f2fca8527c00222bba7",
+ "snapshot_issue": "202610290593",
+ "R27_01": {
+  "futureShadows": 0,
+  "observers_total": 60,
+  "observers_tracking": 24,
+  "observer_periods": 1651,
+  "observer_hits": 507,
+  "observer_acts": 659,
+  "observer_act_hits": 176,
+  "observer_best": [
+   0.4375,
+   14,
+   32,
+   0.2817
+  ],
+  "replay": {
+   "holdoutChampionHitRate": 0.26878612716763006,
+   "n": 512,
+   "note": "REPLAY 成绩只说明在看过的数据上拟合得好，不进入资格。",
+   "survivorsSelectHitRateQuantiles": [
+    0.38219895287958117,
+    0.3904761904761905,
+    0.41284403669724773,
+    0.43478260869565216,
+    0.4488888888888889
+   ]
+  },
+  "sameperiodControls": [
+   {
+    "control": "CONTROL_I00",
+    "futureActs": 27,
+    "futureHitRate": 0.14814814814814814,
+    "futurePeriods": 327,
+    "policy": "324998deb0d7f087325f43391addeb0ded29f718975e382cbd1486ae910a9d54"
+   },
+   {
+    "control": "CONTROL_NULL",
+    "futureActs": 9,
+    "futureHitRate": 0.2222222222222222,
+    "futurePeriods": 327,
+    "policy": "593c4edb9b9919c5ad7438d1d01313e5aad74b1800011ccc631ad3546e6ef77f"
+   }
+  ]
+ },
+ "R27_02": {
+  "generations": [
+   513,
+   552
+  ],
+  "champion_holdout": [
+   0.2688
+  ],
+  "i00_range": [
+   0.24,
+   0.3385
+  ],
+  "shuffled_range": [
+   0.2133,
+   0.3659
+  ],
+  "sevenCounters": {
+   "attempts": 35713,
+   "behaviorNovel": 21041,
+   "prospectiveQualified": 0,
+   "researchAccepted": 1588,
+   "structuralCandidates": 17111,
+   "uniquePolicies": 33769,
+   "verifiedImprovements": 0
+  },
+  "familySurvivors": {
+   "I01": 1,
+   "I08": 1,
+   "I12": 2,
+   "I13": 3
+  },
+  "rejectReasons": {
+   "TOO_COMPLEX": 31
+  },
+  "noOpRatio": 0.006053505174770553,
+  "stagnationDiagnosis": [
+   "进化停滞：最近279代没有在留出数据上被证实的提升",
+   "可能原因：拟合噪声/数据无可学信号（训练段与打乱标签对照同样上升而留出无提升）；自动将复杂度上限6→4一个周期做对照"
+  ]
+ },
+ "R27_03": {
+  "candidateReplayP95Ms": 69,
+  "cpuTarget": "≥50% × 线程数（真机60分钟）",
+  "deadlineMissed24h": 46,
+  "freezeOnTimeRate": 0.9298780487804879,
+  "freezeScheduled24h": 656,
+  "generationsLast24h": 553,
+  "neverRunTasks": [
+   "schema-base",
+   "qualification",
+   "aggregate-evidence",
+   "feedback",
+   "incumbent-forecast",
+   "legacy-replay",
+   "warm-candidates",
+   "publish-models",
+   "live-model-training",
+   "live-forecast-preparation",
+   "ablation",
+   "campaign-audit",
+   "r27-calibration"
+  ],
+  "researchCpuShare": 0.0950222014247716,
+  "researchThreads": 4,
+  "stuckTasks": [
+   "incumbent-forecast:QUARANTINED:ERROR(IllegalStateException:R26_UNSLICED_COMPUTATION_CAPACITY)"
+  ],
+  "waitKindDistribution": {
+   "NO_NEW_EVENT": 37,
+   "PROGRESS": 19,
+   "QUARANTINED": 1
+  },
+  "writeWaitsOver200msLastHour": 14932
+ },
+ "checks": {
+  "OBSERVED": 43,
+  "NOT_APPLICABLE": 16,
+  "NOT_PROVEN": 22,
+  "WARN": 6,
+  "PASS": 6,
+  "FAIL": 3
+ },
+ "threads": {
+  "total": 79,
+  "r26": 16,
+  "r27": 8
+ },
+ "storage": "STORAGE_CENSUS_SU2|total=4276301077|entries=600|truncated=false|CACHE=372736|DATABASE=2466361443|MODEL_BUNDLES=0|OTHER=33593353|REPORTS=1774133905|REPORT_RECOVERY=2088|RESEARCH_CAS=0|TRAINING_CAS=0|WAL=1837552",
+ "construction_ledger": {
+  "format": "R997_CONSTRUCTION_LEDGER_NOT_FULL_ACCEPTANCE",
+  "requirements": 1832,
+  "states": {
+   "外部验收待完成": 0,
+   "实现错误": 0,
+   "已修改待验证": 62,
+   "已验证": 0,
+   "未实现": 0,
+   "未检查": 1770,
+   "验证失败": 0
+  },
+  "requirementLedgerSha256": "952d92d89296cd08d1990b61eb8cbdde8f5a516a25a909ecfb65814ce5173765",
+  "subitemsSha256": "04aa7322bf15f369061741d55302a2afdc393ed688898001542e11b310e85e5e",
+  "cards": 299,
+  "cardStates": {
+   "外部验收待完成": 0,
+   "实现错误": 0,
+   "已修改待验证": 3,
+   "已验证": 0,
+   "未实现": 0,
+   "未检查": 296,
+   "验证失败": 0
+  },
+  "cardLedgerSha256": "09937fccc9a15f300e592fb41327e9da87f965ae80aeb4e6cfe78ac1f79efd9b",
+  "sourceCommit": "7d3e0e2271ce2a734ca69f2fca8527c00222bba7",
+  "sourceTree": "0b7c7db4207f3fdaa4bcf4c986ce20d795694e64",
+  "buildInputsSha256": "cd8ca26f3681e12e277219bf8554ac6eb05baa5ffa6b12792f902d265ec7e8e1",
+  "acceptanceBoundary": "HOST_REPLAY_IS_NOT_DEVICE_OR_NATURAL_FUTURE; PARTIAL_PARENT_STATUS_IS_NOT_COMPLETION"
+ }
+}
