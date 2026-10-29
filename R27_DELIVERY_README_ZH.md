@@ -24,23 +24,27 @@
 
 R27 影子拿到 ACTIVE 证书后，只作为“意图”交给现有授权链，**没有新增任何 REAL 授权路径**。
 
-## 2. APK
+## 2. APK（R27.2，最新）
 
 | 项目 | 值 |
 |---|---|
-| 构建 | GitHub Actions run 40758444513，commit 301c6f7 |
-| 下载 | https://github.com/gtt46461-star/starcore-public-build/actions/runs/40758444513/artifacts/12847302905 （`R27-build-and-evidence`） |
-| 文件 | `Starcore-Tianshu-R27-2026.10.28-debug.apk` |
-| SHA256 | `f58fb441c12fbcffb45cc6e866911b423df4a4e0a05c29eb93f72ec59c0ba5e5` |
+| 构建 | GitHub Actions run 40805542467，commit 8c3223a（R27.2） |
+| 下载 | https://nightly.link/gtt46461-star/starcore-public-build/actions/runs/40805542467/R27-APK.zip （免登录） |
+| 备用（需登录 GitHub） | https://github.com/gtt46461-star/starcore-public-build/actions/runs/40805542467/artifacts/12868687388 |
+| 安装文件 | `STARCORE-R27-2026.10.28-release.apk`（内置数据秘钥）；debug 包仅供排查 |
+| release SHA256 | `0ea69965bce5ea9e0e642d8960f632c12084c102426daf1b5346dc31b4203a57` |
+| debug SHA256 | `f166d792f14431c0891865a0b8c24b95ddacbc273fd2daa6433132d10e9cac78` |
 | 包名 / versionCode / versionName | com.starcore.research.r13 / 577271030 / R27-2026.10.28 |
-| 签名证书 SHA-256 | `709f1fca2c80f4af3f1a3a5917f7f99b5ca4cbc84969f6bcb4fb6b110afb6e0b` —— **CI 临时密钥，不是正式 R13 签名** |
+| 签名证书 SHA-256 | `ede660142a3504f30ff81cf307f2426bc1d10641fbb2dc538b8532e55a30ca0a` —— **CI 临时密钥，不是正式 R13 签名** |
 
-**如实说明（签名）**
+**如实说明**
 
-1. 正式签名私钥在 Actions 缓存 `starcore-su1-api-transport-v1` 中。该缓存建于 `construction/su1-20261022` 分支，本分支读不到。
-2. 因此本 APK 用临时 CI 密钥签名，**不能覆盖安装到现有正式版之上**（签名不同）。正式版证书 SHA-256 为 9e6d5dc7…3eca。
-3. release 变体需要同一缓存中的内置 API 凭据（R995），所以只构建了 debug 变体。
-4. 要得到正式签名包，需要在能访问该缓存的分支上运行，或由您用正式密钥签名。workflow 已支持：缓存可读时自动走正式签名和 release 构建。
+1. 临时密钥每次 CI 都不同，所以本包**不能覆盖安装**之前的包，必须先卸载旧包。卸载会清空本机数据：开奖历史会自动重新抓取，研究进度从头开始。
+2. 正式签名私钥在 `construction/su1-20261022` 分支的 Actions 缓存里，本分支读不到。
+3. 本包包含的修复：
+   - R27.1：研究存储迁移加速；R27 写入降为后台级；抓取回执重试；续算切片 200 毫秒。
+   - R27.2：写锁忙不再隔离任务；研究线程后台优先级；主链运行期间研究只留 1 个线程；迁移片内重试；走势图表防闪退；R27 工具弹窗防闪退。
+4. 分析文档：`evidence/r27/device/R27_1029_REPORT_ANALYSIS_ZH.md`、`evidence/r27/device/R27_1029B_REPORT_ANALYSIS_ZH.md`。
 
 ## 3. 测试摘要
 
