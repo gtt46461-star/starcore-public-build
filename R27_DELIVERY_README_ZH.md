@@ -38,12 +38,12 @@ R27 影子拿到 ACTIVE 证书后，只作为“意图”交给现有授权链�
 
 | 项目 | 值 |
 |---|---|
-| 构建 | GitHub Actions run 40824439998，commit 987c019（R27.3，固定临时签名） |
-| 下载 | https://nightly.link/gtt46461-star/starcore-public-build/actions/runs/40824439998/R27-APK.zip （免登录） |
-| 备用（需登录 GitHub） | https://github.com/gtt46461-star/starcore-public-build/actions/runs/40824439998/artifacts/12876708111 |
+| 构建 | GitHub Actions run 40838143073，commit 7d3e0e2（R27.3 + R27.4，固定临时签名） |
+| 下载 | https://nightly.link/gtt46461-star/starcore-public-build/actions/runs/40838143073/R27-APK.zip （免登录） |
+| 备用（需登录 GitHub） | https://github.com/gtt46461-star/starcore-public-build/actions/runs/40838143073/artifacts/12882945646 |
 | 安装文件 | `STARCORE-R27-2026.10.28-release.apk`（内置数据秘钥）；debug 包仅供排查 |
-| release SHA256 | `b00d56ba3244d8263c3d681bb9bc91b451c20454199771ea611c7ba62e6ee8f2` |
-| debug SHA256 | `90b50102769696ded3a6dd218b1e82d8674ab0f1691e25bce5df395f27d5e7c5` |
+| release SHA256 | `f283b0f6aca4360c042bfc2d963b646bc69b93c52af933428dc8f971fbb02877` |
+| debug SHA256 | `fae9fdde33bdffe4d007172513130f7b2eaed694e45801a8ec06b58b2f936bce` |
 | 包名 / versionCode / versionName | com.starcore.research.r13 / 577271030 / R27-2026.10.28 |
 | 签名证书 SHA-256 | `d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7` —— **CI 临时密钥，不是正式 R13 签名** |
 
