@@ -9,6 +9,9 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
     /** R27 (docs/02 2.2.1): the R26 research thread no longer shares a thread with P0, so a slice is budget-sized
      * (default 1000 ms) instead of 150 ms. */
     public static final long SLICE_MS = 1000;
+    /** Largest quantum {@link #slice(long)} accepts (1..200 ms). Continuations are always resumed with this value;
+     * R27 briefly passed SLICE_MS here, which threw R26_CONTINUATION_QUANTUM and quarantined every expert task. */
+    public static final long CONTINUATION_SLICE_MS = 200;
     private static final ThreadLocal<CooperativeContinuationR26<?>> CURRENT=new ThreadLocal<>();
     private static final java.util.Map<String,java.util.Set<CooperativeContinuationR26<?>>> OWNED=new java.util.HashMap<>();
     private final String owner;
@@ -24,7 +27,7 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
         }
     }
     public Slice<T> slice(long millis)throws InterruptedException{
-        if(millis<1||millis>200)throw new IllegalArgumentException("R26_CONTINUATION_QUANTUM");
+        if(millis<1||millis>CONTINUATION_SLICE_MS)throw new IllegalArgumentException("R26_CONTINUATION_QUANTUM");
         synchronized(monitor){long cpuBefore=cpuTotal;if(!done){endNanos=System.nanoTime()+millis*1000000L;paused=false;monitor.notifyAll();long hard=System.nanoTime()+(millis+1000)*1000000L;
             while(!done&&!paused){long remaining=hard-System.nanoTime();if(remaining<=0){close();throw new IllegalStateException("R26_UNSLICED_COMPUTATION_CAPACITY");}TimeUnit.NANOSECONDS.timedWait(monitor,remaining);}}
             return new Slice<>(done,result,error,Math.max(0,cpuTotal-cpuBefore),maxPollGap);

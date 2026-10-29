@@ -216,6 +216,35 @@ public final class R27QualityTest {
         R27TestSupport.log("H17_PASS chapters=" + ch.size() + " template=" + ch.get(0).get("conclusionTemplate") + " otherTemplates=QUALIFIED,NONE");
     }
 
+    // ------------------------------------------------------------------ R27.1 continuation quantum (emulator run 40790353126)
+    @Test public void continuationSlicesUseAnAcceptedQuantum() throws Exception {
+        try (CooperativeContinuationR26<Long> c = new CooperativeContinuationR26<>("t", () -> 7L, () -> false, () -> { }, () -> 0L)) {
+            CooperativeContinuationR26.Slice<Long> s = null;
+            for (int i = 0; i < 50 && (s == null || !s.done); i++) s = c.slice(CooperativeContinuationR26.CONTINUATION_SLICE_MS);
+            assertTrue(s.done); assertEquals(7L, (long) s.result);
+        }
+        try (CooperativeContinuationR26<Long> c = new CooperativeContinuationR26<>("t", () -> 7L, () -> false, () -> { }, () -> 0L)) {
+            try { c.slice(CooperativeContinuationR26.SLICE_MS); fail("SLICE_MS is a scheduler budget, not a continuation quantum"); }
+            catch (IllegalArgumentException expected) { assertEquals("R26_CONTINUATION_QUANTUM", expected.getMessage()); }
+        }
+        File dir = new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro");
+        java.util.List<File> all = new ArrayList<>(); java.util.Deque<File> q = new java.util.ArrayDeque<>(); q.add(dir);
+        while (!q.isEmpty()) { File f = q.poll(); File[] k = f.listFiles(); if (k == null) continue; for (File x : k) if (x.isDirectory()) q.add(x); else if (x.getName().endsWith(".java")) all.add(x); }
+        int sites = 0;
+        for (File f : all) {
+            String src = new String(Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\.slice\\(([^)]*)\\)").matcher(src);
+            while (m.find()) {
+                String arg = m.group(1).trim(); if (arg.isEmpty() || arg.startsWith("long ")) continue;
+                sites++;
+                assertFalse(f.getName() + " passes SLICE_MS to slice()", arg.endsWith("SLICE_MS") && !arg.endsWith("CONTINUATION_SLICE_MS"));
+                if (arg.matches("[0-9]+")) assertTrue(f.getName() + " slice(" + arg + ") > 200", Long.parseLong(arg) <= 200);
+            }
+        }
+        assertTrue(sites >= 3);
+        R27TestSupport.log("R27_1_CONTINUATION_QUANTUM_PASS callSites=" + sites);
+    }
+
     // ------------------------------------------------------------------ R27.1 writer priority (10.29 device report)
     @Test public void r27ResearchWritesYieldToCriticalBusiness() throws Exception {
         Class<?> dc = Class.forName("com.ethk3.novaonepro.DatabaseCoordinator");

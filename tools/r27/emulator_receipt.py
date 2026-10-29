@@ -90,6 +90,24 @@ if fresh:
     check("F1_RESEARCH_STORAGE_READY_WITHIN_15_MIN", ready_at is not None, {"readyAtMinute": ready_at, "byMinute": fresh})
     last = fresh[max(fresh)]
     print("R27_EMULATOR_OBS|freshCoverage|%s" % json.dumps({"preDrawFrozenTargets": last["preDrawFrozenTargets"], "cleanDraws": last["cleanDraws"]}))
+    # Fetch diagnostics for the last fresh snapshot: why draws do or do not advance (printed into the job log).
+    fdb = open_snap("fresh-%dm" % max(fresh))
+    def fq(sql):
+        try:
+            return [list(r) for r in fdb.execute(sql).fetchall()]
+        except sqlite3.Error as e:
+            return "ERROR:" + str(e)
+    diag = {
+        "ledgerByStatus": fq("SELECT status,error_code,count(*) FROM v57_fetch_ledger_r925 GROUP BY status,error_code ORDER BY 3 DESC LIMIT 20"),
+        "ledgerLast": fq("SELECT * FROM v57_fetch_ledger_r925 ORDER BY rowid DESC LIMIT 5"),
+        "fetchReject": fq("SELECT reason,count,last_issue FROM r27_fetch_reject ORDER BY count DESC"),
+        "appStateFetch": fq("SELECT state_key,substr(state_value,1,200) FROM app_state WHERE lower(state_key) LIKE '%fetch%' OR lower(state_key) LIKE '%api%' OR lower(state_key) LIKE '%error%' OR lower(state_key) LIKE '%line%' ORDER BY state_key LIMIT 60"),
+        "analysisRequests": fq("SELECT count(*),min(target_issue),max(target_issue) FROM v57_analysis_request_r36"),
+        "drawsLatest": fq("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 3"),
+    }
+    R["observations"]["freshFetchDiagnostics"] = diag
+    for k, v in diag.items():
+        print("R27_EMULATOR_DIAG|%s|%s" % (k, json.dumps(v, ensure_ascii=False)[:1500]))
 
 snap = re_ or r27
 if snap:
