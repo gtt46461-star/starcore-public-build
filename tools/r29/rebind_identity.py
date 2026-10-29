@@ -12,7 +12,8 @@ review_path = ROOT / 'release/strategy_su1_reviewed_inputs.json'
 review = json.loads(review_path.read_text())
 pins = {r['path']: r for r in review['inputs']}
 subprocess.run([sys.executable, 'scripts/r926_release_manifest.py', '--write'], cwd=ROOT, check=True)
-changed = subprocess.check_output(['git','diff','--name-only',BASE,'--','app/src/main','app/build.gradle','release/release_manifest.json'], cwd=ROOT, text=True).splitlines()
+changed = subprocess.check_output(['git','diff','--name-only',BASE], cwd=ROOT, text=True).splitlines()
+changed = [name for name in changed if name in pins or name.startswith('app/src/main/') or name == 'app/build.gradle']
 for name in changed:
     path = ROOT / name
     if not path.is_file(): raise SystemExit('R29_DELETION_REQUIRES_MIGRATION_REVIEW:' + name)

@@ -31,7 +31,7 @@ jobs:
           python3 tools/r29/rebind_identity.py
           git config user.name 'STARCORE build identity'
           git config user.email 'starcore-build@users.noreply.github.com'
-          git add release/
+          git add release/ app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
           if ! git diff --cached --quiet; then
             git commit -m 'R29: bind generated identities to reviewed implementation bytes'
             git push origin HEAD:${{ github.ref_name }}
