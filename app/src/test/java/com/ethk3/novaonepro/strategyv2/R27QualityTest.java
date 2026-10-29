@@ -320,6 +320,27 @@ public final class R27QualityTest {
         R27TestSupport.log("R27_3_HOLDOUT_BUDGET_PASS");
     }
 
+    @Test public void r27SettlementNeverRunsTheWholeResearchMigration() throws Exception {
+        String reg = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java").toPath()), "UTF-8");
+        int e = reg.indexOf("public static void ensure(SQLiteDatabase db) {");
+        int gate = reg.indexOf("SettlementExecutionGateR819.ownedByCurrentThread()", e);
+        int loop = reg.indexOf("while (!advanceR64(db))", e);
+        assertTrue("settlement thread is checked before the full migration loop", e > 0 && gate > e && loop > gate);
+        assertTrue(reg.substring(gate, loop).contains("R952_SCHEMA_PENDING_DEFERRED_FROM_SETTLEMENT"));
+        Class<?> g = Class.forName("com.ethk3.novaonepro.SettlementExecutionGateR819");
+        java.lang.reflect.Method enter = g.getDeclaredMethod("tryEnter"), exit = g.getDeclaredMethod("exit"), owned = g.getDeclaredMethod("ownedByCurrentThread");
+        assertFalse((Boolean) owned.invoke(null));
+        assertTrue((Boolean) enter.invoke(null));
+        try {
+            assertTrue((Boolean) owned.invoke(null));
+            final boolean[] other = {true};
+            Thread t = new Thread(() -> { try { other[0] = (Boolean) owned.invoke(null); } catch (Exception x) { throw new RuntimeException(x); } });
+            t.start(); t.join();
+            assertFalse("another thread does not own the gate", other[0]);
+        } finally { exit.invoke(null); }
+        R27TestSupport.log("R27_3_SETTLEMENT_SCHEMA_DEFERRAL_PASS");
+    }
+
     // ------------------------------------------------------------------ R27-005 no session-level CRITICAL_DEADLINE yield
     @Test public void r27005ResearchSessionNoLongerYieldsToDeadlines() throws Exception {
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java").toPath()), "UTF-8");

@@ -62,6 +62,11 @@ public final class SettlementExecutionGateR819 {
         ACTIVE.set(false);
     }
 
+    /** R27.3: true on the thread that currently holds the settlement gate. */
+    public static boolean ownedByCurrentThread() {
+        return ACTIVE.get() && OWNER_THREAD.get() == Thread.currentThread().getId();
+    }
+
     public static boolean isActive() {
         return ACTIVE.get();
     }

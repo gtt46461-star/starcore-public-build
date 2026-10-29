@@ -95,3 +95,32 @@
 | `K1_Coverage` | 30/30 |
 | `requestToCommitP95` | 下降 |
 | `runtime-observation-threadStacks.txt` | 存在（用于定位剩余的慢点） |
+
+## 8. 全新安装“不运行”的确切根因（CI 模拟器线程堆栈，R27.3 第二步修复）
+
+范围：EMULATOR。R27.3（987c019）全新安装，启动约 30 秒后抓取就停了：15 分钟里开奖停在 397 期，存储迁移停在 225/265。
+
+新增的线程堆栈给出了卡住的位置：
+
+```
+starcore_r908_settlement_recovery  BLOCKED
+  SettlementCoordinatorR815.execute
+  → ResearchSettlementHookRegistryR952.dispatchCompleted
+  → ResearchDirectorR952.onSettlementCompleted   （持有唯一写锁、结算门）
+  → ResearchMigrationRegistryR952.ensure → advanceR64   （一次跑完整套 R952 研究表迁移）
+  → SQLiteDatabase.execSQL（每条 DDL 都会关闭其他 SQLite 连接）
+eth_k3_fetch_channel               BLOCKED  DbStore.getLatestDraw → SQLiteConnectionPool
+eth_k3_background_serial_channel   等连接   DbStore.ensureModuleRegistryR363
+starcore_r908_autonomous_research  等写锁   DbStore.setState
+```
+
+**原因**：全新安装时，第一次结算完成后，研究钩子在**结算线程里、拿着写锁**一口气执行几百条研究表 DDL。每条 DDL 都会关闭其他连接，于是抓取、分析、其他写入全部排队，持续好几分钟。前几份真机报告里全新安装后的“写锁超时、业务停滞”就是它。
+
+**修复**：
+
+- 在结算线程上，研究表迁移最多推进一个单元：已完成就照常继续；未完成就推迟。
+- 推迟时钩子记录失败，结算终态会在之后重放。核心结算不受影响（钩子本来就在结算提交之后，且失败不回滚结算）。
+- 研究表由原有的迁移负责者（R926，每次写锁回调一个单元）在后台逐步建完。
+- HOST 测试 `r27SettlementNeverRunsTheWholeResearchMigration` 锁定这个行为。
+
+同一轮模拟器里，走势图表页在升级后、全新安装后各打开一次，**都没有闪退**。

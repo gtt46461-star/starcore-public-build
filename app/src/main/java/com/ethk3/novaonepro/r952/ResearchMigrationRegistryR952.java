@@ -20,7 +20,24 @@ public final class ResearchMigrationRegistryR952 {
 
     /** Synchronous compatibility owner; callers that already own a transaction retain atomicity. */
     public static void ensure(SQLiteDatabase db) {
+        // R27.3 (CI emulator thread stacks, fresh install): the post-settlement research hook ran this whole migration
+        // inside the settlement gate and the sole writer; every DDL closed the other SQLite connections, so fetch,
+        // analysis and settlement stalled for minutes. On the settlement thread an unfinished schema is deferred: the
+        // hook records the failure and continuity replays the exact terminal once the schema owner (R926, one unit per
+        // writer callback) has finished it.
+        if (ready(db)) return;
+        // One bounded unit (or the completed-schema verification after a cold start), never the whole migration.
+        if (com.ethk3.novaonepro.SettlementExecutionGateR819.ownedByCurrentThread()) {
+            if (advanceR64(db)) return;
+            throw new IllegalStateException("R952_SCHEMA_PENDING_DEFERRED_FROM_SETTLEMENT");
+        }
         while (!advanceR64(db)) { /* Legacy callers explicitly require the whole schema. */ }
+    }
+
+    /** The complete R952 research schema (the same predicate {@link #advanceR64} returns early on). */
+    public static boolean ready(SQLiteDatabase db) {
+        return TransactionSchemaCacheR941.readyCommitted(db, "R82_INCREMENTAL_RESEARCH_SCHEMA_CHAMPION_P_V1")
+                && readyOrderR79(db) && com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db);
     }
 
     /** One durable migration unit per existing research callback, then release the sole writer. */
