@@ -287,7 +287,9 @@ public final class R27QualityTest {
         assertTrue("one-worker floor also while P0 runs", pool.contains("narrow(System.currentTimeMillis()) && active.get() >= 1"));
         assertTrue(pool.contains("return writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing();"));
         String evo = new String(Files.readAllBytes(new File(dir, "EvolutionLoopR27.java").toPath()), "UTF-8");
-        assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || ResearchWriteQueueR27.p0Writing())"));
+        assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || (serialWhile != null && serialWhile.getAsBoolean()))"));
+        String rt = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8");
+        assertTrue(rt.contains("evo.serialWhile = ResearchWriteQueueR27::p0Writing;"));
         R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
     }
 

@@ -211,13 +211,15 @@ public final class EvolutionLoopR27 {
 
     /** Optional data-parallel executor for the REPLAY step (the research pool's compute threads). */
     public transient java.util.concurrent.ExecutorService executor;
+    /** R27.2: replay runs on one thread while this returns true (set by RuntimeR27 to "P0 analysis/settlement running"). */
+    public transient java.util.function.BooleanSupplier serialWhile;
     public final List<Long> candidateReplayMs = new ArrayList<>();
 
     void stepReplay() {
         long t0 = System.nanoTime(); candidateReplayMs.clear();
         List<Pending> born = new ArrayList<>(); for (Pending p : pending) if (p.state.equals("BORN")) born.add(p);
         // R27.2: data-parallel replay only while no P0 analysis/settlement is running; otherwise one thread.
-        if (executor == null || ResearchWriteQueueR27.p0Writing()) for (Pending p : born) replayOne(p);
+        if (executor == null || (serialWhile != null && serialWhile.getAsBoolean())) for (Pending p : born) replayOne(p);
         else {
             List<java.util.concurrent.Future<?>> fs = new ArrayList<>();
             for (Pending p : born) fs.add(executor.submit(() -> replayOne(p)));
