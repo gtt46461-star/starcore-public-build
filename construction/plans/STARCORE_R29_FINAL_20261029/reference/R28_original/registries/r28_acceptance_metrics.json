@@ -1,0 +1,352 @@
+{
+ "plan": "STARCORE_R28_FINAL_20261029",
+ "report_job": "fb32242320b1eedeb83e0c174594c1e20a8fa9dd0e02dd5aab70f62e5c20550f",
+ "report_source_commit": "7d3e0e2271ce2a734ca69f2fca8527c00222bba7",
+ "rule": "An ENGINEERING metric passes only when measured on a physical device report; HOST results never mark it PASS. QUALITY metrics are reported as measured and have no pass line.",
+ "metrics": [
+  {
+   "id": "M01",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "请求→提交 P95",
+   "current_20261029": "23,523ms",
+   "target": "≤5,000ms",
+   "report_field": "R27_03/RSEC-033 requestToCommitP95"
+  },
+  {
+   "id": "M02",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "热路径 commit P95",
+   "current_20261029": "8,676ms",
+   "target": "≤200ms",
+   "report_field": "PERFORMANCE_B05 WARM commit P95"
+  },
+  {
+   "id": "M03",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "冻结准时率（主链+观察）",
+   "current_20261029": "93.0%",
+   "target": "≥99%",
+   "report_field": "R27_03 freezeOnTimeRate"
+  },
+  {
+   "id": "M04",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "24h 错过冻结截止",
+   "current_20261029": "46",
+   "target": "≤14",
+   "report_field": "R27_03 deadlineMissed24h"
+  },
+  {
+   "id": "M05",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "实时链 F01_WRITE_FAILED / CP3_DB_BUSY_DEADLINE（24h）",
+   "current_20261029": "≥8（30条样本中）",
+   "target": "0",
+   "report_field": "r28_issue_commit_failure 计数"
+  },
+  {
+   "id": "M06",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "抓取写入拒绝（24h）",
+   "current_20261029": "BUSY_DEADLINE 出现",
+   "target": "0",
+   "report_field": "r27_fetch_reject / runtime-observation fetchWriteError"
+  },
+  {
+   "id": "M07",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "实时库写等待>200ms（每小时）",
+   "current_20261029": "14,932（含研究）",
+   "target": "≤5",
+   "report_field": "R27_03 writeWaitsOver200msLastHour（R28 拆为 realtime/research 两项）"
+  },
+  {
+   "id": "M08",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "主线程卡顿>700ms（24h）",
+   "current_20261029": "1 次 5,700ms（R27.3）",
+   "target": "0",
+   "report_field": "heartbeatSummary mainStallAt"
+  },
+  {
+   "id": "M09",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "开奖覆盖（最近30期）",
+   "current_20261029": "30/30",
+   "target": "30/30",
+   "report_field": "RSEC-030 K1_Coverage"
+  },
+  {
+   "id": "M10",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "结算延迟",
+   "current_20261029": "lag=0,0,0",
+   "target": "lag=0",
+   "report_field": "RSEC-052 lag"
+  },
+  {
+   "id": "M11",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "进程线程数",
+   "current_20261029": "79",
+   "target": "≤35",
+   "report_field": "threadStacks THREAD 行数"
+  },
+  {
+   "id": "M12",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "同时运行的研究系统数",
+   "current_20261029": "3（R908、R9xx/R26、R27）",
+   "target": "1（R27）",
+   "report_field": "R28-03 merge-status"
+  },
+  {
+   "id": "M13",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "从未运行任务",
+   "current_20261029": "13",
+   "target": "0",
+   "report_field": "R27_03 neverRunTasks"
+  },
+  {
+   "id": "M14",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "隔离/卡住任务",
+   "current_20261029": "1（incumbent-forecast）",
+   "target": "0",
+   "report_field": "R27_03 stuckTasks"
+  },
+  {
+   "id": "M15",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "实时库大小",
+   "current_20261029": "1.72GB",
+   "target": "≤1.0GB",
+   "report_field": "STORAGE_CENSUS DATABASE（主库）"
+  },
+  {
+   "id": "M16",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "应用总存储",
+   "current_20261029": "4.28GB",
+   "target": "≤2.0GB",
+   "report_field": "STORAGE_CENSUS total"
+  },
+  {
+   "id": "M17",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "实时库表数",
+   "current_20261029": "603（全部同库）",
+   "target": "≤80",
+   "report_field": "DIAGNOSTIC_SCOPE tables（按库）"
+  },
+  {
+   "id": "M18",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "研究 CPU 份额（亮屏充电；口径=研究CPU时间÷墙钟）",
+   "current_20261029": "0.095（相当于单核 9.5%，4 线程）",
+   "target": "≥0.5×研究线程数（4 线程即 ≥2.0）",
+   "report_field": "R27_03 researchCpuShare（R28 增加 Charging/Battery 两项）"
+  },
+  {
+   "id": "M19",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "进化代数 / 24h",
+   "current_20261029": "553",
+   "target": "≥500",
+   "report_field": "R27_03 generationsLast24h"
+  },
+  {
+   "id": "M20",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "观察池跟踪数",
+   "current_20261029": "24",
+   "target": "≥128",
+   "report_field": "R27_01 observers.tracking"
+  },
+  {
+   "id": "M21",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "同池负对照数",
+   "current_20261029": "2",
+   "target": "≥16",
+   "report_field": "R27_01 sameperiodControls"
+  },
+  {
+   "id": "M22",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "观察冻结完成率",
+   "current_20261029": "未单列",
+   "target": "≥99%",
+   "report_field": "R28-01 B observerFreezeRate"
+  },
+  {
+   "id": "M23",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "AtomNet 预训练样本 / 续训步数每小时",
+   "current_20261029": "旧网络 93 步",
+   "target": "≥50,000 / ≥55",
+   "report_field": "r27_atomnet_state / r27_atomnet_epoch"
+  },
+  {
+   "id": "M24",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "每原子评分样本",
+   "current_20261029": "94",
+   "target": "≥1,000",
+   "report_field": "r27_atom_score n"
+  },
+  {
+   "id": "M25",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "矩阵快照",
+   "current_20261029": "0",
+   "target": "每50代≥1",
+   "report_field": "STRATEGY_MATRICES snapshots"
+  },
+  {
+   "id": "M26",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "校准模型（24h）",
+   "current_20261029": "0",
+   "target": "≥1",
+   "report_field": "r27_calibration state=FITTED"
+  },
+  {
+   "id": "M27",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "消融结果行",
+   "current_20261029": "0（NO_MEASURED_ABLATION）",
+   "target": "每族/原子组/算子各≥1",
+   "report_field": "R28-02 ablation"
+  },
+  {
+   "id": "M28",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "升级诊断书",
+   "current_20261029": "空（需2000期）",
+   "target": "有结论",
+   "report_field": "UPGRADE_DIAGNOSIS verdict"
+  },
+  {
+   "id": "M29",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "报告新章 R28-01/02/03",
+   "current_20261029": "无",
+   "target": "3 章齐全，空数据只显示 INSUFFICIENT",
+   "report_field": "R26_REPORT sections"
+  },
+  {
+   "id": "M30",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "报告导出",
+   "current_20261029": "10MB ZIP，含 1.69GB 快照残留",
+   "target": "ZIP≤50MB，快照导出后删除",
+   "report_field": "STORAGE_CENSUS REPORTS"
+  },
+  {
+   "id": "M31",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "升级语义连续",
+   "current_20261029": "4/4 EQUIVALENT",
+   "target": "全部 EQUIVALENT 或给出首差",
+   "report_field": "R27_04"
+  },
+  {
+   "id": "M32",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "主链红线",
+   "current_20261029": "通过",
+   "target": "每期 REAL≤1；无证书 0 REAL；门槛数值不变",
+   "report_field": "RSEC-076 + H15"
+  },
+  {
+   "id": "M33",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "冷启动到首次出号",
+   "current_20261029": "未单列",
+   "target": "≤8s",
+   "report_field": "PERFORMANCE_B05 COLD requestToDurable"
+  },
+  {
+   "id": "M34",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "覆盖安装数据不丢",
+   "current_20261029": "模拟器通过",
+   "target": "真机通过",
+   "report_field": "R28-071 安装回执"
+  },
+  {
+   "id": "M35",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "24h FATAL/ANR/OOM",
+   "current_20261029": "0（窗口不足24h）",
+   "target": "0（连续24h）",
+   "report_field": "crashSummary + 系统退出记录"
+  },
+  {
+   "id": "M36",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "图表首屏 P95",
+   "current_20261029": "未测",
+   "target": "≤300ms",
+   "report_field": "r27_chart_cache 读耗时"
+  },
+  {
+   "id": "M37",
+   "kind": "ENGINEERING_MUST_PASS",
+   "name": "施工卡真机证据",
+   "current_20261029": "0/58（R27）",
+   "target": "42/42",
+   "report_field": "R28-03 卡片状态"
+  },
+  {
+   "id": "Q01",
+   "kind": "QUALITY_MEASURED_NO_PASS_LINE",
+   "name": "FUTURE 命中率（主链影子/观察池/对照池，Wilson 区间）",
+   "current_20261029": "主链 29.7% [24.9%,…]；观察 30.7%",
+   "target": "如实测量，不设通过线",
+   "report_field": "R28-01 B"
+  },
+  {
+   "id": "Q02",
+   "kind": "QUALITY_MEASURED_NO_PASS_LINE",
+   "name": "已验证代际提升",
+   "current_20261029": "0 / 279 代",
+   "target": "如实测量",
+   "report_field": "R27_02 verifiedImprovements"
+  },
+  {
+   "id": "Q03",
+   "kind": "QUALITY_MEASURED_NO_PASS_LINE",
+   "name": "观察榜首 vs 运气上限",
+   "current_20261029": "43.75%（32期） vs 50.0%",
+   "target": "如实测量",
+   "report_field": "R28-01 C"
+  },
+  {
+   "id": "Q04",
+   "kind": "QUALITY_MEASURED_NO_PASS_LINE",
+   "name": "e 过程过线数（影子+观察）",
+   "current_20261029": "0",
+   "target": "如实测量",
+   "report_field": "r27_eprocess state"
+  },
+  {
+   "id": "Q05",
+   "kind": "QUALITY_MEASURED_NO_PASS_LINE",
+   "name": "AtomNet 留出 BSS 与区间",
+   "current_20261029": "无",
+   "target": "如实测量",
+   "report_field": "r27_brier_pair"
+  },
+  {
+   "id": "Q06",
+   "kind": "QUALITY_MEASURED_NO_PASS_LINE",
+   "name": "USEFUL 原子数 vs 纯随机期望",
+   "current_20261029": "无",
+   "target": "如实测量",
+   "report_field": "r27_atom_score"
+  }
+ ]
+}

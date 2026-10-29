@@ -1,3 +1,5 @@
+> **当前最终施工入口：[STARCORE R29](CURRENT_FINAL_PLAN.md)**（2026-10-29，11批/52卡）。最新已核实应用源在 `construction/r27-20261028`；本main提交仅更新方案。下文为保留的旧发布说明。
+
 # 星核创研 R13 · 公有独立版
 
 公有仓库的独立 Android 应用。包名 `com.starcore.research.r13`，显示名称“星核创研 R13”，版本 `R13-5.4.3.03-2026.10.24`，versionCode `577251062`。使用独立固定签名，可与私有原版 `com.ethk3.novaonepro` 及旧公有 SU1 同时安装；数据分别保存在各自应用目录。
