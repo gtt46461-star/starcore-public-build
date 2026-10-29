@@ -1,0 +1,796 @@
+[
+  {
+    "id": "M01",
+    "name": "源码与安装身份",
+    "definition": "source/APK/签名/plan可互证",
+    "target": "全部一致",
+    "source": "build_identity + device package probe",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M02",
+    "name": "功能保全覆盖",
+    "definition": "1832要求及299卡逐项有状态、Owner与证据路径",
+    "target": "100%有记录；无凭空VERIFIED",
+    "source": "legacy registry + regression receipts",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M03",
+    "name": "准时预测持久化",
+    "definition": "request→durable，近1440可用期；缺失单列",
+    "target": "P95≤5000ms",
+    "source": "issue_trace",
+    "kind": "ENGINEERING",
+    "unit": "ms",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M04",
+    "name": "抓到后正式结算",
+    "definition": "first valid observed→draw+settlement commit",
+    "target": "P95≤1000ms",
+    "source": "draw_receipt + settlement_receipt",
+    "kind": "ENGINEERING",
+    "unit": "ms",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M05",
+    "name": "赛前有效覆盖",
+    "definition": "截止前5秒合法冻结/全部应有期，缺网仍列全分母",
+    "target": "目标100%；受支持健康场景≥99.5%",
+    "source": "opportunity LEFT JOIN freeze",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M06",
+    "name": "唯一正式结算",
+    "definition": "同issue REAL重复、非法补冻结与结算重复",
+    "target": "均为0",
+    "source": "decision + settlement constraints",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M07",
+    "name": "实时写事务",
+    "definition": "单次事务wall time及busy失败",
+    "target": "P95≤200ms；24h失败0",
+    "source": "realtime_writer_receipt",
+    "kind": "ENGINEERING",
+    "unit": "ms",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M08",
+    "name": "分库隔离",
+    "definition": "research写realtime表与跨库持锁等待计数",
+    "target": "0",
+    "source": "table ownership guard",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M09",
+    "name": "迁移一致性",
+    "definition": "主键行hash/事件watermark/中断恢复",
+    "target": "全部一致；丢失/重复0",
+    "source": "migration manifest",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M10",
+    "name": "每期训练投递",
+    "definition": "结果事件数与训练inbox唯一事件数",
+    "target": "100%；重复消费0",
+    "source": "outbox/inbox",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M11",
+    "name": "训练完成新鲜度",
+    "definition": "有样本ready任务的已提交学习游标",
+    "target": "正常负载最老积压≤5期；超限必须FAIL",
+    "source": "learning receipt + backlog",
+    "kind": "ENGINEERING",
+    "unit": "issues",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M12",
+    "name": "任务活性",
+    "definition": "有ready积压但连续5期无提交的任务",
+    "target": "0；等依赖/等数据单列",
+    "source": "task service receipt",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M13",
+    "name": "前后台连续性",
+    "definition": "前台60min、息屏6h、连续72h的业务游标和缺期",
+    "target": "受支持场景不丢已投递任务；缺口全记录",
+    "source": "device scenarios",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M14",
+    "name": "进程稳定性",
+    "definition": "测试窗口OOM/ANR/crash",
+    "target": "0",
+    "source": "device logs",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M15",
+    "name": "热库与总磁盘",
+    "definition": "开奖热表及所有文件分类预算",
+    "target": "draws≤5000；未超配置总预算且可恢复",
+    "source": "storage census",
+    "kind": "ENGINEERING",
+    "unit": "bytes",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M16",
+    "name": "报告取消",
+    "definition": "cancel request→job停止且清本job临时文件",
+    "target": "≤2000ms",
+    "source": "export job journal",
+    "kind": "ENGINEERING",
+    "unit": "ms",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M17",
+    "name": "报告完整性",
+    "definition": "registered对象与导出对象、expected/exported/omitted",
+    "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+    "source": "archive manifest",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M18",
+    "name": "PIT泄漏反证",
+    "definition": "改当前/未来标签后既有predraw输出差异",
+    "target": "0",
+    "source": "PIT perturbation tests",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M19",
+    "name": "训练分割污染",
+    "definition": "CONFIRM进入生成/调参/原子权重的未记账次数",
+    "target": "0",
+    "source": "split exposure ledger",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M20",
+    "name": "全状态续训恢复",
+    "definition": "权重、优化器、RNG、cursor断点前后差异",
+    "target": "按已登记浮点容差一致；不重复学习",
+    "source": "restart replay",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M21",
+    "name": "策略完整合同",
+    "definition": "出生候选的必要字段、可执行图、hash",
+    "target": "100%；空壳拒绝",
+    "source": "policy contract validator",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M22",
+    "name": "结构与行为去重",
+    "definition": "结构/行为/参数计数分列且可复算",
+    "target": "计数与ledger一致",
+    "source": "birth gate + semantic fingerprints",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M23",
+    "name": "族专家覆盖",
+    "definition": "F24/E16/I20全量对象有producer/consumer/ready/status",
+    "target": "全部注册与可执行；没有证据不标有效",
+    "source": "capability registry",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M24",
+    "name": "模型实际消费",
+    "definition": "I08冻结引用model artifact且trainedThrough合法",
+    "target": "100%匹配或明确BLOCKED；不得伪造调用",
+    "source": "model consumption receipt",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M25",
+    "name": "矩阵接线",
+    "definition": "20矩阵producer→consumer、schema与watermark",
+    "target": "全部可追溯；未产出有明确原因",
+    "source": "matrix registry",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M26",
+    "name": "校准时间隔离",
+    "definition": "fitEnd<validateStart及apply时版本可见",
+    "target": "100%；零模型需可定位原因",
+    "source": "calibration study",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M27",
+    "name": "资格预算连续",
+    "definition": "永久index唯一、旧观察不回填、重启预算不重置",
+    "target": "全部通过",
+    "source": "eprocess ledger",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M28",
+    "name": "主链闭环",
+    "definition": "证书→projection→当期intent→REAL→结算",
+    "target": "合法正对照贯通；非法/过期全部拦截",
+    "source": "integration + device receipts",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M29",
+    "name": "确认队列连续",
+    "definition": "锁定候选被仅因榜单变化驱逐次数",
+    "target": "0",
+    "source": "confirmation cohort log",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M30",
+    "name": "主链选择器身份",
+    "definition": "多成员择优作为完整meta-policy冻结评价",
+    "target": "未确认组合不能REAL",
+    "source": "selector ledger",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M31",
+    "name": "诊断可追溯",
+    "definition": "每条缺陷含证据、强度、代码位置、卡号与验证",
+    "target": "100%或UNKNOWN并给采集动作",
+    "source": "diagnosis finding",
+    "kind": "ENGINEERING",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M32",
+    "name": "报告口径一致",
+    "definition": "JSON/HTML/UI同metric同snapshot值差异",
+    "target": "0",
+    "source": "report golden fixtures",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M33",
+    "name": "图表回归",
+    "definition": "原图表入口、排行榜、谱系、BSS/覆盖与空态",
+    "target": "全部场景可打开且口径一致",
+    "source": "device UI receipts",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M34",
+    "name": "签名覆盖安装",
+    "definition": "保持公有版签名及包名，版本递增且保留数据库",
+    "target": "成功；首启/二启无崩溃",
+    "source": "APK identity + install receipt",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M35",
+    "name": "失效模型撤销",
+    "definition": "模型撤销到主链不再采纳的耗时",
+    "target": "目标≤5000ms；不含APK回滚",
+    "source": "projection revocation",
+    "kind": "ENGINEERING",
+    "unit": "ms",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "M36",
+    "name": "同池对照",
+    "definition": "每个实验有同预算负对照和合法正对照",
+    "target": "有可复算输出；合成不计真实质量",
+    "source": "experiment manifest",
+    "kind": "ENGINEERING",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q01",
+    "name": "自然ACT命中",
+    "definition": "注册后合法ACT命中/已结算ACT",
+    "target": "≥34%，优先≥37%；未达不得宣称达标",
+    "source": "future predictions",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q02",
+    "name": "真实频率",
+    "definition": "部署后REAL期数/部署后全部应有期；部署前另列FUTURE_ACT_RATE",
+    "target": "目标≥15%；质量支持扩大；不得补配额",
+    "source": "calendar opportunity",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ],
+    "pre_activation_status": "NOT_DEPLOYED",
+    "admission_prerequisite": false
+  },
+  {
+    "id": "Q03",
+    "name": "真实统计优势",
+    "definition": "有效序贯证据相对预登记p0",
+    "target": "e≥1/alpha，假设与预算成立",
+    "source": "qualification evidence",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q04",
+    "name": "跨块稳定",
+    "definition": "预登记时间块命中/区间/回撤/漂移",
+    "target": "窗口规则事前冻结；不得事后选好块",
+    "source": "block quality ledger",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q05",
+    "name": "校准与BSS",
+    "definition": "同一目标同一ACT条件、固定校准器的验证样本；ECE按全部样本加权",
+    "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+    "source": "calibration frozen validation",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q06",
+    "name": "进化提升",
+    "definition": "父子同一期机会收益配对差",
+    "target": "有效区间下界>0才计验证改善",
+    "source": "paired lineage experiment",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q07",
+    "name": "有效资产产量",
+    "definition": "同时满足Q01/03/04/05的独立资产数",
+    "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+    "source": "asset qualification ledger",
+    "kind": "QUALITY",
+    "unit": "count",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  },
+  {
+    "id": "Q08",
+    "name": "空信号与优势检出力",
+    "definition": "全搜索/选择/停止管线试验",
+    "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+    "source": "statistical validation suite",
+    "kind": "QUALITY",
+    "unit": "ratio",
+    "current_acceptance": "NOT_RUN",
+    "missing_policy": "null/INSUFFICIENT; never substitute zero",
+    "scope_required": [
+      "sourceCommit",
+      "session",
+      "timeRange",
+      "sampleCount",
+      "population"
+    ]
+  }
+]

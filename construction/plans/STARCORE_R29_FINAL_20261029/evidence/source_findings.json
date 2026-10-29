@@ -1,0 +1,110 @@
+[
+  {
+    "id": "S01",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    "line": 106,
+    "snippet": "    // ------------------------------------------------------------------ R27.4 observers (every strategy runs every period)\n    /** Best evolved candidates (by H_SELECT score) frozen and settled every period as observers. */\n    public static final int OBSERVE_CAP = 24;\n    public static final String OBSERVE = \"OBSERVE\", OBSERVE_RETIRED = \"OBSERVE_RETIRED\";\n    public static String observerId(String policyHash) { return StatsR27.sha256(OBSERVE + \"|\" + policyHash); }",
+    "finding": "观察池每代换榜且不参与e过程；新增持久确认队列",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S02",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI08NeuralRepresentationR27.java",
+    "line": 7,
+    "snippet": "/** R27-023 I08 神经表示族: 让网络/家族模型自己学特征. */\npublic final class IdeaI08NeuralRepresentationR27 implements IdeaFamilyR27 {\n    static final String[] KINDS = {\"family\"};\n    public String id() { return \"I08\"; }\n    public String nameZh() { return \"神经表示族\"; }",
+    "finding": "I08只生成family叶子；新增model_surface",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S03",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+    "line": 268,
+    "snippet": "        final int index; final OnlineModelsSU2.Model model; int fed; double[] values = new double[0]; long lastFedOrdinal = Long.MIN_VALUE;\n        final float[][] p = new float[10][10]; final float[] st;\n        FamilyStream(int index) { this.index = index; model = FamilyRegistryR26.build(String.format(java.util.Locale.ROOT, \"F%02d\", index)); st = new float[Math.max(1, model.stateWidth())]; }\n        int[] lastFedDraw;\n        /** Values for every row of d: prediction at row t uses only rows &lt; t. Rows [0,fed) must be unchanged in d. */",
+    "finding": "family实际来自R26核，不能删除核后只保留新族名字",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S04",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+    "line": 38,
+    "snippet": "            List<Models.Draw> h = new ArrayList<>(t - lo);\n            for (int s = lo; s < t; s++) h.add(draw(d, s));\n            int pos = (int) Math.floorMod(d.ordinals[t], 10L) + 1;\n            int[] k3 = top3(d, lo, t, pos);\n            HistoricalStrategyInventionR908.Profile profile = HistoricalStrategyInventionR908.Profile.from(h);",
+    "finding": "每期轮换单位置，不是每期十位置",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S05",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+    "line": 120,
+    "snippet": "    }\n\n    static List<AtomNetTrainerR27.Sample> samples(RuntimeR27 rt, int from, int to) {\n        List<AtomNetTrainerR27.Sample> out = new ArrayList<>();\n        for (int t = from; t < to; t++) if (rt.frameValues[t] != null) out.add(new AtomNetTrainerR27.Sample(AtomReplayR27.features(rt.frameValues[t], rt.framePresent[t], RAW), rt.frameHit[t], rt.frameActual[t] - 1, rt.frameIssue[t]));",
+    "finding": "单期样本生成和新的多位置目标需统一",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S06",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+    "line": 108,
+    "snippet": "        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();\n        String i00 = controlId(w.ro, \"CONTROL_I00\"), nul = controlId(w.ro, \"CONTROL_NULL\");\n        for (Shadow s : shadows(w.ro, \"('ACTIVE')\")) {\n            SequentialQualificationR27.State st = StoreR27.readEprocess(w.ro, s.id); if (st == null) continue;\n            CertificateGateR27.Evidence e = new CertificateGateR27.Evidence(); e.policyHash = s.id; e.sequentialState = st.state; e.acts = st.acts; e.hits = st.hits; e.logE = st.logUp;",
+    "finding": "校准只读ACTIVE",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S07",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java",
+    "line": 12,
+    "snippet": " * more than {@link #MAX_DISTINCT_LOOKS} distinct policies is degraded into H_SELECT and can no longer verify anything. */\npublic final class HoldoutLedgerR27 {\n    public static final int MAX_DISTINCT_LOOKS = 64;\n    private final Map<Long, Set<String>> looks = new HashMap<>();\n",
+    "finding": "64次曝光上限不能代替显著性校正",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S08",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+    "line": 16,
+    "snippet": "public final class CertificateGateR27 {\n    private CertificateGateR27() {}\n    public static final double MIN_HR = 0.34, MAX_ECE = 0.04, MIN_WORST_BLOCK = 0.26; public static final int MIN_ACTS = 250, MAX_LOSS_STREAK = 6;\n    public static final long VALID_MS = 24L * 3600_000L;\n",
+    "finding": "连挂硬门需功效验证",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S09",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+    "line": 14,
+    "snippet": " * most 200 ms, then is re-queued behind the caller's other work (counted per hour in r27_write_wait). */\npublic final class ResearchWriteQueueR27 {\n    public static final int MAX_ROWS = 500; public static final long MAX_CHUNK_MS = 20, MAX_WAIT_MS = 200, DEADLINE_GUARD_MS = 3000;\n    private final DbStore store; private volatile long nextDeadline;\n    private long hourStart, submits, longWaits, maxWait, requeues;",
+    "finding": "分块写与before/cursor需完整批次可见性",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S10",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+    "line": 102,
+    "snippet": "     * unsettled row of a shadow with an unexpired ACTIVE certificate and a QUALIFIED FUTURE e-process qualifies;\n     * the (policy_hash, target_ordinal) key allows at most one row per period. */\n    public static final String R27_INTENT_SQL = \"SELECT f.position,f.n1,f.n2,f.n3,f.act,f.probabilities,f.status FROM r27_live_frozen f JOIN r27_certificate k ON k.policy_hash=f.policy_hash JOIN r27_live_shadow s ON s.policy_hash=f.policy_hash JOIN r27_eprocess e ON e.policy_hash=f.policy_hash\"\n            + \" WHERE f.policy_hash=? AND f.target_ordinal=? AND f.hit=-1 AND k.status='ACTIVE' AND k.expires_at>? AND s.status='ACTIVE' AND e.state=?\";\n",
+    "finding": "同库JOIN在分库后必须改造",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S11",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+    "line": 122,
+    "snippet": "    static List<AtomNetTrainerR27.Sample> samples(RuntimeR27 rt, int from, int to) {\n        List<AtomNetTrainerR27.Sample> out = new ArrayList<>();\n        for (int t = from; t < to; t++) if (rt.frameValues[t] != null) out.add(new AtomNetTrainerR27.Sample(AtomReplayR27.features(rt.frameValues[t], rt.framePresent[t], RAW), rt.frameHit[t], rt.frameActual[t] - 1, rt.frameIssue[t]));\n        return out;\n    }",
+    "finding": "数据集切换可能重新预训练；需明确定义续训恢复",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  },
+  {
+    "id": "S12",
+    "source_ref": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+    "line": 303,
+    "snippet": "                ReplayEvaluatorR27.Trace pv = look(previousChampion, previousTau, null);\n                StatsR27.Moments d = ReplayScoreR27.paired(ch, pv, sp.holdoutFrom, sp.holdoutTo);\n                vsPrev = d.lcb(StatsR27.Z95_ONE_SIDED) > 0; h.put(\"pairedLcbVsPrevious\", fin(d.lcb(StatsR27.Z95_ONE_SIDED)));\n                h.put(\"previousHoldout\", ReplayScoreR27.of(SplitR27.HOLDOUT, pv, sp.holdoutFrom, sp.holdoutTo).json());\n            }",
+    "finding": "确认块重复比较，未来提升须独立证据",
+    "scope": "STATIC_CODE_CONFIRMED; runtime impact requires test"
+  }
+]

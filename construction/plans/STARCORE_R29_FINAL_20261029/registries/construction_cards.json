@@ -1,0 +1,2033 @@
+[
+  {
+    "id": "R29-001",
+    "batch": "B00",
+    "title": "锁定当前源码与报告",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeR27"
+      }
+    ],
+    "change": "记录f9bdddb/7d3e0e2、APK/报告hash；创建R29施工分支；确认main只发布方案",
+    "acceptance_test": "比对远端源码提交、报告identity和被修改文件before hash",
+    "metrics": [
+      "M01"
+    ],
+    "depends": [],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-002",
+    "batch": "B00",
+    "title": "1832要求与299卡保全回归",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LegacyContinuityR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LegacyPolicyExportR27"
+      }
+    ],
+    "change": "为每条原要求保留正文、旧状态、责任和回归证据；禁止因新方案覆盖而清账",
+    "acceptance_test": "清单计数/唯一ID/原文hash；图表历史训练等保全场景全过",
+    "metrics": [
+      "M02",
+      "M33"
+    ],
+    "depends": [
+      "R29-001"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-003",
+    "batch": "B00",
+    "title": "统一指标与分母",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportDataR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "MetricEvaluatorR29"
+      }
+    ],
+    "change": "实现44个指标定义、来源/窗口/分母；未知值null；旧口径并列",
+    "acceptance_test": "空报告和跨策略重复期fixture不能产生假PASS或独立样本膨胀",
+    "metrics": [
+      "M01",
+      "M32"
+    ],
+    "depends": [
+      "R29-002"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-004",
+    "batch": "B01",
+    "title": "双库可恢复迁移",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "SchemaR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "StoreR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ResearchDatabaseR29"
+      }
+    ],
+    "change": "迁移manifest+watermark+规范化行hash；观察回滚前不DROP旧表",
+    "acceptance_test": "每阶段杀进程/重入/磁盘满，记录无丢行和重复迁移",
+    "metrics": [
+      "M08",
+      "M09"
+    ],
+    "depends": [
+      "R29-003"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-005",
+    "batch": "B01",
+    "title": "独立writer与事件投递",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ResearchWriteQueueR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ResearchPoolR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ResearchEventBridgeR29"
+      }
+    ],
+    "change": "研究独立写者；outbox/inbox；批次manifest原子可见；cursor最后提交",
+    "acceptance_test": "并发压力、部分500条提交、ack丢失和重复event；资格不得重复累加",
+    "metrics": [
+      "M07",
+      "M08",
+      "M09",
+      "M10"
+    ],
+    "depends": [
+      "R29-004"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-006",
+    "batch": "B01",
+    "title": "持续调度与正确温控",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ResearchPoolR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeCoordinatorR26"
+      }
+    ],
+    "change": "全部状态持续服务；ready优先/截止优先；headroom接近1降速、NaN回退、恢复滞回",
+    "acceptance_test": "前台/后台/热值0.1和0.95/NaN、有积压队列，进度无假阳性",
+    "metrics": [
+      "M11",
+      "M12",
+      "M13",
+      "M14"
+    ],
+    "depends": [
+      "R29-005"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-007",
+    "batch": "B01",
+    "title": "旧算法能力适配",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LegacyPolicyExportR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LegacyContinuityR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "LegacyCapabilityAdapterR29"
+      }
+    ],
+    "change": "保留旧VM/模型/教师依赖；导出完整state和算子ABI；只停重复调度入口",
+    "acceptance_test": "旧策略黄金输入逐期输出/状态对齐；不可复现给缺件清单",
+    "metrics": [
+      "M02",
+      "M20",
+      "M23"
+    ],
+    "depends": [
+      "R29-006"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-008",
+    "batch": "B01",
+    "title": "重复任务入口收敛",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeCoordinatorR26"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "symbol_scope": "AutoFetchService"
+      }
+    ],
+    "change": "建立唯一owner注册表；迁移成功才关闭旧scheduler；家族专家作为新池插件",
+    "acceptance_test": "同一任务无双worker；生命周期回归不丢预测、训练、图表、结算",
+    "metrics": [
+      "M02",
+      "M08",
+      "M12"
+    ],
+    "depends": [
+      "R29-007"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-009",
+    "batch": "B02",
+    "title": "抓取与时钟校准",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "symbol_scope": "AutoFetchService"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/TargetIssueResolver.java",
+        "action": "MODIFY",
+        "symbol_scope": "TargetIssueResolver"
+      }
+    ],
+    "change": "单flight约1秒轮询；firstSeen/sourceTime分列；期号/十数排列/冲突校验",
+    "acceptance_test": "迟到、乱序、重复、跨日、断网恢复；不能补造开奖时间",
+    "metrics": [
+      "M04",
+      "M05",
+      "M18"
+    ],
+    "depends": [
+      "R29-008"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-010",
+    "batch": "B02",
+    "title": "实时短事务闭环",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+        "action": "MODIFY",
+        "symbol_scope": "AnalysisRequestStoreR36"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java",
+        "action": "MODIFY",
+        "symbol_scope": "V51RuntimeOrchestrator"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueCommitR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "IssueCommitR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27.settle"
+      }
+    ],
+    "change": "准备计算在事务外，绑定history/lease/decision/freeze于实时短事务；补充LiveShadowsR27.settle：PENDING_DRAW可重试，取消“两期后hit=-2且查询永不返回”的终态；待补抓公平调度。",
+    "acceptance_test": "每一步注入错误整体不发布半成品；同issue不可重复REAL；先缺开奖结果、跨3期后补回，原合法冻结仅结算一次；迟到预测仍不得补填。",
+    "metrics": [
+      "M03",
+      "M06",
+      "M07"
+    ],
+    "depends": [
+      "R29-009"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
+  },
+  {
+    "id": "R29-011",
+    "batch": "B02",
+    "title": "观察准备与冻结分离",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PreparedForecastR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "PreparedForecastR29"
+      }
+    ],
+    "change": "共享特征准备128候选+16对照；单次提交冻结manifest；不足不凑数",
+    "acceptance_test": "截止边界、结果先到、准备迟到均不可进入FUTURE",
+    "metrics": [
+      "M03",
+      "M05",
+      "M18"
+    ],
+    "depends": [
+      "R29-010"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-012",
+    "batch": "B02",
+    "title": "幂等结算与补缺",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "action": "MODIFY",
+        "symbol_scope": "SettlementEngine"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27"
+      }
+    ],
+    "change": "结果事件幂等；REAL/SHADOW/OBSERVE独立账；缺口恢复只补合法结算",
+    "acceptance_test": "重复/错序开奖、重启、pending恢复，无重复hit/evidence",
+    "metrics": [
+      "M04",
+      "M06",
+      "M10"
+    ],
+    "depends": [
+      "R29-011"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-013",
+    "batch": "B02",
+    "title": "后台与UI延迟",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "symbol_scope": "AutoFetchService"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "action": "MODIFY",
+        "symbol_scope": "MainActivity"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ChartsRepositoryR27"
+      }
+    ],
+    "change": "前台服务按SDK合法运行；图表物化读；长文本异步；业务游标heartbeat",
+    "acceptance_test": "息屏6h、重启、UI图表打开并发导出，端到端P95与ANR",
+    "metrics": [
+      "M03",
+      "M13",
+      "M14",
+      "M33"
+    ],
+    "depends": [
+      "R29-012"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-014",
+    "batch": "B03",
+    "title": "真实历史数据治理",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "HistoryImportR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReplayDatasetR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "StoreR27"
+      }
+    ],
+    "change": "保留导入/长历史压缩回放；热库5000滚动；来源hash/firstSeen/缺口",
+    "acceptance_test": "导入现有真实数据、重复导入、未来可见性、断点续传",
+    "metrics": [
+      "M15",
+      "M18"
+    ],
+    "depends": [
+      "R29-013"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-015",
+    "batch": "B03",
+    "title": "时间角色与曝光账",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "SplitR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "HoldoutLedgerR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomScoreR27"
+      }
+    ],
+    "change": "TRAIN/SELECT/一次CONFIRM/FUTURE；所有读取消费者登记；重复确认降级",
+    "acceptance_test": "原子权重/早停/报告反馈读确认结果后不能再称未见测试",
+    "metrics": [
+      "M18",
+      "M19"
+    ],
+    "depends": [
+      "R29-014"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-016",
+    "batch": "B03",
+    "title": "每期增量特征与回放",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "FeatureCacheR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReplayEvaluatorR27"
+      }
+    ],
+    "change": "追加新一期，共享递推状态；按计划全历史重放；避免每期从头扫5000",
+    "acceptance_test": "增量与全量相同输入输出一致；缺口重置语义正确",
+    "metrics": [
+      "M03",
+      "M11",
+      "M18"
+    ],
+    "depends": [
+      "R29-015"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-017",
+    "batch": "B03",
+    "title": "训练游标与可恢复状态",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomNetTrainerR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomWorldR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ModelArtifactR29"
+      }
+    ],
+    "change": "保存权重/optimizer/RNG/normalizer/replay cursor；同事件只学习一次",
+    "acceptance_test": "每个切片重启后下一预测/更新一致；数据hash变化不随意清零",
+    "metrics": [
+      "M10",
+      "M20"
+    ],
+    "depends": [
+      "R29-016"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-018",
+    "batch": "B03",
+    "title": "统一真实回放评价器",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayScoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReplayScoreR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReplayEvaluatorR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "EvalContextR27"
+      }
+    ],
+    "change": "同目标/同ACT/同机会分母；时间配对差与缺期统计；真实回放不改名FUTURE",
+    "acceptance_test": "手工可核对fixture+时间污染反例；旧报告口径复算",
+    "metrics": [
+      "M18",
+      "M19",
+      "Q05",
+      "Q06"
+    ],
+    "depends": [
+      "R29-017"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-019",
+    "batch": "B04",
+    "title": "完整策略合同",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicySpecR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "PolicySpecR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "PolicyAstR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "PolicyContractR29"
+      }
+    ],
+    "change": "绑定特征、模型、选位、K3、ACT、更新、校准、失败条件和资源预算",
+    "acceptance_test": "缺核心字段/非法类型/不合法K3拒绝；hash覆盖每个行为字段",
+    "metrics": [
+      "M21",
+      "M22"
+    ],
+    "depends": [
+      "R29-018"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-020",
+    "batch": "B04",
+    "title": "现有13业务思路族增强",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "IdeaFamilyR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ExpertProposalsR27"
+      }
+    ],
+    "change": "按docs/04升级I01-I13机制；F24/E16/I层分别登记；I00只作控制",
+    "acceptance_test": "每族可独立运行、不同结构/行为可证明，禁止仅换标签",
+    "metrics": [
+      "M21",
+      "M23"
+    ],
+    "depends": [
+      "R29-019"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-021",
+    "batch": "B04",
+    "title": "短期结构窗口和集合缩减",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureWindowR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "StructureWindowR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "SetIntersectionPolicyR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI04CrossPositionR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "IdeaI04CrossPositionR27"
+      }
+    ],
+    "change": "实现窗口检测→4至7号码集合→相关性折扣交集→K3，输入均为历史",
+    "acceptance_test": "整条链时间回放；逐层覆盖损失；不用事后赢家窗口",
+    "metrics": [
+      "M18",
+      "M21",
+      "Q01"
+    ],
+    "depends": [
+      "R29-020"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-022",
+    "batch": "B04",
+    "title": "选时选位与ACT条件",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "IdeaI13SelectorOnlyR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "SelectorPolicyR29"
+      }
+    ],
+    "change": "ACT阈值在SELECT定；发现候选可达15/30/100%频率梯度；不得配额补手",
+    "acceptance_test": "评分器不变的选择器消融；同周期不同频率列命中/区间",
+    "metrics": [
+      "M18",
+      "M30",
+      "Q01",
+      "Q02"
+    ],
+    "depends": [
+      "R29-021"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-023",
+    "batch": "B04",
+    "title": "新增六类结构生成器",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "IdeaFamilyR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "StructureGeneratorRegistryR29"
+      }
+    ],
+    "change": "I14-I19实现集合、图、多尺度、残差、窗口寿命、互补专家生成器",
+    "acceptance_test": "各族有独立假设和可执行训练/预测/失败算子，正负对照",
+    "metrics": [
+      "M21",
+      "M23",
+      "M36"
+    ],
+    "depends": [
+      "R29-022"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-024",
+    "batch": "B04",
+    "title": "失败驱动结构修复",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ExpertProposalsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "MutationOpsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CrossoverOpsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "CrossoverOpsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "FusionOpsR27"
+      }
+    ],
+    "change": "Finding绑定证据/反证/修改节点；输出结构子代和参数对照；子代独立证据",
+    "acceptance_test": "父代/结构子代/参数子代/随机子代等预算配对；无继承Future",
+    "metrics": [
+      "M19",
+      "M21",
+      "Q06"
+    ],
+    "depends": [
+      "R29-023"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-025",
+    "batch": "B04",
+    "title": "有效多样性与语义去重",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "BirthGateR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "EliteArchiveR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "IslandModelR27"
+      }
+    ],
+    "change": "源码结构hash+K3/ACT行为聚类；族配额与MAP格覆盖；不重复凑128",
+    "acceptance_test": "同构AST合并、异名同策略识别、族饥饿检查",
+    "metrics": [
+      "M22",
+      "M23"
+    ],
+    "depends": [
+      "R29-024"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-026",
+    "batch": "B05",
+    "title": "进化与确认隔离",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "EvolutionLoopR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "HoldoutLedgerR27"
+      }
+    ],
+    "change": "SELECT负责搜索；冻结候选一次CONFIRM；更强只有独立配对提升",
+    "acceptance_test": "反复64次同holdout不能累计verified；父子退步保留冠军",
+    "metrics": [
+      "M19",
+      "Q06"
+    ],
+    "depends": [
+      "R29-025"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-027",
+    "batch": "B05",
+    "title": "全管线对照与功效",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "NullEvolutionR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "SequentialQualificationR27"
+      }
+    ],
+    "change": "同预算标签打乱/均匀排列负对照；弱信号/漂移正对照；完整选择停止流程",
+    "acceptance_test": "输出误授证率CI与检出力曲线；不靠单次不发证说安全",
+    "metrics": [
+      "M36",
+      "Q08"
+    ],
+    "depends": [
+      "R29-026"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-028",
+    "batch": "B05",
+    "title": "多位置AtomNet真实训练输入",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomReplayR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomWorldR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomNetR27"
+      }
+    ],
+    "change": "单轮换位置改按issue分组10位置；号码分布和K3辅助头；缺失mask",
+    "acceptance_test": "输入/标签时序、概率归一化、同issue不可跨split",
+    "metrics": [
+      "M18",
+      "M20",
+      "Q05"
+    ],
+    "depends": [
+      "R29-027"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-029",
+    "batch": "B05",
+    "title": "神经表示接入策略消费者",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI08NeuralRepresentationR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "IdeaI08NeuralRepresentationR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "FeatureCacheR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ModelSurfaceProviderR29"
+      }
+    ],
+    "change": "新增model_surface叶子并绑定checkpoint/trainedThrough，禁止当前模型回看历史",
+    "acceptance_test": "冻结记录含模型消费hash；关闭该叶子消融；实际预测变化可复算",
+    "metrics": [
+      "M21",
+      "M24",
+      "Q05"
+    ],
+    "depends": [
+      "R29-028"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-030",
+    "batch": "B05",
+    "title": "NumberQ排序器与学习模型统一",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomNetTrainerR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ModelArtifactR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "NumberRankerAdapterR29"
+      }
+    ],
+    "change": "对可恢复现有号码/动作模型建立同一artifact与训练协议；未训练显示原因",
+    "acceptance_test": "按期分组号码面/1200动作排名指标，重启续训和小基准比较",
+    "metrics": [
+      "M20",
+      "M24",
+      "Q05"
+    ],
+    "depends": [
+      "R29-029"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-031",
+    "batch": "B06",
+    "title": "原子分子贡献评分",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomScoreR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "AtomWorldR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "DerivedAtomR27"
+      }
+    ],
+    "change": "保留240定义/已有分子；贡献与支持数、多重性/组消融；CONFIRM隔离",
+    "acceptance_test": "165可评分口径对齐；区间跨0不能说有效或证明无效",
+    "metrics": [
+      "M19",
+      "M22",
+      "Q05"
+    ],
+    "depends": [
+      "R29-030"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-032",
+    "batch": "B06",
+    "title": "20矩阵与教师能力迁移",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java",
+        "action": "MODIFY",
+        "symbol_scope": "MatrixSnapshotSU2"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java",
+        "action": "MODIFY",
+        "symbol_scope": "MatrixSnapshotFeedbackR930"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "MatrixRegistryR29"
+      }
+    ],
+    "change": "按docs/05逐项producer/consumer、hash/时点；教师有用逻辑保全",
+    "acceptance_test": "20清单完整；空值MISSING；有生产无消费自动诊断",
+    "metrics": [
+      "M02",
+      "M25"
+    ],
+    "depends": [
+      "R29-031"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-033",
+    "batch": "B06",
+    "title": "能力逐对象注册表",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportDataR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "CapabilityRegistryR29"
+      }
+    ],
+    "change": "F24/E16/I20/全部atom/molecule/matrix运行与效果双状态",
+    "acceptance_test": "全量registry左连接记录，不因未运行漏掉对象；分页总数守恒",
+    "metrics": [
+      "M17",
+      "M23",
+      "M25"
+    ],
+    "depends": [
+      "R29-032"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-034",
+    "batch": "B06",
+    "title": "校准链打通与隔离",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "CalibrationRowsR27"
+      }
+    ],
+    "change": "扩ACTIVE之外合法确认对象；fit/validation/apply隔离与hash身份；采用R29_GATE_V2的支持域校准；删去至少5非空箱要求，保留全部样本加权ECE和稀疏质量；fit先于未来登记。",
+    "acceptance_test": "有冻结证据即可评估；无样本不空白；禁止同数据拟合并验证；恒定0.34且68/200的构造样本不得仅因单箱失败；明显失准和稀疏尾部必须可见；构造样本不授证。",
+    "metrics": [
+      "M26",
+      "Q05"
+    ],
+    "depends": [
+      "R29-033"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
+  },
+  {
+    "id": "R29-035",
+    "batch": "B07",
+    "title": "确认队列和晋级通道",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "StoreR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "consumeContiguous; receipt and cursor transaction"
+      }
+    ],
+    "change": "发现池可换榜、16确认候选锁定；永久index首次注册；老观察不回填；按experiment+ordinal持久pending与receipt，连续资格游标不得越过未解决ACT期；重入不重置预算。",
+    "acceptance_test": "短期掉榜不驱逐；再入不重置alpha；坏数据阻断；1/3先到、2后到与1/2/3顺序重放一致；任一点重启、重复投递不漏计不重计。",
+    "metrics": [
+      "M27",
+      "M29",
+      "Q03"
+    ],
+    "depends": [
+      "R29-034"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
+  },
+  {
+    "id": "R29-036",
+    "batch": "B07",
+    "title": "可行资格门与风险规则版本",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "CertificateGateR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "SequentialQualificationR27"
+      }
+    ],
+    "change": "保留旧门；验证R29_GATE_V2；连挂风险改动单列规则版本与证据；验证R29_GATE_V2；在完整主链质量门前分别报告支持、统计、频率和健康状态，不替换旧证书规则。",
+    "acceptance_test": "旧新规则同分布功效比较；无统计优势不准入；断电预算连续；零信号、真实支持窄概率、缺期、乱序和优势检出力联合验证；无统计优势不准入。",
+    "metrics": [
+      "M27",
+      "M36",
+      "Q01",
+      "Q03",
+      "Q04"
+    ],
+    "depends": [
+      "R29-035"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
+  },
+  {
+    "id": "R29-037",
+    "batch": "B07",
+    "title": "频率与主链选择器独立评价",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "CertificateGateR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "action": "MODIFY",
+        "symbol_scope": "MainlineBridgeSU2"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "SelectorPolicyR29"
+      }
+    ],
+    "change": "单成员和组合选择器分开认证；不因成员合格就给meta-policy授证；资格前用FUTURE ACT/注册期机会；部署后Q02用REAL/部署期机会，避免先REAL才能授证的循环。",
+    "acceptance_test": "ACT质量差时定位选择损失；15%目标不能变强制下注；新候选REAL=0仍可积累资格；漏期不缩分母；质量未过不为15%目标凑出手。",
+    "metrics": [
+      "M30",
+      "Q01",
+      "Q02",
+      "Q06"
+    ],
+    "depends": [
+      "R29-036"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
+  },
+  {
+    "id": "R29-038",
+    "batch": "B07",
+    "title": "跨库证书投影到唯一REAL",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "action": "MODIFY",
+        "symbol_scope": "MainlineBridgeSU2"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
+        "action": "MODIFY",
+        "symbol_scope": "DecisionGateEngine"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java",
+        "action": "MODIFY",
+        "symbol_scope": "SettlementEngine"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateProjectionR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "CertificateProjectionR29"
+      }
+    ],
+    "change": "替换同库R27_INTENT_SQL读路由；校验证书/冻结/模型/selector/用户开关",
+    "acceptance_test": "合法注入正例贯通，过期/撤销/错误hash/重复issue拦截",
+    "metrics": [
+      "M06",
+      "M28",
+      "M35"
+    ],
+    "depends": [
+      "R29-037"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-039",
+    "batch": "B08",
+    "title": "12章报告统一出数",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportDataR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ReportR29"
+      }
+    ],
+    "change": "同watermark统一MetricResult；44节兼容与新12章摘要；不拼混口径；导出连续游标、待结果/待资格两队列、迟到回补和校准支持；新增NOT_DEPLOYED状态。",
+    "acceptance_test": "JSON/HTML/UI同值；缺失null；60展示不冒充106名单总量；报告能区分合法预测晚结算与晚预测；频率、命中、缺失每项可回到同口径明细。",
+    "metrics": [
+      "M17",
+      "M31",
+      "M32"
+    ],
+    "depends": [
+      "R29-038"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
+    "revision": "R29.1"
+  },
+  {
+    "id": "R29-040",
+    "batch": "B08",
+    "title": "诊断规则与具体代码行动",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "DiagnosisRulesR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ReportR29"
+      }
+    ],
+    "change": "每条finding包含证据强度/反证/函数/卡号/前后测试，未知给采集步骤",
+    "acceptance_test": "无输入不瞎判根因；同证据输出稳定；运行故障不归咎数据随机",
+    "metrics": [
+      "M31",
+      "M32"
+    ],
+    "depends": [
+      "R29-039"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-041",
+    "batch": "B08",
+    "title": "升级诊断与消融空章修复",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java",
+        "action": "MODIFY",
+        "symbol_scope": "UpgradeDiagnosisSU2"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ReportR29"
+      }
+    ],
+    "change": "历史研究立刻可诊断，Future不足分列；R27 AST与旧生产消融分scope",
+    "acceptance_test": "4824历史有数据却门槛不足的反例；204条AST消融不显示全空",
+    "metrics": [
+      "M17",
+      "M31",
+      "Q06"
+    ],
+    "depends": [
+      "R29-040"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-042",
+    "batch": "B08",
+    "title": "导出取消重建与完整分页",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportExportServiceCP4"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportTaskControlR69"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java",
+        "action": "MODIFY",
+        "symbol_scope": "ReportPublicationCP12"
+      }
+    ],
+    "change": "分块取消、manifest/CRC/SHA、临时文件原子发布、默认20MiB策略",
+    "acceptance_test": "导出中取消/重建/磁盘满；无损完整ZIP；不截断能力清单",
+    "metrics": [
+      "M16",
+      "M17",
+      "M32"
+    ],
+    "depends": [
+      "R29-041"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-043",
+    "batch": "B08",
+    "title": "总存储和证据保留",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "StoreR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ResearchRetentionR29"
+      }
+    ],
+    "change": "5000热期、模型pin、研究回放压缩块、报告最近2份与用户pin；淘汰有账",
+    "acceptance_test": "72h稳定增长测试；仍在证据引用的数据不能回收",
+    "metrics": [
+      "M15",
+      "M17"
+    ],
+    "depends": [
+      "R29-042"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-044",
+    "batch": "B09",
+    "title": "保全图表与实盘排行榜",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ChartCacheR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ChartsRepositoryR27"
+      }
+    ],
+    "change": "全部旧入口可用；榜单HR区间/ACT/覆盖/样本角色/模型版本明示",
+    "acceptance_test": "无样本、稀疏、过期、错误、取消空态与大量行不卡",
+    "metrics": [
+      "M02",
+      "M33"
+    ],
+    "depends": [
+      "R29-043"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-045",
+    "batch": "B09",
+    "title": "代际与能力可视化",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ChartCacheR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ChartsRepositoryR27"
+      }
+    ],
+    "change": "父子结构diff/独立delta、族覆盖、窗口缩减损失、BSS同对照",
+    "acceptance_test": "训练曲线不标Future提升；数据点可追到manifest",
+    "metrics": [
+      "M32",
+      "M33",
+      "Q06"
+    ],
+    "depends": [
+      "R29-044"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-046",
+    "batch": "B09",
+    "title": "全链故障注入与回归",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "LiveShadowsR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ResearchEventBridgeR29"
+      }
+    ],
+    "change": "组合PIT、迁移、结果乱序、进程终止、旧资产恢复、图表保全测试",
+    "acceptance_test": "每类故障有预期状态和恢复输出，无假授证/丢结算",
+    "metrics": [
+      "M02",
+      "M06",
+      "M09",
+      "M18",
+      "M20",
+      "M28"
+    ],
+    "depends": [
+      "R29-045"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-047",
+    "batch": "B09",
+    "title": "性能剖析与实际瓶颈修复",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ResearchPoolR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "ResearchWriteQueueR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "RuntimeR27"
+      }
+    ],
+    "change": "按同source/session剖析CPU/IO/writer/queue；修最慢真实路径",
+    "acceptance_test": "满载研究+144观察+导出下真实端到端目标；不能只跑CPU微基准",
+    "metrics": [
+      "M03",
+      "M04",
+      "M07",
+      "M11",
+      "M14"
+    ],
+    "depends": [
+      "R29-046"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-048",
+    "batch": "B10",
+    "title": "真机长时场景验收",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+        "action": "MODIFY",
+        "symbol_scope": "AutoFetchService"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/MainActivity.java",
+        "action": "MODIFY",
+        "symbol_scope": "MainActivity"
+      }
+    ],
+    "change": "执行目标机前台/息屏/72h/跨日/重启/断网/热/低存储矩阵",
+    "acceptance_test": "每场景新APK报告绑定签名与源码；未运行明确NOT_RUN",
+    "metrics": [
+      "M05",
+      "M13",
+      "M14",
+      "M15",
+      "M34"
+    ],
+    "depends": [
+      "R29-047"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-049",
+    "batch": "B10",
+    "title": "自然质量与主链闭环验收",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java",
+        "action": "MODIFY",
+        "symbol_scope": "CertificateGateR27"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "action": "MODIFY",
+        "symbol_scope": "MainlineBridgeSU2"
+      }
+    ],
+    "change": "注册后真实未来验收Q01-Q07；不要求先造出非0证书",
+    "acceptance_test": "报告全体失败候选和主链完整账；未达标QUALITY_NOT_MET",
+    "metrics": [
+      "Q01",
+      "Q02",
+      "Q03",
+      "Q04",
+      "Q05",
+      "Q06",
+      "Q07"
+    ],
+    "depends": [
+      "R29-048"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-050",
+    "batch": "B10",
+    "title": "每批可安装APK与签名来源",
+    "files": [
+      {
+        "path": ".github/workflows/r13.yml",
+        "action": "MODIFY",
+        "symbol_scope": "existing Android release workflow"
+      },
+      {
+        "path": "tools/r29/verify_delivery.py",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "APK/source/signature receipt verification"
+      }
+    ],
+    "change": "复用r13现有构建脚本；公有包名签名不变、versionCode增加；源码/日志/APK绑定",
+    "acceptance_test": "覆盖安装及两次启动，APK/签名/报告identity逐项核对",
+    "metrics": [
+      "M01",
+      "M34"
+    ],
+    "depends": [
+      "R29-049"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-051",
+    "batch": "B10",
+    "title": "模型撤销和迁移回滚演练",
+    "files": [
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateProjectionR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "CertificateProjectionR29"
+      },
+      {
+        "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "ResearchDatabaseR29"
+      }
+    ],
+    "change": "证书撤销即时传播；模型原子回退；数据库按manifest恢复",
+    "acceptance_test": "失效模型≤5秒不再选；APK回滚另列；禁止清数据恢复",
+    "metrics": [
+      "M09",
+      "M35"
+    ],
+    "depends": [
+      "R29-050"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  },
+  {
+    "id": "R29-052",
+    "batch": "B10",
+    "title": "最终发布账本与单一入口",
+    "files": [
+      {
+        "path": "CURRENT_FINAL_PLAN.md",
+        "action": "MODIFY",
+        "symbol_scope": "canonical plan pointer"
+      },
+      {
+        "path": "construction/r29/STATUS.zh.md",
+        "action": "ADD_PROPOSED",
+        "symbol_scope": "implementation ledger"
+      }
+    ],
+    "change": "更新CURRENT_FINAL_PLAN与每批交付表，关联全部原要求/新卡/证据；不删历史方案",
+    "acceptance_test": "52卡/44指标/42旧R28映射均完整；无NOT_RUN冒充完成",
+    "metrics": [
+      "M01",
+      "M02",
+      "M17",
+      "M32"
+    ],
+    "depends": [
+      "R29-051"
+    ],
+    "implementation_status": "PLANNED_NOT_IMPLEMENTED",
+    "verification_status": "NOT_RUN",
+    "evidence_required": [
+      "before_after_file_hashes",
+      "source_commit",
+      "host_test_log",
+      "device_report_or_NOT_RUN"
+    ],
+    "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚"
+  }
+]

@@ -1,0 +1,126 @@
+name: STARCORE R29.1 source-bound checkpoint
+on:
+  push:
+    branches: ['construction/r29-20261029']
+    paths-ignore: ['evidence/r29/**', 'construction/r29/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: r29-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - name: Commit generated identity before compiling
+        run: |
+          python3 tools/r29/rebind_identity.py
+          git config user.name 'STARCORE build identity'
+          git config user.email 'starcore-build@users.noreply.github.com'
+          git add release/
+          if ! git diff --cached --quiet; then
+            git commit -m 'R29: bind generated identities to reviewed implementation bytes'
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+          git diff --exit-code -- app/src/main
+      - id: transport
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+      - id: tempkey
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+      - name: Restore an existing signing identity only
+        env:
+          R29_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          if [ '${{ steps.transport.outputs.cache-hit }}' = true ]; then
+            python3 scripts/test_r13_signing_transport.py
+            python3 scripts/load_r13_signing.py
+            python3 scripts/load_su1_bundled_api.py
+            echo 'R29_SIGNING=OFFICIAL_R13' >> "$GITHUB_ENV"
+          else
+            python3 - <<'PY'
+          import os, pathlib, subprocess, hashlib
+          root=pathlib.Path.home()/'.starcore/r27-ci-temp-key'
+          key=root/'r27-ci.p12'; password=(root/'pw').read_text().strip()
+          if not key.is_file() or not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')
+          print('::add-mask::'+password)
+          cert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)
+          fingerprint=hashlib.sha256(cert).hexdigest()
+          if fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')
+              credential=os.environ.get('R29_API_KEY','').strip()
+              if credential:
+                  print('::add-mask::'+credential)
+                  out.write('DUOQU_API_KEY='+credential+'\n')
+          print('Reused original R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')
+          PY
+          fi
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: R29 and existing unit suites
+        run: |
+          mkdir -p evidence/r29/ci
+          set -o pipefail
+          ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee evidence/r29/ci/unit.log
+      - name: Existing host and source contracts
+        run: |
+          python3 scripts/r926_release_manifest.py --check
+          python3 scripts/r967_semantic_identity.py --check
+          python3 scripts/test_r13_production_ddl.py
+          python3 scripts/generate_strategy_su2_schema.py --check
+          python3 scripts/verify_strategy_su1.py > evidence/r29/ci/su1.log
+          python3 scripts/verify_plan1025.py > evidence/r29/ci/plan1025.log
+          python3 scripts/verify_r26.py > evidence/r29/ci/r26.log
+      - name: Assemble same-identity APKs
+        run: |
+          set -o pipefail
+          REL=''
+          if [ -n "${DUOQU_API_KEY:-}" ]; then REL=':app:assembleRelease'; fi
+          ./gradlew --no-daemon :app:verifyCanonicalPlanBuildCP3 $REL :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee evidence/r29/ci/assemble.log
+      - name: Bind install packages to final committed source
+        run: python3 tools/r29/package_receipt.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R29-APK-CHECKPOINT
+          path: r29-apk/
+          if-no-files-found: error
+      - name: Publish reviewable checkpoint APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(git rev-parse HEAD)
+          tag="r29-checkpoint-${source:0:12}"
+          gh release create "$tag" r29-apk/* --target "$source" --title 'R29.1 engineering checkpoint — full acceptance pending' --notes-file construction/r29/STATUS.md --prerelease --latest=false
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R29-BUILD-EVIDENCE
+          path: |
+            evidence/r29/ci/
+            app/build/test-results/
+            app/build/reports/
+            app/build/outputs/apk/androidTest/
+            r29-apk/
