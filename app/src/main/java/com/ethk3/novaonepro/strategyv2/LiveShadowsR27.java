@@ -16,6 +16,10 @@ import java.util.Map;
 public final class LiveShadowsR27 {
     private LiveShadowsR27() {}
     static final String LIVE_STATES = "('ACTIVE','CONTROL_I00','CONTROL_NULL')";
+    /** R27.4: observers are the current best evolved candidates frozen every period next to the shadows. They have no
+     * e-process, global index or certificate, so they never spend α and never reach the mainline; they only make every
+     * strategy's real per-period record visible (docs/01: FUTURE evidence is collected, qualification is unchanged). */
+    static final String OBSERVE_STATES = "('" + RuntimeR27.OBSERVE + "')";
 
     static final class Shadow { String id, status; PolicySpecR27 spec; double tau; }
     static List<Shadow> shadows(SQLiteDatabase db, String statuses) {
@@ -61,8 +65,11 @@ public final class LiveShadowsR27 {
 
     // ---------------------------------------------------------------- freeze
     static long freeze(RuntimeR27 rt, ResearchPoolR27.Worker w, String latestIssue, long latestOrd, long deadline) throws Exception {
+        return freeze(rt, w, latestIssue, latestOrd, deadline, LIVE_STATES, true);
+    }
+    static long freeze(RuntimeR27 rt, ResearchPoolR27.Worker w, String latestIssue, long latestOrd, long deadline, String statuses, boolean opportunity) throws Exception {
         long target = latestOrd + 1; String targetIssue = TargetIssueResolver.fromSequenceOrdinalSU1(target);
-        List<Shadow> all = shadows(w.ro, LIVE_STATES), todo = new ArrayList<>();
+        List<Shadow> all = shadows(w.ro, statuses), todo = new ArrayList<>();
         for (Shadow s : all) try (Cursor c = w.ro.rawQuery("SELECT 1 FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal=?", new String[] {s.id, String.valueOf(target)})) { if (!c.moveToFirst()) todo.add(s); }
         if (todo.isEmpty()) return 0;
         long now = System.currentTimeMillis();
@@ -80,15 +87,15 @@ public final class LiveShadowsR27 {
             }
             final long dl = deadline;
             b.before = db -> System.currentTimeMillis() < dl ? 0 : -1; // never freeze after the deadline
-            b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
-            try { while (!w.writes().submit("LIVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
+            if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
+            try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
             catch (IllegalStateException late) { if (!String.valueOf(late.getMessage()).contains("R27_WRITE_PRECONDITION") && !(late.getCause() != null && String.valueOf(late.getCause().getMessage()).contains("R27_WRITE_PRECONDITION"))) throw late; }
             b = new ResearchWriteQueueR27.Batch();
         }
         // Deadline missed: recorded, counted in the opportunity denominator, never back-filled.
         for (Shadow s : todo) b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,0,0,0,0,'DEADLINE_MISSED',?,?)",
                 s.id, target, targetIssue, s.spec.position, StoreR27.pack(new double[10]), System.currentTimeMillis(), deadline);
-        b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,0,0,0,?,?)", target, targetIssue, todo.size(), todo.size(), System.currentTimeMillis());
+        if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,0,0,0,?,?)", target, targetIssue, todo.size(), todo.size(), System.currentTimeMillis());
         while (!w.writes().submit("LIVE_DEADLINE_MISSED", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); }
         return todo.size();
     }

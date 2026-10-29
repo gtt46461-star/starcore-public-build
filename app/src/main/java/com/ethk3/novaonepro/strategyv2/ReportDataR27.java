@@ -35,6 +35,18 @@ public final class ReportDataR27 {
                 in.shadows.add(s);
             }
         }
+        in.observersTracking = ChartCacheR27.count(db, "SELECT count(*) FROM r27_live_shadow WHERE status='" + RuntimeR27.OBSERVE + "'");
+        try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.base_policy,s.status,s.spec_json,count(*),sum(f.hit=1),sum(f.act=1),sum(f.act=1 AND f.hit=1),min(f.target_issue),max(f.target_issue) FROM r27_live_shadow s JOIN r27_live_frozen f ON f.policy_hash=s.policy_hash AND f.status='FROZEN' AND f.hit>=0 WHERE s.status LIKE 'OBSERVE%' GROUP BY s.policy_hash ORDER BY count(*) DESC LIMIT 60", null)) {
+            while (c.moveToNext()) {
+                Map<String, Object> o = new LinkedHashMap<>(); long n = c.getLong(4), k = c.getLong(5), a = c.getLong(6), ak = c.getLong(7);
+                double[] w = StatsR27.wilson(k, n, StatsR27.Z95);
+                o.put("observer", c.getString(0)); o.put("policy", c.getString(1)); o.put("status", c.getString(2)); o.put("periods", n); o.put("hits", k);
+                o.put("hitRate", n == 0 ? null : (Object) (k / (double) n)); o.put("wilsonLow", n == 0 ? null : (Object) w[0]); o.put("wilsonHigh", n == 0 ? null : (Object) w[1]);
+                o.put("acts", a); o.put("actHits", ak); o.put("from", c.getString(8)); o.put("to", c.getString(9));
+                try { o.put("describe", PolicySpecR27.parse(c.getString(3)).describeZh()); } catch (RuntimeException e) { o.put("describe", "spec unreadable"); }
+                in.observers.add(o);
+            }
+        }
         List<Double> sel = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT r.hits,r.n_act FROM r27_replay_score r JOIN r27_policy p ON p.policy_hash=r.policy_hash WHERE r.split='H_SELECT' AND p.state IN ('ACTIVE','LIVE') AND r.n_act>0", null)) { while (c.moveToNext()) sel.add(c.getInt(0) / (double) c.getInt(1)); }
         in.replaySelectHr = new double[sel.size()]; for (int i = 0; i < sel.size(); i++) in.replaySelectHr[i] = sel.get(i);

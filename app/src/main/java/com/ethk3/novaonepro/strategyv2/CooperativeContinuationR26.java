@@ -34,6 +34,10 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
         }
     }
     private void run(){
+        // R27.4: a new Thread starts at normal (nice 0) scheduling priority whatever its creator runs at, so every R26
+        // expert/foundry continuation competed with the realtime analysis thread (device 10.29: request→commit P95 25 s,
+        // ACTION_BUILD_FUNNEL_META_RANK 27.9 s wall for 4.0 s CPU). Research runs at background priority, never paused.
+        try{android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);}catch(Throwable hostOrDenied){/* host JVM: no-op */}
         CURRENT.set(this);BudgetTokenSU1.setPauseClock(this);cpuOrigin=cpuClock.getAsLong();
         try{awaitPermit();ExecutionBudgetR26.enter(new BudgetTokenSU1(3600000,Long.MAX_VALUE/4,()->closed));lastPoll=System.nanoTime();result=body.call();}
         catch(Throwable failure){error=failure;}

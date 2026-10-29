@@ -7705,25 +7705,24 @@ public final class MainActivity extends Activity {
         return s.substring(0, max) + "...";
     }
 
+    // R27.4: compiled once; the device report caught the UI thread stalled 5.7 s inside String.replaceAll here while
+    // rendering the decision card (seven regex compilations per call, many calls per refresh).
+    private static final java.util.regex.Pattern PNL_TEXT_PATTERN = java.util.regex.Pattern.compile(
+            "｜真实盈亏=[^｜\\n]*|｜盈亏=[^｜\\n]*|，盈亏=[^，；｜\\n]*| ?(?:pnl|PNL)=[^｜\\n]*");
+
     private String removePnlText(String text) {
         if (text == null || text.length() == 0) {
             return "";
         }
-
-        String s = text;
-
-        try {
-            s = s.replaceAll("｜真实盈亏=[^｜\\n]*", "");
-            s = s.replaceAll("｜盈亏=[^｜\\n]*", "");
-            s = s.replaceAll("，盈亏=[^，；｜\\n]*", "");
-            s = s.replaceAll(" pnl=[^｜\\n]*", "");
-            s = s.replaceAll(" PNL=[^｜\\n]*", "");
-            s = s.replaceAll("pnl=[^｜\\n]*", "");
-            s = s.replaceAll("PNL=[^｜\\n]*", "");
-        } catch (Throwable e) {
+        if (text.indexOf("盈亏") < 0 && text.indexOf("pnl=") < 0 && text.indexOf("PNL=") < 0) {
+            return text;
         }
 
-        return s;
+        try {
+            return PNL_TEXT_PATTERN.matcher(text).replaceAll("");
+        } catch (Throwable e) {
+            return text;
+        }
     }
 
     private int dp(int value) {

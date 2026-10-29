@@ -341,6 +341,47 @@ public final class R27QualityTest {
         R27TestSupport.log("R27_3_SETTLEMENT_SCHEMA_DEFERRAL_PASS");
     }
 
+    // ------------------------------------------------------------------ R27.4 observers: every strategy runs every period
+    @Test public void r274ObserversRecordEveryPeriodButNeverQualify() throws Exception {
+        String root = R27TestSupport.root().getPath() + "/app/src/main/java/com/ethk3/novaonepro/";
+        String rt = new String(Files.readAllBytes(new File(root + "strategyv2/RuntimeR27.java").toPath()), "UTF-8");
+        String live = new String(Files.readAllBytes(new File(root + "strategyv2/LiveShadowsR27.java").toPath()), "UTF-8");
+        int i = rt.indexOf("void refreshObservers("); assertTrue(i >= 0);
+        String body = rt.substring(i, rt.indexOf("submit(w, \"OBSERVERS\", b);", i));
+        // No e-process row, no α index, no certificate, no promotion: observers only collect FUTURE rows.
+        assertFalse(body.contains("r27_eprocess")); assertFalse(body.contains("insertShadow")); assertFalse(body.contains("r27_certificate"));
+        assertTrue(body.contains("VALUES(?,?,?,?,0,?"));
+        assertTrue(rt.contains("LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false)"));
+        assertTrue(rt.contains("if (stepBefore == 9) refreshObservers(w, loop);"));
+        // Certification, calibration and the mainline intent still read ACTIVE shadows only.
+        assertTrue(live.contains("for (Shadow s : shadows(w.ro, \"('ACTIVE')\"))"));
+        assertEquals(LiveShadowsR27.LIVE_STATES, "('ACTIVE','CONTROL_I00','CONTROL_NULL')");
+        assertFalse(MainlineBridgeSU2.R27_INTENT_SQL.contains("OBSERVE"));
+        assertNotEquals(RuntimeR27.observerId("p"), "p");
+        R27TestSupport.log("R27_4_OBSERVERS_PASS cap=" + RuntimeR27.OBSERVE_CAP);
+    }
+
+    @Test public void r274ReportCarriesObserversWithoutChangingTheConclusion() {
+        ReportR27.Input in = new ReportR27.Input(); in.observersTracking = 24;
+        Map<String, Object> o = new LinkedHashMap<>(); o.put("observer", "x"); o.put("periods", 100L); o.put("hits", 31L); in.observers.add(o);
+        Map<String, Object> ch = ReportR27.truth(in);
+        assertEquals("INSUFFICIENT", ch.get("status")); assertEquals(ReportR27.T_INSUFFICIENT, ch.get("conclusionTemplate"));
+        @SuppressWarnings("unchecked") Map<String, Object> obs = (Map<String, Object>) ch.get("observers");
+        assertEquals(24L, obs.get("tracking")); assertEquals(100L, obs.get("settledPeriodsTotal")); assertEquals(0.31, (Double) obs.get("pooledHitRate"), 1e-12);
+        R27TestSupport.log("R27_4_REPORT_OBSERVERS_PASS");
+    }
+
+    @Test public void r274RealtimeChainOutranksResearchThreads() throws Exception {
+        String root = R27TestSupport.root().getPath() + "/app/src/main/java/com/ethk3/novaonepro/";
+        String svc = new String(Files.readAllBytes(new File(root + "AutoFetchService.java").toPath()), "UTF-8");
+        String cont = new String(Files.readAllBytes(new File(root + "strategyv2/CooperativeContinuationR26.java").toPath()), "UTF-8");
+        assertTrue(svc.contains("new HandlerThread(\"eth_k3_analysis_channel\", Process.THREAD_PRIORITY_FOREGROUND)"));
+        assertTrue(svc.contains("new HandlerThread(\"eth_k3_fetch_channel\", Process.THREAD_PRIORITY_FOREGROUND)"));
+        int i = cont.indexOf("private void run(){"); assertTrue(i >= 0);
+        assertTrue(cont.substring(i, cont.indexOf("CURRENT.set(this);", i)).contains("THREAD_PRIORITY_BACKGROUND"));
+        R27TestSupport.log("R27_4_PRIORITY_PASS");
+    }
+
     // ------------------------------------------------------------------ R27-005 no session-level CRITICAL_DEADLINE yield
     @Test public void r27005ResearchSessionNoLongerYieldsToDeadlines() throws Exception {
         String src = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java").toPath()), "UTF-8");

@@ -1370,7 +1370,7 @@ public final class AutoFetchService extends Service {
             heartbeatStateV8().markInitStage("WORKER_THREADS", "create_serial_owners");
 
             fetchThread =
-                    new HandlerThread("eth_k3_fetch_channel", Process.THREAD_PRIORITY_DEFAULT);
+                    new HandlerThread("eth_k3_fetch_channel", Process.THREAD_PRIORITY_FOREGROUND); // R27.4: realtime chain above research
             fetchThread.start();
             fetchHandler = new Handler(fetchThread.getLooper());
 
@@ -1391,7 +1391,7 @@ public final class AutoFetchService extends Service {
             analysisWatchdogHandler = new Handler(analysisWatchdogThread.getLooper());
 
             analysisThread =
-                    new HandlerThread("eth_k3_analysis_channel", Process.THREAD_PRIORITY_DEFAULT);
+                    new HandlerThread("eth_k3_analysis_channel", Process.THREAD_PRIORITY_FOREGROUND); // R27.4: realtime chain above research
             analysisThread.start();
             analysisHandler = new Handler(analysisThread.getLooper());
 

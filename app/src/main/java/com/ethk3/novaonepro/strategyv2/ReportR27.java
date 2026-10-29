@@ -30,6 +30,8 @@ public final class ReportR27 {
         public Map<String, Long> waitKinds = new LinkedHashMap<>(); public List<String> stuck = new ArrayList<>(), neverRun = new ArrayList<>();
         public double researchCpuShare = Double.NaN; public long researchThreads, writeWaitsOver200msHour, freezeScheduled, freezeMissed, generationsDay = -1; public Object replayP95Ms;
         public List<Map<String, Object>> abi = new ArrayList<>(); public long pendingAbiChecks, r26ArchivedBySourceAbi, legacyBlocked;
+        /** R27.4 observers: per-period FUTURE record of the best evolved candidates (no e-process, never qualifies). */
+        public final List<Map<String, Object>> observers = new ArrayList<>(); public long observersTracking;
     }
 
     static Object f(double d) { return Double.isFinite(d) ? (Object) d : null; }
@@ -71,6 +73,12 @@ public final class ReportR27 {
         ch.put("futureShadows", rows); ch.put("sameperiodControls", ctl); ch.put("luckCeiling", f(luck)); ch.put("luckCeilingInputs", "k=" + k + ",meanActs=" + meanActs);
         Map<String, Object> rep = new LinkedHashMap<>(); rep.put("survivorsSelectHitRateQuantiles", list(f(q[0]), f(q[1]), f(q[2]), f(q[3]), f(q[4]))); rep.put("n", (long) in.replaySelectHr.length); rep.put("holdoutChampionHitRate", f(in.holdoutChampionHr));
         rep.put("note", "REPLAY 成绩只说明在看过的数据上拟合得好，不进入资格。"); ch.put("replay", rep);
+        Map<String, Object> obs = new LinkedHashMap<>(); long obsPeriods = 0, obsHits = 0;
+        for (Map<String, Object> o : in.observers) { obsPeriods += ((Number) o.get("periods")).longValue(); obsHits += ((Number) o.get("hits")).longValue(); }
+        obs.put("tracking", in.observersTracking); obs.put("withSettlement", (long) in.observers.size()); obs.put("settledPeriodsTotal", obsPeriods);
+        obs.put("pooledHitRate", obsPeriods == 0 ? null : (Object) (obsHits / (double) obsPeriods)); obs.put("rows", new ArrayList<Object>(in.observers));
+        obs.put("note", "观察池=每代 H_SELECT 最好的候选，每期赛前冻结、开奖后结算；不建 e 过程、不占 α、不授证、不进主链。只用于看清每个算法的真实逐期成绩。");
+        ch.put("observers", obs);
         ch.put("conclusionTemplate", template); ch.put("conclusion", text);
         ch.put("comparisonWithPrevious", compare(in.previous, maxN, best, qualified));
         ch.put("summary", summary(maxN, best, qualified, k));

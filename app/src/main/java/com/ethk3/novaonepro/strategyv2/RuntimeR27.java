@@ -93,11 +93,47 @@ public final class RuntimeR27 implements AutoCloseable {
                 b.before = db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; };
             }
             submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
+            if (stepBefore == 9) refreshObservers(w, loop);
             if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
             return ResearchPoolR27.Outcome.progress(1, (long) loop.generation * 10 + loop.step);
         }
     }
     volatile boolean derivedDue; volatile List<PolicyAstR27.Node> derived = new ArrayList<>();
+
+    // ------------------------------------------------------------------ R27.4 observers (every strategy runs every period)
+    /** Best evolved candidates (by H_SELECT score) frozen and settled every period as observers. */
+    public static final int OBSERVE_CAP = 24;
+    public static final String OBSERVE = "OBSERVE", OBSERVE_RETIRED = "OBSERVE_RETIRED";
+    public static String observerId(String policyHash) { return StatsR27.sha256(OBSERVE + "|" + policyHash); }
+
+    /** After each generation: the top OBSERVE_CAP population members become observers; members that dropped out are
+     * retired (their settled rows stay). Observers carry no e-process row, so settlement never feeds qualification. */
+    void refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
+        List<EvolutionLoopR27.Member> ranked = new ArrayList<>(loop.population);
+        ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
+        final Map<String, EvolutionLoopR27.Member> keep = new LinkedHashMap<>();
+        for (EvolutionLoopR27.Member m : ranked) { if (keep.size() >= OBSERVE_CAP) break; if (Double.isFinite(m.tau)) keep.put(observerId(m.hash()), m); }
+        final List<String> retire = new ArrayList<>(); final Map<String, EvolutionLoopR27.Member> add = new LinkedHashMap<>(keep);
+        try (Cursor c = w.ro.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status=?", new String[] {OBSERVE})) {
+            while (c.moveToNext()) { String id = c.getString(0); if (add.remove(id) == null) retire.add(id); }
+        }
+        if (add.isEmpty() && retire.isEmpty()) return;
+        final int generation = loop.generation - 1;
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
+        for (String id : retire) b.add("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?", OBSERVE_RETIRED, "LEFT_TOP_" + OBSERVE_CAP + "_G" + generation, now, id, OBSERVE);
+        b.before = db -> {
+            long t = System.currentTimeMillis();
+            for (Map.Entry<String, EvolutionLoopR27.Member> e : add.entrySet()) {
+                EvolutionLoopR27.Member m = e.getValue();
+                // Re-entering observers resume their own row; global_index 0 keeps them outside the α-spending sequence.
+                db.execSQL("INSERT OR IGNORE INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,0,?,?,?,?,-1,?,'')",
+                        new Object[] {e.getKey(), m.spec.fullJson(), m.tau, StoreR27.pack(new double[10]), OBSERVE, "TOP_" + OBSERVE_CAP + "_H_SELECT_G" + generation, t, t, m.hash()});
+                db.execSQL("UPDATE r27_live_shadow SET status=?,temperature=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?", new Object[] {OBSERVE, m.tau, "TOP_" + OBSERVE_CAP + "_H_SELECT_G" + generation, t, e.getKey(), OBSERVE_RETIRED});
+            }
+            return 0;
+        };
+        submit(w, "OBSERVERS", b);
+    }
 
     EvolutionLoopR27 restoreOrCreate(ResearchPoolR27.Worker w) {
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.seed = System.currentTimeMillis();
@@ -130,6 +166,7 @@ public final class RuntimeR27 implements AutoCloseable {
             long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
             ensureControls(w);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
+            units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
             units += LiveShadowsR27.certify(RuntimeR27.this, w, latestOrd);
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, latestOrd) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", latestOrd, latestOrd);
         }

@@ -28,6 +28,7 @@ final class ChartsRepositoryR83 {
         int position = latestPosition(db, cancel);
         List<String> drawIssues = new ArrayList<>();
         List<int[]> draws = draws(db, cancel, drawIssues);
+        out.add(safe("全部算法逐期实盘榜", () -> r27AlgorithmBoard(db, cancel)));
         out.add(safe("算法实盘排行榜", () -> algorithmBoard(db, cancel)));
         out.add(safe("最佳算法累计命中率", () -> bestAlgorithmCurve(db, cancel)));
         out.add(safe("出手资金K线", () -> actionCandles(db, cancel)));
@@ -314,6 +315,107 @@ final class ChartsRepositoryR83 {
                 "箭头从父代指向子代，点节点看是谁。子代要在同一批开奖上全面不差于父代才可替换父代。", points.isEmpty() ? "EMPTY" : "READY", points, edges);
     }
 
+    /**
+     * R27.4: every R27 strategy that is frozen each period (observers = current best evolved candidates, shadows that
+     * passed the holdout gate, and the two negative controls), with its real per-period record and the history replay it
+     * was trained/selected on. With M strategies watched at once the best one is lucky by chance, so the bar for
+     * "real edge" uses a Bonferroni-corrected lower bound.
+     */
+    private static Panel r27AlgorithmBoard(SQLiteDatabase db, CancellationSignal cancel) {
+        List<Point> points = new ArrayList<>();
+        List<Object[]> rows = new ArrayList<>();
+        try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.base_policy,s.spec_json,s.status,COUNT(f.target_ordinal),"
+                + "SUM(CASE WHEN f.hit=1 THEN 1 ELSE 0 END),SUM(CASE WHEN f.act=1 THEN 1 ELSE 0 END),SUM(CASE WHEN f.act=1 AND f.hit=1 THEN 1 ELSE 0 END),"
+                + "MIN(f.target_issue),MAX(f.target_issue) FROM r27_live_shadow s JOIN r27_live_frozen f ON f.policy_hash=s.policy_hash"
+                + " AND f.status='FROZEN' AND f.hit>=0 GROUP BY s.policy_hash ORDER BY COUNT(f.target_ordinal) DESC LIMIT 60", null, cancel)) {
+            while (c.moveToNext())
+                rows.add(new Object[] {c.getString(0), c.getString(1), c.getString(2), c.getString(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getString(9)});
+        }
+        int m = Math.max(1, rows.size());
+        double zBonf = normalQuantile(1 - 0.05 / m);
+        int observers = 0, scheduled = 0;
+        try (Cursor c = db.rawQuery("SELECT COUNT(*) FROM r27_live_shadow WHERE status IN ('OBSERVE','ACTIVE','CONTROL_I00','CONTROL_NULL')", null, cancel)) {
+            if (c.moveToFirst()) scheduled = c.getInt(0);
+        }
+        for (Object[] r : rows) {
+            String id = (String) r[0], base = r[1] == null || ((String) r[1]).isEmpty() ? id : (String) r[1], status = (String) r[3];
+            int n = (Integer) r[4], k = (Integer) r[5], acts = (Integer) r[6], actHits = (Integer) r[7];
+            if (status.startsWith("OBSERVE")) observers++;
+            double[] w = wilson(k, n);
+            double lowerBonf = wilsonLower(k, n, zBonf);
+            String family = "", describe = "";
+            try { com.ethk3.novaonepro.strategyv2.PolicySpecR27 spec = com.ethk3.novaonepro.strategyv2.PolicySpecR27.parse((String) r[2]);
+                family = spec.meta == null || spec.meta.idea == null ? "" : spec.meta.idea; describe = spec.describeZh(); }
+            catch (RuntimeException unparsable) { describe = "（规格无法解析）"; }
+            StringBuilder replay = new StringBuilder();
+            try (Cursor c = db.rawQuery("SELECT split,n_sched,n_act,hits FROM r27_replay_score WHERE policy_hash=? ORDER BY computed_at DESC LIMIT 6", new String[] {base}, cancel)) {
+                java.util.HashSet<String> seen = new java.util.HashSet<>();
+                while (c.moveToNext()) {
+                    if (!seen.add(c.getString(0))) continue;
+                    int na = c.getInt(2);
+                    replay.append(replay.length() == 0 ? "" : "；").append(splitZh(c.getString(0))).append(" ").append(c.getInt(1)).append("期，出手").append(na)
+                            .append(na == 0 ? "" : "，命中" + pct(c.getInt(3) / (double) na));
+                }
+            }
+            String label = familyZh(family) + "·" + base.substring(0, Math.min(6, base.length()));
+            String verdict = lowerBonf > BREAK_EVEN ? "多重比较校正后仍显著优于保本" : w[0] > BREAK_EVEN ? "单看显著，但同时观察" + m + "个算法时可能只是运气" : "仍在随机波动范围内";
+            points.add(new Point(label, k / (double) n, w[0], w[1], n, label + "｜" + statusZh(status) + "\n" + describe
+                    + "\n逐期实盘（" + r[8] + "—" + r[9] + "）：每期都预测，共" + n + "期，命中" + k + "期 = " + pct(k / (double) n) + "，95%区间 " + pct(w[0]) + "–" + pct(w[1])
+                    + "\n其中按自身规则出手 " + acts + " 期" + (acts == 0 ? "" : "，命中 " + actHits + "（" + pct(actHits / (double) acts) + "）")
+                    + "\n历史回放训练：" + (replay.length() == 0 ? "尚未记录" : replay.toString()) + "（用于训练/挑选，不作证明）"
+                    + "\n同时观察" + m + "个算法，校正后下沿 " + pct(lowerBonf) + "；需高于保本 " + pct(BREAK_EVEN) + "。结论：" + verdict));
+        }
+        points.sort((a, b) -> Double.compare(b.value, a.value));
+        String status = points.isEmpty() ? (scheduled == 0 ? "EMPTY_WAITING_FIRST_GENERATION" : "EMPTY_WAITING_FIRST_SETTLEMENT") : "READY";
+        return new Panel(PAGE, "全部算法逐期实盘榜（每期冻结·开奖结算）", "BAR", "r27_live_frozen", rows.size() + "个算法有结算（其中观察" + observers + "个），当前每期跟踪" + scheduled + "个",
+                "进化出的最好" + com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE_CAP + "个算法和通过留出检验的影子，每一期开奖前都冻结预测、开奖后结算，"
+                        + "并在最多一万期历史上回放训练。柱=逐期命中率（随机30%），竖线=95%区间。同时看" + m + "个算法，最好的那个偏高是正常的；"
+                        + "多重比较校正后下沿仍高于" + pct(BREAK_EVEN) + "才算真优势。观察算法不参与真实出手，资格与证书规则不变。",
+                status, points, null);
+    }
+
+    private static String familyZh(String id) {
+        if (id != null) for (com.ethk3.novaonepro.strategyv2.IdeaFamilyR27 f : com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.FAMILIES)
+            if (f.id().equals(id)) return f.nameZh();
+        return id == null || id.isEmpty() ? "算法" : id;
+    }
+
+    private static String statusZh(String status) {
+        switch (status) {
+            case "OBSERVE": return "逐期观察中";
+            case "OBSERVE_RETIRED": return "已退出前" + com.ethk3.novaonepro.strategyv2.RuntimeR27.OBSERVE_CAP + "（记录保留）";
+            case "ACTIVE": return "留出检验通过·实时影子";
+            case "CONTROL_I00": return "随机基线对照";
+            case "CONTROL_NULL": return "打乱标签对照";
+            default: return status;
+        }
+    }
+
+    private static String splitZh(String split) {
+        return "H_TRAIN".equals(split) ? "训练段" : "H_SELECT".equals(split) ? "挑选段" : "H_HOLDOUT".equals(split) ? "留出段" : split;
+    }
+
+    private static double wilsonLower(int k, int n, double z) {
+        if (n <= 0) return Double.NaN;
+        double p = k / (double) n, d = 1 + z * z / n, c = p + z * z / (2 * n), m = z * Math.sqrt(p * (1 - p) / n + z * z / (4.0 * n * n));
+        return (c - m) / d;
+    }
+
+    /** Acklam's inverse normal CDF (|error| < 1.2e-9), for the Bonferroni-corrected bound. */
+    private static double normalQuantile(double p) {
+        if (p <= 0) return Double.NEGATIVE_INFINITY;
+        if (p >= 1) return Double.POSITIVE_INFINITY;
+        double[] a = {-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00};
+        double[] b = {-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01};
+        double[] c = {-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00};
+        double[] d = {7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00};
+        double q, r;
+        if (p < 0.02425) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+        if (p > 1 - 0.02425) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+        q = p - 0.5; r = q * q;
+        return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+    }
+
     /** Live record of every active invented algorithm from its own frozen pre-draw rows. */
     private static Panel algorithmBoard(SQLiteDatabase db, CancellationSignal cancel) {
         List<Point> points = new ArrayList<>();
@@ -330,13 +432,13 @@ final class ChartsRepositoryR83 {
                 String verdict = w[0] > BREAK_EVEN ? "已显著优于保本" : "仍在随机波动范围内";
                 points.add(new Point(shortName(name), k / (double) n, w[0], w[1], n, name + "｜" + c.getString(2) + "\n实盘 " + k + "/" + n + " = "
                         + pct(k / (double) n) + "，95%区间 " + pct(w[0]) + "–" + pct(w[1]) + "\n在" + n + "期样本下需≥" + pct(needed) + "才算真优于保本30.3%；结论："
-                        + verdict + "\n挑选时的历史开发回放：" + c.getInt(5) + "期 " + pct(c.getDouble(6)) + "（用于挑选，不作证明；与实盘差距即过拟合程度）"
+                        + verdict + (c.getInt(5) > 0 ? "\n挑选时的历史开发回放：" + c.getInt(5) + "期 " + pct(c.getDouble(6)) + "（用于挑选，不作证明；与实盘差距即过拟合程度）" : "\n挑选时的历史开发回放：该旧算法未登记回放期数（R908旧记录缺字段，不是0命中）")
                         + "\n120期需≥" + pct(BREAK_EVEN + 1.96 * Math.sqrt(0.21 / 120)) + "，300期需≥" + pct(BREAK_EVEN + 1.96 * Math.sqrt(0.21 / 300))));
             }
         }
         points.sort((a, b) -> Double.compare(b.value, a.value));
-        return new Panel(PAGE, "算法实盘排行榜（真实冻结·真实结算）", "BAR", DbHelper.TABLE_R908_ALGORITHM_PREDRAW, algorithms + "个算法",
-                "每根柱是一个算法的真实命中率，竖线是95%区间。点柱子看还需多少期才能确认。同时观察" + algorithms
+        return new Panel(PAGE, "旧版R908算法实盘榜（仅主链冻结过的）", "BAR", DbHelper.TABLE_R908_ALGORITHM_PREDRAW, algorithms + "个算法",
+                "旧链R908：只有被主链当期选中并冻结的算法才有记录，所以期数少；全部算法的逐期成绩看上一张图。每根柱是一个算法的真实命中率，竖线是95%区间。同时观察" + algorithms
                         + "个算法时，最好的那个短期偏高是正常现象，只有区间下沿高于30.3%才是真优势。", points.isEmpty() ? "EMPTY" : "READY", points, null);
     }
 
