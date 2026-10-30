@@ -2,6 +2,7 @@
 """Independent R26 protocol/math regression and real additive SQLite DDL checks."""
 from pathlib import Path
 import hashlib,json,re,sqlite3,subprocess,time,shutil,tempfile
+from pure_java_sources import select_pure_strategy_sources
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'build/r26';OUT.mkdir(parents=True,exist_ok=True)
 
@@ -13,11 +14,13 @@ def main():
         if p.returncode:raise RuntimeError(p.stdout[-4000:])
         return p.stdout
     prod=ROOT/'app/src/main/java/com/ethk3/novaonepro'
-    sources=[p for p in (prod/'strategyv2').glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
+    sources,source_selection=select_pure_strategy_sources(prod/'strategyv2')
     sources += [ROOT / 'app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
     sources += [prod/'r952'/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
     sources += [ROOT/'tools/strategy_su2/tests'/name for name in ['R26KernelTest.java','R26FamiliesTest.java','R26ExpertTest.java','R26RecoveryTest.java','R26EvidenceTest.java','R26FrozenSurfaceTest.java','R26ChunkedCheckpointTest.java','R26CapabilityServiceTest.java','R26ForecastSnapshotTest.java','R26FamilyMechanismTest.java','R26IncumbentBudgetTest.java','R26F08MechanismTest.java','R26F20MechanismTest.java','R26WarmSeedTest.java','R26TensorMechanismTest.java','R26FragmentDiagnosticsTest.java','R26MatchingDiagnosticsTest.java','R26NeuralDiagnosticsTest.java','R26StructuredDiagnosticsTest.java','R26SparseDiagnosticsTest.java','R26DurationDiagnosticsTest.java','R26StatisticalDiagnosticsTest.java','R26SuffixDiagnosticsTest.java','R26RetrievalDiagnosticsTest.java','R26RelationStatisticsTest.java','R26SymbolicDiagnosticsTest.java','R26ResidualDiagnosticsTest.java','R26DistillationDiagnosticsTest.java']]
-    classes=OUT/'classes';classes.mkdir(exist_ok=True)
+    classes=OUT/'classes'
+    if classes.exists():shutil.rmtree(classes)
+    classes.mkdir(exist_ok=True)
     run('compile',['java','com.sun.tools.javac.Main','-encoding','UTF-8','-d',classes]+sources)
     log=run('kernels',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26KernelTest']);assert 'R26_KERNEL_PASS' in log
     run('experts',['java','-Xmx512m','-cp',classes,'com.ethk3.novaonepro.strategyv2.R26ExpertTest'])
@@ -91,7 +94,7 @@ def main():
         run('plan_reference_contracts',['python3','code/run_checks.py'],copied)
         shutil.copytree(copied/'evidence/host_run',OUT/'plan-reference',dirs_exist_ok=True)
         shutil.copy2(copied/'evidence/validation_summary.json',OUT/'plan-reference/validation_summary.json')
-    result=dict(status='PASS',scope='Production pure Java math/identity and additive SQLite; reference contracts separately labelled. No physical-device or natural-quality inference.',checks=checks,source_sha256={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources})
+    result=dict(status='PASS',scope='Production pure Java math/identity and additive SQLite; reference contracts separately labelled. No physical-device or natural-quality inference.',checks=checks,source_selection=source_selection,source_sha256={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources})
     (OUT/'verification.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     print('R26_PRODUCTION_PROTOCOLS_PASS')
 if __name__=='__main__':main()

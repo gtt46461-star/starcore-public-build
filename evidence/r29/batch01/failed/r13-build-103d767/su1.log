@@ -1,0 +1,82 @@
+schema_and_catalog_reproducibility PASS
+independent_atom_golden PASS
+independent_training_golden PASS
+independent_relgraph_golden PASS
+deployed_java_compile FAIL
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchOwnershipR29.java:3: error: cannot find symbol
+import com.ethk3.novaonepro.SchemaDomainCoordinatorR926;
+                           ^
+  symbol:   class SchemaDomainCoordinatorR926
+  location: package com.ethk3.novaonepro
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:6: error: package ResearchPoolR27 does not exist
+public final class CooperativeResearchTaskR29 implements ResearchPoolR27.Task, AutoCloseable {
+                                                                        ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:7: error: package ResearchPoolR27 does not exist
+    private final ResearchPoolR27.Task task;private final String owner;
+                                 ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:9: error: package ResearchPoolR27 does not exist
+    private volatile CooperativeContinuationR26<ResearchPoolR27.Outcome> work;
+                                                               ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:10: error: package ResearchPoolR27 does not exist
+    CooperativeResearchTaskR29(ResearchPoolR27.Task task,String session){this.task=task;owner=session+":R29_TASK:"+task.id();}
+                                              ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:15: error: package ResearchPoolR27 does not exist
+    public boolean urgent(ResearchPoolR27.Worker worker,long now){return work==null&&task.urgent(worker,now);}
+                                         ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:16: error: package ResearchPoolR27 does not exist
+    public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker)throws Exception{
+                                                       ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:16: error: package ResearchPoolR27 does not exist
+    public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker)throws Exception{
+                          ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchOwnershipR29.java:22: error: cannot find symbol
+        Arrays.asList(SchemaDomainCoordinatorR926.criticalContract().objects)));
+                      ^
+  symbol:   variable SchemaDomainCoordinatorR926
+  location: class LegacyResearchOwnershipR29
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchOwnershipR29.java:25: error: cannot find symbol
+        Set<String> out=new HashSet<>(Arrays.asList(SchemaDomainCoordinatorR926.researchContract().objects));
+                                                    ^
+  symbol:   variable SchemaDomainCoordinatorR926
+  location: class LegacyResearchOwnershipR29
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchOwnershipR29.java:26: error: cannot find symbol
+        out.addAll(Arrays.asList(SchemaDomainCoordinatorR926.legacyContract().objects));
+                                 ^
+  symbol:   variable SchemaDomainCoordinatorR926
+  location: class LegacyResearchOwnershipR29
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:17: error: package ResearchPoolR27 does not exist
+        if(closed||worker.cancelled())return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);
+                                                            ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:18: error: cannot find symbol
+        if(!ResearchRouteR29.active(worker.realtimeRo()))return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_DATABASE_CUTOVER",0,-1);
+            ^
+  symbol:   variable ResearchRouteR29
+  location: class CooperativeResearchTaskR29
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:18: error: package ResearchPoolR27 does not exist
+        if(!ResearchRouteR29.active(worker.realtimeRo()))return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_DATABASE_CUTOVER",0,-1);
+                                                                               ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:19: error: package ResearchPoolR27 does not exist
+        synchronized(this){if(closed)return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);if(work==null)work=new CooperativeContinuationR26<>("starcore-r29-"+id(),()->task.step(worker),()->closed||worker.cancelled(),null,()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,owner);}
+                                                           ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:19: error: package android.os does not exist
+        synchronized(this){if(closed)return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);if(work==null)work=new CooperativeContinuationR26<>("starcore-r29-"+id(),()->task.step(worker),()->closed||worker.cancelled(),null,()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,owner);}
+                                                                                                                                                                                                                                            ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:20: error: package ResearchPoolR27 does not exist
+        CooperativeContinuationR26<ResearchPoolR27.Outcome> current=work;
+                                                  ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:21: error: package ResearchPoolR27 does not exist
+        CooperativeContinuationR26.Slice<ResearchPoolR27.Outcome> slice=current.slice(40);
+                                                        ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:22: error: package ResearchPoolR27 does not exist
+        if(!slice.done)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_RESEARCH_TASK:"+id(),0,-1);
+                                             ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:24: error: package ResearchPoolR27 does not exist
+        if(closed||worker.cancelled())return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);
+                                                            ^
+/home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeResearchTaskR29.java:30: error: package android.util does not exist
+    public void close(){cancel();while(!awaitStopped(1000))android.util.Log.w("STARCORE_R29","draining cancelled "+id());}
+                                                                       ^
+21 errors
+
+python_schema_learning_and_null_suites PASS
+python_replay_and_creation_suites PASS

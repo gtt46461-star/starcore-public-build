@@ -2,6 +2,7 @@
 """Test the deployed Java kernels, independent Python parity, and production SQLite DDL."""
 from pathlib import Path
 import json, os, subprocess, sys, time, shutil
+from pure_java_sources import select_pure_strategy_sources
 ROOT=Path(__file__).resolve().parents[1]
 HOST=ROOT/'tools/strategy_su1'
 REPORT=ROOT/'build/strategy_su1-verification.json'
@@ -21,9 +22,11 @@ def main():
     okay=run('independent_atom_golden',[sys.executable,HOST/'scripts/build_atom_parity.py']) and okay
     okay=run('independent_training_golden',[sys.executable,HOST/'scripts/build_training_parity.py']) and okay
     okay=run('independent_relgraph_golden',[sys.executable,HOST/'scripts/build_relgraph_parity.py']) and okay
-    classes=ROOT/'build/su1-host-classes';classes.mkdir(parents=True,exist_ok=True)
+    classes=ROOT/'build/su1-host-classes'
+    if classes.exists():shutil.rmtree(classes)
+    classes.mkdir(parents=True,exist_ok=True)
     prod=ROOT/'app/src/main/java/com/ethk3/novaonepro/strategyv2'
-    sources=[p for p in prod.glob('*.java') if not any(s in p.read_text() for s in ['import android.','import com.ethk3.novaonepro.DbStore;','import com.ethk3.novaonepro.*;'])]
+    sources,source_selection=select_pure_strategy_sources(prod)
     sources += [ROOT / 'app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java']
     r952=ROOT/'app/src/main/java/com/ethk3/novaonepro/r952'
     sources += [r952/n for n in ['AtomEvaluatorCP4.java','AtomWindowCP4.java','MemoryBudgetCP4.java','MatrixMetricsCP11.java','StrictCanonicalJson.java']]
@@ -35,6 +38,6 @@ def main():
             okay=run(name,['java','-Dsu1.parity.dir='+str(parity_dir),'-cp',classes,'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
     okay=run('python_schema_learning_and_null_suites',[sys.executable,'-m','unittest','discover','-s','reference/python','-p','test_*.py','-v'],HOST) and okay
     okay=run('python_replay_and_creation_suites',[sys.executable,'-m','unittest','discover','-s','reference/replay','-p','test_*.py','-v'],HOST) and okay
-    REPORT.parent.mkdir(exist_ok=True);REPORT.write_text(json.dumps({'status':'PASS' if okay else 'FAIL','scope':'deployed pure Java source + independent Python and SQLite; Android/physical device and natural prediction qualification are separate','checks':results},ensure_ascii=False,indent=2)+'\n')
+    REPORT.parent.mkdir(exist_ok=True);REPORT.write_text(json.dumps({'status':'PASS' if okay else 'FAIL','scope':'deployed pure Java source + independent Python and SQLite; Android/physical device and natural prediction qualification are separate','source_selection':source_selection,'checks':results},ensure_ascii=False,indent=2)+'\n')
     return 0 if okay else 1
 if __name__=='__main__':raise SystemExit(main())
