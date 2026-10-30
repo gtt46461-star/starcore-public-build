@@ -17,7 +17,7 @@ set +e
 java -Xmx768m -cp "$SCOPED_TMP/shim:$SCOPED_TMP/test:$SCOPED_TMP/old-classes:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.ScopedSchemaPendingR29HostTest > "$OUT/old-e5f9292-control.log" 2>&1
 SCOPED_STATUS=$?
 set -e
-if [ "$SCOPED_STATUS" -eq 0 ] || ! rg -q PENDING_DID_NOT_SURVIVE_REAL_F01 "$OUT/old-e5f9292-control.log"; then
+if [ "$SCOPED_STATUS" -eq 0 ] || ! grep -Eq PENDING_DID_NOT_SURVIVE_REAL_F01 "$OUT/old-e5f9292-control.log"; then
   cat "$OUT/old-e5f9292-control.log"
   exit 1
 fi

@@ -17,7 +17,7 @@ set +e
 java -Xmx768m -cp "$OWNER_TMP/shim:$OWNER_TMP/test:$OWNER_TMP/old-classes:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.ResearchSchemaOwnerR29HostTest > "$OUT/old-8778561-control.log" 2>&1
 OWNER_CONTROL_STATUS=$?
 set -e
-if [ "$OWNER_CONTROL_STATUS" -eq 0 ] || ! rg -q 'ACTUAL_RESEARCH_SCHEMA_FAILED:FAILED\|cursor=R906_RESEARCH_R64_VERIFIED.*no such table.*v57_(selected_evidence_r906|oos_label_r35)' "$OUT/old-8778561-control.log"; then
+if [ "$OWNER_CONTROL_STATUS" -eq 0 ] || ! grep -Eq 'ACTUAL_RESEARCH_SCHEMA_FAILED:FAILED\|cursor=R906_RESEARCH_R64_VERIFIED.*no such table.*v57_(selected_evidence_r906|oos_label_r35)' "$OUT/old-8778561-control.log"; then
   cat "$OUT/old-8778561-control.log"
   exit 1
 fi

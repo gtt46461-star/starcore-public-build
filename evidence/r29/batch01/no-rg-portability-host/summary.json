@@ -1,0 +1,35 @@
+{
+  "testedWithoutRg": true,
+  "path": "explicit isolated binary directory with no rg executable",
+  "runners": [
+    "tools/r29/run_full_schema_cutover_host.sh",
+    "tools/r29/run_research_schema_owner_host.sh",
+    "tools/r29/run_runtime_evolution_dataset_pin_host.sh",
+    "tools/r29/run_root_read_pool_host.sh",
+    "tools/r29/run_scoped_schema_pending_host.sh"
+  ],
+  "allFiveRunnerExits": 0,
+  "originalNegativePatternsUnchanged": true,
+  "oldSourceFailureAndReasonAssertionsPreserved": true,
+  "onlyCommandChange": "rg -q → POSIX grep -Eq",
+  "productAndReleaseAndGeneratedIdentitiesByteIdenticalToNinePass6d": true,
+  "kernelVerifiersAndTestsUnchanged": true,
+  "batchAccepted": false,
+  "selectedEvidence": {
+    "full_schema_cutover/command.log": "eeb46090d6445e0cca3adbdd1c3c565feba2c2b0af64c189755d8d9830a22f37",
+    "full_schema_cutover/old-1388a63-control.log": "b3b3a0c51d7203f4d0f5897a1ef88a47b6d4f51862ddb9380005f5fd8d2b3789",
+    "full_schema_cutover/r29_full_schema_cutover_host.log": "48a1fcceaffb9caeda9fb0f82b91705f7a212fbbb8eecbc4b179e737ba381b1c",
+    "research_schema_owner/command.log": "0ed2d1c84335ed60fe4a7417ae46ab7a40b81d1876c4b8d2ebbba2ac0dc066ab",
+    "research_schema_owner/old-8778561-control.log": "47e4195a32781b1c24f0951eec35baf247f97db3b2938410a15e2c6271b43c7e",
+    "research_schema_owner/r29_research_schema_owner_host.log": "605f0bd1343b493ed97a9da38d47d313c80c0afbda082dc73cab25dccb58ba6b",
+    "root_read_pool/command.log": "6ebcf46086f76941d2df3515f2e26b28c39496a3b3fab2c920f1331dd9f620b4",
+    "root_read_pool/positive.log": "e3e4db1beaf7d8c95da627ef349a2428e8705d695d388afa0982865fc7d7114c",
+    "root_read_pool/shared-rw-control.log": "d8d3004c9de6657f346d1be33c6ad2ac5072e24cbee0b57292181c4fb0df1d8c",
+    "runtime_evolution_dataset_pin/command.log": "c738027a933ac1662799bd2e7371956dec94b9bfebc2170a9e7f19da2a3dcc2f",
+    "runtime_evolution_dataset_pin/old-e5f9292-runtime-control.log": "878ab27f32bf50af3ec463bf088d0216403fe46064607de36f8e50860b2a79c3",
+    "runtime_evolution_dataset_pin/r29_runtime_evolution_dataset_pin_host.log": "6050d5b455306ad748c2b091342cd6e4a6e1c5168590a023543934fa5bcaeb38",
+    "scoped_schema_pending/command.log": "c6e99a9affa6338b62a34e99575ed2807f6c6452996a86e28a3fcd7b81f3c500",
+    "scoped_schema_pending/old-e5f9292-control.log": "1648a56794f17f27d6909003e4ad41f478ab2c752f9d98ba89b5662c3922b645",
+    "scoped_schema_pending/r29_scoped_schema_pending_host.log": "7350834d8e1e789de1a6b44be9b2bc471b1bc5c8d56fcf17d0a044e73aeac470"
+  }
+}

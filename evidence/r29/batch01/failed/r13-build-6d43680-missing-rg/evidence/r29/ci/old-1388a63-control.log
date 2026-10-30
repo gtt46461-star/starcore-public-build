@@ -1,0 +1,9 @@
+R29_FULL_SCHEMA_CUTOVER|F1_ACTUAL_FULL_SCHEMA_AND_CANONICAL_EVENTS|OK
+R29_FULL_SCHEMA_CUTOVER|F2_REAL_PROTOCOL_INBOX_AND_TWO_WORK_ITEMS_PER_DRAW|OK
+R29_FULL_SCHEMA_CUTOVER|SETUP|tables=194|draws=4200|work=8400|milliseconds=2146
+R29_FULL_SCHEMA_CUTOVER|MEASURED|ownedTables=181|copiedRows=16816|pages=534|rawQueries=393164|sourceQueries=262170|targetQueries=130994|cellQueries=189045|encodingQueries=201678|milliseconds=5932
+R29_FULL_SCHEMA_CUTOVER|F3_WHOLE_COPY_AND_BOTH_TYPED_REHASHES_AGREE|OK
+R29_FULL_SCHEMA_CUTOVER|F4_4200_DRAW_COPY_DOES_NOT_ISSUE_PER_SMALL_CELL_SQL|FAILED
+Exception in thread "main" java.lang.AssertionError: F4_4200_DRAW_COPY_DOES_NOT_ISSUE_PER_SMALL_CELL_SQL
+	at com.ethk3.novaonepro.strategyv2.FullSchemaCutoverR29HostTest.check(FullSchemaCutoverR29HostTest.java:21)
+	at com.ethk3.novaonepro.strategyv2.FullSchemaCutoverR29HostTest.main(FullSchemaCutoverR29HostTest.java:57)

@@ -17,7 +17,7 @@ set +e
 java -Xmx768m -cp "$RUNTIME_PIN_TMP/shim:$RUNTIME_PIN_TMP/test:$RUNTIME_PIN_TMP/old-classes:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.RuntimeEvolutionDatasetPinR29HostTest > "$OUT/old-e5f9292-runtime-control.log" 2>&1
 RUNTIME_PIN_CONTROL_STATUS=$?
 set -e
-if [ "$RUNTIME_PIN_CONTROL_STATUS" -eq 0 ] || ! rg -q 'R2_ACTUAL_RUNTIME_TURN_RESUMES_OLD_PIN_AND_COMMITS_NEXT_GATE\|FAILED' "$OUT/old-e5f9292-runtime-control.log"; then
+if [ "$RUNTIME_PIN_CONTROL_STATUS" -eq 0 ] || ! grep -Eq 'R2_ACTUAL_RUNTIME_TURN_RESUMES_OLD_PIN_AND_COMMITS_NEXT_GATE\|FAILED' "$OUT/old-e5f9292-runtime-control.log"; then
   cat "$OUT/old-e5f9292-runtime-control.log"
   exit 1
 fi

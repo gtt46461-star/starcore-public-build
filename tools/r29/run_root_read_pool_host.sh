@@ -12,7 +12,7 @@ set +e
 java -cp "$POOL_TMP/shim:$POOL_TMP/test:$CLASSES:$SQLITE_JDBC" com.ethk3.novaonepro.strategyv2.RootReadPoolR29HostTest --shared-rw-control > "$OUT/shared-rw-control.log" 2>&1
 POOL_CONTROL_STATUS=$?
 set -e
-if [ "$POOL_CONTROL_STATUS" -eq 0 ] || ! rg -q PRIMARY_POOL_CAPTURE_WAITED_FOR_RT_WRITER "$OUT/shared-rw-control.log"; then
+if [ "$POOL_CONTROL_STATUS" -eq 0 ] || ! grep -Eq PRIMARY_POOL_CAPTURE_WAITED_FOR_RT_WRITER "$OUT/shared-rw-control.log"; then
   cat "$OUT/shared-rw-control.log"
   exit 1
 fi

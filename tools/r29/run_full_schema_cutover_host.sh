@@ -17,7 +17,7 @@ set +e
 java -Xmx768m -cp "$FULL_TMP/shim:$FULL_TMP/test:$FULL_TMP/old-classes:$CLASSES:$SQLITE_JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.FullSchemaCutoverR29HostTest > "$OUT/old-1388a63-control.log" 2>&1
 FULL_CONTROL_STATUS=$?
 set -e
-if [ "$FULL_CONTROL_STATUS" -eq 0 ] || ! rg -q 'F4_4200_DRAW_COPY_DOES_NOT_ISSUE_PER_SMALL_CELL_SQL\|FAILED' "$OUT/old-1388a63-control.log"; then
+if [ "$FULL_CONTROL_STATUS" -eq 0 ] || ! grep -Eq 'F4_4200_DRAW_COPY_DOES_NOT_ISSUE_PER_SMALL_CELL_SQL\|FAILED' "$OUT/old-1388a63-control.log"; then
   cat "$OUT/old-1388a63-control.log"
   exit 1
 fi
