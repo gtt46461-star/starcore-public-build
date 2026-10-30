@@ -1,4 +1,12 @@
-> **当前最终施工入口：[STARCORE R29](CURRENT_FINAL_PLAN.md)**（2026-10-29，11批/52卡）。最新已核实应用源在 `construction/r27-20261028`；本main提交仅更新方案。下文为保留的旧发布说明。
+<!-- R29_CHECKPOINT06_POINTER -->
+> **当前 Android 应用源码：[bb607cf5ab69](https://github.com/gtt46461-star/starcore-public-build/commit/bb607cf5ab69f7286f859e43f87ada85a5bc456d)，施工分支 [`construction/r29-20261029`](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r29-20261029)。** main仅发布方案入口，不是最新应用代码。
+>
+> R29.1 checkpoint06（577291006）是修复验证检查点，**尚未完整签收11批/52卡/44指标，也未验证自然命中率**。[施工账本](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r29-20261029/construction/r29/STATUS.md)。
+>
+> APK按原安装证书选择：[原R13/R26证书](https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk)；[既有R27证书](https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP06-R27-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk)。二者不能交叉覆盖。真机长测与自然质量分别待验，不能把此检查点称为全部方案已完成。
+<!-- /R29_CHECKPOINT06_POINTER -->
+
+> **当前最终施工入口：[STARCORE R29](CURRENT_FINAL_PLAN.md)**（2026-10-29，11批/52卡）。方案发布时的历史应用基线在 `construction/r27-20261028`（当前应用见上方R29入口）；本main提交仅更新方案。下文为保留的旧发布说明。
 
 # 星核创研 R13 · 公有独立版
 
