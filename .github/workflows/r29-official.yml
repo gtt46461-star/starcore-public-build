@@ -1,0 +1,118 @@
+name: R29 official R13 signed checkpoint
+# Runs on the existing official signing-cache branch; never transports keys to the cloud task.
+on:
+  push:
+    branches: ['construction/su1-20261022']
+    paths: ['.github/r29-official-request.json', '.github/workflows/r29-official.yml']
+permissions:
+  contents: write
+concurrency:
+  group: r29-official-checkpoint
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    outputs:
+      source: ${{ steps.receipt.outputs.source }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r29-official-request.json
+      - id: request
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          r=json.load(open('.github/r29-official-request.json'))
+          assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\n')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+          fail-on-cache-miss: true
+      - name: Restore only the original official R13 identity and API configuration
+        run: |
+          python3 scripts/load_r13_signing.py
+          python3 scripts/load_su1_bundled_api.py
+          echo 'R29_SIGNING=OFFICIAL_R13' >> "$GITHUB_ENV"
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Source-bound tests, lint, signed APK and receipt
+        run: |
+          timeout 45s git fetch --no-tags origin construction/r29-20261029
+          git merge-base --is-ancestor HEAD origin/construction/r29-20261029
+          export PUSH_REF=construction/r29-20261029
+          [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/construction/r29-20261029)" ] || unset PUSH_REF
+          bash tools/r29/ci_build.sh
+      - id: receipt
+        run: echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R29-OFFICIAL-APK
+          path: r29-apk/
+          if-no-files-found: error
+      - name: Publish an explicitly incomplete engineering checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(git rev-parse HEAD)
+          gh release create "r29-official-cp04-${source:0:12}" r29-apk/* --target "$source" --title 'R29.1 checkpoint04 — implementation/device/quality acceptance incomplete' --notes-file construction/r29/STATUS.md --prerelease --latest=false
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R29-OFFICIAL-HOST-EVIDENCE
+          path: |
+            evidence/r29/ci/
+            app/build/test-results/
+            app/build/reports/
+  emulator:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: R29-OFFICIAL-APK
+          path: delivered
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r29/emulator_smoke.sh delivered evidence/r29/emulator
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R29-OFFICIAL-EMULATOR-SMOKE
+          path: |
+            evidence/r29/emulator/
+            startup-evidence/
