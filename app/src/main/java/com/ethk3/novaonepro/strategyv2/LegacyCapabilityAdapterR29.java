@@ -53,6 +53,9 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
         public String id(){return "r29-legacy-continuity";}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker){
             if(!runtime.poolDispatchReady())return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_LEGACY_HANDOFF",0,-1);
+            if(!worker.store().coordinatorForResearchR952().isR811ResearchSchemaReady())return ResearchPoolR27.Outcome.idle("WAITING_LEGACY_RESEARCH_SCHEMA",0,-1);
+            com.ethk3.novaonepro.ResearchRuntimeSqlGateR911.Report gate=com.ethk3.novaonepro.ResearchRuntimeSqlGateR911.verifyAndPublish(worker.store());
+            if(!gate.passed)return ResearchPoolR27.Outcome.idle("WAITING_LEGACY_SQL_CONTRACT:"+gate.detail,0,-1);
             com.ethk3.novaonepro.ResearchLearningContinuityR912.Result r=com.ethk3.novaonepro.ResearchLearningContinuityR912.pulseOnResearchPool(worker.store(),500);
             if(r.errorLanes>0||r.status.startsWith("ERROR:"))throw new IllegalStateException("R29_LEGACY_CONTINUITY_FAILED:"+r.status);
             // A completed lane is a maintenance review, never a sample/gradient/certificate count.

@@ -121,7 +121,7 @@ public final class MigrationCopyR29 {
 
     public static Result step(SQLiteDatabase source, SQLiteDatabase destination, List<Table> tables, Transaction tx, long now) throws Exception {
         Meta m;
-        try (Cursor c = destination.rawQuery("SELECT table_name,state,attempt,source_generation,last_rowid,copied_rows,copy_hash,verify_rowid,verified_rows,verify_hash,verified_at FROM r29_copy_manifest WHERE state<>'VERIFIED_BASELINE' AND retry_at<=? ORDER BY touched_at,table_name LIMIT 1", new String[] {String.valueOf(now)})) {
+        try (Cursor c = destination.rawQuery("SELECT table_name,state,attempt,source_generation,last_rowid,copied_rows,copy_hash,verify_rowid,verified_rows,verify_hash,verified_at FROM r29_copy_manifest WHERE state<>'VERIFIED_BASELINE' AND retry_at<=? ORDER BY CASE state WHEN 'VERIFYING' THEN 0 WHEN 'COPYING' THEN 1 ELSE 2 END,touched_at,table_name LIMIT 1", new String[] {String.valueOf(now)})) {
             if (!c.moveToFirst()) return new Result(null,"IDLE_BASELINE_OR_RETRY",0);
             m=Meta.read(c);
         }

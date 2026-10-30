@@ -60,7 +60,11 @@ public final class R26RuntimeDeviceTest {
             result.put("familyMechanismsWithCommittedProgress",families).put("expertsWithActualReceipts",experts).put("allMechanismsServiceMillis",(System.nanoTime()-start)/1000000);
             long readyAt=scalar(db,"SELECT last_progress FROM r26_task WHERE task_id='schema'");long readyService=readyAt>0?Math.max(0,System.currentTimeMillis()-readyAt):-1;result.put("strategyReadyToAllMechanismsWallMs",readyService<0?JSONObject.NULL:readyService).put("firstServiceTargetMs",60000).put("firstServiceTargetObservedWithin",readyService<0?JSONObject.NULL:readyService<=60000);
             assertEquals("Each family must commit real numerical work",24,families);assertEquals("Each expert must complete a pair sample or an audit",16,experts);assertTrue("enabled research has no CPU lease",runtime.isCpuLeaseHeld());result.put("cpuLeaseHeldBeforePressure",true).put("cpuLeaseMaxHoldMs",RuntimePowerLeaseR26.MAX_HOLD_MS).put("cpuLeaseRenewAfterMs",RuntimePowerLeaseR26.RENEW_AFTER_MS);
-            assertTrue("R29 research routing must be published before accepting pool capability service",ResearchRouteR29.active(db));
+            long handoffWait=System.nanoTime()+60_000_000_000L;
+            while(System.nanoTime()<handoffWait&&(!ResearchRouteR29.active(db)||scalar(db,"SELECT count(*) FROM r29_scheduler_owner WHERE singleton=1 AND dispatcher='RESEARCH_POOL'")==0)){
+                assertTrue("runtime stopped during verified migration/handoff",runtime.isRunning());Thread.sleep(100);
+            }
+            assertTrue("R29 research migration did not publish within the explicit handoff budget",ResearchRouteR29.active(db));
             assertEquals("Legacy tasks must be dispatched by the unified pool",1,scalar(db,"SELECT count(*) FROM r29_scheduler_owner WHERE singleton=1 AND dispatcher='RESEARCH_POOL'"));
             result.put("r29IndependentResearchActive",true).put("legacyDispatchOwner","RESEARCH_POOL");
             assertEquals("consecutive canonical history was rejected by the original foundry",0,scalar(db,"SELECT count(*) FROM r26_progress WHERE blocked_reason LIKE '%SU1_HISTORY_NOT_CAUSAL_CONSECUTIVE%'"));

@@ -1,0 +1,621 @@
+{
+  "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+  "api": 34,
+  "engineeringWriteProbes": 1000,
+  "fullPredrawOpportunitySloClaimed": false,
+  "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+  "javaHeapLimitAtStart": 603979776,
+  "targetLargeHeapFlag": true,
+  "familyMechanismsWithCommittedProgress": 24,
+  "expertsWithActualReceipts": 16,
+  "allMechanismsServiceMillis": 16112,
+  "strategyReadyToAllMechanismsWallMs": 8688,
+  "firstServiceTargetMs": 60000,
+  "firstServiceTargetObservedWithin": true,
+  "cpuLeaseHeldBeforePressure": true,
+  "cpuLeaseMaxHoldMs": 60000,
+  "cpuLeaseRenewAfterMs": 15000,
+  "result": "FAIL",
+  "error": "java.lang.AssertionError: R29 research routing must be published before accepting pool capability service",
+  "researchThreadsAtFailure": [
+    {
+      "name": "starcore-r26-continuous-research",
+      "state": "TIMED_WAITING",
+      "stack": [
+        "java.lang.Thread.nativeGetStatus(Native Method)",
+        "java.lang.Thread.getState(Thread.java:2116)",
+        "java.lang.Thread.getThreadGroup(Thread.java:1410)",
+        "java.lang.Thread.<init>(Thread.java:535)",
+        "java.lang.Thread.<init>(Thread.java:872)",
+        "java.lang.Thread.<init>(Thread.java:745)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.<init>(CooperativeContinuationR26.java:24)",
+        "com.ethk3.novaonepro.strategyv2.TaskContinuationR26.step(TaskContinuationR26.java:18)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.execute(RuntimeCoordinatorR26.java:237)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.executeClaim(RuntimeCoordinatorR26.java:174)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:154)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda3.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:1012)"
+      ]
+    }
+  ],
+  "tasksAtFailure": [
+    {
+      "task": "ablation",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "aggregate-evidence",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "archive",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "artifact-retention",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 14
+    },
+    {
+      "task": "calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "campaign-audit",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "daily-close",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "diagnosis",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "evidence-quality",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R815_RESEARCH|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "evidence-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R815_RESEARCH|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "expert-E01",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360419448,
+      "cpuMs": 3
+    },
+    {
+      "task": "expert-E02",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360428020,
+      "cpuMs": 81
+    },
+    {
+      "task": "expert-E03",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360426987,
+      "cpuMs": 94
+    },
+    {
+      "task": "expert-E04",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360427653,
+      "cpuMs": 43
+    },
+    {
+      "task": "expert-E05",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360425948,
+      "cpuMs": 132
+    },
+    {
+      "task": "expert-E06",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360426387,
+      "cpuMs": 171
+    },
+    {
+      "task": "expert-E07",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360425810,
+      "cpuMs": 145
+    },
+    {
+      "task": "expert-E08",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360424922,
+      "cpuMs": 110
+    },
+    {
+      "task": "expert-E09",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360426210,
+      "cpuMs": 148
+    },
+    {
+      "task": "expert-E10",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360425613,
+      "cpuMs": 169
+    },
+    {
+      "task": "expert-E11",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360424374,
+      "cpuMs": 166
+    },
+    {
+      "task": "expert-E12",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360427356,
+      "cpuMs": 80
+    },
+    {
+      "task": "expert-E13",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360427144,
+      "cpuMs": 100
+    },
+    {
+      "task": "expert-E14",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360427245,
+      "cpuMs": 93
+    },
+    {
+      "task": "expert-E15",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360419866,
+      "cpuMs": 1
+    },
+    {
+      "task": "expert-E16",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360419873,
+      "cpuMs": 4
+    },
+    {
+      "task": "feedback",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "foundry-su1",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "foundry-su2",
+      "cursor": 24,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360425414,
+      "cpuMs": 69
+    },
+    {
+      "task": "incumbent-forecast",
+      "cursor": 0,
+      "status": "RUNNING",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "kernel",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R815_RESEARCH|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "legacy-generation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "legacy-replay",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "live-forecast-preparation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "live-model-training",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "publish-models",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "qualification",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "r27-abi",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atomnet",
+      "cursor": 240,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-atoms:frame 240\/3599))",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atoms",
+      "cursor": 240,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360421247,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-chart-cache",
+      "cursor": 1793360419,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793360419988,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-evolution",
+      "cursor": 3,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360420441,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-health",
+      "cursor": 1793360419,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793360420282,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-legacy-export",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:export complete;cursor=1,latest=1",
+      "lastProgress": 1793360419991,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-live",
+      "cursor": 3584040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3584040,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-replay-dataset",
+      "cursor": 3584040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3584040,latest=3584040",
+      "lastProgress": 1793360413279,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-event-inbox",
+      "cursor": 96,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360421276,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-capabilities",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_VERIFIED_CUTOVER_AND_LEGACY_DRAIN)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-continuity",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_VERIFIED_LEGACY_HANDOFF)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-state-export",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_VERIFIED_RESEARCH_CUTOVER)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-research-migration",
+      "cursor": 0,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360421278,
+      "cpuMs": 0
+    },
+    {
+      "task": "retention",
+      "cursor": 3584040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:cursor=3584040,latest=3584040",
+      "lastProgress": 1793360422097,
+      "cpuMs": 1
+    },
+    {
+      "task": "schema",
+      "cursor": 267,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=267,latest=3584040",
+      "lastProgress": 1793360419428,
+      "cpuMs": 0
+    },
+    {
+      "task": "schema-base",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=:",
+      "lastProgress": 0,
+      "cpuMs": 53
+    },
+    {
+      "task": "sealed-planner",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "seed-incumbent",
+      "cursor": 3584040,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793360426675,
+      "cpuMs": 1
+    },
+    {
+      "task": "shadow-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "su1-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "su2-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "su2-mainline",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "warm-candidates",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    }
+  ],
+  "legacySchema": "INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+  "committedResearchService": {
+    "scope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source\/runtime\/device; historical folds span sources; not P0 or a full opportunity SLO",
+    "sessions": [
+      {
+        "sessionId": "fe9c59ef-85e5-4b87-9934-43d0de74d0e7",
+        "sourceCommit": "0bbc9a77676383822a9b13bb6c0dd01c9e87dd93",
+        "numericalAbi": "5584f4fe9698c3b0eb6555e305c0dae3194a138f8c42da92e4c63878e2a014f6",
+        "apiLevel": 34,
+        "deviceModel": "Android SDK built for x86_64",
+        "committedSlices": 144,
+        "researchCpuMs": 11550,
+        "serviceWallMs": 12934,
+        "capacityFailures": 0
+      }
+    ],
+    "totalSessionRows": 1,
+    "omittedSessionRows": 0,
+    "historicalFoldedTotals": {},
+    "committedCapacityFailuresSinceInstallation": 0
+  },
+  "retainedCapacityFailureDetails": [],
+  "legacySchemaAtCompletion": "INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+  "slowestLegacyMigrationUnits": [
+    {
+      "step": "R811_CRITICAL_SCHEMA",
+      "journalElapsedMs": 84
+    },
+    {
+      "step": "R811_RESEARCH",
+      "journalElapsedMs": 46
+    },
+    {
+      "step": "V51_RUNTIME_SCHEMA",
+      "journalElapsedMs": 41
+    },
+    {
+      "step": "R815_RESEARCH",
+      "journalElapsedMs": 28
+    },
+    {
+      "step": "B03_RUNTIME_SCHEMA",
+      "journalElapsedMs": 26
+    },
+    {
+      "step": "R925_CRITICAL_SCHEMA",
+      "journalElapsedMs": 26
+    },
+    {
+      "step": "R36_SCHEMA",
+      "journalElapsedMs": 25
+    },
+    {
+      "step": "R906_CRITICAL_SCHEMA",
+      "journalElapsedMs": 25
+    },
+    {
+      "step": "CP12_CRITICAL_CANONICAL_REASON_V1",
+      "journalElapsedMs": 23
+    },
+    {
+      "step": "R35_SCHEMA",
+      "journalElapsedMs": 23
+    },
+    {
+      "step": "R926_EVENT_LEDGER_SCHEMA",
+      "journalElapsedMs": 21
+    },
+    {
+      "step": "R815_CRITICAL_SCHEMA",
+      "journalElapsedMs": 17
+    },
+    {
+      "step": "F02_SETTLEMENT_RECOVERY_AUDIT_V1",
+      "journalElapsedMs": 15
+    },
+    {
+      "step": "R26_FEEDBACK_SCHEMA",
+      "journalElapsedMs": 15
+    }
+  ]
+}

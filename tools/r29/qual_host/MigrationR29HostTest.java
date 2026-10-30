@@ -122,6 +122,12 @@ public final class MigrationR29HostTest {
         SQLiteDatabase drift=open(dir.resolve("drift.db"));ddl(drift);prepare(fullSource,drift,large);fullSource.execSQL("ALTER TABLE r29_large ADD COLUMN new_field TEXT");
         rejected=false;try{step(fullSource,drift,large);}catch(IllegalStateException expected){rejected=expected.getMessage().startsWith("R29_SOURCE_SCHEMA_CHANGED_DURING_COPY");}
         check("M15_SCHEMA_DRIFT_STOPS_WITHOUT_SOURCE_LOSS",rejected&&n(fullSource,"SELECT length(payload) FROM r29_large")== (96<<10)&&n(drift,"SELECT count(*) FROM r29_copy_manifest WHERE verified_at>0")==0);
+        try(SQLiteDatabase earlySource=open(dir.resolve("early-source.db"));SQLiteDatabase earlyDestination=open(dir.resolve("early-stage.db"))){
+            earlySource.execSQL("CREATE TABLE r29_a_empty(key TEXT PRIMARY KEY)");for(int i=0;i<30;i++)earlySource.execSQL("CREATE TABLE r29_z_"+i+"(key TEXT PRIMARY KEY)");
+            ddl(earlyDestination);List<MigrationCopyR29.Table> earlyTables=MigrationCopyR29.tables(earlySource);prepare(earlySource,earlyDestination,earlyTables);
+            for(int i=0;i<3;i++)step(earlySource,earlyDestination,earlyTables);
+            check("M16_FIRST_TABLE_VERIFIES_WITHOUT_ROTATING_EVERY_PENDING_TABLE",n(earlyDestination,"SELECT count(*) FROM r29_copy_manifest WHERE state='VERIFIED_BASELINE'")==1&&n(earlyDestination,"SELECT count(*) FROM r29_copy_manifest WHERE state='PENDING'")==30);
+        }
         for(SQLiteDatabase db:new SQLiteDatabase[]{source,destination,changed,independent,corrupt,fullSource,full,stale,drift})db.jdbc.close();
         try(java.util.stream.Stream<Path> files=Files.walk(dir)){for(Path file:files.sorted(java.util.Comparator.reverseOrder()).toList())Files.delete(file);}
         System.out.println("R29_MIGRATION|ALL_PASS|checks="+checks+"|STAGED_BASELINE_ONLY_CUTOVER_PENDING");
