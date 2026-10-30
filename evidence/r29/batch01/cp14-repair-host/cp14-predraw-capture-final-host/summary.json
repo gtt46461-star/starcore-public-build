@@ -1,0 +1,97 @@
+{
+  "schema": "R29_CP14_PREDRAW_CAPTURE_QUANTUM_HOST_1",
+  "status": "PASS_HOST_ONLY_REAL_ANDROID_PENDING",
+  "baseSource": "84c360e0",
+  "newChecks": 13,
+  "existingIncumbentRegression": 27,
+  "ciRunnerCountIncrease": 0,
+  "combinedIncumbentRunnerPositiveChecks": 40,
+  "actualNegativeControls": [
+    {
+      "source": "84c360e0",
+      "path": "full DbStore/PIT/frame capture",
+      "actualExit": 1,
+      "failure": "PREDRAW_CAPTURE_MISSING_POLL_BETWEEN_BOUNDED_READS",
+      "originalGuard": "R26_UNSLICED_COMPUTATION_CAPACITY"
+    },
+    {
+      "source": "84c360e0",
+      "path": "actual TaskContinuationR26->IncumbentLoopSU2.prepareNext->PIT5000",
+      "actualExit": 1,
+      "failure": "PREDRAW_TASK_MISSING_CAPTURE_POLL",
+      "originalGuard": "R26_UNSLICED_COMPUTATION_CAPACITY"
+    }
+  ],
+  "scope": "Real SQLite5000rows and real production classes under explicit600ms HOST bounded read waits; not Android CPU timing or natural quality",
+  "actualTaskPositive": "4slices maxStep620ms; all5000 input rows captured/validated, newest contiguous20 retained, original numerical-history-short reason and zero progress preserved",
+  "coverage": [
+    "5000typed rows/payload/sourceVersionHash unchanged",
+    "Frozen PIT hash full5000restore unchanged",
+    "Capture cancellation drains owner without durable source writes",
+    "Actual SQLite transaction remains nonparkable; original capacity guard fails and cancellation rolls back uncommitted row",
+    "Failure-time suppressed worker stack/state/criticalDepth retained with exact original message",
+    "Actual source generation change still rejects capture"
+  ],
+  "causeLimit": "HOST confirms real missing-poll capture defect. Android failure-time worker stack was unavailable before this diagnostic; no claim this is the exclusive native failure cause.",
+  "unchanged": [
+    "SQL and row limits",
+    "All Xi numerical code",
+    "State/hash formats",
+    "Root freeze transaction",
+    "1040ms continuation guard and permit/cancel/critical protocol",
+    "Other original capacity/service/startup thresholds"
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java",
+      "sha256": "b811d0db1727b8ee00d7d1a54ae33c8404ca5d8b95147d361e57219f3e17ab79"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java",
+      "sha256": "9eae8f84a0ac6a5330b4158076b905c77365ab71602ed98de808928d20538761"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameSU1.java",
+      "sha256": "a7f0c9a8ca0ede889b7fa2be2b98cc9e6a4ef8a72ddf234e4a0fe4005a83a4d6"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java",
+      "sha256": "c328551b52a875508b880b6e8915341f10ade921f70c7a8d2550c0c80d228c56"
+    },
+    {
+      "path": "tools/r29/qual_host/PredrawCaptureQuantumR29HostTest.java",
+      "sha256": "c9428b5f2c822a49e137a6080349ac11ecb1e5eaadb49ed17c357668c3de78e0"
+    },
+    {
+      "path": "tools/r29/run_incumbent_observation_host.sh",
+      "sha256": "74afdea0e10e0554ebea7b00d1d5eee4d9ff7f618f9324b45cb0998293471033"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/work/r29/cp14-predraw-capture-final-host/old-84c360e0-full-incumbent-task-control.log",
+      "sha256": "09bd1a4e542c56a9ff5c4df64b4354ee70b5574ebd8e54beb4667dd2d4f89836"
+    },
+    {
+      "path": "/workspace/work/r29/cp14-predraw-capture-final-host/old-84c360e0-full-predraw-capture-control.log",
+      "sha256": "31a56f70834a631bada2cd51292480ea4bceeef01d2b4c52055975c500f55b91"
+    },
+    {
+      "path": "/workspace/work/r29/cp14-predraw-capture-final-host/r29_predraw_capture_quantum_host.log",
+      "sha256": "dc3bb407dcf16cbdd0fe980819aef1645c67ce2ee638861e38ea748a6a2fda9e"
+    },
+    {
+      "path": "/workspace/work/r29/cp14-predraw-capture-final-runner.log",
+      "sha256": "245c9205400fc87a85a11b033e798d5dd6fd20bb5f5b05c09164b1847eb661c6"
+    },
+    {
+      "path": "/workspace/work/r29/cp14-incumbent-full-runner.log",
+      "sha256": "6b00241fb92efed384a9444707662ecb61f7e438f89728d80252257bc96587f8"
+    },
+    {
+      "path": "/workspace/work/r29/cp14-predraw-capture-final-host/poll-only-source-proof.json",
+      "sha256": "bd88a08a56a2f25f71737584e63bb10822d4ea9e99715c2b5db0c7cce51ab45a"
+    }
+  ],
+  "protocolReadOnlyAudit": "/workspace/work/r29/cp14-continuation-protocol-ro/summary.json"
+}

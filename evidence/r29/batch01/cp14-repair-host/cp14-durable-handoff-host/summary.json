@@ -1,0 +1,23 @@
+{
+  "schema": "R29_CP14_DURABLE_HANDOFF_HOST_ONLY_1",
+  "status": "PASS",
+  "actualChecks": 20,
+  "old84Negative": "ACTUAL_SEALED_ROOT_PHASE_BUSY_THEN_TWO_PAGE_EVENT_AND_MODEL_PROGRESS_LOST_ON_OLD_RESUME",
+  "oldActual": {
+    "rootACK": 64,
+    "rpInbox": 0,
+    "rootModel": 2,
+    "rpModel": 1
+  },
+  "new": "Root research writes remain durably fenced from PREPARED to PUBLISHED; P0 draws continue. Startup resume before runtime initialization handles PREPARED/VERIFIED/RENAMED without pool dependency; unsealed reservation safely cancels.",
+  "sourceHash": "Computed on Root read-only connection outside writer; short Root TX only metadata CAS. Verification remains under original overall30s deadline.",
+  "originalResumeRegression": 43,
+  "originalEventYieldRegression": 22,
+  "ackRecovery": 19,
+  "historicalRestriction": "Unproved old pending reservation lacks durable fence, or Root-owned research hash changed: fail closed RECOVERY_REQUIRED with durable last_error; original Root and sealed files retained. No automatic high-risk rebase. Already ACTIVE old ACK/inbox gaps are repaired idempotently from immutable Root events.",
+  "scope": "REAL_SQLITE_AND_SEALED_FILES_HOST_EXCEPTION_ROLLBACK_NOT_OS_KILL_OR_ANDROID_ACCEPTANCE",
+  "fileSha256": {
+    "r29_durable_handoff_host.log": "b77f043e1aa299d7d36636059f613f9ebf3e17799e59086c09c7513c302ca921",
+    "old-84c360e0-sealed-owner-gap-control.log": "085d7e5c8d5b22a0d1b53a360d623cbd21aa09b6ea11981a84a34bcc92698bb8"
+  }
+}

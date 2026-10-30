@@ -28,7 +28,9 @@ public final class StrategySchemaDomainR29 {
         m=INSERT.matcher(sql);if(m.find()&&ROOT.contains(m.group(1)))return new Control("INSERT:"+m.group(1),m.group(1));
         return null;
     }
-    static boolean requiredHere(SQLiteDatabase db,String sql){return !ResearchRouteR29.isResearchDatabase(db)||control(sql)==null;}
+    static boolean requiredHere(SQLiteDatabase db,String sql){return requiredHere(ResearchRouteR29.isResearchDatabase(db),sql);}
+    /** Role is observed once in the caller's current SQLite invocation, never retained as readiness. */
+    static boolean requiredHere(boolean research,String sql){return !research||control(sql)==null;}
     static void execute(SQLiteDatabase db,String sql,String phase){
         if(!ResearchRouteR29.isResearchDatabase(db)){db.execSQL(sql);return;}
         Control control=control(sql);if(control==null){db.execSQL(sql);return;}
@@ -42,17 +44,23 @@ public final class StrategySchemaDomainR29 {
     }
     private static final String[] BINDINGS={"su1_mainline_binding","su2_mainline_choice","su2_mainline_binding"};
     private static boolean exists(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
-    static boolean domainReady(SQLiteDatabase db){
-        if(!ResearchRouteR29.isResearchDatabase(db))return true;
-        boolean ready=true;for(String name:BINDINGS)if(exists(db,name)){
+    static boolean domainReady(SQLiteDatabase db){return domainReady(db,ResearchRouteR29.isResearchDatabase(db));}
+    static boolean domainReady(SQLiteDatabase db,boolean research){
+        if(!research)return true;
+        Set<String> present=new HashSet<>();
+        try(Cursor c=db.rawQuery("SELECT name FROM main.sqlite_master WHERE type='table' AND name IN (?,?,?)",BINDINGS)){
+            while(c.moveToNext())present.add(c.getString(0));
+        }
+        boolean ready=true;for(String name:BINDINGS)if(present.contains(name)){
             if(MigrationCopyR29.scalar(db,"SELECT count(*) FROM "+name,null)!=0)throw new IllegalStateException("R29_MISPLACED_ROOT_STRATEGY_AUTHORITY_PRESERVED:"+name);
             ready=false;
         }return ready;
     }
     /** Only the previously-created, empty RP copies can be retired automatically. The transaction retains
      * their exact original object DDL and an immutable renamed table; a populated copy is never discarded. */
-    static void prepareResearch(SQLiteDatabase db){
-        if(!ResearchRouteR29.isResearchDatabase(db)||domainReady(db))return;
+    static void prepareResearch(SQLiteDatabase db){prepareResearch(db,ResearchRouteR29.isResearchDatabase(db));}
+    static void prepareResearch(SQLiteDatabase db,boolean research){
+        if(!research||domainReady(db,true))return;
         if(!db.inTransaction()||exists(db,"r29_database_route"))throw new IllegalStateException("R29_EMPTY_STRATEGY_COPY_REQUIRES_EXCLUSIVE_RESEARCH_TRANSACTION");
         try(Cursor c=db.rawQuery("SELECT phase,schema_hash,source_root,epoch FROM r29_research_owner WHERE singleton=1",null)){
             if(!c.moveToFirst()||(!"COPYING".equals(c.getString(0))&&!"READY".equals(c.getString(0)))||!c.getString(1).matches("[0-9a-f]{64}")||!c.getString(2).matches("[0-9a-f]{64}")||c.getLong(3)<=0)throw new IllegalStateException("R29_EMPTY_STRATEGY_COPY_REQUIRES_VALID_RESEARCH_OWNER");

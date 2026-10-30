@@ -17,6 +17,7 @@ public final class EventFrameSU1 {
         long maximumAvailable=0;
         StringBuilder source=new StringBuilder("SU1_SOURCE_V1|");
         for(int i=0;i<history.length;i++) {
+            ExecutionBudgetR26.poll();
             if(issues[i]>=target||issues[i]<1||(i>0&&issues[i]<=issues[i-1])||available[i]<=0||available[i]>cutoff)
                 throw new IllegalArgumentException("SU1_FUTURE_OR_UNAVAILABLE_SOURCE");
             RelationalStateInference.validateDraw(history[i]);this.history[i]=history[i].clone();
@@ -30,6 +31,6 @@ public final class EventFrameSU1 {
     public int size(){return history.length;}
     public long issue(int index){return issues[index];}
     public long availableAt(int index){return available[index];}
-    public int[][] history(){int[][] out=new int[history.length][];for(int i=0;i<out.length;i++)out[i]=history[i].clone();return out;}
+    public int[][] history(){int[][] out=new int[history.length][];for(int i=0;i<out.length;i++){ExecutionBudgetR26.poll();out[i]=history[i].clone();}return out;}
     public String payload(){StringBuilder b=new StringBuilder();for(int i=0;i<history.length;i++){b.append(issues[i]).append('@').append(available[i]);for(int v:history[i])b.append(',').append(v);b.append('\n');}return b.toString();}
 }

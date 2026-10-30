@@ -32,7 +32,7 @@ python3 scripts/verify_plan1025.py > "$LOG/plan1025.log"
 python3 scripts/verify_r26.py > "$LOG/r26.log"
 python3 tools/r29/host_checks.py --out "$LOG/r29_host_checks.json"
 python3 -m unittest discover -s tools/r29 -p test_inspect_runtime.py -v > "$LOG/device_protocol_qa.log" 2>&1
-python3 -m unittest discover -s tools/r29 -p test_smoke_phases.py -v > "$LOG/smoke_phase_orchestration_qa.log" 2>&1
+python3 tools/r29/test_smoke_phases.py > "$LOG/smoke_phase_orchestration_qa.log" 2>&1
 ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee "$LOG/unit.log" | tail -n 30
 # R29-010/035: contiguous qualification + late/out-of-order settlement on a real SQLite engine.
 JDBC=$(mktemp -d)/sqlite-jdbc.jar
@@ -51,6 +51,8 @@ CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQ
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_snapshot_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_resume_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_durable_handoff_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_ack_recovery_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_owner_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_report_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_legacy_host.sh
@@ -71,6 +73,7 @@ CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQ
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_projection_schema_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_research_schema_owner_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_schema_ddl_proof_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_schema_installer_budget_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cold_start_fairness_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_research_phase_stamp_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_domain_extension_host.sh

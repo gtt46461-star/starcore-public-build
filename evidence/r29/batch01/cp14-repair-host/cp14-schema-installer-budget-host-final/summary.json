@@ -1,0 +1,45 @@
+{
+  "scope": "ACTUAL_ROOT_RP_SQLITE_HOST_INSTALLER_QUERY_COUNTS_NOT_ANDROID_LATENCY_OR_DEVICE_ACCEPTANCE",
+  "status": "PASS",
+  "checks": 11,
+  "oldSource": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+  "actualPendingUnits": 8,
+  "oldPendingRawQueries": 472,
+  "newPendingRawQueries": 324,
+  "reductionPercent": 31.35593220338983,
+  "pendingQueryBudget": 354,
+  "oldRPReadyQueries": 269,
+  "newRPReadyQueries": 6,
+  "oldRPRoleQueries": 262,
+  "newRPRoleQueries": 1,
+  "newRootReadyQueries": 5,
+  "newRootRoleQueries": 1,
+  "immutableOriginalSQLHashUnitsPerDomain": 265,
+  "domainCases": [
+    "Root",
+    "independentRP"
+  ],
+  "negativeControls": {
+    "old84Pending": "same B2 assertion FAILED with actual472>354",
+    "old84RPReady": "same RP_READY assertion FAILED with actual269>10"
+  },
+  "semanticGuards": [
+    "one real journal unit per short transaction",
+    "all265orderedSQLhashes match original in both domains",
+    "no invented Root authority in RP",
+    "fresh current catalogue proof on repeatedready",
+    "missingguard inside transaction notready",
+    "rollback rechecks real schema withoutREADYcache"
+  ],
+  "initialDraftFailure": "../cp14-schema-installer-budget-host/initial-draft-budget-failure.log records396>354 before final4file repair; preserved",
+  "filesSha256": {
+    "old-84-pending-control.log": "c0bf1500f2c2c6ab89c2e20344a67156082262f75782dec0258e2d169a6b2934",
+    "old-84-rp-ready-control.log": "d0075aa30af090fb2e8878130855ed74847e8e754206507d793dd271b3023d99",
+    "product-source-sha256.txt": "e30b27f6a70804d224afebd49ef43d11f39a369e7a5500cea70a7a18f831f49e",
+    "r29_schema_installer_budget_host.log": "8d922a564dad35ab16c01c96986b2417ebfbf3850da82e15e1cf5843e72fce35"
+  },
+  "testSourceSha256": {
+    "tools/r29/qual_host/SchemaInstallerBudgetR29HostTest.java": "4b9ab6d66a9a1180993cd2f1ada322961c2624354d883b88820b41bd8ed515f4",
+    "tools/r29/run_schema_installer_budget_host.sh": "3219ce727adcf162f1faaf2dd718b477979476b864d207f0072def92b9d80214"
+  }
+}

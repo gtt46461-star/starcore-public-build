@@ -129,6 +129,8 @@ public final class RuntimeR27 implements AutoCloseable {
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             // Attempt time controls urgent scheduling only. It never becomes a committed progress receipt.
             lastServiceAttempt=System.currentTimeMillis();
+            if(ResearchRouteR29.pendingHandoff(w.realtimeRo()))
+                return ResearchPoolR27.Outcome.idle("DEPENDENCY:WAITING_DURABLE_RESEARCH_HANDOFF",0,-1);
             Boolean previous=boundedBootstrapSubmit.get();boundedBootstrapSubmit.set(Boolean.TRUE);
             try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w)+LegacyLiveProjectionR29.drain(w.store())+LegacyAuthorityProjectionR29.drain(w.store());lastDrain=System.currentTimeMillis();return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
             catch(IllegalStateException busy){if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",0,-1);}

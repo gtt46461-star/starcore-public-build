@@ -12,6 +12,11 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
     private final RuntimeCoordinatorR26 runtime;
     private static final java.util.concurrent.locks.ReentrantLock CONTINUITY=new java.util.concurrent.locks.ReentrantLock(true);
     private static final ThreadLocal<Boolean> POOL_CONTINUITY=new ThreadLocal<>();
+    static final class CutoverLease implements AutoCloseable{public void close(){CONTINUITY.unlock();}}
+    /** Drain the original service maintenance owner as well as the new pool before sealing. */
+    static CutoverLease drainForCutover()throws InterruptedException{
+        return CONTINUITY.tryLock(200,java.util.concurrent.TimeUnit.MILLISECONDS)?new CutoverLease():null;
+    }
     LegacyCapabilityAdapterR29(RuntimeCoordinatorR26 runtime){this.runtime=runtime;}
     public String id(){return "r29-legacy-capabilities";}
     public boolean serviceDispatcher(){return true;}
@@ -55,6 +60,10 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
     public static String enterContinuity(DbStore store,boolean pool){
         if(!CONTINUITY.tryLock())return "COOPERATIVE_LEGACY_CONTINUITY_ALREADY_RUNNING";
         try{
+            SQLiteDatabase root=store.coordinatorForResearchR952().realtimeReadOnlyR29();
+            if(ResearchRouteR29.pendingHandoff(root)||!pool&&ResearchRouteR29.active(root)){
+                CONTINUITY.unlock();return "WAITING_DURABLE_RESEARCH_OWNER_HANDOFF";
+            }
             boolean owner=hasPoolOwner(store);
             if(owner!=pool){CONTINUITY.unlock();return owner?"R29_LEGACY_CONTINUITY_OWNED_BY_RESEARCH_POOL":"WAITING_VERIFIED_RESEARCH_POOL_HANDOFF";}
             if(pool)POOL_CONTINUITY.set(true);return null;

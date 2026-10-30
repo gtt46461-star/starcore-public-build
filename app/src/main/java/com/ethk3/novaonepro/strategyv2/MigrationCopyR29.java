@@ -47,7 +47,7 @@ public final class MigrationCopyR29 {
     }
     static final java.util.Set<String> REALTIME_ONLY=new java.util.HashSet<>(java.util.Arrays.asList(
             "r29_event_outbox","r29_source_watermark","r29_registration_authority","r29_database_route","r29_fetch_observation",
-            "r29_scheduler_owner","r29_legacy_checkpoint_pin","r29_migration_publication",
+            "r29_scheduler_owner","r29_legacy_checkpoint_pin","r29_migration_publication","r29_migration_owner_fence",
             "r29_projection_applied","r29_research_heartbeat","r29_legacy_live_projection",
             "r29_critical_input_clock","r29_critical_input_change","r29_critical_input_schema",
             "r29_legacy_authority_frame","r29_legacy_authority_projection"));

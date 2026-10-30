@@ -31,9 +31,17 @@ public final class CooperativeContinuationR26<T> implements AutoCloseable,Budget
     public Slice<T> slice(long millis)throws InterruptedException{
         if(millis<1||millis>CONTINUATION_SLICE_MS)throw new IllegalArgumentException("R26_CONTINUATION_QUANTUM");
         synchronized(monitor){long cpuBefore=cpuTotal;if(!done){endNanos=System.nanoTime()+millis*1000000L;paused=false;monitor.notifyAll();long hard=System.nanoTime()+(millis+1000)*1000000L;
-            while(!done&&!paused){long remaining=hard-System.nanoTime();if(remaining<=0){close();throw new IllegalStateException("R26_UNSLICED_COMPUTATION_CAPACITY");}TimeUnit.NANOSECONDS.timedWait(monitor,remaining);}}
+            while(!done&&!paused){long remaining=hard-System.nanoTime();if(remaining<=0){IllegalStateException failure=capacityFailure();close();throw failure;}TimeUnit.NANOSECONDS.timedWait(monitor,remaining);}}
             return new Slice<>(done,result,error,Math.max(0,cpuTotal-cpuBefore),maxPollGap);
         }
+    }
+    private IllegalStateException capacityFailure(){
+        IllegalStateException failure=new IllegalStateException("R26_UNSLICED_COMPUTATION_CAPACITY");
+        try{
+            IllegalStateException observed=new IllegalStateException("R26_UNSLICED_WORKER_DIAGNOSTIC|thread="+thread.getName()+"|state="+thread.getState()+"|sinceLastPollMs="+Math.max(0,(System.nanoTime()-lastPoll)/1000000L)+"|criticalDepth="+criticalDepth+"|lastPublishedWorkerCpuMs="+cpuTotal/1000000L);
+            observed.setStackTrace(thread.getStackTrace());failure.addSuppressed(observed);
+        }catch(RuntimeException unavailable){/* Diagnostics cannot replace the original capacity failure. */}
+        return failure;
     }
     private void run(){
         // R27.4: a new Thread starts at normal (nice 0) scheduling priority whatever its creator runs at, so every R26

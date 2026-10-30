@@ -76,6 +76,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public long cpuLeaseRenewals(){RuntimePowerLeaseR26 lease=powerLease;return lease==null?0:lease.renewals();}
     public static void requireFence(SQLiteDatabase db,Claim claim){try(Cursor c=db.rawQuery("SELECT 1 FROM r26_task t JOIN r26_session s ON s.session_id=t.owner WHERE t.task_id=? AND t.owner=? AND t.fence=? AND t.status='RUNNING' AND t.lease_until>? AND s.user_enabled=1 AND s.state='RUNNING'",new String[]{claim.task,claim.owner,String.valueOf(claim.fence),String.valueOf(System.currentTimeMillis())})){if(!c.moveToFirst())throw new IllegalStateException("R26_STALE_FENCE_OR_LEASE_OR_SESSION");}}
     private void initialize(){
+        ResearchCutoverR29.resumeBeforeRuntime(store);
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
         LegacyResearchScopeR29.realtimeWrite(store,"R29_LEGACY_SESSION_OWNER",db->{LegacyCapabilityAdapterR29.initialize(db,owner);LegacyLiveProjectionR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);return 0;});
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);if(ResearchRouteR29.isResearchDatabase(db))SchemaR27.ensureResearch(db);else SchemaR27.ensure(db);

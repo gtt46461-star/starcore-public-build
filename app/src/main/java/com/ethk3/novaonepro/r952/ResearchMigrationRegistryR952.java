@@ -282,8 +282,13 @@ public final class ResearchMigrationRegistryR952 {
     }
     /** Explicit additive prerequisite; an old domain READY stamp alone cannot authenticate it. */
     public static boolean readyOrderR79(SQLiteDatabase db) {
-        return SchemaDomainCoordinatorR926.stepComplete(db,SchemaDomainCoordinatorR926.researchContract(db),
-                "R79_MATRIX_READY_ORDER_V1") && CanonicalSchemaCP12.readyOrderInstalledR79(db);
+        return readyOrderR79(db,SchemaDomainCoordinatorR926.stepComplete(db,SchemaDomainCoordinatorR926.researchContract(db),
+                "R79_MATRIX_READY_ORDER_V1"));
+    }
+    /** The caller already read this exact receipt in its current invocation's full journal census.
+     * The original installed index SQL is still freshly proved here. */
+    public static boolean readyOrderR79(SQLiteDatabase db,boolean completedReceipt) {
+        return completedReceipt&&CanonicalSchemaCP12.readyOrderInstalledR79(db);
     }
     public static void ensureReadyOrderR79(SQLiteDatabase db) throws Exception {
         if (readyOrderR79(db)) return;

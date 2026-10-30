@@ -222,8 +222,8 @@ public final class ResearchEventBridgeR29 {
             for (Event e : events) {
                 if(!handled.add(e.id))continue;
                 boolean exists=false;
-                try (Cursor c = db.rawQuery("SELECT payload_hash FROM r29_event_inbox WHERE event_id=?", new String[] {e.id})) {
-                    exists=c.moveToFirst();if (exists && !e.hash.equals(c.getString(0))) throw new IllegalStateException("R29_INBOX_IDENTITY_CONFLICT");
+                try (Cursor c = db.rawQuery("SELECT source_seq,issue,payload_hash,origin FROM r29_event_inbox WHERE event_id=?", new String[] {e.id})) {
+                    exists=c.moveToFirst();if (exists && (e.seq!=c.getLong(0)||!e.issue.equals(c.getString(1))||!e.hash.equals(c.getString(2))||!e.origin.equals(c.getString(3)))) throw new IllegalStateException("R29_INBOX_IDENTITY_CONFLICT");
                 }
                 if(!exists&&ExperimentRegistrationR29.KIND.equals(e.kind))ExperimentRegistrationR29.consume(db,e,now);
                 if(!exists&&LegacyResearchTransferR29.supports(e.kind))LegacyResearchTransferR29.consume(db,e);
@@ -280,13 +280,77 @@ public final class ResearchEventBridgeR29 {
                 consumer, issue, consumer, issue, consumer, issue);
     }
 
+    static final String ACK_RECONCILE_SOURCE="ROOT_ACK_RECONCILE";
+    static final String ACK_RECONCILE_BOUNDARY="ROOT_ACK_RECONCILE_BOUNDARY";
+    static final class AcknowledgedRepair {
+        final int scanned,repaired;final long last;
+        AcknowledgedRepair(int scanned,int repaired,long last){this.scanned=scanned;this.repaired=repaired;this.last=last;}
+    }
+    private static long acknowledgedCursor(SQLiteDatabase research){
+        try(Cursor c=research.rawQuery("SELECT last_seq FROM r29_event_cursor WHERE source=?",new String[]{ACK_RECONCILE_SOURCE})){return c.moveToFirst()?c.getLong(0):0;}
+    }
+    private static long acknowledgedBoundary(SQLiteDatabase research){
+        try(Cursor c=research.rawQuery("SELECT last_seq FROM r29_event_cursor WHERE source=?",new String[]{ACK_RECONCILE_BOUNDARY})){return c.moveToFirst()?c.getLong(0):-1;}
+    }
+    /** A former Root-owned inbox can have committed an ACK after an immutable cutover snapshot.
+     * Recover at most one page from the immutable outbox, without changing its ACK timestamp or
+     * inventing model/settlement completion. The verified prefix and its real deliveries commit together. */
+    static AcknowledgedRepair reconcileAcknowledged(ResearchPoolR27.Worker w)throws Exception{
+        SQLiteDatabase root=w.realtimeRo(),research=w.ro;
+        if(!ResearchRouteR29.active(root))return new AcknowledgedRepair(0,0,0);
+        ResearchRouteR29.verifyActiveOwner(root);
+        java.io.File expected=new java.io.File(new java.io.File(root.getPath()).getParentFile(),ResearchRouteR29.FILE_NAME);
+        if(!expected.getAbsolutePath().equals(new java.io.File(research.getPath()).getAbsolutePath())||!ResearchRouteR29.isResearchDatabase(research))throw new IllegalStateException("R29_ACK_RECONCILIATION_REQUIRES_ACTIVE_RESEARCH_OWNER");
+        String schema,source;long epoch;
+        try(Cursor c=root.rawQuery("SELECT schema_hash,source_root,epoch FROM r29_database_route WHERE singleton=1",null)){if(!c.moveToFirst())throw new IllegalStateException("R29_ACK_RECONCILIATION_ROUTE_MISSING");schema=c.getString(0);source=c.getString(1);epoch=c.getLong(2);}
+        try(Cursor c=research.rawQuery("SELECT phase,schema_hash,source_root,epoch FROM r29_research_owner WHERE singleton=1",null)){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||!schema.equals(c.getString(1))||!source.equals(c.getString(2))||epoch!=c.getLong(3))throw new IllegalStateException("R29_ACK_RECONCILIATION_OWNER_MISMATCH");}
+        final long before=acknowledgedCursor(research),recordedBoundary=acknowledgedBoundary(research);long capturedBoundary=recordedBoundary;
+        if(recordedBoundary<0)try(Cursor c=root.rawQuery("SELECT coalesce(max(seq),0) FROM r29_event_outbox WHERE acked_at>0",null)){if(!c.moveToFirst())throw new IllegalStateException("R29_ACK_RECONCILIATION_HEAD_REQUIRED");capturedBoundary=c.getLong(0);}
+        final long boundary=capturedBoundary;
+        if(before<0||boundary<0||before>boundary)throw new IllegalStateException("R29_ACK_RECONCILIATION_PREFIX_INVALID");
+        // New delivery uses this RP before ACKing Root. Repair only the history that preceded this
+        // verified owner; do not repeatedly scan every normal ACK produced by the current runtime.
+        if(recordedBoundary>=0&&before==boundary)return new AcknowledgedRepair(0,0,before);
+        final List<Event> page=new ArrayList<>();
+        // Close every Root cursor before submitting the independent RP transaction.
+        try(Cursor c=root.rawQuery("SELECT seq,event_id,issue,payload_json,payload_hash,origin,committed_at,kind FROM r29_event_outbox WHERE acked_at>0 AND seq>? AND seq<=? ORDER BY seq LIMIT "+PAGE,new String[]{String.valueOf(before),String.valueOf(boundary)})){
+            while(c.moveToNext())page.add(new Event(c.getLong(0),c.getString(1),c.getString(2),c.getString(3),c.getString(4),c.getString(5),c.getLong(6),c.getString(7)));
+        }
+        if(page.isEmpty()&&before<boundary)throw new IllegalStateException("R29_ACK_RECONCILIATION_CAPTURED_PREFIX_MISSING");
+        final long last=page.isEmpty()?before:page.get(page.size()-1).seq,now=System.currentTimeMillis();final int[] repaired={0};
+        ResearchWriteQueueR27.Batch batch=prepare(page,now);final DatabaseCoordinator.WriteCallable<Integer> original=batch.before;
+        batch.before=db->{
+            if(acknowledgedCursor(db)!=before)throw new IllegalStateException("CP3_DB_BUSY_ACK_RECONCILIATION_CURSOR_CHANGED");
+            long priorBoundary=acknowledgedBoundary(db);
+            if(priorBoundary>=0&&priorBoundary!=boundary)throw new IllegalStateException("CP3_DB_BUSY_ACK_RECONCILIATION_BOUNDARY_CHANGED");
+            repaired[0]=0;
+            for(Event event:page)try(Cursor c=db.rawQuery("SELECT 1 FROM r29_event_inbox WHERE event_id=?",new String[]{event.id})){if(!c.moveToFirst())repaired[0]++;}
+            return original==null?0:original.call(db);
+        };
+        batch.add("INSERT OR IGNORE INTO r29_event_cursor(source,last_seq,updated_at) VALUES(?,?,?)",ACK_RECONCILE_BOUNDARY,boundary,now);
+        batch.add("INSERT OR IGNORE INTO r29_event_cursor(source,last_seq,updated_at) VALUES(?,0,?)",ACK_RECONCILE_SOURCE,now);
+        batch.add("UPDATE r29_event_cursor SET last_seq=?,updated_at=? WHERE source=? AND last_seq=?",last,now,ACK_RECONCILE_SOURCE,before);
+        batch.after=db->{
+            if(acknowledgedCursor(db)!=last||acknowledgedBoundary(db)!=boundary)throw new IllegalStateException("R29_ACK_RECONCILIATION_CURSOR_COMMIT_REQUIRED");
+            for(Event event:page)try(Cursor c=db.rawQuery("SELECT source_seq,issue,payload_hash,origin FROM r29_event_inbox WHERE event_id=?",new String[]{event.id})){
+                if(!c.moveToFirst()||event.seq!=c.getLong(0)||!event.issue.equals(c.getString(1))||!event.hash.equals(c.getString(2))||!event.origin.equals(c.getString(3)))throw new IllegalStateException("R29_ACK_RECONCILIATION_INBOX_COMMIT_REQUIRED");
+            }
+            return 0;
+        };
+        RuntimeR27.submit(w,"EVENT_ACK_RECONCILIATION",batch);
+        return new AcknowledgedRepair(page.size(),repaired[0],last);
+    }
+
     public static ResearchPoolR27.Outcome deliver(ResearchPoolR27.Worker w) throws Exception {
+        AcknowledgedRepair repair=reconcileAcknowledged(w);
         ExperimentRegistrationR29.publishRequests(w);
         publishRetainedFeedback(w);
         List<Event> events = pending(w.realtimeRo());
         if (events.isEmpty()) {
             ResearchWriteQueueR27.Batch completed = reconcileSettlements(w.ro, System.currentTimeMillis());
             if (!completed.isEmpty()) { RuntimeR27.submit(w, "EVENT_SETTLEMENT_RECEIPTS", completed); return ResearchPoolR27.Outcome.progress(1, 0); }
+            if(repair.repaired>0)return ResearchPoolR27.Outcome.progress(repair.repaired,repair.last);
+            if(repair.scanned>0)return ResearchPoolR27.Outcome.idle("COOPERATIVE_ACK_RECONCILIATION_PAGE_VERIFIED",repair.last,-1);
             return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit", 0, -1);
         }
         ResearchWriteQueueR27.Batch batch = prepare(events, System.currentTimeMillis());
@@ -294,7 +358,7 @@ public final class ResearchEventBridgeR29 {
         w.store().coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_EVENT_ACK", db -> {
             acknowledge(db, events, System.currentTimeMillis()); return 0;
         });
-        return ResearchPoolR27.Outcome.progress(events.size(), events.get(events.size() - 1).seq);
+        return ResearchPoolR27.Outcome.progress(events.size()+repair.repaired,Math.max(repair.last,events.get(events.size() - 1).seq));
     }
 
     /** Reconcile an already committed settlement if it preceded delivery. Never infer it from an enqueue counter. */

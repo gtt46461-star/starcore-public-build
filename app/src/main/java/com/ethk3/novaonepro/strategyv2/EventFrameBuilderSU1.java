@@ -14,18 +14,22 @@ public final class EventFrameBuilderSU1 {
     public static EventFrameSU1 capture(DbStore store,String target) {return capture(store,target,true);}
     public static EventFrameSU1 captureWithGapsR26(DbStore store,String target){return capture(store,target,false);}
     private static EventFrameSU1 capture(DbStore store,String target,boolean consecutive) {
+        ExecutionBudgetR26.poll();
         long generation=generation(LegacyResearchScopeR29.observationReader(store));
+        ExecutionBudgetR26.poll();
         PITSnapshotContractR952 pit=PITSnapshotContractR952.capture(store,target,5000);
         if(consecutive){pit=pit.newestContiguous();pit.requireConsecutive();}
         long now=System.currentTimeMillis();
         long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(pit.history.get(0));
         int n=pit.history.size();long[] issues=new long[n],availability=new long[n];int[][] values=new int[n][10];
         for(int i=0;i<n;i++) {
+            ExecutionBudgetR26.poll();
             Models.Draw d=pit.history.get(n-1-i);issues[i]=Long.parseLong(d.issue);
             availability[i]=d.fetchTime;
             for(int p=0;p<10;p++)values[i][p]=d.getNumberAtPosition(p+1);
         }
         if(generation!=generation(LegacyResearchScopeR29.observationReader(store)))throw new IllegalStateException("SU1_SOURCE_CHANGED_DURING_READ");
+        ExecutionBudgetR26.poll();
         return new EventFrameSU1(Long.parseLong(target),deadline,now,"CANONICAL_PK10_V1",issues,availability,values,generation);
     }
     public static boolean unchanged(DbStore store,EventFrameSU1 expected) {

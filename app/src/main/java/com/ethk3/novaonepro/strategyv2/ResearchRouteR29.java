@@ -36,6 +36,20 @@ public final class ResearchRouteR29 {
         }
     }
     private static String realtimePath(Context context){return context.getDatabasePath(AppConfig.DB_NAME).getAbsolutePath();}
+    /** A reservation is a durable owner fence, including a retry after the process/lock was lost.
+     * The original realtime authorities continue separately; no research commit may advance Root
+     * after the candidate snapshot is reserved and then silently disappear behind its sealed bytes. */
+    public static boolean pendingHandoff(SQLiteDatabase realtime){
+        if(isResearchDatabase(realtime))throw new IllegalStateException("R29_HANDOFF_REQUIRES_REALTIME_AUTHORITY_HANDLE");
+        try(Cursor exists=realtime.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='r29_migration_publication'",null)){if(!exists.moveToFirst())return false;}
+        try(Cursor c=realtime.rawQuery("SELECT phase FROM r29_migration_publication WHERE singleton=1",null)){
+            if(!c.moveToFirst())return false;String phase=c.getString(0);
+            if("PUBLISHED".equals(phase)){if(!active(realtime))throw new IllegalStateException("R29_PUBLISHED_ROUTE_MISSING");return false;}
+            if(!"PREPARED".equals(phase)&&!"VERIFIED".equals(phase)&&!"RENAMED".equals(phase))throw new IllegalStateException("R29_INVALID_PENDING_PUBLICATION_PHASE");
+            return true;
+        }
+    }
+    static void requireMutableRoot(SQLiteDatabase realtime){if(pendingHandoff(realtime))throw new IllegalStateException("CP3_DB_BUSY_DURABLE_RESEARCH_HANDOFF");}
     private static Owner owner(SQLiteDatabase realtime){
         if(isResearchDatabase(realtime))throw new IllegalStateException("R29_ROUTE_REQUIRES_REALTIME_AUTHORITY_HANDLE");
         if(!active(realtime))return null;
@@ -48,7 +62,10 @@ public final class ResearchRouteR29 {
             held=gate.tryLock(200,TimeUnit.MILLISECONDS);if(!held)throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_HANDOFF");
             // Resolve AFTER acquiring the gate: a CSV import may have waited across the ownership change.
             Owner owner=owner(store.coordinatorForResearchR952().realtimeReadOnlyR29());
-            if(owner==null)return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(operation,action);
+            if(owner==null){
+                requireMutableRoot(store.coordinatorForResearchR952().realtimeReadOnlyR29());
+                return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(operation,db->{requireMutableRoot(db);return action.call(db);});
+            }
             return owner.write(operation,action);
         }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_HANDOFF_INTERRUPTED",interrupted);}
         finally{if(held)gate.unlock();}
@@ -94,7 +111,7 @@ public final class ResearchRouteR29 {
             try(Cursor c=probe.rawQuery("PRAGMA quick_check",null)){if(!c.moveToFirst()||!"ok".equals(c.getString(0))||c.moveToNext())throw new IllegalStateException("R29_RESEARCH_INTEGRITY_FAILED");}
         }
         // This transaction never waits for a research writer: preparation/close/fsync precede publication.
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_RESEARCH_CUTOVER",db->{publishWithin(db,schemaHash,sourceRoot,epoch);return 0;});
+        LegacyResearchScopeR29.realtimeWrite(store,"R29_RESEARCH_CUTOVER",db->{publishWithin(db,schemaHash,sourceRoot,epoch);return 0;});
     }
     static void publishWithin(SQLiteDatabase db,String schemaHash,String sourceRoot,long epoch){
             if(!db.inTransaction())throw new IllegalStateException("R29_CUTOVER_ROUTE_TRANSACTION_REQUIRED");

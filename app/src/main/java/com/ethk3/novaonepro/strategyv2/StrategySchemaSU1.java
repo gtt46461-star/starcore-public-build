@@ -18,7 +18,8 @@ public final class StrategySchemaSU1 {
     };
     private StrategySchemaSU1() {}
     public static boolean advance(SQLiteDatabase db){
-        StrategySchemaDomainR29.prepareResearch(db);
+        boolean research=ResearchRouteR29.isResearchDatabase(db);
+        StrategySchemaDomainR29.prepareResearch(db,research);
         ensureJournal(db);
         if(upgradePreview(db))return false;
         int installed;
@@ -29,15 +30,20 @@ public final class StrategySchemaSU1 {
             db.beginTransaction();
             try{
                 String sql=SqlStatementsSU1.SQL[installed];Proof proof=SQL_PROOFS[installed];
-                if(proof==null||(ResearchRouteR29.isResearchDatabase(db)&&!StrategySchemaDomainR29.requiredHere(db,sql))||!proof.exists(db))StrategySchemaDomainR29.execute(db,sql,"SU1_STORAGE");
+                if(proof==null||!StrategySchemaDomainR29.requiredHere(research,sql)||!proof.exists(db))StrategySchemaDomainR29.execute(db,sql,"SU1_STORAGE");
                 db.execSQL("INSERT INTO su1_migration_unit_v2 VALUES(?,?,?)",new Object[]{installed,SQL_HASHES[installed],System.currentTimeMillis()});
                 db.setTransactionSuccessful();
             }finally{db.endTransaction();}
+            // This successful, immutable insertion still leaves an incomplete journal. ready()
+            // would return false from that same count; final-unit and subsequent READY calls
+            // retain the full current journal/object/domain proof without a stored readiness flag.
+            if(installed+1<SqlStatementsSU1.SQL.length)return false;
         }
         return ready(db);
     }
     public static boolean ready(SQLiteDatabase db){
-        if(!StrategySchemaDomainR29.domainReady(db))return false;
+        boolean research=ResearchRouteR29.isResearchDatabase(db);
+        if(!StrategySchemaDomainR29.domainReady(db,research))return false;
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_migration_unit_v2'",null)){if(!c.moveToFirst())return false;}
         // An incomplete journal can never be READY. Do not rehash its growing prefix on
         // every service quantum; verify every immutable unit and object once it is complete.
@@ -51,10 +57,9 @@ public final class StrategySchemaSU1 {
         java.util.Map<String,String[]> actual=objects(db,false);
         if(!JOURNAL_PROOF.matches(actual.get(JOURNAL_PROOF.name)))return false;
         for(Proof guard:GUARD_PROOFS)if(!guard.matches(actual.get(guard.name)))return false;
-        boolean research=ResearchRouteR29.isResearchDatabase(db);
         for(int i=0;i<SqlStatementsSU1.SQL.length;i++){
             Proof proof=SQL_PROOFS[i];
-            if(proof!=null&&(!research||StrategySchemaDomainR29.requiredHere(db,SqlStatementsSU1.SQL[i]))&&!proof.matches(actual.get(proof.name)))return false;
+            if(proof!=null&&StrategySchemaDomainR29.requiredHere(research,SqlStatementsSU1.SQL[i])&&!proof.matches(actual.get(proof.name)))return false;
         }
         return true;
     }
@@ -97,15 +102,21 @@ public final class StrategySchemaSU1 {
     private static boolean upgradePreview(SQLiteDatabase db){
         // Preserve the immutable V1 journal and all its evidence. Each ALTER is one atomic
         // statement. The separate V2 journal validates the complete final schema afterwards.
-        if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_runtime_program'")&&!column(db,"su1_runtime_program","kernel_hash")){
+        java.util.Set<String> tables=new java.util.HashSet<>();String cohortGuard=null;
+        try(Cursor c=db.rawQuery("SELECT name,type,sql FROM main.sqlite_master WHERE name IN ('su1_runtime_program','su1_cohort_runtime','su1_cohort_runtime_immutable')",null)){
+            while(c.moveToNext()){
+                if("table".equals(c.getString(1)))tables.add(c.getString(0));
+                else if("su1_cohort_runtime_immutable".equals(c.getString(0))&&"trigger".equals(c.getString(1)))cohortGuard=c.getString(2);
+            }
+        }
+        if(tables.contains("su1_runtime_program")&&!column(db,"su1_runtime_program","kernel_hash")){
             db.execSQL("ALTER TABLE su1_runtime_program ADD COLUMN kernel_hash TEXT NOT NULL DEFAULT '0000000000000000000000000000000000000000000000000000000000000000' CHECK(length(kernel_hash)=64)");return true;
         }
-        if(StrategyRepositorySU1.exists(db,"SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_cohort_runtime'")){
-            if(!column(db,"su1_cohort_runtime","state")){db.execSQL("ALTER TABLE su1_cohort_runtime ADD COLUMN state TEXT NOT NULL DEFAULT 'OPEN' CHECK(state IN ('OPEN','STOPPED','CLOSED'))");return true;}
-            if(!column(db,"su1_cohort_runtime","stop_reason")){db.execSQL("ALTER TABLE su1_cohort_runtime ADD COLUMN stop_reason TEXT NOT NULL DEFAULT ''");return true;}
-            try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name='su1_cohort_runtime_immutable' AND type='trigger'",null)){
-                if(c.moveToFirst()&&"73a1240a54fc0d794b2aaeb2893b79509ee8c07c965bb0672a4746b2de509799".equals(HashingSU1.text(normal(c.getString(0))))){db.execSQL("DROP TRIGGER su1_cohort_runtime_immutable");return true;}
-            }
+        if(tables.contains("su1_cohort_runtime")){
+            java.util.Set<String> columns=new java.util.HashSet<>();try(Cursor c=db.rawQuery("PRAGMA table_info(su1_cohort_runtime)",null)){while(c.moveToNext())columns.add(c.getString(1));}
+            if(!columns.contains("state")){db.execSQL("ALTER TABLE su1_cohort_runtime ADD COLUMN state TEXT NOT NULL DEFAULT 'OPEN' CHECK(state IN ('OPEN','STOPPED','CLOSED'))");return true;}
+            if(!columns.contains("stop_reason")){db.execSQL("ALTER TABLE su1_cohort_runtime ADD COLUMN stop_reason TEXT NOT NULL DEFAULT ''");return true;}
+            if(cohortGuard!=null&&"73a1240a54fc0d794b2aaeb2893b79509ee8c07c965bb0672a4746b2de509799".equals(HashingSU1.text(normal(cohortGuard)))){db.execSQL("DROP TRIGGER su1_cohort_runtime_immutable");return true;}
         }return false;
     }
     private static String normal(String sql){if(sql==null)return "";return TRAILING.matcher(SPACE.matcher(sql.replace("DEFAULT '0000000000000000000000000000000000000000000000000000000000000000'","").replace("IF NOT EXISTS ","")).replaceAll("")).replaceAll("");}

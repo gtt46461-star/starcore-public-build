@@ -203,7 +203,7 @@ class RuntimeInspection(unittest.TestCase):
     def test_actual_shell_keeps_observation_then_fails_missing_rp(self):
         # Execute the actual checked-in helper with file-copy pulls; no adb, network or device is used.
         script=Path(__file__).with_name('emulator_smoke.sh').read_text()
-        helpers=script[script.index('pull_database() {'):script.index('adb uninstall "$PKG"')]
+        helpers=script[script.index('pull_database() {'):script.index('\nprobe_startup() {')]
         stub='''
 pull_database() {
   case "$1" in
@@ -314,7 +314,7 @@ echo UNREACHABLE_ACCEPTANCE
 
     def test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure(self):
         script=Path(__file__).with_name('emulator_smoke.sh').read_text()
-        helpers=script[script.index('pull_database() {'):script.index('adb uninstall "$PKG"')]
+        helpers=script[script.index('pull_database() {'):script.index('\nprobe_startup() {')]
         out=self.path/'smoke-delta';out.mkdir()
         shutil.copy2(self.root,out/'before.db')
         self.error(self.root)
@@ -453,7 +453,7 @@ echo UNREACHABLE_ACCEPTANCE
 
     def test_upgrade_shell_records_new_capacity_before_missing_rp_pull(self):
         script=Path(__file__).with_name('emulator_smoke.sh').read_text()
-        helpers=script[script.index('pull_database() {'):script.index('adb uninstall "$PKG"')]
+        helpers=script[script.index('pull_database() {'):script.index('\nprobe_startup() {')]
         out=self.path/'smoke-capacity';out.mkdir()
         shutil.copy2(self.root,out/'before.db')
         self.capacity(self.root)

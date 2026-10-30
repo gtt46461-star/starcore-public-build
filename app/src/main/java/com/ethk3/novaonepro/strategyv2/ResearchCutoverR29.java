@@ -14,6 +14,8 @@ import java.util.*;
 public final class ResearchCutoverR29 {
     private ResearchCutoverR29(){}
     public static final String PUBLICATION="CREATE TABLE IF NOT EXISTS r29_migration_publication(singleton INTEGER PRIMARY KEY CHECK(singleton=1),epoch INTEGER NOT NULL,candidate_name TEXT NOT NULL,phase TEXT NOT NULL,baseline_name TEXT NOT NULL DEFAULT '',baseline_sha TEXT NOT NULL DEFAULT '',source_root TEXT NOT NULL DEFAULT '',last_error TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL)";
+    static final String FENCE="CREATE TABLE IF NOT EXISTS r29_migration_owner_fence(singleton INTEGER PRIMARY KEY CHECK(singleton=1),epoch INTEGER NOT NULL,protocol TEXT NOT NULL,source_hash TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL)";
+    static final String FENCE_PROTOCOL="R29_ROOT_RESEARCH_FROZEN_V1";
     private static final String CANDIDATE="starcore-r29-research.candidate.db";
     private static final long BUDGET_MS=30_000,RESERVE_BYTES=96L<<20;
 
@@ -96,11 +98,82 @@ public final class ResearchCutoverR29 {
     public static String run(DbStore store,ResearchPoolR27.Worker worker)throws Exception{
         if(ResearchRouteR29.active(worker.realtimeRo())){ResearchRouteR29.verifyActiveOwner(worker.realtimeRo());return "ACTIVE";}
         if(!RuntimeCoordinatorR26.readyForResearchMigration())return "WAITING_LEGACY_STORAGE_SCHEMA_BEFORE_OWNER_TRANSFER";
+        try(LegacyCapabilityAdapterR29.CutoverLease legacy=LegacyCapabilityAdapterR29.drainForCutover()){
+        if(legacy==null)return "WAITING_LEGACY_MAINTENANCE_DRAIN";
         if(!worker.pool().beginCutover(3000))return "WAITING_RESEARCH_QUIESCENCE";
         try(ResearchRouteR29.Handoff handoff=ResearchRouteR29.handoff(store)){
             if(handoff==null)return "WAITING_RESEARCH_WRITER_HANDOFF";
             return copyAndPublish(store,worker);
+        }catch(RuntimeException failure){recordRecoveryRequired(store,failure);throw failure;
         }finally{worker.pool().endCutover();}
+        }
+    }
+    static List<MigrationCopyR29.Table> researchTables(SQLiteDatabase root){
+        List<MigrationCopyR29.Table> out=new ArrayList<>();
+        for(MigrationCopyR29.Table table:tables(root))if(MigrationCopyR29.ownedResearch(table.name))out.add(table);
+        return out;
+    }
+    static String researchRoot(SQLiteDatabase root,long deadline,java.util.function.BooleanSupplier cancelled){
+        return root(root,researchTables(root),deadline,cancelled);
+    }
+    static String fenceHash(SQLiteDatabase root,long epoch){
+        try(Cursor table=root.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='r29_migration_owner_fence'",null)){
+            if(!table.moveToFirst())throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:NO_DURABLE_OWNER_FENCE");
+        }
+        try(Cursor c=root.rawQuery("SELECT epoch,protocol,source_hash FROM r29_migration_owner_fence WHERE singleton=1",null)){
+            if(!c.moveToFirst()||c.getLong(0)!=epoch||!FENCE_PROTOCOL.equals(c.getString(1)))throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:OWNER_FENCE_CONFLICT");
+            return c.getString(2);
+        }
+    }
+    private static void bindFence(DbStore store,SQLiteDatabase root,long epoch,long deadline,java.util.function.BooleanSupplier cancelled){
+        String expected=fenceHash(root,epoch),actual=researchRoot(root,deadline,cancelled);
+        if(!expected.isEmpty()){if(!expected.equals(actual))throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL");return;}
+        LegacyResearchScopeR29.realtimeWrite(store,"R29_BIND_RESEARCH_OWNER_FENCE",db->{
+            db.execSQL("UPDATE r29_migration_owner_fence SET source_hash=? WHERE singleton=1 AND epoch=? AND protocol=? AND source_hash=''",new Object[]{actual,epoch,FENCE_PROTOCOL});
+            if(!actual.equals(fenceHash(db,epoch)))throw new IllegalStateException("R29_OWNER_FENCE_HASH_CAS_CONFLICT");return 0;
+        });
+    }
+    static void verifyFence(SQLiteDatabase root,long epoch,long deadline,java.util.function.BooleanSupplier cancelled){
+        String expected=fenceHash(root,epoch);
+        if(!hash(expected)||!expected.equals(researchRoot(root,deadline,cancelled)))throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL");
+    }
+    private static void recordRecoveryRequired(DbStore store,RuntimeException failure){
+        String reason=String.valueOf(failure.getMessage());if(!reason.startsWith("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:"))return;
+        final String detail=reason.length()>1000?reason.substring(0,1000):reason;
+        try{LegacyResearchScopeR29.realtimeWrite(store,"R29_RECORD_OWNER_RECOVERY_REQUIRED",db->{
+            db.execSQL("UPDATE r29_migration_publication SET last_error=?,updated_at=? WHERE singleton=1 AND phase IN ('PREPARED','VERIFIED','RENAMED')",new Object[]{detail,System.currentTimeMillis()});return 0;
+        });}catch(RuntimeException unavailable){failure.addSuppressed(unavailable);}
+    }
+    /** Recover the sealed owner before R26 initialization can write sessions or models. No pool/Worker
+     * is needed here, so a durable pending fence cannot deadlock startup waiting for its own pool. */
+    public static String resumeBeforeRuntime(DbStore store){
+        SQLiteDatabase root=store.coordinatorForResearchR952().realtimeReadOnlyR29();
+        if(ResearchRouteR29.active(root)||!ResearchRouteR29.pendingHandoff(root))return "NO_PENDING_OWNER_TRANSFER";
+        long deadline=android.os.SystemClock.elapsedRealtime()+BUDGET_MS;
+        try(LegacyCapabilityAdapterR29.CutoverLease legacy=LegacyCapabilityAdapterR29.drainForCutover();ResearchRouteR29.Handoff handoff=ResearchRouteR29.handoff(store)){
+            if(legacy==null||handoff==null)throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_STARTUP_RECOVERY");
+            Publication p=publication(root);if(p==null)return "NO_PENDING_OWNER_TRANSFER";
+            File candidate=store.contextForR26().getDatabasePath(CANDIDATE),published=store.contextForR26().getDatabasePath(ResearchRouteR29.FILE_NAME);
+            File baseline=new File(candidate.getParentFile(),baselineName(p.epoch));
+            MigrationCopyR29.Transaction writer=body->LegacyResearchScopeR29.realtimeWrite(store,"R29_STARTUP_CUTOVER_PHASE",db->{body.run(db);return 0;});
+            if("PREPARED".equals(p.phase)&&!baseline.exists()){
+                if(!p.baselineName.isEmpty()||!p.baselineSha.isEmpty()||!p.sourceRoot.isEmpty()||published.exists())throw new IllegalStateException("R29_PREPARED_PROOF_CONFLICT");
+                // No sealed proof exists; Root still owns every original row. Only the disposable,
+                // unsealed candidate and this uncompleted reservation may be cancelled.
+                removeUnpublished(candidate);writer.write(db->{
+                    db.execSQL("DELETE FROM r29_migration_publication WHERE singleton=1 AND epoch=? AND phase='PREPARED' AND baseline_name='' AND baseline_sha=''",new Object[]{p.epoch});
+                    if(publication(db)!=null)throw new IllegalStateException("R29_UNSEALED_RESERVATION_CANCEL_CAS_CONFLICT");
+                    try(Cursor exists=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='r29_migration_owner_fence'",null)){if(exists.moveToFirst())db.execSQL("DELETE FROM r29_migration_owner_fence WHERE singleton=1 AND epoch=?",new Object[]{p.epoch});}
+                });return "UNSEALED_RESERVATION_CANCELLED_ROOT_RETAINED";
+            }
+            verifyFence(root,p.epoch,deadline,()->Thread.currentThread().isInterrupted());
+            Publication ready=resumePublication(root,candidate,published,writer,deadline,()->Thread.currentThread().isInterrupted());
+            if(ready==null)throw new IllegalStateException("R29_SEALED_STARTUP_PROOF_REQUIRED");
+            ResearchRouteR29.publish(store,published,ready.schemaHash,ready.sourceRoot,ready.epoch);
+            return "ACTIVE_RECOVERED_BEFORE_RUNTIME_INITIALIZE";
+        }catch(InterruptedException stop){Thread.currentThread().interrupt();throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_STARTUP_INTERRUPTED",stop);}
+        catch(RuntimeException failure){recordRecoveryRequired(store,failure);throw failure;}
+        catch(Exception failure){throw new IllegalStateException("R29_STARTUP_OWNER_RECOVERY_FAILED",failure);}
     }
     static final class Publication{
         long epoch;String candidateName,phase,baselineName,baselineSha,sourceRoot,schemaHash;
@@ -176,7 +249,8 @@ public final class ResearchCutoverR29 {
         if(!"RENAMED".equals(p.phase))throw new IllegalStateException("R29_RESEARCH_RESUME_PHASE_INVALID");
         return p;
     }
-    private static String finishPublication(DbStore store,ResearchPoolR27.Worker worker,File published,Publication p)throws Exception{
+    private static String finishPublication(DbStore store,ResearchPoolR27.Worker worker,File published,Publication p,long deadline)throws Exception{
+        if(!"PUBLISHED".equals(p.phase))verifyFence(worker.realtimeRo(),p.epoch,deadline,worker::cancelled);
         if(!"PUBLISHED".equals(p.phase))ResearchRouteR29.publish(store,published,p.schemaHash,p.sourceRoot,p.epoch);
         worker.pool().reloadResearchReaders();return "ACTIVE_INDEPENDENT_RESEARCH_WRITER";
     }
@@ -189,17 +263,21 @@ public final class ResearchCutoverR29 {
         if(publication(source)==null){
             final boolean candidateExists=candidate.exists()||published.exists();
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_RESERVE",db->{
-                db.execSQL(PUBLICATION);ResearchRouteR29.ensureRealtime(db);RealtimeResearchProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);CriticalInputMirrorR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);
+                db.execSQL(PUBLICATION);db.execSQL(FENCE);ResearchRouteR29.ensureRealtime(db);RealtimeResearchProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);CriticalInputMirrorR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);
                 Publication current=publication(db);
                 if(current==null&&candidateExists)throw new IllegalStateException("R29_UNOWNED_CANDIDATE_REQUIRES_REVIEW");
-                if(current==null)db.execSQL("INSERT INTO r29_migration_publication(singleton,epoch,candidate_name,phase,updated_at) VALUES(1,?,?,'PREPARED',?)",new Object[]{Math.max(1,System.currentTimeMillis()),CANDIDATE,System.currentTimeMillis()});
+                if(current==null){long epoch=Math.max(1,System.currentTimeMillis());
+                    db.execSQL("INSERT INTO r29_migration_publication(singleton,epoch,candidate_name,phase,updated_at) VALUES(1,?,?,'PREPARED',?)",new Object[]{epoch,CANDIDATE,System.currentTimeMillis()});
+                    db.execSQL("INSERT INTO r29_migration_owner_fence VALUES(1,?,?,?,?)",new Object[]{epoch,FENCE_PROTOCOL,"",System.currentTimeMillis()});
+                }
                 return 0;
             });
         }
         if(ResearchRouteR29.active(source)){ResearchRouteR29.verifyActiveOwner(source);return "ACTIVE";}
+        bindFence(store,source,publication(source).epoch,deadline,worker::cancelled);
         MigrationCopyR29.Transaction writer=body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_PHASE",db->{body.run(db);return 0;});
         Publication resumed=resumePublication(source,candidate,published,writer,deadline,worker::cancelled);
-        if(resumed!=null)return finishPublication(store,worker,published,resumed);
+        if(resumed!=null)return finishPublication(store,worker,published,resumed,deadline);
         long epoch=publication(source).epoch;
         Prepared prepared=withSourceSnapshot(source,pinned->prepareCandidateSnapshot(worker,pinned,candidate,epoch,deadline));
         // The source read transaction is now closed. File sealing and short Root publication cannot
@@ -267,7 +345,7 @@ public final class ResearchCutoverR29 {
         MigrationCopyR29.Transaction writer=body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_PHASE",db->{body.run(db);return 0;});
         Publication resumed=resumePublication(worker.realtimeRo(),candidate,published,writer,deadline,worker::cancelled);
         if(resumed==null)throw new IllegalStateException("R29_COMPLETED_COPY_PROOF_MISSING");
-        return finishPublication(store,worker,published,resumed);
+        return finishPublication(store,worker,published,resumed,deadline);
     }
     static void removeUnpublished(File file)throws IOException{for(String suffix:new String[]{"","-wal","-shm"}){File part=new File(file.getPath()+suffix);if(part.exists()&&!part.delete())throw new IOException("R29_UNPUBLISHED_CANDIDATE_DELETE_FAILED");}}
     static void copyBaseline(File source,File baseline,long deadline,java.util.function.BooleanSupplier cancelled)throws Exception{

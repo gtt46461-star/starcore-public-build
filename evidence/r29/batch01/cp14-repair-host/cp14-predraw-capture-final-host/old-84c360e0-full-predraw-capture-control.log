@@ -1,0 +1,24 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" java.lang.AssertionError: PREDRAW_CAPTURE_MISSING_POLL_BETWEEN_BOUNDED_READS
+	at com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest.pressuredCapture(PredrawCaptureQuantumR29HostTest.java:34)
+	at com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest.main(PredrawCaptureQuantumR29HostTest.java:85)
+Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.capacityFailure(CooperativeContinuationR26.java:39)
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)
+	at com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest.pressuredCapture(PredrawCaptureQuantumR29HostTest.java:30)
+	... 1 more
+	Suppressed: java.lang.IllegalStateException: R26_UNSLICED_WORKER_DIAGNOSTIC|thread=actual-full-5000-predraw-capture|state=TIMED_WAITING|sinceLastPollMs=1039|criticalDepth=0|lastPublishedWorkerCpuMs=0
+		at java.base@17.0.17/java.lang.Thread.sleep(Native Method)
+		at app//com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest.lambda$boundedReads$0(PredrawCaptureQuantumR29HostTest.java:22)
+		at app//com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest$$Lambda$77/0x00007fdfe402d438.accept(Unknown Source)
+		at app//android.database.sqlite.SQLiteDatabase.rawQuery(SQLiteDatabase.java:62)
+		at app//android.database.sqlite.SQLiteDatabase.query(SQLiteDatabase.java:58)
+		at app//com.ethk3.novaonepro.DbStore.getDrawsBeforeIssue(DbStore.java:2650)
+		at app//com.ethk3.novaonepro.r952.PITSnapshotContractR952.capture(PITSnapshotContractR952.java:26)
+		at app//com.ethk3.novaonepro.strategyv2.EventFrameBuilderSU1.capture(EventFrameBuilderSU1.java:18)
+		at app//com.ethk3.novaonepro.strategyv2.EventFrameBuilderSU1.capture(EventFrameBuilderSU1.java:14)
+		at app//com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest.lambda$capture$1(PredrawCaptureQuantumR29HostTest.java:26)
+		at app//com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest$$Lambda$78/0x00007fdfe402d888.call(Unknown Source)
+		at app//com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:53)
+		at app//com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$Lambda$81/0x00007fdfe402cc00.run(Unknown Source)
+		at java.base@17.0.17/java.lang.Thread.run(Thread.java:840)

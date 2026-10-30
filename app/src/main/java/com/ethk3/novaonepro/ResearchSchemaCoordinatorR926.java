@@ -64,6 +64,8 @@ public final class ResearchSchemaCoordinatorR926 {
 
     public static StepResult ensureOneStepResult(final DatabaseCoordinator owner) {
         if (owner == null) return new StepResult(false,false,"WRITER_FAILED","OWNER_REQUIRED",null);
+        if(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.pendingHandoff(owner.realtimeReadOnlyR29()))
+            return new StepResult(false,false,"WAITING_FOR_DURABLE_RESEARCH_HANDOFF","ROOT_RESEARCH_OWNER_RESERVED",null,0,true);
         // CORE/R36 critical schema has its own owner. This optional legacy RESEARCH overlay waits
         // outside Root's queue while the active runtime commits its self-contained SU1 dependency.
         if(com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.strategyStoragePending(owner))
@@ -73,6 +75,8 @@ public final class ResearchSchemaCoordinatorR926 {
             return owner.runWriteOrThrowF01("R958_RESEARCH_SCHEMA_STEP",new DatabaseCoordinator.WriteCallable<StepResult>() {
                 public StepResult call(SQLiteDatabase db) {
                     entered[0]=true;
+                    if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)&&com.ethk3.novaonepro.strategyv2.ResearchRouteR29.pendingHandoff(db))
+                        return new StepResult(false,true,"WAITING_FOR_DURABLE_RESEARCH_HANDOFF","ROOT_RESEARCH_OWNER_RESERVED",null,0,true);
                     synchronized (LOCK) {
                         long[] before=schemaProgress(db);
                         boolean ready;
@@ -147,7 +151,10 @@ public final class ResearchSchemaCoordinatorR926 {
                 }
             }
             SchemaDomainCoordinatorR926.Contract contract = SchemaDomainCoordinatorR926.researchContract(db);
-            boolean priorDomainReady = SchemaDomainCoordinatorR926.matches(db, contract);
+            // Read this invocation's incomplete stage once. INITIALIZING is neither a READY
+            // fingerprint nor a terminal repair boundary; its original journal still owns progress.
+            String initializingCursor=initializingCursor(db,contract);
+            boolean priorDomainReady = initializingCursor==null&&SchemaDomainCoordinatorR926.matches(db, contract);
             if (priorDomainReady && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
                     && LegacySettlementProofR79.ready(db)
                     && com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.readyR80(db)
@@ -181,10 +188,10 @@ public final class ResearchSchemaCoordinatorR926 {
                     }
                     state="READY";cursor="COMPLETE";error="";return true;
                 }
-                SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, contract);
+                if(initializingCursor==null)SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, contract);
             String step = nextStep(db, contract);
                 cursor = step;
-                markInitializingStep(db,contract,cursor);
+                markInitializingStep(db,contract,cursor,initializingCursor);
                 if ("VERIFY".equals(step)) {
                     // Final verification has its own writer callback. Do not append the
                     // complete integrity/readiness scan to the last DDL installation unit.
@@ -256,13 +263,17 @@ public final class ResearchSchemaCoordinatorR926 {
     /** An intermediate fingerprint is diagnostic, never a READY or repair proof. The per-unit
      * SU1/R952 journal remains authoritative while this same stage is running. Rehash the full
      * legacy catalogue only when its stage changes; VERIFY and FAILED retain their full proof. */
-    private static void markInitializingStep(SQLiteDatabase db,SchemaDomainCoordinatorR926.Contract contract,String step){
+    private static String initializingCursor(SQLiteDatabase db,SchemaDomainCoordinatorR926.Contract contract){
+        SchemaDomainCoordinatorR926.ensureInfrastructure(db);
         try(android.database.Cursor prior=db.rawQuery("SELECT revision,contract_hash,state,cursor,last_error FROM "
                 +SchemaDomainCoordinatorR926.TABLE_DOMAIN+" WHERE domain=?",new String[]{contract.domain})){
             if(prior.moveToFirst()&&prior.getInt(0)==contract.revision&&contract.contractHash.equals(prior.getString(1))
-                    &&"INITIALIZING".equals(prior.getString(2))&&step.equals(prior.getString(3))
-                    &&"".equals(prior.getString(4)))return;
+                    &&"INITIALIZING".equals(prior.getString(2))&&"".equals(prior.getString(4)))return prior.getString(3);
         }
+        return null;
+    }
+    private static void markInitializingStep(SQLiteDatabase db,SchemaDomainCoordinatorR926.Contract contract,String step,String previous){
+        if(step.equals(previous))return;
         SchemaDomainCoordinatorR926.markState(db,contract,"INITIALIZING",step,"");
     }
 
@@ -279,7 +290,7 @@ public final class ResearchSchemaCoordinatorR926 {
         }
         for(String step:new String[]{"R811_RESEARCH","R815_RESEARCH","R906_RESEARCH_R64_VERIFIED",
                 "R925_RESEARCH","R932_UNIFIED","R952_EXTENSION"})if(!completed.contains(step))return step;
-        return nextAdditiveStep(db);
+        return nextAdditiveStep(db,completed);
     }
 
     private static boolean isAdditiveStep(String step) {
@@ -332,7 +343,12 @@ public final class ResearchSchemaCoordinatorR926 {
     }
 
     private static String nextAdditiveStep(SQLiteDatabase db) {
-        if (!com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)) return "R79_MATRIX_READY_ORDER_V1";
+        return nextAdditiveStep(db,null);
+    }
+    private static String nextAdditiveStep(SQLiteDatabase db,java.util.Set<String> completed) {
+        boolean ordered=completed==null?com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
+                :com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db,completed.contains("R79_MATRIX_READY_ORDER_V1"));
+        if (!ordered) return "R79_MATRIX_READY_ORDER_V1";
         if (!LegacySettlementProofR79.ready(db)) return "R79_LEGACY_ORIGINAL_PROOF_V1";
         if (!com.ethk3.novaonepro.r952.BoundAtomLifecycleR80.readyR80(db)) return "R80_BOUND_ATOM_ORIGINAL_INPUT_V1";
         if (!MultiHorizonProbeR80.readyR80(db)) return "R80_MULTI_HORIZON_PROBE_V1";

@@ -27,8 +27,8 @@ pathlib.Path(sys.argv[1]).write_text(text.replace('    public Cursor rawQuery(St
 PY
 mapfile -t INCUMBENT_OBSERVATION_SHIMS < <(find tools/r29/scoped_schema_host/shim -name '*.java' ! -path '*/android/database/sqlite/SQLiteDatabase.java')
 javac -nowarn -encoding UTF-8 -proc:none -d "$INCUMBENT_OBSERVATION_TMP/shim" "${INCUMBENT_OBSERVATION_SHIMS[@]}" "$INCUMBENT_OBSERVATION_TMP/framework/android/database/sqlite/SQLiteDatabase.java" tools/r29/schema_owner_host/shim/android/content/ContentValues.java tools/r29/schema_owner_host/shim/android/database/Cursor.java tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabaseLockedException.java tools/r29/qual_host/shim/android/os/SystemClock.java
-javac -nowarn -encoding UTF-8 -proc:none -cp "$CLASSES:$ANDROID_JAR" -d "$INCUMBENT_OBSERVATION_TMP/product" app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchScopeR29.java app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java
-javac -nowarn -encoding UTF-8 -proc:none -cp "$INCUMBENT_OBSERVATION_TMP/shim:$INCUMBENT_OBSERVATION_TMP/product:$CLASSES:$ANDROID_JAR" -d "$INCUMBENT_OBSERVATION_TMP/test" tools/r29/qual_host/EventYieldR29HostTest.java tools/r29/qual_host/IncumbentObservationR29HostTest.java
+javac -nowarn -encoding UTF-8 -proc:none -cp "$CLASSES:$ANDROID_JAR" -d "$INCUMBENT_OBSERVATION_TMP/product" app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchScopeR29.java app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java app/src/main/java/com/ethk3/novaonepro/r952/PITSnapshotContractR952.java app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameSU1.java app/src/main/java/com/ethk3/novaonepro/strategyv2/CooperativeContinuationR26.java
+javac -nowarn -encoding UTF-8 -proc:none -cp "$INCUMBENT_OBSERVATION_TMP/shim:$INCUMBENT_OBSERVATION_TMP/product:$CLASSES:$ANDROID_JAR" -d "$INCUMBENT_OBSERVATION_TMP/test" tools/r29/qual_host/EventYieldR29HostTest.java tools/r29/qual_host/IncumbentObservationR29HostTest.java tools/r29/qual_host/PredrawCaptureQuantumR29HostTest.java
 java -Xmx768m -cp "$INCUMBENT_OBSERVATION_TMP/shim:$INCUMBENT_OBSERVATION_TMP/test:$INCUMBENT_OBSERVATION_TMP/product:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.IncumbentObservationR29HostTest | tee "$OUT/r29_incumbent_observation_host.log"
 mkdir -p "$INCUMBENT_OBSERVATION_TMP/old-source" "$INCUMBENT_OBSERVATION_TMP/old-product"
 for name in IncumbentLoopSU2 EventFrameBuilderSU1; do git show "116888fe:app/src/main/java/com/ethk3/novaonepro/strategyv2/$name.java" > "$INCUMBENT_OBSERVATION_TMP/old-source/$name.java"; done
@@ -54,3 +54,27 @@ if [ "$EXPERT_AUDIT_OBSERVATION_CONTROL" -eq 0 ] || ! grep -q AUDIT_BORROWED_BLO
   exit 1
 fi
 echo "R29_INCUMBENT_OBSERVATION|OLD_SHARED_EXPERT_AUDIT_RW_REJECTED|exit=$EXPERT_AUDIT_OBSERVATION_CONTROL"
+java -Xmx768m -cp "$INCUMBENT_OBSERVATION_TMP/shim:$INCUMBENT_OBSERVATION_TMP/test:$INCUMBENT_OBSERVATION_TMP/product:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest | tee "$OUT/r29_predraw_capture_quantum_host.log"
+mkdir -p "$INCUMBENT_OBSERVATION_TMP/old-capture-source" "$INCUMBENT_OBSERVATION_TMP/old-capture-product"
+for path in r952/PITSnapshotContractR952 strategyv2/EventFrameBuilderSU1 strategyv2/EventFrameSU1; do
+  git show "84c360e0:app/src/main/java/com/ethk3/novaonepro/$path.java" > "$INCUMBENT_OBSERVATION_TMP/old-capture-source/$(basename "$path").java"
+done
+javac -nowarn -encoding UTF-8 -proc:none -cp "$CLASSES:$ANDROID_JAR" -d "$INCUMBENT_OBSERVATION_TMP/old-capture-product" "$INCUMBENT_OBSERVATION_TMP/old-capture-source/"*.java
+set +e
+java -Xmx768m -cp "$INCUMBENT_OBSERVATION_TMP/shim:$INCUMBENT_OBSERVATION_TMP/test:$INCUMBENT_OBSERVATION_TMP/old-capture-product:$INCUMBENT_OBSERVATION_TMP/product:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest old-control > "$OUT/old-84c360e0-full-predraw-capture-control.log" 2>&1
+PREDRAW_CAPTURE_CONTROL=$?
+set -e
+if [ "$PREDRAW_CAPTURE_CONTROL" -eq 0 ] || ! grep -q PREDRAW_CAPTURE_MISSING_POLL_BETWEEN_BOUNDED_READS "$OUT/old-84c360e0-full-predraw-capture-control.log"; then
+  cat "$OUT/old-84c360e0-full-predraw-capture-control.log"
+  exit 1
+fi
+echo "R29_PREDRAW_CAPTURE|OLD_UNSLICED_CAPTURE_REJECTED|exit=$PREDRAW_CAPTURE_CONTROL"
+set +e
+java -Xmx768m -cp "$INCUMBENT_OBSERVATION_TMP/shim:$INCUMBENT_OBSERVATION_TMP/test:$INCUMBENT_OBSERVATION_TMP/old-capture-product:$INCUMBENT_OBSERVATION_TMP/product:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.PredrawCaptureQuantumR29HostTest old-task-control > "$OUT/old-84c360e0-full-incumbent-task-control.log" 2>&1
+PREDRAW_TASK_CONTROL=$?
+set -e
+if [ "$PREDRAW_TASK_CONTROL" -eq 0 ] || ! grep -q PREDRAW_TASK_MISSING_CAPTURE_POLL "$OUT/old-84c360e0-full-incumbent-task-control.log"; then
+  cat "$OUT/old-84c360e0-full-incumbent-task-control.log"
+  exit 1
+fi
+echo "R29_PREDRAW_CAPTURE|OLD_UNSLICED_ACTUAL_INCUMBENT_TASK_REJECTED|exit=$PREDRAW_TASK_CONTROL"
