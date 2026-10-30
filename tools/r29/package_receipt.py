@@ -6,7 +6,8 @@ root=Path(__file__).resolve().parents[2]; os.chdir(root)
 out=root/'r29-apk'; out.mkdir(exist_ok=True)
 source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
 tree=subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip()
-if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip(): raise SystemExit('DIRTY_SOURCE_NO_DELIVERY')
+dirty=subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip()
+if dirty: raise SystemExit('DIRTY_SOURCE_NO_DELIVERY:\n'+dirty)
 tool=Path(os.environ['ANDROID_HOME'])/'build-tools/36.0.0'
 rows=[]
 for variant in ['release','debug']:

@@ -8,7 +8,8 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 LOG=evidence/r29/ci; mkdir -p "$LOG"
 commit_generated() {
-  git add release/ app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
+  git add release/ app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java \
+    app/build/generated/r967/semantic_manifest.json app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
   if ! git diff --cached --quiet; then
     git -c user.name='STARCORE build identity' -c user.email='starcore-build@users.noreply.github.com' commit -q -m "$1"
   fi
@@ -19,7 +20,7 @@ commit_generated 'R29: bind generated identities to reviewed implementation byte
 ./gradlew --no-daemon -q :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset 2>&1 | tail -n 40 | tee "$LOG/bootstrap_compile.log"
 python3 tools/r29/rebind_identity.py --classes app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes | tail -n 3
 commit_generated 'R29: bind compiled call inventory'
-git diff --exit-code -- app/src/main release
+git diff --exit-code -- app/src/main release app/build/generated
 if [ -n "${PUSH_REF:-}" ]; then git push origin "HEAD:$PUSH_REF"; fi
 python3 scripts/r926_release_manifest.py --check
 python3 scripts/r967_semantic_identity.py --check
