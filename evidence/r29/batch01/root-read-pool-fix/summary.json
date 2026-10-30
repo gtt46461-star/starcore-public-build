@@ -1,0 +1,29 @@
+{
+  "baseSource": "9fbd2ca745732e42cc826e97b0270827669205cf",
+  "trigger": {
+    "androidRun": 41068560762,
+    "source": "9fbd2ca",
+    "case": "R29DatabaseCutoverDeviceTest scoped legacy write while realtime writer held",
+    "result": "FAIL_TIMEOUT_1500MS",
+    "rawEvidence": "evidence/r29/batch01/failed/android-9fbd2ca/"
+  },
+  "diagnosis": "Android prepares PRAGMA through the supplied SQLiteDatabase handle primary connection; mirror schema inspection used the realtime writer shared RW handle rather than the already-open separate Root readonly connection. This mechanism is modelled on HOST; exact corrected device behavior requires a new API34 run.",
+  "change": [
+    "Capture canonical/critical/legacy upgrade inputs through the independent Root query-only reader",
+    "Keep route publication and actual realtime writes bound to the original Root handle",
+    "Reject an RP authority handle at research owner resolution, preventing accidental second-owner/fallback routing",
+    "Validate snapshot source path and query_only contract"
+  ],
+  "host": {
+    "rootSnapshotChecks": 5,
+    "sharedWritableControl": "SAME_ASSERTION_FAILS_PRIMARY_POOL_CAPTURE_WAITED_FOR_RT_WRITER",
+    "criticalMirrorChecks": 19,
+    "domainUpgradeChecks": 18,
+    "cutoverChecks": 19,
+    "ownerChecks": 12,
+    "sqlite": "REAL_FILE_WAL",
+    "androidPrimaryLease": "EXPLICIT_HOST_MODEL_NOT_ANDROID_EXECUTION"
+  },
+  "androidRetest": "PENDING",
+  "testDeadlineChanged": false
+}

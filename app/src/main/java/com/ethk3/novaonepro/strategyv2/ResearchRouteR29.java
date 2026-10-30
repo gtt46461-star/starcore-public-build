@@ -37,6 +37,7 @@ public final class ResearchRouteR29 {
     }
     private static String realtimePath(Context context){return context.getDatabasePath(AppConfig.DB_NAME).getAbsolutePath();}
     private static Owner owner(SQLiteDatabase realtime){
+        if(isResearchDatabase(realtime))throw new IllegalStateException("R29_ROUTE_REQUIRES_REALTIME_AUTHORITY_HANDLE");
         if(!active(realtime))return null;
         String path=realtime.getPath();
         synchronized(OWNERS){Owner owner=OWNERS.get(path);if(owner==null){owner=new Owner(new File(path),realtime);OWNERS.put(path,owner);}return owner;}
@@ -77,7 +78,13 @@ public final class ResearchRouteR29 {
         synchronized(OWNERS){for(Owner owner:OWNERS.values())if(owner.writer==database||owner.file.getAbsolutePath().equals(database.getPath()))return owner.realtimeReader;}
         return database;
     }
-    public static SQLiteDatabase realtimeReadOnly(SQLiteDatabase root){Owner o=owner(root);return o==null?root:o.realtimeReader;}
+    public static SQLiteDatabase realtimeReadOnly(SQLiteDatabase root){Owner o=owner(root);return o==null?root:rootSnapshotSource(root,o.realtimeReader);}
+    /** The capture handle has its own pool. A query-only handle from another file is not a Root snapshot. */
+    static SQLiteDatabase rootSnapshotSource(SQLiteDatabase authority,SQLiteDatabase independent){
+        if(independent==null||!authority.getPath().equals(independent.getPath()))throw new IllegalStateException("R29_REALTIME_SNAPSHOT_PATH_MISMATCH");
+        try(Cursor c=independent.rawQuery("PRAGMA query_only",null)){if(!c.moveToFirst()||c.getInt(0)!=1)throw new IllegalStateException("R29_REALTIME_SNAPSHOT_REQUIRES_QUERY_ONLY");}
+        return independent;
+    }
     public static boolean writerHeldByCurrentThread(){synchronized(OWNERS){for(Owner o:OWNERS.values())if(o.lock.isHeldByCurrentThread())return true;}return false;}
     public static void publish(DbStore store,File prepared,String schemaHash,String sourceRoot,long epoch){
         File expected=store.contextForR26().getDatabasePath(FILE_NAME);

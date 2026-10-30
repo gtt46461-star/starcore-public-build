@@ -19,6 +19,13 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public final class R29DatabaseCutoverDeviceTest {
     static long n(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
+    static <T>T independent(Future<T> future)throws Exception{
+        try{return future.get(1500,TimeUnit.MILLISECONDS);}catch(TimeoutException failure){
+            for(Map.Entry<Thread,StackTraceElement[]> entry:Thread.getAllStackTraces().entrySet())if(entry.getKey().getName().startsWith("pool-")){
+                System.out.println("R29_INDEPENDENT_WRITE_TIMEOUT_THREAD="+entry.getKey().getName()+"|"+entry.getKey().getState());for(StackTraceElement frame:entry.getValue())System.out.println("  "+frame);
+            }throw failure;
+        }
+    }
     static void checkpoint(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null)){assertTrue(c.moveToFirst());assertEquals(0,c.getInt(0));}}
     @Test public void realAndroidCutoverIndependentWritersAndReport()throws Exception{
         Context target=InstrumentationRegistry.getInstrumentation().getTargetContext();assertNull(DatabaseCoordinator.peek());
@@ -69,14 +76,14 @@ public final class R29DatabaseCutoverDeviceTest {
             try{
                 assertTrue(rootHeld.await(3,TimeUnit.SECONDS));
                 Future<Integer> independent=executor.submit(()->ResearchRouteR29.write(store,"SYNTHETIC_R29_INDEPENDENT",db->{db.execSQL("UPDATE r29_cutover_fixture SET n='independent' WHERE id=2");return 1;}));
-                assertEquals(Integer.valueOf(1),independent.get(1500,TimeUnit.MILLISECONDS));
+                assertEquals(Integer.valueOf(1),independent(independent));
                 Future<Integer> legacyIndependent=executor.submit(()->{try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
                     return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SYNTHETIC_INDEPENDENT_SCOPE",db->{
                         assertEquals(sandbox.getDatabasePath(ResearchRouteR29.FILE_NAME).getCanonicalPath(),new File(db.getPath()).getCanonicalPath());
                         assertEquals(1,n(db,"SELECT count(*) FROM pragma_database_list WHERE name NOT IN ('temp')"));
                         db.execSQL("UPDATE r26_task SET cursor=6 WHERE task_id='synthetic-legacy'");return 1;});
                 }});
-                assertEquals(Integer.valueOf(1),legacyIndependent.get(1500,TimeUnit.MILLISECONDS));
+                assertEquals(Integer.valueOf(1),independent(legacyIndependent));
             }finally{releaseRoot.countDown();held.get(5,TimeUnit.SECONDS);}
             result.put("independentResearchCommitWhileRealtimeWriterHeld",true);
             assertEquals(4,n(original,"SELECT cursor FROM r26_task WHERE task_id='synthetic-legacy'"));

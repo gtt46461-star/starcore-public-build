@@ -330,7 +330,9 @@ public final class R27QualityTest {
         String evo = new String(Files.readAllBytes(new File(dir, "EvolutionLoopR27.java").toPath()), "UTF-8");
         assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || (serialWhile != null && serialWhile.getAsBoolean()))"));
         String rt = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8");
-        assertTrue("evolution also honors the pool's thermal/P0/deadline guard", rt.contains("evo.serialWhile = () -> pool.narrow(System.currentTimeMillis());"));
+        // The private continuation never forks helper work. Pool CAS admission enforces narrowing;
+        // EvolutionServiceR29Test actually yields its sole slot and verifies identical resumed results.
+        assertTrue("private evolution cannot escape the admitted slot through helpers",rt.contains("loop.executor=null;loop.serialWhile=()->true;"));
         R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
     }
 
@@ -387,13 +389,14 @@ public final class R27QualityTest {
         String root = R27TestSupport.root().getPath() + "/app/src/main/java/com/ethk3/novaonepro/";
         String rt = new String(Files.readAllBytes(new File(root + "strategyv2/RuntimeR27.java").toPath()), "UTF-8");
         String live = new String(Files.readAllBytes(new File(root + "strategyv2/LiveShadowsR27.java").toPath()), "UTF-8");
-        int i = rt.indexOf("void refreshObservers("); assertTrue(i >= 0);
-        String body = rt.substring(i, rt.indexOf("submit(w, \"OBSERVERS\", b);", i));
+        int i = rt.indexOf("boolean refreshObservers("); assertTrue(i >= 0);
+        String body = rt.substring(i, rt.indexOf("EvolutionLoopR27 restoreOrCreate", i));
         // No e-process row, no α index, no certificate, no promotion: observers only collect FUTURE rows.
         assertFalse(body.contains("r27_eprocess")); assertFalse(body.contains("insertShadow")); assertFalse(body.contains("r27_certificate"));
         assertTrue(body.contains("VALUES(?,?,?,?,0,?"));
         assertTrue(rt.contains("LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false)"));
-        assertTrue(rt.contains("if (stepBefore == 9) refreshObservers(w, loop);"));
+        assertTrue("observer changes retry without blocking the sole slot",rt.contains("if(pending.stepBefore==9&&!refreshObservers(w,loop))deferredObservers=loop;"));
+        assertTrue("observer batch submits without waiting in the slot",body.contains("return w.writes().submit(\"OBSERVERS\",b,w::cancelled);"));
         // Certification, calibration and the mainline intent still read ACTIVE shadows only.
         assertTrue(live.contains("for (Shadow s : shadows(w.ro, \"('ACTIVE')\"))"));
         assertEquals(LiveShadowsR27.LIVE_STATES, "('ACTIVE','CONTROL_I00','CONTROL_NULL')");

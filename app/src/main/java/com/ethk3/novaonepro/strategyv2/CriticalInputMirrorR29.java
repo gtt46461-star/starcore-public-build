@@ -170,7 +170,10 @@ public final class CriticalInputMirrorR29 {
     static void cleanupAck(Runnable cleanup,java.util.function.Consumer<RuntimeException> deferred){try{cleanup.run();}catch(RuntimeException failure){deferred.accept(failure);}}
     public static void refresh(DbStore store){
         if(ResearchRouteR29.writerHeldByCurrentThread())throw new IllegalStateException("R29_CRITICAL_INPUT_CAPTURE_INSIDE_RESEARCH_WRITER_FORBIDDEN");
-        SQLiteDatabase root=LegacyResearchScopeR29.rawRealtime(store);if(!ResearchRouteR29.active(root))return;
+        SQLiteDatabase authority=LegacyResearchScopeR29.rawRealtime(store);if(!ResearchRouteR29.active(authority))return;
+        // Android routes PRAGMA preparation through a handle's primary connection even for a read-only
+        // statement. Use the separate OPEN_READONLY handle, never the realtime writer's shared pool.
+        SQLiteDatabase root=ResearchRouteR29.realtimeReadOnly(authority);
         int version=(int)scalar(root,"PRAGMA schema_version");boolean install;synchronized(INSTALLED){install=!Objects.equals(INSTALLED.get(store),version);}
         if(install){int installedVersion=version;
             if(!installedRealtime(root))installedVersion=LegacyResearchScopeR29.realtimeWrite(store,"R29_INSTALL_CRITICAL_INPUT_CHANGE_INDEX",db->{ensureRealtime(db);if(!installedRealtime(db))throw new IllegalStateException("CP3_DB_BUSY_R29_CRITICAL_CHANGE_SCHEMA_NOT_READY");return (int)scalar(db,"PRAGMA schema_version");});

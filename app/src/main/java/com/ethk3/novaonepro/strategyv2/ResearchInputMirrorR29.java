@@ -21,7 +21,8 @@ public final class ResearchInputMirrorR29 {
         try(Cursor c=source.rawQuery("SELECT "+cols+" FROM "+ResearchRowsR29.cursorSource(source,table)+" WHERE "+predicate+" ORDER BY rowid",args)){while(c.moveToNext()){byte[] b=MigrationCopyR29.encode(c,1,table.columns.size());out.add(new MigrationCopyR29.Row(c.getLong(0),b,StatsR27.sha256(b)));}}return out;
     }
     public static void refresh(DbStore store){
-        SQLiteDatabase root=LegacyResearchScopeR29.rawRealtime(store);if(!ResearchRouteR29.active(root))return;
+        SQLiteDatabase authority=LegacyResearchScopeR29.rawRealtime(store);if(!ResearchRouteR29.active(authority))return;
+        SQLiteDatabase root=ResearchRouteR29.realtimeReadOnly(authority);
         // Terminal labels may arrive after the canonical draw clock stopped changing.
         CriticalInputMirrorR29.refresh(store);
         SQLiteDatabase research=ResearchRouteR29.reader(root);long gen=generation(root),seq=sequence(root),oldGen=-1,oldSeq=-1;

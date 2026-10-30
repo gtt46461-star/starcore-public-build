@@ -32,7 +32,9 @@ public final class LegacyDomainUpgradeR29 {
         }
     }
     public static void ensure(DbStore store)throws Exception{
-        SQLiteDatabase root=LegacyResearchScopeR29.rawRealtime(store);if(!ResearchRouteR29.active(root)||ready(root))return;
+        SQLiteDatabase authority=LegacyResearchScopeR29.rawRealtime(store);if(!ResearchRouteR29.active(authority)||ready(authority))return;
+        if(authority.inTransaction())throw new IllegalStateException("R29_LEGACY_UPGRADE_REQUIRES_NO_REALTIME_TRANSACTION");
+        SQLiteDatabase root=ResearchRouteR29.realtimeReadOnly(authority);
         if(root.inTransaction()||ResearchRouteR29.writerHeldByCurrentThread())throw new IllegalStateException("R29_LEGACY_UPGRADE_REQUIRES_NO_WRITER_LOCK");
         ReentrantLock serial=lock(root.getPath());if(!serial.tryLock(200,TimeUnit.MILLISECONDS))throw new IllegalStateException("CP3_DB_BUSY_LEGACY_DOMAIN_UPGRADE");
         try{

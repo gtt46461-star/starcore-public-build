@@ -214,8 +214,8 @@
     "depends": [
       "R29-003"
     ],
-    "implementation_status": "PARTIAL",
-    "verification_status": "HOST_CORE_PASS_ANDROID_BATCH_INTEGRATION_PENDING",
+    "implementation_status": "IMPLEMENTED_PENDING_ANDROID_BATCH_ACCEPTANCE",
+    "verification_status": "HOST_PASSED_ANDROID_COMBINED_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -223,20 +223,29 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": "RuntimeR27.MigrationTask → ResearchDatabaseR29.step → MigrationCopyR29 tracked source generations → independent FULL-sync SQLite stage writer → typed copy/independent rehash → cached report",
-    "persistent_state": "Original owners/tables unchanged; r29_source_watermark in realtime; starcore-research-r29-stage.db r29_copy_manifest/r29_copy_rows",
+    "call_chain": "ResearchCutoverR29 → ResearchRowsR29 / CriticalInputMirrorR29 → ResearchRouteR29.publish; LegacyDomainUpgradeR29 upgrades existing R27-only research files before enabling legacy scope",
+    "persistent_state": "Typed full-state copy, source/target hashes and publication marker; Root copies retained; FULL marker never substitutes for missing/corrupt state",
     "tests": [
-      "MigrationR29HostTest M01-M15"
+      "run_migration_host.sh",
+      "run_cutover_host.sh",
+      "run_rows_host.sh",
+      "run_large_rows_host.sh",
+      "run_domain_upgrade_host.sh"
     ],
     "actual_results": [
-      "15 HOST checks: 14 precommit interruptions/10 file reopens, negative rowids, typed null/text/integer/float/blob identity, source mutation restart, independent destination while realtime writer held, corrupt-byte rejection, real SQLITE_FULL rollback and resume, stale-page fencing and schema drift. Verified stage is a per-table baseline only; cross-table snapshot/catch-up/read routing/cutover not complete."
+      "21 unified HOST suites passed on compiled working-source overlay; full Gradle and combined Android acceptance pending for this source. No natural quality or REAL enablement claimed."
     ],
-    "source_commit": null,
+    "source_commit": "9fbd2ca745732e42cc826e97b0270827669205cf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint07/",
     "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE",
-    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending."
+    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
+    "evidence": [
+      "evidence/r29/batch01/unified-host/summary.json",
+      "evidence/r29/batch01/unified-host/",
+      "evidence/r29/batch01/failed/android-8ffbfb4/"
+    ]
   },
   {
     "id": "R29-005",
@@ -270,8 +279,8 @@
     "depends": [
       "R29-004"
     ],
-    "implementation_status": "PARTIAL",
-    "verification_status": "HOST_CORE_PASS_ANDROID_BATCH_INTEGRATION_PENDING",
+    "implementation_status": "IMPLEMENTED_PENDING_ANDROID_BATCH_ACCEPTANCE",
+    "verification_status": "HOST_PASSED_ANDROID_COMBINED_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -279,21 +288,28 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": "DbStore.saveDraw/saveDraws same draw transaction → ResearchEventBridgeR29 outbox → RuntimeR27.EventTask → inbox+work+cursor transaction → separate ack; AtomWorld online checkpoint/learning receipt and LiveShadows settlement receipt",
-    "persistent_state": "r29_event_outbox/inbox/cursor; r29_learning_work/receipt; current live research writer still shared pending cutover",
+    "call_chain": "LegacyResearchScopeR29 → ResearchRouteR29 independent owner; ResearchEventBridgeR29 durable inbox; TerminalProjectionR29 and readonly input replicas",
+    "persistent_state": "Root owns canonical results, formal freezes/decisions/settlement; research owns legacy model state and metadata. Transactions never acquire both writers",
     "tests": [
-      "Q12-Q14",
-      "EventBridgeR29HostTest E1-E18"
+      "run_event_host.sh",
+      "run_terminal_host.sh",
+      "run_terminal_projection_host.sh",
+      "run_critical_mirror_host.sh"
     ],
     "actual_results": [
-      "CP06 whole-batch rollback retained. CP07 adds real durable event protocol: no double count on duplicate/ack loss; DELIVERED is distinct from TRAINED; real model bytes/cursor/receipt and settlement completion commit atomically. Two-file HOST protocol checks pass; Android rerun pending. Runtime independent active writer/read cutover and certificate projection remain incomplete."
+      "21 unified HOST suites passed on compiled working-source overlay; full Gradle and combined Android acceptance pending for this source. No natural quality or REAL enablement claimed."
     ],
-    "source_commit": null,
+    "source_commit": "9fbd2ca745732e42cc826e97b0270827669205cf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint07/",
     "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE",
-    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending."
+    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
+    "evidence": [
+      "evidence/r29/batch01/unified-host/summary.json",
+      "evidence/r29/batch01/unified-host/",
+      "evidence/r29/batch01/failed/android-8ffbfb4/"
+    ]
   },
   {
     "id": "R29-006",
@@ -327,8 +343,8 @@
     "depends": [
       "R29-005"
     ],
-    "implementation_status": "PARTIAL",
-    "verification_status": "HOST_CORE_PASS_ANDROID_BATCH_INTEGRATION_PENDING",
+    "implementation_status": "IMPLEMENTED_PENDING_ANDROID_BATCH_ACCEPTANCE",
+    "verification_status": "HOST_PASSED_ANDROID_COMBINED_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -336,19 +352,27 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": "RuntimeCoordinatorR26.resources → ThermalPolicyR29 → ResearchPoolR27.setThermalLimit/CAS reservation; EvolutionLoop serialWhile",
-    "persistent_state": "r26_task quarantine + r27_chart_cache health/summary",
+    "call_chain": "ResearchPoolR27 → CooperativeResearchTaskR29; RuntimeR27 private evolution turn; original legacy adapter",
+    "persistent_state": "40ms compute quanta; hot/single-worker round robin; uncommitted quanta are not progress; cancel and drain precede RO close",
     "tests": [
-      "R29ThermalPolicyTest (3 tests)"
+      "EvolutionServiceR29Test",
+      "ResearchPoolSchedulerR29Test",
+      "R29ThermalPolicyTest",
+      "R26RuntimeDeviceTest"
     ],
     "actual_results": [
-      "normal 2 workers, hot 1, severe continues bounded work; critical pause recorded, 30-second cooling hysteresis; no device thermal measurement"
+      "21 unified HOST suites passed on compiled working-source overlay; full Gradle and combined Android acceptance pending for this source. No natural quality or REAL enablement claimed."
     ],
-    "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
-    "apk_checkpoint": "construction/r29/delivery/CP06.json",
+    "source_commit": "9fbd2ca745732e42cc826e97b0270827669205cf",
+    "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint05/",
-    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending."
+    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
+    "evidence": [
+      "evidence/r29/batch01/unified-host/summary.json",
+      "evidence/r29/batch01/unified-host/",
+      "evidence/r29/batch01/failed/android-8ffbfb4/"
+    ]
   },
   {
     "id": "R29-007",
@@ -381,8 +405,8 @@
     "depends": [
       "R29-006"
     ],
-    "implementation_status": "PARTIAL",
-    "verification_status": "HOST_CORE_PASS_ANDROID_BATCH_INTEGRATION_PENDING",
+    "implementation_status": "IMPLEMENTED_PENDING_ANDROID_BATCH_ACCEPTANCE",
+    "verification_status": "HOST_PASSED_ANDROID_COMBINED_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -390,14 +414,26 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
+    "call_chain": "LegacyPolicyExportR27 / LegacyCapabilitySnapshotR29 → original VM state; ModelArtifactR29.restore chunked full checkpoint",
+    "persistent_state": "Original program/state snapshots, operator ABI and CAS roots preserved; no guessed AST conversion; complete weights/optimizer/RNG/replay preserved",
+    "tests": [
+      "run_legacy_archive_host.sh",
+      "run_legacy_host.sh",
+      "run_model_chunk_host.sh",
+      "R29LargeModelCheckpointDeviceTest"
+    ],
+    "actual_results": [
+      "21 unified HOST suites passed on compiled working-source overlay; full Gradle and combined Android acceptance pending for this source. No natural quality or REAL enablement claimed."
+    ],
+    "source_commit": "9fbd2ca745732e42cc826e97b0270827669205cf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending."
+    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
+    "evidence": [
+      "evidence/r29/batch01/unified-host/summary.json",
+      "evidence/r29/batch01/unified-host/",
+      "evidence/r29/batch01/failed/android-8ffbfb4/"
+    ]
   },
   {
     "id": "R29-008",
@@ -425,8 +461,8 @@
     "depends": [
       "R29-007"
     ],
-    "implementation_status": "PARTIAL",
-    "verification_status": "HOST_CORE_PASS_ANDROID_BATCH_INTEGRATION_PENDING",
+    "implementation_status": "IMPLEMENTED_PENDING_ANDROID_BATCH_ACCEPTANCE",
+    "verification_status": "HOST_PASSED_ANDROID_COMBINED_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -434,14 +470,28 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
+    "call_chain": "LegacyCapabilityAdapterR29 unified dispatch → versioned LegacyLiveProjectionR29 / LegacyAuthorityProjectionR29; original mainline owner verifies sealed Root inputs",
+    "persistent_state": "One dispatcher owner/session/epoch; permanent research state continues; formal owner code remains pinned with two exact reviewed R974 hooks and negative controls",
+    "tests": [
+      "run_owner_host.sh",
+      "run_legacy_live_projection_host.sh",
+      "run_legacy_authority_host.sh",
+      "run_decision_retention_host.sh",
+      "R29DatabaseCutoverDeviceTest",
+      "R26RuntimeDeviceTest"
+    ],
+    "actual_results": [
+      "21 unified HOST suites passed on compiled working-source overlay; full Gradle and combined Android acceptance pending for this source. No natural quality or REAL enablement claimed."
+    ],
+    "source_commit": "9fbd2ca745732e42cc826e97b0270827669205cf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending."
+    "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
+    "evidence": [
+      "evidence/r29/batch01/unified-host/summary.json",
+      "evidence/r29/batch01/unified-host/",
+      "evidence/r29/batch01/failed/android-8ffbfb4/"
+    ]
   },
   {
     "id": "R29-009",
