@@ -22,6 +22,7 @@ public final class ReportR29 {
         out.put("baselineIdentity",baseline); out.put("legacyPreservation",preservation);
         Map<String,Object> qualification=QualificationInboxR29.diagnostics(db);
         out.put("settlementQualification",qualification);
+        out.put("findings",FindingsR29.fromQualification(qualification));
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
         out.put("metricResults",MetricEvaluatorR29.evaluate(probes,snapshot));

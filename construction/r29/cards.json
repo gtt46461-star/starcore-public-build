@@ -1853,8 +1853,8 @@
     "depends": [
       "R29-039"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_PASS_SUBSET",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1862,12 +1862,20 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
+    "call_chain": "ReportDataR27.chapters -> ReportR29.chapter -> QualificationInboxR29.diagnostics -> FindingsR29.fromQualification",
     "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "tests": [
+      "R29FindingsTest (2 JUnit)"
+    ],
+    "actual_results": [
+      "findings for settlement/qualification/GATE_V2 with evidence, strength, refutation, code, card, verification; unmeasured -> UNKNOWN",
+      "NOT DONE: findings for fetch, training, evolution, models, storage, performance domains"
+    ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "evidence": [
+      "evidence/r29/host/r29_junit_local.log"
+    ]
   },
   {
     "id": "R29-041",
