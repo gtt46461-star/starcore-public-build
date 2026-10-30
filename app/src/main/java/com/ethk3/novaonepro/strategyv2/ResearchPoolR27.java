@@ -27,6 +27,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
         String id();
         default boolean serviceDispatcher(){return false;}
         default boolean enabled(){return true;}
+        default boolean boundedSlice(){return false;}
         default boolean urgent(Worker worker,long now){return false;}
         /** One bounded slice on the calling worker thread. */
         Outcome step(Worker w) throws Exception;
@@ -144,7 +145,10 @@ public final class ResearchPoolR27 implements AutoCloseable {
         if(dispatcher!=null&&worker.serviceWorker){
             for(Task t:tasks)if(eligible(t,now)&&t.urgent(worker,now))return selected(t);
             if(++worker.serviceTurns%8==0)for(Task t:tasks)if(t.id().equals("r29-legacy-continuity")&&eligible(t,now))return selected(t);
+            boolean single=size==1||narrow(now);
+            if(single&&worker.serviceTurns%4==0)for(Task t:tasks)if(t.boundedSlice()&&t!=dispatcher&&eligible(t,now))return selected(t);
             if(eligible(dispatcher,now))return selected(dispatcher);
+            if(single)for(Task t:tasks)if(t.boundedSlice()&&t!=dispatcher&&eligible(t,now))return selected(t);
             if(size>1)return null;
         }
         for (Task t : tasks) {

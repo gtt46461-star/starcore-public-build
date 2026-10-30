@@ -28,7 +28,7 @@ public final class AtomScoreR27 {
      *  rows [0,selectEnd) are train+select, [selectEnd, n) holdout. */
     public static Score score(int atom, double[][] values, boolean[][] present, int[] hit, int selectEnd) {
         Score s = new Score(atom); double[] counts = new double[10]; double tn = 0, th = 0;
-        for (int t = 0; t < values.length; t++) {
+        for (int t = 0; t < values.length; t++) {if((t&31)==0)CooperativeContinuationR26.poll();
             if (values[t] == null) continue;
             if (!present[t][atom]) { s.missing++; continue; }
             double v = values[t][atom]; int bin = Math.min(4, Math.max(0, (int) (v * 5))), y = hit[t];

@@ -13,8 +13,17 @@ public final class SettlementPostCommitSidecarR909 {
 
     public static String reconcileIssue(final DbStore store, final String targetIssue) {
         if (store == null || !TargetIssueResolver.isValid(targetIssue)) return "INVALID";
-        final Models.Draw draw = store.getDrawByIssue(targetIssue);
-        if (draw == null || !draw.isValid()) return "DRAW_MISSING";
+        if(com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.rawRealtime(store).inTransaction())return "CORE_OWNER_TRANSACTION_NOT_COMMITTED";
+        try(com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.Scope scope=com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.enter(store)){
+            return reconcileResearchIssue(store,targetIssue);
+        }
+    }
+    private static String reconcileResearchIssue(final DbStore store,final String targetIssue){
+        final SQLiteDatabase realtime=com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.realtime(store.readable());
+        final TerminalProjectionR29.Snapshot captured=TerminalProjectionR29.capture(realtime,targetIssue);
+        if(captured==null)return "CORE_TERMINAL_EVIDENCE_PENDING";
+        final Models.Draw draw=captured.draw;
+        com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.realtimeWrite(store,"R29_SELECTED_TERMINAL_PROJECTION",db->TerminalProjectionR29.projectSelected(db,captured));
         String out = store.coordinatorR36().runWrite(
                 "R909_SETTLEMENT_POST_COMMIT_SIDECAR",
                 new DatabaseCoordinator.WriteCallable<String>() {
@@ -22,39 +31,13 @@ public final class SettlementPostCommitSidecarR909 {
                         boolean owns = !db.inTransaction();
                         if (owns) db.beginTransaction();
                         try {
-                            CoreRow core = readCore(db, targetIssue);
-                            if (core == null || !core.terminal()) return "CORE_NOT_TERMINAL";
-
-                            String drawHash = DrawHashR36.sha256V2(draw);
-                            String predrawHash = "";
-                            String oosHash = "";
-                            int actual = 0;
-                            int hit = -1;
-                            IssueClosureContractR906.Eligibility eligibility;
-                            IssueClosureContractR906.CoreStatus status;
-
-                            if (SettlementTaskStoreR36.COMPLETED.equals(core.status)) {
-                                EvidenceRow evidence = readEvidence(db, targetIssue);
-                                if (evidence == null || !evidence.complete())
-                                    return "CORE_COMPLETED_EVIDENCE_MISSING";
-                                predrawHash = evidence.predrawHash;
-                                oosHash = evidence.oosHash;
-                                actual = evidence.actual;
-                                hit = evidence.hit;
-                                eligibility = IssueClosureContractR906.Eligibility.ELIGIBLE_PREDRAW;
-                                status = IssueClosureContractR906.CoreStatus.COMPLETED;
-                            } else if (SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL.equals(core.status)) {
-                                eligibility = IssueClosureContractR906.Eligibility.EXCLUDED_NO_PREDRAW;
-                                status = IssueClosureContractR906.CoreStatus.EXCLUDED;
-                            } else {
-                                eligibility = IssueClosureContractR906.Eligibility.BLOCKED_DATA_ERROR;
-                                status = IssueClosureContractR906.CoreStatus.BLOCKED;
-                            }
-
-                            long completedAt = core.completedAt > 0L ? core.completedAt : System.currentTimeMillis();
-                            IssueClosureContractR906.Receipt receipt = new IssueClosureContractR906.Receipt(
-                                    targetIssue, drawHash, predrawHash, oosHash, core.settlementHash,
-                                    eligibility, status, actual, hit, completedAt);
+                            // Captured from the original realtime authority before either writer was held.
+                            // Formal shadow/OOS/task rows are inputs, never manufactured in the research mirror.
+                            IssueClosureContractR906.Receipt receipt=captured.receipt;
+                            String drawHash=receipt.drawHash,predrawHash=receipt.predrawHash,oosHash=receipt.oosHash;
+                            int actual=receipt.actualNumber,hit=receipt.hitLabel;long completedAt=receipt.completedAt;
+                            IssueClosureContractR906.Eligibility eligibility=receipt.eligibility;
+                            IssueClosureContractR906.CoreStatus status=receipt.status;
 
                             ContentValues cv = new ContentValues();
                             cv.put("target_issue", targetIssue);
@@ -66,9 +49,9 @@ public final class SettlementPostCommitSidecarR909 {
                             cv.put("hit_label", hit);
                             cv.put("oos_record_hash", oosHash);
                             cv.put("real_record_hash", "");
-                            cv.put("settlement_hash", core.settlementHash);
-                            cv.put("previous_task_status", core.status);
-                            cv.put("exclusion_or_error_code", core.errorCode);
+                            cv.put("settlement_hash", receipt.settlementHash);
+                            cv.put("previous_task_status", captured.originalStatus);
+                            cv.put("exclusion_or_error_code", captured.errorCode);
                             cv.put("classified_at", System.currentTimeMillis());
                             cv.put("completed_at", completedAt);
                             cv.put("record_hash", receipt.recordHash);
@@ -77,21 +60,12 @@ public final class SettlementPostCommitSidecarR909 {
                                     SQLiteDatabase.CONFLICT_REPLACE);
 
                             if (receipt.countsAsSettledPrediction()) {
-                                ContentValues selected = new ContentValues();
-                                selected.put("settled", 1);
-                                selected.put("result", hit == 1 ? "HIT" : "MISS");
-                                selected.put("settlement_hash", oosHash);
-                                db.update(
-                                        V51Repository.SELECTED,
-                                        selected,
-                                        "target_issue=? AND settled=0",
-                                        new String[] {targetIssue});
                                 SettlementOutboxR906.enqueueWithinTransaction(
                                         db, "RESEARCH_COMPACT_LABEL", targetIssue, "PRODUCTION",
                                         oosHash, 80, System.currentTimeMillis());
                                 SettlementOutboxR906.enqueueWithinTransaction(
                                         db, "DEFERRED_ACTION_EVIDENCE", targetIssue, "1200_ACTION_SPACE",
-                                        core.settlementHash, 10, System.currentTimeMillis());
+                                        receipt.settlementHash, 10, System.currentTimeMillis());
                             }
                             if (owns) db.setTransactionSuccessful();
                             return "OK:" + status.name();
@@ -201,58 +175,6 @@ public final class SettlementPostCommitSidecarR909 {
                             + " OR (t.status=? AND "
                             + LegacyPredrawContextBridgeR915.missingPostRowPredicate(db) + "))"
                             + " ORDER BY t.priority DESC,t.completed_at DESC LIMIT ?";
-    }
-
-    private static CoreRow readCore(SQLiteDatabase db, String target) {
-        Cursor c = null;
-        try {
-            c = db.rawQuery(
-                    "SELECT status,settlement_hash,terminal_code,last_error,completed_at FROM "
-                            + DbHelper.TABLE_R36_SETTLEMENT_TASK + " WHERE target_issue=? LIMIT 1",
-                    new String[] {target});
-            return c.moveToFirst() ? new CoreRow(safe(c.getString(0)), safe(c.getString(1)),
-                    safe(c.getString(2)), safe(c.getString(3)), c.getLong(4)) : null;
-        } finally { if (c != null) c.close(); }
-    }
-
-    private static EvidenceRow readEvidence(SQLiteDatabase db, String target) {
-        Cursor c = null;
-        try {
-            c = db.rawQuery(
-                    "SELECT o.record_hash,o.settled,o.actual_number,o.hit_label,l.record_hash,l.strict_oos"
-                            + " FROM " + DbHelper.TABLE_R35_SHADOW_OBSERVATION + " o JOIN "
-                            + DbHelper.TABLE_R35_OOS_LABEL + " l ON l.target_issue=o.target_issue"
-                            + " WHERE o.target_issue=? LIMIT 1",
-                    new String[] {target});
-            return c.moveToFirst() ? new EvidenceRow(safe(c.getString(0)), c.getInt(1), c.getInt(2),
-                    c.getInt(3), safe(c.getString(4)), c.getInt(5)) : null;
-        } finally { if (c != null) c.close(); }
-    }
-
-    private static final class CoreRow {
-        final String status, settlementHash, terminalCode, lastError, errorCode;
-        final long completedAt;
-        CoreRow(String s, String h, String tc, String e, long at) {
-            status=s; settlementHash=h; terminalCode=tc; lastError=e; completedAt=at;
-            errorCode = tc.length() > 0 ? tc : e;
-        }
-        boolean terminal() {
-            return SettlementTaskStoreR36.COMPLETED.equals(status)
-                    || SettlementTaskStoreR36.NO_PREDRAW_CANONICAL_TERMINAL.equals(status)
-                    || SettlementTaskStoreR36.FAILED_TERMINAL.equals(status)
-                    || SettlementTaskStoreR36.INVALID_DRAW_TERMINAL.equals(status);
-        }
-    }
-
-    private static final class EvidenceRow {
-        final String predrawHash, oosHash; final int settled, actual, hit, strict;
-        EvidenceRow(String p, int s, int a, int h, String o, int strict) {
-            predrawHash=p; settled=s; actual=a; hit=h; oosHash=o; this.strict=strict;
-        }
-        boolean complete() {
-            return predrawHash.length()==64 && oosHash.length()==64 && settled==1 && strict==1
-                    && AppConfig.isValidNumber(actual) && (hit==0 || hit==1);
-        }
     }
 
     private static String safe(String x) { return x == null ? "" : x.trim(); }

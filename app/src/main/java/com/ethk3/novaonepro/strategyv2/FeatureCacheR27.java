@@ -84,7 +84,7 @@ public final class FeatureCacheR27 {
     /** freq(src,W): share of rows in [t-W,t) where number n sat at position src. */
     double[] freq(int src, int w) {
         int n = t(); double[] v = nan(); int[] count = new int[10];
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             int len = Math.min(w, t);
             if (len > 0) for (int k = 0; k < 10; k++) v[t * 10 + k] = count[k] / (double) len;
             count[data.draws[t][src - 1] - 1]++;
@@ -96,7 +96,7 @@ public final class FeatureCacheR27 {
     /** fdecay(src,halfLife): exponentially weighted occurrence rate. */
     double[] decay(int src, int halfLife) {
         int n = t(); double[] v = nan(); double[] s = new double[10]; double lambda = Math.pow(0.5, 1.0 / halfLife), mass = 0;
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (mass > 0) for (int k = 0; k < 10; k++) v[t * 10 + k] = s[k] / mass;
             for (int k = 0; k < 10; k++) s[k] *= lambda;
             mass = mass * lambda + 1;
@@ -117,7 +117,7 @@ public final class FeatureCacheR27 {
     double[] gap(int src, boolean rank) {
         int n = t(); double[] v = nan(); int[] last = new int[10]; Arrays.fill(last, -1);
         double[] g = new double[10];
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (t > 0) {
                 for (int k = 0; k < 10; k++) g[k] = last[k] < 0 ? 1.0 : Math.min(1.0, (t - last[k]) / 100.0);
                 if (!rank) for (int k = 0; k < 10; k++) v[t * 10 + k] = g[k];
@@ -131,7 +131,7 @@ public final class FeatureCacheR27 {
     /** meangap(src,W): mean inter-arrival of n at src within the window, scaled 1/30 and capped at 1. */
     double[] meanGap(int src, int w) {
         double[] f = leaf("freq", 0, src, w), v = new double[f.length];
-        for (int t = 0; t < t(); t++) {
+        for (int t = 0; t < t(); t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             int len = Math.min(w, t);
             for (int k = 0; k < 10; k++) { double x = f[t * 10 + k]; v[t * 10 + k] = Double.isNaN(x) ? Double.NaN : Math.min(1.0, len / (x * len + 1.0) / 30.0); }
         }
@@ -143,7 +143,7 @@ public final class FeatureCacheR27 {
         int n = t(); double[] v = nan(); double[][] c = new double[10][10];
         for (double[] row : c) Arrays.fill(row, 1.0);
         double[] tot = new double[10]; Arrays.fill(tot, 10.0);
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (data.consecutive(t, lag)) {
                 int x = data.draws[t - lag][tp - 1] - 1;
                 for (int k = 0; k < 10; k++) v[t * 10 + k] = c[x][k] / tot[x];
@@ -157,7 +157,7 @@ public final class FeatureCacheR27 {
     double[] cross(int src, int lag) {
         if (lag < 1) throw new IllegalArgumentException("R27_CAUSAL_LAG");
         int n = t(); double[] v = nan();
-        for (int t = 0; t < n; t++) if (data.consecutive(t, lag)) { int x = data.draws[t - lag][src - 1]; for (int k = 0; k < 10; k++) v[t * 10 + k] = k + 1 == x ? 1 : 0; }
+        for (int t = 0; t < n; t++) if (data.consecutive(t, lag)) { if((t&31)==0)CooperativeContinuationR26.poll(); int x = data.draws[t - lag][src - 1]; for (int k = 0; k < 10; k++) v[t * 10 + k] = k + 1 == x ? 1 : 0; }
         return v;
     }
 
@@ -166,7 +166,7 @@ public final class FeatureCacheR27 {
         int n = t(); double[] v = nan(); double[][] c = new double[10][10];
         for (double[] row : c) Arrays.fill(row, 1.0);
         double[] tot = new double[10]; Arrays.fill(tot, 10.0);
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (data.consecutive(t, 1)) {
                 int x = data.draws[t - 1][src - 1] - 1;
                 for (int k = 0; k < 10; k++) v[t * 10 + k] = c[x][k] / tot[x];
@@ -179,7 +179,7 @@ public final class FeatureCacheR27 {
     /** neighbor(src): indicator that n is cyclically adjacent (±1) to the number at src in row t-1. */
     double[] neighbor(int src) {
         int n = t(); double[] v = nan();
-        for (int t = 0; t < n; t++) if (data.consecutive(t, 1)) {
+        for (int t = 0; t < n; t++) if (data.consecutive(t, 1)) { if((t&31)==0)CooperativeContinuationR26.poll();
             int x = data.draws[t - 1][src - 1];
             for (int k = 1; k <= 10; k++) { int d = Math.abs(k - x); v[t * 10 + k - 1] = d == 1 || d == 9 ? 1 : 0; }
         }
@@ -189,7 +189,7 @@ public final class FeatureCacheR27 {
     /** oddeven / bigsmall(src,W): share of window rows whose number at src shares n's parity / size class. */
     double[] parity(int src, int w, boolean odd) {
         int n = t(); double[] v = nan(); int cls1 = 0; // count of class-1 rows in window
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             int len = Math.min(w, t);
             if (len > 0) for (int k = 1; k <= 10; k++) { boolean c = odd ? (k & 1) == 1 : k > 5; double share = cls1 / (double) len; v[t * 10 + k - 1] = c ? share : 1 - share; }
             int x = data.draws[t][src - 1]; if (odd ? (x & 1) == 1 : x > 5) cls1++;
@@ -203,7 +203,7 @@ public final class FeatureCacheR27 {
         int n = t(); double[] v = nan(); double[][] c = new double[10][10];
         for (double[] row : c) Arrays.fill(row, 1.0);
         double[] tot = new double[10]; Arrays.fill(tot, 10.0);
-        for (int t = 0; t < n; t++) if (data.consecutive(t, 1)) {
+        for (int t = 0; t < n; t++) if (data.consecutive(t, 1)) { if((t&31)==0)CooperativeContinuationR26.poll();
             int[] p = data.draws[t - 1]; int x = (p[0] + p[1] + p[2]) % 10;
             for (int k = 0; k < 10; k++) v[t * 10 + k] = c[x][k] / tot[x];
             c[x][data.draws[t][tp - 1] - 1]++; tot[x]++;
@@ -214,7 +214,7 @@ public final class FeatureCacheR27 {
     /** regime(W): share of position repeats (x_t,p == x_{t-1},p) over the last W consecutive pairs; same for every n. */
     double[] regime(int w) {
         int n = t(); double[] v = nan(); int[] rep = new int[n]; int sum = 0, len = 0;
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (len > 0) for (int k = 0; k < 10; k++) v[t * 10 + k] = sum / (10.0 * len);
             if (data.consecutive(t, 1)) { int r = 0; for (int p = 0; p < 10; p++) if (data.draws[t][p] == data.draws[t - 1][p]) r++; rep[t] = r; sum += r; len++; }
             else rep[t] = -1;
@@ -227,7 +227,7 @@ public final class FeatureCacheR27 {
      * searched over at most the 1000 previous rows. NaN when the current W-window crosses a gap. */
     double[] knn(int tp, int w, int k) {
         int n = t(); double[] v = nan(); int col = tp - 1;
-        for (int t = w; t < n; t++) {
+        for (int t = w; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (!data.consecutive(t, w)) continue;
             int from = Math.max(w, t - 1000);
             int[] dist = new int[Math.max(0, t - from)]; int[] at = new int[dist.length]; int m = 0;
@@ -254,7 +254,13 @@ public final class FeatureCacheR27 {
         FamilyStream st;
         synchronized (this) { st = streams.get(index); if (st == null) { st = new FamilyStream(index); streams.put(index, st); } }
         double[] all;
-        synchronized (st) { all = st.advance(data); }
+        // A parked owner may hold this pure-memory stream between quanta. Contenders must themselves
+        // yield cooperatively instead of blocking a worker on an intrinsic monitor until the owner resumes.
+        while(!st.access.tryLock()){
+            CooperativeContinuationR26.poll();
+            try{Thread.sleep(1);}catch(InterruptedException stopped){Thread.currentThread().interrupt();throw new BudgetTokenSU1.Yield("R29_FEATURE_STREAM_CANCELLED");}
+        }
+        try{all=st.advance(data);}finally{st.access.unlock();}
         int n = t(); double[] v = new double[n * 10];
         for (int t = 0; t < n; t++) System.arraycopy(all, t * 100 + (tp - 1) * 10, v, t * 10, 10);
         return v;
@@ -263,6 +269,7 @@ public final class FeatureCacheR27 {
     private final Map<Integer, FamilyStream> streams = new java.util.HashMap<>();
 
     static final class FamilyStream {
+        final java.util.concurrent.locks.ReentrantLock access=new java.util.concurrent.locks.ReentrantLock();
         final int index; final OnlineModelsSU2.Model model; int fed; double[] values = new double[0]; long lastFedOrdinal = Long.MIN_VALUE;
         final float[][] p = new float[10][10]; final float[] st;
         FamilyStream(int index) { this.index = index; model = FamilyRegistryR26.build(String.format(java.util.Locale.ROOT, "F%02d", index)); st = new float[Math.max(1, model.stateWidth())]; }
@@ -275,7 +282,7 @@ public final class FeatureCacheR27 {
             int known = values.length / 100;
             if (known > n) throw new IllegalStateException("R27_FAMILY_STREAM_SHRUNK");
             double[] out = java.util.Arrays.copyOf(values, n * 100);
-            for (int t = fed; t < n; t++) {
+            for (int t = fed; t < n; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
                 if (t >= known) {
                     if (t == 0) java.util.Arrays.fill(out, 0, 100, Double.NaN);
                     else {
@@ -299,7 +306,7 @@ public final class FeatureCacheR27 {
     /** randu(seed): deterministic uniform noise per (t,n) — the I00 random-baseline input, trivially causal. */
     double[] randomUniform(int seed) {
         int n = t(); double[] v = new double[n * 10];
-        for (int t = 0; t < n; t++) for (int k = 0; k < 10; k++) {
+        for (int t = 0; t < n; t++) for (int k = 0; k < 10; k++) { if((t&31)==0)CooperativeContinuationR26.poll();
             long z = (data.ordinals[t] * 0x9E3779B97F4A7C15L) ^ ((long) seed * 0xBF58476D1CE4E5B9L) ^ (k * 0x94D049BB133111EBL);
             z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L; z = (z ^ (z >>> 27)) * 0x94D049BB133111EBL; z ^= z >>> 31;
             v[t * 10 + k] = (z >>> 11) * 0x1.0p-53;

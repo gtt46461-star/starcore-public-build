@@ -9,10 +9,11 @@ import static org.junit.Assert.*;
  * This exercises scheduling decisions, not numerical training or device timing. */
 public final class ResearchPoolSchedulerR29Test {
     static final class Task implements ResearchPoolR27.Task{
-        final String id;final boolean service;boolean enabled=true,urgent;
+        final String id;final boolean service;boolean enabled=true,urgent,bounded;
         Task(String id,boolean service){this.id=id;this.service=service;}
         public String id(){return id;}public boolean serviceDispatcher(){return service;}public boolean enabled(){return enabled;}
         public boolean urgent(ResearchPoolR27.Worker worker,long now){return urgent;}
+        public boolean boundedSlice(){return bounded;}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker){return ResearchPoolR27.Outcome.idle("SYNTHETIC",0,-1);}
     }
     static ResearchPoolR27.Task next(ResearchPoolR27 pool,ResearchPoolR27.Worker worker)throws Exception{Method m=ResearchPoolR27.class.getDeclaredMethod("next",ResearchPoolR27.Worker.class);m.setAccessible(true);return (ResearchPoolR27.Task)m.invoke(pool,worker);}
@@ -47,4 +48,19 @@ public final class ResearchPoolSchedulerR29Test {
             ResearchPoolR27.Worker worker=pool.new Worker(null,null,"first");worker.serviceWorker=true;assertSame(migration,next(pool,worker));
         }finally{pool.close();}
     }
+    @Test public void hotSingleWorkerRotatesAllBoundedTasksWithoutGivingUnboundedWorkItsSlot()throws Exception{singleWorkerRotation(2);}
+    @Test public void aPhysicalOneWorkerPoolAlsoServicesAllBoundedStates()throws Exception{singleWorkerRotation(1);}
+    private void singleWorkerRotation(int poolSize)throws Exception{
+        ResearchPoolR27 pool=new ResearchPoolR27(null,"HOST_HOT_SINGLE",poolSize);pool.setThermalLimit(1,"HOT_ONE_WORKER");
+        try{
+            Task service=new Task("legacy",true),unbounded=new Task("unbounded-replay",false);pool.register(service);pool.register(unbounded);
+            Task[] bounded={new Task("bounded-evolution",false),new Task("bounded-atomnet",false),new Task("bounded-abi",false)};
+            for(Task task:bounded){task.bounded=true;pool.register(task);}
+            ResearchPoolR27.Worker worker=pool.new Worker(null,null,"first");worker.serviceWorker=true;java.util.Map<String,Integer> counts=new java.util.HashMap<>();
+            for(int i=0;i<64;i++){ResearchPoolR27.Task chosen=next(pool,worker);assertNotNull(chosen);assertNotSame("unbounded work cannot capture the reserved single worker",unbounded,chosen);counts.put(chosen.id(),counts.getOrDefault(chosen.id(),0)+1);release(pool,chosen.id());}
+            assertEquals("legacy retains three of every four normal turns",48,(int)counts.get(service.id));
+            for(Task task:bounded)assertTrue("no bounded research state may starve in a permanent hot limit",counts.getOrDefault(task.id,0)>=5);
+        }finally{pool.close();}
+    }
+
 }

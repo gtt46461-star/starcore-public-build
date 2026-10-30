@@ -28,7 +28,13 @@ public final class RealtimeResearchProjectionR29 {
         for(String table:TABLES)for(String operation:new String[]{"INSERT","UPDATE","DELETE"}){
             String row=operation.equals("DELETE")?"OLD":"NEW",a=table.equals("r27_chart_cache")?"'mainline'":row+"."+keyColumn(table),b=table.equals("r27_live_frozen")?row+".target_ordinal":"0";
             String condition=table.equals("r27_chart_cache")?" WHEN "+row+".panel_id='mainline' AND "+row+".key='choice'":table.equals("r26_evolution")?" WHEN "+row+".attempt_id LIKE 'R27:%'":"";
-            research.execSQL("CREATE TRIGGER IF NOT EXISTS r29_project_"+table+"_"+operation.toLowerCase(Locale.ROOT)+" AFTER "+operation+" ON "+table+condition+" BEGIN INSERT OR IGNORE INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) VALUES('"+table+"',"+a+","+b+",0,strftime('%s','now')*1000); UPDATE r29_projection_pending SET revision=revision+1,queued_at=strftime('%s','now')*1000 WHERE table_name='"+table+"' AND key_a="+a+" AND key_b="+b+"; END");
+            String trigger="r29_project_"+table+"_"+operation.toLowerCase(Locale.ROOT);
+            // SQLite propagates the caller's INSERT OR REPLACE conflict policy into a trigger. An inner
+            // INSERT OR IGNORE can therefore replace/reset an existing pending revision to zero.
+            // Update first, and insert only when absent; no conflicting INSERT is ever attempted.
+            research.execSQL("DROP TRIGGER IF EXISTS "+trigger);
+            String key="table_name='"+table+"' AND key_a="+a+" AND key_b="+b;
+            research.execSQL("CREATE TRIGGER "+trigger+" AFTER "+operation+" ON "+table+condition+" BEGIN UPDATE r29_projection_pending SET revision=revision+1,queued_at=strftime('%s','now')*1000 WHERE "+key+"; INSERT INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT '"+table+"',"+a+","+b+",1,strftime('%s','now')*1000 WHERE NOT EXISTS(SELECT 1 FROM r29_projection_pending WHERE "+key+"); END");
         }
         for(String table:new String[]{"r27_live_shadow","r27_eprocess","r27_certificate"})research.execSQL("INSERT OR IGNORE INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT ?,policy_hash,0,1,? FROM "+table,new Object[]{table,System.currentTimeMillis()});
         research.execSQL("INSERT OR IGNORE INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT 'r27_live_frozen',policy_hash,target_ordinal,1,? FROM r27_live_frozen WHERE target_ordinal>=(SELECT coalesce(max(target_ordinal),0)-1 FROM r27_live_frozen)",new Object[]{System.currentTimeMillis()});

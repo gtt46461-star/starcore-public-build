@@ -51,17 +51,17 @@ public final class ChartCacheR27 {
     }
     interface Builder { Map<String, Object> build(); }
     static Map<String, Object> safe(String title, Builder bld) {
-        try { Map<String, Object> m = bld.build(); m.put("title", title); return m; }
+        try { CooperativeContinuationR26.poll();Map<String, Object> m = bld.build(); m.put("title", title); return m; }
         catch (RuntimeException e) { List<Object> none = new ArrayList<>(); Map<String, Object> m = panel(title, "STATUS", "", "", "读取失败：" + e.getClass().getSimpleName() + "；不按0处理。", none); m.put("status", "READ_ERROR"); return m; }
     }
 
     static Map<String, Object> threeScores(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>(); int k = 0; double nMean = 0;
         try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.spec_json,s.status,s.base_policy FROM r27_live_shadow s WHERE s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') ORDER BY s.global_index LIMIT 40", null)) {
-            while (c.moveToNext()) {
+            while (c.moveToNext()) {CooperativeContinuationR26.poll();
                 String id = c.getString(0), base = c.getString(3); double rep = Double.NaN, hold = Double.NaN; long fn = 0, fh = 0;
                 try (Cursor r = db.rawQuery("SELECT split,hits,n_act FROM r27_replay_score WHERE policy_hash=? ORDER BY computed_at DESC", new String[] {base.isEmpty() ? id : base})) {
-                    while (r.moveToNext()) { double hr = r.getInt(2) == 0 ? Double.NaN : r.getInt(1) / (double) r.getInt(2); if (r.getString(0).equals("H_SELECT") && Double.isNaN(rep)) rep = hr; if (r.getString(0).equals("H_HOLDOUT") && Double.isNaN(hold)) hold = hr; }
+                    while (r.moveToNext()) {CooperativeContinuationR26.poll(); double hr = r.getInt(2) == 0 ? Double.NaN : r.getInt(1) / (double) r.getInt(2); if (r.getString(0).equals("H_SELECT") && Double.isNaN(rep)) rep = hr; if (r.getString(0).equals("H_HOLDOUT") && Double.isNaN(hold)) hold = hr; }
                 }
                 try (Cursor r = db.rawQuery("SELECT count(*),coalesce(sum(hit),0) FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN' AND act=1 AND hit>=0", new String[] {id})) { if (r.moveToFirst()) { fn = r.getLong(0); fh = r.getLong(1); } }
                 double fut = fn == 0 ? Double.NaN : fh / (double) fn; double[] w = StatsR27.wilson(fh, fn, StatsR27.Z95); nMean += fn; k++;
@@ -78,7 +78,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> generationHoldout(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT generation,champion_holdout_hr,null_champion_holdout_hr,i00_champion_holdout_hr,verified FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 120", null)) {
-            while (c.moveToNext()) {
+            while (c.moveToNext()) {CooperativeContinuationR26.poll();
                 Map<String, Object> p = pt("G" + c.getLong(0), c.isNull(1) ? null : c.getDouble(1), null, null, 1, "第" + c.getLong(0) + "代：主冠军留出 " + pct(c.isNull(1) ? Double.NaN : c.getDouble(1)) + "；打乱标签 " + pct(c.isNull(2) ? Double.NaN : c.getDouble(2)) + "；随机基线 " + pct(c.isNull(3) ? Double.NaN : c.getDouble(3)) + (c.getInt(4) == 1 ? "；VERIFIED" : "；未验证"));
                 p.put("open", c.isNull(2) ? null : c.getDouble(2)); p.put("expected", c.isNull(3) ? null : c.getDouble(3)); pts.add(0, p);
             }
@@ -91,7 +91,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> evolutionEvents(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT generation,births,rejected,no_op,duplicates,retired,survivors,verified FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 60", null)) {
-            while (c.moveToNext()) {
+            while (c.moveToNext()) {CooperativeContinuationR26.poll();
                 Map<String, Object> p = pt("G" + c.getLong(0), (double) c.getLong(1), null, null, c.getLong(1),
                         "出生" + c.getLong(1) + "；拒绝" + c.getLong(2) + "；NO_OP" + c.getLong(3) + "；重复" + c.getLong(4) + "；淘汰" + c.getLong(5) + "；存活" + c.getLong(6) + "；晋升" + c.getInt(7));
                 p.put("stack", list((double) c.getLong(2), (double) c.getLong(3), (double) c.getLong(4), (double) c.getLong(5), (double) c.getLong(6), (double) c.getInt(7))); pts.add(0, p);
@@ -105,7 +105,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> sevenCounters(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT generation,detail_json FROM r27_generation WHERE loop='MAIN' ORDER BY generation DESC LIMIT 120", null)) {
-            while (c.moveToNext()) {
+            while (c.moveToNext()) {CooperativeContinuationR26.poll();
                 Map<String, Object> d = (Map<String, Object>) JsonR27.parse(c.getString(1)); Map<String, Object> cs = (Map<String, Object>) d.get("counters"); if (cs == null) continue;
                 List<Object> v = new ArrayList<>(); StringBuilder s = new StringBuilder();
                 for (String k : EvolutionLoopR27.COUNTERS) { Object x = cs.get(k); v.add(x == null ? 0.0 : ((Number) x).doubleValue()); s.append(k).append('=').append(x).append("；"); }
@@ -119,7 +119,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> lineage(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>(), edges = new ArrayList<>(); java.util.LinkedHashSet<String> nodes = new java.util.LinkedHashSet<>();
         try (Cursor c = db.rawQuery("SELECT child_hash,parent_hash,role,operator,generation FROM r27_lineage ORDER BY created_at DESC LIMIT 60", null)) {
-            while (c.moveToNext()) {
+            while (c.moveToNext()) {CooperativeContinuationR26.poll();
                 String a = c.getString(1), ch = c.getString(0); nodes.add(a); nodes.add(ch);
                 Map<String, Object> e = new LinkedHashMap<>(); e.put("from", a.substring(0, Math.min(10, a.length()))); e.put("to", ch.substring(0, Math.min(10, ch.length())));
                 e.put("label", (c.getString(2).equals("CHAMPION_VERIFIED") ? "VERIFIED " : "") + c.getString(2) + "/" + c.getString(3) + "/G" + c.getLong(4)); edges.add(e);
@@ -140,7 +140,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> ideaSurvival(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT idea_family,count(*),sum(CASE WHEN state IN ('ACTIVE','LIVE') THEN 1 ELSE 0 END),sum(CASE WHEN state='REJECTED' THEN 1 ELSE 0 END) FROM r27_policy GROUP BY idea_family ORDER BY idea_family", null)) {
-            while (c.moveToNext()) { long n = c.getLong(1), a = c.getLong(2); pts.add(pt(c.getString(0), n == 0 ? null : (Object) (a / (double) n), null, null, n, c.getString(0) + "：登记" + n + "，存活" + a + "，出生被拒" + c.getLong(3))); }
+            while (c.moveToNext()) {CooperativeContinuationR26.poll(); long n = c.getLong(1), a = c.getLong(2); pts.add(pt(c.getString(0), n == 0 ? null : (Object) (a / (double) n), null, null, n, c.getString(0) + "：登记" + n + "，存活" + a + "，出生被拒" + c.getLong(3))); }
         }
         return panel("", "BAR", "r27_policy", pts.size() + "个思路族", "每个思路族在回放上存活的比例；长期为0的族说明这个方向在数据上没有可用信号。", pts);
     }
@@ -183,7 +183,7 @@ public final class ChartCacheR27 {
         try (Cursor c = db.rawQuery("SELECT run_id FROM r27_atomnet_epoch ORDER BY recorded_at DESC LIMIT 1", null)) { if (c.moveToFirst()) run = c.getString(0); }
         if (run != null) try (Cursor c = db.rawQuery("SELECT epoch,split,logloss FROM r27_atomnet_epoch WHERE run_id=? ORDER BY epoch,split", new String[] {run})) {
             Map<Long, double[]> by = new java.util.TreeMap<>();
-            while (c.moveToNext()) { double[] v = by.computeIfAbsent(c.getLong(0), k -> new double[] {Double.NaN, Double.NaN, Double.NaN}); String s = c.getString(1); v[s.equals("H_TRAIN") ? 0 : s.equals("H_SELECT") ? 1 : 2] = c.getDouble(2); }
+            while (c.moveToNext()) {CooperativeContinuationR26.poll(); double[] v = by.computeIfAbsent(c.getLong(0), k -> new double[] {Double.NaN, Double.NaN, Double.NaN}); String s = c.getString(1); v[s.equals("H_TRAIN") ? 0 : s.equals("H_SELECT") ? 1 : 2] = c.getDouble(2); }
             for (Map.Entry<Long, double[]> e : by.entrySet()) { double[] v = e.getValue(); boolean over = Double.isFinite(v[0]) && Double.isFinite(v[1]) && v[1] - v[0] > 0.02;
                 Map<String, Object> p = pt("E" + e.getKey(), f(v[0]), null, null, 1, "训练 " + v[0] + "；挑选(H_SELECT) " + v[1] + "；留出 " + v[2] + (over ? "；差值>0.02 过拟合" : "")); p.put("stack", list(f(v[0]), f(v[1]), f(v[2]))); if (over) p.put("flag", "RED"); pts.add(p); }
         }
@@ -192,7 +192,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> eprocess(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT e.policy_hash,e.log_e_up,e.log_e_down,e.alpha,e.n,e.acts,e.hits,e.state,s.status FROM r27_eprocess e JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash ORDER BY e.global_index DESC LIMIT 60", null)) {
-            while (c.moveToNext()) { double th = Math.log(1 / c.getDouble(3)); pts.add(0, pt(c.getString(0).substring(0, 8), c.getDouble(1) / th, -c.getDouble(2) / th, null, c.getLong(4), "log e(上)=" + c.getDouble(1) + "，阈值 ln(1/α)=" + th + "；log e(下)=" + c.getDouble(2) + "；FUTURE " + c.getLong(6) + "/" + c.getLong(5) + "；状态 " + c.getString(7) + "（" + c.getString(8) + "）")); }
+            while (c.moveToNext()) {CooperativeContinuationR26.poll(); double th = Math.log(1 / c.getDouble(3)); pts.add(0, pt(c.getString(0).substring(0, 8), c.getDouble(1) / th, -c.getDouble(2) / th, null, c.getLong(4), "log e(上)=" + c.getDouble(1) + "，阈值 ln(1/α)=" + th + "；log e(下)=" + c.getDouble(2) + "；FUTURE " + c.getLong(6) + "/" + c.getLong(5) + "；状态 " + c.getString(7) + "（" + c.getString(8) + "）")); }
         }
         Map<String, Object> m = panel("", "BAR", "r27_eprocess", pts.size() + "个", "到达1.0（上阈值）=进入资格；下方负值到达−1.0=判定不优于目标并退出影子池。按 e 值排序，不按少样本命中率排序。", pts);
         m.put("refs", list(1.0, -1.0)); return m;
@@ -200,7 +200,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> mainline(SQLiteDatabase db) {
         List<Object> pts = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT target_issue,candidate_name,candidate_id,applied,influence_weight,status FROM " + ResearchMainlineContributionAuditR922.TABLE + " ORDER BY target_issue DESC LIMIT 120", null)) {
-            while (c.moveToNext()) { double wgt = c.getInt(3) == 1 ? 100.0 * c.getDouble(4) : 0.0; pts.add(0, pt(c.getString(0), wgt, null, null, 1, c.getString(0) + "期：" + (c.getInt(3) == 1 ? "参与 " + c.getString(1) : "未参与（" + c.getString(5) + "）"))); }
+            while (c.moveToNext()) {CooperativeContinuationR26.poll(); double wgt = c.getInt(3) == 1 ? 100.0 * c.getDouble(4) : 0.0; pts.add(0, pt(c.getString(0), wgt, null, null, 1, c.getString(0) + "期：" + (c.getInt(3) == 1 ? "参与 " + c.getString(1) : "未参与（" + c.getString(5) + "）"))); }
         } catch (RuntimeException missingLegacyTable) { }
         Map<String, Object> m = panel("", "LINE", ResearchMainlineContributionAuditR922.TABLE, "最近" + pts.size() + "期", "长期为0说明没有合格策略（允许为0）。主链规则不变：唯一授权 DecisionGateEngine。", pts);
         if (pts.isEmpty()) m.put("status", "EMPTY_ALLOWED_ZERO"); return m;
@@ -208,7 +208,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> health(SQLiteDatabase db, RuntimeR27 rt) {
         List<Object> pts = new ArrayList<>(); long now = System.currentTimeMillis();
         double cpu = 0, wall = 0; int threads = 0;
-        try (Cursor c = db.rawQuery("SELECT thread_name,cpu_ms,wall_ms FROM r27_thread_cpu WHERE updated_at>?", new String[] {String.valueOf(now - 120_000)})) { while (c.moveToNext()) { cpu += c.getLong(1); wall += c.getLong(2); threads++; } }
+        try (Cursor c = db.rawQuery("SELECT thread_name,cpu_ms,wall_ms FROM r27_thread_cpu WHERE updated_at>?", new String[] {String.valueOf(now - 120_000)})) { while (c.moveToNext()) {CooperativeContinuationR26.poll(); cpu += c.getLong(1); wall += c.getLong(2); threads++; } }
         try (Cursor c = db.rawQuery("SELECT cpu_ms,wall_ms FROM r26_service_total ORDER BY rowid DESC LIMIT 1", null)) { if (c.moveToFirst()) { cpu += c.getLong(0); wall += c.getLong(1); threads++; } } catch (RuntimeException ignored) { }
         double share = wall <= 0 ? Double.NaN : cpu / wall;
         int stuck = 0, never = 0; for (WaitKindR27.Health h : RuntimeR27.health(db, now)) { if (h.stuck) stuck++; if (h.neverRun) never++; }
@@ -240,10 +240,10 @@ public final class ChartCacheR27 {
     static Map<String, Object> ranking(SQLiteDatabase db) {
         Map<String, Object> out = new LinkedHashMap<>(); List<Object> rows = new ArrayList<>();
         try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL')", null)) {
-            while (c.moveToNext()) {
+            while (c.moveToNext()) {CooperativeContinuationR26.poll();
                 String id = c.getString(0); long[] hit = new long[3]; long n = 0;
                 try (Cursor f = db.rawQuery("SELECT f.position,f.probabilities,d.n1,d.n2,d.n3,d.n4,d.n5,d.n6,d.n7,d.n8,d.n9,d.n10 FROM r27_live_frozen f JOIN draws d ON d.issue=f.target_issue AND d.dirty=0 WHERE f.policy_hash=? AND f.status='FROZEN' ORDER BY f.target_ordinal DESC LIMIT 2000", new String[] {id})) {
-                    while (f.moveToNext()) {
+                    while (f.moveToNext()) {CooperativeContinuationR26.poll();
                         double[] p = StoreR27.unpack(f.getBlob(1)); int pos = f.getInt(0), actual = f.getInt(1 + pos);
                         int[] r = MatrixConsistencyR27.rank3(MatrixConsistencyR27.surface(pos, p), pos);
                         for (int k = 0; k < 3; k++) if (r[k] == actual) hit[k]++; n++;
@@ -261,7 +261,7 @@ public final class ChartCacheR27 {
     static Map<String, Object> actionSurface(SQLiteDatabase db) {
         Map<String, Object> out = new LinkedHashMap<>(); double worst = 0; long checked = 0;
         try (Cursor c = db.rawQuery("SELECT position,probabilities FROM r27_live_frozen WHERE status='FROZEN' ORDER BY target_ordinal DESC LIMIT 500", null)) {
-            while (c.moveToNext()) { double[][] sf = MatrixConsistencyR27.surface(c.getInt(0), StoreR27.unpack(c.getBlob(1))); worst = Math.max(worst, MatrixConsistencyR27.error(sf, MatrixConsistencyR27.actions(sf))); checked++; }
+            while (c.moveToNext()) {CooperativeContinuationR26.poll(); double[][] sf = MatrixConsistencyR27.surface(c.getInt(0), StoreR27.unpack(c.getBlob(1))); worst = Math.max(worst, MatrixConsistencyR27.error(sf, MatrixConsistencyR27.actions(sf))); checked++; }
         }
         long sched = count(db, "SELECT coalesce(sum(scheduled),0) FROM r27_opportunity"), frozen = count(db, "SELECT coalesce(sum(frozen),0) FROM r27_opportunity");
         out.put("checkedSurfaces", checked); out.put("maxAbsError", checked == 0 ? null : (Object) worst); out.put("tolerance", MatrixConsistencyR27.TOLERANCE);

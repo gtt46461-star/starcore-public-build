@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 public final class LivePoolR26 {
     private LivePoolR26() {}
     private static final int LIMIT=ShadowAdmissionR26.LIMIT;
-    private static final class Row {String policy,text,hash,checkpoint,family;byte[] state;long through,genesis,born;}
+    private static final class Row {String policy,text,hash,checkpoint,family;byte[] state;long through,genesis,born,projectionRevision,projectionEpoch;}
     private static Row row(Cursor c){Row r=new Row();r.policy=c.getString(0);r.text=c.getString(1);r.state=c.getBlob(2);r.hash=c.getString(3);r.checkpoint=c.getString(4);r.through=c.getLong(5);r.genesis=c.getLong(6);r.born=c.getLong(7);return r;}
     private static final String COLUMNS="policy_hash,canonical_text,state,state_hash,checkpoint_hash,through_ordinal,genesis_ordinal,born_ordinal";
     private static int changes(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT changes()",null)){return c.moveToFirst()?c.getInt(0):0;}}
@@ -27,8 +27,8 @@ public final class LivePoolR26 {
         if(prepared==null)return 0;budget.checkpointOrYield();final Row r=prepared;final String birthCampaign=campaign;final long sourceThrough=through;final String sourceHash=snapshotHash;final int sourceSamples=snapshotSamples;
         return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_PUBLICATION",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());long now=System.currentTimeMillis();
             // Freeze birth against the writer's current raw and terminal cursors, never the historical bootstrap.
-            try(Cursor latest=db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(latest.moveToFirst())r.born=Math.max(r.born,TargetIssueResolver.sequenceOrdinalSU1(latest.getString(0))+1);}
-            try(Cursor latest=db.rawQuery("SELECT max(issue_ordinal) FROM r26_feedback",null)){if(latest.moveToFirst()&&!latest.isNull(0))r.born=Math.max(r.born,latest.getLong(0)+1);}
+            try(Cursor latest=LegacyResearchScopeR29.realtime(db).rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(latest.moveToFirst())r.born=Math.max(r.born,TargetIssueResolver.sequenceOrdinalSU1(latest.getString(0))+1);}
+            try(Cursor latest=LegacyResearchScopeR29.realtime(db).rawQuery("SELECT max(issue_ordinal) FROM r26_feedback",null)){if(latest.moveToFirst()&&!latest.isNull(0))r.born=Math.max(r.born,latest.getLong(0)+1);}
             try(Cursor capacity=db.rawQuery("SELECT count(*) FROM r26_live_model WHERE status='ACTIVE'",null)){capacity.moveToFirst();if(capacity.getInt(0)>=LIMIT)return 0L;}
             if(!ShadowAdmissionR26.canAdmit(db,r.family))return 0L;
             try(Cursor c=db.rawQuery("SELECT 1 FROM r26_candidate a JOIN r26_foundry f ON f.campaign_id=a.campaign_id WHERE a.campaign_id=? AND a.policy_hash=? AND a.state_hash=? AND a.checkpoint_hash=? AND a.status='DONE' AND f.status IN ('RUNNING','DONE') AND f.numerical_abi=? AND f.source_through=? AND f.snapshot_hash=? AND a.cursor=? AND length(f.snapshot)>0",new String[]{birthCampaign,r.policy,r.hash,r.checkpoint,abi,String.valueOf(sourceThrough),sourceHash,String.valueOf(sourceSamples)})){if(!c.moveToFirst())throw new IllegalStateException("R26_PUBLICATION_CAS");}
@@ -60,7 +60,7 @@ public final class LivePoolR26 {
         final String eventId=event,sourceHash=source;
         try(CheckpointArtifactsR26.Prepared file=PolicyCheckpointR26.prepare(CheckpointArtifactsR26.forStore(store),learner)){final String stateHash=LiveStateR26.hash(CheckpointArtifactsR26.forStore(store).resolve(file.reference())),checkpoint=HashingSU1.fields("R26_LIVE_CHECKPOINT_V1",r.policy,r.checkpoint,event,stateHash);final List<TrainingStepStoreR26.Pending> trainingSteps=TrainingStepStoreR26.capture(r.policy,learner.diagnosticHub(),"LIVE:"+r.policy,sourceHash,eventId.isEmpty()?"PRE_BIRTH_CAUSAL_DRAW":"CANONICAL_TERMINAL_DRAW",ordinal,Long.parseLong(actual.issue),gap,r.hash,stateHash,diagnosticCounters);store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_LEARN_COMMIT",db->{RuntimeCoordinatorR26.requireFence(db,claims.get());
             db.execSQL("UPDATE r26_live_model SET state=?,state_hash=?,checkpoint_hash=?,parent_hash=?,through_ordinal=?,updated_at=? WHERE policy_hash=? AND checkpoint_hash=? AND through_ordinal=? AND status='ACTIVE'",new Object[]{file.reference(),stateHash,checkpoint,previous.checkpoint,ordinal,System.currentTimeMillis(),previous.policy,previous.checkpoint,previous.through});if(changes(db)!=1)throw new IllegalStateException("R26_LIVE_PARENT_CAS");
-            if(!eventId.isEmpty())try(Cursor c=db.rawQuery("SELECT 1 FROM r26_feedback WHERE event_id=? AND source_hash=?",new String[]{eventId,sourceHash})){if(!c.moveToFirst())throw new IllegalStateException("R26_LIVE_EVENT_CAS");}
+            if(!eventId.isEmpty())try(Cursor c=LegacyResearchScopeR29.realtime(db).rawQuery("SELECT 1 FROM r26_feedback WHERE event_id=? AND source_hash=?",new String[]{eventId,sourceHash})){if(!c.moveToFirst())throw new IllegalStateException("R26_LIVE_EVENT_CAS");}
             CheckpointManifestR26.record(db,checkpoint,previous.policy,sourceHash,previous.checkpoint,ordinal,file.reference());
             TrainingStepStoreR26.record(db,trainingSteps,checkpoint);
             db.execSQL("UPDATE r26_capability SET state='LIVE_TRAINING_PROGRESS',last_progress=?,reason='Canonical revealed label and full live checkpoint committed' WHERE kind='FAMILY' AND mechanism=(SELECT family_id FROM r26_live_model WHERE policy_hash=?)",new Object[]{System.currentTimeMillis(),previous.policy});
@@ -69,13 +69,50 @@ public final class LivePoolR26 {
             if(gap){db.execSQL("INSERT OR IGNORE INTO r26_gap_receipt VALUES(?,?,?,?,?,?)",new Object[]{previous.policy,previous.through,ordinal,ordinal-previous.through-1,"UNKNOWN_LABELS; PARAMETERS_RETAINED; TEMPORAL_CONTEXT_REBUILT",System.currentTimeMillis()});db.execSQL("INSERT OR IGNORE INTO r26_certificate_revocation SELECT certificate_id,'DATA_GAP_REQUIRES_NEW_QUALIFICATION',? FROM su2_certificate WHERE genome_key=?",new Object[]{System.currentTimeMillis(),previous.policy});}
             return 0;});}return 1;
     }
-    public static int capture(DbStore store,String target){if(!RuntimeSchemaR26.ready(store.readable()))return 0;long seq=TargetIssueResolver.sequenceOrdinalSU1(target);EventFrameSU1 frame=EventFrameBuilderSU1.captureWithGapsR26(store,target);List<Row> rows=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT "+COLUMNS+" FROM r26_live_model WHERE status='ACTIVE' AND through_ordinal=? AND born_ordinal<=? ORDER BY policy_hash LIMIT ?",new String[]{String.valueOf(seq-1),String.valueOf(seq),String.valueOf(LIMIT)})){while(c.moveToNext())rows.add(row(c));}
-        Collections.rotate(rows,rows.isEmpty()?0:(int)(seq%rows.size()));Map<Row,ModelLiveSU2.Decision> decisions=new LinkedHashMap<>();Map<String,byte[]> tables=new HashMap<>();long stop=System.nanoTime()+1_000_000_000L;
+    public static int capture(DbStore store,String target){
+        SQLiteDatabase realtime=LegacyResearchScopeR29.realtime(store.readable());
+        boolean independent=ResearchRouteR29.active(realtime);
+        if(independent)LegacyLiveProjectionR29.drain(store);
+        SQLiteDatabase research=ResearchRouteR29.reader(realtime);
+        if(!RuntimeSchemaR26.ready(research))return 0;
+        long seq=TargetIssueResolver.sequenceOrdinalSU1(target);
+        EventFrameSU1 frame=EventFrameBuilderSU1.captureWithGapsR26(store,target);
+        long epoch=independent?MigrationCopyR29.scalar(research,"SELECT epoch FROM main.r29_research_owner WHERE singleton=1 AND phase='READY'",null):0;
+        List<Row> rows=new ArrayList<>();
+        try(Cursor c=research.rawQuery("SELECT "+COLUMNS+" FROM r26_live_model WHERE status='ACTIVE' AND through_ordinal=? AND born_ordinal<=? ORDER BY policy_hash LIMIT ?",new String[]{String.valueOf(seq-1),String.valueOf(seq),String.valueOf(LIMIT)})){
+            while(c.moveToNext()){Row r=row(c);r.projectionEpoch=epoch;r.projectionRevision=independent?LegacyLiveProjectionR29.revision(research,r.policy):0;rows.add(r);}
+        }
+        Collections.rotate(rows,rows.isEmpty()?0:(int)(seq%rows.size()));
+        Map<Row,ModelLiveSU2.Decision> decisions=new LinkedHashMap<>();Map<String,byte[]> tables=new HashMap<>();long stop=System.nanoTime()+1_000_000_000L;
         BudgetTokenSU1 forecastBudget=new BudgetTokenSU1(1000,3000000,()->SettlementExecutionGateR819.isActive());
-        ExecutionBudgetR26.enter(forecastBudget);try{for(Row r:rows){if(System.nanoTime()>stop||SettlementExecutionGateR819.isActive())break;try{if(!CurrentPolicyR26.matches(r.text,r.policy))continue;ForecastSnapshotR26 forecast=PreparedForecastStoreR26.read(store.readable(),r.policy,r.checkpoint,r.hash,r.through);if(forecast==null){PolicyRuntimeR26 state=PolicyCheckpointR26.restore(CheckpointArtifactsR26.forStore(store),r.text,r.state,r.hash);forecast=new ForecastSnapshotR26(state.forecast(),state.table());}tables.put(r.policy,forecast.tableBytes());decisions.put(r,forecast.decision);}catch(BudgetTokenSU1.Yield yield){break;}catch(IOException|IllegalArgumentException bad){android.util.Log.w("STARCORE_R26","live forecast blocked",bad);}}}finally{ExecutionBudgetR26.leave();}
-        if(decisions.isEmpty())return 0;return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_LIVE_FREEZE",db->{if(!EventFrameBuilderSU1.unchanged(store,frame))return 0;long now=System.currentTimeMillis();if(now>=frame.targetOpenTime)return 0;int count=0;for(Map.Entry<Row,ModelLiveSU2.Decision> e:decisions.entrySet()){Row r=e.getKey();try(Cursor c=db.rawQuery("SELECT 1 FROM r26_live_model WHERE policy_hash=? AND checkpoint_hash=? AND through_ordinal=? AND status='ACTIVE'",new String[]{r.policy,r.checkpoint,String.valueOf(seq-1)})){if(!c.moveToFirst())continue;}
-            db.execSQL("INSERT OR IGNORE INTO r26_frozen VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{r.policy,seq,seq-1,r.checkpoint,r.hash,frame.sourceVersionHash,frame.sourceGeneration,now,frame.targetOpenTime,tables.get(r.policy)});ModelStoreSU2.insertDecision(db,r.policy,seq,e.getValue(),now,frame.targetOpenTime);count++;}return count;});
+        ExecutionBudgetR26.enter(forecastBudget);
+        try{for(Row r:rows){
+            if(System.nanoTime()>stop||SettlementExecutionGateR819.isActive())break;
+            try{
+                if(!CurrentPolicyR26.matches(r.text,r.policy))continue;
+                ForecastSnapshotR26 forecast=PreparedForecastStoreR26.read(research,r.policy,r.checkpoint,r.hash,r.through);
+                if(forecast==null){PolicyRuntimeR26 state=PolicyCheckpointR26.restore(CheckpointArtifactsR26.forStore(store),r.text,r.state,r.hash);forecast=new ForecastSnapshotR26(state.forecast(),state.table());}
+                tables.put(r.policy,forecast.tableBytes());decisions.put(r,forecast.decision);
+            }catch(BudgetTokenSU1.Yield yield){break;}catch(IOException|IllegalArgumentException bad){android.util.Log.w("STARCORE_R26","live forecast blocked",bad);}
+        }}finally{ExecutionBudgetR26.leave();}
+        if(decisions.isEmpty())return 0;
+        // The realtime transaction reads only realtime source/version references. It never opens or waits for RP.
+        return LegacyResearchScopeR29.realtimeWrite(store,"R26_LIVE_FREEZE",db->{
+            long now=System.currentTimeMillis();
+            if(EventFrameBuilderSU1.generation(db)!=frame.sourceGeneration||now>=frame.targetOpenTime-5000)return 0;
+            try(Cursor arrived=db.rawQuery("SELECT 1 FROM draws WHERE issue=? AND dirty=0",new String[]{Long.toString(frame.targetIssue)})){if(arrived.moveToFirst())return 0;}
+            int count=0;
+            for(Map.Entry<Row,ModelLiveSU2.Decision> e:decisions.entrySet()){
+                Row r=e.getKey();
+                if(independent){if(!LegacyLiveProjectionR29.matches(db,r.policy,r.checkpoint,r.hash,r.through,r.projectionRevision,r.projectionEpoch))continue;}
+                else try(Cursor c=db.rawQuery("SELECT 1 FROM r26_live_model WHERE policy_hash=? AND checkpoint_hash=? AND through_ordinal=? AND status='ACTIVE'",new String[]{r.policy,r.checkpoint,String.valueOf(seq-1)})){if(!c.moveToFirst())continue;}
+                try(Cursor existing=db.rawQuery("SELECT 1 FROM r26_frozen WHERE policy_hash=? AND target_ordinal=?",new String[]{r.policy,Long.toString(seq)})){if(existing.moveToFirst())continue;}
+                db.execSQL("INSERT INTO r26_frozen VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{r.policy,seq,seq-1,r.checkpoint,r.hash,frame.sourceVersionHash,frame.sourceGeneration,now,frame.targetOpenTime,tables.get(r.policy)});
+                ModelStoreSU2.insertDecision(db,r.policy,seq,e.getValue(),now,frame.targetOpenTime);count++;
+            }
+            return count;
+        });
     }
     private static byte[] encodeTable(float[][] table)throws IOException{return ForecastSnapshotR26.encodeTable(table);}
-    public static float[][] frozenTable(SQLiteDatabase db,String policy,long seq){if(!RuntimeSchemaR26.ready(db))return null;try(Cursor c=db.rawQuery("SELECT probability_table FROM r26_frozen WHERE policy_hash=? AND target_ordinal=? AND input_through<? AND frozen_at<deadline_at",new String[]{policy,String.valueOf(seq),String.valueOf(seq)})){if(!c.moveToFirst())return null;try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(c.getBlob(0)))){float[][] p=new float[10][10];for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=in.readFloat();encodeTable(p);return p;}}catch(IOException bad){throw new IllegalStateException("R26_FROZEN_TABLE_CORRUPT",bad);}}
+    public static float[][] frozenTable(SQLiteDatabase db,String policy,long seq){db=LegacyResearchScopeR29.realtime(db);if(!RuntimeSchemaR26.ready(db))return null;try(Cursor c=db.rawQuery("SELECT probability_table FROM r26_frozen WHERE policy_hash=? AND target_ordinal=? AND input_through<? AND frozen_at<deadline_at",new String[]{policy,String.valueOf(seq),String.valueOf(seq)})){if(!c.moveToFirst())return null;try(DataInputStream in=new DataInputStream(new ByteArrayInputStream(c.getBlob(0)))){float[][] p=new float[10][10];for(int i=0;i<10;i++)for(int j=0;j<10;j++)p[i][j]=in.readFloat();encodeTable(p);return p;}}catch(IOException bad){throw new IllegalStateException("R26_FROZEN_TABLE_CORRUPT",bad);}}
 }

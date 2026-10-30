@@ -31,8 +31,24 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
     FtrlR27 atomFtrl; String atomTrainedThrough = "";
     private final MigrationTask migration = new MigrationTask();
+    private final EvolutionTask evolutionTask = new EvolutionTask();
+    private final EvolutionAccess evolutionAccess = new EvolutionAccess();
+    private final List<CooperativeResearchTaskR29> slicedTasks=new ArrayList<>();
+    private ResearchPoolR27.Task sliced(ResearchPoolR27.Task task){CooperativeResearchTaskR29 slice=new CooperativeResearchTaskR29(task,pool.session());slicedTasks.add(slice);return slice;}
+    private volatile Object[][] committedControls = new Object[0][];
+    /** A private evolution turn hides mutable state while parked; readers never wait for its CPU quantum. */
+    static final class EvolutionAccess {
+        final java.util.concurrent.locks.ReentrantReadWriteLock lock=new java.util.concurrent.locks.ReentrantReadWriteLock();
+        private boolean privateTurn;
+        Lease read(){java.util.concurrent.locks.Lock r=lock.readLock();if(!r.tryLock())return null;if(privateTurn){r.unlock();return null;}return new Lease(r);}
+        boolean begin(){java.util.concurrent.locks.Lock w=lock.writeLock();if(!w.tryLock())return false;try{if(privateTurn)return false;privateTurn=true;return true;}finally{w.unlock();}}
+        void publish(){java.util.concurrent.locks.Lock w=lock.writeLock();w.lock();try{privateTurn=false;}finally{w.unlock();}}
+        static final class Lease implements AutoCloseable{final java.util.concurrent.locks.Lock lock;Lease(java.util.concurrent.locks.Lock lock){this.lock=lock;}public void close(){lock.unlock();}}
+    }
     private final LegacyCapabilitySnapshotR29 legacySnapshot;
 
+    private volatile boolean closing;
+    boolean isClosing(){return closing;}
     private static volatile RuntimeR27 active;
     public static RuntimeR27 active() { return active; }
 
@@ -44,21 +60,27 @@ public final class RuntimeR27 implements AutoCloseable {
         legacySnapshot=new LegacyCapabilitySnapshotR29(store,session);
         CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
-        pool.register(new EventTask()); pool.register(migration); pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
-        pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
-        pool.register(new LegacyExportTask()); pool.register(new HealthTask());
-        if(legacy!=null){pool.register(new LegacyCapabilityAdapterR29(legacy));pool.register(new LegacyCapabilityAdapterR29.ContinuityTask(legacy));}
-        pool.register(legacySnapshot);
+        pool.register(new EventTask()); pool.register(migration); pool.register(sliced(new DatasetTask())); pool.register(sliced(new LiveTask())); pool.register(evolutionTask); pool.register(sliced(new AbiTask()));
+        pool.register(sliced(new AtomsTask())); pool.register(sliced(new AtomNetTask())); pool.register(sliced(new CalibrationTask())); pool.register(sliced(new ChartTask()));
+        pool.register(sliced(new LegacyExportTask())); pool.register(sliced(new HealthTask()));
+        if(legacy!=null){pool.register(new LegacyCapabilityAdapterR29(legacy));pool.register(sliced(new LegacyCapabilityAdapterR29.ContinuityTask(legacy)));}
+        pool.register(sliced(legacySnapshot));
         active = this;
     }
     public void start() { pool.start(); }
     public ResearchPoolR27 pool() { return pool; }
-    @Override public void close() { pool.close();legacySnapshot.close(); migration.close(); if (active == this) active = null; }
+    @Override public void close() {
+        closing=true;for(CooperativeResearchTaskR29 task:slicedTasks)task.cancel();legacySnapshot.cancel();AtomWorldR27.cancelPretrain(this);evolutionTask.close();
+        while(!AtomWorldR27.awaitPretrainStopped(this,1000))android.util.Log.w("STARCORE_R27","draining cancelled AtomNet pretraining");
+        for(CooperativeResearchTaskR29 task:slicedTasks)while(!task.awaitStopped(1000))android.util.Log.w("STARCORE_R27","draining cancelled "+task.id());
+        while(!legacySnapshot.awaitStopped(1000))android.util.Log.w("STARCORE_R27","draining cancelled legacy state decode");
+        pool.close();migration.close();if(active==this)active=null;
+    }
 
     static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
     static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
     static void submit(ResearchPoolR27.Worker w, String op, ResearchWriteQueueR27.Batch b) throws InterruptedException {
-        while (!w.writes().submit(op, b, w::cancelled)) { if (w.cancelled()) throw new InterruptedException("R27_CANCELLED"); Thread.sleep(50); }
+        while (!w.writes().submit(op, b, w::cancelled)) { if (w.cancelled()) throw new InterruptedException("R27_CANCELLED"); CooperativeContinuationR26.poll();Thread.sleep(50); }
     }
 
     // ------------------------------------------------------------------ r27-replay-dataset (R27-013/016)
@@ -67,7 +89,7 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r29-event-inbox"; }
         public boolean urgent(ResearchPoolR27.Worker worker,long now){return now-lastDrain>=1000;}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
-            try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w);lastDrain=System.currentTimeMillis();return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
+            try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w)+LegacyLiveProjectionR29.drain(w.store())+LegacyAuthorityProjectionR29.drain(w.store());lastDrain=System.currentTimeMillis();return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
             catch(IllegalStateException busy){if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",0,-1);}
         }
     }
@@ -114,6 +136,8 @@ public final class RuntimeR27 implements AutoCloseable {
     final class DatasetTask implements ResearchPoolR27.Task {
         public String id() { return "r27-replay-dataset"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            try(EvolutionAccess.Lease lease=evolutionAccess.read()){
+            if(lease==null)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_EVOLUTION_TURN",0,-1);
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
             ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
@@ -129,32 +153,75 @@ public final class RuntimeR27 implements AutoCloseable {
             submit(w, "REPLAY_DATASET", b);
             if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
             return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
+            }
         }
     }
 
     // ------------------------------------------------------------------ r27-evolution (R27-021..032)
-    final class EvolutionTask implements ResearchPoolR27.Task {
-        public String id() { return "r27-evolution"; }
-        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
-            if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
-            if (evo == null) evo = restoreOrCreate(w);
-            if (evo.step == 1 && pendingCache != null) { evoData = pendingData; evoCache = pendingCache; pendingData = null; pendingCache = null; evo.rebind(evoCache); }
-            evo.executor = pool.compute(); evo.serialWhile = () -> pool.narrow(System.currentTimeMillis()); evo.leafWeight = leafWeights(); evo.derivedLeaves = derived;
-            String birthIssue = evoData.issues[evoData.size() - 1];
-            StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
-            EvolutionLoopR27 loop = evo; loop.setSink(sink);
-            int stepBefore = loop.step, genBefore = loop.generation;
-            loop.step();
-            ResearchWriteQueueR27.Batch b = sink.batch;
-            b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, evoData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
-            if (!sink.promotions.isEmpty()) {
-                final List<Object[]> promos = sink.promotions;
-                b.before = db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; };
+    final class EvolutionTask implements ResearchPoolR27.Task, AutoCloseable {
+        private volatile boolean stopping;
+        private Turn turn;private EvolutionLoopR27 deferredObservers;
+        final class Turn {
+            final FeatureCacheR27 cache,rebind;final ReplayDatasetR27 data;final EvolutionLoopR27 prior;
+            final String saved;final int nextGeneration;final Map<String,Double> weights;final List<PolicyAstR27.Node> leaves;
+            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot;int stepBefore,genBefore;boolean batchPrepared;
+            CooperativeContinuationR26<Turn> work;
+            Turn(ResearchPoolR27.Worker w){
+                prior=evo;cache=evoCache;rebind=prior!=null&&prior.step==1?pendingCache:null;data=rebind==null?evoData:pendingData;
+                String old=null;int next=0;
+                if(prior==null){try(Cursor c=w.ro.rawQuery("SELECT snapshot FROM r27_evolution_cursor WHERE loop=?",new String[]{LOOP})){if(c.moveToFirst())old=c.getString(0);}
+                    try(Cursor c=w.ro.rawQuery("SELECT max(generation)+1 FROM r27_generation WHERE loop=?",new String[]{LOOP})){if(c.moveToFirst()&&!c.isNull(0))next=c.getInt(0);}}
+                saved=old;nextGeneration=next;weights=leafWeights();leaves=new ArrayList<>(derived);
             }
-            submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
-            if (stepBefore == 9) refreshObservers(w, loop);
-            if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
-            return ResearchPoolR27.Outcome.progress(1, (long) loop.generation * 10 + loop.step);
+            Turn compute(){
+                loop=prior;
+                if(loop==null){EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.seed=System.currentTimeMillis();
+                    if(saved!=null)try{loop=EvolutionLoopR27.restore(saved,cfg,cache,null,System::currentTimeMillis);}catch(RuntimeException mismatch){if(stopping||Thread.currentThread().isInterrupted())throw mismatch;android.util.Log.w("STARCORE_R27","evolution cursor restart",mismatch);}
+                    if(loop==null){loop=new EvolutionLoopR27(cfg,cache,null,System::currentTimeMillis);loop.generation=nextGeneration;}}
+                if(rebind!=null)loop.rebind(rebind);
+                // A turn owns one cooperative CPU context. Helper futures would escape that quantum.
+                loop.executor=null;loop.serialWhile=()->true;loop.leafWeight=weights;loop.derivedLeaves=leaves;
+                stepBefore=loop.step;genBefore=loop.generation;sink=new StoreR27.EvolutionSink(LOOP,data.issues[data.size()-1]);loop.setSink(sink);
+                loop.step();snapshot=loop.snapshot();return this;
+            }
+        }
+        public String id() { return "r27-evolution"; }
+        public boolean boundedSlice(){return true;}
+        private String owner(){return pool.session()+":R29_EVOLUTION";}
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            if(stopping||w.cancelled())return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);
+            if(deferredObservers!=null){if(!refreshObservers(w,deferredObservers))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:OBSERVERS",0,-1);deferredObservers=null;}
+            if(evoCache==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)",0,-1);
+            synchronized(this){
+                if(stopping)return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);
+                if(turn==null){
+                    if(!evolutionAccess.begin())return ResearchPoolR27.Outcome.idle("COOPERATIVE_WAIT_FOR_EVOLUTION_READERS",0,-1);
+                    try{turn=new Turn(w);evo=null;Turn pending=turn;pending.work=new CooperativeContinuationR26<>("starcore-r29-evolution",pending::compute,()->stopping,null,()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,owner());}
+                    catch(Throwable failure){turn=null;evolutionAccess.publish();throw failure;}
+                }
+            }
+            Turn pending=turn;CooperativeContinuationR26.Slice<Turn> slice=pending.work.slice(40);
+            if(!slice.done)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_EVOLUTION_TURN",0,-1);
+            if(slice.error!=null){synchronized(this){turn=null;}evolutionAccess.publish();if(slice.error instanceof Exception)throw(Exception)slice.error;throw new IllegalStateException("R29_EVOLUTION_CONTINUATION",slice.error);}
+            if(stopping||w.cancelled())throw new InterruptedException("R29_EVOLUTION_CANCELLED_BEFORE_COMMIT");
+            EvolutionLoopR27 loop=pending.loop;ResearchWriteQueueR27.Batch batch=pending.sink.batch;
+            if(!pending.batchPrepared){
+            batch.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)",LOOP,loop.generation,loop.step,pending.data.datasetHash,loop.rng.state,pending.snapshot,System.currentTimeMillis());
+            final List<Object[]> promos=pending.sink.promotions;batch.before=db->{if(stopping||closing)throw new InterruptedException("R29_EVOLUTION_STOPPED_BEFORE_TRANSACTION");for(Object[] p:promos){PolicySpecR27 spec=(PolicySpecR27)p[0];StoreR27.insertShadow(db,spec,(Double)p[1],(String)p[3],semanticAbi(spec),spec.policyHash(),spec.policyHash());}return 0;};
+            pending.batchPrepared=true;
+            }
+            if(!w.writes().submit("EVOLUTION_STEP_"+EvolutionLoopR27.STEPS[pending.stepBefore],batch,()->stopping||w.cancelled()))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVOLUTION_TURN",0,-1);
+            evoData=pending.data;evoCache=pending.rebind==null?pending.cache:pending.rebind;
+            if(pending.rebind!=null&&pendingCache==pending.rebind){pendingCache=null;pendingData=null;}
+            committedControls=new Object[][]{{"CONTROL_I00",loop.i00Champion,loop.i00Tau},{"CONTROL_NULL",loop.nullEvolution.champion,loop.nullEvolution.championTau}};
+            evo=loop;synchronized(this){turn=null;}evolutionAccess.publish();
+            if(pending.stepBefore==9&&!refreshObservers(w,loop))deferredObservers=loop;
+            if(pending.stepBefore==9&&pending.genBefore%50==49)derivedDue=true;
+            return ResearchPoolR27.Outcome.progress(1,(long)loop.generation*10+loop.step);
+        }
+        public void close(){Turn pending;synchronized(this){stopping=true;pending=turn;if(pending!=null&&pending.work!=null)pending.work.close();}
+            // The private body owns no database connection, nevertheless drain before pool.close closes RO handles.
+            while(!CooperativeContinuationR26.awaitOwnerStopped(owner(),1000))android.util.Log.w("STARCORE_R27","draining cancelled evolution computation");
         }
     }
     volatile boolean derivedDue; volatile List<PolicyAstR27.Node> derived = new ArrayList<>();
@@ -167,7 +234,7 @@ public final class RuntimeR27 implements AutoCloseable {
 
     /** After each generation: the top OBSERVE_CAP population members become observers; members that dropped out are
      * retired (their settled rows stay). Observers carry no e-process row, so settlement never feeds qualification. */
-    void refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
+    boolean refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
         List<EvolutionLoopR27.Member> ranked = new ArrayList<>(loop.population);
         ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
         final Map<String, EvolutionLoopR27.Member> keep = new LinkedHashMap<>();
@@ -176,7 +243,7 @@ public final class RuntimeR27 implements AutoCloseable {
         try (Cursor c = w.ro.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status=?", new String[] {OBSERVE})) {
             while (c.moveToNext()) { String id = c.getString(0); if (add.remove(id) == null) retire.add(id); }
         }
-        if (add.isEmpty() && retire.isEmpty()) return;
+        if (add.isEmpty() && retire.isEmpty()) return true;
         final int generation = loop.generation - 1;
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
         for (String id : retire) b.add("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?", OBSERVE_RETIRED, "LEFT_TOP_" + OBSERVE_CAP + "_G" + generation, now, id, OBSERVE);
@@ -191,7 +258,7 @@ public final class RuntimeR27 implements AutoCloseable {
             }
             return 0;
         };
-        submit(w, "OBSERVERS", b);
+        return w.writes().submit("OBSERVERS",b,w::cancelled);
     }
 
     EvolutionLoopR27 restoreOrCreate(ResearchPoolR27.Worker w) {
@@ -222,7 +289,7 @@ public final class RuntimeR27 implements AutoCloseable {
         public boolean urgent(ResearchPoolR27.Worker worker,long now){return now-lastRun>=1000&&now<latestOpen(worker.realtimeRo())+60_000L-5000;}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
-            lastRun=System.currentTimeMillis();
+            try {
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest), deadline = latestOpen(w.ro) + 60_000L;
             w.writes().setNextDeadline(deadline);
             long units = PreparedForecastR29.recoverUnproven(w);
@@ -233,13 +300,14 @@ public final class RuntimeR27 implements AutoCloseable {
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
             units += LiveShadowsR27.certify(RuntimeR27.this, w, latestOrd);
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, latestOrd) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", latestOrd, latestOrd);
+            } finally { lastRun=System.currentTimeMillis(); }
         }
     }
 
     /** Keeps one I00 and one shuffled-label control frozen every period next to the shadows (same-period negative controls). */
     void ensureControls(ResearchPoolR27.Worker w) throws Exception {
-        EvolutionLoopR27 l = evo; if (l == null) return;
-        Object[][] controls = {{"CONTROL_I00", l.i00Champion, l.i00Tau}, {"CONTROL_NULL", l.nullEvolution.champion, l.nullEvolution.championTau}};
+        // References are captured only after the step and its cursor were committed.
+        Object[][] controls = committedControls;
         for (Object[] c : controls) {
             final PolicySpecR27 spec = (PolicySpecR27) c[1]; if (spec == null) continue; final String status = (String) c[0];
             boolean have; try (Cursor x = w.ro.rawQuery("SELECT 1 FROM r27_live_shadow s LEFT JOIN r29_registration_request r ON r.experiment_id=s.policy_hash WHERE s.status=? OR (s.status=? AND r.desired_status=?)", new String[] {status,ExperimentRegistrationR29.PENDING,status})) { have = x.moveToFirst(); }
@@ -253,7 +321,7 @@ public final class RuntimeR27 implements AutoCloseable {
     }
 
     /** Live dataset + placeholder for the next target (family streams continue from the previous cache). */
-    synchronized FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
+    FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
         ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
         if(fresh.size()==0||fresh.ordinals[fresh.size()-1]!=latestOrd)throw new IssueCommitR29.Rejected("SOURCE_CHANGED_DURING_FEATURE_PREPARATION");
         // Canonical repairs/backfills must not leave the old feature prefix in memory indefinitely.
@@ -288,7 +356,7 @@ public final class RuntimeR27 implements AutoCloseable {
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, units) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
         }
     }
-    synchronized void ensureGolden() throws Exception {
+    void ensureGolden() throws Exception {
         if (golden != null) return;
         try (InputStream in = store.contextForR26().getAssets().open(SemanticAbiR27.GOLDEN_ASSET)) { golden = SemanticAbiR27.readGolden(in, true); }
         goldenCache = new FeatureCacheR27(golden, 64);
@@ -300,17 +368,17 @@ public final class RuntimeR27 implements AutoCloseable {
     // ------------------------------------------------------------------ r27-atoms (R27-043/044) and r27-atomnet (R27-033/034/036)
     final class AtomsTask implements ResearchPoolR27.Task {
         public String id() { return "r27-atoms"; }
-        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomWorldR27.atomsStep(RuntimeR27.this, w); }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { try(EvolutionAccess.Lease lease=evolutionAccess.read()){if(lease==null)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_EVOLUTION_TURN",0,-1);return AtomWorldR27.atomsStep(RuntimeR27.this, w);} }
     }
     final class AtomNetTask implements ResearchPoolR27.Task {
         public String id() { return "r27-atomnet"; }
-        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return AtomWorldR27.atomNetStep(RuntimeR27.this, w); }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { if(closing)return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);try(EvolutionAccess.Lease lease=evolutionAccess.read()){if(lease==null)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_EVOLUTION_TURN",0,-1);return AtomWorldR27.atomNetStep(RuntimeR27.this, w);} }
     }
 
     // ------------------------------------------------------------------ r27-calibration (R27-037/038)
     final class CalibrationTask implements ResearchPoolR27.Task {
         public String id() { return "r27-calibration"; }
-        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { return LiveShadowsR27.calibrate(RuntimeR27.this, w); }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception { try(EvolutionAccess.Lease lease=evolutionAccess.read()){if(lease==null)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_EVOLUTION_TURN",0,-1);return LiveShadowsR27.calibrate(RuntimeR27.this, w);} }
     }
 
     // ------------------------------------------------------------------ r27-chart-cache (R27-049)
@@ -341,10 +409,10 @@ public final class RuntimeR27 implements AutoCloseable {
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
             if (!assetsCached) {
                 // R27-053/054: build identity, card registry, source audit and R26→R27 merge status packaged as assets.
-                for (String name : new String[] {"build-identity", "r27_cards", "source-audit", "merge-status"}) {
+                for (String name : new String[] {"build-identity", "r27_cards", "source-audit", "merge-status"}) {CooperativeContinuationR26.poll();
                     String payload;
                     try (InputStream in = store.contextForR26().getAssets().open("r27/" + name + ".json")) {
-                        java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream(); byte[] chunk = new byte[8192]; int k; while ((k = in.read(chunk)) > 0) buf.write(chunk, 0, k);
+                        java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream(); byte[] chunk = new byte[8192]; int k; while ((k = in.read(chunk)) > 0) {CooperativeContinuationR26.poll();buf.write(chunk, 0, k);}
                         payload = buf.toString("UTF-8"); JsonR27.parse(payload);
                     } catch (Exception missing) { Map<String, Object> m = new LinkedHashMap<>(); m.put("status", "INSUFFICIENT"); m.put("reason", "asset r27/" + name + ".json unavailable: " + missing.getClass().getSimpleName()); payload = JsonR27.write(m); }
                     b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset',?,?,?)", name, payload, last);
@@ -357,7 +425,7 @@ public final class RuntimeR27 implements AutoCloseable {
                 assetsCached = true;
             }
             // R27-048: fetch write-rejection causes since process start (absolute counts per process; delta-added).
-            for (Map.Entry<String, long[]> e : com.ethk3.novaonepro.FetchLedgerR925.rejectCountsR27().entrySet()) {
+            for (Map.Entry<String, long[]> e : com.ethk3.novaonepro.FetchLedgerR925.rejectCountsR27().entrySet()) {CooperativeContinuationR26.poll();
                 long prev = fetchFlushed.getOrDefault(e.getKey(), 0L), delta = e.getValue()[0] - prev;
                 if (delta <= 0) continue;
                 b.add("INSERT OR IGNORE INTO r27_fetch_reject(reason,count,last_issue,last_at) VALUES(?,0,NULL,?)", e.getKey(), e.getValue()[1]);

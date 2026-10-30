@@ -1,0 +1,52 @@
+{
+  "status": "PASS_REAL_SQLITE_HOST_ONLY_ANDROID_COMBINED_ACCEPTANCE_PENDING",
+  "checks": 19,
+  "rootAuthorityTables": [
+    "v57_shadow_observation_r35",
+    "v57_oos_label_r35",
+    "draw_dependency_input_cp12",
+    "r26_frozen",
+    "r26_incumbent_frozen",
+    "su2_live_decision"
+  ],
+  "rootOnlyControlTables": [
+    "r29_critical_input_clock",
+    "r29_critical_input_change",
+    "r29_critical_input_schema"
+  ],
+  "bootstrapRowsPerPage": 128,
+  "maxChangeKeysPerPage": 64,
+  "maxChangeIndexKeys": 16384,
+  "maxCapturedPageBytes": 2097152,
+  "databaseBudgetBytes": 134217728,
+  "sourceView": "Root original sqlite_master CREATE VIEW SQL; no inferred replacement columns",
+  "rootChangesCovered": [
+    "INSERT",
+    "UPDATE including late settlement without new draw",
+    "DELETE",
+    "primary key move"
+  ],
+  "journalOverflow": "explicit floor_seq invalidation and paged replica rebuild; no authoritative Root predictions/results/tasks deleted",
+  "replicaIdentity": "declared primary key and all explicit _id columns retained; recyclable hidden SQLite rowid not used as cross-database identity",
+  "naturalEvidenceTransferred": false,
+  "sourcePins": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CriticalInputMirrorR29.java",
+      "sha256": "514807d2beb1f9e3b7f201ba0d64c7fde3266c8ec7ef15a370a88fd86f33113c"
+    },
+    {
+      "path": "tools/r29/qual_host/CriticalInputMirrorR29HostTest.java",
+      "sha256": "7575106dc84ba5781736e81a847fcc679cc4fc0255e0e2cda6205f29ecef20a5"
+    },
+    {
+      "path": "tools/r29/run_critical_mirror_host.sh",
+      "sha256": "161dd92cd9ae956c222c49bcf649d84aed1a6bff82160eeeec75d0138e037f7d"
+    }
+  ],
+  "coldCacheMiss": "Read-only validation of exact Root control-table/trigger SQL, current input descriptors, original-view hash and stable schema_version; no Root writer for an already-installed layout",
+  "ackCleanup": "25ms Root writer deadline; cleanup failure cannot undo or misclassify an already committed independent RP replica update",
+  "newNegativeControls": [
+    "PRAGMA query_only=1 permits cold installed-layout validation; real rejected ACK leaves RP READY",
+    "missing trigger, changed trigger body, changed input schema, changed SOURCE view each reject the read-only fastpath and require real reinstall"
+  ]
+}

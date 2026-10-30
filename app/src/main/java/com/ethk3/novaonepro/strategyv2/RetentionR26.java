@@ -33,9 +33,13 @@ public final class RetentionR26 {
         db.execSQL("DELETE FROM r26_feedback WHERE event_id IN ("+oldEvents+")");
         long removed=count(db,"SELECT changes()");fold(db,"feedback_rows",removed);
         db.execSQL("DELETE FROM r26_prepared_forecast WHERE policy_hash NOT IN (SELECT policy_hash FROM r26_live_model WHERE status='ACTIVE')");
-        db.execSQL("DELETE FROM r26_incumbent_frozen WHERE target_ordinal IN (SELECT target_ordinal FROM r26_incumbent_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
-        db.execSQL("DELETE FROM r26_frozen WHERE rowid IN (SELECT rowid FROM r26_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
-        long frozen=count(db,"SELECT changes()");fold(db,"frozen_rows",frozen);
+        // Formal freezes remain Root authority. Its separate bounded owner retires them only after research
+        // metadata commits; a research transaction may never mutate the protected read replica.
+        long frozen=0;if(!ResearchRouteR29.isResearchDatabase(db)){
+            db.execSQL("DELETE FROM r26_incumbent_frozen WHERE target_ordinal IN (SELECT target_ordinal FROM r26_incumbent_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
+            db.execSQL("DELETE FROM r26_frozen WHERE rowid IN (SELECT rowid FROM r26_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
+            frozen=count(db,"SELECT changes()");fold(db,"frozen_rows",frozen);
+        }
         db.execSQL("DELETE FROM r26_expert_audit WHERE rowid IN (SELECT rowid FROM r26_expert_audit ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
         ExpertContinuationR26.preserveExpired(db);
         db.execSQL("DELETE FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='')");

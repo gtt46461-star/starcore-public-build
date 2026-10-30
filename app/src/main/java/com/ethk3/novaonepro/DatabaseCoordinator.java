@@ -308,8 +308,10 @@ public final class DatabaseCoordinator {
 
     public SQLiteDatabase readable() {
         rejectMaintenanceR82();
-        return helper.getReadableDatabase();
+        return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.readable(this,helper.getReadableDatabase());
     }
+    /** Explicit authority reader; research scopes must not recursively resolve their own input route. */
+    public SQLiteDatabase realtimeReadableR29(){rejectMaintenanceR82();return helper.getReadableDatabase();}
 
     public SQLiteDatabase writable() {
         rejectMaintenanceR82();
@@ -505,7 +507,7 @@ public final class DatabaseCoordinator {
 
     /** Called only inside the existing writer's schema callback. */
     void publishResearchSchemaResultR80(boolean ready, String detail) {
-        if (!writeLock.isHeldByCurrentThread()) throw new IllegalStateException("SCHEMA_RESULT_WRITER_REQUIRED");
+        if (!writeLock.isHeldByCurrentThread()&&!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.writerHeldByCurrentThread()) throw new IllegalStateException("SCHEMA_RESULT_WRITER_REQUIRED");
         r811ResearchSchemaReady.set(ready);
         researchSchemaErrorR80=ready?"":detail;
     }
@@ -603,6 +605,14 @@ public final class DatabaseCoordinator {
 
     public <T> T runWrite(String operation, WriteCallable<T> task, T fallback) {
         if (task == null) return fallback;
+        // Resolve an explicitly owned legacy research task before joining the realtime writer queue.
+        if(com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.routes(this,operation)){
+            try{return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.write(operation,task);}
+            catch(VirtualMachineError|ThreadDeath fatal){throw fatal;}
+            catch(ResearchWorkBudgetR927.Yield|RuntimeResourceAuditR927.BudgetExceeded yielded){throw yielded;}
+            catch(com.ethk3.novaonepro.strategyv2.BudgetTokenSU1.Yield yielded){throw yielded;}
+            catch(Throwable failure){WriteFailureFrameF01 frame=WRITE_FAILURE_F01.get();if(frame!=null)frame.error=failure;return fallback;}
+        }
         rejectMaintenanceR82();
         if (android.os.Looper.myLooper() != null
                 && android.os.Looper.myLooper() == android.os.Looper.getMainLooper())

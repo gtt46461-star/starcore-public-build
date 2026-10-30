@@ -17,6 +17,7 @@ public final class ResearchEventBridgeR29 {
     private ResearchEventBridgeR29() {}
     public static final int PAGE = 32;
     public static final String MODEL = "ATOMNET_ONLINE", SETTLEMENT = "SHADOW_SETTLEMENT";
+    public static final String TERMINAL_FEEDBACK = "R26_FEEDBACK_COMMITTED";
     public static final String OUTBOX = "CREATE TABLE IF NOT EXISTS r29_event_outbox(seq INTEGER PRIMARY KEY AUTOINCREMENT,event_id TEXT NOT NULL UNIQUE,issue TEXT NOT NULL,kind TEXT NOT NULL,payload_json TEXT NOT NULL,payload_hash TEXT NOT NULL,origin TEXT NOT NULL,committed_at INTEGER NOT NULL,acked_at INTEGER NOT NULL DEFAULT 0)";
     public static final String[] RESEARCH_DDL = {
         "CREATE TABLE IF NOT EXISTS r29_event_inbox(event_id TEXT PRIMARY KEY,source_seq INTEGER NOT NULL,issue TEXT NOT NULL,payload_hash TEXT NOT NULL,origin TEXT NOT NULL,applied_at INTEGER NOT NULL)",
@@ -64,6 +65,54 @@ public final class ResearchEventBridgeR29 {
         }
     }
 
+    /** The terminal owner calls this in its original realtime settlement transaction. Research receives an
+     * immutable copy through the inbox; it never opens a second writer in that transaction. */
+    public static void appendTerminalFeedback(SQLiteDatabase realtime,String eventId){
+        requireTransaction(realtime);ensureRealtime(realtime);
+        try(Cursor c=realtime.rawQuery("SELECT event_id,issue_ordinal,source_hash,payload,ready_at FROM r26_feedback WHERE event_id=?",new String[]{eventId})){
+            if(!c.moveToFirst())throw new IllegalStateException("R29_FEEDBACK_SOURCE_RECEIPT_REQUIRED");
+            append(realtime,terminalFeedback(c.getString(0),c.getLong(1),c.getString(2),c.getString(3),c.getLong(4)));
+        }
+    }
+    static Event terminalFeedback(String original,long ordinal,String source,String draw,long ready){
+        if(draw==null||draw.length()<12)throw new IllegalArgumentException("R29_FEEDBACK_DRAW");String issue=draw.substring(0,12);
+        Map<String,Object> p=new LinkedHashMap<>();p.put("abi","R29_R26_TERMINAL_FEEDBACK_1");p.put("eventId",original);p.put("ordinal",ordinal);p.put("sourceHash",source);p.put("draw",draw);p.put("readyAt",ready);
+        String payload=JsonR27.write(p),hash=StatsR27.sha256(payload);
+        return new Event(0,StatsR27.sha256(TERMINAL_FEEDBACK+"|"+issue+"|"+hash),issue,payload,hash,"REALTIME_TERMINAL_SETTLEMENT",ready,TERMINAL_FEEDBACK);
+    }
+    static void validateFeedback(String issue,Map<String,Object> p){
+        if(!"R29_R26_TERMINAL_FEEDBACK_1".equals(p.get("abi"))||!TargetIssueResolver.isValid(issue)
+                ||!(p.get("ordinal") instanceof Number)||((Number)p.get("ordinal")).longValue()!=TargetIssueResolver.sequenceOrdinalSU1(issue)
+                ||!(p.get("readyAt") instanceof Number)||((Number)p.get("readyAt")).longValue()<0
+                ||!PolicyIdentityR26.sha256("R26_SETTLED|"+issue).equals(p.get("eventId"))
+                ||!(p.get("sourceHash") instanceof String)||!((String)p.get("sourceHash")).matches("[0-9a-f]{64}")
+                ||!(p.get("draw") instanceof String))throw new IllegalArgumentException("R29_FEEDBACK_PAYLOAD");
+        String[] fields=((String)p.get("draw")).split(",",-1);if(fields.length!=11||!issue.equals(fields[0]))throw new IllegalArgumentException("R29_FEEDBACK_DRAW");
+        int[] numbers=new int[10];for(int i=0;i<10;i++)try{numbers[i]=Integer.parseInt(fields[i+1]);}catch(NumberFormatException bad){throw new IllegalArgumentException("R29_FEEDBACK_DRAW",bad);}
+        if(!ReplayDatasetR27.legal(numbers))throw new IllegalArgumentException("R29_FEEDBACK_PERMUTATION");
+    }
+    @SuppressWarnings("unchecked")
+    static void consumeFeedback(SQLiteDatabase research,Event event){
+        research.execSQL(RuntimeSchemaR26.FEEDBACK);
+        Map<String,Object> p=(Map<String,Object>)JsonR27.parse(event.payload);validateFeedback(event.issue,p);
+        String id=(String)p.get("eventId"),source=(String)p.get("sourceHash"),draw=(String)p.get("draw");long ordinal=((Number)p.get("ordinal")).longValue(),ready=((Number)p.get("readyAt")).longValue();
+        research.execSQL("INSERT OR IGNORE INTO r26_feedback VALUES(?,?,?,?,?)",new Object[]{id,ordinal,source,draw,ready});
+        try(Cursor c=research.rawQuery("SELECT issue_ordinal,source_hash,payload,ready_at FROM r26_feedback WHERE event_id=?",new String[]{id})){
+            if(!c.moveToFirst()||c.getLong(0)!=ordinal||!source.equals(c.getString(1))||!draw.equals(c.getString(2))||c.getLong(3)!=ready)throw new IllegalStateException("R29_TERMINAL_FEEDBACK_CONFLICT");
+        }
+    }
+
+    /** Existing terminal rows predate the outbox hook. Materialize them before acquiring only the realtime
+     * writer; publishing their immutable receipts is delivery, never a new settlement or learning step. */
+    private static void publishRetainedFeedback(ResearchPoolR27.Worker w){
+        List<Event> retained=new ArrayList<>();
+        try(Cursor exists=w.realtimeRo().rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_feedback'",null)){if(!exists.moveToFirst())return;}
+        try(Cursor c=w.realtimeRo().rawQuery("SELECT f.event_id,f.issue_ordinal,f.source_hash,f.payload,f.ready_at FROM r26_feedback f WHERE NOT EXISTS(SELECT 1 FROM r29_event_outbox o WHERE o.kind='R26_FEEDBACK_COMMITTED' AND o.issue=substr(f.payload,1,12)) ORDER BY f.issue_ordinal LIMIT "+PAGE,null)){
+            while(c.moveToNext())retained.add(terminalFeedback(c.getString(0),c.getLong(1),c.getString(2),c.getString(3),c.getLong(4)));
+        }
+        if(!retained.isEmpty())w.store().coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_RETAINED_TERMINAL_FEEDBACK",db->{for(Event event:retained)append(db,event);return 0;});
+    }
+
     public static final class Event {
         public final long seq, committedAt;
         public final String id, issue, payload, hash, origin,kind;
@@ -95,6 +144,7 @@ public final class ResearchEventBridgeR29 {
             Map<String,Object> p = (Map<String,Object>) parsed;
             if(LegacyResearchTransferR29.supports(kind)){LegacyResearchTransferR29.validate(kind,p);return;}
             if(ExperimentRegistrationR29.KIND.equals(kind)){ExperimentRegistrationR29.validate(issue,p);return;}
+            if(TERMINAL_FEEDBACK.equals(kind)){validateFeedback(issue,p);return;}
             if(!"DRAW_COMMITTED".equals(kind))throw new IllegalArgumentException("R29_EVENT_KIND");
             if (!"R29_CANONICAL_DRAW_V1".equals(p.get("abi")) || !issue.equals(p.get("issue")) || !(p.get("numbers") instanceof List))
                 throw new IllegalArgumentException("R29_EVENT_PAYLOAD");
@@ -133,6 +183,7 @@ public final class ResearchEventBridgeR29 {
                 }
                 if(!exists&&ExperimentRegistrationR29.KIND.equals(e.kind))ExperimentRegistrationR29.consume(db,e,now);
                 if(!exists&&LegacyResearchTransferR29.supports(e.kind))LegacyResearchTransferR29.consume(db,e);
+                if(TERMINAL_FEEDBACK.equals(e.kind))consumeFeedback(db,e);
             }
             return 0;
         };
@@ -172,10 +223,8 @@ public final class ResearchEventBridgeR29 {
                 if (!c.moveToFirst() || !stateHash.equals(c.getString(0)) || units != c.getLong(1))
                     throw new IllegalStateException("R29_LEARNING_RECEIPT_CONFLICT");
             }
-            try (Cursor c = db.rawQuery("SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {
-                if (!c.moveToFirst() || !stateHash.equals(c.getString(0)) || !issue.equals(c.getString(1)) || !stateHash.equals(StatsR27.sha256(c.getBlob(2))))
-                    throw new IllegalStateException("R29_LEARNING_RECEIPT_WITHOUT_MATCHING_MODEL_COMMIT");
-            }
+            ModelArtifactR29.Stored stored=ModelArtifactR29.restore(db,"ATOMNET_FTRL");
+            if(stored==null||!stateHash.equals(stored.stateHash)||!issue.equals(stored.artifact.trainedThrough))throw new IllegalStateException("R29_LEARNING_RECEIPT_WITHOUT_MATCHING_MODEL_COMMIT");
             return 0;
         };
     }
@@ -189,6 +238,7 @@ public final class ResearchEventBridgeR29 {
 
     public static ResearchPoolR27.Outcome deliver(ResearchPoolR27.Worker w) throws Exception {
         ExperimentRegistrationR29.publishRequests(w);
+        publishRetainedFeedback(w);
         List<Event> events = pending(w.realtimeRo());
         if (events.isEmpty()) {
             ResearchWriteQueueR27.Batch completed = reconcileSettlements(w.ro, System.currentTimeMillis());
@@ -250,7 +300,9 @@ public final class ResearchEventBridgeR29 {
     public static Map<String,Object> diagnostics(SQLiteDatabase research) {
         Map<String,Object> m = new LinkedHashMap<>();
         m.put("meaning", "DELIVERED is not TRAINED; work remains PENDING without a real commit receipt");
-        m.put("databaseIsolation",ResearchRouteR29.isResearchDatabase(research)?"ACTIVE_R27_RESEARCH_FILE_LEGACY_R26_ADAPTER_PENDING":"ORIGINAL_OWNER_MIGRATION_PENDING");
+        m.put("databaseIsolation",ResearchRouteR29.isResearchDatabase(research)?"ACTIVE_INDEPENDENT_RESEARCH_FILE":"ORIGINAL_OWNER_MIGRATION_PENDING");
+        m.put("terminalRowsVisibleToResearch",QualificationInboxR29.count(research,"SELECT count(*) FROM r26_feedback"));
+        m.put("terminalMirrorMeaning","Read-only delivery of original realtime settlement receipts; visible rows are not newly trained samples");
         m.put("pendingRealtimeRegistrations",QualificationInboxR29.count(research,"SELECT count(*) FROM r29_registration_request WHERE acked_at=0"));
         m.put("eventsDelivered", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_event_inbox"));
         m.put("modelPending", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_work WHERE consumer='ATOMNET_ONLINE' AND status='PENDING'"));

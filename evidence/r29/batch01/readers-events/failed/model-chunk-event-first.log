@@ -1,0 +1,17 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R29_EVENT|E1_DRAW_AND_OUTBOX_ROLL_BACK_TOGETHER|OK
+R29_EVENT|E2_DUPLICATE_DRAW_ONE_IMMUTABLE_EVENT|OK
+R29_EVENT|E3_INBOX_WORK_AND_CURSOR_ROLL_BACK|OK
+R29_EVENT|E4_ACK_LOSS_REDELIVERY_IS_IDEMPOTENT|OK
+R29_EVENT|E5_DELIVERY_IS_NOT_TRAINING|OK
+R29_EVENT|E6_MODEL_CURSOR_RECEIPT_AND_WORK_ROLL_BACK|OK
+Exception in thread "main" java.lang.IllegalStateException: CP3_DB_BUSY_R29_MODEL_CHECKPOINT_CHANGED
+	at com.ethk3.novaonepro.strategyv2.ModelArtifactR29.restore(ModelArtifactR29.java:52)
+	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$2(ResearchEventBridgeR29.java:226)
+	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+	at com.ethk3.novaonepro.strategyv2.EventBridgeR29HostTest.lambda$batch$1(EventBridgeR29HostTest.java:32)
+	at com.ethk3.novaonepro.strategyv2.EventBridgeR29HostTest.tx(EventBridgeR29HostTest.java:27)
+	at com.ethk3.novaonepro.strategyv2.EventBridgeR29HostTest.batch(EventBridgeR29HostTest.java:32)
+	at com.ethk3.novaonepro.strategyv2.EventBridgeR29HostTest.main(EventBridgeR29HostTest.java:70)

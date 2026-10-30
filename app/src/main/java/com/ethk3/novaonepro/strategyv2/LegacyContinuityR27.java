@@ -39,7 +39,7 @@ public final class LegacyContinuityR27 {
         try {
             LegacyReplayStateR26 state = new LegacyReplayStateR26(canonical, 0);
             long base = 1;
-            for (int t = 0; t < golden.size(); t++) {
+            for (int t = 0; t < golden.size(); t++) {CooperativeContinuationR26.poll();
                 long ord = base + (golden.ordinals[t] - golden.ordinals[0]);
                 state.advance(golden.draws[t], ord);
                 if ((t + 1) % 64 == 0) all.append('|').append(t).append(':').append(StatsR27.sha256(state.encode()));
@@ -65,7 +65,7 @@ public final class LegacyContinuityR27 {
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
         b.add("INSERT OR REPLACE INTO r27_semantic_fingerprint(policy_hash,build,fingerprint,operator_abi,rows_blob,computed_at) VALUES(?,?,?,?,NULL,?)", rosterKey, current, fp[0], operatorAbi, now);
         if (needDecision) b.add("INSERT OR IGNORE INTO r27_abi_continuity(policy_hash,old_build,new_build,result,first_diff_issue,first_diff_field,checked_at) VALUES(?,?,?,?,?,?,?)", KEY, stored, current, result, null, field, now);
-        while (!writes.submit("LEGACY_ABI_CONTINUITY", b, () -> false)) Thread.sleep(50);
+        while (!writes.submit("LEGACY_ABI_CONTINUITY", b, () -> Thread.currentThread().isInterrupted())) {CooperativeContinuationR26.poll();Thread.sleep(50);}
         RuntimeCoordinatorR26.wake();
         return 1;
     }

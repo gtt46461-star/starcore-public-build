@@ -54,6 +54,7 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
         final RuntimeCoordinatorR26 runtime;ContinuityTask(RuntimeCoordinatorR26 runtime){this.runtime=runtime;}
         public String id(){return "r29-legacy-continuity";}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker){
+            try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(worker.store())){
             if(!runtime.poolDispatchReady())return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_LEGACY_HANDOFF",0,-1);
             if(!worker.store().coordinatorForResearchR952().isR811ResearchSchemaReady())return ResearchPoolR27.Outcome.idle("WAITING_LEGACY_RESEARCH_SCHEMA",0,-1);
             com.ethk3.novaonepro.ResearchRuntimeSqlGateR911.Report gate=com.ethk3.novaonepro.ResearchRuntimeSqlGateR911.verifyAndPublish(worker.store());
@@ -62,6 +63,7 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
             if(r.errorLanes>0||r.status.startsWith("ERROR:"))throw new IllegalStateException("R29_LEGACY_CONTINUITY_FAILED:"+r.status);
             // A completed lane is a maintenance review, never a sample/gradient/certificate count.
             return r.completedLanes>0?ResearchPoolR27.Outcome.progress(r.completedLanes,0):ResearchPoolR27.Outcome.idle(r.status,0,-1);
+            }
         }
     }
     static void publishWithin(SQLiteDatabase realtime,String session){

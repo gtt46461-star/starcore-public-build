@@ -23,7 +23,9 @@ public final class LegacyCapabilitySnapshotR29 implements ResearchPoolR27.Task,A
         String abi,checkpoint,hash,roster,origin;byte[] reference;long through,genesis,cursor;
     }
     private final DbStore store;private final String session;
-    private CooperativeContinuationR26<Map<String,Object>> decode;
+    private volatile CooperativeContinuationR26<Map<String,Object>> decode;
+    private volatile boolean closed;
+    private String decodeOwner(){return session+":R29_LEGACY_STATE_DECODE";}
     private Pinned pending;
     LegacyCapabilitySnapshotR29(DbStore store,String session){this.store=store;this.session=session;}
     public String id(){return "r29-legacy-state-export";}
@@ -32,15 +34,20 @@ public final class LegacyCapabilitySnapshotR29 implements ResearchPoolR27.Task,A
             if(!c.moveToFirst())return null;Pinned p=new Pinned();p.abi=c.getString(0);p.checkpoint=c.getString(1);p.hash=c.getString(2);p.reference=c.getBlob(3);p.through=c.getLong(4);p.genesis=c.getLong(5);p.cursor=c.getLong(6);p.roster=c.getString(7);p.origin=c.getString(8);return p;
         }
     }
-    static void pinCurrentWithin(SQLiteDatabase realtime,String abi){
-        if(!realtime.inTransaction())throw new IllegalStateException("R29_LEGACY_PIN_TRANSACTION");
-        try(Cursor c=realtime.rawQuery("SELECT numerical_abi,checkpoint_hash,state_hash,state,through_ordinal,genesis_ordinal,cursor,roster_hash,snapshot_hash,parent_hash,source_through FROM r26_legacy_runtime WHERE singleton=1 AND numerical_abi=? AND length(state)>0 AND through_ordinal>=genesis_ordinal",new String[]{abi})){
-            if(!c.moveToFirst())return;
-            Map<String,Object> origin=new LinkedHashMap<>();origin.put("snapshotHash",c.getString(8));origin.put("parentCheckpoint",c.getString(9));origin.put("sourceThrough",c.getLong(10));String minted=c.getString(7);
-            try(Cursor a=realtime.rawQuery("SELECT minted_roster FROM r27_legacy_roster_alias WHERE checkpoint_hash=?",new String[]{c.getString(1)})){if(a.moveToFirst())minted=a.getString(0);}
-            origin.put("mintedRoster",minted);
-            realtime.execSQL("INSERT OR IGNORE INTO r29_legacy_checkpoint_pin VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{c.getString(0),c.getString(1),c.getString(2),c.getBlob(3),c.getLong(4),c.getLong(5),c.getLong(6),c.getString(7),JsonR27.write(origin),System.currentTimeMillis()});
+    static Pinned captureCurrent(SQLiteDatabase source,String abi){
+        try(Cursor c=source.rawQuery("SELECT numerical_abi,checkpoint_hash,state_hash,state,through_ordinal,genesis_ordinal,cursor,roster_hash,snapshot_hash,parent_hash,source_through FROM r26_legacy_runtime WHERE singleton=1 AND numerical_abi=? AND length(state)>0 AND through_ordinal>=genesis_ordinal",new String[]{abi})){
+            if(!c.moveToFirst())return null;Pinned p=new Pinned();p.abi=c.getString(0);p.checkpoint=c.getString(1);p.hash=c.getString(2);p.reference=c.getBlob(3);p.through=c.getLong(4);p.genesis=c.getLong(5);p.cursor=c.getLong(6);p.roster=c.getString(7);
+            Map<String,Object> origin=new LinkedHashMap<>();origin.put("snapshotHash",c.getString(8));origin.put("parentCheckpoint",c.getString(9));origin.put("sourceThrough",c.getLong(10));String minted=p.roster;
+            try(Cursor alias=source.rawQuery("SELECT minted_roster FROM r27_legacy_roster_alias WHERE checkpoint_hash=?",new String[]{p.checkpoint})){if(alias.moveToFirst())minted=alias.getString(0);}
+            origin.put("mintedRoster",minted);p.origin=JsonR27.write(origin);return p;
         }
+    }
+    static void pinCapturedWithin(SQLiteDatabase realtime,Pinned p){
+        if(!realtime.inTransaction())throw new IllegalStateException("R29_LEGACY_PIN_TRANSACTION");if(p==null)return;
+        realtime.execSQL("INSERT OR IGNORE INTO r29_legacy_checkpoint_pin VALUES(?,?,?,?,?,?,?,?,?,?)",new Object[]{p.abi,p.checkpoint,p.hash,p.reference,p.through,p.genesis,p.cursor,p.roster,p.origin,System.currentTimeMillis()});
+    }
+    static void pinCurrentWithin(SQLiteDatabase realtime,String abi){
+        if(!realtime.inTransaction())throw new IllegalStateException("R29_LEGACY_PIN_TRANSACTION");pinCapturedWithin(realtime,captureCurrent(realtime,abi));
     }
     static LegacyReplayStateR26 restore(CheckpointArtifactsR26 artifacts,Pinned p)throws IOException{
         LegacyReplayStateR26 state=artifacts.restoreLegacy(p.reference,p.hash);
@@ -60,16 +67,20 @@ public final class LegacyCapabilitySnapshotR29 implements ResearchPoolR27.Task,A
     }
     public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker)throws Exception{
         if(!ResearchRouteR29.active(worker.realtimeRo()))return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_RESEARCH_CUTOVER",0,-1);
+        synchronized(this){
+        if(closed)return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);
         if(decode==null){
-            String abi;try(Cursor c=worker.realtimeRo().rawQuery("SELECT numerical_abi FROM r26_legacy_runtime WHERE singleton=1 AND length(state)>0 AND through_ordinal>=genesis_ordinal",null)){if(!c.moveToFirst())return ResearchPoolR27.Outcome.idle("WAITING_RETAINED_LEARNED_LEGACY_CHECKPOINT",0,-1);abi=c.getString(0);}
+            String abi;try(Cursor c=worker.ro.rawQuery("SELECT numerical_abi FROM r26_legacy_runtime WHERE singleton=1 AND length(state)>0 AND through_ordinal>=genesis_ordinal",null)){if(!c.moveToFirst())return ResearchPoolR27.Outcome.idle("WAITING_RETAINED_LEARNED_LEGACY_CHECKPOINT",0,-1);abi=c.getString(0);}
             try(Cursor c=worker.ro.rawQuery("SELECT 1 FROM r29_legacy_capability_snapshot WHERE numerical_abi=?",new String[]{abi})){if(c.moveToFirst())return ResearchPoolR27.Outcome.idle("NO_NEW_LEGACY_NUMERICAL_ABI",0,0);}
             // A shared artifact lease prevents GC until the durable root pin is committed.
             try(ReportInputsLeaseCP12 lease=ReportInputsLeaseCP12.acquire(store.contextForR26().getFilesDir())){
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_PIN_EXECUTABLE_LEGACY_STATE",db->{pinCurrentWithin(db,abi);return 0;});
+                final Pinned captured=captureCurrent(worker.ro,abi);
+                com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.realtimeWrite(store,"R29_PIN_EXECUTABLE_LEGACY_STATE",db->{pinCapturedWithin(db,captured);return 0;});
             }
             pending=pinned(worker.realtimeRo(),abi);if(pending==null)return ResearchPoolR27.Outcome.idle("COOPERATIVE_LEGACY_SOURCE_CHANGED_RETRY",0,-1);
             final Pinned source=pending;
-            decode=new CooperativeContinuationR26<>("starcore-r29-legacy-state-export",()->describe(restore(CheckpointArtifactsR26.forStore(store),source),source),worker::cancelled,null,()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,session);
+            decode=new CooperativeContinuationR26<>("starcore-r29-legacy-state-export",()->describe(restore(CheckpointArtifactsR26.forStore(store),source),source),worker::cancelled,null,()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,decodeOwner());
+        }
         }
         CooperativeContinuationR26.Slice<Map<String,Object>> slice=decode.slice(20);
         if(!slice.done)return ResearchPoolR27.Outcome.idle("COOPERATIVE_LEGACY_STATE_DECODE_UNCOMMITTED",0,-1);
@@ -84,5 +95,7 @@ public final class LegacyCapabilitySnapshotR29 implements ResearchPoolR27.Task,A
         });
         return ResearchPoolR27.Outcome.progress(1,0); // one restored-state receipt, not a learning update
     }
-    public void close(){if(decode!=null)decode.close();}
+    public synchronized void cancel(){closed=true;if(decode!=null)decode.close();}
+    public boolean awaitStopped(long millis){return CooperativeContinuationR26.awaitOwnerStopped(decodeOwner(),millis);}
+    public void close(){cancel();while(!awaitStopped(1000))android.util.Log.w("STARCORE_R29","draining cancelled legacy state decode");}
 }

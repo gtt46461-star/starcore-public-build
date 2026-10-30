@@ -100,7 +100,7 @@ public final class RuntimeReportR26 {
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='draws'",null)){if(c.moveToFirst())try(Cursor d=db.rawQuery("SELECT issue FROM draws ORDER BY issue DESC LIMIT 1",null)){if(d.moveToFirst())facts.put("asOfIssue",d.getString(0));}}
         JSONArray never=new JSONArray();try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability WHERE last_progress=0 ORDER BY mechanism",null)){while(c.moveToNext())never.put(new JSONObject().put("mechanism",c.getString(0)).put("state",c.getString(1)).put("reason",c.getString(2)));}facts.put("neverProgressed",never);return facts;
     }
-    public static String json(SQLiteDatabase db,JSONObject source){try{
+    public static String json(SQLiteDatabase db,JSONObject source){try{db=ResearchRouteR29.reader(db);
         long start=System.nanoTime();JSONObject root=new JSONObject();root.put("schema","R26_REPORT_2");root.put("metricRegistrySha256",ReportMetricContractR26.REGISTRY_SHA256);root.put("snapshotHash",source.opt("snapshotSha256"));root.put("sourceCommit",source.opt("sourceCommit"));root.put("apkHash",source.opt("apkSha256"));root.put("overallAcceptance","INCOMPLETE");root.put("naturalQuality","INSUFFICIENT");root.put("physicalDevice","NOT_RUN");JSONArray sections=new JSONArray();
         JSONObject facts=new JSONObject();try{facts=facts(db);}catch(Exception error){root.put("captureFactsError",error.toString());}
         if(RuntimeSchemaR26.ready(db))try{root.put("strategyAssessment",StrategyAssessmentR26.snapshot(db));}catch(Exception error){root.put("strategyAssessmentError",error.toString());}

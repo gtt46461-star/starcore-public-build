@@ -111,5 +111,6 @@ public final class RuntimeSchemaR26 {
         try(Cursor c=db.rawQuery("SELECT source_hash,payload FROM r26_feedback WHERE event_id=?",new String[]{event})){
             if(c.moveToFirst()){if(!source.equals(c.getString(0))||!payload.toString().equals(c.getString(1)))throw new IllegalStateException("R26_FEEDBACK_CONFLICT");return;}}
         db.execSQL("INSERT INTO r26_feedback VALUES(?,?,?,?,?)",new Object[]{event,ordinal,source,payload.toString(),System.currentTimeMillis()});
+        ResearchEventBridgeR29.appendTerminalFeedback(db,event);
     }
 }

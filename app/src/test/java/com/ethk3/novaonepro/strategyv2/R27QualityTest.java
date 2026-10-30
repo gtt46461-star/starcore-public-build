@@ -123,6 +123,7 @@ public final class R27QualityTest {
 
     // ------------------------------------------------------------------ H15 main-chain red lines (Java half)
     static final String[][] MAINLINE_OWNERS = {
+        {"app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java", "8b97bd3dbae75adedb6519625676ea536d80617f5886eb341d4f18daeac227f3"},
         {"app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java", "edd7edb47b087dd3053ca98540461e1c4a4b7031c5314036e5a1356a5f688d91"},
         {"app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java", "a978b689f0c6d5eafcab5279bf18794e7e573f6f2cf59a74985a55f22822693f"},
         {"app/src/main/java/com/ethk3/novaonepro/V51DecisionGateCore.java", "63341a9d65087cff33d441a7ced63232c5f6b7d5680113d6fed3afe522f7cce4"},
@@ -132,25 +133,46 @@ public final class R27QualityTest {
         {"app/src/main/java/com/ethk3/novaonepro/DbStore.java", "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a"},
     };
 
-    /** The two reviewed R29 draw-event appends extend data delivery inside the existing draw transaction.
+    /** Two reviewed draw-event appends extend data delivery, and one exact readable() hook routes scoped research reads.
      * Normalize ONLY those exact hooks, in their original canonical-acceptance position; every other byte of the
      * main-chain owner remains pinned. Moving a hook or changing REAL/settlement logic must still fail this guard. */
     static String withoutR29DrawDeliveryHooks(String source) {
         java.util.regex.Pattern hook=java.util.regex.Pattern.compile("(\\h*FetchLedgerR925\\.canonicalDrawWithinR82\\(db,draw\\);\\n)\\h*com\\.ethk3\\.novaonepro\\.strategyv2\\.ResearchEventBridgeR29\\.appendCanonical\\(\\n\\h*db, draw\\.issue, rowId >= 0L, System\\.currentTimeMillis\\(\\)\\);\\n");
         java.util.regex.Matcher matcher=hook.matcher(source);StringBuffer out=new StringBuffer();int count=0;
         while(matcher.find()){matcher.appendReplacement(out,java.util.regex.Matcher.quoteReplacement(matcher.group(1)));count++;}
-        matcher.appendTail(out);assertEquals("exact reviewed draw-outbox hooks",2,count);return out.toString();
+        matcher.appendTail(out);assertEquals("exact reviewed draw-outbox hooks",2,count);
+        String readHook="    public SQLiteDatabase readable() {\n        return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.readable(this,coordinator.readable());\n    }";
+        String reviewed=out.toString();assertEquals("exact reviewed scoped read hook",1,reviewed.split(java.util.regex.Pattern.quote(readHook),-1).length-1);
+        return reviewed.replace(readHook,"    public SQLiteDatabase readable() {\n        return coordinator.readable();\n    }");
+    }
+
+    static String withoutReviewedSu2ProjectionHook(String source){
+        String hook="        if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){\n            if(!com.ethk3.novaonepro.strategyv2.LegacyAuthorityProjectionR29.verifySu2(db,proof,compiled.selected.action))throw new IllegalStateException(\"SU2_EXACT_COMMIT_ACTION_OR_AUTHORITY_CHANGED\");return;\n        }\n";
+        assertEquals("exact reviewed SU2 proof validation hook",1,source.split(java.util.regex.Pattern.quote(hook),-1).length-1);
+        String scopeHook="        if(candidate!=null&&(candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)||candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)))return com.ethk3.novaonepro.strategyv2.LegacyAuthorityProjectionR29.exactScope(candidate,structure,model,selector);\n";
+        assertEquals("exact reviewed legacy scope identity hook",1,source.split(java.util.regex.Pattern.quote(scopeHook),-1).length-1);
+        return source.replace(hook,"").replace(scopeHook,"");
     }
 
     @Test public void h15MainlineRedLines() throws Exception {
         File root = R27TestSupport.root();
-        // 1. Pin every owner; DbStore's two authorized delivery hooks are the sole explicit extension.
+        // 1. Pin every owner; DbStore's exact delivery/scoped-read hooks are the sole explicit extensions.
         for (String[] f : MAINLINE_OWNERS) {
             byte[] bytes=Files.readAllBytes(new File(root,f[0]).toPath());
             if(f[0].endsWith("/DbStore.java")) {
                 String src=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
                 bytes=withoutR29DrawDeliveryHooks(src).getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 assertNotEquals("negative control: altered main-chain owner escaped guard",f[1],StatsR27.sha256(withoutR29DrawDeliveryHooks(src.replace("R914_DRAW_SAVE_ATOMIC","UNAUTHORIZED_DRAW_OWNER"))));
+                boolean rejectedRead=false;try{withoutR29DrawDeliveryHooks(src.replace("readable(this,coordinator.readable())","readable(this,coordinator.writable())"));}catch(AssertionError expected){rejectedRead=true;}
+                assertTrue("negative control: altered research-read hook must be rejected",rejectedRead);
+            }
+            if(f[0].endsWith("/CertifiedPredictionR974.java")){
+                String src=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);bytes=withoutReviewedSu2ProjectionHook(src).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                boolean rejected=false;try{withoutReviewedSu2ProjectionHook(src.replace("LegacyAuthorityProjectionR29.verifySu2","LegacyAuthorityProjectionR29.bypassSu2"));}catch(AssertionError expected){rejected=true;}
+                assertTrue("negative control: changed SU2 authority hook must be rejected",rejected);
+                boolean rejectedScope=false;try{withoutReviewedSu2ProjectionHook(src.replace("LegacyAuthorityProjectionR29.exactScope","LegacyAuthorityProjectionR29.bypassScope"));}catch(AssertionError expected){rejectedScope=true;}
+                assertTrue("negative control: changed scope identity hook must be rejected",rejectedScope);
+                assertNotEquals("negative control: original mainline validation remains pinned",f[1],StatsR27.sha256(withoutReviewedSu2ProjectionHook(src.replace("if(proof==null)return;","if(proof!=null)return;"))));
             }
             assertEquals("main-chain owner changed: "+f[0],f[1],StatsR27.sha256(bytes));
         }

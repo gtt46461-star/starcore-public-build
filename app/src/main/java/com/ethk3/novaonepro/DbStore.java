@@ -197,7 +197,7 @@ public final class DbStore {
     }
 
     public SQLiteDatabase readable() {
-        return coordinator.readable();
+        return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.readable(this,coordinator.readable());
     }
 
     public SQLiteDatabase writable() {

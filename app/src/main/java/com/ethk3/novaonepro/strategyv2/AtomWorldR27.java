@@ -113,12 +113,10 @@ public final class AtomWorldR27 {
         if (d == null || evo == null || rt.frameValues == null || !d.datasetHash.equals(rt.frameDataset) || rt.frameCursor < rt.frameValues.length)
             return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-atoms:frame " + rt.frameCursor + "/" + (rt.frameValues == null ? 0 : rt.frameValues.length) + ")", rt.frameCursor, rt.frameValues == null ? -1 : rt.frameValues.length);
         if (rt.atomNet == null) {
-            try (Cursor c = w.ro.rawQuery("SELECT artifact,state_hash,dataset_hash,trained_through,feature_abi FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {
-                if (c.moveToFirst()) {
-                    if (!ModelArtifactR29.ABI.equals(c.getString(4))) throw new IllegalStateException("R29_MODEL_FEATURE_ABI_MISMATCH");
-                    ModelArtifactR29 restored = ModelArtifactR29.decode(c.getBlob(0), c.getString(1));
+            ModelArtifactR29.Stored stored=ModelArtifactR29.restore(w.ro,"ATOMNET_FTRL");
+                if (stored!=null) {
+                    ModelArtifactR29 restored = stored.artifact;
                     if (restored.trainer.net.in != 7 + AtomReplayR27.eligible().length || restored.ftrl.d != 7) throw new IllegalStateException("R29_MODEL_INPUT_SHAPE_MISMATCH");
-                    if (!restored.datasetHash.equals(c.getString(2)) || !restored.trainedThrough.equals(c.getString(3))) throw new IllegalStateException("R29_MODEL_CURSOR_MISMATCH");
                     // CP04 artifacts lack this receipt counter. Recover its lower bound from immutable database rows.
                     try (Cursor epochs = w.ro.rawQuery("SELECT coalesce(max(epoch),-1)+1 FROM r27_atomnet_epoch WHERE run_id=?", new String[] {restored.datasetHash.substring(0,16)})) {
                         if (epochs.moveToFirst()) restored.trainer.nextEpochReceipt = Math.max(restored.trainer.nextEpochReceipt, epochs.getInt(0));
@@ -126,8 +124,7 @@ public final class AtomWorldR27 {
                     rt.atomNet = restored.trainer; rt.atomFtrl = restored.ftrl; rt.atomTrainedThrough = restored.trainedThrough; rt.atomNetDataset = restored.datasetHash;
                     return ResearchPoolR27.Outcome.idle("CHECKPOINT_RESTORED;NO_TRAINING_YET", restored.trainer.onlineSteps, -1);
                 }
-            }
-            pretrain(rt, w, d, evo.context().split); return ResearchPoolR27.Outcome.progress(1, 0);
+            return pretrain(rt, w, d, evo.context().split);
         }
         // A new replay-window hash is not a new learning rule. Continue the full persisted optimizer/RNG state.
         return online(rt, w);
@@ -139,19 +136,55 @@ public final class AtomWorldR27 {
         return out;
     }
 
-    static void pretrain(RuntimeR27 rt, ResearchPoolR27.Worker w, ReplayDatasetR27 d, SplitR27 sp) throws Exception {
-        List<AtomNetTrainerR27.Sample> train = samples(rt, sp.trainFrom, sp.trainTo), select = samples(rt, sp.selectFrom, sp.selectTo), hold = samples(rt, sp.holdoutFrom, sp.holdoutTo);
-        if (train.isEmpty()) return;
-        AtomNetTrainerR27 tr = new AtomNetTrainerR27(train.get(0).x.length, 27);
-        long t0 = System.currentTimeMillis(); tr.pretrain(train, select); tr.check(hold);
+    private static final Map<RuntimeR27,Pretraining> PRETRAIN = new java.util.WeakHashMap<>();
+    private static final class Trained {
+        final AtomNetTrainerR27 trainer;final FtrlR27 ftrl;
+        Trained(AtomNetTrainerR27 trainer,FtrlR27 ftrl){this.trainer=trainer;this.ftrl=ftrl;}
+    }
+    private static final class Pretraining {
+        final ReplayDatasetR27 data;final SplitR27 split;final List<AtomNetTrainerR27.Sample> hold;
+        final long started=System.currentTimeMillis();final CooperativeContinuationR26<Trained> work;
+        Pretraining(ReplayDatasetR27 data,SplitR27 split,List<AtomNetTrainerR27.Sample> train,List<AtomNetTrainerR27.Sample> select,List<AtomNetTrainerR27.Sample> hold,java.util.function.BooleanSupplier cancelled,String owner){
+            this.data=data;this.split=split;this.hold=hold;
+            // Captured immutable sample arrays only. No DB, worker reader, mutable RuntimeR27 state or writer lock
+            // is accessed on the continuation thread, including while it is parked between 40ms quanta.
+            work=new CooperativeContinuationR26<>("starcore-r29-atomnet-pretrain",()->{
+                AtomNetTrainerR27 tr=new AtomNetTrainerR27(train.get(0).x.length,27);tr.pretrain(train,select);tr.check(hold);
+                double[][] gx=new double[train.size()][];int[] gy=new int[train.size()];
+                for(int i=0;i<gx.length;i++){CooperativeContinuationR26.poll();gx[i]=java.util.Arrays.copyOf(train.get(i).x,7);gy[i]=train.get(i).y;}
+                FtrlR27 f=FtrlR27.pretrain(gx,gy,gx.length);
+                for(AtomNetTrainerR27.Sample s:select){CooperativeContinuationR26.poll();f.update(java.util.Arrays.copyOf(s.x,7),s.y);}
+                return new Trained(tr,f);
+            },cancelled,null,()->android.os.Debug.threadCpuTimeNanos(),owner);
+        }
+    }
+    static void cancelPretrain(RuntimeR27 rt){synchronized(PRETRAIN){Pretraining pending=PRETRAIN.remove(rt);if(pending!=null)pending.work.close();}}
+    static boolean awaitPretrainStopped(RuntimeR27 rt,long millis){return CooperativeContinuationR26.awaitOwnerStopped(rt.pool().session()+":ATOMNET_PRETRAIN",millis);}
+
+    static ResearchPoolR27.Outcome pretrain(RuntimeR27 rt, ResearchPoolR27.Worker w, ReplayDatasetR27 d, SplitR27 sp) throws Exception {
+        if(rt.isClosing()||w.cancelled())return ResearchPoolR27.Outcome.idle("COOPERATIVE_ATOMNET_STOPPING",0,-1);
+        Pretraining pending;
+        synchronized(PRETRAIN){
+            if(rt.isClosing()||w.cancelled())return ResearchPoolR27.Outcome.idle("COOPERATIVE_ATOMNET_STOPPING",0,-1);
+            pending=PRETRAIN.get(rt);
+            if(pending==null){
+                List<AtomNetTrainerR27.Sample> train=samples(rt,sp.trainFrom,sp.trainTo),select=samples(rt,sp.selectFrom,sp.selectTo),hold=samples(rt,sp.holdoutFrom,sp.holdoutTo);
+                if(train.isEmpty())return ResearchPoolR27.Outcome.idle("WAITING_ATOMNET_TRAIN_SAMPLES",0,-1);
+                pending=new Pretraining(d,sp,train,select,hold,()->rt.isClosing()||w.cancelled(),rt.pool().session()+":ATOMNET_PRETRAIN");PRETRAIN.put(rt,pending);
+            }
+        }
+        CooperativeContinuationR26.Slice<Trained> slice=pending.work.slice(40);
+        if(!slice.done)return ResearchPoolR27.Outcome.idle("COOPERATIVE_ATOMNET_PRETRAIN_UNCOMMITTED",0,-1);
+        if(slice.error!=null){synchronized(PRETRAIN){if(PRETRAIN.get(rt)==pending)PRETRAIN.remove(rt);}pending.work.close();if(slice.error instanceof Exception)throw (Exception)slice.error;throw new IllegalStateException("R29_ATOMNET_PRETRAIN_FAILED",slice.error);}
+        if(rt.isClosing()||w.cancelled()){cancelPretrain(rt);return ResearchPoolR27.Outcome.idle("COOPERATIVE_ATOMNET_STOPPING",0,-1);}
+        // The immutable historical snapshot may have rotated while pure computation was suspended. Its training
+        // identity/cursor remain the captured snapshot; online replay catches up after this entire state commits.
+        d=pending.data;sp=pending.split;List<AtomNetTrainerR27.Sample> hold=pending.hold;
+        AtomNetTrainerR27 tr=slice.result.trainer;FtrlR27 f=slice.result.ftrl;long t0=pending.started;
         String run = d.datasetHash.substring(0, 16); long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+        b.before=db->rt.isClosing()||w.cancelled()?-1:0;b.after=b.before;
         for (AtomNetTrainerR27.Epoch e : tr.epochs) b.add("INSERT OR REPLACE INTO r27_atomnet_epoch(run_id,epoch,split,logloss,brier,recorded_at) VALUES(?,?,?,?,?,?)", run, e.epoch, e.split, e.logloss, e.brier, now);
-        // FTRL on the 7 group features (same samples).
-        double[][] gx = new double[train.size()][]; int[] gy = new int[train.size()];
-        for (int i = 0; i < gx.length; i++) { gx[i] = java.util.Arrays.copyOf(train.get(i).x, 7); gy[i] = train.get(i).y; }
-        FtrlR27 f = FtrlR27.pretrain(gx, gy, gx.length);
-        for (AtomNetTrainerR27.Sample s : select) f.update(java.util.Arrays.copyOf(s.x, 7), s.y);
         // REPLAY Brier pairs on the holdout block (chart A initial evidence; FUTURE pairs follow live).
         for (AtomNetTrainerR27.Sample s : hold) {
             double p = tr.net.predict(s.x), q = f.predict(java.util.Arrays.copyOf(s.x, 7));
@@ -165,6 +198,8 @@ public final class AtomWorldR27 {
         checkpoint(b, new ModelArtifactR29(tr, f, d.datasetHash, d.issues[sp.holdoutTo - 1]), now);
         RuntimeR27.submit(w, "ATOMNET_PRETRAIN", b);
         rt.atomNet = tr; rt.atomNetDataset = d.datasetHash; rt.atomFtrl = f; rt.atomTrainedThrough = d.issues[sp.holdoutTo - 1];
+        synchronized(PRETRAIN){if(PRETRAIN.get(rt)==pending)PRETRAIN.remove(rt);}pending.work.close();
+        return ResearchPoolR27.Outcome.progress(1,0);
     }
 
     /** Settles pending FUTURE predictions, trains one online step per new draw, and freezes the next prediction. */

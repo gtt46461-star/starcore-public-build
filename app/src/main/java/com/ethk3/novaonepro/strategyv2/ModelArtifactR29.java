@@ -1,5 +1,7 @@
 package com.ethk3.novaonepro.strategyv2;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -21,6 +23,41 @@ public final class ModelArtifactR29 {
     public final AtomNetTrainerR27 trainer;
     public final FtrlR27 ftrl;
     public final String datasetHash, trainedThrough;
+    /** A full replay checkpoint exceeds Android's CursorWindow. Never select its entire BLOB into a row. */
+    public static final int READ_CHUNK_BYTES = 128 << 10;
+    public static final class Stored {
+        public final ModelArtifactR29 artifact;public final String stateHash;public final int byteLength;
+        Stored(ModelArtifactR29 artifact,String stateHash,int byteLength){this.artifact=artifact;this.stateHash=stateHash;this.byteLength=byteLength;}
+    }
+    private static final class Metadata {
+        String abi,dataset,through,hash;int size;
+        String[] fence(String owner){return new String[]{owner,abi,dataset,through,hash,String.valueOf(size)};}
+        boolean same(Metadata other){return other!=null&&abi.equals(other.abi)&&dataset.equals(other.dataset)&&through.equals(other.through)&&hash.equals(other.hash)&&size==other.size;}
+    }
+    private static Metadata metadata(SQLiteDatabase db,String owner){
+        try(Cursor c=db.rawQuery("SELECT feature_abi,dataset_hash,trained_through,state_hash,length(artifact) FROM r29_model_checkpoint WHERE owner=?",new String[]{owner})){
+            if(!c.moveToFirst())return null;Metadata m=new Metadata();m.abi=c.getString(0);m.dataset=c.getString(1);m.through=c.getString(2);m.hash=c.getString(3);long size=c.getLong(4);
+            if(!ABI.equals(m.abi)||m.dataset==null||m.through==null||m.hash==null||!m.hash.matches("[0-9a-f]{64}")||size<=0||size>MAX_BYTES)throw new IllegalArgumentException("R29_MODEL_CHECKPOINT_METADATA_OR_SIZE");
+            m.size=(int)size;return m;
+        }
+    }
+    /** Metadata and length are small rows. Each BLOB row is <=128KiB, fenced to the same complete immutable
+     * checkpoint identity. A concurrent replacement cannot mix generations; checksum, codec and cursor metadata
+     * are still verified over ALL bytes. No replay samples or optimizer state are dropped to fit CursorWindow. */
+    public static Stored restore(SQLiteDatabase db,String owner){
+        Metadata meta=metadata(db,owner);if(meta==null)return null;byte[] bytes=new byte[meta.size];String[] fence=meta.fence(owner);
+        for(int offset=0;offset<bytes.length;){
+            int length=Math.min(READ_CHUNK_BYTES,bytes.length-offset);String[] args=new String[8];args[0]=String.valueOf(offset+1);args[1]=String.valueOf(length);System.arraycopy(fence,0,args,2,fence.length);
+            try(Cursor c=db.rawQuery("SELECT substr(artifact,?,?) FROM r29_model_checkpoint WHERE owner=? AND feature_abi=? AND dataset_hash=? AND trained_through=? AND state_hash=? AND length(artifact)=CAST(? AS INTEGER)",args)){
+                if(!c.moveToFirst())throw new IllegalStateException("CP3_DB_BUSY_R29_MODEL_CHECKPOINT_CHANGED");byte[] chunk=c.getBlob(0);
+                if(chunk==null||chunk.length!=length||chunk.length>READ_CHUNK_BYTES)throw new IllegalArgumentException("R29_MODEL_CHECKPOINT_CHUNK_LENGTH");System.arraycopy(chunk,0,bytes,offset,length);
+            }offset+=length;CooperativeContinuationR26.poll(); // cursor already closed; never park a read row
+        }
+        if(!meta.same(metadata(db,owner)))throw new IllegalStateException("CP3_DB_BUSY_R29_MODEL_CHECKPOINT_CHANGED");
+        ModelArtifactR29 restored=decode(bytes,meta.hash);
+        if(!meta.dataset.equals(restored.datasetHash)||!meta.through.equals(restored.trainedThrough))throw new IllegalArgumentException("R29_MODEL_CHECKPOINT_CURSOR_MISMATCH");
+        return new Stored(restored,meta.hash,bytes.length);
+    }
 
     public ModelArtifactR29(AtomNetTrainerR27 trainer, FtrlR27 ftrl, String datasetHash, String trainedThrough) {
         if (trainer == null || ftrl == null || datasetHash == null || trainedThrough == null) throw new IllegalArgumentException("R29_MODEL_STATE_REQUIRED");
@@ -37,6 +74,7 @@ public final class ModelArtifactR29 {
             out.writeInt(trainer.nextEpochReceipt);
             out.writeInt(trainer.buffer.size());
             for (AtomNetTrainerR27.Sample s : trainer.buffer) {
+                CooperativeContinuationR26.poll();
                 out.writeUTF(s.issue); out.writeInt(s.y); out.writeInt(s.cls); out.writeInt(s.x.length);
                 for (double value : s.x) out.writeDouble(value);
             }
@@ -65,6 +103,7 @@ public final class ModelArtifactR29 {
             tr.nextEpochReceipt = version == MAGIC ? bounded(in.readInt(), 0, Integer.MAX_VALUE) : 0;
             int n = bounded(in.readInt(), 0, AtomNetTrainerR27.REPLAY);
             for (int i = 0; i < n; i++) {
+                CooperativeContinuationR26.poll();
                 String issue = in.readUTF(); int y = bounded(in.readInt(), 0, 1), cls = bounded(in.readInt(), 0, 9);
                 int dim = bounded(in.readInt(), 1, MAX_INPUT); if (dim != restored.in) throw new IOException("sample shape");
                 double[] x = new double[dim]; for (int j = 0; j < dim; j++) x[j] = finite(in.readDouble());

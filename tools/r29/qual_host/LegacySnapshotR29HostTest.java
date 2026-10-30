@@ -52,6 +52,18 @@ public final class LegacySnapshotR29HostTest {
             EventBridgeR29HostTest.tx(research,()->SchemaR27.ensureResearch(research),false);
             check("L11_RESEARCH_SCHEMA_UPGRADE_HAS_NO_REALTIME_AUTHORITIES",n(research,"SELECT count(*) FROM sqlite_master WHERE name IN ('r29_event_outbox','r29_scheduler_owner','r29_legacy_checkpoint_pin')")==0&&n(research,"SELECT count(*) FROM sqlite_master WHERE name='r29_legacy_capability_snapshot'")==1);
         }
+        Path roots=Files.createTempDirectory("r29-reference-two-domain-"),rootFile=roots.resolve("root.db");
+        String retained=StatsR27.sha256("retained Root original model"),pinHash=StatsR27.sha256("Root immutable source pin"),current=StatsR27.sha256("current migrated RP model");
+        try(SQLiteDatabase root=new SQLiteDatabase(java.sql.DriverManager.getConnection("jdbc:sqlite:"+rootFile));SQLiteDatabase research=new SQLiteDatabase(java.sql.DriverManager.getConnection("jdbc:sqlite::memory:"))){
+            String model="CREATE TABLE r26_live_model(policy_hash TEXT,state BLOB,parent_hash TEXT,canonical_text TEXT)";root.execSQL(model);research.execSQL(model);
+            root.execSQL(LegacyCapabilitySnapshotR29.PIN);root.execSQL("INSERT INTO r29_legacy_checkpoint_pin VALUES('abi','cp','state',?,0,0,0,'roster','{}',0)",new Object[]{("R26CAS1:"+pinHash).getBytes(java.nio.charset.StandardCharsets.US_ASCII)});
+            root.execSQL("INSERT INTO r26_live_model VALUES('old',?,'','')",new Object[]{("R26CAS1:"+retained).getBytes(java.nio.charset.StandardCharsets.US_ASCII)});
+            research.execSQL(ResearchRouteR29.OWNER_DDL);research.execSQL("INSERT INTO r29_research_owner VALUES(1,'READY','schema','root',1,1)");research.execSQL("INSERT INTO r26_live_model VALUES('current',?,'','')",new Object[]{("R26CAS1:"+current).getBytes(java.nio.charset.StandardCharsets.US_ASCII)});
+            research.execSQL("ATTACH DATABASE ? AS realtime",new Object[]{rootFile.toString()});
+            Set<String> refs=CheckpointReferencesR26.hashes(research);
+            check("L13_GC_UNIONS_CURRENT_RESEARCH_RETAINED_ROOT_AND_ROOT_PIN",refs.contains(current)&&refs.contains(retained)&&refs.contains(pinHash));
+            check("L14_REFERENCE_CENSUS_DOES_NOT_CHANGE_EITHER_DOMAIN",n(research,"SELECT count(*) FROM main.r26_live_model")==1&&n(root,"SELECT count(*) FROM r26_live_model")==1&&n(root,"SELECT count(*) FROM r29_legacy_checkpoint_pin")==1);
+        }finally{Files.deleteIfExists(rootFile);Files.deleteIfExists(roots);}
         check("L12_UNCOMMITTED_COMPUTATION_IS_NOT_COMMITTED_PROGRESS",!WaitKindR27.PROGRESS.equals(WaitKindR27.classify(0,"COOPERATIVE_PRIVATE_STATE_ONLY",null,0,10,null,false).kind)&&WaitKindR27.PROGRESS.equals(WaitKindR27.classify(1,null,null,0,10,null,false).kind));
         System.out.println("R29_LEGACY_STATE|ALL_PASS|checks="+checks+"|ORIGINAL_STATE_ONLY_NOT_NATURAL_QUALITY");
     }

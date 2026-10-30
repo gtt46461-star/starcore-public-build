@@ -46,7 +46,7 @@ public final class ResearchRouteR29 {
         try{
             held=gate.tryLock(200,TimeUnit.MILLISECONDS);if(!held)throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_HANDOFF");
             // Resolve AFTER acquiring the gate: a CSV import may have waited across the ownership change.
-            Owner owner=owner(store.readable());
+            Owner owner=owner(store.coordinatorForResearchR952().realtimeReadableR29());
             if(owner==null)return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(operation,action);
             return owner.write(operation,action);
         }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_HANDOFF_INTERRUPTED",interrupted);}
@@ -74,9 +74,11 @@ public final class ResearchRouteR29 {
         Owner owner=owner(original);return owner==null?original:owner.sharedReader();
     }
     static SQLiteDatabase realtimeForWriter(SQLiteDatabase database){
-        synchronized(OWNERS){for(Owner owner:OWNERS.values())if(owner.writer==database)return owner.realtimeReader;}
+        synchronized(OWNERS){for(Owner owner:OWNERS.values())if(owner.writer==database||owner.file.getAbsolutePath().equals(database.getPath()))return owner.realtimeReader;}
         return database;
     }
+    public static SQLiteDatabase realtimeReadOnly(SQLiteDatabase root){Owner o=owner(root);return o==null?root:o.realtimeReader;}
+    public static boolean writerHeldByCurrentThread(){synchronized(OWNERS){for(Owner o:OWNERS.values())if(o.lock.isHeldByCurrentThread())return true;}return false;}
     public static void publish(DbStore store,File prepared,String schemaHash,String sourceRoot,long epoch){
         File expected=store.contextForR26().getDatabasePath(FILE_NAME);
         if(!prepared.getAbsolutePath().equals(expected.getAbsolutePath())||!prepared.isFile())throw new IllegalStateException("R29_PREPARED_RESEARCH_FILE_REQUIRED");
@@ -110,8 +112,7 @@ public final class ResearchRouteR29 {
         SQLiteDatabase ro=SQLiteDatabase.openDatabase(file.getPath(),null,SQLiteDatabase.OPEN_READWRITE);
         try{
             ro.execSQL("ATTACH DATABASE ? AS realtime",new Object[]{realtimePath});
-            ro.execSQL("CREATE TEMP VIEW r26_task AS SELECT * FROM main.r26_task WHERE lane='R27' UNION ALL SELECT * FROM realtime.r26_task WHERE lane<>'R27'");
-            ro.execSQL("CREATE TEMP VIEW r26_evolution AS SELECT * FROM main.r26_evolution WHERE attempt_id LIKE 'R27:%' UNION ALL SELECT * FROM realtime.r26_evolution WHERE attempt_id NOT LIKE 'R27:%'");
+            // All research task/fence/evolution rows now belong to main, with no split-owner UNION.
             queryOnly(ro);return ro;
         }catch(RuntimeException failure){ro.close();throw failure;}
     }

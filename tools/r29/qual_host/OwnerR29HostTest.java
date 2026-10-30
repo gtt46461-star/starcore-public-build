@@ -42,7 +42,7 @@ public final class OwnerR29HostTest {
             EventBridgeR29HostTest.batch(rs,ResearchEventBridgeR29.prepare(events,201),false);
             check("O10_DUPLICATE_BATCH_AND_ACK_LOSS_EXACTLY_ONCE",n(rs,"SELECT count(*) FROM r27_lineage")==1&&n(rs,"SELECT count(*) FROM r27_task_error")==1&&n(rs,"SELECT count(*) FROM r29_event_inbox")==2);
             check("O11_COMPATIBILITY_DELIVERY_DOES_NOT_INVENT_LEARNING",n(rs,"SELECT count(*) FROM r29_learning_work")==0&&n(rs,"SELECT count(*) FROM r29_learning_receipt")==0);
-            check("O12_SCHEDULER_AND_CHECKPOINT_IDENTITY_STAY_WITH_LEGACY_OWNER",!MigrationCopyR29.ownedResearch("r29_scheduler_owner")&&!MigrationCopyR29.ownedResearch("r27_legacy_roster_alias"));
+            check("O12_ROOT_DISPATCH_CONTROL_AND_RESEARCH_CHECKPOINT_ALIAS_HAVE_SINGLE_OWNERS",!MigrationCopyR29.ownedResearch("r29_scheduler_owner")&&MigrationCopyR29.ownedResearch("r27_legacy_roster_alias"));
         }
         System.out.println("R29_OWNER|ALL_PASS|checks="+checks+"|HOST_ONLY_ANDROID_CONCURRENCY_PENDING");
     }

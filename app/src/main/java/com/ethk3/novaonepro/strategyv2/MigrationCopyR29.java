@@ -41,14 +41,16 @@ public final class MigrationCopyR29 {
     }
 
     public static boolean ownedResearch(String table) {
-        return table != null && table.matches("r(?:27|29)_[a-z0-9_]+")
+        return table != null && (table.matches("r(?:27|29)_[a-z0-9_]+")||LegacyResearchOwnershipR29.owned(table))
                 && !realtimeOnly(table)
                 && !table.equals("r27_fetch_reject") && !table.equals("r27_chart_cache");
     }
     static final java.util.Set<String> REALTIME_ONLY=new java.util.HashSet<>(java.util.Arrays.asList(
             "r29_event_outbox","r29_source_watermark","r29_registration_authority","r29_database_route","r29_fetch_observation",
-            "r29_scheduler_owner","r29_legacy_checkpoint_pin","r27_legacy_roster_alias","r29_migration_publication",
-            "r29_projection_applied","r29_research_heartbeat"));
+            "r29_scheduler_owner","r29_legacy_checkpoint_pin","r29_migration_publication",
+            "r29_projection_applied","r29_research_heartbeat","r29_legacy_live_projection",
+            "r29_critical_input_clock","r29_critical_input_change","r29_critical_input_schema",
+            "r29_legacy_authority_frame","r29_legacy_authority_projection"));
     public static boolean realtimeOnly(String table){return REALTIME_ONLY.contains(table);}
 
     /** The registry explicitly keeps realtime authority and recomputable cache outside the baseline backup. */
@@ -73,7 +75,7 @@ public final class MigrationCopyR29 {
                 names.add(c.getString(1)); columns.add(col);
             }
         }
-        if (names.isEmpty() || sql == null || sql.toUpperCase(java.util.Locale.ROOT).contains("WITHOUT ROWID"))
+        if (names.isEmpty() || sql == null)
             throw new IllegalStateException("R29_MIGRATION_UNSUPPORTED_TABLE:" + name);
         Map<String,Object> schema = new LinkedHashMap<>(); schema.put("abi", "SQLITE_TYPED_ROW_V1");
         schema.put("table", name); schema.put("createSql", sql); schema.put("columns", columns);
@@ -173,9 +175,9 @@ public final class MigrationCopyR29 {
             List<Row> page=new ArrayList<>();long started=System.nanoTime();
             String where=m.verifyCursor==null?"":" AND source_rowid>?";
             String[] args=m.verifyCursor==null?new String[]{t.name,String.valueOf(m.attempt)}:new String[]{t.name,String.valueOf(m.attempt),String.valueOf(m.verifyCursor)};
-            try(Cursor c=destination.rawQuery("SELECT source_rowid,payload,row_hash FROM r29_copy_rows WHERE table_name=? AND attempt=?"+where+" ORDER BY source_rowid LIMIT "+PAGE,args)) {
+            try(Cursor c=destination.rawQuery("SELECT source_rowid,length(payload),row_hash,rowid FROM r29_copy_rows WHERE table_name=? AND attempt=?"+where+" ORDER BY source_rowid LIMIT "+PAGE,args)) {
                 while(c.moveToNext()) {
-                    byte[] bytes=c.getBlob(1);String hash=StatsR27.sha256(bytes);
+                    long length=c.getLong(1);if(length<0||length>MAX_ROW_BYTES)throw new IllegalStateException("R29_MIGRATION_ROW_BUDGET");byte[] bytes=ResearchRowsR29.readBlob(destination,"r29_copy_rows","payload","rowid=?",new String[]{String.valueOf(c.getLong(3))},(int)length,()->{});String hash=StatsR27.sha256(bytes);
                     if(!hash.equals(c.getString(2)))throw new IllegalStateException("R29_DESTINATION_ROW_CHECKSUM:"+t.name);
                     page.add(new Row(c.getLong(0),bytes,hash));if(System.nanoTime()-started>=SLICE_NS)break;
                 }
@@ -217,17 +219,9 @@ public final class MigrationCopyR29 {
     static String chain(String previous,long rowid,String hash){return StatsR27.sha256(previous+":"+rowid+":"+hash);}
     static final class Row {final long rowid;final byte[] payload;final String hash;Row(long rowid,byte[] payload,String hash){this.rowid=rowid;this.payload=payload;this.hash=hash;}}
     static List<Row> readPage(SQLiteDatabase source,Table table,Long after) {
-        StringBuilder columns=new StringBuilder("rowid");for(String column:table.columns)columns.append(',').append(id(column));
-        String where=after==null?"":" WHERE rowid>?";String[] args=after==null?null:new String[]{String.valueOf(after)};
-        List<Row> rows=new ArrayList<>();long started=System.nanoTime();
-        try(Cursor c=source.rawQuery("SELECT "+columns+" FROM "+id(table.name)+where+" ORDER BY rowid LIMIT "+PAGE,args)) {
-            while(c.moveToNext()) {
-                byte[] bytes=encode(c,1,table.columns.size());rows.add(new Row(c.getLong(0),bytes,StatsR27.sha256(bytes)));
-                if(System.nanoTime()-started>=SLICE_NS)break;
-            }
-        }
-        return rows;
+        return ResearchRowsR29.readPage(source,table,after,"1=1",PAGE,2L<<20,SLICE_NS,()->{});
     }
+
     /** Type tags and byte lengths distinguish NULL, the text "NULL", integer/float values and arbitrary BLOBs. */
     static byte[] encode(Cursor row,int offset,int count) {
         try {

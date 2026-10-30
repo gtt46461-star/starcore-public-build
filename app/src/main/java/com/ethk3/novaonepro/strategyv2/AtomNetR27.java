@@ -51,6 +51,7 @@ public final class AtomNetR27 {
         for (int i = 0; i < p.length; i++) g[i] = new double[p[i].length];
         double loss = 0; int n = xs.length;
         for (int b = 0; b < n; b++) {
+            CooperativeContinuationR26.poll();
             double[] x = xs[b]; Out o = forward(x, rng);
             loss -= y[b] == 1 ? Math.log(Math.max(1e-12, o.pHit)) : Math.log(Math.max(1e-12, 1 - o.pHit));
             if (cls[b] >= 0) loss -= CE_WEIGHT * Math.log(Math.max(1e-12, o.pClass[cls[b]]));

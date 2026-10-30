@@ -21,7 +21,7 @@ public final class BrierSkillR27 {
     public static List<Point> cumulative(double[] p, int[] y) {
         List<Point> out = new ArrayList<>(); int n = p.length; if (n < MIN_N) return out;
         double sd = 0, sd2 = 0, sb = 0, ew = 0, ewMass = 0, lambda = Math.pow(0.5, 1 / HALF_LIFE);
-        for (int t = 0; t < n; t++) {
+        for (int t = 0; t < n; t++) {if((t&31)==0)CooperativeContinuationR26.poll();
             double base = (StatsR27.BASE - y[t]) * (StatsR27.BASE - y[t]), model = (p[t] - y[t]) * (p[t] - y[t]), d = base - model;
             sd += d; sd2 += d * d; sb += base; ew = ew * lambda + d; ewMass = ewMass * lambda + 1;
             int k = t + 1;
@@ -44,11 +44,11 @@ public final class BrierSkillR27 {
     public static List<double[]> rolling(double[] p, int[] y, int stride, long seed) {
         List<double[]> out = new ArrayList<>(); int n = p.length; if (n < WINDOW) return out;
         StatsR27.SplitMix r = new StatsR27.SplitMix(seed);
-        for (int t = WINDOW - 1; t < n; t += Math.max(1, stride)) {
+        for (int t = WINDOW - 1; t < n; t += Math.max(1, stride)) {CooperativeContinuationR26.poll();
             double b = 0; int hits = 0;
             for (int i = t - WINDOW + 1; i <= t; i++) { b += (p[i] - y[i]) * (p[i] - y[i]); hits += y[i]; }
             double f = hits / (double) WINDOW; double[] sims = new double[300];
-            for (int s = 0; s < sims.length; s++) { double x = 0; for (int i = t - WINDOW + 1; i <= t; i++) { int h = r.nextDouble() < f ? 1 : 0; x += (p[i] - h) * (p[i] - h); } sims[s] = x / WINDOW; }
+            for (int s = 0; s < sims.length; s++) {if((s&15)==0)CooperativeContinuationR26.poll(); double x = 0; for (int i = t - WINDOW + 1; i <= t; i++) { int h = r.nextDouble() < f ? 1 : 0; x += (p[i] - h) * (p[i] - h); } sims[s] = x / WINDOW; }
             java.util.Arrays.sort(sims);
             out.add(new double[] {t, b / WINDOW, sims[7], sims[292]});
         }

@@ -33,6 +33,8 @@ public final class CutoverR29HostTest {
         source.execSQL("INSERT INTO r27_certificate VALUES(?,'ACTIVE','HOST_SYNTHETIC_ONLY',?, ?,?)",new Object[]{id,StatsR27.sha256("fixture"),now,now+100000});
         source.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,'202610300002',1,?,1,2,3,1,'FROZEN',?,?)",new Object[]{id,ordinal,StoreR27.pack(new double[10]),now-10000,now+60000});
         source.execSQL("INSERT INTO r27_chart_cache VALUES('mainline','choice',?,?)",new Object[]{JsonR27.write(Collections.singletonMap("choice",id)),now});
+        source.execSQL("CREATE TABLE su2_campaign(a TEXT NOT NULL,b INTEGER NOT NULL,payload BLOB,PRIMARY KEY(a,b)) WITHOUT ROWID");
+        for(int i=0;i<300;i++)source.execSQL("INSERT INTO su2_campaign VALUES(?,?,?)",new Object[]{"campaign-"+(i%17),i-150,new byte[]{(byte)i,0,(byte)(i>>>8)}});
         List<MigrationCopyR29.Table> tables=ResearchCutoverR29.tables(source);
         String before=ResearchCutoverR29.root(source,tables,Long.MAX_VALUE,()->false);
         SQLiteDatabase destination=new SQLiteDatabase(java.sql.DriverManager.getConnection("jdbc:sqlite::memory:"));
@@ -45,10 +47,11 @@ public final class CutoverR29HostTest {
             Long after=null;for(;;){List<MigrationCopyR29.Row> page=ResearchCutoverR29.page(source,table,after);if(page.isEmpty())break;EventBridgeR29HostTest.tx(destination,()->ResearchCutoverR29.restorePage(destination,table,page),false);after=page.get(page.size()-1).rowid;}
         }
         check("C2_TYPED_ROWS_AND_SOURCE_ROOT_MATCH",before.equals(ResearchCutoverR29.root(destination,tables,Long.MAX_VALUE,()->false)));
-        check("C3_LEGACY_PARTITIONS_NOT_COPIED_AS_RESEARCH_OWNERS",n(destination,"SELECT count(*) FROM r26_task")==1&&n(destination,"SELECT count(*) FROM r26_evolution")==1);
+        check("C3_ALL_LEGACY_TASK_AND_EVOLUTION_ROWS_HAVE_ONE_RESEARCH_OWNER",n(destination,"SELECT count(*) FROM r26_task")==2&&n(destination,"SELECT count(*) FROM r26_evolution")==2);
         try(Cursor c=destination.rawQuery("SELECT id,t,r,b,n FROM r29_transfer_fixture",null)){
             check("C4_NEGATIVE_ROWID_TEXT_FLOAT_BLOB_NULL_PRESERVED",c.moveToFirst()&&c.getLong(0)==Long.MIN_VALUE&&"汉字\n\u0000".equals(c.getString(1))&&c.getDouble(2)==.125&&Arrays.equals(c.getBlob(3),new byte[]{0,1,2,(byte)255})&&c.isNull(4));
         }
+        check("C15_WITHOUT_ROWID_COMPOSITE_KEYS_SURVIVE_ALL_COPY_PAGES",n(destination,"SELECT count(*) FROM su2_campaign")==300&&n(destination,"SELECT count(*) FROM su2_campaign WHERE b<0")==150);
         check("C5_ORIGINAL_SOURCE_UNCHANGED",before.equals(ResearchCutoverR29.root(source,tables,Long.MAX_VALUE,()->false))&&n(source,"SELECT count(*) FROM r26_task")==2);
         boolean rejected=false;try{ResearchCutoverR29.root(source,tables,Long.MAX_VALUE,()->true);}catch(IllegalStateException expected){rejected=true;}
         check("C6_CANCELLED_COPY_CANNOT_REACH_PUBLICATION",rejected);
@@ -77,6 +80,17 @@ public final class CutoverR29HostTest {
         check("C13_SETTLEMENT_PROJECTS_WITHOUT_REWRITING_FREEZE",n(source,"SELECT hit FROM r27_live_frozen")==1&&n(source,"SELECT frozen_at FROM r27_live_frozen")==now-10000);
         EventBridgeR29HostTest.publish(source,"202610300002",false);
         check("C14_NEW_REALTIME_RESULT_BLOCKS_OLD_RESEARCH_FRAME",!RealtimeResearchProjectionR29.freshForIntent(source,id,ordinal,now+5));
+        long revisionBefore=n(destination,"SELECT revision FROM r29_projection_pending WHERE table_name='r27_certificate'");
+        destination.execSQL("UPDATE r29_projection_pending SET acked_revision=revision WHERE table_name='r27_certificate'");
+        for(int i=0;i<4;i++)destination.execSQL("INSERT OR REPLACE INTO r27_certificate VALUES(?,'REVOKED_AFTER_REPLACE','HOST_ONLY',?,?,?)",new Object[]{id,StatsR27.sha256("replace-"+i),now+i,now+100000});
+        RealtimeResearchProjectionR29.Row replacement=RealtimeResearchProjectionR29.capture(destination).stream().filter(r->r.table.equals("r27_certificate")).findFirst().orElseThrow();
+        check("C15_OUTER_REPLACE_NEVER_RESETS_PENDING_REVISION",replacement.revision>=revisionBefore+4);
+        check("C16_OUTER_REPLACE_PRESERVES_PREVIOUS_ACK",n(destination,"SELECT acked_revision FROM r29_projection_pending WHERE table_name='r27_certificate'")==revisionBefore);
+        EventBridgeR29HostTest.tx(source,()->RealtimeResearchProjectionR29.apply(source,replacement,42,now+6),false);
+        check("C17_REPLACED_ROW_PROJECTS_WITHOUT_FALSE_REVISION_CONFLICT","REVOKED_AFTER_REPLACE".equals(s(source,"SELECT status FROM r27_certificate WHERE policy_hash='"+id+"'")));
+        String realHash=replacement.hash;replacement.hash=StatsR27.sha256("forged different payload at the same revision");boolean conflict=false;
+        try{EventBridgeR29HostTest.tx(source,()->RealtimeResearchProjectionR29.apply(source,replacement,42,now+7),false);}catch(IllegalStateException expected){conflict=expected.getMessage().contains("REVISION_CONFLICT");}finally{replacement.hash=realHash;}
+        check("C18_GENUINE_SAME_REVISION_CONFLICT_STILL_BLOCKS",conflict);
         source.jdbc.close();destination.jdbc.close();System.out.println("R29_CUTOVER|ALL_PASS|checks="+checks+"|HOST_CORE_ONLY_ANDROID_HANDOFF_AND_REPORT_PENDING");
     }
 }

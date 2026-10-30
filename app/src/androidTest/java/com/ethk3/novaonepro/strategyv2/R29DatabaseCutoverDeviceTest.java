@@ -61,14 +61,27 @@ public final class R29DatabaseCutoverDeviceTest {
             assertEquals(1,n(researchReader,"SELECT count(*) FROM r26_task WHERE task_id='synthetic-legacy'"));assertEquals(1,n(researchReader,"SELECT count(*) FROM r26_task WHERE task_id='synthetic-r27'"));
             ResearchRouteR29.write(store,"SYNTHETIC_R29_ONLY_RESEARCH",db->{assertEquals(1,n(db,"SELECT count(*) FROM pragma_database_list"));db.execSQL("UPDATE r29_cutover_fixture SET n='research-only' WHERE id=0");return 0;});
             assertEquals(0,n(original,"SELECT count(*) FROM r29_cutover_fixture WHERE n='research-only'"));assertEquals(1,n(researchReader,"SELECT count(*) FROM r29_cutover_fixture WHERE n='research-only'"));
+            try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SYNTHETIC_SCOPE_WARMUP",db->{db.execSQL("UPDATE r26_task SET cursor=5 WHERE task_id='synthetic-legacy'");return 0;});
+            }
             CountDownLatch rootHeld=new CountDownLatch(1),releaseRoot=new CountDownLatch(1);
             Future<?> held=executor.submit(()->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_REALTIME_HELD",db->{db.execSQL("UPDATE r29_cutover_fixture SET n='root-held' WHERE id=1");rootHeld.countDown();if(!releaseRoot.await(5,TimeUnit.SECONDS))throw new IOException("synthetic release timeout");return 0;}));
             try{
                 assertTrue(rootHeld.await(3,TimeUnit.SECONDS));
                 Future<Integer> independent=executor.submit(()->ResearchRouteR29.write(store,"SYNTHETIC_R29_INDEPENDENT",db->{db.execSQL("UPDATE r29_cutover_fixture SET n='independent' WHERE id=2");return 1;}));
                 assertEquals(Integer.valueOf(1),independent.get(1500,TimeUnit.MILLISECONDS));
+                Future<Integer> legacyIndependent=executor.submit(()->{try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
+                    return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SYNTHETIC_INDEPENDENT_SCOPE",db->{
+                        assertEquals(sandbox.getDatabasePath(ResearchRouteR29.FILE_NAME).getCanonicalPath(),new File(db.getPath()).getCanonicalPath());
+                        assertEquals(1,n(db,"SELECT count(*) FROM pragma_database_list WHERE name NOT IN ('temp')"));
+                        db.execSQL("UPDATE r26_task SET cursor=6 WHERE task_id='synthetic-legacy'");return 1;});
+                }});
+                assertEquals(Integer.valueOf(1),legacyIndependent.get(1500,TimeUnit.MILLISECONDS));
             }finally{releaseRoot.countDown();held.get(5,TimeUnit.SECONDS);}
             result.put("independentResearchCommitWhileRealtimeWriterHeld",true);
+            assertEquals(4,n(original,"SELECT cursor FROM r26_task WHERE task_id='synthetic-legacy'"));
+            assertEquals(6,n(researchReader,"SELECT cursor FROM r26_task WHERE task_id='synthetic-legacy'"));
+            result.put("legacyScopedWriteIndependentAndOriginalRowsPreserved",true);
             ResearchPoolR27.Worker eventWorker=pool.new Worker(researchReader,rootReader,"synthetic-events");
             ResearchEventBridgeR29.deliver(eventWorker);assertEquals(1,n(researchReader,"SELECT count(*) FROM r29_event_inbox"));assertEquals(1,n(original,"SELECT count(*) FROM r29_event_outbox WHERE acked_at>0"));
             assertEquals(0,n(researchReader,"SELECT count(*) FROM r29_learning_receipt"));result.put("deliveryWithoutInventedLearning",true);

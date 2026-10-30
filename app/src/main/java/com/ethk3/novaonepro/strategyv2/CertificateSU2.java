@@ -24,6 +24,9 @@ public final class CertificateSU2 {
     }
 
     public static Authority read(SQLiteDatabase db, String genome, long now) {
+        // Root retains historical rows for rollback, not current authority. A current monotonic certificate
+        // projection is required before the realtime owner may authorize this legacy research lane again.
+        if(!ResearchRouteR29.isResearchDatabase(db)&&ResearchRouteR29.active(db))return LegacyAuthorityProjectionR29.su2(db,genome,now);
         if (!RuntimeSchemaR26.ready(db)) return null;
         try (Cursor c = db.rawQuery("SELECT c.certificate_id,c.program_hash,c.calibration_a,c.calibration_b,c.issued_at,c.expires_at,g.canonical_text FROM su2_certificate c JOIN su2_model_genome g ON g.genome_key=c.genome_key "
             + "WHERE NOT EXISTS(SELECT 1 FROM r26_certificate_revocation revoked WHERE revoked.certificate_id=c.certificate_id) AND EXISTS(SELECT 1 FROM r26_certificate_protocol p WHERE p.certificate_id=c.certificate_id AND p.protocol='R26_PREREGISTERED_AGGREGATE_LCB_V3') AND c.genome_key=? AND c.issued_at<=? AND c.expires_at>? AND g.state='LEAGUE' ORDER BY c.issued_at DESC LIMIT 1", new String[]{genome, String.valueOf(now), String.valueOf(now)})) {
@@ -41,6 +44,7 @@ public final class CertificateSU2 {
     /** Called in the same short transaction that publishes a policy, before its future outcomes. */
     public static void preregister(SQLiteDatabase db,String genome,long birth){
         if(!db.inTransaction())throw new IllegalStateException("R26_COHORT_WRITER");
+        if(!ResearchRouteR29.isResearchDatabase(db)&&ResearchRouteR29.active(db))throw new IllegalStateException("R29_RESEARCH_WRITER_REQUIRED_FOR_SU2_PREREGISTRATION");
         try(Cursor c=db.rawQuery("SELECT 1 FROM r26_cohort WHERE genome_key=?",new String[]{genome})){if(c.moveToFirst())return;}
         String benchmark="";for(String[] m:ModelStoreSU2.league(db))if(m[1].equals("XI_INCUMBENT")){benchmark=m[3];break;}
         // Birth, benchmark availability and alpha reservation commit in the same writer.
@@ -56,6 +60,7 @@ public final class CertificateSU2 {
     }
     private static String maintainPolicy(DbStore store,String member,long seq){
         SQLiteDatabase r=store.readable();
+        if(!ResearchRouteR29.isResearchDatabase(r)&&ResearchRouteR29.active(r))return "R29_SU2_RESEARCH_OWNER_REQUIRED_CURRENT_PROJECTION_PENDING";
         boolean incumbent = member.startsWith("XI_INCUMBENT:");                  // the old method is certified by the same rule
         if (!member.startsWith("SU2:") && !incumbent) return "SU2_CERT_NO_SU2_MAINLINE";
         String genome = member.substring(member.indexOf(':') + 1);
@@ -106,6 +111,7 @@ public final class CertificateSU2 {
     /** Single production issuance path, also exercised on an isolated SYNTHETIC Android database. */
     static boolean issueWithin(SQLiteDatabase db,String genome,String program,QualificationWindowR26.Window window,String digest,long now)throws java.io.IOException {
         if(!db.inTransaction())throw new IllegalStateException("R26_CERTIFICATE_WRITER");
+        if(!ResearchRouteR29.isResearchDatabase(db)&&ResearchRouteR29.active(db))throw new IllegalStateException("R29_RESEARCH_WRITER_REQUIRED_FOR_SU2_CERTIFICATE");
         double family;long birth;String benchmark,canonical;
         try(Cursor c=db.rawQuery("SELECT q.family_alpha,q.from_sequence,q.incumbent,g.canonical_text FROM r26_cohort q JOIN su2_model_genome g ON g.genome_key=q.genome_key WHERE q.genome_key=? AND q.protocol=? AND g.state='LEAGUE'",new String[]{genome,QualificationWindowR26.PROTOCOL})){if(!c.moveToFirst())return false;family=c.getDouble(0);birth=c.getLong(1);benchmark=c.getString(2);canonical=c.getString(3);}
         QualificationWindowR26.Window planned=QualificationWindowR26.completed(birth,window.to);

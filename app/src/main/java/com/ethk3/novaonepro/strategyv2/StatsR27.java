@@ -50,9 +50,9 @@ public final class StatsR27 {
         if (n <= 0 || k <= 0) return Double.NaN;
         SplitMix rng = new SplitMix(seed);
         double sum = 0;
-        for (int s = 0; s < sims; s++) {
+        for (int s = 0; s < sims; s++) {CooperativeContinuationR26.poll();
             int best = 0;
-            for (int j = 0; j < k; j++) { int h = 0; for (int i = 0; i < n; i++) if (rng.nextDouble() < BASE) h++; if (h > best) best = h; }
+            for (int j = 0; j < k; j++) { int h = 0; for (int i = 0; i < n; i++) {if((i&511)==0)CooperativeContinuationR26.poll();if (rng.nextDouble() < BASE) h++;} if (h > best) best = h; }
             sum += best / (double) n;
         }
         return sum / sims;

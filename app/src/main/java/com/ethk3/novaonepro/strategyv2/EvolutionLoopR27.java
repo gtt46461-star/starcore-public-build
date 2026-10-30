@@ -111,6 +111,7 @@ public final class EvolutionLoopR27 {
     public void runGeneration() { do step(); while (step != 1); }
 
     public void step() {
+        CooperativeContinuationR26.poll();
         switch (step) {
             case 1: stepDataset(); break;
             case 2: stepBirth(); break;
@@ -147,7 +148,7 @@ public final class EvolutionLoopR27 {
         int minTotal = cfg.minPerFamily * 13, bonusPool = Math.max(0, Math.min(total / 4, total - minTotal));
         int survivors = 0; for (int v : familySurvivors.values()) survivors += v;
         List<PolicySpecR27> births = new ArrayList<>();
-        for (int f = 1; f <= 13; f++) {
+        for (int f = 1; f <= 13; f++) { CooperativeContinuationR26.poll();
             int n = cfg.minPerFamily;
             if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * familySurvivors.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
             for (int i = 0; i < n; i++) births.add(FAMILIES[f].generate(rng, ic));
@@ -184,7 +185,7 @@ public final class EvolutionLoopR27 {
         Set<String> existing = new HashSet<>(); for (Member m : population) existing.add(m.hash());
         Set<String> seenThisGen = new HashSet<>();
         int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>();
-        for (Pending p : pending) {
+        for (Pending p : pending) { CooperativeContinuationR26.poll();
             String h = p.spec.policyHash();
             if (existing.contains(h) || !seenThisGen.add(h)) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "SAME_POLICY_HASH"; dup++; continue; }
             BirthGateR27.Verdict v = gate.check(p.spec);
@@ -280,7 +281,7 @@ public final class EvolutionLoopR27 {
 
     void i00Generation() {
         IdeaFamilyR27.Context ic = ideaContext(); double best = Double.NEGATIVE_INFINITY;
-        for (int i = 0; i < cfg.i00PerGeneration; i++) {
+        for (int i = 0; i < cfg.i00PerGeneration; i++) { CooperativeContinuationR26.poll();
             PolicySpecR27 s = FAMILIES[0].generate(rng, ic); double tau = ctx.temperature(s);
             ReplayScoreR27 sc = ReplayScoreR27.of(SplitR27.SELECT, ctx.selectTrace(s, tau), ctx.split.selectFrom, ctx.split.selectTo);
             if (sc.pairedUMean > best) { best = sc.pairedUMean; i00Champion = s; i00Tau = tau; }
@@ -473,7 +474,7 @@ public final class EvolutionLoopR27 {
         for (Map.Entry<Integer, EliteArchiveR27.Elite> e : archive.snapshot().entrySet()) { Map<String, Object> x = new LinkedHashMap<>(); x.put("cell", (long) e.getKey()); x.put("spec", e.getValue().spec.fullJson()); x.put("u", e.getValue().u); x.put("tau", e.getValue().tau); arc.add(x); }
         s.put("archive", arc);
         List<Object> pend = new ArrayList<>();
-        for (Pending p : pending) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.spec.fullJson()); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural); pend.add(x); }
+        for (Pending p : pending) { CooperativeContinuationR26.poll(); Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.spec.fullJson()); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural); pend.add(x); }
         s.put("pending", pend);
         List<Object> lv = new ArrayList<>(); for (PolicySpecR27 p : live) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.fullJson()); x.put("tau", liveTau.get(p.policyHash())); lv.add(x); }
         s.put("live", lv);
@@ -506,7 +507,7 @@ public final class EvolutionLoopR27 {
             BirthGateR27.Verdict v = l.gate.check(m.spec); m.sig = v.ok ? v.signature : new int[0];
             l.population.add(m); l.gate.register(m.hash(), m.sig);
         }
-        for (Member m : l.population) l.refresh(m);
+        for (Member m : l.population) { CooperativeContinuationR26.poll(); l.refresh(m); }
         for (Object o : (List<Object>) s.get("archive")) { Map<String, Object> x = (Map<String, Object>) o; l.archive.put((int) JsonR27.num(x.get("cell")), new EliteArchiveR27.Elite(spec(x.get("spec")), JsonR27.num(x.get("u")), JsonR27.num(x.get("tau")))); }
         for (Object o : (List<Object>) s.get("pending")) {
             Map<String, Object> x = (Map<String, Object>) o; Pending p = new Pending(); p.spec = spec(x.get("spec")); p.state = (String) x.get("state"); p.reason = (String) x.get("reason");

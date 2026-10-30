@@ -95,7 +95,7 @@ public final class LiveShadowsR27 {
                 FeatureCacheR27 cache=rt.liveCacheWithPlaceholder(w,latestOrd);
                 PreparedForecastR29.Frame frame=new PreparedForecastR29.Frame(fence,cache.data.datasetHash,opportunity);
                 for(Shadow s:todo){
-                    if(w.cancelled())return 0;
+                    CooperativeContinuationR26.poll();if(w.cancelled())return 0;
                     double[] out=ReplayEvaluatorR27.predictNext(s.spec,cache,s.tau);boolean ok=Double.isFinite(out[0]);double[] probabilities=new double[10];if(ok)System.arraycopy(out,0,probabilities,0,10);
                     if(ok){double sum=0;for(double p:probabilities){ok&=Double.isFinite(p)&&p>=0&&p<=1;sum+=p;}ok&=Math.abs(sum-1)<=1e-6;}
                     PreparedForecastR29.Forecast p=new PreparedForecastR29.Forecast();p.policy=s.id;p.position=s.spec.position;p.probabilities=StoreR27.pack(probabilities);p.n1=ok?(int)out[10]+1:0;p.n2=ok?(int)out[11]+1:0;p.n3=ok?(int)out[12]+1:0;p.act=ok&&out[13]==1?1:0;p.status=ok?"FROZEN":"SKIPPED_GAP";p.frozenAt=System.currentTimeMillis();frame.forecasts.add(p);
@@ -110,7 +110,7 @@ public final class LiveShadowsR27 {
         for (Shadow s : todo) b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,0,0,0,0,'DEADLINE_MISSED',?,?)",
                 s.id, target, targetIssue, s.spec.position, StoreR27.pack(new double[10]), System.currentTimeMillis(), deadline);
         if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,0,0,0,?,?)", target, targetIssue, todo.size(), todo.size(), System.currentTimeMillis());
-        while (!w.writes().submit("LIVE_DEADLINE_MISSED", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); }
+        while (!w.writes().submit("LIVE_DEADLINE_MISSED", b, w::cancelled, true)) { if (w.cancelled()) return 0;CooperativeContinuationR26.poll();Thread.sleep(20); }
         return todo.size();
     }
 

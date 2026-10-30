@@ -64,14 +64,14 @@ public final class PreparedForecastR29 {
     }
     static long publish(ResearchPoolR27.Worker worker,Frame frame)throws Exception{
         ResearchWriteQueueR27.Batch write=pending(frame,worker.realtimeRo());
-        while(!worker.writes().submit(frame.opportunity?"LIVE_PREPARED":"OBSERVE_PREPARED",write,worker::cancelled,true)){if(worker.cancelled())return 0;Thread.sleep(20);}
+        while(!worker.writes().submit(frame.opportunity?"LIVE_PREPARED":"OBSERVE_PREPARED",write,worker::cancelled,true)){if(worker.cancelled())return 0;CooperativeContinuationR26.poll();Thread.sleep(20);}
         // Captured only after the actual SQLite transaction returned, including its commit/fsync.
         long committedWall=System.currentTimeMillis(),committedMono=TimeSourceR811.monoNowMs();
         boolean usable=true;String reason="";
         try{frame.fence.verify(worker.realtimeRo(),committedWall,committedMono);}catch(IssueCommitR29.Rejected late){usable=false;reason=late.reason;}
         ResearchWriteQueueR27.Batch ack=receipt(frame,committedWall,committedMono,usable,reason,worker.realtimeRo());
         for(;;){
-            try{while(!worker.writes().submit("FREEZE_COMMIT_RECEIPT",ack,worker::cancelled,true)){if(worker.cancelled())return 0;Thread.sleep(20);}return frame.forecasts.size();}
+            try{while(!worker.writes().submit("FREEZE_COMMIT_RECEIPT",ack,worker::cancelled,true)){if(worker.cancelled())return 0;CooperativeContinuationR26.poll();Thread.sleep(20);}return frame.forecasts.size();}
             catch(RuntimeException failed){IssueCommitR29.Rejected late=IssueCommitR29.rejected(failed);if(late==null)throw failed;ack=receipt(frame,committedWall,committedMono,false,late.reason,worker.realtimeRo());}
         }
     }

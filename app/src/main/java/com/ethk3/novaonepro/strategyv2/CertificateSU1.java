@@ -15,6 +15,7 @@ public final class CertificateSU1 {
         public final String strategy,program,artifact,selector,calibration,certificate,evidence,source,family,quality;
         public final long issued,expires;
         Authority(Cursor c){strategy=c.getString(0);program=c.getString(1);artifact=c.getString(2);selector=c.getString(3);calibration=c.getString(4);certificate=c.getString(5);evidence=c.getString(6);source=c.getString(7);family=c.getString(8);quality=c.getString(9);issued=c.getLong(10);expires=c.getLong(11);}
+        Authority(Map<String,Object> m){strategy=(String)m.get("strategy");program=(String)m.get("program");artifact=(String)m.get("artifact");selector=(String)m.get("selector");calibration=(String)m.get("calibration");certificate=(String)m.get("certificate");evidence=(String)m.get("evidence");source=(String)m.get("source");family=(String)m.get("family");quality=(String)m.get("quality");issued=((Number)m.get("issued")).longValue();expires=((Number)m.get("expires")).longValue();}
         public String candidate(){return PREFIX+strategy;}
     }
     private static boolean metrics(String json){
@@ -26,6 +27,7 @@ public final class CertificateSU1 {
         try(Cursor c=db.rawQuery("SELECT count(DISTINCT m.model_kind) FROM su1_eval_cohort c JOIN su1_evidence_look e ON e.cohort_id=c.cohort_id JOIN su1_strategy_version v ON v.strategy_id=c.strategy_id JOIN su1_model_artifact m ON m.artifact_hash=v.artifact_hash JOIN su1_eval_cohort main ON main.cohort_id=(SELECT cohort_id FROM su1_evidence_look WHERE evidence_hash=?) WHERE c.first_issue=main.first_issue AND c.planned_opportunities=main.planned_opportunities AND c.family_root_hash=? AND c.claim_kind='NULL_CONTROL' AND e.result_state='FAIL' AND e.coverage>=0.95 AND m.model_kind IN('NULL_BASELINE','SU1_SHUFFLED_LABEL_CONTROL')",new String[]{evidence,family})){c.moveToFirst();return c.getInt(0)==2;}
     }
     public static Authority read(SQLiteDatabase db,String certificate,long now,boolean requireMainline){
+        if(!ResearchRouteR29.isResearchDatabase(db)&&ResearchRouteR29.active(db))return LegacyAuthorityProjectionR29.su1(db,certificate,now);
         if(requireMainline&&!StrategyRepositorySU1.exists(db,"SELECT 1 FROM su1_runtime_control WHERE singleton=1 AND mode='MAINLINE_ADAPTER' AND contract_hash=?",MainlineAdapterSU1.CONTRACT))return null;
         String baseline,kernel,descriptor,primaryMetrics;
         Authority a;

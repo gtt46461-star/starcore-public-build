@@ -45,6 +45,8 @@ public final class ResearchReportSnapshotR29 {
             long posted=MigrationCopyR29.scalar(merged,"SELECT coalesce(max(seq),0) FROM main.r29_event_outbox",null);
             String latest=RuntimeR27.latestIssue(merged);if(latest==null||received>posted)throw new IOException("REPORT_RESEARCH_FRAME_RETRY");
             long ordinal=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(latest);
+            for(String[] cursor:new String[][]{{"r26_live_model","through_ordinal"},{"r26_legacy_runtime","through_ordinal"},{"r26_foundry","source_through"},{"r26_legacy_campaign","source_through"}})
+                if(researchColumn(merged,cursor[0],cursor[1])&&MigrationCopyR29.scalar(merged,"SELECT coalesce(max("+MigrationCopyR29.id(cursor[1])+"),0) FROM research."+MigrationCopyR29.id(cursor[0]),null)>ordinal)throw new IOException("REPORT_RESEARCH_FRAME_RETRY");
             try(Cursor c=merged.rawQuery("SELECT max(trained_through) FROM research.r29_model_checkpoint",null)){if(c.moveToFirst()&&c.getString(0)!=null&&c.getString(0).compareTo(latest)>0)throw new IOException("REPORT_RESEARCH_FRAME_RETRY");}
             if(MigrationCopyR29.scalar(merged,"SELECT coalesce(max(target_ordinal),0) FROM research.r27_live_frozen",null)>ordinal+1)throw new IOException("REPORT_RESEARCH_FRAME_RETRY");
             try(Cursor c=merged.rawQuery("SELECT max(to_issue) FROM research.r27_replay_dataset",null)){if(c.moveToFirst()&&c.getString(0)!=null&&c.getString(0).compareTo(latest)>0)throw new IOException("REPORT_RESEARCH_FRAME_RETRY");}
@@ -54,34 +56,39 @@ public final class ResearchReportSnapshotR29 {
             }
             List<String> triggers=new ArrayList<>();
             try(Cursor c=merged.rawQuery("SELECT name,tbl_name FROM main.sqlite_master WHERE type='trigger'",null)){while(c.moveToNext())if(owned.contains(c.getString(1)))triggers.add(c.getString(0));}
-            evidence.put("schema","R29_REPORT_PAIRED_SNAPSHOT_1");evidence.put("epoch",epoch);evidence.put("researchReceivedThrough",received);evidence.put("realtimePostedThrough",posted);evidence.put("realtimeAsOfIssue",latest);evidence.put("scope","Research outputs use only realtime messages/results visible in this paired frame; pending newer work is separate");
+            evidence.put("schema","R29_REPORT_PAIRED_SNAPSHOT_2");evidence.put("epoch",epoch);evidence.put("researchReceivedThrough",received);evidence.put("realtimePostedThrough",posted);evidence.put("realtimeAsOfIssue",latest);evidence.put("scope","All migrated R26/R27 research rows come from the research copy; realtime draw, terminal feedback, formal freeze and decision authority remain in the realtime copy; newer research work is separate");
             merged.execSQL("PRAGMA foreign_keys=OFF");merged.beginTransactionNonExclusive();
             try{
                 // These DROP/DELETE operations affect only the job-owned snapshot copy, never either live database.
                 for(String trigger:triggers)merged.execSQL("DROP TRIGGER "+MigrationCopyR29.id(trigger));
                 for(String[] table:schema){
                     if(!control.shouldContinue())throw new IOException("REPORT_USER_CANCEL");
-                    merged.execSQL(table[1].replaceFirst("(?is)^CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?","CREATE TABLE IF NOT EXISTS "));
                     String name=MigrationCopyR29.id(table[0]);
-                    while(MigrationCopyR29.scalar(merged,"SELECT EXISTS(SELECT 1 FROM main."+name+")",null)!=0){
-                        if(!control.shouldContinue())throw new IOException("REPORT_USER_CANCEL");
-                        merged.execSQL("DELETE FROM main."+name+" WHERE rowid IN(SELECT rowid FROM main."+name+" LIMIT 128)");
-                    }
-                    StringBuilder columns=new StringBuilder("rowid");try(Cursor c=merged.rawQuery("PRAGMA research.table_info("+name+")",null)){while(c.moveToNext())columns.append(',').append(MigrationCopyR29.id(c.getString(1)));}
-                    Long after=null;
-                    for(;;){
-                        if(!control.shouldContinue())throw new IOException("REPORT_USER_CANCEL");
-                        Long last=null;try(Cursor c=merged.rawQuery("SELECT rowid FROM research."+name+(after==null?"":" WHERE rowid>?")+" ORDER BY rowid LIMIT 128",after==null?null:new String[]{String.valueOf(after)})){while(c.moveToNext())last=c.getLong(0);}
-                        if(last==null)break;
-                        merged.execSQL("INSERT INTO main."+name+"("+columns+") SELECT "+columns+" FROM research."+name+" WHERE "+(after==null?"rowid<=?":"rowid>? AND rowid<=?")+" ORDER BY rowid",after==null?new Object[]{last}:new Object[]{after,last});after=last;
-                    }
+                    // Recreate the private-copy table so a newer research schema cannot be merged into an
+                    // older Root schema with missing columns. Live files and their old tables are untouched.
+                    merged.execSQL("DROP TABLE IF EXISTS main."+name);merged.execSQL(table[1]);
+                    copyTable(merged,table[0],table[1],control);
                 }
-                merged.execSQL("DELETE FROM main.r26_task WHERE lane='R27'");merged.execSQL("INSERT INTO main.r26_task SELECT * FROM research.r26_task WHERE lane='R27'");
-                merged.execSQL("DELETE FROM main.r26_evolution WHERE attempt_id LIKE 'R27:%'");merged.execSQL("INSERT INTO main.r26_evolution SELECT * FROM research.r26_evolution WHERE attempt_id LIKE 'R27:%'");
+                ResearchReportAppStateR29.mergeCopies(merged,evidence,control);
                 merged.execSQL(FRAME);merged.execSQL("INSERT INTO r29_report_frame VALUES(1,?)",new Object[]{JsonR27.write(evidence)});
                 merged.setTransactionSuccessful();
             }finally{merged.endTransaction();}
             try(Cursor c=merged.rawQuery("PRAGMA integrity_check",null)){if(!c.moveToFirst()||!"ok".equals(c.getString(0)))throw new IOException("REPORT_R29_MERGED_SNAPSHOT_INTEGRITY");}
+    }
+    private static boolean researchColumn(SQLiteDatabase merged,String table,String column){try(Cursor c=merged.rawQuery("PRAGMA research.table_info("+MigrationCopyR29.id(table)+")",null)){while(c.moveToNext())if(column.equals(c.getString(1)))return true;return false;}}
+    /** Both source files are pinned job copies, so bounded OFFSET pages have a fixed row set. WITHOUT ROWID
+     * tables are ordered by their declared composite key; their absence of a rowid is never guessed away. */
+    static void copyTable(SQLiteDatabase merged,String table,String ddl,ReportNativeCP4.Control control)throws Exception{
+        String name=MigrationCopyR29.id(table);boolean withoutRowid=ddl.toUpperCase(java.util.Locale.ROOT).contains("WITHOUT ROWID");
+        List<String> columns=new ArrayList<>();SortedMap<Integer,String> primary=new TreeMap<>();
+        try(Cursor c=merged.rawQuery("PRAGMA research.table_info("+name+")",null)){while(c.moveToNext()){String column=MigrationCopyR29.id(c.getString(1));columns.add(column);if(c.getInt(5)>0)primary.put(c.getInt(5),column);}}
+        if(columns.isEmpty()||withoutRowid&&primary.isEmpty())throw new IOException("REPORT_R29_TABLE_KEY_REQUIRED:"+table);
+        if(!withoutRowid)columns.add(0,"rowid");String projection=String.join(",",columns),order=withoutRowid?String.join(",",primary.values()):"rowid";
+        for(long offset=0;;offset+=128){
+            if(!control.shouldContinue())throw new IOException("REPORT_USER_CANCEL");
+            merged.execSQL("INSERT INTO main."+name+"("+projection+") SELECT "+projection+" FROM research."+name+" ORDER BY "+order+" LIMIT 128 OFFSET ?",new Object[]{offset});
+            if(MigrationCopyR29.scalar(merged,"SELECT changes()",null)<128)break;
+        }
     }
     private static void write(File file,String text)throws IOException{try(FileOutputStream out=new FileOutputStream(file)){out.write(text.getBytes(StandardCharsets.UTF_8));out.getFD().sync();}}
 }

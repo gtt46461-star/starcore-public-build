@@ -33,7 +33,7 @@ public final class ReplayEvaluatorR27 {
         double best = spec.temperature, bestLoss = Double.POSITIVE_INFINITY; double[] z = new double[10], p = new double[10];
         for (double mult : TEMPERATURES) {
             double tau = spec.temperature * mult, loss = 0; int n = 0;
-            for (int t = trainFrom; t < trainTo; t++) {
+            for (int t = trainFrom; t < trainTo; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
                 if (!standardize(scores, t, z)) continue;
                 softmax(z, tau, null, p);
                 loss -= Math.log(Math.max(1e-12, p[labels[t][spec.position - 1] - 1])); n++;
@@ -53,7 +53,7 @@ public final class ReplayEvaluatorR27 {
         double[] z = new double[10], p = new double[10]; int[] order = new int[10];
         long gate = spec.rule == PolicySpecR27.Rule.RANDOM ? spec.ast.toString().hashCode() * 0x9E3779B97F4A7C15L : 0;
         double[] ring = new double[QUANTILE_WINDOW]; int filled = 0, head = 0;
-        for (int t = 0; t < to; t++) {
+        for (int t = 0; t < to; t++) { if((t&31)==0)CooperativeContinuationR26.poll();
             if (!standardize(scores, t, z)) continue;
             softmax(z, temperature, tr.bias, p);
             int y = labels[t][tp] - 1;

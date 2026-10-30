@@ -11,7 +11,7 @@ public final class LegacyReplayContinuationR26 {
             active.work.close();if(!active.work.isDone()){claim.reason("COOPERATIVE_DRAINING_PREVIOUS_LEGACY_OWNER");return 0;}active=null;LegacyReplayR26.clearWorking();
         }
         if(active==null){Context context=new Context();context.claim=claim;
-            context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-replay",()->LegacyReplayR26.step(store,()->context.claim,ExecutionBudgetR26.current()),RuntimeCoordinatorR26::hasCriticalPressure,()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);active=context;
+            context.work=new CooperativeContinuationR26<>("starcore-r26-legacy-replay",()->{try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){return LegacyReplayR26.step(store,()->context.claim,ExecutionBudgetR26.current());}},RuntimeCoordinatorR26::hasCriticalPressure,()->RuntimeCoordinatorR26.bindBackgroundClaim(context.claim),()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,claim.owner);active=context;
         }
         Context context=active;context.claim=claim;budget.checkpointOrYield();CooperativeContinuationR26.Slice<Long> slice=context.work.slice(40);claim.addWorkerCpuMillis(slice.cpuNanos/1000000L);
         if(!slice.done){claim.reason("COOPERATIVE_LEGACY_STATE_AND_CHECKPOINT");return 0;}

@@ -108,6 +108,7 @@ public final class CertifiedPredictionR974 {
     }
     public static final String EXACT_SCOPE_POLICY_F05=CalibrationRuntimeIdentityF04.EXACT_SCOPE_POLICY_F04;
     static String exactScopePolicyHash(String candidate,String structure,String model,String selector){
+        if(candidate!=null&&(candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)||candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)))return com.ethk3.novaonepro.strategyv2.LegacyAuthorityProjectionR29.exactScope(candidate,structure,model,selector);
         return CalibrationRuntimeIdentityF04.exactScope(candidate,structure,model,selector);
     }
     private static String requireExactCalibrationObservations(SQLiteDatabase db,String study,String candidate,
@@ -331,6 +332,9 @@ public final class CertifiedPredictionR974 {
         String error=verifyCertificate(store,proof);if(!error.isEmpty())throw new IllegalStateException("R974_EXACT_COMMIT_"+error);
         if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)){
             if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.verifyFrozen(db,proof,compiled.selected.action))throw new IllegalStateException("SU1_EXACT_COMMIT_ACTION_CHANGED");return;
+        }
+        if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
+            if(!com.ethk3.novaonepro.strategyv2.LegacyAuthorityProjectionR29.verifySu2(db,proof,compiled.selected.action))throw new IllegalStateException("SU2_EXACT_COMMIT_ACTION_OR_AUTHORITY_CHANGED");return;
         }
         ExactCalibration current=readExactCalibration(db,proof.certificate,proof.candidate,proof.structure,
                 proof.target,compiled.selected.action.rawActionP,proof.capturedAt);

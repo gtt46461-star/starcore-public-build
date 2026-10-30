@@ -31,9 +31,11 @@ public final class AtomNetTrainerR27 {
         double best = Double.POSITIVE_INFINITY; int bad = 0, e; byte[] bestNet = net.encode(); double lr = LR0;
         int stepsPerEpoch = Math.max(1, (train.size() + BATCH - 1) / BATCH), total = MAX_EPOCHS * stepsPerEpoch, step = 0;
         for (e = 0; e < MAX_EPOCHS; e++) {
+            CooperativeContinuationR26.poll();
             List<Integer> order = new ArrayList<>(); for (int i = 0; i < train.size(); i++) order.add(i);
             for (int i = order.size() - 1; i > 0; i--) { int j = rng.nextInt(i + 1); Integer x = order.get(i); order.set(i, order.get(j)); order.set(j, x); }
             for (int s = 0; s < order.size(); s += BATCH) {
+                CooperativeContinuationR26.poll();
                 lr = LR_MIN + 0.5 * (LR0 - LR_MIN) * (1 + Math.cos(Math.PI * step / (double) total)); step++;
                 int to = Math.min(order.size(), s + BATCH); double[][] xs = new double[to - s][]; int[] y = new int[to - s], c = new int[to - s];
                 for (int k = s; k < to; k++) { Sample q = train.get(order.get(k)); xs[k - s] = q.x; y[k - s] = q.y; c[k - s] = q.cls; }
@@ -55,7 +57,7 @@ public final class AtomNetTrainerR27 {
     public static double[] evaluate(AtomNetR27 net, List<Sample> xs) {
         if (xs.isEmpty()) return new double[] {Double.NaN, Double.NaN, Double.NaN};
         StatsR27.Moments ll = new StatsR27.Moments(); double br = 0;
-        for (Sample s : xs) { double p = net.predict(s.x); ll.add(-(s.y == 1 ? Math.log(Math.max(1e-12, p)) : Math.log(Math.max(1e-12, 1 - p)))); br += (p - s.y) * (p - s.y); }
+        for (Sample s : xs) { CooperativeContinuationR26.poll();double p = net.predict(s.x); ll.add(-(s.y == 1 ? Math.log(Math.max(1e-12, p)) : Math.log(Math.max(1e-12, 1 - p)))); br += (p - s.y) * (p - s.y); }
         return new double[] {ll.mean, br / xs.size(), ll.se()};
     }
 
