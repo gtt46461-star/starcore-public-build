@@ -9,6 +9,10 @@ import java.util.Map;
  * refute it, the code location that owns the behaviour, the construction card and the verification that confirms a
  * fix. A value that was not measured yields an UNKNOWN finding with the collection step, never a silent PASS. Pure. */
 public final class FindingsR29 {
+    /** Same value as QualificationInboxR29.BLOCK_ACT_PENDING_SETTLE; copied because this file is compiled as pure Java
+     *  (verify_strategy_su1 deployed_java_compile) and QualificationInboxR29 depends on android.database. */
+    static final String BLOCK_ACT_PENDING_SETTLE = "ACT_PENDING_SETTLE";
+
     private FindingsR29() {}
 
     static Map<String, Object> finding(String id, String severity, String evidence, String strength, String refutedBy, String code, String card, String verify) {
@@ -44,7 +48,7 @@ public final class FindingsR29 {
                     "draw backfill resolves them (r29_pending_draw.resolved_at)", "ApiClient.fetchTodayBackfill/fetchYesterdayBackfill → LiveShadowsR27.settle", "R29-009",
                     "network restore + backfill; pendingDrawOpen returns to 0 without new hit=-2"));
         Object blocked = q.get("cursorByBlockReason");
-        if (blocked instanceof Map && ((Map<?, ?>) blocked).containsKey(QualificationInboxR29.BLOCK_ACT_PENDING_SETTLE))
+        if (blocked instanceof Map && ((Map<?, ?>) blocked).containsKey(BLOCK_ACT_PENDING_SETTLE))
             out.add(finding("R29F-SETTLE-LAG", "MEDIUM", "experiments blocked on an ACT period whose draw exists but is not settled yet", "DIRECT_STATE",
                     "next LIVE_SETTLE pass clears it", "RuntimeR27.LiveTask.step ordering settle → qualify", "R29-012", "M04 settlement latency probe"));
         Long v2 = n(q.get("gateV2Evaluated")), v2ok = n(q.get("gateV2WouldIssue"));
