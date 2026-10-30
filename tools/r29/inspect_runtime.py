@@ -21,16 +21,58 @@ def task_error_rows(db, allow_missing=False):
     return list(db.execute('SELECT error_id,task_id,error_class,message,stack,recorded_at FROM r27_task_error ORDER BY recorded_at DESC,error_id DESC'))
 
 
-def error_diagnostic(row, owner):
-    message = str(row[3] or '')
+def redacted_failure_reason(value):
+    message = str(value or '')
     # Retain bounded failure/capacity diagnostics without exporting SQL arguments or credentials.
     message = re.sub(r'(?is)\b(payload(?:_json)?|params|bindargs|args|values)\s*[:=].*', r'\1=[REDACTED]', message)
     message = re.sub(r'(?i)\bauthorization\s*[:=].*', 'authorization=[REDACTED]', message)
     message = re.sub(r'(?i)\b(password|passwd|token|api[_-]?key|secret|authorization)\s*[:=]\s*[^\s,;]+', r'\1=[REDACTED]', message)
     message = re.sub(r'https?://\S+', '[URL_REDACTED]', message)
     message = re.sub(r'(?s)\{.*\}|\[.*\]', '[REDACTED]', message)
+    return message[:500]
+
+
+def error_diagnostic(row, owner):
     return {'owner': owner, 'errorId': row[0], 'task': str(row[1])[:160],
-            'errorClass': str(row[2])[:160], 'message': message[:500], 'recordedAt': row[5]}
+            'errorClass': str(row[2])[:160], 'message': redacted_failure_reason(row[3]), 'recordedAt': row[5]}
+
+
+def capacity_failure_rows(db, allow_missing=False):
+    if allow_missing and not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_progress'").fetchone():
+        return []
+    # A capacity receipt can commit while its r27_task_error write cannot. Compare the complete real
+    # progress record, including id/fence/cursors/CPU/reason/time, instead of accepting a count match.
+    return list(db.execute("SELECT receipt_id,task_id,fence,cursor_before,cursor_after,cpu_ms,blocked_reason,recorded_at FROM r26_progress WHERE blocked_reason GLOB 'CAPACITY_FAIL:*' ORDER BY recorded_at DESC,receipt_id DESC"))
+
+
+def capacity_diagnostic(row, owner):
+    return {'owner': owner, 'receiptId': row[0], 'task': str(row[1])[:160], 'fence': row[2],
+            'cursorBefore': row[3], 'cursorAfter': row[4], 'cpuMs': row[5],
+            'blockedReason': redacted_failure_reason(row[6]), 'recordedAt': row[7]}
+
+
+def capacity_baseline(before_main, result):
+    result['capacityBaselineProvided'] = before_main is not None
+    if before_main is None:
+        result['baselineCapacityFailureRecords'] = 0
+        return set()
+    assert before_main.is_file(), 'BEFORE_REALTIME_DATABASE_MISSING'
+    with sqlite3.connect(before_main.resolve().as_uri() + '?mode=ro', uri=True) as before:
+        rows = set(capacity_failure_rows(before, allow_missing=True))
+    result['baselineCapacityFailureRecords'] = len(rows)
+    return rows
+
+
+def inspect_capacity_failures(owners, before_capacity, result):
+    result.update(allCapacityFailuresByOwner={}, newCapacityFailuresByOwnerSinceBaseline={},
+                  newCapacityFailureReasonsSinceBaseline=[])
+    for name, db in owners:
+        rows = capacity_failure_rows(db)
+        added = [row for row in rows if row not in before_capacity]
+        result['allCapacityFailuresByOwner'][name] = len(rows)
+        result['newCapacityFailuresByOwnerSinceBaseline'][name] = len(added)
+        result['newCapacityFailureReasonsSinceBaseline'].extend(capacity_diagnostic(row, name) for row in added[:5])
+    result['newCapacityFailuresSinceBaseline'] = sum(result['newCapacityFailuresByOwnerSinceBaseline'].values())
 
 
 def error_baseline(before_main, result):
@@ -139,6 +181,7 @@ def observe(main, stage, result, before_main=None):
                   status='OBSERVATION_ONLY_NOT_ACCEPTANCE', researchCopy='NOT_INSPECTED',
                   mainAvailable=main.is_file(), stageAvailable=stage.is_file(), observationErrors=[])
     before_errors = error_baseline(before_main, result)
+    before_capacity = capacity_baseline(before_main, result)
 
     def read(db, label, sql, args=(), one=True):
         try:
@@ -174,6 +217,9 @@ def observe(main, stage, result, before_main=None):
                 result['rootMigrationTaskErrors']=scalar(root,"SELECT count(*) FROM r27_task_error WHERE task_id IN ('schema','schema-base','r29-research-migration','r29-event-inbox')")
                 result['rootRecentTaskErrors']=[error_diagnostic(row,'REALTIME') for row in task_error_rows(root)[:8]]
                 inspect_task_errors([('REALTIME',root)],before_errors,result)
+            if exists(root,'r26_progress'):
+                result['rootRecentCapacityFailures']=[capacity_diagnostic(row,'REALTIME') for row in capacity_failure_rows(root)[:8]]
+                inspect_capacity_failures([('REALTIME',root)],before_capacity,result)
             if exists(root,'r29_event_outbox'):
                 result['rootEvents']=read(root,'rootEvents','SELECT count(*) AS total,sum(CASE WHEN acked_at>0 THEN 1 ELSE 0 END) AS acked FROM r29_event_outbox')
             if exists(root,'r27_chart_cache'):
@@ -200,6 +246,7 @@ def observe(main, stage, result, before_main=None):
 def inspect(main, stage, result, research_path=None, baseline=None, before_main=None):
     assert main.is_file(), 'REALTIME_DATABASE_MISSING'
     before_errors = error_baseline(before_main, result)
+    before_capacity = capacity_baseline(before_main, result)
     if research_path is not None:
         assert research_path.is_file(), 'ACTIVE_RESEARCH_DATABASE_MISSING'
     result.update(scope='API34_EMULATOR_ENGINEERING_NOT_NATURAL_QUALITY',
@@ -223,10 +270,12 @@ def inspect(main, stage, result, research_path=None, baseline=None, before_main=
             result['workWithoutCompletionReceipt'] = scalar(research, "SELECT count(*) FROM r29_learning_work w WHERE w.status='COMMITTED' AND NOT EXISTS(SELECT 1 FROM r29_learning_receipt r WHERE r.consumer=w.consumer AND r.issue=w.issue AND r.state_hash=w.state_hash)")
             inspect_events(realtime, research, result)
             inspect_task_errors([('REALTIME', realtime)] + ([('RESEARCH', research)] if research_path is not None else []),before_errors,result)
+            inspect_capacity_failures([('REALTIME', realtime)] + ([('RESEARCH', research)] if research_path is not None else []),before_capacity,result)
     assert result['mainIntegrity'] == 'ok' and result['workWithoutCompletionReceipt'] == 0
     assert result['eventsAcked'] <= result['eventsDelivered'] <= result['eventsOutbox']
     assert result['newTaskErrors'] == 0, 'NEW_R29_TASK_ERRORS'
     assert result['allNewTaskErrorsSinceBaseline'] == 0, 'NEW_TASK_ERRORS_SINCE_BASELINE'
+    assert result['newCapacityFailuresSinceBaseline'] == 0, 'NEW_CAPACITY_FAILURES_SINCE_BASELINE'
     result['eventDeliveryStatus'] = 'PASS' if result['eventsDelivered'] else 'INSUFFICIENT_NO_ACCEPTED_EVENT'
     assert stage.is_file(), 'INDEPENDENT_STAGE_DATABASE_MISSING'
     with sqlite3.connect(stage) as research:
@@ -262,7 +311,7 @@ def main():
     p.add_argument('--stage', type=Path, required=True)
     p.add_argument('--research', type=Path)
     p.add_argument('--baseline', type=Path)
-    p.add_argument('--before-main', type=Path, help='Upgrade Root copy before installing the delivered APK; clean installs use an empty error baseline')
+    p.add_argument('--before-main', type=Path, help='Upgrade Root copy before installing the delivered APK; clean installs use empty error and capacity baselines')
     p.add_argument('--observe-only', action='store_true')
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()

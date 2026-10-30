@@ -39,6 +39,7 @@ class RuntimeInspection(unittest.TestCase):
             ('CREATE TABLE r29_source_watermark(table_name,generation)', ()),
             ("INSERT INTO r29_source_watermark VALUES('draws',3)", ()),
             ('CREATE TABLE r27_task_error(error_id,task_id,error_class,message,stack,recorded_at)', ()),
+            ('CREATE TABLE r26_progress(receipt_id INTEGER PRIMARY KEY,task_id TEXT NOT NULL,fence INTEGER NOT NULL,cursor_before INTEGER NOT NULL,cursor_after INTEGER NOT NULL,cpu_ms INTEGER NOT NULL,blocked_reason TEXT,recorded_at INTEGER NOT NULL)', ()),
         ])
         # Deliberately do NOT create inbox or learner tables in Root: an old-owner query must fail.
         self.mutate(self.research, [
@@ -51,6 +52,7 @@ class RuntimeInspection(unittest.TestCase):
             ('CREATE TABLE r29_learning_receipt(consumer,issue,state_hash)', ()),
             ("INSERT INTO r29_learning_receipt VALUES('ATOMNET_ONLINE','202610300001','state')", ()),
             ('CREATE TABLE r27_task_error(error_id,task_id,error_class,message,stack,recorded_at)', ()),
+            ('CREATE TABLE r26_progress(receipt_id INTEGER PRIMARY KEY,task_id TEXT NOT NULL,fence INTEGER NOT NULL,cursor_before INTEGER NOT NULL,cursor_after INTEGER NOT NULL,cpu_ms INTEGER NOT NULL,blocked_reason TEXT,recorded_at INTEGER NOT NULL)', ()),
         ])
         shutil.copy2(self.research,self.baseline)
         self.pin_baseline()
@@ -90,6 +92,10 @@ class RuntimeInspection(unittest.TestCase):
     def error(self,path,task='expert-E07',message='R26_UNSLICED_COMPUTATION_CAPACITY',recorded_at=123):
         self.mutate(path,[('INSERT INTO r27_task_error VALUES(1,?,?,?, ?,?)',
                           (task,'CapacityFailure',message,'private stack fixture',recorded_at))])
+
+    def capacity(self,path,task='schema',reason='CAPACITY_FAIL:UNSLICED_KERNEL:2631ms',recorded_at=123):
+        self.mutate(path,[('INSERT INTO r26_progress VALUES(1,?,7,3,4,19,?,?)',
+                          (task,reason,recorded_at))])
 
     def test_active_owner_reads_real_rp_without_root_learner_tables(self):
         r=self.inspect()
@@ -343,6 +349,132 @@ echo UNREACHABLE_ACCEPTANCE
         self.assertEqual('FAIL',receipt['status'])
         self.assertIn('BEFORE_REALTIME_DATABASE_MISSING',receipt['failure'])
         self.assertFalse(self.before.exists())
+
+    def test_new_root_capacity_receipt_fails_with_zero_task_errors(self):
+        shutil.copy2(self.root,self.before)
+        self.capacity(self.root)
+        result={}
+        with self.assertRaisesRegex(AssertionError,'NEW_CAPACITY_FAILURES_SINCE_BASELINE'):
+            reader.inspect(self.root,self.stage,result,self.research,self.baseline,self.before)
+        self.assertEqual(0,result['newTaskErrors'])
+        self.assertEqual(0,result['allNewTaskErrorsSinceBaseline'])
+        self.assertEqual({'REALTIME':1,'RESEARCH':0},result['newCapacityFailuresByOwnerSinceBaseline'])
+        self.assertEqual('schema',result['newCapacityFailureReasonsSinceBaseline'][0]['task'])
+
+    def test_new_rp_capacity_receipt_fails_when_root_is_empty(self):
+        shutil.copy2(self.root,self.before)
+        self.capacity(self.research,task='incumbent')
+        self.rejected('NEW_CAPACITY_FAILURES_SINCE_BASELINE',self.before)
+
+    def test_unchanged_old_capacity_copied_root_to_rp_is_not_new(self):
+        self.capacity(self.root)
+        shutil.copy2(self.root,self.before)
+        self.capacity(self.research)
+        result=self.inspect(self.before)
+        self.assertEqual(1,result['baselineCapacityFailureRecords'])
+        self.assertEqual({'REALTIME':1,'RESEARCH':1},result['allCapacityFailuresByOwner'])
+        self.assertEqual(0,result['newCapacityFailuresSinceBaseline'])
+
+    def test_same_count_capacity_replacement_changes_any_full_record_field(self):
+        original=(1,'schema',7,3,4,19,'CAPACITY_FAIL:UNSLICED_KERNEL:2631ms',123)
+        self.capacity(self.root)
+        shutil.copy2(self.root,self.before)
+        for column,value in [('receipt_id',2),('task_id','incumbent'),('fence',8),('cursor_before',2),
+                             ('cursor_after',5),('cpu_ms',20),('blocked_reason','CAPACITY_FAIL:UNSLICED_KERNEL:2632ms'),
+                             ('recorded_at',124)]:
+            with self.subTest(column=column):
+                self.mutate(self.root,[('DELETE FROM r26_progress',()),
+                                       ('INSERT INTO r26_progress VALUES(?,?,?,?,?,?,?,?)',original),
+                                       ('UPDATE r26_progress SET '+column+'=?',(value,))])
+                self.rejected('NEW_CAPACITY_FAILURES_SINCE_BASELINE',self.before)
+
+    def test_clean_without_baseline_rejects_capacity_in_either_owner(self):
+        for owner in [self.root,self.research]:
+            with self.subTest(owner=owner.name):
+                self.capacity(owner)
+                self.rejected('NEW_CAPACITY_FAILURES_SINCE_BASELINE')
+                self.mutate(owner,[('DELETE FROM r26_progress',())])
+
+    def test_normal_progress_is_not_a_capacity_failure(self):
+        self.capacity(self.root,reason='NO_NEW_EVENT:NO_OUTPUT')
+        self.capacity(self.research,reason='PROGRESS:units=1')
+        result=self.inspect()
+        self.assertEqual({'REALTIME':0,'RESEARCH':0},result['allCapacityFailuresByOwner'])
+        self.assertEqual(0,result['newCapacityFailuresSinceBaseline'])
+
+    def test_upgrade_baseline_without_old_progress_table_still_detects_new_failure(self):
+        shutil.copy2(self.root,self.before)
+        self.mutate(self.before,[('DROP TABLE r26_progress',())])
+        self.capacity(self.root)
+        self.rejected('NEW_CAPACITY_FAILURES_SINCE_BASELINE',self.before)
+
+    def test_current_owner_missing_progress_table_cannot_pass_capacity_gate(self):
+        for owner in [self.root,self.research]:
+            with self.subTest(owner=owner.name):
+                with sqlite3.connect(owner) as db:
+                    db.execute('ALTER TABLE r26_progress RENAME TO old_progress')
+                with self.assertRaisesRegex(sqlite3.OperationalError,'no such table: r26_progress'):
+                    self.inspect()
+                self.mutate(owner,[('ALTER TABLE old_progress RENAME TO r26_progress',())])
+
+    def test_observation_retains_capacity_delta_before_missing_rp_with_no_task_errors(self):
+        shutil.copy2(self.root,self.before)
+        self.capacity(self.root,reason='CAPACITY_FAIL:UNSLICED_KERNEL:2631ms params=[PRIVATE_CAPACITY_ROW]')
+        self.research.unlink()
+        result=reader.observe(self.root,self.stage,{},self.before)
+        self.assertEqual('OBSERVATION_ONLY_NOT_ACCEPTANCE',result['status'])
+        self.assertEqual(0,result['rootTaskErrors'])
+        self.assertEqual(1,result['newCapacityFailuresSinceBaseline'])
+        self.assertEqual('schema',result['rootRecentCapacityFailures'][0]['task'])
+        self.assertNotIn('PRIVATE_CAPACITY_ROW',json.dumps(result))
+        self.assertFalse(self.research.exists())
+
+    def test_observation_capacity_reasons_are_bounded_and_credential_redacted(self):
+        self.capacity(self.root,reason='CAPACITY_FAIL:UNSLICED_KERNEL:2631ms token=PRIVATE_TOKEN params=[PRIVATE_ROW]')
+        for n in range(2,13):
+            self.mutate(self.root,[('INSERT INTO r26_progress VALUES(?,?,?,?,?,?,?,?)',
+                                   (n,'schema',n,3,4,19,'CAPACITY_FAIL:'+'x'*900,n))])
+        self.mutate(self.root,[('UPDATE r26_progress SET blocked_reason=? WHERE receipt_id=12',
+                               ('CAPACITY_FAIL:UNSLICED_KERNEL:2631ms token=PRIVATE_TOKEN params=[PRIVATE_ROW]',))])
+        result=reader.observe(self.root,self.stage,{})
+        self.assertEqual(8,len(result['rootRecentCapacityFailures']))
+        self.assertEqual(5,len(result['newCapacityFailureReasonsSinceBaseline']))
+        self.assertTrue(all(len(row['blockedReason'])<=500 for row in result['rootRecentCapacityFailures']))
+        self.assertNotIn('PRIVATE_TOKEN',json.dumps(result))
+        self.assertNotIn('PRIVATE_ROW',json.dumps(result))
+
+    def test_observation_preserves_unchanged_capacity_baseline(self):
+        self.capacity(self.root)
+        shutil.copy2(self.root,self.before)
+        result=reader.observe(self.root,self.stage,{},self.before)
+        self.assertEqual(1,result['baselineCapacityFailureRecords'])
+        self.assertEqual(1,result['allCapacityFailuresByOwner']['REALTIME'])
+        self.assertEqual(0,result['newCapacityFailuresSinceBaseline'])
+
+    def test_upgrade_shell_records_new_capacity_before_missing_rp_pull(self):
+        script=Path(__file__).with_name('emulator_smoke.sh').read_text()
+        helpers=script[script.index('pull_database() {'):script.index('adb uninstall "$PKG"')]
+        out=self.path/'smoke-capacity';out.mkdir()
+        shutil.copy2(self.root,out/'before.db')
+        self.capacity(self.root)
+        stub='''
+pull_database() {
+  case "$1" in
+    binance_k3_nova_one_pro_v57.db) cp "$TEST_ROOT" "$OUT/$2.db" ;;
+    starcore-research-r29-stage.db) cp "$TEST_STAGE" "$OUT/$2.db" ;;
+    *) return 19 ;;
+  esac
+}
+pull_runtime upgrade after
+echo UNREACHABLE_ACCEPTANCE
+'''
+        env=dict(os.environ,OUT=str(out),TEST_ROOT=str(self.root),TEST_STAGE=str(self.stage))
+        run=subprocess.run(['bash','-c','set -euo pipefail\n'+helpers+stub],cwd=Path(__file__).resolve().parents[2],env=env,capture_output=True,text=True,timeout=10)
+        self.assertEqual(19,run.returncode,run.stdout+run.stderr)
+        receipt=json.loads((out/'upgrade-migration-observation.json').read_text())
+        self.assertEqual(0,receipt['allNewTaskErrorsSinceBaseline'])
+        self.assertEqual(1,receipt['newCapacityFailuresSinceBaseline'])
+        self.assertNotIn('UNREACHABLE_ACCEPTANCE',run.stdout)
 
 
 if __name__=='__main__': unittest.main(verbosity=2)

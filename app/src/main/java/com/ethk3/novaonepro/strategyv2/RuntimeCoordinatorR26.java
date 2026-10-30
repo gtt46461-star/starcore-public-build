@@ -209,7 +209,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{
         if(c.task.equals("schema")){
             if(strategyStorageReady)return 0;
-            if(!StrategySchemaSU1.ready(store.readable())){
+            if(!StrategySchemaSU1.ready(ExpertWorkshopR26.snapshotReader(store))){
                 // R27.1: a fresh install has ~265 journaled units; one unit per scheduler pass kept every research task
                 // waiting for hours on device. Apply units back-to-back for up to SCHEMA_BATCH_MS per slice (below the
                 // 2×SLICE_MS capacity limit; ~54 ms per unit was measured on device); each unit is
@@ -223,7 +223,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);
                 c.reason((units>0?"COOPERATIVE_":"")+result.status+":units="+units+":"+result.detail);return units;
             }
-            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
+            if(!StrategySchemaSU2.ready(ExpertWorkshopR26.snapshotReader(store))){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){

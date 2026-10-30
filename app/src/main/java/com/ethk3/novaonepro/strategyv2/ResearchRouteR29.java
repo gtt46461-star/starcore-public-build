@@ -94,7 +94,10 @@ public final class ResearchRouteR29 {
             try(Cursor c=probe.rawQuery("PRAGMA quick_check",null)){if(!c.moveToFirst()||!"ok".equals(c.getString(0))||c.moveToNext())throw new IllegalStateException("R29_RESEARCH_INTEGRITY_FAILED");}
         }
         // This transaction never waits for a research writer: preparation/close/fsync precede publication.
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_RESEARCH_CUTOVER",db->{
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_RESEARCH_CUTOVER",db->{publishWithin(db,schemaHash,sourceRoot,epoch);return 0;});
+    }
+    static void publishWithin(SQLiteDatabase db,String schemaHash,String sourceRoot,long epoch){
+            if(!db.inTransaction())throw new IllegalStateException("R29_CUTOVER_ROUTE_TRANSACTION_REQUIRED");
             ensureRealtime(db);
             try(Cursor c=db.rawQuery("SELECT phase,source_root,baseline_sha FROM r29_migration_publication WHERE singleton=1 AND epoch=?",new String[]{String.valueOf(epoch)})){
                 if(!c.moveToFirst()||!"RENAMED".equals(c.getString(0))||!sourceRoot.equals(c.getString(1))||c.getString(2)==null||c.getString(2).length()!=64)throw new IllegalStateException("R29_CUTOVER_PREPARATION_RECEIPT_REQUIRED");
@@ -104,8 +107,18 @@ public final class ResearchRouteR29 {
                 if(!c.moveToFirst()||!"ACTIVE".equals(c.getString(0))||!schemaHash.equals(c.getString(1))||!sourceRoot.equals(c.getString(2))||epoch!=c.getLong(3))throw new IllegalStateException("R29_CUTOVER_RECEIPT_CONFLICT");
             }
             db.execSQL("UPDATE r29_migration_publication SET phase='PUBLISHED',updated_at=? WHERE singleton=1 AND epoch=?",new Object[]{System.currentTimeMillis(),epoch});
-            return 0;
-        });
+    }
+    /** ACTIVE status must still name an existing file with the exact published owner; later legal RP
+     * commits change its byte hash, so active readers bind the durable owner rather than the old file hash. */
+    static void verifyActiveOwner(SQLiteDatabase realtime){
+        String schema,root;long epoch;
+        try(Cursor c=realtime.rawQuery("SELECT r.schema_hash,r.source_root,r.epoch,p.phase,p.epoch,p.source_root FROM r29_database_route r JOIN r29_migration_publication p ON p.singleton=r.singleton WHERE r.singleton=1",null)){
+            if(!c.moveToFirst()||!"PUBLISHED".equals(c.getString(3))||c.getLong(2)!=c.getLong(4)||!c.getString(1).equals(c.getString(5)))throw new IllegalStateException("R29_ACTIVE_PUBLICATION_RECEIPT_MISMATCH");
+            schema=c.getString(0);root=c.getString(1);epoch=c.getLong(2);
+        }
+        File file=new File(new File(realtime.getPath()).getParentFile(),FILE_NAME);
+        if(!file.isFile())throw new IllegalStateException("R29_PUBLISHED_RESEARCH_FILE_MISSING_RECOVERY_REQUIRED");
+        try(SQLiteDatabase probe=SQLiteDatabase.openDatabase(file.getPath(),null,SQLiteDatabase.OPEN_READONLY)){verifyOwner(probe,schema,root,epoch);}
     }
     private static void verifyOwner(SQLiteDatabase research,String schemaHash,String sourceRoot,long epoch){
         try(Cursor c=research.rawQuery("SELECT phase,schema_hash,source_root,epoch FROM r29_research_owner WHERE singleton=1",null)){

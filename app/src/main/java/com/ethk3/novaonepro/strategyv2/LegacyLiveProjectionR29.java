@@ -12,16 +12,16 @@ public final class LegacyLiveProjectionR29 {
     private LegacyLiveProjectionR29(){}
     public static final String PENDING="CREATE TABLE IF NOT EXISTS r29_legacy_live_pending(policy_hash TEXT PRIMARY KEY,revision INTEGER NOT NULL,acked_revision INTEGER NOT NULL DEFAULT 0)";
     public static final String PROJECTION="CREATE TABLE IF NOT EXISTS r29_legacy_live_projection(policy_hash TEXT PRIMARY KEY,route_epoch INTEGER NOT NULL,revision INTEGER NOT NULL,checkpoint_hash TEXT,state_hash TEXT,through_ordinal INTEGER,status TEXT NOT NULL,payload_hash TEXT NOT NULL,projected_at INTEGER NOT NULL)";
-    public static void ensureRealtime(SQLiteDatabase db){db.execSQL(PROJECTION);}
+    public static void ensureRealtime(SQLiteDatabase db){RealtimeResearchProjectionR29.ensureSchema(db,Arrays.asList(new RealtimeResearchProjectionR29.SchemaObject("table","r29_legacy_live_projection","r29_legacy_live_projection",PROJECTION,false)));}
     public static void installResearch(SQLiteDatabase db){
-        db.execSQL(PENDING);
+        List<RealtimeResearchProjectionR29.SchemaObject> expected=new ArrayList<>();expected.add(new RealtimeResearchProjectionR29.SchemaObject("table","r29_legacy_live_pending","r29_legacy_live_pending",PENDING,false));
         for(String event:new String[]{"INSERT","UPDATE","DELETE"}){
             String row=event.equals("DELETE")?"OLD":"NEW",name="r29_legacy_live_"+event.toLowerCase(java.util.Locale.ROOT);
             // Outer INSERT OR REPLACE also controls conflict handling inside triggers. Never use OR IGNORE here.
             String sql="CREATE TRIGGER "+name+" AFTER "+event+" ON r26_live_model BEGIN UPDATE r29_legacy_live_pending SET revision=revision+1 WHERE policy_hash="+row+".policy_hash; INSERT INTO r29_legacy_live_pending SELECT "+row+".policy_hash,1,0 WHERE NOT EXISTS(SELECT 1 FROM r29_legacy_live_pending WHERE policy_hash="+row+".policy_hash); END";
-            String old=null;try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='trigger' AND name=?",new String[]{name})){if(c.moveToFirst())old=c.getString(0);}
-            if(!sql.equals(old)){if(old!=null){if(!db.inTransaction())throw new IllegalStateException("R29_LEGACY_PROJECTION_TRIGGER_UPGRADE_REQUIRES_TRANSACTION");db.execSQL("DROP TRIGGER "+name);}db.execSQL(sql);}
+            expected.add(new RealtimeResearchProjectionR29.SchemaObject("trigger",name,"r26_live_model",sql,true,"R29_LEGACY_PROJECTION_TRIGGER_UPGRADE_REQUIRES_TRANSACTION"));
         }
+        RealtimeResearchProjectionR29.ensureSchema(db,expected);
         db.execSQL("INSERT OR IGNORE INTO r29_legacy_live_pending SELECT policy_hash,1,0 FROM r26_live_model");
     }
     static final class Row{

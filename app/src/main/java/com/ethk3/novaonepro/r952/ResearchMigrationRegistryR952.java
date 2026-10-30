@@ -333,7 +333,7 @@ public final class ResearchMigrationRegistryR952 {
     /** The old arrays describe one entire database. Only RP-owned guards/revisions belong in RP;
      * Root's original guards stay untouched. Every excluded original statement remains auditable. */
     private static void executeDomainDdlR29(SQLiteDatabase db,String sql,boolean revisions){
-        if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)){db.execSQL(sql);return;}
+        if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)){executeNeededDdlR29(db,sql,revisions);return;}
         java.util.regex.Matcher create=TRIGGER_R29.matcher(sql),drop=DROP_TRIGGER_R29.matcher(sql);
         String name,target;
         if(create.find()){
@@ -347,7 +347,7 @@ public final class ResearchMigrationRegistryR952 {
         }else{
             if(java.util.regex.Pattern.compile("(?is)\\b(?:CREATE|DROP)\\s+TRIGGER\\b").matcher(sql).find())
                 throw new IllegalStateException("R29_UNRECOGNIZED_SCHEMA_TRIGGER_DDL");
-            db.execSQL(sql);return;
+            executeNeededDdlR29(db,sql,revisions);return;
         }
         boolean root=com.ethk3.novaonepro.strategyv2.LegacyResearchOwnershipR29.realtime(target)
                 ||target.startsWith("b03_")||target.equals("v57_draw_canonical_r811")||target.equals("v57_draw_provenance_r811");
@@ -358,12 +358,51 @@ public final class ResearchMigrationRegistryR952 {
             recordDomainOmissionR29(db,sql,name,target,revisions,"REPLACED_BY_VERIFIED_LEARNED_FACT_GUARD");return;
         }
         if(com.ethk3.novaonepro.strategyv2.LegacyResearchOwnershipR29.owned(target)){
-            requireResearchTargetR29(db,target);db.execSQL(sql);return;
+            requireResearchTargetR29(db,target);executeNeededDdlR29(db,sql,revisions);return;
         }
         if(!revisions)throw new IllegalStateException("R29_UNCLASSIFIED_RESEARCH_SCHEMA_TRIGGER:"+name+":"+target);
         // CP8 enumerates the original *whole* database, including retained historical compatibility
         // tables outside this research domain. Recording this exclusion does not claim they migrated.
         recordDomainOmissionR29(db,sql,name,target,true,"RETAINED_ROOT_COMPATIBILITY_REVISION_NOT_MIGRATED");
+    }
+    private static final java.util.regex.Pattern CREATE_OBJECT_R29=java.util.regex.Pattern.compile(
+            "(?is)\\bCREATE\\s+(?:UNIQUE\\s+)?(TABLE|INDEX|TRIGGER)\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:\"([^\"]+)\"|([A-Za-z0-9_]+))");
+    /** Only a fresh exact proof skips DDL. Existing different definitions still execute the original
+     * migration statement and remain subject to its original final fingerprint/readiness checks. */
+    static void executeNeededDdlR29(SQLiteDatabase db,String sql,boolean revisions){
+        java.util.regex.Matcher create=CREATE_OBJECT_R29.matcher(sql),drop=DROP_TRIGGER_R29.matcher(sql);
+        if(create.find()){
+            String name=create.group(2)==null?create.group(3):create.group(2),type=create.group(1).toLowerCase(java.util.Locale.ROOT);
+            if(exactObjectR29(db,name,type,sql))return;
+        }else if(drop.find()){
+            String name=drop.group(1)==null?drop.group(2):drop.group(1);
+            String replacement=null;
+            // These immutable arrays describe the intended final guard. If it already exists exactly,
+            // neither DROP nor the paired IF NOT EXISTS CREATE has any migration work to perform.
+            for(String next:revisions?CP8_DDL:CP4_DDL){java.util.regex.Matcher paired=TRIGGER_R29.matcher(next);if(paired.find()&&name.equals(paired.group(1)==null?paired.group(2):paired.group(1)))replacement=next;}
+            if(replacement!=null&&exactObjectR29(db,name,"trigger",replacement))return;
+            try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='trigger' AND name=?",new String[]{name})){if(!c.moveToFirst())return;}
+        }
+        db.execSQL(sql);
+    }
+    private static boolean exactObjectR29(SQLiteDatabase db,String name,String type,String expected){
+        try(Cursor c=db.rawQuery("SELECT type,sql FROM main.sqlite_master WHERE name=?",new String[]{name})){
+            return c.moveToFirst()&&type.equals(c.getString(0))&&normalDdlR29(expected).equals(normalDdlR29(c.getString(1)))&&!c.moveToNext();
+        }
+    }
+    private static String normalDdlR29(String sql){
+        if(sql==null)return "";StringBuilder text=new StringBuilder();boolean gap=false;char quote=0;
+        for(int i=0;i<sql.length();i++){
+            char c=sql.charAt(i);
+            if(quote!=0){text.append(c);if(c==quote){if(i+1<sql.length()&&sql.charAt(i+1)==quote)text.append(sql.charAt(++i));else quote=0;}continue;}
+            if(c=='-'&&i+1<sql.length()&&sql.charAt(i+1)=='-'){while(i<sql.length()&&sql.charAt(i)!='\n')i++;gap=true;continue;}
+            if(c=='/'&&i+1<sql.length()&&sql.charAt(i+1)=='*'){i+=2;while(i+1<sql.length()&&!(sql.charAt(i)=='*'&&sql.charAt(i+1)=='/'))i++;i++;gap=true;continue;}
+            if(Character.isWhitespace(c)){gap=true;continue;}
+            if(gap&&text.length()>0)text.append(' ');gap=false;
+            if(c=='\''||c=='"'||c=='`')quote=c;text.append(quote==0?Character.toLowerCase(c):c);
+        }
+        String normalized=text.toString().trim().replaceFirst("^create (unique )?(table|index|trigger) if not exists ","create $1$2 ");
+        while(normalized.endsWith(";"))normalized=normalized.substring(0,normalized.length()-1).trim();return normalized;
     }
     private static void requireResearchTargetR29(SQLiteDatabase db,String target){
         try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?",new String[]{target})){

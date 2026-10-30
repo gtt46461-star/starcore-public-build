@@ -18,11 +18,20 @@ public final class LegacyAuthorityProjectionR29 {
     public static final String ROWS="CREATE TABLE IF NOT EXISTS r29_legacy_authority_projection(kind TEXT NOT NULL,identity TEXT NOT NULL,target TEXT NOT NULL,payload_json TEXT NOT NULL,payload_hash TEXT NOT NULL,route_epoch INTEGER NOT NULL,revision INTEGER NOT NULL,PRIMARY KEY(kind,identity,target))";
     private static final String[] SOURCES={"su1_certificate","su1_certificate_runtime","su1_certificate_revocation","su1_strategy_version","su1_model_artifact","su1_blob","su1_runtime_program","su1_runtime_control","su1_mainline_head_event","su1_evidence_look","su1_eval_cohort","su1_prediction","su1_snapshot","r29_su1_sealed_binding","su2_certificate","su2_model_genome","r26_certificate_protocol","r26_certificate_revocation","r26_cohort","r26_qualification_result"};
     static boolean table(SQLiteDatabase db,String name){try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?",new String[]{name})){return c.moveToFirst();}}
-    public static void ensureRealtime(SQLiteDatabase db){db.execSQL(FRAME);db.execSQL(ROWS);}
+    public static void ensureRealtime(SQLiteDatabase db){RealtimeResearchProjectionR29.ensureSchema(db,Arrays.asList(new RealtimeResearchProjectionR29.SchemaObject("table","r29_legacy_authority_frame","r29_legacy_authority_frame",FRAME,false),new RealtimeResearchProjectionR29.SchemaObject("table","r29_legacy_authority_projection","r29_legacy_authority_projection",ROWS,false)));}
     public static void installResearch(SQLiteDatabase db){
-        db.execSQL("CREATE TABLE IF NOT EXISTS r29_su1_sealed_binding(prediction_id TEXT NOT NULL,certificate_id TEXT NOT NULL,source_generation INTEGER NOT NULL,source_hash TEXT NOT NULL,target TEXT NOT NULL,sealed_at INTEGER NOT NULL,PRIMARY KEY(prediction_id,certificate_id))");
-        db.execSQL(SOURCE);db.execSQL("INSERT INTO r29_legacy_authority_source SELECT 1,1,0,'' WHERE NOT EXISTS(SELECT 1 FROM r29_legacy_authority_source WHERE singleton=1)");
-        for(String t:SOURCES)if(table(db,t))for(String event:new String[]{"INSERT","UPDATE","DELETE"})db.execSQL("CREATE TRIGGER IF NOT EXISTS r29_authority_"+t+"_"+event.toLowerCase(java.util.Locale.ROOT)+" AFTER "+event+" ON "+t+" BEGIN UPDATE r29_legacy_authority_source SET revision=revision+1 WHERE singleton=1; END");
+        String binding="CREATE TABLE IF NOT EXISTS r29_su1_sealed_binding(prediction_id TEXT NOT NULL,certificate_id TEXT NOT NULL,source_generation INTEGER NOT NULL,source_hash TEXT NOT NULL,target TEXT NOT NULL,sealed_at INTEGER NOT NULL,PRIMARY KEY(prediction_id,certificate_id))";
+        List<RealtimeResearchProjectionR29.SchemaObject> expected=new ArrayList<>();
+        expected.add(new RealtimeResearchProjectionR29.SchemaObject("table","r29_su1_sealed_binding","r29_su1_sealed_binding",binding,false));expected.add(new RealtimeResearchProjectionR29.SchemaObject("table","r29_legacy_authority_source","r29_legacy_authority_source",SOURCE,false));
+        Set<String> present=new HashSet<>();StringBuilder query=new StringBuilder("SELECT name FROM main.sqlite_master WHERE type='table' AND name IN (");
+        for(int i=0;i<SOURCES.length;i++){if(i>0)query.append(',');query.append('?');}query.append(')');
+        try(Cursor c=db.rawQuery(query.toString(),SOURCES)){while(c.moveToNext())present.add(c.getString(0));}present.add("r29_su1_sealed_binding");
+        for(String t:SOURCES)if(present.contains(t))for(String event:new String[]{"INSERT","UPDATE","DELETE"}){
+            String name="r29_authority_"+t+"_"+event.toLowerCase(java.util.Locale.ROOT),sql="CREATE TRIGGER IF NOT EXISTS "+name+" AFTER "+event+" ON "+t+" BEGIN UPDATE r29_legacy_authority_source SET revision=revision+1 WHERE singleton=1; END";
+            expected.add(new RealtimeResearchProjectionR29.SchemaObject("trigger",name,t,sql,false));
+        }
+        RealtimeResearchProjectionR29.ensureSchema(db,expected);
+        db.execSQL("INSERT INTO r29_legacy_authority_source SELECT 1,1,0,'' WHERE NOT EXISTS(SELECT 1 FROM r29_legacy_authority_source WHERE singleton=1)");
     }
     static final class Entry{
         final String kind,id,target,payload,hash;

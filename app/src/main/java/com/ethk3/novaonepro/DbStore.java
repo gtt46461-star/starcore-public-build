@@ -200,6 +200,14 @@ public final class DbStore {
         return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.readable(this,coordinator.readable());
     }
 
+    /** SELECT-only getters use a separate Root pool so a new RW reader cannot checkpoint WAL
+     * while holding Root's shared pool monitor. Existing research scopes retain their RP route;
+     * the coordinator keeps the original handle for current-thread transactions and own writes. */
+    private SQLiteDatabase observationReaderR29() {
+        return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.readable(
+                this, coordinator.realtimeReadOnlyR29());
+    }
+
     public SQLiteDatabase writable() {
         return coordinator.writable();
     }
@@ -2454,7 +2462,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DRAWS,
                                     new String[] {"_id"},
@@ -2476,7 +2484,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DRAWS,
                                     DrawHistoryProjectionR817.COLUMNS,
@@ -2502,7 +2510,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DRAWS,
                                     DrawHistoryProjectionR817.COLUMNS,
@@ -2532,7 +2540,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DrawDependencyInputCP12.SOURCE,
                                     null,
@@ -2572,7 +2580,7 @@ public final class DbStore {
                 if (columnsR927.length() > 0) columnsR927.append(',');
                 columnsR927.append(columnR927);
             }
-            c = BudgetedQueryR927.query(readable(), "SELECT " + columnsR927 + " FROM "
+            c = BudgetedQueryR927.query(observationReaderR29(), "SELECT " + columnsR927 + " FROM "
                     + DbHelper.TABLE_DRAWS + " WHERE dirty=0 ORDER BY issue DESC, open_time DESC, _id DESC LIMIT " + limit, null);
 
             while (c.moveToNext()) {
@@ -2602,7 +2610,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DRAWS,
                                     DrawHistoryProjectionR817.COLUMNS,
@@ -2638,7 +2646,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DRAWS,
                                     DrawHistoryProjectionR817.COLUMNS,
@@ -2679,7 +2687,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DRAWS,
                                     DrawHistoryProjectionR817.COLUMNS,
@@ -4953,7 +4961,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DECISIONS,
                                     null,
@@ -5041,7 +5049,7 @@ public final class DbStore {
          * never leak old numbers while the R3.6 request is still running. */
         String currentTarget = getState("target_issue", "");
         if (AppConfig.DB_VERSION >= 36 && targetIssue.equals(currentTarget)) return null;
-        return getBestDecisionByTargetIssue(readable(), targetIssue);
+        return getBestDecisionByTargetIssue(observationReaderR29(), targetIssue);
     }
 
     public List<Models.Decision> getRecentDecisions(int limit) {
@@ -5055,7 +5063,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DECISIONS,
                                     null,
@@ -5770,7 +5778,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     null,
@@ -5811,7 +5819,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     null,
@@ -5852,7 +5860,7 @@ public final class DbStore {
             return null;
         }
 
-        return getTradeByTargetIssueLoose(readable(), targetIssue);
+        return getTradeByTargetIssueLoose(observationReaderR29(), targetIssue);
     }
 
     private Models.Trade getTradeByTargetIssueLoose(SQLiteDatabase db, String targetIssue) {
@@ -5897,7 +5905,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     null,
@@ -7132,7 +7140,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_SHADOW,
                                     null,
@@ -7810,7 +7818,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_TEACHER_MATRIX_PROFILE,
                                     null,
@@ -7846,7 +7854,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_TEACHER_MATRIX_COMBO_PROFILE,
                                     null,
@@ -8389,7 +8397,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_SHAPE_VECTOR,
                                     null,
@@ -8427,7 +8435,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_SHAPE_VECTOR,
                                     null,
@@ -8698,7 +8706,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_CALIBRATION,
                                     null,
@@ -8751,7 +8759,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_MODEL_WEIGHT,
                                     null,
@@ -9042,7 +9050,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_LEARNING_CASE_LOG,
                                     new String[] {"_id"},
@@ -9070,7 +9078,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_LEARNING_CASE_LOG,
                                     null,
@@ -9102,7 +9110,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_LEARNING_CASE_LOG,
                                     null,
@@ -9562,7 +9570,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_RUNTIME_PROFILE_CACHE,
                                     null,
@@ -9604,7 +9612,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_RUNTIME_PROFILE_CACHE,
                                     null,
@@ -9636,7 +9644,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_RUNTIME_PROFILE_CACHE,
                                     null,
@@ -9987,7 +9995,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_STATE_NUMBER_PROFILE,
                                     null,
@@ -10019,7 +10027,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_STATE_NUMBER_PROFILE,
                                     null,
@@ -10060,7 +10068,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_STATE_NUMBER_PROFILE,
                                     null,
@@ -10230,7 +10238,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_AUTO_LEARN_CURSOR,
                                     null,
@@ -10260,7 +10268,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_AUTO_LEARN_CURSOR,
                                     null,
@@ -10286,7 +10294,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_AUTO_LEARN_CURSOR,
                                     null,
@@ -10314,7 +10322,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_AUTO_LEARN_CURSOR,
                                     null,
@@ -10392,7 +10400,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_AUTO_LEARN_CURSOR,
                                     new String[] {"used_segments"},
@@ -10422,7 +10430,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     TABLE_AUTO_LEARN_CURSOR,
                                     new String[] {"last_start_index"},
@@ -10820,7 +10828,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_BACKTEST,
                                     null,
@@ -10852,7 +10860,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_BACKTEST,
                                     null,
@@ -10880,7 +10888,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .rawQuery(
                                     "SELECT COUNT(*) AS bet_count, SUM(hit) AS hit_count, SUM(pnl)"
                                         + " AS pnl FROM "
@@ -10905,7 +10913,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .rawQuery(
                                     "SELECT COUNT(1),"
                                             + "COALESCE(SUM(CASE WHEN settled=1 THEN 1 ELSE 0 END),0),"
@@ -11041,7 +11049,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_APP_STATE,
                                     null,
@@ -11076,7 +11084,7 @@ public final class DbStore {
         int limit = Math.max(1, Math.min(2048, requestedLimit));
         Cursor c = null;
         try {
-            c = readable().rawQuery(
+            c = observationReaderR29().rawQuery(
                     "SELECT state_key,COALESCE(state_value,'') FROM "
                             + DbHelper.TABLE_APP_STATE
                             + " WHERE state_key>=? AND state_key<? ORDER BY state_key ASC LIMIT ?",
@@ -11107,7 +11115,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .rawQuery(
                                     "SELECT state_key,substr(COALESCE(state_value,''),1,?) FROM "
                                             + DbHelper.TABLE_APP_STATE
@@ -11152,7 +11160,7 @@ public final class DbStore {
         StringBuilder sql=new StringBuilder("SELECT state_key,substr(COALESCE(state_value,''),1,1024) FROM "+DbHelper.TABLE_APP_STATE+" WHERE state_key IN (");
         for(int i=0;i<keys.length;i++) { if(i>0)sql.append(',');sql.append('?');destination.put(keys[i],""); }
         sql.append(')');
-        try(Cursor c=readable().rawQuery(sql.toString(),keys)) {
+        try(Cursor c=observationReaderR29().rawQuery(sql.toString(),keys)) {
             while(c.moveToNext())destination.put(c.getString(0),c.getString(1));
         }
     }
@@ -11466,7 +11474,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_POINT_IN_TIME_SNAPSHOT,
                                     null,
@@ -11566,7 +11574,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_CANDIDATE_EVIDENCE,
                                     null,
@@ -11638,7 +11646,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_AI_JUDGE_LOG,
                                     null,
@@ -11704,7 +11712,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_BIAS_EVIDENCE,
                                     null,
@@ -11795,7 +11803,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DEEP_PROFILE,
                                     null,
@@ -11823,7 +11831,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DEEP_PROFILE,
                                     null,
@@ -11938,7 +11946,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DEEP_ATTRIBUTION,
                                     null,
@@ -12006,7 +12014,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_PROMOTION_CANDIDATE,
                                     null,
@@ -12170,7 +12178,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_MANUAL_BACKTEST_TASK,
                                     null,
@@ -12294,7 +12302,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_PROBABILITY_AUDIT_BUCKET,
                                     null,
@@ -13052,7 +13060,7 @@ public final class DbStore {
             }
 
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     null,
@@ -13111,7 +13119,7 @@ public final class DbStore {
             }
 
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DECISIONS,
                                     null,
@@ -13179,7 +13187,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     new String[] {"pnl"},
@@ -13220,7 +13228,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     new String[] {"result"},
@@ -14979,7 +14987,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .rawQuery(
                                     "SELECT AVG("
                                             + column
@@ -15312,7 +15320,7 @@ public final class DbStore {
     }
 
     private int countTable(String table, String where, String[] args) {
-        return countTable(readable(), table, where, args);
+        return countTable(observationReaderR29(), table, where, args);
     }
 
     private int countTable(SQLiteDatabase db, String table, String where, String[] args) {
@@ -16308,7 +16316,7 @@ public final class DbStore {
             return null;
         }
 
-        SQLiteDatabase db = readable();
+        SQLiteDatabase db = observationReaderR29();
         Cursor c = null;
 
         try {
@@ -16346,7 +16354,7 @@ public final class DbStore {
 
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     table,
                                     null,
@@ -17344,7 +17352,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     null,
@@ -17389,7 +17397,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_TRADES,
                                     null,
@@ -17445,7 +17453,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DECISIONS,
                                     null,
@@ -17480,7 +17488,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_DECISIONS,
                                     null,
@@ -19337,7 +19345,7 @@ public final class DbStore {
         int n = Math.max(1, lookback);
         Cursor c = null;
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             String sub =
                     "SELECT target_issue FROM "
                             + DbHelper.TABLE_DECISIONS
@@ -19371,7 +19379,7 @@ public final class DbStore {
         int n = Math.max(1, lookback);
         Cursor c = null;
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             c =
                     db.rawQuery(
                             "SELECT COUNT(*) AS total, SUM(CASE WHEN bet_domain IN (?,?) AND"
@@ -19403,7 +19411,7 @@ public final class DbStore {
         int n = Math.max(1, lookback);
         Cursor c = null;
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             c =
                     db.rawQuery(
                             "SELECT COUNT(*) AS total FROM (SELECT target_issue FROM "
@@ -19449,7 +19457,7 @@ public final class DbStore {
         int n = Math.max(1, lookback);
         Cursor c = null;
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             c =
                     db.rawQuery(
                             "SELECT SUM(CASE WHEN decision='BET' AND stat_scope='REAL_TRADE' AND"
@@ -20416,7 +20424,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     table,
                                     null,
@@ -20493,7 +20501,7 @@ public final class DbStore {
     public int countSettledShadowSamplesV20() {
         Cursor c = null;
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             c =
                     db.rawQuery(
                             "SELECT COUNT(1) FROM "
@@ -20514,7 +20522,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .rawQuery(
                                     "SELECT COUNT(1) FROM (SELECT 1 FROM "
                                             + DbHelper.TABLE_DECISIONS
@@ -20656,7 +20664,7 @@ public final class DbStore {
         int qualified = 0;
         boolean foundReal = false, foundFloor = false, leadingFloor = true;
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             c =
                     db.query(
                             DbHelper.TABLE_DECISIONS,
@@ -20845,7 +20853,7 @@ public final class DbStore {
         int total = 0, mixed = 0, missing = 0;
         StringBuilder sb = new StringBuilder();
         try {
-            SQLiteDatabase db = readable();
+            SQLiteDatabase db = observationReaderR29();
             c =
                     db.query(
                             DbHelper.TABLE_V20_MODULE_REGISTRY,
@@ -21075,7 +21083,7 @@ public final class DbStore {
         Cursor c = null;
         try {
             c =
-                    readable()
+                    observationReaderR29()
                             .query(
                                     DbHelper.TABLE_B03_DRAW_QUARANTINE,
                                     null,

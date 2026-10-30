@@ -17,14 +17,53 @@ public final class RealtimeResearchProjectionR29 {
     public static final String PENDING="CREATE TABLE IF NOT EXISTS r29_projection_pending(table_name TEXT NOT NULL,key_a TEXT NOT NULL,key_b INTEGER NOT NULL,revision INTEGER NOT NULL,acked_revision INTEGER NOT NULL DEFAULT 0,queued_at INTEGER NOT NULL,PRIMARY KEY(table_name,key_a,key_b))";
     private static final String[] TABLES={"r27_live_shadow","r27_eprocess","r27_certificate","r27_live_frozen","r27_chart_cache","r26_evolution"};
     private static final Set<String> FROZEN_IMMUTABLE=new HashSet<>(Arrays.asList("target_issue","probabilities","n1","n2","n3","act","frozen_at","deadline_at","position","manifest_hash","input_through","commit_verified_at","commit_verified_mono","commit_session"));
-    public static void ensureRealtime(SQLiteDatabase db){for(String sql:REALTIME_DDL)db.execSQL(sql);}
+    public static void ensureRealtime(SQLiteDatabase db){
+        ensureSchema(db,Arrays.asList(new SchemaObject("table","r29_projection_applied","r29_projection_applied",REALTIME_DDL[0],false),new SchemaObject("table","r29_research_heartbeat","r29_research_heartbeat",REALTIME_DDL[1],false)));
+    }
+    /** Fresh definitions, never a READY/schema-version cache: no-op DDL invalidates Android's RW pool. */
+    static final class SchemaObject {
+        final String type,name,table,sql,canonical,upgradeError;final boolean replaceTrigger;
+        SchemaObject(String type,String name,String table,String sql,boolean replaceTrigger){this(type,name,table,sql,replaceTrigger,"R29_PROJECTION_TRIGGER_UPGRADE_REQUIRES_TRANSACTION");}
+        SchemaObject(String type,String name,String table,String sql,boolean replaceTrigger,String upgradeError){this.type=type;this.name=name;this.table=table;this.sql=sql;this.replaceTrigger=replaceTrigger;this.upgradeError=upgradeError;canonical=canonicalDdl(sql);}
+    }
+    static void ensureSchema(SQLiteDatabase db,List<SchemaObject> expected){
+        if(expected.isEmpty())return;
+        Map<String,SchemaObject> missing=new LinkedHashMap<>();String[] names=new String[expected.size()];StringBuilder query=new StringBuilder("SELECT name,type,tbl_name,sql FROM main.sqlite_master WHERE name IN (");
+        for(int i=0;i<expected.size();i++){SchemaObject object=expected.get(i);if(i>0)query.append(',');query.append('?');names[i]=object.name;if(missing.put(object.name,object)!=null)throw new IllegalArgumentException("R29_PROJECTION_SCHEMA_DUPLICATE:"+object.name);}query.append(')');
+        List<SchemaObject> replace=new ArrayList<>();
+        try(Cursor c=db.rawQuery(query.toString(),names)){
+            while(c.moveToNext()){
+                SchemaObject object=missing.get(c.getString(0));
+                if(object!=null&&object.type.equals(c.getString(1))&&object.table.equals(c.getString(2))&&object.canonical.equals(canonicalDdl(c.getString(3)))){missing.remove(object.name);continue;}
+                if(object!=null&&object.replaceTrigger&&"trigger".equals(c.getString(1))){if(!db.inTransaction())throw new IllegalStateException(object.upgradeError);replace.add(object);continue;}
+                throw new IllegalStateException("R29_PROJECTION_SCHEMA_CONFLICT:"+c.getString(0));
+            }
+        }
+        if(missing.isEmpty())return;
+        for(SchemaObject object:replace)db.execSQL("DROP TRIGGER "+object.name);
+        for(SchemaObject object:missing.values())db.execSQL(object.sql);
+        // DDL is complete only after the actual catalog proves every expected object in this transaction.
+        try(Cursor c=db.rawQuery(query.toString(),names)){
+            Set<String> verified=new HashSet<>();while(c.moveToNext()){
+                SchemaObject object=null;for(SchemaObject item:expected)if(item.name.equals(c.getString(0))){object=item;break;}
+                if(object==null||!object.type.equals(c.getString(1))||!object.table.equals(c.getString(2))||!object.canonical.equals(canonicalDdl(c.getString(3))))throw new IllegalStateException("R29_PROJECTION_SCHEMA_INSTALL_CONFLICT:"+c.getString(0));verified.add(object.name);
+            }
+            if(verified.size()!=expected.size())throw new IllegalStateException("R29_PROJECTION_SCHEMA_INSTALL_INCOMPLETE");
+        }
+    }
+    static String canonicalDdl(String sql){
+        if(sql==null)return "";String text=sql.trim();for(String kind:new String[]{"TABLE","INDEX","TRIGGER"}){String prefix="CREATE "+kind+" IF NOT EXISTS ";if(text.startsWith(prefix)){text="CREATE "+kind+" "+text.substring(prefix.length());break;}}
+        StringBuilder out=new StringBuilder();boolean quoted=false,space=false;
+        for(int i=0;i<text.length();i++){char ch=text.charAt(i);if(quoted){out.append(ch);if(ch=='\''){if(i+1<text.length()&&text.charAt(i+1)=='\'')out.append(text.charAt(++i));else quoted=false;}continue;}if(Character.isWhitespace(ch)){space=true;continue;}if(space&&out.length()>0)out.append(' ');space=false;out.append(ch);if(ch=='\'')quoted=true;}
+        while(out.length()>0&&out.charAt(out.length()-1)==';')out.setLength(out.length()-1);return out.toString();
+    }
     static void supported(String table){if(!Arrays.asList(TABLES).contains(table))throw new IllegalArgumentException("R29_PROJECTION_TABLE");}
     static String keyColumn(String table){return table.equals("r26_evolution")?"attempt_id":table.equals("r27_chart_cache")?"panel_id":"policy_hash";}
     static String where(String table){return table.equals("r27_live_frozen")?"policy_hash=? AND target_ordinal=?":table.equals("r27_chart_cache")?"panel_id='mainline' AND key='choice'":keyColumn(table)+"=?";}
     static String[] args(String table,String a,long b){return table.equals("r27_live_frozen")?new String[]{a,String.valueOf(b)}:table.equals("r27_chart_cache")?null:new String[]{a};}
     public static void installResearch(SQLiteDatabase research){
         if(!research.inTransaction())throw new IllegalStateException("R29_PROJECTION_INSTALL_TRANSACTION");
-        research.execSQL(PENDING);
+        List<SchemaObject> expected=new ArrayList<>();expected.add(new SchemaObject("table","r29_projection_pending","r29_projection_pending",PENDING,false));
         for(String table:TABLES)for(String operation:new String[]{"INSERT","UPDATE","DELETE"}){
             String row=operation.equals("DELETE")?"OLD":"NEW",a=table.equals("r27_chart_cache")?"'mainline'":row+"."+keyColumn(table),b=table.equals("r27_live_frozen")?row+".target_ordinal":"0";
             String condition=table.equals("r27_chart_cache")?" WHEN "+row+".panel_id='mainline' AND "+row+".key='choice'":table.equals("r26_evolution")?" WHEN "+row+".attempt_id LIKE 'R27:%'":"";
@@ -32,10 +71,10 @@ public final class RealtimeResearchProjectionR29 {
             // SQLite propagates the caller's INSERT OR REPLACE conflict policy into a trigger. An inner
             // INSERT OR IGNORE can therefore replace/reset an existing pending revision to zero.
             // Update first, and insert only when absent; no conflicting INSERT is ever attempted.
-            research.execSQL("DROP TRIGGER IF EXISTS "+trigger);
             String key="table_name='"+table+"' AND key_a="+a+" AND key_b="+b;
-            research.execSQL("CREATE TRIGGER "+trigger+" AFTER "+operation+" ON "+table+condition+" BEGIN UPDATE r29_projection_pending SET revision=revision+1,queued_at=strftime('%s','now')*1000 WHERE "+key+"; INSERT INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT '"+table+"',"+a+","+b+",1,strftime('%s','now')*1000 WHERE NOT EXISTS(SELECT 1 FROM r29_projection_pending WHERE "+key+"); END");
+            expected.add(new SchemaObject("trigger",trigger,table,"CREATE TRIGGER "+trigger+" AFTER "+operation+" ON "+table+condition+" BEGIN UPDATE r29_projection_pending SET revision=revision+1,queued_at=strftime('%s','now')*1000 WHERE "+key+"; INSERT INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT '"+table+"',"+a+","+b+",1,strftime('%s','now')*1000 WHERE NOT EXISTS(SELECT 1 FROM r29_projection_pending WHERE "+key+"); END",true));
         }
+        ensureSchema(research,expected);
         for(String table:new String[]{"r27_live_shadow","r27_eprocess","r27_certificate"})research.execSQL("INSERT OR IGNORE INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT ?,policy_hash,0,1,? FROM "+table,new Object[]{table,System.currentTimeMillis()});
         research.execSQL("INSERT OR IGNORE INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT 'r27_live_frozen',policy_hash,target_ordinal,1,? FROM r27_live_frozen WHERE target_ordinal>=(SELECT coalesce(max(target_ordinal),0)-1 FROM r27_live_frozen)",new Object[]{System.currentTimeMillis()});
         research.execSQL("INSERT OR IGNORE INTO r29_projection_pending(table_name,key_a,key_b,revision,queued_at) SELECT 'r27_chart_cache','mainline',0,1,? FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'",new Object[]{System.currentTimeMillis()});

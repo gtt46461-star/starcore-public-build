@@ -1,0 +1,51 @@
+{
+  "schema": "R29_PERSISTED_CAPACITY_QA_REPAIR_1",
+  "scope": "OFFLINE_REAL_SQLITE_INSPECTOR_TESTS_NOT_ANDROID_RUNTIME_ACCEPTANCE",
+  "productionFilesModified": false,
+  "files": {
+    "tools/r29/inspect_runtime.py": "11a6663dc3b157c08f2423832f0e4c1555b98d7c4e657948d03f0c2e4fbd6423",
+    "tools/r29/test_inspect_runtime.py": "8c47143cc56b5a4c5ff051e954e0ba53568e0c7f800ba5438954f1581c89fa3f"
+  },
+  "tests": 44,
+  "failures": 0,
+  "errors": 0,
+  "newTests": 12,
+  "existing32TestsRetained": true,
+  "log": "/workspace/work/r29/cp11-capacity-qa-tests.log",
+  "negativeControl": "/workspace/work/r29/cp11-capacity-qa-old-0c-negative.json",
+  "negativeSource": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "negativeOutcome": "OLD_INSPECTOR_FALSE_ACCEPTS_NEW_PERSISTED_CAPACITY_WITH_TASK_ERRORS_ZERO_IN_BOTH_ROOT_AND_RP_NEW_INSPECTOR_REJECTS",
+  "actualProgressSchemaFields": [
+    "receipt_id",
+    "task_id",
+    "fence",
+    "cursor_before",
+    "cursor_after",
+    "cpu_ms",
+    "blocked_reason",
+    "recorded_at"
+  ],
+  "comparison": "FULL_TUPLE_BASELINE_RELATIVE_NOT_COUNT_DIFFERENCE",
+  "capacitySelector": "blocked_reason GLOB 'CAPACITY_FAIL:*'",
+  "gates": {
+    "originalR29ErrorZero": "UNCHANGED_NO_BASELINE_WAIVER",
+    "allNewTaskErrorsZero": "UNCHANGED",
+    "newCapacityFailuresSinceBaselineZero": "ADDED"
+  },
+  "checks": [
+    "root and RP new capacity with taskerrors0 rejected",
+    "old exact Root capacity copied RP remains known",
+    "same count replacement any of8fields rejected",
+    "clean install eitherowner no baseline requires0",
+    "normal progress allowed",
+    "legacy baseline missing progress allowed but new capacity rejected",
+    "currentowner missing progress fails",
+    "Root observation before missingRP has boundedredacted capacity diagnosis",
+    "observation keeps exact oldcapacitybaseline",
+    "actualshell retains capacitydelta before missingRP failure",
+    "original missing before file still fails without sqlitecreation"
+  ],
+  "shellChanged": false,
+  "networkUsed": false,
+  "keysRead": false
+}

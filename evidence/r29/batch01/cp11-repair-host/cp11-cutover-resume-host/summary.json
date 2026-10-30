@@ -1,0 +1,43 @@
+{
+  "scope": "REAL_SQLITE_WAL_DURABLE_PHASE_HOST_CONTROLLED_EXCEPTION_AND_ROLLBACK_ONLY",
+  "notAndroidProcessKill": true,
+  "notFullAppAcceptance": true,
+  "passed": 43,
+  "oldSource": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "oldNegative": "EXACT_HISTORICAL_TWO_CALL_CLEANUP_SEGMENT_USING_OLD_PRODUCTION_removeUnpublished",
+  "oldNegativeFailure": "OLD_RETRY_DELETED_VERIFIED_PUBLISHED",
+  "thresholdsRelaxed": false,
+  "scenarios": [
+    "VERIFIED rename succeeds Root phase rollback",
+    "RENAMED committed phase ACK loss",
+    "restart and advancing Root never recopy verified input",
+    "PREPARED sealed-baseline-before-Root-pin recovery",
+    "PREPARED unsealed candidate cleanup without promotion",
+    "wrong Root/owner/hash/path fails closed preserving evidence",
+    "actual publishWithin rollback then atomic Root route+PUBLISHED retry",
+    "missing unpublished RP restores exact pinned baseline bytes",
+    "published legal RP progress accepted by owner without false baseline SHA equality",
+    "published missing RP fails closed rather than rebuild lost progress",
+    "unsealed WAL rejected",
+    "sealed baseline overwrite forbidden",
+    "final publish requires actual Root transaction"
+  ],
+  "logs": {
+    "old-cp10-published-delete-control.log": {
+      "sha256": "1a0c4f9def6681b52ac53a0c5e9c261e2705a728ee57f936c2b233dc13b0fcb5",
+      "bytes": 411
+    },
+    "r29_cutover_resume_host.log": {
+      "sha256": "1d6121a082fe9d7a5b95a6ee08fa2127b29da9c5387bd4b61ced2f7bacd21b0f",
+      "bytes": 5160
+    }
+  },
+  "testSources": {
+    "tools/r29/qual_host/CutoverResumeR29HostTest.java": {
+      "sha256": "37267fbad30ac269ae0f4c66cb3c31aa09658ef17cbbf0538230d77f9a714d14"
+    },
+    "tools/r29/run_cutover_resume_host.sh": {
+      "sha256": "b6ffb2c4a1704ccbb7044282b9c2b7a399ff2e6aa5d9b4cfc29f6f075625c4a2"
+    }
+  }
+}

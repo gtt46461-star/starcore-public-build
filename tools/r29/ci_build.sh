@@ -47,6 +47,7 @@ CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQ
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_registration_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_snapshot_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_resume_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_owner_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_report_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_legacy_host.sh
@@ -60,10 +61,13 @@ CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQ
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_domain_upgrade_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_critical_mirror_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_root_read_pool_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_dbstore_observation_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_learned_input_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_legacy_learning_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_critical_production_trigger_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_projection_schema_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_research_schema_owner_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_schema_ddl_proof_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_domain_extension_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_schema_progress_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_retained_formal_host.sh

@@ -94,7 +94,7 @@ public final class ResearchCutoverR29 {
     }
 
     public static String run(DbStore store,ResearchPoolR27.Worker worker)throws Exception{
-        if(ResearchRouteR29.active(worker.realtimeRo()))return "ACTIVE";
+        if(ResearchRouteR29.active(worker.realtimeRo())){ResearchRouteR29.verifyActiveOwner(worker.realtimeRo());return "ACTIVE";}
         if(!RuntimeCoordinatorR26.readyForResearchMigration())return "WAITING_LEGACY_STORAGE_SCHEMA_BEFORE_OWNER_TRANSFER";
         if(!worker.pool().beginCutover(3000))return "WAITING_RESEARCH_QUIESCENCE";
         try(ResearchRouteR29.Handoff handoff=ResearchRouteR29.handoff(store)){
@@ -102,25 +102,115 @@ public final class ResearchCutoverR29 {
             return copyAndPublish(store,worker);
         }finally{worker.pool().endCutover();}
     }
+    static final class Publication{
+        long epoch;String candidateName,phase,baselineName,baselineSha,sourceRoot,schemaHash;
+    }
+    static Publication publication(SQLiteDatabase root){
+        try(Cursor c=root.rawQuery("SELECT epoch,candidate_name,phase,baseline_name,baseline_sha,source_root FROM r29_migration_publication WHERE singleton=1",null)){
+            if(!c.moveToFirst())return null;
+            Publication p=new Publication();p.epoch=c.getLong(0);p.candidateName=c.getString(1);p.phase=c.getString(2);p.baselineName=c.getString(3);p.baselineSha=c.getString(4);p.sourceRoot=c.getString(5);
+            if(p.epoch<=0||!CANDIDATE.equals(p.candidateName)||!Arrays.asList("PREPARED","VERIFIED","RENAMED","PUBLISHED").contains(p.phase))throw new IllegalStateException("R29_PUBLICATION_RECEIPT_INVALID");
+            return p;
+        }catch(android.database.sqlite.SQLiteException missing){if(String.valueOf(missing.getMessage()).contains("no such table"))return null;throw missing;}
+    }
+    private static String baselineName(long epoch){return "starcore-r29-baseline-"+epoch+".db";}
+    private static boolean hash(String value){return value!=null&&value.matches("[a-f0-9]{64}");}
+    private static void sealedWal(File file){File wal=new File(file.getPath()+"-wal");if(wal.exists()&&wal.length()!=0)throw new IllegalStateException("R29_UNPUBLISHED_WAL_NOT_SEALED");}
+    private static String[] readyOwner(File file,long epoch,String sourceRoot,String schema){
+        if(!file.isFile())throw new IllegalStateException("R29_VERIFIED_RESEARCH_FILE_MISSING");
+        try(SQLiteDatabase db=SQLiteDatabase.openDatabase(file.getPath(),null,SQLiteDatabase.OPEN_READONLY)){
+            try(Cursor c=db.rawQuery("SELECT phase,schema_hash,source_root,epoch FROM r29_research_owner WHERE singleton=1",null)){
+                if(!c.moveToFirst()||!"READY".equals(c.getString(0))||!hash(c.getString(1))||!hash(c.getString(2))||epoch!=c.getLong(3)
+                        ||sourceRoot!=null&&!sourceRoot.equals(c.getString(2))||schema!=null&&!schema.equals(c.getString(1)))throw new IllegalStateException("R29_RESEARCH_OWNER_MISMATCH");
+                String[] proof={c.getString(1),c.getString(2)};
+                try(Cursor q=db.rawQuery("PRAGMA quick_check",null)){if(!q.moveToFirst()||!"ok".equals(q.getString(0))||q.moveToNext())throw new IllegalStateException("R29_RESEARCH_INTEGRITY_FAILED");}
+                return proof;
+            }
+        }
+    }
+    private static String[] sealedFile(File file,long epoch,String sha,String sourceRoot,String schema,long deadline,java.util.function.BooleanSupplier cancelled)throws Exception{
+        sealedWal(file);if(!file.isFile()||!sha.equals(fileHash(file,deadline,cancelled)))throw new IllegalStateException("R29_PINNED_BASELINE_OR_CANDIDATE_CORRUPT");
+        return readyOwner(file,epoch,sourceRoot,schema);
+    }
+    private static void phase(MigrationCopyR29.Transaction writer,Publication before,String after,String baseline,String sha,String root)throws Exception{
+        writer.write(db->{
+            db.execSQL("UPDATE r29_migration_publication SET phase=?,baseline_name=?,baseline_sha=?,source_root=?,updated_at=? WHERE singleton=1 AND epoch=? AND candidate_name=? AND phase=? AND baseline_name=? AND baseline_sha=? AND source_root=?",new Object[]{after,baseline,sha,root,System.currentTimeMillis(),before.epoch,before.candidateName,before.phase,before.baselineName,before.baselineSha,before.sourceRoot});
+            Publication actual=publication(db);
+            if(actual==null||actual.epoch!=before.epoch||!after.equals(actual.phase)||!baseline.equals(actual.baselineName)||!sha.equals(actual.baselineSha)||!root.equals(actual.sourceRoot))throw new IllegalStateException("R29_PUBLICATION_PHASE_CAS_CONFLICT");
+        });
+    }
+    /** Resume only the original sealed bytes. No retry re-reads moving Root data after proof is pinned. */
+    static Publication resumePublication(SQLiteDatabase root,File candidate,File published,MigrationCopyR29.Transaction writer,long deadline,java.util.function.BooleanSupplier cancelled)throws Exception{
+        check(deadline,cancelled);Publication p=publication(root);if(p==null)throw new IllegalStateException("R29_PUBLICATION_RESERVATION_REQUIRED");
+        if(!candidate.getName().equals(p.candidateName)||!published.getName().equals(ResearchRouteR29.FILE_NAME)||!candidate.getParentFile().equals(published.getParentFile()))throw new IllegalStateException("R29_PUBLICATION_FILE_PATH_MISMATCH");
+        File baseline=new File(candidate.getParentFile(),baselineName(p.epoch));
+        if("PREPARED".equals(p.phase)){
+            if(!p.baselineName.isEmpty()||!p.baselineSha.isEmpty()||!p.sourceRoot.isEmpty()||published.exists())throw new IllegalStateException("R29_PREPARED_PROOF_CONFLICT");
+            if(!baseline.exists()){removeUnpublished(candidate);return null;}
+            // A crash after sealing but before Root pinning may retain both complete identical files.
+            // Missing or different candidate bytes are ambiguous: preserve them and fail closed.
+            sealedWal(baseline);String sha=fileHash(baseline,deadline,cancelled);
+            String[] owner=sealedFile(baseline,p.epoch,sha,null,null,deadline,cancelled);
+            sealedFile(candidate,p.epoch,sha,owner[1],owner[0],deadline,cancelled);
+            phase(writer,p,"VERIFIED",baseline.getName(),sha,owner[1]);p=publication(root);
+        }
+        if(!baseline.getName().equals(p.baselineName)||!hash(p.baselineSha)||!hash(p.sourceRoot))throw new IllegalStateException("R29_PINNED_BASELINE_RECEIPT_INVALID");
+        String[] owner=sealedFile(baseline,p.epoch,p.baselineSha,p.sourceRoot,null,deadline,cancelled);p.schemaHash=owner[0];
+        if("PUBLISHED".equals(p.phase)){
+            if(!ResearchRouteR29.active(root))throw new IllegalStateException("R29_PUBLISHED_ROUTE_MISSING");
+            try(Cursor c=root.rawQuery("SELECT schema_hash,source_root,epoch FROM r29_database_route WHERE singleton=1",null)){if(!c.moveToFirst()||!p.schemaHash.equals(c.getString(0))||!p.sourceRoot.equals(c.getString(1))||p.epoch!=c.getLong(2))throw new IllegalStateException("R29_PUBLISHED_ROUTE_PROOF_CONFLICT");}
+            // Published research may contain later legal commits; its owner still binds the old baseline.
+            readyOwner(published,p.epoch,p.sourceRoot,p.schemaHash);return p;
+        }
+        if(published.exists())sealedFile(published,p.epoch,p.baselineSha,p.sourceRoot,p.schemaHash,deadline,cancelled);
+        if(candidate.exists())sealedFile(candidate,p.epoch,p.baselineSha,p.sourceRoot,p.schemaHash,deadline,cancelled);
+        if(!published.exists()){
+            if(!candidate.exists()){
+                if(new StatFs(candidate.getParent()).getAvailableBytes()<baseline.length()+RESERVE_BYTES)throw new IllegalStateException("R29_CUTOVER_STORAGE_BUDGET_YIELD");
+                copyBaseline(baseline,candidate,deadline,cancelled);
+            }
+            check(deadline,cancelled);if(!candidate.renameTo(published))throw new IllegalStateException("R29_CANDIDATE_ATOMIC_RENAME_FAILED");
+            sealedFile(published,p.epoch,p.baselineSha,p.sourceRoot,p.schemaHash,deadline,cancelled);
+        }
+        if("VERIFIED".equals(p.phase)){phase(writer,p,"RENAMED",p.baselineName,p.baselineSha,p.sourceRoot);p=publication(root);p.schemaHash=owner[0];}
+        if(!"RENAMED".equals(p.phase))throw new IllegalStateException("R29_RESEARCH_RESUME_PHASE_INVALID");
+        return p;
+    }
+    private static String finishPublication(DbStore store,ResearchPoolR27.Worker worker,File published,Publication p)throws Exception{
+        if(!"PUBLISHED".equals(p.phase))ResearchRouteR29.publish(store,published,p.schemaHash,p.sourceRoot,p.epoch);
+        worker.pool().reloadResearchReaders();return "ACTIVE_INDEPENDENT_RESEARCH_WRITER";
+    }
     private static String copyAndPublish(DbStore store,ResearchPoolR27.Worker worker)throws Exception{
         long deadline=android.os.SystemClock.elapsedRealtime()+BUDGET_MS;
         SQLiteDatabase source=worker.realtimeRo();
         File candidate=store.contextForR26().getDatabasePath(CANDIDATE),published=store.contextForR26().getDatabasePath(ResearchRouteR29.FILE_NAME);
         if(new StatFs(candidate.getParent()).getAvailableBytes()<RESERVE_BYTES)return "BLOCKED_STORAGE_RESERVE";
-        final boolean candidateExists=candidate.exists()||published.exists();
-        long epoch=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_RESERVE",db->{
-            db.execSQL(PUBLICATION);ResearchRouteR29.ensureRealtime(db);RealtimeResearchProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);CriticalInputMirrorR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);
-            long current=0;try(Cursor c=db.rawQuery("SELECT epoch,candidate_name FROM r29_migration_publication WHERE singleton=1",null)){if(c.moveToFirst()){if(!CANDIDATE.equals(c.getString(1)))throw new IllegalStateException("R29_CANDIDATE_RESERVATION_MISMATCH");current=c.getLong(0);}}
-            if(current==0&&candidateExists)throw new IllegalStateException("R29_UNOWNED_CANDIDATE_REQUIRES_REVIEW");
-            if(current==0)current=Math.max(1,System.currentTimeMillis());
-            db.execSQL("INSERT OR IGNORE INTO r29_migration_publication(singleton,epoch,candidate_name,phase,updated_at) VALUES(1,?,?,'PREPARED',?)",new Object[]{current,CANDIDATE,System.currentTimeMillis()});return current;
-        });
-        // Only files reserved by this unpublished manifest may be retried; authoritative/original files are untouched.
-        if(ResearchRouteR29.active(source))return "ACTIVE";
-        removeUnpublished(candidate);removeUnpublished(published);
-        return withSourceSnapshot(source,pinned->copyAndPublishSnapshot(store,worker,pinned,candidate,published,epoch,deadline));
+        // An existing durable reservation resumes before any repeated Root schema/DDL admission.
+        if(publication(source)==null){
+            final boolean candidateExists=candidate.exists()||published.exists();
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_RESERVE",db->{
+                db.execSQL(PUBLICATION);ResearchRouteR29.ensureRealtime(db);RealtimeResearchProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);CriticalInputMirrorR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);
+                Publication current=publication(db);
+                if(current==null&&candidateExists)throw new IllegalStateException("R29_UNOWNED_CANDIDATE_REQUIRES_REVIEW");
+                if(current==null)db.execSQL("INSERT INTO r29_migration_publication(singleton,epoch,candidate_name,phase,updated_at) VALUES(1,?,?,'PREPARED',?)",new Object[]{Math.max(1,System.currentTimeMillis()),CANDIDATE,System.currentTimeMillis()});
+                return 0;
+            });
+        }
+        if(ResearchRouteR29.active(source)){ResearchRouteR29.verifyActiveOwner(source);return "ACTIVE";}
+        MigrationCopyR29.Transaction writer=body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_PHASE",db->{body.run(db);return 0;});
+        Publication resumed=resumePublication(source,candidate,published,writer,deadline,worker::cancelled);
+        if(resumed!=null)return finishPublication(store,worker,published,resumed);
+        long epoch=publication(source).epoch;
+        Prepared prepared=withSourceSnapshot(source,pinned->prepareCandidateSnapshot(worker,pinned,candidate,epoch,deadline));
+        // The source read transaction is now closed. File sealing and short Root publication cannot
+        // accidentally keep a Root WAL reader pinned while opening/checkpointing publication handles.
+        return sealAndPublish(store,worker,candidate,published,prepared,deadline);
     }
-    private static String copyAndPublishSnapshot(DbStore store,ResearchPoolR27.Worker worker,SQLiteDatabase source,File candidate,File published,long epoch,long deadline)throws Exception{
+    private static final class Prepared{
+        final long epoch;final String schema,root;
+        Prepared(long epoch,String schema,String root){this.epoch=epoch;this.schema=schema;this.root=root;}
+    }
+    private static Prepared prepareCandidateSnapshot(ResearchPoolR27.Worker worker,SQLiteDatabase source,File candidate,long epoch,long deadline)throws Exception{
         List<MigrationCopyR29.Table> tables=tables(source);String schema=schemaHash(tables),copiedRoot;
         long inputEpoch=CriticalInputMirrorR29.sourceEpoch(source),inputSequence=CriticalInputMirrorR29.sourceSequence(source);String inputView=CriticalInputMirrorR29.sourceViewSql(source);
         SQLiteDatabase target=SQLiteDatabase.openOrCreateDatabase(candidate,null);
@@ -165,22 +255,23 @@ public final class ResearchCutoverR29 {
             }finally{target.endTransaction();}
             try(Cursor c=target.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null)){if(!c.moveToFirst()||c.getInt(0)!=0)throw new IllegalStateException("R29_CANDIDATE_CHECKPOINT_BUSY");}
         }finally{target.close();}
+        return new Prepared(epoch,schema,copiedRoot);
+    }
+    private static String sealAndPublish(DbStore store,ResearchPoolR27.Worker worker,File candidate,File published,Prepared prepared,long deadline)throws Exception{
         sync(candidate);check(deadline,worker::cancelled);
-        ResearchRouteR29.verifyPreparedReader(candidate,source.getPath());
-        File baseline=new File(candidate.getParentFile(),"starcore-r29-baseline-"+epoch+".db");
-        if(!baseline.exists()&&new StatFs(candidate.getParent()).getAvailableBytes()<candidate.length()+RESERVE_BYTES)throw new IllegalStateException("R29_CUTOVER_STORAGE_BUDGET_YIELD");
-        if(!baseline.exists())copyBaseline(candidate,baseline,deadline,worker::cancelled);
-        final String baselineHash=fileHash(baseline,deadline,worker::cancelled);
-        try(Cursor c=source.rawQuery("SELECT baseline_sha FROM r29_migration_publication WHERE singleton=1",null)){if(c.moveToFirst()&&c.getString(0)!=null&&!c.getString(0).isEmpty()&&!baselineHash.equals(c.getString(0)))throw new IllegalStateException("R29_PINNED_BASELINE_CORRUPT");}
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_BASELINE_PIN",db->{db.execSQL("UPDATE r29_migration_publication SET phase='VERIFIED',baseline_name=?,baseline_sha=?,source_root=?,updated_at=? WHERE singleton=1 AND epoch=?",new Object[]{baseline.getName(),baselineHash,copiedRoot,System.currentTimeMillis(),epoch});return 0;});
-        check(deadline,worker::cancelled);
-        if(!candidate.renameTo(published))throw new IllegalStateException("R29_CANDIDATE_ATOMIC_RENAME_FAILED");
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_RESEARCH_RENAMED",db->{db.execSQL("UPDATE r29_migration_publication SET phase='RENAMED',updated_at=? WHERE singleton=1 AND epoch=?",new Object[]{System.currentTimeMillis(),epoch});return 0;});
-        ResearchRouteR29.publish(store,published,schema,copiedRoot,epoch);worker.pool().reloadResearchReaders();
-        return "ACTIVE_INDEPENDENT_RESEARCH_WRITER";
+        readyOwner(candidate,prepared.epoch,prepared.root,prepared.schema);
+        ResearchRouteR29.verifyPreparedReader(candidate,worker.realtimeRo().getPath());
+        File baseline=new File(candidate.getParentFile(),baselineName(prepared.epoch));
+        if(new StatFs(candidate.getParent()).getAvailableBytes()<candidate.length()+RESERVE_BYTES)throw new IllegalStateException("R29_CUTOVER_STORAGE_BUDGET_YIELD");
+        copyBaseline(candidate,baseline,deadline,worker::cancelled);
+        MigrationCopyR29.Transaction writer=body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_PHASE",db->{body.run(db);return 0;});
+        Publication resumed=resumePublication(worker.realtimeRo(),candidate,published,writer,deadline,worker::cancelled);
+        if(resumed==null)throw new IllegalStateException("R29_COMPLETED_COPY_PROOF_MISSING");
+        return finishPublication(store,worker,published,resumed);
     }
     static void removeUnpublished(File file)throws IOException{for(String suffix:new String[]{"","-wal","-shm"}){File part=new File(file.getPath()+suffix);if(part.exists()&&!part.delete())throw new IOException("R29_UNPUBLISHED_CANDIDATE_DELETE_FAILED");}}
     static void copyBaseline(File source,File baseline,long deadline,java.util.function.BooleanSupplier cancelled)throws Exception{
+        if(baseline.exists())throw new IOException("R29_SEALED_DESTINATION_ALREADY_EXISTS");
         File temporary=new File(baseline.getPath()+".partial");
         try(InputStream in=new FileInputStream(source);FileOutputStream out=new FileOutputStream(temporary)){
             byte[] b=new byte[64<<10];for(int n;(n=in.read(b))>=0;){check(deadline,cancelled);out.write(b,0,n);}out.getFD().sync();

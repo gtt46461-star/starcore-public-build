@@ -1,0 +1,62 @@
+{
+  "source": "UNCOMMITTED_CP11_CANDIDATE",
+  "priorSource": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "scope": "REAL_SQLITE_INSTALLER_PROOF_AND_PROTOCOL_REGRESSION_NOT_ANDROID_POOL_TIMING",
+  "status": "PASS_HOST_REVALIDATE_ANDROID_REQUIRED",
+  "checks": {
+    "newSchemaInstaller": 21,
+    "originalLiveProjection": 15,
+    "originalAuthorityProjection": 25,
+    "originalCutoverProjection": 19,
+    "total": 80
+  },
+  "actualMethods": [
+    "LegacyAuthorityProjectionR29.ensureRealtime/installResearch",
+    "LegacyLiveProjectionR29.ensureRealtime/installResearch",
+    "RealtimeResearchProjectionR29.ensureRealtime/installResearch"
+  ],
+  "fix": "Fresh main.sqlite_master exact name/type/table/normalized original DDL proof; only missing objects installed; explicitly supported Live/Realtime trigger upgrades retain transactions; incorrect authority schema fails closed; zero ready/version cache",
+  "negativeControls": {
+    "oldRoot1000Calls": {
+      "actualDDL": 5000,
+      "status": "REAL_OLD_SOURCE_FAILS_ZERO_DDL_ASSERTION"
+    },
+    "oldResearch100Calls": {
+      "actualDDL": 4900,
+      "status": "REAL_OLD_SOURCE_FAILS_ZERO_DDL_ASSERTION"
+    }
+  },
+  "current": {
+    "Root1000CallsDDL": 0,
+    "Root1000CallsFreshCatalog": 3000,
+    "research1000CallsDDL": 0,
+    "research1000CallsFreshCatalog": 3000
+  },
+  "limits": [
+    "Android monitor contention modeled only as refusing DDL; actual platform blocking requires native and whole-App rerun",
+    "Business bodies (capture/apply/drain/ACK/proof) byte-identical to prior frozen source",
+    "Strict original authority proof/Root-RP ownership/immutable freeze/1500ms guard unmodified"
+  ],
+  "product": {
+    "LegacyAuthorityProjectionR29": {
+      "businessBodyAfterInstallersByteIdenticalTo0c": true,
+      "sha256": "70001a11aeb1df5b22678eef859d751ed34850681893f7143fe8764480a21b81"
+    },
+    "LegacyLiveProjectionR29": {
+      "businessBodyAfterInstallersByteIdenticalTo0c": true,
+      "sha256": "a06bbe0b2fa32a87a77c5e9c1a276bf824549558741b484e00eef997726d0fc1"
+    },
+    "RealtimeResearchProjectionR29": {
+      "businessBodyAfterInstallersByteIdenticalTo0c": true,
+      "sha256": "e672a8e0824ad1b4a8bbe0b769c9df3eb44b5c11df649a4c0319fb538c3fa2aa"
+    }
+  },
+  "evidence": {
+    "old-0c-root-ddl-control.log": "ef6eaae4b61329ac12e398aeaa9b954ac0595de12fa1d0041bbd03f3c88e863f",
+    "r29_projection_schema_existing_authority_host.log": "3eb8365c3fdf337af6e3b806f1778e8ca259ad41b50f6aae93949d416195c04d",
+    "r29_projection_schema_host.log": "e225c0ccc62f35aca1e69d2b43aa6002d430b697a698290e254c1c8b7ea0fa5d",
+    "r29_projection_schema_existing_live_host.log": "a2a4e733593ab4049f32b178f48778373a45b6ae9c63a1fd40ca0fddfa07b121",
+    "old-0c-research-ddl-control.log": "61360ac11e6f65b1219caa95e7adc92febc73be48b9c7d65b7c2a51dd0eb0981",
+    "r29_projection_schema_existing_cutover_host.log": "8f807a445c3223a79f545222a6fa3451b5c242ce46c6d03ffe9c00c660c71146"
+  }
+}
