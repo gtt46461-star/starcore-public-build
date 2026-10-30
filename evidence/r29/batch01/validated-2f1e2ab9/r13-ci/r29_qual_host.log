@@ -1,0 +1,21 @@
+R29_QUAL|Q1_IN_ORDER_EQUALS_REFERENCE|OK|n=240 acts=74 hits=20
+R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed11|OK|settled=240 receipts=240
+R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed12|OK|settled=240 receipts=240
+R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed13|OK|settled=240 receipts=240
+R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed14|OK|settled=240 receipts=240
+R29_QUAL|Q2_OUT_OF_ORDER_EQUALS_IN_ORDER_seed15|OK|settled=240 receipts=240
+R29_QUAL|Q3_LATE_HIT_MINUS2_RECOVERED_AND_REBUILT|OK|rebuildLog=1 cert=REVOKED_REBUILD pendingDraw=8 resolved=8 blockedAtLastOrdinal=6 actBlocked=true
+R29_QUAL|Q4_CONFLICT_ISOLATED|OK|target=11 conflicts=1 last=10 receiptsAtOrAfter=0 storedHitKept=true
+R29_QUAL|Q5_PENDING_DRAWS_SEPARATE_PAGE|OK|settled=100 pendingDrawRows=128
+R29_QUAL|Q6_STALE_STEP_COMMITS_NOTHING|OK|first=true second=false receipts=30
+R29_QUAL|Q7_REPORT_DIAGNOSIS|OK|beforeMigration=null after={pendingDrawOpen=1, pendingDrawOpenActRows=1, pendingDrawOldestOrdinal=20, pendingDrawResolved=0, legacyHitMinus2Remaining=0, receipts=19, receiptActs=7, conflictsOpen=0, rebuilds=0, registrationBoundariesInferred=1, missingOpportunityExperiments=0, receiptStateMismatch=0, cursorByBlockReason={ACT_PENDING_DRAW={experiments=1, oldestOrdinal=20}}, gateV2Evaluated=0, gateV2WouldIssue=0, gateV2Nearest=[], rule=e-process advances only over the contiguous resolvable prefix; ACT with missing draw stays pending; conflicts are isolated}
+R29_QUAL|Q8_GATE_V2_EVIDENCE|OK|opportunities=120 actDecisions=40/40 settled=40 pending=0 failing=[sequentialTest, settledActs>=250, hitRate>=0.34, betterThanI00, betterThanShuffledControl, calibrationSupportedEce, completeBlocks>=3(80acts), worstBlock>=0.26]
+R29_QUAL|Q9_ABSENT_FREEZE_STOPS_CURSOR|OK|blockedAt2=true recoveredOriginalRecordTo=12
+R29_QUAL|Q10_FIRST_AND_TRAILING_GAPS|OK|firstBlocked=true trailingBeforeFuture=true
+R29_QUAL|Q11_REBUILD_GAPPED_CHECKPOINT|OK|old evidence kept; certificate revoked; continuous replay recovered
+R29_QUAL|Q12_LARGE_BATCH_ATOMIC_RETRY|OK|rollbackThenRetry=true transactions=2 rows=1203
+R29_QUAL|Q13_POSTCHECK_ROLLS_BACK_ALL|OK|end-of-transaction safety check failure left original rows unchanged
+R29_QUAL|Q14_CANCEL_BEFORE_WRITE|OK|cancelled batch never entered writer
+R29_QUAL|Q15_MODEL_CURSOR_ATOMIC_RESTORE|OK|optimizer/RNG/replay/model and issue cursor roll back together
+R29_QUAL|Q16_LEGACY_MODEL_PRESERVED_BEFORE_RETRAIN|OK|original bytes/hash/cursor kept; idempotent migration; active full state stops legacy copying; update/delete rejected
+R29_QUAL|SUMMARY|OK

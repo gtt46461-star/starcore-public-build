@@ -1,0 +1,80 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 577,
+  "route": null,
+  "publication": null,
+  "trackedSourceTables": 163,
+  "tablesWithThreeTrackingTriggers": 163,
+  "trackingTriggerCount": 489,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "BLOCKED",
+      "cursor": 65,
+      "steps": 3,
+      "last_served": 1793390461394,
+      "last_progress": 1793390420219,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "BLOCKED",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 1793390460906,
+      "last_progress": 0,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY"
+    },
+    {
+      "task_id": "schema",
+      "status": "BLOCKED",
+      "cursor": 269,
+      "steps": 10,
+      "last_served": 1793390461971,
+      "last_progress": 1793390421963,
+      "blocked_reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=269,latest=3592560",
+      "wait_kind": "NO_NEW_EVENT",
+      "wait_detail": "NO_OUTPUT;cursor=269,latest=3592560"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "BLOCKED",
+      "cursor": 2,
+      "steps": 2,
+      "last_served": 1793390463032,
+      "last_progress": 1793390463365,
+      "blocked_reason": "LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:",
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    }
+  ],
+  "rootTaskErrors": 1,
+  "rootMigrationTaskErrors": 0,
+  "rootEvents": {
+    "total": 1415,
+    "acked": 34
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 0,
+  "stagePhases": {},
+  "stageCopiedRows": 0
+}

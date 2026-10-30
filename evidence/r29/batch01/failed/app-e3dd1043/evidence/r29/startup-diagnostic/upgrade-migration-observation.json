@@ -1,0 +1,195 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 580,
+  "route": null,
+  "publication": {
+    "phase": "PREPARED",
+    "epoch": 1793392335646,
+    "baseline_name": "",
+    "baseline_sha": "",
+    "source_root": "",
+    "last_error": "",
+    "updated_at": 1793392335646
+  },
+  "trackedSourceTables": 6,
+  "tablesWithThreeTrackingTriggers": 6,
+  "trackingTriggerCount": 18,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "YIELDED",
+      "cursor": 705,
+      "steps": 20,
+      "last_served": 1793392470851,
+      "last_progress": 1793392470851,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=32"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "YIELDED",
+      "cursor": 4,
+      "steps": 5,
+      "last_served": 1793392415039,
+      "last_progress": 1793392415039,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema",
+      "status": "RUNNING",
+      "cursor": 268,
+      "steps": 11,
+      "last_served": 1793392403019,
+      "last_progress": 1793392334458,
+      "blocked_reason": null,
+      "wait_kind": "NO_NEW_EVENT",
+      "wait_detail": "NO_OUTPUT;cursor=268,latest=3592592"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "READY",
+      "cursor": 1,
+      "steps": 1,
+      "last_served": 1793392347322,
+      "last_progress": 1793392347510,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    }
+  ],
+  "rootTaskErrors": 3,
+  "rootMigrationTaskErrors": 3,
+  "rootRecentTaskErrors": [
+    {
+      "owner": "REALTIME",
+      "errorId": 3,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392395480
+    },
+    {
+      "owner": "REALTIME",
+      "errorId": 2,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392345640
+    },
+    {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392337793
+    }
+  ],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 3
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 3
+  },
+  "newTaskFailureReasons": [
+    {
+      "owner": "REALTIME",
+      "errorId": 3,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392395480
+    },
+    {
+      "owner": "REALTIME",
+      "errorId": 2,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392345640
+    },
+    {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392337793
+    }
+  ],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 3
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [
+    {
+      "owner": "REALTIME",
+      "errorId": 3,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392395480
+    },
+    {
+      "owner": "REALTIME",
+      "errorId": 2,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392345640
+    },
+    {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "r29-research-migration",
+      "errorClass": "android.database.sqlite.SQLiteConstraintException",
+      "message": "UNIQUE constraint failed: app_state.state_key (code 1555 SQLITE_CONSTRAINT_PRIMARYKEY)",
+      "recordedAt": 1793392337793
+    }
+  ],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 3,
+  "allNewTaskErrorsSinceBaseline": 3,
+  "rootEvents": {
+    "total": 2679,
+    "acked": 608
+  },
+  "migrationCache": {
+    "state": "STAGED_COPY_NOT_CUTOVER",
+    "activeOwner": "ORIGINAL_DATABASE",
+    "cutoverEnabled": false,
+    "file": "starcore-research-r29-stage.db",
+    "verifiedBaselineTables": 4,
+    "crossTableSnapshot": "NOT_ESTABLISHED",
+    "updatedAt": 1793392414981
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 378,
+  "stagePhases": {
+    "COPYING": 1,
+    "PENDING": 372,
+    "VERIFIED_BASELINE": 5
+  },
+  "stageCopiedRows": 0
+}
