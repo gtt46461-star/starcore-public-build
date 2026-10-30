@@ -31,11 +31,12 @@ public final class ReplayDatasetR27 {
         int t = draws.length; segment = new int[t];
         List<Integer> starts = new ArrayList<>();
         for (int i = 0; i < t; i++) {
+            CooperativeContinuationR26.poll();
             if (i == 0 || ordinals[i] != ordinals[i - 1] + 1) starts.add(i);
             segment[i] = starts.size() - 1;
         }
         segmentStart = new int[starts.size()];
-        for (int i = 0; i < segmentStart.length; i++) segmentStart[i] = starts.get(i);
+        for (int i = 0; i < segmentStart.length; i++) { CooperativeContinuationR26.poll(); segmentStart[i] = starts.get(i); }
         datasetHash = hash(issues, draws, segment);
     }
 
@@ -68,6 +69,17 @@ public final class ReplayDatasetR27 {
         return new ReplayDatasetR27(d, is, o, rejected);
     }
 
+    /** Exact pin decoder: no sorting/rejection or replacement of the captured replay inputs. */
+    static ReplayDatasetR27 pinnedExact(List<Row> rows,int rejected) {
+        if(rows==null||rejected<0)throw new IllegalArgumentException("R29_DATASET_PIN_SOURCE_METADATA");
+        int[][] draws=new int[rows.size()][];String[] issues=new String[rows.size()];long[] ordinals=new long[rows.size()];
+        for(int i=0;i<rows.size();i++){CooperativeContinuationR26.poll();Row row=rows.get(i);
+            if(row==null||!legal(row.numbers)||(i>0&&row.ordinal<=ordinals[i-1]))throw new IllegalArgumentException("R29_DATASET_PIN_SOURCE_ROWS");
+            draws[i]=row.numbers.clone();issues[i]=row.issue;ordinals[i]=row.ordinal;
+        }
+        return new ReplayDatasetR27(draws,issues,ordinals,rejected);
+    }
+
     /** Incremental append of one newer draw (docs/03 3.2): old rows and their segments are unchanged. */
     public ReplayDatasetR27 append(Row r) {
         if (!legal(r.numbers)) throw new IllegalArgumentException("R27_REPLAY_ILLEGAL_PERMUTATION");
@@ -96,6 +108,7 @@ public final class ReplayDatasetR27 {
     static String hash(String[] issues, int[][] draws, int[] segment) {
         StringBuilder b = new StringBuilder("R27_REPLAY_DATASET_V1");
         for (int i = 0; i < draws.length; i++) {
+            CooperativeContinuationR26.poll();
             b.append('|').append(issues[i]).append(':');
             for (int v : draws[i]) b.append((char) ('0' + v - 1));
             b.append(':').append(segment[i]);

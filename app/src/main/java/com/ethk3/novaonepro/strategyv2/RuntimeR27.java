@@ -17,6 +17,37 @@ import java.util.Map;
 public final class RuntimeR27 implements AutoCloseable {
     public static final int DATASET_ROWS = 5000, REFRESH_NEW_ROWS = 360, LIVE_REBASE_ROWS = 6500;
     public static final String LOOP = "MAIN";
+    static final String EVOLUTION_CHECKSUM_DDL="CREATE TABLE IF NOT EXISTS r29_evolution_checkpoint_checksum(loop TEXT PRIMARY KEY,snapshot_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,generation INTEGER NOT NULL,step INTEGER NOT NULL,rng_state INTEGER NOT NULL)";
+    static final class MissingEvolutionDataset extends RuntimeException {MissingEvolutionDataset(String hash){super("WAITING_IMMUTABLE_EVOLUTION_DATASET_PIN:"+hash);}}
+    /** Database work ends before the cooperative numerical context starts. Large snapshots never cross a
+     * CursorWindow as one TEXT cell; metadata is checked again after bounded BLOB reads. */
+    static final class EvolutionCheckpoint {
+        final byte[] bytes;final String datasetHash,checksum;final int generation,step;final long rng,updated;
+        EvolutionCheckpoint(byte[] bytes,String hash,String checksum,int generation,int step,long rng,long updated){this.bytes=bytes;datasetHash=hash;this.checksum=checksum;this.generation=generation;this.step=step;this.rng=rng;this.updated=updated;}
+    }
+    static EvolutionCheckpoint captureEvolutionCheckpoint(SQLiteDatabase db){
+        String hash;int generation,step,length;long rng,updated;
+        try(Cursor c=db.rawQuery("SELECT dataset_hash,generation,step,rng_state,updated_at,length(CAST(snapshot AS BLOB)) FROM r27_evolution_cursor WHERE loop=?",new String[]{LOOP})){
+            if(!c.moveToFirst())return null;hash=c.getString(0);generation=c.getInt(1);step=c.getInt(2);rng=c.getLong(3);updated=c.getLong(4);length=c.getInt(5);
+        }
+        if(hash==null||!hash.matches("[a-f0-9]{64}")||generation<0||step<1||step>9||length<2||length>(16<<20))throw new IllegalStateException("R29_EVOLUTION_CHECKPOINT_METADATA_INVALID");
+        byte[] bytes=new byte[length];String[] identity={LOOP,hash,Integer.toString(generation),Integer.toString(step),Long.toString(rng),Long.toString(updated),Integer.toString(length)};
+        for(int offset=0;offset<length;offset+=128<<10){int n=Math.min(128<<10,length-offset);String[] args=new String[identity.length+2];args[0]=Integer.toString(offset+1);args[1]=Integer.toString(n);System.arraycopy(identity,0,args,2,identity.length);
+            try(Cursor c=db.rawQuery("SELECT substr(CAST(snapshot AS BLOB),CAST(? AS INTEGER),CAST(? AS INTEGER)) FROM r27_evolution_cursor WHERE loop=? AND dataset_hash=? AND generation=CAST(? AS INTEGER) AND step=CAST(? AS INTEGER) AND rng_state=CAST(? AS INTEGER) AND updated_at=CAST(? AS INTEGER) AND length(CAST(snapshot AS BLOB))=CAST(? AS INTEGER)",args)){
+                if(!c.moveToFirst())throw new IllegalStateException("CP3_DB_BUSY_EVOLUTION_CHECKPOINT_CHANGED");byte[] part=c.getBlob(0);if(part==null||part.length!=n)throw new IllegalStateException("R29_EVOLUTION_CHECKPOINT_TRUNCATED");System.arraycopy(part,0,bytes,offset,n);
+            }
+        }
+        String checksum=null;if(SchemaR27.tableExists(db,"r29_evolution_checkpoint_checksum"))try(Cursor c=db.rawQuery("SELECT snapshot_hash,dataset_hash,generation,step,rng_state FROM r29_evolution_checkpoint_checksum WHERE loop=?",new String[]{LOOP})){
+            if(c.moveToFirst()){checksum=c.getString(0);if(!hash.equals(c.getString(1))||generation!=c.getInt(2)||step!=c.getInt(3)||rng!=c.getLong(4)||checksum==null||!checksum.matches("[a-f0-9]{64}"))throw new IllegalStateException("R29_EVOLUTION_CHECKPOINT_BINDING_MISMATCH");}
+        }
+        return new EvolutionCheckpoint(bytes,hash,checksum,generation,step,rng,updated);
+    }
+    @SuppressWarnings("unchecked") static EvolutionLoopR27 restoreExact(EvolutionCheckpoint saved,EvolutionLoopR27.Config cfg,FeatureCacheR27 cache,EvolutionLoopR27.Clock clock){
+        CooperativeContinuationR26.poll();if(saved.checksum!=null&&!saved.checksum.equals(StatsR27.sha256(saved.bytes)))throw new IllegalStateException("R29_EVOLUTION_CHECKPOINT_CHECKSUM");
+        String json=new String(saved.bytes,java.nio.charset.StandardCharsets.UTF_8);Map<String,Object> header=(Map<String,Object>)JsonR27.parseCooperative(json);
+        if(!saved.datasetHash.equals(cache.data.datasetHash)||!saved.datasetHash.equals(header.get("datasetHash"))||saved.generation!=(int)JsonR27.num(header.get("generation"))||saved.step!=(int)JsonR27.num(header.get("step"))||!(header.get("rng") instanceof Number)||saved.rng!=((Number)header.get("rng")).longValue())throw new IllegalStateException("R29_EVOLUTION_CHECKPOINT_PROVENANCE_MISMATCH");
+        return EvolutionLoopR27.restore(json,cfg,cache,null,clock);
+    }
     final DbStore store; final ResearchPoolR27 pool;
     // Evolution dataset snapshot (rebound only between generations).
     volatile ReplayDatasetR27 evoData; volatile FeatureCacheR27 evoCache; volatile ReplayDatasetR27 pendingData; volatile FeatureCacheR27 pendingCache;
@@ -162,27 +193,30 @@ public final class RuntimeR27 implements AutoCloseable {
         private volatile boolean stopping;
         private Turn turn;private EvolutionLoopR27 deferredObservers;
         final class Turn {
-            final FeatureCacheR27 cache,rebind;final ReplayDatasetR27 data;final EvolutionLoopR27 prior;
-            final String saved;final int nextGeneration;final Map<String,Double> weights;final List<PolicyAstR27.Node> leaves;
-            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot;int stepBefore,genBefore;boolean batchPrepared,failed;
+            FeatureCacheR27 cache;final FeatureCacheR27 rebind;ReplayDatasetR27 data;final EvolutionLoopR27 prior;
+            final EvolutionCheckpoint saved;final EvolutionDatasetPinR29.Stored pinned;final int nextGeneration;final Map<String,Double> weights;final List<PolicyAstR27.Node> leaves;
+            final ReplayDatasetR27 recoveryFutureData;final FeatureCacheR27 recoveryFutureCache;
+            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot,snapshotHash;EvolutionDatasetPinR29.Prepared pin;int stepBefore,genBefore;boolean batchPrepared,failed;
             CooperativeContinuationR26<Turn> work;
             Turn(ResearchPoolR27.Worker w){
                 prior=evo;cache=evoCache;rebind=prior!=null&&prior.step==1?pendingCache:null;data=rebind==null?evoData:pendingData;
-                String old=null;int next=0;
-                if(prior==null){try(Cursor c=w.ro.rawQuery("SELECT snapshot FROM r27_evolution_cursor WHERE loop=?",new String[]{LOOP})){if(c.moveToFirst())old=c.getString(0);}
-                    try(Cursor c=w.ro.rawQuery("SELECT max(generation)+1 FROM r27_generation WHERE loop=?",new String[]{LOOP})){if(c.moveToFirst()&&!c.isNull(0))next=c.getInt(0);}}
-                saved=old;nextGeneration=next;weights=leafWeights();leaves=new ArrayList<>(derived);
+                EvolutionCheckpoint old=null;EvolutionDatasetPinR29.Stored stored=null;int next=0;
+                if(prior==null){old=captureEvolutionCheckpoint(w.ro);
+                    if(old!=null){stored=EvolutionDatasetPinR29.read(w.ro,old.datasetHash);if(stored==null)throw new MissingEvolutionDataset(old.datasetHash);}
+                    else try(Cursor c=w.ro.rawQuery("SELECT max(generation)+1 FROM r27_generation WHERE loop=?",new String[]{LOOP})){if(c.moveToFirst()&&!c.isNull(0))next=c.getInt(0);}}
+                saved=old;pinned=stored;recoveryFutureData=old!=null&&!old.datasetHash.equals(data.datasetHash)?data:null;recoveryFutureCache=recoveryFutureData==null?null:cache;
+                nextGeneration=next;weights=leafWeights();leaves=new ArrayList<>(derived);
             }
             Turn compute(){
                 loop=prior;
                 if(loop==null){EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.seed=System.currentTimeMillis();
-                    if(saved!=null)try{loop=EvolutionLoopR27.restore(saved,cfg,cache,null,System::currentTimeMillis);}catch(RuntimeException mismatch){if(stopping||Thread.currentThread().isInterrupted())throw mismatch;android.util.Log.w("STARCORE_R27","evolution cursor restart",mismatch);}
+                    if(saved!=null){if(pinned!=null){data=EvolutionDatasetPinR29.decode(pinned);cache=new FeatureCacheR27(data);}loop=restoreExact(saved,cfg,cache,System::currentTimeMillis);}
                     if(loop==null){loop=new EvolutionLoopR27(cfg,cache,null,System::currentTimeMillis);loop.generation=nextGeneration;}}
                 if(rebind!=null)loop.rebind(rebind);
                 // A turn owns one cooperative CPU context. Helper futures would escape that quantum.
                 loop.executor=null;loop.serialWhile=()->true;loop.leafWeight=weights;loop.derivedLeaves=leaves;
                 stepBefore=loop.step;genBefore=loop.generation;sink=new StoreR27.EvolutionSink(LOOP,data.issues[data.size()-1]);loop.setSink(sink);
-                loop.step();snapshot=loop.snapshot();return this;
+                loop.step();snapshot=loop.snapshot();snapshotHash=StatsR27.sha256(snapshot);pin=EvolutionDatasetPinR29.prepare(data);return this;
             }
         }
         public String id() { return "r27-evolution"; }
@@ -206,6 +240,7 @@ public final class RuntimeR27 implements AutoCloseable {
                 if(turn==null){
                     if(!evolutionAccess.begin())return ResearchPoolR27.Outcome.idle("COOPERATIVE_WAIT_FOR_EVOLUTION_READERS",0,-1);
                     try{turn=new Turn(w);evo=null;Turn pending=turn;pending.work=new CooperativeContinuationR26<>("starcore-r29-evolution",pending::compute,()->stopping,null,()->android.os.SystemClock.currentThreadTimeMillis()*1000000L,owner());}
+                    catch(MissingEvolutionDataset missing){turn=null;evolutionAccess.publish();return ResearchPoolR27.Outcome.idle(missing.getMessage(),0,-1);}
                     catch(Throwable failure){turn=null;evolutionAccess.publish();throw failure;}
                 }
             }
@@ -218,11 +253,15 @@ public final class RuntimeR27 implements AutoCloseable {
             if(!pending.batchPrepared){
             batch.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)",LOOP,loop.generation,loop.step,pending.data.datasetHash,loop.rng.state,pending.snapshot,System.currentTimeMillis());
             final List<Object[]> promos=pending.sink.promotions;batch.before=db->{if(stopping||closing)throw new InterruptedException("R29_EVOLUTION_STOPPED_BEFORE_TRANSACTION");for(Object[] p:promos){PolicySpecR27 spec=(PolicySpecR27)p[0];StoreR27.insertShadow(db,spec,(Double)p[1],(String)p[3],semanticAbi(spec),spec.policyHash(),spec.policyHash());}return 0;};
+            EvolutionDatasetPinR29.append(batch,pending.pin);
+            batch.add(EVOLUTION_CHECKSUM_DDL);
+            batch.add("INSERT OR REPLACE INTO r29_evolution_checkpoint_checksum VALUES(?,?,?,?,?,?)",LOOP,pending.snapshotHash,pending.data.datasetHash,loop.generation,loop.step,loop.rng.state);
             pending.batchPrepared=true;
             }
             if(!w.writes().submit("EVOLUTION_STEP_"+EvolutionLoopR27.STEPS[pending.stepBefore],batch,()->stopping||w.cancelled()))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVOLUTION_TURN",0,-1);
             evoData=pending.data;evoCache=pending.rebind==null?pending.cache:pending.rebind;
             if(pending.rebind!=null&&pendingCache==pending.rebind){pendingCache=null;pendingData=null;}
+            if(pending.recoveryFutureData!=null&&(pendingData==null||pendingData.ordinals[pendingData.size()-1]<pending.recoveryFutureData.ordinals[pending.recoveryFutureData.size()-1])){pendingData=pending.recoveryFutureData;pendingCache=pending.recoveryFutureCache;}
             committedControls=new Object[][]{{"CONTROL_I00",loop.i00Champion,loop.i00Tau},{"CONTROL_NULL",loop.nullEvolution.champion,loop.nullEvolution.championTau}};
             evo=loop;synchronized(this){turn=null;}evolutionAccess.publish();
             if(pending.stepBefore==9&&!refreshObservers(w,loop))deferredObservers=loop;
@@ -269,23 +308,6 @@ public final class RuntimeR27 implements AutoCloseable {
             return 0;
         };
         return w.writes().submit("OBSERVERS",b,w::cancelled);
-    }
-
-    EvolutionLoopR27 restoreOrCreate(ResearchPoolR27.Worker w) {
-        EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.seed = System.currentTimeMillis();
-        try (Cursor c = w.ro.rawQuery("SELECT snapshot,dataset_hash FROM r27_evolution_cursor WHERE loop=?", new String[] {LOOP})) {
-            if (c.moveToFirst()) {
-                try { return EvolutionLoopR27.restore(c.getString(0), cfg, evoCache, null, System::currentTimeMillis); }
-                catch (RuntimeException mismatch) {
-                    // Dataset changed mid-generation (e.g. reinstall): the generation restarts at step 1; nothing registered twice
-                    // because registrations are keyed by policy hash.
-                    android.util.Log.w("STARCORE_R27", "evolution cursor restart", mismatch);
-                }
-            }
-        }
-        EvolutionLoopR27 l = new EvolutionLoopR27(cfg, evoCache, null, System::currentTimeMillis);
-        try (Cursor c = w.ro.rawQuery("SELECT max(generation)+1 FROM r27_generation WHERE loop=?", new String[] {LOOP})) { if (c.moveToFirst() && !c.isNull(0)) l.generation = c.getInt(0); }
-        return l;
     }
 
     Map<String, Double> leafWeights() { synchronized (atomStates) { return AtomScoreR27.leafWeights(new HashMap<>(atomStates)); } }

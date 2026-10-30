@@ -16,7 +16,11 @@ public final class ShadowAdmissionR26 {
     /** Only a preregistered challenger can expire after its full first future window and evaluation.
      * Mainline/current certificates and the family's last active state are never evicted. */
     static long retireOne(SQLiteDatabase db,long nextTarget,long now){
-        if(!db.inTransaction())throw new IllegalStateException("R26_SHADOW_RETIRE_WRITER");String choice=ModelStoreSU2.currentChoice(db,nextTarget);
+        if(!db.inTransaction())throw new IllegalStateException("R26_SHADOW_RETIRE_WRITER");
+        return retireOne(db,LegacyResearchScopeR29.realtime(db),nextTarget,now);
+    }
+    static long retireOne(SQLiteDatabase db,SQLiteDatabase realtime,long nextTarget,long now){
+        if(!db.inTransaction())throw new IllegalStateException("R26_SHADOW_RETIRE_WRITER");String choice=ModelStoreSU2.currentChoice(realtime,nextTarget);
         try(Cursor c=db.rawQuery("SELECT l.policy_hash,l.family_id,a.expires_sequence FROM r26_shadow_admission a JOIN r26_live_model l ON l.policy_hash=a.policy_hash JOIN r26_cohort q ON q.genome_key=l.policy_hash WHERE a.role='CHALLENGER' AND l.status='ACTIVE' AND a.expires_sequence<=? AND q.checked_sequence>=a.expires_sequence AND q.protocol=? ORDER BY a.expires_sequence,l.policy_hash",new String[]{String.valueOf(nextTarget),QualificationWindowR26.PROTOCOL})){while(c.moveToNext()){
             String policy=c.getString(0);if(choice.equals("SU2:"+policy)||count(db,c.getString(1))<2||CertificateSU2.read(db,policy,now)!=null)continue;
             db.execSQL("UPDATE r26_live_model SET status='RETIRED_PREREGISTERED_CHALLENGER' WHERE policy_hash=? AND status='ACTIVE'",new Object[]{policy});
