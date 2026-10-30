@@ -1,0 +1,42 @@
+B00 基线与保全：工程批次通过，设备长测与自然质量分别待验
+
+签收范围
+按原始方案 registries/batches.json 的 B00 退出条件：“本批HOST检查通过；可安装APK及明确设备/质量待验项；禁止写已验证而无证据”。本回执签收基线身份、旧要求保全记录和统一指标合同，不代表全部方案、全部旧功能或44项实际指标通过。不把CP06安装包用于签收B01新增分库和调度实现。
+
+源码/方案/安装包
+应用源码 bb607cf5ab69f7286f859e43f87ada85a5bc456d，方案固定 96fb4355748a2f28e31927e1f9cb8cb61fac6547。
+包名 com.starcore.research.r13；versionCode 577291006；versionName R29.1-2026.10.30-checkpoint06。
+交付与报告清单 construction/r29/delivery/CP06.json；源码变更及before hash清单 construction/r29/ledger/B00.json。
+源码 https://github.com/gtt46461-star/starcore-public-build/commit/bb607cf5ab69f7286f859e43f87ada85a5bc456d
+
+原R13证书APK：
+https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+SHA-256 ab10c8e85344a347a695d11ddeb652b419d09c49e81513204037e3e0684a7743
+证书SHA-256 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+
+既有R27 CI证书APK：
+https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP06-R27-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+SHA-256 254b7447f09cacba4edea265db936f032b4289cd005cdb82dcc639e47b21e8a8
+证书SHA-256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+按旧安装包证书选择；两种证书不可交叉覆盖。签名由既有CI完成，没有读取或上传本地私钥。
+
+逐卡依据
+R29-001：BaselineIdentityR29记录原f9bdddb/7d3e0e2、固定方案、当前源码、已安装APK与证书。B00变更清单保留原始before hash。tools/r29/host_checks.py 检查方案MANIFEST、全部施工清单before hash、保全资产和注册表映射；本次只读复核四组均PASS，beforeHashMismatch为空。
+R29-002：app/src/main/assets/r29/legacy_preservation.json完整保留1832要求、299文件卡及原文hash/旧状态/Owner/证据路径。资产SHA-256 9a7f75dbb11624bbb6b253ba2962ad30f34fa4f11913cb0265954d5e0fc6d948。R29BaselineTest验证计数、唯一性、缺失/重复和无回执VERIFIED反例。覆盖率只代表保全记录齐全，不代表1832项逐条运行复验通过；旧图表、训练、导出及生命周期的完整行为回归仍须按后续卡保留真实结果。
+R29-003：MetricDefinitionsR29/MetricCardMapR29/MetricEvaluatorR29覆盖44项定义、来源、窗口、分母与修复卡映射。R29BaselineTest验证缺失证据不产生PASS或数字、三策略重复期不能膨胀独立样本。ReportR29缺少实测的指标保留null/NOT_RUN/INSUFFICIENT；本签收不把指标定义完成当作实际指标通过，UI全值核对仍属待验。
+
+已有测试与可复核证据
+evidence/r29/checkpoint06/canonical.log：保存的完整验证包装脚本通过；CP06交付清单记录139项JUnit、0失败/错误/跳过、8项语义变异反证检出。lint没有新增问题，仍保留51项既有基线错误、7个未匹配条目及Gradle 9弃用警告。
+evidence/r29/checkpoint06/apk-independent-verification.json：APK/source/package/version/signature独立核对；该文件是安装前回执，安装结果应读取后续设备回执，不能单独据此宣称安装通过。
+evidence/r29/checkpoint06/device/{official_r13,existing_r27}/{debug,release}/artifact-receipt.json：四组摘要文件均按selectedEvidence逐一复核SHA-256，没有不符。
+同目录result.txt：API34_EMULATOR_UPGRADE_AND_CLEAN_STARTUP_PASS; LONG_TESTS_NOT_RUN。
+同目录upgrade.json：旧表无丢失、旧开奖行无丢失/变化、integrity=ok、upgradeDatabase=PASS。release两组分别由4817条增至4820条；这不是自然未来确认样本。
+同目录startup.json：冷启动及强停后新进程启动均passed=true；启动采样、心跳和错误明细保留。
+release设备回执 https://github.com/gtt46461-star/starcore-public-build/actions/runs/41025142890
+debug设备回执 https://github.com/gtt46461-star/starcore-public-build/actions/runs/41023040865
+
+独立待验项
+目标V2353A/Android14真机、前台60min、息屏6h、连续72h及真机热/低存储/断网/并发导出矩阵：NOT_RUN。
+新策略注册后的自然质量：INSUFFICIENT；样本、命中率、ACT/REAL频率和区间不得补成0或达标，REAL保持BLOCKED。
+完整1832项行为复验、M33全图表回归和44项实测验收没有由本批签收取代。
+B01及以后的卡必须使用相应新增源码和对应安装包/运行回执，不得套用本批APK或只用编译通过签收。

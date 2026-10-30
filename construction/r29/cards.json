@@ -17,7 +17,7 @@
     ],
     "depends": [],
     "implementation_status": "IMPLEMENTED",
-    "verification_status": "HOST_VERIFIED_LOCAL_PENDING_CI",
+    "verification_status": "HOST_AND_API34_EMULATOR_VERIFIED_WITH_STATED_SCOPE",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -36,7 +36,22 @@
     ],
     "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
     "apk_checkpoint": "construction/r29/delivery/CP06.json",
-    "acceptance_state": "NOT_ACCEPTED"
+    "acceptance_state": "ENGINEERING_ACCEPTED",
+    "engineering_acceptance": {
+      "status": "ENGINEERING_ACCEPTED",
+      "scope": "B00_BASELINE_PRESERVATION_AND_METRIC_CONTRACT_ONLY",
+      "receipt": "construction/r29/BATCH00_ACCEPTANCE.zh.txt",
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "apkReceipt": "construction/r29/delivery/CP06.json",
+      "hostCommand": "python3 tools/r29/host_checks.py",
+      "hostResult": "4_CHECK_GROUPS_PASS",
+      "api34": "BOTH_SIGNERS_DEBUG_RELEASE_UPGRADE_CLEAN_AND_TWO_STARTS_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "legacyRequirementRuntimeReverification": "NOT_CLAIMED",
+      "all44MetricsPassed": "NOT_CLAIMED",
+      "note": "B00 工程签收：基线/方案/施工分支、源文件 before hash 和 CP06 源码/APK/公钥证书指纹已有互证；不把 CP06 包用于签收后续 B01 实现。"
+    }
   },
   {
     "id": "R29-002",
@@ -64,7 +79,7 @@
       "R29-001"
     ],
     "implementation_status": "IMPLEMENTED",
-    "verification_status": "HOST_VERIFIED_LOCAL_PENDING_CI",
+    "verification_status": "HOST_AND_API34_EMULATOR_VERIFIED_WITH_STATED_SCOPE",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -84,7 +99,22 @@
     ],
     "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
     "apk_checkpoint": "construction/r29/delivery/CP06.json",
-    "acceptance_state": "NOT_ACCEPTED"
+    "acceptance_state": "ENGINEERING_ACCEPTED",
+    "engineering_acceptance": {
+      "status": "ENGINEERING_ACCEPTED",
+      "scope": "B00_BASELINE_PRESERVATION_AND_METRIC_CONTRACT_ONLY",
+      "receipt": "construction/r29/BATCH00_ACCEPTANCE.zh.txt",
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "apkReceipt": "construction/r29/delivery/CP06.json",
+      "hostCommand": "python3 tools/r29/host_checks.py",
+      "hostResult": "4_CHECK_GROUPS_PASS",
+      "api34": "BOTH_SIGNERS_DEBUG_RELEASE_UPGRADE_CLEAN_AND_TWO_STARTS_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "legacyRequirementRuntimeReverification": "NOT_CLAIMED",
+      "all44MetricsPassed": "NOT_CLAIMED",
+      "note": "B00 工程签收范围为1832要求与299卡完整保全：唯一ID、正文hash、旧状态、Owner及证据路径齐全，未凭空标VERIFIED。CP06升级保留旧表与既有开奖；不宣称1832项各自运行测试全部通过。完整图表/训练/生命周期功能回归及M33继续独立验收。"
+    }
   },
   {
     "id": "R29-003",
@@ -117,7 +147,7 @@
       "R29-002"
     ],
     "implementation_status": "IMPLEMENTED",
-    "verification_status": "HOST_VERIFIED_LOCAL_PENDING_CI",
+    "verification_status": "HOST_AND_API34_EMULATOR_VERIFIED_WITH_STATED_SCOPE",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -137,7 +167,22 @@
     ],
     "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
     "apk_checkpoint": "construction/r29/delivery/CP06.json",
-    "acceptance_state": "NOT_ACCEPTED"
+    "acceptance_state": "ENGINEERING_ACCEPTED",
+    "engineering_acceptance": {
+      "status": "ENGINEERING_ACCEPTED",
+      "scope": "B00_BASELINE_PRESERVATION_AND_METRIC_CONTRACT_ONLY",
+      "receipt": "construction/r29/BATCH00_ACCEPTANCE.zh.txt",
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "apkReceipt": "construction/r29/delivery/CP06.json",
+      "hostCommand": "python3 tools/r29/host_checks.py",
+      "hostResult": "4_CHECK_GROUPS_PASS",
+      "api34": "BOTH_SIGNERS_DEBUG_RELEASE_UPGRADE_CLEAN_AND_TWO_STARTS_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "legacyRequirementRuntimeReverification": "NOT_CLAIMED",
+      "all44MetricsPassed": "NOT_CLAIMED",
+      "note": "B00 工程签收范围为44项指标定义/来源/窗口/分母合同与缺证据保持null/NOT_RUN、跨策略期号不膨胀独立样本的实现及测试；不是44项实际指标全部PASS。UI全值对照及后续指标实测仍按对应卡验收。"
+    }
   },
   {
     "id": "R29-004",
