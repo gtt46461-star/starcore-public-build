@@ -163,7 +163,9 @@ public final class CriticalInputMirrorR29 {
     static Step capture(SQLiteDatabase root,SQLiteDatabase target){
         Step step=new Step();step.head=sourceSequence(root);step.epoch=sourceEpoch(root);step.view=sourceViewSql(root);step.definitions=definitions(root);step.expected=state(target);
         for(String required:Arrays.asList(DbHelper.TABLE_R35_SHADOW_OBSERVATION,DbHelper.TABLE_R35_OOS_LABEL,DrawDependencyInputCP12.TABLE))if(!ResearchInputMirrorR29.table(root,required))throw new IllegalStateException("CP3_DB_BUSY_R29_CRITICAL_SOURCE_SCHEMA_PENDING:"+required);
-        State old=step.expected;step.reset=old==null||old.epoch!=step.epoch||(ResearchInputMirrorR29.table(root,CANONICAL_SOURCE)&&!ResearchInputMirrorR29.table(target,CANONICAL_INPUT))||old.seq<floor(root)||(!"READY".equals(old.phase)&&old.base<floor(root));
+        // During bootstrap the original base is still needed for later catchup. Once catchup begins, its
+        // committed seq is the live fence: our own ACK may legitimately advance floor beyond that old base.
+        State old=step.expected;step.reset=old==null||old.epoch!=step.epoch||(ResearchInputMirrorR29.table(root,CANONICAL_SOURCE)&&!ResearchInputMirrorR29.table(target,CANONICAL_INPUT))||old.seq<floor(root)||("BOOTSTRAP".equals(old.phase)&&old.base<floor(root));
         if(step.reset){State next=new State();next.phase="BOOTSTRAP";next.epoch=step.epoch;next.seq=next.base=step.head;next.key=new String[]{"","",""};step.next=next;}
         else {State next=new State();next.phase=old.phase;next.epoch=old.epoch;next.seq=old.seq;next.base=old.base;next.index=old.index;next.key=old.key.clone();next.keyPresent=old.keyPresent;step.next=next;}
         State next=step.next;

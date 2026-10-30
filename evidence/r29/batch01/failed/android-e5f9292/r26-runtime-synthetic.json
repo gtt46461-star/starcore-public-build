@@ -1,0 +1,733 @@
+{
+  "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+  "api": 34,
+  "engineeringWriteProbes": 1000,
+  "fullPredrawOpportunitySloClaimed": false,
+  "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+  "javaHeapLimitAtStart": 603979776,
+  "targetLargeHeapFlag": true,
+  "familyMechanismsWithCommittedProgress": 24,
+  "expertsWithActualReceipts": 16,
+  "allMechanismsServiceMillis": 75874,
+  "strategyReadyToAllMechanismsWallMs": 55222,
+  "firstServiceTargetMs": 60000,
+  "firstServiceTargetObservedWithin": true,
+  "cpuLeaseHeldBeforePressure": true,
+  "cpuLeaseMaxHoldMs": 60000,
+  "cpuLeaseRenewAfterMs": 15000,
+  "r29IndependentResearchActive": true,
+  "legacyDispatchOwner": "RESEARCH_POOL",
+  "canonicalDrawWriteP50Ms": 6,
+  "canonicalDrawWriteP95Ms": 50,
+  "canonicalDrawWriteP99Ms": 68,
+  "canonicalDrawWriteMaxMs": 5066,
+  "result": "FAIL",
+  "error": "java.lang.AssertionError: foundry did not renew and learn past raw retention with the protected incumbent present",
+  "researchThreadsAtFailure": [
+    {
+      "name": "starcore-r27-research-0",
+      "state": "TIMED_WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.util.concurrent.TimeUnit.timedWait(TimeUnit.java:408)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeResearchTaskR29.step(CooperativeResearchTaskR29.java:21)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:121)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:94)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:1012)"
+      ]
+    },
+    {
+      "name": "starcore-r26-continuous-research",
+      "state": "TIMED_WAITING",
+      "stack": [
+        "java.lang.Object.wait(Native Method)",
+        "java.lang.Object.wait(Object.java:386)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.await(RuntimeCoordinatorR26.java:207)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:153)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda5.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:1012)"
+      ]
+    },
+    {
+      "name": "starcore-r29-r27-atoms",
+      "state": "RUNNABLE",
+      "stack": [
+        "java.lang.String.charAt(Native Method)",
+        "java.lang.String.trim(String.java:3353)",
+        "com.ethk3.novaonepro.GenesisAtomicWorldR920.safe(GenesisAtomicWorldR920.java:809)",
+        "com.ethk3.novaonepro.GenesisAtomicWorldR920.-$$Nest$smsafe(Unknown Source:0)",
+        "com.ethk3.novaonepro.GenesisAtomicWorldR920$Stats.<init>(GenesisAtomicWorldR920.java:467)",
+        "com.ethk3.novaonepro.GenesisAtomicWorldR920.stats(GenesisAtomicWorldR920.java:70)",
+        "com.ethk3.novaonepro.GenesisAtomicWorldR920.materializeObserved(GenesisAtomicWorldR920.java:40)",
+        "com.ethk3.novaonepro.AtomReplayR27.build(AtomReplayR27.java:46)",
+        "com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomsStep(AtomWorldR27.java:28)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomsTask.step(RuntimeR27.java:381)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeResearchTaskR29.lambda$step$0(CooperativeResearchTaskR29.java:19)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeResearchTaskR29.$r8$lambda$Htr99_tidkaWhXW9Unqg5gzpr8k(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeResearchTaskR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:45)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:1012)"
+      ]
+    }
+  ],
+  "activeResearchTasksAtFailure": [
+    {
+      "task": "r27-abi",
+      "cursor": 2,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793378142944,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atomnet",
+      "cursor": 1200,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-atoms:frame 1200\/4839))",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atoms",
+      "cursor": 1200,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_PRIVATE_RESEARCH_TASK:r27-atoms",
+      "lastProgress": 1793378147467,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-chart-cache",
+      "cursor": 1793378122,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793378122425,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-evolution",
+      "cursor": 23,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WAIT_FOR_EVOLUTION_READERS",
+      "lastProgress": 1793378148396,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-health",
+      "cursor": 1793378090,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793378090338,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-legacy-export",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:export complete;cursor=1,latest=1",
+      "lastProgress": 1793377967888,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-live",
+      "cursor": 3585040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3585040,latest=3585040",
+      "lastProgress": 1793378144041,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-replay-dataset",
+      "cursor": 3585040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3585040,latest=3585040",
+      "lastProgress": 1793378058089,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-event-inbox",
+      "cursor": 5204,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner\/settlement commit;cursor=0,latest=-1",
+      "lastProgress": 1793378148615,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-capabilities",
+      "cursor": 3584040,
+      "status": "QUARANTINED",
+      "reason": "ERROR:ERROR(IllegalStateException:F01_WRITE_FAILED|operation=R26_TASK_CLAIM)",
+      "lastProgress": 1793378005496,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-continuity",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-state-export",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_RETAINED_LEARNED_LEGACY_CHECKPOINT)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-research-migration",
+      "cursor": 72,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(ACTIVE_R27_DATABASE_LEGACY_VM_RETAINED)",
+      "lastProgress": 1793377967473,
+      "cpuMs": 0
+    }
+  ],
+  "activeResearchDatabase": "\/data\/user\/0\/com.starcore.research.r13\/cache\/r26-synthetic-c561347d-7733-43e0-9385-4fa0d5067c5c\/databases\/starcore-r29-research.db",
+  "tasksAtFailure": [
+    {
+      "task": "ablation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "aggregate-evidence",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "archive",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "artifact-retention",
+      "cursor": 0,
+      "status": "RUNNING",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 26
+    },
+    {
+      "task": "calibration",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "campaign-audit",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "daily-close",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "diagnosis",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "evidence-quality",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "evidence-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "expert-E01",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793377983016,
+      "cpuMs": 18
+    },
+    {
+      "task": "expert-E02",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378005495,
+      "cpuMs": 42
+    },
+    {
+      "task": "expert-E03",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378002000,
+      "cpuMs": 42
+    },
+    {
+      "task": "expert-E04",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378004330,
+      "cpuMs": 46
+    },
+    {
+      "task": "expert-E05",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378003259,
+      "cpuMs": 34
+    },
+    {
+      "task": "expert-E06",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378003966,
+      "cpuMs": 30
+    },
+    {
+      "task": "expert-E07",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378002658,
+      "cpuMs": 46
+    },
+    {
+      "task": "expert-E08",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378002253,
+      "cpuMs": 34
+    },
+    {
+      "task": "expert-E09",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378003058,
+      "cpuMs": 41
+    },
+    {
+      "task": "expert-E10",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378003910,
+      "cpuMs": 27
+    },
+    {
+      "task": "expert-E11",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378001932,
+      "cpuMs": 33
+    },
+    {
+      "task": "expert-E12",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378002992,
+      "cpuMs": 41
+    },
+    {
+      "task": "expert-E13",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378003687,
+      "cpuMs": 19
+    },
+    {
+      "task": "expert-E14",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378001722,
+      "cpuMs": 42
+    },
+    {
+      "task": "expert-E15",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793377984261,
+      "cpuMs": 18
+    },
+    {
+      "task": "expert-E16",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793377984308,
+      "cpuMs": 20
+    },
+    {
+      "task": "feedback",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 12
+    },
+    {
+      "task": "foundry-su1",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "foundry-su2",
+      "cursor": 24,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793377996067,
+      "cpuMs": 47
+    },
+    {
+      "task": "incumbent-forecast",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "INCUMBENT_MISSING_AFTER_OPEN",
+      "lastProgress": 0,
+      "cpuMs": 5
+    },
+    {
+      "task": "kernel",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "legacy-generation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "legacy-replay",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "live-forecast-preparation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "live-model-training",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "publish-models",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "qualification",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 3
+    },
+    {
+      "task": "r27-abi",
+      "cursor": 2,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793378142944,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atomnet",
+      "cursor": 1200,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-atoms:frame 1200\/4839))",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atoms",
+      "cursor": 1200,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_PRIVATE_RESEARCH_TASK:r27-atoms",
+      "lastProgress": 1793378147467,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-chart-cache",
+      "cursor": 1793378122,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793378122425,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-evolution",
+      "cursor": 23,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WAIT_FOR_EVOLUTION_READERS",
+      "lastProgress": 1793378148396,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-health",
+      "cursor": 1793378090,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793378090338,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-legacy-export",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:export complete;cursor=1,latest=1",
+      "lastProgress": 1793377967888,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-live",
+      "cursor": 3585040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3585040,latest=3585040",
+      "lastProgress": 1793378144041,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-replay-dataset",
+      "cursor": 3585040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3585040,latest=3585040",
+      "lastProgress": 1793378058089,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-event-inbox",
+      "cursor": 5204,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner\/settlement commit;cursor=0,latest=-1",
+      "lastProgress": 1793378148615,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-capabilities",
+      "cursor": 3584040,
+      "status": "QUARANTINED",
+      "reason": "ERROR:ERROR(IllegalStateException:F01_WRITE_FAILED|operation=R26_TASK_CLAIM)",
+      "lastProgress": 1793378005496,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-continuity",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-state-export",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_RETAINED_LEARNED_LEGACY_CHECKPOINT)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-research-migration",
+      "cursor": 72,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(ACTIVE_R27_DATABASE_LEGACY_VM_RETAINED)",
+      "lastProgress": 1793377967473,
+      "cpuMs": 0
+    },
+    {
+      "task": "retention",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 41
+    },
+    {
+      "task": "schema",
+      "cursor": 267,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=267,latest=3584040",
+      "lastProgress": 1793377950281,
+      "cpuMs": 1
+    },
+    {
+      "task": "schema-base",
+      "cursor": 2,
+      "status": "BLOCKED",
+      "reason": "LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=:",
+      "lastProgress": 1793378000277,
+      "cpuMs": 39
+    },
+    {
+      "task": "sealed-planner",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "seed-incumbent",
+      "cursor": 3584040,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793378001101,
+      "cpuMs": 14
+    },
+    {
+      "task": "shadow-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "su1-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "su2-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 1
+    },
+    {
+      "task": "su2-mainline",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "warm-candidates",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    }
+  ],
+  "legacySchema": "INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+  "committedResearchService": {
+    "scope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source\/runtime\/device; historical folds span sources; not P0 or a full opportunity SLO",
+    "sessions": [
+      {
+        "sessionId": "273f169f-c268-4e29-867e-44a8ff47266a",
+        "sourceCommit": "e5f92929e9cdf5c1eadfec3252782039b944dae2",
+        "numericalAbi": "6ef3fcef617db890bc5754534e5dcee62cd87ea548f5f58001925fd70f69e444",
+        "apiLevel": 34,
+        "deviceModel": "Android SDK built for x86_64",
+        "committedSlices": 261,
+        "researchCpuMs": 18871,
+        "serviceWallMs": 22557,
+        "capacityFailures": 0
+      }
+    ],
+    "totalSessionRows": 1,
+    "omittedSessionRows": 0,
+    "historicalFoldedTotals": {},
+    "committedCapacityFailuresSinceInstallation": 0
+  },
+  "retainedCapacityFailureDetails": [],
+  "legacySchemaAtCompletion": "INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+  "slowestLegacyMigrationUnits": [
+    {
+      "step": "R811_RESEARCH",
+      "journalElapsedMs": 19
+    },
+    {
+      "step": "R815_RESEARCH",
+      "journalElapsedMs": 11
+    }
+  ]
+}

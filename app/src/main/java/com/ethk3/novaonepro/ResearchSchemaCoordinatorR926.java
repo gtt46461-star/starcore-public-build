@@ -19,7 +19,7 @@ public final class ResearchSchemaCoordinatorR926 {
 
     /** Result belongs to this invocation, even if another writer finishes before it returns. */
     public static final class StepResult {
-        public final boolean ready, enteredWriter;
+        public final boolean ready, enteredWriter, pending;
         public final String status, detail;
         public final Throwable cause;
         /** One observed schema/journal unit, never a numerical sample or a writer attempt. */
@@ -28,8 +28,11 @@ public final class ResearchSchemaCoordinatorR926 {
             this(ready,enteredWriter,status,detail,cause,0);
         }
         StepResult(boolean ready, boolean enteredWriter, String status, String detail, Throwable cause,long units) {
+            this(ready,enteredWriter,status,detail,cause,units,false);
+        }
+        StepResult(boolean ready, boolean enteredWriter, String status, String detail, Throwable cause,long units,boolean pending) {
             this.ready=ready; this.enteredWriter=enteredWriter; this.status=status;
-            this.detail=detail; this.cause=cause;this.committedUnits=units;
+            this.detail=detail; this.cause=cause;this.committedUnits=units;this.pending=pending;
         }
     }
 
@@ -41,13 +44,18 @@ public final class ResearchSchemaCoordinatorR926 {
      * The same existing writer commits one statement; this does not stamp the legacy domain READY. */
     public static StepResult ensureStrategyStorageOneStep(final DatabaseCoordinator owner) {
         if(owner==null)return new StepResult(false,false,"WRITER_FAILED","OWNER_REQUIRED",null);
+        final boolean[] entered={false};
         try{return owner.runAtomicWriteOrThrowF01("R26_STRATEGY_STORAGE_UNIT",db->{
+            entered[0]=true;
             int before=0;try(android.database.Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(c.moveToFirst())before=c.getInt(0);}
             int unitsBefore=strategyUnits(db);boolean ready=com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db);
             int after=0;try(android.database.Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(c.moveToFirst())after=c.getInt(0);}
             int unitsAfter=strategyUnits(db);boolean changed=before!=after||unitsBefore!=unitsAfter;
             return new StepResult(ready,true,ready?"STRATEGY_STORAGE_READY":changed?"STRATEGY_UNIT_COMMITTED":"STRATEGY_NO_UNIT_PROGRESS",unitsBefore+"->"+unitsAfter,null);
-        });}catch(Exception failure){return new StepResult(false,false,"STRATEGY_STORAGE_FAILED",DatabaseCoordinator.describeCauseChain(failure,1800),failure);}
+        });}catch(Exception failure){
+            if(com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.writerBusy(failure))return pending(entered[0],failure);
+            return new StepResult(false,entered[0],"STRATEGY_STORAGE_FAILED",DatabaseCoordinator.describeCauseChain(failure,1800),failure);
+        }
     }
     private static int strategyUnits(SQLiteDatabase db){
         try(android.database.Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_migration_unit_v2'",null)){if(!c.moveToFirst())return 0;}
@@ -69,6 +77,12 @@ public final class ResearchSchemaCoordinatorR926 {
                         catch (ResearchWorkBudgetR927.Yield yielded) { throw yielded; }
                         catch (RuntimeResourceAuditR927.BudgetExceeded yielded) { throw yielded; }
                         catch (Exception failure) {
+                            if(com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.writerBusy(failure)){
+                                state="WAITING_FOR_DEPENDENCY";error="";failureCause=null;
+                                // Let the real writer unwind its transaction. Returning a wait from this
+                                // callback would commit any partial DDL/failed journal before the wait.
+                                throw dependency(failure);
+                            }
                             state="FAILED"; failureCause=failure; error=DatabaseCoordinator.describeCauseChain(failure,1800);
                             owner.publishResearchSchemaResultR80(false, error);
                             return new StepResult(false,true,state,error,failure);
@@ -90,11 +104,21 @@ public final class ResearchSchemaCoordinatorR926 {
                     && "CP3_DB_WRITE_ON_MAIN_THREAD".equals(failure.getMessage()))
                 throw (IllegalStateException)failure;
             String detail=DatabaseCoordinator.describeCauseChain(failure,1800);
-            boolean busy=detail.contains("CP3_DB_BUSY_DEADLINE") || detail.contains("InterruptedException");
+            if(com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.writerBusy(failure))return pending(entered[0],failure);
             // Do not publish outside the writer. Entry and the F01 cause belong to this call,
             // including the uncommon case of a failure after its callback began.
-            return new StepResult(false,entered[0],busy?"WRITER_BUSY":"WRITER_FAILED",detail,failure);
+            return new StepResult(false,entered[0],"WRITER_FAILED",detail,failure);
         }
+    }
+
+    private static StepResult pending(boolean entered,Throwable wait){
+        // A dependency is observable in this invocation without publishing outside the writer
+        // or turning a bounded mirror bootstrap into a schema failure/progress receipt.
+        return new StepResult(false,entered,"WRITER_BUSY",DatabaseCoordinator.describeCauseChain(wait,1800),null,0,true);
+    }
+    private static RuntimeException dependency(Exception failure){
+        return failure instanceof RuntimeException?(RuntimeException)failure:
+                new IllegalStateException("CP3_DB_BUSY_RESEARCH_SCHEMA_DEPENDENCY",failure);
     }
 
     private static long[] schemaProgress(SQLiteDatabase db){
@@ -200,6 +224,10 @@ public final class ResearchSchemaCoordinatorR926 {
             } catch (RuntimeResourceAuditR927.BudgetExceeded yielded) {
                 throw yielded;
             } catch (Exception failure) {
+                if(com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.writerBusy(failure)){
+                    state="WAITING_FOR_DEPENDENCY";error="";failureCause=null;
+                    throw dependency(failure);
+                }
                 state = "FAILED";
                 failureCause=failure;
                 error = DatabaseCoordinator.describeCauseChain(failure, 1800);

@@ -1,0 +1,30 @@
+{
+  "result": "PASS_WITH_STATED_HOST_SCOPE_ANDROID_DEVICE_PENDING",
+  "scope": "REAL_SQLITE_HOST_ACK_BOOTSTRAP_FENCE_NOT_ANDROID_OR_NATURAL",
+  "actualAndroidFailureSource": "evidence/r29/batch01/failed/android-e5f9292",
+  "finding": "CATCHUP ACK legitimately advances floor_seq beyond original bootstrap base; treating every non-READY phase as bootstrap restarts complete copy",
+  "fix": "Apply base_seq versus floor_seq fence only during BOOTSTRAP; CATCHUP uses durable source_seq versus floor_seq",
+  "oldImplementationActuallyFailed": "failed-old-base-command.log",
+  "newImplementationPassed": "pass-command.log",
+  "passedHostChecks": 21,
+  "deltaKeys": 193,
+  "durableCatchupPages": 4,
+  "eachPageActuallyAcknowledged": true,
+  "sourceEpochAndSchemaVersionUnchanged": true,
+  "androidDCoWrappedPath": "R29DatabaseCutoverDeviceTest.warmup via DatabaseCoordinator.runAtomicWriteOrThrowF01 and LegacyResearchScopeR29",
+  "androidFixtureInitialRootOosRows": 130,
+  "androidFixtureNewRootDeltaKeys": 193,
+  "androidRootHeldDeadlineMillisUnchanged": 1500,
+  "androidWarmupBoundMillis": 30000,
+  "androidCursorReceiptFields": [
+    "phase",
+    "sourceEpoch",
+    "sourceSeq",
+    "baseSeq",
+    "tableIndex",
+    "key",
+    "businessBodyEntered"
+  ],
+  "androidVerification": "MANUAL_JAVAC_PASS_DEVICE_NOT_RUN_IN_CHILD",
+  "gradleCommitPushSigningKeys": "NOT_RUN_NOT_ACCESSED"
+}

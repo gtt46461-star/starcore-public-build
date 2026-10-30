@@ -77,5 +77,17 @@ public final class CriticalInputMirrorR29HostTest {
             check("I19_MISSING_OR_CHANGED_TRACKERS_SOURCE_SCHEMA_AND_VIEW_REQUIRE_REAL_REINSTALL",missingRejected&&recreated&&bodyRejected&&schemaRejected&&viewRejected&&CriticalInputMirrorR29.installedRealtime(root));
         }
     }
-    public static void main(String[]args)throws Exception{tests();System.out.println("R29_CRITICAL_MIRROR|ALL_PASS|checks="+checks+"|REAL_SQLITE_HOST_ONLY_ANDROID_COMBINED_ACCEPTANCE_PENDING");}
+    static void catchupAck()throws Exception{
+        try(SQLiteDatabase root=db();SQLiteDatabase target=db()){
+            setup(root);bootstrap(root,target);long epoch=CriticalInputMirrorR29.sourceEpoch(root),schema=n(root,"PRAGMA schema_version");
+            EventBridgeR29HostTest.tx(root,()->{for(int i=0;i<193;i++)root.execSQL("INSERT INTO "+OOS+" VALUES(?,1)",new Object[]{"multi-ack-"+i});},false);
+            CriticalInputMirrorR29.Step first=CriticalInputMirrorR29.capture(root,target);EventBridgeR29HostTest.tx(target,()->CriticalInputMirrorR29.apply(target,first),false);EventBridgeR29HostTest.tx(root,()->CriticalInputMirrorR29.acknowledge(root,first.next.seq),false);
+            CriticalInputMirrorR29.Step second=CriticalInputMirrorR29.capture(root,target);
+            check("I20_COMMITTED_CATCHUP_ACK_CANNOT_RESET_BOOTSTRAP_TO_OLD_BASE",!second.reset&&"CATCHUP".equals(first.next.phase)&&first.next.seq>first.next.base&&CriticalInputMirrorR29.floor(root)==first.next.seq&&second.changes.size()==64);
+            int pages=1;boolean complete=false;while(!complete){CriticalInputMirrorR29.Step step=CriticalInputMirrorR29.capture(root,target);long before=CriticalInputMirrorR29.state(target).seq;boolean[] done={false};EventBridgeR29HostTest.tx(target,()->done[0]=CriticalInputMirrorR29.apply(target,step),false);EventBridgeR29HostTest.tx(root,()->CriticalInputMirrorR29.acknowledge(root,step.next.seq),false);if(step.reset||step.next.seq<=before||++pages>5)throw new AssertionError("catchup did not durably advance after ACK");complete=done[0];}
+            EventBridgeR29HostTest.tx(root,()->CriticalInputMirrorR29.ensureRealtime(root),false);
+            check("I21_MULTIPAGE_CATCHUP_DURABLY_ADVANCES_WITH_REAL_ACK_AND_STABLE_SOURCE_EPOCH",pages==4&&n(target,"SELECT count(*) FROM "+OOS)==193&&CriticalInputMirrorR29.state(target).seq==CriticalInputMirrorR29.sourceSequence(root)&&"READY".equals(CriticalInputMirrorR29.state(target).phase)&&CriticalInputMirrorR29.sourceEpoch(root)==epoch&&n(root,"PRAGMA schema_version")==schema&&n(root,"SELECT count(*) FROM "+CriticalInputMirrorR29.CHANGE)==0);
+        }
+    }
+    public static void main(String[]args)throws Exception{tests();catchupAck();System.out.println("R29_CRITICAL_MIRROR|ALL_PASS|checks="+checks+"|REAL_SQLITE_HOST_ONLY_ANDROID_COMBINED_ACCEPTANCE_PENDING");}
 }

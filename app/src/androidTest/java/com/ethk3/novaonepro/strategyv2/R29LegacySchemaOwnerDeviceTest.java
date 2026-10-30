@@ -71,11 +71,17 @@ public final class R29LegacySchemaOwnerDeviceTest {
             assertEquals("ACTIVE_INDEPENDENT_RESEARCH_WRITER",ResearchCutoverR29.run(store,worker));workerReader.close();workerReader=null;
             owner.runAtomicWriteOrThrowF01("SYNTHETIC_R29_SCHEMA_OWNER_INITIALIZE",db->{LegacyCapabilityAdapterR29.initialize(db,"synthetic-schema-owner");return 0;});
             rp=ResearchRouteR29.openWorkerReader(sandbox);assertTrue(ResearchRouteR29.active(rootReader));
-            long began=System.nanoTime(),deadline=began+60_000_000_000L;boolean ready=false,intermediateCommit=false;int steps=0;
+            long began=System.nanoTime(),deadline=began+60_000_000_000L;boolean ready=false,intermediateCommit=false;int steps=0,pendingSteps=0;
             while(System.nanoTime()<deadline&&!ready){
                 try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
                     ResearchSchemaCoordinatorR926.StepResult step=ResearchSchemaCoordinatorR926.ensureOneStepResult(owner);ready=step.ready;
-                    assertNull(step.detail,step.cause);if(!ready&&step.committedUnits>0)intermediateCommit=true;
+                    if(step.pending){
+                        pendingSteps++;assertFalse(step.ready);assertNull(step.detail,step.cause);
+                        assertEquals("an input dependency cannot count as a schema unit",0,step.committedUnits);
+                        assertEquals("WRITER_BUSY",step.status);
+                    }else{
+                        assertNull(step.detail,step.cause);if(!ready&&step.committedUnits>0)intermediateCommit=true;
+                    }
                 }
                 steps++;String state=ResearchSchemaCoordinatorR926.summary();assertFalse(state,state.startsWith("FAILED"));
             }
@@ -86,7 +92,7 @@ public final class R29LegacySchemaOwnerDeviceTest {
             }
             result.put("intermediateSchemaCommittedUnits",true);result.put("readySchemaNoProgressUnit",true);
             assertTrue(SchemaDomainCoordinatorR926.matches(rp,SchemaDomainCoordinatorR926.researchContract(rp)));assertEquals(133,n(rp,"SELECT count(*) FROM "+AssetGenesisEngineR915.TABLE_LEGACY_REGISTRY));assertEquals(240,n(rp,"SELECT count(*) FROM "+AssetGenesisEngineR915.TABLE_ATOM_SCHEMA));
-            result.put("legacySchemaReady",true);result.put("schemaSteps",steps);result.put("schemaMillis",(System.nanoTime()-began)/1000000);
+            result.put("legacySchemaReady",true);result.put("schemaSteps",steps);result.put("schemaPendingSteps",pendingSteps);result.put("schemaMillis",(System.nanoTime()-began)/1000000);
             String[] forbidden={"trades","decisions","v57_draw_canonical_r811","research_exact_probability_f05","r974_exact_real_receipt",DbHelper.TABLE_R906_SELECTED_EVIDENCE,DbHelper.TABLE_R906_ISSUE_CLOSURE,DbHelper.TABLE_R906_SETTLEMENT_OUTBOX,DbHelper.TABLE_R906_RUNTIME_TRUTH,RuntimeEventLedgerR926.TABLE_EVENT,RuntimeEventLedgerR926.TABLE_PROJECTION,RuntimeEventLedgerR926.TABLE_OUTBOX,SchemaRevisionR925.TABLE_FETCH_LEDGER,SchemaRevisionR925.TABLE_PREDICTION_TIMING,SchemaRevisionR925.TABLE_RUNTIME_EPOCH,"b03_action_event","b03_number_event","b03_permutation_event","b03_prediction_bundle","b03_selected_event","b03_authorization_event","b03_settlement_event","b03_transaction_audit","su1_mainline_binding","su2_mainline_choice"};
             // Critical input mirrors may exist, but this list must remain Root-owned and absent in RP.
             for(String name:forbidden)assertFalse("research installer invented Root authority "+name,table(rp,name));

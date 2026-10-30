@@ -1,0 +1,40 @@
+{
+  "source": "e5f92929e9cdf5c1eadfec3252782039b944dae2",
+  "run": 41089726176,
+  "result": "FAIL_4PASS_3FAIL_BATCH_NOT_ACCEPTED",
+  "pass": [
+    "largeModelFullStateAndNextUpdate",
+    "largeTypedRows",
+    "criticalRootFreezeCanonical12AndFormalRetention10",
+    "oldFullExtensionComplete3MiBArtifact"
+  ],
+  "fail": [
+    "cutoverHelperSingleScopeWarmupGetsExpectedButUnhandledBootstrapBusy",
+    "schemaOwnerBusyWasExposedAsFailureInsteadOfPending",
+    "runtimeDispatcherWrappedBusyQuarantinedThenRetention120sFailed"
+  ],
+  "actualRuntime": {
+    "families": 24,
+    "experts": 16,
+    "firstServiceAfterReadyMs": 55222,
+    "firstServiceTargetMs": 60000,
+    "firstServicePassed": true,
+    "independentResearchActive": true,
+    "canonicalWrites": 1000,
+    "writeP95Ms": 50,
+    "writeP99Ms": 68,
+    "writeMaxMs": 5066,
+    "legacyCommittedCapacityFailures": 0,
+    "restart": "NOT_REACHED"
+  },
+  "verifiedNewSourceBug": "CATCHUP ACK advances floor above old bootstrap base, and old reset incorrectly returns to full bootstrap; fix restricts base fence to BOOTSTRAP only",
+  "unchangedCriteria": [
+    "60s first service",
+    "240s mechanism budget",
+    "1500ms Root-held isolation",
+    "1000 writer probes",
+    "120s retention renewal",
+    "zero actual research errors",
+    "restart and stale fence"
+  ]
+}

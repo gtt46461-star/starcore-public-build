@@ -1,0 +1,20 @@
+{
+  "sourceEvidence": "evidence/r29/batch01/failed/android-e5f9292",
+  "observedFailure": "F01_WRITE_FAILED|operation=R26_TASK_CLAIM caused by CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP escaped LegacyCapabilityAdapterR29.step and consumed the dispatcher's genuine error budget",
+  "changes": [
+    "LegacyCapabilityAdapterR29 production step uses a shared dispatch boundary: known nested writer/input-admission busy returns an idle DEPENDENCY with zero units, never an error receipt",
+    "ResearchWriteQueueR27.writerBusy is public for schema-owner reuse; traverses complete cycle-safe cause chain, requires CP3 message prefix, rejects genuine SQLite/schema or capacity failures even under a busy wrapper"
+  ],
+  "validation": {
+    "mainQuickJavac": "PASS (2 changed main files)",
+    "host": "16/16 PASS; 1430 real source rows produce 19 durable bootstrap pending turns before the original task commits cursor 1; pending units/cursor remain zero and existing error_count=2 remains unchanged",
+    "negativeCases": "SQL/schema, scheduler fence, unsliced capacity and incidental busy text propagate as errors; true SQL/capacity exceptions escape adapter unchanged",
+    "existingR27QualityBusyRegression": "PASS 1/1",
+    "hostBoundary": "New standalone host uses actual CriticalInputMirror capture/apply and production adapter; F01 wrapper shape is reproduced explicitly, not claimed as actual DCo execution",
+    "actualDcoFollowup": "b01_acceptance_audit/full_schema_cutover_probe reuses its bound real DCo/DbStore+Scope+Cutover fixture for actual R26_TASK_CLAIM wrapper coverage",
+    "android": "Root owns unified original-threshold Android CI; not run by this agent"
+  },
+  "logs": ["javac.log", "host-command.log", "existing-busy-junit.log"],
+  "errorHistoryOrThresholdChanges": "NONE",
+  "gradleCommitPush": "NOT_RUN"
+}

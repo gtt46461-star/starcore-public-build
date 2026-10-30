@@ -78,14 +78,19 @@ public final class ResearchWriteQueueR27 {
         if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation);
     }
 
-    /** True when the failure is the single writer being busy (deadline/interrupt), as opposed to a real write error. */
-    static boolean writerBusy(Throwable failure) {
-        for (Throwable t = failure; t != null; t = t.getCause()) {
+    /** Known bounded writer/input-admission waits, including their F01 cause wrappers. Real SQL/schema and
+     * unsliced-computation failures remain errors even when an outer wrapper mentions a busy token. */
+    public static boolean writerBusy(Throwable failure) {
+        boolean busy=false;
+        java.util.Set<Throwable> seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<Throwable,Boolean>());
+        for (Throwable t = failure; t != null&&seen.add(t); t = t.getCause()) {
             String m = String.valueOf(t.getMessage());
-            if (m.contains("CP3_DB_BUSY_") || t instanceof InterruptedException || t instanceof android.database.sqlite.SQLiteDatabaseLockedException) return true;
-            if (t.getCause() == t) break;
+            // A genuine SQL/schema or unsliced-computation error must not be hidden by a wrapper's text.
+            if(t instanceof android.database.sqlite.SQLiteException&&!(t instanceof android.database.sqlite.SQLiteDatabaseLockedException))return false;
+            if(t instanceof Error||m.startsWith("R26_UNSLICED_COMPUTATION_CAPACITY")||m.startsWith("CAPACITY_FAIL:"))return false;
+            if (m.startsWith("CP3_DB_BUSY_") || t instanceof InterruptedException || t instanceof android.database.sqlite.SQLiteDatabaseLockedException) busy=true;
         }
-        return false;
+        return busy;
     }
 
     private synchronized void stat(long waited, boolean requeued) {

@@ -16,9 +16,19 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
     public String id(){return "r29-legacy-capabilities";}
     public boolean serviceDispatcher(){return true;}
     public boolean enabled(){return runtime.poolDispatchReady();}
+    interface Dispatch {ResearchPoolR27.Outcome run()throws Exception;}
+    /** Input-mirror bootstrap commits its own bounded pages before a legacy claim can enter. F01 preserves
+     * that pending cause; waiting for the next page must not consume the dispatcher's error/quarantine budget. */
+    static ResearchPoolR27.Outcome dispatch(Dispatch call)throws Exception{
+        try{return call.run();}
+        catch(Exception failure){
+            if(!ResearchWriteQueueR27.writerBusy(failure))throw failure;
+            return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:LEGACY_DISPATCH",0,-1);
+        }
+    }
     public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker)throws Exception{
         if(!runtime.poolDispatchReady())return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_CUTOVER_AND_LEGACY_DRAIN",0,-1);
-        return runtime.runPoolLegacySlice();
+        return dispatch(runtime::runPoolLegacySlice);
     }
     static void initialize(SQLiteDatabase realtime,String session){
         if(!realtime.inTransaction())throw new IllegalStateException("R29_SCHEDULER_OWNER_TRANSACTION");

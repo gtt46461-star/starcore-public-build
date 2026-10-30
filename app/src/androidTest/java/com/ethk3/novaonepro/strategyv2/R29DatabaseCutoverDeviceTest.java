@@ -26,6 +26,24 @@ public final class R29DatabaseCutoverDeviceTest {
             }throw failure;
         }
     }
+    static boolean mirrorBusy(Throwable failure){for(int i=0;failure!=null&&i<16;i++,failure=failure.getCause()){String message=failure.getMessage();if(message!=null&&message.startsWith("CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP"))return true;}return false;}
+    /** This deliberately exercises the public DCo wrapper, not direct capture/apply. A busy response may
+     * follow a separately committed mirror page; the requested business transaction must not run early. */
+    static void warmup(DbStore store,SQLiteDatabase research,Map<String,Object> result,String name)throws Exception{
+        long deadline=android.os.SystemClock.elapsedRealtime()+30_000;int busy=0,bodies=0;boolean done=false;List<Map<String,Object>> pages=new ArrayList<>();
+        while(!done&&android.os.SystemClock.elapsedRealtime()<deadline&&pages.size()<256){
+            CriticalInputMirrorR29.State before=CriticalInputMirrorR29.state(research);String previous=before==null?null:before.identity();boolean[] entered={false};
+            try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
+                try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SYNTHETIC_SCOPE_WARMUP",db->{entered[0]=true;db.execSQL("UPDATE r26_task SET cursor=5 WHERE task_id='synthetic-legacy'");return 0;});done=true;}
+                catch(RuntimeException failure){if(!mirrorBusy(failure))throw failure;assertTrue("must exercise the public DCo failure wrapper",String.valueOf(failure.getMessage()).startsWith("F01_WRITE_FAILED"));assertFalse("business body entered before all input pages committed",entered[0]);busy++;}
+            }
+            if(entered[0])bodies++;
+            CriticalInputMirrorR29.State after=CriticalInputMirrorR29.state(research);assertNotNull("mirror state must be durable even after wrapped busy",after);
+            Map<String,Object> page=new LinkedHashMap<>();page.put("phase",after.phase);page.put("sourceEpoch",after.epoch);page.put("sourceSeq",after.seq);page.put("baseSeq",after.base);page.put("tableIndex",after.index);page.put("key",Arrays.asList(after.key));page.put("businessBodyEntered",entered[0]);pages.add(page);result.put(name+"Pages",pages);
+            if(!done)assertFalse("wrapped busy returned without a durable cursor step: "+JsonR27.write(page),Objects.equals(previous,after.identity()));
+        }
+        assertTrue("input warmup exceeded existing 30s bound: "+JsonR27.write(pages),done);assertEquals(1,bodies);assertTrue("fixture must exercise multiple committed busy pages",busy>=2);assertTrue(CriticalInputMirrorR29.canonicalReady(research));result.put(name+"ActualWrappedDCoMultipageCommit",true);
+    }
     static void checkpoint(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null)){assertTrue(c.moveToFirst());assertEquals(0,c.getInt(0));}}
     @Test public void realAndroidCutoverIndependentWritersAndReport()throws Exception{
         Context target=InstrumentationRegistry.getInstrumentation().getTargetContext();assertNull(DatabaseCoordinator.peek());
@@ -43,6 +61,7 @@ public final class R29DatabaseCutoverDeviceTest {
             try(SQLiteDatabase memory=SQLiteDatabase.create(null)){assertSame(memory,select.invoke(coordinator,memory));}
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_SCHEMA",db->{
                 RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);
+                for(int i=1;i<=130;i++)CriticalInputProductionTriggerFixtureR29.oos(db,String.format(Locale.ROOT,"20261029%04d",i),1);
                 db.execSQL("CREATE TABLE r29_cutover_fixture(id INTEGER PRIMARY KEY,value BLOB,n TEXT)");
                 for(int i=0;i<97;i++)db.execSQL("INSERT INTO r29_cutover_fixture VALUES(?,?,NULL)",new Object[]{i-48,new byte[]{0,1,(byte)i}});
                 assertSame("transaction observes its own owner",db,coordinator.realtimeReadOnlyR29());assertEquals(97,n(coordinator.realtimeReadOnlyR29(),"SELECT count(*) FROM r29_cutover_fixture"));
@@ -75,9 +94,13 @@ public final class R29DatabaseCutoverDeviceTest {
             assertEquals(1,n(researchReader,"SELECT count(*) FROM r26_task WHERE task_id='synthetic-legacy'"));assertEquals(1,n(researchReader,"SELECT count(*) FROM r26_task WHERE task_id='synthetic-r27'"));
             ResearchRouteR29.write(store,"SYNTHETIC_R29_ONLY_RESEARCH",db->{assertEquals(1,n(db,"SELECT count(*) FROM pragma_database_list"));db.execSQL("UPDATE r29_cutover_fixture SET n='research-only' WHERE id=0");return 0;});
             assertEquals(0,n(original,"SELECT count(*) FROM r29_cutover_fixture WHERE n='research-only'"));assertEquals(1,n(researchReader,"SELECT count(*) FROM r29_cutover_fixture WHERE n='research-only'"));
-            try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SYNTHETIC_SCOPE_WARMUP",db->{db.execSQL("UPDATE r26_task SET cursor=5 WHERE task_id='synthetic-legacy'");return 0;});
-            }
+            warmup(store,researchReader,result,"criticalBootstrap");
+            long epoch=CriticalInputMirrorR29.sourceEpoch(coordinator.realtimeReadOnlyR29());
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_MULTIPAGE_REAL_ROOT_DELTA",db->{for(int i=1;i<=193;i++)CriticalInputProductionTriggerFixtureR29.oos(db,String.format(Locale.ROOT,"20261028%04d",i),1);return 0;});
+            warmup(store,researchReader,result,"criticalCatchupWithAck");
+            assertEquals("repeated scope refresh must not reinstall/increment Root schema epoch",epoch,CriticalInputMirrorR29.sourceEpoch(coordinator.realtimeReadOnlyR29()));
+            assertEquals(323,n(researchReader,"SELECT count(*) FROM "+DbHelper.TABLE_R35_OOS_LABEL));
+            result.put("criticalInputAckDoesNotResetCatchupBootstrap",true);
             CountDownLatch rootHeld=new CountDownLatch(1),releaseRoot=new CountDownLatch(1);
             Future<?> held=executor.submit(()->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_REALTIME_HELD",db->{db.execSQL("UPDATE r29_cutover_fixture SET n='root-held' WHERE id=1");rootHeld.countDown();if(!releaseRoot.await(5,TimeUnit.SECONDS))throw new IOException("synthetic release timeout");return 0;}));
             try{

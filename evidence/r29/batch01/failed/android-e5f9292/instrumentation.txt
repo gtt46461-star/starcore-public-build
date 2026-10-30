@@ -1,0 +1,65 @@
+INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest:
+INSTRUMENTATION_STATUS: test=realAndroidCutoverIndependentWritersAndReport
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R26_SYNTHETIC_SCOPE_WARMUP
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:775)
+	at com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest.realAndroidCutoverIndependentWritersAndReport(R29DatabaseCutoverDeviceTest.java:79)
+	... 33 trimmed
+Caused by: java.lang.IllegalStateException: CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP
+	at com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.refresh(CriticalInputMirrorR29.java:264)
+	at com.ethk3.novaonepro.strategyv2.ResearchInputMirrorR29.refresh(ResearchInputMirrorR29.java:27)
+	at com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.write(LegacyResearchScopeR29.java:57)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:640)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)
+	... 36 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest):
+java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R26_SYNTHETIC_SCOPE_WARMUP
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:775)
+	at com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest.realAndroidCutoverIndependentWritersAndReport(R29DatabaseCutoverDeviceTest.java:79)
+	... 33 trimmed
+Caused by: java.lang.IllegalStateException: CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP
+	at com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.refresh(CriticalInputMirrorR29.java:264)
+	at com.ethk3.novaonepro.strategyv2.ResearchInputMirrorR29.refresh(ResearchInputMirrorR29.java:27)
+	at com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.write(LegacyResearchScopeR29.java:57)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:640)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)
+	... 36 more
+
+INSTRUMENTATION_STATUS: test=realAndroidCutoverIndependentWritersAndReport
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 17.037
+There was 1 failure:
+1) realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest)
+java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R26_SYNTHETIC_SCOPE_WARMUP
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:775)
+	at com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest.realAndroidCutoverIndependentWritersAndReport(R29DatabaseCutoverDeviceTest.java:79)
+	... 33 trimmed
+Caused by: java.lang.IllegalStateException: CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP
+	at com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.refresh(CriticalInputMirrorR29.java:264)
+	at com.ethk3.novaonepro.strategyv2.ResearchInputMirrorR29.refresh(ResearchInputMirrorR29.java:27)
+	at com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.write(LegacyResearchScopeR29.java:57)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:640)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)
+	... 36 more
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
