@@ -1,0 +1,20 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R29_SCHEMA_OWNER|S12_ACTUAL_PRODUCT_LEGACY_BASE_COPIED_WITHOUT_ROOT_AUTHORITY|OK
+R29_SCOPED_SCHEMA_PENDING|P1_ACTUAL_ROOT_HAS_MORE_THAN_THREE_CANONICAL_PAGES|OK
+R29_SCOPED_SCHEMA_PENDING|P2_REAL_COORDINATOR_HELPER_AND_STORE_ARE_BOUND|OK
+R29_SCOPED_SCHEMA_PENDING|P3_REAL_CUTOVER_PUBLISHED_WITH_CANONICAL_BOOTSTRAP_PENDING|OK
+R29_SCOPED_SCHEMA_PENDING|P4_RP_HAS_NEVER_BEEN_CANONICAL_READY|OK
+R29_SCOPED_SCHEMA_PENDING|STEP|1|status=WRITER_FAILED|entered=false|pending=false|units=0|canonicalRows=0
+Exception in thread "main" java.lang.AssertionError: PENDING_DID_NOT_SURVIVE_REAL_F01:java.lang.IllegalStateException:F01_WRITE_FAILED|operation=R958_RESEARCH_SCHEMA_STEP <- java.lang.IllegalStateException:CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP
+	at com.ethk3.novaonepro.strategyv2.ScopedSchemaPendingR29HostTest.main(ScopedSchemaPendingR29HostTest.java:97)
+Caused by: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R958_RESEARCH_SCHEMA_STEP
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)
+	at com.ethk3.novaonepro.ResearchSchemaCoordinatorR926.ensureOneStepResult(ResearchSchemaCoordinatorR926.java:61)
+	at com.ethk3.novaonepro.strategyv2.ScopedSchemaPendingR29HostTest.main(ScopedSchemaPendingR29HostTest.java:95)
+Caused by: java.lang.IllegalStateException: CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP
+	at com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.refresh(CriticalInputMirrorR29.java:266)
+	at com.ethk3.novaonepro.strategyv2.ResearchInputMirrorR29.refresh(ResearchInputMirrorR29.java:27)
+	at com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.write(LegacyResearchScopeR29.java:57)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:640)
+	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)
+	... 2 more
