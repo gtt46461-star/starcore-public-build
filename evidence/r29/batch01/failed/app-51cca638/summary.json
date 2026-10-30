@@ -1,0 +1,88 @@
+{
+  "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+  "source": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+  "run": 41143255308,
+  "job": 124362287289,
+  "artifact": 13018998994,
+  "zipBytes": 364413,
+  "zipSha256": "8ecff7b8dd904d9961b88a503af434adeba99b429f2767c0bd60f35f1522f2c0",
+  "status": "FAIL_UPGRADE_RECOVERY_REQUIRED_CLEAN_PASS",
+  "phaseResults": {
+    "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+    "upgrade": {
+      "exitCode": 1,
+      "status": "FAIL"
+    },
+    "clean": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "status": "FAIL",
+    "physicalLongTests": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "upgrade": {
+    "status": "FAIL_ROOT_RESEARCH_ADVANCED_AFTER_SEAL",
+    "strategyUnits": 265,
+    "route": null,
+    "publication": {
+      "phase": "RENAMED",
+      "epoch": 1793402489138,
+      "baseline_name": "starcore-r29-baseline-1793402489138.db",
+      "baseline_sha": "a53134232e97c3f6d47e09e8608281ac434865b4309f731a63908464a693d336",
+      "source_root": "b1febb469435b2408f1407b96a8a460af2fef9594337af1566a63966c2bae439",
+      "last_error": "R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL",
+      "updated_at": 1793402622439
+    },
+    "rootObservationTaskErrors": 0,
+    "rootObservationCapacityFailures": 0,
+    "protocolReceipt": "NOT_PRODUCED_NO_PUBLISHED_ROUTE",
+    "databaseContinuityComparison": "NOT_REACHED",
+    "terminalAssertion": "AssertionError:PUBLISHED_SEALED_BASELINE_REQUIRED",
+    "rootMutationCause": "NOT_YET_ESTABLISHED",
+    "recoveryGuardPreserved": true,
+    "automaticRebaseOrOldStateOverwritePerformed": false,
+    "noUpgradeAcceptanceClaim": true
+  },
+  "clean": {
+    "status": "PASS_ENGINEERING_SUBSET_ONLY",
+    "publication": "PUBLISHED",
+    "strategyUnits": 265,
+    "sealedBaselineVerified": true,
+    "sealedBaselineSha256": "026102eaf4c712106a8c8baa7db8ea1bccaaa653d977efd8e3f710f525a7d251",
+    "researchIdentityMatched": true,
+    "rootIntegrity": "ok",
+    "researchIntegrity": "ok",
+    "allNewTaskErrors": 0,
+    "allNewCapacityFailures": 0,
+    "allTaskErrorsByOwner": {
+      "REALTIME": 0,
+      "RESEARCH": 0
+    },
+    "allCapacityFailuresByOwner": {
+      "REALTIME": 0,
+      "RESEARCH": 0
+    },
+    "eventsOutbox": 4290,
+    "eventsAcked": 2303,
+    "eventsDelivered": 2303,
+    "crossFileMismatchCountersAllZero": true,
+    "copiedLeaseReleaseActualRetainedCounts": [
+      2
+    ],
+    "copiedLeaseReleaseLog": "evidence/r29/startup-diagnostic/startup-clean/logcat.txt:2122"
+  },
+  "noNewUnslicedWorkerDiagnosticsInRetainedPhases": true,
+  "nativeLeaseLogCountNotBackfilledFromClean": true,
+  "scope": "API34 x86_64 R13 debug additional whole-App CP06 upgrade and independent clean. Only clean passes; neither native10 nor historicalC14 two-phase pass can accept this failed upgrade.",
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "B01": "NOT_ACCEPTED",
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED"
+}

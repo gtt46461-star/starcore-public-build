@@ -1,0 +1,115 @@
+{
+  "source": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+  "zipBytes": 364413,
+  "zipSha256": "8ecff7b8dd904d9961b88a503af434adeba99b429f2767c0bd60f35f1522f2c0",
+  "phaseResults": {
+    "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+    "upgrade": {
+      "exitCode": 1,
+      "status": "FAIL"
+    },
+    "clean": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "status": "FAIL",
+    "physicalLongTests": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "phases": {
+    "upgrade": {
+      "phaseStatus": {
+        "exitCode": 1,
+        "status": "FAIL"
+      },
+      "protocolStatus": "NOT_AVAILABLE",
+      "serviceStartupProbePassed": true,
+      "serviceProbeIsNotResearchCutoverAcceptance": true,
+      "rootTables": 575,
+      "strategyStorageUnits": {
+        "committedUnits": 265,
+        "firstUnit": 0,
+        "lastUnit": 264
+      },
+      "route": null,
+      "publication": {
+        "phase": "RENAMED",
+        "epoch": 1793402489138,
+        "baseline_name": "starcore-r29-baseline-1793402489138.db",
+        "baseline_sha": "a53134232e97c3f6d47e09e8608281ac434865b4309f731a63908464a693d336",
+        "source_root": "b1febb469435b2408f1407b96a8a460af2fef9594337af1566a63966c2bae439",
+        "last_error": "R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL",
+        "updated_at": 1793402622439
+      },
+      "rootErrors": [],
+      "rootCapacityFailures": [],
+      "databaseContinuity": null
+    },
+    "clean": {
+      "phaseStatus": {
+        "exitCode": 0,
+        "status": "PASS"
+      },
+      "protocolStatus": "PASS_ENGINEERING_SUBSET_ONLY",
+      "serviceStartupProbePassed": true,
+      "serviceProbeIsNotResearchCutoverAcceptance": true,
+      "rootTables": 416,
+      "strategyStorageUnits": {
+        "committedUnits": 265,
+        "firstUnit": 0,
+        "lastUnit": 264
+      },
+      "route": {
+        "phase": "ACTIVE",
+        "database_name": "starcore-r29-research.db",
+        "schema_hash": "f3c4a6447306c9f21db50768206813ed74018a008e3496c8395bfa515340aea1",
+        "source_root": "a9279435bd7c193af54d96115ced9bda4ddfc733687355eae7221f38fff7eb19",
+        "epoch": 1793402675473,
+        "activated_at": 1793402684760
+      },
+      "publication": {
+        "phase": "PUBLISHED",
+        "epoch": 1793402675473,
+        "baseline_name": "starcore-r29-baseline-1793402675473.db",
+        "baseline_sha": "026102eaf4c712106a8c8baa7db8ea1bccaaa653d977efd8e3f710f525a7d251",
+        "source_root": "a9279435bd7c193af54d96115ced9bda4ddfc733687355eae7221f38fff7eb19",
+        "last_error": "",
+        "updated_at": 1793402684760
+      },
+      "rootErrors": [],
+      "rootCapacityFailures": [],
+      "publicationPhase": "PUBLISHED",
+      "activeOwner": "starcore-r29-research.db",
+      "researchIdentityMatched": true,
+      "mainIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "baselineName": "starcore-r29-baseline-1793402675473.db",
+      "sealedBaselineSha256": "026102eaf4c712106a8c8baa7db8ea1bccaaa653d977efd8e3f710f525a7d251",
+      "sealedBaselineVerified": true,
+      "eventsOutbox": 4290,
+      "eventsAcked": 2303,
+      "eventsDelivered": 2303,
+      "modelReceipts": 0,
+      "modelWorkPending": 2302,
+      "workWithoutCompletionReceipt": 0,
+      "ackedEventsWithoutMatchingInbox": 0,
+      "deliveredIdentityMismatches": 0,
+      "inboxWithoutRootEvent": 0,
+      "corruptOutboxPayloads": 0,
+      "baselineTaskErrorRecords": 0,
+      "allNewTaskErrorsSinceBaseline": 0,
+      "allNewTaskFailureReasonsSinceBaseline": [],
+      "baselineCapacityFailureRecords": 0,
+      "newCapacityFailuresSinceBaseline": 0,
+      "newCapacityFailureReasonsSinceBaseline": [],
+      "allResearchTaskErrorsByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      },
+      "allCapacityFailuresByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      }
+    }
+  }
+}
