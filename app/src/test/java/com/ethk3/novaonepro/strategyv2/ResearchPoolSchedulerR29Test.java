@@ -8,6 +8,15 @@ import static org.junit.Assert.*;
 /** Production selector regression: a multiplexed legacy dispatcher cannot receive only one turn per huge replay.
  * This exercises scheduling decisions, not numerical training or device timing. */
 public final class ResearchPoolSchedulerR29Test {
+    @Test public void blockedMemberDoesNotBackOffTheEntireLegacyDispatcher(){
+        Task service=new Task("legacy",true),ordinary=new Task("ordinary",false);
+        assertEquals(10,ResearchPoolR27.retryDelay(service,"DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",null));
+        assertEquals(1000,ResearchPoolR27.retryDelay(ordinary,"DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",null));
+        assertEquals(1000,ResearchPoolR27.retryDelay(service,"NO_READY_LEGACY_CAPABILITY",null));
+        assertEquals(1000,ResearchPoolR27.retryDelay(service,"USER_STOP_OR_RESOURCE",null));
+        assertEquals(5000,ResearchPoolR27.retryDelay(service,"DEPENDENCY",new IllegalStateException("dispatcher failed")));
+        assertNotEquals(WaitKindR27.PROGRESS,WaitKindR27.classify(0,"DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",null,0,1,null,false).kind);
+    }
     static final class Task implements ResearchPoolR27.Task{
         final String id;final boolean service;boolean enabled=true,urgent,bounded;
         Task(String id,boolean service){this.id=id;this.service=service;}

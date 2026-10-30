@@ -124,7 +124,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
                     slices++;
                     record(t.id(), o, failure);
-                    if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis()+retryDelay(o==null?null:o.reason,failure)); }
+                    if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis()+retryDelay(t,o==null?null:o.reason,failure)); }
                 } finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
             } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
             long now = SystemClock.elapsedRealtime();
@@ -136,6 +136,15 @@ public final class ResearchPoolR27 implements AutoCloseable {
     boolean narrow(long now) { return parallelismLimit == 1 || writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing(); }
 
     static long retryDelay(String reason,Throwable failure){if(failure!=null)return 5000;if(reason!=null&&(reason.startsWith("COOPERATIVE")||reason.equals("SLICE_BUDGET")))return reason.contains("WRITER_BUSY")?50:10;return 1000;}
+    static long retryDelay(Task task,String reason,Throwable failure){
+        long delay=retryDelay(reason,failure);
+        // The adapter multiplexes independently backoff-fenced r26_task rows. A member waiting for data
+        // must not impose its one-second backoff on every other ready capability. No units are invented.
+        if(task.serviceDispatcher()&&failure==null&&reason!=null
+                &&!reason.equals("NO_READY_LEGACY_CAPABILITY")&&!reason.equals("USER_STOP_OR_RESOURCE")
+                &&!reason.equals("WAITING_LEGACY_OWNER_OR_RESOURCE"))return Math.min(delay,reason.contains("WRITER_BUSY")?50:10);
+        return delay;
+    }
     private synchronized Task serviceDispatcher(){for(Task t:tasks)if(t.serviceDispatcher()&&t.enabled())return t;return null;}
     private boolean eligible(Task t,long now){Long nb=notBefore.get(t.id());return t.enabled()&&!Boolean.TRUE.equals(running.get(t.id()))&&(nb==null||nb<=now);}
     private Task selected(Task t){running.put(t.id(),true);notBefore.remove(t.id());tasks.remove(t);tasks.add(t);return t;}
