@@ -1,0 +1,4 @@
+原9578682真实Android仅schemaOwner在原60秒内未完成；失败原始记录仍保留，不签收该失败。
+本修复将三个helper逐对象读取改为每组一次fresh catalog读取，仍逐条执行原规范化/DDL比较；六个原迁移回执在同一writer事务一次读取并保持原顺序；LegacyLearnedInput只过滤原来实际使用的19个名称，schema_version失效与guard比较不变。未添加READY缓存，未更改原DDL、触发器SQL、原Root authority、Runtime数据pin或时限。
+实际HOST正常DCo/F01/Scope/Rootcopy/七源bootstrap/schema全链28检查通过；三helper的删除、同名篡改和回滚重新检查均通过；已完成回执临时rearm仍按原步骤返回；原e5错误F01源负控预期失败。原learned事实/Root guard20检查通过。
+计数探针使用相同502次调用、6次bootstrap等待、5次claim等待；rawQuery从110321降至75561，SU1阶段从73658降至42270。最终query probe18检查通过。HOST耗时及查询数是工程诊断，不代表Android60秒已通过；必须在原9case Native条件下重新运行。
