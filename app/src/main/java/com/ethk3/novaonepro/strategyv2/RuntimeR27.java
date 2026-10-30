@@ -31,6 +31,7 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
     FtrlR27 atomFtrl; String atomTrainedThrough = "";
     private final MigrationTask migration = new MigrationTask();
+    private final LegacyCapabilitySnapshotR29 legacySnapshot;
 
     private static volatile RuntimeR27 active;
     public static RuntimeR27 active() { return active; }
@@ -40,17 +41,19 @@ public final class RuntimeR27 implements AutoCloseable {
     }
     RuntimeR27(DbStore store,String session,RuntimeCoordinatorR26 legacy) {
         this.store = store;
+        legacySnapshot=new LegacyCapabilitySnapshotR29(store,session);
         CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new EventTask()); pool.register(migration); pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
         pool.register(new LegacyExportTask()); pool.register(new HealthTask());
-        if(legacy!=null)pool.register(new LegacyCapabilityAdapterR29(legacy));
+        if(legacy!=null){pool.register(new LegacyCapabilityAdapterR29(legacy));pool.register(new LegacyCapabilityAdapterR29.ContinuityTask(legacy));}
+        pool.register(legacySnapshot);
         active = this;
     }
     public void start() { pool.start(); }
     public ResearchPoolR27 pool() { return pool; }
-    @Override public void close() { pool.close(); migration.close(); if (active == this) active = null; }
+    @Override public void close() { pool.close();legacySnapshot.close(); migration.close(); if (active == this) active = null; }
 
     static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
     static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }

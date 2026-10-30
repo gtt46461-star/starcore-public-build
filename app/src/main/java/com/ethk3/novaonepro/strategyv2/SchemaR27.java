@@ -56,6 +56,8 @@ public final class SchemaR27 {
         ExperimentRegistrationR29.AUTHORITY,
         ResearchRouteR29.ROUTE_DDL,
         LegacyCapabilityAdapterR29.DDL,
+        LegacyCapabilitySnapshotR29.PIN,LegacyCapabilitySnapshotR29.SNAPSHOT,
+        LegacyCapabilitySnapshotR29.GUARDS[0],LegacyCapabilitySnapshotR29.GUARDS[1],LegacyCapabilitySnapshotR29.GUARDS[2],LegacyCapabilitySnapshotR29.GUARDS[3],
         ResearchCutoverR29.PUBLICATION,
         RealtimeResearchProjectionR29.REALTIME_DDL[0],RealtimeResearchProjectionR29.REALTIME_DDL[1],
         ExperimentRegistrationR29.AUTHORITY_GUARDS[0],ExperimentRegistrationR29.AUTHORITY_GUARDS[1],
@@ -98,6 +100,14 @@ public final class SchemaR27 {
     public static boolean ready(SQLiteDatabase db) {
         try (Cursor c = db.rawQuery("SELECT 1 FROM r27_migration WHERE revision=?", new String[] {String.valueOf(REVISION)})) { return c.moveToFirst(); }
         catch (RuntimeException missing) { return false; }
+    }
+
+    /** Additive upgrades after cutover. Keep realtime control/authority tables on their original owner. */
+    static void ensureResearch(SQLiteDatabase research){
+        if(!research.inTransaction())throw new IllegalStateException("R29_RESEARCH_SCHEMA_TRANSACTION");
+        for(String sql:DDL){boolean realtime=false;for(String table:MigrationCopyR29.REALTIME_ONLY)if(sql.contains(table)){realtime=true;break;}if(!realtime)research.execSQL(sql);}
+        for(String[] c:COLUMNS)if(tableExists(research,c[0]))column(research,c[0],c[1],c[2]);
+        RealtimeResearchProjectionR29.installResearch(research);
     }
 
     static boolean tableExists(SQLiteDatabase db, String table) {

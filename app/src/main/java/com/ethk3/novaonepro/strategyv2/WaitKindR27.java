@@ -38,7 +38,8 @@ public final class WaitKindR27 {
             if (r.startsWith("WAITING_") || r.contains("SCHEMA_PENDING") || r.contains("MISSING_TEACHER") || r.startsWith("DEPENDENCY")) return new Wait(DEPENDENCY, "DEPENDENCY(" + r + ")");
             if (r.contains("AFTER_OPEN") || r.contains("DEADLINE")) return new Wait(DEADLINE_MISSED, r);
             if (r.contains("ALREADY") || r.contains("SUPERSEDED") || r.startsWith("NO_NEW")) return new Wait(NO_NEW_EVENT, r + ";cursor=" + cursor + ",latest=" + latest);
-            if (r.startsWith("COOPERATIVE") || r.equals("SLICE_BUDGET")) return new Wait(PROGRESS, r);
+            // A yielded computation may have changed only its private working memory. It has no committed output.
+            if (r.startsWith("COOPERATIVE") || r.equals("SLICE_BUDGET")) return new Wait(DEPENDENCY, "UNCOMMITTED_COMPUTATION:"+r);
             return new Wait(DEPENDENCY, "DEPENDENCY(" + r + ")");
         }
         if (latest >= 0 && cursor >= latest) return new Wait(NO_NEW_EVENT, "cursor=" + cursor + ",latest=" + latest);

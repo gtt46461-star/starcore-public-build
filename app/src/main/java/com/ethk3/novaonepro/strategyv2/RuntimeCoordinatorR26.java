@@ -86,6 +86,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             for(String r27Task:new String[]{"r29-event-inbox","r29-research-migration","r27-replay-dataset","r27-evolution","r27-live","r27-atoms","r27-atomnet","r27-abi","r27-calibration","r27-chart-cache","r27-legacy-export","r27-health"})
                 db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)",new Object[]{r27Task,r27Task,now});
             return 0;});
+        if(ResearchRouteR29.active(store.readable()))ResearchRouteR29.write(store,"R29_RESEARCH_SCHEMA_UPGRADE",db->{SchemaR27.ensureResearch(db);return 0;});
         ReplayBurstSchedulerSU1.cancel(store.contextForR26());
     }
     private static void add(SQLiteDatabase db,String id,String lane){db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism) VALUES(?,?,?)",new Object[]{id,lane,id});}

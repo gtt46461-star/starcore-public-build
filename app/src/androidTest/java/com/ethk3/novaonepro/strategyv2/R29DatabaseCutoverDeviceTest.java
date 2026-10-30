@@ -43,6 +43,17 @@ public final class R29DatabaseCutoverDeviceTest {
             try{phase=ResearchCutoverR29.run(store,migrationWorker);}finally{oldResearchReader.close();}
             result.put("cutoverMillis",(System.nanoTime()-start)/1000000);result.put("cutoverPhase",phase);
             assertEquals("ACTIVE_INDEPENDENT_RESEARCH_WRITER",phase);assertTrue(ResearchRouteR29.active(original));
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_LEGACY_OWNER",db->{LegacyCapabilityAdapterR29.initialize(db,"synthetic-owner");return 0;});
+            assertNull(LegacyCapabilityAdapterR29.enterContinuity(store,false));
+            try{
+                Future<Boolean> blocked=executor.submit(()->{try{LegacyCapabilityAdapterR29.publish(store,"synthetic-owner");return false;}catch(IllegalStateException expected){return expected.getMessage().contains("CONTINUITY_DRAIN");}});
+                assertTrue("handoff must wait for the old 22-lane pulse to drain",blocked.get(2,TimeUnit.SECONDS));
+            }finally{LegacyCapabilityAdapterR29.leaveContinuity();}
+            LegacyCapabilityAdapterR29.publish(store,"synthetic-owner");
+            assertTrue(LegacyCapabilityAdapterR29.enterContinuity(store,false).contains("OWNED_BY_RESEARCH_POOL"));
+            assertNull(LegacyCapabilityAdapterR29.enterContinuity(store,true));
+            try{assertTrue(LegacyCapabilityAdapterR29.onPoolContinuityThread());}finally{LegacyCapabilityAdapterR29.leaveContinuity();}
+            result.put("original22LaneEntryDrainedAndFenced",true);
             researchReader=ResearchRouteR29.openWorkerReader(sandbox);
             assertEquals(1,n(researchReader,"PRAGMA query_only"));
             boolean readOnlyEnforced=false;try{researchReader.execSQL("UPDATE main.r29_cutover_fixture SET n='forbidden'");}catch(android.database.sqlite.SQLiteException expected){readOnlyEnforced=true;}assertTrue("query_only must reject writes",readOnlyEnforced);

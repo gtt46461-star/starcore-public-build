@@ -45,3 +45,7 @@ B00（R29-001—003）已实施并通过本地HOST检查：基线身份（设备
 2026-10-30 CP07 / B01 实际源码集成（尚未验收）：ResearchRouteR29/ResearchCutoverR29 已实现独立库、独立 writer、类型/rowid/行 hash 复核、保留原表和封存基线、发布路由与重启校验；ExperimentRegistrationR29 将首次未来期交给实时 Owner；RealtimeResearchProjectionR29 投递带 epoch/revision 的证书/冻结/状态投影，旧投影不能覆盖撤销；旧任务通过 LegacyCapabilityAdapterR29 在路由发布且旧切片排空后移交 ResearchPool，原 VM/学习状态 Owner 保留。图表及报告读取已接入，报告合并两份私有副本并校验水位，取消会回滚副本事务。HOST 新增注册14项、类型复制/投影14项、调度/旧消息12项、报告9项通过；这不是 Android 冷启动/切库/真机通过。R29DatabaseCutoverDeviceTest 和不发布 APK 的集成 CI 已加入，待运行。旧能力完整清单/导出、剩余 B02—B10 仍未闭环，Gate V2 未启用，工程/质量/主链均不宣称完成。
 
 保留真实失败：默认 exec 的 Gradle socket 初始化被平台阻止，批准流程重试已进入 Gradle；随后仓库 R997_UNCOMMITTED_BUILD_INPUTS_RELEASE_BLOCKED 要求先提交构建输入，尚未进入完整编译。两份日志见 evidence/r29/checkpoint07/failed。首次143项JUnit的1失败及其H15修复记录继续保留；不得把定向通过改写为完整套件通过。
+
+2026-10-30 B01 真正进入 Android：源码140525f833c8f1b0c788c091eed44d26f62fec06 已通过保存的验证包装脚本，143 JUnit / 0失败 / 0跳过、8语义变异通过；lint新增0、既有51基线错误/7未匹配条目保留。7组真实SQLite检查通过。CI41045347342（API34）执行生产切库/连接/写者/配对报告代码，切库273ms、原97行保留、持有实时写者时独立研究提交完成、投递不冒充训练、报告读取合并数据；12.8秒单项测试通过。它只签收这些合成工程路径，尚不签收完整导出、真机长测、自然质量或B01整批。原始回执、日志、构建日志见evidence/r29/checkpoint07/android-140525f与validated-140525f。
+
+继续施工：审计发现旧22路R912入口仍需收敛，现已增加旧服务/新池共享交接锁，旧调用排空后才发布owner，服务旧入口改为唤醒pool插件；原22路算法未删除。新增完整R26学习状态保留引用、不可变pin、GC引用保全、20ms续跑解码与恢复描述；保留原状态digest及CAS digest各自算法，恢复失败记录具体缺件，不新建替代状态。新12项HOST检查通过（原状态恢复/下一学习更新字节一致/坏文件阻断/无资格转移/研究库增量schema无实时权威表/未提交切片不记进度）。这些后续改动的Android完整24家族/16专家、1000次writer压力与重启回归将另行运行，尚未通过。最新可交付APK仍CP06。

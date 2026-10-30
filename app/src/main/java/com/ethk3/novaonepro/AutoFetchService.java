@@ -5191,6 +5191,11 @@ public final class AutoFetchService extends Service {
     }
 
     private void postAutonomousResearchTickR908(final String reason) {
+        if(store!=null&&com.ethk3.novaonepro.strategyv2.LegacyCapabilityAdapterR29.hasPoolOwner(store)){
+            com.ethk3.novaonepro.strategyv2.RuntimeR27 research=com.ethk3.novaonepro.strategyv2.RuntimeR27.active();
+            if(research!=null)research.pool().wake("r29-legacy-continuity");
+            return;
+        }
         final Handler owner = researchHandlerR908 != null ? researchHandlerR908 : learningHandler;
         if (!running || owner == null || store == null || researchEvolutionR811 == null) return;
         if (!researchTickPostedR908.compareAndSet(false, true)) return;

@@ -42,15 +42,14 @@ public final class MigrationCopyR29 {
 
     public static boolean ownedResearch(String table) {
         return table != null && table.matches("r(?:27|29)_[a-z0-9_]+")
-                && !table.equals("r29_event_outbox") && !table.equals("r29_source_watermark")
-                && !table.equals("r29_registration_authority")
-                && !table.equals("r29_database_route")
-                && !table.equals("r29_scheduler_owner")
-                // The legacy checkpoint decoder needs its minted identity synchronously on its own owner.
-                && !table.equals("r27_legacy_roster_alias")
-                && !table.equals("r29_migration_publication") && !table.equals("r29_projection_applied") && !table.equals("r29_research_heartbeat")
+                && !realtimeOnly(table)
                 && !table.equals("r27_fetch_reject") && !table.equals("r27_chart_cache");
     }
+    static final java.util.Set<String> REALTIME_ONLY=new java.util.HashSet<>(java.util.Arrays.asList(
+            "r29_event_outbox","r29_source_watermark","r29_registration_authority","r29_database_route",
+            "r29_scheduler_owner","r29_legacy_checkpoint_pin","r27_legacy_roster_alias","r29_migration_publication",
+            "r29_projection_applied","r29_research_heartbeat"));
+    public static boolean realtimeOnly(String table){return REALTIME_ONLY.contains(table);}
 
     /** The registry explicitly keeps realtime authority and recomputable cache outside the baseline backup. */
     public static List<Table> tables(SQLiteDatabase source) {

@@ -1,0 +1,126 @@
+{
+  "schema": "R29_CHANGE_LEDGER_1",
+  "batch": "B01-LIFECYCLE-07",
+  "baseline": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+  "since": "140525f",
+  "cards": [
+    "R29-004",
+    "R29-006",
+    "R29-007",
+    "R29-008",
+    "R29-017",
+    "R29-046"
+  ],
+  "reason": "Drain and fence the original 22-lane scheduler into ResearchPool; retain/restore full original R26 state with immutable artifact pins; upgrade active research schema; prevent uncommitted computation from counting as committed progress. Earlier cutover source independently passed API34; these follow-up lifecycle changes await new Android run.",
+  "note": "Generated identity files are rebound by CI and excluded here. Hashes are bytes on disk at ledger time.",
+  "files": [
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java",
+      "before_sha256": "e1546e54ae8fc8cc98c0be579723674499c4012756e954dcd8a8e7eaba779e05",
+      "after_sha256": "f3c95cd7ec5a710cc6e64f9bbab75951b73b83871ddf214fbaf3b838a78d41a6",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R29DatabaseCutoverDeviceTest.java",
+      "before_sha256": null,
+      "after_sha256": "ba917b7c4af6fcf68acad5dbb45a271623775367eb8a9939360396ac8b95cb67",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+      "before_sha256": "0ba94bbb5379f33f6fbdaa85c995e5a3c75c143e90b00c114cc01c5646f4da68",
+      "after_sha256": "f9b6099aa04d3b85a7f9119df2b161458a692d6003a55a5239e5b6b84a5f580f",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchLearningContinuityR912.java",
+      "before_sha256": "e1d53862254dd4b624d22c537cf77c60b74f01f36da664c94c6e67cc48fd30a4",
+      "after_sha256": "51c77f9a7b552d24cb08e75e4daffa9776046ca405af209a4af92e4444236112",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CheckpointReferencesR26.java",
+      "before_sha256": "6d3b41138f989a0fed7b4101f7ee853c620bb3c358fbfa527958df66e79537a1",
+      "after_sha256": "0b86d23cb18fa6b9ba36e35d1a5d11cb4726e89128151cfb253c7e308a3288f4",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java",
+      "before_sha256": null,
+      "after_sha256": "e846567a6b53acec00cef3925b3d64d6d6f638d6e63408fe7499d0a466a683c2",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilitySnapshotR29.java",
+      "before_sha256": null,
+      "after_sha256": "4dae235f73613689e274429b644df543df155a9962570683cd9467157827e082",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MigrationCopyR29.java",
+      "before_sha256": null,
+      "after_sha256": "4ff592e8f4cc4711b3d5b34363c80c2947f733f856b5a38d2aee0babd8fd2736",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "before_sha256": "c6bac0fe38b2a5706ce5487c87b5e3e3abf4a001029ef22a01796e10e541f297",
+      "after_sha256": "8005210ec7e4561555a2e90e9b1094ba4edb579f7494e3116be51e42a1625a3d",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "before_sha256": "e30009d598973314a361223b25a6da2d7c42997f5d7ef04724dc500d3a46ee87",
+      "after_sha256": "d8ed810699b72afffef6dce3e1425724add068a9bc1be0359d4123ad5cdec257",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "before_sha256": "b028aa0b84b4899a9acd0af60593079c0c1335929ee3dd722e5771fe3a4dcba9",
+      "after_sha256": "adcccb3df177e081f6587de0112dcad6a5425a77cc8e97be10f75036b670e96b",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/WaitKindR27.java",
+      "before_sha256": "19fa944ebfc5da6a1d591f475ceb22966f6ace527d8a2ce7d21f161c5efc7370",
+      "after_sha256": "7e80fb0efdd8d4df858e05389c05a442750dca6ecdcb4b19f8a4303fd7736352",
+      "action": "MODIFY"
+    },
+    {
+      "path": "construction/r29/STATUS.md",
+      "before_sha256": null,
+      "after_sha256": "195e6174c9046c01273530eb50683ea14022935dea3efa51b412388d3507e099",
+      "action": "ADD"
+    },
+    {
+      "path": "construction/r29/continuation.json",
+      "before_sha256": null,
+      "after_sha256": "18b6f5f93ab2a8eb0015597374fbdfc4edcbfad320615a804e196e8ca05ed1b1",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/ci_build.sh",
+      "before_sha256": null,
+      "after_sha256": "779ee42d36a15da106a017b09ff7fe56adf318acff2b3728ff3753af6a392c0d",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/emulator_integration.sh",
+      "before_sha256": null,
+      "after_sha256": "61f443ae9e845b6826e6ddfe6bc85f58b58b4a42aca9d1f5b266306e7baee4fe",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/LegacySnapshotR29HostTest.java",
+      "before_sha256": null,
+      "after_sha256": "1a05a87774905a01bf15c400c0f75111975d7dded40f4e82e66da9d788ea5b62",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/run_legacy_host.sh",
+      "before_sha256": null,
+      "after_sha256": "1e42024558bc61243c683a2a92ede94954854d5de33d2766560c8ab989a229f8",
+      "action": "ADD"
+    }
+  ]
+}

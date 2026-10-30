@@ -14,10 +14,16 @@ public final class ResearchLearningContinuityR912 {
     private static final String NEXT_LANE="r962_research_next_lane";
     private ResearchLearningContinuityR912(){}
     public static Result pulse(DbStore store,long budgetMs) {
+        return pulseOwned(store,budgetMs,false);
+    }
+    public static Result pulseOnResearchPool(DbStore store,long budgetMs){return pulseOwned(store,budgetMs,true);}
+    private static Result pulseOwned(DbStore store,long budgetMs,boolean pool){
+        String blocked=com.ethk3.novaonepro.strategyv2.LegacyCapabilityAdapterR29.enterContinuity(store,pool);
+        if(blocked!=null)return Result.fail(blocked);
         ResearchWorkBudgetR927.Scope scope=ResearchWorkBudgetR927.enter(Math.min(1000L,Math.max(1L,budgetMs)));
         try{return pulseWithinR927(store,budgetMs);}
         catch(ResearchWorkBudgetR927.Yield y){return Result.fail("YIELD:"+y.getMessage());}
-        finally{ResearchWorkBudgetR927.leave(scope);}
+        finally{ResearchWorkBudgetR927.leave(scope);com.ethk3.novaonepro.strategyv2.LegacyCapabilityAdapterR29.leaveContinuity();}
     }
     static String latest(DbStore store) {
         try(Cursor c=store.readable().rawQuery("SELECT issue FROM "+DbHelper.TABLE_DRAWS+" WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){return c.moveToFirst()?c.getString(0):"";}
@@ -198,6 +204,7 @@ public final class ResearchLearningContinuityR912 {
         return ResearchEvolutionHeartbeatR947.terminalReview(detail);
     }
     public static boolean needsContinuation(DbStore store) {
+        if(com.ethk3.novaonepro.strategyv2.LegacyCapabilityAdapterR29.hasPoolOwner(store))return false;
         if(store==null)return false;
         // R65: pressure pauses execution, not the existing worker's wake-up. Returning
         // false here discarded the continuation precisely when an owner was preempted.
@@ -245,7 +252,7 @@ public final class ResearchLearningContinuityR912 {
     public static Result pulseWithinR927(final DbStore store,long budgetMs) {
         if(store==null)return Result.fail("STORE_NULL");
         if("0".equals(store.getState(R27_LEGACY_SWITCH,"1")))return Result.fail("R27_LEGACY_RESEARCH_RETIRED_BY_SWITCH");
-        if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())return Result.fail("YIELD_P0_PRESSURE");
+        if(criticalPressure())return Result.fail("YIELD_P0_PRESSURE");
         long started=TimeSourceR811.monoNowMs();
         try {
             final String issue=latest(store);if(issue.isEmpty())return Result.fail("WAIT_HISTORY");
@@ -267,7 +274,7 @@ public final class ResearchLearningContinuityR912 {
                 catch(Exception e){outcome="ERROR:"+e.getClass().getSimpleName()+":"+e.getMessage();}
                 finally{ResearchWorkBudgetR927.leave(child);}
             }
-            final String detail=RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive()
+            final String detail=criticalPressure()
                     ?"YIELD_P0_PRESSURE_AFTER_OWNER|"+outcome:outcome;
             final boolean terminal=terminalReviewOutcome(detail);
             // Five idle wheel slots used to each impose 250ms before the next
@@ -306,11 +313,14 @@ public final class ResearchLearningContinuityR912 {
         if(!committed)throw new IllegalStateException("R967_OWNER_PROGRESS_COMMIT_FAILED");
     }
 
+    private static boolean criticalPressure(){
+        return SettlementExecutionGateR819.isActive()||!com.ethk3.novaonepro.strategyv2.LegacyCapabilityAdapterR29.onPoolContinuityThread()&&RealtimePressureGateR811.hasActiveCriticalWork();
+    }
     private static String runLane(DbStore store,int lane,long slice) {
         // R977: a critical owner may start after the outer scheduler's pressure check.
         // A void worker's early return must not become a successful review receipt.
         if(store==null)return "ERROR:STORE_NULL";
-        if(RealtimePressureGateR811.hasActiveCriticalWork()||SettlementExecutionGateR819.isActive())
+        if(criticalPressure())
             return "YIELD_P0_PRESSURE";
         switch(lane) {
             case 0: return capturePendingPredraw(store,slice).status;
