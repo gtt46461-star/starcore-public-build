@@ -21,6 +21,9 @@ public final class LiveShadowsR27 {
      * strategy's real per-period record visible (docs/01: FUTURE evidence is collected, qualification is unchanged). */
     static final String OBSERVE_STATES = "('" + RuntimeR27.OBSERVE + "')";
 
+    /** R29 r29_policy_defaults.freeze_margin_ms: a FUTURE freeze must be committed at least 5 s before the draw. */
+    public static final long FREEZE_MARGIN_MS = 5000;
+
     static final class Shadow { String id, status; PolicySpecR27 spec; double tau; }
     static List<Shadow> shadows(SQLiteDatabase db, String statuses) {
         List<Shadow> out = new ArrayList<>();
@@ -81,7 +84,7 @@ public final class LiveShadowsR27 {
         if (todo.isEmpty()) return 0;
         long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); int frozen = 0, acted = 0;
-        if (now < deadline - 500) {
+        if (now < deadline - FREEZE_MARGIN_MS) {
             FeatureCacheR27 cache = rt.liveCacheWithPlaceholder(w, latestOrd);
             for (Shadow s : todo) {
                 double[] out = ReplayEvaluatorR27.predictNext(s.spec, cache, s.tau);
@@ -93,7 +96,7 @@ public final class LiveShadowsR27 {
                 if (ok) frozen++; acted += act;
             }
             final long dl = deadline;
-            b.before = db -> System.currentTimeMillis() < dl ? 0 : -1; // never freeze after the deadline
+            b.before = db -> System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1; // R29: commit at least 5 s before the draw, else DEADLINE_MISSED
             if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
             try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
             catch (IllegalStateException late) { if (!String.valueOf(late.getMessage()).contains("R27_WRITE_PRECONDITION") && !(late.getCause() != null && String.valueOf(late.getCause().getMessage()).contains("R27_WRITE_PRECONDITION"))) throw late; }
