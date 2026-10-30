@@ -115,6 +115,10 @@ public final class LiveShadowsR27 {
         List<CertificateGateR27.Evidence> active = new ArrayList<>(); List<Object[]> nearest = new ArrayList<>();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
         String i00 = controlId(w.ro, "CONTROL_I00"), nul = controlId(w.ro, "CONTROL_NULL");
+        String deployed = null;
+        try (Cursor c = w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null)) {
+            if (c.moveToFirst()) { Object ch = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("choice"); deployed = ch instanceof String ? (String) ch : null; }
+        } catch (RuntimeException none) { deployed = null; }
         for (Shadow s : shadows(w.ro, "('ACTIVE')")) {
             SequentialQualificationR27.State st = StoreR27.readEprocess(w.ro, s.id); if (st == null) continue;
             CertificateGateR27.Evidence e = new CertificateGateR27.Evidence(); e.policyHash = s.id; e.sequentialState = st.state; e.acts = st.acts; e.hits = st.hits; e.logE = st.logUp;
@@ -128,6 +132,9 @@ public final class LiveShadowsR27 {
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("failing", new ArrayList<Object>(failing));
             String digest = StatsR27.sha256(s.id + "|" + st.n + "|" + st.acts + "|" + st.hits + "|" + Double.toHexString(st.logUp));
             b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,?,?,?,?,?)", s.id, issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS);
+            // R29-036: R29_GATE_V2 evaluated beside the unchanged R27 gate and recorded separately (report only).
+            GateV2R29.Evidence v2 = GateV2R29.evidence(w.ro, s.id, latestOrd); v2.pairedLcbVsI00 = e.pairedLcbVsI00; v2.pairedLcbVsNull = e.pairedLcbVsNull; v2.deployed = s.id.equals(deployed);
+            GateV2R29.record(b, v2, GateV2R29.evaluate(v2));
             if (issued) active.add(e); else nearest.add(new Object[] {s.id, failing.size(), failing, st.progress()});
         }
         String choice = CertificateGateR27.choose(active);

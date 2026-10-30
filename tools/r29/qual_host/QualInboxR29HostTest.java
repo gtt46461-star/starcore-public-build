@@ -21,6 +21,8 @@ import java.util.Random;
  *   Q4 a stored hit that disagrees with the draw is isolated as a conflict, never consumed, never duplicated;
  *   Q5 rows still waiting for their draw do not fill the settlement page; they are recorded as PENDING_DRAW;
  *   Q6 a stale concurrent step commits nothing (no double count);
+ *   Q8 R29_GATE_V2 evidence from the database: missed (never-frozen) periods stay in the FUTURE_ACT_RATE denominator,
+ *      pending ACT is not in the hit rate, the frozen probability is the validation score; recorded report-only;
  *   Q7 the report diagnosis distinguishes "not migrated" (null) from a measured 0 and shows the open conflict.
  * Prints one line per check; exit code 0 only when all pass. Synthetic data only checks mechanics, not quality. */
 public final class QualInboxR29HostTest {
@@ -84,8 +86,8 @@ public final class QualInboxR29HostTest {
         }
         void freezeRow(SQLiteDatabase db, int o, int hitInit) {
             Object[] f = frozen[o]; boolean fr = "FROZEN".equals(f[0]);
-            db.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit) VALUES(?,?,?,?,x'00',?,?,?,?,?,?,?,?)",
-                    new Object[] {id, (long) o, issue(o), f[2], fr ? f[3] : 0, fr ? f[4] : 0, fr ? f[5] : 0, f[1], f[0], (long) o * 1000, (long) o * 1000 + 500, hitInit});
+            db.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    new Object[] {id, (long) o, issue(o), f[2], StoreR27.pack(new double[] {.1, .1, .1, .1, .1, .1, .1, .1, .1, .1}), fr ? f[3] : 0, fr ? f[4] : 0, fr ? f[5] : 0, f[1], f[0], (long) o * 1000, (long) o * 1000 + 500, hitInit});
         }
         void draw(SQLiteDatabase db, int o) {
             int[] d = draws[o];
@@ -226,6 +228,20 @@ public final class QualInboxR29HostTest {
                     && Long.valueOf(1).equals(d.get("pendingDrawOpen")) && Long.valueOf(0).equals(d.get("receiptStateMismatch")) && Long.valueOf(0).equals(d.get("legacyHitMinus2Remaining"))
                     && probes.containsKey("M27") && "PARTIAL".equals(probes.get("M27").status);
             check("Q7_REPORT_DIAGNOSIS", ok, "beforeMigration=" + none.get("receipts") + " after=" + d);
+        }
+        // Q8 GATE_V2 evidence
+        {
+            World w = new World(120, 61); SQLiteDatabase db = open(); w.register(db, -1); QualificationInboxR29.Commit s = sink(db, 0, new Random(7));
+            db.execSQL("DELETE FROM r27_live_frozen WHERE target_ordinal BETWEEN 50 AND 59"); // app was not running: no rows
+            for (int o = 1; o <= 120; o++) if (o != 100) w.draw(db, o);
+            for (int i = 0; i < 3; i++) pass(db, s, 120);
+            GateV2R29.Evidence e = GateV2R29.evidence(db, w.id, 120);
+            long acts = 0, settled = 0, hits = 0; for (int o = 1; o <= 120; o++) if ((o < 50 || o > 59) && w.act(o)) { acts++; if (o != 100) { settled++; if (w.hit(o)) hits++; } }
+            GateV2R29.Verdict v = GateV2R29.evaluate(e); ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); GateV2R29.record(b, e, v); s.commit("V2", b);
+            boolean ok = e.opportunities == 120 && e.actDecisions == acts && e.settledActs == settled && e.hits == hits && e.pendingActs == (w.act(100) ? 1 : 0)
+                    && Math.abs(e.p[0] - 0.3) < 1e-12 && !v.wouldIssue && scalar(db, "SELECT count(*) FROM r29_gate_v2 WHERE would_issue=0") == 1
+                    && "NOT_DEPLOYED".equals(((Map<?, ?>) v.sections.get("frequency")).get("Q02"));
+            check("Q8_GATE_V2_EVIDENCE", ok, "opportunities=" + e.opportunities + " actDecisions=" + e.actDecisions + "/" + acts + " settled=" + e.settledActs + " pending=" + e.pendingActs + " failing=" + v.failing);
         }
         System.out.println("R29_QUAL|SUMMARY|" + (FAIL.isEmpty() ? "OK" : "FAILED " + FAIL));
         System.exit(FAIL.isEmpty() ? 0 : 1);

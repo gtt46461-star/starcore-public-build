@@ -253,6 +253,12 @@ public final class QualificationInboxR29 {
             while (c.moveToNext()) { Map<String, Object> x = new LinkedHashMap<>(); x.put("experiments", c.getLong(1)); x.put("oldestOrdinal", c.isNull(2) ? null : (Object) c.getLong(2)); blocked.put(c.getString(0), x); }
             m.put("cursorByBlockReason", blocked);
         } catch (RuntimeException schemaPending) { m.put("cursorByBlockReason", null); }
+        m.put("gateV2Evaluated", count(db, "SELECT count(*) FROM r29_gate_v2"));
+        m.put("gateV2WouldIssue", count(db, "SELECT count(*) FROM r29_gate_v2 WHERE would_issue=1"));
+        try (Cursor c = db.rawQuery("SELECT policy_hash,failing,evaluated_through FROM r29_gate_v2 ORDER BY would_issue DESC,length(failing),policy_hash LIMIT 5", null)) {
+            List<Object> near = new ArrayList<>(); while (c.moveToNext()) { Map<String, Object> x = new LinkedHashMap<>(); x.put("policy", c.getString(0)); x.put("failing", c.getString(1)); x.put("through", c.getLong(2)); near.add(x); }
+            m.put("gateV2Nearest", near);
+        } catch (RuntimeException schemaPending) { m.put("gateV2Nearest", null); }
         m.put("rule", "e-process advances only over the contiguous resolvable prefix; ACT with missing draw stays pending; conflicts are isolated");
         return m;
     }

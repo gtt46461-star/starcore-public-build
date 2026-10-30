@@ -498,8 +498,8 @@
     "depends": [
       "R29-010"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "COMPILED_ONLY",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -510,7 +510,10 @@
     "call_chain": null,
     "persistent_state": null,
     "tests": [],
-    "actual_results": [],
+    "actual_results": [
+      "LiveShadowsR27.freeze: 5 s freeze margin (start and commit guard); later -> DEADLINE_MISSED kept in denominator",
+      "NOT DONE: shared 128+16 preparation and single freeze manifest; device timing NOT_RUN"
+    ],
     "source_commit": null,
     "apk_checkpoint": null
   },
@@ -1537,8 +1540,8 @@
     "depends": [
       "R29-033"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_PASS_SUBSET",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1550,7 +1553,10 @@
     "call_chain": null,
     "persistent_state": null,
     "tests": [],
-    "actual_results": [],
+    "actual_results": [
+      "GateV2R29.calibration: all-sample ECE, >=20/bin support, >=90% supported mass, OUT_OF_SUPPORT, no 5-bin requirement; validated on pre-draw frozen probabilities only",
+      "NOT DONE: extending fit/validation/apply hash identity to non-ACTIVE confirmed objects"
+    ],
     "source_commit": null,
     "apk_checkpoint": null
   },
@@ -1646,8 +1652,8 @@
     "depends": [
       "R29-035"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_PASS_SUBSET",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1656,12 +1662,22 @@
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "revision": "R29.1",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "call_chain": "RuntimeR27.LiveTask.step -> LiveShadowsR27.certify -> GateV2R29.evidence/evaluate/record (beside unchanged CertificateGateR27)",
+    "persistent_state": "r29_gate_v2 (report-only, ENABLED=false; r27_certificate unchanged)",
+    "tests": [
+      "R29GateV2Test (6 JUnit)",
+      "QualInboxR29HostTest Q8"
+    ],
+    "actual_results": [
+      "V2 support-domain calibration, 3x720 blocks/80 acts, FUTURE_ACT_RATE with missed periods in denominator, Q02 NOT_DEPLOYED, exact loss-streak tail; old gate untouched",
+      "NOT DONE: activation (needs power/negative-control verification R29-027 and device); old-certificate risk-rule versioning beyond report"
+    ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "evidence": [
+      "evidence/r29/host/r29_gate_v2_junit.log",
+      "evidence/r29/host/r29_qual_host.log"
+    ]
   },
   {
     "id": "R29-037",
