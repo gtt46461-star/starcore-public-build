@@ -1,4 +1,4 @@
-> 当前 R26 验收为 **INCOMPLETE**，未发布完整成品 APK。79 项来源标准检查通过；新增迁移测试仍检出写入超限，当前 83 项来源继续修复结构开销、专家尺度回执并验证 F20 片段记忆。进度与原始证据见 [R26 施工记录](construction/r26/STATUS.zh.md)。下文保留既有 R13 发布基线说明。
+> **当前应用源码：[`construction/r29-20261029`](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r29-20261029)**；方案为 [R29.1](CURRENT_FINAL_PLAN.md)，施工及未验收项见 [R29 账本](construction/r29/STATUS.md)。checkpoint05 为修复和恢复验证检查点，尚未完成11批/52卡/44指标，不能称为已验证高胜率成品。main仅发布方案，不能从其中的旧应用源码构建最新版本。下文保留历史 R13/R26 发布说明。
 
 # 星核创研 R13 · 公有独立版
 
