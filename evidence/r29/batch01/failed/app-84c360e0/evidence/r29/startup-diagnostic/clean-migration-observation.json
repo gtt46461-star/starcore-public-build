@@ -1,0 +1,137 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": false,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": false,
+  "baselineCapacityFailureRecords": 0,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 540,
+  "route": {
+    "phase": "ACTIVE",
+    "database_name": "starcore-r29-research.db",
+    "schema_hash": "f3c4a6447306c9f21db50768206813ed74018a008e3496c8395bfa515340aea1",
+    "source_root": "ffaf48b57eb24ecb462ff9132e84179ed29c44ba7448bb9cb110775fb344afe1",
+    "epoch": 1793398005855,
+    "activated_at": 1793398016334
+  },
+  "publication": {
+    "phase": "PUBLISHED",
+    "epoch": 1793398005855,
+    "baseline_name": "starcore-r29-baseline-1793398005855.db",
+    "baseline_sha": "162e879edd68d9d4d042006ea852805ffb9517366e2eca5b0b73c0de66fe3104",
+    "source_root": "ffaf48b57eb24ecb462ff9132e84179ed29c44ba7448bb9cb110775fb344afe1",
+    "last_error": "",
+    "updated_at": 1793398016334
+  },
+  "trackedSourceTables": 2,
+  "tablesWithThreeTrackingTriggers": 2,
+  "trackingTriggerCount": 6,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "YIELDED",
+      "cursor": 199,
+      "steps": 3,
+      "last_served": 1793398015897,
+      "last_progress": 1793398015897,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=32"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "BLOCKED",
+      "cursor": 1,
+      "steps": 2,
+      "last_served": 1793398015602,
+      "last_progress": 1793398005782,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY"
+    },
+    {
+      "task_id": "schema",
+      "status": "YIELDED",
+      "cursor": 267,
+      "steps": 23,
+      "last_served": 1793398004850,
+      "last_progress": 1793398005118,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "READY",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 0,
+      "last_progress": 0,
+      "blocked_reason": null,
+      "wait_kind": "",
+      "wait_detail": ""
+    }
+  ],
+  "rootTaskErrors": 0,
+  "rootMigrationTaskErrors": 0,
+  "rootRecentTaskErrors": [],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 0,
+  "rootRecentCapacityFailures": [],
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 0
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "newCapacityFailureReasonsSinceBaseline": [],
+  "newCapacityFailuresSinceBaseline": 0,
+  "rootEvents": {
+    "total": 4212,
+    "acked": 2687
+  },
+  "migrationCache": {
+    "state": "STAGED_COPY_NOT_CUTOVER",
+    "activeOwner": "ORIGINAL_DATABASE",
+    "cutoverEnabled": false,
+    "file": "starcore-research-r29-stage.db",
+    "verifiedBaselineTables": 0,
+    "crossTableSnapshot": "NOT_ESTABLISHED",
+    "updatedAt": 1793398005137
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 196,
+  "stagePhases": {
+    "PENDING": 194,
+    "VERIFIED_BASELINE": 2
+  },
+  "stageCopiedRows": 0
+}

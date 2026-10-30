@@ -1,0 +1,76 @@
+{
+  "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+  "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+  "run": 41134814694,
+  "job": 124334541766,
+  "artifact": 13016341854,
+  "zipBytes": 290099,
+  "zipSha256": "1edc8cb5e68eed5d3526d61683f32a7b0cdc73f87ac7997c9bfa192849d4924d",
+  "status": "FAIL_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN",
+  "phaseResults": {
+    "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+    "upgrade": {
+      "exitCode": 1,
+      "status": "FAIL"
+    },
+    "clean": {
+      "exitCode": 1,
+      "status": "FAIL"
+    },
+    "status": "FAIL",
+    "physicalLongTests": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "upgrade": {
+    "status": "FAIL_NEW_INCUMBENT_UNSLICED",
+    "publication": "PUBLISHED",
+    "strategyUnits": 265,
+    "sealedBaselineVerified": true,
+    "newTaskErrorRecordsAcrossOwners": 2,
+    "uniqueIncidentCount": 1,
+    "sameRootErrorCopiedToRp": true,
+    "error": {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "incumbent-forecast",
+      "errorClass": "java.lang.IllegalStateException",
+      "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "recordedAt": 1793397831755
+    },
+    "newCapacityFailureRecords": 0,
+    "databaseContinuityComparison": "NOT_REACHED_PROTOCOL_FAILED",
+    "eventsOutbox": 4209,
+    "eventsAcked": 1535,
+    "eventsDelivered": 1535
+  },
+  "clean": {
+    "status": "FAIL_CROSS_FILE_EVENT_PROTOCOL_MISMATCH",
+    "publication": "PUBLISHED",
+    "strategyUnits": 265,
+    "sealedBaselineVerified": true,
+    "eventsOutbox": 4212,
+    "eventsAcked": 2687,
+    "eventsDelivered": 2623,
+    "ackedEventsWithoutMatchingInbox": 64,
+    "deliveredIdentityMismatches": 0,
+    "inboxWithoutRootEvent": 0,
+    "corruptOutboxPayloads": 0,
+    "rootObservationTaskErrors": 0,
+    "rootObservationCapacityFailures": 0,
+    "rpFullErrorCensus": "NOT_REACHED_CROSS_FILE_PROTOCOL_ASSERTION_FIRST",
+    "causeOf64RowDiscrepancy": "NOT_YET_ESTABLISHED_DO_NOT_ASSUME_ACK_DATA_LOSS_OR_SNAPSHOT_ONLY"
+  },
+  "startupServiceProbeBothPassed": true,
+  "startupServiceProbeIsNotResearchAcceptance": true,
+  "scope": "API34 x86_64 R13 debug additional whole-App diagnostic. Both phases genuinely ran independently and retained original failing guards.",
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "B01": "NOT_ACCEPTED",
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED"
+}

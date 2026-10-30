@@ -1,0 +1,665 @@
+﻿2026-10-30T21:57:50.1923907Z Current runner version: '2.338.2'
+2026-10-30T21:57:50.1947961Z ##[group]Runner Image Provisioner
+2026-10-30T21:57:50.1948836Z Hosted Compute Agent
+2026-10-30T21:57:50.1949508Z Version: 20261015.610
+2026-10-30T21:57:50.1950429Z Commit: 267fdb4e8bbec4ab5ea31367f3a00d5c480c7656
+2026-10-30T21:57:50.1951240Z Build Date: 2026-10-14T17:06:54Z
+2026-10-30T21:57:50.1951928Z Worker ID: {ab3cc29a-892a-469c-ad6b-3fc4c178a3b4}
+2026-10-30T21:57:50.1952636Z Region: us-east-1
+2026-10-30T21:57:50.1953252Z Cloud: AWS
+2026-10-30T21:57:50.1953772Z ##[endgroup]
+2026-10-30T21:57:50.1955302Z ##[group]Operating System
+2026-10-30T21:57:50.1955938Z Ubuntu
+2026-10-30T21:57:50.1956448Z 24.04.5
+2026-10-30T21:57:50.1957012Z LTS
+2026-10-30T21:57:50.1957552Z ##[endgroup]
+2026-10-30T21:57:50.1958149Z ##[group]Runner Image
+2026-10-30T21:57:50.1958751Z Image: ubuntu-24.04
+2026-10-30T21:57:50.1959327Z Version: 20261018.96.1
+2026-10-30T21:57:50.1960965Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261018.96/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-30T21:57:50.1962450Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261018.96
+2026-10-30T21:57:50.1963378Z ##[endgroup]
+2026-10-30T21:57:50.1964585Z ##[group]GITHUB_TOKEN Permissions
+2026-10-30T21:57:50.1966547Z Contents: write
+2026-10-30T21:57:50.1967256Z Metadata: read
+2026-10-30T21:57:50.1967796Z ##[endgroup]
+2026-10-30T21:57:50.1970496Z Secret source: Actions
+2026-10-30T21:57:50.1971529Z Cache mode: write
+2026-10-30T21:57:50.1972386Z Prepare workflow directory
+2026-10-30T21:57:50.2294902Z Prepare all required actions
+2026-10-30T21:57:50.2345648Z Getting action download info
+2026-10-30T21:57:50.4043603Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-30T21:57:52.5284126Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-10-30T21:57:52.7165141Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-30T21:57:52.8845368Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-30T21:57:53.1280989Z Download action repository 'android-actions/setup-android@v3' (SHA:9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407)
+2026-10-30T21:57:53.2185800Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-30T21:57:53.5973941Z Complete job name: build
+2026-10-30T21:57:53.6551478Z ##[group]Run actions/checkout@v4
+2026-10-30T21:57:53.6551907Z with:
+2026-10-30T21:57:53.6552157Z   sparse-checkout: .github/r29-build-request.json
+2026-10-30T21:57:53.6552519Z   repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:53.6554496Z   token: ***
+2026-10-30T21:57:53.6554755Z   ssh-strict: true
+2026-10-30T21:57:53.6554982Z   ssh-user: git
+2026-10-30T21:57:53.6555198Z   persist-credentials: true
+2026-10-30T21:57:53.6555466Z   clean: true
+2026-10-30T21:57:53.6555704Z   sparse-checkout-cone-mode: true
+2026-10-30T21:57:53.6556029Z   fetch-depth: 1
+2026-10-30T21:57:53.6556248Z   fetch-tags: false
+2026-10-30T21:57:53.6556463Z   show-progress: true
+2026-10-30T21:57:53.6556705Z   lfs: false
+2026-10-30T21:57:53.6556912Z   submodules: false
+2026-10-30T21:57:53.6557157Z   set-safe-directory: true
+2026-10-30T21:57:53.6557443Z   allow-unsafe-pr-checkout: false
+2026-10-30T21:57:53.6557771Z ##[endgroup]
+2026-10-30T21:57:53.7313678Z Syncing repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:53.7315572Z ##[group]Getting Git version info
+2026-10-30T21:57:53.7316246Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:57:53.7317130Z [command]/usr/bin/git version
+2026-10-30T21:57:53.8772190Z git version 2.55.0
+2026-10-30T21:57:53.8790736Z ##[endgroup]
+2026-10-30T21:57:53.8799554Z Temporarily overriding HOME='/home/runner/work/_temp/aa008659-fb75-46e3-bc91-587168b591ee' before making global git config changes
+2026-10-30T21:57:53.8803176Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:57:53.8803977Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:57:53.8844023Z Deleting the contents of '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:57:53.8847442Z ##[group]Initializing the repository
+2026-10-30T21:57:53.8850239Z [command]/usr/bin/git init /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:57:53.9281240Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-30T21:57:53.9281841Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-30T21:57:53.9282284Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-30T21:57:53.9282734Z hint: call:
+2026-10-30T21:57:53.9283014Z hint:
+2026-10-30T21:57:53.9283354Z hint: 	git config --global init.defaultBranch <name>
+2026-10-30T21:57:53.9283659Z hint:
+2026-10-30T21:57:53.9283968Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-30T21:57:53.9284412Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-30T21:57:53.9284764Z hint:
+2026-10-30T21:57:53.9284988Z hint: 	git branch -m <name>
+2026-10-30T21:57:53.9285240Z hint:
+2026-10-30T21:57:53.9285543Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-30T21:57:53.9286217Z Initialized empty Git repository in /home/runner/work/starcore-public-build/starcore-public-build/.git/
+2026-10-30T21:57:53.9289323Z [command]/usr/bin/git remote add origin https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:53.9339587Z ##[endgroup]
+2026-10-30T21:57:53.9340215Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:57:53.9343180Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:57:53.9363451Z ##[endgroup]
+2026-10-30T21:57:53.9364004Z ##[group]Setting up auth
+2026-10-30T21:57:53.9368317Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:57:53.9390298Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:57:54.1685549Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:57:54.1708750Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:57:54.1858017Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:57:54.1879842Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:57:54.2024455Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:57:54.2048463Z ##[endgroup]
+2026-10-30T21:57:54.2049044Z ##[group]Fetching the repository
+2026-10-30T21:57:54.2055132Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +94c64f11c45fce971448ed9d11423b35858de583:refs/remotes/origin/construction/r27-20261028
+2026-10-30T21:57:54.3867132Z From https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:54.3867662Z  * [new ref]         94c64f11c45fce971448ed9d11423b35858de583 -> origin/construction/r27-20261028
+2026-10-30T21:57:54.3869424Z ##[endgroup]
+2026-10-30T21:57:54.3869823Z ##[group]Determining the checkout info
+2026-10-30T21:57:54.3871317Z ##[endgroup]
+2026-10-30T21:57:54.3871666Z ##[group]Setting up sparse checkout
+2026-10-30T21:57:54.3875052Z [command]/usr/bin/git sparse-checkout set .github/r29-build-request.json
+2026-10-30T21:57:54.3915690Z ##[endgroup]
+2026-10-30T21:57:54.3916016Z ##[group]Checking out the ref
+2026-10-30T21:57:54.3919628Z [command]/usr/bin/git checkout --progress --force -B construction/r27-20261028 refs/remotes/origin/construction/r27-20261028
+2026-10-30T21:57:54.5633225Z Switched to a new branch 'construction/r27-20261028'
+2026-10-30T21:57:54.5639423Z branch 'construction/r27-20261028' set up to track 'origin/construction/r27-20261028'.
+2026-10-30T21:57:54.5644322Z ##[endgroup]
+2026-10-30T21:57:54.5697916Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:57:54.5727680Z 94c64f11c45fce971448ed9d11423b35858de583
+2026-10-30T21:57:54.5862449Z ##[group]Run python3 -c "import json;r=json.load(open('.github/r29-build-request.json'));print('source='+r['source']);print('batch='+r['batch'])" >> "$GITHUB_OUTPUT"
+2026-10-30T21:57:54.5863219Z [36;1mpython3 -c "import json;r=json.load(open('.github/r29-build-request.json'));print('source='+r['source']);print('batch='+r['batch'])" >> "$GITHUB_OUTPUT"[0m
+2026-10-30T21:57:54.5863680Z [36;1mcat .github/r29-build-request.json[0m
+2026-10-30T21:57:54.5896176Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:57:54.5896428Z ##[endgroup]
+2026-10-30T21:57:54.6123919Z {
+2026-10-30T21:57:54.6124364Z   "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+2026-10-30T21:57:54.6124808Z   "batch": "CP13-R27"
+2026-10-30T21:57:54.6125064Z }
+2026-10-30T21:57:54.6212428Z ##[group]Run actions/checkout@v4
+2026-10-30T21:57:54.6212642Z with:
+2026-10-30T21:57:54.6212839Z   ref: 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:57:54.6213069Z   fetch-depth: 0
+2026-10-30T21:57:54.6213232Z   clean: true
+2026-10-30T21:57:54.6213422Z   repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:54.6215483Z   token: ***
+2026-10-30T21:57:54.6215657Z   ssh-strict: true
+2026-10-30T21:57:54.6215830Z   ssh-user: git
+2026-10-30T21:57:54.6216004Z   persist-credentials: true
+2026-10-30T21:57:54.6216214Z   sparse-checkout-cone-mode: true
+2026-10-30T21:57:54.6216418Z   fetch-tags: false
+2026-10-30T21:57:54.6216587Z   show-progress: true
+2026-10-30T21:57:54.6216763Z   lfs: false
+2026-10-30T21:57:54.6216932Z   submodules: false
+2026-10-30T21:57:54.6217105Z   set-safe-directory: true
+2026-10-30T21:57:54.6217309Z   allow-unsafe-pr-checkout: false
+2026-10-30T21:57:54.6217520Z ##[endgroup]
+2026-10-30T21:57:54.6825092Z Syncing repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:54.6827217Z ##[group]Getting Git version info
+2026-10-30T21:57:54.6827940Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:57:54.6855634Z [command]/usr/bin/git version
+2026-10-30T21:57:54.6885680Z git version 2.55.0
+2026-10-30T21:57:54.6901772Z ##[endgroup]
+2026-10-30T21:57:54.6911662Z Temporarily overriding HOME='/home/runner/work/_temp/3f321835-4f97-48e6-a55a-d51cc4dd5378' before making global git config changes
+2026-10-30T21:57:54.6912568Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:57:54.6916215Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:57:54.6946674Z [command]/usr/bin/git config --local --get remote.origin.url
+2026-10-30T21:57:54.6966839Z https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:54.6975335Z ##[group]Removing previously created refs, to avoid conflicts
+2026-10-30T21:57:54.6978302Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-10-30T21:57:54.6994305Z refs/heads/construction/r27-20261028
+2026-10-30T21:57:54.6999835Z [command]/usr/bin/git checkout --detach
+2026-10-30T21:57:54.7148949Z HEAD is now at 94c64f1 R29 B01 r27: source-bound verified checkpoint 84c360e09eaf
+2026-10-30T21:57:54.7185453Z [command]/usr/bin/git branch --delete --force construction/r27-20261028
+2026-10-30T21:57:54.7203933Z Deleted branch construction/r27-20261028 (was 94c64f1).
+2026-10-30T21:57:54.7205928Z ##[endgroup]
+2026-10-30T21:57:54.7210308Z [command]/usr/bin/git submodule status
+2026-10-30T21:57:54.7388035Z ##[group]Cleaning the repository
+2026-10-30T21:57:54.7395333Z [command]/usr/bin/git clean -ffdx
+2026-10-30T21:57:54.7424703Z [command]/usr/bin/git reset --hard HEAD
+2026-10-30T21:57:54.7626644Z HEAD is now at 94c64f1 R29 B01 r27: source-bound verified checkpoint 84c360e09eaf
+2026-10-30T21:57:54.7637451Z ##[endgroup]
+2026-10-30T21:57:54.7637872Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:57:54.7638184Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:57:54.7651861Z ##[endgroup]
+2026-10-30T21:57:54.7657968Z ##[group]Setting up auth
+2026-10-30T21:57:54.7662749Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:57:54.7680138Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:57:54.7833660Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:57:54.7850335Z http.https://github.com/.extraheader
+2026-10-30T21:57:54.7855759Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T21:57:54.7878242Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:57:54.8036051Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:57:54.8058013Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:57:54.8219681Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:57:54.8245312Z ##[endgroup]
+2026-10-30T21:57:54.8245660Z ##[group]Fetching the repository
+2026-10-30T21:57:54.8251732Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules --unshallow origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-10-30T21:57:55.3633832Z From https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:55.3634513Z  * [new branch]      construction/r13-restore-latest-20261024 -> origin/construction/r13-restore-latest-20261024
+2026-10-30T21:57:55.3635109Z  * [new branch]      construction/r26-f08-graph-20261027 -> origin/construction/r26-f08-graph-20261027
+2026-10-30T21:57:55.3635609Z  * [new branch]      construction/r26-fixture-process-20261027 -> origin/construction/r26-fixture-process-20261027
+2026-10-30T21:57:55.3636195Z  * [new branch]      construction/r26-incumbent-owner-20261027 -> origin/construction/r26-incumbent-owner-20261027
+2026-10-30T21:57:55.3636858Z  * [new branch]      construction/r26-report-review-20261028 -> origin/construction/r26-report-review-20261028
+2026-10-30T21:57:55.3637289Z  * [new branch]      construction/r29-20261029 -> origin/construction/r29-20261029
+2026-10-30T21:57:55.3637642Z  * [new branch]      construction/su1-20261022 -> origin/construction/su1-20261022
+2026-10-30T21:57:55.3638035Z  * [new branch]      fix/r26-report-export-20261028 -> origin/fix/r26-report-export-20261028
+2026-10-30T21:57:55.3638399Z  * [new branch]      main                      -> origin/main
+2026-10-30T21:57:55.3638783Z  * [new branch]      verification/r29-checkpoint06-20261030 -> origin/verification/r29-checkpoint06-20261030
+2026-10-30T21:57:55.3639192Z  * [new tag]         r13-5.4.3.04-20261025     -> r13-5.4.3.04-20261025
+2026-10-30T21:57:55.3639487Z  * [new tag]         r26-20261027-engineering  -> r26-20261027-engineering
+2026-10-30T21:57:55.3639785Z  * [new tag]         r26-20261028-reportfix2   -> r26-20261028-reportfix2
+2026-10-30T21:57:55.3640259Z  * [new tag]         r26-20261028-runtime-117  -> r26-20261028-runtime-117
+2026-10-30T21:57:55.3640599Z  * [new tag]         r29-B00-a618d14ccc41      -> r29-B00-a618d14ccc41
+2026-10-30T21:57:55.3640915Z  * [new tag]         r29-B02-QUAL-534603296b84 -> r29-B02-QUAL-534603296b84
+2026-10-30T21:57:55.3641229Z  * [new tag]         r29-CP05-R27-770e81bd449b -> r29-CP05-R27-770e81bd449b
+2026-10-30T21:57:55.3641718Z  * [new tag]         r29-CP06-R27-bb607cf5ab69 -> r29-CP06-R27-bb607cf5ab69
+2026-10-30T21:57:55.3642041Z  * [new tag]         r29-CP07-R27-1d2f1565e308 -> r29-CP07-R27-1d2f1565e308
+2026-10-30T21:57:55.3642408Z  * [new tag]         r29-CP08-R27-2f1e2ab9caf2 -> r29-CP08-R27-2f1e2ab9caf2
+2026-10-30T21:57:55.3642717Z  * [new tag]         r29-CP09-R27-e3dd104302dc -> r29-CP09-R27-e3dd104302dc
+2026-10-30T21:57:55.3643068Z  * [new tag]         r29-CP10-R27-0c639ccb3702 -> r29-CP10-R27-0c639ccb3702
+2026-10-30T21:57:55.3643406Z  * [new tag]         r29-CP11-R27-2cf09d56fbff -> r29-CP11-R27-2cf09d56fbff
+2026-10-30T21:57:55.3643758Z  * [new tag]         r29-official-577291005-770e81bd449b -> r29-official-577291005-770e81bd449b
+2026-10-30T21:57:55.3644177Z  * [new tag]         r29-official-577291006-bb607cf5ab69 -> r29-official-577291006-bb607cf5ab69
+2026-10-30T21:57:55.3644576Z  * [new tag]         r29-official-577291007-1d2f1565e308 -> r29-official-577291007-1d2f1565e308
+2026-10-30T21:57:55.3644976Z  * [new tag]         r29-official-577291008-2f1e2ab9caf2 -> r29-official-577291008-2f1e2ab9caf2
+2026-10-30T21:57:55.3645453Z  * [new tag]         r29-official-577291009-e3dd104302dc -> r29-official-577291009-e3dd104302dc
+2026-10-30T21:57:55.3646064Z  * [new tag]         r29-official-577291010-0c639ccb3702 -> r29-official-577291010-0c639ccb3702
+2026-10-30T21:57:55.3646519Z  * [new tag]         r29-official-577291011-2cf09d56fbff -> r29-official-577291011-2cf09d56fbff
+2026-10-30T21:57:55.3647382Z [command]/usr/bin/git rev-parse --verify --quiet 84c360e09eaff62fdb2ce63dffdf21572f282c52^{object}
+2026-10-30T21:57:55.3665408Z 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:57:55.3667687Z ##[endgroup]
+2026-10-30T21:57:55.3668086Z ##[group]Determining the checkout info
+2026-10-30T21:57:55.3671101Z ##[endgroup]
+2026-10-30T21:57:55.3673320Z [command]/usr/bin/git sparse-checkout disable
+2026-10-30T21:57:59.1355559Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-30T21:57:59.1382335Z ##[group]Checking out the ref
+2026-10-30T21:57:59.1386416Z [command]/usr/bin/git checkout --progress --force 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:58:00.3466156Z Updating files:   0% (3/2682)
+2026-10-30T21:58:00.3526136Z Updating files:   1% (27/2682)
+2026-10-30T21:58:00.3545028Z Updating files:   2% (54/2682)
+2026-10-30T21:58:00.3560929Z Updating files:   3% (81/2682)
+2026-10-30T21:58:00.3580305Z Updating files:   4% (108/2682)
+2026-10-30T21:58:00.3632899Z Updating files:   5% (135/2682)
+2026-10-30T21:58:00.3662272Z Updating files:   6% (161/2682)
+2026-10-30T21:58:00.3715251Z Updating files:   7% (188/2682)
+2026-10-30T21:58:00.3752208Z Updating files:   8% (215/2682)
+2026-10-30T21:58:00.3766990Z Updating files:   9% (242/2682)
+2026-10-30T21:58:00.3772580Z Updating files:  10% (269/2682)
+2026-10-30T21:58:00.3778581Z Updating files:  11% (296/2682)
+2026-10-30T21:58:00.3785781Z Updating files:  12% (322/2682)
+2026-10-30T21:58:00.3792650Z Updating files:  13% (349/2682)
+2026-10-30T21:58:00.3855299Z Updating files:  14% (376/2682)
+2026-10-30T21:58:00.3928314Z Updating files:  15% (403/2682)
+2026-10-30T21:58:00.3970755Z Updating files:  16% (430/2682)
+2026-10-30T21:58:00.3980535Z Updating files:  17% (456/2682)
+2026-10-30T21:58:00.3990825Z Updating files:  18% (483/2682)
+2026-10-30T21:58:00.4065694Z Updating files:  19% (510/2682)
+2026-10-30T21:58:00.4097306Z Updating files:  20% (537/2682)
+2026-10-30T21:58:00.4114841Z Updating files:  21% (564/2682)
+2026-10-30T21:58:00.4153492Z Updating files:  22% (591/2682)
+2026-10-30T21:58:00.4161976Z Updating files:  23% (617/2682)
+2026-10-30T21:58:00.4205710Z Updating files:  24% (644/2682)
+2026-10-30T21:58:00.4233387Z Updating files:  25% (671/2682)
+2026-10-30T21:58:00.4281308Z Updating files:  26% (698/2682)
+2026-10-30T21:58:00.4286283Z Updating files:  27% (725/2682)
+2026-10-30T21:58:00.4291439Z Updating files:  28% (751/2682)
+2026-10-30T21:58:00.4296678Z Updating files:  29% (778/2682)
+2026-10-30T21:58:00.4326584Z Updating files:  30% (805/2682)
+2026-10-30T21:58:00.4346394Z Updating files:  31% (832/2682)
+2026-10-30T21:58:00.4353187Z Updating files:  32% (859/2682)
+2026-10-30T21:58:00.4358097Z Updating files:  33% (886/2682)
+2026-10-30T21:58:00.4361937Z Updating files:  34% (912/2682)
+2026-10-30T21:58:00.4377444Z Updating files:  35% (939/2682)
+2026-10-30T21:58:00.4381250Z Updating files:  36% (966/2682)
+2026-10-30T21:58:00.4385676Z Updating files:  37% (993/2682)
+2026-10-30T21:58:00.4399265Z Updating files:  38% (1020/2682)
+2026-10-30T21:58:00.4414337Z Updating files:  39% (1046/2682)
+2026-10-30T21:58:00.4418728Z Updating files:  40% (1073/2682)
+2026-10-30T21:58:00.4432918Z Updating files:  41% (1100/2682)
+2026-10-30T21:58:00.4440611Z Updating files:  42% (1127/2682)
+2026-10-30T21:58:00.4448802Z Updating files:  43% (1154/2682)
+2026-10-30T21:58:00.4457743Z Updating files:  44% (1181/2682)
+2026-10-30T21:58:00.4463380Z Updating files:  45% (1207/2682)
+2026-10-30T21:58:00.4474565Z Updating files:  46% (1234/2682)
+2026-10-30T21:58:00.4479116Z Updating files:  47% (1261/2682)
+2026-10-30T21:58:00.4494238Z Updating files:  48% (1288/2682)
+2026-10-30T21:58:00.4498213Z Updating files:  49% (1315/2682)
+2026-10-30T21:58:00.4502712Z Updating files:  50% (1341/2682)
+2026-10-30T21:58:00.4507324Z Updating files:  51% (1368/2682)
+2026-10-30T21:58:00.4512768Z Updating files:  52% (1395/2682)
+2026-10-30T21:58:00.4537378Z Updating files:  53% (1422/2682)
+2026-10-30T21:58:00.4542170Z Updating files:  54% (1449/2682)
+2026-10-30T21:58:00.4555810Z Updating files:  55% (1476/2682)
+2026-10-30T21:58:00.4559899Z Updating files:  56% (1502/2682)
+2026-10-30T21:58:00.4562666Z Updating files:  57% (1529/2682)
+2026-10-30T21:58:00.4567334Z Updating files:  58% (1556/2682)
+2026-10-30T21:58:00.4571335Z Updating files:  59% (1583/2682)
+2026-10-30T21:58:00.4584138Z Updating files:  60% (1610/2682)
+2026-10-30T21:58:00.4588536Z Updating files:  61% (1637/2682)
+2026-10-30T21:58:00.4607490Z Updating files:  62% (1663/2682)
+2026-10-30T21:58:00.4616854Z Updating files:  63% (1690/2682)
+2026-10-30T21:58:00.4628486Z Updating files:  64% (1717/2682)
+2026-10-30T21:58:00.4631931Z Updating files:  65% (1744/2682)
+2026-10-30T21:58:00.4636347Z Updating files:  66% (1771/2682)
+2026-10-30T21:58:00.4639780Z Updating files:  67% (1797/2682)
+2026-10-30T21:58:00.4643210Z Updating files:  68% (1824/2682)
+2026-10-30T21:58:00.4658143Z Updating files:  69% (1851/2682)
+2026-10-30T21:58:00.4671768Z Updating files:  70% (1878/2682)
+2026-10-30T21:58:00.5068940Z Updating files:  71% (1905/2682)
+2026-10-30T21:58:00.5071878Z Updating files:  72% (1932/2682)
+2026-10-30T21:58:00.5084710Z Updating files:  73% (1958/2682)
+2026-10-30T21:58:00.5089445Z Updating files:  74% (1985/2682)
+2026-10-30T21:58:00.5093519Z Updating files:  75% (2012/2682)
+2026-10-30T21:58:00.5096993Z Updating files:  76% (2039/2682)
+2026-10-30T21:58:00.5101643Z Updating files:  77% (2066/2682)
+2026-10-30T21:58:00.5114945Z Updating files:  78% (2092/2682)
+2026-10-30T21:58:00.5119692Z Updating files:  79% (2119/2682)
+2026-10-30T21:58:00.5123578Z Updating files:  80% (2146/2682)
+2026-10-30T21:58:00.5127319Z Updating files:  81% (2173/2682)
+2026-10-30T21:58:00.5132907Z Updating files:  82% (2200/2682)
+2026-10-30T21:58:00.5144874Z Updating files:  83% (2227/2682)
+2026-10-30T21:58:00.5156838Z Updating files:  84% (2253/2682)
+2026-10-30T21:58:00.5160554Z Updating files:  85% (2280/2682)
+2026-10-30T21:58:00.5165202Z Updating files:  86% (2307/2682)
+2026-10-30T21:58:00.5168663Z Updating files:  87% (2334/2682)
+2026-10-30T21:58:00.5172683Z Updating files:  88% (2361/2682)
+2026-10-30T21:58:00.5182945Z Updating files:  89% (2387/2682)
+2026-10-30T21:58:00.5196720Z Updating files:  90% (2414/2682)
+2026-10-30T21:58:00.5209856Z Updating files:  91% (2441/2682)
+2026-10-30T21:58:00.5239097Z Updating files:  92% (2468/2682)
+2026-10-30T21:58:00.5240431Z Updating files:  93% (2495/2682)
+2026-10-30T21:58:00.5353146Z Updating files:  94% (2522/2682)
+2026-10-30T21:58:00.5365215Z Updating files:  95% (2548/2682)
+2026-10-30T21:58:00.5377706Z Updating files:  96% (2575/2682)
+2026-10-30T21:58:00.5384801Z Updating files:  97% (2602/2682)
+2026-10-30T21:58:00.5389211Z Updating files:  98% (2629/2682)
+2026-10-30T21:58:00.5398122Z Updating files:  99% (2656/2682)
+2026-10-30T21:58:00.5398430Z Updating files: 100% (2682/2682)
+2026-10-30T21:58:00.5398704Z Updating files: 100% (2682/2682), done.
+2026-10-30T21:58:00.6212343Z Previous HEAD position was 94c64f1 R29 B01 r27: source-bound verified checkpoint 84c360e09eaf
+2026-10-30T21:58:00.6220566Z HEAD is now at 84c360e R29 B01: freeze CP13 compiled observer call inventory
+2026-10-30T21:58:00.6233337Z ##[endgroup]
+2026-10-30T21:58:00.6270238Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:58:00.6291630Z 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:58:00.6764129Z ##[group]Run actions/setup-java@v4
+2026-10-30T21:58:00.6764327Z with:
+2026-10-30T21:58:00.6764483Z   distribution: temurin
+2026-10-30T21:58:00.6764650Z   java-version: 17
+2026-10-30T21:58:00.6764817Z   java-package: jdk
+2026-10-30T21:58:00.6764989Z   check-latest: false
+2026-10-30T21:58:00.6765150Z   server-id: github
+2026-10-30T21:58:00.6765316Z   server-username: GITHUB_ACTOR
+2026-10-30T21:58:00.6765507Z   server-password: GITHUB_TOKEN
+2026-10-30T21:58:00.6765718Z   overwrite-settings: true
+2026-10-30T21:58:00.6765894Z   job-status: success
+2026-10-30T21:58:00.6767674Z   token: ***
+2026-10-30T21:58:00.6767835Z ##[endgroup]
+2026-10-30T21:58:00.7984441Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-10-30T21:58:00.7989924Z ##[group]Installed distributions
+2026-10-30T21:58:00.8021847Z Resolved Java 17.0.20+1 from tool-cache
+2026-10-30T21:58:00.8022169Z Setting Java 17.0.20+1 as the default
+2026-10-30T21:58:00.8028546Z (node:2317) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:58:00.8029303Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:58:00.8031005Z Creating toolchains.xml for JDK version 17 from temurin
+2026-10-30T21:58:00.8098183Z Writing to /home/runner/.m2/toolchains.xml
+2026-10-30T21:58:00.8098447Z 
+2026-10-30T21:58:00.8098541Z Java configuration:
+2026-10-30T21:58:00.8098770Z   Distribution: temurin
+2026-10-30T21:58:00.8098995Z   Version: 17.0.20+1
+2026-10-30T21:58:00.8099328Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:00.8099622Z 
+2026-10-30T21:58:00.8100264Z ##[endgroup]
+2026-10-30T21:58:00.8113723Z Creating settings.xml with server-id: github
+2026-10-30T21:58:00.8119499Z Writing to /home/runner/.m2/settings.xml
+2026-10-30T21:58:00.8264693Z ##[group]Run actions/setup-python@v5
+2026-10-30T21:58:00.8264906Z with:
+2026-10-30T21:58:00.8265065Z   python-version: 3.12
+2026-10-30T21:58:00.8265239Z   check-latest: false
+2026-10-30T21:58:00.8267077Z   token: ***
+2026-10-30T21:58:00.8267248Z   update-environment: true
+2026-10-30T21:58:00.8267433Z   allow-prereleases: false
+2026-10-30T21:58:00.8267622Z   freethreaded: false
+2026-10-30T21:58:00.8267779Z env:
+2026-10-30T21:58:00.8267997Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:00.8268358Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:00.8268640Z ##[endgroup]
+2026-10-30T21:58:00.9273849Z ##[group]Installed versions
+2026-10-30T21:58:01.0885281Z (node:2329) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:58:01.0886026Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:58:01.0886533Z Successfully set up CPython (3.12.15)
+2026-10-30T21:58:01.0887419Z ##[endgroup]
+2026-10-30T21:58:01.0966772Z ##[group]Run python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+2026-10-30T21:58:01.0967181Z [36;1mpython -m pip install numpy==2.3.5 'cryptography>=41,<51'[0m
+2026-10-30T21:58:01.1315891Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:01.1316118Z env:
+2026-10-30T21:58:01.1316535Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:01.1316907Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:01.1317250Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:01.1317567Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:01.1317888Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:01.1318170Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:01.1318452Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:01.1318786Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:01.1319021Z ##[endgroup]
+2026-10-30T21:58:05.9520867Z Collecting numpy==2.3.5
+2026-10-30T21:58:06.0271910Z   Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+2026-10-30T21:58:06.1735655Z Collecting cryptography<51,>=41
+2026-10-30T21:58:06.1895367Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-10-30T21:58:06.2638779Z Collecting cffi>=2.0.0 (from cryptography<51,>=41)
+2026-10-30T21:58:06.2797975Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-10-30T21:58:06.3010455Z Collecting pycparser (from cffi>=2.0.0->cryptography<51,>=41)
+2026-10-30T21:58:06.3166745Z   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-10-30T21:58:06.3371186Z Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+2026-10-30T21:58:06.4890578Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.6/16.6 MB 137.5 MB/s  0:00:00
+2026-10-30T21:58:06.5052972Z Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-10-30T21:58:06.5181285Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 401.2 MB/s  0:00:00
+2026-10-30T21:58:06.5339262Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-10-30T21:58:06.5509777Z Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-10-30T21:58:06.7780198Z Installing collected packages: pycparser, numpy, cffi, cryptography
+2026-10-30T21:58:08.2978992Z 
+2026-10-30T21:58:08.2987265Z Successfully installed cffi-2.1.1 cryptography-50.0.2 numpy-2.3.5 pycparser-3.12
+2026-10-30T21:58:08.2993570Z 
+2026-10-30T21:58:08.2993987Z [notice] A new release of pip is available: 26.2.1 -> 26.2.2
+2026-10-30T21:58:08.2994338Z [notice] To update, run: pip install --upgrade pip
+2026-10-30T21:58:08.3596755Z ##[group]Run actions/cache/restore@v4
+2026-10-30T21:58:08.3596982Z with:
+2026-10-30T21:58:08.3597143Z   path: ~/.starcore/r27-ci-temp-key
+2026-10-30T21:58:08.3597363Z   key: starcore-r27-ci-temp-signing-v1
+2026-10-30T21:58:08.3597574Z   fail-on-cache-miss: true
+2026-10-30T21:58:08.3597808Z   enableCrossOsArchive: false
+2026-10-30T21:58:08.3597996Z   lookup-only: false
+2026-10-30T21:58:08.3598156Z env:
+2026-10-30T21:58:08.3598394Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:08.3598749Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:08.3599084Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.3599393Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:08.3599707Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.3600376Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.3600815Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.3601106Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:08.3601347Z ##[endgroup]
+2026-10-30T21:58:08.4406169Z (node:2361) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:58:08.4406716Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:58:08.5033097Z Cache hit for: starcore-r27-ci-temp-signing-v1
+2026-10-30T21:58:08.5113793Z (node:2361) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:58:08.5958247Z Received 3773 of 3773 (100.0%), 0.1 MBs/sec
+2026-10-30T21:58:08.5958634Z Cache Size: ~0 MB (3773 B)
+2026-10-30T21:58:08.5974663Z [command]/usr/bin/tar -xf /home/runner/work/_temp/40491421-9eb9-4ec1-afd5-22b89773aecf/cache.tzst -P -C /home/runner/work/starcore-public-build/starcore-public-build --use-compress-program unzstd
+2026-10-30T21:58:08.6011793Z Cache restored successfully
+2026-10-30T21:58:08.6064167Z Cache restored from key: starcore-r27-ci-temp-signing-v1
+2026-10-30T21:58:08.6121710Z ##[group]Run python3 - <<'PY'
+2026-10-30T21:58:08.6121963Z [36;1mpython3 - <<'PY'[0m
+2026-10-30T21:58:08.6122175Z [36;1mimport os, pathlib, subprocess, hashlib[0m
+2026-10-30T21:58:08.6122479Z [36;1mroot=pathlib.Path.home()/'.starcore/r27-ci-temp-key'[0m
+2026-10-30T21:58:08.6122948Z [36;1mkey=root/'r27-ci.p12'; ***'pw').read_text().strip()[0m
+2026-10-30T21:58:08.6123362Z [36;1mif not key.is_file() or not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')[0m
+2026-10-30T21:58:08.6123715Z [36;1mprint('::add-mask::'+password)[0m
+2026-10-30T21:58:08.6124237Z [36;1mcert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)[0m
+2026-10-30T21:58:08.6124803Z [36;1mfingerprint=hashlib.sha256(cert).hexdigest()[0m
+2026-10-30T21:58:08.6125313Z [36;1mif fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')[0m
+2026-10-30T21:58:08.6125774Z [36;1mwith open(os.environ['GITHUB_ENV'],'a') as out:[0m
+2026-10-30T21:58:08.6126289Z [36;1m    out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')[0m
+2026-10-30T21:58:08.6126841Z [36;1m    credential=os.environ.get('R29_API_KEY','').strip()[0m
+2026-10-30T21:58:08.6127094Z [36;1m    if credential:[0m
+2026-10-30T21:58:08.6127306Z [36;1m        print('::add-mask::'+credential)[0m
+2026-10-30T21:58:08.6127561Z [36;1m        out.write('DUOQU_API_KEY='+credential+'\n')[0m
+2026-10-30T21:58:08.6127891Z [36;1mprint('Reused R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')[0m
+2026-10-30T21:58:08.6128197Z [36;1mPY[0m
+2026-10-30T21:58:08.6155378Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:08.6155601Z env:
+2026-10-30T21:58:08.6155859Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:08.6156256Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:08.6156602Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6156938Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:08.6157252Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6157543Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6157838Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6158127Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:08.6158469Z   R29_API_KEY: ***
+2026-10-30T21:58:08.6158640Z ##[endgroup]
+2026-10-30T21:58:12.8412194Z Reused R27 certificate d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7; official R13 upgrade BLOCKED
+2026-10-30T21:58:12.8496415Z ##[group]Run android-actions/setup-android@v3
+2026-10-30T21:58:12.8496670Z with:
+2026-10-30T21:58:12.8496856Z   packages: platform-tools
+2026-10-30T21:58:12.8497075Z   log-accepted-android-sdk-licenses: false
+2026-10-30T21:58:12.8497305Z   cmdline-tools-version: 12266719
+2026-10-30T21:58:12.8497613Z   accept-android-sdk-licenses: true
+2026-10-30T21:58:12.8497828Z env:
+2026-10-30T21:58:12.8498075Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:12.8498448Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:12.8498778Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:12.8499100Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:12.8499417Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:12.8499701Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:12.8500206Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:12.8500507Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:12.8500832Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-10-30T21:58:12.8501205Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:58:12.8501519Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-10-30T21:58:12.8501870Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-10-30T21:58:12.8502098Z   DUOQU_API_KEY: ***
+2026-10-30T21:58:12.8502279Z ##[endgroup]
+2026-10-30T21:58:13.0434356Z Found preinstalled sdkmanager in /usr/local/lib/android/sdk/cmdline-tools/latest with following source.properties:
+2026-10-30T21:58:13.0434967Z Pkg.Revision=12.0
+2026-10-30T21:58:13.0435249Z Pkg.Path=cmdline-tools;12.0
+2026-10-30T21:58:13.0435554Z Pkg.Desc=Android SDK Command-line Tools
+2026-10-30T21:58:13.0435767Z 
+2026-10-30T21:58:13.0435896Z Wrong version in preinstalled sdkmanager
+2026-10-30T21:58:13.0436535Z Downloading commandline tools from https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip
+2026-10-30T21:58:13.6234911Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/a659865c-3109-40a3-b73a-39137a6c9851
+2026-10-30T21:58:14.3499498Z Accepting Android SDK licenses
+2026-10-30T21:58:19.1157622Z [command]/usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager platform-tools
+2026-10-30T21:58:19.6481944Z Loading package information...                                                  
+2026-10-30T21:58:19.7194349Z Loading local repository...                                                     
+2026-10-30T21:58:19.7198920Z [                                       ] 3% Loading local repository...        
+2026-10-30T21:58:19.7270829Z [                                       ] 3% Fetch remote repository...         
+2026-10-30T21:58:19.8951998Z [=                                      ] 3% Fetch remote repository...         
+2026-10-30T21:58:19.9304560Z [=                                      ] 4% Fetch remote repository...         
+2026-10-30T21:58:19.9475304Z [=                                      ] 5% Fetch remote repository...         
+2026-10-30T21:58:19.9791494Z [==                                     ] 5% Fetch remote repository...         
+2026-10-30T21:58:20.0352088Z [==                                     ] 6% Fetch remote repository...         
+2026-10-30T21:58:20.0696860Z [==                                     ] 7% Fetch remote repository...         
+2026-10-30T21:58:20.0697315Z [==                                     ] 7% Computing updates...               
+2026-10-30T21:58:20.0777003Z [===                                    ] 8% Computing updates...               
+2026-10-30T21:58:20.0830981Z [===                                    ] 10% Computing updates...              
+2026-10-30T21:58:20.0831468Z [=======================================] 100% Computing updates...             
+2026-10-30T21:58:20.0831843Z 
+2026-10-30T21:58:20.1134064Z ##[group]Run sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+2026-10-30T21:58:20.1134729Z [36;1msdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null[0m
+2026-10-30T21:58:20.1163053Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:20.1163375Z env:
+2026-10-30T21:58:20.1163875Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:20.1164364Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:20.1164775Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:20.1165175Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:20.1165578Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:20.1165982Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:20.1166423Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:20.1166777Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:20.1167205Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-10-30T21:58:20.1167645Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:58:20.1168063Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-10-30T21:58:20.1168484Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-10-30T21:58:20.1168775Z   DUOQU_API_KEY: ***
+2026-10-30T21:58:20.1169089Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:58:20.1169377Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:58:20.1169684Z ##[endgroup]
+2026-10-30T21:58:37.0081746Z ##[group]Run git config user.name 'STARCORE build identity'
+2026-10-30T21:58:37.0082344Z [36;1mgit config user.name 'STARCORE build identity'[0m
+2026-10-30T21:58:37.0082976Z [36;1mgit config user.email 'starcore-build@users.noreply.github.com'[0m
+2026-10-30T21:58:37.0083532Z [36;1mexport PUSH_REF=construction/r29-20261029[0m
+2026-10-30T21:58:37.0084080Z [36;1mtimeout 45s git fetch -q origin construction/r29-20261029[0m
+2026-10-30T21:58:37.0084909Z [36;1mgit merge-base --is-ancestor HEAD origin/construction/r29-20261029 || { echo 'REQUESTED_SOURCE_NOT_ON_R29_BRANCH'; exit 1; }[0m
+2026-10-30T21:58:37.0085875Z [36;1m[ "$(git rev-parse HEAD)" = "$(git rev-parse origin/construction/r29-20261029)" ] || unset PUSH_REF[0m
+2026-10-30T21:58:37.0086601Z [36;1mbash tools/r29/ci_build.sh[0m
+2026-10-30T21:58:37.0124277Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:37.0124775Z env:
+2026-10-30T21:58:37.0125320Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:37.0126014Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T21:58:37.0126596Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:37.0127205Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:37.0127756Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:37.0128248Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:37.0128806Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:37.0129313Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:37.0129926Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-10-30T21:58:37.0130916Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:58:37.0131552Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-10-30T21:58:37.0132143Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-10-30T21:58:37.0132617Z   DUOQU_API_KEY: ***
+2026-10-30T21:58:37.0133005Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:58:37.0133503Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:58:37.0133942Z ##[endgroup]
+2026-10-30T21:58:39.6501159Z R967_SEMANTIC_IDENTITY_VERIFIED|3623552c57037b3115380ab72b285dce26b8aa64c721a94a64310fb2e8c5d791
+2026-10-30T21:58:39.6501759Z SU1_REVIEWED_IDENTITIES_REBOUND_NO_QUALIFICATION_INHERITANCE
+2026-10-30T21:58:39.6502270Z R29_REBOUND_INPUTS 134 rounds 1
+2026-10-30T21:59:44.9528402Z R27_BUILD_IDENTITY_WRITTEN 84c360e09eaff62fdb2ce63dffdf21572f282c52 e977ec2e7c3c4c511ba900f1bf2da468e8aaabc6
+2026-10-30T21:59:44.9529145Z R997_CONSTRUCTION_ASSETS_GENERATED requirements=1832 statuses_preserved=TRUE
+2026-10-30T21:59:44.9530500Z CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+2026-10-30T21:59:44.9531041Z SU2 production DDL: reproducible and executable
+2026-10-30T21:59:44.9531739Z R967_SEMANTIC_IDENTITY_GENERATED|3623552c57037b3115380ab72b285dce26b8aa64c721a94a64310fb2e8c5d791
+2026-10-30T21:59:44.9532524Z R967_SEMANTIC_IDENTITY_VERIFIED|3623552c57037b3115380ab72b285dce26b8aa64c721a94a64310fb2e8c5d791
+2026-10-30T21:59:44.9534015Z R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=8358a4e8ed3a5b07fe2c44ce44002b44d76b3fcd90dba03957aeb3f6dabb1839|RESOURCE=2f466bd1f59996018aa5dfeef3cebb5136fa9b36093ed21187212f728dbc3ab1|TOOLCHAIN=29fbab122738b3bc4097c1d9350afa6c041567ad89c39987062ad4cfe8382ff8|INPUTS=fd801c3e9c89d3099f6ee54b8e725f8f0de31b0f20551abc49456d5a80255e68|GENERATED_AT=2026-10-30T21:59:21Z
+2026-10-30T21:59:44.9536324Z R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=8358a4e8ed3a5b07fe2c44ce44002b44d76b3fcd90dba03957aeb3f6dabb1839|RESOURCE=2f466bd1f59996018aa5dfeef3cebb5136fa9b36093ed21187212f728dbc3ab1|TOOLCHAIN=29fbab122738b3bc4097c1d9350afa6c041567ad89c39987062ad4cfe8382ff8|INPUTS=fd801c3e9c89d3099f6ee54b8e725f8f0de31b0f20551abc49456d5a80255e68|GENERATED_AT=2026-10-30T21:59:21Z
+2026-10-30T21:59:44.9538376Z /home/runner/work/starcore-public-build/starcore-public-build/app/src/main/java/com/ethk3/novaonepro/r952/DevelopmentTrainerCP9.java:14: warning: [strictfp] as of release 17, all floating-point expressions are evaluated strictly and 'strictfp' is not required
+2026-10-30T21:59:44.9539458Z public strictfp final class DevelopmentTrainerCP9 {
+2026-10-30T21:59:44.9539885Z                       ^
+2026-10-30T21:59:44.9540507Z Note: Some input files use or override a deprecated API.
+2026-10-30T21:59:44.9540904Z Note: Recompile with -Xlint:deprecation for details.
+2026-10-30T21:59:44.9541362Z Note: Some input files use unchecked or unsafe operations.
+2026-10-30T21:59:44.9541738Z Note: Recompile with -Xlint:unchecked for details.
+2026-10-30T21:59:44.9542055Z 1 warning
+2026-10-30T21:59:52.4191464Z SU1_REVIEWED_IDENTITIES_REBOUND_NO_QUALIFICATION_INHERITANCE
+2026-10-30T21:59:52.4192302Z SOURCE_CALL_ASSET_VERIFIED|bytes=36444411|sha256=66dbcf8ea417c44f2d07ca6168ceb93e55bfe80985b351e11d839c52c6cfd882
+2026-10-30T21:59:52.4193024Z R29_REBOUND_INPUTS 134 rounds 1
+2026-10-30T21:59:52.6513919Z Everything up-to-date
+2026-10-30T21:59:52.6783585Z {"status": "PASS", "manifestSha256": "9474d42571fd1a6dba46932f8f5f7a9782275ce76501fdd9c11aa91f547fc019", "versionName": "R29.1-2026.10.30-checkpoint13", "versionCode": 577291013}
+2026-10-30T21:59:53.3464692Z R967_SEMANTIC_IDENTITY_VERIFIED|3623552c57037b3115380ab72b285dce26b8aa64c721a94a64310fb2e8c5d791
+2026-10-30T21:59:53.3715031Z R13_PRODUCTION_DDL_PASS
+2026-10-30T21:59:53.3978166Z SU2 production DDL: reproducible and executable
+2026-10-30T22:04:04.5656046Z B00_PLAN_PACKAGE PASS {"driftedPlanFiles": []}
+2026-10-30T22:04:04.5656868Z B00_LEGACY_ASSET PASS {"output": "R29_LEGACY_ASSET CHECKED 802226 9a7f75dbb11624bbb6b253ba2962ad30f34fa4f11913cb0265954d5e0fc6d948"}
+2026-10-30T22:04:04.5657722Z B00_REGISTRIES PASS {"cards": 52, "batches": 11, "metrics": 44, "metricsMissingInApp": [], "cardMetricMapMismatch": []}
+2026-10-30T22:04:04.5658328Z B00_CHANGE_LEDGER PASS {"rows": 1189, "beforeHashMismatch": []}
+2026-10-30T22:04:04.9216339Z ##[error]Process completed with exit code 1.
+2026-10-30T22:04:04.9291537Z ##[group]Run actions/upload-artifact@v4
+2026-10-30T22:04:04.9291905Z with:
+2026-10-30T22:04:04.9292308Z   name: R29-BUILD-EVIDENCE-CP13-R27
+2026-10-30T22:04:04.9292837Z   path: evidence/r29/ci/
+app/build/test-results/
+app/build/reports/
+r29-apk/
+
+2026-10-30T22:04:04.9293353Z   if-no-files-found: warn
+2026-10-30T22:04:04.9293720Z   compression-level: 6
+2026-10-30T22:04:04.9294041Z   overwrite: false
+2026-10-30T22:04:04.9294391Z   include-hidden-files: false
+2026-10-30T22:04:04.9294733Z env:
+2026-10-30T22:04:04.9295311Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T22:04:04.9295935Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-30T22:04:04.9296815Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:04:04.9297387Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T22:04:04.9297981Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:04:04.9298652Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:04:04.9299189Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:04:04.9299727Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T22:04:04.9300506Z   R13_SIGNING_P12: /home/runner/.starcore/r27-ci-temp-key/r27-ci.p12
+2026-10-30T22:04:04.9301470Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T22:04:04.9302023Z   R13_EXPECTED_CERT_SHA256: d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+2026-10-30T22:04:04.9302653Z   R29_SIGNING: EXISTING_R27_CI_NOT_OFFICIAL_R13
+2026-10-30T22:04:04.9303084Z   DUOQU_API_KEY: ***
+2026-10-30T22:04:04.9303455Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T22:04:04.9303906Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T22:04:04.9304309Z ##[endgroup]
+2026-10-30T22:04:05.0545250Z (node:6381) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T22:04:05.0545957Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T22:04:05.0595335Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-30T22:04:05.0598094Z The least common ancestor is /home/runner/work/starcore-public-build/starcore-public-build. This will be the root directory of the artifact
+2026-10-30T22:04:05.0598845Z With the provided path, there will be 6 files uploaded
+2026-10-30T22:04:05.0603428Z Artifact name is valid!
+2026-10-30T22:04:05.0603903Z Root directory input is valid!
+2026-10-30T22:04:05.2523355Z Beginning upload of artifact content to blob storage
+2026-10-30T22:04:05.2709906Z (node:6381) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T22:04:05.3236648Z Uploaded bytes 7283
+2026-10-30T22:04:05.3413861Z Finished uploading artifact content to blob storage!
+2026-10-30T22:04:05.3414729Z SHA256 digest of uploaded artifact zip is 834997730ca8bd06b9201869cf623e35609496b72e980ddf29a64231538f632b
+2026-10-30T22:04:05.3416401Z Finalizing artifact upload
+2026-10-30T22:04:05.7757665Z Artifact R29-BUILD-EVIDENCE-CP13-R27.zip successfully finalized. Artifact ID 13016370994
+2026-10-30T22:04:05.7758697Z Artifact R29-BUILD-EVIDENCE-CP13-R27 has been successfully uploaded! Final size is 7283 bytes. Artifact ID is 13016370994
+2026-10-30T22:04:05.7764159Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134817452/artifacts/13016370994
+2026-10-30T22:04:05.7918110Z Post job cleanup.
+2026-10-30T22:04:05.8928846Z (node:6394) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T22:04:05.8929553Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T22:04:05.9108855Z Post job cleanup.
+2026-10-30T22:04:05.9767001Z [command]/usr/bin/git version
+2026-10-30T22:04:05.9797920Z git version 2.55.0
+2026-10-30T22:04:05.9823168Z Temporarily overriding HOME='/home/runner/work/_temp/6a1e3b0a-3abb-42bd-9be4-4c1277cb7b95' before making global git config changes
+2026-10-30T22:04:05.9824290Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T22:04:05.9826972Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T22:04:05.9856642Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T22:04:05.9885950Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T22:04:06.0140226Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T22:04:06.0162067Z http.https://github.com/.extraheader
+2026-10-30T22:04:06.0176036Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T22:04:06.0205988Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T22:04:06.0421786Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T22:04:06.0481876Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T22:04:06.0777857Z Post job cleanup.
+2026-10-30T22:04:06.1427127Z [command]/usr/bin/git version
+2026-10-30T22:04:06.1456716Z git version 2.55.0
+2026-10-30T22:04:06.1481512Z Temporarily overriding HOME='/home/runner/work/_temp/10073128-df13-4809-bde2-07622e7ee781' before making global git config changes
+2026-10-30T22:04:06.1482580Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T22:04:06.1485422Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T22:04:06.1513950Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T22:04:06.1536534Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T22:04:06.1714773Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T22:04:06.1741710Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T22:04:06.1910540Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T22:04:06.1933166Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T22:04:06.2237040Z Cleaning up orphan processes
+2026-10-30T22:04:06.2434511Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache/restore@v4, actions/checkout@v4, actions/setup-java@v4, actions/setup-python@v5, actions/upload-artifact@v4, android-actions/setup-android@v3. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

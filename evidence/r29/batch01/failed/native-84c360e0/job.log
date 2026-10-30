@@ -1,0 +1,1209 @@
+﻿2026-10-30T21:57:46.6070514Z Current runner version: '2.338.2'
+2026-10-30T21:57:46.6096864Z ##[group]Runner Image Provisioner
+2026-10-30T21:57:46.6097717Z Hosted Compute Agent
+2026-10-30T21:57:46.6098632Z Version: 20261021.618
+2026-10-30T21:57:46.6099218Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-30T21:57:46.6099910Z Build Date: 2026-10-21T00:45:21Z
+2026-10-30T21:57:46.6100570Z Worker ID: {f5e3be0d-24ca-4070-a3c8-18a358b58d21}
+2026-10-30T21:57:46.6101207Z Region: westus3
+2026-10-30T21:57:46.6101725Z Cloud: Azure
+2026-10-30T21:57:46.6102230Z ##[endgroup]
+2026-10-30T21:57:46.6104013Z ##[group]Operating System
+2026-10-30T21:57:46.6105106Z Ubuntu
+2026-10-30T21:57:46.6105590Z 24.04.5
+2026-10-30T21:57:46.6106063Z LTS
+2026-10-30T21:57:46.6106546Z ##[endgroup]
+2026-10-30T21:57:46.6107081Z ##[group]Runner Image
+2026-10-30T21:57:46.6107676Z Image: ubuntu-24.04
+2026-10-30T21:57:46.6108259Z Version: 20261025.353.1
+2026-10-30T21:57:46.6109521Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-30T21:57:46.6110944Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-10-30T21:57:46.6111839Z ##[endgroup]
+2026-10-30T21:57:46.6112884Z ##[group]GITHUB_TOKEN Permissions
+2026-10-30T21:57:46.6115603Z Contents: read
+2026-10-30T21:57:46.6116186Z Metadata: read
+2026-10-30T21:57:46.6116763Z ##[endgroup]
+2026-10-30T21:57:46.6119035Z Secret source: Actions
+2026-10-30T21:57:46.6119861Z Cache mode: write
+2026-10-30T21:57:46.6120565Z Prepare workflow directory
+2026-10-30T21:57:46.6468010Z Prepare all required actions
+2026-10-30T21:57:46.6525922Z Getting action download info
+2026-10-30T21:57:46.9987913Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-30T21:57:47.1204926Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-10-30T21:57:47.8211057Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-30T21:57:47.9155273Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-30T21:57:48.0671177Z Download action repository 'android-actions/setup-android@v3' (SHA:9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407)
+2026-10-30T21:57:48.5261423Z Download action repository 'reactivecircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-10-30T21:57:49.0409544Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-30T21:57:49.2581175Z Complete job name: android
+2026-10-30T21:57:49.3426416Z ##[group]Run actions/checkout@v4
+2026-10-30T21:57:49.3427206Z with:
+2026-10-30T21:57:49.3427657Z   sparse-checkout: .github/r29-integration-request.json
+2026-10-30T21:57:49.3428201Z   repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:49.3431470Z   token: ***
+2026-10-30T21:57:49.3431827Z   ssh-strict: true
+2026-10-30T21:57:49.3432185Z   ssh-user: git
+2026-10-30T21:57:49.3432560Z   persist-credentials: true
+2026-10-30T21:57:49.3432946Z   clean: true
+2026-10-30T21:57:49.3433332Z   sparse-checkout-cone-mode: true
+2026-10-30T21:57:49.3433747Z   fetch-depth: 1
+2026-10-30T21:57:49.3434339Z   fetch-tags: false
+2026-10-30T21:57:49.3434700Z   show-progress: true
+2026-10-30T21:57:49.3435060Z   lfs: false
+2026-10-30T21:57:49.3435412Z   submodules: false
+2026-10-30T21:57:49.3435767Z   set-safe-directory: true
+2026-10-30T21:57:49.3436128Z   allow-unsafe-pr-checkout: false
+2026-10-30T21:57:49.3436879Z ##[endgroup]
+2026-10-30T21:57:49.6752895Z Syncing repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:49.6755428Z ##[group]Getting Git version info
+2026-10-30T21:57:49.6756572Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:57:49.6758202Z [command]/usr/bin/git version
+2026-10-30T21:57:49.6871694Z git version 2.56.0
+2026-10-30T21:57:49.6915447Z ##[endgroup]
+2026-10-30T21:57:49.6926961Z Temporarily overriding HOME='/home/runner/work/_temp/af3900f1-9cb3-43df-baa3-d1ae34114fa9' before making global git config changes
+2026-10-30T21:57:49.6929539Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:57:49.6946100Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:57:49.7014591Z Deleting the contents of '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:57:49.7029246Z ##[group]Initializing the repository
+2026-10-30T21:57:49.7039354Z [command]/usr/bin/git init /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:57:49.7177994Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-30T21:57:49.7180146Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-30T21:57:49.7181988Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-30T21:57:49.7183336Z hint: call:
+2026-10-30T21:57:49.7184392Z hint:
+2026-10-30T21:57:49.7190349Z hint: 	git config --global init.defaultBranch <name>
+2026-10-30T21:57:49.7191558Z hint:
+2026-10-30T21:57:49.7192678Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-30T21:57:49.7194464Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-30T21:57:49.7195716Z hint:
+2026-10-30T21:57:49.7196762Z hint: 	git branch -m <name>
+2026-10-30T21:57:49.7197583Z hint:
+2026-10-30T21:57:49.7198594Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-30T21:57:49.7200577Z Initialized empty Git repository in /home/runner/work/starcore-public-build/starcore-public-build/.git/
+2026-10-30T21:57:49.7205587Z [command]/usr/bin/git remote add origin https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:49.7265867Z ##[endgroup]
+2026-10-30T21:57:49.7266830Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:57:49.7271373Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:57:49.7313007Z ##[endgroup]
+2026-10-30T21:57:49.7313736Z ##[group]Setting up auth
+2026-10-30T21:57:49.7325931Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:57:49.7368522Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:57:49.7759745Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:57:49.7797929Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:57:49.8019400Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:57:49.8056962Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:57:49.8283602Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:57:49.8326297Z ##[endgroup]
+2026-10-30T21:57:49.8327351Z ##[group]Fetching the repository
+2026-10-30T21:57:49.8342709Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +2dfd3f1e81a75d7d6f22d932f65a28833bfe0ba8:refs/remotes/origin/construction/su1-20261022
+2026-10-30T21:57:50.4176727Z From https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:50.4178725Z  * [new ref]         2dfd3f1e81a75d7d6f22d932f65a28833bfe0ba8 -> origin/construction/su1-20261022
+2026-10-30T21:57:50.4183722Z ##[endgroup]
+2026-10-30T21:57:50.4185150Z ##[group]Determining the checkout info
+2026-10-30T21:57:50.4186082Z ##[endgroup]
+2026-10-30T21:57:50.4187215Z ##[group]Setting up sparse checkout
+2026-10-30T21:57:50.4191913Z [command]/usr/bin/git sparse-checkout set .github/r29-integration-request.json
+2026-10-30T21:57:50.4246988Z ##[endgroup]
+2026-10-30T21:57:50.4248133Z ##[group]Checking out the ref
+2026-10-30T21:57:50.4255016Z [command]/usr/bin/git checkout --progress --force -B construction/su1-20261022 refs/remotes/origin/construction/su1-20261022
+2026-10-30T21:57:51.0476213Z Switched to a new branch 'construction/su1-20261022'
+2026-10-30T21:57:51.0477715Z branch 'construction/su1-20261022' set up to track 'origin/construction/su1-20261022'.
+2026-10-30T21:57:51.0480225Z ##[endgroup]
+2026-10-30T21:57:51.0544212Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:57:51.0571233Z 2dfd3f1e81a75d7d6f22d932f65a28833bfe0ba8
+2026-10-30T21:57:51.0891954Z ##[group]Run python3 - <<'PY'
+2026-10-30T21:57:51.0892350Z [36;1mpython3 - <<'PY'[0m
+2026-10-30T21:57:51.0892604Z [36;1mimport json,os,re[0m
+2026-10-30T21:57:51.0892945Z [36;1mr=json.load(open('.github/r29-integration-request.json'))[0m
+2026-10-30T21:57:51.0893355Z [36;1massert re.fullmatch('[a-f0-9]{40}',r['source'])[0m
+2026-10-30T21:57:51.0893837Z [36;1mwith open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('source='+r['source']+'\n')[0m
+2026-10-30T21:57:51.0894416Z [36;1mPY[0m
+2026-10-30T21:57:51.0910733Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:57:51.0911077Z ##[endgroup]
+2026-10-30T21:57:51.1316930Z ##[group]Run actions/checkout@v4
+2026-10-30T21:57:51.1317235Z with:
+2026-10-30T21:57:51.1317472Z   ref: 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:57:51.1317758Z   fetch-depth: 0
+2026-10-30T21:57:51.1318000Z   repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:51.1320884Z   token: ***
+2026-10-30T21:57:51.1321088Z   ssh-strict: true
+2026-10-30T21:57:51.1321297Z   ssh-user: git
+2026-10-30T21:57:51.1321520Z   persist-credentials: true
+2026-10-30T21:57:51.1321751Z   clean: true
+2026-10-30T21:57:51.1321970Z   sparse-checkout-cone-mode: true
+2026-10-30T21:57:51.1322247Z   fetch-tags: false
+2026-10-30T21:57:51.1322453Z   show-progress: true
+2026-10-30T21:57:51.1322680Z   lfs: false
+2026-10-30T21:57:51.1322869Z   submodules: false
+2026-10-30T21:57:51.1323112Z   set-safe-directory: true
+2026-10-30T21:57:51.1323400Z   allow-unsafe-pr-checkout: false
+2026-10-30T21:57:51.1323651Z ##[endgroup]
+2026-10-30T21:57:51.2190276Z Syncing repository: gtt46461-star/starcore-public-build
+2026-10-30T21:57:51.2192083Z ##[group]Getting Git version info
+2026-10-30T21:57:51.2193076Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:57:51.2219653Z [command]/usr/bin/git version
+2026-10-30T21:57:51.2262671Z git version 2.56.0
+2026-10-30T21:57:51.2291290Z ##[endgroup]
+2026-10-30T21:57:51.2300030Z Temporarily overriding HOME='/home/runner/work/_temp/dd059310-5e08-431d-82c7-703e138493ef' before making global git config changes
+2026-10-30T21:57:51.2301674Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:57:51.2306928Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:57:51.2348543Z [command]/usr/bin/git config --local --get remote.origin.url
+2026-10-30T21:57:51.2378150Z https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:51.2392469Z ##[group]Removing previously created refs, to avoid conflicts
+2026-10-30T21:57:51.2397487Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-10-30T21:57:51.2419500Z refs/heads/construction/su1-20261022
+2026-10-30T21:57:51.2429681Z [command]/usr/bin/git checkout --detach
+2026-10-30T21:57:51.2636994Z HEAD is now at 2dfd3f1 R29 B01 integration: source-bound verified checkpoint 84c360e09eaf
+2026-10-30T21:57:51.2691418Z [command]/usr/bin/git branch --delete --force construction/su1-20261022
+2026-10-30T21:57:51.2721301Z Deleted branch construction/su1-20261022 (was 2dfd3f1).
+2026-10-30T21:57:51.2730583Z ##[endgroup]
+2026-10-30T21:57:51.2735565Z [command]/usr/bin/git submodule status
+2026-10-30T21:57:51.2966579Z ##[group]Cleaning the repository
+2026-10-30T21:57:51.2972371Z [command]/usr/bin/git clean -ffdx
+2026-10-30T21:57:51.3026610Z [command]/usr/bin/git reset --hard HEAD
+2026-10-30T21:57:51.3307478Z HEAD is now at 2dfd3f1 R29 B01 integration: source-bound verified checkpoint 84c360e09eaf
+2026-10-30T21:57:51.3311709Z ##[endgroup]
+2026-10-30T21:57:51.3314263Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:57:51.3319887Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:57:51.3351575Z ##[endgroup]
+2026-10-30T21:57:51.3351955Z ##[group]Setting up auth
+2026-10-30T21:57:51.3359904Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:57:51.3396036Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:57:51.3607078Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:57:51.3631535Z http.https://github.com/.extraheader
+2026-10-30T21:57:51.3640070Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T21:57:51.3678884Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:57:51.3882351Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:57:51.3915880Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:57:51.4129238Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:57:51.4187795Z ##[endgroup]
+2026-10-30T21:57:51.4188338Z ##[group]Fetching the repository
+2026-10-30T21:57:51.4196915Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules --unshallow origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-10-30T21:57:52.5442939Z From https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:57:52.5443627Z  * [new branch]      construction/r13-restore-latest-20261024 -> origin/construction/r13-restore-latest-20261024
+2026-10-30T21:57:52.5444518Z  * [new branch]      construction/r26-f08-graph-20261027 -> origin/construction/r26-f08-graph-20261027
+2026-10-30T21:57:52.5445177Z  * [new branch]      construction/r26-fixture-process-20261027 -> origin/construction/r26-fixture-process-20261027
+2026-10-30T21:57:52.5445965Z  * [new branch]      construction/r26-incumbent-owner-20261027 -> origin/construction/r26-incumbent-owner-20261027
+2026-10-30T21:57:52.5447006Z  * [new branch]      construction/r26-report-review-20261028 -> origin/construction/r26-report-review-20261028
+2026-10-30T21:57:52.5447603Z  * [new branch]      construction/r27-20261028 -> origin/construction/r27-20261028
+2026-10-30T21:57:52.5448060Z  * [new branch]      construction/r29-20261029 -> origin/construction/r29-20261029
+2026-10-30T21:57:52.5448547Z    2dfd3f1..d7c494e  construction/su1-20261022 -> origin/construction/su1-20261022
+2026-10-30T21:57:52.5449068Z  * [new branch]      fix/r26-report-export-20261028 -> origin/fix/r26-report-export-20261028
+2026-10-30T21:57:52.5449528Z  * [new branch]      main                      -> origin/main
+2026-10-30T21:57:52.5450039Z  * [new branch]      verification/r29-checkpoint06-20261030 -> origin/verification/r29-checkpoint06-20261030
+2026-10-30T21:57:52.5450555Z  * [new tag]         r13-5.4.3.04-20261025     -> r13-5.4.3.04-20261025
+2026-10-30T21:57:52.5450939Z  * [new tag]         r26-20261027-engineering  -> r26-20261027-engineering
+2026-10-30T21:57:52.5451336Z  * [new tag]         r26-20261028-reportfix2   -> r26-20261028-reportfix2
+2026-10-30T21:57:52.5451727Z  * [new tag]         r26-20261028-runtime-117  -> r26-20261028-runtime-117
+2026-10-30T21:57:52.5452310Z  * [new tag]         r29-B00-a618d14ccc41      -> r29-B00-a618d14ccc41
+2026-10-30T21:57:52.5452936Z  * [new tag]         r29-B02-QUAL-534603296b84 -> r29-B02-QUAL-534603296b84
+2026-10-30T21:57:52.5453714Z  * [new tag]         r29-CP05-R27-770e81bd449b -> r29-CP05-R27-770e81bd449b
+2026-10-30T21:57:52.5454348Z  * [new tag]         r29-CP06-R27-bb607cf5ab69 -> r29-CP06-R27-bb607cf5ab69
+2026-10-30T21:57:52.5454935Z  * [new tag]         r29-CP07-R27-1d2f1565e308 -> r29-CP07-R27-1d2f1565e308
+2026-10-30T21:57:52.5455615Z  * [new tag]         r29-CP08-R27-2f1e2ab9caf2 -> r29-CP08-R27-2f1e2ab9caf2
+2026-10-30T21:57:52.5456277Z  * [new tag]         r29-CP09-R27-e3dd104302dc -> r29-CP09-R27-e3dd104302dc
+2026-10-30T21:57:52.5456946Z  * [new tag]         r29-CP10-R27-0c639ccb3702 -> r29-CP10-R27-0c639ccb3702
+2026-10-30T21:57:52.5457562Z  * [new tag]         r29-CP11-R27-2cf09d56fbff -> r29-CP11-R27-2cf09d56fbff
+2026-10-30T21:57:52.5458286Z  * [new tag]         r29-official-577291005-770e81bd449b -> r29-official-577291005-770e81bd449b
+2026-10-30T21:57:52.5459253Z  * [new tag]         r29-official-577291006-bb607cf5ab69 -> r29-official-577291006-bb607cf5ab69
+2026-10-30T21:57:52.5460182Z  * [new tag]         r29-official-577291007-1d2f1565e308 -> r29-official-577291007-1d2f1565e308
+2026-10-30T21:57:52.5461337Z  * [new tag]         r29-official-577291008-2f1e2ab9caf2 -> r29-official-577291008-2f1e2ab9caf2
+2026-10-30T21:57:52.5462517Z  * [new tag]         r29-official-577291009-e3dd104302dc -> r29-official-577291009-e3dd104302dc
+2026-10-30T21:57:52.5463602Z  * [new tag]         r29-official-577291010-0c639ccb3702 -> r29-official-577291010-0c639ccb3702
+2026-10-30T21:57:52.5465119Z  * [new tag]         r29-official-577291011-2cf09d56fbff -> r29-official-577291011-2cf09d56fbff
+2026-10-30T21:57:52.5467177Z [command]/usr/bin/git rev-parse --verify --quiet 84c360e09eaff62fdb2ce63dffdf21572f282c52^{object}
+2026-10-30T21:57:52.5489509Z 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:57:52.5493326Z ##[endgroup]
+2026-10-30T21:57:52.5493693Z ##[group]Determining the checkout info
+2026-10-30T21:57:52.5495431Z ##[endgroup]
+2026-10-30T21:57:52.5500162Z [command]/usr/bin/git sparse-checkout disable
+2026-10-30T21:57:57.9488289Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-30T21:57:57.9520891Z ##[group]Checking out the ref
+2026-10-30T21:57:57.9525141Z [command]/usr/bin/git checkout --progress --force 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:58:00.7419829Z Updating files:   0% (7/2866)
+2026-10-30T21:58:00.7540448Z Updating files:   1% (29/2866)
+2026-10-30T21:58:00.7573712Z Updating files:   2% (58/2866)
+2026-10-30T21:58:00.7596767Z Updating files:   3% (86/2866)
+2026-10-30T21:58:00.7607158Z Updating files:   4% (115/2866)
+2026-10-30T21:58:00.7628303Z Updating files:   5% (144/2866)
+2026-10-30T21:58:00.7650467Z Updating files:   6% (172/2866)
+2026-10-30T21:58:00.7667091Z Updating files:   7% (201/2866)
+2026-10-30T21:58:00.7726170Z Updating files:   8% (230/2866)
+2026-10-30T21:58:00.7761940Z Updating files:   9% (258/2866)
+2026-10-30T21:58:00.7837535Z Updating files:  10% (287/2866)
+2026-10-30T21:58:00.7855973Z Updating files:  11% (316/2866)
+2026-10-30T21:58:00.7874858Z Updating files:  12% (344/2866)
+2026-10-30T21:58:00.7887271Z Updating files:  13% (373/2866)
+2026-10-30T21:58:00.7902346Z Updating files:  14% (402/2866)
+2026-10-30T21:58:00.7912012Z Updating files:  15% (430/2866)
+2026-10-30T21:58:00.7920228Z Updating files:  16% (459/2866)
+2026-10-30T21:58:00.7932522Z Updating files:  17% (488/2866)
+2026-10-30T21:58:00.7941199Z Updating files:  18% (516/2866)
+2026-10-30T21:58:00.8004618Z Updating files:  19% (545/2866)
+2026-10-30T21:58:00.8055376Z Updating files:  20% (574/2866)
+2026-10-30T21:58:00.8141528Z Updating files:  21% (602/2866)
+2026-10-30T21:58:00.8155247Z Updating files:  22% (631/2866)
+2026-10-30T21:58:00.8172632Z Updating files:  23% (660/2866)
+2026-10-30T21:58:00.8259278Z Updating files:  24% (688/2866)
+2026-10-30T21:58:00.8298038Z Updating files:  25% (717/2866)
+2026-10-30T21:58:00.8348518Z Updating files:  26% (746/2866)
+2026-10-30T21:58:00.8369357Z Updating files:  27% (774/2866)
+2026-10-30T21:58:00.8395216Z Updating files:  28% (803/2866)
+2026-10-30T21:58:00.8449107Z Updating files:  29% (832/2866)
+2026-10-30T21:58:00.8489718Z Updating files:  30% (860/2866)
+2026-10-30T21:58:00.8510974Z Updating files:  31% (889/2866)
+2026-10-30T21:58:00.8518518Z Updating files:  32% (918/2866)
+2026-10-30T21:58:00.8526159Z Updating files:  33% (946/2866)
+2026-10-30T21:58:00.8561058Z Updating files:  34% (975/2866)
+2026-10-30T21:58:00.8587802Z Updating files:  35% (1004/2866)
+2026-10-30T21:58:00.8597849Z Updating files:  36% (1032/2866)
+2026-10-30T21:58:00.8605178Z Updating files:  37% (1061/2866)
+2026-10-30T21:58:00.8623495Z Updating files:  38% (1090/2866)
+2026-10-30T21:58:00.8631047Z Updating files:  39% (1118/2866)
+2026-10-30T21:58:00.8638564Z Updating files:  40% (1147/2866)
+2026-10-30T21:58:00.8643633Z Updating files:  41% (1176/2866)
+2026-10-30T21:58:00.8668786Z Updating files:  42% (1204/2866)
+2026-10-30T21:58:00.8686868Z Updating files:  43% (1233/2866)
+2026-10-30T21:58:00.8698898Z Updating files:  44% (1262/2866)
+2026-10-30T21:58:00.8714294Z Updating files:  45% (1290/2866)
+2026-10-30T21:58:00.8721666Z Updating files:  46% (1319/2866)
+2026-10-30T21:58:00.8736001Z Updating files:  47% (1348/2866)
+2026-10-30T21:58:00.8744767Z Updating files:  48% (1376/2866)
+2026-10-30T21:58:00.8760019Z Updating files:  49% (1405/2866)
+2026-10-30T21:58:00.8767661Z Updating files:  50% (1433/2866)
+2026-10-30T21:58:00.8787490Z Updating files:  51% (1462/2866)
+2026-10-30T21:58:00.8793432Z Updating files:  52% (1491/2866)
+2026-10-30T21:58:00.8800958Z Updating files:  53% (1519/2866)
+2026-10-30T21:58:00.8808298Z Updating files:  54% (1548/2866)
+2026-10-30T21:58:00.8836645Z Updating files:  55% (1577/2866)
+2026-10-30T21:58:00.8846997Z Updating files:  56% (1605/2866)
+2026-10-30T21:58:00.8867609Z Updating files:  57% (1634/2866)
+2026-10-30T21:58:00.8871577Z Updating files:  58% (1663/2866)
+2026-10-30T21:58:00.8878962Z Updating files:  59% (1691/2866)
+2026-10-30T21:58:00.8885781Z Updating files:  60% (1720/2866)
+2026-10-30T21:58:00.8891130Z Updating files:  61% (1749/2866)
+2026-10-30T21:58:00.8908570Z Updating files:  62% (1777/2866)
+2026-10-30T21:58:00.8914700Z Updating files:  63% (1806/2866)
+2026-10-30T21:58:00.8936902Z Updating files:  64% (1835/2866)
+2026-10-30T21:58:00.8956148Z Updating files:  65% (1863/2866)
+2026-10-30T21:58:00.8967862Z Updating files:  66% (1892/2866)
+2026-10-30T21:58:00.8974038Z Updating files:  67% (1921/2866)
+2026-10-30T21:58:00.8981051Z Updating files:  68% (1949/2866)
+2026-10-30T21:58:00.8987185Z Updating files:  69% (1978/2866)
+2026-10-30T21:58:00.8993370Z Updating files:  70% (2007/2866)
+2026-10-30T21:58:00.9013876Z Updating files:  71% (2035/2866)
+2026-10-30T21:58:00.9033497Z Updating files:  72% (2064/2866)
+2026-10-30T21:58:00.9041122Z Updating files:  73% (2093/2866)
+2026-10-30T21:58:00.9058941Z Updating files:  74% (2121/2866)
+2026-10-30T21:58:00.9068819Z Updating files:  75% (2150/2866)
+2026-10-30T21:58:00.9073982Z Updating files:  76% (2179/2866)
+2026-10-30T21:58:00.9080062Z Updating files:  77% (2207/2866)
+2026-10-30T21:58:00.9087915Z Updating files:  78% (2236/2866)
+2026-10-30T21:58:00.9104921Z Updating files:  79% (2265/2866)
+2026-10-30T21:58:00.9115063Z Updating files:  80% (2293/2866)
+2026-10-30T21:58:00.9120923Z Updating files:  81% (2322/2866)
+2026-10-30T21:58:00.9127656Z Updating files:  82% (2351/2866)
+2026-10-30T21:58:00.9149592Z Updating files:  83% (2379/2866)
+2026-10-30T21:58:00.9167529Z Updating files:  84% (2408/2866)
+2026-10-30T21:58:00.9173187Z Updating files:  85% (2437/2866)
+2026-10-30T21:58:00.9180932Z Updating files:  86% (2465/2866)
+2026-10-30T21:58:00.9187249Z Updating files:  87% (2494/2866)
+2026-10-30T21:58:00.9194528Z Updating files:  88% (2523/2866)
+2026-10-30T21:58:00.9202848Z Updating files:  89% (2551/2866)
+2026-10-30T21:58:00.9224661Z Updating files:  90% (2580/2866)
+2026-10-30T21:58:00.9242637Z Updating files:  91% (2609/2866)
+2026-10-30T21:58:00.9279375Z Updating files:  92% (2637/2866)
+2026-10-30T21:58:00.9285742Z Updating files:  93% (2666/2866)
+2026-10-30T21:58:00.9403571Z Updating files:  94% (2695/2866)
+2026-10-30T21:58:00.9421427Z Updating files:  95% (2723/2866)
+2026-10-30T21:58:00.9439814Z Updating files:  96% (2752/2866)
+2026-10-30T21:58:00.9452045Z Updating files:  97% (2781/2866)
+2026-10-30T21:58:00.9463888Z Updating files:  98% (2809/2866)
+2026-10-30T21:58:00.9475281Z Updating files:  99% (2838/2866)
+2026-10-30T21:58:00.9476258Z Updating files: 100% (2866/2866)
+2026-10-30T21:58:00.9476723Z Updating files: 100% (2866/2866), done.
+2026-10-30T21:58:02.0453454Z Previous HEAD position was 2dfd3f1 R29 B01 integration: source-bound verified checkpoint 84c360e09eaf
+2026-10-30T21:58:02.0455733Z HEAD is now at 84c360e R29 B01: freeze CP13 compiled observer call inventory
+2026-10-30T21:58:02.0472957Z ##[endgroup]
+2026-10-30T21:58:02.0518946Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:58:02.0548372Z 84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T21:58:02.0741312Z ##[group]Run actions/setup-java@v4
+2026-10-30T21:58:02.0741639Z with:
+2026-10-30T21:58:02.0741852Z   distribution: temurin
+2026-10-30T21:58:02.0742084Z   java-version: 17
+2026-10-30T21:58:02.0742302Z   java-package: jdk
+2026-10-30T21:58:02.0742515Z   check-latest: false
+2026-10-30T21:58:02.0742732Z   server-id: github
+2026-10-30T21:58:02.0742954Z   server-username: GITHUB_ACTOR
+2026-10-30T21:58:02.0743237Z   server-password: GITHUB_TOKEN
+2026-10-30T21:58:02.0743503Z   overwrite-settings: true
+2026-10-30T21:58:02.0743748Z   job-status: success
+2026-10-30T21:58:02.0746920Z   token: ***
+2026-10-30T21:58:02.0747126Z ##[endgroup]
+2026-10-30T21:58:02.2483897Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-10-30T21:58:02.2492215Z ##[group]Installed distributions
+2026-10-30T21:58:02.2615640Z Resolved Java 17.0.21+9 from tool-cache
+2026-10-30T21:58:02.2616180Z Setting Java 17.0.21+9 as the default
+2026-10-30T21:58:02.2626592Z (node:2533) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:58:02.2627395Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:58:02.2631572Z Creating toolchains.xml for JDK version 17 from temurin
+2026-10-30T21:58:02.2739546Z Writing to /home/runner/.m2/toolchains.xml
+2026-10-30T21:58:02.2739954Z 
+2026-10-30T21:58:02.2740100Z Java configuration:
+2026-10-30T21:58:02.2740467Z   Distribution: temurin
+2026-10-30T21:58:02.2740860Z   Version: 17.0.21+9
+2026-10-30T21:58:02.2741374Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:02.2741843Z 
+2026-10-30T21:58:02.2742296Z ##[endgroup]
+2026-10-30T21:58:02.2787869Z Creating settings.xml with server-id: github
+2026-10-30T21:58:02.2833784Z Writing to /home/runner/.m2/settings.xml
+2026-10-30T21:58:02.3036673Z ##[group]Run actions/setup-python@v5
+2026-10-30T21:58:02.3036953Z with:
+2026-10-30T21:58:02.3037160Z   python-version: 3.12
+2026-10-30T21:58:02.3037382Z   check-latest: false
+2026-10-30T21:58:02.3040360Z   token: ***
+2026-10-30T21:58:02.3040567Z   update-environment: true
+2026-10-30T21:58:02.3040815Z   allow-prereleases: false
+2026-10-30T21:58:02.3041050Z   freethreaded: false
+2026-10-30T21:58:02.3041258Z env:
+2026-10-30T21:58:02.3041550Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:02.3042025Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:02.3042385Z ##[endgroup]
+2026-10-30T21:58:02.4472292Z ##[group]Installed versions
+2026-10-30T21:58:02.4758601Z (node:2545) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:58:02.4759273Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:58:02.4760683Z Successfully set up CPython (3.12.15)
+2026-10-30T21:58:02.4761458Z ##[endgroup]
+2026-10-30T21:58:02.4940046Z ##[group]Run python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+2026-10-30T21:58:02.4941101Z [36;1mpython -m pip install numpy==2.3.5 'cryptography>=41,<51'[0m
+2026-10-30T21:58:02.5039482Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:02.5039930Z env:
+2026-10-30T21:58:02.5040464Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:02.5041345Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:02.5042151Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:02.5042916Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:02.5043665Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:02.5044655Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:02.5045347Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:02.5046112Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:02.5046716Z ##[endgroup]
+2026-10-30T21:58:04.9915017Z Collecting numpy==2.3.5
+2026-10-30T21:58:05.0847881Z   Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+2026-10-30T21:58:05.2940624Z Collecting cryptography<51,>=41
+2026-10-30T21:58:05.2978183Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-10-30T21:58:05.4041841Z Collecting cffi>=2.0.0 (from cryptography<51,>=41)
+2026-10-30T21:58:05.4080517Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-10-30T21:58:05.4262421Z Collecting pycparser (from cffi>=2.0.0->cryptography<51,>=41)
+2026-10-30T21:58:05.4299794Z   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-10-30T21:58:05.4372122Z Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+2026-10-30T21:58:05.5221859Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.6/16.6 MB 207.1 MB/s  0:00:00
+2026-10-30T21:58:05.5270294Z Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-10-30T21:58:05.5441809Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 303.9 MB/s  0:00:00
+2026-10-30T21:58:05.5492365Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-10-30T21:58:05.5559363Z Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-10-30T21:58:05.7378319Z Installing collected packages: pycparser, numpy, cffi, cryptography
+2026-10-30T21:58:07.8294012Z 
+2026-10-30T21:58:07.8304784Z Successfully installed cffi-2.1.1 cryptography-50.0.2 numpy-2.3.5 pycparser-3.12
+2026-10-30T21:58:07.9129978Z ##[group]Run actions/cache/restore@v4
+2026-10-30T21:58:07.9130315Z with:
+2026-10-30T21:58:07.9130572Z   path: ~/.starcore/su1-api-transport
+2026-10-30T21:58:07.9130905Z   key: starcore-su1-api-transport-v1
+2026-10-30T21:58:07.9131236Z   fail-on-cache-miss: true
+2026-10-30T21:58:07.9131527Z   enableCrossOsArchive: false
+2026-10-30T21:58:07.9131814Z   lookup-only: false
+2026-10-30T21:58:07.9132052Z env:
+2026-10-30T21:58:07.9132391Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:07.9132974Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:07.9133486Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:07.9133970Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:07.9134906Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:07.9135357Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:07.9135847Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:07.9136288Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:07.9136664Z ##[endgroup]
+2026-10-30T21:58:08.0215255Z (node:2580) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:58:08.0216269Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:58:08.2305006Z Cache hit for: starcore-su1-api-transport-v1
+2026-10-30T21:58:08.2418501Z (node:2580) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:58:08.5066953Z Received 2194 of 2194 (100.0%), 0.0 MBs/sec
+2026-10-30T21:58:08.5067535Z Cache Size: ~0 MB (2194 B)
+2026-10-30T21:58:08.5095375Z [command]/usr/bin/tar -xf /home/runner/work/_temp/41bb322c-5c1b-409a-b2e9-ce58c5c6b0b9/cache.tzst -P -C /home/runner/work/starcore-public-build/starcore-public-build --use-compress-program unzstd
+2026-10-30T21:58:08.5143367Z Cache restored successfully
+2026-10-30T21:58:08.6058053Z Cache restored from key: starcore-su1-api-transport-v1
+2026-10-30T21:58:08.6126848Z ##[group]Run python3 scripts/load_r13_signing.py
+2026-10-30T21:58:08.6127234Z [36;1mpython3 scripts/load_r13_signing.py[0m
+2026-10-30T21:58:08.6141038Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:08.6141324Z env:
+2026-10-30T21:58:08.6141638Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:08.6142117Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:08.6142555Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6142961Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:08.6143391Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6143768Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6144354Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.6144827Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:08.6145195Z ##[endgroup]
+2026-10-30T21:58:08.9332027Z Fixed independent R13 signing identity restored: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:58:08.9494433Z ##[group]Run android-actions/setup-android@v3
+2026-10-30T21:58:08.9494844Z with:
+2026-10-30T21:58:08.9495055Z   packages: platform-tools
+2026-10-30T21:58:08.9495334Z   log-accepted-android-sdk-licenses: false
+2026-10-30T21:58:08.9495633Z   cmdline-tools-version: 12266719
+2026-10-30T21:58:08.9495920Z   accept-android-sdk-licenses: true
+2026-10-30T21:58:08.9496177Z env:
+2026-10-30T21:58:08.9496470Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:08.9496949Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:08.9497388Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.9497800Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:08.9498214Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.9498583Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.9498986Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:08.9499367Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:08.9499742Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:58:08.9500488Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:58:08.9500904Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:58:08.9501344Z ##[endgroup]
+2026-10-30T21:58:09.0415799Z Found preinstalled sdkmanager in /usr/local/lib/android/sdk/cmdline-tools/latest with following source.properties:
+2026-10-30T21:58:09.0416757Z Pkg.Revision=12.0
+2026-10-30T21:58:09.0417145Z Pkg.Path=cmdline-tools;12.0
+2026-10-30T21:58:09.0417573Z Pkg.Desc=Android SDK Command-line Tools
+2026-10-30T21:58:09.0417902Z 
+2026-10-30T21:58:09.0418099Z Wrong version in preinstalled sdkmanager
+2026-10-30T21:58:09.0419075Z Downloading commandline tools from https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip
+2026-10-30T21:58:09.7379860Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/8c089753-497c-4ee7-87ed-f6804065b3b5
+2026-10-30T21:58:10.5578749Z Accepting Android SDK licenses
+2026-10-30T21:58:15.3210319Z [command]/usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager platform-tools
+2026-10-30T21:58:16.0628374Z Loading package information...                                                  
+2026-10-30T21:58:16.1669096Z Loading local repository...                                                     
+2026-10-30T21:58:16.1670509Z [                                       ] 3% Loading local repository...        
+2026-10-30T21:58:16.1772323Z [                                       ] 3% Fetch remote repository...         
+2026-10-30T21:58:16.4407907Z [=                                      ] 3% Fetch remote repository...         
+2026-10-30T21:58:16.5401837Z [=                                      ] 4% Fetch remote repository...         
+2026-10-30T21:58:16.5653428Z [=                                      ] 5% Fetch remote repository...         
+2026-10-30T21:58:16.5997181Z [==                                     ] 5% Fetch remote repository...         
+2026-10-30T21:58:16.6593419Z [==                                     ] 6% Fetch remote repository...         
+2026-10-30T21:58:16.7360780Z [==                                     ] 7% Fetch remote repository...         
+2026-10-30T21:58:16.7361962Z [==                                     ] 7% Computing updates...               
+2026-10-30T21:58:16.7482990Z [===                                    ] 8% Computing updates...               
+2026-10-30T21:58:16.7571226Z [===                                    ] 10% Computing updates...              
+2026-10-30T21:58:16.7572141Z [=======================================] 100% Computing updates...             
+2026-10-30T21:58:16.7572901Z 
+2026-10-30T21:58:16.8162072Z ##[group]Run sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+2026-10-30T21:58:16.8162797Z [36;1msdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null[0m
+2026-10-30T21:58:16.8176859Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:16.8177142Z env:
+2026-10-30T21:58:16.8177454Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:16.8177941Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:16.8178389Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:16.8178809Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:16.8179223Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:16.8179602Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:16.8180015Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:16.8180390Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:16.8180766Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:58:16.8181348Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:58:16.8181766Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:58:16.8182294Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:58:16.8182608Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:58:16.8182895Z ##[endgroup]
+2026-10-30T21:58:33.6791688Z ##[group]Run ./gradlew --no-daemon --max-workers=4 :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee r29-integration-build.log | tail -n 35
+2026-10-30T21:58:33.6793363Z [36;1m./gradlew --no-daemon --max-workers=4 :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee r29-integration-build.log | tail -n 35[0m
+2026-10-30T21:58:33.6794812Z [36;1mgit diff --exit-code -- app/src/main release app/build/generated[0m
+2026-10-30T21:58:33.6815449Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:58:33.6815880Z env:
+2026-10-30T21:58:33.6816402Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:33.6817272Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:58:33.6818249Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:33.6819008Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:58:33.6819821Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:33.6820508Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:33.6821210Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:58:33.6821897Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:58:33.6822585Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:58:33.6823576Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:58:33.6824589Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:58:33.6825418Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:58:33.6825906Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:58:33.6826394Z ##[endgroup]
+2026-10-30T22:02:21.3260057Z > Task :app:mergeDebugAndroidTestGlobalSynthetics FROM-CACHE
+2026-10-30T22:02:21.3261182Z > Task :app:processDebugAndroidTestJavaRes NO-SOURCE
+2026-10-30T22:02:21.3261847Z > Task :app:packageDebug
+2026-10-30T22:02:21.3262903Z > Task :app:createDebugApkListingFileRedirect
+2026-10-30T22:02:21.3263373Z > Task :app:assembleDebug
+2026-10-30T22:02:21.3263740Z > Task :app:checkDebugAndroidTestDuplicateClasses
+2026-10-30T22:02:21.3264372Z > Task :app:mergeDebugAndroidTestJniLibFolders
+2026-10-30T22:02:21.3264808Z > Task :app:mergeLibDexDebugAndroidTest FROM-CACHE
+2026-10-30T22:02:21.3265212Z > Task :app:mergeDebugAndroidTestJavaResource
+2026-10-30T22:02:21.3265621Z > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+2026-10-30T22:02:21.3266073Z > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+2026-10-30T22:02:21.3266484Z > Task :app:validateSigningDebugAndroidTest
+2026-10-30T22:02:21.3266894Z > Task :app:writeDebugAndroidTestSigningConfigVersions
+2026-10-30T22:02:21.3267313Z > Task :app:mergeProjectDexDebugAndroidTest
+2026-10-30T22:02:21.3267674Z > Task :app:mergeExtDexDebugAndroidTest
+2026-10-30T22:02:21.3268015Z > Task :app:packageDebugAndroidTest
+2026-10-30T22:02:21.3268426Z > Task :app:createDebugAndroidTestApkListingFileRedirect
+2026-10-30T22:02:21.3268829Z > Task :app:assembleDebugAndroidTest
+2026-10-30T22:02:21.3269024Z 
+2026-10-30T22:02:21.3269180Z > Task :app:verifyFinalR815Provenance
+2026-10-30T22:02:21.3270919Z R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=8358a4e8ed3a5b07fe2c44ce44002b44d76b3fcd90dba03957aeb3f6dabb1839|RESOURCE=2f466bd1f59996018aa5dfeef3cebb5136fa9b36093ed21187212f728dbc3ab1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=4b4a2989ac50a2c3de21da252fa2b5e3122225ba81bf4f70fbab822678a89310|GENERATED_AT=2026-10-30T21:59:21Z
+2026-10-30T22:02:21.3272305Z 
+2026-10-30T22:02:21.3272465Z > Task :app:verifyFinalR967Semantics
+2026-10-30T22:02:21.3273003Z R967_SEMANTIC_IDENTITY_VERIFIED|3623552c57037b3115380ab72b285dce26b8aa64c721a94a64310fb2e8c5d791
+2026-10-30T22:02:21.3273382Z 
+2026-10-30T22:02:21.3274032Z [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
+2026-10-30T22:02:21.3274772Z 
+2026-10-30T22:02:21.3275455Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+2026-10-30T22:02:21.3275823Z 
+2026-10-30T22:02:21.3276346Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-10-30T22:02:21.3276842Z 
+2026-10-30T22:02:21.3277480Z For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2026-10-30T22:02:21.3278055Z 
+2026-10-30T22:02:21.3278202Z BUILD SUCCESSFUL in 3m 47s
+2026-10-30T22:02:21.3278530Z 81 actionable tasks: 77 executed, 4 from cache
+2026-10-30T22:02:21.3488631Z ##[group]Run echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+2026-10-30T22:02:21.3489277Z [36;1mecho 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules[0m
+2026-10-30T22:02:21.3489729Z [36;1msudo udevadm control --reload-rules[0m
+2026-10-30T22:02:21.3490044Z [36;1msudo udevadm trigger --name-match=kvm[0m
+2026-10-30T22:02:21.3503550Z shell: /usr/bin/bash -e {0}
+2026-10-30T22:02:21.3503817Z env:
+2026-10-30T22:02:21.3504456Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T22:02:21.3504949Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T22:02:21.3505395Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3505823Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T22:02:21.3506238Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3506665Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3507054Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3507427Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T22:02:21.3507821Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T22:02:21.3508340Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T22:02:21.3508759Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T22:02:21.3509215Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T22:02:21.3509526Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T22:02:21.3509811Z ##[endgroup]
+2026-10-30T22:02:21.3599067Z KERNEL=="kvm", GROUP="kvm", MODE="0666"
+2026-10-30T22:02:21.3940727Z ##[group]Run reactivecircus/android-emulator-runner@v2
+2026-10-30T22:02:21.3941072Z with:
+2026-10-30T22:02:21.3941334Z   api-level: 34
+2026-10-30T22:02:21.3941558Z   arch: x86_64
+2026-10-30T22:02:21.3941765Z   target: default
+2026-10-30T22:02:21.3942010Z   disable-animations: true
+2026-10-30T22:02:21.3942249Z   ram-size: 4096M
+2026-10-30T22:02:21.3942465Z   heap-size: 512M
+2026-10-30T22:02:21.3942917Z   emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+2026-10-30T22:02:21.3943432Z   script: bash tools/r29/emulator_integration.sh
+2026-10-30T22:02:21.3943733Z   cores: 2
+2026-10-30T22:02:21.3943925Z   avd-name: test
+2026-10-30T22:02:21.3944805Z   force-avd-creation: true
+2026-10-30T22:02:21.3945078Z   emulator-boot-timeout: 600
+2026-10-30T22:02:21.3945338Z   emulator-port: 5554
+2026-10-30T22:02:21.3945579Z   disable-spellchecker: false
+2026-10-30T22:02:21.3945844Z   disable-linux-hw-accel: auto
+2026-10-30T22:02:21.3946138Z   enable-hw-keyboard: false
+2026-10-30T22:02:21.3946382Z   channel: stable
+2026-10-30T22:02:21.3946584Z env:
+2026-10-30T22:02:21.3946873Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T22:02:21.3947353Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T22:02:21.3948107Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3948525Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T22:02:21.3948941Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3949319Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3949687Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:02:21.3950069Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T22:02:21.3950444Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T22:02:21.3950965Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T22:02:21.3951382Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T22:02:21.3951836Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T22:02:21.3952138Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T22:02:21.3952614Z ##[endgroup]
+2026-10-30T22:02:21.4547608Z ##[group]Configure emulator
+2026-10-30T22:02:21.4550538Z API level: 34
+2026-10-30T22:02:21.4551556Z System image API level: 34
+2026-10-30T22:02:21.4552239Z target: default
+2026-10-30T22:02:21.4553182Z CPU architecture: x86_64
+2026-10-30T22:02:21.4553727Z Hardware profile: 
+2026-10-30T22:02:21.4554216Z Cores: 2
+2026-10-30T22:02:21.4554700Z RAM size: 4096M
+2026-10-30T22:02:21.4554974Z Heap size: 512M
+2026-10-30T22:02:21.4555255Z SD card path or size: 
+2026-10-30T22:02:21.4555526Z Disk size: 
+2026-10-30T22:02:21.4555836Z AVD name: test
+2026-10-30T22:02:21.4556257Z force avd creation: true
+2026-10-30T22:02:21.4556622Z Emulator boot timeout: 600
+2026-10-30T22:02:21.4557113Z emulator port: 5554
+2026-10-30T22:02:21.4558205Z emulator options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+2026-10-30T22:02:21.4559304Z disable animations: true
+2026-10-30T22:02:21.4559817Z disable spellchecker: false
+2026-10-30T22:02:21.4560279Z disable Linux hardware acceleration: false
+2026-10-30T22:02:21.4560654Z enable hardware keyboard: false
+2026-10-30T22:02:21.4561143Z Channel: 0 (stable)
+2026-10-30T22:02:21.4561508Z Script:
+2026-10-30T22:02:21.4561935Z bash tools/r29/emulator_integration.sh
+2026-10-30T22:02:21.4562488Z Pre emulator launch script:
+2026-10-30T22:02:21.4563079Z ##[endgroup]
+2026-10-30T22:02:21.4563778Z ##[group]Install Android SDK
+2026-10-30T22:02:21.4609820Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2026-10-30T22:02:22.7086902Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T22:02:24.3191738Z Installing latest build tools, platform tools, and platform.
+2026-10-30T22:02:24.3208790Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'> /dev/null
+2026-10-30T22:02:24.8576811Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T22:02:25.9522846Z Installing latest emulator.
+2026-10-30T22:02:25.9537071Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2026-10-30T22:02:26.5026866Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T22:02:34.2807654Z Installing system images.
+2026-10-30T22:02:34.2824943Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-34;default;x86_64' --channel=0 > /dev/null
+2026-10-30T22:02:34.7982740Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T22:02:56.5710465Z ##[endgroup]
+2026-10-30T22:02:56.5711200Z ##[group]Create AVD
+2026-10-30T22:02:56.5711583Z Creating AVD.
+2026-10-30T22:02:56.5727276Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-34;default;x86_64'
+2026-10-30T22:02:57.1525885Z Loading local repository...                                                     
+2026-10-30T22:02:57.1543809Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T22:02:57.3703102Z [=========                              ] 25% Loading local repository...       
+2026-10-30T22:02:57.3706703Z [=========                              ] 25% Fetch remote repository...        
+2026-10-30T22:02:57.3708179Z [=======================================] 100% Fetch remote repository...       
+2026-10-30T22:02:57.5177473Z Auto-selecting single ABI x86_64
+2026-10-30T22:02:57.5673450Z Do you wish to create a custom hardware profile? [no] [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\nhw.ramSize=4096M\nhw.heapSize=512M\n' >> /home/runner/.android/avd/test.avd/config.ini
+2026-10-30T22:02:57.5693154Z ##[endgroup]
+2026-10-30T22:02:57.5695466Z ##[group]Launch Emulator
+2026-10-30T22:02:57.5695857Z Starting emulator.
+2026-10-30T22:02:57.5713195Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2 &
+2026-10-30T22:02:57.5816828Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+2026-10-30T22:02:57.5817316Z INFO         | Graphics backend: gfxstream
+2026-10-30T22:02:57.5817883Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-34/default/x86_64/
+2026-10-30T22:02:57.6240318Z INFO         | Saving last run QEMU version for the AVD to 2
+2026-10-30T22:02:57.6241129Z INFO         | Guest GLES Driver: Auto (ext controls)
+2026-10-30T22:02:57.6242166Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+2026-10-30T22:02:57.6243091Z INFO         | Checking system compatibility:
+2026-10-30T22:02:57.6243501Z INFO         |   Checking: hasSufficientDiskSpace
+2026-10-30T22:02:57.6244242Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+2026-10-30T22:02:57.6244706Z INFO         |   Checking: hasSufficientHwGpu
+2026-10-30T22:02:57.6245326Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+2026-10-30T22:02:57.6246328Z INFO         |   Checking: hasSufficientSystem
+2026-10-30T22:02:57.6246780Z INFO         |      Ok: System requirements to run avd: `test` are met
+2026-10-30T22:02:57.6247919Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+2026-10-30T22:02:58.0841137Z ERROR        | Unable to connect to adb daemon on port: 5037
+2026-10-30T22:02:58.0843465Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 4016
+2026-10-30T22:02:58.0844626Z INFO         | Initializing gfxstream backend
+2026-10-30T22:02:58.0855000Z INFO         | startOpenglesRendererImpl: gpu info
+2026-10-30T22:02:58.0855594Z INFO         | 
+2026-10-30T22:02:58.0858118Z INFO         | initIcdPaths: ICD set to 'swiftshader', using Swiftshader ICD
+2026-10-30T22:02:58.0859774Z INFO         | Setting ICD filenames for the loader = /usr/local/lib/android/sdk/emulator/lib64/vulkan/vk_swiftshader_icd.json
+2026-10-30T22:02:58.0861662Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so]
+2026-10-30T22:02:58.0863430Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so.1]
+2026-10-30T22:02:58.0865372Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so]
+2026-10-30T22:02:58.0866923Z INFO         | Added library: /usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so
+2026-10-30T22:02:58.1071153Z INFO         | Selecting Vulkan device: SwiftShader Device (Subzero), Version: 1.3.0
+2026-10-30T22:02:58.1072192Z INFO         | Using Vulkan externalMemoryMode: OpaqueFd for VkEmulation
+2026-10-30T22:02:58.1640690Z INFO         | Format VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16 does not support YCbCr sampler conversion
+2026-10-30T22:02:58.1669128Z INFO         | SharedLibrary::open for [libX11]
+2026-10-30T22:02:58.1669975Z WARNING      | Could not open libX11.so, try libX11.so.6
+2026-10-30T22:02:58.1670740Z INFO         | SharedLibrary::open for [libX11.so.6]
+2026-10-30T22:02:58.1671371Z INFO         | SharedLibrary::open for [libX11-xcb]
+2026-10-30T22:02:58.1672424Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+2026-10-30T22:02:58.1673012Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+2026-10-30T22:02:58.1792955Z INFO         | Initializing VkEmulation features:
+2026-10-30T22:02:58.1793643Z INFO         |     glInteropSupported: false
+2026-10-30T22:02:58.1794017Z INFO         |     useDeferredCommands: true
+2026-10-30T22:02:58.1794624Z INFO         |     createResourceWithRequirements: true
+2026-10-30T22:02:58.1795033Z INFO         |     useVulkanComposition: false
+2026-10-30T22:02:58.1795425Z INFO         |     useVulkanNativeSwapchain: false
+2026-10-30T22:02:58.1795826Z INFO         |     enable guestRenderDoc: false
+2026-10-30T22:02:58.1796227Z INFO         |     ASTC LDR emulation mode: Gpu
+2026-10-30T22:02:58.1796589Z INFO         |     enable ETC2 emulation: true
+2026-10-30T22:02:58.1796955Z INFO         |     enable Ycbcr emulation: false
+2026-10-30T22:02:58.1797308Z INFO         |     guestVulkanOnly: false
+2026-10-30T22:02:58.1797691Z INFO         |     useDedicatedAllocations: false
+2026-10-30T22:02:58.1798079Z INFO         |     guestVulkanMaxApiVersion: 1.3.0
+2026-10-30T22:02:58.1798496Z INFO         |     enableProtectedMemoryEmulation: false
+2026-10-30T22:02:58.1801254Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+2026-10-30T22:02:58.1802297Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+2026-10-30T22:02:58.1803473Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+2026-10-30T22:02:58.1806708Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+2026-10-30T22:02:58.1808911Z INFO         | Graphics Device Extensions N/A
+2026-10-30T22:02:58.1809466Z INFO         | Disabling sparse binding feature support
+2026-10-30T22:02:58.1882046Z INFO         | Sending adb public key [QAAAAJkd5ABXGQbK9mqK0TH9qIcA6mfkuJVUPqss/1yRzBb7sNrAMO3ANphKUxKK7pIs6YVOEMQ9smP5w90kG9S1sF3UrfhdjQHfdPB2cfuv2Tk6JNbYAWUEPja4DF7KKBJbO/+D/jopGigwrt7U9XzbP9qaDHQSLgOlb9yuH7q0KuYFlCPvrZHT04rmT2QPOqQ70dmOsplEqw5toHdm8I1K31uH4tQciYHr7nRifAw3QJBUIv648F94T5xs59456Ar+f/fscOc7HmHlxu6ClJNiyZddrOxDDSxUU+eHGCnBwOhfI+o1miAQ6Dca8440KhiHleT3dlbJQ2wuSuRAYyZFLwmqQXi5d2kCv1ICYCJHIZATnNGPB+UFa3Z2mHhjp5mQc7Uo08RC6OcfdJGKPpnATd2xkTKY8wh0fT8cvXjb0ZYVz5AhbCw4Qu3UMLv7tnyoO++saOto23aDardMOi1HgaGiBjaIGM4p35weW3po1mQC06lTCA4vXEA0Cgo3I9PhsFFyE29mZ1vr6ht1Xi/kpwVHfbbGthzcK7l312cQokhqwybRdXA56XAMkyc8HQnHLm/AmBEwCh+QNw9CQwtHjfynGvHFQOIjIbpPCHgK7Grt9mhtlCHqmx/JsdpPoaHc91uXr5uvgceU0NlFNZ7SD9rosuuJJEK57HaQtfJZ0Dg1si96QgEAAQA= runner@unknown]
+2026-10-30T22:02:58.1888922Z INFO         | Userspace boot properties:
+2026-10-30T22:02:58.1889930Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+2026-10-30T22:02:58.1890788Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+2026-10-30T22:02:58.1891376Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+2026-10-30T22:02:58.1891794Z INFO         |   androidboot.debug.sf.nobootanimation=1
+2026-10-30T22:02:58.1892178Z INFO         |   androidboot.hardware=ranchu
+2026-10-30T22:02:58.1892573Z INFO         |   androidboot.hardware.gltransport=pipe
+2026-10-30T22:02:58.1892976Z INFO         |   androidboot.hardware.vulkan=ranchu
+2026-10-30T22:02:58.1893336Z INFO         |   androidboot.logcat=*:V
+2026-10-30T22:02:58.1893709Z INFO         |   androidboot.opengles.version=196608
+2026-10-30T22:02:58.1894229Z INFO         |   androidboot.qemu=1
+2026-10-30T22:02:58.1898703Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAJkd5ABXGQbK9mqK0TH9qIcA6mfkuJVUPqss/1yRzBb7sNrAMO3ANphKUxKK7pIs6YVOEMQ9smP5w90kG9S1sF3UrfhdjQHfdPB2cfuv2Tk6JNbYAWUEPja4DF7KKBJbO/+D/jopGigwrt7U9XzbP9qaDHQSLgOlb9yuH7q0KuYFlCPvrZHT04rmT2QPOqQ70dmOsplEqw5toHdm8I1K31uH4tQciYHr7nRifAw3QJBUIv648F94T5xs59456Ar+f/fscOc7HmHlxu6ClJNiyZddrOxDDSxUU+eHGCnBwOhfI+o1miAQ6Dca8440KhiHleT3dlbJQ2wuSuRAYyZFLwmqQXi5d2kCv1ICYCJHIZATnNGPB+UFa3Z2mHhjp5mQc7Uo08RC6OcfdJGKPpnATd2xkTKY8wh0fT8cvXjb0ZYVz5AhbCw4Qu3UMLv7tnyoO++saOto23aDardMOi1HgaGiBjaIGM4p35weW3po1mQC06lTCA4vXEA0Cgo3I9PhsFFyE29mZ1vr6ht1Xi/kpwVHfbbGthzcK7l312cQokhqwybRdXA56XAMkyc8HQnHLm/AmBEwCh+QNw9CQwtHjfynGvHFQOIjIbpPCHgK7Grt9mhtlCHqmx/JsdpPoaHc91uXr5uvgceU0NlFNZ7SD9rosuuJJEK57HaQtfJZ0Dg1si96QgEAAQA= runner@unknown
+2026-10-30T22:02:58.1902826Z INFO         |   androidboot.qemu.avd_name=test
+2026-10-30T22:02:58.1903243Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+2026-10-30T22:02:58.1903674Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+2026-10-30T22:02:58.1904236Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+2026-10-30T22:02:58.1904756Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+2026-10-30T22:02:58.1905229Z INFO         |   androidboot.qemu.gltransport.name=pipe
+2026-10-30T22:02:58.1905644Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+2026-10-30T22:02:58.1906048Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+2026-10-30T22:02:58.1906454Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+2026-10-30T22:02:58.1906950Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+2026-10-30T22:02:58.1907413Z INFO         |   androidboot.qemu.skin=320x640
+2026-10-30T22:02:58.1907801Z INFO         |   androidboot.qemu.virtiowifi=1
+2026-10-30T22:02:58.1908273Z INFO         |   androidboot.qemu.vsync=60
+2026-10-30T22:02:58.1908656Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+2026-10-30T22:02:58.1909282Z INFO         |   androidboot.vbmeta.digest=8bee4f6105b6acd7de887b1ee6629ab07066df02ee9bbca07663adffdad97fc1
+2026-10-30T22:02:58.2071466Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+2026-10-30T22:02:58.2071974Z INFO         |   androidboot.vbmeta.size=6656
+2026-10-30T22:02:58.2072371Z INFO         |   androidboot.veritymode=enforcing
+2026-10-30T22:02:58.2072995Z WARNING: cannnot unmap ptr 0x7f57f1e01000 as it is in the protected range from 0x7f56f1e00000 to 0x7f57f2000000
+2026-10-30T22:02:58.2125494Z pc_memory_init: above 4g size: 40000000
+2026-10-30T22:02:58.2255625Z INFO         | Monitoring duration of emulator setup.
+2026-10-30T22:02:59.2140763Z INFO         | Activated packet streamer for bluetooth emulation
+2026-10-30T22:02:59.2142761Z INFO         | Successfully initialized netsim WiFi
+2026-10-30T22:02:59.2197357Z INFO         | Setting display: 0 configuration to: 320x640, dpi: 160x160 
+2026-10-30T22:02:59.2198293Z INFO         | setDisplayActiveConfig: id:0, 320x640
+2026-10-30T22:02:59.2199209Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+2026-10-30T22:02:59.2272606Z INFO         | Loading snapshot 'default_boot'...
+2026-10-30T22:02:59.2273813Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-10-30T22:02:59.2447827Z WARNING      | Device 'cache' does not have the requested snapshot 'default_boot'
+2026-10-30T22:02:59.2448611Z 
+2026-10-30T22:02:59.2449055Z WARNING      | Failed to load snapshot 'default_boot'
+2026-10-30T22:02:59.2450676Z USER_INFO    | The emulator is performing a cold boot without a saved state because there's no snapshot and you have configured it not to save on exit.
+2026-10-30T22:02:59.4925361Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-10-30T22:03:07.5755244Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:07.5792679Z * daemon not running; starting now at tcp:5037
+2026-10-30T22:03:07.6348373Z * daemon started successfully
+2026-10-30T22:03:07.6362271Z adb: device offline
+2026-10-30T22:03:07.6371079Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-10-30T22:03:09.6411990Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:09.6445964Z adb: device offline
+2026-10-30T22:03:09.6450896Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-10-30T22:03:11.6479699Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:11.6544526Z adb: device offline
+2026-10-30T22:03:11.6551067Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-10-30T22:03:13.6647300Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:13.6684417Z adb: device offline
+2026-10-30T22:03:13.6716401Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-10-30T22:03:15.6806137Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:15.7860129Z 
+2026-10-30T22:03:17.8003881Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:17.8362903Z 
+2026-10-30T22:03:19.8435255Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:19.8718161Z 
+2026-10-30T22:03:21.8776979Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:21.9148265Z 
+2026-10-30T22:03:23.9228279Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:23.9506149Z 
+2026-10-30T22:03:25.9576229Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:26.0215525Z 
+2026-10-30T22:03:28.0365893Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:28.0591212Z 
+2026-10-30T22:03:30.0666436Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:30.0905588Z 
+2026-10-30T22:03:31.8328599Z INFO         | Boot completed in 34226 ms
+2026-10-30T22:03:31.8329573Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+2026-10-30T22:03:32.0942851Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T22:03:32.1507669Z 1
+2026-10-30T22:03:32.1515355Z Emulator booted.
+2026-10-30T22:03:32.1555863Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+2026-10-30T22:03:34.3214572Z Disabling animations.
+2026-10-30T22:03:34.3261548Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+2026-10-30T22:03:34.5560867Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+2026-10-30T22:03:34.6696294Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+2026-10-30T22:03:34.8406573Z ##[endgroup]
+2026-10-30T22:03:34.8458728Z [command]/usr/bin/sh -c bash tools/r29/emulator_integration.sh
+2026-10-30T22:03:35.9652486Z Performing Streamed Install
+2026-10-30T22:03:35.9665457Z Success
+2026-10-30T22:03:36.4329232Z Performing Streamed Install
+2026-10-30T22:03:36.4333168Z Success
+2026-10-30T22:03:37.9633034Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LargeModelCheckpointDeviceTest
+2026-10-30T22:03:37.9634742Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:37.9635646Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:37.9636444Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:37.9637543Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:03:37.9638879Z com.ethk3.novaonepro.strategyv2.R29LargeModelCheckpointDeviceTest:
+2026-10-30T22:03:37.9640528Z INSTRUMENTATION_STATUS: test=actualAndroidLargeCheckpointRestoresWithEveryReplaySampleAndNextUpdate
+2026-10-30T22:03:37.9641827Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:03:40.4108028Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LargeModelCheckpointDeviceTest
+2026-10-30T22:03:40.4109438Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:40.4110273Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:40.4111038Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:40.4111776Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:03:40.4113471Z INSTRUMENTATION_STATUS: test=actualAndroidLargeCheckpointRestoresWithEveryReplaySampleAndNextUpdate
+2026-10-30T22:03:40.4132406Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:03:40.4175071Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:03:40.4177657Z 
+2026-10-30T22:03:40.4178237Z Time: 2.449
+2026-10-30T22:03:40.4178745Z 
+2026-10-30T22:03:40.4179124Z OK (1 test)
+2026-10-30T22:03:40.4179498Z 
+2026-10-30T22:03:40.4181408Z 
+2026-10-30T22:03:40.4181801Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:03:40.5056076Z {"artifactBytes": 3104505, "completeWeightsAdamRngFtrlReplayStateAndNextUpdateEqual": true, "legacyWholeRowFailure": "android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1", "legacyWholeRowReadRejectedByActualAndroid": true, "replaySamplesRestored": 2000, "result": "PASS_WITH_STATED_ANDROID_SCOPE", "scope": "SYNTHETIC_ANDROID_CURSORWINDOW_REGRESSION_NOT_NATURAL_QUALITY", "sqliteBlobChunkBytes": 131072}
+2026-10-30T22:03:41.2326286Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LargeRowMigrationDeviceTest
+2026-10-30T22:03:41.2327953Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:41.2330074Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:41.2331295Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:41.2331916Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:03:41.2332658Z com.ethk3.novaonepro.strategyv2.R29LargeRowMigrationDeviceTest:
+2026-10-30T22:03:41.2333817Z INSTRUMENTATION_STATUS: test=fullTypedMigrationChunksLargeRowsWithoutChangingStateOrHashes
+2026-10-30T22:03:41.2335022Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:03:47.2441377Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LargeRowMigrationDeviceTest
+2026-10-30T22:03:47.2442537Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:47.2444535Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:47.2445323Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:47.2445825Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:03:47.2446640Z INSTRUMENTATION_STATUS: test=fullTypedMigrationChunksLargeRowsWithoutChangingStateOrHashes
+2026-10-30T22:03:47.2447391Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:03:47.2494533Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:03:47.2495027Z 
+2026-10-30T22:03:47.2495258Z Time: 6.016
+2026-10-30T22:03:47.2495668Z 
+2026-10-30T22:03:47.2495996Z OK (1 test)
+2026-10-30T22:03:47.2496248Z 
+2026-10-30T22:03:47.2496346Z 
+2026-10-30T22:03:47.2496617Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:03:47.3349280Z {"blobBytes": 3145799, "chunkBytes": 131072, "completeTypedRowBytes": 5785846, "damagedTransferRejected": true, "legacyDomainUpgradeCapturePassed": true, "physicalAndCompositePrimaryKeyPaginationExact": true, "result": "PASS_WITH_STATED_ANDROID_SCOPE", "scope": "SYNTHETIC_ANDROID_LARGE_ROW_MIGRATION_NOT_NATURAL_QUALITY", "stagedIndependentRehashPassed": true, "textUtf8Bytes": 2640000, "typedPayloadAndHashesExact": true, "wholeRowNegativeControlFailure": "android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1", "wholeRowNegativeControlRejectedByActualAndroid": true}
+2026-10-30T22:03:48.0425430Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29CutoverSnapshotDeviceTest
+2026-10-30T22:03:48.0426893Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:48.0427752Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:48.0428990Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:48.0429790Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:03:48.0430790Z com.ethk3.novaonepro.strategyv2.R29CutoverSnapshotDeviceTest:
+2026-10-30T22:03:48.0432317Z INSTRUMENTATION_STATUS: test=readOnlySnapshotPinsMovingAppStateAndReleasesOnEveryExit
+2026-10-30T22:03:48.0433525Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:03:48.6453585Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29CutoverSnapshotDeviceTest
+2026-10-30T22:03:48.6456809Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:48.6458261Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:48.6458798Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:48.6459498Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:03:48.6460651Z INSTRUMENTATION_STATUS: test=readOnlySnapshotPinsMovingAppStateAndReleasesOnEveryExit
+2026-10-30T22:03:48.6461608Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:03:48.6503434Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:03:48.6505124Z 
+2026-10-30T22:03:48.6505276Z Time: 0.607
+2026-10-30T22:03:48.6505402Z 
+2026-10-30T22:03:48.6505500Z OK (1 test)
+2026-10-30T22:03:48.6505623Z 
+2026-10-30T22:03:48.6505631Z 
+2026-10-30T22:03:48.6505773Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:03:48.7353040Z {"appStatePages": 4, "copiedOriginalAppStateRows": 97, "copiedPages": 7, "liveRootAdvancedDuringCopy": true, "oldOriginalKeysRetained": 97, "oldRootWriterCommitMs": 2, "oldUnpinnedFailure": "SQLiteConstraintException", "oldUnpinnedMovingWriterRejected": true, "originalKeysAndResearchRowsRetained": true, "persistentWriteRejectedByReadOnlyHandle": true, "pinnedSourceReadOnlyAndInTransaction": true, "rootWriterCommitMs": 2, "rootWriterDeadlineMs": 1500, "scope": "API34_SYNTHETIC_REAL_ANDROID_WAL_NOT_PHYSICAL_NOT_NATURAL", "sourceClosedAfterWriteError": true, "sourceClosedAndWriterReleasedAfterBodyError": true, "sourceClosedAndWriterReleasedAfterCancellation": true, "sourceClosedOnSuccess": true, "status": "PASS_ANDROID_ENGINEERING_SUBSET", "typedRootUnchangedAcrossLiveCommit": true, "typedTargetRootEqualsPinnedRoot": true}
+2026-10-30T22:03:49.4392634Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest
+2026-10-30T22:03:49.4394010Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:03:49.4396033Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:03:49.4397539Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:03:49.4398611Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:03:49.4399481Z com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest:
+2026-10-30T22:03:49.4400776Z INSTRUMENTATION_STATUS: test=realAndroidCutoverIndependentWritersAndReport
+2026-10-30T22:03:49.4401741Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:04:11.7708699Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest
+2026-10-30T22:04:11.7709655Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:04:11.7710525Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:04:11.7711408Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:04:11.7712071Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:04:11.7712951Z INSTRUMENTATION_STATUS: test=realAndroidCutoverIndependentWritersAndReport
+2026-10-30T22:04:11.7713797Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:04:11.7776503Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:04:11.7776876Z 
+2026-10-30T22:04:11.7777051Z Time: 22.334
+2026-10-30T22:04:11.7777260Z 
+2026-10-30T22:04:11.7777417Z OK (1 test)
+2026-10-30T22:04:11.7777626Z 
+2026-10-30T22:04:11.7777641Z 
+2026-10-30T22:04:11.7777881Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:04:11.8821387Z {"criticalBootstrapActualWrappedDCoMultipageCommit": true, "criticalCatchupWithAckActualWrappedDCoMultipageCommit": true, "criticalInputAckDoesNotResetCatchupBootstrap": true, "cutoverMillis": 1867, "cutoverPhase": "ACTIVE_INDEPENDENT_RESEARCH_WRITER", "deliveryWithoutInventedLearning": true, "explicitRootObservationReadOnlyPoolAndOwnWriteFallback": true, "independentResearchCommitWhileRealtimeWriterHeld": true, "legacyScopedWriteIndependentAndOriginalRowsPreserved": true, "original22LaneEntryDrainedAndFenced": true, "originalRowsPreserved": 97, "pairedReportSeesResearchAndRealtime": true, "preparedFrameWithActualAndroidPostCommitReceipt": true, "rootObserverReadWhileWriterHeld": true, "scope": "API34_SYNTHETIC_ANDROID_SQLITE_NOT_PHYSICAL_NOT_NATURAL", "status": "PASS_ANDROID_ENGINEERING_SUBSET"}
+2026-10-30T22:04:12.6162043Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29CriticalInputTriggerDeviceTest
+2026-10-30T22:04:12.6163371Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:04:12.6164444Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:04:12.6165316Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:04:12.6166028Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:04:12.6167091Z com.ethk3.novaonepro.strategyv2.R29CriticalInputTriggerDeviceTest:
+2026-10-30T22:04:12.6168879Z INSTRUMENTATION_STATUS: test=productionRootFreezeSurvivesAndMirrorApplyRepairsOnlyErroneousReplicaTrigger
+2026-10-30T22:04:12.6170619Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:04:15.1137637Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29CriticalInputTriggerDeviceTest
+2026-10-30T22:04:15.1138782Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:04:15.1139649Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:04:15.1140411Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:04:15.1141137Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:04:15.1142124Z INSTRUMENTATION_STATUS: test=productionRootFreezeSurvivesAndMirrorApplyRepairsOnlyErroneousReplicaTrigger
+2026-10-30T22:04:15.1143328Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:04:15.1188311Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:04:15.1188778Z 
+2026-10-30T22:04:15.1192175Z Time: 2.501
+2026-10-30T22:04:15.1192491Z 
+2026-10-30T22:04:15.1192638Z OK (1 test)
+2026-10-30T22:04:15.1192811Z 
+2026-10-30T22:04:15.1192825Z 
+2026-10-30T22:04:15.1193046Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:04:15.2026107Z {"canonicalAliasMissingFromInitialCopyCannotBeReady": true, "canonicalBootstrapPrunesOnlyActuallyMissingRootKeysAfterLostJournalPrefix": true, "canonicalMetadataOnlyUpdatePreservesLongScaleHeadAndToken": true, "canonicalNewFutureInsertChangesTokenWithoutInvalidatingAcceptedPrefix": true, "canonicalPhysicalAndLogicalReplicasRejectLegacyWrites": true, "canonicalRepeatBootstrapPreservesIdenticalLongScaleHeadAndToken": true, "canonicalRootCorrectionInvalidatesLongScaleTokenHeadAndPreparedCas": true, "canonicalRootSchemaChangeForcesCompleteBootstrapOrExplicitAbiMigration": true, "canonicalTrueDeleteRetainsOriginalTokenAndPrefixSemantics": true, "canonicalTrueLateInsertInvalidatesAcceptedPrefix": true, "canonicalUsesRealRootRowsDistinctPhysicalAliasAndLogicalReadOnlyView": true, "exactForeignTriggerDdlQuarantined": true, "legacyMisinstalledRootTriggerActuallyFailsOnRpWithoutRootEventTable": true, "legacyMisinstalledRootTriggerFailure": "no such table: main.v57_runtime_event_r926 (code 1 SQLITE_ERROR): , while compiling: DELETE FROM v57_oos_label_r35 WHERE target_issue='202610300002'", "longScaleActualFiveCanonicalTriggersTargetReplica": true, "missingRootAuthorityFailsClosedDespiteNonemptyOldRpCopy": true, "noFakeRootAuthorityCreatedInRp": true, "noFakeTradesCreatedForFormalArchival": true, "oldFormalPhysicalNamesRemovedFromRp": true, "oldFullFormalRowsAndTypedHashesRetained": true, "originalRootTriggerSqlUnchanged": true, "productionRootOosFreezeStillActive": true, "result": "PASS_WITH_STATED_ANDROID_SCOPE", "retainedFormalCopiesImmutableAndIdempotent": true, "retainedFormalOriginalDdlAndHashAudited": true, "retainedNameConflictRollsBackBothFormalTablesAndAudit": true, "rootAuthorityViewShadowsNonemptyOldRpPhysicalCopy": true, "rootAuthorityViewStillWinsAfterArchival": true, "rootFormalSchemaRowsAndTriggersUnchanged": true, "rootRefusesResearchOnlyIsolation": true, "rpInputReplicaStillReadOnly": true, "rpMirrorApplySucceedsAfterPreciseIsolation": true, "scope": "SYNTHETIC_ANDROID_NOT_PHYSICAL_NOT_NATURAL"}
+2026-10-30T22:04:15.9220559Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest
+2026-10-30T22:04:15.9222283Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:04:15.9223038Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:04:15.9223777Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:04:15.9224573Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:04:15.9225451Z com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest:
+2026-10-30T22:04:15.9226691Z INSTRUMENTATION_STATUS: test=completeResearchSchemaAndOwnerGuardsOnAndroid
+2026-10-30T22:04:15.9227644Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:05:37.6538258Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest
+2026-10-30T22:05:37.6539473Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:37.6541154Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:37.6542364Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:37.6545495Z INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=
+2026-10-30T22:05:37.6548236Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-30T22:05:37.6549062Z 	at org.junit.Assert.assertTrue(Assert.java:42)
+2026-10-30T22:05:37.6551129Z 	at com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)
+2026-10-30T22:05:37.6553173Z 
+2026-10-30T22:05:37.6553655Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:05:37.6555646Z Error in completeResearchSchemaAndOwnerGuardsOnAndroid(com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest):
+2026-10-30T22:05:37.6559257Z java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=
+2026-10-30T22:05:37.6561127Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-30T22:05:37.6562112Z 	at org.junit.Assert.assertTrue(Assert.java:42)
+2026-10-30T22:05:37.6564874Z 	at com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)
+2026-10-30T22:05:37.6566734Z 
+2026-10-30T22:05:37.6567561Z INSTRUMENTATION_STATUS: test=completeResearchSchemaAndOwnerGuardsOnAndroid
+2026-10-30T22:05:37.6568770Z INSTRUMENTATION_STATUS_CODE: -2
+2026-10-30T22:05:37.6627107Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:05:37.6627521Z 
+2026-10-30T22:05:37.6628004Z Time: 81.736
+2026-10-30T22:05:37.6628585Z There was 1 failure:
+2026-10-30T22:05:37.6629617Z 1) completeResearchSchemaAndOwnerGuardsOnAndroid(com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest)
+2026-10-30T22:05:37.6630721Z java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=
+2026-10-30T22:05:37.6631434Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-30T22:05:37.6631811Z 	at org.junit.Assert.assertTrue(Assert.java:42)
+2026-10-30T22:05:37.6632750Z 	at com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)
+2026-10-30T22:05:37.6633433Z 
+2026-10-30T22:05:37.6633555Z FAILURES!!!
+2026-10-30T22:05:37.6633801Z Tests run: 1,  Failures: 1
+2026-10-30T22:05:37.6633960Z 
+2026-10-30T22:05:37.6633969Z 
+2026-10-30T22:05:37.6634282Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:05:37.7503683Z Traceback (most recent call last):
+2026-10-30T22:05:37.7514508Z   File "<stdin>", line 3, in <module>
+2026-10-30T22:05:37.7515526Z AssertionError: INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest
+2026-10-30T22:05:37.7516598Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:37.7517008Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:37.7517368Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:37.7517681Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:05:37.7518426Z com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest:
+2026-10-30T22:05:37.7519382Z INSTRUMENTATION_STATUS: test=completeResearchSchemaAndOwnerGuardsOnAndroid
+2026-10-30T22:05:37.7519839Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:05:37.7520436Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest
+2026-10-30T22:05:37.7520956Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:37.7521299Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:37.7521648Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:37.7522541Z INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=
+2026-10-30T22:05:37.7523368Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-30T22:05:37.7523749Z 	at org.junit.Assert.assertTrue(Assert.java:42)
+2026-10-30T22:05:37.7524927Z 	at com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)
+2026-10-30T22:05:37.7525624Z 
+2026-10-30T22:05:37.7525774Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:05:37.7526470Z Error in completeResearchSchemaAndOwnerGuardsOnAndroid(com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest):
+2026-10-30T22:05:37.7527913Z java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=
+2026-10-30T22:05:37.7528831Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-30T22:05:37.7529213Z 	at org.junit.Assert.assertTrue(Assert.java:42)
+2026-10-30T22:05:37.7530359Z 	at com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)
+2026-10-30T22:05:37.7531045Z 
+2026-10-30T22:05:37.7531361Z INSTRUMENTATION_STATUS: test=completeResearchSchemaAndOwnerGuardsOnAndroid
+2026-10-30T22:05:37.7531826Z INSTRUMENTATION_STATUS_CODE: -2
+2026-10-30T22:05:37.7532133Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:05:37.7532302Z 
+2026-10-30T22:05:37.7532400Z Time: 81.736
+2026-10-30T22:05:37.7532669Z There was 1 failure:
+2026-10-30T22:05:37.7533307Z 1) completeResearchSchemaAndOwnerGuardsOnAndroid(com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest)
+2026-10-30T22:05:37.7534488Z java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=
+2026-10-30T22:05:37.7535197Z 	at org.junit.Assert.fail(Assert.java:89)
+2026-10-30T22:05:37.7535585Z 	at org.junit.Assert.assertTrue(Assert.java:42)
+2026-10-30T22:05:37.7536532Z 	at com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)
+2026-10-30T22:05:37.7537601Z 
+2026-10-30T22:05:37.7538070Z FAILURES!!!
+2026-10-30T22:05:37.7538420Z Tests run: 1,  Failures: 1
+2026-10-30T22:05:37.7538643Z 
+2026-10-30T22:05:37.7538654Z 
+2026-10-30T22:05:37.7538840Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:05:37.7539099Z 
+2026-10-30T22:05:38.4736043Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacyDomainExtensionDeviceTest
+2026-10-30T22:05:38.4736695Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:38.4737059Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:38.4737415Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:38.4737742Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:05:38.4738198Z com.ethk3.novaonepro.strategyv2.R29LegacyDomainExtensionDeviceTest:
+2026-10-30T22:05:38.4738886Z INSTRUMENTATION_STATUS: test=oldFullKeepsAdvancedResearchAndImportsCompleteLargeArtifact
+2026-10-30T22:05:38.4739418Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:05:40.0284022Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacyDomainExtensionDeviceTest
+2026-10-30T22:05:40.0285415Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:40.0286034Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:40.0286602Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:40.0287595Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:05:40.0288754Z INSTRUMENTATION_STATUS: test=oldFullKeepsAdvancedResearchAndImportsCompleteLargeArtifact
+2026-10-30T22:05:40.0289648Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:05:40.0364014Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:05:40.0364889Z 
+2026-10-30T22:05:40.0375455Z Time: 1.56
+2026-10-30T22:05:40.0375736Z 
+2026-10-30T22:05:40.0375918Z OK (1 test)
+2026-10-30T22:05:40.0376141Z 
+2026-10-30T22:05:40.0376158Z 
+2026-10-30T22:05:40.0376412Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:05:40.1158569Z {"acknowledgedExtensionNotReapplied": true, "artifactBytes": 3145745, "completeLargeArtifactRestored": true, "conflictingArtifactPreserved": true, "oldFullAdvancedStateRetained": true, "originalFullProofUnchanged": true, "result": "PASS_WITH_STATED_ANDROID_SCOPE", "rootOriginalUnchanged": true, "scope": "SYNTHETIC_ANDROID_SQLITE_NOT_PHYSICAL_NOT_NATURAL"}
+2026-10-30T22:05:40.8348774Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29ShadowRetirementAuthorityDeviceTest
+2026-10-30T22:05:40.8350442Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:40.8352149Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:40.8353043Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:40.8354010Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:05:40.8355374Z com.ethk3.novaonepro.strategyv2.R29ShadowRetirementAuthorityDeviceTest:
+2026-10-30T22:05:40.8356971Z INSTRUMENTATION_STATUS: test=rootReadOnlyProtectsChoiceWhileRootWriterIsHeld
+2026-10-30T22:05:40.8358165Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:05:40.9103407Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29ShadowRetirementAuthorityDeviceTest
+2026-10-30T22:05:40.9105026Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:40.9105661Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:40.9107882Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:40.9108753Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:05:40.9110164Z INSTRUMENTATION_STATUS: test=rootReadOnlyProtectsChoiceWhileRootWriterIsHeld
+2026-10-30T22:05:40.9111054Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:05:40.9173256Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:05:40.9173854Z 
+2026-10-30T22:05:40.9176782Z Time: 0.078
+2026-10-30T22:05:40.9177264Z 
+2026-10-30T22:05:40.9177900Z OK (1 test)
+2026-10-30T22:05:40.9178228Z 
+2026-10-30T22:05:40.9178241Z 
+2026-10-30T22:05:40.9178633Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:05:40.9969852Z {"allCheckpointWeightsRetained": true, "eligibleUnboundMemberRetired": true, "independentRootReaderWhileWriterHeld": true, "noFakeRootChoiceOnResearch": true, "realMissingRootSchemaRemainsError": true, "result": "PASS_WITH_STATED_ANDROID_SCOPE", "rootChoiceMemberProtected": true, "rootHeldDeadlineMs": 1500, "rootRowsAndChoiceUnchanged": true, "scope": "SYNTHETIC_ANDROID_TWO_REAL_WAL_FILES_NOT_PHYSICAL_NOT_NATURAL"}
+2026-10-30T22:05:41.6958514Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29EvolutionDatasetPinDeviceTest
+2026-10-30T22:05:41.6960027Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:05:41.6963541Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:05:41.6965323Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:05:41.6966048Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:05:41.6966964Z com.ethk3.novaonepro.strategyv2.R29EvolutionDatasetPinDeviceTest:
+2026-10-30T22:05:41.6968393Z INSTRUMENTATION_STATUS: test=nativeRestartUsesPinnedInputAndContinuesExactTurn
+2026-10-30T22:05:41.6969527Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:06:31.6009496Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29EvolutionDatasetPinDeviceTest
+2026-10-30T22:06:31.6010905Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:06:31.6011400Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:06:31.6011843Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:06:31.6012234Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:06:31.6013206Z INSTRUMENTATION_STATUS: test=nativeRestartUsesPinnedInputAndContinuesExactTurn
+2026-10-30T22:06:31.6014928Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:06:31.6088613Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:06:31.6092841Z 
+2026-10-30T22:06:31.6096260Z Time: 49.909
+2026-10-30T22:06:31.6096911Z 
+2026-10-30T22:06:31.6097267Z OK (1 test)
+2026-10-30T22:06:31.6097646Z 
+2026-10-30T22:06:31.6097738Z 
+2026-10-30T22:06:31.6098570Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:06:31.6954516Z {"actualRuntimeTurnResumedPinned4200": true, "badSnapshotRemainsFailureAndUnchanged": true, "boundaryRebindBeforeDatasetStep": true, "cooperativeSlices": 5, "current5000WaitsForGenerationBoundary": true, "currentRows": 5000, "exactCheckpointAndLedgerRestored": true, "hotTailAdvancedAndExpired": true, "missingLegacyPinWaitsWithoutReplacingCursor": true, "nativePinChunksAtMost128KiB": true, "newRows": 1000, "nextGateSnapshotBitIdentical": true, "originalRows": 4200, "scope": "API34_SYNTHETIC_NATIVE_RUNTIME_TURN_NOT_NATURAL_NOT_PHYSICAL_PHONE", "status": "PASS_ANDROID_ENGINEERING_SUBSET", "unprovenSameV1HashCannotResetOrResumeCursor": true}
+2026-10-30T22:06:32.4593321Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest
+2026-10-30T22:06:32.4594970Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:06:32.4595942Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:06:32.4596722Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:06:32.4597885Z INSTRUMENTATION_STATUS: stream=
+2026-10-30T22:06:32.4598731Z com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest:
+2026-10-30T22:06:32.4600215Z INSTRUMENTATION_STATUS: test=allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit
+2026-10-30T22:06:32.4601471Z INSTRUMENTATION_STATUS_CODE: 1
+2026-10-30T22:10:01.7826242Z INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest
+2026-10-30T22:10:01.7827599Z INSTRUMENTATION_STATUS: current=1
+2026-10-30T22:10:01.7828329Z INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+2026-10-30T22:10:01.7829313Z INSTRUMENTATION_STATUS: numtests=1
+2026-10-30T22:10:01.7829977Z INSTRUMENTATION_STATUS: stream=.
+2026-10-30T22:10:01.7830944Z INSTRUMENTATION_STATUS: test=allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit
+2026-10-30T22:10:01.7831854Z INSTRUMENTATION_STATUS_CODE: 0
+2026-10-30T22:10:01.7884705Z INSTRUMENTATION_RESULT: stream=
+2026-10-30T22:10:01.7886335Z 
+2026-10-30T22:10:01.7887362Z Time: 209.329
+2026-10-30T22:10:01.7887755Z 
+2026-10-30T22:10:01.7888015Z OK (1 test)
+2026-10-30T22:10:01.7888304Z 
+2026-10-30T22:10:01.7888318Z 
+2026-10-30T22:10:01.7888706Z INSTRUMENTATION_CODE: -1
+2026-10-30T22:10:01.8780975Z {"scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE", "api": 34, "engineeringWriteProbes": 1000, "fullPredrawOpportunitySloClaimed": false, "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS", "javaHeapLimitAtStart": 603979776, "targetLargeHeapFlag": true, "familyMechanismsWithCommittedProgress": 24, "expertsWithActualReceipts": 16, "allMechanismsServiceMillis": 83827, "strategyReadyToAllMechanismsWallMs": 59993, "firstServiceTargetMs": 60000, "firstServiceTargetObservedWithin": true, "cpuLeaseHeldBeforePressure": true, "cpuLeaseMaxHoldMs": 60000, "cpuLeaseRenewAfterMs": 15000, "r29IndependentResearchActive": true, "legacyDispatchOwner": "RESEARCH_POOL", "canonicalDrawWriteP50Ms": 7, "canonicalDrawWriteP95Ms": 13, "canonicalDrawWriteP99Ms": 16, "canonicalDrawWriteMaxMs": 24, "retentionBoundaryRenewed": true, "committedCandidateSamplesBeforeRestart": 33, "actualProgressBeforeRestart": 429, "committedCandidateSamplesAfterRestart": 41, "restartResumed": true, "staleOwnerRejected": true, "r29TaskErrors": 0, "retainedLegacyStateExports": 0, "allResearchTaskErrors": 0, "committedServiceCapacityFailures": 0, "capacityFailReceipts": 0, "checkpointFileBytes": 326855, "result": "PASS_WITH_STATED_ENGINEERING_SCOPE", "legacySchemaAtCompletion": "INITIALIZING|cursor=R952_EXTENSION|error="}
+2026-10-30T22:10:01.8826323Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+2026-10-30T22:10:01.8827581Z ##[group]Terminate Emulator
+2026-10-30T22:10:01.8836821Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-10-30T22:10:01.8895175Z OK: killing emulator, bye bye
+2026-10-30T22:10:01.8895614Z OK
+2026-10-30T22:10:01.8897064Z INFO         | Wait for emulator (pid 4016) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+2026-10-30T22:10:01.8898146Z 
+2026-10-30T22:10:01.8898595Z ##[endgroup]
+2026-10-30T22:10:05.1722244Z INFO         | Saving with gfxstream=1
+2026-10-30T22:10:05.2058234Z INFO         | Saving snapshot 'default_boot' took 3307 ms
+2026-10-30T22:10:05.2628377Z ERROR        | stop: Not implemented
+2026-10-30T22:10:05.2629467Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+2026-10-30T22:10:05.2807508Z INFO         | removeAll
+2026-10-30T22:10:05.3410816Z WARNING      | Netsim Wifi dns:///localhost:42635 is gone due to Stream removed (CANCELLED)
+2026-10-30T22:10:05.9436252Z ##[group]Run actions/upload-artifact@v4
+2026-10-30T22:10:05.9436554Z with:
+2026-10-30T22:10:05.9436890Z   name: R29-BATCH-INTEGRATION-84c360e09eaff62fdb2ce63dffdf21572f282c52
+2026-10-30T22:10:05.9437613Z   path: evidence/r29/integration/
+r29-integration-build.log
+app/build/outputs/apk/debug/*.apk
+app/build/outputs/apk/androidTest/debug/*.apk
+
+2026-10-30T22:10:05.9438310Z   if-no-files-found: warn
+2026-10-30T22:10:05.9438563Z   compression-level: 6
+2026-10-30T22:10:05.9438799Z   overwrite: false
+2026-10-30T22:10:05.9439026Z   include-hidden-files: false
+2026-10-30T22:10:05.9439268Z env:
+2026-10-30T22:10:05.9439574Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T22:10:05.9440049Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T22:10:05.9440486Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:10:05.9440900Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T22:10:05.9441363Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:10:05.9441739Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:10:05.9442111Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T22:10:05.9442497Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T22:10:05.9442872Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T22:10:05.9443381Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T22:10:05.9443799Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T22:10:05.9444534Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T22:10:05.9444839Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T22:10:05.9445154Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-10-30T22:10:05.9445431Z ##[endgroup]
+2026-10-30T22:10:06.1111653Z (node:4578) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T22:10:06.1112455Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T22:10:06.1246492Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-30T22:10:06.1249337Z The least common ancestor is /home/runner/work/starcore-public-build/starcore-public-build. This will be the root directory of the artifact
+2026-10-30T22:10:06.1250278Z With the provided path, there will be 33 files uploaded
+2026-10-30T22:10:06.1256012Z Artifact name is valid!
+2026-10-30T22:10:06.1256719Z Root directory input is valid!
+2026-10-30T22:10:06.4848104Z Beginning upload of artifact content to blob storage
+2026-10-30T22:10:06.7835491Z (node:4578) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T22:10:07.5401901Z Uploaded bytes 8388608
+2026-10-30T22:10:07.9636157Z Uploaded bytes 16777216
+2026-10-30T22:10:08.3348324Z Uploaded bytes 22395686
+2026-10-30T22:10:08.4028596Z Finished uploading artifact content to blob storage!
+2026-10-30T22:10:08.4030094Z SHA256 digest of uploaded artifact zip is 41af05b94aa89809e88786fa42a8b96538212860d7626f0932389961599bd88b
+2026-10-30T22:10:08.4033088Z Finalizing artifact upload
+2026-10-30T22:10:08.9000089Z Artifact R29-BATCH-INTEGRATION-84c360e09eaff62fdb2ce63dffdf21572f282c52.zip successfully finalized. Artifact ID 13017001855
+2026-10-30T22:10:08.9001745Z Artifact R29-BATCH-INTEGRATION-84c360e09eaff62fdb2ce63dffdf21572f282c52 has been successfully uploaded! Final size is 22395686 bytes. Artifact ID is 13017001855
+2026-10-30T22:10:08.9007048Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134808870/artifacts/13017001855
+2026-10-30T22:10:08.9254322Z Post job cleanup.
+2026-10-30T22:10:09.0639744Z (node:4590) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T22:10:09.0640556Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T22:10:09.0837282Z Post job cleanup.
+2026-10-30T22:10:09.1873473Z [command]/usr/bin/git version
+2026-10-30T22:10:09.1923952Z git version 2.56.0
+2026-10-30T22:10:09.1971554Z Temporarily overriding HOME='/home/runner/work/_temp/afc003cf-78bf-4f0e-b524-62a6e965839f' before making global git config changes
+2026-10-30T22:10:09.1972548Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T22:10:09.1977299Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T22:10:09.2021010Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T22:10:09.2060047Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T22:10:09.2303924Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T22:10:09.2330109Z http.https://github.com/.extraheader
+2026-10-30T22:10:09.2342258Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T22:10:09.2379577Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T22:10:09.2632801Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T22:10:09.2687659Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T22:10:09.3052616Z Post job cleanup.
+2026-10-30T22:10:09.3948557Z [command]/usr/bin/git version
+2026-10-30T22:10:09.4002940Z git version 2.56.0
+2026-10-30T22:10:09.4040608Z Temporarily overriding HOME='/home/runner/work/_temp/2d7488d9-975b-4f50-8014-b345b05a20e0' before making global git config changes
+2026-10-30T22:10:09.4042213Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T22:10:09.4048224Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T22:10:09.4098461Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T22:10:09.4135687Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T22:10:09.4377039Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T22:10:09.4413893Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T22:10:09.4661114Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T22:10:09.4699988Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T22:10:09.5094316Z Cleaning up orphan processes
+2026-10-30T22:10:09.5329487Z Terminate orphan process: pid (4115) (adb)
+2026-10-30T22:10:09.5411505Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache/restore@v4, actions/checkout@v4, actions/setup-java@v4, actions/setup-python@v5, actions/upload-artifact@v4, android-actions/setup-android@v3. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

@@ -1,0 +1,79 @@
+{
+  "scope": "API34_EMULATOR_ENGINEERING_NOT_NATURAL_QUALITY",
+  "status": "FAIL",
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": true,
+  "baselineCapacityFailureRecords": 0,
+  "cutoverEnabled": true,
+  "activeOwner": "starcore-r29-research.db",
+  "mainIntegrity": "ok",
+  "eventsOutbox": 4209,
+  "eventsAcked": 1535,
+  "sourceWatermarks": {
+    "atomic_tool_context_r943": 0,
+    "atomic_tool_network_r943": 0
+  },
+  "researchIdentityMatched": true,
+  "publicationPhase": "PUBLISHED",
+  "baselineName": "starcore-r29-baseline-1793397832886.db",
+  "sealedBaselineSha256": "896c0eca4078eec2291036f280befdfc2099de2ca008bd8e4b4a4d44d930eadd",
+  "sealedBaselineVerified": true,
+  "researchIntegrity": "ok",
+  "eventsDelivered": 1535,
+  "modelReceipts": 0,
+  "modelWorkPending": 1533,
+  "workWithoutCompletionReceipt": 0,
+  "ackedEventsWithoutMatchingInbox": 0,
+  "deliveredIdentityMismatches": 0,
+  "inboxWithoutRootEvent": 0,
+  "corruptOutboxPayloads": 0,
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 1,
+    "RESEARCH": 1
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 1,
+    "RESEARCH": 1
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [
+    {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "incumbent-forecast",
+      "errorClass": "java.lang.IllegalStateException",
+      "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "recordedAt": 1793397831755
+    },
+    {
+      "owner": "RESEARCH",
+      "errorId": 1,
+      "task": "incumbent-forecast",
+      "errorClass": "java.lang.IllegalStateException",
+      "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "recordedAt": 1793397831755
+    }
+  ],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 2,
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "newCapacityFailureReasonsSinceBaseline": [],
+  "newCapacityFailuresSinceBaseline": 0,
+  "failure": "AssertionError:NEW_TASK_ERRORS_SINCE_BASELINE"
+}

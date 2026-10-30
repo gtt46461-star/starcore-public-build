@@ -1,0 +1,171 @@
+--------- beginning of main
+10-30 22:03:48.373  2480  2480 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 22:03:48.377  2480  2480 I AndroidRuntime: Using default boot image
+10-30 22:03:48.377  2480  2480 I AndroidRuntime: Leaving lock profiling enabled
+10-30 22:03:48.379  2480  2480 I app_process: Core platform API reporting enabled, enforcing=false
+10-30 22:03:48.379  2480  2480 I app_process: Using CollectorTypeCC GC.
+10-30 22:03:48.443  2480  2480 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+10-30 22:03:48.452  2480  2480 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+10-30 22:03:48.452  2480  2480 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+10-30 22:03:48.457  2480  2480 W app_process: Unexpected CPU variant for x86: x86_64.
+10-30 22:03:48.457  2480  2480 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 22:03:48.470  2480  2480 W libc    : Access denied finding property "ro.product.name_for_attestation"
+10-30 22:03:48.470  2480  2480 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+10-30 22:03:48.470  2480  2480 W libc    : Access denied finding property "ro.product.model_for_attestation"
+10-30 22:03:48.471  2480  2480 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+10-30 22:03:48.473  2480  2480 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+10-30 22:03:48.473   505  1043 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: start instr
+10-30 22:03:48.476   505  1043 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10141; state: DISABLED
+10-30 22:03:48.476   505   536 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: DISABLED
+10-30 22:03:48.470  2480  2480 W main    : type=1400 audit(0.0:31): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 22:03:48.480   327   327 D Zygote  : Forked child process 2493
+10-30 22:03:48.481   505   536 I ActivityManager: Start proc 2493:com.starcore.research.r13/u0a141 for added application com.starcore.research.r13
+10-30 22:03:48.470  2480  2480 W main    : type=1400 audit(0.0:32): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 22:03:48.470  2480  2480 W main    : type=1400 audit(0.0:33): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 22:03:48.508  2493  2493 I re.research.r13: Late-enabling -Xcheck:jni
+10-30 22:03:48.519  2493  2493 I re.research.r13: Using CollectorTypeCC GC.
+10-30 22:03:48.520  2493  2493 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+10-30 22:03:48.520  2493  2493 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 22:03:48.523   427   434 I adbd    : jdwp connection from 2493
+10-30 22:03:48.552  2493  2493 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10141; state: DISABLED
+10-30 22:03:48.552  2493  2493 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10141; state: DISABLED
+10-30 22:03:48.557  2493  2493 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+10-30 22:03:48.559  2493  2493 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 22:03:48.560  2493  2493 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:03:48.561  2493  2493 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:03:48.562  2493  2493 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:03:48.563  2493  2493 W ziparchive: Unable to open '/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.dm': No such file or directory
+10-30 22:03:48.563  2493  2493 W ziparchive: Unable to open '/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.dm': No such file or directory
+10-30 22:03:48.600  2493  2493 W ziparchive: Unable to open '/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.dm': No such file or directory
+10-30 22:03:48.600  2493  2493 W ziparchive: Unable to open '/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.dm': No such file or directory
+10-30 22:03:48.661  1489  1489 I ProvidersCache: Updating roots due to change on user 0at content://com.android.providers.media.documents/root
+10-30 22:03:48.727  2493  2493 D nativeloader: Configuring clns-6 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/lib/x86_64:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/lib/x86_64:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!/lib/x86_64:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+10-30 22:03:48.732  2493  2493 V GraphicsEnvironment: Currently set values for:
+10-30 22:03:48.733  2493  2493 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+10-30 22:03:48.733  2493  2493 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+10-30 22:03:48.733  2493  2493 V GraphicsEnvironment: ANGLE GameManagerService for com.starcore.research.r13: false
+10-30 22:03:48.733  2493  2493 V GraphicsEnvironment: com.starcore.research.r13 is not listed in per-application setting
+10-30 22:03:48.733  2493  2493 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+10-30 22:03:48.736  2493  2493 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 22:03:48.737  2493  2493 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/lib/x86_64:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 22:03:48.738  2493  2493 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 22:03:48.739  2493  2493 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/lib/x86_64:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 22:03:48.741  2493  2493 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk*1157052425:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes2.dex*2667455589:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes3.dex*2573259574:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes4.dex*3374714009:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes5.dex*3273463995:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk*712613643:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes2.dex*1569673235:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes3.dex*1423740484:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:03:48.741  2493  2493 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk*1157052425:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes2.dex*2667455589:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes3.dex*2573259574:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes4.dex*3374714009:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes5.dex*3273463995:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk*712613643:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes2.dex*1569673235:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes3.dex*1423740484:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:03:48.742  2493  2493 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk*1157052425:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes2.dex*2667455589:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes3.dex*2573259574:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes4.dex*3374714009:/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.apk!classes5.dex*3273463995:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk*712613643:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes2.dex*1569673235:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes3.dex*1423740484:/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:03:48.743  2493  2493 W ziparchive: Unable to open '/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.dm': No such file or directory
+10-30 22:03:48.743  2493  2493 W ziparchive: Unable to open '/data/app/~~kIkXtayXIV98T2IixAxWOg==/com.starcore.research.r13.test-n33q2eAxH673RhJgLOE_wg==/base.dm': No such file or directory
+10-30 22:03:48.778  2493  2493 W ziparchive: Unable to open '/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.dm': No such file or directory
+10-30 22:03:48.778  2493  2493 W ziparchive: Unable to open '/data/app/~~x2SxOOzZsWYoqy3pU2huIg==/com.starcore.research.r13-EG7CzLJw_O2y7NivSvFVfQ==/base.dm': No such file or directory
+10-30 22:03:48.905  2493  2493 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+10-30 22:03:48.921  2493  2493 I AndroidJUnitRunner: onCreate Bundle[{class=com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest}]
+10-30 22:03:48.922  2493  2493 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+10-30 22:03:48.930  2493  2493 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+10-30 22:03:48.930  2493  2520 D AndroidJUnitRunner: onStart is called.
+10-30 22:03:48.936   505  1710 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10141. pid: 2493
+10-30 22:03:48.955  2493  2520 I TestRunner: run started: 1 tests
+10-30 22:03:48.955  2493  2520 I TestRunner: started: realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest)
+10-30 22:03:49.046   505   589 D ActivityManager: freezing 1728 com.android.externalstorage
+10-30 22:03:49.469  1005  1017 W ndroid.settings: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 22:03:50.995  1427  1455 D StrictMode: StrictMode policy violation: android.os.strictmode.SqliteObjectLeakedViolation: Finalizing a Cursor that has not been deactivated or closed. database = /data/user/0/com.android.providers.contacts/databases/contacts2.db, table = raw_contacts, query = SELECT contacts_view._id AS _id, contacts_view.display_name AS display_name, contacts_view.photo_thumb_uri AS photo_thumb_uri, data1 AS number, data2 AS type, data3 AS label, contacts_view.lookup AS lookup FROM raw_contacts JOIN view_contacts as contacts_view ON (contacts_view._id = raw_contacts.contact_id) JOIN (SELECT data_id,normalized_number FROM phone_lookup WHERE (phone_lookup.min_match = '7654321')) AS lookup ON lookup.data_id=data._id JOIN data ON data.raw_contact_id=raw_contacts._id WHERE (PHONE_NUMBERS_EQUAL(data.data1, '+15551234567', 0, 7)) ORDER BY  length(lookup.normalized_number) DESC
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at android.os.StrictMode.onSqliteObjectLeaked(StrictMode.java:2222)
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at android.database.sqlite.SQLiteCursor.finalize(SQLiteCursor.java:282)
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at java.lang.Daemons$Daemon.run(Daemons.java:145)
+10-30 22:03:50.995  1427  1455 D StrictMode: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 22:03:51.007  1427  1455 D StrictMode: StrictMode policy violation: android.os.strictmode.LeakedClosableViolation: A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks.
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.os.StrictMode$AndroidCloseGuardReporter.report(StrictMode.java:1994)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at dalvik.system.CloseGuard.warnIfOpen(CloseGuard.java:336)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.AbstractCursor.finalize(AbstractCursor.java:531)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.sqlite.SQLiteCursor.finalize(SQLiteCursor.java:291)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at java.lang.Daemons$Daemon.run(Daemons.java:145)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 22:03:51.007  1427  1455 D StrictMode: Caused by: java.lang.Throwable: Explicit termination method 'AbstractCursor.close' not called
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at dalvik.system.CloseGuard.openWithCallSite(CloseGuard.java:288)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at dalvik.system.CloseGuard.open(CloseGuard.java:257)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.AbstractCursor.<init>(AbstractCursor.java:227)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.AbstractWindowedCursor.<init>(AbstractWindowedCursor.java:39)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.sqlite.SQLiteCursor.<init>(SQLiteCursor.java:98)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:52)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.database.sqlite.SQLiteQueryBuilder.query(SQLiteQueryBuilder.java:592)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.doQuery(ContactsProvider2.java:7543)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLocal(ContactsProvider2.java:7249)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryCorpLookupIfNecessary(ContactsProvider2.java:7728)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLookupEnterprise(ContactsProvider2.java:7867)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryPhoneLookupEnterprise(ContactsProvider2.java:7838)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLocal(ContactsProvider2.java:7172)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryDirectoryIfNecessary(ContactsProvider2.java:5883)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryInternal(ContactsProvider2.java:5728)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.query(ContactsProvider2.java:5673)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.content.ContentProvider.query(ContentProvider.java:1692)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.content.ContentProvider$Transport.query(ContentProvider.java:292)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.content.ContentProviderNative.onTransact(ContentProviderNative.java:107)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.os.Binder.execTransactInternal(Binder.java:1344)
+10-30 22:03:51.007  1427  1455 D StrictMode: 	at android.os.Binder.execTransact(Binder.java:1275)
+10-30 22:03:51.014   505  1809 D WifiNl80211Manager: Scan result ready event
+10-30 22:03:51.014   505  1809 D WifiNative: Scan result ready event
+10-30 22:03:51.218   505   772 I SdkSandboxManager: Reconciling sdk data package directories for 0
+10-30 22:03:51.434   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:03:52.027   505   590 D OomAdjuster: Not killing cached processes
+10-30 22:03:54.439   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:03:56.501  1385  1395 W putmethod.latin: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 22:03:57.346   804   804 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 22:03:57.443   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:03:59.409  1005  1005 D BatteryUsageBroadcastReceiver: onReceive:android.intent.action.BATTERY_LEVEL_CHANGED
+10-30 22:03:59.410  1005  1005 D BatteryUsageBroadcastReceiver: fetch data because of event: ACTION_BATTERY_LEVEL_CHANGED
+10-30 22:03:59.411   505   535 D OomAdjuster: Not killing cached processes
+10-30 22:03:59.412   505   520 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 1000; state: ENABLED
+10-30 22:03:59.413  1005  1005 D BatteryUsageBroadcastReceiver: cancel sendBroadcastToFetchUsageData when broadcastDelay is 2339994ms.
+10-30 22:04:00.016   804   882 D EGL_emulation: app_time_stats: avg=5755.02ms min=22.21ms max=22713.79ms count=4
+10-30 22:04:00.451   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:04:01.747   505   589 D ActivityManager: freezing 1489 com.android.documentsui
+10-30 22:04:04.583  2493  2520 E SQLiteLog: (1) no such column: target_issue in "CREATE INDEX IF NOT EXISTS idx_v20_link_candidate_target_rank ON v20_link_candidate_snapshot(target_issue,candidate_rank)"
+10-30 22:04:04.583  2493  2520 E SQLiteLog: (1) no such column: target_issue in "CREATE UNIQUE INDEX IF NOT EXISTS idx_v20_link_candidate_unique ON v20_link_candidate_snapshot(target_issue,candidate_key)"
+10-30 22:04:04.788   505   589 D ActivityManager: freezing 1901 com.android.traceur
+10-30 22:04:04.903   505   589 D ActivityManager: freezing 1235 com.android.cellbroadcastreceiver.module
+10-30 22:04:04.937   505   589 D ActivityManager: freezing 1621 com.android.messaging
+10-30 22:04:05.122   505   589 D ActivityManager: freezing 1942 com.android.camera2
+10-30 22:04:05.169   505   589 D ActivityManager: freezing 1923 com.android.calendar
+10-30 22:04:05.180   505   589 D ActivityManager: freezing 1810 com.android.providers.calendar
+10-30 22:04:05.254   505   589 D ActivityManager: freezing 1969 com.android.contacts
+10-30 22:04:05.344   505   589 D ActivityManager: freezing 2024 com.android.dynsystem:dynsystem
+10-30 22:04:05.345   505   589 D ActivityManager: freezing 1988 com.android.dynsystem
+10-30 22:04:05.345   505   589 D ActivityManager: freezing 1883 com.android.localtransport
+10-30 22:04:05.345   505   589 D ActivityManager: freezing 1626 com.android.keychain
+10-30 22:04:05.354  2493  2520 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-44cac959-9d3b-4feb-80bb-07eb804dc8ec/databases/binance_k3_nova_one_pro_v57.db-wal 3361952 bytes: Bigger than 1048576; truncating
+10-30 22:04:05.456   505   589 D ActivityManager: freezing 2008 com.android.imsserviceentitlement
+10-30 22:04:05.826   505   589 D ActivityManager: freezing 2092 com.android.rkpdapp
+10-30 22:04:06.061   505   589 D ActivityManager: freezing 2129 com.android.statementservice
+10-30 22:04:06.257  2493  2520 E SQLiteLog: (8) statement aborts at 28: [CREATE TABLE synthetic_observer_must_not_write(k INTEGER)] attempt to write a readonly database
+10-30 22:04:07.346   804   804 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 22:04:08.395  2493  2520 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-44cac959-9d3b-4feb-80bb-07eb804dc8ec/databases/binance_k3_nova_one_pro_v57.db-wal 1685112 bytes: Bigger than 1048576; truncating
+10-30 22:04:08.647  2493  2520 E SQLiteLog: (5) statement aborts at 2: [PRAGMA journal_mode=TRUNCATE] database is locked
+10-30 22:04:08.648  2493  2520 W SQLiteConnection: Could not change the database journal mode of '/data/user/0/com.starcore.research.r13/cache/r26-synthetic-44cac959-9d3b-4feb-80bb-07eb804dc8ec/databases/starcore-r29-research.db' from 'wal' to 'TRUNCATE' because the database is locked.  This usually means that there are other open connections to the database which prevents the database from enabling or disabling write-ahead logging mode.  Proceeding without changing the journal mode.
+10-30 22:04:08.663  2493  2520 E SQLiteLog: (8) statement aborts at 14: [UPDATE main.r29_cutover_fixture SET n='forbidden'] attempt to write a readonly database
+10-30 22:04:08.686  2493  2520 E SQLiteLog: (5) statement aborts at 2: [PRAGMA journal_mode=TRUNCATE] database is locked
+10-30 22:04:08.686  2493  2520 W SQLiteConnection: Could not change the database journal mode of '/data/user/0/com.starcore.research.r13/cache/r26-synthetic-44cac959-9d3b-4feb-80bb-07eb804dc8ec/databases/starcore-r29-research.db' from 'wal' to 'TRUNCATE' because the database is locked.  This usually means that there are other open connections to the database which prevents the database from enabling or disabling write-ahead logging mode.  Proceeding without changing the journal mode.
+10-30 22:04:09.420   505   589 D ActivityManager: freezing 1005 com.android.settings
+10-30 22:04:09.463   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:04:10.462  2493  2520 E SQLiteLog: (5) statement aborts at 2: [PRAGMA journal_mode=TRUNCATE] database is locked
+10-30 22:04:10.462  2493  2520 W SQLiteConnection: Could not change the database journal mode of '/data/user/0/com.starcore.research.r13/cache/r26-synthetic-44cac959-9d3b-4feb-80bb-07eb804dc8ec/databases/starcore-r29-research.db' from 'wal' to 'TRUNCATE' because the database is locked.  This usually means that there are other open connections to the database which prevents the database from enabling or disabling write-ahead logging mode.  Proceeding without changing the journal mode.
+10-30 22:04:11.022   505  1667 D WifiNl80211Manager: Scan result ready event
+10-30 22:04:11.023   505  1667 D WifiNative: Scan result ready event
+10-30 22:04:11.287  2493  2520 I TestRunner: finished: realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest)
+10-30 22:04:11.289  2493  2520 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-30 22:04:11.293   505  1667 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: finished inst
+10-30 22:04:11.295  2480  2480 I app_process: System.exit called, status: 0
+10-30 22:04:11.295  2480  2480 I AndroidRuntime: VM exiting with result code 0.
+--------- beginning of kernel
+10-30 22:04:11.766     0     0 I binder  : 505:1667 ioctl 400c620e 74c5f7bfa930 returned -11
+10-30 22:04:11.768     0     0 I binder  : 505:1667 ioctl 400c620e 74c5f7bfa930 returned -11
+10-30 22:04:11.297   505  1667 E ActivityManager: Unable to freeze binder for 2493: -11
+10-30 22:04:11.297   505  1667 I ActivityManager: Killing 2493:com.starcore.research.r13/u0a141 (adj 0): stop com.starcore.research.r13 due to finished inst
+10-30 22:04:11.298   505   524 D DisplayManagerService: Drop pending events for gone uid 10141
+10-30 22:04:11.300   505  1667 D OomAdjuster: Not killing cached processes

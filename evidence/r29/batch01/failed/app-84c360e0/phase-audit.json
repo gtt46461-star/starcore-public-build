@@ -1,0 +1,170 @@
+{
+  "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+  "zipBytes": 290099,
+  "zipSha256": "1edc8cb5e68eed5d3526d61683f32a7b0cdc73f87ac7997c9bfa192849d4924d",
+  "phaseResults": {
+    "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+    "upgrade": {
+      "exitCode": 1,
+      "status": "FAIL"
+    },
+    "clean": {
+      "exitCode": 1,
+      "status": "FAIL"
+    },
+    "status": "FAIL",
+    "physicalLongTests": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "phases": {
+    "upgrade": {
+      "phaseStatus": {
+        "exitCode": 1,
+        "status": "FAIL"
+      },
+      "protocolStatus": "FAIL",
+      "serviceStartupProbePassed": true,
+      "serviceProbeIsNotResearchCutoverAcceptance": true,
+      "rootTables": 580,
+      "strategyStorageUnits": {
+        "committedUnits": 265,
+        "firstUnit": 0,
+        "lastUnit": 264
+      },
+      "route": {
+        "phase": "ACTIVE",
+        "database_name": "starcore-r29-research.db",
+        "schema_hash": "95b94a3d0af0f7a77f3bf16f92ef9f0d9b92c27746acbc34b8f706d70e17930c",
+        "source_root": "6154e8dd40272bebaa3dbbd074d9b83b37ee32773474f204a871f65111cf099c",
+        "epoch": 1793397832886,
+        "activated_at": 1793397854272
+      },
+      "publication": {
+        "phase": "PUBLISHED",
+        "epoch": 1793397832886,
+        "baseline_name": "starcore-r29-baseline-1793397832886.db",
+        "baseline_sha": "896c0eca4078eec2291036f280befdfc2099de2ca008bd8e4b4a4d44d930eadd",
+        "source_root": "6154e8dd40272bebaa3dbbd074d9b83b37ee32773474f204a871f65111cf099c",
+        "last_error": "",
+        "updated_at": 1793397854272
+      },
+      "rootErrors": [
+        {
+          "owner": "REALTIME",
+          "errorId": 1,
+          "task": "incumbent-forecast",
+          "errorClass": "java.lang.IllegalStateException",
+          "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "recordedAt": 1793397831755
+        }
+      ],
+      "rootCapacityFailures": [],
+      "failure": "AssertionError:NEW_TASK_ERRORS_SINCE_BASELINE",
+      "publicationPhase": "PUBLISHED",
+      "activeOwner": "starcore-r29-research.db",
+      "researchIdentityMatched": true,
+      "mainIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "baselineName": "starcore-r29-baseline-1793397832886.db",
+      "sealedBaselineSha256": "896c0eca4078eec2291036f280befdfc2099de2ca008bd8e4b4a4d44d930eadd",
+      "sealedBaselineVerified": true,
+      "eventsOutbox": 4209,
+      "eventsAcked": 1535,
+      "eventsDelivered": 1535,
+      "modelReceipts": 0,
+      "modelWorkPending": 1533,
+      "workWithoutCompletionReceipt": 0,
+      "ackedEventsWithoutMatchingInbox": 0,
+      "deliveredIdentityMismatches": 0,
+      "inboxWithoutRootEvent": 0,
+      "corruptOutboxPayloads": 0,
+      "baselineTaskErrorRecords": 0,
+      "allNewTaskErrorsSinceBaseline": 2,
+      "allNewTaskFailureReasonsSinceBaseline": [
+        {
+          "owner": "REALTIME",
+          "errorId": 1,
+          "task": "incumbent-forecast",
+          "errorClass": "java.lang.IllegalStateException",
+          "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "recordedAt": 1793397831755
+        },
+        {
+          "owner": "RESEARCH",
+          "errorId": 1,
+          "task": "incumbent-forecast",
+          "errorClass": "java.lang.IllegalStateException",
+          "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "recordedAt": 1793397831755
+        }
+      ],
+      "baselineCapacityFailureRecords": 0,
+      "newCapacityFailuresSinceBaseline": 0,
+      "newCapacityFailureReasonsSinceBaseline": [],
+      "allResearchTaskErrorsByOwner": {
+        "REALTIME": 1,
+        "RESEARCH": 1
+      },
+      "allCapacityFailuresByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      },
+      "databaseContinuity": null
+    },
+    "clean": {
+      "phaseStatus": {
+        "exitCode": 1,
+        "status": "FAIL"
+      },
+      "protocolStatus": "FAIL",
+      "serviceStartupProbePassed": true,
+      "serviceProbeIsNotResearchCutoverAcceptance": true,
+      "rootTables": 540,
+      "strategyStorageUnits": {
+        "committedUnits": 265,
+        "firstUnit": 0,
+        "lastUnit": 264
+      },
+      "route": {
+        "phase": "ACTIVE",
+        "database_name": "starcore-r29-research.db",
+        "schema_hash": "f3c4a6447306c9f21db50768206813ed74018a008e3496c8395bfa515340aea1",
+        "source_root": "ffaf48b57eb24ecb462ff9132e84179ed29c44ba7448bb9cb110775fb344afe1",
+        "epoch": 1793398005855,
+        "activated_at": 1793398016334
+      },
+      "publication": {
+        "phase": "PUBLISHED",
+        "epoch": 1793398005855,
+        "baseline_name": "starcore-r29-baseline-1793398005855.db",
+        "baseline_sha": "162e879edd68d9d4d042006ea852805ffb9517366e2eca5b0b73c0de66fe3104",
+        "source_root": "ffaf48b57eb24ecb462ff9132e84179ed29c44ba7448bb9cb110775fb344afe1",
+        "last_error": "",
+        "updated_at": 1793398016334
+      },
+      "rootErrors": [],
+      "rootCapacityFailures": [],
+      "failure": "AssertionError:CROSS_FILE_EVENT_PROTOCOL_MISMATCH",
+      "publicationPhase": "PUBLISHED",
+      "activeOwner": "starcore-r29-research.db",
+      "researchIdentityMatched": true,
+      "mainIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "baselineName": "starcore-r29-baseline-1793398005855.db",
+      "sealedBaselineSha256": "162e879edd68d9d4d042006ea852805ffb9517366e2eca5b0b73c0de66fe3104",
+      "sealedBaselineVerified": true,
+      "eventsOutbox": 4212,
+      "eventsAcked": 2687,
+      "eventsDelivered": 2623,
+      "modelReceipts": 0,
+      "modelWorkPending": 2621,
+      "workWithoutCompletionReceipt": 0,
+      "ackedEventsWithoutMatchingInbox": 64,
+      "deliveredIdentityMismatches": 0,
+      "inboxWithoutRootEvent": 0,
+      "corruptOutboxPayloads": 0,
+      "baselineTaskErrorRecords": 0,
+      "baselineCapacityFailureRecords": 0
+    }
+  }
+}

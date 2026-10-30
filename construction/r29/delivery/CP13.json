@@ -11,7 +11,7 @@
   "qaCommit": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
   "sourceTree": "e977ec2e7c3c4c511ba900f1bf2da468e8aaabc6",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
-  "overall": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+  "overall": "FAILED_NATIVE_SCHEMA_UPGRADE_INCUMBENT_CLEAN_EVENT_PROTOCOL_AND_BOTH_SIGNER_QA",
   "engineeringAccepted": false,
   "expectedVersion": {
     "package": "com.starcore.research.r13",
@@ -22,26 +22,40 @@
     "nativeTen": {
       "run": 41134808870,
       "job": 124334523256,
-      "status": "RUNNING_EXACT_CP13_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134808870"
+      "status": "FAIL_ACTUAL_9_OF10_ORIGINAL_SCHEMA60S_TARGET",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134808870",
+      "artifact": 13017001855,
+      "zipSha256": "41af05b94aa89809e88786fa42a8b96538212860d7626f0932389961599bd88b",
+      "evidence": "evidence/r29/batch01/failed/native-84c360e0/summary.json"
     },
     "r13SecureBuild": {
       "run": 41134811941,
       "job": 124334533814,
-      "status": "RUNNING_EXACT_CP13_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134811941"
+      "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134811941",
+      "artifact": 13016621228,
+      "zipSha256": "b5ead99247959cf1a94a24eacaf3c327fb1b41818708ec5a511fbd99064c9df9",
+      "completedAtUtc": "2026-10-30T22:05:41Z",
+      "evidence": "evidence/r29/batch01/failed/ci-r13-84c360e0/summary.json"
     },
     "fullAppDiagnostic": {
       "run": 41134814694,
       "job": 124334541766,
-      "status": "RUNNING_EXACT_CP13_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134814694"
+      "status": "FAIL_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134814694",
+      "artifact": 13016341854,
+      "zipSha256": "1edc8cb5e68eed5d3526d61683f32a7b0cdc73f87ac7997c9bfa192849d4924d",
+      "evidence": "evidence/r29/batch01/failed/app-84c360e0/summary.json"
     },
     "r27SecureBuild": {
       "run": 41134817452,
       "job": 124334551774,
-      "status": "RUNNING_EXACT_CP13_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134817452"
+      "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134817452",
+      "artifact": 13016370994,
+      "zipSha256": "834997730ca8bd06b9201869cf623e35609496b72e980ddf29a64231538f632b",
+      "completedAtUtc": "2026-10-30T22:04:07Z",
+      "evidence": "evidence/r29/batch01/failed/ci-r27-84c360e0/summary.json"
     }
   },
   "canonicalSavedWrapper": {
@@ -66,7 +80,7 @@
     "lintFreshReportClaim": false,
     "lintExplanation": "Analyze executed; UP_TO_DATE report reused. Fresh CI lint audited separately.",
     "canonicalLogSha256": "5470cb08d23a1206c7d273371fbe4d964446b2b7be5d1dc9d10594aeb2d5c174",
-    "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+    "android": "LOCAL_NOT_INHERITED_ACTUAL_NATIVE9OF10_AND_WHOLE_APP_BOTH_PHASES_FAILED",
     "B01": "NOT_ACCEPTED"
   },
   "fullCiExpectedHost": 49,
@@ -146,5 +160,145 @@
   "physical": "NOT_RUN",
   "naturalQuality": "INSUFFICIENT",
   "real": "BLOCKED",
-  "all44Metrics": "NOT_CLAIMED"
+  "all44Metrics": "NOT_CLAIMED",
+  "overallMeaning": "Exact84 native9/10; upgrade incumbent UNSLICED, clean64 ACK/inbox mismatch; both signer jobs stopped at3 obsolete shell extraction QA fixtures among44 tests. No49HOST/JUnit/lint/public release pass inherited; local canonical164 PASS remains separate. B01 not accepted.",
+  "nativeActual": {
+    "schema": "R29_SOURCE_BOUND_NATIVE_EVIDENCE_1",
+    "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+    "run": 41134808870,
+    "job": 124334523256,
+    "artifact": 13017001855,
+    "zipBytes": 22395686,
+    "zipSha256": "41af05b94aa89809e88786fa42a8b96538212860d7626f0932389961599bd88b",
+    "passed": 9,
+    "failed": 1,
+    "status": "FAIL_ACTUAL_9_OF_10",
+    "failure": {
+      "case": "R29LegacySchemaOwnerDeviceTest",
+      "originalLimitMs": 60000,
+      "actualElapsedMs": 60141,
+      "steps": 468,
+      "pendingSteps": 8,
+      "ready": false,
+      "state": "INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error="
+    },
+    "partialPass": {
+      "case": "R26RuntimeDeviceTest",
+      "status": "PASS_WITH_STATED_ENGINEERING_SCOPE",
+      "firstServiceObservedMs": 59993,
+      "originalFirstServiceLimitMs": 60000,
+      "marginMs": 7,
+      "familiesWithCommittedProgress": 24,
+      "expertsWithReceipts": 16,
+      "syntheticRootWriteProbes": 1000,
+      "syntheticRootWriteP99Ms": 16,
+      "syntheticRootWriteMaxMs": 24,
+      "taskErrors": 0,
+      "capacityFailureReceipts": 0,
+      "retentionBoundaryRenewed": true,
+      "restartResumed": true,
+      "staleOwnerRejected": true,
+      "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS"
+    },
+    "scope": "API34 x86_64 isolated synthetic native engineering cases; not full-App or physical/natural acceptance.",
+    "priorCP12PassInherited": false,
+    "B01": "NOT_ACCEPTED",
+    "physical": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "real": "BLOCKED"
+  },
+  "fullAppActual": {
+    "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+    "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+    "run": 41134814694,
+    "job": 124334541766,
+    "artifact": 13016341854,
+    "zipBytes": 290099,
+    "zipSha256": "1edc8cb5e68eed5d3526d61683f32a7b0cdc73f87ac7997c9bfa192849d4924d",
+    "status": "FAIL_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN",
+    "phaseResults": {
+      "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+      "upgrade": {
+        "exitCode": 1,
+        "status": "FAIL"
+      },
+      "clean": {
+        "exitCode": 1,
+        "status": "FAIL"
+      },
+      "status": "FAIL",
+      "physicalLongTests": "NOT_RUN",
+      "naturalQuality": "NOT_EVALUATED"
+    },
+    "upgrade": {
+      "status": "FAIL_NEW_INCUMBENT_UNSLICED",
+      "publication": "PUBLISHED",
+      "strategyUnits": 265,
+      "sealedBaselineVerified": true,
+      "newTaskErrorRecordsAcrossOwners": 2,
+      "uniqueIncidentCount": 1,
+      "sameRootErrorCopiedToRp": true,
+      "error": {
+        "owner": "REALTIME",
+        "errorId": 1,
+        "task": "incumbent-forecast",
+        "errorClass": "java.lang.IllegalStateException",
+        "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+        "recordedAt": 1793397831755
+      },
+      "newCapacityFailureRecords": 0,
+      "databaseContinuityComparison": "NOT_REACHED_PROTOCOL_FAILED",
+      "eventsOutbox": 4209,
+      "eventsAcked": 1535,
+      "eventsDelivered": 1535
+    },
+    "clean": {
+      "status": "FAIL_CROSS_FILE_EVENT_PROTOCOL_MISMATCH",
+      "publication": "PUBLISHED",
+      "strategyUnits": 265,
+      "sealedBaselineVerified": true,
+      "eventsOutbox": 4212,
+      "eventsAcked": 2687,
+      "eventsDelivered": 2623,
+      "ackedEventsWithoutMatchingInbox": 64,
+      "deliveredIdentityMismatches": 0,
+      "inboxWithoutRootEvent": 0,
+      "corruptOutboxPayloads": 0,
+      "rootObservationTaskErrors": 0,
+      "rootObservationCapacityFailures": 0,
+      "rpFullErrorCensus": "NOT_REACHED_CROSS_FILE_PROTOCOL_ASSERTION_FIRST",
+      "causeOf64RowDiscrepancy": "NOT_YET_ESTABLISHED_DO_NOT_ASSUME_ACK_DATA_LOSS_OR_SNAPSHOT_ONLY"
+    },
+    "startupServiceProbeBothPassed": true,
+    "startupServiceProbeIsNotResearchAcceptance": true,
+    "scope": "API34 x86_64 R13 debug additional whole-App diagnostic. Both phases genuinely ran independently and retained original failing guards.",
+    "formalCp06UpgradeMatrix": {
+      "r13-debug": "NOT_STARTED",
+      "r13-release": "NOT_STARTED",
+      "r27-debug": "NOT_STARTED",
+      "r27-release": "NOT_STARTED"
+    },
+    "B01": "NOT_ACCEPTED",
+    "physical": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "real": "BLOCKED"
+  },
+  "failedSignerCiActual": {
+    "r13": {
+      "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+      "job": 124334533814,
+      "artifact": 13016621228,
+      "zipSha256": "b5ead99247959cf1a94a24eacaf3c327fb1b41818708ec5a511fbd99064c9df9",
+      "completedAtUtc": "2026-10-30T22:05:41Z",
+      "evidence": "evidence/r29/batch01/failed/ci-r13-84c360e0/summary.json"
+    },
+    "r27": {
+      "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+      "job": 124334551774,
+      "artifact": 13016370994,
+      "zipSha256": "834997730ca8bd06b9201869cf623e35609496b72e980ddf29a64231538f632b",
+      "completedAtUtc": "2026-10-30T22:04:07Z",
+      "evidence": "evidence/r29/batch01/failed/ci-r27-84c360e0/summary.json"
+    }
+  }
 }

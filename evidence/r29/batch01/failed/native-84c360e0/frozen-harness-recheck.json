@@ -1,0 +1,65 @@
+{
+  "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+  "run": 41134808870,
+  "job": 124334523256,
+  "artifact": 13017001855,
+  "zipBytes": 22395686,
+  "zipSha256": "41af05b94aa89809e88786fa42a8b96538212860d7626f0932389961599bd88b",
+  "frozenHarnessSha256": "669572671aae33b01017703b22b6c1ef33bde8952752b04ef9c540ea9715a761",
+  "passed": 9,
+  "failed": 1,
+  "cases": [
+    {
+      "name": "R29LargeModelCheckpointDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-model-cursorwindow-device.json"
+    },
+    {
+      "name": "R29LargeRowMigrationDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-large-row-migration-device.json"
+    },
+    {
+      "name": "R29CutoverSnapshotDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-cutover-snapshot-device.json"
+    },
+    {
+      "name": "R29DatabaseCutoverDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-cutover-device.json"
+    },
+    {
+      "name": "R29CriticalInputTriggerDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-critical-trigger-device.json"
+    },
+    {
+      "name": "R29LegacySchemaOwnerDeviceTest",
+      "actualFrozenHarnessPassed": false,
+      "receipt": "r29-legacy-schema-owner-device.json",
+      "failure": "INSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest\nINSTRUMENTATION_STATUS: current=1\nINSTRUMENTATION_STATUS: id=AndroidJUnitRunner\nINSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS: stream=\ncom.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest:\nINSTRUMENTATION_STATUS: test=completeResearchSchemaAndOwnerGuardsOnAndroid\nINSTRUMENTATION_STATUS_CODE: 1\nINSTRUMENTATION_STATUS: class=com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest\nINSTRUMENTATION_STATUS: current=1\nINSTRUMENTATION_STATUS: id=AndroidJUnitRunner\nINSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS: stack=java.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)\n\nINSTRUMENTATION_STATUS: stream=\nError in completeResearchSchemaAndOwnerGuardsOnAndroid(com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest):\njava.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)\n\nINSTRUMENTATION_STATUS: test=completeResearchSchemaAndOwnerGuardsOnAndroid\nINSTRUMENTATION_STATUS_CODE: -2\nINSTRUMENTATION_RESULT: stream=\n\nTime: 81.736\nThere was 1 failure:\n1) completeResearchSchemaAndOwnerGuardsOnAndroid(com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest)\njava.lang.AssertionError: complete research installer failed within original 60s service target: INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=\n\tat org.junit.Assert.fail(Assert.java:89)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat com.ethk3.novaonepro.strategyv2.R29LegacySchemaOwnerDeviceTest.completeResearchSchemaAndOwnerGuardsOnAndroid(R29LegacySchemaOwnerDeviceTest.java:96)\n\nFAILURES!!!\nTests run: 1,  Failures: 1\n\n\nINSTRUMENTATION_CODE: -1\n"
+    },
+    {
+      "name": "R29LegacyDomainExtensionDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-domain-extension-device.json"
+    },
+    {
+      "name": "R29ShadowRetirementAuthorityDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-shadow-retirement-device.json"
+    },
+    {
+      "name": "R29EvolutionDatasetPinDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r29-evolution-dataset-pin-device.json"
+    },
+    {
+      "name": "R26RuntimeDeviceTest",
+      "actualFrozenHarnessPassed": true,
+      "receipt": "r26-runtime-synthetic.json"
+    }
+  ],
+  "scope": "ACTUAL_FROZEN_TEN_CASE_ENGINEERING_HARNESS_NOT_PHYSICAL_NOT_NATURAL"
+}

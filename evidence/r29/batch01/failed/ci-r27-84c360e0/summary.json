@@ -1,0 +1,60 @@
+{
+  "schema": "R29_SOURCE_BOUND_FAILED_SIGNER_CI_1",
+  "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+  "sourceTree": "e977ec2e7c3c4c511ba900f1bf2da468e8aaabc6",
+  "kind": "r27",
+  "run": 41134817452,
+  "job": 124334551774,
+  "completedAtUtc": "2026-10-30T22:04:07Z",
+  "artifact": 13016370994,
+  "zipBytes": 7283,
+  "zipSha256": "834997730ca8bd06b9201869cf623e35609496b72e980ddf29a64231538f632b",
+  "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+  "offlineQa": {
+    "tests": 44,
+    "passed": 41,
+    "failures": 3,
+    "errors": 0,
+    "failedCases": [
+      "test_actual_shell_keeps_observation_then_fails_missing_rp (test_inspect_runtime.RuntimeInspection.test_actual_shell_keeps_observation_then_fails_missing_rp) ... FAIL",
+      "test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure (test_inspect_runtime.RuntimeInspection.test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure) ... FAIL",
+      "test_upgrade_shell_records_new_capacity_before_missing_rp_pull (test_inspect_runtime.RuntimeInspection.test_upgrade_shell_records_new_capacity_before_missing_rp_pull) ... FAIL"
+    ],
+    "assertion": "expected missing-RP exit19, actual shell syntax-error exit2",
+    "actualShellFailure": "bash: -c: line59 syntax error: unexpected end of file",
+    "rootCause": "Existing QA extraction range includes the newly added run_upgrade subshell opening without its close; full actual emulator_smoke script is syntactically valid and independently ran both phases.",
+    "originalGuardMustRemain": "retain exit19 and observation/error/capacity assertions while correcting extraction boundary"
+  },
+  "cli": {
+    "su1.log": {
+      "printedPasses": 21,
+      "sha256": "62fb1e532107f1ba1c17e9c72201fe12a9565e1afd5a0b40e617a8f7a0aa7be2"
+    },
+    "plan1025.log": {
+      "printedPasses": 20,
+      "sha256": "f6f7041c7f43558fdea9ac4ef440844e75bbb8aa79f4f41f90e6b9e7d628afc9"
+    },
+    "r26.log": {
+      "printedPasses": 30,
+      "sha256": "f0a7be03f1bbbd7642383a293ed217712f8b7fe148ae30cb247f47cee9d83c1f",
+      "totalChecksIncludingTwoFrozenSilentChecks": 32
+    }
+  },
+  "b00HostChecks": "PASS",
+  "hostExpectedRunners": 49,
+  "hostDirectRunnersExecuted": 0,
+  "host": "NOT_STARTED_BLOCKED_BY_OFFLINE_QA",
+  "junit": "NOT_STARTED_IN_THIS_CI_JOB",
+  "semanticMutations": "NOT_STARTED_IN_THIS_CI_JOB",
+  "smokeOrchestrationQa10": "NOT_STARTED_BLOCKED_BY_PRECEDING_QA44",
+  "lint": "NOT_STARTED_IN_THIS_CI_JOB",
+  "publicSignedRelease": "NOT_PRODUCED_BY_THIS_FAILED_JOB",
+  "diagnosticDebugApk": "SEPARATE_WHOLE_APP_DIAGNOSTIC_EXISTENCE_NOT_PUBLIC_SIGNER_DELIVERY",
+  "B01": "NOT_ACCEPTED",
+  "formalFourCaseMatrix": "NOT_STARTED",
+  "priorCP12PassInherited": false,
+  "local164PassNotInheritedToCi": true,
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED"
+}
