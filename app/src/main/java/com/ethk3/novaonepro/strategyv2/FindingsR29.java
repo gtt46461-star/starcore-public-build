@@ -17,7 +17,8 @@ public final class FindingsR29 {
 
     static Map<String, Object> finding(String id, String severity, String evidence, String strength, String refutedBy, String code, String card, String verify) {
         Map<String, Object> f = new LinkedHashMap<>();
-        f.put("id", id); f.put("severity", severity); f.put("evidence", evidence); f.put("strength", strength); f.put("refutedBy", refutedBy);
+        String level = strength.startsWith("DIRECT_") ? "OBSERVED" : "NONE".equals(strength) ? "UNKNOWN" : strength;
+        f.put("id", id); f.put("severity", severity); f.put("evidence", evidence); f.put("strength", level); f.put("refutedBy", refutedBy);
         f.put("code", code); f.put("card", card); f.put("verification", verify); return f;
     }
     static Long n(Object o) { return o instanceof Number ? ((Number) o).longValue() : null; }

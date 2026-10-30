@@ -10,7 +10,7 @@ import java.util.List;
  * exposed partial model state and let a retry apply non-idempotent increments twice. R29-005's independent database
  * cutover is still pending: this correctness fix deliberately retains the existing writer and its pressure guard. */
 public final class ResearchWriteQueueR27 {
-    public static final int MAX_ROWS = 500; public static final long MAX_CHUNK_MS = 20, MAX_WAIT_MS = 200, DEADLINE_GUARD_MS = 3000;
+    public static final int MAX_ROWS = 500; public static final long MAX_CHUNK_MS = 20, MAX_WAIT_MS = 200, DEADLINE_GUARD_MS = 5000;
     private final DbStore store; private volatile long nextDeadline;
     interface AtomicWriter { void write(String operation, Batch batch); }
     private final AtomicWriter writer;

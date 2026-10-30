@@ -23,8 +23,16 @@ public final class ReportR29 {
         Map<String,Object> qualification=QualificationInboxR29.diagnostics(db);
         out.put("settlementQualification",qualification);
         out.put("findings",FindingsR29.fromQualification(qualification));
+        Map<String,Object> model = modelCheckpoint(db);
+        out.put("modelContinuation", model);
+        out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
+        if ("RECORDED".equals(model.get("status"))) {
+            List<String> refs = new ArrayList<>(); refs.add("r29_model_checkpoint:ATOMNET_FTRL"); refs.add("R29ModelArtifactTest");
+            probes.put("M20", new MetricEvaluatorR29.Probe("PARTIAL", "AtomNet/Adam/FTRL/RNG/replay完整续训状态已保存；主机逐字节续训测试与Android杀进程恢复分别验收，后者NOT_RUN",
+                    "EXISTING_ROTATING_POSITION_ATOMNET_FTRL", null, null, null, 1, refs));
+        }
         out.put("metricResults",MetricEvaluatorR29.evaluate(probes,snapshot));
         return out;
     }
@@ -65,6 +73,27 @@ public final class ReportR29 {
         return probes;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
+
+    static Map<String,Object> modelCheckpoint(SQLiteDatabase db) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("status", "NEVER_RUN"); m.put("I08SurfaceIntegration", "NOT_IMPLEMENTED");
+        m.put("scope", "Existing rotating-position hit experiment; not a 10x10 number-surface model");
+        try (Cursor c = db.rawQuery("SELECT feature_abi,dataset_hash,trained_through,state_hash,length(artifact),updated_at FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {
+            if (c.moveToFirst()) {
+                m.put("status", "RECORDED"); m.put("featureAbi", c.getString(0)); m.put("datasetHash", c.getString(1)); m.put("trainedThrough", c.getString(2));
+                m.put("stateHash", c.getString(3)); m.put("bytes", c.getLong(4)); m.put("committedAt", c.getLong(5));
+            }
+            m.put("forecastStateReferences", QualificationInboxR29.count(db, "SELECT count(*) FROM r29_atomnet_forecast"));
+        } catch (RuntimeException unavailable) { m.put("status", "SCHEMA_PENDING"); m.put("reason", unavailable.getClass().getSimpleName()); }
+        return m;
+    }
+
+    @SuppressWarnings("unchecked")
+    static Map<String,Object> cachedPanel(SQLiteDatabase db, String panel, String key) {
+        try (Cursor c = db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id=? AND key=?", new String[] {panel,key})) {
+            return c.moveToFirst() ? (Map<String,Object>) JsonR27.parse(c.getString(0)) : null;
+        } catch (RuntimeException unavailable) { return null; }
+    }
 
     @SuppressWarnings("unchecked")
     static Map<String,Object> cached(SQLiteDatabase db, String key) {

@@ -287,6 +287,7 @@ public final class QualInboxR29HostTest {
                     && same(StoreR27.readEprocess(db, w.id), w.reference()) == null, "old evidence kept; certificate revoked; continuous replay recovered");
         }
         atomicBatches();
+        modelCheckpointTransaction();
         System.out.println("R29_QUAL|SUMMARY|" + (FAIL.isEmpty() ? "OK" : "FAILED " + FAIL));
         System.exit(FAIL.isEmpty() ? 0 : 1);
     }
@@ -324,5 +325,27 @@ public final class QualInboxR29HostTest {
         int before = transactions[0];
         boolean cancelled = !q.submit("CANCELLED", late, () -> true);
         check("Q14_CANCEL_BEFORE_WRITE", cancelled && transactions[0] == before, "cancelled batch never entered writer");
+    }
+
+    static void modelCheckpointTransaction() throws Exception {
+        SQLiteDatabase db = open(); QualificationInboxR29.Commit sink = sink(db, 0, new Random(1));
+        AtomNetTrainerR27 trainer = new AtomNetTrainerR27(8, 29); trainer.onlineLr = .001; trainer.checkpoint = trainer.net.encode();
+        FtrlR27 ftrl = new FtrlR27(7, .05, 1, .0001, .001);
+        AtomNetTrainerR27.Sample sample = new AtomNetTrainerR27.Sample(new double[8], 1, 1, "ISSUE_1");
+        trainer.online(sample); ftrl.update(new double[7], 1);
+        ModelArtifactR29 first = new ModelArtifactR29(trainer, ftrl, "DATASET", "ISSUE_1"); byte[] firstBytes = first.encode();
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); AtomWorldR27.checkpoint(b, first, 1); sink.commit("MODEL1", b);
+        ModelArtifactR29 staged = ModelArtifactR29.decode(firstBytes, StatsR27.sha256(firstBytes)); staged.trainer.online(sample);
+        b = new ResearchWriteQueueR27.Batch(); AtomWorldR27.checkpoint(b, new ModelArtifactR29(staged.trainer, staged.ftrl, "DATASET", "ISSUE_2"), 2);
+        b.after = tx -> -1;
+        boolean rejected = false; try { sink.commit("MODEL_INTERRUPTED", b); } catch (IllegalStateException expected) { rejected = true; }
+        boolean same = false;
+        try (Cursor c = db.rawQuery("SELECT artifact,state_hash,trained_through FROM r29_model_checkpoint", null)) {
+            if (c.moveToFirst()) {
+                ModelArtifactR29 restored = ModelArtifactR29.decode(c.getBlob(0), c.getString(1));
+                same = java.util.Arrays.equals(firstBytes, restored.encode()) && "ISSUE_1".equals(c.getString(2));
+            }
+        }
+        check("Q15_MODEL_CURSOR_ATOMIC_RESTORE", rejected && same, "optimizer/RNG/replay/model and issue cursor roll back together");
     }
 }

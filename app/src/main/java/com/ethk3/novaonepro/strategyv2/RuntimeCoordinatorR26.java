@@ -35,11 +35,26 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     /** R27-005: research computation no longer yields to the realtime-pressure gate for whole minutes. Only user stop,
      * interruption and real resources (memory, thermal) pre-empt a slice; writes yield in millisecond windows. */
     private boolean preempt(){return cancelled||Thread.currentThread().isInterrupted()||resourceBlocked!=null;}
+    private final ThermalPolicyR29 thermalR29 = new ThermalPolicyR29();
+    private long thermalSampleAtR29; private double thermalHeadroomR29 = Double.NaN;
     private void resources(){
         long mono=SystemClock.elapsedRealtime();if(mono-resourceChecked<1000)return;resourceChecked=mono;String reason=null;
         android.app.ActivityManager manager=(android.app.ActivityManager)store.contextForR26().getSystemService(android.content.Context.ACTIVITY_SERVICE);
         if(manager!=null){android.app.ActivityManager.MemoryInfo memory=new android.app.ActivityManager.MemoryInfo();manager.getMemoryInfo(memory);if(memory.lowMemory)reason="MEMORY_PRESSURE";}
-        if(android.os.Build.VERSION.SDK_INT>=29){android.os.PowerManager power=(android.os.PowerManager)store.contextForR26().getSystemService(android.content.Context.POWER_SERVICE);if(power!=null&&power.getCurrentThermalStatus()>=android.os.PowerManager.THERMAL_STATUS_SEVERE)reason="THERMAL_SEVERE";}
+        int thermalStatus=-1;
+        if(android.os.Build.VERSION.SDK_INT>=29){
+            android.os.PowerManager power=(android.os.PowerManager)store.contextForR26().getSystemService(android.content.Context.POWER_SERVICE);
+            if(power!=null){
+                thermalStatus=power.getCurrentThermalStatus();
+                if(android.os.Build.VERSION.SDK_INT>=30&&mono-thermalSampleAtR29>=10_000){
+                    thermalSampleAtR29=mono;
+                    try{thermalHeadroomR29=power.getThermalHeadroom(0);}catch(RuntimeException unsupported){thermalHeadroomR29=Double.NaN;}
+                }
+            }
+        }
+        thermalR29.update(thermalStatus,thermalHeadroomR29,mono);
+        RuntimeR27 runtime=r27;if(runtime!=null)runtime.pool().setThermalLimit(thermalR29.workers,thermalR29.reason);
+        if(thermalR29.paused())reason=thermalR29.reason;
         if(Runtime.getRuntime().maxMemory()<(64L<<20))reason="MEMORY_PRESSURE:JVM_HEAP_BELOW_64M_RESEARCH_MINIMUM";
         resourceBlocked=reason;
     }

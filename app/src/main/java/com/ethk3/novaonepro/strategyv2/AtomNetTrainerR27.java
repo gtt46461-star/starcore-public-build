@@ -19,7 +19,8 @@ public final class AtomNetTrainerR27 {
 
     public AtomNetR27 net; public double onlineLr; public long onlineSteps; public final List<Epoch> epochs = new ArrayList<>();
     public byte[] checkpoint; public double lastCheckLogloss = Double.NaN, lastCheckSe = Double.NaN; public long sinceCheck; public final List<String> events = new ArrayList<>();
-    private final List<Sample> buffer = new ArrayList<>(); private final StatsR27.SplitMix rng;
+    // Package access for the versioned full-state codec, not just a weights checkpoint.
+    final List<Sample> buffer = new ArrayList<>(); final StatsR27.SplitMix rng;
 
     public AtomNetTrainerR27(int in, long seed) { net = new AtomNetR27(in, seed); rng = new StatsR27.SplitMix(seed ^ 0x5EEDL); }
 

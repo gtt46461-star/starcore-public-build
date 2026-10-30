@@ -29,6 +29,7 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile AtomReplayR27.Frame frame; volatile String frameDataset = ""; int frameCursor; double[][] frameValues; boolean[][] framePresent; int[] frameHit, framePos, frameActual; String[] frameIssue;
     final Map<Integer, String> atomStates = new HashMap<>();
     volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
+    FtrlR27 atomFtrl; String atomTrainedThrough = "";
 
     private static volatile RuntimeR27 active;
     public static RuntimeR27 active() { return active; }
@@ -81,7 +82,7 @@ public final class RuntimeR27 implements AutoCloseable {
             if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
             if (evo == null) evo = restoreOrCreate(w);
             if (evo.step == 1 && pendingCache != null) { evoData = pendingData; evoCache = pendingCache; pendingData = null; pendingCache = null; evo.rebind(evoCache); }
-            evo.executor = pool.compute(); evo.serialWhile = ResearchWriteQueueR27::p0Writing; evo.leafWeight = leafWeights(); evo.derivedLeaves = derived;
+            evo.executor = pool.compute(); evo.serialWhile = () -> pool.narrow(System.currentTimeMillis()); evo.leafWeight = leafWeights(); evo.derivedLeaves = derived;
             String birthIssue = evoData.issues[evoData.size() - 1];
             StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
             EvolutionLoopR27 loop = evo; loop.setSink(sink);
@@ -298,6 +299,7 @@ public final class RuntimeR27 implements AutoCloseable {
             List<WaitKindR27.Health> h = health(w.ro, last); int stuck = 0, never = 0;
             for (WaitKindR27.Health x : h) { if (x.stuck) stuck++; if (x.neverRun) never++; }
             Map<String, Object> m = new LinkedHashMap<>(); m.put("stuck", (long) stuck); m.put("neverRun", (long) never); m.put("checkedAt", last);
+            m.put("workerLimit", (long) pool.workerLimit()); m.put("thermalReason", pool.thermalReason());
             b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('health','summary',?,?)", JsonR27.write(m), last);
             submit(w, "HEALTH", b);
             return ResearchPoolR27.Outcome.progress(1, last / 1000);

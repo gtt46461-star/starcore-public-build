@@ -49,12 +49,13 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private final Map<String, Long> notBefore = new HashMap<>();
     private final List<Thread> threads = new ArrayList<>(); private final List<SQLiteDatabase> connections = new ArrayList<>();
     private volatile boolean closed; private volatile String resource;
+    private volatile int parallelismLimit = 2; private volatile String thermalReason = "NORMAL";
     private final AtomicInteger active = new AtomicInteger();
     public final int size;
     private final ExecutorService compute;
 
     public static final int BACKGROUND_PRIORITY = android.os.Process.THREAD_PRIORITY_BACKGROUND + 1;
-    public static int defaultThreads() { int cores = Runtime.getRuntime().availableProcessors(); return Math.max(1, Math.min(4, cores - 2)); }
+    public static int defaultThreads() { int cores = Runtime.getRuntime().availableProcessors(); return Math.max(1, Math.min(2, cores - 1)); }
 
     public ResearchPoolR27(DbStore store, String session, int threads) {
         this.store = store; this.session = session; this.size = Math.max(1, threads); this.writes = new ResearchWriteQueueR27(store);
@@ -67,6 +68,9 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public ExecutorService compute() { return compute; }
     public synchronized void register(Task t) { tasks.add(t); running.put(t.id(), false); }
     public void setResource(String r) { resource = r; }
+    public void setThermalLimit(int workers, String reason) { parallelismLimit = Math.max(1, Math.min(size, workers)); thermalReason = reason; }
+    public int workerLimit() { return parallelismLimit; }
+    public String thermalReason() { return thermalReason; }
 
     public void start() {
         String path = store.contextForR26().getDatabasePath(AppConfig.DB_NAME).getPath();
@@ -89,13 +93,22 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 // Freeze guard: the last 3 s before a deadline run with one active research worker (not zero).
                 // R27.2: the same one-worker floor while P0 analysis/settlement runs (device: request→commit P95 20.5 s with
                 // MODEL_BUNDLE_OPEN 10.6 s wall / 0.13 s CPU while every worker ran). Research never drops to zero.
-                if (narrow(System.currentTimeMillis()) && active.get() >= 1 && !w.name.endsWith("-0")) { sleep(100); continue; }
-                Task t = next();
-                if (t == null) { sleep(250); continue; }
-                active.incrementAndGet();
+                int limit = narrow(System.currentTimeMillis()) ? 1 : Math.min(size, parallelismLimit);
+                int current = active.get();
+                if (current >= limit || !active.compareAndSet(current, current + 1)) { sleep(100); continue; }
+                Task t;
+                try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
+                if (t == null) { active.decrementAndGet(); sleep(250); continue; }
                 Outcome o = null; Throwable failure = null;
-                try { o = t.step(w); } catch (Throwable e) { failure = e; }
+                boolean quarantined = false;
+                try {
+                    try (Cursor c = w.ro.rawQuery("SELECT status FROM r26_task WHERE task_id=?", new String[] {t.id()})) {
+                        quarantined = c.moveToFirst() && WaitKindR27.QUARANTINED.equals(c.getString(0));
+                    }
+                    if (!quarantined) o = t.step(w);
+                } catch (Throwable e) { failure = e; }
                 finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
+                if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
                 slices++;
                 record(t.id(), o, failure);
                 if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : 1000)); }
@@ -106,7 +119,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
 
     /** Freeze window or active P0 work: the pool runs with one worker (R27.2). */
-    boolean narrow(long now) { return writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing(); }
+    boolean narrow(long now) { return parallelismLimit == 1 || writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing(); }
 
     private synchronized Task next() {
         long now = System.currentTimeMillis();

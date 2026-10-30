@@ -108,12 +108,24 @@ public final class AtomWorldR27 {
     }
 
     // ------------------------------------------------------------------ AtomNet + FTRL
-    static volatile FtrlR27 ftrl; static volatile String trainedThrough = "";
     static ResearchPoolR27.Outcome atomNetStep(RuntimeR27 rt, ResearchPoolR27.Worker w) throws Exception {
         ReplayDatasetR27 d = rt.evoData; EvolutionLoopR27 evo = rt.evo;
         if (d == null || evo == null || rt.frameValues == null || !d.datasetHash.equals(rt.frameDataset) || rt.frameCursor < rt.frameValues.length)
             return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-atoms:frame " + rt.frameCursor + "/" + (rt.frameValues == null ? 0 : rt.frameValues.length) + ")", rt.frameCursor, rt.frameValues == null ? -1 : rt.frameValues.length);
-        if (rt.atomNet == null || !rt.frameDataset.equals(rt.atomNetDataset)) { pretrain(rt, w, d, evo.context().split); return ResearchPoolR27.Outcome.progress(1, 1); }
+        if (rt.atomNet == null) {
+            try (Cursor c = w.ro.rawQuery("SELECT artifact,state_hash,dataset_hash,trained_through,feature_abi FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {
+                if (c.moveToFirst()) {
+                    if (!ModelArtifactR29.ABI.equals(c.getString(4))) throw new IllegalStateException("R29_MODEL_FEATURE_ABI_MISMATCH");
+                    ModelArtifactR29 restored = ModelArtifactR29.decode(c.getBlob(0), c.getString(1));
+                    if (restored.trainer.net.in != 7 + AtomReplayR27.eligible().length || restored.ftrl.d != 7) throw new IllegalStateException("R29_MODEL_INPUT_SHAPE_MISMATCH");
+                    if (!restored.datasetHash.equals(c.getString(2)) || !restored.trainedThrough.equals(c.getString(3))) throw new IllegalStateException("R29_MODEL_CURSOR_MISMATCH");
+                    rt.atomNet = restored.trainer; rt.atomFtrl = restored.ftrl; rt.atomTrainedThrough = restored.trainedThrough; rt.atomNetDataset = restored.datasetHash;
+                    return ResearchPoolR27.Outcome.idle("CHECKPOINT_RESTORED;NO_TRAINING_YET", restored.trainer.onlineSteps, -1);
+                }
+            }
+            pretrain(rt, w, d, evo.context().split); return ResearchPoolR27.Outcome.progress(1, 0);
+        }
+        // A new replay-window hash is not a new learning rule. Continue the full persisted optimizer/RNG state.
         return online(rt, w);
     }
 
@@ -146,21 +158,28 @@ public final class AtomWorldR27 {
                 tr.net.encode(), StatsR27.sha256(tr.net.encode()), d.issues[sp.holdoutTo - 1], 0, tr.onlineLr, f(tr.lastCheckLogloss), now);
         Map<String, Object> m = new LinkedHashMap<>(); m.put("pretrainMs", now - t0); m.put("epochs", (long) tr.epochs.size()); m.put("params", (long) tr.net.parameterCount()); m.put("events", new ArrayList<Object>(tr.events));
         b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atomnet','pretrain',?,?)", JsonR27.write(m), now);
+        checkpoint(b, new ModelArtifactR29(tr, f, d.datasetHash, d.issues[sp.holdoutTo - 1]), now);
         RuntimeR27.submit(w, "ATOMNET_PRETRAIN", b);
-        rt.atomNet = tr; rt.atomNetDataset = rt.frameDataset; ftrl = f; trainedThrough = d.issues[sp.holdoutTo - 1];
+        rt.atomNet = tr; rt.atomNetDataset = d.datasetHash; rt.atomFtrl = f; rt.atomTrainedThrough = d.issues[sp.holdoutTo - 1];
     }
 
     /** Settles pending FUTURE predictions, trains one online step per new draw, and freezes the next prediction. */
     static ResearchPoolR27.Outcome online(RuntimeR27 rt, ResearchPoolR27.Worker w) throws Exception {
         ReplayDatasetR27 recent = StoreR27.loadDataset(w.ro, AtomReplayR27.HISTORY + 64);
         if (recent.size() < AtomReplayR27.MIN_ROWS + 1) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
-        AtomNetTrainerR27 tr = rt.atomNet; FtrlR27 f = ftrl; long units = 0; long now = System.currentTimeMillis();
+        AtomNetTrainerR27 tr = rt.atomNet; FtrlR27 f = rt.atomFtrl; String trainedThrough = rt.atomTrainedThrough;
+        boolean staged = false; long units = 0; long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
         for (int t = 0; t < recent.size(); t++) {
             if (recent.issues[t].compareTo(trainedThrough) <= 0 || t < AtomReplayR27.MIN_ROWS) continue;
             AtomReplayR27.Frame fr = AtomReplayR27.build(recent, t, t + 1);
             if (fr.values[0] == null) continue;
             double[] x = AtomReplayR27.features(fr.values[0], fr.present[0], RAW); int y = fr.hit[0];
+            if (!staged) {
+                byte[] bytes = new ModelArtifactR29(tr, f, rt.atomNetDataset, trainedThrough).encode();
+                ModelArtifactR29 copy = ModelArtifactR29.decode(bytes, StatsR27.sha256(bytes));
+                tr = copy.trainer; f = copy.ftrl; staged = true;
+            }
             for (String model : new String[] {"ATOMNET", "FTRL"}) {
                 try (Cursor c = w.ro.rawQuery("SELECT p_model FROM r27_atomnet_pending WHERE target_issue=? AND model=? AND frozen_at<deadline_at", new String[] {recent.issues[t], model})) {
                     if (c.moveToFirst()) { double p = c.getDouble(0); b.add("INSERT OR IGNORE INTO r27_brier_pair(target_issue,source,model,p_model,p_base,hit,d,recorded_at) VALUES(?,?,?,?,?,?,?,?)", recent.issues[t], "FUTURE", model, p, StatsR27.BASE, y, sq(StatsR27.BASE - y) - sq(p - y), now); }
@@ -173,25 +192,45 @@ public final class AtomWorldR27 {
                 b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atomnet','last_check',?,?)", JsonR27.write(java.util.Collections.<String, Object>singletonMap("event", rolled ? "ROLLBACK_DEGRADED" : "CHECK_OK")), now);
                 for (AtomNetTrainerR27.Epoch e : tr.epochs) b.add("INSERT OR REPLACE INTO r27_atomnet_epoch(run_id,epoch,split,logloss,brier,recorded_at) VALUES(?,?,?,?,?,?)", rt.atomNetDataset.substring(0, 16), e.epoch, e.split, e.logloss, e.brier, now);
             }
+            // One newly learned issue per slice; the full replay/optimizer cursor is committed before another slice.
+            break;
+        }
+        if (units > 0) {
+            b.add("UPDATE r27_atomnet_state SET artifact=?,artifact_hash=?,trained_through=?,online_steps=?,learning_rate=?,updated_at=? WHERE owner='ATOMNET'", tr.net.encode(), StatsR27.sha256(tr.net.encode()), trainedThrough, tr.onlineSteps, tr.onlineLr, now);
+            checkpoint(b, new ModelArtifactR29(tr, f, rt.atomNetDataset, trainedThrough), now);
+            RuntimeR27.submit(w, "ATOMNET_ONLINE", b);
+            // Failed/cancelled transactions cannot advance the in-memory learner ahead of durable state.
+            rt.atomNet = tr; rt.atomFtrl = f; rt.atomTrainedThrough = trainedThrough;
         }
         // Freeze the next target's probability before its deadline (FUTURE evidence; never back-filled).
         String latest = recent.issues[recent.size() - 1]; long latestOrd = recent.ordinals[recent.size() - 1];
         String target = TargetIssueResolver.fromSequenceOrdinalSU1(latestOrd + 1); long deadline = RuntimeR27.latestOpen(w.ro) + 60_000L;
         boolean pending; try (Cursor c = w.ro.rawQuery("SELECT 1 FROM r27_atomnet_pending WHERE target_issue=?", new String[] {target})) { pending = c.moveToFirst(); }
-        if (!pending && System.currentTimeMillis() < deadline - 500) {
+        ResearchWriteQueueR27.Batch forecast = new ResearchWriteQueueR27.Batch();
+        if (!pending && trainedThrough.compareTo(target) < 0 && System.currentTimeMillis() < deadline - LiveShadowsR27.FREEZE_MARGIN_MS) {
             ReplayDatasetR27 slot = recent.append(new ReplayDatasetR27.Row(target, latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
             AtomReplayR27.Frame fr = AtomReplayR27.build(slot, slot.size() - 1, slot.size());
             if (fr.values[0] != null) {
                 double[] x = AtomReplayR27.features(fr.values[0], fr.present[0], RAW);
-                b.add("INSERT OR IGNORE INTO r27_atomnet_pending(target_issue,model,p_model,frozen_at,deadline_at) VALUES(?,?,?,?,?)", target, "ATOMNET", tr.net.predict(x), System.currentTimeMillis(), deadline);
-                b.add("INSERT OR IGNORE INTO r27_atomnet_pending(target_issue,model,p_model,frozen_at,deadline_at) VALUES(?,?,?,?,?)", target, "FTRL", f.predict(java.util.Arrays.copyOf(x, 7)), System.currentTimeMillis(), deadline);
-                units++;
+                long frozenAt = System.currentTimeMillis();
+                forecast.add("INSERT OR IGNORE INTO r27_atomnet_pending(target_issue,model,p_model,frozen_at,deadline_at) VALUES(?,?,?,?,?)", target, "ATOMNET", tr.net.predict(x), frozenAt, deadline);
+                forecast.add("INSERT OR IGNORE INTO r27_atomnet_pending(target_issue,model,p_model,frozen_at,deadline_at) VALUES(?,?,?,?,?)", target, "FTRL", f.predict(java.util.Arrays.copyOf(x, 7)), frozenAt, deadline);
+                byte[] state = new ModelArtifactR29(tr, f, rt.atomNetDataset, trainedThrough).encode();
+                for (String model : new String[] {"ATOMNET", "FTRL"}) forecast.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",
+                        target, model, StatsR27.sha256(state), trainedThrough, ModelArtifactR29.ABI, frozenAt, deadline);
+                forecast.before = tx -> System.currentTimeMillis() < deadline - LiveShadowsR27.FREEZE_MARGIN_MS ? 0 : -1;
+                forecast.after = forecast.before;
             }
         }
-        b.add("DELETE FROM r27_atomnet_pending WHERE target_issue<?", TargetIssueResolver.fromSequenceOrdinalSU1(Math.max(1, latestOrd - 2880)));
-        if (units > 0) b.add("UPDATE r27_atomnet_state SET artifact=?,artifact_hash=?,trained_through=?,online_steps=?,learning_rate=?,updated_at=? WHERE owner='ATOMNET'", tr.net.encode(), StatsR27.sha256(tr.net.encode()), trainedThrough, tr.onlineSteps, tr.onlineLr, now);
-        if (!b.ops.isEmpty()) RuntimeR27.submit(w, "ATOMNET_ONLINE", b);
+        if (!forecast.isEmpty()) try { RuntimeR27.submit(w, "ATOMNET_FREEZE", forecast); }
+        catch (IllegalStateException late) { if (!QualificationInboxR29.precondition(late)) throw late; }
         return units > 0 ? ResearchPoolR27.Outcome.progress(units, tr.onlineSteps) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", tr.onlineSteps, tr.onlineSteps);
+    }
+
+    static void checkpoint(ResearchWriteQueueR27.Batch batch, ModelArtifactR29 state, long now) {
+        byte[] bytes = state.encode();
+        batch.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES('ATOMNET_FTRL',?,?,?,?,?,?)",
+                ModelArtifactR29.ABI, state.datasetHash, state.trainedThrough, StatsR27.sha256(bytes), bytes, now);
     }
 
     static double sq(double x) { return x * x; }
