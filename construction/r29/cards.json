@@ -822,12 +822,13 @@
     ],
     "actual_results": [
       "Adam/weights/RNG/replay/FTRL/cursors restore byte-identically and next five real learning updates match; uncommitted staging cannot change live model; hash/window changes no longer reset state; initial pretraining still not sliced; ten-position/I08 not implemented",
-      "CP05 preserves the monotone scoring receipt index; CP04 state decoding preserves weights/optimizer/RNG/replay and derives a missing receipt lower bound from database records."
+      "CP05 preserves the monotone scoring receipt index; CP04 state decoding preserves weights/optimizer/RNG/replay and derives a missing receipt lower bound from database records.",
+      "CP06 migration preserves original partial legacy state bytes/hash/cursor before retraining, never reports it as a fully restorable model. Q16 verifies idempotency and update/delete rejection."
     ],
-    "source_commit": "f2b2e77e0db1b4afb33c5c824d9b804c4cf1bb60",
+    "source_commit": "e55c448b3d48b1ae1ae8fe606e5d4f32ad03edbf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint05/"
+    "evidence_checkpoint": "evidence/r29/checkpoint06/"
   },
   {
     "id": "R29-018",
@@ -2217,10 +2218,10 @@
     "actual_results": [
       "19 printed checks (Q2 has five seeds), all pass; wider device/process/migration suite pending"
     ],
-    "source_commit": "f2b2e77e0db1b4afb33c5c824d9b804c4cf1bb60",
+    "source_commit": "e55c448b3d48b1ae1ae8fe606e5d4f32ad03edbf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint05/"
+    "evidence_checkpoint": "evidence/r29/checkpoint06/"
   },
   {
     "id": "R29-047",
@@ -2406,10 +2407,10 @@
     "actual_results": [
       "official R13 certificate pinned to 9e6d5d…; build/installation not assumed passed before actual receipts"
     ],
-    "source_commit": "f2b2e77e0db1b4afb33c5c824d9b804c4cf1bb60",
+    "source_commit": "e55c448b3d48b1ae1ae8fe606e5d4f32ad03edbf",
     "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint05/"
+    "evidence_checkpoint": "evidence/r29/checkpoint06/"
   },
   {
     "id": "R29-051",

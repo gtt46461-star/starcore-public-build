@@ -11,7 +11,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: r29-apk
+  group: r29-apk-${{ github.sha }}
   cancel-in-progress: false
 jobs:
   build:
