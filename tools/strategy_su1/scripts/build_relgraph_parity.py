@@ -2,6 +2,7 @@
 """Independent NumPy RELGRAPH forward and central-difference gradients for every parameter."""
 from pathlib import Path
 import base64,hashlib,json,struct
+import os
 import numpy as np
 from export_fitted_model import canonical,java_hex
 import export_relgraph_artifact
@@ -96,6 +97,9 @@ def build():
         'gradientMethod':'INDEPENDENT_NUMPY_FORWARD_CENTRAL_DIFFERENCE_EPS_1E4','gradients':{k:[java_hex(v) for v in g.ravel()] for k,g in gradients.items()},'updated':{k:[java_hex(v) for v in g.ravel()] for k,g in updated.items()},'portableGraph':canonical(export)}
     joint_export=export_relgraph_artifact.portable(export_relgraph_artifact.checkpoint(export_state,4,hashlib.sha256(b'graph joint transport fixture').hexdigest(),'202610210001',objective=objective))
     result.update(jointObjective=[java_hex(v) for v in objective],jointLoss=java_hex(joint_before),jointTerms=[java_hex(v) for v in joint_terms],jointGradients={k:[java_hex(v) for v in g.ravel()] for k,g in joint_gradients.items()},jointPortableGraph=canonical(joint_export))
-    wire=canonical(result)+'\n';(ROOT/'reference/fixtures/relgraph_parity.json').write_text(wire);(ROOT.parents[1]/'app/src/androidTest/assets/su1_relgraph_parity.json').write_text(wire)
+    wire=canonical(result)+'\n';output=Path(os.environ.get('SU1_PARITY_OUTPUT_DIR', str(ROOT/'reference/fixtures')));output.mkdir(parents=True,exist_ok=True)
+    (output/'relgraph_parity.json').write_text(wire)
+    if 'SU1_PARITY_OUTPUT_DIR' not in os.environ:
+        (ROOT.parents[1]/'app/src/androidTest/assets/su1_relgraph_parity.json').write_text(wire)
     print('RELGRAPH_GOLDEN bytes',len(wire),'values',sum(len(v) for v in layers.values()),'groups',len(gradients),'sha256',hashlib.sha256(wire.encode()).hexdigest())
 if __name__=='__main__':build()

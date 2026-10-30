@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Test the deployed Java kernels, independent Python parity, and production SQLite DDL."""
 from pathlib import Path
-import json, subprocess, sys, time, shutil
+import json, os, subprocess, sys, time, shutil
 ROOT=Path(__file__).resolve().parents[1]
 HOST=ROOT/'tools/strategy_su1'
 REPORT=ROOT/'build/strategy_su1-verification.json'
 
 def main():
     results=[]
+    parity_dir=ROOT/'build/su1-generated-parity'
+    parity_dir.mkdir(parents=True,exist_ok=True)
+    verification_env=dict(os.environ, SU1_PARITY_OUTPUT_DIR=str(parity_dir))
     def run(name,args,cwd=ROOT):
-        start=time.monotonic();p=subprocess.run(list(map(str,args)),cwd=cwd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+        start=time.monotonic();p=subprocess.run(list(map(str,args)),cwd=cwd,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,env=verification_env)
         results.append({'name':name,'returncode':p.returncode,'seconds':round(time.monotonic()-start,3),'output':p.stdout})
         print(name, 'PASS' if p.returncode==0 else 'FAIL',flush=True)
         if p.returncode:print(p.stdout,flush=True)
@@ -29,7 +32,7 @@ def main():
     okay=compiled and okay
     if compiled:
         for name in ['ProgramTreeSU1Test','TypedProgramTest','PairedEvidenceTest','NullBaselineTest','ProductionKernelSU1Test','AdvancedContractsSU1Test','TrainingParitySU1Test','AuditControlsSU1Test','RelGraphContractsSU1Test','RelGraphParitySU1Test','ModelAblationsSU1Test','ResearchFailureSU1Test','TrainingFidelitySU1Test','ProductionR13Test']:
-            okay=run(name,['java','-cp',classes,'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
+            okay=run(name,['java','-Dsu1.parity.dir='+str(parity_dir),'-cp',classes,'com.ethk3.novaonepro.strategyv2.'+name],HOST) and okay
     okay=run('python_schema_learning_and_null_suites',[sys.executable,'-m','unittest','discover','-s','reference/python','-p','test_*.py','-v'],HOST) and okay
     okay=run('python_replay_and_creation_suites',[sys.executable,'-m','unittest','discover','-s','reference/replay','-p','test_*.py','-v'],HOST) and okay
     REPORT.parent.mkdir(exist_ok=True);REPORT.write_text(json.dumps({'status':'PASS' if okay else 'FAIL','scope':'deployed pure Java source + independent Python and SQLite; Android/physical device and natural prediction qualification are separate','checks':results},ensure_ascii=False,indent=2)+'\n')

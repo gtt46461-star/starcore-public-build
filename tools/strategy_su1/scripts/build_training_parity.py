@@ -2,6 +2,7 @@
 """Independent NumPy layer, full BPTT-gradient and SGD-update golden for deployed Android code."""
 from pathlib import Path
 import hashlib,json,sys
+import os
 import numpy as np
 from export_fitted_model import checkpoint,canonical,portable,java_hex
 ROOT=Path(__file__).resolve().parents[1]
@@ -29,7 +30,9 @@ def build():
         'adamCheckpoint':canonical(adam_cp),'adamUpdated':{k:flat(v) for k,v in adam_model.params.items()},
         'tolerance':'0x1.b7cdfd9d7bdbbp-34'}
     wire=canonical(result)+'\n'
-    (ROOT/'reference/fixtures/training_parity.json').write_text(wire)
-    target=ROOT.parents[1]/'app/src/androidTest/assets/su1_training_parity.json';target.write_text(wire)
+    output=Path(os.environ.get('SU1_PARITY_OUTPUT_DIR', str(ROOT/'reference/fixtures')));output.mkdir(parents=True,exist_ok=True)
+    (output/'training_parity.json').write_text(wire)
+    if 'SU1_PARITY_OUTPUT_DIR' not in os.environ:
+        target=ROOT.parents[1]/'app/src/androidTest/assets/su1_training_parity.json';target.write_text(wire)
     print('TRAINING_GOLDEN',hashlib.sha256(wire.encode()).hexdigest(),'bytes',len(wire))
 if __name__=='__main__':build()

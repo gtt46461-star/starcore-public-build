@@ -9,7 +9,7 @@ public final class TrainingParitySU1Test {
     private static void same(double value,Object expected){checks++;double want=Double.valueOf((String)expected);if(Math.abs(value-want)>1e-10*(1+Math.abs(want)))throw new AssertionError("training numeric mismatch "+value+" vs "+want);}
     private static void matrix(double[][] a,List<?> expected){int k=0;for(double[] row:a)for(double v:row)same(v,expected.get(k++));if(k!=expected.size())throw new AssertionError("shape");}
     public static void main(String[] args)throws Exception{
-        Map<String,Object> fixture=StrictCanonicalJson.readContextObject(Files.readString(Paths.get("reference/fixtures/training_parity.json")));
+        Map<String,Object> fixture=StrictCanonicalJson.readContextObject(Files.readString(Paths.get(System.getProperty("su1.parity.dir", "reference/fixtures"), "training_parity.json")));
         TrainingCheckpointSU1 cp=TrainingCheckpointSU1.decode((String)fixture.get("checkpoint"));
         PortableArtifactSU1 portable=PortableArtifactSU1.decode((String)fixture.get("portable"));if(portable.fitted==null||!portable.fitted.hash.equals(cp.hash))throw new AssertionError("portable checkpoint identity");
         List<?> history=(List<?>)fixture.get("history"),label=(List<?>)fixture.get("label");int[][] d=new int[history.size()][10];int[] actual=new int[10];for(int t=0;t<d.length;t++)for(int p=0;p<10;p++)d[t][p]=((Number)((List<?>)history.get(t)).get(p)).intValue();for(int p=0;p<10;p++)actual[p]=((Number)label.get(p)).intValue();
