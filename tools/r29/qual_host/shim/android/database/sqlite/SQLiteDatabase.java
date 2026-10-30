@@ -46,6 +46,14 @@ public class SQLiteDatabase {
         public byte[] getBlob(int i) { return (byte[]) v(i); }
         public boolean isNull(int i) { return v(i) == null; }
         public int getCount() { return rows.size(); }
+        public int getType(int i) {
+            Object o=v(i);
+            if(o==null)return Cursor.FIELD_TYPE_NULL;
+            if(o instanceof byte[])return Cursor.FIELD_TYPE_BLOB;
+            if(o instanceof Float || o instanceof Double)return Cursor.FIELD_TYPE_FLOAT;
+            if(o instanceof Number)return Cursor.FIELD_TYPE_INTEGER;
+            return Cursor.FIELD_TYPE_STRING;
+        }
         public void close() {}
     }
 }

@@ -169,8 +169,8 @@
     "depends": [
       "R29-003"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_STAGED_COPY_VERIFIED_ANDROID_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -178,13 +178,19 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "call_chain": "RuntimeR27.MigrationTask → ResearchDatabaseR29.step → MigrationCopyR29 tracked source generations → independent FULL-sync SQLite stage writer → typed copy/independent rehash → cached report",
+    "persistent_state": "Original owners/tables unchanged; r29_source_watermark in realtime; starcore-research-r29-stage.db r29_copy_manifest/r29_copy_rows",
+    "tests": [
+      "MigrationR29HostTest M01-M15"
+    ],
+    "actual_results": [
+      "15 HOST checks: 14 precommit interruptions/10 file reopens, negative rowids, typed null/text/integer/float/blob identity, source mutation restart, independent destination while realtime writer held, corrupt-byte rejection, real SQLITE_FULL rollback and resume, stale-page fencing and schema drift. Verified stage is a per-table baseline only; cross-table snapshot/catch-up/read routing/cutover not complete."
+    ],
     "source_commit": null,
     "apk_checkpoint": null,
-    "acceptance_state": "NOT_ACCEPTED"
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint07/",
+    "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE"
   },
   {
     "id": "R29-005",
@@ -219,7 +225,7 @@
       "R29-004"
     ],
     "implementation_status": "PARTIAL",
-    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
+    "verification_status": "HOST_EVENT_PROTOCOL_VERIFIED_ANDROID_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -227,18 +233,20 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": "ResearchPoolR27 → ResearchWriteQueueR27.submit → DatabaseCoordinator atomic transaction → execute(before, all ops, after)",
-    "persistent_state": "original research tables; same transaction includes cursor, not yet an independent database",
+    "call_chain": "DbStore.saveDraw/saveDraws same draw transaction → ResearchEventBridgeR29 outbox → RuntimeR27.EventTask → inbox+work+cursor transaction → separate ack; AtomWorld online checkpoint/learning receipt and LiveShadows settlement receipt",
+    "persistent_state": "r29_event_outbox/inbox/cursor; r29_learning_work/receipt; current live research writer still shared pending cutover",
     "tests": [
-      "Q12/Q13/Q14"
+      "Q12-Q14",
+      "EventBridgeR29HostTest E1-E18"
     ],
     "actual_results": [
-      "1203 writes + before/after roll back and retry as one transaction; independent DB/outbox not implemented"
+      "CP06 whole-batch rollback retained. CP07 adds real durable event protocol: no double count on duplicate/ack loss; DELIVERED is distinct from TRAINED; real model bytes/cursor/receipt and settlement completion commit atomically. Two-file HOST protocol checks pass; Android rerun pending. Runtime independent active writer/read cutover and certificate projection remain incomplete."
     ],
-    "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
-    "apk_checkpoint": "construction/r29/delivery/CP06.json",
+    "source_commit": null,
+    "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint04/"
+    "evidence_checkpoint": "evidence/r29/checkpoint07/",
+    "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE"
   },
   {
     "id": "R29-006",
@@ -483,14 +491,16 @@
       "HOST real SQLite: late draw after 3+ periods settles the original freeze once; 700 pending rows do not block 100 settleable rows; legacy hit=-2 recovered (0 remaining)",
       "NOT DONE in this card: IssueCommitR29 realtime short transaction (history/lease/decision/freeze), AnalysisRequestStoreR36/V51RuntimeOrchestrator changes; device NOT_RUN"
     ],
-    "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
-    "apk_checkpoint": "construction/r29/delivery/CP06.json",
+    "source_commit": null,
+    "apk_checkpoint": null,
     "evidence": [
       "tools/r29/run_qual_host.sh",
       "evidence/r29/host/r29_qual_host.log",
       "construction/r29/ledger/B02-QUAL-01.json"
     ],
-    "acceptance_state": "NOT_ACCEPTED"
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint07/",
+    "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE"
   },
   {
     "id": "R29-011",
@@ -823,12 +833,14 @@
     "actual_results": [
       "Adam/weights/RNG/replay/FTRL/cursors restore byte-identically and next five real learning updates match; uncommitted staging cannot change live model; hash/window changes no longer reset state; initial pretraining still not sliced; ten-position/I08 not implemented",
       "CP05 preserves the monotone scoring receipt index; CP04 state decoding preserves weights/optimizer/RNG/replay and derives a missing receipt lower bound from database records.",
-      "CP06 migration preserves original partial legacy state bytes/hash/cursor before retraining, never reports it as a fully restorable model. Q16 verifies idempotency and update/delete rejection."
+      "CP06 migration preserves original partial legacy state bytes/hash/cursor before retraining, never reports it as a fully restorable model. Q16 verifies idempotency and update/delete rejection.",
+      "CP07 online model completion receipt binds the exact committed artifact hash/issue/units; missing model or conflicting second receipt rolls back all state. No pretrain/import enqueue is reported as online training."
     ],
-    "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
-    "apk_checkpoint": "construction/r29/delivery/CP06.json",
+    "source_commit": null,
+    "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint06/"
+    "evidence_checkpoint": "evidence/r29/checkpoint07/",
+    "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE"
   },
   {
     "id": "R29-018",
@@ -1894,10 +1906,11 @@
     "actual_results": [
       "neural continuation status and unsupported I08 explicit; diagnostic evidence levels normalized; complete 12-chapter cross-database snapshot not implemented"
     ],
-    "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
-    "apk_checkpoint": "construction/r29/delivery/CP06.json",
+    "source_commit": null,
+    "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint04/"
+    "evidence_checkpoint": "evidence/r29/checkpoint07/",
+    "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE"
   },
   {
     "id": "R29-040",
@@ -2213,15 +2226,18 @@
     "call_chain": "production Java compiled by Gradle; real SQLite JDBC shim executes production transaction bodies",
     "persistent_state": "same production SQL used in tests",
     "tests": [
-      "tools/r29/run_qual_host.sh Q1-Q15"
+      "tools/r29/run_qual_host.sh Q1-Q15",
+      "EventBridgeR29HostTest E1-E18",
+      "MigrationR29HostTest M01-M15"
     ],
     "actual_results": [
       "19 printed checks (Q2 has five seeds), all pass; wider device/process/migration suite pending"
     ],
-    "source_commit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
-    "apk_checkpoint": "construction/r29/delivery/CP06.json",
+    "source_commit": null,
+    "apk_checkpoint": null,
     "acceptance_state": "NOT_ACCEPTED",
-    "evidence_checkpoint": "evidence/r29/checkpoint06/"
+    "evidence_checkpoint": "evidence/r29/checkpoint07/",
+    "source_commit_state": "CP07_PENDING_FINAL_BUILD_SOURCE"
   },
   {
     "id": "R29-047",

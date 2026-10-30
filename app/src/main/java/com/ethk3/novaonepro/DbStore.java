@@ -2201,6 +2201,8 @@ public final class DbStore {
                                 return Long.valueOf(rowId);
                             }
                             FetchLedgerR925.canonicalDrawWithinR82(db,draw);
+                            com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.appendCanonical(
+                                    db, draw.issue, rowId >= 0L, System.currentTimeMillis());
                             SettlementTaskStoreR36.enqueueConfirmedWithinWrite(
                                     db, draw, System.currentTimeMillis(),
                                     SettlementTaskStoreR36.BACKLOG,
@@ -2398,6 +2400,8 @@ public final class DbStore {
                                     long rowId = insertDrawInternal(db, draw);
                                     if (rowId == R811_DRAW_CONFLICT_BLOCKED || rowId == CP12_DRAW_RETENTION_DEFERRED || rowId == CP12_DRAW_OUTSIDE_HISTORY_TAIL) continue;
                                     FetchLedgerR925.canonicalDrawWithinR82(db,draw);
+                                    com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.appendCanonical(
+                                            db, draw.issue, rowId >= 0L, System.currentTimeMillis());
                                     if (rowId >= 0L) count++;
                                     SettlementTaskStoreR36.enqueueConfirmedWithinWrite(
                                             db, draw, System.currentTimeMillis(),

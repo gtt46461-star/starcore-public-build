@@ -26,6 +26,8 @@ public final class ReportR29 {
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
+        out.put("learningDelivery", ResearchEventBridgeR29.diagnostics(db));
+        out.put("researchMigration", cachedPanel(db, "r29", "research-migration"));
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
         if ("RECORDED".equals(model.get("status"))) {

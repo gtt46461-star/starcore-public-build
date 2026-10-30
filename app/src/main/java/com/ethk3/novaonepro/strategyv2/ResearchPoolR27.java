@@ -41,6 +41,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         public boolean cancelled() { return closed || Thread.currentThread().isInterrupted(); }
         public ResearchWriteQueueR27 writes() { return writes; }
         public DbStore store() { return store; }
+        /** Realtime source for the outbox; the R29-004 cutover will give this a distinct read-only connection. */
+        public SQLiteDatabase realtimeRo() { return ro; }
         public ResearchPoolR27 pool() { return ResearchPoolR27.this; }
     }
 

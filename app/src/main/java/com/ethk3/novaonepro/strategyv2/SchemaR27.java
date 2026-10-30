@@ -48,6 +48,11 @@ public final class SchemaR27 {
         "CREATE TABLE IF NOT EXISTS r27_fetch_reject(reason TEXT PRIMARY KEY,count INTEGER NOT NULL,last_issue TEXT,last_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r27_legacy_export(source_id TEXT PRIMARY KEY,source_table TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,policy_hash TEXT,reproduced INTEGER NOT NULL DEFAULT 0,compared INTEGER NOT NULL DEFAULT 0,exported_at INTEGER NOT NULL)",
         HistoryImportR27.DDL,
+        ResearchEventBridgeR29.OUTBOX,
+        ResearchEventBridgeR29.RESEARCH_DDL[0], ResearchEventBridgeR29.RESEARCH_DDL[1],
+        ResearchEventBridgeR29.RESEARCH_DDL[2], ResearchEventBridgeR29.RESEARCH_DDL[3],
+        ResearchEventBridgeR29.RESEARCH_DDL[4], ResearchEventBridgeR29.RESEARCH_DDL[5],
+        ResearchEventBridgeR29.RESEARCH_DDL[6],
         // R29-010/035: contiguous qualification receipts, conflicts, rebuild log, cursor, pending draws (additive).
         QualificationInboxR29.DDL[0], QualificationInboxR29.DDL[1], QualificationInboxR29.DDL[2], QualificationInboxR29.DDL[3], QualificationInboxR29.DDL[4],
         QualificationInboxR29.DDL[5],
@@ -73,6 +78,7 @@ public final class SchemaR27 {
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
+        ResearchEventBridgeR29.ensureRealtime(db);
         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
         if (tableExists(db, "r26_task")) {
             long now = System.currentTimeMillis();

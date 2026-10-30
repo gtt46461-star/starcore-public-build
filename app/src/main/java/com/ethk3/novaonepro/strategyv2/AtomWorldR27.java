@@ -201,7 +201,8 @@ public final class AtomWorldR27 {
         }
         if (units > 0) {
             b.add("UPDATE r27_atomnet_state SET artifact=?,artifact_hash=?,trained_through=?,online_steps=?,learning_rate=?,updated_at=? WHERE owner='ATOMNET'", tr.net.encode(), StatsR27.sha256(tr.net.encode()), trainedThrough, tr.onlineSteps, tr.onlineLr, now);
-            checkpoint(b, new ModelArtifactR29(tr, f, rt.atomNetDataset, trainedThrough), now);
+            String stateHash = checkpoint(b, new ModelArtifactR29(tr, f, rt.atomNetDataset, trainedThrough), now);
+            ResearchEventBridgeR29.modelCommitted(b, trainedThrough, stateHash, units, now);
             RuntimeR27.submit(w, "ATOMNET_ONLINE", b);
             // Failed/cancelled transactions cannot advance the in-memory learner ahead of durable state.
             rt.atomNet = tr; rt.atomFtrl = f; rt.atomTrainedThrough = trainedThrough;
@@ -231,10 +232,12 @@ public final class AtomWorldR27 {
         return units > 0 ? ResearchPoolR27.Outcome.progress(units, tr.onlineSteps) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", tr.onlineSteps, tr.onlineSteps);
     }
 
-    static void checkpoint(ResearchWriteQueueR27.Batch batch, ModelArtifactR29 state, long now) {
+    static String checkpoint(ResearchWriteQueueR27.Batch batch, ModelArtifactR29 state, long now) {
         byte[] bytes = state.encode();
+        String hash = StatsR27.sha256(bytes);
         batch.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES('ATOMNET_FTRL',?,?,?,?,?,?)",
-                ModelArtifactR29.ABI, state.datasetHash, state.trainedThrough, StatsR27.sha256(bytes), bytes, now);
+                ModelArtifactR29.ABI, state.datasetHash, state.trainedThrough, hash, bytes, now);
+        return hash;
     }
 
     static double sq(double x) { return x * x; }

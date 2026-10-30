@@ -30,6 +30,7 @@ public final class RuntimeR27 implements AutoCloseable {
     final Map<Integer, String> atomStates = new HashMap<>();
     volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
     FtrlR27 atomFtrl; String atomTrainedThrough = "";
+    private final MigrationTask migration = new MigrationTask();
 
     private static volatile RuntimeR27 active;
     public static RuntimeR27 active() { return active; }
@@ -38,14 +39,14 @@ public final class RuntimeR27 implements AutoCloseable {
         this.store = store;
         CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
-        pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
+        pool.register(new EventTask()); pool.register(migration); pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
         pool.register(new LegacyExportTask()); pool.register(new HealthTask());
         active = this;
     }
     public void start() { pool.start(); }
     public ResearchPoolR27 pool() { return pool; }
-    @Override public void close() { pool.close(); if (active == this) active = null; }
+    @Override public void close() { pool.close(); migration.close(); if (active == this) active = null; }
 
     static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
     static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
@@ -54,6 +55,45 @@ public final class RuntimeR27 implements AutoCloseable {
     }
 
     // ------------------------------------------------------------------ r27-replay-dataset (R27-013/016)
+    final class EventTask implements ResearchPoolR27.Task {
+        public String id() { return "r29-event-inbox"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            try{return ResearchEventBridgeR29.deliver(w);}
+            catch(IllegalStateException busy){if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",0,-1);}
+        }
+    }
+
+    /** Baseline copy is real independent-file work; all live owners remain on the old database until cutover. */
+    final class MigrationTask implements ResearchPoolR27.Task, AutoCloseable {
+        private ResearchDatabaseR29 stage; private long reported;
+        public String id() { return "r29-research-migration"; }
+        public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            long now=System.currentTimeMillis();
+            try {
+                if(stage==null)stage=ResearchDatabaseR29.acquire(store);
+                MigrationCopyR29.Result result=stage.step(store,w.realtimeRo());
+                long verified=stage.verifiedTables();
+                if(now-reported>=15_000||result.phase.startsWith("VERIFIED"))publish(w,stage.diagnostics(w.realtimeRo()),now);
+                if(result.phase.startsWith("IDLE"))return ResearchPoolR27.Outcome.idle("MIGRATION_CATCHUP_AND_READER_ROUTING_PENDING",verified,stage.tableCount());
+                if(result.phase.startsWith("SOURCE_CHANGED"))return ResearchPoolR27.Outcome.idle("WAITING_STABLE_SOURCE:"+result.table+":"+result.phase,verified,stage.tableCount());
+                return ResearchPoolR27.Outcome.progress(Math.max(1,result.rows),verified);
+            }catch(ResearchDatabaseR29.StorageBlocked blocked){
+                if(now-reported>=15_000){Map<String,Object> m=new LinkedHashMap<>();m.put("state","BLOCKED_STORAGE_BUDGET");m.put("reason",blocked.getMessage());m.put("cutoverEnabled",false);m.put("activeOwner","ORIGINAL_DATABASE");publish(w,m,now);}
+                return ResearchPoolR27.Outcome.idle("RESOURCE_LOW_STORAGE:MIGRATION_ONLY:"+blocked.getMessage(),0,-1);
+            }catch(Exception failed){
+                if(ResearchWriteQueueR27.writerBusy(failed))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",stage==null?0:stage.verifiedTables(),-1);
+                Map<String,Object> m=new LinkedHashMap<>();m.put("state","FAILED_STAGE_COPY");m.put("reason",failed.getClass().getSimpleName()+":"+failed.getMessage());m.put("cutoverEnabled",false);m.put("activeOwner","ORIGINAL_DATABASE");m.put("repairCard","R29-004");
+                try{publish(w,m,now);}catch(Exception reportFailure){failed.addSuppressed(reportFailure);}throw failed;
+            }
+        }
+        private void publish(ResearchPoolR27.Worker w,Map<String,Object> snapshot,long now)throws Exception {
+            ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
+            b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','research-migration',?,?)",JsonR27.write(snapshot),now);
+            submit(w,"MIGRATION_STATUS",b);reported=now;
+        }
+        public void close(){if(stage!=null){stage.close();stage=null;}}
+    }
+
     final class DatasetTask implements ResearchPoolR27.Task {
         public String id() { return "r27-replay-dataset"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {

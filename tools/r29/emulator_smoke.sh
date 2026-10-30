@@ -37,6 +37,10 @@ python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/upgrade-startup.log" 
 adb shell am force-stop "$PKG"
 adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db" "$OUT/after.db" > /dev/null
 for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db$suffix" "$OUT/after.db$suffix" > /dev/null 2>&1 || true; done
+# CP07's independent stage file must exist and its claimed verified rows must rehash outside the app.
+adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db" "$OUT/stage-upgrade.db" > /dev/null
+for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db$suffix" "$OUT/stage-upgrade.db$suffix" > /dev/null 2>&1 || true; done
+python3 tools/r29/inspect_runtime.py --main "$OUT/after.db" --stage "$OUT/stage-upgrade.db" --out "$OUT/upgrade-protocol.json"
 python3 - "$OUT" <<'PY'
 import json, sqlite3, sys
 from pathlib import Path
@@ -61,6 +65,13 @@ adb install "$APK" > "$OUT/install-clean.txt"
 python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/clean-startup.log" 2>&1
 adb logcat -d > "$OUT/logcat-clean.txt"
 adb shell am force-stop "$PKG"
+adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db" "$OUT/clean.db" > /dev/null
+adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db" "$OUT/stage-clean.db" > /dev/null
+for suffix in -wal -shm; do
+    adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db$suffix" "$OUT/clean.db$suffix" > /dev/null 2>&1 || true
+    adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db$suffix" "$OUT/stage-clean.db$suffix" > /dev/null 2>&1 || true
+done
+python3 tools/r29/inspect_runtime.py --main "$OUT/clean.db" --stage "$OUT/stage-clean.db" --out "$OUT/clean-protocol.json"
 # Uploaded evidence is summary/logs only. Do not publish the baseline package or private application databases.
 rm -f "$OUT"/*.db "$OUT"/*.db-wal "$OUT"/*.db-shm "$BASE"
 echo 'API34_EMULATOR_UPGRADE_AND_CLEAN_STARTUP_PASS; LONG_TESTS_NOT_RUN' | tee "$OUT/result.txt"

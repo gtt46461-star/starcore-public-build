@@ -74,7 +74,7 @@ jobs:
           git config user.name 'STARCORE build identity'
           git config user.email 'starcore-build@users.noreply.github.com'
           export PUSH_REF=construction/r29-20261029
-          git fetch -q origin construction/r29-20261029
+          timeout 45s git fetch -q origin construction/r29-20261029
           git merge-base --is-ancestor HEAD origin/construction/r29-20261029 || { echo 'REQUESTED_SOURCE_NOT_ON_R29_BRANCH'; exit 1; }
           [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/construction/r29-20261029)" ] || unset PUSH_REF
           bash tools/r29/ci_build.sh

@@ -64,6 +64,11 @@ public final class LiveShadowsR27 {
             settled[0]++;
         }
         if (settled[0] > 0) b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=r27_opportunity.target_ordinal AND f.hit>=0) WHERE target_ordinal<=?", latestOrd);
+        if (settled[0] > 0) {
+            final java.util.Set<String> completedIssues = new java.util.LinkedHashSet<>();
+            for (Object[] r : rows) completedIssues.add((String) r[2]);
+            b.after = db -> { ResearchEventBridgeR29.settlementsCommitted(db, completedIssues, now); return 0; };
+        }
         return b;
     }
 

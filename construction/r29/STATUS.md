@@ -1,3 +1,7 @@
+checkpoint07（577291007）施工验证中，尚未发布或验收。
+
+新增真实调用链：开奖入库同事务outbox、研究inbox与幂等ack、实际在线模型/结算完成回执；独立文件分片基线备份，按原SQLite类型编码、源变更watermark检测、目标独立重哈希和崩溃续跑。原数据库仍是唯一活跃权威，尚未追平或切换读写路由，不能称为完整分库。HOST新增18项事件及15项迁移检查；Android/正式APK以本CP07后续真实回执更新，不能预先写PASS。
+
 checkpoint06 已发布并完成独立模拟器验证（2026-10-30）
 
 构建源码 bb607cf5ab69f7286f859e43f87ada85a5bc456d；原R13/R26与既有R27两种固定签名各有release APK，须按旧安装证书选择。两种签名的debug/release四组API34模拟器均通过同签名保留数据覆盖升级、完整性检查、清装和两次启动。正式交付回执见delivery/CP06.json与DELIVERY_CHECKPOINT06.zh.txt。main文档入口已指向R29真实源码；QA/回执提交未改变该构建的产品源码。
