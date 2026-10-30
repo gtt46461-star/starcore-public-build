@@ -73,6 +73,26 @@ public final class ResearchCutoverR29 {
     static void check(long deadline,java.util.function.BooleanSupplier cancelled){if(cancelled.getAsBoolean()||Thread.currentThread().isInterrupted())throw new IllegalStateException("R29_CUTOVER_CANCELLED");if(android.os.SystemClock.elapsedRealtime()>deadline)throw new IllegalStateException("R29_CUTOVER_BUDGET_YIELD");}
     static String schemaHash(List<MigrationCopyR29.Table> tables){StringBuilder b=new StringBuilder("R29_ACTIVE_SCHEMA_V1");for(MigrationCopyR29.Table t:tables)b.append('|').append(t.name).append(':').append(t.schemaHash);return StatsR27.sha256(b.toString());}
 
+    interface SnapshotWork<T>{T run(SQLiteDatabase source)throws Exception;}
+    /** A private OPEN_READONLY WAL handle gives Android's transaction session one pinned read snapshot.
+     * It deliberately does not set query_only: Android's public nonexclusive transaction starts with
+     * BEGIN IMMEDIATE, which query_only rejects even for a physically read-only WAL connection.
+     * OPEN_READONLY still forbids every persistent write; the independent Root writer remains live. */
+    static <T>T withSourceSnapshot(SQLiteDatabase authority,SnapshotWork<T> body)throws Exception{
+        try(SQLiteDatabase source=SQLiteDatabase.openDatabase(authority.getPath(),null,SQLiteDatabase.OPEN_READONLY)){
+            if(!source.isReadOnly())throw new IllegalStateException("R29_CUTOVER_SOURCE_MUST_BE_READ_ONLY");
+            try(Cursor c=source.rawQuery("PRAGMA journal_mode",null)){
+                if(!c.moveToFirst()||!"wal".equalsIgnoreCase(c.getString(0)))throw new IllegalStateException("R29_CUTOVER_SOURCE_WAL_REQUIRED");
+            }
+            source.beginTransactionNonExclusive();
+            try{
+                // Prime the source snapshot before schema discovery or the first typed row page.
+                try(Cursor c=source.rawQuery("SELECT count(*) FROM sqlite_master",null)){if(!c.moveToFirst())throw new IllegalStateException("R29_CUTOVER_SOURCE_SNAPSHOT_MISSING");}
+                return body.run(source);
+            }finally{source.endTransaction();}
+        }
+    }
+
     public static String run(DbStore store,ResearchPoolR27.Worker worker)throws Exception{
         if(ResearchRouteR29.active(worker.realtimeRo()))return "ACTIVE";
         if(!RuntimeCoordinatorR26.readyForResearchMigration())return "WAITING_LEGACY_STORAGE_SCHEMA_BEFORE_OWNER_TRANSFER";
@@ -98,6 +118,9 @@ public final class ResearchCutoverR29 {
         // Only files reserved by this unpublished manifest may be retried; authoritative/original files are untouched.
         if(ResearchRouteR29.active(source))return "ACTIVE";
         removeUnpublished(candidate);removeUnpublished(published);
+        return withSourceSnapshot(source,pinned->copyAndPublishSnapshot(store,worker,pinned,candidate,published,epoch,deadline));
+    }
+    private static String copyAndPublishSnapshot(DbStore store,ResearchPoolR27.Worker worker,SQLiteDatabase source,File candidate,File published,long epoch,long deadline)throws Exception{
         List<MigrationCopyR29.Table> tables=tables(source);String schema=schemaHash(tables),copiedRoot;
         long inputEpoch=CriticalInputMirrorR29.sourceEpoch(source),inputSequence=CriticalInputMirrorR29.sourceSequence(source);String inputView=CriticalInputMirrorR29.sourceViewSql(source);
         SQLiteDatabase target=SQLiteDatabase.openOrCreateDatabase(candidate,null);
@@ -131,7 +154,9 @@ public final class ResearchCutoverR29 {
                 CriticalInputMirrorR29.installResearch(target);
                 LegacyLearnedInputR29.installResearch(target);
                 com.ethk3.novaonepro.LegacyLearningCommitR29.installResearch(target);
-                if(inputEpoch==CriticalInputMirrorR29.sourceEpoch(source)&&inputSequence==CriticalInputMirrorR29.sourceSequence(source))CriticalInputMirrorR29.initialized(target,inputEpoch,inputSequence,inputView);
+                // This receipt names the captured snapshot's offset, never the subsequently moving
+                // Root head. The live mirror resumes from it after ownership publication.
+                CriticalInputMirrorR29.initialized(target,inputEpoch,inputSequence,inputView);
                 target.execSQL(LegacyDomainUpgradeR29.DDL);
                 target.execSQL("INSERT OR REPLACE INTO r29_legacy_domain_owner VALUES(1,'FULL',?,?,?)",new Object[]{epoch,copiedRoot,System.currentTimeMillis()});
                 LegacyDomainExtensionR29.includedInFull(target,epoch,copiedRoot);

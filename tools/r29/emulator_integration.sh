@@ -27,6 +27,10 @@ if name=='R29LargeModelCheckpointDeviceTest':
 elif name=='R29LargeRowMigrationDeviceTest':
     assert r['result']=='PASS_WITH_STATED_ANDROID_SCOPE' and r['wholeRowNegativeControlRejectedByActualAndroid']
     assert all(r[k] for k in ['typedPayloadAndHashesExact','physicalAndCompositePrimaryKeyPaginationExact','stagedIndependentRehashPassed','legacyDomainUpgradeCapturePassed','damagedTransferRejected'])
+elif name=='R29CutoverSnapshotDeviceTest':
+    assert r['status']=='PASS_ANDROID_ENGINEERING_SUBSET' and r['rootWriterDeadlineMs']==1500
+    assert 0<=r['rootWriterCommitMs']<1500 and r['oldOriginalKeysRetained']==97 and r['copiedOriginalAppStateRows']==97 and r['copiedPages']>=7 and r['appStatePages']==4
+    assert all(r[k] for k in ['oldUnpinnedMovingWriterRejected','pinnedSourceReadOnlyAndInTransaction','typedRootUnchangedAcrossLiveCommit','typedTargetRootEqualsPinnedRoot','liveRootAdvancedDuringCopy','sourceClosedOnSuccess','persistentWriteRejectedByReadOnlyHandle','sourceClosedAfterWriteError','sourceClosedAndWriterReleasedAfterCancellation','sourceClosedAndWriterReleasedAfterBodyError','originalKeysAndResearchRowsRetained'])
 elif name=='R29DatabaseCutoverDeviceTest':
     assert r['status']=='PASS_ANDROID_ENGINEERING_SUBSET' and r['legacyScopedWriteIndependentAndOriginalRowsPreserved'] and r['preparedFrameWithActualAndroidPostCommitReceipt']
 elif name=='R29CriticalInputTriggerDeviceTest':
@@ -57,6 +61,7 @@ PY
 # Each case gets a fresh process and an isolated fixture. Retain every failure in this single pinned-source run.
 run_case R29LargeModelCheckpointDeviceTest large-model files/r29-model-cursorwindow-device.json
 run_case R29LargeRowMigrationDeviceTest large-rows files/r29-large-row-migration-device.json
+run_case R29CutoverSnapshotDeviceTest cutover-snapshot files/r29-cutover-snapshot-device.json
 run_case R29DatabaseCutoverDeviceTest '' files/r29-cutover-device.json
 run_case R29CriticalInputTriggerDeviceTest critical-trigger files/r29-critical-trigger-device.json
 run_case R29LegacySchemaOwnerDeviceTest schema-owner files/r29-legacy-schema-owner-device.json
