@@ -97,6 +97,7 @@ public final class LiveShadowsR27 {
             }
             final long dl = deadline;
             b.before = db -> System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1; // R29: commit at least 5 s before the draw, else DEADLINE_MISSED
+            b.after = b.before; // Recheck after all inserts: a large batch must roll back if it crosses the boundary.
             if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
             try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
             catch (IllegalStateException late) { if (!String.valueOf(late.getMessage()).contains("R27_WRITE_PRECONDITION") && !(late.getCause() != null && String.valueOf(late.getCause().getMessage()).contains("R27_WRITE_PRECONDITION"))) throw late; }
@@ -128,7 +129,7 @@ public final class LiveShadowsR27 {
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
             // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
             List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
-            if (QualificationInboxR29.hasOpenConflict(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_RESULT_CONFLICT"); }
+            if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("failing", new ArrayList<Object>(failing));
             String digest = StatsR27.sha256(s.id + "|" + st.n + "|" + st.acts + "|" + st.hits + "|" + Double.toHexString(st.logUp));
             b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,?,?,?,?,?)", s.id, issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS);

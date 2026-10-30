@@ -28,22 +28,30 @@ public final class GateV2R29 {
 
     // ---------------------------------------------------------------- calibration support
     public static final class Calibration {
-        public long n; public double ece = Double.NaN, supportedMass = Double.NaN, unsupportedMass = Double.NaN, supportLow = Double.NaN, supportHigh = Double.NaN;
+        public long n, invalidRows; public double ece = Double.NaN, supportedMass = Double.NaN, unsupportedMass = Double.NaN, supportLow = Double.NaN, supportHigh = Double.NaN;
         public final long[] count = new long[BINS]; public final double[] meanP = new double[BINS], rate = new double[BINS], lo = new double[BINS], hi = new double[BINS];
         public String status;
-        public boolean inSupport(double p) { int b = bin(p); return count[b] >= MIN_BIN_SUPPORT; }
+        public boolean inSupport(double p) { return probability(p) && count[bin(p)] >= MIN_BIN_SUPPORT; }
         public Map<String, Object> json() {
             Map<String, Object> m = new LinkedHashMap<>(); m.put("status", status); m.put("validationActs", n); m.put("ece", fin(ece)); m.put("supportedMass", fin(supportedMass));
             m.put("unsupportedMass", fin(unsupportedMass)); m.put("supportRange", Double.isFinite(supportLow) ? supportLow + "-" + supportHigh : null);
+            m.put("invalidRows", invalidRows);
             List<Object> bins = new ArrayList<>();
             for (int b = 0; b < BINS; b++) { if (count[b] == 0) continue; Map<String, Object> x = new LinkedHashMap<>(); x.put("bin", b); x.put("n", count[b]); x.put("meanP", meanP[b]); x.put("observed", rate[b]); x.put("wilson95", lo[b] + "-" + hi[b]); x.put("supported", count[b] >= MIN_BIN_SUPPORT); bins.add(x); }
             m.put("bins", bins); return m;
         }
     }
-    public static int bin(double p) { return Math.min(BINS - 1, Math.max(0, (int) Math.floor(p * BINS))); }
+    static boolean probability(double p) { return Double.isFinite(p) && p >= 0 && p <= 1; }
+    public static int bin(double p) {
+        if (!probability(p)) throw new IllegalArgumentException("R29_INVALID_PROBABILITY");
+        return Math.min(BINS - 1, (int) Math.floor(p * BINS));
+    }
 
     public static Calibration calibration(double[] p, int[] y, int n) {
         Calibration c = new Calibration(); c.n = n;
+        if (p == null || y == null || n < 0 || n > p.length || n > y.length) { c.status = "INVALID_INPUT"; return c; }
+        for (int i = 0; i < n; i++) if (!probability(p[i]) || (y[i] != 0 && y[i] != 1)) c.invalidRows++;
+        if (c.invalidRows > 0) { c.status = "INVALID_INPUT"; return c; }
         double[] sp = new double[BINS], sy = new double[BINS];
         for (int i = 0; i < n; i++) { int b = bin(p[i]); c.count[b]++; sp[b] += p[i]; sy[b] += y[i]; }
         if (n == 0) { c.status = "INSUFFICIENT"; return c; }
@@ -95,11 +103,16 @@ public final class GateV2R29 {
         Map<Long, long[]> blocks = new LinkedHashMap<>();
         for (int i = 0; i < e.actOrdinal.length; i++) { long[] a = blocks.computeIfAbsent(Math.floorDiv(e.actOrdinal[i], (long) BLOCK), k -> new long[2]); a[0]++; a[1] += e.y[i]; }
         List<Object> rows = new ArrayList<>(); int complete = 0, eligible = 0; double worst = Double.NaN;
-        for (Map.Entry<Long, long[]> b : blocks.entrySet()) {
-            long start = b.getKey() * BLOCK, end = start + BLOCK - 1; boolean done = start >= e.registeredOrdinal && end <= e.latestOrdinal;
-            Map<String, Object> x = new LinkedHashMap<>(); x.put("block", b.getKey()); x.put("acts", b.getValue()[0]); x.put("hits", b.getValue()[1]); x.put("complete", done); rows.add(x);
+        long firstBlock = Math.floorDiv(e.registeredOrdinal, (long) BLOCK);
+        if (firstBlock * BLOCK < e.registeredOrdinal) firstBlock++;
+        // The first three full calendar blocks are fixed by registration, including empty/weak blocks.
+        // Selecting any three blocks with >=80 ACTs after seeing their outcomes would cherry-pick stability.
+        for (int j = 0; j < MIN_BLOCKS; j++) {
+            long key = firstBlock + j, start = key * BLOCK, end = start + BLOCK - 1; boolean done = e.registeredOrdinal >= 0 && end <= e.latestOrdinal;
+            long[] values = blocks.get(key); if (values == null) values = new long[2];
+            Map<String, Object> x = new LinkedHashMap<>(); x.put("block", key); x.put("acts", values[0]); x.put("hits", values[1]); x.put("complete", done); rows.add(x);
             if (!done) continue; complete++;
-            if (b.getValue()[0] >= MIN_BLOCK_ACTS) { eligible++; double r = b.getValue()[1] / (double) b.getValue()[0]; worst = Double.isNaN(worst) ? r : Math.min(worst, r); }
+            if (values[0] >= MIN_BLOCK_ACTS) { eligible++; double r = values[1] / (double) values[0]; worst = Double.isNaN(worst) ? r : Math.min(worst, r); }
         }
         Map<String, Object> tb = new LinkedHashMap<>(); tb.put("completeBlocks", complete); tb.put("blocksWith80Acts", eligible); tb.put("worstBlockHitRate", fin(worst)); tb.put("blocks", rows);
         gate(v, "completeBlocks>=3(80acts)", eligible >= MIN_BLOCKS);
@@ -148,16 +161,23 @@ public final class GateV2R29 {
                 + "sum(CASE WHEN status='FROZEN' AND act=1 AND hit<0 THEN 1 ELSE 0 END) FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal<=?", new String[] {id, String.valueOf(latestOrdinal)})) {
             if (c.moveToFirst() && !c.isNull(0)) { e.registeredOrdinal = c.getLong(0); e.frozen = c.getLong(1); e.actDecisions = c.getLong(2); e.pendingActs = c.getLong(3); e.opportunities = latestOrdinal - e.registeredOrdinal + 1; }
         }
+        long registered = QualificationInboxR29.calendarStart(ro, id);
+        if (registered >= 0) { e.registeredOrdinal = registered; e.opportunities = Math.max(0, latestOrdinal - registered + 1); }
         List<double[]> rows = new ArrayList<>();
         try (Cursor c = ro.rawQuery("SELECT target_ordinal,probabilities,n1,n2,n3,hit FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN' AND act=1 AND hit>=0 AND target_ordinal<=? ORDER BY target_ordinal", new String[] {id, String.valueOf(latestOrdinal)})) {
             while (c.moveToNext()) {
                 double[] pr = StoreR27.unpack(c.getBlob(1)); double p = Double.NaN;
-                if (pr.length >= 10) p = StatsR27.clamp(pr[c.getInt(2) - 1] + pr[c.getInt(3) - 1] + pr[c.getInt(4) - 1], 0, 1);
+                int a = c.getInt(2), b = c.getInt(3), z = c.getInt(4);
+                if (pr.length == 10 && a >= 1 && a <= 10 && b >= 1 && b <= 10 && z >= 1 && z <= 10 && a != b && a != z && b != z) {
+                    double sum = 0; boolean valid = true;
+                    for (double value : pr) { sum += value; valid &= probability(value); }
+                    if (valid && Math.abs(sum - 1) <= 1e-6) p = Math.min(1, pr[a - 1] + pr[b - 1] + pr[z - 1]);
+                }
                 rows.add(new double[] {c.getLong(0), p, c.getInt(5)});
             }
         }
         int n = rows.size(); e.settledActs = n; e.p = new double[n]; e.y = new int[n]; e.actOrdinal = new long[n];
-        for (int i = 0; i < n; i++) { double[] r = rows.get(i); e.actOrdinal[i] = (long) r[0]; e.p[i] = Double.isFinite(r[1]) ? r[1] : 0; e.y[i] = (int) r[2]; e.hits += e.y[i]; }
+        for (int i = 0; i < n; i++) { double[] r = rows.get(i); e.actOrdinal[i] = (long) r[0]; e.p[i] = r[1]; e.y[i] = (int) r[2]; e.hits += e.y[i]; }
         return e;
     }
 

@@ -42,6 +42,30 @@ public class R29GateV2Test {
     }
     @Test public void probabilityOneBelongsToLastBin() { assertEquals(9, GateV2R29.bin(1.0)); assertEquals(0, GateV2R29.bin(0.0)); assertEquals(3, GateV2R29.bin(0.34)); }
 
+    @Test public void invalidCalibrationNeverBecomesZeroOrSupported() {
+        for (double bad : new double[] {Double.NaN, Double.POSITIVE_INFINITY, -0.01, 1.01}) {
+            double[] p = fill(200, .34); p[0] = bad;
+            GateV2R29.Calibration c = GateV2R29.calibration(p, hits(200, 68), 200);
+            assertEquals("INVALID_INPUT", c.status); assertEquals(1, c.invalidRows); assertTrue(Double.isNaN(c.ece)); assertFalse(c.inSupport(bad));
+        }
+        int[] y = hits(200, 68); y[0] = -1;
+        assertEquals("INVALID_INPUT", GateV2R29.calibration(fill(200, .34), y, 200).status);
+        assertEquals("INVALID_INPUT", GateV2R29.calibration(fill(1, .34), hits(1, 1), 200).status);
+    }
+
+    @Test public void emptyRegisteredBlocksCannotBeReplacedByLaterGoodBlocks() {
+        GateV2R29.Evidence e = new GateV2R29.Evidence(); e.sequentialState = SequentialQualificationR27.QUALIFIED;
+        e.registeredOrdinal = 0; e.latestOrdinal = 5 * 720; e.opportunities = e.latestOrdinal + 1;
+        int n = 300; e.settledActs = n; e.actDecisions = n; e.p = fill(n, .36); e.y = new int[n]; e.actOrdinal = new long[n];
+        // Block 0 has no ACTs. Three later good blocks must not hide it.
+        for (int i = 0; i < n; i++) { e.actOrdinal[i] = (1 + i / 100) * 720L + i % 100; e.y[i] = i % 25 < 9 ? 1 : 0; e.hits += e.y[i]; }
+        e.pairedLcbVsI00 = e.pairedLcbVsNull = .01;
+        GateV2R29.Verdict v = GateV2R29.evaluate(e);
+        assertFalse(v.wouldIssue); assertTrue(v.failing.contains("completeBlocks>=3(80acts)"));
+        assertEquals(3, ((Map<?, ?>) v.sections.get("timeBlocks")).get("completeBlocks"));
+        assertEquals(2, ((Map<?, ?>) v.sections.get("timeBlocks")).get("blocksWith80Acts"));
+    }
+
     @Test public void streakTailIsExact() {
         assertEquals(0.375, GateV2R29.streakTail(3, 2, 0.5), 1e-12); // MMM, MMH, HMM of 8
         assertEquals(Math.pow(0.7, 6), GateV2R29.streakTail(6, 6, 0.7), 1e-12);

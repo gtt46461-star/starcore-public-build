@@ -28,10 +28,11 @@ public final class QualificationInboxR29 {
         "CREATE TABLE IF NOT EXISTS r29_qual_rebuild(experiment_id TEXT NOT NULL,old_state_json TEXT NOT NULL,old_certificate TEXT,reason TEXT NOT NULL,rebuilt_at INTEGER NOT NULL,PRIMARY KEY(experiment_id,rebuilt_at))",
         "CREATE TABLE IF NOT EXISTS r29_qual_cursor(experiment_id TEXT PRIMARY KEY,blocked_ordinal INTEGER NOT NULL,blocked_reason TEXT NOT NULL,consumed_total INTEGER NOT NULL DEFAULT 0,cas_retries INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r29_pending_draw(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,rows INTEGER NOT NULL,act_rows INTEGER NOT NULL,first_seen_at INTEGER NOT NULL,last_checked_at INTEGER NOT NULL,checks INTEGER NOT NULL DEFAULT 0,resolved_at INTEGER NOT NULL DEFAULT 0)",
+        "CREATE TABLE IF NOT EXISTS r29_qual_calendar(experiment_id TEXT PRIMARY KEY,first_ordinal INTEGER NOT NULL,registered_at INTEGER NOT NULL,origin TEXT NOT NULL)",
     };
 
     public static final String BLOCK_NONE = "NONE", BLOCK_ACT_PENDING_DRAW = "ACT_PENDING_DRAW", BLOCK_ACT_PENDING_SETTLE = "ACT_PENDING_SETTLE",
-            BLOCK_CONFLICT = "CONFLICT", BLOCK_NOT_DUE = "NOT_DUE";
+            BLOCK_CONFLICT = "CONFLICT", BLOCK_NOT_DUE = "NOT_DUE", BLOCK_MISSING_OPPORTUNITY = "MISSING_OPPORTUNITY";
 
     /** One registered opportunity of an experiment as stored (status/act/numbers frozen before the deadline). */
     public static final class Row {
@@ -57,10 +58,17 @@ public final class QualificationInboxR29 {
 
     /** Pure decision: applies rows (ascending, all &gt; s.lastOrdinal) to s in place while they are resolvable. */
     public static Plan plan(SequentialQualificationR27.State s, List<Row> rows, long latestOrdinal, int max) {
+        return plan(s, rows, latestOrdinal, max, -1);
+    }
+    static Plan plan(SequentialQualificationR27.State s, List<Row> rows, long latestOrdinal, int max, long firstOrdinal) {
         Plan p = new Plan();
+        long expected = s.lastOrdinal >= 0 ? s.lastOrdinal + 1 : firstOrdinal;
         for (Row r : rows) {
             if (p.consumed.size() >= max) break;
             if (r.ordinal <= s.lastOrdinal) continue; // already consumed (defensive; the query starts after the cursor)
+            if (expected >= 0 && expected <= latestOrdinal && r.ordinal != expected) {
+                p.block = BLOCK_MISSING_OPPORTUNITY; p.blockedOrdinal = expected; break;
+            }
             if (r.ordinal > latestOrdinal) { p.block = BLOCK_NOT_DUE; p.blockedOrdinal = r.ordinal; break; }
             boolean act = r.registeredAct(), hit = false;
             if (act) {
@@ -76,6 +84,10 @@ public final class QualificationInboxR29 {
             double u = act ? (hit ? 1 : 0) - StatsR27.BASE : 0;
             String after = s.observe(r.ordinal, act, hit);
             p.consumed.add(new Consumed(r, act, hit, u, digest(s.policyHash, r), after));
+            expected = r.ordinal + 1;
+        }
+        if (BLOCK_NONE.equals(p.block) && p.consumed.size() < max && expected >= 0 && expected <= latestOrdinal) {
+            p.block = BLOCK_MISSING_OPPORTUNITY; p.blockedOrdinal = expected;
         }
         return p;
     }
@@ -107,11 +119,23 @@ public final class QualificationInboxR29 {
         }
         for (String id : experiments) {
             if (hasOpenConflict(ro, id)) { pass.blocked.put(id, BLOCK_CONFLICT); continue; }
+            long firstOrdinal = calendarStart(ro, id);
+            if (firstOrdinal < 0) {
+                // An old installation has no registration boundary. Preserve that uncertainty explicitly;
+                // the first original freeze is a conservative lower bound, never a fabricated prediction.
+                try (Cursor c = ro.rawQuery("SELECT min(target_ordinal) FROM r27_live_frozen WHERE policy_hash=?", new String[] {id})) {
+                    if (c.moveToFirst() && !c.isNull(0)) firstOrdinal = c.getLong(0);
+                }
+                if (firstOrdinal < 0) { pass.blocked.put(id, "REGISTRATION_BOUNDARY_UNKNOWN"); continue; }
+                ResearchWriteQueueR27.Batch cal = new ResearchWriteQueueR27.Batch().add(
+                        "INSERT OR IGNORE INTO r29_qual_calendar VALUES(?,?,?,?)", id, firstOrdinal, System.currentTimeMillis(), "LEGACY_FIRST_FREEZE_LOWER_BOUND");
+                if (!sink.commit("R29_QUAL_CALENDAR", cal)) { pass.casRetries++; continue; }
+            }
             if (needsRebuild(ro, id)) { if (rebuild(ro, sink, id)) pass.rebuilt++; else { pass.casRetries++; continue; } }
             for (int guard = 0; guard < 64; guard++) {
                 SequentialQualificationR27.State s = StoreR27.readEprocess(ro, id); if (s == null) break;
                 final long expectLast = s.lastOrdinal, expectN = s.n;
-                Plan p = plan(s, rows(ro, id, s.lastOrdinal, MAX_STEP + 1), latestOrdinal, MAX_STEP);
+                Plan p = plan(s, rows(ro, id, s.lastOrdinal, MAX_STEP + 1), latestOrdinal, MAX_STEP, firstOrdinal);
                 if (p.consumed.isEmpty() && !BLOCK_CONFLICT.equals(p.block) && sameCursor(ro, id, p)) { pass.blocked.put(id, p.block); break; }
                 ResearchWriteQueueR27.Batch b = step(id, s, p, expectLast, expectN);
                 boolean ok;
@@ -124,6 +148,20 @@ public final class QualificationInboxR29 {
             }
         }
         return pass;
+    }
+
+    static long calendarStart(SQLiteDatabase db, String id) {
+        try (Cursor c = db.rawQuery("SELECT first_ordinal FROM r29_qual_calendar WHERE experiment_id=?", new String[] {id})) {
+            return c.moveToFirst() ? c.getLong(0) : -1;
+        }
+    }
+    static boolean blockedForCertificate(SQLiteDatabase db, String id) {
+        if (hasOpenConflict(db, id)) return true;
+        try (Cursor c = db.rawQuery("SELECT blocked_reason FROM r29_qual_cursor WHERE experiment_id=?", new String[] {id})) {
+            if (!c.moveToFirst()) return true;
+            String reason = c.getString(0);
+            return !BLOCK_NONE.equals(reason) && !BLOCK_NOT_DUE.equals(reason);
+        }
     }
 
     /** Builds the single transaction for one plan. */
@@ -176,7 +214,13 @@ public final class QualificationInboxR29 {
         long n = 0, receipts = 0;
         try (Cursor c = ro.rawQuery("SELECT n FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()) n = c.getLong(0); }
         if (n == 0) return false;
-        try (Cursor c = ro.rawQuery("SELECT count(*) FROM r29_qual_receipt WHERE experiment_id=?", new String[] {id})) { if (c.moveToFirst()) receipts = c.getLong(0); }
+        try (Cursor c = ro.rawQuery("SELECT count(*),min(target_ordinal),max(target_ordinal) FROM r29_qual_receipt WHERE experiment_id=?", new String[] {id})) {
+            if (c.moveToFirst()) {
+                receipts = c.getLong(0);
+                long start = calendarStart(ro, id);
+                if (receipts > 0 && (c.getLong(2) - c.getLong(1) + 1 != receipts || (start >= 0 && c.getLong(1) != start))) return true;
+            }
+        }
         return receipts != n;
     }
 
@@ -247,6 +291,8 @@ public final class QualificationInboxR29 {
         m.put("receiptActs", count(db, "SELECT count(*) FROM r29_qual_receipt WHERE act=1"));
         m.put("conflictsOpen", count(db, "SELECT count(*) FROM r29_qual_conflict WHERE resolved_at=0"));
         m.put("rebuilds", count(db, "SELECT count(*) FROM r29_qual_rebuild"));
+        m.put("registrationBoundariesInferred", count(db, "SELECT count(*) FROM r29_qual_calendar WHERE origin='LEGACY_FIRST_FREEZE_LOWER_BOUND'"));
+        m.put("missingOpportunityExperiments", count(db, "SELECT count(*) FROM r29_qual_cursor WHERE blocked_reason='MISSING_OPPORTUNITY'"));
         m.put("receiptStateMismatch", count(db, "SELECT count(*) FROM r27_eprocess e WHERE EXISTS(SELECT 1 FROM r29_qual_receipt r WHERE r.experiment_id=e.policy_hash) AND e.n<>(SELECT count(*) FROM r29_qual_receipt r WHERE r.experiment_id=e.policy_hash)"));
         Map<String, Object> blocked = new LinkedHashMap<>();
         try (Cursor c = db.rawQuery("SELECT blocked_reason,count(*),min(CASE WHEN blocked_ordinal>=0 THEN blocked_ordinal END) FROM r29_qual_cursor GROUP BY blocked_reason ORDER BY blocked_reason", null)) {

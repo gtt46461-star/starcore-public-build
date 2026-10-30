@@ -50,6 +50,7 @@ public final class SchemaR27 {
         HistoryImportR27.DDL,
         // R29-010/035: contiguous qualification receipts, conflicts, rebuild log, cursor, pending draws (additive).
         QualificationInboxR29.DDL[0], QualificationInboxR29.DDL[1], QualificationInboxR29.DDL[2], QualificationInboxR29.DDL[3], QualificationInboxR29.DDL[4],
+        QualificationInboxR29.DDL[5],
         GateV2R29.DDL,
         "CREATE TABLE IF NOT EXISTS r27_opportunity(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,scheduled INTEGER NOT NULL,frozen INTEGER NOT NULL,acted INTEGER NOT NULL,settled INTEGER NOT NULL,deadline_missed INTEGER NOT NULL,recorded_at INTEGER NOT NULL)"
     };

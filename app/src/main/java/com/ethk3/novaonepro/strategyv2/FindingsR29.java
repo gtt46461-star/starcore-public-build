@@ -48,6 +48,11 @@ public final class FindingsR29 {
                     "draw backfill resolves them (r29_pending_draw.resolved_at)", "ApiClient.fetchTodayBackfill/fetchYesterdayBackfill → LiveShadowsR27.settle", "R29-009",
                     "network restore + backfill; pendingDrawOpen returns to 0 without new hit=-2"));
         Object blocked = q.get("cursorByBlockReason");
+        Long gaps = n(q.get("missingOpportunityExperiments"));
+        if (gaps != null && gaps > 0)
+            out.add(finding("R29F-MISSING-OPPORTUNITY", "BLOCKER", gaps + " experiments stopped at a calendar period with no original frozen record", "OBSERVED",
+                    "an original immutable predraw record is recovered; never a postdraw replacement", "QualificationInboxR29.plan / RuntimeR27.LiveTask", "R29-035",
+                    "host Q9; inspect blocked_ordinal, restore original record or close the evidence segment with audit"));
         if (blocked instanceof Map && ((Map<?, ?>) blocked).containsKey(BLOCK_ACT_PENDING_SETTLE))
             out.add(finding("R29F-SETTLE-LAG", "MEDIUM", "experiments blocked on an ACT period whose draw exists but is not settled yet", "DIRECT_STATE",
                     "next LIVE_SETTLE pass clears it", "RuntimeR27.LiveTask.step ordering settle → qualify", "R29-012", "M04 settlement latency probe"));

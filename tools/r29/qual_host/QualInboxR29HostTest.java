@@ -48,8 +48,7 @@ public final class QualInboxR29HostTest {
         return (op, b) -> {
             db.jdbc.setAutoCommit(false);
             try {
-                if (b.before != null) { Integer r = b.before.call(db); if (r != null && r < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + op); }
-                for (ResearchWriteQueueR27.Op o : b.ops) db.execSQL(o.sql, o.args);
+                ResearchWriteQueueR27.execute(db, b, op);
                 if (rng.nextDouble() < kill) throw new Killed();
                 db.jdbc.commit(); return true;
             } catch (Exception e) { db.jdbc.rollback(); throw e; }
@@ -243,7 +242,87 @@ public final class QualInboxR29HostTest {
                     && "NOT_DEPLOYED".equals(((Map<?, ?>) v.sections.get("frequency")).get("Q02"));
             check("Q8_GATE_V2_EVIDENCE", ok, "opportunities=" + e.opportunities + " actDecisions=" + e.actDecisions + "/" + acts + " settled=" + e.settledActs + " pending=" + e.pendingActs + " failing=" + v.failing);
         }
+        // Q9 Entirely absent frozen opportunities must stop the cursor, even if a later row is already settled.
+        {
+            World w = new World(12, 71); SQLiteDatabase db = open(); w.register(db, -1);
+            QualificationInboxR29.Commit s = sink(db, 0, new Random(2));
+            db.execSQL("INSERT INTO r29_qual_calendar VALUES(?,1,0,'REGISTERED_BEFORE_FUTURE')", new Object[] {w.id});
+            db.execSQL("DELETE FROM r27_live_frozen WHERE target_ordinal=2");
+            for (int o = 1; o <= 12; o++) w.draw(db, o);
+            pass(db, s, 12);
+            boolean stopped = scalar(db, "SELECT last_ordinal FROM r27_eprocess") == 1
+                    && scalar(db, "SELECT blocked_ordinal FROM r29_qual_cursor") == 2
+                    && QualificationInboxR29.blockedForCertificate(db, w.id);
+            // A copy of the ORIGINAL immutable record may be restored, never a newly computed postdraw prediction.
+            w.freezeRow(db, 2, -1); pass(db, s, 12);
+            check("Q9_ABSENT_FREEZE_STOPS_CURSOR", stopped && same(StoreR27.readEprocess(db, w.id), w.reference()) == null,
+                    "blockedAt2=" + stopped + " recoveredOriginalRecordTo=" + scalar(db, "SELECT last_ordinal FROM r27_eprocess"));
+        }
+        // Q10 Missing first and missing final opportunities are gaps too; a future row is not evidence for the gap.
+        {
+            World w = new World(5, 72); SQLiteDatabase db = open(); w.register(db, -1);
+            QualificationInboxR29.Commit s = sink(db, 0, new Random(2));
+            db.execSQL("INSERT INTO r29_qual_calendar VALUES(?,1,0,'REGISTERED_BEFORE_FUTURE')", new Object[] {w.id});
+            db.execSQL("DELETE FROM r27_live_frozen WHERE target_ordinal IN(1,4)");
+            for (int o = 1; o <= 5; o++) w.draw(db, o);
+            pass(db, s, 4);
+            boolean first = scalar(db, "SELECT n FROM r27_eprocess") == 0 && scalar(db, "SELECT blocked_ordinal FROM r29_qual_cursor") == 1;
+            w.freezeRow(db, 1, -1); pass(db, s, 4);
+            boolean end = scalar(db, "SELECT last_ordinal FROM r27_eprocess") == 3 && scalar(db, "SELECT blocked_ordinal FROM r29_qual_cursor") == 4;
+            check("Q10_FIRST_AND_TRAILING_GAPS", first && end, "firstBlocked=" + first + " trailingBeforeFuture=" + end);
+        }
+        // Q11 Old checkpoint receipts may themselves have jumped a missing opportunity. Log, revoke, rebuild.
+        {
+            World w = new World(5, 73); SQLiteDatabase db = open(); w.register(db, -1);
+            QualificationInboxR29.Commit s = sink(db, 0, new Random(2));
+            db.execSQL("INSERT INTO r29_qual_calendar VALUES(?,1,0,'REGISTERED_BEFORE_FUTURE')", new Object[] {w.id});
+            db.execSQL("INSERT INTO r29_qual_receipt VALUES(?,1,'I100001',0,-1,0,'old','ACCUMULATING',0)", new Object[] {w.id});
+            db.execSQL("INSERT INTO r29_qual_receipt VALUES(?,3,'I100003',0,-1,0,'old','ACCUMULATING',0)", new Object[] {w.id});
+            db.execSQL("UPDATE r27_eprocess SET n=2,last_ordinal=3");
+            db.execSQL("INSERT INTO r27_certificate VALUES(?,'ACTIVE','{}','old',0,999999)", new Object[] {w.id});
+            for (int o = 1; o <= 5; o++) w.draw(db, o);
+            pass(db, s, 5);
+            check("Q11_REBUILD_GAPPED_CHECKPOINT", scalar(db, "SELECT count(*) FROM r29_qual_rebuild") == 1
+                    && scalar(db, "SELECT count(*) FROM r27_certificate WHERE status='REVOKED_REBUILD'") == 1
+                    && same(StoreR27.readEprocess(db, w.id), w.reference()) == null, "old evidence kept; certificate revoked; continuous replay recovered");
+        }
+        atomicBatches();
         System.out.println("R29_QUAL|SUMMARY|" + (FAIL.isEmpty() ? "OK" : "FAILED " + FAIL));
         System.exit(FAIL.isEmpty() ? 0 : 1);
+    }
+
+    static void atomicBatches() throws Exception {
+        SQLiteDatabase db = open(); db.execSQL("CREATE TABLE atomic_test(id INTEGER PRIMARY KEY,value INTEGER NOT NULL)");
+        final int[] transactions = {0}; final boolean[] die = {true};
+        ResearchWriteQueueR27 q = new ResearchWriteQueueR27((op, batch) -> {
+            transactions[0]++;
+            try {
+                db.jdbc.setAutoCommit(false);
+                ResearchWriteQueueR27.execute(db, batch, op);
+                if (die[0]) throw new IllegalStateException("CP3_DB_BUSY_LOCK_TIMEOUT");
+                db.jdbc.commit();
+            } catch (Exception e) {
+                try { db.jdbc.rollback(); } catch (Exception x) { throw new AssertionError(x); }
+                if (e instanceof RuntimeException) throw (RuntimeException) e;
+                throw new IllegalStateException(e);
+            } finally { try { db.jdbc.setAutoCommit(true); } catch (Exception e) { throw new AssertionError(e); } }
+        }, () -> false);
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+        b.before = tx -> { tx.execSQL("INSERT INTO atomic_test VALUES(-1,1)"); return 0; };
+        for (int i = 0; i < 1201; i++) b.add("INSERT INTO atomic_test VALUES(?,1)", i);
+        b.after = tx -> { tx.execSQL("INSERT INTO atomic_test VALUES(99999,1)"); return 0; };
+        boolean retry = !q.submit("LARGE", b, () -> false) && scalar(db, "SELECT count(*) FROM atomic_test") == 0;
+        die[0] = false;
+        boolean committed = q.submit("LARGE", b, () -> false);
+        check("Q12_LARGE_BATCH_ATOMIC_RETRY", retry && committed && transactions[0] == 2 && scalar(db, "SELECT count(*) FROM atomic_test") == 1203,
+                "rollbackThenRetry=" + retry + " transactions=" + transactions[0] + " rows=" + scalar(db, "SELECT count(*) FROM atomic_test"));
+        ResearchWriteQueueR27.Batch late = new ResearchWriteQueueR27.Batch().add("UPDATE atomic_test SET value=value+1");
+        late.after = tx -> -1; boolean rejected = false;
+        try { q.submit("FREEZE_CROSSED_DEADLINE", late, () -> false); } catch (IllegalStateException e) { rejected = QualificationInboxR29.precondition(e); }
+        check("Q13_POSTCHECK_ROLLS_BACK_ALL", rejected && scalar(db, "SELECT max(value) FROM atomic_test") == 1,
+                "end-of-transaction safety check failure left original rows unchanged");
+        int before = transactions[0];
+        boolean cancelled = !q.submit("CANCELLED", late, () -> true);
+        check("Q14_CANCEL_BEFORE_WRITE", cancelled && transactions[0] == before, "cancelled batch never entered writer");
     }
 }

@@ -5,25 +5,35 @@ import com.ethk3.novaonepro.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/** R27-004 research write queue (docs/02 2.2). Research threads compute in memory on read-only connections and
- * submit writes here. Writes go through the single process writer (DatabaseCoordinator) in chunks of at most 500
- * statements; a chunk that took longer than 20 ms halves the next chunk. Research yields only in millisecond write
- * windows: while P0 settlement/analysis is writing, or within 3 s of the next freeze deadline, a submit waits at
- * most 200 ms, then is re-queued behind the caller's other work (counted per hour in r27_write_wait). */
+/** Research batch boundary. A batch's CAS, outputs and cursor are ONE transaction, including batches over 500
+ * statements. Callers must prepare bounded slices before submitting; splitting a logical batch inside this queue
+ * exposed partial model state and let a retry apply non-idempotent increments twice. R29-005's independent database
+ * cutover is still pending: this correctness fix deliberately retains the existing writer and its pressure guard. */
 public final class ResearchWriteQueueR27 {
     public static final int MAX_ROWS = 500; public static final long MAX_CHUNK_MS = 20, MAX_WAIT_MS = 200, DEADLINE_GUARD_MS = 3000;
     private final DbStore store; private volatile long nextDeadline;
+    interface AtomicWriter { void write(String operation, Batch batch); }
+    private final AtomicWriter writer;
+    private final java.util.function.BooleanSupplier critical;
     private long hourStart, submits, longWaits, maxWait, requeues;
 
-    public ResearchWriteQueueR27(DbStore store) { this.store = store; }
+    public ResearchWriteQueueR27(DbStore store) {
+        this.store = store; this.critical = ResearchWriteQueueR27::p0Writing;
+        this.writer = (operation, batch) -> store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+                "R27_" + operation, db -> { execute(db, batch, operation); return 0; });
+    }
+    // Same production submit path with a transactional test sink, without an Android process/DbStore.
+    ResearchWriteQueueR27(AtomicWriter writer, java.util.function.BooleanSupplier critical) {
+        this.store = null; this.writer = writer; this.critical = critical;
+    }
 
     /** One prepared statement and its bind arguments. */
     public static final class Op { final String sql; final Object[] args; public Op(String sql, Object... args) { this.sql = sql; this.args = args; } }
     /** A batch built in memory; optional callback runs first inside the same transaction (fence checks, CAS). */
     public static final class Batch {
-        public final List<Op> ops = new ArrayList<>(); public DatabaseCoordinator.WriteCallable<Integer> before;
+        public final List<Op> ops = new ArrayList<>(); public DatabaseCoordinator.WriteCallable<Integer> before, after;
         public Batch add(String sql, Object... args) { ops.add(new Op(sql, args)); return this; }
-        public boolean isEmpty() { return ops.isEmpty() && before == null; }
+        public boolean isEmpty() { return ops.isEmpty() && before == null && after == null; }
     }
 
     public void setNextDeadline(long wallMs) { nextDeadline = wallMs; }
@@ -39,53 +49,40 @@ public final class ResearchWriteQueueR27 {
      *                     still yields to P0 settlement for at most 200 ms. */
     public boolean submit(String operation, Batch batch, java.util.function.BooleanSupplier cancelled, boolean freezeWrite) {
         if (batch.isEmpty()) return true;
-        long start = System.currentTimeMillis(), waited = 0;
-        while (p0Writing() || (!freezeWrite && freezeWindow(System.currentTimeMillis()))) {
+        long start = System.nanoTime(), waited = 0;
+        while (critical.getAsBoolean() || (!freezeWrite && freezeWindow(System.currentTimeMillis()))) {
             if (cancelled.getAsBoolean()) return false;
             if (waited >= MAX_WAIT_MS) { stat(waited, true); return false; }
             try { Thread.sleep(20); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
-            waited = System.currentTimeMillis() - start;
+            waited = (System.nanoTime() - start) / 1_000_000L;
         }
-        int chunk = MAX_ROWS, i = 0; boolean first = true;
-        while (i < batch.ops.size() || first) {
-            final int from = i, to = Math.min(batch.ops.size(), i + chunk); final boolean runBefore = first;
-            long t0 = System.nanoTime();
-            try {
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_" + operation, db -> {
-                    if (runBefore && batch.before != null) { Integer ok = batch.before.call(db); if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation); }
-                    for (int k = from; k < to; k++) { Op op = batch.ops.get(k); db.execSQL(op.sql, op.args); }
-                    return 0;
-                });
-            } catch (IllegalStateException failure) {
-                // R27.2: a writer busy past the background deadline is a wait, not a task error (device: evolution, live
-                // and AtomNet were quarantined by F01_WRITE_FAILED ← CP3_DB_BUSY_DEADLINE while P0 held the writer).
-                if (!writerBusy(failure)) throw failure;
-                if (first) { stat(System.currentTimeMillis() - start, true); return false; } // nothing committed: re-queue
-                if (cancelled.getAsBoolean()) return false;
-                // Earlier chunks are committed; retry this chunk (its statements are independent and idempotent).
-                try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
-                chunk = Math.max(25, chunk / 2); continue;
-            }
-            long ms = (System.nanoTime() - t0) / 1_000_000L;
-            if (ms > MAX_CHUNK_MS && chunk > 25) chunk /= 2;
-            i = to; first = false;
-            if (i < batch.ops.size() && (p0Writing() || freezeWindow(System.currentTimeMillis()))) {
-                // Remaining chunks are independent idempotent statements; let P0 pass, then continue.
-                long w0 = System.currentTimeMillis();
-                while ((p0Writing() || freezeWindow(System.currentTimeMillis())) && System.currentTimeMillis() - w0 < MAX_WAIT_MS) {
-                    try { Thread.sleep(20); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
-                }
-            }
+        if (cancelled.getAsBoolean()) return false;
+        try {
+            writer.write(operation, batch);
+        } catch (IllegalStateException failure) {
+            // A retry is safe only because the entire writer transaction rolled back.
+            if (!writerBusy(failure)) throw failure;
+            stat((System.nanoTime() - start) / 1_000_000L, true); return false;
         }
         stat(waited, false);
         return true;
+    }
+
+    static void execute(SQLiteDatabase db, Batch batch, String operation) throws Exception {
+        if (!db.inTransaction()) throw new IllegalStateException("R29_BATCH_TRANSACTION_REQUIRED");
+        if (batch.before != null) require(batch.before.call(db), operation);
+        exec(db, batch);
+        if (batch.after != null) require(batch.after.call(db), operation);
+    }
+    private static void require(Integer ok, String operation) {
+        if (ok != null && ok < 0) throw new IllegalStateException("R27_WRITE_PRECONDITION:" + operation);
     }
 
     /** True when the failure is the single writer being busy (deadline/interrupt), as opposed to a real write error. */
     static boolean writerBusy(Throwable failure) {
         for (Throwable t = failure; t != null; t = t.getCause()) {
             String m = String.valueOf(t.getMessage());
-            if (m.contains("CP3_DB_BUSY_DEADLINE") || t instanceof InterruptedException || t instanceof android.database.sqlite.SQLiteDatabaseLockedException) return true;
+            if (m.contains("CP3_DB_BUSY_") || t instanceof InterruptedException || t instanceof android.database.sqlite.SQLiteDatabaseLockedException) return true;
             if (t.getCause() == t) break;
         }
         return false;
@@ -98,7 +95,7 @@ public final class ResearchWriteQueueR27 {
     }
     /** Persists the hourly write-wait counters (called by the health task). */
     public synchronized void flush() {
-        if (hourStart == 0) return;
+        if (hourStart == 0 || store == null) return;
         final long h = hourStart, s = submits, w = longWaits, m = maxWait, r = requeues;
         try {
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_WRITE_WAIT", db -> {
