@@ -132,10 +132,28 @@ public final class R27QualityTest {
         {"app/src/main/java/com/ethk3/novaonepro/DbStore.java", "9edd4e0f593eeee607138543869df8a3e2e8d47a862988f154cb2d632ce9c78a"},
     };
 
+    /** The two reviewed R29 draw-event appends extend data delivery inside the existing draw transaction.
+     * Normalize ONLY those exact hooks, in their original canonical-acceptance position; every other byte of the
+     * main-chain owner remains pinned. Moving a hook or changing REAL/settlement logic must still fail this guard. */
+    static String withoutR29DrawDeliveryHooks(String source) {
+        java.util.regex.Pattern hook=java.util.regex.Pattern.compile("(\\h*FetchLedgerR925\\.canonicalDrawWithinR82\\(db,draw\\);\\n)\\h*com\\.ethk3\\.novaonepro\\.strategyv2\\.ResearchEventBridgeR29\\.appendCanonical\\(\\n\\h*db, draw\\.issue, rowId >= 0L, System\\.currentTimeMillis\\(\\)\\);\\n");
+        java.util.regex.Matcher matcher=hook.matcher(source);StringBuffer out=new StringBuffer();int count=0;
+        while(matcher.find()){matcher.appendReplacement(out,java.util.regex.Matcher.quoteReplacement(matcher.group(1)));count++;}
+        matcher.appendTail(out);assertEquals("exact reviewed draw-outbox hooks",2,count);return out.toString();
+    }
+
     @Test public void h15MainlineRedLines() throws Exception {
         File root = R27TestSupport.root();
-        // 1. The REAL / settlement owners are byte-identical to the 1713d11 baseline (rules unchanged, not tightened, not relaxed).
-        for (String[] f : MAINLINE_OWNERS) assertEquals("main-chain owner changed: " + f[0], f[1], StatsR27.sha256(Files.readAllBytes(new File(root, f[0]).toPath())));
+        // 1. Pin every owner; DbStore's two authorized delivery hooks are the sole explicit extension.
+        for (String[] f : MAINLINE_OWNERS) {
+            byte[] bytes=Files.readAllBytes(new File(root,f[0]).toPath());
+            if(f[0].endsWith("/DbStore.java")) {
+                String src=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
+                bytes=withoutR29DrawDeliveryHooks(src).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                assertNotEquals("negative control: altered main-chain owner escaped guard",f[1],StatsR27.sha256(withoutR29DrawDeliveryHooks(src.replace("R914_DRAW_SAVE_ATOMIC","UNAUTHORIZED_DRAW_OWNER"))));
+            }
+            assertEquals("main-chain owner changed: "+f[0],f[1],StatsR27.sha256(bytes));
+        }
         // 2. No R27 class can create a REAL decision, settle, or size a stake: no reference to the owners' entry points.
         String[] forbidden = {"DecisionGateEngine", "SettlementEngine", "V51DecisionGateCore", "insertTrade", "insertBet", "placeBet", "stake", "multiplier", "martingale", "chase"};
         File dir = new File(root, "app/src/main/java/com/ethk3/novaonepro/strategyv2"); int scanned = 0;
