@@ -1,0 +1,78 @@
+{
+  "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+  "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "sourceTree": "1e87895fce60b096fe68531a1a3b63ea957e0aa5",
+  "run": 41132503018,
+  "job": 124326695082,
+  "artifact": 13015095035,
+  "zipBytes": 73683,
+  "zipSha256": "ef036ca9b499dc174049c0e2c22078e004bfa39174a1d8020d5669503164151e",
+  "zipShaRecomputed": true,
+  "status": "FAIL_UPGRADE_INCUMBENT_UNSLICED_NEW_TASK_ERROR",
+  "B01": "NOT_ACCEPTED",
+  "scope": "API34 x86_64 R13 debug additional whole-App CP06 upgrade diagnostic; formal four-case installation matrix separate.",
+  "partialFacts": {
+    "publicationPhase": "PUBLISHED",
+    "activeOwner": "starcore-r29-research.db",
+    "rootIntegrity": "ok",
+    "researchIntegrity": "ok",
+    "researchIdentityMatched": true,
+    "sealedBaselineVerified": true,
+    "sealedBaselineSha256": "04b246b181256cd3477e3d090f15a4ab11f7290d8bea5fd7198abdd865451077",
+    "strategyStorageCommittedUnits": 265,
+    "strategyStorageTotalUnits": 265,
+    "eventsOutbox": 4191,
+    "eventsAcked": 4191,
+    "eventsDelivered": 4191,
+    "ackedEventsWithoutMatchingInbox": 0,
+    "corruptOutboxPayloads": 0,
+    "deliveredIdentityMismatches": 0
+  },
+  "failure": {
+    "originalGuard": "ALL_NEW_TASK_ERRORS_SINCE_BASELINE_EQUALS_ZERO",
+    "terminalAssertion": "AssertionError:NEW_TASK_ERRORS_SINCE_BASELINE",
+    "newTaskErrorRecordsAcrossOwners": 2,
+    "uniqueTaskFailureIncidentCount": 1,
+    "rootErrorCopiedToRp": true,
+    "sameIncidentProof": "same errorId/task/errorClass/message/recordedAt in Root and RP; only owner differs",
+    "actualRecords": [
+      {
+        "owner": "REALTIME",
+        "errorId": 1,
+        "task": "incumbent-forecast",
+        "errorClass": "java.lang.IllegalStateException",
+        "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+        "recordedAt": 1793396621092
+      },
+      {
+        "owner": "RESEARCH",
+        "errorId": 1,
+        "task": "incumbent-forecast",
+        "errorClass": "java.lang.IllegalStateException",
+        "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+        "recordedAt": 1793396621092
+      }
+    ],
+    "expertE12NewErrorRecords": 0,
+    "expertE12AbsenceScope": "No new E12 task error in this artifact; does not independently accept every expert workload.",
+    "baselineCapacityFailureRecords": 0,
+    "newCapacityFailureRecords": 0,
+    "taskFailureAndCapacityReceiptCountersAreSeparate": true
+  },
+  "clean": "NOT_STARTED_UPGRADE_ABORTED",
+  "upgradeDatabaseComparison": "NOT_REACHED_NO_UPGRADE_JSON",
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "native": "RUNNING_SEPARATE_NOT_INHERITED",
+  "r13SecureBuild": "RUNNING_SEPARATE_NOT_PREJUDGED",
+  "r27SecureBuild": "RUNNING_SEPARATE_NOT_PREJUDGED",
+  "localWrapper": "PASS_5m7_164_TESTS_8_SEMANTIC_IS_LOCAL_ONLY",
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "all44Metrics": "NOT_CLAIMED"
+}

@@ -11,7 +11,7 @@
   "qaCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
   "sourceTree": "1e87895fce60b096fe68531a1a3b63ea957e0aa5",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
-  "overall": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+  "overall": "FAIL_WHOLE_APP_NATIVE10_PASS_SIGNERS_PENDING",
   "engineeringAccepted": false,
   "expectedVersion": {
     "package": "com.starcore.research.r13",
@@ -21,8 +21,12 @@
   "runs": {
     "nativeTen": {
       "run": 41132497939,
-      "status": "RUNNING_EXACT_CP12_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132497939"
+      "status": "PASS_ACTUAL_EXACT_FROZEN_TEN_CASES_ENGINEERING_ONLY",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132497939",
+      "job": 124326676237,
+      "artifact": 13013619312,
+      "zipSha256": "179315f89e117481f50aa7e3e09c7b1c7d32f1ae50072958e475489dbccec133",
+      "evidence": "evidence/r29/batch01/validated-116888fe/native10/summary.json"
     },
     "r13SecureBuild": {
       "run": 41132500193,
@@ -31,8 +35,12 @@
     },
     "fullAppDiagnostic": {
       "run": 41132503018,
-      "status": "RUNNING_EXACT_CP12_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132503018"
+      "status": "FAIL_UPGRADE_INCUMBENT_UNSLICED_CLEAN_NOT_STARTED",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132503018",
+      "job": 124326695082,
+      "artifact": 13015095035,
+      "zipSha256": "ef036ca9b499dc174049c0e2c22078e004bfa39174a1d8020d5669503164151e",
+      "evidence": "evidence/r29/batch01/failed/app-116888fe/summary.json"
     },
     "r27SecureBuild": {
       "run": 41132505616,
@@ -63,7 +71,7 @@
     "lintExplanation": "Use exact task lines; local UP_TO_DATE report is reused. Fresh CI report audited separately.",
     "canonicalLogSha256": "2cd3d72bf610bf23f7e51d4de57a72029a6a8351e2785e950b43a821106f614b",
     "originalBootstrapFailure": "Uncommitted generated release constants caused R997 guard failure; raw log retained. Corrected13947b7 before final frozen source/bootstrap PASS.",
-    "android": "PENDING_EXACT_SOURCE_CI_NOT_INHERITED",
+    "android": "LOCAL_NOT_INHERITED_ACTUAL_NATIVE10_PASS_WHOLE_APP_FAIL_SEPARATE",
     "B01": "NOT_ACCEPTED"
   },
   "fullCiExpectedHost": 47,
@@ -126,5 +134,58 @@
   "physical": "NOT_RUN",
   "naturalQuality": "INSUFFICIENT",
   "real": "BLOCKED",
-  "all44Metrics": "NOT_CLAIMED"
+  "all44Metrics": "NOT_CLAIMED",
+  "overallMeaning": "Exact CP12 native10/10 PASS within original schema and first-service60s gates; full-App still fails on one incumbent-forecast UNSLICED incident counted in Root and copied RP. Signer receipts remain pending and cannot accept B01.",
+  "fullAppActual": {
+    "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+    "status": "FAIL_UPGRADE_INCUMBENT_UNSLICED_NEW_TASK_ERROR",
+    "publication": "PUBLISHED",
+    "sealedBaselineVerified": true,
+    "strategyStorageUnits": 265,
+    "actualEventsAcked": 4191,
+    "allNewTaskErrorsSinceBaseline": 2,
+    "uniqueTaskFailureIncidentCount": 1,
+    "rootErrorCopiedToRp": true,
+    "task": "incumbent-forecast",
+    "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+    "expertE12NewErrorRecords": 0,
+    "newCapacityFailureRecords": 0,
+    "clean": "NOT_STARTED_UPGRADE_ABORTED",
+    "evidence": "evidence/r29/batch01/failed/app-116888fe/summary.json"
+  },
+  "nativeActual": {
+    "schema": "R29_SOURCE_BOUND_NATIVE_EVIDENCE_1",
+    "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+    "run": 41132497939,
+    "job": 124326676237,
+    "artifact": 13013619312,
+    "zipSha256": "179315f89e117481f50aa7e3e09c7b1c7d32f1ae50072958e475489dbccec133",
+    "passed": 10,
+    "failed": 0,
+    "status": "PASS_EXACT_FROZEN_NATIVE_TEN_ENGINEERING_CASES_ONLY",
+    "schemaReadyElapsedMs": 47281,
+    "schemaTotalIncludingFinalChecksMs": 47511,
+    "schemaOriginalLimitMs": 60000,
+    "firstServiceMs": 54213,
+    "firstServiceOriginalLimitMs": 60000,
+    "familiesWithCommittedProgress": 24,
+    "expertsWithReceipts": 16,
+    "syntheticRootWriteProbes": 1000,
+    "syntheticRootWriteP99Ms": 11,
+    "syntheticRootWriteMaxMs": 14,
+    "taskErrors": 0,
+    "capacityFailureReceipts": 0,
+    "retentionBoundaryRenewed": true,
+    "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+    "restartResumed": true,
+    "staleOwnerRejected": true,
+    "scope": "API34 x86_64 synthetic isolated production-coordinator engineering tests; not full-App startup or physical/natural acceptance.",
+    "fullApp": "FAIL_INCUMBENT_UNSLICED_SEPARATELY_RETAINED",
+    "B01": "NOT_ACCEPTED",
+    "fullM07RootTransactionAcceptance": "NOT_CLAIMED_SYNTHETIC_PROBE_ONLY",
+    "full1440PeriodPredrawOpportunityAcceptance": "NOT_CLAIMED",
+    "physical": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "real": "BLOCKED"
+  }
 }

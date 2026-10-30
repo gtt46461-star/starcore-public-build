@@ -1,0 +1,155 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": true,
+  "baselineCapacityFailureRecords": 0,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 575,
+  "route": {
+    "phase": "ACTIVE",
+    "database_name": "starcore-r29-research.db",
+    "schema_hash": "edb916fc54fde59d37e0592b38b0aaef3dcd63d97b1b6fb734fd8677137fbe94",
+    "source_root": "a1d4823da8802d03b5e64a6ff0ac35cbc768459a23cd8017e28fda24d1a370b1",
+    "epoch": 1793396621320,
+    "activated_at": 1793396630389
+  },
+  "publication": {
+    "phase": "PUBLISHED",
+    "epoch": 1793396621320,
+    "baseline_name": "starcore-r29-baseline-1793396621320.db",
+    "baseline_sha": "04b246b181256cd3477e3d090f15a4ab11f7290d8bea5fd7198abdd865451077",
+    "source_root": "a1d4823da8802d03b5e64a6ff0ac35cbc768459a23cd8017e28fda24d1a370b1",
+    "last_error": "",
+    "updated_at": 1793396630389
+  },
+  "trackedSourceTables": 1,
+  "tablesWithThreeTrackingTriggers": 1,
+  "trackingTriggerCount": 3,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "BLOCKED",
+      "cursor": 9,
+      "steps": 2,
+      "last_served": 1793396621263,
+      "last_progress": 1793396621249,
+      "blocked_reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit;cursor=0,latest=-1",
+      "wait_kind": "NO_NEW_EVENT",
+      "wait_detail": "NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit;cursor=0,latest=-1"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "YIELDED",
+      "cursor": 0,
+      "steps": 2,
+      "last_served": 1793396621260,
+      "last_progress": 1793396621260,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema",
+      "status": "YIELDED",
+      "cursor": 268,
+      "steps": 9,
+      "last_served": 1793396619455,
+      "last_progress": 1793396620038,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "READY",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 1793396599275,
+      "last_progress": 0,
+      "blocked_reason": null,
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "DEPENDENCY(LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:)"
+    }
+  ],
+  "rootTaskErrors": 1,
+  "rootMigrationTaskErrors": 0,
+  "rootRecentTaskErrors": [
+    {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "incumbent-forecast",
+      "errorClass": "java.lang.IllegalStateException",
+      "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "recordedAt": 1793396621092
+    }
+  ],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 1
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 1
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [
+    {
+      "owner": "REALTIME",
+      "errorId": 1,
+      "task": "incumbent-forecast",
+      "errorClass": "java.lang.IllegalStateException",
+      "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "recordedAt": 1793396621092
+    }
+  ],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 1,
+  "rootRecentCapacityFailures": [],
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 0
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "newCapacityFailureReasonsSinceBaseline": [],
+  "newCapacityFailuresSinceBaseline": 0,
+  "rootEvents": {
+    "total": 4191,
+    "acked": 4191
+  },
+  "migrationCache": {
+    "state": "STAGED_COPY_NOT_CUTOVER",
+    "activeOwner": "ORIGINAL_DATABASE",
+    "cutoverEnabled": false,
+    "file": "starcore-research-r29-stage.db",
+    "verifiedBaselineTables": 0,
+    "crossTableSnapshot": "NOT_ESTABLISHED",
+    "updatedAt": 1793396620181
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 372,
+  "stagePhases": {
+    "PENDING": 371,
+    "VERIFIED_BASELINE": 1
+  },
+  "stageCopiedRows": 0
+}
