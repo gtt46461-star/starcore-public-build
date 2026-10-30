@@ -1,0 +1,50 @@
+{
+  "schema": "R29_SOURCE_BOUND_NATIVE_EVIDENCE_1",
+  "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "run": 41140356745,
+  "job": 124352855666,
+  "artifact": 13018069227,
+  "zipBytes": 22388914,
+  "zipSha256": "4026f88a007fce7722e84060afd08be0dd6becef9eb57c593263648cd0bfab52",
+  "passed": 8,
+  "failed": 2,
+  "status": "FAIL_ACTUAL_8_OF_10",
+  "failures": [
+    {
+      "case": "R29DatabaseCutoverDeviceTest",
+      "where": "line80 enterContinuity(store,false) after actual successful cutover and root legacy initialize",
+      "actual": "WAITING_DURABLE_RESEARCH_OWNER_HANDOFF",
+      "expectedByFrozenTest": "null",
+      "cutoverHadAlreadySucceeded": true,
+      "requiresReviewOfNewDurableFenceVersusLegacyFixture": true
+    },
+    {
+      "case": "R26RuntimeDeviceTest",
+      "where": "original60s first-service assertion",
+      "actualFirstServiceMs": 70824,
+      "originalFirstServiceLimitMs": 60000,
+      "familiesWithCommittedProgress": 24,
+      "expertsWithReceipts": 16
+    }
+  ],
+  "schemaOwnerPartialPass": {
+    "readyElapsedMs": 44011,
+    "includingFinalChecksMs": 44155,
+    "originalDeadlineMs": 60000,
+    "all504OriginalStepsCommitted": true,
+    "status": "PASS_ANDROID_ENGINEERING_SUBSET"
+  },
+  "writePressureProbes": "NOT_REACHED_AFTER_FIRST_SERVICE_ASSERTION_FAILURE",
+  "rootP99Ms": null,
+  "rootMaxMs": null,
+  "retention120s": "NOT_REACHED",
+  "restart": "NOT_REACHED",
+  "engineeringWriteProbes1000FieldMeaning": "declared test setting only; actual loop not reached in failed runtime case",
+  "newUnslicedWorkerDiagnostic": "NONE_FOUND_IN_ACTUAL_FULL_RUNTIME_LOG",
+  "priorPassInherited": false,
+  "scope": "API34 x86_64 isolated synthetic native cases. Sourceb8 exact frozen original assertions re-executed. Whole-App passes are separate; native failure remains failure.",
+  "B01": "NOT_ACCEPTED",
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED"
+}

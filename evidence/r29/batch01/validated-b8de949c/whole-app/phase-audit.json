@@ -1,0 +1,178 @@
+{
+  "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "zipBytes": 287698,
+  "zipSha256": "118685a3470a75c67cae75ed006e06c78b7bb822515cc798606aad71b4d8e703",
+  "phaseResults": {
+    "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+    "upgrade": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "clean": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "status": "PASS",
+    "physicalLongTests": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "phases": {
+    "upgrade": {
+      "phaseStatus": {
+        "exitCode": 0,
+        "status": "PASS"
+      },
+      "protocolStatus": "PASS_ENGINEERING_SUBSET_ONLY",
+      "serviceStartupProbePassed": true,
+      "serviceProbeIsNotResearchCutoverAcceptance": true,
+      "rootTables": 581,
+      "strategyStorageUnits": {
+        "committedUnits": 265,
+        "firstUnit": 0,
+        "lastUnit": 264
+      },
+      "route": {
+        "phase": "ACTIVE",
+        "database_name": "starcore-r29-research.db",
+        "schema_hash": "95b94a3d0af0f7a77f3bf16f92ef9f0d9b92c27746acbc34b8f706d70e17930c",
+        "source_root": "cd3c5dba3b478a390efce77d6997b68b9902de086fcbfd823fa36bd6660456fa",
+        "epoch": 1793400751889,
+        "activated_at": 1793400773876
+      },
+      "publication": {
+        "phase": "PUBLISHED",
+        "epoch": 1793400751889,
+        "baseline_name": "starcore-r29-baseline-1793400751889.db",
+        "baseline_sha": "8a52334019b6ad4fb7578c5dcd470cadd19466e58404ef02ea470a244e6c545e",
+        "source_root": "cd3c5dba3b478a390efce77d6997b68b9902de086fcbfd823fa36bd6660456fa",
+        "last_error": "",
+        "updated_at": 1793400773876
+      },
+      "rootErrors": [],
+      "rootCapacityFailures": [
+        {
+          "owner": "REALTIME",
+          "receiptId": 5,
+          "task": "schema",
+          "fence": 5,
+          "cursorBefore": 150,
+          "cursorAfter": 151,
+          "cpuMs": 56,
+          "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:7637ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=1:150->151",
+          "recordedAt": 1793400719175
+        }
+      ],
+      "publicationPhase": "PUBLISHED",
+      "activeOwner": "starcore-r29-research.db",
+      "researchIdentityMatched": true,
+      "mainIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "baselineName": "starcore-r29-baseline-1793400751889.db",
+      "sealedBaselineSha256": "8a52334019b6ad4fb7578c5dcd470cadd19466e58404ef02ea470a244e6c545e",
+      "sealedBaselineVerified": true,
+      "eventsOutbox": 4259,
+      "eventsAcked": 3399,
+      "eventsDelivered": 3399,
+      "modelReceipts": 0,
+      "modelWorkPending": 3396,
+      "workWithoutCompletionReceipt": 0,
+      "ackedEventsWithoutMatchingInbox": 0,
+      "deliveredIdentityMismatches": 0,
+      "inboxWithoutRootEvent": 0,
+      "corruptOutboxPayloads": 0,
+      "baselineTaskErrorRecords": 0,
+      "allNewTaskErrorsSinceBaseline": 0,
+      "allNewTaskFailureReasonsSinceBaseline": [],
+      "baselineCapacityFailureRecords": 1,
+      "newCapacityFailuresSinceBaseline": 0,
+      "newCapacityFailureReasonsSinceBaseline": [],
+      "allResearchTaskErrorsByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      },
+      "allCapacityFailuresByOwner": {
+        "REALTIME": 1,
+        "RESEARCH": 1
+      },
+      "databaseContinuity": {
+        "scope": "API34_EMULATOR_SMOKE_NOT_PHYSICAL_DEVICE",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "baselineDrawsLostOrChanged": [],
+        "beforeDrawCount": 4253,
+        "afterDrawCount": 4255,
+        "naturalQuality": "NOT_EVALUATED",
+        "foreground60min": "NOT_RUN",
+        "screenOff6h": "NOT_RUN",
+        "continuous72h": "NOT_RUN",
+        "upgradeDatabase": "PASS"
+      }
+    },
+    "clean": {
+      "phaseStatus": {
+        "exitCode": 0,
+        "status": "PASS"
+      },
+      "protocolStatus": "PASS_ENGINEERING_SUBSET_ONLY",
+      "serviceStartupProbePassed": true,
+      "serviceProbeIsNotResearchCutoverAcceptance": true,
+      "rootTables": 416,
+      "strategyStorageUnits": {
+        "committedUnits": 265,
+        "firstUnit": 0,
+        "lastUnit": 264
+      },
+      "route": {
+        "phase": "ACTIVE",
+        "database_name": "starcore-r29-research.db",
+        "schema_hash": "f3c4a6447306c9f21db50768206813ed74018a008e3496c8395bfa515340aea1",
+        "source_root": "2989c22dd3804367ce7d29c41b1ff76bd3719faa201a3b930b501ab663ad16ca",
+        "epoch": 1793400920722,
+        "activated_at": 1793400927877
+      },
+      "publication": {
+        "phase": "PUBLISHED",
+        "epoch": 1793400920722,
+        "baseline_name": "starcore-r29-baseline-1793400920722.db",
+        "baseline_sha": "427f172272526ff01082201446f4782bf7f01e7698af0674dca0b90bac18dde6",
+        "source_root": "2989c22dd3804367ce7d29c41b1ff76bd3719faa201a3b930b501ab663ad16ca",
+        "last_error": "",
+        "updated_at": 1793400927878
+      },
+      "rootErrors": [],
+      "rootCapacityFailures": [],
+      "publicationPhase": "PUBLISHED",
+      "activeOwner": "starcore-r29-research.db",
+      "researchIdentityMatched": true,
+      "mainIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "baselineName": "starcore-r29-baseline-1793400920722.db",
+      "sealedBaselineSha256": "427f172272526ff01082201446f4782bf7f01e7698af0674dca0b90bac18dde6",
+      "sealedBaselineVerified": true,
+      "eventsOutbox": 4261,
+      "eventsAcked": 2815,
+      "eventsDelivered": 2847,
+      "modelReceipts": 0,
+      "modelWorkPending": 2846,
+      "workWithoutCompletionReceipt": 0,
+      "ackedEventsWithoutMatchingInbox": 0,
+      "deliveredIdentityMismatches": 0,
+      "inboxWithoutRootEvent": 0,
+      "corruptOutboxPayloads": 0,
+      "baselineTaskErrorRecords": 0,
+      "allNewTaskErrorsSinceBaseline": 0,
+      "allNewTaskFailureReasonsSinceBaseline": [],
+      "baselineCapacityFailureRecords": 0,
+      "newCapacityFailuresSinceBaseline": 0,
+      "newCapacityFailureReasonsSinceBaseline": [],
+      "allResearchTaskErrorsByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      },
+      "allCapacityFailuresByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      }
+    }
+  }
+}

@@ -11,7 +11,7 @@
   "qaCommit": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
   "sourceTree": "a47a330e51f504cc5739e70133d95e3aad5a2ce2",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
-  "overall": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+  "overall": "FAILED_NATIVE8_OF10_WHOLE_APP_TWO_PHASES_PASS_SIGNERS_PENDING",
   "engineeringAccepted": false,
   "expectedVersion": {
     "package": "com.starcore.research.r13",
@@ -22,8 +22,11 @@
     "nativeTen": {
       "run": 41140356745,
       "job": 124352855666,
-      "status": "RUNNING_EXACT_CP14_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140356745"
+      "status": "FAIL_ACTUAL_8_OF10_HANDOFF_EXPECTATION_AND_FIRST_SERVICE60S",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140356745",
+      "artifact": 13018069227,
+      "zipSha256": "4026f88a007fce7722e84060afd08be0dd6becef9eb57c593263648cd0bfab52",
+      "evidence": "evidence/r29/batch01/failed/native-b8de949c/summary.json"
     },
     "r13SecureBuild": {
       "run": 41140358757,
@@ -34,8 +37,11 @@
     "fullAppDiagnostic": {
       "run": 41140361579,
       "job": 124352871245,
-      "status": "RUNNING_EXACT_CP14_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140361579"
+      "status": "PASS_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN_ENGINEERING_SUBSET_ONLY",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140361579",
+      "artifact": 13017699745,
+      "zipSha256": "118685a3470a75c67cae75ed006e06c78b7bb822515cc798606aad71b4d8e703",
+      "evidence": "evidence/r29/batch01/validated-b8de949c/whole-app/summary.json"
     },
     "r27SecureBuild": {
       "run": 41140363464,
@@ -69,7 +75,7 @@
     "offlineProtocolQA": 44,
     "offlineSmokeOrchestration": 10,
     "offlineLogs": "evidence/r29/batch01/cp14-repair-host/",
-    "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+    "android": "LOCAL_NOT_INHERITED_ACTUAL_NATIVE8OF10_FAIL_WHOLE_APP_BOTH_PHASES_PASS",
     "B01": "NOT_ACCEPTED"
   },
   "fullCiExpectedHost": 52,
@@ -189,5 +195,161 @@
     "pendingPublication": "Historical pending publication without durable fence or advancedRootresearch recordsRECOVERY_REQUIRED,keepsRoot/oldsealedbytes;noautomaticrebase",
     "acknowledgedMissingInbox": "ExactRootpayload/hashvalidation,RPdedup/worktransactionbeforeRootACKhistorycursor;nofakelearningreceipt/noRootACKclear",
     "allHistoricalStatesAutomaticallyRecovered": false
+  },
+  "overallMeaning": "Whole-App exactb8 upgrade and independent clean pass all original engineering protocol gates, with historicalCP06 capacity retained. Native8/10 fails legacy handoff entry expectation and70.824s first-service target. No native pressure/restart results inherited; signer receipts separate pending; B01 not accepted.",
+  "nativeActual": {
+    "schema": "R29_SOURCE_BOUND_NATIVE_EVIDENCE_1",
+    "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+    "run": 41140356745,
+    "job": 124352855666,
+    "artifact": 13018069227,
+    "zipBytes": 22388914,
+    "zipSha256": "4026f88a007fce7722e84060afd08be0dd6becef9eb57c593263648cd0bfab52",
+    "passed": 8,
+    "failed": 2,
+    "status": "FAIL_ACTUAL_8_OF_10",
+    "failures": [
+      {
+        "case": "R29DatabaseCutoverDeviceTest",
+        "where": "line80 enterContinuity(store,false) after actual successful cutover and root legacy initialize",
+        "actual": "WAITING_DURABLE_RESEARCH_OWNER_HANDOFF",
+        "expectedByFrozenTest": "null",
+        "cutoverHadAlreadySucceeded": true,
+        "requiresReviewOfNewDurableFenceVersusLegacyFixture": true
+      },
+      {
+        "case": "R26RuntimeDeviceTest",
+        "where": "original60s first-service assertion",
+        "actualFirstServiceMs": 70824,
+        "originalFirstServiceLimitMs": 60000,
+        "familiesWithCommittedProgress": 24,
+        "expertsWithReceipts": 16
+      }
+    ],
+    "schemaOwnerPartialPass": {
+      "readyElapsedMs": 44011,
+      "includingFinalChecksMs": 44155,
+      "originalDeadlineMs": 60000,
+      "all504OriginalStepsCommitted": true,
+      "status": "PASS_ANDROID_ENGINEERING_SUBSET"
+    },
+    "writePressureProbes": "NOT_REACHED_AFTER_FIRST_SERVICE_ASSERTION_FAILURE",
+    "rootP99Ms": null,
+    "rootMaxMs": null,
+    "retention120s": "NOT_REACHED",
+    "restart": "NOT_REACHED",
+    "engineeringWriteProbes1000FieldMeaning": "declared test setting only; actual loop not reached in failed runtime case",
+    "newUnslicedWorkerDiagnostic": "NONE_FOUND_IN_ACTUAL_FULL_RUNTIME_LOG",
+    "priorPassInherited": false,
+    "scope": "API34 x86_64 isolated synthetic native cases. Sourceb8 exact frozen original assertions re-executed. Whole-App passes are separate; native failure remains failure.",
+    "B01": "NOT_ACCEPTED",
+    "physical": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "real": "BLOCKED"
+  },
+  "fullAppActual": {
+    "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+    "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+    "run": 41140361579,
+    "job": 124352871245,
+    "artifact": 13017699745,
+    "zipBytes": 287698,
+    "zipSha256": "118685a3470a75c67cae75ed006e06c78b7bb822515cc798606aad71b4d8e703",
+    "status": "PASS_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN_ENGINEERING_SUBSET_ONLY",
+    "phaseResults": {
+      "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+      "upgrade": {
+        "exitCode": 0,
+        "status": "PASS"
+      },
+      "clean": {
+        "exitCode": 0,
+        "status": "PASS"
+      },
+      "status": "PASS",
+      "physicalLongTests": "NOT_RUN",
+      "naturalQuality": "NOT_EVALUATED"
+    },
+    "upgrade": {
+      "status": "PASS_ENGINEERING_SUBSET_ONLY",
+      "publication": "PUBLISHED",
+      "strategyUnits": 265,
+      "sealedBaselineVerified": true,
+      "sealedBaselineSha256": "8a52334019b6ad4fb7578c5dcd470cadd19466e58404ef02ea470a244e6c545e",
+      "rootIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "databaseContinuity": {
+        "scope": "API34_EMULATOR_SMOKE_NOT_PHYSICAL_DEVICE",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "baselineDrawsLostOrChanged": [],
+        "beforeDrawCount": 4253,
+        "afterDrawCount": 4255,
+        "naturalQuality": "NOT_EVALUATED",
+        "foreground60min": "NOT_RUN",
+        "screenOff6h": "NOT_RUN",
+        "continuous72h": "NOT_RUN",
+        "upgradeDatabase": "PASS"
+      },
+      "newTaskErrors": 0,
+      "newCapacityFailures": 0,
+      "baselineCapacityFailuresRetained": 1,
+      "actualHistoricalRootCapacityRecord": {
+        "owner": "REALTIME",
+        "receiptId": 5,
+        "task": "schema",
+        "fence": 5,
+        "cursorBefore": 150,
+        "cursorAfter": 151,
+        "cpuMs": 56,
+        "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:7637ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=1:150->151",
+        "recordedAt": 1793400719175
+      },
+      "existingRecordCopiedToRpNotCountedAsNew": true,
+      "allCapacityFailuresByOwner": {
+        "REALTIME": 1,
+        "RESEARCH": 1
+      },
+      "eventsOutbox": 4259,
+      "eventsAcked": 3399,
+      "eventsDelivered": 3399,
+      "crossFileMismatchCountersAllZero": true
+    },
+    "clean": {
+      "status": "PASS_ENGINEERING_SUBSET_ONLY",
+      "publication": "PUBLISHED",
+      "strategyUnits": 265,
+      "sealedBaselineVerified": true,
+      "sealedBaselineSha256": "427f172272526ff01082201446f4782bf7f01e7698af0674dca0b90bac18dde6",
+      "rootIntegrity": "ok",
+      "researchIntegrity": "ok",
+      "newTaskErrors": 0,
+      "newCapacityFailures": 0,
+      "allTaskErrorsByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      },
+      "allCapacityFailuresByOwner": {
+        "REALTIME": 0,
+        "RESEARCH": 0
+      },
+      "eventsOutbox": 4261,
+      "eventsAcked": 2815,
+      "eventsDelivered": 2847,
+      "crossFileMismatchCountersAllZero": true,
+      "deliveredAheadOfAckIsNotAnAckWithoutInbox": true
+    },
+    "noNewIncumbentOrExpertTaskErrorsInTheseTwoPhases": true,
+    "scope": "API34 x86_64 R13 debug additional whole-App CP06 upgrade and independent clean diagnostic. Sourcebound CI original database/hash/owner/ACK/zero-new-error guards passed. Not the formal four signed installation cases.",
+    "formalCp06UpgradeMatrix": {
+      "r13-debug": "NOT_STARTED",
+      "r13-release": "NOT_STARTED",
+      "r27-debug": "NOT_STARTED",
+      "r27-release": "NOT_STARTED"
+    },
+    "B01": "NOT_ACCEPTED_NATIVE8_OF10_FAILED",
+    "physical": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "real": "BLOCKED"
   }
 }

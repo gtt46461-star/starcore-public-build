@@ -1,0 +1,105 @@
+{
+  "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+  "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "run": 41140361579,
+  "job": 124352871245,
+  "artifact": 13017699745,
+  "zipBytes": 287698,
+  "zipSha256": "118685a3470a75c67cae75ed006e06c78b7bb822515cc798606aad71b4d8e703",
+  "status": "PASS_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN_ENGINEERING_SUBSET_ONLY",
+  "phaseResults": {
+    "scope": "API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY",
+    "upgrade": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "clean": {
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    "status": "PASS",
+    "physicalLongTests": "NOT_RUN",
+    "naturalQuality": "NOT_EVALUATED"
+  },
+  "upgrade": {
+    "status": "PASS_ENGINEERING_SUBSET_ONLY",
+    "publication": "PUBLISHED",
+    "strategyUnits": 265,
+    "sealedBaselineVerified": true,
+    "sealedBaselineSha256": "8a52334019b6ad4fb7578c5dcd470cadd19466e58404ef02ea470a244e6c545e",
+    "rootIntegrity": "ok",
+    "researchIntegrity": "ok",
+    "databaseContinuity": {
+      "scope": "API34_EMULATOR_SMOKE_NOT_PHYSICAL_DEVICE",
+      "schemaTablesLost": [],
+      "integrity": "ok",
+      "baselineDrawsLostOrChanged": [],
+      "beforeDrawCount": 4253,
+      "afterDrawCount": 4255,
+      "naturalQuality": "NOT_EVALUATED",
+      "foreground60min": "NOT_RUN",
+      "screenOff6h": "NOT_RUN",
+      "continuous72h": "NOT_RUN",
+      "upgradeDatabase": "PASS"
+    },
+    "newTaskErrors": 0,
+    "newCapacityFailures": 0,
+    "baselineCapacityFailuresRetained": 1,
+    "actualHistoricalRootCapacityRecord": {
+      "owner": "REALTIME",
+      "receiptId": 5,
+      "task": "schema",
+      "fence": 5,
+      "cursorBefore": 150,
+      "cursorAfter": 151,
+      "cpuMs": 56,
+      "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:7637ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=1:150->151",
+      "recordedAt": 1793400719175
+    },
+    "existingRecordCopiedToRpNotCountedAsNew": true,
+    "allCapacityFailuresByOwner": {
+      "REALTIME": 1,
+      "RESEARCH": 1
+    },
+    "eventsOutbox": 4259,
+    "eventsAcked": 3399,
+    "eventsDelivered": 3399,
+    "crossFileMismatchCountersAllZero": true
+  },
+  "clean": {
+    "status": "PASS_ENGINEERING_SUBSET_ONLY",
+    "publication": "PUBLISHED",
+    "strategyUnits": 265,
+    "sealedBaselineVerified": true,
+    "sealedBaselineSha256": "427f172272526ff01082201446f4782bf7f01e7698af0674dca0b90bac18dde6",
+    "rootIntegrity": "ok",
+    "researchIntegrity": "ok",
+    "newTaskErrors": 0,
+    "newCapacityFailures": 0,
+    "allTaskErrorsByOwner": {
+      "REALTIME": 0,
+      "RESEARCH": 0
+    },
+    "allCapacityFailuresByOwner": {
+      "REALTIME": 0,
+      "RESEARCH": 0
+    },
+    "eventsOutbox": 4261,
+    "eventsAcked": 2815,
+    "eventsDelivered": 2847,
+    "crossFileMismatchCountersAllZero": true,
+    "deliveredAheadOfAckIsNotAnAckWithoutInbox": true
+  },
+  "noNewIncumbentOrExpertTaskErrorsInTheseTwoPhases": true,
+  "scope": "API34 x86_64 R13 debug additional whole-App CP06 upgrade and independent clean diagnostic. Sourcebound CI original database/hash/owner/ACK/zero-new-error guards passed. Not the formal four signed installation cases.",
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "B01": "NOT_ACCEPTED_NATIVE8_OF10_FAILED",
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED"
+}

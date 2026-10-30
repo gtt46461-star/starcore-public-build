@@ -1,0 +1,207 @@
+--------- beginning of main
+10-30 22:53:11.133  2482  2482 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 22:53:11.136  2482  2482 I AndroidRuntime: Using default boot image
+10-30 22:53:11.136  2482  2482 I AndroidRuntime: Leaving lock profiling enabled
+10-30 22:53:11.137  2482  2482 I app_process: Core platform API reporting enabled, enforcing=false
+10-30 22:53:11.138  2482  2482 I app_process: Using CollectorTypeCC GC.
+10-30 22:53:11.183  2482  2482 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+10-30 22:53:11.190  2482  2482 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+10-30 22:53:11.190  2482  2482 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+10-30 22:53:11.194  2482  2482 W app_process: Unexpected CPU variant for x86: x86_64.
+10-30 22:53:11.194  2482  2482 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 22:53:11.205  2482  2482 W libc    : Access denied finding property "ro.product.name_for_attestation"
+10-30 22:53:11.205  2482  2482 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+10-30 22:53:11.205  2482  2482 W libc    : Access denied finding property "ro.product.model_for_attestation"
+10-30 22:53:11.206  2482  2482 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+10-30 22:53:11.207  2482  2482 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+10-30 22:53:11.208   506  1635 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: start instr
+10-30 22:53:11.202  2482  2482 W main    : type=1400 audit(0.0:31): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 22:53:11.202  2482  2482 W main    : type=1400 audit(0.0:32): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 22:53:11.210   506  1635 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10141; state: DISABLED
+10-30 22:53:11.210   506   534 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: DISABLED
+10-30 22:53:11.214   328   328 D Zygote  : Forked child process 2495
+10-30 22:53:11.215   506   534 I ActivityManager: Start proc 2495:com.starcore.research.r13/u0a141 for added application com.starcore.research.r13
+10-30 22:53:11.202  2482  2482 W main    : type=1400 audit(0.0:33): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 22:53:11.232  2495  2495 I re.research.r13: Late-enabling -Xcheck:jni
+10-30 22:53:11.240  2495  2495 I re.research.r13: Using CollectorTypeCC GC.
+10-30 22:53:11.241  2495  2495 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+10-30 22:53:11.241  2495  2495 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 22:53:11.243   406   419 I adbd    : jdwp connection from 2495
+10-30 22:53:11.275  2495  2495 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10141; state: DISABLED
+10-30 22:53:11.276  2495  2495 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10141; state: DISABLED
+10-30 22:53:11.279  2495  2495 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+10-30 22:53:11.281  2495  2495 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 22:53:11.282  2495  2495 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:53:11.283  2495  2495 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:53:11.283  2495  2495 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:53:11.284  2495  2495 W ziparchive: Unable to open '/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.dm': No such file or directory
+10-30 22:53:11.284  2495  2495 W ziparchive: Unable to open '/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.dm': No such file or directory
+10-30 22:53:11.312   506   588 D ActivityManager: freezing 1527 com.android.printspooler
+10-30 22:53:11.317  2495  2495 W ziparchive: Unable to open '/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.dm': No such file or directory
+10-30 22:53:11.317  2495  2495 W ziparchive: Unable to open '/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.dm': No such file or directory
+10-30 22:53:11.423  2495  2495 D nativeloader: Configuring clns-6 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/lib/x86_64:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/lib/x86_64:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!/lib/x86_64:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+10-30 22:53:11.428  2495  2495 V GraphicsEnvironment: Currently set values for:
+10-30 22:53:11.428  2495  2495 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+10-30 22:53:11.428  2495  2495 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+10-30 22:53:11.428  2495  2495 V GraphicsEnvironment: ANGLE GameManagerService for com.starcore.research.r13: false
+10-30 22:53:11.428  2495  2495 V GraphicsEnvironment: com.starcore.research.r13 is not listed in per-application setting
+10-30 22:53:11.428  2495  2495 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+10-30 22:53:11.431  2495  2495 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 22:53:11.432  2495  2495 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/lib/x86_64:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 22:53:11.432  2495  2495 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 22:53:11.433  2495  2495 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/lib/x86_64:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 22:53:11.434  2495  2495 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk*1157052425:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes2.dex*2667455589:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes3.dex*1961783482:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes4.dex*3374714009:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes5.dex*781449250:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk*712613643:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes2.dex*3990309309:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes3.dex*3626877232:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:53:11.435  2495  2495 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk*1157052425:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes2.dex*2667455589:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes3.dex*1961783482:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes4.dex*3374714009:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes5.dex*781449250:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk*712613643:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes2.dex*3990309309:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes3.dex*3626877232:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:53:11.436  2495  2495 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk*1157052425:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes2.dex*2667455589:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes3.dex*1961783482:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes4.dex*3374714009:/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.apk!classes5.dex*781449250:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk*712613643:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes2.dex*3990309309:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes3.dex*3626877232:/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 22:53:11.436  2495  2495 W ziparchive: Unable to open '/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.dm': No such file or directory
+10-30 22:53:11.436  2495  2495 W ziparchive: Unable to open '/data/app/~~CAqYeqyVPDwr0RHZuHnONA==/com.starcore.research.r13.test-75oQZ14HirNTmt-JeKW5BQ==/base.dm': No such file or directory
+10-30 22:53:11.468  2495  2495 W ziparchive: Unable to open '/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.dm': No such file or directory
+10-30 22:53:11.468  2495  2495 W ziparchive: Unable to open '/data/app/~~o7FXH29yi_2ew-0B64kteg==/com.starcore.research.r13-0DIE7SC1WAFK11NT3_VKIw==/base.dm': No such file or directory
+10-30 22:53:11.579  2495  2495 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+10-30 22:53:11.596  2495  2495 I AndroidJUnitRunner: onCreate Bundle[{class=com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest}]
+10-30 22:53:11.596  2495  2495 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+10-30 22:53:11.603  2495  2495 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+10-30 22:53:11.604  2495  2517 D AndroidJUnitRunner: onStart is called.
+10-30 22:53:11.609   506  1635 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10141. pid: 2495
+10-30 22:53:11.626  2495  2517 I TestRunner: run started: 1 tests
+10-30 22:53:11.627  2495  2517 I TestRunner: started: realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest)
+10-30 22:53:11.814   506   588 D ActivityManager: freezing 2229 com.android.carrierdefaultapp
+10-30 22:53:11.942   157   923 I keystore2: system/security/keystore2/src/watchdog.rs:319 - Watchdog thread idle -> terminating. Have a great day.
+10-30 22:53:13.024   506  1635 W OverlayManager: service 'idmap' died
+--------- beginning of kernel
+10-30 22:53:13.234     0     0 I init    : Sending signal 9 to service 'idmap2d' (pid 441) process group...
+10-30 22:53:13.241     0     0 I libprocessgroup: Successfully killed process cgroup uid 1000 pid 441 in 5ms
+10-30 22:53:13.243     0     0 I init    : Control message: Processed ctl.stop for 'idmap2d' from pid: 506 (system_server)
+10-30 22:53:13.244     0     0 I init    : Service 'idmap2d' (pid 441) received signal 9
+10-30 22:53:13.583   506   525 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-30 22:53:13.792  1516  1516 I ProvidersCache: Updating roots due to change on user 0at content://com.android.providers.media.documents/root
+10-30 22:53:15.419  1004  1017 W ndroid.settings: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 22:53:16.104  1055  1069 W droid.launcher3: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 22:53:16.124   506   588 D ActivityManager: freezing 1919 com.android.externalstorage
+10-30 22:53:16.266   506   581 D OomAdjuster: Not killing cached processes
+10-30 22:53:16.267   506   581 D ActivityManager: sync unfroze 1919 com.android.externalstorage for 10
+10-30 22:53:16.459   506  1801 D WifiNl80211Manager: Scan result ready event
+10-30 22:53:16.459   506  1801 D WifiNative: Scan result ready event
+10-30 22:53:16.674   506   776 I SdkSandboxManager: Reconciling sdk data package directories for 0
+10-30 22:53:17.113   804   804 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 22:53:18.338  1468  1485 D StrictMode: StrictMode policy violation: android.os.strictmode.SqliteObjectLeakedViolation: Finalizing a Cursor that has not been deactivated or closed. database = /data/user/0/com.android.providers.contacts/databases/contacts2.db, table = raw_contacts, query = SELECT contacts_view._id AS _id, contacts_view.display_name AS display_name, contacts_view.photo_thumb_uri AS photo_thumb_uri, data1 AS number, data2 AS type, data3 AS label, contacts_view.lookup AS lookup FROM raw_contacts JOIN view_contacts as contacts_view ON (contacts_view._id = raw_contacts.contact_id) JOIN (SELECT data_id,normalized_number FROM phone_lookup WHERE (phone_lookup.min_match = '7654321')) AS lookup ON lookup.data_id=data._id JOIN data ON data.raw_contact_id=raw_contacts._id WHERE (PHONE_NUMBERS_EQUAL(data.data1, '+15551234567', 0, 7)) ORDER BY  length(lookup.normalized_number) DESC
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at android.os.StrictMode.onSqliteObjectLeaked(StrictMode.java:2222)
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at android.database.sqlite.SQLiteCursor.finalize(SQLiteCursor.java:282)
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at java.lang.Daemons$Daemon.run(Daemons.java:145)
+10-30 22:53:18.338  1468  1485 D StrictMode: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 22:53:18.340  1468  1485 D StrictMode: StrictMode policy violation: android.os.strictmode.LeakedClosableViolation: A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks.
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.os.StrictMode$AndroidCloseGuardReporter.report(StrictMode.java:1994)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at dalvik.system.CloseGuard.warnIfOpen(CloseGuard.java:336)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.AbstractCursor.finalize(AbstractCursor.java:531)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.sqlite.SQLiteCursor.finalize(SQLiteCursor.java:291)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at java.lang.Daemons$Daemon.run(Daemons.java:145)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 22:53:18.340  1468  1485 D StrictMode: Caused by: java.lang.Throwable: Explicit termination method 'AbstractCursor.close' not called
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at dalvik.system.CloseGuard.openWithCallSite(CloseGuard.java:288)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at dalvik.system.CloseGuard.open(CloseGuard.java:257)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.AbstractCursor.<init>(AbstractCursor.java:227)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.AbstractWindowedCursor.<init>(AbstractWindowedCursor.java:39)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.sqlite.SQLiteCursor.<init>(SQLiteCursor.java:98)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:52)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.database.sqlite.SQLiteQueryBuilder.query(SQLiteQueryBuilder.java:592)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.doQuery(ContactsProvider2.java:7543)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLocal(ContactsProvider2.java:7249)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryCorpLookupIfNecessary(ContactsProvider2.java:7728)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLookupEnterprise(ContactsProvider2.java:7867)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryPhoneLookupEnterprise(ContactsProvider2.java:7838)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLocal(ContactsProvider2.java:7172)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryDirectoryIfNecessary(ContactsProvider2.java:5883)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryInternal(ContactsProvider2.java:5728)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.query(ContactsProvider2.java:5673)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.content.ContentProvider.query(ContentProvider.java:1692)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.content.ContentProvider$Transport.query(ContentProvider.java:292)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.content.ContentProviderNative.onTransact(ContentProviderNative.java:107)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.os.Binder.execTransactInternal(Binder.java:1344)
+10-30 22:53:18.340  1468  1485 D StrictMode: 	at android.os.Binder.execTransact(Binder.java:1275)
+10-30 22:53:19.481   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:53:21.309   506   581 D OomAdjuster: Not killing cached processes
+10-30 22:53:22.124  1404  1414 W putmethod.latin: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 22:53:25.359  2495  2517 E SQLiteLog: (1) no such column: target_issue in "CREATE INDEX IF NOT EXISTS idx_v20_link_candidate_target_rank ON v20_link_candidate_snapshot(target_issue,candidate_rank)"
+10-30 22:53:25.359  2495  2517 E SQLiteLog: (1) no such column: target_issue in "CREATE UNIQUE INDEX IF NOT EXISTS idx_v20_link_candidate_unique ON v20_link_candidate_snapshot(target_issue,candidate_key)"
+10-30 22:53:25.485   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:53:26.045  2495  2517 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-b01fc207-5dba-4809-b045-0323c86d39a5/databases/binance_k3_nova_one_pro_v57.db-wal 3361952 bytes: Bigger than 1048576; truncating
+10-30 22:53:26.495   506   519 D OomAdjuster: Not killing cached processes
+10-30 22:53:26.705   506   588 D ActivityManager: freezing 1919 com.android.externalstorage
+10-30 22:53:26.848  2495  2517 E SQLiteLog: (8) statement aborts at 28: [CREATE TABLE synthetic_observer_must_not_write(k INTEGER)] attempt to write a readonly database
+10-30 22:53:27.112   804   804 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 22:53:27.330   506   588 D ActivityManager: freezing 1516 com.android.documentsui
+10-30 22:53:28.488   804   804 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 22:53:28.825   506   588 D ActivityManager: freezing 1841 com.android.traceur
+10-30 22:53:29.165   506   588 D ActivityManager: freezing 1241 com.android.cellbroadcastreceiver.module
+10-30 22:53:29.346   506   588 D ActivityManager: freezing 1645 com.android.imsserviceentitlement
+10-30 22:53:29.389   506   588 D ActivityManager: freezing 1699 com.android.messaging
+10-30 22:53:29.432  2495  2517 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-b01fc207-5dba-4809-b045-0323c86d39a5/databases/binance_k3_nova_one_pro_v57.db-wal 1685112 bytes: Bigger than 1048576; truncating
+10-30 22:53:29.452  1004  1004 D BatteryUsageBroadcastReceiver: onReceive:android.intent.action.BATTERY_LEVEL_CHANGED
+10-30 22:53:29.453  1004  1004 D BatteryUsageBroadcastReceiver: fetch data because of event: ACTION_BATTERY_LEVEL_CHANGED
+10-30 22:53:29.454   506   520 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 1000; state: ENABLED
+10-30 22:53:29.454  1004  1004 D BatteryUsageBroadcastReceiver: cancel sendBroadcastToFetchUsageData when broadcastDelay is 2339997ms.
+10-30 22:53:29.456  2495  2517 E TestRunner: failed: realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest)
+10-30 22:53:29.458  2495  2517 E TestRunner: ----- begin exception -----
+10-30 22:53:29.458  2495  2517 E TestRunner: java.lang.AssertionError: expected null, but was:<WAITING_DURABLE_RESEARCH_OWNER_HANDOFF>
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.Assert.fail(Assert.java:89)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.Assert.failNotNull(Assert.java:756)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.Assert.assertNull(Assert.java:738)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.Assert.assertNull(Assert.java:748)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest.realAndroidCutoverIndependentWritersAndReport(R29DatabaseCutoverDeviceTest.java:80)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:463)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner.onStart(Su1AndroidTestRunner.java:17)
+10-30 22:53:29.458  2495  2517 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2402)
+10-30 22:53:29.458  2495  2517 E TestRunner: ----- end exception -----
+10-30 22:53:29.462  2495  2517 I TestRunner: finished: realAndroidCutoverIndependentWritersAndReport(com.ethk3.novaonepro.strategyv2.R29DatabaseCutoverDeviceTest)
+10-30 22:53:29.463  2495  2517 I TestRunner: run finished: 1 tests, 1 failed, 0 ignored
+10-30 22:53:29.469   506   520 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: finished inst
+10-30 22:53:29.470  2482  2482 I app_process: System.exit called, status: 0
+10-30 22:53:29.470  2482  2482 I AndroidRuntime: VM exiting with result code 0.
+10-30 22:53:29.472   506   520 E ActivityManager: Unable to freeze binder for 2495: -11
+10-30 22:53:29.473   506   524 D DisplayManagerService: Drop pending events for gone uid 10141
+10-30 22:53:29.473   506   520 I ActivityManager: Killing 2495:com.starcore.research.r13/u0a141 (adj 0): stop com.starcore.research.r13 due to finished inst
+10-30 22:53:29.682     0     0 I binder  : 506:520 ioctl 400c620e 7443bfc96930 returned -11
+10-30 22:53:29.683     0     0 I binder  : 506:520 ioctl 400c620e 7443bfc96930 returned -11
+10-30 22:53:29.488   506   520 V ActivityManager: Got obituary of 2495:com.starcore.research.r13
+10-30 22:53:29.489   328   328 I Zygote  : Process 2495 exited due to signal 9 (Killed)
+10-30 22:53:29.697     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+10-30 22:53:29.698     0     0 I binder  : undelivered transaction 109493, process died.
