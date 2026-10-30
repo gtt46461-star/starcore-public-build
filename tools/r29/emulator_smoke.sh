@@ -9,8 +9,12 @@ trap cleanup EXIT
 PKG=com.starcore.research.r13
 serial=$(adb get-serialno)
 [[ "$serial" == emulator-* ]] || { echo 'EMULATOR_REQUIRED'; exit 1; }
-APK=$(find "$DELIVERED" -maxdepth 1 -name '*debug.apk' -print -quit)
+VARIANT=${R29_VARIANT:-debug}
+[[ "$VARIANT" == debug || "$VARIANT" == release ]] || exit 1
+APK=$(find "$DELIVERED" -maxdepth 1 -name "*-$VARIANT.apk" -print -quit)
 [ -n "$APK" ]
+PROBE=(--installed)
+if [ "$VARIANT" = release ]; then PROBE+=(--emulator-root-prefs); fi
 python3 scripts/wait_r13_android_ready.py
 adb root > "$OUT/root.txt"; adb wait-for-device
 BASE_URL=${R29_BASELINE_URL:-https://github.com/gtt46461-star/starcore-public-build/releases/download/r26-20261028-runtime-117/STARCORE-R26-20261028-117-release.apk}
@@ -29,7 +33,7 @@ for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/binance_k3_nov
 adb install -r "$APK" > "$OUT/install-upgrade.txt"
 adb shell "cat /data/user/0/$PKG/files/r29-upgrade-probe" | tr -d '\r' > "$OUT/retained-marker.txt"
 grep -qx 'r29-official-upgrade-probe' "$OUT/retained-marker.txt"
-python3 scripts/probe_r13_startup.py --installed > "$OUT/upgrade-startup.log" 2>&1
+python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/upgrade-startup.log" 2>&1
 adb shell am force-stop "$PKG"
 adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db" "$OUT/after.db" > /dev/null
 for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db$suffix" "$OUT/after.db$suffix" > /dev/null 2>&1 || true; done
@@ -54,7 +58,7 @@ assert r['upgradeDatabase']=='PASS',r
 PY
 adb uninstall "$PKG" > "$OUT/uninstall-for-clean-test.txt"
 adb install "$APK" > "$OUT/install-clean.txt"
-python3 scripts/probe_r13_startup.py --installed > "$OUT/clean-startup.log" 2>&1
+python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/clean-startup.log" 2>&1
 adb logcat -d > "$OUT/logcat-clean.txt"
 adb shell am force-stop "$PKG"
 # Uploaded evidence is summary/logs only. Do not publish the baseline package or private application databases.

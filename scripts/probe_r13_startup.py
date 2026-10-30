@@ -4,7 +4,7 @@ import argparse, subprocess, time, glob, json, xml.etree.ElementTree as ET
 from pathlib import Path
 from wait_r13_android_ready import wait_ready
 from r29_probe_prefs import read_preferences
-parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--installed',action='store_true');parser.add_argument('--apk-already-installed',action='store_true');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--installed',action='store_true');parser.add_argument('--apk-already-installed',action='store_true');parser.add_argument('--emulator-root-prefs',action='store_true');args=parser.parse_args()
 PKG='com.starcore.research.r13'
 out=Path('startup-evidence');out.mkdir(exist_ok=True)
 def adb(*argv,check=True):
@@ -12,7 +12,8 @@ def adb(*argv,check=True):
     if check and r.returncode:raise RuntimeError('ADB_FAILED: '+r.stderr)
     return r.stdout
 def prefs(name):
-    return read_preferences(lambda: adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False))
+    command=('exec-out','cat','/data/user/0/'+PKG+'/shared_prefs/'+name+'.xml') if args.emulator_root_prefs else ('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml')
+    return read_preferences(lambda: adb(*command,check=False))
 def snapshot(phase):
     p=prefs('v20_service_runtime_light')
     row={k:v for k,v in p.items() if k.startswith(('init_','recovery_lease_','last_recovery_')) or k in ('service_ready_at','user_enabled','process_id','heartbeat_at')}
@@ -25,6 +26,9 @@ def capture(label):
     adb('shell','screencap','-p','/sdcard/startup.png')
     adb('pull','/sdcard/startup.png',str(out/(label+'.png')))
 wait_ready()
+if args.emulator_root_prefs:
+    assert adb('get-serialno').startswith('emulator-') and adb('shell','getprop','ro.kernel.qemu').strip()=='1','ROOT_PREFS_ONLY_ON_DISPOSABLE_EMULATOR'
+    assert adb('shell','id','-u').strip()=='0','EMULATOR_ADBD_ROOT_REQUIRED'
 if not args.installed:
     if not args.apk_already_installed:
         print(adb('install','-r',glob.glob('delivered/app/build/outputs/apk/debug/*.apk')[0]),flush=True)

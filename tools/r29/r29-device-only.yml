@@ -26,8 +26,9 @@ jobs:
           import json, os, re
           r=json.load(open('.github/r29-device-request.json'))
           assert all(re.fullmatch('[a-f0-9]{40}',r[k]) for k in ['source','qaSource'])
+          assert r.get('variant','debug') in ['debug','release']
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-              f.write('source='+r['source']+'\nqa='+r['qaSource']+'\n')
+              f.write('source='+r['source']+'\nqa='+r['qaSource']+'\nvariant='+r.get('variant','debug')+'\n')
           PY
       - uses: actions/checkout@v4
         with:
@@ -43,26 +44,28 @@ jobs:
         env:
           EXPECTED_SOURCE: ${{ steps.request.outputs.source }}
           SIGNATURE_KIND: ${{ matrix.signature }}
+          VARIANT: ${{ steps.request.outputs.variant }}
         run: |
           python3 - <<'PY'
           import hashlib,json,os,pathlib,urllib.request
-          source=os.environ['EXPECTED_SOURCE']; kind=os.environ['SIGNATURE_KIND']
+          source=os.environ['EXPECTED_SOURCE']; kind=os.environ['SIGNATURE_KIND'];variant=os.environ['VARIANT']
           tag=('r29-official-577291006-' if kind=='OFFICIAL_R13' else 'r29-CP06-R27-')+source[:12]
           base='https://github.com/gtt46461-star/starcore-public-build/releases/download/'+tag+'/'
           with urllib.request.urlopen(base+'delivery.json',timeout=60) as response: rows=json.load(response)
-          r=next(x for x in rows if x['apk'].endswith('-debug.apk'))
+          r=next(x for x in rows if x['apk'].endswith('-'+variant+'.apk'))
           cert='9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca' if kind=='OFFICIAL_R13' else 'd8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'
           assert r['sourceCommit']==source and r['versionCode']==577291006 and r['package']=='com.starcore.research.r13' and r['certificateSha256']==cert
-          assert r['apk']=='STARCORE-R29.1-'+source[:12]+'-debug.apk'
+          assert r['apk']=='STARCORE-R29.1-'+source[:12]+'-'+variant+'.apk'
           out=pathlib.Path('delivered');out.mkdir(); apk=out/r['apk']
           with urllib.request.urlopen(base+r['apk'],timeout=120) as response: apk.write_bytes(response.read())
           assert hashlib.sha256(apk.read_bytes()).hexdigest()==r['sha256']
           (out/'delivery.json').write_text(json.dumps(r,indent=2))
           with open(os.environ['GITHUB_ENV'],'a') as f:
               f.write('EXPECTED_CERT='+cert+'\n')
+              f.write('R29_VARIANT='+variant+'\n')
               if kind=='EXISTING_R27':
-                  f.write('R29_BASELINE_URL=https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-B02-QUAL-534603296b84/STARCORE-R29.1-534603296b84-debug.apk\n')
-                  f.write('R29_BASELINE_SHA256=9cf7d2f1074c56719ac4fb12a08a254eaed78bca80909512f3b539f96b8df4fb\n')
+                  f.write('R29_BASELINE_URL=https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-B02-QUAL-534603296b84/STARCORE-R29.1-534603296b84-release.apk\n')
+                  f.write('R29_BASELINE_SHA256=c5e922a2e9831ea437cbbc841851f3182e9f3e080764f74b1660eab682fbbf08\n')
           print(json.dumps({k:r[k] for k in ['sourceCommit','versionCode','sha256','certificateSha256']}))
           PY
       - uses: android-actions/setup-android@v3
@@ -71,7 +74,7 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - name: Verify actual downloaded APK signature
         run: |
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs delivered/*debug.apk | tee signature.txt
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs delivered/*.apk | tee signature.txt
           grep -F "$EXPECTED_CERT" signature.txt
       - run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -90,7 +93,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R29-CP06-DEVICE-${{ matrix.signature }}
+          name: R29-CP06-DEVICE-${{ matrix.signature }}-${{ steps.request.outputs.variant }}
           path: |
             evidence/r29/device06/
             startup-evidence/
