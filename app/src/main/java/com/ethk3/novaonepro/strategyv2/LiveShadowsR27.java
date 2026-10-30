@@ -31,36 +31,43 @@ public final class LiveShadowsR27 {
     }
 
     // ---------------------------------------------------------------- settle
+    /** R29-010: records outcomes only. Settleable rows (a clean draw exists) are paged separately from rows still
+     * waiting for their draw, so an early missing draw never fills the LIMIT; a missing draw is PENDING_DRAW
+     * (r29_pending_draw, retried every pass) and the row stays settleable when the backfill brings it. Rows the R27
+     * loop had written as hit=-2 are settled again from their original freeze. The e-process is fed exclusively by
+     * QualificationInboxR29 in contiguous order (docs/12 §3). */
+    static final String SETTLEABLE = "SELECT * FROM (SELECT f.policy_hash,f.target_ordinal,f.target_issue,f.position,f.n1,f.n2,f.n3,f.act,f.status,"
+            + "(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1) AS actual"
+            + " FROM r27_live_frozen f WHERE f.hit IN(-1,-2) AND f.target_ordinal<=?) WHERE actual IS NOT NULL ORDER BY target_ordinal,policy_hash LIMIT 640";
     static long settle(RuntimeR27 rt, ResearchPoolR27.Worker w, long latestOrd) throws Exception {
+        long[] settled = new long[1];
+        RuntimeR27.submit(w, "LIVE_SETTLE", settleBatch(w.ro, latestOrd, settled));
+        return settled[0];
+    }
+    /** Builds the settlement batch (pending-draw bookkeeping + outcome rows); settled[0] receives the row count. */
+    static ResearchWriteQueueR27.Batch settleBatch(SQLiteDatabase ro, long latestOrd, long[] settled) {
         List<Object[]> rows = new ArrayList<>();
-        try (Cursor c = w.ro.rawQuery("SELECT policy_hash,target_ordinal,target_issue,position,n1,n2,n3,act,status FROM r27_live_frozen WHERE hit=-1 AND target_ordinal<=? ORDER BY target_ordinal,policy_hash LIMIT 640", new String[] {String.valueOf(latestOrd)})) {
-            while (c.moveToNext()) rows.add(new Object[] {c.getString(0), c.getLong(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8)});
+        try (Cursor c = ro.rawQuery(SETTLEABLE, new String[] {String.valueOf(latestOrd)})) {
+            while (c.moveToNext()) rows.add(new Object[] {c.getString(0), c.getLong(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getInt(9)});
         }
-        if (rows.isEmpty()) return 0;
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); Map<String, SequentialQualificationR27.State> states = new LinkedHashMap<>(); Map<String, Long> before = new LinkedHashMap<>();
-        long now = System.currentTimeMillis(); int settled = 0;
+        ResearchWriteQueueR27.Batch b = QualificationInboxR29.pendingDraws(ro, latestOrd);
+        long now = System.currentTimeMillis();
         for (Object[] r : rows) {
-            String id = (String) r[0]; long ord = (Long) r[1]; int pos = (Integer) r[3];
-            int actual = -1;
-            try (Cursor d = w.ro.rawQuery("SELECT n" + pos + " FROM draws WHERE issue=? AND dirty=0", new String[] {(String) r[2]})) { if (d.moveToFirst()) actual = d.getInt(0); }
-            if (actual < 1) {
-                if (ord < latestOrd - 2) { b.add("UPDATE r27_live_frozen SET hit=-2,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit=-1", now, id, ord); settled++; }
-                continue; // missing draw: no outcome is invented; the e-process sees nothing for it
-            }
-            boolean frozen = "FROZEN".equals(r[8]), act = frozen && (Integer) r[7] == 1;
+            String id = (String) r[0]; long ord = (Long) r[1]; int actual = (Integer) r[9];
+            if (actual < 1) continue; // malformed draw value: never invent an outcome
+            boolean frozen = "FROZEN".equals(r[8]);
             boolean hit = frozen && (actual == (Integer) r[4] || actual == (Integer) r[5] || actual == (Integer) r[6]);
-            b.add("UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit=-1", hit ? 1 : 0, now, id, ord);
-            SequentialQualificationR27.State s = states.get(id);
-            if (s == null) { s = StoreR27.readEprocess(w.ro, id); if (s == null) continue; states.put(id, s); before.put(id, s.lastOrdinal); }
-            s.observe(ord, act, hit); settled++;
+            b.add("UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit IN(-1,-2)", hit ? 1 : 0, now, id, ord);
+            settled[0]++;
         }
-        for (Map.Entry<String, SequentialQualificationR27.State> e : states.entrySet()) StoreR27.writeEprocess(b, e.getValue(), before.get(e.getKey()));
-        for (Map.Entry<String, SequentialQualificationR27.State> e : states.entrySet())
-            if (SequentialQualificationR27.NOT_BETTER.equals(e.getValue().state))
-                b.add("UPDATE r27_live_shadow SET status='RETIRED_TO_ARCHIVE',reason='SEQUENTIAL_TEST_NOT_BETTER_THAN_TARGET',updated_at=? WHERE policy_hash=? AND status='ACTIVE'", now, e.getKey());
-        b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=r27_opportunity.target_ordinal AND f.hit>=0) WHERE target_ordinal<=?", latestOrd);
-        RuntimeR27.submit(w, "LIVE_SETTLE", b);
-        return settled;
+        if (settled[0] > 0) b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=r27_opportunity.target_ordinal AND f.hit>=0) WHERE target_ordinal<=?", latestOrd);
+        return b;
+    }
+
+    /** R29-035: contiguous qualification consumption after settlement (single owner of e-process updates). */
+    static long qualify(RuntimeR27 rt, final ResearchPoolR27.Worker w, long latestOrd) throws Exception {
+        QualificationInboxR29.Pass p = QualificationInboxR29.consume(w.ro, (op, batch) -> w.writes().submit(op, batch, w::cancelled), LIVE_STATES, latestOrd);
+        return p.consumed + p.rebuilt;
     }
 
     // ---------------------------------------------------------------- freeze
@@ -112,10 +119,13 @@ public final class LiveShadowsR27 {
             double[] blocks = blocks(w.ro, s.id); e.worstBlock = blocks[0]; e.maxLosingStreak = (int) blocks[1];
             e.pairedLcbVsI00 = paired(w.ro, s.id, i00); e.pairedLcbVsNull = paired(w.ro, s.id, nul);
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
-            Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("failing", new ArrayList<Object>(v.failing));
+            // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
+            List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
+            if (QualificationInboxR29.hasOpenConflict(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_RESULT_CONFLICT"); }
+            Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("failing", new ArrayList<Object>(failing));
             String digest = StatsR27.sha256(s.id + "|" + st.n + "|" + st.acts + "|" + st.hits + "|" + Double.toHexString(st.logUp));
-            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,?,?,?,?,?)", s.id, v.active ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS);
-            if (v.active) active.add(e); else nearest.add(new Object[] {s.id, v.failing.size(), v.failing, st.progress()});
+            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,?,?,?,?,?)", s.id, issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS);
+            if (issued) active.add(e); else nearest.add(new Object[] {s.id, failing.size(), failing, st.progress()});
         }
         String choice = CertificateGateR27.choose(active);
         nearest.sort((x, y) -> (Integer) x[1] != (Integer) y[1] ? (Integer) x[1] - (Integer) y[1] : Double.compare((Double) y[3], (Double) x[3]));

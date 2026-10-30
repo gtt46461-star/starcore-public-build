@@ -48,6 +48,8 @@ public final class SchemaR27 {
         "CREATE TABLE IF NOT EXISTS r27_fetch_reject(reason TEXT PRIMARY KEY,count INTEGER NOT NULL,last_issue TEXT,last_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r27_legacy_export(source_id TEXT PRIMARY KEY,source_table TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,policy_hash TEXT,reproduced INTEGER NOT NULL DEFAULT 0,compared INTEGER NOT NULL DEFAULT 0,exported_at INTEGER NOT NULL)",
         HistoryImportR27.DDL,
+        // R29-010/035: contiguous qualification receipts, conflicts, rebuild log, cursor, pending draws (additive).
+        QualificationInboxR29.DDL[0], QualificationInboxR29.DDL[1], QualificationInboxR29.DDL[2], QualificationInboxR29.DDL[3], QualificationInboxR29.DDL[4],
         "CREATE TABLE IF NOT EXISTS r27_opportunity(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,scheduled INTEGER NOT NULL,frozen INTEGER NOT NULL,acted INTEGER NOT NULL,settled INTEGER NOT NULL,deadline_missed INTEGER NOT NULL,recorded_at INTEGER NOT NULL)"
     };
     /** Guarded column additions on existing baseline tables. */

@@ -32,6 +32,11 @@ python3 scripts/verify_plan1025.py > "$LOG/plan1025.log"
 python3 scripts/verify_r26.py > "$LOG/r26.log"
 python3 tools/r29/host_checks.py --out "$LOG/r29_host_checks.json"
 ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee "$LOG/unit.log" | tail -n 30
+# R29-010/035: contiguous qualification + late/out-of-order settlement on a real SQLite engine.
+JDBC=$(mktemp -d)/sqlite-jdbc.jar
+curl -fsSL -o "$JDBC" https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar
+echo "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa  $JDBC" | sha256sum -c -
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_qual_host.sh
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

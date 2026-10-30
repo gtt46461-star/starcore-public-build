@@ -165,6 +165,7 @@ public final class RuntimeR27 implements AutoCloseable {
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest), deadline = latestOpen(w.ro) + 60_000L;
             w.writes().setNextDeadline(deadline);
             long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
+            units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
             ensureControls(w);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);

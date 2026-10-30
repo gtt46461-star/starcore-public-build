@@ -445,8 +445,8 @@
     "depends": [
       "R29-009"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_PASS_SUBSET",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -455,12 +455,22 @@
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "revision": "R29.1",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "call_chain": "RuntimeR27.LiveTask.step -> LiveShadowsR27.settle -> settleBatch(SETTLEABLE page | QualificationInboxR29.pendingDraws) -> ResearchWriteQueueR27.submit",
+    "persistent_state": "r27_live_frozen.hit (-2 no longer written; IN(-1,-2) re-settleable), r29_pending_draw",
+    "tests": [
+      "QualInboxR29HostTest Q2,Q3,Q5"
+    ],
+    "actual_results": [
+      "HOST real SQLite: late draw after 3+ periods settles the original freeze once; 700 pending rows do not block 100 settleable rows; legacy hit=-2 recovered (0 remaining)",
+      "NOT DONE in this card: IssueCommitR29 realtime short transaction (history/lease/decision/freeze), AnalysisRequestStoreR36/V51RuntimeOrchestrator changes; device NOT_RUN"
+    ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "evidence": [
+      "tools/r29/run_qual_host.sh",
+      "evidence/r29/host/r29_qual_host.log",
+      "construction/r29/ledger/B02-QUAL-01.json"
+    ]
   },
   {
     "id": "R29-011",
@@ -1580,8 +1590,8 @@
     "depends": [
       "R29-034"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_PASS_SUBSET",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1590,12 +1600,23 @@
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "revision": "R29.1",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "call_chain": "RuntimeR27.LiveTask.step -> LiveShadowsR27.qualify -> QualificationInboxR29.consume -> plan/step (CAS before-callback: receipts + r27_eprocess + r29_qual_cursor) ; LiveShadowsR27.certify blocks on r29_qual_conflict",
+    "persistent_state": "r29_qual_receipt PK(experiment_id,target_ordinal), r29_qual_cursor, r29_qual_conflict, r29_qual_rebuild, r27_eprocess.last_ordinal = last contiguous ordinal",
+    "tests": [
+      "QualInboxR29HostTest Q1,Q2(5 seeds, kill 25%, duplicate passes),Q3,Q4,Q6,Q7",
+      "mutation controls: pending ACT consumed as non-ACT -> Q2/Q3 FAIL; CAS removed -> receipt PK aborts duplicate"
+    ],
+    "actual_results": [
+      "HOST real SQLite: 1,3 then 2 == 1,2,3 state bit-exact; invariants receipts==n, contiguous after every pass; conflict isolated, certificate blocked",
+      "NOT DONE in this card: discovery-pool re-ranking/16-candidate confirmation lock (M29); device restart receipts NOT_RUN"
+    ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "evidence": [
+      "tools/r29/run_qual_host.sh",
+      "evidence/r29/host/r29_qual_host.log",
+      "construction/r29/ledger/B02-QUAL-01.json"
+    ]
   },
   {
     "id": "R29-036",

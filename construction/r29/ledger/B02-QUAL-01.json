@@ -1,0 +1,80 @@
+{
+  "schema": "R29_CHANGE_LEDGER_1",
+  "batch": "B02-QUAL-01",
+  "baseline": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+  "since": "a618d14c",
+  "cards": [
+    "R29-010",
+    "R29-035"
+  ],
+  "reason": "R29.1 docs/12 §3: late draw stays PENDING_DRAW (no hit=-2), settleable/pending pages split, legacy hit=-2 rows re-settled from the original freeze; QualificationInboxR29 is the single e-process owner: contiguous consumption, receipt+state+cursor in one CAS transaction, conflict isolation, logged rebuild of receipt-less states; report diagnosis + M27 probe; real-SQLite host test Q1-Q7",
+  "note": "Generated identity files are rebound by CI and excluded here. Hashes are bytes on disk at ledger time.",
+  "files": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "before_sha256": "ef0fafe9b89fa5a5c7660f88a7b0aaa08b4c8a8b4f1e827402b1dd93d9e93d87",
+      "after_sha256": "8b3be9b885de6e83fd9d1ab7f81947594f1558c63ca69036c56aaaf17f5a4888",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "before_sha256": null,
+      "after_sha256": "60e8ff6c5ee4e9b1f3f563701b127ff8a37cccf5c8e5f923e8a8361f681f3e8e",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "before_sha256": null,
+      "after_sha256": "ed8e93d4ef0d902964ffb6d472f34bd57b70cbf71da3c203dec0177a3b3a1c41",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "before_sha256": "e30009d598973314a361223b25a6da2d7c42997f5d7ef04724dc500d3a46ee87",
+      "after_sha256": "0eac9272a5fb693f3285817444342584d5ce2c62a978c3c83f21f91fab81a42b",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "before_sha256": "b028aa0b84b4899a9acd0af60593079c0c1335929ee3dd722e5771fe3a4dcba9",
+      "after_sha256": "facd4d6da6a2ed7462da3c423737e75eb6f625fa2ec81a3cb8884cf65a64db91",
+      "action": "MODIFY"
+    },
+    {
+      "path": "tools/r29/ci_build.sh",
+      "before_sha256": null,
+      "after_sha256": "5ffcc1ac0cf2974288df940782a316f883c73eb7044037c584409981dd78b61c",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/QualInboxR29HostTest.java",
+      "before_sha256": null,
+      "after_sha256": "9ed13552dcd6af217930f036d0fc4be94909331abbe7b0c16345e3c4d425c378",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/database/Cursor.java",
+      "before_sha256": null,
+      "after_sha256": "d808d62e54ce818e109512bbaa3cbdd18e5097c52ed3e6f9937755b207dceaf4",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+      "before_sha256": null,
+      "after_sha256": "1733dfe4543ac155f5b030078165b0e264da9e45c4397b65b75ca009a1381a61",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/database/sqlite/SQLiteException.java",
+      "before_sha256": null,
+      "after_sha256": "878df09b56099f50a5cd75f2d94a9c0f11d1b49ce9c3cc36e5c66101b47c4b88",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/run_qual_host.sh",
+      "before_sha256": null,
+      "after_sha256": "8bcf14bb99ebb44fe4ee201e3ecb8c48a5f94eb48262b52831ff2734a19d6af5",
+      "action": "ADD"
+    }
+  ]
+}

@@ -20,7 +20,11 @@ public final class ReportR29 {
         out.put("status","PARTIAL"); out.put("overall","IMPLEMENTATION_IN_PROGRESS"); out.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");
         out.put("reason","52卡/44指标逐项验收；缺少回执不能作为0或PASS。设备长测和未来质量独立验收。");
         out.put("baselineIdentity",baseline); out.put("legacyPreservation",preservation);
-        out.put("metricResults",MetricEvaluatorR29.evaluate(probes(baseline,preservation),snapshot));
+        Map<String,Object> qualification=QualificationInboxR29.diagnostics(db);
+        out.put("settlementQualification",qualification);
+        Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
+        probes.putAll(qualificationProbes(qualification));
+        out.put("metricResults",MetricEvaluatorR29.evaluate(probes,snapshot));
         return out;
     }
 
@@ -45,6 +49,18 @@ public final class ReportR29 {
         // M32: JSON and Markdown are rendered from the same chapter objects of one snapshot; the UI comparison needs a device receipt.
         List<String> ev=new ArrayList<>(); ev.add("ReportDataR27.chapters: one snapshot, one object per metric for JSON/Markdown");
         probes.put("M32",new MetricEvaluatorR29.Probe("PARTIAL","JSON/Markdown同一快照同一对象；UI同值对照需设备回执(NOT_RUN)","REPORT_RENDERINGS",null,null,null,0,ev));
+        return probes;
+    }
+    /** M27 from the R29 contiguous qualification state; PASS needs the device receipt, so measured data is PARTIAL at best. */
+    public static Map<String,MetricEvaluatorR29.Probe> qualificationProbes(Map<String,Object> q) {
+        Map<String,MetricEvaluatorR29.Probe> probes=new LinkedHashMap<>();
+        if (q==null || !(q.get("receipts") instanceof Number)) return probes;
+        long receipts=num(q.get("receipts")), mismatch=num(q.get("receiptStateMismatch")), conflicts=num(q.get("conflictsOpen")), minus2=num(q.get("legacyHitMinus2Remaining"));
+        List<String> ev=new ArrayList<>(); ev.add("r29_qual_receipt/r29_qual_cursor/r29_qual_conflict/r29_pending_draw"); ev.add("tools/r29/run_qual_host.sh Q1-Q6");
+        boolean bad=mismatch>0;
+        probes.put("M27",new MetricEvaluatorR29.Probe(bad?"FAIL":"PARTIAL",
+                "回执 "+receipts+"，回执与e-process不一致 "+mismatch+"，未解决冲突 "+conflicts+"，遗留hit=-2 "+minus2+"，待补抓开奖 "+q.get("pendingDrawOpen")+"；设备重启/杀进程回执前不计PASS",
+                "LIVE_EXPERIMENT_RECEIPTS",null,null,null,receipts,ev));
         return probes;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
