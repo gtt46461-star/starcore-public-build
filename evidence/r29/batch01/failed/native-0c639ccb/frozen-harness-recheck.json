@@ -1,0 +1,62 @@
+{
+  "source": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "run": 41125292483,
+  "artifact": 13011106707,
+  "zipSha256": "a853808552b7cc86e61b9100754f68a58037a9d6316cc4d3fd6d02ae5ea72788",
+  "cases": [
+    {
+      "name": "R29LargeModelCheckpointDeviceTest",
+      "passed": true,
+      "receipt": "r29-model-cursorwindow-device.json"
+    },
+    {
+      "name": "R29LargeRowMigrationDeviceTest",
+      "passed": true,
+      "receipt": "r29-large-row-migration-device.json"
+    },
+    {
+      "name": "R29CutoverSnapshotDeviceTest",
+      "passed": true,
+      "receipt": "r29-cutover-snapshot-device.json"
+    },
+    {
+      "name": "R29DatabaseCutoverDeviceTest",
+      "passed": true,
+      "receipt": "r29-cutover-device.json"
+    },
+    {
+      "name": "R29CriticalInputTriggerDeviceTest",
+      "passed": true,
+      "receipt": "r29-critical-trigger-device.json"
+    },
+    {
+      "name": "R29LegacySchemaOwnerDeviceTest",
+      "passed": true,
+      "receipt": "r29-legacy-schema-owner-device.json"
+    },
+    {
+      "name": "R29LegacyDomainExtensionDeviceTest",
+      "passed": true,
+      "receipt": "r29-domain-extension-device.json"
+    },
+    {
+      "name": "R29ShadowRetirementAuthorityDeviceTest",
+      "passed": true,
+      "receipt": "r29-shadow-retirement-device.json"
+    },
+    {
+      "name": "R29EvolutionDatasetPinDeviceTest",
+      "passed": true,
+      "receipt": "r29-evolution-dataset-pin-device.json"
+    },
+    {
+      "name": "R26RuntimeDeviceTest",
+      "passed": false,
+      "actualFailure": "e\n\nINSTRUMENTATION_STATUS: stream=\nError in allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest):\njava.lang.IllegalStateException: F01_WRITE_FAILED|operation=R914_DRAW_SAVE_ATOMIC\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)\n\tat com.ethk3.novaonepro.DbStore.saveDraw(DbStore.java:2190)\n\tat com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(R26RuntimeDeviceTest.java:82)\n\t... 33 trimmed\nCaused by: java.lang.IllegalStateException: CP3_DB_BUSY_DEADLINE\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:678)\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)\n\t... 36 more\n\nINSTRUMENTATION_STATUS: test=allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit\nINSTRUMENTATION_STATUS_CODE: -2\nINSTRUMENTATION_RESULT: stream=\n\nTime: 117.342\nThere was 1 failure:\n1) allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest)\njava.lang.IllegalStateException: F01_WRITE_FAILED|operation=R914_DRAW_SAVE_ATOMIC\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)\n\tat com.ethk3.novaonepro.DbStore.saveDraw(DbStore.java:2190)\n\tat com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(R26RuntimeDeviceTest.java:82)\n\t... 33 trimmed\nCaused by: java.lang.IllegalStateException: CP3_DB_BUSY_DEADLINE\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:678)\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)\n\t... 36 more\n\nFAILURES!!!\nTests run: 1,  Failures: 1\n\n\nINSTRUMENTATION_CODE: -1\n"
+    }
+  ],
+  "passed": 9,
+  "failed": 1,
+  "scope": "SYNTHETIC_API34_NOT_WHOLE_APP_OR_PHYSICAL",
+  "targetsRelaxed": false
+}

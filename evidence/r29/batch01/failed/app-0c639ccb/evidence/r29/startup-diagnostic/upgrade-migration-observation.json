@@ -1,0 +1,110 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 580,
+  "route": null,
+  "publication": {
+    "phase": "RENAMED",
+    "epoch": 1793393354962,
+    "baseline_name": "starcore-r29-baseline-1793393354962.db",
+    "baseline_sha": "264575daa60e9cea1924305cc4a5c838d41e449b7638c04083b0b58cc230bbd9",
+    "source_root": "2ebf46317d9fb176255e67b2687fba16fe7182f2c5ee7aadbac03a6c67a6c8f4",
+    "last_error": "",
+    "updated_at": 1793393472020
+  },
+  "trackedSourceTables": 5,
+  "tablesWithThreeTrackingTriggers": 5,
+  "trackingTriggerCount": 15,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "BLOCKED",
+      "cursor": 173,
+      "steps": 4,
+      "last_served": 1793393491470,
+      "last_progress": 1793393472942,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "BLOCKED",
+      "cursor": 4,
+      "steps": 0,
+      "last_served": 1793393490723,
+      "last_progress": 0,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY"
+    },
+    {
+      "task_id": "schema",
+      "status": "BLOCKED",
+      "cursor": 269,
+      "steps": 11,
+      "last_served": 1793393422589,
+      "last_progress": 1793393425223,
+      "blocked_reason": "CAPACITY_FAIL:UNSLICED_KERNEL:2631ms|null",
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "READY",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 1793393339380,
+      "last_progress": 0,
+      "blocked_reason": null,
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "DEPENDENCY(LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:)"
+    }
+  ],
+  "rootTaskErrors": 0,
+  "rootMigrationTaskErrors": 0,
+  "rootRecentTaskErrors": [],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 0,
+  "rootEvents": {
+    "total": 1256,
+    "acked": 66
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 378,
+  "stagePhases": {
+    "PENDING": 373,
+    "VERIFIED_BASELINE": 5
+  },
+  "stageCopiedRows": 0
+}

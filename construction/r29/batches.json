@@ -51,9 +51,9 @@
       "test logs",
       "report manifest"
     ],
-    "status": "ACTUAL_APP_UPGRADE_FAILED_CP09_SNAPSHOT_REPAIR_IN_PROGRESS",
+    "status": "CP10_FAILED_PUBLICATION_AND_ROOT_POOL_REPAIR_IN_PROGRESS",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
-    "source_commit": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+    "source_commit": "0c639ccb37025f6d573f0293abccff061d41826e",
     "evidence": "evidence/r29/batch01/validated-7050248/summary.json",
     "acceptance_state": "NOT_ACCEPTED",
     "latest_validation": {
@@ -66,20 +66,57 @@
       "targets_relaxed": false
     },
     "candidate_validation": {
-      "source": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
-      "productFixCommit": "5c3d4e823325e320f66a0d326c0aa0adc6630c37",
-      "checkpoint": "CP09",
-      "state": "FAILED_ACTUAL_WHOLE_APP_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
-      "hostRepair": "MIGRATION_PREPARE_21_PLUS_ORIGINAL_16_EVENT_SCHEMA_47_EXPERT_READER_15_QA_32_PASS",
-      "canonical": "PASS_CURRENT_SOURCE_164_JUNIT_8_SEMANTIC_LINT_REPORT_REUSED",
-      "nativeNine": "ACTUAL_FROZEN_HARNESS_9_PASS",
-      "actualApp": "FAIL_NO_PUBLISHED_RP_UNIQUE_APP_STATE_AND_MOVING_SOURCE_HASH",
-      "secureBuilds": "PENDING_CURRENT_SOURCE_RECEIPTS",
+      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
+      "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
+      "checkpoint": "CP10",
+      "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+      "canonical": {
+        "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
+        "source": "0c639ccb37025f6d573f0293abccff061d41826e",
+        "log": "/workspace/work/r29/cp10-canonical.log",
+        "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
+        "unitCounts": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+        },
+        "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
+        "semanticMutations": 8,
+        "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+      },
+      "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
+      "fullCiExpectedHost": 41,
+      "nativeExpectedCases": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41125292483,
+          "status": "PENDING_RECEIPT"
+        },
+        "r13SecureBuild": {
+          "run": 41125295873,
+          "status": "PENDING_RECEIPT"
+        },
+        "fullAppDiagnostic": {
+          "run": 41125298912,
+          "status": "PENDING_RECEIPT"
+        },
+        "r27SecureBuild": {
+          "run": 41125301226,
+          "status": "PENDING_RECEIPT"
+        }
+      },
+      "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
       "cp06FourUpgradeCases": "NOT_STARTED",
-      "evidence": "evidence/r29/batch01/cp09-host-repairs/scope.json",
       "targets_relaxed": false,
-      "currentEvidence": "evidence/r29/batch01/validated-e3dd1043/summary.json",
-      "failureEvidence": "evidence/r29/batch01/failed/app-e3dd1043/artifact-binding.json"
+      "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
+      "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
+      "failureEvidence": [
+        "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
+        "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
+      ]
     }
   },
   {

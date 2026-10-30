@@ -1,0 +1,210 @@
+{
+  "schema": "R29_CP10_FROZEN_SOURCE_BINDING_1",
+  "requestedPackageSource": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "qaSource": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "sourceTree": "f43e11b63dc7cec34dc8f7a0f0e7c36b957e9b06",
+  "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
+  "compiledIndexBindingCommit": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "previousPackageSource": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+  "releaseManifest": {
+    "applicationId": "com.starcore.research.r13",
+    "compileSdk": 36,
+    "databaseName": "binance_k3_nova_one_pro_v57.db",
+    "formatVersion": 1,
+    "gameCode": "Binance1-PK10",
+    "minSdk": 21,
+    "product": "STARCORE_R13_RESEARCH",
+    "proofBoundary": {
+      "deviceRuntime": "NOT_VERIFIED_ON_USER_DEVICE",
+      "engineering": "R29_IMPLEMENTATION_IN_PROGRESS",
+      "engineeringBuild": "R29_ENGINEERING_CHECKPOINT",
+      "futureOos": "NOT_RUN_ON_USER_DEVICE",
+      "modelProof": "NOT_PROVEN",
+      "physicalDeviceRuntime": "NOT_VERIFIED"
+    },
+    "releaseMode": "CONTROLLED_CANDIDATE_MODEL_NOT_PROVEN",
+    "runtimeContract": {
+      "decisionOwner": "DecisionGateEngine_ONLY",
+      "forbidden": [
+        "K4",
+        "dynamicK",
+        "multi-position-REAL",
+        "chase",
+        "martingale",
+        "doubling",
+        "frequency-debt"
+      ],
+      "play": "single-position|fixed-K3|max-one-REAL-per-issue",
+      "settlementOwner": "SettlementEngine_ONLY"
+    },
+    "schema": {
+      "criticalDomainRevision": 6,
+      "eventLedgerRevision": 1,
+      "legacyDomainRevision": 1,
+      "legacyR811Revision": 1,
+      "legacyR815Revision": 3,
+      "legacyR906Revision": 4,
+      "r925Revision": "R925_SCHEMA_7",
+      "researchDomainRevision": 16,
+      "userVersion": 36
+    },
+    "targetSdk": 28,
+    "versionCode": 577291010,
+    "versionName": "R29.1-2026.10.30-checkpoint10"
+  },
+  "compiledCallInventory": {
+    "sha256": "6d42dbc5b20acb1b6656989d25cef46c91cddd05f1b9d9e483fc796be463fc7b",
+    "bytes": 36388767,
+    "scope": "STATIC_COMPILED_CALLS_NOT_RUNTIME_COVERAGE"
+  },
+  "functionalProductFilesChanged": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java",
+      "beforeSha256": "6b0365ccece24e364e35d6bb9f8a8f32a56023d6e52e976da811d11dba52f849",
+      "afterSha256": "4503c6cffcffb233df501f8fdf2f45cc2a9423f3caee8a609b34e606f6932ee9"
+    }
+  ],
+  "allProtectedTreeChangedPathsFromCp09": [
+    "app/build/generated/r967/semantic_manifest.json",
+    "app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java",
+    "app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java",
+    "release/r82_training_invalidation.json",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz",
+    "release/release_identity.properties",
+    "release/release_manifest.json",
+    "release/strategy_su1_reviewed_inputs.json"
+  ],
+  "productEquivalentToCp09": false,
+  "historicalNineNativeMayAcceptThisSource": false,
+  "fullCiHostSuitesExpected": 41,
+  "fullCiHostScripts": [
+    "tools/r29/run_qual_host.sh",
+    "tools/r29/run_event_host.sh",
+    "tools/r29/run_event_yield_host.sh",
+    "tools/r29/run_event_schema_host.sh",
+    "tools/r29/run_migration_host.sh",
+    "tools/r29/run_migration_prepare_host.sh",
+    "tools/r29/run_expert_snapshot_reader_host.sh",
+    "tools/r29/run_registration_host.sh",
+    "tools/r29/run_cutover_host.sh",
+    "tools/r29/run_cutover_snapshot_host.sh",
+    "tools/r29/run_owner_host.sh",
+    "tools/r29/run_report_host.sh",
+    "tools/r29/run_legacy_host.sh",
+    "tools/r29/run_legacy_archive_host.sh",
+    "tools/r29/run_model_chunk_host.sh",
+    "tools/r29/run_rows_host.sh",
+    "tools/r29/run_large_rows_host.sh",
+    "tools/r29/run_full_schema_cutover_host.sh",
+    "tools/r29/run_terminal_host.sh",
+    "tools/r29/run_legacy_live_projection_host.sh",
+    "tools/r29/run_domain_upgrade_host.sh",
+    "tools/r29/run_critical_mirror_host.sh",
+    "tools/r29/run_root_read_pool_host.sh",
+    "tools/r29/run_learned_input_host.sh",
+    "tools/r29/run_legacy_learning_host.sh",
+    "tools/r29/run_critical_production_trigger_host.sh",
+    "tools/r29/run_research_schema_owner_host.sh",
+    "tools/r29/run_domain_extension_host.sh",
+    "tools/r29/run_schema_progress_host.sh",
+    "tools/r29/run_retained_formal_host.sh",
+    "tools/r29/run_canonical_input_host.sh",
+    "tools/r29/run_dispatch_pending_host.sh",
+    "tools/r29/run_scoped_schema_pending_host.sh",
+    "tools/r29/run_shadow_retirement_host.sh",
+    "tools/r29/run_evolution_dataset_pin_host.sh",
+    "tools/r29/run_runtime_evolution_dataset_pin_host.sh",
+    "tools/r29/run_terminal_projection_host.sh",
+    "tools/r29/run_decision_retention_host.sh",
+    "tools/r29/run_legacy_authority_host.sh",
+    "tools/r29/run_prepared_host.sh",
+    "tools/r29/run_fetch_host.sh"
+  ],
+  "nativeExpectedCases": 10,
+  "nativeCaseClasses": [
+    "R29LargeModelCheckpointDeviceTest",
+    "R29LargeRowMigrationDeviceTest",
+    "R29CutoverSnapshotDeviceTest",
+    "R29DatabaseCutoverDeviceTest",
+    "R29CriticalInputTriggerDeviceTest",
+    "R29LegacySchemaOwnerDeviceTest",
+    "R29LegacyDomainExtensionDeviceTest",
+    "R29ShadowRetirementAuthorityDeviceTest",
+    "R29EvolutionDatasetPinDeviceTest",
+    "R26RuntimeDeviceTest"
+  ],
+  "originalNineNativeCasesRetained": true,
+  "snapshotHost": {
+    "status": "PASS_HOST_ONLY_NATIVE_REQUIRED",
+    "checks": 18,
+    "actualProductionMethods": [
+      "ResearchCutoverR29.withSourceSnapshot",
+      "ResearchCutoverR29.page",
+      "ResearchCutoverR29.restorePage",
+      "ResearchCutoverR29.root"
+    ],
+    "fixture": "real SQLite file WAL source and candidate; source actual OPEN_READONLY/open_mode1; snapshot query_only0; session begins actual JDBC IMMEDIATE; distinct Root writer thread commits before callbackreturns",
+    "canonicalSource": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+    "negativeControls": [
+      {
+        "kind": "rowid_replacement",
+        "source": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+        "result": "ACTUAL_OLD_RESTORE_PAGE_PRIMARY_KEY_CONSTRAINT",
+        "log": "old-e3-unpinned-rowid-replace-control.log"
+      },
+      {
+        "kind": "stable_rowid_update",
+        "source": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+        "result": "ACTUAL_OLD_TYPED_COPY_ROOT_MISMATCH",
+        "log": "old-e3-unpinned-stable-update-control.log"
+      }
+    ],
+    "scopeLimits": [
+      "Not whole copyAndPublish/context/pool lifecycle proof",
+      "HOST frameworkshim behavior not Androidsession proof; API34nativeandwholeApp remainrequired",
+      "Fixture minimal source shapes exercise real typedcopy not fullproductioncatalog",
+      "NoRootwritertransaction held duringcopy; actualindependentRootwriterupdated3tables while productsnapshotremainedopen",
+      "StrictINSERT/fulltypedhash/30sproductiongate unchanged"
+    ],
+    "sourceHashes": {
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java": "4503c6cffcffb233df501f8fdf2f45cc2a9423f3caee8a609b34e606f6932ee9",
+      "tools/r29/qual_host/CutoverSnapshotR29HostTest.java": "ee15a0a57b2dc106b9828e2b3b9f587b5d942425ae77ebc98abea644db8e6b9d",
+      "tools/r29/run_cutover_snapshot_host.sh": "01dea21af1ae902b970524ee273579af212a9c23be02496df479b5d315f88ce2"
+    },
+    "evidenceHashes": {
+      "old-e3-unpinned-stable-update-control.log": "f5209153bf9facfe2b65cf112f52368e8c3ea9cb7b3b73f9e55a7437a9c7c5a1",
+      "r29_cutover_snapshot_host.log": "1f8a7c3342d25a5cb7fd9443908496cced6defc2982020fa58944d699136975f",
+      "old-e3-unpinned-rowid-replace-control.log": "486099104671925b4a9a9379e05592c98cfb409548cd5f5cc8612309c11e3788"
+    }
+  },
+  "runs": {
+    "nativeTen": {
+      "run": 41125292483,
+      "status": "PENDING_RECEIPT"
+    },
+    "r13SecureBuild": {
+      "run": 41125295873,
+      "status": "PENDING_RECEIPT"
+    },
+    "fullAppDiagnostic": {
+      "run": 41125298912,
+      "status": "PENDING_RECEIPT"
+    },
+    "r27SecureBuild": {
+      "run": 41125301226,
+      "status": "PENDING_RECEIPT"
+    }
+  },
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "qualificationInheritance": false,
+  "acceptance": "NOT_ACCEPTED_EXACT_SOURCE_NATIVE_CI_APK_FULL_APP_AND_FOUR_MATRIX_RECEIPTS_PENDING",
+  "repositoryMutated": false,
+  "signingMaterialRead": false
+}

@@ -1,0 +1,365 @@
+{
+  "schema": "R29_CHECKPOINT_DELIVERY_1",
+  "draft": false,
+  "checkpoint": "checkpoint09",
+  "batch": "B01",
+  "sourceCommit": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+  "overall": "FAILED_ACTUAL_WHOLE_APP_CUTOVER_NOT_ACCEPTED",
+  "engineeringAccepted": false,
+  "expectedVersion": {
+    "package": "com.starcore.research.r13",
+    "versionCode": 577291009,
+    "versionName": "R29.1-2026.10.30-checkpoint09"
+  },
+  "actualWholeApp": {
+    "source": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+    "run": 41123089328,
+    "control": "eb3331bdb81c5309a06a9aab055f1e3e43439ddf",
+    "artifact": 13010136398,
+    "zipSha256": "6ef122d2837bad31fcec50609098b75fe162647b4c787a5be332c3c796c86ff4",
+    "status": "FAILED_NO_PUBLISHED_RESEARCH_DATABASE",
+    "actualFailures": [
+      "UNIQUE app_state.state_key restorePage",
+      "FINAL_CATCHUP_HASH_MISMATCH moving source"
+    ],
+    "rootTaskErrors": 3,
+    "stageTables": 378,
+    "stageVerified": 5,
+    "CP06fourFormalCases": "NOT_STARTED",
+    "B01": "NOT_ACCEPTED",
+    "targetsRelaxed": false
+  },
+  "native": {
+    "source": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+    "run": 41123083935,
+    "artifact": 13009677281,
+    "zipSha256": "abe740c72e7722497bc332fae81bfd1a521aef556f5443be83ae8497f5b1c161",
+    "frozenNativeHarness": "ACTUAL_NINE_PASS",
+    "notWholeAppProof": true
+  },
+  "r13ActualCiAudit": {
+    "source": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+    "sourceTree": "33a8f23004991c805ab5fe4e98f045d6d40969d2",
+    "artifactId": 13008949897,
+    "zipSha256": "1a7778ece165f84cb8f1a33de8225488148188e4604f9407076702f6b134ceab",
+    "auditWorkingFile": "/workspace/work/r29/cp09-r13-ci-audit.json",
+    "auditSha256": "91d9167595a3210d1c6fad5d48c389cea5295b12d7f65d47547bcee228eff5e9",
+    "host": {
+      "expected": 40,
+      "directPositive": 40,
+      "inferred": 0
+    },
+    "junit": {
+      "xmlFiles": 32,
+      "tests": 164,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "semanticMutationChecks": 8,
+    "offlineQa": {
+      "tests": 32,
+      "failures": 0,
+      "errors": 0
+    },
+    "cliChecks": {
+      "su1": 21,
+      "plan1025": 20,
+      "r26": 32
+    },
+    "lint": {
+      "freshAnalyzeAndReportExecuted": true,
+      "newIssues": 0,
+      "existingBaselineErrorsFiltered": 51,
+      "unmatchedBaselineEntries": 7,
+      "baselineChanged": false
+    },
+    "actualApkBinaryInArtifactAudited": false,
+    "repositoryEvidence": "evidence/r29/batch01/validated-e3dd1043/r13-ci/independent-ci-audit.json"
+  },
+  "r27Ci": {
+    "run": 41123092981,
+    "job": 124294456235,
+    "conclusion": "success",
+    "scope": "WORKFLOW_BUILD_SUCCESS_ACTUAL_R27_RELEASE_BINARY_VERIFIED_CI_XML_ARTIFACT_NOT_INDEPENDENTLY_RECOUNTED"
+  },
+  "signedApkIdentity": "BOTH_RELEASE_ACTUAL_BINARY_PUBLIC_SIGNATURE_EMBEDDED_SOURCE_SHA_PASS",
+  "apk": [
+    {
+      "sourceCommit": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+      "signer": "ORIGINAL_R13",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291009-e3dd104302dc/STARCORE-R29.1-e3dd104302dc-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint09-R13-release.apk",
+      "sha256": "8dd53368b578b58b7c14942239b99e5f580a8da00e654fa6351cf174732c0ff5",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "versionCode": 577291009,
+      "versionName": "R29.1-2026.10.30-checkpoint09",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_ACCEPTED_WHOLE_APP_FAILED_FORMAL_FOUR_NOT_STARTED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT"
+    },
+    {
+      "sourceCommit": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+      "signer": "EXISTING_R27",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP09-R27-e3dd104302dc/STARCORE-R29.1-e3dd104302dc-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint09-R27-release.apk",
+      "sha256": "67f0e16744b711e7dc491faa80b9bf55dfd77289431d0eefabfb5134b86efff8",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "versionCode": 577291009,
+      "versionName": "R29.1-2026.10.30-checkpoint09",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_ACCEPTED_WHOLE_APP_FAILED_FORMAL_FOUR_NOT_STARTED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT"
+    }
+  ],
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "latestAcceptedDelivery": "construction/r29/delivery/CP06.json",
+  "qualificationInheritanceToCp10": false,
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "additionalAutomaticOldR26BaselineSmoke": {
+    "schema": "R29_CP09_AUTO_OLDER_R26_BASELINE_FAILED_SMOKE_1",
+    "sourceCommit": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+    "sourceIdentityEvidence": "PARENT_CONFIRMED_JOB_SOURCE; artifact package manifest verifies checkpoint09/version577291009; no APK binary independently audited in this artifact",
+    "signer": "ORIGINAL_R13",
+    "job": 124300748968,
+    "jobConclusion": "FAIL_PARENT_CONFIRMED",
+    "status": "FAIL_NOT_ACCEPTED",
+    "testKind": "AUTOMATIC_OLDER_R26_BASELINE_UPGRADE_NOT_CP06_FORMAL_MATRIX",
+    "artifactId": 13011315123,
+    "artifactZipBytes": 326982,
+    "artifactZipSha256": "6eca63dd418b2b8ff2aacfe0f6eec8ffb19f798dace684e2b06adf1f92936dc5",
+    "zipBytesAndHashRecomputedMatchExpected": true,
+    "evidenceRoot": "evidence/r29/batch01/failed/auto-e3dd1043",
+    "packageManifests": {
+      "baseline": {
+        "package": "com.starcore.research.r13",
+        "versionCode": 577271027,
+        "versionName": "R26-2026.10.27-validation2"
+      },
+      "delivered": {
+        "package": "com.starcore.research.r13",
+        "versionCode": 577291009,
+        "versionName": "R29.1-2026.10.30-checkpoint09"
+      }
+    },
+    "installBaseline": "PASS_RETAINED_ADB_OUTPUT",
+    "installUpgrade": "PASS_RETAINED_ADB_OUTPUT",
+    "retainedMarker": "PASS_RETAINED_MARKER_OUTPUT",
+    "startup": {
+      "passed": true,
+      "crash": {},
+      "samplePhases": {
+        "cold": 33,
+        "restart": 33
+      },
+      "scope": "COLD_AND_RESTART_CHECKER_ONLY_NOT_MIGRATION_OR_FULL_APP_ACCEPTANCE"
+    },
+    "migration": {
+      "rootTableCount": 585,
+      "rootIntegrity": {
+        "integrity_check": "ok"
+      },
+      "stageIntegrity": {
+        "integrity_check": "ok"
+      },
+      "route": null,
+      "publication": null,
+      "trackedSourceTables": 34,
+      "trackingTriggerCount": 102,
+      "stageManifestTotal": 360,
+      "stagePhases": {
+        "COPYING": 1,
+        "PENDING": 326,
+        "VERIFIED_BASELINE": 33
+      },
+      "stageCopiedRows": 41,
+      "cache": {
+        "state": "STAGED_COPY_NOT_CUTOVER",
+        "activeOwner": "ORIGINAL_DATABASE",
+        "cutoverEnabled": false,
+        "file": "starcore-research-r29-stage.db",
+        "verifiedBaselineTables": 33,
+        "crossTableSnapshot": "NOT_ESTABLISHED",
+        "updatedAt": 1793393058693
+      },
+      "tasks": [
+        {
+          "task_id": "r29-event-inbox",
+          "status": "YIELDED",
+          "cursor": 700,
+          "steps": 22,
+          "last_served": 1793393058798,
+          "last_progress": 1793393058798,
+          "blocked_reason": null,
+          "wait_kind": "PROGRESS",
+          "wait_detail": "units=32"
+        },
+        {
+          "task_id": "r29-research-migration",
+          "status": "YIELDED",
+          "cursor": 33,
+          "steps": 93,
+          "last_served": 1793393058758,
+          "last_progress": 1793393058758,
+          "blocked_reason": null,
+          "wait_kind": "PROGRESS",
+          "wait_detail": "units=1"
+        },
+        {
+          "task_id": "schema",
+          "status": "RUNNING",
+          "cursor": 105,
+          "steps": 67,
+          "last_served": 1793393045472,
+          "last_progress": 1793393044724,
+          "blocked_reason": null,
+          "wait_kind": "PROGRESS",
+          "wait_detail": "COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=6:108->109;units=6"
+        },
+        {
+          "task_id": "schema-base",
+          "status": "BLOCKED",
+          "cursor": 0,
+          "steps": 0,
+          "last_served": 0,
+          "last_progress": 0,
+          "blocked_reason": "WAITING_SELF_CONTAINED_STRATEGY_STORAGE",
+          "wait_kind": "",
+          "wait_detail": ""
+        }
+      ],
+      "rootEvents": {
+        "total": 1249,
+        "acked": 609
+      }
+    },
+    "taskErrors": {
+      "baselineRecords": 0,
+      "rootAll": 0,
+      "rootR29Specific": 0,
+      "newR29Specific": 0,
+      "allNewSinceBaseline": 0,
+      "allNewByOwner": {
+        "REALTIME": 0
+      }
+    },
+    "actualLogEvidence": {
+      "log": "startup-upgrade/logcat.txt",
+      "counts": {
+        "CP3_DB_BUSY_DEADLINE": 233,
+        "task receipt deferred": 180,
+        "R26_UNSLICED_COMPUTATION_CAPACITY": 0,
+        "R29_MIGRATION_HASH_MISMATCH": 0,
+        "UNIQUE constraint failed": 0,
+        "no such column: target_issue": 1
+      },
+      "boundedExcerpts": [
+        {
+          "lineStart": 288,
+          "lineEnd": 302,
+          "text": "10-30 20:42:06.312  2553  2623 W STARCORE_R27: task receipt deferred r29-event-inbox\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R27_TASK_RECEIPT\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:775)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.strategyv2.ResearchPoolR27.record(ResearchPoolR27.java:176)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:126)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:94)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat java.lang.Thread.run(Thread.java:1012)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: Caused by: java.lang.IllegalStateException: CP3_DB_BUSY_DEADLINE\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:678)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)\n10-30 20:42:06.312  2553  2623 W STARCORE_R27: \t... 8 more"
+        },
+        {
+          "lineStart": 4467,
+          "lineEnd": 4467,
+          "text": "10-30 20:43:58.045  2913  2978 E SQLiteLog: (1) no such column: target_issue in \"CREATE UNIQUE INDEX IF NOT EXISTS idx_store_v20_candidate_unique ON v20_link_candidate_snapshot(target_issue,candidate_key)\""
+        },
+        {
+          "lineStart": 4960,
+          "lineEnd": 4978,
+          "text": "10-30 20:44:09.169  2913  2984 W STARCORE_STACK: round=1|starcore-r27-research-0|BLOCKED\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at android.database.sqlite.SQLiteConnectionPool.releaseConnection(SQLiteConnectionPool.java:414)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at android.database.sqlite.SQLiteSession.releaseConnection(SQLiteSession.java:908)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at android.database.sqlite.SQLiteSession.endTransactionUnchecked(SQLiteSession.java:444)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at android.database.sqlite.SQLiteSession.endTransaction(SQLiteSession.java:403)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at android.database.sqlite.SQLiteDatabase.endTransaction(SQLiteDatabase.java:757)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:811)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:625)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:623)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:711)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:775)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchDatabaseR29.lambda$step$2(ResearchDatabaseR29.java:66)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchDatabaseR29$$ExternalSyntheticLambda0.write(D8$$SyntheticClass:0)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.MigrationCopyR29.step(MigrationCopyR29.java:210)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchDatabaseR29.step(ResearchDatabaseR29.java:65)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeR27$MigrationTask.step(RuntimeR27.java:152)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:121)\n10-30 20:44:09.169  2913  2984 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:94)"
+        }
+      ],
+      "interpretation": "Recorded writer deadlines and blocked migration endTransaction at Android connection-pool release establish contention at these observation points. They do not prove the terminal CI stderr or unique causal root of incomplete cutover. One CREATE UNIQUE INDEX log fails because target_issue column is absent; this is not a UNIQUE constraint violation. No hash/UNSLICED/UNIQUE-constraint marker in this captured log does not erase the separate CP06 fast-diagnostic failures."
+    },
+    "terminalFailure": {
+      "jobFailed": true,
+      "exactStderr": "NOT_PRESENT_IN_ARTIFACT_NOT_GUESSED",
+      "actualRpPullOrProtocolAssertion": "NOT_INDEPENDENTLY_ESTABLISHED_FROM_THIS_ARTIFACT"
+    },
+    "upgradeDataCompare": "NO_COMPLETED_RECEIPT_IN_ARTIFACT",
+    "cleanInstall": "NO_COMPLETED_RECEIPT_IN_ARTIFACT",
+    "formalCp06FourMatrix": "NOT_STARTED_UNCHANGED",
+    "engineeringAccepted": false,
+    "b01": "NOT_ACCEPTED",
+    "physicalDevice": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "newRealGrant": "BLOCKED",
+    "cp10": "NEW_SOURCE_REQUIRES_FRESH_RESULTS_NOT_COVERED_BY_CP09_AUDIT",
+    "rawDbApkKeysCacheCopied": false,
+    "retainedFiles": [
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/baseline-signature.txt",
+        "sha256": "d53805c96768d48174f70649b4070352a683d72869418f7914a90f3c4cc0e53e",
+        "bytes": 1361
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/install-baseline.txt",
+        "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7",
+        "bytes": 36
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/install-upgrade.txt",
+        "sha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7",
+        "bytes": 36
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/launch-baseline.txt",
+        "sha256": "ddb88ae4740afebc7eca7b653acf1d8d258f722018e08192d401ae50462f9843",
+        "bytes": 224
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/package-manifests.json",
+        "sha256": "a3870d3d89de664254fff753f37e037c0b7e12f2460cf91851232ab547120feb",
+        "bytes": 293
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/retained-marker.txt",
+        "sha256": "80c65df1f91604ac5c4247583328af3643f27d5e130f40aa2b3006cb2d86ae9e",
+        "bytes": 27
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/root.txt",
+        "sha256": "cbfc5f4f46947a84c46216ae8ee0bfaebce09bbac37337972e033b39056106eb",
+        "bytes": 24
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/startup-upgrade/logcat.txt",
+        "sha256": "3e760a22c23a88ca07c39d55521afbbdf8b4109022c65502ed9042f9985a9201",
+        "bytes": 777137
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/startup-upgrade/startup.json",
+        "sha256": "632a4e958e6a261d2b6eb115366a50fc9d9398f75a10c40ad4b0129d00582a4a",
+        "bytes": 63379
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/upgrade-migration-observation.json",
+        "sha256": "cc019c575cc16fe766ee7efa9e04c081c6dba5e9a3846f9986bcb0ccc2d3e4dd",
+        "bytes": 2834
+      },
+      {
+        "path": "evidence/r29/batch01/failed/auto-e3dd1043/upgrade-startup.log",
+        "sha256": "2e37877c9f3625d5950c7aa99c82c2f828fa370294092b8016c37cda38273162",
+        "bytes": 54351
+      }
+    ]
+  }
+}

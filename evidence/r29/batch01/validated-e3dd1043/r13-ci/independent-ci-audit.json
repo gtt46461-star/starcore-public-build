@@ -1,0 +1,673 @@
+{
+  "schema": "R29_CP09_R13_ACTUAL_CI_ARTIFACT_AUDIT_1",
+  "auditedSource": "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+  "sourceTree": "33a8f23004991c805ab5fe4e98f045d6d40969d2",
+  "artifactId": 13008949897,
+  "artifactZip": "/workspace/attachments/fb4d1354-da9d-4ba4-8f0c-dc18950daab2/github-actions-artifact-13008949897.zip",
+  "artifactZipBytes": 221250,
+  "artifactZipSha256": "1a7778ece165f84cb8f1a33de8225488148188e4604f9407076702f6b134ceab",
+  "zipShaRecomputedMatchesExpected": true,
+  "artifactRoot": "/workspace/work/r29/cp09-r13-host-e3dd1043",
+  "status": "PASS_R13_CI_ENGINEERING_TEST_SCOPE_ONLY_WHOLE_APP_SEPARATELY_FAILED",
+  "repositoryEdited": false,
+  "networkUsed": false,
+  "keysRead": false,
+  "sourceBinding": {
+    "frozenGitSourceAndTree": true,
+    "threeActualBuildLogsMatchFrozenGitIdentity": [
+      {
+        "log": "evidence/r29/ci/bootstrap_compile.log",
+        "logSha256": "4137f08e86aa2d257edd83a56baef47c7286bee4dcf7c2730199637f1c0f28a5",
+        "identityLines": [
+          [
+            "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+            "33a8f23004991c805ab5fe4e98f045d6d40969d2"
+          ]
+        ]
+      },
+      {
+        "log": "evidence/r29/ci/unit.log",
+        "logSha256": "e57edb89fb412e0d392ef7fca5b8a39c501dfd4341c88fd621a7fe648fd26178",
+        "identityLines": [
+          [
+            "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+            "33a8f23004991c805ab5fe4e98f045d6d40969d2"
+          ]
+        ]
+      },
+      {
+        "log": "evidence/r29/ci/assemble.log",
+        "logSha256": "3ca502e640a8470f26b3428b49c996888a55fe7caeea2500ae453952f82e5aad",
+        "identityLines": [
+          [
+            "e3dd104302dc988e1acb0c03996c05fb229ae3e6",
+            "33a8f23004991c805ab5fe4e98f045d6d40969d2"
+          ]
+        ]
+      }
+    ],
+    "actualApkBinaryInThisArtifactAudited": false
+  },
+  "host": {
+    "frozenRunnerCount": 40,
+    "directRetainedPositiveRunnerCount": 40,
+    "inferredMissingPositiveRunnerCount": 0,
+    "runnerReceipts": [
+      {
+        "runner": "tools/r29/run_qual_host.sh",
+        "runnerSourceSha256": "8bcf14bb99ebb44fe4ee201e3ecb8c48a5f94eb48262b52831ff2734a19d6af5",
+        "log": "evidence/r29/ci/r29_qual_host.log",
+        "logSha256": "30b4c3f479cd2be606071d9537ebc0f2ea8026a32976cf4b3cf880a0106233b7",
+        "positiveReceipt": "R29_QUAL|SUMMARY|OK"
+      },
+      {
+        "runner": "tools/r29/run_event_host.sh",
+        "runnerSourceSha256": "753cda31eadf6e3d9a75468baac72e4240316d558d154f0a20dfad1a806da630",
+        "log": "evidence/r29/ci/r29_event_host.log",
+        "logSha256": "1ba1040ea2783824d60c8016166178a1fd39cd430ba78f7b18dbfc459284e35c",
+        "positiveReceipt": "R29_EVENT|ALL_PASS|checks=18|HOST_PROTOCOL_ONLY_RUNTIME_DB_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_event_yield_host.sh",
+        "runnerSourceSha256": "b2d457909d35991fa6fc074cecdc4363c5d0e7f8c5200968245c9192d8e6e25a",
+        "log": "evidence/r29/ci/r29_event_yield_host.log",
+        "logSha256": "2a7fa5be1f9acb8891cfcc60e24eea04eda60f797a24b2a172716c93a3f3dfda",
+        "positiveReceipt": "R29_EVENT_YIELD|ALL_PASS|checks=22|ACTUAL_EVENT_TASK_WRITER_AND_SCHEDULER_REAL_SQLITE_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_event_schema_host.sh",
+        "runnerSourceSha256": "2e5581ece32dcea1c259a9b549e5e3fa2a831823fe969cd40ea57ab507f60af4",
+        "log": "evidence/r29/ci/r29_event_schema_host.log",
+        "logSha256": "19ed3301ad73dd40610db6d90287fa463eee45cba914458de5ebbefa476b714e",
+        "positiveReceipt": "R29_EVENT_SCHEMA|ALL_PASS|checks=21|HOST_ONLY_FULL_APP_REVALIDATION_REQUIRED"
+      },
+      {
+        "runner": "tools/r29/run_migration_host.sh",
+        "runnerSourceSha256": "ae74b319379af8d459f38d45fcb691cc935a8b877b725a457223db0897451e0c",
+        "log": "evidence/r29/ci/r29_migration_host.log",
+        "logSha256": "705d6c94271acb8b8731b6a8ad464017a1a1e8f8c24dd2c35bacfcfefc83e7d2",
+        "positiveReceipt": "R29_MIGRATION|ALL_PASS|checks=16|STAGED_BASELINE_ONLY_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_migration_prepare_host.sh",
+        "runnerSourceSha256": "afb84e05556a5810ed8465caa07a4efbfaffbc1d658f99b45cf1b7d713e83611",
+        "log": "evidence/r29/ci/r29_migration_prepare_host.log",
+        "logSha256": "1d5c421ca6fbadc281773935f2e27ca5ca6c1224a86ec06202d286d166215d15",
+        "positiveReceipt": "R29_MIGRATION_PREPARE|ALL_PASS|checks=21|LAZY_SELECTED_TABLE_TRACKING_REAL_SQLITE_NOT_OS_CRASH"
+      },
+      {
+        "runner": "tools/r29/run_expert_snapshot_reader_host.sh",
+        "runnerSourceSha256": "d99f0ce22482c7e4e50a180582c193f12e3bea303c189ba0c41b14726c219b70",
+        "log": "evidence/r29/ci/expert-snapshot-reader-host.log",
+        "logSha256": "eb7da9809b842653cfa5cc15b3f60780d26df6698bf1eb5ffc743f6eb62e1cea",
+        "positiveReceipt": "R29_EXPERT_SNAPSHOT|ALL_PASS|checks=15|ACTUAL_EXPERT_CONTINUATION_REAL_WAL_MODELLED_ANDROID_RW_POOL_NOT_DEVICE_ACCEPTANCE"
+      },
+      {
+        "runner": "tools/r29/run_registration_host.sh",
+        "runnerSourceSha256": "51c6d55362895489a551999710210ea2bc98e8d41c4d21687bc8599e09f8813e",
+        "log": "evidence/r29/ci/r29_registration_host.log",
+        "logSha256": "e482a02d6a638ba4a4ddac83902e9158b1a09a8b2bfa517f1956f7cedecfb7ef",
+        "positiveReceipt": "R29_REGISTRATION|ALL_PASS|checks=14|HOST_ONLY_NOT_NATURAL_EVIDENCE"
+      },
+      {
+        "runner": "tools/r29/run_cutover_host.sh",
+        "runnerSourceSha256": "441960a584bc9912ab78bcb4ca3d06b7fbfcc41a2dd9d4579d468dc7519ce5f3",
+        "log": "evidence/r29/ci/r29_cutover_host.log",
+        "logSha256": "8f807a445c3223a79f545222a6fa3451b5c242ce46c6d03ffe9c00c660c71146",
+        "positiveReceipt": "R29_CUTOVER|ALL_PASS|checks=19|HOST_CORE_ONLY_ANDROID_HANDOFF_AND_REPORT_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_owner_host.sh",
+        "runnerSourceSha256": "cb2043d7d8fe33c227255cd3c8906a5797a8e42299183e568898d257e6cd3e3d",
+        "log": "evidence/r29/ci/r29_owner_host.log",
+        "logSha256": "d5dd5bed681865ded38110174dbcac44a255159ec91e942549dbd132a2dfdf98",
+        "positiveReceipt": "R29_OWNER|ALL_PASS|checks=12|HOST_ONLY_ANDROID_CONCURRENCY_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_report_host.sh",
+        "runnerSourceSha256": "e7a4cad49a8866c51747075e708749e22bb110ba0c8a03a1ff1223cae43df796",
+        "log": "evidence/r29/ci/r29_report_host.log",
+        "logSha256": "5753d2d48ef43205537b4d36677076d9944d2f373d885fea3418e6da5b11f004",
+        "positiveReceipt": "R29_REPORT|ALL_PASS|checks=15|HOST_SQL_ONLY_ANDROID_NATIVE_SNAPSHOT_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_host.sh",
+        "runnerSourceSha256": "1e42024558bc61243c683a2a92ede94954854d5de33d2766560c8ab989a229f8",
+        "log": "evidence/r29/ci/r29_legacy_host.log",
+        "logSha256": "184d307792a798ee4da2471f4bd9757e8d2a3fee9ee9ad3693016a68d876dd96",
+        "positiveReceipt": "R29_LEGACY_STATE|ALL_PASS|checks=14|ORIGINAL_STATE_ONLY_NOT_NATURAL_QUALITY"
+      },
+      {
+        "runner": "tools/r29/run_legacy_archive_host.sh",
+        "runnerSourceSha256": "86e33574905709c326e6d61843909b57bb2337aa6f25c531710240f6686d216a",
+        "log": "evidence/r29/ci/legacy-archive-host.log",
+        "logSha256": "533950cd51fe3d23b15ff246a22cf93fe24f39f0b794c643565f9adee2ff3c13",
+        "positiveReceipt": "R29_LEGACY_ARCHIVE|assets=125|passed=125|missing=0|failed=0|periods=8|actionsPerPeriod=1200|SYNTHETIC_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_model_chunk_host.sh",
+        "runnerSourceSha256": "2bca2310ac15223e83a2c03c903ec57b20e3d29dab1eebd924e1ac5766fe7ead",
+        "log": "evidence/r29/ci/r29_model_chunk_host.log",
+        "logSha256": "4106ccef9064760e88c3fc7520607534a5fcecf173291b20378f3605c1c34f56",
+        "positiveReceipt": "R29_MODEL_CHUNK|ALL_PASS|checks=11|HOST_SQL_AND_NUMERICAL_ONLY_ANDROID_WINDOW_TEST_SEPARATE"
+      },
+      {
+        "runner": "tools/r29/run_rows_host.sh",
+        "runnerSourceSha256": "dfe107cfb880493d4ec204c1768eaf7c6fa383d5f075997f48d932426e821f26",
+        "log": "evidence/r29/ci/r29_rows_host.log",
+        "logSha256": "96d359e9f974bf43924e0034a3cb1db20e13c2d661e83acac90ca7be41678225",
+        "positiveReceipt": "R29_ROWS|ALL_PASS|checks=16|HOST_SQL_ONLY_ANDROID_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_large_rows_host.sh",
+        "runnerSourceSha256": "c9eb4e2769e003e1bcb94fd3ab563a72129dfc5efccea6f2c253fb58473e12f7",
+        "log": "evidence/r29/ci/r29_large_rows_host.log",
+        "logSha256": "c14fcebc6fa5656f3b1de9815a61b19faa8f27fd719182785305e00cf2698c83",
+        "positiveReceipt": "R29_LARGE_ROWS|ALL_PASS|checks=13|HOST_TYPED_SQL_ONLY_ANDROID_CURSORWINDOW_TEST_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_full_schema_cutover_host.sh",
+        "runnerSourceSha256": "f1bce50cbbfe6fa72e6be324357470858d0b2076b417c2e1831d107b7de8d756",
+        "log": "evidence/r29/ci/r29_full_schema_cutover_host.log",
+        "logSha256": "7fb8534049918081fd87a4fe661462cd857885e2afbad790470abee835f01cf8",
+        "positiveReceipt": "R29_FULL_SCHEMA_CUTOVER|ALL_PASS|checks=5|ACTUAL_SCHEMA_REAL_WAL_HOST_ONLY_ANDROID_RUNTIME_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_terminal_host.sh",
+        "runnerSourceSha256": "a887c684ae749cf11795547b15ebe7134044cf76ff5bb508dfd46b6f4dc8ba1e",
+        "log": "evidence/r29/ci/r29_terminal_host.log",
+        "logSha256": "7936b0d8111572f048046ec10bfec08fd97cb7bf6a1004e04f5e206e73ed8772",
+        "positiveReceipt": "R29_TERMINAL|ALL_PASS|checks=9|HOST_ONLY_ANDROID_MIGRATION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_live_projection_host.sh",
+        "runnerSourceSha256": "f367d95553e199a2517624de4afea9a6a20cac3e580494f1d4b25699c6f2d9c4",
+        "log": "evidence/r29/ci/r29_legacy_live_projection_host.log",
+        "logSha256": "a2a4e733593ab4049f32b178f48778373a45b6ae9c63a1fd40ca0fddfa07b121",
+        "positiveReceipt": "R29_LEGACY_LIVE_PROJECTION|ALL_PASS|checks=15|HOST_PROTOCOL_NOT_ANDROID_LIFECYCLE"
+      },
+      {
+        "runner": "tools/r29/run_domain_upgrade_host.sh",
+        "runnerSourceSha256": "6b22f82766648fc990e88fa8f95e4405164b099d58401871489cf7c08d7553fe",
+        "log": "evidence/r29/ci/r29_domain_upgrade_host.log",
+        "logSha256": "ea23c6ba4688ae2d2839c64a034160523ed68219ce9b9d5b8c27f02db887bab7",
+        "positiveReceipt": "R29_DOMAIN_UPGRADE|ALL_PASS|checks=18|HOST_SQL_ONLY_ANDROID_UPGRADE_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_critical_mirror_host.sh",
+        "runnerSourceSha256": "161dd92cd9ae956c222c49bcf649d84aed1a6bff82160eeeec75d0138e037f7d",
+        "log": "evidence/r29/ci/r29_critical_mirror_host.log",
+        "logSha256": "732cc74d5c3164b4c74fc07058c152063f57e833615fd06a1276cc3961a92a3d",
+        "positiveReceipt": "R29_CRITICAL_MIRROR|ALL_PASS|checks=21|REAL_SQLITE_HOST_ONLY_ANDROID_COMBINED_ACCEPTANCE_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_root_read_pool_host.sh",
+        "runnerSourceSha256": "aa7289cf42d41b0ff1340188defdd6ea2b25f15dc8fd930e76bee7d87fee6f58",
+        "log": "evidence/r29/ci/positive.log",
+        "logSha256": "e3e4db1beaf7d8c95da627ef349a2428e8705d695d388afa0982865fc7d7114c",
+        "positiveReceipt": "R29_ROOT_READ_POOL|ALL_PASS|checks=5|REAL_SQLITE_WAL_WITH_MODELLED_ANDROID_PRIMARY_LEASE;ANDROID_RETEST_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_learned_input_host.sh",
+        "runnerSourceSha256": "275c9c365f595f5329bce9c2812e8f17a2727e2498c8f93eaaca416f7d5d49a9",
+        "log": "evidence/r29/ci/r29_learned_input_host.log",
+        "logSha256": "b09ee02aab3e13994b620d5a667e5ddd294f5617dbd9543dc85b4484d2c0fe3b",
+        "positiveReceipt": "R29_LEARNED_INPUT|ALL_PASS|checks=20|HOST_ONLY_ANDROID_BOOTSTRAP_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_learning_host.sh",
+        "runnerSourceSha256": "9e380141c3f953e7660720c31ada22a4f6b5e10ffaeea951838d90adfd36128a",
+        "log": "evidence/r29/ci/r29_legacy_learning_host.log",
+        "logSha256": "10003d8788611b9acfacabfc7caeb75cf27c976286896da6308935ec11b3cae6",
+        "positiveReceipt": "R29_LEGACY_LEARNING|ALL_PASS|checks=13|HOST_PROTOCOL_NOT_ANDROID_LIFECYCLE_OR_NATURAL_QUALITY"
+      },
+      {
+        "runner": "tools/r29/run_critical_production_trigger_host.sh",
+        "runnerSourceSha256": "1f7d409eddc94eecaeba54b2380a177781ac237125de9ae0d802062db8fcf152",
+        "log": "evidence/r29/ci/r29_critical_production_trigger_host.log",
+        "logSha256": "c768c776e590cf21816b632b3e7ab68ecf6d32caeef8eb365bc8f450845f9a83",
+        "positiveReceipt": "R29_CRITICAL_TRIGGER|ALL_PASS|HOST_ACTUAL_SCHEMA_AND_TRIGGER_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_research_schema_owner_host.sh",
+        "runnerSourceSha256": "51e7fd3c470fa17cf32f97c55f7dcc133572aee018684e5ea1409dfd6dd45e16",
+        "log": "evidence/r29/ci/r29_research_schema_owner_host.log",
+        "logSha256": "3f0294f176d6c58fe72c0a80ef024c27478740a1fe2214db2ff797b180402dfb",
+        "positiveReceipt": "R29_SCHEMA_OWNER|ALL_PASS|checks=25|ACTUAL_SCHEMA_REAL_SQLITE_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_domain_extension_host.sh",
+        "runnerSourceSha256": "4da80136046cdd912e64ef401f213f085eec4c5d81943c3a901c794c818f44d4",
+        "log": "evidence/r29/ci/r29_domain_extension_host.log",
+        "logSha256": "f9e4c80c1d4bdd0f3e4caecd6a8a37f71caa184a4efc043fd07def64b1c16ba4",
+        "positiveReceipt": "R29_DOMAIN_EXTENSION|ALL_PASS|checks=20|HOST_SQL_ONLY_ANDROID_UPGRADE_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_schema_progress_host.sh",
+        "runnerSourceSha256": "de14fb4b807738b5e07d22d7c042f58b3731eb97f4331925a48cb42fafd59719",
+        "log": "evidence/r29/ci/r29_schema_progress_host.log",
+        "logSha256": "c6dc2931447ee15d901d09ebb9e4fb90320517b94c500f4236149d5de1f0d405",
+        "positiveReceipt": "R29_SCHEMA_PROGRESS|ALL_PASS|checks=9|HOST_SQLITE_ENGINEERING_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_retained_formal_host.sh",
+        "runnerSourceSha256": "14514f2967ab1b27cf6dc07722d7be74f2532deda2e41d01fefc155d6ee6461c",
+        "log": "evidence/r29/ci/r29_retained_formal_host.log",
+        "logSha256": "ab808e680c5ba8c6bd8d713240c070acdd8e5e791ad53604f87437d974965623",
+        "positiveReceipt": "R29_RETAINED_FORMAL|ALL_PASS|NONEMPTY_OLD_FULL_COPIES_RETAINED_NOT_NEW_ROOT_REAL"
+      },
+      {
+        "runner": "tools/r29/run_canonical_input_host.sh",
+        "runnerSourceSha256": "6173489067597cbb6736b9adedaf81d58b04b81ed88d3eac2bcaea77ebae8b70",
+        "log": "evidence/r29/ci/canonical-input-host.log",
+        "logSha256": "6c2e95d6fa53711539425dec8d99aabb462b4652f85ad5a1382b912ea988b1e8",
+        "positiveReceipt": "R29_CANONICAL_INPUT|ALL_PASS|checks=12"
+      },
+      {
+        "runner": "tools/r29/run_dispatch_pending_host.sh",
+        "runnerSourceSha256": "ff74121988110d6e8fc915658e8f3b8f42564e7dd254219d10cb834da1d42a5f",
+        "log": "evidence/r29/ci/r29_dispatch_pending_host.log",
+        "logSha256": "ff86e313414e38fa15c614e71d7ec0c0e3709b22c14fc7ebe00fe3053d8ad4cf",
+        "positiveReceipt": "R29_DISPATCH_PENDING|ALL_PASS|checks=16|HOST_SQL_ONLY_ANDROID_F01_WRAPPER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_scoped_schema_pending_host.sh",
+        "runnerSourceSha256": "b67f9e68a57dcd1e930547225e083c1c8710cbd5b1ac940ffa32058e44a68c24",
+        "log": "evidence/r29/ci/r29_scoped_schema_pending_host.log",
+        "logSha256": "41d790f0d38b4d76ebb5315e04cde03799d3caad9e39332b9c8dcb5f69f6330f",
+        "positiveReceipt": "R29_SCOPED_SCHEMA_PENDING|ALL_PASS|checks=28|REAL_COORDINATOR_F01_SCOPE_SCHEMA_WITH_HOST_PLATFORM_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_shadow_retirement_host.sh",
+        "runnerSourceSha256": "ff1eed20623bd744cf7ab212e1bae5e4c354dc05b9bcc2e9c438dfe418f3a53a",
+        "log": "evidence/r29/ci/r29_shadow_retirement_host.log",
+        "logSha256": "0d5e3fe43d6d325c8d591a63285b73b3d682c29934c271101d68970e94c30e71",
+        "positiveReceipt": "R29_SHADOW_AUTHORITY|ALL_PASS|checks=8|HOST_SQL_ONLY_NATIVE_ROOT_HELD_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_evolution_dataset_pin_host.sh",
+        "runnerSourceSha256": "200123877c0b58202ef4ea05784b28738cfe65ef7e4239bdbe5a29c589d5ffc2",
+        "log": "evidence/r29/ci/r29_evolution_dataset_pin_host.log",
+        "logSha256": "20233546253b2ffc9c271f41ab7f39500c081e75ac43261cb46d66ad4f929423",
+        "positiveReceipt": "R29_EVOLUTION_DATASET_PIN|ALL_PASS|checks=22|REAL_SQLITE_AND_REAL_REPLAY_EVOLUTION_SYNTHETIC_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_runtime_evolution_dataset_pin_host.sh",
+        "runnerSourceSha256": "c82ff0de244914fe67ecca22be3bcc98bdc34c80e9e3939eadfa5c9c610c9509",
+        "log": "evidence/r29/ci/r29_runtime_evolution_dataset_pin_host.log",
+        "logSha256": "6050d5b455306ad748c2b091342cd6e4a6e1c5168590a023543934fa5bcaeb38",
+        "positiveReceipt": "R29_RUNTIME_EVOLUTION_PIN|ALL_PASS|checks=21|ACTUAL_RUNTIME_TURN_AND_40MS_CONTINUATION_REAL_SQLITE_SYNTHETIC_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_terminal_projection_host.sh",
+        "runnerSourceSha256": "2a5ebe8c6704d5abc0b435711b7552cf97c2ab541ed1b5ac2bcfb9b1d647c8a1",
+        "log": "evidence/r29/ci/r29_terminal_projection_host.log",
+        "logSha256": "a54493841f8e85b6db5c27495113f2fb567930e5f2e0d047c926138ad1aea0cc",
+        "positiveReceipt": "R29_TERMINAL_PROJECTION|ALL_PASS|checks=12|HOST_ONLY_ANDROID_SCOPE_INTEGRATION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_decision_retention_host.sh",
+        "runnerSourceSha256": "774d2976f48ab8129e7197a6becbfc9b1f756fa09ac1fccbb451bf0b42010855",
+        "log": "evidence/r29/ci/r29_decision_retention_host.log",
+        "logSha256": "cdc73458fd37b74d034276be1bcd0a2bae5662687470cc1772dd02c30dc5016d",
+        "positiveReceipt": "R29_DECISION_RETENTION|ALL_PASS|checks=19|HOST_SQL_ONLY_ANDROID_RETENTION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_authority_host.sh",
+        "runnerSourceSha256": "5149d5a11c97088618f229d8a5d1eb6d75e251d1180f8ecd19360fd435cb884e",
+        "log": "evidence/r29/ci/r29_legacy_authority_host.log",
+        "logSha256": "3eb8365c3fdf337af6e3b806f1778e8ca259ad41b50f6aae93949d416195c04d",
+        "positiveReceipt": "R29_LEGACY_AUTHORITY|ALL_PASS|checks=25|SYNTHETIC_PROTOCOL_AND_SU2_ISSUANCE_NOT_NATURAL_QUALITY"
+      },
+      {
+        "runner": "tools/r29/run_prepared_host.sh",
+        "runnerSourceSha256": "b85a0e7fc03157979112c0fa477fa89fcabee6399a4bd45eec0c89fa3ff9c30e",
+        "log": "evidence/r29/ci/r29_prepared_host.log",
+        "logSha256": "b30363b09ea33034c0d1dbf78f8ed8fbd8e425a24d8731cbda2b6a46c596572b",
+        "positiveReceipt": "R29_PREPARED|ALL_PASS|checks=13|HOST_PROTOCOL_ONLY_ANDROID_INTEGRATION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_fetch_host.sh",
+        "runnerSourceSha256": "35a34a0741423eecce64c74bb5abfc6b7bd3ab8c480945983a93c6ff2977e308",
+        "log": "evidence/r29/ci/r29_fetch_host.log",
+        "logSha256": "c2610fe2d732be52487115dbdc856235fb222f226d5e25beba5debc9adcac867",
+        "positiveReceipt": "R29_FETCH|ALL_PASS|checks=8|HOST_ONLY_REAL_NETWORK_TIMING_PENDING"
+      }
+    ],
+    "additionalPositiveRerunsInsideEventSchemaRunner": [
+      {
+        "runner": "tools/r29/run_event_schema_host.sh",
+        "runnerSourceSha256": "2e5581ece32dcea1c259a9b549e5e3fa2a831823fe969cd40ea57ab507f60af4",
+        "log": "evidence/r29/ci/r29_event_schema_existing_event_host.log",
+        "logSha256": "1ba1040ea2783824d60c8016166178a1fd39cd430ba78f7b18dbfc459284e35c",
+        "positiveReceipt": "R29_EVENT|ALL_PASS|checks=18|HOST_PROTOCOL_ONLY_RUNTIME_DB_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_event_schema_host.sh",
+        "runnerSourceSha256": "2e5581ece32dcea1c259a9b549e5e3fa2a831823fe969cd40ea57ab507f60af4",
+        "log": "evidence/r29/ci/r29_event_schema_existing_fetch_host.log",
+        "logSha256": "c2610fe2d732be52487115dbdc856235fb222f226d5e25beba5debc9adcac867",
+        "positiveReceipt": "R29_FETCH|ALL_PASS|checks=8|HOST_ONLY_REAL_NETWORK_TIMING_PENDING"
+      }
+    ],
+    "negativeControls": [
+      {
+        "log": "evidence/r29/ci/old-1d-event-yield-control.log",
+        "sha256": "b1b6507870e3b82ee36e3d06dea59fef4ecb94f11d49f51054ca5006b822874c",
+        "failureReceipt": [
+          "Exception in thread \"main\" java.lang.AssertionError: EVENT_MUST_RELEASE_SOLE_WORKER_AFTER_ONE_BUSY_ATTEMPT",
+          "Caused by: java.util.concurrent.TimeoutException"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/r29_event_schema_original_negative.log",
+        "sha256": "4276adedecbc73835059e6ae1244d7a2fbb8990119457e77dae2f5b0a37ce6f5",
+        "failureReceipt": [
+          "R29_EVENT_SCHEMA|Q2_1000_ROW_REPEATED_CANONICAL_BATCH_DDL_ZERO|FAILED",
+          "Exception in thread \"main\" java.lang.AssertionError: Q2_1000_ROW_REPEATED_CANONICAL_BATCH_DDL_ZERO"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/migration-prepare-old-prefix-control.log",
+        "sha256": "d165f095278a394353bd960bd236a7a7b5653b520e81e1fce8499799f6e8390c",
+        "failureReceipt": [
+          "R29_MIGRATION_PREPARE|P01_PENDING_CATALOG_WITHOUT_ROOT_WRITES|FAILED",
+          "Exception in thread \"main\" java.lang.AssertionError: P01_PENDING_CATALOG_WITHOUT_ROOT_WRITES"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/old-2f1-shared-pool-control.log",
+        "sha256": "927f223e1b1f98998e63e1b997ac13831fccbe67fee7a9886ce7e8233391f0e1",
+        "failureReceipt": [
+          "Exception in thread \"main\" java.lang.AssertionError: EXPERT_SNAPSHOT_BORROWED_BLOCKED_ROOT_RW_POOL",
+          "Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/shared-rw-control.log",
+        "sha256": "aff75d1a152e3c81e801d899c71e5ec2d8af47c058eeac30c8ddbe4a37549a5e",
+        "failureReceipt": [
+          "Exception in thread \"main\" java.lang.AssertionError: PRIMARY_POOL_CAPTURE_WAITED_FOR_RT_WRITER",
+          "Caused by: java.util.concurrent.TimeoutException"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/old-1388a63-control.log",
+        "sha256": "7e90c6750549412f4b19e8f3c58edfa1439f357cef88d1fa0e8b8f9105a03141",
+        "failureReceipt": [
+          "R29_FULL_SCHEMA_CUTOVER|F4_4200_DRAW_COPY_DOES_NOT_ISSUE_PER_SMALL_CELL_SQL|FAILED",
+          "Exception in thread \"main\" java.lang.AssertionError: F4_4200_DRAW_COPY_DOES_NOT_ISSUE_PER_SMALL_CELL_SQL"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/old-8778561-control.log",
+        "sha256": "7312c4b9b9330b836d5ae4daba027303648d3eeb8d512b2043756c4dcf8fcbc3",
+        "failureReceipt": [
+          "R29_SCHEMA_OWNER|STEP|2|FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:[SQLITE_ERROR] SQL error or missing database (no such table: main.v57_selected_evidence_r906)",
+          "android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: main.v57_selected_evidence_r906)",
+          "Exception in thread \"main\" java.lang.AssertionError: ACTUAL_RESEARCH_SCHEMA_FAILED:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:[SQLITE_ERROR] SQL error or missing database (no such table: main.v57_selected_evidence_r906)"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/old-e5f9292-control.log",
+        "sha256": "1d045bc01089413e9f3ef2d5fb72b9ca7c4f8e6edc8064ae56f5fe25fbcd8d15",
+        "failureReceipt": [
+          "R29_SCOPED_SCHEMA_PENDING|STEP|1|status=WRITER_FAILED|entered=false|pending=false|units=0|canonicalRows=0",
+          "Exception in thread \"main\" java.lang.AssertionError: PENDING_DID_NOT_SURVIVE_REAL_F01:java.lang.IllegalStateException:F01_WRITE_FAILED|operation=R958_RESEARCH_SCHEMA_STEP <- java.lang.IllegalStateException:CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP",
+          "Caused by: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R958_RESEARCH_SCHEMA_STEP"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      },
+      {
+        "log": "evidence/r29/ci/old-e5f9292-runtime-control.log",
+        "sha256": "27ee97f33d27a9589183c73ff0db34611ba7b5a15c3d337d44c09bf5b5362bad",
+        "failureReceipt": [
+          "java.lang.IllegalStateException: R27_RESTORE_DATASET_MISMATCH_MID_GENERATION",
+          "R29_RUNTIME_EVOLUTION_PIN|R2_ACTUAL_RUNTIME_TURN_RESUMES_OLD_PIN_AND_COMMITS_NEXT_GATE|FAILED",
+          "Exception in thread \"main\" java.lang.AssertionError: R2_ACTUAL_RUNTIME_TURN_RESUMES_OLD_PIN_AND_COMMITS_NEXT_GATE"
+        ],
+        "processExitCode": "NOT_RETAINED_IN_LOG_INFERRED_NONZERO_FROM_FROZEN_RUNNER_FAIL_FAST_GUARD"
+      }
+    ],
+    "initialHostChecks": {
+      "schema": "R29_HOST_CHECKS_1",
+      "scope": "HOST_ONLY_NOT_DEVICE_NOT_QUALITY",
+      "results": {
+        "B00_PLAN_PACKAGE": {
+          "driftedPlanFiles": [],
+          "status": "PASS"
+        },
+        "B00_LEGACY_ASSET": {
+          "output": "R29_LEGACY_ASSET CHECKED 802226 9a7f75dbb11624bbb6b253ba2962ad30f34fa4f11913cb0265954d5e0fc6d948",
+          "status": "PASS"
+        },
+        "B00_REGISTRIES": {
+          "cards": 52,
+          "batches": 11,
+          "metrics": 44,
+          "metricsMissingInApp": [],
+          "cardMetricMapMismatch": [],
+          "status": "PASS"
+        },
+        "B00_CHANGE_LEDGER": {
+          "rows": 452,
+          "beforeHashMismatch": [],
+          "status": "PASS"
+        }
+      }
+    }
+  },
+  "junit": {
+    "xmlFiles": 32,
+    "tests": 164,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "semanticMutationChecks": 8,
+  "offlineQa": {
+    "tests": 32,
+    "failures": 0,
+    "errors": 0,
+    "actualRetainedCaseLines": [
+      "test_active_owner_reads_real_rp_without_root_learner_tables (test_inspect_runtime.RuntimeInspection.test_active_owner_reads_real_rp_without_root_learner_tables) ... ok",
+      "test_actual_shell_keeps_observation_then_fails_missing_rp (test_inspect_runtime.RuntimeInspection.test_actual_shell_keeps_observation_then_fails_missing_rp) ... ok",
+      "test_clean_install_rejects_any_expert_error_without_baseline (test_inspect_runtime.RuntimeInspection.test_clean_install_rejects_any_expert_error_without_baseline) ... ok",
+      "test_cli_missing_baseline_persists_failed_summary (test_inspect_runtime.RuntimeInspection.test_cli_missing_baseline_persists_failed_summary) ... ok",
+      "test_committed_work_without_real_receipt_rejected (test_inspect_runtime.RuntimeInspection.test_committed_work_without_real_receipt_rejected) ... ok",
+      "test_equal_counts_do_not_hide_ack_for_wrong_event (test_inspect_runtime.RuntimeInspection.test_equal_counts_do_not_hide_ack_for_wrong_event) ... ok",
+      "test_legacy_reader_cannot_silently_ignore_active_route (test_inspect_runtime.RuntimeInspection.test_legacy_reader_cannot_silently_ignore_active_route) ... ok",
+      "test_missing_before_file_fails_without_creating_a_database (test_inspect_runtime.RuntimeInspection.test_missing_before_file_fails_without_creating_a_database) ... ok",
+      "test_missing_stage_is_observed_without_creating_fake_database (test_inspect_runtime.RuntimeInspection.test_missing_stage_is_observed_without_creating_fake_database) ... ok",
+      "test_new_root_expert_error_fails_even_when_r29_specific_count_is_zero (test_inspect_runtime.RuntimeInspection.test_new_root_expert_error_fails_even_when_r29_specific_count_is_zero) ... ok",
+      "test_new_rp_expert_error_also_fails (test_inspect_runtime.RuntimeInspection.test_new_rp_expert_error_also_fails) ... ok",
+      "test_no_actual_rp_copy_cannot_fallback_to_root (test_inspect_runtime.RuntimeInspection.test_no_actual_rp_copy_cannot_fallback_to_root) ... ok",
+      "test_no_events_report_insufficient_instead_of_delivery_pass (test_inspect_runtime.RuntimeInspection.test_no_events_report_insufficient_instead_of_delivery_pass) ... ok",
+      "test_observation_diagnostics_are_bounded_and_credential_redacted (test_inspect_runtime.RuntimeInspection.test_observation_diagnostics_are_bounded_and_credential_redacted) ... ok",
+      "test_observation_retains_recent_errors_and_baseline_delta_before_missing_rp (test_inspect_runtime.RuntimeInspection.test_observation_retains_recent_errors_and_baseline_delta_before_missing_rp) ... ok",
+      "test_observation_without_rp_preserves_counts_without_accepting (test_inspect_runtime.RuntimeInspection.test_observation_without_rp_preserves_counts_without_accepting) ... ok",
+      "test_old_r29_error_keeps_original_raw_zero_error_gate (test_inspect_runtime.RuntimeInspection.test_old_r29_error_keeps_original_raw_zero_error_gate) ... ok",
+      "test_old_unpublished_stage_owner_keeps_original_assertions (test_inspect_runtime.RuntimeInspection.test_old_unpublished_stage_owner_keeps_original_assertions) ... ok",
+      "test_outbox_payload_corruption_rejected (test_inspect_runtime.RuntimeInspection.test_outbox_payload_corruption_rejected) ... ok",
+      "test_rehashed_wrong_baseline_owner_rejected (test_inspect_runtime.RuntimeInspection.test_rehashed_wrong_baseline_owner_rejected) ... ok",
+      "test_root_task_failure_remains_visible (test_inspect_runtime.RuntimeInspection.test_root_task_failure_remains_visible) ... ok",
+      "test_route_owner_epoch_mismatch_rejected (test_inspect_runtime.RuntimeInspection.test_route_owner_epoch_mismatch_rejected) ... ok",
+      "test_rp_task_failure_is_not_hidden_by_empty_root_log (test_inspect_runtime.RuntimeInspection.test_rp_task_failure_is_not_hidden_by_empty_root_log) ... ok",
+      "test_same_count_replaced_error_is_not_accepted_as_history (test_inspect_runtime.RuntimeInspection.test_same_count_replaced_error_is_not_accepted_as_history) ... ok",
+      "test_same_event_wrong_hash_rejected (test_inspect_runtime.RuntimeInspection.test_same_event_wrong_hash_rejected) ... ok",
+      "test_same_event_wrong_sequence_rejected (test_inspect_runtime.RuntimeInspection.test_same_event_wrong_sequence_rejected) ... ok",
+      "test_sealed_baseline_bytes_not_merely_receipt_checked (test_inspect_runtime.RuntimeInspection.test_sealed_baseline_bytes_not_merely_receipt_checked) ... ok",
+      "test_source_hash_mismatch_rejected (test_inspect_runtime.RuntimeInspection.test_source_hash_mismatch_rejected) ... ok",
+      "test_stage_typed_copy_hash_still_checked (test_inspect_runtime.RuntimeInspection.test_stage_typed_copy_hash_still_checked) ... ok",
+      "test_unchanged_historical_expert_error_copied_from_root_to_rp_is_not_new (test_inspect_runtime.RuntimeInspection.test_unchanged_historical_expert_error_copied_from_root_to_rp_is_not_new) ... ok",
+      "test_unpublished_route_rejected (test_inspect_runtime.RuntimeInspection.test_unpublished_route_rejected) ... ok",
+      "test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure (test_inspect_runtime.RuntimeInspection.test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure) ... ok"
+    ],
+    "log": "evidence/r29/ci/device_protocol_qa.log"
+  },
+  "cli": {
+    "su1": {
+      "printedRunPassCount": 21,
+      "printedRunReceipts": [
+        "schema_and_catalog_reproducibility PASS",
+        "independent_atom_golden PASS",
+        "independent_training_golden PASS",
+        "independent_relgraph_golden PASS",
+        "deployed_java_compile PASS",
+        "ProgramTreeSU1Test PASS",
+        "TypedProgramTest PASS",
+        "PairedEvidenceTest PASS",
+        "NullBaselineTest PASS",
+        "ProductionKernelSU1Test PASS",
+        "AdvancedContractsSU1Test PASS",
+        "TrainingParitySU1Test PASS",
+        "AuditControlsSU1Test PASS",
+        "RelGraphContractsSU1Test PASS",
+        "RelGraphParitySU1Test PASS",
+        "ModelAblationsSU1Test PASS",
+        "ResearchFailureSU1Test PASS",
+        "TrainingFidelitySU1Test PASS",
+        "ProductionR13Test PASS",
+        "python_schema_learning_and_null_suites PASS",
+        "python_replay_and_creation_suites PASS"
+      ],
+      "summaryLines": [],
+      "sourceSelectionLines": [
+        "pure_java_source_selection: selected=191; excluded_adapters=AlphaLedgerSU1.java,ArchiveStoreSU1.java,ArtifactImportSU1.java,ArtifactMaintenanceR26.java,AtomWorldR27.java,BaselineIdentityR29.java,CalibrationPipelineSU1.java,CampaignAuditStoreSU1.java,CampaignStateSU1.java,CertificateSU1.java,CertificateSU2.java,ChartCacheR27.java,CheckpointArtifactsR26.java,CheckpointManifestR26.java,CheckpointPruneGuardR26.java,CheckpointReferencesR26.java,CooperativeResearchTaskR29.java,CriticalInputMirrorR29.java,DiagnosisStoreSU2.java,DirectorLiveFeedbackSU1.java,EventFrameBuilderSU1.java,EvidenceAccumulatorR26.java,EvidenceLoopSU1.java,EvidenceQualitySU1.java,EvolutionDatasetPinR29.java,ExperimentRegistrationR29.java,ExpertContinuationR26.java,ExpertWorkshopR26.java,FailureDirectedResearchR26.java,FoundryCampaignR26.java,FrozenSurfaceStoreR26.java,GateV2R29.java,HistoryImportR27.java,IncumbentLoopSU2.java,IssueCommitR29.java,KernelTransitionSU1.java,LeagueBoardSU2.java,LegacyAuthorityProjectionR29.java,LegacyCapabilityAdapterR29.java,LegacyCapabilitySnapshotR29.java,LegacyContinuityR27.java,LegacyDecisionRetentionR29.java,LegacyDomainExtensionR29.java,LegacyDomainUpgradeR29.java,LegacyGenerationR26.java,LegacyLearnedInputR29.java,LegacyLiveProjectionR29.java,LegacyPolicyExportR27.java,LegacyPublicationR26.java,LegacyReplayContinuationR26.java,LegacyReplayR26.java,LegacyResearchOwnershipR29.java,LegacyResearchScopeR29.java,LegacyResearchTransferR29.java,LivePoolR26.java,LiveShadowLoopSU1.java,LiveShadowsR27.java,MainlineAdapterSU1.java,MainlineAdapterSU2.java,MainlineBridgeSU2.java,MainlineHeadSU1.java,MatrixStoreSU2.java,MigrationCopyR29.java,ModelAblationStoreSU1.java,ModelArtifactR29.java,ModelAssetsSU1.java,ModelFoundryJobSU2.java,ModelLiveLoopSU2.java,ModelStoreSU2.java,PolicyCheckpointR26.java,PolicyIdentityLedgerR26.java,PreparedForecastR29.java,PreparedForecastStoreR26.java,PromotionPipelineSU1.java,QualificationInboxR29.java,RealAuthoritySU2.java,RealtimeResearchProjectionR29.java,ReplayBurstJobServiceSU1.java,ReplayBurstSchedulerSU1.java,ReplayWorkspaceR26.java,ReportDataR27.java,ReportR29.java,ResearchCutoverR29.java,ResearchDashboardSU1.java,ResearchDatabaseR29.java,ResearchEventBridgeR29.java,ResearchFeedbackSU1.java,ResearchInputMirrorR29.java,ResearchPoolR27.java,ResearchReportAppStateR29.java,ResearchReportSnapshotR29.java,ResearchRouteR29.java,ResearchRowsR29.java,ResearchWriteQueueR27.java,RetainedFormalCopiesR29.java,RetentionR26.java,RuntimeCoordinatorR26.java,RuntimePowerLeaseR26.java,RuntimeR27.java,RuntimeReportR26.java,RuntimeSchemaR26.java,SchemaR27.java,SealedPlannerSU1.java,ServiceTotalsR26.java,ShadowAdmissionR26.java,StageStoreSU2.java,StatisticalTrainingStepStoreR26.java,StoreR27.java,StrategyAssessmentR26.java,StrategyRepositorySU1.java,StrategyResearchActivitySU1.java,StrategyRuntimeSU1.java,StrategySchemaDomainR29.java,StrategySchemaSU1.java,StrategySchemaSU2.java,TaskContinuationR26.java,TrainingStepStoreR26.java,WarmCandidateR26.java"
+      ],
+      "log": "evidence/r29/ci/su1.log",
+      "logSha256": "62fb1e532107f1ba1c17e9c72201fe12a9565e1afd5a0b40e617a8f7a0aa7be2",
+      "checks": 21,
+      "javaTestClasses": 14
+    },
+    "plan1025": {
+      "printedRunPassCount": 20,
+      "printedRunReceipts": [
+        "generated_sql PASS",
+        "production_sql PASS",
+        "production_compile PASS",
+        "OnlineModelsSU2Test PASS",
+        "ModelLiveSU2Test PASS",
+        "XiIncumbentSU2Test PASS",
+        "MainlinePolicySU2Test PASS",
+        "CalibrationSU2Test PASS",
+        "CommitteeSU2Test PASS",
+        "CommitteeLiveSU2Test PASS",
+        "AtomNetSU2Test PASS",
+        "AtomNetR15Test PASS",
+        "LiveR15Test PASS",
+        "RegMemSU2Test PASS",
+        "ContMatSU2Test PASS",
+        "StageLayerSU2Test PASS",
+        "UpgradeDiagnosisSU2Test PASS",
+        "InformationProbeSU2Test PASS",
+        "StageDeploymentSU2Test PASS",
+        "MatrixSnapshotSU2Test PASS"
+      ],
+      "summaryLines": [],
+      "sourceSelectionLines": [
+        "pure_java_source_selection: selected=191; excluded_adapters=AlphaLedgerSU1.java,ArchiveStoreSU1.java,ArtifactImportSU1.java,ArtifactMaintenanceR26.java,AtomWorldR27.java,BaselineIdentityR29.java,CalibrationPipelineSU1.java,CampaignAuditStoreSU1.java,CampaignStateSU1.java,CertificateSU1.java,CertificateSU2.java,ChartCacheR27.java,CheckpointArtifactsR26.java,CheckpointManifestR26.java,CheckpointPruneGuardR26.java,CheckpointReferencesR26.java,CooperativeResearchTaskR29.java,CriticalInputMirrorR29.java,DiagnosisStoreSU2.java,DirectorLiveFeedbackSU1.java,EventFrameBuilderSU1.java,EvidenceAccumulatorR26.java,EvidenceLoopSU1.java,EvidenceQualitySU1.java,EvolutionDatasetPinR29.java,ExperimentRegistrationR29.java,ExpertContinuationR26.java,ExpertWorkshopR26.java,FailureDirectedResearchR26.java,FoundryCampaignR26.java,FrozenSurfaceStoreR26.java,GateV2R29.java,HistoryImportR27.java,IncumbentLoopSU2.java,IssueCommitR29.java,KernelTransitionSU1.java,LeagueBoardSU2.java,LegacyAuthorityProjectionR29.java,LegacyCapabilityAdapterR29.java,LegacyCapabilitySnapshotR29.java,LegacyContinuityR27.java,LegacyDecisionRetentionR29.java,LegacyDomainExtensionR29.java,LegacyDomainUpgradeR29.java,LegacyGenerationR26.java,LegacyLearnedInputR29.java,LegacyLiveProjectionR29.java,LegacyPolicyExportR27.java,LegacyPublicationR26.java,LegacyReplayContinuationR26.java,LegacyReplayR26.java,LegacyResearchOwnershipR29.java,LegacyResearchScopeR29.java,LegacyResearchTransferR29.java,LivePoolR26.java,LiveShadowLoopSU1.java,LiveShadowsR27.java,MainlineAdapterSU1.java,MainlineAdapterSU2.java,MainlineBridgeSU2.java,MainlineHeadSU1.java,MatrixStoreSU2.java,MigrationCopyR29.java,ModelAblationStoreSU1.java,ModelArtifactR29.java,ModelAssetsSU1.java,ModelFoundryJobSU2.java,ModelLiveLoopSU2.java,ModelStoreSU2.java,PolicyCheckpointR26.java,PolicyIdentityLedgerR26.java,PreparedForecastR29.java,PreparedForecastStoreR26.java,PromotionPipelineSU1.java,QualificationInboxR29.java,RealAuthoritySU2.java,RealtimeResearchProjectionR29.java,ReplayBurstJobServiceSU1.java,ReplayBurstSchedulerSU1.java,ReplayWorkspaceR26.java,ReportDataR27.java,ReportR29.java,ResearchCutoverR29.java,ResearchDashboardSU1.java,ResearchDatabaseR29.java,ResearchEventBridgeR29.java,ResearchFeedbackSU1.java,ResearchInputMirrorR29.java,ResearchPoolR27.java,ResearchReportAppStateR29.java,ResearchReportSnapshotR29.java,ResearchRouteR29.java,ResearchRowsR29.java,ResearchWriteQueueR27.java,RetainedFormalCopiesR29.java,RetentionR26.java,RuntimeCoordinatorR26.java,RuntimePowerLeaseR26.java,RuntimeR27.java,RuntimeReportR26.java,RuntimeSchemaR26.java,SchemaR27.java,SealedPlannerSU1.java,ServiceTotalsR26.java,ShadowAdmissionR26.java,StageStoreSU2.java,StatisticalTrainingStepStoreR26.java,StoreR27.java,StrategyAssessmentR26.java,StrategyRepositorySU1.java,StrategyResearchActivitySU1.java,StrategyRuntimeSU1.java,StrategySchemaDomainR29.java,StrategySchemaSU1.java,StrategySchemaSU2.java,TaskContinuationR26.java,TrainingStepStoreR26.java,WarmCandidateR26.java"
+      ],
+      "log": "evidence/r29/ci/plan1025.log",
+      "logSha256": "f6f7041c7f43558fdea9ac4ef440844e75bbb8aa79f4f41f90e6b9e7d628afc9",
+      "checks": 20,
+      "javaTestClasses": 17
+    },
+    "r26": {
+      "printedRunPassCount": 30,
+      "printedRunReceipts": [
+        "compile PASS",
+        "kernels PASS",
+        "experts PASS",
+        "recovery PASS",
+        "chunked_checkpoint PASS",
+        "capability_service PASS",
+        "forecast_snapshot PASS",
+        "hidden_state_mechanism PASS",
+        "fragment_memory_mechanism PASS",
+        "warm_model_seed PASS",
+        "tensor_mechanism PASS",
+        "fragment_training_diagnostics PASS",
+        "matching_training_diagnostics PASS",
+        "neural_training_diagnostics PASS",
+        "structured_training_diagnostics PASS",
+        "sparse_training_diagnostics PASS",
+        "duration_training_diagnostics PASS",
+        "statistical_training_diagnostics PASS",
+        "suffix_training_diagnostics PASS",
+        "retrieval_training_diagnostics PASS",
+        "relation_training_statistics PASS",
+        "symbolic_training_diagnostics PASS",
+        "residual_training_diagnostics PASS",
+        "distillation_training_diagnostics PASS",
+        "incumbent_budget PASS",
+        "family_mechanisms PASS",
+        "evidence PASS",
+        "frozen_surface PASS",
+        "families PASS",
+        "plan_reference_contracts PASS"
+      ],
+      "summaryLines": [
+        "R26_PRODUCTION_PROTOCOLS_PASS"
+      ],
+      "sourceSelectionLines": [
+        "pure_java_source_selection: selected=191; excluded_adapters=AlphaLedgerSU1.java,ArchiveStoreSU1.java,ArtifactImportSU1.java,ArtifactMaintenanceR26.java,AtomWorldR27.java,BaselineIdentityR29.java,CalibrationPipelineSU1.java,CampaignAuditStoreSU1.java,CampaignStateSU1.java,CertificateSU1.java,CertificateSU2.java,ChartCacheR27.java,CheckpointArtifactsR26.java,CheckpointManifestR26.java,CheckpointPruneGuardR26.java,CheckpointReferencesR26.java,CooperativeResearchTaskR29.java,CriticalInputMirrorR29.java,DiagnosisStoreSU2.java,DirectorLiveFeedbackSU1.java,EventFrameBuilderSU1.java,EvidenceAccumulatorR26.java,EvidenceLoopSU1.java,EvidenceQualitySU1.java,EvolutionDatasetPinR29.java,ExperimentRegistrationR29.java,ExpertContinuationR26.java,ExpertWorkshopR26.java,FailureDirectedResearchR26.java,FoundryCampaignR26.java,FrozenSurfaceStoreR26.java,GateV2R29.java,HistoryImportR27.java,IncumbentLoopSU2.java,IssueCommitR29.java,KernelTransitionSU1.java,LeagueBoardSU2.java,LegacyAuthorityProjectionR29.java,LegacyCapabilityAdapterR29.java,LegacyCapabilitySnapshotR29.java,LegacyContinuityR27.java,LegacyDecisionRetentionR29.java,LegacyDomainExtensionR29.java,LegacyDomainUpgradeR29.java,LegacyGenerationR26.java,LegacyLearnedInputR29.java,LegacyLiveProjectionR29.java,LegacyPolicyExportR27.java,LegacyPublicationR26.java,LegacyReplayContinuationR26.java,LegacyReplayR26.java,LegacyResearchOwnershipR29.java,LegacyResearchScopeR29.java,LegacyResearchTransferR29.java,LivePoolR26.java,LiveShadowLoopSU1.java,LiveShadowsR27.java,MainlineAdapterSU1.java,MainlineAdapterSU2.java,MainlineBridgeSU2.java,MainlineHeadSU1.java,MatrixStoreSU2.java,MigrationCopyR29.java,ModelAblationStoreSU1.java,ModelArtifactR29.java,ModelAssetsSU1.java,ModelFoundryJobSU2.java,ModelLiveLoopSU2.java,ModelStoreSU2.java,PolicyCheckpointR26.java,PolicyIdentityLedgerR26.java,PreparedForecastR29.java,PreparedForecastStoreR26.java,PromotionPipelineSU1.java,QualificationInboxR29.java,RealAuthoritySU2.java,RealtimeResearchProjectionR29.java,ReplayBurstJobServiceSU1.java,ReplayBurstSchedulerSU1.java,ReplayWorkspaceR26.java,ReportDataR27.java,ReportR29.java,ResearchCutoverR29.java,ResearchDashboardSU1.java,ResearchDatabaseR29.java,ResearchEventBridgeR29.java,ResearchFeedbackSU1.java,ResearchInputMirrorR29.java,ResearchPoolR27.java,ResearchReportAppStateR29.java,ResearchReportSnapshotR29.java,ResearchRouteR29.java,ResearchRowsR29.java,ResearchWriteQueueR27.java,RetainedFormalCopiesR29.java,RetentionR26.java,RuntimeCoordinatorR26.java,RuntimePowerLeaseR26.java,RuntimeR27.java,RuntimeReportR26.java,RuntimeSchemaR26.java,SchemaR27.java,SealedPlannerSU1.java,ServiceTotalsR26.java,ShadowAdmissionR26.java,StageStoreSU2.java,StatisticalTrainingStepStoreR26.java,StoreR27.java,StrategyAssessmentR26.java,StrategyRepositorySU1.java,StrategyResearchActivitySU1.java,StrategyRuntimeSU1.java,StrategySchemaDomainR29.java,StrategySchemaSU1.java,StrategySchemaSU2.java,TaskContinuationR26.java,TrainingStepStoreR26.java,WarmCandidateR26.java"
+      ],
+      "log": "evidence/r29/ci/r26.log",
+      "logSha256": "f0a7be03f1bbbd7642383a293ed217712f8b7fe148ae30cb247f47cee9d83c1f",
+      "checks": 32,
+      "checkCountEvidence": "30 printed successful run() results plus two frozen-source silent checks reached before final success marker",
+      "silentChecks": [
+        "eleven_cross_language_golden_bytes",
+        "actual_sql_migration_fencing_cas_rollback_immutable_freeze"
+      ],
+      "javaTestClasses": 28,
+      "javaInvocationsIncludingCompiler": 29,
+      "javaClassCountExplanation": "29 java invocations include the compile run using com.sun.tools.javac.Main; 28 are actual test classes."
+    }
+  },
+  "lint": {
+    "freshAnalyzeAndReportExecuted": true,
+    "reportTaskUpToDate": false,
+    "newIssues": 0,
+    "existingBaselineErrorsFiltered": 51,
+    "unmatchedBaselineEntries": 7,
+    "actualXmlIssues": [
+      {
+        "id": "LintBaseline",
+        "severity": "Hint",
+        "message": "51 errors were filtered out because they are listed in the baseline file, lint-baseline.xml"
+      },
+      {
+        "id": "LintBaselineFixed",
+        "severity": "Hint",
+        "message": "7 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with `android.lintOptions.checkDependencies=true`. Unmatched issue types: SetTextI18n (7)"
+      }
+    ],
+    "baselineChangedByAudit": false,
+    "reportPath": "app/build/reports/lint-results-release.xml",
+    "reportSha256": "6395060dd0211c80b70d1ce6734b6a9213ed2f375e32ec163aac5b2792e22157"
+  },
+  "builds": {
+    "unit": "BUILD_SUCCESSFUL_2m58s",
+    "canonicalAssemble": "BUILD_SUCCESSFUL_3m39s",
+    "gradle9Deprecations": "REMAIN"
+  },
+  "scopeLimits": {
+    "wholeApp": "SEPARATE_CP09_DIAGNOSTIC_FAILED_PER_PARENT_APP_STATE_UNIQUE_AND_HASH_SNAPSHOT_FAILURE",
+    "wholeAppFailureIndependentlyAuditedHere": false,
+    "b01Acceptance": "NOT_ACCEPTED",
+    "physicalDevice": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "newRealGrant": "BLOCKED",
+    "cp10": "PRODUCT_SOURCE_CHANGED_REQUIRES_FRESH_TESTS_CANNOT_INHERIT_CP09_PASS",
+    "r27Ci": "NOT_INDEPENDENTLY_AUDITED_BY_THIS_REPORT"
+  }
+}
