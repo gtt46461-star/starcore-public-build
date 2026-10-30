@@ -148,6 +148,10 @@ public final class RuntimeR27 implements AutoCloseable {
                     if(now-reported>=15_000){Map<String,Object> m=new LinkedHashMap<>();m.put("state","ACTIVE_INDEPENDENT_R27_RESEARCH");m.put("activeOwner",ResearchRouteR29.FILE_NAME);m.put("cutoverEnabled",true);m.put("routingRecoveryRequired",pool.routingRecoveryRequired());m.put("legacyR26Adapter","RESEARCH_POOL_PLUGIN_AFTER_DRAIN");m.put("legacyStateStorage","ORIGINAL_VM_AND_CHECKPOINT_OWNER_RETAINED");publish(w,m,now);}
                     return ResearchPoolR27.Outcome.idle("ACTIVE_R27_DATABASE_LEGACY_VM_RETAINED",1,1);
                 }
+                // Cutover already depends on this real storage owner. Preparing hundreds of Root
+                // trackers before it finishes competes with the very dependency needed to publish.
+                if(!RuntimeCoordinatorR26.readyForResearchMigration())
+                    return ResearchPoolR27.Outcome.idle("DEPENDENCY:WAITING_SELF_CONTAINED_STRATEGY_STORAGE",0,-1);
                 if(stage==null)stage=ResearchDatabaseR29.acquire(store);
                 MigrationCopyR29.Result result=stage.step(store,w.realtimeRo());
                 long verified=stage.verifiedTables();

@@ -14,8 +14,8 @@ public final class ExpertWorkshopR26 {
     /** Initial/restored expert snapshots are SELECT-only. Before RP publication they must not borrow
      * Root's DDL-capable connection pool; a transaction still observes its own original writes. */
     static SQLiteDatabase snapshotReader(DbStore store){
-        SQLiteDatabase current=store.readable();if(current.inTransaction())return current;
-        return ResearchRouteR29.reader(store.coordinatorForResearchR952().realtimeReadOnlyR29());
+        SQLiteDatabase current=store.coordinatorForResearchR952().realtimeReadOnlyR29();if(current.inTransaction())return current;
+        return ResearchRouteR29.reader(current);
     }
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget,long seq)throws Exception{
         String expert=claims.get().task.substring("expert-".length());

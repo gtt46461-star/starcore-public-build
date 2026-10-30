@@ -18,9 +18,9 @@ public final class ExpertSnapshotReaderR29HostTest {
     static int checks;
     static void check(String id,boolean ok){System.out.println("R29_EXPERT_SNAPSHOT|"+id+"|"+(ok?"OK":"FAILED"));if(!ok)throw new AssertionError(id);checks++;}
     static final class Primary extends SQLiteDatabase {
-        final ReentrantLock lock;final AtomicInteger expertReads=new AtomicInteger();
+        final ReentrantLock lock;final AtomicInteger expertReads=new AtomicInteger(),routeReads=new AtomicInteger();
         Primary(SQLiteDatabase original,ReentrantLock lock){super(original.jdbc);this.lock=lock;}
-        @Override public Cursor rawQuery(String sql,String[] args){boolean snapshot=sql.contains("r26_expert_experiment")||sql.contains("r26_foundry")||sql.contains("r26_capability");if(snapshot){expertReads.incrementAndGet();lock.lock();}try{return super.rawQuery(sql,args);}finally{if(snapshot)lock.unlock();}}
+        @Override public Cursor rawQuery(String sql,String[] args){boolean snapshot=sql.contains("r26_expert_experiment")||sql.contains("r26_foundry")||sql.contains("r26_capability"),route=sql.contains("r29_database_route");if(snapshot)expertReads.incrementAndGet();if(route)routeReads.incrementAndGet();if(snapshot||route)lock.lock();try{return super.rawQuery(sql,args);}finally{if(snapshot||route)lock.unlock();}}
     }
     static FoundryCampaignR26.Snapshot source(){
         FoundryCampaignR26.Snapshot s=new FoundryCampaignR26.Snapshot();s.ordinal=new long[32];s.issues=new long[32];s.opened=new long[32];s.available=new long[32];s.draws=new int[32][10];long first=TargetIssueResolver.sequenceOrdinalSU1("202610220001");
@@ -43,6 +43,19 @@ public final class ExpertSnapshotReaderR29HostTest {
         check("X1_"+phase+"_ACTUAL_CONTINUATION_HAS_NO_FAKE_PROGRESS",result==0&&failure.get()==null&&completedWhileHeld);
         check("X2_"+phase+"_PURE_SNAPSHOT_QUERIES_NEVER_LEASE_ROOT_RW_POOL",primary.expertReads.get()==0);
     }
+    static void routeProbeWhileHeld(EventYieldR29HostTest.Fixture f,Primary primary)throws Exception{
+        CountDownLatch held=new CountDownLatch(1);AtomicBoolean released=new AtomicBoolean();AtomicReference<Throwable> failure=new AtomicReference<>();
+        Thread holder=new Thread(()->{primary.lock.lock();try{held.countDown();Thread.sleep(1500);}catch(Throwable e){failure.set(e);}finally{released.set(true);primary.lock.unlock();}},"synthetic-root-secondary-open-held");holder.start();if(!held.await(2,TimeUnit.SECONDS))throw new AssertionError("ROOT_POOL_REQUIRED");
+        boolean completedWhileHeld=false;SQLiteDatabase observed=null;
+        try(CooperativeContinuationR26<SQLiteDatabase> continuation=new CooperativeContinuationR26<>("starcore-r26-expert-E12-route-probe",()->{
+            SQLiteDatabase authority=LegacyResearchScopeR29.rawRealtime(f.store);if(ResearchRouteR29.active(authority))throw new AssertionError("PREPUBLICATION_ROUTE_REQUIRED");return authority;
+        },()->false,null,System::nanoTime)){
+            CooperativeContinuationR26.Slice<SQLiteDatabase> slice=continuation.slice(40);for(int n=0;!slice.done&&n<20;n++)slice=continuation.slice(40);
+            if(slice.error!=null)throw new AssertionError("REAL_ROUTE_PROBE_FAILED",slice.error);if(!slice.done)throw new AssertionError("ROUTE_PROBE_MUST_COMPLETE");observed=slice.result;completedWhileHeld=!released.get();
+        }catch(IllegalStateException e){if("R26_UNSLICED_COMPUTATION_CAPACITY".equals(e.getMessage()))throw new AssertionError("ROUTE_PROBE_BORROWED_BLOCKED_ROOT_RW_POOL",e);throw e;}finally{holder.join(2500);}
+        check("X10_AUTHORITY_ROUTE_PROBE_COMPLETES_DURING_ROOT_RW_POOL_STALL",completedWhileHeld&&failure.get()==null&&primary.routeReads.get()==0);
+        check("X11_AUTHORITY_ROUTE_PROBE_USES_SAME_FILE_PHYSICAL_READONLY",observed!=primary&&observed.isReadOnly()&&observed.getPath().equals(primary.getPath()));
+    }
     public static void main(String[]args)throws Exception{
         try(EventYieldR29HostTest.Fixture f=new EventYieldR29HostTest.Fixture()){
             for(SQLiteDatabase db:new SQLiteDatabase[]{f.root,f.research}){db.beginTransaction();try{RuntimeSchemaR26.ensure(db);db.setTransactionSuccessful();}finally{db.endTransaction();}}
@@ -50,9 +63,10 @@ public final class ExpertSnapshotReaderR29HostTest {
             // First exercise the product task before referencing the new helper, so old-source controls fail on
             // the actual unsliced-capacity bug rather than a missing helper method.
             runtimeReadWhileHeld(f,primary,"E07","EMPTY_E07");
+            routeProbeWhileHeld(f,primary);
             SQLiteDatabase reader=ExpertWorkshopR26.snapshotReader(f.store);
             check("X3_ROOT_OBSERVATION_IS_INDEPENDENT_READONLY_AND_SAME_FILE",reader!=primary&&reader.isReadOnly()&&reader.getPath().equals(primary.getPath())&&EventYieldR29HostTest.n(reader,"PRAGMA query_only")==1);
-            f.root.beginTransaction();try{f.root.execSQL("INSERT INTO app_state VALUES('uncommitted-expert-probe','visible',1)");SQLiteDatabase transaction=ExpertWorkshopR26.snapshotReader(f.store);check("X4_SAME_TRANSACTION_RETAINS_ORIGINAL_HANDLE_AND_OWN_WRITES",transaction==primary&&EventYieldR29HostTest.n(transaction,"SELECT count(*) FROM app_state WHERE state_key='uncommitted-expert-probe'")==1);}finally{f.root.endTransaction();}
+            f.root.beginTransaction();try{f.root.execSQL("INSERT INTO app_state VALUES('uncommitted-expert-probe','visible',1)");SQLiteDatabase transaction=ExpertWorkshopR26.snapshotReader(f.store);check("X4_SAME_TRANSACTION_RETAINS_ORIGINAL_HANDLE_AND_OWN_WRITES",transaction==primary&&LegacyResearchScopeR29.rawRealtime(f.store)==primary&&EventYieldR29HostTest.n(transaction,"SELECT count(*) FROM app_state WHERE state_key='uncommitted-expert-probe'")==1);}finally{f.root.endTransaction();}
             FoundryCampaignR26.Snapshot source=source();byte[] snapshot=source.encode();String sourceHash=LiveStateR26.hash(snapshot);
             for(String expert:new String[]{"E07","E10"}){
                 ExpertExperimentR26.Pair pair=new ExpertExperimentR26.Pair(ExpertExperimentR26.spec(expert),sourceHash,source.through);for(int[] row:source.draws)pair.advance(row,false);byte[] state=pair.encode();String id="SYNTHETIC_"+expert;

@@ -16,6 +16,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static void requireCurrentThreadSession(){Claim c=WRITING_CLAIM.get();RuntimeCoordinatorR26 runtime=active;if(c!=null&&runtime!=null&&(runtime.cancelled||!runtime.owner.equals(c.owner)))throw new IllegalStateException("R26_CANCELLED_OR_REPLACED_PROCESS_OWNER");}
     public static java.util.function.BooleanSupplier sessionValidity(){final RuntimeCoordinatorR26 runtime=active;return ()->runtime==null||active==runtime&&!runtime.cancelled;}
     public static boolean readyForResearchMigration(){RuntimeCoordinatorR26 runtime=active;return runtime==null||runtime.strategyStorageReady;}
+    /** The eager legacy overlay shares this Root writer, but cannot race its self-contained bootstrap. */
+    public static boolean strategyStoragePending(DatabaseCoordinator owner){RuntimeCoordinatorR26 runtime=active;return runtime!=null&&runtime.store!=null&&runtime.store.coordinatorForResearchR952()==owner&&!runtime.strategyStorageReady;}
     private final DbStore store;private final String owner=UUID.randomUUID().toString();
     private final Object signal=new Object();private volatile boolean cancelled,closeStore;
     private final Thread worker;private int slot;private volatile RuntimeR27 r27;private long lastIncumbentSeq=-1;private long heartbeat;private String recordedSessionState;private volatile boolean strategyStorageReady;private volatile String resourceBlocked;private long resourceChecked;
@@ -100,6 +102,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         db.execSQL("INSERT OR REPLACE INTO r26_capability(mechanism,kind,implementation,state,reason,last_progress) VALUES(?,?,?,?,?,coalesce((SELECT last_progress FROM r26_capability WHERE mechanism=?),0))",new Object[]{id,kind,implementation,state,reason,id});
     }
     private Claim claim(){
+        // Before the bootstrap commits, P2/P3 have no executable dependency. One original fenced
+        // admission avoids three empty Root transactions while retaining error cooldown and leases.
+        if(!strategyStorageReady)return claimStrategySchema();
         // R27-008: right after a new draw the incumbent forecast for the next target is prepared first, so the
         // freeze is a small write long before the open time instead of INCUMBENT_MISSING_AFTER_OPEN.
         if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
@@ -121,6 +126,16 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,now,id});return new Claim(id,owner,fence,cursor,lane);
             });if(result!=null)return result;
         }return null;
+    }
+    private Claim claimStrategySchema(){
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{
+            LegacyCapabilityAdapterR29.requireOwner(LegacyResearchScopeR29.realtime(db),owner,poolDispatcher);
+            long now=System.currentTimeMillis();
+            try(Cursor c=db.rawQuery("SELECT fence,cursor FROM r26_task WHERE task_id='schema' AND lane='P1' AND status IN ('READY','YIELDED','BLOCKED','RUNNING') AND lease_until<=? AND next_at<=?",new String[]{String.valueOf(now),String.valueOf(now)})){
+                if(!c.moveToFirst())return null;long fence=c.getLong(0)+1,cursor=c.getLong(1);
+                db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id='schema'",new Object[]{owner,fence,now+30000,now});return new Claim("schema",owner,fence,cursor,"P1");
+            }
+        });
     }
     private long latestSequence(){try{Models.Draw latest=store.getLatestDraw();return latest==null||!TargetIssueResolver.isValid(latest.issue)?-1:TargetIssueResolver.sequenceOrdinalSU1(latest.issue);}catch(RuntimeException e){return -1;}}
     private Claim claimTask(String task,String lane){
@@ -206,25 +221,33 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
     static final long SCHEMA_BATCH_MS=800;
+    private static final long SCHEMA_RESERVE_MS=50,SCHEMA_WRITER_WAIT_MS=250;
     private long execute(Claim c,BudgetTokenSU1 budget)throws Exception{
         if(c.task.equals("schema")){
             if(strategyStorageReady)return 0;
             if(!StrategySchemaSU1.ready(ExpertWorkshopR26.snapshotReader(store))){
-                // R27.1: a fresh install has ~265 journaled units; one unit per scheduler pass kept every research task
-                // waiting for hours on device. Apply units back-to-back for up to SCHEMA_BATCH_MS per slice (below the
-                // 2×SLICE_MS capacity limit; ~54 ms per unit was measured on device); each unit is
-                // still its own short transaction (background writer class, so P0 fetch/draw writes go first).
-                long until=SystemClock.elapsedRealtime()+SCHEMA_BATCH_MS;int units=0;ResearchSchemaCoordinatorR926.StepResult result;
-                do{result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());
-                    // R27.2 (device: 152/265 units in 12 min): a busy writer retries inside this slice instead of failing it.
-                    if(result.cause!=null&&ResearchWriteQueueR27.writerBusy(result.cause)){SystemClock.sleep(20);continue;}
+                // Keep the original back-to-back unit loop, but admit a new Root unit only while
+                // a full fair writer attempt and a 50ms computation reserve fit this service budget.
+                long until=SystemClock.elapsedRealtime()+SCHEMA_BATCH_MS;int units=0;
+                ResearchSchemaCoordinatorR926.StepResult result=null;
+                while(!preempt()){
+                    long remaining=until-SystemClock.elapsedRealtime();
+                    if(remaining<=SCHEMA_RESERVE_MS||!budget.tryConsume(SCHEMA_RESERVE_MS*1000))break;
+                    long writerWait=Math.min(SCHEMA_WRITER_WAIT_MS,remaining-SCHEMA_RESERVE_MS);
+                    try(DatabaseCoordinator.WriterDeadlineScopeCP3 deadline=DatabaseCoordinator.withWriterDeadlineCP3(TimeSourceR811.monoNowMs()+writerWait)){
+                        result=ResearchSchemaCoordinatorR926.ensureStrategyStorageOneStep(store.coordinatorForResearchR952());
+                    }
+                    // Pending intentionally has no failure cause. Do not consume another writer window
+                    // inside this slice; its real committed prefix survives the fair re-queue.
+                    if(result.pending||"WRITER_BUSY".equals(result.status))break;
                     if(result.cause!=null)throw new IllegalStateException("R26_STRATEGY_SCHEMA",result.cause);
-                    if(result.status.equals("STRATEGY_UNIT_COMMITTED")||result.ready)units++;else break;
-                }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);
-                c.reason((units>0?"COOPERATIVE_":"")+result.status+":units="+units+":"+result.detail);return units;
+                    units+=result.committedUnits;
+                    if(result.ready||result.committedUnits==0)break;
+                }
+                c.reason("COOPERATIVE_"+(result==null?"STRATEGY_BUDGET_YIELD":result.status)+":units="+units+(result==null?"":":"+result.detail));return units;
             }
             if(!StrategySchemaSU2.ready(ExpertWorkshopR26.snapshotReader(store))){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
-            ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
+            ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;RuntimeR27 runtime=r27;if(runtime!=null)runtime.pool().wake("r29-research-migration");return 1;
         }
         if(c.task.equals("schema-base")){
             if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}

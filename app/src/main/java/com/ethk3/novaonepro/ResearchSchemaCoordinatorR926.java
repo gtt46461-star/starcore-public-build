@@ -51,7 +51,7 @@ public final class ResearchSchemaCoordinatorR926 {
             int unitsBefore=strategyUnits(db);boolean ready=com.ethk3.novaonepro.strategyv2.StrategySchemaSU1.advance(db);
             int after=0;try(android.database.Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(c.moveToFirst())after=c.getInt(0);}
             int unitsAfter=strategyUnits(db);boolean changed=before!=after||unitsBefore!=unitsAfter;
-            return new StepResult(ready,true,ready?"STRATEGY_STORAGE_READY":changed?"STRATEGY_UNIT_COMMITTED":"STRATEGY_NO_UNIT_PROGRESS",unitsBefore+"->"+unitsAfter,null);
+            return new StepResult(ready,true,ready?"STRATEGY_STORAGE_READY":changed?"STRATEGY_UNIT_COMMITTED":"STRATEGY_NO_UNIT_PROGRESS",unitsBefore+"->"+unitsAfter,null,changed?1:0);
         });}catch(Exception failure){
             if(com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.writerBusy(failure))return pending(entered[0],failure);
             return new StepResult(false,entered[0],"STRATEGY_STORAGE_FAILED",DatabaseCoordinator.describeCauseChain(failure,1800),failure);
@@ -64,6 +64,10 @@ public final class ResearchSchemaCoordinatorR926 {
 
     public static StepResult ensureOneStepResult(final DatabaseCoordinator owner) {
         if (owner == null) return new StepResult(false,false,"WRITER_FAILED","OWNER_REQUIRED",null);
+        // CORE/R36 critical schema has its own owner. This optional legacy RESEARCH overlay waits
+        // outside Root's queue while the active runtime commits its self-contained SU1 dependency.
+        if(com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.strategyStoragePending(owner))
+            return new StepResult(false,false,"WAITING_FOR_STRATEGY_STORAGE","SELF_CONTAINED_STRATEGY_STORAGE_NOT_COMMITTED",null,0,true);
         final boolean[] entered = {false};
         try {
             return owner.runWriteOrThrowF01("R958_RESEARCH_SCHEMA_STEP",new DatabaseCoordinator.WriteCallable<StepResult>() {
@@ -180,7 +184,7 @@ public final class ResearchSchemaCoordinatorR926 {
                 SchemaDomainCoordinatorR926.prepareRepairIfDrift(db, contract);
             String step = nextStep(db, contract);
                 cursor = step;
-                SchemaDomainCoordinatorR926.markState(db, contract, state, cursor, "");
+                markInitializingStep(db,contract,cursor);
                 if ("VERIFY".equals(step)) {
                     // Final verification has its own writer callback. Do not append the
                     // complete integrity/readiness scan to the last DDL installation unit.
@@ -248,6 +252,19 @@ public final class ResearchSchemaCoordinatorR926 {
     }
 
     public static String summary() { return state + "|cursor=" + cursor + "|error=" + error; }
+
+    /** An intermediate fingerprint is diagnostic, never a READY or repair proof. The per-unit
+     * SU1/R952 journal remains authoritative while this same stage is running. Rehash the full
+     * legacy catalogue only when its stage changes; VERIFY and FAILED retain their full proof. */
+    private static void markInitializingStep(SQLiteDatabase db,SchemaDomainCoordinatorR926.Contract contract,String step){
+        try(android.database.Cursor prior=db.rawQuery("SELECT revision,contract_hash,state,cursor,last_error FROM "
+                +SchemaDomainCoordinatorR926.TABLE_DOMAIN+" WHERE domain=?",new String[]{contract.domain})){
+            if(prior.moveToFirst()&&prior.getInt(0)==contract.revision&&contract.contractHash.equals(prior.getString(1))
+                    &&"INITIALIZING".equals(prior.getString(2))&&step.equals(prior.getString(3))
+                    &&"".equals(prior.getString(4)))return;
+        }
+        SchemaDomainCoordinatorR926.markState(db,contract,"INITIALIZING",step,"");
+    }
 
     private static String nextStep(SQLiteDatabase db, SchemaDomainCoordinatorR926.Contract c) {
         // All six receipts belong to this writer's current SQLite transaction. Read their

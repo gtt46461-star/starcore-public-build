@@ -25,7 +25,9 @@ public final class LegacyResearchScopeR29 {
         requireScope();RuntimeCoordinatorR26.checkThreadFence(db);
     }
     public static boolean realtimeTransaction(){return REALTIME.get()>0;}
-    public static SQLiteDatabase rawRealtime(DbStore store){return store.coordinatorForResearchR952().realtimeReadableR29();}
+    /** Authority observation must not lease Root's DDL-capable pool just to resolve its route.
+     * The coordinator preserves the current transaction handle for callers reading their own writes. */
+    public static SQLiteDatabase rawRealtime(DbStore store){return store.coordinatorForResearchR952().realtimeReadOnlyR29();}
     private static SQLiteDatabase routedReader(DatabaseCoordinator coordinator,SQLiteDatabase original){
         SQLiteDatabase observation=coordinator.realtimeReadOnlyR29();
         // Resolve ownership on the independent Root pool. Before publication, retain the historical

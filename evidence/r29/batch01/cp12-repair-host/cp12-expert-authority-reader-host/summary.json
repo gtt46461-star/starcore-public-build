@@ -1,0 +1,67 @@
+{
+  "schema": "R29_CP12_AUTHORITY_OBSERVATION_HOST_1",
+  "status": "PASS_HOST_ONLY_REAL_ANDROID_PENDING",
+  "production": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchScopeR29.java",
+      "sha256": "ec22586b72b677a8aa69d3c57feb2f09597124c23d502d7c380ffd31f09de00f"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+      "sha256": "69fc3a1146a88db4839102230cd2db3472fd4b41c36c7bea87652c1a0a6198fc"
+    }
+  ],
+  "checks": 17,
+  "negativeControls": [
+    {
+      "source": "2f1e2ab9",
+      "guard": "EXPERT_SNAPSHOT_BORROWED_BLOCKED_ROOT_RW_POOL",
+      "actualFailed": true
+    },
+    {
+      "source": "2cf09d56",
+      "guard": "ROUTE_PROBE_BORROWED_BLOCKED_ROOT_RW_POOL",
+      "actualFailed": true
+    }
+  ],
+  "regressions": {
+    "legacyLearning": 13,
+    "decisionRetention": 19,
+    "legacyState": 14
+  },
+  "limits": [
+    "Real SQLite HOST and actual Java continuations; Android RW pool stall modelled with a 1500ms host lock",
+    "Original continuation guard and numerical algorithms unchanged",
+    "Actual Android whole-App validation required"
+  ],
+  "logs": [
+    {
+      "path": "/workspace/work/r29/cp12-expert-authority-reader-host/expert-snapshot-reader-host.log",
+      "sha256": "59161393a0d4bfc6254a890992488005f2e4fa217dc16998c3d234346151dd1d"
+    },
+    {
+      "path": "/workspace/work/r29/cp12-expert-authority-reader-host/old-2cf-authority-route-control.log",
+      "sha256": "81df6bb9f614627fb4f94060df7c409db2a1942daf8c005ac9606247b514aa3d"
+    },
+    {
+      "path": "/workspace/work/r29/cp12-expert-authority-reader-host/old-2f1-shared-pool-control.log",
+      "sha256": "3bf2f9635cf89478b12571cad140ae19333de5c7bf135e401e43b1e5a84685c2"
+    },
+    {
+      "path": "/workspace/work/r29/cp12-expert-authority-runner.log",
+      "sha256": "41121a2a74115369a76d043730e3f1f7ad726e928d379fb0c5db3631975ffe9a"
+    },
+    {
+      "path": "/workspace/work/r29/cp12-expert-legacy-learning-runner.log",
+      "sha256": "74c16364a29c09ed6f04721a24f4344c9290486dc9a29aa729176ffc8d8c6be6"
+    },
+    {
+      "path": "/workspace/work/r29/cp12-expert-decision-retention-runner.log",
+      "sha256": "334d18bf1311f951e7dd84bb7ad964116865078685b4d5bfc6855a865fceffc1"
+    },
+    {
+      "path": "/workspace/work/r29/cp12-expert-legacy-runner.log",
+      "sha256": "22c86696979a4a4c1d0537fe1d8549b61a1f44790bd3ff63bcb9c07712ce3ba9"
+    }
+  ]
+}
