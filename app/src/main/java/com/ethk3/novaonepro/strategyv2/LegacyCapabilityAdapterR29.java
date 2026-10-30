@@ -61,10 +61,15 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
         if(!CONTINUITY.tryLock())return "COOPERATIVE_LEGACY_CONTINUITY_ALREADY_RUNNING";
         try{
             SQLiteDatabase root=store.coordinatorForResearchR952().realtimeReadOnlyR29();
-            if(ResearchRouteR29.pendingHandoff(root)||!pool&&ResearchRouteR29.active(root)){
+            if(ResearchRouteR29.pendingHandoff(root)){
                 CONTINUITY.unlock();return "WAITING_DURABLE_RESEARCH_OWNER_HANDOFF";
             }
             boolean owner=hasPoolOwner(store);
+            // Publication permanently closes the old Root entry, even before the separate
+            // dispatcher receipt is published. Report its actual owner state without reopening it.
+            if(!pool&&ResearchRouteR29.active(root)){
+                CONTINUITY.unlock();return owner?"R29_LEGACY_CONTINUITY_OWNED_BY_RESEARCH_POOL":"WAITING_VERIFIED_RESEARCH_POOL_HANDOFF";
+            }
             if(owner!=pool){CONTINUITY.unlock();return owner?"R29_LEGACY_CONTINUITY_OWNED_BY_RESEARCH_POOL":"WAITING_VERIFIED_RESEARCH_POOL_HANDOFF";}
             if(pool)POOL_CONTINUITY.set(true);return null;
         }catch(RuntimeException failed){CONTINUITY.unlock();throw failed;}

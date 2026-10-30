@@ -1,0 +1,22 @@
+{
+  "schema": "R29_CP15_CONTINUITY_LIFECYCLE_HOST_ONLY_1",
+  "status": "PASS",
+  "checks": 30,
+  "newLifecycleChecks": 10,
+  "originalDurableChecks": 20,
+  "oldB8ActualNativeFailure": "DatabaseCutoverDeviceTest80 expected old Root entry admission after ACTIVE; b8 runtime correctly rejected it. Not a transient lock or failed cutover.",
+  "productChange": "Admission remains closed after ACTIVE. Wait reason now distinguishes pending durable transfer, ACTIVE waiting for pool owner, and verified pool owner.",
+  "androidFixtureChange": "Acquire actual old 22-lane lease before cutover; concurrent cutover and dispatcher attempts must wait and cannot publish ACTIVE; release then real cutover; legacy Root entry remains rejected after publication; only verified pool may enter. All original independent1500ms, typed97rows, RootTX, preparedframe, report assertions retained.",
+  "old84Negative": "ACTUAL_64_ACK_MISSING_RP_AND_MODEL_ROLLBACK_REJECTED",
+  "oldB8Negative": "ACTUAL_PUBLISHED_LEGACY_OWNER_MISLABELLED_DURABLE_PENDING_REJECTED_BY_SAME_L6",
+  "android36FixtureJavac": "PASS_STANDALONE_COMPILE_ONLY_NOT_DEVICE_TEST",
+  "productionFiles": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java"
+  ],
+  "sourceFreeze": "NOT_COMMITTED_NOT_PUSHED_PARENT_OWNS_VERSION_AND_FINAL_ANDROID_VERIFICATION",
+  "fileSha256": {
+    "r29_durable_handoff_host.log": "d78dd94788eb2090b52b3976449fc12f8e07c12abee5deef373ff95d28a5ee8f",
+    "old-84c360e0-sealed-owner-gap-control.log": "36101d6944dc754cad5eadf6aa77631d0d3a967fc104e40d93f9fc35a24520a0",
+    "old-b8-published-owner-reason-control.log": "7877ece269e0abaf078fefdd95ab324fd3d858fe79e35633e9ec09633b35cf53"
+  }
+}

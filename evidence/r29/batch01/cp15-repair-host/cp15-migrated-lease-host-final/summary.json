@@ -1,0 +1,35 @@
+{
+  "status": "PASS_HOST_ONLY",
+  "checks": 17,
+  "sourceBaseline": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "productionRuntimeSha256": "4c1a7eaf135afde3d19dd3763e3b732832b0b99461e02fc441729b79047f4e27",
+  "sourceUnchangedThroughoutRunner": true,
+  "actualOldSourceControl": "OriginalRuntime claim sees copied future30000ms lease and returnsnull; sameM1 assertion fails, no missinglink failure",
+  "fixture": "Actual WALcheckpoint then filecopy retainsRootRUNNING task lease; actualRP owner/write/CAS/Runtime claim; explicit nested writer scope binds testcallback, numerical code untouched",
+  "verified": [
+    "onlyexactRootcopiedsession/task/fence/cursor/lease/statusrowsreleased",
+    "Root/RPownerandsourceEpochmustmatch",
+    "foreignsession/RPonly/changedfence/cursor/lease/R27/quarantineunchanged",
+    "Roottransaction/currentResearchwriter/undrainedworker/writingclaim/cancelledcallerrejected",
+    "actualSQLexceptionafterfirstUPDATErollsbackallleases",
+    "cooldownnext_atandnumericcursoruntouched",
+    "oldfencerejectednewfencevalid",
+    "Rootsnapshot/model/progress/sessionbytesunchanged",
+    "repeatcannotresetnewclaim"
+  ],
+  "limits": [
+    "NotAndroid60sfirstservicereceipt",
+    "Nativeartifacthasnoexportedlease/owner/fence; HOSTreproducesactualcodegapbutdoesnotprovewhichspecificnativeleasewaswaiting",
+    "Nochangesversion/identity/productionbysubagent"
+  ],
+  "sha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java": "4c1a7eaf135afde3d19dd3763e3b732832b0b99461e02fc441729b79047f4e27",
+    "tools/r29/qual_host/MigratedLeaseR29HostTest.java": "71d0e16e3842ef4f67b79f7849a2637fec5fbd4b39d7555c6c5ee8d20226a9f2",
+    "tools/r29/run_migrated_lease_host.sh": "3f8fdb804f10d7bb225472fbf7dca52c4f89d457524a46cb5a03a7ea677d1559"
+  },
+  "logSha256": {
+    "old-b8-migrated-lease-control.log": "abcae0d08dd09732ce38bd31f3ac4c3a3b0deb99dd6816519f791075a328ed99",
+    "r29_migrated_lease_host.log": "ea09018eae4ebe3a6e34c4c3e9b00ef7f682db62b59cb437358a18694de3c7cb"
+  },
+  "recordedAt": "2026-10-30T23:07:42.712284+00:00"
+}

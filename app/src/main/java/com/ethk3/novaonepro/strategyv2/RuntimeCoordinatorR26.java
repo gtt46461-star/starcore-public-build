@@ -146,6 +146,43 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,now,task});return new Claim(task,owner,fence,cursor,lane);}});
     }
     public RuntimeR27 r27(){return r27;}
+    /** The old dispatcher has returned from executeClaim before enabling its replacement. A
+     * sealed Root receipt may still say RUNNING when the final receipt lost the handoff race.
+     * Release only that exact copied lease; no numerical cursor or progress receipt is advanced. */
+    long releaseMigratedLeases(){
+        if(Thread.currentThread()!=worker||WRITING_CLAIM.get()!=null||legacySlice.isLocked())
+            throw new IllegalStateException("R29_LEGACY_LEASE_RELEASE_REQUIRES_DRAINED_DISPATCHER");
+        if(cancelled||active!=this)throw new IllegalStateException("R29_CANCELLED_OR_REPLACED_LEASE_RELEASE");
+        SQLiteDatabase realtime=store.coordinatorForResearchR952().realtimeReadOnlyR29();
+        if(realtime.inTransaction()||ResearchRouteR29.writerHeldByCurrentThread())
+            throw new IllegalStateException("R29_LEGACY_LEASE_RELEASE_OUTSIDE_DATABASE_WRITERS_REQUIRED");
+        LegacyCapabilityAdapterR29.requireOwner(realtime,owner,true);
+        final String schema,source;final long epoch;
+        try(Cursor c=realtime.rawQuery("SELECT schema_hash,source_root,epoch FROM r29_database_route WHERE singleton=1 AND phase='ACTIVE'",null)){
+            if(!c.moveToFirst())throw new IllegalStateException("R29_LEGACY_LEASE_RELEASE_REQUIRES_ACTIVE_ROUTE");
+            schema=c.getString(0);source=c.getString(1);epoch=c.getLong(2);
+        }
+        final java.util.List<Object[]> copied=new java.util.ArrayList<>();
+        try(Cursor c=realtime.rawQuery("SELECT task_id,fence,cursor,lease_until FROM r26_task WHERE owner=? AND status='RUNNING' AND lane<>'R27'",new String[]{owner})){
+            while(c.moveToNext())copied.add(new Object[]{c.getString(0),c.getLong(1),c.getLong(2),c.getLong(3)});
+        }
+        if(copied.isEmpty())return 0;
+        long released=ResearchRouteR29.write(store,"R29_DRAINED_LEGACY_LEASE_RELEASE",db->{
+            if(cancelled||active!=this)throw new IllegalStateException("R29_CANCELLED_OR_REPLACED_LEASE_RELEASE");
+            try(Cursor c=db.rawQuery("SELECT 1 FROM main.r29_research_owner WHERE singleton=1 AND phase='READY' AND schema_hash=? AND source_root=? AND epoch=?",new String[]{schema,source,String.valueOf(epoch)})){
+                if(!c.moveToFirst())throw new IllegalStateException("R29_LEGACY_LEASE_RELEASE_OWNER_MISMATCH");
+            }
+            long count=0;
+            for(Object[] row:copied){
+                db.execSQL("UPDATE r26_task SET status='YIELDED',lease_until=0,owner=NULL,fence=fence+1 WHERE task_id=? AND owner=? AND fence=? AND cursor=? AND lease_until=? AND status='RUNNING' AND lane<>'R27'",
+                        new Object[]{row[0],owner,row[1],row[2],row[3]});
+                try(Cursor c=db.rawQuery("SELECT changes()",null)){if(c.moveToFirst())count+=c.getLong(0);}
+            }
+            return count;
+        });
+        if(released>0)android.util.Log.i("STARCORE_R26","R29_DRAINED_COPIED_LEASES_RELEASED|count="+released);
+        return released;
+    }
     private void run(){
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         com.ethk3.novaonepro.StallStacksR27.start();
@@ -164,7 +201,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){sessionBlocked(null);}catch(RuntimeException busy){android.util.Log.w("STARCORE_R26","session status retry",busy);}
             if(ResearchRouteR29.active(store.coordinatorForResearchR952().realtimeReadOnlyR29())){
                 // This thread owns no in-flight claim here. Publish the owner before enabling the pool task.
-                if(!poolDispatcher)try{LegacyCapabilityAdapterR29.publish(store,owner);poolDispatcher=true;pool.pool().wake("r29-legacy-capabilities");}
+                if(!poolDispatcher)try{LegacyCapabilityAdapterR29.publish(store,owner);releaseMigratedLeases();poolDispatcher=true;pool.pool().wake("r29-legacy-capabilities");}
                 catch(RuntimeException retry){android.util.Log.w("STARCORE_R26","pool dispatch handoff retry",retry);}
                 await(250);continue;
             }

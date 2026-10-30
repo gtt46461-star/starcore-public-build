@@ -19,3 +19,14 @@ HANDOFF_STATUS=$?
 set -e
 if [ "$HANDOFF_STATUS" -eq 0 ] || ! grep -Fq H0_SEALED_RETRY_MUST_NOT_LOSE_ROOT_MODEL_OR_TWO_EVENT_PAGES "$OUT/old-84c360e0-sealed-owner-gap-control.log" || ! grep -Fq 'rootACK=64|rpInbox=0|rootModel=2|rpModel=1' "$OUT/old-84c360e0-sealed-owner-gap-control.log";then cat "$OUT/old-84c360e0-sealed-owner-gap-control.log";exit 1;fi
 echo "R29_DURABLE_HANDOFF|OLD_84_SEALED_OWNER_GAP_REJECTED|exit=$HANDOFF_STATUS"
+
+# C14 correctly closed the legacy entry, but labelled a PUBLISHED owner as an unfinished durable transfer.
+mkdir -p "$HANDOFF_TMP/b8-source" "$HANDOFF_TMP/b8-product"
+git show 'b8de949cb79d5f7d944440580ba7f3d83e43b298:app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java' > "$HANDOFF_TMP/b8-source/LegacyCapabilityAdapterR29.java"
+javac -nowarn -encoding UTF-8 -proc:none -cp "$HANDOFF_TMP/product:$CLASSES:$ANDROID_JAR" -d "$HANDOFF_TMP/b8-product" "$HANDOFF_TMP/b8-source/LegacyCapabilityAdapterR29.java"
+set +e
+java -Xmx768m -cp "$HANDOFF_TMP/shim:$HANDOFF_TMP/test:$HANDOFF_TMP/b8-product:$HANDOFF_TMP/product:$CLASSES:$SQLITE_JDBC:$ANDROID_JAR" com.ethk3.novaonepro.strategyv2.DurableHandoffR29HostTest --old-b8-reason > "$OUT/old-b8-published-owner-reason-control.log" 2>&1
+HANDOFF_B8_STATUS=$?
+set -e
+if [ "$HANDOFF_B8_STATUS" -eq 0 ] || ! grep -Fq L6_PUBLISHED_LEGACY_OWNER_WAIT_REASON_NAMES_POOL_HANDOFF "$OUT/old-b8-published-owner-reason-control.log" || ! grep -Fq 'PUBLISHED_LEGACY_ENTRY_REASON|WAITING_DURABLE_RESEARCH_OWNER_HANDOFF' "$OUT/old-b8-published-owner-reason-control.log";then cat "$OUT/old-b8-published-owner-reason-control.log";exit 1;fi
+echo "R29_DURABLE_HANDOFF|OLD_B8_WRONG_PUBLISHED_WAIT_REASON_REJECTED|exit=$HANDOFF_B8_STATUS"

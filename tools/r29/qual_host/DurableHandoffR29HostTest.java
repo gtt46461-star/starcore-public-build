@@ -56,8 +56,40 @@ public final class DurableHandoffR29HostTest {
             }
         }
     }
+    static void continuityLifecycle(boolean oldReasonControl)throws Exception{
+        if(!oldReasonControl)try(EventYieldR29HostTest.Fixture f=new EventYieldR29HostTest.Fixture()){
+            f.root.beginTransaction();try{f.root.execSQL("CREATE TABLE r26_old_pulse_probe(v INTEGER NOT NULL)");f.root.execSQL("INSERT INTO r26_old_pulse_probe VALUES(1)");LegacyCapabilityAdapterR29.initialize(f.root,"lifecycle-owner");f.root.setTransactionSuccessful();}finally{f.root.endTransaction();}
+            check("L1_UNPUBLISHED_OLD_OWNER_CAN_ENTER",LegacyCapabilityAdapterR29.enterContinuity(f.store,false)==null);
+            java.util.concurrent.ExecutorService other=java.util.concurrent.Executors.newSingleThreadExecutor();
+            try{
+                f.coordinator.runAtomicWriteOrThrowF01("SYNTHETIC_OLD_PULSE_PROGRESS",db->{db.execSQL("UPDATE r26_old_pulse_probe SET v=2");return 0;});
+                check("L2_REAL_OLD_PULSE_PROGRESS_COMMITS_BEFORE_DRAIN",n(f.root,"SELECT v FROM r26_old_pulse_probe")==2);
+                java.util.concurrent.Future<String> blocked=other.submit(()->ResearchCutoverR29.run(f.store,f.worker));
+                check("L3_COPY_PUBLICATION_WAITS_FOR_PREEXISTING_OLD_PULSE",blocked.get(2,java.util.concurrent.TimeUnit.SECONDS).equals("WAITING_LEGACY_MAINTENANCE_DRAIN")&&!ResearchRouteR29.active(f.root));
+                java.util.concurrent.Future<Boolean> dispatcher=other.submit(()->{try{LegacyCapabilityAdapterR29.publish(f.store,"lifecycle-owner");return false;}catch(IllegalStateException expected){return expected.getMessage().contains("CONTINUITY_DRAIN");}});
+                check("L4_DISPATCHER_PUBLICATION_ALSO_WAITS_FOR_REAL_OLD_PULSE",dispatcher.get(2,java.util.concurrent.TimeUnit.SECONDS));
+            }finally{LegacyCapabilityAdapterR29.leaveContinuity();other.shutdownNow();other.awaitTermination(2,java.util.concurrent.TimeUnit.SECONDS);}
+            try(LegacyCapabilityAdapterR29.CutoverLease lease=LegacyCapabilityAdapterR29.drainForCutover()){check("L4B_DRAIN_BECOMES_AVAILABLE_ONLY_AFTER_OLD_PULSE_EXITS",lease!=null);}
+        }
+        try(Fixture f=new Fixture("PREPARED")){
+            f.base.root.beginTransaction();try{LegacyCapabilityAdapterR29.initialize(f.base.root,"lifecycle-owner");f.base.root.setTransactionSuccessful();}finally{f.base.root.endTransaction();}
+            ResearchCutoverR29.resumeBeforeRuntime(f.base.store);
+            check("L5_LIFECYCLE_FIXTURE_HAS_REAL_PUBLISHED_DATABASE_AND_LEGACY_DISPATCHER",ResearchRouteR29.active(f.base.root)&&!ResearchRouteR29.pendingHandoff(f.base.root)&&!LegacyCapabilityAdapterR29.hasPoolOwner(f.base.store));
+            String reason=LegacyCapabilityAdapterR29.enterContinuity(f.base.store,false);
+            System.out.println("R29_DURABLE_HANDOFF|PUBLISHED_LEGACY_ENTRY_REASON|"+reason);
+            check("L6_PUBLISHED_LEGACY_OWNER_WAIT_REASON_NAMES_POOL_HANDOFF","WAITING_VERIFIED_RESEARCH_POOL_HANDOFF".equals(reason));
+            LegacyCapabilityAdapterR29.publish(f.base.store,"lifecycle-owner");
+            check("L7_PUBLISHED_POOL_OWNER_REASON_IS_ACCURATE_AND_OLD_ENTRY_STAYS_CLOSED",LegacyCapabilityAdapterR29.enterContinuity(f.base.store,false).equals("R29_LEGACY_CONTINUITY_OWNED_BY_RESEARCH_POOL"));
+            java.util.concurrent.ExecutorService other=java.util.concurrent.Executors.newSingleThreadExecutor();
+            try{check("L8_ONLY_POOL_ENTRY_CAN_ACQUIRE_ON_ANOTHER_THREAD",other.submit(()->{String blocked=LegacyCapabilityAdapterR29.enterContinuity(f.base.store,true);if(blocked!=null)return false;try{return LegacyCapabilityAdapterR29.onPoolContinuityThread();}finally{LegacyCapabilityAdapterR29.leaveContinuity();}}).get(2,java.util.concurrent.TimeUnit.SECONDS));}
+            finally{other.shutdownNow();other.awaitTermination(2,java.util.concurrent.TimeUnit.SECONDS);}
+            check("L9_PUBLISHED_OWNER_CHECKS_CANNOT_MUTATE_ORIGINAL_ROOT_MODELS",n(f.base.root,"SELECT v FROM r26_handoff_model")==1);f.verifyUnchanged();
+        }
+    }
     public static void main(String[] args)throws Exception{
         if(args.length>0&&args[0].equals("--old-gap")){oldGap();return;}
+        if(args.length>0&&args[0].equals("--old-b8-reason")){continuityLifecycle(true);return;}
+        continuityLifecycle(false);
         try(Fixture f=new Fixture("PREPARED")){
             f.failFirstPhase();f.append64();boolean blocked=false;try{ResearchRouteR29.write(f.base.store,"ROOT_MODEL_DURING_RETRY",db->{db.execSQL("UPDATE r26_handoff_model SET v=2");return 1;});}catch(IllegalStateException e){blocked=ResearchWriteQueueR27.writerBusy(e);}
             check("H1_DURABLE_PENDING_FENCE_REJECTS_ROOT_MODEL_ADVANCE",blocked&&n(f.base.root,"SELECT v FROM r26_handoff_model")==1);

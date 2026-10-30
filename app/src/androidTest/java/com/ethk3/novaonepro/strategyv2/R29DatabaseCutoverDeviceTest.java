@@ -72,16 +72,25 @@ public final class R29DatabaseCutoverDeviceTest {
             rootReader=SQLiteDatabase.openDatabase(original.getPath(),null,SQLiteDatabase.OPEN_READONLY);
             SQLiteDatabase oldResearchReader=ResearchRouteR29.openWorkerReader(sandbox);
             ResearchPoolR27.Worker migrationWorker=pool.new Worker(oldResearchReader,rootReader,"synthetic-migration");
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_LEGACY_OWNER",db->{LegacyCapabilityAdapterR29.initialize(db,"synthetic-owner");return 0;});
+            // The old pulse is a Root owner only BEFORE publication. Its existing lease must
+            // prevent both snapshot cutover and dispatcher publication until it really drains.
+            assertFalse(ResearchRouteR29.active(original));
+            assertNull(LegacyCapabilityAdapterR29.enterContinuity(store,false));
+            try{
+                Future<String> blockedCutover=executor.submit(()->ResearchCutoverR29.run(store,migrationWorker));
+                assertEquals("WAITING_LEGACY_MAINTENANCE_DRAIN",blockedCutover.get(2,TimeUnit.SECONDS));
+                assertFalse("an undrained old pulse cannot publish ACTIVE",ResearchRouteR29.active(original));
+                Future<Boolean> blocked=executor.submit(()->{try{LegacyCapabilityAdapterR29.publish(store,"synthetic-owner");return false;}catch(IllegalStateException expected){return expected.getMessage().contains("CONTINUITY_DRAIN");}});
+                assertTrue("handoff must wait for the old 22-lane pulse to drain",blocked.get(2,TimeUnit.SECONDS));
+            }finally{LegacyCapabilityAdapterR29.leaveContinuity();}
+            result.put("oldPulseActuallyDrainedBeforePublication",true);
             long start=System.nanoTime();String phase;
             try{phase=ResearchCutoverR29.run(store,migrationWorker);}finally{oldResearchReader.close();}
             result.put("cutoverMillis",(System.nanoTime()-start)/1000000);result.put("cutoverPhase",phase);
             assertEquals("ACTIVE_INDEPENDENT_RESEARCH_WRITER",phase);assertTrue(ResearchRouteR29.active(original));
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_LEGACY_OWNER",db->{LegacyCapabilityAdapterR29.initialize(db,"synthetic-owner");return 0;});
-            assertNull(LegacyCapabilityAdapterR29.enterContinuity(store,false));
-            try{
-                Future<Boolean> blocked=executor.submit(()->{try{LegacyCapabilityAdapterR29.publish(store,"synthetic-owner");return false;}catch(IllegalStateException expected){return expected.getMessage().contains("CONTINUITY_DRAIN");}});
-                assertTrue("handoff must wait for the old 22-lane pulse to drain",blocked.get(2,TimeUnit.SECONDS));
-            }finally{LegacyCapabilityAdapterR29.leaveContinuity();}
+            assertEquals("the published database cannot reopen the old Root writer while dispatcher ownership is pending",
+                    "WAITING_VERIFIED_RESEARCH_POOL_HANDOFF",LegacyCapabilityAdapterR29.enterContinuity(store,false));
             LegacyCapabilityAdapterR29.publish(store,"synthetic-owner");
             assertTrue(LegacyCapabilityAdapterR29.enterContinuity(store,false).contains("OWNED_BY_RESEARCH_POOL"));
             assertNull(LegacyCapabilityAdapterR29.enterContinuity(store,true));

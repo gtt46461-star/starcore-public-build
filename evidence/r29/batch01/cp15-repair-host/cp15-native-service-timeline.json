@@ -1,0 +1,122 @@
+{
+  "scope": "READ_ONLY_NATIVE_ARTIFACT_TIMELINE_NOT_LEASE_DIRECT_EVIDENCE",
+  "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "nativeFileSha256": {
+    "full-runtime-logcat.txt": "8dfade36ae5bf235f2be45bf207891271acd92452514842f359fdb7daad5d287",
+    "r26-runtime-synthetic.json": "f394efee421debe0cc9e026f8e615c22c7d8196faa3135ffcdbd9af0eaccdf2d"
+  },
+  "causes": {
+    "CP3_DB_BUSY_RESEARCH_HANDOFF": {
+      "count": 58,
+      "first": {
+        "line": 156,
+        "timestamp": "10-30 22:56:13.307"
+      },
+      "last": {
+        "line": 1014,
+        "timestamp": "10-30 22:56:31.922"
+      }
+    },
+    "CP3_DB_BUSY_R29_CRITICAL_INPUT_BOOTSTRAP_OR_CATCHUP": {
+      "count": 13,
+      "first": {
+        "line": 1037,
+        "timestamp": "10-30 22:56:32.210"
+      },
+      "last": {
+        "line": 1319,
+        "timestamp": "10-30 22:56:37.456"
+      }
+    },
+    "CP3_DB_BUSY_R29_STALE_CRITICAL_INPUT_CAPTURE": {
+      "count": 4,
+      "first": {
+        "line": 1090,
+        "timestamp": "10-30 22:56:32.958"
+      },
+      "last": {
+        "line": 1281,
+        "timestamp": "10-30 22:56:36.790"
+      }
+    }
+  },
+  "selectedActualTaskRows": {
+    "schema": {
+      "task": "schema",
+      "cursor": 267,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=267,latest=3584040",
+      "lastProgress": 1793400972444,
+      "cpuMs": 0,
+      "lastProgressUTC": "2026-10-30T22:56:12.444000+00:00"
+    },
+    "expert-E01": {
+      "task": "expert-E01",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793400972478,
+      "cpuMs": 5,
+      "lastProgressUTC": "2026-10-30T22:56:12.478000+00:00"
+    },
+    "expert-E15": {
+      "task": "expert-E15",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793400972895,
+      "cpuMs": 6,
+      "lastProgressUTC": "2026-10-30T22:56:12.895000+00:00"
+    },
+    "expert-E16": {
+      "task": "expert-E16",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793401002977,
+      "cpuMs": 21,
+      "lastProgressUTC": "2026-10-30T22:56:42.977000+00:00"
+    },
+    "expert-E02": {
+      "task": "expert-E02",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793401019763,
+      "cpuMs": 19,
+      "lastProgressUTC": "2026-10-30T22:56:59.763000+00:00"
+    },
+    "expert-E04": {
+      "task": "expert-E04",
+      "cursor": 1,
+      "status": "RUNNING",
+      "reason": null,
+      "lastProgress": 1793401034781,
+      "cpuMs": 42,
+      "lastProgressUTC": "2026-10-30T22:57:14.781000+00:00"
+    },
+    "r29-research-migration": {
+      "task": "r29-research-migration",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793400992002,
+      "cpuMs": 0,
+      "lastProgressUTC": "2026-10-30T22:56:32.002000+00:00"
+    }
+  },
+  "e15ToE16FirstReceiptGapMs": 30082,
+  "migrationReceiptToE16ReceiptGapMs": 10975,
+  "whatIsEstablished": [
+    "Original service threshold failure70824ms after strategyready,40mechanisms actualprogress",
+    "Root TASK_RECEIPT lost handoffrace at22:56:13.307,58handoffbusyexceptions through22:56:31.922",
+    "migration task committedprogress22:56:32.002",
+    "Afterpublication17criticalmirror dependency exceptions include16sessionstatus calls; these are real extra work but catchdoesnotcontinue, so they do not prove delayedpoolDispatcher enable",
+    "E16cursor1 receipt30.082sec afterE15cursor1 supportslease-hypothesis but artifact lackslease_until/owner/fence, cannot certifywhichspecificnativeRPleasecauseddelay"
+  ],
+  "whatIsNotEstablished": [
+    "No directnativecopiedlease_until/owner/fence dump",
+    "Do notclaimsessionretry loopforced5.5seconds beforepoolenable; codeexecutesactivebranchaftercatch",
+    "No postfailure1000writepressure/P99/retention/restartoutcomeinherited"
+  ]
+}

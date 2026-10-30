@@ -1,0 +1,83 @@
+{
+  "schema": "R29_CP15_SELECTED_HOST_REPAIR_1",
+  "priorSource": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "status": "PASS_SELECTED_HOST_ANDROID_PENDING",
+  "productionFiles": 2,
+  "androidFixtureFiles": 1,
+  "positiveChecks": {
+    "durableContinuityLifecycle": 30,
+    "migratedLease": 17,
+    "originalColdStart": 13,
+    "originalOwner": 12,
+    "protocolOffline": 44,
+    "smokeOrchestration": 10
+  },
+  "ciHostRunners": 53,
+  "guards": "UNALTERED_60S_1500MS_30S_AND_STRICT_DURABLE_BARRIER",
+  "leaseChange": "Exactowner/fence/cursor/oldlease/statusRUNNING/laneCAS afterdrainandRootownerhandoff;no cursor/next_at/progress/receipt/Root changes",
+  "clockAndNativeInference": "Native noleasefields exported;HOST proves copiedlease schedulinggap,actual60s latencygain stillpending",
+  "fixtureChange": "Real oldpulse/drain verified beforecutover;afterACTIVE oldentrystrictlyrejected;all original97typedrows/1500mswriter/RootTX assertionsretained",
+  "negativeControls": "Actualoldb8wrongwaitreasonandoldb8claimleasefail;old84lost64/modelgapstillrejected",
+  "files": [
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-continuity-lifecycle-host/old-84c360e0-sealed-owner-gap-control.log",
+      "sha256": "36101d6944dc754cad5eadf6aa77631d0d3a967fc104e40d93f9fc35a24520a0"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-continuity-lifecycle-host/old-b8-published-owner-reason-control.log",
+      "sha256": "7877ece269e0abaf078fefdd95ab324fd3d858fe79e35633e9ec09633b35cf53"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-continuity-lifecycle-host/r29_durable_handoff_host.log",
+      "sha256": "d78dd94788eb2090b52b3976449fc12f8e07c12abee5deef373ff95d28a5ee8f"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-continuity-lifecycle-host/summary.json",
+      "sha256": "714ddfa752376dd7c808a9f341b5ffba386e23e6878145a769d1bcbd8120a27d"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-migrated-lease-host-final/old-b8-migrated-lease-control.log",
+      "sha256": "abcae0d08dd09732ce38bd31f3ac4c3a3b0deb99dd6816519f791075a328ed99"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-migrated-lease-host-final/r29_migrated_lease_host.log",
+      "sha256": "ea09018eae4ebe3a6e34c4c3e9b00ef7f682db62b59cb437358a18694de3c7cb"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-migrated-lease-host-final/summary.json",
+      "sha256": "d6b8bad1253f42a52f69c3a283294e518e8c82bead9555b1697f37e98efe3bfe"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-native-service-timeline.json",
+      "sha256": "8c9fc7fec282565641ac911ea3c14130a4a4de4f3d9d455abe98c8d31570f257"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-cold-start-regression/old-2cf-migration-control.log",
+      "sha256": "7a895a1aafba6e6b822c5af708859f11f46e902371f7e956e2ae88fe8613de86"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-cold-start-regression/old-2cf-overlay-control.log",
+      "sha256": "b39a984af961e4dd558174cee03b196fd91d554252ee0fd58ad4eac708d326c7"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-cold-start-regression/r29_cold_start_fairness_host.log",
+      "sha256": "a7b235b5d241ceda25b983a63f3dc345f5bbed9a30e106eeec4b79bdd947855d"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-owner-regression/r29_owner_host.log",
+      "sha256": "d5dd5bed681865ded38110174dbcac44a255159ec91e942549dbd132a2dfdf98"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-continuity-android-fixture-javac.log",
+      "sha256": "27941f057b12f217f30a174adda602a055a5bcb56f7f4ac77299acbd58b7d6f0"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-protocol-qa.log",
+      "sha256": "fb40815f26bfc4555260dce8e188364df923f9a97623bdaf1ebf91072f592731"
+    },
+    {
+      "path": "evidence/r29/batch01/cp15-repair-host/cp15-smoke-phases-qa.log",
+      "sha256": "5bad4dc900a73a3f3c425236aef59cc725d550667581b690604615fadb739991"
+    }
+  ]
+}
