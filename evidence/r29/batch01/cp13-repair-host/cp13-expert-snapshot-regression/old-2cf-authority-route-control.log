@@ -1,0 +1,11 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R29_EXPERT_SNAPSHOT|MEASURED|EMPTY_E07|completedMs=24|modelledRootRwLeaseMs=1500
+R29_EXPERT_SNAPSHOT|X1_EMPTY_E07_ACTUAL_CONTINUATION_HAS_NO_FAKE_PROGRESS|OK
+R29_EXPERT_SNAPSHOT|X2_EMPTY_E07_PURE_SNAPSHOT_QUERIES_NEVER_LEASE_ROOT_RW_POOL|OK
+Exception in thread "main" java.lang.AssertionError: ROUTE_PROBE_BORROWED_BLOCKED_ROOT_RW_POOL
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.routeProbeWhileHeld(ExpertSnapshotReaderR29HostTest.java:55)
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.main(ExpertSnapshotReaderR29HostTest.java:66)
+Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.routeProbeWhileHeld(ExpertSnapshotReaderR29HostTest.java:53)
+	... 1 more

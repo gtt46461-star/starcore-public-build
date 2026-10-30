@@ -46,8 +46,10 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
         finally{if(held)CONTINUITY.unlock();}
     }
     public static boolean hasPoolOwner(DbStore store){
-        if(store==null||!ResearchRouteR29.active(store.readable()))return false;
-        try(Cursor c=store.readable().rawQuery("SELECT 1 FROM r29_scheduler_owner WHERE singleton=1 AND dispatcher='RESEARCH_POOL'",null)){return c.moveToFirst();}
+        if(store==null)return false;
+        SQLiteDatabase realtime=store.coordinatorForResearchR952().realtimeReadOnlyR29();
+        if(!ResearchRouteR29.active(realtime))return false;
+        try(Cursor c=realtime.rawQuery("SELECT 1 FROM r29_scheduler_owner WHERE singleton=1 AND dispatcher='RESEARCH_POOL'",null)){return c.moveToFirst();}
     }
     /** Both the old service entry and the pool plugin use this gate. Publication takes it too, draining old work. */
     public static String enterContinuity(DbStore store,boolean pool){

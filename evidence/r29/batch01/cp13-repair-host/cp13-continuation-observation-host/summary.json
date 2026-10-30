@@ -1,0 +1,63 @@
+{
+  "status": "HOST_PASS",
+  "scope": "Real TaskContinuation/Root fenced ABI writer/scheduler probe on real SQLite WAL. Explicitly modelled Root RW SELECT monitor; not Android/native/device latency acceptance.",
+  "checks": 17,
+  "measurements": [
+    {
+      "entry": "WARM_CONTINUATION",
+      "completedMs": 27,
+      "modelledRootRwStallMs": 1500
+    },
+    {
+      "entry": "FOUNDRY_CONTINUATION",
+      "completedMs": 23,
+      "modelledRootRwStallMs": 1500
+    },
+    {
+      "entry": "SCHEDULER_PROBE",
+      "completedMs": 1,
+      "modelledRootRwStallMs": 1500
+    }
+  ],
+  "heldGlobalWriterLock": false,
+  "actualOldSource": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "negativeControls": {
+    "WarmCandidateR26": {
+      "status": "FAILED_EXPECTED",
+      "assertion": "WARM_CONTINUATION_BORROWED_BLOCKED_ROOT_RW_POOL"
+    },
+    "FoundryCampaignR26": {
+      "status": "FAILED_EXPECTED",
+      "assertion": "FOUNDRY_CONTINUATION_BORROWED_BLOCKED_ROOT_RW_POOL"
+    },
+    "LegacyCapabilityAdapterR29": {
+      "status": "FAILED_EXPECTED",
+      "assertion": "SCHEDULER_PROBE_BORROWED_BLOCKED_ROOT_RW_POOL"
+    }
+  },
+  "unchangedBehaviorsVerified": [
+    "No fabricated warm/foundry progress or candidate row",
+    "Original actual ABI writer/fence remains in use",
+    "Root own transaction original handle/uncommitted row/rollback",
+    "ACTIVE observation outside Scope remains Root",
+    "ACTIVE observation inside Scope verified query_only RP",
+    "First RP owner mismatch rejects without Root fallback",
+    "Root scheduler authority wins over contradictory RP fake owner in and out Scope",
+    "REALTIME suppression inside ACTIVE Scope retains Root own writes then restores RP observation",
+    "Missing candidate table is real error, not empty progress"
+  ],
+  "logSHA256": {
+    "continuation-observation-host.log": "e4dd081e8ad07535cb43f73db1642a1539d62d38cb06474a2832828c4a0a9d1e",
+    "old-116888fe-foundry-control.log": "ebb3f80a818a7cfdb8ca1e39583e44dfa227d2f49431bf694597ee9c5c0085c2",
+    "old-116888fe-owner-control.log": "6472abab98c27fef9486fed2e32b21777d07b9c9c54b7a41b96a3838028eb06d",
+    "old-116888fe-warm-control.log": "a02a5d77d8468271d381cd6fcf796d4e01974c35890a876167a2297926ce43d8"
+  },
+  "sourceSHA256": {
+    "tools/r29/qual_host/ContinuationObservationR29HostTest.java": "736973d8d0097a5ac4fb00b7e071c81a4208816c555ab91b84bf7c4322264230",
+    "tools/r29/run_continuation_observation_host.sh": "43edc3953fd5fb0377f795b337cc2ccaa89637eb5f8570a708729e71e6c12678",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchScopeR29.java": "69389156f0c446c1811da8117d0e9360c728f90f00c546e304ce805cab5bc73d",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java": "d35c94c897f79591f302d943ad1ef26c575d32512dddaf6c66e6fe5068a4726b",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/WarmCandidateR26.java": "be70611008d97e0a7b5ddbab0b51a07f47153a91aae70a406359eedf7046d858",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FoundryCampaignR26.java": "a8fba8a2d7ac66ec616ad1619c91877a5508ea71514d44629ce55dd8a7e79039"
+  }
+}

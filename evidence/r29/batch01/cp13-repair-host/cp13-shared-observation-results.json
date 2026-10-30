@@ -1,0 +1,60 @@
+{
+  "scope": "SOURCE_REVIEW_AND_HOST_ONLY_NOT_ANDROID_ACCEPTANCE",
+  "productionFiles": 12,
+  "pureSelectReceiverChanges": 43,
+  "rootRouteObservations": 2,
+  "rootSchedulerOwnerRead": "explicit independent Root RO, including when CURRENT research scope is active",
+  "sourceConservation": "cp13-shared-observation-source-conservation.json",
+  "regressions": [
+    {
+      "suite": "owner",
+      "checks": 12,
+      "status": "PASS_HOST_ONLY",
+      "files": {
+        "r29_owner_host.log": "d5dd5bed681865ded38110174dbcac44a255159ec91e942549dbd132a2dfdf98"
+      }
+    },
+    {
+      "suite": "prepared",
+      "checks": 13,
+      "status": "PASS_HOST_ONLY",
+      "files": {
+        "r29_prepared_host.log": "b30363b09ea33034c0d1dbf78f8ed8fbd8e425a24d8731cbda2b6a46c596572b"
+      }
+    },
+    {
+      "suite": "legacy",
+      "checks": 14,
+      "status": "PASS_HOST_ONLY",
+      "files": {
+        "r29_legacy_host.log": "184d307792a798ee4da2471f4bd9757e8d2a3fee9ee9ad3693016a68d876dd96"
+      }
+    }
+  ],
+  "newContinuationObservation": {
+    "status": "PASS_HOST_ONLY",
+    "checks": 17,
+    "negativeControls": {
+      "actual116Warm": "REJECTED_BY_ORIGINAL_UNSLICED_CAPACITY",
+      "actual116Foundry": "REJECTED_BY_ORIGINAL_UNSLICED_CAPACITY",
+      "actual116RootOwner": "REJECTED_BY_ORIGINAL_UNSLICED_CAPACITY"
+    },
+    "scopeMatrix": [
+      "No scope→Root physical RO",
+      "ACTIVE but no scope→Root physical RO",
+      "ACTIVE LegacyScope→verifiedRP query_only",
+      "Root transaction→original handle and own writes",
+      "ACTIVE scope realTimeWrite→Root ownwrites then restore RP",
+      "RP fakeowner cannot overrideRootowner",
+      "wrongRP owner firstopen failsclosed",
+      "missingactualcandidateSQLtable failure retained"
+    ],
+    "files": {
+      "continuation-observation-host.log": "e4dd081e8ad07535cb43f73db1642a1539d62d38cb06474a2832828c4a0a9d1e",
+      "old-116888fe-foundry-control.log": "ebb3f80a818a7cfdb8ca1e39583e44dfa227d2f49431bf694597ee9c5c0085c2",
+      "old-116888fe-owner-control.log": "6472abab98c27fef9486fed2e32b21777d07b9c9c54b7a41b96a3838028eb06d",
+      "old-116888fe-warm-control.log": "a02a5d77d8468271d381cd6fcf796d4e01974c35890a876167a2297926ce43d8"
+    }
+  },
+  "thresholdsChanged": false
+}

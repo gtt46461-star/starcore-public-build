@@ -29,7 +29,7 @@ public final class LegacyContinuityR27 {
         db.execSQL("INSERT OR IGNORE INTO r27_legacy_roster_alias VALUES(?,?,?)", new Object[] {checkpoint, roster, System.currentTimeMillis()});
     }
     public static String mintedRoster(DbStore store, String checkpoint, String fallback) {
-        try (Cursor c = store.readable().rawQuery("SELECT minted_roster FROM r27_legacy_roster_alias WHERE checkpoint_hash=?", new String[] {checkpoint})) { return c.moveToFirst() ? c.getString(0) : fallback; }
+        try (Cursor c = LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT minted_roster FROM r27_legacy_roster_alias WHERE checkpoint_hash=?", new String[] {checkpoint})) { return c.moveToFirst() ? c.getString(0) : fallback; }
         catch (RuntimeException schemaPending) { return fallback; }
     }
 

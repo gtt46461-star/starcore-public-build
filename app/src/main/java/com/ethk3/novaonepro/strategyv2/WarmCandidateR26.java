@@ -54,7 +54,7 @@ public final class WarmCandidateR26 {
         for(int i=0;i<n;i++){int k=keep.get(i);s.ordinal[i]=source.ordinal[k];s.issues[i]=source.issues[k];s.opened[i]=source.opened[k];s.available[i]=source.available[k];s.draws[i]=source.draws[k].clone();}s.through=s.ordinal[n-1];return s;
     }
     public static long step(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException{
-        budget.checkpointOrYield();SQLiteDatabase db=store.readable();Parent p=parent(db);if(p==null)return 0;
+        budget.checkpointOrYield();SQLiteDatabase db=LegacyResearchScopeR29.observationReader(store);Parent p=parent(db);if(p==null)return 0;
         FoundryCampaignR26.Snapshot source;WarmModelSeedR26.Seed seed;byte[] snapshot;String sourceHash;
         try{
             authenticate(db,p);source=retainedSuffix(FoundryCampaignR26.capture(store),p.exposure);

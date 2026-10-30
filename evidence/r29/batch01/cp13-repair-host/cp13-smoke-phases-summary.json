@@ -1,0 +1,15 @@
+{
+  "status": "PASS_OFFLINE_CONTROL_FLOW_ONLY",
+  "checks": 10,
+  "script": "tools/r29/emulator_smoke.sh",
+  "selftest": "tools/r29/test_smoke_phases.py",
+  "originalSource": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "unchangedChecks": "Original runtime QA and upgrade database comparison body byte-identical; same baseline cert/hash/manifest checks and startup probe arguments",
+  "oldSourceNegative": "Original script actually skipped clean after upgrade protocol failure; retained as expected regression",
+  "android": "NOT_RUN_BY_SELFTEST",
+  "files": {
+    "tools/r29/emulator_smoke.sh": "326a7618638ebdd3c61d079cad828cf5323039ae4964740a92efeaf31d6fff93",
+    "tools/r29/test_smoke_phases.py": "e5f1fc12b85027ff5c048ab321a65b50406d1b1d41a72c79de90a357dcc146c7"
+  },
+  "cleanMissingPackageHandling": "Failed uninstall is no-op only after successful pm list packages proves package absent; existing package retains uninstall failure."
+}

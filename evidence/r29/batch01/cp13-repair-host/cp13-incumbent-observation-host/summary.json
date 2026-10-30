@@ -1,0 +1,93 @@
+{
+  "schema": "R29_CP13_INCUMBENT_OBSERVATION_HOST_1",
+  "status": "PASS_HOST_ONLY_REAL_ANDROID_PENDING",
+  "checks": 27,
+  "scope": "Actual TaskContinuationR26 and IncumbentLoopSU2/FrameBuilder against real SQLite; Android RW pool stall modelled with 1500ms host lock",
+  "coverage": [
+    "Original schema-pending result and reason; no fake units",
+    "Original full-frame/short-history result",
+    "Already-frozen result preserves original row",
+    "Frame source version hash/payload/typed history identity",
+    "Current Root transaction sees own uncommitted generation"
+  ],
+  "sourceContract": "LegacyResearchScope.observationReader preserves scope: outside Root; active research scope RP; current transaction own writes",
+  "productionChange": "Thirteen SELECT/observation receivers in3files only; reverting receivers + removing two comment lines is byte-identical to116888fe",
+  "unchanged": [
+    "All SQL",
+    "All numeric algorithm code",
+    "All freeze transaction callback",
+    "1040ms task continuation hard guard",
+    "60-second service and180-second whole-App thresholds"
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/IncumbentLoopSU2.java",
+      "sha256": "c8313bcea904793e3bcc6f47431bb22a7010371995ce866fe3e54fd51014b990"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java",
+      "sha256": "2928b516a75c15cb2fb241f0553f234189d0e3c51700aaef04e26302abcfe78b"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+      "sha256": "691e467e837be4a9460cced9704f5012ac2e64700622404a72718750eacb5d19"
+    },
+    {
+      "path": "tools/r29/qual_host/IncumbentObservationR29HostTest.java",
+      "sha256": "d6fffc37b5dd83b162e91ac6dbb1b4ba85ddc34424a7c1619d1a7747400861d6"
+    },
+    {
+      "path": "tools/r29/run_incumbent_observation_host.sh",
+      "sha256": "d9d743a038d76f765807967c624668713c523eea75e4e93f6597f48fcb631024"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/workspace/work/r29/cp13-incumbent-observation-host/old-116888fe-expert-audit-rw-control.log",
+      "sha256": "e12c00c89033a45ca7e2abb34d9dbf0f20043a19f52a6902087332e26324f925"
+    },
+    {
+      "path": "/workspace/work/r29/cp13-incumbent-observation-host/old-116888fe-incumbent-rw-control.log",
+      "sha256": "99f86e237637eceddbdc74a64ca2fc361dbe5f54be7034f5d20c2680fb6e63fb"
+    },
+    {
+      "path": "/workspace/work/r29/cp13-incumbent-observation-host/r29_incumbent_observation_host.log",
+      "sha256": "e670e2eaef1aefac6c0ad426f262cdfc0db04683383f15748c3a485f5d40bfd3"
+    },
+    {
+      "path": "/workspace/work/r29/cp13-incumbent-observation-runner.log",
+      "sha256": "f61c123b03905a212cd115db8a4f8f6f5cf46a0c0ff1f104511b655d7be7e9d0"
+    },
+    {
+      "path": "/workspace/work/r29/cp13-incumbent-observation-host/receiver-only-proof.json",
+      "sha256": "f878f76797601516a76ca2b1703a430c5d668f8cc92ada32cdf892d0d2cd12d2"
+    },
+    {
+      "path": "/workspace/work/r29/cp13-expert-snapshot-runner.log",
+      "sha256": "edc2bd9a75a14f2316892aab7d96914bf3706be6b894948d25d66d71afa9f152"
+    }
+  ],
+  "additionalCoverage": [
+    "Actual E01/E02/E15/E16 TaskContinuation consumes previously committed audit receipt without fake progress or Root RW observation",
+    "Existing expert snapshot17checks and both old2f/old2cf negative controls pass"
+  ],
+  "actualNegativeControls": [
+    {
+      "source": "116888fe",
+      "failure": "INCUMBENT_BORROWED_BLOCKED_ROOT_RW_POOL",
+      "underlyingUnchangedGuard": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "exit": 1
+    },
+    {
+      "source": "116888fe",
+      "class": "ExpertWorkshopR26",
+      "failure": "AUDIT_BORROWED_BLOCKED_ROOT_RW_POOL",
+      "underlyingUnchangedGuard": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "exit": 1
+    }
+  ],
+  "regressions": {
+    "expertSnapshot": 17,
+    "negativeControls": 2
+  }
+}

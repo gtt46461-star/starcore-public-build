@@ -28,6 +28,11 @@ public final class LegacyResearchScopeR29 {
     /** Authority observation must not lease Root's DDL-capable pool just to resolve its route.
      * The coordinator preserves the current transaction handle for callers reading their own writes. */
     public static SQLiteDatabase rawRealtime(DbStore store){return store.coordinatorForResearchR952().realtimeReadOnlyR29();}
+    /** Pure observation retains this caller's explicit scope: Root outside research work, RP only
+     * within its active scope. The coordinator retains Root's current transaction for own writes. */
+    public static SQLiteDatabase observationReader(DbStore store){
+        return readable(store,store.coordinatorForResearchR952().realtimeReadOnlyR29());
+    }
     private static SQLiteDatabase routedReader(DatabaseCoordinator coordinator,SQLiteDatabase original){
         SQLiteDatabase observation=coordinator.realtimeReadOnlyR29();
         // Resolve ownership on the independent Root pool. Before publication, retain the historical

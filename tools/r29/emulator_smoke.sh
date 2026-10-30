@@ -64,6 +64,27 @@ PY
     pull_database "$baseline_name" "sealed-$phase"
     python3 tools/r29/inspect_runtime.py --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" --research "$OUT/research-$phase.db" --baseline "$OUT/sealed-$phase.db" "${before_args[@]}" --out "$OUT/$phase-protocol.json"
 }
+# Preserve a failed startup probe before a later independent installation replaces its files.
+probe_startup() {
+    local phase=$1 probe_status=0 evidence_status=0 logcat_status=0
+    set +e
+    python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/$phase-startup.log" 2>&1
+    probe_status=$?
+    set -e
+    if [ -d startup-evidence ]; then
+        mv startup-evidence "$OUT/startup-$phase" || evidence_status=$?
+    else
+        evidence_status=1
+    fi
+    adb logcat -d > "$OUT/logcat-$phase.txt" || logcat_status=$?
+    if [ "$probe_status" -ne 0 ]; then return "$probe_status"; fi
+    if [ "$evidence_status" -ne 0 ]; then return "$evidence_status"; fi
+    return "$logcat_status"
+}
+# These functions are subshells with their own errexit. Invoke them as simple commands,
+# never as if/! conditions: bash would suppress their internal failure handling there.
+run_upgrade() (
+    set -euo pipefail
 adb uninstall "$PKG" > /dev/null 2>&1 || true
 adb install "$BASE" > "$OUT/install-baseline.txt"
 adb shell am start -W -n "$PKG/com.ethk3.novaonepro.MainActivity" > "$OUT/launch-baseline.txt"
@@ -76,8 +97,7 @@ for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/binance_k3_nov
 adb install -r "$APK" > "$OUT/install-upgrade.txt"
 adb shell "cat /data/user/0/$PKG/files/r29-upgrade-probe" | tr -d '\r' > "$OUT/retained-marker.txt"
 grep -qx 'r29-official-upgrade-probe' "$OUT/retained-marker.txt"
-python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/upgrade-startup.log" 2>&1
-mv startup-evidence "$OUT/startup-upgrade"
+probe_startup upgrade
 adb shell am force-stop "$PKG"
 pull_runtime upgrade after
 python3 - "$OUT" <<'PY'
@@ -99,13 +119,46 @@ r['upgradeDatabase']='PASS' if not missing and not changed and integrity=='ok' e
 before.close(); after.close()
 assert r['upgradeDatabase']=='PASS',r
 PY
-adb uninstall "$PKG" > "$OUT/uninstall-for-clean-test.txt"
+)
+run_clean() (
+    set -euo pipefail
+# The upgrade phase may have failed before installing any package. Only an explicitly
+# absent package makes a failed uninstall a cleanup no-op; preserve every other failure.
+uninstall_status=0
+adb uninstall "$PKG" > "$OUT/uninstall-for-clean-test.txt" 2>&1 || uninstall_status=$?
+if [ "$uninstall_status" -ne 0 ]; then
+    package_state=$(adb shell pm list packages --user 0 "$PKG")
+    printf '%s\n' "$package_state" > "$OUT/package-after-failed-uninstall.txt"
+    [ -z "${package_state//$'\r'/}" ] || return "$uninstall_status"
+fi
 adb install "$APK" > "$OUT/install-clean.txt"
-python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/clean-startup.log" 2>&1
-mv startup-evidence "$OUT/startup-clean"
-adb logcat -d > "$OUT/logcat-clean.txt"
+probe_startup clean
 adb shell am force-stop "$PKG"
 pull_runtime clean clean
+)
+# An upgrade failure must remain a failure, while still collecting the separate clean-install case.
+set +e
+run_upgrade
+UPGRADE_STATUS=$?
+run_clean
+CLEAN_STATUS=$?
+set -e
+python3 - "$OUT/phase-results.json" "$UPGRADE_STATUS" "$CLEAN_STATUS" <<'PY_PHASES'
+import json,sys
+from pathlib import Path
+upgrade,clean=map(int,sys.argv[2:4])
+result={'scope':'API34_EMULATOR_UPGRADE_AND_CLEAN_ENGINEERING_ONLY',
+        'upgrade':{'exitCode':upgrade,'status':'PASS' if upgrade==0 else 'FAIL'},
+        'clean':{'exitCode':clean,'status':'PASS' if clean==0 else 'FAIL'},
+        'status':'PASS' if upgrade==0 and clean==0 else 'FAIL',
+        'physicalLongTests':'NOT_RUN','naturalQuality':'NOT_EVALUATED'}
+Path(sys.argv[1]).write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result))
+PY_PHASES
 # Uploaded evidence is summary/logs only. Do not publish the baseline package or private application databases.
 rm -f "$OUT"/*.db "$OUT"/*.db-wal "$OUT"/*.db-shm "$BASE"
+if [ "$UPGRADE_STATUS" -ne 0 ] || [ "$CLEAN_STATUS" -ne 0 ]; then
+    echo "API34_EMULATOR_UPGRADE_OR_CLEAN_STARTUP_FAIL; upgrade=$UPGRADE_STATUS clean=$CLEAN_STATUS; LONG_TESTS_NOT_RUN" | tee "$OUT/result.txt"
+    exit 1
+fi
 echo 'API34_EMULATOR_UPGRADE_AND_CLEAN_STARTUP_PASS; LONG_TESTS_NOT_RUN' | tee "$OUT/result.txt"

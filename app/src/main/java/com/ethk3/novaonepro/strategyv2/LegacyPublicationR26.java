@@ -11,7 +11,7 @@ public final class LegacyPublicationR26 {
     private LegacyPublicationR26() {}
     public static void prepare(DbStore store,String campaign,String source,String family,String text,long[] ordinals,ModelReplaySU2.Library library)throws IOException {
         String policy=LegacyReplayStateR26.key(text),abi=ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256;
-        try(Cursor c=store.readable().rawQuery("SELECT canonical_text,state,state_hash FROM r26_prepared_policy WHERE policy_hash=? AND numerical_abi=? AND snapshot_hash=?",new String[]{policy,abi,source})){
+        try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT canonical_text,state,state_hash FROM r26_prepared_policy WHERE policy_hash=? AND numerical_abi=? AND snapshot_hash=?",new String[]{policy,abi,source})){
             if(c.moveToFirst()){PolicyCheckpointR26.restore(CheckpointArtifactsR26.forStore(store),c.getString(0),c.getBlob(1),c.getString(2));return;}
         }
         LegacyReplayStateR26 bootstrap=LegacyBootstrapR26.build(text,ordinals,library);
@@ -21,7 +21,7 @@ public final class LegacyPublicationR26 {
     }
     public static long publishOne(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget)throws IOException {
         final long now=System.currentTimeMillis();String[] candidate=null;byte[] reference=null;long genesis=0,through=0;
-        try(Cursor c=store.readable().rawQuery("SELECT p.policy_hash,p.campaign_id,p.family_id,p.canonical_text,p.state,p.state_hash,p.checkpoint_hash,p.genesis_ordinal,p.through_ordinal FROM r26_prepared_policy p JOIN r26_legacy_campaign c ON c.campaign_id=p.campaign_id WHERE p.status='READY' AND c.status='DONE' AND p.numerical_abi=? AND NOT EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=p.policy_hash) AND (SELECT count(*) FROM r26_live_model l WHERE l.family_id=p.family_id AND l.status='ACTIVE')<2 ORDER BY CASE WHEN EXISTS(SELECT 1 FROM r26_live_model l WHERE l.family_id=p.family_id AND l.status='ACTIVE') THEN 1 ELSE 0 END,p.prepared_at DESC,p.family_id,p.policy_hash LIMIT 1",new String[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256})){
+        try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT p.policy_hash,p.campaign_id,p.family_id,p.canonical_text,p.state,p.state_hash,p.checkpoint_hash,p.genesis_ordinal,p.through_ordinal FROM r26_prepared_policy p JOIN r26_legacy_campaign c ON c.campaign_id=p.campaign_id WHERE p.status='READY' AND c.status='DONE' AND p.numerical_abi=? AND NOT EXISTS(SELECT 1 FROM r26_live_model l WHERE l.policy_hash=p.policy_hash) AND (SELECT count(*) FROM r26_live_model l WHERE l.family_id=p.family_id AND l.status='ACTIVE')<2 ORDER BY CASE WHEN EXISTS(SELECT 1 FROM r26_live_model l WHERE l.family_id=p.family_id AND l.status='ACTIVE') THEN 1 ELSE 0 END,p.prepared_at DESC,p.family_id,p.policy_hash LIMIT 1",new String[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256})){
             if(c.moveToFirst()){candidate=new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3),c.getString(5),c.getString(6)};reference=c.getBlob(4);genesis=c.getLong(7);through=c.getLong(8);}
         }
         if(candidate==null)return 0;budget.checkpointOrYield();final String[] c=candidate;final byte[] state=reference;final long first=genesis,last=through;

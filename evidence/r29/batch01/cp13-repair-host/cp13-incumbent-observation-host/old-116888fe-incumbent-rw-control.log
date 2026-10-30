@@ -1,0 +1,12 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R29_INCUMBENT_OBSERVATION|MEASURED|SCHEMA_PENDING|bodyMs=1046|modelledRootRwLeaseMs=1500
+Exception in thread "main" java.lang.AssertionError: INCUMBENT_BORROWED_BLOCKED_ROOT_RW_POOL
+	at com.ethk3.novaonepro.strategyv2.IncumbentObservationR29HostTest.whileRwPoolHeld(IncumbentObservationR29HostTest.java:28)
+	at com.ethk3.novaonepro.strategyv2.IncumbentObservationR29HostTest.main(IncumbentObservationR29HostTest.java:58)
+Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)
+	at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.step(TaskContinuationR26.java:20)
+	at com.ethk3.novaonepro.strategyv2.IncumbentObservationR29HostTest.turn(IncumbentObservationR29HostTest.java:34)
+	at com.ethk3.novaonepro.strategyv2.IncumbentObservationR29HostTest.lambda$main$5(IncumbentObservationR29HostTest.java:58)
+	at com.ethk3.novaonepro.strategyv2.IncumbentObservationR29HostTest.whileRwPoolHeld(IncumbentObservationR29HostTest.java:27)
+	... 1 more

@@ -49,15 +49,15 @@ public final class CampaignStateSU1 implements AutoCloseable {
         }catch(IOException invalid){throw new IllegalArgumentException("SU1_DATASET_CORRUPT",invalid);}
     }
     public static CampaignStateSU1 open(DbStore store){
-        if(!ArchiveStoreSU1.canCreate(store.readable()))return null;
+        if(!ArchiveStoreSU1.canCreate(LegacyResearchScopeR29.observationReader(store)))return null;
         String wire=null,expected=null;long gen=-1;
-        try(Cursor c=store.readable().rawQuery("SELECT generation,cursor_json,state_hash FROM su1_burst_checkpoint WHERE singleton=1",null)){if(c.moveToFirst()){gen=c.getLong(0);wire=c.getString(1);expected=c.getString(2);}}
+        try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT generation,cursor_json,state_hash FROM su1_burst_checkpoint WHERE singleton=1",null)){if(c.moveToFirst()){gen=c.getLong(0);wire=c.getString(1);expected=c.getString(2);}}
         if(wire!=null){
             if(!HashingSU1.text(wire).equals(expected))throw new IllegalStateException("SU1_CHECKPOINT_HASH");Map<String,Object> state=StrictCanonicalJson.readContextObject(wire);String campaign=(String)state.get("campaign"),blob=(String)state.get("dataset");long through=((Number)state.get("through")).longValue();
             if(!TrainingCodeIdentityR964.SHA256.equals(state.get("kernel")))store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_INVALIDATE_CHECKPOINT_KERNEL",db->{db.execSQL("UPDATE su1_campaign SET status='FAILED',finished_at=? WHERE campaign_id=? AND status='RUNNING'",new Object[]{System.currentTimeMillis(),campaign});return 0;});
-            try(Cursor status=store.readable().rawQuery("SELECT status FROM su1_campaign WHERE campaign_id=?",new String[]{campaign})){if(status.moveToFirst()&&status.getString(0).equals("RUNNING")){
-                String payload=localBlob(store.readable(),blob);StrategyFoundrySU1 f=StrategyFoundrySU1.restore(unpack(payload),HashingSU1.text(payload),(String)state.get("session"));
-                List<String> seen=new ArrayList<>();try(Cursor c=store.readable().rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result IN ('EVALUATED','REJECTED')",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(store.readable(),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
+            try(Cursor status=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT status FROM su1_campaign WHERE campaign_id=?",new String[]{campaign})){if(status.moveToFirst()&&status.getString(0).equals("RUNNING")){
+                String payload=localBlob(LegacyResearchScopeR29.observationReader(store),blob);StrategyFoundrySU1 f=StrategyFoundrySU1.restore(unpack(payload),HashingSU1.text(payload),(String)state.get("session"));
+                List<String> seen=new ArrayList<>();try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT genome_key FROM su1_search_attempt WHERE campaign_id=? AND result IN ('EVALUATED','REJECTED')",new String[]{campaign})){while(c.moveToNext())seen.add(c.getString(0));}f.restoreSeen(seen);DirectorLiveFeedbackSU1.load(LegacyResearchScopeR29.observationReader(store),f.director);return new CampaignStateSU1(store,campaign,blob,through,f,gen,expected);
             }}
         }
         List<Models.Draw> rows=new ArrayList<>(store.getRecentDraws(5000));if(rows.size()<3400)return null;
@@ -65,19 +65,19 @@ public final class CampaignStateSU1 implements AutoCloseable {
         store.setState("r27_su1_history_segments","segments="+segmented.segments+"|invalid="+segmented.invalid+"|SKIPPED_GAP="+segmented.skippedGap+"|newestSegmentRows="+rows.size());
         if(rows.size()<3400)return null; // newest consecutive segment too short: wait for more draws (reported, not thrown)
         long through=LiveShadowLoopSU1.sequence(rows.get(rows.size()-1).issue);
-        try(Cursor c=store.readable().rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%CONTINUOUS_CREATION%'",null)){if(c.moveToFirst()&&!c.isNull(0)&&through-c.getLong(0)<300)return null;}
+        try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%CONTINUOUS_CREATION%'",null)){if(c.moveToFirst()&&!c.isNull(0)&&through-c.getLong(0)<300)return null;}
         String payload=dataset(rows),hash=HashingSU1.text(payload);int[][] d=unpack(payload);StrategyFoundrySU1 f=new StrategyFoundrySU1(d,hash,through,24,3);
-        long lastFull=0;try(Cursor c=store.readable().rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%FULL_ATOM_SCREEN%' AND config_json LIKE ?",new String[]{"%"+TrainingCodeIdentityR964.SHA256+"%"})){if(c.moveToFirst()&&!c.isNull(0))lastFull=c.getLong(0);}
+        long lastFull=0;try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT max(data_through_sequence) FROM su1_campaign WHERE kind='LIVE_REFRESH' AND status='DONE' AND config_json LIKE '%FULL_ATOM_SCREEN%' AND config_json LIKE ?",new String[]{"%"+TrainingCodeIdentityR964.SHA256+"%"})){if(c.moveToFirst()&&!c.isNull(0))lastFull=c.getLong(0);}
         if(lastFull>0&&through-lastFull<1440){
-            List<StrategyFoundrySU1.Genome> survivors=new ArrayList<>();for(StrategyRepositorySU1.Member m:StrategyRepositorySU1.active(store.readable())){
+            List<StrategyFoundrySU1.Genome> survivors=new ArrayList<>();for(StrategyRepositorySU1.Member m:StrategyRepositorySU1.active(LegacyResearchScopeR29.observationReader(store))){
                 if(survivors.size()>=12)break;if(m.text.contains("MODEL("))continue;
                 StrategyFoundrySU1.Genome base=new StrategyFoundrySU1.Genome(m.text,"GRAMMAR",m.arm,"survivor_retest","",m.fitness,m.coverage,m.margin);
                 survivors.add(new StrategyFoundrySU1.Genome(m.text,"GRAMMAR",m.arm,"survivor_retest",base.key(),m.fitness,m.coverage,m.margin));
             }f.startRefresh(survivors);
         }
         // Only the continuing REAL research lineage inherits memory. Control runs never read this table.
-        try(Cursor c=store.readable().rawQuery("SELECT state_json,state_hash FROM su1_director_state s JOIN su1_campaign c ON c.campaign_id=s.campaign_id ORDER BY c.finished_at DESC LIMIT 1",null)){if(c.moveToFirst()){String memory=c.getString(0);if(!HashingSU1.text(memory).equals(c.getString(1)))throw new IllegalStateException("SU1_MEMORY_HASH");f.inheritMemory(memory);}}
-        DirectorLiveFeedbackSU1.load(store.readable(),f.director);
+        try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT state_json,state_hash FROM su1_director_state s JOIN su1_campaign c ON c.campaign_id=s.campaign_id ORDER BY c.finished_at DESC LIMIT 1",null)){if(c.moveToFirst()){String memory=c.getString(0);if(!HashingSU1.text(memory).equals(c.getString(1)))throw new IllegalStateException("SU1_MEMORY_HASH");f.inheritMemory(memory);}}
+        DirectorLiveFeedbackSU1.load(LegacyResearchScopeR29.observationReader(store),f.director);
         String config="{\"kind\":\"CONTINUOUS_CREATION\",\"scope\":\""+(f.fullScan?"FULL_ATOM_SCREEN":"FAST_REFRESH")+"\",\"population\":24,\"generations\":3,\"atomCondition\":\"V2_1E12\",\"kernel\":\""+TrainingCodeIdentityR964.SHA256+"\"}";
         String campaign=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU1_CAMPAIGN_START",db->{String id=StrategyRepositorySU1.beginCampaign(db,"LIVE_REFRESH",through,config,System.currentTimeMillis());StrategyRepositorySU1.blob(db,payload,"SU1_DATASET_GZIP_BASE64_V1",System.currentTimeMillis());return id;});
         return new CampaignStateSU1(store,campaign,hash,through,f,gen,expected);

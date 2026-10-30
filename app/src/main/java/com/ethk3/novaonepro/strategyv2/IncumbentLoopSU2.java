@@ -25,8 +25,10 @@ public final class IncumbentLoopSU2 {
 
 
     public static long prepareNext(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,BudgetTokenSU1 budget,long seq)throws IOException{
-        if(!StrategySchemaSU2.ready(store.readable())){claims.get().reason("SU2_SCHEMA_PENDING");return 0;}
-        try(Cursor c=store.readable().rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?",new String[]{KEY,String.valueOf(seq)})){if(c.moveToFirst()){claims.get().reason("INCUMBENT_ALREADY_FROZEN; MISSING_OLD_PREFERENCES_NOT_RECONSTRUCTED");return 0;}}
+        // These probes precede any numerical quantum. Resolve them on the independent observation
+        // pool so opening a Root RW secondary cannot checkpoint WAL inside this continuation.
+        if(!StrategySchemaSU2.ready(LegacyResearchScopeR29.observationReader(store))){claims.get().reason("SU2_SCHEMA_PENDING");return 0;}
+        try(Cursor c=LegacyResearchScopeR29.observationReader(store).rawQuery("SELECT 1 FROM su2_live_decision WHERE genome_key=? AND sequence_ordinal=?",new String[]{KEY,String.valueOf(seq)})){if(c.moveToFirst()){claims.get().reason("INCUMBENT_ALREADY_FROZEN; MISSING_OLD_PREFERENCES_NOT_RECONSTRUCTED");return 0;}}
         Models.Draw latest=store.getLatestDraw();if(latest==null||TargetIssueResolver.sequenceOrdinalSU1(latest.issue)!=seq-1){claims.get().reason("INCUMBENT_SUPERSEDED_TARGET");return 0;}
         long deadline=TargetIssueResolver.predrawDeadlineWallR20261008(latest);if(System.currentTimeMillis()>=deadline){claims.get().reason("INCUMBENT_MISSING_AFTER_OPEN");return 0;}
         budget.checkpointOrYield();EventFrameSU1 frame;
@@ -40,7 +42,7 @@ public final class IncumbentLoopSU2 {
     static long commitPrepared(DbStore store,Supplier<RuntimeCoordinatorR26.Claim> claims,EventFrameSU1 frame,XiIncumbentSU2.Decision x)throws IOException{
         final byte[] preferences=LegacyPreferenceTableR26.encode(x.table);final String hash=LiveStateR26.hash(preferences);final long seq=TargetIssueResolver.sequenceOrdinalSU1(String.valueOf(frame.targetIssue));
         final ModelLiveSU2.Decision d=new ModelLiveSU2.Decision(seq,x.position,x.mask(),x.act,Double.NaN,x.phat);
-        SQLiteDatabase realtime=LegacyResearchScopeR29.realtime(store.readable());
+        SQLiteDatabase realtime=LegacyResearchScopeR29.realtime(LegacyResearchScopeR29.rawRealtime(store));
         SQLiteDatabase research=ResearchRouteR29.reader(realtime);
         RuntimeCoordinatorR26.requireFence(research,claims.get());
         // Metadata is research-owned and commits before the separate realtime freeze. It grants no authority.
