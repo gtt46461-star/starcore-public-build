@@ -7,7 +7,7 @@
     "source": "build_identity + device package probe",
     "kind": "ENGINEERING",
     "unit": "count",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -20,7 +20,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "evidence/r29/checkpoint06/apk-independent-verification.json"
+    ],
+    "reason": "Two release APKs independently verified against fixed source and signed identity; installed source/plan runtime probes not fully audited",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M02",
@@ -30,7 +37,7 @@
     "source": "legacy registry + regression receipts",
     "kind": "ENGINEERING",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -43,7 +50,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "evidence/r29/checkpoint06/"
+    ],
+    "reason": "1832/299/42 registries and original plan preserved; all legacy behavior acceptance remains pending",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M03",
@@ -306,7 +320,7 @@
     "source": "device logs",
     "kind": "ENGINEERING",
     "unit": "count",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -319,7 +333,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "evidence/r29/checkpoint06/device/"
+    ],
+    "reason": "API34 emulator cold/restart smoke only; physical/long-duration OOM/ANR not measured",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M15",
@@ -444,7 +465,7 @@
     "source": "restart replay",
     "kind": "ENGINEERING",
     "unit": "count",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -457,7 +478,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "evidence/r29/checkpoint06/sqlite-faults.log"
+    ],
+    "reason": "Full codec deterministic continuation and atomic checkpoint/cursor rollback host subset; target-phone kill/resume not run",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M21",
@@ -605,7 +633,7 @@
     "source": "eprocess ledger",
     "kind": "ENGINEERING",
     "unit": "count",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -618,7 +646,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "evidence/r29/checkpoint06/sqlite-faults.log"
+    ],
+    "reason": "Contiguous receipt/cursor, late results, gaps, CAS and conflicts host subset; full permanent-budget/queue chain incomplete",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M28",
@@ -697,7 +732,7 @@
     "source": "diagnosis finding",
     "kind": "ENGINEERING",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -710,7 +745,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "construction/r29/cards.json"
+    ],
+    "reason": "Qualification/model diagnostics are wired; complete twelve-chapter findings and all-object coverage incomplete",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M32",
@@ -766,7 +808,7 @@
     "source": "APK identity + install receipt",
     "kind": "ENGINEERING",
     "unit": "count",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "PARTIAL",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -779,7 +821,14 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [
+      "evidence/r29/checkpoint06/device/"
+    ],
+    "reason": "Both existing-signature debug/release lineages passed API34 same-signer upgrade, retained rows and clean startup; target device not run",
+    "scope": {
+      "sourceCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "population": "HOST_AND_API34_EMULATOR_ONLY"
+    }
   },
   {
     "id": "M35",
@@ -835,7 +884,7 @@
     "source": "future predictions",
     "kind": "QUALITY",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -848,7 +897,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q02",
@@ -858,7 +908,7 @@
     "source": "calendar opportunity",
     "kind": "QUALITY",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -873,7 +923,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q03",
@@ -883,7 +934,7 @@
     "source": "qualification evidence",
     "kind": "QUALITY",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -896,7 +947,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q04",
@@ -906,7 +958,7 @@
     "source": "block quality ledger",
     "kind": "QUALITY",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -919,7 +971,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q05",
@@ -929,7 +982,7 @@
     "source": "calibration frozen validation",
     "kind": "QUALITY",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -942,7 +995,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q06",
@@ -952,7 +1006,7 @@
     "source": "paired lineage experiment",
     "kind": "QUALITY",
     "unit": "ratio",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -965,7 +1019,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q07",
@@ -975,7 +1030,7 @@
     "source": "asset qualification ledger",
     "kind": "QUALITY",
     "unit": "count",
-    "current_acceptance": "NOT_RUN",
+    "current_acceptance": "INSUFFICIENT",
     "missing_policy": "null/INSUFFICIENT; never substitute zero",
     "scope_required": [
       "sourceCommit",
@@ -988,7 +1043,8 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No measured postregistration natural acceptance sample for this source; values remain null"
   },
   {
     "id": "Q08",
@@ -1011,6 +1067,7 @@
     "numerator": null,
     "denominator": null,
     "sampleCount": null,
-    "evidenceRefs": []
+    "evidenceRefs": [],
+    "reason": "No new postregistration natural qualification dataset; full-pipeline Q08 acceptance not performed"
   }
 ]

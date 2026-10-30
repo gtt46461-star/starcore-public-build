@@ -1,0 +1,59 @@
+STARCORE R29.1 checkpoint06：可安装修复检查点，全部方案尚未完成
+
+状态：IMPLEMENTATION_IN_PROGRESS_NOT_ENGINEERING_READY；REAL_BLOCKED；自然质量INSUFFICIENT。
+本回执不签收全部11批、52卡、44指标。原1832要求、299文件卡、R28的42卡映射及方案目录/ZIP保持保全。
+
+源码与安装身份
+应用分支 construction/r29-20261029；构建源码 bb607cf5ab69f7286f859e43f87ada85a5bc456d。
+源码提交 https://github.com/gtt46461-star/starcore-public-build/commit/bb607cf5ab69f7286f859e43f87ada85a5bc456d
+固定归档 https://github.com/gtt46461-star/starcore-public-build/archive/bb607cf5ab69f7286f859e43f87ada85a5bc456d.zip
+方案固定 96fb4355748a2f28e31927e1f9cb8cb61fac6547；采用R29.1，V2当前仍是诊断实现，未启用或追溯授证。
+包名 com.starcore.research.r13；versionName R29.1-2026.10.30-checkpoint06；versionCode 577291006。
+QA工具源码 677ef8924fa25aa67559653a699eaa7cfd85a144。后续回执/QA提交的app/src/main、app/build.gradle、release与上述构建提交一致。
+
+原R13/R26证书release APK（覆盖该证书的旧公有版）
+https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+大小 27571684 bytes
+文件SHA-256 ab10c8e85344a347a695d11ddeb652b419d09c49e81513204037e3e0684a7743
+证书SHA-256 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+构建 https://github.com/gtt46461-star/starcore-public-build/actions/runs/41020837305
+
+既有R27/早期R29 CI证书release APK（覆盖该证书的旧包）
+https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP06-R27-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+大小 27571696 bytes
+文件SHA-256 254b7447f09cacba4edea265db936f032b4289cd005cdb82dcc639e47b21e8a8
+证书SHA-256 d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7
+构建 https://github.com/gtt46461-star/starcore-public-build/actions/runs/41020843534
+
+两个包必须按旧安装证书选择，不能交叉覆盖。没有用卸载/清数据来解决升级验收；清装是独立场景。
+签名仅由既有授权CI安全缓存完成；本环境未读取或上传签名私钥，公开材料只有公钥证书指纹和签名验证回执。
+
+已接入的真实Android修复
+1. ResearchWriteQueueR27：before、全部写入和after整体事务；1203条操作的回滚重试不暴露中间游标。
+2. QualificationInboxR29/StoreR27：登记起点日历，缺首/中/尾冻结不越过；迟到/乱序、重复与冲突分别处理；回执、资格和游标同事务；旧跳期状态留审计并撤证重建。
+3. GateV2R29：拒绝非法概率，禁止空支持范围外校准；稳定性固定登记的前三完整时间块。尚未完成V2正式证书链。
+4. ModelArtifactR29/AtomWorldR27：AtomNet权重、Adam、FTRL、RNG、回放缓冲、学习率、训练游标、评分序号完整续训；提交成功才发布内存状态；滚动数据窗不重置学习。
+5. SchemaR27：旧不完整模型在初次完整重训前原字节归档，重复迁移幂等；归档禁止修改或删除。原模型和旧表保留。
+6. ThermalPolicyR29/ResearchPoolR27：正常两worker、热压缩一worker、NaN回退、30秒恢复滞回、CAS并发上限和持久隔离。
+7. ReportR29/FindingsR29：明确区分未实现、未运行、缺口和样本不足；I08/model_surface未实现如实显示。
+
+实测与证据
+本地保存的环境验证包装脚本完成canonical集成：139项JUnit，0失败/错误/跳过，8项语义变异反证检出；生产Java+真实SQLite共20项场景输出检查通过。
+CP06迁移与R27基线回归通过；SU1/SU2/R26回归复用CP05通过回执，CP06新增归档由Q16与针对性测试验证。CP06首次迁移扫描误把BEFORE DELETE保护触发器当作删除数据，原始失败保留；修正分类器并用真实危险DELETE/DROP负对照复验，实际原数据哈希/幂等/保护触发器检查通过。
+lint无新增问题；原基线过滤51项错误，7个基线条目未匹配；未删除基线。Gradle 9兼容弃用警告仍在。
+原默认exec限制、未提交输入拒绝、旧字符串断言失败及首版模拟器偏好文件短暂切换失败均保留，不改写为首次成功。
+
+独立API34 x86_64模拟器：两个证书的debug与release四组均PASS。真实旧同签名包先运行产生数据库，再覆盖升级；无旧表丢失、无旧开奖行变化，PRAGMA integrity_check=ok，升级标记保留。随后另做清装；各有冷启动和强停后新进程启动，心跳保持更新60秒、无init retry/error或捕获崩溃。
+release两组均从4817条旧开奖增长到4820条；这不是未来确认或自然质量样本。
+release回执 https://github.com/gtt46461-star/starcore-public-build/actions/runs/41025142890
+debug回执 https://github.com/gtt46461-star/starcore-public-build/actions/runs/41023040865
+选存证据 evidence/r29/checkpoint06/device/{official_r13,existing_r27}/{debug,release}/。
+CI私有应用数据库和旧APK在上传前删除，归档仅保留摘要、安装/启动回执、证书和屏幕图。
+
+真实验收边界与继续施工
+完整批次验收0/11，完整卡验收0/52，完整指标通过0/44。卡实现账本3 IMPLEMENTED、13 PARTIAL、36 NOT_STARTED；已有脚手架或子集通过不能视为整卡签收。
+未完成的主要工程：R29-004双库迁移；R29-005独立writer及outbox/inbox；旧能力统一调度适配；策略家族/结构创造；R29-028十位置网络与R29-029 I08真实消费者；固定16确认队列、完整V2证书/投影/主链；12章报告、存储、图表及性能全量验收。
+当前没有目标V2353A/Android14真机与对应长时窗口。真机前台60min、息屏6h、连续72h、跨日、断网/低存储/热压力/并发导出均NOT_RUN，执行方法见DEVICE_CHECKPOINT06.txt和tools/r29/observe_device.py。
+当前源码没有可复核的新自然资格统计：样本数、命中数、命中率、ACT/REAL频率及区间均null/INSUFFICIENT；没有经本轮验证的达标策略，REAL_BLOCKED。不把历史导入、模拟器在线或合成检查算成真实胜率。
+正式源码施工已获授权，可以在现有环境继续；以上未完成工程仍需施工和验证，不需要另建环境。真机和自然观测受资源/时间限制，单独保留待验，不以此掩盖可执行工程未完成。
+续跑位置、失败和下一命令见construction/r29/continuation.json。当前回执仅记录本次已完成工作，不声称会话结束后仍在后台施工。

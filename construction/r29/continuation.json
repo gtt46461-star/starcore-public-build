@@ -4,22 +4,23 @@
   "localBranch": "construction/r29-20261030",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
   "baselineRechecked": "df09ef57a9d03e39ab8ce0756ad48b56acebf7b9",
-  "latestAppCodeCommit": "e55c448b3d48b1ae1ae8fe606e5d4f32ad03edbf",
+  "latestAppCodeCommit": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
   "versionCode": 577291006,
   "status": "IMPLEMENTATION_IN_PROGRESS_NOT_ENGINEERING_READY",
   "wholeBatchesAccepted": 0,
   "wholeCardsAccepted": 0,
-  "device": "NOT_RUN_IN_THIS_CLOUD_ENVIRONMENT_NO_KVM_OR_TARGET_PHONE",
+  "device": "API34_EMULATOR_DEBUG_AND_RELEASE_BOTH_SIGNERS_PASS_PHYSICAL_NOT_RUN",
   "quality": "INSUFFICIENT_NO_NEW_NATURAL_SAMPLE",
   "real": "BLOCKED_NO_VERIFIED_CERTIFICATE",
   "nextCard": "R29-004",
   "nextActions": [
-    "Inspect official CP04 build and emulator receipts; repair any failures before accepting delivery.",
-    "Implement R29-004 independent research DB migration with table ownership/canonical hashes/interrupt recovery; preserve old tables.",
-    "Complete R29-005 outbox/inbox and all read consumers before cutover; current atomic-batch fix does not provide DB isolation.",
-    "Continue B01→B10 in declared dependency order. R29-028/029 ten-position/model_surface remain unimplemented.",
-    "Collect physical-device and postregistration natural evidence separately; do not convert host synthetic checks into quality."
+    "Implement R29-004 independent research DB migration with table ownership, canonical typed row hashes, incremental watermark and interruption recovery. Preserve original owner/tables until verified cutover.",
+    "Complete R29-005 independent writer, outbox/inbox, certificate projection and all cross-database readers before cutover. Atomic batch repair is not DB isolation.",
+    "Continue remaining B01 through B10 in dependency order; see cards.json. Ten-position neural input and real I08/model_surface still unimplemented.",
+    "Physical V2353A and 60min/6h/72h are NOT_RUN; use DEVICE_CHECKPOINT06.txt. Natural ACT/REAL quality needs new preregistered future evidence, never reuse host/emulator samples."
   ],
-  "nextCommand": "source /workspace/starcore-environment/activate.sh && cd /workspace/starcore-public-build && python3 tools/r29/host_checks.py --out /workspace/work/r29/host-recheck.json",
-  "pendingOfficialBuild": "checkpoint06 includes pre-retrain immutable legacy-model preservation"
+  "nextCommand": "source /workspace/starcore-environment/activate.sh && cd /workspace/starcore-public-build && sed -n '1,180p' construction/plans/STARCORE_R29_FINAL_20261029/docs/02_运行闭环与分库迁移.md",
+  "qaCommit": "677ef8924fa25aa67559653a699eaa7cfd85a144",
+  "delivery": "construction/r29/delivery/CP06.json",
+  "mainEntryCommit": "13192296a196a8dfc971cb02a98255c65a61ba0e"
 }

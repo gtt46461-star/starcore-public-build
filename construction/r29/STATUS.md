@@ -1,3 +1,11 @@
+checkpoint06 已发布并完成独立模拟器验证（2026-10-30）
+
+构建源码 bb607cf5ab69f7286f859e43f87ada85a5bc456d；原R13/R26与既有R27两种固定签名各有release APK，须按旧安装证书选择。两种签名的debug/release四组API34模拟器均通过同签名保留数据覆盖升级、完整性检查、清装和两次启动。正式交付回执见delivery/CP06.json与DELIVERY_CHECKPOINT06.zh.txt。main文档入口已指向R29真实源码；QA/回执提交未改变该构建的产品源码。
+
+本地canonical集成139项JUnit零失败/错误/跳过、8项语义反证；20项真实SQLite场景输出检查通过。lint无新增问题，保留51项既有基线错误、7个未匹配条目及Gradle9弃用警告。首轮失败证据保留。
+
+完整批次0/11、整卡验收0/52、完整指标0/44；实现账本3 IMPLEMENTED、13 PARTIAL、36 NOT_STARTED。7项指标仅PARTIAL。真机/60min/6h/72h均NOT_RUN，自然质量INSUFFICIENT，未验证达标策略，REAL_BLOCKED。下文为保留的历史施工记录，历史“待CI”等状态由本段与对应CP06回执更新。
+
 R29.1 实施中，尚未达到 ENGINEERING_READY，未签收任何完整批次。
 
 checkpoint06（577291006）为本轮交付候选。在CP05之上增加旧版不完整AtomNet状态的不可变归档：SchemaR27先在同一迁移事务保留原artifact/hash/游标/学习率，再允许初次完整状态重训；重复迁移幂等，已有完整检查点时不继续复制，原副本禁止UPDATE/DELETE。Q16使用真实SQLite验证原字节保留和触发器。原R13与R27各自的固定签名分别构建相同源码，不能互相冒称可覆盖；实际安装与质量仍按各自回执。
