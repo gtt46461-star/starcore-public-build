@@ -15,10 +15,16 @@ public final class ReportDataR27 {
     private ReportDataR27() {}
     public static final String DEVICE_REASON = "真机设备矩阵（docs/12 12.3：V2353A/API34 + 另一品牌；亮屏/息屏/锁屏/充电/断网/覆盖安装/强杀/低内存/24小时）尚未执行；HOST 测试不能替代。";
 
-    static boolean table(SQLiteDatabase db, String name) { try (Cursor c = db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", new String[] {name})) { return c.moveToFirst(); } }
+    static boolean table(SQLiteDatabase db,String name){
+        try(Cursor databases=db.rawQuery("PRAGMA database_list",null)){
+            while(databases.moveToNext())try(Cursor c=db.rawQuery("SELECT 1 FROM "+MigrationCopyR29.id(databases.getString(1))+".sqlite_master WHERE type='table' AND name=?",new String[]{name})){if(c.moveToFirst())return true;}
+        }
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
-    public static ReportR27.Input load(SQLiteDatabase db) {
+    public static ReportR27.Input load(SQLiteDatabase original) {
+        SQLiteDatabase db=ResearchRouteR29.reader(original);
         ReportR27.Input in = new ReportR27.Input(); long now = System.currentTimeMillis();
         if (!table(db, "r27_migration")) return in;
         try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.status,s.spec_json,s.base_policy,e.acts,e.hits,e.n,e.log_e_up,e.alpha,e.state,e.sum_u,e.sum_u2 FROM r27_live_shadow s LEFT JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') ORDER BY s.global_index", null)) {

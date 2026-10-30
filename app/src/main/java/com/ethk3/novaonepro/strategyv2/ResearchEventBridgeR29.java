@@ -11,7 +11,7 @@ import java.util.Map;
 
 /** Durable draw delivery. Realtime append and research consume deliberately have different transaction boundaries.
  * An inbox acknowledgement means DELIVERED, never trained. Only an actual model/settlement commit creates a work
- * receipt. The protocol is usable across connections/files; the current R27 writer still needs the R29-004 cutover.
+ * receipt. ResearchRouteR29 selects the independent writer after verified R29-004 publication.
  * No callback holds a realtime transaction while waiting for the research writer. */
 public final class ResearchEventBridgeR29 {
     private ResearchEventBridgeR29() {}
@@ -31,6 +31,8 @@ public final class ResearchEventBridgeR29 {
     public static void ensureRealtime(SQLiteDatabase db) {
         requireTransaction(db);
         db.execSQL(OUTBOX);
+        db.execSQL(ExperimentRegistrationR29.AUTHORITY);
+        for(String guard:ExperimentRegistrationR29.AUTHORITY_GUARDS)db.execSQL(guard);
         db.execSQL("CREATE INDEX IF NOT EXISTS r29_event_outbox_pending ON r29_event_outbox(acked_at,seq)");
         db.execSQL("CREATE TRIGGER IF NOT EXISTS r29_event_payload_immutable BEFORE UPDATE OF event_id,issue,kind,payload_json,payload_hash,origin,committed_at ON r29_event_outbox BEGIN SELECT RAISE(ABORT,'R29_EVENT_IMMUTABLE'); END");
     }
@@ -46,8 +48,13 @@ public final class ResearchEventBridgeR29 {
             for (int i = 0; i < 10; i++) numbers[i] = c.getInt(i);
         }
         Event e = Event.draw(0, issue, numbers, newlyInserted ? "NEW_CANONICAL_COMMIT" : "EXISTING_CANONICAL_OBSERVED", now);
+        append(db,e);
+    }
+
+    static void append(SQLiteDatabase db,Event e) {
+        requireTransaction(db);e.verify();
         db.execSQL("INSERT OR IGNORE INTO r29_event_outbox(event_id,issue,kind,payload_json,payload_hash,origin,committed_at) VALUES(?,?,?,?,?,?,?)",
-                new Object[] {e.id, e.issue, "DRAW_COMMITTED", e.payload, e.hash, e.origin, now});
+                new Object[] {e.id, e.issue, e.kind, e.payload, e.hash, e.origin, e.committedAt});
         // An existing identity must describe exactly the same immutable payload; an OR IGNORE alone hides conflicts.
         try (Cursor c = db.rawQuery("SELECT payload_hash,payload_json FROM r29_event_outbox WHERE event_id=?", new String[] {e.id})) {
             if (!c.moveToFirst() || !e.hash.equals(c.getString(0)) || !e.payload.equals(c.getString(1)))
@@ -57,10 +64,13 @@ public final class ResearchEventBridgeR29 {
 
     public static final class Event {
         public final long seq, committedAt;
-        public final String id, issue, payload, hash, origin;
+        public final String id, issue, payload, hash, origin,kind;
         Event(long seq, String id, String issue, String payload, String hash, String origin, long committedAt) {
+            this(seq,id,issue,payload,hash,origin,committedAt,"DRAW_COMMITTED");
+        }
+        Event(long seq, String id, String issue, String payload, String hash, String origin, long committedAt,String kind) {
             this.seq = seq; this.id = id; this.issue = issue; this.payload = payload; this.hash = hash;
-            this.origin = origin; this.committedAt = committedAt;
+            this.origin = origin; this.committedAt = committedAt;this.kind=kind;
             verify();
         }
         public static Event draw(long seq, String issue, int[] numbers, String origin, long now) {
@@ -75,12 +85,15 @@ public final class ResearchEventBridgeR29 {
         }
         @SuppressWarnings("unchecked")
         void verify() {
-            if (seq < 0 || committedAt < 0 || !TargetIssueResolver.isValid(issue) || !StatsR27.sha256(payload).equals(hash)
-                    || !StatsR27.sha256("DRAW_COMMITTED|" + issue + "|" + hash).equals(id))
+            if (seq < 0 || committedAt < 0 || !LegacyResearchTransferR29.supports(kind)&&!TargetIssueResolver.isValid(issue) || !StatsR27.sha256(payload).equals(hash)
+                    || !StatsR27.sha256(kind+"|" + issue + "|" + hash).equals(id))
                 throw new IllegalArgumentException("R29_EVENT_CHECKSUM_OR_IDENTITY");
             Object parsed = JsonR27.parse(payload);
             if (!(parsed instanceof Map)) throw new IllegalArgumentException("R29_EVENT_PAYLOAD");
             Map<String,Object> p = (Map<String,Object>) parsed;
+            if(LegacyResearchTransferR29.supports(kind)){LegacyResearchTransferR29.validate(kind,p);return;}
+            if(ExperimentRegistrationR29.KIND.equals(kind)){ExperimentRegistrationR29.validate(issue,p);return;}
+            if(!"DRAW_COMMITTED".equals(kind))throw new IllegalArgumentException("R29_EVENT_KIND");
             if (!"R29_CANONICAL_DRAW_V1".equals(p.get("abi")) || !issue.equals(p.get("issue")) || !(p.get("numbers") instanceof List))
                 throw new IllegalArgumentException("R29_EVENT_PAYLOAD");
             List<?> values = (List<?>) p.get("numbers"); int[] numbers = new int[values.size()];
@@ -97,8 +110,8 @@ public final class ResearchEventBridgeR29 {
     /** Read-only realtime connection; materialize and CLOSE every cursor before acquiring the research writer. */
     public static List<Event> pending(SQLiteDatabase realtime) {
         List<Event> out = new ArrayList<>();
-        try (Cursor c = realtime.rawQuery("SELECT seq,event_id,issue,payload_json,payload_hash,origin,committed_at FROM r29_event_outbox WHERE acked_at=0 ORDER BY seq LIMIT " + PAGE, null)) {
-            while (c.moveToNext()) out.add(new Event(c.getLong(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getLong(6)));
+        try (Cursor c = realtime.rawQuery("SELECT seq,event_id,issue,payload_json,payload_hash,origin,committed_at,kind FROM r29_event_outbox WHERE acked_at=0 ORDER BY seq LIMIT " + PAGE, null)) {
+            while (c.moveToNext()) out.add(new Event(c.getLong(0), c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getLong(6),c.getString(7)));
         }
         return out;
     }
@@ -109,10 +122,15 @@ public final class ResearchEventBridgeR29 {
         if (events.isEmpty()) return b;
         for (Event e : events) e.verify();
         b.before = db -> {
+            java.util.Set<String> handled=new java.util.HashSet<>();
             for (Event e : events) {
+                if(!handled.add(e.id))continue;
+                boolean exists=false;
                 try (Cursor c = db.rawQuery("SELECT payload_hash FROM r29_event_inbox WHERE event_id=?", new String[] {e.id})) {
-                    if (c.moveToFirst() && !e.hash.equals(c.getString(0))) throw new IllegalStateException("R29_INBOX_IDENTITY_CONFLICT");
+                    exists=c.moveToFirst();if (exists && !e.hash.equals(c.getString(0))) throw new IllegalStateException("R29_INBOX_IDENTITY_CONFLICT");
                 }
+                if(!exists&&ExperimentRegistrationR29.KIND.equals(e.kind))ExperimentRegistrationR29.consume(db,e,now);
+                if(!exists&&LegacyResearchTransferR29.supports(e.kind))LegacyResearchTransferR29.consume(db,e);
             }
             return 0;
         };
@@ -120,6 +138,7 @@ public final class ResearchEventBridgeR29 {
         for (Event e : events) {
             highest = Math.max(highest, e.seq);
             b.add("INSERT OR IGNORE INTO r29_event_inbox(event_id,source_seq,issue,payload_hash,origin,applied_at) VALUES(?,?,?,?,?,?)", e.id, e.seq, e.issue, e.hash, e.origin, now);
+            if(!"DRAW_COMMITTED".equals(e.kind))continue;
             for (String consumer : new String[] {MODEL, SETTLEMENT}) {
                 b.add("INSERT OR IGNORE INTO r29_learning_work(consumer,event_id,issue,target_ordinal,status,enqueued_at) VALUES(?,?,?,?,'PENDING',?)", consumer, e.id, e.issue, TargetIssueResolver.sequenceOrdinalSU1(e.issue), now);
                 // The learner can commit before this event is delivered. Its durable receipt is authoritative.
@@ -167,6 +186,7 @@ public final class ResearchEventBridgeR29 {
     }
 
     public static ResearchPoolR27.Outcome deliver(ResearchPoolR27.Worker w) throws Exception {
+        ExperimentRegistrationR29.publishRequests(w);
         List<Event> events = pending(w.realtimeRo());
         if (events.isEmpty()) {
             ResearchWriteQueueR27.Batch completed = reconcileSettlements(w.ro, System.currentTimeMillis());
@@ -202,7 +222,7 @@ public final class ResearchEventBridgeR29 {
             if (!TargetIssueResolver.isValid(issue)) continue;
             StringBuilder state = new StringBuilder("R29_SHADOW_SETTLEMENT_V1|").append(issue);
             boolean draw = false;
-            try (Cursor c = db.rawQuery("SELECT n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue=? AND dirty=0", new String[] {issue})) {
+            try (Cursor c = ResearchRouteR29.realtimeForWriter(db).rawQuery("SELECT n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue=? AND dirty=0", new String[] {issue})) {
                 if (c.moveToFirst()) { int[] numbers=new int[10];for(int i=0;i<10;i++)numbers[i]=c.getInt(i);draw=ReplayDatasetR27.legal(numbers);for(int n:numbers)state.append('|').append(n); }
             }
             if (!draw) continue;
@@ -228,7 +248,8 @@ public final class ResearchEventBridgeR29 {
     public static Map<String,Object> diagnostics(SQLiteDatabase research) {
         Map<String,Object> m = new LinkedHashMap<>();
         m.put("meaning", "DELIVERED is not TRAINED; work remains PENDING without a real commit receipt");
-        m.put("databaseIsolation", "PENDING_R29_004");
+        m.put("databaseIsolation",ResearchRouteR29.isResearchDatabase(research)?"ACTIVE_R27_RESEARCH_FILE_LEGACY_R26_ADAPTER_PENDING":"ORIGINAL_OWNER_MIGRATION_PENDING");
+        m.put("pendingRealtimeRegistrations",QualificationInboxR29.count(research,"SELECT count(*) FROM r29_registration_request WHERE acked_at=0"));
         m.put("eventsDelivered", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_event_inbox"));
         m.put("modelPending", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_work WHERE consumer='ATOMNET_ONLINE' AND status='PENDING'"));
         m.put("modelCommitted", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_receipt WHERE consumer='ATOMNET_ONLINE'"));

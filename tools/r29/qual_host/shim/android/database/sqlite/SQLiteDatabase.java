@@ -9,7 +9,7 @@ import java.util.List;
 
 /** HOST shim (tools/r29/qual_host only): android.database.sqlite.SQLiteDatabase over sqlite-jdbc, binding rawQuery
  * arguments as strings exactly like Android does. Never packaged into the APK. */
-public class SQLiteDatabase {
+public class SQLiteDatabase implements java.io.Closeable {
     public final Connection jdbc;
     public SQLiteDatabase(Connection jdbc) { this.jdbc = jdbc; }
 
@@ -32,6 +32,12 @@ public class SQLiteDatabase {
         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
     }
     public boolean inTransaction() { try { return !jdbc.getAutoCommit(); } catch (java.sql.SQLException e) { return false; } }
+    public String getPath(){try{return jdbc.getMetaData().getURL().substring("jdbc:sqlite:".length());}catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}}
+    private boolean successful;
+    public void beginTransactionNonExclusive(){try{jdbc.setAutoCommit(false);successful=false;}catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}}
+    public void setTransactionSuccessful(){successful=true;}
+    public void endTransaction(){try{if(successful)jdbc.commit();else jdbc.rollback();jdbc.setAutoCommit(true);}catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}}
+    public void close(){try{jdbc.close();}catch(java.sql.SQLException e){throw new SQLiteException(e.getMessage());}}
 
     static final class Rows implements Cursor {
         final List<Object[]> rows; int at = -1;

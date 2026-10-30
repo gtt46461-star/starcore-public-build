@@ -18,7 +18,8 @@ final class ChartsRepositoryR27 {
     private ChartsRepositoryR27() {}
     static final String PAGE = "charts";
 
-    static List<Panel> load(SQLiteDatabase db, CancellationSignal cancel) {
+    static List<Panel> load(SQLiteDatabase original, CancellationSignal cancel) {
+        SQLiteDatabase db=com.ethk3.novaonepro.strategyv2.ResearchRouteR29.reader(original);
         List<Panel> out = new ArrayList<>();
         out.add(headline(db, cancel));
         for (String id : ChartCacheR27.PANELS) out.add(cached(db, cancel, id));

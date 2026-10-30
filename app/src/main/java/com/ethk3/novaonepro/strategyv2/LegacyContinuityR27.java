@@ -20,6 +20,7 @@ public final class LegacyContinuityR27 {
     public static final String KEY = "R26_LEGACY_RUNTIME", EQUIVALENT = SemanticAbiR27.EQUIVALENT, CHANGED = SemanticAbiR27.CHANGED;
 
     public static String decision(SQLiteDatabase db, String oldAbi, String newAbi) {
+        db=ResearchRouteR29.reader(db);
         try (Cursor c = db.rawQuery("SELECT result FROM r27_abi_continuity WHERE policy_hash=? AND old_build=? AND new_build=?", new String[] {KEY, oldAbi, newAbi})) {
             return c.moveToFirst() ? c.getString(0) : null;
         } catch (RuntimeException schemaPending) { return null; }

@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** R27 research runtime: the single owner of the R27 research tasks on ResearchPoolR27 (docs/02 2.4: new system is
- * the Owner; the R26 coordinator keeps the legacy R26 tasks on its own thread). Tasks:
+/** Research runtime. After verified database publication, the drained legacy dispatcher also registers its
+ * existing numerical tasks on this pool; its original VM/checkpoint storage stays retained. Tasks:
  * r27-replay-dataset, r27-evolution, r27-live, r27-atoms, r27-atomnet, r27-abi, r27-calibration, r27-chart-cache,
  * r27-legacy-export, r27-health. Every slice reports a WaitKindR27 reason through the pool. */
 public final class RuntimeR27 implements AutoCloseable {
@@ -36,12 +36,16 @@ public final class RuntimeR27 implements AutoCloseable {
     public static RuntimeR27 active() { return active; }
 
     public RuntimeR27(DbStore store, String session) {
+        this(store,session,null);
+    }
+    RuntimeR27(DbStore store,String session,RuntimeCoordinatorR26 legacy) {
         this.store = store;
         CooperativeContinuationR26.threadStartHook = () -> android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
         pool = new ResearchPoolR27(store, session, ResearchPoolR27.defaultThreads());
         pool.register(new EventTask()); pool.register(migration); pool.register(new DatasetTask()); pool.register(new LiveTask()); pool.register(new EvolutionTask()); pool.register(new AbiTask());
         pool.register(new AtomsTask()); pool.register(new AtomNetTask()); pool.register(new CalibrationTask()); pool.register(new ChartTask());
         pool.register(new LegacyExportTask()); pool.register(new HealthTask());
+        if(legacy!=null)pool.register(new LegacyCapabilityAdapterR29(legacy));
         active = this;
     }
     public void start() { pool.start(); }
@@ -58,7 +62,7 @@ public final class RuntimeR27 implements AutoCloseable {
     final class EventTask implements ResearchPoolR27.Task {
         public String id() { return "r29-event-inbox"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
-            try{return ResearchEventBridgeR29.deliver(w);}
+            try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w);return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
             catch(IllegalStateException busy){if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",0,-1);}
         }
     }
@@ -70,9 +74,15 @@ public final class RuntimeR27 implements AutoCloseable {
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             long now=System.currentTimeMillis();
             try {
+                if(ResearchRouteR29.active(w.realtimeRo())){
+                    if(stage!=null){stage.close();stage=null;}
+                    if(now-reported>=15_000){Map<String,Object> m=new LinkedHashMap<>();m.put("state","ACTIVE_INDEPENDENT_R27_RESEARCH");m.put("activeOwner",ResearchRouteR29.FILE_NAME);m.put("cutoverEnabled",true);m.put("routingRecoveryRequired",pool.routingRecoveryRequired());m.put("legacyR26Adapter","RESEARCH_POOL_PLUGIN_AFTER_DRAIN");m.put("legacyStateStorage","ORIGINAL_VM_AND_CHECKPOINT_OWNER_RETAINED");publish(w,m,now);}
+                    return ResearchPoolR27.Outcome.idle("ACTIVE_R27_DATABASE_LEGACY_VM_RETAINED",1,1);
+                }
                 if(stage==null)stage=ResearchDatabaseR29.acquire(store);
                 MigrationCopyR29.Result result=stage.step(store,w.realtimeRo());
                 long verified=stage.verifiedTables();
+                if(verified>0){String handoff=ResearchCutoverR29.run(store,w);if(handoff.startsWith("ACTIVE"))return ResearchPoolR27.Outcome.progress(1,verified);}
                 if(now-reported>=15_000||result.phase.startsWith("VERIFIED"))publish(w,stage.diagnostics(w.realtimeRo()),now);
                 if(result.phase.startsWith("IDLE"))return ResearchPoolR27.Outcome.idle("MIGRATION_CATCHUP_AND_READER_ROUTING_PENDING",verified,stage.tableCount());
                 if(result.phase.startsWith("SOURCE_CHANGED"))return ResearchPoolR27.Outcome.idle("WAITING_STABLE_SOURCE:"+result.table+":"+result.phase,verified,stage.tableCount());
@@ -82,7 +92,9 @@ public final class RuntimeR27 implements AutoCloseable {
                 return ResearchPoolR27.Outcome.idle("RESOURCE_LOW_STORAGE:MIGRATION_ONLY:"+blocked.getMessage(),0,-1);
             }catch(Exception failed){
                 if(ResearchWriteQueueR27.writerBusy(failed))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",stage==null?0:stage.verifiedTables(),-1);
-                Map<String,Object> m=new LinkedHashMap<>();m.put("state","FAILED_STAGE_COPY");m.put("reason",failed.getClass().getSimpleName()+":"+failed.getMessage());m.put("cutoverEnabled",false);m.put("activeOwner","ORIGINAL_DATABASE");m.put("repairCard","R29-004");
+                if(String.valueOf(failed.getMessage()).contains("BUDGET_YIELD"))return ResearchPoolR27.Outcome.idle("MIGRATION_YIELDED:"+failed.getMessage(),stage==null?0:stage.verifiedTables(),-1);
+                boolean switched=ResearchRouteR29.active(w.realtimeRo());
+                Map<String,Object> m=new LinkedHashMap<>();m.put("state",switched?"FAILED_ACTIVE_ROUTING_RECOVERY_REQUIRED":"FAILED_PREPARATION_ORIGINAL_OWNER_RETAINED");m.put("reason",failed.getClass().getSimpleName()+":"+failed.getMessage());m.put("cutoverEnabled",switched);m.put("activeOwner",switched?ResearchRouteR29.FILE_NAME:"ORIGINAL_DATABASE");m.put("repairCard","R29-004");
                 try{publish(w,m,now);}catch(Exception reportFailure){failed.addSuppressed(reportFailure);}throw failed;
             }
         }
@@ -221,12 +233,12 @@ public final class RuntimeR27 implements AutoCloseable {
         Object[][] controls = {{"CONTROL_I00", l.i00Champion, l.i00Tau}, {"CONTROL_NULL", l.nullEvolution.champion, l.nullEvolution.championTau}};
         for (Object[] c : controls) {
             final PolicySpecR27 spec = (PolicySpecR27) c[1]; if (spec == null) continue; final String status = (String) c[0];
-            boolean have; try (Cursor x = w.ro.rawQuery("SELECT 1 FROM r27_live_shadow WHERE status=?", new String[] {status})) { have = x.moveToFirst(); }
+            boolean have; try (Cursor x = w.ro.rawQuery("SELECT 1 FROM r27_live_shadow s LEFT JOIN r29_registration_request r ON r.experiment_id=s.policy_hash WHERE s.status=? OR (s.status=? AND r.desired_status=?)", new String[] {status,ExperimentRegistrationR29.PENDING,status})) { have = x.moveToFirst(); }
             if (have) continue;
             final double tau = (Double) c[2]; final String id = StatsR27.sha256(status + "|" + spec.policyHash());
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
             b.before = db -> { StoreR27.insertShadow(db, spec, tau, status + ":same-period negative control", semanticAbi(spec), id, spec.policyHash());
-                db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {status, id}); db.execSQL("UPDATE r27_eprocess SET state='CONTROL_NOT_ELIGIBLE' WHERE policy_hash=?", new Object[] {id}); return 0; };
+                ExperimentRegistrationR29.desiredStatus(db,id,status); db.execSQL("UPDATE r27_eprocess SET state='CONTROL_NOT_ELIGIBLE' WHERE policy_hash=?", new Object[] {id}); return 0; };
             submit(w, "LIVE_CONTROL", b);
         }
     }

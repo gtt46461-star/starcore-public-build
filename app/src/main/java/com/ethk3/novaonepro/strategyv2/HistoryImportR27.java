@@ -47,8 +47,13 @@ public final class HistoryImportR27 {
     }
 
     public static int retryQuarantined(DbStore store) {
-        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_RETRY_QUARANTINED", db -> {
-            int n = 0; try (Cursor c = db.rawQuery("SELECT count(*) FROM r26_task WHERE status='QUARANTINED'", null)) { if (c.moveToFirst()) n = c.getInt(0); }
-            db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED'"); return n; });
+        // Each owner retries its own rows. No transaction/lock spans the two files; repeating either half is safe.
+        int legacy=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_RETRY_LEGACY_QUARANTINED",db->retry(db,"lane<>'R27'"));
+        int research=ResearchRouteR29.write(store,"R29_RETRY_RESEARCH_QUARANTINED",db->retry(db,"lane='R27'"));
+        return legacy+research;
+    }
+    static int retry(SQLiteDatabase db,String owner){
+        int n=0;try(Cursor c=db.rawQuery("SELECT count(*) FROM r26_task WHERE status='QUARANTINED' AND "+owner,null)){if(c.moveToFirst())n=c.getInt(0);}
+        db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED' AND "+owner);return n;
     }
 }

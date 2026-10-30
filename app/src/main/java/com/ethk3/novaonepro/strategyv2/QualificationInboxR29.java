@@ -273,7 +273,9 @@ public final class QualificationInboxR29 {
             }
         }
         for (long[] k : known.values()) if (k[1] == 0) open = true;
-        if (open) b.add("UPDATE r29_pending_draw SET resolved_at=? WHERE resolved_at=0 AND EXISTS(SELECT 1 FROM draws d WHERE d.issue=r29_pending_draw.target_issue AND d.dirty=0)", now);
+        if (open) try(Cursor c=ro.rawQuery("SELECT target_ordinal FROM r29_pending_draw WHERE resolved_at=0 AND EXISTS(SELECT 1 FROM draws d WHERE d.issue=r29_pending_draw.target_issue AND d.dirty=0) ORDER BY target_ordinal LIMIT 128",null)){
+            while(c.moveToNext())b.add("UPDATE r29_pending_draw SET resolved_at=? WHERE target_ordinal=? AND resolved_at=0",now,c.getLong(0));
+        }
         return b;
     }
     public static final long PENDING_RECHECK_MS = 30_000L;

@@ -1,0 +1,291 @@
+{
+  "schema": "R29_CHANGE_LEDGER_1",
+  "batch": "B01-CUTOVER-07",
+  "baseline": "f9bdddb97291d9d96b5aba940b31d03369c220e2",
+  "since": "a2a66aa",
+  "cards": [
+    "R29-004",
+    "R29-005",
+    "R29-006",
+    "R29-007",
+    "R29-008",
+    "R29-038",
+    "R29-042",
+    "R29-044",
+    "R29-046"
+  ],
+  "reason": "Actual independent R27 database route and writer; typed cutover, preserved baseline, registration, versioned realtime projection, legacy dispatch handoff, paired report copies. Host core passes; Android/lifecycle/full legacy export pending. No whole-batch claim.",
+  "note": "Generated identity files are rebound by CI and excluded here. Hashes are bytes on disk at ledger time.",
+  "files": [
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R29DatabaseCutoverDeviceTest.java",
+      "before_sha256": null,
+      "after_sha256": "eefef13ff75b3967f4ebb470e1568430ba9b6a7bb2755a23b217e168135d4afa",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java",
+      "before_sha256": "4c4a44655ea73d7b2cece14c93ab786ce02de6ad70e24a28657efa71adc11b24",
+      "after_sha256": "9d8db02d8df38af9303299faa19c9850d409158795497d7fbe8b0780717d82b2",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR83.java",
+      "before_sha256": "3097ec677cb207e81e4655471b789d0cef286bd6481dd3e9d7de2eaaafa501aa",
+      "after_sha256": "a51607c864b755ec543637e84bc44787e68365cdb06877580989d8b7199ded33",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+      "before_sha256": "9b5059526e17aac490db08b7ee4d34bc648438eef57eedb66cf9b05820fb9862",
+      "after_sha256": "68e70a9965425f61cdef5864902de49acdf778f9b89c6be5ca7ca36da42f6211",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/r952/MatrixSourceRouterCP12.java",
+      "before_sha256": "0cb5cd37861f70c8b3458d21567d5d402f3d6356bb08d31ac1f65515418ac43f",
+      "after_sha256": "ad8e47da4a525705f252a7ed63f694b5a1e8460930f431d50244b783eed7fedf",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExperimentRegistrationR29.java",
+      "before_sha256": null,
+      "after_sha256": "286c60304af555c71f07a02dda9ac6e958a3d6af8926a41ca9b050246294ba3d",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java",
+      "before_sha256": "69d64fae0078083e5d93184928c7055d915c04c0b014b6523f9ccb12dfa55fd0",
+      "after_sha256": "d64eba624757fed9ee83973a9dd12c5320d61ca4aa24f02609ae8ba45e0e888c",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java",
+      "before_sha256": null,
+      "after_sha256": "b81f0cc9881560716dc66af281bd851ed2c09a27d59aea20a84d3ec022a488be",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+      "before_sha256": "68ca8270752a9c0781cdb6cbe68f0353123784a0bd03e118cb345486bc9742fb",
+      "after_sha256": "190004b2f623d5c9603bd65b59323f8e36e98def3f9ae1f3165a53678feb0047",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyReplayR26.java",
+      "before_sha256": "a6035a935a13bf33ad3b00eb7844d52ec7c85b9e20d5585d5bf4ed6328442da7",
+      "after_sha256": "cc2d12b6e44ef7d452ccccb8aaa2c13c860dc042083073c755cd70acdc75c900",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchTransferR29.java",
+      "before_sha256": null,
+      "after_sha256": "e33378b250fe6827a5cc529361b068114270f4e664acd61ef674df7447f608f1",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+      "before_sha256": "ef0fafe9b89fa5a5c7660f88a7b0aaa08b4c8a8b4f1e827402b1dd93d9e93d87",
+      "after_sha256": "8356fc13f1b0f221160359c7a987b810058cb740827cc87a3dbd1f84bd4b3f41",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+      "before_sha256": "a63ce4b4a6f215115f2c497d323a2f4a692617edf3092e4c23941bf06216c200",
+      "after_sha256": "d187a6fa281f2eabb57aaf2d24b379edc42c89652bb436cba8fecdd2d58aec0c",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MigrationCopyR29.java",
+      "before_sha256": null,
+      "after_sha256": "75452ec03f5c01bf2d3b6d8e76fb89d921d2fd8aea5683a39be36a65ae63a4cd",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java",
+      "before_sha256": null,
+      "after_sha256": "cbbf82301f731654697d0fd926aee4125a8b8d47214c4a4ea629ee27dbdc5c81",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealtimeResearchProjectionR29.java",
+      "before_sha256": null,
+      "after_sha256": "0967ef3653d46343dc5b5036a92c72455177636503dbc2f28ff793aa0136769c",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+      "before_sha256": "49caf0354b585af6a13a36b5c52705cec4db67b25f11039b0490232a0b8308cb",
+      "after_sha256": "c9045ce464bdaeaa732e465ade00565da77b085a30656675a3a91ad06fdd6db0",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+      "before_sha256": null,
+      "after_sha256": "16cca06fdf466c51ca76787e216ac40c55ec121eb341786ff956567ee5b41d0b",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java",
+      "before_sha256": null,
+      "after_sha256": "d25ca705ff068a148d6c3625f1fc4627610687af81f430ddfd0d3dd325d60f9a",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java",
+      "before_sha256": null,
+      "after_sha256": "06511131443f9690dc0dc02da0f36d2bbda1f603f52352b0f5df0e12e6f1d984",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+      "before_sha256": "ad65aad03879505b8003b0ec32add8261bf4f6f2b04813cd24c5ba239df00464",
+      "after_sha256": "9a58663b51d7c97c71907dbe74f4b6e6d23757d3a086782d87f35b1114b52443",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchReportSnapshotR29.java",
+      "before_sha256": null,
+      "after_sha256": "9eff34f8d7e570f8a2d25bcf0ddedbded99dd4d5f7233bea86cb343f338e1ec2",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRouteR29.java",
+      "before_sha256": null,
+      "after_sha256": "987c1412eb359d95139243c420105d2cba4dadd9d77c3188894c8c694b145c6a",
+      "action": "ADD"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+      "before_sha256": "cfbfaf710544d52ef058eb99fa57059dae90dea3c4b5cadc010aaf2bfcc0028a",
+      "after_sha256": "9b619980aefd5c64c8d1423a7bc9476f32568f62b670cf5057f59968af075992",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+      "before_sha256": "c6bac0fe38b2a5706ce5487c87b5e3e3abf4a001029ef22a01796e10e541f297",
+      "after_sha256": "c1210ed7ae42fdad556b42f212aff842d8924d958f8f05e9e322531231d171c4",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+      "before_sha256": "e30009d598973314a361223b25a6da2d7c42997f5d7ef04724dc500d3a46ee87",
+      "after_sha256": "27a782e7313b975a67ccce68d0b3b76252a1600b64145e36e44f9ef888962c90",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
+      "before_sha256": "44370b89876c9743a4b6667738ebe025d8d8209c8d9c45f31a4dabe845d057ff",
+      "after_sha256": "d8be73d98c0e047d3c82c2298c871aef2f69beef0ffd68762156b45dd2fceea4",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+      "before_sha256": "b028aa0b84b4899a9acd0af60593079c0c1335929ee3dd722e5771fe3a4dcba9",
+      "after_sha256": "99396fdf63cb25f6167b4d7ce4ed4fc9b61f8e37e4a878e0e8ee332930da951c",
+      "action": "MODIFY"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+      "before_sha256": "2a30ddb036774295c4cbf83db18abb205546eeab1264b60819a97ffd56b7a460",
+      "after_sha256": "b3aa47bc8b92b3e8690c025ffdded60d263a50b2f6026d31ad847ab822c03865",
+      "action": "MODIFY"
+    },
+    {
+      "path": "construction/r29/STATUS.md",
+      "before_sha256": null,
+      "after_sha256": "a8b5c68280b2719be4c120c72760e939c18913759826ea195c5fed15a08f3df3",
+      "action": "ADD"
+    },
+    {
+      "path": "construction/r29/cards.json",
+      "before_sha256": null,
+      "after_sha256": "2d017f7d5d797f0a62604a36a1881071046a26857b0a544985a82ff227b00e72",
+      "action": "ADD"
+    },
+    {
+      "path": "construction/r29/continuation.json",
+      "before_sha256": null,
+      "after_sha256": "60ab0fc64dcdefc0c73c14cfd7aef27ba361e5d7d90d57e2e372d2c666b12521",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/ci_build.sh",
+      "before_sha256": null,
+      "after_sha256": "8cd9c552df9f888d08239c3e83d963eb7ecb3487c85a2fd4135d28734273a070",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/emulator_integration.sh",
+      "before_sha256": null,
+      "after_sha256": "5dc4cd266c03681541ff296810bcfd0673a7885921a1a5023332eaf965ebdc11",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/CutoverR29HostTest.java",
+      "before_sha256": null,
+      "after_sha256": "2ef97380c750932d7bd55c5e778ce8ed955e17f094489a3db58c1eb0a933c9b1",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/OwnerR29HostTest.java",
+      "before_sha256": null,
+      "after_sha256": "87e0115f8291a142123b46af0c10803d84a0f3c2e56f69f2d1441e18b5ae6048",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/RegistrationR29HostTest.java",
+      "before_sha256": null,
+      "after_sha256": "fd1ccf060d9b5b95fdf24b28d3dd44d927450da733b90a5dad64dfb0b076bbae",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/ReportSnapshotR29HostTest.java",
+      "before_sha256": null,
+      "after_sha256": "bb6826305550bf58967c9c670ca0746cb690450dba264f6b3b357cad9abfb0a2",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+      "before_sha256": null,
+      "after_sha256": "72b6bfa3f237c55fbcf17e3667ddc6a361494795c6950480b6352896406afbb6",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/os/SystemClock.java",
+      "before_sha256": null,
+      "after_sha256": "6bfe0b433316dae9fe66583be563bbecd10b141c318e4923d9a9f2c3fc94f616",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/r29-integration.yml",
+      "before_sha256": null,
+      "after_sha256": "9ee1d30519ef5bfd06aa33f8d4ef98c12deaad1a8deb34429163cee78dbb7177",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/run_cutover_host.sh",
+      "before_sha256": null,
+      "after_sha256": "441960a584bc9912ab78bcb4ca3d06b7fbfcc41a2dd9d4579d468dc7519ce5f3",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/run_owner_host.sh",
+      "before_sha256": null,
+      "after_sha256": "cb2043d7d8fe33c227255cd3c8906a5797a8e42299183e568898d257e6cd3e3d",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/run_registration_host.sh",
+      "before_sha256": null,
+      "after_sha256": "51c6d55362895489a551999710210ea2bc98e8d41c4d21687bc8599e09f8813e",
+      "action": "ADD"
+    },
+    {
+      "path": "tools/r29/run_report_host.sh",
+      "before_sha256": null,
+      "after_sha256": "e7a4cad49a8866c51747075e708749e22bb110ba0c8a03a1ff1223cae43df796",
+      "action": "ADD"
+    }
+  ]
+}

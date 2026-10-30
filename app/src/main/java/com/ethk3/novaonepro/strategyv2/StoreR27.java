@@ -100,14 +100,11 @@ public final class StoreR27 {
         try (Cursor c = db.rawQuery("SELECT coalesce(max(global_index),0)+1 FROM r27_eprocess", null)) { if (c.moveToFirst()) index = Math.max(1, c.getLong(0)); }
         try (Cursor c = db.rawQuery("SELECT coalesce(max(global_index),0)+1 FROM r27_live_shadow", null)) { if (c.moveToFirst()) index = Math.max(index, c.getLong(0)); }
         long now = System.currentTimeMillis();
-        String latest = RuntimeR27.latestIssue(db);
-        if (latest == null) throw new IllegalStateException("R29_REGISTRATION_REQUIRES_CALENDAR");
-        long firstOrdinal = TargetIssueResolver.sequenceOrdinalSU1(latest) + 1;
-        db.execSQL("INSERT INTO r29_qual_calendar(experiment_id,first_ordinal,registered_at,origin) VALUES(?,?,?,'REGISTERED_BEFORE_FUTURE')",
-                new Object[] {id, firstOrdinal, now});
+        String canonicalSpec=spec.fullJson();
+        ExperimentRegistrationR29.request(db,id,index,StatsR27.sha256(canonicalSpec+"|"+semanticAbi+"|"+basePolicy),"ACTIVE",now);
         double rate = spec.rule == PolicySpecR27.Rule.QUANTILE || spec.rule == PolicySpecR27.Rule.RANDOM ? spec.rate : 0.15;
-        db.execSQL("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,?,'ACTIVE',?,?,?,-1,?,?)",
-                new Object[] {id, spec.fullJson(), tau, pack(new double[10]), index, reason, now, now, basePolicy, semanticAbi});
+        db.execSQL("INSERT INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,?,? ,?,?,?,-1,?,?)",
+                new Object[] {id, canonicalSpec, tau, pack(new double[10]), index, ExperimentRegistrationR29.PENDING, reason, now, now, basePolicy, semanticAbi});
         SequentialQualificationR27.State s = new SequentialQualificationR27.State(id, index, rate);
         db.execSQL("INSERT OR IGNORE INTO r27_eprocess(policy_hash,global_index,alpha,log_e_up,log_e_down,n,acts,hits,sum_u,sum_u2,last_ordinal,state,target_rate,updated_at) VALUES(?,?,?,0,0,0,0,0,0,0,-1,?,?,?)",
                 new Object[] {id, index, s.alpha, SequentialQualificationR27.ACCUMULATING, rate, now});

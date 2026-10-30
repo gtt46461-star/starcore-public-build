@@ -109,6 +109,7 @@ public final class MainlineBridgeSU2 {
         } catch (RuntimeException schemaPending) { return null; }
         if (choice == null || choice.startsWith("PRODUCTION_FALLBACK")) return null;
         long now = System.currentTimeMillis();
+        if(!RealtimeResearchProjectionR29.freshForIntent(db,choice,seq,now))return null;
         try (Cursor c = db.rawQuery(R27_INTENT_SQL, new String[] {choice, String.valueOf(seq), String.valueOf(now), SequentialQualificationR27.QUALIFIED})) {
             if (!c.moveToFirst() || !"FROZEN".equals(c.getString(6)) || c.getInt(4) != 1) return null; // MISSING / abstain is never turned into an action
             int position = c.getInt(0), n1 = c.getInt(1), n2 = c.getInt(2), n3 = c.getInt(3); double[] p = StoreR27.unpack(c.getBlob(5));

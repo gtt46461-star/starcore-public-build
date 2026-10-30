@@ -11,7 +11,8 @@ import java.util.Map;
 /** Read-only engineering diagnosis is available before natural confirmation has enough samples. */
 public final class ReportR29 {
     private ReportR29() {}
-    public static Map<String,Object> chapter(SQLiteDatabase db) {
+    public static Map<String,Object> chapter(SQLiteDatabase original) {
+        SQLiteDatabase db=ResearchRouteR29.reader(original);
         Map<String,Object> out=new LinkedHashMap<>(), snapshot=new LinkedHashMap<>();
         snapshot.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26); snapshot.put("capturedAt",System.currentTimeMillis());
         snapshot.put("timeRange",timeRange(db)); snapshot.put("session",null); snapshot.put("planCommit",BaselineIdentityR29.PLAN_COMMIT);

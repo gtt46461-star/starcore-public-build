@@ -36,13 +36,13 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     /** Per-thread context: read-only connection and cancellation. */
     public final class Worker {
-        public final SQLiteDatabase ro; public final String name;
-        Worker(SQLiteDatabase ro, String name) { this.ro = ro; this.name = name; }
+        public volatile SQLiteDatabase ro; public final String name;private final SQLiteDatabase realtime;
+        Worker(SQLiteDatabase ro,SQLiteDatabase realtime, String name) { this.ro = ro;this.realtime=realtime; this.name = name; }
         public boolean cancelled() { return closed || Thread.currentThread().isInterrupted(); }
         public ResearchWriteQueueR27 writes() { return writes; }
         public DbStore store() { return store; }
         /** Realtime source for the outbox; the R29-004 cutover will give this a distinct read-only connection. */
-        public SQLiteDatabase realtimeRo() { return ro; }
+        public SQLiteDatabase realtimeRo() { return realtime; }
         public ResearchPoolR27 pool() { return ResearchPoolR27.this; }
     }
 
@@ -50,6 +50,9 @@ public final class ResearchPoolR27 implements AutoCloseable {
     private final List<Task> tasks = new ArrayList<>(); private final Map<String, Boolean> running = new HashMap<>();
     private final Map<String, Long> notBefore = new HashMap<>();
     private final List<Thread> threads = new ArrayList<>(); private final List<SQLiteDatabase> connections = new ArrayList<>();
+    private final List<Worker> workers = new ArrayList<>();
+    private final java.util.concurrent.atomic.AtomicBoolean migrationPause=new java.util.concurrent.atomic.AtomicBoolean();
+    private volatile boolean routingRecoveryRequired;
     private volatile boolean closed; private volatile String resource;
     private volatile int parallelismLimit = 2; private volatile String thermalReason = "NORMAL";
     private final AtomicInteger active = new AtomicInteger();
@@ -77,10 +80,12 @@ public final class ResearchPoolR27 implements AutoCloseable {
     public void start() {
         String path = store.contextForR26().getDatabasePath(AppConfig.DB_NAME).getPath();
         for (int i = 0; i < size; i++) {
-            SQLiteDatabase ro = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+            SQLiteDatabase ro = ResearchRouteR29.openWorkerReader(store.contextForR26());
+            SQLiteDatabase realtime=SQLiteDatabase.openDatabase(path,null,SQLiteDatabase.OPEN_READONLY);
             try (Cursor c = ro.rawQuery("PRAGMA query_only=1", null)) { c.moveToFirst(); } catch (RuntimeException ignored) { }
-            connections.add(ro);
-            final Worker w = new Worker(ro, "starcore-r27-research-" + i);
+            try(Cursor c=realtime.rawQuery("PRAGMA query_only=1",null)){c.moveToFirst();}
+            connections.add(ro);connections.add(realtime);
+            final Worker w = new Worker(ro,realtime, "starcore-r27-research-" + i);workers.add(w);
             Thread t = new Thread(() -> loop(w), w.name); t.setDaemon(true); threads.add(t); t.start();
         }
     }
@@ -91,12 +96,13 @@ public final class ResearchPoolR27 implements AutoCloseable {
         long slices = 0;
         while (!closed) {
             try {
-                if (resource != null) { sleep(500); continue; }
+                if (resource != null||migrationPause.get()||routingRecoveryRequired) { sleep(100); continue; }
                 // Freeze guard: the last 3 s before a deadline run with one active research worker (not zero).
                 // R27.2: the same one-worker floor while P0 analysis/settlement runs (device: request→commit P95 20.5 s with
                 // MODEL_BUNDLE_OPEN 10.6 s wall / 0.13 s CPU while every worker ran). Research never drops to zero.
                 int limit = narrow(System.currentTimeMillis()) ? 1 : Math.min(size, parallelismLimit);
                 if (!ResearchSlotsR29.tryEnter(active, limit)) { sleep(100); continue; }
+                if(migrationPause.get()){active.decrementAndGet();sleep(10);continue;}
                 Task t;
                 try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
                 if (t == null) { active.decrementAndGet(); sleep(250); continue; }
@@ -108,11 +114,12 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     }
                     if (!quarantined) o = t.step(w);
                 } catch (Throwable e) { failure = e; }
-                finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
-                if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
-                slices++;
-                record(t.id(), o, failure);
-                if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : 1000)); }
+                try {
+                    if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
+                    slices++;
+                    record(t.id(), o, failure);
+                    if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : 1000)); }
+                } finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
             } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
             long now = SystemClock.elapsedRealtime();
             if (now - flushed > 15_000) { flushCpu(w.name, android.os.Debug.threadCpuTimeNanos() - cpuStart, now - wallStart, slices); flushed = now; }
@@ -140,7 +147,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
         WaitKindR27.Wait wait = WaitKindR27.classify(o == null ? 0 : o.units, o == null ? null : o.reason, failure, o == null ? 0 : o.cursor, o == null ? -1 : o.latest, resource, false);
         final long now = System.currentTimeMillis(); final String stack = failure == null ? null : stack(failure);
         try {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_TASK_RECEIPT", db -> {
+            ResearchRouteR29.write(store,"R27_TASK_RECEIPT", db -> {
                 db.execSQL("INSERT OR IGNORE INTO r26_task(task_id,lane,mechanism,status,registered_at) VALUES(?,'R27',?,'READY',?)", new Object[] {id, id, now});
                 if (failure != null) {
                     long ws = 0, cnt = 0;
@@ -166,17 +173,17 @@ public final class ResearchPoolR27 implements AutoCloseable {
 
     /** Manual retry from the UI: clears a quarantine. */
     public static void retry(DbStore store, String taskId) {
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_TASK_RETRY", db -> { db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0 WHERE task_id=? AND lane='R27'", new Object[] {taskId}); return 0; });
+        ResearchRouteR29.write(store,"R27_TASK_RETRY", db -> { db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0 WHERE task_id=? AND lane='R27'", new Object[] {taskId}); return 0; });
     }
     public boolean quarantined(String id) {
-        try (Cursor c = store.readable().rawQuery("SELECT 1 FROM r26_task WHERE task_id=? AND status=?", new String[] {id, WaitKindR27.QUARANTINED})) { return c.moveToFirst(); }
+        try (Cursor c = ResearchRouteR29.reader(store.readable()).rawQuery("SELECT 1 FROM r26_task WHERE task_id=? AND status=?", new String[] {id, WaitKindR27.QUARANTINED})) { return c.moveToFirst(); }
         catch (RuntimeException e) { return false; }
     }
 
     private void flushCpu(String thread, long cpuNs, long wallMs, long slices) {
         final long cpu = cpuNs / 1_000_000L, now = System.currentTimeMillis();
         try {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_THREAD_CPU", db -> {
+            ResearchRouteR29.write(store,"R27_THREAD_CPU", db -> {
                 db.execSQL("INSERT OR IGNORE INTO r27_thread_cpu(session_id,thread_name,updated_at) VALUES(?,?,?)", new Object[] {session, thread, now});
                 db.execSQL("UPDATE r27_thread_cpu SET cpu_ms=?,wall_ms=?,slices=?,updated_at=? WHERE session_id=? AND thread_name=?", new Object[] {cpu, wallMs, slices, now, session, thread});
                 return 0;
@@ -199,5 +206,21 @@ public final class ResearchPoolR27 implements AutoCloseable {
         connections.clear();
     }
     public boolean isClosed() { return closed; }
+    /** Called by the migration task, which itself holds one active slot. P0 is never paused or locked here. */
+    public boolean beginCutover(long budgetMs) {
+        if(!migrationPause.compareAndSet(false,true))return false;
+        long end=SystemClock.elapsedRealtime()+Math.min(5000,Math.max(1,budgetMs));
+        while(active.get()>1&&!closed&&SystemClock.elapsedRealtime()<end){if(Thread.currentThread().isInterrupted())break;sleep(10);}
+        if(closed||active.get()>1||Thread.currentThread().isInterrupted()){migrationPause.set(false);return false;}return true;
+    }
+    public void reloadResearchReaders(){
+        if(!migrationPause.get()||active.get()>1)throw new IllegalStateException("R29_READER_RELOAD_REQUIRES_QUIESCENCE");
+        List<SQLiteDatabase> replacements=new ArrayList<>();
+        try{for(Worker worker:workers)replacements.add(ResearchRouteR29.openWorkerReader(store.contextForR26()));}
+        catch(RuntimeException failed){for(SQLiteDatabase ro:replacements)ro.close();routingRecoveryRequired=true;throw new IllegalStateException("R29_ROUTING_RESTART_RECOVERY_REQUIRED",failed);}
+        for(int i=0;i<workers.size();i++){Worker worker=workers.get(i);SQLiteDatabase old=worker.ro;worker.ro=replacements.get(i);connections.remove(old);connections.add(worker.ro);old.close();}
+    }
+    public boolean routingRecoveryRequired(){return routingRecoveryRequired;}
+    public void endCutover(){migrationPause.set(false);}
     public String session() { return session; }
 }

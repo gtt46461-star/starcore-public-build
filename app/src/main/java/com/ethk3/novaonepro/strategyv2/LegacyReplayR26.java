@@ -101,7 +101,7 @@ public final class LegacyReplayR26 {
             // Re-key the retained checkpoint manifest to the continuing roster so warm resume keeps the weights.
             db.execSQL("UPDATE r26_checkpoint_artifact SET policy_hash=? WHERE checkpoint_hash=? AND policy_hash=?",new Object[]{"LEGACY:"+desired,r.checkpoint,"LEGACY:"+r.roster});
             LegacyContinuityR27.recordMintedRoster(db,r.checkpoint,r.roster);
-            if(!LegacyContinuityR27.EQUIVALENT.equals(decision))db.execSQL("INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,'ABI_REBIRTH','ABI_REBIRTH',-1,?,'R26_LEGACY')",new Object[]{"LEGACY:"+desired,"LEGACY:"+r.roster,System.currentTimeMillis()});
+            if(!LegacyContinuityR27.EQUIVALENT.equals(decision))LegacyResearchTransferR29.lineage(db,"LEGACY:"+desired,"LEGACY:"+r.roster,System.currentTimeMillis());
             return 0;});
         working=null;active=null;claims.get().reason("COOPERATIVE_R27_ABI_"+decision+"_WEIGHTS_CONTINUE_NO_EVIDENCE_TRANSFER");return 1;
     }

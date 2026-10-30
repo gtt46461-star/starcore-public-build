@@ -205,6 +205,9 @@ public final class ReportExportServiceCP4 extends Service {
                     sync(snapshot);job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();
                     journal.transition(job,ReportJobJournalCP12.Stage.SNAPSHOT_DURABLE,System.currentTimeMillis());
                 }
+                active.enter("RESEARCH_FRAME",120000);
+                com.ethk3.novaonepro.strategyv2.ResearchReportSnapshotR29.prepare(this,snapshot,directory,SQLITE_BACKUP_BUDGET,active);
+                job.snapshotSha=ReportArchiveCP4.hash(snapshot,active);job.snapshotBytes=snapshot.length();journal.checkpoint(job,System.currentTimeMillis());
                 active.enter("INDEXING",120000);journal.transition(job,ReportJobJournalCP12.Stage.INDEXING,System.currentTimeMillis());
                 File memberInput=new File(directory,"members-unsorted-"+job.attempt+".jsonl");ReportCatalogCP4.Result catalog;
                 try(FileOutputStream fd=new FileOutputStream(memberInput);Writer members=new BufferedWriter(new OutputStreamWriter(fd,StandardCharsets.UTF_8),8192);
@@ -225,6 +228,7 @@ public final class ReportExportServiceCP4 extends Service {
                         File scope = ReportDiagnosticEvidenceR64.write(copy, directory, job.snapshotSha, active);
                         ReportMemberPlanCP12.append(members,scope.getName(),scope.getName(),ReportArchiveCP4.hash(scope,active),scope.length());
                     }
+                    File researchFrame=new File(directory,"R29_SNAPSHOT_FRAME.json");if(researchFrame.isFile())ReportMemberPlanCP12.append(members,researchFrame.getName(),researchFrame.getName(),ReportArchiveCP4.hash(researchFrame,active),researchFrame.length());
                     File inventory=ReportDiagnosticEvidenceR64.writeFileInventory(getFilesDir().getParentFile(),directory,active);
                     // R13-P31: byte census by category on the first page of every report
                     File census=new File(directory,"STORAGE_CENSUS.txt");try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(census),StandardCharsets.UTF_8)){w.write(StorageCensusSU2.measure(getFilesDir().getParentFile()).line());w.write('\n');}
@@ -277,7 +281,8 @@ public final class ReportExportServiceCP4 extends Service {
                 journal.transition(job,ReportJobJournalCP12.Stage.VERIFYING,System.currentTimeMillis());publish(job,journal,directory,archive,active);journal.acknowledge(job.requestId,job);
             } catch(Throwable error) {
                 Thread.interrupted();String reason=active.stopReason.isEmpty()?classify(error):active.stopReason;job.lastReason=reason;
-                if(reason.equals("REPORT_USER_CANCEL"))journal.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
+                if(reason.equals("REPORT_RESEARCH_FRAME_RETRY")){job.snapshotSha="";job.resumeStage="BACKUP";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}
+                else if(reason.equals("REPORT_USER_CANCEL"))journal.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
                 else if(reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED")){job.preemptions++;job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";if(job.preemptions>30){job.lastReason="REPORT_PREEMPTION_LIMIT";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}else{journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}}
                 else if(isRetryable(reason)&&++job.failureAttempts<3){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}
                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}

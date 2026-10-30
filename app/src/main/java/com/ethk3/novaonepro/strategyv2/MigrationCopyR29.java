@@ -43,6 +43,12 @@ public final class MigrationCopyR29 {
     public static boolean ownedResearch(String table) {
         return table != null && table.matches("r(?:27|29)_[a-z0-9_]+")
                 && !table.equals("r29_event_outbox") && !table.equals("r29_source_watermark")
+                && !table.equals("r29_registration_authority")
+                && !table.equals("r29_database_route")
+                && !table.equals("r29_scheduler_owner")
+                // The legacy checkpoint decoder needs its minted identity synchronously on its own owner.
+                && !table.equals("r27_legacy_roster_alias")
+                && !table.equals("r29_migration_publication") && !table.equals("r29_projection_applied") && !table.equals("r29_research_heartbeat")
                 && !table.equals("r27_fetch_reject") && !table.equals("r27_chart_cache");
     }
 

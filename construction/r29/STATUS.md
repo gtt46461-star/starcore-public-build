@@ -41,3 +41,7 @@ B00（R29-001—003）已实施并通过本地HOST检查：基线身份（设备
 恢复命令：git clone --branch construction/r29-20261029 https://github.com/gtt46461-star/starcore-public-build.git && cd starcore-public-build
 
 构建：见 .github/workflows/r29.yml。只有已提交源码才允许构建交付；APK与源码来源、签名、文件hash在 delivery.json 对应。
+
+2026-10-30 CP07 / B01 实际源码集成（尚未验收）：ResearchRouteR29/ResearchCutoverR29 已实现独立库、独立 writer、类型/rowid/行 hash 复核、保留原表和封存基线、发布路由与重启校验；ExperimentRegistrationR29 将首次未来期交给实时 Owner；RealtimeResearchProjectionR29 投递带 epoch/revision 的证书/冻结/状态投影，旧投影不能覆盖撤销；旧任务通过 LegacyCapabilityAdapterR29 在路由发布且旧切片排空后移交 ResearchPool，原 VM/学习状态 Owner 保留。图表及报告读取已接入，报告合并两份私有副本并校验水位，取消会回滚副本事务。HOST 新增注册14项、类型复制/投影14项、调度/旧消息12项、报告9项通过；这不是 Android 冷启动/切库/真机通过。R29DatabaseCutoverDeviceTest 和不发布 APK 的集成 CI 已加入，待运行。旧能力完整清单/导出、剩余 B02—B10 仍未闭环，Gate V2 未启用，工程/质量/主链均不宣称完成。
+
+保留真实失败：默认 exec 的 Gradle socket 初始化被平台阻止，批准流程重试已进入 Gradle；随后仓库 R997_UNCOMMITTED_BUILD_INPUTS_RELEASE_BLOCKED 要求先提交构建输入，尚未进入完整编译。两份日志见 evidence/r29/checkpoint07/failed。首次143项JUnit的1失败及其H15修复记录继续保留；不得把定向通过改写为完整套件通过。

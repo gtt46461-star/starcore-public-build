@@ -53,6 +53,13 @@ public final class SchemaR27 {
         ResearchEventBridgeR29.RESEARCH_DDL[2], ResearchEventBridgeR29.RESEARCH_DDL[3],
         ResearchEventBridgeR29.RESEARCH_DDL[4], ResearchEventBridgeR29.RESEARCH_DDL[5],
         ResearchEventBridgeR29.RESEARCH_DDL[6],
+        ExperimentRegistrationR29.AUTHORITY,
+        ResearchRouteR29.ROUTE_DDL,
+        LegacyCapabilityAdapterR29.DDL,
+        ResearchCutoverR29.PUBLICATION,
+        RealtimeResearchProjectionR29.REALTIME_DDL[0],RealtimeResearchProjectionR29.REALTIME_DDL[1],
+        ExperimentRegistrationR29.AUTHORITY_GUARDS[0],ExperimentRegistrationR29.AUTHORITY_GUARDS[1],
+        ExperimentRegistrationR29.RESEARCH_DDL[0],ExperimentRegistrationR29.RESEARCH_DDL[1],ExperimentRegistrationR29.RESEARCH_DDL[2],ExperimentRegistrationR29.RESEARCH_DDL[3],
         // R29-010/035: contiguous qualification receipts, conflicts, rebuild log, cursor, pending draws (additive).
         QualificationInboxR29.DDL[0], QualificationInboxR29.DDL[1], QualificationInboxR29.DDL[2], QualificationInboxR29.DDL[3], QualificationInboxR29.DDL[4],
         QualificationInboxR29.DDL[5],

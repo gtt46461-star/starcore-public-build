@@ -19,7 +19,7 @@ public final class ResearchWriteQueueR27 {
 
     public ResearchWriteQueueR27(DbStore store) {
         this.store = store; this.critical = ResearchWriteQueueR27::p0Writing;
-        this.writer = (operation, batch) -> store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(
+        this.writer = (operation, batch) -> ResearchRouteR29.write(store,
                 "R27_" + operation, db -> { execute(db, batch, operation); return 0; });
     }
     // Same production submit path with a transactional test sink, without an Android process/DbStore.
@@ -98,7 +98,7 @@ public final class ResearchWriteQueueR27 {
         if (hourStart == 0 || store == null) return;
         final long h = hourStart, s = submits, w = longWaits, m = maxWait, r = requeues;
         try {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R27_WRITE_WAIT", db -> {
+            ResearchRouteR29.write(store,"R27_WRITE_WAIT", db -> {
                 // minSdk 21: no UPSERT (SQLite < 3.24 on old devices).
                 db.execSQL("INSERT OR IGNORE INTO r27_write_wait(hour_start) VALUES(?)", new Object[] {h});
                 db.execSQL("UPDATE r27_write_wait SET submits=?,waits_over_200ms=?,max_wait_ms=max(max_wait_ms,?),requeues=? WHERE hour_start=?", new Object[] {s, w, m, r, h});

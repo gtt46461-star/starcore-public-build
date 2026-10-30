@@ -202,7 +202,7 @@ public final class LiveShadowsR27 {
                     b.add("UPDATE r27_live_shadow SET status='ABI_CHANGED_EVIDENCE_FROZEN',reason=?,updated_at=? WHERE policy_hash=?", "first diff " + r.firstDiffIssue + " " + r.firstDiffField, t, s.id);
                     b.add("INSERT OR IGNORE INTO r27_lineage(child_hash,parent_hash,role,operator,generation,created_at,origin) VALUES(?,?,'ABI_REBIRTH','ABI_REBIRTH',-1,?,'R27_LIVE')", child, s.id, t);
                     b.before = db -> { StoreR27.insertShadow(db, sh.spec, sh.tau, "ABI_REBIRTH from " + sh.id, rt.semanticAbi(sh.spec), child, sh.spec.policyHash());
-                        if (!"ACTIVE".equals(sh.status)) db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {sh.status, child}); return 0; };
+                        if (!"ACTIVE".equals(sh.status)) ExperimentRegistrationR29.desiredStatus(db,child,sh.status); return 0; };
                 }
             }
             RuntimeR27.submit(w, "SEMANTIC_ABI", b); units++;

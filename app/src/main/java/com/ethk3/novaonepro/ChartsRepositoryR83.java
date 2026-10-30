@@ -23,7 +23,8 @@ final class ChartsRepositoryR83 {
     static final double BREAK_EVEN = AppConfig.MISS_LOSS / (AppConfig.WIN_NET_PROFIT + AppConfig.MISS_LOSS);
     private ChartsRepositoryR83() {}
 
-    static List<Panel> load(SQLiteDatabase db, CancellationSignal cancel) {
+    static List<Panel> load(SQLiteDatabase original, CancellationSignal cancel) {
+        SQLiteDatabase db=com.ethk3.novaonepro.strategyv2.ResearchRouteR29.reader(original);
         List<Panel> out = new ArrayList<>();
         int position = latestPosition(db, cancel);
         List<String> drawIssues = new ArrayList<>();
