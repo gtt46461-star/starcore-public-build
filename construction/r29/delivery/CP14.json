@@ -1,0 +1,193 @@
+{
+  "schema": "R29_CHECKPOINT_DELIVERY_1",
+  "draft": true,
+  "checkpoint": "checkpoint14",
+  "batch": "B01",
+  "sourceFrozen": true,
+  "sourceCommit": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "observedSnapshot": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "implementationCommit": "9547f160dfd82a4144c39da8d8566c0d8326e58d",
+  "versionGeneratedCommit": "9547f160dfd82a4144c39da8d8566c0d8326e58d",
+  "qaCommit": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "sourceTree": "a47a330e51f504cc5739e70133d95e3aad5a2ce2",
+  "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
+  "overall": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+  "engineeringAccepted": false,
+  "expectedVersion": {
+    "package": "com.starcore.research.r13",
+    "versionCode": 577291014,
+    "versionName": "R29.1-2026.10.30-checkpoint14"
+  },
+  "runs": {
+    "nativeTen": {
+      "run": 41140356745,
+      "job": 124352855666,
+      "status": "RUNNING_EXACT_CP14_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140356745"
+    },
+    "r13SecureBuild": {
+      "run": 41140358757,
+      "job": 124352862151,
+      "status": "RUNNING_EXACT_CP14_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140358757"
+    },
+    "fullAppDiagnostic": {
+      "run": 41140361579,
+      "job": 124352871245,
+      "status": "RUNNING_EXACT_CP14_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140361579"
+    },
+    "r27SecureBuild": {
+      "run": 41140363464,
+      "job": 124352877686,
+      "status": "RUNNING_EXACT_CP14_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41140363464"
+    }
+  },
+  "canonicalSavedWrapper": {
+    "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+    "sourceCommit": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+    "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY",
+    "duration": "5m8s",
+    "junit": {
+      "xml": 32,
+      "tests": 164,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "oldestMtimeUtc": "2026-10-30T22:50:30.750800+00:00"
+    },
+    "semanticMutations": 8,
+    "lintTasks": [
+      "> Task :app:lintAnalyzeReleaseUnitTest",
+      "> Task :app:lintAnalyzeRelease",
+      "> Task :app:lintReportRelease UP-TO-DATE"
+    ],
+    "lintFreshReportClaim": false,
+    "lintExplanation": "Analyze executed; UP_TO_DATE report reused. Fresh CI lint audited separately.",
+    "canonicalLogSha256": "9cb52a91f820bc27b5540400f13339462e479de86a98a13b911a17929909394e",
+    "offlineProtocolQA": 44,
+    "offlineSmokeOrchestration": 10,
+    "offlineLogs": "evidence/r29/batch01/cp14-repair-host/",
+    "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+    "B01": "NOT_ACCEPTED"
+  },
+  "fullCiExpectedHost": 52,
+  "nativeExpectedCases": 10,
+  "hostRepair": {
+    "receipt": "evidence/r29/batch01/cp14-repair-host/summary.json",
+    "receiptSha256": "930b9ba6efdce3f32f760bf393d24e9486e452c94258f080cc2de39b8a64a395",
+    "status": "PASS_SELECTED_HOST_AND_OFFLINE_ANDROID_PENDING",
+    "positiveChecks": {
+      "schemaBudget": 11,
+      "predrawCapture": 13,
+      "originalIncumbentAndAudit": 27,
+      "durableHandoff": 20,
+      "historicalAckRecovery": 19,
+      "originalPublicationResume": 43,
+      "originalEventYield": 22,
+      "originalEventProtocol": 18,
+      "protocolOfflineQA": 44,
+      "smokeOrchestration": 10
+    },
+    "negativeControls": {
+      "handoffOld84Proof": "sealedRootphasebusyretry allowsRootACK64/RPInbox0 andRootModel2/RPModel1;actualsameH0assertrejects",
+      "predrawProof": "ActualTaskContinuation/DbStore/PIT5000 with explicit600ms HOST read waits;13PASS+old84capacityguardfails;notuniqueAndroidrootcauseproof",
+      "rawFailureEvidence": "SHA_BOUND_IN_REPAIR_RECEIPT"
+    },
+    "scope": "HOST_REAL_SQLITE_AND_OFFLINE_ORCHESTRATION_NOT_OS_KILL_NOT_PHYSICAL_NOT_NATURAL_QUALITY"
+  },
+  "thresholdsUnchanged": {
+    "fullAppWaitMs": 180000,
+    "legacySchemaServiceMs": 60000,
+    "firstServiceMs": 60000,
+    "schemaCapacityMs": 2000,
+    "continuationCapacityMs": 1040
+  },
+  "protocolOfflineQaExpected": 44,
+  "smokeOfflineQaExpected": 10,
+  "expectedUnitTests": 164,
+  "expectedSemanticMutations": 8,
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "apk": [],
+  "sourceBinding": "construction/r29/delivery/CP14.source-binding.json",
+  "ledgerDraft": "construction/r29/ledger/B01-CP14.json",
+  "callChainsDraft": "construction/r29/delivery/CP14.call_chains.json",
+  "priorAttempt": "construction/r29/delivery/CP13.json",
+  "priorCP13Actual": {
+    "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+    "overall": "FAILED_NATIVE_SCHEMA_UPGRADE_INCUMBENT_CLEAN_EVENT_PROTOCOL_AND_BOTH_SIGNER_QA",
+    "runs": {
+      "nativeTen": {
+        "run": 41134808870,
+        "job": 124334523256,
+        "status": "FAIL_ACTUAL_9_OF10_ORIGINAL_SCHEMA60S_TARGET",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134808870",
+        "artifact": 13017001855,
+        "zipSha256": "41af05b94aa89809e88786fa42a8b96538212860d7626f0932389961599bd88b",
+        "evidence": "evidence/r29/batch01/failed/native-84c360e0/summary.json"
+      },
+      "r13SecureBuild": {
+        "run": 41134811941,
+        "job": 124334533814,
+        "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134811941",
+        "artifact": 13016621228,
+        "zipSha256": "b5ead99247959cf1a94a24eacaf3c327fb1b41818708ec5a511fbd99064c9df9",
+        "completedAtUtc": "2026-10-30T22:05:41Z",
+        "evidence": "evidence/r29/batch01/failed/ci-r13-84c360e0/summary.json"
+      },
+      "fullAppDiagnostic": {
+        "run": 41134814694,
+        "job": 124334541766,
+        "status": "FAIL_ACTUAL_UPGRADE_AND_INDEPENDENT_CLEAN",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134814694",
+        "artifact": 13016341854,
+        "zipSha256": "1edc8cb5e68eed5d3526d61683f32a7b0cdc73f87ac7997c9bfa192849d4924d",
+        "evidence": "evidence/r29/batch01/failed/app-84c360e0/summary.json"
+      },
+      "r27SecureBuild": {
+        "run": 41134817452,
+        "job": 124334551774,
+        "status": "FAIL_OFFLINE_QA_3_SHELL_EXTRACTION_FIXTURE_ERRORS",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41134817452",
+        "artifact": 13016370994,
+        "zipSha256": "834997730ca8bd06b9201869cf623e35609496b72e980ddf29a64231538f632b",
+        "completedAtUtc": "2026-10-30T22:04:07Z",
+        "evidence": "evidence/r29/batch01/failed/ci-r27-84c360e0/summary.json"
+      }
+    },
+    "native": "9_PASS_1_FAIL_SCHEMA60141MS_ABOVE60000",
+    "wholeAppUpgrade": "FAIL_INCUMBENT_UNSLICED_ONE_INCIDENT_COPIED_TO_ROOT_AND_RP",
+    "wholeAppClean": "FAIL_ROOT_ACK64_WITHOUT_MATCHING_RP_INBOX",
+    "bothSignerQa": "FAIL_41_PASS_3_EXTRACTION_FIXTURE_FAILURES_QA44",
+    "laterCiChecks": "NOT_STARTED_IN_FAILED_SIGNER_JOBS",
+    "officialSignedApk": "NOT_PRODUCED_BY_FAILED_CP13_SIGNER_JOBS",
+    "formalFour": "NOT_STARTED",
+    "acceptanceInheritedToCP14": false
+  },
+  "priorPassesMayAcceptCurrentSource": false,
+  "latestAcceptedDelivery": "construction/r29/delivery/CP06.json",
+  "acceptedBatches": [
+    "B00"
+  ],
+  "acceptedCards": [
+    "R29-001",
+    "R29-002",
+    "R29-003"
+  ],
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "all44Metrics": "NOT_CLAIMED",
+  "historicalRecoveryBoundaries": {
+    "pendingPublication": "Historical pending publication without durable fence or advancedRootresearch recordsRECOVERY_REQUIRED,keepsRoot/oldsealedbytes;noautomaticrebase",
+    "acknowledgedMissingInbox": "ExactRootpayload/hashvalidation,RPdedup/worktransactionbeforeRootACKhistorycursor;nofakelearningreceipt/noRootACKclear",
+    "allHistoricalStatesAutomaticallyRecovered": false
+  }
+}
