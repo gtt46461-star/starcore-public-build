@@ -1,0 +1,25 @@
+R29_EXPERT_SNAPSHOT|MEASURED|EMPTY_E07|completedMs=26|modelledRootRwLeaseMs=1500
+R29_EXPERT_SNAPSHOT|X1_EMPTY_E07_ACTUAL_CONTINUATION_HAS_NO_FAKE_PROGRESS|OK
+R29_EXPERT_SNAPSHOT|X2_EMPTY_E07_PURE_SNAPSHOT_QUERIES_NEVER_LEASE_ROOT_RW_POOL|OK
+Exception in thread "main" java.lang.AssertionError: ROUTE_PROBE_BORROWED_BLOCKED_ROOT_RW_POOL
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.routeProbeWhileHeld(ExpertSnapshotReaderR29HostTest.java:55)
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.main(ExpertSnapshotReaderR29HostTest.java:66)
+Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.capacityFailure(CooperativeContinuationR26.java:39)
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.routeProbeWhileHeld(ExpertSnapshotReaderR29HostTest.java:53)
+	... 1 more
+	Suppressed: java.lang.IllegalStateException: R26_UNSLICED_WORKER_DIAGNOSTIC|thread=starcore-r26-expert-E12-route-probe|state=WAITING|sinceLastPollMs=1040|criticalDepth=0|lastPublishedWorkerCpuMs=0
+		at java.base@17.0.21/jdk.internal.misc.Unsafe.park(Native Method)
+		at java.base@17.0.21/java.util.concurrent.locks.LockSupport.park(LockSupport.java:211)
+		at java.base@17.0.21/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:715)
+		at java.base@17.0.21/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:938)
+		at java.base@17.0.21/java.util.concurrent.locks.ReentrantLock$Sync.lock(ReentrantLock.java:153)
+		at java.base@17.0.21/java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:322)
+		at app//com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest$Primary.rawQuery(ExpertSnapshotReaderR29HostTest.java:23)
+		at app//com.ethk3.novaonepro.strategyv2.ResearchRouteR29.active(ResearchRouteR29.java:29)
+		at app//com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.lambda$routeProbeWhileHeld$4(ExpertSnapshotReaderR29HostTest.java:51)
+		at app//com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest$$Lambda$104/0x00007f7c14035c38.call(Unknown Source)
+		at app//com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:53)
+		at app//com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$Lambda$83/0x00007f7c14031a60.run(Unknown Source)
+		at java.base@17.0.21/java.lang.Thread.run(Thread.java:840)

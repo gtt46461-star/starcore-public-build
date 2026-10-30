@@ -1,0 +1,25 @@
+Exception in thread "main" java.lang.AssertionError: WARM_CONTINUATION_BORROWED_BLOCKED_ROOT_RW_POOL
+	at com.ethk3.novaonepro.strategyv2.ContinuationObservationR29HostTest.whileHeld(ContinuationObservationR29HostTest.java:34)
+	at com.ethk3.novaonepro.strategyv2.ContinuationObservationR29HostTest.main(ContinuationObservationR29HostTest.java:66)
+Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.capacityFailure(CooperativeContinuationR26.java:39)
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)
+	at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.step(TaskContinuationR26.java:20)
+	at com.ethk3.novaonepro.strategyv2.ContinuationObservationR29HostTest.continuation(ContinuationObservationR29HostTest.java:40)
+	at com.ethk3.novaonepro.strategyv2.ContinuationObservationR29HostTest.lambda$main$5(ContinuationObservationR29HostTest.java:66)
+	... 2 more
+	Suppressed: java.lang.IllegalStateException: R26_UNSLICED_WORKER_DIAGNOSTIC|thread=starcore-r26-warm-candidates|state=WAITING|sinceLastPollMs=1030|criticalDepth=0|lastPublishedWorkerCpuMs=0
+		at java.base@17.0.21/jdk.internal.misc.Unsafe.park(Native Method)
+		at java.base@17.0.21/java.util.concurrent.locks.LockSupport.park(LockSupport.java:211)
+		at java.base@17.0.21/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:715)
+		at java.base@17.0.21/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:938)
+		at java.base@17.0.21/java.util.concurrent.locks.ReentrantLock$Sync.lock(ReentrantLock.java:153)
+		at java.base@17.0.21/java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:322)
+		at app//com.ethk3.novaonepro.strategyv2.ContinuationObservationR29HostTest$Primary.rawQuery(ContinuationObservationR29HostTest.java:25)
+		at app//com.ethk3.novaonepro.strategyv2.WarmCandidateR26.parent(WarmCandidateR26.java:30)
+		at app//com.ethk3.novaonepro.strategyv2.WarmCandidateR26.step(WarmCandidateR26.java:57)
+		at app//com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$7(TaskContinuationR26.java:18)
+		at app//com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$Lambda$80/0x00007fc0b0034a70.call(Unknown Source)
+		at app//com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:53)
+		at app//com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$Lambda$84/0x00007fc0b0035530.run(Unknown Source)
+		at java.base@17.0.21/java.lang.Thread.run(Thread.java:840)

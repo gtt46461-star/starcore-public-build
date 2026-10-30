@@ -11,7 +11,7 @@
   "qaCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
   "sourceTree": "c98045907d07352701349777e7e031b464d2f22f",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
-  "overall": "FAILED_UPGRADE_RECOVERY_REQUIRED_NATIVE10_AND_CLEAN_PASS_SIGNERS_PENDING",
+  "overall": "FAILED_UPGRADE_RECOVERY_REQUIRED_NATIVE10_CLEAN_AND_BOTH_SIGNED_BUILDS_PASS",
   "engineeringAccepted": false,
   "expectedVersion": {
     "package": "com.starcore.research.r13",
@@ -32,8 +32,14 @@
     "r13SecureBuild": {
       "run": 41143253308,
       "job": 124362281568,
-      "status": "RUNNING_EXACT_CP15_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143253308"
+      "status": "SUCCESS_BUILD_PUBLIC_RELEASE_IDENTITY_INDEPENDENTLY_VERIFIED_NOT_INSTALL_ACCEPTED",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143253308",
+      "artifact": 13020467576,
+      "completedAtUtc": "2026-10-30T23:42:03Z",
+      "evidence": "evidence/r29/batch01/validated-51cca638/r13-public-identity/summary.json",
+      "ciEvidence": "evidence/r29/batch01/validated-51cca638/r13-ci/summary.json",
+      "wholeWorkflowSuccessClaimed": false,
+      "extraAutoEmulatorJobAtCapture": 124371152433
     },
     "fullAppDiagnostic": {
       "run": 41143255308,
@@ -48,8 +54,10 @@
     "r27SecureBuild": {
       "run": 41143256925,
       "job": 124362292645,
-      "status": "RUNNING_EXACT_CP15_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143256925"
+      "status": "SUCCESS_BUILD_PUBLIC_RELEASE_IDENTITY_INDEPENDENTLY_VERIFIED_NOT_INSTALL_ACCEPTED",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143256925",
+      "completedAtUtc": "2026-10-30T23:41:11Z",
+      "evidence": "evidence/r29/batch01/validated-51cca638/r27-public-identity/summary.json"
     }
   },
   "canonicalSavedWrapper": {
@@ -114,7 +122,67 @@
     "r27-debug": "NOT_STARTED",
     "r27-release": "NOT_STARTED"
   },
-  "apk": [],
+  "apk": [
+    {
+      "sourceCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+      "signer": "ORIGINAL_R13",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291015-51cca638e3dd/STARCORE-R29.1-51cca638e3dd-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint15-R13-release.apk",
+      "sha256": "2270660da4f6d64b5775c6ad6dbeb089c28070c0c7388a7baa481f0e90b2f2d0",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "versionCode": 577291015,
+      "versionName": "R29.1-2026.10.30-checkpoint15",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP15_WARM_UPGRADE_FAILED_RECOVERY_REQUIRED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41143253308,
+        "job": 124362281568,
+        "status": "success",
+        "completedAtUtc": "2026-10-30T23:42:03Z"
+      },
+      "sourceTreeFromActualBuildLogVerified": "c98045907d07352701349777e7e031b464d2f22f",
+      "ciEvidence": "evidence/r29/batch01/validated-51cca638/r13-ci/summary.json",
+      "wholeWorkflowSuccessClaimed": false,
+      "extraAutoEmulatorJobAtCapture": 124371152433,
+      "evidence": "evidence/r29/batch01/validated-51cca638/r13-public-identity/summary.json"
+    },
+    {
+      "sourceCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+      "signer": "EXISTING_R27",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP15-R27-51cca638e3dd/STARCORE-R29.1-51cca638e3dd-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint15-R27-release.apk",
+      "sha256": "6c9d203963db8899fb16f48af5620fbc84a26f3dbf7d5174952dcef38158f669",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "versionCode": 577291015,
+      "versionName": "R29.1-2026.10.30-checkpoint15",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP15_UPGRADE_FAILED_RECOVERY_REQUIRED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "sourceTreeFromActualBuildLogVerified": "c98045907d07352701349777e7e031b464d2f22f",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41143256925,
+        "job": 124362292645,
+        "status": "success",
+        "completedAtUtc": "2026-10-30T23:41:11Z"
+      },
+      "ciArtifactXmlIndependentlyRecounted": false,
+      "ciArtifactNotDownloadedReason": "Combined artifact35645972B exceeds32MiB tool limit. Completed exact-source fail-fast CI job and public APK identity verified; direct R13 HOST/XML audit separate.",
+      "evidence": "evidence/r29/batch01/validated-51cca638/r27-public-identity/summary.json"
+    }
+  ],
   "sourceBinding": "construction/r29/delivery/CP15.source-binding.json",
   "ledgerDraft": "construction/r29/ledger/B01-CP15.json",
   "callChainsDraft": "construction/r29/delivery/CP15.call_chains.json",
@@ -251,7 +319,7 @@
     "naturalQuality": "INSUFFICIENT",
     "real": "BLOCKED"
   },
-  "overallMeaning": "Exact51 native10/10 and independent whole-App clean pass. CP06 warm upgrade stops at RENAMED with no route after durable guard detectsRoot research progress after seal; no automatic rebase or acceptance. Signer receipts separate pending; B01 and formal matrix not accepted.",
+  "overallMeaning": "Exact51 native10 and independent clean pass; both signed build jobs/public identities pass, R13 directly audited53HOST/164JUnit/8semantic/44QA/10smoke/CLI/freshlint. Warm CP06 upgrade remains RENAMED/no route dueRoot research advancement after sealing. No inherited pass, auto-rebase or formal installation acceptance; B01 not accepted.",
   "fullAppActual": {
     "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
     "source": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
@@ -339,5 +407,89 @@
     "physical": "NOT_RUN",
     "naturalQuality": "INSUFFICIENT",
     "real": "BLOCKED"
+  },
+  "signedReleaseIdentityAudits": {
+    "R27": {
+      "sourceCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+      "signer": "EXISTING_R27",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP15-R27-51cca638e3dd/STARCORE-R29.1-51cca638e3dd-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint15-R27-release.apk",
+      "sha256": "6c9d203963db8899fb16f48af5620fbc84a26f3dbf7d5174952dcef38158f669",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "versionCode": 577291015,
+      "versionName": "R29.1-2026.10.30-checkpoint15",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP15_UPGRADE_FAILED_RECOVERY_REQUIRED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "sourceTreeFromActualBuildLogVerified": "c98045907d07352701349777e7e031b464d2f22f",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41143256925,
+        "job": 124362292645,
+        "status": "success",
+        "completedAtUtc": "2026-10-30T23:41:11Z"
+      },
+      "ciArtifactXmlIndependentlyRecounted": false,
+      "ciArtifactNotDownloadedReason": "Combined artifact35645972B exceeds32MiB tool limit. Completed exact-source fail-fast CI job and public APK identity verified; direct R13 HOST/XML audit separate.",
+      "evidence": "evidence/r29/batch01/validated-51cca638/r27-public-identity/summary.json"
+    },
+    "R13": {
+      "sourceCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+      "signer": "ORIGINAL_R13",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291015-51cca638e3dd/STARCORE-R29.1-51cca638e3dd-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint15-R13-release.apk",
+      "sha256": "2270660da4f6d64b5775c6ad6dbeb089c28070c0c7388a7baa481f0e90b2f2d0",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "versionCode": 577291015,
+      "versionName": "R29.1-2026.10.30-checkpoint15",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP15_WARM_UPGRADE_FAILED_RECOVERY_REQUIRED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41143253308,
+        "job": 124362281568,
+        "status": "success",
+        "completedAtUtc": "2026-10-30T23:42:03Z"
+      },
+      "sourceTreeFromActualBuildLogVerified": "c98045907d07352701349777e7e031b464d2f22f",
+      "ciEvidence": "evidence/r29/batch01/validated-51cca638/r13-ci/summary.json",
+      "wholeWorkflowSuccessClaimed": false,
+      "extraAutoEmulatorJobAtCapture": 124371152433,
+      "evidence": "evidence/r29/batch01/validated-51cca638/r13-public-identity/summary.json"
+    }
+  },
+  "r13ActualCi": {
+    "source": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "artifact": 13020467576,
+    "hostDirectRunners": 53,
+    "junitXml": 32,
+    "junitTests": 164,
+    "junitFailures": 0,
+    "junitErrors": 0,
+    "junitSkipped": 0,
+    "semanticMutationChecks": 8,
+    "offlineQa": 44,
+    "smokeOrchestrationDirectChecks": 10,
+    "cliChecks": [
+      21,
+      20,
+      32
+    ],
+    "lintNewIssues": 0,
+    "lintExistingBaselineFiltered": 51,
+    "lintUnmatchedBaselineEntries": 7,
+    "freshCiLint": true,
+    "evidence": "evidence/r29/batch01/validated-51cca638/r13-ci/summary.json"
   }
 }
