@@ -47,6 +47,8 @@ public final class LegacySnapshotR29HostTest {
             }finally{Files.deleteIfExists(file);Files.deleteIfExists(directory);}
         }
         try(SQLiteDatabase research=new SQLiteDatabase(java.sql.DriverManager.getConnection("jdbc:sqlite::memory:"))){
+            research.execSQL(ResearchRouteR29.OWNER_DDL);
+            research.execSQL("INSERT INTO r29_research_owner VALUES(1,'READY','schema','root',1,1)");
             research.execSQL("CREATE TABLE r26_task(task_id TEXT PRIMARY KEY,lane TEXT,mechanism TEXT)");
             research.execSQL("CREATE TABLE r26_evolution(attempt_id TEXT PRIMARY KEY)");
             EventBridgeR29HostTest.tx(research,()->SchemaR27.ensureResearch(research),false);
