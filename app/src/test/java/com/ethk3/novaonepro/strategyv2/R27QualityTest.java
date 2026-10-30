@@ -146,6 +146,34 @@ public final class R27QualityTest {
         return reviewed.replace(readHook,"    public SQLiteDatabase readable() {\n        return coordinator.readable();\n    }");
     }
 
+    // Full reviewed DbStore bytes AFTER removing the earlier delivery/scoped-read hooks. This additional
+    // pin fixes the locations of the 77 SELECT receivers; a matching count cannot authorize moved hooks.
+    static final String DBSTORE_OBSERVATION_REVIEWED_SHA="6968e719da9ef583fb5a2e61aa4599f8eccebe12459bdfb567bb0e59d9ddf368";
+    static String withoutR29ObservationHooks(String source){
+        String helper="    /** SELECT-only getters use a separate Root pool so a new RW reader cannot checkpoint WAL\n"
+                +"     * while holding Root's shared pool monitor. Existing research scopes retain their RP route;\n"
+                +"     * the coordinator keeps the original handle for current-thread transactions and own writes. */\n"
+                +"    private SQLiteDatabase observationReaderR29() {\n"
+                +"        return com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.readable(\n"
+                +"                this, coordinator.realtimeReadOnlyR29());\n"
+                +"    }\n\n";
+        assertEquals("exact reviewed independent observation helper",1,source.split(java.util.regex.Pattern.quote(helper),-1).length-1);
+        String reviewed=source.replace(helper,"");
+        assertEquals("exact reviewed SELECT receiver count",77,reviewed.split(java.util.regex.Pattern.quote("observationReaderR29()"),-1).length-1);
+        return reviewed.replace("observationReaderR29()","readable()");
+    }
+
+    static void observationShapeMustReject(String description,String source){
+        boolean rejected=false;try{withoutR29ObservationHooks(withoutR29DrawDeliveryHooks(source));}catch(AssertionError expected){rejected=true;}
+        assertTrue("negative control: "+description,rejected);
+    }
+
+    static void changedObservationOwnerMustRemainPinned(String description,String source,String originalOwnerHash){
+        String delivery=withoutR29DrawDeliveryHooks(source);
+        assertNotEquals("negative control: "+description+" escaped exact reviewed extension pin",DBSTORE_OBSERVATION_REVIEWED_SHA,StatsR27.sha256(delivery));
+        assertNotEquals("negative control: "+description+" escaped original main-chain owner pin",originalOwnerHash,StatsR27.sha256(withoutR29ObservationHooks(delivery)));
+    }
+
     static String withoutReviewedSu2ProjectionHook(String source){
         String hook="        if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){\n            if(!com.ethk3.novaonepro.strategyv2.LegacyAuthorityProjectionR29.verifySu2(db,proof,compiled.selected.action))throw new IllegalStateException(\"SU2_EXACT_COMMIT_ACTION_OR_AUTHORITY_CHANGED\");return;\n        }\n";
         assertEquals("exact reviewed SU2 proof validation hook",1,source.split(java.util.regex.Pattern.quote(hook),-1).length-1);
@@ -156,15 +184,28 @@ public final class R27QualityTest {
 
     @Test public void h15MainlineRedLines() throws Exception {
         File root = R27TestSupport.root();
-        // 1. Pin every owner; DbStore's exact delivery/scoped-read hooks are the sole explicit extensions.
+        // 1. Preserve every original owner pin; DbStore's reviewed delivery/read receivers are exact extensions.
         for (String[] f : MAINLINE_OWNERS) {
             byte[] bytes=Files.readAllBytes(new File(root,f[0]).toPath());
             if(f[0].endsWith("/DbStore.java")) {
                 String src=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
-                bytes=withoutR29DrawDeliveryHooks(src).getBytes(java.nio.charset.StandardCharsets.UTF_8);
-                assertNotEquals("negative control: altered main-chain owner escaped guard",f[1],StatsR27.sha256(withoutR29DrawDeliveryHooks(src.replace("R914_DRAW_SAVE_ATOMIC","UNAUTHORIZED_DRAW_OWNER"))));
+                String delivery=withoutR29DrawDeliveryHooks(src);
+                assertEquals("exact reviewed DbStore observation extension",DBSTORE_OBSERVATION_REVIEWED_SHA,StatsR27.sha256(delivery));
+                bytes=withoutR29ObservationHooks(delivery).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                changedObservationOwnerMustRemainPinned("altered R914 business owner",src.replace("R914_DRAW_SAVE_ATOMIC","UNAUTHORIZED_DRAW_OWNER"),f[1]);
                 boolean rejectedRead=false;try{withoutR29DrawDeliveryHooks(src.replace("readable(this,coordinator.readable())","readable(this,coordinator.writable())"));}catch(AssertionError expected){rejectedRead=true;}
                 assertTrue("negative control: altered research-read hook must be rejected",rejectedRead);
+                observationShapeMustReject("observation helper using shared Root RW pool",src.replace("this, coordinator.realtimeReadOnlyR29());","this, coordinator.readable());"));
+                String missing=src.replaceFirst("observationReaderR29\\(\\)(?=\\s*\\.query\\()","readable()");
+                assertNotEquals(src,missing);observationShapeMustReject("missing observation receiver",missing);
+                observationShapeMustReject("extra observation receiver",src+"\nobservationReaderR29();\n");
+                String moved=missing.replaceFirst("SQLiteDatabase db = readable\\(\\);","SQLiteDatabase db = observationReaderR29();");
+                assertNotEquals(missing,moved);
+                assertNotEquals("negative control: same-count moved receiver escaped reviewed locations",DBSTORE_OBSERVATION_REVIEWED_SHA,StatsR27.sha256(withoutR29DrawDeliveryHooks(moved)));
+                String changedSql=src.replace(" WHERE dirty=0 ORDER BY issue DESC, open_time DESC, _id DESC LIMIT "," WHERE dirty=1 ORDER BY issue DESC, open_time DESC, _id DESC LIMIT ");
+                assertNotEquals(src,changedSql);changedObservationOwnerMustRemainPinned("reviewed getter SQL change",changedSql,f[1]);
+                String changedDml=src.replaceFirst("return readDraw\\(c\\);","coordinator.writable().execSQL(\"DELETE FROM draws\"); return readDraw(c);");
+                assertNotEquals(src,changedDml);changedObservationOwnerMustRemainPinned("DML injected into reviewed getter",changedDml,f[1]);
             }
             if(f[0].endsWith("/CertifiedPredictionR974.java")){
                 String src=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);bytes=withoutReviewedSu2ProjectionHook(src).getBytes(java.nio.charset.StandardCharsets.UTF_8);
