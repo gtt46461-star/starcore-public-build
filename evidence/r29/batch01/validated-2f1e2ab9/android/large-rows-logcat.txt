@@ -1,0 +1,652 @@
+--------- beginning of main
+10-30 19:51:07.350  2352  2352 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 19:51:07.352  2352  2352 I AndroidRuntime: Using default boot image
+10-30 19:51:07.352  2352  2352 I AndroidRuntime: Leaving lock profiling enabled
+10-30 19:51:07.353  2352  2352 I app_process: Core platform API reporting enabled, enforcing=false
+10-30 19:51:07.353  2352  2352 I app_process: Using CollectorTypeCC GC.
+10-30 19:51:07.389  2352  2352 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+10-30 19:51:07.394  2352  2352 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+10-30 19:51:07.394  2352  2352 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+10-30 19:51:07.397  2352  2352 W app_process: Unexpected CPU variant for x86: x86_64.
+10-30 19:51:07.397  2352  2352 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 19:51:07.406  2352  2352 W libc    : Access denied finding property "ro.product.name_for_attestation"
+10-30 19:51:07.406  2352  2352 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+10-30 19:51:07.406  2352  2352 W libc    : Access denied finding property "ro.product.model_for_attestation"
+10-30 19:51:07.407  2352  2352 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+10-30 19:51:07.408  2352  2352 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+10-30 19:51:07.409   506   895 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: start instr
+10-30 19:51:07.404  2352  2352 W main    : type=1400 audit(0.0:25): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 19:51:07.410   506   895 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10141; state: DISABLED
+10-30 19:51:07.410   506   534 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: DISABLED
+10-30 19:51:07.404  2352  2352 W main    : type=1400 audit(0.0:26): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 19:51:07.415   327   327 D Zygote  : Forked child process 2366
+10-30 19:51:07.416   506   534 I ActivityManager: Start proc 2366:com.starcore.research.r13/u0a141 for added application com.starcore.research.r13
+10-30 19:51:07.404  2352  2352 W main    : type=1400 audit(0.0:27): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 19:51:07.434  2366  2366 I re.research.r13: Late-enabling -Xcheck:jni
+10-30 19:51:07.442  2366  2366 I re.research.r13: Using CollectorTypeCC GC.
+10-30 19:51:07.442  2366  2366 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+10-30 19:51:07.442  2366  2366 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 19:51:07.444   403   418 I adbd    : jdwp connection from 2366
+10-30 19:51:07.465  2366  2366 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10141; state: DISABLED
+10-30 19:51:07.465  2366  2366 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10141; state: DISABLED
+10-30 19:51:07.467  2366  2366 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+10-30 19:51:07.468  2366  2366 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 19:51:07.469  2366  2366 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 19:51:07.469  2366  2366 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 19:51:07.469  2366  2366 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 19:51:07.470  2366  2366 W ziparchive: Unable to open '/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.dm': No such file or directory
+10-30 19:51:07.470  2366  2366 W ziparchive: Unable to open '/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.dm': No such file or directory
+10-30 19:51:07.495  2366  2366 W ziparchive: Unable to open '/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.dm': No such file or directory
+10-30 19:51:07.495  2366  2366 W ziparchive: Unable to open '/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.dm': No such file or directory
+10-30 19:51:07.577  2366  2366 D nativeloader: Configuring clns-6 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/lib/x86_64:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/lib/x86_64:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!/lib/x86_64:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+10-30 19:51:07.581  2366  2366 V GraphicsEnvironment: Currently set values for:
+10-30 19:51:07.581  2366  2366 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+10-30 19:51:07.581  2366  2366 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+10-30 19:51:07.581  2366  2366 V GraphicsEnvironment: ANGLE GameManagerService for com.starcore.research.r13: false
+10-30 19:51:07.581  2366  2366 V GraphicsEnvironment: com.starcore.research.r13 is not listed in per-application setting
+10-30 19:51:07.581  2366  2366 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+10-30 19:51:07.583  2366  2366 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 19:51:07.584  2366  2366 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/lib/x86_64:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 19:51:07.584  2366  2366 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 19:51:07.585  2366  2366 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/lib/x86_64:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 19:51:07.585  2366  2366 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk*1157052425:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes2.dex*2667455589:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes3.dex*1285823943:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes4.dex*3374714009:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes5.dex*1793014874:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk*712613643:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes2.dex*62506294:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes3.dex*3620994607:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 19:51:07.586  2366  2366 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk*1157052425:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes2.dex*2667455589:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes3.dex*1285823943:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes4.dex*3374714009:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes5.dex*1793014874:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk*712613643:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes2.dex*62506294:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes3.dex*3620994607:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 19:51:07.586  2366  2366 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk*1157052425:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes2.dex*2667455589:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes3.dex*1285823943:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes4.dex*3374714009:/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.apk!classes5.dex*1793014874:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk*712613643:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes2.dex*62506294:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes3.dex*3620994607:/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 19:51:07.587  2366  2366 W ziparchive: Unable to open '/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.dm': No such file or directory
+10-30 19:51:07.587  2366  2366 W ziparchive: Unable to open '/data/app/~~TGT23FOAWGZ12aG039O8tw==/com.starcore.research.r13.test-ofwSSyr32rEejYe0Y9oDeQ==/base.dm': No such file or directory
+10-30 19:51:07.611  2366  2366 W ziparchive: Unable to open '/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.dm': No such file or directory
+10-30 19:51:07.611  2366  2366 W ziparchive: Unable to open '/data/app/~~DUVST02e7mZg_tgsLrPDww==/com.starcore.research.r13--JJZCJ8hN_h8tJEEjAiDhg==/base.dm': No such file or directory
+10-30 19:51:07.698  2366  2366 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+10-30 19:51:07.709  2366  2366 I AndroidJUnitRunner: onCreate Bundle[{class=com.ethk3.novaonepro.strategyv2.R29LargeRowMigrationDeviceTest}]
+10-30 19:51:07.709  2366  2366 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+10-30 19:51:07.714  2366  2366 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+10-30 19:51:07.714  2366  2388 D AndroidJUnitRunner: onStart is called.
+10-30 19:51:07.718   506  1068 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10141. pid: 2366
+10-30 19:51:07.732  2366  2388 I TestRunner: run started: 1 tests
+10-30 19:51:07.733  2366  2388 I TestRunner: started: fullTypedMigrationChunksLargeRowsWithoutChangingStateOrHashes(com.ethk3.novaonepro.strategyv2.R29LargeRowMigrationDeviceTest)
+10-30 19:51:08.083  2366  2388 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT payload,note FROM r29_large_rows WHERE id=-37
+10-30 19:51:08.779   506   533 I ActivityManager: reportOnUserCompletedEvent(0): stored=10, eligible=111
+10-30 19:51:08.780   506   533 D SystemServerTimingAsync: ssm.CompletedEventUser-0
+10-30 19:51:08.780   506   533 I SystemServiceManager: Calling onCompletedEventUser 0
+10-30 19:51:08.780   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.Installer
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.Installer took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.os.DeviceIdentifiersPolicyService
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.os.DeviceIdentifiersPolicyService took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.uri.UriGrantsManagerService$Lifecycle
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.uri.UriGrantsManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.powerstats.PowerStatsService
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.powerstats.PowerStatsService took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.permission.access.AccessCheckingService
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.permission.access.AccessCheckingService took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wm.ActivityTaskManagerService$Lifecycle
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wm.ActivityTaskManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.am.ActivityManagerService$Lifecycle
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.am.ActivityManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.DataLoaderManagerService
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.DataLoaderManagerService took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.power.PowerManagerService
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.power.PowerManagerService took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.power.ThermalManagerService
+10-30 19:51:08.781   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.power.ThermalManagerService took to complete: 0ms
+10-30 19:51:08.781   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.power.hint.HintManagerService
+10-30 19:51:08.782   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.power.hint.HintManagerService took to complete: 0ms
+10-30 19:51:08.782   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.recoverysystem.RecoverySystemService$Lifecycle
+10-30 19:51:08.782   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.recoverysystem.RecoverySystemService$Lifecycle took to complete: 0ms
+10-30 19:51:08.782   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.lights.LightsService
+10-30 19:51:08.782   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.lights.LightsService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.display.DisplayManagerService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.display.DisplayManagerService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.verify.domain.DomainVerificationService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.verify.domain.DomainVerificationService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.PackageInstallerService$Lifecycle
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.PackageInstallerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.UserManagerService$LifeCycle
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.UserManagerService$LifeCycle took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.om.OverlayManagerService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.om.OverlayManagerService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.resources.ResourcesManagerService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.resources.ResourcesManagerService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.sensorprivacy.SensorPrivacyService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.sensorprivacy.SensorPrivacyService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.sensors.SensorService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.sensors.SensorService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.SystemConfigService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.SystemConfigService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.BatteryService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.BatteryService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.usage.UsageStatsService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.usage.UsageStatsService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.webkit.WebViewUpdateService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.webkit.WebViewUpdateService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.CachedDeviceStateService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.CachedDeviceStateService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.BinderCallsStatsService$LifeCycle
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.BinderCallsStatsService$LifeCycle took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.LooperStatsService$Lifecycle
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.LooperStatsService$Lifecycle took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.rollback.RollbackManagerService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.rollback.RollbackManagerService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.os.NativeTombstoneManagerService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.os.NativeTombstoneManagerService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.os.BugreportManagerService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.os.BugreportManagerService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.gpu.GpuService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.gpu.GpuService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.rkp.RemoteProvisioningService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.rkp.RemoteProvisioningService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.cpu.CpuMonitorService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.cpu.CpuMonitorService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.KeyChainSystemService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.KeyChainSystemService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.BinaryTransparencyService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.BinaryTransparencyService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.telecom.TelecomLoaderService
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.telecom.TelecomLoaderService took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.accounts.AccountManagerService$Lifecycle
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.accounts.AccountManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.content.ContentService$Lifecycle
+10-30 19:51:08.783   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.content.ContentService$Lifecycle took to complete: 0ms
+10-30 19:51:08.783   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.deviceconfig.DeviceConfigInit$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.deviceconfig.DeviceConfigInit$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.DropBoxManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.DropBoxManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.role.RoleService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.role.RoleService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.vibrator.VibratorManagerService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.vibrator.VibratorManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.tare.InternalResourceService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.tare.InternalResourceService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.alarm.AlarmManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.alarm.AlarmManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.devicestate.DeviceStateManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.devicestate.DeviceStateManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.camera.CameraServiceProxy
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.bluetooth.BluetoothService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.bluetooth.BluetoothService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.connectivity.IpConnectivityMetrics
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.connectivity.IpConnectivityMetrics took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.net.watchlist.NetworkWatchlistService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.net.watchlist.NetworkWatchlistService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.PinnerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.PinnerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.integrity.AppIntegrityManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.integrity.AppIntegrityManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.logcat.LogcatManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.logcat.LogcatManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.inputmethod.InputMethodManagerService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.inputmethod.InputMethodManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.accessibility.AccessibilityManagerService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.accessibility.AccessibilityManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.StorageManagerService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.StorageManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.usage.StorageStatsService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.usage.StorageStatsService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.UiModeManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.UiModeManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.locales.LocaleManagerService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.locales.LocaleManagerService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.grammaticalinflection.GrammaticalInflectionService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.grammaticalinflection.GrammaticalInflectionService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.apphibernation.AppHibernationService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.apphibernation.AppHibernationService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.locksettings.LockSettingsService$Lifecycle
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.locksettings.LockSettingsService$Lifecycle took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.testharness.TestHarnessModeService
+10-30 19:51:08.784   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.testharness.TestHarnessModeService took to complete: 0ms
+10-30 19:51:08.784   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.DeviceIdleController
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.DeviceIdleController took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.devicepolicy.DevicePolicyManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.devicepolicy.DevicePolicyManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.texttospeech.TextToSpeechManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.texttospeech.TextToSpeechManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.ambientcontext.AmbientContextManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.ambientcontext.AmbientContextManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wearable.WearableSensingManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wearable.WearableSensingManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.speech.SpeechRecognitionManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.speech.SpeechRecognitionManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.searchui.SearchUiManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.searchui.SearchUiManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.smartspace.SmartspaceManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.smartspace.SmartspaceManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.graphics.fonts.FontManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.graphics.fonts.FontManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.textservices.TextServicesManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.textservices.TextServicesManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.textclassifier.TextClassificationManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.textclassifier.TextClassificationManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.NetworkScoreService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.NetworkScoreService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.NetworkStatsServiceInitializer
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.NetworkStatsServiceInitializer took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wifi.WifiService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wifi.WifiService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wifi.scanner.WifiScanningService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wifi.scanner.WifiScanningService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wifi.p2p.WifiP2pService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wifi.p2p.WifiP2pService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.ConnectivityServiceInitializer
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.ConnectivityServiceInitializer took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.notification.NotificationManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.notification.NotificationManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.storage.DeviceStorageMonitorService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.storage.DeviceStorageMonitorService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.timedetector.TimeDetectorService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.timedetector.TimeDetectorService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.location.LocationManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.location.LocationManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.timezonedetector.TimeZoneDetectorService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.timezonedetector.TimeZoneDetectorService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.location.altitude.AltitudeService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.location.altitude.AltitudeService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.timezonedetector.location.LocationTimeZoneManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.timezonedetector.location.LocationTimeZoneManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.search.SearchManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.search.SearchManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wallpaper.WallpaperManagerService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wallpaper.WallpaperManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wallpapereffectsgeneration.WallpaperEffectsGenerationManagerService
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.wallpapereffectsgeneration.WallpaperEffectsGenerationManagerService took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.audio.AudioService$Lifecycle
+10-30 19:51:08.785   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.audio.AudioService$Lifecycle took to complete: 0ms
+10-30 19:51:08.785   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.soundtrigger_middleware.SoundTriggerMiddlewareService$Lifecycle
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.soundtrigger_middleware.SoundTriggerMiddlewareService$Lifecycle took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.DockObserver
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.DockObserver took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.midi.MidiService$Lifecycle
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.midi.MidiService$Lifecycle took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.adb.AdbService$Lifecycle
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.adb.AdbService$Lifecycle took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.usb.UsbService$Lifecycle
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.usb.UsbService$Lifecycle took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.twilight.TwilightService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.twilight.TwilightService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.display.color.ColorDisplayService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.display.color.ColorDisplayService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.job.JobSchedulerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.job.JobSchedulerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.soundtrigger.SoundTriggerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.soundtrigger.SoundTriggerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.trust.TrustManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.trust.TrustManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.backup.BackupManagerService$Lifecycle
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.backup.BackupManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.appwidget.AppWidgetService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.appwidget.AppWidgetService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.voiceinteraction.VoiceInteractionManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.voiceinteraction.VoiceInteractionManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.GestureLauncherService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.GestureLauncherService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.SensorNotificationService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.SensorNotificationService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.emergency.EmergencyAffordanceService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.emergency.EmergencyAffordanceService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.blob.BlobStoreManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.blob.BlobStoreManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.dreams.DreamManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.dreams.DreamManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.print.PrintManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.print.PrintManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.AttestationVerificationManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.AttestationVerificationManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.companion.CompanionDeviceManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.companion.CompanionDeviceManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.companion.virtual.VirtualDeviceManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.companion.virtual.VirtualDeviceManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.restrictions.RestrictionsManagerService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.restrictions.RestrictionsManagerService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.MediaSessionService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.MediaSessionService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.MediaResourceMonitorService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.MediaResourceMonitorService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.sensors.face.FaceService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.sensors.face.FaceService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.sensors.fingerprint.FingerprintService
+10-30 19:51:08.786   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.sensors.fingerprint.FingerprintService took to complete: 0ms
+10-30 19:51:08.786   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.BiometricService
+10-30 19:51:08.787   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.BiometricService took to complete: 0ms
+10-30 19:51:08.787   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.AuthService
+10-30 19:51:08.787   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.biometrics.AuthService took to complete: 0ms
+10-30 19:51:08.787   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.ShortcutService$Lifecycle
+10-30 19:51:08.787   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.ShortcutService$Lifecycle took to complete: 0ms
+10-30 19:51:08.787   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.LauncherAppsService
+10-30 19:51:08.787   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.LauncherAppsService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.CrossProfileAppsService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.CrossProfileAppsService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.people.PeopleService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.people.PeopleService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.metrics.MediaMetricsManagerService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.metrics.MediaMetricsManagerService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.BackgroundInstallControlService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.BackgroundInstallControlService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.projection.MediaProjectionManagerService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.projection.MediaProjectionManagerService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.slice.SliceManagerService$Lifecycle
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.slice.SliceManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.stats.StatsCompanion$Lifecycle
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.stats.StatsCompanion$Lifecycle took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.scheduling.RebootReadinessManagerService$Lifecycle
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.scheduling.RebootReadinessManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.stats.pull.StatsPullAtomService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.stats.pull.StatsPullAtomService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.stats.bootstrap.StatsBootstrapAtomService$Lifecycle
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.stats.bootstrap.StatsBootstrapAtomService$Lifecycle took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.incident.IncidentCompanionService
+10-30 19:51:08.792   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.incident.IncidentCompanionService took to complete: 0ms
+10-30 19:51:08.792   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.sdksandbox.SdkSandboxManagerService$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.sdksandbox.SdkSandboxManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.adservices.AdServicesManagerService$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.adservices.AdServicesManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.ondevicepersonalization.OnDevicePersonalizationSystemService$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.ondevicepersonalization.OnDevicePersonalizationSystemService$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.MmsServiceBroker
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.MmsServiceBroker took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.autofill.AutofillManagerService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.autofill.AutofillManagerService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.credentials.CredentialManagerService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.credentials.CredentialManagerService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.selectiontoolbar.SelectionToolbarManagerService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.selectiontoolbar.SelectionToolbarManagerService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.clipboard.ClipboardService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.clipboard.ClipboardService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.appbinding.AppBindingService$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.appbinding.AppBindingService$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.tracing.TracingServiceProxy
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.tracing.TracingServiceProxy took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.policy.PermissionPolicyService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.policy.PermissionPolicyService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.StagingManager$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.pm.StagingManager$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.app.GameManagerService$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.app.GameManagerService$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.safetycenter.SafetyCenterService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.safetycenter.SafetyCenterService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.appsearch.AppSearchModule$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.appsearch.AppSearchModule$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.MediaCommunicationService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.media.MediaCommunicationService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.compat.overrides.AppCompatOverridesService$Lifecycle
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.compat.overrides.AppCompatOverridesService$Lifecycle took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.healthconnect.HealthConnectManagerService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.healthconnect.HealthConnectManagerService took to complete: 0ms
+10-30 19:51:08.793   506  2397 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.devicelock.DeviceLockService
+10-30 19:51:08.793   506  2397 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.devicelock.DeviceLockService took to complete: 0ms
+10-30 19:51:08.793   506  2396 D SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.FileIntegrityService
+10-30 19:51:08.793   506  2396 V SystemServerTimingAsync: ssm.onCompletedEventUser-0_{|Unlocked|}_com.android.server.security.FileIntegrityService took to complete: 0ms
+10-30 19:51:08.793   506   533 V SystemServerTimingAsync: ssm.CompletedEventUser-0 took to complete: 14ms
+10-30 19:51:09.155  1045  1045 D b/267448330: provider: ComponentInfo{com.android.quicksearchbox/com.android.quicksearchbox.SearchWidgetProvider}, paddedSizes: [292.0x105.0, 460.0x58.0, 460.0x58.0], getMinMaxSizes: Rect(292, 58 - 460, 105)
+10-30 19:51:09.157   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10108
+10-30 19:51:09.160   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.168  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.messaging
+10-30 19:51:09.168  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.172  1045  1520 D EGL_emulation: app_time_stats: avg=886.28ms min=6.30ms max=3698.95ms count=5
+10-30 19:51:09.173   802   870 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+10-30 19:51:09.177   802   870 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+10-30 19:51:09.179   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10105
+10-30 19:51:09.183   802   870 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+10-30 19:51:09.183   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.184   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.185   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.185   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.186   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.186   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.186   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.186   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.187   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.187   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.187   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.187   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.188   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.188  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.messaging
+10-30 19:51:09.188   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.188  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.camera2
+10-30 19:51:09.188   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.189   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.189  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.189   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.189   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.189   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.190   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.190   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.190   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.190   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.190   802   870 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+10-30 19:51:09.190   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.191   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.191   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.191   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.191   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.191   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.192   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.192   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.192   981   981 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+10-30 19:51:09.201  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.camera2
+10-30 19:51:09.201  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.stk
+10-30 19:51:09.201  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.202   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 1001
+10-30 19:51:09.203   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.204   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.206   802   870 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+10-30 19:51:09.207  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.stk
+10-30 19:51:09.207  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.statementservice
+10-30 19:51:09.207  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.214  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.statementservice
+10-30 19:51:09.214  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.calendar
+10-30 19:51:09.214  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.214   802   870 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+10-30 19:51:09.217   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10059
+10-30 19:51:09.220   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.222   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.223  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.calendar
+10-30 19:51:09.223  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.rkpdapp
+10-30 19:51:09.223  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.224  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.sdksetup
+10-30 19:51:09.224   802   870 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+10-30 19:51:09.225   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.231  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.rkpdapp
+10-30 19:51:09.233  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.235   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.241  2366  2388 D CompatibilityChangeReporter: Compat change id reported: 247079863; UID 10141; state: DISABLED
+10-30 19:51:09.246   802   870 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+10-30 19:51:09.246   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.248   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.249   802   870 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+10-30 19:51:09.252  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.sdksetup
+10-30 19:51:09.252  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.carrierdefaultapp
+10-30 19:51:09.252  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.254  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.carrierdefaultapp
+10-30 19:51:09.254  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.inputmethod.latin
+10-30 19:51:09.254  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.255  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.inputmethod.latin
+10-30 19:51:09.255  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.cellbroadcastreceiver.module
+10-30 19:51:09.255  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.257  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.cellbroadcastreceiver.module
+10-30 19:51:09.257  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.settings
+10-30 19:51:09.257   802   870 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+10-30 19:51:09.259   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10101
+10-30 19:51:09.260  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.261  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.settings
+10-30 19:51:09.261  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.providers.media.module
+10-30 19:51:09.261  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.262  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.providers.media.module
+10-30 19:51:09.262  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.systemui
+10-30 19:51:09.262  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.263  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.systemui
+10-30 19:51:09.263  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.permissioncontroller
+10-30 19:51:09.264  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.266   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.275   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.280   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10140
+10-30 19:51:09.281   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10110
+10-30 19:51:09.282   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10083
+10-30 19:51:09.283  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.permissioncontroller
+10-30 19:51:09.283  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.bluetooth
+10-30 19:51:09.289  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.290   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.297   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.300   802   870 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+10-30 19:51:09.301  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.bluetooth
+10-30 19:51:09.301  1008  1008 D CarrierSvcBindHelper: onPackageModified: com.android.devicelockcontroller
+10-30 19:51:09.301  1008  1008 D CarrierSvcBindHelper: No carrier app for: 0
+10-30 19:51:09.309   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10109
+10-30 19:51:09.311   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.312   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.321  1008  1263 D ImsResolver: maybeAddedImsService, packageName: com.android.devicelockcontroller
+10-30 19:51:09.328   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.337   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10123
+10-30 19:51:09.338   802   870 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+10-30 19:51:09.340   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.348   802   870 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+10-30 19:51:09.349   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 1000
+10-30 19:51:09.349   802   870 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+10-30 19:51:09.357   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.380   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10121
+10-30 19:51:09.382   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.382   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.383   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.383   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.385   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.391   435   570 W idmap2d : failed to parse idmap header of '/data/resource-cache/vendor@overlay@SystemUI__auto_generated_rro_vendor.apk@idmap'
+10-30 19:51:09.392   435   570 W idmap2d : failed to find resource 'bool/config_show4GForLTE'
+10-30 19:51:09.392   435   570 E idmap2d : no resources were overlaid
+10-30 19:51:09.394   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.400   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10115
+10-30 19:51:09.401   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10138
+10-30 19:51:09.401   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 1002
+10-30 19:51:09.404   506   599 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+10-30 19:51:09.410   803  2313 I PermissionControllerServiceImpl: Updating user sensitive for uid 10134
+10-30 19:51:09.417   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.417   802   870 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+10-30 19:51:09.424   802   802 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+10-30 19:51:09.424   802   870 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+10-30 19:51:09.425   802   870 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+10-30 19:51:09.426   506  1068 W system_server: Long monitor contention with owner android.bg (532) at void com.android.server.search.SearchManagerService$MyPackageMonitor.updateSearchables()(SearchManagerService.java:174) waiters=0 in com.android.server.search.Searchables com.android.server.search.SearchManagerService.getSearchables(int, boolean) for 179ms
+10-30 19:51:09.426  1045  1045 D b/267448330: provider: ComponentInfo{com.android.quicksearchbox/com.android.quicksearchbox.SearchWidgetProvider}, paddedSizes: [292.0x105.0, 460.0x58.0, 460.0x58.0], getMinMaxSizes: Rect(292, 58 - 460, 105)
+10-30 19:51:09.436  1045  1045 D b/267448330: provider: ComponentInfo{com.android.quicksearchbox/com.android.quicksearchbox.SearchWidgetProvider}, paddedSizes: [292.0x105.0, 460.0x58.0, 460.0x58.0], getMinMaxSizes: Rect(292, 58 - 460, 105)
+10-30 19:51:09.438   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.calendar/com.android.calendar.widget.CalendarAppWidgetProvider} won't be persisted.
+10-30 19:51:09.438   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.messaging/com.android.messaging.widget.BugleWidgetProvider} won't be persisted.
+10-30 19:51:09.439   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.messaging/com.android.messaging.widget.WidgetConversationProvider} won't be persisted.
+10-30 19:51:09.439   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.systemui/com.android.systemui.people.widget.PeopleSpaceWidgetProvider} won't be persisted.
+10-30 19:51:09.440   802   870 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+10-30 19:51:09.441   802   870 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+10-30 19:51:09.443   802   870 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+10-30 19:51:09.444   802   870 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+10-30 19:51:09.445   802   870 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+10-30 19:51:09.451   802   870 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+10-30 19:51:09.457   802   870 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+10-30 19:51:09.458   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.459   802   870 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+10-30 19:51:09.462   802   870 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+--------- beginning of kernel
+10-30 19:51:09.659     0     0 I apexd   : Deleting unused dm device com.android.apex.cts.shim
+10-30 19:51:09.660     0     0 E apexd   : Didn't generate uevent for [com.android.apex.cts.shim] removal
+10-30 19:51:09.661     0     0 W apexd   : Failed to delete dm-device com.android.apex.cts.shim
+10-30 19:51:09.662     0     0 I apexd   : Deleting unused dm device com.android.btservices
+10-30 19:51:09.663     0     0 E apexd   : Didn't generate uevent for [com.android.btservices] removal
+10-30 19:51:09.665     0     0 W apexd   : Failed to delete dm-device com.android.btservices
+10-30 19:51:09.666     0     0 I apexd   : Deleting unused dm device com.android.devicelock
+10-30 19:51:09.671     0     0 E apexd   : Didn't generate uevent for [com.android.devicelock] removal
+10-30 19:51:09.672     0     0 W apexd   : Failed to delete dm-device com.android.devicelock
+10-30 19:51:09.674     0     0 I apexd   : Deleting unused dm device com.android.healthfitness
+10-30 19:51:09.675     0     0 E apexd   : Didn't generate uevent for [com.android.healthfitness] removal
+10-30 19:51:09.678     0     0 W apexd   : Failed to delete dm-device com.android.healthfitness
+10-30 19:51:09.679     0     0 I apexd   : Deleting unused dm device com.android.i18n
+10-30 19:51:09.680     0     0 E apexd   : Didn't generate uevent for [com.android.i18n] removal
+10-30 19:51:09.681     0     0 W apexd   : Failed to delete dm-device com.android.i18n
+10-30 19:51:09.682     0     0 I apexd   : Deleting unused dm device com.android.os.statsd
+10-30 19:51:09.513   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.684     0     0 E apexd   : Didn't generate uevent for [com.android.os.statsd] removal
+10-30 19:51:09.686     0     0 W apexd   : Failed to delete dm-device com.android.os.statsd
+10-30 19:51:09.690     0     0 I apexd   : Deleting unused dm device com.android.rkpd
+10-30 19:51:09.691     0     0 E apexd   : Didn't generate uevent for [com.android.rkpd] removal
+10-30 19:51:09.693     0     0 W apexd   : Failed to delete dm-device com.android.rkpd
+10-30 19:51:09.694     0     0 I apexd   : Deleting unused dm device com.android.runtime
+10-30 19:51:09.696     0     0 E apexd   : Didn't generate uevent for [com.android.runtime] removal
+10-30 19:51:09.697     0     0 W apexd   : Failed to delete dm-device com.android.runtime
+10-30 19:51:09.698     0     0 I apexd   : Deleting unused dm device com.android.sdkext
+10-30 19:51:09.705     0     0 E apexd   : Didn't generate uevent for [com.android.sdkext] removal
+10-30 19:51:09.709     0     0 W apexd   : Failed to delete dm-device com.android.sdkext
+10-30 19:51:09.711     0     0 I apexd   : Deleting unused dm device com.android.tzdata
+10-30 19:51:09.714     0     0 E apexd   : Didn't generate uevent for [com.android.tzdata] removal
+10-30 19:51:09.715     0     0 W apexd   : Failed to delete dm-device com.android.tzdata
+10-30 19:51:09.716     0     0 I apexd   : Deleting unused dm device com.android.virt
+10-30 19:51:09.717     0     0 E apexd   : Didn't generate uevent for [com.android.virt] removal
+10-30 19:51:09.718     0     0 W apexd   : Failed to delete dm-device com.android.virt
+10-30 19:51:09.549   803   818 I ssioncontroller: Background concurrent copying GC freed 264711(12MB) AllocSpace objects, 32(3884KB) LOS objects, 49% free, 6161KB/12MB, paused 20us,8us total 369.458ms
+10-30 19:51:09.722     0     0 I apexd   : Deleting unused dm device com.android.vndk.v34
+10-30 19:51:09.723     0     0 E apexd   : Didn't generate uevent for [com.android.vndk.v34] removal
+10-30 19:51:09.726     0     0 W apexd   : Failed to delete dm-device com.android.vndk.v34
+10-30 19:51:09.727     0     0 I AidlLazyServiceRegistrar: Trying to shut down the service. No clients in use for any service in process.
+10-30 19:51:09.731     0     0 I servicemanager: Unregistering apexservice
+10-30 19:51:09.732     0     0 I BpBinder: onLastStrongRef automatically unlinking death recipients:
+10-30 19:51:09.733     0     0 I AidlLazyServiceRegistrar: Unregistered all clients and exiting
+10-30 19:51:09.567  2366  2373 I re.research.r13: Background concurrent copying GC freed 33647(1880KB) AllocSpace objects, 306(194MB) LOS objects, 36% free, 41MB/65MB, paused 39us,4.989ms total 121.018ms
+10-30 19:51:09.736     0     0 I init    : Service 'apexd' (pid 198) exited with status 0 oneshot service took 21.128000 seconds in background
+10-30 19:51:09.737     0     0 I init    : Sending signal 9 to service 'apexd' (pid 198) process group...
+10-30 19:51:09.739     0     0 I libprocessgroup: Successfully killed process cgroup uid 0 pid 198 in 0ms
+10-30 19:51:09.569   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.584   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.586   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.calendar/com.android.calendar.widget.CalendarAppWidgetProvider} won't be persisted.
+10-30 19:51:09.588   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.systemui/com.android.systemui.people.widget.PeopleSpaceWidgetProvider} won't be persisted.
+10-30 19:51:09.597   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.612   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.622   802   826 W ndroid.systemui: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 19:51:09.627   506   515 I system_server: Background concurrent copying GC freed 526269(19MB) AllocSpace objects, 61(1316KB) LOS objects, 49% free, 16MB/33MB, paused 36us,47us total 335.997ms
+10-30 19:51:09.635   802   826 I ndroid.systemui: Background concurrent copying GC freed 523283(26MB) AllocSpace objects, 63(2280KB) LOS objects, 49% free, 13MB/27MB, paused 47us,41us total 391.621ms
+10-30 19:51:09.635   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.657   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.666   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.667   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.672  1045  1092 D ModelWriter: removing items from db . Reason: [removed because the corresponding package or component is removed. mOp=2 removedPackages=[] removedComponents=[{com.android.inputmethod.latin/com.android.inputmethod.latin.setup.SetupActivity}]]
+10-30 19:51:09.675   506   532 E system_server: No package ID 7f found for resource ID 0x7f08025b.
+10-30 19:51:09.676   506   532 E system_server: No package ID 7f found for resource ID 0x7f1315be.
+10-30 19:51:09.676   506   532 E system_server: No package ID 7f found for resource ID 0x7f08025a.
+10-30 19:51:09.676   506   532 E system_server: No package ID 7f found for resource ID 0x7f13067c.
+10-30 19:51:09.676   506   532 E system_server: No package ID 7f found for resource ID 0x7f080259.
+10-30 19:51:09.676   506   532 E system_server: No package ID 7f found for resource ID 0x7f130e50.
+10-30 19:51:09.677   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.679   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.680   506   532 D AppWidgetServiceImpl: Provider info from ComponentInfo{com.android.systemui/com.android.systemui.people.widget.PeopleSpaceWidgetProvider} won't be persisted.
+10-30 19:51:09.683   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.692   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.694   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:09.697   506   532 W VoiceInteractionManager: no available voice recognition services found for user 0
+10-30 19:51:10.037   506   533 D OomAdjuster: Not killing cached processes
+10-30 19:51:10.037  1705  1705 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10062; state: ENABLED
+10-30 19:51:10.038  1705  1705 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10062; state: ENABLED
+10-30 19:51:10.038   506  1694 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10062; state: ENABLED
+10-30 19:51:10.038   506  1694 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10062; state: ENABLED
+10-30 19:51:10.136   802   802 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 19:51:10.149  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.150  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.150  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.150  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.150  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.150  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.150  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.151  1008  1039 W System  : A resource failed to call AbstractCursor.close. 
+10-30 19:51:10.441  2366  2388 I TestRunner: finished: fullTypedMigrationChunksLargeRowsWithoutChangingStateOrHashes(com.ethk3.novaonepro.strategyv2.R29LargeRowMigrationDeviceTest)
+10-30 19:51:10.442  2366  2388 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+10-30 19:51:10.446   506  1582 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: finished inst
+10-30 19:51:10.446  2352  2352 I app_process: System.exit called, status: 0
+10-30 19:51:10.446  2352  2352 I AndroidRuntime: VM exiting with result code 0.
+10-30 19:51:10.622     0     0 I binder  : 506:1582 ioctl 400c620e 7a9e745ab930 returned -11
+10-30 19:51:10.623     0     0 I binder  : 506:1582 ioctl 400c620e 7a9e745ab930 returned -11
+10-30 19:51:10.453   506  1582 E ActivityManager: Unable to freeze binder for 2366: -11
+10-30 19:51:10.454   506  1582 I ActivityManager: Killing 2366:com.starcore.research.r13/u0a141 (adj 0): stop com.starcore.research.r13 due to finished inst
+10-30 19:51:10.454   506   524 D DisplayManagerService: Drop pending events for gone uid 10141

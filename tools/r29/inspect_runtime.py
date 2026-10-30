@@ -10,6 +10,61 @@ def scalar(db, sql):
     return db.execute(sql).fetchone()[0]
 
 
+R29_ERROR_TASKS = ('r29-event-inbox', 'r29-research-migration')
+
+
+def task_error_rows(db, allow_missing=False):
+    if allow_missing and not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r27_task_error'").fetchone():
+        return []
+    # Full records, including stack and timestamp, distinguish a replacement from an unchanged old error.
+    # Stack/row payloads are never emitted by this inspector.
+    return list(db.execute('SELECT error_id,task_id,error_class,message,stack,recorded_at FROM r27_task_error ORDER BY recorded_at DESC,error_id DESC'))
+
+
+def error_diagnostic(row, owner):
+    message = str(row[3] or '')
+    # Retain bounded failure/capacity diagnostics without exporting SQL arguments or credentials.
+    message = re.sub(r'(?is)\b(payload(?:_json)?|params|bindargs|args|values)\s*[:=].*', r'\1=[REDACTED]', message)
+    message = re.sub(r'(?i)\bauthorization\s*[:=].*', 'authorization=[REDACTED]', message)
+    message = re.sub(r'(?i)\b(password|passwd|token|api[_-]?key|secret|authorization)\s*[:=]\s*[^\s,;]+', r'\1=[REDACTED]', message)
+    message = re.sub(r'https?://\S+', '[URL_REDACTED]', message)
+    message = re.sub(r'(?s)\{.*\}|\[.*\]', '[REDACTED]', message)
+    return {'owner': owner, 'errorId': row[0], 'task': str(row[1])[:160],
+            'errorClass': str(row[2])[:160], 'message': message[:500], 'recordedAt': row[5]}
+
+
+def error_baseline(before_main, result):
+    result['taskErrorBaselineProvided'] = before_main is not None
+    if before_main is None:
+        result['baselineTaskErrorRecords'] = 0
+        return set()
+    assert before_main.is_file(), 'BEFORE_REALTIME_DATABASE_MISSING'
+    # sqlite3.connect would silently create an absent file without the explicit existence/read-only checks.
+    with sqlite3.connect(before_main.resolve().as_uri() + '?mode=ro', uri=True) as before:
+        rows = set(task_error_rows(before, allow_missing=True))
+    result['baselineTaskErrorRecords'] = len(rows)
+    return rows
+
+
+def inspect_task_errors(owners, before_errors, result):
+    result.update(newTaskErrorsByOwner={}, allResearchTaskErrorsByOwner={}, newTaskFailureReasons=[],
+                  allNewTaskErrorsByOwnerSinceBaseline={}, allNewTaskFailureReasonsSinceBaseline=[],
+                  baselineKnownR29TaskErrorsByOwner={})
+    for name, db in owners:
+        rows = task_error_rows(db)
+        specific = [r for r in rows if r[1] in R29_ERROR_TASKS]
+        added = [r for r in rows if r not in before_errors]
+        # Keep the original R29-specific raw count and zero-error gate. Baseline history adds no exemption.
+        result['allResearchTaskErrorsByOwner'][name] = len(rows)
+        result['newTaskErrorsByOwner'][name] = len(specific)
+        result['newTaskFailureReasons'].extend(error_diagnostic(r, name) for r in specific[:5])
+        result['baselineKnownR29TaskErrorsByOwner'][name] = sum(r in before_errors for r in specific)
+        result['allNewTaskErrorsByOwnerSinceBaseline'][name] = len(added)
+        result['allNewTaskFailureReasonsSinceBaseline'].extend(error_diagnostic(r, name) for r in added[:5])
+    result['newTaskErrors'] = sum(result['newTaskErrorsByOwner'].values())
+    result['allNewTaskErrorsSinceBaseline'] = sum(result['allNewTaskErrorsByOwnerSinceBaseline'].values())
+
+
 def typed_payload(payload, count):
     data = memoryview(payload)
     pos = 0
@@ -78,11 +133,12 @@ def inspect_events(realtime, research, result):
     assert not any(result[k] for k in ('ackedEventsWithoutMatchingInbox', 'deliveredIdentityMismatches', 'inboxWithoutRootEvent', 'corruptOutboxPayloads')), 'CROSS_FILE_EVENT_PROTOCOL_MISMATCH'
 
 
-def observe(main, stage, result):
+def observe(main, stage, result, before_main=None):
     """Keep bounded migration diagnostics even if no RP file was ever published. This never accepts a build."""
     result.update(scope='API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE',
                   status='OBSERVATION_ONLY_NOT_ACCEPTANCE', researchCopy='NOT_INSPECTED',
                   mainAvailable=main.is_file(), stageAvailable=stage.is_file(), observationErrors=[])
+    before_errors = error_baseline(before_main, result)
 
     def read(db, label, sql, args=(), one=True):
         try:
@@ -116,6 +172,8 @@ def observe(main, stage, result):
             if exists(root,'r27_task_error'):
                 result['rootTaskErrors']=scalar(root,'SELECT count(*) FROM r27_task_error')
                 result['rootMigrationTaskErrors']=scalar(root,"SELECT count(*) FROM r27_task_error WHERE task_id IN ('schema','schema-base','r29-research-migration','r29-event-inbox')")
+                result['rootRecentTaskErrors']=[error_diagnostic(row,'REALTIME') for row in task_error_rows(root)[:8]]
+                inspect_task_errors([('REALTIME',root)],before_errors,result)
             if exists(root,'r29_event_outbox'):
                 result['rootEvents']=read(root,'rootEvents','SELECT count(*) AS total,sum(CASE WHEN acked_at>0 THEN 1 ELSE 0 END) AS acked FROM r29_event_outbox')
             if exists(root,'r27_chart_cache'):
@@ -139,8 +197,9 @@ def observe(main, stage, result):
     return result
 
 
-def inspect(main, stage, result, research_path=None, baseline=None):
+def inspect(main, stage, result, research_path=None, baseline=None, before_main=None):
     assert main.is_file(), 'REALTIME_DATABASE_MISSING'
+    before_errors = error_baseline(before_main, result)
     if research_path is not None:
         assert research_path.is_file(), 'ACTIVE_RESEARCH_DATABASE_MISSING'
     result.update(scope='API34_EMULATOR_ENGINEERING_NOT_NATURAL_QUALITY',
@@ -163,17 +222,11 @@ def inspect(main, stage, result, research_path=None, baseline=None):
             result['modelWorkPending'] = scalar(research, "SELECT count(*) FROM r29_learning_work WHERE consumer='ATOMNET_ONLINE' AND status='PENDING'")
             result['workWithoutCompletionReceipt'] = scalar(research, "SELECT count(*) FROM r29_learning_work w WHERE w.status='COMMITTED' AND NOT EXISTS(SELECT 1 FROM r29_learning_receipt r WHERE r.consumer=w.consumer AND r.issue=w.issue AND r.state_hash=w.state_hash)")
             inspect_events(realtime, research, result)
-            result['newTaskErrorsByOwner'] = {}
-            result['allResearchTaskErrorsByOwner'] = {}
-            result['newTaskFailureReasons'] = []
-            for name, db in [('REALTIME', realtime)] + ([('RESEARCH', research)] if research_path is not None else []):
-                result['allResearchTaskErrorsByOwner'][name] = scalar(db, 'SELECT count(*) FROM r27_task_error')
-                result['newTaskErrorsByOwner'][name] = scalar(db, "SELECT count(*) FROM r27_task_error WHERE task_id IN ('r29-event-inbox','r29-research-migration')")
-                result['newTaskFailureReasons'].extend({'owner': name, 'task': row[0], 'errorClass': row[1], 'message': row[2][:500]} for row in db.execute("SELECT task_id,error_class,message FROM r27_task_error WHERE task_id IN ('r29-event-inbox','r29-research-migration') ORDER BY error_id DESC LIMIT 5"))
-            result['newTaskErrors'] = sum(result['newTaskErrorsByOwner'].values())
+            inspect_task_errors([('REALTIME', realtime)] + ([('RESEARCH', research)] if research_path is not None else []),before_errors,result)
     assert result['mainIntegrity'] == 'ok' and result['workWithoutCompletionReceipt'] == 0
     assert result['eventsAcked'] <= result['eventsDelivered'] <= result['eventsOutbox']
     assert result['newTaskErrors'] == 0, 'NEW_R29_TASK_ERRORS'
+    assert result['allNewTaskErrorsSinceBaseline'] == 0, 'NEW_TASK_ERRORS_SINCE_BASELINE'
     result['eventDeliveryStatus'] = 'PASS' if result['eventsDelivered'] else 'INSUFFICIENT_NO_ACCEPTED_EVENT'
     assert stage.is_file(), 'INDEPENDENT_STAGE_DATABASE_MISSING'
     with sqlite3.connect(stage) as research:
@@ -209,15 +262,16 @@ def main():
     p.add_argument('--stage', type=Path, required=True)
     p.add_argument('--research', type=Path)
     p.add_argument('--baseline', type=Path)
+    p.add_argument('--before-main', type=Path, help='Upgrade Root copy before installing the delivered APK; clean installs use an empty error baseline')
     p.add_argument('--observe-only', action='store_true')
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()
     result = {'scope': 'API34_EMULATOR_ONLY', 'status': 'FAIL'}
     try:
         if a.observe_only:
-            observe(a.main,a.stage,result)
+            observe(a.main,a.stage,result,a.before_main)
         else:
-            inspect(a.main, a.stage, result, a.research, a.baseline)
+            inspect(a.main, a.stage, result, a.research, a.baseline, a.before_main)
             result['status'] = 'PASS_ENGINEERING_SUBSET_ONLY'
     except Exception as failed:
         result['failure'] = type(failed).__name__ + ':' + str(failed)[:500]

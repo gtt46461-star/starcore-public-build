@@ -53,17 +53,17 @@ public final class ResearchDatabaseR29 implements AutoCloseable {
     private void prepare(DbStore store,SQLiteDatabase realtime)throws Exception {
         if(prepared)return;
         tables=MigrationCopyR29.tables(realtime);
-        // Fresh read-only tracker proofs preserve committed per-table progress across a later
-        // Root busy yield/restart. Earlier tables no longer restart the entire DDL writer loop.
-        MigrationCopyR29.prepare(realtime,destination,tables,
-                body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_MIGRATION_TRACK",db->{body.run(db);return 0;}),this::write);
+        // Register all work immediately. Root tracker DDL is admitted only for the table selected
+        // for copying, so hundreds of unrelated Root transactions cannot prevent the first baseline.
+        MigrationCopyR29.prepare(tables,this::write);
         prepared=true;
     }
     public synchronized MigrationCopyR29.Result step(DbStore store,SQLiteDatabase realtime)throws Exception {
         storage();prepare(store,realtime);
         long pages=MigrationCopyR29.scalar(destination,"PRAGMA page_count",null),size=MigrationCopyR29.scalar(destination,"PRAGMA page_size",null);
         if(pages*size>MAX_BYTES-(8L<<20))throw new StorageBlocked("R29_MIGRATION_STAGE_128M_BUDGET_REACHED");
-        return MigrationCopyR29.step(realtime,destination,tables,this::write,System.currentTimeMillis());
+        return MigrationCopyR29.step(realtime,destination,tables,
+                body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_MIGRATION_TRACK",db->{body.run(db);return 0;}),this::write,System.currentTimeMillis());
     }
     public synchronized long verifiedTables(){return MigrationCopyR29.scalar(destination,"SELECT count(*) FROM r29_copy_manifest WHERE state='VERIFIED_BASELINE'",null);}
     public synchronized int tableCount(){return tables==null?0:tables.size();}

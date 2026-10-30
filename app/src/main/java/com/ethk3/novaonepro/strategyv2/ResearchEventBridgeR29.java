@@ -29,14 +29,58 @@ public final class ResearchEventBridgeR29 {
         "CREATE TRIGGER IF NOT EXISTS r29_learning_receipt_no_delete BEFORE DELETE ON r29_learning_receipt BEGIN SELECT RAISE(ABORT,'R29_LEARNING_RECEIPT_IMMUTABLE'); END"
     };
 
-    public static void ensureRealtime(SQLiteDatabase db) {
+    private static final class RealtimeObject {
+        final String type,name,table,sql,canonical;
+        RealtimeObject(String type,String name,String table,String sql){this.type=type;this.name=name;this.table=table;this.sql=sql;canonical=canonicalDdl(sql);}
+    }
+    private static final RealtimeObject FETCH_OBSERVATION=new RealtimeObject("table","r29_fetch_observation","r29_fetch_observation",com.ethk3.novaonepro.FetchObservationR29.DDL);
+    private static final RealtimeObject[] REALTIME_OBJECTS={
+        new RealtimeObject("table","r29_event_outbox","r29_event_outbox",OUTBOX),FETCH_OBSERVATION,
+        new RealtimeObject("table","r29_registration_authority","r29_registration_authority",ExperimentRegistrationR29.AUTHORITY),
+        new RealtimeObject("trigger","r29_registration_authority_no_update","r29_registration_authority",ExperimentRegistrationR29.AUTHORITY_GUARDS[0]),
+        new RealtimeObject("trigger","r29_registration_authority_no_delete","r29_registration_authority",ExperimentRegistrationR29.AUTHORITY_GUARDS[1]),
+        new RealtimeObject("index","r29_event_outbox_pending","r29_event_outbox","CREATE INDEX IF NOT EXISTS r29_event_outbox_pending ON r29_event_outbox(acked_at,seq)"),
+        new RealtimeObject("trigger","r29_event_payload_immutable","r29_event_outbox","CREATE TRIGGER IF NOT EXISTS r29_event_payload_immutable BEFORE UPDATE OF event_id,issue,kind,payload_json,payload_hash,origin,committed_at ON r29_event_outbox BEGIN SELECT RAISE(ABORT,'R29_EVENT_IMMUTABLE'); END")
+    };
+    /** A current-transaction, seven-name catalog read replaces no-op CREATE statements on every draw.
+     * Android invalidates reader connections even for CREATE IF NOT EXISTS. No READY/version cache survives a
+     * rollback, DROP, same-name replacement or reopened connection; every call examines the actual definitions. */
+    public static void ensureRealtime(SQLiteDatabase db){ensureObjects(db,REALTIME_OBJECTS);}
+    public static void ensureFetchObservationSchema(SQLiteDatabase db){ensureObjects(db,new RealtimeObject[]{FETCH_OBSERVATION});}
+    private static void ensureObjects(SQLiteDatabase db,RealtimeObject[] expected){
         requireTransaction(db);
-        db.execSQL(OUTBOX);
-        db.execSQL(com.ethk3.novaonepro.FetchObservationR29.DDL);
-        db.execSQL(ExperimentRegistrationR29.AUTHORITY);
-        for(String guard:ExperimentRegistrationR29.AUTHORITY_GUARDS)db.execSQL(guard);
-        db.execSQL("CREATE INDEX IF NOT EXISTS r29_event_outbox_pending ON r29_event_outbox(acked_at,seq)");
-        db.execSQL("CREATE TRIGGER IF NOT EXISTS r29_event_payload_immutable BEFORE UPDATE OF event_id,issue,kind,payload_json,payload_hash,origin,committed_at ON r29_event_outbox BEGIN SELECT RAISE(ABORT,'R29_EVENT_IMMUTABLE'); END");
+        List<RealtimeObject> missing=missingObjects(db,expected);
+        if(missing.isEmpty())return;
+        for(RealtimeObject object:missing)db.execSQL(object.sql);
+        if(!missingObjects(db,expected).isEmpty())throw new IllegalStateException("R29_REALTIME_SCHEMA_INSTALL_INCOMPLETE");
+    }
+    private static List<RealtimeObject> missingObjects(SQLiteDatabase db,RealtimeObject[] expected){
+        StringBuilder query=new StringBuilder("SELECT name,type,tbl_name,sql FROM main.sqlite_master WHERE name IN (");
+        String[] names=new String[expected.length];Map<String,RealtimeObject> wanted=new LinkedHashMap<>();
+        for(int i=0;i<expected.length;i++){if(i>0)query.append(',');query.append('?');names[i]=expected[i].name;wanted.put(names[i],expected[i]);}
+        query.append(')');
+        try(Cursor c=db.rawQuery(query.toString(),names)){
+            while(c.moveToNext()){
+                String name=c.getString(0);RealtimeObject object=wanted.remove(name);
+                if(object==null||!object.type.equals(c.getString(1))||!object.table.equals(c.getString(2))||!object.canonical.equals(canonicalDdl(c.getString(3))))
+                    throw new IllegalStateException("R29_REALTIME_SCHEMA_CONFLICT:"+name);
+            }
+        }
+        return new ArrayList<>(wanted.values());
+    }
+    private static String canonicalDdl(String sql){
+        if(sql==null)return "";
+        String text=sql.trim();
+        for(String kind:new String[]{"TABLE","INDEX","TRIGGER"}){String prefix="CREATE "+kind+" IF NOT EXISTS ";if(text.startsWith(prefix)){text="CREATE "+kind+" "+text.substring(prefix.length());break;}}
+        StringBuilder result=new StringBuilder();boolean quoted=false,space=false;
+        for(int i=0;i<text.length();i++){
+            char ch=text.charAt(i);
+            if(quoted){result.append(ch);if(ch=='\''){if(i+1<text.length()&&text.charAt(i+1)=='\'')result.append(text.charAt(++i));else quoted=false;}continue;}
+            if(Character.isWhitespace(ch)){space=true;continue;}
+            if(space&&result.length()>0)result.append(' ');space=false;result.append(ch);if(ch=='\'')quoted=true;
+        }
+        while(result.length()>0&&result.charAt(result.length()-1)==';')result.setLength(result.length()-1);
+        return result.toString();
     }
 
     /** Called after canonical acceptance in the SAME draw transaction. Identity excludes repairable provider time.

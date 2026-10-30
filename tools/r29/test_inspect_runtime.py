@@ -25,6 +25,7 @@ class RuntimeInspection(unittest.TestCase):
         self.research = self.path/'research.db'
         self.stage = self.path/'stage.db'
         self.baseline = self.path/'sealed.db'
+        self.before = self.path/'before.db'
         self.schema, self.source = 'a'*64, 'b'*64
         payload = '{"issue":"202610300001"}'
         digest = hashlib.sha256(payload.encode()).hexdigest()
@@ -37,7 +38,7 @@ class RuntimeInspection(unittest.TestCase):
             ("INSERT INTO r29_event_outbox VALUES(1,'event','202610300001',?,?,'API',123)", (payload,digest)),
             ('CREATE TABLE r29_source_watermark(table_name,generation)', ()),
             ("INSERT INTO r29_source_watermark VALUES('draws',3)", ()),
-            ('CREATE TABLE r27_task_error(error_id,task_id,error_class,message)', ()),
+            ('CREATE TABLE r27_task_error(error_id,task_id,error_class,message,stack,recorded_at)', ()),
         ])
         # Deliberately do NOT create inbox or learner tables in Root: an old-owner query must fail.
         self.mutate(self.research, [
@@ -49,7 +50,7 @@ class RuntimeInspection(unittest.TestCase):
             ("INSERT INTO r29_learning_work VALUES('ATOMNET_ONLINE','event','202610300001','COMMITTED','state')", ()),
             ('CREATE TABLE r29_learning_receipt(consumer,issue,state_hash)', ()),
             ("INSERT INTO r29_learning_receipt VALUES('ATOMNET_ONLINE','202610300001','state')", ()),
-            ('CREATE TABLE r27_task_error(error_id,task_id,error_class,message)', ()),
+            ('CREATE TABLE r27_task_error(error_id,task_id,error_class,message,stack,recorded_at)', ()),
         ])
         shutil.copy2(self.research,self.baseline)
         self.pin_baseline()
@@ -78,13 +79,17 @@ class RuntimeInspection(unittest.TestCase):
     def pin_baseline(self):
         self.mutate(self.root,[('UPDATE r29_migration_publication SET baseline_sha=?',(hashlib.sha256(self.baseline.read_bytes()).hexdigest(),))])
 
-    def inspect(self):
+    def inspect(self,before_main=None):
         result={}
-        reader.inspect(self.root,self.stage,result,self.research,self.baseline)
+        reader.inspect(self.root,self.stage,result,self.research,self.baseline,before_main)
         return result
 
-    def rejected(self,reason):
-        with self.assertRaisesRegex(AssertionError,reason): self.inspect()
+    def rejected(self,reason,before_main=None):
+        with self.assertRaisesRegex(AssertionError,reason): self.inspect(before_main)
+
+    def error(self,path,task='expert-E07',message='R26_UNSLICED_COMPUTATION_CAPACITY',recorded_at=123):
+        self.mutate(path,[('INSERT INTO r27_task_error VALUES(1,?,?,?, ?,?)',
+                          (task,'CapacityFailure',message,'private stack fixture',recorded_at))])
 
     def test_active_owner_reads_real_rp_without_root_learner_tables(self):
         r=self.inspect()
@@ -144,11 +149,11 @@ class RuntimeInspection(unittest.TestCase):
         self.rejected('')
 
     def test_rp_task_failure_is_not_hidden_by_empty_root_log(self):
-        self.mutate(self.research,[("INSERT INTO r27_task_error VALUES(1,'r29-event-inbox','Failure','real retained error')",())])
+        self.mutate(self.research,[("INSERT INTO r27_task_error VALUES(1,'r29-event-inbox','Failure','real retained error','stack',123)",())])
         self.rejected('NEW_R29_TASK_ERRORS')
 
     def test_root_task_failure_remains_visible(self):
-        self.mutate(self.root,[("INSERT INTO r27_task_error VALUES(1,'r29-research-migration','Failure','real retained error')",())])
+        self.mutate(self.root,[("INSERT INTO r27_task_error VALUES(1,'r29-research-migration','Failure','real retained error','stack',123)",())])
         self.rejected('NEW_R29_TASK_ERRORS')
 
     def test_no_events_report_insufficient_instead_of_delivery_pass(self):
@@ -205,6 +210,7 @@ pull_runtime upgrade after
 echo UNREACHABLE_ACCEPTANCE
 '''
         out=self.path/'smoke';out.mkdir()
+        shutil.copy2(self.root,out/'before.db')
         env=dict(os.environ,OUT=str(out),TEST_ROOT=str(self.root),TEST_STAGE=str(self.stage))
         run=subprocess.run(['bash','-c','set -euo pipefail\n'+helpers+stub],cwd=Path(__file__).resolve().parents[2],env=env,capture_output=True,text=True,timeout=10)
         self.assertEqual(19,run.returncode,run.stdout+run.stderr)
@@ -212,6 +218,131 @@ echo UNREACHABLE_ACCEPTANCE
         receipt=json.loads((out/'upgrade-migration-observation.json').read_text())
         self.assertEqual('OBSERVATION_ONLY_NOT_ACCEPTANCE',receipt['status'])
         self.assertEqual(1,receipt['stageManifestTotal'])
+
+    def test_unchanged_historical_expert_error_copied_from_root_to_rp_is_not_new(self):
+        self.error(self.root)
+        shutil.copy2(self.root,self.before)
+        self.error(self.research)
+        result=self.inspect(self.before)
+        self.assertEqual({'REALTIME':1,'RESEARCH':1},result['allResearchTaskErrorsByOwner'])
+        self.assertEqual({'REALTIME':0,'RESEARCH':0},result['allNewTaskErrorsByOwnerSinceBaseline'])
+        self.assertEqual(0,result['allNewTaskErrorsSinceBaseline'])
+        self.assertEqual(0,result['newTaskErrors'])
+
+    def test_new_root_expert_error_fails_even_when_r29_specific_count_is_zero(self):
+        shutil.copy2(self.root,self.before)
+        self.error(self.root)
+        result={}
+        with self.assertRaisesRegex(AssertionError,'NEW_TASK_ERRORS_SINCE_BASELINE'):
+            reader.inspect(self.root,self.stage,result,self.research,self.baseline,self.before)
+        self.assertEqual(0,result['newTaskErrors'])
+        self.assertEqual(1,result['allNewTaskErrorsSinceBaseline'])
+        self.assertEqual('expert-E07',result['allNewTaskFailureReasonsSinceBaseline'][0]['task'])
+
+    def test_new_rp_expert_error_also_fails(self):
+        shutil.copy2(self.root,self.before)
+        self.error(self.research,task='expert-E10')
+        self.rejected('NEW_TASK_ERRORS_SINCE_BASELINE',self.before)
+
+    def test_same_count_replaced_error_is_not_accepted_as_history(self):
+        self.error(self.root)
+        shutil.copy2(self.root,self.before)
+        original=(1,'expert-E07','CapacityFailure','R26_UNSLICED_COMPUTATION_CAPACITY','private stack fixture',123)
+        for column,new_value in [('error_id',2),('task_id','expert-E10'),('error_class','OtherFailure'),
+                                 ('message','different failure'),('stack','different stack'),('recorded_at',124)]:
+            with self.subTest(column=column):
+                self.mutate(self.root,[('DELETE FROM r27_task_error',()),
+                                       ('INSERT INTO r27_task_error VALUES(?,?,?,?,?,?)',original),
+                                       ('UPDATE r27_task_error SET '+column+'=?',(new_value,))])
+                self.rejected('NEW_TASK_ERRORS_SINCE_BASELINE',self.before)
+
+    def test_clean_install_rejects_any_expert_error_without_baseline(self):
+        self.error(self.research)
+        self.rejected('NEW_TASK_ERRORS_SINCE_BASELINE')
+
+    def test_missing_before_file_fails_without_creating_a_database(self):
+        self.rejected('BEFORE_REALTIME_DATABASE_MISSING',self.before)
+        self.assertFalse(self.before.exists())
+
+    def test_old_r29_error_keeps_original_raw_zero_error_gate(self):
+        self.error(self.root,task='r29-event-inbox')
+        shutil.copy2(self.root,self.before)
+        result={}
+        with self.assertRaisesRegex(AssertionError,'NEW_R29_TASK_ERRORS'):
+            reader.inspect(self.root,self.stage,result,self.research,self.baseline,self.before)
+        self.assertEqual(1,result['newTaskErrors'])
+        self.assertEqual({'REALTIME':1,'RESEARCH':0},result['baselineKnownR29TaskErrorsByOwner'])
+        self.assertEqual(0,result['allNewTaskErrorsSinceBaseline'])
+
+    def test_observation_retains_recent_errors_and_baseline_delta_before_missing_rp(self):
+        shutil.copy2(self.root,self.before)
+        self.error(self.root,task='expert-E10',message='capacity wall=2548 cpu=2 params=[PRIVATE_ROW_SECRET]')
+        self.research.unlink()
+        result=reader.observe(self.root,self.stage,{},self.before)
+        self.assertEqual('OBSERVATION_ONLY_NOT_ACCEPTANCE',result['status'])
+        self.assertEqual(1,result['rootTaskErrors'])
+        self.assertEqual(0,result['newTaskErrors'])
+        self.assertEqual(1,result['allNewTaskErrorsSinceBaseline'])
+        item=result['rootRecentTaskErrors'][0]
+        self.assertEqual('expert-E10',item['task'])
+        self.assertEqual('CapacityFailure',item['errorClass'])
+        self.assertEqual(123,item['recordedAt'])
+        self.assertIn('cpu=2',item['message'])
+        encoded=json.dumps(result)
+        self.assertNotIn('PRIVATE_ROW_SECRET',encoded)
+        self.assertNotIn('private stack fixture',encoded)
+        self.assertFalse(self.research.exists())
+
+    def test_observation_diagnostics_are_bounded_and_credential_redacted(self):
+        self.error(self.root,message='capacity token=DO_NOT_EXPORT authorization: Bearer PRIVATE_TOKEN')
+        with sqlite3.connect(self.root) as db:
+            for n in range(2,13):
+                db.execute('INSERT INTO r27_task_error VALUES(?,?,?,?,?,?)',
+                           (n,'expert-E07','Failure','x'*900,'PRIVATE_STACK',n))
+        result=reader.observe(self.root,self.stage,{})
+        self.assertEqual(8,len(result['rootRecentTaskErrors']))
+        self.assertTrue(all(len(r['message'])<=500 for r in result['rootRecentTaskErrors']))
+        self.assertNotIn('DO_NOT_EXPORT',json.dumps(result))
+        self.assertNotIn('PRIVATE_TOKEN',json.dumps(result))
+        self.assertNotIn('PRIVATE_STACK',json.dumps(result))
+
+    def test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure(self):
+        script=Path(__file__).with_name('emulator_smoke.sh').read_text()
+        helpers=script[script.index('pull_database() {'):script.index('adb uninstall "$PKG"')]
+        out=self.path/'smoke-delta';out.mkdir()
+        shutil.copy2(self.root,out/'before.db')
+        self.error(self.root)
+        stub='''
+pull_database() {
+  case "$1" in
+    binance_k3_nova_one_pro_v57.db) cp "$TEST_ROOT" "$OUT/$2.db" ;;
+    starcore-research-r29-stage.db) cp "$TEST_STAGE" "$OUT/$2.db" ;;
+    *) return 19 ;;
+  esac
+}
+pull_runtime upgrade after
+echo UNREACHABLE_ACCEPTANCE
+'''
+        env=dict(os.environ,OUT=str(out),TEST_ROOT=str(self.root),TEST_STAGE=str(self.stage))
+        run=subprocess.run(['bash','-c','set -euo pipefail\n'+helpers+stub],cwd=Path(__file__).resolve().parents[2],env=env,capture_output=True,text=True,timeout=10)
+        self.assertEqual(19,run.returncode,run.stdout+run.stderr)
+        receipt=json.loads((out/'upgrade-migration-observation.json').read_text())
+        self.assertTrue(receipt['taskErrorBaselineProvided'])
+        self.assertEqual(1,receipt['allNewTaskErrorsSinceBaseline'])
+        self.assertEqual('expert-E07',receipt['rootRecentTaskErrors'][0]['task'])
+        self.assertNotIn('UNREACHABLE_ACCEPTANCE',run.stdout)
+
+    def test_cli_missing_baseline_persists_failed_summary(self):
+        out=self.path/'missing-before-summary.json'
+        run=subprocess.run(['python3',str(Path(__file__).with_name('inspect_runtime.py')),
+                            '--main',str(self.root),'--stage',str(self.stage),
+                            '--research',str(self.research),'--baseline',str(self.baseline),
+                            '--before-main',str(self.before),'--out',str(out)],capture_output=True,text=True,timeout=10)
+        self.assertNotEqual(0,run.returncode)
+        receipt=json.loads(out.read_text())
+        self.assertEqual('FAIL',receipt['status'])
+        self.assertIn('BEFORE_REALTIME_DATABASE_MISSING',receipt['failure'])
+        self.assertFalse(self.before.exists())
 
 
 if __name__=='__main__': unittest.main(verbosity=2)

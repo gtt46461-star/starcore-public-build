@@ -146,18 +146,10 @@ public final class MigrationCopyR29 {
         return true;
     }
 
-    /** Each Root tracker transaction commits before any stage transaction starts. Committed Root
-     * tracker state is the resume point if a later table yields for the unchanged writer deadline. */
-    public static void prepare(SQLiteDatabase source, SQLiteDatabase destination, List<Table> tables,
-                               Transaction sourceWriter, Transaction destinationWriter) throws Exception {
-        for (Table table : tables) {
-            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("R29_MIGRATION_CANCELLED");
-            if (!sourceTracked(source, table)) {
-                if (scalar(destination, "SELECT count(*) FROM r29_copy_manifest WHERE table_name=?", new String[] {table.name}) != 0)
-                    throw new IllegalStateException("R29_MIGRATION_TRACKERS_LOST_AFTER_MANIFEST:" + table.name);
-                sourceWriter.write(db -> trackSource(db, table));
-            }
-        }
+    /** Record the complete catalog without acquiring Root's writer. PENDING is not a copied or verified
+     * baseline. Only the table actually selected by step needs a tracker transaction before its first copy. */
+    public static void prepare(List<Table> tables, Transaction destinationWriter) throws Exception {
+        if (Thread.currentThread().isInterrupted()) throw new InterruptedException("R29_MIGRATION_CANCELLED");
         destinationWriter.write(db -> register(db, tables));
     }
 
@@ -188,6 +180,14 @@ public final class MigrationCopyR29 {
     }
 
     public static Result step(SQLiteDatabase source, SQLiteDatabase destination, List<Table> tables, Transaction tx, long now) throws Exception {
+        return step(source, destination, tables, null, tx, now);
+    }
+
+    /** The optional source writer installs only a genuinely unused selected table's trackers. It commits
+     * before reading that table's generation/rows or starting a destination transaction. Existing callers
+     * without a source writer remain strict: incomplete/missing trackers can never authorize a copy. */
+    public static Result step(SQLiteDatabase source, SQLiteDatabase destination, List<Table> tables,
+                              Transaction sourceWriter, Transaction tx, long now) throws Exception {
         Meta m;
         try (Cursor c = destination.rawQuery("SELECT table_name,state,attempt,source_generation,last_rowid,copied_rows,copy_hash,verify_rowid,verified_rows,verify_hash,verified_at FROM r29_copy_manifest WHERE state<>'VERIFIED_BASELINE' AND retry_at<=? ORDER BY CASE state WHEN 'VERIFYING' THEN 0 WHEN 'COPYING' THEN 1 ELSE 2 END,touched_at,table_name LIMIT 1", new String[] {String.valueOf(now)})) {
             if (!c.moveToFirst()) return new Result(null,"IDLE_BASELINE_OR_RETRY",0);
@@ -201,6 +201,15 @@ public final class MigrationCopyR29 {
             sql = c.moveToFirst()?c.getString(0):null;
         }
         if (!t.createSql.equals(sql)) throw new IllegalStateException("R29_SOURCE_SCHEMA_CHANGED_DURING_COPY:"+t.name);
+        if (!sourceTracked(source, t)) {
+            if (sourceWriter == null) throw new IllegalStateException("R29_SOURCE_NOT_TRACKED:" + t.name);
+            boolean unused = m.state.equals("PENDING") && m.attempt == 0 && m.generation == 0
+                    && m.cursor == null && m.rows == 0 && m.verifyCursor == null && m.verified == 0
+                    && m.verifiedAt == 0 && t.seed().equals(m.copyHash) && t.seed().equals(m.verifyHash);
+            if (!unused) throw new IllegalStateException("R29_MIGRATION_TRACKERS_LOST_AFTER_COPY_STARTED:" + t.name);
+            sourceWriter.write(db -> trackSource(db, t));
+            if (!sourceTracked(source, t)) throw new IllegalStateException("R29_MIGRATION_TRACKER_INSTALL_FAILED:" + t.name);
+        }
         if (m.state.equals("PENDING")) {
             long generation = generation(source,t.name);
             tx.write(db -> {
@@ -316,11 +325,18 @@ public final class MigrationCopyR29 {
         out.put("cutoverEnabled",false);out.put("crossTableSnapshot","NOT_ESTABLISHED");
         out.put("realTimeAuthority","draws, decisions, settlements, r29_event_outbox, r27_fetch_reject remain original");
         out.put("recomputableExcluded","r27_chart_cache");
-        try(Cursor c=destination.rawQuery("SELECT table_name,state,source_generation,copied_rows,verified_rows,copy_hash,verified_at,reason FROM r29_copy_manifest ORDER BY table_name",null)) {
+        Map<String,Long> watermarks=new LinkedHashMap<>();
+        if(objectSql(source,"table","r29_source_watermark")!=null)
+            try(Cursor c=source.rawQuery("SELECT table_name,generation FROM r29_source_watermark",null)){while(c.moveToNext())watermarks.put(c.getString(0),c.getLong(1));}
+        try(Cursor c=destination.rawQuery("SELECT table_name,state,source_generation,copied_rows,verified_rows,copy_hash,verified_at,reason,attempt FROM r29_copy_manifest ORDER BY table_name",null)) {
             while(c.moveToNext()) {
-                Map<String,Object> t=new LinkedHashMap<>();String name=c.getString(0);long current=generation(source,name);
-                t.put("table",name);t.put("state",c.getString(1));t.put("sourceWatermark",c.getLong(2));t.put("currentWatermark",current);
-                t.put("catchUpRequired",current!=c.getLong(2));t.put("copiedRows",c.getLong(3));t.put("verifiedRows",c.getLong(4));
+                Map<String,Object> t=new LinkedHashMap<>();String name=c.getString(0);Long current=watermarks.get(name);
+                boolean started=c.getLong(8)>0||!"PENDING".equals(c.getString(1))||c.getLong(3)>0||c.getLong(4)>0||c.getLong(6)>0;
+                if(started&&current==null)throw new IllegalStateException("R29_SOURCE_NOT_TRACKED:"+name);
+                // Unselected catalog entries have no admitted Root tracker or snapshot generation yet.
+                // Unknown is not zero, and catalog registration never counts as a verified baseline.
+                t.put("table",name);t.put("state",c.getString(1));t.put("sourceWatermark",started?c.getLong(2):null);t.put("currentWatermark",current);
+                t.put("catchUpRequired",started?current.longValue()!=c.getLong(2):null);t.put("copiedRows",c.getLong(3));t.put("verifiedRows",c.getLong(4));
                 t.put("canonicalHash",c.getString(5));t.put("verifiedAt",c.getLong(6)>0?c.getLong(6):null);t.put("reason",c.getString(7));tables.add(t);
             }
         }

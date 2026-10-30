@@ -1,0 +1,48 @@
+{
+  "schema": "R29_CP09_TASK_ERROR_ACCEPTANCE_QA_1",
+  "scope": "OFFLINE_SQLITE_AND_ACTUAL_SMOKE_HELPER_ONLY_NOT_PRODUCT_FIX_OR_DEVICE_ACCEPTANCE",
+  "modifiedFiles": {
+    "tools/r29/inspect_runtime.py": "f87dce81175744bf45c9fed7927bab6b1247fa3e63fc77c0c098ef2ac9b55b38",
+    "tools/r29/emulator_smoke.sh": "e773d42079191521ba1b3650d981654ce399744f45bf3ec7ed10ba31b83abbb7",
+    "tools/r29/test_inspect_runtime.py": "961fbc26a9cd8177bb91191cd5079eacd91018ab53a5d444ecc0f67b7a198b06"
+  },
+  "tests": 32,
+  "testResult": "PASS",
+  "testLog": "/workspace/work/r29/cp09-task-error-qa-tests.log",
+  "testLogSha256": "d91a4a27f4def2afe344154749a02265efdd9a0338bf10403ae38c4cf9d0cb0d",
+  "bashSyntax": "PASS",
+  "pythonCompile": "PASS",
+  "gitDiffCheck": "PASS",
+  "originalSpecificR29RawCountAndZeroErrorAssertPreserved": true,
+  "noHistoricalR29Exemption": true,
+  "allNewTaskErrorsBaselineTuple": [
+    "error_id",
+    "task_id",
+    "error_class",
+    "message",
+    "stack",
+    "recorded_at"
+  ],
+  "historicalNonR29RootToRpCopy": "PASS_NOT_NEW",
+  "newRootAndRpExpertErrors": "REJECTED",
+  "sameCountReplacementEachTupleColumn": "REJECTED_ALL_SIX",
+  "missingBeforeDatabase": "REJECTED_NO_FILE_CREATION_FAILED_JSON_RETAINED",
+  "cleanAnyError": "REJECTED",
+  "observationBeforeRpPull": "PASS_SUMMARY_RETAINED_AND_MISSING_RP_STILL_FAILS",
+  "boundedRecentFields": [
+    "errorId",
+    "task",
+    "errorClass",
+    "message",
+    "recordedAt"
+  ],
+  "rawStackAndPayloadOutput": false,
+  "credentialRedactionTest": "PASS",
+  "oldReaderNegativeControl": "/workspace/work/r29/cp09-task-error-qa-old-reader-negative.json",
+  "networkUsed": false,
+  "committed": false,
+  "productFilesEditedByThisAgent": false,
+  "sourceIdentityNeedsParentRebindBeforePackaging": true,
+  "b01Acceptance": "NOT_ACCEPTED",
+  "latestAcceptedCheckpoint": "CP06"
+}

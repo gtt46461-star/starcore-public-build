@@ -45,10 +45,12 @@ pull_database() {
 }
 pull_runtime() {
     local phase=$1 main_name=$2 baseline_name stage_status=0
+    local before_args=()
+    if [ "$phase" = upgrade ]; then before_args=(--before-main "$OUT/before.db"); fi
     pull_database binance_k3_nova_one_pro_v57.db "$main_name"
     pull_database starcore-research-r29-stage.db "stage-$phase" || stage_status=$?
     # Aggregate failure context is durable before missing/unpublished RP causes the required hard failure.
-    python3 tools/r29/inspect_runtime.py --observe-only --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" --out "$OUT/$phase-migration-observation.json"
+    python3 tools/r29/inspect_runtime.py --observe-only --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" "${before_args[@]}" --out "$OUT/$phase-migration-observation.json"
     if [ "$stage_status" -ne 0 ]; then return "$stage_status"; fi
     pull_database starcore-r29-research.db "research-$phase"
     baseline_name=$(python3 - "$OUT/$main_name.db" <<'PY'
@@ -60,7 +62,7 @@ with sqlite3.connect(sys.argv[1]) as db:
 PY
 )
     pull_database "$baseline_name" "sealed-$phase"
-    python3 tools/r29/inspect_runtime.py --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" --research "$OUT/research-$phase.db" --baseline "$OUT/sealed-$phase.db" --out "$OUT/$phase-protocol.json"
+    python3 tools/r29/inspect_runtime.py --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" --research "$OUT/research-$phase.db" --baseline "$OUT/sealed-$phase.db" "${before_args[@]}" --out "$OUT/$phase-protocol.json"
 }
 adb uninstall "$PKG" > /dev/null 2>&1 || true
 adb install "$BASE" > "$OUT/install-baseline.txt"

@@ -25,7 +25,7 @@ public final class FetchObservationR29 {
     public static void committed(Models.Draw draw){if(draw==null||!draw.isValid())return;Seen seen=SEEN.get(hash(draw));if(seen!=null)seen.commit.compareAndSet(null,new long[]{System.currentTimeMillis(),TimeSourceR811.monoNowMs()});}
     public static void acceptedWithin(SQLiteDatabase realtime,String issue,String hash){
         Seen seen=SEEN.get(hash);if(seen==null)return;if(!realtime.inTransaction())throw new IllegalStateException("R29_FETCH_OBSERVATION_TRANSACTION");
-        realtime.execSQL(DDL);
+        ResearchEventBridgeR29.ensureFetchObservationSchema(realtime);
         realtime.execSQL("INSERT OR IGNORE INTO r29_fetch_observation VALUES(?,?,?,?,?,?,NULL,?,?,NULL,NULL,'API_LATEST_VALIDATED')",new Object[]{issue,hash,seen.wall,seen.mono,seen.session,seen.scheduled>0?seen.scheduled:null,System.currentTimeMillis(),TimeSourceR811.monoNowMs()});
         long[] commit=seen.commit.get();if(commit!=null)realtime.execSQL("UPDATE r29_fetch_observation SET commit_observed_wall=?,commit_observed_mono=? WHERE issue=? AND source_hash=? AND commit_observed_wall IS NULL AND clock_session=? AND first_validated_wall=?",new Object[]{commit[0],commit[1],issue,hash,seen.session,seen.wall});
     }
