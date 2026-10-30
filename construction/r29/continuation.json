@@ -4,123 +4,107 @@
   "localBranch": "construction/r29-20261030",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
   "baselineRechecked": "df09ef57a9d03e39ab8ce0756ad48b56acebf7b9",
-  "latestAppCodeCommit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
-  "versionCode": 577291011,
-  "status": "B01_CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+  "latestAppCodeCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "versionCode": 577291012,
+  "status": "B01_CP12_FROZEN_LOCAL_PASS_ANDROID_CI_PENDING_NOT_ACCEPTED",
   "wholeBatchesAccepted": 1,
   "wholeCardsAccepted": 3,
-  "device": "CP11_NATIVE_8_OF_10_AND_FULL_APP_E12_FAIL_CLEAN_AND_FORMAL_FOUR_NOT_STARTED_PHYSICAL_NOT_RUN",
+  "device": "CP11_FAILED_CP12_RUNNING_FORMAL4_NOT_STARTED_PHYSICAL_NOT_RUN",
   "quality": "INSUFFICIENT_NO_NEW_NATURAL_SAMPLE",
   "real": "BLOCKED_NO_VERIFIED_CERTIFICATE",
   "nextCard": "R29-004..008 B01 exact-source actual installation acceptance",
   "nextActions": [
-    "Complete CP12 cold schema fairness, independent schema installer throughput and E12 cooperative computation source repairs; retain actual CP11 failures unchanged.",
-    "Freeze new source only after affected HOST checks, then run actual native10, full App and secure source-bound CI.",
-    "After all candidate checks pass run actual CP06 debug/release × R13/R27 four installation/upgrade/clean protocol cases.",
-    "Only after B01 engineering acceptance proceed sequentially to B02 R29-009..013.",
-    "Physical60min/6h/72h NOT_RUN; natural quality INSUFFICIENT; REAL remains blocked."
+    "Audit exact CP12 native10,47HOST secure builds and fullApp upgrade+clean receipts; retain every actual failure.",
+    "After all candidate checks PASS execute actual CP06 debug/release x R13/R27 four installation cases.",
+    "Only after B01 HOST_VERIFIED engineering delivery proceed to B02 cards009..013; physical/quality pending stays explicit."
   ],
-  "qaCommit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "qaCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
   "delivery": "construction/r29/delivery/CP06.json",
   "mainEntryCommit": "13192296a196a8dfc971cb02a98255c65a61ba0e",
-  "currentCheckpoint": "CP11_FAILED_CP12_REPAIR_IN_PROGRESS_UNVERIFIED",
+  "currentCheckpoint": "CP12_FROZEN_CANDIDATE_NOT_ACCEPTED",
   "lastVerifiedDelivery": "construction/r29/delivery/CP06.json",
   "androidIntegration": {
-    "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
-    "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
-    "checkpoint": "CP11",
-    "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
-    "canonical": {
-      "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
-      "log": "/workspace/work/r29/cp11q-canonical.log",
-      "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
-      "junitCounts": {
+    "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+    "implementationCommit": "a859476689c44a3ebbccfd337ecc9759bdcf1468",
+    "canonicalSavedWrapper": {
+      "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+      "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY",
+      "duration": "5m7s",
+      "junit": {
         "xml": 32,
         "tests": 164,
         "failures": 0,
         "errors": 0,
-        "skipped": 0
+        "skipped": 0,
+        "oldestMtimeUtc": "2026-10-30T21:42:37.951329+00:00"
       },
-      "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-      "semanticMutations": 8
+      "semanticMutations": 8,
+      "lintTasks": [
+        "> Task :app:lintAnalyzeReleaseUnitTest",
+        "> Task :app:lintAnalyzeRelease",
+        "> Task :app:lintReportRelease UP-TO-DATE"
+      ],
+      "lintFreshReportClaim": false,
+      "lintExplanation": "Use exact task lines; local UP_TO_DATE report is reused. Fresh CI report audited separately.",
+      "canonicalLogSha256": "2cd3d72bf610bf23f7e51d4de57a72029a6a8351e2785e950b43a821106f614b",
+      "originalBootstrapFailure": "Uncommitted generated release constants caused R997 guard failure; raw log retained. Corrected13947b7 before final frozen source/bootstrap PASS.",
+      "android": "PENDING_EXACT_SOURCE_CI_NOT_INHERITED",
+      "B01": "NOT_ACCEPTED"
     },
-    "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
-    "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
-    "hostRepair": {
-      "DbStoreObservation": 18,
-      "publicationResume": 43,
-      "schemaDdlProof": 16,
-      "projectionSchemaInstaller": 21,
-      "qaOffline": 44,
-      "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
-    },
-    "fullCiExpectedHost": 45,
-    "nativeExpectedCases": 10,
     "runs": {
       "nativeTen": {
-        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
-        "run": 41129759889,
-        "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
-        "passed": 8,
-        "failed": 2,
-        "schemaOwner": {
-          "targetMs": 60000,
-          "observedMs": 60029,
-          "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
-          "state": "INITIALIZING",
-          "steps": 416,
-          "pending": 8
-        },
-        "fullRuntime": {
-          "allMechanismsServiceMillis": 96172,
-          "strategyReadyToAllMechanismsWallMs": 65100,
-          "targetMs": 60000,
-          "familyProgress": 24,
-          "expertReceipts": 16
-        },
-        "targetsRelaxed": false
+        "run": 41132497939,
+        "status": "RUNNING_EXACT_CP12_SOURCE",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132497939"
       },
       "r13SecureBuild": {
-        "run": 41129763373,
-        "status": "PENDING_RECEIPT"
+        "run": 41132500193,
+        "status": "RUNNING_EXACT_CP12_SOURCE",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132500193"
       },
       "fullAppDiagnostic": {
-        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
-        "run": 41129765576,
-        "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
-        "publication": "PUBLISHED",
-        "sealedBaseline": "ACTUALLY_VERIFIED",
-        "newTaskErrors": 1,
-        "task": "expert-E12",
-        "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
-        "cleanInstall": "NOT_STARTED",
-        "newCapacityFailures": 0,
-        "inheritedBaselineCapacityFailures": 1,
-        "inheritedSchemaCapacityWallMs": 8149,
-        "targetsRelaxed": false
+        "run": 41132503018,
+        "status": "RUNNING_EXACT_CP12_SOURCE",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132503018"
       },
       "r27SecureBuild": {
-        "run": 41129768959,
-        "status": "PENDING_RECEIPT"
+        "run": 41132505616,
+        "status": "RUNNING_EXACT_CP12_SOURCE",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132505616"
       }
     },
-    "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
-    "cp06FourUpgradeCases": "NOT_STARTED",
-    "targets_relaxed": false,
-    "priorProductIdenticalRun": {
-      "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
-      "native": "10_PASS_PRIOR_RUN_ONLY",
-      "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
-      "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
-      "qualificationInheritedTo2cf": false
+    "hostRepair": {
+      "receipt": "evidence/r29/batch01/cp12-repair-host/summary.json",
+      "receiptSha256": "a737d72750f95b3d536f1f8ca3d152dafa6301a817ee4885921d36bcab6ac478",
+      "status": "PASS_SELECTED_HOST_ANDROID_PENDING",
+      "positiveChecks": {
+        "coldStartFairness": 13,
+        "phaseStamp": 10,
+        "expertSnapshot": 17,
+        "originalEventYield": 22,
+        "originalSchemaOwner": 25,
+        "legacyLearning": 13,
+        "decisionRetention": 19,
+        "legacyState": 14,
+        "originalScopedPending": 28
+      },
+      "negativeControls": "ACTUAL_OLD_SOURCE_REJECTED_SAME_ASSERTIONS",
+      "scope": "HOST_REAL_SQLITE_NOT_ANDROID_ACCEPTANCE_NOT_OS_KILL_NOT_NATURAL_QUALITY"
     },
-    "nextRepair": {
-      "checkpoint": "CP12",
-      "state": "SOURCE_EDITING_UNVERIFIED",
-      "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
-      "sourceFrozen": false,
-      "targetsRelaxed": false
-    }
+    "thresholdsUnchanged": {
+      "fullAppWaitMs": 180000,
+      "legacySchemaServiceMs": 60000,
+      "firstServiceMs": 60000,
+      "schemaCapacityMs": 2000,
+      "continuationCapacityMs": 1040
+    },
+    "formalCp06UpgradeMatrix": {
+      "r13-debug": "NOT_STARTED",
+      "r13-release": "NOT_STARTED",
+      "r27-debug": "NOT_STARTED",
+      "r27-release": "NOT_STARTED"
+    },
+    "engineeringAccepted": false
   }
 }

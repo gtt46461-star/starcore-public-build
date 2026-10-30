@@ -1,0 +1,193 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 124317405540,
+      "run_id": 41129768959,
+      "workflow_name": "STARCORE R29 installable APK (R27 certificate)",
+      "head_branch": "construction/r27-20261028",
+      "run_url": "https://api.github.com/repos/gtt46461-star/starcore-public-build/actions/runs/41129768959",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVTGgAs8AAAAc8eURZA",
+      "head_sha": "52b239cf4baf417ba0d169824b806784efcde6e2",
+      "url": "https://api.github.com/repos/gtt46461-star/starcore-public-build/actions/jobs/124317405540",
+      "html_url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41129768959/job/124317405540",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-30T21:16:21Z",
+      "started_at": "2026-10-30T21:16:23Z",
+      "completed_at": "2026-10-30T21:32:29Z",
+      "name": "build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-30T21:16:24Z",
+          "completed_at": "2026-10-30T21:16:26Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-30T21:16:26Z",
+          "completed_at": "2026-10-30T21:16:27Z"
+        },
+        {
+          "name": "Run python3 -c \"import json;r=json.load(open('.github/r29-build-request.json'));print('source='+r['source']);print('batch='+r['batch'])\" >> \"$GITHUB_OUTPUT\"",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-30T21:16:27Z",
+          "completed_at": "2026-10-30T21:16:27Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-30T21:16:27Z",
+          "completed_at": "2026-10-30T21:16:38Z"
+        },
+        {
+          "name": "Run actions/setup-java@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-30T21:16:38Z",
+          "completed_at": "2026-10-30T21:16:38Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-30T21:16:38Z",
+          "completed_at": "2026-10-30T21:16:38Z"
+        },
+        {
+          "name": "Run python -m pip install numpy==2.3.5 'cryptography>=41,<51'",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-30T21:16:38Z",
+          "completed_at": "2026-10-30T21:16:44Z"
+        },
+        {
+          "name": "Run actions/cache/restore@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-30T21:16:44Z",
+          "completed_at": "2026-10-30T21:16:44Z"
+        },
+        {
+          "name": "Reuse the existing R27 certificate only (no new key)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-30T21:16:44Z",
+          "completed_at": "2026-10-30T21:16:45Z"
+        },
+        {
+          "name": "Run android-actions/setup-android@v3",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-30T21:16:45Z",
+          "completed_at": "2026-10-30T21:16:50Z"
+        },
+        {
+          "name": "Run sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-30T21:16:50Z",
+          "completed_at": "2026-10-30T21:17:17Z"
+        },
+        {
+          "name": "Identity, all suites, assemble and receipt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-30T21:17:17Z",
+          "completed_at": "2026-10-30T21:32:14Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-30T21:32:14Z",
+          "completed_at": "2026-10-30T21:32:18Z"
+        },
+        {
+          "name": "Publish the checkpoint APK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-30T21:32:18Z",
+          "completed_at": "2026-10-30T21:32:22Z"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-30T21:32:22Z",
+          "completed_at": "2026-10-30T21:32:25Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-10-30T21:32:25Z",
+          "completed_at": "2026-10-30T21:32:25Z"
+        },
+        {
+          "name": "Post Run actions/setup-java@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 28,
+          "started_at": "2026-10-30T21:32:25Z",
+          "completed_at": "2026-10-30T21:32:26Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-10-30T21:32:26Z",
+          "completed_at": "2026-10-30T21:32:26Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 30,
+          "started_at": "2026-10-30T21:32:26Z",
+          "completed_at": "2026-10-30T21:32:26Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 31,
+          "started_at": "2026-10-30T21:32:26Z",
+          "completed_at": "2026-10-30T21:32:26Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/gtt46461-star/starcore-public-build/check-runs/124317405540",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000003416,
+      "runner_name": "GitHub Actions 1000003416",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

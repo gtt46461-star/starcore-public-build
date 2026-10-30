@@ -1,0 +1,8 @@
+Exception in thread "main" java.lang.AssertionError: EXPERT_SNAPSHOT_BORROWED_BLOCKED_ROOT_RW_POOL
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.runtimeReadWhileHeld(ExpertSnapshotReaderR29HostTest.java:40)
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.main(ExpertSnapshotReaderR29HostTest.java:52)
+Caused by: java.lang.IllegalStateException: R26_UNSLICED_COMPUTATION_CAPACITY
+	at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.slice(CooperativeContinuationR26.java:34)
+	at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.step(TaskContinuationR26.java:20)
+	at com.ethk3.novaonepro.strategyv2.ExpertSnapshotReaderR29HostTest.turn(ExpertSnapshotReaderR29HostTest.java:31)
+	... 2 more

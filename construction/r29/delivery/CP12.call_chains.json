@@ -1,0 +1,390 @@
+{
+  "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
+  "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "note": "CP12 static source call-chain review under immutable R29 plan. Source identity is unbound until explicitly frozen. Existing prior call-chain descriptions remain implementation descriptions, not inherited runtime proof.",
+  "cards": [
+    {
+      "card": "R29-004",
+      "title": "双库可恢复迁移",
+      "original_change": "迁移manifest+watermark+规范化行hash；观察回滚前不DROP旧表",
+      "original_acceptance_test": "每阶段杀进程/重入/磁盘满，记录无丢行和重复迁移",
+      "metrics": [
+        "M08",
+        "M09"
+      ],
+      "registered_call_chain": "ResearchCutoverR29 → ResearchRowsR29 / CriticalInputMirrorR29 → ResearchRouteR29.publish; LegacyDomainUpgradeR29 upgrades existing R27-only research files before enabling legacy scope",
+      "implementation_call_chains": [
+        "ResearchCutoverR29.run → MigrationCopyR29 / ResearchRowsR29 typed copy, staged independent hash, sealed baseline and Handoff proof → ResearchRouteR29 publication; full catalog checks are preserved",
+        "LegacyDomainUpgradeR29 / LegacyDomainExtensionR29 preserve already advancing state and reject conflict; original Root copies remain",
+        "ResearchDatabaseR29.prepare → MigrationCopyR29.prepare(tables,stageWriter) registers complete real PENDING catalog without upfront Root tracker writes; PENDING is not copied or verified",
+        "ResearchDatabaseR29.step → MigrationCopyR29.step(source,destination,tables,sourceWriter,stageWriter,now) selects pending table → validates source schema → fresh exact three-trigger/watermark proof or first-use install under Root transaction → commits Root before generation/row capture or stage write",
+        "Correct existing trackers reuse zero Root writes; a started table losing or changing its tracker fails closed; genuinely unstarted untracked PENDING diagnostics show null watermark, not fake verified zero",
+        "ResearchCutoverR29.copyAndPublish → withSourceSnapshot(authority,body) opens private physical OPEN_READONLY Root WAL handle → verifies read-only and WAL → public beginTransactionNonExclusive (Android IMMEDIATE; deliberately no query_only) → primes sqlite_master snapshot → same handle discovers schemas, pages full typed data and computes final source hash → always ends read transaction/closes handle",
+        "Root stays live through independent writer; strict INSERT, complete typed root equality, 30s production budget, baseline seal and owner handoff remain unchanged. Snapshot pins copied input offsets so post-publication live mirror resumes from the captured offset.",
+        "ResearchCutoverR29.copyAndPublish → existing durable reservation → resumePublication verifies exact publication phase/epoch/path/owner/root/sealed baseline before cleanup or new copy → finishPublication retries Root publication without recopying a verified image",
+        "Fresh copy → withSourceSnapshot → prepareCandidateSnapshot full typed copy/hash → close private physical Root RO read transaction → sealAndPublish immutable baseline; never hold that snapshot through Root seal or publication",
+        "ResearchRouteR29.publishWithin requires actual Root transaction and compare-and-set phase identity; Root route and PUBLISHED publication transition commit together. Missing unpublished file may restore exact sealed baseline; an already published missing file fails closed to avoid replacing advanced state.",
+        "RuntimeR27.MigrationTask.run → preserve existing ACTIVE owner branch → real readyForResearchMigration dependency gate → ResearchDatabaseR29.acquire/step only after self-contained storage commits; no early Root tracker DDL competes with its prerequisite."
+      ],
+      "source_commit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "source_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "SchemaR27",
+          "after_sha256": "3b0bd200002ca65bd8f9a4681cfeac656afb898b689304df56345b121f5d2957"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "StoreR27",
+          "after_sha256": "b3aa47bc8b92b3e8690c025ffdded60d263a50b2f6026d31ad847ab822c03865"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchDatabaseR29.java",
+          "action": "ADD",
+          "symbol_scope": "ResearchDatabaseR29",
+          "after_sha256": "afbedf73ed973ab5d1e2cd5bc82061af69b475c8dd0e69c82b6899279373d2f6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MigrationCopyR29.java",
+          "action": "ADD",
+          "symbol_scope": "MigrationCopyR29",
+          "after_sha256": "4dac98f0e088ebb1a46bd7c8f6d4ac0e1239ff8f67ef468917a33535e7c2a841"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java",
+          "action": "ADD",
+          "symbol_scope": "ResearchCutoverR29",
+          "after_sha256": "c40c595d54e6ef42eac32fe40df5c4a3e7aa7b2c0e0575a13099b6242f2c86f2"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRouteR29.java",
+          "action": "ADD",
+          "symbol_scope": "ResearchRouteR29",
+          "after_sha256": "387ef51d9c5fe818a00bd4c064069a61989f002cb0d4635d7f6c3f84b467c9dc"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "RuntimeR27",
+          "after_sha256": "a436fea3da4fff779354662459d65fcb6979a631f17059027e7627d05d07be84"
+        }
+      ],
+      "tests": [
+        "run_migration_host.sh",
+        "run_cutover_host.sh",
+        "run_rows_host.sh",
+        "run_large_rows_host.sh",
+        "run_domain_upgrade_host.sh",
+        "run_migration_prepare_host.sh",
+        "run_cutover_snapshot_host.sh",
+        "R29CutoverSnapshotDeviceTest",
+        "run_cutover_resume_host.sh",
+        "run_cold_start_fairness_host.sh"
+      ],
+      "acceptance": "NOT_ACCEPTED_CP12_ACTUAL_RECEIPTS_REQUIRED",
+      "source_frozen": true
+    },
+    {
+      "card": "R29-005",
+      "title": "独立writer与事件投递",
+      "original_change": "研究独立写者；outbox/inbox；批次manifest原子可见；cursor最后提交",
+      "original_acceptance_test": "并发压力、部分500条提交、ack丢失和重复event；资格不得重复累加",
+      "metrics": [
+        "M07",
+        "M08",
+        "M09",
+        "M10"
+      ],
+      "registered_call_chain": "LegacyResearchScopeR29 → ResearchRouteR29 independent owner; ResearchEventBridgeR29 durable inbox; TerminalProjectionR29 and readonly input replicas",
+      "implementation_call_chains": [
+        "ResearchWriteQueueR27.submit → ResearchRouteR29 independent research transaction → complete Batch/cursor commit; Root remains formal owner",
+        "ResearchEventBridgeR29 / TerminalProjectionR29 / CriticalInputMirrorR29 durable pages and ACK; actual Root canonical input uses separate physical replica plus logical readonly view",
+        "ShadowAdmissionR26.retireOne → LegacyResearchScopeR29.realtime → ModelStoreSU2.currentChoice: Root readonly selection, research-only retirement writes",
+        "RuntimeR27.EventTask.step → boundedBootstrapSubmit → original ResearchWriteQueueR27 submit one busy attempt → idle/requeue; lastServiceAttempt controls urgency separately from committed lastDrain/progress",
+        "Original numerical continuations preserve their previous retry behavior; no Root deadline increased and no fake committed progress on a busy return",
+        "Root saveDraws/backfill → ResearchEventBridgeR29 append canonical event → one fresh sqlite_master query verifies exact seven object types, owners and normalized original DDL; valid schema performs zero DDL, malformed same-name object fails closed",
+        "FetchObservationR29.acceptedWithin → ResearchEventBridgeR29.ensureFetchObservationSchema fresh single-table check; original firstSeen/sourceTime/commit/validation semantics unchanged",
+        "DbStore 77 SELECT-only observations → independent Root read-only handle outside own transaction; current Root transaction retains original handle and sees own writes",
+        "RealtimeResearchProjectionR29 / LegacyLiveProjectionR29 / LegacyAuthorityProjectionR29 installers → fresh exact object DDL proof each call → valid existing schema skips DDL, while wrong same-name objects fail closed; original business SQL and protocol regression remain",
+        "ExpertWorkshopR26.snapshotReader → current own transaction or independent Root OPEN_READONLY observation → LegacyResearchScopeR29 route proof under independent Root observer; avoid an Android Root RW secondary connection WAL stall while preserving original SELECT and owner checks."
+      ],
+      "source_commit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "source_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "ResearchWriteQueueR27",
+          "after_sha256": "374962fba5239492075967a1d52dcf7bb69c88e0a8b241f0d4f46db2dbc3d463"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "ResearchPoolR27",
+          "after_sha256": "601c50b0ef727b71109aab1cece90c289203b966d201370a67d977e6189b6a03"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchEventBridgeR29.java",
+          "action": "ADD",
+          "symbol_scope": "ResearchEventBridgeR29",
+          "after_sha256": "609fd90c99b2c3397e3d6f89fe17291b2c582eb61ba9c795337f71a2e502df8c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/FetchObservationR29.java",
+          "action": "ADD",
+          "symbol_scope": "FetchObservationR29",
+          "after_sha256": "cf6d2ce97b54f2137f53395ce407070dbacb84435f69b861596977d040f81ba1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/DbStore.java",
+          "action": "MODIFY",
+          "symbol_scope": "DbStore",
+          "after_sha256": "e71f78048946802dfa4b7d27b33c485b69c6e76b09285909ff8835aacb31d002"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyAuthorityProjectionR29.java",
+          "action": "ADD",
+          "symbol_scope": "LegacyAuthorityProjectionR29",
+          "after_sha256": "70001a11aeb1df5b22678eef859d751ed34850681893f7143fe8764480a21b81"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyLiveProjectionR29.java",
+          "action": "ADD",
+          "symbol_scope": "LegacyLiveProjectionR29",
+          "after_sha256": "a06bbe0b2fa32a87a77c5e9c1a276bf824549558741b484e00eef997726d0fc1"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealtimeResearchProjectionR29.java",
+          "action": "ADD",
+          "symbol_scope": "RealtimeResearchProjectionR29",
+          "after_sha256": "e672a8e0824ad1b4a8bbe0b769c9df3eb44b5c11df649a4c0319fb538c3fa2aa"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+          "action": "MODIFY",
+          "symbol_scope": "ExpertWorkshopR26",
+          "after_sha256": "69fc3a1146a88db4839102230cd2db3472fd4b41c36c7bea87652c1a0a6198fc"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyResearchScopeR29.java",
+          "action": "ADD",
+          "symbol_scope": "LegacyResearchScopeR29",
+          "after_sha256": "ec22586b72b677a8aa69d3c57feb2f09597124c23d502d7c380ffd31f09de00f"
+        }
+      ],
+      "tests": [
+        "run_event_host.sh",
+        "run_terminal_host.sh",
+        "run_terminal_projection_host.sh",
+        "run_critical_mirror_host.sh",
+        "run_event_schema_host.sh",
+        "run_dbstore_observation_host.sh",
+        "run_projection_schema_host.sh",
+        "run_expert_snapshot_reader_host.sh"
+      ],
+      "acceptance": "NOT_ACCEPTED_CP12_ACTUAL_RECEIPTS_REQUIRED",
+      "source_frozen": true
+    },
+    {
+      "card": "R29-006",
+      "title": "持续调度与正确温控",
+      "original_change": "全部状态持续服务；ready优先/截止优先；headroom接近1降速、NaN回退、恢复滞回",
+      "original_acceptance_test": "前台/后台/热值0.1和0.95/NaN、有积压队列，进度无假阳性",
+      "metrics": [
+        "M11",
+        "M12",
+        "M13",
+        "M14"
+      ],
+      "registered_call_chain": "ResearchPoolR27 → CooperativeResearchTaskR29; RuntimeR27 private evolution turn; original legacy adapter",
+      "implementation_call_chains": [
+        "RuntimeR27.EvolutionTask.Turn → chunked captureEvolutionCheckpoint → EvolutionDatasetPinR29.decode → restoreExact → original cooperative step",
+        "EvolutionDatasetPinR29.append + r27_evolution_cursor + checkpoint checksum share one ResearchWriteQueueR27.Batch transaction",
+        "Original step1 boundary consumes latest pending dataset; mid-generation keeps exact pin; no-pin waits and corrupt snapshot throws without creating replacement loop",
+        "ResearchSchemaCoordinatorR926.ensureOneStepResult → fresh batched catalog/COMPLETED receipt checks; original DDL, guards and fixed 60s engineering gate retained",
+        "MigrationTask.publish wraps only bootstrap migration-status submit as one-attempt yield; StorageBlocked diagnostic busy returns RESOURCE_LOW_STORAGE idle without progress, real SQL errors propagate",
+        "Full new Android/native and full-App upgrade verification are required after these functional changes; prior6d/1d native9PASS is historical only",
+        "ExpertWorkshopR26 three snapshot SELECTs / ExpertContinuationR26 two parent-manifest SELECTs → ExpertWorkshopR26.snapshotReader → retain current Root handle inside transaction, otherwise coordinator independent Root RO → ResearchRouteR29.reader validates ACTIVE RP owner",
+        "Original expert math, loop, RNG, writes, cursor CAS and hard unsliced deadline remain unchanged; HOST shared-pool model is narrower than actual Android runtime proof",
+        "StrategySchemaSU1.ensureCompleted uses fresh bulk catalog proof in six queries rather than hundreds of per-object reads; original 265 units and SQL hashes remain exact",
+        "ResearchMigrationRegistryR952 CP4/CP8 use fresh exact schema proof to skip duplicate DDL; RuntimeCoordinatorR26 two readiness probes use independent read-only observations; no READY cache",
+        "inspect_runtime compares persisted CAPACITY_FAIL progress tuples against complete before.db baseline in Root and RP; old exact copied tuple remains historical, any new or same-count replacement capacity failure rejects independently of task_error0",
+        "RuntimeCoordinatorR26.claim while self-contained schema pending → one schema-only original status/lease/next_at admission with incremented fence; no empty P2/P3 Root claims and no error cooldown bypass.",
+        "RuntimeCoordinatorR26 schema execute → original800ms batch → each real unit inherits min(250ms,remaining minus50ms reserve) Root writer deadline → busy pending immediately yields → sum actual committedUnits; strategy-ready wakes r29-research-migration task id.",
+        "ResearchSchemaCoordinatorR926 optional same-Root active-runtime RESEARCH overlay waits outside writer until SU1 storage commits; critical CORE/R36 and runtime-absent independent installer remain available.",
+        "ResearchSchemaCoordinatorR926 same pending stage uses exact stage diagnostic stamp to avoid rebuilding the complete catalog proof after every single unchanged stage; original265 unit SQL/hash and final completion proof remain unchanged."
+      ],
+      "source_commit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "source_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "RuntimeR27",
+          "after_sha256": "a436fea3da4fff779354662459d65fcb6979a631f17059027e7627d05d07be84"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "ResearchPoolR27",
+          "after_sha256": "601c50b0ef727b71109aab1cece90c289203b966d201370a67d977e6189b6a03"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "action": "MODIFY",
+          "symbol_scope": "RuntimeCoordinatorR26",
+          "after_sha256": "096b68a0486821a62ed3f9ec9b84ae4f32c06005764037099649574c02383f2a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertContinuationR26.java",
+          "action": "MODIFY",
+          "symbol_scope": "ExpertContinuationR26",
+          "after_sha256": "ab2d4b2aa3b76382f7543e1232ef754f316014a45a9a7ccaf67fec8516b9f903"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertWorkshopR26.java",
+          "action": "MODIFY",
+          "symbol_scope": "ExpertWorkshopR26",
+          "after_sha256": "69fc3a1146a88db4839102230cd2db3472fd4b41c36c7bea87652c1a0a6198fc"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/r952/ResearchMigrationRegistryR952.java",
+          "action": "MODIFY",
+          "symbol_scope": "ResearchMigrationRegistryR952",
+          "after_sha256": "4420162f74c5c39a0420fb6996235cdf2837aa94adaa86e6bea52392653b1104"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU1.java",
+          "action": "MODIFY",
+          "symbol_scope": "StrategySchemaSU1",
+          "after_sha256": "f9f6af6ddbff6be02bfafc7a78ad7311229ff7906ebeec01e9851a83e2acdf4c"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/ResearchSchemaCoordinatorR926.java",
+          "action": "MODIFY",
+          "symbol_scope": "ResearchSchemaCoordinatorR926",
+          "after_sha256": "4a1c8678150fda7fe2f6c107c4d0a9b11843480d002ca057c81619d654113697"
+        }
+      ],
+      "tests": [
+        "EvolutionServiceR29Test",
+        "ResearchPoolSchedulerR29Test",
+        "R29ThermalPolicyTest",
+        "R26RuntimeDeviceTest",
+        "run_evolution_dataset_pin_host.sh",
+        "run_runtime_evolution_dataset_pin_host.sh",
+        "R29EvolutionDatasetPinDeviceTest",
+        "run_expert_snapshot_reader_host.sh",
+        "run_schema_ddl_proof_host.sh",
+        "test_inspect_runtime.py",
+        "run_cold_start_fairness_host.sh",
+        "run_research_phase_stamp_host.sh",
+        "run_research_schema_owner_host.sh"
+      ],
+      "acceptance": "NOT_ACCEPTED_CP12_ACTUAL_RECEIPTS_REQUIRED",
+      "source_frozen": true
+    },
+    {
+      "card": "R29-007",
+      "title": "旧算法能力适配",
+      "original_change": "保留旧VM/模型/教师依赖；导出完整state和算子ABI；只停重复调度入口",
+      "original_acceptance_test": "旧策略黄金输入逐期输出/状态对齐；不可复现给缺件清单",
+      "metrics": [
+        "M02",
+        "M20",
+        "M23"
+      ],
+      "registered_call_chain": "LegacyPolicyExportR27 / LegacyCapabilitySnapshotR29 → original VM state; ModelArtifactR29.restore chunked full checkpoint",
+      "implementation_call_chains": [
+        "LegacyPolicyExportR27 exports original program/state/ABI; LegacyCapabilitySnapshotR29 captures and restores the original numerical runtime",
+        "ModelArtifactR29.restore reads bounded chunks and preserves full weights/Adam/RNG/FTRL/replay; external old-device golden trajectories remain a missing dependency",
+        "No new old-device golden/private-state/teacher evidence supplied by CP08; prior VM/model continuity receipts retain their original source/scope only"
+      ],
+      "source_commit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "source_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyPolicyExportR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "LegacyPolicyExportR27",
+          "after_sha256": "b96e376b48b69b4a644e3dd70bb843ee0befb6d2171a4b676656da1dd81df6e6"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyContinuityR27.java",
+          "action": "MODIFY",
+          "symbol_scope": "LegacyContinuityR27",
+          "after_sha256": "f9f0cfee59b828a551c739e1f7dfe0da701959e04d9142f2be92dfc3f7327219"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyCapabilityAdapterR29.java",
+          "action": "ADD",
+          "symbol_scope": "LegacyCapabilityAdapterR29",
+          "after_sha256": "02a0f6da308c706a13a7e0acc1263b4ddcfe583c2b09905116f364c3c90609c5"
+        }
+      ],
+      "tests": [
+        "run_legacy_archive_host.sh",
+        "run_legacy_host.sh",
+        "run_model_chunk_host.sh",
+        "R29LargeModelCheckpointDeviceTest"
+      ],
+      "acceptance": "NOT_ACCEPTED_CP12_ACTUAL_RECEIPTS_REQUIRED",
+      "source_frozen": true
+    },
+    {
+      "card": "R29-008",
+      "title": "重复任务入口收敛",
+      "original_change": "建立唯一owner注册表；迁移成功才关闭旧scheduler；家族专家作为新池插件",
+      "original_acceptance_test": "同一任务无双worker；生命周期回归不丢预测、训练、图表、结算",
+      "metrics": [
+        "M02",
+        "M08",
+        "M12"
+      ],
+      "registered_call_chain": "LegacyCapabilityAdapterR29 unified dispatch → versioned LegacyLiveProjectionR29 / LegacyAuthorityProjectionR29; original mainline owner verifies sealed Root inputs",
+      "implementation_call_chains": [
+        "RuntimeCoordinatorR26 → LegacyCapabilityAdapterR29 handoff after migration and drain → ResearchPoolR27 plugin; durable r29_scheduler_owner session/epoch fences",
+        "LegacyLiveProjectionR29 / LegacyAuthorityProjectionR29 → original Root formal owner, with reviewed R974 hooks and unchanged numerical-owner constraints; retention uses separate RP/Root/CAS/ACK phases",
+        "Event/status bootstrap write contention releases sole pool worker rather than monopolizing it; ThreadLocal bounded-submit mode restored in finally so numerical retry semantics stay unchanged"
+      ],
+      "source_commit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "source_files": [
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+          "action": "MODIFY",
+          "symbol_scope": "RuntimeCoordinatorR26",
+          "after_sha256": "096b68a0486821a62ed3f9ec9b84ae4f32c06005764037099649574c02383f2a"
+        },
+        {
+          "path": "app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java",
+          "action": "MODIFY",
+          "symbol_scope": "AutoFetchService",
+          "after_sha256": "3fe900db43ab47aae60e90877cdd81f759e573597d3ed0f901fd4ee84244b187"
+        }
+      ],
+      "tests": [
+        "run_owner_host.sh",
+        "run_legacy_live_projection_host.sh",
+        "run_legacy_authority_host.sh",
+        "run_decision_retention_host.sh",
+        "R29DatabaseCutoverDeviceTest",
+        "R26RuntimeDeviceTest",
+        "run_shadow_retirement_host.sh",
+        "R29ShadowRetirementAuthorityDeviceTest"
+      ],
+      "acceptance": "NOT_ACCEPTED_CP12_ACTUAL_RECEIPTS_REQUIRED",
+      "source_frozen": true
+    }
+  ],
+  "androidEvidence": null,
+  "verificationBuildContractPaths": [
+    "scripts/pure_java_sources.py",
+    "scripts/verify_strategy_su1.py",
+    "scripts/verify_plan1025.py",
+    "scripts/verify_r26.py"
+  ],
+  "checkpoint": "checkpoint12",
+  "scopeCandidate": true,
+  "acceptance": "NOT_ACCEPTED",
+  "observedSnapshot": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "sourceFrozen": true
+}

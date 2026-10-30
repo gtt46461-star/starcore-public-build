@@ -1,0 +1,130 @@
+{
+  "schema": "R29_CHECKPOINT_DELIVERY_1",
+  "draft": true,
+  "checkpoint": "checkpoint12",
+  "batch": "B01",
+  "sourceFrozen": true,
+  "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "observedSnapshot": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "implementationCommit": "a859476689c44a3ebbccfd337ecc9759bdcf1468",
+  "versionGeneratedCommit": "13947b7a4d0dbc37c312e10d187fab0514a8f8c4",
+  "qaCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+  "sourceTree": "1e87895fce60b096fe68531a1a3b63ea957e0aa5",
+  "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
+  "overall": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+  "engineeringAccepted": false,
+  "expectedVersion": {
+    "package": "com.starcore.research.r13",
+    "versionCode": 577291012,
+    "versionName": "R29.1-2026.10.30-checkpoint12"
+  },
+  "runs": {
+    "nativeTen": {
+      "run": 41132497939,
+      "status": "RUNNING_EXACT_CP12_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132497939"
+    },
+    "r13SecureBuild": {
+      "run": 41132500193,
+      "status": "RUNNING_EXACT_CP12_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132500193"
+    },
+    "fullAppDiagnostic": {
+      "run": 41132503018,
+      "status": "RUNNING_EXACT_CP12_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132503018"
+    },
+    "r27SecureBuild": {
+      "run": 41132505616,
+      "status": "RUNNING_EXACT_CP12_SOURCE",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132505616"
+    }
+  },
+  "canonicalSavedWrapper": {
+    "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+    "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+    "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY",
+    "duration": "5m7s",
+    "junit": {
+      "xml": 32,
+      "tests": 164,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "oldestMtimeUtc": "2026-10-30T21:42:37.951329+00:00"
+    },
+    "semanticMutations": 8,
+    "lintTasks": [
+      "> Task :app:lintAnalyzeReleaseUnitTest",
+      "> Task :app:lintAnalyzeRelease",
+      "> Task :app:lintReportRelease UP-TO-DATE"
+    ],
+    "lintFreshReportClaim": false,
+    "lintExplanation": "Use exact task lines; local UP_TO_DATE report is reused. Fresh CI report audited separately.",
+    "canonicalLogSha256": "2cd3d72bf610bf23f7e51d4de57a72029a6a8351e2785e950b43a821106f614b",
+    "originalBootstrapFailure": "Uncommitted generated release constants caused R997 guard failure; raw log retained. Corrected13947b7 before final frozen source/bootstrap PASS.",
+    "android": "PENDING_EXACT_SOURCE_CI_NOT_INHERITED",
+    "B01": "NOT_ACCEPTED"
+  },
+  "fullCiExpectedHost": 47,
+  "nativeExpectedCases": 10,
+  "hostRepair": {
+    "receipt": "evidence/r29/batch01/cp12-repair-host/summary.json",
+    "receiptSha256": "a737d72750f95b3d536f1f8ca3d152dafa6301a817ee4885921d36bcab6ac478",
+    "status": "PASS_SELECTED_HOST_ANDROID_PENDING",
+    "positiveChecks": {
+      "coldStartFairness": 13,
+      "phaseStamp": 10,
+      "expertSnapshot": 17,
+      "originalEventYield": 22,
+      "originalSchemaOwner": 25,
+      "legacyLearning": 13,
+      "decisionRetention": 19,
+      "legacyState": 14,
+      "originalScopedPending": 28
+    },
+    "negativeControls": "ACTUAL_OLD_SOURCE_REJECTED_SAME_ASSERTIONS",
+    "scope": "HOST_REAL_SQLITE_NOT_ANDROID_ACCEPTANCE_NOT_OS_KILL_NOT_NATURAL_QUALITY"
+  },
+  "thresholdsUnchanged": {
+    "fullAppWaitMs": 180000,
+    "legacySchemaServiceMs": 60000,
+    "firstServiceMs": 60000,
+    "schemaCapacityMs": 2000,
+    "continuationCapacityMs": 1040
+  },
+  "offlineQaExpected": 44,
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "apk": [],
+  "sourceBinding": "construction/r29/delivery/CP12.source-binding.json",
+  "ledgerDraft": "construction/r29/ledger/B01-CP12.json",
+  "callChainsDraft": "construction/r29/delivery/CP12.call_chains.json",
+  "priorAttempt": "construction/r29/delivery/CP11.json",
+  "priorPassesMayAcceptCurrentSource": false,
+  "priorCP11Actual": {
+    "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+    "native": "8_PASS_2_FAIL_ORIGINAL_60S_SCHEMA_AND_FIRST_SERVICE_TARGETS",
+    "wholeApp": "PUBLISHED_BUT_NEW_EXPERT_E12_UNSLICED_ERROR1_REJECTED",
+    "cleanInstall": "NOT_STARTED",
+    "formalFour": "NOT_STARTED",
+    "prior05": "NATIVE10_AND_WARM_UPGRADE_PASS_CLEAN_FAILED_DOES_NOT_ACCEPT_CP12"
+  },
+  "latestAcceptedDelivery": "construction/r29/delivery/CP06.json",
+  "acceptedBatches": [
+    "B00"
+  ],
+  "acceptedCards": [
+    "R29-001",
+    "R29-002",
+    "R29-003"
+  ],
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "all44Metrics": "NOT_CLAIMED"
+}
