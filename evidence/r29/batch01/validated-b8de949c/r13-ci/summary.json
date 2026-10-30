@@ -1,0 +1,623 @@
+{
+  "schema": "R29_CP14_R13_ACTUAL_CI_ARTIFACT_AUDIT_1",
+  "auditedSource": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+  "sourceTree": "a47a330e51f504cc5739e70133d95e3aad5a2ce2",
+  "run": 41140358757,
+  "job": 124352862151,
+  "buildJobStatus": "success",
+  "wholeWorkflowStatus": "NOT_CLAIMED_EXTRA_AUTO_EMULATOR_SEPARATE",
+  "artifactId": 13019216976,
+  "artifactZipBytes": 250767,
+  "artifactZipSha256": "1cc3a0126e765fcd94c6b75fb96be1228d9be4eaa487066edec48f8819225122",
+  "status": "PASS_CI_HOST_JUNIT_CLI_QA_LINT_ONLY_CP14_NATIVE_AND_WHOLE_APP_SEPARATE",
+  "sourceBinding": [
+    {
+      "log": "bootstrap_compile.log",
+      "sha256": "6a758d432fcf7dd3536836a146922e14afa193e98da8df12404dc4044354703b",
+      "identities": [
+        [
+          "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+          "a47a330e51f504cc5739e70133d95e3aad5a2ce2"
+        ]
+      ]
+    },
+    {
+      "log": "unit.log",
+      "sha256": "dc78ede48dafd499df24587034e151d872d0c48b71b4184f0bd6b4f116acd13b",
+      "identities": [
+        [
+          "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+          "a47a330e51f504cc5739e70133d95e3aad5a2ce2"
+        ]
+      ]
+    },
+    {
+      "log": "assemble.log",
+      "sha256": "e2e5800bc894aa739ce017119feaf6cc7061c79be3b7a320c6adcc2439c3779b",
+      "identities": [
+        [
+          "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+          "a47a330e51f504cc5739e70133d95e3aad5a2ce2"
+        ]
+      ]
+    }
+  ],
+  "host": {
+    "frozenRunnerCount": 52,
+    "directRetainedPositiveRunnerCount": 52,
+    "inferredMissingPositiveRunnerCount": 0,
+    "runnerReceipts": [
+      {
+        "runner": "tools/r29/run_qual_host.sh",
+        "runnerSourceSha256": "8bcf14bb99ebb44fe4ee201e3ecb8c48a5f94eb48262b52831ff2734a19d6af5",
+        "log": "evidence/r29/ci/r29_qual_host.log",
+        "logSha256": "30b4c3f479cd2be606071d9537ebc0f2ea8026a32976cf4b3cf880a0106233b7",
+        "positiveReceipt": "R29_QUAL|SUMMARY|OK"
+      },
+      {
+        "runner": "tools/r29/run_event_host.sh",
+        "runnerSourceSha256": "753cda31eadf6e3d9a75468baac72e4240316d558d154f0a20dfad1a806da630",
+        "log": "evidence/r29/ci/r29_event_host.log",
+        "logSha256": "1ba1040ea2783824d60c8016166178a1fd39cd430ba78f7b18dbfc459284e35c",
+        "positiveReceipt": "R29_EVENT|ALL_PASS|checks=18|HOST_PROTOCOL_ONLY_RUNTIME_DB_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_event_yield_host.sh",
+        "runnerSourceSha256": "b2d457909d35991fa6fc074cecdc4363c5d0e7f8c5200968245c9192d8e6e25a",
+        "log": "evidence/r29/ci/r29_event_yield_host.log",
+        "logSha256": "2a7fa5be1f9acb8891cfcc60e24eea04eda60f797a24b2a172716c93a3f3dfda",
+        "positiveReceipt": "R29_EVENT_YIELD|ALL_PASS|checks=22|ACTUAL_EVENT_TASK_WRITER_AND_SCHEDULER_REAL_SQLITE_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_event_schema_host.sh",
+        "runnerSourceSha256": "2e5581ece32dcea1c259a9b549e5e3fa2a831823fe969cd40ea57ab507f60af4",
+        "log": "evidence/r29/ci/r29_event_schema_host.log",
+        "logSha256": "a06bd538961a68884b031a31e5c071891cd43da811daeafad66001e970f80758",
+        "positiveReceipt": "R29_EVENT_SCHEMA|ALL_PASS|checks=21|HOST_ONLY_FULL_APP_REVALIDATION_REQUIRED"
+      },
+      {
+        "runner": "tools/r29/run_migration_host.sh",
+        "runnerSourceSha256": "ae74b319379af8d459f38d45fcb691cc935a8b877b725a457223db0897451e0c",
+        "log": "evidence/r29/ci/r29_migration_host.log",
+        "logSha256": "705d6c94271acb8b8731b6a8ad464017a1a1e8f8c24dd2c35bacfcfefc83e7d2",
+        "positiveReceipt": "R29_MIGRATION|ALL_PASS|checks=16|STAGED_BASELINE_ONLY_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_migration_prepare_host.sh",
+        "runnerSourceSha256": "afb84e05556a5810ed8465caa07a4efbfaffbc1d658f99b45cf1b7d713e83611",
+        "log": "evidence/r29/ci/r29_migration_prepare_host.log",
+        "logSha256": "dca0d57fa71c97f23702fe397e318ce773a1096e44f6cc64ab6d0057d9230bc7",
+        "positiveReceipt": "R29_MIGRATION_PREPARE|ALL_PASS|checks=21|LAZY_SELECTED_TABLE_TRACKING_REAL_SQLITE_NOT_OS_CRASH"
+      },
+      {
+        "runner": "tools/r29/run_expert_snapshot_reader_host.sh",
+        "runnerSourceSha256": "f277aa9dff2f76d00eda938fa1d9a88e5ac9dd560ca4a4a495a916baf96d630a",
+        "log": "evidence/r29/ci/expert-snapshot-reader-host.log",
+        "logSha256": "af9b463a3b5e209680ca96c81212c15d4e6787236d71af38e35c0ba4f9d38f6c",
+        "positiveReceipt": "R29_EXPERT_SNAPSHOT|ALL_PASS|checks=17|ACTUAL_EXPERT_CONTINUATION_REAL_WAL_MODELLED_ANDROID_RW_POOL_NOT_DEVICE_ACCEPTANCE"
+      },
+      {
+        "runner": "tools/r29/run_incumbent_observation_host.sh",
+        "runnerSourceSha256": "74afdea0e10e0554ebea7b00d1d5eee4d9ff7f618f9324b45cb0998293471033",
+        "log": "evidence/r29/ci/r29_incumbent_observation_host.log",
+        "logSha256": "a35db3d4e7063d88c3148ae6c1e5dac422607d118cb681064a5e0c6f9be1adf8",
+        "positiveReceipt": "R29_INCUMBENT_OBSERVATION|ALL_PASS|checks=27|ACTUAL_TASK_AND_FRAME_REAL_SQLITE_MODELLED_RW_POOL_STALL_NOT_ANDROID_ACCEPTANCE"
+      },
+      {
+        "runner": "tools/r29/run_continuation_observation_host.sh",
+        "runnerSourceSha256": "43edc3953fd5fb0377f795b337cc2ccaa89637eb5f8570a708729e71e6c12678",
+        "log": "evidence/r29/ci/continuation-observation-host.log",
+        "logSha256": "7b22df7e5764a888e4f85d5c5e9a61b44f53ac386ac525ec305ba9a6470ecfb5",
+        "positiveReceipt": "R29_CONTINUATION_OBSERVATION|ALL_PASS|checks=17|REAL_CONTINUATIONS_AND_OWNER_HOST_MODEL_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_registration_host.sh",
+        "runnerSourceSha256": "51c6d55362895489a551999710210ea2bc98e8d41c4d21687bc8599e09f8813e",
+        "log": "evidence/r29/ci/r29_registration_host.log",
+        "logSha256": "e482a02d6a638ba4a4ddac83902e9158b1a09a8b2bfa517f1956f7cedecfb7ef",
+        "positiveReceipt": "R29_REGISTRATION|ALL_PASS|checks=14|HOST_ONLY_NOT_NATURAL_EVIDENCE"
+      },
+      {
+        "runner": "tools/r29/run_cutover_host.sh",
+        "runnerSourceSha256": "441960a584bc9912ab78bcb4ca3d06b7fbfcc41a2dd9d4579d468dc7519ce5f3",
+        "log": "evidence/r29/ci/r29_cutover_host.log",
+        "logSha256": "8f807a445c3223a79f545222a6fa3451b5c242ce46c6d03ffe9c00c660c71146",
+        "positiveReceipt": "R29_CUTOVER|ALL_PASS|checks=19|HOST_CORE_ONLY_ANDROID_HANDOFF_AND_REPORT_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_cutover_snapshot_host.sh",
+        "runnerSourceSha256": "01dea21af1ae902b970524ee273579af212a9c23be02496df479b5d315f88ce2",
+        "log": "evidence/r29/ci/r29_cutover_snapshot_host.log",
+        "logSha256": "1f8a7c3342d25a5cb7fd9443908496cced6defc2982020fa58944d699136975f",
+        "positiveReceipt": "R29_CUTOVER_SNAPSHOT|ALL_PASS|checks=18|REAL_WAL_CONCURRENT_ROOT_WRITER_HOST_ONLY_ANDROID_SNAPSHOT_ACCEPTANCE_SEPARATE"
+      },
+      {
+        "runner": "tools/r29/run_cutover_resume_host.sh",
+        "runnerSourceSha256": "b6ffb2c4a1704ccbb7044282b9c2b7a399ff2e6aa5d9b4cfc29f6f075625c4a2",
+        "log": "evidence/r29/ci/r29_cutover_resume_host.log",
+        "logSha256": "1d6121a082fe9d7a5b95a6ee08fa2127b29da9c5387bd4b61ced2f7bacd21b0f",
+        "positiveReceipt": "R29_CUTOVER_RESUME|ALL_PASS|checks=43|REAL_SQLITE_DURABLE_PHASE_HOST_FAULT_ROLLBACK_ONLY_ANDROID_PROCESS_KILL_SEPARATE"
+      },
+      {
+        "runner": "tools/r29/run_durable_handoff_host.sh",
+        "runnerSourceSha256": "693356fd963ed4d77e471b0ceee7f93fc6dcdce81ca56f97181431a9d998e2e5",
+        "log": "evidence/r29/ci/r29_durable_handoff_host.log",
+        "logSha256": "b77f043e1aa299d7d36636059f613f9ebf3e17799e59086c09c7513c302ca921",
+        "positiveReceipt": "R29_DURABLE_HANDOFF|ALL_PASS|checks=20|REAL_SQLITE_PUBLICATION_RETRY_AND_RESTART_NOT_OS_KILL"
+      },
+      {
+        "runner": "tools/r29/run_ack_recovery_host.sh",
+        "runnerSourceSha256": "45948d005e00f8c7314e8a266f1c559554d38de2322f81cbf99dc8cf872f9400",
+        "log": "evidence/r29/ci/r29_ack_recovery_host.log",
+        "logSha256": "3b035c5351cc2466509d919c3119c7c55210da724314bfbbb161bd0fa529bf59",
+        "positiveReceipt": "R29_ACK_RECOVERY|ALL_PASS|checks=19|ACTUAL_TWO_FILE_EVENT_RECOVERY_HOST_NOT_ANDROID_ACCEPTANCE"
+      },
+      {
+        "runner": "tools/r29/run_owner_host.sh",
+        "runnerSourceSha256": "cb2043d7d8fe33c227255cd3c8906a5797a8e42299183e568898d257e6cd3e3d",
+        "log": "evidence/r29/ci/r29_owner_host.log",
+        "logSha256": "d5dd5bed681865ded38110174dbcac44a255159ec91e942549dbd132a2dfdf98",
+        "positiveReceipt": "R29_OWNER|ALL_PASS|checks=12|HOST_ONLY_ANDROID_CONCURRENCY_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_report_host.sh",
+        "runnerSourceSha256": "e7a4cad49a8866c51747075e708749e22bb110ba0c8a03a1ff1223cae43df796",
+        "log": "evidence/r29/ci/r29_report_host.log",
+        "logSha256": "5753d2d48ef43205537b4d36677076d9944d2f373d885fea3418e6da5b11f004",
+        "positiveReceipt": "R29_REPORT|ALL_PASS|checks=15|HOST_SQL_ONLY_ANDROID_NATIVE_SNAPSHOT_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_host.sh",
+        "runnerSourceSha256": "1e42024558bc61243c683a2a92ede94954854d5de33d2766560c8ab989a229f8",
+        "log": "evidence/r29/ci/r29_legacy_host.log",
+        "logSha256": "184d307792a798ee4da2471f4bd9757e8d2a3fee9ee9ad3693016a68d876dd96",
+        "positiveReceipt": "R29_LEGACY_STATE|ALL_PASS|checks=14|ORIGINAL_STATE_ONLY_NOT_NATURAL_QUALITY"
+      },
+      {
+        "runner": "tools/r29/run_legacy_archive_host.sh",
+        "runnerSourceSha256": "86e33574905709c326e6d61843909b57bb2337aa6f25c531710240f6686d216a",
+        "log": "evidence/r29/ci/legacy-archive-host.log",
+        "logSha256": "533950cd51fe3d23b15ff246a22cf93fe24f39f0b794c643565f9adee2ff3c13",
+        "positiveReceipt": "R29_LEGACY_ARCHIVE|assets=125|passed=125|missing=0|failed=0|periods=8|actionsPerPeriod=1200|SYNTHETIC_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_model_chunk_host.sh",
+        "runnerSourceSha256": "2bca2310ac15223e83a2c03c903ec57b20e3d29dab1eebd924e1ac5766fe7ead",
+        "log": "evidence/r29/ci/r29_model_chunk_host.log",
+        "logSha256": "4106ccef9064760e88c3fc7520607534a5fcecf173291b20378f3605c1c34f56",
+        "positiveReceipt": "R29_MODEL_CHUNK|ALL_PASS|checks=11|HOST_SQL_AND_NUMERICAL_ONLY_ANDROID_WINDOW_TEST_SEPARATE"
+      },
+      {
+        "runner": "tools/r29/run_rows_host.sh",
+        "runnerSourceSha256": "dfe107cfb880493d4ec204c1768eaf7c6fa383d5f075997f48d932426e821f26",
+        "log": "evidence/r29/ci/r29_rows_host.log",
+        "logSha256": "96d359e9f974bf43924e0034a3cb1db20e13c2d661e83acac90ca7be41678225",
+        "positiveReceipt": "R29_ROWS|ALL_PASS|checks=16|HOST_SQL_ONLY_ANDROID_CUTOVER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_large_rows_host.sh",
+        "runnerSourceSha256": "c9eb4e2769e003e1bcb94fd3ab563a72129dfc5efccea6f2c253fb58473e12f7",
+        "log": "evidence/r29/ci/r29_large_rows_host.log",
+        "logSha256": "c14fcebc6fa5656f3b1de9815a61b19faa8f27fd719182785305e00cf2698c83",
+        "positiveReceipt": "R29_LARGE_ROWS|ALL_PASS|checks=13|HOST_TYPED_SQL_ONLY_ANDROID_CURSORWINDOW_TEST_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_full_schema_cutover_host.sh",
+        "runnerSourceSha256": "f1bce50cbbfe6fa72e6be324357470858d0b2076b417c2e1831d107b7de8d756",
+        "log": "evidence/r29/ci/r29_full_schema_cutover_host.log",
+        "logSha256": "a5ade0cd319a615b6ba76a739d89d5895ac8fcf031d9cde20b4b35a003fbc2c5",
+        "positiveReceipt": "R29_FULL_SCHEMA_CUTOVER|ALL_PASS|checks=5|ACTUAL_SCHEMA_REAL_WAL_HOST_ONLY_ANDROID_RUNTIME_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_terminal_host.sh",
+        "runnerSourceSha256": "a887c684ae749cf11795547b15ebe7134044cf76ff5bb508dfd46b6f4dc8ba1e",
+        "log": "evidence/r29/ci/r29_terminal_host.log",
+        "logSha256": "7936b0d8111572f048046ec10bfec08fd97cb7bf6a1004e04f5e206e73ed8772",
+        "positiveReceipt": "R29_TERMINAL|ALL_PASS|checks=9|HOST_ONLY_ANDROID_MIGRATION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_live_projection_host.sh",
+        "runnerSourceSha256": "f367d95553e199a2517624de4afea9a6a20cac3e580494f1d4b25699c6f2d9c4",
+        "log": "evidence/r29/ci/r29_legacy_live_projection_host.log",
+        "logSha256": "a2a4e733593ab4049f32b178f48778373a45b6ae9c63a1fd40ca0fddfa07b121",
+        "positiveReceipt": "R29_LEGACY_LIVE_PROJECTION|ALL_PASS|checks=15|HOST_PROTOCOL_NOT_ANDROID_LIFECYCLE"
+      },
+      {
+        "runner": "tools/r29/run_domain_upgrade_host.sh",
+        "runnerSourceSha256": "6b22f82766648fc990e88fa8f95e4405164b099d58401871489cf7c08d7553fe",
+        "log": "evidence/r29/ci/r29_domain_upgrade_host.log",
+        "logSha256": "ea23c6ba4688ae2d2839c64a034160523ed68219ce9b9d5b8c27f02db887bab7",
+        "positiveReceipt": "R29_DOMAIN_UPGRADE|ALL_PASS|checks=18|HOST_SQL_ONLY_ANDROID_UPGRADE_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_critical_mirror_host.sh",
+        "runnerSourceSha256": "161dd92cd9ae956c222c49bcf649d84aed1a6bff82160eeeec75d0138e037f7d",
+        "log": "evidence/r29/ci/r29_critical_mirror_host.log",
+        "logSha256": "732cc74d5c3164b4c74fc07058c152063f57e833615fd06a1276cc3961a92a3d",
+        "positiveReceipt": "R29_CRITICAL_MIRROR|ALL_PASS|checks=21|REAL_SQLITE_HOST_ONLY_ANDROID_COMBINED_ACCEPTANCE_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_root_read_pool_host.sh",
+        "runnerSourceSha256": "aa7289cf42d41b0ff1340188defdd6ea2b25f15dc8fd930e76bee7d87fee6f58",
+        "log": "evidence/r29/ci/positive.log",
+        "logSha256": "e3e4db1beaf7d8c95da627ef349a2428e8705d695d388afa0982865fc7d7114c",
+        "positiveReceipt": "R29_ROOT_READ_POOL|ALL_PASS|checks=5|REAL_SQLITE_WAL_WITH_MODELLED_ANDROID_PRIMARY_LEASE;ANDROID_RETEST_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_dbstore_observation_host.sh",
+        "runnerSourceSha256": "2cc83c9b86ee6203293522d9ec243c97980c0a7b2f5e8ba405529c831cf245ab",
+        "log": "evidence/r29/ci/dbstore-observation-host.log",
+        "logSha256": "5dca38f5dd3b7de7520f7bbf9d1674d91b3cb04b0d4408dba880835ce97053d4",
+        "positiveReceipt": "R29_DBSTORE_OBSERVATION|ALL_PASS|checks=18|ACTUAL_GETTERS_REAL_SQLITE_MODELLED_ANDROID_POOL_NOT_DEVICE_ACCEPTANCE"
+      },
+      {
+        "runner": "tools/r29/run_learned_input_host.sh",
+        "runnerSourceSha256": "275c9c365f595f5329bce9c2812e8f17a2727e2498c8f93eaaca416f7d5d49a9",
+        "log": "evidence/r29/ci/r29_learned_input_host.log",
+        "logSha256": "b09ee02aab3e13994b620d5a667e5ddd294f5617dbd9543dc85b4484d2c0fe3b",
+        "positiveReceipt": "R29_LEARNED_INPUT|ALL_PASS|checks=20|HOST_ONLY_ANDROID_BOOTSTRAP_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_learning_host.sh",
+        "runnerSourceSha256": "9e380141c3f953e7660720c31ada22a4f6b5e10ffaeea951838d90adfd36128a",
+        "log": "evidence/r29/ci/r29_legacy_learning_host.log",
+        "logSha256": "10003d8788611b9acfacabfc7caeb75cf27c976286896da6308935ec11b3cae6",
+        "positiveReceipt": "R29_LEGACY_LEARNING|ALL_PASS|checks=13|HOST_PROTOCOL_NOT_ANDROID_LIFECYCLE_OR_NATURAL_QUALITY"
+      },
+      {
+        "runner": "tools/r29/run_critical_production_trigger_host.sh",
+        "runnerSourceSha256": "1f7d409eddc94eecaeba54b2380a177781ac237125de9ae0d802062db8fcf152",
+        "log": "evidence/r29/ci/r29_critical_production_trigger_host.log",
+        "logSha256": "c768c776e590cf21816b632b3e7ab68ecf6d32caeef8eb365bc8f450845f9a83",
+        "positiveReceipt": "R29_CRITICAL_TRIGGER|ALL_PASS|HOST_ACTUAL_SCHEMA_AND_TRIGGER_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_projection_schema_host.sh",
+        "runnerSourceSha256": "35d8031b8964c002ae74cf0b1d02b016ae01e428525ab444d90daa29dbdc2112",
+        "log": "evidence/r29/ci/r29_projection_schema_host.log",
+        "logSha256": "e225c0ccc62f35aca1e69d2b43aa6002d430b697a698290e254c1c8b7ea0fa5d",
+        "positiveReceipt": "R29_PROJECTION_SCHEMA|ALL_PASS|checks=21|REAL_SQLITE_PROJECTION_INSTALLERS_HOST_ONLY_ANDROID_POOL_ACCEPTANCE_SEPARATE"
+      },
+      {
+        "runner": "tools/r29/run_research_schema_owner_host.sh",
+        "runnerSourceSha256": "51e7fd3c470fa17cf32f97c55f7dcc133572aee018684e5ea1409dfd6dd45e16",
+        "log": "evidence/r29/ci/r29_research_schema_owner_host.log",
+        "logSha256": "45979666c581fceba098f74b02df989c75e62efe286041c30deb4fa9ec13eb70",
+        "positiveReceipt": "R29_SCHEMA_OWNER|ALL_PASS|checks=25|ACTUAL_SCHEMA_REAL_SQLITE_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_schema_ddl_proof_host.sh",
+        "runnerSourceSha256": "0b71c176497c4d094919698f48aba067cace512cd527f50a740b2fa6fff36b27",
+        "log": "evidence/r29/ci/r29_schema_ddl_proof_host.log",
+        "logSha256": "819ce6ce38f29b881c09bcd7b63096c7a1a950f120c80cda91033ad43c64d084",
+        "positiveReceipt": "R29_SCHEMA_DDL_PROOF|ALL_PASS|checks=16|REAL_SQLITE_FRESH_OBJECT_PROOF_NO_READY_CACHE_ANDROID_POOL_ACCEPTANCE_SEPARATE"
+      },
+      {
+        "runner": "tools/r29/run_schema_installer_budget_host.sh",
+        "runnerSourceSha256": "3219ce727adcf162f1faaf2dd718b477979476b864d207f0072def92b9d80214",
+        "log": "evidence/r29/ci/r29_schema_installer_budget_host.log",
+        "logSha256": "8d922a564dad35ab16c01c96986b2417ebfbf3850da82e15e1cf5843e72fce35",
+        "positiveReceipt": "R29_INSTALLER_BUDGET|ALL_PASS|checks=11|ACTUAL_ROOT_RP_INSTALLER_SQL_COUNTS_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_cold_start_fairness_host.sh",
+        "runnerSourceSha256": "6e6e3788c2d4db04700e9655a405d4d2c488970fb3281192caedbcc222d0db9c",
+        "log": "evidence/r29/ci/r29_cold_start_fairness_host.log",
+        "logSha256": "a7b235b5d241ceda25b983a63f3dc345f5bbed9a30e106eeec4b79bdd947855d",
+        "positiveReceipt": "R29_COLD_START_FAIRNESS|ALL_PASS|checks=13|REAL_COORDINATOR_CLAIM_SCHEMA_HOST_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_research_phase_stamp_host.sh",
+        "runnerSourceSha256": "9fcb4fc0c90ad86f0fc6e082e6e52b2902ef43951f13ab63dfaa69fd611aa378",
+        "log": "evidence/r29/ci/r29_research_phase_stamp_host.log",
+        "logSha256": "caaa5ed7ad02a8c0a2efac93dd06ad75fce91efc157c77dc3a1a02f3499b0cb2",
+        "positiveReceipt": "R29_PHASE_STAMP|ALL_PASS|checks=10|ACTUAL_SQLITE_INSTALLER_NO_READY_CACHE_HOST_QUERY_COUNT_NOT_ANDROID_TIMING"
+      },
+      {
+        "runner": "tools/r29/run_domain_extension_host.sh",
+        "runnerSourceSha256": "4da80136046cdd912e64ef401f213f085eec4c5d81943c3a901c794c818f44d4",
+        "log": "evidence/r29/ci/r29_domain_extension_host.log",
+        "logSha256": "f9e4c80c1d4bdd0f3e4caecd6a8a37f71caa184a4efc043fd07def64b1c16ba4",
+        "positiveReceipt": "R29_DOMAIN_EXTENSION|ALL_PASS|checks=20|HOST_SQL_ONLY_ANDROID_UPGRADE_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_schema_progress_host.sh",
+        "runnerSourceSha256": "de14fb4b807738b5e07d22d7c042f58b3731eb97f4331925a48cb42fafd59719",
+        "log": "evidence/r29/ci/r29_schema_progress_host.log",
+        "logSha256": "c6dc2931447ee15d901d09ebb9e4fb90320517b94c500f4236149d5de1f0d405",
+        "positiveReceipt": "R29_SCHEMA_PROGRESS|ALL_PASS|checks=9|HOST_SQLITE_ENGINEERING_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_retained_formal_host.sh",
+        "runnerSourceSha256": "14514f2967ab1b27cf6dc07722d7be74f2532deda2e41d01fefc155d6ee6461c",
+        "log": "evidence/r29/ci/r29_retained_formal_host.log",
+        "logSha256": "ab808e680c5ba8c6bd8d713240c070acdd8e5e791ad53604f87437d974965623",
+        "positiveReceipt": "R29_RETAINED_FORMAL|ALL_PASS|NONEMPTY_OLD_FULL_COPIES_RETAINED_NOT_NEW_ROOT_REAL"
+      },
+      {
+        "runner": "tools/r29/run_canonical_input_host.sh",
+        "runnerSourceSha256": "6173489067597cbb6736b9adedaf81d58b04b81ed88d3eac2bcaea77ebae8b70",
+        "log": "evidence/r29/ci/canonical-input-host.log",
+        "logSha256": "6c2e95d6fa53711539425dec8d99aabb462b4652f85ad5a1382b912ea988b1e8",
+        "positiveReceipt": "R29_CANONICAL_INPUT|ALL_PASS|checks=12"
+      },
+      {
+        "runner": "tools/r29/run_dispatch_pending_host.sh",
+        "runnerSourceSha256": "ff74121988110d6e8fc915658e8f3b8f42564e7dd254219d10cb834da1d42a5f",
+        "log": "evidence/r29/ci/r29_dispatch_pending_host.log",
+        "logSha256": "ff86e313414e38fa15c614e71d7ec0c0e3709b22c14fc7ebe00fe3053d8ad4cf",
+        "positiveReceipt": "R29_DISPATCH_PENDING|ALL_PASS|checks=16|HOST_SQL_ONLY_ANDROID_F01_WRAPPER_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_scoped_schema_pending_host.sh",
+        "runnerSourceSha256": "b67f9e68a57dcd1e930547225e083c1c8710cbd5b1ac940ffa32058e44a68c24",
+        "log": "evidence/r29/ci/r29_scoped_schema_pending_host.log",
+        "logSha256": "a02a27cb04d0f5f098f2834717f618e23779c21286c430f490b320a32ccebd7e",
+        "positiveReceipt": "R29_SCOPED_SCHEMA_PENDING|ALL_PASS|checks=28|REAL_COORDINATOR_F01_SCOPE_SCHEMA_WITH_HOST_PLATFORM_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_shadow_retirement_host.sh",
+        "runnerSourceSha256": "ff1eed20623bd744cf7ab212e1bae5e4c354dc05b9bcc2e9c438dfe418f3a53a",
+        "log": "evidence/r29/ci/r29_shadow_retirement_host.log",
+        "logSha256": "0d5e3fe43d6d325c8d591a63285b73b3d682c29934c271101d68970e94c30e71",
+        "positiveReceipt": "R29_SHADOW_AUTHORITY|ALL_PASS|checks=8|HOST_SQL_ONLY_NATIVE_ROOT_HELD_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_evolution_dataset_pin_host.sh",
+        "runnerSourceSha256": "200123877c0b58202ef4ea05784b28738cfe65ef7e4239bdbe5a29c589d5ffc2",
+        "log": "evidence/r29/ci/r29_evolution_dataset_pin_host.log",
+        "logSha256": "20233546253b2ffc9c271f41ab7f39500c081e75ac43261cb46d66ad4f929423",
+        "positiveReceipt": "R29_EVOLUTION_DATASET_PIN|ALL_PASS|checks=22|REAL_SQLITE_AND_REAL_REPLAY_EVOLUTION_SYNTHETIC_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_runtime_evolution_dataset_pin_host.sh",
+        "runnerSourceSha256": "c82ff0de244914fe67ecca22be3bcc98bdc34c80e9e3939eadfa5c9c610c9509",
+        "log": "evidence/r29/ci/r29_runtime_evolution_dataset_pin_host.log",
+        "logSha256": "6050d5b455306ad748c2b091342cd6e4a6e1c5168590a023543934fa5bcaeb38",
+        "positiveReceipt": "R29_RUNTIME_EVOLUTION_PIN|ALL_PASS|checks=21|ACTUAL_RUNTIME_TURN_AND_40MS_CONTINUATION_REAL_SQLITE_SYNTHETIC_ONLY"
+      },
+      {
+        "runner": "tools/r29/run_terminal_projection_host.sh",
+        "runnerSourceSha256": "2a5ebe8c6704d5abc0b435711b7552cf97c2ab541ed1b5ac2bcfb9b1d647c8a1",
+        "log": "evidence/r29/ci/r29_terminal_projection_host.log",
+        "logSha256": "a54493841f8e85b6db5c27495113f2fb567930e5f2e0d047c926138ad1aea0cc",
+        "positiveReceipt": "R29_TERMINAL_PROJECTION|ALL_PASS|checks=12|HOST_ONLY_ANDROID_SCOPE_INTEGRATION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_decision_retention_host.sh",
+        "runnerSourceSha256": "774d2976f48ab8129e7197a6becbfc9b1f756fa09ac1fccbb451bf0b42010855",
+        "log": "evidence/r29/ci/r29_decision_retention_host.log",
+        "logSha256": "cdc73458fd37b74d034276be1bcd0a2bae5662687470cc1772dd02c30dc5016d",
+        "positiveReceipt": "R29_DECISION_RETENTION|ALL_PASS|checks=19|HOST_SQL_ONLY_ANDROID_RETENTION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_legacy_authority_host.sh",
+        "runnerSourceSha256": "5149d5a11c97088618f229d8a5d1eb6d75e251d1180f8ecd19360fd435cb884e",
+        "log": "evidence/r29/ci/r29_legacy_authority_host.log",
+        "logSha256": "3eb8365c3fdf337af6e3b806f1778e8ca259ad41b50f6aae93949d416195c04d",
+        "positiveReceipt": "R29_LEGACY_AUTHORITY|ALL_PASS|checks=25|SYNTHETIC_PROTOCOL_AND_SU2_ISSUANCE_NOT_NATURAL_QUALITY"
+      },
+      {
+        "runner": "tools/r29/run_prepared_host.sh",
+        "runnerSourceSha256": "b85a0e7fc03157979112c0fa477fa89fcabee6399a4bd45eec0c89fa3ff9c30e",
+        "log": "evidence/r29/ci/r29_prepared_host.log",
+        "logSha256": "b30363b09ea33034c0d1dbf78f8ed8fbd8e425a24d8731cbda2b6a46c596572b",
+        "positiveReceipt": "R29_PREPARED|ALL_PASS|checks=13|HOST_PROTOCOL_ONLY_ANDROID_INTEGRATION_PENDING"
+      },
+      {
+        "runner": "tools/r29/run_fetch_host.sh",
+        "runnerSourceSha256": "35a34a0741423eecce64c74bb5abfc6b7bd3ab8c480945983a93c6ff2977e308",
+        "log": "evidence/r29/ci/r29_fetch_host.log",
+        "logSha256": "c2610fe2d732be52487115dbdc856235fb222f226d5e25beba5debc9adcac867",
+        "positiveReceipt": "R29_FETCH|ALL_PASS|checks=8|HOST_ONLY_REAL_NETWORK_TIMING_PENDING"
+      }
+    ]
+  },
+  "junit": {
+    "xmlFiles": 32,
+    "tests": 164,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "oldestXmlTimestamp": "2026-10-30T22:55:43.850Z"
+  },
+  "semanticMutationChecks": 8,
+  "semanticReceipt": "R973_SEMANTIC_IDENTITY_SELF_TEST_PASS|8 mutation checks|DEV_ONLY|no_certificate_migration",
+  "smokeOrchestrationQa": {
+    "tests": 10,
+    "failures": 0,
+    "errors": 0,
+    "caseReceipts": [
+      "R29_SMOKE_PHASES|PROTOCOL_UPGRADE|OK",
+      "R29_SMOKE_PHASES|PROTOCOL_CLEAN|OK",
+      "R29_SMOKE_PHASES|PROTOCOL_BOTH|OK",
+      "R29_SMOKE_PHASES|PROTOCOL_ALL_PASS|OK",
+      "R29_SMOKE_PHASES|FAILED_PROBE_EVIDENCE_RETAINED_AND_CLEAN_STILL_RUNS|OK",
+      "R29_SMOKE_PHASES|SUBSHELL_ERREXIT_STOPS_FAILED_INSTALL_ONLY|OK",
+      "R29_SMOKE_PHASES|BASELINE_INSTALL_FAILURE_WITH_NO_PACKAGE_STILL_ATTEMPTS_CLEAN|OK",
+      "R29_SMOKE_PHASES|EXISTING_PACKAGE_UNINSTALL_FAILURE_CANNOT_MASQUERADE_AS_CLEAN|OK",
+      "R29_SMOKE_PHASES|PHYSICAL_PHONE_REJECTED_BEFORE_INSTALL|OK",
+      "R29_SMOKE_PHASES|OLD_116888FE_REPRODUCES_SKIPPED_CLEAN_REGRESSION|OK"
+    ]
+  },
+  "offlineQa": {
+    "tests": 44,
+    "failures": 0,
+    "errors": 0,
+    "caseReceipts": [
+      "test_active_owner_reads_real_rp_without_root_learner_tables (test_inspect_runtime.RuntimeInspection.test_active_owner_reads_real_rp_without_root_learner_tables) ... ok",
+      "test_actual_shell_keeps_observation_then_fails_missing_rp (test_inspect_runtime.RuntimeInspection.test_actual_shell_keeps_observation_then_fails_missing_rp) ... ok",
+      "test_clean_install_rejects_any_expert_error_without_baseline (test_inspect_runtime.RuntimeInspection.test_clean_install_rejects_any_expert_error_without_baseline) ... ok",
+      "test_clean_without_baseline_rejects_capacity_in_either_owner (test_inspect_runtime.RuntimeInspection.test_clean_without_baseline_rejects_capacity_in_either_owner) ... ok",
+      "test_cli_missing_baseline_persists_failed_summary (test_inspect_runtime.RuntimeInspection.test_cli_missing_baseline_persists_failed_summary) ... ok",
+      "test_committed_work_without_real_receipt_rejected (test_inspect_runtime.RuntimeInspection.test_committed_work_without_real_receipt_rejected) ... ok",
+      "test_current_owner_missing_progress_table_cannot_pass_capacity_gate (test_inspect_runtime.RuntimeInspection.test_current_owner_missing_progress_table_cannot_pass_capacity_gate) ... ok",
+      "test_equal_counts_do_not_hide_ack_for_wrong_event (test_inspect_runtime.RuntimeInspection.test_equal_counts_do_not_hide_ack_for_wrong_event) ... ok",
+      "test_legacy_reader_cannot_silently_ignore_active_route (test_inspect_runtime.RuntimeInspection.test_legacy_reader_cannot_silently_ignore_active_route) ... ok",
+      "test_missing_before_file_fails_without_creating_a_database (test_inspect_runtime.RuntimeInspection.test_missing_before_file_fails_without_creating_a_database) ... ok",
+      "test_missing_stage_is_observed_without_creating_fake_database (test_inspect_runtime.RuntimeInspection.test_missing_stage_is_observed_without_creating_fake_database) ... ok",
+      "test_new_root_capacity_receipt_fails_with_zero_task_errors (test_inspect_runtime.RuntimeInspection.test_new_root_capacity_receipt_fails_with_zero_task_errors) ... ok",
+      "test_new_root_expert_error_fails_even_when_r29_specific_count_is_zero (test_inspect_runtime.RuntimeInspection.test_new_root_expert_error_fails_even_when_r29_specific_count_is_zero) ... ok",
+      "test_new_rp_capacity_receipt_fails_when_root_is_empty (test_inspect_runtime.RuntimeInspection.test_new_rp_capacity_receipt_fails_when_root_is_empty) ... ok",
+      "test_new_rp_expert_error_also_fails (test_inspect_runtime.RuntimeInspection.test_new_rp_expert_error_also_fails) ... ok",
+      "test_no_actual_rp_copy_cannot_fallback_to_root (test_inspect_runtime.RuntimeInspection.test_no_actual_rp_copy_cannot_fallback_to_root) ... ok",
+      "test_no_events_report_insufficient_instead_of_delivery_pass (test_inspect_runtime.RuntimeInspection.test_no_events_report_insufficient_instead_of_delivery_pass) ... ok",
+      "test_normal_progress_is_not_a_capacity_failure (test_inspect_runtime.RuntimeInspection.test_normal_progress_is_not_a_capacity_failure) ... ok",
+      "test_observation_capacity_reasons_are_bounded_and_credential_redacted (test_inspect_runtime.RuntimeInspection.test_observation_capacity_reasons_are_bounded_and_credential_redacted) ... ok",
+      "test_observation_diagnostics_are_bounded_and_credential_redacted (test_inspect_runtime.RuntimeInspection.test_observation_diagnostics_are_bounded_and_credential_redacted) ... ok",
+      "test_observation_preserves_unchanged_capacity_baseline (test_inspect_runtime.RuntimeInspection.test_observation_preserves_unchanged_capacity_baseline) ... ok",
+      "test_observation_retains_capacity_delta_before_missing_rp_with_no_task_errors (test_inspect_runtime.RuntimeInspection.test_observation_retains_capacity_delta_before_missing_rp_with_no_task_errors) ... ok",
+      "test_observation_retains_recent_errors_and_baseline_delta_before_missing_rp (test_inspect_runtime.RuntimeInspection.test_observation_retains_recent_errors_and_baseline_delta_before_missing_rp) ... ok",
+      "test_observation_without_rp_preserves_counts_without_accepting (test_inspect_runtime.RuntimeInspection.test_observation_without_rp_preserves_counts_without_accepting) ... ok",
+      "test_old_r29_error_keeps_original_raw_zero_error_gate (test_inspect_runtime.RuntimeInspection.test_old_r29_error_keeps_original_raw_zero_error_gate) ... ok",
+      "test_old_unpublished_stage_owner_keeps_original_assertions (test_inspect_runtime.RuntimeInspection.test_old_unpublished_stage_owner_keeps_original_assertions) ... ok",
+      "test_outbox_payload_corruption_rejected (test_inspect_runtime.RuntimeInspection.test_outbox_payload_corruption_rejected) ... ok",
+      "test_rehashed_wrong_baseline_owner_rejected (test_inspect_runtime.RuntimeInspection.test_rehashed_wrong_baseline_owner_rejected) ... ok",
+      "test_root_task_failure_remains_visible (test_inspect_runtime.RuntimeInspection.test_root_task_failure_remains_visible) ... ok",
+      "test_route_owner_epoch_mismatch_rejected (test_inspect_runtime.RuntimeInspection.test_route_owner_epoch_mismatch_rejected) ... ok",
+      "test_rp_task_failure_is_not_hidden_by_empty_root_log (test_inspect_runtime.RuntimeInspection.test_rp_task_failure_is_not_hidden_by_empty_root_log) ... ok",
+      "test_same_count_capacity_replacement_changes_any_full_record_field (test_inspect_runtime.RuntimeInspection.test_same_count_capacity_replacement_changes_any_full_record_field) ... ok",
+      "test_same_count_replaced_error_is_not_accepted_as_history (test_inspect_runtime.RuntimeInspection.test_same_count_replaced_error_is_not_accepted_as_history) ... ok",
+      "test_same_event_wrong_hash_rejected (test_inspect_runtime.RuntimeInspection.test_same_event_wrong_hash_rejected) ... ok",
+      "test_same_event_wrong_sequence_rejected (test_inspect_runtime.RuntimeInspection.test_same_event_wrong_sequence_rejected) ... ok",
+      "test_sealed_baseline_bytes_not_merely_receipt_checked (test_inspect_runtime.RuntimeInspection.test_sealed_baseline_bytes_not_merely_receipt_checked) ... ok",
+      "test_source_hash_mismatch_rejected (test_inspect_runtime.RuntimeInspection.test_source_hash_mismatch_rejected) ... ok",
+      "test_stage_typed_copy_hash_still_checked (test_inspect_runtime.RuntimeInspection.test_stage_typed_copy_hash_still_checked) ... ok",
+      "test_unchanged_historical_expert_error_copied_from_root_to_rp_is_not_new (test_inspect_runtime.RuntimeInspection.test_unchanged_historical_expert_error_copied_from_root_to_rp_is_not_new) ... ok",
+      "test_unchanged_old_capacity_copied_root_to_rp_is_not_new (test_inspect_runtime.RuntimeInspection.test_unchanged_old_capacity_copied_root_to_rp_is_not_new) ... ok",
+      "test_unpublished_route_rejected (test_inspect_runtime.RuntimeInspection.test_unpublished_route_rejected) ... ok",
+      "test_upgrade_baseline_without_old_progress_table_still_detects_new_failure (test_inspect_runtime.RuntimeInspection.test_upgrade_baseline_without_old_progress_table_still_detects_new_failure) ... ok",
+      "test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure (test_inspect_runtime.RuntimeInspection.test_upgrade_shell_observation_has_error_delta_before_rp_pull_failure) ... ok",
+      "test_upgrade_shell_records_new_capacity_before_missing_rp_pull (test_inspect_runtime.RuntimeInspection.test_upgrade_shell_records_new_capacity_before_missing_rp_pull) ... ok"
+    ]
+  },
+  "cli": {
+    "su1.log": {
+      "printedPasses": 21,
+      "receipts": [
+        "schema_and_catalog_reproducibility PASS",
+        "independent_atom_golden PASS",
+        "independent_training_golden PASS",
+        "independent_relgraph_golden PASS",
+        "deployed_java_compile PASS",
+        "ProgramTreeSU1Test PASS",
+        "TypedProgramTest PASS",
+        "PairedEvidenceTest PASS",
+        "NullBaselineTest PASS",
+        "ProductionKernelSU1Test PASS",
+        "AdvancedContractsSU1Test PASS",
+        "TrainingParitySU1Test PASS",
+        "AuditControlsSU1Test PASS",
+        "RelGraphContractsSU1Test PASS",
+        "RelGraphParitySU1Test PASS",
+        "ModelAblationsSU1Test PASS",
+        "ResearchFailureSU1Test PASS",
+        "TrainingFidelitySU1Test PASS",
+        "ProductionR13Test PASS",
+        "python_schema_learning_and_null_suites PASS",
+        "python_replay_and_creation_suites PASS"
+      ],
+      "sha256": "62fb1e532107f1ba1c17e9c72201fe12a9565e1afd5a0b40e617a8f7a0aa7be2"
+    },
+    "plan1025.log": {
+      "printedPasses": 20,
+      "receipts": [
+        "generated_sql PASS",
+        "production_sql PASS",
+        "production_compile PASS",
+        "OnlineModelsSU2Test PASS",
+        "ModelLiveSU2Test PASS",
+        "XiIncumbentSU2Test PASS",
+        "MainlinePolicySU2Test PASS",
+        "CalibrationSU2Test PASS",
+        "CommitteeSU2Test PASS",
+        "CommitteeLiveSU2Test PASS",
+        "AtomNetSU2Test PASS",
+        "AtomNetR15Test PASS",
+        "LiveR15Test PASS",
+        "RegMemSU2Test PASS",
+        "ContMatSU2Test PASS",
+        "StageLayerSU2Test PASS",
+        "UpgradeDiagnosisSU2Test PASS",
+        "InformationProbeSU2Test PASS",
+        "StageDeploymentSU2Test PASS",
+        "MatrixSnapshotSU2Test PASS"
+      ],
+      "sha256": "f6f7041c7f43558fdea9ac4ef440844e75bbb8aa79f4f41f90e6b9e7d628afc9"
+    },
+    "r26.log": {
+      "printedPasses": 30,
+      "receipts": [
+        "compile PASS",
+        "kernels PASS",
+        "experts PASS",
+        "recovery PASS",
+        "chunked_checkpoint PASS",
+        "capability_service PASS",
+        "forecast_snapshot PASS",
+        "hidden_state_mechanism PASS",
+        "fragment_memory_mechanism PASS",
+        "warm_model_seed PASS",
+        "tensor_mechanism PASS",
+        "fragment_training_diagnostics PASS",
+        "matching_training_diagnostics PASS",
+        "neural_training_diagnostics PASS",
+        "structured_training_diagnostics PASS",
+        "sparse_training_diagnostics PASS",
+        "duration_training_diagnostics PASS",
+        "statistical_training_diagnostics PASS",
+        "suffix_training_diagnostics PASS",
+        "retrieval_training_diagnostics PASS",
+        "relation_training_statistics PASS",
+        "symbolic_training_diagnostics PASS",
+        "residual_training_diagnostics PASS",
+        "distillation_training_diagnostics PASS",
+        "incumbent_budget PASS",
+        "family_mechanisms PASS",
+        "evidence PASS",
+        "frozen_surface PASS",
+        "families PASS",
+        "plan_reference_contracts PASS"
+      ],
+      "sha256": "f0a7be03f1bbbd7642383a293ed217712f8b7fe148ae30cb247f47cee9d83c1f",
+      "totalChecks": 32,
+      "twoSilentChecks": "eleven_cross_language_golden_bytes and actual_sql_migration_fencing_cas_rollback_immutable_freeze reached before required final footer in fail-fast pinned source"
+    }
+  },
+  "lint": {
+    "freshAnalyzeAndReportExecuted": true,
+    "newIssues": 0,
+    "existingBaselineErrorsFiltered": 51,
+    "unmatchedBaselineEntries": 7,
+    "reportSha256": "6395060dd0211c80b70d1ce6734b6a9213ed2f375e32ec163aac5b2792e22157",
+    "actualXmlIssues": [
+      {
+        "id": "LintBaseline",
+        "severity": "Hint",
+        "message": "51 errors were filtered out because they are listed in the baseline file, lint-baseline.xml",
+        "category": "Lint",
+        "priority": "10",
+        "summary": "Baseline Applied",
+        "explanation": "Lint can be configured with a \"baseline\"; a set of current issues found in a codebase, which future runs of lint will silently ignore. Only new issues not found in the baseline are reported.\n\nNote that while opening files in the IDE, baseline issues are not filtered out; the purpose of baselines is to allow you to get started using lint and break the build on all newly introduced errors, without having to go back and fix the entire codebase up front. However, when you open up existing files you still want to be aware of and fix issues as you come across them.\n\nThis issue type is used to emit an informational-only warning if any issues were filtered out due to baseline matching. That way, you don't have a false sense of security if you forgot that you've checked in a baseline file."
+      },
+      {
+        "id": "LintBaselineFixed",
+        "severity": "Hint",
+        "message": "7 errors/warnings were listed in the baseline file (lint-baseline.xml) but not found in the project; perhaps they have been fixed? Another possible explanation is that lint recently stopped analyzing (and including results from) dependent projects by default. You can turn this back on with `android.lintOptions.checkDependencies=true`. Unmatched issue types: SetTextI18n (7)",
+        "category": "Lint",
+        "priority": "10",
+        "summary": "Baselined Issues Fixed",
+        "explanation": "If a lint baseline describes a problem which is no longer reported, then the problem has either been fixed, or perhaps the issue type has been disabled. In any case, the entry can be removed from the baseline (such that if the issue is reintroduced at some point, lint will complain rather than just silently starting to match the old baseline entry again.)"
+      }
+    ]
+  },
+  "scopeLimits": {
+    "B01": "NOT_ACCEPTED",
+    "formalFourCaseMatrix": "NOT_STARTED",
+    "native": "SEPARATE_EXACT_SOURCE_RECEIPT_REQUIRED",
+    "wholeApp": "SEPARATE_UPGRADE_AND_CLEAN_PHASE_RECEIPTS_REQUIRED",
+    "physicalDevice": "NOT_RUN",
+    "naturalQuality": "INSUFFICIENT",
+    "newRealGrant": "BLOCKED"
+  }
+}
