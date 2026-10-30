@@ -19,7 +19,13 @@ public final class LegacyLearnedInputR29 {
     private static long schema(SQLiteDatabase db){return MigrationCopyR29.scalar(db,"PRAGMA schema_version",null);}
     private static boolean installed(SQLiteDatabase db){
         long version=schema(db);Long cached=INSTALLED.get(key(db));if(cached!=null&&cached==version)return true;
-        Map<String,String> objects=new HashMap<>();try(Cursor c=db.rawQuery("SELECT name,sql FROM sqlite_master WHERE type IN('table','trigger')",null)){while(c.moveToNext())objects.put(c.getString(0),c.getString(1));}
+        // The version invalidates exactly as before, but unrelated legacy tables and
+        // their large trigger SQL do not participate in this guard contract.
+        Set<String> names=new LinkedHashSet<>(Arrays.asList(TABLE,STATE,LOCAL,GATE,"r29_research_owner",
+                "r29_legacy_guard_migration",DbHelper.TABLE_R906_RESEARCH_COMPACT_LABEL));
+        names.addAll(guards(true).keySet());
+        StringJoiner marks=new StringJoiner(",");for(String name:names)marks.add("?");
+        Map<String,String> objects=new HashMap<>();try(Cursor c=db.rawQuery("SELECT name,sql FROM sqlite_master WHERE type IN('table','trigger') AND name IN ("+marks+")",names.toArray(new String[0]))){while(c.moveToNext())objects.put(c.getString(0),c.getString(1));}
         for(String name:new String[]{TABLE,STATE,LOCAL,GATE,"r29_research_owner","r29_legacy_guard_migration"})if(!objects.containsKey(name))return false;
         for(Map.Entry<String,String> guard:guards(objects.containsKey(DbHelper.TABLE_R906_RESEARCH_COMPACT_LABEL)).entrySet())if(!guard.getValue().equals(objects.get(guard.getKey())))return false;
         INSTALLED.put(key(db),version);return true;

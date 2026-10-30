@@ -250,12 +250,18 @@ public final class ResearchSchemaCoordinatorR926 {
     public static String summary() { return state + "|cursor=" + cursor + "|error=" + error; }
 
     private static String nextStep(SQLiteDatabase db, SchemaDomainCoordinatorR926.Contract c) {
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R811_RESEARCH")) return "R811_RESEARCH";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R815_RESEARCH")) return "R815_RESEARCH";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R906_RESEARCH_R64_VERIFIED")) return "R906_RESEARCH_R64_VERIFIED";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R925_RESEARCH")) return "R925_RESEARCH";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R932_UNIFIED")) return "R932_UNIFIED";
-        if (!SchemaDomainCoordinatorR926.stepComplete(db, c, "R952_EXTENSION")) return "R952_EXTENSION";
+        // All six receipts belong to this writer's current SQLite transaction. Read their
+        // actual statuses once instead of repeating the infrastructure census and query
+        // for every completed prefix on every subsequent SU1 migration statement.
+        SchemaDomainCoordinatorR926.ensureInfrastructure(db);
+        java.util.Set<String> completed=new java.util.HashSet<>();
+        try(android.database.Cursor journal=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
+                +" WHERE domain=? AND revision=? AND status='COMPLETED'",
+                new String[]{c.domain,String.valueOf(c.revision)})){
+            while(journal.moveToNext())completed.add(journal.getString(0));
+        }
+        for(String step:new String[]{"R811_RESEARCH","R815_RESEARCH","R906_RESEARCH_R64_VERIFIED",
+                "R925_RESEARCH","R932_UNIFIED","R952_EXTENSION"})if(!completed.contains(step))return step;
         return nextAdditiveStep(db);
     }
 

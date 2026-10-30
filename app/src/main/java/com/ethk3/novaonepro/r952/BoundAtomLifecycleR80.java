@@ -85,7 +85,11 @@ public final class BoundAtomLifecycleR80 {
         try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{name})){if(!c.moveToFirst())return;String existing=c.getString(0);if(existing.equals(DDL.get(name)))return;need(legacy.equals(existing),"BOUND_SCHEMA_DRIFT:"+name);}
         db.execSQL("DROP "+kind+" "+name);
     }
-    public static boolean readyR80(SQLiteDatabase db){for(Map.Entry<String,String> e:DDL.entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})){if(!c.moveToFirst()||!e.getValue().equals(c.getString(0)))return false;}return true;}
+    public static boolean readyR80(SQLiteDatabase db){
+        SchemaObjectSnapshotR26 present=SchemaObjectSnapshotR26.read(db,DDL.keySet());
+        for(Map.Entry<String,String> e:DDL.entrySet())if(!present.contains(e.getKey())||!e.getValue().equals(present.firstSql(e.getKey())))return false;
+        return true;
+    }
     private static boolean installed(SQLiteDatabase db){try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",new String[]{COHORT})){return c.moveToFirst();}}
     public static int occupiedR80(SQLiteDatabase db){if(!installed(db))return 0;try(Cursor c=db.rawQuery("SELECT COUNT(*) FROM "+PARENT+" p JOIN "+COHORT+" c ON c.cohort_hash=p.cohort_hash WHERE c.state IN "+ACTIVE,null)){need(c.moveToFirst(),"BOUND_COUNT");int n=c.getInt(0);need(n<=MAX_PARENTS*MAX_ACTIVE_COHORTS_R81,"BOUND_CAPACITY_CORRUPT");return n;}}
     public static boolean sourceOnlyR80(SQLiteDatabase db,String candidate,String target){if(!installed(db))return false;try(Cursor c=db.rawQuery("SELECT 1 FROM "+SOURCE+" WHERE candidate_id=? AND target_issue=? UNION ALL SELECT 1 FROM "+PARENT+" p JOIN "+COHORT+" c ON c.cohort_hash=p.cohort_hash WHERE p.candidate_id=? AND c.first_issue<=? AND c.state IN "+ACTIVE+" LIMIT 1",new String[]{candidate,target,candidate,target})){return c.moveToFirst();}}

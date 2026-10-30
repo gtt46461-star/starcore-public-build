@@ -182,14 +182,13 @@ public final class LegacySettlementProofR79 {
         try{requireCanonicalInputR29(db);}catch(IllegalStateException pending){
             if(String.valueOf(pending.getMessage()).startsWith("CP3_DB_BUSY"))return false;throw pending;
         }
-        for(int i=0;i<NAMES.length;i++)try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{NAMES[i]})) {
-            if(!c.moveToFirst()||!normalize(DDL[i]).equals(normalize(c.getString(0))))return false;
-        }
-        for(int i=0;i<AUDIT_NAMES.length;i++)try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{AUDIT_NAMES[i]})) {
-            if(!c.moveToFirst()||!normalize(AUDIT_DDL[i]).equals(normalize(c.getString(0))))return false;
-        }
-        for(java.util.Map.Entry<String,String> e:auditFences(db).entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})) {
-            if(!c.moveToFirst()||!normalize(e.getValue()).equals(normalize(c.getString(0))))return false;
+        java.util.LinkedHashMap<String,String> expected=new java.util.LinkedHashMap<>();
+        for(int i=0;i<NAMES.length;i++)expected.put(NAMES[i],DDL[i]);
+        for(int i=0;i<AUDIT_NAMES.length;i++)expected.put(AUDIT_NAMES[i],AUDIT_DDL[i]);
+        expected.putAll(auditFences(db));
+        SchemaObjectSnapshotR26 present=SchemaObjectSnapshotR26.read(db,expected.keySet());
+        for(java.util.Map.Entry<String,String> e:expected.entrySet()) {
+            if(!present.contains(e.getKey())||!normalize(e.getValue()).equals(normalize(present.firstSql(e.getKey()))))return false;
         }
         return true;
     }

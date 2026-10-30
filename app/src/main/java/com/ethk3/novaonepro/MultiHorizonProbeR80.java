@@ -91,8 +91,10 @@ public final class MultiHorizonProbeR80 {
     }
     public static boolean readyR80(SQLiteDatabase db) {
         if(db==null)return false;
-        for(Map.Entry<String,String> e:schema().entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})) {
-            if(!c.moveToFirst()||!normalizeSql(e.getValue()).equals(normalizeSql(c.getString(0))))return false;
+        Map<String,String> expected=schema();
+        SchemaObjectSnapshotR26 present=SchemaObjectSnapshotR26.read(db,expected.keySet());
+        for(Map.Entry<String,String> e:expected.entrySet()) {
+            if(!present.contains(e.getKey())||!normalizeSql(e.getValue()).equals(normalizeSql(present.firstSql(e.getKey()))))return false;
         }
         return true;
     }

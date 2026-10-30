@@ -23,6 +23,43 @@ public final class ScopedSchemaPendingR29HostTest {
     static boolean pending(ResearchSchemaCoordinatorR926.StepResult result)throws Exception{
         try{return ResearchSchemaCoordinatorR926.StepResult.class.getField("pending").getBoolean(result);}catch(NoSuchFieldException old){return false;}
     }
+    interface Readiness {boolean read(SQLiteDatabase db)throws Exception;}
+    static void freshCatalog(SQLiteDatabase db,String label,String trigger,Readiness readiness)throws Exception{
+        AtomicInteger batches=new AtomicInteger(),individual=new AtomicInteger();
+        boolean ready;
+        SQLiteDatabase.hostBeforeQuery=(handle,sql)->{
+            if(handle==db&&sql.startsWith("SELECT name,sql FROM sqlite_master WHERE name IN ("))batches.incrementAndGet();
+            if(handle==db&&sql.equals("SELECT sql FROM sqlite_master WHERE name=?"))individual.incrementAndGet();
+        };
+        try{ready=readiness.read(db);}finally{SQLiteDatabase.hostBeforeQuery=null;}
+        check("P14_"+label+"_ONE_FRESH_CATALOG_QUERY",ready&&batches.get()==1&&individual.get()==0);
+        String original;
+        try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{trigger})){if(!c.moveToFirst())throw new AssertionError("PRODUCTION_TRIGGER_REQUIRED:"+trigger);original=c.getString(0);}
+        boolean missing,changed;
+        db.execSQL("SAVEPOINT r29_catalog_readiness_check");
+        try{
+            db.execSQL("DROP TRIGGER "+trigger);missing=!readiness.read(db);
+            db.execSQL(original.replace("RAISE(ABORT,'","RAISE(ABORT,'SYNTHETIC_CHANGED_"));changed=!readiness.read(db);
+        }finally{db.execSQL(";ROLLBACK TO r29_catalog_readiness_check");db.execSQL("RELEASE r29_catalog_readiness_check");}
+        check("P15_"+label+"_DROP_AND_SAME_NAME_CHANGED_GUARD_FAIL_CLOSED",missing&&changed);
+        check("P16_"+label+"_ROLLBACK_RECHECKS_ORIGINAL_DDL",readiness.read(db));
+    }
+    static void catalogRegression(DbStore store)throws Exception{
+        ResearchRouteR29.write(store,"SYNTHETIC_FRESH_CATALOG_REGRESSION",db->{
+            Class<?> legacy=Class.forName("com.ethk3.novaonepro.LegacySettlementProofR79");Method legacyReady=legacy.getDeclaredMethod("ready",SQLiteDatabase.class);legacyReady.setAccessible(true);
+            freshCatalog(db,"LEGACY_PROOF","r79_legacy_classification_no_update",x->(Boolean)legacyReady.invoke(null,x));
+            freshCatalog(db,"MULTI_HORIZON","r80_probe_ref_no_update",MultiHorizonProbeR80::readyR80);
+            freshCatalog(db,"BOUND_ATOM","r80_bound_cohort_identity",com.ethk3.novaonepro.r952.BoundAtomLifecycleR80::readyR80);
+            Method next=ResearchSchemaCoordinatorR926.class.getDeclaredMethod("nextStep",SQLiteDatabase.class,SchemaDomainCoordinatorR926.Contract.class);next.setAccessible(true);
+            boolean rearmed;
+            db.execSQL("SAVEPOINT r29_catalog_receipt_check");try{
+                db.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" SET status='REPAIR_REQUIRED' WHERE domain='RESEARCH' AND step_id='R815_RESEARCH'");
+                rearmed="R815_RESEARCH".equals(next.invoke(null,db,SchemaDomainCoordinatorR926.researchContract(db)));
+            }finally{db.execSQL(";ROLLBACK TO r29_catalog_receipt_check");db.execSQL("RELEASE r29_catalog_receipt_check");}
+            check("P17_BATCHED_RECEIPTS_RECHECK_ACTUAL_REARMED_STEP_IN_ORIGINAL_ORDER",rearmed);
+            return 0;
+        });
+    }
     static void seed(SQLiteDatabase root)throws Exception{
         ResearchSchemaOwnerR29HostTest.tx(root,()->{
             SchemaR27.ensure(root);ResearchEventBridgeR29.ensureRealtime(root);LegacyCapabilityAdapterR29.initialize(root,"SYNTHETIC_SCOPED_HOST");
@@ -86,6 +123,7 @@ public final class ScopedSchemaPendingR29HostTest {
                 });
             }
             check("P13_DEFAULT_SHADOW_RETIRE_READS_ROOT_CHOICE_WITHOUT_INVENTING_RP_AUTHORITY",retired==0&&n(root,"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='su2_mainline_choice'")==1&&n(rpReader,"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='su2_mainline_choice'")==0);
+            catalogRegression(store);
             System.out.println("R29_SCOPED_SCHEMA_PENDING|MEASURED|calls="+calls+"|preCallbackPending="+preCallbackPending+"|adapterPending="+adapterPending+"|milliseconds="+((System.nanoTime()-start)/1000000));
         }finally{
             SQLiteDatabase.hostBeforeQuery=null;if(pool!=null)pool.close();if(rpReader!=null)rpReader.close();if(rootReader!=null)rootReader.close();if(preparation!=null)preparation.close();if(root!=null)root.close();if(coordinator!=null){Field f=DatabaseCoordinator.class.getDeclaredField("backgroundWriter");f.setAccessible(true);((java.util.concurrent.ExecutorService)f.get(coordinator)).shutdownNow();}
