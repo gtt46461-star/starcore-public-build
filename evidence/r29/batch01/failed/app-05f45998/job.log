@@ -1,0 +1,892 @@
+﻿2026-10-30T21:05:37.3118980Z Current runner version: '2.338.2'
+2026-10-30T21:05:37.3145629Z ##[group]Runner Image Provisioner
+2026-10-30T21:05:37.3146752Z Hosted Compute Agent
+2026-10-30T21:05:37.3147368Z Version: 20261021.618
+2026-10-30T21:05:37.3148466Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-30T21:05:37.3149233Z Build Date: 2026-10-21T00:45:21Z
+2026-10-30T21:05:37.3150033Z Worker ID: {ed68c5fb-1ea4-4c26-8130-5e3e8412bd33}
+2026-10-30T21:05:37.3150762Z Region: eastus
+2026-10-30T21:05:37.3151320Z Cloud: Azure
+2026-10-30T21:05:37.3151916Z ##[endgroup]
+2026-10-30T21:05:37.3153583Z ##[group]Operating System
+2026-10-30T21:05:37.3154369Z Ubuntu
+2026-10-30T21:05:37.3154934Z 24.04.5
+2026-10-30T21:05:37.3155460Z LTS
+2026-10-30T21:05:37.3156035Z ##[endgroup]
+2026-10-30T21:05:37.3156603Z ##[group]Runner Image
+2026-10-30T21:05:37.3157325Z Image: ubuntu-24.04
+2026-10-30T21:05:37.3158315Z Version: 20261025.353.1
+2026-10-30T21:05:37.3159669Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-30T21:05:37.3161240Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-10-30T21:05:37.3162294Z ##[endgroup]
+2026-10-30T21:05:37.3163408Z ##[group]GITHUB_TOKEN Permissions
+2026-10-30T21:05:37.3165700Z Contents: read
+2026-10-30T21:05:37.3166329Z Metadata: read
+2026-10-30T21:05:37.3166926Z ##[endgroup]
+2026-10-30T21:05:37.3169690Z Secret source: Actions
+2026-10-30T21:05:37.3170662Z Cache mode: write
+2026-10-30T21:05:37.3171500Z Prepare workflow directory
+2026-10-30T21:05:37.3511505Z Prepare all required actions
+2026-10-30T21:05:37.3562868Z Getting action download info
+2026-10-30T21:05:37.6436084Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-30T21:05:37.8254090Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-10-30T21:05:38.0610823Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-30T21:05:38.1853907Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-30T21:05:38.3516831Z Download action repository 'android-actions/setup-android@v3' (SHA:9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407)
+2026-10-30T21:05:38.4753191Z Download action repository 'reactivecircus/android-emulator-runner@v2' (SHA:a421e43855164a8197daf9d8d40fe71c6996bb0d)
+2026-10-30T21:05:38.6416817Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-30T21:05:38.9751450Z Complete job name: android
+2026-10-30T21:05:39.1002083Z ##[group]Run actions/checkout@v4
+2026-10-30T21:05:39.1003478Z with:
+2026-10-30T21:05:39.1004782Z   sparse-checkout: .github/r29-integration-request.json
+2026-10-30T21:05:39.1006128Z   repository: gtt46461-star/starcore-public-build
+2026-10-30T21:05:39.1015149Z   token: ***
+2026-10-30T21:05:39.1016013Z   ssh-strict: true
+2026-10-30T21:05:39.1016868Z   ssh-user: git
+2026-10-30T21:05:39.1017919Z   persist-credentials: true
+2026-10-30T21:05:39.1018864Z   clean: true
+2026-10-30T21:05:39.1019764Z   sparse-checkout-cone-mode: true
+2026-10-30T21:05:39.1020790Z   fetch-depth: 1
+2026-10-30T21:05:39.1021641Z   fetch-tags: false
+2026-10-30T21:05:39.1022513Z   show-progress: true
+2026-10-30T21:05:39.1023387Z   lfs: false
+2026-10-30T21:05:39.1024193Z   submodules: false
+2026-10-30T21:05:39.1025080Z   set-safe-directory: true
+2026-10-30T21:05:39.1026073Z   allow-unsafe-pr-checkout: false
+2026-10-30T21:05:39.1027426Z ##[endgroup]
+2026-10-30T21:05:39.3901321Z Syncing repository: gtt46461-star/starcore-public-build
+2026-10-30T21:05:39.3904882Z ##[group]Getting Git version info
+2026-10-30T21:05:39.3906748Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:05:39.3910515Z [command]/usr/bin/git version
+2026-10-30T21:05:39.4985402Z git version 2.56.0
+2026-10-30T21:05:39.5009803Z ##[endgroup]
+2026-10-30T21:05:39.5026786Z Temporarily overriding HOME='/home/runner/work/_temp/ac4a11ad-d026-4a0a-8ac4-95ba938fb88a' before making global git config changes
+2026-10-30T21:05:39.5030283Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:05:39.5033435Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:05:39.5264830Z Deleting the contents of '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:05:39.5269749Z ##[group]Initializing the repository
+2026-10-30T21:05:39.5274578Z [command]/usr/bin/git init /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:05:39.5736635Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-30T21:05:39.5739857Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-30T21:05:39.5741710Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-30T21:05:39.5743168Z hint: call:
+2026-10-30T21:05:39.5744082Z hint:
+2026-10-30T21:05:39.5745106Z hint: 	git config --global init.defaultBranch <name>
+2026-10-30T21:05:39.5746373Z hint:
+2026-10-30T21:05:39.5747837Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-30T21:05:39.5749726Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-30T21:05:39.5751131Z hint:
+2026-10-30T21:05:39.5751940Z hint: 	git branch -m <name>
+2026-10-30T21:05:39.5752840Z hint:
+2026-10-30T21:05:39.5754007Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-30T21:05:39.5836120Z Initialized empty Git repository in /home/runner/work/starcore-public-build/starcore-public-build/.git/
+2026-10-30T21:05:39.5850110Z [command]/usr/bin/git remote add origin https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:05:39.6075515Z ##[endgroup]
+2026-10-30T21:05:39.6077185Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:05:39.6080554Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:05:39.6130239Z ##[endgroup]
+2026-10-30T21:05:39.6131666Z ##[group]Setting up auth
+2026-10-30T21:05:39.6137255Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:05:39.6191061Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:05:39.8209726Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:05:39.8256413Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:05:39.8512213Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:05:39.8560079Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:05:39.8815789Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:05:39.8869357Z ##[endgroup]
+2026-10-30T21:05:39.8870085Z ##[group]Fetching the repository
+2026-10-30T21:05:39.8882554Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --filter=blob:none --depth=1 origin +778b9f866340b401111c2b560ec1c2424bdbc7fd:refs/remotes/origin/construction/su1-20261022
+2026-10-30T21:05:40.1652919Z From https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:05:40.1666963Z  * [new ref]         778b9f866340b401111c2b560ec1c2424bdbc7fd -> origin/construction/su1-20261022
+2026-10-30T21:05:40.1669868Z ##[endgroup]
+2026-10-30T21:05:40.1670432Z ##[group]Determining the checkout info
+2026-10-30T21:05:40.1670965Z ##[endgroup]
+2026-10-30T21:05:40.1671447Z ##[group]Setting up sparse checkout
+2026-10-30T21:05:40.1672007Z [command]/usr/bin/git sparse-checkout set .github/r29-integration-request.json
+2026-10-30T21:05:40.1810579Z ##[endgroup]
+2026-10-30T21:05:40.1811665Z ##[group]Checking out the ref
+2026-10-30T21:05:40.1817792Z [command]/usr/bin/git checkout --progress --force -B construction/su1-20261022 refs/remotes/origin/construction/su1-20261022
+2026-10-30T21:05:40.4020870Z Switched to a new branch 'construction/su1-20261022'
+2026-10-30T21:05:40.4067061Z branch 'construction/su1-20261022' set up to track 'origin/construction/su1-20261022'.
+2026-10-30T21:05:40.4076392Z ##[endgroup]
+2026-10-30T21:05:40.4136506Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:05:40.4178483Z 778b9f866340b401111c2b560ec1c2424bdbc7fd
+2026-10-30T21:05:40.4408997Z ##[group]Run python3 - <<'PY'
+2026-10-30T21:05:40.4409469Z [36;1mpython3 - <<'PY'[0m
+2026-10-30T21:05:40.4409788Z [36;1mimport json,os,re[0m
+2026-10-30T21:05:40.4410207Z [36;1mr=json.load(open('.github/r29-integration-request.json'))[0m
+2026-10-30T21:05:40.4410700Z [36;1massert re.fullmatch('[a-f0-9]{40}',r['source'])[0m
+2026-10-30T21:05:40.4411315Z [36;1massert r['source']=='05f45998a3482bc2a7c54f4256c168bce5ab8231', 'DIAGNOSTIC_SOURCE_PIN_MISMATCH'[0m
+2026-10-30T21:05:40.4412043Z [36;1mwith open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('source='+r['source']+'\n')[0m
+2026-10-30T21:05:40.4412529Z [36;1mPY[0m
+2026-10-30T21:05:40.4435513Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:05:40.4435849Z ##[endgroup]
+2026-10-30T21:05:40.4876171Z ##[group]Run actions/checkout@v4
+2026-10-30T21:05:40.4876544Z with:
+2026-10-30T21:05:40.4876832Z   ref: 05f45998a3482bc2a7c54f4256c168bce5ab8231
+2026-10-30T21:05:40.4877183Z   fetch-depth: 0
+2026-10-30T21:05:40.4877694Z   repository: gtt46461-star/starcore-public-build
+2026-10-30T21:05:40.4880623Z   token: ***
+2026-10-30T21:05:40.4880886Z   ssh-strict: true
+2026-10-30T21:05:40.4881160Z   ssh-user: git
+2026-10-30T21:05:40.4881431Z   persist-credentials: true
+2026-10-30T21:05:40.4881720Z   clean: true
+2026-10-30T21:05:40.4881992Z   sparse-checkout-cone-mode: true
+2026-10-30T21:05:40.4882333Z   fetch-tags: false
+2026-10-30T21:05:40.4882596Z   show-progress: true
+2026-10-30T21:05:40.4882861Z   lfs: false
+2026-10-30T21:05:40.4883101Z   submodules: false
+2026-10-30T21:05:40.4883369Z   set-safe-directory: true
+2026-10-30T21:05:40.4883671Z   allow-unsafe-pr-checkout: false
+2026-10-30T21:05:40.4883979Z ##[endgroup]
+2026-10-30T21:05:40.5851009Z Syncing repository: gtt46461-star/starcore-public-build
+2026-10-30T21:05:40.5852161Z ##[group]Getting Git version info
+2026-10-30T21:05:40.5853039Z Working directory is '/home/runner/work/starcore-public-build/starcore-public-build'
+2026-10-30T21:05:40.5899368Z [command]/usr/bin/git version
+2026-10-30T21:05:40.5986275Z git version 2.56.0
+2026-10-30T21:05:40.6014013Z ##[endgroup]
+2026-10-30T21:05:40.6030607Z Temporarily overriding HOME='/home/runner/work/_temp/32bf1048-f8aa-41af-b903-d08cb9c14b2e' before making global git config changes
+2026-10-30T21:05:40.6032255Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:05:40.6036361Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:05:40.6092805Z [command]/usr/bin/git config --local --get remote.origin.url
+2026-10-30T21:05:40.6130712Z https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:05:40.6145150Z ##[group]Removing previously created refs, to avoid conflicts
+2026-10-30T21:05:40.6151317Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-10-30T21:05:40.6182063Z refs/heads/construction/su1-20261022
+2026-10-30T21:05:40.6198520Z [command]/usr/bin/git checkout --detach
+2026-10-30T21:05:40.6409139Z HEAD is now at 778b9f8 R29 B01 integration: source-bound verified checkpoint 05f45998a348
+2026-10-30T21:05:40.6462699Z [command]/usr/bin/git branch --delete --force construction/su1-20261022
+2026-10-30T21:05:40.6503362Z Deleted branch construction/su1-20261022 (was 778b9f8).
+2026-10-30T21:05:40.6510036Z ##[endgroup]
+2026-10-30T21:05:40.6517755Z [command]/usr/bin/git submodule status
+2026-10-30T21:05:40.6934532Z ##[group]Cleaning the repository
+2026-10-30T21:05:40.6939313Z [command]/usr/bin/git clean -ffdx
+2026-10-30T21:05:40.7010257Z [command]/usr/bin/git reset --hard HEAD
+2026-10-30T21:05:40.7283865Z HEAD is now at 778b9f8 R29 B01 integration: source-bound verified checkpoint 05f45998a348
+2026-10-30T21:05:40.7288812Z ##[endgroup]
+2026-10-30T21:05:40.7291790Z ##[group]Disabling automatic garbage collection
+2026-10-30T21:05:40.7298218Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-30T21:05:40.7343670Z ##[endgroup]
+2026-10-30T21:05:40.7344442Z ##[group]Setting up auth
+2026-10-30T21:05:40.7352304Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:05:40.7399888Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:05:40.7671689Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:05:40.7710890Z http.https://github.com/.extraheader
+2026-10-30T21:05:40.7721359Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T21:05:40.7774117Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:05:40.8043211Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:05:40.8090504Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:05:40.8369079Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-30T21:05:40.8431613Z ##[endgroup]
+2026-10-30T21:05:40.8432375Z ##[group]Fetching the repository
+2026-10-30T21:05:40.8445077Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules --unshallow origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-10-30T21:05:41.2350010Z From https://github.com/gtt46461-star/starcore-public-build
+2026-10-30T21:05:41.2351939Z  * [new branch]      construction/r13-restore-latest-20261024 -> origin/construction/r13-restore-latest-20261024
+2026-10-30T21:05:41.2353967Z  * [new branch]      construction/r26-f08-graph-20261027 -> origin/construction/r26-f08-graph-20261027
+2026-10-30T21:05:41.2355494Z  * [new branch]      construction/r26-fixture-process-20261027 -> origin/construction/r26-fixture-process-20261027
+2026-10-30T21:05:41.2357092Z  * [new branch]      construction/r26-incumbent-owner-20261027 -> origin/construction/r26-incumbent-owner-20261027
+2026-10-30T21:05:41.2383224Z  * [new branch]      construction/r26-report-review-20261028 -> origin/construction/r26-report-review-20261028
+2026-10-30T21:05:41.2384599Z  * [new branch]      construction/r27-20261028 -> origin/construction/r27-20261028
+2026-10-30T21:05:41.2385696Z  * [new branch]      construction/r29-20261029 -> origin/construction/r29-20261029
+2026-10-30T21:05:41.2386815Z  * [new branch]      fix/r26-report-export-20261028 -> origin/fix/r26-report-export-20261028
+2026-10-30T21:05:41.2388204Z  * [new branch]      main                      -> origin/main
+2026-10-30T21:05:41.2389297Z  * [new branch]      verification/r29-checkpoint06-20261030 -> origin/verification/r29-checkpoint06-20261030
+2026-10-30T21:05:41.2390392Z  * [new tag]         r13-5.4.3.04-20261025     -> r13-5.4.3.04-20261025
+2026-10-30T21:05:41.2391190Z  * [new tag]         r26-20261027-engineering  -> r26-20261027-engineering
+2026-10-30T21:05:41.2392020Z  * [new tag]         r26-20261028-reportfix2   -> r26-20261028-reportfix2
+2026-10-30T21:05:41.2392833Z  * [new tag]         r26-20261028-runtime-117  -> r26-20261028-runtime-117
+2026-10-30T21:05:41.2393667Z  * [new tag]         r29-B00-a618d14ccc41      -> r29-B00-a618d14ccc41
+2026-10-30T21:05:41.2394917Z  * [new tag]         r29-B02-QUAL-534603296b84 -> r29-B02-QUAL-534603296b84
+2026-10-30T21:05:41.2395751Z  * [new tag]         r29-CP05-R27-770e81bd449b -> r29-CP05-R27-770e81bd449b
+2026-10-30T21:05:41.2396621Z  * [new tag]         r29-CP06-R27-bb607cf5ab69 -> r29-CP06-R27-bb607cf5ab69
+2026-10-30T21:05:41.2398762Z  * [new tag]         r29-CP07-R27-1d2f1565e308 -> r29-CP07-R27-1d2f1565e308
+2026-10-30T21:05:41.2399733Z  * [new tag]         r29-CP08-R27-2f1e2ab9caf2 -> r29-CP08-R27-2f1e2ab9caf2
+2026-10-30T21:05:41.2400594Z  * [new tag]         r29-CP09-R27-e3dd104302dc -> r29-CP09-R27-e3dd104302dc
+2026-10-30T21:05:41.2401425Z  * [new tag]         r29-CP10-R27-0c639ccb3702 -> r29-CP10-R27-0c639ccb3702
+2026-10-30T21:05:41.2402408Z  * [new tag]         r29-official-577291005-770e81bd449b -> r29-official-577291005-770e81bd449b
+2026-10-30T21:05:41.2403533Z  * [new tag]         r29-official-577291006-bb607cf5ab69 -> r29-official-577291006-bb607cf5ab69
+2026-10-30T21:05:41.2404693Z  * [new tag]         r29-official-577291007-1d2f1565e308 -> r29-official-577291007-1d2f1565e308
+2026-10-30T21:05:41.2405832Z  * [new tag]         r29-official-577291008-2f1e2ab9caf2 -> r29-official-577291008-2f1e2ab9caf2
+2026-10-30T21:05:41.2407004Z  * [new tag]         r29-official-577291009-e3dd104302dc -> r29-official-577291009-e3dd104302dc
+2026-10-30T21:05:41.2419399Z  * [new tag]         r29-official-577291010-0c639ccb3702 -> r29-official-577291010-0c639ccb3702
+2026-10-30T21:05:41.2421660Z [command]/usr/bin/git rev-parse --verify --quiet 05f45998a3482bc2a7c54f4256c168bce5ab8231^{object}
+2026-10-30T21:05:41.2426199Z 05f45998a3482bc2a7c54f4256c168bce5ab8231
+2026-10-30T21:05:41.2427424Z ##[endgroup]
+2026-10-30T21:05:41.2428137Z ##[group]Determining the checkout info
+2026-10-30T21:05:41.2428578Z ##[endgroup]
+2026-10-30T21:05:41.2428852Z [command]/usr/bin/git sparse-checkout disable
+2026-10-30T21:05:45.8691130Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-30T21:05:45.8735900Z ##[group]Checking out the ref
+2026-10-30T21:05:45.8741437Z [command]/usr/bin/git checkout --progress --force 05f45998a3482bc2a7c54f4256c168bce5ab8231
+2026-10-30T21:05:48.6105460Z Previous HEAD position was 778b9f8 R29 B01 integration: source-bound verified checkpoint 05f45998a348
+2026-10-30T21:05:48.6125224Z HEAD is now at 05f4599 R29 B01: bind compiled durable publication and contention repair inventory
+2026-10-30T21:05:48.6150250Z ##[endgroup]
+2026-10-30T21:05:48.6209227Z [command]/usr/bin/git log -1 --format=%H
+2026-10-30T21:05:48.6246603Z 05f45998a3482bc2a7c54f4256c168bce5ab8231
+2026-10-30T21:05:48.6475615Z ##[group]Run actions/setup-java@v4
+2026-10-30T21:05:48.6475949Z with:
+2026-10-30T21:05:48.6476158Z   distribution: temurin
+2026-10-30T21:05:48.6476391Z   java-version: 17
+2026-10-30T21:05:48.6476599Z   java-package: jdk
+2026-10-30T21:05:48.6476819Z   check-latest: false
+2026-10-30T21:05:48.6477041Z   server-id: github
+2026-10-30T21:05:48.6477271Z   server-username: GITHUB_ACTOR
+2026-10-30T21:05:48.6477894Z   server-password: GITHUB_TOKEN
+2026-10-30T21:05:48.6478203Z   overwrite-settings: true
+2026-10-30T21:05:48.6478447Z   job-status: success
+2026-10-30T21:05:48.6481146Z   token: ***
+2026-10-30T21:05:48.6481351Z ##[endgroup]
+2026-10-30T21:05:48.8376058Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-10-30T21:05:48.8384511Z ##[group]Installed distributions
+2026-10-30T21:05:48.8504759Z Resolved Java 17.0.21+9 from tool-cache
+2026-10-30T21:05:48.8505313Z Setting Java 17.0.21+9 as the default
+2026-10-30T21:05:48.8515848Z (node:2538) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:05:48.8516615Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:05:48.8520484Z Creating toolchains.xml for JDK version 17 from temurin
+2026-10-30T21:05:48.8597021Z Writing to /home/runner/.m2/toolchains.xml
+2026-10-30T21:05:48.8598091Z 
+2026-10-30T21:05:48.8598295Z Java configuration:
+2026-10-30T21:05:48.8598784Z   Distribution: temurin
+2026-10-30T21:05:48.8599233Z   Version: 17.0.21+9
+2026-10-30T21:05:48.8599859Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:48.8600426Z 
+2026-10-30T21:05:48.8600952Z ##[endgroup]
+2026-10-30T21:05:48.8618719Z Creating settings.xml with server-id: github
+2026-10-30T21:05:48.8656321Z Writing to /home/runner/.m2/settings.xml
+2026-10-30T21:05:48.8894826Z ##[group]Run actions/setup-python@v5
+2026-10-30T21:05:48.8895319Z with:
+2026-10-30T21:05:48.8895635Z   python-version: 3.12
+2026-10-30T21:05:48.8896004Z   check-latest: false
+2026-10-30T21:05:48.8901205Z   token: ***
+2026-10-30T21:05:48.8901561Z   update-environment: true
+2026-10-30T21:05:48.8901954Z   allow-prereleases: false
+2026-10-30T21:05:48.8902333Z   freethreaded: false
+2026-10-30T21:05:48.8902669Z env:
+2026-10-30T21:05:48.8903142Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:48.8903975Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:48.8904610Z ##[endgroup]
+2026-10-30T21:05:49.0442961Z ##[group]Installed versions
+2026-10-30T21:05:49.1001947Z (node:2550) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:05:49.1002887Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:05:49.1003786Z Successfully set up CPython (3.12.15)
+2026-10-30T21:05:49.1004596Z ##[endgroup]
+2026-10-30T21:05:49.1154807Z ##[group]Run python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+2026-10-30T21:05:49.1155360Z [36;1mpython -m pip install numpy==2.3.5 'cryptography>=41,<51'[0m
+2026-10-30T21:05:49.1266337Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:05:49.1266652Z env:
+2026-10-30T21:05:49.1266995Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:49.1269641Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:49.1270682Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:49.1271459Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:05:49.1272220Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:49.1272933Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:49.1273647Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:49.1274409Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:05:49.1274766Z ##[endgroup]
+2026-10-30T21:05:52.1224009Z Collecting numpy==2.3.5
+2026-10-30T21:05:52.2108805Z   Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+2026-10-30T21:05:52.4300942Z Collecting cryptography<51,>=41
+2026-10-30T21:05:52.4465802Z   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+2026-10-30T21:05:52.5532391Z Collecting cffi>=2.0.0 (from cryptography<51,>=41)
+2026-10-30T21:05:52.5696656Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-10-30T21:05:52.5820175Z Collecting pycparser (from cffi>=2.0.0->cryptography<51,>=41)
+2026-10-30T21:05:52.5981724Z   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+2026-10-30T21:05:52.6186098Z Downloading numpy-2.3.5-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+2026-10-30T21:05:53.3708276Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.6/16.6 MB 23.2 MB/s  0:00:00
+2026-10-30T21:05:53.3870939Z Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+2026-10-30T21:05:53.4640289Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 61.8 MB/s  0:00:00
+2026-10-30T21:05:53.4805170Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-10-30T21:05:53.5002530Z Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+2026-10-30T21:05:53.7042885Z Installing collected packages: pycparser, numpy, cffi, cryptography
+2026-10-30T21:05:56.0494750Z 
+2026-10-30T21:05:56.0507087Z Successfully installed cffi-2.1.1 cryptography-50.0.2 numpy-2.3.5 pycparser-3.12
+2026-10-30T21:05:56.1270450Z ##[group]Run actions/cache/restore@v4
+2026-10-30T21:05:56.1270749Z with:
+2026-10-30T21:05:56.1270960Z   path: ~/.starcore/su1-api-transport
+2026-10-30T21:05:56.1271243Z   key: starcore-su1-api-transport-v1
+2026-10-30T21:05:56.1271514Z   fail-on-cache-miss: true
+2026-10-30T21:05:56.1271759Z   enableCrossOsArchive: false
+2026-10-30T21:05:56.1271994Z   lookup-only: false
+2026-10-30T21:05:56.1272200Z env:
+2026-10-30T21:05:56.1272481Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:56.1272962Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:56.1273402Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.1273813Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:05:56.1274249Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.1274621Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.1275024Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.1275400Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:05:56.1275714Z ##[endgroup]
+2026-10-30T21:05:56.2430091Z (node:2585) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:05:56.2431123Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:05:56.3266504Z Cache hit for: starcore-su1-api-transport-v1
+2026-10-30T21:05:56.3391166Z (node:2585) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:05:56.3935813Z Received 2194 of 2194 (100.0%), 0.1 MBs/sec
+2026-10-30T21:05:56.3936445Z Cache Size: ~0 MB (2194 B)
+2026-10-30T21:05:56.3965096Z [command]/usr/bin/tar -xf /home/runner/work/_temp/792effe4-eb7e-497b-b7e6-fabbbb370855/cache.tzst -P -C /home/runner/work/starcore-public-build/starcore-public-build --use-compress-program unzstd
+2026-10-30T21:05:56.4018085Z Cache restored successfully
+2026-10-30T21:05:56.5268352Z Cache restored from key: starcore-su1-api-transport-v1
+2026-10-30T21:05:56.5430625Z ##[group]Run python3 scripts/load_r13_signing.py
+2026-10-30T21:05:56.5431048Z [36;1mpython3 scripts/load_r13_signing.py[0m
+2026-10-30T21:05:56.5431377Z [36;1mpython3 scripts/load_su1_bundled_api.py[0m
+2026-10-30T21:05:56.5431728Z [36;1mecho 'R29_SIGNING=OFFICIAL_R13' >> "$GITHUB_ENV"[0m
+2026-10-30T21:05:56.5452642Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:05:56.5452901Z env:
+2026-10-30T21:05:56.5453217Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:56.5453751Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:56.5454204Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.5454662Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:05:56.5455090Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.5455483Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.5455901Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.5456288Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:05:56.5456619Z ##[endgroup]
+2026-10-30T21:05:56.8992393Z Fixed independent R13 signing identity restored: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:05:56.9638387Z Bundled API credential loaded: True
+2026-10-30T21:05:56.9752424Z ##[group]Run android-actions/setup-android@v3
+2026-10-30T21:05:56.9752761Z with:
+2026-10-30T21:05:56.9753168Z   packages: platform-tools
+2026-10-30T21:05:56.9753455Z   log-accepted-android-sdk-licenses: false
+2026-10-30T21:05:56.9753766Z   cmdline-tools-version: 12266719
+2026-10-30T21:05:56.9754041Z   accept-android-sdk-licenses: true
+2026-10-30T21:05:56.9754299Z env:
+2026-10-30T21:05:56.9754592Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:56.9755096Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:05:56.9755550Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.9755991Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:05:56.9756418Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.9756797Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.9757231Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:05:56.9757984Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:05:56.9758418Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:05:56.9759267Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:05:56.9759720Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:05:56.9760204Z   DUOQU_API_KEY: ***
+2026-10-30T21:05:56.9760433Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:05:56.9760678Z ##[endgroup]
+2026-10-30T21:05:57.0711517Z Found preinstalled sdkmanager in /usr/local/lib/android/sdk/cmdline-tools/latest with following source.properties:
+2026-10-30T21:05:57.0712754Z Pkg.Revision=12.0
+2026-10-30T21:05:57.0713282Z Pkg.Path=cmdline-tools;12.0
+2026-10-30T21:05:57.0713928Z Pkg.Desc=Android SDK Command-line Tools
+2026-10-30T21:05:57.0714359Z 
+2026-10-30T21:05:57.0714624Z Wrong version in preinstalled sdkmanager
+2026-10-30T21:05:57.0724438Z Downloading commandline tools from https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip
+2026-10-30T21:05:57.9108370Z [command]/usr/bin/unzip -o -q /home/runner/work/_temp/253b03a1-d5ee-4d61-be54-7fb9a41a17ec
+2026-10-30T21:05:58.6942355Z Accepting Android SDK licenses
+2026-10-30T21:06:04.5860361Z [command]/usr/local/lib/android/sdk/cmdline-tools/16.0/bin/sdkmanager platform-tools
+2026-10-30T21:06:05.4220417Z Loading package information...                                                  
+2026-10-30T21:06:05.5342833Z Loading local repository...                                                     
+2026-10-30T21:06:05.5346270Z [                                       ] 3% Loading local repository...        
+2026-10-30T21:06:05.5462325Z [                                       ] 3% Fetch remote repository...         
+2026-10-30T21:06:05.9299554Z [=                                      ] 3% Fetch remote repository...         
+2026-10-30T21:06:05.9851201Z [=                                      ] 4% Fetch remote repository...         
+2026-10-30T21:06:06.0149626Z [=                                      ] 5% Fetch remote repository...         
+2026-10-30T21:06:06.0655583Z [==                                     ] 5% Fetch remote repository...         
+2026-10-30T21:06:06.1339688Z [==                                     ] 6% Fetch remote repository...         
+2026-10-30T21:06:06.2109024Z [==                                     ] 7% Fetch remote repository...         
+2026-10-30T21:06:06.2143644Z [==                                     ] 7% Computing updates...               
+2026-10-30T21:06:06.2247294Z [===                                    ] 8% Computing updates...               
+2026-10-30T21:06:06.2697878Z [===                                    ] 10% Computing updates...              
+2026-10-30T21:06:06.2699192Z [=======================================] 100% Computing updates...             
+2026-10-30T21:06:06.2703347Z 
+2026-10-30T21:06:06.3331265Z ##[group]Run sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+2026-10-30T21:06:06.3332083Z [36;1msdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null[0m
+2026-10-30T21:06:06.3353823Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:06:06.3354092Z env:
+2026-10-30T21:06:06.3354419Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:06:06.3354946Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:06:06.3355419Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:06.3355857Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:06:06.3356292Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:06.3356688Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:06.3357124Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:06.3357794Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:06:06.3358286Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:06:06.3358921Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:06:06.3359346Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:06:06.3359834Z   DUOQU_API_KEY: ***
+2026-10-30T21:06:06.3360092Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:06:06.3360355Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:06:06.3360688Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:06:06.3360984Z ##[endgroup]
+2026-10-30T21:06:24.0781213Z ##[group]Run python3 - <<'PYCODE'
+2026-10-30T21:06:24.0781587Z [36;1mpython3 - <<'PYCODE'[0m
+2026-10-30T21:06:24.0781866Z [36;1mimport json,subprocess[0m
+2026-10-30T21:06:24.0782155Z [36;1mfrom pathlib import Path[0m
+2026-10-30T21:06:24.0782592Z [36;1msource=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()[0m
+2026-10-30T21:06:24.0783138Z [36;1massert source=='05f45998a3482bc2a7c54f4256c168bce5ab8231'[0m
+2026-10-30T21:06:24.0783772Z [36;1massert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip()[0m
+2026-10-30T21:06:24.0785269Z [36;1mPath('r29-startup-diagnostic-source.json').write_text(json.dumps({'sourceCommit':source,'scope':'ADDITIONAL_FULL_APP_STARTUP_DIAGNOSTIC_ONLY','replacesFormalAcceptance':False,'formalAcceptance':'SEPARATE_COMPLETE_HOST_JUNIT_NATIVE_AND_INSTALLATION_MATRIX_REQUIRED'},indent=2)+'\n')[0m
+2026-10-30T21:06:24.0786539Z [36;1mPYCODE[0m
+2026-10-30T21:06:24.0808129Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:06:24.0808402Z env:
+2026-10-30T21:06:24.0808727Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:06:24.0809278Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:06:24.0809767Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.0810239Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:06:24.0810696Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.0811097Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.0811512Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.0811956Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:06:24.0812355Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:06:24.0812985Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:06:24.0813450Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:06:24.0813965Z   DUOQU_API_KEY: ***
+2026-10-30T21:06:24.0814187Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:06:24.0814453Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:06:24.0814771Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:06:24.0815071Z ##[endgroup]
+2026-10-30T21:06:24.1414982Z ##[group]Run ./gradlew --no-daemon --max-workers=4 :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee r29-startup-diagnostic-build.log | tail -n 35
+2026-10-30T21:06:24.1416193Z [36;1m./gradlew --no-daemon --max-workers=4 :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee r29-startup-diagnostic-build.log | tail -n 35[0m
+2026-10-30T21:06:24.1417213Z [36;1mgit diff --exit-code -- app/src/main release app/build/generated[0m
+2026-10-30T21:06:24.1438725Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:06:24.1439005Z env:
+2026-10-30T21:06:24.1439335Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:06:24.1439862Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:06:24.1440358Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.1440812Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:06:24.1441309Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.1441704Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.1442098Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:06:24.1442536Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:06:24.1442933Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:06:24.1443466Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:06:24.1443887Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:06:24.1444371Z   DUOQU_API_KEY: ***
+2026-10-30T21:06:24.1444601Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:06:24.1444876Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:06:24.1445192Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:06:24.1445482Z ##[endgroup]
+2026-10-30T21:10:08.9755665Z > Task :app:createDebugApkListingFileRedirect
+2026-10-30T21:10:08.9756736Z > Task :app:assembleDebug
+2026-10-30T21:10:08.9773859Z > Task :app:dexBuilderDebugAndroidTest
+2026-10-30T21:10:08.9774766Z > Task :app:mergeDebugAndroidTestGlobalSynthetics FROM-CACHE
+2026-10-30T21:10:08.9775607Z > Task :app:processDebugAndroidTestJavaRes NO-SOURCE
+2026-10-30T21:10:08.9776593Z > Task :app:checkDebugAndroidTestDuplicateClasses
+2026-10-30T21:10:08.9777429Z > Task :app:mergeDebugAndroidTestJniLibFolders
+2026-10-30T21:10:08.9778366Z > Task :app:mergeLibDexDebugAndroidTest FROM-CACHE
+2026-10-30T21:10:08.9779103Z > Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+2026-10-30T21:10:08.9779846Z > Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+2026-10-30T21:10:08.9780548Z > Task :app:validateSigningDebugAndroidTest
+2026-10-30T21:10:08.9781254Z > Task :app:writeDebugAndroidTestSigningConfigVersions
+2026-10-30T21:10:08.9781948Z > Task :app:mergeDebugAndroidTestJavaResource
+2026-10-30T21:10:08.9782658Z > Task :app:mergeProjectDexDebugAndroidTest
+2026-10-30T21:10:08.9783263Z > Task :app:mergeExtDexDebugAndroidTest
+2026-10-30T21:10:08.9783860Z > Task :app:packageDebugAndroidTest
+2026-10-30T21:10:08.9784580Z > Task :app:createDebugAndroidTestApkListingFileRedirect
+2026-10-30T21:10:08.9785250Z > Task :app:assembleDebugAndroidTest
+2026-10-30T21:10:08.9785564Z 
+2026-10-30T21:10:08.9785835Z > Task :app:verifyFinalR815Provenance
+2026-10-30T21:10:08.9789132Z R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=2dcdd526cdc143a0b6cae3a093cc4d840f036e9b7ea5fd4f4750613ab0866d83|RESOURCE=2f466bd1f59996018aa5dfeef3cebb5136fa9b36093ed21187212f728dbc3ab1|TOOLCHAIN=d46435973d09a12d55164ac3cd4fabca53d1ba5c4434e0640f2da26d2b5a9666|INPUTS=7090bc882c26a9885af7d0d8e76bfa8d0a2571d9d2e0b8e4956e2e74d8377c4a|GENERATED_AT=2026-10-30T21:07:08Z
+2026-10-30T21:10:08.9791530Z 
+2026-10-30T21:10:08.9791801Z > Task :app:verifyFinalR967Semantics
+2026-10-30T21:10:08.9792757Z R967_SEMANTIC_IDENTITY_VERIFIED|2d2e5d3b67451ee4d5788be709e1b3aae3fad66aa2d6a6e174dc6e2394699604
+2026-10-30T21:10:08.9793419Z 
+2026-10-30T21:10:08.9795014Z [Incubating] Problems report is available at: file:///home/runner/work/starcore-public-build/starcore-public-build/build/reports/problems/problems-report.html
+2026-10-30T21:10:08.9811741Z 
+2026-10-30T21:10:08.9812413Z Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+2026-10-30T21:10:08.9813352Z 
+2026-10-30T21:10:08.9814325Z You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2026-10-30T21:10:08.9815190Z 
+2026-10-30T21:10:08.9816365Z For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2026-10-30T21:10:08.9817486Z 
+2026-10-30T21:10:08.9817954Z BUILD SUCCESSFUL in 3m 44s
+2026-10-30T21:10:08.9818539Z 81 actionable tasks: 77 executed, 4 from cache
+2026-10-30T21:10:09.0068424Z ##[group]Run python3 tools/r29/package_receipt.py
+2026-10-30T21:10:09.0068899Z [36;1mpython3 tools/r29/package_receipt.py[0m
+2026-10-30T21:10:09.0069232Z [36;1mpython3 - <<'PYCODE'[0m
+2026-10-30T21:10:09.0069501Z [36;1mimport json[0m
+2026-10-30T21:10:09.0069744Z [36;1mfrom pathlib import Path[0m
+2026-10-30T21:10:09.0070120Z [36;1mrows=json.loads(Path('r29-apk/delivery.json').read_text())[0m
+2026-10-30T21:10:09.0070575Z [36;1massert len(rows)==1, 'DIAGNOSTIC_REQUIRES_DEBUG_ONLY'[0m
+2026-10-30T21:10:09.0070911Z [36;1mr=rows[0][0m
+2026-10-30T21:10:09.0071224Z [36;1massert r['apk']=='STARCORE-R29.1-05f45998a348-debug.apk'[0m
+2026-10-30T21:10:09.0071701Z [36;1massert r['sourceCommit']=='05f45998a3482bc2a7c54f4256c168bce5ab8231'[0m
+2026-10-30T21:10:09.0072322Z [36;1massert r['certificateSha256']=='9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca'[0m
+2026-10-30T21:10:09.0073032Z [36;1massert r['signingIdentity']=='OFFICIAL_R13' and r['package']=='com.starcore.research.r13'[0m
+2026-10-30T21:10:09.0073656Z [36;1massert r['versionCode']==577291011 and r['versionName']=='R29.1-2026.10.30-checkpoint11'[0m
+2026-10-30T21:10:09.0074201Z [36;1massert r['installation']=='NOT_RUN' and r['startup']=='NOT_RUN'[0m
+2026-10-30T21:10:09.0074560Z [36;1mPYCODE[0m
+2026-10-30T21:10:09.0095690Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:10:09.0095953Z env:
+2026-10-30T21:10:09.0096285Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:10:09.0096820Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:10:09.0097297Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:09.0098057Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:10:09.0098532Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:09.0098945Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:09.0099345Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:09.0099746Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:10:09.0100144Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:10:09.0100677Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:10:09.0101099Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:10:09.0101572Z   DUOQU_API_KEY: ***
+2026-10-30T21:10:09.0101804Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:10:09.0102066Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:10:09.0102376Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:10:09.0102661Z ##[endgroup]
+2026-10-30T21:10:10.0650332Z [{"apk": "STARCORE-R29.1-05f45998a348-debug.apk", "bytes": 32116901, "sha256": "d0535de2fb78cc403b940bfa62efbb304855ab9108f1bd7e330a8c4d701f2acc", "package": "com.starcore.research.r13", "versionCode": 577291011, "versionName": "R29.1-2026.10.30-checkpoint11", "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca", "sourceCommit": "05f45998a3482bc2a7c54f4256c168bce5ab8231", "sourceTree": "7f789eff72eac234f9c6111baea638821e5f4775", "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/05f45998a3482bc2a7c54f4256c168bce5ab8231.zip", "signingIdentity": "OFFICIAL_R13", "officialR13Upgrade": "NOT_RUN", "installation": "NOT_RUN", "startup": "NOT_RUN", "physicalDevice": "NOT_RUN", "naturalQuality": "INSUFFICIENT", "overall": "IMPLEMENTATION_IN_PROGRESS"}]
+2026-10-30T21:10:10.1035725Z ##[group]Run echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+2026-10-30T21:10:10.1037012Z [36;1mecho 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules[0m
+2026-10-30T21:10:10.1038329Z [36;1msudo udevadm control --reload-rules[0m
+2026-10-30T21:10:10.1038959Z [36;1msudo udevadm trigger --name-match=kvm[0m
+2026-10-30T21:10:10.1070148Z shell: /usr/bin/bash -e {0}
+2026-10-30T21:10:10.1070599Z env:
+2026-10-30T21:10:10.1071172Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:10:10.1072115Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:10:10.1072958Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1073745Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:10:10.1074225Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1074821Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1075547Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1076305Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:10:10.1076981Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:10:10.1077779Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:10:10.1078342Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:10:10.1078955Z   DUOQU_API_KEY: ***
+2026-10-30T21:10:10.1079190Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:10:10.1079449Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:10:10.1079754Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:10:10.1080046Z ##[endgroup]
+2026-10-30T21:10:10.1201430Z KERNEL=="kvm", GROUP="kvm", MODE="0666"
+2026-10-30T21:10:10.1610934Z ##[group]Run reactivecircus/android-emulator-runner@v2
+2026-10-30T21:10:10.1611306Z with:
+2026-10-30T21:10:10.1611509Z   api-level: 34
+2026-10-30T21:10:10.1611713Z   arch: x86_64
+2026-10-30T21:10:10.1611914Z   target: default
+2026-10-30T21:10:10.1612135Z   disable-animations: true
+2026-10-30T21:10:10.1612370Z   ram-size: 4096M
+2026-10-30T21:10:10.1612569Z   heap-size: 512M
+2026-10-30T21:10:10.1613052Z   emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+2026-10-30T21:10:10.1613707Z   script: bash tools/r29/emulator_smoke.sh r29-apk evidence/r29/startup-diagnostic
+2026-10-30T21:10:10.1614121Z   cores: 2
+2026-10-30T21:10:10.1614312Z   avd-name: test
+2026-10-30T21:10:10.1614539Z   force-avd-creation: true
+2026-10-30T21:10:10.1614794Z   emulator-boot-timeout: 600
+2026-10-30T21:10:10.1615037Z   emulator-port: 5554
+2026-10-30T21:10:10.1615266Z   disable-spellchecker: false
+2026-10-30T21:10:10.1615529Z   disable-linux-hw-accel: auto
+2026-10-30T21:10:10.1615806Z   enable-hw-keyboard: false
+2026-10-30T21:10:10.1616050Z   channel: stable
+2026-10-30T21:10:10.1616247Z env:
+2026-10-30T21:10:10.1616556Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:10:10.1617052Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:10:10.1617819Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1618307Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:10:10.1618746Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1619140Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1619518Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:10:10.1619903Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:10:10.1620288Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:10:10.1620812Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:10:10.1621238Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:10:10.1621918Z   DUOQU_API_KEY: ***
+2026-10-30T21:10:10.1622154Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:10:10.1622410Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:10:10.1622719Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:10:10.1623009Z   R29_VARIANT: debug
+2026-10-30T21:10:10.1623374Z   EXPECTED_CERT: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:10:10.1623810Z   R29_BASELINE_VERSION: 577291006
+2026-10-30T21:10:10.1624541Z   R29_BASELINE_URL: https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+2026-10-30T21:10:10.1625419Z   R29_BASELINE_SHA256: ab10c8e85344a347a695d11ddeb652b419d09c49e81513204037e3e0684a7743
+2026-10-30T21:10:10.1625838Z ##[endgroup]
+2026-10-30T21:10:10.2206296Z ##[group]Configure emulator
+2026-10-30T21:10:10.2209012Z API level: 34
+2026-10-30T21:10:10.2209530Z System image API level: 34
+2026-10-30T21:10:10.2209983Z target: default
+2026-10-30T21:10:10.2210694Z CPU architecture: x86_64
+2026-10-30T21:10:10.2211335Z Hardware profile: 
+2026-10-30T21:10:10.2214627Z Cores: 2
+2026-10-30T21:10:10.2215148Z RAM size: 4096M
+2026-10-30T21:10:10.2215591Z Heap size: 512M
+2026-10-30T21:10:10.2216058Z SD card path or size: 
+2026-10-30T21:10:10.2216446Z Disk size: 
+2026-10-30T21:10:10.2216769Z AVD name: test
+2026-10-30T21:10:10.2217197Z force avd creation: true
+2026-10-30T21:10:10.2217917Z Emulator boot timeout: 600
+2026-10-30T21:10:10.2218421Z emulator port: 5554
+2026-10-30T21:10:10.2219412Z emulator options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+2026-10-30T21:10:10.2220349Z disable animations: true
+2026-10-30T21:10:10.2220840Z disable spellchecker: false
+2026-10-30T21:10:10.2221386Z disable Linux hardware acceleration: false
+2026-10-30T21:10:10.2222358Z enable hardware keyboard: false
+2026-10-30T21:10:10.2222776Z Channel: 0 (stable)
+2026-10-30T21:10:10.2223203Z Script:
+2026-10-30T21:10:10.2223959Z bash tools/r29/emulator_smoke.sh r29-apk evidence/r29/startup-diagnostic
+2026-10-30T21:10:10.2224460Z Pre emulator launch script:
+2026-10-30T21:10:10.2224940Z ##[endgroup]
+2026-10-30T21:10:10.2226252Z ##[group]Install Android SDK
+2026-10-30T21:10:10.2275439Z [command]/usr/bin/sh -c \yes | sdkmanager --licenses > /dev/null
+2026-10-30T21:10:11.8040706Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T21:10:13.5436134Z Installing latest build tools, platform tools, and platform.
+2026-10-30T21:10:13.5457094Z [command]/usr/bin/sh -c \sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'> /dev/null
+2026-10-30T21:10:14.1380512Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T21:10:15.3420734Z Installing latest emulator.
+2026-10-30T21:10:15.3440302Z [command]/usr/bin/sh -c \sdkmanager --install emulator --channel=0 > /dev/null
+2026-10-30T21:10:15.9267325Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T21:10:23.5201443Z Installing system images.
+2026-10-30T21:10:23.5219624Z [command]/usr/bin/sh -c \sdkmanager --install 'system-images;android-34;default;x86_64' --channel=0 > /dev/null
+2026-10-30T21:10:24.1080496Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T21:10:38.3195348Z ##[endgroup]
+2026-10-30T21:10:38.3196523Z ##[group]Create AVD
+2026-10-30T21:10:38.3197275Z Creating AVD.
+2026-10-30T21:10:38.3215694Z [command]/usr/bin/sh -c \echo no | avdmanager create avd --force -n test --package 'system-images;android-34;default;x86_64'
+2026-10-30T21:10:38.9788329Z Loading local repository...                                                     
+2026-10-30T21:10:38.9850280Z Warning: This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+2026-10-30T21:10:39.2201138Z [=========                              ] 25% Loading local repository...       
+2026-10-30T21:10:39.2205434Z [=========                              ] 25% Fetch remote repository...        
+2026-10-30T21:10:39.2206851Z [=======================================] 100% Fetch remote repository...       
+2026-10-30T21:10:39.4022268Z Auto-selecting single ABI x86_64
+2026-10-30T21:10:39.4836255Z Do you wish to create a custom hardware profile? [no] [command]/usr/bin/sh -c \printf 'hw.cpu.ncore=2\nhw.ramSize=4096M\nhw.heapSize=512M\n' >> /home/runner/.android/avd/test.avd/config.ini
+2026-10-30T21:10:39.4862535Z ##[endgroup]
+2026-10-30T21:10:39.4864497Z ##[group]Launch Emulator
+2026-10-30T21:10:39.4865065Z Starting emulator.
+2026-10-30T21:10:39.4885288Z [command]/usr/bin/sh -c \/usr/local/lib/android/sdk/emulator/emulator -port 5554 -avd test -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2 &
+2026-10-30T21:10:39.5022599Z INFO         | Android emulator version 37.2.13.0 (build_id 16740729) (CL:N/A)
+2026-10-30T21:10:39.5023231Z INFO         | Graphics backend: gfxstream
+2026-10-30T21:10:39.5023954Z INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-34/default/x86_64/
+2026-10-30T21:10:39.5518502Z INFO         | Saving last run QEMU version for the AVD to 2
+2026-10-30T21:10:39.5519659Z INFO         | Guest GLES Driver: Auto (ext controls)
+2026-10-30T21:10:39.5521262Z INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+2026-10-30T21:10:39.5522866Z INFO         | Checking system compatibility:
+2026-10-30T21:10:39.5524180Z INFO         |   Checking: hasSufficientDiskSpace
+2026-10-30T21:10:39.5525631Z INFO         |      Ok: Disk space requirements to run avd: `test` are met
+2026-10-30T21:10:39.5526892Z INFO         |   Checking: hasSufficientHwGpu
+2026-10-30T21:10:39.5528193Z INFO         |      Ok: Hardware GPU compatibility checks are not required
+2026-10-30T21:10:39.5529239Z INFO         |   Checking: hasSufficientSystem
+2026-10-30T21:10:39.5530273Z INFO         |      Ok: System requirements to run avd: `test` are met
+2026-10-30T21:10:39.5532356Z WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+2026-10-30T21:10:40.0469737Z ERROR        | Unable to connect to adb daemon on port: 5037
+2026-10-30T21:10:40.0471249Z INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.2.13.db, detection is enabled for process: 4142
+2026-10-30T21:10:40.0472482Z INFO         | Initializing gfxstream backend
+2026-10-30T21:10:40.0485037Z INFO         | startOpenglesRendererImpl: gpu info
+2026-10-30T21:10:40.0485660Z INFO         | 
+2026-10-30T21:10:40.0488600Z INFO         | initIcdPaths: ICD set to 'swiftshader', using Swiftshader ICD
+2026-10-30T21:10:40.0490101Z INFO         | Setting ICD filenames for the loader = /usr/local/lib/android/sdk/emulator/lib64/vulkan/vk_swiftshader_icd.json
+2026-10-30T21:10:40.0491948Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so]
+2026-10-30T21:10:40.0493657Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/qemu/linux-x86_64/lib64/vulkan/libvulkan.so.1]
+2026-10-30T21:10:40.0495551Z INFO         | SharedLibrary::open for [/usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so]
+2026-10-30T21:10:40.0496801Z INFO         | Added library: /usr/local/lib/android/sdk/emulator/lib64/vulkan/libvulkan.so
+2026-10-30T21:10:40.0764286Z INFO         | Selecting Vulkan device: SwiftShader Device (Subzero), Version: 1.3.0
+2026-10-30T21:10:40.0765527Z INFO         | Using Vulkan externalMemoryMode: OpaqueFd for VkEmulation
+2026-10-30T21:10:40.1476022Z INFO         | Format VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16 does not support YCbCr sampler conversion
+2026-10-30T21:10:40.1508783Z INFO         | SharedLibrary::open for [libX11]
+2026-10-30T21:10:40.1513067Z WARNING      | Could not open libX11.so, try libX11.so.6
+2026-10-30T21:10:40.1513614Z INFO         | SharedLibrary::open for [libX11.so.6]
+2026-10-30T21:10:40.1514052Z INFO         | SharedLibrary::open for [libX11-xcb]
+2026-10-30T21:10:40.1514549Z WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+2026-10-30T21:10:40.1515031Z INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+2026-10-30T21:10:40.1641022Z INFO         | Initializing VkEmulation features:
+2026-10-30T21:10:40.1641798Z INFO         |     glInteropSupported: false
+2026-10-30T21:10:40.1642450Z INFO         |     useDeferredCommands: true
+2026-10-30T21:10:40.1643139Z INFO         |     createResourceWithRequirements: true
+2026-10-30T21:10:40.1643817Z INFO         |     useVulkanComposition: false
+2026-10-30T21:10:40.1644671Z INFO         |     useVulkanNativeSwapchain: false
+2026-10-30T21:10:40.1645342Z INFO         |     enable guestRenderDoc: false
+2026-10-30T21:10:40.1645979Z INFO         |     ASTC LDR emulation mode: Gpu
+2026-10-30T21:10:40.1646607Z INFO         |     enable ETC2 emulation: true
+2026-10-30T21:10:40.1647227Z INFO         |     enable Ycbcr emulation: false
+2026-10-30T21:10:40.1648106Z INFO         |     guestVulkanOnly: false
+2026-10-30T21:10:40.1649133Z INFO         |     useDedicatedAllocations: false
+2026-10-30T21:10:40.1649617Z INFO         |     guestVulkanMaxApiVersion: 1.3.0
+2026-10-30T21:10:40.1650148Z INFO         |     enableProtectedMemoryEmulation: false
+2026-10-30T21:10:40.1651033Z INFO         | Graphics Adapter Vendor Google (Google Inc.)
+2026-10-30T21:10:40.1652080Z INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+2026-10-30T21:10:40.1653059Z INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+2026-10-30T21:10:40.1656353Z INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+2026-10-30T21:10:40.1658868Z INFO         | Graphics Device Extensions N/A
+2026-10-30T21:10:40.1659309Z INFO         | Disabling sparse binding feature support
+2026-10-30T21:10:40.1733323Z INFO         | Sending adb public key [QAAAAE0FyQl7RAp6bxw6H7CBJg1f6+KS3WuXFi+cu00mytr0+3uZnY0QFtEc/TPsPr9O0Xmsz46xLNeOFV113/R/I6DyVB9sVPXZTU0da4KYCx+HyDcKyYmcsdm+J1DLwy9Sjn0sv3N6/joM3opm6dZri9tlbkYaCobVV/JKa9qKD/QLzC05IlyecHJg8IFyA+ppij9OCh08WC/ftirAqCllsiQMTW9EhCO78KQgXT/+Bgi/uPhCqSG4ifTmCRH8rtMD9TrdnwaKQtyOu3vZAKCWSIYxA3Dubwksd5xe4mfK9cWgz2kMebSfvWAcIW4n1t7pz/ZZOFdodXWl8rQyLy8wIOpSI2/I6J/qEaKBIjOXvJUmHVGPZfE6kLI+sCT9r/MetT5pNJf23XL/zrO/ZOTFBHXNJzY9agMThhmUmDS4AAvPqTTIgcankeN8N4aKJ1K5C68hiclFt2x0449A7opBcc300AR1HuTS45gg6OR6MUkzShiR6lUs+3AdQ5af7Wy+FBqEDcgwPvS+9yTQeY8rYECYjdVJdS/WWMYqOVdbRBmqcknjcS/Ok502hHFcyOK/5yLfhw6Z+gi2tWECBbuGpprJU0T6X4sLFZWFwjAmyySZVymr4wpSB67Tmk2AbPJZM5uotS2InVy5te34C0uz3+dEYtleXdCBWVCAoNo451sNGlKunwEAAQA= runner@unknown]
+2026-10-30T21:10:40.1739938Z INFO         | Userspace boot properties:
+2026-10-30T21:10:40.1740701Z INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+2026-10-30T21:10:40.1741617Z INFO         |   androidboot.dalvik.vm.heapsize=576m
+2026-10-30T21:10:40.1742190Z INFO         |   androidboot.debug.hwui.renderer=skiagl
+2026-10-30T21:10:40.1742741Z INFO         |   androidboot.debug.sf.nobootanimation=1
+2026-10-30T21:10:40.1743259Z INFO         |   androidboot.hardware=ranchu
+2026-10-30T21:10:40.1743775Z INFO         |   androidboot.hardware.gltransport=pipe
+2026-10-30T21:10:40.1744314Z INFO         |   androidboot.hardware.vulkan=ranchu
+2026-10-30T21:10:40.1744800Z INFO         |   androidboot.logcat=*:V
+2026-10-30T21:10:40.1745299Z INFO         |   androidboot.opengles.version=196608
+2026-10-30T21:10:40.1745774Z INFO         |   androidboot.qemu=1
+2026-10-30T21:10:40.1750740Z INFO         |   androidboot.qemu.adb.pubkey=QAAAAE0FyQl7RAp6bxw6H7CBJg1f6+KS3WuXFi+cu00mytr0+3uZnY0QFtEc/TPsPr9O0Xmsz46xLNeOFV113/R/I6DyVB9sVPXZTU0da4KYCx+HyDcKyYmcsdm+J1DLwy9Sjn0sv3N6/joM3opm6dZri9tlbkYaCobVV/JKa9qKD/QLzC05IlyecHJg8IFyA+ppij9OCh08WC/ftirAqCllsiQMTW9EhCO78KQgXT/+Bgi/uPhCqSG4ifTmCRH8rtMD9TrdnwaKQtyOu3vZAKCWSIYxA3Dubwksd5xe4mfK9cWgz2kMebSfvWAcIW4n1t7pz/ZZOFdodXWl8rQyLy8wIOpSI2/I6J/qEaKBIjOXvJUmHVGPZfE6kLI+sCT9r/MetT5pNJf23XL/zrO/ZOTFBHXNJzY9agMThhmUmDS4AAvPqTTIgcankeN8N4aKJ1K5C68hiclFt2x0449A7opBcc300AR1HuTS45gg6OR6MUkzShiR6lUs+3AdQ5af7Wy+FBqEDcgwPvS+9yTQeY8rYECYjdVJdS/WWMYqOVdbRBmqcknjcS/Ok502hHFcyOK/5yLfhw6Z+gi2tWECBbuGpprJU0T6X4sLFZWFwjAmyySZVymr4wpSB67Tmk2AbPJZM5uotS2InVy5te34C0uz3+dEYtleXdCBWVCAoNo451sNGlKunwEAAQA= runner@unknown
+2026-10-30T21:10:40.1754520Z INFO         |   androidboot.qemu.avd_name=test
+2026-10-30T21:10:40.1755476Z INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+2026-10-30T21:10:40.1756197Z INFO         |   androidboot.qemu.camera_protocol_ver=1
+2026-10-30T21:10:40.1756878Z INFO         |   androidboot.qemu.cpuvulkan.version=4206592
+2026-10-30T21:10:40.1757398Z INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+2026-10-30T21:10:40.1758256Z INFO         |   androidboot.qemu.gltransport.name=pipe
+2026-10-30T21:10:40.1758680Z INFO         |   androidboot.qemu.hwcodec.avcdec=2
+2026-10-30T21:10:40.1759090Z INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+2026-10-30T21:10:40.1759490Z INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+2026-10-30T21:10:40.1760000Z INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+2026-10-30T21:10:40.1760481Z INFO         |   androidboot.qemu.skin=320x640
+2026-10-30T21:10:40.1760856Z INFO         |   androidboot.qemu.virtiowifi=1
+2026-10-30T21:10:40.1761226Z INFO         |   androidboot.qemu.vsync=60
+2026-10-30T21:10:40.1761617Z INFO         |   androidboot.serialno=EMULATOR37X2X13X0
+2026-10-30T21:10:40.1762268Z INFO         |   androidboot.vbmeta.digest=8bee4f6105b6acd7de887b1ee6629ab07066df02ee9bbca07663adffdad97fc1
+2026-10-30T21:10:40.1762881Z INFO         |   androidboot.vbmeta.hash_alg=sha256
+2026-10-30T21:10:40.1763268Z INFO         |   androidboot.vbmeta.size=6656
+2026-10-30T21:10:40.1763654Z INFO         |   androidboot.veritymode=enforcing
+2026-10-30T21:10:40.1959076Z WARNING: cannnot unmap ptr 0x7f02f4401000 as it is in the protected range from 0x7f01f4400000 to 0x7f02f4600000
+2026-10-30T21:10:40.1959772Z pc_memory_init: above 4g size: 40000000
+2026-10-30T21:10:40.2233720Z INFO         | Monitoring duration of emulator setup.
+2026-10-30T21:10:41.2174387Z INFO         | Successfully initialized netsim WiFi
+2026-10-30T21:10:41.2193381Z INFO         | Activated packet streamer for bluetooth emulation
+2026-10-30T21:10:41.2246473Z INFO         | Setting display: 0 configuration to: 320x640, dpi: 160x160 
+2026-10-30T21:10:41.2247094Z INFO         | setDisplayActiveConfig: id:0, 320x640
+2026-10-30T21:10:41.2248409Z INFO         | emulatorSetupEnvironment: Environment scene is not required
+2026-10-30T21:10:41.2327479Z INFO         | Loading snapshot 'default_boot'...
+2026-10-30T21:10:41.2329252Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-10-30T21:10:41.2657047Z WARNING      | Device 'cache' does not have the requested snapshot 'default_boot'
+2026-10-30T21:10:41.2658218Z 
+2026-10-30T21:10:41.2658780Z WARNING      | Failed to load snapshot 'default_boot'
+2026-10-30T21:10:41.2660291Z USER_INFO    | The emulator is performing a cold boot without a saved state because there's no snapshot and you have configured it not to save on exit.
+2026-10-30T21:10:41.3324812Z WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+2026-10-30T21:10:49.4961169Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:10:49.4991136Z * daemon not running; starting now at tcp:5037
+2026-10-30T21:10:49.6358679Z * daemon started successfully
+2026-10-30T21:10:49.6369940Z adb: device offline
+2026-10-30T21:10:49.6379063Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-10-30T21:10:51.6394339Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:10:51.6433966Z adb: device offline
+2026-10-30T21:10:51.6441445Z The process '/usr/local/lib/android/sdk/platform-tools/adb' failed with exit code 1
+2026-10-30T21:10:53.6506530Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:10:53.6841481Z 
+2026-10-30T21:10:55.6919505Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:10:55.7359316Z 
+2026-10-30T21:10:57.7489705Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:10:57.7784170Z 
+2026-10-30T21:10:59.7861060Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:10:59.8143596Z 
+2026-10-30T21:11:01.8213534Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:11:01.8565536Z 
+2026-10-30T21:11:03.8689725Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:11:03.9022698Z 
+2026-10-30T21:11:05.9090155Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:11:05.9342989Z 
+2026-10-30T21:11:07.9427070Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:11:07.9671142Z 
+2026-10-30T21:11:09.0151313Z INFO         | Boot completed in 29482 ms
+2026-10-30T21:11:09.0154071Z INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+2026-10-30T21:11:09.9739792Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell getprop sys.boot_completed
+2026-10-30T21:11:10.0295402Z 1
+2026-10-30T21:11:10.0309639Z Emulator booted.
+2026-10-30T21:11:10.0351741Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell input keyevent 82
+2026-10-30T21:11:11.3648101Z Disabling animations.
+2026-10-30T21:11:11.3674720Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+2026-10-30T21:11:11.6319254Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+2026-10-30T21:11:11.7212763Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+2026-10-30T21:11:11.7860648Z ##[endgroup]
+2026-10-30T21:11:11.7938840Z [command]/usr/bin/sh -c bash tools/r29/emulator_smoke.sh r29-apk evidence/r29/startup-diagnostic
+2026-10-30T21:11:14.3783756Z R26_ADB_PREFLIGHT_READY|stableObservations=3
+2026-10-30T21:11:15.9781005Z evidence/r29/startup-diagnostic/baseline.apk: OK
+2026-10-30T21:11:16.5442470Z Signer #1 certificate SHA-256 digest: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:12:04.3425714Z /data/user/0/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db: 1 file pulled, 0 skipped. 119.0 MB/s (31596544 bytes in 0.253s)
+2026-10-30T21:14:35.2870507Z /data/user/0/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db: 1 file pulled, 0 skipped. 127.7 MB/s (55971840 bytes in 0.418s)
+2026-10-30T21:14:35.3693758Z /data/user/0/com.starcore.research.r13/databases/starcore-research-r29-stage.db: 1 file pulled, 0 skipped. 17.5 MB/s (856064 bytes in 0.047s)
+2026-10-30T21:14:35.6215946Z {"status": "OBSERVATION_ONLY_NOT_ACCEPTANCE", "mainAvailable": true, "stageAvailable": true, "stageManifestTotal": 378}
+2026-10-30T21:14:35.7199182Z /data/user/0/com.starcore.research.r13/databases/starcore-r29-research.db: 1 file pulled, 0 skipped. 166.3 MB/s (10825728 bytes in 0.062s)
+2026-10-30T21:14:35.8284259Z /data/user/0/com.starcore.research.r13/databases/starcore-r29-baseline-1793394739181.db: 1 file pulled, 0 skipped. 167.2 MB/s (7753728 bytes in 0.044s)
+2026-10-30T21:14:36.1510211Z {"status": "PASS_ENGINEERING_SUBSET_ONLY", "eventsDelivered": 1984, "modelReceipts": 0, "stagedBackupStatus": "PASS_IMMUTABLE_STAGE_BASELINES_ONLY"}
+2026-10-30T21:14:36.3946445Z {"scope": "API34_EMULATOR_SMOKE_NOT_PHYSICAL_DEVICE", "schemaTablesLost": [], "integrity": "ok", "baselineDrawsLostOrChanged": [], "beforeDrawCount": 4152, "afterDrawCount": 4155, "naturalQuality": "NOT_EVALUATED", "foreground60min": "NOT_RUN", "screenOff6h": "NOT_RUN", "continuous72h": "NOT_RUN", "upgradeDatabase": "PASS"}
+2026-10-30T21:17:22.2712453Z /data/user/0/com.starcore.research.r13/databases/binance_k3_nova_one_pro_v57.db: 1 file pulled, 0 skipped. 111.4 MB/s (41197568 bytes in 0.353s)
+2026-10-30T21:17:22.3147437Z /data/user/0/com.starcore.research.r13/databases/starcore-research-r29-stage.db: 1 file pulled, 0 skipped. 128.6 MB/s (786432 bytes in 0.006s)
+2026-10-30T21:17:22.5433450Z {"status": "OBSERVATION_ONLY_NOT_ACCEPTANCE", "mainAvailable": true, "stageAvailable": true, "stageManifestTotal": 326}
+2026-10-30T21:17:22.5743530Z adb: error: failed to stat remote object '/data/user/0/com.starcore.research.r13/databases/starcore-r29-research.db': No such file or directory
+2026-10-30T21:17:22.5926444Z ##[error]The process '/usr/bin/sh' failed with exit code 1
+2026-10-30T21:17:22.5928759Z ##[group]Terminate Emulator
+2026-10-30T21:17:22.5942691Z [command]/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 emu kill
+2026-10-30T21:17:22.5998985Z OK: killing emulator, bye bye
+2026-10-30T21:17:22.5999493Z OK
+2026-10-30T21:17:22.6001120Z INFO         | Wait for emulator (pid 4142) 20 seconds to shutdown gracefully before kill;you can set environment variable ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL(in seconds) to change the default value (20 seconds)
+2026-10-30T21:17:22.6002416Z 
+2026-10-30T21:17:22.6002889Z ##[endgroup]
+2026-10-30T21:17:25.9745901Z INFO         | Saving with gfxstream=1
+2026-10-30T21:17:26.0278225Z INFO         | Saving snapshot 'default_boot' took 3408 ms
+2026-10-30T21:17:26.2674062Z ERROR        | stop: Not implemented
+2026-10-30T21:17:26.2675182Z WARNING      | Emulator client has not yet been configured.. Call configure me first!
+2026-10-30T21:17:26.2920706Z INFO         | removeAll
+2026-10-30T21:17:26.3249309Z WARNING      | Netsim Wifi dns:///localhost:45447 is gone due to Stream removed (CANCELLED)
+2026-10-30T21:17:26.9333906Z ##[group]Run actions/upload-artifact@v4
+2026-10-30T21:17:26.9334227Z with:
+2026-10-30T21:17:26.9334603Z   name: R29-FULL-APP-STARTUP-DIAGNOSTIC-05f45998a3482bc2a7c54f4256c168bce5ab8231
+2026-10-30T21:17:26.9335913Z   path: evidence/r29/startup-diagnostic/**/*.json
+evidence/r29/startup-diagnostic/**/*.txt
+evidence/r29/startup-diagnostic/**/*.log
+startup-evidence/*.json
+startup-evidence/*.txt
+startup-evidence/*.log
+r29-startup-diagnostic-source.json
+r29-startup-diagnostic-build.log
+r29-apk/delivery.json
+
+2026-10-30T21:17:26.9337059Z   if-no-files-found: warn
+2026-10-30T21:17:26.9337310Z   compression-level: 6
+2026-10-30T21:17:26.9338114Z   overwrite: false
+2026-10-30T21:17:26.9338342Z   include-hidden-files: false
+2026-10-30T21:17:26.9338590Z env:
+2026-10-30T21:17:26.9338895Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:17:26.9339404Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.21-9/x64
+2026-10-30T21:17:26.9339888Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:17:26.9340312Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-30T21:17:26.9340738Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:17:26.9341125Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:17:26.9341507Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-30T21:17:26.9341901Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-30T21:17:26.9342287Z   R13_SIGNING_P12: /home/runner/work/_temp/starcore-r13.p12
+2026-10-30T21:17:26.9342821Z   R13_SIGNING_PASSWORD: ***
+2026-10-30T21:17:26.9343248Z   R13_EXPECTED_CERT_SHA256: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+2026-10-30T21:17:26.9343711Z   DUOQU_API_KEY: ***
+2026-10-30T21:17:26.9343936Z   R29_SIGNING: OFFICIAL_R13
+2026-10-30T21:17:26.9344191Z   ANDROID_HOME: /usr/local/lib/android/sdk
+2026-10-30T21:17:26.9344508Z   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+2026-10-30T21:17:26.9344816Z   ANDROID_AVD_HOME: /home/runner/.android/avd
+2026-10-30T21:17:26.9345096Z ##[endgroup]
+2026-10-30T21:17:27.1172772Z (node:5547) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:17:27.1173612Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:17:27.1397425Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-30T21:17:27.1401802Z The least common ancestor is /home/runner/work/starcore-public-build/starcore-public-build. This will be the root directory of the artifact
+2026-10-30T21:17:27.1403421Z With the provided path, there will be 23 files uploaded
+2026-10-30T21:17:27.1405512Z Artifact name is valid!
+2026-10-30T21:17:27.1406570Z Root directory input is valid!
+2026-10-30T21:17:27.3528935Z Beginning upload of artifact content to blob storage
+2026-10-30T21:17:27.4344242Z (node:5547) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-30T21:17:27.5022787Z Uploaded bytes 253775
+2026-10-30T21:17:27.5224192Z Finished uploading artifact content to blob storage!
+2026-10-30T21:17:27.5225596Z SHA256 digest of uploaded artifact zip is 0c9309e9e50cb97f06c1440f75c4910841ecf8fc9db89d2624d8f64f642ba3bc
+2026-10-30T21:17:27.5227335Z Finalizing artifact upload
+2026-10-30T21:17:27.9389716Z Artifact R29-FULL-APP-STARTUP-DIAGNOSTIC-05f45998a3482bc2a7c54f4256c168bce5ab8231.zip successfully finalized. Artifact ID 13012941308
+2026-10-30T21:17:27.9399789Z Artifact R29-FULL-APP-STARTUP-DIAGNOSTIC-05f45998a3482bc2a7c54f4256c168bce5ab8231 has been successfully uploaded! Final size is 253775 bytes. Artifact ID is 13012941308
+2026-10-30T21:17:27.9402074Z Artifact download URL: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41128357535/artifacts/13012941308
+2026-10-30T21:17:27.9627191Z Post job cleanup.
+2026-10-30T21:17:28.1039067Z (node:5560) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-30T21:17:28.1040280Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-30T21:17:28.1211743Z Post job cleanup.
+2026-10-30T21:17:28.2137178Z [command]/usr/bin/git version
+2026-10-30T21:17:28.2183733Z git version 2.56.0
+2026-10-30T21:17:28.2257184Z Temporarily overriding HOME='/home/runner/work/_temp/cccc2120-8aa1-437b-b00f-948dbc09a1e1' before making global git config changes
+2026-10-30T21:17:28.2259323Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:17:28.2266561Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:17:28.2319757Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:17:28.2367707Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:17:28.2713261Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:17:28.2746997Z http.https://github.com/.extraheader
+2026-10-30T21:17:28.2759441Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-30T21:17:28.2824034Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:17:28.3219197Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:17:28.3291606Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:17:28.3760642Z Post job cleanup.
+2026-10-30T21:17:28.4667801Z [command]/usr/bin/git version
+2026-10-30T21:17:28.4750799Z git version 2.56.0
+2026-10-30T21:17:28.4796411Z Temporarily overriding HOME='/home/runner/work/_temp/8040b41e-f6f1-493e-b1db-169d1ccda961' before making global git config changes
+2026-10-30T21:17:28.4798052Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-30T21:17:28.4803537Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/starcore-public-build/starcore-public-build
+2026-10-30T21:17:28.4850244Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-30T21:17:28.4910202Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-30T21:17:28.5214481Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-30T21:17:28.5264056Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-30T21:17:28.5585394Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-30T21:17:28.5639395Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-30T21:17:28.6070593Z Cleaning up orphan processes
+2026-10-30T21:17:28.6449330Z Terminate orphan process: pid (4305) (adb)
+2026-10-30T21:17:28.6579965Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache/restore@v4, actions/checkout@v4, actions/setup-java@v4, actions/setup-python@v5, actions/upload-artifact@v4, android-actions/setup-android@v3. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

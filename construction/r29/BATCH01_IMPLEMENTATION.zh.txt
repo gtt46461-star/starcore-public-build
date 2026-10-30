@@ -1,6 +1,6 @@
 R29.1 B01：R29-004—008真实实现与实际安装失败记录
 
-CP10冻结源码 0c639ccb37025f6d573f0293abccff061d41826e（577291010/checkpoint10），产品修复 2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62。本地标准包装构建通过，当前源码native10/安全CI/整机及正式四组安装回执待验，B01 NOT_ACCEPTED；CP07/08/09真实失败全部保留，最新已验收交付仍CP06。
+CP11冻结源码 2cf09d56fbffb67d7b942aceba9293a01d00143c（577291011/checkpoint11），产品提交 0aa96701e5a489bc09c60fb170aa398e19f5630f。本地完整标准包装脚本164JUnit+8语义反证通过，lint报告复用。实际native8/10，独立schema安装及全部机制首次服务超过原60秒；完整App已PUBLISHED但新增expert-E12 UNSLICED错误1项使升级失败，干净安装及正式四组NOT_STARTED。CP12冷启动/安装吞吐/E12源码修复进行中、未验收，B01 NOT_ACCEPTED。CP07—CP10真实失败保留；最新已验收交付仍CP06。
 
 R29-004：迁移完整研究域，类型化保存 NULL/整数/浮点/TEXT/BLOB，支持复合主键和大字段；验证来源及目标行 hash。保留 Root 原表；FULL 标记只在完整迁移或兼容扩域成功后发布。取消、磁盘/容量预算不足、冲突均保留原状态并失败，不建立空模型冒充恢复。
 
@@ -14,4 +14,4 @@ R29-008：完成统一 dispatcher 的 session/epoch 栅栏；撤销及当前证�
 
 1d CI36HOST/164JUnit/8semantic和两签名产包通过；Native6d独立Sandbox9/9通过，产品字节相同。CP06四组实际安装均FAIL：两次启动通过后实际RP文件不存在，升级完整数据比较与干净安装NOT_REACHED。不能用Sandbox或产包覆盖真实安装失败。
 
-当前CP09修复：完整目录先登记PENDING，按首个待复制表安装严格tracker；事件schema fresh精确核验避免重复DDL；五处专家纯SELECT经独立Root只读连接和ACTIVE owner校验。不放宽原时间/写队列门槛。逐卡待验见failed/device-1d2f1565/B01_INSTALL_FAILURE.zh.txt；OS硬杀、真实ENOSPC、热/后台长测、黄金/私有状态缺件、无pin等待、自然质量等限制保留。
+已实施CP09修复：完整目录先登记PENDING，按首个待复制表安装严格tracker；事件schema fresh精确核验避免重复DDL；五处专家纯SELECT经独立Root只读连接和ACTIVE owner校验。不放宽原时间/写队列门槛。逐卡待验见failed/device-1d2f1565/B01_INSTALL_FAILURE.zh.txt；OS硬杀、真实ENOSPC、热/后台长测、黄金/私有状态缺件、无pin等待、自然质量等限制保留。

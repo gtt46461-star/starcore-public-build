@@ -1,0 +1,34 @@
+{
+  "schema": "R29_SOURCE_BOUND_NATIVE_EVIDENCE_1",
+  "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "run": 41129759889,
+  "artifact": 13012368949,
+  "zipSha256": "fb2181667821924ac172565be9340be83e752cd386ce7a92eec08b02f97b94af",
+  "status": "FAIL_ACTUAL_8_OF_10",
+  "passed": 8,
+  "failed": 2,
+  "failures": [
+    {
+      "case": "R29LegacySchemaOwnerDeviceTest",
+      "originalLimitMs": 60000,
+      "elapsedMs": 60029,
+      "ready": false,
+      "state": "INITIALIZING|cursor=SU1_STORAGE_FOUNDRY_RUNTIME_V1|error=",
+      "steps": 416,
+      "pendingSteps": 8
+    },
+    {
+      "case": "R26RuntimeDeviceTest",
+      "originalLimitMs": 60000,
+      "observedMs": 65100,
+      "familiesWithProgress": 24,
+      "expertsWithProgress": 16,
+      "error": "java.lang.AssertionError: all ready legacy mechanisms exceeded their 60-second first-service target"
+    }
+  ],
+  "remainingChecksAfterEarlyAssertion": "NOT_REACHED_IN_FAILED_CASE; no inherited write/retention/restart success claimed",
+  "earlierSource05NativeTenPassIsNotThisRun": true,
+  "physical": "NOT_RUN",
+  "naturalQuality": "NOT_EVALUATED",
+  "recheck": "frozen-harness-recheck.json"
+}

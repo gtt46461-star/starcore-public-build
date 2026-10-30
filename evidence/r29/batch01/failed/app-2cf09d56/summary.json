@@ -1,0 +1,50 @@
+{
+  "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+  "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "run": 41129765576,
+  "artifact": 13013475422,
+  "zipSha256": "9abde64dbd766654303d1926b0c8e5ecd2531a6c0107fe1215cddbadca66ad93",
+  "status": "FAIL_UPGRADE_NEW_TASK_ERROR",
+  "scope": "API34 x86_64 R13 debug additional diagnostic; not formal four-case matrix",
+  "publication": "PUBLISHED",
+  "researchIdentityMatched": true,
+  "sealedBaselineVerified": true,
+  "sealedBaselineSha256": "430448da0e9ae36c1c75ec77f88f21c815df59eb7efe3ff7cfa2e97b6695abcf",
+  "allNewTaskErrorsSinceBaseline": 1,
+  "newTaskFailure": {
+    "owner": "RESEARCH",
+    "errorId": 1,
+    "task": "expert-E12",
+    "errorClass": "java.lang.IllegalStateException",
+    "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+    "recordedAt": 1793395362923
+  },
+  "taskErrorNotHiddenByR29OnlyErrorSubset": true,
+  "baselineCapacityFailureRecords": 1,
+  "newCapacityFailuresSinceBaseline": 0,
+  "existingRootCapacityFailure": {
+    "owner": "REALTIME",
+    "receiptId": 4,
+    "task": "schema",
+    "fence": 4,
+    "cursorBefore": 95,
+    "cursorAfter": 125,
+    "cpuMs": 326,
+    "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:8149ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=30:124->125",
+    "recordedAt": 1793395267264
+  },
+  "baselineCapacityMustNotBeRelabelledCleanZero": true,
+  "clean": "NOT_STARTED_UPGRADE_ABORTED",
+  "upgradeDatabaseComparison": "NOT_REACHED_NO_UPGRADE_JSON",
+  "terminalFailure": "AssertionError:NEW_TASK_ERRORS_SINCE_BASELINE",
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "B01": "NOT_ACCEPTED"
+}

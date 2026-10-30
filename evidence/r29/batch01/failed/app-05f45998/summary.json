@@ -1,0 +1,83 @@
+{
+  "schema": "R29_SOURCE_BOUND_FULL_APP_DIAGNOSTIC_1",
+  "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+  "run": 41128357535,
+  "artifact": 13012941308,
+  "zipSha256": "0c9309e9e50cb97f06c1440f75c4910841ecf8fc9db89d2624d8f64f642ba3bc",
+  "status": "FAIL_CLEAN_CUTOVER_AFTER_WARM_CP06_UPGRADE_PASS",
+  "B01": "NOT_ACCEPTED",
+  "scope": "API34 x86_64 R13 debug whole-App additional diagnostic; not the formal four installation/upgrade cases.",
+  "warmCp06Upgrade": {
+    "status": "PASS_ENGINEERING_SUBSET_ONLY",
+    "database": {
+      "scope": "API34_EMULATOR_SMOKE_NOT_PHYSICAL_DEVICE",
+      "schemaTablesLost": [],
+      "integrity": "ok",
+      "baselineDrawsLostOrChanged": [],
+      "beforeDrawCount": 4152,
+      "afterDrawCount": 4155,
+      "naturalQuality": "NOT_EVALUATED",
+      "foreground60min": "NOT_RUN",
+      "screenOff6h": "NOT_RUN",
+      "continuous72h": "NOT_RUN",
+      "upgradeDatabase": "PASS"
+    },
+    "publicationPhase": "PUBLISHED",
+    "activeOwner": "starcore-r29-research.db",
+    "sealedBaselineSha256": "611b1047425fbe293649d485fa1d5c2f61555a64b85acec36a398545fd865e34",
+    "sealedBaselineVerified": true,
+    "newTaskErrors": 0,
+    "newCapacityFailures": 0,
+    "eventDeliveryStatus": "PASS"
+  },
+  "clean": {
+    "status": "FAIL_RESEARCH_CUTOVER_NOT_READY",
+    "originalSmokeWaitSeconds": 180,
+    "startupServiceRestartCheckPassed": true,
+    "startupServiceCheckIsNotResearchCutoverAcceptance": true,
+    "rootTableCount": 559,
+    "strategyStorageCommittedUnits": 256,
+    "strategyStorageTotalUnits": 265,
+    "route": null,
+    "publication": null,
+    "trackedSourceTables": 61,
+    "trackingTriggerCount": 183,
+    "stageManifestTotal": 326,
+    "stagePhases": {
+      "PENDING": 267,
+      "VERIFIED_BASELINE": 59
+    },
+    "newTaskErrors": 0,
+    "newCapacityFailures": 1,
+    "capacityFailure": {
+      "owner": "REALTIME",
+      "receiptId": 14,
+      "task": "schema",
+      "fence": 17,
+      "cursorBefore": 115,
+      "cursorAfter": 121,
+      "cpuMs": 657,
+      "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:2143ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=6:132->133",
+      "recordedAt": 1793394968654
+    },
+    "schemaWallCapacityLimitMs": 2000,
+    "schemaWallObservedMs": 2143,
+    "recordedParentCpuMs": 657,
+    "wallAndCpuAreDifferentMeasurements": true,
+    "terminalStderr": "2026-10-30T21:17:22.5743530Z adb: error: failed to stat remote object '/data/user/0/com.starcore.research.r13/databases/starcore-r29-research.db': No such file or directory",
+    "terminalLog": "job.log"
+  },
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "current2cfSource": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "sameProductProof": "same-product-qa-only-2cf09d56.json",
+  "exact2cfReceiptsInherited": false,
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "all44Metrics": "NOT_CLAIMED"
+}

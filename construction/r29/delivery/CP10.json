@@ -8,7 +8,7 @@
   "qaCommit": "0c639ccb37025f6d573f0293abccff061d41826e",
   "sourceTree": "f43e11b63dc7cec34dc8f7a0f0e7c36b957e9b06",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
-  "overall": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_NOT_ACCEPTED",
+  "overall": "FAILED_NATIVE_ROOT_WRITER_PROBE_AND_ACTUAL_WHOLE_APP_PUBLICATION_NOT_ACCEPTED",
   "engineeringAccepted": false,
   "expectedVersion": {
     "package": "com.starcore.research.r13",
@@ -22,7 +22,8 @@
     },
     "r13SecureBuild": {
       "run": 41125295873,
-      "status": "PENDING_RECEIPT"
+      "status": "BUILD_SUCCESS_PUBLIC_BINARY_AND_ACTUAL_R13_CI_ARTIFACT_VERIFIED",
+      "job": 124302060349
     },
     "fullAppDiagnostic": {
       "run": 41125298912,
@@ -30,7 +31,8 @@
     },
     "r27SecureBuild": {
       "run": 41125301226,
-      "status": "PENDING_RECEIPT"
+      "status": "BUILD_SUCCESS_PUBLIC_BINARY_VERIFIED_CI_XML_NOT_INDEPENDENTLY_RECOUNTED",
+      "job": 124302081720
     }
   },
   "canonicalSavedWrapper": {
@@ -65,6 +67,24 @@
     "r27-release": "NOT_STARTED"
   },
   "apk": [
+    {
+      "sourceCommit": "0c639ccb37025f6d573f0293abccff061d41826e",
+      "signer": "ORIGINAL_R13",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291010-0c639ccb3702/STARCORE-R29.1-0c639ccb3702-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint10-R13-release.apk",
+      "sha256": "bb3bbd0dd92b47a85a64d5827652bf56f5ad5ffaf6db4695aa176e7fe1daafef",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "versionCode": 577291010,
+      "versionName": "R29.1-2026.10.30-checkpoint10",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_ACCEPTED_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_FAILED_FORMAL_FOUR_NOT_STARTED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT"
+    },
     {
       "sourceCommit": "0c639ccb37025f6d573f0293abccff061d41826e",
       "signer": "EXISTING_R27",
@@ -182,5 +202,97 @@
     "job": 124302081720,
     "conclusion": "success",
     "scope": "BUILD_WORKFLOW_SUCCESS_PUBLIC_BINARY_VERIFIED_CI_XML_NOT_INDEPENDENTLY_RECOUNTED"
+  },
+  "native": {
+    "source": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "run": 41125292483,
+    "artifact": 13011106707,
+    "zipSha256": "a853808552b7cc86e61b9100754f68a58037a9d6316cc4d3fd6d02ae5ea72788",
+    "cases": [
+      {
+        "name": "R29LargeModelCheckpointDeviceTest",
+        "passed": true,
+        "receipt": "r29-model-cursorwindow-device.json"
+      },
+      {
+        "name": "R29LargeRowMigrationDeviceTest",
+        "passed": true,
+        "receipt": "r29-large-row-migration-device.json"
+      },
+      {
+        "name": "R29CutoverSnapshotDeviceTest",
+        "passed": true,
+        "receipt": "r29-cutover-snapshot-device.json"
+      },
+      {
+        "name": "R29DatabaseCutoverDeviceTest",
+        "passed": true,
+        "receipt": "r29-cutover-device.json"
+      },
+      {
+        "name": "R29CriticalInputTriggerDeviceTest",
+        "passed": true,
+        "receipt": "r29-critical-trigger-device.json"
+      },
+      {
+        "name": "R29LegacySchemaOwnerDeviceTest",
+        "passed": true,
+        "receipt": "r29-legacy-schema-owner-device.json"
+      },
+      {
+        "name": "R29LegacyDomainExtensionDeviceTest",
+        "passed": true,
+        "receipt": "r29-domain-extension-device.json"
+      },
+      {
+        "name": "R29ShadowRetirementAuthorityDeviceTest",
+        "passed": true,
+        "receipt": "r29-shadow-retirement-device.json"
+      },
+      {
+        "name": "R29EvolutionDatasetPinDeviceTest",
+        "passed": true,
+        "receipt": "r29-evolution-dataset-pin-device.json"
+      },
+      {
+        "name": "R26RuntimeDeviceTest",
+        "passed": false,
+        "actualFailure": "e\n\nINSTRUMENTATION_STATUS: stream=\nError in allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest):\njava.lang.IllegalStateException: F01_WRITE_FAILED|operation=R914_DRAW_SAVE_ATOMIC\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)\n\tat com.ethk3.novaonepro.DbStore.saveDraw(DbStore.java:2190)\n\tat com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(R26RuntimeDeviceTest.java:82)\n\t... 33 trimmed\nCaused by: java.lang.IllegalStateException: CP3_DB_BUSY_DEADLINE\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:678)\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)\n\t... 36 more\n\nINSTRUMENTATION_STATUS: test=allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit\nINSTRUMENTATION_STATUS_CODE: -2\nINSTRUMENTATION_RESULT: stream=\n\nTime: 117.342\nThere was 1 failure:\n1) allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest)\njava.lang.IllegalStateException: F01_WRITE_FAILED|operation=R914_DRAW_SAVE_ATOMIC\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:629)\n\tat com.ethk3.novaonepro.DbStore.saveDraw(DbStore.java:2190)\n\tat com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(R26RuntimeDeviceTest.java:82)\n\t... 33 trimmed\nCaused by: java.lang.IllegalStateException: CP3_DB_BUSY_DEADLINE\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:678)\n\tat com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:623)\n\t... 36 more\n\nFAILURES!!!\nTests run: 1,  Failures: 1\n\n\nINSTRUMENTATION_CODE: -1\n"
+      }
+    ],
+    "passed": 9,
+    "failed": 1,
+    "scope": "SYNTHETIC_API34_NOT_WHOLE_APP_OR_PHYSICAL",
+    "targetsRelaxed": false
+  },
+  "qualificationInheritanceToCp11": false,
+  "r13ActualCiAudit": {
+    "source": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "artifactId": 13010764787,
+    "zipSha256": "b8df45f61d5dc3dd5df6f4f8cdb898963083d2ada304615d39012268d5ca6621",
+    "auditWorkingFile": "/workspace/work/r29/cp10-r13-ci-audit.json",
+    "auditSha256": "54871b7d71495dc6f1245a443c2f1e9b2419760727966401c51e9117f7453846",
+    "directHostPositive": 41,
+    "junit": {
+      "xmlFiles": 32,
+      "tests": 164,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "semanticMutationChecks": 8,
+    "scope": "R13_CI_ONLY_NATIVE_AND_WHOLE_APP_FAIL_SEPARATE",
+    "auditEvidence": "evidence/r29/batch01/validated-0c639ccb/r13-ci-audit.json",
+    "artifactEvidence": "evidence/r29/batch01/validated-0c639ccb/r13-ci-source-artifact",
+    "offlineQa": {
+      "tests": 32,
+      "beforeCapacityQa44Repair": true
+    },
+    "lint": {
+      "freshAnalyzeAndReportExecuted": true,
+      "newIssues": 0,
+      "existingBaselineErrorsFiltered": 51,
+      "unmatchedBaselineEntries": 7
+    }
   }
 }

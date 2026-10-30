@@ -1,0 +1,128 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": true,
+  "baselineCapacityFailureRecords": 0,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 580,
+  "route": {
+    "phase": "ACTIVE",
+    "database_name": "starcore-r29-research.db",
+    "schema_hash": "95b94a3d0af0f7a77f3bf16f92ef9f0d9b92c27746acbc34b8f706d70e17930c",
+    "source_root": "83f077dffe0ca3b85f251b31f8f658a2c26164cd15b6b94f973b327d914dc644",
+    "epoch": 1793394739181,
+    "activated_at": 1793394756423
+  },
+  "publication": {
+    "phase": "PUBLISHED",
+    "epoch": 1793394739181,
+    "baseline_name": "starcore-r29-baseline-1793394739181.db",
+    "baseline_sha": "611b1047425fbe293649d485fa1d5c2f61555a64b85acec36a398545fd865e34",
+    "source_root": "83f077dffe0ca3b85f251b31f8f658a2c26164cd15b6b94f973b327d914dc644",
+    "last_error": "",
+    "updated_at": 1793394756425
+  },
+  "trackedSourceTables": 1,
+  "tablesWithThreeTrackingTriggers": 1,
+  "trackingTriggerCount": 3,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "BLOCKED",
+      "cursor": 1,
+      "steps": 1,
+      "last_served": 1793394739059,
+      "last_progress": 1793394734984,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "BLOCKED",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 1793394738823,
+      "last_progress": 0,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY"
+    },
+    {
+      "task_id": "schema",
+      "status": "YIELDED",
+      "cursor": 268,
+      "steps": 11,
+      "last_served": 1793394734889,
+      "last_progress": 1793394735837,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "READY",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 1793394721961,
+      "last_progress": 0,
+      "blocked_reason": null,
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "DEPENDENCY(LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:)"
+    }
+  ],
+  "rootTaskErrors": 0,
+  "rootMigrationTaskErrors": 0,
+  "rootRecentTaskErrors": [],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 0,
+  "rootRecentCapacityFailures": [],
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 0
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "newCapacityFailureReasonsSinceBaseline": [],
+  "newCapacityFailuresSinceBaseline": 0,
+  "rootEvents": {
+    "total": 4095,
+    "acked": 1984
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 378,
+  "stagePhases": {
+    "PENDING": 377,
+    "VERIFIED_BASELINE": 1
+  },
+  "stageCopiedRows": 0
+}

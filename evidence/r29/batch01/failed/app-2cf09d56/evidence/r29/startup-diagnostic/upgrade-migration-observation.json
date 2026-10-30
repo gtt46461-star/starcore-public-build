@@ -1,0 +1,149 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": true,
+  "baselineCapacityFailureRecords": 1,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 580,
+  "route": {
+    "phase": "ACTIVE",
+    "database_name": "starcore-r29-research.db",
+    "schema_hash": "95b94a3d0af0f7a77f3bf16f92ef9f0d9b92c27746acbc34b8f706d70e17930c",
+    "source_root": "311b44c107b18e171a2e95715981de5abbeb6a316d2b2a6dc322f1f17a12cd2d",
+    "epoch": 1793395300711,
+    "activated_at": 1793395309283
+  },
+  "publication": {
+    "phase": "PUBLISHED",
+    "epoch": 1793395300711,
+    "baseline_name": "starcore-r29-baseline-1793395300711.db",
+    "baseline_sha": "430448da0e9ae36c1c75ec77f88f21c815df59eb7efe3ff7cfa2e97b6695abcf",
+    "source_root": "311b44c107b18e171a2e95715981de5abbeb6a316d2b2a6dc322f1f17a12cd2d",
+    "last_error": "",
+    "updated_at": 1793395309283
+  },
+  "trackedSourceTables": 1,
+  "tablesWithThreeTrackingTriggers": 1,
+  "trackingTriggerCount": 3,
+  "strategyStorageUnits": {
+    "committedUnits": 265,
+    "firstUnit": 0,
+    "lastUnit": 264
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "BLOCKED",
+      "cursor": 7,
+      "steps": 2,
+      "last_served": 1793395300603,
+      "last_progress": 1793395300555,
+      "blocked_reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit;cursor=0,latest=-1",
+      "wait_kind": "NO_NEW_EVENT",
+      "wait_detail": "NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit;cursor=0,latest=-1"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "YIELDED",
+      "cursor": 0,
+      "steps": 2,
+      "last_served": 1793395300567,
+      "last_progress": 1793395300567,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema",
+      "status": "YIELDED",
+      "cursor": 268,
+      "steps": 13,
+      "last_served": 1793395299308,
+      "last_progress": 1793395299795,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "units=1"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "READY",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 1793395289133,
+      "last_progress": 0,
+      "blocked_reason": null,
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "DEPENDENCY(LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R952_EXTENSION|error=:)"
+    }
+  ],
+  "rootTaskErrors": 0,
+  "rootMigrationTaskErrors": 0,
+  "rootRecentTaskErrors": [],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 0,
+  "rootRecentCapacityFailures": [
+    {
+      "owner": "REALTIME",
+      "receiptId": 4,
+      "task": "schema",
+      "fence": 4,
+      "cursorBefore": 95,
+      "cursorAfter": 125,
+      "cpuMs": 326,
+      "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:8149ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=30:124->125",
+      "recordedAt": 1793395267264
+    }
+  ],
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 1
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "newCapacityFailureReasonsSinceBaseline": [],
+  "newCapacityFailuresSinceBaseline": 0,
+  "rootEvents": {
+    "total": 4168,
+    "acked": 3968
+  },
+  "migrationCache": {
+    "state": "STAGED_COPY_NOT_CUTOVER",
+    "activeOwner": "ORIGINAL_DATABASE",
+    "cutoverEnabled": false,
+    "file": "starcore-research-r29-stage.db",
+    "verifiedBaselineTables": 0,
+    "crossTableSnapshot": "NOT_ESTABLISHED",
+    "updatedAt": 1793395299362
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 378,
+  "stagePhases": {
+    "PENDING": 377,
+    "VERIFIED_BASELINE": 1
+  },
+  "stageCopiedRows": 0
+}

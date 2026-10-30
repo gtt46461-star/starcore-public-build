@@ -1,0 +1,165 @@
+{
+  "schema": "R29_CHECKPOINT_DELIVERY_1",
+  "draft": true,
+  "checkpoint": "checkpoint11",
+  "batch": "B01",
+  "sourceCommit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "implementationCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+  "qaCommit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "sourceTree": "7f726cbd2688e38a53e6872a84b65a8890912549",
+  "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
+  "overall": "FAILED_EXACT_SOURCE_NATIVE8_OF10_AND_UPGRADE_NEW_TASK_ERROR",
+  "engineeringAccepted": false,
+  "expectedVersion": {
+    "package": "com.starcore.research.r13",
+    "versionCode": 577291011,
+    "versionName": "R29.1-2026.10.30-checkpoint11"
+  },
+  "runs": {
+    "nativeTen": {
+      "run": 41129759889,
+      "status": "FAIL_ACTUAL_8_OF_10",
+      "job": 124317373779,
+      "artifact": 13012368949,
+      "evidence": "evidence/r29/batch01/failed/native-2cf09d56/summary.json"
+    },
+    "r13SecureBuild": {
+      "run": 41129763373,
+      "status": "PENDING_RECEIPT"
+    },
+    "fullAppDiagnostic": {
+      "run": 41129765576,
+      "status": "FAIL_UPGRADE_NEW_TASK_ERROR_CLEAN_NOT_STARTED",
+      "job": 124317393479,
+      "artifact": 13013475422,
+      "evidence": "evidence/r29/batch01/failed/app-2cf09d56/summary.json"
+    },
+    "r27SecureBuild": {
+      "run": 41129768959,
+      "status": "PENDING_RECEIPT"
+    }
+  },
+  "canonicalSavedWrapper": {
+    "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
+    "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+    "log": "/workspace/work/r29/cp11q-canonical.log",
+    "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+    "junitCounts": "NOT_RECOUNTED_BY_THIS_SCRIPT",
+    "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
+    "unitCounts": {
+      "xml": 32,
+      "tests": 164,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "oldestMtimeUtc": "2026-10-30T21:21:21.616003+00:00"
+    },
+    "semanticMutations": 8,
+    "evidence": "evidence/r29/batch01/validated-2cf09d56/summary.json"
+  },
+  "fullCiExpectedHost": 45,
+  "nativeExpectedCases": 10,
+  "hostRepair": {
+    "DbStoreObservation": 18,
+    "publicationResume": 43,
+    "schemaDdlProof": 16,
+    "projectionSchemaInstaller": 21,
+    "qaOffline": 44,
+    "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+  },
+  "formalCp06UpgradeMatrix": {
+    "r13-debug": "NOT_STARTED",
+    "r13-release": "NOT_STARTED",
+    "r27-debug": "NOT_STARTED",
+    "r27-release": "NOT_STARTED"
+  },
+  "apk": [],
+  "sourceBinding": "construction/r29/delivery/CP11.source-binding.json",
+  "ledgerDraft": "construction/r29/ledger/B01-CP11.json",
+  "callChainsDraft": "construction/r29/delivery/CP11.call_chains.json",
+  "priorAttempt": "CP10.delivery.failed.json",
+  "priorQaCandidateLocalFailure": {
+    "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+    "canonical": "FAIL_UNIT_MAINLINE_RO_EXTENSION_GUARD_NOT_YET_REVIEWED",
+    "JUnit": {
+      "xml": 32,
+      "tests": 164,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failure": "R27QualityTest.h15MainlineRedLines originalDbStore9edd pin vs actual6968 after77ROextension",
+    "notProductSuccess": true,
+    "repair": "retain old business pin and validate exact reviewed extension+negative controls",
+    "B01": "NOT_ACCEPTED"
+  },
+  "qaOnlyRepair": "H15 preserves original mainline hash and exact reviewed77ROextension with rollback/receiver/SQL/DML negative controls",
+  "versionUnchangedReason": "05 signer publication blocked by failing canonical guard; no signed05 release reused",
+  "priorPassesMayAcceptCurrentSource": false,
+  "latestAcceptedDelivery": "construction/r29/delivery/CP06.json",
+  "acceptedBatches": [
+    "B00"
+  ],
+  "acceptedCards": [
+    "R29-001",
+    "R29-002",
+    "R29-003"
+  ],
+  "physical": "NOT_RUN",
+  "naturalQuality": "INSUFFICIENT",
+  "real": "BLOCKED",
+  "all44Metrics": "NOT_CLAIMED",
+  "overallMeaning": "Exact source2cf native8/10 FAIL and warm upgrade FAIL on a new expert-E12 task error; clean not started. Earlier source05 native10/10 and warm upgrade passes plus clean failure remain historical separate receipts.",
+  "source05ActualNative": {
+    "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+    "run": 41128350209,
+    "artifact": 13011658435,
+    "zipSha256": "5ad001eaf21ed6a0a338ba3c644831662a139d71be06e49ccdab47acb10d8ca5",
+    "status": "PASS_FROZEN_NATIVE_TEN_ENGINEERING_CASES_ONLY",
+    "cases": 10,
+    "evidence": "evidence/r29/batch01/validated-05f45998/native10/summary.json"
+  },
+  "source05ActualFullApp": {
+    "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+    "run": 41128357535,
+    "artifact": 13012941308,
+    "zipSha256": "0c9309e9e50cb97f06c1440f75c4910841ecf8fc9db89d2624d8f64f642ba3bc",
+    "status": "FAIL_CLEAN_CUTOVER_AFTER_WARM_CP06_UPGRADE_PASS",
+    "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+    "clean": "FAIL_RESEARCH_CUTOVER_NOT_READY",
+    "serviceRestartSmoke": "PASS_SEPARATE_FROM_CUTOVER",
+    "originalSmokeWaitSeconds": 180,
+    "newCapacityFailures": 1,
+    "schemaWallObservedMs": 2143,
+    "schemaWallLimitMs": 2000,
+    "parentCpuMs": 657,
+    "route": null,
+    "publication": null,
+    "evidence": "evidence/r29/batch01/failed/app-05f45998/summary.json"
+  },
+  "source05And2cfProductIdentity": {
+    "proof": "evidence/r29/batch01/failed/app-05f45998/same-product-qa-only-2cf09d56.json",
+    "currentSourceReceiptsInherited": false
+  },
+  "exactSourceNative": {
+    "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+    "passed": 8,
+    "failed": 2,
+    "schemaElapsedMs": 60029,
+    "schemaLimitMs": 60000,
+    "runtimeFirstServiceMs": 65100,
+    "runtimeFirstServiceLimitMs": 60000,
+    "evidence": "evidence/r29/batch01/failed/native-2cf09d56/summary.json"
+  },
+  "exactSourceFullApp": {
+    "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+    "publication": "PUBLISHED",
+    "sealedBaselineVerified": true,
+    "newTaskErrors": 1,
+    "failure": "expert-E12:R26_UNSLICED_COMPUTATION_CAPACITY",
+    "baselineCapacityFailures": 1,
+    "newCapacityFailures": 0,
+    "clean": "NOT_STARTED_UPGRADE_ABORTED",
+    "evidence": "evidence/r29/batch01/failed/app-2cf09d56/summary.json"
+  }
+}

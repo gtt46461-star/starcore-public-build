@@ -4,77 +4,123 @@
   "localBranch": "construction/r29-20261030",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
   "baselineRechecked": "df09ef57a9d03e39ab8ce0756ad48b56acebf7b9",
-  "latestAppCodeCommit": "0c639ccb37025f6d573f0293abccff061d41826e",
-  "versionCode": 577291010,
-  "status": "B01_CP10_FAILED_CP11_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+  "latestAppCodeCommit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+  "versionCode": 577291011,
+  "status": "B01_CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
   "wholeBatchesAccepted": 1,
   "wholeCardsAccepted": 3,
-  "device": "CP10_WHOLE_APP_FAIL_NATIVE9_PASS_1_FAIL_SNAPSHOT_CASE_PASS_PHYSICAL_NOT_RUN",
+  "device": "CP11_NATIVE_8_OF_10_AND_FULL_APP_E12_FAIL_CLEAN_AND_FORMAL_FOUR_NOT_STARTED_PHYSICAL_NOT_RUN",
   "quality": "INSUFFICIENT_NO_NEW_NATURAL_SAMPLE",
   "real": "BLOCKED_NO_VERIFIED_CERTIFICATE",
   "nextCard": "R29-004..008 B01 exact-source actual installation acceptance",
   "nextActions": [
-    "Audit exact CP10 native10 (all original9 retained plus snapshot case), 41HOST secure builds and full-App diagnostic receipts.",
-    "After candidate checks pass run actual CP06 debug/release × R13/R27 four installation/upgrade/clean protocol cases; preserve any failure.",
-    "Only after B01 engineering acceptance proceed to B02 R29-009..013 sequentially.",
-    "Physical target60min/6h/72h NOT_RUN; natural quality INSUFFICIENT; REAL remains blocked."
+    "Complete CP12 cold schema fairness, independent schema installer throughput and E12 cooperative computation source repairs; retain actual CP11 failures unchanged.",
+    "Freeze new source only after affected HOST checks, then run actual native10, full App and secure source-bound CI.",
+    "After all candidate checks pass run actual CP06 debug/release × R13/R27 four installation/upgrade/clean protocol cases.",
+    "Only after B01 engineering acceptance proceed sequentially to B02 R29-009..013.",
+    "Physical60min/6h/72h NOT_RUN; natural quality INSUFFICIENT; REAL remains blocked."
   ],
-  "qaCommit": "0c639ccb37025f6d573f0293abccff061d41826e",
+  "qaCommit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
   "delivery": "construction/r29/delivery/CP06.json",
   "mainEntryCommit": "13192296a196a8dfc971cb02a98255c65a61ba0e",
-  "currentCheckpoint": "CP10_FROZEN_SNAPSHOT_REPAIR_NOT_ACCEPTED",
+  "currentCheckpoint": "CP11_FAILED_CP12_REPAIR_IN_PROGRESS_UNVERIFIED",
   "lastVerifiedDelivery": "construction/r29/delivery/CP06.json",
   "androidIntegration": {
-    "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-    "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
-    "checkpoint": "CP10",
-    "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+    "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+    "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+    "checkpoint": "CP11",
+    "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
     "canonical": {
       "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-      "log": "/workspace/work/r29/cp10-canonical.log",
-      "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
-      "unitCounts": {
+      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+      "log": "/workspace/work/r29/cp11q-canonical.log",
+      "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+      "junitCounts": {
         "xml": 32,
         "tests": 164,
         "failures": 0,
         "errors": 0,
-        "skipped": 0,
-        "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+        "skipped": 0
       },
       "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-      "semanticMutations": 8,
-      "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+      "semanticMutations": 8
     },
-    "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
-    "fullCiExpectedHost": 41,
+    "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+    "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
+    "hostRepair": {
+      "DbStoreObservation": 18,
+      "publicationResume": 43,
+      "schemaDdlProof": 16,
+      "projectionSchemaInstaller": 21,
+      "qaOffline": 44,
+      "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+    },
+    "fullCiExpectedHost": 45,
     "nativeExpectedCases": 10,
     "runs": {
       "nativeTen": {
-        "run": 41125292483,
-        "status": "PENDING_RECEIPT"
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "run": 41129759889,
+        "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
+        "passed": 8,
+        "failed": 2,
+        "schemaOwner": {
+          "targetMs": 60000,
+          "observedMs": 60029,
+          "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
+          "state": "INITIALIZING",
+          "steps": 416,
+          "pending": 8
+        },
+        "fullRuntime": {
+          "allMechanismsServiceMillis": 96172,
+          "strategyReadyToAllMechanismsWallMs": 65100,
+          "targetMs": 60000,
+          "familyProgress": 24,
+          "expertReceipts": 16
+        },
+        "targetsRelaxed": false
       },
       "r13SecureBuild": {
-        "run": 41125295873,
+        "run": 41129763373,
         "status": "PENDING_RECEIPT"
       },
       "fullAppDiagnostic": {
-        "run": 41125298912,
-        "status": "PENDING_RECEIPT"
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "run": 41129765576,
+        "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
+        "publication": "PUBLISHED",
+        "sealedBaseline": "ACTUALLY_VERIFIED",
+        "newTaskErrors": 1,
+        "task": "expert-E12",
+        "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
+        "cleanInstall": "NOT_STARTED",
+        "newCapacityFailures": 0,
+        "inheritedBaselineCapacityFailures": 1,
+        "inheritedSchemaCapacityWallMs": 8149,
+        "targetsRelaxed": false
       },
       "r27SecureBuild": {
-        "run": 41125301226,
+        "run": 41129768959,
         "status": "PENDING_RECEIPT"
       }
     },
-    "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
+    "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
     "cp06FourUpgradeCases": "NOT_STARTED",
     "targets_relaxed": false,
-    "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
-    "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
-    "failureEvidence": [
-      "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
-      "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
-    ]
+    "priorProductIdenticalRun": {
+      "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+      "native": "10_PASS_PRIOR_RUN_ONLY",
+      "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+      "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
+      "qualificationInheritedTo2cf": false
+    },
+    "nextRepair": {
+      "checkpoint": "CP12",
+      "state": "SOURCE_EDITING_UNVERIFIED",
+      "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
+      "sourceFrozen": false,
+      "targetsRelaxed": false
+    }
   }
 }

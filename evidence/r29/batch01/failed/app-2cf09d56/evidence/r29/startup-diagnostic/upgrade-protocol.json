@@ -1,0 +1,70 @@
+{
+  "scope": "API34_EMULATOR_ENGINEERING_NOT_NATURAL_QUALITY",
+  "status": "FAIL",
+  "taskErrorBaselineProvided": true,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": true,
+  "baselineCapacityFailureRecords": 1,
+  "cutoverEnabled": true,
+  "activeOwner": "starcore-r29-research.db",
+  "mainIntegrity": "ok",
+  "eventsOutbox": 4168,
+  "eventsAcked": 3968,
+  "sourceWatermarks": {
+    "atomic_tool_context_r943": 0
+  },
+  "researchIdentityMatched": true,
+  "publicationPhase": "PUBLISHED",
+  "baselineName": "starcore-r29-baseline-1793395300711.db",
+  "sealedBaselineSha256": "430448da0e9ae36c1c75ec77f88f21c815df59eb7efe3ff7cfa2e97b6695abcf",
+  "sealedBaselineVerified": true,
+  "researchIntegrity": "ok",
+  "eventsDelivered": 3968,
+  "modelReceipts": 0,
+  "modelWorkPending": 3965,
+  "workWithoutCompletionReceipt": 0,
+  "ackedEventsWithoutMatchingInbox": 0,
+  "deliveredIdentityMismatches": 0,
+  "inboxWithoutRootEvent": 0,
+  "corruptOutboxPayloads": 0,
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 0,
+    "RESEARCH": 1
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 0,
+    "RESEARCH": 1
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [
+    {
+      "owner": "RESEARCH",
+      "errorId": 1,
+      "task": "expert-E12",
+      "errorClass": "java.lang.IllegalStateException",
+      "message": "R26_UNSLICED_COMPUTATION_CAPACITY",
+      "recordedAt": 1793395362923
+    }
+  ],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 1,
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 1,
+    "RESEARCH": 1
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 0,
+    "RESEARCH": 0
+  },
+  "newCapacityFailureReasonsSinceBaseline": [],
+  "newCapacityFailuresSinceBaseline": 0,
+  "failure": "AssertionError:NEW_TASK_ERRORS_SINCE_BASELINE"
+}

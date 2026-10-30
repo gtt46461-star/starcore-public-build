@@ -1,0 +1,146 @@
+{
+  "scope": "API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "status": "OBSERVATION_ONLY_NOT_ACCEPTANCE",
+  "researchCopy": "NOT_INSPECTED",
+  "mainAvailable": true,
+  "stageAvailable": true,
+  "observationErrors": [],
+  "taskErrorBaselineProvided": false,
+  "baselineTaskErrorRecords": 0,
+  "capacityBaselineProvided": false,
+  "baselineCapacityFailureRecords": 0,
+  "rootIntegrity": {
+    "integrity_check": "ok"
+  },
+  "rootTableCount": 559,
+  "route": null,
+  "publication": null,
+  "trackedSourceTables": 61,
+  "tablesWithThreeTrackingTriggers": 61,
+  "trackingTriggerCount": 183,
+  "strategyStorageUnits": {
+    "committedUnits": 256,
+    "firstUnit": 0,
+    "lastUnit": 255
+  },
+  "migrationTasks": [
+    {
+      "task_id": "r29-event-inbox",
+      "status": "BLOCKED",
+      "cursor": 2940,
+      "steps": 85,
+      "last_served": 1793395026918,
+      "last_progress": 1793395025552,
+      "blocked_reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit;cursor=0,latest=-1",
+      "wait_kind": "NO_NEW_EVENT",
+      "wait_detail": "NO_NEW_EVENT:outbox drained; pending work requires actual learner/settlement commit;cursor=0,latest=-1"
+    },
+    {
+      "task_id": "r29-research-migration",
+      "status": "BLOCKED",
+      "cursor": 59,
+      "steps": 165,
+      "last_served": 1793395034392,
+      "last_progress": 1793395030637,
+      "blocked_reason": "DEPENDENCY:UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",
+      "wait_kind": "DEPENDENCY",
+      "wait_detail": "UNCOMMITTED_COMPUTATION:COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY"
+    },
+    {
+      "task_id": "schema",
+      "status": "RUNNING",
+      "cursor": 240,
+      "steps": 31,
+      "last_served": 1793395031059,
+      "last_progress": 1793395026765,
+      "blocked_reason": null,
+      "wait_kind": "PROGRESS",
+      "wait_detail": "COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=6:255->256;units=6"
+    },
+    {
+      "task_id": "schema-base",
+      "status": "BLOCKED",
+      "cursor": 0,
+      "steps": 0,
+      "last_served": 0,
+      "last_progress": 0,
+      "blocked_reason": "WAITING_SELF_CONTAINED_STRATEGY_STORAGE",
+      "wait_kind": "",
+      "wait_detail": ""
+    }
+  ],
+  "rootTaskErrors": 0,
+  "rootMigrationTaskErrors": 0,
+  "rootRecentTaskErrors": [],
+  "newTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "allResearchTaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskFailureReasons": [],
+  "allNewTaskErrorsByOwnerSinceBaseline": {
+    "REALTIME": 0
+  },
+  "allNewTaskFailureReasonsSinceBaseline": [],
+  "baselineKnownR29TaskErrorsByOwner": {
+    "REALTIME": 0
+  },
+  "newTaskErrors": 0,
+  "allNewTaskErrorsSinceBaseline": 0,
+  "rootRecentCapacityFailures": [
+    {
+      "owner": "REALTIME",
+      "receiptId": 14,
+      "task": "schema",
+      "fence": 17,
+      "cursorBefore": 115,
+      "cursorAfter": 121,
+      "cpuMs": 657,
+      "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:2143ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=6:132->133",
+      "recordedAt": 1793394968654
+    }
+  ],
+  "allCapacityFailuresByOwner": {
+    "REALTIME": 1
+  },
+  "newCapacityFailuresByOwnerSinceBaseline": {
+    "REALTIME": 1
+  },
+  "newCapacityFailureReasonsSinceBaseline": [
+    {
+      "owner": "REALTIME",
+      "receiptId": 14,
+      "task": "schema",
+      "fence": 17,
+      "cursorBefore": 115,
+      "cursorAfter": 121,
+      "cpuMs": 657,
+      "blockedReason": "CAPACITY_FAIL:UNSLICED_KERNEL:2143ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=6:132->133",
+      "recordedAt": 1793394968654
+    }
+  ],
+  "newCapacityFailuresSinceBaseline": 1,
+  "rootEvents": {
+    "total": 4161,
+    "acked": 2735
+  },
+  "migrationCache": {
+    "state": "STAGED_COPY_NOT_CUTOVER",
+    "activeOwner": "ORIGINAL_DATABASE",
+    "cutoverEnabled": false,
+    "file": "starcore-research-r29-stage.db",
+    "verifiedBaselineTables": 58,
+    "crossTableSnapshot": "NOT_ESTABLISHED",
+    "updatedAt": 1793395026919
+  },
+  "stageIntegrity": {
+    "integrity_check": "ok"
+  },
+  "stageManifestTotal": 326,
+  "stagePhases": {
+    "PENDING": 267,
+    "VERIFIED_BASELINE": 59
+  },
+  "stageCopiedRows": 49
+}

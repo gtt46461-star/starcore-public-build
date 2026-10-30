@@ -215,7 +215,7 @@
       "R29-003"
     ],
     "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "HOST_AND_NATIVE_SUBSETS_PASS_ACTUAL_CP06_UPGRADE_MATRIX_FAIL",
+    "verification_status": "CP11_LOCAL_CANONICAL_PASS_ACTUAL_NATIVE_8_OF_10_FULL_APP_E12_FAIL",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -233,13 +233,14 @@
       "run_domain_upgrade_host.sh"
     ],
     "actual_results": [
-      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted."
+      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
+      "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "source_commit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint07/",
-    "source_commit_state": "CP10_FROZEN_CANDIDATE_NOT_ENGINEERING_ACCEPTED",
+    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
     "evidence": [
       "evidence/r29/batch01/unified-host/summary.json",
@@ -256,57 +257,102 @@
       "targets_relaxed": false
     },
     "candidate_validation": {
-      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-      "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
-      "checkpoint": "CP10",
-      "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+      "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+      "checkpoint": "CP11",
+      "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
       "canonical": {
         "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-        "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-        "log": "/workspace/work/r29/cp10-canonical.log",
-        "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
-        "unitCounts": {
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "log": "/workspace/work/r29/cp11q-canonical.log",
+        "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+        "junitCounts": {
           "xml": 32,
           "tests": 164,
           "failures": 0,
           "errors": 0,
-          "skipped": 0,
-          "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+          "skipped": 0
         },
         "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-        "semanticMutations": 8,
-        "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+        "semanticMutations": 8
       },
-      "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
-      "fullCiExpectedHost": 41,
+      "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+      "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
+      "hostRepair": {
+        "DbStoreObservation": 18,
+        "publicationResume": 43,
+        "schemaDdlProof": 16,
+        "projectionSchemaInstaller": 21,
+        "qaOffline": 44,
+        "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+      },
+      "fullCiExpectedHost": 45,
       "nativeExpectedCases": 10,
       "runs": {
         "nativeTen": {
-          "run": 41125292483,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129759889,
+          "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
+          "passed": 8,
+          "failed": 2,
+          "schemaOwner": {
+            "targetMs": 60000,
+            "observedMs": 60029,
+            "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
+            "state": "INITIALIZING",
+            "steps": 416,
+            "pending": 8
+          },
+          "fullRuntime": {
+            "allMechanismsServiceMillis": 96172,
+            "strategyReadyToAllMechanismsWallMs": 65100,
+            "targetMs": 60000,
+            "familyProgress": 24,
+            "expertReceipts": 16
+          },
+          "targetsRelaxed": false
         },
         "r13SecureBuild": {
-          "run": 41125295873,
+          "run": 41129763373,
           "status": "PENDING_RECEIPT"
         },
         "fullAppDiagnostic": {
-          "run": 41125298912,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129765576,
+          "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
+          "publication": "PUBLISHED",
+          "sealedBaseline": "ACTUALLY_VERIFIED",
+          "newTaskErrors": 1,
+          "task": "expert-E12",
+          "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "cleanInstall": "NOT_STARTED",
+          "newCapacityFailures": 0,
+          "inheritedBaselineCapacityFailures": 1,
+          "inheritedSchemaCapacityWallMs": 8149,
+          "targetsRelaxed": false
         },
         "r27SecureBuild": {
-          "run": 41125301226,
+          "run": 41129768959,
           "status": "PENDING_RECEIPT"
         }
       },
-      "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
+      "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
       "cp06FourUpgradeCases": "NOT_STARTED",
       "targets_relaxed": false,
-      "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
-      "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
-      "failureEvidence": [
-        "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
-        "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
-      ]
+      "priorProductIdenticalRun": {
+        "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+        "native": "10_PASS_PRIOR_RUN_ONLY",
+        "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+        "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
+        "qualificationInheritedTo2cf": false
+      },
+      "nextRepair": {
+        "checkpoint": "CP12",
+        "state": "SOURCE_EDITING_UNVERIFIED",
+        "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
+        "sourceFrozen": false,
+        "targetsRelaxed": false
+      }
     }
   },
   {
@@ -342,7 +388,7 @@
       "R29-004"
     ],
     "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "HOST_AND_NATIVE_SUBSETS_PASS_ACTUAL_CP06_UPGRADE_MATRIX_FAIL",
+    "verification_status": "CP11_LOCAL_CANONICAL_PASS_ACTUAL_NATIVE_8_OF_10_FULL_APP_E12_FAIL",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -359,13 +405,14 @@
       "run_critical_mirror_host.sh"
     ],
     "actual_results": [
-      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted."
+      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
+      "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "source_commit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint07/",
-    "source_commit_state": "CP10_FROZEN_CANDIDATE_NOT_ENGINEERING_ACCEPTED",
+    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
     "evidence": [
       "evidence/r29/batch01/unified-host/summary.json",
@@ -382,57 +429,102 @@
       "targets_relaxed": false
     },
     "candidate_validation": {
-      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-      "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
-      "checkpoint": "CP10",
-      "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+      "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+      "checkpoint": "CP11",
+      "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
       "canonical": {
         "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-        "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-        "log": "/workspace/work/r29/cp10-canonical.log",
-        "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
-        "unitCounts": {
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "log": "/workspace/work/r29/cp11q-canonical.log",
+        "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+        "junitCounts": {
           "xml": 32,
           "tests": 164,
           "failures": 0,
           "errors": 0,
-          "skipped": 0,
-          "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+          "skipped": 0
         },
         "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-        "semanticMutations": 8,
-        "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+        "semanticMutations": 8
       },
-      "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
-      "fullCiExpectedHost": 41,
+      "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+      "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
+      "hostRepair": {
+        "DbStoreObservation": 18,
+        "publicationResume": 43,
+        "schemaDdlProof": 16,
+        "projectionSchemaInstaller": 21,
+        "qaOffline": 44,
+        "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+      },
+      "fullCiExpectedHost": 45,
       "nativeExpectedCases": 10,
       "runs": {
         "nativeTen": {
-          "run": 41125292483,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129759889,
+          "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
+          "passed": 8,
+          "failed": 2,
+          "schemaOwner": {
+            "targetMs": 60000,
+            "observedMs": 60029,
+            "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
+            "state": "INITIALIZING",
+            "steps": 416,
+            "pending": 8
+          },
+          "fullRuntime": {
+            "allMechanismsServiceMillis": 96172,
+            "strategyReadyToAllMechanismsWallMs": 65100,
+            "targetMs": 60000,
+            "familyProgress": 24,
+            "expertReceipts": 16
+          },
+          "targetsRelaxed": false
         },
         "r13SecureBuild": {
-          "run": 41125295873,
+          "run": 41129763373,
           "status": "PENDING_RECEIPT"
         },
         "fullAppDiagnostic": {
-          "run": 41125298912,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129765576,
+          "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
+          "publication": "PUBLISHED",
+          "sealedBaseline": "ACTUALLY_VERIFIED",
+          "newTaskErrors": 1,
+          "task": "expert-E12",
+          "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "cleanInstall": "NOT_STARTED",
+          "newCapacityFailures": 0,
+          "inheritedBaselineCapacityFailures": 1,
+          "inheritedSchemaCapacityWallMs": 8149,
+          "targetsRelaxed": false
         },
         "r27SecureBuild": {
-          "run": 41125301226,
+          "run": 41129768959,
           "status": "PENDING_RECEIPT"
         }
       },
-      "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
+      "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
       "cp06FourUpgradeCases": "NOT_STARTED",
       "targets_relaxed": false,
-      "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
-      "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
-      "failureEvidence": [
-        "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
-        "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
-      ]
+      "priorProductIdenticalRun": {
+        "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+        "native": "10_PASS_PRIOR_RUN_ONLY",
+        "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+        "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
+        "qualificationInheritedTo2cf": false
+      },
+      "nextRepair": {
+        "checkpoint": "CP12",
+        "state": "SOURCE_EDITING_UNVERIFIED",
+        "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
+        "sourceFrozen": false,
+        "targetsRelaxed": false
+      }
     }
   },
   {
@@ -468,7 +560,7 @@
       "R29-005"
     ],
     "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "HOST_AND_NATIVE_SUBSETS_PASS_ACTUAL_CP06_UPGRADE_MATRIX_FAIL",
+    "verification_status": "CP11_LOCAL_CANONICAL_PASS_ACTUAL_NATIVE_8_OF_10_FULL_APP_E12_FAIL",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -488,9 +580,10 @@
       "R29EvolutionDatasetPinDeviceTest"
     ],
     "actual_results": [
-      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted."
+      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
+      "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "source_commit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint05/",
@@ -509,59 +602,104 @@
       "evidence": "evidence/r29/batch01/failed/device-1d2f1565/four-matrix-local-audit.json",
       "targets_relaxed": false
     },
-    "source_commit_state": "CP10_FROZEN_CANDIDATE_NOT_ENGINEERING_ACCEPTED",
+    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
     "candidate_validation": {
-      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-      "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
-      "checkpoint": "CP10",
-      "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+      "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+      "checkpoint": "CP11",
+      "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
       "canonical": {
         "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-        "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-        "log": "/workspace/work/r29/cp10-canonical.log",
-        "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
-        "unitCounts": {
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "log": "/workspace/work/r29/cp11q-canonical.log",
+        "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+        "junitCounts": {
           "xml": 32,
           "tests": 164,
           "failures": 0,
           "errors": 0,
-          "skipped": 0,
-          "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+          "skipped": 0
         },
         "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-        "semanticMutations": 8,
-        "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+        "semanticMutations": 8
       },
-      "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
-      "fullCiExpectedHost": 41,
+      "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+      "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
+      "hostRepair": {
+        "DbStoreObservation": 18,
+        "publicationResume": 43,
+        "schemaDdlProof": 16,
+        "projectionSchemaInstaller": 21,
+        "qaOffline": 44,
+        "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+      },
+      "fullCiExpectedHost": 45,
       "nativeExpectedCases": 10,
       "runs": {
         "nativeTen": {
-          "run": 41125292483,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129759889,
+          "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
+          "passed": 8,
+          "failed": 2,
+          "schemaOwner": {
+            "targetMs": 60000,
+            "observedMs": 60029,
+            "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
+            "state": "INITIALIZING",
+            "steps": 416,
+            "pending": 8
+          },
+          "fullRuntime": {
+            "allMechanismsServiceMillis": 96172,
+            "strategyReadyToAllMechanismsWallMs": 65100,
+            "targetMs": 60000,
+            "familyProgress": 24,
+            "expertReceipts": 16
+          },
+          "targetsRelaxed": false
         },
         "r13SecureBuild": {
-          "run": 41125295873,
+          "run": 41129763373,
           "status": "PENDING_RECEIPT"
         },
         "fullAppDiagnostic": {
-          "run": 41125298912,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129765576,
+          "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
+          "publication": "PUBLISHED",
+          "sealedBaseline": "ACTUALLY_VERIFIED",
+          "newTaskErrors": 1,
+          "task": "expert-E12",
+          "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "cleanInstall": "NOT_STARTED",
+          "newCapacityFailures": 0,
+          "inheritedBaselineCapacityFailures": 1,
+          "inheritedSchemaCapacityWallMs": 8149,
+          "targetsRelaxed": false
         },
         "r27SecureBuild": {
-          "run": 41125301226,
+          "run": 41129768959,
           "status": "PENDING_RECEIPT"
         }
       },
-      "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
+      "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
       "cp06FourUpgradeCases": "NOT_STARTED",
       "targets_relaxed": false,
-      "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
-      "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
-      "failureEvidence": [
-        "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
-        "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
-      ]
+      "priorProductIdenticalRun": {
+        "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+        "native": "10_PASS_PRIOR_RUN_ONLY",
+        "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+        "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
+        "qualificationInheritedTo2cf": false
+      },
+      "nextRepair": {
+        "checkpoint": "CP12",
+        "state": "SOURCE_EDITING_UNVERIFIED",
+        "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
+        "sourceFrozen": false,
+        "targetsRelaxed": false
+      }
     }
   },
   {
@@ -596,7 +734,7 @@
       "R29-006"
     ],
     "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "HOST_AND_NATIVE_SUBSETS_PASS_ACTUAL_CP06_UPGRADE_MATRIX_FAIL",
+    "verification_status": "CP11_LOCAL_CANONICAL_PASS_ACTUAL_NATIVE_8_OF_10_FULL_APP_E12_FAIL",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -613,9 +751,10 @@
       "R29LargeModelCheckpointDeviceTest"
     ],
     "actual_results": [
-      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted."
+      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
+      "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "source_commit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
@@ -633,59 +772,104 @@
       "evidence": "evidence/r29/batch01/failed/device-1d2f1565/four-matrix-local-audit.json",
       "targets_relaxed": false
     },
-    "source_commit_state": "CP10_FROZEN_CANDIDATE_NOT_ENGINEERING_ACCEPTED",
+    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
     "candidate_validation": {
-      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-      "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
-      "checkpoint": "CP10",
-      "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+      "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+      "checkpoint": "CP11",
+      "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
       "canonical": {
         "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-        "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-        "log": "/workspace/work/r29/cp10-canonical.log",
-        "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
-        "unitCounts": {
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "log": "/workspace/work/r29/cp11q-canonical.log",
+        "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+        "junitCounts": {
           "xml": 32,
           "tests": 164,
           "failures": 0,
           "errors": 0,
-          "skipped": 0,
-          "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+          "skipped": 0
         },
         "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-        "semanticMutations": 8,
-        "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+        "semanticMutations": 8
       },
-      "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
-      "fullCiExpectedHost": 41,
+      "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+      "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
+      "hostRepair": {
+        "DbStoreObservation": 18,
+        "publicationResume": 43,
+        "schemaDdlProof": 16,
+        "projectionSchemaInstaller": 21,
+        "qaOffline": 44,
+        "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+      },
+      "fullCiExpectedHost": 45,
       "nativeExpectedCases": 10,
       "runs": {
         "nativeTen": {
-          "run": 41125292483,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129759889,
+          "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
+          "passed": 8,
+          "failed": 2,
+          "schemaOwner": {
+            "targetMs": 60000,
+            "observedMs": 60029,
+            "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
+            "state": "INITIALIZING",
+            "steps": 416,
+            "pending": 8
+          },
+          "fullRuntime": {
+            "allMechanismsServiceMillis": 96172,
+            "strategyReadyToAllMechanismsWallMs": 65100,
+            "targetMs": 60000,
+            "familyProgress": 24,
+            "expertReceipts": 16
+          },
+          "targetsRelaxed": false
         },
         "r13SecureBuild": {
-          "run": 41125295873,
+          "run": 41129763373,
           "status": "PENDING_RECEIPT"
         },
         "fullAppDiagnostic": {
-          "run": 41125298912,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129765576,
+          "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
+          "publication": "PUBLISHED",
+          "sealedBaseline": "ACTUALLY_VERIFIED",
+          "newTaskErrors": 1,
+          "task": "expert-E12",
+          "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "cleanInstall": "NOT_STARTED",
+          "newCapacityFailures": 0,
+          "inheritedBaselineCapacityFailures": 1,
+          "inheritedSchemaCapacityWallMs": 8149,
+          "targetsRelaxed": false
         },
         "r27SecureBuild": {
-          "run": 41125301226,
+          "run": 41129768959,
           "status": "PENDING_RECEIPT"
         }
       },
-      "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
+      "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
       "cp06FourUpgradeCases": "NOT_STARTED",
       "targets_relaxed": false,
-      "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
-      "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
-      "failureEvidence": [
-        "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
-        "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
-      ]
+      "priorProductIdenticalRun": {
+        "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+        "native": "10_PASS_PRIOR_RUN_ONLY",
+        "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+        "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
+        "qualificationInheritedTo2cf": false
+      },
+      "nextRepair": {
+        "checkpoint": "CP12",
+        "state": "SOURCE_EDITING_UNVERIFIED",
+        "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
+        "sourceFrozen": false,
+        "targetsRelaxed": false
+      }
     }
   },
   {
@@ -715,7 +899,7 @@
       "R29-007"
     ],
     "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "HOST_AND_NATIVE_SUBSETS_PASS_ACTUAL_CP06_UPGRADE_MATRIX_FAIL",
+    "verification_status": "CP11_LOCAL_CANONICAL_PASS_ACTUAL_NATIVE_8_OF_10_FULL_APP_E12_FAIL",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -736,9 +920,10 @@
       "R29ShadowRetirementAuthorityDeviceTest"
     ],
     "actual_results": [
-      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted."
+      "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
+      "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "0c639ccb37025f6d573f0293abccff061d41826e",
+    "source_commit": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
@@ -756,59 +941,104 @@
       "evidence": "evidence/r29/batch01/failed/device-1d2f1565/four-matrix-local-audit.json",
       "targets_relaxed": false
     },
-    "source_commit_state": "CP10_FROZEN_CANDIDATE_NOT_ENGINEERING_ACCEPTED",
+    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
     "candidate_validation": {
-      "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-      "productFixCommit": "2b3caa5c3a4765ea8e2825ebf21a567d9d01ba62",
-      "checkpoint": "CP10",
-      "state": "FAILED_ACTUAL_WHOLE_APP_AND_NATIVE_WRITER_PRESSURE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
+      "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+      "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
+      "checkpoint": "CP11",
+      "state": "ACTUAL_ANDROID_FAILED_CP12_SOURCE_REPAIR_IN_PROGRESS_NOT_ACCEPTED",
       "canonical": {
         "status": "PASS_LOCAL_SAVED_CANONICAL_WRAPPER_ONLY",
-        "source": "0c639ccb37025f6d573f0293abccff061d41826e",
-        "log": "/workspace/work/r29/cp10-canonical.log",
-        "sha256": "928735be1d6ec535fb333f9ea45a68031aba4d02aa1a715baf8f015d71f01b0a",
-        "unitCounts": {
+        "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+        "log": "/workspace/work/r29/cp11q-canonical.log",
+        "sha256": "db8340d870feacd82f7a28b31a6c35a075243a8b66bddf6c2ad59a1514677fa6",
+        "junitCounts": {
           "xml": 32,
           "tests": 164,
           "failures": 0,
           "errors": 0,
-          "skipped": 0,
-          "oldestMtimeUtc": "2026-10-30T20:47:43.543325+00:00"
+          "skipped": 0
         },
         "lint": "ANALYZE_EXECUTED_REPORT_UP_TO_DATE_REUSED_NO_FRESH_REPORT_CLAIM",
-        "semanticMutations": 8,
-        "evidence": "evidence/r29/batch01/validated-0c639ccb/summary.json"
+        "semanticMutations": 8
       },
-      "snapshotHost": "18_PASS_PLUS_ORIGINAL_CUTOVER19_PASS_HOST_ONLY",
-      "fullCiExpectedHost": 41,
+      "priorQaSource": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+      "priorLocalCanonical": "FAIL_163_OF_164_OLD_H15_PIN_RAW_RETAINED",
+      "hostRepair": {
+        "DbStoreObservation": 18,
+        "publicationResume": 43,
+        "schemaDdlProof": 16,
+        "projectionSchemaInstaller": 21,
+        "qaOffline": 44,
+        "scope": "HOST_AND_QA_ONLY_ACTUAL_ANDROID_SEPARATE"
+      },
+      "fullCiExpectedHost": 45,
       "nativeExpectedCases": 10,
       "runs": {
         "nativeTen": {
-          "run": 41125292483,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129759889,
+          "status": "FAILED_8_PASS_2_FAIL_ORIGINAL_60S_SERVICE_TARGETS",
+          "passed": 8,
+          "failed": 2,
+          "schemaOwner": {
+            "targetMs": 60000,
+            "observedMs": 60029,
+            "cursor": "SU1_STORAGE_FOUNDRY_RUNTIME_V1",
+            "state": "INITIALIZING",
+            "steps": 416,
+            "pending": 8
+          },
+          "fullRuntime": {
+            "allMechanismsServiceMillis": 96172,
+            "strategyReadyToAllMechanismsWallMs": 65100,
+            "targetMs": 60000,
+            "familyProgress": 24,
+            "expertReceipts": 16
+          },
+          "targetsRelaxed": false
         },
         "r13SecureBuild": {
-          "run": 41125295873,
+          "run": 41129763373,
           "status": "PENDING_RECEIPT"
         },
         "fullAppDiagnostic": {
-          "run": 41125298912,
-          "status": "PENDING_RECEIPT"
+          "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
+          "run": 41129765576,
+          "status": "FAILED_NEW_TASK_ERRORS_SINCE_BASELINE",
+          "publication": "PUBLISHED",
+          "sealedBaseline": "ACTUALLY_VERIFIED",
+          "newTaskErrors": 1,
+          "task": "expert-E12",
+          "error": "R26_UNSLICED_COMPUTATION_CAPACITY",
+          "cleanInstall": "NOT_STARTED",
+          "newCapacityFailures": 0,
+          "inheritedBaselineCapacityFailures": 1,
+          "inheritedSchemaCapacityWallMs": 8149,
+          "targetsRelaxed": false
         },
         "r27SecureBuild": {
-          "run": 41125301226,
+          "run": 41129768959,
           "status": "PENDING_RECEIPT"
         }
       },
-      "actualApp": "FAILED_RENAMED_ROUTE_NULL_FILE_MISSING",
+      "actualApp": "FAILED_E12_NEW_TASK_ERROR_AFTER_PUBLISHED_CLEAN_NOT_STARTED",
       "cp06FourUpgradeCases": "NOT_STARTED",
       "targets_relaxed": false,
-      "nativeTen": "9_PASS_1_FAIL_ROOT_CANONICAL_WRITE_DEADLINE",
-      "snapshotNative": "PASS_REAL_API34_ROOT_WRITE_1MS_ORIGINAL_1500MS_GATE",
-      "failureEvidence": [
-        "evidence/r29/batch01/failed/app-0c639ccb/artifact-binding.json",
-        "evidence/r29/batch01/failed/native-0c639ccb/frozen-harness-recheck.json"
-      ]
+      "priorProductIdenticalRun": {
+        "source": "05f45998a3482bc2a7c54f4256c168bce5ab8231",
+        "native": "10_PASS_PRIOR_RUN_ONLY",
+        "warmUpgrade": "PASS_ENGINEERING_SUBSET_ONLY",
+        "cleanInstall": "FAILED_180S_ROUTE_AND_PUBLICATION_MISSING_NEW_SCHEMA_CAPACITY_2143MS",
+        "qualificationInheritedTo2cf": false
+      },
+      "nextRepair": {
+        "checkpoint": "CP12",
+        "state": "SOURCE_EDITING_UNVERIFIED",
+        "scope": "Cold schema writer admission/dependency fairness; independent schema installer throughput; E12 cooperative computation",
+        "sourceFrozen": false,
+        "targetsRelaxed": false
+      }
     }
   },
   {
