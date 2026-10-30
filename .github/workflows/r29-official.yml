@@ -7,8 +7,8 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: r29-official-checkpoint
-  cancel-in-progress: true
+  group: r29-official-${{ github.sha }}
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
