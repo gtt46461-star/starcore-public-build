@@ -21,6 +21,44 @@ BASE_URL=${R29_BASELINE_URL:-https://github.com/gtt46461-star/starcore-public-bu
 BASE_HASH=${R29_BASELINE_SHA256:-739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433}
 curl -fLsS --connect-timeout 15 --max-time 120 -o "$BASE" "$BASE_URL"
 echo "$BASE_HASH  $BASE" | sha256sum -c -
+"$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$BASE" > "$OUT/baseline-signature.txt"
+grep -F "${EXPECTED_CERT:-9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca}" "$OUT/baseline-signature.txt"
+python3 - "$DELIVERED/delivery.json" "$BASE" "$APK" "$OUT/package-manifests.json" <<'PY'
+import json,os,re,subprocess,sys
+from pathlib import Path
+rows=json.loads(Path(sys.argv[1]).read_text()); target=next(r for r in rows if r['apk']==Path(sys.argv[3]).name) if isinstance(rows,list) else rows
+manifest=[]
+for path in sys.argv[2:4]:
+    text=subprocess.check_output([os.environ['ANDROID_HOME']+'/build-tools/36.0.0/aapt','dump','badging',path],text=True)
+    line=next(x for x in text.splitlines() if x.startswith('package:'))
+    values=dict(re.findall(r"(\w+)='([^']*)'",line)); assert values['name']=='com.starcore.research.r13'
+    manifest.append({'package':values['name'],'versionCode':int(values['versionCode']),'versionName':values['versionName']})
+assert manifest[1]['versionCode']==target['versionCode'] and manifest[1]['versionName']==target['versionName']
+assert manifest[0]['versionCode']<manifest[1]['versionCode'], 'BASELINE_MUST_PRECEDE_DELIVERED_VERSION'
+if os.environ.get('R29_BASELINE_VERSION'): assert manifest[0]['versionCode']==int(os.environ['R29_BASELINE_VERSION'])
+Path(sys.argv[4]).write_text(json.dumps({'baseline':manifest[0],'delivered':manifest[1]},indent=2)+'\n')
+PY
+pull_database() {
+    local remote=$1 local_name=$2
+    adb pull "/data/user/0/$PKG/databases/$remote" "$OUT/$local_name.db" > /dev/null
+    for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/$remote$suffix" "$OUT/$local_name.db$suffix" > /dev/null 2>&1 || true; done
+}
+pull_runtime() {
+    local phase=$1 main_name=$2 baseline_name
+    pull_database binance_k3_nova_one_pro_v57.db "$main_name"
+    pull_database starcore-research-r29-stage.db "stage-$phase"
+    pull_database starcore-r29-research.db "research-$phase"
+    baseline_name=$(python3 - "$OUT/$main_name.db" <<'PY'
+import re,sqlite3,sys
+with sqlite3.connect(sys.argv[1]) as db:
+    row=db.execute("SELECT baseline_name FROM r29_migration_publication WHERE singleton=1 AND phase='PUBLISHED'").fetchone()
+    assert row and re.fullmatch(r'starcore-r29-baseline-[0-9]+\.db',row[0]), 'PUBLISHED_SEALED_BASELINE_REQUIRED'
+    print(row[0])
+PY
+)
+    pull_database "$baseline_name" "sealed-$phase"
+    python3 tools/r29/inspect_runtime.py --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" --research "$OUT/research-$phase.db" --baseline "$OUT/sealed-$phase.db" --out "$OUT/$phase-protocol.json"
+}
 adb uninstall "$PKG" > /dev/null 2>&1 || true
 adb install "$BASE" > "$OUT/install-baseline.txt"
 adb shell am start -W -n "$PKG/com.ethk3.novaonepro.MainActivity" > "$OUT/launch-baseline.txt"
@@ -34,13 +72,9 @@ adb install -r "$APK" > "$OUT/install-upgrade.txt"
 adb shell "cat /data/user/0/$PKG/files/r29-upgrade-probe" | tr -d '\r' > "$OUT/retained-marker.txt"
 grep -qx 'r29-official-upgrade-probe' "$OUT/retained-marker.txt"
 python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/upgrade-startup.log" 2>&1
+mv startup-evidence "$OUT/startup-upgrade"
 adb shell am force-stop "$PKG"
-adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db" "$OUT/after.db" > /dev/null
-for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db$suffix" "$OUT/after.db$suffix" > /dev/null 2>&1 || true; done
-# CP07's independent stage file must exist and its claimed verified rows must rehash outside the app.
-adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db" "$OUT/stage-upgrade.db" > /dev/null
-for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db$suffix" "$OUT/stage-upgrade.db$suffix" > /dev/null 2>&1 || true; done
-python3 tools/r29/inspect_runtime.py --main "$OUT/after.db" --stage "$OUT/stage-upgrade.db" --out "$OUT/upgrade-protocol.json"
+pull_runtime upgrade after
 python3 - "$OUT" <<'PY'
 import json, sqlite3, sys
 from pathlib import Path
@@ -63,15 +97,10 @@ PY
 adb uninstall "$PKG" > "$OUT/uninstall-for-clean-test.txt"
 adb install "$APK" > "$OUT/install-clean.txt"
 python3 scripts/probe_r13_startup.py "${PROBE[@]}" > "$OUT/clean-startup.log" 2>&1
+mv startup-evidence "$OUT/startup-clean"
 adb logcat -d > "$OUT/logcat-clean.txt"
 adb shell am force-stop "$PKG"
-adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db" "$OUT/clean.db" > /dev/null
-adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db" "$OUT/stage-clean.db" > /dev/null
-for suffix in -wal -shm; do
-    adb pull "/data/user/0/$PKG/databases/binance_k3_nova_one_pro_v57.db$suffix" "$OUT/clean.db$suffix" > /dev/null 2>&1 || true
-    adb pull "/data/user/0/$PKG/databases/starcore-research-r29-stage.db$suffix" "$OUT/stage-clean.db$suffix" > /dev/null 2>&1 || true
-done
-python3 tools/r29/inspect_runtime.py --main "$OUT/clean.db" --stage "$OUT/stage-clean.db" --out "$OUT/clean-protocol.json"
+pull_runtime clean clean
 # Uploaded evidence is summary/logs only. Do not publish the baseline package or private application databases.
 rm -f "$OUT"/*.db "$OUT"/*.db-wal "$OUT"/*.db-shm "$BASE"
 echo 'API34_EMULATOR_UPGRADE_AND_CLEAN_STARTUP_PASS; LONG_TESTS_NOT_RUN' | tee "$OUT/result.txt"
