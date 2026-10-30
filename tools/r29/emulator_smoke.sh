@@ -13,8 +13,10 @@ APK=$(find "$DELIVERED" -maxdepth 1 -name '*debug.apk' -print -quit)
 [ -n "$APK" ]
 python3 scripts/wait_r13_android_ready.py
 adb root > "$OUT/root.txt"; adb wait-for-device
-curl -fLsS --connect-timeout 15 --max-time 120 -o "$BASE" https://github.com/gtt46461-star/starcore-public-build/releases/download/r26-20261028-runtime-117/STARCORE-R26-20261028-117-release.apk
-echo "739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433  $BASE" | sha256sum -c -
+BASE_URL=${R29_BASELINE_URL:-https://github.com/gtt46461-star/starcore-public-build/releases/download/r26-20261028-runtime-117/STARCORE-R26-20261028-117-release.apk}
+BASE_HASH=${R29_BASELINE_SHA256:-739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433}
+curl -fLsS --connect-timeout 15 --max-time 120 -o "$BASE" "$BASE_URL"
+echo "$BASE_HASH  $BASE" | sha256sum -c -
 adb uninstall "$PKG" > /dev/null 2>&1 || true
 adb install "$BASE" > "$OUT/install-baseline.txt"
 adb shell am start -W -n "$PKG/com.ethk3.novaonepro.MainActivity" > "$OUT/launch-baseline.txt"

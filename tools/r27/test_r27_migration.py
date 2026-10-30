@@ -24,6 +24,17 @@ R26_SCHEMA = "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeSchemaR26
 FAIL = []
 
 
+def destructive_statement(sql):
+    # DELETE in a BEFORE DELETE trigger header is the event being prohibited, not a deletion.
+    # Still reject DELETE/DROP in trigger bodies and all ordinary migration statements.
+    text = re.sub(r"'(?:''|[^'])*'", "''", sql)
+    text = re.sub(r'/\*.*?\*/|--[^\n]*', '', text, flags=re.S)
+    if re.match(r'\s*CREATE\s+(?:TEMP(?:ORARY)?\s+)?TRIGGER\b', text, re.I):
+        parts = re.split(r'\bBEGIN\b', text, maxsplit=1, flags=re.I)
+        text = parts[-1]
+    return bool(re.search(r'\b(DROP|DELETE)\b', text, re.I))
+
+
 def check(name, ok, detail=""):
     print(("R27_MIGRATION|%s|%s|%s" % (name, "OK" if ok else "FAILED", detail)).rstrip("|"))
     if not ok:
@@ -104,7 +115,11 @@ def main():
     migrate(db, dump, 1_900_000_000_000)
     s2, h2 = schema(db), content_hash(db, {r[0]: [c[1] for c in db.execute("PRAGMA table_info(%s)" % r[0])] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()})
     check("M3_IDEMPOTENT", s1 == s2 and h1 == h2, "objects=%d" % len(s2))
-    bad = [s for s in dump["ddl"] if re.search(r"\b(DROP|DELETE)\b", s, re.I)]
+    controls = [("DELETE FROM draws", True), ("DROP TABLE draws", True),
+                ("CREATE TRIGGER guard BEFORE DELETE ON draws BEGIN SELECT RAISE(ABORT,'IMMUTABLE'); END", False),
+                ("CREATE TRIGGER bad AFTER INSERT ON draws BEGIN DELETE FROM r26_task; END", True)]
+    check("M4_SCANNER_CONTROLS", all(destructive_statement(s) == expected for s, expected in controls), "direct delete/drop, protective event, destructive trigger body")
+    bad = [s for s in dump["ddl"] if destructive_statement(s)]
     check("M4_NO_DROP_OR_DELETE", not bad, "statements=%d" % len(dump["ddl"]))
     r27 = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'r27_%'")]
     check("M5_R27_TABLES", len(r27) >= 30, "r27_tables=%d" % len(r27))

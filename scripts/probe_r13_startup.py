@@ -3,6 +3,7 @@
 import argparse, subprocess, time, glob, json, xml.etree.ElementTree as ET
 from pathlib import Path
 from wait_r13_android_ready import wait_ready
+from r29_probe_prefs import read_preferences
 parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--installed',action='store_true');parser.add_argument('--apk-already-installed',action='store_true');args=parser.parse_args()
 PKG='com.starcore.research.r13'
 out=Path('startup-evidence');out.mkdir(exist_ok=True)
@@ -11,9 +12,7 @@ def adb(*argv,check=True):
     if check and r.returncode:raise RuntimeError('ADB_FAILED: '+r.stderr)
     return r.stdout
 def prefs(name):
-    raw=adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False)
-    try:return {e.attrib['name']:e.text or e.attrib.get('value','') for e in ET.fromstring(raw)}
-    except ET.ParseError:return {}
+    return read_preferences(lambda: adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False))
 def snapshot(phase):
     p=prefs('v20_service_runtime_light')
     row={k:v for k,v in p.items() if k.startswith(('init_','recovery_lease_','last_recovery_')) or k in ('service_ready_at','user_enabled','process_id','heartbeat_at')}
