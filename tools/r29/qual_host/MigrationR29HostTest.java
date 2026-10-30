@@ -14,7 +14,7 @@ import java.util.Map;
 /** Real source/destination FILES, independent locks, per-commit interruption, reopen, corruption and SQLITE_FULL.
  * Tests the staged backup only; no claim of complete routing/cutover or physical-device evidence. */
 public final class MigrationR29HostTest {
-    static int checks;static long now=10_000;
+    static int checks;static long now=System.currentTimeMillis();
     interface Body{void run()throws Exception;}
     static void check(String name,boolean ok){System.out.println("R29_MIGRATION|"+name+"|"+(ok?"OK":"FAILED"));if(!ok)throw new AssertionError(name);checks++;}
     static SQLiteDatabase open(Path path)throws Exception{
