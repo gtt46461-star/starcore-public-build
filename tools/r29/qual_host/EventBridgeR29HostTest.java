@@ -87,12 +87,13 @@ public final class EventBridgeR29HostTest {
         SQLiteDatabase late=open(true);batch(late,learning,false);batch(late,ResearchEventBridgeR29.prepare(events,1000),false);
         check("E12_LEARNER_BEFORE_DELIVERY_RECONCILES_WITH_RECEIPT",count(late,"SELECT count(*) FROM r29_learning_work WHERE consumer='ATOMNET_ONLINE' AND status='COMMITTED'")==1);
         draw(research,ISSUE);
-        research.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit,settled_at) VALUES('A',1,?,1,?,1,2,3,1,'FROZEN',1000,10000,-1,0)",new Object[]{ISSUE,StoreR27.pack(new double[10])});
+        long ordinal=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(ISSUE);
+        research.execSQL("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at,hit,settled_at) VALUES('A',?,?,1,?,1,2,3,1,'FROZEN',1000,10000,-1,0)",new Object[]{ordinal,ISSUE,StoreR27.pack(new double[10])});
         check("E13_PENDING_FREEZE_IS_NOT_COMPLETED",ResearchEventBridgeR29.reconcileSettlements(research,1100).isEmpty());
-        long[] settled={0};ResearchWriteQueueR27.Batch settlement=LiveShadowsR27.settleBatch(research,1,settled);
+        long[] settled={0};ResearchWriteQueueR27.Batch settlement=LiveShadowsR27.settleBatch(research,ordinal,settled);
         try { batch(research,settlement,true);throw new AssertionError("kill lost"); } catch(IllegalStateException expected){}
         check("E14_SETTLEMENT_AND_RECEIPT_ROLL_BACK_TOGETHER",count(research,"SELECT hit FROM r27_live_frozen WHERE policy_hash='A'")==-1 && count(research,"SELECT count(*) FROM r29_learning_receipt WHERE consumer='SHADOW_SETTLEMENT'")==0);
-        batch(research,LiveShadowsR27.settleBatch(research,1,new long[1]),false);
+        batch(research,LiveShadowsR27.settleBatch(research,ordinal,new long[1]),false);
         check("E15_SETTLEMENT_RECEIPT_REFERENCES_COMMITTED_ROWS",count(research,"SELECT hit FROM r27_live_frozen WHERE policy_hash='A'")==1 && count(research,"SELECT count(*) FROM r29_learning_receipt WHERE consumer='SHADOW_SETTLEMENT'")==1 && count(research,"SELECT count(*) FROM r29_learning_work WHERE status='COMMITTED'")==2);
         rejected=false;try { research.execSQL("DELETE FROM r29_learning_receipt"); } catch(RuntimeException expected){rejected=true;}
         check("E16_COMPLETION_EVIDENCE_CANNOT_BE_DELETED",rejected);

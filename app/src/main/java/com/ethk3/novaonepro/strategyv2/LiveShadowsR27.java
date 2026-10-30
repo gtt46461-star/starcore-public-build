@@ -57,7 +57,7 @@ public final class LiveShadowsR27 {
         long now = System.currentTimeMillis();
         for (Object[] r : rows) {
             String id = (String) r[0]; long ord = (Long) r[1]; int actual = (Integer) r[9];
-            if (actual < 1) continue; // malformed draw value: never invent an outcome
+            if (actual < 1 || actual > 10) continue; // malformed draw value: never invent an outcome
             boolean frozen = "FROZEN".equals(r[8]);
             boolean hit = frozen && (actual == (Integer) r[4] || actual == (Integer) r[5] || actual == (Integer) r[6]);
             b.add("UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit IN(-1,-2)", hit ? 1 : 0, now, id, ord);
@@ -66,7 +66,7 @@ public final class LiveShadowsR27 {
         if (settled[0] > 0) b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=r27_opportunity.target_ordinal AND f.hit>=0) WHERE target_ordinal<=?", latestOrd);
         if (settled[0] > 0) {
             final java.util.Set<String> completedIssues = new java.util.LinkedHashSet<>();
-            for (Object[] r : rows) completedIssues.add((String) r[2]);
+            for (Object[] r : rows) { completedIssues.add((String) r[2]); if (completedIssues.size() >= ResearchEventBridgeR29.PAGE) break; }
             b.after = db -> { ResearchEventBridgeR29.settlementsCommitted(db, completedIssues, now); return 0; };
         }
         return b;

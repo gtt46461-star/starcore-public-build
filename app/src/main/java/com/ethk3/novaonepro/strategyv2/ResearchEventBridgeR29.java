@@ -21,7 +21,7 @@ public final class ResearchEventBridgeR29 {
     public static final String[] RESEARCH_DDL = {
         "CREATE TABLE IF NOT EXISTS r29_event_inbox(event_id TEXT PRIMARY KEY,source_seq INTEGER NOT NULL,issue TEXT NOT NULL,payload_hash TEXT NOT NULL,origin TEXT NOT NULL,applied_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r29_event_cursor(source TEXT PRIMARY KEY,last_seq INTEGER NOT NULL,updated_at INTEGER NOT NULL)",
-        "CREATE TABLE IF NOT EXISTS r29_learning_work(consumer TEXT NOT NULL,event_id TEXT NOT NULL,issue TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('PENDING','COMMITTED')),enqueued_at INTEGER NOT NULL,completed_at INTEGER NOT NULL DEFAULT 0,state_hash TEXT,PRIMARY KEY(consumer,event_id))",
+        "CREATE TABLE IF NOT EXISTS r29_learning_work(consumer TEXT NOT NULL,event_id TEXT NOT NULL,issue TEXT NOT NULL,target_ordinal INTEGER NOT NULL,status TEXT NOT NULL CHECK(status IN ('PENDING','COMMITTED')),enqueued_at INTEGER NOT NULL,completed_at INTEGER NOT NULL DEFAULT 0,state_hash TEXT,PRIMARY KEY(consumer,event_id))",
         "CREATE INDEX IF NOT EXISTS r29_learning_work_pending ON r29_learning_work(consumer,status,issue)",
         "CREATE TABLE IF NOT EXISTS r29_learning_receipt(consumer TEXT NOT NULL,issue TEXT NOT NULL,state_hash TEXT NOT NULL,units INTEGER NOT NULL CHECK(units>0),completed_at INTEGER NOT NULL,PRIMARY KEY(consumer,issue))",
         "CREATE TRIGGER IF NOT EXISTS r29_learning_receipt_no_update BEFORE UPDATE ON r29_learning_receipt BEGIN SELECT RAISE(ABORT,'R29_LEARNING_RECEIPT_IMMUTABLE'); END",
@@ -121,7 +121,7 @@ public final class ResearchEventBridgeR29 {
             highest = Math.max(highest, e.seq);
             b.add("INSERT OR IGNORE INTO r29_event_inbox(event_id,source_seq,issue,payload_hash,origin,applied_at) VALUES(?,?,?,?,?,?)", e.id, e.seq, e.issue, e.hash, e.origin, now);
             for (String consumer : new String[] {MODEL, SETTLEMENT}) {
-                b.add("INSERT OR IGNORE INTO r29_learning_work(consumer,event_id,issue,status,enqueued_at) VALUES(?,?,?,'PENDING',?)", consumer, e.id, e.issue, now);
+                b.add("INSERT OR IGNORE INTO r29_learning_work(consumer,event_id,issue,target_ordinal,status,enqueued_at) VALUES(?,?,?,?,'PENDING',?)", consumer, e.id, e.issue, TargetIssueResolver.sequenceOrdinalSU1(e.issue), now);
                 // The learner can commit before this event is delivered. Its durable receipt is authoritative.
                 b.add("UPDATE r29_learning_work SET status='COMMITTED',completed_at=(SELECT completed_at FROM r29_learning_receipt WHERE consumer=? AND issue=?),state_hash=(SELECT state_hash FROM r29_learning_receipt WHERE consumer=? AND issue=?) WHERE consumer=? AND event_id=? AND status='PENDING' AND EXISTS(SELECT 1 FROM r29_learning_receipt WHERE consumer=? AND issue=?)",
                         consumer, e.issue, consumer, e.issue, consumer, e.id, consumer, e.issue);
@@ -185,8 +185,8 @@ public final class ResearchEventBridgeR29 {
     static ResearchWriteQueueR27.Batch reconcileSettlements(SQLiteDatabase research, long now) {
         List<String> issues = new ArrayList<>();
         try (Cursor c = research.rawQuery("SELECT DISTINCT w.issue FROM r29_learning_work w WHERE w.consumer='SHADOW_SETTLEMENT' AND w.status='PENDING'"
-                + " AND EXISTS(SELECT 1 FROM r27_live_frozen f WHERE f.target_issue=w.issue AND f.status='FROZEN' AND f.hit>=0)"
-                + " AND NOT EXISTS(SELECT 1 FROM r27_live_frozen f WHERE f.target_issue=w.issue AND f.hit<0) ORDER BY w.issue LIMIT " + PAGE, null)) {
+                + " AND EXISTS(SELECT 1 FROM r27_live_frozen f WHERE f.target_ordinal=w.target_ordinal AND f.target_issue=w.issue AND f.status='FROZEN' AND f.hit IN(0,1))"
+                + " AND NOT EXISTS(SELECT 1 FROM r27_live_frozen f WHERE f.target_ordinal=w.target_ordinal AND f.target_issue=w.issue AND f.hit NOT IN(0,1)) ORDER BY w.issue LIMIT " + PAGE, null)) {
             while (c.moveToNext()) issues.add(c.getString(0));
         }
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
@@ -199,17 +199,19 @@ public final class ResearchEventBridgeR29 {
     static void settlementsCommitted(SQLiteDatabase db, Iterable<String> issues, long now) {
         requireTransaction(db);
         for (String issue : issues) {
+            if (!TargetIssueResolver.isValid(issue)) continue;
             StringBuilder state = new StringBuilder("R29_SHADOW_SETTLEMENT_V1|").append(issue);
             boolean draw = false;
             try (Cursor c = db.rawQuery("SELECT n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue=? AND dirty=0", new String[] {issue})) {
-                if (c.moveToFirst()) { draw = true; for (int i = 0; i < 10; i++) state.append('|').append(c.getInt(i)); }
+                if (c.moveToFirst()) { int[] numbers=new int[10];for(int i=0;i<10;i++)numbers[i]=c.getInt(i);draw=ReplayDatasetR27.legal(numbers);for(int n:numbers)state.append('|').append(n); }
             }
             if (!draw) continue;
             boolean complete = true; long legal = 0;
-            try (Cursor c = db.rawQuery("SELECT policy_hash,hit,status,frozen_at,deadline_at FROM r27_live_frozen WHERE target_issue=? ORDER BY policy_hash", new String[] {issue})) {
+            String[] keys = {String.valueOf(TargetIssueResolver.sequenceOrdinalSU1(issue)),issue};
+            try (Cursor c = db.rawQuery("SELECT policy_hash,hit,status,frozen_at,deadline_at FROM r27_live_frozen WHERE target_ordinal=? AND target_issue=? ORDER BY policy_hash", keys)) {
                 while (c.moveToNext()) {
                     int hit = c.getInt(1);
-                    if (hit < 0) { complete = false; break; }
+                    if (hit < 0 || hit > 1) { complete = false; break; }
                     if ("FROZEN".equals(c.getString(2)) && c.getLong(3) <= c.getLong(4) - LiveShadowsR27.FREEZE_MARGIN_MS) {
                         legal++; state.append('|').append(c.getString(0)).append(':').append(hit).append(':').append(c.getLong(3)).append(':').append(c.getLong(4));
                     }
@@ -232,7 +234,14 @@ public final class ResearchEventBridgeR29 {
         m.put("modelCommitted", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_receipt WHERE consumer='ATOMNET_ONLINE'"));
         m.put("settlementPending", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_work WHERE consumer='SHADOW_SETTLEMENT' AND status='PENDING'"));
         m.put("settlementCommitted", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_receipt WHERE consumer='SHADOW_SETTLEMENT'"));
-        m.put("noPredrawFreeze", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_work w WHERE w.consumer='SHADOW_SETTLEMENT' AND w.status='PENDING' AND NOT EXISTS(SELECT 1 FROM r27_live_frozen f WHERE f.target_issue=w.issue AND f.status='FROZEN' AND f.frozen_at<=f.deadline_at-5000)"));
+        m.put("noPredrawFreeze", QualificationInboxR29.count(research, "SELECT count(*) FROM r29_learning_work w WHERE w.consumer='SHADOW_SETTLEMENT' AND w.status='PENDING' AND NOT EXISTS(SELECT 1 FROM r27_live_frozen f WHERE f.target_ordinal=w.target_ordinal AND f.target_issue=w.issue AND f.status='FROZEN' AND f.frozen_at<=f.deadline_at-5000)"));
+        Map<String,Object> reasons = new LinkedHashMap<>();
+        try (Cursor c = research.rawQuery("SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL') THEN 'MODEL_NOT_INITIALIZED'"
+                + " WHEN w.issue<=(SELECT trained_through FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL') THEN 'CURSOR_AHEAD_WITHOUT_THIS_EVENT_RECEIPT'"
+                + " ELSE 'WAITING_REAL_ONLINE_COMMIT' END,count(*) FROM r29_learning_work w WHERE w.consumer='ATOMNET_ONLINE' AND w.status='PENDING' GROUP BY 1", null)) {
+            while (c.moveToNext()) reasons.put(c.getString(0),c.getLong(1));
+            m.put("modelPendingReasons",reasons);
+        } catch (RuntimeException missing) { m.put("modelPendingReasons",null); }
         return m;
     }
 
