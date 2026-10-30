@@ -2,15 +2,12 @@ name: STARCORE R29 installable APK (R27 certificate)
 # Lives on construction/r27-20261028 because the R27 CI signing key is cached for this branch only. It builds the
 # requested R29 commit from construction/r29-20261029 with that same certificate, so the APK installs over R27.x and
 # keeps the database. It is still NOT the official R13 identity (that key is cached on construction/su1-20261022).
+# A build is requested by committing .github/r29-build-request.json ({"source": <R29 commit>, "batch": "B00"})
+# to construction/r27-20261028 (workflow_dispatch would need this file on the default branch).
 on:
-  workflow_dispatch:
-    inputs:
-      source:
-        description: 'R29 branch or commit to build'
-        default: 'construction/r29-20261029'
-      batch:
-        description: 'Batch label for the release tag (B00..B10)'
-        default: 'B00'
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r29-build-request.json']
 permissions:
   contents: write
 concurrency:
@@ -23,8 +20,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.source }}
+          sparse-checkout: .github/r29-build-request.json
+      - id: request
+        run: |
+          python3 -c "import json;r=json.load(open('.github/r29-build-request.json'));print('source='+r['source']);print('batch='+r['batch'])" >> "$GITHUB_OUTPUT"
+          cat .github/r29-build-request.json
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
           fetch-depth: 0
+          clean: true
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -68,11 +73,14 @@ jobs:
         run: |
           git config user.name 'STARCORE build identity'
           git config user.email 'starcore-build@users.noreply.github.com'
-          case '${{ inputs.source }}' in construction/*) export PUSH_REF='${{ inputs.source }}';; esac
+          export PUSH_REF=construction/r29-20261029
+          git fetch -q origin construction/r29-20261029
+          git merge-base --is-ancestor HEAD origin/construction/r29-20261029 || { echo 'REQUESTED_SOURCE_NOT_ON_R29_BRANCH'; exit 1; }
+          [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/construction/r29-20261029)" ] || unset PUSH_REF
           bash tools/r29/ci_build.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: R29-APK-${{ inputs.batch }}
+          name: R29-APK-${{ steps.request.outputs.batch }}
           path: r29-apk/
           if-no-files-found: error
       - name: Publish the checkpoint APK
@@ -80,12 +88,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           source=$(git rev-parse HEAD)
-          tag="r29-${{ inputs.batch }}-${source:0:12}"
-          gh release create "$tag" r29-apk/* --target "$source" --title "R29.1 ${{ inputs.batch }} checkpoint ${source:0:12} — device/quality acceptance pending" --notes-file construction/r29/STATUS.md --prerelease --latest=false
+          tag="r29-${{ steps.request.outputs.batch }}-${source:0:12}"
+          gh release create "$tag" r29-apk/* --target "$source" --title "R29.1 ${{ steps.request.outputs.batch }} checkpoint ${source:0:12} — device/quality acceptance pending" --notes-file construction/r29/STATUS.md --prerelease --latest=false
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R29-BUILD-EVIDENCE-${{ inputs.batch }}
+          name: R29-BUILD-EVIDENCE-${{ steps.request.outputs.batch }}
           path: |
             evidence/r29/ci/
             app/build/test-results/
