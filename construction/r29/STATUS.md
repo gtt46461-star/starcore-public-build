@@ -1,24 +1,17 @@
-当前验证状态（源码25216ec，修复42126cc）：保存的完整包装脚本5m39s通过；32份新XML共164项JUnit零失败/错误/跳过，8语义反证、33组HOST单轮全部通过；lint新增0，原51基线/7未匹配及报告复用说明保留。上一轮e5f9292实际Android为4通过/3失败：正常bootstrap busy被F01包装后误隔离，加上CATCHUP页ACK后错误重置已定位修复；旧红证据保留。新七项Android实际运行41093596305正在执行，B01未签收、正式交付仍CP06。新HOST包含真实DCo正常构造/Scope/F01的17项回归、193键4页真ACK及>3次任务正常pending恢复，真实SQL/容量/fence错误仍不得吞掉。
+R29.1 正在真实 Android 源码施工；B01 尚未签收，当前正式交付仍为 CP06。
 
-R29.1 正在真实 Android 源码施工，尚未完成全部工程交付与质量验收。
+唯一施工依据为固定提交 96fb4355748a2f28e31927e1f9cb8cb61fac6547 中的 STARCORE_R29_FINAL_20261029：11批、52卡、44指标。原方案及检测报告保持原文。R26/R27 是 R29-004—008 指定改造的现有代码模块名，不代表另开旧方案施工。
 
-唯一施工依据为固定提交96fb4355748a2f28e31927e1f9cb8cb61fac6547中的 STARCORE_R29_FINAL_20261029：11批、52卡、44指标。原方案、检测报告、1832要求与299卡原文和hash保持原样。R26/R27是R29卡片指定改造的现有模块名；当前任务是R29 B01（R29-004—008），不是另起旧方案。
+B00 工程已签收；当前按顺序完成 B01（R29-004—008）。B02 有前期代码准备，未签收。工程签收1/11不能代替44指标实测或自然质量验收。逐卡实现见 [BATCH01_IMPLEMENTATION.zh.txt](BATCH01_IMPLEMENTATION.zh.txt)。
 
-当前批次进度：B00工程已签收，见[BATCH00_ACCEPTANCE.zh.txt](BATCH00_ACCEPTANCE.zh.txt)；B01仍失败待修复，不能算第二批完成；B02有部分前期实现，但尚未签收，当前按顺序先完成B01。工程签收1/11不表示44项实测指标或自然质量通过。
+最近实际 Android 验证源码 25216ec59ff65a081a3acb1dddd2ccf5006e6cd1，版本577291007，运行 [41093596305](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41093596305)。7项中6通过、1失败：完整模型与下一次更新、大类型行、独立写者切库、Root保护与正式数据权威、完整旧schema、旧FULL增量恢复均通过。完整runtime完成24家族/16专家推进、120秒保留期更新、重启与旧owner栅栏，但保留了7条真实任务SQL错误，因此整体FAIL。
 
-B01已写入实际代码：独立研究库及写者、类型化完整迁移/大字段分块、旧能力统一调度及切片、原VM/模型状态恢复、Root正式数据与研究投影的权威隔离。主体实现90db972；本轮查询放大/Root只读池修复3b407c2；最近完整验证源码8778561bca9679d543a35299ead21aab50a9ef74，版本577291007（R29.1-2026.10.30-B01）。逐卡调用链见[BATCH01_IMPLEMENTATION.zh.txt](BATCH01_IMPLEMENTATION.zh.txt)与[cards.json](cards.json)。
+完整runtime首服务43.730秒，满足原60秒门槛；1000写P50=6/P95=54/P99=84毫秒，最大12615毫秒照实保留。R29任务错误0，全部研究任务错误7，原断言仍要求0。7条错误均来自RP退休任务误读Root专有su2_mainline_choice。另发现演化数据变更时旧恢复兜底会丢弃部分代状态；原重启检查没有证明该状态连续性，因此不能宣称其通过。原始收据和日志保存在 evidence/r29/batch01/failed/android-25216ec。
 
-源码8778561的实际验证：
+当前修复：退休任务经独立Root只读连接查询主线选择；完整演化数据按128KiB块不可变保存，与游标/快照同事务提交；重启严格核对完整数据、快照、代/步骤/RNG和hash，缺旧数据时明确等待，损坏时保留错误，禁止静默新建。双库退休HOST8项、数据pin HOST22项单项回归通过；集成后仍须重新绑定身份、完整包装脚本及真实Android验收，之后才进入签名APK安装/同签名覆盖升级/两次启动验收。
 
-- 保存的完整环境包装脚本退出0，耗时5m53s。32份本轮新JUnit XML共160项测试，0失败/错误/跳过；8项语义反证通过。
-- 23组HOST回归通过。完整生产schema迁移读取从393164次SQL降至2500次，完整source/target类型化hash一致，大字段仍128KiB分块；HOST耗时不冒称Android性能。
-- lint新增0，保留原51项基线错误、7项未匹配条目；本轮analysis已执行，Gradle判定相同的lint报告UP-TO-DATE并复用，未冒称报告时间戳全新；Gradle9弃用提示保留。
-- [Android API34运行41078985878](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41078985878)：大模型、大类型行、独立写者/Root持锁读写/切库/PREPARED回执三项通过。
-- 完整运行时已实际推进24家族/16专家；schema ready后43.5s完成首服务，满足原60s门槛；RP独立研究库ACTIVE；1000次写探针P50=5ms/P95=24ms/P99=43ms/最大5064ms；R26已提交capacity失败0；R27任务仍有超限/取消错误，不能据此宣称全部容量检查通过。
-- 整体仍FAIL：原120s保留期更新检查未通过，重启检查未到达。原始失败保存在[evidence/r29/batch01/failed/android-8778561](../../evidence/r29/batch01/failed/android-8778561)，不删改或放宽门槛。
+最近完整包装脚本5分39秒通过，32份新XML共164项JUnit零失败/错误/跳过，8项语义反证通过；33组HOST统一单轮通过。以上对应25216ec产品代码，不能冒充当前修复已整体验收。lint新增0，原51项基线错误和7项未匹配保留；本轮analysis执行，Gradle复用相同lint报告，未称时间戳全新。
 
-当前实际修复：切库后混合schema初始化把Root冻结触发器误装在RP、镜像刷新触发缺失Root事件表；进化快照长计算未充分让出worker，失败后复用已取消任务。修复必须保留Root原冻结保护、RP独立写者和真实学习回执，不创建假的Root权威表、不吞错或降低原时限。修复冻结后重新绑定身份、运行完整包装脚本与四项Android验收；通过后再做签名APK安装/同签名覆盖升级/两次启动，才签收B01。
+最新正式可安装交付为 [CP06回执](delivery/CP06.json)，源码bb607cf5ab69f7286f859e43f87ada85a5bc456d，versionCode577291006。R13/R27各用原固定证书，不能交叉覆盖；现有安全CI签名绑定继续复用，私钥未在本任务读取或上传。CP06不能替代B01验收。
 
-最新正式可安装交付仍为[CP06回执](delivery/CP06.json)，源码bb607cf5ab69f7286f859e43f87ada85a5bc456d，versionCode577291006。原R13与已有R27两种固定证书的release包均有API34安装、保留数据同签名升级及重复启动回执；CP06不能代替当前B01验收。私钥未在本任务读取或上传，后续构建继续复用现有安全CI绑定。
-
-物理目标机、前台60min、息屏6h、连续72h为NOT_RUN；自然未来质量INSUFFICIENT，R29_GATE_V2仅诊断，REAL_BLOCKED。合成工程回归不能填充自然分母或授予资格。历史施工记录保存在Git历史与[evidence/r29/batch01/status-history](../../evidence/r29/batch01/status-history)，不覆盖上述当前状态。
+目标物理机、前台60分钟、息屏6小时、连续72小时为NOT_RUN；自然未来质量INSUFFICIENT，R29_GATE_V2仅诊断，REAL_BLOCKED。合成工程回归不填充自然分母。历史状态保存在Git历史与 evidence/r29/batch01/status-history。

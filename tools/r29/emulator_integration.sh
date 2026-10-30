@@ -40,6 +40,12 @@ elif name=='R29LegacySchemaOwnerDeviceTest':
 elif name=='R29LegacyDomainExtensionDeviceTest':
     assert r['result']=='PASS_WITH_STATED_ANDROID_SCOPE' and r['artifactBytes']>3*1024*1024
     assert all(r[k] for k in ['oldFullAdvancedStateRetained','originalFullProofUnchanged','completeLargeArtifactRestored','rootOriginalUnchanged','acknowledgedExtensionNotReapplied','conflictingArtifactPreserved'])
+elif name=='R29EvolutionDatasetPinDeviceTest':
+    assert r['status']=='PASS_ANDROID_ENGINEERING_SUBSET'
+    assert all(r[k] for k in ['hotTailAdvancedAndExpired','exactCheckpointAndLedgerRestored','actualRuntimeTurnResumedPinned4200','nextGateSnapshotBitIdentical','current5000WaitsForGenerationBoundary','missingLegacyPinWaitsWithoutReplacingCursor','unprovenSameV1HashCannotResetOrResumeCursor','boundaryRebindBeforeDatasetStep','badSnapshotRemainsFailureAndUnchanged','nativePinChunksAtMost128KiB'])
+elif name=='R29ShadowRetirementAuthorityDeviceTest':
+    assert r['result']=='PASS_WITH_STATED_ANDROID_SCOPE' and r['rootHeldDeadlineMs']==1500
+    assert all(r[k] for k in ['rootChoiceMemberProtected','eligibleUnboundMemberRetired','allCheckpointWeightsRetained','rootRowsAndChoiceUnchanged','noFakeRootChoiceOnResearch','independentRootReaderWhileWriterHeld','realMissingRootSchemaRemainsError'])
 else:
     assert r['result']=='PASS_WITH_STATED_ENGINEERING_SCOPE' and r['r29IndependentResearchActive'] and r['legacyDispatchOwner']=='RESEARCH_POOL'
     assert r['firstServiceTargetObservedWithin'] and r['allResearchTaskErrors']==0 and r['retentionBoundaryRenewed'] and r['restartResumed']
@@ -55,5 +61,7 @@ run_case R29DatabaseCutoverDeviceTest '' files/r29-cutover-device.json
 run_case R29CriticalInputTriggerDeviceTest critical-trigger files/r29-critical-trigger-device.json
 run_case R29LegacySchemaOwnerDeviceTest schema-owner files/r29-legacy-schema-owner-device.json
 run_case R29LegacyDomainExtensionDeviceTest domain-extension files/r29-domain-extension-device.json
+run_case R29ShadowRetirementAuthorityDeviceTest shadow-retirement files/r29-shadow-retirement-device.json
+run_case R29EvolutionDatasetPinDeviceTest evolution-pin files/r29-evolution-dataset-pin-device.json
 run_case R26RuntimeDeviceTest full-runtime cache/r26-runtime-synthetic.json
 exit "$INTEGRATION_FAILED"

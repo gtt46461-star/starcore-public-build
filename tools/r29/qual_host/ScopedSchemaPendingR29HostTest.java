@@ -79,6 +79,13 @@ public final class ScopedSchemaPendingR29HostTest {
             try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){ResearchSchemaCoordinatorR926.StepResult stable=ResearchSchemaCoordinatorR926.ensureOneStepResult(owner);check("P11_READY_NOOP_IS_NOT_PROGRESS_OR_PENDING",stable.ready&&!pending(stable)&&stable.cause==null&&stable.committedUnits==0);}
             boolean actualSqlFailure=false;try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){try{LegacyCapabilityAdapterR29.dispatch(()->{owner.runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{db.execSQL("INSERT INTO r29_missing_claim_table VALUES(1)");return 0;});return ResearchPoolR27.Outcome.progress(1,1);});}catch(IllegalStateException expected){if(!causes(expected).contains("no such table"))throw expected;actualSqlFailure=true;}}
             check("P12_ADAPTER_DOES_NOT_SWALLOW_REAL_SQL_FAILURE",actualSqlFailure);
+            long retired;try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
+                retired=owner.runAtomicWriteOrThrowF01("R26_TEST_DEFAULT_RETIRE",db->{
+                    if(!StrategySchemaSU2.ready(db))StrategySchemaSU2.ensure(db);
+                    return ShadowAdmissionR26.retireOne(db,TargetIssueResolver.sequenceOrdinalSU1("202610230001"),System.currentTimeMillis());
+                });
+            }
+            check("P13_DEFAULT_SHADOW_RETIRE_READS_ROOT_CHOICE_WITHOUT_INVENTING_RP_AUTHORITY",retired==0&&n(root,"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='su2_mainline_choice'")==1&&n(rpReader,"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='su2_mainline_choice'")==0);
             System.out.println("R29_SCOPED_SCHEMA_PENDING|MEASURED|calls="+calls+"|preCallbackPending="+preCallbackPending+"|adapterPending="+adapterPending+"|milliseconds="+((System.nanoTime()-start)/1000000));
         }finally{
             SQLiteDatabase.hostBeforeQuery=null;if(pool!=null)pool.close();if(rpReader!=null)rpReader.close();if(rootReader!=null)rootReader.close();if(preparation!=null)preparation.close();if(root!=null)root.close();if(coordinator!=null){Field f=DatabaseCoordinator.class.getDeclaredField("backgroundWriter");f.setAccessible(true);((java.util.concurrent.ExecutorService)f.get(coordinator)).shutdownNow();}

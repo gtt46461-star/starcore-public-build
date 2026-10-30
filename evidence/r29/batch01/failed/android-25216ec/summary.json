@@ -1,0 +1,27 @@
+{
+  "source": "25216ec59ff65a081a3acb1dddd2ccf5006e6cd1",
+  "run": 41093596305,
+  "result": "FAIL_6PASS_1FAIL_BATCH_NOT_ACCEPTED",
+  "sixHelpers": "ALL_PASS_NATIVE_INCLUDING_FULL_SCHEMA_52.190S_504STEPS_8PENDING",
+  "runtime": {
+    "families": 24,
+    "experts": 16,
+    "readyToFirstServiceMs": 43730,
+    "firstServiceTargetPassed": true,
+    "independentResearchActive": true,
+    "writerP95Ms": 54,
+    "writerP99Ms": 84,
+    "writerMaxMs": 12615,
+    "retentionRenewed": true,
+    "restartResumed": true,
+    "candidateSamplesBefore": 24,
+    "candidateSamplesAfter": 39,
+    "staleWriterRejected": true,
+    "r29TaskErrors": 0,
+    "allResearchTaskErrors": 7,
+    "legacyCapacityFailures": 0
+  },
+  "exactSevenErrors": "publish-models -> ShadowAdmissionR26.retireOne -> ModelStoreSU2.currentChoice queries Root su2_mainline_choice on RP; seven actual SQLite noSuchTable errors, not cancellations",
+  "additionalRestorationRisk": "Evolution snapshot datasetHash4200 differs refreshed rolling5000 after1000 newdraws; current catch logs warning and constructs new loop, losing midgeneration state. Fix requires immutable input pin with cursor and exact restoration, no silent fresh loop.",
+  "assertionsRelaxed": false
+}

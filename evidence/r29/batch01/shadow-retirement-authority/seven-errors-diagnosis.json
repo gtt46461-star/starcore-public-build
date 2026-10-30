@@ -1,0 +1,22 @@
+{
+  "source": "evidence/r29/batch01/failed/android-25216ec/full-runtime-logcat.txt",
+  "exactMatchingErrors": 7,
+  "task": "publish-models",
+  "timesAndLogLines": [
+    ["16:59:09.071",1086],
+    ["16:59:10.414",1124],
+    ["17:00:14.781",3493],
+    ["17:00:17.126",3532],
+    ["17:00:20.849",3569],
+    ["17:00:26.468",3608],
+    ["17:00:48.095",3698]
+  ],
+  "failure": "F01_WRITE_FAILED|operation=R26_SHADOW_LIFECYCLE caused by SQLiteException no such table su2_mainline_choice",
+  "query": "SELECT member_id FROM su2_mainline_choice WHERE from_sequence<=? ORDER BY from_sequence DESC LIMIT 1",
+  "path": "LivePoolR26.publishOne:18 -> ShadowAdmissionR26.retireOne:19 -> ModelStoreSU2.currentChoice:102",
+  "errorTablePath": "RuntimeCoordinatorR26.executeClaim -> LegacyResearchTransferR29.taskError/consume -> r27_task_error task_id=publish-models",
+  "receipt": "allResearchTaskErrors=7, r29TaskErrors=0; tasksAtFailure publish-models=QUARANTINED",
+  "stopHypothesis": "Not supported for these seven rows: six failures precede restart, one follows; STARCORE_R27 has no task-failure logs. Stop-time receipt cancellation and dataset-mismatch restart are separate warnings.",
+  "minimalFix": "Read the original mainline choice from LegacyResearchScopeR29.realtime(db) Root RO; keep retirement eligibility and writes in RP. Do not suppress SQL failures or clear errors.",
+  "productFilesEdited": false
+}

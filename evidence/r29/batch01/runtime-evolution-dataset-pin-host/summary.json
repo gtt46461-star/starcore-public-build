@@ -1,0 +1,33 @@
+{
+  "status": "PASS_ACTUAL_RUNTIME_TURN_HOST_SYNTHETIC_ONLY",
+  "sourceHead": "66b190c08a02406f4876cacaec7e76ef580fdded",
+  "sourceState": "CURRENT_WORKTREE_RUNTIME_PIN_OVERLAY",
+  "checksPassed": 21,
+  "runtimeConstruction": "Normal RuntimeR27(null,session); real EvolutionTask.step and its actual slice(40) continuation; actual read-only SQLite input and batch SQLite transaction writer",
+  "midGenerationOldDatasetRows": 4200,
+  "newCurrentWindowRows": 5000,
+  "oldTailExpiredRows": 200,
+  "resumedStep": 3,
+  "committedNextStep": 4,
+  "nextSnapshotRngAndBothLedgersByteExact": true,
+  "futureCurrentWindowQueuedUntilBoundary": true,
+  "step1RestoresOriginalFirstThenRebindsFreshestPendingBeforeStep2": true,
+  "step1FreshestPinCursorDataContextAligned": true,
+  "step1PendingNotDuplicatedAndOldRngLedgerPinPreserved": true,
+  "step1BadOriginalSnapshotIsNotBypassed": true,
+  "missingPinAlwaysWaitsWithoutCommitOrCursorChange": true,
+  "sameV1DatasetHashDifferentOrdinalsCannotAuthorizeMissingPin": true,
+  "corruptSnapshotAndPinAndColumnProvenancePreserveOriginalState": true,
+  "oldRuntimeNegativeControl": "e5f92929e9cdf5c1eadfec3252782039b944dae2",
+  "negativeFailure": "actual Runtime task fails R2 old-pin resume assertion; original hot-window mismatch/new-loop fallback is rejected",
+  "negativeApiLinkageFailure": false,
+  "androidRuntimeOrDeviceLatencyClaimed": false,
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java": "aef44f007c366f2f7507bade73e48248c4927e8fdff1940aa69055186b132315",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionDatasetPinR29.java": "dd169b95ab3a9df8ec551d6c15cb5bb7c0e1fbbb5e15e70722fd9c4e4deda390",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java": "47005fcaec588f637c18544964c04a1e0b45f36016d63fa9df8c21812c8ab1d9",
+    "tools/r29/qual_host/RuntimeEvolutionDatasetPinR29HostTest.java": "af55431bd565b6b12e3e8e47f68c92b677b03b23ae0ec343885e51c024cfd23c",
+    "tools/r29/run_runtime_evolution_dataset_pin_host.sh": "793dbd630604899a8925f06b549ee7d6f349459809aa04def5a7d100eabd7926",
+    "tools/r29/qual_host/shim/android/os/SystemClock.java": "6e3d3986b3adb813cccf74434447f13d7b4b6eb6cea18e9d3b04bebfe304f05a"
+  }
+}
