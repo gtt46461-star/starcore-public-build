@@ -119,6 +119,10 @@ public final class AtomWorldR27 {
                     ModelArtifactR29 restored = ModelArtifactR29.decode(c.getBlob(0), c.getString(1));
                     if (restored.trainer.net.in != 7 + AtomReplayR27.eligible().length || restored.ftrl.d != 7) throw new IllegalStateException("R29_MODEL_INPUT_SHAPE_MISMATCH");
                     if (!restored.datasetHash.equals(c.getString(2)) || !restored.trainedThrough.equals(c.getString(3))) throw new IllegalStateException("R29_MODEL_CURSOR_MISMATCH");
+                    // CP04 artifacts lack this receipt counter. Recover its lower bound from immutable database rows.
+                    try (Cursor epochs = w.ro.rawQuery("SELECT coalesce(max(epoch),-1)+1 FROM r27_atomnet_epoch WHERE run_id=?", new String[] {restored.datasetHash.substring(0,16)})) {
+                        if (epochs.moveToFirst()) restored.trainer.nextEpochReceipt = Math.max(restored.trainer.nextEpochReceipt, epochs.getInt(0));
+                    }
                     rt.atomNet = restored.trainer; rt.atomFtrl = restored.ftrl; rt.atomTrainedThrough = restored.trainedThrough; rt.atomNetDataset = restored.datasetHash;
                     return ResearchPoolR27.Outcome.idle("CHECKPOINT_RESTORED;NO_TRAINING_YET", restored.trainer.onlineSteps, -1);
                 }

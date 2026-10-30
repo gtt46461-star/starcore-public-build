@@ -19,6 +19,7 @@ public final class AtomNetTrainerR27 {
 
     public AtomNetR27 net; public double onlineLr; public long onlineSteps; public final List<Epoch> epochs = new ArrayList<>();
     public byte[] checkpoint; public double lastCheckLogloss = Double.NaN, lastCheckSe = Double.NaN; public long sinceCheck; public final List<String> events = new ArrayList<>();
+    int nextEpochReceipt;
     // Package access for the versioned full-state codec, not just a weights checkpoint.
     final List<Sample> buffer = new ArrayList<>(); final StatsR27.SplitMix rng;
 
@@ -46,6 +47,7 @@ public final class AtomNetTrainerR27 {
         buffer.clear(); buffer.addAll(train.subList(Math.max(0, train.size() - REPLAY), train.size()));
         for (Sample s : select) remember(s);
         events.add("PRETRAINED epochs=" + e + " bestSelectLogloss=" + best + " onlineLr=" + onlineLr);
+        nextEpochReceipt = epochs.size();
         return e;
     }
 
@@ -75,7 +77,7 @@ public final class AtomNetTrainerR27 {
         double[] h = evaluate(net, holdoutBlock); sinceCheck = 0;
         boolean degrade = Double.isFinite(lastCheckLogloss) && h[0] > lastCheckLogloss + 2 * Math.max(h[2], lastCheckSe);
         if (degrade) { net = AtomNetR27.decode(checkpoint); onlineLr *= 0.5; events.add("ROLLBACK_DEGRADED logloss=" + h[0] + " previous=" + lastCheckLogloss); return true; }
-        lastCheckLogloss = h[0]; lastCheckSe = h[2]; checkpoint = net.encode(); epochs.add(new Epoch(epochs.size(), SplitR27.HOLDOUT, h[0], h[1]));
+        lastCheckLogloss = h[0]; lastCheckSe = h[2]; checkpoint = net.encode(); epochs.add(new Epoch(nextEpochReceipt++, SplitR27.HOLDOUT, h[0], h[1]));
         return false;
     }
 }

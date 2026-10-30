@@ -94,8 +94,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 // R27.2: the same one-worker floor while P0 analysis/settlement runs (device: request→commit P95 20.5 s with
                 // MODEL_BUNDLE_OPEN 10.6 s wall / 0.13 s CPU while every worker ran). Research never drops to zero.
                 int limit = narrow(System.currentTimeMillis()) ? 1 : Math.min(size, parallelismLimit);
-                int current = active.get();
-                if (current >= limit || !active.compareAndSet(current, current + 1)) { sleep(100); continue; }
+                if (!ResearchSlotsR29.tryEnter(active, limit)) { sleep(100); continue; }
                 Task t;
                 try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
                 if (t == null) { active.decrementAndGet(); sleep(250); continue; }

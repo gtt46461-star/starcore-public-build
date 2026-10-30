@@ -73,7 +73,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           source=$(git rev-parse HEAD)
-          gh release create "r29-official-cp04-${source:0:12}" r29-apk/* --target "$source" --title 'R29.1 checkpoint04 — implementation/device/quality acceptance incomplete' --notes-file construction/r29/STATUS.md --prerelease --latest=false
+          vcode=$(python3 -c "import json; print(json.load(open('r29-apk/delivery.json'))[0]['versionCode'])")
+          gh release create "r29-official-${vcode}-${source:0:12}" r29-apk/* --target "$source" --title "R29.1 ${vcode} — implementation/device/quality acceptance incomplete" --notes-file construction/r29/STATUS.md --prerelease --latest=false
       - uses: actions/upload-artifact@v4
         if: always()
         with:

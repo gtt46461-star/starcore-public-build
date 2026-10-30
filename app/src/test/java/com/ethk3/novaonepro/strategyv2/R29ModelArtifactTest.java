@@ -55,4 +55,34 @@ public class R29ModelArtifactTest {
         assertEquals("DATASET_B", b.datasetHash); assertEquals(40, b.trainer.onlineSteps);
         assertArrayEquals(a.trainer.net.encode(), b.trainer.net.encode()); assertEquals(a.trainer.rng.state, b.trainer.rng.state);
     }
+
+    @Test public void periodicScoreReceiptIdentitySurvivesRestart() {
+        ModelArtifactR29 a = state(); a.trainer.nextEpochReceipt = 41;
+        ModelArtifactR29 b = ModelArtifactR29.decode(a.encode(), StatsR27.sha256(a.encode()));
+        assertEquals(41, b.trainer.nextEpochReceipt);
+        b.trainer.lastCheckLogloss = Double.NaN;
+        b.trainer.check(Arrays.asList(sample(41), sample(42)));
+        assertEquals(41, b.trainer.epochs.get(0).epoch); assertEquals(42, b.trainer.nextEpochReceipt);
+        ModelArtifactR29 c = ModelArtifactR29.decode(b.encode(), StatsR27.sha256(b.encode()));
+        c.trainer.lastCheckLogloss = Double.NaN; c.trainer.check(Arrays.asList(sample(43), sample(44)));
+        assertEquals(42, c.trainer.epochs.get(0).epoch);
+    }
+
+    @Test public void checkpoint04FormatRetainsLearningStateDuringUpgrade() throws Exception {
+        ModelArtifactR29 a = state(); a.trainer.nextEpochReceipt = 41; byte[] current = a.encode();
+        java.io.DataInputStream in = new java.io.DataInputStream(new java.io.ByteArrayInputStream(current));
+        in.readInt(); in.readUTF(); in.readUTF(); in.readUTF();
+        for (int i = 0; i < 2; i++) { int n = in.readInt(); assertEquals(n, in.skipBytes(n)); }
+        assertEquals(48, in.skipBytes(48)); // RNG, learning rate, two training cursors, two quality-check scalars
+        int counterAt = current.length - in.available();
+        byte[] legacy = new byte[current.length - 4];
+        System.arraycopy(current, 0, legacy, 0, counterAt);
+        System.arraycopy(current, counterAt + 4, legacy, counterAt, current.length - counterAt - 4);
+        java.nio.ByteBuffer.wrap(legacy).putInt(0x29A70001);
+        ModelArtifactR29 b = ModelArtifactR29.decode(legacy, StatsR27.sha256(legacy));
+        assertArrayEquals(a.trainer.net.encode(), b.trainer.net.encode()); assertEquals(a.trainer.rng.state, b.trainer.rng.state);
+        assertEquals(a.trainer.online(sample(41)), b.trainer.online(sample(41)), 0);
+        assertArrayEquals(a.trainer.net.encode(), b.trainer.net.encode());
+        assertEquals(0, b.trainer.nextEpochReceipt); // AtomWorld restores this missing lower bound from existing DB receipts.
+    }
 }

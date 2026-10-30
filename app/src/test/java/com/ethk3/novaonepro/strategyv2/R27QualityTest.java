@@ -284,12 +284,13 @@ public final class R27QualityTest {
         String line = pool.substring(pool.lastIndexOf("compute = new ThreadPoolExecutor", factory), factory);
         assertTrue("compute helpers set the background priority", line.contains("setThreadPriority(BACKGROUND_PRIORITY)"));
         assertEquals(android.os.Process.THREAD_PRIORITY_BACKGROUND + 1, ResearchPoolR27.BACKGROUND_PRIORITY);
-        assertTrue("one-worker floor also while P0 runs", pool.contains("narrow(System.currentTimeMillis()) && active.get() >= 1"));
-        assertTrue(pool.contains("return writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing();"));
+        // R29 now reserves a slot with CAS rather than the racy check-then-increment string above.
+        // Actual concurrent admission is exercised by R29ResearchSlotsTest (8 contending workers).
+        assertTrue("P0 and deadline still narrow the pool", pool.contains("writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing()"));
         String evo = new String(Files.readAllBytes(new File(dir, "EvolutionLoopR27.java").toPath()), "UTF-8");
         assertTrue("replay is serial while P0 runs", evo.contains("if (executor == null || (serialWhile != null && serialWhile.getAsBoolean()))"));
         String rt = new String(Files.readAllBytes(new File(dir, "RuntimeR27.java").toPath()), "UTF-8");
-        assertTrue(rt.contains("evo.serialWhile = ResearchWriteQueueR27::p0Writing;"));
+        assertTrue("evolution also honors the pool's thermal/P0/deadline guard", rt.contains("evo.serialWhile = () -> pool.narrow(System.currentTimeMillis());"));
         R27TestSupport.log("R27_2_RESEARCH_PRIORITY_PASS");
     }
 

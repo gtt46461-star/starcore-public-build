@@ -12,7 +12,7 @@ import java.io.IOException;
  * RuntimeR27/AtomWorldR27 use this codec before learning and after a successful database commit. */
 public final class ModelArtifactR29 {
     public static final String ABI = "ATOMREPLAY_R27_ROTATING_POSITION_HIT_V1";
-    private static final int MAGIC = 0x29A70001, MAX_BYTES = 64 << 20, MAX_INPUT = 4096;
+    private static final int MAGIC = 0x29A70002, LEGACY_MAGIC = 0x29A70001, MAX_BYTES = 64 << 20, MAX_INPUT = 4096;
     public static final String DDL = "CREATE TABLE IF NOT EXISTS r29_model_checkpoint(owner TEXT PRIMARY KEY,feature_abi TEXT NOT NULL,dataset_hash TEXT NOT NULL,trained_through TEXT NOT NULL,state_hash TEXT NOT NULL,artifact BLOB NOT NULL,updated_at INTEGER NOT NULL)";
     public final AtomNetTrainerR27 trainer;
     public final FtrlR27 ftrl;
@@ -30,6 +30,7 @@ public final class ModelArtifactR29 {
             blob(out, trainer.net.encode()); blob(out, trainer.checkpoint == null ? new byte[0] : trainer.checkpoint);
             out.writeLong(trainer.rng.state); out.writeDouble(trainer.onlineLr); out.writeLong(trainer.onlineSteps); out.writeLong(trainer.sinceCheck);
             out.writeDouble(trainer.lastCheckLogloss); out.writeDouble(trainer.lastCheckSe);
+            out.writeInt(trainer.nextEpochReceipt);
             out.writeInt(trainer.buffer.size());
             for (AtomNetTrainerR27.Sample s : trainer.buffer) {
                 out.writeUTF(s.issue); out.writeInt(s.y); out.writeInt(s.cls); out.writeInt(s.x.length);
@@ -47,7 +48,8 @@ public final class ModelArtifactR29 {
         if (bytes == null || bytes.length > MAX_BYTES || !StatsR27.sha256(bytes).equals(expectedHash)) throw new IllegalArgumentException("R29_MODEL_CHECKSUM");
         try {
             DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
-            if (in.readInt() != MAGIC || !ABI.equals(in.readUTF())) throw new IOException("feature ABI");
+            int version = in.readInt();
+            if ((version != MAGIC && version != LEGACY_MAGIC) || !ABI.equals(in.readUTF())) throw new IOException("feature ABI");
             String dataset = in.readUTF(), through = in.readUTF(); byte[] net = blob(in), checkpoint = blob(in);
             AtomNetR27 restored = network(net); AtomNetTrainerR27 tr = new AtomNetTrainerR27(restored.in, 0); tr.net = restored;
             if (checkpoint.length > 0 && network(checkpoint).in != restored.in) throw new IOException("rollback shape");
@@ -56,6 +58,7 @@ public final class ModelArtifactR29 {
             if (tr.onlineLr < 0 || tr.onlineSteps < 0 || tr.sinceCheck < 0) throw new IOException("training cursor");
             tr.lastCheckLogloss = in.readDouble(); tr.lastCheckSe = in.readDouble();
             if (Double.isInfinite(tr.lastCheckLogloss) || Double.isInfinite(tr.lastCheckSe) || tr.lastCheckSe < 0) throw new IOException("check state");
+            tr.nextEpochReceipt = version == MAGIC ? bounded(in.readInt(), 0, Integer.MAX_VALUE) : 0;
             int n = bounded(in.readInt(), 0, AtomNetTrainerR27.REPLAY);
             for (int i = 0; i < n; i++) {
                 String issue = in.readUTF(); int y = bounded(in.readInt(), 0, 1), cls = bounded(in.readInt(), 0, 9);
