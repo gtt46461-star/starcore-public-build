@@ -1,0 +1,64 @@
+当前权威状态：四组CP06实际矩阵全部FAIL；B01未签收，最新已验收CP06。详见B01_INSTALL_FAILURE.zh.txt与CP07.delivery.failed.json。以下历史“待验”措辞仅表示其当时阶段，不代表当前四matrix尚待运行。
+
+source1d2f1565 当前CI验证汇总（安装四矩阵全部FAIL，B01未签收）
+
+包source：1d2f1565e308659b6e0989f03400213c60dfac1b
+source tree：8d6d1df0f86fde2c7f179b2d503381d064c659a6
+Device QA source：1241859217fbeb8337ca0707d23d13088a0ddaf3，18本地测试通过且已push，debug49f0ed7/release bfb90c6四matrix回执全部FAIL。
+
+独立核对的HOST证据：R13 run41111323690/artifact13005651150，ZIP214205B，SHA961ce01985c0013cbd272f14a287d37a63774515a40226b16bc3d49b9778c7e5，本地原ZIP size+SHA再次核对通过。
+冻结source的ci_build.sh实际列36个HOST脚本，本轮36份正例footer全部通过，未发现正例FAILED；五份旧实现负控均保留预期真实故障。
+32份XML：164tests，failures0/errors0/skipped0。4项初始HOST检查通过。
+SU1 21 checks/14 Java；Plan1025 20 checks/17 Java（原可选--evolution未执行）；R26 32 checks/28 Java，含末R26_PRODUCTION_PROTOCOLS_PASS。共同191个pure kernels选择保持。
+8 semantic mutation checks本轮实际执行通过。unit构建305秒，canonical/assemble348秒。
+本轮完整release lintAnalyzeReleaseUnitTest/lintAnalyzeRelease/lintReportRelease实际执行，未UP-TO-DATE或FROM-CACHE，报告实际生成：新增0、baseline51 errors、7 unmatched；baseline源码与705逐字节一致。lintVitalReportRelease/lintVitalRelease为SKIPPED，但完整release lint已执行。Gradle9弃用和Java deprecated/unchecked提示保留。705本地报告复用单独保留为历史。
+
+两套签名APK实物
+R13 release27801529B SHAba30d553985c45afb6f0d09d6181b0fc3e7a63ffdd07bc40d5750601db515fe6；实际证书9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca。
+R27 release27801556B SHA68ed19357ef9c8a6605c38e246cc02bbcf18371e04b17390c2586968a71586bf；实际证书d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7。
+两release根代理apksigner/aapt/embedded identity独立验证通过，本任务只读原验证回执并再次核对本地APK size/hash与delivery一致。
+R13 debug CI receipt32096083B SHAa2a39edca5c5f1ee0144406d2ebcea680cccdde1930c72e896ce9afc4f1ed5be。
+R27 debug CI receipt32096105B SHAfeeb3a2a8ea6e052f0e8cc2cc31153b2a86fcdbcf5245b2a83ceb447c07026bf。
+所有receipt同source1d/package com.starcore.research.r13/versionCode577291007/versionNameR29.1-2026.10.30-checkpoint07。debug在本任务尚不冒称独立下载二进制验证，后续四矩阵工作流验证实际二进制。
+R27有实际signed receipt与release独立验证，未在本任务独立审阅其HOST artifact，不能把R13原日志换标签冒充R27单独审计。
+
+仍待验
+四matrix CP06同签名覆盖升级/保留数据、干净安装及两次启动回执PENDING，B01 NOT_ACCEPTED。
+所有OS硬杀/ENOSPC、真实热压/前后台长窗、旧黄金与私有依赖缺件、无pin旧cursor等待、全部指标分母与自然质量限制见B01.evidence-scope-audit.zh.txt，未因APK产出而改PASS。
+
+机器审计：CI.source-1d2f1565.validation.pending.json、ci-cli-lint-audit.json、signed-apk-receipt-binding.json；before/after ledger225路径及固定f9范围未改动。
+
+
+新增真实升级失败（不可由HOST/Native/启动PASS覆盖）
+source1d原R13自动旧R26基线smoke，run41111323690/artifact13004188807，ZIP351306B，SHA4a7c6b74b1d132df40514a5f81f4673618cb5151a7b5d6ade7fadbda80a8aca0；本地ZIP size/hash已再次核对。
+upgrade-protocol.json实际status=FAIL，failure=AssertionError:NO_VERIFIED_BASELINE_TABLE，stagePhases={}、verifiedBaselines=[]。原始报告cutoverEnabled=false/activeOwner=ORIGINAL_DATABASE；旧检查器部分字段有已知QA限制，但不能因此把本次失败预设为纯QA问题，完整App升级迁移未完成/未获证明的产品路径仍在调查。
+startup.json checker cold/restart passed=true、crash={}；这只说明该启动检查器通过，不能替代stage baseline校验或ACTIVE独立研究writer。main/stage integrity=ok、Root outbox1170/acked384/inbox384、modelReceipts0/modelWorkPending382、taskErrors0亦不能替代分库切换。logcat原始185行CP3_DB_BUSY_DEADLINE完整保留。
+Native9/9使用独立Sandbox，不涵盖真实MainActivity完整App的旧R26基线覆盖升级。不得把Native PASS套用本次失败路径，不得将失败抹成“仅待验”或仅修QA即可签收。
+详细机器失败记录auto-legacy-smoke-1d.failed.json；原始证据在/workspace/work/r29/cp07-auto-legacy-smoke-1d/。
+CP06各自同签名debug/release×R13/R27四matrix现全部FAIL；旧R26自动smoke与四matrix分开记录。B01保持NOT_ACCEPTED，已产出APK不代表工程验收完成。
+
+
+四组真实CP06升级矩阵全部失败；CP07产包但B01未签收
+
+权威当前失败回执：CP07.delivery.failed.json。原pending文件已转为失败状态并指向当前文件，不能继续当“安装待验”使用。
+包source1d2f1565e308659b6e0989f03400213c60dfac1b；QA source1241859217fbeb8337ca0707d23d13088a0ddaf3。debug run41114682506，release run41114699666。
+
+四组真实结果
+r27-debug artifact13005671933 SHA470f98fbc9851fad42a101c2324ff44dab23034cb9572f40f9f23e3f7dd7b23a：FAIL。
+r13-debug artifact13004738321 SHA51cf9e061f2c5aca40cd8c226eb6a8a8092db9897a02043188863f02d0fe3b63：FAIL。
+r27-release artifact13006320638 SHA41fa5183f5042ee133ebafed21b7b7323d8df9dfeae2967c17b19d08b9e69eee：FAIL。
+r13-release artifact13006161244 SHA6e287163b45ef164573fca03480fff9aa3afe8dac6a472c5ec15e09bb7d8a5ab：FAIL。
+原始解包：/workspace/work/r29/cp07-device-1d/{r27-debug,r13-debug,r27-release,r13-release}/。
+
+精确通过与失败边界
+四组baseline CP06 versionCode577291006→CP07 versionCode577291007，包名保持com.starcore.research.r13。adb baseline install、upgrade install均Success，retained marker保留，startup-upgrade/startup.json四组passed=true、crash={}；仅这些具体步骤通过。
+四组随后读取真实RP文件/data/user/0/com.starcore.research.r13/databases/starcore-r29-research.db均报No such file，作业失败。尚未执行upgrade-protocol/完整升级前后行hash比较；尚未进入clean install及clean启动/协议。不得把adb安装成功或启动checker通过写成完整安装验收PASS，也不能把未执行的clean/protocol填成通过。
+Native独立Sandbox9/9及HOST通过不能覆盖真实MainActivity完整App升级路径，不能压过四组实际失败。先前旧R26自动smoke NO_VERIFIED_BASELINE_TABLE失败也保留。
+
+产品问题与修复状态
+Root日志及源代码/agent核对表明：ResearchDatabaseR29.prepare先要求312+owned表的全部Root source tracker DDL成功，才register stage manifest；busy中断后从头重跑tracker DDL，stage仍为空，实际RP未发布。它是产品迁移路径的阻塞问题，不能认作QA-only；当前正在产品修复，尚无本回执所对应的已验证修复源或新APK。
+raw DB未上传来自脚本正常隐私清理trap，原始DB不会作为artifact保留；这不是可以免除失败或把结果变PASS的理由。
+
+当前交付状态
+CP07两套签名release/debug包已产出，身份校验事实保留；B01 NOT_ACCEPTED，最新已验收仍为CP06（sourcebb607cf5ab69f7286f859e43f87ada85a5bc456d），已验收批次仍只有B00。四组matrix状态全部FAIL，不再PENDING。
+必须修复产品迁移、重新构建绑定修复源的签名APK并重跑真实App矩阵。所有OS硬杀/ENOSPC、长期热/后台、旧黄金/无pin等待、44指标与自然质量等其他未测限制继续保留，不因修复中而变更。

@@ -1,21 +1,13 @@
-当前产品验证基准6d43680：最终9项Android与原harness全通过，schema30.805秒、首服务25.841秒、错误/容量0，写探针P99=64ms/最大17649ms保留。R13/R27签名CI各自164项新JUnit均零失败，但在负控文本检查时因runner缺rg失败，尚未产APK。5条检查已改等价POSIX grep，原模式/失败判据未变，实际无rg PATH下五组完整positive+旧源negative全部通过。产品Java、release、构建配置和生成身份与6d逐字节一致；只重试构建工具入口。B01仍未签收。
+R29.1 正在真实源码施工，B01 实际安装验收失败，尚未签收。最新已验收交付仍为 CP06；CP07 有真实签名包，但完整 App 分库安装路径未通过。
 
-R29.1 正在真实 Android 源码施工；B01 未签收，正式交付仍为 CP06。
+唯一依据：固定96fb4355748a2f28e31927e1f9cb8cb61fac6547中的STARCORE_R29_FINAL_20261029，11批、52卡、44指标。R26/R27是R29-004—008指定改造的既有类名。工程签收仅B00；先修复并验收B01，不新增B02源码施工。
 
-唯一施工依据：固定提交96fb4355748a2f28e31927e1f9cb8cb61fac6547中的 STARCORE_R29_FINAL_20261029，11批、52卡、44指标。R26/R27是R29-004—008指定改造的既有模块名，不表示另开旧方案。B00工程已签收；B01按顺序施工与验收；B02仅有此前准备和只读缺口核对，未签收，不新增其源码施工。
+CP07产品1d2f1565e308659b6e0989f03400213c60dfac1b，577291007 / R29.1-2026.10.30-checkpoint07；安装QA1241859217fbeb8337ca0707d23d13088a0ddaf3。两种既有证书的release包，已独立验证下载SHA、实际公共签名、版本和包内source；见delivery/CP07.json。产包不能代替安装验收。
 
-当前冻结源码7050248361207f1864132a827143b48521c7b03a，主体性能修复fa43bcc，编译身份86223e8；versionCode577291007，实际versionName为R29.1-2026.10.30-checkpoint07。逐卡调用链见BATCH01_IMPLEMENTATION.zh.txt与cards.json。
+CP06→CP07的debug/release×R13/R27四组实际API34测试全部FAIL：覆盖安装、保留标志和两次新进程启动检查通过，但实际starcore-r29-research.db不存在；未进入完整升级数据比较和干净安装。更早R26基线自动检查也FAIL：stage manifest为空，没有VERIFIED_BASELINE。全部原始失败保存在evidence/r29/batch01/failed/device-1d2f1565，未降低门槛。
 
-本轮完整保存包装脚本通过，耗时5分25秒；32份本轮新JUnit XML共164测试，失败/错误/跳过均0；8语义反证通过。36组HOST统一单轮全通过。lint新增0，原51基线错误、7未匹配与Gradle9弃用警告保留；analysis本轮执行，Gradle复用相同lint报告，未冒称报告时间戳全新。证据evidence/r29/batch01/validated-7050248。
+已定位产品阻塞：prepare在数百张表Root tracker全部安装成功后才登记stage；中途writer busy会从头反复DDL。真实App已312个水印而stage仍空，日志有大量CP3_DB_BUSY_DEADLINE。事件任务无限submit重试亦可占住single worker。修复可续准备、已安装DDL核验复用和事件让出中，下一候选版本递增checkpoint08；不停止旧能力、不放宽正式写队列/时间/数据门槛。
 
-产品源码7050248的9项真实Android运行41102534052已全部通过，冻结harness的原断言另逐项复核9/9通过。完整schema在原60000毫秒内READY，52688毫秒；24家族/16专家首服务52979毫秒；原120秒保留期、协调器替换恢复、旧owner拒绝、全部研究错误0、已提交capacity失败0均通过。1000次写P99=96毫秒/最大10101毫秒真实保留，这不是完整M07/PREDRAW SLO验收。证据evidence/r29/batch01/validated-7050248/android。
+工程子集通过：1d本轮CI36HOST、164JUnit（0失败/错误/跳过）、8语义反证、三CLI21/20/32组；lint本轮实际生成新增0、原51基线错误及7未匹配保留。Native源码6d43680的9项及原harness通过，1d的产品/release/generated与其字节相同，但独立Sandbox不能覆盖全App安装失败。Native schema30.805秒、首服务25.841秒、研究错误/容量失败0；1000写P99=64ms/最大17649ms真实保留，不宣称完整M07/PREDRAW SLO。
 
-签名CI首试41104292983在SDK-free校验选源阶段失败，尚无APK：误把两个Android适配类选入纯Java。该构建入口已修复，未改产品Java源，旧测试名单/调用参数/marker均保留；三套完整校验21/20/32组全部通过，候选193→191仅除去误选适配类；Android主/测试编译与8语义反证也通过。修复后BUILD_CONTRACT身份已绑定，候选Java/app.build.gradle与7050248逐字节一致。最终源码仍须配套Android和签名安装包实测，不凭入口修复签收。
-
-实际初始化查询110321降至75561，原逐项DDL/guard比较、真实COMPLETED回执和步序保留；每次fresh catalog读取，无新增READY缓存；删除/同名篡改/回滚反证通过。
-
-上一轮9578682实际9项为8通过/1失败，原始证据完整保留在evidence/r29/batch01/failed/android-9578682。完整runtime首次24家族/16专家、首服务53.111秒、1000写P99=82毫秒/最大123毫秒、原120秒保留期更新、协调器替换后的进度恢复、旧owner栅栏、全部研究错误0和已提交capacity失败0均通过；精确演化数据恢复与Root退休读取两新用例也通过。完整schema初始化原60秒超时，因此整批仍失败，未用8项通过替代签收。
-
-现有重要限制：无完整不可变旧输入pin的存量演化快照明确等待，不拿当前同hash数据替代；损坏快照保留失败，不静默新建。缺旧设备外部golden/private安装状态的部分不能冒称全复现。目标V2353A、前台60分钟、息屏6小时、连续72小时与真机热/存储/断网矩阵为NOT_RUN；自然未来质量INSUFFICIENT，R29_GATE_V2仅诊断，REAL_BLOCKED。
-
-待最终源码的Android、对应签名APK安装、同签名覆盖升级和两次启动验证完成后才工程签收B01。最新可安装正式交付仍为delivery/CP06.json，577291006，原R13/R27分别用既有固定证书；私钥未在本任务读取或上传。工程签收数不代表44项实测或自然质量通过。
+仍待验：Android各迁移阶段OS硬杀/WAL恢复、真实ENOSPC、OS热压/前后台、V2353A前台60分钟/息屏6小时/72小时。HOST14次kill实际异常注入主动rollback；SQLITE_FULL来自SQLite页上限；温控policy3/3与scheduler7/7通过，不等于真机。Native恢复仅同进程协调器重建。旧外部黄金/私有模型教师依赖缺件，无精确pin旧演化状态等待。自然质量INSUFFICIENT、未知值null、GateV2仅诊断、REAL_BLOCKED；44指标及1832行为未全部实测。

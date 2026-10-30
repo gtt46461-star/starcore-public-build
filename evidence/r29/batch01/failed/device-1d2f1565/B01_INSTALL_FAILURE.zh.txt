@@ -1,0 +1,26 @@
+四组真实CP06升级矩阵全部失败；CP07产包但B01未签收
+
+权威当前失败回执：CP07.delivery.failed.json。原pending文件已转为失败状态并指向当前文件，不能继续当“安装待验”使用。
+包source1d2f1565e308659b6e0989f03400213c60dfac1b；QA source1241859217fbeb8337ca0707d23d13088a0ddaf3。debug run41114682506，release run41114699666。
+
+四组真实结果
+r27-debug artifact13005671933 SHA470f98fbc9851fad42a101c2324ff44dab23034cb9572f40f9f23e3f7dd7b23a：FAIL。
+r13-debug artifact13004738321 SHA51cf9e061f2c5aca40cd8c226eb6a8a8092db9897a02043188863f02d0fe3b63：FAIL。
+r27-release artifact13006320638 SHA41fa5183f5042ee133ebafed21b7b7323d8df9dfeae2967c17b19d08b9e69eee：FAIL。
+r13-release artifact13006161244 SHA6e287163b45ef164573fca03480fff9aa3afe8dac6a472c5ec15e09bb7d8a5ab：FAIL。
+原始解包：/workspace/work/r29/cp07-device-1d/{r27-debug,r13-debug,r27-release,r13-release}/。
+
+精确通过与失败边界
+四组baseline CP06 versionCode577291006→CP07 versionCode577291007，包名保持com.starcore.research.r13。adb baseline install、upgrade install均Success，retained marker保留，startup-upgrade/startup.json四组passed=true、crash={}；仅这些具体步骤通过。
+四组随后读取真实RP文件/data/user/0/com.starcore.research.r13/databases/starcore-r29-research.db均报No such file，作业失败。尚未执行upgrade-protocol/完整升级前后行hash比较；尚未进入clean install及clean启动/协议。不得把adb安装成功或启动checker通过写成完整安装验收PASS，也不能把未执行的clean/protocol填成通过。
+Native独立Sandbox9/9及HOST通过不能覆盖真实MainActivity完整App升级路径，不能压过四组实际失败。先前旧R26自动smoke NO_VERIFIED_BASELINE_TABLE失败也保留。
+
+产品问题与修复状态
+Root日志及源代码/agent核对表明：ResearchDatabaseR29.prepare先要求312+owned表的全部Root source tracker DDL成功，才register stage manifest；busy中断后从头重跑tracker DDL，stage仍为空，实际RP未发布。它是产品迁移路径的阻塞问题，不能认作QA-only；当前正在产品修复，尚无本回执所对应的已验证修复源或新APK。
+raw DB未上传来自脚本正常隐私清理trap，原始DB不会作为artifact保留；这不是可以免除失败或把结果变PASS的理由。
+
+当前交付状态
+CP07两套签名release/debug包已产出，身份校验事实保留；B01 NOT_ACCEPTED，最新已验收仍为CP06（sourcebb607cf5ab69f7286f859e43f87ada85a5bc456d），已验收批次仍只有B00。四组matrix状态全部FAIL，不再PENDING。
+必须修复产品迁移、重新构建绑定修复源的签名APK并重跑真实App矩阵。所有OS硬杀/ENOSPC、长期热/后台、旧黄金/无pin等待、44指标与自然质量等其他未测限制继续保留，不因修复中而变更。
+
+四份原ZIP本地独立SHA复核全部匹配，大小分别：r27-debug327230B、r13-debug330677B、r27-release306073B、r13-release304307B。four-matrix-local-audit.json记录原始签名、版本、source、启动checker和未到达的后续步骤。CP06 exact source未保留在这些artifact的manifest里，source bb607cf5绑定来自原CP06交付记录/实际workflow的下载SHA约束，未冒称从artifact读到了baseline内嵌source。
