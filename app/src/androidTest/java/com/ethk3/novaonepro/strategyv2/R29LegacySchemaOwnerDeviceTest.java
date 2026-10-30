@@ -72,7 +72,9 @@ public final class R29LegacySchemaOwnerDeviceTest {
             owner.runAtomicWriteOrThrowF01("SYNTHETIC_R29_SCHEMA_OWNER_INITIALIZE",db->{LegacyCapabilityAdapterR29.initialize(db,"synthetic-schema-owner");return 0;});
             rp=ResearchRouteR29.openWorkerReader(sandbox);assertTrue(ResearchRouteR29.active(rootReader));
             long began=System.nanoTime(),deadline=began+60_000_000_000L;boolean ready=false,intermediateCommit=false;int steps=0,pendingSteps=0;
-            while(System.nanoTime()<deadline&&!ready){
+            List<Map<String,Object>> measuredSteps=new ArrayList<>();
+            try{while(System.nanoTime()<deadline&&!ready){
+                String beforeStep=ResearchSchemaCoordinatorR926.summary();long stepBegan=System.nanoTime();
                 try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
                     ResearchSchemaCoordinatorR926.StepResult step=ResearchSchemaCoordinatorR926.ensureOneStepResult(owner);ready=step.ready;
                     if(step.pending){
@@ -84,6 +86,12 @@ public final class R29LegacySchemaOwnerDeviceTest {
                     }
                 }
                 steps++;String state=ResearchSchemaCoordinatorR926.summary();assertFalse(state,state.startsWith("FAILED"));
+                Map<String,Object> timing=new LinkedHashMap<>();timing.put("before",beforeStep);timing.put("after",state);timing.put("elapsedMicros",(System.nanoTime()-stepBegan)/1000);measuredSteps.add(timing);
+            }}finally{
+                result.put("schemaDeadlineMs",60000);result.put("schemaElapsedBeforeFinalChecksMs",(System.nanoTime()-began)/1000000);
+                result.put("schemaStepsBeforeFinalChecks",steps);result.put("schemaPendingStepsBeforeFinalChecks",pendingSteps);result.put("schemaStateBeforeFinalChecks",ResearchSchemaCoordinatorR926.summary());result.put("schemaReachedReadyBeforeFinalChecks",ready);
+                measuredSteps.sort((a,b)->Long.compare(((Number)b.get("elapsedMicros")).longValue(),((Number)a.get("elapsedMicros")).longValue()));
+                result.put("slowestSchemaSteps",new ArrayList<>(measuredSteps.subList(0,Math.min(24,measuredSteps.size()))));
             }
             assertTrue("complete research installer failed within original 60s service target: "+ResearchSchemaCoordinatorR926.summary(),ready);
             assertTrue("actual intermediate DDL must produce a committed schema unit",intermediateCommit);
