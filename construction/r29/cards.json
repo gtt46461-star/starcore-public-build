@@ -35,7 +35,8 @@
       "BaselineIdentityR29 records f9bdddb/7d3e0e2/plan 96fb435, source commit, versionCode and the measured installed APK SHA-256 and signing certificate; RuntimeR27 health task stores it (r27_chart_cache r29/baseline-identity)."
     ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-002",
@@ -82,7 +83,8 @@
       "1832 requirements/299 file cards packaged as assets/r29/legacy_preservation.json (text SHA-256, status, owner, disposition, closure); LegacyContinuityR27.preservation verifies counts, unique ids, fields, card links and rejects completion claims without receipts; nothing is marked re-verified."
     ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-003",
@@ -134,7 +136,8 @@
       "ReportR29 probes M01/M02/M32 from snapshot records; missing records stay NOT_RUN with null values. ReportDataR27/ReportR27 add the full r27_live_shadow status census, all observer strategy-period rows and distinct target issues as the independent unit."
     ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-004",
@@ -180,7 +183,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-005",
@@ -214,8 +218,8 @@
     "depends": [
       "R29-004"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -223,12 +227,18 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "call_chain": "ResearchPoolR27 → ResearchWriteQueueR27.submit → DatabaseCoordinator atomic transaction → execute(before, all ops, after)",
+    "persistent_state": "original research tables; same transaction includes cursor, not yet an independent database",
+    "tests": [
+      "Q12/Q13/Q14"
+    ],
+    "actual_results": [
+      "1203 writes + before/after roll back and retry as one transaction; independent DB/outbox not implemented"
+    ],
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-006",
@@ -262,8 +272,8 @@
     "depends": [
       "R29-005"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -271,12 +281,18 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "call_chain": "RuntimeCoordinatorR26.resources → ThermalPolicyR29 → ResearchPoolR27.setThermalLimit/CAS reservation; EvolutionLoop serialWhile",
+    "persistent_state": "r26_task quarantine + r27_chart_cache health/summary",
+    "tests": [
+      "R29ThermalPolicyTest (3 tests)"
+    ],
+    "actual_results": [
+      "normal 2 workers, hot 1, severe continues bounded work; critical pause recorded, 30-second cooling hysteresis; no device thermal measurement"
+    ],
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-007",
@@ -323,7 +339,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-008",
@@ -365,7 +382,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-009",
@@ -407,7 +425,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-010",
@@ -470,7 +489,8 @@
       "tools/r29/run_qual_host.sh",
       "evidence/r29/host/r29_qual_host.log",
       "construction/r29/ledger/B02-QUAL-01.json"
-    ]
+    ],
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-011",
@@ -499,7 +519,7 @@
       "R29-010"
     ],
     "implementation_status": "PARTIAL",
-    "verification_status": "COMPILED_ONLY",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -507,15 +527,20 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
+    "call_chain": "RuntimeR27.LiveTask → LiveShadowsR27.freeze → Batch.before/after",
+    "persistent_state": "r27_live_frozen + r27_opportunity same transaction",
+    "tests": [
+      "Q13"
+    ],
     "actual_results": [
       "LiveShadowsR27.freeze: 5 s freeze margin (start and commit guard); later -> DEADLINE_MISSED kept in denominator",
-      "NOT DONE: shared 128+16 preparation and single freeze manifest; device timing NOT_RUN"
+      "NOT DONE: shared 128+16 preparation and single freeze manifest; device timing NOT_RUN",
+      "end-of-transaction deadline check rolls back every forecast; prepared 128+16 manifest not implemented"
     ],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-012",
@@ -557,7 +582,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-013",
@@ -605,7 +631,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-014",
@@ -651,7 +678,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-015",
@@ -697,7 +725,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-016",
@@ -744,7 +773,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-017",
@@ -776,8 +806,8 @@
     "depends": [
       "R29-016"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -785,12 +815,18 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "call_chain": "RuntimeR27.AtomNetTask → AtomWorldR27.atomNetStep/online/checkpoint → ModelArtifactR29",
+    "persistent_state": "r29_model_checkpoint; r27_atomnet_state; r29_atomnet_forecast",
+    "tests": [
+      "R29ModelArtifactTest (4 tests), Q15"
+    ],
+    "actual_results": [
+      "Adam/weights/RNG/replay/FTRL/cursors restore byte-identically and next five real learning updates match; uncommitted staging cannot change live model; hash/window changes no longer reset state; initial pretraining still not sliced; ten-position/I08 not implemented"
+    ],
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-018",
@@ -838,7 +874,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-019",
@@ -884,7 +921,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-020",
@@ -925,7 +963,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-021",
@@ -972,7 +1011,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-022",
@@ -1015,7 +1055,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-023",
@@ -1057,7 +1098,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-024",
@@ -1109,7 +1151,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-025",
@@ -1155,7 +1198,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-026",
@@ -1196,7 +1240,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-027",
@@ -1237,7 +1282,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-028",
@@ -1284,7 +1330,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-029",
@@ -1331,7 +1378,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-030",
@@ -1378,7 +1426,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-031",
@@ -1425,7 +1474,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-032",
@@ -1471,7 +1521,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-033",
@@ -1513,7 +1564,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-034",
@@ -1558,7 +1610,8 @@
       "NOT DONE: extending fit/validation/apply hash identity to non-ACTIVE confirmed objects"
     ],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-035",
@@ -1597,7 +1650,7 @@
       "R29-034"
     ],
     "implementation_status": "PARTIAL",
-    "verification_status": "HOST_PASS_SUBSET",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1606,23 +1659,27 @@
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "revision": "R29.1",
-    "call_chain": "RuntimeR27.LiveTask.step -> LiveShadowsR27.qualify -> QualificationInboxR29.consume -> plan/step (CAS before-callback: receipts + r27_eprocess + r29_qual_cursor) ; LiveShadowsR27.certify blocks on r29_qual_conflict",
-    "persistent_state": "r29_qual_receipt PK(experiment_id,target_ordinal), r29_qual_cursor, r29_qual_conflict, r29_qual_rebuild, r27_eprocess.last_ordinal = last contiguous ordinal",
+    "call_chain": "LiveShadowsR27.qualify → QualificationInboxR29.consume/plan/step; StoreR27.insertShadow registers calendar",
+    "persistent_state": "r29_qual_calendar/receipt/cursor/conflict/rebuild; r27_eprocess/certificate",
     "tests": [
       "QualInboxR29HostTest Q1,Q2(5 seeds, kill 25%, duplicate passes),Q3,Q4,Q6,Q7",
-      "mutation controls: pending ACT consumed as non-ACT -> Q2/Q3 FAIL; CAS removed -> receipt PK aborts duplicate"
+      "mutation controls: pending ACT consumed as non-ACT -> Q2/Q3 FAIL; CAS removed -> receipt PK aborts duplicate",
+      "Q1-Q11"
     ],
     "actual_results": [
       "HOST real SQLite: 1,3 then 2 == 1,2,3 state bit-exact; invariants receipts==n, contiguous after every pass; conflict isolated, certificate blocked",
-      "NOT DONE in this card: discovery-pool re-ranking/16-candidate confirmation lock (M29); device restart receipts NOT_RUN"
+      "NOT DONE in this card: discovery-pool re-ranking/16-candidate confirmation lock (M29); device restart receipts NOT_RUN",
+      "late/duplicate/out-of-order mechanics pass; absent whole periods stop cursor, old gapped states rebuilt with revocation; 16-slot confirmation queue not implemented"
     ],
-    "source_commit": null,
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
     "apk_checkpoint": null,
     "evidence": [
       "tools/r29/run_qual_host.sh",
       "evidence/r29/host/r29_qual_host.log",
       "construction/r29/ledger/B02-QUAL-01.json"
-    ]
+    ],
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-036",
@@ -1653,7 +1710,7 @@
       "R29-035"
     ],
     "implementation_status": "PARTIAL",
-    "verification_status": "HOST_PASS_SUBSET",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1662,22 +1719,26 @@
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "revision": "R29.1",
-    "call_chain": "RuntimeR27.LiveTask.step -> LiveShadowsR27.certify -> GateV2R29.evidence/evaluate/record (beside unchanged CertificateGateR27)",
-    "persistent_state": "r29_gate_v2 (report-only, ENABLED=false; r27_certificate unchanged)",
+    "call_chain": "LiveShadowsR27.certify → GateV2R29.evidence/evaluate/record",
+    "persistent_state": "r29_gate_v2 (REPORT_ONLY)",
     "tests": [
       "R29GateV2Test (6 JUnit)",
-      "QualInboxR29HostTest Q8"
+      "QualInboxR29HostTest Q8",
+      "R29GateV2Test (7 tests)"
     ],
     "actual_results": [
       "V2 support-domain calibration, 3x720 blocks/80 acts, FUTURE_ACT_RATE with missed periods in denominator, Q02 NOT_DEPLOYED, exact loss-streak tail; old gate untouched",
-      "NOT DONE: activation (needs power/negative-control verification R29-027 and device); old-certificate risk-rule versioning beyond report"
+      "NOT DONE: activation (needs power/negative-control verification R29-027 and device); old-certificate risk-rule versioning beyond report",
+      "invalid probabilities never become zero; fixed first 3 full registered blocks cannot be cherry-picked; V2 not activated pending complete controls/device evidence"
     ],
-    "source_commit": null,
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
     "apk_checkpoint": null,
     "evidence": [
       "evidence/r29/host/r29_gate_v2_junit.log",
       "evidence/r29/host/r29_qual_host.log"
-    ]
+    ],
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-037",
@@ -1726,7 +1787,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-038",
@@ -1778,7 +1840,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-039",
@@ -1811,8 +1874,8 @@
     "depends": [
       "R29-038"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1821,12 +1884,18 @@
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "revision": "R29.1",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "call_chain": "ReportDataR27 → ReportR29.chapter → modelCheckpoint + qualificationProbes",
+    "persistent_state": "reads committed checkpoint/qualification/health tables",
+    "tests": [
+      "R29BaselineTest, R29FindingsTest, Q7/Q15"
+    ],
+    "actual_results": [
+      "neural continuation status and unsupported I08 explicit; diagnostic evidence levels normalized; complete 12-chapter cross-database snapshot not implemented"
+    ],
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-040",
@@ -1875,7 +1944,8 @@
     "apk_checkpoint": null,
     "evidence": [
       "evidence/r29/host/r29_junit_local.log"
-    ]
+    ],
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-041",
@@ -1917,7 +1987,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-042",
@@ -1964,7 +2035,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-043",
@@ -2005,7 +2077,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-044",
@@ -2046,7 +2119,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-045",
@@ -2088,7 +2162,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-046",
@@ -2124,8 +2199,8 @@
     "depends": [
       "R29-045"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "HOST_SUBSET_VERIFIED_DEVICE_NOT_RUN",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -2133,12 +2208,18 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "call_chain": "production Java compiled by Gradle; real SQLite JDBC shim executes production transaction bodies",
+    "persistent_state": "same production SQL used in tests",
+    "tests": [
+      "tools/r29/run_qual_host.sh Q1-Q15"
+    ],
+    "actual_results": [
+      "19 printed checks (Q2 has five seeds), all pass; wider device/process/migration suite pending"
+    ],
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-047",
@@ -2187,7 +2268,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-048",
@@ -2231,7 +2313,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-049",
@@ -2277,7 +2360,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-050",
@@ -2304,8 +2388,8 @@
     "depends": [
       "R29-049"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "PARTIAL",
+    "verification_status": "CI_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -2313,12 +2397,18 @@
       "device_report_or_NOT_RUN"
     ],
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
-    "call_chain": null,
-    "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
-    "source_commit": null,
-    "apk_checkpoint": null
+    "call_chain": "official signing-cache CI → tools/r29/ci_build.sh → package_receipt.py → signed release; API34 emulator_smoke",
+    "persistent_state": "delivery.json; APK certificate/source/hash; upgrade marker and SQLite before/after comparison",
+    "tests": [
+      "bash -n; CI pending"
+    ],
+    "actual_results": [
+      "official R13 certificate pinned to 9e6d5d…; build/installation not assumed passed before actual receipts"
+    ],
+    "source_commit": "91932a283db7673314a471f78116170b0ca2747f",
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED",
+    "evidence_checkpoint": "evidence/r29/checkpoint04/"
   },
   {
     "id": "R29-051",
@@ -2359,7 +2449,8 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   },
   {
     "id": "R29-052",
@@ -2402,6 +2493,7 @@
     "tests": [],
     "actual_results": [],
     "source_commit": null,
-    "apk_checkpoint": null
+    "apk_checkpoint": null,
+    "acceptance_state": "NOT_ACCEPTED"
   }
 ]

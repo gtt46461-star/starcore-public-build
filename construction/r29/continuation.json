@@ -1,0 +1,24 @@
+{
+  "schema": "R29_CONTINUATION_1",
+  "applicationBranch": "construction/r29-20261029",
+  "localBranch": "construction/r29-20261030",
+  "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
+  "baselineRechecked": "df09ef57a9d03e39ab8ce0756ad48b56acebf7b9",
+  "latestAppCodeCommit": "91932a283db7673314a471f78116170b0ca2747f",
+  "versionCode": 577291004,
+  "status": "IMPLEMENTATION_IN_PROGRESS_NOT_ENGINEERING_READY",
+  "wholeBatchesAccepted": 0,
+  "wholeCardsAccepted": 0,
+  "device": "NOT_RUN_IN_THIS_CLOUD_ENVIRONMENT_NO_KVM_OR_TARGET_PHONE",
+  "quality": "INSUFFICIENT_NO_NEW_NATURAL_SAMPLE",
+  "real": "BLOCKED_NO_VERIFIED_CERTIFICATE",
+  "nextCard": "R29-004",
+  "nextActions": [
+    "Inspect official CP04 build and emulator receipts; repair any failures before accepting delivery.",
+    "Implement R29-004 independent research DB migration with table ownership/canonical hashes/interrupt recovery; preserve old tables.",
+    "Complete R29-005 outbox/inbox and all read consumers before cutover; current atomic-batch fix does not provide DB isolation.",
+    "Continue B01→B10 in declared dependency order. R29-028/029 ten-position/model_surface remain unimplemented.",
+    "Collect physical-device and postregistration natural evidence separately; do not convert host synthetic checks into quality."
+  ],
+  "nextCommand": "source /workspace/starcore-environment/activate.sh && cd /workspace/starcore-public-build && python3 tools/r29/host_checks.py --out /workspace/work/r29/host-recheck.json"
+}
