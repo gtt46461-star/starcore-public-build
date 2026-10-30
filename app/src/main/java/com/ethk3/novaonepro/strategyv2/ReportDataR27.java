@@ -36,6 +36,11 @@ public final class ReportDataR27 {
             }
         }
         in.observersTracking = ChartCacheR27.count(db, "SELECT count(*) FROM r27_live_shadow WHERE status='" + RuntimeR27.OBSERVE + "'");
+        // R29-003: complete census and independent units (not just the 60 displayed observers).
+        try (Cursor c = db.rawQuery("SELECT status,count(*) FROM r27_live_shadow GROUP BY status ORDER BY status", null)) { while (c.moveToNext()) in.shadowStatusCensus.put(c.getString(0), c.getLong(1)); }
+        try (Cursor c = db.rawQuery("SELECT count(DISTINCT f.policy_hash),count(*),coalesce(sum(f.hit=1),0),count(DISTINCT f.target_issue),coalesce(sum(f.act=1),0),coalesce(sum(f.act=1 AND f.hit=1),0),count(DISTINCT CASE WHEN f.act=1 THEN f.target_issue END) FROM r27_live_frozen f JOIN r27_live_shadow s ON s.policy_hash=f.policy_hash WHERE f.status='FROZEN' AND f.hit>=0 AND s.status LIKE 'OBSERVE%'", null)) {
+            if (c.moveToFirst()) { in.observerStrategiesTotal = c.getLong(0); in.observerRowsTotal = c.getLong(1); in.observerHitsTotal = c.getLong(2); in.observerDistinctIssues = c.getLong(3); in.observerActRowsTotal = c.getLong(4); in.observerActHitsTotal = c.getLong(5); in.observerActDistinctIssues = c.getLong(6); }
+        }
         try (Cursor c = db.rawQuery("SELECT s.policy_hash,s.base_policy,s.status,s.spec_json,count(*),sum(f.hit=1),sum(f.act=1),sum(f.act=1 AND f.hit=1),min(f.target_issue),max(f.target_issue) FROM r27_live_shadow s JOIN r27_live_frozen f ON f.policy_hash=s.policy_hash AND f.status='FROZEN' AND f.hit>=0 WHERE s.status LIKE 'OBSERVE%' GROUP BY s.policy_hash ORDER BY count(*) DESC LIMIT 60", null)) {
             while (c.moveToNext()) {
                 Map<String, Object> o = new LinkedHashMap<>(); long n = c.getLong(4), k = c.getLong(5), a = c.getLong(6), ak = c.getLong(7);

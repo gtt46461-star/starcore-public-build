@@ -277,6 +277,9 @@ public final class RuntimeR27 implements AutoCloseable {
                 }
                 Map<String, Object> runtime = new LinkedHashMap<>(); runtime.put("sourceCommit", BuildConfig.SOURCE_COMMIT_R26); runtime.put("versionCode", (long) BuildConfig.VERSION_CODE); runtime.put("versionName", BuildConfig.VERSION_NAME);
                 b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('asset','runtime-identity',?,?)", JsonR27.write(runtime), last);
+                // R29-001/002: measured baseline identity and the preserved requirement ledger (read by ReportR29).
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','baseline-identity',?,?)", JsonR27.write(BaselineIdentityR29.describe(store.contextForR26())), last);
+                b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','legacy-preservation',?,?)", JsonR27.write(LegacyContinuityR27.preservation(store.contextForR26())), last);
                 assetsCached = true;
             }
             // R27-048: fetch write-rejection causes since process start (absolute counts per process; delta-added).

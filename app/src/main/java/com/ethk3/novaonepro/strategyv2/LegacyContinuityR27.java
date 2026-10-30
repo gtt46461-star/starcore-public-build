@@ -3,7 +3,12 @@ package com.ethk3.novaonepro.strategyv2;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.ethk3.novaonepro.*;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** R27-011/012 semantic continuity of the R26 legacy runtime across builds (docs/08). The fingerprint is the
  * trajectory of the legacy kernels' complete encoded state (hash every 64 rows) when a fresh runtime with the same
@@ -62,5 +67,60 @@ public final class LegacyContinuityR27 {
         while (!writes.submit("LEGACY_ABI_CONTINUITY", b, () -> false)) Thread.sleep(50);
         RuntimeCoordinatorR26.wake();
         return 1;
+    }
+
+    // ------------------------------------------------------------------ R29-002 requirement / file-card preservation
+    public static final String PRESERVATION_ASSET = "r29/legacy_preservation.json";
+    public static final int EXPECTED_REQUIREMENTS = 1832, EXPECTED_FILE_CARDS = 299;
+    /** Closure values that would claim completion; none may appear without a regression receipt. */
+    static final Set<String> COMPLETION_CLAIMS = new HashSet<>(java.util.Arrays.asList("VERIFIED", "DEVICE_VERIFIED", "FUTURE_QUALIFIED", "DONE", "PASS"));
+
+    /** Verifies the preserved ledger: exact counts, unique ids, a status/owner/evidence path for every requirement,
+     * every file card's requirement ids resolvable, and no completion claim without a receipt. Pure (host-testable).
+     * {@code receipts} maps requirement id to a regression receipt reference; R29 carries none yet, so every
+     * requirement stays NOT_VERIFIED and is counted, never dropped. */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> preservation(String assetJson, Map<String, String> receipts) {
+        Map<String, Object> out = new LinkedHashMap<>(); Map<String, Object> root = (Map<String, Object>) JsonR27.parse(assetJson);
+        List<Object> reqs = (List<Object>) root.get("requirements"), cards = (List<Object>) root.get("fileCards");
+        Set<String> ids = new HashSet<>(); long duplicates = 0, missingFields = 0, unfoundedClaims = 0, receipted = 0;
+        Map<String, Long> byStatus = new LinkedHashMap<>(), byClosure = new LinkedHashMap<>();
+        for (Object o : reqs) {
+            Map<String, Object> r = (Map<String, Object>) o; String id = (String) r.get("id");
+            if (id == null || !ids.add(id)) duplicates++;
+            String status = (String) r.get("originalStatus"), owner = (String) r.get("owner"), target = (String) r.get("target"), text = (String) r.get("textSha256"), closure = (String) r.get("closure");
+            if (empty(status) || empty(owner) || empty(target) || text == null || text.length() != 64 || empty(closure)) missingFields++;
+            boolean receipt = receipts != null && id != null && receipts.containsKey(id); if (receipt) receipted++;
+            if (closure != null && COMPLETION_CLAIMS.contains(closure) && !receipt) unfoundedClaims++;
+            byStatus.merge(String.valueOf(status), 1L, Long::sum); byClosure.merge(String.valueOf(closure), 1L, Long::sum);
+        }
+        Set<String> cardIds = new HashSet<>(); long cardDuplicates = 0, unresolvedLinks = 0, links = 0;
+        for (Object o : cards) {
+            Map<String, Object> c = (Map<String, Object>) o; if (!cardIds.add(String.valueOf(c.get("id")))) cardDuplicates++;
+            for (Object rid : (List<Object>) c.get("requirements")) { links++; if (!ids.contains(rid)) unresolvedLinks++; }
+        }
+        boolean complete = reqs.size() == EXPECTED_REQUIREMENTS && cards.size() == EXPECTED_FILE_CARDS && duplicates == 0 && cardDuplicates == 0 && missingFields == 0;
+        out.put("schema", root.get("schema")); out.put("requirementsRegistrySha256", root.get("requirementsRegistrySha256")); out.put("cardsRegistrySha256", root.get("cardsRegistrySha256"));
+        out.put("requirements", (long) reqs.size()); out.put("expectedRequirements", (long) EXPECTED_REQUIREMENTS); out.put("uniqueRequirementIds", (long) ids.size());
+        out.put("fileCards", (long) cards.size()); out.put("expectedFileCards", (long) EXPECTED_FILE_CARDS); out.put("duplicateIds", duplicates + cardDuplicates);
+        out.put("missingStatusOwnerOrEvidencePath", missingFields); out.put("cardRequirementLinks", links); out.put("unresolvedCardLinks", unresolvedLinks);
+        out.put("completionClaimsWithoutReceipt", unfoundedClaims); out.put("regressionReceipts", receipted); out.put("notYetReverified", (long) reqs.size() - receipted);
+        out.put("byOriginalStatus", byStatus); out.put("byClosure", byClosure);
+        out.put("ledgerComplete", complete);
+        // Recording coverage can be complete; re-verification cannot be inferred from records (docs/00 §2).
+        out.put("status", !complete || unfoundedClaims > 0 ? "FAIL" : "RECORDED_NOT_REVERIFIED");
+        return out;
+    }
+    static boolean empty(String s) { return s == null || s.isEmpty(); }
+
+    /** Android: verify the packaged ledger. Errors are reported, never swallowed into a pass. */
+    public static Map<String, Object> preservation(android.content.Context context) {
+        try (InputStream in = context.getAssets().open(PRESERVATION_ASSET)) {
+            java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream(); byte[] chunk = new byte[65536]; int k; while ((k = in.read(chunk)) > 0) buf.write(chunk, 0, k);
+            byte[] bytes = buf.toByteArray(); Map<String, Object> m = preservation(new String(bytes, "UTF-8"), new LinkedHashMap<String, String>());
+            m.put("assetSha256", StatsR27.sha256(bytes)); return m;
+        } catch (Exception e) {
+            Map<String, Object> m = new LinkedHashMap<>(); m.put("status", "FAIL"); m.put("reason", "asset " + PRESERVATION_ASSET + " unreadable: " + e.getClass().getSimpleName()); return m;
+        }
     }
 }

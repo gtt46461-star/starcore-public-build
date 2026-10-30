@@ -16,8 +16,8 @@
       "M01"
     ],
     "depends": [],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "IMPLEMENTED",
+    "verification_status": "HOST_VERIFIED_LOCAL_PENDING_CI",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -27,8 +27,13 @@
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "call_chain": null,
     "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "tests": [
+      "R29BaselineTest.identityAndPreservationProbes",
+      "tools/r29/host_checks.py B00_CHANGE_LEDGER"
+    ],
+    "actual_results": [
+      "BaselineIdentityR29 records f9bdddb/7d3e0e2/plan 96fb435, source commit, versionCode and the measured installed APK SHA-256 and signing certificate; RuntimeR27 health task stores it (r27_chart_cache r29/baseline-identity)."
+    ],
     "source_commit": null,
     "apk_checkpoint": null
   },
@@ -57,8 +62,8 @@
     "depends": [
       "R29-001"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "IMPLEMENTED",
+    "verification_status": "HOST_VERIFIED_LOCAL_PENDING_CI",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -68,8 +73,14 @@
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "call_chain": null,
     "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "tests": [
+      "R29BaselineTest.packagedLedgerKeepsEveryRequirementAndCard",
+      "R29BaselineTest.droppedDuplicatedOrClaimedRequirementsFail",
+      "tools/r29/host_checks.py B00_LEGACY_ASSET"
+    ],
+    "actual_results": [
+      "1832 requirements/299 file cards packaged as assets/r29/legacy_preservation.json (text SHA-256, status, owner, disposition, closure); LegacyContinuityR27.preservation verifies counts, unique ids, fields, card links and rejects completion claims without receipts; nothing is marked re-verified."
+    ],
     "source_commit": null,
     "apk_checkpoint": null
   },
@@ -103,8 +114,8 @@
     "depends": [
       "R29-002"
     ],
-    "implementation_status": "NOT_STARTED",
-    "verification_status": "NOT_RUN",
+    "implementation_status": "IMPLEMENTED",
+    "verification_status": "HOST_VERIFIED_LOCAL_PENDING_CI",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -114,8 +125,14 @@
     "rollback": "本卡新增路由/模型以版本开关撤回；保留旧数据和不可变证据；不得清数据回滚",
     "call_chain": null,
     "persistent_state": null,
-    "tests": [],
-    "actual_results": [],
+    "tests": [
+      "R29BaselineTest.missingReceiptsNeverBecomePassOrNumbers",
+      "R29BaselineTest.crossStrategyRepeatedIssuesAreNotIndependentSamples",
+      "tools/r29/host_checks.py B00_REGISTRIES"
+    ],
+    "actual_results": [
+      "ReportR29 probes M01/M02/M32 from snapshot records; missing records stay NOT_RUN with null values. ReportDataR27/ReportR27 add the full r27_live_shadow status census, all observer strategy-period rows and distinct target issues as the independent unit."
+    ],
     "source_commit": null,
     "apk_checkpoint": null
   },

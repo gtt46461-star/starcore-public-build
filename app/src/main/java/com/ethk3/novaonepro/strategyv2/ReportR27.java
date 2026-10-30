@@ -32,6 +32,11 @@ public final class ReportR27 {
         public List<Map<String, Object>> abi = new ArrayList<>(); public long pendingAbiChecks, r26ArchivedBySourceAbi, legacyBlocked;
         /** R27.4 observers: per-period FUTURE record of the best evolved candidates (no e-process, never qualifies). */
         public final List<Map<String, Object>> observers = new ArrayList<>(); public long observersTracking;
+        /** R29-003 complete denominators: every r27_live_shadow status, all observer strategy-period rows (not only the
+         * displayed ones) and the distinct target issues behind them — one issue is one independent draw however many
+         * strategies froze it. -1 = not measured. */
+        public final Map<String, Long> shadowStatusCensus = new LinkedHashMap<>();
+        public long observerStrategiesTotal = -1, observerRowsTotal = -1, observerHitsTotal = -1, observerDistinctIssues = -1, observerActRowsTotal = -1, observerActHitsTotal = -1, observerActDistinctIssues = -1;
     }
 
     static Object f(double d) { return Double.isFinite(d) ? (Object) d : null; }
@@ -77,6 +82,7 @@ public final class ReportR27 {
         for (Map<String, Object> o : in.observers) { obsPeriods += ((Number) o.get("periods")).longValue(); obsHits += ((Number) o.get("hits")).longValue(); }
         obs.put("tracking", in.observersTracking); obs.put("withSettlement", (long) in.observers.size()); obs.put("settledPeriodsTotal", obsPeriods);
         obs.put("pooledHitRate", obsPeriods == 0 ? null : (Object) (obsHits / (double) obsPeriods)); obs.put("rows", new ArrayList<Object>(in.observers));
+        obs.put("denominators", denominators(in));
         obs.put("note", "观察池=每代 H_SELECT 最好的候选，每期赛前冻结、开奖后结算；不建 e 过程、不占 α、不授证、不进主链。只用于看清每个算法的真实逐期成绩。");
         ch.put("observers", obs);
         ch.put("conclusionTemplate", template); ch.put("conclusion", text);
@@ -84,6 +90,23 @@ public final class ReportR27 {
         ch.put("summary", summary(maxN, best, qualified, k));
         return ch;
     }
+    /** R29-003: the displayed rows are a capped excerpt; the full population and its independent unit are reported
+     * separately so a strategy-period count is never read as that many independent draws (docs/01 §1). */
+    static Map<String, Object> denominators(Input in) {
+        Map<String, Object> m = new LinkedHashMap<>(); long displayedRows = 0;
+        for (Map<String, Object> o : in.observers) displayedRows += ((Number) o.get("periods")).longValue();
+        m.put("shadowStatusCensus", new LinkedHashMap<String, Object>(in.shadowStatusCensus));
+        m.put("displayedStrategies", (long) in.observers.size()); m.put("displayedStrategyPeriodRows", displayedRows);
+        m.put("observerStrategiesTotal", known(in.observerStrategiesTotal)); m.put("strategyPeriodRowsTotal", known(in.observerRowsTotal));
+        m.put("strategyPeriodHitRate", in.observerRowsTotal <= 0 ? null : (Object) (in.observerHitsTotal / (double) in.observerRowsTotal));
+        m.put("independentIssues", known(in.observerDistinctIssues));
+        m.put("actRowsTotal", known(in.observerActRowsTotal)); m.put("actHitRate", in.observerActRowsTotal <= 0 ? null : (Object) (in.observerActHitsTotal / (double) in.observerActRowsTotal));
+        m.put("actIndependentIssues", known(in.observerActDistinctIssues));
+        m.put("effectiveSampleUnit", "DISTINCT_TARGET_ISSUE");
+        m.put("note", "同一期被多个策略冻结只算一个独立开奖；策略×期行数不是独立样本数，不能用于显著性。展示行只是截取，完整分母见本节。");
+        return m;
+    }
+    static Object known(long v) { return v < 0 ? null : (Object) v; }
     static Map<String, Object> summary(long maxN, double best, int qualified, int k) { Map<String, Object> m = new LinkedHashMap<>(); m.put("maxFuturePeriods", maxN); m.put("bestFutureHr", f(best)); m.put("qualified", (long) qualified); m.put("shadows", (long) k); return m; }
     static Map<String, Object> compare(Map<String, Object> prev, long maxN, double best, int qualified) {
         Map<String, Object> m = new LinkedHashMap<>();
