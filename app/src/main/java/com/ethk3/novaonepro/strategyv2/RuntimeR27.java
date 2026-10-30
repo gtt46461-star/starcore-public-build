@@ -196,7 +196,7 @@ public final class RuntimeR27 implements AutoCloseable {
             FeatureCacheR27 cache;final FeatureCacheR27 rebind;ReplayDatasetR27 data;final EvolutionLoopR27 prior;
             final EvolutionCheckpoint saved;final EvolutionDatasetPinR29.Stored pinned;final int nextGeneration;final Map<String,Double> weights;final List<PolicyAstR27.Node> leaves;
             final ReplayDatasetR27 recoveryFutureData;final FeatureCacheR27 recoveryFutureCache;
-            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot,snapshotHash;EvolutionDatasetPinR29.Prepared pin;int stepBefore,genBefore;boolean batchPrepared,failed;
+            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot,snapshotHash;EvolutionDatasetPinR29.Prepared pin;int stepBefore,genBefore;boolean batchPrepared,failed,recoveryRebound;
             CooperativeContinuationR26<Turn> work;
             Turn(ResearchPoolR27.Worker w){
                 prior=evo;cache=evoCache;rebind=prior!=null&&prior.step==1?pendingCache:null;data=rebind==null?evoData:pendingData;
@@ -204,7 +204,8 @@ public final class RuntimeR27 implements AutoCloseable {
                 if(prior==null){old=captureEvolutionCheckpoint(w.ro);
                     if(old!=null){stored=EvolutionDatasetPinR29.read(w.ro,old.datasetHash);if(stored==null)throw new MissingEvolutionDataset(old.datasetHash);}
                     else try(Cursor c=w.ro.rawQuery("SELECT max(generation)+1 FROM r27_generation WHERE loop=?",new String[]{LOOP})){if(c.moveToFirst()&&!c.isNull(0))next=c.getInt(0);}}
-                saved=old;pinned=stored;recoveryFutureData=old!=null&&!old.datasetHash.equals(data.datasetHash)?data:null;recoveryFutureCache=recoveryFutureData==null?null:cache;
+                ReplayDatasetR27 newest=pendingData==null?data:pendingData;FeatureCacheR27 newestCache=pendingCache==null?cache:pendingCache;
+                saved=old;pinned=stored;recoveryFutureData=old!=null&&!old.datasetHash.equals(newest.datasetHash)?newest:null;recoveryFutureCache=recoveryFutureData==null?null:newestCache;
                 nextGeneration=next;weights=leafWeights();leaves=new ArrayList<>(derived);
             }
             Turn compute(){
@@ -212,6 +213,9 @@ public final class RuntimeR27 implements AutoCloseable {
                 if(loop==null){EvolutionLoopR27.Config cfg=new EvolutionLoopR27.Config();cfg.seed=System.currentTimeMillis();
                     if(saved!=null){if(pinned!=null){data=EvolutionDatasetPinR29.decode(pinned);cache=new FeatureCacheR27(data);}loop=restoreExact(saved,cfg,cache,System::currentTimeMillis);}
                     if(loop==null){loop=new EvolutionLoopR27(cfg,cache,null,System::currentTimeMillis);loop.generation=nextGeneration;}}
+                // Restore the exact old state first. Only its genuine generation boundary may
+                // consume a newer prepared dataset; a mid-generation cursor stays on its pin.
+                if(saved!=null&&loop.step==1&&recoveryFutureData!=null){loop.rebind(recoveryFutureCache);data=recoveryFutureData;cache=recoveryFutureCache;recoveryRebound=true;}
                 if(rebind!=null)loop.rebind(rebind);
                 // A turn owns one cooperative CPU context. Helper futures would escape that quantum.
                 loop.executor=null;loop.serialWhile=()->true;loop.leafWeight=weights;loop.derivedLeaves=leaves;
@@ -261,7 +265,8 @@ public final class RuntimeR27 implements AutoCloseable {
             if(!w.writes().submit("EVOLUTION_STEP_"+EvolutionLoopR27.STEPS[pending.stepBefore],batch,()->stopping||w.cancelled()))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVOLUTION_TURN",0,-1);
             evoData=pending.data;evoCache=pending.rebind==null?pending.cache:pending.rebind;
             if(pending.rebind!=null&&pendingCache==pending.rebind){pendingCache=null;pendingData=null;}
-            if(pending.recoveryFutureData!=null&&(pendingData==null||pendingData.ordinals[pendingData.size()-1]<pending.recoveryFutureData.ordinals[pending.recoveryFutureData.size()-1])){pendingData=pending.recoveryFutureData;pendingCache=pending.recoveryFutureCache;}
+            if(pending.recoveryRebound&&pendingCache==pending.recoveryFutureCache){pendingData=null;pendingCache=null;}
+            if(!pending.recoveryRebound&&pending.recoveryFutureData!=null&&(pendingData==null||pendingData.ordinals[pendingData.size()-1]<pending.recoveryFutureData.ordinals[pending.recoveryFutureData.size()-1])){pendingData=pending.recoveryFutureData;pendingCache=pending.recoveryFutureCache;}
             committedControls=new Object[][]{{"CONTROL_I00",loop.i00Champion,loop.i00Tau},{"CONTROL_NULL",loop.nullEvolution.champion,loop.nullEvolution.championTau}};
             evo=loop;synchronized(this){turn=null;}evolutionAccess.publish();
             if(pending.stepBefore==9&&!refreshObservers(w,loop))deferredObservers=loop;
