@@ -1,0 +1,965 @@
+--------- beginning of main
+10-30 11:57:20.433  2354  2354 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 11:57:20.435  2354  2354 I AndroidRuntime: Using default boot image
+10-30 11:57:20.435  2354  2354 I AndroidRuntime: Leaving lock profiling enabled
+10-30 11:57:20.436  2354  2354 I app_process: Core platform API reporting enabled, enforcing=false
+10-30 11:57:20.436  2354  2354 I app_process: Using CollectorTypeCC GC.
+10-30 11:57:20.469  2354  2354 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+10-30 11:57:20.474  2354  2354 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+10-30 11:57:20.474  2354  2354 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+10-30 11:57:20.477  2354  2354 W app_process: Unexpected CPU variant for x86: x86_64.
+10-30 11:57:20.477  2354  2354 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 11:57:20.485  2354  2354 W libc    : Access denied finding property "ro.product.name_for_attestation"
+10-30 11:57:20.485  2354  2354 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+10-30 11:57:20.485  2354  2354 W libc    : Access denied finding property "ro.product.model_for_attestation"
+10-30 11:57:20.486  2354  2354 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+10-30 11:57:20.487  2354  2354 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+10-30 11:57:20.487   505  1829 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: start instr
+10-30 11:57:20.484  2354  2354 W main    : type=1400 audit(0.0:25): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 11:57:20.484  2354  2354 W main    : type=1400 audit(0.0:26): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 11:57:20.492   505  1829 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10141; state: DISABLED
+10-30 11:57:20.492   505   534 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10141; state: DISABLED
+10-30 11:57:20.484  2354  2354 W main    : type=1400 audit(0.0:27): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+10-30 11:57:20.496   505   578 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10141; state: ENABLED
+10-30 11:57:20.497   327   327 D Zygote  : Forked child process 2367
+10-30 11:57:20.497   505   534 I ActivityManager: Start proc 2367:com.starcore.research.r13/u0a141 for added application com.starcore.research.r13
+10-30 11:57:20.513  2367  2367 I re.research.r13: Late-enabling -Xcheck:jni
+10-30 11:57:20.521  2367  2367 I re.research.r13: Using CollectorTypeCC GC.
+10-30 11:57:20.522  2367  2367 W re.research.r13: Unexpected CPU variant for x86: x86_64.
+10-30 11:57:20.522  2367  2367 W re.research.r13: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-30 11:57:20.523   402   418 I adbd    : jdwp connection from 2367
+10-30 11:57:20.527   505  1829 D CompatibilityChangeReporter: Compat change id reported: 168419799; UID 10141; state: DISABLED
+10-30 11:57:20.527   505  1829 D CompatibilityChangeReporter: Compat change id reported: 273564678; UID 10141; state: DISABLED
+10-30 11:57:20.552  2367  2367 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10141; state: DISABLED
+10-30 11:57:20.553  2367  2367 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10141; state: DISABLED
+10-30 11:57:20.554   505  1829 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10141; state: DISABLED
+10-30 11:57:20.555  2367  2367 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.starcore.research.r13]: x86_64, null instrumentation[com.starcore.research.r13.test]: null, null
+10-30 11:57:20.556  2367  2367 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 11:57:20.556  2367  2367 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=1 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 11:57:20.557  2367  2367 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 11:57:20.557  2367  2367 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 11:57:20.557  2367  2367 W ziparchive: Unable to open '/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.dm': No such file or directory
+10-30 11:57:20.557  2367  2367 W ziparchive: Unable to open '/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.dm': No such file or directory
+10-30 11:57:20.581  2367  2367 W ziparchive: Unable to open '/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.dm': No such file or directory
+10-30 11:57:20.581  2367  2367 W ziparchive: Unable to open '/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.dm': No such file or directory
+10-30 11:57:20.662  2367  2367 D nativeloader: Configuring clns-6 for other apk /system/framework/android.test.runner.jar:/system/framework/android.test.mock.jar:/system/framework/android.test.base.jar:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk. target_sdk_version=28, uses_libraries=, library_path=/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/lib/x86_64:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/lib/x86_64:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!/lib/x86_64:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.starcore.research.r13
+10-30 11:57:20.667  2367  2367 V GraphicsEnvironment: Currently set values for:
+10-30 11:57:20.667  2367  2367 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+10-30 11:57:20.667  2367  2367 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+10-30 11:57:20.667  2367  2367 V GraphicsEnvironment: ANGLE GameManagerService for com.starcore.research.r13: false
+10-30 11:57:20.667  2367  2367 V GraphicsEnvironment: com.starcore.research.r13 is not listed in per-application setting
+10-30 11:57:20.667  2367  2367 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+10-30 11:57:20.669  2367  2367 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 11:57:20.669  2367  2367 D nativeloader: Configuring clns-7 for other apk /system/framework/android.test.mock.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/lib/x86_64:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 11:57:20.670  2367  2367 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+10-30 11:57:20.670  2367  2367 D nativeloader: Configuring clns-8 for other apk /system/framework/android.test.runner.jar. target_sdk_version=28, uses_libraries=ALL, library_path=/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/lib/x86_64:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/lib/x86_64, permitted_path=/data:/mnt/expand
+10-30 11:57:20.671  2367  2367 W re.research.r13: ClassLoaderContext shared library size mismatch. Expected=2, found=3 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk*1157052425:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes2.dex*2667455589:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes3.dex*2219962423:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes4.dex*3374714009:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes5.dex*3562016068:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk*712613643:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes2.dex*1653936004:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes3.dex*3256471145:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 11:57:20.672  2367  2367 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk*1157052425:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes2.dex*2667455589:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes3.dex*2219962423:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes4.dex*3374714009:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes5.dex*3562016068:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk*712613643:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes2.dex*1653936004:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes3.dex*3256471145:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 11:57:20.672  2367  2367 W re.research.r13: ClassLoaderContext classpath size mismatch. expected=0, found=2 (PCL[] | PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]#PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}};PCL[/system/framework/android.test.runner.jar*4168958247:/system/framework/android.test.mock.jar*3186112116:/system/framework/android.test.base.jar*836642756:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk*1157052425:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes2.dex*2667455589:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes3.dex*2219962423:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes4.dex*3374714009:/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.apk!classes5.dex*3562016068:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk*712613643:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes2.dex*1653936004:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes3.dex*3256471145:/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.apk!classes4.dex*2485098318]{PCL[/system/framework/android.test.base.jar*836642756]})
+10-30 11:57:20.672  2367  2367 W ziparchive: Unable to open '/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.dm': No such file or directory
+10-30 11:57:20.672  2367  2367 W ziparchive: Unable to open '/data/app/~~cUOksrd4icpAhtHmar3Ghg==/com.starcore.research.r13.test-2B8fTJvjVntcnHBGPbLU3A==/base.dm': No such file or directory
+10-30 11:57:20.696  2367  2367 W ziparchive: Unable to open '/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.dm': No such file or directory
+10-30 11:57:20.696  2367  2367 W ziparchive: Unable to open '/data/app/~~r2OWiiC6dzTFe5SM6eQHeg==/com.starcore.research.r13-2e0ChvNYprtelutzj3rEbg==/base.dm': No such file or directory
+10-30 11:57:20.780  2367  2367 I AndroidJUnitRunner: newApplication com.ethk3.novaonepro.StarcoreApplication
+10-30 11:57:20.790  2367  2367 I AndroidJUnitRunner: onCreate Bundle[{class=com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest}]
+10-30 11:57:20.790  2367  2367 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+10-30 11:57:20.795  2367  2367 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+10-30 11:57:20.795  2367  2389 D AndroidJUnitRunner: onStart is called.
+10-30 11:57:20.798   505  1829 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10141. pid: 2367
+10-30 11:57:20.800   505  1829 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10141; state: DISABLED
+10-30 11:57:20.808  2367  2389 I TestRunner: run started: 1 tests
+10-30 11:57:20.809  2367  2389 I TestRunner: started: allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest)
+10-30 11:57:21.567   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:22.784   505  1829 W OverlayManager: service 'idmap' died
+--------- beginning of kernel
+10-30 11:57:23.122     0     0 I init    : Sending signal 9 to service 'idmap2d' (pid 446) process group...
+10-30 11:57:23.128     0     0 I libprocessgroup: Successfully killed process cgroup uid 1000 pid 446 in 5ms
+10-30 11:57:23.130     0     0 I init    : Control message: Processed ctl.stop for 'idmap2d' from pid: 505 (system_server)
+10-30 11:57:23.131     0     0 I init    : Service 'idmap2d' (pid 446) received signal 9
+10-30 11:57:23.165   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:57:23.177  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.178  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.179  1003  1035 W System  : A resource failed to call AbstractCursor.close. 
+10-30 11:57:23.257   505   525 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-30 11:57:23.552   505   585 D ActivityManager: freezing 1842 com.android.externalstorage
+10-30 11:57:24.524   388   393 W GpuWork : Failed to attach bpf program to power/gpu_work_period tracepoint [2(No such file or directory)]
+10-30 11:57:24.569   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:24.716  1365  1384 W putmethod.latin: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 11:57:25.052   505  1687 D WifiNl80211Manager: Scan result ready event
+10-30 11:57:25.052   505  1687 D WifiNative: Scan result ready event
+10-30 11:57:25.129  1004  1015 W ndroid.settings: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 11:57:25.200   505   770 I SdkSandboxManager: Reconciling sdk data package directories for 0
+10-30 11:57:25.745  1063  1080 W droid.launcher3: Cleared Reference was only reachable from finalizer (only reported once)
+10-30 11:57:26.332   505   578 D OomAdjuster: Not killing cached processes
+10-30 11:57:27.175  1583  1599 D StrictMode: StrictMode policy violation: android.os.strictmode.SqliteObjectLeakedViolation: Finalizing a Cursor that has not been deactivated or closed. database = /data/user/0/com.android.providers.contacts/databases/contacts2.db, table = raw_contacts, query = SELECT contacts_view._id AS _id, contacts_view.display_name AS display_name, contacts_view.photo_thumb_uri AS photo_thumb_uri, data1 AS number, data2 AS type, data3 AS label, contacts_view.lookup AS lookup FROM raw_contacts JOIN view_contacts as contacts_view ON (contacts_view._id = raw_contacts.contact_id) JOIN (SELECT data_id,normalized_number FROM phone_lookup WHERE (phone_lookup.min_match = '7654321')) AS lookup ON lookup.data_id=data._id JOIN data ON data.raw_contact_id=raw_contacts._id WHERE (PHONE_NUMBERS_EQUAL(data.data1, '+15551234567', 0, 7)) ORDER BY  length(lookup.normalized_number) DESC
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at android.os.StrictMode.onSqliteObjectLeaked(StrictMode.java:2222)
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at android.database.sqlite.SQLiteCursor.finalize(SQLiteCursor.java:282)
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at java.lang.Daemons$Daemon.run(Daemons.java:145)
+10-30 11:57:27.175  1583  1599 D StrictMode: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:57:27.177  1583  1599 D StrictMode: StrictMode policy violation: android.os.strictmode.LeakedClosableViolation: A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks.
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.os.StrictMode$AndroidCloseGuardReporter.report(StrictMode.java:1994)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at dalvik.system.CloseGuard.warnIfOpen(CloseGuard.java:336)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.AbstractCursor.finalize(AbstractCursor.java:531)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.sqlite.SQLiteCursor.finalize(SQLiteCursor.java:291)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at java.lang.Daemons$Daemon.run(Daemons.java:145)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:57:27.177  1583  1599 D StrictMode: Caused by: java.lang.Throwable: Explicit termination method 'AbstractCursor.close' not called
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at dalvik.system.CloseGuard.openWithCallSite(CloseGuard.java:288)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at dalvik.system.CloseGuard.open(CloseGuard.java:257)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.AbstractCursor.<init>(AbstractCursor.java:227)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.AbstractWindowedCursor.<init>(AbstractWindowedCursor.java:39)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.sqlite.SQLiteCursor.<init>(SQLiteCursor.java:98)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:52)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.database.sqlite.SQLiteQueryBuilder.query(SQLiteQueryBuilder.java:592)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.doQuery(ContactsProvider2.java:7543)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLocal(ContactsProvider2.java:7249)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryCorpLookupIfNecessary(ContactsProvider2.java:7728)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLookupEnterprise(ContactsProvider2.java:7867)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryPhoneLookupEnterprise(ContactsProvider2.java:7838)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryLocal(ContactsProvider2.java:7172)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryDirectoryIfNecessary(ContactsProvider2.java:5883)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.queryInternal(ContactsProvider2.java:5728)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at com.android.providers.contacts.ContactsProvider2.query(ContactsProvider2.java:5673)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.content.ContentProvider.query(ContentProvider.java:1692)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.content.ContentProvider$Transport.query(ContentProvider.java:292)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.content.ContentProviderNative.onTransact(ContentProviderNative.java:107)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.os.Binder.execTransactInternal(Binder.java:1344)
+10-30 11:57:27.177  1583  1599 D StrictMode: 	at android.os.Binder.execTransact(Binder.java:1275)
+10-30 11:57:30.027  2367  2389 E SQLiteLog: (1) no such column: target_issue in "CREATE INDEX IF NOT EXISTS idx_v20_link_candidate_target_rank ON v20_link_candidate_snapshot(target_issue,candidate_rank)"
+10-30 11:57:30.027  2367  2389 E SQLiteLog: (1) no such column: target_issue in "CREATE UNIQUE INDEX IF NOT EXISTS idx_v20_link_candidate_unique ON v20_link_candidate_snapshot(target_issue,candidate_key)"
+10-30 11:57:30.447  2367  2389 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-3730b46c-6b9a-4e32-8885-148fa3c7232a/databases/binance_k3_nova_one_pro_v57.db-wal 3361952 bytes: Bigger than 1048576; truncating
+10-30 11:57:30.576   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:31.482  2367  2373 I re.research.r13: Compiler allocated 4390KB to compile void com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()
+10-30 11:57:32.067  2367  2373 I re.research.r13: Compiler allocated 4812KB to compile void com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()
+10-30 11:57:33.165   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:57:33.577   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:35.277   505   585 D ActivityManager: freezing 1428 com.android.documentsui
+10-30 11:57:35.800   505  1687 D OomAdjuster: Not killing cached processes
+10-30 11:57:36.581   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:37.616   505   585 D ActivityManager: freezing 1879 com.android.traceur
+10-30 11:57:37.660   505   585 D ActivityManager: freezing 1626 com.android.imsserviceentitlement
+10-30 11:57:37.666   505   585 D ActivityManager: freezing 1225 com.android.cellbroadcastreceiver.module
+10-30 11:57:37.709   505   585 D ActivityManager: freezing 1770 com.android.messaging
+10-30 11:57:37.743   505   585 D ActivityManager: freezing 1683 com.android.providers.calendar
+10-30 11:57:37.913   505   585 D ActivityManager: freezing 1904 com.android.calendar
+10-30 11:57:37.978   505   585 D ActivityManager: freezing 1927 com.android.camera2
+10-30 11:57:38.018   505   585 D ActivityManager: freezing 1956 com.android.contacts
+10-30 11:57:38.088   505   585 D ActivityManager: freezing 2052 com.android.localtransport
+10-30 11:57:38.088   505   585 D ActivityManager: freezing 2004 com.android.dynsystem:dynsystem
+10-30 11:57:38.088   505   585 D ActivityManager: freezing 1977 com.android.dynsystem
+10-30 11:57:38.088   505   585 D ActivityManager: freezing 1004 com.android.settings
+10-30 11:57:38.088   505   585 D ActivityManager: freezing 1677 com.android.keychain
+10-30 11:57:38.423   505   585 D ActivityManager: freezing 2053 com.android.rkpdapp
+10-30 11:57:38.580   505   585 D ActivityManager: freezing 2124 com.android.statementservice
+10-30 11:57:39.584   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:40.218  2367  2389 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-3730b46c-6b9a-4e32-8885-148fa3c7232a/databases/binance_k3_nova_one_pro_v57.db-wal 2134192 bytes: Bigger than 1048576; truncating
+10-30 11:57:41.242  2367  2403 D CompatibilityChangeReporter: Compat change id reported: 247079863; UID 10141; state: DISABLED
+10-30 11:57:42.585   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:43.165   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:57:44.738  2367  2403 E SQLiteLog: (1) no such table: r974_model_lineage in "SELECT child_id,parent_id,parent_role,created_issue FROM r974_model_lineage ORDER BY created_issue LIMIT 20000"
+10-30 11:57:44.738  2367  2403 E SQLiteLog: (1) no such table: v57_algorithm_genome_r908 in "SELECT genome_id,genome_spec,status FROM v57_algorithm_genome_r908 LIMIT 5000"
+10-30 11:57:44.738  2367  2403 E SQLiteLog: (1) no such table: atomic_tool_network_r943 in "SELECT count(*) FROM atomic_tool_network_r943"
+10-30 11:57:44.738  2367  2403 E SQLiteLog: (1) no such table: r967_numeric_training_run in "SELECT count(*) FROM r967_numeric_training_run"
+10-30 11:57:44.932  2367  2403 E SQLiteLog: (1) no such table: research_evolution_event_v41 in "SELECT count(*) FROM research_evolution_event_v41"
+10-30 11:57:44.932  2367  2403 E SQLiteLog: (1) no such table: r974_model_lineage in "SELECT count(*) FROM r974_model_lineage"
+10-30 11:57:44.932  2367  2403 E SQLiteLog: (1) no such table: r967_numeric_training_run in "SELECT count(*) FROM r967_numeric_training_run"
+10-30 11:57:44.932  2367  2403 E SQLiteLog: (1) no such table: atomic_tool_context_r943 in "SELECT count(*) FROM atomic_tool_context_r943"
+10-30 11:57:44.933  2367  2403 E SQLiteLog: (1) no such table: research_atom_context_r932 in "SELECT count(*) FROM research_atom_context_r932"
+10-30 11:57:45.056   505  2404 D WifiNl80211Manager: Scan result ready event
+10-30 11:57:45.057   505  2404 D WifiNative: Scan result ready event
+10-30 11:57:45.385   505   533 D ActivityManager: sync unfroze 1004 com.android.settings for 3
+10-30 11:57:45.388   505   533 D OomAdjuster: Not killing cached processes
+10-30 11:57:45.388  1004  1004 D BatteryUsageBroadcastReceiver: onReceive:android.intent.action.BATTERY_LEVEL_CHANGED
+10-30 11:57:45.389  1004  1004 D BatteryUsageBroadcastReceiver: fetch data because of event: ACTION_BATTERY_LEVEL_CHANGED
+10-30 11:57:45.390   505  1687 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 1000; state: ENABLED
+10-30 11:57:45.390  1004  1004 D BatteryUsageBroadcastReceiver: cancel sendBroadcastToFetchUsageData when broadcastDelay is 2339994ms.
+10-30 11:57:45.586   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:45.803   505   585 D ActivityManager: freezing 798 com.android.permissioncontroller
+10-30 11:57:46.005  2367  2403 E SQLiteLog: (5) statement aborts at 2: [PRAGMA journal_mode=TRUNCATE] database is locked
+10-30 11:57:46.005  2367  2403 W SQLiteConnection: Could not change the database journal mode of '/data/user/0/com.starcore.research.r13/cache/r26-synthetic-3730b46c-6b9a-4e32-8885-148fa3c7232a/databases/starcore-r29-research.db' from 'wal' to 'TRUNCATE' because the database is locked.  This usually means that there are other open connections to the database which prevents the database from enabling or disabling write-ahead logging mode.  Proceeding without changing the journal mode.
+10-30 11:57:46.017  2367  2401 W re.research.r13: JNI critical lock held for 19.306ms on Thread[2,tid=2401,Runnable,Thread*=0x7ecbd08f12e0,peer=0x13000098,"starcore-r26-continuous-research"]
+10-30 11:57:48.651   505   723 E WifiHealthMonitor:  Hit PackageManager exception
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: android.content.pm.PackageManager$NameNotFoundException: No module info for package: com.android.wifi
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.app.ApplicationPackageManager.getModuleInfo(ApplicationPackageManager.java:1190)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.WifiHealthMonitor.getWifiStackVersion(WifiHealthMonitor.java:367)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.WifiHealthMonitor.extractCurrentSoftwareBuildInfo(WifiHealthMonitor.java:588)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.WifiHealthMonitor.postBootSwBuildCheck(WifiHealthMonitor.java:523)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.WifiHealthMonitor.postBootDetectionHandler(WifiHealthMonitor.java:514)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.WifiHealthMonitor.-$$Nest$mpostBootDetectionHandler(WifiHealthMonitor.java:0)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.WifiHealthMonitor$2.onAlarm(WifiHealthMonitor.java:190)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.app.AlarmManager$ListenerWrapper.run(AlarmManager.java:375)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.os.Handler.handleCallback(Handler.java:958)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.os.Handler.dispatchMessage(Handler.java:99)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at com.android.server.wifi.RunnerHandler.dispatchMessage(RunnerHandler.java:122)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.os.Looper.loopOnce(Looper.java:205)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.os.Looper.loop(Looper.java:294)
+10-30 11:57:48.651   505   723 E WifiHealthMonitor: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+10-30 11:57:53.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:57:54.641     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-30 11:57:54.594   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:55.432   505   585 D ActivityManager: freezing 1004 com.android.settings
+10-30 11:57:57.601   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: r29-event-inbox
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R29_PROJECT_COMMITTED_RESEARCH
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:597)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:735)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.drain(RealtimeResearchProjectionR29.java:90)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$EventTask.step(RuntimeR27.java:68)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: Caused by: java.lang.IllegalStateException: R29_PROJECTION_REVISION_CONFLICT
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.apply(RealtimeResearchProjectionR29.java:62)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.lambda$drain$0(RealtimeResearchProjectionR29.java:90)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:756)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:593)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:591)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:671)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:591)
+10-30 11:57:59.626  2367  2403 W STARCORE_R27: 	... 8 more
+10-30 11:58:00.018   797   871 D EGL_emulation: app_time_stats: avg=16782.14ms min=21.07ms max=50176.70ms count=3
+10-30 11:58:02.292   505   781 D ActivityManager: sync unfroze 798 com.android.permissioncontroller for 6
+10-30 11:58:02.295   505   781 D OomAdjuster: Not killing cached processes
+10-30 11:58:02.297   798   821 I PermissionControllerServiceImpl: Updating user sensitive for user 0
+10-30 11:58:03.178   797   871 D EGL_emulation: app_time_stats: avg=3159.51ms min=3159.51ms max=3159.51ms count=1
+10-30 11:58:03.178   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: r29-event-inbox
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R29_PROJECT_COMMITTED_RESEARCH
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:597)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:735)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.drain(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$EventTask.step(RuntimeR27.java:68)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: Caused by: java.lang.IllegalStateException: R29_PROJECTION_REVISION_CONFLICT
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.apply(RealtimeResearchProjectionR29.java:62)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.lambda$drain$0(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:756)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:593)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:591)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:671)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:591)
+10-30 11:58:05.211  2367  2403 W STARCORE_R27: 	... 8 more
+10-30 11:58:05.510   505  2404 W BatteryExternalStatsWorker: error reading Bluetooth stats: 11
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: r29-event-inbox
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R29_PROJECT_COMMITTED_RESEARCH
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:597)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:735)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.drain(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$EventTask.step(RuntimeR27.java:68)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: Caused by: java.lang.IllegalStateException: R29_PROJECTION_REVISION_CONFLICT
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.apply(RealtimeResearchProjectionR29.java:62)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.lambda$drain$0(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:756)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:593)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:591)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:671)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:591)
+10-30 11:58:10.325  2367  2403 W STARCORE_R27: 	... 8 more
+10-30 11:58:12.324   505   781 D OomAdjuster: Not killing cached processes
+10-30 11:58:13.165   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:58:15.621   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: r29-event-inbox
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R29_PROJECT_COMMITTED_RESEARCH
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:597)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:735)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.drain(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$EventTask.step(RuntimeR27.java:68)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: Caused by: java.lang.IllegalStateException: R29_PROJECTION_REVISION_CONFLICT
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.apply(RealtimeResearchProjectionR29.java:62)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.lambda$drain$0(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:756)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:593)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:591)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:671)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:591)
+10-30 11:58:17.674  2367  2403 W STARCORE_R27: 	... 8 more
+10-30 11:58:18.625   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:58:21.627   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:58:22.368   505   585 D ActivityManager: freezing 798 com.android.permissioncontroller
+10-30 11:58:23.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: r29-event-inbox
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R29_PROJECT_COMMITTED_RESEARCH
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:597)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:735)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.drain(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$EventTask.step(RuntimeR27.java:68)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: Caused by: java.lang.IllegalStateException: R29_PROJECTION_REVISION_CONFLICT
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.apply(RealtimeResearchProjectionR29.java:62)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.lambda$drain$0(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:756)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:593)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:591)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:671)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:591)
+10-30 11:58:23.891  2367  2403 W STARCORE_R27: 	... 8 more
+10-30 11:58:24.442   326  2227 W resolv  : SSL_connect ssl error =5, mark 0xf0064: Connection refused
+10-30 11:58:24.442   326  2227 W resolv  : TLS Handshake failed
+10-30 11:58:24.442   326  2227 W resolv  : query failed
+10-30 11:58:24.442   326  2227 W resolv  : validateDnsTlsServer returned 0 for 10.0.2.3
+10-30 11:58:24.442   326  2227 W resolv  : Validation failed
+10-30 11:58:25.056   505  2404 D WifiNl80211Manager: Scan result ready event
+10-30 11:58:25.056   505  2404 D WifiNative: Scan result ready event
+10-30 11:58:27.634   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: r29-event-inbox
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: F01_WRITE_FAILED|operation=R29_PROJECT_COMMITTED_RESEARCH
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:597)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:735)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.drain(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$EventTask.step(RuntimeR27.java:68)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: Caused by: java.lang.IllegalStateException: R29_PROJECTION_REVISION_CONFLICT
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.apply(RealtimeResearchProjectionR29.java:62)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29.lambda$drain$0(RealtimeResearchProjectionR29.java:90)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RealtimeResearchProjectionR29$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$13.call(DatabaseCoordinator.java:756)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:593)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator$12.call(DatabaseCoordinator.java:591)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:671)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:591)
+10-30 11:58:29.179  2367  2403 W STARCORE_R27: 	... 8 more
+10-30 11:58:29.609  2367  2403 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: r27-atomnet
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow(Native Method)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.executeForCursorWindow(SQLiteConnection.java:1024)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteSession.executeForCursorWindow(SQLiteSession.java:838)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:62)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:145)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.getCount(SQLiteCursor.java:132)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:238)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToFirst(AbstractCursor.java:277)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$1(ResearchEventBridgeR29.java:174)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$0(ResearchWriteQueueR27.java:23)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:150)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$1(ResearchWriteQueueR27.java:22)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda1.write(D8$$SyntheticClass:0)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:61)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:46)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.online(AtomWorldR27.java:206)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomNetStep(AtomWorldR27.java:133)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomNetTask.step(RuntimeR27.java:290)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:29.612  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:33.179   797   871 D EGL_emulation: app_time_stats: avg=30000.32ms min=30000.32ms max=30000.32ms count=1
+10-30 11:58:33.179   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:58:34.834  2367  2403 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: r27-atomnet
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow(Native Method)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.executeForCursorWindow(SQLiteConnection.java:1024)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteSession.executeForCursorWindow(SQLiteSession.java:838)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:62)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:145)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.getCount(SQLiteCursor.java:132)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:238)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToFirst(AbstractCursor.java:277)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$1(ResearchEventBridgeR29.java:174)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$0(ResearchWriteQueueR27.java:23)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:150)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$1(ResearchWriteQueueR27.java:22)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda1.write(D8$$SyntheticClass:0)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:61)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:46)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.online(AtomWorldR27.java:206)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomNetStep(AtomWorldR27.java:133)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomNetTask.step(RuntimeR27.java:290)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:34.837  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:40.018  2367  2403 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: r27-atomnet
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow(Native Method)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.executeForCursorWindow(SQLiteConnection.java:1024)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteSession.executeForCursorWindow(SQLiteSession.java:838)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:62)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:145)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.getCount(SQLiteCursor.java:132)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:238)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToFirst(AbstractCursor.java:277)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$1(ResearchEventBridgeR29.java:174)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$0(ResearchWriteQueueR27.java:23)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:150)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$1(ResearchWriteQueueR27.java:22)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda1.write(D8$$SyntheticClass:0)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:61)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:46)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.online(AtomWorldR27.java:206)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomNetStep(AtomWorldR27.java:133)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomNetTask.step(RuntimeR27.java:290)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:40.022  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK: round=1|api-credential-cp12|WAITING
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at jdk.internal.misc.Unsafe.park(Native Method)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.LockSupport.park(LockSupport.java:341)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:506)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3466)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3437)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1623)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:420)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-30 11:58:40.113  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK: round=1|starcore-r26-continuous-research|TIMED_WAITING
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.await(RuntimeCoordinatorR26.java:199)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:149)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda3.run(D8$$SyntheticClass:0)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK: round=1|starcore-r26-expert-E02|WAITING
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:524)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.LegacyTeacherOwnerR26.projection(LegacyTeacherOwnerR26.java:32)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame(LegacyTeacherOwnerR26.java:26)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.audit(ExpertWorkshopR26.java:66)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:16)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$7(TaskContinuationR26.java:18)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:45)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 11:58:40.114  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK: round=1|starcore-stall-stacks|RUNNABLE
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getStackTrace(Thread.java:1841)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getAllStackTraces(Thread.java:1909)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27.lambda$start$0(StallStacksR27.java:19)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK: round=1|starcore-r27-research-0|RUNNABLE
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.util.TreeMap.-$$Nest$fgetmodCount(Unknown Source:2)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.util.TreeMap$PrivateEntryIterator.nextEntry(TreeMap.java:1208)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.util.TreeMap$KeyIterator.next(TreeMap.java:1263)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.util.AbstractCollection.toArray(AbstractCollection.java:146)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.util.ArrayList.<init>(ArrayList.java:188)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicySpecR27.inputs(PolicySpecR27.java:53)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicySpecR27.executable(PolicySpecR27.java:60)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicySpecR27.fullJson(PolicySpecR27.java:79)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.snapshot(EvolutionLoopR27.java:470)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeR27$EvolutionTask.step(RuntimeR27.java:147)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:40.115  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:43.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:58:46.022  2367  2403 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: r27-atomnet
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow(Native Method)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.executeForCursorWindow(SQLiteConnection.java:1024)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteSession.executeForCursorWindow(SQLiteSession.java:838)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:62)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:145)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.getCount(SQLiteCursor.java:132)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:238)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToFirst(AbstractCursor.java:277)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$1(ResearchEventBridgeR29.java:174)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$0(ResearchWriteQueueR27.java:23)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:150)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$1(ResearchWriteQueueR27.java:22)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda1.write(D8$$SyntheticClass:0)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:61)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:46)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.online(AtomWorldR27.java:206)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomNetStep(AtomWorldR27.java:133)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomNetTask.step(RuntimeR27.java:290)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:46.025  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:47.890  2367  2373 I re.research.r13: Compiler allocated 4319KB to compile void com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()
+10-30 11:58:51.744  2367  2403 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: r27-atomnet
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow(Native Method)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.executeForCursorWindow(SQLiteConnection.java:1024)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteSession.executeForCursorWindow(SQLiteSession.java:838)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:62)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:145)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.getCount(SQLiteCursor.java:132)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:238)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToFirst(AbstractCursor.java:277)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$1(ResearchEventBridgeR29.java:174)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$0(ResearchWriteQueueR27.java:23)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:150)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$1(ResearchWriteQueueR27.java:22)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda1.write(D8$$SyntheticClass:0)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:61)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:46)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.online(AtomWorldR27.java:206)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomNetStep(AtomWorldR27.java:133)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomNetTask.step(RuntimeR27.java:290)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:51.748  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:58:53.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:58:54.641     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-30 11:58:57.463  2367  2403 E SQLiteQuery: exception: Row too big to fit into CursorWindow requiredPos=0, totalRows=1; query: SELECT state_hash,trained_through,artifact FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: r27-atomnet
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: android.database.sqlite.SQLiteBlobTooBigException: Row too big to fit into CursorWindow requiredPos=0, totalRows=1
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.nativeExecuteForCursorWindow(Native Method)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteConnection.executeForCursorWindow(SQLiteConnection.java:1024)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteSession.executeForCursorWindow(SQLiteSession.java:838)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteQuery.fillWindow(SQLiteQuery.java:62)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.fillWindow(SQLiteCursor.java:145)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.sqlite.SQLiteCursor.getCount(SQLiteCursor.java:132)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToPosition(AbstractCursor.java:238)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at android.database.AbstractCursor.moveToFirst(AbstractCursor.java:277)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29.lambda$modelCommitted$1(ResearchEventBridgeR29.java:174)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchEventBridgeR29$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.execute(ResearchWriteQueueR27.java:75)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$0(ResearchWriteQueueR27.java:23)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda3.call(D8$$SyntheticClass:0)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:150)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:51)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.lambda$new$1(ResearchWriteQueueR27.java:22)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27$$ExternalSyntheticLambda1.write(D8$$SyntheticClass:0)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:61)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchWriteQueueR27.submit(ResearchWriteQueueR27.java:46)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.online(AtomWorldR27.java:206)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomNetStep(AtomWorldR27.java:133)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomNetTask.step(RuntimeR27.java:290)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:58:57.467  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 11:59:00.032   797   871 D EGL_emulation: app_time_stats: avg=26853.60ms min=26853.60ms max=26853.60ms count=1
+10-30 11:59:03.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:59:13.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:59:23.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:59:30.709   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:59:33.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:59:33.710   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK: round=2|api-credential-cp12|WAITING
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at jdk.internal.misc.Unsafe.park(Native Method)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.LockSupport.park(LockSupport.java:341)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:506)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3466)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3437)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1623)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:420)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-30 11:59:40.115  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK: round=2|starcore-r26-continuous-research|TIMED_WAITING
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.await(RuntimeCoordinatorR26.java:199)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:149)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda3.run(D8$$SyntheticClass:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK: round=2|starcore-r26-expert-E02|WAITING
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:524)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.LegacyTeacherOwnerR26.projection(LegacyTeacherOwnerR26.java:32)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.LegacyTeacherOwnerR26.auditCurrentFrame(LegacyTeacherOwnerR26.java:26)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.audit(ExpertWorkshopR26.java:66)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExpertWorkshopR26.step(ExpertWorkshopR26.java:16)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$7(TaskContinuationR26.java:18)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:45)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK: round=2|starcore-stall-stacks|RUNNABLE
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getStackTrace(Thread.java:1841)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getAllStackTraces(Thread.java:1909)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27.lambda$start$0(StallStacksR27.java:19)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK: round=2|starcore-r27-research-0|RUNNABLE
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.knn(FeatureCacheR27.java:234)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.compute(FeatureCacheR27.java:74)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.FeatureCacheR27.leaf(FeatureCacheR27.java:39)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.DerivedAtomR27.mutualInformation(DerivedAtomR27.java:84)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.AtomWorldR27.molecules(AtomWorldR27.java:89)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomsStep(AtomWorldR27.java:37)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomsTask.step(RuntimeR27.java:286)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 11:59:40.116  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 11:59:43.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:59:45.060   505  1687 D WifiNl80211Manager: Scan result ready event
+10-30 11:59:45.060   505  1687 D WifiNative: Scan result ready event
+10-30 11:59:53.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 11:59:54.641     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-30 11:59:55.968  2367  2373 I re.research.r13: Compiler allocated 4269KB to compile void com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()
+10-30 12:00:00.033   797   871 D EGL_emulation: app_time_stats: avg=60000.80ms min=60000.80ms max=60000.80ms count=1
+10-30 12:00:00.481  2367  2373 I re.research.r13: Compiler allocated 4269KB to compile void com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()
+10-30 12:00:03.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:00:11.255  2367  2373 I re.research.r13: Compiler allocated 4666KB to compile void com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit()
+10-30 12:00:13.178   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:00:13.178   797   871 D EGL_emulation: app_time_stats: avg=13144.71ms min=13144.71ms max=13144.71ms count=1
+10-30 12:00:23.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:00:33.164   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK: round=3|api-credential-cp12|WAITING
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at jdk.internal.misc.Unsafe.park(Native Method)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.LockSupport.park(LockSupport.java:341)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:506)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3466)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3437)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1623)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:420)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK: round=3|starcore-r26-legacy-generation|WAITING
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:524)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.readBounded(CheckpointArtifactsR26.java:78)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepare(CheckpointArtifactsR26.java:69)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepareLease(CheckpointArtifactsR26.java:58)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepareLease(CheckpointArtifactsR26.java:85)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayWorkspaceR26.commit(ReplayWorkspaceR26.java:43)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayWorkspaceR26.raw(ReplayWorkspaceR26.java:56)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelReplaySU2$Library.get(ModelReplaySU2.java:40)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelReplaySU2$Library.getCal(ModelReplaySU2.java:54)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelReplaySU2.pooledTable(ModelReplaySU2.java:150)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.lambda$table$3(ModelEvolutionSU2.java:103)
+10-30 12:00:40.117  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.$r8$lambda$qSdn0jAkwlx_pXVhkZ5228ff36c(Unknown Source:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK: round=3|starcore-r26-continuous-research|TIMED_WAITING
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.await(RuntimeCoordinatorR26.java:199)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:149)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda3.run(D8$$SyntheticClass:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK: round=3|starcore-r26-foundry-su1|WAITING
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:524)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.BudgetTokenSU1.checkpointOrYield(BudgetTokenSU1.java:25)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayCursorSU1.advance(ReplayCursorSU1.java:36)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.StrategyFoundrySU1.next(StrategyFoundrySU1.java:126)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$7(TaskContinuationR26.java:18)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:45)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK: round=3|starcore-stall-stacks|RUNNABLE
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getStackTrace(Thread.java:1841)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getAllStackTraces(Thread.java:1909)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27.lambda$start$0(StallStacksR27.java:19)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK: round=3|starcore-r27-research-0|RUNNABLE
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayEvaluatorR27.softmax(ReplayEvaluatorR27.java:117)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayEvaluatorR27.run(ReplayEvaluatorR27.java:58)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvalContextR27.selectTrace(EvalContextR27.java:29)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.NullEvolutionR27.generation(NullEvolutionR27.java:27)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepHalving(EvolutionLoopR27.java:277)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:119)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeR27$EvolutionTask.step(RuntimeR27.java:145)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 12:00:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:00:43.178   797   871 D EGL_emulation: app_time_stats: avg=29999.62ms min=29999.62ms max=29999.62ms count=1
+10-30 12:00:43.178   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:00:53.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:00:54.641     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-30 12:01:00.032   797   871 D EGL_emulation: app_time_stats: avg=16853.74ms min=16853.74ms max=16853.74ms count=1
+10-30 12:01:03.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:01:12.817   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 12:01:13.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:01:18.823   797   797 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+10-30 12:01:23.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:01:33.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:01:33.616  2367  2403 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-3730b46c-6b9a-4e32-8885-148fa3c7232a/databases/binance_k3_nova_one_pro_v57.db-wal 1623312 bytes: Bigger than 1048576; truncating
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK: round=4|api-credential-cp12|WAITING
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at jdk.internal.misc.Unsafe.park(Native Method)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.LockSupport.park(LockSupport.java:341)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionNode.block(AbstractQueuedSynchronizer.java:506)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.unmanagedBlock(ForkJoinPool.java:3466)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3437)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1623)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:420)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.getTask(ThreadPoolExecutor.java:1071)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1131)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+10-30 12:01:40.118  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK: round=4|starcore-r26-legacy-generation|WAITING
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:524)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.readBounded(CheckpointArtifactsR26.java:78)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepare(CheckpointArtifactsR26.java:69)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepareLease(CheckpointArtifactsR26.java:58)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepareLease(CheckpointArtifactsR26.java:85)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayWorkspaceR26.commit(ReplayWorkspaceR26.java:43)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayWorkspaceR26.raw(ReplayWorkspaceR26.java:56)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelReplaySU2$Library.get(ModelReplaySU2.java:40)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelReplaySU2$Library.getCal(ModelReplaySU2.java:54)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelReplaySU2.pooledTable(ModelReplaySU2.java:150)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.lambda$table$3(ModelEvolutionSU2.java:103)
+10-30 12:01:40.119  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.$r8$lambda$qSdn0jAkwlx_pXVhkZ5228ff36c(Unknown Source:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK: round=4|starcore-r26-continuous-research|TIMED_WAITING
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.await(RuntimeCoordinatorR26.java:199)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:149)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda3.run(D8$$SyntheticClass:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK: round=4|starcore-r26-foundry-su1|WAITING
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Native Method)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:386)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Object.wait(Object.java:524)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.BudgetTokenSU1.checkpointOrYield(BudgetTokenSU1.java:25)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ReplayCursorSU1.advance(ReplayCursorSU1.java:36)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.StrategyFoundrySU1.next(StrategyFoundrySU1.java:126)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26.lambda$step$7(TaskContinuationR26.java:18)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.TaskContinuationR26$$ExternalSyntheticLambda0.call(D8$$SyntheticClass:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:45)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.$r8$lambda$kJrcFPEKaR7ZQ2Pon9WoyIrtHB8(Unknown Source:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK: round=4|starcore-stall-stacks|RUNNABLE
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at dalvik.system.VMStack.getThreadStackTrace(Native Method)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getStackTrace(Thread.java:1841)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Thread.getAllStackTraces(Thread.java:1909)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27.lambda$start$0(StallStacksR27.java:19)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.StallStacksR27$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at java.lang.Thread.run(Thread.java:1012)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK: round=4|starcore-r27-research-0|RUNNABLE
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:165)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.PolicyAstR27.eval(PolicyAstR27.java:155)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvalContextR27.scores(EvalContextR27.java:21)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvalContextR27.trainLogLoss(EvalContextR27.java:38)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.FusionOpsR27.fuse(FusionOpsR27.java:33)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.stepBirth(EvolutionLoopR27.java:171)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.EvolutionLoopR27.step(EvolutionLoopR27.java:116)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.RuntimeR27$EvolutionTask.step(RuntimeR27.java:145)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 12:01:40.120  2367  2402 W STARCORE_STACK:   at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 12:01:43.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:01:53.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:01:54.641     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+10-30 12:01:55.722   505   505 I ResourceTimer: GetResourceValue count=3758 pvalues=1000,3000,6000,11000
+10-30 12:01:55.722   505   505 I ResourceTimer: RetrieveAttributes count=3549 pvalues=1000,1000,1000,4000
+10-30 12:02:00.032   797   871 D EGL_emulation: app_time_stats: avg=59999.98ms min=59999.98ms max=59999.98ms count=1
+10-30 12:02:02.427   505   525 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-30 12:02:02.428   505   525 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-30 12:02:02.428   505   525 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-30 12:02:02.429   505   525 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-30 12:02:03.163   797   797 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+10-30 12:02:05.677  2367  2389 I System.out: R26_RUNTIME_FAILURE_RECEIPT={"scope":"SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE","api":34,"engineeringWriteProbes":1000,"fullPredrawOpportunitySloClaimed":false,"restartKind":"RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS","javaHeapLimitAtStart":603979776,"targetLargeHeapFlag":true,"familyMechanismsWithCommittedProgress":24,"expertsWithActualReceipts":16,"allMechanismsServiceMillis":135624,"strategyReadyToAllMechanismsWallMs":130638,"firstServiceTargetMs":60000,"firstServiceTargetObservedWithin":false,"cpuLeaseHeldBeforePressure":true,"cpuLeaseMaxHoldMs":60000,"cpuLeaseRenewAfterMs":15000,"r29IndependentResearchActive":true,"legacyDispatchOwner":"RESEARCH_POOL","canonicalDrawWriteP50Ms":10,"canonicalDrawWriteP95Ms":13,"canonicalDrawWriteP99Ms":23,"canonicalDrawWriteMaxMs":41,"result":"FAIL","error":"java.lang.AssertionError: foundry did not renew and learn past raw retention with the protected incumbent present","researchThreadsAtFailure":[{"name":"starcore-r26-legacy-generation","state":"WAITING","stack":["java.lang.Object.wait(Native Method)","java.lang.Object.wait(Object.java:386)","java.lang.Object.wait(Object.java:524)","com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.awaitPermit(CooperativeContinuationR26.java:50)","com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.checkpoint(CooperativeContinuationR26.java:58)","com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.poll(CooperativeContinuationR26.java:60)","com.ethk3.novaonepro.strategyv2.ExecutionBudgetR26.poll(ExecutionBudgetR26.java:8)","com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.readBounded(CheckpointArtifactsR26.java:78)","com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepare(CheckpointArtifactsR26.java:69)","com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepareLease(CheckpointArtifactsR26.java:58)","com.ethk3.novaonepro.strategyv2.CheckpointArtifactsR26.prepareLease(CheckpointArtifactsR26.java:85)","com.ethk3.novaonepro.strategyv2.ReplayWorkspaceR26.commit(ReplayWorkspaceR26.java:43)","com.ethk3.novaonepro.strategyv2.ReplayWorkspaceR26.raw(ReplayWorkspaceR26.java:56)","com.ethk3.novaonepro.strategyv2.ModelReplaySU2$Library.get(ModelReplaySU2.java:40)","com.ethk3.novaonepro.strategyv2.ModelReplaySU2$Library.getCal(ModelReplaySU2.java:54)","com.ethk3.novaonepro.strategyv2.ModelReplaySU2.pooledTable(ModelReplaySU2.java:150)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.lambda$table$3(ModelEvolutionSU2.java:103)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.$r8$lambda$qSdn0jAkwlx_pXVhkZ5228ff36c(Unknown Source:0)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2$$ExternalSyntheticLambda16.apply(D8$$SyntheticClass:0)","j$.util.Map$-CC.$default$computeIfAbsent(Map.java:1003)","j$.util.Map$-EL.computeIfAbsent(Unknown Source:22)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.table(ModelEvolutionSU2.java:103)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.lambda$cum$4(ModelEvolutionSU2.java:115)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.$r8$lambda$I7zyE5JA_vvsc16KFF6lue17AuA(Unknown Source:0)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2$$ExternalSyntheticLambda19.apply(D8$$SyntheticClass:0)","j$.util.Map$-CC.$default$computeIfAbsent(Map.java:1003)","j$.util.Map$-EL.computeIfAbsent(Unknown Source:22)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.cum(ModelEvolutionSU2.java:114)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.buildConsensus(ModelEvolutionSU2.java:123)","com.ethk3.novaonepro.strategyv2.ModelEvolutionSU2.campaign(ModelEvolutionSU2.java:609)","com.ethk3.novaonepro.strategyv2.LegacyGenerationR26.compute(LegacyGenerationR26.java:62)","com.ethk3.novaonepro.strategyv2.LegacyGenerationR26.lambda$step$3(LegacyGenerationR26.java:38)","com.ethk3.novaonepro.strategyv2.LegacyGenerationR26$$ExternalSyntheticLambda5.call(D8$$SyntheticClass:0)","com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.run(CooperativeContinuationR26.java:45)","com.ethk3.novaonepro.strategyv2
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: task receipt deferred r27-atoms
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: java.lang.IllegalStateException: CP3_DB_BUSY_RESEARCH_HANDOFF_INTERRUPTED
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:52)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.record(ResearchPoolR27.java:150)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:120)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: Caused by: java.lang.InterruptedException
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.tryAcquireSharedNanos(AbstractQueuedSynchronizer.java:1081)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at java.util.concurrent.locks.ReentrantReadWriteLock$ReadLock.tryLock(ReentrantReadWriteLock.java:882)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:47)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	... 6 more
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: r27-atoms
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: java.lang.InterruptedException: R27_CANCELLED
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27.submit(RuntimeR27.java:61)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.molecules(AtomWorldR27.java:106)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.AtomWorldR27.atomsStep(AtomWorldR27.java:37)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.RuntimeR27$AtomsTask.step(RuntimeR27.java:286)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:115)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:89)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-30 12:02:06.687  2367  2403 W STARCORE_R27: 	at java.lang.Thread.run(Thread.java:1012)
+10-30 12:02:06.709  2367  2389 E TestRunner: failed: allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest)
+10-30 12:02:06.710  2367  2389 E TestRunner: ----- begin exception -----
+10-30 12:02:06.710  2367  2389 E TestRunner: java.lang.AssertionError: foundry did not renew and learn past raw retention with the protected incumbent present
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.Assert.fail(Assert.java:89)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:42)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest.allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(R26RuntimeDeviceTest.java:80)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:463)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner.onStart(Su1AndroidTestRunner.java:17)
+10-30 12:02:06.710  2367  2389 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2402)
+10-30 12:02:06.710  2367  2389 E TestRunner: ----- end exception -----
+10-30 12:02:06.710  2367  2389 I TestRunner: finished: allMechanismsAdvanceWithRealWriterPressureAndRestartWithoutStaleCommit(com.ethk3.novaonepro.strategyv2.R26RuntimeDeviceTest)
+10-30 12:02:06.711  2367  2389 I TestRunner: run finished: 1 tests, 1 failed, 0 ignored
+10-30 12:02:06.714   505  1498 I ActivityManager: Force stopping com.starcore.research.r13 appid=10141 user=0: finished inst
+10-30 12:02:06.715  2354  2354 I app_process: System.exit called, status: 0
+10-30 12:02:06.715  2354  2354 I AndroidRuntime: VM exiting with result code 0.
+10-30 12:02:07.055     0     0 I binder  : 505:1498 ioctl 400c620e 7eca73690930 returned -11
+10-30 12:02:07.056     0     0 I binder  : 505:1498 ioctl 400c620e 7eca73690930 returned -11
+10-30 12:02:06.717   505  1498 E ActivityManager: Unable to freeze binder for 2367: -11
+10-30 12:02:06.718   505   524 D DisplayManagerService: Drop pending events for gone uid 10141
+10-30 12:02:06.719   505  1498 I ActivityManager: Killing 2367:com.starcore.research.r13/u0a141 (adj 0): stop com.starcore.research.r13 due to finished inst
+10-30 12:02:06.720   505  1498 D OomAdjuster: Not killing cached processes
+10-30 12:02:07.062     0     0 I binder  : undelivered transaction 119524, process died.

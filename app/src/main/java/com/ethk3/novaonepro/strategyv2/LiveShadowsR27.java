@@ -90,23 +90,21 @@ public final class LiveShadowsR27 {
         long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); int frozen = 0, acted = 0;
         if (now < deadline - FREEZE_MARGIN_MS) {
-            FeatureCacheR27 cache = rt.liveCacheWithPlaceholder(w, latestOrd);
-            for (Shadow s : todo) {
-                double[] out = ReplayEvaluatorR27.predictNext(s.spec, cache, s.tau);
-                boolean ok = Double.isFinite(out[0]);
-                double[] p = new double[10]; if (ok) System.arraycopy(out, 0, p, 0, 10);
-                int n1 = ok ? (int) out[10] + 1 : 0, n2 = ok ? (int) out[11] + 1 : 0, n3 = ok ? (int) out[12] + 1 : 0, act = ok && out[13] == 1 ? 1 : 0;
-                b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", System.currentTimeMillis(), deadline);
-                if (ok) frozen++; acted += act;
+            try{
+                IssueCommitR29.Fence fence=IssueCommitR29.capture(w.realtimeRo(),latestIssue,latestOrd,deadline,w.pool().session());
+                FeatureCacheR27 cache=rt.liveCacheWithPlaceholder(w,latestOrd);
+                PreparedForecastR29.Frame frame=new PreparedForecastR29.Frame(fence,cache.data.datasetHash,opportunity);
+                for(Shadow s:todo){
+                    if(w.cancelled())return 0;
+                    double[] out=ReplayEvaluatorR27.predictNext(s.spec,cache,s.tau);boolean ok=Double.isFinite(out[0]);double[] probabilities=new double[10];if(ok)System.arraycopy(out,0,probabilities,0,10);
+                    if(ok){double sum=0;for(double p:probabilities){ok&=Double.isFinite(p)&&p>=0&&p<=1;sum+=p;}ok&=Math.abs(sum-1)<=1e-6;}
+                    PreparedForecastR29.Forecast p=new PreparedForecastR29.Forecast();p.policy=s.id;p.position=s.spec.position;p.probabilities=StoreR27.pack(probabilities);p.n1=ok?(int)out[10]+1:0;p.n2=ok?(int)out[11]+1:0;p.n3=ok?(int)out[12]+1:0;p.act=ok&&out[13]==1?1:0;p.status=ok?"FROZEN":"SKIPPED_GAP";p.frozenAt=System.currentTimeMillis();frame.forecasts.add(p);
+                }
+                return PreparedForecastR29.publish(w,frame);
+            }catch(RuntimeException failed){
+                IssueCommitR29.Rejected rejected=IssueCommitR29.rejected(failed);if(rejected==null)throw failed;
+                PreparedForecastR29.rejected(w,latestIssue,target,rejected.reason);return 0;
             }
-            final long dl = deadline;
-            b.before = db -> System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1; // R29: commit at least 5 s before the draw, else DEADLINE_MISSED
-            b.after = b.before; // Recheck after all inserts: a large batch must roll back if it crosses the boundary.
-            if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
-            try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
-            catch (IllegalStateException late) { if (!String.valueOf(late.getMessage()).contains("R27_WRITE_PRECONDITION") && !(late.getCause() != null && String.valueOf(late.getCause().getMessage()).contains("R27_WRITE_PRECONDITION"))) throw late; }
-            b = new ResearchWriteQueueR27.Batch();
         }
         // Deadline missed: recorded, counted in the opportunity denominator, never back-filled.
         for (Shadow s : todo) b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,0,0,0,0,'DEADLINE_MISSED',?,?)",

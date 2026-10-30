@@ -46,7 +46,7 @@ public final class MigrationCopyR29 {
                 && !table.equals("r27_fetch_reject") && !table.equals("r27_chart_cache");
     }
     static final java.util.Set<String> REALTIME_ONLY=new java.util.HashSet<>(java.util.Arrays.asList(
-            "r29_event_outbox","r29_source_watermark","r29_registration_authority","r29_database_route",
+            "r29_event_outbox","r29_source_watermark","r29_registration_authority","r29_database_route","r29_fetch_observation",
             "r29_scheduler_owner","r29_legacy_checkpoint_pin","r27_legacy_roster_alias","r29_migration_publication",
             "r29_projection_applied","r29_research_heartbeat"));
     public static boolean realtimeOnly(String table){return REALTIME_ONLY.contains(table);}

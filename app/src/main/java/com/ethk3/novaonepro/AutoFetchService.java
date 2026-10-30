@@ -130,6 +130,7 @@ public final class AutoFetchService extends Service {
 
     private static final long FETCH_IDLE_DELAY_MS = 1500L;
     private static final long FETCH_REALTIME_DELAY_MS = 420L;
+    private final FetchCadenceR29 fetchCadenceR29=new FetchCadenceR29();
 
     private static final long ANALYSIS_RETRY_DELAY_MS = 260L;
     private static final long ANALYSIS_WATCHDOG_INTERVAL_MS = 1000L;
@@ -2631,40 +2632,9 @@ public final class AutoFetchService extends Service {
             return;
         }
 
-        long delay = FETCH_IDLE_DELAY_MS;
-
-        if (isRealtimeLikeWindow()) {
-            delay = FETCH_REALTIME_DELAY_MS;
-        } else {
-            try {
-                if (countdownClock != null) {
-                    long clockDelay = countdownClock.getNextFetchDelayMs();
-                    if (clockDelay > 0L && clockDelay < delay) {
-                        delay = clockDelay;
-                    }
-                }
-            } catch (Throwable e) {
-                delay = FETCH_IDLE_DELAY_MS;
-            }
-        }
-
-        // Scheduling the next transport wake must be DB-free. Admission and commit still
-        // validate the exact durable draw/target in their existing owners.
-        if (analysisBusy
-                || realtimePriorityUntilAt > System.currentTimeMillis()
-                || (pendingAnalysisBaseIssue != null && pendingAnalysisBaseIssue.length() > 0)) {
-            if (delay > 650L) {
-                delay = 650L;
-            }
-        }
-
-        if (delay < AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS) {
-            delay = AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS;
-        }
-
-        if (delay > 3000L) {
-            delay = 3000L;
-        }
+        // Monotonic interval includes request duration; this existing owner remains single-flight.
+        // Failed transport/validation backs off even during a realtime analysis window.
+        long delay=fetchCadenceR29.nextDelay(TimeSourceR811.monoNowMs());
 
         fetchHandler.postDelayed(fetchLoop, delay);
     }
@@ -2698,6 +2668,7 @@ public final class AutoFetchService extends Service {
             forceRefresh = false;
 
             if (!isNetworkAvailable()) {
+                fetchCadenceR29.started(TimeSourceR811.monoNowMs());fetchCadenceR29.failure(TimeSourceR811.monoNowMs());
                 networkWasUnavailable = true;
                 lastError = "网络不可用";
                 updateRuntimeState(AppConfig.SERVICE_STATUS_DELAY, lastError);
@@ -2716,6 +2687,7 @@ public final class AutoFetchService extends Service {
             lastError = "";
 
             Models.Draw oldLatest = localLatestBeforeFetch;
+            fetchCadenceR29.started(TimeSourceR811.monoNowMs());
             Models.ApiResult latestResult = fetchLatestRealtime();
 
             if (countdownClock != null) {
@@ -2723,6 +2695,7 @@ public final class AutoFetchService extends Service {
             }
 
             if (latestResult == null || !latestResult.ok || latestResult.latestDraw == null) {
+                fetchCadenceR29.failure(TimeSourceR811.monoNowMs());
                 lastError=ApiClient.failureSummary(latestResult);
                 heartbeatStateV8().markFetchFailed(safeIssue(oldLatest),lastError);
                 if (realtimeLike || forceRefresh || realtimeMissCount >= 1) {
@@ -2746,6 +2719,7 @@ public final class AutoFetchService extends Service {
             Models.DataCheck latestCheck = dataGuard.checkLatest(latestFromApi);
 
             if (latestCheck == null || !latestCheck.ok) {
+                fetchCadenceR29.failure(TimeSourceR811.monoNowMs());
                 lastError = latestCheck == null ? "最新开奖校验失败" : latestCheck.reason;
 
                 if (realtimeLike || forceRefresh) {
@@ -2757,6 +2731,7 @@ public final class AutoFetchService extends Service {
                 return;
             }
 
+            fetchCadenceR29.success();FetchObservationR29.validated(latestFromApi);
             String expectedTarget =
                     oldLatest == null || !oldLatest.isValid()
                             ? ""
@@ -2830,6 +2805,7 @@ public final class AutoFetchService extends Service {
             updateRuntimeState(AppConfig.SERVICE_STATUS_RUNNING, "");
             refreshNotificationIfNeeded();
         } catch (Throwable e) {
+            fetchCadenceR29.failure(TimeSourceR811.monoNowMs());
             lastError = safeError(e);
             updateRuntimeState(AppConfig.SERVICE_STATUS_API_ERROR, lastError);
         } finally {
@@ -2845,6 +2821,7 @@ public final class AutoFetchService extends Service {
         if (authoritativeLatest == null || !authoritativeLatest.isValid()) {
             return;
         }
+        FetchObservationR29.committed(authoritativeLatest);
 
         ProviderFreshnessGateR3611.Decision acceptedDraw = ProviderFreshnessGateR3611.evaluate(
                 authoritativeLatest,AppConfig.nextIssueText(authoritativeLatest.issue),System.currentTimeMillis());

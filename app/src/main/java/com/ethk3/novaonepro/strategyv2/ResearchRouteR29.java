@@ -144,11 +144,13 @@ public final class ResearchRouteR29 {
                 if(android.os.Looper.myLooper()!=null&&android.os.Looper.myLooper()==android.os.Looper.getMainLooper())throw new IllegalStateException("R29_RESEARCH_WRITE_ON_MAIN_THREAD");
                 acquired=lock.tryLock(200,TimeUnit.MILLISECONDS);
                 if(!acquired)throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_FILE");
+                try(CooperativeContinuationR26.Critical critical=CooperativeContinuationR26.critical()){
                 writer.execSQL("PRAGMA synchronous=FULL");writer.beginTransactionNonExclusive();
                 try{
                     try(Cursor c=writer.rawQuery("PRAGMA database_list",null)){while(c.moveToNext())if(!"main".equals(c.getString(1))&&!"temp".equals(c.getString(1)))throw new IllegalStateException("R29_WRITER_MUST_NOT_ATTACH_REALTIME");}
                     T value=action.call(writer);writer.setTransactionSuccessful();return value;
                 }finally{writer.endTransaction();}
+                }
             }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_INTERRUPTED",interrupted);}
             catch(RuntimeException failure){throw failure;}
             catch(Exception failure){throw new IllegalStateException("R29_RESEARCH_WRITE_FAILED:"+operation,failure);}

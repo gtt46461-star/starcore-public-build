@@ -31,6 +31,7 @@ public final class ResearchEventBridgeR29 {
     public static void ensureRealtime(SQLiteDatabase db) {
         requireTransaction(db);
         db.execSQL(OUTBOX);
+        db.execSQL(com.ethk3.novaonepro.FetchObservationR29.DDL);
         db.execSQL(ExperimentRegistrationR29.AUTHORITY);
         for(String guard:ExperimentRegistrationR29.AUTHORITY_GUARDS)db.execSQL(guard);
         db.execSQL("CREATE INDEX IF NOT EXISTS r29_event_outbox_pending ON r29_event_outbox(acked_at,seq)");
@@ -49,6 +50,7 @@ public final class ResearchEventBridgeR29 {
         }
         Event e = Event.draw(0, issue, numbers, newlyInserted ? "NEW_CANONICAL_COMMIT" : "EXISTING_CANONICAL_OBSERVED", now);
         append(db,e);
+        com.ethk3.novaonepro.FetchObservationR29.acceptedWithin(db,issue,e.hash);
     }
 
     static void append(SQLiteDatabase db,Event e) {

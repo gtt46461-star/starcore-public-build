@@ -63,9 +63,11 @@ public final class RuntimeR27 implements AutoCloseable {
 
     // ------------------------------------------------------------------ r27-replay-dataset (R27-013/016)
     final class EventTask implements ResearchPoolR27.Task {
+        long lastDrain;
         public String id() { return "r29-event-inbox"; }
+        public boolean urgent(ResearchPoolR27.Worker worker,long now){return now-lastDrain>=1000;}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
-            try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w);return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
+            try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w);lastDrain=System.currentTimeMillis();return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
             catch(IllegalStateException busy){if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",0,-1);}
         }
     }
@@ -215,12 +217,16 @@ public final class RuntimeR27 implements AutoCloseable {
 
     // ------------------------------------------------------------------ r27-live (R27-008/032/040/041/042)
     final class LiveTask implements ResearchPoolR27.Task {
+        long lastRun;
         public String id() { return "r27-live"; }
+        public boolean urgent(ResearchPoolR27.Worker worker,long now){return now-lastRun>=1000&&now<latestOpen(worker.realtimeRo())+60_000L-5000;}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
+            lastRun=System.currentTimeMillis();
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest), deadline = latestOpen(w.ro) + 60_000L;
             w.writes().setNextDeadline(deadline);
-            long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
+            long units = PreparedForecastR29.recoverUnproven(w);
+            units += LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
             units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
             ensureControls(w);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
@@ -249,6 +255,17 @@ public final class RuntimeR27 implements AutoCloseable {
     /** Live dataset + placeholder for the next target (family streams continue from the previous cache). */
     synchronized FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
         ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
+        if(fresh.size()==0||fresh.ordinals[fresh.size()-1]!=latestOrd)throw new IssueCommitR29.Rejected("SOURCE_CHANGED_DURING_FEATURE_PREPARATION");
+        // Canonical repairs/backfills must not leave the old feature prefix in memory indefinitely.
+        if(liveData!=null){
+            int a=0,b=0;boolean changed=false;
+            while(a<liveData.size()&&b<fresh.size()){
+                if(liveData.ordinals[a]<fresh.ordinals[b]){if(liveData.ordinals[a]>=fresh.ordinals[0]){changed=true;break;}a++;continue;}
+                if(liveData.ordinals[a]>fresh.ordinals[b]){if(fresh.ordinals[b]<=liveData.ordinals[liveData.size()-1]){changed=true;break;}b++;continue;}
+                if(!java.util.Arrays.equals(liveData.draws[a],fresh.draws[b])){changed=true;break;}a++;b++;
+            }
+            if(changed){liveData=null;liveCache=null;}
+        }
         if (liveData == null || liveData.size() > LIVE_REBASE_ROWS || fresh.size() == 0) { liveData = fresh; liveCache = null; }
         else {
             long last = liveData.ordinals[liveData.size() - 1];

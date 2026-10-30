@@ -194,7 +194,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 }db.execSQL("DELETE FROM r26_progress WHERE receipt_id<(SELECT max(receipt_id)-4096 FROM r26_progress)");
                 ServiceTotalsR26.record(db,owner,cpuMs,elapsed,elapsed>2*CooperativeContinuationR26.SLICE_MS);
                 db.execSQL("UPDATE r26_session SET heartbeat=?,actual_progress=actual_progress+? WHERE session_id=?",new Object[]{now,work,owner});return 0;});}catch(RuntimeException failure){android.util.Log.w("STARCORE_R26","receipt not committed",failure);}
-        return delta;
+        claim.reason(reason);return delta;
     }
     private void await(long ms){synchronized(signal){try{if(!cancelled)signal.wait(ms);}catch(InterruptedException e){if(!cancelled)Thread.currentThread().interrupt();}}}
     static final long SCHEMA_BATCH_MS=800;

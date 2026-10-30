@@ -14,6 +14,8 @@ public final class LegacyCapabilityAdapterR29 implements ResearchPoolR27.Task {
     private static final ThreadLocal<Boolean> POOL_CONTINUITY=new ThreadLocal<>();
     LegacyCapabilityAdapterR29(RuntimeCoordinatorR26 runtime){this.runtime=runtime;}
     public String id(){return "r29-legacy-capabilities";}
+    public boolean serviceDispatcher(){return true;}
+    public boolean enabled(){return runtime.poolDispatchReady();}
     public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker worker)throws Exception{
         if(!runtime.poolDispatchReady())return ResearchPoolR27.Outcome.idle("WAITING_VERIFIED_CUTOVER_AND_LEGACY_DRAIN",0,-1);
         return runtime.runPoolLegacySlice();

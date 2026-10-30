@@ -1,0 +1,36 @@
+{
+  "status": "HOST_PROTOCOL_PASSED_ANDROID_RETEST_PENDING",
+  "scope": "SYNTHETIC_ENGINEERING_NOT_NATURAL_QUALITY",
+  "legacyRegression": {
+    "run": 41051217900,
+    "source": "fa93db4dff1e23e19be1a5c4372549ef88c67715",
+    "result": "FAIL",
+    "allMechanismsServiceMs": 135624,
+    "retentionRenewal": "FAIL",
+    "serviceWallMs": 8050,
+    "canonicalWriteP99Ms": 23
+  },
+  "changes": [
+    "Reserve a service worker for the existing legacy dispatcher after verified handoff; resume uncommitted continuations without inventing progress",
+    "Prepare forecasts outside the write transaction; publish the entire frame atomically; require actual post-commit clocks before FUTURE eligibility",
+    "Capture validated receipt separately from provider scheduled open; source publication remains UNKNOWN; healthy fetch starts roughly one second apart with failure backoff"
+  ],
+  "hostSuiteLogs": [
+    "cutover.log",
+    "event.log",
+    "fetch.log",
+    "legacy.log",
+    "migration.log",
+    "owner.log",
+    "prepared.log",
+    "qual.log",
+    "registration.log",
+    "report.log"
+  ],
+  "notAccepted": [
+    "All-batch acceptance",
+    "Physical 6h/72h execution",
+    "Natural qualification and REAL enablement",
+    "Full legacy asset inventory and ten-position AtomNet/I08 work"
+  ]
+}

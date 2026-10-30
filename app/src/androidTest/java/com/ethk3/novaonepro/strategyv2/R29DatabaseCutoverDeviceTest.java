@@ -35,7 +35,7 @@ public final class R29DatabaseCutoverDeviceTest {
                 db.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,cursor) VALUES('synthetic-r27','R27','fixture',9),('synthetic-legacy','P2','fixture',4)");
                 return 0;
             });
-            Models.Draw draw=new Models.Draw();draw.issue="202610300001";draw.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};draw.openTime=System.currentTimeMillis()-60000;draw.fetchTime=draw.openTime+1000;assertTrue(store.saveDraw(draw)>=0);
+            Models.Draw draw=new Models.Draw();draw.issue="202610300001";draw.numbers=new int[]{1,2,3,4,5,6,7,8,9,10};draw.openTime=System.currentTimeMillis();draw.fetchTime=draw.openTime+1000;assertTrue(store.saveDraw(draw)>=0);
             rootReader=SQLiteDatabase.openDatabase(original.getPath(),null,SQLiteDatabase.OPEN_READONLY);
             SQLiteDatabase oldResearchReader=ResearchRouteR29.openWorkerReader(sandbox);
             ResearchPoolR27.Worker migrationWorker=pool.new Worker(oldResearchReader,rootReader,"synthetic-migration");
@@ -72,6 +72,15 @@ public final class R29DatabaseCutoverDeviceTest {
             ResearchPoolR27.Worker eventWorker=pool.new Worker(researchReader,rootReader,"synthetic-events");
             ResearchEventBridgeR29.deliver(eventWorker);assertEquals(1,n(researchReader,"SELECT count(*) FROM r29_event_inbox"));assertEquals(1,n(original,"SELECT count(*) FROM r29_event_outbox WHERE acked_at>0"));
             assertEquals(0,n(researchReader,"SELECT count(*) FROM r29_learning_receipt"));result.put("deliveryWithoutInventedLearning",true);
+            // A real Android commit/fsync must return before a complete prepared frame can become eligible.
+            IssueCommitR29.Fence fence=IssueCommitR29.capture(rootReader,draw.issue,TargetIssueResolver.sequenceOrdinalSU1(draw.issue),draw.openTime+60000,"SYNTHETIC_ANDROID_FREEZE");
+            PreparedForecastR29.Frame frame=new PreparedForecastR29.Frame(fence,StatsR27.sha256("isolated synthetic draw input"),true);
+            PreparedForecastR29.Forecast forecast=new PreparedForecastR29.Forecast();forecast.policy="synthetic-android-only";forecast.position=1;double[] p=new double[10];Arrays.fill(p,.1);forecast.probabilities=StoreR27.pack(p);forecast.n1=1;forecast.n2=2;forecast.n3=3;forecast.act=1;forecast.status="FROZEN";forecast.frozenAt=System.currentTimeMillis();frame.forecasts.add(forecast);
+            assertEquals(1,PreparedForecastR29.publish(eventWorker,frame));
+            assertEquals(1,n(researchReader,"SELECT count(*) FROM r29_freeze_manifest WHERE phase='USABLE' AND first_committed_wall>=prepared_wall AND first_committed_mono>=prepared_mono"));
+            assertEquals(1,n(researchReader,"SELECT count(*) FROM r27_live_frozen WHERE policy_hash='synthetic-android-only' AND status='FROZEN' AND commit_verified_at>0 AND commit_verified_mono>0"));
+            assertEquals(0,n(researchReader,"SELECT count(*) FROM r29_learning_receipt"));
+            result.put("preparedFrameWithActualAndroidPostCommitReceipt",true);
             File report=new File(sandbox.getCacheDir(),"paired-report");assertTrue(report.mkdirs());
             checkpoint(original);File realtimeCopy=new File(report,"snapshot.db"),researchCopy=new File(report,"research-snapshot.db");
             try(SQLiteDatabase rw=SQLiteDatabase.openDatabase(sandbox.getDatabasePath(ResearchRouteR29.FILE_NAME).getPath(),null,SQLiteDatabase.OPEN_READWRITE)){checkpoint(rw);}

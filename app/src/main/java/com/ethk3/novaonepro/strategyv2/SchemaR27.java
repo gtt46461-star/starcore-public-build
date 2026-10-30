@@ -49,6 +49,7 @@ public final class SchemaR27 {
         "CREATE TABLE IF NOT EXISTS r27_legacy_export(source_id TEXT PRIMARY KEY,source_table TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,policy_hash TEXT,reproduced INTEGER NOT NULL DEFAULT 0,compared INTEGER NOT NULL DEFAULT 0,exported_at INTEGER NOT NULL)",
         HistoryImportR27.DDL,
         ResearchEventBridgeR29.OUTBOX,
+        com.ethk3.novaonepro.FetchObservationR29.DDL,
         ResearchEventBridgeR29.RESEARCH_DDL[0], ResearchEventBridgeR29.RESEARCH_DDL[1],
         ResearchEventBridgeR29.RESEARCH_DDL[2], ResearchEventBridgeR29.RESEARCH_DDL[3],
         ResearchEventBridgeR29.RESEARCH_DDL[4], ResearchEventBridgeR29.RESEARCH_DDL[5],
@@ -58,6 +59,8 @@ public final class SchemaR27 {
         LegacyCapabilityAdapterR29.DDL,
         LegacyCapabilitySnapshotR29.PIN,LegacyCapabilitySnapshotR29.SNAPSHOT,
         LegacyCapabilitySnapshotR29.GUARDS[0],LegacyCapabilitySnapshotR29.GUARDS[1],LegacyCapabilitySnapshotR29.GUARDS[2],LegacyCapabilitySnapshotR29.GUARDS[3],
+        PreparedForecastR29.MANIFEST,PreparedForecastR29.MEMBERS,PreparedForecastR29.SEALED,PreparedForecastR29.REJECTS,
+        PreparedForecastR29.MEMBERS_NO_UPDATE,PreparedForecastR29.MEMBERS_NO_DELETE,
         ResearchCutoverR29.PUBLICATION,
         RealtimeResearchProjectionR29.REALTIME_DDL[0],RealtimeResearchProjectionR29.REALTIME_DDL[1],
         ExperimentRegistrationR29.AUTHORITY_GUARDS[0],ExperimentRegistrationR29.AUTHORITY_GUARDS[1],
@@ -75,6 +78,11 @@ public final class SchemaR27 {
     };
     /** Guarded column additions on existing baseline tables. */
     static final String[][] COLUMNS = {
+        {"r27_live_frozen","manifest_hash","TEXT NOT NULL DEFAULT ''"},
+        {"r27_live_frozen","input_through","INTEGER NOT NULL DEFAULT -1"},
+        {"r27_live_frozen","commit_verified_at","INTEGER NOT NULL DEFAULT 0"},
+        {"r27_live_frozen","commit_verified_mono","INTEGER NOT NULL DEFAULT 0"},
+        {"r27_live_frozen","commit_session","TEXT NOT NULL DEFAULT ''"},
         {"r26_task", "wait_kind", "TEXT NOT NULL DEFAULT ''"},
         {"r26_task", "wait_detail", "TEXT NOT NULL DEFAULT ''"},
         {"r26_task", "wait_since", "INTEGER NOT NULL DEFAULT 0"},
@@ -89,6 +97,7 @@ public final class SchemaR27 {
         for (String sql : DDL) db.execSQL(sql);
         ResearchEventBridgeR29.ensureRealtime(db);
         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
+        db.execSQL(PreparedForecastR29.FROZEN_IMMUTABLE);
         if (tableExists(db, "r26_task")) {
             long now = System.currentTimeMillis();
             db.execSQL("UPDATE r26_task SET registered_at=? WHERE registered_at=0", new Object[] {now});
@@ -107,6 +116,7 @@ public final class SchemaR27 {
         if(!research.inTransaction())throw new IllegalStateException("R29_RESEARCH_SCHEMA_TRANSACTION");
         for(String sql:DDL){boolean realtime=false;for(String table:MigrationCopyR29.REALTIME_ONLY)if(sql.contains(table)){realtime=true;break;}if(!realtime)research.execSQL(sql);}
         for(String[] c:COLUMNS)if(tableExists(research,c[0]))column(research,c[0],c[1],c[2]);
+        research.execSQL(PreparedForecastR29.FROZEN_IMMUTABLE);
         RealtimeResearchProjectionR29.installResearch(research);
     }
 

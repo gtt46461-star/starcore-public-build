@@ -25,6 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class ResearchPoolR27 implements AutoCloseable {
     public interface Task {
         String id();
+        default boolean serviceDispatcher(){return false;}
+        default boolean enabled(){return true;}
+        default boolean urgent(Worker worker,long now){return false;}
         /** One bounded slice on the calling worker thread. */
         Outcome step(Worker w) throws Exception;
     }
@@ -36,7 +39,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     /** Per-thread context: read-only connection and cancellation. */
     public final class Worker {
-        public volatile SQLiteDatabase ro; public final String name;private final SQLiteDatabase realtime;
+        public volatile SQLiteDatabase ro; public final String name;private final SQLiteDatabase realtime;boolean serviceWorker;int serviceTurns;
         Worker(SQLiteDatabase ro,SQLiteDatabase realtime, String name) { this.ro = ro;this.realtime=realtime; this.name = name; }
         public boolean cancelled() { return closed || Thread.currentThread().isInterrupted(); }
         public ResearchWriteQueueR27 writes() { return writes; }
@@ -67,7 +70,8 @@ public final class ResearchPoolR27 implements AutoCloseable {
         // Shared helper executor for data-parallel replay inside one task (evolution REPLAY step).
         // R27.2: the helpers run at the workers' background priority. They used to inherit the default priority and,
         // with up to four of them replaying at once, took the CPU from the realtime analysis thread on device.
-        compute = new ThreadPoolExecutor(size, size, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), r -> { Thread t = new Thread(() -> { try { android.os.Process.setThreadPriority(BACKGROUND_PRIORITY); } catch (Throwable ignored) { } r.run(); }, "starcore-r27-compute"); t.setDaemon(true); return t; });
+        int helpers=Math.max(1,size-1);
+        compute = new ThreadPoolExecutor(helpers,helpers, 30, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), r -> { Thread t = new Thread(() -> { try { android.os.Process.setThreadPriority(BACKGROUND_PRIORITY); } catch (Throwable ignored) { } r.run(); }, "starcore-r27-compute"); t.setDaemon(true); return t; });
     }
     public ResearchWriteQueueR27 writes() { return writes; }
     public ExecutorService compute() { return compute; }
@@ -85,7 +89,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
             try (Cursor c = ro.rawQuery("PRAGMA query_only=1", null)) { c.moveToFirst(); } catch (RuntimeException ignored) { }
             try(Cursor c=realtime.rawQuery("PRAGMA query_only=1",null)){c.moveToFirst();}
             connections.add(ro);connections.add(realtime);
-            final Worker w = new Worker(ro,realtime, "starcore-r27-research-" + i);workers.add(w);
+            final Worker w = new Worker(ro,realtime, "starcore-r27-research-" + i);w.serviceWorker=i==0;workers.add(w);
             Thread t = new Thread(() -> loop(w), w.name); t.setDaemon(true); threads.add(t); t.start();
         }
     }
@@ -101,11 +105,12 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 // R27.2: the same one-worker floor while P0 analysis/settlement runs (device: request→commit P95 20.5 s with
                 // MODEL_BUNDLE_OPEN 10.6 s wall / 0.13 s CPU while every worker ran). Research never drops to zero.
                 int limit = narrow(System.currentTimeMillis()) ? 1 : Math.min(size, parallelismLimit);
+                if(limit==1&&!w.serviceWorker&&serviceDispatcher()!=null){sleep(20);continue;}
                 if (!ResearchSlotsR29.tryEnter(active, limit)) { sleep(100); continue; }
                 if(migrationPause.get()){active.decrementAndGet();sleep(10);continue;}
                 Task t;
-                try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
-                if (t == null) { active.decrementAndGet(); sleep(250); continue; }
+                try { t = next(w); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
+                if (t == null) { active.decrementAndGet(); sleep(serviceDispatcher()==null?250:20); continue; }
                 Outcome o = null; Throwable failure = null;
                 boolean quarantined = false;
                 try {
@@ -118,7 +123,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                     if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
                     slices++;
                     record(t.id(), o, failure);
-                    if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : 1000)); }
+                    if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis()+retryDelay(o==null?null:o.reason,failure)); }
                 } finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
             } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
             long now = SystemClock.elapsedRealtime();
@@ -129,15 +134,23 @@ public final class ResearchPoolR27 implements AutoCloseable {
     /** Freeze window or active P0 work: the pool runs with one worker (R27.2). */
     boolean narrow(long now) { return parallelismLimit == 1 || writes.freezeWindow(now) || ResearchWriteQueueR27.p0Writing(); }
 
-    private synchronized Task next() {
+    static long retryDelay(String reason,Throwable failure){if(failure!=null)return 5000;if(reason!=null&&(reason.startsWith("COOPERATIVE")||reason.equals("SLICE_BUDGET")))return reason.contains("WRITER_BUSY")?50:10;return 1000;}
+    private synchronized Task serviceDispatcher(){for(Task t:tasks)if(t.serviceDispatcher()&&t.enabled())return t;return null;}
+    private boolean eligible(Task t,long now){Long nb=notBefore.get(t.id());return t.enabled()&&!Boolean.TRUE.equals(running.get(t.id()))&&(nb==null||nb<=now);}
+    private Task selected(Task t){running.put(t.id(),true);notBefore.remove(t.id());tasks.remove(t);tasks.add(t);return t;}
+    private synchronized Task next(Worker worker) {
         long now = System.currentTimeMillis();
+        Task dispatcher=serviceDispatcher();
+        if(dispatcher!=null&&worker.serviceWorker){
+            for(Task t:tasks)if(eligible(t,now)&&t.urgent(worker,now))return selected(t);
+            if(++worker.serviceTurns%8==0)for(Task t:tasks)if(t.id().equals("r29-legacy-continuity")&&eligible(t,now))return selected(t);
+            if(eligible(dispatcher,now))return selected(dispatcher);
+            if(size>1)return null;
+        }
         for (Task t : tasks) {
-            if (Boolean.TRUE.equals(running.get(t.id()))) continue;
-            Long nb = notBefore.get(t.id()); if (nb != null && nb > now) continue;
-            running.put(t.id(), true); notBefore.remove(t.id());
+            if(!eligible(t,now)||dispatcher!=null&&!worker.serviceWorker&&t==dispatcher)continue;
             // Round-robin fairness: move the claimed task to the end.
-            tasks.remove(t); tasks.add(t);
-            return t;
+            return selected(t);
         }
         return null;
     }

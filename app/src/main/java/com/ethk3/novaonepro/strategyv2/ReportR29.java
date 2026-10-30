@@ -29,6 +29,7 @@ public final class ReportR29 {
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         out.put("learningDelivery", ResearchEventBridgeR29.diagnostics(db));
         out.put("researchMigration", cachedPanel(db, "r29", "research-migration"));
+        out.put("preparedFreeze",PreparedForecastR29.diagnostics(db));
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
         if ("RECORDED".equals(model.get("status"))) {
