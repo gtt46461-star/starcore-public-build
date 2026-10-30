@@ -1,4 +1,4 @@
-name: R29 Android batch integration without publication
+name: R29 full App startup diagnostic
 on:
   push:
     branches: ['construction/su1-20261022']
@@ -22,6 +22,7 @@ jobs:
           import json,os,re
           r=json.load(open('.github/r29-integration-request.json'))
           assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          assert r['source']=='51cca638e3dd2e22ff315a30235cf31b3974eb72', 'DIAGNOSTIC_SOURCE_PIN_MISMATCH'
           with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('source='+r['source']+'\n')
           PY
       - uses: actions/checkout@v4
@@ -41,23 +42,61 @@ jobs:
           path: ~/.starcore/su1-api-transport
           key: starcore-su1-api-transport-v1
           fail-on-cache-miss: true
-      - name: Use the existing secure CI signing binding
-        run: python3 scripts/load_r13_signing.py
+      - name: Use only the existing secure R13 CI signing and API binding
+        run: |
+          python3 scripts/load_r13_signing.py
+          python3 scripts/load_su1_bundled_api.py
+          echo 'R29_SIGNING=OFFICIAL_R13' >> "$GITHUB_ENV"
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
           log-accepted-android-sdk-licenses: false
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Assert the exact diagnostic source; this does not replace complete formal acceptance
+        run: |
+          python3 - <<'PYCODE'
+          import json,subprocess
+          from pathlib import Path
+          source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert source=='51cca638e3dd2e22ff315a30235cf31b3974eb72'
+          assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],text=True).strip()
+          Path('r29-startup-diagnostic-source.json').write_text(json.dumps({'sourceCommit':source,'scope':'ADDITIONAL_FULL_APP_STARTUP_DIAGNOSTIC_ONLY','replacesFormalAcceptance':False,'formalAcceptance':'SEPARATE_COMPLETE_HOST_JUNIT_NATIVE_AND_INSTALLATION_MATRIX_REQUIRED'},indent=2)+'\n')
+          PYCODE
       - name: Compile exact requested source and instrumentation APKs
         run: |
-          ./gradlew --no-daemon --max-workers=4 :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee r29-integration-build.log | tail -n 35
+          ./gradlew --no-daemon --max-workers=4 :app:assembleDebug :app:assembleDebugAndroidTest 2>&1 | tee r29-startup-diagnostic-build.log | tail -n 35
           git diff --exit-code -- app/src/main release app/build/generated
+      - name: Verify only the actual debug APK public certificate, source and manifest receipt
+        env:
+          R29_SIGNING: OFFICIAL_R13
+        run: |
+          python3 tools/r29/package_receipt.py
+          python3 - <<'PYCODE'
+          import json
+          from pathlib import Path
+          rows=json.loads(Path('r29-apk/delivery.json').read_text())
+          assert len(rows)==1, 'DIAGNOSTIC_REQUIRES_DEBUG_ONLY'
+          r=rows[0]
+          assert r['apk']=='STARCORE-R29.1-51cca638e3dd-debug.apk'
+          assert r['sourceCommit']=='51cca638e3dd2e22ff315a30235cf31b3974eb72'
+          assert r['certificateSha256']=='9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca'
+          assert r['signingIdentity']=='OFFICIAL_R13' and r['package']=='com.starcore.research.r13'
+          assert r['versionCode']==577291015 and r['versionName']=='R29.1-2026.10.30-checkpoint15'
+          assert r['installation']=='NOT_RUN' and r['startup']=='NOT_RUN'
+          PYCODE
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
+        env:
+          R29_SIGNING: OFFICIAL_R13
+          R29_VARIANT: debug
+          EXPECTED_CERT: 9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca
+          R29_BASELINE_VERSION: '577291006'
+          R29_BASELINE_URL: https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+          R29_BASELINE_SHA256: ab10c8e85344a347a695d11ddeb652b419d09c49e81513204037e3e0684a7743
         with:
           api-level: 34
           arch: x86_64
@@ -66,13 +105,18 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: bash tools/r29/emulator_integration.sh
+          script: bash tools/r29/emulator_smoke.sh r29-apk evidence/r29/startup-diagnostic
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: R29-BATCH-INTEGRATION-${{ steps.request.outputs.source }}
+          name: R29-FULL-APP-STARTUP-DIAGNOSTIC-${{ steps.request.outputs.source }}
           path: |
-            evidence/r29/integration/
-            r29-integration-build.log
-            app/build/outputs/apk/debug/*.apk
-            app/build/outputs/apk/androidTest/debug/*.apk
+            evidence/r29/startup-diagnostic/**/*.json
+            evidence/r29/startup-diagnostic/**/*.txt
+            evidence/r29/startup-diagnostic/**/*.log
+            startup-evidence/*.json
+            startup-evidence/*.txt
+            startup-evidence/*.log
+            r29-startup-diagnostic-source.json
+            r29-startup-diagnostic-build.log
+            r29-apk/delivery.json
