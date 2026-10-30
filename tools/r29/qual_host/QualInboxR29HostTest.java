@@ -288,6 +288,7 @@ public final class QualInboxR29HostTest {
         }
         atomicBatches();
         modelCheckpointTransaction();
+        legacyModelPreservation();
         System.out.println("R29_QUAL|SUMMARY|" + (FAIL.isEmpty() ? "OK" : "FAILED " + FAIL));
         System.exit(FAIL.isEmpty() ? 0 : 1);
     }
@@ -347,5 +348,25 @@ public final class QualInboxR29HostTest {
             }
         }
         check("Q15_MODEL_CURSOR_ATOMIC_RESTORE", rejected && same, "optimizer/RNG/replay/model and issue cursor roll back together");
+    }
+
+    static void legacyModelPreservation() throws Exception {
+        SQLiteDatabase db = open(); QualificationInboxR29.Commit sink = sink(db, 0, new Random(1));
+        byte[] original = new AtomNetR27(8, 27).encode(); String hash = StatsR27.sha256(original);
+        db.execSQL("INSERT INTO r27_atomnet_state VALUES('ATOMNET',?,?,?,17,0.001,NULL,1234)", new Object[] {original,hash,"LEGACY_ISSUE_17"});
+        ResearchWriteQueueR27.Batch migrate = new ResearchWriteQueueR27.Batch().add(ModelArtifactR29.PRESERVE_LEGACY);
+        sink.commit("PRESERVE_LEGACY", migrate); sink.commit("PRESERVE_AGAIN", migrate);
+        db.execSQL("UPDATE r27_atomnet_state SET artifact=x'01',artifact_hash='new',trained_through='NEW_ISSUE'");
+        db.execSQL("INSERT INTO r29_model_checkpoint VALUES('ATOMNET_FTRL',?,'new','NEW_ISSUE','new',x'01',2345)", new Object[] {ModelArtifactR29.ABI});
+        sink.commit("REENTER_MIGRATION", migrate);
+        boolean exact = false;
+        try (Cursor c = db.rawQuery("SELECT artifact,artifact_hash,trained_through,online_steps FROM r29_legacy_model_checkpoint", null)) {
+            exact = c.moveToFirst() && java.util.Arrays.equals(original,c.getBlob(0)) && hash.equals(c.getString(1))
+                    && "LEGACY_ISSUE_17".equals(c.getString(2)) && c.getLong(3)==17 && !c.moveToNext();
+        }
+        boolean updateBlocked = false, deleteBlocked = false;
+        try { db.execSQL("UPDATE r29_legacy_model_checkpoint SET artifact=x'02'"); } catch (RuntimeException expected) { updateBlocked = expected.getMessage().contains("IMMUTABLE"); }
+        try { db.execSQL("DELETE FROM r29_legacy_model_checkpoint"); } catch (RuntimeException expected) { deleteBlocked = expected.getMessage().contains("IMMUTABLE"); }
+        check("Q16_LEGACY_MODEL_PRESERVED_BEFORE_RETRAIN", exact && updateBlocked && deleteBlocked, "original bytes/hash/cursor kept; idempotent migration; active full state stops legacy copying; update/delete rejected");
     }
 }

@@ -14,6 +14,10 @@ public final class ModelArtifactR29 {
     public static final String ABI = "ATOMREPLAY_R27_ROTATING_POSITION_HIT_V1";
     private static final int MAGIC = 0x29A70002, LEGACY_MAGIC = 0x29A70001, MAX_BYTES = 64 << 20, MAX_INPUT = 4096;
     public static final String DDL = "CREATE TABLE IF NOT EXISTS r29_model_checkpoint(owner TEXT PRIMARY KEY,feature_abi TEXT NOT NULL,dataset_hash TEXT NOT NULL,trained_through TEXT NOT NULL,state_hash TEXT NOT NULL,artifact BLOB NOT NULL,updated_at INTEGER NOT NULL)";
+    public static final String LEGACY_DDL = "CREATE TABLE IF NOT EXISTS r29_legacy_model_checkpoint(owner TEXT NOT NULL,artifact_hash TEXT NOT NULL,artifact BLOB NOT NULL,trained_through TEXT NOT NULL,online_steps INTEGER NOT NULL,learning_rate REAL NOT NULL,last_check_logloss REAL,archived_at INTEGER NOT NULL,reason TEXT NOT NULL,PRIMARY KEY(owner,artifact_hash))";
+    public static final String PRESERVE_LEGACY = "INSERT OR IGNORE INTO r29_legacy_model_checkpoint(owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,archived_at,reason) SELECT owner,artifact_hash,artifact,trained_through,online_steps,learning_rate,last_check_logloss,updated_at,'LEGACY_PARTIAL_STATE_PRESERVED_BEFORE_R29_RETRAIN' FROM r27_atomnet_state WHERE owner='ATOMNET' AND NOT EXISTS(SELECT 1 FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL')";
+    public static final String LEGACY_NO_UPDATE = "CREATE TRIGGER IF NOT EXISTS r29_legacy_model_no_update BEFORE UPDATE ON r29_legacy_model_checkpoint BEGIN SELECT RAISE(ABORT,'R29_LEGACY_MODEL_IMMUTABLE'); END";
+    public static final String LEGACY_NO_DELETE = "CREATE TRIGGER IF NOT EXISTS r29_legacy_model_no_delete BEFORE DELETE ON r29_legacy_model_checkpoint BEGIN SELECT RAISE(ABORT,'R29_LEGACY_MODEL_IMMUTABLE'); END";
     public final AtomNetTrainerR27 trainer;
     public final FtrlR27 ftrl;
     public final String datasetHash, trainedThrough;

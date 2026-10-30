@@ -53,6 +53,9 @@ public final class SchemaR27 {
         QualificationInboxR29.DDL[5],
         GateV2R29.DDL,
         ModelArtifactR29.DDL,
+        ModelArtifactR29.LEGACY_DDL,
+        ModelArtifactR29.LEGACY_NO_UPDATE, ModelArtifactR29.LEGACY_NO_DELETE,
+        ModelArtifactR29.PRESERVE_LEGACY,
         "CREATE TABLE IF NOT EXISTS r29_atomnet_forecast(target_issue TEXT NOT NULL,model TEXT NOT NULL,model_hash TEXT NOT NULL,trained_through TEXT NOT NULL,feature_abi TEXT NOT NULL,frozen_at INTEGER NOT NULL,deadline_at INTEGER NOT NULL,PRIMARY KEY(target_issue,model))",
         "CREATE TABLE IF NOT EXISTS r27_opportunity(target_ordinal INTEGER PRIMARY KEY,target_issue TEXT NOT NULL,scheduled INTEGER NOT NULL,frozen INTEGER NOT NULL,acted INTEGER NOT NULL,settled INTEGER NOT NULL,deadline_missed INTEGER NOT NULL,recorded_at INTEGER NOT NULL)"
     };

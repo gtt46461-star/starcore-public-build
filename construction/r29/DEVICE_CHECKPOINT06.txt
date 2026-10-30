@@ -1,0 +1,20 @@
+R29.1 checkpoint06 设备续验方法（未运行不计通过）
+
+1. 先核对现有APK证书：原R13/R26为9e6d5d…；既有R27/前两版R29 CI为d8d8ce…。选择同证书的checkpoint06 APK。
+   adb install -r <匹配签名的APK>
+   禁止用卸载、清数据或换签来代替覆盖升级验收。干净安装场景另用空白测试设备。
+2. 启动应用、确认服务就绪，导出一份完整检测报告作为起点。记录source/version/signature和当前draw/freeze/settlement/learning游标。
+3. 使用debug验证包时，可从run-as读取轻量服务健康；release包若禁止run-as，观察器会明确heartbeatUnavailable，不冒充已测。
+   python3 tools/r29/observe_device.py --serial <adb设备号> --duration-seconds 3600 --out evidence/device/foreground60m
+4. 息屏6小时；保持应用前台服务合法运行，不把系统强停称为持续在线。
+   adb -s <adb设备号> shell input keyevent 223
+   python3 tools/r29/observe_device.py --serial <adb设备号> --duration-seconds 21600 --out evidence/device/screenoff6h
+5. 连续72小时及跨日；每个场景前后从应用导出完整报告。
+   python3 tools/r29/observe_device.py --serial <adb设备号> --duration-seconds 259200 --out evidence/device/continuous72h
+6. 分别人工执行20分钟断网再重连、系统回收后重开、导出时取消/重建、热压力和低存储；不要清数据库。
+   记录恢复前后相同期号是否仅结算一次、旧合法冻结是否补结算、缺冻结是否保持缺口、学习游标是否恢复。
+7. 观察器只做只读采样，绝不自动签收：需将起止报告与observations.jsonl合并核对业务游标、P95、重复结算、缺期、OOM/ANR、数据库完整性。
+   adb断开、进程缺失、心跳不可读/过期均单独计数；无权限不记0或PASS。
+8. 自然质量从预登记后的合法未来样本另行统计；上述合成/工程测试、屏幕在线时间、训练次数都不是命中率或真实频率证据。
+
+当前本任务没有目标V2353A手机；真机60min/6h/72h及自然质量为NOT_RUN/INSUFFICIENT。

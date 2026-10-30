@@ -78,6 +78,7 @@ public final class ReportR29 {
         Map<String,Object> m = new LinkedHashMap<>();
         m.put("status", "NEVER_RUN"); m.put("I08SurfaceIntegration", "NOT_IMPLEMENTED");
         m.put("scope", "Existing rotating-position hit experiment; not a 10x10 number-surface model");
+        m.put("legacyPartialStatesPreserved", QualificationInboxR29.count(db, "SELECT count(*) FROM r29_legacy_model_checkpoint"));
         try (Cursor c = db.rawQuery("SELECT feature_abi,dataset_hash,trained_through,state_hash,length(artifact),updated_at FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {
             if (c.moveToFirst()) {
                 m.put("status", "RECORDED"); m.put("featureAbi", c.getString(0)); m.put("datasetHash", c.getString(1)); m.put("trainedThrough", c.getString(2));
