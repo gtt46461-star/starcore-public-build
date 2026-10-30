@@ -1,0 +1,37 @@
+{
+  "result": "PASS",
+  "runnerExit": 0,
+  "sourceSha256": {
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java": "9e8a56679dadeeb37be4f1b19eb219a20f1bc7eb965fca7547eba45c9f4065cd",
+    "tools/r29/qual_host/DurableHandoffR29HostTest.java": "e5ea13b8959be0c3349b167996d2aeb2b113d922820e856ac988343ec6b661e4",
+    "tools/r29/qual_host/RootNotificationFenceR29HostTest.java": "bf7f70937af34ab7cea9f464a54a8c1f490d9e0ae0dc2272d8eeb2b17325bb32",
+    "tools/r29/run_root_notification_fence_host.sh": "7bcf869741e665103cc2b9a4d87336b391fcb265d12f4b9087b3df92fe7a8e5a"
+  },
+  "durableChecks": 34,
+  "rootNotificationChecks": 21,
+  "ackRecoveryChecks": 19,
+  "actualNegativeControls": [
+    "old84 sealed owner rootACK64/RPinbox0/rootModel2/RPmodel1",
+    "oldb8 PUBLISHED owner wait reason",
+    "old51 production P0-only false rejection",
+    "old84 ACK-repair absent"
+  ],
+  "productionFilesChanged": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchCutoverR29.java"
+  ],
+  "androidFixtureChanges": [],
+  "projection": {
+    "token": "only nonnegative INTEGER generation; PK/schema/other cells/count retained",
+    "mixedRevision": "only exact 3-column known CP8 journal Root authority rows: draws/canonical/provenance and explicit realtime ownership registry; unknown/research rows keep typed hashes and identities",
+    "longHead": "only generation/status/last_error for ACTIVE empty reason or known original CANONICAL_CHANGED/DRAW_CHANGED/CANONICAL_INSERT/DRAW_INSERT:<12-digit-issue>; all checkpoint, epoch, cursor, chain, availability, updated_at and other cells retained"
+  },
+  "fullTypedCopy": "UNCHANGED; retains all raw clocks, mixed revision rows and invalidation fields; original triggers and sealed bytes retained",
+  "rootWriter": "no research-table scans or hashing in writer; short metadata CAS only; existing 30s cutover deadline unchanged",
+  "protocol": "V2 for new reservations; V1 only upgrades after original complete Root hash matches exactly; changed or missing V1 evidence remains RECOVERY_REQUIRED with all original data/files retained",
+  "diagnostics": "same bounded row scan produces per-table schema/hash/count and protected hash/count; process-local bounded cache never authorizes; Android log contains no row keys/content",
+  "limits": [
+    "CP15 artifact lacks raw DB; producer tests prove V1 false-rejection paths, not unique actual-device culprit",
+    "R79 HEAD_AUDIT remains strictly protected; no speculative exclusion",
+    "latest V2 fullApp Android warm/clean acceptance is not yet run by this child"
+  ]
+}

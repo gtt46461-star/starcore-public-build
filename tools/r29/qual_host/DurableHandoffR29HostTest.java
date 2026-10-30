@@ -32,7 +32,7 @@ public final class DurableHandoffR29HostTest {
             }
             ResearchCutoverR29.sync(candidate);ResearchCutoverR29.copyBaseline(candidate,baseline,Long.MAX_VALUE,()->false);baselineSha=sha(baseline);
             base.root.execSQL("INSERT INTO r29_migration_publication VALUES(1,?,?,?, ?,?,?, '',1)",new Object[]{EPOCH,candidate.getName(),phase,phase.equals("PREPARED")?"":baseline.getName(),phase.equals("PREPARED")?"":baselineSha,phase.equals("PREPARED")?"":sourceHash});
-            base.root.execSQL("INSERT INTO r29_migration_owner_fence VALUES(1,?,?,?,1)",new Object[]{EPOCH,"R29_ROOT_RESEARCH_FROZEN_V1",rootResearchHash(base.root)});
+            base.root.execSQL("INSERT INTO r29_migration_owner_fence VALUES(1,?,?,?,1)",new Object[]{EPOCH,ResearchCutoverR29.FENCE_PROTOCOL,rootResearchHash(base.root)});
             if(phase.equals("RENAMED")&&!candidate.renameTo(published))throw new AssertionError("RENAME_REQUIRED");
             EventYieldR29HostTest.set(base.runtime.pool,"writes",new ResearchWriteQueueR27(base.store));worker=base.runtime.pool.new Worker(base.root,base.root,"durable-root-worker");
         }
@@ -122,6 +122,17 @@ public final class DurableHandoffR29HostTest {
             if(!f.baseline.delete())throw new AssertionError("BASELINE_REMOVE_REQUIRED");f.base.root.execSQL("UPDATE r29_migration_publication SET baseline_name='unexpected-pinned-proof' WHERE singleton=1");boolean rejected=false;
             try{ResearchCutoverR29.resumeBeforeRuntime(f.base.store);}catch(IllegalStateException e){rejected=e.getMessage().contains("PREPARED_PROOF_CONFLICT");}
             check("H17_AMBIGUOUS_PREPARED_PROOF_PRESERVES_CANDIDATE_AND_RESERVATION",rejected&&f.candidate.isFile()&&n(f.base.root,"SELECT count(*) FROM r29_migration_publication")==1);
+        }
+        try(Fixture f=new Fixture("RENAMED")){
+            f.base.root.execSQL("UPDATE r29_migration_owner_fence SET protocol='R29_ROOT_RESEARCH_FROZEN_V1'");
+            check("H18_V1_UNCHANGED_ORIGINAL_HASH_CAN_UPGRADE_AND_RESUME",ResearchCutoverR29.resumeBeforeRuntime(f.base.store).startsWith("ACTIVE_RECOVERED")&&ResearchCutoverR29.FENCE_PROTOCOL.equals(s(f.base.root,"SELECT protocol FROM r29_migration_owner_fence")));f.verifyUnchanged();
+            check("H19_PROTOCOL_UPGRADE_RETAINS_ORIGINAL_SEALED_BYTES_AND_MODEL",n(f.base.root,"SELECT v FROM r26_handoff_model")==1&&n(ResearchRouteR29.reader(f.base.root),"SELECT v FROM r26_handoff_model")==1);
+        }
+        try(Fixture f=new Fixture("RENAMED")){
+            f.base.root.execSQL("UPDATE r29_migration_owner_fence SET protocol='R29_ROOT_RESEARCH_FROZEN_V1'");f.base.root.execSQL("UPDATE r26_handoff_model SET v=9");boolean rejected=false;
+            try{ResearchCutoverR29.resumeBeforeRuntime(f.base.store);}catch(IllegalStateException e){rejected=e.getMessage().contains("OWNER_FENCE_PROTOCOL_V1_REQUIRES_MATCHING_ROOT");}
+            check("H20_V1_CHANGED_HASH_CANNOT_REBIND_CURRENT_ROOT",rejected&&!ResearchRouteR29.active(f.base.root)&&n(f.base.root,"SELECT v FROM r26_handoff_model")==9&&"R29_ROOT_RESEARCH_FROZEN_V1".equals(s(f.base.root,"SELECT protocol FROM r29_migration_owner_fence")));f.verifyUnchanged();
+            check("H21_V1_VERSION_BOUNDARY_REMAINS_DURABLE_AND_PRESERVES_BASELINE",s(f.base.root,"SELECT last_error FROM r29_migration_publication").contains("OWNER_FENCE_PROTOCOL_V1_REQUIRES_MATCHING_ROOT")&&f.baseline.isFile()&&f.published.isFile());
         }
         System.out.println("R29_DURABLE_HANDOFF|ALL_PASS|checks="+checks+"|REAL_SQLITE_PUBLICATION_RETRY_AND_RESTART_NOT_OS_KILL");
     }

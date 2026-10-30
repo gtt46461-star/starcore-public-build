@@ -1,0 +1,59 @@
+{
+  "scope": "REAL_ORIGINAL_CP8_DDL_SQLITE_PRODUCER_PROOF_NOT_UNIQUE_ANDROID_CAUSE",
+  "originalArray": "ResearchMigrationRegistryR952.CP8_DDL frozen51 compiled",
+  "ddlSha256": "d1937b7d92a456a3ea5651746e91858d5acdc323fafcb06ad005f21a2f87a41e",
+  "ownedTable": "research_row_revision_v2",
+  "observations": [
+    {
+      "operation": "rootP0Insert",
+      "before": [],
+      "after": [
+        [
+          1,
+          "draws",
+          1
+        ]
+      ]
+    },
+    {
+      "operation": "rootMetadataSameUpdate",
+      "before": [
+        [
+          1,
+          "draws",
+          1
+        ]
+      ],
+      "after": [
+        [
+          2,
+          "draws",
+          1
+        ]
+      ]
+    },
+    {
+      "operation": "researchInsert",
+      "before": [
+        [
+          2,
+          "draws",
+          1
+        ]
+      ],
+      "after": [
+        [
+          2,
+          "draws",
+          1
+        ],
+        [
+          3,
+          "research_action_v2",
+          1
+        ]
+      ]
+    }
+  ],
+  "warning": "MixedRootAuthorityAndResearchRevisionRows; do not drop whole table from migration"
+}

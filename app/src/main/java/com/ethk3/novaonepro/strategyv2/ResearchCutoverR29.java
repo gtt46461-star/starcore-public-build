@@ -15,7 +15,8 @@ public final class ResearchCutoverR29 {
     private ResearchCutoverR29(){}
     public static final String PUBLICATION="CREATE TABLE IF NOT EXISTS r29_migration_publication(singleton INTEGER PRIMARY KEY CHECK(singleton=1),epoch INTEGER NOT NULL,candidate_name TEXT NOT NULL,phase TEXT NOT NULL,baseline_name TEXT NOT NULL DEFAULT '',baseline_sha TEXT NOT NULL DEFAULT '',source_root TEXT NOT NULL DEFAULT '',last_error TEXT NOT NULL DEFAULT '',updated_at INTEGER NOT NULL)";
     static final String FENCE="CREATE TABLE IF NOT EXISTS r29_migration_owner_fence(singleton INTEGER PRIMARY KEY CHECK(singleton=1),epoch INTEGER NOT NULL,protocol TEXT NOT NULL,source_hash TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL)";
-    static final String FENCE_PROTOCOL="R29_ROOT_RESEARCH_FROZEN_V1";
+    static final String FENCE_PROTOCOL="R29_ROOT_RESEARCH_FROZEN_V2";
+    private static final String OLD_FENCE_PROTOCOL="R29_ROOT_RESEARCH_FROZEN_V1";
     private static final String CANDIDATE="starcore-r29-research.candidate.db";
     private static final long BUDGET_MS=30_000,RESERVE_BYTES=96L<<20;
 
@@ -114,7 +115,96 @@ public final class ResearchCutoverR29 {
         return out;
     }
     static String researchRoot(SQLiteDatabase root,long deadline,java.util.function.BooleanSupplier cancelled){
-        return root(root,researchTables(root),deadline,cancelled);
+        return researchFingerprint(root,researchTables(root),deadline,cancelled).hash;
+    }
+    /** Only source invalidation notifications are projected for the owner fence. The complete typed
+     * migration, sealed baseline and their hashes still contain EVERY original cell. In particular an
+     * unknown revision source, model checkpoint, numerical hash, chain or cursor is never exempted. */
+    private static String fenceRowHash(MigrationCopyR29.Table table,MigrationCopyR29.Row row){
+        String name=table.name;
+        if(!name.equals("research_long_source_token_r80")&&!name.equals("research_row_revision_v2")&&!name.equals("research_long_head_r80"))return row.hash;
+        Object[] cells=decode(row.payload,table.columns.size());
+        if(name.equals("research_row_revision_v2")){
+            int source=table.columns.indexOf("source_table");
+            int generation=table.columns.indexOf("generation"),identity=table.columns.indexOf("source_rowid");
+            if(table.columns.size()==3&&source>=0&&generation>=0&&identity>=0&&cells[source] instanceof String&&cells[generation] instanceof Long&&cells[identity] instanceof Long&&rootRevisionSource((String)cells[source]))return null;
+            return row.hash;
+        }
+        int generation=table.columns.indexOf("generation");
+        if(generation<0||!(cells[generation] instanceof Long)||(Long)cells[generation]<0)return row.hash;
+        if(name.equals("research_long_head_r80")){
+            int status=table.columns.indexOf("status"),error=table.columns.indexOf("last_error");
+            if(status<0||error<0||!(cells[status] instanceof String)||!(cells[error] instanceof String))return row.hash;
+            String state=(String)cells[status],reason=(String)cells[error];
+            boolean sourceNotification=state.equals("ACTIVE")&&reason.isEmpty()
+                    ||state.equals("INVALID_SOURCE")&&reason.matches("(?:CANONICAL_CHANGED|DRAW_CHANGED|CANONICAL_INSERT|DRAW_INSERT):[0-9]{12}");
+            if(!sourceNotification)return row.hash;
+            // The production source triggers change exactly these three cells. LongScale.commit also
+            // writes the checkpoint/cursor/updated_at and immutable snapshot or journal, all protected.
+            cells[status]="ACTIVE";cells[error]="";
+        }
+        cells[generation]=0L;
+        return StatsR27.sha256(fenceEncode(cells));
+    }
+    private static boolean rootRevisionSource(String source){
+        return source.equals("draws")||source.equals(com.ethk3.novaonepro.DbHelper.TABLE_R811_DRAW_CANONICAL)
+                ||source.equals("v57_draw_provenance_r811")||LegacyResearchOwnershipR29.realtime(source);
+    }
+    private static byte[] fenceEncode(Object[] cells){
+        try{ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);out.writeInt(0x29DB0001);out.writeInt(cells.length);
+            for(Object cell:cells){
+                if(cell==null)out.writeByte(Cursor.FIELD_TYPE_NULL);
+                else if(cell instanceof Long){out.writeByte(Cursor.FIELD_TYPE_INTEGER);out.writeLong((Long)cell);}
+                else if(cell instanceof Double){out.writeByte(Cursor.FIELD_TYPE_FLOAT);out.writeLong(Double.doubleToLongBits((Double)cell));}
+                else if(cell instanceof String){out.writeByte(Cursor.FIELD_TYPE_STRING);MigrationCopyR29.blob(out,((String)cell).getBytes(StandardCharsets.UTF_8));}
+                else if(cell instanceof byte[]){out.writeByte(Cursor.FIELD_TYPE_BLOB);MigrationCopyR29.blob(out,(byte[])cell);}
+                else throw new IllegalStateException("R29_FENCE_TYPED_CELL_INVALID");
+            }out.close();return bytes.toByteArray();
+        }catch(IOException impossible){throw new IllegalStateException("R29_FENCE_TYPED_ENCODE",impossible);}
+    }
+    static final class TableFingerprint{
+        final String schema,full,projected;final long rows,protectedRows;
+        TableFingerprint(String schema,String full,String projected,long rows,long protectedRows){this.schema=schema;this.full=full;this.projected=projected;this.rows=rows;this.protectedRows=protectedRows;}
+        boolean sameProtected(TableFingerprint other){return other!=null&&schema.equals(other.schema)&&protectedRows==other.protectedRows&&projected.equals(other.projected);}
+        String diagnostic(){return "schema="+schema+",rows="+rows+",full="+full+",protectedRows="+protectedRows+",protected="+projected;}
+    }
+    static final class ResearchFingerprint{
+        final String hash,originalHash;final Map<String,TableFingerprint> tables;
+        ResearchFingerprint(String hash,String originalHash,Map<String,TableFingerprint> tables){this.hash=hash;this.originalHash=originalHash;this.tables=Collections.unmodifiableMap(tables);}
+    }
+    /** One bounded row scan produces both the fence and low-sensitivity diagnostics. No Root writer,
+     * row keys, row contents or model bytes are used by the diagnostic cache or log. */
+    private static ResearchFingerprint researchFingerprint(SQLiteDatabase source,List<MigrationCopyR29.Table> tables,long deadline,java.util.function.BooleanSupplier cancelled){
+        StringBuilder protectedRoot=new StringBuilder("R29_ACTIVE_DATA_V1"),fullRoot=new StringBuilder("R29_ACTIVE_DATA_V1");Map<String,TableFingerprint> proofs=new LinkedHashMap<>();
+        for(MigrationCopyR29.Table table:tables){
+            String full=table.seed(),projected=full;Long after=null;long count=0,protectedCount=0;
+            for(;;){check(deadline,cancelled);List<MigrationCopyR29.Row> rows=page(source,table,after,deadline,cancelled);if(rows.isEmpty())break;
+                for(MigrationCopyR29.Row row:rows){String prior=full;full=MigrationCopyR29.chain(full,row.rowid,row.hash);String fence=fenceRowHash(table,row);if(fence!=null){projected=prior.equals(projected)&&row.hash.equals(fence)?full:MigrationCopyR29.chain(projected,row.rowid,fence);protectedCount++;}after=row.rowid;count++;}
+            }
+            fullRoot.append('|').append(table.name).append(':').append(count).append(':').append(full);
+            protectedRoot.append('|').append(table.name).append(':').append(protectedCount).append(':').append(projected);
+            proofs.put(table.name,new TableFingerprint(table.schemaHash,full,projected,count,protectedCount));
+        }
+        return new ResearchFingerprint(StatsR27.sha256(protectedRoot.toString()),StatsR27.sha256(fullRoot.toString()),proofs);
+    }
+    // Diagnostics are bounded process-local evidence, never a readiness or ownership decision.
+    private static final Map<String,ResearchFingerprint> FENCE_DIAGNOSTICS=new LinkedHashMap<>();
+    private static String diagnosticKey(SQLiteDatabase root,long epoch){return root.getPath()+"|"+epoch;}
+    private static void rememberFence(SQLiteDatabase root,long epoch,ResearchFingerprint proof){
+        synchronized(FENCE_DIAGNOSTICS){String key=diagnosticKey(root,epoch);if(FENCE_DIAGNOSTICS.containsKey(key))return;while(FENCE_DIAGNOSTICS.size()>=4)FENCE_DIAGNOSTICS.remove(FENCE_DIAGNOSTICS.keySet().iterator().next());FENCE_DIAGNOSTICS.put(key,proof);}
+        logFingerprint("BOUND",epoch,proof);
+    }
+    private static void logFingerprint(String phase,long epoch,ResearchFingerprint proof){
+        android.util.Log.i("R29_OWNER_FENCE",phase+"|epoch="+epoch+"|protocol="+FENCE_PROTOCOL+"|hash="+proof.hash);
+        for(Map.Entry<String,TableFingerprint> table:proof.tables.entrySet())android.util.Log.i("R29_OWNER_FENCE",phase+"|epoch="+epoch+"|table="+table.getKey()+"|"+table.getValue().diagnostic());
+    }
+    private static IllegalStateException advanced(SQLiteDatabase root,long epoch,ResearchFingerprint actual){
+        ResearchFingerprint before;synchronized(FENCE_DIAGNOSTICS){before=FENCE_DIAGNOSTICS.get(diagnosticKey(root,epoch));}
+        StringBuilder changed=new StringBuilder();
+        if(before!=null){Set<String> names=new TreeSet<>(before.tables.keySet());names.addAll(actual.tables.keySet());for(String name:names){TableFingerprint old=before.tables.get(name),now=actual.tables.get(name);if(old==null||!old.sameProtected(now)){if(changed.length()>0)changed.append(',');changed.append(name);if(changed.length()>500)break;}}}
+        else changed.append("DIAGNOSTIC_BASE_UNAVAILABLE");
+        logFingerprint("REJECTED_CURRENT",epoch,actual);
+        return new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL:TABLES="+changed);
     }
     static String fenceHash(SQLiteDatabase root,long epoch){
         try(Cursor table=root.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='r29_migration_owner_fence'",null)){
@@ -126,16 +216,38 @@ public final class ResearchCutoverR29 {
         }
     }
     private static void bindFence(DbStore store,SQLiteDatabase root,long epoch,long deadline,java.util.function.BooleanSupplier cancelled){
-        String expected=fenceHash(root,epoch),actual=researchRoot(root,deadline,cancelled);
-        if(!expected.isEmpty()){if(!expected.equals(actual))throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL");return;}
+        upgradeUnchangedV1Fence(store,root,epoch,deadline,cancelled);
+        String expected=fenceHash(root,epoch);ResearchFingerprint proof=researchFingerprint(root,researchTables(root),deadline,cancelled);String actual=proof.hash;
+        if(!expected.isEmpty()){if(!expected.equals(actual))throw advanced(root,epoch,proof);rememberFence(root,epoch,proof);return;}
         LegacyResearchScopeR29.realtimeWrite(store,"R29_BIND_RESEARCH_OWNER_FENCE",db->{
             db.execSQL("UPDATE r29_migration_owner_fence SET source_hash=? WHERE singleton=1 AND epoch=? AND protocol=? AND source_hash=''",new Object[]{actual,epoch,FENCE_PROTOCOL});
             if(!actual.equals(fenceHash(db,epoch)))throw new IllegalStateException("R29_OWNER_FENCE_HASH_CAS_CONFLICT");return 0;
         });
+        rememberFence(root,epoch,proof);
     }
     static void verifyFence(SQLiteDatabase root,long epoch,long deadline,java.util.function.BooleanSupplier cancelled){
         String expected=fenceHash(root,epoch);
-        if(!hash(expected)||!expected.equals(researchRoot(root,deadline,cancelled)))throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:ROOT_RESEARCH_ADVANCED_AFTER_SEAL");
+        ResearchFingerprint actual=researchFingerprint(root,researchTables(root),deadline,cancelled);
+        if(!hash(expected)||!expected.equals(actual.hash))throw advanced(root,epoch,actual);
+        rememberFence(root,epoch,actual);
+    }
+    /** V1 had no semantic manifest. It can be upgraded only while its ORIGINAL complete Root hash
+     * still matches; a changed V1 hash is never re-bound to current state or claimed as harmless. */
+    private static void upgradeUnchangedV1Fence(DbStore store,SQLiteDatabase root,long epoch,long deadline,java.util.function.BooleanSupplier cancelled){
+        try(Cursor table=root.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='r29_migration_owner_fence'",null)){if(!table.moveToFirst())return;}
+        String oldHash;
+        try(Cursor c=root.rawQuery("SELECT epoch,protocol,source_hash FROM r29_migration_owner_fence WHERE singleton=1",null)){
+            if(!c.moveToFirst()||c.getLong(0)!=epoch||!OLD_FENCE_PROTOCOL.equals(c.getString(1)))return;oldHash=c.getString(2);
+        }
+        ResearchFingerprint proof=researchFingerprint(root,researchTables(root),deadline,cancelled);
+        if(!hash(oldHash)||!oldHash.equals(proof.originalHash)){
+            logFingerprint("V1_PROTOCOL_CONFLICT_CURRENT",epoch,proof);
+            throw new IllegalStateException("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:OWNER_FENCE_PROTOCOL_V1_REQUIRES_MATCHING_ROOT");
+        }
+        LegacyResearchScopeR29.realtimeWrite(store,"R29_UPGRADE_UNCHANGED_OWNER_FENCE",db->{
+            db.execSQL("UPDATE r29_migration_owner_fence SET protocol=?,source_hash=? WHERE singleton=1 AND epoch=? AND protocol=? AND source_hash=?",new Object[]{FENCE_PROTOCOL,proof.hash,epoch,OLD_FENCE_PROTOCOL,oldHash});
+            if(!proof.hash.equals(fenceHash(db,epoch)))throw new IllegalStateException("R29_OWNER_FENCE_PROTOCOL_CAS_CONFLICT");return 0;
+        });rememberFence(root,epoch,proof);
     }
     private static void recordRecoveryRequired(DbStore store,RuntimeException failure){
         String reason=String.valueOf(failure.getMessage());if(!reason.startsWith("R29_PENDING_PUBLICATION_RECOVERY_REQUIRED:"))return;
@@ -166,6 +278,7 @@ public final class ResearchCutoverR29 {
                     try(Cursor exists=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name='r29_migration_owner_fence'",null)){if(exists.moveToFirst())db.execSQL("DELETE FROM r29_migration_owner_fence WHERE singleton=1 AND epoch=?",new Object[]{p.epoch});}
                 });return "UNSEALED_RESERVATION_CANCELLED_ROOT_RETAINED";
             }
+            upgradeUnchangedV1Fence(store,root,p.epoch,deadline,()->Thread.currentThread().isInterrupted());
             verifyFence(root,p.epoch,deadline,()->Thread.currentThread().isInterrupted());
             Publication ready=resumePublication(root,candidate,published,writer,deadline,()->Thread.currentThread().isInterrupted());
             if(ready==null)throw new IllegalStateException("R29_SEALED_STARTUP_PROOF_REQUIRED");
