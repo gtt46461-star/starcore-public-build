@@ -119,6 +119,10 @@ public final class ResearchRouteR29 {
         SQLiteDatabase ro=SQLiteDatabase.openDatabase(file.getPath(),null,SQLiteDatabase.OPEN_READWRITE);
         try{
             ro.execSQL("ATTACH DATABASE ? AS realtime",new Object[]{realtimePath});
+            // Formal receipts are always read from their original Root trade owner. TEMP views
+            // also shadow any retained pre-fix RP copies; a missing Root table fails closed.
+            for(String authority:new String[]{"r974_exact_real_receipt","research_exact_probability_f05"})
+                ro.execSQL("CREATE TEMP VIEW "+MigrationCopyR29.id(authority)+" AS SELECT * FROM realtime."+MigrationCopyR29.id(authority));
             // All research task/fence/evolution rows now belong to main, with no split-owner UNION.
             queryOnly(ro);return ro;
         }catch(RuntimeException failure){ro.close();throw failure;}
@@ -156,7 +160,10 @@ public final class ResearchRouteR29 {
                 writer.execSQL("PRAGMA synchronous=FULL");writer.beginTransactionNonExclusive();
                 try{
                     try(Cursor c=writer.rawQuery("PRAGMA database_list",null)){while(c.moveToNext())if(!"main".equals(c.getString(1))&&!"temp".equals(c.getString(1)))throw new IllegalStateException("R29_WRITER_MUST_NOT_ATTACH_REALTIME");}
-                    T value=action.call(writer);writer.setTransactionSuccessful();return value;
+                    if(!"R26_SESSION_STOP".equals(operation))LegacyResearchScopeR29.checkWriteFence(writer);
+                    T value=action.call(writer);
+                    if(!"R26_SESSION_STOP".equals(operation))LegacyResearchScopeR29.checkWriteFence(writer);
+                    writer.setTransactionSuccessful();return value;
                 }finally{writer.endTransaction();}
                 }
             }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_INTERRUPTED",interrupted);}

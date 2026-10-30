@@ -16,8 +16,8 @@ public final class ComputationReceiptR974 {
     static void schema(SQLiteDatabase db){
         db.execSQL("CREATE TABLE IF NOT EXISTS r974_prediction_rejection(target_issue TEXT NOT NULL,candidate_id TEXT NOT NULL,certificate_hash TEXT NOT NULL,reason TEXT NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(target_issue,candidate_id,certificate_hash))");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS r974_exact_real_receipt(target_issue TEXT PRIMARY KEY,trade_id INTEGER NOT NULL,candidate_id TEXT NOT NULL,model_hash TEXT NOT NULL,certificate_hash TEXT NOT NULL,proof_hash TEXT NOT NULL,recipe_hash TEXT NOT NULL,action_hash TEXT NOT NULL,authorization_hash TEXT NOT NULL,committed_at INTEGER NOT NULL)");
-        db.execSQL("CREATE TRIGGER IF NOT EXISTS r974_real_no_update BEFORE UPDATE ON r974_exact_real_receipt BEGIN SELECT RAISE(ABORT,'R974_REAL_RECEIPT_IMMUTABLE'); END");
+        com.ethk3.novaonepro.FormalReceiptSchemaR29.ensureExactRealIfRoot(db);
+
         db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE+"(target_issue TEXT NOT NULL,candidate_id TEXT NOT NULL,ast_hash TEXT NOT NULL,model_hash TEXT NOT NULL,predraw_input_hash TEXT NOT NULL,world_input_hash TEXT NOT NULL,world_output_hash TEXT NOT NULL,features TEXT NOT NULL,prediction_mask INTEGER NOT NULL,trace TEXT NOT NULL,receipt_hash TEXT NOT NULL,created_at INTEGER NOT NULL,PRIMARY KEY(target_issue,candidate_id))");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r974_compute_issue ON "+TABLE+"(target_issue)");
         db.execSQL("CREATE TRIGGER IF NOT EXISTS r974_compute_no_update BEFORE UPDATE ON "+TABLE+" BEGIN SELECT RAISE(ABORT,'R974_COMPUTATION_IMMUTABLE'); END");

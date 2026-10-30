@@ -164,7 +164,7 @@ public final class RuntimeR27 implements AutoCloseable {
         final class Turn {
             final FeatureCacheR27 cache,rebind;final ReplayDatasetR27 data;final EvolutionLoopR27 prior;
             final String saved;final int nextGeneration;final Map<String,Double> weights;final List<PolicyAstR27.Node> leaves;
-            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot;int stepBefore,genBefore;boolean batchPrepared;
+            EvolutionLoopR27 loop;StoreR27.EvolutionSink sink;String snapshot;int stepBefore,genBefore;boolean batchPrepared,failed;
             CooperativeContinuationR26<Turn> work;
             Turn(ResearchPoolR27.Worker w){
                 prior=evo;cache=evoCache;rebind=prior!=null&&prior.step==1?pendingCache:null;data=rebind==null?evoData:pendingData;
@@ -188,8 +188,17 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r27-evolution"; }
         public boolean boundedSlice(){return true;}
         private String owner(){return pool.session()+":R29_EVOLUTION";}
+        /** A cancelled update may have stopped halfway through a family-model row. Keep it private until its
+         * thread has exited, then rebuild the caches and restore only the last committed cursor. */
+        private boolean discardFailed(Turn pending){
+            if(!pending.work.isDone())return false;
+            synchronized(this){if(turn!=pending)return true;evo=null;evoCache=new FeatureCacheR27(evoData);if(pendingData!=null)pendingCache=new FeatureCacheR27(pendingData);turn=null;}
+            evolutionAccess.publish();return true;
+        }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if(stopping||w.cancelled())return ResearchPoolR27.Outcome.idle("USER_STOP",0,-1);
+            Turn failed=turn;
+            if(failed!=null&&failed.failed)return ResearchPoolR27.Outcome.idle(discardFailed(failed)?"COOPERATIVE_EVOLUTION_RESTORE_COMMITTED_CURSOR":"COOPERATIVE_CANCELLED_EVOLUTION_DRAIN",0,-1);
             if(deferredObservers!=null){if(!refreshObservers(w,deferredObservers))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:OBSERVERS",0,-1);deferredObservers=null;}
             if(evoCache==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)",0,-1);
             synchronized(this){
@@ -200,9 +209,10 @@ public final class RuntimeR27 implements AutoCloseable {
                     catch(Throwable failure){turn=null;evolutionAccess.publish();throw failure;}
                 }
             }
-            Turn pending=turn;CooperativeContinuationR26.Slice<Turn> slice=pending.work.slice(40);
+            Turn pending=turn;CooperativeContinuationR26.Slice<Turn> slice;
+            try{slice=pending.work.slice(40);}catch(Exception failure){pending.failed=true;pending.work.close();discardFailed(pending);throw failure;}
             if(!slice.done)return ResearchPoolR27.Outcome.idle("COOPERATIVE_PRIVATE_EVOLUTION_TURN",0,-1);
-            if(slice.error!=null){synchronized(this){turn=null;}evolutionAccess.publish();if(slice.error instanceof Exception)throw(Exception)slice.error;throw new IllegalStateException("R29_EVOLUTION_CONTINUATION",slice.error);}
+            if(slice.error!=null){pending.failed=true;pending.work.close();discardFailed(pending);if(slice.error instanceof Exception)throw(Exception)slice.error;throw new IllegalStateException("R29_EVOLUTION_CONTINUATION",slice.error);}
             if(stopping||w.cancelled())throw new InterruptedException("R29_EVOLUTION_CANCELLED_BEFORE_COMMIT");
             EvolutionLoopR27 loop=pending.loop;ResearchWriteQueueR27.Batch batch=pending.sink.batch;
             if(!pending.batchPrepared){

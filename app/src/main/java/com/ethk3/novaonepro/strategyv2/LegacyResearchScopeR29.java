@@ -19,6 +19,11 @@ public final class LegacyResearchScopeR29 {
     public static Scope enter(DbStore store){return new Scope(store);}
     public static boolean active(){return CURRENT.get()!=null&&REALTIME.get()==0;}
     private static void requireScope(){for(Scope s=CURRENT.get();s!=null;s=s.previous)if(!s.valid.getAsBoolean())throw new IllegalStateException("R29_CANCELLED_OR_REPLACED_RESEARCH_SCOPE");}
+    /** Derived mirror/receipt transactions use the same session and claim fence as their caller. */
+    public static void checkWriteFence(SQLiteDatabase db){
+        if(!active())return;
+        requireScope();RuntimeCoordinatorR26.checkThreadFence(db);
+    }
     public static boolean realtimeTransaction(){return REALTIME.get()>0;}
     public static SQLiteDatabase rawRealtime(DbStore store){return store.coordinatorForResearchR952().realtimeReadableR29();}
     private static SQLiteDatabase routedReader(DatabaseCoordinator coordinator,SQLiteDatabase original){
@@ -49,7 +54,7 @@ public final class LegacyResearchScopeR29 {
         ROUTING.set(ROUTING.get()+1);
         try{
             SQLiteDatabase root=s.store.coordinatorForResearchR952().realtimeReadOnlyR29();
-            if(ResearchRouteR29.active(root)&&!stopping){LegacyDomainUpgradeR29.ensure(s.store);ResearchInputMirrorR29.refresh(s.store);}
+            if(ResearchRouteR29.active(root)&&!stopping){RetainedFormalCopiesR29.ensure(s.store);LegacyDomainUpgradeR29.ensure(s.store);LegacyDomainExtensionR29.ensure(s.store);ResearchInputMirrorR29.refresh(s.store);}
             return ResearchRouteR29.write(s.store,operation,db->{
                 boolean independent=ResearchRouteR29.isResearchDatabase(db);if(independent)WRITER.set(db);
                 try{if(!stopping)requireScope();RuntimeCoordinatorR26.checkThreadFence(db);T value=task.call(db);RuntimeCoordinatorR26.checkThreadFence(db);if(!stopping)requireScope();return value;}

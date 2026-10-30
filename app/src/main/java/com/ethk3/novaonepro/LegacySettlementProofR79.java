@@ -46,12 +46,25 @@ public final class LegacySettlementProofR79 {
         }
         return ddl;
     }
+    private static java.util.LinkedHashMap<String,String> auditFences(SQLiteDatabase db){
+        java.util.LinkedHashMap<String,String> ddl=auditFences();
+        if(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)){
+            // The original fence acts on the verified read replica; Root retains authority.
+            for(String op:new String[]{"insert","update","delete"}){
+                String name="r80_asset_audit_fence_7_"+op;
+                ddl.put(name,ddl.get(name).replace(" ON "+DbHelper.TABLE_R811_DRAW_CANONICAL+" ",
+                        " ON "+com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.CANONICAL_INPUT+" "));
+            }
+        }
+        return ddl;
+    }
 
     /** A bounded continuation audit, never a proof producer or a second settlement owner.
      * The original outcomes bind every replay state. A snapshot change invalidates the cursor;
      * an explicit stale cursor restarts from the original zero state. Ambiguous histories stay closed. */
     static String auditAssetHead(SQLiteDatabase db,String id) {
         if(!db.inTransaction())throw new IllegalStateException("R80_ASSET_AUDIT_WRITER_REQUIRED");
+        requireCanonicalInputR29(db);
         if(assetHeadEligible(db,id))return "ALREADY_ELIGIBLE";
         String spec,stateBlob,trained,earliest;long updates;
         try(Cursor g=db.rawQuery("SELECT genome_spec,state_blob,state_updates,trained_until_issue,earliest_use_issue FROM "+AssetGenesisEngineR915.TABLE_ASSET_GENOME+" WHERE asset_id=?",new String[]{id})) {
@@ -159,22 +172,30 @@ public final class LegacySettlementProofR79 {
     private LegacySettlementProofR79() {}
     static void schema(SQLiteDatabase db) {
         if(!db.inTransaction())throw new IllegalStateException("R79_LEGACY_SCHEMA_WRITER_REQUIRED");
+        requireCanonicalInputR29(db);
         for(String ddl:DDL)db.execSQL(ddl);
         for(String ddl:AUDIT_DDL)db.execSQL(ddl);
-        for(String ddl:auditFences().values())db.execSQL(ddl);
+        for(String ddl:auditFences(db).values())db.execSQL(ddl);
         if(!ready(db))throw new IllegalStateException("R79_LEGACY_SCHEMA_FINGERPRINT");
     }
     static boolean ready(SQLiteDatabase db) {
+        try{requireCanonicalInputR29(db);}catch(IllegalStateException pending){
+            if(String.valueOf(pending.getMessage()).startsWith("CP3_DB_BUSY"))return false;throw pending;
+        }
         for(int i=0;i<NAMES.length;i++)try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{NAMES[i]})) {
             if(!c.moveToFirst()||!normalize(DDL[i]).equals(normalize(c.getString(0))))return false;
         }
         for(int i=0;i<AUDIT_NAMES.length;i++)try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{AUDIT_NAMES[i]})) {
             if(!c.moveToFirst()||!normalize(AUDIT_DDL[i]).equals(normalize(c.getString(0))))return false;
         }
-        for(java.util.Map.Entry<String,String> e:auditFences().entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})) {
+        for(java.util.Map.Entry<String,String> e:auditFences(db).entrySet())try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE name=?",new String[]{e.getKey()})) {
             if(!c.moveToFirst()||!normalize(e.getValue()).equals(normalize(c.getString(0))))return false;
         }
         return true;
+    }
+    private static void requireCanonicalInputR29(SQLiteDatabase db){
+        if(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db))
+            com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.ensureCanonicalReady(db);
     }
     private static String normalize(String text){return safe(text).replace("IF NOT EXISTS ","").replaceAll("\\s+"," ").trim();}
 

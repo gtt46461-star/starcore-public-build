@@ -15,6 +15,7 @@ public final class StrategySchemaSU1 {
     };
     private StrategySchemaSU1() {}
     public static boolean advance(SQLiteDatabase db){
+        StrategySchemaDomainR29.prepareResearch(db);
         db.execSQL("CREATE TABLE IF NOT EXISTS su1_migration_unit_v2(unit INTEGER PRIMARY KEY,sql_hash TEXT NOT NULL,installed_at INTEGER NOT NULL)");
         for(String guard:JOURNAL_GUARDS)db.execSQL(guard);
         if(upgradePreview(db))return false;
@@ -25,7 +26,7 @@ public final class StrategySchemaSU1 {
         if(installed<SqlStatementsSU1.SQL.length){
             db.beginTransaction();
             try{
-                String sql=SqlStatementsSU1.SQL[installed];db.execSQL(sql);
+                String sql=SqlStatementsSU1.SQL[installed];StrategySchemaDomainR29.execute(db,sql,"SU1_STORAGE");
                 db.execSQL("INSERT INTO su1_migration_unit_v2 VALUES(?,?,?)",new Object[]{installed,HashingSU1.text(sql),System.currentTimeMillis()});
                 db.setTransactionSuccessful();
             }finally{db.endTransaction();}
@@ -33,6 +34,7 @@ public final class StrategySchemaSU1 {
         return ready(db);
     }
     public static boolean ready(SQLiteDatabase db){
+        if(!StrategySchemaDomainR29.domainReady(db))return false;
         try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='su1_migration_unit_v2'",null)){if(!c.moveToFirst())return false;}
         // An incomplete journal can never be READY. Do not rehash its growing prefix on
         // every service quantum; verify every immutable unit and object once it is complete.
@@ -44,7 +46,7 @@ public final class StrategySchemaSU1 {
             if(n!=SqlStatementsSU1.SQL.length)return false;
         }catch(android.database.sqlite.SQLiteException absent){return false;}
         for(String sql:JOURNAL_GUARDS)if(!objectMatches(db,sql))return false;
-        for(String sql:SqlStatementsSU1.SQL)if(!objectMatches(db,sql))return false;
+        for(String sql:SqlStatementsSU1.SQL)if(StrategySchemaDomainR29.requiredHere(db,sql)&&!objectMatches(db,sql))return false;
         VERIFIED.put(db,version);
         return true;
     }

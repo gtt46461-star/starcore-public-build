@@ -2,6 +2,7 @@ package com.ethk3.novaonepro;
 
 import com.ethk3.novaonepro.strategyv2.ReplayDatasetR27;
 import com.ethk3.novaonepro.strategyv2.StatsR27;
+import com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +31,12 @@ public final class AtomReplayR27 {
     public static Frame build(ReplayDatasetR27 d, int from, int to) {
         Frame f = new Frame(from, to);
         for (int t = from; t < to; t++) {
+            CooperativeContinuationR26.poll();
             int i = t - from;
             int lo = Math.max(0, t - HISTORY);
             if (t - lo < MIN_ROWS) continue;
             List<Models.Draw> h = new ArrayList<>(t - lo);
-            for (int s = lo; s < t; s++) h.add(draw(d, s));
+            for (int s = lo; s < t; s++) { if((s&31)==0)CooperativeContinuationR26.poll();h.add(draw(d, s)); }
             int pos = (int) Math.floorMod(d.ordinals[t], 10L) + 1;
             int[] k3 = top3(d, lo, t, pos);
             HistoricalStrategyInventionR908.Profile profile = HistoricalStrategyInventionR908.Profile.from(h);

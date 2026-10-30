@@ -39,6 +39,7 @@ public final class StrategySchemaSU2 {
     /** Inside the research writer transaction (DatabaseCoordinator). Idempotent. */
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("SU2_SCHEMA_WRITER_TRANSACTION");
+        StrategySchemaDomainR29.prepareResearch(db);
         String existing = genomeDefinition(db);
         if (existing != null && !supportsCommittees(existing)) {
             // R13 allowed only SU2| programs of at most 2048 characters. CREATE IF NOT
@@ -49,7 +50,7 @@ public final class StrategySchemaSU2 {
             db.execSQL("DROP TABLE su2_model_genome");
             db.execSQL("ALTER TABLE su2_model_genome_r16 RENAME TO su2_model_genome");
         }
-        for (String s : DDL) db.execSQL(s);
+        for (String s : DDL) StrategySchemaDomainR29.execute(db,s,"SU2_STORAGE");
     }
     private static String genomeDefinition(SQLiteDatabase db) {
         try (Cursor c = db.rawQuery("SELECT sql FROM sqlite_master WHERE type='table' AND name='su2_model_genome'", null)) {
@@ -60,8 +61,14 @@ public final class StrategySchemaSU2 {
         return sql != null && sql.contains("8192") && sql.contains("'SU2C'") && sql.contains("'SU2S'");
     }
     public static boolean ready(SQLiteDatabase db) {
-        try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_live_decision','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor','su2_matrix_snapshot')", null)) {
-            return c.moveToFirst() && c.getInt(0) == 11 && supportsCommittees(genomeDefinition(db));
+        if (!ResearchRouteR29.isResearchDatabase(db)) {
+            try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_live_decision','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor','su2_matrix_snapshot')", null)) {
+                return c.moveToFirst() && c.getInt(0) == 11 && supportsCommittees(genomeDefinition(db));
+            }
+        }
+        if(!StrategySchemaDomainR29.domainReady(db))return false;
+        try (Cursor c = db.rawQuery("SELECT count(*) FROM sqlite_master WHERE type='table' AND name IN ('su2_model_genome','su2_league','su2_storage_budget','su2_track_block','su2_diag_state','su2_diag_snapshot','su2_diag_shadow','su2_stage_bundle','su2_track_cursor','su2_matrix_snapshot')", null)) {
+            return c.moveToFirst() && c.getInt(0) == 10 && supportsCommittees(genomeDefinition(db));
         }
     }
 }

@@ -51,6 +51,8 @@ public final class SchemaDomainCoordinatorR926 {
                 ReleaseManifestR926.CRITICAL_DOMAIN_REVISION,
                 new String[] {
                     "r26_feedback",
+                    "r974_exact_real_receipt", "r974_real_no_update",
+                    "research_exact_probability_f05", "f05_exact_probability_no_update", "f05_exact_probability_no_replace",
                     DbHelper.TABLE_DRAWS,
                     DrawDependencyInputCP12.TABLE,
                     DrawDependencyInputCP12.SOURCE,
@@ -187,6 +189,19 @@ public final class SchemaDomainCoordinatorR926 {
                     // CP12 required owner storage; retain all existing CP4 required objects.
                     , "r967_frozen_evaluation_v2", "research_action_input_boundary_cp12", "research_action_proposal_cp12", "research_action_result_binding_cp12", "research_artifact_identity_v2", "research_atom_catalog_import_cp12", "research_calibration_quality_cp12", "research_development_receipt_v2", "research_durable_model_identity_cp12", "research_durable_model_ref_cp12", "research_family_creation_cp12", "research_family_cursor_cp12", "research_family_wheel_cp12", "research_feedback_rejection_cp12", "research_formal_observation_cp12", "research_matrix_input_cp12", "research_matrix_regime5_cp12", "research_matrix_spec_cp12", "research_matrix_terminal_cp12", "research_molecule_import_cp12", "research_molecule_use_cp12", "research_row_revision_v2", "research_task_input_binding_v2", "research_task_retention_expiry_cp12", "research_training_attachment_cp12", "research_training_feature_cursor_cp12", "research_training_feature_row_cp11", "research_training_input_v2", "research_training_protocol_attachment_cp12", "research_training_protocol_v2", "research_training_registration_row_cp12", "research_working_storage_cp12", "research_working_storage_ref_cp12", "cp12_candidate_semantic_identity", "cp12_candidate_semantic_immutable", "cp12_canonical_reason_immutable", "research_atom_admission_cp12", "research_action_teacher_binding_cp12", "research_child_teacher_lineage_cp12", "research_action_teacher_witness_cp12"
                 });
+    }
+
+    /** The original monolithic contract remains unchanged. Independent RP verifies only the
+     * objects it owns; formal REAL receipts stay with trades in Root's original transaction. */
+    public static Contract researchContract(SQLiteDatabase db) {
+        Contract original=researchContract();
+        if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db))return original;
+        ArrayList<String> owned=new ArrayList<String>();
+        for(String name:original.objects)if(!name.equals("r974_exact_real_receipt")
+                &&!name.equals("research_exact_probability_f05")
+                &&!name.equals("f05_exact_probability_no_update")
+                &&!name.equals("f05_exact_probability_no_replace"))owned.add(name);
+        return new Contract(original.domain,original.revision,owned.toArray(new String[owned.size()]));
     }
 
     public static Contract legacyContract() {

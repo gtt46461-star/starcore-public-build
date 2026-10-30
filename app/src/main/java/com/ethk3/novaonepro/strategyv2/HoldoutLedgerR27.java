@@ -46,5 +46,15 @@ public final class HoldoutLedgerR27 {
         for (Map.Entry<Long, Set<String>> e : looks.entrySet()) out.put(e.getKey(), new LinkedHashSet<>(e.getValue()));
         return out;
     }
+    /** EvolutionLoop snapshot already requires exclusive access to its mutable population and ledger. Do not
+     * park inside the synchronized public snapshot methods: a private turn can copy each receipt cooperatively. */
+    Map<Long,Set<String>> privateTurnSnapshot(boolean controls){
+        Map<Long,Set<String>> out=new HashMap<>();
+        for(Map.Entry<Long,Set<String>> entry:(controls?controlLooks:looks).entrySet()){
+            CooperativeContinuationR26.poll();Set<String> copy=new LinkedHashSet<>();
+            for(String hash:entry.getValue()){CooperativeContinuationR26.poll();copy.add(hash);}out.put(entry.getKey(),copy);
+        }
+        return out;
+    }
     public synchronized void restore(long block, String policyHash) { look(block, policyHash); }
 }

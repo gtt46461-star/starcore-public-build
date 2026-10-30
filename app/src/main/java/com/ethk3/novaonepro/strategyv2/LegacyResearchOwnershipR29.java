@@ -15,7 +15,8 @@ public final class LegacyResearchOwnershipR29 {
     private static final Set<String> REALTIME=Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
         "r26_feedback","r26_frozen","r26_incumbent_frozen",
         "su1_source_clock","su1_mainline_binding",
-        "su2_live_decision","su2_mainline_choice","su2_mainline_binding"
+        "su2_live_decision","su2_mainline_choice","su2_mainline_binding",
+        "r974_exact_real_receipt","research_exact_probability_f05"
     )));
     private static final Set<String> CRITICAL=Collections.unmodifiableSet(new HashSet<>(
         Arrays.asList(SchemaDomainCoordinatorR926.criticalContract().objects)));
@@ -26,11 +27,26 @@ public final class LegacyResearchOwnershipR29 {
         out.removeAll(CRITICAL);out.removeAll(REALTIME);return Collections.unmodifiableSet(out);
     }
     public static boolean realtime(String table){return table!=null&&(REALTIME.contains(table)||CRITICAL.contains(table));}
-    public static boolean owned(String table){
-        if(table==null||realtime(table))return false;
+    /** Research stores omitted by the old domain stamp. Preserve their exact existing DDL/data,
+     * including historical FTRL artifacts and Batch34 evidence; none can authorize REAL. */
+    private static boolean expandedResearch(String table){
+        return table.startsWith("v57_research_")||table.startsWith("v57_batch34_")
+            ||table.equals("v57_controlled_opportunity_r922")
+            ||table.equals("v57_legacy_predraw_context_r915")
+            ||table.equals("v57_legacy_postsettlement_context_r919");
+    }
+    private static boolean originalResearch(String table){
         return table.startsWith("r26_")||table.startsWith("su1_")||table.startsWith("su2_")
             ||table.startsWith("research_")||table.matches("r9(?:5[28]|6[789]|7[0-9])_[a-z0-9_]+")
             ||HISTORICAL.contains(table);
+    }
+    /** Only this delta is imported when an already-advanced, old FULL RP is expanded. */
+    public static boolean newlyOwnedResearch(String table){
+        return table!=null&&!realtime(table)&&expandedResearch(table)&&!originalResearch(table);
+    }
+    public static boolean owned(String table){
+        if(table==null||realtime(table))return false;
+        return originalResearch(table)||expandedResearch(table);
     }
     public static Set<String> explicitRealtimeAuthorities(){return REALTIME;}
 }

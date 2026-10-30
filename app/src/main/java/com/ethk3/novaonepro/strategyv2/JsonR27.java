@@ -12,29 +12,44 @@ public final class JsonR27 {
 
     public static String write(Object v) { StringBuilder b = new StringBuilder(); write(v, b); return b.toString(); }
 
+    /** Explicit pure-compute variant; legacy callers can serialize while holding their own locks. */
+    static String writeCooperative(Object v) { StringBuilder b = new StringBuilder(); write(v, b, true); return b.toString(); }
+
     @SuppressWarnings("unchecked")
     static void write(Object v, StringBuilder b) {
+        write(v,b,false);
+    }
+    @SuppressWarnings("unchecked")
+    private static void write(Object v,StringBuilder b,boolean cooperative) {
+        if(cooperative)CooperativeContinuationR26.poll();
         if (v == null) b.append("null");
-        else if (v instanceof String) str((String) v, b);
+        else if (v instanceof String) str((String) v, b,cooperative);
         else if (v instanceof Boolean) b.append(v);
         else if (v instanceof Integer || v instanceof Long) b.append(v);
         else if (v instanceof Number) { double d = ((Number) v).doubleValue(); if (!Double.isFinite(d)) throw new IllegalArgumentException("R27_JSON_NONFINITE"); if (d == Math.rint(d) && Math.abs(d) < 1e15) b.append((long) d).append(".0"); else b.append(Double.toString(d)); }
         else if (v instanceof Map) {
-            TreeMap<String, Object> m = new TreeMap<>((Map<String, Object>) v); b.append('{'); boolean first = true;
-            for (Map.Entry<String, Object> e : m.entrySet()) { if (!first) b.append(','); first = false; str(e.getKey(), b); b.append(':'); write(e.getValue(), b); }
+            TreeMap<String,Object> m;
+            if(cooperative){m=new TreeMap<>();for(Map.Entry<String,Object> entry:((Map<String,Object>)v).entrySet()){CooperativeContinuationR26.poll();m.put(entry.getKey(),entry.getValue());}}
+            else m=new TreeMap<>((Map<String,Object>)v);
+            b.append('{'); boolean first = true;
+            for (Map.Entry<String, Object> e : m.entrySet()) { if(cooperative)CooperativeContinuationR26.poll(); if (!first) b.append(','); first = false; str(e.getKey(), b,cooperative); b.append(':'); write(e.getValue(), b,cooperative); }
             b.append('}');
         } else if (v instanceof List) {
             b.append('['); boolean first = true;
-            for (Object o : (List<Object>) v) { if (!first) b.append(','); first = false; write(o, b); }
+            for (Object o : (List<Object>) v) { if (!first) b.append(','); first = false; write(o, b,cooperative); }
             b.append(']');
-        } else if (v instanceof double[]) { List<Object> l = new ArrayList<>(); for (double d : (double[]) v) l.add(d); write(l, b); }
-        else if (v instanceof int[]) { List<Object> l = new ArrayList<>(); for (int d : (int[]) v) l.add(d); write(l, b); }
+        } else if (v instanceof double[]) { List<Object> l = new ArrayList<>(); for (double d : (double[]) v) { if(cooperative)CooperativeContinuationR26.poll(); l.add(d); } write(l, b,cooperative); }
+        else if (v instanceof int[]) { List<Object> l = new ArrayList<>(); for (int d : (int[]) v) { if(cooperative)CooperativeContinuationR26.poll(); l.add(d); } write(l, b,cooperative); }
         else throw new IllegalArgumentException("R27_JSON_TYPE:" + v.getClass());
     }
 
     static void str(String s, StringBuilder b) {
+        str(s,b,false);
+    }
+    private static void str(String s,StringBuilder b,boolean cooperative) {
         b.append('"');
         for (int i = 0; i < s.length(); i++) {
+            if(cooperative&&(i&1023)==0)CooperativeContinuationR26.poll();
             char c = s.charAt(i);
             switch (c) {
                 case '"': b.append("\\\""); break; case '\\': b.append("\\\\"); break;
@@ -47,8 +62,14 @@ public final class JsonR27 {
 
     public static Object parse(String s) { int[] at = {0}; Object v = value(s, at); ws(s, at); if (at[0] != s.length()) throw new IllegalArgumentException("R27_JSON_TRAILING"); return v; }
 
+    static Object parseCooperative(String s) { int[] at={0};Object v=value(s,at,true);ws(s,at);if(at[0]!=s.length())throw new IllegalArgumentException("R27_JSON_TRAILING");return v; }
+
     private static void ws(String s, int[] at) { while (at[0] < s.length() && Character.isWhitespace(s.charAt(at[0]))) at[0]++; }
     private static Object value(String s, int[] at) {
+        return value(s,at,false);
+    }
+    private static Object value(String s,int[] at,boolean cooperative) {
+        if(cooperative)CooperativeContinuationR26.poll();
         ws(s, at);
         if (at[0] >= s.length()) throw new IllegalArgumentException("R27_JSON_EOF");
         char c = s.charAt(at[0]);
@@ -56,9 +77,9 @@ public final class JsonR27 {
             at[0]++; Map<String, Object> m = new TreeMap<>(); ws(s, at);
             if (s.charAt(at[0]) == '}') { at[0]++; return m; }
             while (true) {
-                ws(s, at); String k = (String) value(s, at); ws(s, at);
+                ws(s, at); String k = (String) value(s, at,cooperative); ws(s, at);
                 if (s.charAt(at[0]++) != ':') throw new IllegalArgumentException("R27_JSON_COLON");
-                m.put(k, value(s, at)); ws(s, at);
+                m.put(k, value(s, at,cooperative)); ws(s, at);
                 char d = s.charAt(at[0]++); if (d == '}') return m; if (d != ',') throw new IllegalArgumentException("R27_JSON_OBJECT");
             }
         }
@@ -66,13 +87,14 @@ public final class JsonR27 {
             at[0]++; List<Object> l = new ArrayList<>(); ws(s, at);
             if (s.charAt(at[0]) == ']') { at[0]++; return l; }
             while (true) {
-                l.add(value(s, at)); ws(s, at);
+                l.add(value(s, at,cooperative)); ws(s, at);
                 char d = s.charAt(at[0]++); if (d == ']') return l; if (d != ',') throw new IllegalArgumentException("R27_JSON_ARRAY");
             }
         }
         if (c == '"') {
             StringBuilder b = new StringBuilder(); at[0]++;
             while (true) {
+                if(cooperative&&(at[0]&1023)==0)CooperativeContinuationR26.poll();
                 char d = s.charAt(at[0]++);
                 if (d == '"') return b.toString();
                 if (d == '\\') {

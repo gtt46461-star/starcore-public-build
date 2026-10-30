@@ -163,6 +163,8 @@ public final class DrawCanonicalizerR811 {
 
     static boolean isConfirmedWithinRead(SQLiteDatabase db, Models.Draw draw) {
         if (db == null || draw == null || !draw.isValid()) return false;
+        if(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db))
+            com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.ensureCanonicalReady(db);
         Cursor cursor = null;
         try {
             cursor =

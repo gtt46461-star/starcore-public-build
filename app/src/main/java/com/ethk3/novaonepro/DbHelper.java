@@ -7388,7 +7388,12 @@ public final class DbHelper extends SQLiteOpenHelper {
         writeSchemaStateR906(db, "r906_schema_research_error", researchError, now);
         if (!researchReady) throw new IllegalStateException("R64_RESEARCH_SCHEMA_INCOMPLETE|" + researchError);
         if (researchReady) {
-            SchemaRevisionR925.ensureTables(db);
+            // This entry is also resumed by the independent R29 research owner after cutover.
+            // Root retains the historical compatibility sweep, including its authoritative
+            // selected-evidence/OOS freeze triggers. RP must install only its own research DDL.
+            if (com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db))
+                SchemaRevisionR925.ensureResearchTables(db);
+            else SchemaRevisionR925.ensureTables(db);
             writeSchemaStateR906(db, "r906_schema_revision", String.valueOf(AppConfig.R906_SCHEMA_REVISION), now);
         }
     }

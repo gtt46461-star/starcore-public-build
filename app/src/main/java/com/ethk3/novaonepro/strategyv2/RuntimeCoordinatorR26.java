@@ -75,7 +75,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
     public static void requireFence(SQLiteDatabase db,Claim claim){try(Cursor c=db.rawQuery("SELECT 1 FROM r26_task t JOIN r26_session s ON s.session_id=t.owner WHERE t.task_id=? AND t.owner=? AND t.fence=? AND t.status='RUNNING' AND t.lease_until>? AND s.user_enabled=1 AND s.state='RUNNING'",new String[]{claim.task,claim.owner,String.valueOf(claim.fence),String.valueOf(System.currentTimeMillis())})){if(!c.moveToFirst())throw new IllegalStateException("R26_STALE_FENCE_OR_LEASE_OR_SESSION");}}
     private void initialize(){
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        LegacyResearchScopeR29.realtimeWrite(store,"R29_LEGACY_SESSION_OWNER",db->{LegacyCapabilityAdapterR29.initialize(db,owner);LegacyLiveProjectionR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);return 0;});
+        LegacyResearchScopeR29.realtimeWrite(store,"R29_LEGACY_SESSION_OWNER",db->{LegacyCapabilityAdapterR29.initialize(db,owner);LegacyLiveProjectionR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);return 0;});
         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);if(ResearchRouteR29.isResearchDatabase(db))SchemaR27.ensureResearch(db);else SchemaR27.ensure(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED' AND task_id IN (SELECT task_id FROM r27_task_error WHERE message='R26_CONTINUATION_QUANTUM' OR (message LIKE 'F01_WRITE_FAILED%' AND stack LIKE '%CP3_DB_BUSY_DEADLINE%'))");RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
@@ -229,7 +229,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         if(c.task.equals("schema-base")){
             if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
             if(store.coordinatorForResearchR952().isR811ResearchSchemaReady())return 0;
-            ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureOneStepResult(store.coordinatorForResearchR952());c.reason("LEGACY_SCHEMA:"+result.status+":"+ResearchSchemaCoordinatorR926.summary()+":"+result.detail);return result.ready?1:0;
+            ResearchSchemaCoordinatorR926.StepResult result=ResearchSchemaCoordinatorR926.ensureOneStepResult(store.coordinatorForResearchR952());c.reason("LEGACY_SCHEMA:"+result.status+":"+ResearchSchemaCoordinatorR926.summary()+":"+result.detail);return result.ready?1:result.committedUnits;
         }
         if(!strategyStorageReady){c.reason("WAITING_SELF_CONTAINED_STRATEGY_STORAGE");return 0;}
         ProgramModelSU2.register();Models.Draw latest=store.getLatestDraw();if(latest==null||!TargetIssueResolver.isValid(latest.issue))return 0;

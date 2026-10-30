@@ -25,6 +25,9 @@ public final class ResearchInputMirrorR29 {
         SQLiteDatabase root=ResearchRouteR29.realtimeReadOnly(authority);
         // Terminal labels may arrive after the canonical draw clock stopped changing.
         CriticalInputMirrorR29.refresh(store);
+        // Historical learned-input immutability is a separate Root fact, independent of
+        // draw/canonical generations. Its bounded bootstrap may need several writer entries.
+        LegacyLearnedInputR29.refresh(store);
         SQLiteDatabase research=ResearchRouteR29.reader(root);long gen=generation(root),seq=sequence(root),oldGen=-1,oldSeq=-1;
         if(table(research,"r29_input_mirror"))try(Cursor c=research.rawQuery("SELECT source_generation,source_seq FROM r29_input_mirror WHERE singleton=1",null)){if(c.moveToFirst()){oldGen=c.getLong(0);oldSeq=c.getLong(1);}}
         if(gen==oldGen&&seq==oldSeq)return;

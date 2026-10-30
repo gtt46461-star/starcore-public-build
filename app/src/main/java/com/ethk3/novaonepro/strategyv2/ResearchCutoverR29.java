@@ -89,7 +89,7 @@ public final class ResearchCutoverR29 {
         if(new StatFs(candidate.getParent()).getAvailableBytes()<RESERVE_BYTES)return "BLOCKED_STORAGE_RESERVE";
         final boolean candidateExists=candidate.exists()||published.exists();
         long epoch=store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_CUTOVER_RESERVE",db->{
-            db.execSQL(PUBLICATION);ResearchRouteR29.ensureRealtime(db);RealtimeResearchProjectionR29.ensureRealtime(db);CriticalInputMirrorR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);
+            db.execSQL(PUBLICATION);ResearchRouteR29.ensureRealtime(db);RealtimeResearchProjectionR29.ensureRealtime(db);StrategySchemaDomainR29.ensureRealtime(db);CriticalInputMirrorR29.ensureRealtime(db);LegacyAuthorityProjectionR29.ensureRealtime(db);
             long current=0;try(Cursor c=db.rawQuery("SELECT epoch,candidate_name FROM r29_migration_publication WHERE singleton=1",null)){if(c.moveToFirst()){if(!CANDIDATE.equals(c.getString(1)))throw new IllegalStateException("R29_CANDIDATE_RESERVATION_MISMATCH");current=c.getLong(0);}}
             if(current==0&&candidateExists)throw new IllegalStateException("R29_UNOWNED_CANDIDATE_REQUIRES_REVIEW");
             if(current==0)current=Math.max(1,System.currentTimeMillis());
@@ -129,9 +129,12 @@ public final class ResearchCutoverR29 {
                 if(ResearchInputMirrorR29.table(target,"r26_live_model"))LegacyLiveProjectionR29.installResearch(target);
                 LegacyAuthorityProjectionR29.installResearch(target);
                 CriticalInputMirrorR29.installResearch(target);
+                LegacyLearnedInputR29.installResearch(target);
+                com.ethk3.novaonepro.LegacyLearningCommitR29.installResearch(target);
                 if(inputEpoch==CriticalInputMirrorR29.sourceEpoch(source)&&inputSequence==CriticalInputMirrorR29.sourceSequence(source))CriticalInputMirrorR29.initialized(target,inputEpoch,inputSequence,inputView);
                 target.execSQL(LegacyDomainUpgradeR29.DDL);
                 target.execSQL("INSERT OR REPLACE INTO r29_legacy_domain_owner VALUES(1,'FULL',?,?,?)",new Object[]{epoch,copiedRoot,System.currentTimeMillis()});
+                LegacyDomainExtensionR29.includedInFull(target,epoch,copiedRoot);
                 RealtimeResearchProjectionR29.installResearch(target);
                 target.execSQL("UPDATE r29_research_owner SET phase='READY',source_root=? WHERE singleton=1",new Object[]{copiedRoot});target.setTransactionSuccessful();
             }finally{target.endTransaction();}

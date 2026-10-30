@@ -49,8 +49,8 @@ public final class ResearchMigrationRegistryR952 {
         java.util.Set<String> completed = new java.util.HashSet<>();
         try (Cursor rows=db.rawQuery("SELECT step_id FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
                 +" WHERE domain=? AND revision=? AND status='COMPLETED'",
-                new String[]{SchemaDomainCoordinatorR926.researchContract().domain,
-                        String.valueOf(SchemaDomainCoordinatorR926.researchContract().revision)})) {
+                new String[]{SchemaDomainCoordinatorR926.researchContract(db).domain,
+                        String.valueOf(SchemaDomainCoordinatorR926.researchContract(db).revision)})) {
             while(rows.moveToNext()) completed.add(rows.getString(0));
         }
         try {
@@ -149,15 +149,15 @@ public final class ResearchMigrationRegistryR952 {
                 ComputationReceiptR974.schema(target);
             })) return false;
             if (runPendingR64(db,completed,"F05_EXACT_CALIBRATED_REAL_RECEIPT_V1", target -> {
-                target.execSQL("CREATE TABLE IF NOT EXISTS research_exact_probability_f05(game_code TEXT NOT NULL,target_issue TEXT NOT NULL,trade_id INTEGER NOT NULL UNIQUE REFERENCES trades(_id),candidate_id TEXT NOT NULL,model_hash TEXT NOT NULL CHECK(length(model_hash)=64),certificate_hash TEXT NOT NULL CHECK(length(certificate_hash)=64),calibration_hash TEXT NOT NULL CHECK(length(calibration_hash)=64),selection_hash TEXT NOT NULL CHECK(length(selection_hash)=64),scope_policy_hash TEXT NOT NULL CHECK(length(scope_policy_hash)=64),selected_hit_p REAL NOT NULL CHECK(selected_hit_p>0 AND selected_hit_p<1),proof_hash TEXT NOT NULL CHECK(length(proof_hash)=64),action_hash TEXT NOT NULL CHECK(length(action_hash)=64),authorization_hash TEXT NOT NULL,captured_at INTEGER NOT NULL,committed_at INTEGER NOT NULL CHECK(committed_at>=captured_at),PRIMARY KEY(game_code,target_issue))");
+                com.ethk3.novaonepro.FormalReceiptSchemaR29.ensureExactProbabilityIfRoot(target);
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_model_no_update BEFORE UPDATE ON research_candidate_cal_model_r932 BEGIN SELECT RAISE(ABORT,'F05_CAL_MODEL_IMMUTABLE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_model_no_replace BEFORE INSERT ON research_candidate_cal_model_r932 WHEN EXISTS(SELECT 1 FROM research_candidate_cal_model_r932 m WHERE m.study_hash=NEW.study_hash) BEGIN SELECT RAISE(ABORT,'F05_CAL_MODEL_FIRST_WRITE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_frozen_obs_no_update BEFORE UPDATE ON research_candidate_cal_observation_r932 WHEN EXISTS(SELECT 1 FROM research_candidate_cal_study_r932 s WHERE s.study_hash=OLD.study_hash AND s.state='FROZEN') BEGIN SELECT RAISE(ABORT,'F05_FROZEN_CAL_OBS_IMMUTABLE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_frozen_obs_no_replace BEFORE INSERT ON research_candidate_cal_observation_r932 WHEN EXISTS(SELECT 1 FROM research_candidate_cal_study_r932 s WHERE s.study_hash=NEW.study_hash AND s.state='FROZEN') BEGIN SELECT RAISE(ABORT,'F05_FROZEN_CAL_OBS_FIRST_WRITE'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_model_archive_delete BEFORE DELETE ON research_candidate_cal_model_r932 WHEN NOT EXISTS(SELECT 1 FROM research_retention_permit_v2 p JOIN research_evidence_archive_v2 a ON a.archive_id=p.archive_id WHERE p.source_table='research_candidate_cal_model_r932' AND p.source_rowid=OLD.rowid AND a.state IN ('VERIFIED','REFERENCED','PRUNED')) BEGIN SELECT RAISE(ABORT,'F05_CAL_MODEL_ARCHIVE_REQUIRED'); END");
                 target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_cal_frozen_obs_archive_delete BEFORE DELETE ON research_candidate_cal_observation_r932 WHEN EXISTS(SELECT 1 FROM research_candidate_cal_study_r932 s WHERE s.study_hash=OLD.study_hash AND s.state='FROZEN') AND NOT EXISTS(SELECT 1 FROM research_retention_permit_v2 p JOIN research_evidence_archive_v2 a ON a.archive_id=p.archive_id WHERE p.source_table='research_candidate_cal_observation_r932' AND p.source_rowid=OLD.rowid AND a.state IN ('VERIFIED','REFERENCED','PRUNED')) BEGIN SELECT RAISE(ABORT,'F05_FROZEN_CAL_OBS_ARCHIVE_REQUIRED'); END");
-                target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_exact_probability_no_update BEFORE UPDATE ON research_exact_probability_f05 BEGIN SELECT RAISE(ABORT,'F05_EXACT_PROBABILITY_IMMUTABLE'); END");
-                target.execSQL("CREATE TRIGGER IF NOT EXISTS f05_exact_probability_no_replace BEFORE INSERT ON research_exact_probability_f05 WHEN EXISTS(SELECT 1 FROM research_exact_probability_f05 e WHERE e.game_code=NEW.game_code AND e.target_issue=NEW.target_issue) BEGIN SELECT RAISE(ABORT,'F05_EXACT_PROBABILITY_FIRST_WRITE'); END");
+
+
             })) return false;
             if (runPendingR64(db,completed,"R64_EXTENSION_EVOLUTION", target -> {
                 EvolutionEvidenceR975.schema(target);
@@ -165,7 +165,7 @@ public final class ResearchMigrationRegistryR952 {
             for (int offset=0; offset<CP4_DDL.length; offset+=6) {
                 final int first=offset, end=Math.min(offset+6,CP4_DDL.length);
                 if (runPendingR64(db,completed,"R64_CP4_DDL_"+offset, target -> {
-                    for(int i=first;i<end;i++) target.execSQL(CP4_DDL[i]);
+                    for(int i=first;i<end;i++) executeDomainDdlR29(target,CP4_DDL[i],false);
                 })) return false;
             }
             if (runPendingR64(db,completed,"R64_CP5_COLUMNS_0", target -> {
@@ -188,7 +188,7 @@ public final class ResearchMigrationRegistryR952 {
             for (int offset=0; offset<CP8_DDL.length; offset+=6) {
                 final int first=offset, end=Math.min(offset+6,CP8_DDL.length);
                 if (runPendingR64(db,completed,"R64_CP8_DDL_"+offset, target -> {
-                    for(int i=first;i<end;i++) target.execSQL(CP8_DDL[i]);
+                    for(int i=first;i<end;i++) executeDomainDdlR29(target,CP8_DDL[i],true);
                 })) return false;
             }
             if (runPendingR64(db,completed,"CP5_CANONICAL_PLAN_DDL_V1", target -> {
@@ -282,7 +282,7 @@ public final class ResearchMigrationRegistryR952 {
     }
     /** Explicit additive prerequisite; an old domain READY stamp alone cannot authenticate it. */
     public static boolean readyOrderR79(SQLiteDatabase db) {
-        return SchemaDomainCoordinatorR926.stepComplete(db,SchemaDomainCoordinatorR926.researchContract(),
+        return SchemaDomainCoordinatorR926.stepComplete(db,SchemaDomainCoordinatorR926.researchContract(db),
                 "R79_MATRIX_READY_ORDER_V1") && CanonicalSchemaCP12.readyOrderInstalledR79(db);
     }
     public static void ensureReadyOrderR79(SQLiteDatabase db) throws Exception {
@@ -295,8 +295,8 @@ public final class ResearchMigrationRegistryR952 {
             db.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL
                     +" SET status='REPAIR_REQUIRED',error_code='R79_MATRIX_READY_ORDER_MISSING'"
                     +" WHERE domain=? AND revision=? AND step_id='R79_MATRIX_READY_ORDER_V1' AND status='COMPLETED'",
-                    new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract().revision});
-            SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(),
+                    new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract(db).revision});
+            SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(db),
                     "R79_MATRIX_READY_ORDER_V1",target -> CanonicalSchemaCP12.installReadyOrderR79(target));
             if(!readyOrderR79(db))throw new IllegalStateException("R79_MATRIX_READY_ORDER_NOT_VERIFIED");
             if(ownTx)db.setTransactionSuccessful();
@@ -307,15 +307,15 @@ public final class ResearchMigrationRegistryR952 {
         if(com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db))return;
         boolean own=!db.inTransaction();if(own)db.beginTransaction();
         try{
-            db.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" SET status='REPAIR_REQUIRED',error_code='R82_CHAMPION_PROBABILITY_SCHEMA_MISSING' WHERE domain=? AND revision=? AND step_id='R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1' AND status='COMPLETED'",new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract().revision});
-            SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(),"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1",target->com.ethk3.novaonepro.RetentionRevisionSchemaCP12.championProbabilitySchemaR82(target));
+            db.execSQL("UPDATE "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" SET status='REPAIR_REQUIRED',error_code='R82_CHAMPION_PROBABILITY_SCHEMA_MISSING' WHERE domain=? AND revision=? AND step_id='R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1' AND status='COMPLETED'",new Object[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH,SchemaDomainCoordinatorR926.researchContract(db).revision});
+            SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(db),"R82_ORIGINAL_CHAMPION_PROBABILITY_PIN_V1",target->com.ethk3.novaonepro.RetentionRevisionSchemaCP12.championProbabilitySchemaR82(target));
             if(!com.ethk3.novaonepro.ChampionProbabilityEvidenceR82.installed(db))throw new IllegalStateException("R82_CHAMPION_SCHEMA_REPAIR_NOT_INSTALLED");if(own)db.setTransactionSuccessful();
         }finally{if(own)db.endTransaction();}
     }
     private static boolean runPendingR64(SQLiteDatabase db,java.util.Set<String> completed,String id,SchemaDomainCoordinatorR926.Step step) throws Exception {
         if (completed.contains(id)) return false;
         com.ethk3.novaonepro.ResearchWorkBudgetR927.checkpoint();
-        SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(),id,step);
+        SchemaDomainCoordinatorR926.runStep(db,SchemaDomainCoordinatorR926.researchContract(db),id,step);
         return true;
     }
     private static void addColumn(SQLiteDatabase db,String table,String name,String definition) {
@@ -323,6 +323,61 @@ public final class ResearchMigrationRegistryR952 {
         try { while(c.moveToNext()) if(name.equals(c.getString(1))) return; }
         finally { c.close(); }
         db.execSQL("ALTER TABLE "+table+" ADD COLUMN "+name+" "+definition);
+    }
+
+    private static final java.util.regex.Pattern TRIGGER_R29=java.util.regex.Pattern.compile(
+            "(?is)\\bCREATE\\s+TRIGGER\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:\"([^\"]+)\"|([A-Za-z0-9_]+))\\s+.*?\\bON\\s+(?:\"([^\"]+)\"|([A-Za-z0-9_]+))");
+    private static final java.util.regex.Pattern DROP_TRIGGER_R29=java.util.regex.Pattern.compile(
+            "(?is)\\bDROP\\s+TRIGGER\\s+(?:IF\\s+EXISTS\\s+)?(?:\"([^\"]+)\"|([A-Za-z0-9_]+))");
+    public static void executeResearchRevisionDdlR29(SQLiteDatabase db,String sql){executeDomainDdlR29(db,sql,true);}
+    /** The old arrays describe one entire database. Only RP-owned guards/revisions belong in RP;
+     * Root's original guards stay untouched. Every excluded original statement remains auditable. */
+    private static void executeDomainDdlR29(SQLiteDatabase db,String sql,boolean revisions){
+        if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)){db.execSQL(sql);return;}
+        java.util.regex.Matcher create=TRIGGER_R29.matcher(sql),drop=DROP_TRIGGER_R29.matcher(sql);
+        String name,target;
+        if(create.find()){
+            name=create.group(1)==null?create.group(2):create.group(1);
+            target=create.group(3)==null?create.group(4):create.group(3);
+        }else if(drop.find()){
+            name=drop.group(1)==null?drop.group(2):drop.group(1);target=null;
+            for(String candidate:CP4_DDL){java.util.regex.Matcher paired=TRIGGER_R29.matcher(candidate);
+                if(paired.find()&&name.equals(paired.group(1)==null?paired.group(2):paired.group(1))){target=paired.group(3)==null?paired.group(4):paired.group(3);break;}}
+            if(target==null)throw new IllegalStateException("R29_UNPAIRED_SCHEMA_TRIGGER_DROP:"+name);
+        }else{
+            if(java.util.regex.Pattern.compile("(?is)\\b(?:CREATE|DROP)\\s+TRIGGER\\b").matcher(sql).find())
+                throw new IllegalStateException("R29_UNRECOGNIZED_SCHEMA_TRIGGER_DDL");
+            db.execSQL(sql);return;
+        }
+        boolean root=com.ethk3.novaonepro.strategyv2.LegacyResearchOwnershipR29.realtime(target)
+                ||target.startsWith("b03_")||target.equals("v57_draw_canonical_r811")||target.equals("v57_draw_provenance_r811");
+        if(root){recordDomainOmissionR29(db,sql,name,target,revisions,"ROOT_AUTHORITY_GUARD_RETAINED");return;}
+        if(name.equals("trg_r927_e02c_tiny_label_delete_freeze")||name.equals("trg_r927_e02c_tiny_label_update_freeze")){
+            requireResearchTargetR29(db,target);
+            com.ethk3.novaonepro.strategyv2.LegacyLearnedInputR29.installResearch(db);
+            recordDomainOmissionR29(db,sql,name,target,revisions,"REPLACED_BY_VERIFIED_LEARNED_FACT_GUARD");return;
+        }
+        if(com.ethk3.novaonepro.strategyv2.LegacyResearchOwnershipR29.owned(target)){
+            requireResearchTargetR29(db,target);db.execSQL(sql);return;
+        }
+        if(!revisions)throw new IllegalStateException("R29_UNCLASSIFIED_RESEARCH_SCHEMA_TRIGGER:"+name+":"+target);
+        // CP8 enumerates the original *whole* database, including retained historical compatibility
+        // tables outside this research domain. Recording this exclusion does not claim they migrated.
+        recordDomainOmissionR29(db,sql,name,target,true,"RETAINED_ROOT_COMPATIBILITY_REVISION_NOT_MIGRATED");
+    }
+    private static void requireResearchTargetR29(SQLiteDatabase db,String target){
+        try(Cursor c=db.rawQuery("SELECT 1 FROM main.sqlite_master WHERE type='table' AND name=?",new String[]{target})){
+            if(!c.moveToFirst())throw new IllegalStateException("R29_OWNED_RESEARCH_SCHEMA_TARGET_MISSING:"+target);
+        }
+    }
+    private static void recordDomainOmissionR29(SQLiteDatabase db,String sql,String name,String target,boolean revisions,String reason){
+        String hash=com.ethk3.novaonepro.strategyv2.StatsR27.sha256(sql),phase=revisions?"LEGACY_REVISION_GUARD":"CP4_GUARD";
+        db.execSQL("CREATE TABLE IF NOT EXISTS r29_schema_domain_omission(phase TEXT NOT NULL,sql_sha256 TEXT NOT NULL,object_name TEXT NOT NULL,target_table TEXT NOT NULL,disposition TEXT NOT NULL,original_sql TEXT NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(phase,sql_sha256))");
+        db.execSQL("INSERT OR IGNORE INTO r29_schema_domain_omission VALUES(?,?,?,?,?,?,?)",new Object[]{phase,hash,name,target,reason,sql,System.currentTimeMillis()});
+        try(Cursor c=db.rawQuery("SELECT object_name,target_table,disposition,original_sql FROM r29_schema_domain_omission WHERE phase=? AND sql_sha256=?",new String[]{phase,hash})){
+            if(!c.moveToFirst()||!name.equals(c.getString(0))||!target.equals(c.getString(1))||!reason.equals(c.getString(2))||!sql.equals(c.getString(3)))
+                throw new IllegalStateException("R29_SCHEMA_DOMAIN_OMISSION_CONFLICT:"+name);
+        }
     }
 
     private static final String[] CP4_DDL=new String[]{

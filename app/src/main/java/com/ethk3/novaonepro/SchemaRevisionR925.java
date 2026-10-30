@@ -56,6 +56,8 @@ public final class SchemaRevisionR925 {
     }
 
     public static void ensureResearchTables(SQLiteDatabase db) {
+        if (com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db))
+            LegacyLearningCommitR29.installResearch(db);
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_LIFECYCLE_AUDIT + " (genome_id TEXT PRIMARY KEY, first_prune_reason TEXT NOT NULL, first_prune_metrics TEXT NOT NULL, first_prune_issue TEXT NOT NULL, first_prune_at INTEGER NOT NULL, prune_policy_version TEXT NOT NULL, original_available INTEGER NOT NULL, latest_status TEXT NOT NULL, latest_reason TEXT NOT NULL, updated_at INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CAPTURE_OPPORTUNITY + " (target_issue TEXT NOT NULL, genome_id TEXT NOT NULL, opportunity_at INTEGER NOT NULL, status TEXT NOT NULL, cost_ms INTEGER NOT NULL DEFAULT 0, reason TEXT NOT NULL DEFAULT '', PRIMARY KEY(target_issue,genome_id))");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r925_capture_genome ON " + TABLE_CAPTURE_OPPORTUNITY + "(genome_id,target_issue)");
@@ -105,6 +107,14 @@ public final class SchemaRevisionR925 {
     }
 
     private static void ensureE02cTinyDeepInputFreeze(SQLiteDatabase db) {
+        if (com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)) {
+            // The compact label belongs to RP after cutover. The Root event ledger remains
+            // authoritative in Root: use a distinct, immutable projection of real learning
+            // facts and fail closed until its bootstrap is complete. Never invent that ledger
+            // in the research database merely to make a cross-domain trigger compile.
+            com.ethk3.novaonepro.strategyv2.LegacyLearnedInputR29.installResearch(db);
+            return;
+        }
         String learnedOld = learnedExistsSql("OLD.target_issue", E02C_TINY_SOURCE);
         db.execSQL("CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_tiny_label_update_freeze"
                 + " BEFORE UPDATE OF asset_id,target_issue,feature_blob,hit_label"

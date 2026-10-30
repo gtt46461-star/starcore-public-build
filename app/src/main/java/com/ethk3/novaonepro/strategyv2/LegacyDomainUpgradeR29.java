@@ -63,7 +63,8 @@ public final class LegacyDomainUpgradeR29 {
         final List<State> tables;final List<String[]> objects;final Map<String,Long> sequences;final String hash;
         Snapshot(List<State> tables,List<String[]> objects,Map<String,Long> sequences){this.tables=tables;this.objects=objects;this.sequences=sequences;StringBuilder b=new StringBuilder("R29_LEGACY_DOMAIN_CAPTURE_1");for(State s:tables)b.append('|').append(s.table.name).append(':').append(s.rows.size()).append(':').append(s.hash);for(String[] o:objects)b.append('|').append(Arrays.toString(o));b.append('|').append(JsonR27.write(sequences));hash=StatsR27.sha256(b.toString());}
     }
-    static List<MigrationCopyR29.Table> tables(SQLiteDatabase root){List<MigrationCopyR29.Table> out=new ArrayList<>();try(Cursor c=root.rawQuery("SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name",null)){while(c.moveToNext())if(included(c.getString(0)))out.add(MigrationCopyR29.table(root,c.getString(0),c.getString(1)));}return out;}
+    static List<MigrationCopyR29.Table> tables(SQLiteDatabase root){return tables(root,LegacyDomainUpgradeR29::included);}
+    static List<MigrationCopyR29.Table> tables(SQLiteDatabase root,java.util.function.Predicate<String> include){List<MigrationCopyR29.Table> out=new ArrayList<>();try(Cursor c=root.rawQuery("SELECT name,sql FROM sqlite_master WHERE type='table' ORDER BY name",null)){while(c.moveToNext())if(include.test(c.getString(0)))out.add(MigrationCopyR29.table(root,c.getString(0),c.getString(1)));}return out;}
     static List<byte[]> rows(SQLiteDatabase db,MigrationCopyR29.Table t,Check check,long[] bytes,long maximum){
         List<byte[]> rows=new ArrayList<>();Long after=null;
         for(;;){
@@ -74,15 +75,18 @@ public final class LegacyDomainUpgradeR29 {
     }
     static Snapshot capture(SQLiteDatabase root,Check check,long maximum){return capture(root,check,maximum,()->{});}
     static Snapshot capture(SQLiteDatabase root,Check check,long maximum,Runnable afterCapture){
+        return capture(root,check,maximum,LegacyDomainUpgradeR29::included,afterCapture);
+    }
+    static Snapshot capture(SQLiteDatabase root,Check check,long maximum,java.util.function.Predicate<String> include,Runnable afterCapture){
         if(root.inTransaction())throw new IllegalStateException("R29_LEGACY_CAPTURE_MUST_RELEASE_REALTIME_WRITER");
-        List<State> states=new ArrayList<>();long[] bytes={0};List<MigrationCopyR29.Table> descriptors=tables(root);
+        List<State> states=new ArrayList<>();long[] bytes={0};List<MigrationCopyR29.Table> descriptors=tables(root,include);
         for(MigrationCopyR29.Table t:descriptors){check.run();states.add(new State(t,rows(root,t,check,bytes,maximum)));}
         Set<String> included=new HashSet<>();for(State s:states)included.add(s.table.name);
         List<String[]> objects=new ArrayList<>();try(Cursor c=root.rawQuery("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE type IN ('index','trigger') AND sql IS NOT NULL ORDER BY type,name",null)){while(c.moveToNext())if(included.contains(c.getString(2))&&!c.getString(1).startsWith("r29_copy_track_"))objects.add(new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3)});}
         Map<String,Long> sequences=new TreeMap<>();if(table(root,"sqlite_sequence"))try(Cursor c=root.rawQuery("SELECT name,seq FROM sqlite_sequence ORDER BY name",null)){while(c.moveToNext())if(included.contains(c.getString(0)))sequences.put(c.getString(0),c.getLong(1));}
         Snapshot snapshot=new Snapshot(states,objects,sequences);afterCapture.run();
         // The startup drain excludes all pure-research writers. A changed source still refuses publication.
-        List<MigrationCopyR29.Table> again=tables(root);if(again.size()!=states.size())throw new IllegalStateException("R29_LEGACY_DOMAIN_SOURCE_SCHEMA_CHANGED");
+        List<MigrationCopyR29.Table> again=tables(root,include);if(again.size()!=states.size())throw new IllegalStateException("R29_LEGACY_DOMAIN_SOURCE_SCHEMA_CHANGED");
         for(int i=0;i<states.size();i++){check.run();State state=states.get(i);MigrationCopyR29.Table current=again.get(i);if(!state.table.schemaHash.equals(current.schemaHash)||!state.hash.equals(hash(current,counts(rows(root,current,check,new long[]{0},maximum)))))throw new IllegalStateException("R29_LEGACY_DOMAIN_SOURCE_CHANGED:"+state.table.name);}
         List<String[]> currentObjects=new ArrayList<>();try(Cursor c=root.rawQuery("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE type IN ('index','trigger') AND sql IS NOT NULL ORDER BY type,name",null)){while(c.moveToNext())if(included.contains(c.getString(2))&&!c.getString(1).startsWith("r29_copy_track_"))currentObjects.add(new String[]{c.getString(0),c.getString(1),c.getString(2),c.getString(3)});}
         Map<String,Long> currentSequences=new TreeMap<>();if(table(root,"sqlite_sequence"))try(Cursor c=root.rawQuery("SELECT name,seq FROM sqlite_sequence ORDER BY name",null)){while(c.moveToNext())if(included.contains(c.getString(0)))currentSequences.put(c.getString(0),c.getLong(1));}
@@ -96,6 +100,16 @@ public final class LegacyDomainUpgradeR29 {
         if(!rp.inTransaction())throw new IllegalStateException("R29_LEGACY_UPGRADE_TRANSACTION_REQUIRED");if(routeEpoch<1)throw new IllegalArgumentException("R29_LEGACY_UPGRADE_ROUTE_EPOCH");check.run();
         if(table(rp,"r29_legacy_domain_owner"))try(Cursor c=rp.rawQuery("SELECT phase,route_epoch,source_hash FROM r29_legacy_domain_owner WHERE singleton=1",null)){if(c.moveToFirst()){if("FULL".equals(c.getString(0))&&c.getLong(1)==routeEpoch&&snapshot.hash.equals(c.getString(2)))return;throw new IllegalStateException("R29_LEGACY_DOMAIN_ALREADY_PUBLISHED_CONFLICT");}}
         rp.execSQL(DDL);
+        mergeDataWithin(rp,snapshot,check,fault);
+        // A copied TinyDeep trigger still names Root's event ledger. Preserve its learning
+        // invariant through the explicit local fact projection before publishing this domain.
+        LegacyLearnedInputR29.installResearch(rp);
+        com.ethk3.novaonepro.LegacyLearningCommitR29.installResearch(rp);
+        check.run();rp.execSQL("INSERT INTO r29_legacy_domain_owner VALUES(1,'FULL',?,?,?)",new Object[]{routeEpoch,snapshot.hash,Math.max(1,System.currentTimeMillis())});
+        LegacyDomainExtensionR29.includedInFull(rp,routeEpoch,snapshot.hash);
+    }
+    static void mergeDataWithin(SQLiteDatabase rp,Snapshot snapshot,Check check,Fault fault){
+        if(!rp.inTransaction())throw new IllegalStateException("R29_LEGACY_UPGRADE_TRANSACTION_REQUIRED");
         for(State state:snapshot.tables){
             check.run();MigrationCopyR29.Table t=state.table;
             if(!table(rp,t.name))rp.execSQL(t.createSql);
@@ -111,6 +125,5 @@ public final class LegacyDomainUpgradeR29 {
         }
         for(String[] object:snapshot.objects){check.run();try(Cursor c=rp.rawQuery("SELECT type,tbl_name,sql FROM sqlite_master WHERE name=?",new String[]{object[1]})){if(c.moveToFirst()){if(!object[0].equals(c.getString(0))||!object[2].equals(c.getString(1))||!object[3].equals(c.getString(2)))throw new IllegalStateException("R29_LEGACY_DOMAIN_OBJECT_CONFLICT:"+object[1]);continue;}}rp.execSQL(object[3]);}
         if(!snapshot.sequences.isEmpty()){if(!table(rp,"sqlite_sequence"))throw new IllegalStateException("R29_LEGACY_AUTOINCREMENT_SCHEMA_CONFLICT");for(Map.Entry<String,Long> e:snapshot.sequences.entrySet()){check.run();rp.execSQL("UPDATE sqlite_sequence SET seq=max(seq,?) WHERE name=?",new Object[]{e.getValue(),e.getKey()});rp.execSQL("INSERT INTO sqlite_sequence(name,seq) SELECT ?,? WHERE NOT EXISTS(SELECT 1 FROM sqlite_sequence WHERE name=?)",new Object[]{e.getKey(),e.getValue(),e.getKey()});}}
-        check.run();rp.execSQL("INSERT INTO r29_legacy_domain_owner VALUES(1,'FULL',?,?,?)",new Object[]{routeEpoch,snapshot.hash,Math.max(1,System.currentTimeMillis())});
     }
 }

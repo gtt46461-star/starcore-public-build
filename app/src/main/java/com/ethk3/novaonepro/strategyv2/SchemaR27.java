@@ -121,6 +121,7 @@ public final class SchemaR27 {
         for(String[] c:COLUMNS)if(tableExists(research,c[0]))column(research,c[0],c[1],c[2]);
         research.execSQL(PreparedForecastR29.FROZEN_IMMUTABLE);
         RealtimeResearchProjectionR29.installResearch(research);
+        LegacyLearningCommitR29.installResearch(research);
     }
 
     static boolean tableExists(SQLiteDatabase db, String table) {

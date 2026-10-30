@@ -459,64 +459,67 @@ public final class EvolutionLoopR27 {
 
     // ------------------------------------------------------------------ persistence of the loop itself (r27_evolution_cursor)
     public String snapshot() {
+        CooperativeContinuationR26.poll();
         Map<String, Object> s = new LinkedHashMap<>();
         s.put("generation", (long) generation); s.put("step", (long) step); s.put("rng", rng.state); s.put("datasetHash", ctx.data.datasetHash);
         s.put("champion", champion == null ? null : champion.fullJson()); s.put("championTau", championTau);
         s.put("previous", previousChampion == null ? null : previousChampion.fullJson()); s.put("previousTau", previousTau);
         s.put("i00", i00Champion == null ? null : i00Champion.fullJson()); s.put("i00Tau", i00Tau);
         s.put("nullChampion", nullEvolution.champion == null ? null : nullEvolution.champion.fullJson()); s.put("nullTau", nullEvolution.championTau); s.put("nullSeed", nullEvolution.lastSeed);
-        List<Object> nullPop = new ArrayList<>(); for (SuccessiveHalvingR27.Candidate c : nullEvolution.population) { Map<String, Object> m = new LinkedHashMap<>(); m.put("spec", c.spec.fullJson()); m.put("tau", c.temperature); nullPop.add(m); }
+        List<Object> nullPop = new ArrayList<>(); for (SuccessiveHalvingR27.Candidate c : nullEvolution.population) { CooperativeContinuationR26.poll(); Map<String, Object> m = new LinkedHashMap<>(); m.put("spec", c.spec.fullJson()); m.put("tau", c.temperature); nullPop.add(m); }
         s.put("nullPopulation", nullPop);
         List<Object> pop = new ArrayList<>();
-        for (Member m : population) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", m.spec.fullJson()); x.put("tau", m.tau); x.put("island", m.island); pop.add(x); }
+        for (Member m : population) { CooperativeContinuationR26.poll(); Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", m.spec.fullJson()); x.put("tau", m.tau); x.put("island", m.island); pop.add(x); }
         s.put("population", pop);
         List<Object> arc = new ArrayList<>();
-        for (Map.Entry<Integer, EliteArchiveR27.Elite> e : archive.snapshot().entrySet()) { Map<String, Object> x = new LinkedHashMap<>(); x.put("cell", (long) e.getKey()); x.put("spec", e.getValue().spec.fullJson()); x.put("u", e.getValue().u); x.put("tau", e.getValue().tau); arc.add(x); }
+        for (Map.Entry<Integer, EliteArchiveR27.Elite> e : archive.snapshot().entrySet()) { CooperativeContinuationR26.poll(); Map<String, Object> x = new LinkedHashMap<>(); x.put("cell", (long) e.getKey()); x.put("spec", e.getValue().spec.fullJson()); x.put("u", e.getValue().u); x.put("tau", e.getValue().tau); arc.add(x); }
         s.put("archive", arc);
         List<Object> pend = new ArrayList<>();
         for (Pending p : pending) { CooperativeContinuationR26.poll(); Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.spec.fullJson()); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural); pend.add(x); }
         s.put("pending", pend);
-        List<Object> lv = new ArrayList<>(); for (PolicySpecR27 p : live) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.fullJson()); x.put("tau", liveTau.get(p.policyHash())); lv.add(x); }
+        List<Object> lv = new ArrayList<>(); for (PolicySpecR27 p : live) { CooperativeContinuationR26.poll(); Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.fullJson()); x.put("tau", liveTau.get(p.policyHash())); lv.add(x); }
         s.put("live", lv);
         Map<String, Object> cs = new LinkedHashMap<>(); for (String k : COUNTERS) cs.put(k, counters.get(k)[0]); s.put("counters", cs);
         Map<String, Object> fs = new LinkedHashMap<>(); for (Map.Entry<String, Integer> e : familySurvivors.entrySet()) fs.put(e.getKey(), (long) e.getValue()); s.put("familySurvivors", fs);
         s.put("opWeights", opWeights); s.put("gateMaxDepth", (long) gateMaxDepth); s.put("depthCooldown", (long) depthCooldown); s.put("noVerified", (long) generationsWithoutVerified);
-        Map<String, Object> lg = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.snapshot().entrySet()) lg.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("ledger", lg);
-        Map<String, Object> cl = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.controlSnapshot().entrySet()) cl.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("controlLedger", cl);
+        Map<String, Object> lg = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.privateTurnSnapshot(false).entrySet()) { CooperativeContinuationR26.poll(); lg.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); } s.put("ledger", lg);
+        Map<String, Object> cl = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.privateTurnSnapshot(true).entrySet()) { CooperativeContinuationR26.poll(); cl.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); } s.put("controlLedger", cl);
         s.put("genStats", genStats); s.put("startedAt", startedAt);
-        return JsonR27.write(s);
+        return JsonR27.writeCooperative(s);
     }
 
     @SuppressWarnings("unchecked")
     public static EvolutionLoopR27 restore(String json, Config cfg, FeatureCacheR27 cache, Sink sink, Clock clock) {
-        Map<String, Object> s = (Map<String, Object>) JsonR27.parse(json);
+        Map<String, Object> s = (Map<String, Object>) JsonR27.parseCooperative(json);
         EvolutionLoopR27 l = new EvolutionLoopR27(cfg, cache, sink, clock);
         l.generation = (int) JsonR27.num(s.get("generation")); l.step = (int) JsonR27.num(s.get("step")); l.rng.state = ((Number) s.get("rng")).longValue();
-        for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("ledger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restore(Long.parseLong(e.getKey()), (String) h);
-        if (s.get("controlLedger") instanceof Map) for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("controlLedger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restoreControl(Long.parseLong(e.getKey()), (String) h);
+        for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("ledger")).entrySet()) { CooperativeContinuationR26.poll();for (Object h : (List<Object>) e.getValue()) { CooperativeContinuationR26.poll();l.ledger.restore(Long.parseLong(e.getKey()), (String) h); } }
+        if (s.get("controlLedger") instanceof Map) for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("controlLedger")).entrySet()) { CooperativeContinuationR26.poll();for (Object h : (List<Object>) e.getValue()) { CooperativeContinuationR26.poll();l.ledger.restoreControl(Long.parseLong(e.getKey()), (String) h); } }
         l.bind(cache);
         if (!cache.data.datasetHash.equals(s.get("datasetHash")) && l.step != 1) throw new IllegalStateException("R27_RESTORE_DATASET_MISMATCH_MID_GENERATION");
         l.champion = spec(s.get("champion")); l.championTau = JsonR27.num(s.get("championTau"));
         l.previousChampion = spec(s.get("previous")); l.previousTau = JsonR27.num(s.get("previousTau"));
         l.i00Champion = spec(s.get("i00")); l.i00Tau = JsonR27.num(s.get("i00Tau"));
         l.nullEvolution.champion = spec(s.get("nullChampion")); l.nullEvolution.championTau = JsonR27.num(s.get("nullTau")); l.nullEvolution.lastSeed = ((Number) s.get("nullSeed")).longValue();
-        for (Object o : (List<Object>) s.get("nullPopulation")) { Map<String, Object> m = (Map<String, Object>) o; PolicySpecR27 sp = spec(m.get("spec")); l.nullEvolution.population.add(new SuccessiveHalvingR27.Candidate(sp, null, JsonR27.num(m.get("tau")))); }
+        for (Object o : (List<Object>) s.get("nullPopulation")) { CooperativeContinuationR26.poll(); Map<String, Object> m = (Map<String, Object>) o; PolicySpecR27 sp = spec(m.get("spec")); l.nullEvolution.population.add(new SuccessiveHalvingR27.Candidate(sp, null, JsonR27.num(m.get("tau")))); }
         for (Object o : (List<Object>) s.get("population")) {
+            CooperativeContinuationR26.poll();
             Map<String, Object> x = (Map<String, Object>) o; Member m = new Member(); m.spec = spec(x.get("spec")); m.tau = JsonR27.num(x.get("tau")); m.island = (String) x.get("island");
             // Behavior signatures are not persisted (size); they are recomputed deterministically on restore.
             BirthGateR27.Verdict v = l.gate.check(m.spec); m.sig = v.ok ? v.signature : new int[0];
             l.population.add(m); l.gate.register(m.hash(), m.sig);
         }
         for (Member m : l.population) { CooperativeContinuationR26.poll(); l.refresh(m); }
-        for (Object o : (List<Object>) s.get("archive")) { Map<String, Object> x = (Map<String, Object>) o; l.archive.put((int) JsonR27.num(x.get("cell")), new EliteArchiveR27.Elite(spec(x.get("spec")), JsonR27.num(x.get("u")), JsonR27.num(x.get("tau")))); }
+        for (Object o : (List<Object>) s.get("archive")) { CooperativeContinuationR26.poll(); Map<String, Object> x = (Map<String, Object>) o; l.archive.put((int) JsonR27.num(x.get("cell")), new EliteArchiveR27.Elite(spec(x.get("spec")), JsonR27.num(x.get("u")), JsonR27.num(x.get("tau")))); }
         for (Object o : (List<Object>) s.get("pending")) {
+            CooperativeContinuationR26.poll();
             Map<String, Object> x = (Map<String, Object>) o; Pending p = new Pending(); p.spec = spec(x.get("spec")); p.state = (String) x.get("state"); p.reason = (String) x.get("reason");
             if ("BORN".equals(p.state)) { BirthGateR27.Verdict v = l.gate.check(p.spec); p.sig = v.ok ? v.signature : new int[0]; }
             p.tau = x.get("tau") == null ? Double.NaN : JsonR27.num(x.get("tau")); p.structural = (Boolean) x.get("structural"); l.pending.add(p);
         }
-        for (Object o : (List<Object>) s.get("live")) { Map<String, Object> x = (Map<String, Object>) o; PolicySpecR27 sp = spec(x.get("spec")); l.live.add(sp); l.liveTau.put(sp.policyHash(), JsonR27.num(x.get("tau"))); }
+        for (Object o : (List<Object>) s.get("live")) { CooperativeContinuationR26.poll(); Map<String, Object> x = (Map<String, Object>) o; PolicySpecR27 sp = spec(x.get("spec")); l.live.add(sp); l.liveTau.put(sp.policyHash(), JsonR27.num(x.get("tau"))); }
         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("counters")).entrySet()) l.counters.get(e.getKey())[0] = ((Number) e.getValue()).longValue();
-        for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("familySurvivors")).entrySet()) l.familySurvivors.put(e.getKey(), (int) JsonR27.num(e.getValue()));
+        for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("familySurvivors")).entrySet()) { CooperativeContinuationR26.poll();l.familySurvivors.put(e.getKey(), (int) JsonR27.num(e.getValue())); }
         List<Object> w = (List<Object>) s.get("opWeights"); for (int i = 0; i < w.size(); i++) l.opWeights[i] = JsonR27.num(w.get(i));
         l.gateMaxDepth = (int) JsonR27.num(s.get("gateMaxDepth")); l.gate.setMaxDepth(l.gateMaxDepth); l.depthCooldown = (int) JsonR27.num(s.get("depthCooldown")); l.generationsWithoutVerified = (int) JsonR27.num(s.get("noVerified"));
         l.genStats.putAll((Map<String, Object>) s.get("genStats")); l.startedAt = ((Number) s.get("startedAt")).longValue();

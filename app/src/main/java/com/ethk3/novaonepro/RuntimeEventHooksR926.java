@@ -177,6 +177,10 @@ public final class RuntimeEventHooksR926 {
             throw new IllegalArgumentException("B09_POST_STATE_HASH_INVALID");
         if (!safe(issue).equals(safe(trainedUntil)))
             throw new IllegalArgumentException("B09_TRAINED_UNTIL_MISMATCH");
+        if(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)){
+            LegacyLearningCommitR29.learnedWithin(db,issue,source,learningIdentity,preStateHash,postStateHash,trainedUntil,detail);
+            return;
+        }
         RuntimeEventLedgerR926.appendWithinTransaction(
                 db,
                 RuntimeEventLedgerR926.Event.of(

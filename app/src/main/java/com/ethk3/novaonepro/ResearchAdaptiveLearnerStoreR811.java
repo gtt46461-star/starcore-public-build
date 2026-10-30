@@ -29,16 +29,28 @@ public final class ResearchAdaptiveLearnerStoreR811 {
     public static UpdateResult updateFromStrictOos(DbStore store, String targetIssue) {
         if (store == null || !TargetIssueResolver.isValid(targetIssue))
             return UpdateResult.fail("INVALID_INPUT");
+        SQLiteDatabase ownerDatabase=store.readable();
+        if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(ownerDatabase)&&com.ethk3.novaonepro.strategyv2.ResearchRouteR29.active(ownerDatabase)){
+            if(ownerDatabase.inTransaction())throw new IllegalStateException("R29_LEARNING_INSIDE_REALTIME_TRANSACTION");
+            try(com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.Scope scope=com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.enter(store)){return updateFromStrictOos(store,targetIssue);}
+        }
         if (RealtimePressureGateR811.hasActiveCriticalWork()
                 && AnalysisSingleFlightR36.shared().activeCount() > 0)
             return UpdateResult.fail("YIELD_REALTIME");
         if (!store.coordinatorR36().ensureR811ResearchSchemaOnce())
             return UpdateResult.fail("SCHEMA_NOT_READY");
 
+        boolean independentR29=com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(store.readable());
+        if(independentR29){
+            try{LegacyLearningCommitR29.drain(store);}catch(RuntimeException notificationFailure){
+                android.util.Log.w("STARCORE_R29","research model remains committed; Root learned notification pending",notificationFailure);
+            }
+            if(LegacyLearningCommitR29.hasUnacknowledgedFtrl(store.readable()))return UpdateResult.fail("RESEARCH_MODEL_COMMITTED_ROOT_LEARNED_ACK_PENDING_OR_SOURCE_CONFLICT");
+        }
         Existing existing = existingForIssue(store, targetIssue);
         if (existing != null)
             return new UpdateResult(
-                    true,
+                    !independentR29,
                     "REPLAY_IDEMPOTENT_ARTIFACT_PRESENT",
                     targetIssue,
                     existing.artifactHash,
@@ -105,6 +117,7 @@ public final class ResearchAdaptiveLearnerStoreR811 {
                                         if (!db.inTransaction())
                                             throw new IllegalStateException(
                                                     "B09_FTRL_TRANSACTION_NOT_ACTIVE");
+                                        if(LegacyLearningCommitR29.hasUnacknowledgedFtrl(db))throw new IllegalStateException("R29_FTRL_PARENT_AWAITS_ROOT_ACK");
                                         if (!tailMatchesPreState(db, targetIssue, preStateHash))
                                             throw new IllegalStateException(
                                                     "B09_FTRL_STALE_PRE_STATE");
@@ -159,6 +172,12 @@ public final class ResearchAdaptiveLearnerStoreR811 {
                                     }
                                 },
                                 Boolean.FALSE);
+        if(independentR29&&tx.success){
+            try{LegacyLearningCommitR29.drain(store);}catch(RuntimeException notificationFailure){
+                android.util.Log.w("STARCORE_R29","research model committed; Root learned notification will retry",notificationFailure);
+            }
+            if(LegacyLearningCommitR29.hasUnacknowledgedFtrl(store.readable()))return new UpdateResult(!tx.replay,"RESEARCH_COMMITTED_ROOT_LEARNED_ACK_PENDING",targetIssue,hash,updates);
+        }
         Existing durable = existingForIssue(store, targetIssue);
         if (!tx.success
                 || durable == null
@@ -230,10 +249,13 @@ public final class ResearchAdaptiveLearnerStoreR811 {
     }
 
     private static Input readInput(DbStore store, String target) {
+        return readInput(store.readable(),target);
+    }
+    private static Input readInput(SQLiteDatabase database, String target) {
         Cursor cursor = null;
         try {
             cursor =
-                    store.readable()
+                    database
                             .rawQuery(
                                     "SELECT o.prediction_created_at,o.draw_open_time,o.hit_label,"
                                             + "o.selected_hit_p,e.raw_action_p_value,e.rank_score_value,"
@@ -273,6 +295,13 @@ public final class ResearchAdaptiveLearnerStoreR811 {
         }
     }
 
+    /** Original Root input, compared inside the original Root short transaction before LEARNED freezes it. */
+    static boolean confirmsRootLearningInput(SQLiteDatabase root,String issue,String identity,String detail){
+        if(root==null||!root.inTransaction()||com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(root))return false;
+        Input input=readInput(root,issue);if(input==null)return false;String expected=inputHash(issue,input),found="";
+        for(String token:safe(detail).split("\\|"))if(token.startsWith("input_hash="))found=token.substring("input_hash=".length());
+        return expected.equals(found)&&identity.equals(Batch2ContractCoreR926.learningKey(V51Repository.GAME_CODE,issue,UPDATE_CONTRACT,LABEL_VERSION,expected));
+    }
     private static String inputHash(String target, Input input) {
         StringBuilder b =
                 new StringBuilder("R811_FTRL_INPUT|")
@@ -287,16 +316,24 @@ public final class ResearchAdaptiveLearnerStoreR811 {
         return V51ChecksumEngine.sha256(b.toString());
     }
 
+    private static SQLiteDatabase modelDatabase(DbStore store){
+        SQLiteDatabase db=store.readable();
+        if(!com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)&&com.ethk3.novaonepro.strategyv2.ResearchRouteR29.active(db)){
+            if(db.inTransaction())throw new IllegalStateException("R29_RESEARCH_MODEL_READ_INSIDE_REALTIME_TRANSACTION");
+            return com.ethk3.novaonepro.strategyv2.ResearchRouteR29.reader(db);
+        }
+        return db;
+    }
     private static ResearchArtifactCodecR811.Artifact latestBefore(
             DbStore store, String targetIssue) {
         Cursor cursor = null;
         try {
             cursor =
-                    store.readable()
+                    modelDatabase(store)
                             .rawQuery(
                                     "SELECT artifact_blob,artifact_hash,feature_schema_hash FROM"
                                             + " v57_research_artifact_r811 WHERE artifact_type='FTRL_SHADOW'"
-                                            + " AND trained_until_issue<? ORDER BY trained_until_issue DESC LIMIT 1",
+                                            + " AND trained_until_issue<? AND "+LegacyLearningCommitR29.artifactVisibilitySql(modelDatabase(store),"v57_research_artifact_r811")+" ORDER BY trained_until_issue DESC LIMIT 1",
                                     new String[] {targetIssue});
             if (!cursor.moveToFirst()) return null;
             byte[] bytes = cursor.getBlob(0);
@@ -313,10 +350,10 @@ public final class ResearchAdaptiveLearnerStoreR811 {
         Cursor cursor = null;
         try {
             cursor =
-                    store.readable()
+                    modelDatabase(store)
                             .rawQuery(
                                     "SELECT artifact_blob,artifact_hash FROM v57_research_artifact_r811"
-                                            + " WHERE artifact_type='FTRL_SHADOW' AND trained_until_issue=? LIMIT 1",
+                                            + " WHERE artifact_type='FTRL_SHADOW' AND trained_until_issue=? AND "+LegacyLearningCommitR29.artifactVisibilitySql(modelDatabase(store),"v57_research_artifact_r811")+" LIMIT 1",
                                     new String[] {issue});
             if (!cursor.moveToFirst()) return null;
             byte[] bytes = cursor.getBlob(0);
@@ -335,10 +372,10 @@ public final class ResearchAdaptiveLearnerStoreR811 {
         Cursor cursor = null;
         try {
             cursor =
-                    store.readable()
+                    modelDatabase(store)
                             .rawQuery(
                                     "SELECT trained_until_issue FROM v57_research_artifact_r811"
-                                            + " WHERE artifact_type='FTRL_SHADOW'"
+                                            + " WHERE artifact_type='FTRL_SHADOW' AND "+LegacyLearningCommitR29.artifactVisibilitySql(modelDatabase(store),"v57_research_artifact_r811")
                                             + " ORDER BY trained_until_issue DESC LIMIT 1",
                                     null);
             return cursor.moveToFirst() ? safe(cursor.getString(0)) : "";
@@ -355,7 +392,7 @@ public final class ResearchAdaptiveLearnerStoreR811 {
             cursor =
                     db.rawQuery(
                             "SELECT trained_until_issue,artifact_hash FROM v57_research_artifact_r811"
-                                    + " WHERE artifact_type='FTRL_SHADOW'"
+                                    + " WHERE artifact_type='FTRL_SHADOW' AND "+LegacyLearningCommitR29.artifactVisibilitySql(db,"v57_research_artifact_r811")
                                     + " ORDER BY trained_until_issue DESC,created_at DESC LIMIT 1",
                             null);
             if (!cursor.moveToFirst()) return GENESIS_HASH.equals(expectedPreStateHash);

@@ -55,20 +55,38 @@ public final class LongScaleSummaryR80 {
         need(name.find(),"LONG_DDL_KIND");need(out.put(name.group(1),exact)==null,"LONG_DDL_DUPLICATE");
     }
     private static final Map<String,String> DDL=buildDdl();
+    private static final Set<String> CANONICAL_GUARDS=new HashSet<>(Arrays.asList(
+        "long_source_token_insert_r80","long_source_token_delete_r80","long_source_token_update_r80",
+        "long_canonical_changed_r80","long_canonical_insert_r81"));
+    private static final Map<String,String> RESEARCH_DDL=researchDdl();
+    private static Map<String,String> researchDdl(){
+        Map<String,String> result=new LinkedHashMap<>(DDL);
+        String original=" ON "+DbHelper.TABLE_R811_DRAW_CANONICAL+" ";
+        String replica=" ON "+com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.CANONICAL_INPUT+" ";
+        for(String name:CANONICAL_GUARDS){String sql=DDL.get(name);need(sql!=null&&sql.contains(original),"LONG_CANONICAL_GUARD_TARGET:"+name);result.put(name,sql.replace(original,replica));}
+        return Collections.unmodifiableMap(result);
+    }
+    private static boolean research(SQLiteDatabase db){return com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db);}
+    private static Map<String,String> effectiveDdl(SQLiteDatabase db){return research(db)?RESEARCH_DDL:DDL;}
+    private static void requireCanonicalInput(SQLiteDatabase db){if(research(db))com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.ensureCanonicalReady(db);}
+
     public static final String SCHEMA_STEP="R81_LONG_SUMMARY_CAS_ARCHIVE_V1";
     public static Set<String> requiredObjects(){return DDL.keySet();}
     /** Exact DDL identity, not a table-presence proxy. */
     public static boolean ready(SQLiteDatabase db){
         if(db==null)return false;
+        if(research(db)&&!com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.canonicalReady(db))return false;
         if(TransactionSchemaCacheR941.readyCommitted(db,SCHEMA_STEP))return true;
-        if(!com.ethk3.novaonepro.SchemaObjectSnapshotR26.read(db,DDL.keySet()).matches(DDL))return false;
+        Map<String,String> effective=effectiveDdl(db);
+        if(!com.ethk3.novaonepro.SchemaObjectSnapshotR26.read(db,effective.keySet()).matches(effective))return false;
         TransactionSchemaCacheR941.markCommitted(db,SCHEMA_STEP);return true;
     }
     /** Called only by the existing additive research migration owner. */
     public static void schema(SQLiteDatabase db){
-        need(db!=null&&db.inTransaction(),"LONG_SCHEMA_WRITER");
-        com.ethk3.novaonepro.SchemaObjectSnapshotR26 present=com.ethk3.novaonepro.SchemaObjectSnapshotR26.read(db,DDL.keySet());
-        for(Map.Entry<String,String> e:DDL.entrySet()){
+        need(db!=null&&db.inTransaction(),"LONG_SCHEMA_WRITER");requireCanonicalInput(db);
+        Map<String,String> effective=effectiveDdl(db);
+        com.ethk3.novaonepro.SchemaObjectSnapshotR26 present=com.ethk3.novaonepro.SchemaObjectSnapshotR26.read(db,effective.keySet());
+        for(Map.Entry<String,String> e:effective.entrySet()){
             if(present.contains(e.getKey())){need(e.getValue().equals(present.firstSql(e.getKey())),"LONG_SCHEMA_DRIFT:"+e.getKey());continue;}
             db.execSQL(e.getValue());
         }
@@ -116,7 +134,7 @@ public final class LongScaleSummaryR80 {
     }
     /** Reads and numeric/codec work are outside the sole writer. */
     public static Prepared prepare(SQLiteDatabase db,long deadlineNs){
-        need(db!=null&&!db.inTransaction(),"LONG_PREPARE_OUTSIDE_WRITER");
+        need(db!=null&&!db.inTransaction(),"LONG_PREPARE_OUTSIDE_WRITER");requireCanonicalInput(db);
         need("Binance1-PK10".equals(ReleaseManifestR926.GAME_CODE),"LONG_GAME_CONTRACT");
         try(Cursor capacity=db.rawQuery("SELECT COUNT(*) FROM "+SNAPSHOT,null)){need(capacity.moveToFirst(),"LONG_SNAPSHOT_COUNT");if(capacity.getLong(0)>=5000)throw new DevelopmentProductionCP12.Wait("WAIT_LONG_SNAPSHOT_ARCHIVE");}
         long canonicalGeneration=token(db),historyGeneration=DevelopmentProductionCP12.historyGeneration(db),now=System.currentTimeMillis();Head old=head(db,true);
@@ -157,7 +175,7 @@ public final class LongScaleSummaryR80 {
     }
     /** One exact state/source fence and one bounded checkpoint publication. */
     public static void commit(SQLiteDatabase db,Prepared p){
-        need(db!=null&&db.inTransaction()&&p!=null,"LONG_COMMIT_WRITER");Head current=head(db,false);
+        need(db!=null&&db.inTransaction()&&p!=null,"LONG_COMMIT_WRITER");requireCanonicalInput(db);Head current=head(db,false);
         need((current==null?"":current.fence()).equals(p.before)&&token(db)==p.canonicalGeneration&&DevelopmentProductionCP12.historyGeneration(db)==p.historyGeneration,"LONG_PREDECESSOR_CAS");
         long now=System.currentTimeMillis();need(now>=p.at&&p.available<=p.at,"LONG_PUBLICATION_CLOCK");
         if(current==null||!current.epoch.equals(p.epoch)){

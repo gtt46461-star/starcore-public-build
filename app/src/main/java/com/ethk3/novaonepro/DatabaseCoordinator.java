@@ -390,6 +390,8 @@ public final class DatabaseCoordinator {
                         new SchemaDomainCoordinatorR926.Step() {
                             public void run(SQLiteDatabase x) { SettlementTaskStoreR36.ensureRepairAuditSchema(x); }
                         });
+                SchemaDomainCoordinatorR926.runStep(existingDb, critical, "R29_ROOT_FORMAL_RECEIPTS_V1",
+                        x -> FormalReceiptSchemaR29.ensureRoot(x));
                 // An old core stamp predates these columns. Repair before accepting it;
                 // no live analysis transaction may depend on delayed Research migration.
                 if (tableExists(existingDb, DbHelper.TABLE_R35_SHADOW_OBSERVATION)) {
@@ -941,6 +943,8 @@ public final class DatabaseCoordinator {
         if (db == null || tx == null || task == null)
             return TransactionResult.fail(
                     fallback, "TX_ARGUMENT_NULL", tx == null ? "" : tx.transactionHash, 0L);
+        if(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db))
+            return LegacyLearningCommitR29.runResearchTransaction(db,tx,task,fallback);
         boolean owns = !db.inTransaction();
         try {
             DbHelper.ensureTianshuB03(db);

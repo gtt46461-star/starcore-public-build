@@ -22,9 +22,14 @@ public final class ResearchSchemaCoordinatorR926 {
         public final boolean ready, enteredWriter;
         public final String status, detail;
         public final Throwable cause;
+        /** One observed schema/journal unit, never a numerical sample or a writer attempt. */
+        public final long committedUnits;
         StepResult(boolean ready, boolean enteredWriter, String status, String detail, Throwable cause) {
+            this(ready,enteredWriter,status,detail,cause,0);
+        }
+        StepResult(boolean ready, boolean enteredWriter, String status, String detail, Throwable cause,long units) {
             this.ready=ready; this.enteredWriter=enteredWriter; this.status=status;
-            this.detail=detail; this.cause=cause;
+            this.detail=detail; this.cause=cause;this.committedUnits=units;
         }
     }
 
@@ -57,6 +62,7 @@ public final class ResearchSchemaCoordinatorR926 {
                 public StepResult call(SQLiteDatabase db) {
                     entered[0]=true;
                     synchronized (LOCK) {
+                        long[] before=schemaProgress(db);
                         boolean ready;
                         failureCause=null;
                         try { ready=advance(db); }
@@ -70,7 +76,10 @@ public final class ResearchSchemaCoordinatorR926 {
                         // Publish while still owning the existing writer, never after its release.
                         // A delayed acquisition failure cannot demote another call's verified READY.
                         owner.publishResearchSchemaResultR80(ready, error);
-                        return new StepResult(ready,true,state,error,failureCause);
+                        long[] after=schemaProgress(db);
+                        long units=failureCause==null&&!"FAILED".equals(state)
+                                &&(after[0]!=before[0]||after[1]>before[1]||after[2]>before[2])?1:0;
+                        return new StepResult(ready,true,state,error,failureCause,units);
                     }
                 }
             });
@@ -88,9 +97,28 @@ public final class ResearchSchemaCoordinatorR926 {
         }
     }
 
+    private static long[] schemaProgress(SQLiteDatabase db){
+        long version=0,journal=0,strategy=0;boolean haveJournal=false,haveStrategy=false;
+        try(android.database.Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(c.moveToFirst())version=c.getLong(0);}
+        try(android.database.Cursor c=db.rawQuery("SELECT name FROM main.sqlite_master WHERE type='table' AND name IN (?,?)",new String[]{SchemaDomainCoordinatorR926.TABLE_JOURNAL,"su1_migration_unit_v2"})){
+            while(c.moveToNext()){if(SchemaDomainCoordinatorR926.TABLE_JOURNAL.equals(c.getString(0)))haveJournal=true;else haveStrategy=true;}
+        }
+        if(haveJournal)try(android.database.Cursor c=db.rawQuery("SELECT count(*) FROM "+SchemaDomainCoordinatorR926.TABLE_JOURNAL+" WHERE domain=? AND status='COMPLETED'",new String[]{SchemaDomainCoordinatorR926.DOMAIN_RESEARCH})){if(c.moveToFirst())journal=c.getLong(0);}
+        if(haveStrategy)try(android.database.Cursor c=db.rawQuery("SELECT count(*) FROM su1_migration_unit_v2",null)){if(c.moveToFirst())strategy=c.getLong(0);}
+        return new long[]{version,journal,strategy};
+    }
+
     private static boolean advance(SQLiteDatabase db) {
         synchronized (LOCK) {
-            SchemaDomainCoordinatorR926.Contract contract = SchemaDomainCoordinatorR926.researchContract();
+            if (com.ethk3.novaonepro.strategyv2.ResearchRouteR29.isResearchDatabase(db)) {
+                com.ethk3.novaonepro.strategyv2.LegacyLearnedInputR29.installResearch(db);
+                if (!com.ethk3.novaonepro.strategyv2.LegacyLearnedInputR29.ready(db)) {
+                    state = "INITIALIZING"; cursor = "R29_LEARNED_INPUT_BOOTSTRAP";
+                    error = ""; failureCause = null;
+                    return false;
+                }
+            }
+            SchemaDomainCoordinatorR926.Contract contract = SchemaDomainCoordinatorR926.researchContract(db);
             boolean priorDomainReady = SchemaDomainCoordinatorR926.matches(db, contract);
             if (priorDomainReady && com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.readyOrderR79(db)
                     && LegacySettlementProofR79.ready(db)
