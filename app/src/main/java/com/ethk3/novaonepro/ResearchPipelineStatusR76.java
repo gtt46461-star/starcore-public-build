@@ -31,7 +31,7 @@ public final class ResearchPipelineStatusR76 {
         long at=System.currentTimeMillis();
         if(Looper.myLooper()!=null&&Looper.myLooper()==Looper.getMainLooper())return unavailable(at,"界面线程不执行数据库统计，等待后台快照");
         if(store==null)return unavailable(at,"数据库尚未就绪");
-        try{return readDatabase(store.readable(),at,System.nanoTime()+READ_BUDGET_NS);}
+        try{return readDatabase(com.ethk3.novaonepro.strategyv2.ResearchRouteR29.reader(store.coordinatorForResearchR952().realtimeReadOnlyR29()),at,System.nanoTime()+READ_BUDGET_NS);}
         catch(RuntimeException failure){return unavailable(at,"数据库读取失败（"+failure.getClass().getSimpleName()+"）");}
     }
     private static Snapshot unavailable(long at,String reason){return new Snapshot(at,"未知",reason,"训练："+reason,"反馈与进化："+reason,"原子与矩阵："+reason,"主链资格："+reason);}

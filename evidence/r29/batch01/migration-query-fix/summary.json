@@ -1,0 +1,56 @@
+{
+  "scope": "ACTUAL_PRODUCTION_SCHEMA_REAL_SQLITE_HOST; NOT_ANDROID_RUNTIME_OR_NATURAL_QUALITY",
+  "originalAndroidFailure": {
+    "run": 41073013207,
+    "source": "1388a63c3e3ac9ce512d19399a03c9f68e9bb092",
+    "status": "FAIL_24_FAMILIES_3_EXPERTS_IN_240S",
+    "sourceRetained": "evidence/r29/batch01/failed/android-1388a63/",
+    "handoffFailures": 633,
+    "budgetRetryPeriodSecondsApprox": 31
+  },
+  "fixture": {
+    "schemaTables": 194,
+    "migratedTables": 181,
+    "canonicalDraws": 4200,
+    "learningWorkPending": 8400,
+    "copiedRows": 16816,
+    "copyPages": 534,
+    "completeSourceAndDestinationHashesMatch": true
+  },
+  "sameAssertionControl": {
+    "gitSource": "1388a63c3e3ac9ce512d19399a03c9f68e9bb092",
+    "status": "FAIL_QUERY_COUNT_BUDGET",
+    "rawQueries": 393164,
+    "cellQueries": 189045,
+    "encodingQueries": 201678
+  },
+  "hybrid": {
+    "status": "HOST_PASS",
+    "rawQueries": 2500,
+    "cellQueries": 0,
+    "encodingQueries": 2,
+    "fixedQueryCountBudget": 12000,
+    "rawQueryReductionRatio": 157.2656,
+    "largeCells": "128KiB chunks retained; inline page bytes bounded; original typed UTF8 byte/hash protocol unchanged",
+    "withoutRowidLargeCellLookup": "Complete captured primary key on original table; avoid repeated ROW_NUMBER per chunk",
+    "cancellation": "Production cutover copy and both hashes check actual original deadline/cancel inside pages"
+  },
+  "regressions": {
+    "largeTypedRows": 13,
+    "stagedMigration": 16,
+    "cutover": 19,
+    "rowPagination": 16,
+    "existingDomainUpgrade": 18,
+    "fullProductionSchema": 5
+  },
+  "notRelaxed": [
+    "60s first-service condition",
+    "240s runtime budget",
+    "1500ms independent-writer condition",
+    "1000 canonical writer probes",
+    "retention renewal",
+    "stop/restart/stale-fence assertions"
+  ],
+  "androidRetest": "PENDING",
+  "remainingCapacityPoolWait": "Root is separately fixing non-scope shared RW observation pool contention; original capacity failures remain failures"
+}

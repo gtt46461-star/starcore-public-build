@@ -35,10 +35,17 @@ public final class R29DatabaseCutoverDeviceTest {
         SQLiteDatabase original=store.readable(),rootReader=null,researchReader=null;
         Map<String,Object> result=new LinkedHashMap<>();result.put("scope","API34_SYNTHETIC_ANDROID_SQLITE_NOT_PHYSICAL_NOT_NATURAL");
         try{
+            DatabaseCoordinator coordinator=store.coordinatorForResearchR952();
+            SQLiteDatabase observation=coordinator.realtimeReadOnlyR29();assertNotSame(original,observation);assertTrue(observation.isReadOnly());assertEquals(1,n(observation,"PRAGMA query_only"));
+            boolean forbidden=false;try{observation.execSQL("CREATE TABLE synthetic_observer_must_not_write(k INTEGER)");}catch(android.database.sqlite.SQLiteException expected){forbidden=true;}assertTrue(forbidden);
+            java.lang.reflect.Method reset=DatabaseCoordinator.class.getDeclaredMethod("closeRealtimeReadOnlyPoolR29");reset.setAccessible(true);reset.invoke(coordinator);assertFalse(observation.isOpen());observation=coordinator.realtimeReadOnlyR29();assertTrue(observation.isOpen());
+            java.lang.reflect.Method select=DatabaseCoordinator.class.getDeclaredMethod("realtimeReadOnlyR29",SQLiteDatabase.class);select.setAccessible(true);
+            try(SQLiteDatabase memory=SQLiteDatabase.create(null)){assertSame(memory,select.invoke(coordinator,memory));}
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_SCHEMA",db->{
                 RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);
                 db.execSQL("CREATE TABLE r29_cutover_fixture(id INTEGER PRIMARY KEY,value BLOB,n TEXT)");
                 for(int i=0;i<97;i++)db.execSQL("INSERT INTO r29_cutover_fixture VALUES(?,?,NULL)",new Object[]{i-48,new byte[]{0,1,(byte)i}});
+                assertSame("transaction observes its own owner",db,coordinator.realtimeReadOnlyR29());assertEquals(97,n(coordinator.realtimeReadOnlyR29(),"SELECT count(*) FROM r29_cutover_fixture"));
                 db.execSQL("INSERT INTO r26_task(task_id,lane,mechanism,cursor) VALUES('synthetic-r27','R27','fixture',9),('synthetic-legacy','P2','fixture',4)");
                 return 0;
             });
@@ -75,6 +82,7 @@ public final class R29DatabaseCutoverDeviceTest {
             Future<?> held=executor.submit(()->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R29_REALTIME_HELD",db->{db.execSQL("UPDATE r29_cutover_fixture SET n='root-held' WHERE id=1");rootHeld.countDown();if(!releaseRoot.await(5,TimeUnit.SECONDS))throw new IOException("synthetic release timeout");return 0;}));
             try{
                 assertTrue(rootHeld.await(3,TimeUnit.SECONDS));
+                Future<Long> observationDuringWriter=executor.submit(()->n(coordinator.realtimeReadOnlyR29(),"SELECT count(*) FROM r29_cutover_fixture"));assertEquals(Long.valueOf(97),independent(observationDuringWriter));
                 Future<Integer> independent=executor.submit(()->ResearchRouteR29.write(store,"SYNTHETIC_R29_INDEPENDENT",db->{db.execSQL("UPDATE r29_cutover_fixture SET n='independent' WHERE id=2");return 1;}));
                 assertEquals(Integer.valueOf(1),independent(independent));
                 Future<Integer> legacyIndependent=executor.submit(()->{try(LegacyResearchScopeR29.Scope scope=LegacyResearchScopeR29.enter(store)){
@@ -86,6 +94,7 @@ public final class R29DatabaseCutoverDeviceTest {
                 assertEquals(Integer.valueOf(1),independent(legacyIndependent));
             }finally{releaseRoot.countDown();held.get(5,TimeUnit.SECONDS);}
             result.put("independentResearchCommitWhileRealtimeWriterHeld",true);
+            result.put("explicitRootObservationReadOnlyPoolAndOwnWriteFallback",true);result.put("rootObserverReadWhileWriterHeld",true);
             assertEquals(4,n(original,"SELECT cursor FROM r26_task WHERE task_id='synthetic-legacy'"));
             assertEquals(6,n(researchReader,"SELECT cursor FROM r26_task WHERE task_id='synthetic-legacy'"));
             result.put("legacyScopedWriteIndependentAndOriginalRowsPreserved",true);

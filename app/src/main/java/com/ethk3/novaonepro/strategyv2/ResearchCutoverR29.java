@@ -31,6 +31,9 @@ public final class ResearchCutoverR29 {
     static List<MigrationCopyR29.Row> page(SQLiteDatabase source,MigrationCopyR29.Table table,Long after){
         return ResearchRowsR29.readPage(source,table,after,predicate(table.name),32,2L<<20,Long.MAX_VALUE,()->{});
     }
+    private static List<MigrationCopyR29.Row> page(SQLiteDatabase source,MigrationCopyR29.Table table,Long after,long deadline,java.util.function.BooleanSupplier cancelled){
+        return ResearchRowsR29.readPage(source,table,after,predicate(table.name),32,2L<<20,Long.MAX_VALUE,()->check(deadline,cancelled));
+    }
     static Object[] decode(byte[] bytes,int expected){
         if(bytes==null||bytes.length>MigrationCopyR29.MAX_ROW_BYTES)throw new IllegalArgumentException("R29_COPY_PAYLOAD_BUDGET");
         try{
@@ -62,7 +65,7 @@ public final class ResearchCutoverR29 {
         StringBuilder root=new StringBuilder("R29_ACTIVE_DATA_V1");
         for(MigrationCopyR29.Table t:tables){
             String chain=t.seed();Long after=null;long count=0;
-            for(;;){check(deadline,cancelled);List<MigrationCopyR29.Row> page=page(source,t,after);if(page.isEmpty())break;for(MigrationCopyR29.Row row:page){chain=MigrationCopyR29.chain(chain,row.rowid,row.hash);after=row.rowid;count++;}}
+            for(;;){check(deadline,cancelled);List<MigrationCopyR29.Row> page=page(source,t,after,deadline,cancelled);if(page.isEmpty())break;for(MigrationCopyR29.Row row:page){chain=MigrationCopyR29.chain(chain,row.rowid,row.hash);after=row.rowid;count++;}}
             root.append('|').append(t.name).append(':').append(count).append(':').append(chain);
         }
         return StatsR27.sha256(root.toString());
@@ -108,7 +111,7 @@ public final class ResearchCutoverR29 {
             }finally{target.endTransaction();}
             for(MigrationCopyR29.Table t:tables){
                 Long after=null;
-                for(;;){check(deadline,worker::cancelled);List<MigrationCopyR29.Row> rows=page(source,t,after);if(rows.isEmpty())break;
+                for(;;){check(deadline,worker::cancelled);List<MigrationCopyR29.Row> rows=page(source,t,after,deadline,worker::cancelled);if(rows.isEmpty())break;
                     long needed=RESERVE_BYTES;for(MigrationCopyR29.Row row:rows)needed+=row.payload.length;
                     if(new StatFs(candidate.getParent()).getAvailableBytes()<needed)throw new IllegalStateException("R29_CUTOVER_STORAGE_BUDGET_YIELD");
                     target.beginTransactionNonExclusive();try{restorePage(target,t,rows);target.setTransactionSuccessful();}finally{target.endTransaction();}

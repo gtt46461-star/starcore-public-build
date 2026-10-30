@@ -1,0 +1,47 @@
+{
+  "scope": "MINIMAL_EXPLICIT_ROOT_READ_POOL_FIX; ANDROID_EXECUTION_PENDING",
+  "mainJavac": "PASS",
+  "androidTestJavac": "PASS",
+  "ownerHostChecks": 12,
+  "ownerHostResult": "PASS_HOST_PROTOCOL_ONLY",
+  "legacyReadableWritableCompatibility": "UNCHANGED",
+  "productionBindings": [
+    "ResearchRouteR29.write owner routing probes",
+    "ResearchPipelineStatusR76.read used by MainActivity"
+  ],
+  "guards": [
+    "Root transaction read-own-writes returns original owner",
+    "memory database returns original owner",
+    "maintenance owner retains original owner and close occurs before swap",
+    "process borrowed RO cache closes/reopens if closed"
+  ],
+  "androidChecksAddedNotYetRun": [
+    "OPEN_READONLY/query_only/write rejection",
+    "close/reopen and memory fallback",
+    "uncommitted own-write visibility",
+    "Root observer read while original Root writer held, same 1500ms envelope"
+  ],
+  "limitation": "Other legacy UI reads that have not opted into the explicit pure-observation API still use historical readable semantics. Prior capacity failures remain failures.",
+  "inputs": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+      "sha256": "1388b297928f9afe568c9fd219739be388e0702d1706049a30a961fbba27126b"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRouteR29.java",
+      "sha256": "bde8161fb09a8b0f808b249e743148f920c8fc4272a8e6df6674cab06ec97e1b"
+    },
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/ResearchPipelineStatusR76.java",
+      "sha256": "ccec652355456e7bebd8eed1c7632afc031416c640549276c5a8b5319b474e53"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R26RuntimeDeviceTest.java",
+      "sha256": "751e4456934fad2c55d1641294102be57ff72b795bed6fdc1f4fda3e867bf8fa"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R29DatabaseCutoverDeviceTest.java",
+      "sha256": "9ea892af54948f57b98ad28c006047a8096ba9fd4ead9134ad80d4b69c2cadfc"
+    }
+  ]
+}

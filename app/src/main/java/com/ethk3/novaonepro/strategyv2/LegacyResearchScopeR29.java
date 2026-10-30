@@ -21,14 +21,21 @@ public final class LegacyResearchScopeR29 {
     private static void requireScope(){for(Scope s=CURRENT.get();s!=null;s=s.previous)if(!s.valid.getAsBoolean())throw new IllegalStateException("R29_CANCELLED_OR_REPLACED_RESEARCH_SCOPE");}
     public static boolean realtimeTransaction(){return REALTIME.get()>0;}
     public static SQLiteDatabase rawRealtime(DbStore store){return store.coordinatorForResearchR952().realtimeReadableR29();}
+    private static SQLiteDatabase routedReader(DatabaseCoordinator coordinator,SQLiteDatabase original){
+        SQLiteDatabase observation=coordinator.realtimeReadOnlyR29();
+        // Resolve ownership on the independent Root pool. Before publication, retain the historical
+        // writable-compatible handle: legacy callers may still initialize schema through readable().
+        if(!original.getPath().equals(observation.getPath()))return ResearchRouteR29.reader(original);
+        return ResearchRouteR29.active(observation)?ResearchRouteR29.reader(observation):original;
+    }
     public static SQLiteDatabase readable(DatabaseCoordinator coordinator,SQLiteDatabase root){
-        Scope s=CURRENT.get();return s!=null&&s.store.coordinatorForResearchR952()==coordinator&&REALTIME.get()==0?ResearchRouteR29.reader(root):root;
+        Scope s=CURRENT.get();return s!=null&&s.store.coordinatorForResearchR952()==coordinator&&REALTIME.get()==0?routedReader(coordinator,root):root;
     }
     public static SQLiteDatabase readable(DbStore store,SQLiteDatabase root){
-        Scope s=CURRENT.get();return s!=null&&s.store.coordinatorForResearchR952()==store.coordinatorForResearchR952()&&REALTIME.get()==0?ResearchRouteR29.reader(root):root;
+        Scope s=CURRENT.get();return s!=null&&s.store.coordinatorForResearchR952()==store.coordinatorForResearchR952()&&REALTIME.get()==0?routedReader(store.coordinatorForResearchR952(),root):root;
     }
     public static SQLiteDatabase realtime(SQLiteDatabase supplied){
-        Scope s=CURRENT.get();if(s!=null)return ResearchRouteR29.realtimeReadOnly(rawRealtime(s.store));
+        Scope s=CURRENT.get();if(s!=null)return ResearchRouteR29.realtimeReadOnly(s.store.coordinatorForResearchR952().realtimeReadOnlyR29());
         return ResearchRouteR29.realtimeForWriter(supplied);
     }
     public static boolean routes(DatabaseCoordinator coordinator,String operation){
@@ -41,7 +48,7 @@ public final class LegacyResearchScopeR29 {
         if(nested!=null){RuntimeCoordinatorR26.checkThreadFence(nested);T value=task.call(nested);RuntimeCoordinatorR26.checkThreadFence(nested);return value;}
         ROUTING.set(ROUTING.get()+1);
         try{
-            SQLiteDatabase root=rawRealtime(s.store);
+            SQLiteDatabase root=s.store.coordinatorForResearchR952().realtimeReadOnlyR29();
             if(ResearchRouteR29.active(root)&&!stopping){LegacyDomainUpgradeR29.ensure(s.store);ResearchInputMirrorR29.refresh(s.store);}
             return ResearchRouteR29.write(s.store,operation,db->{
                 boolean independent=ResearchRouteR29.isResearchDatabase(db);if(independent)WRITER.set(db);

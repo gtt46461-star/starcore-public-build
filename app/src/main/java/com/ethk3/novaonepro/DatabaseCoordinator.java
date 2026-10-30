@@ -223,6 +223,7 @@ public final class DatabaseCoordinator {
             try(Cursor c=db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null)) {
                 if(!c.moveToFirst()||c.getInt(0)!=0||c.getInt(1)>c.getInt(2))throw new java.io.IOException("MAINTENANCE_CHECKPOINT_BUSY");
             }
+            owner.closeRealtimeReadOnlyPoolR29();
             owner.helper.close();
             return StorageMaintenanceFileR82.rebuildAndSwap(context.getDatabasePath(AppConfig.DB_NAME));
         } finally { maintenanceOwnerR82.remove();WRITE_LOCK_CP3.unlock(); }
@@ -230,6 +231,8 @@ public final class DatabaseCoordinator {
     private static volatile DatabaseCoordinator instance;
     private final android.app.Application app;
     private final DbHelper helper;
+    private final Object realtimeReadPoolLockR29=new Object();
+    private SQLiteDatabase realtimeReadPoolR29;
     private final ReentrantLock writeLock = WRITE_LOCK_CP3;
     private final AtomicInteger waitingWriters = new AtomicInteger(0);
     /** R914: background writers wait outside the fair lock while live business work is queued. */
@@ -312,6 +315,31 @@ public final class DatabaseCoordinator {
     }
     /** Explicit authority reader; research scopes must not recursively resolve their own input route. */
     public SQLiteDatabase realtimeReadableR29(){rejectMaintenanceR82();return helper.getReadableDatabase();}
+
+    /** Explicit SELECT-only observation handle. Historical readable() APIs retain their writable compatibility.
+     * An isolated OPEN_READONLY pool cannot create a secondary RW connection and checkpoint WAL while the
+     * schema owner waits for the RW pool monitor. Borrowed process handle: callers must not close it. */
+    public SQLiteDatabase realtimeReadOnlyR29(){
+        rejectMaintenanceR82();return realtimeReadOnlyR29(helper.getReadableDatabase());
+    }
+    private SQLiteDatabase realtimeReadOnlyR29(SQLiteDatabase original){
+        String path=original.getPath();
+        // Transactions must read their own writes. An in-memory database has no second file handle.
+        if(original.inTransaction()||Boolean.TRUE.equals(maintenanceOwnerR82.get())||path==null||path.isEmpty()||":memory:".equals(path))return original;
+        synchronized(realtimeReadPoolLockR29){
+            rejectMaintenanceR82();
+            if(realtimeReadPoolR29!=null&&realtimeReadPoolR29.isOpen()&&path.equals(realtimeReadPoolR29.getPath()))return realtimeReadPoolR29;
+            closeRealtimeReadOnlyPoolR29();
+            SQLiteDatabase opened=SQLiteDatabase.openDatabase(path,null,SQLiteDatabase.OPEN_READONLY);
+            try(Cursor c=opened.rawQuery("PRAGMA query_only=1",null)){c.moveToFirst();}
+            catch(RuntimeException failure){opened.close();throw failure;}
+            realtimeReadPoolR29=opened;return opened;
+        }
+    }
+    private void closeRealtimeReadOnlyPoolR29(){
+        synchronized(realtimeReadPoolLockR29){if(realtimeReadPoolR29!=null){realtimeReadPoolR29.close();realtimeReadPoolR29=null;}}
+    }
+
 
     public SQLiteDatabase writable() {
         rejectMaintenanceR82();

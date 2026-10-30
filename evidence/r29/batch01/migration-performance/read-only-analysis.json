@@ -1,0 +1,125 @@
+{
+  "source": "1388a63c3e3ac9ce512d19399a03c9f68e9bb092",
+  "run": 41073013207,
+  "readOnly": true,
+  "mainR26HandoffTimeouts": 633,
+  "timeoutSpanSeconds": 215.854,
+  "minimumTimeSpentIn200msGateWaitSeconds": 126.60000000000001,
+  "releaseWindows": [
+    {
+      "startLine": 1708,
+      "start": "14:43:42.759",
+      "endLine": 1723,
+      "end": "14:43:44.491",
+      "gapSeconds": 1.732
+    },
+    {
+      "startLine": 3152,
+      "start": "14:44:13.894",
+      "endLine": 3168,
+      "end": "14:44:15.536",
+      "gapSeconds": 1.642
+    },
+    {
+      "startLine": 4525,
+      "start": "14:44:45.184",
+      "endLine": 4540,
+      "end": "14:44:46.617",
+      "gapSeconds": 1.433
+    },
+    {
+      "startLine": 6039,
+      "start": "14:45:16.018",
+      "endLine": 6054,
+      "end": "14:45:17.663",
+      "gapSeconds": 1.645
+    },
+    {
+      "startLine": 7395,
+      "start": "14:45:47.083",
+      "endLine": 7410,
+      "end": "14:45:48.733",
+      "gapSeconds": 1.65
+    },
+    {
+      "startLine": 9064,
+      "start": "14:46:18.163",
+      "endLine": 9079,
+      "end": "14:46:20.002",
+      "gapSeconds": 1.839
+    }
+  ],
+  "copyStackLogLines": [
+    2229,
+    4957,
+    7721
+  ],
+  "notes": [
+    "31-second windows are consistent with the source 30-second cutover budget plus idle retry; no explicit budget exception or attempt IDs were logged, so retries remain an inference.",
+    "migration task cursor is verified baseline table count, not published migration progress.",
+    "HOST read benchmark measures exact SQL call counts and HOST execution only; it does not identify the dominant actual Root table or establish Android timing."
+  ],
+  "benchmark": [
+    {
+      "chunkPathMs": 36.970205,
+      "chunkPathQueries": {
+        "cell": 194,
+        "encoding": 291,
+        "metadata": 5
+      },
+      "nonEmptyTextFieldsPerRow": 2,
+      "rows": 97,
+      "scope": "HOST_SQL_ONLY_SMALL_ROW_QUERY_AMPLIFICATION_NOT_ANDROID_TIMING",
+      "table": "ordinary_97",
+      "textFieldsPerRow": 3,
+      "typedBytesIdentical": true,
+      "wholeSmallRowQueries": {
+        "other": 5
+      },
+      "wholeSmallRowsMs": 7.791827,
+      "withoutRowid": false
+    },
+    {
+      "chunkPathMs": 308.872634,
+      "chunkPathQueries": {
+        "cell": 8400,
+        "encoding": 12600,
+        "metadata": 133
+      },
+      "nonEmptyTextFieldsPerRow": 2,
+      "rows": 4200,
+      "scope": "HOST_SQL_ONLY_SMALL_ROW_QUERY_AMPLIFICATION_NOT_ANDROID_TIMING",
+      "table": "ordinary_4200",
+      "textFieldsPerRow": 3,
+      "typedBytesIdentical": true,
+      "wholeSmallRowQueries": {
+        "other": 133
+      },
+      "wholeSmallRowsMs": 29.034286,
+      "withoutRowid": false
+    },
+    {
+      "chunkPathMs": 26780.576406,
+      "chunkPathQueries": {
+        "cell": 8400,
+        "encoding": 12600,
+        "metadata": 133,
+        "table_info": 133,
+        "version": 133
+      },
+      "nonEmptyTextFieldsPerRow": 2,
+      "rows": 4200,
+      "scope": "HOST_SQL_ONLY_SMALL_ROW_QUERY_AMPLIFICATION_NOT_ANDROID_TIMING",
+      "table": "without_4200",
+      "textFieldsPerRow": 3,
+      "typedBytesIdentical": true,
+      "wholeSmallRowQueries": {
+        "other": 133,
+        "table_info": 133,
+        "version": 133
+      },
+      "wholeSmallRowsMs": 497.840401,
+      "withoutRowid": true
+    }
+  ]
+}

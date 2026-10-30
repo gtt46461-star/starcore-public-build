@@ -47,7 +47,7 @@ public final class ResearchRouteR29 {
         try{
             held=gate.tryLock(200,TimeUnit.MILLISECONDS);if(!held)throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_HANDOFF");
             // Resolve AFTER acquiring the gate: a CSV import may have waited across the ownership change.
-            Owner owner=owner(store.coordinatorForResearchR952().realtimeReadableR29());
+            Owner owner=owner(store.coordinatorForResearchR952().realtimeReadOnlyR29());
             if(owner==null)return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(operation,action);
             return owner.write(operation,action);
         }catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IllegalStateException("CP3_DB_BUSY_RESEARCH_HANDOFF_INTERRUPTED",interrupted);}

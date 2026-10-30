@@ -23,27 +23,52 @@ import java.util.TreeMap;
 public final class ResearchRowsR29 {
     private ResearchRowsR29(){}
     static final int CHUNK_BYTES=128<<10;
+    private static final Map<SQLiteDatabase,Charset> ENCODINGS=java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
 
-    /** CursorWindow sees only type/length/numeric metadata, never the complete TEXT or BLOB cell. */
+    /** Bound the entire small-cell page below CursorWindow limits. Larger cells retain chunked reads.
+     * Inline bytes are BLOBs even for TEXT, preserving strict source-encoding validation and embedded NUL. */
     static List<MigrationCopyR29.Row> readPage(SQLiteDatabase db,MigrationCopyR29.Table table,Long after,String predicate,int limit,long pageBytes,long sliceNanos,Runnable check){
+        int width=Math.max(1,table.columns.size()),rowsPerPage=Math.min(limit,Math.max(1,(256<<10)/(width*64)));
+        int inlineBytes=Math.min(512,Math.max(1,(512<<10)/(width*rowsPerPage)));
+        List<Integer> primary=withoutRowid(table)?primaryIndices(db,table):java.util.Collections.emptyList();
         String from=cursorSource(db,table);StringBuilder select=new StringBuilder("rowid");
-        for(String column:table.columns){String q=MigrationCopyR29.id(column);select.append(",typeof(").append(q).append("),CASE WHEN typeof(").append(q).append(") IN ('text','blob') THEN length(CAST(").append(q).append(" AS BLOB)) ELSE 0 END,CASE WHEN typeof(").append(q).append(") IN ('integer','real') THEN ").append(q).append(" ELSE NULL END");}
+        for(String column:table.columns){String q=MigrationCopyR29.id(column);select.append(",typeof(").append(q).append("),CASE WHEN typeof(").append(q).append(") IN ('text','blob') THEN length(CAST(").append(q).append(" AS BLOB)) ELSE 0 END,CASE WHEN typeof(").append(q).append(") IN ('integer','real') THEN ").append(q).append(" ELSE NULL END,CASE WHEN typeof(").append(q).append(") IN ('text','blob') AND length(CAST(").append(q).append(" AS BLOB))<=").append(inlineBytes).append(" THEN CAST(").append(q).append(" AS BLOB) ELSE NULL END");}
         String where=" WHERE ("+predicate+")"+(after==null?"":" AND rowid>?");String[] args=after==null?null:new String[]{String.valueOf(after)};
         List<MigrationCopyR29.Row> rows=new ArrayList<>();long started=System.nanoTime(),bytes=0;
-        try(Cursor metadata=db.rawQuery("SELECT "+select+" FROM "+from+where+" ORDER BY rowid LIMIT "+limit,args)){
+        try(Cursor metadata=db.rawQuery("SELECT "+select+" FROM "+from+where+" ORDER BY rowid LIMIT "+rowsPerPage,args)){
             while(metadata.moveToNext()){
-                check.run();long rowid=metadata.getLong(0);byte[] payload=encode(db,table,from,rowid,metadata,check);rows.add(new MigrationCopyR29.Row(rowid,payload,StatsR27.sha256(payload)));bytes+=payload.length;
+                check.run();long rowid=metadata.getLong(0);byte[] payload=encode(db,table,from,rowid,metadata,inlineBytes,primary,check);rows.add(new MigrationCopyR29.Row(rowid,payload,StatsR27.sha256(payload)));bytes+=payload.length;
                 if(bytes>=pageBytes||System.nanoTime()-started>=sliceNanos)break;
             }
         }
         return rows;
     }
 
-    private static byte[] encode(SQLiteDatabase db,MigrationCopyR29.Table table,String from,long rowid,Cursor metadata,Runnable check){
+    private static final class Lookup{final String from,where;final String[] args;Lookup(String from,String where,String[] args){this.from=from;this.where=where;this.args=args;}}
+    private static List<Integer> primaryIndices(SQLiteDatabase db,MigrationCopyR29.Table table){
+        Map<Integer,Integer> order=new TreeMap<>();try(Cursor c=db.rawQuery("PRAGMA table_info("+MigrationCopyR29.id(table.name)+")",null)){while(c.moveToNext())if(c.getInt(5)>0)order.put(c.getInt(5),table.columns.indexOf(c.getString(1)));}return new ArrayList<>(order.values());
+    }
+    private static byte[] utf8(SQLiteDatabase db,byte[] source){try{return textEncoding(db).newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(source)).toString().getBytes(StandardCharsets.UTF_8);}catch(CharacterCodingException malformed){throw new IllegalStateException("R29_MIGRATION_TEXT_ENCODING",malformed);}}
+    private static Lookup lookup(SQLiteDatabase db,MigrationCopyR29.Table table,String ranked,long rowid,Cursor metadata,List<Integer> primary){
+        if(primary.isEmpty())return new Lookup(ranked,"rowid=?",new String[]{String.valueOf(rowid)});
+        StringBuilder where=new StringBuilder();List<String> args=new ArrayList<>();
+        for(int column:primary){int at=1+4*column;String type=metadata.getString(at),name=MigrationCopyR29.id(table.columns.get(column));if(where.length()>0)where.append(" AND ");
+            if(type.equals("integer")){where.append(name).append("=CAST(? AS INTEGER)");args.add(String.valueOf(metadata.getLong(at+2)));}
+            else if(type.equals("real")){where.append(name).append("=CAST(? AS REAL)");args.add(String.valueOf(metadata.getDouble(at+2)));}
+            else if((type.equals("text")||type.equals("blob"))&&!metadata.isNull(at+3)){
+                byte[] value=metadata.getBlob(at+3);
+                if(type.equals("text")){where.append(name).append("=?");args.add(new String(utf8(db,value),StandardCharsets.UTF_8));}
+                else{where.append(name).append("=X'");for(byte b:value)where.append("0123456789ABCDEF".charAt((b>>>4)&15)).append("0123456789ABCDEF".charAt(b&15));where.append('\'');}
+            }else return new Lookup(ranked,"rowid=?",new String[]{String.valueOf(rowid)});
+        }
+        return new Lookup(MigrationCopyR29.id(table.name),where.toString(),args.toArray(new String[0]));
+    }
+    private static byte[] encode(SQLiteDatabase db,MigrationCopyR29.Table table,String from,long rowid,Cursor metadata,int inlineBytes,List<Integer> primary,Runnable check){
         try{
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);out.writeInt(0x29DB0001);out.writeInt(table.columns.size());
+            Lookup row=lookup(db,table,from,rowid,metadata,primary);
             for(int i=0;i<table.columns.size();i++){
-                check.run();int index=1+3*i;String kind=metadata.getString(index);int type;
+                check.run();int index=1+4*i;String kind=metadata.getString(index);int type;
                 if("null".equals(kind))type=Cursor.FIELD_TYPE_NULL;else if("integer".equals(kind))type=Cursor.FIELD_TYPE_INTEGER;else if("real".equals(kind))type=Cursor.FIELD_TYPE_FLOAT;else if("text".equals(kind))type=Cursor.FIELD_TYPE_STRING;else if("blob".equals(kind))type=Cursor.FIELD_TYPE_BLOB;else throw new IllegalStateException("R29_SQLITE_VALUE_TYPE");
                 out.writeByte(type);
                 if(type==Cursor.FIELD_TYPE_INTEGER)out.writeLong(metadata.getLong(index+2));
@@ -51,8 +76,10 @@ public final class ResearchRowsR29 {
                 else if(type==Cursor.FIELD_TYPE_STRING||type==Cursor.FIELD_TYPE_BLOB){
                     long length=metadata.getLong(index+1),maximum=type==Cursor.FIELD_TYPE_STRING?2L*MigrationCopyR29.MAX_ROW_BYTES:MigrationCopyR29.MAX_ROW_BYTES;
                     if(length<0||length>maximum)throw new IllegalStateException("R29_MIGRATION_ROW_BUDGET");
-                    byte[] cell=cell(db,from,table.columns.get(i),"rowid=?",new String[]{String.valueOf(rowid)},(int)length,kind,maximum,check);
-                    if(type==Cursor.FIELD_TYPE_STRING)try{cell=textEncoding(db).newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(cell)).toString().getBytes(StandardCharsets.UTF_8);}catch(CharacterCodingException malformed){throw new IllegalStateException("R29_MIGRATION_TEXT_ENCODING",malformed);}
+                    byte[] cell;
+                    if(length<=inlineBytes){if(metadata.isNull(index+3))throw new IllegalStateException("R29_MIGRATION_INLINE_CELL_MISSING");cell=metadata.getBlob(index+3);if(cell.length!=length)throw new IllegalStateException("R29_MIGRATION_INLINE_CELL_LENGTH");}
+                    else cell=cell(db,row.from,table.columns.get(i),row.where,row.args,(int)length,kind,maximum,check);
+                    if(type==Cursor.FIELD_TYPE_STRING)cell=utf8(db,cell);
                     MigrationCopyR29.blob(out,cell);
                 }
                 if(bytes.size()>MigrationCopyR29.MAX_ROW_BYTES)throw new IllegalStateException("R29_MIGRATION_ROW_BUDGET");
@@ -76,7 +103,7 @@ public final class ResearchRowsR29 {
         return bytes;
     }
 
-    private static Charset textEncoding(SQLiteDatabase db){try(Cursor encoding=db.rawQuery("PRAGMA encoding",null)){if(!encoding.moveToFirst())throw new IllegalStateException("R29_SQLITE_TEXT_ENCODING_UNKNOWN");String name=encoding.getString(0);if("UTF-8".equalsIgnoreCase(name))return StandardCharsets.UTF_8;if("UTF-16le".equalsIgnoreCase(name))return StandardCharsets.UTF_16LE;if("UTF-16be".equalsIgnoreCase(name))return StandardCharsets.UTF_16BE;throw new IllegalStateException("R29_SQLITE_TEXT_ENCODING_UNSUPPORTED:"+name);}}
+    private static Charset textEncoding(SQLiteDatabase db){Charset known=ENCODINGS.get(db);if(known!=null)return known;try(Cursor encoding=db.rawQuery("PRAGMA encoding",null)){if(!encoding.moveToFirst())throw new IllegalStateException("R29_SQLITE_TEXT_ENCODING_UNKNOWN");String name=encoding.getString(0);Charset value;if("UTF-8".equalsIgnoreCase(name))value=StandardCharsets.UTF_8;else if("UTF-16le".equalsIgnoreCase(name))value=StandardCharsets.UTF_16LE;else if("UTF-16be".equalsIgnoreCase(name))value=StandardCharsets.UTF_16BE;else throw new IllegalStateException("R29_SQLITE_TEXT_ENCODING_UNSUPPORTED:"+name);ENCODINGS.put(db,value);return value;}}
 
     static boolean withoutRowid(MigrationCopyR29.Table table){
         // Ignore literals, quoted identifiers and comments so DEFAULT 'WITHOUT ROWID' is not an option.

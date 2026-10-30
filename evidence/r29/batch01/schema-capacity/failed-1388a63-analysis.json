@@ -1,0 +1,131 @@
+{
+  "scope": "READ_ONLY_ANALYSIS_ACTUAL_ANDROID_FAILURE_NOT_A_NEW_PASS",
+  "run": 41073013207,
+  "source": "1388a63c3e3ac9ce512d19399a03c9f68e9bb092",
+  "schema": {
+    "wallMs": 3465,
+    "cpuMs": 734,
+    "observedPoolMonitorWaitMs": 2508,
+    "wallMinusObservedWaitMs": 957,
+    "capacityFailureRetained": true
+  },
+  "schemaBase": {
+    "wallMs": 5661,
+    "cpuMs": 582,
+    "journalMs": 5596,
+    "observedPoolMonitorWaitsMs": [
+      2520,
+      2514
+    ],
+    "wallMinusObservedWaitMs": 627,
+    "capacityFailureRetained": true,
+    "observedDDL": "SchemaRevisionR925.ensureE02cTinyDeepInputFreeze CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_tiny_label_update_freeze"
+  },
+  "conclusion": "Both actual failures have sufficient observed connection-pool monitor wait to explain the >2000ms wall time. Evidence does not establish intrinsically >2000ms DDL CPU work. Retest without relaxing capacity checks after dedicated read-only Root read pools also cover unscoped/UI/instrumentation reads.",
+  "evidence": [
+    {
+      "line": 185,
+      "text": "10-30 14:42:55.474  2484  2517 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-047c0034-cefb-4630-8ef1-03c01c9e75da/databases/binance_k3_nova_one_pro_v57.db-wal 1821072 bytes: Bigger than 1048576; truncating"
+    },
+    {
+      "line": 186,
+      "text": "10-30 14:42:56.393  2484  2506 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-047c0034-cefb-4630-8ef1-03c01c9e75da/databases/binance_k3_nova_one_pro_v57.db-wal 1404952 bytes: Bigger than 1048576; truncating"
+    },
+    {
+      "line": 189,
+      "text": "10-30 14:42:58.897  2484  2519 W re.research.r13: Long monitor contention with owner Instr: com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner (2506) at android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal)(SQLiteConnectionPool.java:726) waiters=0 in void android.database.sqlite.SQLiteConnectionPool.closeAvailableNonPrimaryConnectionsAndLogExceptions() for 2.521s"
+    },
+    {
+      "line": 190,
+      "text": "10-30 14:42:58.900  2484  2517 W re.research.r13: Long monitor contention with owner Instr: com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner (2506) at android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal)(SQLiteConnectionPool.java:726) waiters=1 in void android.database.sqlite.SQLiteConnectionPool.releaseConnection(android.database.sqlite.SQLiteConnection) for 2.508s"
+    },
+    {
+      "line": 191,
+      "text": "10-30 14:42:58.910  2484  2506 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-047c0034-cefb-4630-8ef1-03c01c9e75da/databases/binance_k3_nova_one_pro_v57.db-wal 1404952 bytes: Bigger than 1048576; truncating"
+    },
+    {
+      "line": 192,
+      "text": "10-30 14:42:58.921  2484  2517 W STARCORE_R26: task=schema|wallMs=3465|cpuMs=734|CAPACITY_FAIL:UNSLICED_KERNEL:3465ms|COOPERATIVE_STRATEGY_UNIT_COMMITTED:units=33:32->33"
+    },
+    {
+      "line": 10434,
+      "text": "10-30 14:46:50.918  2484  2506 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-047c0034-cefb-4630-8ef1-03c01c9e75da/databases/binance_k3_nova_one_pro_v57.db-wal 1516192 bytes: Bigger than 1048576; truncating"
+    },
+    {
+      "line": 10438,
+      "text": "10-30 14:46:53.425  2484  2517 W re.research.r13: Long monitor contention with owner Instr: com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner (2506) at android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal)(SQLiteConnectionPool.java:726) waiters=0 in void android.database.sqlite.SQLiteConnectionPool.closeAvailableNonPrimaryConnectionsAndLogExceptions() for 2.520s"
+    },
+    {
+      "line": 10439,
+      "text": "10-30 14:46:53.426  2484  2519 W re.research.r13: Long monitor contention with owner Instr: com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner (2506) at android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal)(SQLiteConnectionPool.java:726) waiters=1 in android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal) for 2.280s"
+    },
+    {
+      "line": 10441,
+      "text": "10-30 14:46:53.448  2484  2519 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-047c0034-cefb-4630-8ef1-03c01c9e75da/databases/binance_k3_nova_one_pro_v57.db-wal 1713952 bytes: Bigger than 1048576; truncating"
+    },
+    {
+      "line": 10556,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK: round=4|starcore-r26-continuous-research|BLOCKED"
+    },
+    {
+      "line": 10557,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at android.database.sqlite.SQLiteConnectionPool.closeAvailableNonPrimaryConnectionsAndLogExceptions(SQLiteConnectionPool.java:614)"
+    },
+    {
+      "line": 10558,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at android.database.sqlite.SQLiteDatabase.executeSql(SQLiteDatabase.java:2094)"
+    },
+    {
+      "line": 10559,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:2010)"
+    },
+    {
+      "line": 10560,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.SchemaRevisionR925.ensureE02cTinyDeepInputFreeze(SchemaRevisionR925.java:109)"
+    },
+    {
+      "line": 10561,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.SchemaRevisionR925.ensureResearchTables(SchemaRevisionR925.java:75)"
+    },
+    {
+      "line": 10562,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.SchemaRevisionR925.ensureTables(SchemaRevisionR925.java:149)"
+    },
+    {
+      "line": 10563,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.DbHelper.ensureR906ResearchSchema(DbHelper.java:7391)"
+    },
+    {
+      "line": 10564,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.ResearchSchemaCoordinatorR926$4.run(ResearchSchemaCoordinatorR926.java:147)"
+    },
+    {
+      "line": 10565,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.runStep(SchemaDomainCoordinatorR926.java:377)"
+    },
+    {
+      "line": 10566,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.ResearchSchemaCoordinatorR926.advance(ResearchSchemaCoordinatorR926.java:146)"
+    },
+    {
+      "line": 10567,
+      "text": "10-30 14:46:55.225  2484  2518 W STARCORE_STACK:   at com.ethk3.novaonepro.ResearchSchemaCoordinatorR926.-$$Nest$smadvance(Unknown Source:0)"
+    },
+    {
+      "line": 10740,
+      "text": "10-30 14:46:55.953  2484  2506 W re.research.r13: Long monitor contention with owner starcore-r27-research-0 (2519) at android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal)(SQLiteConnectionPool.java:726) waiters=0 in void android.database.sqlite.SQLiteConnectionPool.releaseConnection(android.database.sqlite.SQLiteConnection) for 2.527s"
+    },
+    {
+      "line": 10741,
+      "text": "10-30 14:46:55.954  2484  2517 W re.research.r13: Long monitor contention with owner starcore-r27-research-0 (2519) at void android.database.sqlite.SQLiteConnectionPool.releaseConnection(android.database.sqlite.SQLiteConnection)(SQLiteConnectionPool.java:441) waiters=1 in void android.database.sqlite.SQLiteConnectionPool.closeAvailableNonPrimaryConnectionsAndLogExceptions() for 2.514s"
+    },
+    {
+      "line": 10743,
+      "text": "10-30 14:46:56.017  2484  2519 I SQLiteConnection: /data/user/0/com.starcore.research.r13/cache/r26-synthetic-047c0034-cefb-4630-8ef1-03c01c9e75da/databases/binance_k3_nova_one_pro_v57.db-wal 1718072 bytes: Bigger than 1048576; truncating"
+    },
+    {
+      "line": 10744,
+      "text": "10-30 14:46:56.021  2484  2517 W STARCORE_R26: task=schema-base|wallMs=5661|cpuMs=582|CAPACITY_FAIL:UNSLICED_KERNEL:5661ms|LEGACY_SCHEMA:INITIALIZING:INITIALIZING|cursor=R925_RESEARCH|error=:"
+    }
+  ]
+}
