@@ -390,7 +390,8 @@ public final class R27QualityTest {
         String rt = new String(Files.readAllBytes(new File(root + "strategyv2/RuntimeR27.java").toPath()), "UTF-8");
         String live = new String(Files.readAllBytes(new File(root + "strategyv2/LiveShadowsR27.java").toPath()), "UTF-8");
         int i = rt.indexOf("boolean refreshObservers("); assertTrue(i >= 0);
-        String body = rt.substring(i, rt.indexOf("EvolutionLoopR27 restoreOrCreate", i));
+        int end = rt.indexOf("Map<String, Double> leafWeights()", i); assertTrue("observer method ends before leaf weight helper", end > i);
+        String body = rt.substring(i, end);
         // No e-process row, no α index, no certificate, no promotion: observers only collect FUTURE rows.
         assertFalse(body.contains("r27_eprocess")); assertFalse(body.contains("insertShadow")); assertFalse(body.contains("r27_certificate"));
         assertTrue(body.contains("VALUES(?,?,?,?,0,?"));
