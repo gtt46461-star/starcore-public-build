@@ -1,0 +1,33 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+R29_SCHEMA_OWNER|S12_ACTUAL_PRODUCT_LEGACY_BASE_COPIED_WITHOUT_ROOT_AUTHORITY|OK
+R29_SCHEMA_OWNER|S16_EMPTY_OLD_CONTROL_COPY_IS_NOT_REPORTABLE_AS_READY|OK
+R29_SCHEMA_OWNER|S17_EMPTY_OLD_THREE_BINDINGS_RETAINED_ATOMICALLY|OK
+R29_SCHEMA_OWNER|S18_RETAINED_r29_retained_root_su1_mainline_binding_CANNOT_BE_REACTIVATED|OK
+R29_SCHEMA_OWNER|S18_RETAINED_r29_retained_root_su2_mainline_choice_CANNOT_BE_REACTIVATED|OK
+R29_SCHEMA_OWNER|S18_RETAINED_r29_retained_root_su2_mainline_binding_CANNOT_BE_REACTIVATED|OK
+R29_SCHEMA_OWNER|S19_ORIGINAL_CONTROL_DDL_HASH_AUDIT_IS_IMMUTABLE|OK
+R29_SCHEMA_OWNER|S20_NONEMPTY_MISPLACED_BINDING_FAILS_CLOSED_WITH_ROW_PRESERVED|OK
+R29_SCHEMA_OWNER|S22_REAL_SEVEN_INPUT_BOOTSTRAP_CANONICAL_ALIAS_IS_READY|OK
+R29_SCHEMA_OWNER|S0_REAL_ZERO_EVENT_BOOTSTRAP_IS_READY|OK
+R29_SCHEMA_OWNER|STEP|0|INITIALIZING|cursor=R815_RESEARCH|error=
+R29_SCHEMA_OWNER|STEP|1|INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=
+R29_SCHEMA_OWNER|STEP|2|FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:[SQLITE_ERROR] SQL error or missing database (no such table: main.v57_selected_evidence_r906)
+android.database.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: main.v57_selected_evidence_r906)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:21)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:16)
+	at com.ethk3.novaonepro.SchemaRevisionR925.ensureE02cFtrlInputFreeze(SchemaRevisionR925.java:94)
+	at com.ethk3.novaonepro.SchemaRevisionR925.ensureCriticalTables(SchemaRevisionR925.java:55)
+	at com.ethk3.novaonepro.SchemaRevisionR925.ensureTables(SchemaRevisionR925.java:159)
+	at com.ethk3.novaonepro.DbHelper.ensureR906ResearchSchema(DbHelper.java:7391)
+	at com.ethk3.novaonepro.ResearchSchemaCoordinatorR926$4.run(ResearchSchemaCoordinatorR926.java:175)
+	at com.ethk3.novaonepro.SchemaDomainCoordinatorR926.runStep(SchemaDomainCoordinatorR926.java:392)
+	at com.ethk3.novaonepro.ResearchSchemaCoordinatorR926.advance(ResearchSchemaCoordinatorR926.java:174)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at com.ethk3.novaonepro.strategyv2.ResearchSchemaOwnerR29HostTest.lambda$main$9(ResearchSchemaOwnerR29HostTest.java:117)
+	at com.ethk3.novaonepro.strategyv2.ResearchSchemaOwnerR29HostTest.tx(ResearchSchemaOwnerR29HostTest.java:18)
+	at com.ethk3.novaonepro.strategyv2.ResearchSchemaOwnerR29HostTest.main(ResearchSchemaOwnerR29HostTest.java:117)
+Exception in thread "main" java.lang.AssertionError: ACTUAL_RESEARCH_SCHEMA_FAILED:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:[SQLITE_ERROR] SQL error or missing database (no such table: main.v57_selected_evidence_r906)
+	at com.ethk3.novaonepro.strategyv2.ResearchSchemaOwnerR29HostTest.main(ResearchSchemaOwnerR29HostTest.java:119)

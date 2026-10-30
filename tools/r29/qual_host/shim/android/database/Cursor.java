@@ -14,5 +14,6 @@ public interface Cursor extends java.io.Closeable {
     boolean isNull(int i);
     int getCount();
     int getType(int i);
+    default int getColumnIndex(String name){throw new UnsupportedOperationException("HOST_CURSOR_WRAPPER_MUST_FORWARD_COLUMN_METADATA");}
     void close();
 }

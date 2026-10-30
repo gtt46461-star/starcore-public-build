@@ -1,0 +1,26 @@
+{
+  "sourceEvidence": "evidence/r29/batch01/failed/android-8778561",
+  "originalFailure": {
+    "firstAtomUnsliced": "10-30 15:23:55.626 full-runtime-logcat.txt:8565",
+    "evolutionUnsliced": ["15:23:58.381", "15:24:10.027", "15:24:21.692"],
+    "reusedCancelledEvolution": ["15:24:03.389", "15:24:15.034", "15:24:26.702"],
+    "cancelledEvolutionPoll": "EvolutionLoopR27.snapshot pending loop (original line 477)",
+    "capacityFailures": 0,
+    "scope": "capacityFailures is the legacy journal counter; r27_task_error still contains genuine unsliced failures"
+  },
+  "changes": [
+    "Evolution checkpoint construction, ledger/control receipts, restore loops, explicit cooperative JSON write/parse now poll outside shared monitors",
+    "The original unsliced failure is retained; cancelled evolution remains private until helper exits, then discards uncommitted loop and family caches instead of reusing closed work",
+    "Actual AtomReplay120-row chunks poll at each row and in historical input collection"
+  ],
+  "validation": {
+    "mainQuickJavac": "PASS (5 changed main files)",
+    "testQuickJavac": "PASS (2 test classes)",
+    "junit": "PASS 14/14 in 2.547 seconds",
+    "counterfactualAgainstOriginalCompiledClasses": "3/3 regression cases fail for their intended reasons: checkpoint no poll, repeated cancellation capacity error, atom chunk no poll",
+    "formatAndNumerics": "512 population/pending/archive plus ledger/control checkpoint bytes identical; real 120-row atom values/presence/hits/positions identical",
+    "cancellation": "1040ms hard timeout remains visible, private gate stays closed while helper mutates, zero progress during drain, cache replaced and committed cursor restoration unchanged",
+    "logs": ["javac.log", "test-javac.log", "junit.log", "original-source-counterfactual.log"],
+    "android": "NOT_RUN by this agent; root owns unified Gradle/Android validation"
+  }
+}

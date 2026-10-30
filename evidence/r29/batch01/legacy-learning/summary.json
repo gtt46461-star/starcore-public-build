@@ -1,0 +1,38 @@
+{
+  "sourceState": "UNCOMMITTED_PARENT_INTEGRATION",
+  "scope": "SYNTHETIC_PRODUCTION_SQL_PROTOCOL_ON_REAL_TWO_SQLITE_WRITERS",
+  "checks": 13,
+  "result": "PASS",
+  "originalLearningGates": "All RuntimeEventHooks original provenance checks retained; Root original learned/event writer unchanged. RP branch only.",
+  "atomicity": "Research model/local learning fact/outbox/idempotency receipt same TX; nested failure rolls back savepoint and preserves outer work.",
+  "rootInputCAS": "Inside Root owner transaction, original strict OOS/timing/7 features hash and original learningKey must still match. Existing Root dedup receipt must have identical payload hash.",
+  "visibility": "New RP artifact remains invisible as prediction/next-parent until immutable local fact receives verified Root ACK; historical artifacts retained. Root busy does not undo RP model commit.",
+  "rootAuthorityTablesCreatedInResearch": 0,
+  "negativeControls": [
+    {
+      "commit": "8ffbfb46608fcaf418ba3326c240a712c8cfbad6",
+      "file": "DatabaseCoordinator.java",
+      "result": "FAIL_AS_EXPECTED",
+      "observation": "Original nested method swallows injected failure; outer transaction commits artifact=1, local fact=1, outbox=1, tx receipt=0",
+      "log": "original-coordinator-negative.log"
+    },
+    {
+      "commit": "8ffbfb46608fcaf418ba3326c240a712c8cfbad6",
+      "file": "RuntimeEventHooksR926.java",
+      "result": "FAIL_AS_EXPECTED",
+      "observation": "Original hook attempts Root runtime_event table in independent research; real SQLite no-such-table failure",
+      "log": "original-hooks-negative.log"
+    }
+  ],
+  "androidSavepointAndActualServiceRuntime": "PENDING_PARENT_DEVICE_CASE6_AND_FULL_RUNTIME",
+  "naturalQuality": "NOT_EVALUATED",
+  "sourceHashes": {
+    "app/src/main/java/com/ethk3/novaonepro/LegacyLearningCommitR29.java": "7f5addf72b2fa232efac6ee375929b7e9e75a87895d3f0a388ba5f32d5431c41",
+    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java": "f9d34ffd7a84824b1168ef9658977ccdf85428f27bfeb5d075a8a667ac045a80",
+    "app/src/main/java/com/ethk3/novaonepro/RuntimeEventHooksR926.java": "23fa73c56f8916aa9d9279527837744c4dbf17fa75d98c453b6ed5e81744d7d3",
+    "app/src/main/java/com/ethk3/novaonepro/ResearchAdaptiveLearnerStoreR811.java": "e860d2604107fa7f0cce9a6a931849590cf019851b4780dcfc5653c5dce1c9c2",
+    "tools/r29/qual_host/LegacyLearningCommitR29HostTest.java": "946aa50dfdd3bc2a5ac3a3b9903d0084393b8a86f1d5b6dc6b341a7494de3dc6",
+    "tools/r29/qual_host/shim/android/content/ContentValues.java": "66a56260239edc1f032faa4e6b47aea248458ae316e217b0a22258be6a755e22",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java": "569107db96df4314daec96654460105947bb3663107626dac5ea3079959784f6"
+  }
+}

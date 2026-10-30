@@ -1,0 +1,733 @@
+{
+  "scope": "SYNTHETIC_ISOLATED_PRODUCTION_COORDINATOR; NOT_NATURAL_QUALITY; NOT_USER_PHONE_ACCEPTANCE",
+  "api": 34,
+  "engineeringWriteProbes": 1000,
+  "fullPredrawOpportunitySloClaimed": false,
+  "restartKind": "RUNTIME_COORDINATOR_REPLACEMENT_IN_SAME_PROCESS",
+  "javaHeapLimitAtStart": 603979776,
+  "targetLargeHeapFlag": true,
+  "familyMechanismsWithCommittedProgress": 24,
+  "expertsWithActualReceipts": 16,
+  "allMechanismsServiceMillis": 64045,
+  "strategyReadyToAllMechanismsWallMs": 43497,
+  "firstServiceTargetMs": 60000,
+  "firstServiceTargetObservedWithin": true,
+  "cpuLeaseHeldBeforePressure": true,
+  "cpuLeaseMaxHoldMs": 60000,
+  "cpuLeaseRenewAfterMs": 15000,
+  "r29IndependentResearchActive": true,
+  "legacyDispatchOwner": "RESEARCH_POOL",
+  "canonicalDrawWriteP50Ms": 5,
+  "canonicalDrawWriteP95Ms": 24,
+  "canonicalDrawWriteP99Ms": 43,
+  "canonicalDrawWriteMaxMs": 5064,
+  "result": "FAIL",
+  "error": "java.lang.AssertionError: foundry did not renew and learn past raw retention with the protected incumbent present",
+  "researchThreadsAtFailure": [
+    {
+      "name": "starcore-r26-continuous-research",
+      "state": "RUNNABLE",
+      "stack": [
+        "java.lang.String.equals(String.java:1254)",
+        "android.database.DatabaseUtils.getSqlStatementType(DatabaseUtils.java:1586)",
+        "android.database.sqlite.SQLiteProgram.<init>(SQLiteProgram.java:49)",
+        "android.database.sqlite.SQLiteQuery.<init>(SQLiteQuery.java:37)",
+        "android.database.sqlite.SQLiteDirectCursorDriver.query(SQLiteDirectCursorDriver.java:46)",
+        "android.database.sqlite.SQLiteDatabase.rawQueryWithFactory(SQLiteDatabase.java:1714)",
+        "android.database.sqlite.SQLiteDatabase.rawQuery(SQLiteDatabase.java:1653)",
+        "com.ethk3.novaonepro.strategyv2.MigrationCopyR29.table(MigrationCopyR29.java:70)",
+        "com.ethk3.novaonepro.strategyv2.ResearchInputMirrorR29.descriptor(ResearchInputMirrorR29.java:18)",
+        "com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.targetSchema(CriticalInputMirrorR29.java:141)",
+        "com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.apply(CriticalInputMirrorR29.java:156)",
+        "com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.lambda$refresh$1(CriticalInputMirrorR29.java:183)",
+        "com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)",
+        "com.ethk3.novaonepro.strategyv2.ResearchRouteR29$Owner.write(ResearchRouteR29.java:159)",
+        "com.ethk3.novaonepro.strategyv2.ResearchRouteR29.write(ResearchRouteR29.java:52)",
+        "com.ethk3.novaonepro.strategyv2.CriticalInputMirrorR29.refresh(CriticalInputMirrorR29.java:183)",
+        "com.ethk3.novaonepro.strategyv2.ResearchInputMirrorR29.refresh(ResearchInputMirrorR29.java:27)",
+        "com.ethk3.novaonepro.strategyv2.LegacyResearchScopeR29.write(LegacyResearchScopeR29.java:52)",
+        "com.ethk3.novaonepro.DatabaseCoordinator.runWrite(DatabaseCoordinator.java:638)",
+        "com.ethk3.novaonepro.DatabaseCoordinator.runWriteOrThrowF01(DatabaseCoordinator.java:621)",
+        "com.ethk3.novaonepro.DatabaseCoordinator.runAtomicWriteOrThrowF01(DatabaseCoordinator.java:773)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.sessionBlocked(RuntimeCoordinatorR26.java:67)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.run(RuntimeCoordinatorR26.java:148)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.$r8$lambda$VjN9FcawY_8rM27fd8sL3o2yNgM(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26$$ExternalSyntheticLambda5.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:1012)"
+      ]
+    },
+    {
+      "name": "starcore-r27-research-0",
+      "state": "TIMED_WAITING",
+      "stack": [
+        "java.lang.Thread.sleep(Native Method)",
+        "java.lang.Thread.sleep(Thread.java:450)",
+        "java.lang.Thread.sleep(Thread.java:355)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.sleep(ResearchPoolR27.java:222)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.loop(ResearchPoolR27.java:114)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.lambda$start$2(ResearchPoolR27.java:94)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27.$r8$lambda$nXJv33Yyu-iW725d3rZvZcd41q8(Unknown Source:0)",
+        "com.ethk3.novaonepro.strategyv2.ResearchPoolR27$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)",
+        "java.lang.Thread.run(Thread.java:1012)"
+      ]
+    }
+  ],
+  "activeResearchTasksAtFailure": [
+    {
+      "task": "r27-abi",
+      "cursor": 3,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793373837176,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atomnet",
+      "cursor": 600,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-atoms:frame 600\/3599))",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atoms",
+      "cursor": 600,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-evolution))",
+      "lastProgress": 1793373840628,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-chart-cache",
+      "cursor": 1793373892,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793373892670,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-evolution",
+      "cursor": 12,
+      "status": "QUARANTINED",
+      "reason": "ERROR:ERROR(Yield:R26_CONTINUATION_CANCELLED)",
+      "lastProgress": 1793373836414,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-health",
+      "cursor": 1793373860,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793373860188,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-legacy-export",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:export complete;cursor=1,latest=1",
+      "lastProgress": 1793373738764,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-live",
+      "cursor": 3584041,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3584041,latest=3584041",
+      "lastProgress": 1793373837132,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-replay-dataset",
+      "cursor": 3584040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3584040,latest=3584041",
+      "lastProgress": 1793373737650,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-event-inbox",
+      "cursor": 5203,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner\/settlement commit;cursor=0,latest=-1",
+      "lastProgress": 1793373894453,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-capabilities",
+      "cursor": 3584040,
+      "status": "QUARANTINED",
+      "reason": "ERROR:ERROR(IllegalStateException:F01_WRITE_FAILED|operation=R27_PRIORITY_CLAIM)",
+      "lastProgress": 1793373761168,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-continuity",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-state-export",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_RETAINED_LEARNED_LEGACY_CHECKPOINT)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-research-migration",
+      "cursor": 73,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(ACTIVE_R27_DATABASE_LEGACY_VM_RETAINED)",
+      "lastProgress": 1793373737480,
+      "cpuMs": 0
+    }
+  ],
+  "activeResearchDatabase": "\/data\/user\/0\/com.starcore.research.r13\/cache\/r26-synthetic-0421182d-6064-41b9-969c-593dd944730e\/databases\/starcore-r29-research.db",
+  "tasksAtFailure": [
+    {
+      "task": "ablation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "aggregate-evidence",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 3
+    },
+    {
+      "task": "archive",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 3
+    },
+    {
+      "task": "artifact-retention",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 23
+    },
+    {
+      "task": "calibration",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "campaign-audit",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "daily-close",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "diagnosis",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "evidence-quality",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "evidence-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "expert-E01",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373747845,
+      "cpuMs": 9
+    },
+    {
+      "task": "expert-E02",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373761168,
+      "cpuMs": 13
+    },
+    {
+      "task": "expert-E03",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373757686,
+      "cpuMs": 51
+    },
+    {
+      "task": "expert-E04",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373759947,
+      "cpuMs": 38
+    },
+    {
+      "task": "expert-E05",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373757899,
+      "cpuMs": 46
+    },
+    {
+      "task": "expert-E06",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373759229,
+      "cpuMs": 38
+    },
+    {
+      "task": "expert-E07",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373759135,
+      "cpuMs": 26
+    },
+    {
+      "task": "expert-E08",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373757426,
+      "cpuMs": 44
+    },
+    {
+      "task": "expert-E09",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373758346,
+      "cpuMs": 44
+    },
+    {
+      "task": "expert-E10",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373759681,
+      "cpuMs": 29
+    },
+    {
+      "task": "expert-E11",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373757117,
+      "cpuMs": 53
+    },
+    {
+      "task": "expert-E12",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373758532,
+      "cpuMs": 36
+    },
+    {
+      "task": "expert-E13",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373758916,
+      "cpuMs": 22
+    },
+    {
+      "task": "expert-E14",
+      "cursor": 2,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373757365,
+      "cpuMs": 45
+    },
+    {
+      "task": "expert-E15",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373740521,
+      "cpuMs": 14
+    },
+    {
+      "task": "expert-E16",
+      "cursor": 1,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373740557,
+      "cpuMs": 17
+    },
+    {
+      "task": "feedback",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 8
+    },
+    {
+      "task": "foundry-su1",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "foundry-su2",
+      "cursor": 24,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373752451,
+      "cpuMs": 13
+    },
+    {
+      "task": "incumbent-forecast",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "INCUMBENT_MISSING_AFTER_OPEN",
+      "lastProgress": 0,
+      "cpuMs": 5
+    },
+    {
+      "task": "kernel",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "legacy-generation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "legacy-replay",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "live-forecast-preparation",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "live-model-training",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "publish-models",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "qualification",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 3
+    },
+    {
+      "task": "r27-abi",
+      "cursor": 3,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793373837176,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atomnet",
+      "cursor": 600,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-atoms:frame 600\/3599))",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-atoms",
+      "cursor": 600,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(DEPENDENCY(r27-evolution))",
+      "lastProgress": 1793373840628,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-calibration",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-chart-cache",
+      "cursor": 1793373892,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793373892670,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-evolution",
+      "cursor": 12,
+      "status": "QUARANTINED",
+      "reason": "ERROR:ERROR(Yield:R26_CONTINUATION_CANCELLED)",
+      "lastProgress": 1793373836414,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-health",
+      "cursor": 1793373860,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=0,latest=0",
+      "lastProgress": 1793373860188,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-legacy-export",
+      "cursor": 1,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:export complete;cursor=1,latest=1",
+      "lastProgress": 1793373738764,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-live",
+      "cursor": 3584041,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3584041,latest=3584041",
+      "lastProgress": 1793373837132,
+      "cpuMs": 0
+    },
+    {
+      "task": "r27-replay-dataset",
+      "cursor": 3584040,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT;cursor=3584040,latest=3584041",
+      "lastProgress": 1793373737650,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-event-inbox",
+      "cursor": 5203,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_NEW_EVENT:outbox drained; pending work requires actual learner\/settlement commit;cursor=0,latest=-1",
+      "lastProgress": 1793373894453,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-capabilities",
+      "cursor": 3584040,
+      "status": "QUARANTINED",
+      "reason": "ERROR:ERROR(IllegalStateException:F01_WRITE_FAILED|operation=R27_PRIORITY_CLAIM)",
+      "lastProgress": 1793373761168,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-continuity",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_LEGACY_RESEARCH_SCHEMA)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-legacy-state-export",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(WAITING_RETAINED_LEARNED_LEGACY_CHECKPOINT)",
+      "lastProgress": 0,
+      "cpuMs": 0
+    },
+    {
+      "task": "r29-research-migration",
+      "cursor": 73,
+      "status": "BLOCKED",
+      "reason": "DEPENDENCY:DEPENDENCY(ACTIVE_R27_DATABASE_LEGACY_VM_RETAINED)",
+      "lastProgress": 1793373737480,
+      "cpuMs": 0
+    },
+    {
+      "task": "retention",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=0,latest=3584040",
+      "lastProgress": 0,
+      "cpuMs": 19
+    },
+    {
+      "task": "schema",
+      "cursor": 267,
+      "status": "BLOCKED",
+      "reason": "NO_NEW_EVENT:NO_OUTPUT;cursor=267,latest=3584040",
+      "lastProgress": 1793373717708,
+      "cpuMs": 1
+    },
+    {
+      "task": "schema-base",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "LEGACY_SCHEMA:FAILED:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END:android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 280
+    },
+    {
+      "task": "sealed-planner",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "seed-incumbent",
+      "cursor": 3584040,
+      "status": "YIELDED",
+      "reason": null,
+      "lastProgress": 1793373760214,
+      "cpuMs": 9
+    },
+    {
+      "task": "shadow-recover",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 3
+    },
+    {
+      "task": "su1-certificate",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "su2-certificate",
+      "cursor": 0,
+      "status": "RUNNING",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "su2-mainline",
+      "cursor": 0,
+      "status": "BLOCKED",
+      "reason": "WAITING_LEGACY_RESEARCH_SCHEMA:INITIALIZING|cursor=R906_RESEARCH_R64_VERIFIED|error=",
+      "lastProgress": 0,
+      "cpuMs": 2
+    },
+    {
+      "task": "warm-candidates",
+      "cursor": 0,
+      "status": "READY",
+      "reason": null,
+      "lastProgress": 0,
+      "cpuMs": 0
+    }
+  ],
+  "legacySchema": "FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+  "committedResearchService": {
+    "scope": "Committed research service receipts since telemetry installation; failed receipt commits are excluded; rows bind source\/runtime\/device; historical folds span sources; not P0 or a full opportunity SLO",
+    "sessions": [
+      {
+        "sessionId": "173d6d34-05fb-4a28-ba65-d3560c327d21",
+        "sourceCommit": "8778561bca9679d543a35299ead21aab50a9ef74",
+        "numericalAbi": "92936c6eee9772212a0ecaa4b2f77a21b5a3bafe20975c433d446c49b6c8b6ec",
+        "apiLevel": 34,
+        "deviceModel": "Android SDK built for x86_64",
+        "committedSlices": 274,
+        "researchCpuMs": 19561,
+        "serviceWallMs": 23056,
+        "capacityFailures": 0
+      }
+    ],
+    "totalSessionRows": 1,
+    "omittedSessionRows": 0,
+    "historicalFoldedTotals": {},
+    "committedCapacityFailuresSinceInstallation": 0
+  },
+  "retainedCapacityFailureDetails": [],
+  "legacySchemaAtCompletion": "FAILED|cursor=R906_RESEARCH_R64_VERIFIED|error=android.database.sqlite.SQLiteException:no such table: main.v57_selected_evidence_r906 (code 1 SQLITE_ERROR): , while compiling: CREATE TRIGGER IF NOT EXISTS trg_r927_e02c_ftrl_evidence_update_freeze BEFORE UPDATE OF target_issue,selected_position,raw_action_p_value,rank_score_value,third_margin_value,entropy_risk_value,stability_value,window_consensus_value,raw_action_p_status,rank_status,third_margin_status,entropy_risk_status,stability_status,window_consensus_status ON v57_selected_evidence_r906 WHEN EXISTS(SELECT 1 FROM v57_runtime_event_r926 WHERE game_code='Binance1-PK10' AND target_issue=OLD.target_issue AND event_type='LEARNED' AND stage='LEARNED_EXACTLY_ONCE' AND source='ResearchAdaptiveLearnerStoreR811') BEGIN SELECT RAISE(ABORT,'E02C_FTRL_EVIDENCE_FROZEN_AFTER_LEARN'); END",
+  "slowestLegacyMigrationUnits": [
+    {
+      "step": "R906_RESEARCH_R64_VERIFIED",
+      "journalElapsedMs": 249
+    },
+    {
+      "step": "R811_RESEARCH",
+      "journalElapsedMs": 20
+    },
+    {
+      "step": "R815_RESEARCH",
+      "journalElapsedMs": 11
+    }
+  ]
+}

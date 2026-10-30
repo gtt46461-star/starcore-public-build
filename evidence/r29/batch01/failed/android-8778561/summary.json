@@ -1,0 +1,32 @@
+{
+  "source": "8778561bca9679d543a35299ead21aab50a9ef74",
+  "run": 41078985878,
+  "result": "FAIL_BATCH_NOT_ACCEPTED",
+  "helpers": "3_PASS_LARGE_MODEL_LARGE_ROW_CUTOVER_ROOT_HELD_RO_SCOPED_WRITE_PREPARED",
+  "runtime": {
+    "familyMechanisms": 24,
+    "experts": 16,
+    "allMechanismsServiceMs": 64045,
+    "readyToAllMechanismsMs": 43497,
+    "firstServiceTargetMs": 60000,
+    "firstServiceTargetPassed": true,
+    "independentResearchActive": true,
+    "legacyOwner": "RESEARCH_POOL",
+    "canonicalWriteProbes": 1000,
+    "writeP50Ms": 5,
+    "writeP95Ms": 24,
+    "writeP99Ms": 43,
+    "writeMaxMs": 5064,
+    "retentionRenewalWithin120s": "FAIL",
+    "restart": "NOT_REACHED",
+    "legacyCommittedCapacityFailures": 0,
+    "researchPoolErrors": "UNSLICED and cancelled continuation errors observed; final allResearchTaskErrors==0 assertion NOT_REACHED"
+  },
+  "actualFailures": [
+    "R906 research schema invoked mixed Root+research R925 DDL on RP, creating Root OOS freeze trigger then failing missing Root selected evidence table",
+    "Critical input mirror reset DELETE then invokes misplaced Root freeze trigger referencing missing runtime_event authority",
+    "r27-evolution quarantined with R26_CONTINUATION_CANCELLED; separate analysis in progress",
+    "r27-atoms also emitted unsliced capacity failure; scheduler review covers this separately"
+  ],
+  "originalTargetsRelaxed": false
+}

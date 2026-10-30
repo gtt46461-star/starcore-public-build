@@ -29,6 +29,17 @@ elif name=='R29LargeRowMigrationDeviceTest':
     assert all(r[k] for k in ['typedPayloadAndHashesExact','physicalAndCompositePrimaryKeyPaginationExact','stagedIndependentRehashPassed','legacyDomainUpgradeCapturePassed','damagedTransferRejected'])
 elif name=='R29DatabaseCutoverDeviceTest':
     assert r['status']=='PASS_ANDROID_ENGINEERING_SUBSET' and r['legacyScopedWriteIndependentAndOriginalRowsPreserved'] and r['preparedFrameWithActualAndroidPostCommitReceipt']
+elif name=='R29CriticalInputTriggerDeviceTest':
+    assert r['result']=='PASS_WITH_STATED_ANDROID_SCOPE'
+    assert all(r[k] for k in ['productionRootOosFreezeStillActive','legacyMisinstalledRootTriggerActuallyFailsOnRpWithoutRootEventTable','rpMirrorApplySucceedsAfterPreciseIsolation','rpInputReplicaStillReadOnly','originalRootTriggerSqlUnchanged','noFakeRootAuthorityCreatedInRp','exactForeignTriggerDdlQuarantined'])
+    assert all(r[k] for k in ['rootAuthorityViewShadowsNonemptyOldRpPhysicalCopy','missingRootAuthorityFailsClosedDespiteNonemptyOldRpCopy','oldFullFormalRowsAndTypedHashesRetained','retainedFormalOriginalDdlAndHashAudited','oldFormalPhysicalNamesRemovedFromRp','retainedFormalCopiesImmutableAndIdempotent','rootFormalSchemaRowsAndTriggersUnchanged','noFakeTradesCreatedForFormalArchival','retainedNameConflictRollsBackBothFormalTablesAndAudit','rootAuthorityViewStillWinsAfterArchival'])
+    assert all(r[k] for k in ['canonicalAliasMissingFromInitialCopyCannotBeReady', 'canonicalUsesRealRootRowsDistinctPhysicalAliasAndLogicalReadOnlyView', 'canonicalPhysicalAndLogicalReplicasRejectLegacyWrites', 'longScaleActualFiveCanonicalTriggersTargetReplica', 'canonicalMetadataOnlyUpdatePreservesLongScaleHeadAndToken', 'canonicalRepeatBootstrapPreservesIdenticalLongScaleHeadAndToken', 'canonicalRootCorrectionInvalidatesLongScaleTokenHeadAndPreparedCas', 'canonicalNewFutureInsertChangesTokenWithoutInvalidatingAcceptedPrefix', 'canonicalTrueDeleteRetainsOriginalTokenAndPrefixSemantics', 'canonicalTrueLateInsertInvalidatesAcceptedPrefix', 'canonicalBootstrapPrunesOnlyActuallyMissingRootKeysAfterLostJournalPrefix', 'canonicalRootSchemaChangeForcesCompleteBootstrapOrExplicitAbiMigration'])
+elif name=='R29LegacySchemaOwnerDeviceTest':
+    assert r['status']=='PASS_ANDROID_ENGINEERING_SUBSET'
+    assert all(r[k] for k in ['legacySchemaReady','noFakeRootAuthority','rootFtrlFreeze','legacyTinyFreeze','bootstrapFailClosed','nestedResearchTransactionRollback'])
+elif name=='R29LegacyDomainExtensionDeviceTest':
+    assert r['result']=='PASS_WITH_STATED_ANDROID_SCOPE' and r['artifactBytes']>3*1024*1024
+    assert all(r[k] for k in ['oldFullAdvancedStateRetained','originalFullProofUnchanged','completeLargeArtifactRestored','rootOriginalUnchanged','acknowledgedExtensionNotReapplied','conflictingArtifactPreserved'])
 else:
     assert r['result']=='PASS_WITH_STATED_ENGINEERING_SCOPE' and r['r29IndependentResearchActive'] and r['legacyDispatchOwner']=='RESEARCH_POOL'
     assert r['firstServiceTargetObservedWithin'] and r['allResearchTaskErrors']==0 and r['retentionBoundaryRenewed'] and r['restartResumed']
@@ -41,5 +52,8 @@ PY
 run_case R29LargeModelCheckpointDeviceTest large-model files/r29-model-cursorwindow-device.json
 run_case R29LargeRowMigrationDeviceTest large-rows files/r29-large-row-migration-device.json
 run_case R29DatabaseCutoverDeviceTest '' files/r29-cutover-device.json
+run_case R29CriticalInputTriggerDeviceTest critical-trigger files/r29-critical-trigger-device.json
+run_case R29LegacySchemaOwnerDeviceTest schema-owner files/r29-legacy-schema-owner-device.json
+run_case R29LegacyDomainExtensionDeviceTest domain-extension files/r29-domain-extension-device.json
 run_case R26RuntimeDeviceTest full-runtime cache/r26-runtime-synthetic.json
 exit "$INTEGRATION_FAILED"

@@ -25,6 +25,8 @@ public final class LegacyDomainUpgradeR29HostTest {
         db.execSQL("CREATE INDEX original_runtime_value ON r26_runtime(n)");
     }
     static void oldResearch(SQLiteDatabase db){
+        db.execSQL(ResearchRouteR29.OWNER_DDL);
+        db.execSQL("INSERT INTO r29_research_owner VALUES(1,'READY',? ,?,17,1)",new Object[]{StatsR27.sha256("original-CP07-schema"),StatsR27.sha256("original-CP07-source")});
         db.execSQL("CREATE TABLE r26_task(task_id TEXT PRIMARY KEY,lane TEXT,cursor INTEGER,state BLOB)");db.execSQL("INSERT INTO r26_task VALUES('rp-r27','R27',9999,X'7777')");
         db.execSQL("CREATE TABLE r26_evolution(attempt_id TEXT PRIMARY KEY,value INTEGER)");db.execSQL("INSERT INTO r26_evolution VALUES('R27:advanced',888)");
         db.execSQL("CREATE TABLE r27_policy(k TEXT PRIMARY KEY,v TEXT)");db.execSQL("INSERT INTO r27_policy VALUES('rp-learning','advanced')");

@@ -1,0 +1,40 @@
+{
+  "status": "HOST_10_PASS_ANDROID_EXISTING_FIFTH_CASE_PENDING",
+  "scope": "real R974/F05 production DDL; nonempty synthetic old FULL RP copies are archived only, not Root REAL authority",
+  "oldRpRows": {
+    "r974_exact_real_receipt": 2,
+    "research_exact_probability_f05": 1
+  },
+  "rootFormalRowsRemain": 0,
+  "rootTradesCreated": false,
+  "hostAuthorityReader": "actual JDBC ATTACH + TEMP VIEW + PRAGMA query_only=1; positive/missing-Root negative; no getter mock",
+  "androidAuthorityReader": "actual ResearchRouteR29.combinedReader in R29CriticalInputTriggerDeviceTest single @Test",
+  "negativeControls": [
+    "missing Root formal table fails despite nonempty RP copy",
+    "combined Root TEMP reader is rejected for archival before modification",
+    "second archive-name conflict rolls back the first rename and audit",
+    "archive deletes rejected; original Root schema and constraint SQL unchanged"
+  ],
+  "sourcePins": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetainedFormalCopiesR29.java",
+      "sha256": "78e0d7be567749a69d77b63c2b918a2c75e249458ec9a276359bd5ca8333e3bf"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/RetainedFormalProductionFixtureR29.java",
+      "sha256": "a37766471330294c5c80c929faa9d4d64503bcf56a98199c10e8788b04738241"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R29CriticalInputTriggerDeviceTest.java",
+      "sha256": "a76aff423ff5e7e3d262ee06a9cc4327f4083b9ce0615bd4d06510fbca37d17d"
+    },
+    {
+      "path": "tools/r29/qual_host/RetainedFormalCopiesR29HostTest.java",
+      "sha256": "7c1fb224f049ce3c2d2b0fd2fc929514c60a86864a57627b1113912fd84fbf72"
+    },
+    {
+      "path": "tools/r29/run_retained_formal_host.sh",
+      "sha256": "14514f2967ab1b27cf6dc07722d7be74f2532deda2e41d01fefc155d6ee6461c"
+    }
+  ]
+}

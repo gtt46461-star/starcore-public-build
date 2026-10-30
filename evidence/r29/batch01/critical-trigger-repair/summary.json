@@ -1,0 +1,47 @@
+{
+  "status": "HOST_ACTUAL_PRODUCTION_SCHEMA_TRIGGER_PASS_ANDROID_NOT_RUN_YET",
+  "preservedAndroidFailure": "evidence/r29/batch01/failed/android-8778561/full-runtime-logcat.txt",
+  "scope": "exact production Root table and constraint installers on real SQLite; explicit synthetic LEARNED positive control only in Root; no natural qualification or fake Root authority in RP",
+  "changes": [
+    "strict RP-owner boundary; isolate only two known erroneous FTRL OOS trigger copies",
+    "preserve original trigger SQL and checksum in RP quarantine; Root original freeze unchanged",
+    "repair before the unchanged-source READY fast path",
+    "HOST cursor column lookup uses actual JDBC metadata so real production schema can run"
+  ],
+  "hostChecks": {
+    "productionPositiveNegativeControls": 8,
+    "priorMirrorRegression": 19
+  },
+  "androidTestClass": "com.ethk3.novaonepro.strategyv2.R29CriticalInputTriggerDeviceTest",
+  "androidReceipt": "files/r29-critical-trigger-device.json",
+  "sourcePins": [
+    {
+      "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/CriticalInputMirrorR29.java",
+      "sha256": "fb3c34f5b02b3fc5a916f5276ecb9b3c481c8c6294884561b8bc21fff7a1595a"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/CriticalInputProductionTriggerFixtureR29.java",
+      "sha256": "6c74eae8f8a547f368cabe96a1ab22d323be0f161f965a4ce995033d4d3a43d9"
+    },
+    {
+      "path": "app/src/androidTest/java/com/ethk3/novaonepro/strategyv2/R29CriticalInputTriggerDeviceTest.java",
+      "sha256": "54dade48ceb72fd5669ec580ba7c37fc50de4799f8e142a92fc60398a0bb9bad"
+    },
+    {
+      "path": "tools/r29/qual_host/CriticalProductionTriggerR29HostTest.java",
+      "sha256": "774ea67a550bbd8bb29cb415f967639189b308ec135575aeaff012fff3131c18"
+    },
+    {
+      "path": "tools/r29/run_critical_production_trigger_host.sh",
+      "sha256": "1f7d409eddc94eecaeba54b2380a177781ac237125de9ae0d802062db8fcf152"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/database/Cursor.java",
+      "sha256": "a1d6747cc3421acd196d768a099db1c78005405cbe52c62e70cac775f5cd234c"
+    },
+    {
+      "path": "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+      "sha256": "569107db96df4314daec96654460105947bb3663107626dac5ea3079959784f6"
+    }
+  ]
+}
