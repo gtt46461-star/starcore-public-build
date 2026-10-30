@@ -40,13 +40,16 @@ Path(sys.argv[4]).write_text(json.dumps({'baseline':manifest[0],'delivered':mani
 PY
 pull_database() {
     local remote=$1 local_name=$2
-    adb pull "/data/user/0/$PKG/databases/$remote" "$OUT/$local_name.db" > /dev/null
+    adb pull "/data/user/0/$PKG/databases/$remote" "$OUT/$local_name.db" > /dev/null || return $?
     for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/$remote$suffix" "$OUT/$local_name.db$suffix" > /dev/null 2>&1 || true; done
 }
 pull_runtime() {
-    local phase=$1 main_name=$2 baseline_name
+    local phase=$1 main_name=$2 baseline_name stage_status=0
     pull_database binance_k3_nova_one_pro_v57.db "$main_name"
-    pull_database starcore-research-r29-stage.db "stage-$phase"
+    pull_database starcore-research-r29-stage.db "stage-$phase" || stage_status=$?
+    # Aggregate failure context is durable before missing/unpublished RP causes the required hard failure.
+    python3 tools/r29/inspect_runtime.py --observe-only --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" --out "$OUT/$phase-migration-observation.json"
+    if [ "$stage_status" -ne 0 ]; then return "$stage_status"; fi
     pull_database starcore-r29-research.db "research-$phase"
     baseline_name=$(python3 - "$OUT/$main_name.db" <<'PY'
 import re,sqlite3,sys

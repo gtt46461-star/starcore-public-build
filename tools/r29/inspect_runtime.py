@@ -78,6 +78,67 @@ def inspect_events(realtime, research, result):
     assert not any(result[k] for k in ('ackedEventsWithoutMatchingInbox', 'deliveredIdentityMismatches', 'inboxWithoutRootEvent', 'corruptOutboxPayloads')), 'CROSS_FILE_EVENT_PROTOCOL_MISMATCH'
 
 
+def observe(main, stage, result):
+    """Keep bounded migration diagnostics even if no RP file was ever published. This never accepts a build."""
+    result.update(scope='API34_EMULATOR_MIGRATION_OBSERVATION_ONLY_NOT_ACCEPTANCE',
+                  status='OBSERVATION_ONLY_NOT_ACCEPTANCE', researchCopy='NOT_INSPECTED',
+                  mainAvailable=main.is_file(), stageAvailable=stage.is_file(), observationErrors=[])
+
+    def read(db, label, sql, args=(), one=True):
+        try:
+            cursor=db.execute(sql,args)
+            names=[c[0] for c in cursor.description]
+            rows=[dict(zip(names,row)) for row in cursor.fetchall()]
+            return (rows[0] if rows else None) if one else rows
+        except sqlite3.Error as failure:
+            result['observationErrors'].append({'query':label,'failure':type(failure).__name__+':'+str(failure)[:300]})
+            return None
+
+    def exists(db, name):
+        return bool(db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",(name,)).fetchone())
+
+    if main.is_file():
+        with sqlite3.connect(main) as root:
+            result['rootIntegrity']=read(root,'rootIntegrity','PRAGMA integrity_check')
+            result['rootTableCount']=scalar(root,"SELECT count(*) FROM sqlite_master WHERE type='table'")
+            if exists(root,'r29_database_route'):
+                result['route']=read(root,'route','SELECT phase,database_name,schema_hash,source_root,epoch,activated_at FROM r29_database_route WHERE singleton=1')
+            if exists(root,'r29_migration_publication'):
+                result['publication']=read(root,'publication','SELECT phase,epoch,baseline_name,baseline_sha,source_root,last_error,updated_at FROM r29_migration_publication WHERE singleton=1')
+            if exists(root,'r29_source_watermark'):
+                result['trackedSourceTables']=scalar(root,'SELECT count(*) FROM r29_source_watermark')
+                result['tablesWithThreeTrackingTriggers']=scalar(root,"SELECT count(*) FROM r29_source_watermark w WHERE (SELECT count(*) FROM sqlite_master s WHERE s.type='trigger' AND s.tbl_name=w.table_name AND s.name IN ('r29_copy_track_'||w.table_name||'_insert','r29_copy_track_'||w.table_name||'_update','r29_copy_track_'||w.table_name||'_delete'))=3")
+            result['trackingTriggerCount']=scalar(root,"SELECT count(*) FROM sqlite_master WHERE type='trigger' AND name GLOB 'r29_copy_track_*'")
+            if exists(root,'su1_migration_unit_v2'):
+                result['strategyStorageUnits']=read(root,'strategyStorageUnits','SELECT count(*) AS committedUnits,min(unit) AS firstUnit,max(unit) AS lastUnit FROM su1_migration_unit_v2')
+            if exists(root,'r26_task'):
+                result['migrationTasks']=read(root,'migrationTasks',"SELECT task_id,status,cursor,steps,last_served,last_progress,blocked_reason,wait_kind,wait_detail FROM r26_task WHERE task_id IN ('schema','schema-base','r29-research-migration','r29-event-inbox') ORDER BY task_id",one=False)
+            if exists(root,'r27_task_error'):
+                result['rootTaskErrors']=scalar(root,'SELECT count(*) FROM r27_task_error')
+                result['rootMigrationTaskErrors']=scalar(root,"SELECT count(*) FROM r27_task_error WHERE task_id IN ('schema','schema-base','r29-research-migration','r29-event-inbox')")
+            if exists(root,'r29_event_outbox'):
+                result['rootEvents']=read(root,'rootEvents','SELECT count(*) AS total,sum(CASE WHEN acked_at>0 THEN 1 ELSE 0 END) AS acked FROM r29_event_outbox')
+            if exists(root,'r27_chart_cache'):
+                cache=read(root,'migrationCache',"SELECT payload_json,updated_at FROM r27_chart_cache WHERE panel_id='r29' AND key='research-migration'")
+                if cache:
+                    try:
+                        payload=json.loads(cache['payload_json'])
+                        allowed=('state','activeOwner','cutoverEnabled','routingRecoveryRequired','file','verifiedBaselineTables','reason','crossTableSnapshot')
+                        result['migrationCache']={k:payload[k] for k in allowed if k in payload}
+                        result['migrationCache']['updatedAt']=cache['updated_at']
+                    except (ValueError,TypeError) as failure:
+                        result['observationErrors'].append({'query':'migrationCacheJSON','failure':type(failure).__name__})
+    if stage.is_file():
+        with sqlite3.connect(stage) as copied:
+            result['stageIntegrity']=read(copied,'stageIntegrity','PRAGMA integrity_check')
+            if exists(copied,'r29_copy_manifest'):
+                result['stageManifestTotal']=scalar(copied,'SELECT count(*) FROM r29_copy_manifest')
+                result['stagePhases']=dict(copied.execute('SELECT state,count(*) FROM r29_copy_manifest GROUP BY state'))
+            if exists(copied,'r29_copy_rows'):
+                result['stageCopiedRows']=scalar(copied,'SELECT count(*) FROM r29_copy_rows')
+    return result
+
+
 def inspect(main, stage, result, research_path=None, baseline=None):
     assert main.is_file(), 'REALTIME_DATABASE_MISSING'
     if research_path is not None:
@@ -148,18 +209,23 @@ def main():
     p.add_argument('--stage', type=Path, required=True)
     p.add_argument('--research', type=Path)
     p.add_argument('--baseline', type=Path)
+    p.add_argument('--observe-only', action='store_true')
     p.add_argument('--out', type=Path, required=True)
     a = p.parse_args()
     result = {'scope': 'API34_EMULATOR_ONLY', 'status': 'FAIL'}
     try:
-        inspect(a.main, a.stage, result, a.research, a.baseline)
-        result['status'] = 'PASS_ENGINEERING_SUBSET_ONLY'
+        if a.observe_only:
+            observe(a.main,a.stage,result)
+        else:
+            inspect(a.main, a.stage, result, a.research, a.baseline)
+            result['status'] = 'PASS_ENGINEERING_SUBSET_ONLY'
     except Exception as failed:
         result['failure'] = type(failed).__name__ + ':' + str(failed)[:500]
         raise
     finally:
         a.out.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
-    print(json.dumps({k: result[k] for k in ['status', 'eventsDelivered', 'modelReceipts', 'stagedBackupStatus']}))
+    fields=['status','mainAvailable','stageAvailable','stageManifestTotal'] if a.observe_only else ['status','eventsDelivered','modelReceipts','stagedBackupStatus']
+    print(json.dumps({k:result[k] for k in fields if k in result}))
 
 
 if __name__ == '__main__':

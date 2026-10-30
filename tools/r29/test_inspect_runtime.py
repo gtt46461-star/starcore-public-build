@@ -3,10 +3,12 @@
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import sqlite3
 import struct
+import subprocess
 import tempfile
 import unittest
 
@@ -169,6 +171,47 @@ class RuntimeInspection(unittest.TestCase):
         self.assertFalse(result['cutoverEnabled'])
         self.assertEqual('ORIGINAL_DATABASE',result['activeOwner'])
         self.assertEqual('PASS_BASELINE_ONLY_CATCHUP_ROUTING_PENDING',result['stagedBackupStatus'])
+
+    def test_observation_without_rp_preserves_counts_without_accepting(self):
+        self.research.unlink()
+        result=reader.observe(self.root,self.stage,{})
+        self.assertEqual('OBSERVATION_ONLY_NOT_ACCEPTANCE',result['status'])
+        self.assertEqual('NOT_INSPECTED',result['researchCopy'])
+        self.assertEqual(1,result['trackedSourceTables'])
+        self.assertEqual(1,result['stageManifestTotal'])
+        self.assertFalse(self.research.exists())
+        self.rejected('ACTIVE_RESEARCH_DATABASE_MISSING')
+
+    def test_missing_stage_is_observed_without_creating_fake_database(self):
+        self.stage.unlink()
+        result=reader.observe(self.root,self.stage,{})
+        self.assertFalse(result['stageAvailable'])
+        self.assertFalse(self.stage.exists())
+        self.assertEqual('OBSERVATION_ONLY_NOT_ACCEPTANCE',result['status'])
+
+    def test_actual_shell_keeps_observation_then_fails_missing_rp(self):
+        # Execute the actual checked-in helper with file-copy pulls; no adb, network or device is used.
+        script=Path(__file__).with_name('emulator_smoke.sh').read_text()
+        helpers=script[script.index('pull_database() {'):script.index('adb uninstall "$PKG"')]
+        stub='''
+pull_database() {
+  case "$1" in
+    binance_k3_nova_one_pro_v57.db) cp "$TEST_ROOT" "$OUT/$2.db" ;;
+    starcore-research-r29-stage.db) cp "$TEST_STAGE" "$OUT/$2.db" ;;
+    *) return 19 ;;
+  esac
+}
+pull_runtime upgrade after
+echo UNREACHABLE_ACCEPTANCE
+'''
+        out=self.path/'smoke';out.mkdir()
+        env=dict(os.environ,OUT=str(out),TEST_ROOT=str(self.root),TEST_STAGE=str(self.stage))
+        run=subprocess.run(['bash','-c','set -euo pipefail\n'+helpers+stub],cwd=Path(__file__).resolve().parents[2],env=env,capture_output=True,text=True,timeout=10)
+        self.assertEqual(19,run.returncode,run.stdout+run.stderr)
+        self.assertNotIn('UNREACHABLE_ACCEPTANCE',run.stdout)
+        receipt=json.loads((out/'upgrade-migration-observation.json').read_text())
+        self.assertEqual('OBSERVATION_ONLY_NOT_ACCEPTANCE',receipt['status'])
+        self.assertEqual(1,receipt['stageManifestTotal'])
 
 
 if __name__=='__main__': unittest.main(verbosity=2)

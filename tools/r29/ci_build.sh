@@ -31,6 +31,7 @@ python3 scripts/verify_strategy_su1.py > "$LOG/su1.log"
 python3 scripts/verify_plan1025.py > "$LOG/plan1025.log"
 python3 scripts/verify_r26.py > "$LOG/r26.log"
 python3 tools/r29/host_checks.py --out "$LOG/r29_host_checks.json"
+python3 -m unittest discover -s tools/r29 -p test_inspect_runtime.py -v > "$LOG/device_protocol_qa.log" 2>&1
 ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee "$LOG/unit.log" | tail -n 30
 # R29-010/035: contiguous qualification + late/out-of-order settlement on a real SQLite engine.
 JDBC=$(mktemp -d)/sqlite-jdbc.jar
@@ -38,7 +39,9 @@ curl -fLsS --connect-timeout 15 --max-time 90 -o "$JDBC" https://repo.maven.apac
 echo "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa  $JDBC" | sha256sum -c -
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_qual_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_event_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_event_yield_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_migration_host.sh
+CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_migration_prepare_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_registration_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_cutover_host.sh
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_owner_host.sh

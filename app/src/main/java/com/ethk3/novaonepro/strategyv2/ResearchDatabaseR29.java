@@ -53,12 +53,11 @@ public final class ResearchDatabaseR29 implements AutoCloseable {
     private void prepare(DbStore store,SQLiteDatabase realtime)throws Exception {
         if(prepared)return;
         tables=MigrationCopyR29.tables(realtime);
-        // Acquire/release each short realtime transaction before opening ANY destination transaction.
-        for(MigrationCopyR29.Table t:tables){
-            if(Thread.currentThread().isInterrupted())throw new InterruptedException("R29_MIGRATION_CANCELLED");
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_MIGRATION_TRACK",db->{MigrationCopyR29.trackSource(db,t);return 0;});
-        }
-        write(db->MigrationCopyR29.register(db,tables));prepared=true;
+        // Fresh read-only tracker proofs preserve committed per-table progress across a later
+        // Root busy yield/restart. Earlier tables no longer restart the entire DDL writer loop.
+        MigrationCopyR29.prepare(realtime,destination,tables,
+                body->store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R29_MIGRATION_TRACK",db->{body.run(db);return 0;}),this::write);
+        prepared=true;
     }
     public synchronized MigrationCopyR29.Result step(DbStore store,SQLiteDatabase realtime)throws Exception {
         storage();prepare(store,realtime);

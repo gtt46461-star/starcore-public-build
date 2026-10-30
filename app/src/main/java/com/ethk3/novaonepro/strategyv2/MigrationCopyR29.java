@@ -86,13 +86,79 @@ public final class MigrationCopyR29 {
      * Only a per-table generation is changed: no unbounded source journal is added. No source row is rewritten. */
     public static void trackSource(SQLiteDatabase source, Table table) {
         if (!source.inTransaction()) throw new IllegalStateException("R29_MIGRATION_SOURCE_TRANSACTION_REQUIRED");
+        if (sourceTracked(source, table)) return;
         source.execSQL(SOURCE_WATERMARK);
         source.execSQL("INSERT OR IGNORE INTO r29_source_watermark(table_name) VALUES(?)", new Object[] {table.name});
         for (String event : new String[] {"INSERT", "UPDATE", "DELETE"}) {
-            String trigger = "r29_copy_track_" + table.name + "_" + event.toLowerCase(java.util.Locale.ROOT);
-            source.execSQL("CREATE TRIGGER IF NOT EXISTS " + id(trigger) + " AFTER " + event + " ON " + id(table.name)
-                    + " BEGIN UPDATE r29_source_watermark SET generation=generation+1 WHERE table_name='" + table.name + "'; END");
+            source.execSQL(trackerSql(table, event));
         }
+        if (!sourceTracked(source, table)) throw new IllegalStateException("R29_MIGRATION_TRACKER_INSTALL_FAILED:" + table.name);
+    }
+
+    private static String trackerName(Table table, String event) {
+        return "r29_copy_track_" + table.name + "_" + event.toLowerCase(java.util.Locale.ROOT);
+    }
+    private static String trackerSql(Table table, String event) {
+        return "CREATE TRIGGER IF NOT EXISTS " + id(trackerName(table, event)) + " AFTER " + event + " ON " + id(table.name)
+                + " BEGIN UPDATE r29_source_watermark SET generation=generation+1 WHERE table_name='" + table.name + "'; END";
+    }
+    private static String ddl(String value) {
+        // sqlite_master omits IF NOT EXISTS. Keep identifier/string case intact: changing the
+        // table_name literal's case changes which generation row the trigger updates.
+        return value == null ? null : value.replaceFirst("(?i)\\bIF\\s+NOT\\s+EXISTS\\s+", "").trim().replaceAll("\\s+", " ");
+    }
+    private static String objectSql(SQLiteDatabase db, String type, String name) {
+        try (Cursor c = db.rawQuery("SELECT type,sql FROM sqlite_master WHERE name=?", new String[] {name})) {
+            if (!c.moveToFirst()) return null;
+            if (!type.equals(c.getString(0))) throw new IllegalStateException("R29_MIGRATION_TRACKER_OBJECT_TYPE:" + name);
+            String sql = c.getString(1);
+            if (c.moveToNext()) throw new IllegalStateException("R29_MIGRATION_TRACKER_OBJECT_AMBIGUOUS:" + name);
+            return sql;
+        }
+    }
+    /** Fresh read-only proof of a committed installation; never a READY cache. This is also the durable
+     * preparation cursor: a retry/restart does not reacquire Root's writer for earlier correct tables.
+     * Partial trackers cannot be repaired by resetting generation: writes during the gap are unknowable. */
+    public static boolean sourceTracked(SQLiteDatabase source, Table table) {
+        if (!table.createSql.equals(objectSql(source, "table", table.name)))
+            throw new IllegalStateException("R29_SOURCE_SCHEMA_CHANGED_DURING_TRACKING:" + table.name);
+        String watermark = objectSql(source, "table", "r29_source_watermark");
+        if (watermark != null && !ddl(SOURCE_WATERMARK).equals(ddl(watermark)))
+            throw new IllegalStateException("R29_MIGRATION_WATERMARK_SCHEMA_MISMATCH");
+        boolean row = false;
+        if (watermark != null) try (Cursor c = source.rawQuery("SELECT generation,typeof(generation) FROM r29_source_watermark WHERE table_name=?", new String[] {table.name})) {
+            row = c.moveToFirst();
+            if (row && (!"integer".equals(c.getString(1)) || c.getLong(0) < 0))
+                throw new IllegalStateException("R29_MIGRATION_WATERMARK_INVALID:" + table.name);
+        }
+        int installed = 0;
+        for (String event : new String[] {"INSERT", "UPDATE", "DELETE"}) {
+            String sql = objectSql(source, "trigger", trackerName(table, event));
+            if (sql != null) {
+                if (!ddl(trackerSql(table, event)).equals(ddl(sql)))
+                    throw new IllegalStateException("R29_MIGRATION_TRACKER_SQL_MISMATCH:" + table.name + ":" + event);
+                installed++;
+            }
+        }
+        if (!row && installed == 0) return false;
+        if (!row || installed != 3)
+            throw new IllegalStateException("R29_MIGRATION_TRACKER_INCOMPLETE:" + table.name);
+        return true;
+    }
+
+    /** Each Root tracker transaction commits before any stage transaction starts. Committed Root
+     * tracker state is the resume point if a later table yields for the unchanged writer deadline. */
+    public static void prepare(SQLiteDatabase source, SQLiteDatabase destination, List<Table> tables,
+                               Transaction sourceWriter, Transaction destinationWriter) throws Exception {
+        for (Table table : tables) {
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("R29_MIGRATION_CANCELLED");
+            if (!sourceTracked(source, table)) {
+                if (scalar(destination, "SELECT count(*) FROM r29_copy_manifest WHERE table_name=?", new String[] {table.name}) != 0)
+                    throw new IllegalStateException("R29_MIGRATION_TRACKERS_LOST_AFTER_MANIFEST:" + table.name);
+                sourceWriter.write(db -> trackSource(db, table));
+            }
+        }
+        destinationWriter.write(db -> register(db, tables));
     }
 
     public static void register(SQLiteDatabase destination, List<Table> tables) {

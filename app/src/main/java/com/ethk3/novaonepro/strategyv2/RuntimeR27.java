@@ -110,18 +110,29 @@ public final class RuntimeR27 implements AutoCloseable {
 
     static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
     static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
+    // Bootstrap delivery/status writes run directly on a pool worker before RP exists. A busy attempt must return
+    // that worker to the scheduler; parked numerical continuations retain their existing retry behavior.
+    private static final ThreadLocal<Boolean> boundedBootstrapSubmit = new ThreadLocal<>();
     static void submit(ResearchPoolR27.Worker w, String op, ResearchWriteQueueR27.Batch b) throws InterruptedException {
-        while (!w.writes().submit(op, b, w::cancelled)) { if (w.cancelled()) throw new InterruptedException("R27_CANCELLED"); CooperativeContinuationR26.poll();Thread.sleep(50); }
+        while (!w.writes().submit(op, b, w::cancelled)) {
+            if (w.cancelled()) throw new InterruptedException("R27_CANCELLED");
+            if (Boolean.TRUE.equals(boundedBootstrapSubmit.get())) throw new IllegalStateException("CP3_DB_BUSY_COOPERATIVE_BOOTSTRAP_REQUEUE");
+            CooperativeContinuationR26.poll();Thread.sleep(50);
+        }
     }
 
     // ------------------------------------------------------------------ r27-replay-dataset (R27-013/016)
     final class EventTask implements ResearchPoolR27.Task {
-        long lastDrain;
+        long lastDrain, lastServiceAttempt;
         public String id() { return "r29-event-inbox"; }
-        public boolean urgent(ResearchPoolR27.Worker worker,long now){return now-lastDrain>=1000;}
+        public boolean urgent(ResearchPoolR27.Worker worker,long now){return now-lastServiceAttempt>=1000;}
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
+            // Attempt time controls urgent scheduling only. It never becomes a committed progress receipt.
+            lastServiceAttempt=System.currentTimeMillis();
+            Boolean previous=boundedBootstrapSubmit.get();boundedBootstrapSubmit.set(Boolean.TRUE);
             try{ResearchPoolR27.Outcome delivered=ResearchEventBridgeR29.deliver(w);long projected=RealtimeResearchProjectionR29.drain(w)+LegacyLiveProjectionR29.drain(w.store())+LegacyAuthorityProjectionR29.drain(w.store());lastDrain=System.currentTimeMillis();return projected>0?ResearchPoolR27.Outcome.progress(delivered.units+projected,delivered.cursor):delivered;}
             catch(IllegalStateException busy){if(!ResearchWriteQueueR27.writerBusy(busy))throw busy;return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:EVENT_REDELIVERY_PENDING",0,-1);}
+            finally{if(previous==null)boundedBootstrapSubmit.remove();else boundedBootstrapSubmit.set(previous);}
         }
     }
 
@@ -146,7 +157,9 @@ public final class RuntimeR27 implements AutoCloseable {
                 if(result.phase.startsWith("SOURCE_CHANGED"))return ResearchPoolR27.Outcome.idle("WAITING_STABLE_SOURCE:"+result.table+":"+result.phase,verified,stage.tableCount());
                 return ResearchPoolR27.Outcome.progress(Math.max(1,result.rows),verified);
             }catch(ResearchDatabaseR29.StorageBlocked blocked){
-                if(now-reported>=15_000){Map<String,Object> m=new LinkedHashMap<>();m.put("state","BLOCKED_STORAGE_BUDGET");m.put("reason",blocked.getMessage());m.put("cutoverEnabled",false);m.put("activeOwner","ORIGINAL_DATABASE");publish(w,m,now);}
+                if(now-reported>=15_000){Map<String,Object> m=new LinkedHashMap<>();m.put("state","BLOCKED_STORAGE_BUDGET");m.put("reason",blocked.getMessage());m.put("cutoverEnabled",false);m.put("activeOwner","ORIGINAL_DATABASE");
+                    try{publish(w,m,now);}catch(IllegalStateException statusBusy){if(!ResearchWriteQueueR27.writerBusy(statusBusy))throw statusBusy;}
+                }
                 return ResearchPoolR27.Outcome.idle("RESOURCE_LOW_STORAGE:MIGRATION_ONLY:"+blocked.getMessage(),0,-1);
             }catch(Exception failed){
                 if(ResearchWriteQueueR27.writerBusy(failed))return ResearchPoolR27.Outcome.idle("COOPERATIVE_WRITER_BUSY:MIGRATION_RETRY",stage==null?0:stage.verifiedTables(),-1);
@@ -159,7 +172,9 @@ public final class RuntimeR27 implements AutoCloseable {
         private void publish(ResearchPoolR27.Worker w,Map<String,Object> snapshot,long now)throws Exception {
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
             b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r29','research-migration',?,?)",JsonR27.write(snapshot),now);
-            submit(w,"MIGRATION_STATUS",b);reported=now;
+            Boolean previous=boundedBootstrapSubmit.get();boundedBootstrapSubmit.set(Boolean.TRUE);
+            try{submit(w,"MIGRATION_STATUS",b);reported=now;}
+            finally{if(previous==null)boundedBootstrapSubmit.remove();else boundedBootstrapSubmit.set(previous);}
         }
         public void close(){if(stage!=null){stage.close();stage=null;}}
     }
