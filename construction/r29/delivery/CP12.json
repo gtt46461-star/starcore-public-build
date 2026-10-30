@@ -11,7 +11,7 @@
   "qaCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
   "sourceTree": "1e87895fce60b096fe68531a1a3b63ea957e0aa5",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
-  "overall": "FAIL_WHOLE_APP_NATIVE10_PASS_SIGNERS_PENDING",
+  "overall": "FAILED_WHOLE_APP_INCUMBENT_UNSLICED",
   "engineeringAccepted": false,
   "expectedVersion": {
     "package": "com.starcore.research.r13",
@@ -30,8 +30,13 @@
     },
     "r13SecureBuild": {
       "run": 41132500193,
-      "status": "RUNNING_EXACT_CP12_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132500193"
+      "status": "SUCCESS_BUILD_PUBLIC_RELEASE_IDENTITY_INDEPENDENTLY_VERIFIED_NOT_INSTALL_ACCEPTED",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132500193",
+      "job": 124326685131,
+      "artifact": 13015590435,
+      "evidence": "evidence/r29/batch01/validated-116888fe/r13-ci/summary.json",
+      "extraAutoEmulatorJobAtCapture": 124334865991,
+      "wholeWorkflowSuccessClaimed": false
     },
     "fullAppDiagnostic": {
       "run": 41132503018,
@@ -44,8 +49,11 @@
     },
     "r27SecureBuild": {
       "run": 41132505616,
-      "status": "RUNNING_EXACT_CP12_SOURCE",
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132505616"
+      "status": "SUCCESS_BUILD_PUBLIC_RELEASE_IDENTITY_INDEPENDENTLY_VERIFIED_NOT_INSTALL_ACCEPTED",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41132505616",
+      "job": 124326704424,
+      "evidence": "evidence/r29/batch01/validated-116888fe/r27-public-identity/summary.json",
+      "completedAtUtc": "2026-10-30T22:02:17Z"
     }
   },
   "canonicalSavedWrapper": {
@@ -108,7 +116,62 @@
     "r27-debug": "NOT_STARTED",
     "r27-release": "NOT_STARTED"
   },
-  "apk": [],
+  "apk": [
+    {
+      "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "signer": "ORIGINAL_R13",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291012-116888fe641a/STARCORE-R29.1-116888fe641a-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint12-R13-release.apk",
+      "sha256": "adb3fccb28bc0bf6ecd8b585b85166511727e621adc9f5c572a5b3022ea38c40",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "versionCode": 577291012,
+      "versionName": "R29.1-2026.10.30-checkpoint12",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP12_WHOLE_APP_FAILED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41132500193,
+        "job": 124326685131,
+        "status": "success"
+      },
+      "ciEvidence": "evidence/r29/batch01/validated-116888fe/r13-ci/summary.json",
+      "wholeWorkflowSuccessClaimed": false,
+      "evidence": "evidence/r29/batch01/validated-116888fe/r13-public-identity/summary.json"
+    },
+    {
+      "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "signer": "EXISTING_R27",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP12-R27-116888fe641a/STARCORE-R29.1-116888fe641a-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint12-R27-release.apk",
+      "sha256": "c9c1eb5c651da53506006bd13240058f5bc5e25c5e3af3570da6f192a0761db9",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "versionCode": 577291012,
+      "versionName": "R29.1-2026.10.30-checkpoint12",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP12_WHOLE_APP_FAILED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41132505616,
+        "job": 124326704424,
+        "status": "success"
+      },
+      "ciArtifactXmlIndependentlyRecounted": false,
+      "ciArtifactNotDownloadedReason": "Combined evidence35600930B exceeds32MiB tool limit; source-bound completed job and public release APK identity independently verified.",
+      "evidence": "evidence/r29/batch01/validated-116888fe/r27-public-identity/summary.json"
+    }
+  ],
   "sourceBinding": "construction/r29/delivery/CP12.source-binding.json",
   "ledgerDraft": "construction/r29/ledger/B01-CP12.json",
   "callChainsDraft": "construction/r29/delivery/CP12.call_chains.json",
@@ -135,7 +198,7 @@
   "naturalQuality": "INSUFFICIENT",
   "real": "BLOCKED",
   "all44Metrics": "NOT_CLAIMED",
-  "overallMeaning": "Exact CP12 native10/10 PASS within original schema and first-service60s gates; full-App still fails on one incumbent-forecast UNSLICED incident counted in Root and copied RP. Signer receipts remain pending and cannot accept B01.",
+  "overallMeaning": "Exact source116 native10/10 and both signer build jobs/public release identities PASS. Whole-App upgrade fails on one incumbent-forecast UNSLICED incident counted in Root and its copied RP error table. Clean and formal four-case matrix not started; B01 remains not accepted. R13 extra auto-emulator workflow outcome not claimed.",
   "fullAppActual": {
     "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
     "status": "FAIL_UPGRADE_INCUMBENT_UNSLICED_NEW_TASK_ERROR",
@@ -187,5 +250,82 @@
     "physical": "NOT_RUN",
     "naturalQuality": "INSUFFICIENT",
     "real": "BLOCKED"
+  },
+  "signedReleaseIdentityAudits": {
+    "R13": {
+      "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "signer": "ORIGINAL_R13",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291012-116888fe641a/STARCORE-R29.1-116888fe641a-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint12-R13-release.apk",
+      "sha256": "adb3fccb28bc0bf6ecd8b585b85166511727e621adc9f5c572a5b3022ea38c40",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "versionCode": 577291012,
+      "versionName": "R29.1-2026.10.30-checkpoint12",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP12_WHOLE_APP_FAILED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41132500193,
+        "job": 124326685131,
+        "status": "success"
+      },
+      "ciEvidence": "evidence/r29/batch01/validated-116888fe/r13-ci/summary.json",
+      "wholeWorkflowSuccessClaimed": false,
+      "evidence": "evidence/r29/batch01/validated-116888fe/r13-public-identity/summary.json"
+    },
+    "R27": {
+      "sourceCommit": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "signer": "EXISTING_R27",
+      "apkUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP12-R27-116888fe641a/STARCORE-R29.1-116888fe641a-release.apk",
+      "output": "/workspace/output/STARCORE-R29.1-checkpoint12-R27-release.apk",
+      "sha256": "c9c1eb5c651da53506006bd13240058f5bc5e25c5e3af3570da6f192a0761db9",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "versionCode": 577291012,
+      "versionName": "R29.1-2026.10.30-checkpoint12",
+      "package": "com.starcore.research.r13",
+      "embeddedSourceIdentityVerified": true,
+      "publicSignatureVerified": true,
+      "downloadShaVerified": true,
+      "apkManifestVerified": true,
+      "installationAcceptance": "NOT_STARTED_FORMAL_CP06_MATRIX_CP12_WHOLE_APP_FAILED",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "engineeringAccepted": false,
+      "ciJob": {
+        "run": 41132505616,
+        "job": 124326704424,
+        "status": "success"
+      },
+      "ciArtifactXmlIndependentlyRecounted": false,
+      "ciArtifactNotDownloadedReason": "Combined evidence35600930B exceeds32MiB tool limit; source-bound completed job and public release APK identity independently verified.",
+      "evidence": "evidence/r29/batch01/validated-116888fe/r27-public-identity/summary.json"
+    }
+  },
+  "r13ActualCi": {
+    "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+    "hostDirectRunners": 47,
+    "junitXml": 32,
+    "junitTests": 164,
+    "junitFailures": 0,
+    "junitErrors": 0,
+    "junitSkipped": 0,
+    "semanticMutationChecks": 8,
+    "offlineQa": 44,
+    "cliChecks": [
+      21,
+      20,
+      32
+    ],
+    "lintNewIssues": 0,
+    "lintExistingBaselineFiltered": 51,
+    "lintUnmatchedBaselineEntries": 7,
+    "freshCiLint": true,
+    "evidence": "evidence/r29/batch01/validated-116888fe/r13-ci/summary.json"
   }
 }

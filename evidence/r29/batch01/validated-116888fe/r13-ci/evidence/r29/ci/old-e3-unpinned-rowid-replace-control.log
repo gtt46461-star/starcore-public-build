@@ -1,0 +1,9 @@
+R29_CUTOVER_SNAPSHOT|S1_APPSTATE_EXERCISES_REAL_32_ROW_PAGE_BOUNDARY|OK
+R29_CUTOVER_SNAPSHOT|ROOT_WRITER_COMMITTED_DURING_COPY|milliseconds=0
+Exception in thread "main" java.lang.AssertionError: CUTOVER_MUTABLE_APPSTATE_KEY_REAPPEARED_WITHOUT_SNAPSHOT
+	at com.ethk3.novaonepro.strategyv2.CutoverSnapshotR29HostTest.main(CutoverSnapshotR29HostTest.java:110)
+Caused by: android.database.sqlite.SQLiteException: [SQLITE_CONSTRAINT_PRIMARYKEY] A PRIMARY KEY constraint failed (UNIQUE constraint failed: app_state.state_key)
+	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:48)
+	at com.ethk3.novaonepro.strategyv2.ResearchCutoverR29.restorePage(ResearchCutoverR29.java:61)
+	at com.ethk3.novaonepro.strategyv2.CutoverSnapshotR29HostTest.streamingCopy(CutoverSnapshotR29HostTest.java:59)
+	at com.ethk3.novaonepro.strategyv2.CutoverSnapshotR29HostTest.main(CutoverSnapshotR29HostTest.java:108)
