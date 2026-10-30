@@ -8,8 +8,9 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 LOG=evidence/r29/ci; mkdir -p "$LOG"
 commit_generated() {
-  git add release/ app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java \
-    app/build/generated/r967/semantic_manifest.json app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
+  git add release/ app/src/main/java/com/ethk3/novaonepro/ReleaseManifestR926.java verification/r36-stubs/com/ethk3/novaonepro/BuildConfig.java
+  # The two generated identity files are tracked but live under the ignored app/build/: git refuses a plain add there.
+  git add -f app/build/generated/r967/semantic_manifest.json app/build/generated/source/r967/com/ethk3/novaonepro/ResearchSemanticsGeneratedR967.java
   if ! git diff --cached --quiet; then
     git -c user.name='STARCORE build identity' -c user.email='starcore-build@users.noreply.github.com' commit -q -m "$1"
   fi
