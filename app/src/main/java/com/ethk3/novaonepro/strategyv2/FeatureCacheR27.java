@@ -254,24 +254,50 @@ public final class FeatureCacheR27 {
         FamilyStream st;
         synchronized (this) { st = streams.get(index); if (st == null) { st = new FamilyStream(index); streams.put(index, st); } }
         double[] all;
-        synchronized (st) { all = st.advance(data); }
+        try { synchronized (st) { all = st.advance(data); } }
+        catch (IllegalStateException prefixChanged) {
+            // R30-B03-04: rows [0,fed) changed under a reused stream: rebuild the whole stream from this dataset and record it.
+            if (!String.valueOf(prefixChanged.getMessage()).startsWith("R27_FAMILY_STREAM") && !String.valueOf(prefixChanged.getMessage()).startsWith("R30_FAMILY_PREFIX")) throw prefixChanged;
+            FamilyStream fresh = new FamilyStream(index);
+            synchronized (this) { streams.put(index, fresh); }
+            REBUILDS_R30.incrementAndGet();
+            if (REBUILD_EVENTS_R30.size() < 256) REBUILD_EVENTS_R30.add(new Object[] {index, data.size() == 0 ? -1L : data.ordinals[data.size() - 1], String.valueOf(prefixChanged.getMessage()), System.currentTimeMillis()});
+            synchronized (fresh) { all = fresh.advance(data); }
+        }
         int n = t(); double[] v = new double[n * 10];
         for (int t = 0; t < n; t++) System.arraycopy(all, t * 100 + (tp - 1) * 10, v, t * 10, 10);
         return v;
     }
 
     private final Map<Integer, FamilyStream> streams = new java.util.HashMap<>();
+    /** R30-B03-04: stream rebuilds after a changed prefix (written to r30_cache_rebuild by RuntimeR27). */
+    public static final java.util.concurrent.atomic.AtomicLong REBUILDS_R30 = new java.util.concurrent.atomic.AtomicLong();
+    public static final java.util.concurrent.ConcurrentLinkedQueue<Object[]> REBUILD_EVENTS_R30 = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    static final int PREFIX_CHECK_EVERY_R30 = 100;
+    /** Order-sensitive hash of rows [0,n) (ordinal + permutation). */
+    static long prefixHashR30(ReplayDatasetR27 d, int n) {
+        long h = 0x9E3779B97F4A7C15L;
+        for (int t = 0; t < n; t++) { h = (h ^ d.ordinals[t]) * 0x100000001B3L; for (int v : d.draws[t]) h = (h ^ v) * 0x100000001B3L; }
+        return h;
+    }
 
     static final class FamilyStream {
         final int index; final OnlineModelsSU2.Model model; int fed; double[] values = new double[0]; long lastFedOrdinal = Long.MIN_VALUE;
         final float[][] p = new float[10][10]; final float[] st;
         FamilyStream(int index) { this.index = index; model = FamilyRegistryR26.build(String.format(java.util.Locale.ROOT, "F%02d", index)); st = new float[Math.max(1, model.stateWidth())]; }
         int[] lastFedDraw;
+        int checkedFed; long checkedHash; ReplayDatasetR27 verifiedData; // R30-B03-04: prefix [0,checkedFed) hash at the last 100-row checkpoint
         /** Values for every row of d: prediction at row t uses only rows &lt; t. Rows [0,fed) must be unchanged in d. */
         double[] advance(ReplayDatasetR27 d) {
             int n = d.size();
             if (fed > 0 && (n < fed || d.ordinals[fed - 1] != lastFedOrdinal || !java.util.Arrays.equals(d.draws[fed - 1], lastFedDraw)))
                 throw new IllegalStateException("R27_FAMILY_STREAM_PREFIX_CHANGED");
+            // R30-B03-04: the whole prefix up to the last 100-row checkpoint is compared by hash (once per new dataset),
+            // not only its last row.
+            if (checkedFed > 0 && d != verifiedData) {
+                if (n < checkedFed || prefixHashR30(d, checkedFed) != checkedHash) throw new IllegalStateException("R30_FAMILY_PREFIX_HASH_CHANGED");
+                verifiedData = d;
+            }
             int known = values.length / 100;
             if (known > n) throw new IllegalStateException("R27_FAMILY_STREAM_SHRUNK");
             double[] out = java.util.Arrays.copyOf(values, n * 100);
@@ -287,6 +313,7 @@ public final class FeatureCacheR27 {
                 if (t < n - 1) { model.update(d.draws[t]); fed = t + 1; lastFedOrdinal = d.ordinals[t]; lastFedDraw = d.draws[t].clone(); }
             }
             values = out;
+            if (fed >= checkedFed + PREFIX_CHECK_EVERY_R30) { checkedFed = fed; checkedHash = prefixHashR30(d, fed); verifiedData = d; }
             return out;
         }
     }

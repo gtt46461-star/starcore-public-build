@@ -23,6 +23,8 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile EvolutionLoopR27 evo;
     // Live dataset grows by appending; family streams continue incrementally.
     ReplayDatasetR27 liveData; FeatureCacheR27 liveCache;
+    /** R30-B03-04 live feature cache key: (dataset hash, trained through, feature ABI); positions share one cache. */
+    volatile String liveCacheKeyR30 = "";
     // Golden set and operator ABI (semantic ABI).
     volatile ReplayDatasetR27 golden; volatile FeatureCacheR27 goldenCache; volatile Map<String, String> operatorAbi; volatile String operatorAbiHash;
     // Atom replay frame and states.
@@ -193,12 +195,20 @@ public final class RuntimeR27 implements AutoCloseable {
 
     /** Live dataset + placeholder for the next target (family streams continue from the previous cache). */
     synchronized FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
-        ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
-        if (liveData == null || liveData.size() > LIVE_REBASE_ROWS || fresh.size() == 0) { liveData = fresh; liveCache = null; }
+        // R30-B03-04: each period only the rows newer than the cached dataset are read and appended; the full dataset is
+        // reloaded only at a rebase (first use, >LIVE_REBASE_ROWS rows, or no newer row readable).
+        if (liveData == null || liveData.size() == 0 || liveData.size() > LIVE_REBASE_ROWS) { liveData = StoreR27.loadDataset(w.ro, DATASET_ROWS); liveCache = null; }
         else {
             long last = liveData.ordinals[liveData.size() - 1];
-            for (int i = 0; i < fresh.size(); i++) if (fresh.ordinals[i] > last) liveData = liveData.append(new ReplayDatasetR27.Row(fresh.issues[i], fresh.ordinals[i], fresh.draws[i]));
+            try (android.database.Cursor c = w.ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE dirty=0 AND issue>? ORDER BY issue LIMIT 64", new String[] {liveData.issues[liveData.size() - 1]})) {
+                while (c.moveToNext()) {
+                    String issue = c.getString(0); if (!com.ethk3.novaonepro.TargetIssueResolver.isValid(issue)) continue;
+                    long ord = com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(issue); int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
+                    if (ord > last && ReplayDatasetR27.legal(p)) { liveData = liveData.append(new ReplayDatasetR27.Row(issue, ord, p)); last = ord; }
+                }
+            }
         }
+        liveCacheKeyR30 = liveData.datasetHash + "|" + latestOrd + "|" + operatorAbiHash;
         ReplayDatasetR27 withSlot = liveData.append(new ReplayDatasetR27.Row("PLACEHOLDER", latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
         FeatureCacheR27 c = new FeatureCacheR27(withSlot, 64);
         if (liveCache != null) { try { c.extendFrom(liveCache); } catch (RuntimeException rebuild) { /* streams rebuilt lazily */ } }
@@ -212,9 +222,20 @@ public final class RuntimeR27 implements AutoCloseable {
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             ensureGolden();
             long units = LegacyContinuityR27.step(store, w.ro, golden, operatorAbiHash, w.writes());
+            units += recordCacheRebuildsR30(w);
             units += LiveShadowsR27.semanticCheck(RuntimeR27.this, w);
             return units > 0 ? ResearchPoolR27.Outcome.progress(units, units) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
         }
+    }
+    /** R30-B03-04: feature-stream rebuilds are recorded in r30_cache_rebuild (append-only diagnostics). */
+    static long recordCacheRebuildsR30(ResearchPoolR27.Worker w) throws Exception {
+        Object[] e; ResearchWriteQueueR27.Batch b = null; int n = 0;
+        while (n < 64 && (e = FeatureCacheR27.REBUILD_EVENTS_R30.poll()) != null) {
+            if (b == null) { b = new ResearchWriteQueueR27.Batch(); b.add("CREATE TABLE IF NOT EXISTS r30_cache_rebuild(id INTEGER PRIMARY KEY AUTOINCREMENT,family_index INTEGER NOT NULL,through_ordinal INTEGER NOT NULL,reason TEXT NOT NULL,recorded_at INTEGER NOT NULL)"); }
+            b.add("INSERT INTO r30_cache_rebuild(family_index,through_ordinal,reason,recorded_at) VALUES(?,?,?,?)", e[0], e[1], e[2], e[3]); n++;
+        }
+        if (b != null) w.writes().submit("R27_CACHE_REBUILD", b, w::cancelled);
+        return n;
     }
     synchronized void ensureGolden() throws Exception {
         if (golden != null) return;
