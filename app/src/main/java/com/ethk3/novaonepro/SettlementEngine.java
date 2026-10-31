@@ -371,8 +371,6 @@ public final class SettlementEngine {
             if (settled == 1) {
                 if (oldActual != actual || oldHit != (hit ? 1 : 0))
                     throw new IllegalStateException("R36_REAL_SETTLEMENT_CONFLICT");
-                // R30-B02-03: a second settlement of the same (issue, trade) changes no row and returns the same
-                // result and the same record hash as the first (idempotency key = issue|trade id|settlement hash).
                 return new RealSettlementR36(
                         true,
                         true,
@@ -382,14 +380,7 @@ public final class SettlementEngine {
                         oldPnl,
                         "REAL_REPLAY",
                         V51ChecksumEngine.sha256(
-                                "R36_REAL|"
-                                        + id
-                                        + '|'
-                                        + DrawHashR36.sha256V2(draw)
-                                        + '|'
-                                        + actual
-                                        + '|'
-                                        + (hit ? 1 : 0)));
+                                "R36_REAL_REPLAY|" + id + '|' + oldResult + '|' + oldActual));
             }
             long now = System.currentTimeMillis();
             ContentValues cv = new ContentValues();
