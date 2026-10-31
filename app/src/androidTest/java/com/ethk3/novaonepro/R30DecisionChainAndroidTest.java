@@ -40,7 +40,7 @@ public final class R30DecisionChainAndroidTest {
         final String certificate=HashingSU1.text("R30_SYNTHETIC_CERTIFICATE_MECHANICS_ONLY");final ModelGenomeSU2 genome=FamilyRegistryR26.genome("F17").bindBirth(HashingSU1.text("R30_SYNTHETIC_SOURCE"),seq-1);
         final long deadline;
         Fixture()throws Exception {
-            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_DECISION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);for(String sql:SqlStatementsSU1.SQL)w.execSQL(sql);StrategySchemaSU2.ensure(w);SchemaR27.ensure(w);return 0;});
+            store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_DECISION_SCHEMA",w->{RuntimeSchemaR26.ensure(w);for(String sql:SqlStatementsSU1.SQL)w.execSQL(sql);StrategySchemaSU2.ensure(w);SchemaR27.ensure(w);com.ethk3.novaonepro.r952.ResearchMigrationRegistryR952.ensure(w);return 0;});
             long latest=System.currentTimeMillis()-1000;
             for(int i=1;i<=240;i++){Models.Draw d=new Models.Draw();d.issue=String.format(Locale.ROOT,"20261031%04d",i);d.openTime=latest-(240-i)*60000L;d.fetchTime=d.openTime+500;for(int p=0;p<10;p++)d.numbers[p]=(p+i-1)%10+1;history.add(d);}
             assertEquals(240,store.saveDraws(history));deadline=TargetIssueResolver.predrawDeadlineWallR20261008(store.getLatestDraw());
@@ -132,6 +132,11 @@ public final class R30DecisionChainAndroidTest {
                 assertNotNull("The selected valid SU2 certificate must reach the existing typed proof",outcome.runtime.contract.certifiedPrediction);
                 assertEquals("Original gate reject="+outcome.runtime.authorized.rejectCode+"; policy="+outcome.runtime.contract.policy.lane,V51Enums.DecisionAction.BET,outcome.runtime.authorized.action);
                 assertEquals(1,count(f.db,"SELECT count(*) FROM r30_decision_explain WHERE original_allow=1 AND explain_allow=1"));assertEquals(0,count(f.db,"SELECT count(*) FROM r30_decision_mismatch WHERE direction='ORIGINAL_MORE_PERMISSIVE'"));
+                try(Cursor receipts=f.db.rawQuery("SELECT e.trade_id,e.proof_hash,q.proof_hash,e.authorization_hash,q.authorization_hash,q.selected_hit_p,t.final_p FROM r974_exact_real_receipt e JOIN research_exact_probability_f05 q ON q.target_issue=e.target_issue AND q.trade_id=e.trade_id JOIN trades t ON t._id=e.trade_id AND t.target_issue=e.target_issue WHERE e.target_issue=?",new String[]{f.target})){
+                    assertTrue("Original REAL and exact probability receipts must commit with the actual trade",receipts.moveToFirst());
+                    assertTrue(receipts.getLong(0)>0);assertEquals(receipts.getString(1),receipts.getString(2));assertEquals(receipts.getString(3),receipts.getString(4));
+                    assertEquals(outcome.runtime.contract.certifiedPrediction.selectedHitP,receipts.getDouble(5),0);assertEquals(receipts.getDouble(5),receipts.getDouble(6),0);assertFalse(receipts.moveToNext());
+                }
                 assertFalse("Canonical REAL must close the target",RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
                 V51Models.AuthorizedDecision duplicate=new DecisionGateEngine().decideV51B12(f.store,outcome.runtime.contract);assertNotEquals(V51Enums.DecisionAction.BET,duplicate.action);
                 System.out.println("R30_ANDROID_ORIGINAL_OWNER_POSITIVE|1200_ACTIONS|CERTIFICATE_FROZEN_MAINLINE_REAL|EXPLAIN_MATCH|CANONICAL_DUPLICATE_REJECTED|SYNTHETIC_NOT_NATURAL_OR_PHYSICAL_QUALITY|PASS");

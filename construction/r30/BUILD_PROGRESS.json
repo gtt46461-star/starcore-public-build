@@ -1,46 +1,26 @@
 {
-  "candidateSource": "7b50de44e381b4de3409f263d1db80ae63eca8fa",
-  "versionCode": 577310103,
-  "updatedAt": "2026-10-31T19:46:22.112978+00:00",
+  "candidateSource": "RESOLVED_FROM_ACTUAL_FINAL_REQUEST",
+  "versionCode": 577310106,
+  "updatedAt": "2026-10-31T20:34:56.572442+00:00",
   "localG1": {
-    "tests": 265,
-    "xmlFiles": 69,
-    "failed": 0,
+    "source": "f857f30b74fa8cfdac84dd0d246458d024a784b1",
+    "mainTree": "e638576398828b547dbd5c87463be2ee455329d1",
+    "tests": 269,
+    "xmlFiles": 70,
+    "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "lint": "NO_NEW_ERRORS_ORIGINAL_BASELINE_RETAINED",
-    "androidSourceCompile": "PASS",
-    "largeModelCopyAndRetentionActualSQLite": "PASS_HOST_MODELED_WINDOW_NOT_ANDROID",
-    "source": "1e26c8f1368abe136994ef0b314f29b9893d2596",
-    "checkpointRealJvmReopen": "PASS_ACTUAL_COMPILED_PRODUCTION_CLASSES",
-    "originalRetentionActualSQLite": "PASS",
-    "atomicPreferenceReread": "PASS_HOST_FILESYSTEM_ONLY",
-    "su2FrozenWriterAndReader": "PASS_ACTUAL_COMPILED_ORIGINAL_AUTHORITY_AND_ALL_NEGATIVES",
-    "probeShellReader": "PASS_HOST_ONLY_ANDROID_PENDING"
+    "lint": "PASS_NO_NEW_ERRORS_ORIGINAL_51_BASELINE_7_UNMATCHED_RETAINED",
+    "originalFrozenOwnerRedline": "PASS_WITH_UNCHANGED_EXPECTED_HASHES",
+    "actualOriginalAuthoritySqliteHost": "PASS",
+    "androidSourceCompile": "PASS_AFTER_ORIGINAL_FULL_MIGRATION_FIXTURE_SETUP",
+    "scope": "Subsequent Android-fixture-only changes do not change product main or unit source; final exact-source complete CI mandatory"
   },
-  "builds": [
-    {
-      "lane": "EXISTING_R27",
-      "run": 41235591318,
-      "job": 124638578071,
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235591318",
-      "status": "IN_PROGRESS",
-      "existingIdentityRestore": "PASS",
-      "androidRuntime": "NOT_STARTED",
-      "upgradeRollback": "NOT_STARTED"
-    },
-    {
-      "lane": "OFFICIAL_R13",
-      "run": 41235634221,
-      "job": null,
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235634221",
-      "status": "IN_PROGRESS",
-      "existingIdentityAndApiRestore": "PENDING_LATEST_JOB_OBSERVATION",
-      "androidRuntime": "NOT_STARTED",
-      "upgradeRollback": "NOT_STARTED"
-    }
-  ],
-  "release": "NOT_PUBLISHED_WAITING_FOR_VERSION103_FULL_GATES",
+  "builds": [],
+  "release": {
+    "published": false,
+    "finalApkDownloadUrls": []
+  },
   "physicalDevice": "NOT_RUN_NO_DEVICE_CONNECTED",
   "naturalQuality": "INSUFFICIENT",
   "signingKeysReadOrUploadedByAgent": false,
@@ -90,14 +70,11 @@
     "published": false
   },
   "internalPreflight": {
-    "run": 41235591335,
-    "job": 124638578475,
-    "status": "IN_PROGRESS",
-    "source": "7b50de44e381b4de3409f263d1db80ae63eca8fa",
-    "scope": "INTERNAL_DEBUG_ANDROID_AND_ORIGINAL_STARTUP_NOT_FINAL_ACCEPTANCE",
-    "apkPublication": false
+    "scope": "INTERNAL_FINAL_SOURCE_ANDROID_VALIDATION_NOT_DELIVERY",
+    "status": "PENDING_NEW_SOURCE_REQUEST",
+    "publishApk": false
   },
-  "sourceGateRun": 41235522217,
+  "sourceGateRun": "PENDING_NEW_SOURCE_PUSH",
   "candidateHistory": [
     {
       "source": "8bfd2d515a99753022de6474958aba59ee3b3cdd",
@@ -134,6 +111,69 @@
       },
       "published": false,
       "knownFailure": "SU2_BOTH_ENDS_BRIDGE_AND_ABSENT_CRASH_FILE_PROBE_REPAIRED_IN103"
+    },
+    {
+      "candidateSource": "7b50de44e381b4de3409f263d1db80ae63eca8fa",
+      "versionCode": 577310103,
+      "builds": [
+        {
+          "lane": "EXISTING_R27",
+          "run": 41235591318,
+          "job": 124638578071,
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235591318",
+          "status": "IN_PROGRESS",
+          "existingIdentityRestore": "PASS",
+          "androidRuntime": "NOT_STARTED",
+          "upgradeRollback": "NOT_STARTED"
+        },
+        {
+          "lane": "OFFICIAL_R13",
+          "run": 41235634221,
+          "job": null,
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235634221",
+          "status": "IN_PROGRESS",
+          "existingIdentityAndApiRestore": "PENDING_LATEST_JOB_OBSERVATION",
+          "androidRuntime": "NOT_STARTED",
+          "upgradeRollback": "NOT_STARTED"
+        }
+      ],
+      "internalPreflight": {
+        "run": 41235591335,
+        "job": 124638578475,
+        "status": "IN_PROGRESS",
+        "source": "7b50de44e381b4de3409f263d1db80ae63eca8fa",
+        "scope": "INTERNAL_DEBUG_ANDROID_AND_ORIGINAL_STARTUP_NOT_FINAL_ACCEPTANCE",
+        "apkPublication": false
+      },
+      "outcome": "SIGNED_BUILDS_AND_FOUR_UPGRADE_DRILLS_PASS; FINAL_RUNTIME_FAIL_TEST_FRAMEWORK_CONTEXT; ORIGINAL_SU2_IDENTITY_AND_RECEIPT_SETUP_FIXES_REQUIRED",
+      "runtimeJobs": {
+        "R27": 124643339063,
+        "OFFICIAL_R13": 124642458838
+      },
+      "upgradeJobs": {
+        "R27_CP06": 124643339070,
+        "R27_CP16": 124643339138,
+        "OFFICIAL_CP06": 124642458923,
+        "OFFICIAL_CP16": 124642458954
+      },
+      "fourDrills": "PASS_ON_SOURCE103_NOT_SUBSTITUTED_FOR_FINAL106"
+    }
+  ],
+  "realAndroidFailures": [
+    {
+      "version": 105,
+      "run": 41238380139,
+      "job": 124646860186,
+      "passedJUnitCases": 11,
+      "failure": "Original DbStore writer missing original r974_exact_real_receipt because synthetic Fixture omitted original full migration"
+    },
+    {
+      "version": 106,
+      "run": 41238898875,
+      "job": 124648425017,
+      "passedJUnitCases": 11,
+      "frameworkReceiverCastRegression": "PASS_ORIGINAL_EXPLICIT_ORDERED_BROADCAST",
+      "failure": "Same omitted original receipt domain; original full migration now initialized in test setup"
     }
   ]
 }
