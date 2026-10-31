@@ -54,13 +54,13 @@ public final class R30ChartsAndroidTest {
                 ChartsActivityR83 activity=(ChartsActivityR83)instrumentation.startActivitySync(new Intent(context,ChartsActivityR83.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 try{
                     long deadline=SystemClock.elapsedRealtime()+20_000;AtomicInteger count=new AtomicInteger();
-                    do{instrumentation.runOnMainSync(()->count.set(cards(activity).getChildCount()));if(count.get()>=17)break;SystemClock.sleep(100);}while(SystemClock.elapsedRealtime()<deadline);
-                    assertTrue("actual chart Activity did not render "+scenario,count.get()>=17);
-                    for(int index=1;index<=16;index++){
-                        final int child=index;instrumentation.runOnMainSync(()->{LinearLayout list=cards(activity);View card=list.getChildAt(child);((ScrollView)list.getParent()).scrollTo(0,card.getTop());});
+                    do{instrumentation.runOnMainSync(()->count.set(cards(activity).getChildCount()));if(count.get()==16)break;SystemClock.sleep(100);}while(SystemClock.elapsedRealtime()<deadline);
+                    assertEquals("actual chart Activity must render all fourteen legacy and two new panels in "+scenario,16,count.get());
+                    for(int index=0;index<16;index++){
+                        final int child=index;instrumentation.runOnMainSync(()->{LinearLayout list=cards(activity);View card=list.getChildAt(child);assertTrue("each panel must render its actual card, not an error fallback",card instanceof LinearLayout);((ScrollView)list.getParent()).scrollTo(0,card.getTop());});
                         instrumentation.waitForIdleSync();SystemClock.sleep(150);
                         Bitmap bitmap=instrumentation.getUiAutomation().takeScreenshot();assertNotNull("screenshot "+scenario+index,bitmap);
-                        try(OutputStream stream=new FileOutputStream(new File(output,String.format(Locale.ROOT,"%s-%02d.png",scenario,index)))){assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,stream));}finally{bitmap.recycle();}saved++;
+                        try(OutputStream stream=new FileOutputStream(new File(output,String.format(Locale.ROOT,"%s-%02d.png",scenario,index+1)))){assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,stream));}finally{bitmap.recycle();}saved++;
                     }
                 }finally{instrumentation.runOnMainSync(activity::finish);instrumentation.waitForIdleSync();}
             }
