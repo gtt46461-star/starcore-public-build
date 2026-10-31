@@ -1,12 +1,12 @@
 {
   "revision": "R967_SEMANTIC_BUILD_V1",
-  "training_rule_sha256": "eb3808f3745cb5a8a22dae4fd71ede4d4a3c65f40ef8799f410e6b9aa1c730b5",
+  "training_rule_sha256": "f3e5d094eb8a16b3a14d7e611eb245c56a9f36e70acc223c0da7fb4e5e9b15d2",
   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
-  "manifest_sha256": "b963712fd9c736bc5c0769990169a9bd011aae3d902cbc2a5049b7ffed1b5e65",
-  "controlled_file_count": 1354,
-  "numeric_dependency_count": 1233,
-  "source_provenance_sha256": "4b823a66fbfaf9d7af63e74b08a38dce3754d62151f0dfd9f08daabbeb73600e",
+  "manifest_sha256": "06f02f8eb13078a66661bb513ca702d3735c22a62b299f65db4aa36a17695f3a",
+  "controlled_file_count": 1355,
+  "numeric_dependency_count": 1234,
+  "source_provenance_sha256": "efe81135c7b850e12f627f0e77e502d0291457a994fb5b12111f1ef3146b5214",
   "dependencies": [
     [
       "app/build.gradle",
@@ -1081,7 +1081,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
       "NUMERIC",
-      "4a6e504c66ccc01f6a80a9c3fe36f2b04a20374771bf849d205df66b764b09f3"
+      "c5df9b64e3a442ac0068a08f6633e3ac546a068bf6863688c019ad1073094651"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/DatabaseHealthActivity.java",
@@ -6054,6 +6054,11 @@
       "43dd46aee4c608dff7a0a6bc6c61457881ff11d36e49d66605d609dc220bb992"
     ],
     [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java",
+      "NUMERIC",
+      "799bb643c746f70f075b331b80256a487de62203510dc957cac7b84f11096965"
+    ],
+    [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/XiIncumbentSU2.java",
       "NUMERIC",
       "b533db11789fa92c65a122358b4eb1145cab17ca9f2ce02a01175567aefa056b"
@@ -6176,6 +6181,6 @@
   ],
   "compatible_predecessor_rule_sha256": "",
   "compatible_predecessor_rules_sha256": [],
-  "continuation_proof_sha256": "62c3e3bd0c8ff32788fb0199aae3fbaea52fe0b84ee904c5f1991f8a4018cdc8",
+  "continuation_proof_sha256": "458e613e53295f06a7077ed303d1526588d420425526199ce07dd1c5d02ca22b",
   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
 }

@@ -666,13 +666,19 @@ public final class DatabaseCoordinator {
                     if (!opR909.startsWith("R927_RESOURCE")) RuntimeResourceAuditR927.checkpoint("DB_LOCK_ACQUIRED");
                     if (backgroundR909) ResearchWorkBudgetR927.checkpoint();
                     long bodyStartedR927 = TimeSourceR811.monoNowMs();
+                    boolean bodyCommittedR30 = false;
                     try {
                         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(writable());
                         T result = task.call(writable());
                         recordSuccess(operation, started);
+                        bodyCommittedR30 = true;
                         return result;
                     } finally {
-                        RuntimeResourceAuditR927.dbBody(TimeSourceR811.monoNowMs()-bodyStartedR927, backgroundR909);
+                        long bodyMsR30 = TimeSourceR811.monoNowMs()-bodyStartedR927;
+                        RuntimeResourceAuditR927.dbBody(bodyMsR30, backgroundR909);
+                        // R30-B01-01: hold/wait ledger for every sole-writer use. Never throws.
+                        if (!reentrantWriterR914) com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(
+                                opR909, criticalBusinessR914, lastDbLockWaitMs, bodyMsR30, !bodyCommittedR30);
                     }
                 } catch (RuntimeResourceAuditR927.BudgetExceeded deadlineR927) {
                     throw deadlineR927;
