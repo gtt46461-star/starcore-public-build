@@ -122,7 +122,15 @@ public final class FrozenConfirmationR30HostTest {
             try { FrozenConfirmationStoreR30.evidence(db,(op,b)->commit(c,db,b)).load(original,original.champion);throw new AssertionError("CORRUPT_TRACE_ACCEPTED"); }
             catch(IllegalStateException expected){require(expected.getMessage().equals("R30_CONFIRM_TRACE_CORRUPT"),"WRONG_CORRUPTION_FAILURE");}
             db.execSQL("UPDATE r30_confirm_trace SET trace_json=? WHERE experiment_id=?",new Object[]{raw,original.champion.experimentId});
-            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|PASS");
+            // Synthetic FUTURE positive control exercises the real state string and persisted report counter.
+            SequentialQualificationR27.State qualified=StoreR27.readEprocess(db,original.champion.policyHash);
+            for(long t=1;t<=5000&&SequentialQualificationR27.ACCUMULATING.equals(qualified.state);t++)qualified.observe(t,true,true);
+            require(SequentialQualificationR27.QUALIFIED.equals(qualified.state),"SYNTHETIC_FUTURE_CONTROL_DID_NOT_QUALIFY");
+            ResearchWriteQueueR27.Batch future=new ResearchWriteQueueR27.Batch();StoreR27.writeEprocess(future,qualified,-1);commit(c,db,future);
+            ResearchWriteQueueR27.Batch qualifiedReport=new ResearchWriteQueueR27.Batch();FrozenConfirmationStoreR30.generationReport(qualifiedReport,db,0,original,result);commit(c,db,qualifiedReport);
+            Map<?,?> generated=(Map<?,?>)JsonR27.parse(text(c,"SELECT detail_json FROM r27_generation WHERE generation=0"));
+            require(((Number)((Map<?,?>)generated.get("counters")).get("prospectiveQualified")).longValue()==1,"ACTUAL_QUALIFIED_STATE_NOT_COUNTED");
+            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|PASS");
         }
     }
     static void child(String mode,Path database)throws Exception{

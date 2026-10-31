@@ -313,9 +313,16 @@ public final class R27QualityTest {
         assertEquals(1000, l.controlExposures(7));
         for (int i = 0; i <= HoldoutLedgerR27.MAX_DISTINCT_LOOKS; i++) l.look(7, "champion-" + i);
         assertTrue("main-line looks still spend the budget", l.degraded(7));
-        String evo = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java").toPath()), "UTF-8");
-        assertTrue(evo.contains("look(i00Champion, i00Tau, null, true)"));
-        assertTrue(evo.contains("nullEvolution.labels(ctx.cache, sp), true)"));
+        // R30-B05-01 moves all actual looks outside evolution; exercise that production evaluator directly.
+        EvolutionLoopR27 loop = R30EvolutionConfirmIntegrationTest.evolution(); loop.cfg.nullControl = true;
+        loop.i00Champion = loop.champion; loop.i00Tau = 1;
+        loop.nullEvolution.champion = loop.champion; loop.nullEvolution.championTau = 1; loop.nullEvolution.lastSeed = 17;
+        loop.stepHoldout();
+        FrozenConfirmationR30.evaluate(loop.pendingConfirmation,loop.context(),loop.ledger(),new R30EvolutionConfirmIntegrationTest.MemoryEvidence());
+        long block = loop.context().split.holdoutBlock;
+        assertEquals("only the main candidate spends the main budget",1,loop.ledger().exposures(block));
+        assertEquals("both frozen controls keep their own experiment identities",2,loop.ledger().controlExposures(block));
+        assertFalse(loop.ledger().degraded(block));
         String frame = new String(Files.readAllBytes(new File(R27TestSupport.root(), "app/src/main/java/com/ethk3/novaonepro/strategyv2/EventFrameBuilderSU1.java").toPath()), "UTF-8");
         assertTrue("SU1 frames use the newest contiguous run", frame.contains("pit=pit.newestContiguous();pit.requireConsecutive();"));
         R27TestSupport.log("R27_3_HOLDOUT_BUDGET_PASS");

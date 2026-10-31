@@ -113,7 +113,8 @@ public final class RuntimeR27 implements AutoCloseable {
                 b.before = db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; };
             }
             submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
-            if (stepBefore == 9) { refreshObservers(w, loop); registerConfirmed(w,loop.cfg.liveCap); }
+            if (stepBefore == 9) refreshObservers(w, loop);
+            if (stepBefore == 9) registerConfirmed(w,loop.cfg.liveCap);
             if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
             return ResearchPoolR27.Outcome.progress(1, (long) loop.generation * 10 + loop.step);
         }

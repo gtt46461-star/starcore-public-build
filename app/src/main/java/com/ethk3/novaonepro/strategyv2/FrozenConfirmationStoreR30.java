@@ -164,7 +164,10 @@ public final class FrozenConfirmationStoreR30 {
         try (Cursor c = ro.rawQuery("SELECT count(*) FROM r30_frozen_confirm WHERE verified=1 OR (task_key=? AND ?=1)",new String[]{task.key,result.verified ? "1" : "0"})) {
             if (c.moveToFirst()) counters.put("verifiedImprovements",c.getLong(0));
         }
-        counters.put("prospectiveQualified",count(ro,"SELECT count(*) FROM r27_eprocess WHERE state='QUALIFIED'")); record.put("counters",counters);
+        try (Cursor c = ro.rawQuery("SELECT count(*) FROM r27_eprocess WHERE state=?",new String[]{SequentialQualificationR27.QUALIFIED})) {
+            if (c.moveToFirst()) counters.put("prospectiveQualified",c.getLong(0));
+        }
+        record.put("counters",counters);
         batch.add("UPDATE r27_generation SET champion_holdout_hr=?,prev_champion_holdout_hr=?,null_champion_holdout_hr=?,i00_champion_holdout_hr=?,paired_lcb=?,verified=?,detail_json=? WHERE loop=? AND generation=? AND dataset_hash=?",
                 StoreR27.EvolutionSink.holdHr(holdout,"championHoldout"),StoreR27.EvolutionSink.holdHr(holdout,"previousHoldout"),StoreR27.EvolutionSink.holdHr(holdout,"nullHoldout"),StoreR27.EvolutionSink.holdHr(holdout,"i00Holdout"),
                 holdout.get("pairedLcbVsPrevious"),Boolean.TRUE.equals(holdout.get("verified")) ? 1 : 0,JsonR27.write(record),RuntimeR27.LOOP,generation,task.datasetHash);
