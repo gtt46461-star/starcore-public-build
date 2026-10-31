@@ -1,3 +1,5 @@
+> **当前最终施工入口已更新为 [STARCORE R30](CURRENT_FINAL_PLAN.md)（2026-10-31，12批/57卡，基线 CP06 bb607cf）。下文为历史入口。**
+
 # STARCORE 当前最终施工入口
 
 请只执行[STARCORE R28 最终施工方案](construction/plans/STARCORE_R28_FINAL_20261029/README.md)（2026-10-29）。先读 README 第1节结论、`docs/01` 胜率真相与 `docs/02` 各功能效果诊断表，再按 `docs/08` 的 42 卡、8 批施工；先完成 B1（数据库拆分与实时链）+ B2（退役旧研究链），这是最小可见里程碑。验收只看 `docs/09` 的 43 项指标在真机报告 R28-03 章的结果。

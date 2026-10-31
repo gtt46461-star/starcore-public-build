@@ -1,0 +1,164 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.ReleaseManifestR926;
+import org.json.*;
+import java.util.*;
+
+/** Forty explicit result envelopes from the frozen report DB; missing evidence is never PASS. */
+public final class RuntimeReportR26 {
+    private RuntimeReportR26() {}
+    private static final String[][] SECTIONS={
+        {"IDENTITY","版本与原件"},
+        {"REQUIREMENTS","历史要求保全"},
+        {"DATA","开奖与缺口"},
+        {"OPPORTUNITY","全期机会与覆盖"},
+        {"FETCH","抓取时序"},
+        {"SETTLEMENT","正式结算"},
+        {"FREEZE","赛前冻结与延后证据"},
+        {"AUTHORITY","主链资格与REAL"},
+        {"ATOMS","原子世界"},
+        {"FAMILIES","24家族"},
+        {"EXPERTS","16专家"},
+        {"TRAINING","持续训练与恢复"},
+        {"EVOLUTION","代际与谱系"},
+        {"FAILURES","原九类失败树"},
+        {"ABLATION","消融与冲突"},
+        {"EVIDENCE","历史与自然证据"},
+        {"CALIBRATION","概率与校准"},
+        {"RANKING","Rank1/2/3"},
+        {"ACTION_SURFACE","100面与1200动作"},
+        {"OWNER","Owner红线"},
+        {"PERFORMANCE","资源与时延"},
+        {"BACKGROUND","后台与活性"},
+        {"RETENTION","淘汰与磁盘"},
+        {"RECOVERY","异常与恢复"},
+        {"UI","界面与排行"},
+        {"SOURCE","源码审计覆盖"},
+        {"DEVICE","真机矩阵"},
+        {"CONCLUSION","目标差距和修复"},
+        {"POLICY_IDENTITY","政策更新身份"},
+        {"AVAILABILITY","数据可见时间"},
+        {"EXPERIMENT_LEDGER","研究实验总账"},
+        {"TEST_BUDGET","检验预算"},
+        {"PUBLICATION_RECOVERY","发布恢复"},
+        {"BUILD_IDENTITY","构建物身份"},
+        {"SUPPLY_CHAIN","供应链清单"},
+        {"SLO_BUDGET","SLO误差预算"},
+        {"MERGE","双方案覆盖与冲突"},
+        {"CONTINUOUS_RUNTIME","持续运行与调度"},
+        {"FAIR_CAPABILITY_SERVICE","全家族专家防饥饿"},
+        {"LOSSLESS_IDENTITY","无损身份与缺陷回归"}
+    };
+    private static JSONArray rows(SQLiteDatabase db,String sql)throws JSONException {
+        JSONArray out=new JSONArray();try(Cursor c=db.rawQuery(sql,null)){while(out.length()<64&&c.moveToNext()){
+            if(Thread.currentThread().isInterrupted())throw new IllegalStateException("REPORT_CANCELLED");
+            JSONObject row=new JSONObject();for(int i=0;i<c.getColumnCount();i++){Object v=c.isNull(i)?JSONObject.NULL:c.getType(i)==Cursor.FIELD_TYPE_INTEGER?c.getLong(i):c.getType(i)==Cursor.FIELD_TYPE_FLOAT?c.getDouble(i):c.getString(i);row.put(c.getColumnName(i),v);}out.put(row);
+        }}return out;
+    }
+    private static String query(String id){switch(id){
+        case "CONTINUOUS_RUNTIME":case "BACKGROUND":return "SELECT task_id,lane,cursor,status,blocked_reason,last_progress,steps,last_cpu_ms FROM r26_task ORDER BY task_id";
+        case "TRAINING":case "PUBLICATION_RECOVERY":return "SELECT campaign_id,policy_hash,cursor,dev_n,dev_k,val_n,val_k,status FROM r26_candidate ORDER BY campaign_id,policy_hash";
+        case "FAMILIES":return "SELECT * FROM r26_capability WHERE kind='FAMILY' ORDER BY mechanism";
+        case "EXPERTS":return "SELECT cap.mechanism AS expert_id,cap.state AS capability_state,cap.last_progress,e.experiment_id,a.audit_id,e.campaign_id,coalesce(e.cursor,0) AS cursor,CASE WHEN e.experiment_id IS NOT NULL THEN e.status WHEN a.audit_id IS NOT NULL THEN 'AUDIT' ELSE 'UNSERVED' END AS status,e.proposal_json,e.result_json,a.receipt_json FROM r26_capability cap LEFT JOIN r26_expert_experiment e ON e.rowid=(SELECT x.rowid FROM r26_expert_experiment x WHERE x.expert_id=cap.mechanism ORDER BY x.created_at DESC,x.experiment_id DESC LIMIT 1) LEFT JOIN r26_expert_audit a ON a.rowid=(SELECT x.rowid FROM r26_expert_audit x WHERE x.expert_id=cap.mechanism ORDER BY x.recorded_at DESC,x.audit_id DESC LIMIT 1) WHERE cap.kind='EXPERT' ORDER BY cap.mechanism";
+        case "FAIR_CAPABILITY_SERVICE":return "SELECT * FROM r26_capability ORDER BY mechanism";
+        case "EVOLUTION":return "SELECT count(*) attempts,count(DISTINCT policy_hash) uniquePolicies,sum(category='STRUCTURAL_CANDIDATE') structuralCandidates,sum(behavior_novel) behaviorNovel,sum(research_accepted) researchAccepted,sum(prospective_qualified) prospectiveQualified,sum(verified_improvement) verifiedImprovements FROM r26_evolution";
+        case "EXPERIMENT_LEDGER":return "SELECT campaign_id,snapshot_hash,source_through,status,created_at FROM r26_foundry ORDER BY created_at";
+        case "TEST_BUDGET":return "SELECT genome_key,cohort,evidence_digest,look,family_alpha FROM r26_look ORDER BY genome_key,look";
+        case "EVIDENCE":return "SELECT q.*,a.through_ordinal AS aggregate_through FROM r26_cohort q LEFT JOIN r26_evidence_cursor a ON a.policy_hash=q.genome_key ORDER BY q.genome_key";
+        case "CALIBRATION":case "AUTHORITY":return "SELECT * FROM r26_qualification_result ORDER BY checked_at DESC";
+        case "RETENTION":return "SELECT * FROM r26_storage_measurement ORDER BY kind";
+        case "FREEZE":return "SELECT policy_hash,count(*) frozen,min(target_ordinal) first_target,max(target_ordinal) last_target,sum(input_through>=target_ordinal OR frozen_at>=deadline_at) invalid FROM r26_frozen GROUP BY policy_hash";
+        case "RECOVERY":return "SELECT policy_hash,source_hash,parent_hash,trained_through,created_at FROM r26_checkpoint_artifact ORDER BY created_at DESC";
+        case "SETTLEMENT":return "SELECT count(*) event_count,min(issue_ordinal) first_ordinal,max(issue_ordinal) last_ordinal FROM r26_feedback";
+        case "PERFORMANCE":case "SLO_BUDGET":return "SELECT task_id,count(*) slices,sum(cpu_ms) cpu_ms,max(cpu_ms) max_cpu_ms,sum(blocked_reason LIKE 'CAPACITY_FAIL%') capacity_fail FROM r26_progress GROUP BY task_id";
+        case "POLICY_IDENTITY":return "SELECT policy_hash,canonical_text,parent,operation FROM r26_candidate ORDER BY policy_hash";
+        case "LOSSLESS_IDENTITY":return "SELECT policy_hash,canonical_policy,numerical_abi,created_at FROM r26_policy_identity ORDER BY policy_hash";
+        default:return null;
+    }}
+    public static String json(SQLiteDatabase db){return json(db,new JSONObject());}
+    private static JSONObject facts(SQLiteDatabase db)throws JSONException {
+        JSONObject facts=new JSONObject();if(!RuntimeSchemaR26.ready(db))return facts;
+        try(Cursor present=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_capability_source'",null)){if(present.moveToFirst())try(Cursor binding=db.rawQuery("SELECT numerical_abi FROM r26_capability_source WHERE singleton=1",null)){if(binding.moveToFirst())facts.put("capabilityNumericalAbi",binding.getString(0));}}
+        facts.put("serviceTotals",ServiceTotalsR26.snapshot(db));
+        try(Cursor installed=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='r26_training_step'",null)){if(installed.moveToFirst()){
+            boolean statistics=StatisticalTrainingStepStoreR26.installed(db);
+            facts.put("trainingStepDiagnostics",rows(db,statistics?StatisticalTrainingStepStoreR26.reportRows():"SELECT policy_hash,campaign_id,sample_ordinal,member_key,source_hash,source_kind,kernel_update,loss_before,loss_after,gradient_norm,parameter_delta_norm,input_hash,objective,before_state_hash,after_state_hash,gap_reset,optimizer,scope,batch_checkpoint,receipt_hash FROM r26_training_step ORDER BY rowid DESC LIMIT 64"));
+            JSONObject summary=new JSONObject().put("scope","Measured gradient or sufficient-statistic kernels only; other kernels are not inferred. Combined last8192 update details; folded counts are events, not qualification. Statistical updates have no fabricated gradient.");
+            String measured="SELECT policy_hash,campaign_id,sample_ordinal FROM r26_training_step"+(statistics?" UNION ALL SELECT policy_hash,campaign_id,sample_ordinal FROM "+StatisticalTrainingStepStoreR26.TABLE:"");
+            try(Cursor c=db.rawQuery("SELECT count(*) FROM ("+measured+")",null)){if(c.moveToFirst())summary.put("retainedKernelUpdates",c.getLong(0));}
+            try(Cursor c=db.rawQuery("SELECT count(*) FROM (SELECT policy_hash,campaign_id,sample_ordinal FROM ("+measured+") GROUP BY policy_hash,campaign_id,sample_ordinal)",null)){if(c.moveToFirst())summary.put("retainedPolicySamples",c.getLong(0));}
+            try(Cursor c=db.rawQuery("SELECT coalesce(sum(folded),0) FROM r26_retention_total WHERE kind IN ('training_step_details','statistic_training_step_details')",null)){summary.put("omittedOldUpdateDetails",c.moveToFirst()?c.getLong(0):0);}facts.put("trainingStepSummary",summary);
+        }}
+        facts.put("sessions",rows(db,"SELECT * FROM r26_session ORDER BY heartbeat DESC,session_id LIMIT 32"));
+        facts.put("tasks",rows(db,"SELECT task_id,lane,cursor,status,last_progress,last_cpu_ms,last_served,next_at,blocked_reason FROM r26_task ORDER BY task_id"));
+        List<Long> cpu=new ArrayList<>();long total=0,first=Long.MAX_VALUE,last=0;
+        try(Cursor c=db.rawQuery("SELECT cpu_ms,recorded_at FROM r26_progress ORDER BY receipt_id DESC LIMIT 4096",null)){while(c.moveToNext()){long ms=c.getLong(0);if(ms<0)throw new IllegalStateException("REPORT_NEGATIVE_CPU_RECEIPT");cpu.add(ms);total=Math.addExact(total,ms);first=Math.min(first,c.getLong(1));last=Math.max(last,c.getLong(1));}}
+        Collections.sort(cpu);JSONObject performance=new JSONObject().put("metric","RESEARCH_SLICE_CPU_MS").put("n",cpu.size()).put("cpuTotalMs",total).put("window",new JSONObject().put("selection","LAST_4096_PERSISTED_RESEARCH_SLICE_RECEIPTS").put("firstRecordedAt",cpu.isEmpty()?JSONObject.NULL:first).put("lastRecordedAt",cpu.isEmpty()?JSONObject.NULL:last)).put("scope","Retained research task CPU including owned numerical workers; receipts may span sessions/source versions and do not record per-slice device/ABI; not P0 elapsed, writer wait, resume latency or a device SLO acceptance");
+        if(!cpu.isEmpty())performance.put("P50",cpu.get((int)Math.ceil(cpu.size()*.50)-1)).put("P95",cpu.get((int)Math.ceil(cpu.size()*.95)-1)).put("P99",cpu.get((int)Math.ceil(cpu.size()*.99)-1)).put("max",cpu.get(cpu.size()-1));facts.put("performance",performance);
+        try(Cursor c=db.rawQuery("SELECT 1 FROM sqlite_master WHERE type='table' AND name='draws'",null)){if(c.moveToFirst())try(Cursor d=db.rawQuery("SELECT issue FROM draws ORDER BY issue DESC LIMIT 1",null)){if(d.moveToFirst())facts.put("asOfIssue",d.getString(0));}}
+        JSONArray never=new JSONArray();try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability WHERE last_progress=0 ORDER BY mechanism",null)){while(c.moveToNext())never.put(new JSONObject().put("mechanism",c.getString(0)).put("state",c.getString(1)).put("reason",c.getString(2)));}facts.put("neverProgressed",never);return facts;
+    }
+    public static String json(SQLiteDatabase db,JSONObject source){try{
+        long start=System.nanoTime();JSONObject root=new JSONObject();root.put("schema","R26_REPORT_2");root.put("metricRegistrySha256",ReportMetricContractR26.REGISTRY_SHA256);root.put("snapshotHash",source.opt("snapshotSha256"));root.put("sourceCommit",source.opt("sourceCommit"));root.put("apkHash",source.opt("apkSha256"));root.put("overallAcceptance","INCOMPLETE");root.put("naturalQuality","INSUFFICIENT");root.put("physicalDevice","NOT_RUN");JSONArray sections=new JSONArray();
+        JSONObject facts=new JSONObject();try{facts=facts(db);}catch(Exception error){root.put("captureFactsError",error.toString());}
+        if(RuntimeSchemaR26.ready(db))try{root.put("strategyAssessment",StrategyAssessmentR26.snapshot(db));}catch(Exception error){root.put("strategyAssessmentError",error.toString());}
+        if(facts.has("serviceTotals"))root.put("committedResearchService",facts.get("serviceTotals"));
+        // R27-051/052: four automatic chapters, inserted right after the first chapter.
+        JSONArray r27Chapters=new JSONArray();JSONObject r27Truth=null;
+        if(SchemaR27.ready(db))try{for(Map<String,Object> chapter:ReportDataR27.chapters(db)){JSONObject x=new JSONObject(JsonR27.write(chapter));if(r27Truth==null)r27Truth=x;r27Chapters.put(x);}}catch(Exception error){root.put("r27ChaptersError",error.toString());}
+        else{for(String[] r27:new String[][]{{"R27_01_WIN_RATE_TRUTH","胜率真相与差距"},{"R27_02_EVOLUTION_TRUTH","进化真实性"},{"R27_03_CONTINUOUS_RUNTIME","持续运行与饥饿"},{"R27_04_UPGRADE_CONTINUITY","升级连续性"}})r27Chapters.put(new JSONObject().put("sectionId",r27[0]).put("title",r27[1]).put("status","INSUFFICIENT").put("reason","R27 schema not initialised in this capture"));}
+        root.put("r27Schema",ReportR27.SCHEMA);
+        for(String[] spec:SECTIONS){long chapterStart=System.nanoTime();JSONObject s=new JSONObject();s.put("sectionId",spec[0]);s.put("title",spec[1]);s.put("schemaVersion","R26_REPORT_2");s.put("evidenceLevel","ANDROID_DATABASE_SNAPSHOT");s.put("sourceSnapshotId",source.opt("snapshotSha256")==null?JSONObject.NULL:source.get("snapshotSha256"));s.put("sourceCommit",source.opt("sourceCommit")==null?JSONObject.NULL:source.get("sourceCommit"));s.put("apkHash",source.opt("apkSha256")==null?JSONObject.NULL:source.get("apkSha256"));s.put("asOfIssue",facts.opt("asOfIssue")==null?JSONObject.NULL:facts.get("asOfIssue"));s.put("policyHash",JSONObject.NULL);s.put("metricDefinition","Persisted receipts; history selection and natural qualification remain separate");s.put("repairCardIds",new JSONArray());s.put("evidenceRefs",new JSONArray().put("catalog/").put("UPGRADE_DIAGNOSIS.json"));s.put("truncated",false);s.put("errorChain",new JSONArray());
+            String sql=query(spec[0]);boolean r27Source=sql==null&&ReportDataR27.query(spec[0])!=null&&SchemaR27.ready(db);if(r27Source)sql=ReportDataR27.query(spec[0]);
+            JSONArray data=new JSONArray();long expectedRows=0;String status="NOT_RUN",reason="Full chapter acceptance evidence has not been collected; existing report catalog is retained";
+            if(spec[0].equals("DEVICE"))reason=ReportDataR27.DEVICE_REASON;
+            if(sql!=null&&RuntimeSchemaR26.ready(db))try{try(Cursor count=db.rawQuery("SELECT count(*) FROM ("+sql+")",null)){if(count.moveToFirst())expectedRows=count.getLong(0);}data=rows(db,sql);status="PARTIAL";reason="Actual persisted records exported; mechanism, latency and natural-quality criteria require separate validation";}catch(Exception e){status="ERROR";reason=e.toString();JSONArray chain=new JSONArray();for(Throwable x=e;x!=null;x=x.getCause())chain.put(x.getClass().getName()+":"+x.getMessage());s.put("errorChain",chain);}
+            if(r27Source&&status.equals("PARTIAL")&&data.length()==0){status="INSUFFICIENT";reason="R27 data source is empty for this capture: "+sql;}
+            if(spec[0].equals("CONCLUSION")&&r27Truth!=null){status="PARTIAL";reason="R27-01 data-selected conclusion template plus separate engineering/quality/mainline flags; never PASS";data.put(new JSONObject().put("conclusionTemplate",r27Truth.opt("conclusionTemplate")).put("conclusion",r27Truth.opt("conclusion")).put("engineeringPass",false).put("qualityPass",false).put("mainlinePass",false).put("reading","engineering/quality/mainline/device are signed separately (docs/12 12.4)"));}
+            s.put("status",status);s.put("reason",reason);s.put("denominator",data.length());s.put("expectedRows",spec[0].equals("FAMILIES")?24:spec[0].equals("EXPERTS")?16:spec[0].equals("FAIR_CAPABILITY_SERVICE")?40:expectedRows);s.put("availableRows",expectedRows);s.put("exportedRows",data.length());s.put("omittedRows",Math.max(0,expectedRows-data.length()));boolean inventory=spec[0].equals("FAMILIES")||spec[0].equals("EXPERTS")||spec[0].equals("FAIR_CAPABILITY_SERVICE");s.put("missingInventoryRows",inventory?Math.max(0,s.getLong("expectedRows")-expectedRows):0);s.put("unexpectedInventoryRows",inventory?Math.max(0,expectedRows-s.getLong("expectedRows")):0);s.put("truncated",s.getLong("omittedRows")>0);s.put("metrics",data);s.put("requiredMetrics",new JSONArray(ReportMetricContractR26.metrics(spec[0])));if(spec[0].equals("FAMILIES")||spec[0].equals("EXPERTS")||spec[0].equals("FAIR_CAPABILITY_SERVICE")){s.put("capabilityNumericalAbi",facts.opt("capabilityNumericalAbi")==null?JSONObject.NULL:facts.get("capabilityNumericalAbi"));s.put("capabilityMatchesCaptureRule",!facts.has("capabilityNumericalAbi")||source.isNull("generatedRuleSha256")?JSONObject.NULL:facts.getString("capabilityNumericalAbi").equals(source.optString("generatedRuleSha256")));}s.put("metricResults",metricResults(spec[0],data,source,facts));if(spec[0].equals("EXPERTS"))s.put("rowGranularity","ONE_REGISTERED_EXPERT_WITH_LATEST_EXPERIMENT_AND_AUDIT; full history remains in SQLite snapshot");if((spec[0].equals("PERFORMANCE")||spec[0].equals("SLO_BUDGET"))&&facts.has("performance")){s.put("measurementPopulation","RESEARCH_SLICE_CPU_MS");s.put("metricDefinition",facts.getJSONObject("performance").getString("scope"));}s.put("elapsedMs",(System.nanoTime()-chapterStart)/1000000);sections.put(s);if(spec[0].equals("IDENTITY"))for(int r=0;r<r27Chapters.length();r++)sections.put(r27Chapters.get(r));
+        }root.put("sections",sections);root.put("expectedSections",40+r27Chapters.length());root.put("exportedSections",sections.length());root.put("independentOpportunitiesAreNotActionCount",true);return root.toString(2);
+    }catch(JSONException e){throw new IllegalStateException("R26_REPORT_ENVELOPE",e);}}
+    /** Each required metric has an explicit value or named missing-evidence state; no omitted contract fields. */
+    private static JSONObject metricResults(String id,JSONArray rows,JSONObject source,JSONObject facts)throws JSONException {
+        Map<String,Object> values=new HashMap<>();Map<String,String> definitions=new HashMap<>();String ref="R26_REPORT.json#"+id;
+        if(id.equals("IDENTITY")){
+            for(String[] field:new String[][]{{"repoCommit","sourceCommit"},{"generatedHash","generatedRuleSha256"},{"apkHash","apkSha256"},{"snapshotHash","snapshotSha256"}})if(source.has(field[1]))values.put(field[0],source.get(field[1]));
+            values.put("exportedAt",System.currentTimeMillis());definitions.put("exportedAt","Report rendering wall time, distinct from the frozen database snapshot time");
+        }else if(id.equals("BUILD_IDENTITY")){
+            for(String[] field:new String[][]{{"checkout","sourceCommit"},{"tree","sourceTreeSha256"},{"generated","generatedRuleSha256"},{"apk","apkSha256"},{"signature","signingCertificateSha256"}})if(source.has(field[1]))values.put(field[0],source.get(field[1]));
+            values.put("applicationId",ReleaseManifestR926.APPLICATION_ID);values.put("versionCode",ReleaseManifestR926.VERSION_CODE);
+        }else if(id.equals("FAMILIES")){values.put("mechanism",rows);values.put("codeHash",com.ethk3.novaonepro.ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);definitions.put("codeHash","Closed numerical ABI of the compiled family implementation set; not a per-family decisive experiment");values.put("status",rows);}
+        else if(id.equals("EXPERTS")){for(String metric:new String[]{"task","proposal","ASTdiff","falsifier","experiment","acceptedReason"}){JSONArray evidence=new JSONArray();for(int i=0;i<rows.length();i++){JSONObject row=rows.getJSONObject(i);JSONObject proposal;try{proposal=new JSONObject(row.optString("proposal_json","{}"));}catch(JSONException malformed){proposal=new JSONObject().put("status","ERROR").put("reason",malformed.toString()).put("rawEvidenceRef","r26_expert_experiment.proposal_json");}Object value=metric.equals("task")?row.opt("expert_id"):metric.equals("experiment")?row.opt("experiment_id"):metric.equals("proposal")?proposal:metric.equals("ASTdiff")?proposal.opt("typedDiff"):metric.equals("falsifier")?proposal.opt("falsifier"):row.opt("result_json");if(value!=null&&value!=JSONObject.NULL)evidence.put(new JSONObject().put("expert",row.opt("expert_id")).put("value",value));}if(evidence.length()>0)values.put(metric,evidence);}}
+        else if(id.equals("FREEZE")){values.put("hash",rows);definitions.put("hash","Frozen checkpoint/source records; exact 100-cell/1200-action event is R26_FROZEN_SURFACE.json");ref="R26_FROZEN_SURFACE.json";}
+        else if(id.equals("EVOLUTION")&&rows.length()>0){JSONObject row=rows.getJSONObject(0);for(String[] f:new String[][]{{"attempted","attempts"},{"structural","structuralCandidates"},{"research","researchAccepted"},{"verified","verifiedImprovements"}})if(row.has(f[1]))values.put(f[0],row.get(f[1]));}
+        else if(id.equals("TRAINING")&&facts.has("trainingStepDiagnostics")){
+            JSONArray steps=facts.getJSONArray("trainingStepDiagnostics");if(steps.length()>0){values.put("labelsConsumed",facts.get("trainingStepSummary"));for(String metric:new String[]{"weightDelta","optimizer","checkpoint","CAS","lag"})values.put(metric,steps);}
+            definitions.put("labelsConsumed","Retained policy/source sample counts only for measured kernels; folded details are update events, not distinct labels or future quality");definitions.put("weightDelta","Measured parameter L2 delta and either an objective gradient or named sufficient-statistic change on the same frozen pre-label input. Statistical rows explicitly report gradient as not applicable, never zero; each objective names its coordinates and joint/marginal loss. No monotone-descent or deployment-quality claim");definitions.put("optimizer","Executed kernel update protocol and declared counter provenance: known lifetime, legacy lower bound or updates since import; full slots/statistics reside in its complete checkpoint");definitions.put("checkpoint","Per-sample before/after state hash commitments bound to the actual committed batch manifest; superseded historical files may expire under checkpoint retention");definitions.put("CAS","These immutable rows commit in the same fenced candidate/live/expert CAS transaction as their batch manifest; no independent authority is granted");definitions.put("lag","Measured per-update gap_reset flag; no fabricated adjacent transition across unknown labels");
+        }
+        else if(id.equals("CALIBRATION")){JSONArray ece=new JSONArray(),matched=new JSONArray();for(int i=0;i<rows.length();i++){JSONObject row=rows.getJSONObject(i);ece.put(new JSONObject().put("policyHash",row.opt("policy_hash")).put("fitActs",row.opt("fit_acts")).put("validationActs",row.opt("validation_acts")).put("value",row.opt("ece")).put("state",row.opt("reason")));matched.put(new JSONObject().put("policyHash",row.opt("policy_hash")).put("pairedLower",row.opt("paired_lower")));}if(rows.length()>0){values.put("ECE",ece);values.put("matchedBaseline",matched);}values.put("bins",EvidenceBlockR26.BINS);definitions.put("bins","Preregistered raw selected-ACT probability bins; ECE uses 10 calibrated bins on a strictly later calendar quarter");}
+        else if(id.equals("AUTHORITY")){if(rows.length()>0){values.put("blockReason",rows);values.put("nextTrigger","NEXT_PREREGISTERED_CALENDAR_ENDPOINT_OR_REQUIRED_TERMINAL_LABEL");}}
+        else if(id.equals("TEST_BUDGET")){if(rows.length()>0){for(String metric:new String[]{"cohort","evidenceDigest","look"})values.put(metric,rows);JSONArray reserved=new JSONArray();for(int i=0;i<rows.length();i++){JSONObject row=rows.getJSONObject(i);int look=row.getInt("look");reserved.put(new JSONObject().put("genome",row.getString("genome_key")).put("cohort",row.getString("cohort")).put("look",look).put("allocatedAlpha",SelectiveEvidenceSU2.alphaForLook(row.getDouble("family_alpha"),look)));}values.put("alphaReserved",reserved);}definitions.put("alphaReserved","family_alpha is the lifetime family allocation; look allocation is family_alpha/(look*(look+1)), never the family allocation per look");}
+        else if(id.equals("CONTINUOUS_RUNTIME")||id.equals("BACKGROUND")){if(rows.length()>0){values.put("blockedReason",rows);values.put("lastActualProgress",rows);}values.put("chargingTelemetryOnly",true);definitions.put("chargingTelemetryOnly","Runtime eligibility has no charging/screen/idle input; this states the configured rule, not a measured unplugged device scenario");}
+        else if(id.equals("FAIR_CAPABILITY_SERVICE")){if(rows.length()>0)values.put("familyService40",rows);definitions.put("familyService40","Actual capability records. Registered/executable is distinct from trained/served; missing work stays visible");}
+        else if(id.equals("RETENTION")){if(rows.length()>0){values.put("models",rows);values.put("GC",rows);}definitions.put("models","Measured checkpoint artifact bytes and the configured byte cap, from the file owner");}
+        else if(id.equals("RECOVERY")){if(rows.length()>0){values.put("checkpoint",rows);}definitions.put("lease","Committed checkpoint manifests reference parent/source/trained-through; crash-injection/device evidence is separate");}
+        else if(id.equals("ACTION_SURFACE")){ref="R26_FROZEN_SURFACE.json";values.put("identity",ref);definitions.put("identity","Read the event's policy/target/checkpoint/source identity and explicit availability in the referenced immutable payload");}
+        else if(id.equals("POLICY_IDENTITY")||id.equals("LOSSLESS_IDENTITY")){if(id.equals("LOSSLESS_IDENTITY"))ref="R26_POLICY_IDENTITIES.jsonl";if(rows.length()>0)values.put("policyHash",rows);values.put("protocolVersion","STARCORE_POLICY_R26_V1");}
+        else if(id.equals("CONCLUSION")){values.put("engineeringPass",false);values.put("qualityPass",false);values.put("mainlinePass",false);values.put("missingEvidence","See per-metric state, original 96-check catalog, device receipts and natural prospective cohort. No overall acceptance is inferred from report completeness.");}
+        if(id.equals("CONTINUOUS_RUNTIME")){if(facts.has("sessions"))values.put("session",facts.get("sessions"));definitions.put("session","Last 32 persisted sessions of this exact SQLite snapshot, including stopped/blocked sessions");}
+        if(id.equals("FAIR_CAPABILITY_SERVICE")){if(facts.has("neverProgressed"))values.put("enabledButNeverRun",facts.get("neverProgressed"));if(facts.has("tasks"))values.put("cpuMs",facts.get("tasks"));definitions.put("cpuMs","Latest CPU measurement per research task; a shared task is not attributed independently to every family");definitions.put("enabledButNeverRun","Registered mechanisms with no committed numerical/audit progress; blocked and unimplemented mechanisms remain visible");}
+        if((id.equals("PERFORMANCE")||id.equals("SLO_BUDGET"))&&facts.has("performance")){JSONObject p=facts.getJSONObject("performance");for(String key:new String[]{"P50","P95","P99","max"})if(id.equals("PERFORMANCE")&&p.has(key)){values.put(key,p.get(key));definitions.put(key,p.getString("scope")+"; nearest-rank quantile of "+p.getInt("n")+" retained receipts");}if(id.equals("PERFORMANCE")){values.put("CPU",p);definitions.put("CPU",p.getString("scope"));}else{values.put("metric",p.get("metric"));values.put("window",p.get("window"));values.put("n",p.get("n"));if(p.has("P95"))values.put("p95",p.get("P95"));if(p.has("P99"))values.put("p99",p.get("P99"));definitions.put("p95",p.getString("scope"));definitions.put("p99",p.getString("scope"));}}
+        JSONObject result=new JSONObject();for(String metric:ReportMetricContractR26.metrics(id)){
+            Object value=values.get(metric);JSONObject m=new JSONObject().put("value",value==null?JSONObject.NULL:value).put("status",value==null||value==JSONObject.NULL?"INSUFFICIENT":"OBSERVED").put("definition",definitions.getOrDefault(metric,"Persisted evidence with the scope/denominator of this section; observation is not an acceptance PASS")).put("evidenceRef",ref);
+            if(value==null||value==JSONObject.NULL)m.put("reason","REQUIRED_METRIC_EVIDENCE_NOT_AVAILABLE_IN_THIS_CAPTURE");result.put(metric,m);
+        }return result;
+    }
+    public static String render(SQLiteDatabase db){
+        StringBuilder b=new StringBuilder("\nR26 持续研究\n");if(!RuntimeSchemaR26.ready(db))return b.append("等待运行会话初始化；工程/能力/自然质量/真机分别验收。\n").toString();
+        try(Cursor c=db.rawQuery("SELECT task_id,lane,cursor,status,coalesce(blocked_reason,''),steps,last_cpu_ms FROM r26_task ORDER BY lane,task_id",null)){while(c.moveToNext())b.append(c.getString(1)).append(' ').append(c.getString(0)).append("：").append(c.getString(3)).append("；已提交游标 ").append(c.getLong(2)).append("；切片 ").append(c.getLong(5)).append("；CPU ").append(c.getLong(6)).append("ms ").append(c.getString(4)).append('\n');}
+        b.append("\n家族与专家实际能力状态\n");try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability ORDER BY mechanism",null)){while(c.moveToNext())b.append(c.getString(0)).append(" · ").append(c.getString(1)).append(" · ").append(c.getString(2)).append('\n');}
+        return b.append("\n没有自然前瞻资格的候选仅进入影子研究；35%/37%/40%尚无新增合格证据。\n").toString();
+    }
+}

@@ -1,0 +1,37 @@
+From 3a6743d35cbc8933b727fa9f3bcbfc36858fc57e Mon Sep 17 00:00:00 2001
+From: R30 plan <r30@plan.local>
+Date: Sat, 31 Oct 2026 09:31:47 +0800
+Subject: [PATCH 2/4] R30-B01-01 writer hold ledger hook
+
+---
+ .../java/com/ethk3/novaonepro/DatabaseCoordinator.java    | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+index d56eef7..eadf157 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
++++ b/app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java
+@@ -666,13 +666,19 @@ public final class DatabaseCoordinator {
+                     if (!opR909.startsWith("R927_RESOURCE")) RuntimeResourceAuditR927.checkpoint("DB_LOCK_ACQUIRED");
+                     if (backgroundR909) ResearchWorkBudgetR927.checkpoint();
+                     long bodyStartedR927 = TimeSourceR811.monoNowMs();
++                    boolean bodyCommittedR30 = false;
+                     try {
+                         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(writable());
+                         T result = task.call(writable());
+                         recordSuccess(operation, started);
++                        bodyCommittedR30 = true;
+                         return result;
+                     } finally {
+-                        RuntimeResourceAuditR927.dbBody(TimeSourceR811.monoNowMs()-bodyStartedR927, backgroundR909);
++                        long bodyMsR30 = TimeSourceR811.monoNowMs()-bodyStartedR927;
++                        RuntimeResourceAuditR927.dbBody(bodyMsR30, backgroundR909);
++                        // R30-B01-01: hold/wait ledger for every sole-writer use. Never throws.
++                        if (!reentrantWriterR914) com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(
++                                opR909, criticalBusinessR914, lastDbLockWaitMs, bodyMsR30, !bodyCommittedR30);
+                     }
+                 } catch (RuntimeResourceAuditR927.BudgetExceeded deadlineR927) {
+                     throw deadlineR927;
+-- 
+2.43.0
+

@@ -1,3 +1,17 @@
+<!-- R30_CURRENT_PLAN_POINTER -->
+# 当前最终施工方案：STARCORE R30（2026-10-31）
+
+**执行入口：[construction/plans/STARCORE_R30_FINAL_20261031/README.md](construction/plans/STARCORE_R30_FINAL_20261031/README.md)** · 施工方逐步指令：[START_HERE_施工方必读.md](construction/plans/STARCORE_R30_FINAL_20261031/START_HERE_施工方必读.md) · 单文件可读版：[STARCORE_R30_完整施工方案.html](construction/plans/STARCORE_R30_FINAL_20261031/STARCORE_R30_完整施工方案.html) · 完整ZIP：[STARCORE_R30_FINAL_20261031.zip](construction/plans/STARCORE_R30_FINAL_20261031.zip)
+
+- 12 批次（B00—B10 + 条件批次 B11）、57 张施工卡、44 项指标（ID 与目标不变）；R29 的 52 张卡全部映射。
+- **应用基线：已验收的 CP06 `bb607cf5ab69`**；施工分支 `construction/r30-20261031`（由 B00-01 新建）。R29 CP07—CP16（`construction/r29-20261029@9ff38ff`）不并入，打标签封存。
+- B01 改为“唯一写锁持有时长治理 + 后台长事务切片”，不拆库；独立研究库降为有真机数据门槛的条件批次 B11。手机上装过 R29 CP07+ 包的遗留触发器/独立库由 B00-03 启动时回收。
+- 关键代码（18 个新类、4 个按卡补丁、12 个测试）已对 bb607cf 编译并测试：HOST 31/31、SQL 合同 19/19、逐卡累积编译 12/12、补丁按序应用 4/4、方案自检 9/9。复现：`bash construction/plans/STARCORE_R30_FINAL_20261031/tools/run_host_verification.sh <bb607cf检出>`。
+- 本次只交付方案：未改应用分支、未构建 APK、未上设备；设备指标全部 NOT_RUN。≥34% 命中与约 15% 频率仍是待验证目标，证书门与 REAL 规则不变。
+
+以下为此前 R29 入口（历史保留）。
+<!-- /R30_CURRENT_PLAN_POINTER -->
+
 <!-- R29_CHECKPOINT06_POINTER -->
 > **当前 Android 应用源码：[bb607cf5ab69](https://github.com/gtt46461-star/starcore-public-build/commit/bb607cf5ab69f7286f859e43f87ada85a5bc456d)，施工分支 [`construction/r29-20261029`](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r29-20261029)。** main仅发布方案入口，不是最新应用代码。
 >

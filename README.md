@@ -1,3 +1,5 @@
+> **当前最终施工方案：[STARCORE R30](CURRENT_FINAL_PLAN.md)（2026-10-31）。** 以下为历史说明。
+
 <!-- R29_CHECKPOINT06_POINTER -->
 > **当前 Android 应用源码：[bb607cf5ab69](https://github.com/gtt46461-star/starcore-public-build/commit/bb607cf5ab69f7286f859e43f87ada85a5bc456d)，施工分支 [`construction/r29-20261029`](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r29-20261029)。** main仅发布方案入口，不是最新应用代码。
 >
