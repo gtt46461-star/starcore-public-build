@@ -1,739 +1,747 @@
 {
- "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
- "subcards": [
-  {
-   "card": "R30-B05-02",
-   "id": "R30-B05-02-c",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationStoreR30.java"
-   ],
-   "reason": "将可移植的纯Java Q08模拟内核与Android缓存适配分开：真实源码号由Runtime传入，内核仍进入原三套纯Java编译门禁；新增适配器统一实际checkpoint/报告SQL并供Runtime及SQLite回归共同调用，不通过伪造Android依赖排除内核。"
-  },
-  {
-   "card": "R30-B05-02",
-   "id": "R30-B05-02-b",
-   "files": [
-    "tools/r30/qual_host/FrozenConfirmationR30HostTest.java"
-   ],
-   "reason": "B05-01远端纯Java编译门禁失败已本地复现：确认内核直接依赖Android BuildConfig，改用门禁本来已编译的真实ResearchSemanticsGeneratedR967作语义绑定，Android运行器另传真实源码提交。B05-02-a已登记全部应用调用点，不删减任何旧门禁。追加真实SQLite验证控制数据视图预约、Q08实际缓存/报告及首次确认报告计数，避免只测内存或后续重报掩盖首次计数。"
-  },
-  {
-   "card": "R30-B05-02",
-   "id": "R30-B05-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "现有NullEvolution只做生成/出生/回放/减半，未运行完整算子与资格；将其接到同一EvolutionLoop（关闭递归对照）并保存可恢复控制状态。真实随机排列训练/选择开奖序列需要统一回放提供控制数据视图，独立确认预约与原始缓存必须绑定该视图真实哈希。另以生产可调用、可恢复的合成模拟测量全流水线误准入及0.34/0.37/0.40功效，通过原Runtime/报告入口出Q08，所有合成结果明确隔离于自然质量；新增相应回归，不改资格数学。"
-  },
-  {
-   "card": "R30-B05-01",
-   "id": "R30-B05-01-b",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java"
-   ],
-   "reason": "全量212项实测2项失败：一个旧源码字符串检查仍要求在EvolutionLoop内部调用look控制确认，与本卡必须移出确认相冲突；保留原1000次控制不耗主预算/主策略耗预算断言，新增独立冻结确认真实执行的控制预算检查替代这两处旧调用文本。观察池断言不改，恢复其现有同义Runtime调用格式。另以真实序贯状态转移复现新报告SQL误用QUALIFIED字面值而漏计，改为绑定既有QUALIFIED常量，不改序贯数学。"
-  },
-  {
-   "card": "R30-B05-01",
-   "id": "R30-B05-01-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30EvolutionConfirmIntegrationTest.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java",
-    "tools/r30/qual_host/FrozenConfirmationR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "真实旧stepHoldout在进化内读取确认并将结果反馈给晋升及停滞选参，违反本卡。将其能力提取为不可变候选/比较条件与独立确认阶段，在原EvolutionTask同一worker中于loop.step之外执行，不增加并发写者；用既有单库写队列保存冻结包、确认原始轨迹和结果，曝光预约先提交，已有确认轨迹复用且崩溃无结果不重读。统一回放入口增加进化读取上限，Runtime负责独立确认后注册FUTURE观察而不把结果反馈选参。旧H06/H07测试改为先进化再独立确认，保留相同正/负信号和统计断言；H12保留逐步恢复。新增真实SQLite重启及生产阶段隔离测试，不降低任何门槛。"
-  },
-  {
-   "card": "R30-B04-07",
-   "id": "R30-B04-07-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureProfileR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30FailureRepairTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "本卡要求真实父代H_SELECT失败画像，需加共用画像及当前评价上下文的有界缓存；实际家族专属变异经Grow.swapLeaf，也须使用相同画像和合同，交叉实际调用点须传入评价上下文。新增同一真实评价链不读确认段、失败叶优先和算子产物合同率测试；不改ExpertProposals，不改任何资格或统计阈值。按真实编译产物更新调用索引。"
-  },
-  {
-   "card": "R30-B04-06",
-   "id": "R30-B04-06-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30StructureRegistryTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "只追加 FAMILIES 会被 stepBirth 的硬编码13跳过，且岛列表仍只有I01-I13。同步改为按实际家族数量分配出生并追加I14-I20岛；只改注册/配额，不改前面卡的gate或行为去重方法。新增七族各500合同与主循环真实出生、目标期之后数据不影响生成的测试；I20选择位置实际消费B04-04结构窗口。"
-  },
-  {
-   "card": "R30-B04-05",
-   "id": "R30-B04-05-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30SelectorPolicyTest.java",
-    "tools/r30/qual_host/SelectorRateR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "真实资格登记仍把所有 MARGIN 固定成0.15，需使用新选择器在H_SELECT预登记并纳入完整策略身份的rate。保留旧未估计MARGIN回退和原有QUANTILE/RANDOM执行率，不改deltaMin数学、证书阈值或既有资格行。新增不读确认段、AST/更新器保全及实际SQLite登记回归。"
-  },
-  {
-   "card": "R30-B04-04",
-   "id": "R30-B04-04-a",
-   "files": [
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "按方案原样加入窗口及集合生成器后，以真实编译产物更新已有调用索引；I14 注册由 B04-06 实施，本卡不改 EvolutionLoop 族列表。"
-  },
-  {
-   "card": "R30-B04-03",
-   "id": "R30-B04-03-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IdeaFamilyContractTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "实际主循环直接 generate，需将家族提案调用接到完整合同检查；只改 ideaContext/stepBirth 调用点，不改 B04-01 gate、B04-02档案迁移或 B04-06族注册表。新增13族各100提案合同及真实出生分布、专家提案回归。为后续 B04-05 选择器提供当前仅训练/选择用途的评价上下文。"
-  },
-  {
-   "card": "R30-B04-02",
-   "id": "R30-B04-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27BirthGateTest.java",
-    "tools/r30/qual_host/BehaviorDedupR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "方案提供纯函数指纹；真实入档/迁移需从现有回放轨迹选取 H_TRAIN 探针，并通过原进化单步 sink 将拒绝记录与游标同批提交。增加加法式去重表和只读报告计数，实际 SQLite 校验报告与落库计数相同；测试记录器实现同一新事件。不改 B04-01 出生入口、B04-06 族列表，也不新增写者或锁。"
-  },
-  {
-   "card": "R30-B04-01",
-   "id": "R30-B04-01-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "真实新候选在 stepGate 内先计算 hash 才调用 BirthGate，空程序或缺规则会先崩溃，且 RANDOM 候选须在主池入口拒绝。先做合同校验并将拒绝码写现有代际拒绝账，保留旧资产与对照的执行检查；本卡不改 B04-06 的 FAMILIES 列表。按实际编译产物更新调用索引。"
-  },
-  {
-   "card": "R30-B00-05",
-   "id": "R30-B00-05-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30MetricEvaluatorTest.java"
-   ],
-   "reason": "卡要求“MetricEvaluator 空库返回 INSUFFICIENT 的 JUnit”，但独占文件表未列测试文件；新增独立测试文件，不改既有测试。"
-  },
-  {
-   "card": "R30-B01-04",
-   "id": "R30-B01-04-a",
-   "files": [
-    "tools/r30/qual_host/SettleChunkR30HostTest.java",
-    "tools/r30/ci_build.sh"
-   ],
-   "reason": "卡要求“640行待结算分4片提交，杀进程后续做不重复（HOST回滚测试同模式）”与“结算结果与改前逐行一致”，独占文件未列测试；新增真实 SQLite 宿主测试并接入 tools/r30/ci_build.sh（在 R29 qual_host 之后运行）。"
-  },
-  {
-   "card": "R30-B01-06",
-   "id": "R30-B01-06-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ThermalPolicyTest.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ThermalPolicyTest.java"
-   ],
-   "reason": "卡要求 ThermalPolicy 单测（NaN/0.1/0.86/0.96 与滞回序列）但未登记测试文件；R30 改变了 0.85–0.95 档位与恢复规则（连续3次），R29 测试两处断言按新规则改为：恢复序列补第3次读数、‘再次过热’读数由0.9改为0.96，测试意图不变。"
-  },
-  {
-   "card": "R30-B00-04",
-   "id": "R30-B00-04-b",
-   "files": [
-    "tools/r30/r30-official-build.yml",
-    "tools/r30/r30-build.yml"
-   ],
-   "reason": "B00 首次官方出包的模拟器冷启动烟测失败而证据只在 artifact（会话代理不能下载）：失败时把烟测日志/startup.json/logcat 关键行打印到作业日志；发布步骤对已存在的 tag 幂等，便于同一源码重跑诊断。"
-  },
-  {
-   "card": "R30-B02-02",
-   "id": "R30-B02-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
-   ],
-   "reason": "卡第4步要求报告第3章列出 rejectedConcurrent、consecutiveFailures 当前值；第3章在 ReportR29（B01-02 所建），本卡独占表未列。"
-  },
-  {
-   "card": "R30-B02-03",
-   "id": "R30-B02-03-a",
-   "files": [
-    "tools/r30/qual_host/PendingDrawR30HostTest.java",
-    "tools/r30/ci_build.sh"
-   ],
-   "reason": "卡要求“先缺开奖→跨3期补回→原冻结只结算一次”的测试；以真实 SQLite 宿主测试实现并接入 CI。SettlementEngine 同 issue 重复结算的 androidTest 需 DbStore/模拟器，本次 NOT_RUN（代码层：settled=1 分支不写任何行、返回与首次相同的记录哈希）。"
-  },
-  {
-   "card": "R30-B03-01",
-   "id": "R30-B03-01-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30PitReplayInjectionTest.java"
-   ],
-   "reason": "卡要求反例注入测试（回放样本 trainedThrough=target 必须被拒并入账）；独占表只列 R30PitGuardTest。r30_pit_violation 表由研究冻结批次自建（CREATE TABLE IF NOT EXISTS），未改 SchemaR27。"
-  },
-  {
-   "card": "R30-B03-02",
-   "id": "R30-B03-02-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30HistoryGovernTest.java"
-   ],
-   "reason": "卡要求导入乱序/重复/缺期/跨日 fixture 测试；独占表未列测试文件。"
-  },
-  {
-   "card": "R30-B03-03",
-   "id": "R30-B03-03-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmLedgerTest.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27ComponentTest.java"
-   ],
-   "reason": "卡要求“同一候选二次读确认段被拒”测试；R27ComponentTest 原断言 nHoldout=n−selectEnd（即原子评分读取 H_HOLDOUT），与本卡“AtomScoreR27 只能读 H_TRAIN/H_SELECT”直接冲突，改为断言 nHoldout=0、第二阶段（H_SELECT 部分）有样本；其余断言（USEFUL/NOISE/MISSING 判定、前序性）不变且通过。"
-  },
-  {
-   "card": "R30-B03-03",
-   "id": "R30-B03-03-b",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmReadStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmPersistenceTest.java",
-    "tools/r30/qual_host/ConfirmReadStoreR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "复核发现确认账仅驻内存，DDL 未执行，旧生产链也未接入；进程死亡可重新读取。补加法式表、通过既有研究写队列在读取前提交唯一确认记录、启动恢复和实际 SQLite 重启回归，旧曝光无法确定数据集时保守拒绝。进一步补进化循环的实际确认入口与重读失败处理（B03-06 继续统一评价入口，B05-01 继续实现进化与确认隔离），不增加独立数据库、不在持锁时等待。"
-  },
-  {
-   "card": "R30-B03-04",
-   "id": "R30-B03-04-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IncrementalFeatureTest.java"
-   ],
-   "reason": "卡要求增量与全量逐位一致的 HOST 测试；独占表未列测试文件。"
-  },
-  {
-   "card": "R30-B03-05",
-   "id": "R30-B03-05-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java"
-   ],
-   "reason": "卡要求中断/恢复一致性 HOST 测试；独占表未列测试文件。"
-  },
-  {
-   "card": "R30-B03-06",
-   "id": "R30-B03-06-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30UnifiedEvaluatorTest.java"
-   ],
-   "reason": "卡要求“同策略同数据集两次评分完全一致；换数据集缓存失效”测试；独占表未列测试文件。"
-  },
-  {
-   "card": "R30-B03-06",
-   "id": "R30-B03-06-c",
-   "files": [
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "B03源码检出直接编译报 SOURCE_CALL_INDEX_STALE；按现有身份流程以真实编译类文件重建调用索引。索引及对应 reviewed input 是生成身份，原始失败保留在本轮验证记录。"
-  },
-  {
-   "card": "R30-B02-01",
-   "id": "R30-B02-01-b",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
-   ],
-   "reason": "事后核对发现提交56e7834加入时间线报告时遗漏此文件的子卡登记；另有B02-02-a使用同一文件。此次补记已发生的跨卡共享，不伪称原提交当时通过所有权检查。"
-  },
-  {
-   "card": "R30-B03-04",
-   "id": "R30-B03-04-b",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
-    "tools/r30/qual_host/LiveCacheR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "tools/r30/qual_host/FreezeSourceR30HostTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
-   ],
-   "reason": "实际SQLite调用生产liveCacheWithPlaceholder复现：积压90期只追加64期，源历史更正也不进入缓存。需要在实时冻结调用点安全处理源变化并增加真实生产方法的SQLite回归；RuntimeR27.java本属原卡。 另复现预测准备与写入之间下一期已开奖仍写成冻结；需同一写事务校验开奖源，并重建编译调用索引。 复现准备期间旧开奖被更正仍可冻结，需在单库内增加加法式数据源版本及触发器，以短事务验证开奖和导入历史未变；不拆库、不改原模型。"
-  },
-  {
-   "card": "R30-B03-05",
-   "id": "R30-B03-05-b",
-   "files": [
-    "tools/r29/qual_host/QualInboxR29HostTest.java"
-   ],
-   "reason": "run 41174517618 的 Q15 回滚测试沿用 ISSUE_1 样本作为下一期训练输入，触发 B03-05 防重复而未进入回滚断言；将第二次输入改为 ISSUE_2，保留原模型字节、游标及事务回滚断言，不放宽防重复。"
-  },
-  {
-   "card": "R30-B05-03",
-   "id": "R30-B05-03-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java",
-    "tools/r30/qual_host/TenPositionR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "每期十位置真实样本必须修改实际生产消费及切片训练路径，保留旧轮换模型、诊断和全部原始数据。新增独立ABI/owner的全状态训练checkpoint，原单写队列原子发布位置游标和权重，避免把十倍工作塞进旧单切片或重复学习同一期。新增真实SQLite恢复/旧模型字节保全回归及吞吐报告；不新开调度器或数据库，不改旧统计门槛。"
-  },
-  {
-   "card": "R30-B05-04",
-   "id": "R30-B05-04-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/OperatorGoldenR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
-    "tools/r30/qual_host/ModelSurfaceR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "I08模型叶子必须进入真实类型/范围、缓存、生成器、ABI与实时冻结消费链。提供不可变模型/概率引用及真实可用时间、trainedThrough、历史特征哈希校验；旧历史不存在合法模型即BLOCKED，绝不回填未来训练模型。调用和策略冻结同一短写事务入账，失败/缺模型记录明确原因；归档概率仅在原历史哈希一致时复用。新增真实SQLite冻结/调用对应与竞态回归，保留旧family表示。"
-  },
-  {
-   "card": "R30-B05-04",
-   "id": "R30-B05-04-b",
-   "files": [
-    "tools/r30/qual_host/TenPositionR30HostTest.java"
-   ],
-   "reason": "B05-03真实训练HOST手工建表夹具须执行B05-04新增模型来源归档DDL，保留原560样本/182输入/失败提交/真实JVM终止与旧模型字节全部断言。新增来源归档随既有预测同事务写入。先登记再改夹具。"
-  },
-  {
-   "card": "R30-B05-05",
-   "id": "R30-B05-05-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "统一号码概率须接入真实ModelSurfaceProvider与AtomNetTrainer输出，并沿用现有ReplayEvaluator的排序和PIT门，不能新增独立评分器或更改原学习数学。登记实际调用点和输出/续训/解码/概率总和的回归；先登记，待B05-04 G1通过后修改产品源码。"
-  },
-  {
-   "card": "R30-B06-01",
-   "id": "R30-B06-01-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "tools/r30/qual_host/CalibrationR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "滚动校准必须接入真实FUTURE/SELECT行的ordinal及生产校准任务，报告并列旧等宽ECE和新等质量ECE/Brier/BSS/真实拟合支持范围；缺样本明确null。原120行旧诊断API/断言保留，生产使用新的严格ordinal滚动拟合，不能把未来行用于过去评估。每片最多一个策略，计算在写锁外，原队列原子提交旧表及Q05报告；新增实际SQLite回归。先登记，B05-05 G1通过后再改产品源码。"
-  },
-  {
-   "card": "R30-B06-02",
-   "id": "R30-B06-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30BrierContributionTest.java",
-    "tools/r30/qual_host/BrierContributionR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "同期Brier配对必须从唯一回放内核取得可选概率面，并由真实AtomWorld消费者在H_SELECT计量/落库/报告。保留原原子评分及USEFUL/HARMFUL门槛；新增明确H_SELECT计数、均值和单侧95%下界。分子移除对照必须对原动作的同一K3/同一命中事件比较概率，按同一期先汇总，避免把不同动作或同一期多策略当独立样本。新增加法式贡献表及真实SQLite回归。先登记，待B06-01 G1完成再改产品文件。"
-  },
-  {
-   "card": "R30-B06-03",
-   "id": "R30-B06-03-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30MatrixRegistryTest.java",
-    "tools/r30/qual_host/MatrixRegistryR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "矩阵清单须接到真实已存R930/SU2快照与报告，不能只写常量数量。现有R930公共矩阵19类+SU2已存在的因子/教师checkpoint对象组成20项，两命名空间和输出范围明确登记，不伪造第20个R930枚举或新矩阵。只读已有表统计最近产出/数量/未产出原因，两个原生产类补登记身份/诊断元数据，不迁移或删除旧数据；新增实际SQLite来源回归。先登记后施工。"
-  },
-  {
-   "card": "R30-B06-04",
-   "id": "R30-B06-04-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CapabilityRegistryTest.java",
-    "tools/r30/qual_host/CapabilityRegistryR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "82对象清单必须读真实FamilyRegistry/ExpertProposals/EvolutionLoop/AtomNet/20矩阵注册和已存运行证据，并接到ReportData实际章节。纯定义与Android只读适配分开，继续参加原纯Java门禁；F23原教师未绑定、审计专家非出生、缺表/零产出分别说明，不伪造有效或恢复旧样本。新增真实SQLite清单/数量/时间水位回归；先登记，待B06-03 G1通过后改产品文件。"
-  },
-  {
-   "card": "R30-B07-01",
-   "id": "R30-B07-01-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmationQueueTest.java",
-    "tools/r30/qual_host/ConfirmationQueueR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "确认队列须从真实FUTURE注册/e-process只读取得，换榜事务内再次核对避免注册竞态；确认成员占原24总位，探索只用剩余额度，已存在超容量资格成员完整保留。原连续消费/alpha索引/冻结和资格阈值不改。新增真实SQLite调用refreshObservers换榜100代、容量、提交回滚、游标/回执连续及终态释放回归；先登记后施工。"
-  },
-  {
-   "card": "R30-B07-02",
-   "id": "R30-B07-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CertificateVersionTest.java",
-    "tools/r30/qual_host/CertificateVersionR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "tools/r29/qual_host/QualInboxR29HostTest.java",
-    "tools/r27/test_r27_migration.py",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "版本必须进入真实发证SQL、加法式schema迁移、当前主链证书读取和排序，不能仅有常量。旧证书版本标LEGACY_UNVERSIONED且保留原字段，不冒充当前合格；不同版本不比较，V2继续关闭。登记实际迁移/发证/投影SQLite回归；旧夹具按列名插入并显式标当前测试证书版本。旧M4在未修改产品基线也失败（错误把禁止DELETE触发器当删除），保留原失败并继续检查顶层及触发器体内真实DROP/DELETE FROM，不放宽保全规则。先登记后施工。"
-  },
-  {
-   "card": "R30-B07-03",
-   "id": "R30-B07-03-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/DecisionExplanationR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionExplanationStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DecisionTraceTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
-    "tools/r30/qual_host/DecisionExplanationR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    ".github/workflows/r30-decision-chain.yml",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "逐期解释须真实接入V51B12及V50生产决定入口，从实际冻结/证书/原选择和默认关闭用户开关取得事实；未知明确UNKNOWN，原授权判定体逐字节保留，仅包装后记录，不新建REAL授权者。增加同库加法式解释/不一致账、报告与真实SQLite/Android回归。旧h15完整文件hash检查改为剥离明确标记的只读包装并恢复原方法头后仍要求原全文件hash，其余主链所有者原校验保留；不改变判定体/阈值。实际R27意向尚需既有授权链，记录而不伪装通行。先登记后施工。"
-  },
-  {
-   "card": "R30-B07-03",
-   "id": "R30-B07-03-b",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
-    "tools/r30/qual_host/RealAuthorityR30HostTest.java",
-    "tools/r30/qual_host/authority_shim/com/ethk3/novaonepro/DbStore.java"
-   ],
-   "reason": "Android负对照要求缺完整冻结/已有REAL独立拒绝。实际旧RealAuthority只读ACT而未核对完整冻结，也未直接核对新canonical REAL账，需先用旧正式编译字节在真实SQLite及只读DbStore适配复现，再按原授权者现有布尔门补只会更严的读取校验。DecisionGateEngine原判定体及全部数值门不改。额外HOST适配仅用于测试，不进入APK，不读取签名材料；先登记后施工。"
-  },
-  {
-   "card": "R30-B07-04",
-   "id": "R30-B07-04-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/DrawCanonicalizerR811.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
-    "tools/r30/qual_host/CertificateRevocationR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "证书必须在实际开奖修订/dirty/hash冲突写入的同一事务撤销：现有DrawCanonicalizer在保存/冲突事务内调用SettlementEngine新增纯委托钩子，schema为原draws安装语义变更触发器，抓取元数据及正常新开奖不误撤。R27状态和SU2原revocation表加法保留，历史依赖无法精确证明时明确保守撤销当前证书，不假称精确影响图；保留旧策略撤销记录阻止旧证据直接复活。SU2表在启动后阶段才创建，登记RuntimeCoordinator实际schema完成点，分协议安装触发器不DROP。只剥离新增Settlement委托段后仍校验原完整文件hash，原判定/结算体不改。新增实际SQLite同事务回滚/撤销/下一次实际读取拒绝与HOST耗时，Android实测留待最终CI；先登记后施工。"
-  },
-  {
-   "card": "R30-B07-04",
-   "id": "R30-B07-04-b",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
-    "tools/r30/qual_host/CertificateVersionR30HostTest.java"
-   ],
-   "reason": "撤销保护必须接入原发证任务的内存选择/报告，避免SQLite触发器已拒绝旧证据但任务仍把旧策略计为有效并写进mainline choice。R27发证实际读取撤销policy守卫，SU2维护在花费旧窗口alpha/重发前停止；不改任何资格数值。追加原真实300行正对照发证夹具，在同事务撤销后再次运行实际发证任务并核对状态REVOKED及缓存有效数0；先登记后改。"
-  },
-  {
-   "card": "R30-B08-01",
-   "id": "R30-B08-01-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
-    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ReportSnapshotTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30ReportSnapshotAndroidTest.java",
-    "tools/r30/qual_host/ReportSnapshotR30HostTest.java",
-    "tools/r30/qual_host/report_shim/android/os/Build.java",
-    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "12章必须接到真实主报告/导出入口，用同一份已读取的不可变事实与期号/各来源表rowid水位生成JSON及Markdown，保留旧R26/R27附件。API35以上使用公开beginTransactionReadOnly；较旧Android用单条只读SELECT隐式DEFERRED事务取得全部事实，格式化期间不再查库、不占产品写锁；导出继续原native BEGIN(DEFERRED)固定只读副本，不用EXCLUSIVE/IMMEDIATE或隐藏API。WITHOUT ROWID表明确rowid不适用并给真实主键水位；缺源null，限量数据显式分页/截断来源。新增真实SQLite双连接并发写入/前后快照一致、共享指标和只读无写锁、Android源回归；HOST只读getter/Build适配仅测试不进APK。先登记后施工。"
-  },
-  {
-   "card": "R30-B08-02",
-   "id": "R30-B08-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java",
-    "tools/r30/qual_host/ReportSnapshotR30HostTest.java",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "诊断规则必须进入真实12章报告、JSON/Markdown和主界面摘要；只消费B08-01同一不可变事实与水位，不重新查库或改变产品门槛。16条规则逐条记录条件、结论、证据强度、文件:方法、卡号、验证及未知时采集动作；PIT拒绝不冒充成功泄漏，已有行不冒充自然质量。新增空源/非法计数/真实冲突/任务未知/实际方法存在性回归，并通过现有真实SQLite报告HOST验证实际冲突到行动与三种输出共享水位；先登记后修改。"
-  },
-  {
-   "card": "R30-B08-03",
-   "id": "R30-B08-03-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30UpgradeEvidenceTest.java",
-    "tools/r30/qual_host/UpgradeEvidenceR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "空章修复必须进入实际DiagnosisStoreSU2.report和主12章报告。原UpgradeDiagnosis统计/处方以及legacy render/toJson保持，新增R30渲染显示每个来源的UNKNOWN/INSUFFICIENT/已记录未验证状态，替换空家族/结构/账本表头；缺快照/缺表均给具体采集动作。R30同一SELECT额外读取原su2_diag_snapshot/state和su1_model_ablation任务/报告hash，保留r27_ablation.removed_child与原delta，不把旧快照未含消融误报为空表，不把DONE或行数称Q06改善。注册主摘要、3项单测、真实SQLite空/缺/已存来源回归与CI；先登记后落产品代码。"
-  },
-  {
-   "card": "R30-B08-04",
-   "id": "R30-B08-04-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
-    "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
-    "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30ReportSnapshotAndroidTest.java",
-    "tools/r30/qual_host/ReportDeliveryR30HostTest.java",
-    "tools/r30/run_report_export_host.sh",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "实际取消/分卷必须串起已有Service、持久命令、Publication、Provider和保存/分享入口：100ms轮询，R30只读快照SQL接公开CancellationSignal，流/只读租约关闭后立即清本job派生临时文件；原库/模型/外部SAF不删。同OS boot单调取消起点与释放回执，缺可靠起点为null，不用墙钟补时。默认20MiB以内原标准ZIP；超过后按原已校验ZIP字节切part01..N，索引含全部顺序/偏移/长度/分卷及全ZIP hash与重组说明，旧格式与续传保持；分卷不是独立ZIP，前端如实说明。新增实际文件/原JNI/哈希重组、取消释放与保护原数据回归，接CI；Android取消源码回归。先登记后落产品代码，不改变原native诊断进程守卫。"
-  },
-  {
-   "card": "R30-B08-05",
-   "id": "R30-B08-05-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResearchRetentionTest.java",
-    "tools/r30/qual_host/ResearchRetentionR30HostTest.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "总预算必须接实际retention任务、完整应用目录测量和同快照存储报告；默认1500000000字节，可配置。新纯文件策略只允许明确可重算缓存，旧退役研究库须FOLDED_BACK/原copy_log回收证据及删除前持久引用；未知/未完整测量不称预算通过。为阻止原窗口清理丢失不可重算冻结/结算/证书/曝光/模型状态，在原维护开始前安装加法式逐表归档与触发器：原DELETE/清空payload在同一事务完整保留OLD字段/BLOB到不可改删档案，再沿用原折叠/窗口/资格数学，不改原RetentionR26/Diagnosis/Matrix学习算法。来源schema变更用版本触发器与registry启用指纹、旧触发器不DROP，归档不进入当前统计或训练。文件扫描/删除不在DB写锁，DB清理用B01幂等限量模板；只清图表可重建键，保护Q08/模型/校准等唯一缓存证据。注册实际Runtime、报告、纯文件及真实SQLite字节保全/回滚/过预算回归，先登记再施工。"
-  },
-  {
-   "card": "R30-B08-05",
-   "id": "R30-B08-05-b",
-   "files": [
-    "tools/r29/qual_host/shim/android/database/Cursor.java",
-    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java"
-   ],
-   "reason": "实际退役库回收证明回归复用原TableCopierR30，原复制器通过Cursor.getType保持SQLite INTEGER/REAL/TEXT/BLOB/NULL；旧资格HOST适配尚无该API，真实运行因此NoSuchMethodError。新增基于实际JDBC返回值的类型映射，仅HOST编译/运行、不进入APK，不改产品复制器或放宽字节/缺列校验；先登记后补适配。"
-  },
-  {
-   "card": "R30-B08-05",
-   "id": "R30-B08-05-c",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30ResearchRetentionAndroidTest.java"
-   ],
-   "reason": "B08批次最后一张补Android真实SQLite归档/回滚/不可删回归源码，验证WITHOUT ROWID原始复合字段和BLOB仍可保全；云端当前只编译，运行在最终同证书模拟器门禁中如实另签收。主报告摘要需显示同一快照保存的真实预算测量结果，不只在JSON/Markdown附件；缺测仍UNKNOWN/INSUFFICIENT，不新增独立查询或推算。先登记后修改。"
-  },
-  {
-   "card": "R30-B08-05",
-   "id": "R30-B08-05-d",
-   "files": [
-    "tools/r30/run_report_export_host.sh"
-   ],
-   "reason": "B08-04完整CI41214742293/job124576817353在已通过原检查与SQLite回归后，因runner没有rg命令而退出。将Host验证包装脚本源码枚举改用已有POSIX find，不改变任何产品代码、算法或门槛。B08-05当前258项最终G1及正式SQLite已通过；本子卡仅做工具兼容性修复和完整JNI/文件包装回归，新累计CI同时闭合04/05，保留原真实失败。先登记后修改。"
-  },
-  {
-   "card": "R30-B09-01",
-   "id": "R30-B09-01-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
-    "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
-    "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ChartSnapshotTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
-    "tools/r30/qual_host/ChartSnapshotR30HostTest.java",
-    "tools/r30/qual_host/chart_shim/android/database/sqlite/SQLiteDatabase.java",
-    "tools/r30/ci_build.sh",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "保全原14图及排行榜，新增代际配对下界与能力覆盖两个独立缓存面板，必须从B08同一不可变事实/水位派生并同时进入报告JSON/Markdown。复用原冻结确认回执，不把进化内或重复确认当新改善；代码能力不冒充自然有效数。真实零参考线应纳入坐标范围，不伪造点或置信区间。登记纯回归、正式SQLite旧14键/同快照/坏包拒绝验证及实际图表Activity各场景截图源码；HOST三参数SQLite只读适配单独JVM且不进入APK，Android实际运行留最终同签名CI，不冒充真机。先登记后施工。"
-  },
-  {
-   "card": "R30-B09-02",
-   "id": "R30-B09-02-a",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultAndroidRunner.java",
-    "app/src/androidTest/AndroidManifest.xml",
-    "tools/r30/run_fault_matrix.sh",
-    "tools/r30/r30-official-build.yml",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "14格真实故障需要在原canonical/settlement任务写完但尚未COMMIT时真正SIGKILL，再独立进程重启核对半成品/重复/时间线与合法补齐，不能把异常回滚冒充杀进程。在DatabaseCoordinator仅增加默认空、无产品调用的ThreadLocal测试回调与两处提交前调用；回调不网络/sleep/等待，原DbStore/Settlement/Decision原体保持。测试APK专用Runner在原Application启动前路由独立持久目录，让唯一数据库owner自然打开，跨杀进程复用而不重置单例、不删原模型数据。实际HTTPS握手读超时、主测试库SQLITE_FULL及原限额恢复、注入墙钟回拨与同boot单调钟、真实来源冲突硬阻、外部ADB服务force-stop/显式重新打开与恢复分阶段收据。驱动只允许模拟器，完整失败日志保留，未运行写NOT_RUN；最终安全同证书CI接执行。先登记后施工。"
-  },
-  {
-   "card": "R30-B09-02",
-   "id": "R30-B09-02-b",
-   "files": [
-    ".github/workflows/r30.yml"
-   ],
-   "reason": "用户要求持续推进，原工作流以github.ref分组且cancel-in-progress=true，新推送会取消上一卡完整G2/G3检查，迫使源码推送串行等待约二十分钟。改为以不可变github.sha分组并不取消，保持每卡固定源码的全部原检查、工具链和超时不变；产品施工仍严格逐卡，独立固定源码的远端只读门禁可各自完成。本卡262项G1/Android编译/lint已通过，工具配置变动只检查YAML与触发执行，不重复八分钟无关回归。先登记后修改。"
-  },
-  {
-   "card": "R30-B09-03",
-   "id": "R30-B09-03-a",
-   "files": [
-    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30WriteWaitTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30WriteQueueAndroidTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
-    "tools/r30/run_android_regression.sh",
-    "tools/r30/r30-official-build.yml",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
-   ],
-   "reason": "MAX_WAIT_MS原200ms不变，将P0/冻结门前等待和原唯一写锁取得共用同一额度，沿用已有WriterDeadlineScopeCP3且保留更紧外层截止、LIVE_FREEZE例外及整体事务原子性；取消/中断/繁忙准确计拒绝，原待处理Batch不清不改。登记3项真实等待/取消/中断/原业务错误回归与Android原writer更紧截止/冻结例外回归。作为B09末卡接最终模拟器批次回归驱动：原14图+2新图三场景48截图、单快照/保全与主链实际测试。主链测试负例原循环会在进程单例owner仍在时换伪沙箱，改由显式mode每个独立进程启动，不重置owner；正例和四负例全部由驱动执行，原断言/数学不减。B01账本deferred列表为空，不虚构MigrationRegistry修复或设备over_hard=0。先登记后施工。"
-  },
-  {
-   "card": "R30-B10-03",
-   "id": "R30-B10-03-a",
-   "files": [
-    "tools/r30/UPGRADE_BASELINES.json",
-    "tools/r30/run_upgrade_drill.sh",
-    "tools/r30/check_upgrade_data.py",
-    "tools/r30/package_final.py",
-    "tools/r30/publish_final.sh",
-    "tools/r30/r30-build.yml",
-    "tools/r30/r30-official-build.yml",
-    "tools/r30/run_android_regression.sh",
-    "scripts/probe_r13_startup.py",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java"
-   ],
-   "reason": "最终同源码两证书交付必须对各自真实CP06/CP16旧APK进行覆盖安装和回退，记录原表/开奖/模型BLOB/资格预算保全，APK只检查公开签名不读密钥。登记仅模拟器驱动及实际SQLite摘要检查器、已公开旧APK+SHA registry、两现有缓存证书CI模板与最终单release发布：R27先产内部候选与Android门禁，官方CI等待R27全绿后汇合，最终只发布两份releaseAPK。原启动探针对非debuggable release用run-as读取prefs会假失败，已在B00真实复现；仅在adb root的一次性模拟器上显式读取原同一prefs，不改60s心跳/冷启/二启原门槛。原FoldBack实际Android回归补2MiB合成checkpoint/优化器字节与WITHOUT ROWID保全，保留四场景与所有旧断言；所有测试走专用新进程隔离，不删真实产品数据。原自然/真机缺口保留，不以模拟器替代。先登记后施工。"
-  },
-  {
-   "card": "R30-B10-04",
-   "id": "R30-B10-04-a",
-   "files": [
-    "release/release_identity.properties",
-    "release/release_manifest.json",
-    "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz",
-    "tools/r30/publish_final.sh",
-    ".github/workflows/r30-final-r27.yml",
-    ".github/r30-final-request.json",
-    ".github/workflows/r30-final-official.yml",
-    ".github/r30-final-official-request.json"
-   ],
-   "reason": "最终版本按B10计划升到577310101，既有包名/两套既有证书/min21/SDK36配置保持；更新生成身份并完整G1。FINAL.json逐卡及44指标保留证据等级和设备/自然质量缺口，APK/源码/公开签名/直链以真实构建收据回填。发布脚本将该账本与实际两包哈希和CI门禁合并；两个签名缓存分支只新增已审查的最终workflow及具体源码请求，不合并/改动其产品源码，不在代理云任务读取或上传私钥。当前main入口在最终两包成功后仅更新CURRENT_FINAL_PLAN指向实际R30分支与直链。先登记后修改。"
-  },
-  {
-   "card": "R30-B10-04",
-   "id": "R30-B10-04-b",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/TableCopierR30.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java",
-    "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
-    "tools/r30/qual_host/LargeCellCopyR30HostTest.java",
-    "tools/r30/qual_host/copy_window_shim/android/database/sqlite/SQLiteDatabase.java",
-    "tools/r30/ci_build.sh"
-   ],
-   "reason": "最终包前审查确认已装SDK36 config_cursorWindowSize=2048KiB，而原TableCopier每页SELECT整行会把2MiB checkpoint加optimizer或大JSON放进同一CursorWindow。为完整保留旧模型，先按SQLite原字节长度取轻量页元信息，再对大行的BLOB/TEXT按64KiB读取并保持原SQLite类型，页按字节限量但原500行上限/原子页写/缺列账/幂等逻辑不减；源未知/失败仍保留不截断。登记真实SQLite加明确HOST模拟平台窗口上限的先失败后通过回归（不是Android运行），Android同一2MiB夹具验证也按小窗口分块读取，不缩小模型。另校正TLS超时测试属于原2500ms连接或3500ms读取阶段，不能一律断言只会读超时；生产超时常量及所有统计/时间上限不改。尚无新APK构建，最终版本仍101。先登记后施工。"
-  },
-  {
-   "card": "R30-B10-04",
-   "id": "R30-B10-04-c",
-   "files": [
-    "app/src/main/java/com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java",
-    "tools/r30/run_android_regression.sh",
-    "tools/r30/emulator_foldback.sh"
-   ],
-   "reason": "大字段回收复核同时发现调用方用state.startsWith(COPIED)，把COPIED_WITH_MISSING_COLUMNS也当成完整回收并退役RP路由。改为只有COPIED且missingColumns为空才允许退役；缺列保留源库与ACTIVE路由并明确失败，禁止把模型字段漏复制当成功。补第5个实际Android反例，不删旧4项；相关驱动期望计数随新增测试更新。只收紧完整性守卫，不放宽任何统计/时间门槛。先登记后修改。"
-  },
-  {
-   "card": "R30-B10-04",
-   "id": "R30-B10-04-d",
-   "files": [
-    ".github/workflows/r27.yml",
-    ".github/workflows/r13.yml"
-   ],
-   "reason": "触发最终安全构建前实际检查发现两个缓存分支的旧通用R27/R13 workflow也响应元数据push，会额外构建/发布旧产品，违背用户只交付最终两包要求。仅在原通用workflow的job条件中排除本次精确提交前缀R30-B10-04 FINAL_BUILD_REQUEST；其他push和workflow_dispatch保留原行为。最终专用workflow仍正常执行完整门禁和签名构建，未取消或放宽任何目标源码检查。只改缓存分支CI调度，不改其产品源码；先登记后修改。"
-  }
- ]
+  "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
+  "subcards": [
+    {
+      "card": "R30-B05-02",
+      "id": "R30-B05-02-c",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationStoreR30.java"
+      ],
+      "reason": "将可移植的纯Java Q08模拟内核与Android缓存适配分开：真实源码号由Runtime传入，内核仍进入原三套纯Java编译门禁；新增适配器统一实际checkpoint/报告SQL并供Runtime及SQLite回归共同调用，不通过伪造Android依赖排除内核。"
+    },
+    {
+      "card": "R30-B05-02",
+      "id": "R30-B05-02-b",
+      "files": [
+        "tools/r30/qual_host/FrozenConfirmationR30HostTest.java"
+      ],
+      "reason": "B05-01远端纯Java编译门禁失败已本地复现：确认内核直接依赖Android BuildConfig，改用门禁本来已编译的真实ResearchSemanticsGeneratedR967作语义绑定，Android运行器另传真实源码提交。B05-02-a已登记全部应用调用点，不删减任何旧门禁。追加真实SQLite验证控制数据视图预约、Q08实际缓存/报告及首次确认报告计数，避免只测内存或后续重报掩盖首次计数。"
+    },
+    {
+      "card": "R30-B05-02",
+      "id": "R30-B05-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "现有NullEvolution只做生成/出生/回放/减半，未运行完整算子与资格；将其接到同一EvolutionLoop（关闭递归对照）并保存可恢复控制状态。真实随机排列训练/选择开奖序列需要统一回放提供控制数据视图，独立确认预约与原始缓存必须绑定该视图真实哈希。另以生产可调用、可恢复的合成模拟测量全流水线误准入及0.34/0.37/0.40功效，通过原Runtime/报告入口出Q08，所有合成结果明确隔离于自然质量；新增相应回归，不改资格数学。"
+    },
+    {
+      "card": "R30-B05-01",
+      "id": "R30-B05-01-b",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java"
+      ],
+      "reason": "全量212项实测2项失败：一个旧源码字符串检查仍要求在EvolutionLoop内部调用look控制确认，与本卡必须移出确认相冲突；保留原1000次控制不耗主预算/主策略耗预算断言，新增独立冻结确认真实执行的控制预算检查替代这两处旧调用文本。观察池断言不改，恢复其现有同义Runtime调用格式。另以真实序贯状态转移复现新报告SQL误用QUALIFIED字面值而漏计，改为绑定既有QUALIFIED常量，不改序贯数学。"
+    },
+    {
+      "card": "R30-B05-01",
+      "id": "R30-B05-01-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30EvolutionConfirmIntegrationTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java",
+        "tools/r30/qual_host/FrozenConfirmationR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "真实旧stepHoldout在进化内读取确认并将结果反馈给晋升及停滞选参，违反本卡。将其能力提取为不可变候选/比较条件与独立确认阶段，在原EvolutionTask同一worker中于loop.step之外执行，不增加并发写者；用既有单库写队列保存冻结包、确认原始轨迹和结果，曝光预约先提交，已有确认轨迹复用且崩溃无结果不重读。统一回放入口增加进化读取上限，Runtime负责独立确认后注册FUTURE观察而不把结果反馈选参。旧H06/H07测试改为先进化再独立确认，保留相同正/负信号和统计断言；H12保留逐步恢复。新增真实SQLite重启及生产阶段隔离测试，不降低任何门槛。"
+    },
+    {
+      "card": "R30-B04-07",
+      "id": "R30-B04-07-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FailureProfileR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30FailureRepairTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "本卡要求真实父代H_SELECT失败画像，需加共用画像及当前评价上下文的有界缓存；实际家族专属变异经Grow.swapLeaf，也须使用相同画像和合同，交叉实际调用点须传入评价上下文。新增同一真实评价链不读确认段、失败叶优先和算子产物合同率测试；不改ExpertProposals，不改任何资格或统计阈值。按真实编译产物更新调用索引。"
+    },
+    {
+      "card": "R30-B04-06",
+      "id": "R30-B04-06-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30StructureRegistryTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "只追加 FAMILIES 会被 stepBirth 的硬编码13跳过，且岛列表仍只有I01-I13。同步改为按实际家族数量分配出生并追加I14-I20岛；只改注册/配额，不改前面卡的gate或行为去重方法。新增七族各500合同与主循环真实出生、目标期之后数据不影响生成的测试；I20选择位置实际消费B04-04结构窗口。"
+    },
+    {
+      "card": "R30-B04-05",
+      "id": "R30-B04-05-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30SelectorPolicyTest.java",
+        "tools/r30/qual_host/SelectorRateR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "真实资格登记仍把所有 MARGIN 固定成0.15，需使用新选择器在H_SELECT预登记并纳入完整策略身份的rate。保留旧未估计MARGIN回退和原有QUANTILE/RANDOM执行率，不改deltaMin数学、证书阈值或既有资格行。新增不读确认段、AST/更新器保全及实际SQLite登记回归。"
+    },
+    {
+      "card": "R30-B04-04",
+      "id": "R30-B04-04-a",
+      "files": [
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "按方案原样加入窗口及集合生成器后，以真实编译产物更新已有调用索引；I14 注册由 B04-06 实施，本卡不改 EvolutionLoop 族列表。"
+    },
+    {
+      "card": "R30-B04-03",
+      "id": "R30-B04-03-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IdeaFamilyContractTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "实际主循环直接 generate，需将家族提案调用接到完整合同检查；只改 ideaContext/stepBirth 调用点，不改 B04-01 gate、B04-02档案迁移或 B04-06族注册表。新增13族各100提案合同及真实出生分布、专家提案回归。为后续 B04-05 选择器提供当前仅训练/选择用途的评价上下文。"
+    },
+    {
+      "card": "R30-B04-02",
+      "id": "R30-B04-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27BirthGateTest.java",
+        "tools/r30/qual_host/BehaviorDedupR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "方案提供纯函数指纹；真实入档/迁移需从现有回放轨迹选取 H_TRAIN 探针，并通过原进化单步 sink 将拒绝记录与游标同批提交。增加加法式去重表和只读报告计数，实际 SQLite 校验报告与落库计数相同；测试记录器实现同一新事件。不改 B04-01 出生入口、B04-06 族列表，也不新增写者或锁。"
+    },
+    {
+      "card": "R30-B04-01",
+      "id": "R30-B04-01-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "真实新候选在 stepGate 内先计算 hash 才调用 BirthGate，空程序或缺规则会先崩溃，且 RANDOM 候选须在主池入口拒绝。先做合同校验并将拒绝码写现有代际拒绝账，保留旧资产与对照的执行检查；本卡不改 B04-06 的 FAMILIES 列表。按实际编译产物更新调用索引。"
+    },
+    {
+      "card": "R30-B00-05",
+      "id": "R30-B00-05-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30MetricEvaluatorTest.java"
+      ],
+      "reason": "卡要求“MetricEvaluator 空库返回 INSUFFICIENT 的 JUnit”，但独占文件表未列测试文件；新增独立测试文件，不改既有测试。"
+    },
+    {
+      "card": "R30-B01-04",
+      "id": "R30-B01-04-a",
+      "files": [
+        "tools/r30/qual_host/SettleChunkR30HostTest.java",
+        "tools/r30/ci_build.sh"
+      ],
+      "reason": "卡要求“640行待结算分4片提交，杀进程后续做不重复（HOST回滚测试同模式）”与“结算结果与改前逐行一致”，独占文件未列测试；新增真实 SQLite 宿主测试并接入 tools/r30/ci_build.sh（在 R29 qual_host 之后运行）。"
+    },
+    {
+      "card": "R30-B01-06",
+      "id": "R30-B01-06-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ThermalPolicyTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ThermalPolicyTest.java"
+      ],
+      "reason": "卡要求 ThermalPolicy 单测（NaN/0.1/0.86/0.96 与滞回序列）但未登记测试文件；R30 改变了 0.85–0.95 档位与恢复规则（连续3次），R29 测试两处断言按新规则改为：恢复序列补第3次读数、‘再次过热’读数由0.9改为0.96，测试意图不变。"
+    },
+    {
+      "card": "R30-B00-04",
+      "id": "R30-B00-04-b",
+      "files": [
+        "tools/r30/r30-official-build.yml",
+        "tools/r30/r30-build.yml"
+      ],
+      "reason": "B00 首次官方出包的模拟器冷启动烟测失败而证据只在 artifact（会话代理不能下载）：失败时把烟测日志/startup.json/logcat 关键行打印到作业日志；发布步骤对已存在的 tag 幂等，便于同一源码重跑诊断。"
+    },
+    {
+      "card": "R30-B02-02",
+      "id": "R30-B02-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
+      ],
+      "reason": "卡第4步要求报告第3章列出 rejectedConcurrent、consecutiveFailures 当前值；第3章在 ReportR29（B01-02 所建），本卡独占表未列。"
+    },
+    {
+      "card": "R30-B02-03",
+      "id": "R30-B02-03-a",
+      "files": [
+        "tools/r30/qual_host/PendingDrawR30HostTest.java",
+        "tools/r30/ci_build.sh"
+      ],
+      "reason": "卡要求“先缺开奖→跨3期补回→原冻结只结算一次”的测试；以真实 SQLite 宿主测试实现并接入 CI。SettlementEngine 同 issue 重复结算的 androidTest 需 DbStore/模拟器，本次 NOT_RUN（代码层：settled=1 分支不写任何行、返回与首次相同的记录哈希）。"
+    },
+    {
+      "card": "R30-B03-01",
+      "id": "R30-B03-01-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30PitReplayInjectionTest.java"
+      ],
+      "reason": "卡要求反例注入测试（回放样本 trainedThrough=target 必须被拒并入账）；独占表只列 R30PitGuardTest。r30_pit_violation 表由研究冻结批次自建（CREATE TABLE IF NOT EXISTS），未改 SchemaR27。"
+    },
+    {
+      "card": "R30-B03-02",
+      "id": "R30-B03-02-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30HistoryGovernTest.java"
+      ],
+      "reason": "卡要求导入乱序/重复/缺期/跨日 fixture 测试；独占表未列测试文件。"
+    },
+    {
+      "card": "R30-B03-03",
+      "id": "R30-B03-03-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmLedgerTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27ComponentTest.java"
+      ],
+      "reason": "卡要求“同一候选二次读确认段被拒”测试；R27ComponentTest 原断言 nHoldout=n−selectEnd（即原子评分读取 H_HOLDOUT），与本卡“AtomScoreR27 只能读 H_TRAIN/H_SELECT”直接冲突，改为断言 nHoldout=0、第二阶段（H_SELECT 部分）有样本；其余断言（USEFUL/NOISE/MISSING 判定、前序性）不变且通过。"
+    },
+    {
+      "card": "R30-B03-03",
+      "id": "R30-B03-03-b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmReadStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmPersistenceTest.java",
+        "tools/r30/qual_host/ConfirmReadStoreR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "复核发现确认账仅驻内存，DDL 未执行，旧生产链也未接入；进程死亡可重新读取。补加法式表、通过既有研究写队列在读取前提交唯一确认记录、启动恢复和实际 SQLite 重启回归，旧曝光无法确定数据集时保守拒绝。进一步补进化循环的实际确认入口与重读失败处理（B03-06 继续统一评价入口，B05-01 继续实现进化与确认隔离），不增加独立数据库、不在持锁时等待。"
+    },
+    {
+      "card": "R30-B03-04",
+      "id": "R30-B03-04-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IncrementalFeatureTest.java"
+      ],
+      "reason": "卡要求增量与全量逐位一致的 HOST 测试；独占表未列测试文件。"
+    },
+    {
+      "card": "R30-B03-05",
+      "id": "R30-B03-05-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResumeTrainingTest.java"
+      ],
+      "reason": "卡要求中断/恢复一致性 HOST 测试；独占表未列测试文件。"
+    },
+    {
+      "card": "R30-B03-06",
+      "id": "R30-B03-06-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30UnifiedEvaluatorTest.java"
+      ],
+      "reason": "卡要求“同策略同数据集两次评分完全一致；换数据集缓存失效”测试；独占表未列测试文件。"
+    },
+    {
+      "card": "R30-B03-06",
+      "id": "R30-B03-06-c",
+      "files": [
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "B03源码检出直接编译报 SOURCE_CALL_INDEX_STALE；按现有身份流程以真实编译类文件重建调用索引。索引及对应 reviewed input 是生成身份，原始失败保留在本轮验证记录。"
+    },
+    {
+      "card": "R30-B02-01",
+      "id": "R30-B02-01-b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
+      ],
+      "reason": "事后核对发现提交56e7834加入时间线报告时遗漏此文件的子卡登记；另有B02-02-a使用同一文件。此次补记已发生的跨卡共享，不伪称原提交当时通过所有权检查。"
+    },
+    {
+      "card": "R30-B03-04",
+      "id": "R30-B03-04-b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "tools/r30/qual_host/LiveCacheR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "tools/r30/qual_host/FreezeSourceR30HostTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
+      ],
+      "reason": "实际SQLite调用生产liveCacheWithPlaceholder复现：积压90期只追加64期，源历史更正也不进入缓存。需要在实时冻结调用点安全处理源变化并增加真实生产方法的SQLite回归；RuntimeR27.java本属原卡。 另复现预测准备与写入之间下一期已开奖仍写成冻结；需同一写事务校验开奖源，并重建编译调用索引。 复现准备期间旧开奖被更正仍可冻结，需在单库内增加加法式数据源版本及触发器，以短事务验证开奖和导入历史未变；不拆库、不改原模型。"
+    },
+    {
+      "card": "R30-B03-05",
+      "id": "R30-B03-05-b",
+      "files": [
+        "tools/r29/qual_host/QualInboxR29HostTest.java"
+      ],
+      "reason": "run 41174517618 的 Q15 回滚测试沿用 ISSUE_1 样本作为下一期训练输入，触发 B03-05 防重复而未进入回滚断言；将第二次输入改为 ISSUE_2，保留原模型字节、游标及事务回滚断言，不放宽防重复。"
+    },
+    {
+      "card": "R30-B05-03",
+      "id": "R30-B05-03-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java",
+        "tools/r30/qual_host/TenPositionR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "每期十位置真实样本必须修改实际生产消费及切片训练路径，保留旧轮换模型、诊断和全部原始数据。新增独立ABI/owner的全状态训练checkpoint，原单写队列原子发布位置游标和权重，避免把十倍工作塞进旧单切片或重复学习同一期。新增真实SQLite恢复/旧模型字节保全回归及吞吐报告；不新开调度器或数据库，不改旧统计门槛。"
+    },
+    {
+      "card": "R30-B05-04",
+      "id": "R30-B05-04-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/OperatorGoldenR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
+        "tools/r30/qual_host/ModelSurfaceR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "I08模型叶子必须进入真实类型/范围、缓存、生成器、ABI与实时冻结消费链。提供不可变模型/概率引用及真实可用时间、trainedThrough、历史特征哈希校验；旧历史不存在合法模型即BLOCKED，绝不回填未来训练模型。调用和策略冻结同一短写事务入账，失败/缺模型记录明确原因；归档概率仅在原历史哈希一致时复用。新增真实SQLite冻结/调用对应与竞态回归，保留旧family表示。"
+    },
+    {
+      "card": "R30-B05-04",
+      "id": "R30-B05-04-b",
+      "files": [
+        "tools/r30/qual_host/TenPositionR30HostTest.java"
+      ],
+      "reason": "B05-03真实训练HOST手工建表夹具须执行B05-04新增模型来源归档DDL，保留原560样本/182输入/失败提交/真实JVM终止与旧模型字节全部断言。新增来源归档随既有预测同事务写入。先登记再改夹具。"
+    },
+    {
+      "card": "R30-B05-05",
+      "id": "R30-B05-05-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NumberRankerTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "统一号码概率须接入真实ModelSurfaceProvider与AtomNetTrainer输出，并沿用现有ReplayEvaluator的排序和PIT门，不能新增独立评分器或更改原学习数学。登记实际调用点和输出/续训/解码/概率总和的回归；先登记，待B05-04 G1通过后修改产品源码。"
+    },
+    {
+      "card": "R30-B06-01",
+      "id": "R30-B06-01-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "tools/r30/qual_host/CalibrationR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "滚动校准必须接入真实FUTURE/SELECT行的ordinal及生产校准任务，报告并列旧等宽ECE和新等质量ECE/Brier/BSS/真实拟合支持范围；缺样本明确null。原120行旧诊断API/断言保留，生产使用新的严格ordinal滚动拟合，不能把未来行用于过去评估。每片最多一个策略，计算在写锁外，原队列原子提交旧表及Q05报告；新增实际SQLite回归。先登记，B05-05 G1通过后再改产品源码。"
+    },
+    {
+      "card": "R30-B06-02",
+      "id": "R30-B06-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30BrierContributionTest.java",
+        "tools/r30/qual_host/BrierContributionR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "同期Brier配对必须从唯一回放内核取得可选概率面，并由真实AtomWorld消费者在H_SELECT计量/落库/报告。保留原原子评分及USEFUL/HARMFUL门槛；新增明确H_SELECT计数、均值和单侧95%下界。分子移除对照必须对原动作的同一K3/同一命中事件比较概率，按同一期先汇总，避免把不同动作或同一期多策略当独立样本。新增加法式贡献表及真实SQLite回归。先登记，待B06-01 G1完成再改产品文件。"
+    },
+    {
+      "card": "R30-B06-03",
+      "id": "R30-B06-03-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30MatrixRegistryTest.java",
+        "tools/r30/qual_host/MatrixRegistryR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "矩阵清单须接到真实已存R930/SU2快照与报告，不能只写常量数量。现有R930公共矩阵19类+SU2已存在的因子/教师checkpoint对象组成20项，两命名空间和输出范围明确登记，不伪造第20个R930枚举或新矩阵。只读已有表统计最近产出/数量/未产出原因，两个原生产类补登记身份/诊断元数据，不迁移或删除旧数据；新增实际SQLite来源回归。先登记后施工。"
+    },
+    {
+      "card": "R30-B06-04",
+      "id": "R30-B06-04-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CapabilityRegistryTest.java",
+        "tools/r30/qual_host/CapabilityRegistryR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "82对象清单必须读真实FamilyRegistry/ExpertProposals/EvolutionLoop/AtomNet/20矩阵注册和已存运行证据，并接到ReportData实际章节。纯定义与Android只读适配分开，继续参加原纯Java门禁；F23原教师未绑定、审计专家非出生、缺表/零产出分别说明，不伪造有效或恢复旧样本。新增真实SQLite清单/数量/时间水位回归；先登记，待B06-03 G1通过后改产品文件。"
+    },
+    {
+      "card": "R30-B07-01",
+      "id": "R30-B07-01-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmationQueueTest.java",
+        "tools/r30/qual_host/ConfirmationQueueR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "确认队列须从真实FUTURE注册/e-process只读取得，换榜事务内再次核对避免注册竞态；确认成员占原24总位，探索只用剩余额度，已存在超容量资格成员完整保留。原连续消费/alpha索引/冻结和资格阈值不改。新增真实SQLite调用refreshObservers换榜100代、容量、提交回滚、游标/回执连续及终态释放回归；先登记后施工。"
+    },
+    {
+      "card": "R30-B07-02",
+      "id": "R30-B07-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CertificateVersionTest.java",
+        "tools/r30/qual_host/CertificateVersionR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "tools/r29/qual_host/QualInboxR29HostTest.java",
+        "tools/r27/test_r27_migration.py",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "版本必须进入真实发证SQL、加法式schema迁移、当前主链证书读取和排序，不能仅有常量。旧证书版本标LEGACY_UNVERSIONED且保留原字段，不冒充当前合格；不同版本不比较，V2继续关闭。登记实际迁移/发证/投影SQLite回归；旧夹具按列名插入并显式标当前测试证书版本。旧M4在未修改产品基线也失败（错误把禁止DELETE触发器当删除），保留原失败并继续检查顶层及触发器体内真实DROP/DELETE FROM，不放宽保全规则。先登记后施工。"
+    },
+    {
+      "card": "R30-B07-03",
+      "id": "R30-B07-03-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/DecisionExplanationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionExplanationStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DecisionTraceTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "tools/r30/qual_host/DecisionExplanationR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        ".github/workflows/r30-decision-chain.yml",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "逐期解释须真实接入V51B12及V50生产决定入口，从实际冻结/证书/原选择和默认关闭用户开关取得事实；未知明确UNKNOWN，原授权判定体逐字节保留，仅包装后记录，不新建REAL授权者。增加同库加法式解释/不一致账、报告与真实SQLite/Android回归。旧h15完整文件hash检查改为剥离明确标记的只读包装并恢复原方法头后仍要求原全文件hash，其余主链所有者原校验保留；不改变判定体/阈值。实际R27意向尚需既有授权链，记录而不伪装通行。先登记后施工。"
+    },
+    {
+      "card": "R30-B07-03",
+      "id": "R30-B07-03-b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
+        "tools/r30/qual_host/RealAuthorityR30HostTest.java",
+        "tools/r30/qual_host/authority_shim/com/ethk3/novaonepro/DbStore.java"
+      ],
+      "reason": "Android负对照要求缺完整冻结/已有REAL独立拒绝。实际旧RealAuthority只读ACT而未核对完整冻结，也未直接核对新canonical REAL账，需先用旧正式编译字节在真实SQLite及只读DbStore适配复现，再按原授权者现有布尔门补只会更严的读取校验。DecisionGateEngine原判定体及全部数值门不改。额外HOST适配仅用于测试，不进入APK，不读取签名材料；先登记后施工。"
+    },
+    {
+      "card": "R30-B07-04",
+      "id": "R30-B07-04-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateRevocationR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/DrawCanonicalizerR811.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "tools/r30/qual_host/CertificateRevocationR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "证书必须在实际开奖修订/dirty/hash冲突写入的同一事务撤销：现有DrawCanonicalizer在保存/冲突事务内调用SettlementEngine新增纯委托钩子，schema为原draws安装语义变更触发器，抓取元数据及正常新开奖不误撤。R27状态和SU2原revocation表加法保留，历史依赖无法精确证明时明确保守撤销当前证书，不假称精确影响图；保留旧策略撤销记录阻止旧证据直接复活。SU2表在启动后阶段才创建，登记RuntimeCoordinator实际schema完成点，分协议安装触发器不DROP。只剥离新增Settlement委托段后仍校验原完整文件hash，原判定/结算体不改。新增实际SQLite同事务回滚/撤销/下一次实际读取拒绝与HOST耗时，Android实测留待最终CI；先登记后施工。"
+    },
+    {
+      "card": "R30-B07-04",
+      "id": "R30-B07-04-b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+        "tools/r30/qual_host/CertificateVersionR30HostTest.java"
+      ],
+      "reason": "撤销保护必须接入原发证任务的内存选择/报告，避免SQLite触发器已拒绝旧证据但任务仍把旧策略计为有效并写进mainline choice。R27发证实际读取撤销policy守卫，SU2维护在花费旧窗口alpha/重发前停止；不改任何资格数值。追加原真实300行正对照发证夹具，在同事务撤销后再次运行实际发证任务并核对状态REVOKED及缓存有效数0；先登记后改。"
+    },
+    {
+      "card": "R30-B08-01",
+      "id": "R30-B08-01-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ReportSnapshotTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ReportSnapshotAndroidTest.java",
+        "tools/r30/qual_host/ReportSnapshotR30HostTest.java",
+        "tools/r30/qual_host/report_shim/android/os/Build.java",
+        "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "12章必须接到真实主报告/导出入口，用同一份已读取的不可变事实与期号/各来源表rowid水位生成JSON及Markdown，保留旧R26/R27附件。API35以上使用公开beginTransactionReadOnly；较旧Android用单条只读SELECT隐式DEFERRED事务取得全部事实，格式化期间不再查库、不占产品写锁；导出继续原native BEGIN(DEFERRED)固定只读副本，不用EXCLUSIVE/IMMEDIATE或隐藏API。WITHOUT ROWID表明确rowid不适用并给真实主键水位；缺源null，限量数据显式分页/截断来源。新增真实SQLite双连接并发写入/前后快照一致、共享指标和只读无写锁、Android源回归；HOST只读getter/Build适配仅测试不进APK。先登记后施工。"
+    },
+    {
+      "card": "R30-B08-02",
+      "id": "R30-B08-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java",
+        "tools/r30/qual_host/ReportSnapshotR30HostTest.java",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "诊断规则必须进入真实12章报告、JSON/Markdown和主界面摘要；只消费B08-01同一不可变事实与水位，不重新查库或改变产品门槛。16条规则逐条记录条件、结论、证据强度、文件:方法、卡号、验证及未知时采集动作；PIT拒绝不冒充成功泄漏，已有行不冒充自然质量。新增空源/非法计数/真实冲突/任务未知/实际方法存在性回归，并通过现有真实SQLite报告HOST验证实际冲突到行动与三种输出共享水位；先登记后修改。"
+    },
+    {
+      "card": "R30-B08-03",
+      "id": "R30-B08-03-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisStoreSU2.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30UpgradeEvidenceTest.java",
+        "tools/r30/qual_host/UpgradeEvidenceR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "空章修复必须进入实际DiagnosisStoreSU2.report和主12章报告。原UpgradeDiagnosis统计/处方以及legacy render/toJson保持，新增R30渲染显示每个来源的UNKNOWN/INSUFFICIENT/已记录未验证状态，替换空家族/结构/账本表头；缺快照/缺表均给具体采集动作。R30同一SELECT额外读取原su2_diag_snapshot/state和su1_model_ablation任务/报告hash，保留r27_ablation.removed_child与原delta，不把旧快照未含消融误报为空表，不把DONE或行数称Q06改善。注册主摘要、3项单测、真实SQLite空/缺/已存来源回归与CI；先登记后落产品代码。"
+    },
+    {
+      "card": "R30-B08-04",
+      "id": "R30-B08-04-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+        "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+        "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ReportSnapshotAndroidTest.java",
+        "tools/r30/qual_host/ReportDeliveryR30HostTest.java",
+        "tools/r30/run_report_export_host.sh",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "实际取消/分卷必须串起已有Service、持久命令、Publication、Provider和保存/分享入口：100ms轮询，R30只读快照SQL接公开CancellationSignal，流/只读租约关闭后立即清本job派生临时文件；原库/模型/外部SAF不删。同OS boot单调取消起点与释放回执，缺可靠起点为null，不用墙钟补时。默认20MiB以内原标准ZIP；超过后按原已校验ZIP字节切part01..N，索引含全部顺序/偏移/长度/分卷及全ZIP hash与重组说明，旧格式与续传保持；分卷不是独立ZIP，前端如实说明。新增实际文件/原JNI/哈希重组、取消释放与保护原数据回归，接CI；Android取消源码回归。先登记后落产品代码，不改变原native诊断进程守卫。"
+    },
+    {
+      "card": "R30-B08-05",
+      "id": "R30-B08-05-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResearchRetentionTest.java",
+        "tools/r30/qual_host/ResearchRetentionR30HostTest.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "总预算必须接实际retention任务、完整应用目录测量和同快照存储报告；默认1500000000字节，可配置。新纯文件策略只允许明确可重算缓存，旧退役研究库须FOLDED_BACK/原copy_log回收证据及删除前持久引用；未知/未完整测量不称预算通过。为阻止原窗口清理丢失不可重算冻结/结算/证书/曝光/模型状态，在原维护开始前安装加法式逐表归档与触发器：原DELETE/清空payload在同一事务完整保留OLD字段/BLOB到不可改删档案，再沿用原折叠/窗口/资格数学，不改原RetentionR26/Diagnosis/Matrix学习算法。来源schema变更用版本触发器与registry启用指纹、旧触发器不DROP，归档不进入当前统计或训练。文件扫描/删除不在DB写锁，DB清理用B01幂等限量模板；只清图表可重建键，保护Q08/模型/校准等唯一缓存证据。注册实际Runtime、报告、纯文件及真实SQLite字节保全/回滚/过预算回归，先登记再施工。"
+    },
+    {
+      "card": "R30-B08-05",
+      "id": "R30-B08-05-b",
+      "files": [
+        "tools/r29/qual_host/shim/android/database/Cursor.java",
+        "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java"
+      ],
+      "reason": "实际退役库回收证明回归复用原TableCopierR30，原复制器通过Cursor.getType保持SQLite INTEGER/REAL/TEXT/BLOB/NULL；旧资格HOST适配尚无该API，真实运行因此NoSuchMethodError。新增基于实际JDBC返回值的类型映射，仅HOST编译/运行、不进入APK，不改产品复制器或放宽字节/缺列校验；先登记后补适配。"
+    },
+    {
+      "card": "R30-B08-05",
+      "id": "R30-B08-05-c",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ResearchRetentionAndroidTest.java"
+      ],
+      "reason": "B08批次最后一张补Android真实SQLite归档/回滚/不可删回归源码，验证WITHOUT ROWID原始复合字段和BLOB仍可保全；云端当前只编译，运行在最终同证书模拟器门禁中如实另签收。主报告摘要需显示同一快照保存的真实预算测量结果，不只在JSON/Markdown附件；缺测仍UNKNOWN/INSUFFICIENT，不新增独立查询或推算。先登记后修改。"
+    },
+    {
+      "card": "R30-B08-05",
+      "id": "R30-B08-05-d",
+      "files": [
+        "tools/r30/run_report_export_host.sh"
+      ],
+      "reason": "B08-04完整CI41214742293/job124576817353在已通过原检查与SQLite回归后，因runner没有rg命令而退出。将Host验证包装脚本源码枚举改用已有POSIX find，不改变任何产品代码、算法或门槛。B08-05当前258项最终G1及正式SQLite已通过；本子卡仅做工具兼容性修复和完整JNI/文件包装回归，新累计CI同时闭合04/05，保留原真实失败。先登记后修改。"
+    },
+    {
+      "card": "R30-B09-01",
+      "id": "R30-B09-01-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
+        "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ChartSnapshotTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
+        "tools/r30/qual_host/ChartSnapshotR30HostTest.java",
+        "tools/r30/qual_host/chart_shim/android/database/sqlite/SQLiteDatabase.java",
+        "tools/r30/ci_build.sh",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "保全原14图及排行榜，新增代际配对下界与能力覆盖两个独立缓存面板，必须从B08同一不可变事实/水位派生并同时进入报告JSON/Markdown。复用原冻结确认回执，不把进化内或重复确认当新改善；代码能力不冒充自然有效数。真实零参考线应纳入坐标范围，不伪造点或置信区间。登记纯回归、正式SQLite旧14键/同快照/坏包拒绝验证及实际图表Activity各场景截图源码；HOST三参数SQLite只读适配单独JVM且不进入APK，Android实际运行留最终同签名CI，不冒充真机。先登记后施工。"
+    },
+    {
+      "card": "R30-B09-02",
+      "id": "R30-B09-02-a",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultAndroidRunner.java",
+        "app/src/androidTest/AndroidManifest.xml",
+        "tools/r30/run_fault_matrix.sh",
+        "tools/r30/r30-official-build.yml",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "14格真实故障需要在原canonical/settlement任务写完但尚未COMMIT时真正SIGKILL，再独立进程重启核对半成品/重复/时间线与合法补齐，不能把异常回滚冒充杀进程。在DatabaseCoordinator仅增加默认空、无产品调用的ThreadLocal测试回调与两处提交前调用；回调不网络/sleep/等待，原DbStore/Settlement/Decision原体保持。测试APK专用Runner在原Application启动前路由独立持久目录，让唯一数据库owner自然打开，跨杀进程复用而不重置单例、不删原模型数据。实际HTTPS握手读超时、主测试库SQLITE_FULL及原限额恢复、注入墙钟回拨与同boot单调钟、真实来源冲突硬阻、外部ADB服务force-stop/显式重新打开与恢复分阶段收据。驱动只允许模拟器，完整失败日志保留，未运行写NOT_RUN；最终安全同证书CI接执行。先登记后施工。"
+    },
+    {
+      "card": "R30-B09-02",
+      "id": "R30-B09-02-b",
+      "files": [
+        ".github/workflows/r30.yml"
+      ],
+      "reason": "用户要求持续推进，原工作流以github.ref分组且cancel-in-progress=true，新推送会取消上一卡完整G2/G3检查，迫使源码推送串行等待约二十分钟。改为以不可变github.sha分组并不取消，保持每卡固定源码的全部原检查、工具链和超时不变；产品施工仍严格逐卡，独立固定源码的远端只读门禁可各自完成。本卡262项G1/Android编译/lint已通过，工具配置变动只检查YAML与触发执行，不重复八分钟无关回归。先登记后修改。"
+    },
+    {
+      "card": "R30-B09-03",
+      "id": "R30-B09-03-a",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30WriteWaitTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30WriteQueueAndroidTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "tools/r30/run_android_regression.sh",
+        "tools/r30/r30-official-build.yml",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz"
+      ],
+      "reason": "MAX_WAIT_MS原200ms不变，将P0/冻结门前等待和原唯一写锁取得共用同一额度，沿用已有WriterDeadlineScopeCP3且保留更紧外层截止、LIVE_FREEZE例外及整体事务原子性；取消/中断/繁忙准确计拒绝，原待处理Batch不清不改。登记3项真实等待/取消/中断/原业务错误回归与Android原writer更紧截止/冻结例外回归。作为B09末卡接最终模拟器批次回归驱动：原14图+2新图三场景48截图、单快照/保全与主链实际测试。主链测试负例原循环会在进程单例owner仍在时换伪沙箱，改由显式mode每个独立进程启动，不重置owner；正例和四负例全部由驱动执行，原断言/数学不减。B01账本deferred列表为空，不虚构MigrationRegistry修复或设备over_hard=0。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-03",
+      "id": "R30-B10-03-a",
+      "files": [
+        "tools/r30/UPGRADE_BASELINES.json",
+        "tools/r30/run_upgrade_drill.sh",
+        "tools/r30/check_upgrade_data.py",
+        "tools/r30/package_final.py",
+        "tools/r30/publish_final.sh",
+        "tools/r30/r30-build.yml",
+        "tools/r30/r30-official-build.yml",
+        "tools/r30/run_android_regression.sh",
+        "scripts/probe_r13_startup.py",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java"
+      ],
+      "reason": "最终同源码两证书交付必须对各自真实CP06/CP16旧APK进行覆盖安装和回退，记录原表/开奖/模型BLOB/资格预算保全，APK只检查公开签名不读密钥。登记仅模拟器驱动及实际SQLite摘要检查器、已公开旧APK+SHA registry、两现有缓存证书CI模板与最终单release发布：R27先产内部候选与Android门禁，官方CI等待R27全绿后汇合，最终只发布两份releaseAPK。原启动探针对非debuggable release用run-as读取prefs会假失败，已在B00真实复现；仅在adb root的一次性模拟器上显式读取原同一prefs，不改60s心跳/冷启/二启原门槛。原FoldBack实际Android回归补2MiB合成checkpoint/优化器字节与WITHOUT ROWID保全，保留四场景与所有旧断言；所有测试走专用新进程隔离，不删真实产品数据。原自然/真机缺口保留，不以模拟器替代。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-a",
+      "files": [
+        "release/release_identity.properties",
+        "release/release_manifest.json",
+        "release/r982_source_calls.manifest.json",
+        "release/r982_source_calls.tsv.gz",
+        "tools/r30/publish_final.sh",
+        ".github/workflows/r30-final-r27.yml",
+        ".github/r30-final-request.json",
+        ".github/workflows/r30-final-official.yml",
+        ".github/r30-final-official-request.json"
+      ],
+      "reason": "最终版本按B10计划升到577310101，既有包名/两套既有证书/min21/SDK36配置保持；更新生成身份并完整G1。FINAL.json逐卡及44指标保留证据等级和设备/自然质量缺口，APK/源码/公开签名/直链以真实构建收据回填。发布脚本将该账本与实际两包哈希和CI门禁合并；两个签名缓存分支只新增已审查的最终workflow及具体源码请求，不合并/改动其产品源码，不在代理云任务读取或上传私钥。当前main入口在最终两包成功后仅更新CURRENT_FINAL_PLAN指向实际R30分支与直链。先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-b",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/TableCopierR30.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
+        "tools/r30/qual_host/LargeCellCopyR30HostTest.java",
+        "tools/r30/qual_host/copy_window_shim/android/database/sqlite/SQLiteDatabase.java",
+        "tools/r30/ci_build.sh"
+      ],
+      "reason": "最终包前审查确认已装SDK36 config_cursorWindowSize=2048KiB，而原TableCopier每页SELECT整行会把2MiB checkpoint加optimizer或大JSON放进同一CursorWindow。为完整保留旧模型，先按SQLite原字节长度取轻量页元信息，再对大行的BLOB/TEXT按64KiB读取并保持原SQLite类型，页按字节限量但原500行上限/原子页写/缺列账/幂等逻辑不减；源未知/失败仍保留不截断。登记真实SQLite加明确HOST模拟平台窗口上限的先失败后通过回归（不是Android运行），Android同一2MiB夹具验证也按小窗口分块读取，不缩小模型。另校正TLS超时测试属于原2500ms连接或3500ms读取阶段，不能一律断言只会读超时；生产超时常量及所有统计/时间上限不改。尚无新APK构建，最终版本仍101。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-c",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java",
+        "tools/r30/run_android_regression.sh",
+        "tools/r30/emulator_foldback.sh"
+      ],
+      "reason": "大字段回收复核同时发现调用方用state.startsWith(COPIED)，把COPIED_WITH_MISSING_COLUMNS也当成完整回收并退役RP路由。改为只有COPIED且missingColumns为空才允许退役；缺列保留源库与ACTIVE路由并明确失败，禁止把模型字段漏复制当成功。补第5个实际Android反例，不删旧4项；相关驱动期望计数随新增测试更新。只收紧完整性守卫，不放宽任何统计/时间门槛。先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-d",
+      "files": [
+        ".github/workflows/r27.yml",
+        ".github/workflows/r13.yml"
+      ],
+      "reason": "触发最终安全构建前实际检查发现两个缓存分支的旧通用R27/R13 workflow也响应元数据push，会额外构建/发布旧产品，违背用户只交付最终两包要求。仅在原通用workflow的job条件中排除本次精确提交前缀R30-B10-04 FINAL_BUILD_REQUEST；其他push和workflow_dispatch保留原行为。最终专用workflow仍正常执行完整门禁和签名构建，未取消或放宽任何目标源码检查。只改缓存分支CI调度，不改其产品源码；先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-e",
+      "files": [
+        ".github/workflows/r30-diagnostic.yml"
+      ],
+      "reason": "最终同签名R27 Android任务真实失败，安装/两次启动已执行，测试错误仅在已上传归档。连接器下载返回FileService URL，该域名在本环境获准联网流程下CONNECT 403，停止该下载路径，不修改代理。新增只读GitHub Actions诊断：用原github.token actions:read读取指定既有失败归档，在任务日志输出测试文本与限定异常摘要，不读取任何密钥缓存、不输出原DB/API，不改产品、不放宽门禁。先登记后修改。"
+    }
+  ]
 }
