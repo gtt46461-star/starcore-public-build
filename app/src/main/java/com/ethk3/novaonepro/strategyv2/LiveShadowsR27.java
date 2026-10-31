@@ -120,6 +120,7 @@ public final class LiveShadowsR27 {
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); int frozen = 0, acted = 0;
         if (now < deadline - FREEZE_MARGIN_MS) {
             FeatureCacheR27 cache = rt.liveCacheWithPlaceholder(w, latestOrd);
+            if (cache == null) return 0; // Source head changed or is not a valid dataset; retry without freezing.
             for (Shadow s : todo) {
                 double[] out = ReplayEvaluatorR27.predictNext(s.spec, cache, s.tau);
                 boolean ok = Double.isFinite(out[0]);

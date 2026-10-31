@@ -195,23 +195,26 @@ public final class RuntimeR27 implements AutoCloseable {
 
     /** Live dataset + placeholder for the next target (family streams continue from the previous cache). */
     synchronized FeatureCacheR27 liveCacheWithPlaceholder(ResearchPoolR27.Worker w, long latestOrd) {
-        // R30-B03-04: each period only the rows newer than the cached dataset are read and appended; the full dataset is
-        // reloaded only at a rebase (first use, >LIVE_REBASE_ROWS rows, or no newer row readable).
-        if (liveData == null || liveData.size() == 0 || liveData.size() > LIVE_REBASE_ROWS) { liveData = StoreR27.loadDataset(w.ro, DATASET_ROWS); liveCache = null; }
-        else {
-            long last = liveData.ordinals[liveData.size() - 1];
-            try (android.database.Cursor c = w.ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE dirty=0 AND issue>? ORDER BY issue LIMIT 64", new String[] {liveData.issues[liveData.size() - 1]})) {
-                while (c.moveToNext()) {
-                    String issue = c.getString(0); if (!com.ethk3.novaonepro.TargetIssueResolver.isValid(issue)) continue;
-                    long ord = com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(issue); int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
-                    if (ord > last && ReplayDatasetR27.legal(p)) { liveData = liveData.append(new ReplayDatasetR27.Row(issue, ord, p)); last = ord; }
-                }
-            }
+        // Read the bounded source snapshot before reusing a stream: a backfill or correction can change
+        // an older row without adding a new head. Incremental numerical state is reused only for an exact prefix.
+        ReplayDatasetR27 fresh = StoreR27.loadDataset(w.ro, DATASET_ROWS);
+        if (fresh.size() == 0 || fresh.ordinals[fresh.size() - 1] != latestOrd) return null;
+        boolean prefix = liveData != null && liveData.size() <= fresh.size();
+        if (prefix) for (int i = 0; i < liveData.size(); i++) {
+            if (liveData.ordinals[i] != fresh.ordinals[i]
+                    || !liveData.issues[i].equals(fresh.issues[i])
+                    || !java.util.Arrays.equals(liveData.draws[i], fresh.draws[i])) { prefix = false; break; }
         }
+        if (liveData != null && !prefix) {
+            FeatureCacheR27.REBUILDS_R30.incrementAndGet();
+            if (FeatureCacheR27.REBUILD_EVENTS_R30.size() < 256)
+                FeatureCacheR27.REBUILD_EVENTS_R30.add(new Object[] {-1, latestOrd, "LIVE_SOURCE_PREFIX_CHANGED", System.currentTimeMillis()});
+        }
+        liveData = fresh;
         liveCacheKeyR30 = liveData.datasetHash + "|" + latestOrd + "|" + operatorAbiHash;
         ReplayDatasetR27 withSlot = liveData.append(new ReplayDatasetR27.Row("PLACEHOLDER", latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
         FeatureCacheR27 c = new FeatureCacheR27(withSlot, 64);
-        if (liveCache != null) { try { c.extendFrom(liveCache); } catch (RuntimeException rebuild) { /* streams rebuilt lazily */ } }
+        if (prefix && liveCache != null) c.extendFrom(liveCache);
         liveCache = c;
         return c;
     }

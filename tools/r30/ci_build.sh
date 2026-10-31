@@ -45,6 +45,10 @@ java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJa
 # R30-B02-03-a: missing draw backfilled later settles the original freeze once; recheck backoff; STALE kept.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes" -d "$T30/test" tools/r29/qual_host/QualInboxR29HostTest.java tools/r30/qual_host/PendingDrawR30HostTest.java
 java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC" com.ethk3.novaonepro.strategyv2.PendingDrawR30HostTest | tee "$LOG/r30_pending_draw_host.log"
+# R30-B03-04-b: exercise the actual live-cache reader against SQLite backlogs and source corrections.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/LiveCacheR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.LiveCacheR30HostTest | tee "$LOG/r30_live_cache_backlog_host.log"
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.LiveCacheR30HostTest correction | tee "$LOG/r30_live_cache_correction_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0
