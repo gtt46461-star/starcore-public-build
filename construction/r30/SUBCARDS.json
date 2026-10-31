@@ -914,6 +914,17 @@
         "tools/r30/run_preflight_runtime.sh"
       ],
       "reason": "内部诊断逐格失败即停止使独立故障反例需反复完整构建。将14格依次隔离执行并记录每格真实exit status，失败仍全局FAIL且不生成成功matrix.json，只有全部14格PASS才出原完整回执。每格结束强停隔离进程并恢复实际系统时间，时钟无法恢复立即停止其余格，保留NOT_RUN及失败，不放宽任何断言/时间/门槛。内部聚焦图表失败也继续原14故障以一次收齐独立问题，两个部分任何失败仍失败、不替代最终17项。最终脚本所有原断言和14/48要求保持。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-w",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultAndroidRunner.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
+        "tools/r30/qual_host/OriginalReadLeaseFixtureR30HostTest.java",
+        "tools/r30/ci_build.sh"
+      ],
+      "reason": "实际聚焦图表41243499734/job124662056782显示0卡。原SourceReadLeaseR82明确要求数据库父目录databases、祖父目录为原APPLICATION_ID，R30测试隔离root末段却是随机scope，必被原untrusted source database path守卫拒绝。仅将测试root形状改为scope/APPLICATION_ID/databases，仍在原no_backup/r30-instrumentation隔离区，不碰产品源库、不改原读租约安全判定。真实文件/JDBC SQLite及原SourceReadLease字节码复现旧目录拒绝、新隔离目录共享/独占OS文件锁接受；接原CI。图表失败补实际status文本诊断方便保留原因。仅测试/工具，main不改。先登记后施工。"
     }
   ]
 }
