@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 
 /**
  * R30-B00-03 真实 SQLite（模拟器）上的 R29 回收测试。只在一次性模拟器上运行（会改写应用数据库）。
- * 四个场景各自独立：每个测试开始先清理自己造的表/触发器/文件。
+ * 五个场景各自独立：每个测试开始先清理自己造的表/触发器/文件。
  */
 @RunWith(AndroidJUnit4.class)
 public final class R30FoldBackInstrumentedTest {
@@ -61,6 +61,11 @@ public final class R30FoldBackInstrumentedTest {
         assertEquals(0, scalar(store.coordinatorForResearchR952().readable(), "SELECT count(*) FROM sqlite_master WHERE type='trigger' AND name='r29_critical_input_write_guard_r27_r30_probe'"));
     }
 
+    private static byte[] blobChunks(SQLiteDatabase db,String column){
+        int length=(int)scalar(db,"SELECT length("+column+") FROM r27_r30_blob_fixture WHERE k='SYNTHETIC_NOT_NATURAL'");byte[] all=new byte[length];
+        for(int at=0;at<length;){int need=Math.min(65536,length-at);try(Cursor c=db.rawQuery("SELECT substr("+column+","+(at+1)+","+need+") FROM r27_r30_blob_fixture WHERE k='SYNTHETIC_NOT_NATURAL'",null)){assertTrue(c.moveToFirst());byte[] part=c.getBlob(0);assertEquals(need,part.length);System.arraycopy(part,0,all,at,need);at+=need;}}return all;
+    }
+
     @Test public void activeRouteIsFoldedBack() throws Exception {
         DbStore store = new DbStore(ctx()); reset(store);
         File rp = ctx().getDatabasePath(R29FoldBackR30.RP_FILE);
@@ -86,7 +91,7 @@ public final class R30FoldBackInstrumentedTest {
         assertEquals("rp5", text(ro, "SELECT v FROM r27_r30_probe WHERE id=5"));
         assertEquals(37, scalar(ro, "SELECT count(*) FROM r27_r30_only_in_rp"));
         assertEquals("RETIRED_BY_R30", text(ro, "SELECT phase FROM r29_database_route WHERE singleton=1"));
-        try(Cursor blob=ro.rawQuery("SELECT checkpoint,optimizer,cursor FROM r27_r30_blob_fixture WHERE k='SYNTHETIC_NOT_NATURAL'",null)){assertTrue(blob.moveToFirst());assertArrayEquals(checkpoint,blob.getBlob(0));assertArrayEquals(optimizer,blob.getBlob(1));assertEquals(241,blob.getInt(2));}
+        assertArrayEquals(checkpoint,blobChunks(ro,"checkpoint"));assertArrayEquals(optimizer,blobChunks(ro,"optimizer"));assertEquals(241,scalar(ro,"SELECT cursor FROM r27_r30_blob_fixture WHERE k='SYNTHETIC_NOT_NATURAL'"));
         assertFalse(rp.exists());
         assertTrue(new File(rp.getPath() + ".r30-retired").exists());
         assertEquals("NONE", R29FoldBackR30.run(store)); // 第二次启动为空操作
@@ -103,5 +108,13 @@ public final class R30FoldBackInstrumentedTest {
         SQLiteDatabase ro = store.coordinatorForResearchR952().readable();
         assertEquals("root", text(ro, "SELECT v FROM r27_r30_probe WHERE id=9"));
         assertEquals("RETIRED_RP_MISSING_BY_R30", text(ro, "SELECT phase FROM r29_database_route WHERE singleton=1"));
+    }
+    @Test public void missingModelColumnCannotPublishFoldbackOrRetireOriginal()throws Exception{
+        DbStore store=new DbStore(ctx());reset(store);File rp=ctx().getDatabasePath(R29FoldBackR30.RP_FILE);
+        try(SQLiteDatabase source=SQLiteDatabase.openOrCreateDatabase(rp,null)){source.execSQL("CREATE TABLE r27_r30_probe(id INTEGER PRIMARY KEY,v TEXT,original_optimizer BLOB)");source.execSQL("INSERT INTO r27_r30_probe VALUES(1,'SYNTHETIC_MISSING_COLUMN',x'0001FF00')");}
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R30_TEST_INCOMPLETE_ROUTE",db->{db.execSQL("INSERT INTO r29_database_route VALUES(1,'ACTIVE',?,'h','r',1,1)",new Object[]{R29FoldBackR30.RP_FILE});return 0;});
+        try{R29FoldBackR30.run(store);fail("missing model field was published as complete");}catch(IllegalStateException expected){assertTrue(expected.getMessage(),expected.getMessage().startsWith("R30_FOLDBACK_INCOMPLETE:"));}
+        assertTrue(rp.isFile());assertFalse(new File(rp.getPath()+".r30-retired").exists());assertEquals("ACTIVE",text(store.readable(),"SELECT phase FROM r29_database_route WHERE singleton=1"));assertEquals("FAILED_ROUTE_KEPT",text(store.readable(),"SELECT state FROM r30_foldback_state WHERE singleton=1"));
+        try(SQLiteDatabase source=SQLiteDatabase.openDatabase(rp.getPath(),null,SQLiteDatabase.OPEN_READONLY);Cursor c=source.rawQuery("SELECT hex(original_optimizer) FROM r27_r30_probe",null)){assertTrue(c.moveToFirst());assertEquals("0001FF00",c.getString(0));}
     }
 }

@@ -54,7 +54,7 @@ public final class R30FaultMatrixTest {
         ExecutorService server=Executors.newSingleThreadExecutor();CountDownLatch release=new CountDownLatch(1);
         try(ServerSocket socket=new ServerSocket(0,1,InetAddress.getByName("127.0.0.1"))){Future<?> accepted=server.submit(()->{try(Socket client=socket.accept()){release.await(10,TimeUnit.SECONDS);}catch(Exception e){throw new RuntimeException(e);}});
             long start=SystemClock.elapsedRealtime();ApiClient.RawHttpResult result=new ApiClient(store).requestGet("https://127.0.0.1:"+socket.getLocalPort()+"/SYNTHETIC_TIMEOUT_ONLY");long elapsed=SystemClock.elapsedRealtime()-start;
-            assertFalse(result.ok);assertEquals(0,result.httpCode);assertTrue("actual socket read timeout "+result.errorMessage,result.errorMessage.toLowerCase(Locale.ROOT).contains("timed out")||result.errorMessage.toLowerCase(Locale.ROOT).contains("timeout"));assertTrue("original 3500ms timeout not lowered",elapsed>=AppConfig.HTTP_READ_TIMEOUT_MS-250);release.countDown();accepted.get(3,TimeUnit.SECONDS);
+            assertFalse(result.ok);assertEquals(0,result.httpCode);assertTrue("actual socket read timeout "+result.errorMessage,result.errorMessage.toLowerCase(Locale.ROOT).contains("timed out")||result.errorMessage.toLowerCase(Locale.ROOT).contains("timeout"));assertTrue("original connect/read phase timeout not lowered",elapsed>=Math.min(AppConfig.HTTP_CONNECT_TIMEOUT_MS,AppConfig.HTTP_READ_TIMEOUT_MS)-250);release.countDown();accepted.get(3,TimeUnit.SECONDS);
             assertEquals(0,n(store.readable(),"SELECT count(*) FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE status='HTTP_OK_BODY_RECEIVED'"));
         }finally{release.countDown();server.shutdownNow();}
     }

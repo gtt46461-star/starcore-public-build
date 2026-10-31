@@ -11,5 +11,5 @@ adb install -r -t "$APK" > "$OUT/foldback-install-app.txt"
 adb install -r -t "$TAPK" > "$OUT/foldback-install-test.txt"
 adb shell am instrument -w -r -e class com.ethk3.novaonepro.R30FoldBackInstrumentedTest \
   com.starcore.research.r13.test/com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner | tee "$OUT/foldback-instrument.txt"
-grep -q 'OK (4 tests)' "$OUT/foldback-instrument.txt" || { echo 'R30_FOLDBACK_INSTRUMENTED_FAIL'; exit 1; }
+grep -q 'OK (5 tests)' "$OUT/foldback-instrument.txt" || { echo 'R30_FOLDBACK_INSTRUMENTED_FAIL'; exit 1; }
 echo 'R30_FOLDBACK_INSTRUMENTED_PASS (API34 emulator, not a physical device)' | tee "$OUT/foldback-result.txt"

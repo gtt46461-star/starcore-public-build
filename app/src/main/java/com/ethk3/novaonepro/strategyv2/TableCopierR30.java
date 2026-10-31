@@ -15,6 +15,8 @@ import java.util.List;
  */
 public final class TableCopierR30 {
     public static final int PAGE_ROWS = 500;
+    static final int CELL_CHUNK_BYTES_R30=64*1024,INLINE_ROW_BYTES_R30=64*1024;
+    static final long PAGE_BYTES_R30=1024*1024;
     public static final String LOG_DDL = "CREATE TABLE IF NOT EXISTS r30_copy_log(run_id TEXT NOT NULL,table_name TEXT NOT NULL,direction TEXT NOT NULL,"
             + "source_rows INTEGER NOT NULL,copied_rows INTEGER NOT NULL,missing_columns TEXT NOT NULL,state TEXT NOT NULL,finished_at INTEGER NOT NULL,"
             + "PRIMARY KEY(run_id,table_name,direction))";
@@ -61,30 +63,56 @@ public final class TableCopierR30 {
         final List<String> common = new ArrayList<>(), missing = new ArrayList<>();
         for (String c : src) if (dst.contains(c)) common.add(c); else missing.add(c);
         if (common.isEmpty()) throw new IllegalStateException("R30_COPY_NO_COMMON_COLUMNS:" + table);
-        StringBuilder cols = new StringBuilder(), marks = new StringBuilder();
-        for (int i = 0; i < common.size(); i++) { if (i > 0) { cols.append(','); marks.append(','); } cols.append(q(common.get(i))); marks.append('?'); }
-        final String insert = "INSERT OR REPLACE INTO " + q(table) + "(" + cols + ") VALUES(" + marks + ")";
-        final boolean rowid = hasRowid(source, table);
+        StringBuilder cols=new StringBuilder(),sizes=new StringBuilder(),types=new StringBuilder(),values=new StringBuilder();
+        for(int i=0;i<common.size();i++){
+            String col=q(common.get(i));if(i>0){cols.append(',');sizes.append('+');types.append(',');values.append(',');}
+            cols.append(col);sizes.append("coalesce(length(CAST(").append(col).append(" AS BLOB)),0)");types.append("typeof(").append(col).append(')');
+            // Raw UTF-8 bytes plus the metadata type preserve TEXT, including embedded NUL/invalid UTF-8.
+            values.append("CASE WHEN typeof(").append(col).append(")='text' THEN CAST(").append(col).append(" AS BLOB) ELSE ").append(col).append(" END");
+        }
+        final String insertPrefix="INSERT OR REPLACE INTO "+q(table)+"("+cols+") VALUES(";
+        String availableRowid=null;if(hasRowid(source,table))for(String alias:new String[]{"rowid","_rowid_","oid"})if(!src.contains(alias)){availableRowid=alias;break;}
+        final String rowidName=availableRowid;final boolean rowid=rowidName!=null;
+        final String order=rowid?rowidName:pkOrder(source,table);
         final long sourceRows = count(source, table);
-        long copied = 0, lastRowid = Long.MIN_VALUE; int offset = 0;
+        long copied=0,lastRowid=0,offset=0;boolean haveLast=false;
         while (true) {
-            final List<Object[]> page = new ArrayList<>(PAGE_ROWS);
-            String select = rowid
-                    ? "SELECT rowid," + cols + " FROM " + q(table) + " WHERE rowid>? ORDER BY rowid LIMIT " + PAGE_ROWS
-                    : "SELECT 0," + cols + " FROM " + q(table) + " ORDER BY " + pkOrder(source, table) + " LIMIT " + PAGE_ROWS + " OFFSET " + offset;
-            try (Cursor c = source.rawQuery(select, rowid ? new String[] {Long.toString(lastRowid)} : null)) {
-                while (c.moveToNext()) {
-                    Object[] row = new Object[common.size()];
-                    for (int i = 0; i < row.length; i++) row[i] = value(c, i + 1);
-                    page.add(row);
-                    if (rowid) lastRowid = c.getLong(0);
+            String where=rowid&&haveLast?" WHERE "+rowidName+">?":"";
+            String[] args=rowid&&haveLast?new String[]{Long.toString(lastRowid)}:null;
+            String tail=" FROM "+q(table)+where+" ORDER BY "+order;
+            String metadata="SELECT "+(rowid?rowidName:"0")+","+sizes+","+types+tail+" LIMIT "+PAGE_ROWS+(rowid?"":" OFFSET "+offset);
+            final List<RowR30> refs=new ArrayList<>(PAGE_ROWS);long bytes=0;
+            try(Cursor c=source.rawQuery(metadata,args)){
+                while(c.moveToNext()){
+                    long size=c.getLong(1);if(!refs.isEmpty()&&size>PAGE_BYTES_R30-bytes)break;
+                    String[] storage=new String[common.size()];for(int i=0;i<storage.length;i++)storage[i]=c.getString(i+2);
+                    refs.add(new RowR30(c.getLong(0),offset+refs.size(),size,storage));bytes+=size;
                 }
             }
-            if (page.isEmpty()) break;
-            target.tx("R30_COPY_PAGE", db -> { for (Object[] r : page) db.execSQL(insert, r); });
+            if(refs.isEmpty())break;
+            boolean smallPage=true;for(RowR30 ref:refs)if(ref.bytes>INLINE_ROW_BYTES_R30){smallPage=false;break;}
+            final List<Object[]> page = new ArrayList<>(PAGE_ROWS);
+            if(refs.size()==1&&refs.get(0).bytes>INLINE_ROW_BYTES_R30){
+                RowR30 ref=refs.get(0);String locate=rowid?" WHERE "+rowidName+"=?":" ORDER BY "+order+" LIMIT 1 OFFSET "+ref.offset;
+                String[] locateArgs=rowid?new String[]{Long.toString(ref.id)}:null;
+                Object[] row=new Object[common.size()];for(int i=0;i<row.length;i++)row[i]=boundedCellR30(source,table,common.get(i),locate,locateArgs,ref.types[i]);page.add(row);
+            }else if(smallPage){
+                String select="SELECT "+(rowid?rowidName:"0")+","+values+tail+" LIMIT "+refs.size()+(rowid?"":" OFFSET "+offset);
+                try(Cursor c=source.rawQuery(select,args)){
+                    int at=0;while(c.moveToNext()){
+                        if(at>=refs.size()||rowid&&c.getLong(0)!=refs.get(at).id)throw new IllegalStateException("R30_COPY_SOURCE_PAGE_CHANGED:"+table);
+                        Object[] row=new Object[common.size()];for(int i=0;i<row.length;i++)row[i]="text".equals(refs.get(at).types[i])?new TextBytesR30(c.getBlob(i+1)):value(c,i+1);page.add(row);at++;
+                    }
+                }
+            }else{
+                // A large row may follow several small ones in the same bounded page. Read cells outside the writer.
+                for(RowR30 ref:refs){String locate=rowid?" WHERE "+rowidName+"=?":" ORDER BY "+order+" LIMIT 1 OFFSET "+ref.offset;String[] locateArgs=rowid?new String[]{Long.toString(ref.id)}:null;Object[] row=new Object[common.size()];for(int i=0;i<row.length;i++)row[i]=boundedCellR30(source,table,common.get(i),locate,locateArgs,ref.types[i]);page.add(row);}
+            }
+            if(page.size()!=refs.size())throw new IllegalStateException("R30_COPY_SOURCE_PAGE_MISSING:"+table);
+            target.tx("R30_COPY_PAGE",db->{for(Object[] row:page){StringBuilder marks=new StringBuilder();Object[] bind=row.clone();for(int i=0;i<row.length;i++){if(i>0)marks.append(',');if(row[i] instanceof TextBytesR30){marks.append("CAST(? AS TEXT)");bind[i]=((TextBytesR30)row[i]).bytes;}else marks.append('?');}db.execSQL(insertPrefix+marks+")",bind);}});
             copied += page.size();
             offset += page.size();
-            if (page.size() < PAGE_ROWS) break;
+            if(rowid){lastRowid=refs.get(refs.size()-1).id;haveLast=true;}
         }
         final String state = copied != sourceRows ? "COUNT_MISMATCH" : missing.isEmpty() ? "COPIED" : "COPIED_WITH_MISSING_COLUMNS";
         final long copiedFinal = copied;
@@ -94,6 +122,23 @@ public final class TableCopierR30 {
                     new Object[] {runId, table, direction, sourceRows, copiedFinal, String.join(",", missing), state, System.currentTimeMillis()});
         });
         return new Outcome(table, sourceRows, copied, missing, state);
+    }
+
+    static final class RowR30 {final long id,offset,bytes;final String[] types;RowR30(long id,long offset,long bytes,String[] types){this.id=id;this.offset=offset;this.bytes=bytes;this.types=types;}}
+    static final class TextBytesR30 {final byte[] bytes;TextBytesR30(byte[] bytes){if(bytes==null)throw new IllegalStateException("R30_COPY_TEXT_BYTES_MISSING");this.bytes=bytes;}}
+    /** Each returned cursor contains at most one 64KiB cell, never a whole large model row. */
+    static Object boundedCellR30(SQLiteDatabase source,String table,String column,String locate,String[] args,String expected)throws Exception{
+        String col=q(column),from=" FROM "+q(table)+locate;long size;
+        try(Cursor c=source.rawQuery("SELECT typeof("+col+"),coalesce(length(CAST("+col+" AS BLOB)),0),CASE WHEN typeof("+col+") IN ('text','blob') THEN NULL ELSE "+col+" END"+from,args)){
+            if(!c.moveToFirst()||!expected.equals(c.getString(0)))throw new IllegalStateException("R30_COPY_SOURCE_CELL_CHANGED:"+table+":"+column);
+            if(!expected.equals("text")&&!expected.equals("blob"))return value(c,2);size=c.getLong(1);
+        }
+        if(size<0||size>Integer.MAX_VALUE-8)throw new IllegalStateException("R30_COPY_CELL_LENGTH_UNSUPPORTED:"+table+":"+column+":"+size);
+        byte[] all=new byte[(int)size];
+        for(int at=0;at<all.length;){int need=Math.min(CELL_CHUNK_BYTES_R30,all.length-at);try(Cursor c=source.rawQuery("SELECT substr(CAST("+col+" AS BLOB),"+((long)at+1)+","+need+")"+from,args)){
+            if(!c.moveToFirst()||c.isNull(0))throw new IllegalStateException("R30_COPY_CELL_CHUNK_MISSING:"+table+":"+column);byte[] part=c.getBlob(0);if(part.length!=need)throw new IllegalStateException("R30_COPY_CELL_CHUNK_SHORT:"+table+":"+column);System.arraycopy(part,0,all,at,need);at+=need;
+        }}
+        return expected.equals("text")?new TextBytesR30(all):all;
     }
 
     /** WITHOUT ROWID 表按主键列顺序分页（主键列从 PRAGMA table_info 的 pk 序号取得）。 */

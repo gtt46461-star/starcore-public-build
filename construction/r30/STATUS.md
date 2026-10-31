@@ -249,3 +249,5 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - B10-04最终版本577310101应用源码c0570ff完整G1通过：69XML共265项，失败/错误/跳过0，Android源码编译成功，lint保留原51条基线与7条未匹配。57卡/44指标/两既有证书账本结构通过，方案树仍0b7ce088。当前源码可触发最终双证书安全构建；APK字节、实际16项Android/48截图/14故障及四条覆盖回退待真实CI结果，不提前签收。
 
 - B10-04包前追加-b：已安装SDK36的config_cursorWindowSize实际为2048KiB，原整行SELECT对2MiB checkpoint+optimizer不安全；此为源审查/平台配置证据，未谎称Android已运行失败。先登记再做限量元信息及大字段分块，保护模型原字节/类型与原子重试；Android夹具不缩小。当前没有任何最终APK构建/发布请求，版本101保持。
+
+- B10-04-b旧实际TableCopier字节在真实JDBC SQLite+明确模拟2048KiB窗口时，3751581字节原行被拒，原失败保留且未称Android实测。新实现先取限量类型/字节元信息，普通页<=500行且<=1MiB，大行BLOB/TEXT只用64KiB游标分块并按原SQLite类型写；原始UTF8/NUL/非法UTF8 TEXT字节、2MiB模型/optimizer、巨大WITHOUT ROWID BLOB主键、Long.MIN rowid、浮点及幂等定向通过。缺列回收不再按COPIED前缀发布，保留ACTIVE源库并明确失败；新增第5个Android反例，原4项断言不减。TLS故障允许原2500ms连接或3500ms读阶段，生产常量未改。开始最终完整门禁，当前没有新APK构建请求。

@@ -120,6 +120,10 @@ java -Xmx768m -cp "$T30/report-platform:$T30/shim:$LOG/r30_report_export_host/ru
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/chart-db" tools/r30/qual_host/chart_shim/android/database/sqlite/SQLiteDatabase.java
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/chart-db:$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ChartSnapshotR30HostTest.java
 java -Xmx768m -cp "$T30/report-platform:$T30/chart-db:$T30/shim:$LOG/r30_report_export_host/runtime:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.ChartSnapshotR30HostTest | tee "$LOG/r30_chart_snapshot_host.log"
+# R30-B10-04: actual SQLite data with an explicitly modeled Android 2MiB cursor limit; not Android execution.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim" -d "$T30/copy-window" tools/r30/qual_host/copy_window_shim/android/database/sqlite/SQLiteDatabase.java
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/copy-window:$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/LargeCellCopyR30HostTest.java
+java -Xmx768m -cp "$T30/copy-window:$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.LargeCellCopyR30HostTest | tee "$LOG/r30_large_cell_copy_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

@@ -57,7 +57,7 @@ public final class R29FoldBackR30 {
             for (String table : tables(source)) {
                 TableCopierR30.Outcome o = TableCopierR30.copy(source, ro, root, table, runId, "R29_RP_TO_ROOT");
                 tables++; rows += o.copiedRows;
-                if (!o.state.startsWith("COPIED")) detail.append(table).append(':').append(o.state).append(';');
+                if (!"COPIED".equals(o.state) || !o.missingColumns.isEmpty()) detail.append(table).append(':').append(o.state).append(':').append(o.missingColumns).append(';');
             }
         } finally { source.close(); }
         if (detail.length() > 0) { state(root, "FAILED_ROUTE_KEPT", runId, tables, rows, drop.size(), detail.toString()); throw new IllegalStateException("R30_FOLDBACK_INCOMPLETE:" + detail); }
