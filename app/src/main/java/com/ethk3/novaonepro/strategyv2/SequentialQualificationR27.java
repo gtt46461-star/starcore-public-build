@@ -31,10 +31,11 @@ public final class SequentialQualificationR27 {
     public static double deltaMin(double actRate) { return StatsR27.clamp(actRate, 0.01, 1) * (TARGET_HR - StatsR27.BASE); }
 
     public static final class State {
-        public final String policyHash; public final long globalIndex; public final double alpha, delta;
+        public final String policyHash; public final long globalIndex; public final double alpha, delta, targetActRate;
         public double logUp, logDown, sumU, sumU2; public long n, acts, hits, lastOrdinal = -1; public String state = ACCUMULATING;
         public State(String policyHash, long globalIndex, double targetActRate) {
             this.policyHash = policyHash; this.globalIndex = globalIndex; this.alpha = alpha(globalIndex); this.delta = deltaMin(targetActRate);
+            this.targetActRate = targetActRate;
         }
         public double threshold() { return Math.log(1 / alpha); }
         double mean() { return sumU / (n + 1.0); }
@@ -65,6 +66,8 @@ public final class SequentialQualificationR27 {
         public Map<String, Object> json() {
             Map<String, Object> o = new LinkedHashMap<>();
             o.put("policyHash", policyHash); o.put("globalIndex", globalIndex); o.put("alpha", alpha); o.put("deltaMin", delta);
+            o.put("targetActRate",targetActRate);
+            o.put("deltaMinSource","PRE_REGISTERED_TARGET_ACT_RATE: clamp(rate,0.01,1)*(0.34-0.30); legacy unknown MARGIN uses 0.15; no FUTURE refit");
             o.put("logEUp", logUp); o.put("logEDown", logDown); o.put("threshold", threshold()); o.put("n", n); o.put("acts", acts); o.put("hits", hits);
             o.put("state", state); o.put("progress", progress()); double r = expectedRemaining(); o.put("expectedRemaining", Double.isFinite(r) ? (Object) r : null);
             return o;

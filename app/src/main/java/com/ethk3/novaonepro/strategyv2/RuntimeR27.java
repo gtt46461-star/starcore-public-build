@@ -92,6 +92,7 @@ public final class RuntimeR27 implements AutoCloseable {
             String birthIssue = evoData.issues[evoData.size() - 1];
             StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
             EvolutionLoopR27 loop = evo; loop.setSink(sink);
+            loop.sourceCommit = BuildConfig.SOURCE_COMMIT_R26;
             ConfirmReadStoreR30.bind(w, loop.ledger());
             int stepBefore = loop.step, genBefore = loop.generation;
             // A separate phase on this same worker: confirmation cannot run inside EvolutionLoop.step().
@@ -150,7 +151,7 @@ public final class RuntimeR27 implements AutoCloseable {
     void registerConfirmed(ResearchPoolR27.Worker w, int cap) throws Exception {
         FrozenConfirmationR30.Task task = FrozenConfirmationStoreR30.nextRegistration(w.ro);
         if (task == null) return;
-        if (!com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26.equals(task.sourceCommit)) {
+        if (!FrozenConfirmationR30.currentSemantics().equals(task.researchSemanticHash)) {
             ResearchWriteQueueR27.Batch blocked = new ResearchWriteQueueR27.Batch();
             blocked.add("UPDATE r30_frozen_confirm SET registration_state='BLOCKED_SOURCE_CHANGED' WHERE task_key=? AND registered_at=0",task.key);
             submit(w,"CONFIRM_REGISTRATION_SOURCE_CHANGED",blocked); return;
@@ -348,11 +349,19 @@ public final class RuntimeR27 implements AutoCloseable {
     // ------------------------------------------------------------------ r27-health (R27-006/048)
     final class HealthTask implements ResearchPoolR27.Task {
         long last, lastSize; boolean assetsCached; final Map<String, Long> fetchFlushed = new HashMap<>();
+        NullPipelineSimulationR30 q08;
         public String id() { return "r27-health"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if (System.currentTimeMillis() - last < 60_000) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
             last = System.currentTimeMillis(); w.writes().flush();
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
+            if(q08==null)q08=NullPipelineSimulationStoreR30.load(w.ro,BuildConfig.SOURCE_COMMIT_R26);
+            long q08Deadline=System.nanoTime()+100_000_000L;
+            for(int units=0;units<64&&!q08.complete()&&System.nanoTime()<q08Deadline;units++){
+                if(!q08.cheapWorkPending()&&pool.narrow(System.currentTimeMillis()))break;
+                q08.step(); // one checkpointable unit, no database writer is held during computation
+            }
+            NullPipelineSimulationStoreR30.checkpoint(b,q08,last);
             if (!assetsCached) {
                 // R27-053/054: build identity, card registry, source audit and R26→R27 merge status packaged as assets.
                 for (String name : new String[] {"build-identity", "r27_cards", "source-audit", "merge-status"}) {

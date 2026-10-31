@@ -49,6 +49,7 @@ public final class FrozenConfirmationR30HostTest {
             if (args[0].equals("write-and-kill")) {
                 StoreR27.EvolutionSink sink=new StoreR27.EvolutionSink(RuntimeR27.LOOP,"202610310001");
                 EvolutionLoopR27 loop=new EvolutionLoopR27(config(),new FeatureCacheR27(data()),sink,()->1L);
+                loop.sourceCommit=com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
                 loop.stepDataset();loop.champion=policy(1);loop.championTau=1;
                 loop.i00Champion=new IdeaI00RandomBaselineR27().generate(new StatsR27.SplitMix(13),new IdeaFamilyR27.Context());loop.i00Tau=1;
                 sink.policy(loop.champion,"BORN","fixture",0,loop.context().data.datasetHash);
@@ -59,6 +60,8 @@ public final class FrozenConfirmationR30HostTest {
                 commit(c,db,sink.batch);ConfirmReadStoreR30.restore(db,loop.ledger());ConfirmReadStoreR30.bind(worker,loop.ledger());
                 FrozenConfirmationR30.Result result=runtime.confirmFrozen(worker,loop,task);
                 require(result.verified,"PLANTED_FROZEN_CANDIDATE_DID_NOT_VERIFY:"+result.json());
+                Map<?,?> firstReport=(Map<?,?>)JsonR27.parse(text(c,"SELECT detail_json FROM r27_generation WHERE generation=0"));
+                require(((Number)((Map<?,?>)firstReport.get("counters")).get("verifiedImprovements")).longValue()==1,"FIRST_CONFIRMED_REPORT_COUNT_MISMATCH");
                 require(count(c,"SELECT count(*) FROM r30_confirm_trace")==2,"RAW_OUTCOMES_NOT_COMMITTED");
                 ResearchWriteQueueR27.Batch report=new ResearchWriteQueueR27.Batch();FrozenConfirmationStoreR30.generationReport(report,db,0,task,result);commit(c,db,report);
                 require(count(c,"SELECT verified FROM r27_generation WHERE generation=0")==1,"REPORT_NOT_PERSISTED");
@@ -130,7 +133,28 @@ public final class FrozenConfirmationR30HostTest {
             ResearchWriteQueueR27.Batch qualifiedReport=new ResearchWriteQueueR27.Batch();FrozenConfirmationStoreR30.generationReport(qualifiedReport,db,0,original,result);commit(c,db,qualifiedReport);
             Map<?,?> generated=(Map<?,?>)JsonR27.parse(text(c,"SELECT detail_json FROM r27_generation WHERE generation=0"));
             require(((Number)((Map<?,?>)generated.get("counters")).get("prospectiveQualified")).longValue()==1,"ACTUAL_QUALIFIED_STATE_NOT_COUNTED");
-            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|PASS");
+            EvolutionLoopR27.Config controls=config();controls.nullControl=true;
+            EvolutionLoopR27 controlLoop=new EvolutionLoopR27(controls,context.cache,new StoreR27.EvolutionSink(RuntimeR27.LOOP,"fixture"),()->2L);
+            controlLoop.generation=5;controlLoop.sourceCommit=com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26;
+            controlLoop.champion=policy(4);controlLoop.championTau=1;controlLoop.i00Champion=original.i00.spec();controlLoop.i00Tau=original.i00.temperature;
+            controlLoop.nullEvolution.champion=NullPipelineSimulationR30.neutralSeed();controlLoop.nullEvolution.lastSeed=17;
+            ReplayDatasetR27 controlData=ReplayEvaluatorR27.shuffledDataset(context.data,context.split.trainFrom,context.split.selectTo,17);
+            controlLoop.nullEvolution.championTau=new EvalContextR27(new FeatureCacheR27(controlData),context.split,null).temperature(controlLoop.nullEvolution.champion);
+            controlLoop.stepHoldout();FrozenConfirmationR30.Task controlTask=controlLoop.pendingConfirmation;
+            ResearchWriteQueueR27.Batch controlPacket=new ResearchWriteQueueR27.Batch();FrozenConfirmationStoreR30.freeze(controlPacket,controlTask,context.data);commit(c,db,controlPacket);
+            ConfirmReadStoreR30.restore(db,controlLoop.ledger());ConfirmReadStoreR30.bind(worker,controlLoop.ledger());
+            FrozenConfirmationR30.Result controlResult=runtime.confirmFrozen(worker,controlLoop,controlTask);
+            require(!controlTask.nullPolicy.evaluationDatasetHash.equals(controlTask.datasetHash),"CONTROL_VIEW_NOT_DISTINCT");
+            require(count(c,"SELECT count(*) FROM r30_confirm_read WHERE policy_hash='"+controlTask.nullPolicy.experimentId+"' AND dataset_hash='"+controlData.datasetHash+"'")==1,"CONTROL_RESERVATION_BOUND_TO_WRONG_DATA");
+            EvalContextR27 unreadable=new EvalContextR27(context.cache,context.split,poison);
+            FrozenConfirmationR30.Result cachedControl=FrozenConfirmationR30.evaluate(controlTask,unreadable,controlLoop.ledger(),FrozenConfirmationStoreR30.evidence(db,(op,b)->commit(c,db,b)));
+            require(controlResult.json().equals(cachedControl.json()),"CONTROL_VIEW_CACHE_NOT_REUSABLE");
+            NullPipelineSimulationR30 q08=new NullPipelineSimulationR30(com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26);for(int i=0;i<3;i++)q08.step();
+            ResearchWriteQueueR27.Batch q08Batch=new ResearchWriteQueueR27.Batch();NullPipelineSimulationStoreR30.checkpoint(q08Batch,q08,3);commit(c,db,q08Batch);
+            require(q08.snapshot().equals(NullPipelineSimulationStoreR30.load(db,q08.sourceCommit()).snapshot()),"Q08_CHECKPOINT_NOT_RESTORED");
+            Map<String,Object> q08Report=ReportR29.cachedPanel(db,"r30","q08");
+            require(Boolean.FALSE.equals(q08Report.get("naturalQualityEligible"))&&q08.sourceCommit().equals(q08Report.get("sourceCommit")),"Q08_REPORT_SOURCE_OR_SCOPE_WRONG");
+            System.out.println("R30_FROZEN_SQLITE|PROCESS_RESTART|RAW_CACHE_NO_REREAD_WITH_NULL_CONFIRM_LABELS|CONSUMED_WITHOUT_OUTCOME_INSUFFICIENT|ORPHAN_DATASET_RECOVERED|FIRST_PACKET_IMMUTABLE|QUALIFICATION_INDEX_PRESERVED|CORRUPT_TRACE_REJECTED|SYNTHETIC_FUTURE_STATE_COUNT_MATCHES|FIRST_REPORT_COUNT_CORRECT|CONTROL_VIEW_RESERVATION_AND_CACHE_MATCH|Q08_CHECKPOINT_AND_REPORT_MATCH|PASS");
         }
     }
     static void child(String mode,Path database)throws Exception{

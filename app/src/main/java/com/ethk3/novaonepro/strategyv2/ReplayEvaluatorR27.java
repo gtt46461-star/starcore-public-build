@@ -221,4 +221,8 @@ public final class ReplayEvaluatorR27 {
         }
         return l;
     }
+    /** Permute complete control draw rows, so features and outcomes share one synthetic history. */
+    public static ReplayDatasetR27 shuffledDataset(ReplayDatasetR27 d, int from, int to, long seed) {
+        return d.withDraws(shuffledLabels(d,from,to,seed));
+    }
 }

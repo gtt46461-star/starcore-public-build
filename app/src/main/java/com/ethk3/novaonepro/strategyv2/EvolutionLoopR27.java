@@ -81,6 +81,8 @@ public final class EvolutionLoopR27 {
     public List<PolicyAstR27.Node> derivedLeaves = new ArrayList<>();
     private long startedAt;
     public FrozenConfirmationR30.Task pendingConfirmation;
+    /** Supplied by Android; pure-Java controls/tests deliberately carry an explicit unbound provenance. */
+    public String sourceCommit = "HOST_UNBOUND";
     public boolean confirmationDispatched;
     public int generationsWithoutSelectImprovement;
     private double bestSelectSeen = Double.NEGATIVE_INFINITY;
@@ -322,6 +324,7 @@ public final class EvolutionLoopR27 {
         else generationsWithoutSelectImprovement++;
         // Negative control generation and the I00 random-baseline champion for this generation.
         if (cfg.nullControl) nullEvolution.generation(ctx.cache, ctx.split, FAMILIES, Math.max(4, (int) Math.round(cfg.births * cfg.nullShare)), rng, generation, 26);
+        if (cfg.nullControl) genStats.put("nullPipelineR30",nullEvolution.json());
         i00Generation();
     }
 
@@ -490,6 +493,7 @@ public final class EvolutionLoopR27 {
         s.put("nullChampion", nullEvolution.champion == null ? null : nullEvolution.champion.fullJson()); s.put("nullTau", nullEvolution.championTau); s.put("nullSeed", nullEvolution.lastSeed);
         List<Object> nullPop = new ArrayList<>(); for (SuccessiveHalvingR27.Candidate c : nullEvolution.population) { Map<String, Object> m = new LinkedHashMap<>(); m.put("spec", c.spec.fullJson()); m.put("tau", c.temperature); nullPop.add(m); }
         s.put("nullPopulation", nullPop);
+        s.put("nullFullPipeline",nullEvolution.snapshot());
         List<Object> pop = new ArrayList<>();
         for (Member m : population) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", m.spec.fullJson()); x.put("tau", m.tau); x.put("island", m.island); pop.add(x); }
         s.put("population", pop);
@@ -507,6 +511,7 @@ public final class EvolutionLoopR27 {
         s.put("noSelectImprovement",(long)generationsWithoutSelectImprovement); s.put("bestSelectSeen",fin(bestSelectSeen));
         s.put("frozenConfirmation",pendingConfirmation == null ? null : pendingConfirmation.json());
         s.put("confirmationDispatched",confirmationDispatched);
+        s.put("sourceCommit",sourceCommit);
         Map<String, Object> lg = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.snapshot().entrySet()) lg.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("ledger", lg);
         Map<String, Object> cl = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.controlSnapshot().entrySet()) cl.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("controlLedger", cl);
         s.put("genStats", genStats); s.put("startedAt", startedAt);
@@ -517,6 +522,7 @@ public final class EvolutionLoopR27 {
     public static EvolutionLoopR27 restore(String json, Config cfg, FeatureCacheR27 cache, Sink sink, Clock clock) {
         Map<String, Object> s = (Map<String, Object>) JsonR27.parse(json);
         EvolutionLoopR27 l = new EvolutionLoopR27(cfg, cache, sink, clock);
+        if (s.get("sourceCommit") instanceof String) l.sourceCommit=(String)s.get("sourceCommit");
         l.generation = (int) JsonR27.num(s.get("generation")); l.step = (int) JsonR27.num(s.get("step")); l.rng.state = ((Number) s.get("rng")).longValue();
         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("ledger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restore(Long.parseLong(e.getKey()), (String) h);
         if (s.get("controlLedger") instanceof Map) for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("controlLedger")).entrySet()) for (Object h : (List<Object>) e.getValue()) l.ledger.restoreControl(Long.parseLong(e.getKey()), (String) h);
@@ -527,6 +533,7 @@ public final class EvolutionLoopR27 {
         l.i00Champion = spec(s.get("i00")); l.i00Tau = JsonR27.num(s.get("i00Tau"));
         l.nullEvolution.champion = spec(s.get("nullChampion")); l.nullEvolution.championTau = JsonR27.num(s.get("nullTau")); l.nullEvolution.lastSeed = ((Number) s.get("nullSeed")).longValue();
         for (Object o : (List<Object>) s.get("nullPopulation")) { Map<String, Object> m = (Map<String, Object>) o; PolicySpecR27 sp = spec(m.get("spec")); l.nullEvolution.population.add(new SuccessiveHalvingR27.Candidate(sp, null, JsonR27.num(m.get("tau")))); }
+        if (s.get("nullFullPipeline") instanceof String) l.nullEvolution.restoreFull((String)s.get("nullFullPipeline"));
         for (Object o : (List<Object>) s.get("population")) {
             Map<String, Object> x = (Map<String, Object>) o; Member m = new Member(); m.spec = spec(x.get("spec")); m.tau = JsonR27.num(x.get("tau")); m.island = (String) x.get("island");
             // Behavior signatures are not persisted (size); they are recomputed deterministically on restore.

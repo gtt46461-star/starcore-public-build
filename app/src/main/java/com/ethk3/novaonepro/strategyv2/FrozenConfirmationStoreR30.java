@@ -100,7 +100,7 @@ public final class FrozenConfirmationStoreR30 {
                 ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
                 batch.before = db -> {
                     try (Cursor c = db.rawQuery("SELECT 1 FROM r30_confirm_read WHERE policy_hash=? AND dataset_hash=? AND block_id=?",
-                            new String[]{policy.experimentId,task.datasetHash,Long.toString(task.block)})) {
+                            new String[]{policy.experimentId,policy.evaluationDatasetHash,Long.toString(task.block)})) {
                         if (!c.moveToFirst()) throw new IllegalStateException("R30_CONFIRM_TRACE_WITHOUT_COMMITTED_RESERVATION");
                     }
                     return 0;
@@ -161,7 +161,8 @@ public final class FrozenConfirmationStoreR30 {
         record.put("holdout",holdout);
         record.put("live",count(ro,"SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'"));
         Map<String,Object> counters = new LinkedHashMap<>((Map<String,Object>)record.get("counters"));
-        try (Cursor c = ro.rawQuery("SELECT count(*) FROM r30_frozen_confirm WHERE verified=1 OR (task_key=? AND ?=1)",new String[]{task.key,result.verified ? "1" : "0"})) {
+        String countSql = result.verified ? "SELECT count(*) FROM r30_frozen_confirm WHERE verified=1 OR task_key=?" : "SELECT count(*) FROM r30_frozen_confirm WHERE verified=1";
+        try (Cursor c = ro.rawQuery(countSql,result.verified ? new String[]{task.key} : null)) {
             if (c.moveToFirst()) counters.put("verifiedImprovements",c.getLong(0));
         }
         try (Cursor c = ro.rawQuery("SELECT count(*) FROM r27_eprocess WHERE state=?",new String[]{SequentialQualificationR27.QUALIFIED})) {

@@ -29,6 +29,7 @@ public final class ReportR29 {
         out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
         out.put("issueTimelineR30", issueTimeline(db));
         out.put("behaviorDedupR30", behaviorDuplicates(db));
+        out.put("syntheticPowerQ08R30",cachedPanel(db,"r30","q08"));
         Map<String,Object> fetch = new LinkedHashMap<>(); // R30-B02-02 (sub-card B02-02-a): current process values
         fetch.put("rejectedConcurrent", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.rejectedConcurrent());
         fetch.put("consecutiveFailures", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.consecutiveFailures());
