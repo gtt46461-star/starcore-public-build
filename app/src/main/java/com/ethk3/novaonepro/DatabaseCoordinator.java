@@ -19,6 +19,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /** 星核天枢B03数据库唯一协调器。 唯一职责：连接复用、单写者调度、原子事务、幂等与审计；绝不计算概率、Lane或创建BET。 */
 public final class DatabaseCoordinator {
+    // R30-B09-02: instrumentation-only callback on its executing thread; absent by default.
+    // No product caller. Never wait, sleep, or perform network work from this callback.
+    interface BeforeCommitFaultR30 { void beforeCommit(String operation,String targetIssue,SQLiteDatabase db); }
+    static final ThreadLocal<BeforeCommitFaultR30> beforeCommitFaultR30=new ThreadLocal<>();
+    private static void faultBeforeCommitR30(String operation,String targetIssue,SQLiteDatabase db){BeforeCommitFaultR30 fault=beforeCommitFaultR30.get();if(fault!=null)fault.beforeCommit(operation,targetIssue,db);}
+
     public static final String VERSION = "V57.3.0_TIANSHU_B03_DATABASE_COORDINATOR";
     public static final String GAME_CODE = "Binance1-PK10";
     public static final String DATABASE_NAME = "binance_k3_nova_one_pro_v57.db";
@@ -1062,6 +1068,7 @@ public final class DatabaseCoordinator {
                             if (owns) db.beginTransaction();
                             T value = task.call(db, tx);
                             com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, targetIssue, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.SETTLED); // R30-B02-01
+                            faultBeforeCommitR30("R36_SETTLEMENT_CORE_R911",targetIssue,db);
                             if (owns) db.setTransactionSuccessful();
                             return TransactionResult.ok(
                                     value, false, tx.transactionHash,
@@ -1137,6 +1144,7 @@ public final class DatabaseCoordinator {
                         fallback, true, tx.transactionHash, TimeSourceR811.monoNowMs() - started);
             if (owns) db.beginTransaction();
             T value = task.call(db, tx);
+            faultBeforeCommitR30(tx.operation,tx.targetIssue,db);
             appendTransactionAudit(db, tx, "COMMITTED", "");
             if (owns) db.setTransactionSuccessful();
             return TransactionResult.ok(

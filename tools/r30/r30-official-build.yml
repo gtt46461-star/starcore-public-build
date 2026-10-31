@@ -102,7 +102,7 @@ jobs:
   emulator:
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -129,7 +129,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: bash tools/r29/emulator_smoke.sh delivered evidence/r30/emulator && bash tools/r30/emulator_foldback.sh delivered androidtest evidence/r30/emulator
+          script: bash tools/r29/emulator_smoke.sh delivered evidence/r30/emulator && bash tools/r30/emulator_foldback.sh delivered androidtest evidence/r30/emulator && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
       - name: Print emulator evidence to the job log on failure
         if: failure()
         run: |
@@ -142,4 +142,5 @@ jobs:
           name: R30-OFFICIAL-EMULATOR-SMOKE
           path: |
             evidence/r30/emulator/
+            evidence/r30/fault-matrix/
             startup-evidence/
