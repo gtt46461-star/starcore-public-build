@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ethk3.novaonepro.strategyv2.R27ReplayTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-31T00:07:13.590Z" hostname="77b944c65167" time="0.42">
+  <properties/>
+  <testcase name="su1SegmentedHistoryDoesNotThrowOnGaps" classname="com.ethk3.novaonepro.strategyv2.R27ReplayTest" time="0.003"/>
+  <testcase name="replayAndLiveAreBitIdenticalOverLast200" classname="com.ethk3.novaonepro.strategyv2.R27ReplayTest" time="0.382"/>
+  <testcase name="datasetHashAndIncrementalAppend" classname="com.ethk3.novaonepro.strategyv2.R27ReplayTest" time="0.001"/>
+  <testcase name="threeGapsGiveFourSegmentsAndCountedSkips" classname="com.ethk3.novaonepro.strategyv2.R27ReplayTest" time="0.005"/>
+  <testcase name="linearCandidateFullReplaySpeed" classname="com.ethk3.novaonepro.strategyv2.R27ReplayTest" time="0.028"/>
+  <system-out><![CDATA[R27_HOST|R27-017_PASS segments=4 newestSegment=67 SKIPPED_GAP=330
+R27_HOST|H02_PASS compared=200 bitIdentical=true
+R27_HOST|R27-013_PASS hash=71f46ea4d7118e11 gaps=1=segments-1
+R27_HOST|H03_PASS segments=4 skippedGap=8 nSched=3000
+R27_HOST|REPLAY_SPEED linear5000ms=2.470694 (phone target ≤50ms; host measurement)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

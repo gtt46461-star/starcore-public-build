@@ -4,95 +4,111 @@
   "localBranch": "construction/r29-20261030",
   "planCommit": "96fb4355748a2f28e31927e1f9cb8cb61fac6547",
   "baselineRechecked": "df09ef57a9d03e39ab8ce0756ad48b56acebf7b9",
-  "latestAppCodeCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
-  "versionCode": 577291015,
-  "status": "B01_CP15_NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+  "latestAppCodeCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+  "versionCode": 577291016,
+  "status": "B01_CP16_FROZEN_CANONICAL_PASS_ANDROID_CI_APK_PENDING_NOT_ACCEPTED",
   "wholeBatchesAccepted": 1,
   "wholeCardsAccepted": 3,
-  "device": "CP15_NATIVE10_CLEAN_PASS_WARM_FAILED_FORMAL4_NOT_STARTED_PHYSICAL_NOT_RUN",
+  "device": "CP16_EXACT_SOURCE_RUNS_ACTIVE_FORMAL4_NOT_STARTED_PHYSICAL_NOT_RUN",
   "quality": "INSUFFICIENT_NO_NEW_NATURAL_SAMPLE",
   "real": "BLOCKED_NO_VERIFIED_CERTIFICATE",
   "nextCard": "R29-004..008 B01 exact-source actual installation acceptance",
   "nextActions": [
-    "Audit exact CP15 native10,53HOST secure builds and independent fullApp upgrade+clean receipts; no inherited results.",
-    "After candidate allPASS execute actual CP06 debug/release x R13/R27 four installation cases.",
-    "Only after B01 HOST_VERIFIED engineering delivery proceed B02 cards009..013 with current scope and RootAuthority APIs; pending physical/quality/historical drift limits remain."
+    "Audit exact CP16 native10, independent full-App CP06 upgrade and clean, 54 HOST secure builds and both signed public APK identities; no CP15 passes inherited.",
+    "Only after candidate prerequisites actually pass execute CP06 debug/release x R13/R27 four installation cases.",
+    "After B01 engineering HOST_VERIFIED + installable APK + explicit device/quality pending-state acceptance immediately proceed B02 cards009..013; physical/natural/historical V1 drift limitations remain."
   ],
-  "qaCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+  "qaCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
   "delivery": "construction/r29/delivery/CP06.json",
   "mainEntryCommit": "13192296a196a8dfc971cb02a98255c65a61ba0e",
-  "currentCheckpoint": "CP15_MIXED_REAL_RESULT_CP16_ROOT_DRIFT_REPAIR",
+  "currentCheckpoint": "CP16_FROZEN_VALIDATING_NOT_ACCEPTED",
   "lastVerifiedDelivery": "construction/r29/delivery/CP06.json",
   "androidIntegration": {
-    "sourceCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
-    "implementationCommit": "cf066e1ec416686a16c203a391b2db106dfe88d9",
+    "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+    "implementationCommit": "d3d17625e97bfd78173ae9a58803c7c071a2d3f3",
     "canonicalSavedWrapper": {
       "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
-      "sourceCommit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
-      "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY",
-      "duration": "5m50s",
+      "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+      "duration": "4m 36s",
       "junit": {
         "xml": 32,
         "tests": 164,
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "oldestMtimeUtc": "2026-10-30T23:17:53.357318+00:00"
+        "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+        "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
       },
       "semanticMutations": 8,
       "lintTasks": [
-        "> Task :app:lintAnalyzeReleaseUnitTest",
-        "> Task :app:lintAnalyzeRelease",
-        "> Task :app:lintReportRelease UP-TO-DATE"
+        "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+        "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+        "> Task :app:lintReportRelease UP-TO-DATE",
+        "> Task :app:lintRelease"
       ],
       "lintFreshReportClaim": false,
-      "lintExplanation": "Analyze executed; UP_TO_DATE report reused. Fresh CI lint audited separately.",
-      "canonicalLogSha256": "1c8428ef240be3c519d84fbfeaa56b030aedff55adc2067eeb61d107ee452c2f",
+      "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+      "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+      "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+      "interruptedAttempt": {
+        "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+        "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+        "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+        "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+      },
       "offlineProtocolQA": 44,
       "offlineSmokeOrchestration": 10,
-      "offlineLogs": "evidence/r29/batch01/cp15-repair-host/",
+      "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
       "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
       "B01": "NOT_ACCEPTED"
     },
     "runs": {
       "nativeTen": {
-        "run": 41143250810,
-        "job": 124362273808,
-        "status": "RUNNING_EXACT_CP15_SOURCE",
-        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143250810"
+        "run": 41147487507,
+        "job": 124375892172,
+        "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+        "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
       },
       "r13SecureBuild": {
-        "run": 41143253308,
-        "job": 124362281568,
-        "status": "RUNNING_EXACT_CP15_SOURCE",
-        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143253308"
+        "run": 41147488534,
+        "job": 124375896150,
+        "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+        "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
       },
       "fullAppDiagnostic": {
-        "run": 41143255308,
-        "job": 124362287289,
-        "status": "RUNNING_EXACT_CP15_SOURCE",
-        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143255308"
+        "run": 41147490347,
+        "job": 124375901682,
+        "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+        "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
       },
       "r27SecureBuild": {
-        "run": 41143256925,
-        "job": 124362292645,
-        "status": "RUNNING_EXACT_CP15_SOURCE",
-        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41143256925"
+        "run": 41147492365,
+        "job": 124375909067,
+        "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+        "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
       }
     },
     "hostRepair": {
-      "receipt": "evidence/r29/batch01/cp15-repair-host/summary.json",
-      "receiptSha256": "7ba49c9af30154f663a2d160e731d3174baa344387df2ced30104608430a2107",
+      "receipt": "evidence/r29/batch01/cp16-repair-host/summary.json",
+      "receiptSha256": "46b526b75905e3e27ceef5187b21f2b2e2264c51479cec16397effce7a51e26a",
       "status": "PASS_SELECTED_HOST_ANDROID_PENDING",
       "positiveChecks": {
-        "durableContinuityLifecycle": 30,
-        "migratedLease": 17,
-        "originalColdStart": 13,
-        "originalOwner": 12,
+        "rootNotificationFence": 21,
+        "durableHandoff": 34,
+        "ackRecovery": 19,
         "protocolOffline": 44,
         "smokeOrchestration": 10
       },
-      "negativeControls": "Actualoldb8wrongwaitreasonandoldb8claimleasefail;old84lost64/modelgapstillrejected",
+      "negativeControls": {
+        "old51FalseRejection": "ActualproductionRootP0onlynotificationcausesoldfalsepositiveROOT_RESEARCH_ADVANCED_AFTER_SEAL,oldN3assertrejects",
+        "legacyV1Boundary": "V1exactfullRoothashmatch requiredbeforeV2upgrade;alreadymovedV1requiresmatchingRootRECOVERY_REQUIRED,Root+oldsealedretained,noautorebase",
+        "rawFailureEvidence": "SHA_BOUND_IN_REPAIR_RECEIPT"
+      },
       "scope": "SELECTED_HOST_AND_OFFLINE_ONLY_NEW_ANDROID_ACCEPTANCE_PENDING"
     },
     "thresholdsUnchanged": {
@@ -109,5 +125,6 @@
       "r27-release": "NOT_STARTED"
     },
     "engineeringAccepted": false
-  }
+  },
+  "candidateDelivery": "construction/r29/delivery/CP16.json"
 }

@@ -51,9 +51,9 @@
       "test logs",
       "report manifest"
     ],
-    "status": "CP15_NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+    "status": "CP16_FROZEN_CANONICAL_PASS_ACTUAL_ANDROID_CI_APK_PENDING_NOT_ACCEPTED",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
-    "source_commit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "source_commit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
     "evidence": "evidence/r29/batch01/validated-7050248/summary.json",
     "acceptance_state": "NOT_ACCEPTED",
     "latest_validation": {
@@ -66,6 +66,215 @@
       "targets_relaxed": false
     },
     "candidate_validation": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    },
+    "candidate_checkpoint": "construction/r29/delivery/CP16.json",
+    "engineering_accepted": false,
+    "cp12_status": {
+      "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
+      "localCanonical": "PASS5m7s32freshXML164zeroFailureErrorSkip+8semantic",
+      "fullCiExpectedHost": 47,
+      "nativeExpectedCases": 10,
+      "wholeApp": "RUNNING",
+      "formalCp06Matrix": "NOT_STARTED",
+      "priorCP11": "FAILED_EXACT_SOURCE_NATIVE8_OF10_AND_UPGRADE_NEW_TASK_ERROR"
+    },
+    "cp13_status": {
+      "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
+      "localCanonical": "PASS5m10s32freshXML164zeroFailureErrorSkip+8semantic",
+      "fullCiExpectedHost": 49,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQaExpected": 44,
+      "smokeOrchestrationExpected": 10,
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "priorCP12": "NATIVE10_AND_SIGNERS_PASS_BUT_WHOLE_APP_INCUMBENT_UNSLICED_FAIL"
+    },
+    "cp13_actual": "NATIVE9_OF10_FAIL_UPGRADE_UNSLICED_CLEAN64_ACK_GAP_AND_QA41_OF44_FAIL",
+    "cp14_status": {
+      "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
+      "localCanonical": "PASS5m8s32freshXML164zeroFailureErrorSkip+8semantic",
+      "fullCiExpectedHost": 52,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
+    },
+    "cp14_actual": "WHOLE_APP_BOTH_PASS_NATIVE8_OF10_FAIL_SCHEMA44S_PASS_FIRSTSERVICE70S_FAIL_WRITES_AFTER_NOT_REACHED",
+    "cp15_status": {
+      "source": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+      "localCanonical": "PASS5m50s32freshXML164zeroFailureErrorSkip+8semantic",
+      "fullCiExpectedHost": 53,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
+    },
+    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_BOTH_SIGNED_BUILD_PUBLIC_IDENTITIES_PASS_FORMAL4_NOT_STARTED",
+    "cp16_status": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    },
+    "historical_cp11_candidate_validation": {
       "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
       "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
       "checkpoint": "CP11",
@@ -162,54 +371,7 @@
         "sourceFrozen": false,
         "targetsRelaxed": false
       }
-    },
-    "candidate_checkpoint": "construction/r29/delivery/CP15.json",
-    "engineering_accepted": false,
-    "cp12_status": {
-      "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
-      "localCanonical": "PASS5m7s32freshXML164zeroFailureErrorSkip+8semantic",
-      "fullCiExpectedHost": 47,
-      "nativeExpectedCases": 10,
-      "wholeApp": "RUNNING",
-      "formalCp06Matrix": "NOT_STARTED",
-      "priorCP11": "FAILED_EXACT_SOURCE_NATIVE8_OF10_AND_UPGRADE_NEW_TASK_ERROR"
-    },
-    "cp13_status": {
-      "source": "84c360e09eaff62fdb2ce63dffdf21572f282c52",
-      "localCanonical": "PASS5m10s32freshXML164zeroFailureErrorSkip+8semantic",
-      "fullCiExpectedHost": 49,
-      "nativeExpectedCases": 10,
-      "protocolOfflineQaExpected": 44,
-      "smokeOrchestrationExpected": 10,
-      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
-      "formalCp06Matrix": "NOT_STARTED",
-      "priorCP12": "NATIVE10_AND_SIGNERS_PASS_BUT_WHOLE_APP_INCUMBENT_UNSLICED_FAIL"
-    },
-    "cp13_actual": "NATIVE9_OF10_FAIL_UPGRADE_UNSLICED_CLEAN64_ACK_GAP_AND_QA41_OF44_FAIL",
-    "cp14_status": {
-      "source": "b8de949cb79d5f7d944440580ba7f3d83e43b298",
-      "localCanonical": "PASS5m8s32freshXML164zeroFailureErrorSkip+8semantic",
-      "fullCiExpectedHost": 52,
-      "nativeExpectedCases": 10,
-      "protocolOfflineQa": 44,
-      "smokeOrchestration": 10,
-      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
-      "formalCp06Matrix": "NOT_STARTED",
-      "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
-    },
-    "cp14_actual": "WHOLE_APP_BOTH_PASS_NATIVE8_OF10_FAIL_SCHEMA44S_PASS_FIRSTSERVICE70S_FAIL_WRITES_AFTER_NOT_REACHED",
-    "cp15_status": {
-      "source": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
-      "localCanonical": "PASS5m50s32freshXML164zeroFailureErrorSkip+8semantic",
-      "fullCiExpectedHost": 53,
-      "nativeExpectedCases": 10,
-      "protocolOfflineQa": 44,
-      "smokeOrchestration": 10,
-      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
-      "formalCp06Matrix": "NOT_STARTED",
-      "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
-    },
-    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_SIGNERS_PENDING"
+    }
   },
   {
     "id": "B02",

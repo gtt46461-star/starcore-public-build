@@ -214,8 +214,8 @@
     "depends": [
       "R29-003"
     ],
-    "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+    "implementation_status": "IMPLEMENTED_CP16_ROOT_NOTIFICATION_FENCE_REPAIR_FROZEN_UNDER_VALIDATION",
+    "verification_status": "CP16_CANONICAL_PASS_ANDROID_CI_APK_AND_FORMAL4_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -236,11 +236,11 @@
       "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
       "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "source_commit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint07/",
-    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
+    "source_commit_state": "CP16_FROZEN_ACTUAL_VALIDATION_PENDING_NOT_ACCEPTED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
     "evidence": [
       "evidence/r29/batch01/unified-host/summary.json",
@@ -354,7 +354,7 @@
         "targetsRelaxed": false
       }
     },
-    "candidate_checkpoint": "construction/r29/delivery/CP15.json",
+    "candidate_checkpoint": "construction/r29/delivery/CP16.json",
     "engineering_accepted": false,
     "cp12_status": {
       "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
@@ -400,7 +400,88 @@
       "formalCp06Matrix": "NOT_STARTED",
       "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
     },
-    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_SIGNERS_PENDING"
+    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_BOTH_SIGNED_BUILD_PUBLIC_IDENTITIES_PASS_FORMAL4_NOT_STARTED",
+    "cp16_status": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    }
   },
   {
     "id": "R29-005",
@@ -434,8 +515,8 @@
     "depends": [
       "R29-004"
     ],
-    "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+    "implementation_status": "IMPLEMENTED_CP16_ROOT_NOTIFICATION_FENCE_REPAIR_FROZEN_UNDER_VALIDATION",
+    "verification_status": "CP16_CANONICAL_PASS_ANDROID_CI_APK_AND_FORMAL4_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -455,11 +536,11 @@
       "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
       "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "source_commit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint07/",
-    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
+    "source_commit_state": "CP16_FROZEN_ACTUAL_VALIDATION_PENDING_NOT_ACCEPTED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
     "evidence": [
       "evidence/r29/batch01/unified-host/summary.json",
@@ -573,7 +654,7 @@
         "targetsRelaxed": false
       }
     },
-    "candidate_checkpoint": "construction/r29/delivery/CP15.json",
+    "candidate_checkpoint": "construction/r29/delivery/CP16.json",
     "engineering_accepted": false,
     "cp12_status": {
       "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
@@ -619,7 +700,88 @@
       "formalCp06Matrix": "NOT_STARTED",
       "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
     },
-    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_SIGNERS_PENDING"
+    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_BOTH_SIGNED_BUILD_PUBLIC_IDENTITIES_PASS_FORMAL4_NOT_STARTED",
+    "cp16_status": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    }
   },
   {
     "id": "R29-006",
@@ -653,8 +815,8 @@
     "depends": [
       "R29-005"
     ],
-    "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+    "implementation_status": "IMPLEMENTED_CP16_ROOT_NOTIFICATION_FENCE_REPAIR_FROZEN_UNDER_VALIDATION",
+    "verification_status": "CP16_CANONICAL_PASS_ANDROID_CI_APK_AND_FORMAL4_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -677,7 +839,7 @@
       "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
       "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "source_commit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "evidence_checkpoint": "evidence/r29/checkpoint05/",
@@ -696,7 +858,7 @@
       "evidence": "evidence/r29/batch01/failed/device-1d2f1565/four-matrix-local-audit.json",
       "targets_relaxed": false
     },
-    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
+    "source_commit_state": "CP16_FROZEN_ACTUAL_VALIDATION_PENDING_NOT_ACCEPTED",
     "candidate_validation": {
       "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
       "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
@@ -795,7 +957,7 @@
         "targetsRelaxed": false
       }
     },
-    "candidate_checkpoint": "construction/r29/delivery/CP15.json",
+    "candidate_checkpoint": "construction/r29/delivery/CP16.json",
     "engineering_accepted": false,
     "cp12_status": {
       "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
@@ -841,7 +1003,88 @@
       "formalCp06Matrix": "NOT_STARTED",
       "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
     },
-    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_SIGNERS_PENDING"
+    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_BOTH_SIGNED_BUILD_PUBLIC_IDENTITIES_PASS_FORMAL4_NOT_STARTED",
+    "cp16_status": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    }
   },
   {
     "id": "R29-007",
@@ -874,8 +1117,8 @@
     "depends": [
       "R29-006"
     ],
-    "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+    "implementation_status": "IMPLEMENTED_CP16_ROOT_NOTIFICATION_FENCE_REPAIR_FROZEN_UNDER_VALIDATION",
+    "verification_status": "CP16_CANONICAL_PASS_ANDROID_CI_APK_AND_FORMAL4_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -895,7 +1138,7 @@
       "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
       "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "source_commit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
@@ -913,7 +1156,7 @@
       "evidence": "evidence/r29/batch01/failed/device-1d2f1565/four-matrix-local-audit.json",
       "targets_relaxed": false
     },
-    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
+    "source_commit_state": "CP16_FROZEN_ACTUAL_VALIDATION_PENDING_NOT_ACCEPTED",
     "candidate_validation": {
       "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
       "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
@@ -1012,7 +1255,7 @@
         "targetsRelaxed": false
       }
     },
-    "candidate_checkpoint": "construction/r29/delivery/CP15.json",
+    "candidate_checkpoint": "construction/r29/delivery/CP16.json",
     "engineering_accepted": false,
     "cp12_status": {
       "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
@@ -1058,7 +1301,88 @@
       "formalCp06Matrix": "NOT_STARTED",
       "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
     },
-    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_SIGNERS_PENDING"
+    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_BOTH_SIGNED_BUILD_PUBLIC_IDENTITIES_PASS_FORMAL4_NOT_STARTED",
+    "cp16_status": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    }
   },
   {
     "id": "R29-008",
@@ -1086,8 +1410,8 @@
     "depends": [
       "R29-007"
     ],
-    "implementation_status": "IMPLEMENTED_ACTUAL_APP_INSTALLATION_FAILURE_UNDER_REPAIR",
-    "verification_status": "NATIVE10_CLEAN_PASS_WARM_DRIFT_FAIL_CP16_REPAIR",
+    "implementation_status": "IMPLEMENTED_CP16_ROOT_NOTIFICATION_FENCE_REPAIR_FROZEN_UNDER_VALIDATION",
+    "verification_status": "CP16_CANONICAL_PASS_ANDROID_CI_APK_AND_FORMAL4_PENDING",
     "evidence_required": [
       "before_after_file_hashes",
       "source_commit",
@@ -1111,7 +1435,7 @@
       "1d CI36HOST/164JUnit/8semantic and signed APK identities pass; Native6d byte-identical product9/9 Sandbox pass. Four actual CP06 upgrade cases FAIL because RP database missing after two startup checks. Complete data comparison/clean phase NOT_REACHED. B01 not accepted.",
       "CP11 exact2cf local canonical164+8 PASS; actual native8/10 FAIL original60s schema/first-service targets; whole-App PUBLISHED but new expert-E12 UNSLICED error1 FAIL; clean/formal four NOT_STARTED. CP12 repair in progress and unverified; prior05 native10/warm upgrade pass does not accept2cf."
     ],
-    "source_commit": "51cca638e3dd2e22ff315a30235cf31b3974eb72",
+    "source_commit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
     "apk_checkpoint": "construction/r29/delivery/CP07.json",
     "acceptance_state": "NOT_ACCEPTED",
     "checkpoint07": "Typed verified independent-file cutover and sealed baseline; isolated writer; realtime registration; versioned projection; drained legacy scheduler pool plugin; paired private report snapshot. Full legacy asset inventory/export and Android lifecycle acceptance remain pending.",
@@ -1129,7 +1453,7 @@
       "evidence": "evidence/r29/batch01/failed/device-1d2f1565/four-matrix-local-audit.json",
       "targets_relaxed": false
     },
-    "source_commit_state": "CP11_ACTUAL_ANDROID_FAILED_CP12_SOURCE_EDITING_UNVERIFIED",
+    "source_commit_state": "CP16_FROZEN_ACTUAL_VALIDATION_PENDING_NOT_ACCEPTED",
     "candidate_validation": {
       "source": "2cf09d56fbffb67d7b942aceba9293a01d00143c",
       "productFixCommit": "0aa96701e5a489bc09c60fb170aa398e19f5630f",
@@ -1228,7 +1552,7 @@
         "targetsRelaxed": false
       }
     },
-    "candidate_checkpoint": "construction/r29/delivery/CP15.json",
+    "candidate_checkpoint": "construction/r29/delivery/CP16.json",
     "engineering_accepted": false,
     "cp12_status": {
       "source": "116888fe641aa0f67c4ef85659d9fa0f1303c4b7",
@@ -1274,7 +1598,88 @@
       "formalCp06Matrix": "NOT_STARTED",
       "historicalUnfencedOrAdvancedPending": "RECOVERY_REQUIRED_OLD_ROOT_BASELINE_RETAINED_NO_AUTOMATIC_REBASE"
     },
-    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_SIGNERS_PENDING"
+    "cp15_actual": "NATIVE10_AND_CLEAN_PASS_WARM_RENAMED_ROOT_RESEARCH_DRIFT_FAIL_BOTH_SIGNED_BUILD_PUBLIC_IDENTITIES_PASS_FORMAL4_NOT_STARTED",
+    "cp16_status": {
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "checkpoint": "CP16",
+      "sourceFrozen": true,
+      "state": "FROZEN_REPAIR_CANDIDATE_VALIDATION_PENDING_NOT_ACCEPTED",
+      "canonical": {
+        "schema": "R29_EXACT_SOURCE_LOCAL_CANONICAL_RECEIPT_1",
+        "sourceCommit": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+        "status": "PASS_SAVED_WRAPPER_LOCAL_ONLY_AFTER_ENVIRONMENT_INTERRUPTION",
+        "duration": "4m 36s",
+        "junit": {
+          "xml": 32,
+          "tests": 164,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "oldestMtimeUtc": "2026-10-31T00:07:15.673171+00:00",
+          "newestMtimeUtc": "2026-10-31T00:07:15.680249+00:00"
+        },
+        "semanticMutations": 8,
+        "lintTasks": [
+          "> Task :app:lintAnalyzeRelease UP-TO-DATE",
+          "> Task :app:lintAnalyzeReleaseUnitTest UP-TO-DATE",
+          "> Task :app:lintReportRelease UP-TO-DATE",
+          "> Task :app:lintRelease"
+        ],
+        "lintFreshReportClaim": false,
+        "lintExplanation": "Resumed wrapper reused lintAnalyzeRelease, lintAnalyzeReleaseUnitTest and lintReportRelease UP-TO-DATE. Prior interrupted CP16 wrapper executed both analyses but never completed the wrapper. No fresh local lint report is claimed; exact-source fresh CI report is audited separately.",
+        "canonicalLogSha256": "6280504d12bb7d8b4f1bf52005ce21914619aaae14a4b19b95d3ed673f9f3090",
+        "canonicalLog": "evidence/r29/batch01/cp16-local-canonical/canonical-resumed.log",
+        "interruptedAttempt": {
+          "status": "INTERRUPTED_BY_ENVIRONMENT_RESET_NO_EXIT_RECEIPT_NO_PASS_CLAIM",
+          "log": "evidence/r29/batch01/cp16-local-canonical/canonical-interrupted.log",
+          "sha256": "744840d0c504d5b49884d8784d08fe3545e33235646477298ebf7cfdda869c2e",
+          "lastObservedTask": "> Task :app:lintAnalyzeRelease"
+        },
+        "offlineProtocolQA": 44,
+        "offlineSmokeOrchestration": 10,
+        "offlineLogs": "evidence/r29/batch01/cp16-repair-host/",
+        "android": "RUNNING_EXACT_SOURCE_CI_NOT_INHERITED",
+        "B01": "NOT_ACCEPTED"
+      },
+      "fullCiExpectedHost": 54,
+      "nativeExpectedCases": 10,
+      "protocolOfflineQa": 44,
+      "smokeOrchestration": 10,
+      "runs": {
+        "nativeTen": {
+          "run": 41147487507,
+          "job": 124375892172,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147487507",
+          "controlCommit": "14ef48661762464a26cab111ffbcf057f87b0e24"
+        },
+        "r13SecureBuild": {
+          "run": 41147488534,
+          "job": 124375896150,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147488534",
+          "controlCommit": "962c274d119aa951d5ef55e5b9790a75560aaf56"
+        },
+        "fullAppDiagnostic": {
+          "run": 41147490347,
+          "job": 124375901682,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147490347",
+          "controlCommit": "04fa3c0d654a30b90c2944136cea200738a80ee6"
+        },
+        "r27SecureBuild": {
+          "run": 41147492365,
+          "job": 124375909067,
+          "status": "RUNNING_EXACT_CP16_SOURCE_PENDING_ACTUAL_RECEIPTS",
+          "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41147492365",
+          "controlCommit": "36244b4118de7f8536054b72a55e5829a08dd326"
+        }
+      },
+      "wholeApp": "RUNNING_UPGRADE_AND_INDEPENDENT_CLEAN",
+      "formalCp06Matrix": "NOT_STARTED",
+      "targets_relaxed": false,
+      "acceptanceInherited": false
+    }
   },
   {
     "id": "R29-009",
