@@ -946,6 +946,14 @@
         "tools/r30/r30-preflight.yml"
       ],
       "reason": "已有14格实际10PASS，当前仅kill_freeze/sqlite_full前后台4格修复和图表选择变化。内部诊断新增显式charts-and-remaining-faults模式，仅跑实际48PNG及这4格，输出独立diagnostic-matrix.json明确full14Acceptance=false，不生成matrix.json；默认及两最终release仍完整14格且17/48/四演练严格不改。内部debug/native构建使用平台支持android.injected.build.abi=x86_64，只匹配该模拟器，最终APK仍默认arm64/armeabi/x86_64全部ABI。用于减少重复诊断耗时，不代替完整最终验收，先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-z",
+      "files": [
+        "tools/r30/r30-preflight.yml"
+      ],
+      "reason": "内部聚焦41246526760/job124671005492两次Gradle实际BUILD SUCCESS，但指定android.injected.build.abi使AGP将APK保留在中间产物目录，原outputs/apk/debug路径不存在，安装前失败，实际图表/4格一项都未跑。本子卡仅令内部预检根据AGP output-metadata.json同时核对variantName/applicationId和唯一APK，从输出/中间APK目录复制到RUNNER_TEMP固定安装位置；必须恰好找到一个真实产物，否则失败。最终签名、最终三ABI、17/48/14/四演练及产品源码不改。失败留证，先登记后施工。"
     }
   ]
 }
