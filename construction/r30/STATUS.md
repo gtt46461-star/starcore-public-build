@@ -251,3 +251,5 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - B10-04包前追加-b：已安装SDK36的config_cursorWindowSize实际为2048KiB，原整行SELECT对2MiB checkpoint+optimizer不安全；此为源审查/平台配置证据，未谎称Android已运行失败。先登记再做限量元信息及大字段分块，保护模型原字节/类型与原子重试；Android夹具不缩小。当前没有任何最终APK构建/发布请求，版本101保持。
 
 - B10-04-b旧实际TableCopier字节在真实JDBC SQLite+明确模拟2048KiB窗口时，3751581字节原行被拒，原失败保留且未称Android实测。新实现先取限量类型/字节元信息，普通页<=500行且<=1MiB，大行BLOB/TEXT只用64KiB游标分块并按原SQLite类型写；原始UTF8/NUL/非法UTF8 TEXT字节、2MiB模型/optimizer、巨大WITHOUT ROWID BLOB主键、Long.MIN rowid、浮点及幂等定向通过。缺列回收不再按COPIED前缀发布，保留ACTIVE源库并明确失败；新增第5个Android反例，原4项断言不减。TLS故障允许原2500ms连接或3500ms读阶段，生产常量未改。开始最终完整门禁，当前没有新APK构建请求。
+
+- B10-04修复最终应用ac1365ec完整G1再次通过：265项/69XML无失败/错误/跳过，lint原基线保留，Android源编译成功。正式编译字节的真实SQLite+明确HOST模拟2MiB窗口通过所有大模型/UTF8/类型/无rowid/Long.MIN/幂等场景；原Retention/Matrix/归档/回收证明三方实际数据库回归也通过。发布汇总器新增真实两边17测试/48图/14故障及4条升级回退回执逐个读取验证并回填M01/M09/M33/M28/M35；只是工具校验不重跑无关空信号。原manifest工程说明R29旧字样改为R30源码完成且设备/质量验收分列，不改releaseMode或统计门槛。固定最终源码后触发既有证书CI。

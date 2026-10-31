@@ -7,7 +7,7 @@ public final class BuildConfig {
     public static final String VERSION_NAME = "R30-FINAL-2026.10.31-101";
     public static final String DUOQU_API_KEY_A = "";
     public static final String DUOQU_API_KEY_B = "";
-    public static final String RELEASE_MANIFEST_SHA256 = "d4cea292fcafe12837c3f71d261aedcfa88c865fa6491e9ba1fcd7a66bb52ac5";
+    public static final String RELEASE_MANIFEST_SHA256 = "589e0842f1dbe49111d6578feb262ced1f19a03428ad7581b253bccb7cade497";
     public static final int DB_USER_VERSION = 36;
     public static final int LEGACY_R906_SCHEMA_REVISION = 4;
     public static final String R925_SCHEMA_REVISION = "R925_SCHEMA_7";
