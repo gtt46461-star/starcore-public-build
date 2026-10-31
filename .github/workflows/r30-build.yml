@@ -1,0 +1,108 @@
+name: STARCORE R30 installable APK (R27 certificate)
+# Lives on construction/r27-20261028 because the R27 CI signing key is cached for this branch only. It builds the
+# requested R29 commit from construction/r30-20261031 with that same certificate, so the APK installs over R27.x and
+# keeps the database. It is still NOT the official R13 identity (that key is cached on construction/su1-20261022).
+# A build is requested by committing .github/r30-build-request.json ({"source": <R29 commit>, "batch": "B00"})
+# to construction/r27-20261028 (workflow_dispatch would need this file on the default branch).
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r30-build-request.json']
+permissions:
+  contents: write
+concurrency:
+  group: r30-apk-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r30-build-request.json
+      - id: request
+        run: |
+          python3 -c "import json;r=json.load(open('.github/r30-build-request.json'));print('source='+r['source']);print('batch='+r['batch'])" >> "$GITHUB_OUTPUT"
+          cat .github/r30-build-request.json
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
+          fetch-depth: 0
+          clean: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Reuse the existing R27 certificate only (no new key)
+        env:
+          R29_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, hashlib
+          root=pathlib.Path.home()/'.starcore/r27-ci-temp-key'
+          key=root/'r27-ci.p12'; password=(root/'pw').read_text().strip()
+          if not key.is_file() or not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')
+          print('::add-mask::'+password)
+          cert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)
+          fingerprint=hashlib.sha256(cert).hexdigest()
+          if fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')
+              credential=os.environ.get('R29_API_KEY','').strip()
+              if credential:
+                  print('::add-mask::'+credential)
+                  out.write('DUOQU_API_KEY='+credential+'\n')
+          print('Reused R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')
+          PY
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Identity, all suites, assemble and receipt
+        run: |
+          git config user.name 'STARCORE build identity'
+          git config user.email 'starcore-build@users.noreply.github.com'
+          export PUSH_REF=construction/r30-20261031
+          git fetch -q origin construction/r30-20261031
+          git merge-base --is-ancestor HEAD origin/construction/r30-20261031 || { echo 'REQUESTED_SOURCE_NOT_ON_R30_BRANCH'; exit 1; }
+          [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/construction/r30-20261031)" ] || unset PUSH_REF
+          bash tools/r30/ci_build.sh
+      - name: Name the R30 packages (tools/r29/package_receipt.py output is reused unchanged)
+        run: |
+          mkdir -p r30-apk
+          for f in r29-apk/*; do cp "$f" "r30-apk/$(basename "$f" | sed 's/STARCORE-R29.1-/STARCORE-R30-/')"; done
+          sed -i 's/STARCORE-R29.1-/STARCORE-R30-/g' r30-apk/delivery.json r30-apk/SHA256SUMS.txt
+          (cd r30-apk && sha256sum -c SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R30-APK-${{ steps.request.outputs.batch }}
+          path: r30-apk/
+          if-no-files-found: error
+      - name: Publish the checkpoint APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(git rev-parse HEAD)
+          tag="r30-${{ steps.request.outputs.batch }}-R27-${source:0:12}"
+          gh release view "$tag" > /dev/null 2>&1 && { echo "RELEASE_ALREADY_PUBLISHED"; exit 0; }
+          gh release create "$tag" r30-apk/* --target "$source" --title "R30 ${{ steps.request.outputs.batch }} R27-certificate package ${source:0:12} — device/quality acceptance NOT_RUN" --notes-file construction/r30/STATUS.md --prerelease --latest=false
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-BUILD-EVIDENCE-${{ steps.request.outputs.batch }}
+          path: |
+            evidence/r30/ci/
+            app/build/test-results/
+            app/build/reports/
+            r30-apk/
