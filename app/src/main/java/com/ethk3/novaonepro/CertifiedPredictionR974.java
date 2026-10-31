@@ -338,7 +338,7 @@ public final class CertifiedPredictionR974 {
         if(!db.inTransaction()||!proof.matches(compiled.selected))throw new IllegalStateException("R974_EXACT_COMMIT_PIT_OR_DEADLINE");
         String error=verifyCertificate(store,proof);if(!error.isEmpty())throw new IllegalStateException("R974_EXACT_COMMIT_"+error);
         if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
-            if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterSU2.verifyFrozen(store,db,proof,compiled.selected.action))throw new IllegalStateException("SU2_EXACT_COMMIT_ACTION_CHANGED");return;
+            if(!com.ethk3.novaonepro.strategyv2.Su2CommitAuthorityR30.verifyFrozen(store,db,proof,compiled.selected.action))throw new IllegalStateException("SU2_EXACT_COMMIT_ACTION_CHANGED");return;
         }
         if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)){
             if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.verifyFrozen(db,proof,compiled.selected.action))throw new IllegalStateException("SU1_EXACT_COMMIT_ACTION_CHANGED");return;

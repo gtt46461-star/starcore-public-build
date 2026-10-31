@@ -7,6 +7,17 @@ import android.app.Application;
  * settlement or BET work is allowed here.
  */
 public final class StarcoreApplication extends Application {
+    /** Android component dispatch requires the underlying framework context, even with wrapped storage. */
+    @Override public android.content.Context getBaseContext() {
+        android.content.Context context = super.getBaseContext();
+        while (context instanceof android.content.ContextWrapper) {
+            android.content.Context next = ((android.content.ContextWrapper) context).getBaseContext();
+            if (next == null || next == context) break;
+            context = next;
+        }
+        return context;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

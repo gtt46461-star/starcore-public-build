@@ -37,6 +37,18 @@ public final class R30FoldBackInstrumentedTest {
     }
 
     @Test public void cp06DataIsNoOp() throws Exception {
+        android.app.Application app = (android.app.Application) ctx();
+        assertTrue(app instanceof StarcoreApplication);
+        assertFalse("framework receiver dispatch requires the original base", app.getBaseContext() instanceof android.content.ContextWrapper);
+        assertTrue(app.getDatabasePath("r30-framework-context.db").getPath().contains("/r30-instrumentation/"));
+        assertNotEquals("framework base must not remove the scoped DB routing", app.getBaseContext().getDatabasePath("r30-framework-context.db"), app.getDatabasePath("r30-framework-context.db"));
+        java.util.concurrent.CountDownLatch receiverFinished = new java.util.concurrent.CountDownLatch(1);
+        android.content.Intent invalid = new android.content.Intent(app, InternalWatchdogReceiverR815.class)
+                .setPackage(app.getPackageName()).setAction("R30_FRAMEWORK_CONTEXT_REJECTED_ACTION");
+        app.sendOrderedBroadcast(invalid, null, new android.content.BroadcastReceiver() {
+            @Override public void onReceive(Context context, android.content.Intent intent) { receiverFinished.countDown(); }
+        }, new android.os.Handler(android.os.Looper.getMainLooper()), android.app.Activity.RESULT_OK, null, null);
+        assertTrue("actual framework delivery and original receiver goAsync must finish", receiverFinished.await(10, java.util.concurrent.TimeUnit.SECONDS));
         DbStore store = new DbStore(ctx()); reset(store);
         long t0 = android.os.SystemClock.elapsedRealtime();
         assertEquals("NONE", R29FoldBackR30.run(store));
