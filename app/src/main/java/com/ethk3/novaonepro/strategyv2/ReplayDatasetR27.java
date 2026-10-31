@@ -93,8 +93,11 @@ public final class ReplayDatasetR27 {
         return new ReplayDatasetR27(replacement, issues.clone(), ordinals.clone(), rejectedRows);
     }
 
+    /** R30-B03-02: sha256(first issue | last issue | row count | normalized rows). A new hash is a new dataset
+     * generation: fingerprints, scores and qualifications keyed by an older hash are not compared across it. */
     static String hash(String[] issues, int[][] draws, int[] segment) {
-        StringBuilder b = new StringBuilder("R27_REPLAY_DATASET_V1");
+        StringBuilder b = new StringBuilder("R30_REPLAY_DATASET_V2|").append(issues.length == 0 ? "" : issues[0]).append('|')
+                .append(issues.length == 0 ? "" : issues[issues.length - 1]).append('|').append(draws.length);
         for (int i = 0; i < draws.length; i++) {
             b.append('|').append(issues[i]).append(':');
             for (int v : draws[i]) b.append((char) ('0' + v - 1));

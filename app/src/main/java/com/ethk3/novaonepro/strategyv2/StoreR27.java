@@ -21,9 +21,12 @@ public final class StoreR27 {
     public static final String R26_EVOLUTION_QUALIFIED = "UPDATE r26_evolution SET prospective_qualified=1 WHERE policy_hash=? AND attempt_id LIKE 'R27:%'";
 
     /** Newest `limit` clean draws, ascending, with SU1 sequence ordinals (gaps preserved). */
+    /** R30-B03-02 (M15): the hot draws table holds at most this many rows (AppConfig.MAX_LOCAL_HISTORY_SAVE, enforced by
+     * the CP12 retention tail); older replay rows come only from verified imported history (r27_history_import). */
+    public static final int HOT_DRAWS_LIMIT_R30 = com.ethk3.novaonepro.AppConfig.MAX_LOCAL_HISTORY_SAVE;
     public static ReplayDatasetR27 loadDataset(SQLiteDatabase ro, int limit) {
         List<ReplayDatasetR27.Row> rows = new ArrayList<>(limit);
-        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + limit, null)) {
+        try (Cursor c = ro.rawQuery("SELECT issue,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT " + Math.min(limit, HOT_DRAWS_LIMIT_R30), null)) {
             while (c.moveToNext()) {
                 String issue = c.getString(0); if (!TargetIssueResolver.isValid(issue)) continue;
                 int[] p = new int[10]; for (int i = 0; i < 10; i++) p[i] = c.getInt(i + 1);
