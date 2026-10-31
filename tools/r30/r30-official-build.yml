@@ -1,0 +1,138 @@
+name: R30 official R13 signed batch package
+# Runs on the existing official signing-cache branch; never transports keys to the cloud task.
+on:
+  push:
+    branches: ['construction/su1-20261022']
+    paths: ['.github/r30-official-request.json', '.github/workflows/r30-official.yml']
+permissions:
+  contents: write
+concurrency:
+  group: r30-official-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    outputs:
+      source: ${{ steps.receipt.outputs.source }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r30-official-request.json
+      - id: request
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          r=json.load(open('.github/r30-official-request.json'))
+          assert re.fullmatch('[a-f0-9]{40}',r['source'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\n')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/su1-api-transport
+          key: starcore-su1-api-transport-v1
+          fail-on-cache-miss: true
+      - name: Restore only the original official R13 identity and API configuration
+        run: |
+          python3 scripts/load_r13_signing.py
+          python3 scripts/load_su1_bundled_api.py
+          echo 'R29_SIGNING=OFFICIAL_R13' >> "$GITHUB_ENV"
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Source-bound tests, lint, signed APK and receipt
+        run: |
+          timeout 45s git fetch --no-tags origin construction/r30-20261031
+          git merge-base --is-ancestor HEAD origin/construction/r30-20261031
+          export PUSH_REF=construction/r30-20261031
+          [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/construction/r30-20261031)" ] || unset PUSH_REF
+          bash tools/r30/ci_build.sh
+      - name: R30 instrumented test APK (same signing identity as the debug APK)
+        run: |
+          ./gradlew --no-daemon -q :app:assembleDebugAndroidTest
+          mkdir -p r30-androidtest && cp app/build/outputs/apk/androidTest/debug/*.apk r30-androidtest/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R30-OFFICIAL-ANDROIDTEST-APK
+          path: r30-androidtest/
+          if-no-files-found: error
+      - name: Name the R30 packages (tools/r29/package_receipt.py output is reused unchanged)
+        run: |
+          mkdir -p r30-apk
+          for f in r29-apk/*; do cp "$f" "r30-apk/$(basename "$f" | sed 's/STARCORE-R29.1-/STARCORE-R30-/')"; done
+          sed -i 's/STARCORE-R29.1-/STARCORE-R30-/g' r30-apk/delivery.json r30-apk/SHA256SUMS.txt
+          (cd r30-apk && sha256sum -c SHA256SUMS.txt)
+      - id: receipt
+        run: echo "source=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R30-OFFICIAL-APK
+          path: r30-apk/
+          if-no-files-found: error
+      - name: Publish an explicitly incomplete engineering checkpoint
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(git rev-parse HEAD)
+          vcode=$(python3 -c "import json; print(json.load(open('r30-apk/delivery.json'))[0]['versionCode'])")
+          gh release create "r30-official-${vcode}-${source:0:12}" r30-apk/* --target "$source" --title "R30 ${vcode} — device/quality acceptance NOT_RUN" --notes-file construction/r30/STATUS.md --prerelease --latest=false
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-OFFICIAL-HOST-EVIDENCE
+          path: |
+            evidence/r30/ci/
+            app/build/test-results/
+            app/build/reports/
+  emulator:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-OFFICIAL-APK
+          path: delivered
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-OFFICIAL-ANDROIDTEST-APK
+          path: androidtest
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r29/emulator_smoke.sh delivered evidence/r30/emulator && bash tools/r30/emulator_foldback.sh delivered androidtest evidence/r30/emulator
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-OFFICIAL-EMULATOR-SMOKE
+          path: |
+            evidence/r30/emulator/
+            startup-evidence/

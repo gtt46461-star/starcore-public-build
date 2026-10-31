@@ -10,8 +10,8 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |---|---|---|---|---|---|---|
 |R30-B00-01|B00|从CP06建R30分支并锁定基线|DONE|7157660adec1|CI 自 B00-04 起|baseline_lock mismatches=0；rebind 产物 release/strategy_su1_reviewed_inputs.json 按 docs/02§2 属开放文件（ownership_check 原 OPEN 表漏列，B00-04 补登）|
 |R30-B00-02|B00|封存R29 B01分支，登记可复用件|DONE|aa28bc2f60a4|—|标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）|
-|R30-B00-03|B00|回收R29后期包遗留的Root触发器与独立研究库|DONE|—|待 r30.yml（B00-04 起）|本地全量编译通过；SQL 合同 19/19（含 T04/T05/T06）；R30FoldBackInstrumentedTest 需模拟器（CI connectedDebugAndroidTest）|
-|R30-B00-04|B00|装施工护栏工具与R30 CI入口|TODO|—|—|—|
+|R30-B00-03|B00|回收R29后期包遗留的Root触发器与独立研究库|DONE|17dc6ef7bb35|待 r30.yml（B00-04 起）|本地全量编译通过；SQL 合同 19/19（含 T04/T05/T06）；R30FoldBackInstrumentedTest 需模拟器（CI connectedDebugAndroidTest）|
+|R30-B00-04|B00|装施工护栏工具与R30 CI入口|DOING|—|—|工具按方案原样复制，3 处必要修正（见下方偏差记录 D1–D3）|
 |R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|TODO|—|—|—|
 |R30-B01-01|B01|唯一写锁：等待/持有时长账本|TODO|—|—|—|
 |R30-B01-02|B01|账本落库与报告出数|TODO|—|—|—|
@@ -65,3 +65,11 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B10-04|B10|最终账本与单一入口|TODO|—|—|—|
 |R30-B11-01|B11|开工条件判定|TODO|—|—|—|
 |R30-B11-02|B11|停机式离线切库与唯一路由点|TODO|—|—|—|
+
+## 偏差记录（方案工具在施工中暴露的问题与处理）
+
+- D1（B00-01/B00-04）`ownership_check.py`：git 默认转义中文路径导致方案目录误报；`rebind_identity.py` 的生成产物 `release/strategy_su1_reviewed_inputs.json`、`release/r82_training_invalidation.json`、`release/research_dependencies_r967.json` 按 docs/02 §2 属对所有卡开放的“生成身份文件”，但原 OPEN 表漏列。tools/r30 版本以 `-c core.quotepath=false` 调 git 并补列这三个文件，其余规则不变。
+- D2（B00-04）`ci_build_r30.sh`：`SqlContractDumpR30` 引用 B01-02/B02-01/条件 B11-02 才加入的类，B00–B02 阶段无法编译。处理：已加入应用的类取应用编译产物，未加入的取方案 `code/main` 原文（与施工时原样复制的字节相同），来源逐类写入 `evidence/r30/ci/sql_contract_sources.txt`。
+- D3（B00-04）CI 可能在卡提交之上追加 `R29: bind ...` 生成身份提交，原脚本只看 HEAD 提交信息会跳过所有权检查；改为检查最近一个以卡号开头的提交。
+- D4（B00-04）签名工作流：按 docs/01 “只改分支与文件名”复制后，另外 (a) 把构建脚本指向 tools/r30/ci_build.sh；(b) 发布前把 `package_receipt.py` 产出的 `STARCORE-R29.1-*` 改名为 `STARCORE-R30-*`（R29 脚本不改）；(c) 官方通道增加 androidTest APK 与模拟器上 `R30FoldBackInstrumentedTest`（B00-03 第5步要求，需与 debug 包同签名，r30 分支自身没有签名身份）。
+- D5（B00-02）会话 git 代理拒绝推送 tag 引用（HTTP 403）：`archive/r29-b01-cp16` 仅本地存在，需所有者补推。
