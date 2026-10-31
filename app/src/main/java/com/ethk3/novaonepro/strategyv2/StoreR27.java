@@ -38,6 +38,15 @@ public final class StoreR27 {
         return ReplayDatasetR27.of(rows);
     }
 
+    /** Physical census is collected outside the writer. A missing run is not a measured zero-byte app. */
+    public static Map<String,Object> storageR30(SQLiteDatabase read){
+        Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("status","UNKNOWN");out.put("budgetBytes",ResearchRetentionR30.DEFAULT_BUDGET_BYTES);
+        try(Cursor c=read.rawQuery("SELECT report_json,measured_at,budget_bytes FROM r30_retention_run ORDER BY measured_at DESC,run_id DESC LIMIT 1",null)){
+            if(c.moveToFirst()){out.put("lastRun",JsonR27.parse(c.getString(0)));out.put("measuredAt",c.getLong(1));out.put("budgetBytes",c.getLong(2));out.put("status","RECORDED_UNVALIDATED");}
+        }catch(RuntimeException unavailable){out.put("sourceError",unavailable.getClass().getSimpleName());}
+        out.put("collectionAction","ResearchRetentionStoreR30.step：在原retention任务测量完整应用目录；不可读或保护证据导致超预算时保持未知/受限，不自动删证据");return out;
+    }
+
     public static byte[] pack(double[] v) { ByteBuffer b = ByteBuffer.allocate(v.length * 8); for (double x : v) b.putDouble(x); return b.array(); }
     public static double[] unpack(byte[] b) { ByteBuffer x = ByteBuffer.wrap(b); double[] v = new double[b.length / 8]; for (int i = 0; i < v.length; i++) v[i] = x.getDouble(); return v; }
 

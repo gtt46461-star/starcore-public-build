@@ -10,6 +10,7 @@ public interface Cursor extends java.io.Closeable {
     int getInt(int i);
     double getDouble(int i);
     byte[] getBlob(int i);
+    int getType(int i);
     boolean isNull(int i);
     int getCount();
     void close();

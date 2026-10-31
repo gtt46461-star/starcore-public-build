@@ -112,6 +112,9 @@ javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$T30/report-platform:app
 java -Xmx768m -cp "$T30/report-platform:$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.UpgradeEvidenceR30HostTest | tee "$LOG/r30_upgrade_ablation_host.log"
 # R30-B08-04: original production JNI plus real ZIP part reconstruction and durable cancellation/cleanup.
 REPORT_EXPORT_OUT="$LOG/r30_report_export_host" bash tools/r30/run_report_export_host.sh
+# R30-B08-05: original maintenance keeps its windows while all original evidence survives in immutable archives.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ResearchRetentionR30HostTest.java
+java -Xmx768m -cp "$T30/report-platform:$T30/shim:$LOG/r30_report_export_host/runtime:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.ResearchRetentionR30HostTest | tee "$LOG/r30_research_retention_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

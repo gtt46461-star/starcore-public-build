@@ -215,3 +215,5 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - B08-05文件策略3项定向通过；真实归档回归已执行原RetentionR26窗口及MatrixStore.save（8 live/2 protected）、冻结/模型BLOB精确保留、同事务回滚、不可改删、源字段升级只归档一次。继续旧TableCopier完整回收/删除前引用时HOST Cursor缺getType而报NoSuchMethodError，登记05-b后补真实JDBC类型适配；不是降低产品校验。原缺证明被误报MORE_WORK的失败及修复日志保留。B08-03远端CI41212411795成功，B08-04 ea2a55a顺序推送。
 
 - B08-05真实SQLite/文件整组定向已通过：原RetentionR26窗口删除后冻结BLOB完整归档、模型清空前完整保留、事务回滚/不可改删/加字段仅归档一次、实际MatrixStore.save的8 live+2 protected、原TableCopier真实复制与二次启动回收证明、删除前copy_log写入失败不删文件、只清可重建图表键且保护Q08/NN/校准证据。追加登记同源主摘要及Android保全回归源码，进入整卡前最后接线。
+
+- B08-05最终定向3项及真实SQLite/文件/同源主摘要与导出通过。受保护逐表归档先于原DELETE或清空BLOB，保留SQLite原存储类型；源schema升级启用新指纹触发器而旧版不重复执行，禁止档案UPDATE/DELETE。原RetentionR26/MatrixStore/Diagnosis与学习、折叠、资格数学未改。退役库核对原回收证据/路由及二次启动历史copy_log，删除前引用先提交；未知、超出保护预算如实记。整卡G1开始，Android只编译、真机未测。

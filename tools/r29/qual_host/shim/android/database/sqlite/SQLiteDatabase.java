@@ -45,6 +45,14 @@ public class SQLiteDatabase {
         public int getInt(int i) { return (int) getLong(i); }
         public double getDouble(int i) { Object o = v(i); return o == null ? 0 : o instanceof Number ? ((Number) o).doubleValue() : Double.parseDouble(o.toString()); }
         public byte[] getBlob(int i) { return (byte[]) v(i); }
+        public int getType(int i) {
+            Object value = v(i);
+            if (value == null) return 0;
+            if (value instanceof byte[]) return 4;
+            if (value instanceof Float || value instanceof Double || value instanceof java.math.BigDecimal) return 2;
+            if (value instanceof Number) return 1;
+            return 3;
+        }
         public boolean isNull(int i) { return v(i) == null; }
         public int getCount() { return rows.size(); }
         public void close() {}

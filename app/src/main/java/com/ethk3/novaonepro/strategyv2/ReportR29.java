@@ -27,6 +27,11 @@ public final class ReportR29 {
         ablation.put("model",UpgradeDiagnosisSU2.evidenceR30("su1_model_ablation",input.facts.get("modelAblationTasks"),input.data.get("modelAblation"),"没有已存模型消融任务；不能宣称NN消融已完成", "ModelAblationStoreSU1.advanceOne：按原数据集与kernel继续原任务，保留checkpoint/frozen/report_hash；DONE后读取原报告配对结果"));
         ablation.put("q06Status","INSUFFICIENT_PAIRED_IMPROVEMENT_VALIDATION");
         chapters.get(9).put("ablationEvidence",ablation);
+        Map<String,Object> retention=new LinkedHashMap<>();retention.put("lastRun",input.data.get("retentionRun"));retention.put("protectedArchives",input.data.get("retentionArchives"));retention.put("fileActions",input.data.get("retentionFiles"));
+        retention.put("status",input.facts.get("retentionRuns")==null?"UNKNOWN":((Number)input.facts.get("retentionRuns")).longValue()==0?"INSUFFICIENT":"RECORDED_UNVALIDATED");
+        retention.put("definition","Physical regular-file census, explicit cache and verified retired duplicate deletion; protected archive rows preserve original fields/BLOBs and never become current natural samples.");
+        retention.put("collectionAction","ResearchRetentionStoreR30.step：运行原retention任务，采集完整物理目录与同快照受保护归档/文件删除引用；缺测不填预算通过");
+        chapters.get(10).put("retention",retention);
         Map<String,Object> diagnosis=DiagnosisRulesR30.evaluate(input.facts,input.data,input.watermark,input.errors);
         chapters.get(11).put("diagnosis",diagnosis);
         chapters.get(11).put("diagnosticActionCoverage",diagnosis.get("actionCoverage"));

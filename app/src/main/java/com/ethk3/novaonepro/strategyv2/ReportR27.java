@@ -231,6 +231,7 @@ public final class ReportR27 {
             if("R30_04".equals(chapter.get("sectionId")))out.append(JsonR27.write(chapter.get("data"))).append('\n');
             appendEvidenceSourcesR30(out,chapter.get("upgradeDiagnosisSources"));
             appendEvidenceSourcesR30(out,chapter.get("ablationEvidence"));
+            Object retention=chapter.get("retention");if(retention instanceof Map){Map<?,?> storage=(Map<?,?>)retention;out.append("存储预算 · ").append(storage.get("status")).append('\n').append(JsonR27.write(storage.get("lastRun"))).append('\n');if(!"RECORDED_UNVALIDATED".equals(storage.get("status")))out.append("采集：").append(storage.get("collectionAction")).append('\n');}
             Object diagnosis=chapter.get("diagnosis");
             if(diagnosis instanceof Map){
                 Map<?,?> d=(Map<?,?>)diagnosis;

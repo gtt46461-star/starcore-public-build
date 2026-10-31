@@ -72,7 +72,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
         catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
-        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);
+        store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);
             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
             db.execSQL("UPDATE r26_task SET status='READY',wait_kind='',error_count=0,error_window_start=0,next_at=0 WHERE status='QUARANTINED' AND task_id IN (SELECT task_id FROM r27_task_error WHERE message='R26_CONTINUATION_QUANTUM' OR (message LIKE 'F01_WRITE_FAILED%' AND stack LIKE '%CP3_DB_BUSY_DEADLINE%'))");RuntimeSchemaR26.bindCapabilitySource(db,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256);long now=System.currentTimeMillis();
             // A new process has a new monotonic epoch. Leases remain wall-clock bounded and fenced.
@@ -218,7 +218,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);
                 c.reason((units>0?"COOPERATIVE_":"")+result.status+":units="+units+":"+result.detail);return units;
             }
-            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);CertificateRevocationR30.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
+            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);CertificateRevocationR30.ensure(db);ResearchRetentionStoreR30.ensureProtected(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){
@@ -264,7 +264,12 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
             case "su2-certificate":CertificateSU2.maintain(store,seq+1);break;
             case "archive":ArchiveStoreSU1.maintain(store);break;
             case "diagnosis":MatrixStoreSU2.maintain(store,target);DiagnosisStoreSU2.maintain(store,target);break;
-            case "retention":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RETENTION",db->{requireFence(db,c);RetentionRulesSU2.foldDecisions(db,seq+1,System.currentTimeMillis());RetentionRulesSU2.pruneResearchGenomes(db);RetentionR26.prune(db,seq+1);return 0;});break;
+            case "retention":{
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RETENTION",db->{requireFence(db,c);ResearchRetentionStoreR30.ensureProtected(db);RetentionRulesSU2.foldDecisions(db,seq+1,System.currentTimeMillis());RetentionRulesSU2.pruneResearchGenomes(db);RetentionR26.prune(db,seq+1);return 0;});
+                ResearchRetentionR30.Result retained=ResearchRetentionStoreR30.step(store,c);c.reason(retained.state);
+                if(retained.state.equals("MORE_RECOMPUTABLE_WORK"))return Math.max(1,retained.filesDeleted);
+                break;
+            }
             case "daily-close":store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_DAILY_CLOSE",db->{requireFence(db,c);LiveShadowLoopSU1.closeDays(db,Integer.parseInt(latest.issue.substring(0,8)));return 0;});break;
             default:throw new IllegalStateException("R26_UNKNOWN_TASK:"+c.task);
         }
