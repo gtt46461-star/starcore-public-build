@@ -17,6 +17,15 @@
     "tools/r30/ci_build.sh"
    ],
    "reason": "卡要求“640行待结算分4片提交，杀进程后续做不重复（HOST回滚测试同模式）”与“结算结果与改前逐行一致”，独占文件未列测试；新增真实 SQLite 宿主测试并接入 tools/r30/ci_build.sh（在 R29 qual_host 之后运行）。"
+  },
+  {
+   "card": "R30-B01-06",
+   "id": "R30-B01-06-a",
+   "files": [
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ThermalPolicyTest.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R29ThermalPolicyTest.java"
+   ],
+   "reason": "卡要求 ThermalPolicy 单测（NaN/0.1/0.86/0.96 与滞回序列）但未登记测试文件；R30 改变了 0.85–0.95 档位与恢复规则（连续3次），R29 测试两处断言按新规则改为：恢复序列补第3次读数、‘再次过热’读数由0.9改为0.96，测试意图不变。"
   }
  ]
 }

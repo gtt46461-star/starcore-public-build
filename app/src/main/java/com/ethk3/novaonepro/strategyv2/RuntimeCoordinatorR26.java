@@ -98,6 +98,8 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
         // R27-008: right after a new draw the incumbent forecast for the next target is prepared first, so the
         // freeze is a small write long before the open time instead of INCUMBENT_MISSING_AFTER_OPEN.
         if(strategyStorageReady){long seq=latestSequence();if(seq>0&&seq!=lastIncumbentSeq){Claim first=claimTask("incumbent-forecast","P1");if(first!=null){lastIncumbentSeq=seq;return first;}}}
+        // R30-B01-06: once per scheduling round, a ready task that TaskLivenessR30 classifies STALLED is claimed first.
+        if(strategyStorageReady&&stallRoundR30++%SLOTS.length==0){Claim boosted=claimStalledR30();if(boosted!=null)return boosted;}
         // Dependency-blocked tasks are not ready work. Polling forty of them between migration
         // units made a fresh installation spend minutes without reaching its first model sample.
         final String dependency=strategyStorageReady?"":" AND task_id='schema'";
@@ -115,6 +117,31 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason=NULL WHERE task_id=?",new Object[]{owner,fence,now+30000,now,id});return new Claim(id,owner,fence,cursor,lane);
             });if(result!=null)return result;
         }return null;
+    }
+    private long stallRoundR30,stallFactsCheckedR30;private boolean stallFactsR30;
+    /** R30-B01-06: STALLED = pending>0 and >=5 draws since the task's last commit (TaskLivenessR30). Without the
+     * pending/last_committed_seq facts every task is UNKNOWN, so nothing is boosted (no guessed stall). */
+    private Claim claimStalledR30(){
+        final long latest=latestSequence();if(latest<0)return null;
+        if(stallFactsCheckedR30==0||System.currentTimeMillis()-stallFactsCheckedR30>600_000L){
+            Set<String> columns=new HashSet<>();try(Cursor c=store.readable().rawQuery("PRAGMA table_info(r26_task)",null)){while(c.moveToNext())columns.add(c.getString(1));}
+            stallFactsR30=columns.contains("pending")&&columns.contains("last_committed_seq");stallFactsCheckedR30=System.currentTimeMillis();
+        }
+        if(!stallFactsR30)return null;
+        return store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_TASK_CLAIM",db->{
+            long now=System.currentTimeMillis();
+            try(Cursor c=db.rawQuery("SELECT task_id,fence,cursor,lane,status,coalesce(blocked_reason,''),pending,last_committed_seq FROM r26_task WHERE status IN ('READY','YIELDED','BLOCKED') AND lease_until<=? ORDER BY last_served,task_id",new String[]{String.valueOf(now)})){
+                while(c.moveToNext()){
+                    String reason=c.getString(5);long seq=c.getLong(7);
+                    TaskLivenessR30.State st=TaskLivenessR30.classify(c.getLong(6),seq<0?-1:Math.max(0,latest-seq),reason.startsWith("DEPENDENCY")||reason.startsWith("WAITING_"),reason.contains("WAITING_NEW_DRAW"),false);
+                    if(st!=TaskLivenessR30.State.STALLED)continue;
+                    String id=c.getString(0);long fence=c.getLong(1)+1,cursor=c.getLong(2);String lane=c.getString(3);
+                    db.execSQL("UPDATE r26_task SET status='RUNNING',owner=?,fence=?,lease_until=?,last_served=?,blocked_reason='R30_STALL_BOOST' WHERE task_id=?",new Object[]{owner,fence,now+30000,now,id});
+                    return new Claim(id,owner,fence,cursor,lane);
+                }
+            }
+            return null;
+        });
     }
     private long latestSequence(){try{Models.Draw latest=store.getLatestDraw();return latest==null||!TargetIssueResolver.isValid(latest.issue)?-1:TargetIssueResolver.sequenceOrdinalSU1(latest.issue);}catch(RuntimeException e){return -1;}}
     private Claim claimTask(String task,String lane){

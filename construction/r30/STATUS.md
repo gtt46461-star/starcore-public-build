@@ -17,8 +17,8 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B01-02|B01|账本落库与报告出数|DONE|01bbf50ee5e1|—|SQL T02 4/4；报告第3章两表（writerHoldR30）；“运行10分钟≥9窗口”需设备 NOT_RUN|
 |R30-B01-03|B01|切片写入工具与Android适配器|DONE|32d371df2ec2|—|HOST 6/6（含中途失败回滚续做不重复）；Android 杀进程续做 NOT_RUN|
 |R30-B01-04|B01|按账本切片前五名后台长事务|DONE|7f393f83943e|—|HOST：SettleChunkR30 S1–S3×3 种子 OK；R29 qual_host Q1–Q16 OK；DataRetentionGovernorR900 已有界未改（理由见 B01_OFFENDERS.json）；2小时复测 over_hard NOT_RUN|
-|R30-B01-05|B01|任务活性判定与报告|DONE|—|—|HOST livenessClassification OK；当前 r26_task 无 pending/last_committed_seq 列 → 全部 UNKNOWN 单列，M12=INSUFFICIENT（如实）|
-|R30-B01-06|B01|调度公平与温控核对|TODO|—|—|—|
+|R30-B01-05|B01|任务活性判定与报告|DONE|873daf77aef7|—|HOST livenessClassification OK；当前 r26_task 无 pending/last_committed_seq 列 → 全部 UNKNOWN 单列，M12=INSUFFICIENT（如实）|
+|R30-B01-06|B01|调度公平与温控核对|DONE|—|—|温控序列 HOST 6/6；STALLED 提升已接入 claim()，但 r26_task 尚无 pending/last_committed_seq 事实 → 无任务被判 STALLED（不猜测）；“下一轮被调度”的运行验证 NOT_RUN|
 |R30-B01-07|B01|重复调度入口清单与收敛|TODO|—|—|—|
 |R30-B02-01|B02|每期8点时间线落库|TODO|—|—|—|
 |R30-B02-02|B02|抓取单飞与退避节奏|TODO|—|—|—|
