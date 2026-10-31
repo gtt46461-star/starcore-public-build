@@ -67,6 +67,9 @@ public final class R30FoldBackInstrumentedTest {
         SQLiteDatabase r = SQLiteDatabase.openOrCreateDatabase(rp, null);
         r.execSQL("CREATE TABLE r27_r30_probe(id INTEGER PRIMARY KEY, v TEXT)");
         r.execSQL("CREATE TABLE r27_r30_only_in_rp(k TEXT PRIMARY KEY, n INTEGER) WITHOUT ROWID");
+        r.execSQL("CREATE TABLE r27_r30_blob_fixture(k TEXT PRIMARY KEY,checkpoint BLOB,optimizer BLOB,cursor INTEGER) WITHOUT ROWID");
+        byte[] checkpoint=new byte[2*1024*1024],optimizer=new byte[4097];new java.util.Random(30).nextBytes(checkpoint);new java.util.Random(31).nextBytes(optimizer);
+        r.execSQL("INSERT INTO r27_r30_blob_fixture VALUES('SYNTHETIC_NOT_NATURAL',?,?,241)",new Object[]{checkpoint,optimizer});
         r.beginTransaction();
         try { for (int i = 1; i <= 1234; i++) r.execSQL("INSERT INTO r27_r30_probe VALUES(?,?)", new Object[] {i, "rp" + i}); for (int i = 0; i < 37; i++) r.execSQL("INSERT INTO r27_r30_only_in_rp VALUES(?,?)", new Object[] {"k" + i, i}); r.setTransactionSuccessful(); }
         finally { r.endTransaction(); }
@@ -83,6 +86,7 @@ public final class R30FoldBackInstrumentedTest {
         assertEquals("rp5", text(ro, "SELECT v FROM r27_r30_probe WHERE id=5"));
         assertEquals(37, scalar(ro, "SELECT count(*) FROM r27_r30_only_in_rp"));
         assertEquals("RETIRED_BY_R30", text(ro, "SELECT phase FROM r29_database_route WHERE singleton=1"));
+        try(Cursor blob=ro.rawQuery("SELECT checkpoint,optimizer,cursor FROM r27_r30_blob_fixture WHERE k='SYNTHETIC_NOT_NATURAL'",null)){assertTrue(blob.moveToFirst());assertArrayEquals(checkpoint,blob.getBlob(0));assertArrayEquals(optimizer,blob.getBlob(1));assertEquals(241,blob.getInt(2));}
         assertFalse(rp.exists());
         assertTrue(new File(rp.getPath() + ".r30-retired").exists());
         assertEquals("NONE", R29FoldBackR30.run(store)); // 第二次启动为空操作

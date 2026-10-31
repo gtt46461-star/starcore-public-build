@@ -10,8 +10,16 @@ def adb(*argv,check=True):
     r=subprocess.run(['adb',*argv],capture_output=True,text=True,timeout=30)
     if check and r.returncode:raise RuntimeError('ADB_FAILED: '+r.stderr)
     return r.stdout
+_root_prefs_r30=None
 def prefs(name):
-    raw=adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False)
+    global _root_prefs_r30
+    # Release APKs are not debuggable: run-as is unavailable. Root access is allowed only on the disposable emulator.
+    if _root_prefs_r30 is None:
+        emulator=adb('get-serialno',check=False).strip().startswith('emulator-') and adb('shell','getprop','ro.kernel.qemu',check=False).strip()=='1'
+        _root_prefs_r30=emulator and adb('shell','id','-u',check=False).strip()=='0'
+    root=_root_prefs_r30
+    raw=(adb('exec-out','cat','/data/user/0/'+PKG+'/shared_prefs/'+name+'.xml',check=False) if root
+         else adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False))
     try:return {e.attrib['name']:e.text or e.attrib.get('value','') for e in ET.fromstring(raw)}
     except ET.ParseError:return {}
 def snapshot(phase):

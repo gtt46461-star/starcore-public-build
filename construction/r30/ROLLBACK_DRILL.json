@@ -1,0 +1,109 @@
+{
+  "card": "R30-B10-03",
+  "status": "PREPARED_NOT_RUN",
+  "sourceGateBasis": "c5228e2 (265 local tests PASS; product main Java unchanged by this card)",
+  "certificateRevocation": {
+    "status": "HOST_MECHANICS_PASS_ANDROID_PENDING",
+    "source": "3eb79ef",
+    "remoteCI": 41205376445,
+    "hostElapsedRangeMs": [
+      0.46,
+      1.67
+    ],
+    "physicalDevice": "NOT_RUN",
+    "androidCollector": "tools/r30/run_android_regression.sh revocation"
+  },
+  "upgradeAndRollback": [
+    {
+      "lane": "OFFICIAL_R13",
+      "checkpoint": "CP06",
+      "tag": "r29-official-577291006-bb607cf5ab69",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk",
+      "sha256": "ab10c8e85344a347a695d11ddeb652b419d09c49e81513204037e3e0684a7743",
+      "bytes": 27571684,
+      "source": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "status": "NOT_RUN",
+      "candidateApk": null,
+      "candidateSource": null,
+      "upgradeReceipt": null,
+      "rollbackReceipt": null,
+      "reupgradeReceipt": null
+    },
+    {
+      "lane": "OFFICIAL_R13",
+      "checkpoint": "CP16",
+      "tag": "r29-official-577291016-5ce1cc0f639b",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291016-5ce1cc0f639b/STARCORE-R29.1-5ce1cc0f639b-release.apk",
+      "sha256": "11d1db8e0a7215e04fd297a15dc032176e8d6129d0708df19eed19d9ef633b02",
+      "bytes": 27837381,
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "status": "NOT_RUN",
+      "candidateApk": null,
+      "candidateSource": null,
+      "upgradeReceipt": null,
+      "rollbackReceipt": null,
+      "reupgradeReceipt": null
+    },
+    {
+      "lane": "EXISTING_R27",
+      "checkpoint": "CP06",
+      "tag": "r29-CP06-R27-bb607cf5ab69",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP06-R27-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk",
+      "sha256": "254b7447f09cacba4edea265db936f032b4289cd005cdb82dcc639e47b21e8a8",
+      "bytes": 27571696,
+      "source": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "status": "NOT_RUN",
+      "candidateApk": null,
+      "candidateSource": null,
+      "upgradeReceipt": null,
+      "rollbackReceipt": null,
+      "reupgradeReceipt": null
+    },
+    {
+      "lane": "EXISTING_R27",
+      "checkpoint": "CP16",
+      "tag": "r29-CP16-R27-5ce1cc0f639b",
+      "url": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-CP16-R27-5ce1cc0f639b/STARCORE-R29.1-5ce1cc0f639b-release.apk",
+      "sha256": "02403a3ca618e4dc4581f594bb24e3feaa913d9d776c3553759feb8855c2b3cd",
+      "bytes": 27837390,
+      "source": "5ce1cc0f639b752c2d5322b67368c1652629fd56",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "status": "NOT_RUN",
+      "candidateApk": null,
+      "candidateSource": null,
+      "upgradeReceipt": null,
+      "rollbackReceipt": null,
+      "reupgradeReceipt": null
+    }
+  ],
+  "scope": "SAME_CERTIFICATE_USERDEBUG_EMULATOR; no phone downgrade permission claimed",
+  "dataChecks": [
+    "actual SQLite integrity",
+    "all previous table names retained",
+    "each original draw issue/permutation retained",
+    "hot draw count <=5000",
+    "nonempty original model/checkpoint/frozen/optimizer BLOB values retained in live or protected archive",
+    "same qualification index and nondecreasing n",
+    "durable private marker retained"
+  ],
+  "checkerValidation": {
+    "status": "PASS_SYNTHETIC_REAL_SQLITE_ONLY",
+    "acceptedExactArchivedBlob": true,
+    "rejectedCorruptedBlob": true,
+    "rejectedIndexReset": true,
+    "evidence": "evidence/r30/b10-03/verification.json"
+  },
+  "androidBLOBMechanics": {
+    "status": "SOURCE_COMPILE_PENDING",
+    "test": "R30FoldBackInstrumentedTest.activeRouteIsFoldedBack",
+    "bytes": 2097152,
+    "optimizerBytes": 4097,
+    "source": "SYNTHETIC_EXPLICIT_NOT_NATURAL"
+  },
+  "keysReadOrUploadedByAgent": false,
+  "newSigningIdentityGenerated": false,
+  "phoneDataDeleted": false
+}

@@ -20,6 +20,7 @@ run_case() {
   printf '%s\t%s\t%s\n' "$id" "$selected" "$expected" >> "$out/cases.tsv"
   echo "R30_ANDROID_REGRESSION:$id:PASS"
 }
+run_case foldback com.ethk3.novaonepro.R30FoldBackInstrumentedTest 4
 run_case snapshot com.ethk3.novaonepro.R30ReportSnapshotAndroidTest 2
 run_case retention com.ethk3.novaonepro.R30ResearchRetentionAndroidTest 1
 run_case wait com.ethk3.novaonepro.R30WriteQueueAndroidTest 2
@@ -33,8 +34,8 @@ python3 - "$out" <<'PY'
 import hashlib,json,pathlib,subprocess,sys
 out=pathlib.Path(sys.argv[1]); images=sorted((out/'screenshots').rglob('*.png'));assert len(images)==48, len(images)
 expected={f'{state}-{i:02d}.png' for state in ('READY','EMPTY','READ_ERROR') for i in range(1,17)};assert {p.name for p in images}==expected
-rows=[r.split('\t') for r in (out/'cases.tsv').read_text().splitlines()];assert len(rows)==10 and sum(int(r[2]) for r in rows)==12
+rows=[r.split('\t') for r in (out/'cases.tsv').read_text().splitlines()];assert len(rows)==11 and sum(int(r[2]) for r in rows)==16
 receipt={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'environment':'ANDROID_EMULATOR','physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','junitCases':sum(int(r[2]) for r in rows),'processes':len(rows),'cases':rows,'screenshots':[{'file':str(p.relative_to(out)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size} for p in images],'fixtureIsolation':'original Application routed before sole coordinator opens; never reset its singleton','originalProductDataDeleted':False}
 (out/'regression.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
-print('R30_ANDROID_REGRESSION|12_TESTS_10_INDEPENDENT_PROCESSES|48_ACTUAL_ACTIVITY_SCREENSHOTS|NOT_PHYSICAL_OR_NATURAL|PASS')
+print('R30_ANDROID_REGRESSION|16_TESTS_11_INDEPENDENT_PROCESSES|48_ACTUAL_ACTIVITY_SCREENSHOTS|NOT_PHYSICAL_OR_NATURAL|PASS')
 PY
