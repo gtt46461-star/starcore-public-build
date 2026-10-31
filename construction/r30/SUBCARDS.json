@@ -525,6 +525,19 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "12章必须接到真实主报告/导出入口，用同一份已读取的不可变事实与期号/各来源表rowid水位生成JSON及Markdown，保留旧R26/R27附件。API35以上使用公开beginTransactionReadOnly；较旧Android用单条只读SELECT隐式DEFERRED事务取得全部事实，格式化期间不再查库、不占产品写锁；导出继续原native BEGIN(DEFERRED)固定只读副本，不用EXCLUSIVE/IMMEDIATE或隐藏API。WITHOUT ROWID表明确rowid不适用并给真实主键水位；缺源null，限量数据显式分页/截断来源。新增真实SQLite双连接并发写入/前后快照一致、共享指标和只读无写锁、Android源回归；HOST只读getter/Build适配仅测试不进APK。先登记后施工。"
+  },
+  {
+   "card": "R30-B08-02",
+   "id": "R30-B08-02-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java",
+    "tools/r30/qual_host/ReportSnapshotR30HostTest.java",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "诊断规则必须进入真实12章报告、JSON/Markdown和主界面摘要；只消费B08-01同一不可变事实与水位，不重新查库或改变产品门槛。16条规则逐条记录条件、结论、证据强度、文件:方法、卡号、验证及未知时采集动作；PIT拒绝不冒充成功泄漏，已有行不冒充自然质量。新增空源/非法计数/真实冲突/任务未知/实际方法存在性回归，并通过现有真实SQLite报告HOST验证实际冲突到行动与三种输出共享水位；先登记后修改。"
   }
  ]
 }
