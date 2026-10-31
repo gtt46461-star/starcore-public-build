@@ -375,6 +375,23 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "滚动校准必须接入真实FUTURE/SELECT行的ordinal及生产校准任务，报告并列旧等宽ECE和新等质量ECE/Brier/BSS/真实拟合支持范围；缺样本明确null。原120行旧诊断API/断言保留，生产使用新的严格ordinal滚动拟合，不能把未来行用于过去评估。每片最多一个策略，计算在写锁外，原队列原子提交旧表及Q05报告；新增实际SQLite回归。先登记，B05-05 G1通过后再改产品源码。"
+  },
+  {
+   "card": "R30-B06-02",
+   "id": "R30-B06-02-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30BrierContributionTest.java",
+    "tools/r30/qual_host/BrierContributionR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "同期Brier配对必须从唯一回放内核取得可选概率面，并由真实AtomWorld消费者在H_SELECT计量/落库/报告。保留原原子评分及USEFUL/HARMFUL门槛；新增明确H_SELECT计数、均值和单侧95%下界。分子移除对照必须对原动作的同一K3/同一命中事件比较概率，按同一期先汇总，避免把不同动作或同一期多策略当独立样本。新增加法式贡献表及真实SQLite回归。先登记，待B06-01 G1完成再改产品文件。"
   }
  ]
 }
