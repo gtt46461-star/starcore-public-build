@@ -43,6 +43,27 @@ pull_database() {
     adb pull "/data/user/0/$PKG/databases/$remote" "$OUT/$local_name.db" > /dev/null || return $?
     for suffix in -wal -shm; do adb pull "/data/user/0/$PKG/databases/$remote$suffix" "$OUT/$local_name.db$suffix" > /dev/null 2>&1 || true; done
 }
+# Low-sensitivity publication/fence state and owner-fence log lines go to stdout (the CI job log),
+# so a failed phase is diagnosable even where uploaded artifacts cannot be retrieved. No row contents.
+print_publication_diagnosis() {
+    local phase=$1 main=$2
+    python3 - "$phase" "$main" <<'PY' || true
+import sqlite3,sys
+phase,path=sys.argv[1:3]
+with sqlite3.connect(path) as db:
+    for table,cols in [('r29_migration_publication','epoch,candidate_name,phase,baseline_name,last_error,updated_at'),('r29_migration_owner_fence','epoch,protocol,length(source_hash),created_at')]:
+        try: rows=db.execute('SELECT %s FROM %s'%(cols,table)).fetchall()
+        except sqlite3.Error as e: rows=['UNAVAILABLE:'+str(e)]
+        print('R29_DIAG|%s|%s|%s'%(phase,table,rows))
+    try:
+        for r in db.execute("SELECT task_id,error_class,substr(message,1,300),recorded_at FROM r27_task_error ORDER BY recorded_at DESC LIMIT 8"): print('R29_DIAG|%s|task_error|%s'%(phase,r))
+    except sqlite3.Error as e: print('R29_DIAG|%s|task_error|UNAVAILABLE:%s'%(phase,e))
+PY
+    if [ -f "$OUT/logcat-$phase.txt" ]; then
+        grep -E 'R29_OWNER_FENCE|R29_PENDING_PUBLICATION|ROOT_RESEARCH_ADVANCED|R29_SEALED|R29_MIGRATION|FATAL EXCEPTION' "$OUT/logcat-$phase.txt" | grep -v '|table=' | tail -n 40 | sed "s/^/R29_DIAG|$phase|logcat|/" || true
+        grep -E 'R29_OWNER_FENCE.*\|table=' "$OUT/logcat-$phase.txt" | tail -n 60 | sed "s/^/R29_DIAG|$phase|fence|/" || true
+    fi
+}
 pull_runtime() {
     local phase=$1 main_name=$2 baseline_name stage_status=0
     local before_args=()
@@ -53,6 +74,7 @@ pull_runtime() {
     python3 tools/r29/inspect_runtime.py --observe-only --main "$OUT/$main_name.db" --stage "$OUT/stage-$phase.db" "${before_args[@]}" --out "$OUT/$phase-migration-observation.json"
     if [ "$stage_status" -ne 0 ]; then return "$stage_status"; fi
     pull_database starcore-r29-research.db "research-$phase"
+    print_publication_diagnosis "$phase" "$OUT/$main_name.db"
     baseline_name=$(python3 - "$OUT/$main_name.db" <<'PY'
 import re,sqlite3,sys
 with sqlite3.connect(sys.argv[1]) as db:
