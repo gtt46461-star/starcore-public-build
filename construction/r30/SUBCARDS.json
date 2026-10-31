@@ -851,6 +851,14 @@
         "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java"
       ],
       "reason": "103两证书最终release模拟器均通过原冷启动后，在原看门狗广播实例化时Android ActivityThread将Application.getBaseContext强转ContextImpl，测试隔离RoutedContext导致实际ClassCastException。保留原Application及全部onCreate，增加通用getBaseContext解包到原framework context；ContextWrapper原mBase仍保留隔离文件/DB/prefs委托，正常产品原ContextImpl直接原样返回。现有Android cp06场景补实际显式orderedBroadcast投递原看门狗的非法action并等待原goAsync完成，验证框架真实接收、隔离DB仍不同于原base路径；不关广播、不移除看门狗、不取消原启动/故障检查、不加REAL。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-p",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java"
+      ],
+      "reason": "105实际Android预检41238380139/job124646860186已越过原证书/校准阻塞，原DbStore真实写入失败于r974_exact_real_receipt不存在。Fixture只初始化SU2而遗漏R952原迁移域；在现有测试初始化写事务中、历史及证书造数之前调用原ResearchMigrationRegistryR952.ensure，完整建立原r974及F05收据和全部不可变触发器，不手抄或缩减DDL。正例增加原两类收据及交易联合身份校验。只改Android测试，产品main与已通过269项G1的f857f30b逐字节相同；重编Android源码及实际模拟器验证，最终相同source的完整CI仍全部执行。先登记后施工。"
     }
   ]
 }
