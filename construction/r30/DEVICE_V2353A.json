@@ -1,0 +1,70 @@
+{
+  "card": "R30-B10-01",
+  "sourceBasis": "b580a30243a5690167c12bdc3158fb92fe1012b6",
+  "expectedDevice": "V2353A",
+  "deviceSerial": null,
+  "status": "NOT_RUN",
+  "reason": "approved adb devices -l returned an empty device list; no accessible V2353A or physical report dataset supplied",
+  "adbCheck": {
+    "default": "EPERM_BINDING_LOCAL_5037",
+    "normalApprovalRetryCount": 1,
+    "approvedRetry": "EXIT_0",
+    "connectedDevices": [],
+    "evidence": "evidence/r30/b10-01/adb-daemon.log",
+    "restrictionBypassed": false
+  },
+  "scenarios": [
+    {
+      "id": "foreground60min",
+      "description": "前台连续60分钟",
+      "requiredDurationMinutes": 60,
+      "status": "NOT_RUN",
+      "actualDurationMinutes": null,
+      "startedAt": null,
+      "endedAt": null,
+      "reportZip": null,
+      "issueTimelineRaw": null,
+      "writerHoldRaw": null,
+      "metrics": null
+    },
+    {
+      "id": "screenOff6h",
+      "description": "息屏连续6小时",
+      "requiredDurationMinutes": 360,
+      "status": "NOT_RUN",
+      "actualDurationMinutes": null,
+      "startedAt": null,
+      "endedAt": null,
+      "reportZip": null,
+      "issueTimelineRaw": null,
+      "writerHoldRaw": null,
+      "metrics": null
+    },
+    {
+      "id": "continuous72h",
+      "description": "连续72小时",
+      "requiredDurationMinutes": 4320,
+      "status": "NOT_RUN",
+      "actualDurationMinutes": null,
+      "startedAt": null,
+      "endedAt": null,
+      "reportZip": null,
+      "issueTimelineRaw": null,
+      "writerHoldRaw": null,
+      "metrics": null
+    }
+  ],
+  "physicalMetrics": [
+    "M03",
+    "M04",
+    "M05",
+    "M07",
+    "M13",
+    "M14",
+    "M15",
+    "M34"
+  ],
+  "hostOrEmulatorSubstitution": false,
+  "dataDeleted": false,
+  "signingKeysRead": false
+}
