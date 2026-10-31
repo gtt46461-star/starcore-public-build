@@ -26,9 +26,13 @@ public final class MetricEvaluatorR29 {
             Map<String,Object> def=(Map<String,Object>)obj; String id=(String)def.get("id"); Probe p=probes.get(id);
             Map<String,Object> r=new LinkedHashMap<>(def);
             r.put("metricId", id); r.put("definitionVersion", "R29.1"); r.put("sourceSnapshot", snapshot);
-            r.put("status",p==null ? (id.equals("Q02")?"NOT_DEPLOYED":id.startsWith("Q")?"INSUFFICIENT":"NOT_RUN") : p.status);
+            // R30-B00-05: a missing source (no probe) or a probe without samples/value is INSUFFICIENT with a null value;
+            // it never becomes 0 or PASS. FAIL is negative evidence and stays FAIL.
+            boolean insufficient = p == null || ((p.samples == 0 || p.value == null) && !"FAIL".equals(p.status));
+            r.put("status",p==null&&id.equals("Q02") ? "NOT_DEPLOYED" : insufficient ? "INSUFFICIENT" : p.status);
+            if (p != null && insufficient && !p.status.equals("INSUFFICIENT")) r.put("probeStatus", p.status);
             r.put("population",p==null?null:p.population); r.put("numerator",p==null?null:p.numerator); r.put("denominator",p==null?null:p.denominator);
-            r.put("value",p==null?null:p.value); r.put("sampleCount",p==null?null:p.samples);
+            r.put("value",p==null||insufficient?null:p.value); r.put("sampleCount",p==null?null:p.samples);
             r.put("missingReason",p==null?"No source-bound execution receipt for "+def.get("source"):p.reason);
             r.put("evidenceRefs",p==null||p.evidence==null?new ArrayList<>():p.evidence);
             r.put("timeRange",snapshot.get("timeRange")); r.put("uncertainty",null);
