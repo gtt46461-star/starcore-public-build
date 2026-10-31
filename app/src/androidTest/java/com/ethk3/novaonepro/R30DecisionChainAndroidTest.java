@@ -108,7 +108,9 @@ public final class R30DecisionChainAndroidTest {
             try {
                 request=requests.claim(request,lease.ownerId,System.currentTimeMillis());assertNotNull(request);V51RuntimeInputR36 input=V51RuntimeInputR36.freeze(f.history,request);request=requests.bindHistoryHash(request,input.historyHash,lease.ownerId);
                 V51RuntimeOrchestrator.OutcomeR36 outcome=V51AutoFetchBridge.runR36(f.store,input,request,lease);
-                assertTrue(outcome.runtime.success);assertTrue(outcome.commit.success);assertEquals(V51Enums.DecisionAction.BET,outcome.runtime.authorized.action);
+                assertTrue(outcome.runtime.success);assertTrue(outcome.commit.success);
+                assertNotNull("The selected valid SU2 certificate must reach the existing typed proof",outcome.runtime.contract.certifiedPrediction);
+                assertEquals("Original gate reject="+outcome.runtime.authorized.rejectCode+"; policy="+outcome.runtime.contract.policy.lane,V51Enums.DecisionAction.BET,outcome.runtime.authorized.action);
                 assertEquals(1,count(f.db,"SELECT count(*) FROM r30_decision_explain WHERE original_allow=1 AND explain_allow=1"));assertEquals(0,count(f.db,"SELECT count(*) FROM r30_decision_mismatch WHERE direction='ORIGINAL_MORE_PERMISSIVE'"));
                 assertFalse("Canonical REAL must close the target",RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
                 V51Models.AuthorizedDecision duplicate=new DecisionGateEngine().decideV51B12(f.store,outcome.runtime.contract);assertNotEquals(V51Enums.DecisionAction.BET,duplicate.action);

@@ -30,6 +30,22 @@ public final class RealAuthorityR30HostTest {
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(bytes)){for(int i=0;i<100;i++)out.writeFloat(.1f);}
             db.execSQL("INSERT INTO r26_frozen VALUES(?,?,?,?,?,?,1,?,?,?)",new Object[]{key,seq,seq-1,HashingSU1.text("SYNTHETIC_CHECKPOINT"),HashingSU1.text("SYNTHETIC_STATE"),HashingSU1.text("SYNTHETIC_SOURCE"),now-6000,now+60000,bytes.toByteArray()});
             require(RealAuthoritySU2.allows(store,candidate,cert,target,now+60000),"VALID_EXISTING_AUTHORITY_BROKEN");
+            db.execSQL("CREATE TABLE research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT,consumer TEXT,candidate_id TEXT,certificate_hash TEXT)");
+            db.execSQL("INSERT INTO research_consumer_choice_r932 VALUES(?,'HOST_SYNTHETIC','INVENTED_ALGORITHM',?,?)",new Object[]{target,candidate,cert});
+            UnifiedResearchChoiceR932.Evidence chosen=UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM);
+            require(chosen!=null,"FROZEN_VALID_SU2_CERTIFICATE_DROPPED_BY_SELECTED_BRIDGE");
+            require(candidate.equals(chosen.id)&&program.equals(chosen.structure)&&cert.equals(chosen.certificate)&&HashingSU1.text("SYNTHETIC").equals(chosen.evidence),"FROZEN_SU2_IDENTITY_OR_ORIGINAL_EVIDENCE_CHANGED");
+            require(chosen.metric("ACT_N")==1000&&chosen.metric("HIT_RATE")==.4&&chosen.metric("COVERAGE")==.2&&chosen.metric("ECE")==.03&&Double.isNaN(chosen.metric("BRIER")),"FROZEN_SU2_OBSERVED_METRICS_OR_UNKNOWN_CHANGED");
+            db.execSQL("UPDATE research_consumer_choice_r932 SET certificate_hash=?",new Object[]{HashingSU1.text("DIFFERENT_CERTIFICATE")});
+            require(UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM)==null,"FROZEN_SU2_CERTIFICATE_MISMATCH_ACCEPTED");
+            db.execSQL("UPDATE research_consumer_choice_r932 SET certificate_hash=?",new Object[]{cert});
+            db.execSQL("UPDATE research_consumer_choice_r932 SET candidate_id=?",new Object[]{CertificateSU2.PREFIX+HashingSU1.text("DIFFERENT_CANDIDATE")});
+            require(UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM)==null,"FROZEN_SU2_CANDIDATE_MISMATCH_ACCEPTED");
+            db.execSQL("UPDATE research_consumer_choice_r932 SET candidate_id=?",new Object[]{candidate});
+            db.execSQL("UPDATE su2_certificate SET expires_at=?",new Object[]{now-1});
+            require(UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM)==null,"FROZEN_SU2_EXPIRED_CERTIFICATE_ACCEPTED");
+            db.execSQL("UPDATE su2_certificate SET expires_at=?",new Object[]{now+60000});
+            System.out.println("R30_FROZEN_SU2_BRIDGE|ACTUAL_EXISTING_CERTIFICATE_AND_PROTOCOL|ORIGINAL_METRICS_AND_UNKNOWN_BRIER|WRONG_CERTIFICATE_OR_CANDIDATE_AND_EXPIRED_REJECTED|READ_ONLY|HOST_SYNTHETIC_NOT_NATURAL|PASS");
             java.lang.reflect.Method collect=DecisionExplanationR30.class.getDeclaredMethod("collect",DbStore.class,String.class,String.class,String.class,String.class,int.class,CertifiedPredictionR974.Proof.class,java.util.Map.class);collect.setAccessible(true);
             DecisionChainR30.Facts observed=(DecisionChainR30.Facts)collect.invoke(null,store,"202610310001",target,"202610310001",HashingSU1.text("SYNTHETIC_CONTEXT"),1,null,new java.util.LinkedHashMap<String,Object>());
             require(DecisionChainR30.explain(observed).allowReal,"ACTUAL_OBSERVER_DID_NOT_MATCH_VALID_EXISTING_AUTHORITY:"+JsonR27.write(DecisionChainR30.explain(observed).items));

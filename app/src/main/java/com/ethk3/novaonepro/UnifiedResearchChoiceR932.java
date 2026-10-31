@@ -209,6 +209,32 @@ public final class UnifiedResearchChoiceR932 {
             }
         }
 
+        // SU2's frozen choice references its own existing selective-certificate ledger.
+        // Reading it through the R929 certificate table silently discarded a valid SU2 choice.
+        if(consumer==CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM
+                &&com.ethk3.novaonepro.strategyv2.StrategySchemaSU2.ready(store.readable())){
+            try(Cursor choice=store.readable().rawQuery("SELECT candidate_id,certificate_hash FROM "+TABLE+" WHERE target_issue=? AND consumer=? AND candidate_id LIKE 'SU2-F-%'",new String[]{target,consumer.name()})){
+                if(choice.moveToFirst()){
+                    String id=choice.getString(0),certificate=choice.getString(1);
+                    String genome=id.substring(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX.length());
+                    com.ethk3.novaonepro.strategyv2.CertificateSU2.Authority a=com.ethk3.novaonepro.strategyv2.CertificateSU2.read(store.readable(),genome,System.currentTimeMillis());
+                    if(a==null||!a.candidate().equals(id)||!a.certificate.equals(certificate))return null;
+                    Map<String,Double> metrics=new HashMap<String,Double>();
+                    try(Cursor facts=store.readable().rawQuery("SELECT p.evidence_digest,c.acts,c.hits,c.lower_bound,c.coverage,c.worst_block,c.ece,c.window_start,c.window_end FROM su2_certificate c JOIN r26_certificate_protocol p ON p.certificate_id=c.certificate_id WHERE c.certificate_id=? AND c.genome_key=? AND p.protocol='R26_PREREGISTERED_AGGREGATE_LCB_V3'",new String[]{certificate,genome})){
+                        if(!facts.moveToFirst()||facts.isNull(0)||facts.getString(0).isEmpty())return null;
+                        int acts=facts.getInt(1),hits=facts.getInt(2);
+                        metrics.put("ACT_N",(double)acts);
+                        metrics.put("HIT_RATE",acts>0?hits/(double)acts:Double.NaN);
+                        metrics.put("WILSON_LOWER",acts>0?com.ethk3.novaonepro.strategyv2.FoldStabilityFitnessSU1.wilsonLower(hits,acts):Double.NaN);
+                        metrics.put("LOWER_BOUND",facts.getDouble(3));metrics.put("COVERAGE",facts.getDouble(4));
+                        metrics.put("WORST_BLOCK",facts.getDouble(5));metrics.put("ECE",facts.getDouble(6));
+                        long span=facts.getLong(8)-facts.getLong(7);if(span>0)metrics.put("FUTURE_N",(double)span);
+                        // Brier, paired sample counts and other absent measurements remain unknown.
+                        return new Evidence(a.candidate(),a.program,a.certificate,facts.getString(0),metrics);
+                    }
+                }
+            }
+        }
         try(Cursor c=store.readable().rawQuery("SELECT c.candidate_id,c.structural_hash,c.certificate_hash,c.evidence_hash FROM "+TABLE+" s JOIN "+ResearchPlatformStoreR929.TABLE_CERTIFICATE+" c ON c.certificate_hash=s.certificate_hash WHERE s.target_issue=? AND s.consumer=? AND c.state='ACTIVE'",new String[]{target,consumer.name()})){
             if(!c.moveToFirst())return null;
             String id=c.getString(0),structure=c.getString(1),certificate=c.getString(2),evidence=c.getString(3);
