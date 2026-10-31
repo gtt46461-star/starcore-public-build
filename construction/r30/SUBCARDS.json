@@ -686,6 +686,22 @@
     "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java"
    ],
    "reason": "最终同源码两证书交付必须对各自真实CP06/CP16旧APK进行覆盖安装和回退，记录原表/开奖/模型BLOB/资格预算保全，APK只检查公开签名不读密钥。登记仅模拟器驱动及实际SQLite摘要检查器、已公开旧APK+SHA registry、两现有缓存证书CI模板与最终单release发布：R27先产内部候选与Android门禁，官方CI等待R27全绿后汇合，最终只发布两份releaseAPK。原启动探针对非debuggable release用run-as读取prefs会假失败，已在B00真实复现；仅在adb root的一次性模拟器上显式读取原同一prefs，不改60s心跳/冷启/二启原门槛。原FoldBack实际Android回归补2MiB合成checkpoint/优化器字节与WITHOUT ROWID保全，保留四场景与所有旧断言；所有测试走专用新进程隔离，不删真实产品数据。原自然/真机缺口保留，不以模拟器替代。先登记后施工。"
+  },
+  {
+   "card": "R30-B10-04",
+   "id": "R30-B10-04-a",
+   "files": [
+    "release/release_identity.properties",
+    "release/release_manifest.json",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz",
+    "tools/r30/publish_final.sh",
+    ".github/workflows/r30-final-r27.yml",
+    ".github/r30-final-request.json",
+    ".github/workflows/r30-final-official.yml",
+    ".github/r30-final-official-request.json"
+   ],
+   "reason": "最终版本按B10计划升到577310101，既有包名/两套既有证书/min21/SDK36配置保持；更新生成身份并完整G1。FINAL.json逐卡及44指标保留证据等级和设备/自然质量缺口，APK/源码/公开签名/直链以真实构建收据回填。发布脚本将该账本与实际两包哈希和CI门禁合并；两个签名缓存分支只新增已审查的最终workflow及具体源码请求，不合并/改动其产品源码，不在代理云任务读取或上传私钥。当前main入口在最终两包成功后仅更新CURRENT_FINAL_PLAN指向实际R30分支与直链。先登记后修改。"
   }
  ]
 }
