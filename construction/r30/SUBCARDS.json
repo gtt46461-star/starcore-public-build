@@ -432,6 +432,23 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "确认队列须从真实FUTURE注册/e-process只读取得，换榜事务内再次核对避免注册竞态；确认成员占原24总位，探索只用剩余额度，已存在超容量资格成员完整保留。原连续消费/alpha索引/冻结和资格阈值不改。新增真实SQLite调用refreshObservers换榜100代、容量、提交回滚、游标/回执连续及终态释放回归；先登记后施工。"
+  },
+  {
+   "card": "R30-B07-02",
+   "id": "R30-B07-02-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CertificateVersionTest.java",
+    "tools/r30/qual_host/CertificateVersionR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "tools/r29/qual_host/QualInboxR29HostTest.java",
+    "tools/r27/test_r27_migration.py",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "版本必须进入真实发证SQL、加法式schema迁移、当前主链证书读取和排序，不能仅有常量。旧证书版本标LEGACY_UNVERSIONED且保留原字段，不冒充当前合格；不同版本不比较，V2继续关闭。登记实际迁移/发证/投影SQLite回归；旧夹具按列名插入并显式标当前测试证书版本。旧M4在未修改产品基线也失败（错误把禁止DELETE触发器当删除），保留原失败并继续检查顶层及触发器体内真实DROP/DELETE FROM，不放宽保全规则。先登记后施工。"
   }
  ]
 }
