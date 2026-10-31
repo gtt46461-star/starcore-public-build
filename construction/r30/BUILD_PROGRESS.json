@@ -1,7 +1,7 @@
 {
-  "candidateSource": "9acc87f92b15ce11a4f21dc024c19d0973a4bca5",
-  "versionCode": 577310101,
-  "updatedAt": "2026-10-31T18:36:35.744005+00:00",
+  "candidateSource": "RESOLVED_FROM_IMMUTABLE_NEXT_REQUEST",
+  "versionCode": 577310102,
+  "updatedAt": "2026-10-31T19:05:53.605762+00:00",
   "localG1": {
     "tests": 265,
     "xmlFiles": 69,
@@ -10,50 +10,61 @@
     "skipped": 0,
     "lint": "NO_NEW_ERRORS_ORIGINAL_BASELINE_RETAINED",
     "androidSourceCompile": "PASS",
-    "largeModelCopyAndRetentionActualSQLite": "PASS_HOST_MODELED_WINDOW_NOT_ANDROID"
+    "largeModelCopyAndRetentionActualSQLite": "PASS_HOST_MODELED_WINDOW_NOT_ANDROID",
+    "source": "588058ecc4a98a1f2bc497caa352bd7cc6001e45",
+    "checkpointRealJvmReopen": "PASS_ACTUAL_COMPILED_PRODUCTION_CLASSES",
+    "originalRetentionActualSQLite": "PASS",
+    "atomicPreferenceReread": "PASS_HOST_FILESYSTEM_ONLY"
   },
-  "builds": [
-    {
-      "lane": "EXISTING_R27",
-      "run": 41227596487,
-      "job": 124614890257,
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41227596487",
-      "status": "IN_PROGRESS",
-      "lastObservedStep": "three actual Android jobs running",
-      "existingIdentityRestore": "PASS",
-      "androidRuntime": "FAILED_FIRST_RUN_ERROR_SUMMARY_PENDING",
-      "upgradeRollback": "CP06_AND_CP16_IN_PROGRESS",
-      "buildStatus": "PASS_SIGNED_RELEASE_CANDIDATE_CREATED",
-      "candidateSha256": "61934b0154c2d64563752a3cacda5a9fa6a5ca1987e99567fa4324b8668a3bbe",
-      "candidateBytes": 27804397,
-      "androidJobs": {
-        "regressionAndFaults": 124621327733,
-        "upgradeCP06": 124621327767,
-        "upgradeCP16": 124621327690
-      }
-    },
-    {
-      "lane": "OFFICIAL_R13",
-      "run": 41227845441,
-      "job": 124615635148,
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41227845441",
-      "status": "IN_PROGRESS",
-      "lastObservedStep": "three actual Android jobs starting",
-      "existingIdentityAndApiRestore": "PASS",
-      "androidRuntime": "IN_PROGRESS",
-      "upgradeRollback": "CP06_AND_CP16_IN_PROGRESS",
-      "buildStatus": "PASS_SIGNED_RELEASE_CANDIDATE_CREATED",
-      "androidJobs": {
-        "regressionAndFaults": 124621942004,
-        "upgradeCP06": 124621942019,
-        "upgradeCP16": 124621941968
-      },
-      "candidateSha256": "f1bfc82e69fdc7c4039a23a8ce2431c13747ac0a5c7d488e9f2502647232de38",
-      "candidateBytes": 27804376
-    }
-  ],
-  "release": "NOT_PUBLISHED_WAITING_FOR_BOTH_LANES",
+  "builds": [],
+  "release": "NOT_PUBLISHED_WAITING_FOR_VERSION102_FULL_GATES",
   "physicalDevice": "NOT_RUN_NO_DEVICE_CONNECTED",
   "naturalQuality": "INSUFFICIENT",
-  "signingKeysReadOrUploadedByAgent": false
+  "signingKeysReadOrUploadedByAgent": false,
+  "priorFailedCandidates": {
+    "source": "9acc87f92b15ce11a4f21dc024c19d0973a4bca5",
+    "versionCode": 577310101,
+    "builds": [
+      {
+        "lane": "EXISTING_R27",
+        "run": 41227596487,
+        "job": 124614890257,
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41227596487",
+        "status": "COMPLETED_FAILURE",
+        "lastObservedStep": "three actual Android jobs running",
+        "existingIdentityRestore": "PASS",
+        "androidRuntime": "FAILED_ORIGINAL_RUN_REPAIRED_IN_102",
+        "upgradeRollback": "FAILED_ORIGINAL_RUN_REPAIRED_IN_102",
+        "buildStatus": "PASS_SIGNED_RELEASE_CANDIDATE_CREATED",
+        "candidateSha256": "61934b0154c2d64563752a3cacda5a9fa6a5ca1987e99567fa4324b8668a3bbe",
+        "candidateBytes": 27804397,
+        "androidJobs": {
+          "regressionAndFaults": 124621327733,
+          "upgradeCP06": 124621327767,
+          "upgradeCP16": 124621327690
+        }
+      },
+      {
+        "lane": "OFFICIAL_R13",
+        "run": 41227845441,
+        "job": 124615635148,
+        "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41227845441",
+        "status": "COMPLETED_FAILURE",
+        "lastObservedStep": "three actual Android jobs starting",
+        "existingIdentityAndApiRestore": "PASS",
+        "androidRuntime": "FAILED_ORIGINAL_RUN_REPAIRED_IN_102",
+        "upgradeRollback": "FAILED_ORIGINAL_RUN_REPAIRED_IN_102",
+        "buildStatus": "PASS_SIGNED_RELEASE_CANDIDATE_CREATED",
+        "androidJobs": {
+          "regressionAndFaults": 124621942004,
+          "upgradeCP06": 124621942019,
+          "upgradeCP16": 124621941968
+        },
+        "candidateSha256": "f1bfc82e69fdc7c4039a23a8ce2431c13747ac0a5c7d488e9f2502647232de38",
+        "candidateBytes": 27804376
+      }
+    ],
+    "published": false
+  },
+  "internalPreflight": "PREPARED_NOT_RUN_NO_FINAL_GATE_SUBSTITUTION"
 }

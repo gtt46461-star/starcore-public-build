@@ -8,17 +8,17 @@
   "applicationId": "com.starcore.research.r13",
   "versionCode": 577310102,
   "versionName": "R30-FINAL-2026.10.31-102",
-  "state": "FINAL_TEST_RUNNER_REPAIR_GATES_PENDING_101_FAILURE_RETAINED",
+  "state": "VERSION102_LOCAL_GATES_PASS_101_FAILURES_RETAINED_FINAL_ANDROID_PENDING",
   "fullAcceptance100Percent": false,
   "localEngineeringBasis": {
-    "source": "ac1365ecd85e57f04fb0e14ec2096ead2b87886d",
+    "source": "588058ecc4a98a1f2bc497caa352bd7cc6001e45",
     "tests": 265,
     "xmlFiles": 69,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "lint": "NO_NEW_ERRORS; original51 baseline and7 unmatched retained",
-    "currentVersionFinalG1": "PASS_265_TESTS_LINT_ANDROID_COMPILE_AND_ACTUAL_LARGE_COPY_RETENTION"
+    "currentVersionFinalG1": "PASS_265_TESTS_LINT_ANDROID_COMPILE_ACTUAL_CHECKPOINT_REOPEN_AND_RETENTION"
   },
   "cards": [
     {
@@ -1226,5 +1226,20 @@
     "screenshots": 48,
     "faultCells": 14,
     "runtime": "NOT_RUN_PENDING_FINAL_CANDIDATES"
+  },
+  "priorCandidateFailure": {
+    "source": "9acc87f92b15ce11a4f21dc024c19d0973a4bca5",
+    "versionCode": 577310101,
+    "runs": [
+      41227596487,
+      41227845441
+    ],
+    "published": false,
+    "failures": [
+      "AGP_OVERRIDDEN_R30_TEST_RUNNER",
+      "PRE_UPGRADE_CHECKPOINT_ORIGINAL_NOT_RETAINED_AFTER_TRAINING_REPLACE",
+      "SINGLE_PARTIAL_PREFERENCE_XML_READ_IN_ORIGINAL_STARTUP_PROBE"
+    ],
+    "repairs": "version102; explicit test runner, incoming checkpoint baseline archive, bounded same-file reread; original gates retained"
   }
 }
