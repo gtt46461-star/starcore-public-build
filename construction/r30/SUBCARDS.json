@@ -3,6 +3,14 @@
  "subcards": [
   {
    "card": "R30-B05-02",
+   "id": "R30-B05-02-c",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationStoreR30.java"
+   ],
+   "reason": "将可移植的纯Java Q08模拟内核与Android缓存适配分开：真实源码号由Runtime传入，内核仍进入原三套纯Java编译门禁；新增适配器统一实际checkpoint/报告SQL并供Runtime及SQLite回归共同调用，不通过伪造Android依赖排除内核。"
+  },
+  {
+   "card": "R30-B05-02",
    "id": "R30-B05-02-b",
    "files": [
     "tools/r30/qual_host/FrozenConfirmationR30HostTest.java"
