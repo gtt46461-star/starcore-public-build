@@ -28,6 +28,12 @@ public final class ReportR29 {
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
         out.put("issueTimelineR30", issueTimeline(db));
+        Map<String,Object> fetch = new LinkedHashMap<>(); // R30-B02-02 (sub-card B02-02-a): current process values
+        fetch.put("rejectedConcurrent", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.rejectedConcurrent());
+        fetch.put("consecutiveFailures", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.consecutiveFailures());
+        fetch.put("inFlight", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.inFlight());
+        fetch.put("scope", "本进程自启动以来的计数；进程重启归零，不是持久化统计");
+        out.put("fetchBackoffR30", fetch);
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
         if ("RECORDED".equals(model.get("status"))) {

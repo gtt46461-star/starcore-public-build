@@ -35,6 +35,14 @@
     "tools/r30/r30-build.yml"
    ],
    "reason": "B00 首次官方出包的模拟器冷启动烟测失败而证据只在 artifact（会话代理不能下载）：失败时把烟测日志/startup.json/logcat 关键行打印到作业日志；发布步骤对已存在的 tag 幂等，便于同一源码重跑诊断。"
+  },
+  {
+   "card": "R30-B02-02",
+   "id": "R30-B02-02-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
+   ],
+   "reason": "卡第4步要求报告第3章列出 rejectedConcurrent、consecutiveFailures 当前值；第3章在 ReportR29（B01-02 所建），本卡独占表未列。"
   }
  ]
 }

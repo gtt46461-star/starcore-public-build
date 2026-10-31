@@ -586,6 +586,10 @@ public final class AutoFetchService extends Service {
     private int realtimeMissCount;
     private boolean realtimeHistory100Posted;
 
+    /** R30-B02-02: one draw request in flight per process; backoff 1/2/4/8/15 s on consecutive failures. */
+    public static final com.ethk3.novaonepro.strategyv2.FetchBackoffR30 FETCH_R30 = new com.ethk3.novaonepro.strategyv2.FetchBackoffR30();
+    private volatile boolean haveCurrentDrawR30;
+
     private final Runnable fetchLoop =
             new Runnable() {
                 @Override
@@ -593,7 +597,6 @@ public final class AutoFetchService extends Service {
                     if (!running) {
                         return;
                     }
-
                     try {
                         runFetchChannelOnce();
                     } catch (Throwable e) {
@@ -2658,12 +2661,17 @@ public final class AutoFetchService extends Service {
             }
         }
 
+        // R30-B02-02: the next wake comes from FetchBackoffR30 (healthy 1 s, relaxed 3 s more than 20 s before the
+        // deadline when the current draw is already held, backoff 1/2/4/8/15 s after failures). The analysis-pending
+        // 650 ms fast path above still applies while healthy; it never shortens a failure backoff.
+        long untilDeadlineR30 = Long.MIN_VALUE;
+        try { if (countdownClock != null) untilDeadlineR30 = countdownClock.getSignedCountdownMs(); }
+        catch (Throwable unknownClock) { untilDeadlineR30 = Long.MIN_VALUE; }
+        long backoffR30 = FETCH_R30.nextDelayMs(haveCurrentDrawR30, untilDeadlineR30);
+        delay = FETCH_R30.consecutiveFailures() == 0 && delay <= 650L ? Math.min(delay, backoffR30) : backoffR30;
+
         if (delay < AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS) {
             delay = AppConfig.REALTIME_MIN_LOOP_INTERVAL_MS;
-        }
-
-        if (delay > 3000L) {
-            delay = 3000L;
         }
 
         fetchHandler.postDelayed(fetchLoop, delay);
@@ -2716,7 +2724,18 @@ public final class AutoFetchService extends Service {
             lastError = "";
 
             Models.Draw oldLatest = localLatestBeforeFetch;
-            Models.ApiResult latestResult = fetchLatestRealtime();
+            // R30-B02-02: single flight around the actual draw request; a concurrent caller returns without a
+            // request (no queueing). Only a request that ran changes the backoff counter.
+            if (!FETCH_R30.tryBegin()) {
+                lastStatus = AppConfig.SERVICE_STATUS_WAITING;
+                return;
+            }
+            Models.ApiResult latestResult = null;
+            try {
+                latestResult = fetchLatestRealtime();
+            } finally {
+                FETCH_R30.end(latestResult != null && latestResult.ok && latestResult.latestDraw != null);
+            }
 
             if (countdownClock != null) {
                 countdownClock.markFetched(latestResult != null && latestResult.ok);
@@ -2743,6 +2762,11 @@ public final class AutoFetchService extends Service {
             lastError = "";
 
             Models.Draw latestFromApi = latestResult.latestDraw;
+            try {
+                String clockIssue = countdownClock == null ? "" : safe(countdownClock.getCurrentIssue());
+                haveCurrentDrawR30 = latestFromApi.isValid() && clockIssue.length() > 0
+                        && TargetIssueResolver.compare(latestFromApi.issue, clockIssue) >= 0;
+            } catch (RuntimeException unknownClock) { haveCurrentDrawR30 = false; }
             Models.DataCheck latestCheck = dataGuard.checkLatest(latestFromApi);
 
             if (latestCheck == null || !latestCheck.ok) {
