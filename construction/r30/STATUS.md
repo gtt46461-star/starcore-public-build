@@ -20,7 +20,7 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B01-05|B01|任务活性判定与报告|DONE|873daf77aef7|—|HOST livenessClassification OK；当前 r26_task 无 pending/last_committed_seq 列 → 全部 UNKNOWN 单列，M12=INSUFFICIENT（如实）|
 |R30-B01-06|B01|调度公平与温控核对|DONE|27b2e16296be|—|温控序列 HOST 6/6；STALLED 提升已接入 claim()，但 r26_task 尚无 pending/last_committed_seq 事实 → 无任务被判 STALLED（不猜测）；“下一轮被调度”的运行验证 NOT_RUN|
 |R30-B01-07|B01|重复调度入口清单与收敛|DONE|65337ff1cb9e|—|SCHEDULER_OWNERS.json 42 个循环，无“两个活跃写者写同一研究表”；旧研究链连续性/捕获在 R26 运行时让出（与 R27-046 并行观察冲突已记录）；生命周期回归 androidTest NOT_RUN|
-|R30-B02-01|B02|每期8点时间线落库|DONE|5f3c7030fa60|—|HOST timeline 3/3；SQL T01 通过；FIRST_OBSERVED 落在 payload 回调（complete 回调无解析期号）；30分钟≥95%三点覆盖 NOT_RUN|
+|R30-B02-01|B02|每期8点时间线落库|DONE|5f3c7030fa60|—|HOST timeline 3/3；SQL T01；VALIDATED/DRAW_COMMITTED 打点在同一事务内的 FetchLedgerR925.observe/canonicalDrawWithinR82（DbStore 为主链红线，保持不变）；30分钟覆盖 NOT_RUN|
 |R30-B02-02|B02|抓取单飞与退避节奏|DONE|31ea80f32bae|—|HOST 2/2（16线程单飞、退避序列）；HTTP 超时现值 2500/3500ms 已≤4000 未改；断网恢复真机序列 NOT_RUN|
 |R30-B02-03|B02|缺期补抓与幂等结算核验|DONE|b2d781d67d27|—|HOST PendingDrawR30 P1–P4 OK；SettlementEngine 未改（主链红线 R27QualityTest.h15 要求逐字节不变；CP06 重放已不写行并返回已存结果，仅重放哈希文本与首次不同）|
 |R30-B02-04|B02|准备在事务外、冻结在短事务内|DONE|7efceca151e8|—|审查：两条冻结路径事务体内均无模型/特征调用（CP06 已符合，未改行为）；prepare_to_frozen 真机 P95 NOT_RUN|

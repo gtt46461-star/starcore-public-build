@@ -2194,7 +2194,6 @@ public final class DbStore {
                         boolean owns = !db.inTransaction();
                         if (owns) db.beginTransaction();
                         try {
-                            com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, draw.issue, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.VALIDATED); // R30-B02-01
                             FetchLedgerR925.observeDrawWithinR82(db,draw);
                             long rowId = insertDrawInternal(db, draw);
                             if (rowId == R811_DRAW_CONFLICT_BLOCKED || rowId == CP12_DRAW_RETENTION_DEFERRED || rowId == CP12_DRAW_OUTSIDE_HISTORY_TAIL) {
@@ -2212,7 +2211,6 @@ public final class DbStore {
                                             RuntimeEventLedgerR926.RANK_ACCEPTED,
                                             "numbers=" + draw.numbersText() + "|source=" + draw.sourceLine + "|draw_at=" + draw.openTime+"|"+FetchLedgerR925.canonicalBindingSummaryR82(draw),
                                             "DbStore.saveDraw", "DRAW_ACCEPTED|" + draw.issue + "|" + V51ChecksumEngine.sha256(draw.numbersText())));
-                            com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, draw.issue, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.DRAW_COMMITTED); // R30-B02-01
                             if (owns) db.setTransactionSuccessful();
                             return Long.valueOf(rowId);
                         } finally {

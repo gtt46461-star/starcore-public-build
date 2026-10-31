@@ -391,6 +391,10 @@ public final class FetchLedgerR925 {
     }
     /** Persisted even when a current draw is deferred by retention; rolled back with its owner TX. */
     public static void observeDrawWithinR82(SQLiteDatabase db,Models.Draw draw) {
+        // R30-B02-01 VALIDATED: called first inside DbStore's R914_DRAW_SAVE_ATOMIC (and history batch) transaction,
+        // after the draw passed normalization/validation and before its first INSERT. DbStore stays byte-identical
+        // (main-chain red line, R27QualityTest.h15MainlineRedLines).
+        if(draw!=null)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db,draw.issue,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.VALIDATED);
         DrawBindingR82 b=checkedBindingR82(db,draw);if(b==null)return;
         try{exactAppendR82(db,RuntimeEventLedgerR926.Event.of(b.issue,b.fingerprint,b.request,"FETCH_BINDING_R82","PARSED_DRAW",RuntimeEventLedgerR926.RANK_REQUESTED,
                 bindingJsonR82(b,0),"ApiClient.ApiParser","HTTP_DRAW_BOUND_R82|"+b.request+"|"+b.fingerprint));}
@@ -398,6 +402,9 @@ public final class FetchLedgerR925 {
     }
     /** Same transaction as draws/settlement enqueue and canonical acceptance event. */
     public static void canonicalDrawWithinR82(SQLiteDatabase db,Models.Draw draw) {
+        // R30-B02-01 DRAW_COMMITTED: same transaction, called after the draw row is written (DbStore skips this call when
+        // the draw is blocked/deferred); the commit follows the settlement enqueue and acceptance event in that body.
+        if(draw!=null)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db,draw.issue,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.DRAW_COMMITTED);
         DrawBindingR82 b=checkedBindingR82(db,draw);if(b==null)return;
         long row=0;try(Cursor c=db.rawQuery("SELECT rowid,draw_hash_v2,draw_hash_version,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue=?",new String[]{b.issue})){
             if(!c.moveToFirst()||!DrawHashR36.matchesPersisted(c.getString(1),c.getInt(2),draw))throw new IllegalStateException("HTTP_CANONICAL_DRAW_NOT_DURABLE");row=c.getLong(0);
