@@ -35,12 +35,16 @@ PY
   )
   chart_status=$?
   set -e
+elif [[ "$mode" == sqlite-full-only ]]; then
+  echo R30_INTERNAL_SQLITE_FULL_ONLY_REGRESSION_AND_CHARTS_NOT_RUN
 else
   echo UNKNOWN_INTERNAL_PREFLIGHT_MODE
   exit 1
 fi
 set +e
-if [[ "$mode" == charts-and-remaining-faults ]]; then
+if [[ "$mode" == sqlite-full-only ]]; then
+  bash tools/r30/run_fault_matrix.sh evidence/r30/fault-focus sqlite_full
+elif [[ "$mode" == charts-and-remaining-faults ]]; then
   bash tools/r30/run_fault_matrix.sh evidence/r30/fault-focus kill_freeze,sqlite_full
 else
   bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix

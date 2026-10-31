@@ -7,6 +7,7 @@ diagnostic=${2:-full}
 case "$diagnostic" in
   full) fault_kinds=(fetch_timeout draw_conflict kill_settlement kill_freeze sqlite_full clock_rollback service_stop); expected_cells=14 ;;
   kill_freeze,sqlite_full) fault_kinds=(kill_freeze sqlite_full); expected_cells=4 ;;
+  sqlite_full) fault_kinds=(sqlite_full); expected_cells=2 ;;
   *) echo UNKNOWN_FAULT_DIAGNOSTIC_SCOPE; exit 1 ;;
 esac
 app_id=com.starcore.research.r13
@@ -147,7 +148,7 @@ if diagnostic=='full':
  (out/'matrix.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
  print('R30_FAULT_MATRIX|14_ACTUAL_EMULATOR_CELLS|NO_PHYSICAL_OR_NATURAL_CLAIM|PASS')
 else:
- receipt.update(scope='INTERNAL_REMAINING_FOUR_FAULTS_ONLY',full14Acceptance=False)
+ receipt.update(scope='INTERNAL_SELECTED_FAULTS_ONLY',selectedFaults=diagnostic,expectedCells=expected,full14Acceptance=False)
  (out/'diagnostic-matrix.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
- print('R30_FAULT_DIAGNOSTIC|4_ACTUAL_CELLS|NOT_FULL14_ACCEPTANCE|PASS')
+ print('R30_FAULT_DIAGNOSTIC|'+str(expected)+'_ACTUAL_CELLS|NOT_FULL14_ACCEPTANCE|PASS')
 PY

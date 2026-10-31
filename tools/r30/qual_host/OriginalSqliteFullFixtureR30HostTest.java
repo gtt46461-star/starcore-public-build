@@ -19,10 +19,12 @@ public final class OriginalSqliteFullFixtureR30HostTest {
                 try{insert.execute();throw new AssertionError("ACTUAL_SQLITE_FULL_NOT_TRIGGERED");}
                 catch(SQLException expected){if(expected.getErrorCode()!=13)throw expected;}
             }
+            try{primary.rollback();throw new AssertionError("FULL_AUTO_ROLLBACK_NOT_OBSERVED");}
+            catch(SQLException cleanup){if(cleanup.getErrorCode()!=1||!cleanup.getMessage().contains("no transaction is active"))throw cleanup;}
         }
         try(Connection reopened=DriverManager.getConnection("jdbc:sqlite:"+path)){
             if(n(reopened,"SELECT count(*) FROM synthetic_fixture")!=1||n(reopened,"SELECT count(*) FROM synthetic_fixture WHERE id=2")!=0)throw new AssertionError("FULL_LEFT_PARTIAL_COMMITTED_ROW");
         }
-        System.out.println("R30_SQLITE_FULL_FIXTURE|REAL_TWO_CONNECTION_SQLITE|OTHER_CONNECTION_LIMIT_DOES_NOT_LIMIT_PRIMARY|PINNED_PRIMARY_REAL_ERROR13|NO_PARTIAL_ROW_AFTER_REOPEN|HOST_NOT_ANDROID|PASS");
+        System.out.println("R30_SQLITE_FULL_FIXTURE|REAL_TWO_CONNECTION_SQLITE|OTHER_CONNECTION_LIMIT_DOES_NOT_LIMIT_PRIMARY|PINNED_PRIMARY_REAL_ERROR13|AUTO_ROLLBACK_CLEANUP_ERROR1_CANNOT_REPLACE_ORIGINAL_FULL|NO_PARTIAL_ROW_AFTER_REOPEN|HOST_NOT_ANDROID|PASS");
     }
 }

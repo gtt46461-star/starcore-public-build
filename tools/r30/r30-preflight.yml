@@ -24,7 +24,7 @@ jobs:
           python3 - <<'CODE'
           import json,os,re
           r=json.load(open('.github/r30-preflight-request.json'));assert re.fullmatch('[a-f0-9]{40}',r['source'])
-          focus=r.get('focus','full');assert focus in ('full','charts-and-faults','charts-and-remaining-faults')
+          focus=r.get('focus','full');assert focus in ('full','charts-and-faults','charts-and-remaining-faults','sqlite-full-only')
           with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\nfocus='+focus+'\n')
           CODE
       - uses: actions/checkout@v4
