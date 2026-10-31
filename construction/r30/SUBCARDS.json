@@ -790,6 +790,16 @@
         "tools/r30/qual_host/RealAuthorityR30HostTest.java"
       ],
       "reason": "102内部Android预检41232640998/job124629839957已真实通过11项(5迁移/2快照/1保全/2写队列/1撤销)，主链正例原owner实际返回SHADOW。源审查发现UnifiedResearchChoice.prepareChoiceCP12已冻结SU2合格证书，但selected只处理SU1及R929表，SU2记录被错误落入另一证书表JOIN而丢失。补只读SU2选中证书投影：继续使用原CertificateSU2.read并核对选中candidate/certificate，直接取原协议证据摘要及既有统计字段；缺失/过期/证书不匹配仍拒绝，未知指标NaN不造0，不修改原DGE/Settlement/DbStore、证书资格数学或数量时间门槛。扩现有真实SQLite Host先复现后通过，并为Android原BET断言增加拒绝码/typedProof存在性诊断，保留正例与所有独立反例。下一次正式出包升103。先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-j",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "tools/r30/qual_host/RealAuthorityR30HostTest.java"
+      ],
+      "reason": "沿102主链SHADOW故障继续审查确认同一SU2命名空间缺口在冻结提交端也存在：prepareChoiceCP12已选择SU2，但freeze原writer回调一律调用ResearchPlatformStoreR929.authorizeCurrent，该方法只特判SU1，不识别SU2，故合法选择不能入冻结表。仅对已明确INVENTED_ALGORITHM且SU2-F-的预备选择，在同一既有writer内用原CertificateSU2.read复核candidate/program/certificate与时效/撤销；其余原R929/SU1路径原样保留。与selected共用只读当前证书核对函数，最终REAL仍走原DGE全部守卫。补真实SQLite合法/错候选/错证书/错program/过期/撤销反例，不增加资格例外、不改统计时间门槛。先停当前未完成G1并留证，不计通过；两端补齐后完整重跑，版本103未出APK维持103。先登记后施工。"
     }
   ]
 }
