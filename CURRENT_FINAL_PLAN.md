@@ -9,3 +9,5 @@
 V2353A 前台60分钟、息屏6小时、连续72小时缺设备，均为 NOT_RUN；Q01–Q07 自然质量证据不足。B11 三项真机触发条件未知，切库未启用。未宣称100%全指标验收。
 
 方案：[STARCORE_R30_FINAL_20261031](construction/plans/STARCORE_R30_FINAL_20261031/README.md)，57张卡含B11两张条件卡、44指标，方案副本保持只读。
+
+103版冻结源码：[`7b50de44e381`](https://github.com/gtt46461-star/starcore-public-build/commit/7b50de44e381b4de3409f263d1db80ae63eca8fa)。实际任务：[R27最终构建41235591318](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235591318)、[官方R13最终构建41235634221](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235634221)、[内部Android预检41235591335](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41235591335)。内部预检不替代最终release APK验收。
