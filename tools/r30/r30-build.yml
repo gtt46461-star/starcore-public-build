@@ -95,6 +95,7 @@ jobs:
         run: |
           source=$(git rev-parse HEAD)
           tag="r30-${{ steps.request.outputs.batch }}-R27-${source:0:12}"
+          gh release view "$tag" > /dev/null 2>&1 && { echo "RELEASE_ALREADY_PUBLISHED"; exit 0; }
           gh release create "$tag" r30-apk/* --target "$source" --title "R30 ${{ steps.request.outputs.batch }} R27-certificate package ${source:0:12} — device/quality acceptance NOT_RUN" --notes-file construction/r30/STATUS.md --prerelease --latest=false
       - uses: actions/upload-artifact@v4
         if: always()

@@ -89,6 +89,7 @@ jobs:
         run: |
           source=$(git rev-parse HEAD)
           vcode=$(python3 -c "import json; print(json.load(open('r30-apk/delivery.json'))[0]['versionCode'])")
+          gh release view "r30-official-${vcode}-${source:0:12}" > /dev/null 2>&1 && { echo "RELEASE_ALREADY_PUBLISHED"; exit 0; }
           gh release create "r30-official-${vcode}-${source:0:12}" r30-apk/* --target "$source" --title "R30 ${vcode} — device/quality acceptance NOT_RUN" --notes-file construction/r30/STATUS.md --prerelease --latest=false
       - uses: actions/upload-artifact@v4
         if: always()
@@ -129,6 +130,12 @@ jobs:
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
           script: bash tools/r29/emulator_smoke.sh delivered evidence/r30/emulator && bash tools/r30/emulator_foldback.sh delivered androidtest evidence/r30/emulator
+      - name: Print emulator evidence to the job log on failure
+        if: failure()
+        run: |
+          for f in evidence/r30/emulator/*.txt evidence/r30/emulator/*.log evidence/r30/emulator/*.json; do [ -f "$f" ] && { echo "===== $f"; tail -n 60 "$f"; }; done
+          [ -f startup-evidence/startup.json ] && python3 -c "import json;d=json.load(open('startup-evidence/startup.json'));print('passed',d['passed']);print('crash',d['crash']);[print(json.dumps(r,ensure_ascii=False)) for r in d['samples'][-15:]]"
+          [ -f startup-evidence/logcat.txt ] && grep -E 'STARCORE|AndroidRuntime|FATAL|Exception' startup-evidence/logcat.txt | tail -n 150 || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
