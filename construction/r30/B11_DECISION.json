@@ -1,0 +1,31 @@
+{
+  "card": "R30-B11-01",
+  "decision": "NOT_RUN",
+  "triggerSatisfied": null,
+  "reason": "B10-01 has no V2353A >=24h original writer/timeline dataset; cannot calculate trigger predicates",
+  "conditions": [
+    {
+      "id": 1,
+      "definition": "critical=1 max(wait_p95)>200ms in original >=24h physical dataset",
+      "value": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": 2,
+      "definition": "at least3 of top5 over_hard background operations start R27_ in the same window",
+      "value": null,
+      "status": "NOT_RUN"
+    },
+    {
+      "id": 3,
+      "definition": "those exact operations still fail after registered B01 slicing and B09 remeasurement",
+      "value": null,
+      "status": "NOT_RUN"
+    }
+  ],
+  "sourceDeviceRecord": "construction/r30/DEVICE_V2353A.json",
+  "sourcePerformanceRecord": "construction/r30/B09_PERF.json",
+  "splitCompiledOrEnabled": false,
+  "B11_02": "NOT_RUN_WAITING_FOR_ALL_THREE_MEASURED_TRUE",
+  "notRequiredClaimedWithoutData": false
+}
