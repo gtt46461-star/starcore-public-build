@@ -9,3 +9,5 @@
 V2353A 前台60分钟、息屏6小时、连续72小时缺设备，均为 NOT_RUN；Q01–Q07 自然质量证据不足。B11 三项真机触发条件未知，切库未启用。未宣称100%全指标通过，也未调整资格数学或补 ACT 配额。
 
 101 版真实 Android 验收失败已保留。102 版修复测试入口、启动前检查点保护及原子偏好读取，265项单测、lint、Android编译与正式SQLite/JVM重开通过；最终两证书APK仍须全部运行门禁通过后统一发布。
+
+102 版不可变源码：[`8bfd2d515a99`](https://github.com/gtt46461-star/starcore-public-build/commit/8bfd2d515a99753022de6474958aba59ee3b3cdd)。实际最终构建：[R27 41232640964](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41232640964)、[官方 R13 41232674605](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41232674605)；[内部 Android 预检 41232640998](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41232640998)不替代最终验收。APK尚未通过最终运行门禁，暂无最终直链。
