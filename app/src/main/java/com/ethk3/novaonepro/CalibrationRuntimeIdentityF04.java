@@ -32,6 +32,21 @@ public final class CalibrationRuntimeIdentityF04 {
         requireHash(structure);requireHash(model);requireHash(selector);
         return V51ChecksumEngine.sha256(EXACT_SCOPE_POLICY_F04+'|'+candidate+'|'+structure+'|'+model+'|'+selector);
     }
+    /** Existing selective certificates use their own protocols, never the R958 calibration scope.
+     * This is an identity digest only; the original certificate readers and REAL gate still authorize. */
+    public static String selectiveCertificateScopeR30(String candidate,String structure,String model,String selector){
+        String prefix,protocol;
+        if(candidate!=null&&candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)){
+            prefix=com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX;
+            protocol="R30_SU1_FROZEN_SELECTIVE_CERT_K3_SCOPE_V1";
+        }else if(candidate!=null&&candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
+            prefix=com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX;
+            protocol="R30_SU2_PREREGISTERED_AGGREGATE_LCB_V3_K3_SCOPE_V1";
+        }else throw new IllegalArgumentException("R30_SELECTIVE_SCOPE_IDENTITY");
+        requireHash(candidate.substring(prefix.length()));
+        requireHash(structure);requireHash(model);requireHash(selector);
+        return V51ChecksumEngine.sha256(protocol+'|'+candidate+'|'+structure+'|'+model+'|'+selector);
+    }
     /** Prospective legacy-score calibration identity. It grants no static-model certificate.
      * Mutable legacy VM diagnostic labels cannot be reassigned to immutable R967 evaluation.
      * Existing old-tree studies remain auditable; no automatic row/header migration is performed.

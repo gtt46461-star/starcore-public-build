@@ -108,6 +108,9 @@ public final class CertifiedPredictionR974 {
     }
     public static final String EXACT_SCOPE_POLICY_F05=CalibrationRuntimeIdentityF04.EXACT_SCOPE_POLICY_F04;
     static String exactScopePolicyHash(String candidate,String structure,String model,String selector){
+        if(candidate!=null&&(candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)
+                ||candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)))
+            return CalibrationRuntimeIdentityF04.selectiveCertificateScopeR30(candidate,structure,model,selector);
         return CalibrationRuntimeIdentityF04.exactScope(candidate,structure,model,selector);
     }
     private static String requireExactCalibrationObservations(SQLiteDatabase db,String study,String candidate,
