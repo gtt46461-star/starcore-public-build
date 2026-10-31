@@ -46,7 +46,9 @@ public final class EvolutionLoopR27 {
 
     public static final IdeaFamilyR27[] FAMILIES = {new IdeaI00RandomBaselineR27(), new IdeaI01FrequencyReversionR27(), new IdeaI02GapCycleR27(), new IdeaI03TransitionChainR27(),
             new IdeaI04CrossPositionR27(), new IdeaI05PermutationConsistencyR27(), new IdeaI06RegimeSwitchR27(), new IdeaI07FragmentRetrievalR27(), new IdeaI08NeuralRepresentationR27(),
-            new IdeaI09SymbolicFormulaR27(), new IdeaI10FailureRepairR27(), new IdeaI11ComplementaryEnsembleR27(), new IdeaI12LegacyAssetR27(), new IdeaI13SelectorOnlyR27()};
+            new IdeaI09SymbolicFormulaR27(), new IdeaI10FailureRepairR27(), new IdeaI11ComplementaryEnsembleR27(), new IdeaI12LegacyAssetR27(), new IdeaI13SelectorOnlyR27(),
+            new SetIntersectionPolicyR30(), StructureGeneratorRegistryR30.ALL[0], StructureGeneratorRegistryR30.ALL[1], StructureGeneratorRegistryR30.ALL[2],
+            StructureGeneratorRegistryR30.ALL[3], StructureGeneratorRegistryR30.ALL[4], StructureGeneratorRegistryR30.ALL[5]};
 
     /** A population member; its trace is transient and rebuilt deterministically when missing. */
     public static final class Member implements IslandModelR27.Member {
@@ -145,11 +147,12 @@ public final class EvolutionLoopR27 {
 
     void stepBirth() {
         IdeaFamilyR27.Context ic = ideaContext(); int total = cfg.births;
-        // Fair quota: every family I01..I13 gets the minimum; a bonus (≤4× minimum) follows recent survivors.
-        int minTotal = cfg.minPerFamily * 13, bonusPool = Math.max(0, Math.min(total / 4, total - minTotal));
+        // Every registered main family gets the minimum; a bonus (≤4× minimum) follows recent survivors.
+        int familyCount = FAMILIES.length - 1;
+        int minTotal = cfg.minPerFamily * familyCount, bonusPool = Math.max(0, Math.min(total / 4, total - minTotal));
         int survivors = 0; for (int v : familySurvivors.values()) survivors += v;
         List<PolicySpecR27> births = new ArrayList<>();
-        for (int f = 1; f <= 13; f++) {
+        for (int f = 1; f < FAMILIES.length; f++) {
             int n = cfg.minPerFamily;
             if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * familySurvivors.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
             for (int i = 0; i < n; i++) births.add(FAMILIES[f].propose(rng, ic));
@@ -176,7 +179,7 @@ public final class EvolutionLoopR27 {
             for (ExpertProposalsR27.Proposal p : ExpertProposalsR27.propose(e, ic, rng)) { sink.expert(p, generation); if (p.spec != null) births.add(p.spec); }
         }
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
-        while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(13)].propose(rng, ic));
+        while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(familyCount)].propose(rng, ic));
         for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); pending.add(p); }
         count("attempts", births.size());
         genStats.put("births", (long) births.size());

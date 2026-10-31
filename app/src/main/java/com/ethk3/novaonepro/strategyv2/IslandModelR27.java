@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/** R27-027 island model (docs/05 5.2): one island per idea family I01–I13. Every 5 generations each island's best two
+/** R27-027 island model (docs/05 5.2): one island per registered idea family. Every 5 generations each island's best two
  * (by H_SELECT paired u) migrate to the next island on the ring. Islands are views over the population. */
 public final class IslandModelR27 {
     private IslandModelR27() {}
-    public static final String[] ISLANDS = {"I01", "I02", "I03", "I04", "I05", "I06", "I07", "I08", "I09", "I10", "I11", "I12", "I13"};
+    public static final String[] ISLANDS = {"I01", "I02", "I03", "I04", "I05", "I06", "I07", "I08", "I09", "I10", "I11", "I12", "I13", "I14", "I15", "I16", "I17", "I18", "I19", "I20"};
     public static final int MIGRATE_EVERY = 5, MIGRANTS = 2;
 
     public static int index(String island) { for (int i = 0; i < ISLANDS.length; i++) if (ISLANDS[i].equals(island)) return i; return 8; }
