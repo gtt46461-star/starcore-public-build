@@ -702,6 +702,19 @@
     ".github/r30-final-official-request.json"
    ],
    "reason": "最终版本按B10计划升到577310101，既有包名/两套既有证书/min21/SDK36配置保持；更新生成身份并完整G1。FINAL.json逐卡及44指标保留证据等级和设备/自然质量缺口，APK/源码/公开签名/直链以真实构建收据回填。发布脚本将该账本与实际两包哈希和CI门禁合并；两个签名缓存分支只新增已审查的最终workflow及具体源码请求，不合并/改动其产品源码，不在代理云任务读取或上传私钥。当前main入口在最终两包成功后仅更新CURRENT_FINAL_PLAN指向实际R30分支与直链。先登记后修改。"
+  },
+  {
+   "card": "R30-B10-04",
+   "id": "R30-B10-04-b",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/TableCopierR30.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
+    "tools/r30/qual_host/LargeCellCopyR30HostTest.java",
+    "tools/r30/qual_host/copy_window_shim/android/database/sqlite/SQLiteDatabase.java",
+    "tools/r30/ci_build.sh"
+   ],
+   "reason": "最终包前审查确认已装SDK36 config_cursorWindowSize=2048KiB，而原TableCopier每页SELECT整行会把2MiB checkpoint加optimizer或大JSON放进同一CursorWindow。为完整保留旧模型，先按SQLite原字节长度取轻量页元信息，再对大行的BLOB/TEXT按64KiB读取并保持原SQLite类型，页按字节限量但原500行上限/原子页写/缺列账/幂等逻辑不减；源未知/失败仍保留不截断。登记真实SQLite加明确HOST模拟平台窗口上限的先失败后通过回归（不是Android运行），Android同一2MiB夹具验证也按小窗口分块读取，不缩小模型。另校正TLS超时测试属于原2500ms连接或3500ms读取阶段，不能一律断言只会读超时；生产超时常量及所有统计/时间上限不改。尚无新APK构建，最终版本仍101。先登记后施工。"
   }
  ]
 }
