@@ -82,12 +82,17 @@ public final class RuntimeR27 implements AutoCloseable {
         public String id() { return "r27-evolution"; }
         public ResearchPoolR27.Outcome step(ResearchPoolR27.Worker w) throws Exception {
             if (evoCache == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-replay-dataset)", 0, -1);
-            if (evo == null) evo = restoreOrCreate(w);
+            if (evo == null) {
+                EvolutionLoopR27 restored = restoreOrCreate(w);
+                ConfirmReadStoreR30.restore(w.ro, restored.ledger());
+                evo = restored;
+            }
             if (evo.step == 1 && pendingCache != null) { evoData = pendingData; evoCache = pendingCache; pendingData = null; pendingCache = null; evo.rebind(evoCache); }
             evo.executor = pool.compute(); evo.serialWhile = () -> pool.narrow(System.currentTimeMillis()); evo.leafWeight = leafWeights(); evo.derivedLeaves = derived;
             String birthIssue = evoData.issues[evoData.size() - 1];
             StoreR27.EvolutionSink sink = new StoreR27.EvolutionSink(LOOP, birthIssue);
             EvolutionLoopR27 loop = evo; loop.setSink(sink);
+            ConfirmReadStoreR30.bind(w, loop.ledger());
             int stepBefore = loop.step, genBefore = loop.generation;
             loop.step();
             ResearchWriteQueueR27.Batch b = sink.batch;

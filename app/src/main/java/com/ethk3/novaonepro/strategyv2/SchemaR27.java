@@ -73,6 +73,8 @@ public final class SchemaR27 {
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
+        db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
+        column(db, "r30_confirm_read", "control", "INTEGER NOT NULL DEFAULT 0");
         ensureLiveSourceRevision(db);
         db.execSQL(LiveShadowsR27.PIT_DDL_R30);
         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)

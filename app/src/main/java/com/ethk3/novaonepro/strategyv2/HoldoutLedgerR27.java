@@ -51,30 +51,64 @@ public final class HoldoutLedgerR27 {
     // ---------------------------------------------------------------- R30-B03-03 confirm-once gate (M19)
     /** One H_CONFIRM read: (policy_hash, dataset_hash, range, read_at). */
     public static final class ConfirmRead {
-        public final String policyHash, datasetHash; public final long block; public final int from, to; public final long readAt;
-        ConfirmRead(String p, String d, long b, int f, int t, long at) { policyHash = p; datasetHash = d; block = b; from = f; to = t; readAt = at; }
+        public final String policyHash, datasetHash; public final long block; public final int from, to; public final long readAt; public final boolean control;
+        ConfirmRead(String p, String d, long b, int f, int t, long at, boolean control) { policyHash = p; datasetHash = d; block = b; from = f; to = t; readAt = at; this.control = control; }
     }
     public static final String CONFIRM_REUSED = "R30_CONFIRM_REUSED";
+    /** Must return only after the unique reservation has committed, before any confirmation samples are read. */
+    public interface ConfirmPersistence { void reserve(ConfirmRead read); }
     private final Map<String, ConfirmRead> confirmReads = new HashMap<>();
     private final java.util.List<ConfirmRead> unsavedConfirmReads = new java.util.ArrayList<>();
+    private final Set<String> pendingConfirmReads = new HashSet<>(), legacyConfirmReads = new HashSet<>();
+    private volatile ConfirmPersistence confirmPersistence;
     private long confirmReuseRejected;
     static String confirmKey(String policy, String dataset, long block) { return policy + "|" + dataset + "|" + block; }
+    static String legacyConfirmKey(String policy, long block) { return policy + "|" + block; }
+    public void setConfirmPersistence(ConfirmPersistence persistence) { confirmPersistence = persistence; }
     /** The only gate to H_CONFIRM: records the read; a second read of the same candidate on the same dataset hash and
      * block throws R30_CONFIRM_REUSED (and is counted for M19). */
-    public synchronized ConfirmRead confirm(String policyHash, String datasetHash, long block, int from, int to) {
+    public ConfirmRead confirm(String policyHash, String datasetHash, long block, int from, int to) {
+        return confirm(policyHash, datasetHash, block, from, to, false);
+    }
+    public ConfirmRead confirm(String policyHash, String datasetHash, long block, int from, int to, boolean control) {
+        if (policyHash == null || policyHash.isEmpty() || datasetHash == null || datasetHash.isEmpty() || block < 0 || from < 0 || to <= from)
+            throw new IllegalArgumentException("R30_CONFIRM_INVALID_IDENTITY_OR_RANGE");
         String k = confirmKey(policyHash, datasetHash, block);
-        if (confirmReads.containsKey(k)) { confirmReuseRejected++; throw new IllegalStateException(CONFIRM_REUSED + ":" + policyHash + "@" + block); }
-        ConfirmRead r = new ConfirmRead(policyHash, datasetHash, block, from, to, System.currentTimeMillis());
-        confirmReads.put(k, r); unsavedConfirmReads.add(r); look(block, policyHash);
+        synchronized (this) {
+            if (confirmReads.containsKey(k) || pendingConfirmReads.contains(k) || legacyConfirmReads.contains(legacyConfirmKey(policyHash, block))) {
+                confirmReuseRejected++; throw new IllegalStateException(CONFIRM_REUSED + ":" + policyHash + "@" + block);
+            }
+            pendingConfirmReads.add(k);
+        }
+        ConfirmRead r = new ConfirmRead(policyHash, datasetHash, block, from, to, System.currentTimeMillis(), control);
+        ConfirmPersistence persistence = confirmPersistence;
+        try {
+            // Never hold the ledger monitor while waiting for the writer or its pressure guard.
+            if (persistence != null) persistence.reserve(r);
+        } catch (RuntimeException | Error failure) {
+            synchronized (this) { pendingConfirmReads.remove(k); }
+            throw failure;
+        }
+        synchronized (this) {
+            pendingConfirmReads.remove(k); confirmReads.put(k, r);
+            if (persistence == null) unsavedConfirmReads.add(r);
+            if (control) lookControl(block, policyHash); else look(block, policyHash);
+        }
         return r;
     }
     public synchronized boolean confirmed(String policyHash, String datasetHash, long block) { return confirmReads.containsKey(confirmKey(policyHash, datasetHash, block)); }
     /** Restores a persisted read (process restart must not reopen H_CONFIRM). */
     public synchronized void restoreConfirm(String policyHash, String datasetHash, long block, int from, int to, long readAt) {
-        confirmReads.put(confirmKey(policyHash, datasetHash, block), new ConfirmRead(policyHash, datasetHash, block, from, to, readAt));
+        restoreConfirm(policyHash, datasetHash, block, from, to, readAt, false);
     }
+    public synchronized void restoreConfirm(String policyHash, String datasetHash, long block, int from, int to, long readAt, boolean control) {
+        confirmReads.put(confirmKey(policyHash, datasetHash, block), new ConfirmRead(policyHash, datasetHash, block, from, to, readAt, control));
+        if (control) lookControl(block, policyHash); else look(block, policyHash);
+    }
+    /** Older exposure rows have no dataset identity; do not reuse the same candidate/block on an unprovable assumption. */
+    public synchronized void restoreLegacyExposure(String policyHash, long block) { legacyConfirmReads.add(legacyConfirmKey(policyHash, block)); }
     /** Reads not yet persisted (caller writes them to r30_confirm_read in its own batch). */
     public synchronized java.util.List<ConfirmRead> drainUnsavedConfirmReads() { java.util.List<ConfirmRead> out = new java.util.ArrayList<>(unsavedConfirmReads); unsavedConfirmReads.clear(); return out; }
     public synchronized long confirmReuseRejected() { return confirmReuseRejected; }
-    public static final String CONFIRM_DDL = "CREATE TABLE IF NOT EXISTS r30_confirm_read(policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,block_id INTEGER NOT NULL,range_from INTEGER NOT NULL,range_to INTEGER NOT NULL,read_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,dataset_hash,block_id))";
+    public static final String CONFIRM_DDL = "CREATE TABLE IF NOT EXISTS r30_confirm_read(policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,block_id INTEGER NOT NULL,range_from INTEGER NOT NULL,range_to INTEGER NOT NULL,read_at INTEGER NOT NULL,control INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(policy_hash,dataset_hash,block_id))";
 }

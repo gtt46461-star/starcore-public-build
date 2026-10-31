@@ -54,6 +54,9 @@ for mode in race correction import delete tamper missing valid metadata schema; 
   if [ "$mode" = race ]; then args=(); else args=("$mode"); fi
   java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.FreezeSourceR30HostTest "${args[@]}" | tee "$LOG/r30_freeze_source_${mode}_host.log"
 done
+# R30-B03-03-b: a committed confirmation reservation survives process death and rejects stale writers.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ConfirmReadStoreR30HostTest.java
+java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.ConfirmReadStoreR30HostTest | tee "$LOG/r30_confirm_store_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0
