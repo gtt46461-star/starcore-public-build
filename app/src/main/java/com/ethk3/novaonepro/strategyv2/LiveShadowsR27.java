@@ -299,29 +299,43 @@ public final class LiveShadowsR27 {
     // ---------------------------------------------------------------- calibration (R27-037/038)
     static long lastCalibration;
     static ResearchPoolR27.Outcome calibrate(RuntimeR27 rt, ResearchPoolR27.Worker w) throws Exception {
-        if (System.currentTimeMillis() - lastCalibration < 10 * 60_000L) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
+        if (rt.calibrationIndexR30==0 && System.currentTimeMillis() - lastCalibration < 10 * 60_000L) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
         EvolutionLoopR27 evo = rt.evo; if (evo == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-evolution)", 0, -1);
         EvalContextR27 ctx = evo.context(); ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long n = 0;
-        for (Shadow s : shadows(w.ro, "('ACTIVE')")) {
+        List<Shadow> calibrationPolicies=shadows(w.ro,"('ACTIVE')");
+        int calibrationAt=Math.min(rt.calibrationIndexR30,Math.max(0,calibrationPolicies.size()-1));
+        List<Shadow> calibrationSlice=calibrationPolicies.isEmpty()?java.util.Collections.emptyList():calibrationPolicies.subList(calibrationAt,calibrationAt+1);
+        for (Shadow s : calibrationSlice) {
             List<CalibrationRowsR27.Row> rows = new ArrayList<>();
             ReplayEvaluatorR27.Trace tr = ctx.selectTrace(s.spec, s.tau);
             for (int t = ctx.split.selectFrom; t < ctx.split.selectTo; t++) if (!tr.skipped[t])
-                rows.add(new CalibrationRowsR27.Row(ctx.data.issues[t], "REPLAY", 0, 0, tr.pHit[t], tr.hit[t], s.spec.position, true, true));
-            try (Cursor c = w.ro.rawQuery("SELECT target_issue,probabilities,n1,n2,n3,hit,frozen_at,deadline_at,status FROM r27_live_frozen WHERE policy_hash=? AND hit>=-2 ORDER BY target_ordinal", new String[] {s.id})) {
+                rows.add(new CalibrationRowsR27.Row(ctx.data.issues[t], "REPLAY", 0, 0, tr.pHit[t], tr.hit[t], s.spec.position, true, true,calibrationOrdinalR30(ctx.data.issues[t])));
+            try (Cursor c = w.ro.rawQuery("SELECT target_issue,probabilities,n1,n2,n3,hit,frozen_at,deadline_at,status,target_ordinal FROM r27_live_frozen WHERE policy_hash=? AND hit>=-2 ORDER BY target_ordinal DESC LIMIT 5000", new String[] {s.id})) {
                 while (c.moveToNext()) {
-                    double[] p = StoreR27.unpack(c.getBlob(1)); boolean frozen = "FROZEN".equals(c.getString(8));
-                    double score = frozen ? p[c.getInt(2) - 1] + p[c.getInt(3) - 1] + p[c.getInt(4) - 1] : 0;
-                    rows.add(new CalibrationRowsR27.Row(c.getString(0), "FUTURE", frozen ? c.getLong(6) : 0, c.getLong(7), score, frozen ? c.getInt(5) : -1, s.spec.position, frozen && c.getInt(5) >= 0, true));
+                    boolean frozen = "FROZEN".equals(c.getString(8));double score=Double.NaN;
+                    try {
+                        double[] p=StoreR27.unpack(c.getBlob(1));double sum=0;boolean valid=p.length==10;for(double value:p){valid&=Double.isFinite(value)&&value>=0&&value<=1;sum+=value;}
+                        int a=c.getInt(2),bb=c.getInt(3),cc=c.getInt(4);valid&=Math.abs(sum-1)<=PitGuardR30.PROB_SUM_TOLERANCE&&a>=1&&a<=10&&bb>=1&&bb<=10&&cc>=1&&cc<=10&&a!=bb&&a!=cc&&bb!=cc;
+                        if(valid&&frozen)score=p[a-1]+p[bb-1]+p[cc-1];
+                    } catch(RuntimeException corrupt) { /* Invalid row is counted explicitly by fitRolling, not fitted. */ }
+                    long canonicalOrdinal=calibrationOrdinalR30(c.getString(0));if(canonicalOrdinal!=c.getLong(9))canonicalOrdinal=Long.MIN_VALUE;
+                    rows.add(new CalibrationRowsR27.Row(c.getString(0), "FUTURE", frozen ? c.getLong(6) : 0, c.getLong(7), score, frozen ? c.getInt(5) : -1, s.spec.position, frozen && c.getInt(5) >= 0, true,canonicalOrdinal));
                 }
             }
-            CalibrationRowsR27.Result r = CalibrationRowsR27.fit(rows);
+            CalibrationRowsR27.Result r = CalibrationRowsR27.fitRolling(rows);
             b.add("INSERT OR REPLACE INTO r27_calibration(policy_hash,method,fit_source,fit_rows,validation_rows,excluded_late,excluded_gap,a,b,ece,ece_by_stratum,state,reason,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     s.id, r.method, r.fitSource, r.fitRows, r.validationRows, r.excludedLate, r.excludedGap, f(r.a), f(r.b), f(r.ece), JsonR27.write(r.eceByStratum), r.state, r.reason, System.currentTimeMillis());
+            Map<String,Object> quality=new LinkedHashMap<>(r.quality);quality.put("policyHash",s.id);quality.put("datasetHash",ctx.data.datasetHash);quality.put("state",r.state);quality.put("reason",r.reason);
+            List<Object> evaluations=new ArrayList<>();for(CalibrationRowsR27.Evaluation e:r.evaluations)evaluations.add(e.json());quality.put("rollingEvaluations",evaluations);
+            b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES('calibration-r30',?,?,?)",s.id,JsonR27.write(quality),System.currentTimeMillis());
             n++;
         }
         if (n > 0) RuntimeR27.submit(w, "CALIBRATION", b);
-        lastCalibration = System.currentTimeMillis();
+        // One policy per slice. A failed write leaves the round cursor unchanged.
+        if(calibrationPolicies.isEmpty()||calibrationAt+1>=calibrationPolicies.size()){rt.calibrationIndexR30=0;lastCalibration=System.currentTimeMillis();}
+        else rt.calibrationIndexR30=calibrationAt+1;
         return n > 0 ? ResearchPoolR27.Outcome.progress(n, lastCalibration / 1000) : ResearchPoolR27.Outcome.idle("NO_NEW_EVENT:no live shadow", 0, 0);
     }
+    static long calibrationOrdinalR30(String issue){try{return TargetIssueResolver.sequenceOrdinalSU1(issue);}catch(RuntimeException invalid){return Long.MIN_VALUE;}}
     static Object f(double d) { return Double.isFinite(d) ? (Object) d : null; }
 }

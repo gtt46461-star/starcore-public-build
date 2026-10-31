@@ -25,6 +25,7 @@ public final class ReportR29 {
         out.put("findings",FindingsR29.fromQualification(qualification));
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
+        out.put("calibrationQualityR30",calibrationQualityR30(db));
         out.put("modelConsumptionR30",ModelSurfaceStoreR30.report(db));
         out.put("tenPositionTrainingR30",cachedPanel(db,"atomnet","ten-position-r30"));
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
@@ -160,6 +161,16 @@ public final class ReportR29 {
         return result;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
+
+    @SuppressWarnings("unchecked")
+    static Map<String,Object> calibrationQualityR30(SQLiteDatabase db){
+        Map<String,Object> result=new LinkedHashMap<>();List<Object> policies=new ArrayList<>();long measured=0,rows=0;
+        try(Cursor c=db.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='calibration-r30' ORDER BY key",null)){
+            while(c.moveToNext()){Map<String,Object> q=(Map<String,Object>)JsonR27.parse(c.getString(0));rows+=num(q.get("n"));if("MEASURED".equals(q.get("status")))measured++;policies.add(q);}
+        }catch(RuntimeException unavailable){result.put("reason",unavailable.getClass().getSimpleName());}
+        result.put("policies",policies);result.put("validationRows",rows);result.put("measuredPolicies",measured);result.put("status",measured>0?"MEASURED":"INSUFFICIENT");
+        result.put("source","r27_chart_cache:calibration-r30 / original FROZEN FUTURE rows and prior H_SELECT");return result;
+    }
 
     static Map<String,Object> modelCheckpoint(SQLiteDatabase db) {
         Map<String,Object> m = new LinkedHashMap<>();
