@@ -655,6 +655,20 @@
     ".github/workflows/r30.yml"
    ],
    "reason": "用户要求持续推进，原工作流以github.ref分组且cancel-in-progress=true，新推送会取消上一卡完整G2/G3检查，迫使源码推送串行等待约二十分钟。改为以不可变github.sha分组并不取消，保持每卡固定源码的全部原检查、工具链和超时不变；产品施工仍严格逐卡，独立固定源码的远端只读门禁可各自完成。本卡262项G1/Android编译/lint已通过，工具配置变动只检查YAML与触发执行，不重复八分钟无关回归。先登记后修改。"
+  },
+  {
+   "card": "R30-B09-03",
+   "id": "R30-B09-03-a",
+   "files": [
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30WriteWaitTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30WriteQueueAndroidTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+    "tools/r30/run_android_regression.sh",
+    "tools/r30/r30-official-build.yml",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "MAX_WAIT_MS原200ms不变，将P0/冻结门前等待和原唯一写锁取得共用同一额度，沿用已有WriterDeadlineScopeCP3且保留更紧外层截止、LIVE_FREEZE例外及整体事务原子性；取消/中断/繁忙准确计拒绝，原待处理Batch不清不改。登记3项真实等待/取消/中断/原业务错误回归与Android原writer更紧截止/冻结例外回归。作为B09末卡接最终模拟器批次回归驱动：原14图+2新图三场景48截图、单快照/保全与主链实际测试。主链测试负例原循环会在进程单例owner仍在时换伪沙箱，改由显式mode每个独立进程启动，不重置owner；正例和四负例全部由驱动执行，原断言/数学不减。B01账本deferred列表为空，不虚构MigrationRegistry修复或设备over_hard=0。先登记后施工。"
   }
  ]
 }
