@@ -715,6 +715,16 @@
     "tools/r30/ci_build.sh"
    ],
    "reason": "最终包前审查确认已装SDK36 config_cursorWindowSize=2048KiB，而原TableCopier每页SELECT整行会把2MiB checkpoint加optimizer或大JSON放进同一CursorWindow。为完整保留旧模型，先按SQLite原字节长度取轻量页元信息，再对大行的BLOB/TEXT按64KiB读取并保持原SQLite类型，页按字节限量但原500行上限/原子页写/缺列账/幂等逻辑不减；源未知/失败仍保留不截断。登记真实SQLite加明确HOST模拟平台窗口上限的先失败后通过回归（不是Android运行），Android同一2MiB夹具验证也按小窗口分块读取，不缩小模型。另校正TLS超时测试属于原2500ms连接或3500ms读取阶段，不能一律断言只会读超时；生产超时常量及所有统计/时间上限不改。尚无新APK构建，最终版本仍101。先登记后施工。"
+  },
+  {
+   "card": "R30-B10-04",
+   "id": "R30-B10-04-c",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java",
+    "tools/r30/run_android_regression.sh",
+    "tools/r30/emulator_foldback.sh"
+   ],
+   "reason": "大字段回收复核同时发现调用方用state.startsWith(COPIED)，把COPIED_WITH_MISSING_COLUMNS也当成完整回收并退役RP路由。改为只有COPIED且missingColumns为空才允许退役；缺列保留源库与ACTIVE路由并明确失败，禁止把模型字段漏复制当成功。补第5个实际Android反例，不删旧4项；相关驱动期望计数随新增测试更新。只收紧完整性守卫，不放宽任何统计/时间门槛。先登记后修改。"
   }
  ]
 }
