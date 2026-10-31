@@ -41,6 +41,27 @@ jobs:
                       current=[x for x in rows if x.get('phase')==phase]
                       if not current:continue
                       summary['phases'][phase]={'samples':len(current),'readySamples':sum(x.get('init_status')=='READY' for x in current),'pidMatchesRecorded':sum(bool(x.get('actual_pid')) and x.get('actual_pid')==x.get('process_id') for x in current),'staleHeartbeatSamples':sum(int(x.get('observed_at_ms',0))-int(x.get('heartbeat_at',0))>10000 for x in current),'startupErrorPresent':any(bool(x.get('init_last_error')) for x in current)}
+                  previous_ready=0;previous_pid=''
+                  for phase in ['cold','restart']:
+                      current=[x for x in rows if x.get('phase')==phase]
+                      if not current:continue
+                      start=None;longest=0;events=[];ages=[];times=[]
+                      for i,x in enumerate(current):
+                          t=int(x.get('observed_at_ms',0));age=t-int(x.get('heartbeat_at',0));ages.append(age);times.append(t)
+                          reasons=[]
+                          if x.get('init_status')!='READY':reasons.append('NOT_READY')
+                          if not x.get('actual_pid') or x.get('actual_pid')!=x.get('process_id'):reasons.append('PID_NOT_MATCHED')
+                          if int(x.get('service_ready_at',0))<=previous_ready:reasons.append('READY_NOT_FRESH')
+                          if phase=='restart' and x.get('actual_pid')==previous_pid:reasons.append('PID_NOT_NEW')
+                          if age < -2000:reasons.append('HEARTBEAT_FUTURE')
+                          if age > 10000:reasons.append('HEARTBEAT_STALE')
+                          if reasons:
+                              start=None;events.append({'sample':i,'reasons':reasons})
+                          else:
+                              if start is None:start=t
+                              longest=max(longest,t-start)
+                      summary['phases'][phase].update(longestFreshStreakMs=longest,freshResetEvents=events[:12],maxObservedSampleGapMs=max([b-a for a,b in zip(times,times[1:])]+[0]),minHeartbeatAgeMs=min(ages),maxHeartbeatAgeMs=max(ages))
+                      previous_ready=int(current[-1].get('service_ready_at',0));previous_pid=current[-1].get('actual_pid','')
                   print('SAFE_STARTUP_SUMMARY',json.dumps(summary))
               elif p.name.endswith('-startup.log'):
                   s=p.read_text(errors='replace')
