@@ -33,6 +33,8 @@ public final class RuntimeR27 implements AutoCloseable {
     volatile AtomNetTrainerR27 atomNet; volatile String atomNetDataset = "";
     FtrlR27 atomFtrl; String atomTrainedThrough = "";
 
+    volatile AtomNetSessionR30 atomSessionR30; ReplayDatasetR27 atomDataR30; long atomUnitsR30;
+
     private static volatile RuntimeR27 active;
     public static RuntimeR27 active() { return active; }
 

@@ -25,7 +25,7 @@ public final class AtomWorldR27 {
         }
         if (rt.frameCursor < rt.frameValues.length) {
             int from = rt.frameCursor, to = Math.min(rt.frameValues.length, from + CHUNK);
-            AtomReplayR27.Frame f = AtomReplayR27.build(d, from, to);
+            AtomReplayR27.Frame f = AtomReplayR27.buildLegacy(d, from, to);
             for (int i = 0; i < f.rows(); i++) { int t = from + i; rt.frameValues[t] = f.values[i]; rt.framePresent[t] = f.present[i]; rt.frameHit[t] = f.hit[i]; rt.framePos[t] = f.position[i]; rt.frameActual[t] = f.actual[i]; rt.frameIssue[t] = d.issues[t]; }
             rt.frameCursor = to;
             if (to < rt.frameValues.length) return ResearchPoolR27.Outcome.progress(to - from, to);
@@ -109,6 +109,11 @@ public final class AtomWorldR27 {
 
     // ------------------------------------------------------------------ AtomNet + FTRL
     static ResearchPoolR27.Outcome atomNetStep(RuntimeR27 rt, ResearchPoolR27.Worker w) throws Exception {
+        return AtomNetRuntimeR30.step(rt,w);
+    }
+
+    /** Original ABI implementation retained for rollback and legacy evidence. */
+    static ResearchPoolR27.Outcome legacyAtomNetStep(RuntimeR27 rt, ResearchPoolR27.Worker w) throws Exception {
         ReplayDatasetR27 d = rt.evoData; EvolutionLoopR27 evo = rt.evo;
         if (d == null || evo == null || rt.frameValues == null || !d.datasetHash.equals(rt.frameDataset) || rt.frameCursor < rt.frameValues.length)
             return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-atoms:frame " + rt.frameCursor + "/" + (rt.frameValues == null ? 0 : rt.frameValues.length) + ")", rt.frameCursor, rt.frameValues == null ? -1 : rt.frameValues.length);
@@ -176,7 +181,7 @@ public final class AtomWorldR27 {
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
         for (int t = 0; t < recent.size(); t++) {
             if (recent.issues[t].compareTo(trainedThrough) <= 0 || t < AtomReplayR27.MIN_ROWS) continue;
-            AtomReplayR27.Frame fr = AtomReplayR27.build(recent, t, t + 1);
+            AtomReplayR27.Frame fr = AtomReplayR27.buildLegacy(recent, t, t + 1);
             if (fr.values[0] == null) continue;
             double[] x = AtomReplayR27.features(fr.values[0], fr.present[0], RAW); int y = fr.hit[0];
             if (!staged) {
@@ -213,7 +218,7 @@ public final class AtomWorldR27 {
         ResearchWriteQueueR27.Batch forecast = new ResearchWriteQueueR27.Batch();
         if (!pending && trainedThrough.compareTo(target) < 0 && System.currentTimeMillis() < deadline - LiveShadowsR27.FREEZE_MARGIN_MS) {
             ReplayDatasetR27 slot = recent.append(new ReplayDatasetR27.Row(target, latestOrd + 1, new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}));
-            AtomReplayR27.Frame fr = AtomReplayR27.build(slot, slot.size() - 1, slot.size());
+            AtomReplayR27.Frame fr = AtomReplayR27.buildLegacy(slot, slot.size() - 1, slot.size());
             if (fr.values[0] != null) {
                 double[] x = AtomReplayR27.features(fr.values[0], fr.present[0], RAW);
                 long frozenAt = System.currentTimeMillis();

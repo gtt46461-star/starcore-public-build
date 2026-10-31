@@ -25,6 +25,7 @@ public final class ReportR29 {
         out.put("findings",FindingsR29.fromQualification(qualification));
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
+        out.put("tenPositionTrainingR30",cachedPanel(db,"atomnet","ten-position-r30"));
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
         out.put("issueTimelineR30", issueTimeline(db));

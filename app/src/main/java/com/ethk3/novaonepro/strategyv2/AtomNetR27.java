@@ -9,6 +9,13 @@ import java.io.IOException;
 /** R27-033 AtomNet (docs/06 6.2): in → 32 → 16 → {1 sigmoid (K3 hit), 10 softmax (number at the position)}, ReLU,
  * dropout 0.1 while training, loss = BCE + 0.5·CE + 1e-4·L2, Adam. ≤ 7k parameters at in = 172. Pure Java. */
 public final class AtomNetR27 {
+    public static final String POSITION_INPUT_ABI = "R30_ATOMNET_TEN_POSITION_ONEHOT_V1";
+    public static double[] positionedInput(double[] atoms, int position) {
+        if (position < 1 || position > 10) throw new IllegalArgumentException("R30_MODEL_POSITION");
+        double[] result = java.util.Arrays.copyOf(atoms, atoms.length + 10);
+        result[atoms.length + position - 1] = 1.0;
+        return result;
+    }
     public static final int H1 = 32, H2 = 16; public static final double DROPOUT = 0.1, L2 = 1e-4, CE_WEIGHT = 0.5;
     public final int in;
     final double[] w1, b1, w2, b2, wh, bh, wc, bc; // hidden1, hidden2, hit head, class head
@@ -31,6 +38,7 @@ public final class AtomNetR27 {
     public static final class Out { public double pHit; public final double[] pClass = new double[10]; final double[] h1 = new double[H1], h2 = new double[H2]; final boolean[] d1 = new boolean[H1], d2 = new boolean[H2]; }
 
     public Out forward(double[] x, StatsR27.SplitMix dropout) {
+        if (x == null || x.length != in) throw new IllegalArgumentException("R30_MODEL_INPUT_SHAPE");
         Out o = new Out();
         for (int j = 0; j < H1; j++) { double s = b1[j]; for (int i = 0; i < in; i++) s += w1[j * in + i] * x[i]; o.h1[j] = Math.max(0, s); if (dropout != null) { o.d1[j] = dropout.chance(DROPOUT); o.h1[j] = o.d1[j] ? 0 : o.h1[j] / (1 - DROPOUT); } }
         for (int k = 0; k < H2; k++) { double s = b2[k]; for (int j = 0; j < H1; j++) s += w2[k * H1 + j] * o.h1[j]; o.h2[k] = Math.max(0, s); if (dropout != null) { o.d2[k] = dropout.chance(DROPOUT); o.h2[k] = o.d2[k] ? 0 : o.h2[k] / (1 - DROPOUT); } }
