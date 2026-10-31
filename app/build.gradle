@@ -181,7 +181,7 @@ def prepareRawUpstreamAndroidTestHarness = tasks.register('prepareRawUpstreamAnd
     into layout.buildDirectory.dir('generated/source/androidTestParity/com/ethk3/novaonepro')
 }
 android.sourceSets.androidTest.java.srcDir(layout.buildDirectory.dir('generated/source/androidTestParity'))
-tasks.matching { it.name == 'compileDebugAndroidTestJavaWithJavac' || it.name == 'compileReleaseAndroidTestJavaWithJavac' }.configureEach {
+tasks.matching { it.name == 'compileDebugAndroidTestJavaWithJavac' || it.name == 'compileReleaseAndroidTestJavaWithJavac' || it.name.endsWith('AndroidTestLintModel') }.configureEach {
     dependsOn prepareRawUpstreamAndroidTestHarness
 }
 
