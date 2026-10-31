@@ -94,17 +94,73 @@ public final class RuntimeR27 implements AutoCloseable {
             EvolutionLoopR27 loop = evo; loop.setSink(sink);
             ConfirmReadStoreR30.bind(w, loop.ledger());
             int stepBefore = loop.step, genBefore = loop.generation;
+            // A separate phase on this same worker: confirmation cannot run inside EvolutionLoop.step().
+            FrozenConfirmationR30.Task queued = FrozenConfirmationStoreR30.nextPending(w.ro);
+            if (queued != null) confirmFrozen(w,loop,queued); // at most one durable packet per worker slice, including orphaned cursors
+            FrozenConfirmationR30.Task confirmTask = null;
+            FrozenConfirmationR30.Result confirmResult = null;
+            if (stepBefore == 9 && loop.confirmationDispatched && loop.pendingConfirmation != null) {
+                confirmTask = FrozenConfirmationStoreR30.task(w.ro,loop.pendingConfirmation.key);
+                confirmResult = FrozenConfirmationStoreR30.result(w.ro,confirmTask.key);
+            }
             loop.step();
             ResearchWriteQueueR27.Batch b = sink.batch;
+            if (stepBefore == 8 && loop.confirmationDispatched) FrozenConfirmationStoreR30.freeze(b,loop.pendingConfirmation,loop.context().data);
+            if (confirmResult != null) FrozenConfirmationStoreR30.generationReport(b,w.ro,genBefore,confirmTask,confirmResult);
             b.add("INSERT OR REPLACE INTO r27_evolution_cursor(loop,generation,step,dataset_hash,rng_state,snapshot,updated_at) VALUES(?,?,?,?,?,?,?)", LOOP, loop.generation, loop.step, evoData.datasetHash, loop.rng.state, loop.snapshot(), System.currentTimeMillis());
             if (!sink.promotions.isEmpty()) {
                 final List<Object[]> promos = sink.promotions;
                 b.before = db -> { for (Object[] p : promos) { PolicySpecR27 s = (PolicySpecR27) p[0]; StoreR27.insertShadow(db, s, (Double) p[1], (String) p[3], semanticAbi(s), s.policyHash(), s.policyHash()); } return 0; };
             }
             submit(w, "EVOLUTION_STEP_" + EvolutionLoopR27.STEPS[stepBefore], b);
-            if (stepBefore == 9) refreshObservers(w, loop);
+            if (stepBefore == 9) { refreshObservers(w, loop); registerConfirmed(w,loop.cfg.liveCap); }
             if (stepBefore == 9 && genBefore % 50 == 49) derivedDue = true;
             return ResearchPoolR27.Outcome.progress(1, (long) loop.generation * 10 + loop.step);
+        }
+    }
+    FrozenConfirmationR30.Result confirmFrozen(ResearchPoolR27.Worker w, EvolutionLoopR27 loop, FrozenConfirmationR30.Task task) throws Exception {
+        FrozenConfirmationR30.Result saved = FrozenConfirmationStoreR30.result(w.ro,task.key);
+        if (saved != null) return saved;
+        FrozenConfirmationStoreR30.Writer writer = (op,batch) -> {
+            try { submit(w,op,batch); }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IllegalStateException("R30_CONFIRM_WRITE_INTERRUPTED",e); }
+        };
+        FrozenConfirmationR30.Result result;
+        try {
+            EvalContextR27 context = task.datasetHash.equals(loop.context().data.datasetHash) ? loop.context() : FrozenConfirmationStoreR30.context(w.ro,task);
+            result = FrozenConfirmationR30.evaluate(task,context,loop.ledger(),FrozenConfirmationStoreR30.evidence(w.ro,writer));
+        }
+        catch (IllegalStateException failure) {
+            String reason = String.valueOf(failure.getMessage());
+            boolean consumed = false;
+            for (Throwable t = failure; t != null && t.getCause() != t; t = t.getCause())
+                if (String.valueOf(t.getMessage()).contains(HoldoutLedgerR27.CONFIRM_REUSED) || "R30_CONFIRM_BUDGET_EXHAUSTED".equals(t.getMessage()) ||
+                        String.valueOf(t.getMessage()).startsWith("R30_CONFIRM_DATASET_") || "R30_CONFIRM_TRACE_CORRUPT".equals(t.getMessage()) || "R30_CONFIRM_INVALID_CACHED_EVIDENCE".equals(t.getMessage())) consumed = true;
+            if (!consumed) throw failure;
+            // Process death after a reservation but before durable outcomes is missing evidence, never permission
+            // to look again. The independently frozen FUTURE experiment remains separate from this history test.
+            result = FrozenConfirmationR30.unavailable(task,reason);
+        }
+        ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
+        FrozenConfirmationStoreR30.complete(batch,task,result);
+        FrozenConfirmationStoreR30.generationReport(batch,w.ro,task.generation,task,result);
+        submit(w,"CONFIRM_RESULT",batch); return result;
+    }
+    void registerConfirmed(ResearchPoolR27.Worker w, int cap) throws Exception {
+        FrozenConfirmationR30.Task task = FrozenConfirmationStoreR30.nextRegistration(w.ro);
+        if (task == null) return;
+        if (!com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26.equals(task.sourceCommit)) {
+            ResearchWriteQueueR27.Batch blocked = new ResearchWriteQueueR27.Batch();
+            blocked.add("UPDATE r30_frozen_confirm SET registration_state='BLOCKED_SOURCE_CHANGED' WHERE task_key=? AND registered_at=0",task.key);
+            submit(w,"CONFIRM_REGISTRATION_SOURCE_CHANGED",blocked); return;
+        }
+        if (operatorAbi == null) return;
+        String abi = semanticAbi(task.champion.spec()); // prepare before entering the single database writer
+        try { submit(w,"CONFIRMED_FUTURE_REGISTRATION",FrozenConfirmationStoreR30.register(task,abi,cap)); }
+        catch (IllegalStateException failure) {
+            boolean full = false;
+            for (Throwable t = failure; t != null && t.getCause() != t; t = t.getCause()) if (String.valueOf(t.getMessage()).contains("R30_CONFIRM_WAIT_SLOT")) full = true;
+            if (!full) throw failure; // a full live pool leaves the immutable queued candidate intact
         }
     }
     volatile boolean derivedDue; volatile List<PolicyAstR27.Node> derived = new ArrayList<>();

@@ -15,9 +15,9 @@ import java.util.Set;
  * the last completed step without re-registering births or lineage. All randomness is drawn from a persisted
  * SplitMix64 state.
  *
- * "Stronger than the previous generation" (docs/05 5.1) is only claimed when, on one sealed H_HOLDOUT block, the
- * paired one-sided 95% lower bound of u(champion)−u(previous champion) is &gt; 0 AND the champion is paired-better
- * than both the I00 random-baseline champion and the shuffled-label (NullEvolutionR27) champion. */
+ * R30: selection and adaptation read H_TRAIN/H_SELECT only. Immutable comparison packets are evaluated by
+ * FrozenConfirmationR30 outside this loop; the same original paired tests against the previous, I00 and
+ * shuffled-label champions govern the independent verdict. No verdict feeds back into evolutionary selection. */
 public final class EvolutionLoopR27 {
     public static final String[] STEPS = {"", "DATASET", "BIRTH", "GATE", "REPLAY", "HALVING", "HOLDOUT", "RECORD", "PROMOTE", "MIGRATE_ABLATE"};
 
@@ -80,6 +80,10 @@ public final class EvolutionLoopR27 {
     public Map<String, Double> leafWeight = new HashMap<>();
     public List<PolicyAstR27.Node> derivedLeaves = new ArrayList<>();
     private long startedAt;
+    public FrozenConfirmationR30.Task pendingConfirmation;
+    public boolean confirmationDispatched;
+    public int generationsWithoutSelectImprovement;
+    private double bestSelectSeen = Double.NEGATIVE_INFINITY;
     private final Map<String, Object> genStats = new LinkedHashMap<>();
     public static final String[] COUNTERS = {"attempts", "uniquePolicies", "structuralCandidates", "behaviorNovel", "researchAccepted", "prospectiveQualified", "verifiedImprovements"};
 
@@ -99,6 +103,7 @@ public final class EvolutionLoopR27 {
     public void rebind(FeatureCacheR27 cache) {
         if (step != 1) throw new IllegalStateException("R27_REBIND_MID_GENERATION");
         bind(cache);
+        bestSelectSeen = Double.NEGATIVE_INFINITY; generationsWithoutSelectImprovement = 0;
         for (Member m : population) { m.trace = null; m.tau = ctx.temperature(m.spec); refresh(m); }
     }
     public EvalContextR27 context() { return ctx; }
@@ -114,6 +119,11 @@ public final class EvolutionLoopR27 {
     public void runGeneration() { do step(); while (step != 1); }
 
     public void step() {
+        Integer previousLimit = ReplayEvaluatorR27.enterEvolutionR30(ctx.split.selectTo);
+        try { stepInsideEvolution(); } finally { ReplayEvaluatorR27.leaveEvolutionR30(previousLimit); }
+    }
+
+    private void stepInsideEvolution() {
         switch (step) {
             case 1: stepDataset(); break;
             case 2: stepBirth(); break;
@@ -131,7 +141,7 @@ public final class EvolutionLoopR27 {
     }
 
     void stepDataset() {
-        startedAt = clock.now(); genStats.clear(); pending = new ArrayList<>();
+        startedAt = clock.now(); genStats.clear(); pending = new ArrayList<>(); pendingConfirmation = null; confirmationDispatched = false;
         genStats.put("datasetHash", ctx.data.datasetHash); genStats.put("split", ctx.split.describe());
     }
 
@@ -308,6 +318,8 @@ public final class EvolutionLoopR27 {
         Map<String, Object> fs = new LinkedHashMap<>(); for (Map.Entry<String, Integer> e : famSurv.entrySet()) fs.put(e.getKey(), (long) e.getValue());
         genStats.put("familySurvivors", fs);
         if (!population.isEmpty()) { Member best = population.get(0); if (champion == null || !best.hash().equals(champion.policyHash())) { previousChampion = champion; previousTau = championTau; champion = best.spec; championTau = best.tau; } }
+        if (!population.isEmpty() && population.get(0).u > bestSelectSeen + 1e-12) { bestSelectSeen = population.get(0).u; generationsWithoutSelectImprovement = 0; }
+        else generationsWithoutSelectImprovement++;
         // Negative control generation and the I00 random-baseline champion for this generation.
         if (cfg.nullControl) nullEvolution.generation(ctx.cache, ctx.split, FAMILIES, Math.max(4, (int) Math.round(cfg.births * cfg.nullShare)), rng, generation, 26);
         i00Generation();
@@ -322,56 +334,20 @@ public final class EvolutionLoopR27 {
         }
     }
 
+    /** Freeze comparison inputs only. Runtime executes confirmation between calls to step(), outside evolution. */
     void stepHoldout() {
-        Map<String, Object> h = new LinkedHashMap<>(); boolean verified = false; String why;
-        SplitR27 sp = ctx.split; long block = sp.holdoutBlock;
-        if (champion == null) why = "NO_CHAMPION";
-        else if (!sp.holdoutAvailable || ledger.degraded(block)) why = "HOLDOUT_UNAVAILABLE_OR_DEGRADED";
-        else {
-            ReplayEvaluatorR27.Trace ch = look(champion, championTau, null);
-            ReplayScoreR27 cs = ReplayScoreR27.of(SplitR27.HOLDOUT, ch, sp.holdoutFrom, sp.holdoutTo);
-            h.put("championHoldout", cs.json()); sink.score(champion.policyHash(), ctx.data.datasetHash, cs);
-            boolean vsPrev = true, vsI00 = false, vsNull = !cfg.nullControl;
-            if (previousChampion != null) {
-                ReplayEvaluatorR27.Trace pv = look(previousChampion, previousTau, null);
-                StatsR27.Moments d = ReplayScoreR27.paired(ch, pv, sp.holdoutFrom, sp.holdoutTo);
-                vsPrev = d.lcb(StatsR27.Z95_ONE_SIDED) > 0; h.put("pairedLcbVsPrevious", fin(d.lcb(StatsR27.Z95_ONE_SIDED)));
-                h.put("previousHoldout", ReplayScoreR27.of(SplitR27.HOLDOUT, pv, sp.holdoutFrom, sp.holdoutTo).json());
-            }
-            if (i00Champion != null) {
-                ReplayEvaluatorR27.Trace iv = look(i00Champion, i00Tau, null, true);
-                StatsR27.Moments d = ReplayScoreR27.paired(ch, iv, sp.holdoutFrom, sp.holdoutTo);
-                vsI00 = d.lcb(StatsR27.Z95_ONE_SIDED) > 0; h.put("pairedLcbVsI00", fin(d.lcb(StatsR27.Z95_ONE_SIDED)));
-                h.put("i00Holdout", ReplayScoreR27.of(SplitR27.HOLDOUT, iv, sp.holdoutFrom, sp.holdoutTo).json());
-            }
-            if (cfg.nullControl && nullEvolution.champion != null) {
-                ReplayEvaluatorR27.Trace nv = look(nullEvolution.champion, nullEvolution.championTau, nullEvolution.labels(ctx.cache, sp), true);
-                StatsR27.Moments d = ReplayScoreR27.paired(ch, nv, sp.holdoutFrom, sp.holdoutTo);
-                vsNull = d.lcb(StatsR27.Z95_ONE_SIDED) > 0; h.put("pairedLcbVsNull", fin(d.lcb(StatsR27.Z95_ONE_SIDED)));
-                h.put("nullHoldout", ReplayScoreR27.of(SplitR27.HOLDOUT, nv, sp.holdoutFrom, sp.holdoutTo).json());
-            } else if (cfg.nullControl) vsNull = false;
-            verified = vsPrev && vsI00 && vsNull;
-            why = verified ? "VERIFIED_IMPROVEMENT" : "UNVERIFIED:" + (vsPrev ? "" : "NOT_ABOVE_PREVIOUS;") + (vsI00 ? "" : "NOT_ABOVE_I00;") + (vsNull ? "" : "NOT_ABOVE_SHUFFLED_LABEL_CONTROL;");
-        }
-        h.put("verified", verified); h.put("reason", why); h.put("holdoutBlock", block); h.put("blockExposures", (long) ledger.exposures(block)); h.put("controlExposures", (long) ledger.controlExposures(block));
-        genStats.put("holdout", h);
-        if (verified) { count("verifiedImprovements", 1); generationsWithoutVerified = 0; } else generationsWithoutVerified++;
-    }
-
-    private ReplayEvaluatorR27.Trace look(PolicySpecR27 s, double tau, int[][] labels) { return look(s, tau, labels, false); }
-    private ReplayEvaluatorR27.Trace look(PolicySpecR27 s, double tau, int[][] labels, boolean control) {
-        long block = ctx.split.holdoutBlock;
-        if (control ? ledger.lookControl(block, s.policyHash()) : ledger.look(block, s.policyHash())) sink.holdoutLook(block, s.policyHash());
-        // Shuffled-label control: its online state passes its own (shuffled) H_TRAIN/H_SELECT labels; H_HOLDOUT labels are real.
-        int[][] l = labels == null ? ctx.labels : labels;
-        return ReplayEvaluatorR27.run(s, ctx.scores(s), ctx.data, l, tau, ctx.split.trainFrom, ctx.split.holdoutTo);
+        pendingConfirmation = FrozenConfirmationR30.freeze(this,clock.now());
+        Map<String,Object> h = new LinkedHashMap<>();
+        h.put("verified",false); h.put("holdoutBlock",ctx.split.holdoutBlock);
+        h.put("status",pendingConfirmation == null ? "INSUFFICIENT" : "FROZEN_PENDING_EXTERNAL");
+        h.put("reason",champion == null ? "NO_CHAMPION" : pendingConfirmation == null ? "HOLDOUT_UNAVAILABLE" : "AWAITING_INDEPENDENT_CONFIRMATION");
+        if (pendingConfirmation != null) h.put("taskKey",pendingConfirmation.key);
+        genStats.put("holdout",h);
     }
 
     void stepRecord() {
-        @SuppressWarnings("unchecked") Map<String, Object> h = (Map<String, Object>) genStats.get("holdout");
-        boolean verified = h != null && Boolean.TRUE.equals(h.get("verified"));
         if (champion != null && previousChampion != null && !champion.policyHash().equals(previousChampion.policyHash()))
-            sink.lineage(champion.policyHash(), previousChampion.policyHash(), verified ? "CHAMPION_VERIFIED" : "CHAMPION_UNVERIFIED", "SUCCESSION", generation);
+            sink.lineage(champion.policyHash(), previousChampion.policyHash(), "CHAMPION_FROZEN_FOR_CONFIRMATION", "SUCCESSION", generation);
         Map<String, Object> rec = new LinkedHashMap<>(genStats);
         rec.put("generation", (long) generation); rec.put("startedAt", startedAt); rec.put("finishedAt", clock.now());
         Member ch = find(champion);
@@ -386,15 +362,10 @@ public final class EvolutionLoopR27 {
         sink.generation(rec);
     }
 
+    /** Runtime persists this dispatch and its immutable packet atomically with the step cursor. Only the external
+     * confirmation stage may register it for FUTURE observation; no verdict feeds back into this loop. */
     void stepPromote() {
-        @SuppressWarnings("unchecked") Map<String, Object> h = (Map<String, Object>) genStats.get("holdout");
-        boolean verified = h != null && Boolean.TRUE.equals(h.get("verified"));
-        if (verified && champion != null && !liveTau.containsKey(champion.policyHash())) {
-            if (live.size() >= cfg.liveCap) { PolicySpecR27 out = live.remove(0); liveTau.remove(out.policyHash()); sink.demote(out.policyHash(), "REPLACED_BY_VERIFIED_CHAMPION_LIVE_CAP_32"); }
-            live.add(champion); liveTau.put(champion.policyHash(), championTau);
-            sink.promote(champion, championTau, generation, "VERIFIED_IMPROVEMENT_ON_HOLDOUT_BLOCK_" + ctx.split.holdoutBlock);
-            count("prospectiveQualified", 1);
-        }
+        confirmationDispatched = pendingConfirmation != null;
     }
 
     void stepMigrateAblate() {
@@ -491,11 +462,11 @@ public final class EvolutionLoopR27 {
         long births = num(genStats.get("births")), rej = num(genStats.get("rejected")), noop = num(genStats.get("noOp"));
         if (births > 0 && rej * 2 > births) out.add("出生拒绝率>50%：按拒绝原因告警 " + genStats.get("rejectReasons"));
         if (births > 0 && noop * 10 > births * 3) { out.add("NO_OP比例>30%：降低M_CONST/M_WINDOW权重"); opWeights[0] = Math.max(0.2, opWeights[0] * 0.7); opWeights[1] = Math.max(0.2, opWeights[1] * 0.7); }
-        if (generationsWithoutVerified >= 20) {
-            out.add("进化停滞：最近" + generationsWithoutVerified + "代没有在留出数据上被证实的提升");
+        if (generationsWithoutSelectImprovement >= 20) {
+            out.add("选择段停滞：最近" + generationsWithoutSelectImprovement + "代H_SELECT收益未提高");
             Member ch = find(champion);
             @SuppressWarnings("unchecked") Map<String, Object> h = (Map<String, Object>) genStats.get("holdout");
-            if (ch != null && h != null) out.add("可能原因：拟合噪声/数据无可学信号（训练段与打乱标签对照同样上升而留出无提升）；自动将复杂度上限6→4一个周期做对照");
+            if (ch != null && h != null) out.add("选择段无改进：按已有复杂度冷却规则降至4做对照；独立确认结果不参与选参");
             if (depthCooldown == 0) { gateMaxDepth = 4; gate.setMaxDepth(4); depthCooldown = 10; }
         }
         List<int[]> champs = new ArrayList<>();
@@ -533,6 +504,9 @@ public final class EvolutionLoopR27 {
         Map<String, Object> cs = new LinkedHashMap<>(); for (String k : COUNTERS) cs.put(k, counters.get(k)[0]); s.put("counters", cs);
         Map<String, Object> fs = new LinkedHashMap<>(); for (Map.Entry<String, Integer> e : familySurvivors.entrySet()) fs.put(e.getKey(), (long) e.getValue()); s.put("familySurvivors", fs);
         s.put("opWeights", opWeights); s.put("gateMaxDepth", (long) gateMaxDepth); s.put("depthCooldown", (long) depthCooldown); s.put("noVerified", (long) generationsWithoutVerified);
+        s.put("noSelectImprovement",(long)generationsWithoutSelectImprovement); s.put("bestSelectSeen",fin(bestSelectSeen));
+        s.put("frozenConfirmation",pendingConfirmation == null ? null : pendingConfirmation.json());
+        s.put("confirmationDispatched",confirmationDispatched);
         Map<String, Object> lg = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.snapshot().entrySet()) lg.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("ledger", lg);
         Map<String, Object> cl = new LinkedHashMap<>(); for (Map.Entry<Long, Set<String>> e : ledger.controlSnapshot().entrySet()) cl.put(Long.toString(e.getKey()), new ArrayList<Object>(e.getValue())); s.put("controlLedger", cl);
         s.put("genStats", genStats); s.put("startedAt", startedAt);
@@ -571,6 +545,12 @@ public final class EvolutionLoopR27 {
         for (Map.Entry<String, Object> e : ((Map<String, Object>) s.get("familySurvivors")).entrySet()) l.familySurvivors.put(e.getKey(), (int) JsonR27.num(e.getValue()));
         List<Object> w = (List<Object>) s.get("opWeights"); for (int i = 0; i < w.size(); i++) l.opWeights[i] = JsonR27.num(w.get(i));
         l.gateMaxDepth = (int) JsonR27.num(s.get("gateMaxDepth")); l.gate.setMaxDepth(l.gateMaxDepth); l.depthCooldown = (int) JsonR27.num(s.get("depthCooldown")); l.generationsWithoutVerified = (int) JsonR27.num(s.get("noVerified"));
+        if (cache.data.datasetHash.equals(s.get("datasetHash"))) {
+            l.generationsWithoutSelectImprovement = s.get("noSelectImprovement") == null ? 0 : (int)JsonR27.num(s.get("noSelectImprovement"));
+            l.bestSelectSeen = s.get("bestSelectSeen") == null ? Double.NEGATIVE_INFINITY : JsonR27.num(s.get("bestSelectSeen"));
+            if (s.get("frozenConfirmation") instanceof String) l.pendingConfirmation = FrozenConfirmationR30.Task.parse((String)s.get("frozenConfirmation"));
+            l.confirmationDispatched = Boolean.TRUE.equals(s.get("confirmationDispatched"));
+        }
         l.genStats.putAll((Map<String, Object>) s.get("genStats")); l.startedAt = ((Number) s.get("startedAt")).longValue();
         return l;
     }

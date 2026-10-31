@@ -10,6 +10,15 @@ public final class ReplayEvaluatorR27 {
     private ReplayEvaluatorR27() {}
     static final double[] TEMPERATURES = {0.25, 0.5, 1, 2, 4, 8, 16};
     public static final int QUANTILE_WINDOW = 200;
+    private static final ThreadLocal<Integer> EVOLUTION_LIMIT_R30 = new ThreadLocal<>();
+    static Integer enterEvolutionR30(int to) {
+        Integer old = EVOLUTION_LIMIT_R30.get(); EVOLUTION_LIMIT_R30.set(old == null ? to : Math.min(old,to)); return old;
+    }
+    static void leaveEvolutionR30(Integer old) { if (old == null) EVOLUTION_LIMIT_R30.remove(); else EVOLUTION_LIMIT_R30.set(old); }
+    private static void checkEvolutionRangeR30(int to) {
+        Integer limit = EVOLUTION_LIMIT_R30.get();
+        if (limit != null && to > limit) throw new IllegalStateException("R30_CONFIRM_DURING_EVOLUTION");
+    }
 
     /** Per-row outputs of one pass. Rows outside [from,to) or unavailable rows are marked skipped. */
     public static final class Trace {
@@ -66,13 +75,24 @@ public final class ReplayEvaluatorR27 {
     /** Role-checked trace used by the real selection/halving path and by evaluate(). Low-level run() also serves
      * live prediction and synthetic ABI probes, which do not carry a research split. */
     public static Trace evaluateTrace(PolicySpecR27 spec, EvalContextR27 ctx, String role, double tau, HoldoutLedgerR27 ledger) {
+        return evaluateTrace(spec,ctx,role,tau,ledger,spec.policyHash(),false);
+    }
+    /** Independently frozen controls have their own experiment identity (including label-view seed and fitted
+     * temperature). They do not overwrite a main candidate's reservation or spend its exposure budget. */
+    public static Trace confirmTrace(PolicySpecR27 spec, EvalContextR27 ctx, double tau, HoldoutLedgerR27 ledger, String experimentId, boolean control) {
+        if (!control && !spec.policyHash().equals(experimentId) || control && !experimentId.startsWith("CONTROL_"))
+            throw new IllegalArgumentException("R30_CONFIRM_EXPERIMENT_IDENTITY");
+        return evaluateTrace(spec,ctx,SplitR27.CONFIRM,tau,ledger,experimentId,control);
+    }
+    private static Trace evaluateTrace(PolicySpecR27 spec, EvalContextR27 ctx, String role, double tau, HoldoutLedgerR27 ledger, String experimentId, boolean control) {
         SplitR27 sp = ctx.split; int to;
         if (SplitR27.TRAIN.equals(role)) to = sp.trainTo;
         else if (SplitR27.SELECT.equals(role)) to = sp.selectTo;
         else if (SplitR27.CONFIRM.equals(role) || SplitR27.HOLDOUT.equals(role)) {
             if (!sp.holdoutAvailable) throw new IllegalStateException("R30_CONFIRM_UNAVAILABLE");
             if (ledger == null) throw new IllegalStateException("R30_CONFIRM_WITHOUT_LEDGER");
-            ledger.confirm(spec.policyHash(), ctx.data.datasetHash, sp.holdoutBlock, sp.holdoutFrom, sp.holdoutTo);
+            checkEvolutionRangeR30(sp.holdoutTo); // refuse before spending or committing an exposure
+            ledger.confirm(experimentId, ctx.data.datasetHash, sp.holdoutBlock, sp.holdoutFrom, sp.holdoutTo, control);
             to = sp.holdoutTo;
         } else throw new IllegalArgumentException("R30_UNKNOWN_ROLE:" + role);
         return run(spec, ctx.scores(spec), ctx.data, ctx.labels, tau, sp.trainFrom, to);
@@ -82,6 +102,7 @@ public final class ReplayEvaluatorR27 {
 
     /** Fits the softmax temperature on H_TRAIN rows by grid search on log-loss (bias held at zero). */
     public static double fitTemperature(PolicySpecR27 spec, double[] scores, int[][] labels, int trainFrom, int trainTo) {
+        checkEvolutionRangeR30(trainTo);
         if (!spec.fitTemperature) return spec.temperature;
         double best = spec.temperature, bestLoss = Double.POSITIVE_INFINITY; double[] z = new double[10], p = new double[10];
         for (double mult : TEMPERATURES) {
@@ -102,6 +123,7 @@ public final class ReplayEvaluatorR27 {
     }
 
     public static Trace run(PolicySpecR27 spec, double[] scores, ReplayDatasetR27 data, int[][] labels, double temperature, int from, int to) {
+        checkEvolutionRangeR30(to);
         int tp = spec.position - 1; Trace tr = new Trace(data.size(), from, to, spec.position, temperature);
         double[] z = new double[10], p = new double[10]; int[] order = new int[10];
         long gate = spec.rule == PolicySpecR27.Rule.RANDOM ? spec.ast.toString().hashCode() * 0x9E3779B97F4A7C15L : 0;

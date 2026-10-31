@@ -57,6 +57,9 @@ done
 # R30-B03-03-b: a committed confirmation reservation survives process death and rejects stale writers.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ConfirmReadStoreR30HostTest.java
 java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.ConfirmReadStoreR30HostTest | tee "$LOG/r30_confirm_store_host.log"
+# R30-B05-01: the actual independent stage, raw-evidence restart and frozen FUTURE registration.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/FrozenConfirmationR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30HostTest | tee "$LOG/r30_frozen_confirmation_host.log"
 # R30-B04-02-a: real sink/report receipts use the same committed, idempotent duplicate rows.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/BehaviorDedupR30HostTest.java
 java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.BehaviorDedupR30HostTest | tee "$LOG/r30_behavior_dedup_host.log"

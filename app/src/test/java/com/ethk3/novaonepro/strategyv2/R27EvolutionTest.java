@@ -11,8 +11,16 @@ import org.junit.Test;
 public class R27EvolutionTest {
     static final class Counter extends R27BirthGateTest.Recorder {
         int verified, comparisons; double bestHoldout = Double.NaN;
-        @SuppressWarnings("unchecked") @Override public void generation(Map<String, Object> r) {
-            super.generation(r); Map<String, Object> h = (Map<String, Object>) r.get("holdout");
+        final Map<String,FrozenConfirmationR30.Task> first = new HashMap<>(); final Set<String> completed = new HashSet<>();
+        final R30EvolutionConfirmIntegrationTest.MemoryEvidence evidence = new R30EvolutionConfirmIntegrationTest.MemoryEvidence();
+        /** R30: the same positive/negative comparisons run only after evolution has frozen its inputs. */
+        @SuppressWarnings("unchecked") void confirm(EvolutionLoopR27 loop) {
+            if (loop.pendingConfirmation == null) return;
+            FrozenConfirmationR30.Task task = first.computeIfAbsent(loop.pendingConfirmation.key,k -> loop.pendingConfirmation);
+            if (!completed.add(task.key)) return;
+            String policy = loop.champion.fullJson(); long rng = loop.rng.state; double[] weights = loop.opWeights.clone();
+            Map<String,Object> h = FrozenConfirmationR30.evaluate(task,loop.context(),loop.ledger(),evidence).report;
+            assertEquals(policy,loop.champion.fullJson()); assertEquals(rng,loop.rng.state); assertArrayEquals(weights,loop.opWeights,0);
             if (h == null || !(h.get("championHoldout") instanceof Map)) return;
             comparisons++; if (Boolean.TRUE.equals(h.get("verified"))) {
                 verified++; Object hr = ((Map<String, Object>) h.get("championHoldout")).get("hitRate");
@@ -25,7 +33,7 @@ public class R27EvolutionTest {
         ReplayDatasetR27 d = ReplayDatasetR27.synthetic(5000, 11, new int[] {700, 1900}).planted(0.4, 5);
         Counter c = new Counter(); EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 64; cfg.seed = 6;
         EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(d), c, () -> 0L);
-        int g = 0; while (g < 50 && !(c.verified > 0 && c.bestHoldout >= 0.36)) { loop.runGeneration(); g++; }
+        int g = 0; while (g < 50 && !(c.verified > 0 && c.bestHoldout >= 0.36)) { loop.runGeneration(); c.confirm(loop); g++; }
         assertTrue("verified=" + c.verified + " bestHoldout=" + c.bestHoldout, c.verified > 0 && c.bestHoldout >= 0.36);
         R27TestSupport.log("H06_PASS generations=" + g + " verified=" + c.verified + " championHoldoutHR=" + c.bestHoldout + " champion=" + loop.champion.ast);
     }
@@ -36,7 +44,7 @@ public class R27EvolutionTest {
             ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 1000 + r, new int[] {1000});
             Counter c = new Counter(); EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 32; cfg.seed = 77 + r; cfg.i00PerGeneration = 4;
             EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(d), c, () -> 0L);
-            for (int g = 0; g < 3; g++) loop.runGeneration();
+            for (int g = 0; g < 3; g++) { loop.runGeneration(); c.confirm(loop); }
             verified += c.verified; comparisons += c.comparisons; if (c.verified > 0) runsWithAny++;
         }
         double rate = verified / (double) Math.max(1, comparisons);
