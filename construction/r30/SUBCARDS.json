@@ -810,6 +810,16 @@
         "tools/r30/r30-preflight.yml"
       ],
       "reason": "102正式R27 emulator124635554534真实先停在CRASH_SNAPSHOT_UNREADABLE，尚未到主链；exec-out cat缺文件的远端错误混入stdout，被新探针当成损坏XML，finally重复抛错又未保存startup.json。验证脚本改用adb shell显式PRESENT/ABSENT/已提交.bak头和XML分开；真缺文件为无快照，既存坏文件/权限读失败仍UNKNOWN/FAIL，临时写入有界重读且不复用缓存；finally即便崩溃快照不可读也保存原失败回执。原180/90秒、60秒连续READY、10秒心跳及PID条件不改。已用实际读取函数+真实shell/文件系统验证缺失、坏文件、backup、并发替换、持续错误、失败回执。内部预检加原启动探针并先停测试进程，尽早验证该工具修复；最终release原完整门禁不减。产品Java已在1e26c8f1完整265项G1/lint/Android编译及正式SQLite两端桥接正反例通过，工具改动独立验证并由接下来的完整CI再次执行。先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-l",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/CalibrationRuntimeIdentityF04.java",
+        "app/src/main/java/com/ethk3/novaonepro/CertifiedPredictionR974.java",
+        "app/src/test/java/com/ethk3/novaonepro/R30SelectiveScopeIdentityTest.java"
+      ],
+      "reason": "103 Android预检41235591335/job124638578475已真实穿过SU2冻结两端并进入原CertifiedPrediction.Proof，抛F05_EXACT_SCOPE_IDENTITY：其SU1/SU2原构造器都调用仅接受R958候选的exactScope。保留原R958函数/协议/固定向量及所有哈希校验不改；为已有SU1/SU2选择证书增加明确分离的作用域标识，只绑定candidate/program/model/selector哈希，不签发证书、不返回授权。原私有Proof构造器、原证书读者、DGE及REAL/时点/用户/重复校验仍全部执行。补纯JUnit旧R958固定向量、三命名空间隔离、各身份字段绑定及非法输入拒绝；实际Android正反例保持。候选版本104。内部诊断预检可在编译/身份/所有权通过后从临时源码ref启动，与本地完整G1并行，不计DONE、不替代G1/G2/最终release门禁；规范源码与正式签名请求仍在完整G1通过后才更新。先登记后施工。"
     }
   ]
 }
