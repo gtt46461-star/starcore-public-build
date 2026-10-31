@@ -79,12 +79,16 @@ public final class AtomNetRuntimeR30 {
         if(recent.size()==0||recent.ordinals[recent.size()-1]+1!=targetOrdinal)return;
         ReplayDatasetR27 slot=recent.append(new ReplayDatasetR27.Row(target,targetOrdinal,new int[]{1,2,3,4,5,6,7,8,9,10}));
         AtomReplayR27.Frame frame=AtomReplayR27.build(slot,slot.size()-1,slot.size());
-        String modelHash=StatsR27.sha256(state.trainer.net.encode());long at=System.currentTimeMillis();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
+        long available=System.currentTimeMillis();ModelSurfaceProviderR30.FrozenModelRef modelRef=new ModelSurfaceProviderR30.FrozenModelRef(state.trainer.net.encode(),state.trainedThroughOrdinal(),available);
+        String modelHash=modelRef.modelHash;long at=System.currentTimeMillis();ResearchWriteQueueR27.Batch batch=new ResearchWriteQueueR27.Batch();
         for(int i=0;i<10;i++){
             if(frame.values[i]==null) return;
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[i],frame.present[i],true),i+1);
             AtomNetR27.Out prediction=state.trainer.net.forward(x,null);
-            List<Object> p=new ArrayList<>();for(double value:prediction.pClass)p.add(value);
+            long preparedAt=System.currentTimeMillis();
+            ModelSurfaceProviderR30.Surface surface=ModelSurfaceProviderR30.predict(new ModelSurfaceProviderR30.Pit(targetOrdinal,recent.ordinals[recent.size()-1],i+1,ModelSurfaceProviderR30.historyHash(slot,slot.size()-1),x,preparedAt,preparedAt,preparedAt,deadline),modelRef);
+            ModelSurfaceStoreR30.surface(batch,surface,i==0?modelRef:null);
+            List<Object> p=new ArrayList<>();for(double value:surface.probabilities())p.add(value);
             batch.add("INSERT OR IGNORE INTO r30_atomnet_forecast VALUES(?,?,?,?,?,?,?,?)",target,i+1,modelHash,state.trainedThroughOrdinal(),JsonR27.write(p),prediction.pHit,at,deadline);
             if(i+1==(int)Math.floorMod(targetOrdinal,10L)+1){
                 batch.add("INSERT OR IGNORE INTO r27_atomnet_pending VALUES(?,?,?,?,?)",target,"ATOMNET",prediction.pHit,at,deadline);
@@ -92,7 +96,8 @@ public final class AtomNetRuntimeR30 {
                 for(String model:new String[]{"ATOMNET","FTRL"})batch.add("INSERT OR IGNORE INTO r29_atomnet_forecast VALUES(?,?,?,?,?,?,?)",target,model,modelHash,state.trainedThrough(),AtomNetSessionR30.ABI,at,deadline);
             }
         }
-        batch.before=tx->System.currentTimeMillis()<deadline-LiveShadowsR27.FREEZE_MARGIN_MS&&revision==SchemaR27.liveSourceRevision(tx)&&schema==SchemaR27.liveSourceSchemaVersion(tx)&&SchemaR27.liveSourceTriggersValid(tx)?0:-1;
+        final String sourceIssue=recent.issues[recent.size()-1];
+        batch.before=tx->LiveShadowsR27.sameDrawHead(tx,sourceIssue,deadline)&&System.currentTimeMillis()<deadline-LiveShadowsR27.FREEZE_MARGIN_MS&&revision==SchemaR27.liveSourceRevision(tx)&&schema==SchemaR27.liveSourceSchemaVersion(tx)&&SchemaR27.liveSourceTriggersValid(tx)?0:-1;
         batch.after=batch.before;
         try{RuntimeR27.submit(w,"ATOMNET_R30_FORECAST",batch);}catch(IllegalStateException late){if(!QualificationInboxR29.precondition(late))throw late;}
     }

@@ -63,6 +63,7 @@ public interface IdeaFamilyR27 {
             switch (kind) {
                 case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": return PolicyAstR27.leaf(kind, src, window(r));
                 case "fdecay": return PolicyAstR27.leaf(kind, src, FeatureCacheR27.HALF_LIVES[r.nextInt(3)]);
+                case "model_surface": return PolicyAstR27.leaf(kind,tp);
                 case "gap": case "gaprank": case "crosscond": case "neighbor": return PolicyAstR27.leaf(kind, src);
                 case "cross": return PolicyAstR27.leaf(kind, src, 1 + r.nextInt(3));
                 case "regime": return PolicyAstR27.leaf(kind, window(r));

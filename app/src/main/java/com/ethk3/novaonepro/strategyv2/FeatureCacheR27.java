@@ -15,6 +15,15 @@ public final class FeatureCacheR27 {
     private final int capacity;
     private final Map<String, double[]> cache;
     private long computed, hits;
+    private volatile ModelSurfaceProviderR30.Source modelSurfaces=ModelSurfaceProviderR30.NONE;
+    public void bindModelSurfaces(ModelSurfaceProviderR30.Source source){modelSurfaces=source==null?ModelSurfaceProviderR30.NONE:source;synchronized(this){cache.keySet().removeIf(k->k.startsWith("model_surface|"));}}
+    public ModelSurfaceProviderR30.Surface modelSurface(int row,int position){return modelSurfaces.at(row,position);}
+    public String modelBlockReason(int row,int position){return modelSurfaces.reason(row,position);}
+    public void maskMissingModelRows(double[] values,int positions){
+        for(int t=0;t<data.size();t++)for(int p=1;p<=10;p++)if((positions&(1<<(p-1)))!=0&&modelSurfaces.at(t,p)==null){Arrays.fill(values,t*10,t*10+10,Double.NaN);break;}
+    }
+    private double[] modelSurfaceValues(int position){double[] out=nan();ModelSurfaceProviderR30.Source snapshot=modelSurfaces;for(int t=0;t<data.size();t++){ModelSurfaceProviderR30.Surface s=snapshot.at(t,position);if(s!=null)System.arraycopy(s.probabilities(),0,out,t*10,10);}return out;}
+
 
     public FeatureCacheR27(ReplayDatasetR27 data) { this(data, 48); }
     public FeatureCacheR27(ReplayDatasetR27 data, int capacity) {
@@ -28,7 +37,7 @@ public final class FeatureCacheR27 {
 
     /** Leaf kinds; the int parameters are documented per kind. Every kind is PREDRAW_HISTORY (rows &lt; t). */
     public static final String[] KINDS = {"freq", "fdecay", "freqnb", "gap", "gaprank", "meangap", "trans1", "trans2", "cross", "crosscond",
-            "repeat", "neighbor", "oddeven", "bigsmall", "sumbucket", "regime", "knn", "family", "randu"};
+            "repeat", "neighbor", "oddeven", "bigsmall", "sumbucket", "regime", "knn", "family", "model_surface", "randu"};
 
     /** @param tp target position 1..10 the policy predicts. */
     public double[] leaf(String kind, int tp, int a, int b) {
@@ -73,6 +82,7 @@ public final class FeatureCacheR27 {
             case "regime": return regime(b);
             case "knn": return knn(tp, a, b);
             case "family": return family(tp, a);
+            case "model_surface": return modelSurfaceValues(a);
             case "randu": return randomUniform(a);
             default: throw new IllegalArgumentException("R27_UNKNOWN_LEAF:" + kind);
         }

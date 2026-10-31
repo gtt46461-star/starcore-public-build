@@ -69,6 +69,7 @@ public final class RuntimeR27 implements AutoCloseable {
             ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
             if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
             FeatureCacheR27 c = new FeatureCacheR27(d);
+            ModelSurfaceStoreR30.bindHistorical(w.ro,c);
             SplitR27 sp = SplitR27.of(d, evo == null ? null : evo.ledger().degradedBlocks());
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
             b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",

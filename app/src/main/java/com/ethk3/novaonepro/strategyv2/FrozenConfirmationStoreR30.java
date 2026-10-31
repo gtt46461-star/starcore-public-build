@@ -54,7 +54,8 @@ public final class FrozenConfirmationStoreR30 {
                 }
                 ReplayDatasetR27 data = ReplayDatasetR27.of(rows);
                 if (!data.datasetHash.equals(task.datasetHash)) throw new IllegalStateException("R30_CONFIRM_DATASET_CONTENT_MISMATCH");
-                return new EvalContextR27(new FeatureCacheR27(data),SplitR27.of(data,null),null);
+                FeatureCacheR27 cache=new FeatureCacheR27(data);ModelSurfaceStoreR30.bindHistorical(ro,cache);
+                return new EvalContextR27(cache,SplitR27.of(data,null),null);
             } catch (java.io.IOException e) { throw new IllegalStateException("R30_CONFIRM_DATASET_CORRUPT",e); }
         }
     }

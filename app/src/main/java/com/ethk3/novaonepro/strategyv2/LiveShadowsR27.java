@@ -129,6 +129,8 @@ public final class LiveShadowsR27 {
             if (sourceRevision!=SchemaR27.liveSourceRevision(w.ro) || sourceSchema!=SchemaR27.liveSourceSchemaVersion(w.ro)) {
                 recordSourceWait(w,todo,target,"SOURCE_CHANGED_DURING_PREPARATION"); return 0;
             }
+            boolean needsModel=false;for(Shadow shadow:todo)needsModel|=shadow.spec.ast.modelPositions!=0;
+            ModelSurfaceStoreR30.Prepared modelPrepared=needsModel?ModelSurfaceStoreR30.prepareLive(rt,w,cache,deadline):null;
             for (Shadow s : todo) {
                 double[] out = ReplayEvaluatorR27.predictNext(s.spec, cache, s.tau);
                 boolean ok = Double.isFinite(out[0]);
@@ -141,10 +143,11 @@ public final class LiveShadowsR27 {
                     f.k3 = new int[] {n1, n2, n3}; f.probabilities = p; f.modelAvailableAt = now; f.featureAvailableAt = now;
                     f.preparedAt = prepared; f.frozenAt = prepared; f.deadlineAt = deadline;
                     List<String> violations = PitGuardR30.check(f);
-                    if (!violations.isEmpty()) { pitViolationsR30(b, s.id, target, violations, "LIVE"); continue; }
+                    if (!violations.isEmpty()) { pitViolationsR30(b, s.id, target, violations, "LIVE");ModelSurfaceStoreR30.calls(b,s.id,s.spec,target,cache,modelPrepared,false,"POLICY_PIT:"+String.join(",",violations));continue; }
                 }
                 b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER),?)",
                         s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", deadline);
+                ModelSurfaceStoreR30.calls(b,s.id,s.spec,target,cache,modelPrepared,ok,"POLICY_PREDICTION_UNAVAILABLE");
                 if (ok) frozen++; acted += act;
             }
             // R30-B02-04: predictions above are computed on this worker thread; the batch carries only INSERTs and the
@@ -179,7 +182,7 @@ public final class LiveShadowsR27 {
     private static void recordSourceWait(ResearchPoolR27.Worker w,List<Shadow> pending,long target,String reason) throws Exception {
         ResearchWriteQueueR27.Batch wait=new ResearchWriteQueueR27.Batch();wait.add(PIT_DDL_R30);
         long now=System.currentTimeMillis();
-        for (Shadow s:pending) wait.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)",s.id,target,reason,"LIVE_WAIT",now);
+        for (Shadow s:pending) {wait.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)",s.id,target,reason,"LIVE_WAIT",now);ModelSurfaceStoreR30.calls(wait,s.id,s.spec,target,null,null,false,reason);}
         while (!w.writes().submit("LIVE_SOURCE_WAIT",wait,w::cancelled)) { if(w.cancelled()) return;Thread.sleep(20); }
     }
 

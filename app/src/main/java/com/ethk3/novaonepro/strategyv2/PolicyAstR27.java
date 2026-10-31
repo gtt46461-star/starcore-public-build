@@ -24,7 +24,7 @@ public final class PolicyAstR27 {
             {"freq", 2, Type.PROB}, {"fdecay", 2, Type.PROB}, {"freqnb", 2, Type.PROB}, {"gap", 1, Type.RISK}, {"gaprank", 1, Type.RISK},
             {"meangap", 2, Type.RISK}, {"trans1", 0, Type.PROB}, {"trans2", 0, Type.PROB}, {"cross", 2, Type.FLAG}, {"crosscond", 1, Type.PROB},
             {"repeat", 0, Type.FLAG}, {"neighbor", 1, Type.FLAG}, {"oddeven", 2, Type.PROB}, {"bigsmall", 2, Type.PROB}, {"sumbucket", 0, Type.PROB},
-            {"regime", 1, Type.RISK}, {"knn", 2, Type.PROB}, {"family", 1, Type.PROB}, {"randu", 1, Type.SCORE}};
+            {"regime", 1, Type.RISK}, {"knn", 2, Type.PROB}, {"family", 1, Type.PROB}, {"model_surface",1,Type.PROB}, {"randu", 1, Type.SCORE}};
         for (Object[] l : leaves) LEAVES.put((String) l[0], new Object[] {l[1], l[2]});
         for (String u : new String[] {"neg", "abs", "log1p", "sqrt", "sigmoid", "tanh", "rank", "zscore", "lagdiff"}) ARITY.put(u, 1);
         for (String b : new String[] {"add", "sub", "mul", "div", "max", "min"}) ARITY.put(b, 2);
@@ -34,8 +34,8 @@ public final class PolicyAstR27 {
     static boolean hasParam(String op) { return op.equals("softmax") || op.equals("ema") || op.equals("mix") || op.equals("c"); }
 
     public static final class Node {
-        public final String op; public final int[] ints; public final double param; public final Node[] kids;
-        public Node(String op, int[] ints, double param, Node... kids) { this.op = op; this.ints = ints == null ? new int[0] : ints.clone(); this.param = param; this.kids = kids == null ? new Node[0] : kids.clone(); }
+        public final String op; public final int[] ints; public final double param; public final Node[] kids; public final int modelPositions;
+        public Node(String op, int[] ints, double param, Node... kids) { this.op = op; this.ints = ints == null ? new int[0] : ints.clone(); this.param = param; this.kids = kids == null ? new Node[0] : kids.clone(); int mask=op.equals("model_surface")&&this.ints.length==1&&pos(this.ints[0])?1<<(this.ints[0]-1):0;for(Node k:this.kids)mask|=k.modelPositions;modelPositions=mask; }
         public boolean leaf() { return LEAVES.containsKey(op) || op.equals("c"); }
         public int size() { int s = 1; for (Node k : kids) s += k.size(); return s; }
         public int depth() { int d = 0; for (Node k : kids) d = Math.max(d, k.depth()); return d + 1; }
@@ -125,7 +125,7 @@ public final class PolicyAstR27 {
             case "ema": case "mix": if (n.param < 0 || n.param > 1) return "RANGE:ALPHA"; break;
             case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": if (!pos(n.ints[0]) || !window(n.ints[1])) return "RANGE:" + n.op; break;
             case "fdecay": if (!pos(n.ints[0]) || Arrays.binarySearch(FeatureCacheR27.HALF_LIVES, n.ints[1]) < 0) return "RANGE:fdecay"; break;
-            case "gap": case "gaprank": case "crosscond": case "neighbor": if (!pos(n.ints[0])) return "RANGE:" + n.op; break;
+            case "model_surface": case "gap": case "gaprank": case "crosscond": case "neighbor": if (!pos(n.ints[0])) return "RANGE:" + n.op; break;
             case "cross": if (!pos(n.ints[0])) return "RANGE:cross"; if (n.ints[1] < 1) return "CAUSAL:LAG_" + n.ints[1]; if (n.ints[1] > 3) return "RANGE:LAG"; break;
             case "regime": if (!window(n.ints[0])) return "RANGE:regime"; break;
             case "knn": if (n.ints[0] < 2 || n.ints[0] > 6 || n.ints[1] < 5 || n.ints[1] > 60) return "RANGE:knn"; break;
@@ -144,6 +144,11 @@ public final class PolicyAstR27 {
     // ------------------------------------------------------------------ evaluation
     /** Vectorized PIT evaluation for target position tp: returns double[T*10] (NaN = unavailable). */
     public static double[] eval(Node n, FeatureCacheR27 f, int tp) {
+        double[] values=evalNode(n,f,tp);
+        if(n.modelPositions!=0)f.maskMissingModelRows(values,n.modelPositions);
+        return values;
+    }
+    private static double[] evalNode(Node n,FeatureCacheR27 f,int tp) {
         int len = f.data.size() * 10;
         if (n.op.equals("c")) { double[] v = new double[len]; Arrays.fill(v, n.param); return v; }
         if (LEAVES.containsKey(n.op)) {

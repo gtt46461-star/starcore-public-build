@@ -60,6 +60,11 @@ java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJa
 # R30-B05-01: the actual independent stage, raw-evidence restart and frozen FUTURE registration.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/FrozenConfirmationR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30HostTest | tee "$LOG/r30_frozen_confirmation_host.log"
+# R30-B05-04: actual policy/model pairing, immutable archives, and explicit missing/target/source blocks.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ModelSurfaceR30HostTest.java
+for mode in valid missing target race; do
+  java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.ModelSurfaceR30HostTest "$mode" | tee "$LOG/r30_model_surface_${mode}_host.log"
+done
 # R30-B05-03: actual ten-position training, rollback and process death at position five.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/TenPositionR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.TenPositionR30HostTest | tee "$LOG/r30_ten_position_host.log"

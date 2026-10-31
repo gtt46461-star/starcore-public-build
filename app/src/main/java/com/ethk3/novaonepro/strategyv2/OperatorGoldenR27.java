@@ -14,6 +14,7 @@ public final class OperatorGoldenR27 {
         Map<String, String> out = new TreeMap<>(); int tp = 3;
         PolicyAstR27.Node f = PolicyAstR27.leaf("freq", 3, 32), g = PolicyAstR27.leaf("gap", 3);
         for (String kind : PolicyAstR27.LEAVES.keySet()) {
+            if(kind.equals("model_surface")){out.put(kind,ModelSurfaceProviderR30.goldenHash());continue;}
             if (kind.equals("family")) { for (int fam : PolicyAstR27.FAMILY_LEAVES) out.put("family:" + fam, hash(PolicyAstR27.eval(PolicyAstR27.leaf("family", fam), golden, tp))); continue; }
             out.put(kind, hash(PolicyAstR27.eval(sample(kind), golden, tp)));
         }
@@ -40,7 +41,7 @@ public final class OperatorGoldenR27 {
         switch (kind) {
             case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": return PolicyAstR27.leaf(kind, 2, 32);
             case "fdecay": return PolicyAstR27.leaf(kind, 2, 32);
-            case "gap": case "gaprank": case "crosscond": case "neighbor": return PolicyAstR27.leaf(kind, 2);
+            case "model_surface": case "gap": case "gaprank": case "crosscond": case "neighbor": return PolicyAstR27.leaf(kind, 2);
             case "cross": return PolicyAstR27.leaf(kind, 2, 1);
             case "regime": return PolicyAstR27.leaf(kind, 32);
             case "knn": return PolicyAstR27.leaf(kind, 3, 20);

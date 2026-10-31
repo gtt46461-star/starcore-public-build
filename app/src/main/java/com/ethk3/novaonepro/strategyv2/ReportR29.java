@@ -25,6 +25,7 @@ public final class ReportR29 {
         out.put("findings",FindingsR29.fromQualification(qualification));
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
+        out.put("modelConsumptionR30",ModelSurfaceStoreR30.report(db));
         out.put("tenPositionTrainingR30",cachedPanel(db,"atomnet","ten-position-r30"));
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
@@ -162,7 +163,7 @@ public final class ReportR29 {
 
     static Map<String,Object> modelCheckpoint(SQLiteDatabase db) {
         Map<String,Object> m = new LinkedHashMap<>();
-        m.put("status", "NEVER_RUN"); m.put("I08SurfaceIntegration", "NOT_IMPLEMENTED");
+        m.put("status", "NEVER_RUN"); m.put("I08SurfaceIntegration",ModelSurfaceStoreR30.report(db));
         m.put("scope", "Existing rotating-position hit experiment; not a 10x10 number-surface model");
         m.put("legacyPartialStatesPreserved", QualificationInboxR29.count(db, "SELECT count(*) FROM r29_legacy_model_checkpoint"));
         try (Cursor c = db.rawQuery("SELECT feature_abi,dataset_hash,trained_through,state_hash,length(artifact),updated_at FROM r29_model_checkpoint WHERE owner='ATOMNET_FTRL'", null)) {

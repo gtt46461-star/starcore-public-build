@@ -33,7 +33,7 @@ public final class TenPositionR30HostTest {
             SQLiteDatabase db=new SQLiteDatabase(c);boolean initial=args[0].equals("write-and-kill");
             if(initial){try(Statement s=c.createStatement()){
                 for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE"))s.execute(ddl);
-                s.execute(ModelArtifactR29.DDL);s.execute(HistoryImportR27.DDL);for(String ddl:AtomNetStoreR30.DDL)s.execute(ddl);
+                s.execute(ModelArtifactR29.DDL);s.execute(HistoryImportR27.DDL);for(String ddl:AtomNetStoreR30.DDL)s.execute(ddl);for(String ddl:ModelSurfaceStoreR30.DDL)s.execute(ddl);
                 s.execute("CREATE TABLE draws(issue TEXT PRIMARY KEY,n1 INT,n2 INT,n3 INT,n4 INT,n5 INT,n6 INT,n7 INT,n8 INT,n9 INT,n10 INT,open_time INTEGER,dirty INTEGER)");
             }
             for(int n=1;n<=80;n++)add(c,n);

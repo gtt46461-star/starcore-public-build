@@ -75,6 +75,7 @@ public final class SchemaR27 {
         for (String sql : DDL) db.execSQL(sql);
         db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts
+        for (String sql : ModelSurfaceStoreR30.DDL) db.execSQL(sql);
         for (String sql : AtomNetStoreR30.DDL) db.execSQL(sql);
         for (String sql : FrozenConfirmationStoreR30.DDL) db.execSQL(sql);
         column(db,"r30_frozen_confirm","registration_state","TEXT NOT NULL DEFAULT 'PENDING'");
