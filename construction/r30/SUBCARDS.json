@@ -870,6 +870,15 @@
         "tools/r30/ci_build.sh"
       ],
       "reason": "106实际预检41239623534/job124650601108证明合成测试库直接调用整域R952.ensure缺前置校准表；本地实际SQLite又证实未准备固定窗口会继续缺表。共享仅测试fixture调用原R929.createSchema和原FixedResearchWindow.schema，再原R952.advanceR64至原F05_EXACT_CALIBRATED_REAL_RECEIPT_V1迁移单元真实完成，保留原全部收据DDL/不可变/首写/外键约束，不执行与该原交易路径无关且依赖整个legacy域的后续CP4迁移，不标全域READY、不手写替代表。实际编译的共享测试fixture在真实SQLite验证原依赖缺失失败、正向两收据提交、重复/UPDATE拒绝及回滚无半行；接原CI。只改测试/工具，main产品与269项G1逐字节不变。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-r",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
+        "tools/r30/run_fault_matrix.sh"
+      ],
+      "reason": "审计B09时钟回拨格发现仅向时间线输入wall-60000和人工mono+10，尚不能称实际系统回拨。改为一次性root模拟器上原AlarmManager shell实际回拨60秒并恢复，设置自动时间原值亦恢复。测试进程两次实际读取wall/elapsedRealtime，写原时间线并断言单调差值/同进程boot标识/发布时刻仍未知；ADB与测试以显式armed/observed标记握手。等待及shell全在writer外；恢复原系统时钟后才按原截止时间冻结并补齐结算，不扩展或改原deadline。真实系统回拨未生效必须FAIL，不能回退输入模拟。仅测试/工具，原产品main和全部原时间/数据/统计门槛不改；实际故障结果等最终Android，不用本地编译冒充。先登记后施工。"
     }
   ]
 }
