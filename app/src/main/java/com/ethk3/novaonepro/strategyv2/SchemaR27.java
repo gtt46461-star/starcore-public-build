@@ -73,6 +73,8 @@ public final class SchemaR27 {
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
+        ensureLiveSourceRevision(db);
+        db.execSQL(LiveShadowsR27.PIT_DDL_R30);
         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
         db.execSQL(IssueTimelineR30.DDL); db.execSQL(IssueTimelineR30.INDEX); // R30-B02-01 (additive)
         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
@@ -82,6 +84,51 @@ public final class SchemaR27 {
             db.execSQL("UPDATE r26_task SET first_progress_at=last_progress WHERE first_progress_at=0 AND last_progress>0");
         }
         db.execSQL("INSERT OR IGNORE INTO r27_migration VALUES(?,?,?)", new Object[] {REVISION, System.currentTimeMillis(), BuildConfig.SOURCE_COMMIT_R26});
+    }
+
+    /** Same-database, additive revision of the actual inputs used by the live feature cache. */
+    static final String LIVE_SOURCE_REVISION = "r30_live_source_revision";
+    static final String[] LIVE_SOURCE_TRIGGERS = liveSourceTriggers();
+    private static String[] liveSourceTriggers() {
+        String draws = "NEW.issue IS NOT OLD.issue OR NEW.open_time IS NOT OLD.open_time OR NEW.dirty IS NOT OLD.dirty";
+        for (int i=1;i<=10;i++) draws += " OR NEW.n"+i+" IS NOT OLD.n"+i;
+        String imports = "NEW.issue IS NOT OLD.issue OR NEW.ordinal IS NOT OLD.ordinal OR NEW.numbers IS NOT OLD.numbers OR NEW.status IS NOT OLD.status";
+        java.util.ArrayList<String> sql=new java.util.ArrayList<>();
+        for (String table:new String[]{"draws","r27_history_import"}) for (String op:new String[]{"INSERT","UPDATE","DELETE"}) {
+            String name="r30_live_revision_"+table+"_"+op.toLowerCase(java.util.Locale.ROOT);
+            String when="UPDATE".equals(op)?" WHEN ("+("draws".equals(table)?draws:imports)+")":"";
+            sql.add("CREATE TRIGGER IF NOT EXISTS "+name+" AFTER "+op+" ON "+table+when
+                    +" BEGIN UPDATE "+LIVE_SOURCE_REVISION+" SET generation=generation+1 WHERE singleton=1; END");
+        }
+        return sql.toArray(new String[0]);
+    }
+    static void ensureLiveSourceRevision(SQLiteDatabase db) {
+        if (!db.inTransaction()) throw new IllegalStateException("R30_SOURCE_REVISION_WRITER_REQUIRED");
+        if (!tableExists(db,"draws") || !tableExists(db,"r27_history_import")) return;
+        db.execSQL("CREATE TABLE IF NOT EXISTS "+LIVE_SOURCE_REVISION+"(singleton INTEGER PRIMARY KEY CHECK(singleton=1),generation INTEGER NOT NULL CHECK(generation>=0))");
+        db.execSQL("INSERT OR IGNORE INTO "+LIVE_SOURCE_REVISION+" VALUES(1,0)");
+        for (String sql:LIVE_SOURCE_TRIGGERS) db.execSQL(sql);
+        if (!liveSourceTriggersValid(db)) throw new IllegalStateException("R30_SOURCE_REVISION_TRIGGER_CONFLICT");
+    }
+    static boolean liveSourceTriggersValid(SQLiteDatabase db) {
+        for (String expected:LIVE_SOURCE_TRIGGERS) {
+            String name=expected.substring("CREATE TRIGGER IF NOT EXISTS ".length(),expected.indexOf(" AFTER "));
+            try (Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='trigger' AND name=?",new String[]{name})) {
+                if (!c.moveToFirst() || !canonicalTrigger(expected).equals(canonicalTrigger(c.getString(0)))) return false;
+            }
+        }
+        return true;
+    }
+    private static String canonicalTrigger(String sql) {
+        return sql==null?"":sql.replace(" IF NOT EXISTS "," ").trim().replaceAll("\\s+"," ");
+    }
+    static long liveSourceRevision(SQLiteDatabase db) {
+        try (Cursor c=db.rawQuery("SELECT generation FROM "+LIVE_SOURCE_REVISION+" WHERE singleton=1",null)) { return c.moveToFirst()?c.getLong(0):-1; }
+        catch (RuntimeException unavailable) { return -1; }
+    }
+    static long liveSourceSchemaVersion(SQLiteDatabase db) {
+        try (Cursor c=db.rawQuery("PRAGMA schema_version",null)) { return c.moveToFirst()?c.getLong(0):-1; }
+        catch (RuntimeException unavailable) { return -1; }
     }
 
     public static boolean ready(SQLiteDatabase db) {

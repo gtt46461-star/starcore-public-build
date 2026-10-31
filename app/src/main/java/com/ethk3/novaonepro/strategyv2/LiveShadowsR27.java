@@ -119,8 +119,16 @@ public final class LiveShadowsR27 {
         long now = System.currentTimeMillis();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); int frozen = 0, acted = 0;
         if (now < deadline - FREEZE_MARGIN_MS) {
+            final long sourceRevision=SchemaR27.liveSourceRevision(w.ro);
+            final long sourceSchema=SchemaR27.liveSourceSchemaVersion(w.ro);
+            if (sourceRevision<0 || sourceSchema<0 || !SchemaR27.liveSourceTriggersValid(w.ro)) {
+                recordSourceWait(w,todo,target,"SOURCE_REVISION_UNAVAILABLE"); return 0;
+            }
             FeatureCacheR27 cache = rt.liveCacheWithPlaceholder(w, latestOrd);
-            if (cache == null) return 0; // Source head changed or is not a valid dataset; retry without freezing.
+            if (cache == null) { recordSourceWait(w,todo,target,"SOURCE_HEAD_CHANGED_OR_INVALID"); return 0; }
+            if (sourceRevision!=SchemaR27.liveSourceRevision(w.ro) || sourceSchema!=SchemaR27.liveSourceSchemaVersion(w.ro)) {
+                recordSourceWait(w,todo,target,"SOURCE_CHANGED_DURING_PREPARATION"); return 0;
+            }
             for (Shadow s : todo) {
                 double[] out = ReplayEvaluatorR27.predictNext(s.spec, cache, s.tau);
                 boolean ok = Double.isFinite(out[0]);
@@ -135,19 +143,28 @@ public final class LiveShadowsR27 {
                     List<String> violations = PitGuardR30.check(f);
                     if (!violations.isEmpty()) { pitViolationsR30(b, s.id, target, violations, "LIVE"); continue; }
                 }
-                b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", System.currentTimeMillis(), deadline);
+                b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,CAST(strftime('%s','now') AS INTEGER)*1000+CAST(substr(strftime('%f','now'),4,3) AS INTEGER),?)",
+                        s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", deadline);
                 if (ok) frozen++; acted += act;
             }
             // R30-B02-04: predictions above are computed on this worker thread; the batch carries only INSERTs and the
             // deadline checks, so the writer transaction stays a short freeze write.
             drainReplayPitViolationsR30(b);
             final long dl = deadline;
-            b.before = db -> System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1; // R29: commit at least 5 s before the draw, else DEADLINE_MISSED
-            b.after = b.before; // Recheck after all inserts: a large batch must roll back if it crosses the boundary.
+            b.before = db -> {
+                if (sourceRevision!=SchemaR27.liveSourceRevision(db) || sourceSchema!=SchemaR27.liveSourceSchemaVersion(db)
+                        || !sameDrawHead(db, latestIssue, dl)) throw new IllegalStateException("R30_FREEZE_SOURCE_CHANGED");
+                return System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1;
+            };
+            b.after = b.before; // Both the source and the original 5 s margin must still hold before commit.
             if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
             try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
-            catch (IllegalStateException late) { if (!String.valueOf(late.getMessage()).contains("R27_WRITE_PRECONDITION") && !(late.getCause() != null && String.valueOf(late.getCause().getMessage()).contains("R27_WRITE_PRECONDITION"))) throw late; }
+            catch (IllegalStateException late) {
+                if (causedBy(late, "R30_FREEZE_SOURCE_CHANGED")) {
+                    recordSourceWait(w,todo,target,"SOURCE_CHANGED_BEFORE_COMMIT"); return 0;
+                }
+                if (!causedBy(late, "R27_WRITE_PRECONDITION")) throw late;
+            }
             b = new ResearchWriteQueueR27.Batch();
         }
         // Deadline missed: recorded, counted in the opportunity denominator, never back-filled.
@@ -156,6 +173,30 @@ public final class LiveShadowsR27 {
         if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,0,0,0,?,?)", target, targetIssue, todo.size(), todo.size(), System.currentTimeMillis());
         while (!w.writes().submit("LIVE_DEADLINE_MISSED", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); }
         return todo.size();
+    }
+
+    /** A rejected attempt remains a retryable, explicit gap; it never creates a post-result forecast. */
+    private static void recordSourceWait(ResearchPoolR27.Worker w,List<Shadow> pending,long target,String reason) throws Exception {
+        ResearchWriteQueueR27.Batch wait=new ResearchWriteQueueR27.Batch();wait.add(PIT_DDL_R30);
+        long now=System.currentTimeMillis();
+        for (Shadow s:pending) wait.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)",s.id,target,reason,"LIVE_WAIT",now);
+        while (!w.writes().submit("LIVE_SOURCE_WAIT",wait,w::cancelled)) { if(w.cancelled()) return;Thread.sleep(20); }
+    }
+
+    /** The sole writer verifies the original draw and scheduled clock immediately before publication. */
+    static boolean sameDrawHead(SQLiteDatabase db,String issue,long deadline) {
+        try (Cursor c=db.rawQuery("SELECT issue,open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)) {
+            if (!c.moveToFirst()) return false;
+            long open=c.getLong(1);
+            return issue.equals(c.getString(0)) && open>0 && open<=Long.MAX_VALUE-60_000L && open+60_000L==deadline;
+        }
+    }
+    private static boolean causedBy(Throwable failure,String marker) {
+        for (Throwable t=failure;t!=null;t=t.getCause()) {
+            if (String.valueOf(t.getMessage()).contains(marker)) return true;
+            if (t.getCause()==t) break;
+        }
+        return false;
     }
 
     // ---------------------------------------------------------------- certificates and mainline choice
