@@ -128,9 +128,10 @@
     "tools/r30/ci_build.sh",
     "tools/r30/qual_host/FreezeSourceR30HostTest.java",
     "release/r982_source_calls.manifest.json",
-    "release/r982_source_calls.tsv.gz"
+    "release/r982_source_calls.tsv.gz",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
    ],
-   "reason": "实际SQLite调用生产liveCacheWithPlaceholder复现：积压90期只追加64期，源历史更正也不进入缓存。需要在实时冻结调用点安全处理源变化并增加真实生产方法的SQLite回归；RuntimeR27.java本属原卡。 另复现预测准备与写入之间下一期已开奖仍写成冻结；需同一写事务校验开奖源，并重建编译调用索引。"
+   "reason": "实际SQLite调用生产liveCacheWithPlaceholder复现：积压90期只追加64期，源历史更正也不进入缓存。需要在实时冻结调用点安全处理源变化并增加真实生产方法的SQLite回归；RuntimeR27.java本属原卡。 另复现预测准备与写入之间下一期已开奖仍写成冻结；需同一写事务校验开奖源，并重建编译调用索引。 复现准备期间旧开奖被更正仍可冻结，需在单库内增加加法式数据源版本及触发器，以短事务验证开奖和导入历史未变；不拆库、不改原模型。"
   },
   {
    "card": "R30-B03-05",
