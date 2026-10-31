@@ -128,6 +128,9 @@ public final class AnalysisRequestStoreR36 {
                                                         "AnalysisRequestStoreR36",
                                                         targetIssue + "|" + created.attemptId() + "|REQUESTED"));
                                         RuntimeObservabilityR925.registerRequest(created, requestStartedMonoR927);
+                                        // R30-B02-01: NEXT_REQUESTED + NEXT_DEADLINE on the target-issue timeline row.
+                                        com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, targetIssue, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_REQUESTED);
+                                        if (deadlineAt > 0L) com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.deadline(db, targetIssue, deadlineAt);
                                         return created;
                                     }
                                 },

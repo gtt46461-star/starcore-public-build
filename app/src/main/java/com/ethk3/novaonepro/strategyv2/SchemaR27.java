@@ -74,6 +74,7 @@ public final class SchemaR27 {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
+        db.execSQL(IssueTimelineR30.DDL); db.execSQL(IssueTimelineR30.INDEX); // R30-B02-01 (additive)
         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
         if (tableExists(db, "r26_task")) {
             long now = System.currentTimeMillis();

@@ -27,6 +27,7 @@ public final class ReportR29 {
         out.put("modelContinuation", model);
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
+        out.put("issueTimelineR30", issueTimeline(db));
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
         if ("RECORDED".equals(model.get("status"))) {
@@ -98,6 +99,37 @@ public final class ReportR29 {
         if (windows <= 0) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_writer_hold 尚无窗口"); }
         else m.put("status", "MEASURED");
         m.put("backgroundOverBudgetTop50", top); m.put("criticalWriteWait", critical);
+        return m;
+    }
+    /** R30-B02-01 第3章 实时链分段：最近1440期，开奖期 d 的观测/校验/落库/结算 + 下一目标期 t 的请求/准备/冻结/截止（docs/B02 §2）。 */
+    static final String TIMELINE_PAIRS_R30 = "SELECT d.issue,t.issue,"
+            + "d.wall_first_observed,d.mono_first_observed,d.boot_first_observed,d.wall_validated,d.mono_validated,d.boot_validated,"
+            + "d.wall_draw_committed,d.mono_draw_committed,d.boot_draw_committed,d.wall_settled,d.mono_settled,d.boot_settled,"
+            + "t.wall_next_requested,t.mono_next_requested,t.boot_next_requested,t.wall_next_prepared,t.mono_next_prepared,t.boot_next_prepared,"
+            + "t.wall_next_frozen,t.mono_next_frozen,t.boot_next_frozen,t.wall_next_deadline "
+            + "FROM r30_issue_timeline d LEFT JOIN r30_issue_timeline t ON t.issue=(SELECT min(issue) FROM r30_issue_timeline x WHERE x.issue>d.issue AND x.wall_next_requested IS NOT NULL) "
+            + "WHERE d.wall_first_observed IS NOT NULL ORDER BY d.issue DESC LIMIT 1440";
+    static Map<String,Object> issueTimeline(SQLiteDatabase db) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("chapter", "3 运行与时延：实时链分段"); m.put("source", "r30_issue_timeline"); m.put("window", "最近1440个开奖期");
+        List<IssueTimelineR30.Row> rows = new ArrayList<>();
+        IssueTimelineR30.Stage[] stages = {IssueTimelineR30.Stage.FIRST_OBSERVED, IssueTimelineR30.Stage.VALIDATED, IssueTimelineR30.Stage.DRAW_COMMITTED, IssueTimelineR30.Stage.SETTLED,
+                IssueTimelineR30.Stage.NEXT_REQUESTED, IssueTimelineR30.Stage.NEXT_PREPARED, IssueTimelineR30.Stage.NEXT_FROZEN};
+        try (Cursor c = db.rawQuery(TIMELINE_PAIRS_R30, null)) {
+            while (c.moveToNext()) {
+                IssueTimelineR30.Row r = new IssueTimelineR30.Row(c.getString(0));
+                for (int i = 0; i < stages.length; i++) {
+                    int k = 2 + 3 * i;
+                    r.set(stages[i], c.isNull(k) ? null : c.getLong(k), c.isNull(k + 1) ? null : c.getLong(k + 1), c.isNull(k + 2) ? null : c.getString(k + 2));
+                }
+                if (!c.isNull(23)) r.set(IssueTimelineR30.Stage.NEXT_DEADLINE, c.getLong(23), null, null);
+                rows.add(r);
+            }
+        } catch (RuntimeException missingTable) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_issue_timeline 尚未建立"); return m; }
+        m.put("periods", rows.size());
+        if (rows.isEmpty()) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_issue_timeline 尚无开奖期"); return m; }
+        m.put("status", "MEASURED"); m.put("segments", IssueTimelineR30.summarize(rows));
+        m.put("environmentNote", "时延门槛只以真机为准（docs/02 §4）；模拟器/CI 数值只记录不判定");
         return m;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }

@@ -180,6 +180,15 @@ public final class FetchLedgerR925 {
                                                     : safe(reason), id});
                             appendIssueEventWithin(db, id, source, issue, status, reason,
                                     bodyHash, firstAvailableAt, receivedAt, drawAt);
+                            // R30-B02-01 FIRST_OBSERVED: the issue is only known once this response is parsed, so the
+                            // mark sits in this fetch-ledger callback (R925_FETCH_COMPLETE has the raw body only). Wall time
+                            // is the first accepted availability; first writer wins on the timeline row.
+                            if (accepted && firstAvailableAt > 0L && TargetIssueResolver.isValid(issue)) {
+                                long ageMs = Math.max(0L, System.currentTimeMillis() - firstAvailableAt);
+                                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markAt(db, issue,
+                                        com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.FIRST_OBSERVED,
+                                        firstAvailableAt, android.os.SystemClock.elapsedRealtime() - ageMs);
+                            }
                             if (owns) db.setTransactionSuccessful();
                             } finally { if (owns) db.endTransaction(); }
                         }

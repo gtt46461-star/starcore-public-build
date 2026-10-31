@@ -1003,7 +1003,19 @@ public final class DatabaseCoordinator {
                                 + safe(targetIssue)
                                 + '|'
                                 + safe(attemptId));
-        return runR36Transaction("R36_CANONICAL", targetIssue, key, task, fallback);
+        // R30-B02-01: NEXT_PREPARED is taken just before the canonical transaction (analysis is already computed),
+        // written inside it with markAt; NEXT_FROZEN at the end of the task body.
+        final long preparedWallR30 = System.currentTimeMillis(), preparedMonoR30 = android.os.SystemClock.elapsedRealtime();
+        final String timelineIssueR30 = targetIssue;
+        TransactionCallable<T> timed = task == null ? null : new TransactionCallable<T>() {
+            @Override public T call(SQLiteDatabase db, TransactionContext tx) throws Exception {
+                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markAt(db, timelineIssueR30, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_PREPARED, preparedWallR30, preparedMonoR30);
+                T value = task.call(db, tx);
+                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, timelineIssueR30, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_FROZEN);
+                return value;
+            }
+        };
+        return runR36Transaction("R36_CANONICAL", targetIssue, key, timed, fallback);
     }
 
     public <T> TransactionResult<T> runSettlementTransactionR36(
@@ -1049,6 +1061,7 @@ public final class DatabaseCoordinator {
                         try {
                             if (owns) db.beginTransaction();
                             T value = task.call(db, tx);
+                            com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, targetIssue, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.SETTLED); // R30-B02-01
                             if (owns) db.setTransactionSuccessful();
                             return TransactionResult.ok(
                                     value, false, tx.transactionHash,
