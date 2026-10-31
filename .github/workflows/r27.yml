@@ -11,10 +11,11 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: r27-${{ github.ref }}
+  group: ${{ startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST') && format('r27-final-only-ignored-{0}', github.sha) || format('r27-{0}', github.ref) }}
   cancel-in-progress: true
 jobs:
   build:
+    if: ${{ (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
@@ -157,6 +158,7 @@ jobs:
             package-receipt/
           if-no-files-found: warn
   emulator:
+    if: ${{ (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST')) }}
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 90
