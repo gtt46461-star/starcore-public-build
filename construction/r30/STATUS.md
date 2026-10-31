@@ -13,20 +13,20 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B00-02|B00|封存R29 B01分支，登记可复用件|DONE|aa28bc2f60a4|—|标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）|
 |R30-B00-03|B00|回收R29后期包遗留的Root触发器与独立研究库|DONE|17dc6ef7bb35|待 r30.yml（B00-04 起）|本地全量编译通过；SQL 合同 19/19（含 T04/T05/T06）；R30FoldBackInstrumentedTest 需模拟器（CI connectedDebugAndroidTest）|
 |R30-B00-04|B00|装施工护栏工具与R30 CI入口|DONE|f7044a7c2eba|—|工具按方案原样复制，3 处必要修正（见下方偏差记录 D1–D3）|
-|R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|DONE|—|run 41163664048 绿|44 项均有 measurementSource；空源/零样本→INSUFFICIENT、值 null；legacy_count requirements=1832 fileCards=299；子卡 R30-B00-05-a 登记测试文件|
-|R30-B01-01|B01|唯一写锁：等待/持有时长账本|DONE|0bdc4468dde1|—|HOST 6/6；DatabaseCoordinator 仅补丁所示改动；真机/模拟器持锁数据 NOT_RUN|
-|R30-B01-02|B01|账本落库与报告出数|DONE|01bbf50ee5e1|—|SQL T02 4/4；报告第3章两表（writerHoldR30）；“运行10分钟≥9窗口”需设备 NOT_RUN|
-|R30-B01-03|B01|切片写入工具与Android适配器|DONE|32d371df2ec2|—|HOST 6/6（含中途失败回滚续做不重复）；Android 杀进程续做 NOT_RUN|
-|R30-B01-04|B01|按账本切片前五名后台长事务|DONE|7f393f83943e|—|HOST：SettleChunkR30 S1–S3×3 种子 OK；R29 qual_host Q1–Q16 OK；DataRetentionGovernorR900 已有界未改（理由见 B01_OFFENDERS.json）；2小时复测 over_hard NOT_RUN|
-|R30-B01-05|B01|任务活性判定与报告|DONE|873daf77aef7|—|HOST livenessClassification OK；当前 r26_task 无 pending/last_committed_seq 列 → 全部 UNKNOWN 单列，M12=INSUFFICIENT（如实）|
-|R30-B01-06|B01|调度公平与温控核对|DONE|27b2e16296be|—|温控序列 HOST 6/6；STALLED 提升已接入 claim()，但 r26_task 尚无 pending/last_committed_seq 事实 → 无任务被判 STALLED（不猜测）；“下一轮被调度”的运行验证 NOT_RUN|
-|R30-B01-07|B01|重复调度入口清单与收敛|DONE|65337ff1cb9e|—|SCHEDULER_OWNERS.json 42 个循环，无“两个活跃写者写同一研究表”；旧研究链连续性/捕获在 R26 运行时让出（与 R27-046 并行观察冲突已记录）；生命周期回归 androidTest NOT_RUN|
-|R30-B02-01|B02|每期8点时间线落库|DONE|5f3c7030fa60|—|HOST timeline 3/3；SQL T01；VALIDATED/DRAW_COMMITTED 打点在同一事务内的 FetchLedgerR925.observe/canonicalDrawWithinR82（DbStore 为主链红线，保持不变）；30分钟覆盖 NOT_RUN|
+|R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|DONE|e162b175f096|run 41163664048 绿|44 项均有 measurementSource；空源/零样本→INSUFFICIENT、值 null；legacy_count requirements=1832 fileCards=299；子卡 R30-B00-05-a 登记测试文件|
+|R30-B01-01|B01|唯一写锁：等待/持有时长账本|DONE|a01e58ed15f4|—|HOST 6/6；DatabaseCoordinator 仅补丁所示改动；真机/模拟器持锁数据 NOT_RUN|
+|R30-B01-02|B01|账本落库与报告出数|DONE|4c594e1122b5|—|SQL T02 4/4；报告第3章两表（writerHoldR30）；“运行10分钟≥9窗口”需设备 NOT_RUN|
+|R30-B01-03|B01|切片写入工具与Android适配器|DONE|1fb9922d0946|—|HOST 6/6（含中途失败回滚续做不重复）；Android 杀进程续做 NOT_RUN|
+|R30-B01-04|B01|按账本切片前五名后台长事务|DONE|a7d151c6af8c|—|HOST：SettleChunkR30 S1–S3×3 种子 OK；R29 qual_host Q1–Q16 OK；DataRetentionGovernorR900 已有界未改（理由见 B01_OFFENDERS.json）；2小时复测 over_hard NOT_RUN|
+|R30-B01-05|B01|任务活性判定与报告|DONE|57b8239c294b|—|HOST livenessClassification OK；当前 r26_task 无 pending/last_committed_seq 列 → 全部 UNKNOWN 单列，M12=INSUFFICIENT（如实）|
+|R30-B01-06|B01|调度公平与温控核对|DONE|56afcaa37dff|—|温控序列 HOST 6/6；STALLED 提升已接入 claim()，但 r26_task 尚无 pending/last_committed_seq 事实 → 无任务被判 STALLED（不猜测）；“下一轮被调度”的运行验证 NOT_RUN|
+|R30-B01-07|B01|重复调度入口清单与收敛|DONE|dcef83a15e12|—|SCHEDULER_OWNERS.json 42 个循环，无“两个活跃写者写同一研究表”；旧研究链连续性/捕获在 R26 运行时让出（与 R27-046 并行观察冲突已记录）；生命周期回归 androidTest NOT_RUN|
+|R30-B02-01|B02|每期8点时间线落库|DONE|56e7834b60c9|—|HOST timeline 3/3；SQL T01；VALIDATED/DRAW_COMMITTED 打点在同一事务内的 FetchLedgerR925.observe/canonicalDrawWithinR82（DbStore 为主链红线，保持不变）；30分钟覆盖 NOT_RUN|
 |R30-B02-02|B02|抓取单飞与退避节奏|DONE|31ea80f32bae|—|HOST 2/2（16线程单飞、退避序列）；HTTP 超时现值 2500/3500ms 已≤4000 未改；断网恢复真机序列 NOT_RUN|
 |R30-B02-03|B02|缺期补抓与幂等结算核验|DONE|b2d781d67d27|—|HOST PendingDrawR30 P1–P4 OK；SettlementEngine 未改（主链红线 R27QualityTest.h15 要求逐字节不变；CP06 重放已不写行并返回已存结果，仅重放哈希文本与首次不同）|
 |R30-B02-04|B02|准备在事务外、冻结在短事务内|DONE|7efceca151e8|—|审查：两条冻结路径事务体内均无模型/特征调用（CP06 已符合，未改行为）；prepare_to_frozen 真机 P95 NOT_RUN|
 |R30-B02-05|B02|UI与后台延迟|DONE|1ada7bd82310|—|图表已在后台线程读取；每页≤500点；debug StrictMode 已开；全页面违规清扫与首开<1s 需模拟器/真机 NOT_RUN|
-|R30-B03-01|B03|PIT守卫接入所有冻结写入|DONE|63a91bf67be1|—|HOST PitGuard 测试 + 注入反例被拒入账；回放/研究冻结均经守卫；真机 r30_pit_violation NOT_RUN|
+|R30-B03-01|B03|PIT守卫接入所有冻结写入|DONE|461b96c50642|—|HOST PitGuard 测试 + 注入反例被拒入账；回放/研究冻结均经守卫；真机 r30_pit_violation NOT_RUN|
 |R30-B03-02|B03|真实历史数据治理|DONE|1ec65983f4ae|—|fixture 乱序/重复/矛盾重复/缺期/跨日 通过；热库≤5000 沿用 CP06 保留尾（MAX_LOCAL_HISTORY_SAVE）；回放更早数据只读已核验导入历史，CP12 压缩归档块不回读（记录）|
 |R30-B03-03|B03|分割角色与曝光账|DONE|8459eb55e1b7|—|HOST：二次读确认段抛 R30_CONFIRM_REUSED；原子评分不读 H_CONFIRM；进化循环接入在 B05-01|
 |R30-B03-04|B03|增量特征与回放|DONE|b7fb465ab369|—|HOST：逐行增量=全量逐位一致；改写早期行→重建且值=全量；r30_cache_rebuild 由 r27-abi 任务落库|
@@ -74,3 +74,10 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - D3（B00-04）CI 可能在卡提交之上追加 `R29: bind ...` 生成身份提交，原脚本只看 HEAD 提交信息会跳过所有权检查；改为检查最近一个以卡号开头的提交。
 - D4（B00-04）签名工作流：按 docs/01 “只改分支与文件名”复制后，另外 (a) 把构建脚本指向 tools/r30/ci_build.sh；(b) 发布前把 `package_receipt.py` 产出的 `STARCORE-R29.1-*` 改名为 `STARCORE-R30-*`（R29 脚本不改）；(c) 官方通道增加 androidTest APK 与模拟器上 `R30FoldBackInstrumentedTest`（B00-03 第5步要求，需与 debug 包同签名，r30 分支自身没有签名身份）。
 - D5（B00-02）会话 git 代理拒绝推送 tag 引用（HTTP 403）：`archive/r29-b01-cp16` 仅本地存在，需所有者补推。
+
+
+## 施工暂停点（按用户指示，B03 完成后暂停）
+
+- B00–B03 共 23 张卡 DONE，全部已推送；下一张为 R30-B04-01。
+- 卡提交后另有修正提交：R30-B02-01-b / R30-B02-03-b（主链红线 DbStore、SettlementEngine 保持与 bb607cf 逐字节一致）、R30-B03-06-b（身份重绑）。
+- 打包：按用户要求全部批次完成后统一出包；目前只有 B00 包。
