@@ -2,6 +2,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Match the product process when Android selects instrumentation application flags. -->
     <application android:largeHeap="true" />
-    <!-- Isolated durable R30 mechanics; official product package remains fixed. -->
-    <instrumentation android:name="com.ethk3.novaonepro.R30FaultAndroidRunner" android:targetPackage="com.starcore.research.r13" android:functionalTest="true" />
+    <!-- The explicit -Pr30Instrumentation=true Gradle setting selects the isolated R30 runner. -->
 </manifest>

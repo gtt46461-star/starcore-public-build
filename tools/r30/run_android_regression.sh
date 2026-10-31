@@ -8,15 +8,22 @@ serial=$(adb get-serialno)
 app_id=com.starcore.research.r13
 runner="$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner"
 run_id=${GITHUB_RUN_ID:-local-$(date +%s)}
+adb shell pm list instrumentation > "$out/installed-instrumentation.txt"
+grep -Fq "$runner" "$out/installed-instrumentation.txt" || { cat "$out/installed-instrumentation.txt"; echo R30_INSTRUMENTATION_ENTRY_MISSING; exit 1; }
 : > "$out/cases.tsv"
 run_case() {
   local id=$1 selected=$2 expected=$3
   shift 3
   adb shell am force-stop "$app_id"
   adb logcat -c
-  adb shell am instrument -w -r -e class "$selected" -e r30Sandbox "reg-$run_id-$id" "$@" "$runner" > "$out/$id.txt" 2>&1
+  local command_status=0
+  adb shell am instrument -w -r -e class "$selected" -e r30Sandbox "reg-$run_id-$id" "$@" "$runner" > "$out/$id.txt" 2>&1 || command_status=$?
   adb logcat -d -v threadtime > "$out/$id-logcat.txt"
-  grep -Fq "OK ($expected test" "$out/$id.txt" || { echo "ANDROID_REGRESSION_FAILED:$id"; exit 1; }
+  if [[ "$command_status" != 0 ]] || ! grep -Fq "OK ($expected test" "$out/$id.txt"; then
+    cat "$out/$id.txt"
+    echo "ANDROID_REGRESSION_FAILED:$id:command_status=$command_status"
+    exit 1
+  fi
   printf '%s\t%s\t%s\n' "$id" "$selected" "$expected" >> "$out/cases.tsv"
   echo "R30_ANDROID_REGRESSION:$id:PASS"
 }

@@ -71,7 +71,10 @@ android {
         targetSdk Integer.parseInt(requiredIdentity('targetSdk'))
         versionCode Integer.parseInt(requiredIdentity('versionCode'))
         versionName requiredIdentity('versionName')
-        testInstrumentationRunner 'com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'
+        // AGP writes this setting into the merged test manifest; a manifest-only entry is overridden.
+        testInstrumentationRunner (providers.gradleProperty('r30Instrumentation').orNull == 'true'
+                ? 'com.ethk3.novaonepro.R30FaultAndroidRunner'
+                : 'com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner')
         vectorDrawables.useSupportLibrary = false
         buildConfigField 'String', 'DUOQU_API_KEY_A', '"' + releaseApiKeyA + '"'
         buildConfigField 'String', 'DUOQU_API_KEY_B', '"' + releaseApiKeyB + '"'

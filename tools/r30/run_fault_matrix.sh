@@ -10,7 +10,19 @@ serial=$(adb get-serialno)
 run_id=${GITHUB_RUN_ID:-local-$(date +%s)}
 adb shell svc wifi disable
 adb shell svc data disable
-trap 'adb shell am force-stop com.starcore.research.r13 >/dev/null 2>&1 || true; adb shell svc wifi enable >/dev/null 2>&1 || true; adb shell svc data enable >/dev/null 2>&1 || true' EXIT
+finish() {
+  local result=$?
+  if [[ "$result" != 0 ]]; then
+    for file in "$out/"*-run.txt "$out/"*-recover.txt "$out/"*-arm.txt; do
+      [[ -f "$file" ]] && { echo "FAULT_FAILURE_OUTPUT:$file"; tail -n 80 "$file"; }
+    done
+  fi
+  adb shell am force-stop "$app_id" >/dev/null 2>&1 || true
+  adb shell svc wifi enable >/dev/null 2>&1 || true
+  adb shell svc data enable >/dev/null 2>&1 || true
+  return "$result"
+}
+trap finish EXIT
 : > "$out/cells.tsv"
 instrument() {
   local fault=$1 visibility=$2 phase=$3 scope=$4
