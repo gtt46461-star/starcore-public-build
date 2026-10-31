@@ -22,7 +22,7 @@ else
   report_native="$report_out/native"
   python3 verification/batch01/build_host_report_native.py --jdk "$JAVA_HOME" --output-dir "$report_native" > "$report_out/native-build.log" 2>&1
 fi
-javac -nowarn -encoding UTF-8 -d "$report_out/runtime" $(rg --files verification/r932/android-json -g '*.java') verification/canonical/adapters/android/util/AtomicFile.java > "$report_out/runtime-compile.log" 2>&1
+javac -nowarn -encoding UTF-8 -d "$report_out/runtime" $(find verification/r932/android-json -name '*.java' -type f) verification/canonical/adapters/android/util/AtomicFile.java > "$report_out/runtime-compile.log" 2>&1
 javac -nowarn -encoding UTF-8 -proc:none -cp "$report_out/runtime:$product_classes:$android_sdk/platforms/android-36/android.jar" -d "$report_out/drivers" tools/r30/qual_host/ReportDeliveryR30HostTest.java > "$report_out/driver-compile.log" 2>&1
 java -Xmx128m -Djava.library.path="$report_native" -cp "$report_out/runtime:$report_out/drivers:$product_classes:$android_sdk/platforms/android-36/android.jar" com.ethk3.novaonepro.ReportDeliveryR30HostTest "$report_out/files" > "$report_out/execution.log" 2>&1
 cat "$report_out/execution.log"
