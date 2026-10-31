@@ -554,6 +554,24 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "空章修复必须进入实际DiagnosisStoreSU2.report和主12章报告。原UpgradeDiagnosis统计/处方以及legacy render/toJson保持，新增R30渲染显示每个来源的UNKNOWN/INSUFFICIENT/已记录未验证状态，替换空家族/结构/账本表头；缺快照/缺表均给具体采集动作。R30同一SELECT额外读取原su2_diag_snapshot/state和su1_model_ablation任务/报告hash，保留r27_ablation.removed_child与原delta，不把旧快照未含消融误报为空表，不把DONE或行数称Q06改善。注册主摘要、3项单测、真实SQLite空/缺/已存来源回归与CI；先登记后落产品代码。"
+  },
+  {
+   "card": "R30-B08-04",
+   "id": "R30-B08-04-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/ReportJobJournalCP12.java",
+    "app/src/main/java/com/ethk3/novaonepro/DiagnosticReportProviderR923.java",
+    "app/src/main/java/com/ethk3/novaonepro/CompleteReportFileR927.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30ReportSnapshotAndroidTest.java",
+    "tools/r30/qual_host/ReportDeliveryR30HostTest.java",
+    "tools/r30/run_report_export_host.sh",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "实际取消/分卷必须串起已有Service、持久命令、Publication、Provider和保存/分享入口：100ms轮询，R30只读快照SQL接公开CancellationSignal，流/只读租约关闭后立即清本job派生临时文件；原库/模型/外部SAF不删。同OS boot单调取消起点与释放回执，缺可靠起点为null，不用墙钟补时。默认20MiB以内原标准ZIP；超过后按原已校验ZIP字节切part01..N，索引含全部顺序/偏移/长度/分卷及全ZIP hash与重组说明，旧格式与续传保持；分卷不是独立ZIP，前端如实说明。新增实际文件/原JNI/哈希重组、取消释放与保护原数据回归，接CI；Android取消源码回归。先登记后落产品代码，不改变原native诊断进程守卫。"
   }
  ]
 }
