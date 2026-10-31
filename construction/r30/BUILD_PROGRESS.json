@@ -1,7 +1,7 @@
 {
   "candidateSource": "221820b5449f2586304eb89073161758ff5ab233",
   "versionCode": 577310106,
-  "updatedAt": "2026-10-31T22:15:06.312766+00:00",
+  "updatedAt": "2026-10-31T22:30:31.438546+00:00",
   "localG1": {
     "source": "f857f30b74fa8cfdac84dd0d246458d024a784b1",
     "mainTree": "e638576398828b547dbd5c87463be2ee455329d1",
@@ -104,16 +104,17 @@
     "published": false
   },
   "internalPreflight": {
-    "source": "e920f5c4",
-    "run": 41247260265,
-    "job": 124673161299,
+    "source": "4592621f7d122715907371bdb017988b7aecc236",
+    "run": 41247877413,
+    "job": 124674985136,
     "scope": "INTERNAL_48_SCREENSHOTS_AND_REMAINING4_FAULT_CELLS",
-    "status": "IN_PROGRESS",
+    "status": "IN_PROGRESS_ACTUAL_EMULATOR",
     "fullRegression": "NOT_RUN_IN_FOCUS",
     "finalAcceptance": false,
-    "publishApk": false
+    "publishApk": false,
+    "versionCode": 577310107
   },
-  "sourceGateRun": 41239601480,
+  "sourceGateRun": 41247241826,
   "candidateHistory": [
     {
       "source": "8bfd2d515a99753022de6474958aba59ee3b3cdd",
@@ -222,9 +223,53 @@
       "failedCase": "revocation fixture initialization",
       "cause": "missing original research_candidate_cal_model_r932 prerequisite during original F05 migration",
       "finalAcceptance": false
+    },
+    {
+      "version": 106,
+      "run": 41246526760,
+      "job": 124671005492,
+      "build": "PASS",
+      "actualTests": "NOT_RUN",
+      "failure": "AGP injected ABI output APK resides in intermediates; installation old outputs path absent"
+    },
+    {
+      "version": 106,
+      "run": 41247260265,
+      "job": 124673161299,
+      "build": "PASS",
+      "metadataLocation": "PASS",
+      "actualTests": "NOT_RUN",
+      "failure": "AGP injected ABI flags debug testOnly; original install lacked -t; now internal only install-t"
     }
   ],
-  "knownCurrentFinalBlocker": "16 actual original Android cases PASS on db6656; previous full14 fault10PASS4FAIL on f707; chart real29 original cards expected and corrected. e920 remaining48+4 focus pending. 7ff build passed installation failed, all runtime NOT_RUN. Full exact-source final2 signed releases17/48/14 and4drills mandatory.",
-  "sourceGateStatus": "PASS_ON_SOURCE221820b_PRODUCT_MAIN_UNIT_SOURCE_UNCHANGED",
-  "preparingVersionCode": 577310107
+  "knownCurrentFinalBlocker": "Original16 Android PASS on db6656; full14 previous10PASS4FAIL on f707. Internal107 run41247877413 now actual emulator running after fixing both real ABI/testOnly install failures; corrected original29-card preservation and48screenshots, original deadline recovery and realFULL last4 pending. Local107 both lint/Android compile/focused5 PASS after real Gradle direct-source producer dependencies repaired. Final2 sameSHA signed release full17/48/14 andfourdrills still mandatory.",
+  "sourceGateStatus": "PASS_ON_E920_VERSION106; 107_FINAL_FULL_EXACT_SOURCE_STILL_REQUIRED",
+  "preparingVersionCode": 577310107,
+  "version107LocalFocusedValidation": {
+    "source": "888b21367b18b0a3d6b9df474323de86f3319f96",
+    "versionCode": 577310107,
+    "scope": "FOCUSED5_IDENTITY_AND_FROZEN_OWNER_REDLINE_NOT_FULL269",
+    "tests": [
+      {
+        "name": "com.ethk3.novaonepro.strategyv2.R27QualityTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "com.ethk3.novaonepro.R30SelectiveScopeIdentityTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "debugAndReleaseLint": "PASS_ORIGINAL_51_BASELINE_7_UNMATCHED_RETAINED",
+    "androidTestSourceCompile": "PASS",
+    "identityRebind": "PASS_WITH_ACTUAL_COMPILED_BYTES",
+    "log": "/workspace/work/r30/b10-04-version107-all-lint-fixed-validation.log",
+    "logSha256": "06114ad99fb33dc67dd51d5104642002dc5f07d213427a2761d323524b2671d7",
+    "checkedAt": "2026-10-31T22:27:40.760973+00:00"
+  }
 }

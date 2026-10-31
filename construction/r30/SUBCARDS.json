@@ -963,6 +963,18 @@
         "tools/r30/r30-preflight.yml"
       ],
       "reason": "内部e920 run41247260265/job124673161299元数据定位通过，AGP injected ABI明确标debug APK testOnly，ADB报INSTALL_FAILED_TEST_ONLY，实际测试仍NOT_RUN；只对内部debug安装加-t，最终release安装/签名/三ABI不变。本地107把lint及Android编译同图运行实际揭露generateDebugAndroidTestLintModel消费prepareRawUpstreamAndroidTestHarness输出但未登记依赖(Gradle8.14.6拒绝)；修为所有AndroidTestLintModel与原两Javac任务同样依赖原Copy生成者，保留原源码及lint基线，不删除产物规避。107定向5项实测全部通过，整体构建失败不能计PASS。原失败压缩留证；重新绑定构建输入，先登记后施工。 实际复验继续指出lintAnalyzeDebugAndroidTest同样直接消费该生成目录，须覆盖所有名字含AndroidTest的lint任务及LintModel，而非只Model；全部旧基线不变，保留第二份真实失败。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-ab",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
+        "tools/r30/qual_host/OriginalSqliteFullFixtureR30HostTest.java",
+        "tools/r30/run_fault_matrix.sh",
+        "tools/r30/run_preflight_runtime.sh",
+        "tools/r30/r30-preflight.yml"
+      ],
+      "reason": "107实际run41247877413/job124674985136真实48PNG及kill_freeze前后台2格PASS，原60秒截止不改；仅FULL两格被F01_WRITE_FAILED包装导致无法从外层确认真实SQLite FULL。只在原atomic writer回调的真实execSQL INSERT catch中保存Android实际异常并原样rethrow，强制必须该INSERT抛原SQLiteFullException，否则仍FAIL；原writer/事务/页限制恢复/无半行/后续原freeze和结算断言全保留，不手抛FULL、不把任意F01当通过。真实JDBC同时验证原error13与FULL自动rollback后显式ROLLBACK的真实后续异常，说明cleanup包装不能当原始FULL证据。内部新增sqlite-full-only只跑剩余前后台2格，独立diagnostic JSON明确full14Acceptance=false，无chart/17项通过声明；最终两证书完整17/48/14和4演练保持严格不变。全部实际失败留证，先登记后施工。"
     }
   ]
 }
