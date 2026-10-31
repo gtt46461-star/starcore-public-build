@@ -647,6 +647,14 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "14格真实故障需要在原canonical/settlement任务写完但尚未COMMIT时真正SIGKILL，再独立进程重启核对半成品/重复/时间线与合法补齐，不能把异常回滚冒充杀进程。在DatabaseCoordinator仅增加默认空、无产品调用的ThreadLocal测试回调与两处提交前调用；回调不网络/sleep/等待，原DbStore/Settlement/Decision原体保持。测试APK专用Runner在原Application启动前路由独立持久目录，让唯一数据库owner自然打开，跨杀进程复用而不重置单例、不删原模型数据。实际HTTPS握手读超时、主测试库SQLITE_FULL及原限额恢复、注入墙钟回拨与同boot单调钟、真实来源冲突硬阻、外部ADB服务force-stop/显式重新打开与恢复分阶段收据。驱动只允许模拟器，完整失败日志保留，未运行写NOT_RUN；最终安全同证书CI接执行。先登记后施工。"
+  },
+  {
+   "card": "R30-B09-02",
+   "id": "R30-B09-02-b",
+   "files": [
+    ".github/workflows/r30.yml"
+   ],
+   "reason": "用户要求持续推进，原工作流以github.ref分组且cancel-in-progress=true，新推送会取消上一卡完整G2/G3检查，迫使源码推送串行等待约二十分钟。改为以不可变github.sha分组并不取消，保持每卡固定源码的全部原检查、工具链和超时不变；产品施工仍严格逐卡，独立固定源码的远端只读门禁可各自完成。本卡262项G1/Android编译/lint已通过，工具配置变动只检查YAML与触发执行，不重复八分钟无关回归。先登记后修改。"
   }
  ]
 }
