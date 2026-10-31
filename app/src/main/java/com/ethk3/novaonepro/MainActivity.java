@@ -468,6 +468,11 @@ public final class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // R30-B02-05: debug builds log every main-thread disk read/write so each one can be moved off the UI thread.
+        if (BuildConfig.DEBUG) {
+            android.os.StrictMode.setThreadPolicy(new android.os.StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads().detectDiskWrites().penaltyLog().build());
+        }
 
         CrashRecorder.install(getApplicationContext());
         CrashRecorder.setRuntimeContext("", "UI_CREATE_PRE_INFLATE");

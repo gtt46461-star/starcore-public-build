@@ -65,11 +65,18 @@ final class ChartsRepositoryR27 {
             String status = String.valueOf(m.get("status"));
             String window = m.get("window") + "｜更新于" + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ROOT).format(new java.util.Date(c.getLong(1)));
             String note = m.get("note") + "\n数据来源：" + m.get("source");
+            if (pts.size() > POINTS_PER_PAGE_R30) { // R30-B02-05 paging
+                int total = pts.size();
+                pts = new ArrayList<>(pts.subList(total - POINTS_PER_PAGE_R30, total));
+                note = note + "\n本页显示最近 " + POINTS_PER_PAGE_R30 + " 点（共 " + total + " 点）。";
+            }
             return new Panel(PAGE, String.valueOf(m.get("title")), String.valueOf(m.get("kind")), String.valueOf(m.get("source")), window, note, status, pts, edges, refs, series);
         } catch (RuntimeException schemaPending) {
             if (schemaPending instanceof android.os.OperationCanceledException) throw schemaPending;
             return new Panel(PAGE, id, "STATUS", "r27_chart_cache", "", "读取失败：" + schemaPending.getClass().getSimpleName() + "；不按0处理。", "READ_ERROR", null, null);
         }
     }
+    /** R30-B02-05: one panel page holds at most this many points (the most recent ones); older points stay in the cache. */
+    static final int POINTS_PER_PAGE_R30 = 500;
     static double d(Object o) { return o instanceof Number ? ((Number) o).doubleValue() : Double.NaN; }
 }
