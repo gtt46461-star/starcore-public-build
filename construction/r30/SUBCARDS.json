@@ -742,6 +742,20 @@
         ".github/workflows/r30-diagnostic.yml"
       ],
       "reason": "最终同签名R27 Android任务真实失败，安装/两次启动已执行，测试错误仅在已上传归档。连接器下载返回FileService URL，该域名在本环境获准联网流程下CONNECT 403，停止该下载路径，不修改代理。新增只读GitHub Actions诊断：用原github.token actions:read读取指定既有失败归档，在任务日志输出测试文本与限定异常摘要，不读取任何密钥缓存、不输出原DB/API，不改产品、不放宽门禁。先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-f",
+      "files": [
+        "app/build.gradle",
+        "app/src/androidTest/AndroidManifest.xml",
+        "tools/r30/r30-build.yml",
+        "tools/r30/r30-official-build.yml",
+        "tools/r30/run_android_regression.sh",
+        "tools/r30/run_fault_matrix.sh",
+        "tools/r30/emulator_foldback.sh"
+      ],
+      "reason": "实际最终R27任务124621327733冷/二启60s门禁通过，但回归首项因AGP将清单自定义instrumentation.name强制写回原Su1AndroidTestRunner而Unable to find instrumentation；已通过本地合并清单同样复现。新增显式布尔Gradle属性仅在最终testAPK选择既有R30FaultAndroidRunner，默认Su1入口/heap probe保持；最终模板构建testAPK时传该属性并检查合并清单，驱动在失败立即输出限定测试错误便于定位，断言/测试数量/门槛不减。已构建过101，后续正式APK按原方案升102并保留失败及旧候选，不发布它们。先登记后修改。"
     }
   ]
 }
