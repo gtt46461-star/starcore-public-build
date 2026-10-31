@@ -106,7 +106,11 @@ public final class HoldoutLedgerR27 {
         if (control) lookControl(block, policyHash); else look(block, policyHash);
     }
     /** Older exposure rows have no dataset identity; do not reuse the same candidate/block on an unprovable assumption. */
-    public synchronized void restoreLegacyExposure(String policyHash, long block) { legacyConfirmReads.add(legacyConfirmKey(policyHash, block)); }
+    public synchronized void restoreLegacyExposure(String policyHash, long block) {
+        legacyConfirmReads.add(legacyConfirmKey(policyHash, block));
+        // Legacy rows did not record whether an exposure was a control; count it conservatively in the main budget.
+        look(block, policyHash);
+    }
     /** Reads not yet persisted (caller writes them to r30_confirm_read in its own batch). */
     public synchronized java.util.List<ConfirmRead> drainUnsavedConfirmReads() { java.util.List<ConfirmRead> out = new java.util.ArrayList<>(unsavedConfirmReads); unsavedConfirmReads.clear(); return out; }
     public synchronized long confirmReuseRejected() { return confirmReuseRejected; }
