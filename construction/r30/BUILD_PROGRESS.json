@@ -1,7 +1,7 @@
 {
   "candidateSource": "221820b5449f2586304eb89073161758ff5ab233",
   "versionCode": 577310106,
-  "updatedAt": "2026-10-31T20:37:04.312672+00:00",
+  "updatedAt": "2026-10-31T20:51:54.670464+00:00",
   "localG1": {
     "source": "f857f30b74fa8cfdac84dd0d246458d024a784b1",
     "mainTree": "e638576398828b547dbd5c87463be2ee455329d1",
@@ -199,6 +199,16 @@
       "passedJUnitCases": 11,
       "frameworkReceiverCastRegression": "PASS_ORIGINAL_EXPLICIT_ORDERED_BROADCAST",
       "failure": "Same omitted original receipt domain; original full migration now initialized in test setup"
+    },
+    {
+      "version": 106,
+      "run": 41239623534,
+      "job": 124650601108,
+      "passedJUnitCases": 10,
+      "failedCase": "revocation fixture initialization",
+      "cause": "missing original research_candidate_cal_model_r932 prerequisite during original F05 migration",
+      "finalAcceptance": false
     }
-  ]
+  ],
+  "knownCurrentFinalBlocker": "source221820b Android fixture invokes full R952 migration without prerequisite domains; NOT accepted. Shared corrected receipt-only original migration fixture passes actual SQLite and Android compile; internal full Android gate pending before next formal final request."
 }
