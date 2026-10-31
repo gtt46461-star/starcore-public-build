@@ -449,6 +449,25 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "版本必须进入真实发证SQL、加法式schema迁移、当前主链证书读取和排序，不能仅有常量。旧证书版本标LEGACY_UNVERSIONED且保留原字段，不冒充当前合格；不同版本不比较，V2继续关闭。登记实际迁移/发证/投影SQLite回归；旧夹具按列名插入并显式标当前测试证书版本。旧M4在未修改产品基线也失败（错误把禁止DELETE触发器当删除），保留原失败并继续检查顶层及触发器体内真实DROP/DELETE FROM，不放宽保全规则。先登记后施工。"
+  },
+  {
+   "card": "R30-B07-03",
+   "id": "R30-B07-03-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/DecisionExplanationR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionExplanationStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DecisionTraceTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+    "tools/r30/qual_host/DecisionExplanationR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    ".github/workflows/r30-decision-chain.yml",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "逐期解释须真实接入V51B12及V50生产决定入口，从实际冻结/证书/原选择和默认关闭用户开关取得事实；未知明确UNKNOWN，原授权判定体逐字节保留，仅包装后记录，不新建REAL授权者。增加同库加法式解释/不一致账、报告与真实SQLite/Android回归。旧h15完整文件hash检查改为剥离明确标记的只读包装并恢复原方法头后仍要求原全文件hash，其余主链所有者原校验保留；不改变判定体/阈值。实际R27意向尚需既有授权链，记录而不伪装通行。先登记后施工。"
   }
  ]
 }
