@@ -271,6 +271,8 @@ def inspect(main, stage, result, research_path=None, baseline=None, before_main=
             inspect_events(realtime, research, result)
             inspect_task_errors([('REALTIME', realtime)] + ([('RESEARCH', research)] if research_path is not None else []),before_errors,result)
             inspect_capacity_failures([('REALTIME', realtime)] + ([('RESEARCH', research)] if research_path is not None else []),before_capacity,result)
+    # Redacted failure reasons go to stdout before any gate, so a failing run is diagnosable from its log.
+    print('R29_DIAG|task_errors|' + json.dumps({k: result.get(k) for k in ('allNewTaskErrorsByOwnerSinceBaseline', 'allNewTaskFailureReasonsSinceBaseline', 'newTaskFailureReasons', 'newCapacityFailuresSinceBaseline')}, default=str)[:4000])
     assert result['mainIntegrity'] == 'ok' and result['workWithoutCompletionReceipt'] == 0
     assert result['eventsAcked'] <= result['eventsDelivered'] <= result['eventsOutbox']
     assert result['newTaskErrors'] == 0, 'NEW_R29_TASK_ERRORS'
