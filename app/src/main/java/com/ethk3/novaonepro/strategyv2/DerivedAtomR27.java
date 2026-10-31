@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /** R27-044 derived atoms and molecules (docs/07 7.1-3, 7.2). Every 50 generations the most frequent depth-≤3
- * subtree among surviving programs whose ablation (replacing it by a constant) costs H_SELECT paired-u is registered
+ * subtree among surviving programs whose ablation (replacing it by a constant) costs H_SELECT same-period paired Brier is registered
  * as a DERIVED atom (identity = canonical subtree hash). Molecules are 2–4-leaf typed combinations (depth ≤ 2) of
  * USEFUL/NEUTRAL leaf kinds, sampled by H_TRAIN mutual information with the hit label; 32 per generation are
  * replayed like policies and survivors become generator leaves. Both are composed only of PIT leaves, and the
@@ -15,7 +15,7 @@ import java.util.Map;
 public final class DerivedAtomR27 {
     private DerivedAtomR27() {}
 
-    public static final class Candidate { public final PolicyAstR27.Node subtree; public final int frequency; public double contribution; public String reason = "";
+    public static final class Candidate { public final PolicyAstR27.Node subtree; public final int frequency; public double contribution; public AtomScoreR27.Contribution contributionStats; public String reason = "";
         Candidate(PolicyAstR27.Node s, int f) { subtree = s; frequency = f; }
         public String id() { return "DERIVED:" + StatsR27.sha256(subtree.toString()).substring(0, 16); } }
 
@@ -36,9 +36,31 @@ public final class DerivedAtomR27 {
         return out.size() > limit ? new ArrayList<>(out.subList(0, limit)) : out;
     }
 
-    /** Ablation contribution: mean H_SELECT paired-u drop over the programs containing the subtree when it is
-     * replaced by a zero constant. Positive = the subtree helps. */
-    public static double contribution(PolicyAstR27.Node sub, List<PolicySpecR27> programs, EvalContextR27 ctx) {
+    /** Mean H_SELECT paired Brier gain for the original action, with the subtree replaced by zero in the other arm.
+     * Per-period clustering and the one-sided lower bound are available through pairedContribution(). */
+    public static double contribution(PolicyAstR27.Node sub,List<PolicySpecR27> programs,EvalContextR27 ctx){return pairedContribution(sub,programs,ctx).mean();}
+    /** Same original K3 and binary event in both arms; each period contributes once after averaging its policies. */
+    public static AtomScoreR27.Contribution pairedContribution(PolicyAstR27.Node sub,List<PolicySpecR27> programs,EvalContextR27 ctx){
+        double[] sum=new double[ctx.data.size()];int[] counts=new int[sum.length];long comparisons=0;String key=sub.toString();
+        for(PolicySpecR27 p:programs){
+            List<PolicyAstR27.Node> nodes=PolicyAstR27.nodes(p.ast);int at=-1;for(int i=0;i<nodes.size();i++)if(nodes.get(i).toString().equals(key)){at=i;break;}
+            if(at<0)continue;
+            PolicySpecR27 without=p.withAst(PolicyAstR27.replace(p.ast,at,PolicyAstR27.constant(0)),null);
+            try{
+                ReplayEvaluatorR27.Trace full=ReplayEvaluatorR27.selectTraceWithProbabilities(p,ctx,ctx.temperature(p));
+                ReplayEvaluatorR27.Trace removed=ReplayEvaluatorR27.selectTraceWithProbabilities(without,ctx,ctx.temperature(without));
+                for(int t=ctx.split.selectFrom;t<ctx.split.selectTo;t++)if(!full.skipped[t]&&!removed.skipped[t]){
+                    double probability=0;for(int k=0;k<3;k++)probability+=removed.probabilityRows[t][full.k3[t*3+k]];
+                    sum[t]+=AtomScoreR27.pairedBrier(full.pHit[t],probability,full.hit[t]);counts[t]++;comparisons++;
+                }
+            }catch(IllegalArgumentException unsupported){/* No estimate for a structurally invalid counterfactual. */}
+        }
+        AtomScoreR27.Contribution result=new AtomScoreR27.Contribution();result.comparisons=comparisons;
+        for(int t=ctx.split.selectFrom;t<ctx.split.selectTo;t++)if(counts[t]>0)result.gains.add(sum[t]/counts[t]);
+        return result;
+    }
+    /** Preserved historical utility diagnostic. Production contribution is paired Brier above. */
+    public static double legacyUtilityContribution(PolicyAstR27.Node sub, List<PolicySpecR27> programs, EvalContextR27 ctx) {
         StatsR27.Moments m = new StatsR27.Moments(); String key = sub.toString();
         for (PolicySpecR27 p : programs) {
             List<PolicyAstR27.Node> all = PolicyAstR27.nodes(p.ast); int at = -1;
@@ -96,6 +118,6 @@ public final class DerivedAtomR27 {
 
     public static Map<String, Object> json(Candidate c) {
         Map<String, Object> m = new LinkedHashMap<>(); m.put("id", c.id()); m.put("definition", c.subtree.toString()); m.put("frequency", (long) c.frequency);
-        m.put("contribution", Double.isFinite(c.contribution) ? (Object) c.contribution : null); m.put("reason", c.reason); return m;
+        m.put("pairedBrierR30",c.contributionStats==null?null:c.contributionStats.json()); m.put("contribution", Double.isFinite(c.contribution) ? (Object) c.contribution : null); m.put("reason", c.reason); return m;
     }
 }

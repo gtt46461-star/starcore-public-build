@@ -60,6 +60,9 @@ java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJa
 # R30-B05-01: the actual independent stage, raw-evidence restart and frozen FUTURE registration.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/FrozenConfirmationR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30HostTest | tee "$LOG/r30_frozen_confirmation_host.log"
+# R30-B06-02: actual atom/molecule paired Brier and commit-failure publication boundaries.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/BrierContributionR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.BrierContributionR30HostTest | tee "$LOG/r30_brier_contribution_host.log"
 # R30-B06-01: production rolling calibration, temporal cutoffs and atomic old/new reports.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/CalibrationR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.CalibrationR30HostTest | tee "$LOG/r30_calibration_host.log"

@@ -42,13 +42,14 @@ public final class AtomWorldR27 {
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
         int[] el = AtomReplayR27.eligible(); Map<Integer, String> states = new LinkedHashMap<>();
         for (int a : el) {
-            AtomScoreR27.Score s = AtomScoreR27.score(a, rt.frameValues, rt.framePresent, rt.frameHit, sp.holdoutFrom);
+            AtomScoreR27.Score s = AtomScoreR27.score(a, rt.frameValues, rt.framePresent, rt.frameHit, sp.selectFrom,sp.selectTo);
             states.put(a, s.state);
+            contribution(b,GenesisSchemaRegistryR915.atoms().get(a).id,d.datasetHash,sp.selectFrom,sp.selectTo,s.contribution(),now);
             b.add("INSERT OR REPLACE INTO r27_atom_score(atom_id,atom_index,dataset_hash,n_select,gain_select,lcb_select,ucb_select,n_holdout,gain_holdout,lcb_holdout,missing_rate,state,derived,definition,computed_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0,'',?)",
                     GenesisSchemaRegistryR915.atoms().get(a).id, a, d.datasetHash, s.nSelect, f(s.select.mean), f(s.select.lcb(StatsR27.Z95)), f(s.select.ucb(StatsR27.Z95)), s.nHoldout, f(s.holdout.mean), f(s.holdout.lcb(StatsR27.Z95)), s.missingRate(), s.state, now);
         }
-        synchronized (rt.atomStates) { rt.atomStates.clear(); rt.atomStates.putAll(states); }
         RuntimeR27.submit(w, "ATOM_SCORES", b);
+        synchronized (rt.atomStates) { rt.atomStates.clear(); rt.atomStates.putAll(states); }
     }
 
     static long derived(RuntimeR27 rt, ResearchPoolR27.Worker w, EvolutionLoopR27 evo) throws Exception {
@@ -56,30 +57,31 @@ public final class AtomWorldR27 {
         List<DerivedAtomR27.Candidate> cands = DerivedAtomR27.frequentSubtrees(programs, 8);
         DerivedAtomR27.Candidate best = null; StringBuilder why = new StringBuilder();
         for (DerivedAtomR27.Candidate c : cands) {
-            c.contribution = DerivedAtomR27.contribution(c.subtree, programs, evo.context());
-            if (!(c.contribution > 0)) { why.append(c.id()).append(":contribution=").append(c.contribution).append(";"); continue; }
+            c.contributionStats=DerivedAtomR27.pairedContribution(c.subtree,programs,evo.context());c.contribution=c.contributionStats.mean();
+            if (!(c.contribution > 0)||!(c.contributionStats.lower95()>0)) { why.append(c.id()).append(":contribution=").append(c.contribution).append(";"); continue; }
             int[] rows = {evo.context().split.selectFrom + 1, evo.context().split.selectTo - 1};
             if (!DerivedAtomR27.leakFree(c.subtree, evo.context().data.tail(3000), 1, new int[] {1500, 2900}, 27)) { why.append(c.id()).append(":LEAK;"); continue; }
             if (best == null || c.contribution * c.frequency > best.contribution * best.frequency) best = c;
         }
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
         if (best != null) {
-            best.reason = "frequency=" + best.frequency + ",H_SELECT ablation contribution=" + best.contribution;
+            best.reason = "frequency=" + best.frequency + ",H_SELECT paired BrierGain=" + best.contribution+",oneSided95="+best.contributionStats.lower95()+",periods="+best.contributionStats.gains.n;
             b.add("INSERT OR REPLACE INTO r27_atom_score(atom_id,atom_index,dataset_hash,n_select,gain_select,lcb_select,ucb_select,n_holdout,gain_holdout,lcb_holdout,missing_rate,state,derived,definition,computed_at) VALUES(?,-1,?,0,?,NULL,NULL,0,NULL,NULL,0,'DERIVED',1,?,?)",
                     best.id(), evo.context().data.datasetHash, best.contribution, best.subtree.toString(), now);
-            synchronized (rt) { List<PolicyAstR27.Node> l = new ArrayList<>(rt.derived); l.add(best.subtree); while (l.size() > 32) l.remove(0); rt.derived = l; }
+            contribution(b,best.id(),evo.context().data.datasetHash,evo.context().split.selectFrom,evo.context().split.selectTo,best.contributionStats,now);
         }
         Map<String, Object> m = new LinkedHashMap<>(); m.put("generation", (long) evo.generation); m.put("registered", best == null ? null : DerivedAtomR27.json(best)); m.put("candidates", (long) cands.size()); m.put("rejected", why.toString());
         m.put("status", best == null ? "NO_QUALIFYING_SUBTREE" : "DERIVED_ATOM_REGISTERED");
         b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('atoms','derived',?,?)", JsonR27.write(m), now);
         RuntimeR27.submit(w, "DERIVED_ATOM", b);
+        if(best!=null) synchronized(rt){List<PolicyAstR27.Node> list=new ArrayList<>(rt.derived);list.add(best.subtree);while(list.size()>32)list.remove(0);rt.derived=list;}
         return 1;
     }
 
     static int moleculeGeneration = -1;
     static long molecules(RuntimeR27 rt, ResearchPoolR27.Worker w, EvolutionLoopR27 evo) throws Exception {
-        if (evo.generation == moleculeGeneration) return 0;
-        moleculeGeneration = evo.generation;
+        final int generation=evo.generation;
+        if (generation == moleculeGeneration) return 0;
         Map<String, Double> lw = rt.leafWeights(); List<String> kinds = new ArrayList<>();
         for (String k : MutationOpsR27.ALL_KINDS) { Double x = lw.get(k); if (x == null || x >= 1.0) kinds.add(k); } // USEFUL/NEUTRAL sources only
         if (kinds.size() < 2) return 0;
@@ -92,18 +94,21 @@ public final class AtomWorldR27 {
         for (int i = 0; i < 32; i++) {
             int tp = 1 + r.nextInt(10); PolicyAstR27.Node mol = DerivedAtomR27.molecule(ks, tp, r, ic);
             PolicySpecR27 s = new PolicySpecR27(mol, tp, PolicySpecR27.Rule.QUANTILE, 0, 0.15, 1.0, true, 0.01, 0.01, null);
-            String state, reason; Double gain = null;
+            String state, reason; Double gain = null;AtomScoreR27.Contribution paired=new AtomScoreR27.Contribution();
             try {
                 double tau = ctx.temperature(s); ReplayEvaluatorR27.Trace tr = ctx.selectTrace(s, tau);
                 ReplayScoreR27 sc = ReplayScoreR27.of(SplitR27.SELECT, tr, ctx.split.selectFrom, ctx.split.selectTo); gain = sc.pairedUMean;
-                boolean ok = sc.pairedULcb > 0 && sc.brier <= ReplayScoreR27.constantBrier(tr, ctx.split.selectFrom, ctx.split.selectTo) + SuccessiveHalvingR27.BRIER_SLACK;
-                state = ok ? "SURVIVED" : "RETIRED"; reason = ok ? "H_SELECT paired u LCB>0" : "H_SELECT paired u LCB=" + sc.pairedULcb;
+                paired=DerivedAtomR27.pairedContribution(mol,java.util.Collections.singletonList(s),ctx);
+                boolean ok = paired.lower95()>0 && sc.pairedULcb > 0 && sc.brier <= ReplayScoreR27.constantBrier(tr, ctx.split.selectFrom, ctx.split.selectTo) + SuccessiveHalvingR27.BRIER_SLACK;
+                state = ok ? "SURVIVED" : "RETIRED"; reason = "H_SELECT paired Brier LCB="+paired.lower95()+",legacy paired u LCB="+sc.pairedULcb+",Brier="+sc.brier;
                 if (ok) { survived++; keep.add(mol); }
             } catch (RuntimeException e) { state = "REJECTED"; reason = e.getClass().getSimpleName() + ":" + e.getMessage(); }
-            b.add("INSERT OR IGNORE INTO r27_molecule(molecule_hash,definition,generation,state,select_gain,reason,created_at) VALUES(?,?,?,?,?,?,?)", StatsR27.sha256(mol + "@" + tp), mol.toString() + "@" + tp, evo.generation, state, gain, reason, now);
+            String moleculeHash=StatsR27.sha256(mol+"@"+tp);contribution(b,"MOLECULE:"+moleculeHash,ctx.data.datasetHash,ctx.split.selectFrom,ctx.split.selectTo,paired,now);
+            b.add("INSERT OR IGNORE INTO r27_molecule(molecule_hash,definition,generation,state,select_gain,reason,created_at) VALUES(?,?,?,?,?,?,?)", StatsR27.sha256(mol + "@" + tp), mol.toString() + "@" + tp, generation, state, gain, reason, now);
         }
-        if (!keep.isEmpty()) synchronized (rt) { List<PolicyAstR27.Node> l = new ArrayList<>(rt.derived); l.addAll(keep); while (l.size() > 32) l.remove(0); rt.derived = l; }
         RuntimeR27.submit(w, "MOLECULES", b);
+        moleculeGeneration=generation;
+        if (!keep.isEmpty()) synchronized (rt) { List<PolicyAstR27.Node> l = new ArrayList<>(rt.derived); l.addAll(keep); while (l.size() > 32) l.remove(0); rt.derived = l; }
         return 32;
     }
 
@@ -240,6 +245,10 @@ public final class AtomWorldR27 {
         byte[] bytes = state.encode();
         batch.add("INSERT OR REPLACE INTO r29_model_checkpoint(owner,feature_abi,dataset_hash,trained_through,state_hash,artifact,updated_at) VALUES('ATOMNET_FTRL',?,?,?,?,?,?)",
                 ModelArtifactR29.ABI, state.datasetHash, state.trainedThrough, StatsR27.sha256(bytes), bytes, now);
+    }
+
+    static void contribution(ResearchWriteQueueR27.Batch b,String atom,String dataset,int from,int to,AtomScoreR27.Contribution value,long now){
+        b.add("INSERT OR REPLACE INTO r30_atom_contribution VALUES(?,?,?,?,?,?,?,?,?,?)",atom,dataset,from,to,value.gains.n,value.comparisons,f(value.mean()),f(value.lower95()),"H_SELECT_SAME_PERIOD_PAIRED_BRIER",now);
     }
 
     static double sq(double x) { return x * x; }

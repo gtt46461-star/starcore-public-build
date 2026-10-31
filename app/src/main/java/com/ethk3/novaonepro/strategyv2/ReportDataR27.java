@@ -99,7 +99,7 @@ public final class ReportDataR27 {
             case "AVAILABILITY": return "SELECT count(*) AS n,min(fetch_time-open_time) AS min_first_seen_ms,max(fetch_time-open_time) AS max_first_seen_ms,avg(fetch_time-open_time) AS mean_first_seen_ms FROM draws WHERE dirty=0 AND fetch_time>0 AND open_time>0";
             case "OPPORTUNITY": return "SELECT count(*) AS targets,sum(scheduled) AS n_sched,sum(frozen) AS n_frozen,sum(acted) AS n_act,sum(settled) AS n_settled,sum(deadline_missed) AS deadline_missed FROM r27_opportunity HAVING count(*)>0";
             case "FETCH": return "SELECT reason,count,last_issue,last_at FROM r27_fetch_reject ORDER BY count DESC";
-            case "ATOMS": return "SELECT atom_id,state,n_select,gain_select,lcb_select,n_holdout,gain_holdout,lcb_holdout,missing_rate,derived,definition FROM r27_atom_score ORDER BY derived,atom_index";
+            case "ATOMS": return "SELECT s.atom_id,s.state,s.n_select,s.gain_select,s.lcb_select,s.n_holdout,s.gain_holdout,s.lcb_holdout,s.missing_rate,s.derived,s.definition,c.n_periods AS contribution_periods,c.mean_gain AS paired_brier_gain,c.lcb95 AS paired_brier_lcb95_one_sided FROM r27_atom_score s LEFT JOIN r30_atom_contribution c ON c.atom_id=s.atom_id AND c.dataset_hash=s.dataset_hash ORDER BY s.derived,s.atom_index";
             case "FAILURES": return "SELECT task_id,error_class,message,recorded_at FROM r27_task_error ORDER BY error_id DESC";
             case "ABLATION": return "SELECT generation,champion_hash,node_index,removed_child,branch,delta_u,delta_logloss FROM r27_ablation ORDER BY generation DESC,node_index";
             case "RANKING": return "SELECT key,payload_json,updated_at FROM r27_chart_cache WHERE panel_id='report' AND key='ranking'";

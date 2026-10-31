@@ -25,6 +25,7 @@ public final class ReportR29 {
         out.put("findings",FindingsR29.fromQualification(qualification));
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
+        out.put("atomContributionsR30",atomContributionsR30(db));
         out.put("calibrationQualityR30",calibrationQualityR30(db));
         out.put("modelConsumptionR30",ModelSurfaceStoreR30.report(db));
         out.put("tenPositionTrainingR30",cachedPanel(db,"atomnet","ten-position-r30"));
@@ -161,6 +162,14 @@ public final class ReportR29 {
         return result;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
+
+    static Map<String,Object> atomContributionsR30(SQLiteDatabase db){
+        Map<String,Object> result=new LinkedHashMap<>();List<Object> rows=new ArrayList<>();long measured=0;
+        try(Cursor c=db.rawQuery("SELECT c.atom_id,c.dataset_hash,c.from_row,c.to_row,c.n_periods,c.paired_comparisons,c.mean_gain,c.lcb95,coalesce(s.state,m.state,'UNREGISTERED'),coalesce(s.derived,1) FROM r30_atom_contribution c LEFT JOIN r27_atom_score s ON s.atom_id=c.atom_id AND s.dataset_hash=c.dataset_hash LEFT JOIN r27_molecule m ON c.atom_id='MOLECULE:'||m.molecule_hash WHERE s.atom_id IS NOT NULL OR m.molecule_hash IS NOT NULL ORDER BY s.derived,s.atom_index,c.atom_id",null)){
+            while(c.moveToNext()){Map<String,Object> row=new LinkedHashMap<>();row.put("atomId",c.getString(0));row.put("componentType",c.getString(0).startsWith("MOLECULE:")?"MOLECULE":"ATOM");row.put("datasetHash",c.getString(1));row.put("selectFrom",c.getLong(2));row.put("selectTo",c.getLong(3));row.put("periods",c.getLong(4));row.put("pairedComparisons",c.getLong(5));row.put("meanBrierGain",c.isNull(6)?null:c.getDouble(6));row.put("lower95OneSided",c.isNull(7)?null:c.getDouble(7));row.put("legacyState",c.getString(8));row.put("derived",c.getInt(9)==1);row.put("status",c.getLong(4)>=2?"MEASURED":"INSUFFICIENT");if(c.getLong(4)>=2)measured++;rows.add(row);}
+        }catch(RuntimeException unavailable){result.put("reason",unavailable.getClass().getSimpleName());}
+        result.put("rows",rows);result.put("measuredAtoms",measured);result.put("source","H_SELECT_SAME_PERIOD_SAME_ACTION_PAIRED_BRIER");result.put("status",measured>0?"MEASURED":"INSUFFICIENT");return result;
+    }
 
     @SuppressWarnings("unchecked")
     static Map<String,Object> calibrationQualityR30(SQLiteDatabase db){

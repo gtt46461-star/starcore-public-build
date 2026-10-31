@@ -13,13 +13,25 @@ public final class AtomScoreR27 {
     private AtomScoreR27() {}
     public static final String USEFUL = "USEFUL", NEUTRAL = "NEUTRAL", HARMFUL = "HARMFUL", MASKED_MISSING = "MASKED_MISSING";
 
+    public static final String CONTRIBUTION_DDL_R30="CREATE TABLE IF NOT EXISTS r30_atom_contribution(atom_id TEXT NOT NULL,dataset_hash TEXT NOT NULL,from_row INTEGER NOT NULL,to_row INTEGER NOT NULL,n_periods INTEGER NOT NULL,paired_comparisons INTEGER NOT NULL,mean_gain REAL,lcb95 REAL,source TEXT NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(atom_id,dataset_hash))";
+    public static final class Contribution {
+        public final StatsR27.Moments gains;public long comparisons;
+        public Contribution(){this(new StatsR27.Moments(),0);}
+        Contribution(StatsR27.Moments values,long pairs){gains=values;comparisons=pairs;}
+        public double mean(){return gains.n>0?gains.mean:Double.NaN;}
+        public double lower95(){return gains.lcb(StatsR27.Z95_ONE_SIDED);}
+        public Map<String,Object> json(){Map<String,Object> m=new LinkedHashMap<>();m.put("periods",gains.n);m.put("pairedComparisons",comparisons);m.put("mean",gains.n>0?gains.mean:null);m.put("lower95",fin(lower95()));m.put("source","H_SELECT_SAME_PERIOD_PAIRED_BRIER");m.put("status",gains.n<2?"INSUFFICIENT":"MEASURED");return m;}
+    }
+    public static double pairedBrier(double with,double without,int hit){return (without-hit)*(without-hit)-(with-hit)*(with-hit);}
+
     public static final class Score {
         public final int atom; public long nSelect, nHoldout, nLateSelect, missing; public final StatsR27.Moments select = new StatsR27.Moments(), holdout = new StatsR27.Moments(), lateSelect = new StatsR27.Moments(); public String state;
         Score(int atom) { this.atom = atom; }
+        public Contribution contribution(){return new Contribution(lateSelect,lateSelect.n);}
         public double missingRate() { return missing / (double) Math.max(1, nSelect + nHoldout + missing); }
         public Map<String, Object> json() {
             Map<String, Object> m = new LinkedHashMap<>(); m.put("atom", (long) atom); m.put("nSelect", nSelect); m.put("gainSelect", select.mean); m.put("lcbSelect", fin(select.lcb(StatsR27.Z95)));
-            m.put("nHoldout", nHoldout); m.put("gainHoldout", holdout.mean); m.put("lcbHoldout", fin(holdout.lcb(StatsR27.Z95))); m.put("nLateSelect", nLateSelect); m.put("lcbLateSelect", fin(lateSelect.lcb(StatsR27.Z95))); m.put("confirmRead", false); m.put("missingRate", missingRate()); m.put("state", state); return m;
+            m.put("nHoldout", nHoldout); m.put("gainHoldout", holdout.mean); m.put("lcbHoldout", fin(holdout.lcb(StatsR27.Z95))); m.put("nLateSelect", nLateSelect); m.put("lcbLateSelect", fin(lateSelect.lcb(StatsR27.Z95))); m.put("contributionR30",contribution().json()); m.put("confirmRead", false); m.put("missingRate", missingRate()); m.put("state", state); return m;
         }
     }
     static Object fin(double d) { return Double.isFinite(d) ? (Object) d : null; }

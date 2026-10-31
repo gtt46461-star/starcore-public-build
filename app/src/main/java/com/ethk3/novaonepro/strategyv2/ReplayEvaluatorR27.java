@@ -25,7 +25,10 @@ public final class ReplayEvaluatorR27 {
         public final int from, to, position; public final double temperature;
         public final boolean[] skipped, act; public final byte[] hit; public final int[] k3; public final double[] pHit, pActual, u;
         public final double[] bias = new double[10], lastProbs = new double[10];
-        Trace(int n, int from, int to, int position, double temperature) {
+        public final double[][] probabilityRows;
+        Trace(int n,int from,int to,int position,double temperature){this(n,from,to,position,temperature,false);}
+        Trace(int n, int from, int to, int position, double temperature,boolean capture) {
+            probabilityRows=capture?new double[n][]:null;
             this.from = from; this.to = to; this.position = position; this.temperature = temperature;
             skipped = new boolean[n]; act = new boolean[n]; hit = new byte[n]; k3 = new int[n * 3]; pHit = new double[n]; pActual = new double[n]; u = new double[n];
             Arrays.fill(skipped, true);
@@ -84,7 +87,13 @@ public final class ReplayEvaluatorR27 {
             throw new IllegalArgumentException("R30_CONFIRM_EXPERIMENT_IDENTITY");
         return evaluateTrace(spec,ctx,SplitR27.CONFIRM,tau,ledger,experimentId,control);
     }
-    private static Trace evaluateTrace(PolicySpecR27 spec, EvalContextR27 ctx, String role, double tau, HoldoutLedgerR27 ledger, String experimentId, boolean control) {
+    public static Trace selectTraceWithProbabilities(PolicySpecR27 spec,EvalContextR27 ctx,double tau){
+        return evaluateTrace(spec,ctx,SplitR27.SELECT,tau,null,spec.policyHash(),false,true);
+    }
+    private static Trace evaluateTrace(PolicySpecR27 spec,EvalContextR27 ctx,String role,double tau,HoldoutLedgerR27 ledger,String experimentId,boolean control){
+        return evaluateTrace(spec,ctx,role,tau,ledger,experimentId,control,false);
+    }
+    private static Trace evaluateTrace(PolicySpecR27 spec, EvalContextR27 ctx, String role, double tau, HoldoutLedgerR27 ledger, String experimentId, boolean control,boolean capture) {
         SplitR27 sp = ctx.split; int to;
         if (SplitR27.TRAIN.equals(role)) to = sp.trainTo;
         else if (SplitR27.SELECT.equals(role)) to = sp.selectTo;
@@ -95,7 +104,7 @@ public final class ReplayEvaluatorR27 {
             ledger.confirm(experimentId, ctx.data.datasetHash, sp.holdoutBlock, sp.holdoutFrom, sp.holdoutTo, control);
             to = sp.holdoutTo;
         } else throw new IllegalArgumentException("R30_UNKNOWN_ROLE:" + role);
-        return run(spec, ctx.scores(spec), ctx.data, ctx.labels, tau, sp.trainFrom, to);
+        return run(spec, ctx.scores(spec), ctx.data, ctx.labels, tau, sp.trainFrom, to,capture);
     }
 
     public static double[] scores(PolicySpecR27 spec, FeatureCacheR27 f) { return PolicyAstR27.eval(spec.ast, f, spec.position); }
@@ -122,9 +131,12 @@ public final class ReplayEvaluatorR27 {
         return run(spec, scores(spec, f), f.data, labels, temperature, from, to);
     }
 
-    public static Trace run(PolicySpecR27 spec, double[] scores, ReplayDatasetR27 data, int[][] labels, double temperature, int from, int to) {
+    public static Trace run(PolicySpecR27 spec,double[] scores,ReplayDatasetR27 data,int[][] labels,double temperature,int from,int to){
+        return run(spec,scores,data,labels,temperature,from,to,false);
+    }
+    private static Trace run(PolicySpecR27 spec, double[] scores, ReplayDatasetR27 data, int[][] labels, double temperature, int from, int to,boolean capture) {
         checkEvolutionRangeR30(to);
-        int tp = spec.position - 1; Trace tr = new Trace(data.size(), from, to, spec.position, temperature);
+        int tp = spec.position - 1; Trace tr = new Trace(data.size(), from, to, spec.position, temperature,capture);
         double[] z = new double[10], p = new double[10]; int[] order = new int[10];
         long gate = spec.rule == PolicySpecR27.Rule.RANDOM ? spec.ast.toString().hashCode() * 0x9E3779B97F4A7C15L : 0;
         double[] ring = new double[QUANTILE_WINDOW]; int filled = 0, head = 0;
@@ -150,6 +162,7 @@ public final class ReplayEvaluatorR27 {
                 int[] s = {a, b, c}; Arrays.sort(s);
                 // R30-B03-01: a sample failing the PIT guard stays skipped (not counted); the online state still advances.
                 if (pitReplaySampleR30(spec, data, t, new int[] {s[0] + 1, s[1] + 1, s[2] + 1}, p)) {
+                if(tr.probabilityRows!=null)tr.probabilityRows[t]=p.clone();
                 tr.skipped[t] = false; tr.act[t] = act; tr.k3[t * 3] = s[0]; tr.k3[t * 3 + 1] = s[1]; tr.k3[t * 3 + 2] = s[2];
                 boolean h = y == a || y == b || y == c; tr.hit[t] = (byte) (h ? 1 : 0);
                 tr.pHit[t] = Math.min(1, mass); tr.pActual[t] = p[y];

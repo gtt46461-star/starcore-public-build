@@ -74,6 +74,7 @@ public final class SchemaR27 {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
         db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
+        db.execSQL(AtomScoreR27.CONTRIBUTION_DDL_R30);
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts
         for (String sql : ModelSurfaceStoreR30.DDL) db.execSQL(sql);
         for (String sql : AtomNetStoreR30.DDL) db.execSQL(sql);
