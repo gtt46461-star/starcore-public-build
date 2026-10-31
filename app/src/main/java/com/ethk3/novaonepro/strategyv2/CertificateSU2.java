@@ -59,6 +59,7 @@ public final class CertificateSU2 {
         boolean incumbent = member.startsWith("XI_INCUMBENT:");                  // the old method is certified by the same rule
         if (!member.startsWith("SU2:") && !incumbent) return "SU2_CERT_NO_SU2_MAINLINE";
         String genome = member.substring(member.indexOf(':') + 1);
+        if(CertificateRevocationR30.blockedPolicy(r,"SU2",genome))return "R30_SOURCE_REVISION_REQUIRES_NEW_FUTURE_BINDING";
         if (read(r, genome, System.currentTimeMillis()) != null) return "SU2_CERT_VALID";
         if (!RuntimeSchemaR26.ready(r)) return "R26_CERT_SCHEMA_PENDING";
         try(Cursor c=r.rawQuery("SELECT canonical_text FROM su2_model_genome WHERE genome_key=?",new String[]{genome})){

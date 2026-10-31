@@ -75,6 +75,7 @@ public final class SchemaR27 {
         for (String sql : DDL) db.execSQL(sql);
         ensureCertificateVersionR30(db);
         for(String sql:DecisionExplanationStoreR30.DDL)db.execSQL(sql);
+        CertificateRevocationR30.ensure(db);
         db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
         db.execSQL(AtomScoreR27.CONTRIBUTION_DDL_R30);
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts

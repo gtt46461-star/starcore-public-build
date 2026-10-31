@@ -145,6 +145,12 @@ public final class R27QualityTest {
                         .replace("private V50Models.AuthorizedDecision decideV50OriginalR30(","public V50Models.AuthorizedDecision decideV50(");
                 bytes=source.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             }
+            if(f[0].endsWith("/SettlementEngine.java")) {
+                String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
+                assertEquals("One registered source-revocation delegator",1,source.split("R30_REVOCATION_BEGIN",-1).length-1);
+                source=source.replaceAll("(?s)    // R30_REVOCATION_BEGIN\\n.*?    // R30_REVOCATION_END\\n\\n", "");
+                bytes=source.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            }
             assertEquals("original main-chain body changed: "+f[0],f[1],StatsR27.sha256(bytes));
         }
         // 2. No R27 class can create a REAL decision, settle, or size a stake: no reference to the owners' entry points.

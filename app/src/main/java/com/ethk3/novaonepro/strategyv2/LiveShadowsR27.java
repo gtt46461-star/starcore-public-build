@@ -220,10 +220,12 @@ public final class LiveShadowsR27 {
             CertificateGateR27.Verdict v = CertificateGateR27.evaluate(e);
             // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
             List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
+            boolean sourceRevoked=CertificateRevocationR30.blockedPolicy(w.ro,"R27",s.id);
+            if(sourceRevoked){issued=false;failing.add("SOURCE_REVISION_REQUIRES_NEW_FUTURE_BINDING");}
             if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
             Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("gateVersion",CertificateGateR27.GATE_VERSION); g.put("failing", new ArrayList<Object>(failing));
             String digest = StatsR27.sha256(CertificateGateR27.GATE_VERSION + "|" + s.id + "|" + st.n + "|" + st.acts + "|" + st.hits + "|" + Double.toHexString(st.logUp));
-            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES(?,?,?,?,?,?,?)", s.id, issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS, CertificateGateR27.GATE_VERSION);
+            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES(?,?,?,?,?,?,?)", s.id, sourceRevoked ? "REVOKED" : issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS, CertificateGateR27.GATE_VERSION);
             // R29-036: R29_GATE_V2 evaluated beside the unchanged R27 gate and recorded separately (report only).
             GateV2R29.Evidence v2 = GateV2R29.evidence(w.ro, s.id, latestOrd); v2.pairedLcbVsI00 = e.pairedLcbVsI00; v2.pairedLcbVsNull = e.pairedLcbVsNull; v2.deployed = s.id.equals(deployed);
             GateV2R29.record(b, v2, GateV2R29.evaluate(v2));
@@ -234,7 +236,16 @@ public final class LiveShadowsR27 {
         StringBuilder near = new StringBuilder();
         for (int i = 0; i < Math.min(3, nearest.size()); i++) near.append(i == 0 ? "" : "；").append(((String) nearest.get(i)[0]).substring(0, 10)).append(" 差：").append(nearest.get(i)[2]);
         Map<String, Object> m = new LinkedHashMap<>(); m.put("qualified", (long) active.size()); m.put("choice", choice == null ? "PRODUCTION_FALLBACK|NO_VALID_CERTIFICATE" : choice); m.put("nearest", near.toString()); m.put("at", now);
-        b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('mainline','choice',?,?)", JsonR27.write(m), now);
+        // Source correction can commit after the read-side evaluation. Decide the cached count/choice from
+        // certificates that actually survived this same write transaction, using the unchanged choice rule.
+        b.after=db->{
+            long committedAt=System.currentTimeMillis();List<CertificateGateR27.Evidence> committed=new ArrayList<>();
+            for(CertificateGateR27.Evidence e:active)try(Cursor c=db.rawQuery("SELECT 1 FROM r27_certificate WHERE policy_hash=? AND status='ACTIVE' AND gate_version=? AND issued_at<=? AND expires_at>?",new String[]{e.policyHash,CertificateGateR27.GATE_VERSION,String.valueOf(committedAt),String.valueOf(committedAt)})){
+                if(c.moveToFirst()&&!CertificateRevocationR30.blockedPolicy(db,"R27",e.policyHash))committed.add(e);
+            }
+            String actual=CertificateGateR27.choose(committed);Map<String,Object> saved=new LinkedHashMap<>(m);saved.put("qualified",(long)committed.size());saved.put("choice",actual==null?"PRODUCTION_FALLBACK|NO_VALID_CERTIFICATE":actual);saved.put("at",committedAt);
+            db.execSQL("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('mainline','choice',?,?)",new Object[]{JsonR27.write(saved),committedAt});return 0;
+        };
         RuntimeR27.submit(w, "LIVE_CERTIFY", b);
         return 0; // bookkeeping only; progress is reported by settle/freeze
     }

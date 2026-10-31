@@ -151,6 +151,7 @@ public final class DrawCanonicalizerR811 {
                 "target_issue=?",new String[]{issue})!=1)
             throw new IllegalStateException("DRAW_CANONICAL_UPDATE_CARDINALITY");
         if (conflict) hardBlock(db, issue, evidenceHash);
+        if (conflict) SettlementEngine.revokeCertificatesForDrawWithinR30(db,issue,"CANONICAL_DRAW_HASH_CONFLICT",evidenceHash);
         return new PersistenceDecision(
                 !conflict,
                 conflict,

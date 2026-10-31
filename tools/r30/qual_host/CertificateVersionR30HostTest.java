@@ -29,7 +29,14 @@ public final class CertificateVersionR30HostTest {
             db.execSQL("INSERT INTO r29_qual_cursor(experiment_id,blocked_ordinal,blocked_reason,updated_at) VALUES(?,-1,'NONE',1)",new Object[]{id});
             db.execSQL("INSERT INTO r27_calibration(policy_hash,method,fit_source,fit_rows,validation_rows,excluded_late,excluded_gap,a,b,ece,ece_by_stratum,state,reason,updated_at) VALUES(?,'HOST','SYNTHETIC',120,300,0,0,1,0,.03,'{}','FITTED','HOST',1)",new Object[]{id});
             Field field=Unsafe.class.getDeclaredField("theUnsafe");field.setAccessible(true);Unsafe unsafe=(Unsafe)field.get(null);RuntimeR27 runtime=(RuntimeR27)unsafe.allocateInstance(RuntimeR27.class);ResearchPoolR27 pool=(ResearchPoolR27)unsafe.allocateInstance(ResearchPoolR27.class);
-            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,b)->atomic(connection,db,b),()->false);unsafe.putObject(pool,unsafe.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);ResearchPoolR27.Worker worker=pool.new Worker(db,"version-host");
+            java.util.concurrent.atomic.AtomicBoolean revokeBeforeWrite=new java.util.concurrent.atomic.AtomicBoolean(false);
+            ResearchWriteQueueR27 writes=new ResearchWriteQueueR27((op,b)->{
+                if(revokeBeforeWrite.getAndSet(false)) {
+                    com.ethk3.novaonepro.DatabaseCoordinator.WriteCallable<Integer> prior=b.before;
+                    b.before=w->{com.ethk3.novaonepro.SettlementEngine.revokeCertificatesForDrawWithinR30(w,"host-1000","SYNTHETIC_SOURCE_REVISION","synthetic;source'event");return prior==null?0:prior.call(w);};
+                }
+                atomic(connection,db,b);
+            },()->false);unsafe.putObject(pool,unsafe.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);ResearchPoolR27.Worker worker=pool.new Worker(db,"version-host");
             LiveShadowsR27.certify(runtime,worker,1299);
             require("ACTIVE|R27_GATE_V1".equals(text(db,"SELECT status||'|'||gate_version FROM r27_certificate WHERE policy_hash='synthetic-current'")),"ACTUAL_CERTIFY_DID_NOT_BIND_V1");
             require(text(db,"SELECT gates_json FROM r27_certificate WHERE policy_hash='synthetic-current'").contains("R27_GATE_V1"),"CERTIFICATE_GATES_MISSING_VERSION");
@@ -39,7 +46,15 @@ public final class CertificateVersionR30HostTest {
             for(String version:new String[]{"R29_GATE_V2","LEGACY_UNVERSIONED"}){db.execSQL("UPDATE r27_certificate SET gate_version=? WHERE policy_hash=?",new Object[]{version,id});require(MainlineBridgeSU2.r27Intent(db,1300)==null,"INCOMPARABLE_VERSION_PROJECTED:"+version);}
             db.execSQL("UPDATE r27_certificate SET gate_version='R27_GATE_V1',expires_at=1 WHERE policy_hash=?",new Object[]{id});require(MainlineBridgeSU2.r27Intent(db,1300)==null,"EXPIRED_CERTIFICATE_PROJECTED");
             require("0".equals(text(db,"SELECT count(*) FROM r27_certificate WHERE gate_version IS NULL OR length(trim(gate_version))=0")),"VERSION_COLUMN_NOT_TOTAL");
-            System.out.println("R30_CERTIFICATE_VERSION_SQLITE|LEGACY_BYTES_PRESERVED_UNKNOWN|IDEMPOTENT_ADDITIVE_MIGRATION|EMPTY_VERSION_REJECTED|ACTUAL_CERTIFY_V1|CURRENT_PROJECTION_PASS|V2_AND_LEGACY_NOT_COMPARABLE|EXPIRED_REJECTED|NO_V2_AUTHORIZATION|PASS");
+            LiveShadowsR27.certify(runtime,worker,1299);
+            revokeBeforeWrite.set(true);LiveShadowsR27.certify(runtime,worker,1299);
+            require("REVOKED".equals(text(db,"SELECT status FROM r27_certificate WHERE policy_hash='synthetic-current'")),"SOURCE_REVISION_DID_NOT_REVOKE_ACTUAL_CERTIFICATE");
+            java.util.Map<?,?> racedChoice=(java.util.Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'"));
+            require(((Number)racedChoice.get("qualified")).longValue()==0,"SOURCE_RACE_LEFT_REVOKED_POLICY_IN_COMMITTED_CHOICE");
+            LiveShadowsR27.certify(runtime,worker,1299);
+            java.util.Map<?,?> revokedChoice=(java.util.Map<?,?>)JsonR27.parse(text(db,"SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'"));
+            require("REVOKED".equals(text(db,"SELECT status FROM r27_certificate WHERE policy_hash='synthetic-current'"))&&((Number)revokedChoice.get("qualified")).longValue()==0,"REVOKED_POLICY_REAPPEARED_IN_ACTUAL_PRODUCER_CHOICE");
+            System.out.println("R30_CERTIFICATE_VERSION_SQLITE|LEGACY_BYTES_PRESERVED_UNKNOWN|IDEMPOTENT_ADDITIVE_MIGRATION|EMPTY_VERSION_REJECTED|ACTUAL_CERTIFY_V1|CURRENT_PROJECTION_PASS|V2_AND_LEGACY_NOT_COMPARABLE|EXPIRED_REJECTED|NO_V2_AUTHORIZATION|SOURCE_RACE_AND_OLD_EVIDENCE_REISSUE_CHOICE_ZERO|PASS");
         }
     }
 }

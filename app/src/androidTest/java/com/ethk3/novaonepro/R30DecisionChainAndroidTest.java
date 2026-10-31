@@ -63,6 +63,26 @@ public final class R30DecisionChainAndroidTest {
     static void remove(File file){File[] children=file.listFiles();if(children!=null)for(File child:children)remove(child);if(file.exists()&&!file.delete())throw new IllegalStateException("synthetic cleanup");}
     static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
 
+    @Test public void correctionRevokesAndNextAuthorityReadRejectsWithinFiveSeconds()throws Exception {
+        try(Fixture f=new Fixture()) {
+            try {
+                f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_REVOCATION_ROLLBACK",w->{
+                    w.execSQL("UPDATE draws SET n1=n2,n2=n1 WHERE issue=?",new Object[]{f.base});
+                    assertNull("Revoked in the same source transaction",CertificateSU2.read(w,f.genome.key(),System.currentTimeMillis()));
+                    throw new IllegalStateException("SYNTHETIC_EXPECTED_REVOCATION_ROLLBACK");
+                });
+                fail("Rollback injection missing");
+            }catch(RuntimeException expected){boolean injected=false;for(Throwable t=expected;t!=null;t=t.getCause()){if(String.valueOf(t.getMessage()).contains("SYNTHETIC_EXPECTED_REVOCATION_ROLLBACK"))injected=true;if(t.getCause()==t)break;}assertTrue("Specific rollback injection must be preserved",injected);}
+            assertTrue("Source and revocation roll back together",RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
+            long start=android.os.SystemClock.elapsedRealtime();
+            f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_REVISION_COMMIT",w->{w.execSQL("UPDATE draws SET n1=n2,n2=n1 WHERE issue=?",new Object[]{f.base});return 0;});
+            assertFalse(RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
+            long elapsed=android.os.SystemClock.elapsedRealtime()-start;assertTrue("Actual Android revoke-to-reject ms="+elapsed,elapsed<=5000);
+            assertEquals("R30_SOURCE_REVISION_REQUIRES_NEW_FUTURE_BINDING",CertificateSU2.maintain(f.store,f.seq));
+            assertEquals(1,count(f.db,"SELECT count(*) FROM su2_certificate"));
+            System.out.println("R30_ANDROID_REVOCATION|SAME_TX_ROLLBACK|ACTUAL_NEXT_AUTHORITY_REJECT|MS="+elapsed+"|OLD_EVIDENCE_REISSUE_BLOCKED|ANDROID_TEST_ENVIRONMENT_NOT_PHYSICAL_ACCEPTANCE|PASS");
+        }
+    }
     @Test public void originalOwnerPositiveAndIndependentNegativeAuthorities()throws Exception {
         // Each independent counterexample starts with an allowed original lane and no previous REAL.
         for(String mode:Arrays.asList("expired","missing-freeze","existing-real","user-off"))try(Fixture f=new Fixture()){

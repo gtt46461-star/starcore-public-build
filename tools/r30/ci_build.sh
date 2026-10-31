@@ -99,6 +99,9 @@ java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compi
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/authority-db" tools/r30/qual_host/authority_shim/com/ethk3/novaonepro/DbStore.java
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$T30/authority-db:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/RealAuthorityR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/authority-db:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.RealAuthorityR30HostTest | tee "$LOG/r30_real_authority_host.log"
+# R30-B07-04: same-source transaction revocation and real next-read rejection; HOST time never claims phone time.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$T30/authority-db:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/CertificateRevocationR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/authority-db:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.CertificateRevocationR30HostTest | tee "$LOG/r30_certificate_revocation_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

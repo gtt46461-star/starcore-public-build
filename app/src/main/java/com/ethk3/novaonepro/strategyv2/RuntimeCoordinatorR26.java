@@ -218,7 +218,7 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
                 }while(!result.ready&&!preempt()&&SystemClock.elapsedRealtime()<until);
                 c.reason((units>0?"COOPERATIVE_":"")+result.status+":units="+units+":"+result.detail);return units;
             }
-            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
+            if(!StrategySchemaSU2.ready(store.readable())){store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_SU2_SCHEMA",db->{requireFence(db,c);StrategySchemaSU2.ensure(db);CertificateRevocationR30.ensure(db);IncumbentLoopSU2.seedWithin(db,1);return 0;});return 1;}
             ProgramModelSU2.register();store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_STRATEGY_DEPENDENCIES_READY",db->{requireFence(db,c);db.execSQL("UPDATE r26_task SET status='READY',next_at=0,blocked_reason=NULL WHERE blocked_reason='WAITING_SELF_CONTAINED_STRATEGY_STORAGE'");return 0;});strategyStorageReady=true;return 1;
         }
         if(c.task.equals("schema-base")){

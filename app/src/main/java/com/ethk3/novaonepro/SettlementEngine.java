@@ -65,6 +65,13 @@ public final class SettlementEngine {
         return token != null && token.validFor(target);
     }
 
+    // R30_REVOCATION_BEGIN
+    /** Existing draw writers call this only inside their own source-observation transaction. */
+    public static void revokeCertificatesForDrawWithinR30(SQLiteDatabase db,String issue,String cause,String eventKey) {
+        com.ethk3.novaonepro.strategyv2.CertificateRevocationR30.revokeWithin(db,issue,cause,eventKey);
+    }
+    // R30_REVOCATION_END
+
     public SettlementEngine() {
         dataGuard = new DataGuard();
     }
