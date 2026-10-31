@@ -31,4 +31,18 @@ public final class R30UnifiedEvaluatorTest {
         try { ReplayEvaluatorR27.evaluate(spec(), ctx, SplitR27.CONFIRM, 1.0, l); fail("second confirm"); }
         catch (IllegalStateException e) { assertTrue(e.getMessage().startsWith(HoldoutLedgerR27.CONFIRM_REUSED)); }
     }
+
+    @Test public void productionContextUsesTheSameRoleCheckedTrace() {
+        ReplayDatasetR27 d = ReplayDatasetR27.synthetic(3000, 42, new int[0]);
+        EvalContextR27 ctx = new EvalContextR27(new FeatureCacheR27(d), SplitR27.of(d, null), null);
+        assertTrue(ctx.split.holdoutAvailable);
+        ReplayEvaluatorR27.Trace selected = ctx.selectTrace(spec(), 1.0);
+        assertEquals(ctx.split.selectTo, selected.to);
+        for (int t = ctx.split.selectTo; t < d.size(); t++) assertTrue(selected.skipped[t]);
+        ReplayScoreR27 actual = ReplayScoreR27.of(SplitR27.SELECT, selected, ctx.split.selectFrom, ctx.split.selectTo);
+        ReplayScoreR27 unified = ReplayEvaluatorR27.evaluate(spec(), ctx, SplitR27.SELECT, 1.0, null);
+        assertEquals(actual.json(), unified.json());
+        try { ctx.holdoutTrace(spec(), 1.0); fail("unguarded context confirmation"); }
+        catch (IllegalStateException e) { assertEquals("R30_CONFIRM_WITHOUT_LEDGER", e.getMessage()); }
+    }
 }

@@ -26,11 +26,14 @@ public final class EvalContextR27 {
 
     /** Pass through H_TRAIN and H_SELECT only (candidates never touch the sealed block). */
     public ReplayEvaluatorR27.Trace selectTrace(PolicySpecR27 s, double tau) {
-        return ReplayEvaluatorR27.run(s, scores(s), data, labels, tau, split.trainFrom, split.selectTo);
+        return ReplayEvaluatorR27.evaluateTrace(s, this, SplitR27.SELECT, tau, null);
     }
     /** Pass that also records H_HOLDOUT — only the generation's champion and its challengers may call this, through the ledger. */
     public ReplayEvaluatorR27.Trace holdoutTrace(PolicySpecR27 s, double tau) {
-        return ReplayEvaluatorR27.run(s, scores(s), data, labels, tau, split.trainFrom, split.holdoutTo);
+        return holdoutTrace(s, tau, null);
+    }
+    public ReplayEvaluatorR27.Trace holdoutTrace(PolicySpecR27 s, double tau, HoldoutLedgerR27 ledger) {
+        return ReplayEvaluatorR27.evaluateTrace(s, this, SplitR27.CONFIRM, tau, ledger);
     }
 
     /** H_TRAIN mean log-loss at the policy's position with temperature tau (fusion weight fitting). */
