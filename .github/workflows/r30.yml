@@ -10,8 +10,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: r30-${{ github.ref }}
-  cancel-in-progress: true
+  group: r30-${{ github.sha }}
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
