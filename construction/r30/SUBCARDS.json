@@ -859,6 +859,17 @@
         "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java"
       ],
       "reason": "105实际Android预检41238380139/job124646860186已越过原证书/校准阻塞，原DbStore真实写入失败于r974_exact_real_receipt不存在。Fixture只初始化SU2而遗漏R952原迁移域；在现有测试初始化写事务中、历史及证书造数之前调用原ResearchMigrationRegistryR952.ensure，完整建立原r974及F05收据和全部不可变触发器，不手抄或缩减DDL。正例增加原两类收据及交易联合身份校验。只改Android测试，产品main与已通过269项G1的f857f30b逐字节相同；重编Android源码及实际模拟器验证，最终相同source的完整CI仍全部执行。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-q",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30OriginalReceiptFixture.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "tools/r30/qual_host/OriginalReceiptSchemaR30HostTest.java",
+        "tools/r30/ci_build.sh"
+      ],
+      "reason": "106实际预检41239623534/job124650601108证明合成测试库直接调用整域R952.ensure缺前置校准表；本地实际SQLite又证实未准备固定窗口会继续缺表。共享仅测试fixture调用原R929.createSchema和原FixedResearchWindow.schema，再原R952.advanceR64至原F05_EXACT_CALIBRATED_REAL_RECEIPT_V1迁移单元真实完成，保留原全部收据DDL/不可变/首写/外键约束，不执行与该原交易路径无关且依赖整个legacy域的后续CP4迁移，不标全域READY、不手写替代表。实际编译的共享测试fixture在真实SQLite验证原依赖缺失失败、正向两收据提交、重复/UPDATE拒绝及回滚无半行；接原CI。只改测试/工具，main产品与269项G1逐字节不变。先登记后施工。"
     }
   ]
 }
