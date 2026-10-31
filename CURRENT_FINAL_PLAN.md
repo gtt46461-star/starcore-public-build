@@ -1,14 +1,9 @@
-# 当前最终施工方案：STARCORE R29 · R29.1复核修订（2026-10-29）
+# STARCORE R30 最终实现与验收入口
 
-执行入口：[construction/plans/STARCORE_R29_FINAL_20261029/README.md](construction/plans/STARCORE_R29_FINAL_20261029/README.md)。
+施工方案：[STARCORE_R30_FINAL_20261031](construction/plans/STARCORE_R30_FINAL_20261031/README.md)。57 张卡含 B11 两张条件卡，44 项指标；方案副本保持只读。
 
-完整ZIP：[STARCORE_R29_FINAL_20261029.zip](construction/plans/STARCORE_R29_FINAL_20261029.zip)。
+当前应用源码分支：[construction/r30-20261031](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r30-20261031)。逐卡实现、真实失败、验证与缺口见 [施工账本](construction/r30/STATUS.md) 和 [FINAL.json](construction/r30/FINAL.json)。main 的入口文件用于定位源码与交付。
 
-11批次、52卡、44项指标；原1832需求/299文件卡保全，R28的42卡逐项映射。
+最终候选版本为 `577310101 / R30-FINAL-2026.10.31-101`。仅用既有 R13 官方证书与 R27 证书构建两份 APK，待两个流程的 Android 与 CP06/CP16 覆盖/回退全部通过后统一发布；当前 APK 直链待真实构建收据回填。
 
-应用施工基线为 `construction/r27-20261028@f9bdddb97291d9d96b5aba940b31d03369c220e2`，报告源码为 `7d3e0e2271ce2a734ca69f2fca8527c00222bba7`。**main当前仅更新方案，不能当作最新应用源分支。** 开工重查远端差异。
-
-本次仅交付方案与复核工具，未修改应用代码、未生成新APK。高胜率/稳定性是待验证目标。与旧方案冲突按R29 docs/01裁决；历史功能、历史训练、图表、原子矩阵及原账本不得丢弃。
-
-当前规则提案为R29_GATE_V2（未实施/未启用）。复核修订：[docs/12_最终复核与修订.md](construction/plans/STARCORE_R29_FINAL_20261029/docs/12_最终复核与修订.md)，补齐校准支持、迟到结果恢复、乱序资格消费和频率分母。完整ZIP与解压内容同步；原有功能与原账本继续保全。
-
+V2353A 前台60分钟、息屏6小时、连续72小时缺设备，均为 NOT_RUN；Q01–Q07 自然质量证据不足。B11 三项真机触发条件未知，切库未启用。未宣称100%全指标通过，也未调整资格数学或补 ACT 配额。
