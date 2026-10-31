@@ -78,12 +78,12 @@ public final class DiagnosisStoreSU2 {
         try {
             String snap = null;
             try (Cursor c = db.rawQuery("SELECT snapshot FROM su2_diag_snapshot ORDER BY report_sequence DESC LIMIT 1", null)) { if (c.moveToFirst()) snap = c.getString(0); }
-            if (snap == null) return new String[]{"# 升级诊断书\n\n尚无诊断：信息探针需要至少 2,000 期已结算开奖，之后每 500 期生成一次。\n", "{\"version\":\"" + UpgradeDiagnosisSU2.VERSION + "\",\"verdict\":null}\n"};
+            if (snap == null) return UpgradeDiagnosisSU2.unavailableR30("INSUFFICIENT","su2_diag_snapshot 可读但没有已存快照；原信息探针尚未产生诊断");
             UpgradeDiagnosisSU2.Diagnosis D = UpgradeDiagnosisSU2.diagnose(UpgradeDiagnosisSU2.parse(snap));
             UpgradeDiagnosisSU2.Ledger L = loadLedger(db);
-            return new String[]{UpgradeDiagnosisSU2.render(D, L), UpgradeDiagnosisSU2.toJson(D, L)};
+            return new String[]{UpgradeDiagnosisSU2.renderR30(D, L), UpgradeDiagnosisSU2.toJsonR30(D, L)};
         } catch (RuntimeException failure) {
-            return new String[]{"# 升级诊断书\n\n诊断读取失败：" + failure.getClass().getSimpleName() + "\n", "{\"error\":true}\n"};
+            return UpgradeDiagnosisSU2.unavailableR30("UNKNOWN","诊断来源读取失败："+failure.getClass().getSimpleName());
         }
     }
 

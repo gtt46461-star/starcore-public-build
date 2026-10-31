@@ -17,6 +17,15 @@ public final class ReportR29 {
     }
     static List<Map<String,Object>> chapters(ReportR27.R30Input input){
         List<Map<String,Object>> chapters=ReportR27.chaptersR30(input);
+        Map<String,Object> upgrade=new LinkedHashMap<>();
+        upgrade.put("snapshots",UpgradeDiagnosisSU2.evidenceR30("su2_diag_snapshot",input.facts.get("upgradeSnapshots"),input.data.get("upgradeSnapshots"),"旧升级探针尚无诊断快照；原门槛保持2000期后每500期", "DiagnosisStoreSU2.maintain：采集真实已结算探针进度、最新快照序列和数据集；不补写诊断"));
+        upgrade.put("ledger",UpgradeDiagnosisSU2.evidenceR30("su2_diag_state",input.facts.get("upgradeStateRows"),input.data.get("upgradeState"),"没有升级问题账本状态", "DiagnosisStoreSU2.report：导出同源 ledger_text 与 diagnosed_sequence，和升级快照对照"));
+        chapters.get(8).put("upgradeDiagnosisSources",upgrade);
+        Map<String,Object> ablation=new LinkedHashMap<>();
+        ablation.put("policy",UpgradeDiagnosisSU2.evidenceR30("r27_ablation",input.facts.get("ablationRows"),input.data.get("ablation"),"没有已存策略消融行；Q06同一期配对改善证据不足", "EvolutionLoopR27.stepPromote：采集同源champion/node/removed_child及原delta；父子同一期机会配对后验证单侧95%下界"));
+        ablation.put("model",UpgradeDiagnosisSU2.evidenceR30("su1_model_ablation",input.facts.get("modelAblationTasks"),input.data.get("modelAblation"),"没有已存模型消融任务；不能宣称NN消融已完成", "ModelAblationStoreSU1.advanceOne：按原数据集与kernel继续原任务，保留checkpoint/frozen/report_hash；DONE后读取原报告配对结果"));
+        ablation.put("q06Status","INSUFFICIENT_PAIRED_IMPROVEMENT_VALIDATION");
+        chapters.get(9).put("ablationEvidence",ablation);
         Map<String,Object> diagnosis=DiagnosisRulesR30.evaluate(input.facts,input.data,input.watermark,input.errors);
         chapters.get(11).put("diagnosis",diagnosis);
         chapters.get(11).put("diagnosticActionCoverage",diagnosis.get("actionCoverage"));

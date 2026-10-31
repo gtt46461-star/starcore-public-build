@@ -229,6 +229,8 @@ public final class ReportR27 {
         StringBuilder out=new StringBuilder("\nSTARCORE R30 同一只读快照报告\n");
         for(Map<String,Object> chapter:chapters){out.append('\n').append(chapter.get("title")).append(" · ").append(chapter.get("status")).append('\n').append(JsonR27.write(chapter.get("metrics"))).append('\n');
             if("R30_04".equals(chapter.get("sectionId")))out.append(JsonR27.write(chapter.get("data"))).append('\n');
+            appendEvidenceSourcesR30(out,chapter.get("upgradeDiagnosisSources"));
+            appendEvidenceSourcesR30(out,chapter.get("ablationEvidence"));
             Object diagnosis=chapter.get("diagnosis");
             if(diagnosis instanceof Map){
                 Map<?,?> d=(Map<?,?>)diagnosis;
@@ -246,6 +248,14 @@ public final class ReportR27 {
             }
         }
         return out.append("\n完整12章和来源水位请导出 R30_REPORT.json / R30_REPORT.md；自然质量与真机验收独立。\n").toString();
+    }
+    static void appendEvidenceSourcesR30(StringBuilder out,Object raw){
+        if(!(raw instanceof Map))return;
+        for(Object value:((Map<?,?>)raw).values())if(value instanceof Map){Map<?,?> source=(Map<?,?>)value;
+            if(!source.containsKey("status"))continue;
+            out.append(source.get("source")).append(" · ").append(source.get("status")).append(" · ").append(source.get("reason")).append('\n');
+            if(!"RECORDED_UNVALIDATED".equals(source.get("status")))out.append("采集：").append(source.get("collectionAction")).append('\n');
+        }
     }
     public static String markdown(List<Map<String, Object>> chapters) {
         StringBuilder b = new StringBuilder("# STARCORE R27 检测报告（自动生成）\n\n空数据只显示 INSUFFICIENT；本报告不含人工撰写的通过结论，所有结论由数据自动选择。\n");

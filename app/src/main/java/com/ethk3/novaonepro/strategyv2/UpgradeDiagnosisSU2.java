@@ -857,6 +857,61 @@ public final class UpgradeDiagnosisSU2 {
     }
     static String jstr(String s) { return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\""; }
 
+    /** R30 rendering adapters preserve the original statistics, prescriptions and legacy fixture outputs. */
+    public static List<Map<String,Object>> sectionsR30(Diagnosis D, Ledger L) {
+        List<Map<String,Object>> rows=new ArrayList<>();Snapshot S=D.S;
+        rows.add(sectionR30("GENERATION",(long)S.gens.size(),"su2_diag_snapshot:gen", "缺少已存父子同源代际记录", "DiagnosisStoreSU2.snapshot：采集同一数据集父子机会收益配对；下界不为正不计验证提升"));
+        rows.add(sectionR30("OPERATORS",(long)S.ops.size(),"su2_diag_snapshot:op", "缺少已存算子结果", "DiagnosisStoreSU2.snapshot：采集算子实际尝试与结果，不补造成功率"));
+        Set<String> families=new HashSet<>(D.probes.keySet());for(Object[] row:S.fams)families.add(String.valueOf(row[0]));
+        rows.add(sectionR30("FAMILIES",(long)families.size(),"su2_diag_snapshot:fam/probe", "缺少家族/探针结果", "DiagnosisStoreSU2.maintain：恢复原信息探针并保留实际数据集与曝光边界"));
+        rows.add(sectionR30("ATOMS",(long)S.atoms.size(),"su2_diag_snapshot:atom", "缺少原子分级记录", "DiagnosisStoreSU2.snapshot：采集原子分级与原始贡献数据；不以存在性代替有效性"));
+        rows.add(sectionR30("REPAIR",S.repair==null?null:(long)S.repair[0],"su2_diag_snapshot:repair", "缺少修复尝试和结果", "DiagnosisStoreSU2.snapshot：采集真实修复尝试、保留数与拒绝原因"));
+        rows.add(sectionR30("STRUCTURE",(long)D.probes.size()+S.stages.size(),"su2_diag_snapshot:probe/stage", "缺少结构探针和分阶段对照", "DiagnosisStoreSU2.maintain：让原探针继续到已结算边界，采集同源验证与前向分块结果"));
+        rows.add(sectionR30("LEDGER",(long)L.entries.size(),"su2_diag_state.ledger_text", "缺少升级问题账本记录", "DiagnosisStoreSU2.report：核对最新快照对应 ledger_text 与 diagnosed_sequence，保留问题生命周期"));
+        rows.add(sectionR30("STORAGE",(long)S.storage.size(),"su2_diag_snapshot:storage", "缺少存储分类测量", "DiagnosisStoreSU2.snapshot：采集各分类实际字节、预算和测量时刻；不能用缺记录表示0字节"));
+        rows.add(sectionR30("ABLATION",null,"R30 chapter10: r27_ablation / su1_model_ablation", "旧SU2诊断快照未包含完整消融配对证据；不能据此称消融表为空", "ReportR29.chapters：读取同一快照第10章的原消融行和已存任务/报告hash；按原同一期配对规则验证Q06"));
+        return rows;
+    }
+    static Map<String,Object> sectionR30(String id,Long count,String source,String reason,String action) {
+        Map<String,Object> out=new LinkedHashMap<>();out.put("section",id);out.put("records",count);out.put("source",source);
+        out.put("status",count==null?"UNKNOWN":count==0?"INSUFFICIENT":"RECORDED_UNVALIDATED");
+        out.put("reason",count==null||count==0?reason:"已存来源记录，不能仅凭行数判定质量或改善");out.put("collectionAction",action);
+        out.put("pairedImprovementLower95",null);out.put("qualityEffective",null);return out;
+    }
+    public static String renderR30(Diagnosis D, Ledger L) {
+        String text=render(D,L);
+        if(D.probes.isEmpty())text=text.replace(T.get("S3.h")+"\n"+T.get("S3.th"),T.get("S3.h")+"\nINSUFFICIENT：没有已存结构探针结果；DiagnosisStoreSU2.maintain 采集原探针，不输出空表。");
+        if(D.probes.isEmpty()&&D.S.fams.isEmpty())text=text.replace(T.get("S1.fam.h")+"\n"+T.get("S1.fam.th"),T.get("S1.fam.h")+"\nINSUFFICIENT：没有家族探针或权重来源；DiagnosisStoreSU2.snapshot 采集实际结果。");
+        if(L.entries.isEmpty())text=text.replace(fill("S7.h","cap",String.valueOf(LEDGER_CAP))+"\n"+T.get("S7.th"),fill("S7.h","cap",String.valueOf(LEDGER_CAP))+"\nINSUFFICIENT：升级问题账本没有记录；DiagnosisStoreSU2.report 核对最新快照及账本序列。");
+        StringBuilder availability=new StringBuilder("R30 升级诊断来源：缺源 UNKNOWN，零记录 INSUFFICIENT；统计和处方沿用原算法。\n");
+        for(Map<String,Object> row:sectionsR30(D,L))availability.append(row.get("section")).append(" · ").append(row.get("status")).append(" · ").append(row.get("reason")).append("；采集：").append(row.get("collectionAction")).append('\n');
+        return bound(availability.append('\n').append(text).toString());
+    }
+    public static String toJsonR30(Diagnosis D, Ledger L) {
+        String legacy=toJson(D,L).trim();StringBuilder out=new StringBuilder(legacy.substring(0,legacy.length()-1));
+        out.append(",\"r30Sections\":[");boolean first=true;
+        for(Map<String,Object> row:sectionsR30(D,L)){if(!first)out.append(',');first=false;out.append('{');boolean field=true;
+            for(Map.Entry<String,Object> entry:row.entrySet()){if(!field)out.append(',');field=false;out.append(jstr(entry.getKey())).append(':');Object value=entry.getValue();out.append(value==null?"null":value instanceof Number?value:jstr(String.valueOf(value)));}out.append('}');}
+        String result=out.append("]}\n").toString();if(result.getBytes(StandardCharsets.UTF_8).length>JSON_MAX_BYTES)throw new IllegalStateException("R30_DIAG_JSON_BUDGET");return result;
+    }
+    public static String[] unavailableR30(String status,String reason) {
+        if(!status.equals("INSUFFICIENT")&&!status.equals("UNKNOWN"))throw new IllegalArgumentException("R30_DIAG_MISSING_STATUS");
+        String action="DiagnosisStoreSU2.report：采集 su2_diag_snapshot 的最新 report_sequence/snapshot 与 su2_diag_state；原探针需2000期已结算开奖，之后每500期生成；保留原门槛";
+        String safe=reason.replace('\n',' ').replace('\r',' ').replace('\t',' ');
+        return new String[]{"# 升级诊断书\n\n"+status+"："+safe+"\n\n采集："+action+"\n", "{\"version\":"+jstr(VERSION)+",\"status\":"+jstr(status)+",\"reason\":"+jstr(safe)+",\"records\":"+(status.equals("INSUFFICIENT")?"0":"null")+",\"verdict\":null,\"collectionAction\":"+jstr(action)+"}\n"};
+    }
+
+    /** Preserves raw same-view rows, including hashes/references, without treating row presence as quality. */
+    public static Map<String,Object> evidenceR30(String source,Object rawCount,Object rawRows,String emptyReason,String action) {
+        Long count=null;if(rawCount instanceof Number){double n=((Number)rawCount).doubleValue();if(Double.isFinite(n)&&n>=0&&n==Math.rint(n)&&n<Long.MAX_VALUE)count=((Number)rawCount).longValue();}
+        Map<String,Object> out=sectionR30(source,count,source,count==null?"来源缺失或不可读；没有测得零记录":emptyReason,action);
+        out.put("rows",rawRows);long shown=rawRows instanceof List?((List<?>)rawRows).size():0;
+        out.put("displayedRows",rawRows instanceof List?shown:null);out.put("omittedRows",count==null?null:Math.max(0,count-shown));
+        out.put("fullEvidence","snapshot.db:"+source+"; referenced model/diagnosis artifacts retain their original hashes");
+        if(count!=null&&count>0&&!(rawRows instanceof List)){out.put("status","PARTIAL");out.put("reason","来源计数非零，但所需字段不可读；保留计数与采集动作，不输出空表结论");}
+        return out;
+    }
+
     // ------------------------------------------------------------------------------------------------ shadows
     /**
      * The shadow challenger text for a genome-level prescription, or null when the prescription is a parameter or is
