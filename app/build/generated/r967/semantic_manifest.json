@@ -1,12 +1,12 @@
 {
   "revision": "R967_SEMANTIC_BUILD_V1",
-  "training_rule_sha256": "36ae0aea3a0a904cbcbe9f13740f5cdec900e7c793dd731be02b3e07df8daf44",
+  "training_rule_sha256": "0e53f55c489e0940f1b5b8647aaf9d57d7dc5622cae2339ecca1ecbccbd6c2e3",
   "policy_hash": "04f759e6d907a70779951147e1e5acf95adbd29c1b4da814ae18919b436f5ca8",
   "policy_json": "{\"allocation_revision\":\"CP3_GLOBAL_LIFETIME_SUMMABLE_V1\",\"alpha_formula\":\"0.05/(j*(j+1));j=global_index+1\",\"baseline_probability\":0.3,\"brier_relative_gate\":\"LTE_SAME_WINDOW_CONSTANT_0_30_EMPIRICAL_BRIER\",\"calibration_revision\":\"R932_CANDIDATE_CAL_LOGISTIC_V1\",\"certificate_valid_issues\":120,\"comparison_reference_required\":true,\"consumer_cap\":0.05,\"crossing_rule\":\"CURRENT_LOG_E_GTE_NEG_LOG_ALPHA\",\"data_roles\":{\"calibration_fit\":120,\"calibration_validation\":120,\"development\":\"TRAINABLE_ONLY\",\"embargo\":1,\"formal\":\"SEALED_NOT_TRAINABLE\"},\"decision_p\":\"MIN_1_EXP_NEG_MAX_LOG_E\",\"duplicate_jaccard_min\":0.98,\"duplicate_paired_advantage_max\":0.0,\"ece_bins\":10,\"eprocess_alternatives\":[0.31,0.32,0.34,0.36,0.4,0.45,0.5,0.6,0.7,0.8,0.9],\"eprocess_weights\":\"UNIFORM_FIXED\",\"heap_increment_bytes_max\":67108864,\"hypotheses_per_freeze_protocol\":1,\"latency_measurements_min\":50,\"latency_p95_ms_max\":700,\"legacy_point_rate_alone_is_certificate\":false,\"max_brier\":0.24,\"max_ece\":0.04,\"max_js_drift\":0.1,\"max_looks\":5,\"max_loss_streak\":12,\"max_residual_drawdown\":8.0,\"min_certificate_n\":360,\"min_coverage\":0.95,\"min_fixed_window_hit_rate\":0.3,\"min_hit_rate\":0.34,\"min_regime_hit_rate\":0.27,\"min_regime_n\":50,\"min_wilson_lower\":0.3,\"min_window_integrity\":1.0,\"missing_policy\":\"KEEP_ORIGINAL_ENDPOINT_PAUSED_CAPTURE_NO_IMPUTATION\",\"mode\":\"STATIC_FROZEN\",\"null_assumption\":\"CONDITIONAL_HIT_PROBABILITY_LE_0_30\",\"planned_endpoints\":[120,360,600,840,1200],\"real_authority\":false,\"renewal_new_future_n\":120,\"resource_unmeasured\":\"BLOCK\",\"restart_policy\":\"AFTER_OLD_ENDPOINT_NEW_PAID_CLAIM_SAME_FAMILY_NO_REFUND\",\"revision\":\"CP3_STATIC_FIXED_POLICY_V1\",\"rolling_hit_rate_min\":{\"100\":0.27,\"20\":0.15,\"300\":0.34,\"50\":0.22},\"statistical_family\":\"CP3_ALL_PRODUCTION\",\"statistics_revision\":\"CP3_PREQUENTIAL_EPROCESS_V1\",\"terminal_look_id\":\"CP3_PROTOCOL_FINAL\",\"total_alpha\":0.05,\"unsupported_regime_policy\":\"EXCLUDE_FROM_CERTIFICATE_DOMAIN_NO_SUPPORTED_GROUP_BLOCKS\",\"wilson_comparison\":\"STRICT_GREATER\",\"wilson_role\":\"IID_DESCRIPTIVE_ADDITIONAL_GATE\",\"window_sizes\":[120,240,240,240,360]}",
-  "manifest_sha256": "7273b4c2d8d291e0aa5160b557f6b356bf32111caf923a8e0eb3bb0dc9b61577",
-  "controlled_file_count": 1386,
-  "numeric_dependency_count": 1265,
-  "source_provenance_sha256": "10020ee366806095d61533143c8f35605644b70898920088f54e1e0d4de1ea7b",
+  "manifest_sha256": "f074945224175fbb977af70a8eb249941a78eefa012ec5d39d6a502d003c7754",
+  "controlled_file_count": 1389,
+  "numeric_dependency_count": 1268,
+  "source_provenance_sha256": "5f85ab70ea01049fec2ba8cc89645d9a8d8101b14cdf2f7f8a1aa70c6b47c085",
   "dependencies": [
     [
       "app/build.gradle",
@@ -1124,6 +1124,11 @@
       "f19070de272d5385b7846347bda64fd26e2d2bb0e3226893fc3c26d5b8be2235"
     ],
     [
+      "app/src/main/java/com/ethk3/novaonepro/DecisionExplanationR30.java",
+      "NUMERIC",
+      "901da2beccd72e480e68eb6b1d35cf6e7490a840dc10e53dd06b63890c375bd7"
+    ],
+    [
       "app/src/main/java/com/ethk3/novaonepro/DecisionFunnelDiagnosisEngine.java",
       "NUMERIC",
       "83384e3900aceb2005357be63af417dcc8667dc2993cf2d6ecaf3c9c501fb902"
@@ -1131,7 +1136,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java",
       "NUMERIC",
-      "edd7edb47b087dd3053ca98540461e1c4a4b7031c5314036e5a1356a5f688d91"
+      "160d2203723ad2bb12c0165b98524bf400b2566861a0e86a978810fb6e4837d0"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/DeepCandidateRuntimeR925.java",
@@ -4944,6 +4949,16 @@
       "5488e6f6b52f6b9de4792c3f5a18b90a3a383adc78d4c7daf931c587ecd63dc2"
     ],
     [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionChainR30.java",
+      "NUMERIC",
+      "b769851a2c5de1f2ffd5498cb86262ff792963995c3f70aea374a34953533c7f"
+    ],
+    [
+      "app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionExplanationStoreR30.java",
+      "NUMERIC",
+      "134f5991db92ae6ec7b4078edd55cad1a27389a28d841ce7e3834a3c09989a3c"
+    ],
+    [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java",
       "NUMERIC",
       "14c80bb47e46c309a53e82e280f5523b5313ee753388a6cb15a4e2313394964e"
@@ -5441,7 +5456,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java",
       "NUMERIC",
-      "47bf5b6907592c0551e86c3c2ea641b420948bbbaebe110ea645ac4c9f2217c9"
+      "f559276bf8af3aa1ef32efba883127a3df3f9f24e27b705d5f6d26fbb7814462"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineChoiceSU1.java",
@@ -5741,7 +5756,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RealAuthoritySU2.java",
       "NUMERIC",
-      "facfb9cbeff954d267d74cc534a9fc54e6d45792349e3ee0c5e4d379fbda66d0"
+      "065eb9790252f2423d5a9b6f516fdc6e5b031c8a3d00218238bc45ef8414f03f"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/RelGraphCheckpointSU1.java",
@@ -5841,7 +5856,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
       "NUMERIC",
-      "8baa8f275e8752d65c70526ed5efe611d6546899782a32ac681ebb8fa3af759b"
+      "c283a5d2006623da3f6b0986fd89ad7b4f94311f83a3e29281b2120e3ee4e0eb"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchContextSU1.java",
@@ -5931,7 +5946,7 @@
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
       "NUMERIC",
-      "14488dd1b55deaeaa802830500da8a6eeca0736d17e4ccc83574563bad22e58b"
+      "4b65b7617171adfb9941909274ba157a89982146ec8e769806f84bc1d3cdf01c"
     ],
     [
       "app/src/main/java/com/ethk3/novaonepro/strategyv2/ScoreHistoryCacheSU1.java",
@@ -6336,6 +6351,6 @@
   ],
   "compatible_predecessor_rule_sha256": "",
   "compatible_predecessor_rules_sha256": [],
-  "continuation_proof_sha256": "1dd601aa8044b16fcffcdaa59e8bdfac6aab4a9f099cd84ad2a1788e077765ee",
+  "continuation_proof_sha256": "95b55905bfb482e8d19126a0cab5dc54822c544e05bddb4eb373adf9dd006206",
   "compatibility_scope": "DEV_ONLY; historical_evidence_and_certificate_compatibility_NOT_GRANTED"
 }

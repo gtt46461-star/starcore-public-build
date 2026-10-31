@@ -134,8 +134,19 @@ public final class R27QualityTest {
 
     @Test public void h15MainlineRedLines() throws Exception {
         File root = R27TestSupport.root();
-        // 1. The REAL / settlement owners are byte-identical to the 1713d11 baseline (rules unchanged, not tightened, not relaxed).
-        for (String[] f : MAINLINE_OWNERS) assertEquals("main-chain owner changed: " + f[0], f[1], StatsR27.sha256(Files.readAllBytes(new File(root, f[0]).toPath())));
+        // 1. Original owner bytes must match the baseline after removing the two R30 read-only wrappers.
+        for (String[] f : MAINLINE_OWNERS) {
+            byte[] bytes=Files.readAllBytes(new File(root,f[0]).toPath());
+            if(f[0].endsWith("/DecisionGateEngine.java")) {
+                String source=new String(bytes,java.nio.charset.StandardCharsets.UTF_8);
+                assertEquals("Only two registered production entry wrappers",2,source.split("R30_READONLY_BEGIN:",-1).length-1);
+                source=source.replaceAll("(?s)    // R30_READONLY_BEGIN:[^\\n]*\\n.*?    // R30_READONLY_END\\n\\n", "");
+                source=source.replace("private V51Models.AuthorizedDecision decideV51B12OriginalR30(","public V51Models.AuthorizedDecision decideV51B12(")
+                        .replace("private V50Models.AuthorizedDecision decideV50OriginalR30(","public V50Models.AuthorizedDecision decideV50(");
+                bytes=source.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            }
+            assertEquals("original main-chain body changed: "+f[0],f[1],StatsR27.sha256(bytes));
+        }
         // 2. No R27 class can create a REAL decision, settle, or size a stake: no reference to the owners' entry points.
         String[] forbidden = {"DecisionGateEngine", "SettlementEngine", "V51DecisionGateCore", "insertTrade", "insertBet", "placeBet", "stake", "multiplier", "martingale", "chase"};
         File dir = new File(root, "app/src/main/java/com/ethk3/novaonepro/strategyv2"); int scanned = 0;

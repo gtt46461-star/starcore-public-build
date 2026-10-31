@@ -27,6 +27,7 @@ public final class ReportR29 {
         out.put("modelContinuation", model);
         out.put("capabilityRegistryR30",ReportDataR27.capabilityInventoryR30(db));
         out.put("matrixTraceabilityR30",MatrixRegistryStoreR30.report(db));
+        out.put("decisionChainR30",DecisionExplanationStoreR30.report(db));
         out.put("atomContributionsR30",atomContributionsR30(db));
         out.put("calibrationQualityR30",calibrationQualityR30(db));
         out.put("modelConsumptionR30",ModelSurfaceStoreR30.report(db));

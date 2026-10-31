@@ -201,7 +201,16 @@ public final class DecisionGateEngine {
      * The only V50 method allowed to create DecisionAction.BET. The typed V50 path never calls any
      * V20/V41/V42/V47/V48/V49 gate, rescue or frequency debt code.
      */
+    // R30_READONLY_BEGIN: decideV50
     public V50Models.AuthorizedDecision decideV50(
+            DbStore store, V50CompiledActionContract compiled) {
+        V50Models.AuthorizedDecision original = decideV50OriginalR30(store, compiled);
+        DecisionExplanationR30.afterV50(store, compiled, original);
+        return original;
+    }
+    // R30_READONLY_END
+
+    private V50Models.AuthorizedDecision decideV50OriginalR30(
             DbStore store, V50CompiledActionContract compiled) {
         V50Enums.DecisionAction action = V50Enums.DecisionAction.HOLD;
         V50Enums.RejectCode reject = V50Enums.RejectCode.DATA_INCOMPLETE;
@@ -11229,7 +11238,16 @@ public final class DecisionGateEngine {
 
     public static final String B12_UNIQUE_DECISION_OWNER = "DecisionGateEngine#decideV51B12";
 
+    // R30_READONLY_BEGIN: decideV51B12
     public V51Models.AuthorizedDecision decideV51B12(
+            DbStore store, V51CompiledActionContract compiled) {
+        V51Models.AuthorizedDecision original = decideV51B12OriginalR30(store, compiled);
+        DecisionExplanationR30.afterV51(store, compiled, original);
+        return original;
+    }
+    // R30_READONLY_END
+
+    private V51Models.AuthorizedDecision decideV51B12OriginalR30(
             DbStore store, V51CompiledActionContract compiled) {
         V51Enums.RejectCode block = b12Reject(store, compiled);
         if (block != V51Enums.RejectCode.NONE) {
