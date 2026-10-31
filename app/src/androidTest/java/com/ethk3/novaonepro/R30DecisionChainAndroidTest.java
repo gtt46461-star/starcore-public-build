@@ -47,7 +47,7 @@ public final class R30DecisionChainAndroidTest {
             long sourceStarted=android.os.SystemClock.elapsedRealtime();
             String sourceRequest=FetchLedgerR925.begin(store,"SYNTHETIC_FIXTURE","https://127.0.0.1/SYNTHETIC_NOT_NETWORK_OR_NATURAL");assertFalse(sourceRequest.isEmpty());
             ApiClient.RawHttpResult source=new ApiClient.RawHttpResult();source.ok=true;source.httpCode=200;
-            source.body=StrictCanonicalJson.write(Collections.singletonMap("SYNTHETIC_NOT_NETWORK_OR_NATURAL",base));
+            source.body=new org.json.JSONObject(Collections.singletonMap("SYNTHETIC_NOT_NETWORK_OR_NATURAL",base)).toString();
             FetchLedgerR925.complete(store,sourceRequest,android.os.SystemClock.elapsedRealtime()-sourceStarted,source);
             FetchLedgerR925.payload(store,sourceRequest,"SYNTHETIC_FIXTURE_NOT_NETWORK_OR_NATURAL",base,true,"SYNTHETIC_INPUT_MECHANICS_ONLY");
             try(Cursor receipt=db.rawQuery("SELECT status,payload_hash,first_available_at,received_at FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{sourceRequest})){
