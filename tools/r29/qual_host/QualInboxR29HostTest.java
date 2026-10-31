@@ -336,7 +336,8 @@ public final class QualInboxR29HostTest {
         trainer.online(sample); ftrl.update(new double[7], 1);
         ModelArtifactR29 first = new ModelArtifactR29(trainer, ftrl, "DATASET", "ISSUE_1"); byte[] firstBytes = first.encode();
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); AtomWorldR27.checkpoint(b, first, 1); sink.commit("MODEL1", b);
-        ModelArtifactR29 staged = ModelArtifactR29.decode(firstBytes, StatsR27.sha256(firstBytes)); staged.trainer.online(sample);
+        ModelArtifactR29 staged = ModelArtifactR29.decode(firstBytes, StatsR27.sha256(firstBytes));
+        staged.trainer.online(new AtomNetTrainerR27.Sample(new double[8], 1, 1, "ISSUE_2"));
         b = new ResearchWriteQueueR27.Batch(); AtomWorldR27.checkpoint(b, new ModelArtifactR29(staged.trainer, staged.ftrl, "DATASET", "ISSUE_2"), 2);
         b.after = tx -> -1;
         boolean rejected = false; try { sink.commit("MODEL_INTERRUPTED", b); } catch (IllegalStateException expected) { rejected = true; }

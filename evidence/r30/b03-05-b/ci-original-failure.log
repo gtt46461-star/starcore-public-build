@@ -1,0 +1,9 @@
+2026-10-31T06:09:09.1939374Z R29_QUAL|Q12_LARGE_BATCH_ATOMIC_RETRY|OK|rollbackThenRetry=true transactions=2 rows=1203
+2026-10-31T06:09:09.1953191Z R29_QUAL|Q13_POSTCHECK_ROLLS_BACK_ALL|OK|end-of-transaction safety check failure left original rows unchanged
+2026-10-31T06:09:09.1955162Z R29_QUAL|Q14_CANCEL_BEFORE_WRITE|OK|cancelled batch never entered writer
+2026-10-31T06:09:09.2158132Z ##[error]Exception in thread "main" java.lang.IllegalStateException: R30_DUPLICATE_LEARNING:ISSUE_1
+2026-10-31T06:09:09.2159871Z 	at com.ethk3.novaonepro.strategyv2.AtomNetTrainerR27.online(AtomNetTrainerR27.java:67)
+2026-10-31T06:09:09.2160815Z 	at com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest.modelCheckpointTransaction(QualInboxR29HostTest.java:339)
+2026-10-31T06:09:09.2166604Z 	at com.ethk3.novaonepro.strategyv2.QualInboxR29HostTest.main(QualInboxR29HostTest.java:290)
+2026-10-31T06:09:09.2547075Z ##[error]Process completed with exit code 1.
+2026-10-31T06:09:09.2625581Z ##[group]Run actions/upload-artifact@v4
