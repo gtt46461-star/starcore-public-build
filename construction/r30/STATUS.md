@@ -219,3 +219,5 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - B08-05最终定向3项及真实SQLite/文件/同源主摘要与导出通过。受保护逐表归档先于原DELETE或清空BLOB，保留SQLite原存储类型；源schema升级启用新指纹触发器而旧版不重复执行，禁止档案UPDATE/DELETE。原RetentionR26/MatrixStore/Diagnosis与学习、折叠、资格数学未改。退役库核对原回收证据/路由及二次启动历史copy_log，删除前引用先提交；未知、超出保护预算如实记。整卡G1开始，Android只编译、真机未测。
 
 - B08-05源码230a644全量258项单测失败/错误0，但lint发现3处同一File.toPath/Path.startsWith API26兼容性错误（min21），原失败日志/XML/新增lint错误原样保留。改为低版本支持的规范路径加目录分隔符边界检查，不提高minSdk、不改基线；新最终G1随后运行。
+
+- B08-05最终应用源码ef13e4f全量258项/67XML、Android编译、lint无新增错误及正式SQLite三组通过；原API21失败保留。B08-04远端41214742293/job124576817353在全部旧检查与SQLite通过后因runner缺rg，新增Host包装脚本退出；原失败摘录与链接保留。登记05-d将源码枚举换为基础find，应用字节不变，只复核工具完整JNI/文件流程并推送累计CI闭合04/05。
