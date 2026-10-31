@@ -108,7 +108,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: adb root && adb wait-for-device && adb install "$RUNNER_TEMP/r30-internal-apks/app.apk" && adb install -t "$RUNNER_TEMP/r30-internal-apks/test.apk" && bash tools/r30/run_preflight_runtime.sh '${{ steps.request.outputs.focus }}'
+          script: adb root && adb wait-for-device && adb install -t "$RUNNER_TEMP/r30-internal-apks/app.apk" && adb install -t "$RUNNER_TEMP/r30-internal-apks/test.apk" && bash tools/r30/run_preflight_runtime.sh '${{ steps.request.outputs.focus }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
