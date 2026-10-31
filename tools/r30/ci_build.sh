@@ -60,6 +60,9 @@ java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJa
 # R30-B05-01: the actual independent stage, raw-evidence restart and frozen FUTURE registration.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/FrozenConfirmationR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.FrozenConfirmationR30HostTest | tee "$LOG/r30_frozen_confirmation_host.log"
+# R30-B06-04: 82 actual handlers and retained evidence, including audit-only and checkpoint dependencies.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/CapabilityRegistryR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.CapabilityRegistryR30HostTest | tee "$LOG/r30_capability_registry_host.log"
 # R30-B06-03: twenty existing matrix bindings and original retained-snapshot watermarks.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/MatrixRegistryR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.MatrixRegistryR30HostTest | tee "$LOG/r30_matrix_registry_host.log"

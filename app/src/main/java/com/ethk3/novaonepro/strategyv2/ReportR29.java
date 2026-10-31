@@ -25,6 +25,7 @@ public final class ReportR29 {
         out.put("findings",FindingsR29.fromQualification(qualification));
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
+        out.put("capabilityRegistryR30",ReportDataR27.capabilityInventoryR30(db));
         out.put("matrixTraceabilityR30",MatrixRegistryStoreR30.report(db));
         out.put("atomContributionsR30",atomContributionsR30(db));
         out.put("calibrationQualityR30",calibrationQualityR30(db));
