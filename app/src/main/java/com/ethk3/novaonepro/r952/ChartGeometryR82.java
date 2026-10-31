@@ -5,6 +5,7 @@ public final class ChartGeometryR82 {
  public static final int MAX_POINTS=120,MAX_NODES=64;private ChartGeometryR82(){}
  public static boolean finite(double v){return !Double.isNaN(v)&&!Double.isInfinite(v);}
  public static double[] range(double[] values){double lo=Double.POSITIVE_INFINITY,hi=Double.NEGATIVE_INFINITY;for(double v:values)if(finite(v)){lo=Math.min(lo,v);hi=Math.max(hi,v);}if(!finite(lo))return new double[]{0,1};if(lo==hi){double pad=Math.max(.05,Math.abs(lo)*.05);lo-=pad;hi+=pad;}return new double[]{lo,hi};}
+ public static double[] range(double[] values,List<Double> refs){int count=refs==null?0:refs.size();double[] all=Arrays.copyOf(values,values.length+count);for(int i=0;i<count;i++)all[values.length+i]=refs.get(i)==null?Double.NaN:refs.get(i);return range(all);}
  public static float x(int i,int n,float left,float right){return n<=1?(left+right)/2:left+(right-left)*i/(n-1f);}
  public static float y(double v,double lo,double hi,float top,float bottom){if(!finite(v)||!finite(lo)||!finite(hi)||hi<=lo)return Float.NaN;return (float)(bottom-(bottom-top)*(v-lo)/(hi-lo));}
  public static int nearest(float x,int n,float left,float right){if(n<=0)return -1;if(n==1||right<=left)return 0;return Math.max(0,Math.min(n-1,Math.round((x-left)*(n-1)/(right-left))));}

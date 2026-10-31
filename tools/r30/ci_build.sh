@@ -115,6 +115,11 @@ REPORT_EXPORT_OUT="$LOG/r30_report_export_host" bash tools/r30/run_report_export
 # R30-B08-05: original maintenance keeps its windows while all original evidence survives in immutable archives.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ResearchRetentionR30HostTest.java
 java -Xmx768m -cp "$T30/report-platform:$T30/shim:$LOG/r30_report_export_host/runtime:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.ResearchRetentionR30HostTest | tee "$LOG/r30_research_retention_host.log"
+# R30-B09-01: actual fourteen legacy chart keys, rankings, and two detached report-snapshot panels.
+# Scope the three-argument null-signal JDBC adapter to this JVM; never package it into Android.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/chart-db" tools/r30/qual_host/chart_shim/android/database/sqlite/SQLiteDatabase.java
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/chart-db:$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ChartSnapshotR30HostTest.java
+java -Xmx768m -cp "$T30/report-platform:$T30/chart-db:$T30/shim:$LOG/r30_report_export_host/runtime:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.ChartSnapshotR30HostTest | tee "$LOG/r30_chart_snapshot_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

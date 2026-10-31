@@ -47,6 +47,8 @@ public final class ChartCacheR27 {
         try { b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('report','ranking',?,?)", JsonR27.write(ranking(db)), now); } catch (RuntimeException e) { }
         try { b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('report','action_surface',?,?)", JsonR27.write(actionSurface(db)), now); } catch (RuntimeException e) { }
         for (int i = 0; i < panels.size(); i++) b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES(?,?,?,?)", PANELS[i], "panel", JsonR27.write(panels.get(i)), now);
+        ReportR27.R30Input snapshot=ReportSnapshotR30.capture(db);
+        b.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-charts','snapshot',?,?)",JsonR27.write(ReportChartsR30.packet(snapshot)),now);
         return b;
     }
     interface Builder { Map<String, Object> build(); }

@@ -107,7 +107,7 @@ public final class ReportSnapshotR30 {
     static void rowsets(Query q){
         q.rows("qualification","r27_eprocess",new String[]{"policy_hash","global_index","n","acts","hits","last_ordinal","state"},null,32,null,256);
         q.rows("certificates","r27_certificate",new String[]{"policy_hash","status","gate_version","evidence_digest","issued_at","expires_at"},null,32,null,256);
-        q.rows("evolution","r27_generation",new String[]{"generation","loop","births","rejected","no_op","duplicates","survivors","verified","finished_at"},q.has("r27_generation","generation")?"generation DESC":null,20,null,256);
+        q.rows("evolution","r27_generation",new String[]{"generation","loop","dataset_hash","champion_hash","births","rejected","no_op","duplicates","survivors","paired_lcb","verified","detail_json","finished_at"},q.has("r27_generation","generation")?"generation DESC":null,20,null,65536);
         q.rows("confirmation","r30_frozen_confirm",new String[]{"task_key","policy_hash","state","verified","registration_state","registered_at"},null,20,null,256);
         q.rows("writerWindows","r30_writer_hold",new String[]{"window_start","operation","critical","count","hold_p95","hold_max","wait_p95","over_hard"},q.has("r30_writer_hold","window_start")?"window_start DESC":null,40,null,256);
         q.rows("timeline","r30_issue_timeline",new String[]{"issue","boot_id","wall_source_published","wall_first_observed","wall_validated","wall_draw_committed","wall_settled","wall_next_requested","wall_next_prepared","wall_next_frozen","wall_next_deadline","mono_first_observed","mono_validated","mono_draw_committed","mono_settled","mono_next_requested","mono_next_prepared","mono_next_frozen","outcome","updated_at"},null,40,null,256);

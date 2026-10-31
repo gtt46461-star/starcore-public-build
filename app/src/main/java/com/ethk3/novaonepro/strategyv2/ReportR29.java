@@ -16,6 +16,7 @@ public final class ReportR29 {
     public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest,android.os.CancellationSignal cancellation){
         return chapters(ReportSnapshotR30.capture(db,sourceManifest,cancellation));
     }
+    public static List<Map<String,Object>> fromSnapshotR30(ReportR27.R30Input input){return chapters(input);}
     static List<Map<String,Object>> chapters(ReportR27.R30Input input){
         List<Map<String,Object>> chapters=ReportR27.chaptersR30(input);
         Map<String,Object> upgrade=new LinkedHashMap<>();
@@ -32,6 +33,7 @@ public final class ReportR29 {
         retention.put("definition","Physical regular-file census, explicit cache and verified retired duplicate deletion; protected archive rows preserve original fields/BLOBs and never become current natural samples.");
         retention.put("collectionAction","ResearchRetentionStoreR30.step：运行原retention任务，采集完整物理目录与同快照受保护归档/文件删除引用；缺测不填预算通过");
         chapters.get(10).put("retention",retention);
+        List<Map<String,Object>> sameViewCharts=ReportChartsR30.panels(input);chapters.get(1).put("pairedImprovementChart",sameViewCharts.get(0));chapters.get(6).put("capabilityCoverageChart",sameViewCharts.get(1));
         Map<String,Object> diagnosis=DiagnosisRulesR30.evaluate(input.facts,input.data,input.watermark,input.errors);
         chapters.get(11).put("diagnosis",diagnosis);
         chapters.get(11).put("diagnosticActionCoverage",diagnosis.get("actionCoverage"));
