@@ -55,7 +55,9 @@ public final class R30ChartsAndroidTest {
                 try{
                     long deadline=SystemClock.elapsedRealtime()+20_000;AtomicInteger count=new AtomicInteger();
                     do{instrumentation.runOnMainSync(()->count.set(cards(activity).getChildCount()));if(count.get()==16)break;SystemClock.sleep(100);}while(SystemClock.elapsedRealtime()<deadline);
-                    assertEquals("actual chart Activity must render all fourteen legacy and two new panels in "+scenario,16,count.get());
+                    java.util.concurrent.atomic.AtomicReference<String> actualStatus=new java.util.concurrent.atomic.AtomicReference<>();
+                    instrumentation.runOnMainSync(()->{try{Field f=ChartsActivityR83.class.getDeclaredField("status");f.setAccessible(true);actualStatus.set(((TextView)f.get(activity)).getText().toString());}catch(Exception error){throw new AssertionError(error);}});
+                    assertEquals("actual chart Activity must render all fourteen legacy and two new panels in "+scenario+"; status="+actualStatus.get(),16,count.get());
                     for(int index=0;index<16;index++){
                         final int child=index;instrumentation.runOnMainSync(()->{LinearLayout list=cards(activity);View card=list.getChildAt(child);assertTrue("each panel must render its actual card, not an error fallback",card instanceof LinearLayout);((ScrollView)list.getParent()).scrollTo(0,card.getTop());});
                         instrumentation.waitForIdleSync();SystemClock.sleep(150);

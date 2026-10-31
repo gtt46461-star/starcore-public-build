@@ -120,6 +120,8 @@ java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compi
 # The exact Android receipt fixture must install original prerequisites before the original receipt migration unit.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" app/src/androidTest/java/com/ethk3/novaonepro/R30OriginalReceiptFixture.java tools/r30/qual_host/OriginalReceiptSchemaR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.OriginalReceiptSchemaR30HostTest | tee "$LOG/r30_original_receipt_schema_host.log"
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/OriginalReadLeaseFixtureR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.OriginalReadLeaseFixtureR30HostTest | tee "$LOG/r30_original_read_lease_fixture_host.log"
 # R30-B09-01: actual fourteen legacy chart keys, rankings, and two detached report-snapshot panels.
 # Scope the three-argument null-signal JDBC adapter to this JVM; never package it into Android.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/chart-db" tools/r30/qual_host/chart_shim/android/database/sqlite/SQLiteDatabase.java

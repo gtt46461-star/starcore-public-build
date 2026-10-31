@@ -25,7 +25,7 @@ public final class R30FaultAndroidRunner extends AndroidJUnitRunner {
     static final class RoutedContext extends ContextWrapper {
         Application application;volatile String scope="unbound-"+UUID.randomUUID();
         RoutedContext(Context base){super(base);}
-        File root(){return new File(super.getNoBackupFilesDir(),"r30-instrumentation/"+scope);}
+        File root(){return new File(super.getNoBackupFilesDir(),"r30-instrumentation/"+scope+"/"+ReleaseManifestR926.APPLICATION_ID);}
         File dir(String name){File f=new File(root(),name);if(!f.isDirectory()&&!f.mkdirs())throw new IllegalStateException("test sandbox directory");return f;}
         @Override public Context getApplicationContext(){return application==null?this:application;}
         @Override public Context createDeviceProtectedStorageContext(){return this;}
