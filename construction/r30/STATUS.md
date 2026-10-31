@@ -231,3 +231,5 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - B09-02已落真实故障矩阵/专用测试启动器/仅模拟器ADB分阶段驱动：TLS真实读超时（不放宽禁止明文配置）、原主测试库真实SQLITE_FULL/回滚/恢复原页上限、原来源冲突硬阻、注入墙钟回拨/实际单调钟、两个原提交前实际自SIGKILL与独立重启、系统force-stop后显式重新打开由原Service补结算。ThreadLocal接点默认空且无产品调用，原DbStore/Settlement/Decision体未改。首次接点修改脚本断言未落入源及测试误用commit.code导致真实编译失败均保留，修为实际status后继续；14格Android运行仍NOT_RUN，不能称已通过。
 
 - B09-02应用源码a309dce全量262项/68XML失败/错误/跳过0，Android编译成功，lint原基线保留。B08累计远端41218407163/job124587676324成功，原缺rg失败保留，B08五卡工程签收。B09-01固定8f46e39已推送，CI41219976868运行；登记02-b消除同分支取消旧门禁的配置瓶颈，每卡全套检查不减，按源码SHA独立保留。14故障实际运行待最终模拟器，不写完成。
+
+- B09-03落实原MAX_WAIT_MS=200不变：门前P0/截止等待与原writer取得共用剩余额度，沿用已有WriterDeadlineScopeCP3并保留更紧父截止/原LIVE_FREEZE例外；4ms外锁让出，最后sleep按剩余额度限量。取消/中断/繁忙计实际拒绝，原Batch原样保留，真实业务错误不吞。3项实际定向通过，P0拒绝实测HOST200ms、2次提交/1拒绝/1写；非设备指标。B01延期清单为空，不凭空改MigrationRegistry或写over_hard=0。两项Android原owner源与B09最终同签名12测试/48实际Activity截图驱动接好，未运行写NOT_RUN。开始G1。

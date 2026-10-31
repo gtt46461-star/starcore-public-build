@@ -85,7 +85,10 @@ public final class R30DecisionChainAndroidTest {
     }
     @Test public void originalOwnerPositiveAndIndependentNegativeAuthorities()throws Exception {
         // Each independent counterexample starts with an allowed original lane and no previous REAL.
-        for(String mode:Arrays.asList("expired","missing-freeze","existing-real","user-off"))try(Fixture f=new Fixture()){
+        String selected=InstrumentationRegistry.getArguments().getString("r30DecisionMode","positive");
+        assertTrue("one explicit process per original-owner fixture",Arrays.asList("positive","expired","missing-freeze","existing-real","user-off").contains(selected));
+        List<String> cases=selected.equals("positive")?Collections.emptyList():Collections.singletonList(selected);
+        for(String mode:cases)try(Fixture f=new Fixture()){
             assertEquals(0,count(f.db,"SELECT count(*) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" WHERE decision_action='BET'"));
             if(mode.equals("user-off"))f.store.setState(RealAuthoritySU2.USER_SWITCH,"0");
             else f.store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_"+mode,w->{
@@ -97,6 +100,7 @@ public final class R30DecisionChainAndroidTest {
             assertFalse(mode,RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
             System.out.println("R30_ANDROID_INDEPENDENT_AUTHORITY_REJECT|"+mode+"|SYNTHETIC");
         }
+        if(!selected.equals("positive"))return;
         try(Fixture f=new Fixture()) {
             String identity=BuildIdentity.verifyAndPersist(f.app,f.store);assertTrue(identity,BuildIdentity.isBetCompatible(identity));
             AnalysisRequestStoreR36 requests=new AnalysisRequestStoreR36(f.store);AnalysisSingleFlightR36.Request request=requests.ensurePending(f.base,f.target,f.deadline,"R30_SYNTHETIC_LEGAL_POSITIVE");

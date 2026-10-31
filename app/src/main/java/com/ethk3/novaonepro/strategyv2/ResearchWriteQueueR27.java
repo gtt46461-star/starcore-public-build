@@ -49,23 +49,32 @@ public final class ResearchWriteQueueR27 {
      *                     still yields to P0 settlement for at most 200 ms. */
     public boolean submit(String operation, Batch batch, java.util.function.BooleanSupplier cancelled, boolean freezeWrite) {
         if (batch.isEmpty()) return true;
-        long start = System.nanoTime(), waited = 0;
+        long start = System.nanoTime();
         while (critical.getAsBoolean() || (!freezeWrite && freezeWindow(System.currentTimeMillis()))) {
-            if (cancelled.getAsBoolean()) return false;
-            if (waited >= MAX_WAIT_MS) { stat(waited, true); return false; }
-            try { Thread.sleep(20); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return false; }
-            waited = (System.nanoTime() - start) / 1_000_000L;
+            long waited=(System.nanoTime()-start)/1_000_000L;
+            if (cancelled.getAsBoolean()) { stat(waited,true); return false; }
+            long remaining=MAX_WAIT_MS-waited;
+            if (remaining<=0) { stat(waited,true); return false; }
+            // Yield outside the writer and bound the last sleep by the unchanged 200ms allowance.
+            try { Thread.sleep(Math.min(4L,remaining)); }
+            catch (InterruptedException interrupted) { Thread.currentThread().interrupt();stat((System.nanoTime()-start)/1_000_000L,true);return false; }
         }
-        if (cancelled.getAsBoolean()) return false;
-        try {
+        long waited=(System.nanoTime()-start)/1_000_000L,remaining=MAX_WAIT_MS-waited;
+        if (cancelled.getAsBoolean() || remaining<=0) { stat(waited,true);return false; }
+        // Gate waiting consumes the same allowance as acquiring the existing writer; never grant another 250ms.
+        try (DatabaseCoordinator.WriterDeadlineScopeCP3 deadline=store==null?null:DatabaseCoordinator.withWriterDeadlineCP3(TimeSourceR811.monoNowMs()+remaining)) {
             writer.write(operation, batch);
         } catch (IllegalStateException failure) {
-            // A retry is safe only because the entire writer transaction rolled back.
             if (!writerBusy(failure)) throw failure;
-            stat((System.nanoTime() - start) / 1_000_000L, true); return false;
+            stat((System.nanoTime()-start)/1_000_000L,true); return false;
         }
         stat(waited, false);
         return true;
+    }
+
+    /** In-memory counters from actual submit attempts; health flush keeps the existing durable hourly format. */
+    public synchronized java.util.Map<String,Object> waitSnapshotR30(){
+        java.util.Map<String,Object> out=new java.util.LinkedHashMap<>();out.put("hourStart",hourStart);out.put("submits",submits);out.put("rejectedOrRequeued",requeues);out.put("waitsAtLeast200ms",longWaits);out.put("maxObservedGateOrRejectedAttemptMs",maxWait);out.put("maxWaitAllowanceMs",MAX_WAIT_MS);return java.util.Collections.unmodifiableMap(out);
     }
 
     static void execute(SQLiteDatabase db, Batch batch, String operation) throws Exception {

@@ -1,0 +1,45 @@
+{
+  "card": "R30-B09-03",
+  "status": "LOCAL_FOCUSED_PASS_FINAL_G1_PENDING_DEVICE_NOT_RUN",
+  "MAX_WAIT_MS": 200,
+  "gateAndWriterAcquireShareOneAllowance": true,
+  "parentDeadline": "MIN(existing caller, remaining original 200ms)",
+  "liveFreezeException": "UNCHANGED; still yields to P0",
+  "pendingBatch": "retained exactly for retry",
+  "b01OffendersSourceSha256": "de5828b54a4dfbef94f94f8564c870e61a029816daf809c4e9f074566727f089",
+  "deferredOffenders": [],
+  "deferredKeyInOriginalLedger": "deferredToB09_04 (empty)",
+  "existingStaticRepairs": "B01 live-settle chunking and bounded retention already applied; no new offender invented",
+  "hostSynthetic": {
+    "environment": "HOST_NOT_ANDROID_OR_PHONE",
+    "tests": 3,
+    "scenario": "actual submit P0 timeout then same-batch retry",
+    "measured": {
+      "hostElapsedMs": 200,
+      "submits": 2,
+      "rejected": 1,
+      "writes": 1
+    },
+    "evidence": "evidence/r30/b09-03/focused-actual-wait.log.gz",
+    "deviceThresholdAcceptance": false
+  },
+  "device": {
+    "status": "NOT_RUN",
+    "durationHours": null,
+    "background": {
+      "over_hard": null
+    },
+    "critical": {
+      "over_hard": null
+    },
+    "rejectedAttempts": null,
+    "reason": "no V2353A writer/timeline dataset available; HOST counts do not populate phone results"
+  },
+  "android": {
+    "status": "NOT_RUN",
+    "sourceCompile": "PENDING",
+    "cases": "original tighter caller scope, unchanged freeze guard/exception, one durable retry receipt"
+  },
+  "originalModelsDeleted": false,
+  "thresholdsRelaxed": false
+}
