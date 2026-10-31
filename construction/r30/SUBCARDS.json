@@ -2,6 +2,23 @@
  "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
  "subcards": [
   {
+   "card": "R30-B05-02",
+   "id": "R30-B05-02-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/NullPipelineSimulationR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "现有NullEvolution只做生成/出生/回放/减半，未运行完整算子与资格；将其接到同一EvolutionLoop（关闭递归对照）并保存可恢复控制状态。真实随机排列训练/选择开奖序列需要统一回放提供控制数据视图，独立确认预约与原始缓存必须绑定该视图真实哈希。另以生产可调用、可恢复的合成模拟测量全流水线误准入及0.34/0.37/0.40功效，通过原Runtime/报告入口出Q08，所有合成结果明确隔离于自然质量；新增相应回归，不改资格数学。"
+  },
+  {
    "card": "R30-B05-01",
    "id": "R30-B05-01-b",
    "files": [
