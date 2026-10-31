@@ -1,0 +1,23 @@
+{
+ "card": "R30-B01-04",
+ "deviceMeasurement": "NOT_RUN",
+ "deviceMeasurementNote": "需模拟器2小时/真机≥6小时 r30_writer_hold 导出后由 tools/r30/offenders.py 生成；本次施工不做真机/长时设备测试，background/critical 保持 null，不得写 0 或 PASS。",
+ "hours": null,
+ "background": null,
+ "critical": null,
+ "staticKnownOffenders": [
+  {"operation": "LIVE_SETTLE", "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java", "method": "settle/settleBatch",
+   "cause": "r27_opportunity 汇总每次重算全部历史期（bb607cf:61），且单事务最多 640 行",
+   "action": "TEMPLATE_A：docs/B01 §4.1 整段替换（每片≤160行一事务；汇总只算本片期号）",
+   "verification": "tools/r30/qual_host/SettleChunkR30HostTest：640行分4片、与改前逐行一致、片2后杀进程续做不重复（3个种子）"},
+  {"operation": "R26_RETENTION", "file": "app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java", "method": "prune",
+   "cause": "r26_prepared_policy / r26_prepared_forecast / r26_expert_experiment 三条 DELETE 无行数上限",
+   "action": "TEMPLATE_B：rowid IN (SELECT rowid … 原WHERE … LIMIT 500)；prune 保持一个带 fence 的事务（fold 计数须与删除同提交），余量由下一次 retention 任务继续",
+   "verification": "其余 DELETE 已有 LIMIT 64/256/512"},
+  {"operation": "DATA_RETENTION_CP12_*", "file": "app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java", "method": "publishAndPruneCP12 / summarizeArchiveWithinWriteCP12 / revision cleanup",
+   "cause": "无：全部 DELETE 已是单行 CAS 删除（:200-201）、单键 app_state 删除（:206/211/222）、每档案≤128成员（:253）或每页≤64行且受 deadline/RealtimePressureGateR811 约束（:364）",
+   "action": "NOT_CHANGED：改为 deleteInSlicesR30 会拆散 permit→delete→permit 清除的 CAS 协议；保持原样，待设备账本证明其 over_hard>0 时再按 B01 规则开子卡",
+   "verification": "静态审查（行号为 bb607cf）"}
+ ],
+ "deferredToB09_04": []
+}

@@ -38,6 +38,10 @@ JDBC=$(mktemp -d)/sqlite-jdbc.jar
 curl -fLsS --connect-timeout 15 --max-time 90 -o "$JDBC" https://repo.maven.apache.org/maven2/org/xerial/sqlite-jdbc/3.46.1.3/sqlite-jdbc-3.46.1.3.jar
 echo "4a4832720a65eaf7f4d6fd7ede52087b994dc5633c076f9e994dc0c8b4b0b4fa  $JDBC" | sha256sum -c -
 CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQLITE_JDBC="$JDBC" OUT="$LOG" bash tools/r29/run_qual_host.sh
+# R30-B01-04-a: chunked settlement equals the pre-R30 batch; process death between chunks resumes exactly once.
+T30=$(mktemp -d); javac -nowarn -encoding UTF-8 -proc:none -d "$T30/shim" $(find tools/r29/qual_host/shim -name '*.java')
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes" -d "$T30/test" tools/r29/qual_host/QualInboxR29HostTest.java tools/r30/qual_host/SettleChunkR30HostTest.java
+java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC" com.ethk3.novaonepro.strategyv2.SettleChunkR30HostTest | tee "$LOG/r30_settle_chunk_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

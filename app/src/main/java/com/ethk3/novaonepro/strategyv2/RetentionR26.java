@@ -5,6 +5,10 @@ import android.database.sqlite.SQLiteDatabase;
 /** Bounded raw feedback and freeze history. Lag revokes authority without discarding learned parameters. */
 public final class RetentionR26 {
     private RetentionR26() {}
+    /** R30-B01-04 (docs/B01 §4.2): previously unbounded DELETEs remove at most this many rows per retention pass; the
+     * original WHERE text is unchanged and the coordinator's next retention pass removes the rest. prune() stays one
+     * fenced writer transaction because its fold counters must commit with their deletes. */
+    static final int SLICE_R30 = 500;
     private static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
     private static void fold(SQLiteDatabase db,String kind,long n){if(n==0)return;db.execSQL("INSERT OR IGNORE INTO r26_retention_total VALUES(?,0)",new Object[]{kind});db.execSQL("UPDATE r26_retention_total SET folded=folded+? WHERE kind=?",new Object[]{n,kind});}
     public static long prune(SQLiteDatabase db,long seq){
@@ -26,19 +30,19 @@ public final class RetentionR26 {
         db.execSQL("UPDATE r26_legacy_campaign SET status='NUMERICAL_ABI_CHANGED',snapshot=X'' WHERE numerical_abi<>? AND status='RUNNING'",new Object[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         db.execSQL("DELETE FROM r26_replay_output_chunk WHERE rowid IN (SELECT o.rowid FROM r26_replay_output_chunk o JOIN r26_legacy_campaign c ON c.campaign_id=o.campaign_id WHERE c.source_first<? OR c.numerical_abi<>? LIMIT 256)",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         db.execSQL("DELETE FROM r26_member_replay WHERE rowid IN (SELECT m.rowid FROM r26_member_replay m JOIN r26_legacy_campaign c ON c.campaign_id=m.campaign_id WHERE (c.source_first<? OR c.numerical_abi<>?) AND NOT EXISTS(SELECT 1 FROM r26_replay_output_chunk o WHERE o.campaign_id=m.campaign_id AND o.cache_key=m.cache_key) LIMIT 64)",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
-        db.execSQL("DELETE FROM r26_prepared_policy WHERE genesis_ordinal<? OR numerical_abi<>?",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
+        db.execSQL("DELETE FROM r26_prepared_policy WHERE rowid IN (SELECT rowid FROM r26_prepared_policy WHERE genesis_ordinal<? OR numerical_abi<>? LIMIT "+SLICE_R30+")",new Object[]{cut,ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         String oldEvents="SELECT event_id FROM r26_feedback WHERE issue_ordinal<"+cut+" ORDER BY issue_ordinal LIMIT 256";
         long n=count(db,"SELECT count(*) FROM r26_consumption WHERE event_id IN ("+oldEvents+")");
         fold(db,"consumed_feedback_rows",n);db.execSQL("DELETE FROM r26_consumption WHERE event_id IN ("+oldEvents+")");
         db.execSQL("DELETE FROM r26_feedback WHERE event_id IN ("+oldEvents+")");
         long removed=count(db,"SELECT changes()");fold(db,"feedback_rows",removed);
-        db.execSQL("DELETE FROM r26_prepared_forecast WHERE policy_hash NOT IN (SELECT policy_hash FROM r26_live_model WHERE status='ACTIVE')");
+        db.execSQL("DELETE FROM r26_prepared_forecast WHERE rowid IN (SELECT rowid FROM r26_prepared_forecast WHERE policy_hash NOT IN (SELECT policy_hash FROM r26_live_model WHERE status='ACTIVE') LIMIT "+SLICE_R30+")");
         db.execSQL("DELETE FROM r26_incumbent_frozen WHERE target_ordinal IN (SELECT target_ordinal FROM r26_incumbent_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
         db.execSQL("DELETE FROM r26_frozen WHERE rowid IN (SELECT rowid FROM r26_frozen WHERE target_ordinal<? ORDER BY target_ordinal LIMIT 512)",new Object[]{seq-10080});
         long frozen=count(db,"SELECT changes()");fold(db,"frozen_rows",frozen);
         db.execSQL("DELETE FROM r26_expert_audit WHERE rowid IN (SELECT rowid FROM r26_expert_audit ORDER BY recorded_at DESC,rowid DESC LIMIT 256 OFFSET 2048)");
         ExpertContinuationR26.preserveExpired(db);
-        db.execSQL("DELETE FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='')");
+        db.execSQL("DELETE FROM r26_expert_experiment WHERE rowid IN (SELECT rowid FROM r26_expert_experiment WHERE campaign_id NOT IN (SELECT campaign_id FROM r26_foundry) AND (length(state)=0 OR cursor=0 AND checkpoint_hash='') LIMIT "+SLICE_R30+")");
         db.execSQL("UPDATE r26_expert_experiment SET status='NUMERICAL_ABI_CHANGED' WHERE numerical_abi<>? AND status='RUNNING'",new Object[]{ResearchSemanticsGeneratedR967.TRAINING_RULE_SHA256});
         // Keep complete identities for live/retained candidates plus a bounded historical tail.
         db.execSQL("DELETE FROM r26_policy_identity WHERE policy_hash IN (SELECT p.policy_hash FROM r26_policy_identity p WHERE instr(p.genotype_text,'_warm_kernel=')=0 AND p.policy_hash NOT IN (SELECT policy_hash FROM r26_live_model UNION SELECT policy_hash FROM r26_candidate UNION SELECT policy_hash FROM r26_prepared_policy UNION SELECT genome_key FROM su2_model_genome WHERE state IN ('LEAGUE','HALL_OF_FAME') UNION SELECT substr(genotype_text,instr(genotype_text,'_warm_parent=')+13,64) FROM r26_policy_identity WHERE instr(genotype_text,'_warm_parent=')>0) ORDER BY p.created_at DESC,p.policy_hash LIMIT 256 OFFSET 4096)");

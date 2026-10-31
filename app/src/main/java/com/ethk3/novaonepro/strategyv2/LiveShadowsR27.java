@@ -42,29 +42,48 @@ public final class LiveShadowsR27 {
     static final String SETTLEABLE = "SELECT * FROM (SELECT f.policy_hash,f.target_ordinal,f.target_issue,f.position,f.n1,f.n2,f.n3,f.act,f.status,"
             + "(SELECT CASE f.position WHEN 1 THEN d.n1 WHEN 2 THEN d.n2 WHEN 3 THEN d.n3 WHEN 4 THEN d.n4 WHEN 5 THEN d.n5 WHEN 6 THEN d.n6 WHEN 7 THEN d.n7 WHEN 8 THEN d.n8 WHEN 9 THEN d.n9 WHEN 10 THEN d.n10 END FROM draws d WHERE d.issue=f.target_issue AND d.dirty=0 LIMIT 1) AS actual"
             + " FROM r27_live_frozen f WHERE f.hit IN(-1,-2) AND f.target_ordinal<=?) WHERE actual IS NOT NULL ORDER BY target_ordinal,policy_hash LIMIT 640";
+    static final int SETTLE_CHUNK_R30 = 160;
+
     static long settle(RuntimeR27 rt, ResearchPoolR27.Worker w, long latestOrd) throws Exception {
         long[] settled = new long[1];
-        RuntimeR27.submit(w, "LIVE_SETTLE", settleBatch(w.ro, latestOrd, settled));
+        // R30-B01-04: 每片 ≤160 行一个事务；汇总只更新本片涉及的期号。每条 UPDATE 都带 hit IN(-1,-2)，片间幂等。
+        for (ResearchWriteQueueR27.Batch chunk : settleChunks(w.ro, latestOrd, settled, SETTLE_CHUNK_R30))
+            RuntimeR27.submit(w, "LIVE_SETTLE", chunk);
         return settled[0];
     }
-    /** Builds the settlement batch (pending-draw bookkeeping + outcome rows); settled[0] receives the row count. */
+
+    /** 兼容旧调用与旧测试：把所有片合成一个 Batch（内容与旧版相同，只是汇总语句改为按期号）。 */
     static ResearchWriteQueueR27.Batch settleBatch(SQLiteDatabase ro, long latestOrd, long[] settled) {
+        ResearchWriteQueueR27.Batch all = new ResearchWriteQueueR27.Batch();
+        for (ResearchWriteQueueR27.Batch chunk : settleChunks(ro, latestOrd, settled, Integer.MAX_VALUE)) all.ops.addAll(chunk.ops);
+        return all;
+    }
+
+    static List<ResearchWriteQueueR27.Batch> settleChunks(SQLiteDatabase ro, long latestOrd, long[] settled, int perChunk) {
         List<Object[]> rows = new ArrayList<>();
         try (Cursor c = ro.rawQuery(SETTLEABLE, new String[] {String.valueOf(latestOrd)})) {
             while (c.moveToNext()) rows.add(new Object[] {c.getString(0), c.getLong(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getInt(9)});
         }
-        ResearchWriteQueueR27.Batch b = QualificationInboxR29.pendingDraws(ro, latestOrd);
-        long now = System.currentTimeMillis();
+        List<ResearchWriteQueueR27.Batch> out = new ArrayList<>();
+        ResearchWriteQueueR27.Batch b = QualificationInboxR29.pendingDraws(ro, latestOrd); // 缺期记账只放第一片
+        java.util.TreeSet<Long> ords = new java.util.TreeSet<>();
+        long now = System.currentTimeMillis(); int inChunk = 0;
         for (Object[] r : rows) {
             String id = (String) r[0]; long ord = (Long) r[1]; int actual = (Integer) r[9];
             if (actual < 1) continue; // malformed draw value: never invent an outcome
             boolean frozen = "FROZEN".equals(r[8]);
             boolean hit = frozen && (actual == (Integer) r[4] || actual == (Integer) r[5] || actual == (Integer) r[6]);
             b.add("UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit IN(-1,-2)", hit ? 1 : 0, now, id, ord);
-            settled[0]++;
+            ords.add(ord); settled[0]++;
+            if (++inChunk >= perChunk) { closeSettleChunk(b, ords); out.add(b); b = new ResearchWriteQueueR27.Batch(); ords = new java.util.TreeSet<>(); inChunk = 0; }
         }
-        if (settled[0] > 0) b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=r27_opportunity.target_ordinal AND f.hit>=0) WHERE target_ordinal<=?", latestOrd);
-        return b;
+        if (inChunk > 0 || !b.isEmpty()) { closeSettleChunk(b, ords); out.add(b); }
+        return out;
+    }
+
+    private static void closeSettleChunk(ResearchWriteQueueR27.Batch b, java.util.Set<Long> ords) {
+        for (Long o : ords)
+            b.add("UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=? AND f.hit>=0) WHERE target_ordinal=?", o, o);
     }
 
     /** R29-035: contiguous qualification consumption after settlement (single owner of e-process updates). */

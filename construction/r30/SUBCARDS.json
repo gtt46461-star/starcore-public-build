@@ -8,6 +8,15 @@
     "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30MetricEvaluatorTest.java"
    ],
    "reason": "卡要求“MetricEvaluator 空库返回 INSUFFICIENT 的 JUnit”，但独占文件表未列测试文件；新增独立测试文件，不改既有测试。"
+  },
+  {
+   "card": "R30-B01-04",
+   "id": "R30-B01-04-a",
+   "files": [
+    "tools/r30/qual_host/SettleChunkR30HostTest.java",
+    "tools/r30/ci_build.sh"
+   ],
+   "reason": "卡要求“640行待结算分4片提交，杀进程后续做不重复（HOST回滚测试同模式）”与“结算结果与改前逐行一致”，独占文件未列测试；新增真实 SQLite 宿主测试并接入 tools/r30/ci_build.sh（在 R29 qual_host 之后运行）。"
   }
  ]
 }
