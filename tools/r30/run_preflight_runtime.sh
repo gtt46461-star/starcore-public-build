@@ -3,11 +3,15 @@
 set -euo pipefail
 mode=${1:-full}
 app_id=com.starcore.research.r13
+chart_status=0
 if [[ "$mode" == full ]]; then
   bash tools/r30/run_android_regression.sh evidence/r30/android-regression
   adb shell am force-stop "$app_id"
   python3 scripts/probe_r13_startup.py --installed
 elif [[ "$mode" == charts-and-faults ]]; then
+  set +e
+  (
+  set -euo pipefail
   serial=$(adb get-serialno)
   [[ "$serial" == emulator-* ]] && [[ $(adb shell getprop ro.kernel.qemu | tr -d '\r') == 1 ]] || { echo EMULATOR_REQUIRED; exit 1; }
   out=evidence/r30/android-focus
@@ -28,8 +32,18 @@ receipt={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).
 (out/'focus.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print('R30_INTERNAL_CHART_FOCUS|1_ACTUAL_ANDROID_CASE|48_ACTUAL_PNG|NOT_FINAL_REGRESSION_ACCEPTANCE|PASS')
 PY
+  )
+  chart_status=$?
+  set -e
 else
   echo UNKNOWN_INTERNAL_PREFLIGHT_MODE
   exit 1
 fi
+set +e
 bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
+fault_status=$?
+set -e
+if [[ "$chart_status" != 0 || "$fault_status" != 0 ]]; then
+  echo "R30_INTERNAL_FOCUS_FAILED:charts=$chart_status:faults=$fault_status"
+  exit 1
+fi

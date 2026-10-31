@@ -1,7 +1,7 @@
 {
   "candidateSource": "221820b5449f2586304eb89073161758ff5ab233",
   "versionCode": 577310106,
-  "updatedAt": "2026-10-31T20:51:54.670464+00:00",
+  "updatedAt": "2026-10-31T21:31:32.545597+00:00",
   "localG1": {
     "source": "f857f30b74fa8cfdac84dd0d246458d024a784b1",
     "mainTree": "e638576398828b547dbd5c87463be2ee455329d1",
@@ -20,23 +20,35 @@
     {
       "lane": "EXISTING_R27",
       "run": 41239623509,
-      "job": 124650601023,
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41239623509",
-      "status": "IN_PROGRESS",
-      "source": "221820b5449f2586304eb89073161758ff5ab233",
-      "existingIdentityRestore": "PASS",
-      "androidRuntime": "PENDING_EXACT_FINAL_RELEASE",
-      "upgradeRollback": "PENDING_EXACT_FINAL_RELEASE"
+      "buildJob": 124650601023,
+      "buildStatus": "PASS",
+      "emulatorJob": 124656386520,
+      "emulatorStatus": "FAIL_OLD_FIXTURE_MISSING_ORIGINAL_CALIBRATION_PREREQUISITE",
+      "upgradeCP06": {
+        "job": 124656386621,
+        "status": "PASS"
+      },
+      "upgradeCP16": {
+        "job": 124656386588,
+        "status": "PASS"
+      }
     },
     {
       "lane": "OFFICIAL_R13",
       "run": 41239654504,
-      "url": "https://github.com/gtt46461-star/starcore-public-build/actions/runs/41239654504",
-      "status": "IN_PROGRESS",
-      "source": "221820b5449f2586304eb89073161758ff5ab233",
-      "existingIdentityRestore": "PENDING_OBSERVATION",
-      "androidRuntime": "PENDING_EXACT_FINAL_RELEASE",
-      "upgradeRollback": "PENDING_EXACT_FINAL_RELEASE"
+      "buildJob": 124650694656,
+      "buildStatus": "PASS",
+      "emulatorJob": 124656454614,
+      "emulatorStatus": "FAIL_OLD_FIXTURE",
+      "upgradeCP06": {
+        "job": 124656454549,
+        "status": "PASS"
+      },
+      "upgradeCP16": {
+        "job": 124656454592,
+        "status": "PASS"
+      },
+      "publish": "SKIPPED"
     }
   ],
   "release": {
@@ -92,11 +104,13 @@
     "published": false
   },
   "internalPreflight": {
-    "run": 41239623534,
-    "job": 124650601108,
-    "source": "221820b5449f2586304eb89073161758ff5ab233",
+    "source": "5eff9076ad8d9a02d9f702384ef287654ce088a0",
+    "run": 41243499734,
+    "job": 124662056782,
+    "scope": "INTERNAL_CHARTS_48_AND_FAULT_MATRIX_AFTER_ORIGINAL16_CASES_PASS",
     "status": "IN_PROGRESS",
-    "scope": "INTERNAL_FINAL_SOURCE_ANDROID_PREFLIGHT_NOT_FINAL_ACCEPTANCE",
+    "fullRegression": "NOT_RUN_IN_FOCUS",
+    "finalAcceptance": false,
     "publishApk": false
   },
   "sourceGateRun": 41239601480,
@@ -210,5 +224,6 @@
       "finalAcceptance": false
     }
   ],
-  "knownCurrentFinalBlocker": "source221820b Android fixture invokes full R952 migration without prerequisite domains; NOT accepted. Shared corrected receipt-only original migration fixture passes actual SQLite and Android compile; internal full Android gate pending before next formal final request."
+  "knownCurrentFinalBlocker": "Original actualAndroid16cases nowPASS. Chart test had erroneous17-card/off-by-one assertion; corrected exact16 and all48 PNG pending currentfocus.14 actualfaults pending. No finalAPKpublished. Finalnextsame-source2signedrelease full17/48/14 andfourdrills remain mandatory.",
+  "sourceGateStatus": "PASS_ON_SOURCE221820b_PRODUCT_MAIN_UNIT_SOURCE_UNCHANGED"
 }
