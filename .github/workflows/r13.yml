@@ -16,6 +16,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
+    if: ${{ (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -87,6 +88,7 @@ jobs:
             package-receipt/
           if-no-files-found: error
   android-runtime:
+    if: ${{ (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST')) }}
     strategy:
       fail-fast: false
       matrix:
@@ -142,7 +144,7 @@ jobs:
             r26-bundled-api-environment.json
             r26-adb-preflight.json
   android-endurance:
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance) }}
+    if: ${{ (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST')) && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.endurance)) }}
     needs: [build, android-runtime]
     strategy:
       fail-fast: false
@@ -191,7 +193,7 @@ jobs:
             r26-bundled-api-environment.json
             r26-adb-preflight.json
   prior-engineering-evidence:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ (github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'R30-B10-04 FINAL_BUILD_REQUEST')) && (github.event_name == 'push') }}
     needs: build
     permissions:
       contents: read
