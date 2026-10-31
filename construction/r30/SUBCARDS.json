@@ -361,6 +361,20 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "统一号码概率须接入真实ModelSurfaceProvider与AtomNetTrainer输出，并沿用现有ReplayEvaluator的排序和PIT门，不能新增独立评分器或更改原学习数学。登记实际调用点和输出/续训/解码/概率总和的回归；先登记，待B05-04 G1通过后修改产品源码。"
+  },
+  {
+   "card": "R30-B06-01",
+   "id": "R30-B06-01-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "tools/r30/qual_host/CalibrationR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "滚动校准必须接入真实FUTURE/SELECT行的ordinal及生产校准任务，报告并列旧等宽ECE和新等质量ECE/Brier/BSS/真实拟合支持范围；缺样本明确null。原120行旧诊断API/断言保留，生产使用新的严格ordinal滚动拟合，不能把未来行用于过去评估。每片最多一个策略，计算在写锁外，原队列原子提交旧表及Q05报告；新增实际SQLite回归。先登记，B05-05 G1通过后再改产品源码。"
   }
  ]
 }
