@@ -800,6 +800,16 @@
         "tools/r30/qual_host/RealAuthorityR30HostTest.java"
       ],
       "reason": "沿102主链SHADOW故障继续审查确认同一SU2命名空间缺口在冻结提交端也存在：prepareChoiceCP12已选择SU2，但freeze原writer回调一律调用ResearchPlatformStoreR929.authorizeCurrent，该方法只特判SU1，不识别SU2，故合法选择不能入冻结表。仅对已明确INVENTED_ALGORITHM且SU2-F-的预备选择，在同一既有writer内用原CertificateSU2.read复核candidate/program/certificate与时效/撤销；其余原R929/SU1路径原样保留。与selected共用只读当前证书核对函数，最终REAL仍走原DGE全部守卫。补真实SQLite合法/错候选/错证书/错program/过期/撤销反例，不增加资格例外、不改统计时间门槛。先停当前未完成G1并留证，不计通过；两端补齐后完整重跑，版本103未出APK维持103。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-k",
+      "files": [
+        "scripts/probe_r13_startup.py",
+        "tools/r30/run_upgrade_drill.sh",
+        "tools/r30/r30-preflight.yml"
+      ],
+      "reason": "102正式R27 emulator124635554534真实先停在CRASH_SNAPSHOT_UNREADABLE，尚未到主链；exec-out cat缺文件的远端错误混入stdout，被新探针当成损坏XML，finally重复抛错又未保存startup.json。验证脚本改用adb shell显式PRESENT/ABSENT/已提交.bak头和XML分开；真缺文件为无快照，既存坏文件/权限读失败仍UNKNOWN/FAIL，临时写入有界重读且不复用缓存；finally即便崩溃快照不可读也保存原失败回执。原180/90秒、60秒连续READY、10秒心跳及PID条件不改。已用实际读取函数+真实shell/文件系统验证缺失、坏文件、backup、并发替换、持续错误、失败回执。内部预检加原启动探针并先停测试进程，尽早验证该工具修复；最终release原完整门禁不减。产品Java已在1e26c8f1完整265项G1/lint/Android编译及正式SQLite两端桥接正反例通过，工具改动独立验证并由接下来的完整CI再次执行。先登记后修改。"
     }
   ]
 }
