@@ -725,6 +725,15 @@
     "tools/r30/emulator_foldback.sh"
    ],
    "reason": "大字段回收复核同时发现调用方用state.startsWith(COPIED)，把COPIED_WITH_MISSING_COLUMNS也当成完整回收并退役RP路由。改为只有COPIED且missingColumns为空才允许退役；缺列保留源库与ACTIVE路由并明确失败，禁止把模型字段漏复制当成功。补第5个实际Android反例，不删旧4项；相关驱动期望计数随新增测试更新。只收紧完整性守卫，不放宽任何统计/时间门槛。先登记后修改。"
+  },
+  {
+   "card": "R30-B10-04",
+   "id": "R30-B10-04-d",
+   "files": [
+    ".github/workflows/r27.yml",
+    ".github/workflows/r13.yml"
+   ],
+   "reason": "触发最终安全构建前实际检查发现两个缓存分支的旧通用R27/R13 workflow也响应元数据push，会额外构建/发布旧产品，违背用户只交付最终两包要求。仅在原通用workflow的job条件中排除本次精确提交前缀R30-B10-04 FINAL_BUILD_REQUEST；其他push和workflow_dispatch保留原行为。最终专用workflow仍正常执行完整门禁和签名构建，未取消或放宽任何目标源码检查。只改缓存分支CI调度，不改其产品源码；先登记后修改。"
   }
  ]
 }
