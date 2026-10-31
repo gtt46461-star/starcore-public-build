@@ -25,6 +25,34 @@ public final class ReplayEvaluatorR27 {
         public int signature(int t) { return skipped[t] || !act[t] ? -1 : k3[t * 3] * 100 + k3[t * 3 + 1] * 10 + k3[t * 3 + 2]; }
     }
 
+    // ---------------------------------------------------------------- R30-B03-01 PIT guard on every replay sample
+    /** Simulated replay clock: one planned period per minute; the deadline of row t is its planned draw time. */
+    static final long REPLAY_PERIOD_MS_R30 = 60_000L;
+    /** Replay PIT violations waiting to be written to r30_pit_violation by the next research freeze batch. */
+    static final java.util.concurrent.ConcurrentLinkedQueue<Object[]> PIT_VIOLATIONS_R30 = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    static final int PIT_QUEUE_CAP_R30 = 4096;
+    /** Test-only counter-example: the replay sample with this ordinal claims a model trained through its target. */
+    static volatile long pitInjectOrdinalR30 = Long.MIN_VALUE;
+    private static final ThreadLocal<PitGuardR30.Freeze> PIT_FREEZE_R30 = new ThreadLocal<PitGuardR30.Freeze>() { @Override protected PitGuardR30.Freeze initialValue() { return new PitGuardR30.Freeze(); } };
+
+    /** Returns true when replay sample t may be counted; otherwise the violation is queued and the sample is skipped. */
+    static boolean pitReplaySampleR30(PolicySpecR27 spec, ReplayDatasetR27 data, int t, int[] k3, double[] p) {
+        long target = data.ordinals[t], through = target - 1;
+        if (target == pitInjectOrdinalR30) through = target;
+        PitGuardR30.Freeze f = PIT_FREEZE_R30.get();
+        f.replay = true; f.targetOrdinal = target; f.trainedThroughOrdinal = through; f.featureThroughOrdinal = target - 1;
+        f.position = spec.position; f.k3 = k3; f.probabilities = p;
+        // simulated clock: row with ordinal o is drawn at (o+1)·P (positive for ordinal 0); the model trained through
+        // ordinal m is available once draw m exists, i.e. at (m+1)·P.
+        f.deadlineAt = (target + 1) * REPLAY_PERIOD_MS_R30; f.frozenAt = f.deadlineAt - PitGuardR30.MIN_MARGIN_MS; f.preparedAt = f.frozenAt;
+        f.modelAvailableAt = (Math.min(through, target - 1) + 1) * REPLAY_PERIOD_MS_R30; f.featureAvailableAt = f.modelAvailableAt;
+        java.util.List<String> v = PitGuardR30.check(f);
+        if (v.isEmpty()) return true;
+        if (PIT_VIOLATIONS_R30.size() < PIT_QUEUE_CAP_R30)
+            for (String code : v) PIT_VIOLATIONS_R30.add(new Object[] {spec.ast.toString().hashCode() + ":" + spec.position, target, code, "REPLAY"});
+        return false;
+    }
+
     public static double[] scores(PolicySpecR27 spec, FeatureCacheR27 f) { return PolicyAstR27.eval(spec.ast, f, spec.position); }
 
     /** Fits the softmax temperature on H_TRAIN rows by grid search on log-loss (bias held at zero). */
@@ -73,11 +101,14 @@ public final class ReplayEvaluatorR27 {
                     default: act = mass - StatsR27.BASE >= spec.threshold; break;
                 }
                 int[] s = {a, b, c}; Arrays.sort(s);
+                // R30-B03-01: a sample failing the PIT guard stays skipped (not counted); the online state still advances.
+                if (pitReplaySampleR30(spec, data, t, new int[] {s[0] + 1, s[1] + 1, s[2] + 1}, p)) {
                 tr.skipped[t] = false; tr.act[t] = act; tr.k3[t * 3] = s[0]; tr.k3[t * 3 + 1] = s[1]; tr.k3[t * 3 + 2] = s[2];
                 boolean h = y == a || y == b || y == c; tr.hit[t] = (byte) (h ? 1 : 0);
                 tr.pHit[t] = Math.min(1, mass); tr.pActual[t] = p[y];
                 tr.u[t] = act ? (h ? 1 : 0) - StatsR27.BASE : 0;
                 if (t == to - 1) System.arraycopy(p, 0, tr.lastProbs, 0, 10);
+                }
             }
             if (spec.rule == PolicySpecR27.Rule.QUANTILE) { double[] q = new double[10]; System.arraycopy(p, 0, q, 0, 10); int[] o = new int[10]; top3(q, o); ring[head] = q[o[0]] + q[o[1]] + q[o[2]]; head = (head + 1) % QUANTILE_WINDOW; filled = Math.min(QUANTILE_WINDOW, filled + 1); }
             // Online update: identical in every segment and in live operation (registered rule).

@@ -25,7 +25,7 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B02-03|B02|缺期补抓与幂等结算核验|DONE|b2d781d67d27|—|HOST PendingDrawR30 P1–P4 OK；SettlementEngine 未改（主链红线 R27QualityTest.h15 要求逐字节不变；CP06 重放已不写行并返回已存结果，仅重放哈希文本与首次不同）|
 |R30-B02-04|B02|准备在事务外、冻结在短事务内|DONE|7efceca151e8|—|审查：两条冻结路径事务体内均无模型/特征调用（CP06 已符合，未改行为）；prepare_to_frozen 真机 P95 NOT_RUN|
 |R30-B02-05|B02|UI与后台延迟|DONE|1ada7bd82310|—|图表已在后台线程读取；每页≤500点；debug StrictMode 已开；全页面违规清扫与首开<1s 需模拟器/真机 NOT_RUN|
-|R30-B03-01|B03|PIT守卫接入所有冻结写入|TODO|—|—|—|
+|R30-B03-01|B03|PIT守卫接入所有冻结写入|DOING|—|—|进行中：PitGuardR30 接入研究冻结与回放样本；注入反例测试与 CI 待完成|
 |R30-B03-02|B03|真实历史数据治理|TODO|—|—|—|
 |R30-B03-03|B03|分割角色与曝光账|TODO|—|—|—|
 |R30-B03-04|B03|增量特征与回放|TODO|—|—|—|

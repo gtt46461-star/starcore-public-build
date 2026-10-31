@@ -92,6 +92,21 @@ public final class LiveShadowsR27 {
         return p.consumed + p.rebuilt;
     }
 
+    // ---------------------------------------------------------------- R30-B03-01 PIT violations
+    static final String PIT_DDL_R30 = "CREATE TABLE IF NOT EXISTS r30_pit_violation(policy_hash TEXT,target_ordinal INTEGER,code TEXT,source TEXT,recorded_at INTEGER,PRIMARY KEY(policy_hash,target_ordinal,code))";
+    static void pitViolationsR30(ResearchWriteQueueR27.Batch b, String policy, long target, List<String> codes, String source) {
+        b.add(PIT_DDL_R30);
+        for (String code : codes) b.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)", policy, target, code, source, System.currentTimeMillis());
+    }
+    /** Replay samples rejected by the guard are recorded with the next research freeze batch (bounded per batch). */
+    static void drainReplayPitViolationsR30(ResearchWriteQueueR27.Batch b) {
+        Object[] v; int n = 0; boolean ddl = false;
+        while (n++ < 256 && (v = ReplayEvaluatorR27.PIT_VIOLATIONS_R30.poll()) != null) {
+            if (!ddl) { b.add(PIT_DDL_R30); ddl = true; }
+            b.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)", v[0], v[1], v[2], v[3], System.currentTimeMillis());
+        }
+    }
+
     // ---------------------------------------------------------------- freeze
     static long freeze(RuntimeR27 rt, ResearchPoolR27.Worker w, String latestIssue, long latestOrd, long deadline) throws Exception {
         return freeze(rt, w, latestIssue, latestOrd, deadline, LIVE_STATES, true);
@@ -110,12 +125,22 @@ public final class LiveShadowsR27 {
                 boolean ok = Double.isFinite(out[0]);
                 double[] p = new double[10]; if (ok) System.arraycopy(out, 0, p, 0, 10);
                 int n1 = ok ? (int) out[10] + 1 : 0, n2 = ok ? (int) out[11] + 1 : 0, n3 = ok ? (int) out[12] + 1 : 0, act = ok && out[13] == 1 ? 1 : 0;
+                if (ok) { // R30-B03-01: a freeze that fails the PIT guard is not written; the violation is.
+                    PitGuardR30.Freeze f = new PitGuardR30.Freeze();
+                    long prepared = System.currentTimeMillis();
+                    f.targetOrdinal = target; f.trainedThroughOrdinal = latestOrd; f.featureThroughOrdinal = latestOrd; f.position = s.spec.position;
+                    f.k3 = new int[] {n1, n2, n3}; f.probabilities = p; f.modelAvailableAt = now; f.featureAvailableAt = now;
+                    f.preparedAt = prepared; f.frozenAt = prepared; f.deadlineAt = deadline;
+                    List<String> violations = PitGuardR30.check(f);
+                    if (!violations.isEmpty()) { pitViolationsR30(b, s.id, target, violations, "LIVE"); continue; }
+                }
                 b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                         s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", System.currentTimeMillis(), deadline);
                 if (ok) frozen++; acted += act;
             }
             // R30-B02-04: predictions above are computed on this worker thread; the batch carries only INSERTs and the
             // deadline checks, so the writer transaction stays a short freeze write.
+            drainReplayPitViolationsR30(b);
             final long dl = deadline;
             b.before = db -> System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1; // R29: commit at least 5 s before the draw, else DEADLINE_MISSED
             b.after = b.before; // Recheck after all inserts: a large batch must roll back if it crosses the boundary.
