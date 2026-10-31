@@ -669,6 +669,23 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "MAX_WAIT_MS原200ms不变，将P0/冻结门前等待和原唯一写锁取得共用同一额度，沿用已有WriterDeadlineScopeCP3且保留更紧外层截止、LIVE_FREEZE例外及整体事务原子性；取消/中断/繁忙准确计拒绝，原待处理Batch不清不改。登记3项真实等待/取消/中断/原业务错误回归与Android原writer更紧截止/冻结例外回归。作为B09末卡接最终模拟器批次回归驱动：原14图+2新图三场景48截图、单快照/保全与主链实际测试。主链测试负例原循环会在进程单例owner仍在时换伪沙箱，改由显式mode每个独立进程启动，不重置owner；正例和四负例全部由驱动执行，原断言/数学不减。B01账本deferred列表为空，不虚构MigrationRegistry修复或设备over_hard=0。先登记后施工。"
+  },
+  {
+   "card": "R30-B10-03",
+   "id": "R30-B10-03-a",
+   "files": [
+    "tools/r30/UPGRADE_BASELINES.json",
+    "tools/r30/run_upgrade_drill.sh",
+    "tools/r30/check_upgrade_data.py",
+    "tools/r30/package_final.py",
+    "tools/r30/publish_final.sh",
+    "tools/r30/r30-build.yml",
+    "tools/r30/r30-official-build.yml",
+    "tools/r30/run_android_regression.sh",
+    "scripts/probe_r13_startup.py",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java"
+   ],
+   "reason": "最终同源码两证书交付必须对各自真实CP06/CP16旧APK进行覆盖安装和回退，记录原表/开奖/模型BLOB/资格预算保全，APK只检查公开签名不读密钥。登记仅模拟器驱动及实际SQLite摘要检查器、已公开旧APK+SHA registry、两现有缓存证书CI模板与最终单release发布：R27先产内部候选与Android门禁，官方CI等待R27全绿后汇合，最终只发布两份releaseAPK。原启动探针对非debuggable release用run-as读取prefs会假失败，已在B00真实复现；仅在adb root的一次性模拟器上显式读取原同一prefs，不改60s心跳/冷启/二启原门槛。原FoldBack实际Android回归补2MiB合成checkpoint/优化器字节与WITHOUT ROWID保全，保留四场景与所有旧断言；所有测试走专用新进程隔离，不删真实产品数据。原自然/真机缺口保留，不以模拟器替代。先登记后施工。"
   }
  ]
 }
