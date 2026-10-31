@@ -2,6 +2,19 @@
  "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
  "subcards": [
   {
+   "card": "R30-B04-05",
+   "id": "R30-B04-05-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30SelectorPolicyTest.java",
+    "tools/r30/qual_host/SelectorRateR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "真实资格登记仍把所有 MARGIN 固定成0.15，需使用新选择器在H_SELECT预登记并纳入完整策略身份的rate。保留旧未估计MARGIN回退和原有QUANTILE/RANDOM执行率，不改deltaMin数学、证书阈值或既有资格行。新增不读确认段、AST/更新器保全及实际SQLite登记回归。"
+  },
+  {
    "card": "R30-B04-04",
    "id": "R30-B04-04-a",
    "files": ["release/r982_source_calls.manifest.json", "release/r982_source_calls.tsv.gz"],
