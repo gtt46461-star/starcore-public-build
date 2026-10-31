@@ -506,6 +506,25 @@
     "tools/r30/qual_host/CertificateVersionR30HostTest.java"
    ],
    "reason": "撤销保护必须接入原发证任务的内存选择/报告，避免SQLite触发器已拒绝旧证据但任务仍把旧策略计为有效并写进mainline choice。R27发证实际读取撤销policy守卫，SU2维护在花费旧窗口alpha/重发前停止；不改任何资格数值。追加原真实300行正对照发证夹具，在同事务撤销后再次运行实际发证任务并核对状态REVOKED及缓存有效数0；先登记后改。"
+  },
+  {
+   "card": "R30-B08-01",
+   "id": "R30-B08-01-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ReportSnapshotTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30ReportSnapshotAndroidTest.java",
+    "tools/r30/qual_host/ReportSnapshotR30HostTest.java",
+    "tools/r30/qual_host/report_shim/android/os/Build.java",
+    "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "12章必须接到真实主报告/导出入口，用同一份已读取的不可变事实与期号/各来源表rowid水位生成JSON及Markdown，保留旧R26/R27附件。API35以上使用公开beginTransactionReadOnly；较旧Android用单条只读SELECT隐式DEFERRED事务取得全部事实，格式化期间不再查库、不占产品写锁；导出继续原native BEGIN(DEFERRED)固定只读副本，不用EXCLUSIVE/IMMEDIATE或隐藏API。WITHOUT ROWID表明确rowid不适用并给真实主键水位；缺源null，限量数据显式分页/截断来源。新增真实SQLite双连接并发写入/前后快照一致、共享指标和只读无写锁、Android源回归；HOST只读getter/Build适配仅测试不进APK。先登记后施工。"
   }
  ]
 }
