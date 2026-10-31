@@ -13,6 +13,16 @@ public interface IdeaFamilyR27 {
     String nameZh();
     String coreIdea();
     PolicySpecR27 generate(StatsR27.SplitMix rng, Context ctx);
+    /** Main-pool proposal boundary: generators must return complete contracts with their own provenance. */
+    default PolicySpecR27 propose(StatsR27.SplitMix rng, Context ctx) {
+        PolicySpecR27 spec = generate(rng, ctx);
+        List<String> violations;
+        try { violations = PolicyContractR30.violations(spec); }
+        catch (RuntimeException malformed) { throw new IllegalStateException("R30_GENERATOR_CONTRACT:" + id() + ":MALFORMED_PROGRAM", malformed); }
+        if (!violations.isEmpty()) throw new IllegalStateException("R30_GENERATOR_CONTRACT:" + id() + ":" + violations);
+        PolicySpecR27.Meta m = spec.meta;
+        return spec.withMeta(new PolicySpecR27.Meta(m.idea, m.operator, m.parents, m.generation, m.seed, m.reason + "；" + id() + "：" + coreIdea()));
+    }
     /** Family-specific mutation; may return null to defer to the generic operators. */
     PolicySpecR27 mutate(PolicySpecR27 parent, StatsR27.SplitMix rng, Context ctx);
 
@@ -30,6 +40,8 @@ public interface IdeaFamilyR27 {
         public java.util.Map<String, Double> leafWeight = new java.util.HashMap<>();
         /** Derived atoms / molecules usable as leaves (docs/07 7.1-3, 7.2). */
         public List<PolicyAstR27.Node> derivedLeaves = Collections.emptyList();
+        /** Current dataset's role-checked evaluator; selectors and repair profiles use H_TRAIN/H_SELECT only. */
+        public EvalContextR27 evaluation;
     }
 
     static PolicySpecR27.Meta meta(String idea, String op, int gen, long seed, String reason, String... parents) {

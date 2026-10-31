@@ -137,6 +137,7 @@ public final class EvolutionLoopR27 {
         IdeaFamilyR27.Context c = new IdeaFamilyR27.Context();
         c.generation = generation; c.maxDepth = gateMaxDepth; c.champion = champion; c.archive = archive.members(); c.legacySeeds = legacySeeds;
         c.leafWeight = leafWeight; c.derivedLeaves = derivedLeaves;
+        c.evaluation = ctx;
         Member ch = find(champion); c.championActRate = ch == null ? 0.15 : Math.max(0.01, ch.actRate);
         c.failureCluster = failureCluster();
         return c;
@@ -151,7 +152,7 @@ public final class EvolutionLoopR27 {
         for (int f = 1; f <= 13; f++) {
             int n = cfg.minPerFamily;
             if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * familySurvivors.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
-            for (int i = 0; i < n; i++) births.add(FAMILIES[f].generate(rng, ic));
+            for (int i = 0; i < n; i++) births.add(FAMILIES[f].propose(rng, ic));
         }
         int rest = Math.max(0, total - births.size());
         boolean haveParents = !population.isEmpty();
@@ -175,7 +176,7 @@ public final class EvolutionLoopR27 {
             for (ExpertProposalsR27.Proposal p : ExpertProposalsR27.propose(e, ic, rng)) { sink.expert(p, generation); if (p.spec != null) births.add(p.spec); }
         }
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
-        while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(13)].generate(rng, ic));
+        while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(13)].propose(rng, ic));
         for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); pending.add(p); }
         count("attempts", births.size());
         genStats.put("births", (long) births.size());

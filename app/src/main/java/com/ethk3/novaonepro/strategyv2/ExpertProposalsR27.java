@@ -62,6 +62,12 @@ public final class ExpertProposalsR27 {
     static PolicySpecR27.Meta meta(String expert, int g, StatsR27.SplitMix r, String reason, PolicySpecR27 parent) {
         return new PolicySpecR27.Meta("EXPERT:" + expert, "EXPERT_PROPOSAL", parent == null || parent.meta == null && parent.ast == null ? Collections.<String>emptyList() : Collections.singletonList(parent.policyHash()), g, r.state, "专家" + expert + "提案：" + reason);
     }
-    static List<Proposal> one(String e, String c, String h, String s, String m, String refute, PolicySpecR27 spec) { List<Proposal> l = new ArrayList<>(); l.add(new Proposal(e, c, h, s, m, refute, spec)); return l; }
+    static List<Proposal> one(String e, String c, String h, String s, String m, String refute, PolicySpecR27 spec) {
+        List<String> violations;
+        try { violations = PolicyContractR30.violations(spec); }
+        catch (RuntimeException malformed) { return audit(e, c, "R30_CONTRACT:MALFORMED_PROGRAM:" + malformed.getClass().getSimpleName()); }
+        if (!violations.isEmpty()) return audit(e, c, "R30_CONTRACT:" + violations);
+        List<Proposal> l = new ArrayList<>(); l.add(new Proposal(e, c, h, s, m, refute, spec)); return l;
+    }
     static List<Proposal> audit(String e, String c, String note) { List<Proposal> l = new ArrayList<>(); l.add(new Proposal(e, c, note, "无结构改动(审计回执)", "审计", "—", null)); return l; }
 }
