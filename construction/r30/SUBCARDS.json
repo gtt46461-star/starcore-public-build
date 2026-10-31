@@ -962,7 +962,7 @@
         "app/build.gradle",
         "tools/r30/r30-preflight.yml"
       ],
-      "reason": "内部e920 run41247260265/job124673161299元数据定位通过，AGP injected ABI明确标debug APK testOnly，ADB报INSTALL_FAILED_TEST_ONLY，实际测试仍NOT_RUN；只对内部debug安装加-t，最终release安装/签名/三ABI不变。本地107把lint及Android编译同图运行实际揭露generateDebugAndroidTestLintModel消费prepareRawUpstreamAndroidTestHarness输出但未登记依赖(Gradle8.14.6拒绝)；修为所有AndroidTestLintModel与原两Javac任务同样依赖原Copy生成者，保留原源码及lint基线，不删除产物规避。107定向5项实测全部通过，整体构建失败不能计PASS。原失败压缩留证；重新绑定构建输入，先登记后施工。"
+      "reason": "内部e920 run41247260265/job124673161299元数据定位通过，AGP injected ABI明确标debug APK testOnly，ADB报INSTALL_FAILED_TEST_ONLY，实际测试仍NOT_RUN；只对内部debug安装加-t，最终release安装/签名/三ABI不变。本地107把lint及Android编译同图运行实际揭露generateDebugAndroidTestLintModel消费prepareRawUpstreamAndroidTestHarness输出但未登记依赖(Gradle8.14.6拒绝)；修为所有AndroidTestLintModel与原两Javac任务同样依赖原Copy生成者，保留原源码及lint基线，不删除产物规避。107定向5项实测全部通过，整体构建失败不能计PASS。原失败压缩留证；重新绑定构建输入，先登记后施工。 实际复验继续指出lintAnalyzeDebugAndroidTest同样直接消费该生成目录，须覆盖所有名字含AndroidTest的lint任务及LintModel，而非只Model；全部旧基线不变，保留第二份真实失败。"
     }
   ]
 }
