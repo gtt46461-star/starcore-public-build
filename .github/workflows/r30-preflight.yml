@@ -75,6 +75,25 @@ jobs:
           ./gradlew --no-daemon --max-workers=4 -Pandroid.injected.build.abi=x86_64 :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset
           ./gradlew --no-daemon --max-workers=4 -Pandroid.injected.build.abi=x86_64 -Pr30Instrumentation=true :app:assembleDebug :app:assembleDebugAndroidTest
           grep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml
+          python3 - <<'PY'
+          import json,os,pathlib,shutil
+          destination=pathlib.Path(os.environ['RUNNER_TEMP'])/'r30-internal-apks'
+          destination.mkdir()
+          roots=[pathlib.Path('app/build/outputs/apk'),pathlib.Path('app/build/intermediates/apk')]
+          for variant,application,name in [('debug','com.starcore.research.r13','app.apk'),('debugAndroidTest','com.starcore.research.r13.test','test.apk')]:
+              candidates=set()
+              for root in roots:
+                  for metadata in root.rglob('output-metadata.json'):
+                      row=json.loads(metadata.read_text())
+                      if row.get('variantName')!=variant or row.get('applicationId')!=application: continue
+                      for element in row['elements']:
+                          apk=(metadata.parent/element['outputFile']).resolve()
+                          assert apk.is_file() and apk.suffix=='.apk',apk
+                          candidates.add(apk)
+              assert len(candidates)==1,(variant,sorted(map(str,candidates)))
+              apk=candidates.pop();shutil.copy2(apk,destination/name)
+              print('INTERNAL_APK_LOCATED|'+variant+'|'+str(apk.relative_to(pathlib.Path.cwd()))+'|'+str((destination/name).stat().st_size))
+          PY
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -89,7 +108,7 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: adb root && adb wait-for-device && adb install $(find app/build/outputs/apk/debug -name '*.apk' -print -quit) && adb install -t $(find app/build/outputs/apk/androidTest/debug -name '*.apk' -print -quit) && bash tools/r30/run_preflight_runtime.sh '${{ steps.request.outputs.focus }}'
+          script: adb root && adb wait-for-device && adb install "$RUNNER_TEMP/r30-internal-apks/app.apk" && adb install -t "$RUNNER_TEMP/r30-internal-apks/test.apk" && bash tools/r30/run_preflight_runtime.sh '${{ steps.request.outputs.focus }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
