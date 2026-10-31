@@ -30,6 +30,19 @@ public final class RealAuthorityR30HostTest {
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(bytes)){for(int i=0;i<100;i++)out.writeFloat(.1f);}
             db.execSQL("INSERT INTO r26_frozen VALUES(?,?,?,?,?,?,1,?,?,?)",new Object[]{key,seq,seq-1,HashingSU1.text("SYNTHETIC_CHECKPOINT"),HashingSU1.text("SYNTHETIC_STATE"),HashingSU1.text("SYNTHETIC_SOURCE"),now-6000,now+60000,bytes.toByteArray()});
             require(RealAuthoritySU2.allows(store,candidate,cert,target,now+60000),"VALID_EXISTING_AUTHORITY_BROKEN");
+            String calibration=V51ChecksumEngine.sha256("SU2_PLATT|"+Double.toHexString(1d)+"|"+Double.toHexString(0d));
+            double probability=new SelectiveCalibrationSU2.Platt(1,0).apply(EvidenceBlockR26.quantized(.4));
+            require(MainlineAdapterSU2.matchesFrozenR30(store,db,candidate,cert,program,program,MainlineAdapterSU2.CONTRACT,calibration,target,now+60000,probability,1,1,2,3),"ORIGINAL_REAL_WRITER_REJECTS_VALID_SU2_FROZEN_ACTION");
+            require(!MainlineAdapterSU2.matchesFrozenR30(store,db,candidate,cert,program,program,MainlineAdapterSU2.CONTRACT,calibration,target,now+60000,Math.nextUp(probability),1,1,2,3),"REAL_WRITER_ACCEPTS_CHANGED_CALIBRATED_PROBABILITY");
+            require(!MainlineAdapterSU2.matchesFrozenR30(store,db,candidate,cert,program,program,MainlineAdapterSU2.CONTRACT,calibration,target,now+60000,probability,1,1,2,4),"REAL_WRITER_ACCEPTS_DIFFERENT_NUMBERS");
+            db.execSQL("UPDATE su2_certificate SET calibration_a=2");
+            require(!MainlineAdapterSU2.matchesFrozenR30(store,db,candidate,cert,program,program,MainlineAdapterSU2.CONTRACT,calibration,target,now+60000,probability,1,1,2,3),"REAL_WRITER_ACCEPTS_CHANGED_ORIGINAL_PLATT");
+            db.execSQL("UPDATE su2_certificate SET calibration_a=1");
+            try{db.execSQL("UPDATE su2_live_decision SET number_mask=11");throw new AssertionError("ORIGINAL_FROZEN_DECISION_MUTATION_ACCEPTED");}
+            catch(android.database.sqlite.SQLiteException immutable){require(String.valueOf(immutable.getMessage()).contains("SU2_DECISION_FROZEN"),"UNRELATED_SQL_ERROR_NOT_IMMUTABILITY");}
+            db.execSQL("UPDATE host_state SET value='0'");
+            require(!MainlineAdapterSU2.matchesFrozenR30(store,db,candidate,cert,program,program,MainlineAdapterSU2.CONTRACT,calibration,target,now+60000,probability,1,1,2,3),"REAL_WRITER_BYPASSES_ORIGINAL_USER_SWITCH");
+            db.execSQL("UPDATE host_state SET value='1'");
             db.execSQL("CREATE TABLE research_consumer_choice_r932(target_issue TEXT PRIMARY KEY,bundle_hash TEXT,consumer TEXT,candidate_id TEXT,certificate_hash TEXT)");
             db.execSQL("INSERT INTO research_consumer_choice_r932 VALUES(?,'HOST_SYNTHETIC','INVENTED_ALGORITHM',?,?)",new Object[]{target,candidate,cert});
             UnifiedResearchChoiceR932.Evidence chosen=UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM);

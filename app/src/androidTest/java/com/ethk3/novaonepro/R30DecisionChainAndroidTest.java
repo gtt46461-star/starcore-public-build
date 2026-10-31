@@ -62,6 +62,19 @@ public final class R30DecisionChainAndroidTest {
     }
     static void remove(File file){File[] children=file.listFiles();if(children!=null)for(File child:children)remove(child);if(file.exists()&&!file.delete())throw new IllegalStateException("synthetic cleanup");}
     static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
+    static V51RuntimeOrchestrator.OutcomeR36 originalOwnerAttempt(Fixture f,String label)throws Exception{
+        String identity=BuildIdentity.verifyAndPersist(f.app,f.store);assertTrue(identity,BuildIdentity.isBetCompatible(identity));
+        AnalysisRequestStoreR36 requests=new AnalysisRequestStoreR36(f.store);
+        AnalysisSingleFlightR36.Request request=requests.ensurePending(f.base,f.target,f.deadline,label);
+        AnalysisSingleFlightR36.SubmitResult submit=AnalysisSingleFlightR36.shared().submit(request);assertTrue(submit.startNow);
+        AnalysisSingleFlightR36.Lease lease=submit.lease;assertNotNull(lease);lease.bindCurrentThread();
+        try{
+            request=requests.claim(request,lease.ownerId,System.currentTimeMillis());assertNotNull(request);
+            V51RuntimeInputR36 input=V51RuntimeInputR36.freeze(f.history,request);request=requests.bindHistoryHash(request,input.historyHash,lease.ownerId);
+            V51RuntimeOrchestrator.OutcomeR36 outcome=V51AutoFetchBridge.runR36(f.store,input,request,lease);
+            assertNotNull(outcome);assertNotNull(outcome.runtime);return outcome;
+        }finally{AnalysisSingleFlightR36.shared().releaseAndTakeNext(lease);}
+    }
 
     @Test public void correctionRevokesAndNextAuthorityReadRejectsWithinFiveSeconds()throws Exception {
         try(Fixture f=new Fixture()) {
@@ -98,6 +111,13 @@ public final class R30DecisionChainAndroidTest {
                 if(mode.equals("existing-real"))w.execSQL("INSERT INTO "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+"(target_issue,game_code,base_issue,position,n1,n2,n3,lane,decision_action,reject_code,bundle_hash,contract_hash,authorization_hash,record_hash,created_at) VALUES(?,'Binance1-PK10',?,1,1,2,3,'SYNTHETIC','BET','NONE','synthetic','synthetic','synthetic',?,?)",new Object[]{f.target,f.base,HashingSU1.text("SYNTHETIC_EXISTING_REAL"),System.currentTimeMillis()});return 0;
             });
             assertFalse(mode,RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
+            if(!mode.equals("existing-real")){
+                V51RuntimeOrchestrator.OutcomeR36 rejected=originalOwnerAttempt(f,"R30_SYNTHETIC_NEGATIVE_"+mode);
+                if(rejected.runtime.authorized!=null)assertNotEquals(mode,V51Enums.DecisionAction.BET,rejected.runtime.authorized.action);
+                assertEquals(mode,0,count(f.db,"SELECT count(*) FROM "+DbHelper.TABLE_R35_SHADOW_OBSERVATION+" WHERE decision_action='BET'"));
+                assertNull(mode,f.store.getTradeByTargetIssue(f.target));
+                System.out.println("R30_ANDROID_ORIGINAL_OWNER_NEGATIVE|"+mode+"|NO_REAL|runtime_success="+rejected.runtime.success+"|SYNTHETIC");
+            }
             System.out.println("R30_ANDROID_INDEPENDENT_AUTHORITY_REJECT|"+mode+"|SYNTHETIC");
         }
         if(!selected.equals("positive"))return;

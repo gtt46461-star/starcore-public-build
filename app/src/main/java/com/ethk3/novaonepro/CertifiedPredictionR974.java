@@ -297,7 +297,12 @@ public final class CertifiedPredictionR974 {
             if(!BuildIdentity.isBetCompatible(store.getState(BuildIdentity.STATE_STATUS,"")))error="BUILD_IDENTITY";
             else if(store.hasDrawIssue(proof.target))error="POST_DRAW";
             else if(store.getTradeByTargetIssue(proof.target)!=null)error="DUPLICATE";
-            else error=verifyCertificate(store,proof);
+            else{
+                error=verifyCertificate(store,proof);
+                if(error.isEmpty()&&proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)
+                        &&!com.ethk3.novaonepro.strategyv2.RealAuthoritySU2.allows(store,proof.candidate,proof.certificate,proof.target,proof.deadlineAt))
+                    error="SU2_ORIGINAL_REAL_AUTHORITY_REJECTED";
+            }
         }
         return new V51CandidateRealGateR915.Evaluation(error.isEmpty(),error.isEmpty()?"ELIGIBLE_CERTIFIED_EXACT_K3":error,
                 proof==null?"NO_QUALIFIED_PROOF":LANE+"|candidate="+proof.candidate+"|certificate="+proof.certificate+"|proof="+proof.hash+"|frequencyCap=NONE");
@@ -332,6 +337,9 @@ public final class CertifiedPredictionR974 {
         Proof proof=compiled.certifiedPrediction;if(proof==null)return;
         if(!db.inTransaction()||!proof.matches(compiled.selected))throw new IllegalStateException("R974_EXACT_COMMIT_PIT_OR_DEADLINE");
         String error=verifyCertificate(store,proof);if(!error.isEmpty())throw new IllegalStateException("R974_EXACT_COMMIT_"+error);
+        if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU2.PREFIX)){
+            if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterSU2.verifyFrozen(store,db,proof,compiled.selected.action))throw new IllegalStateException("SU2_EXACT_COMMIT_ACTION_CHANGED");return;
+        }
         if(proof.candidate.startsWith(com.ethk3.novaonepro.strategyv2.CertificateSU1.PREFIX)){
             if(!com.ethk3.novaonepro.strategyv2.MainlineAdapterSU1.verifyFrozen(db,proof,compiled.selected.action))throw new IllegalStateException("SU1_EXACT_COMMIT_ACTION_CHANGED");return;
         }
