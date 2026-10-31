@@ -20,9 +20,18 @@ public final class MutationOpsR27 {
     public interface Contribution { double lossIncreaseWithout(PolicySpecR27 spec, int nodeIndex); }
 
     public static PolicySpecR27 mutate(PolicySpecR27 parent, String op, StatsR27.SplitMix r, IdeaFamilyR27.Context ctx, Contribution contribution) {
+        FailureProfileR30 profile = FailureProfileR30.forParent(parent,ctx);
+        for (int attempt = 0; attempt < 8; attempt++) {
+            PolicySpecR27 child = attempt(parent,op,r,ctx,contribution,profile);
+            if (child == null || FailureProfileR30.legal(child)) return child;
+        }
+        return null; // no legal offspring; the birth gate is never relaxed
+    }
+
+    private static PolicySpecR27 attempt(PolicySpecR27 parent, String op, StatsR27.SplitMix r, IdeaFamilyR27.Context ctx, Contribution contribution, FailureProfileR30 profile) {
         PolicyAstR27.Node ast = parent.ast; List<PolicyAstR27.Node> all = PolicyAstR27.nodes(ast);
         String idea = parent.meta == null ? "I09" : parent.meta.idea; int gen = ctx == null ? 0 : ctx.generation;
-        PolicySpecR27.Meta m = new PolicySpecR27.Meta(idea, op, java.util.Collections.singletonList(parent.policyHash()), gen, r.state, reason(op));
+        PolicySpecR27.Meta m = new PolicySpecR27.Meta(idea, op, java.util.Collections.singletonList(parent.policyHash()), gen, r.state, reason(op) + "；" + profile.reason());
         switch (op) {
             case "M_CONST": {
                 List<Integer> idx = indices(all, n -> PolicyAstR27.hasParam(n.op));
@@ -35,6 +44,7 @@ public final class MutationOpsR27 {
             case "M_WINDOW": {
                 List<Integer> idx = indices(all, n -> windowed(n) >= 0);
                 if (idx.isEmpty()) return null;
+                idx = profile.prioritize(all,idx);
                 int i = idx.get(r.nextInt(idx.size())); PolicyAstR27.Node n = all.get(i); int slot = windowed(n);
                 int[] ints = n.ints.clone(); int w = java.util.Arrays.binarySearch(FeatureCacheR27.WINDOWS, ints[slot]);
                 int nw = Math.max(0, Math.min(FeatureCacheR27.WINDOWS.length - 1, w + (r.chance(0.5) ? 1 : -1)));
@@ -44,21 +54,25 @@ public final class MutationOpsR27 {
             case "M_LEAF": {
                 List<Integer> idx = indices(all, n -> n.leaf() && !n.op.equals("c"));
                 if (idx.isEmpty()) return null;
+                idx = profile.prioritize(all,idx);
                 int i = idx.get(r.nextInt(idx.size()));
                 return parent.withAst(PolicyAstR27.replace(ast, i, IdeaFamilyR27.Grow.leaf(IdeaFamilyR27.Grow.pick(ALL_KINDS, ctx, r), parent.position, r)), m);
             }
             case "M_SUBTREE": {
-                int i = r.nextInt(all.size());
+                List<Integer> idx = profile.prioritize(all,indices(all,n -> !n.op.equals("c")));
+                int i = idx.get(r.nextInt(idx.size()));
                 return parent.withAst(PolicyAstR27.replace(ast, i, IdeaFamilyR27.Grow.tree(ALL_KINDS, parent.position, 1 + r.nextInt(3), false, ctx, r)), m);
             }
             case "M_HOIST": {
                 List<Integer> idx = indices(all, n -> !n.leaf());
                 if (idx.size() < 2) return null;
-                int i = idx.get(1 + r.nextInt(idx.size() - 1));
+                idx = profile.prioritize(all,new ArrayList<>(idx.subList(1,idx.size())));
+                int i = idx.get(r.nextInt(idx.size()));
                 return parent.withAst(all.get(i), m);
             }
             case "M_WRAP": {
-                int i = r.nextInt(all.size()); PolicyAstR27.Node n = all.get(i); double u = r.nextDouble();
+                List<Integer> idx = profile.prioritize(all,indices(all,n -> !n.op.equals("c")));
+                int i = idx.get(r.nextInt(idx.size())); PolicyAstR27.Node n = all.get(i); double u = r.nextDouble();
                 PolicyAstR27.Node w = u < 0.25 ? PolicyAstR27.op("sigmoid", n) : u < 0.5 ? PolicyAstR27.op("rank", n) : u < 0.75 ? PolicyAstR27.op("ema", IdeaFamilyR27.Grow.round(0.1 + 0.8 * r.nextDouble()), n)
                         : PolicyAstR27.op("if", PolicyAstR27.leaf("regime", IdeaFamilyR27.Grow.window(r)), PolicyAstR27.constant(0.1), n, PolicyAstR27.op("zscore", IdeaFamilyR27.Grow.leaf("freq", parent.position, r)));
                 return parent.withAst(PolicyAstR27.replace(ast, i, w), m);
@@ -66,6 +80,7 @@ public final class MutationOpsR27 {
             case "M_PRUNE": {
                 List<Integer> idx = indices(all, n -> n.kids.length >= 2);
                 if (idx.isEmpty()) return null;
+                idx = profile.prioritize(all,idx);
                 int best = -1; double least = Double.POSITIVE_INFINITY; int kid = 0;
                 for (int i : idx) {
                     for (int k = 0; k < all.get(i).kids.length && k < 2; k++) {
@@ -81,16 +96,18 @@ public final class MutationOpsR27 {
             case "M_FAMILY": {
                 List<Integer> idx = indices(all, n -> n.leaf() && !n.op.equals("c"));
                 if (idx.isEmpty()) return null;
+                idx = profile.prioritize(all,idx);
                 int i = idx.get(r.nextInt(idx.size()));
                 return parent.withAst(PolicyAstR27.replace(ast, i, IdeaFamilyR27.Grow.leaf("family", parent.position, r)), m);
             }
             case "M_GATE": {
                 if (ast.op.equals("if")) return parent.withAst(ast.kids[2], m); // remove gate
                 PolicyAstR27.Node alt = IdeaFamilyR27.Grow.tree(ALL_KINDS, parent.position, 2, false, ctx, r);
-                return parent.withAst(PolicyAstR27.op("if", PolicyAstR27.leaf("regime", IdeaFamilyR27.Grow.window(r)), PolicyAstR27.constant(IdeaFamilyR27.Grow.round(0.05 + 0.15 * r.nextDouble())), ast, alt), m);
+                return parent.withAst(PolicyAstR27.op("if", PolicyAstR27.leaf("regime", profile.ready() ? profile.window : IdeaFamilyR27.Grow.window(r)), PolicyAstR27.constant(IdeaFamilyR27.Grow.round(0.05 + 0.15 * r.nextDouble())), ast, alt), m);
             }
             case "M_SELECTOR": {
                 int pos = r.chance(0.2) ? IdeaFamilyR27.Grow.pos(r) : parent.position;
+                if (profile.ready() && parent.position == profile.position) pos = 1 + (parent.position - 1 + 1 + r.nextInt(9)) % 10;
                 if (parent.rule == PolicySpecR27.Rule.QUANTILE || parent.rule == PolicySpecR27.Rule.RANDOM)
                     return parent.withSelector(pos, PolicySpecR27.Rule.QUANTILE, 0, IdeaFamilyR27.Grow.round(StatsR27.clamp(parent.rate * Math.exp(0.4 * r.gaussian()), 0.02, 0.5)), m);
                 double th = IdeaFamilyR27.Grow.round(StatsR27.clamp(parent.threshold + 0.03 * r.gaussian(), 0, 0.3));
@@ -103,6 +120,21 @@ public final class MutationOpsR27 {
             }
             default: throw new IllegalArgumentException("R27_UNKNOWN_MUTATION:" + op);
         }
+    }
+
+    /** Family-specific mutations use exactly the same measured target and contract boundary. */
+    static PolicySpecR27 familyLeaf(PolicySpecR27 parent, String[] kinds, String idea, int gen, IdeaFamilyR27.Context ctx, StatsR27.SplitMix r) {
+        FailureProfileR30 profile = FailureProfileR30.forParent(parent,ctx);
+        List<PolicyAstR27.Node> nodes = PolicyAstR27.nodes(parent.ast);
+        List<Integer> leaves = profile.prioritize(nodes,indices(nodes,n -> n.leaf() && !"c".equals(n.op)));
+        if (leaves.isEmpty()) return null;
+        for (int attempt = 0; attempt < 8; attempt++) {
+            int at = leaves.get(r.nextInt(leaves.size()));
+            PolicyAstR27.Node leaf = IdeaFamilyR27.Grow.leaf(IdeaFamilyR27.Grow.pick(kinds,ctx,r),parent.position,r);
+            PolicySpecR27 child = parent.withAst(PolicyAstR27.replace(parent.ast,at,leaf),IdeaFamilyR27.meta(idea,"M_LEAF",gen,r.state,"思路族专属叶子替换；" + profile.reason(),parent.policyHash()));
+            if (FailureProfileR30.legal(child)) return child;
+        }
+        return null;
     }
 
     static String reason(String op) {

@@ -105,12 +105,7 @@ public interface IdeaFamilyR27 {
 
         /** Leaf-swap mutation restricted to the family's own kinds (family-specific operator). */
         public static PolicySpecR27 swapLeaf(PolicySpecR27 parent, String[] kinds, String idea, int gen, Context ctx, StatsR27.SplitMix r) {
-            List<PolicyAstR27.Node> all = PolicyAstR27.nodes(parent.ast); List<Integer> leaves = new ArrayList<>();
-            for (int i = 0; i < all.size(); i++) if (all.get(i).leaf() && !all.get(i).op.equals("c")) leaves.add(i);
-            if (leaves.isEmpty()) return null;
-            int at = leaves.get(r.nextInt(leaves.size()));
-            PolicyAstR27.Node n = PolicyAstR27.replace(parent.ast, at, leaf(pick(kinds, ctx, r), parent.position, r));
-            return parent.withAst(n, meta(idea, "M_LEAF", gen, r.state, "思路族专属叶子替换", parent.policyHash()));
+            return MutationOpsR27.familyLeaf(parent,kinds,idea,gen,ctx,r);
         }
     }
 }

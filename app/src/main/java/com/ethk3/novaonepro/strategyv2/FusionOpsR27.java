@@ -15,6 +15,7 @@ public final class FusionOpsR27 {
     public static PolicySpecR27 fuse(List<PolicySpecR27> archive, EvalContextR27 ctx, StatsR27.SplitMix r, int gen) {
         if (archive.size() < 2) return null;
         PolicySpecR27 first = archive.get(r.nextInt(archive.size()));
+        FailureProfileR30 profile = ctx.failureProfile(first);
         int tp = first.position; List<PolicySpecR27> members = new ArrayList<>(); members.add(first);
         int want = 2 + r.nextInt(4);
         for (int attempt = 0; attempt < 24 && members.size() < want; attempt++) {
@@ -42,8 +43,21 @@ public final class FusionOpsR27 {
             for (int i = 1; i < members.size(); i++) sum = PolicyAstR27.op("add", sum, PolicyAstR27.op("rank", members.get(i).ast));
             ast = sum; how = "投票+校准(温度在H_TRAIN拟合)";
         }
-        PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11", "F_STACK", parents, gen, r.state, "融合" + members.size() + "个低相关成员：" + how);
-        return new PolicySpecR27(ast, tp, first.rule, first.threshold, first.rate, 1.0, true, first.lr, first.forget, m);
+        String reason = "融合" + members.size() + "个低相关成员：" + how + "；" + profile.reason();
+        // Prefer inserting the complementary program at a failed input leaf. If that would exceed the existing
+        // type/size/depth contract, try the original whole-program fusion, then decline the proposal.
+        if (profile.ready()) {
+            List<PolicyAstR27.Node> nodes = PolicyAstR27.nodes(first.ast);
+            List<Integer> leaves = profile.prioritize(nodes,MutationOpsR27.indices(nodes,n -> n.leaf() && !"c".equals(n.op)));
+            for (int at : leaves) {
+                PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=" + at);
+                PolicySpecR27 child = new PolicySpecR27(PolicyAstR27.replace(first.ast,at,ast),tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
+                if (FailureProfileR30.legal(child)) return child;
+            }
+        }
+        PolicySpecR27.Meta m = new PolicySpecR27.Meta("I11","F_STACK",parents,gen,r.state,reason + "；repairNode=WHOLE_PROGRAM");
+        PolicySpecR27 child = new PolicySpecR27(ast,tp,first.rule,first.threshold,first.rate,1.0,true,first.lr,first.forget,m);
+        return FailureProfileR30.legal(child) ? child : null;
     }
 
     static PolicySpecR27 weighted(List<PolicySpecR27> members, double[] w, PolicySpecR27 first) {

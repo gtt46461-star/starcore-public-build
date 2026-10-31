@@ -10,6 +10,9 @@ public final class EvalContextR27 {
     private final Map<String, double[]> scoreMemo = new LinkedHashMap<String, double[]>(64, 0.75f, true) {
         @Override protected boolean removeEldestEntry(Map.Entry<String, double[]> e) { return size() > 96; }
     };
+    private final Map<String, FailureProfileR30> failureMemo = new LinkedHashMap<String, FailureProfileR30>(64, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, FailureProfileR30> e) { return size() > 96; }
+    };
 
     public EvalContextR27(FeatureCacheR27 cache, SplitR27 split, int[][] labels) {
         this.cache = cache; this.data = cache.data; this.split = split; this.labels = labels == null ? cache.data.draws : labels;
@@ -23,6 +26,14 @@ public final class EvalContextR27 {
         return v;
     }
     public double temperature(PolicySpecR27 s) { return ReplayEvaluatorR27.fitTemperature(s, scores(s), labels, split.trainFrom, split.trainTo); }
+
+    public FailureProfileR30 failureProfile(PolicySpecR27 s) {
+        String key = s.policyHash(); // this context owns one immutable dataset, split and label view
+        synchronized (failureMemo) { FailureProfileR30 p = failureMemo.get(key); if (p != null) return p; }
+        FailureProfileR30 p = FailureProfileR30.measure(s,this); // no replay while holding the cache monitor
+        synchronized (failureMemo) { failureMemo.put(key,p); }
+        return p;
+    }
 
     /** Pass through H_TRAIN and H_SELECT only (candidates never touch the sealed block). */
     public ReplayEvaluatorR27.Trace selectTrace(PolicySpecR27 s, double tau) {

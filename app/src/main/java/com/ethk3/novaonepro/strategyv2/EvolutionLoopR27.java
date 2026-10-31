@@ -173,7 +173,7 @@ public final class EvolutionLoopR27 {
         }
         for (int i = 0; i < cx; i++) {
             Member a = population.get(rng.nextInt(population.size())), b = population.get(rng.nextInt(population.size()));
-            PolicySpecR27 c = rng.chance(0.6) ? CrossoverOpsR27.subtree(a.spec, b.spec, rng, generation) : CrossoverOpsR27.input(a.spec, b.spec, rng, generation);
+            PolicySpecR27 c = rng.chance(0.6) ? CrossoverOpsR27.subtree(a.spec, b.spec, rng, generation, ctx) : CrossoverOpsR27.input(a.spec, b.spec, rng, generation, ctx);
             if (c != null) births.add(c);
         }
         for (int i = 0; i < fu; i++) { PolicySpecR27 c = FusionOpsR27.fuse(archive.members(), ctx, rng, generation); if (c != null) births.add(c); }
