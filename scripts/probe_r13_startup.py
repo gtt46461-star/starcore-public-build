@@ -11,6 +11,8 @@ def adb(*argv,check=True):
     if check and r.returncode:raise RuntimeError('ADB_FAILED: '+r.stderr)
     return r.stdout
 _root_prefs_r30=None
+pref_read_retries={}
+pref_read_unstable={}
 def prefs(name):
     global _root_prefs_r30
     # Release APKs are not debuggable: run-as is unavailable. Root access is allowed only on the disposable emulator.
@@ -18,10 +20,21 @@ def prefs(name):
         emulator=adb('get-serialno',check=False).strip().startswith('emulator-') and adb('shell','getprop','ro.kernel.qemu',check=False).strip()=='1'
         _root_prefs_r30=emulator and adb('shell','id','-u',check=False).strip()=='0'
     root=_root_prefs_r30
-    raw=(adb('exec-out','cat','/data/user/0/'+PKG+'/shared_prefs/'+name+'.xml',check=False) if root
-         else adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False))
-    try:return {e.attrib['name']:e.text or e.attrib.get('value','') for e in ET.fromstring(raw)}
-    except ET.ParseError:return {}
+    # Atomic preference replacement can briefly expose a missing/partial XML file to a shell reader.
+    # Re-read the same file, never cached READY data, within the existing phase deadline and gates.
+    read_deadline=time.monotonic()+1.0
+    while True:
+        raw=(adb('exec-out','cat','/data/user/0/'+PKG+'/shared_prefs/'+name+'.xml',check=False) if root
+             else adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False))
+        try:return {e.attrib['name']:e.text or e.attrib.get('value','') for e in ET.fromstring(raw)}
+        except ET.ParseError:
+            if name!='v20_service_runtime_light' and not raw.strip():return {}
+            if time.monotonic()>=read_deadline:
+                pref_read_unstable[name]=pref_read_unstable.get(name,0)+1
+                if raw.strip() and name=='v20_crash_snapshot':raise RuntimeError('CRASH_SNAPSHOT_UNREADABLE')
+                return {}
+            pref_read_retries[name]=pref_read_retries.get(name,0)+1
+            time.sleep(.025)
 def snapshot(phase):
     p=prefs('v20_service_runtime_light')
     row={k:v for k,v in p.items() if k.startswith(('init_','recovery_lease_','last_recovery_')) or k in ('service_ready_at','user_enabled','process_id','heartbeat_at')}
@@ -77,7 +90,7 @@ try:
     if args.baseline:assert baseline_reproduced,'Expected baseline restart failure did not reproduce'
     else:passed=True
 finally:
-    (out/'startup.json').write_text(json.dumps({'passed':passed,'baseline_reproduced':baseline_reproduced,'samples':rows,'crash':prefs('v20_crash_snapshot')},ensure_ascii=False,indent=2))
+    (out/'startup.json').write_text(json.dumps({'passed':passed,'baseline_reproduced':baseline_reproduced,'samples':rows,'crash':prefs('v20_crash_snapshot'),'preferenceReadRetries':pref_read_retries,'unstableReadsAfterRetry':pref_read_unstable},ensure_ascii=False,indent=2))
     print(json.dumps(prefs('v20_crash_snapshot'),ensure_ascii=False),flush=True)
     (out/'logcat.txt').write_text(adb('logcat','-d',check=False))
     capture('final')

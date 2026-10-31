@@ -12,6 +12,8 @@ public final class ResearchRetentionStoreR30 {
     public static final String INDEX_DDL="CREATE TABLE IF NOT EXISTS r30_retention_archive_index(source_table TEXT PRIMARY KEY,archive_table TEXT NOT NULL,schema_hash TEXT NOT NULL,columns_json TEXT NOT NULL,retained_rows INTEGER NOT NULL DEFAULT 0,updated_at INTEGER NOT NULL)";
     public static final String RUN_DDL="CREATE TABLE IF NOT EXISTS r30_retention_run(run_id TEXT PRIMARY KEY,measured_at INTEGER NOT NULL,budget_bytes INTEGER NOT NULL,report_json TEXT NOT NULL)";
     public static final String FILE_DDL="CREATE TABLE IF NOT EXISTS r30_retention_file_action(action_id TEXT PRIMARY KEY,relative_path TEXT NOT NULL,kind TEXT NOT NULL,bytes INTEGER NOT NULL,modified_at INTEGER NOT NULL,copy_reference TEXT NOT NULL,state TEXT NOT NULL,recorded_at INTEGER NOT NULL,finished_at INTEGER NOT NULL DEFAULT 0)";
+    static final String BOOT_DDL="CREATE TABLE IF NOT EXISTS r30_retention_boot_checkpoint(process_nonce TEXT PRIMARY KEY,snapshot_at INTEGER NOT NULL,retained_rows INTEGER NOT NULL)";
+    private static final String PROCESS_CHECKPOINT_SNAPSHOT=UUID.randomUUID().toString();
     static String q(String value){return "\""+value.replace("\"","\"\"")+"\"";}
     static String lit(String value){return "'"+value.replace("'","''")+"'";}
     static long schema(SQLiteDatabase db){try(Cursor c=db.rawQuery("PRAGMA schema_version",null)){if(!c.moveToFirst())throw new IllegalStateException("R30_RETENTION_SCHEMA_UNKNOWN");return c.getLong(0);}}
@@ -44,6 +46,35 @@ public final class ResearchRetentionStoreR30 {
             db.execSQL("CREATE TRIGGER IF NOT EXISTS "+q(target+"_immutable_update")+" BEFORE UPDATE ON "+q(target)+" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END");
             db.execSQL("CREATE TRIGGER IF NOT EXISTS "+q(target+"_immutable_delete")+" BEFORE DELETE ON "+q(target)+" BEGIN SELECT RAISE(ABORT,'R30_PROTECTED_ARCHIVE_IMMUTABLE'); END");
         }
+        preserveStartupCheckpoint(db);
+    }
+    /** Preserve the incoming version's complete checkpoint before ordinary training replaces it.
+     * The marker commits with the archive: a failed startup can retry, while repeated schema/retention
+     * checks in this process never copy every intermediate training checkpoint. */
+    private static void preserveStartupCheckpoint(SQLiteDatabase db){
+        String source="r29_model_checkpoint",target="r30_keep_"+source;
+        if(!exists(db,source)||!exists(db,target))return;
+        db.execSQL(BOOT_DDL);
+        try(Cursor c=db.rawQuery("SELECT 1 FROM r30_retention_boot_checkpoint WHERE process_nonce=?",new String[]{PROCESS_CHECKPOINT_SNAPSHOT})){
+            if(c.moveToFirst())return;
+        }
+        List<String[]> columns=columns(db,source);
+        StringJoiner names=new StringJoiner(","),values=new StringJoiner(","),same=new StringJoiner(" AND ");
+        for(String[] column:columns){
+            String name=q(column[0]);names.add(name);values.add("incoming."+name);
+            same.add("(typeof(saved."+name+")=typeof(incoming."+name+") AND saved."+name+" IS incoming."+name+")");
+        }
+        long now=System.currentTimeMillis();
+        db.execSQL("INSERT INTO "+q(target)+"(__r30_at,__r30_reason,"+names+") SELECT ?,?,"+values
+                +" FROM "+q(source)+" incoming WHERE length(incoming.artifact)>0 AND NOT EXISTS(SELECT 1 FROM "+q(target)+" saved WHERE "+same+")",
+                new Object[]{now,"PRE_TRAINING_STARTUP_CHECKPOINT"});
+        long retained;
+        try(Cursor c=db.rawQuery("SELECT changes()",null)){
+            if(!c.moveToFirst())throw new IllegalStateException("R30_CHECKPOINT_ARCHIVE_COUNT_UNKNOWN");
+            retained=c.getLong(0);
+        }
+        db.execSQL("UPDATE r30_retention_archive_index SET retained_rows=retained_rows+?,updated_at=? WHERE source_table=?",new Object[]{retained,now,source});
+        db.execSQL("INSERT INTO r30_retention_boot_checkpoint VALUES(?,?,?)",new Object[]{PROCESS_CHECKPOINT_SNAPSHOT,now,retained});
     }
     static String verifiedFoldback(SQLiteDatabase db){
         try{

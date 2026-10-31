@@ -8,7 +8,23 @@ serial=$(adb get-serialno)
 pkg=com.starcore.research.r13
 [[ -z $(adb shell pm path "$pkg" | tr -d '\r') ]] || { echo FRESH_EMULATOR_REQUIRED; exit 1; }
 work=$(mktemp -d)
-trap 'rm -rf "$work"' EXIT
+finish() {
+  local result=$?
+  if [[ "$result" != 0 ]]; then
+    python3 - "$out" <<'PYCODE'
+import json,pathlib,sys
+root=pathlib.Path(sys.argv[1])
+codes={'Fresh service/heartbeat never remained READY for 60 seconds':'FRESH_SERVICE_60S_GATE_FAILED','STARTUP_ERROR:':'STARTUP_ERROR','STARTUP_RETRIED':'STARTUP_RETRIED','ADB_FAILED:':'ADB_FAILED'}
+for stage in ['upgrade','rollback','reupgrade']:
+ p=root/(stage+'-startup.log')
+ if p.is_file():
+  text=p.read_text(errors='replace');print('UPGRADE_STARTUP_FAILURE_SUMMARY',json.dumps({'stage':stage,'codes':[safe for raw,safe in codes.items() if raw in text]}))
+PYCODE
+  fi
+  rm -rf "$work"
+  return "$result"
+}
+trap finish EXIT
 python3 - "$lane" "$checkpoint" > "$work/baseline.tsv" <<'PY'
 import json,sys
 rows=[r for r in json.load(open('tools/r30/UPGRADE_BASELINES.json')) if r['lane']==sys.argv[1] and r['checkpoint']==sys.argv[2]];assert len(rows)==1
