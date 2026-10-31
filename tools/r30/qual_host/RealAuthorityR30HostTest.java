@@ -34,6 +34,10 @@ public final class RealAuthorityR30HostTest {
             db.execSQL("INSERT INTO research_consumer_choice_r932 VALUES(?,'HOST_SYNTHETIC','INVENTED_ALGORITHM',?,?)",new Object[]{target,candidate,cert});
             UnifiedResearchChoiceR932.Evidence chosen=UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM);
             require(chosen!=null,"FROZEN_VALID_SU2_CERTIFICATE_DROPPED_BY_SELECTED_BRIDGE");
+            java.lang.reflect.Method current=UnifiedResearchChoiceR932.class.getDeclaredMethod("currentSu2ChoiceR30",SQLiteDatabase.class,String.class,String.class,String.class);current.setAccessible(true);
+            require(current.invoke(null,db,candidate,program,cert)!=null,"ORIGINAL_WRITER_CANNOT_FREEZE_VALID_SU2_IDENTITY");
+            require(current.invoke(null,db,candidate,HashingSU1.text("DIFFERENT_PROGRAM"),cert)==null,"WRITER_ACCEPTED_SU2_PROGRAM_MISMATCH");
+            require(current.invoke(null,db,candidate,program,HashingSU1.text("DIFFERENT_CERTIFICATE"))==null,"WRITER_ACCEPTED_SU2_CERTIFICATE_MISMATCH");
             require(candidate.equals(chosen.id)&&program.equals(chosen.structure)&&cert.equals(chosen.certificate)&&HashingSU1.text("SYNTHETIC").equals(chosen.evidence),"FROZEN_SU2_IDENTITY_OR_ORIGINAL_EVIDENCE_CHANGED");
             require(chosen.metric("ACT_N")==1000&&chosen.metric("HIT_RATE")==.4&&chosen.metric("COVERAGE")==.2&&chosen.metric("ECE")==.03&&Double.isNaN(chosen.metric("BRIER")),"FROZEN_SU2_OBSERVED_METRICS_OR_UNKNOWN_CHANGED");
             db.execSQL("UPDATE research_consumer_choice_r932 SET certificate_hash=?",new Object[]{HashingSU1.text("DIFFERENT_CERTIFICATE")});
@@ -56,6 +60,10 @@ public final class RealAuthorityR30HostTest {
             db.execSQL("DELETE FROM trades");db.execSQL("UPDATE host_state SET value='0'");require(!RealAuthoritySU2.allows(store,candidate,cert,target,now+60000),"USER_DEFAULT_OFF_BYPASSED");
             db.execSQL("UPDATE host_state SET value='1'");db.execSQL("UPDATE su1_source_clock SET generation=2");require(!RealAuthoritySU2.allows(store,candidate,cert,target,now+60000),"REVISED_SOURCE_FREEZE_AUTHORIZED");
             db.execSQL("UPDATE su1_source_clock SET generation=1");db.execSQL("UPDATE su2_certificate SET expires_at=?",new Object[]{now-1});require(!RealAuthoritySU2.allows(store,candidate,cert,target,now+60000),"EXPIRED_CERTIFICATE_AUTHORIZED");
+            db.execSQL("UPDATE su2_certificate SET expires_at=?",new Object[]{now+60000});
+            db.execSQL("INSERT INTO r26_certificate_revocation VALUES(?,'HOST_SYNTHETIC_REVOCATION',?)",new Object[]{cert,now});
+            require(current.invoke(null,db,candidate,program,cert)==null,"WRITER_ACCEPTED_REVOKED_SU2_CERTIFICATE");
+            require(UnifiedResearchChoiceR932.selected(store,target,CertificateBundleServiceR929.Consumer.INVENTED_ALGORITHM)==null,"READER_ACCEPTED_REVOKED_SU2_CERTIFICATE");
             System.out.println("R30_REAL_AUTHORITY_SQLITE|ACTUAL_AUTHORITY_BYTECODE|VALID_EXISTING_LANE_PASS|MISSING_FULL_FREEZE_REJECTED|EXISTING_CANONICAL_AND_LEGACY_REAL_REJECTED|DEFAULT_OFF|SOURCE_REVISION_AND_EXPIRED_REJECTED|SYNTHETIC_MECHANICS_NOT_NATURAL_QUALITY|PASS");
         }
     }
