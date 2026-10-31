@@ -3,6 +3,14 @@
  "subcards": [
   {
    "card": "R30-B05-01",
+   "id": "R30-B05-01-b",
+   "files": [
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27QualityTest.java"
+   ],
+   "reason": "全量212项实测2项失败：一个旧源码字符串检查仍要求在EvolutionLoop内部调用look控制确认，与本卡必须移出确认相冲突；保留原1000次控制不耗主预算/主策略耗预算断言，新增独立冻结确认真实执行的控制预算检查替代这两处旧调用文本。观察池断言不改，恢复其现有同义Runtime调用格式。另以真实序贯状态转移复现新报告SQL误用QUALIFIED字面值而漏计，改为绑定既有QUALIFIED常量，不改序贯数学。"
+  },
+  {
+   "card": "R30-B05-01",
    "id": "R30-B05-01-a",
    "files": [
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
