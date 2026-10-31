@@ -78,7 +78,8 @@ jobs:
           bash tools/r30/ci_build.sh
           ./gradlew --no-daemon :app:lintDebug
           python3 tools/r30/package_final.py --lane EXISTING_R27 --expected-source '${{ steps.request.outputs.source }}'
-          ./gradlew --no-daemon -q :app:assembleDebugAndroidTest
+          ./gradlew --no-daemon -q -Pr30Instrumentation=true :app:assembleDebugAndroidTest
+          grep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml
           mkdir -p r30-androidtest
           cp app/build/outputs/apk/androidTest/debug/*.apk r30-androidtest/
       - uses: actions/upload-artifact@v4
