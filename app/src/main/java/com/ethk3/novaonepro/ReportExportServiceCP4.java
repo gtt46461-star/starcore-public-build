@@ -118,13 +118,13 @@ public final class ReportExportServiceCP4 extends Service {
 
     @Override public void onCreate(){super.onCreate();worker=new ThreadPoolExecutor(1,1,0L,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(1),r->new Thread(()->{android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);r.run();},"report-owner-cp12"));
         controlTimer=Executors.newSingleThreadScheduledExecutor(r->new Thread(r,"report-control-cp12"));
-        controlTimer.scheduleWithFixedDelay(()->{ActiveControl active=control;if(active!=null&&!active.shouldContinue()&&control==active){ReportCatalogCP4.cancelActive();}},250,250,TimeUnit.MILLISECONDS);}
+        controlTimer.scheduleWithFixedDelay(()->{ActiveControl active=control;if(active!=null&&!active.shouldContinue()&&control==active){active.cancelReadR30();ReportCatalogCP4.cancelActive();}},ReportTaskControlR69.CHECKPOINT_MS_R30,ReportTaskControlR69.CHECKPOINT_MS_R30,TimeUnit.MILLISECONDS);}
     @Override public int onStartCommand(Intent intent,int flags,int startId){lastStartId=startId;foreground("报告等待处理");
         if(intent!=null&&ACTION_CANCEL.equals(intent.getAction())){String key=intent.getStringExtra("id");if(key!=null&&key.matches("[0-9a-f]{64}")){ActiveControl active=control;if(active!=null&&active.cancelKey.equals(key))active.cancel.set(true);try{REQUESTS.execute(()->{try{ReportJobJournalCP12.requestCancellation(requestRoot(getApplicationContext()),key);}catch(Exception error){android.util.Log.e("ReportExportCP12","cancel command persistence failed",error);}});}catch(RejectedExecutionException full){android.util.Log.w("ReportExportCP12","active task cancel is set; redelivered intent will persist after restart",full);}}}
         if(drainQueued.compareAndSet(false,true)){try{workerFuture=worker.submit(this::drain);}catch(RejectedExecutionException full){drainQueued.set(false);}}
         return START_REDELIVER_INTENT;}
     @Override public IBinder onBind(Intent intent){return null;}
-    @Override public void onDestroy(){destroyed.set(true);ActiveControl active=control;if(active!=null)active.stopReason="REPORT_PROCESS_SHUTDOWN";ReportCatalogCP4.cancelActive();Future<?> future=workerFuture;if(future!=null)future.cancel(true);worker.shutdownNow();controlTimer.shutdownNow();super.onDestroy();}
+    @Override public void onDestroy(){destroyed.set(true);ActiveControl active=control;if(active!=null){active.stopReason="REPORT_PROCESS_SHUTDOWN";active.cancelReadR30();}ReportCatalogCP4.cancelActive();Future<?> future=workerFuture;if(future!=null)future.cancel(true);worker.shutdownNow();controlTimer.shutdownNow();super.onDestroy();}
     private void foreground(String text){NotificationManager manager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         if(Build.VERSION.SDK_INT>=26)manager.createNotificationChannel(new NotificationChannel(CHANNEL,"STARCORE 检测导出",NotificationManager.IMPORTANCE_LOW));
         Notification.Builder builder=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
@@ -138,7 +138,7 @@ public final class ReportExportServiceCP4 extends Service {
             if(journal==null)return;String queued=ReportRequestQueueCP12.head(journal.root());if(queued!=null)currentRequest=queued;
             ReportTaskControlR69.applyPending(journal);
             ReportPublicationCP12.pruneRequestMetadata(journal.root(),System.currentTimeMillis());
-            ReportJobJournalCP12.Job job=journal.current();if(job!=null&&isActive(job))currentRequest=job.requestId;
+            ReportJobJournalCP12.Job job=journal.current();if(job!=null&&job.stage.equals("CANCELLED"))ReportTaskControlR69.finishCancellationR30(journal.root(),journal.directory(job),job);if(job!=null&&isActive(job))currentRequest=job.requestId;
             if(job!=null&&isActive(job)&&job.mode.equals("RETENTION_PAGE")&&ReportRequestQueueCP12.interactiveHead(journal.root())!=null){
                 journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());
                 ReportRequestQueueCP12.enqueue(journal.root(),job.requestId,"RETENTION_PAGE");job=null;
@@ -245,7 +245,10 @@ public final class ReportExportServiceCP4 extends Service {
                     ReportMemberPlanCP12.append(members,r27Report.getName(),r27Report.getName(),ReportArchiveCP4.hash(r27Report,active),r27Report.length());
                     // R30 primary report: capture once, then serialize the identical twelve chapters twice.
                     java.util.Map<String,Object> r30Source=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536));
-                    java.util.List<java.util.Map<String,Object>> r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source);
+                    active.checkpoint();android.os.CancellationSignal r30ReadCancellation=new android.os.CancellationSignal();active.readCancellationR30=r30ReadCancellation;
+                    java.util.List<java.util.Map<String,Object>> r30Chapters;
+                    try{r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source,r30ReadCancellation);}finally{active.readCancellationR30=null;}
+                    active.checkpoint();
                     File r30Json=new File(directory,"R30_REPORT.json"),r30Markdown=new File(directory,"R30_REPORT.md");
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Json),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters)));}
                     try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Markdown),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
@@ -285,7 +288,10 @@ public final class ReportExportServiceCP4 extends Service {
                 journal.transition(job,ReportJobJournalCP12.Stage.VERIFYING,System.currentTimeMillis());publish(job,journal,directory,archive,active);journal.acknowledge(job.requestId,job);
             } catch(Throwable error) {
                 Thread.interrupted();String reason=active.stopReason.isEmpty()?classify(error):active.stopReason;job.lastReason=reason;
-                if(reason.equals("REPORT_USER_CANCEL"))journal.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
+                if(reason.equals("REPORT_USER_CANCEL")){
+                    journal.transition(job,ReportJobJournalCP12.Stage.CANCELLED,System.currentTimeMillis());
+                    try{ReportTaskControlR69.finishCancellationR30(journal.root(),journal.directory(job),job);}catch(Exception cleanup){job.lastReason="REPORT_CANCEL_CLEANUP_FAILED:"+cleanup.getClass().getSimpleName();journal.checkpoint(job,System.currentTimeMillis());android.util.Log.e("ReportExportCP12","cancelled job cleanup requires retry",cleanup);}
+                }
                 else if(reason.equals("REPORT_REALTIME_PREEMPT")||reason.equals("REPORT_PROCESS_SHUTDOWN")||reason.equals("REPORT_WORKER_INTERRUPTED")){job.preemptions++;job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";if(job.preemptions>30){job.lastReason="REPORT_PREEMPTION_LIMIT";journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}else{journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}}
                 else if(isRetryable(reason)&&++job.failureAttempts<3){job.resumeStage=job.snapshotSha.isEmpty()?"BACKUP":"INDEXING";journal.transition(job,ReportJobJournalCP12.Stage.PAUSED,System.currentTimeMillis());scheduleResume(job.jobId);}
                 else {journal.transition(job,ReportJobJournalCP12.Stage.FAILED,System.currentTimeMillis());}
@@ -317,7 +323,7 @@ public final class ReportExportServiceCP4 extends Service {
         job.manifestSha=proof.manifestSha256;job.evidenceComplete=proof.evidenceComplete;job.checksComplete=proof.checksComplete;
         JSONObject pointer=new JSONObject();pointer.put("jobId",job.jobId);pointer.put("relativeDir",job.publishedDir);pointer.put("manifestSha256",job.manifestSha);pointer.put("evidenceComplete",job.evidenceComplete);pointer.put("checksComplete",job.checksComplete);
         active.enter("ZIP_DELIVERY",120000);
-        ReportPublicationCP12.prepareSingleZip(directory,archive,job.jobId,job.manifestSha,job.evidenceComplete,job.checksComplete,job.allChecksPassed,active);
+        ReportPublicationCP12.prepareBoundedZipR30(directory,archive,job.jobId,job.manifestSha,job.evidenceComplete,job.checksComplete,job.allChecksPassed,active);
         pointer.put("deliveryIndexSha256",ReportArchiveCP4.hash(new File(directory,"delivery/index.json"),active));
         ReportPublicationCP12.pruneOldReports(journal.root(),directory,System.currentTimeMillis());
         ReportPublicationCP12.enforceQuota(journal.root(),directory,job.publishedQuotaBytes);   // R13-P34: the quota existed but was never called
@@ -366,6 +372,8 @@ public final class ReportExportServiceCP4 extends Service {
     private String processName(){if(Build.VERSION.SDK_INT>=28)return Application.getProcessName();ActivityManager manager=(ActivityManager)getSystemService(ACTIVITY_SERVICE);List<ActivityManager.RunningAppProcessInfo> processes=manager.getRunningAppProcesses();if(processes!=null)for(ActivityManager.RunningAppProcessInfo p:processes)if(p.pid==android.os.Process.myPid())return p.processName;return "UNKNOWN";}
     private final class ActiveControl implements ReportNativeCP4.Control {
         final ReportJobJournalCP12.Job job;final File root;final String cancelKey;final AtomicBoolean cancel=new AtomicBoolean();volatile String stopReason="";volatile long deadline=Long.MAX_VALUE,lastRead;private long stageStarted,lastProgressWrite;
+        volatile android.os.CancellationSignal readCancellationR30;
+        void cancelReadR30(){android.os.CancellationSignal active=readCancellationR30;if(active!=null)active.cancel();}
         ActiveControl(ReportJobJournalCP12.Job job,File root){this(job,root,job.jobId);}
         ActiveControl(ReportJobJournalCP12.Job job,File root,String cancelKey){this.job=job;this.root=root;this.cancelKey=cancelKey;}
         void enter(String stage,long milliseconds){stopReason="";stageStarted=SystemClock.elapsedRealtime();lastProgressWrite=0;deadline=ReportBudgetSU2.deadline(stageStarted,milliseconds,job.mode.equals("FULL_REPORT"));
@@ -379,7 +387,7 @@ public final class ReportExportServiceCP4 extends Service {
         }
         public synchronized boolean shouldContinue(){if(!stopReason.isEmpty())return false;if(cancel.get()){stopReason="REPORT_USER_CANCEL";return false;}if(destroyed.get()){stopReason="REPORT_PROCESS_SHUTDOWN";return false;}if(Thread.currentThread().isInterrupted()){stopReason="REPORT_WORKER_INTERRUPTED";return false;}
             long now=SystemClock.elapsedRealtime();if(now>=deadline){stopReason="REPORT_STAGE_TIMEOUT";return false;}
-            if(now-lastRead>=250){lastRead=now;try{
+            if(now-lastRead>=ReportTaskControlR69.CHECKPOINT_MS_R30){lastRead=now;try{
                 if(ReportTaskControlR69.cancelled(root,job.requestId,cancelKey)){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}
                 if(job.mode.equals("RETENTION_PAGE")&&(ReportRequestQueueCP12.hasInteractive(root)||ReportTaskControlR69.hasPending(root))){stopReason="REPORT_REALTIME_PREEMPT";return false;}
                 if(ReportJobJournalCP12.isCancellationRequested(root,cancelKey)){cancel.set(true);stopReason="REPORT_USER_CANCEL";return false;}
@@ -403,7 +411,7 @@ public final class ReportExportServiceCP4 extends Service {
     private static boolean isRetryable(String reason){return reason.equals("REPORT_STAGE_TIMEOUT")||reason.equals("REPORT_INPUT_LEASE_BUSY")||reason.equals("REPORT_ATTACHMENT_LEASE_BUSY")||reason.equals("IOException");}
 
     public static String requestSafTransfer(Context context,String jobId,String volumeName,Uri destination){final Context app=context.getApplicationContext();final String transfer=id("SAF_TRANSFER");final long generation=USER_REQUEST_GENERATION.get();
-        try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("STARCORE_FULL_REPORT\\.zip|index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);enqueueUserRequest(root,transfer,"SAF_TRANSFER",request,generation);kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
+        try{REQUESTS.execute(()->{try{requireHash(jobId);if(destination==null||!"content".equals(destination.getScheme())||destination.toString().length()>2048||volumeName==null||!(volumeName.equals("*")||volumeName.matches("STARCORE_FULL_REPORT\\.zip|STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}|index\\.json|P[0-9]{6}\\.bin|M[0-9]{6}\\.manifest")))throw new IOException("REPORT_SAF_REQUEST");if(volumeName.equals("*")&&!(destination.getPathSegments().size()==2&&"tree".equals(destination.getPathSegments().get(0))&&!android.provider.DocumentsContract.getTreeDocumentId(destination).isEmpty()))throw new IOException("REPORT_SAF_TREE_REQUIRED");JSONObject request=new JSONObject();request.put("requestId",transfer);request.put("mode","SAF_TRANSFER");request.put("jobId",jobId);request.put("volumeName",volumeName);request.put("destination",destination.toString());request.put("state","PENDING");request.put("attempt",0);File root=requestRoot(app);enqueueUserRequest(root,transfer,"SAF_TRANSFER",request,generation);kick(app,ACTION_EXPORT,transfer);}catch(Exception error){requestFailure(app,transfer,error);}});}catch(RejectedExecutionException full){requestFailure(app,transfer,full);}return transfer;
     }
     private void runSafRequest(JSONObject request,File root)throws Exception{
         if(request.getString("volumeName").equals("*")){runSafTreeRequest(request,root);return;}

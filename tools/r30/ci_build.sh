@@ -110,6 +110,8 @@ java -Xmx768m -cp "$T30/report-platform:$T30/shim:$T30/test:app/build/intermedia
 # R30-B08-03: original upgrade/ablation sources distinguish missing, empty and stored without fake Q06.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:$T30/report-platform:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/UpgradeEvidenceR30HostTest.java
 java -Xmx768m -cp "$T30/report-platform:$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.UpgradeEvidenceR30HostTest | tee "$LOG/r30_upgrade_ablation_host.log"
+# R30-B08-04: original production JNI plus real ZIP part reconstruction and durable cancellation/cleanup.
+REPORT_EXPORT_OUT="$LOG/r30_report_export_host" bash tools/r30/run_report_export_host.sh
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

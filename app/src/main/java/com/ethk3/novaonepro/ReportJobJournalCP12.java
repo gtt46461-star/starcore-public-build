@@ -16,6 +16,7 @@ public final class ReportJobJournalCP12 implements Closeable {
     private interface CancelWork<T>{T run()throws Exception;}
     /** Independent durable commands: cancelling one task cannot overwrite another task's command. */
     public static void requestCancellation(File root,String id)throws Exception {
+        long requestedNanosR30=System.nanoTime();
         hash(id);withCancellationLock(root,()->{
             File job=ReportArchiveVerifierCP12.inside(root,"jobs/"+id+"/job.json");
             if(job.exists()) {
@@ -32,6 +33,7 @@ public final class ReportJobJournalCP12 implements Closeable {
             File destination=ReportArchiveVerifierCP12.inside(root,"cancel-commands/"+id+".json");
             if(!destination.exists()&&commands.length>=1024)throw new IOException("REPORT_CANCEL_COMMAND_LIMIT");
             JSONObject command=new JSONObject();command.put("jobId",id);command.put("cancel",true);command.put("createdWallMs",System.currentTimeMillis());
+            ReportTaskControlR69.stampCancellationR30(command,destination,requestedNanosR30);
             writeAtomic(destination,command.toString());return null;
         });
     }

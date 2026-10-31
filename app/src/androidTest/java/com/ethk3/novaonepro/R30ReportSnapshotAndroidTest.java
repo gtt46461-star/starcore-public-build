@@ -32,4 +32,15 @@ public final class R30ReportSnapshotAndroidTest {
             }
         }finally{writer.shutdownNow();SQLiteDatabase.deleteDatabase(file);}
     }
+    @Test public void cancelledReadSignalStopsThePrimarySnapshotWithoutHoldingATransaction()throws Exception{
+        File file=new File(InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir(),"r30-report-cancel-"+UUID.randomUUID()+".db");
+        try(SQLiteDatabase db=SQLiteDatabase.openOrCreateDatabase(file,null)){
+            db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INT)");
+            android.os.CancellationSignal cancelled=new android.os.CancellationSignal();cancelled.cancel();
+            try{ReportR29.chapters(db,null,cancelled);fail("cancelled report read completed");}catch(android.os.OperationCanceledException expected){}
+            assertFalse("cancelled readonly transaction released",db.inTransaction());
+            db.execSQL("INSERT INTO draws VALUES('202610310001',0)");
+        }finally{SQLiteDatabase.deleteDatabase(file);}
+    }
+
 }

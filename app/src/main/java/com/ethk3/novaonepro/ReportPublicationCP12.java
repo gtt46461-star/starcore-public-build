@@ -27,6 +27,71 @@ public final class ReportPublicationCP12 {
   JSONObject row=new JSONObject();row.put("name",zip.getName());row.put("path","delivery/"+zip.getName());row.put("bytes",zip.length());row.put("sha256",ReportArchiveCP4.hash(zip,control));row.put("kind","SINGLE_ZIP");JSONArray files=new JSONArray();files.put(row);index.put("files",files);index.put("totalVolumeBytes",zip.length());
   ReportJobJournalCP12.writeAtomic(new File(delivery,"index.json"),index.toString());return zip.length();
  }
+ /** R30 default: one ordinary ZIP up to 20MiB, otherwise ordered byte parts of that verified ZIP.
+  * Parts are not independent ZIPs. The last-written index specifies reconstruction order and whole-ZIP SHA. */
+ public static final long ZIP_LIMIT_R30=20L*1024L*1024L;
+ public static final String ZIP_PART_FORMAT_R30="SCREPORT_ZIP_PARTS_R30_1";
+ public static long prepareBoundedZipR30(File job,File archive,String id,String manifestHash,boolean complete,boolean checks,boolean passed,ReportNativeCP4.Control control)throws Exception{
+  prepareSingleZip(job,archive,id,manifestHash,complete,checks,passed,control);
+  return boundZipR30(job,control);
+ }
+ static void checkR30(ReportNativeCP4.Control control)throws IOException{if(!control.shouldContinue())throw new InterruptedIOException("REPORT_USER_CANCEL");}
+ static long boundZipR30(File job,ReportNativeCP4.Control control)throws Exception{
+  File delivery=ReportArchiveVerifierCP12.inside(job,"delivery");File indexFile=new File(delivery,"index.json");
+  JSONObject index=new JSONObject(ReportJobJournalCP12.readAtomic(indexFile,65536));
+  if(!"SCREPORT_SINGLE_ZIP_R992".equals(index.getString("format")))throw new IOException("R30_ZIP_SOURCE_FORMAT");
+  JSONArray existing=index.getJSONArray("files");if(existing.length()!=1)throw new IOException("R30_ZIP_SOURCE_COUNT");
+  JSONObject source=existing.getJSONObject(0);File zip=ReportArchiveVerifierCP12.inside(job,source.getString("path"));
+  if(!"delivery/STARCORE_FULL_REPORT.zip".equals(source.getString("path"))||!zip.isFile()||zip.length()!=source.getLong("bytes"))throw new IOException("R30_ZIP_SOURCE_IDENTITY");
+  long size=zip.length(),parts=(size+ZIP_LIMIT_R30-1)/ZIP_LIMIT_R30;
+  if(parts>128)throw new IOException("R30_ZIP_DELIVERY_INDEX_LIMIT");
+  File[] previous=delivery.listFiles();if(previous==null)throw new IOException("R30_ZIP_DELIVERY_LIST");
+  for(File file:previous)if(file.getName().matches("STARCORE_FULL_REPORT\\.zip\\.part[0-9]{2,3}(\\.partial)?")){
+   checkR30(control);if(!file.getAbsoluteFile().equals(file.getCanonicalFile())||!file.isFile()||!file.delete())throw new IOException("R30_OLD_ZIP_PART_CLEANUP");
+  }
+  index.put("defaultZipLimitBytes",ZIP_LIMIT_R30);
+  if(size<=ZIP_LIMIT_R30){index.put("expectedVolumes",1).put("exportedVolumes",1).put("omittedVolumes",0);ReportJobJournalCP12.writeAtomic(indexFile,index.toString());return size+indexFile.length();}
+  JSONArray rows=new JSONArray();java.security.MessageDigest all=java.security.MessageDigest.getInstance("SHA-256");long copied=0;
+  try(InputStream input=new BufferedInputStream(new FileInputStream(zip),32768)){
+   byte[] buffer=new byte[32768];for(int number=1;copied<size;number++){
+    checkR30(control);String name=String.format(Locale.ROOT,"STARCORE_FULL_REPORT.zip.part%02d",number);
+    File target=ReportArchiveVerifierCP12.inside(delivery,name),partial=new File(target.getPath()+".partial");
+    long start=copied,bytes=0;java.security.MessageDigest hash=java.security.MessageDigest.getInstance("SHA-256");
+    try(FileOutputStream output=new FileOutputStream(partial)){
+     while(bytes<ZIP_LIMIT_R30&&copied<size){checkR30(control);int n=input.read(buffer,0,(int)Math.min(buffer.length,Math.min(ZIP_LIMIT_R30-bytes,size-copied)));if(n<0)throw new EOFException("R30_ZIP_SOURCE_TRUNCATED");output.write(buffer,0,n);hash.update(buffer,0,n);all.update(buffer,0,n);bytes+=n;copied+=n;}
+     output.flush();output.getFD().sync();
+    }
+    String sha=ReportArchiveCP4.hex(hash.digest());if(partial.length()!=bytes||!sha.equals(ReportArchiveCP4.hash(partial,control)))throw new IOException("R30_ZIP_PART_READBACK");
+    if(target.exists()||!partial.renameTo(target))throw new IOException("R30_ZIP_PART_PUBLISH");
+    rows.put(new JSONObject().put("name",name).put("path","delivery/"+name).put("kind","ZIP_PART").put("partNumber",number).put("offset",start).put("bytes",bytes).put("sha256",sha));
+   }
+   if(input.read()!=-1)throw new IOException("R30_ZIP_SOURCE_GREW");
+  }
+  if(copied!=size||rows.length()!=parts||!source.getString("sha256").equals(ReportArchiveCP4.hex(all.digest())))throw new IOException("R30_ZIP_SOURCE_CHANGED");
+  index.put("format",ZIP_PART_FORMAT_R30).put("files",rows).put("zipBytes",size).put("zipSha256",source.getString("sha256"));
+  index.put("expectedVolumes",parts).put("exportedVolumes",rows.length()).put("omittedVolumes",0);
+  index.put("reassembly","按 files 数组顺序逐字节合并全部 part01..N 为 STARCORE_FULL_REPORT.zip；长度应为 zipBytes，SHA-256 应为 zipSha256。分卷不能单独作为ZIP打开。index.json 必须与全部分卷一起保留。");
+  verifyPartsR30(job,index,control);checkR30(control);ReportJobJournalCP12.writeAtomic(indexFile,index.toString());
+  if(!zip.delete())throw new IOException("R30_ZIP_REDUNDANT_SOURCE_CLEANUP");return size+indexFile.length();
+ }
+ static boolean verifyPartsR30(File job,JSONObject index,ReportNativeCP4.Control control)throws Exception{
+  JSONArray files=index.getJSONArray("files");long size=index.getLong("zipBytes"),total=0;int expected=(int)((size+ZIP_LIMIT_R30-1)/ZIP_LIMIT_R30);
+  if(size<=ZIP_LIMIT_R30||expected<2||expected>128||files.length()!=expected||index.getLong("expectedVolumes")!=expected||index.getLong("exportedVolumes")!=expected||index.getLong("omittedVolumes")!=0)throw new IOException("R30_ZIP_PART_COUNT");
+  java.security.MessageDigest all=java.security.MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[32768];
+  for(int i=0;i<files.length();i++){
+   checkR30(control);JSONObject row=files.getJSONObject(i);String name=String.format(Locale.ROOT,"STARCORE_FULL_REPORT.zip.part%02d",i+1);long wanted=Math.min(ZIP_LIMIT_R30,size-total);
+   if(!"ZIP_PART".equals(row.getString("kind"))||!name.equals(row.getString("name"))||!("delivery/"+name).equals(row.getString("path"))||row.getInt("partNumber")!=i+1||row.getLong("offset")!=total||row.getLong("bytes")!=wanted)throw new IOException("R30_ZIP_PART_IDENTITY");
+   File file=ReportArchiveVerifierCP12.inside(job,row.getString("path"));if(!file.isFile()||file.length()!=wanted)throw new IOException("R30_ZIP_PART_SIZE");
+   java.security.MessageDigest part=java.security.MessageDigest.getInstance("SHA-256");try(InputStream input=new FileInputStream(file)){int n;while((n=input.read(buffer))!=-1){checkR30(control);all.update(buffer,0,n);part.update(buffer,0,n);}}
+   if(!row.getString("sha256").equals(ReportArchiveCP4.hex(part.digest())))throw new IOException("R30_ZIP_PART_HASH");total+=wanted;
+  }
+  if(total!=size||index.getLong("totalVolumeBytes")!=size||!index.getString("zipSha256").equals(ReportArchiveCP4.hex(all.digest())))throw new IOException("R30_ZIP_REASSEMBLY_HASH");return true;
+ }
+ /** Called by the sole owner after try-with-resources has released all readers, streams and input pins. */
+ public static void cleanCancelledR30(File job)throws IOException{
+  if(new File(job,"published.json").exists())return; // An already published immutable export is preserved.
+  cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","share.lock","cancel-receipt-r30.json")));
+ }
  /** Delete old published reports, preserving the current report and open/shared exports. */
  public static void pruneOldReports(File root,File current,long now)throws Exception{
   File[] directories=new File(root,"jobs").listFiles();if(directories==null)return;
@@ -72,9 +137,10 @@ public final class ReportPublicationCP12 {
  /** A verified, sealed single ZIP is sufficient for recovery; legacy multipart reports keep parts. */
  public static boolean verifyPublishedZip(File job,ReportNativeCP4.Control control)throws Exception {
   if(!new File(job,"delivery/index.json").isFile())return false;
-  JSONObject index=delivery(job);if(!"SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format")))return false;
+  JSONObject index=delivery(job);boolean split=ZIP_PART_FORMAT_R30.equals(index.optString("format"));if(!split&&!"SCREPORT_SINGLE_ZIP_R992".equals(index.optString("format")))return false;
   ReportJobJournalCP12.Job state=ReportJobJournalCP12.Job.parse(ReportJobJournalCP12.readAtomic(new File(job,"job.json"),65536));
   if(!"READY_TO_SHARE".equals(state.stage))throw new IOException("REPORT_ZIP_NOT_PUBLISHED");
+  if(split){verifyPartsR30(job,index,control);File manifest=ReportArchiveVerifierCP12.inside(job,state.publishedDir+"/manifest.jsonl");if(!state.manifestSha.equals(ReportArchiveCP4.hash(manifest,control)))throw new IOException("REPORT_PUBLISH_HASH");return true;}
   JSONArray files=index.getJSONArray("files");if(files.length()!=1)throw new IOException("REPORT_SINGLE_ZIP_COUNT");
   JSONObject row=files.getJSONObject(0);if(!"SINGLE_ZIP".equals(row.getString("kind"))||!"delivery/STARCORE_FULL_REPORT.zip".equals(row.getString("path")))throw new IOException("REPORT_SINGLE_ZIP_IDENTITY");
   File zip=ReportArchiveVerifierCP12.inside(job,row.getString("path"));

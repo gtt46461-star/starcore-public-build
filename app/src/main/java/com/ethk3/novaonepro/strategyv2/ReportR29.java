@@ -12,8 +12,9 @@ import java.util.Map;
 public final class ReportR29 {
     private ReportR29() {}
     public static List<Map<String,Object>> chapters(SQLiteDatabase db){return chapters(db,null);}
-    public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest){
-        return chapters(ReportSnapshotR30.capture(db,sourceManifest));
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest){return chapters(db,sourceManifest,null);}
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest,android.os.CancellationSignal cancellation){
+        return chapters(ReportSnapshotR30.capture(db,sourceManifest,cancellation));
     }
     static List<Map<String,Object>> chapters(ReportR27.R30Input input){
         List<Map<String,Object>> chapters=ReportR27.chaptersR30(input);

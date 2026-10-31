@@ -38,7 +38,8 @@ public final class ReportSnapshotR30 {
         String sql(){StringJoiner out=new StringJoiner(",","SELECT ","");for(int i=0;i<cells.size();i++)out.add(cells.get(i).sql+" AS v"+i);return out.toString();}
     }
     public static ReportR27.R30Input capture(SQLiteDatabase db){return capture(db,null);}
-    public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source){
+    public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source){return capture(db,source,null);}
+    public static ReportR27.R30Input capture(SQLiteDatabase db,Map<String,Object> source,android.os.CancellationSignal cancellation){
         Map<String,Object> facts=new LinkedHashMap<>(),watermark=new LinkedHashMap<>(),data=new LinkedHashMap<>();List<String> errors=new ArrayList<>();boolean own=false;
         try {
             if(db.inTransaction())throw new IllegalStateException("REPORT_READ_CALLED_IN_EXISTING_TRANSACTION");
@@ -53,7 +54,7 @@ public final class ReportSnapshotR30 {
                 if(t!=null&&t.withoutRowid)for(String key:t.pk)q.add("pk:"+name+":"+key,"(SELECT max("+id(key)+") FROM "+id(name)+")",false);
             }
             metrics(q,at);rowsets(q);
-            Map<String,Object> values=new LinkedHashMap<>();try(Cursor c=db.rawQuery(q.sql(),null)){
+            Map<String,Object> values=new LinkedHashMap<>();try(Cursor c=cancellation==null?db.rawQuery(q.sql(),null):db.rawQuery(q.sql(),null,cancellation)){
                 if(!c.moveToFirst())throw new IllegalStateException("REPORT_SNAPSHOT_ROW_MISSING");
                 for(int i=0;i<q.cells.size();i++){Cell cell=q.cells.get(i);Object value=c.isNull(i)?null:cell.numeric?number(c,i):c.getString(i);values.put(cell.key,value);if(cell.fields!=null)data.put(cell.key.substring(5),decode((String)value,cell.table,cell.fields));}
                 if(c.moveToNext())throw new IllegalStateException("REPORT_SNAPSHOT_EXPECTED_SINGLE_ROW");
@@ -70,7 +71,8 @@ public final class ReportSnapshotR30 {
             Map<String,Object> refs=new LinkedHashMap<>();refs.put("tables",marks);refs.put("inlineRowsAreBounded",true);refs.put("fullEvidence","verified snapshot.db and legacy R26/R27 report attachments");data.put("snapshotSources",refs);
             String digest=StatsR27.sha256(JsonR27.write(facts)+"|"+JsonR27.write(watermark));watermark.put("factsSha256",digest);watermark.put("digestScope","DETACHED_REPORT_FACTS_AND_WATERMARK_NOT_FULL_DATABASE_HASH");
             if(own)db.setTransactionSuccessful();
-        }catch(RuntimeException unavailable){errors.add(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage());watermark.put("status","UNKNOWN_CAPTURE_FAILED");facts.clear();data.clear();}
+        }catch(android.os.OperationCanceledException cancelled){throw cancelled;}
+        catch(RuntimeException unavailable){errors.add(unavailable.getClass().getSimpleName()+":"+unavailable.getMessage());watermark.put("status","UNKNOWN_CAPTURE_FAILED");facts.clear();data.clear();}
         finally{if(own)db.endTransaction();}
         return new ReportR27.R30Input(facts,watermark,data,errors);
     }
