@@ -8,8 +8,8 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 
 |卡号|批次|标题|状态|提交|CI|备注|
 |---|---|---|---|---|---|---|
-|R30-B00-01|B00|从CP06建R30分支并锁定基线|DOING|—|—|—|
-|R30-B00-02|B00|封存R29 B01分支，登记可复用件|TODO|—|—|—|
+|R30-B00-01|B00|从CP06建R30分支并锁定基线|DONE|7157660adec1|CI 自 B00-04 起|baseline_lock mismatches=0；rebind 产物 release/strategy_su1_reviewed_inputs.json 按 docs/02§2 属开放文件（ownership_check 原 OPEN 表漏列，B00-04 补登）|
+|R30-B00-02|B00|封存R29 B01分支，登记可复用件|DONE|—|—|标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）|
 |R30-B00-03|B00|回收R29后期包遗留的Root触发器与独立研究库|TODO|—|—|—|
 |R30-B00-04|B00|装施工护栏工具与R30 CI入口|TODO|—|—|—|
 |R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|TODO|—|—|—|
