@@ -181,7 +181,8 @@ def prepareRawUpstreamAndroidTestHarness = tasks.register('prepareRawUpstreamAnd
     into layout.buildDirectory.dir('generated/source/androidTestParity/com/ethk3/novaonepro')
 }
 android.sourceSets.androidTest.java.srcDir(layout.buildDirectory.dir('generated/source/androidTestParity'))
-tasks.matching { it.name == 'compileDebugAndroidTestJavaWithJavac' || it.name == 'compileReleaseAndroidTestJavaWithJavac' || it.name.endsWith('AndroidTestLintModel') }.configureEach {
+// Both lint models and lint analysis read this generated source directory directly.
+tasks.matching { it.name == 'compileDebugAndroidTestJavaWithJavac' || it.name == 'compileReleaseAndroidTestJavaWithJavac' || (it.name.contains('AndroidTest') && (it.name.startsWith('lint') || it.name.endsWith('LintModel'))) }.configureEach {
     dependsOn prepareRawUpstreamAndroidTestHarness
 }
 
