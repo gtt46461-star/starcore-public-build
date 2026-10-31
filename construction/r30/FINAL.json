@@ -4,11 +4,11 @@
   "planTreeSha": "0b7ce088f012a7e10ab23e73f1ae0637fc4ed6c9",
   "base": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
   "sourceBranch": "construction/r30-20261031",
-  "sourceCommit": "RESOLVED_FROM_ACTUAL_BUILD_RECEIPT",
+  "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
   "applicationId": "com.starcore.research.r13",
   "versionCode": 577310107,
   "versionName": "R30-FINAL-2026.10.31-107",
-  "state": "VERSION107_LOCAL_IDENTITY_ORIGINAL_REDLINE_LINT_AND_ANDROID_COMPILE_PASS_ACTUAL_FOCUS_PENDING",
+  "state": "FINAL_APK_DELIVERED_ANDROID_GATES_PASS_PHYSICAL_AND_QUALITY_PENDING",
   "fullAcceptance100Percent": false,
   "localEngineeringBasis": {
     "source": "f857f30b74fa8cfdac84dd0d246458d024a784b1",
@@ -18,7 +18,7 @@
     "errors": 0,
     "skipped": 0,
     "lint": "NO_NEW_ERRORS; original51 baseline and7 unmatched retained",
-    "currentVersionFinalG1": "VERSION107_FOCUSED5_AND_BOTH_LINTS_ANDROID_COMPILE_PASS; not a replacement for prior full269 or final exact-source complete CI",
+    "currentVersionFinalG1": "PASS_CANONICAL_SOURCE_CI_AND_BOTH_FINAL_EXACT_SOURCE_COMPLETE_CI_LANES; prior local focused5 and full269 evidence retained separately",
     "mainTree": "e638576398828b547dbd5c87463be2ee455329d1",
     "androidFixtureSupplement": "Actual original 16 Android PASS db6656; f707 full14 collected10PASS4FAIL; 7ff internal build PASS but installation failed all runtime NOT_RUN; e920 focused48+4 pending",
     "version107FocusedValidation": {
@@ -49,6 +49,33 @@
       "checkedAt": "2026-10-31T22:27:40.760973+00:00"
     },
     "latestCompleteSourceCI": {
+      "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "run": 41248734255,
+      "job": 124677554181,
+      "result": "SUCCESS",
+      "scope": "COMPLETE_SOURCE_BOUND_ALL_EXISTING_SUITE_AND_NATIVE_SQLITE_HOSTS",
+      "checkedAt": "2026-10-31T22:51:12.450679+00:00",
+      "signing": "NOT_ON_SOURCE_LANE; final two existing identities separately in progress"
+    },
+    "finalCompleteCI": {
+      "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "runs": {
+        "official": 41248861394,
+        "r27": 41248826921
+      },
+      "status": "PASS_BOTH_FINAL_EXACT_SOURCE_COMPLETE_SUITES_AND_HOST_CHECKS",
+      "physicalDevice": "NOT_RUN",
+      "canonicalSourceGate": {
+        "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "run": 41248734255,
+        "job": 124677554181,
+        "result": "SUCCESS",
+        "scope": "COMPLETE_SOURCE_BOUND_ALL_EXISTING_SUITE_AND_NATIVE_SQLITE_HOSTS",
+        "checkedAt": "2026-10-31T22:51:12.450679+00:00",
+        "signing": "NOT_ON_SOURCE_LANE; final two existing identities separately in progress"
+      }
+    },
+    "priorCompleteSourceCI": {
       "source": "e920f5c44db6d714ce856eeda349539c6267c664",
       "run": 41247241826,
       "job": 124673109565,
@@ -75,9 +102,9 @@
       "recordedStatus": "DONE",
       "commitReference": "aa28bc2f60a4",
       "ciReference": "—",
-      "note": "标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）",
+      "note": "此前HTTP403保留为历史失败；本轮正常批准流程新增封存标签且GitHub独立复核指向原CP16；未合并旧分支",
       "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
-      "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      "fullAcceptanceStatus": "PASS_ARCHIVE_REFERENCE_VERIFIED_WITHOUT_MERGE"
     },
     {
       "id": "R30-B00-03",
@@ -589,23 +616,23 @@
       "id": "R30-B09-01",
       "batch": "B09",
       "title": "图表与排行榜保全",
-      "recordedStatus": "NOT_RUN",
-      "commitReference": "8f46e39",
-      "ciReference": "待顺序推送",
-      "note": "262项G1/lint/Android编译/真实SQLite通过；旧14图与排行榜保留；G4实际截图运行待最终同签名CI",
-      "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
-      "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      "recordedStatus": "DONE",
+      "commitReference": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "ciReference": "R27 41248826921 / OFFICIAL 41248861394",
+      "note": "最终两证书实际17项Android/48图/14故障及CP06/CP16覆盖回退通过；真机长测/自然质量分列",
+      "implementationStatus": "IMPLEMENTED_AND_FINAL_APK_EMULATOR_CHECKED",
+      "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
     },
     {
       "id": "R30-B09-02",
       "batch": "B09",
       "title": "全链故障注入回归",
-      "recordedStatus": "NOT_RUN",
-      "commitReference": "a309dce",
-      "ciReference": "待顺序推送",
-      "note": "262项G1/lint/Android编译通过；14格实际Android故障仍NOT_RUN，已接最终同签名CI",
-      "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
-      "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      "recordedStatus": "DONE",
+      "commitReference": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "ciReference": "R27 41248826921 / OFFICIAL 41248861394",
+      "note": "最终两证书实际17项Android/48图/14故障及CP06/CP16覆盖回退通过；真机长测/自然质量分列",
+      "implementationStatus": "IMPLEMENTED_AND_FINAL_APK_EMULATOR_CHECKED",
+      "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
     },
     {
       "id": "R30-B09-03",
@@ -644,23 +671,23 @@
       "id": "R30-B10-03",
       "batch": "B10",
       "title": "撤销与回滚演练",
-      "recordedStatus": "NOT_RUN",
-      "commitReference": "01e3886",
-      "ciReference": "最终双证书CI待启动",
-      "note": "验证驱动与模型BLOB Android源码编译通过；实际两证书四条覆盖/回退仍待运行",
-      "implementationStatus": "LEDGER_AND_DRIVER_IMPLEMENTED_EXECUTION_SEPARATE",
-      "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      "recordedStatus": "DONE",
+      "commitReference": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "ciReference": "R27 41248826921 / OFFICIAL 41248861394",
+      "note": "最终两证书实际17项Android/48图/14故障及CP06/CP16覆盖回退通过；真机长测/自然质量分列",
+      "implementationStatus": "IMPLEMENTED_AND_FINAL_APK_EMULATOR_CHECKED",
+      "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
     },
     {
       "id": "R30-B10-04",
       "batch": "B10",
       "title": "最终账本与单一入口",
-      "recordedStatus": "DOING",
-      "commitReference": "—",
-      "ciReference": "—",
-      "note": "固定最终版本577310101，完整账本与两证书CI；实际APK成功后回填直链并更新main入口",
-      "implementationStatus": "LEDGER_AND_DRIVER_IMPLEMENTED_EXECUTION_SEPARATE",
-      "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      "recordedStatus": "DONE",
+      "commitReference": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "ciReference": "R27 41248826921 / OFFICIAL 41248861394",
+      "note": "最终两证书实际17项Android/48图/14故障及CP06/CP16覆盖回退通过；真机长测/自然质量分列",
+      "implementationStatus": "IMPLEMENTED_AND_FINAL_APK_EMULATOR_CHECKED",
+      "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
     },
     {
       "id": "R30-B11-01",
@@ -692,8 +719,12 @@
       "target": "全部一致",
       "environment": "HOST_OR_EMULATOR_ALLOWED",
       "measurementSource": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
-      "status": "PENDING_TWO_SIGNED_APK_BYTES_AND_INSTALLATION",
-      "value": null,
+      "status": "PASS_EXACT_SOURCE_TWO_EXISTING_SIGNATURES_AND_EMULATOR_INSTALLATION",
+      "value": {
+        "sameSourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "sameSourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+        "identityCount": 2
+      },
       "evidence": [
         "final build delivery.json"
       ]
@@ -790,8 +821,631 @@
       "target": "全部一致；丢失/重复0",
       "environment": "HOST_OR_EMULATOR_ALLOWED",
       "measurementSource": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
-      "status": "HOST_COPY_MECHANISM_PASS_REAL_CP06_CP16_FINAL_APK_PENDING",
-      "value": null,
+      "status": "PASS_FOUR_REAL_BASELINE_EMULATOR_DRILLS_MODEL_ROW_COVERAGE_EXPLICIT",
+      "value": [
+        {
+          "lane": "R27",
+          "checkpoint": "CP06",
+          "upgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP06-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4263,
+            "afterDrawCount": 4265,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [],
+            "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "rollback": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP06-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4265,
+            "afterDrawCount": 4267,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r26_incumbent_frozen",
+                "column": "preference_table",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 45,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 3460,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "reupgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP06-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4265,
+            "afterDrawCount": 4270,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r26_incumbent_frozen",
+                "column": "preference_table",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 45,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 3460,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "lane": "R27",
+          "checkpoint": "CP16",
+          "upgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP16-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 2823,
+            "afterDrawCount": 4265,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [],
+            "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "rollback": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP16-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4265,
+            "afterDrawCount": 4268,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r26_incumbent_frozen",
+                "column": "preference_table",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 90,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 7440,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "reupgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "EXISTING_R27-CP16-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4265,
+            "afterDrawCount": 4270,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r26_incumbent_frozen",
+                "column": "preference_table",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 90,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 7440,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "lane": "OFFICIAL",
+          "checkpoint": "CP06",
+          "upgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "OFFICIAL_R13-CP06-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 2823,
+            "afterDrawCount": 4266,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [],
+            "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "rollback": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "OFFICIAL_R13-CP06-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4266,
+            "afterDrawCount": 4268,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r26_incumbent_frozen",
+                "column": "preference_table",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 89,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 3000,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "reupgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "OFFICIAL_R13-CP06-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4266,
+            "afterDrawCount": 4270,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r26_incumbent_frozen",
+                "column": "preference_table",
+                "originalNonemptyBlobRows": 2,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 89,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 3000,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        },
+        {
+          "lane": "OFFICIAL",
+          "checkpoint": "CP16",
+          "upgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "OFFICIAL_R13-CP16-upgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4208,
+            "afterDrawCount": 4266,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [],
+            "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+            "qualificationBudgets": [],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "rollback": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "OFFICIAL_R13-CP16-rollback",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4266,
+            "afterDrawCount": 4268,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 15,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 1540,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          },
+          "reupgrade": {
+            "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+            "label": "OFFICIAL_R13-CP16-reupgrade",
+            "schemaTablesLost": [],
+            "integrity": "ok",
+            "beforeDrawCount": 4266,
+            "afterDrawCount": 4271,
+            "originalDrawsLostOrChangedCount": 0,
+            "modelBlobColumns": [
+              {
+                "table": "r27_live_frozen",
+                "column": "probabilities",
+                "originalNonemptyBlobRows": 15,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_dataset",
+                "column": "payload",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_atomnet_sample",
+                "column": "features",
+                "originalNonemptyBlobRows": 1540,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              },
+              {
+                "table": "r30_keep_r29_model_checkpoint",
+                "column": "artifact",
+                "originalNonemptyBlobRows": 1,
+                "unretainedBlobRows": 0,
+                "allOriginalValuesFound": true
+              }
+            ],
+            "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+            "qualificationBudgets": [
+              {
+                "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+                "preservedIndexAndCumulativeN": true
+              },
+              {
+                "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+                "preservedIndexAndCumulativeN": true
+              }
+            ],
+            "sourceRowsUploaded": false,
+            "modelBytesUploaded": false,
+            "physicalDevice": "NOT_RUN",
+            "naturalQuality": "NOT_PROVEN",
+            "pass": true
+          }
+        }
+      ],
       "evidence": [
         "construction/r30/ROLLBACK_DRILL.json"
       ]
@@ -1009,8 +1663,11 @@
       "target": "合法正对照贯通；非法/过期全部拦截",
       "environment": "HOST_OR_EMULATOR_ALLOWED",
       "measurementSource": "androidTest 正对照贯通 + 非法/过期拦截",
-      "status": "HOST_ORIGINAL_AUTHORITY_MECHANISM_PASS_ANDROID_PENDING",
-      "value": null,
+      "status": "PASS_ORIGINAL_ANDROID_OWNER_POSITIVE_AND_FOUR_INDEPENDENT_NEGATIVES",
+      "value": {
+        "identitiesTested": 2,
+        "perIdentityCases": 5
+      },
       "evidence": [
         "evidence/r30/b07-03/; final Android legal positive/four independent negatives"
       ]
@@ -1075,12 +1732,16 @@
       "target": "全部场景可打开且口径一致",
       "environment": "HOST_OR_EMULATOR_ALLOWED",
       "measurementSource": "图表页面 androidTest 截图通过数",
-      "status": "HOST_DATA_BINDING_PASS_ANDROID_SCREENSHOTS_PENDING",
+      "status": "PASS_BOTH_SIGNED_APKS_ACTUAL_CHART_ACTIVITY",
       "value": {
         "retainedLegacyPanels": 14,
         "newPanels": 2,
-        "requiredScreenshots": 48,
-        "actualScreenshots": null
+        "actualScreenshotsPerIdentity": 48,
+        "states": [
+          "READY",
+          "EMPTY",
+          "READ_ERROR"
+        ]
       },
       "evidence": [
         "evidence/r30/b09-01/; final Android regression"
@@ -1104,13 +1765,11 @@
       "target": "目标≤5000ms；不含APK回滚",
       "environment": "HOST_OR_EMULATOR_ALLOWED",
       "measurementSource": "证书撤销到 DecisionGate 拒绝的耗时",
-      "status": "HOST_SAME_TRANSACTION_REVOCATION_PASS_ANDROID_PENDING",
+      "status": "PASS_ANDROID_SAME_TRANSACTION_REVOKE_ASSERTION_WITHIN_ORIGINAL_5000MS",
       "value": {
-        "hostElapsedMsRange": [
-          0.46,
-          1.67
-        ],
-        "phoneMs": null
+        "boundMs": 5000,
+        "identitiesTested": 2,
+        "physicalDeviceMs": null
       },
       "evidence": [
         "evidence/r30/b07-04/"
@@ -1227,18 +1886,54 @@
   ],
   "apks": [
     {
-      "lane": "OFFICIAL_R13",
+      "apk": "STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk",
+      "bytes": 27811024,
+      "sha256": "62b280d2785a8cc453bcc894a08319b5caf6434a68bfb28dce708c845b51590d",
+      "package": "com.starcore.research.r13",
+      "versionCode": 577310107,
+      "versionName": "R30-FINAL-2026.10.31-107",
       "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
-      "url": null,
-      "sha256": null,
-      "status": "PENDING_SECURE_EXISTING_IDENTITY_CI"
+      "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+      "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+      "signingIdentity": "OFFICIAL_R13",
+      "officialR13Upgrade": "NOT_RUN",
+      "installation": "ANDROID_EMULATOR_PASS_BOTH_CP06_CP16",
+      "startup": "COLD_AND_RESTART_HEARTBEAT_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "overall": "SOURCE_IMPLEMENTED_ANDROID_GATES_PASS_PHONE_AND_NATURAL_ACCEPTANCE_PENDING",
+      "lane": "OFFICIAL_R13",
+      "artifactRole": "FINAL_RELEASE_APK",
+      "rollback": "SAME_CERT_USERDEBUG_EMULATOR_PASS",
+      "androidRegression": "17_TESTS_AND_48_SCREENSHOTS_PASS",
+      "faultMatrix": "14_ANDROID_CELLS_PASS_CONFLICT_REMAINS_HARD_BLOCKED",
+      "downloadUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk"
     },
     {
-      "lane": "EXISTING_R27",
+      "apk": "STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk",
+      "bytes": 27811033,
+      "sha256": "c414a664dec8a8c58f5e3f573f875e593a3c5d7c156b8df19e856bf5109c9a94",
+      "package": "com.starcore.research.r13",
+      "versionCode": 577310107,
+      "versionName": "R30-FINAL-2026.10.31-107",
       "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
-      "url": null,
-      "sha256": null,
-      "status": "PENDING_SECURE_EXISTING_IDENTITY_CI"
+      "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+      "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+      "signingIdentity": "EXISTING_R27_CI_NOT_OFFICIAL_R13",
+      "officialR13Upgrade": "BLOCKED_SIGNING_KEY",
+      "installation": "ANDROID_EMULATOR_PASS_BOTH_CP06_CP16",
+      "startup": "COLD_AND_RESTART_HEARTBEAT_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "overall": "SOURCE_IMPLEMENTED_ANDROID_GATES_PASS_PHONE_AND_NATURAL_ACCEPTANCE_PENDING",
+      "lane": "EXISTING_R27",
+      "artifactRole": "FINAL_RELEASE_APK",
+      "rollback": "SAME_CERT_USERDEBUG_EMULATOR_PASS",
+      "androidRegression": "17_TESTS_AND_48_SCREENSHOTS_PASS",
+      "faultMatrix": "14_ANDROID_CELLS_PASS_CONFLICT_REMAINS_HARD_BLOCKED",
+      "downloadUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk"
     }
   ],
   "physical": "construction/r30/DEVICE_V2353A.json",
@@ -1249,8 +1944,6 @@
   "signingKeysReadOrUploadedByAgent": false,
   "modelsOrTrainingDataDeletedByConstruction": false,
   "remainingAcceptance": [
-    "final signed APK bytes and exact source",
-    "actual Android screenshot/fault/upgrade/rollback gates",
     "V2353A physical durations and original telemetry",
     "Q01-Q07 natural data and Q08 simulation uncertainty",
     "B11 physical trigger predicates unknown"
@@ -1261,7 +1954,12 @@
     "processes": 11,
     "screenshots": 48,
     "faultCells": 14,
-    "runtime": "NOT_RUN_PENDING_FINAL_CANDIDATES"
+    "runtime": "PASS_BOTH_FINAL_APKS_EXACT_SOURCE",
+    "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+    "ciRuns": {
+      "official": 41248861394,
+      "r27": 41248826921
+    }
   },
   "priorCandidateFailure": {
     "source": "9acc87f92b15ce11a4f21dc024c19d0973a4bca5",
@@ -1303,5 +2001,654 @@
     "charts": "FAILED_TEST_CONTAINER_INDEX_FIXED_PENDING_RUN",
     "faults": "NOT_RUN_IN_THAT_RUN",
     "fullAcceptance": false
+  },
+  "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+  "ciRuns": {
+    "official": 41248861394,
+    "r27": 41248826921
+  },
+  "actualAndroidAndUpgradeEvidence": {
+    "android": {
+      "R27": {
+        "tests": 17,
+        "processes": 11,
+        "actualActivityScreenshots": 48,
+        "faultCells": 14,
+        "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "physicalDevice": "NOT_RUN"
+      },
+      "OFFICIAL": {
+        "tests": 17,
+        "processes": 11,
+        "actualActivityScreenshots": 48,
+        "faultCells": 14,
+        "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "physicalDevice": "NOT_RUN"
+      }
+    },
+    "upgrades": [
+      {
+        "lane": "R27",
+        "checkpoint": "CP06",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP06-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4263,
+          "afterDrawCount": 4265,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP06-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4267,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 45,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3460,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP06-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4270,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 45,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3460,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      },
+      {
+        "lane": "R27",
+        "checkpoint": "CP16",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP16-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 2823,
+          "afterDrawCount": 4265,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP16-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4268,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 90,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 7440,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP16-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4270,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 90,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 7440,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      },
+      {
+        "lane": "OFFICIAL",
+        "checkpoint": "CP06",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP06-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 2823,
+          "afterDrawCount": 4266,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP06-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4268,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 89,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3000,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP06-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4270,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 89,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3000,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      },
+      {
+        "lane": "OFFICIAL",
+        "checkpoint": "CP16",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP16-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4208,
+          "afterDrawCount": 4266,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP16-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4268,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 15,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 1540,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP16-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4271,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 15,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 1540,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      }
+    ]
   }
 }

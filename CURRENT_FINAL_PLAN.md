@@ -1,11 +1,14 @@
-# STARCORE R30 实现与验收入口
+# STARCORE R30 应用源码、APK 与验收入口
 
-当前候选版本：`577310106 / R30-FINAL-2026.10.31-106`。应用源码在 [construction/r30-20261031](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r30-20261031)，真实进度见 [STATUS.md](construction/r30/STATUS.md)、[FINAL.json](construction/r30/FINAL.json)、[BUILD_PROGRESS.json](construction/r30/BUILD_PROGRESS.json)。
+最终版本：`577310107 / R30-FINAL-2026.10.31-107`。两份 APK 来自同一源码 [`b225ab204db0`](https://github.com/gtt46461-star/starcore-public-build/commit/b225ab204db043b347f9d76d6c5c1376fd9a2590)，按当前安装证书选择对应版本。
 
-B00–B08的48张施工卡已完成工程检查，B09源码已实现，B10正进行最终交付验证。106版完整本地269项单测/70XML零失败、零错误、零跳过，lint没有新增错误，原51项基线及7项未匹配保留；原冻结适配器已恢复原字节，新增SU2只读校验位于独立R30类。Android测试真实投递原看门狗广播通过，测试库原收据迁移域补齐后已重新编译。历史失败完整保留。
+- [R13/R26 官方既有证书 APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk) · SHA-256 `62b280d2785a8cc453bcc894a08319b5caf6434a68bfb28dce708c845b51590d`
+- [R27 既有证书 APK](https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk) · SHA-256 `c414a664dec8a8c58f5e3f573f875e593a3c5d7c156b8df19e856bf5109c9a94`
 
-103版两证书四项CP06/CP16覆盖—回退—再覆盖均通过，但不替代106版最终验收。仅使用既有R13官方与R27证书执行最终相同源码完整CI；两边实际Android17项、48张图表截图、14格故障及四项升级演练全部通过后才统一发布两份release APK。当前暂无最终APK直链。
+源码与完整验收账本：[construction/r30-20261031](https://github.com/gtt46461-star/starcore-public-build/tree/construction/r30-20261031) · [FINAL.json](https://github.com/gtt46461-star/starcore-public-build/blob/construction/r30-20261031/construction/r30/FINAL.json) · [不可变源码ZIP](https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip)。main 保存这一交付索引。
 
-V2353A前台60分钟、息屏6小时、连续72小时没有设备，均为NOT_RUN；Q01–Q07自然质量证据不足。B11三项真机触发条件未知，切库未启用，未宣称100%全指标验收。
+两证书均完成 Android 17 项回归、48 张实际图表页截图、14 格故障矩阵，以及各自真实 CP06/CP16 覆盖—回退—再覆盖验证。迁移保护大模型原字节；缺字段保留原源库及路由，不以部分复制当成功。完整回执与公开签名见 release 的 FINAL_BUILD.json、EVIDENCE_RECEIPTS.json 和 delivery.json。原 lint 51 条基线及 7 条未匹配保留，新增错误为零。
 
-方案：[STARCORE_R30_FINAL_20261031](construction/plans/STARCORE_R30_FINAL_20261031/README.md)，57张卡含B11两张条件卡、44指标，只读方案树未变。
+V2353A 前台60分钟、息屏6小时、连续72小时尚未执行，Q01–Q07 自然质量证据不足；B11 三项真机触发条件未知，切库未启用。未宣称100%全指标验收。
+
+方案：[STARCORE_R30_FINAL_20261031](construction/plans/STARCORE_R30_FINAL_20261031/README.md) · [逐步说明](construction/plans/STARCORE_R30_FINAL_20261031/START_HERE_施工方必读.md) · [完整ZIP](construction/plans/STARCORE_R30_FINAL_20261031.zip)。57 张卡（含 B11 条件卡）、44 指标，基线 CP06 `bb607cf5ab69`，方案树未改。

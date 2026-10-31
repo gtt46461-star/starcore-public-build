@@ -1,0 +1,644 @@
+{
+  "android": {
+    "R27": {
+      "tests": 17,
+      "processes": 11,
+      "actualActivityScreenshots": 48,
+      "faultCells": 14,
+      "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "physicalDevice": "NOT_RUN"
+    },
+    "OFFICIAL": {
+      "tests": 17,
+      "processes": 11,
+      "actualActivityScreenshots": 48,
+      "faultCells": 14,
+      "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "physicalDevice": "NOT_RUN"
+    }
+  },
+  "upgrades": [
+    {
+      "lane": "R27",
+      "checkpoint": "CP06",
+      "upgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "EXISTING_R27-CP06-upgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4263,
+        "afterDrawCount": 4265,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [],
+        "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+        "qualificationBudgets": [],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "rollback": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "EXISTING_R27-CP06-rollback",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4265,
+        "afterDrawCount": 4267,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r26_incumbent_frozen",
+            "column": "preference_table",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 45,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 3460,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "reupgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "EXISTING_R27-CP06-reupgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4265,
+        "afterDrawCount": 4270,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r26_incumbent_frozen",
+            "column": "preference_table",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 45,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 3460,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      }
+    },
+    {
+      "lane": "R27",
+      "checkpoint": "CP16",
+      "upgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "EXISTING_R27-CP16-upgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 2823,
+        "afterDrawCount": 4265,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [],
+        "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+        "qualificationBudgets": [],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "rollback": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "EXISTING_R27-CP16-rollback",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4265,
+        "afterDrawCount": 4268,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r26_incumbent_frozen",
+            "column": "preference_table",
+            "originalNonemptyBlobRows": 2,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 90,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 7440,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "reupgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "EXISTING_R27-CP16-reupgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4265,
+        "afterDrawCount": 4270,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r26_incumbent_frozen",
+            "column": "preference_table",
+            "originalNonemptyBlobRows": 2,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 90,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 7440,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      }
+    },
+    {
+      "lane": "OFFICIAL",
+      "checkpoint": "CP06",
+      "upgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "OFFICIAL_R13-CP06-upgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 2823,
+        "afterDrawCount": 4266,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [],
+        "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+        "qualificationBudgets": [],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "rollback": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "OFFICIAL_R13-CP06-rollback",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4266,
+        "afterDrawCount": 4268,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r26_incumbent_frozen",
+            "column": "preference_table",
+            "originalNonemptyBlobRows": 2,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 89,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 3000,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "reupgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "OFFICIAL_R13-CP06-reupgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4266,
+        "afterDrawCount": 4270,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r26_incumbent_frozen",
+            "column": "preference_table",
+            "originalNonemptyBlobRows": 2,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 89,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 3000,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      }
+    },
+    {
+      "lane": "OFFICIAL",
+      "checkpoint": "CP16",
+      "upgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "OFFICIAL_R13-CP16-upgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4208,
+        "afterDrawCount": 4266,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [],
+        "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+        "qualificationBudgets": [],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "rollback": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "OFFICIAL_R13-CP16-rollback",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4266,
+        "afterDrawCount": 4268,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 15,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 1540,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      },
+      "reupgrade": {
+        "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+        "label": "OFFICIAL_R13-CP16-reupgrade",
+        "schemaTablesLost": [],
+        "integrity": "ok",
+        "beforeDrawCount": 4266,
+        "afterDrawCount": 4271,
+        "originalDrawsLostOrChangedCount": 0,
+        "modelBlobColumns": [
+          {
+            "table": "r27_live_frozen",
+            "column": "probabilities",
+            "originalNonemptyBlobRows": 15,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_dataset",
+            "column": "payload",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_atomnet_sample",
+            "column": "features",
+            "originalNonemptyBlobRows": 1540,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          },
+          {
+            "table": "r30_keep_r29_model_checkpoint",
+            "column": "artifact",
+            "originalNonemptyBlobRows": 1,
+            "unretainedBlobRows": 0,
+            "allOriginalValuesFound": true
+          }
+        ],
+        "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+        "qualificationBudgets": [
+          {
+            "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+            "preservedIndexAndCumulativeN": true
+          },
+          {
+            "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+            "preservedIndexAndCumulativeN": true
+          }
+        ],
+        "sourceRowsUploaded": false,
+        "modelBytesUploaded": false,
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "NOT_PROVEN",
+        "pass": true
+      }
+    }
+  ]
+}

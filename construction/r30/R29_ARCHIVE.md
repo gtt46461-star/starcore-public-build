@@ -1,7 +1,7 @@
 # R29 B01 封存与可复用件登记（R30-B00-02）
 
 - 封存标签：`archive/r29-b01-cp16` → `9ff38ffe7063bc938aededfa3271187f9140a0fe`（construction/r29-20261029 CP16 头，只打标签，不合并、不删分支）。
-- 标签状态：本地已创建；本施工会话的 git 代理拒绝推送 tag 引用（HTTP 403），远端标签需仓库所有者执行 `git push origin 9ff38ffe7063bc938aededfa3271187f9140a0fe:refs/tags/archive/r29-b01-cp16` 补推。在此之前，原分支 construction/r29-20261029 仍指向 9ff38ff，未删除。
+- 历史状态（本轮已解决）：本地已创建；本施工会话的 git 代理拒绝推送 tag 引用（HTTP 403），远端标签需仓库所有者执行 `git push origin 9ff38ffe7063bc938aededfa3271187f9140a0fe:refs/tags/archive/r29-b01-cp16` 补推。在此之前，原分支 construction/r29-20261029 仍指向 9ff38ff，未删除。
 - R30 分支不含 bb607cf 之后的任何 R29 提交（`git log bb607cf..construction/r30-20261031` 只有 R30-* 提交）。
 
 ## 3. R29 B01 资产处置表（B00-02 照抄进 construction/r30/R29_ARCHIVE.md）
@@ -13,3 +13,5 @@
 | 所有权声明 | LegacyResearchOwnershipR29 | 不并入；表所有权以 scan_table_writers.py 静态清单 + 运行时 sqlite_master 为准 |
 | 已在 R29 后期包装到手机上的副作用 | Root 上 r29_copy_track_* / r29_critical_track_* / r29_critical_input_write_guard* 等触发器；r29_database_route=ACTIVE；starcore-r29-research.db | **B00-03 R29FoldBackR30 在首次启动时回收**（guard 触发器会让 CP06 代码写入直接 ABORT，SQL 合同 T05 已复现） |
 
+
+- 当前标签状态：此前 HTTP403 为真实历史失败；本轮按平台正常批准流程补齐远端 `archive/r29-b01-cp16`，GitHub API 独立复核为原 `9ff38ffe7063bc938aededfa3271187f9140a0fe`。当前不再待补推，未改动或合并旧分支。回执见 `evidence/r30/b00-02/cp16-remote-tag.json`。

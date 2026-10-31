@@ -1,0 +1,2897 @@
+{
+  "actualAndroidAndUpgradeEvidence": {
+    "android": {
+      "R27": {
+        "tests": 17,
+        "processes": 11,
+        "actualActivityScreenshots": 48,
+        "faultCells": 14,
+        "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "physicalDevice": "NOT_RUN"
+      },
+      "OFFICIAL": {
+        "tests": 17,
+        "processes": 11,
+        "actualActivityScreenshots": 48,
+        "faultCells": 14,
+        "source": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "physicalDevice": "NOT_RUN"
+      }
+    },
+    "upgrades": [
+      {
+        "lane": "R27",
+        "checkpoint": "CP06",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP06-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4263,
+          "afterDrawCount": 4265,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP06-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4267,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 45,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3460,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP06-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4270,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 45,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3460,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      },
+      {
+        "lane": "R27",
+        "checkpoint": "CP16",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP16-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 2823,
+          "afterDrawCount": 4265,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP16-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4268,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 90,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 7440,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "EXISTING_R27-CP16-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4265,
+          "afterDrawCount": 4270,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 90,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 7440,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      },
+      {
+        "lane": "OFFICIAL",
+        "checkpoint": "CP06",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP06-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 2823,
+          "afterDrawCount": 4266,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP06-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4268,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 89,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3000,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP06-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4270,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r26_incumbent_frozen",
+              "column": "preference_table",
+              "originalNonemptyBlobRows": 2,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 89,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 3000,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      },
+      {
+        "lane": "OFFICIAL",
+        "checkpoint": "CP16",
+        "upgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP16-upgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4208,
+          "afterDrawCount": 4266,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [],
+          "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+          "qualificationBudgets": [],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "rollback": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP16-rollback",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4268,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 15,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 1540,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        },
+        "reupgrade": {
+          "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+          "label": "OFFICIAL_R13-CP16-reupgrade",
+          "schemaTablesLost": [],
+          "integrity": "ok",
+          "beforeDrawCount": 4266,
+          "afterDrawCount": 4271,
+          "originalDrawsLostOrChangedCount": 0,
+          "modelBlobColumns": [
+            {
+              "table": "r27_live_frozen",
+              "column": "probabilities",
+              "originalNonemptyBlobRows": 15,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_dataset",
+              "column": "payload",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_atomnet_sample",
+              "column": "features",
+              "originalNonemptyBlobRows": 1540,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            },
+            {
+              "table": "r30_keep_r29_model_checkpoint",
+              "column": "artifact",
+              "originalNonemptyBlobRows": 1,
+              "unretainedBlobRows": 0,
+              "allOriginalValuesFound": true
+            }
+          ],
+          "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+          "qualificationBudgets": [
+            {
+              "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+              "preservedIndexAndCumulativeN": true
+            },
+            {
+              "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+              "preservedIndexAndCumulativeN": true
+            }
+          ],
+          "sourceRowsUploaded": false,
+          "modelBytesUploaded": false,
+          "physicalDevice": "NOT_RUN",
+          "naturalQuality": "NOT_PROVEN",
+          "pass": true
+        }
+      }
+    ]
+  },
+  "acceptanceLedger": {
+    "format": "STARCORE_R30_FINAL_ACCEPTANCE_LEDGER_1",
+    "plan": "construction/plans/STARCORE_R30_FINAL_20261031/",
+    "planTreeSha": "0b7ce088f012a7e10ab23e73f1ae0637fc4ed6c9",
+    "base": "bb607cf5ab69f7286f859e43f87ada85a5bc456d",
+    "sourceBranch": "construction/r30-20261031",
+    "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+    "applicationId": "com.starcore.research.r13",
+    "versionCode": 577310107,
+    "versionName": "R30-FINAL-2026.10.31-107",
+    "state": "FINAL_APK_ANDROID_GATES_PASS_PHONE_QUALITY_PENDING",
+    "fullAcceptance100Percent": false,
+    "localEngineeringBasis": {
+      "source": "f857f30b74fa8cfdac84dd0d246458d024a784b1",
+      "tests": 269,
+      "xmlFiles": 70,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "lint": "NO_NEW_ERRORS; original51 baseline and7 unmatched retained",
+      "currentVersionFinalG1": "VERSION107_FOCUSED5_AND_BOTH_LINTS_ANDROID_COMPILE_PASS; not a replacement for prior full269 or final exact-source complete CI",
+      "mainTree": "e638576398828b547dbd5c87463be2ee455329d1",
+      "androidFixtureSupplement": "Actual original 16 Android PASS db6656; f707 full14 collected10PASS4FAIL; 7ff internal build PASS but installation failed all runtime NOT_RUN; e920 focused48+4 pending",
+      "version107FocusedValidation": {
+        "source": "888b21367b18b0a3d6b9df474323de86f3319f96",
+        "versionCode": 577310107,
+        "scope": "FOCUSED5_IDENTITY_AND_FROZEN_OWNER_REDLINE_NOT_FULL269",
+        "tests": [
+          {
+            "name": "com.ethk3.novaonepro.strategyv2.R27QualityTest",
+            "tests": "1",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0"
+          },
+          {
+            "name": "com.ethk3.novaonepro.R30SelectiveScopeIdentityTest",
+            "tests": "4",
+            "failures": "0",
+            "errors": "0",
+            "skipped": "0"
+          }
+        ],
+        "debugAndReleaseLint": "PASS_ORIGINAL_51_BASELINE_7_UNMATCHED_RETAINED",
+        "androidTestSourceCompile": "PASS",
+        "identityRebind": "PASS_WITH_ACTUAL_COMPILED_BYTES",
+        "log": "/workspace/work/r30/b10-04-version107-all-lint-fixed-validation.log",
+        "logSha256": "06114ad99fb33dc67dd51d5104642002dc5f07d213427a2761d323524b2671d7",
+        "checkedAt": "2026-10-31T22:27:40.760973+00:00"
+      },
+      "latestCompleteSourceCI": {
+        "source": "e920f5c44db6d714ce856eeda349539c6267c664",
+        "run": 41247241826,
+        "job": 124673109565,
+        "result": "SUCCESS",
+        "scope": "FULL_CI_ON_VERSION106_MAIN_UNCHANGED_SINCE_F857; FINAL107_FULL_CI_STILL_REQUIRED"
+      }
+    },
+    "cards": [
+      {
+        "id": "R30-B00-01",
+        "batch": "B00",
+        "title": "从CP06建R30分支并锁定基线",
+        "recordedStatus": "DONE",
+        "commitReference": "7157660adec1",
+        "ciReference": "CI 自 B00-04 起",
+        "note": "baseline_lock mismatches=0；rebind 产物 release/strategy_su1_reviewed_inputs.json 按 docs/02§2 属开放文件（ownership_check 原 OPEN 表漏列，B00-04 补登）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B00-02",
+        "batch": "B00",
+        "title": "封存R29 B01分支，登记可复用件",
+        "recordedStatus": "DONE",
+        "commitReference": "aa28bc2f60a4",
+        "ciReference": "—",
+        "note": "标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B00-03",
+        "batch": "B00",
+        "title": "回收R29后期包遗留的Root触发器与独立研究库",
+        "recordedStatus": "DONE",
+        "commitReference": "17dc6ef7bb35",
+        "ciReference": "待 r30.yml（B00-04 起）",
+        "note": "本地全量编译通过；SQL 合同 19/19（含 T04/T05/T06）；R30FoldBackInstrumentedTest 需模拟器（CI connectedDebugAndroidTest）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B00-04",
+        "batch": "B00",
+        "title": "装施工护栏工具与R30 CI入口",
+        "recordedStatus": "DONE",
+        "commitReference": "f7044a7c2eba",
+        "ciReference": "—",
+        "note": "工具按方案原样复制，3 处必要修正（见下方偏差记录 D1–D3）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B00-05",
+        "batch": "B00",
+        "title": "复核R29已签收的B00三卡并统一指标测量口径",
+        "recordedStatus": "DONE",
+        "commitReference": "e162b175f096",
+        "ciReference": "run 41163664048 绿",
+        "note": "44 项均有 measurementSource；空源/零样本→INSUFFICIENT、值 null；legacy_count requirements=1832 fileCards=299；子卡 R30-B00-05-a 登记测试文件",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-01",
+        "batch": "B01",
+        "title": "唯一写锁：等待/持有时长账本",
+        "recordedStatus": "DONE",
+        "commitReference": "a01e58ed15f4",
+        "ciReference": "—",
+        "note": "HOST 6/6；DatabaseCoordinator 仅补丁所示改动；真机/模拟器持锁数据 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-02",
+        "batch": "B01",
+        "title": "账本落库与报告出数",
+        "recordedStatus": "DONE",
+        "commitReference": "4c594e1122b5",
+        "ciReference": "—",
+        "note": "SQL T02 4/4；报告第3章两表（writerHoldR30）；“运行10分钟≥9窗口”需设备 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-03",
+        "batch": "B01",
+        "title": "切片写入工具与Android适配器",
+        "recordedStatus": "DONE",
+        "commitReference": "1fb9922d0946",
+        "ciReference": "—",
+        "note": "HOST 6/6（含中途失败回滚续做不重复）；Android 杀进程续做 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-04",
+        "batch": "B01",
+        "title": "按账本切片前五名后台长事务",
+        "recordedStatus": "DONE",
+        "commitReference": "a7d151c6af8c",
+        "ciReference": "—",
+        "note": "HOST：SettleChunkR30 S1–S3×3 种子 OK；R29 qual_host Q1–Q16 OK；DataRetentionGovernorR900 已有界未改（理由见 B01_OFFENDERS.json）；2小时复测 over_hard NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-05",
+        "batch": "B01",
+        "title": "任务活性判定与报告",
+        "recordedStatus": "DONE",
+        "commitReference": "57b8239c294b",
+        "ciReference": "—",
+        "note": "HOST livenessClassification OK；当前 r26_task 无 pending/last_committed_seq 列 → 全部 UNKNOWN 单列，M12=INSUFFICIENT（如实）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-06",
+        "batch": "B01",
+        "title": "调度公平与温控核对",
+        "recordedStatus": "DONE",
+        "commitReference": "56afcaa37dff",
+        "ciReference": "—",
+        "note": "温控序列 HOST 6/6；STALLED 提升已接入 claim()，但 r26_task 尚无 pending/last_committed_seq 事实 → 无任务被判 STALLED（不猜测）；“下一轮被调度”的运行验证 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B01-07",
+        "batch": "B01",
+        "title": "重复调度入口清单与收敛",
+        "recordedStatus": "DONE",
+        "commitReference": "dcef83a15e12",
+        "ciReference": "—",
+        "note": "SCHEDULER_OWNERS.json 42 个循环，无“两个活跃写者写同一研究表”；旧研究链连续性/捕获在 R26 运行时让出（与 R27-046 并行观察冲突已记录）；生命周期回归 androidTest NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B02-01",
+        "batch": "B02",
+        "title": "每期8点时间线落库",
+        "recordedStatus": "DONE",
+        "commitReference": "56e7834b60c9",
+        "ciReference": "—",
+        "note": "HOST timeline 3/3；SQL T01；VALIDATED/DRAW_COMMITTED 打点在同一事务内的 FetchLedgerR925.observe/canonicalDrawWithinR82（DbStore 为主链红线，保持不变）；30分钟覆盖 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B02-02",
+        "batch": "B02",
+        "title": "抓取单飞与退避节奏",
+        "recordedStatus": "DONE",
+        "commitReference": "31ea80f32bae",
+        "ciReference": "—",
+        "note": "HOST 2/2（16线程单飞、退避序列）；HTTP 超时现值 2500/3500ms 已≤4000 未改；断网恢复真机序列 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B02-03",
+        "batch": "B02",
+        "title": "缺期补抓与幂等结算核验",
+        "recordedStatus": "DONE",
+        "commitReference": "b2d781d67d27",
+        "ciReference": "—",
+        "note": "HOST PendingDrawR30 P1–P4 OK；SettlementEngine 未改（主链红线 R27QualityTest.h15 要求逐字节不变；CP06 重放已不写行并返回已存结果，仅重放哈希文本与首次不同）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B02-04",
+        "batch": "B02",
+        "title": "准备在事务外、冻结在短事务内",
+        "recordedStatus": "DONE",
+        "commitReference": "7efceca151e8",
+        "ciReference": "—",
+        "note": "审查：两条冻结路径事务体内均无模型/特征调用（CP06 已符合，未改行为）；prepare_to_frozen 真机 P95 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B02-05",
+        "batch": "B02",
+        "title": "UI与后台延迟",
+        "recordedStatus": "DONE",
+        "commitReference": "1ada7bd82310",
+        "ciReference": "—",
+        "note": "图表已在后台线程读取；每页≤500点；debug StrictMode 已开；全页面违规清扫与首开<1s 需模拟器/真机 NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B03-01",
+        "batch": "B03",
+        "title": "PIT守卫接入所有冻结写入",
+        "recordedStatus": "DONE",
+        "commitReference": "461b96c50642",
+        "ciReference": "—",
+        "note": "HOST PitGuard 测试 + 注入反例被拒入账；回放/研究冻结均经守卫；真机 r30_pit_violation NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B03-02",
+        "batch": "B03",
+        "title": "真实历史数据治理",
+        "recordedStatus": "DONE",
+        "commitReference": "1ec65983f4ae",
+        "ciReference": "—",
+        "note": "fixture 乱序/重复/矛盾重复/缺期/跨日 通过；热库≤5000 沿用 CP06 保留尾（MAX_LOCAL_HISTORY_SAVE）；回放更早数据只读已核验导入历史，CP12 压缩归档块不回读（记录）",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B03-03",
+        "batch": "B03",
+        "title": "分割角色与曝光账",
+        "recordedStatus": "DONE",
+        "commitReference": "255c24b",
+        "ciReference": "41190473046 通过",
+        "note": "生产确认预约/原始证据/冻结数据恢复及B05隔离累计CI通过；设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B03-04",
+        "batch": "B03",
+        "title": "增量特征与回放",
+        "recordedStatus": "DONE",
+        "commitReference": "58b24f909afe",
+        "ciReference": "41175814154",
+        "note": "实际 SQLite 缓存与源竞态回归通过；CI 通过；设备性能未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B03-05",
+        "batch": "B03",
+        "title": "训练游标与可恢复状态",
+        "recordedStatus": "DONE",
+        "commitReference": "b4c944c",
+        "ciReference": "41175814154",
+        "note": "HOST 恢复一致、防重复与 Q15 原子回滚通过；CI 通过；设备验证未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B03-06",
+        "batch": "B03",
+        "title": "统一回放评价器",
+        "recordedStatus": "DONE",
+        "commitReference": "255c24b",
+        "ciReference": "41190473046 通过",
+        "note": "生产选择/淘汰与独立确认经统一入口，217项单测、lint及累计CI通过；设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-01",
+        "batch": "B04",
+        "title": "完整策略合同进出生门",
+        "recordedStatus": "DONE",
+        "commitReference": "9ca89a4",
+        "ciReference": "41179327695 通过",
+        "note": "真实出生合同与拒绝账；185项全量单测、lint及远端完整CI通过",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-02",
+        "batch": "B04",
+        "title": "行为指纹去重",
+        "recordedStatus": "DONE",
+        "commitReference": "de22588",
+        "ciReference": "41180007005 通过",
+        "note": "真实指纹、档案/迁移及落库/报告；190项单测、lint及完整CI通过",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-03",
+        "batch": "B04",
+        "title": "13个业务思路族增强",
+        "recordedStatus": "DONE",
+        "commitReference": "612110e",
+        "ciReference": "41181162337 通过",
+        "note": "每族100个合同合法提案、20次实际出生；专家合同；本地192项单测、lint、SQL19/19及远端完整CI通过",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-04",
+        "batch": "B04",
+        "title": "短期结构窗口与集合缩减",
+        "recordedStatus": "DONE",
+        "commitReference": "c24aa69",
+        "ciReference": "41181162337 通过",
+        "note": "原样复制类及4项测试；196项全量单测、lint及远端完整CI通过；I14真实注册随B04-06验证",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-05",
+        "batch": "B04",
+        "title": "选时选位与出手条件",
+        "recordedStatus": "DONE",
+        "commitReference": "257fa5d",
+        "ciReference": "41181816901 通过",
+        "note": "真实H_SELECT估计与资格登记；199项单测、lint、SQLite预登记率/重试/旧回退检查及远端完整CI通过",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-06",
+        "batch": "B04",
+        "title": "六类结构生成器注册",
+        "recordedStatus": "DONE",
+        "commitReference": "3aa4534",
+        "ciReference": "41182470684 通过",
+        "note": "七族各500合同、实际主循环出生和专家名额；203项单测、lint及远端完整CI通过",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B04-07",
+        "batch": "B04",
+        "title": "失败驱动结构修复",
+        "recordedStatus": "DONE",
+        "commitReference": "a5bb357",
+        "ciReference": "41183526877 通过",
+        "note": "真实画像及算子调用；3773个合法产物、206项单测、lint及远端完整CI通过；本批设备门禁未执行",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B05-01",
+        "batch": "B05",
+        "title": "进化与确认隔离",
+        "recordedStatus": "DONE",
+        "commitReference": "255c24b",
+        "ciReference": "41190473046 通过",
+        "note": "217项累计单测、lint及完整CI通过；实际独立确认/恢复/证据复用/资格计数通过；旧失败保留，设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B05-02",
+        "batch": "B05",
+        "title": "全管线空信号对照与功效",
+        "recordedStatus": "DONE",
+        "commitReference": "255c24b",
+        "ciReference": "41190473046 通过",
+        "note": "217项单测、lint及完整CI通过，真实SQLite及原资格HOST16项通过；Q08有合成模拟报告，设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B05-03",
+        "batch": "B05",
+        "title": "AtomNet 十位置真实训练输入",
+        "recordedStatus": "DONE",
+        "commitReference": "f7006d6",
+        "ciReference": "41191547860 通过",
+        "note": "221项单测、lint及完整CI通过；真实SQLite位置5终止/恢复，旧模型保留、吞吐有报告；设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B05-04",
+        "batch": "B05",
+        "title": "I08 神经表示接入策略消费者",
+        "recordedStatus": "DONE",
+        "commitReference": "b69c4ff",
+        "ciReference": "41192794007 通过",
+        "note": "225项单测、lint及完整CI通过；实际模型消费/冻结配对/拒绝路径SQLite通过；设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B05-05",
+        "batch": "B05",
+        "title": "NumberQ 排序器与学习模型统一",
+        "recordedStatus": "DONE",
+        "commitReference": "c03fe41",
+        "ciReference": "41194042840 通过",
+        "note": "227项单测、lint及完整CI通过，Model/NN真实SQLite恢复通过；B05五卡工程门禁完成，设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B06-01",
+        "batch": "B06",
+        "title": "校准时间隔离与等质量箱",
+        "recordedStatus": "DONE",
+        "commitReference": "53f682d",
+        "ciReference": "41195839141 通过",
+        "note": "232项单测、lint及完整CI通过；SQLite严格滚动/原子提交/双ECE报告通过；设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B06-02",
+        "batch": "B06",
+        "title": "原子分子贡献评分",
+        "recordedStatus": "DONE",
+        "commitReference": "8bd231d",
+        "ciReference": "41197012700 通过",
+        "note": "235项单测/57XML、lint及完整累计CI通过；实际Brier/失败提交恢复通过，设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B06-03",
+        "batch": "B06",
+        "title": "20矩阵与教师能力迁移",
+        "recordedStatus": "DONE",
+        "commitReference": "df21127",
+        "ciReference": "41198625317 通过",
+        "note": "237项/58XML、lint、实际20绑定/原表SQLite及完整累计CI通过；快照不冒充有效证据",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B06-04",
+        "batch": "B06",
+        "title": "能力逐对象注册表",
+        "recordedStatus": "DONE",
+        "commitReference": "15fcb02",
+        "ciReference": "41200060637 通过",
+        "note": "239项/59XML、lint、82真实对象/SQLite及完整累计CI通过；已有记录不冒充有效证据",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B07-01",
+        "batch": "B07",
+        "title": "确认队列不被换榜挤掉",
+        "recordedStatus": "DONE",
+        "commitReference": "cf0baef",
+        "ciReference": "41201025198 累计通过",
+        "note": "本地241项/100代真实SQLite，后续1ceb28b累计243项及全部远端CI通过，游标/回执/索引保留；设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B07-02",
+        "batch": "B07",
+        "title": "资格门版本化",
+        "recordedStatus": "DONE",
+        "commitReference": "1ceb28b",
+        "ciReference": "41201025198 通过",
+        "note": "243项/61XML、lint、真实证书迁移/版本发证/过期拒绝及完整累计CI通过；V2未启用，设备未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B07-03",
+        "batch": "B07",
+        "title": "主链逐项解释与单笔REAL",
+        "recordedStatus": "DONE",
+        "commitReference": "00b3a60",
+        "ciReference": "41202707654 通过",
+        "note": "246项/63XML、lint、实际解释/授权SQLite及完整CI通过；原判定体保全，Android源码编译通过、运行未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B07-04",
+        "batch": "B07",
+        "title": "证书撤销≤5秒",
+        "recordedStatus": "DONE",
+        "commitReference": "3eb79ef",
+        "ciReference": "41205376445 通过",
+        "note": "246项/63XML、lint、Android源码编译及正式SQLite/实际发证竞态通过；HOST 0.46–1.67ms，真机未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B08-01",
+        "batch": "B08",
+        "title": "12章报告同一快照出数",
+        "recordedStatus": "DONE",
+        "commitReference": "24cb748",
+        "ciReference": "41209541374 通过",
+        "note": "248项/64XML、lint、Android测试源码编译与正式SQLite同快照回归通过；设备运行未测",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B08-02",
+        "batch": "B08",
+        "title": "诊断规则给出具体代码行动",
+        "recordedStatus": "DONE",
+        "commitReference": "6f5295d",
+        "ciReference": "41210734129 通过",
+        "note": "252项/65XML、lint、Android编译与正式SQLite诊断联调通过；16规则行动齐全，不代替自然质量",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B08-03",
+        "batch": "B08",
+        "title": "升级诊断与消融空章修复",
+        "recordedStatus": "DONE",
+        "commitReference": "bd02aa0",
+        "ciReference": "41212411795 通过",
+        "note": "255项/66XML、lint、Android编译、正式SQLite升级/消融与旧16报告字节一致通过；未验证改善不称Q06达标",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B08-04",
+        "batch": "B08",
+        "title": "导出取消、重建与分页",
+        "recordedStatus": "DONE",
+        "commitReference": "ea2a55a + db4c556",
+        "ciReference": "41218407163/job124587676324成功",
+        "note": "255项G1/JNI/SQLite通过；原缺rg失败保留，基础find包装及累计CI成功；真机取消NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B08-05",
+        "batch": "B08",
+        "title": "总存储与证据保留",
+        "recordedStatus": "DONE",
+        "commitReference": "ef13e4f / db4c556",
+        "ciReference": "41218407163/job124587676324成功",
+        "note": "258项G1/lint/Android编译/真实保全与退役库引用及远端成功；原API21 lint失败保留；真机预算NOT_RUN",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B09-01",
+        "batch": "B09",
+        "title": "图表与排行榜保全",
+        "recordedStatus": "DONE",
+        "commitReference": "8f46e39",
+        "ciReference": "待顺序推送",
+        "note": "262项G1/lint/Android编译/真实SQLite通过；旧14图与排行榜保留；G4实际截图运行待最终同签名CI",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
+      },
+      {
+        "id": "R30-B09-02",
+        "batch": "B09",
+        "title": "全链故障注入回归",
+        "recordedStatus": "DONE",
+        "commitReference": "a309dce",
+        "ciReference": "待顺序推送",
+        "note": "262项G1/lint/Android编译通过；14格实际Android故障仍NOT_RUN，已接最终同签名CI",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
+      },
+      {
+        "id": "R30-B09-03",
+        "batch": "B09",
+        "title": "性能剖析与最后修复",
+        "recordedStatus": "NOT_RUN",
+        "commitReference": "c5228e2",
+        "ciReference": "待独立提交CI",
+        "note": "265项/69XML G1、lint/Android编译及原16 SQLite资格/回滚幂等通过；设备over_hard缺测null",
+        "implementationStatus": "IMPLEMENTED_ENGINEERING_CHECKED",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B10-01",
+        "batch": "B10",
+        "title": "真机长时场景",
+        "recordedStatus": "NOT_RUN",
+        "commitReference": "见DEVICE_V2353A.json",
+        "ciReference": "应用字节沿用c5228e2完整G1",
+        "note": "默认ADB EPERM后正常批准重试1次成功；设备列表空，60m/6h/72h均未执行",
+        "implementationStatus": "LEDGER_AND_DRIVER_IMPLEMENTED_EXECUTION_SEPARATE",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B10-02",
+        "batch": "B10",
+        "title": "自然质量与主链闭环",
+        "recordedStatus": "NOT_RUN",
+        "commitReference": "见QUALITY.json",
+        "ciReference": "应用字节沿用c5228e2完整G1",
+        "note": "Q01–Q07均null/INSUFFICIENT，无真机自然样本；Q08合成机制/宽区间另列，不补配额",
+        "implementationStatus": "LEDGER_AND_DRIVER_IMPLEMENTED_EXECUTION_SEPARATE",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B10-03",
+        "batch": "B10",
+        "title": "撤销与回滚演练",
+        "recordedStatus": "DONE",
+        "commitReference": "01e3886",
+        "ciReference": "最终双证书CI待启动",
+        "note": "验证驱动与模型BLOB Android源码编译通过；实际两证书四条覆盖/回退仍待运行",
+        "implementationStatus": "LEDGER_AND_DRIVER_IMPLEMENTED_EXECUTION_SEPARATE",
+        "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
+      },
+      {
+        "id": "R30-B10-04",
+        "batch": "B10",
+        "title": "最终账本与单一入口",
+        "recordedStatus": "DONE",
+        "commitReference": "—",
+        "ciReference": "—",
+        "note": "固定最终版本577310101，完整账本与两证书CI；实际APK成功后回填直链并更新main入口",
+        "implementationStatus": "LEDGER_AND_DRIVER_IMPLEMENTED_EXECUTION_SEPARATE",
+        "fullAcceptanceStatus": "PASS_FINAL_APK_EMULATOR_SCOPE_PHONE_AND_NATURAL_QUALITY_SEPARATE"
+      },
+      {
+        "id": "R30-B11-01",
+        "batch": "B11",
+        "title": "开工条件判定",
+        "recordedStatus": "NOT_RUN",
+        "commitReference": "a2307bb",
+        "ciReference": "纯决策账本",
+        "note": "三项真机触发条件均未知，切库未启用",
+        "implementationStatus": "CONDITIONAL_NOT_RUN",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      },
+      {
+        "id": "R30-B11-02",
+        "batch": "B11",
+        "title": "停机式离线切库与唯一路由点",
+        "recordedStatus": "NOT_RUN",
+        "commitReference": "—",
+        "ciReference": "—",
+        "note": "待B11三项真实触发条件同时成立",
+        "implementationStatus": "CONDITIONAL_NOT_RUN",
+        "fullAcceptanceStatus": "NOT_ALL_ACCEPTANCE_EVIDENCE_AVAILABLE"
+      }
+    ],
+    "metrics": [
+      {
+        "id": "M01",
+        "name": "源码与安装身份",
+        "target": "全部一致",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）",
+        "status": "PASS_EXACT_SOURCE_TWO_EXISTING_SIGNATURES_AND_EMULATOR_INSTALLATION",
+        "value": {
+          "sameSourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+          "sameSourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+          "identityCount": 2
+        },
+        "evidence": [
+          "final build delivery.json"
+        ]
+      },
+      {
+        "id": "M02",
+        "name": "功能保全覆盖",
+        "target": "100%有记录；无凭空VERIFIED",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest",
+        "status": "LEGACY_REQUIREMENTS_RECORDED_RUNTIME_VERIFICATION_SEPARATE",
+        "value": {
+          "legacyRequirements": 1832,
+          "legacyFileCards": 299,
+          "deletedMainSourceFiles": 0
+        },
+        "evidence": [
+          "construction/r30/BASELINE.json; tools/r30/legacy_count.py"
+        ]
+      },
+      {
+        "id": "M03",
+        "name": "准时预测持久化",
+        "target": "P95≤5000ms",
+        "environment": "DEVICE",
+        "measurementSource": "r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M04",
+        "name": "抓到后正式结算",
+        "target": "P95≤1000ms",
+        "environment": "DEVICE",
+        "measurementSource": "r30_issue_timeline：observe_to_settled 段 P95",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M05",
+        "name": "赛前有效覆盖",
+        "target": "目标100%；受支持健康场景≥99.5%",
+        "environment": "DEVICE",
+        "measurementSource": "r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M06",
+        "name": "唯一正式结算",
+        "target": "均为0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）",
+        "status": "MECHANISM_TESTS_PASS_NATURAL_WINDOW_NOT_SUBSTITUTED",
+        "value": null,
+        "evidence": [
+          "evidence/r30/b09-03/actual-compiled-qual-rollback-idempotence.log.gz; Android fault matrix pending"
+        ]
+      },
+      {
+        "id": "M07",
+        "name": "实时写事务",
+        "target": "P95≤200ms；24h失败0",
+        "environment": "DEVICE",
+        "measurementSource": "r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M08",
+        "name": "分库隔离",
+        "target": "0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M09",
+        "name": "迁移一致性",
+        "target": "全部一致；丢失/重复0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数",
+        "status": "PASS_FOUR_REAL_BASELINE_EMULATOR_DRILLS_MODEL_ROW_COVERAGE_EXPLICIT",
+        "value": [
+          {
+            "lane": "R27",
+            "checkpoint": "CP06",
+            "upgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "EXISTING_R27-CP06-upgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4263,
+              "afterDrawCount": 4265,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [],
+              "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+              "qualificationBudgets": [],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "rollback": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "EXISTING_R27-CP06-rollback",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4265,
+              "afterDrawCount": 4267,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r26_incumbent_frozen",
+                  "column": "preference_table",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 45,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 3460,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "reupgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "EXISTING_R27-CP06-reupgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4265,
+              "afterDrawCount": 4270,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r26_incumbent_frozen",
+                  "column": "preference_table",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 45,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 3460,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "06e3dd65da4ea32b74181271c7917899d0ae243c6933743ddcbbf5498353976c",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "44be23a33f9381a9a1332055169ec88d2db1f47b04a89cdb9efddc60e5ac8237",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            }
+          },
+          {
+            "lane": "R27",
+            "checkpoint": "CP16",
+            "upgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "EXISTING_R27-CP16-upgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 2823,
+              "afterDrawCount": 4265,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [],
+              "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+              "qualificationBudgets": [],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "rollback": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "EXISTING_R27-CP16-rollback",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4265,
+              "afterDrawCount": 4268,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r26_incumbent_frozen",
+                  "column": "preference_table",
+                  "originalNonemptyBlobRows": 2,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 90,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 7440,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "reupgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "EXISTING_R27-CP16-reupgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4265,
+              "afterDrawCount": 4270,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r26_incumbent_frozen",
+                  "column": "preference_table",
+                  "originalNonemptyBlobRows": 2,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 90,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 7440,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "02c3088e21593fb0a9eaf7ca6e4ec3f4549c4e6d0d8bf58b7ac97fa53abd862b",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "e07246d70dfc9875f00e23327d5692c2ad77428a2d041386e5ca674eaed32194",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            }
+          },
+          {
+            "lane": "OFFICIAL",
+            "checkpoint": "CP06",
+            "upgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "OFFICIAL_R13-CP06-upgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 2823,
+              "afterDrawCount": 4266,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [],
+              "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+              "qualificationBudgets": [],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "rollback": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "OFFICIAL_R13-CP06-rollback",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4266,
+              "afterDrawCount": 4268,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r26_incumbent_frozen",
+                  "column": "preference_table",
+                  "originalNonemptyBlobRows": 2,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 89,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 3000,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "reupgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "OFFICIAL_R13-CP06-reupgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4266,
+              "afterDrawCount": 4270,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r26_incumbent_frozen",
+                  "column": "preference_table",
+                  "originalNonemptyBlobRows": 2,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 89,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 3000,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "2c5a450197dc8010775ab96930c427bca3b1454e94e08dc919565a804bec06af",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "d34a0b723f14f431bbe68926ccfc92f8cd425a90913a04de0e16d593e36362e7",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            }
+          },
+          {
+            "lane": "OFFICIAL",
+            "checkpoint": "CP16",
+            "upgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "OFFICIAL_R13-CP16-upgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4208,
+              "afterDrawCount": 4266,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [],
+              "modelBlobEvidence": "NO_ORIGINAL_MODEL_BLOB_ROWS_IN_BASELINE",
+              "qualificationBudgets": [],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "rollback": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "OFFICIAL_R13-CP16-rollback",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4266,
+              "afterDrawCount": 4268,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 15,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 1540,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            },
+            "reupgrade": {
+              "scope": "ACTUAL_ANDROID_EMULATOR_UPGRADE_OR_ROLLBACK_NOT_PHONE",
+              "label": "OFFICIAL_R13-CP16-reupgrade",
+              "schemaTablesLost": [],
+              "integrity": "ok",
+              "beforeDrawCount": 4266,
+              "afterDrawCount": 4271,
+              "originalDrawsLostOrChangedCount": 0,
+              "modelBlobColumns": [
+                {
+                  "table": "r27_live_frozen",
+                  "column": "probabilities",
+                  "originalNonemptyBlobRows": 15,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_dataset",
+                  "column": "payload",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_atomnet_sample",
+                  "column": "features",
+                  "originalNonemptyBlobRows": 1540,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                },
+                {
+                  "table": "r30_keep_r29_model_checkpoint",
+                  "column": "artifact",
+                  "originalNonemptyBlobRows": 1,
+                  "unretainedBlobRows": 0,
+                  "allOriginalValuesFound": true
+                }
+              ],
+              "modelBlobEvidence": "CHECKED_ORIGINAL_NONEMPTY_ROWS",
+              "qualificationBudgets": [
+                {
+                  "policyHashSha256": "de0e1989815f28a1042992f16c7aade126d78acfc2d886724b162a414c387bc1",
+                  "preservedIndexAndCumulativeN": true
+                },
+                {
+                  "policyHashSha256": "1ce506a43c46974f27cf28a3864f5b55a87e04240a1c91fbb9280f1cd235d029",
+                  "preservedIndexAndCumulativeN": true
+                }
+              ],
+              "sourceRowsUploaded": false,
+              "modelBytesUploaded": false,
+              "physicalDevice": "NOT_RUN",
+              "naturalQuality": "NOT_PROVEN",
+              "pass": true
+            }
+          }
+        ],
+        "evidence": [
+          "construction/r30/ROLLBACK_DRILL.json"
+        ]
+      },
+      {
+        "id": "M10",
+        "name": "每期训练投递",
+        "target": "100%；重复消费0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M11",
+        "name": "训练完成新鲜度",
+        "target": "正常负载最老积压≤5期；超限必须FAIL",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "TaskLivenessR30：最老积压期数（pending 最大任务）",
+        "status": "INSUFFICIENT_RUNTIME_BACKLOG_MEASUREMENT",
+        "value": null,
+        "evidence": [
+          "original RuntimeR27 task receipts; no physical load trace"
+        ]
+      },
+      {
+        "id": "M12",
+        "name": "任务活性",
+        "target": "0；等依赖/等数据单列",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "TaskLivenessR30.summarize.m12（null=有UNKNOWN）",
+        "status": "UNKNOWN_MISSING_TASK_DEMAND_OR_COMMITTED_SEQUENCE_FACTS",
+        "value": null,
+        "evidence": [
+          "TaskLivenessR30 keeps UNKNOWN; no fabricated healthy task count"
+        ]
+      },
+      {
+        "id": "M13",
+        "name": "前后台连续性",
+        "target": "受支持场景不丢已投递任务；缺口全记录",
+        "environment": "DEVICE",
+        "measurementSource": "B10 场景：前后台切换前后已投递任务数差",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M14",
+        "name": "进程稳定性",
+        "target": "0",
+        "environment": "DEVICE",
+        "measurementSource": "进程崩溃/ANR 计数（logcat + ApplicationExitInfo）",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M15",
+        "name": "热库与总磁盘",
+        "target": "draws≤5000；未超配置总预算且可恢复",
+        "environment": "DEVICE",
+        "measurementSource": "draws 热库行数 + 应用数据目录总字节",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M16",
+        "name": "报告取消",
+        "target": "≤2000ms",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "ReportTaskControlR69 取消到释放耗时",
+        "status": "HOST_MECHANISM_PASS_DEVICE_CANCEL_NOT_RUN",
+        "value": {
+          "hostCancelToClosedStreamAndPrivateCleanupMs": 19,
+          "phoneMs": null
+        },
+        "evidence": [
+          "evidence/r30/b08-05/portable-report-host/"
+        ]
+      },
+      {
+        "id": "M17",
+        "name": "报告完整性",
+        "target": "全量索引100%；默认ZIP≤20MiB或明确分卷",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "报告索引覆盖率 + ZIP 大小/分卷",
+        "status": "HOST_REAL_ZIP_PARTS_AND_HASH_MECHANISM_PASS",
+        "value": {
+          "maxPartBytes": 20971520,
+          "testedZipBytesGreaterThan": 26214400
+        },
+        "evidence": [
+          "evidence/r30/b08-04/; evidence/r30/b08-05/portable-report-host/"
+        ]
+      },
+      {
+        "id": "M18",
+        "name": "PIT泄漏反证",
+        "target": "0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "r30_pit_violation 非注入行数",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M19",
+        "name": "训练分割污染",
+        "target": "0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "HoldoutLedgerR27 R30_CONFIRM_REUSED 计数",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M20",
+        "name": "全状态续训恢复",
+        "target": "按已登记浮点容差一致；不重复学习",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "ModelArtifactR29 中断/恢复一致性测试结果",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M21",
+        "name": "策略完整合同",
+        "target": "100%；空壳拒绝",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M22",
+        "name": "结构与行为去重",
+        "target": "计数与ledger一致",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "r30_behavior_dup 行数与报告去重计数一致",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M23",
+        "name": "族专家覆盖",
+        "target": "全部注册与可执行；没有证据不标有效",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "CapabilityRegistryR30 对象可执行率",
+        "status": "82_ACTUAL_CODE_OBJECTS_DEPENDENCIES_AND_EFFECTIVENESS_SEPARATE",
+        "value": {
+          "registeredCodeObjects": 82,
+          "effectiveNaturalCount": null
+        },
+        "evidence": [
+          "evidence/r30/b06-04/; F23 original teacher binding and audit-only objects have explicit block reasons"
+        ]
+      },
+      {
+        "id": "M24",
+        "name": "模型实际消费",
+        "target": "100%匹配或明确BLOCKED；不得伪造调用",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "r30_model_call 与冻结行匹配率",
+        "status": "MATCHED_ARTIFACT_OR_EXPLICIT_BLOCK_MECHANISM_PASS",
+        "value": null,
+        "evidence": [
+          "evidence/r30/b05-04/; missing/target/source-race actual SQLite cases"
+        ]
+      },
+      {
+        "id": "M25",
+        "name": "矩阵接线",
+        "target": "全部可追溯；未产出有明确原因",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "MatrixRegistryR30 20 项可追溯率",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M26",
+        "name": "校准时间隔离",
+        "target": "100%；零模型需可定位原因",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "校准样本时间隔离检查通过率",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M27",
+        "name": "资格预算连续",
+        "target": "全部通过",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "SequentialQualificationR27 全局序号连续、无重置",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M28",
+        "name": "主链闭环",
+        "target": "合法正对照贯通；非法/过期全部拦截",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "androidTest 正对照贯通 + 非法/过期拦截",
+        "status": "PASS_ORIGINAL_ANDROID_OWNER_POSITIVE_AND_FOUR_INDEPENDENT_NEGATIVES",
+        "value": {
+          "identitiesTested": 2,
+          "perIdentityCases": 5
+        },
+        "evidence": [
+          "evidence/r30/b07-03/; final Android legal positive/four independent negatives"
+        ]
+      },
+      {
+        "id": "M29",
+        "name": "确认队列连续",
+        "target": "0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "确认队列被挤出次数",
+        "status": "DURABLE_QUEUE_RERANK_RESTART_MECHANISM_PASS",
+        "value": {
+          "testedReranks": 100,
+          "testedLostReceipts": 0
+        },
+        "evidence": [
+          "evidence/r30/b07-01/"
+        ]
+      },
+      {
+        "id": "M30",
+        "name": "主链选择器身份",
+        "target": "未确认组合不能REAL",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）",
+        "status": "ENGINEERING_MECHANISM_EVIDENCE_PRESENT_FINAL_RUNTIME_ACCEPTANCE_PENDING",
+        "value": null,
+        "evidence": []
+      },
+      {
+        "id": "M31",
+        "name": "诊断可追溯",
+        "target": "100%或UNKNOWN并给采集动作",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "DiagnosisRulesR30 规则行动覆盖率",
+        "status": "16_ACTIONABLE_RULES_REAL_SQLITE_CONFLICT_PASS",
+        "value": {
+          "diagnosisRules": 16
+        },
+        "evidence": [
+          "evidence/r30/b08-02/"
+        ]
+      },
+      {
+        "id": "M32",
+        "name": "报告口径一致",
+        "target": "0",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "同快照两章同指标冲突数",
+        "status": "SAME_CAPTURE_JSON_MD_UI_MECHANISM_PASS",
+        "value": {
+          "testedValidCaptureConflicts": 0,
+          "chapters": 12
+        },
+        "evidence": [
+          "evidence/r30/b08-01/; evidence/r30/b09-01/"
+        ]
+      },
+      {
+        "id": "M33",
+        "name": "图表回归",
+        "target": "全部场景可打开且口径一致",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "图表页面 androidTest 截图通过数",
+        "status": "PASS_BOTH_SIGNED_APKS_ACTUAL_CHART_ACTIVITY",
+        "value": {
+          "retainedLegacyPanels": 14,
+          "newPanels": 2,
+          "actualScreenshotsPerIdentity": 48,
+          "states": [
+            "READY",
+            "EMPTY",
+            "READ_ERROR"
+          ]
+        },
+        "evidence": [
+          "evidence/r30/b09-01/; final Android regression"
+        ]
+      },
+      {
+        "id": "M34",
+        "name": "签名覆盖安装",
+        "target": "成功；首启/二启无崩溃",
+        "environment": "DEVICE",
+        "measurementSource": "覆盖安装首启/二启无崩溃（两证书）",
+        "status": "NOT_RUN",
+        "value": null,
+        "evidence": [
+          "construction/r30/DEVICE_V2353A.json"
+        ]
+      },
+      {
+        "id": "M35",
+        "name": "失效模型撤销",
+        "target": "目标≤5000ms；不含APK回滚",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "证书撤销到 DecisionGate 拒绝的耗时",
+        "status": "PASS_ANDROID_SAME_TRANSACTION_REVOKE_ASSERTION_WITHIN_ORIGINAL_5000MS",
+        "value": {
+          "boundMs": 5000,
+          "identitiesTested": 2,
+          "physicalDeviceMs": null
+        },
+        "evidence": [
+          "evidence/r30/b07-04/"
+        ]
+      },
+      {
+        "id": "M36",
+        "name": "同池对照",
+        "target": "有可复算输出；合成不计真实质量",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "NullEvolutionR27 同池对照输出可复算",
+        "status": "REPRODUCIBLE_SYNTHETIC_MECHANISM_REPORTED_NOT_NATURAL",
+        "value": null,
+        "evidence": [
+          "evidence/r30/b05-02/q08-host-result.json"
+        ]
+      },
+      {
+        "id": "Q01",
+        "name": "自然ACT命中",
+        "target": "≥34%，优先≥37%；未达不得宣称达标",
+        "environment": "DEVICE",
+        "measurementSource": "真机 FUTURE ACT 命中率（事前登记策略）",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q02",
+        "name": "真实频率",
+        "target": "目标≥15%；质量支持扩大；不得补配额",
+        "environment": "DEVICE",
+        "measurementSource": "真机实际出手频率（不补配额）",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q03",
+        "name": "真实统计优势",
+        "target": "e≥1/alpha，假设与预算成立",
+        "environment": "DEVICE",
+        "measurementSource": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q04",
+        "name": "跨块稳定",
+        "target": "窗口规则事前冻结；不得事后选好块",
+        "environment": "DEVICE",
+        "measurementSource": "事前冻结窗口规则下各块命中率",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q05",
+        "name": "校准与BSS",
+        "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+        "environment": "DEVICE",
+        "measurementSource": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q06",
+        "name": "进化提升",
+        "target": "有效区间下界>0才计验证改善",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "父子配对差单侧95%下界",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q07",
+        "name": "有效资产产量",
+        "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+        "environment": "DEVICE",
+        "measurementSource": "ACTIVE 证书资产数",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      },
+      {
+        "id": "Q08",
+        "name": "空信号与优势检出力",
+        "target": "报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收",
+        "environment": "HOST_OR_EMULATOR_ALLOWED",
+        "measurementSource": "R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27",
+        "status": "INSUFFICIENT_NATURAL_OR_FULL_STATISTICAL_ACCEPTANCE",
+        "value": null,
+        "evidence": [
+          "construction/r30/QUALITY.json"
+        ]
+      }
+    ],
+    "apks": [
+      {
+        "apk": "STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk",
+        "bytes": 27811024,
+        "sha256": "62b280d2785a8cc453bcc894a08319b5caf6434a68bfb28dce708c845b51590d",
+        "package": "com.starcore.research.r13",
+        "versionCode": 577310107,
+        "versionName": "R30-FINAL-2026.10.31-107",
+        "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+        "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+        "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+        "signingIdentity": "OFFICIAL_R13",
+        "officialR13Upgrade": "NOT_RUN",
+        "installation": "ANDROID_EMULATOR_PASS_BOTH_CP06_CP16",
+        "startup": "COLD_AND_RESTART_HEARTBEAT_PASS",
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "INSUFFICIENT",
+        "overall": "SOURCE_IMPLEMENTED_ANDROID_GATES_PASS_PHONE_AND_NATURAL_ACCEPTANCE_PENDING",
+        "lane": "OFFICIAL_R13",
+        "artifactRole": "FINAL_RELEASE_APK",
+        "rollback": "SAME_CERT_USERDEBUG_EMULATOR_PASS",
+        "androidRegression": "17_TESTS_AND_48_SCREENSHOTS_PASS",
+        "faultMatrix": "14_ANDROID_CELLS_PASS_CONFLICT_REMAINS_HARD_BLOCKED",
+        "downloadUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk"
+      },
+      {
+        "apk": "STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk",
+        "bytes": 27811033,
+        "sha256": "c414a664dec8a8c58f5e3f573f875e593a3c5d7c156b8df19e856bf5109c9a94",
+        "package": "com.starcore.research.r13",
+        "versionCode": 577310107,
+        "versionName": "R30-FINAL-2026.10.31-107",
+        "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+        "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+        "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+        "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+        "signingIdentity": "EXISTING_R27_CI_NOT_OFFICIAL_R13",
+        "officialR13Upgrade": "BLOCKED_SIGNING_KEY",
+        "installation": "ANDROID_EMULATOR_PASS_BOTH_CP06_CP16",
+        "startup": "COLD_AND_RESTART_HEARTBEAT_PASS",
+        "physicalDevice": "NOT_RUN",
+        "naturalQuality": "INSUFFICIENT",
+        "overall": "SOURCE_IMPLEMENTED_ANDROID_GATES_PASS_PHONE_AND_NATURAL_ACCEPTANCE_PENDING",
+        "lane": "EXISTING_R27",
+        "artifactRole": "FINAL_RELEASE_APK",
+        "rollback": "SAME_CERT_USERDEBUG_EMULATOR_PASS",
+        "androidRegression": "17_TESTS_AND_48_SCREENSHOTS_PASS",
+        "faultMatrix": "14_ANDROID_CELLS_PASS_CONFLICT_REMAINS_HARD_BLOCKED",
+        "downloadUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk"
+      }
+    ],
+    "physical": "construction/r30/DEVICE_V2353A.json",
+    "quality": "construction/r30/QUALITY.json",
+    "rollback": "construction/r30/ROLLBACK_DRILL.json",
+    "conditionalCutover": "construction/r30/B11_DECISION.json",
+    "newSigningKeysGenerated": false,
+    "signingKeysReadOrUploadedByAgent": false,
+    "modelsOrTrainingDataDeletedByConstruction": false,
+    "remainingAcceptance": [
+      "final signed APK bytes and exact source",
+      "actual Android screenshot/fault/upgrade/rollback gates",
+      "V2353A physical durations and original telemetry",
+      "Q01-Q07 natural data and Q08 simulation uncertainty",
+      "B11 physical trigger predicates unknown"
+    ],
+    "largeModelCopyReview": "evidence/r30/b10-04/large-cell-copy/focused.json",
+    "actualAndroidTestPlan": {
+      "tests": 17,
+      "processes": 11,
+      "screenshots": 48,
+      "faultCells": 14,
+      "runtime": "NOT_RUN_PENDING_FINAL_CANDIDATES"
+    },
+    "priorCandidateFailure": {
+      "source": "9acc87f92b15ce11a4f21dc024c19d0973a4bca5",
+      "versionCode": 577310101,
+      "runs": [
+        41227596487,
+        41227845441
+      ],
+      "published": false,
+      "failures": [
+        "AGP_OVERRIDDEN_R30_TEST_RUNNER",
+        "PRE_UPGRADE_CHECKPOINT_ORIGINAL_NOT_RETAINED_AFTER_TRAINING_REPLACE",
+        "SINGLE_PARTIAL_PREFERENCE_XML_READ_IN_ORIGINAL_STARTUP_PROBE"
+      ],
+      "repairs": "version102; explicit test runner, incoming checkpoint baseline archive, bounded same-file reread; original gates retained"
+    },
+    "probeIndependentVerification": {
+      "status": "PASS_HOST_SHELL_FILESYSTEM_ONLY",
+      "scriptSha256": "684dcc2c2c156308aeaac9e030563a3840a1c4f369fef28307e4c3f0f2e30f8e",
+      "evidence": "evidence/r30/b10-04/probe-reader/host-real-shell.log.gz",
+      "actualAndroid": "PENDING_VERSION103"
+    },
+    "priorCandidate102Failures": {
+      "source": "8bfd2d515a99753022de6474958aba59ee3b3cdd",
+      "preflight": 41232640998,
+      "testsPassedBeforeFailure": 11,
+      "runtime": "SU2_FROZEN_CERTIFICATE_NAMESPACE_WRITER_AND_READER_BRIDGE_MISSING",
+      "formalProbe": "ABSENT_CRASH_FILE_EXEC_OUT_ERROR_TEXT_NOT_XML",
+      "published": false
+    },
+    "actualOriginalOwnerAndroid": {
+      "source": "db6656edfab83dfc8679cc41aac169e8a10a9dca",
+      "run": 41242178323,
+      "job": 124658152809,
+      "passedCases": 16,
+      "positiveOriginalRealCanonicalAndTwoReceipts": "PASS",
+      "originalBudgetAndPITSourceAudit": "PASS_WITH_EXPLICIT_SYNTHETIC_FIXTURE_NOT_NETWORK_OR_NATURAL",
+      "fourIndependentNegatives": "PASS",
+      "charts": "FAILED_TEST_CONTAINER_INDEX_FIXED_PENDING_RUN",
+      "faults": "NOT_RUN_IN_THAT_RUN",
+      "fullAcceptance": false
+    },
+    "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6"
+  },
+  "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+  "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+  "versionCode": 577310107,
+  "existingIdentityApkCount": 2,
+  "apks": [
+    {
+      "apk": "STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk",
+      "bytes": 27811024,
+      "sha256": "62b280d2785a8cc453bcc894a08319b5caf6434a68bfb28dce708c845b51590d",
+      "package": "com.starcore.research.r13",
+      "versionCode": 577310107,
+      "versionName": "R30-FINAL-2026.10.31-107",
+      "certificateSha256": "9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca",
+      "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+      "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+      "signingIdentity": "OFFICIAL_R13",
+      "officialR13Upgrade": "NOT_RUN",
+      "installation": "ANDROID_EMULATOR_PASS_BOTH_CP06_CP16",
+      "startup": "COLD_AND_RESTART_HEARTBEAT_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "overall": "SOURCE_IMPLEMENTED_ANDROID_GATES_PASS_PHONE_AND_NATURAL_ACCEPTANCE_PENDING",
+      "lane": "OFFICIAL_R13",
+      "artifactRole": "FINAL_RELEASE_APK",
+      "rollback": "SAME_CERT_USERDEBUG_EMULATOR_PASS",
+      "androidRegression": "17_TESTS_AND_48_SCREENSHOTS_PASS",
+      "faultMatrix": "14_ANDROID_CELLS_PASS_CONFLICT_REMAINS_HARD_BLOCKED",
+      "downloadUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-OFFICIAL_R13-b225ab204db0.apk"
+    },
+    {
+      "apk": "STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk",
+      "bytes": 27811033,
+      "sha256": "c414a664dec8a8c58f5e3f573f875e593a3c5d7c156b8df19e856bf5109c9a94",
+      "package": "com.starcore.research.r13",
+      "versionCode": 577310107,
+      "versionName": "R30-FINAL-2026.10.31-107",
+      "certificateSha256": "d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7",
+      "sourceCommit": "b225ab204db043b347f9d76d6c5c1376fd9a2590",
+      "sourceTree": "0d9114436c7a9c51301fb90ab8ebfa7707b12dd6",
+      "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+      "signingIdentity": "EXISTING_R27_CI_NOT_OFFICIAL_R13",
+      "officialR13Upgrade": "BLOCKED_SIGNING_KEY",
+      "installation": "ANDROID_EMULATOR_PASS_BOTH_CP06_CP16",
+      "startup": "COLD_AND_RESTART_HEARTBEAT_PASS",
+      "physicalDevice": "NOT_RUN",
+      "naturalQuality": "INSUFFICIENT",
+      "overall": "SOURCE_IMPLEMENTED_ANDROID_GATES_PASS_PHONE_AND_NATURAL_ACCEPTANCE_PENDING",
+      "lane": "EXISTING_R27",
+      "artifactRole": "FINAL_RELEASE_APK",
+      "rollback": "SAME_CERT_USERDEBUG_EMULATOR_PASS",
+      "androidRegression": "17_TESTS_AND_48_SCREENSHOTS_PASS",
+      "faultMatrix": "14_ANDROID_CELLS_PASS_CONFLICT_REMAINS_HARD_BLOCKED",
+      "downloadUrl": "https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk"
+    }
+  ],
+  "officialRun": 41248861394,
+  "r27Run": 41248826921,
+  "physical": {
+    "card": "R30-B10-01",
+    "sourceBasis": "b580a30243a5690167c12bdc3158fb92fe1012b6",
+    "expectedDevice": "V2353A",
+    "deviceSerial": null,
+    "status": "NOT_RUN",
+    "reason": "approved adb devices -l returned an empty device list; no accessible V2353A or physical report dataset supplied",
+    "adbCheck": {
+      "default": "EPERM_BINDING_LOCAL_5037",
+      "normalApprovalRetryCount": 1,
+      "approvedRetry": "EXIT_0",
+      "connectedDevices": [],
+      "evidence": "evidence/r30/b10-01/adb-daemon.log",
+      "restrictionBypassed": false
+    },
+    "scenarios": [
+      {
+        "id": "foreground60min",
+        "description": "前台连续60分钟",
+        "requiredDurationMinutes": 60,
+        "status": "NOT_RUN",
+        "actualDurationMinutes": null,
+        "startedAt": null,
+        "endedAt": null,
+        "reportZip": null,
+        "issueTimelineRaw": null,
+        "writerHoldRaw": null,
+        "metrics": null
+      },
+      {
+        "id": "screenOff6h",
+        "description": "息屏连续6小时",
+        "requiredDurationMinutes": 360,
+        "status": "NOT_RUN",
+        "actualDurationMinutes": null,
+        "startedAt": null,
+        "endedAt": null,
+        "reportZip": null,
+        "issueTimelineRaw": null,
+        "writerHoldRaw": null,
+        "metrics": null
+      },
+      {
+        "id": "continuous72h",
+        "description": "连续72小时",
+        "requiredDurationMinutes": 4320,
+        "status": "NOT_RUN",
+        "actualDurationMinutes": null,
+        "startedAt": null,
+        "endedAt": null,
+        "reportZip": null,
+        "issueTimelineRaw": null,
+        "writerHoldRaw": null,
+        "metrics": null
+      }
+    ],
+    "physicalMetrics": [
+      "M03",
+      "M04",
+      "M05",
+      "M07",
+      "M13",
+      "M14",
+      "M15",
+      "M34"
+    ],
+    "hostOrEmulatorSubstitution": false,
+    "dataDeleted": false,
+    "signingKeysRead": false
+  },
+  "naturalQuality": {
+    "card": "R30-B10-02",
+    "sourceBasis": "d251899012c1fd2757db4e0925e376c69f3d003d",
+    "status": "NATURAL_QUALITY_NOT_PROVEN",
+    "naturalDataAvailable": false,
+    "metrics": [
+      {
+        "id": "Q01",
+        "name": "自然ACT命中",
+        "definition": "注册后合法ACT命中/已结算ACT",
+        "target": "≥34%，优先≥37%；未达不得宣称达标",
+        "measurementSource": "真机 FUTURE ACT 命中率（事前登记策略）",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      },
+      {
+        "id": "Q02",
+        "name": "真实频率",
+        "definition": "部署后REAL期数/部署后全部应有期；部署前另列FUTURE_ACT_RATE",
+        "target": "目标≥15%；质量支持扩大；不得补配额",
+        "measurementSource": "真机实际出手频率（不补配额）",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      },
+      {
+        "id": "Q03",
+        "name": "真实统计优势",
+        "definition": "有效序贯证据相对预登记p0",
+        "target": "e≥1/alpha，假设与预算成立",
+        "measurementSource": "SequentialQualificationR27 logEUp ≥ log(1/α_i)",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      },
+      {
+        "id": "Q04",
+        "name": "跨块稳定",
+        "definition": "预登记时间块命中/区间/回撤/漂移",
+        "target": "窗口规则事前冻结；不得事后选好块",
+        "measurementSource": "事前冻结窗口规则下各块命中率",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      },
+      {
+        "id": "Q05",
+        "name": "校准与BSS",
+        "definition": "同一目标同一ACT条件、固定校准器的验证样本；ECE按全部样本加权",
+        "target": "ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告",
+        "measurementSource": "CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      },
+      {
+        "id": "Q06",
+        "name": "进化提升",
+        "definition": "父子同一期机会收益配对差",
+        "target": "有效区间下界>0才计验证改善",
+        "measurementSource": "父子配对差单侧95%下界",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      },
+      {
+        "id": "Q07",
+        "name": "有效资产产量",
+        "definition": "同时满足Q01/03/04/05的独立资产数",
+        "target": "目标≥1，继续寻找多个互补资产；0必须如实",
+        "measurementSource": "ACTIVE 证书资产数",
+        "status": "INSUFFICIENT",
+        "value": null,
+        "naturalSampleCount": null,
+        "window": null,
+        "evidence": [],
+        "gap": "没有可访问的V2353A自然FUTURE/ACT、曝光预约、校准或父子配对真机导出；不以HOST/模拟器合成样本替代",
+        "collectionAction": "在原Runtime/QualificationInbox/ReportSnapshot链继续自然观察并导出完整报告与原始表，不补ACT配额或重置资格预算"
+      }
+    ],
+    "Q08SyntheticOnly": {
+      "status": "MEASURED_SMALL_SIMULATION_NOT_FULL_ACCEPTANCE",
+      "source": "255c24b4d5d00b9b6950cd03c17cc567ff2acea1",
+      "environment": "HOST_SYNTHETIC_ONLY",
+      "evidence": "evidence/r30/b05-02/q08-host-result.json",
+      "fullEvolutionPipelineTrials": 3,
+      "falseSequentialQualifications": 0,
+      "trialRate": 0.0,
+      "trialRate95ClopperPearsonInterval": [
+        0.0,
+        0.7075982261787134
+      ],
+      "intervalScope": "independent seeded synthetic pipeline trials only; not universal model false-positive rate or natural quality",
+      "power": [
+        {
+          "trueHitProbability": 0.34,
+          "detected": 19,
+          "experiments": 20
+        },
+        {
+          "trueHitProbability": 0.37,
+          "detected": 20,
+          "experiments": 20
+        },
+        {
+          "trueHitProbability": 0.4,
+          "detected": 20,
+          "experiments": 20
+        }
+      ],
+      "naturalQualityEligible": false,
+      "remainingGap": "3个空信号流水线试验的区间仍很宽，三档信号各20次是机制功效检查，不据此宣称Q01-Q07达标"
+    },
+    "frequencyTargetIsQuota": false,
+    "thresholdsChanged": false,
+    "naturalSamplesFabricated": false
+  },
+  "signingKeysReadByCloudAgent": false,
+  "signingKeysUploaded": false,
+  "sourceArchive": "https://github.com/gtt46461-star/starcore-public-build/archive/b225ab204db043b347f9d76d6c5c1376fd9a2590.zip",
+  "fullAcceptance100Percent": false,
+  "reason": "physical duration/performance and natural quality require original V2353A evidence, not synthetic substitution"
+}
