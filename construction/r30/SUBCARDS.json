@@ -896,6 +896,15 @@
         "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java"
       ],
       "reason": "实际Android预检41242178323/job124658152809已通过16项：原真实REAL/canonical/两收据/预算/PIT源证据及四个拒绝反例全部PASS，末图表测试期望charts子容器>=17而原Activity的标题在容器外，实际合同只有14旧+2新=16卡。测试改为恰好16卡而非>=17，从实际索引0至15截屏，文件仍01至16，3场景仍48张；补每项必须为真正卡片容器，避免单图fallback文本当成功。20秒测试等待及原15秒读取超时不改，不改产品UI或删图，不降低16张实际图表要求。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-u",
+      "files": [
+        "tools/r30/r30-preflight.yml",
+        "tools/r30/run_preflight_runtime.sh"
+      ],
+      "reason": "已有db6656实际Android16项全PASS，当前仅图表测试容器索引修正及随后14故障未跑。为缩短内部诊断循环，预检支持显式charts-and-faults，仅执行实际1项图表/48PNG和原完整14故障；生成focus.json明确fullRegression=NOT_RUN/fullAcceptance=false，不生成正式regression.json，不替代最终门禁。full模式保持原17/48/原启动/14流程。两条最终release工作流、发布严格source/17/48/14/四演练门禁完全不改。仅内部诊断提速，先登记后施工。"
     }
   ]
 }
