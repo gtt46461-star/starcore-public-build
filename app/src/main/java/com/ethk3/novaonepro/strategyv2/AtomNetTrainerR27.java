@@ -63,6 +63,8 @@ public final class AtomNetTrainerR27 {
 
     /** One online step for a newly settled sample (experience replay). Returns the batch loss. */
     public double online(Sample s) {
+        // R30-B03-05: an event already in the replay buffer is never learned a second time.
+        if (s.issue != null) for (Sample q : buffer) if (s.issue.equals(q.issue)) throw new IllegalStateException("R30_DUPLICATE_LEARNING:" + s.issue);
         int extra = Math.min(BATCH - 1, buffer.size());
         double[][] xs = new double[extra + 1][]; int[] y = new int[extra + 1], c = new int[extra + 1];
         xs[0] = s.x; y[0] = s.y; c[0] = s.cls;
