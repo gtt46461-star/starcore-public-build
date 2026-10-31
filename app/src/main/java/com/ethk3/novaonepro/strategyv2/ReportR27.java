@@ -229,6 +229,21 @@ public final class ReportR27 {
         StringBuilder out=new StringBuilder("\nSTARCORE R30 同一只读快照报告\n");
         for(Map<String,Object> chapter:chapters){out.append('\n').append(chapter.get("title")).append(" · ").append(chapter.get("status")).append('\n').append(JsonR27.write(chapter.get("metrics"))).append('\n');
             if("R30_04".equals(chapter.get("sectionId")))out.append(JsonR27.write(chapter.get("data"))).append('\n');
+            Object diagnosis=chapter.get("diagnosis");
+            if(diagnosis instanceof Map){
+                Map<?,?> d=(Map<?,?>)diagnosis;
+                out.append("诊断规则行动覆盖：").append(d.get("actionableRules")).append('/').append(d.get("expectedRules"))
+                        .append("；待核对：").append(d.get("detectedOrReview")).append("；未知：").append(d.get("unknown")).append('\n');
+                Object raw=d.get("findings");int shown=0;
+                if(raw instanceof List)for(int priority=0;priority<2;priority++)for(Object item:(List<?>)raw){
+                    if(!(item instanceof Map)||shown>=6)continue;Map<?,?> row=(Map<?,?>)item;String state=String.valueOf(row.get("status"));
+                    boolean problem=state.equals("DETECTED")||state.equals("REVIEW_GUARD_REJECTIONS");
+                    boolean missing=state.equals("UNKNOWN")||state.equals("INSUFFICIENT");
+                    if(priority==0?!problem:!missing)continue;
+                    Object action=row.get("action");out.append(row.get("id")).append(" · ").append(state).append(" · ").append(row.get("conclusion")).append('\n');
+                    if(action instanceof Map){Map<?,?> a=(Map<?,?>)action;out.append(a.get("code")).append("：").append(a.get("instruction")).append('\n');}shown++;
+                }
+            }
         }
         return out.append("\n完整12章和来源水位请导出 R30_REPORT.json / R30_REPORT.md；自然质量与真机验收独立。\n").toString();
     }

@@ -13,12 +13,20 @@ public final class ReportR29 {
     private ReportR29() {}
     public static List<Map<String,Object>> chapters(SQLiteDatabase db){return chapters(db,null);}
     public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest){
-        return ReportR27.chaptersR30(ReportSnapshotR30.capture(db,sourceManifest));
+        return chapters(ReportSnapshotR30.capture(db,sourceManifest));
+    }
+    static List<Map<String,Object>> chapters(ReportR27.R30Input input){
+        List<Map<String,Object>> chapters=ReportR27.chaptersR30(input);
+        Map<String,Object> diagnosis=DiagnosisRulesR30.evaluate(input.facts,input.data,input.watermark,input.errors);
+        chapters.get(11).put("diagnosis",diagnosis);
+        chapters.get(11).put("diagnosticActionCoverage",diagnosis.get("actionCoverage"));
+        return chapters;
     }
     /** JSON and Markdown receive this same chapter list, never independently reload their metrics. */
     public static Map<String,Object> document(List<Map<String,Object>> chapters){
         Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPORT_1");out.put("chapters",chapters);out.put("expectedChapters",12);out.put("exportedChapters",chapters.size());
         out.put("snapshotWatermark",chapters.isEmpty()?null:chapters.get(0).get("snapshotWatermark"));out.put("reportConsistencyConflicts",chapters.isEmpty()?null:chapters.get(0).get("reportConsistencyConflicts"));
+        out.put("diagnosis",chapters.size()<12?null:chapters.get(11).get("diagnosis"));
         out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
     }
     public static Map<String,Object> chapter(SQLiteDatabase db) {
