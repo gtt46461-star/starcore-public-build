@@ -5,6 +5,7 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - 施工分支：`construction/r30-20261031`（父提交 bb607cf5ab69f7286f859e43f87ada85a5bc456d）
 - 方案：`construction/plans/STARCORE_R30_FINAL_20261031/`（只读副本）
 - 设备侧指标（真机时延、长测、自然质量）：未执行即 NOT_RUN，不写 PASS。
+- 打包：按用户要求中间批次不再打包，全部批次完成后统一出两证书 APK。B00 已出包：R13 官方 r30-official-577310001-4bc5ee4e1d05（模拟器覆盖安装+新装冷启动+R30FoldBackInstrumentedTest 通过，run 41169766223）；R27 证书 r30-B00-R27-4bc5ee4e1d05（run 41169784335）。
 
 |卡号|批次|标题|状态|提交|CI|备注|
 |---|---|---|---|---|---|---|
@@ -12,7 +13,7 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B00-02|B00|封存R29 B01分支，登记可复用件|DONE|aa28bc2f60a4|—|标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）|
 |R30-B00-03|B00|回收R29后期包遗留的Root触发器与独立研究库|DONE|17dc6ef7bb35|待 r30.yml（B00-04 起）|本地全量编译通过；SQL 合同 19/19（含 T04/T05/T06）；R30FoldBackInstrumentedTest 需模拟器（CI connectedDebugAndroidTest）|
 |R30-B00-04|B00|装施工护栏工具与R30 CI入口|DONE|f7044a7c2eba|—|工具按方案原样复制，3 处必要修正（见下方偏差记录 D1–D3）|
-|R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|DONE|—|—|44 项均有 measurementSource；空源/零样本→INSUFFICIENT、值 null；legacy_count requirements=1832 fileCards=299；子卡 R30-B00-05-a 登记测试文件|
+|R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|DONE|—|run 41163664048 绿|44 项均有 measurementSource；空源/零样本→INSUFFICIENT、值 null；legacy_count requirements=1832 fileCards=299；子卡 R30-B00-05-a 登记测试文件|
 |R30-B01-01|B01|唯一写锁：等待/持有时长账本|DONE|0bdc4468dde1|—|HOST 6/6；DatabaseCoordinator 仅补丁所示改动；真机/模拟器持锁数据 NOT_RUN|
 |R30-B01-02|B01|账本落库与报告出数|DONE|01bbf50ee5e1|—|SQL T02 4/4；报告第3章两表（writerHoldR30）；“运行10分钟≥9窗口”需设备 NOT_RUN|
 |R30-B01-03|B01|切片写入工具与Android适配器|DONE|32d371df2ec2|—|HOST 6/6（含中途失败回滚续做不重复）；Android 杀进程续做 NOT_RUN|
@@ -25,7 +26,7 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B02-03|B02|缺期补抓与幂等结算核验|DONE|b2d781d67d27|—|HOST PendingDrawR30 P1–P4 OK；SettlementEngine 未改（主链红线 R27QualityTest.h15 要求逐字节不变；CP06 重放已不写行并返回已存结果，仅重放哈希文本与首次不同）|
 |R30-B02-04|B02|准备在事务外、冻结在短事务内|DONE|7efceca151e8|—|审查：两条冻结路径事务体内均无模型/特征调用（CP06 已符合，未改行为）；prepare_to_frozen 真机 P95 NOT_RUN|
 |R30-B02-05|B02|UI与后台延迟|DONE|1ada7bd82310|—|图表已在后台线程读取；每页≤500点；debug StrictMode 已开；全页面违规清扫与首开<1s 需模拟器/真机 NOT_RUN|
-|R30-B03-01|B03|PIT守卫接入所有冻结写入|DOING|—|—|进行中：PitGuardR30 接入研究冻结与回放样本；注入反例测试与 CI 待完成|
+|R30-B03-01|B03|PIT守卫接入所有冻结写入|DONE|—|—|HOST PitGuard 测试 + 注入反例被拒入账；回放/研究冻结均经守卫；真机 r30_pit_violation NOT_RUN|
 |R30-B03-02|B03|真实历史数据治理|TODO|—|—|—|
 |R30-B03-03|B03|分割角色与曝光账|TODO|—|—|—|
 |R30-B03-04|B03|增量特征与回放|TODO|—|—|—|
