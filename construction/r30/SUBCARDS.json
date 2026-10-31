@@ -496,6 +496,16 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "证书必须在实际开奖修订/dirty/hash冲突写入的同一事务撤销：现有DrawCanonicalizer在保存/冲突事务内调用SettlementEngine新增纯委托钩子，schema为原draws安装语义变更触发器，抓取元数据及正常新开奖不误撤。R27状态和SU2原revocation表加法保留，历史依赖无法精确证明时明确保守撤销当前证书，不假称精确影响图；保留旧策略撤销记录阻止旧证据直接复活。SU2表在启动后阶段才创建，登记RuntimeCoordinator实际schema完成点，分协议安装触发器不DROP。只剥离新增Settlement委托段后仍校验原完整文件hash，原判定/结算体不改。新增实际SQLite同事务回滚/撤销/下一次实际读取拒绝与HOST耗时，Android实测留待最终CI；先登记后施工。"
+  },
+  {
+   "card": "R30-B07-04",
+   "id": "R30-B07-04-b",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateSU2.java",
+    "tools/r30/qual_host/CertificateVersionR30HostTest.java"
+   ],
+   "reason": "撤销保护必须接入原发证任务的内存选择/报告，避免SQLite触发器已拒绝旧证据但任务仍把旧策略计为有效并写进mainline choice。R27发证实际读取撤销policy守卫，SU2维护在花费旧窗口alpha/重发前停止；不改任何资格数值。追加原真实300行正对照发证夹具，在同事务撤销后再次运行实际发证任务并核对状态REVOKED及缓存有效数0；先登记后改。"
   }
  ]
 }
