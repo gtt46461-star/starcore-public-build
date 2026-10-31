@@ -1,6 +1,6 @@
 {
   "card": "R30-B09-03",
-  "status": "LOCAL_FOCUSED_PASS_FINAL_G1_PENDING_DEVICE_NOT_RUN",
+  "status": "LOCAL_G1_AND_ACTUAL_SQLITE_PASS_DEVICE_NOT_RUN",
   "MAX_WAIT_MS": 200,
   "gateAndWriterAcquireShareOneAllowance": true,
   "parentDeadline": "MIN(existing caller, remaining original 200ms)",
@@ -37,9 +37,19 @@
   },
   "android": {
     "status": "NOT_RUN",
-    "sourceCompile": "PENDING",
+    "sourceCompile": "PASS",
     "cases": "original tighter caller scope, unchanged freeze guard/exception, one durable retry receipt"
   },
   "originalModelsDeleted": false,
-  "thresholdsRelaxed": false
+  "thresholdsRelaxed": false,
+  "g1": {
+    "source": "c5228e2",
+    "tests": 265,
+    "xmlFiles": 69,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "lint": "PASS_NO_NEW_ISSUES_BASELINE_RETAINED",
+    "actualSQLiteQualification": "16/16 original cases PASS incl 1203-row atomic retry and model/cursor rollback"
+  }
 }
