@@ -14,7 +14,7 @@ finish() {
     python3 - "$out" <<'PYCODE'
 import json,pathlib,sys
 root=pathlib.Path(sys.argv[1])
-codes={'Fresh service/heartbeat never remained READY for 60 seconds':'FRESH_SERVICE_60S_GATE_FAILED','STARTUP_ERROR:':'STARTUP_ERROR','STARTUP_RETRIED':'STARTUP_RETRIED','ADB_FAILED:':'ADB_FAILED'}
+codes={'Fresh service/heartbeat never remained READY for 60 seconds':'FRESH_SERVICE_60S_GATE_FAILED','STARTUP_ERROR:':'STARTUP_ERROR','STARTUP_RETRIED':'STARTUP_RETRIED','ADB_FAILED:':'ADB_FAILED','CRASH_SNAPSHOT_UNREADABLE':'CRASH_SNAPSHOT_UNREADABLE','CRASH_SNAPSHOT_READ_FAILED':'CRASH_SNAPSHOT_READ_FAILED','CAUGHT_FAILURE_IN_FINAL_SNAPSHOT':'CAUGHT_FAILURE_IN_FINAL_SNAPSHOT'}
 for stage in ['upgrade','rollback','reupgrade']:
  p=root/(stage+'-startup.log')
  if p.is_file():

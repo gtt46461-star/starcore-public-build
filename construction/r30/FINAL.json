@@ -8,17 +8,17 @@
   "applicationId": "com.starcore.research.r13",
   "versionCode": 577310103,
   "versionName": "R30-FINAL-2026.10.31-103",
-  "state": "VERSION103_SU2_READONLY_BRIDGE_REPAIR_LOCAL_GATES_PENDING",
+  "state": "VERSION103_SU2_BOTH_ENDS_LOCAL_GATES_PASS_PROBE_SHELL_HOST_PASS_FINAL_ANDROID_PENDING",
   "fullAcceptance100Percent": false,
   "localEngineeringBasis": {
-    "source": "588058ecc4a98a1f2bc497caa352bd7cc6001e45",
+    "source": "1e26c8f1368abe136994ef0b314f29b9893d2596",
     "tests": 265,
     "xmlFiles": 69,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
     "lint": "NO_NEW_ERRORS; original51 baseline and7 unmatched retained",
-    "currentVersionFinalG1": "PASS_265_TESTS_LINT_ANDROID_COMPILE_ACTUAL_CHECKPOINT_REOPEN_AND_RETENTION"
+    "currentVersionFinalG1": "PASS_265_TESTS_LINT_ANDROID_COMPILE_ACTUAL_SU2_WRITER_READER_ORIGINAL_AUTHORITY_NEGATIVES"
   },
   "cards": [
     {
@@ -1241,5 +1241,19 @@
       "SINGLE_PARTIAL_PREFERENCE_XML_READ_IN_ORIGINAL_STARTUP_PROBE"
     ],
     "repairs": "version102; explicit test runner, incoming checkpoint baseline archive, bounded same-file reread; original gates retained"
+  },
+  "probeIndependentVerification": {
+    "status": "PASS_HOST_SHELL_FILESYSTEM_ONLY",
+    "scriptSha256": "684dcc2c2c156308aeaac9e030563a3840a1c4f369fef28307e4c3f0f2e30f8e",
+    "evidence": "evidence/r30/b10-04/probe-reader/host-real-shell.log.gz",
+    "actualAndroid": "PENDING_VERSION103"
+  },
+  "priorCandidate102Failures": {
+    "source": "8bfd2d515a99753022de6474958aba59ee3b3cdd",
+    "preflight": 41232640998,
+    "testsPassedBeforeFailure": 11,
+    "runtime": "SU2_FROZEN_CERTIFICATE_NAMESPACE_WRITER_AND_READER_BRIDGE_MISSING",
+    "formalProbe": "ABSENT_CRASH_FILE_EXEC_OUT_ERROR_TEXT_NOT_XML",
+    "published": false
   }
 }

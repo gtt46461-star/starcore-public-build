@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Real launcher/service regression; historical READY preferences are never acceptance."""
-import argparse, subprocess, time, glob, json, xml.etree.ElementTree as ET
+import argparse, subprocess, time, glob, json, shlex, xml.etree.ElementTree as ET
 from pathlib import Path
 from wait_r13_android_ready import wait_ready
 parser=argparse.ArgumentParser();parser.add_argument('--baseline',action='store_true');parser.add_argument('--installed',action='store_true');parser.add_argument('--apk-already-installed',action='store_true');args=parser.parse_args()
@@ -20,21 +20,31 @@ def prefs(name):
         emulator=adb('get-serialno',check=False).strip().startswith('emulator-') and adb('shell','getprop','ro.kernel.qemu',check=False).strip()=='1'
         _root_prefs_r30=emulator and adb('shell','id','-u',check=False).strip()=='0'
     root=_root_prefs_r30
-    # Atomic preference replacement can briefly expose a missing/partial XML file to a shell reader.
-    # Re-read the same file, never cached READY data, within the existing phase deadline and gates.
+    # Shell status is separate from XML: exec-out can mix a missing-file error into stdout.
+    path=('/data/user/0/'+PKG+'/shared_prefs/' if root else 'shared_prefs/')+name+'.xml'
+    actual=shlex.quote(path);backup=shlex.quote(path+'.bak')
+    reader=("if [ -e "+actual+" ]; then printf 'R30_PREF_PRESENT\\n'; cat "+actual
+            +"; elif [ -e "+backup+" ]; then printf 'R30_PREF_BACKUP\\n'; cat "+backup
+            +"; else printf 'R30_PREF_ABSENT\\n'; fi")
+    command=reader if root else 'run-as '+shlex.quote(PKG)+' sh -c '+shlex.quote(reader)
+    # Retry the same original file or its committed backup, never cached READY data.
     read_deadline=time.monotonic()+1.0
     while True:
-        raw=(adb('exec-out','cat','/data/user/0/'+PKG+'/shared_prefs/'+name+'.xml',check=False) if root
-             else adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False))
-        try:return {e.attrib['name']:e.text or e.attrib.get('value','') for e in ET.fromstring(raw)}
+        raw=adb('shell',command,check=False)
+        status,separator,xml=raw.partition('\n')
+        if status.strip()=='R30_PREF_ABSENT' and name!='v20_service_runtime_light':return {}
+        try:
+            if status.strip() not in ('R30_PREF_PRESENT','R30_PREF_BACKUP') or not separator:
+                raise ET.ParseError('preference read status unavailable')
+            return {e.attrib['name']:e.text or e.attrib.get('value','') for e in ET.fromstring(xml)}
         except ET.ParseError:
-            if name!='v20_service_runtime_light' and not raw.strip():return {}
             if time.monotonic()>=read_deadline:
                 pref_read_unstable[name]=pref_read_unstable.get(name,0)+1
-                if raw.strip() and name=='v20_crash_snapshot':raise RuntimeError('CRASH_SNAPSHOT_UNREADABLE')
+                if name=='v20_crash_snapshot':raise RuntimeError('CRASH_SNAPSHOT_UNREADABLE')
                 return {}
             pref_read_retries[name]=pref_read_retries.get(name,0)+1
             time.sleep(.025)
+
 def snapshot(phase):
     p=prefs('v20_service_runtime_light')
     row={k:v for k,v in p.items() if k.startswith(('init_','recovery_lease_','last_recovery_')) or k in ('service_ready_at','user_enabled','process_id','heartbeat_at')}
@@ -90,7 +100,12 @@ try:
     if args.baseline:assert baseline_reproduced,'Expected baseline restart failure did not reproduce'
     else:passed=True
 finally:
-    (out/'startup.json').write_text(json.dumps({'passed':passed,'baseline_reproduced':baseline_reproduced,'samples':rows,'crash':prefs('v20_crash_snapshot'),'preferenceReadRetries':pref_read_retries,'unstableReadsAfterRetry':pref_read_unstable},ensure_ascii=False,indent=2))
-    print(json.dumps(prefs('v20_crash_snapshot'),ensure_ascii=False),flush=True)
+    passed_before_final=passed;final_crash={};final_crash_error=''
+    try:final_crash=prefs('v20_crash_snapshot')
+    except Exception as error:final_crash_error='CRASH_SNAPSHOT_READ_FAILED_'+type(error).__name__;passed=False
+    if final_crash.get('type'):final_crash_error='CAUGHT_FAILURE_IN_FINAL_SNAPSHOT';passed=False
+    (out/'startup.json').write_text(json.dumps({'passed':passed,'baseline_reproduced':baseline_reproduced,'samples':rows,'crash':final_crash,'crashReadError':final_crash_error,'preferenceReadRetries':pref_read_retries,'unstableReadsAfterRetry':pref_read_unstable},ensure_ascii=False,indent=2))
+    print(json.dumps({'crash':final_crash,'crashReadError':final_crash_error},ensure_ascii=False),flush=True)
     (out/'logcat.txt').write_text(adb('logcat','-d',check=False))
     capture('final')
+    if passed_before_final and final_crash_error:raise RuntimeError(final_crash_error)
