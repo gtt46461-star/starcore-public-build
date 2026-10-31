@@ -1,0 +1,3 @@
+Run: https://github.com/gtt46461-star/starcore-public-build/actions/runs/41176921680
+
+API 34 emulator tests upgraded the actual public CP06 and CP16 release APKs to the previously published B00 R13 release. For each, 4,714 pre-upgrade draws remained unchanged, no baseline table was lost, SQLite integrity_check returned ok, and both upgraded and clean installs passed the cold/restart service heartbeat probe. The candidate was source 4bc5ee4e1d05; this does not test later R30 source or prove that CP16 produced an independently populated ACTIVE research database. Real-device long runs and natural quality were not evaluated. The first attempt and the reason for changing the emulator-only preference reader are retained in the neighboring run-41176346773 directory.
