@@ -2,6 +2,24 @@
  "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
  "subcards": [
   {
+   "card": "R30-B05-01",
+   "id": "R30-B05-01-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30EvolutionConfirmIntegrationTest.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27EvolutionTest.java",
+    "tools/r30/qual_host/FrozenConfirmationR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "真实旧stepHoldout在进化内读取确认并将结果反馈给晋升及停滞选参，违反本卡。将其能力提取为不可变候选/比较条件与独立确认阶段，在原EvolutionTask同一worker中于loop.step之外执行，不增加并发写者；用既有单库写队列保存冻结包、确认原始轨迹和结果，曝光预约先提交，已有确认轨迹复用且崩溃无结果不重读。统一回放入口增加进化读取上限，Runtime负责独立确认后注册FUTURE观察而不把结果反馈选参。旧H06/H07测试改为先进化再独立确认，保留相同正/负信号和统计断言；H12保留逐步恢复。新增真实SQLite重启及生产阶段隔离测试，不降低任何门槛。"
+  },
+  {
    "card": "R30-B04-07",
    "id": "R30-B04-07-a",
    "files": [
