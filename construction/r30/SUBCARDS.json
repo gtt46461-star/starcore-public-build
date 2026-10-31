@@ -614,6 +614,25 @@
     "tools/r30/run_report_export_host.sh"
    ],
    "reason": "B08-04完整CI41214742293/job124576817353在已通过原检查与SQLite回归后，因runner没有rg命令而退出。将Host验证包装脚本源码枚举改用已有POSIX find，不改变任何产品代码、算法或门槛。B08-05当前258项最终G1及正式SQLite已通过；本子卡仅做工具兼容性修复和完整JNI/文件包装回归，新累计CI同时闭合04/05，保留原真实失败。先登记后修改。"
+  },
+  {
+   "card": "R30-B09-01",
+   "id": "R30-B09-01-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportChartsR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/main/java/com/ethk3/novaonepro/r952/ChartGeometryR82.java",
+    "app/src/main/java/com/ethk3/novaonepro/r952/ResearchChartViewR82.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ChartSnapshotTest.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
+    "tools/r30/qual_host/ChartSnapshotR30HostTest.java",
+    "tools/r30/qual_host/chart_shim/android/database/sqlite/SQLiteDatabase.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "保全原14图及排行榜，新增代际配对下界与能力覆盖两个独立缓存面板，必须从B08同一不可变事实/水位派生并同时进入报告JSON/Markdown。复用原冻结确认回执，不把进化内或重复确认当新改善；代码能力不冒充自然有效数。真实零参考线应纳入坐标范围，不伪造点或置信区间。登记纯回归、正式SQLite旧14键/同快照/坏包拒绝验证及实际图表Activity各场景截图源码；HOST三参数SQLite只读适配单独JVM且不进入APK，Android实际运行留最终同签名CI，不冒充真机。先登记后施工。"
   }
  ]
 }
