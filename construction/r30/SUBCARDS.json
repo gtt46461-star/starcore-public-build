@@ -905,6 +905,15 @@
         "tools/r30/run_preflight_runtime.sh"
       ],
       "reason": "已有db6656实际Android16项全PASS，当前仅图表测试容器索引修正及随后14故障未跑。为缩短内部诊断循环，预检支持显式charts-and-faults，仅执行实际1项图表/48PNG和原完整14故障；生成focus.json明确fullRegression=NOT_RUN/fullAcceptance=false，不生成正式regression.json，不替代最终门禁。full模式保持原17/48/原启动/14流程。两条最终release工作流、发布严格source/17/48/14/四演练门禁完全不改。仅内部诊断提速，先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-v",
+      "files": [
+        "tools/r30/run_fault_matrix.sh",
+        "tools/r30/run_preflight_runtime.sh"
+      ],
+      "reason": "内部诊断逐格失败即停止使独立故障反例需反复完整构建。将14格依次隔离执行并记录每格真实exit status，失败仍全局FAIL且不生成成功matrix.json，只有全部14格PASS才出原完整回执。每格结束强停隔离进程并恢复实际系统时间，时钟无法恢复立即停止其余格，保留NOT_RUN及失败，不放宽任何断言/时间/门槛。内部聚焦图表失败也继续原14故障以一次收齐独立问题，两个部分任何失败仍失败、不替代最终17项。最终脚本所有原断言和14/48要求保持。先登记后施工。"
     }
   ]
 }
