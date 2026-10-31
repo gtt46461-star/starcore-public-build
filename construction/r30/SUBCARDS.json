@@ -131,6 +131,14 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "实际SQLite调用生产liveCacheWithPlaceholder复现：积压90期只追加64期，源历史更正也不进入缓存。需要在实时冻结调用点安全处理源变化并增加真实生产方法的SQLite回归；RuntimeR27.java本属原卡。 另复现预测准备与写入之间下一期已开奖仍写成冻结；需同一写事务校验开奖源，并重建编译调用索引。"
+  },
+  {
+   "card": "R30-B03-05",
+   "id": "R30-B03-05-b",
+   "files": [
+    "tools/r29/qual_host/QualInboxR29HostTest.java"
+   ],
+   "reason": "run 41174517618 的 Q15 回滚测试沿用 ISSUE_1 样本作为下一期训练输入，触发 B03-05 防重复而未进入回滚断言；将第二次输入改为 ISSUE_2，保留原模型字节、游标及事务回滚断言，不放宽防重复。"
   }
  ]
 }
