@@ -770,6 +770,16 @@
         "scripts/probe_r13_startup.py"
       ],
       "reason": "101实际CP16覆盖/回退保全通过，再覆盖检查发现r29_model_checkpoint.artifact旧字节不在活动表/受保护档案；640410c真实SQLite最小夹具复现正常训练REPLACE覆盖。仅在既有单writer初始化事务为每次进程启动前检查点保存不可变全行基线，事务标记和原件同提交，重复ensure不按每训练batch复制，原训练/权重/优化器/RNG及数据门槛不改。新增实际JVM重开、事务失败回滚和Android断言，并接完整CI。另CP06探针实际样本只出现单次空prefs，前后READY且无崩溃；对同一路径XML原子替换的暂不可解析读取做最多1秒有界重读并记录，不复用缓存，不改90/180秒窗口、60秒连续真实READY、10秒心跳或当前PID谓词；持续不可读仍失败。升级驱动失败只输出白名单错误代码，保留真失败。102尚未重新出APK，仍102。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-h",
+      "files": [
+        "tools/r30/r30-preflight.yml",
+        ".github/workflows/r30-preflight.yml",
+        ".github/r30-preflight-request.json"
+      ],
+      "reason": "实际最终CI先跑约25分钟完整门禁才启动Android，导致测试APK入口配置错误反馈过晚。新增只在CI内部的Android预检，与原两证书完整最终门禁并行：明确同源码、只复用原R27既有证书及原安全缓存，不新建签名身份；仅编译debug/testAPK并在一次性模拟器运行同17回归/14故障，不发布/交付中间APK，预检结果不替代最终releaseAPK的完整门禁。只上传既有合成测试证据，不输出密钥/真实数据内容；原最终两包汇合与发布条件不减。先登记后修改。"
     }
   ]
 }
