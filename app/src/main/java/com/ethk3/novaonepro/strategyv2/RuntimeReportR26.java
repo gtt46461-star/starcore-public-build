@@ -93,6 +93,7 @@ public final class RuntimeReportR26 {
         }}
         facts.put("sessions",rows(db,"SELECT * FROM r26_session ORDER BY heartbeat DESC,session_id LIMIT 32"));
         facts.put("tasks",rows(db,"SELECT task_id,lane,cursor,status,last_progress,last_cpu_ms,last_served,next_at,blocked_reason FROM r26_task ORDER BY task_id"));
+        facts.put("taskLivenessR30",taskLivenessR30(db));
         List<Long> cpu=new ArrayList<>();long total=0,first=Long.MAX_VALUE,last=0;
         try(Cursor c=db.rawQuery("SELECT cpu_ms,recorded_at FROM r26_progress ORDER BY receipt_id DESC LIMIT 4096",null)){while(c.moveToNext()){long ms=c.getLong(0);if(ms<0)throw new IllegalStateException("REPORT_NEGATIVE_CPU_RECEIPT");cpu.add(ms);total=Math.addExact(total,ms);first=Math.min(first,c.getLong(1));last=Math.max(last,c.getLong(1));}}
         Collections.sort(cpu);JSONObject performance=new JSONObject().put("metric","RESEARCH_SLICE_CPU_MS").put("n",cpu.size()).put("cpuTotalMs",total).put("window",new JSONObject().put("selection","LAST_4096_PERSISTED_RESEARCH_SLICE_RECEIPTS").put("firstRecordedAt",cpu.isEmpty()?JSONObject.NULL:first).put("lastRecordedAt",cpu.isEmpty()?JSONObject.NULL:last)).put("scope","Retained research task CPU including owned numerical workers; receipts may span sessions/source versions and do not record per-slice device/ABI; not P0 elapsed, writer wait, resume latency or a device SLO acceptance");
@@ -155,9 +156,37 @@ public final class RuntimeReportR26 {
             if(value==null||value==JSONObject.NULL)m.put("reason","REQUIRED_METRIC_EVIDENCE_NOT_AVAILABLE_IN_THIS_CAPTURE");result.put(metric,m);
         }return result;
     }
+    /** R30-B01-05 第4章 任务活性：每个 r26_task 按 TaskLivenessR30.classify 判定；缺少事实的字段传 -1（UNKNOWN，不当作正常）。
+     * pending 取任务自报的 pending 列、提交游标取 last_committed_seq 列；当前 schema 无这两列时整列为 -1。 */
+    static JSONObject taskLivenessR30(SQLiteDatabase db)throws JSONException{
+        JSONObject out=new JSONObject().put("chapter","4 任务活性").put("rule","TaskLivenessR30.classify: UNKNOWN<-pending/periodsSinceCommit 未知; STALLED<-pending>0 且>="+TaskLivenessR30.STALL_PERIODS+"期无提交");
+        Set<String> columns=new HashSet<>();
+        try(Cursor c=db.rawQuery("PRAGMA table_info(r26_task)",null)){while(c.moveToNext())columns.add(c.getString(1));}
+        if(columns.isEmpty())return out.put("status","INSUFFICIENT").put("reason","r26_task 尚未创建");
+        long latest=-1;
+        try(Cursor c=db.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1",null)){if(c.moveToFirst())latest=com.ethk3.novaonepro.TargetIssueResolver.sequenceOrdinalSU1(c.getString(0));}catch(RuntimeException noDraws){latest=-1;}
+        String pending=columns.contains("pending")?"pending":"-1",committed=columns.contains("last_committed_seq")?"last_committed_seq":"-1",wait=columns.contains("wait_kind")?"coalesce(wait_kind,'')||' '||coalesce(wait_detail,'')":"''";
+        JSONArray tasks=new JSONArray(),unknown=new JSONArray();List<TaskLivenessR30.State> states=new ArrayList<>();
+        try(Cursor c=db.rawQuery("SELECT task_id,status,coalesce(blocked_reason,''),"+pending+","+committed+","+wait+" FROM r26_task ORDER BY task_id",null)){while(c.moveToNext()){
+            String reason=c.getString(2),waiting=c.getString(5);long pend=c.getLong(3),seq=c.getLong(4),since=seq<0||latest<0?-1:Math.max(0,latest-seq);
+            boolean dependency=reason.startsWith("DEPENDENCY")||reason.startsWith("WAITING_"),newDraw=reason.contains("WAITING_NEW_DRAW")||waiting.contains("WAITING_NEW_DRAW");
+            TaskLivenessR30.State st=TaskLivenessR30.classify(pend,since,dependency,newDraw,"RUNNING".equals(c.getString(1)));states.add(st);
+            tasks.put(new JSONObject().put("taskId",c.getString(0)).put("state",st.name()).put("pending",pend<0?JSONObject.NULL:(Object)pend).put("periodsSinceCommit",since<0?JSONObject.NULL:(Object)since).put("blockedReason",reason));
+            if(st==TaskLivenessR30.State.UNKNOWN)unknown.put(c.getString(0));
+        }}
+        Map<String,Object> summary=TaskLivenessR30.summarize(states.toArray(new TaskLivenessR30.State[0]));
+        JSONObject sum=new JSONObject();for(Map.Entry<String,Object> e:summary.entrySet())sum.put(e.getKey(),e.getValue()==null?JSONObject.NULL:e.getValue());
+        return out.put("status",unknown.length()>0?"INSUFFICIENT":"MEASURED").put("tasks",tasks).put("unknownTasks",unknown).put("summary",sum).put("m12",sum.get("m12"))
+                .put("missingFacts",new JSONArray().put(columns.contains("pending")?"":"r26_task.pending").put(columns.contains("last_committed_seq")?"":"r26_task.last_committed_seq"));
+    }
     public static String render(SQLiteDatabase db){
         StringBuilder b=new StringBuilder("\nR26 持续研究\n");if(!RuntimeSchemaR26.ready(db))return b.append("等待运行会话初始化；工程/能力/自然质量/真机分别验收。\n").toString();
         try(Cursor c=db.rawQuery("SELECT task_id,lane,cursor,status,coalesce(blocked_reason,''),steps,last_cpu_ms FROM r26_task ORDER BY lane,task_id",null)){while(c.moveToNext())b.append(c.getString(1)).append(' ').append(c.getString(0)).append("：").append(c.getString(3)).append("；已提交游标 ").append(c.getLong(2)).append("；切片 ").append(c.getLong(5)).append("；CPU ").append(c.getLong(6)).append("ms ").append(c.getString(4)).append('\n');}
+        try{JSONObject live=taskLivenessR30(db);b.append("\n第4章 任务活性（M12）\n");JSONArray t=live.optJSONArray("tasks");
+            if(t!=null)for(int i=0;i<t.length();i++){JSONObject r=t.getJSONObject(i);b.append(r.getString("taskId")).append("：").append(r.getString("state")).append('\n');}
+            JSONObject sum=live.optJSONObject("summary");if(sum!=null)b.append("STALLED ").append(sum.opt("stalled")).append("；UNKNOWN ").append(sum.opt("unknown")).append("；M12=").append(sum.isNull("m12")?"INSUFFICIENT（有UNKNOWN任务）":String.valueOf(sum.opt("m12"))).append('\n');
+            JSONArray u=live.optJSONArray("unknownTasks");if(u!=null&&u.length()>0)b.append("UNKNOWN任务：").append(u.join("、").replace("\"","")).append('\n');
+        }catch(JSONException|RuntimeException unavailable){b.append("\n第4章 任务活性：INSUFFICIENT（").append(unavailable.getClass().getSimpleName()).append("）\n");}
         b.append("\n家族与专家实际能力状态\n");try(Cursor c=db.rawQuery("SELECT mechanism,state,reason FROM r26_capability ORDER BY mechanism",null)){while(c.moveToNext())b.append(c.getString(0)).append(" · ").append(c.getString(1)).append(" · ").append(c.getString(2)).append('\n');}
         return b.append("\n没有自然前瞻资格的候选仅进入影子研究；35%/37%/40%尚无新增合格证据。\n").toString();
     }
