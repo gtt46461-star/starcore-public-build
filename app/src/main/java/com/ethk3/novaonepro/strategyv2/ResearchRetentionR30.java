@@ -70,7 +70,7 @@ public final class ResearchRetentionR30 {
         long remaining=before.bytes;File root=dataRoot.getCanonicalFile();
         for(Candidate candidate:before.candidates){
             if(remaining<=budget)break;
-            File file=candidate.file;if(!file.getCanonicalFile().toPath().startsWith(root.toPath())||!file.getAbsoluteFile().equals(file.getCanonicalFile())||!file.isFile()||file.length()!=candidate.bytes||file.lastModified()!=candidate.modified)continue;
+            File file=candidate.file;if(!file.getCanonicalPath().startsWith(root.getPath()+File.separator)||!file.getAbsoluteFile().equals(file.getCanonicalFile())||!file.isFile()||file.length()!=candidate.bytes||file.lastModified()!=candidate.modified)continue;
             String reference=candidate.kind.equals("VERIFIED_RETIRED_DUPLICATE")?audit.retiredCopyReference(candidate):"EXPLICIT_RECOMPUTABLE_CACHE";
             if(reference==null){result.protectedRetired++;continue;}
             audit.beforeDelete(candidate,reference);
