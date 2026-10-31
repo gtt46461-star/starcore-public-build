@@ -26,6 +26,14 @@ public final class FreezeSourceR30HostTest {
                 s.execute("CREATE TABLE r27_opportunity(target_ordinal INT PRIMARY KEY,target_issue TEXT,scheduled INT,frozen INT,acted INT,settled INT,deadline_missed INT,recorded_at INT)");
             }
             for(int n=1;n<=100;n++)add(c,n);
+            if(args.length>0 && args[0].equals("schema")) {
+                SQLiteDatabase schemaDb=new SQLiteDatabase(c);c.setAutoCommit(false);
+                SchemaR27.ensure(schemaDb);long first=SchemaR27.liveSourceRevision(schemaDb);
+                SchemaR27.ensure(schemaDb);long second=SchemaR27.liveSourceRevision(schemaDb);
+                if(first!=0 || second!=0 || !SchemaR27.liveSourceTriggersValid(schemaDb))throw new AssertionError("SCHEMA_REOPEN_CHANGED_SOURCE");
+                try(Statement st=c.createStatement();ResultSet r=st.executeQuery("SELECT COUNT(*) FROM draws")) {r.next();if(r.getInt(1)!=100)throw new AssertionError("SCHEMA_LOST_DRAWS");}
+                c.commit();c.setAutoCommit(true);System.out.println("SCHEMA_ENSURE_TWICE_PRESERVES_EXISTING_DRAWS_AND_REVISION");return;
+            }
             PolicySpecR27 spec=new PolicySpecR27(PolicyAstR27.leaf("freq",1,32),1,PolicySpecR27.Rule.ALWAYS,0,0,1,false,0.01,0.01,new PolicySpecR27.Meta("I01","TEST",Collections.emptyList(),0,1,"race"));
             try(PreparedStatement p=c.prepareStatement("INSERT INTO r27_live_shadow VALUES(?,?,1,'ACTIVE',1)")){p.setString(1,"fixture");p.setString(2,spec.fullJson());p.executeUpdate();}
             long open;try(Statement st=c.createStatement();ResultSet r=st.executeQuery("SELECT open_time FROM draws WHERE issue='"+issue(100)+"'")){r.next();open=r.getLong(1);}
