@@ -257,9 +257,9 @@ public final class QualificationInboxR29 {
      * draw has arrived. Pending rows stay hit=-1 and remain settleable whenever the backfill brings the draw. */
     public static ResearchWriteQueueR27.Batch pendingDraws(SQLiteDatabase ro, long latestOrdinal) {
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
-        Map<Long, long[]> known = new LinkedHashMap<>(); // ordinal -> {last_checked_at, resolved_at}
-        try (Cursor c = ro.rawQuery("SELECT target_ordinal,last_checked_at,resolved_at FROM r29_pending_draw WHERE resolved_at=0 OR target_ordinal>=?", new String[] {String.valueOf(latestOrdinal - 2880)})) {
-            while (c.moveToNext()) known.put(c.getLong(0), new long[] {c.getLong(1), c.getLong(2)});
+        Map<Long, long[]> known = new LinkedHashMap<>(); // ordinal -> {last_checked_at, resolved_at, checks, first_seen_at}
+        try (Cursor c = ro.rawQuery("SELECT target_ordinal,last_checked_at,resolved_at,checks,first_seen_at FROM r29_pending_draw WHERE resolved_at=0 OR target_ordinal>=?", new String[] {String.valueOf(latestOrdinal - 2880)})) {
+            while (c.moveToNext()) known.put(c.getLong(0), new long[] {c.getLong(1), c.getLong(2), c.getLong(3), c.getLong(4)});
         }
         boolean open = false;
         try (Cursor c = ro.rawQuery("SELECT f.target_ordinal,f.target_issue,count(*),sum(CASE WHEN f.status='FROZEN' AND f.act=1 THEN 1 ELSE 0 END) FROM r27_live_frozen f"
@@ -267,7 +267,10 @@ public final class QualificationInboxR29 {
                 + " GROUP BY f.target_ordinal,f.target_issue ORDER BY f.target_ordinal DESC LIMIT 128", new String[] {String.valueOf(latestOrdinal)})) {
             while (c.moveToNext()) {
                 long ord = c.getLong(0); long[] k = known.get(ord);
-                if (k != null && k[1] == 0 && now - k[0] < PENDING_RECHECK_MS) continue; // checked recently: no write
+                // R30-B02-03: recheck backoff 1,2,4,...,300 s from the existing checks count (next_check_at =
+                // last_checked_at + nextCheckDelayMs(checks)); a STALE row (>2880 checks or >48 h open) is no longer
+                // rechecked but is kept, stays settleable and is listed in the report. No row is deleted.
+                if (k != null && k[1] == 0 && (stale(k[2], k[3], now) || now - k[0] < nextCheckDelayMs(k[2]))) continue;
                 b.add("INSERT OR IGNORE INTO r29_pending_draw(target_ordinal,target_issue,rows,act_rows,first_seen_at,last_checked_at) VALUES(?,?,?,?,?,?)", ord, c.getString(1), c.getLong(2), c.getLong(3), now, now);
                 b.add("UPDATE r29_pending_draw SET rows=?,act_rows=?,last_checked_at=?,checks=checks+1,resolved_at=0 WHERE target_ordinal=?", c.getLong(2), c.getLong(3), now, ord);
             }
@@ -277,6 +280,10 @@ public final class QualificationInboxR29 {
         return b;
     }
     public static final long PENDING_RECHECK_MS = 30_000L;
+    /** R30-B02-03 recheck backoff: 1 s doubling per check, capped at 300 s. */
+    public static final long PENDING_BACKOFF_CAP_MS = 300_000L, PENDING_STALE_CHECKS = 2880, PENDING_STALE_AGE_MS = 48L * 3600_000L;
+    public static long nextCheckDelayMs(long checks) { return checks <= 0 ? 1000L : Math.min(PENDING_BACKOFF_CAP_MS, 1000L << Math.min(checks - 1, 9)); }
+    public static boolean stale(long checks, long firstSeenAt, long now) { return checks > PENDING_STALE_CHECKS || (firstSeenAt > 0 && now - firstSeenAt > PENDING_STALE_AGE_MS); }
 
     // ---------------------------------------------------------------- report (R29-039)
     /** Read-only diagnosis for ReportR29: null = table not migrated yet (never shown as 0). */
@@ -286,6 +293,8 @@ public final class QualificationInboxR29 {
         m.put("pendingDrawOpenActRows", count(db, "SELECT coalesce(sum(act_rows),0) FROM r29_pending_draw WHERE resolved_at=0"));
         m.put("pendingDrawOldestOrdinal", count(db, "SELECT min(target_ordinal) FROM r29_pending_draw WHERE resolved_at=0"));
         m.put("pendingDrawResolved", count(db, "SELECT count(*) FROM r29_pending_draw WHERE resolved_at>0"));
+        m.put("pendingDrawStale", count(db, "SELECT count(*) FROM r29_pending_draw WHERE resolved_at=0 AND (checks>" + PENDING_STALE_CHECKS + " OR first_seen_at<" + (System.currentTimeMillis() - PENDING_STALE_AGE_MS) + ")"));
+        m.put("pendingDrawStaleIssues", text(db, "SELECT group_concat(target_issue) FROM (SELECT target_issue FROM r29_pending_draw WHERE resolved_at=0 AND (checks>" + PENDING_STALE_CHECKS + " OR first_seen_at<" + (System.currentTimeMillis() - PENDING_STALE_AGE_MS) + ") ORDER BY target_ordinal LIMIT 50)"));
         m.put("legacyHitMinus2Remaining", count(db, "SELECT count(*) FROM r27_live_frozen WHERE hit=-2"));
         m.put("receipts", count(db, "SELECT count(*) FROM r29_qual_receipt"));
         m.put("receiptActs", count(db, "SELECT count(*) FROM r29_qual_receipt WHERE act=1"));
@@ -307,6 +316,10 @@ public final class QualificationInboxR29 {
         } catch (RuntimeException schemaPending) { m.put("gateV2Nearest", null); }
         m.put("rule", "e-process advances only over the contiguous resolvable prefix; ACT with missing draw stays pending; conflicts are isolated");
         return m;
+    }
+    static String text(SQLiteDatabase db, String sql) {
+        try (Cursor c = db.rawQuery(sql, null)) { return c.moveToFirst() && !c.isNull(0) ? c.getString(0) : null; }
+        catch (RuntimeException schemaPending) { return null; }
     }
     static Object count(SQLiteDatabase db, String sql) {
         try (Cursor c = db.rawQuery(sql, null)) { return c.moveToFirst() && !c.isNull(0) ? (Object) c.getLong(0) : null; }

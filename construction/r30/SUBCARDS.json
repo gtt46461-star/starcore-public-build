@@ -43,6 +43,15 @@
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
    ],
    "reason": "卡第4步要求报告第3章列出 rejectedConcurrent、consecutiveFailures 当前值；第3章在 ReportR29（B01-02 所建），本卡独占表未列。"
+  },
+  {
+   "card": "R30-B02-03",
+   "id": "R30-B02-03-a",
+   "files": [
+    "tools/r30/qual_host/PendingDrawR30HostTest.java",
+    "tools/r30/ci_build.sh"
+   ],
+   "reason": "卡要求“先缺开奖→跨3期补回→原冻结只结算一次”的测试；以真实 SQLite 宿主测试实现并接入 CI。SettlementEngine 同 issue 重复结算的 androidTest 需 DbStore/模拟器，本次 NOT_RUN（代码层：settled=1 分支不写任何行、返回与首次相同的记录哈希）。"
   }
  ]
 }

@@ -42,6 +42,9 @@ CLASSES=app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes SQ
 T30=$(mktemp -d); javac -nowarn -encoding UTF-8 -proc:none -d "$T30/shim" $(find tools/r29/qual_host/shim -name '*.java')
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes" -d "$T30/test" tools/r29/qual_host/QualInboxR29HostTest.java tools/r30/qual_host/SettleChunkR30HostTest.java
 java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC" com.ethk3.novaonepro.strategyv2.SettleChunkR30HostTest | tee "$LOG/r30_settle_chunk_host.log"
+# R30-B02-03-a: missing draw backfilled later settles the original freeze once; recheck backoff; STALE kept.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes" -d "$T30/test" tools/r29/qual_host/QualInboxR29HostTest.java tools/r30/qual_host/PendingDrawR30HostTest.java
+java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC" com.ethk3.novaonepro.strategyv2.PendingDrawR30HostTest | tee "$LOG/r30_pending_draw_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0
