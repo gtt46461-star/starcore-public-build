@@ -299,6 +299,25 @@
     "tools/r29/qual_host/QualInboxR29HostTest.java"
    ],
    "reason": "run 41174517618 的 Q15 回滚测试沿用 ISSUE_1 样本作为下一期训练输入，触发 B03-05 防重复而未进入回滚断言；将第二次输入改为 ISSUE_2，保留原模型字节、游标及事务回滚断言，不放宽防重复。"
+  },
+  {
+   "card": "R30-B05-03",
+   "id": "R30-B05-03-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetSessionR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java",
+    "tools/r30/qual_host/TenPositionR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "每期十位置真实样本必须修改实际生产消费及切片训练路径，保留旧轮换模型、诊断和全部原始数据。新增独立ABI/owner的全状态训练checkpoint，原单写队列原子发布位置游标和权重，避免把十倍工作塞进旧单切片或重复学习同一期。新增真实SQLite恢复/旧模型字节保全回归及吞吐报告；不新开调度器或数据库，不改旧统计门槛。"
   }
  ]
 }
