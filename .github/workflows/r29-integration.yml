@@ -84,12 +84,12 @@ jobs:
           assert r['versionCode']==577291016 and r['versionName']=='R29.1-2026.10.30-checkpoint16'
           assert r['installation']=='NOT_RUN' and r['startup']=='NOT_RUN'
           PYCODE
-      - name: Same CP16 APK; diagnostic smoke from ea214a7 prints publication/fence state to this log
+      - name: Same CP16 APK; diagnostic smoke and inspector from 9ff38ff print publication/fence/task-error state to this log
         run: |
           timeout 60s git fetch --no-tags origin construction/r29-20261029
-          git merge-base --is-ancestor ea214a7c54e73c73f85fbef5a4ea022712dde5a5 origin/construction/r29-20261029
-          git show ea214a7c54e73c73f85fbef5a4ea022712dde5a5:tools/r29/emulator_smoke.sh > "$RUNNER_TEMP/r29-diag-smoke.sh"
-          diff <(git show HEAD:tools/r29/emulator_smoke.sh) "$RUNNER_TEMP/r29-diag-smoke.sh" | head -n 40 || true
+          git merge-base --is-ancestor 9ff38ffe7063bc938aededfa3271187f9140a0fe origin/construction/r29-20261029
+          git show 9ff38ffe7063bc938aededfa3271187f9140a0fe:tools/r29/emulator_smoke.sh > "$RUNNER_TEMP/r29-diag-smoke.sh"
+          git show 9ff38ffe7063bc938aededfa3271187f9140a0fe:tools/r29/inspect_runtime.py > tools/r29/inspect_runtime.py
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
