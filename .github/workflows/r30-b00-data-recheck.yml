@@ -1,0 +1,91 @@
+name: R30 B00 real CP06 and CP16 upgrade checks
+on:
+  push:
+    branches: [verification/r30-b00-cp06-cp16]
+    paths: ['.github/workflows/r30-b00-data-recheck.yml']
+permissions:
+  contents: read
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: CP06
+            url: https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291006-bb607cf5ab69/STARCORE-R29.1-bb607cf5ab69-release.apk
+            sha: ab10c8e85344a347a695d11ddeb652b419d09c49e81513204037e3e0684a7743
+          - id: CP16
+            url: https://github.com/gtt46461-star/starcore-public-build/releases/download/r29-official-577291016-5ce1cc0f639b/STARCORE-R29.1-5ce1cc0f639b-release.apk
+            sha: 11d1db8e0a7215e04fd297a15dc032176e8d6129d0708df19eed19d9ef633b02
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 58b24f909afe53a35de6b7a7c9adffe76eba8b08
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Download the already-published B00 release and check its public identity
+        run: |
+          mkdir -p delivered
+          url=https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-official-577310001-4bc5ee4e1d05
+          curl -fLsS --connect-timeout 15 --max-time 120 "$url/STARCORE-R30-4bc5ee4e1d05-release.apk" -o delivered/STARCORE-R30-4bc5ee4e1d05-release.apk
+          curl -fLsS --connect-timeout 15 --max-time 60 "$url/delivery.json" -o delivered/delivery.json
+          echo '18b364f8c904cb7647778a85f8f61043983f122e75ad43fc6c9270bd5af1c2a1  delivered/STARCORE-R30-4bc5ee4e1d05-release.apk' | sha256sum -c -
+          python3 - <<'PY'
+          import json
+          rows=json.load(open('delivered/delivery.json'))
+          r=next(x for x in rows if x['apk']=='STARCORE-R30-4bc5ee4e1d05-release.apk')
+          assert r['sourceCommit'].startswith('4bc5ee4e1d05') and r['versionCode']==577310001
+          assert r['package']=='com.starcore.research.r13' and r['sha256']=='18b364f8c904cb7647778a85f8f61043983f122e75ad43fc6c9270bd5af1c2a1'
+          PY
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs delivered/*.apk | tee public-certificate.txt
+          grep -F '9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca' public-certificate.txt
+      - name: Pin the unmodified smoke checks to the requested published baseline
+        env:
+          R30_BASE_URL: ${{ matrix.url }}
+          R30_BASE_SHA: ${{ matrix.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          p=Path('tools/r29/emulator_smoke.sh'); s=p.read_text()
+          old='https://github.com/gtt46461-star/starcore-public-build/releases/download/r26-20261028-runtime-117/STARCORE-R26-20261028-117-release.apk'
+          oldsha='739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433'
+          assert s.count(old)==1 and s.count(oldsha)==1 and s.count("-name '*debug.apk'")==1
+          s=s.replace(old,os.environ['R30_BASE_URL']).replace(oldsha,os.environ['R30_BASE_SHA']).replace("-name '*debug.apk'","-name '*release.apk'")
+          Path('/tmp/r30-b00-smoke.sh').write_text(s)
+          PY
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash /tmp/r30-b00-smoke.sh delivered evidence/r30/b00-actual
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-B00-ACTUAL-${{ matrix.id }}-TO-4bc5ee4e1d05
+          path: |
+            evidence/r30/b00-actual/**/*.json
+            evidence/r30/b00-actual/**/*.txt
+            evidence/r30/b00-actual/**/*.log
+            startup-evidence/*.json
+            startup-evidence/*.txt
+            startup-evidence/*.log
+            public-certificate.txt
