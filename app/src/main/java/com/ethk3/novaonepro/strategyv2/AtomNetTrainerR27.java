@@ -25,6 +25,8 @@ public final class AtomNetTrainerR27 {
 
     public AtomNetTrainerR27(int in, long seed) { net = new AtomNetR27(in, seed); rng = new StatsR27.SplitMix(seed ^ 0x5EEDL); }
 
+    public double[] numberProbabilities(double[] inputs) { return NumberRankerAdapterR30.probabilities(net,inputs); }
+
     /** @return epochs run. */
     public int pretrain(List<Sample> train, List<Sample> select) {
         if (train.isEmpty()) return 0;

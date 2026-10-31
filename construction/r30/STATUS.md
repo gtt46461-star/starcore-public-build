@@ -148,3 +148,6 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 - B05-03远端完整CI41191547860/job124509186113成功，十位置生产训练工程签收；当前B05-04在G1验证。B05-05-a仅先登记统一号码输出的真实Provider调用点及回归，未提前修改产品源码。
 
 - B05-04最终源码b69c4ff的225项单测、lint和正式编译产物全部SQLite消费/拒绝/位置中断恢复通过，54份XML失败/错误/跳过0；原lint基线保留。开始B05-05，不改写缺历史模型/自然质量为通过。
+
+- B05-05实际统一输出：NumberRankerAdapter直接读取同一AtomNet号码softmax头；Trainer与ModelSurfaceProvider（含ABI探针）均调用该入口，沿用原ReplayEvaluator唯一排序，无新权重或启发式融合。定向6项通过：实际学习后输出改变、Trainer/Provider/全状态解码逐位一致、概率和1、拷贝不可变、非法概率拒绝而不修补。首次HOST runner遗漏旧测试class目录导致初始化失败，已补正确classpath并保留原失败日志，未改测试断言。
+- B05-04推送第一次临时返回GitHub认证错误（could not read Username）；沿用原平台代理及正常批准流程重试一次后推送b69c4ff成功，未更换身份或绕过网络限制，远端CI待验。

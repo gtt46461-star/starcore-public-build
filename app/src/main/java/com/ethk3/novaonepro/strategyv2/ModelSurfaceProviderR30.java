@@ -39,7 +39,7 @@ public final class ModelSurfaceProviderR30 {
         if(pit==null||model==null)throw new Blocked("NO_FROZEN_MODEL");
         AtomNetR27 net=AtomNetR27.decode(model.weights);
         if(pit.inputs.length!=net.in)throw new Blocked("FEATURE_ABI_MISMATCH");
-        double[] p=net.forward(pit.inputs,null).pClass;
+        double[] p=NumberRankerAdapterR30.probabilities(net,pit.inputs);
         return new Surface(model.modelHash,pit.historyHash,p,pit.targetOrdinal,model.trainedThroughOrdinal,model.availableAt,pit.featureThroughOrdinal,pit.featureAvailableAt,pit.position,pit.preparedAt,pit.frozenAt,pit.deadlineAt);
     }
     /** Only the database adapter uses archived, pre-deadline probability receipts; it must verify history and hash. */
@@ -73,7 +73,7 @@ public final class ModelSurfaceProviderR30 {
     /** ABI probe exercises real inference, not absent historical models or synthetic quality. */
     public static String goldenHash(){
         AtomNetR27 n=new AtomNetR27(12,30);StringBuilder b=new StringBuilder("R30_MODEL_SURFACE_ABI_V1");
-        for(int i=0;i<64;i++){double[] x=AtomNetR27.positionedInput(new double[]{i/64.,(i%7)/7.},i%10+1);for(double p:n.forward(x,null).pClass)b.append('|').append(Double.toHexString(p));}
+        for(int i=0;i<64;i++){double[] x=AtomNetR27.positionedInput(new double[]{i/64.,(i%7)/7.},i%10+1);for(double p:NumberRankerAdapterR30.probabilities(n,x))b.append('|').append(Double.toHexString(p));}
         return StatsR27.sha256(b.toString());
     }
 }
