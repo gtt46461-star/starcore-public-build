@@ -2,6 +2,17 @@
  "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
  "subcards": [
   {
+   "card": "R30-B04-06",
+   "id": "R30-B04-06-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30StructureRegistryTest.java",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "只追加 FAMILIES 会被 stepBirth 的硬编码13跳过，且岛列表仍只有I01-I13。同步改为按实际家族数量分配出生并追加I14-I20岛；只改注册/配额，不改前面卡的gate或行为去重方法。新增七族各500合同与主循环真实出生、目标期之后数据不影响生成的测试；I20选择位置实际消费B04-04结构窗口。"
+  },
+  {
    "card": "R30-B04-05",
    "id": "R30-B04-05-a",
    "files": [
