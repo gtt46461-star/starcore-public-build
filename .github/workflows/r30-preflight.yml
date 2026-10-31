@@ -24,7 +24,8 @@ jobs:
           python3 - <<'CODE'
           import json,os,re
           r=json.load(open('.github/r30-preflight-request.json'));assert re.fullmatch('[a-f0-9]{40}',r['source'])
-          with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\n')
+          focus=r.get('focus','full');assert focus in ('full','charts-and-faults')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\nfocus='+focus+'\n')
           CODE
       - uses: actions/checkout@v4
         with:
@@ -88,12 +89,13 @@ jobs:
           ram-size: 4096M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
-          script: adb root && adb wait-for-device && adb install $(find app/build/outputs/apk/debug -name '*.apk' -print -quit) && adb install -t $(find app/build/outputs/apk/androidTest/debug -name '*.apk' -print -quit) && bash tools/r30/run_android_regression.sh evidence/r30/android-regression && adb shell am force-stop com.starcore.research.r13 && python3 scripts/probe_r13_startup.py --installed && bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
+          script: adb root && adb wait-for-device && adb install $(find app/build/outputs/apk/debug -name '*.apk' -print -quit) && adb install -t $(find app/build/outputs/apk/androidTest/debug -name '*.apk' -print -quit) && bash tools/r30/run_preflight_runtime.sh '${{ steps.request.outputs.focus }}'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: R30-INTERNAL-ANDROID-PREFLIGHT-EVIDENCE
           path: |
             evidence/r30/android-regression/
+            evidence/r30/android-focus/
             evidence/r30/fault-matrix/
             startup-evidence/
