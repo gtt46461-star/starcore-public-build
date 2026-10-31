@@ -780,6 +780,16 @@
         ".github/r30-preflight-request.json"
       ],
       "reason": "实际最终CI先跑约25分钟完整门禁才启动Android，导致测试APK入口配置错误反馈过晚。新增只在CI内部的Android预检，与原两证书完整最终门禁并行：明确同源码、只复用原R27既有证书及原安全缓存，不新建签名身份；仅编译debug/testAPK并在一次性模拟器运行同17回归/14故障，不发布/交付中间APK，预检结果不替代最终releaseAPK的完整门禁。只上传既有合成测试证据，不输出密钥/真实数据内容；原最终两包汇合与发布条件不减。先登记后修改。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-i",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/UnifiedResearchChoiceR932.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "tools/r30/qual_host/RealAuthorityR30HostTest.java"
+      ],
+      "reason": "102内部Android预检41232640998/job124629839957已真实通过11项(5迁移/2快照/1保全/2写队列/1撤销)，主链正例原owner实际返回SHADOW。源审查发现UnifiedResearchChoice.prepareChoiceCP12已冻结SU2合格证书，但selected只处理SU1及R929表，SU2记录被错误落入另一证书表JOIN而丢失。补只读SU2选中证书投影：继续使用原CertificateSU2.read并核对选中candidate/certificate，直接取原协议证据摘要及既有统计字段；缺失/过期/证书不匹配仍拒绝，未知指标NaN不造0，不修改原DGE/Settlement/DbStore、证书资格数学或数量时间门槛。扩现有真实SQLite Host先复现后通过，并为Android原BET断言增加拒绝码/typedProof存在性诊断，保留正例与所有独立反例。下一次正式出包升103。先登记后修改。"
     }
   ]
 }
