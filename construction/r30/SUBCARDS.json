@@ -318,6 +318,30 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "每期十位置真实样本必须修改实际生产消费及切片训练路径，保留旧轮换模型、诊断和全部原始数据。新增独立ABI/owner的全状态训练checkpoint，原单写队列原子发布位置游标和权重，避免把十倍工作塞进旧单切片或重复学习同一期。新增真实SQLite恢复/旧模型字节保全回归及吞吐报告；不新开调度器或数据库，不改旧统计门槛。"
+  },
+  {
+   "card": "R30-B05-04",
+   "id": "R30-B05-04-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyAstR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/OperatorGoldenR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetRuntimeR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/FrozenConfirmationStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ModelSurfaceTest.java",
+    "tools/r30/qual_host/ModelSurfaceR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "I08模型叶子必须进入真实类型/范围、缓存、生成器、ABI与实时冻结消费链。提供不可变模型/概率引用及真实可用时间、trainedThrough、历史特征哈希校验；旧历史不存在合法模型即BLOCKED，绝不回填未来训练模型。调用和策略冻结同一短写事务入账，失败/缺模型记录明确原因；归档概率仅在原历史哈希一致时复用。新增真实SQLite冻结/调用对应与竞态回归，保留旧family表示。"
   }
  ]
 }
