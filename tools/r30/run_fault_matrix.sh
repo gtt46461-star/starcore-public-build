@@ -3,6 +3,12 @@
 set -euo pipefail
 out=${1:?evidence directory required}
 mkdir -p "$out"
+diagnostic=${2:-full}
+case "$diagnostic" in
+  full) fault_kinds=(fetch_timeout draw_conflict kill_settlement kill_freeze sqlite_full clock_rollback service_stop); expected_cells=14 ;;
+  kill_freeze,sqlite_full) fault_kinds=(kill_freeze sqlite_full); expected_cells=4 ;;
+  *) echo UNKNOWN_FAULT_DIAGNOSTIC_SCOPE; exit 1 ;;
+esac
 app_id=com.starcore.research.r13
 runner="$app_id.test/com.ethk3.novaonepro.R30FaultAndroidRunner"
 serial=$(adb get-serialno)
@@ -119,7 +125,7 @@ run_cell() (
 failed_cells=0
 clock_original_auto_time=$(adb shell settings get global auto_time | tr -d '\r')
 for visibility in foreground background; do
-  for fault in fetch_timeout draw_conflict kill_settlement kill_freeze sqlite_full clock_rollback service_stop; do
+  for fault in "${fault_kinds[@]}"; do
     set +e
     run_cell "$fault" "$visibility"
     cell_status=$?
@@ -133,10 +139,15 @@ for visibility in foreground background; do
   done
 done
 if [[ "$failed_cells" != 0 ]]; then echo "R30_FAULT_MATRIX_FAILED_CELLS:$failed_cells"; exit 1; fi
-python3 - "$out" <<'PY'
+python3 - "$out" "$diagnostic" "$expected_cells" <<'PY'
 import json, pathlib, subprocess, sys
-out=pathlib.Path(sys.argv[1]); rows=[line.split('\t') for line in (out/'cells.tsv').read_text().splitlines()]; assert len(rows)==14 and len({tuple(r[:2]) for r in rows})==14
+out=pathlib.Path(sys.argv[1]); diagnostic=sys.argv[2]; expected=int(sys.argv[3]); rows=[line.split('\t') for line in (out/'cells.tsv').read_text().splitlines()]; assert len(rows)==expected and len({tuple(r[:2]) for r in rows})==expected
 receipt={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'environment':'ANDROID_EMULATOR','physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','cells':[dict(zip(('fault','visibility','mechanics'),row)) for row in rows],'conflictRecovery':'HARD_BLOCK_AWAITING_VERIFIED_CANONICAL; never automatically erase conflicting evidence','serviceStop':'actual system force-stop then explicit user reopen; no automatic restart claim','wallClockFault':'actual rooted-emulator OS rollback and restoration through AlarmManager shell, two real wall/monotonic samples; restored before original-deadline recovery','signingKeysRead':False,'productModelsDeleted':False}
-(out/'matrix.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
-print('R30_FAULT_MATRIX|14_ACTUAL_EMULATOR_CELLS|NO_PHYSICAL_OR_NATURAL_CLAIM|PASS')
+if diagnostic=='full':
+ (out/'matrix.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+ print('R30_FAULT_MATRIX|14_ACTUAL_EMULATOR_CELLS|NO_PHYSICAL_OR_NATURAL_CLAIM|PASS')
+else:
+ receipt.update(scope='INTERNAL_REMAINING_FOUR_FAULTS_ONLY',full14Acceptance=False)
+ (out/'diagnostic-matrix.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
+ print('R30_FAULT_DIAGNOSTIC|4_ACTUAL_CELLS|NOT_FULL14_ACCEPTANCE|PASS')
 PY

@@ -8,7 +8,7 @@ if [[ "$mode" == full ]]; then
   bash tools/r30/run_android_regression.sh evidence/r30/android-regression
   adb shell am force-stop "$app_id"
   python3 scripts/probe_r13_startup.py --installed
-elif [[ "$mode" == charts-and-faults ]]; then
+elif [[ "$mode" == charts-and-faults || "$mode" == charts-and-remaining-faults ]]; then
   set +e
   (
   set -euo pipefail
@@ -40,7 +40,11 @@ else
   exit 1
 fi
 set +e
-bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
+if [[ "$mode" == charts-and-remaining-faults ]]; then
+  bash tools/r30/run_fault_matrix.sh evidence/r30/fault-focus kill_freeze,sqlite_full
+else
+  bash tools/r30/run_fault_matrix.sh evidence/r30/fault-matrix
+fi
 fault_status=$?
 set -e
 if [[ "$chart_status" != 0 || "$fault_status" != 0 ]]; then
