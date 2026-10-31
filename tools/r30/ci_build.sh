@@ -60,6 +60,9 @@ java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJa
 # R30-B04-02-a: real sink/report receipts use the same committed, idempotent duplicate rows.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/BehaviorDedupR30HostTest.java
 java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.BehaviorDedupR30HostTest | tee "$LOG/r30_behavior_dedup_host.log"
+# R30-B04-05-a: selector rate reaches the actual qualification registration without resetting budget on retry.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/SelectorRateR30HostTest.java
+java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.SelectorRateR30HostTest | tee "$LOG/r30_selector_rate_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0
