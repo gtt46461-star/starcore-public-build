@@ -177,29 +177,47 @@ public final class RuntimeR27 implements AutoCloseable {
     public static final String OBSERVE = "OBSERVE", OBSERVE_RETIRED = "OBSERVE_RETIRED";
     public static String observerId(String policyHash) { return StatsR27.sha256(OBSERVE + "|" + policyHash); }
 
-    /** After each generation: the top OBSERVE_CAP population members become observers; members that dropped out are
-     * retired (their settled rows stay). Observers carry no e-process row, so settlement never feeds qualification. */
-    void refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
-        List<EvolutionLoopR27.Member> ranked = new ArrayList<>(loop.population);
-        ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
-        final Map<String, EvolutionLoopR27.Member> keep = new LinkedHashMap<>();
-        for (EvolutionLoopR27.Member m : ranked) { if (keep.size() >= OBSERVE_CAP) break; if (Double.isFinite(m.tau)) keep.put(observerId(m.hash()), m); }
-        final List<String> retire = new ArrayList<>(); final Map<String, EvolutionLoopR27.Member> add = new LinkedHashMap<>(keep);
-        try (Cursor c = w.ro.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status=?", new String[] {OBSERVE})) {
-            while (c.moveToNext()) { String id = c.getString(0); if (add.remove(id) == null) retire.add(id); }
+    /** Rank only the exploration segment. The immutable FUTURE queue owns its slots until a terminal
+     * qualification result, including while a draw is missing or a conflict is being resolved. */
+    static Map<String,EvolutionLoopR27.Member> explorationR30(List<EvolutionLoopR27.Member> ranked, Map<String,String> confirmation) {
+        Map<String,EvolutionLoopR27.Member> keep = new LinkedHashMap<>();
+        int remaining = Math.max(0, OBSERVE_CAP - confirmation.size());
+        java.util.Set<String> protectedBases = new java.util.HashSet<>(confirmation.values());
+        for (EvolutionLoopR27.Member m : ranked) {
+            if (keep.size() >= remaining) break;
+            String id = observerId(m.hash());
+            if (Double.isFinite(m.tau) && !confirmation.containsKey(id) && !protectedBases.contains(m.hash())) keep.put(id,m);
         }
-        if (add.isEmpty() && retire.isEmpty()) return;
+        return keep;
+    }
+
+    /** Re-ranking touches exploration only. Read queue membership again inside the same short write
+     * transaction, so a concurrent registration cannot be retired using a stale pre-write snapshot.
+     * This path never creates an e-process/index, resets a qualification cursor or changes a frozen row. */
+    void refreshObservers(ResearchPoolR27.Worker w, EvolutionLoopR27 loop) throws Exception {
+        final List<EvolutionLoopR27.Member> ranked = new ArrayList<>(loop.population);
+        ranked.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
         final int generation = loop.generation - 1;
-        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
-        for (String id : retire) b.add("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?", OBSERVE_RETIRED, "LEFT_TOP_" + OBSERVE_CAP + "_G" + generation, now, id, OBSERVE);
+        ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
         b.before = db -> {
+            Map<String,String> confirmation = QualificationInboxR29.confirmationQueueR30(db);
+            Map<String,EvolutionLoopR27.Member> keep = explorationR30(ranked,confirmation);
+            List<String> retire = new ArrayList<>();
+            try (Cursor c = db.rawQuery("SELECT policy_hash FROM r27_live_shadow WHERE status=?",new String[]{OBSERVE})) {
+                while (c.moveToNext()) { String id=c.getString(0); if (!keep.containsKey(id) && !confirmation.containsKey(id)) retire.add(id); }
+            }
             long t = System.currentTimeMillis();
-            for (Map.Entry<String, EvolutionLoopR27.Member> e : add.entrySet()) {
+            for (String id : retire) db.execSQL("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
+                    new Object[]{OBSERVE_RETIRED,"LEFT_EXPLORATION_G"+generation,t,id,OBSERVE});
+            for (String id : confirmation.keySet()) db.execSQL("UPDATE r27_live_shadow SET status=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
+                    new Object[]{OBSERVE,"CONFIRMATION_QUEUE_PROTECTED",t,id,OBSERVE_RETIRED});
+            for (Map.Entry<String, EvolutionLoopR27.Member> e : keep.entrySet()) {
                 EvolutionLoopR27.Member m = e.getValue();
-                // Re-entering observers resume their own row; global_index 0 keeps them outside the α-spending sequence.
+                // Re-entering exploration resumes its own row, outside the alpha-spending sequence.
                 db.execSQL("INSERT OR IGNORE INTO r27_live_shadow(policy_hash,spec_json,temperature,bias,global_index,status,reason,promoted_at,updated_at,through_ordinal,base_policy,semantic_abi) VALUES(?,?,?,?,0,?,?,?,?,-1,?,'')",
-                        new Object[] {e.getKey(), m.spec.fullJson(), m.tau, StoreR27.pack(new double[10]), OBSERVE, "TOP_" + OBSERVE_CAP + "_H_SELECT_G" + generation, t, t, m.hash()});
-                db.execSQL("UPDATE r27_live_shadow SET status=?,temperature=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?", new Object[] {OBSERVE, m.tau, "TOP_" + OBSERVE_CAP + "_H_SELECT_G" + generation, t, e.getKey(), OBSERVE_RETIRED});
+                        new Object[] {e.getKey(),m.spec.fullJson(),m.tau,StoreR27.pack(new double[10]),OBSERVE,"EXPLORATION_H_SELECT_G"+generation,t,t,m.hash()});
+                db.execSQL("UPDATE r27_live_shadow SET status=?,temperature=?,reason=?,updated_at=? WHERE policy_hash=? AND status=?",
+                        new Object[]{OBSERVE,m.tau,"EXPLORATION_H_SELECT_G"+generation,t,e.getKey(),OBSERVE_RETIRED});
             }
             return 0;
         };

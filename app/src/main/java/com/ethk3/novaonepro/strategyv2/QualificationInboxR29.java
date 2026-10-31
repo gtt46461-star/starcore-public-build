@@ -34,6 +34,18 @@ public final class QualificationInboxR29 {
     public static final String BLOCK_NONE = "NONE", BLOCK_ACT_PENDING_DRAW = "ACT_PENDING_DRAW", BLOCK_ACT_PENDING_SETTLE = "ACT_PENDING_SETTLE",
             BLOCK_CONFLICT = "CONFLICT", BLOCK_NOT_DUE = "NOT_DUE", BLOCK_MISSING_OPPORTUNITY = "MISSING_OPPORTUNITY";
 
+    /** R30-B07-01: membership comes from durable FUTURE registrations, never the current H_SELECT rank.
+     * Unknown nonterminal states stay protected; controls have no positive, eligible registration here.
+     * Values are base-policy identities so exploration cannot spend another slot on the same policy. */
+    public static Map<String,String> confirmationQueueR30(SQLiteDatabase db) {
+        Map<String,String> pending = new LinkedHashMap<>();
+        try (Cursor c = db.rawQuery("SELECT s.policy_hash,coalesce(nullif(s.base_policy,''),s.policy_hash) FROM r27_live_shadow s JOIN r27_eprocess e ON e.policy_hash=s.policy_hash WHERE e.global_index>0 AND s.status IN ('ACTIVE','OBSERVE','OBSERVE_RETIRED') AND e.state NOT IN (?,?) ORDER BY e.global_index,s.policy_hash",
+                new String[]{SequentialQualificationR27.QUALIFIED,SequentialQualificationR27.NOT_BETTER})) {
+            while (c.moveToNext()) pending.put(c.getString(0),c.getString(1));
+        }
+        return pending;
+    }
+
     /** One registered opportunity of an experiment as stored (status/act/numbers frozen before the deadline). */
     public static final class Row {
         public final long ordinal; public final String issue, status; public final int act, n1, n2, n3, hit, actual;
