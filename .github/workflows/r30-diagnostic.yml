@@ -13,29 +13,36 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          artifact-ids: '13052964735'
+          artifact-ids: '13053601682'
           run-id: 41227596487
           github-token: ${{ github.token }}
-          path: diagnosis
-          merge-multiple: true
-      - name: Existing failure test output only; no keys or raw database
+          path: diagnosis/r27-cp06
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '13052863934'
+          run-id: 41227845441
+          github-token: ${{ github.token }}
+          path: diagnosis/official-cp06
+      - name: Allowlisted startup failure codes only; no data receipts or free text
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import json,re
           root=Path('diagnosis')
-          sensitive=re.compile(r'api.?key|authorization|bearer|password|token=|https?://',re.I)
+          names={'upgrade-startup.json','rollback-startup.json','reupgrade-startup.json','startup.json'}
+          codes={'Fresh service/heartbeat never remained READY for 60 seconds':'FRESH_SERVICE_60S_GATE_FAILED','STARTUP_RETRIED':'STARTUP_RETRIED','STARTUP_ERROR:':'STARTUP_ERROR','OLD_PROCESS_NOT_STOPPED':'OLD_PROCESS_NOT_STOPPED','ADB_FAILED:':'ADB_FAILED','Caught failure:':'CAUGHT_FAILURE'}
           for p in sorted(root.rglob('*')):
               if not p.is_file():continue
-              print('DIAGNOSTIC_FILE',p.relative_to(root),p.stat().st_size)
-              if p.name=='startup.json':
-                  j=json.loads(p.read_text());print('STARTUP_RESULT',json.dumps({k:j.get(k) for k in ['passed','baseline_reproduced','crash']})[:12000])
-              elif p.suffix=='.txt' and 'logcat' not in p.name and any(s in p.parts for s in ['android-regression','fault-matrix']):
-                  for line in p.read_text(errors='replace').splitlines()[:300]:
-                      print('[REDACTED_CONFIGURATION_LINE]' if sensitive.search(line) else line)
-              elif 'logcat' in p.name:
-                  lines=p.read_text(errors='replace').splitlines()
-                  for i,line in enumerate(lines):
-                      if re.search(r'FATAL EXCEPTION|INSTRUMENTATION_FAILED|Unable to find instrumentation|Permission Denial|Exception:|Error:',line):
-                          for row in lines[max(0,i-1):i+14]:print('[REDACTED_CONFIGURATION_LINE]' if sensitive.search(row) else row)
+              lane='R27_CP06' if 'r27-cp06' in p.parts else 'OFFICIAL_CP06'
+              if p.name in names:
+                  j=json.loads(p.read_text());rows=j.get('samples',[])
+                  summary={'lane':lane,'stage':p.name,'passed':j.get('passed') is True,'crashPresent':bool(j.get('crash')),'samples':len(rows),'phases':{}}
+                  for phase in ['cold','restart']:
+                      current=[x for x in rows if x.get('phase')==phase]
+                      if not current:continue
+                      summary['phases'][phase]={'samples':len(current),'readySamples':sum(x.get('init_status')=='READY' for x in current),'pidMatchesRecorded':sum(bool(x.get('actual_pid')) and x.get('actual_pid')==x.get('process_id') for x in current),'staleHeartbeatSamples':sum(int(x.get('observed_at_ms',0))-int(x.get('heartbeat_at',0))>10000 for x in current),'startupErrorPresent':any(bool(x.get('init_last_error')) for x in current)}
+                  print('SAFE_STARTUP_SUMMARY',json.dumps(summary))
+              elif p.name.endswith('-startup.log'):
+                  s=p.read_text(errors='replace')
+                  print('SAFE_EXCEPTION_SUMMARY',json.dumps({'lane':lane,'stage':p.name,'codes':[safe for text,safe in codes.items() if text in s],'exceptionTypes':sorted(set(re.findall(r'\b(?:AssertionError|RuntimeError|TimeoutExpired|[A-Za-z]+Exception)\b',s)))}))
           PY
