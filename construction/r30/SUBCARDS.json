@@ -888,6 +888,14 @@
         "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java"
       ],
       "reason": "共享原收据迁移fixture已使预检41241035175/job124654800602通过撤销并真正写入交易/两类收据；最后原B11审计正确拒绝测试遗漏的RuntimeResourceAudit作用域。按原AutoFetchService顺序：durable claim成功后原token.claimDurablePulse、原RuntimeResourceAudit.begin，原运行器/事务完成后finally原finish及原lease释放；不手工造budget hash、不改原预算或审计。完整审计还要求PIT原FetchLedger源事件：合成fixture用原begin/complete/payload接口记录明确SYNTHETIC原始JSON及实际当前收取时点，标非真实网络/非自然样本，不写提供方发布时间；原完整审计照常验证。故障shadow冻结亦接同一原资源作用域。仅测试源，产品main不变；保留原无预算拒绝失败。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-t",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java"
+      ],
+      "reason": "实际Android预检41242178323/job124658152809已通过16项：原真实REAL/canonical/两收据/预算/PIT源证据及四个拒绝反例全部PASS，末图表测试期望charts子容器>=17而原Activity的标题在容器外，实际合同只有14旧+2新=16卡。测试改为恰好16卡而非>=17，从实际索引0至15截屏，文件仍01至16，3场景仍48张；补每项必须为真正卡片容器，避免单图fallback文本当成功。20秒测试等待及原15秒读取超时不改，不改产品UI或删图，不降低16张实际图表要求。先登记后施工。"
     }
   ]
 }
