@@ -37,7 +37,7 @@ public final class MatrixSnapshotSU2 {
         return out;
     }
     public static Data capture(CommitteeSU2 committee,ModelReplaySU2.Library lib,long through){
-        Map<String,Object> root=new LinkedHashMap<>();root.put("schema","SU2_MATRICES_V1");root.put("genome_key",committee.key());root.put("checkpoint_sequence",through);root.put("formula",committee.formula());
+        Map<String,Object> root=new LinkedHashMap<>();root.put("schema","SU2_MATRICES_V1");root.put("matrix_registry_id",MatrixRegistryR30.SU2_ID);root.put("genome_key",committee.key());root.put("checkpoint_sequence",through);root.put("formula",committee.formula());
         List<Factor> all=new ArrayList<>();List<Object> visible=new ArrayList<>(),teachers=new ArrayList<>();Set<String> seen=new HashSet<>();int[][] draws=lib.draws();
         Set<Integer> atoms=new LinkedHashSet<>();for(int a:ModelEvolutionSU2.defaultAtoms())atoms.add(a);
         for(ModelGenomeSU2 sub:committee.subs){

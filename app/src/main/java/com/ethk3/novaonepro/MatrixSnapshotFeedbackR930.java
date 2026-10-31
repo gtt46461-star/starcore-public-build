@@ -50,6 +50,8 @@ public final class MatrixSnapshotFeedbackR930 {
         RESOURCE_EFFICIENCY
     }
 
+    public static String registryId(MatrixKind kind){if(kind==null)throw new IllegalArgumentException("R30_MATRIX_KIND_REQUIRED");return "R930:"+kind.name();}
+
     public enum CaptureStage {
         S1_ATOM_INPUT,
         S2_FACTOR_MOLECULE,
@@ -92,6 +94,7 @@ public final class MatrixSnapshotFeedbackR930 {
 
     public static final class FrozenMatrix {
         public final MatrixKind kind;
+        public final String registryId;
         public final String targetIssue;
         public final String maxSourceIssue;
         public final long frozenAtMs;
@@ -108,7 +111,7 @@ public final class MatrixSnapshotFeedbackR930 {
             if (kind == null || frozenAtMs <= 0L || cells == null
                     || cells.size() != POSITIONS * NUMBERS)
                 throw new IllegalArgumentException("R930_FROZEN_MATRIX_HEADER");
-            this.kind = kind;
+            this.kind = kind;this.registryId=MatrixSnapshotFeedbackR930.registryId(kind);
             this.targetIssue = required(targetIssue, "MATRIX_TARGET");
             this.maxSourceIssue = required(maxSourceIssue, "MATRIX_MAX_SOURCE");
             if (!PitFeatureDagR929.isStrictPast(this.maxSourceIssue, this.targetIssue))
