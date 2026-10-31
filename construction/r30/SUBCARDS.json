@@ -2,6 +2,22 @@
  "note": "docs/02 §2 子卡登记：卡需要改未登记文件时先在此登记（文件、原因），ownership_check.py 合并本表。",
  "subcards": [
   {
+   "card": "R30-B04-02",
+   "id": "R30-B04-02-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R27BirthGateTest.java",
+    "tools/r30/qual_host/BehaviorDedupR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "方案提供纯函数指纹；真实入档/迁移需从现有回放轨迹选取 H_TRAIN 探针，并通过原进化单步 sink 将拒绝记录与游标同批提交。增加加法式去重表和只读报告计数，实际 SQLite 校验报告与落库计数相同；测试记录器实现同一新事件。不改 B04-01 出生入口、B04-06 族列表，也不新增写者或锁。"
+  },
+  {
    "card": "R30-B04-01",
    "id": "R30-B04-01-a",
    "files": [
