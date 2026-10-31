@@ -221,9 +221,9 @@ public final class LiveShadowsR27 {
             // R29-035: an isolated result conflict blocks the certificate until it is resolved (never overwritten).
             List<String> failing = new ArrayList<>(v.failing); boolean issued = v.active;
             if (QualificationInboxR29.blockedForCertificate(w.ro, s.id)) { issued = false; failing.add("QUALIFICATION_GAP_OR_CONFLICT"); }
-            Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("failing", new ArrayList<Object>(failing));
-            String digest = StatsR27.sha256(s.id + "|" + st.n + "|" + st.acts + "|" + st.hits + "|" + Double.toHexString(st.logUp));
-            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,?,?,?,?,?)", s.id, issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS);
+            Map<String, Object> g = new LinkedHashMap<>(v.gates); g.put("gateVersion",CertificateGateR27.GATE_VERSION); g.put("failing", new ArrayList<Object>(failing));
+            String digest = StatsR27.sha256(CertificateGateR27.GATE_VERSION + "|" + s.id + "|" + st.n + "|" + st.acts + "|" + st.hits + "|" + Double.toHexString(st.logUp));
+            b.add("INSERT OR REPLACE INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES(?,?,?,?,?,?,?)", s.id, issued ? "ACTIVE" : "NOT_ISSUED", JsonR27.write(g), digest, now, now + CertificateGateR27.VALID_MS, CertificateGateR27.GATE_VERSION);
             // R29-036: R29_GATE_V2 evaluated beside the unchanged R27 gate and recorded separately (report only).
             GateV2R29.Evidence v2 = GateV2R29.evidence(w.ro, s.id, latestOrd); v2.pairedLcbVsI00 = e.pairedLcbVsI00; v2.pairedLcbVsNull = e.pairedLcbVsNull; v2.deployed = s.id.equals(deployed);
             GateV2R29.record(b, v2, GateV2R29.evaluate(v2));

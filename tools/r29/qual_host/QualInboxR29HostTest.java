@@ -279,7 +279,7 @@ public final class QualInboxR29HostTest {
             db.execSQL("INSERT INTO r29_qual_receipt VALUES(?,1,'I100001',0,-1,0,'old','ACCUMULATING',0)", new Object[] {w.id});
             db.execSQL("INSERT INTO r29_qual_receipt VALUES(?,3,'I100003',0,-1,0,'old','ACCUMULATING',0)", new Object[] {w.id});
             db.execSQL("UPDATE r27_eprocess SET n=2,last_ordinal=3");
-            db.execSQL("INSERT INTO r27_certificate VALUES(?,'ACTIVE','{}','old',0,999999)", new Object[] {w.id});
+            db.execSQL("INSERT INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at) VALUES(?,'ACTIVE','{}','old',0,999999)", new Object[] {w.id});
             for (int o = 1; o <= 5; o++) w.draw(db, o);
             pass(db, s, 5);
             check("Q11_REBUILD_GAPPED_CHECKPOINT", scalar(db, "SELECT count(*) FROM r29_qual_rebuild") == 1

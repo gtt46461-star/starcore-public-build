@@ -33,7 +33,7 @@ public final class SchemaR27 {
         "CREATE TRIGGER IF NOT EXISTS r27_live_frozen_immutable BEFORE UPDATE OF probabilities,n1,n2,n3,act,frozen_at,deadline_at,position ON r27_live_frozen BEGIN SELECT RAISE(ABORT,'R27_FROZEN_IMMUTABLE'); END",
         "CREATE INDEX IF NOT EXISTS r27_live_frozen_order ON r27_live_frozen(target_ordinal)",
         "CREATE TABLE IF NOT EXISTS r27_eprocess(policy_hash TEXT PRIMARY KEY,global_index INTEGER NOT NULL UNIQUE,alpha REAL NOT NULL,log_e_up REAL NOT NULL,log_e_down REAL NOT NULL,n INTEGER NOT NULL,acts INTEGER NOT NULL DEFAULT 0,hits INTEGER NOT NULL DEFAULT 0,sum_u REAL NOT NULL,sum_u2 REAL NOT NULL,last_ordinal INTEGER NOT NULL,state TEXT NOT NULL,target_rate REAL NOT NULL DEFAULT 0.15,updated_at INTEGER NOT NULL)",
-        "CREATE TABLE IF NOT EXISTS r27_certificate(policy_hash TEXT PRIMARY KEY,status TEXT NOT NULL,gates_json TEXT NOT NULL,evidence_digest TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS r27_certificate(policy_hash TEXT PRIMARY KEY,status TEXT NOT NULL,gates_json TEXT NOT NULL,evidence_digest TEXT NOT NULL,issued_at INTEGER NOT NULL,expires_at INTEGER NOT NULL,gate_version TEXT NOT NULL DEFAULT 'LEGACY_UNVERSIONED' CHECK(length(trim(gate_version))>0))",
         "CREATE TABLE IF NOT EXISTS r27_abi_continuity(policy_hash TEXT NOT NULL,old_build TEXT NOT NULL,new_build TEXT NOT NULL,result TEXT NOT NULL CHECK(result IN ('EQUIVALENT','CHANGED','ERROR')),first_diff_issue TEXT,first_diff_field TEXT,checked_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,new_build))",
         "CREATE TABLE IF NOT EXISTS r27_legacy_roster_alias(checkpoint_hash TEXT PRIMARY KEY,minted_roster TEXT NOT NULL,recorded_at INTEGER NOT NULL)",
         "CREATE TABLE IF NOT EXISTS r27_semantic_fingerprint(policy_hash TEXT NOT NULL,build TEXT NOT NULL,fingerprint TEXT NOT NULL,operator_abi TEXT NOT NULL,rows_blob BLOB,computed_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,build))",
@@ -73,6 +73,7 @@ public final class SchemaR27 {
     public static void ensure(SQLiteDatabase db) {
         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
         for (String sql : DDL) db.execSQL(sql);
+        ensureCertificateVersionR30(db);
         db.execSQL(HoldoutLedgerR27.CONFIRM_DDL); // R30-B03-03: durable reservation before confirmation reads
         db.execSQL(AtomScoreR27.CONTRIBUTION_DDL_R30);
         db.execSQL(BehaviorSignatureR30.DDL); // R30-B04-02: idempotent duplicate rejection receipts
@@ -92,6 +93,14 @@ public final class SchemaR27 {
             db.execSQL("UPDATE r26_task SET first_progress_at=last_progress WHERE first_progress_at=0 AND last_progress>0");
         }
         db.execSQL("INSERT OR IGNORE INTO r27_migration VALUES(?,?,?)", new Object[] {REVISION, System.currentTimeMillis(), BuildConfig.SOURCE_COMMIT_R26});
+    }
+
+    /** Add metadata without relabeling historical certificates as having passed the current contract. */
+    static void ensureCertificateVersionR30(SQLiteDatabase db) {
+        column(db,"r27_certificate","gate_version","TEXT NOT NULL DEFAULT 'LEGACY_UNVERSIONED' CHECK(length(trim(gate_version))>0)");
+        db.execSQL("UPDATE r27_certificate SET gate_version='LEGACY_UNVERSIONED' WHERE gate_version IS NULL OR length(trim(gate_version))=0");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r30_certificate_version_insert BEFORE INSERT ON r27_certificate WHEN NEW.gate_version IS NULL OR length(trim(NEW.gate_version))=0 BEGIN SELECT RAISE(ABORT,'R30_CERTIFICATE_VERSION_REQUIRED'); END");
+        db.execSQL("CREATE TRIGGER IF NOT EXISTS r30_certificate_version_update BEFORE UPDATE OF gate_version ON r27_certificate WHEN NEW.gate_version IS NULL OR length(trim(NEW.gate_version))=0 BEGIN SELECT RAISE(ABORT,'R30_CERTIFICATE_VERSION_REQUIRED'); END");
     }
 
     /** Same-database, additive revision of the actual inputs used by the live feature cache. */

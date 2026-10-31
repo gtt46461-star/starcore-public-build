@@ -89,6 +89,9 @@ java -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJa
 # R30-B07-01: real re-ranking never evicts the durable confirmation queue or resets its receipts.
 javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/ConfirmationQueueR30HostTest.java
 java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.ConfirmationQueueR30HostTest | tee "$LOG/r30_confirmation_queue_host.log"
+# R30-B07-02: additive version metadata, actual V1 issuance and incompatible-version rejection.
+javac -nowarn -encoding UTF-8 -proc:none -cp "$T30/shim:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$ANDROID_HOME/platforms/android-36/android.jar" -d "$T30/test" tools/r30/qual_host/CertificateVersionR30HostTest.java
+java -Xmx768m -cp "$T30/shim:$T30/test:app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:$JDBC:$ANDROID_HOME/platforms/android-36/android.jar" com.ethk3.novaonepro.strategyv2.CertificateVersionR30HostTest | tee "$LOG/r30_certificate_version_host.log"
 if [ -z "${R13_SIGNING_P12:-}" ]; then
   echo "APK_NOT_BUILT: no existing signing identity reachable from this branch" | tee "$LOG/apk_status.txt"
   exit 0

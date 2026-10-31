@@ -14,9 +14,11 @@ import java.util.Map;
 public final class CertificateGateR27 {
     private CertificateGateR27() {}
     public static final double MIN_HR = 0.34, MAX_ECE = 0.04, MIN_WORST_BLOCK = 0.26; public static final int MIN_ACTS = 250, MAX_LOSS_STREAK = 6;
+    public static final String GATE_VERSION = "R27_GATE_V1", LEGACY_UNVERSIONED = "LEGACY_UNVERSIONED";
     public static final long VALID_MS = 24L * 3600_000L;
 
     public static final class Evidence {
+        public String gateVersion = GATE_VERSION;
         public String policyHash; public String sequentialState; public long acts, hits; public double ece = Double.NaN, worstBlock = Double.NaN;
         public int maxLosingStreak; public boolean abiEquivalent; public double pairedLcbVsI00 = Double.NaN, pairedLcbVsNull = Double.NaN;
         public double logE; public double calibrationQuality = Double.NaN;
@@ -28,6 +30,7 @@ public final class CertificateGateR27 {
 
     public static Verdict evaluate(Evidence e) {
         Map<String, Object> g = new LinkedHashMap<>(); List<String> fail = new ArrayList<>();
+        gate(g, fail, "gateVersion", GATE_VERSION.equals(e.gateVersion), e.gateVersion);
         double hr = e.acts == 0 ? Double.NaN : e.hits / (double) e.acts;
         gate(g, fail, "sequentialTest", SequentialQualificationR27.QUALIFIED.equals(e.sequentialState), e.sequentialState);
         gate(g, fail, "hitRate>=0.34", Double.isFinite(hr) && hr >= MIN_HR, hr);
@@ -49,6 +52,7 @@ public final class CertificateGateR27 {
     public static String choose(List<Evidence> active) {
         String best = null; double score = Double.NEGATIVE_INFINITY;
         for (Evidence e : active) {
+            if (!GATE_VERSION.equals(e.gateVersion)) continue; // different statistical contracts are not ranked together
             double q = Double.isFinite(e.calibrationQuality) ? e.calibrationQuality : 0;
             double s = e.logE * q;
             if (s > score || (s == score && best != null && e.policyHash.compareTo(best) < 0)) { score = s; best = e.policyHash; }

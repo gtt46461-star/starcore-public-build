@@ -104,7 +104,9 @@ def main():
     migrate(db, dump, 1_900_000_000_000)
     s2, h2 = schema(db), content_hash(db, {r[0]: [c[1] for c in db.execute("PRAGMA table_info(%s)" % r[0])] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()})
     check("M3_IDEMPOTENT", s1 == s2 and h1 == h2, "objects=%d" % len(s2))
-    bad = [s for s in dump["ddl"] if re.search(r"\b(DROP|DELETE)\b", s, re.I)]
+    # BEFORE DELETE ... RAISE(ABORT) preserves legacy models; reject executable
+    # destructive statements at the top level and inside trigger bodies.
+    bad = [s for s in dump["ddl"] if re.search(r"(?:^|;|\bBEGIN)\s*(?:DROP\b|DELETE\s+FROM\b)", re.sub(r"'[^']*'", "''", s), re.I)]
     check("M4_NO_DROP_OR_DELETE", not bad, "statements=%d" % len(dump["ddl"]))
     r27 = [r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'r27_%'")]
     check("M5_R27_TABLES", len(r27) >= 30, "r27_tables=%d" % len(r27))
@@ -148,6 +150,8 @@ def main():
         "P_EXPIRED": (("ACTIVE", now - 1), q, "ACTIVE"),
         "P_REVOKED": (("REVOKED", now + 3600_000), q, "ACTIVE"),
         "P_NOT_QUALIFIED": (("ACTIVE", now + 3600_000), "ACCUMULATING", "ACTIVE"),
+        "P_BAD_VERSION": (("ACTIVE", now + 3600_000), q, "ACTIVE"),
+        "P_LEGACY_VERSION": (("ACTIVE", now + 3600_000), q, "ACTIVE"),
         "P_RETIRED_SHADOW": (("ACTIVE", now + 3600_000), q, "RETIRED_TO_ARCHIVE"),
     }
     with db:
@@ -157,12 +161,12 @@ def main():
             db.execute("INSERT INTO r27_eprocess(policy_hash,global_index,alpha,log_e_up,log_e_down,n,sum_u,sum_u2,last_ordinal,state,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
                        (p, i + 1, 0.01, 5.0, 0.0, 900, 0.0, 0.0, 99, state, now))
             if cert:
-                db.execute("INSERT INTO r27_certificate VALUES(?,?,?,?,?,?)", (p, cert[0], "{}", "d", now - 10, cert[1]))
+                db.execute("INSERT INTO r27_certificate(policy_hash,status,gates_json,evidence_digest,issued_at,expires_at,gate_version) VALUES(?,?,?,?,?,?,?)", (p, cert[0], "{}", "d", now - 10, cert[1], "R29_GATE_V2" if p == "P_BAD_VERSION" else "LEGACY_UNVERSIONED" if p == "P_LEGACY_VERSION" else "R27_GATE_V1"))
             db.execute("INSERT INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
                        (p, 100, "202610280100", 3, blob, 1, 2, 3, 1, "FROZEN", now - 5, now + 60_000))
     got = {p: db.execute(dump["intentSql"], (p, "100", str(now), q)).fetchall() for p in cases}
     check("H15_SQL_CERTIFIED_ROW", len(got["P_OK"]) == 1 and got["P_OK"][0][4] == 1, "rows=%d" % len(got["P_OK"]))
-    for p in ["P_NO_CERT", "P_EXPIRED", "P_REVOKED", "P_NOT_QUALIFIED", "P_RETIRED_SHADOW"]:
+    for p in ["P_NO_CERT", "P_EXPIRED", "P_REVOKED", "P_NOT_QUALIFIED", "P_RETIRED_SHADOW", "P_BAD_VERSION", "P_LEGACY_VERSION"]:
         check("H15_SQL_REJECT_" + p[2:], got[p] == [], "rows=%d" % len(got[p]))
     try:
         with db:

@@ -100,7 +100,7 @@ public final class MainlineBridgeSU2 {
      * unsettled row of a shadow with an unexpired ACTIVE certificate and a QUALIFIED FUTURE e-process qualifies;
      * the (policy_hash, target_ordinal) key allows at most one row per period. */
     public static final String R27_INTENT_SQL = "SELECT f.position,f.n1,f.n2,f.n3,f.act,f.probabilities,f.status FROM r27_live_frozen f JOIN r27_certificate k ON k.policy_hash=f.policy_hash JOIN r27_live_shadow s ON s.policy_hash=f.policy_hash JOIN r27_eprocess e ON e.policy_hash=f.policy_hash"
-            + " WHERE f.policy_hash=? AND f.target_ordinal=? AND f.hit=-1 AND k.status='ACTIVE' AND k.expires_at>? AND s.status='ACTIVE' AND e.state=?";
+            + " WHERE f.policy_hash=? AND f.target_ordinal=? AND f.hit=-1 AND k.status='ACTIVE' AND k.expires_at>? AND s.status='ACTIVE' AND e.state=? AND k.gate_version='"+CertificateGateR27.GATE_VERSION+"'";
 
     static Intent r27Intent(SQLiteDatabase db, long seq) {
         String choice;
