@@ -101,6 +101,23 @@
     "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30UnifiedEvaluatorTest.java"
    ],
    "reason": "卡要求“同策略同数据集两次评分完全一致；换数据集缓存失效”测试；独占表未列测试文件。"
+  },
+  {
+   "card": "R30-B03-06",
+   "id": "R30-B03-06-c",
+   "files": [
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "B03源码检出直接编译报 SOURCE_CALL_INDEX_STALE；按现有身份流程以真实编译类文件重建调用索引。索引及对应 reviewed input 是生成身份，原始失败保留在本轮验证记录。"
+  },
+  {
+   "card": "R30-B02-01",
+   "id": "R30-B02-01-b",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java"
+   ],
+   "reason": "事后核对发现提交56e7834加入时间线报告时遗漏此文件的子卡登记；另有B02-02-a使用同一文件。此次补记已发生的跨卡共享，不伪称原提交当时通过所有权检查。"
   }
  ]
 }
