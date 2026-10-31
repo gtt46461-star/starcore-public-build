@@ -879,6 +879,15 @@
         "tools/r30/run_fault_matrix.sh"
       ],
       "reason": "审计B09时钟回拨格发现仅向时间线输入wall-60000和人工mono+10，尚不能称实际系统回拨。改为一次性root模拟器上原AlarmManager shell实际回拨60秒并恢复，设置自动时间原值亦恢复。测试进程两次实际读取wall/elapsedRealtime，写原时间线并断言单调差值/同进程boot标识/发布时刻仍未知；ADB与测试以显式armed/observed标记握手。等待及shell全在writer外；恢复原系统时钟后才按原截止时间冻结并补齐结算，不扩展或改原deadline。真实系统回拨未生效必须FAIL，不能回退输入模拟。仅测试/工具，原产品main和全部原时间/数据/统计门槛不改；实际故障结果等最终Android，不用本地编译冒充。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-s",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30DecisionChainAndroidTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java"
+      ],
+      "reason": "共享原收据迁移fixture已使预检41241035175/job124654800602通过撤销并真正写入交易/两类收据；最后原B11审计正确拒绝测试遗漏的RuntimeResourceAudit作用域。按原AutoFetchService顺序：durable claim成功后原token.claimDurablePulse、原RuntimeResourceAudit.begin，原运行器/事务完成后finally原finish及原lease释放；不手工造budget hash、不改原预算或审计。完整审计还要求PIT原FetchLedger源事件：合成fixture用原begin/complete/payload接口记录明确SYNTHETIC原始JSON及实际当前收取时点，标非真实网络/非自然样本，不写提供方发布时间；原完整审计照常验证。故障shadow冻结亦接同一原资源作用域。仅测试源，产品main不变；保留原无预算拒绝失败。先登记后施工。"
     }
   ]
 }
