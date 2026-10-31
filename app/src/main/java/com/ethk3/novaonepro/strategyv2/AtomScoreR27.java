@@ -6,39 +6,46 @@ import java.util.Map;
 
 /** R27-043 atom replay scoring (docs/07 7.1). For every scorable atom a prequential binned forecaster (the
  * AtomicToolWorldR943 Quality rule: 5 bins, (hits+3)/(n+10)) is run over the replay frame, and the per-row Brier gain
- * against the running base rate is accumulated separately on H_TRAIN+H_SELECT and on H_HOLDOUT (counts continue).
- * States: USEFUL (both lower bounds &gt; 0), HARMFUL (upper bound &lt; 0), MASKED_MISSING (missing &gt; 10%), else
+ * against the running base rate is accumulated on H_TRAIN+H_SELECT and, separately, on its H_SELECT part; H_CONFIRM
+ * (H_HOLDOUT) is never read (R30-B03-03; the holdout fields stay empty). States: USEFUL (both lower bounds &gt; 0), HARMFUL (upper bound &lt; 0), MASKED_MISSING (missing &gt; 10%), else
  * NEUTRAL. Generator weights: USEFUL ×2, NEUTRAL ×1, HARMFUL ×0.25 (never 0: kept as a control). */
 public final class AtomScoreR27 {
     private AtomScoreR27() {}
     public static final String USEFUL = "USEFUL", NEUTRAL = "NEUTRAL", HARMFUL = "HARMFUL", MASKED_MISSING = "MASKED_MISSING";
 
     public static final class Score {
-        public final int atom; public long nSelect, nHoldout, missing; public final StatsR27.Moments select = new StatsR27.Moments(), holdout = new StatsR27.Moments(); public String state;
+        public final int atom; public long nSelect, nHoldout, nLateSelect, missing; public final StatsR27.Moments select = new StatsR27.Moments(), holdout = new StatsR27.Moments(), lateSelect = new StatsR27.Moments(); public String state;
         Score(int atom) { this.atom = atom; }
         public double missingRate() { return missing / (double) Math.max(1, nSelect + nHoldout + missing); }
         public Map<String, Object> json() {
             Map<String, Object> m = new LinkedHashMap<>(); m.put("atom", (long) atom); m.put("nSelect", nSelect); m.put("gainSelect", select.mean); m.put("lcbSelect", fin(select.lcb(StatsR27.Z95)));
-            m.put("nHoldout", nHoldout); m.put("gainHoldout", holdout.mean); m.put("lcbHoldout", fin(holdout.lcb(StatsR27.Z95))); m.put("missingRate", missingRate()); m.put("state", state); return m;
+            m.put("nHoldout", nHoldout); m.put("gainHoldout", holdout.mean); m.put("lcbHoldout", fin(holdout.lcb(StatsR27.Z95))); m.put("nLateSelect", nLateSelect); m.put("lcbLateSelect", fin(lateSelect.lcb(StatsR27.Z95))); m.put("confirmRead", false); m.put("missingRate", missingRate()); m.put("state", state); return m;
         }
     }
     static Object fin(double d) { return Double.isFinite(d) ? (Object) d : null; }
 
     /** @param values [row][atom] in [0,1] (row index = frame row), present mask, hit label per row;
-     *  rows [0,selectEnd) are train+select, [selectEnd, n) holdout. */
+     *  rows [0,selectEnd) are H_TRAIN+H_SELECT. R30-B03-03: rows at or after selectEnd (H_CONFIRM) are never read; the
+     *  second-stage check uses the H_SELECT part of the same prefix (trainEnd per SplitR27: 60/85 of the prefix). */
     public static Score score(int atom, double[][] values, boolean[][] present, int[] hit, int selectEnd) {
+        return score(atom, values, present, hit, (int) Math.round(selectEnd * (60.0 / 85.0)), selectEnd);
+    }
+    public static Score score(int atom, double[][] values, boolean[][] present, int[] hit, int trainEnd, int selectEnd) {
         Score s = new Score(atom); double[] counts = new double[10]; double tn = 0, th = 0;
-        for (int t = 0; t < values.length; t++) {
+        int end = Math.min(values.length, selectEnd);
+        for (int t = 0; t < end; t++) {
+            if (t >= selectEnd) throw new IllegalStateException("R30_ATOM_SCORE_READS_CONFIRM");
             if (values[t] == null) continue;
             if (!present[t][atom]) { s.missing++; continue; }
             double v = values[t][atom]; int bin = Math.min(4, Math.max(0, (int) (v * 5))), y = hit[t];
             double p = (counts[bin + 5] + 3) / (counts[bin] + 10), base = (th + 3) / (tn + 10);
             double gain = (base - y) * (base - y) - (p - y) * (p - y);
-            if (t < selectEnd) { s.select.add(gain); s.nSelect++; } else { s.holdout.add(gain); s.nHoldout++; }
+            s.select.add(gain); s.nSelect++;
+            if (t >= trainEnd) { s.lateSelect.add(gain); s.nLateSelect++; }
             counts[bin]++; counts[bin + 5] += y; tn++; th += y;
         }
-        double ls = s.select.lcb(StatsR27.Z95), us = s.select.ucb(StatsR27.Z95), lh = s.holdout.lcb(StatsR27.Z95);
-        s.state = s.missingRate() > 0.10 ? MASKED_MISSING : ls > 0 && lh > 0 ? USEFUL : us < 0 ? HARMFUL : NEUTRAL;
+        double ls = s.select.lcb(StatsR27.Z95), us = s.select.ucb(StatsR27.Z95), ll = s.lateSelect.lcb(StatsR27.Z95);
+        s.state = s.missingRate() > 0.10 ? MASKED_MISSING : ls > 0 && ll > 0 ? USEFUL : us < 0 ? HARMFUL : NEUTRAL;
         return s;
     }
 

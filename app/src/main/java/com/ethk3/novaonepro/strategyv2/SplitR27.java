@@ -6,6 +6,11 @@ package com.ethk3.novaonepro.strategyv2;
 public final class SplitR27 {
     public static final int BLOCK = 720;
     public static final String TRAIN = "H_TRAIN", SELECT = "H_SELECT", HOLDOUT = "H_HOLDOUT";
+    /** R30-B03-03: H_CONFIRM is the sealed H_HOLDOUT segment. All three ranges are a pure function of the dataset, so a
+     * dataset hash fixes them; each candidate may read H_CONFIRM once per dataset hash (HoldoutLedgerR27.confirm). */
+    public static final String CONFIRM = "H_CONFIRM";
+    /** Role of row t: H_TRAIN, H_SELECT, H_CONFIRM, or OPEN (withheld current block / live). */
+    public String role(int t) { return t < trainTo ? TRAIN : t < selectTo ? SELECT : t < holdoutTo && holdoutAvailable ? CONFIRM : "OPEN"; }
     public final int trainFrom, trainTo, selectFrom, selectTo, holdoutFrom, holdoutTo, openFrom;
     public final long holdoutBlock;
     public final boolean holdoutAvailable;

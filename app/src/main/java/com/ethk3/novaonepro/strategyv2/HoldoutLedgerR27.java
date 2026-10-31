@@ -47,4 +47,34 @@ public final class HoldoutLedgerR27 {
         return out;
     }
     public synchronized void restore(long block, String policyHash) { look(block, policyHash); }
+
+    // ---------------------------------------------------------------- R30-B03-03 confirm-once gate (M19)
+    /** One H_CONFIRM read: (policy_hash, dataset_hash, range, read_at). */
+    public static final class ConfirmRead {
+        public final String policyHash, datasetHash; public final long block; public final int from, to; public final long readAt;
+        ConfirmRead(String p, String d, long b, int f, int t, long at) { policyHash = p; datasetHash = d; block = b; from = f; to = t; readAt = at; }
+    }
+    public static final String CONFIRM_REUSED = "R30_CONFIRM_REUSED";
+    private final Map<String, ConfirmRead> confirmReads = new HashMap<>();
+    private final java.util.List<ConfirmRead> unsavedConfirmReads = new java.util.ArrayList<>();
+    private long confirmReuseRejected;
+    static String confirmKey(String policy, String dataset, long block) { return policy + "|" + dataset + "|" + block; }
+    /** The only gate to H_CONFIRM: records the read; a second read of the same candidate on the same dataset hash and
+     * block throws R30_CONFIRM_REUSED (and is counted for M19). */
+    public synchronized ConfirmRead confirm(String policyHash, String datasetHash, long block, int from, int to) {
+        String k = confirmKey(policyHash, datasetHash, block);
+        if (confirmReads.containsKey(k)) { confirmReuseRejected++; throw new IllegalStateException(CONFIRM_REUSED + ":" + policyHash + "@" + block); }
+        ConfirmRead r = new ConfirmRead(policyHash, datasetHash, block, from, to, System.currentTimeMillis());
+        confirmReads.put(k, r); unsavedConfirmReads.add(r); look(block, policyHash);
+        return r;
+    }
+    public synchronized boolean confirmed(String policyHash, String datasetHash, long block) { return confirmReads.containsKey(confirmKey(policyHash, datasetHash, block)); }
+    /** Restores a persisted read (process restart must not reopen H_CONFIRM). */
+    public synchronized void restoreConfirm(String policyHash, String datasetHash, long block, int from, int to, long readAt) {
+        confirmReads.put(confirmKey(policyHash, datasetHash, block), new ConfirmRead(policyHash, datasetHash, block, from, to, readAt));
+    }
+    /** Reads not yet persisted (caller writes them to r30_confirm_read in its own batch). */
+    public synchronized java.util.List<ConfirmRead> drainUnsavedConfirmReads() { java.util.List<ConfirmRead> out = new java.util.ArrayList<>(unsavedConfirmReads); unsavedConfirmReads.clear(); return out; }
+    public synchronized long confirmReuseRejected() { return confirmReuseRejected; }
+    public static final String CONFIRM_DDL = "CREATE TABLE IF NOT EXISTS r30_confirm_read(policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,block_id INTEGER NOT NULL,range_from INTEGER NOT NULL,range_to INTEGER NOT NULL,read_at INTEGER NOT NULL,PRIMARY KEY(policy_hash,dataset_hash,block_id))";
 }

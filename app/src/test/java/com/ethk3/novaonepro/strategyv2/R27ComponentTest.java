@@ -22,7 +22,7 @@ public final class R27ComponentTest {
         assertEquals(AtomScoreR27.USEFUL, useful.state);
         assertNotEquals(AtomScoreR27.USEFUL, noise.state);
         assertEquals(AtomScoreR27.MASKED_MISSING, missing.state);
-        assertEquals(selectEnd, useful.nSelect); assertEquals(n - selectEnd, useful.nHoldout);
+        assertEquals(selectEnd, useful.nSelect); assertEquals(0, useful.nHoldout); assertTrue(useful.nLateSelect > 0); // R30-B03-03: H_CONFIRM rows are never read
         // Prequential: the first row's gain cannot depend on any later label.
         int[] flipped = hit.clone(); for (int t = 1; t < n; t++) flipped[t] = 1 - flipped[t];
         assertEquals(AtomScoreR27.score(0, Arrays.copyOf(v, 1), Arrays.copyOf(present, 1), Arrays.copyOf(flipped, 1), 1).select.mean, AtomScoreR27.score(0, Arrays.copyOf(v, 1), Arrays.copyOf(present, 1), Arrays.copyOf(hit, 1), 1).select.mean, 0);
