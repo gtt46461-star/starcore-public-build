@@ -114,6 +114,8 @@ public final class LiveShadowsR27 {
                         s.id, target, targetIssue, s.spec.position, StoreR27.pack(p), n1, n2, n3, act, ok ? "FROZEN" : "SKIPPED_GAP", System.currentTimeMillis(), deadline);
                 if (ok) frozen++; acted += act;
             }
+            // R30-B02-04: predictions above are computed on this worker thread; the batch carries only INSERTs and the
+            // deadline checks, so the writer transaction stays a short freeze write.
             final long dl = deadline;
             b.before = db -> System.currentTimeMillis() < dl - FREEZE_MARGIN_MS ? 0 : -1; // R29: commit at least 5 s before the draw, else DEADLINE_MISSED
             b.after = b.before; // Recheck after all inserts: a large batch must roll back if it crosses the boundary.

@@ -387,6 +387,10 @@ public final class V51RuntimeOrchestrator {
                     snapshotMark,
                     true,
                     RuntimeMemoryGuardR811.snapshot("SNAPSHOT_STREAM_DONE").canonical());
+            // R30-B02-04 boundary: every model/feature/ranking computation and the snapshot encoding above finish
+            // before the canonical transaction; its body (V51Repository.commitCanonicalBundleVerifiedR368) only
+            // re-checks the target issue and writes the prepared rows plus timeline NEXT_PREPARED/NEXT_FROZEN.
+            // Do not call model/feature code inside it (construction/r30/B02_04_TX_AUDIT.md).
             RuntimeTraceR36.Mark commitMark = trace.begin("DB_CANONICAL_WAIT");
             V51Repository.CanonicalCommitResult commit =
                     V51Repository.commitCanonicalBundleR36(
