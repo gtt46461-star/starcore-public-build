@@ -1,0 +1,33 @@
+{
+  "run": 41244465429,
+  "job": 124664900762,
+  "source": "f707a3fc9e032507842fd1a9c2ed608dc1632cc1",
+  "actualUiStatus": "29 cards,16 with data,351ms read",
+  "actualOriginalLayout": {
+    "headline": 1,
+    "R27": 14,
+    "R30": 2,
+    "retainedR83": 12
+  },
+  "passedFaultCells": 10,
+  "passedFaultsBothVisibilities": [
+    "fetch_timeout",
+    "draw_conflict",
+    "kill_settlement",
+    "clock_rollback_actual_OS_and_restoration",
+    "service_stop_actual_system_force_stop_and_explicit_reopen"
+  ],
+  "failedFaultCells": [
+    {
+      "kind": "kill_freeze",
+      "foregroundSnapshotStreamOverDeadlineMs": 1021,
+      "backgroundSnapshotStreamOverDeadlineMs": 760
+    },
+    {
+      "kind": "sqlite_full",
+      "both": "real SQLITE_FULL not triggered"
+    }
+  ],
+  "originalDeadlineAndAllDataThresholds": "UNCHANGED",
+  "finalAcceptance": false
+}

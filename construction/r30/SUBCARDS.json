@@ -925,6 +925,17 @@
         "tools/r30/ci_build.sh"
       ],
       "reason": "实际聚焦图表41243499734/job124662056782显示0卡。原SourceReadLeaseR82明确要求数据库父目录databases、祖父目录为原APPLICATION_ID，R30测试隔离root末段却是随机scope，必被原untrusted source database path守卫拒绝。仅将测试root形状改为scope/APPLICATION_ID/databases，仍在原no_backup/r30-instrumentation隔离区，不碰产品源库、不改原读租约安全判定。真实文件/JDBC SQLite及原SourceReadLease字节码复现旧目录拒绝、新隔离目录共享/独占OS文件锁接受；接原CI。图表失败补实际status文本诊断方便保留原因。仅测试/工具，main不改。先登记后施工。"
+    },
+    {
+      "card": "R30-B10-04",
+      "id": "R30-B10-04-x",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java",
+        "tools/r30/qual_host/OriginalSqliteFullFixtureR30HostTest.java",
+        "tools/r30/ci_build.sh"
+      ],
+      "reason": "实际f707聚焦run41244465429/job124664900762一次收齐：真实OSclock/服务强停/结算SIGKILL/超时/冲突前后台10格PASS；freezeSIGKILL恢复2格在原deadline的SNAPSHOT_STREAM超760/1021ms，FULL2格未触发。图表已真实读出29元素：原状态1+R27十四图+R30二图+保留R83十二图。纠正先前16总数误判，严格保全29元素并截真正索引1..16共48张、额外旧12图存在；不删除或隐藏旧图。FULL在同一个原atomic writer TX内读主连接page_count/page_size、设max_page_count并验证回读，用大于整个当前数据库容量的真实zeroblob触发SQLite FULL，恢复原主连接limit。冻结恢复在等待原45秒durable lease失效期间先做原只读V51RuntimeInput.freeze和原启动BuildIdentity校验，不创建推断/REAL或窃取租约，claim后绑定同一不可变history hash；记录真实准备耗时，原60秒/mono截止及所有断言不改。真实SQLite双连接对照验证旧非主连接限制不约束主连接，钉定连接限制真实FULL及回滚。产品main/原阈值不改，实际Android结果仍待新矩阵，先登记后施工。"
     }
   ]
 }
