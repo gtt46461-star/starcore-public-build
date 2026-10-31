@@ -1,0 +1,26 @@
+From 0b411587b5e94bea1894e5a64720a81dce88cbf0 Mon Sep 17 00:00:00 2001
+From: R30 plan <r30@plan.local>
+Date: Sat, 31 Oct 2026 09:31:47 +0800
+Subject: [PATCH 1/4] R30-B00-03 fold back R29 RP and triggers
+
+---
+ .../com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+index 8d72bf1..194b324 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java
+@@ -68,6 +68,9 @@ public final class RuntimeCoordinatorR26 implements AutoCloseable {
+     public long cpuLeaseRenewals(){RuntimePowerLeaseR26 lease=powerLease;return lease==null?0:lease.renewals();}
+     public static void requireFence(SQLiteDatabase db,Claim claim){try(Cursor c=db.rawQuery("SELECT 1 FROM r26_task t JOIN r26_session s ON s.session_id=t.owner WHERE t.task_id=? AND t.owner=? AND t.fence=? AND t.status='RUNNING' AND t.lease_until>? AND s.user_enabled=1 AND s.state='RUNNING'",new String[]{claim.task,claim.owner,String.valueOf(claim.fence),String.valueOf(System.currentTimeMillis())})){if(!c.moveToFirst())throw new IllegalStateException("R26_STALE_FENCE_OR_LEASE_OR_SESSION");}}
+     private void initialize(){
++        // R30-B00-03: retire R29 CP07-CP16 Root triggers / independent RP before any worker starts (idempotent, no-op on CP06 data).
++        try{String foldR30=R29FoldBackR30.run(store);if(!"NONE".equals(foldR30))android.util.Log.i("STARCORE_R30","R29 fold-back "+foldR30);}
++        catch(Exception foldFailedR30){android.util.Log.e("STARCORE_R30","R29 fold-back incomplete; route kept for next start",foldFailedR30);store.setState("r30_foldback_error",String.valueOf(foldFailedR30));}
+         try{LegacyTeacherOwnerR26.register(store.contextForR26());}catch(RuntimeException blocked){android.util.Log.w("STARCORE_R26","original teacher blocked",blocked);store.setState("r26_teacher_blocked",blocked.toString());}
+         store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("R26_RUNTIME_SCHEMA",db->{RuntimeSchemaR26.ensure(db);SchemaR27.ensure(db);
+             // R27.1: tasks quarantined only by the fixed continuation-quantum bug get their normal retry back.
+-- 
+2.43.0
+

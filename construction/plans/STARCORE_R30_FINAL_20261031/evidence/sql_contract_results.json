@@ -1,0 +1,101 @@
+{
+ "sqlite_version": "3.53.1",
+ "results": [
+  {
+   "test": "T01_first_writer_wins",
+   "pass": true,
+   "detail": "('boot-a', 1000, 10, None, 60000)"
+  },
+  {
+   "test": "T01_all_stage_sql_valid",
+   "pass": true,
+   "detail": "9"
+  },
+  {
+   "test": "T02_report_top",
+   "pass": true,
+   "detail": "[('R27_LIVE_SETTLE', 11, 351, 500, 3, 2)]"
+  },
+  {
+   "test": "T02_report_critical",
+   "pass": true,
+   "detail": "[('R914_DRAW_SAVE_ATOMIC', 10, 50, 80, 5)]"
+  },
+  {
+   "test": "T02_null_percentile_kept",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T02_prune",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T03_frozen_blocks_all",
+   "pass": true,
+   "detail": "['R30_RESEARCH_TABLE_FROZEN:r27_demo', 'R30_RESEARCH_TABLE_FROZEN:r27_demo', 'R30_RESEARCH_TABLE_FROZEN:r27_demo']"
+  },
+  {
+   "test": "T03_published_state_keeps_root_readonly",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T03_unfreeze_restores",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T05_r29_guard_breaks_cp06_writes",
+   "pass": true,
+   "detail": "R29_CRITICAL_INPUT_GUARD"
+  },
+  {
+   "test": "T04_escape_excludes_lookalike",
+   "pass": true,
+   "detail": "['r29_copy_track_r26_task_insert', 'r29_critical_input_write_guard_r26_task', 'r29_legacy_model_no_update']"
+  },
+  {
+   "test": "T04_drop_set",
+   "pass": true,
+   "detail": "['r29_copy_track_r26_task_insert', 'r29_critical_input_write_guard_r26_task']"
+  },
+  {
+   "test": "T04_after_drop_cp06_write_ok",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T06_rowid_copy_count",
+   "pass": true,
+   "detail": "1233"
+  },
+  {
+   "test": "T06_rerun_idempotent",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T06_missing_column_reported",
+   "pass": true,
+   "detail": "['extra']"
+  },
+  {
+   "test": "T06_replace_overwrites_stale_row",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T06_without_rowid_pk_paging",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "T06_content_hash_equal",
+   "pass": true,
+   "detail": ""
+  }
+ ],
+ "pass": true
+}

@@ -1,0 +1,37 @@
+From 39f8d05feae6d4253cc539405ee80a1292ee1224 Mon Sep 17 00:00:00 2001
+From: R30 plan <r30@plan.local>
+Date: Sat, 31 Oct 2026 09:31:47 +0800
+Subject: [PATCH 3/4] R30-B01-02 persist writer hold ledger
+
+---
+ .../java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java    | 1 +
+ app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java
+index 54b5c24..be3b974 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java
+@@ -181,6 +181,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
+             });
+         } catch (RuntimeException busy) { android.util.Log.w("STARCORE_R27", "cpu receipt deferred", busy); }
+         writes.flush();
++        HoldLedgerFlushR30.maybeFlush(store); // R30-B01-02
+     }
+ 
+     static String stack(Throwable t) { StringWriter s = new StringWriter(); t.printStackTrace(new PrintWriter(s)); String v = s.toString(); return v.length() > 16000 ? v.substring(0, 16000) : v; }
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
+index f410a27..cfb344d 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
+@@ -73,6 +73,7 @@ public final class SchemaR27 {
+     public static void ensure(SQLiteDatabase db) {
+         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
+         for (String sql : DDL) db.execSQL(sql);
++        db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
+         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
+         if (tableExists(db, "r26_task")) {
+             long now = System.currentTimeMillis();
+-- 
+2.43.0
+

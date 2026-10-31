@@ -1,0 +1,301 @@
+plugins { id 'com.android.application' }
+
+def releaseManifestFile = rootProject.file('release/release_manifest.json')
+def releaseIdentityFile = rootProject.file('release/release_identity.properties')
+if (!releaseManifestFile.isFile()) throw new GradleException('R926_RELEASE_MANIFEST_MISSING')
+if (!releaseIdentityFile.isFile()) throw new GradleException('R926_RELEASE_IDENTITY_MISSING')
+
+def releaseManifest = new groovy.json.JsonSlurper().parse(releaseManifestFile)
+def releaseIdentity = new Properties()
+releaseIdentityFile.withInputStream { releaseIdentity.load(it) }
+def schemaManifest = releaseManifest.schema
+
+def manifestSha256 = java.security.MessageDigest.getInstance('SHA-256')
+        .digest(releaseManifestFile.bytes).collect { String.format('%02x', it) }.join('')
+def expectedIdentity = [
+        applicationId: String.valueOf(releaseManifest.applicationId),
+        versionName: String.valueOf(releaseManifest.versionName),
+        versionCode: String.valueOf(releaseManifest.versionCode),
+        compileSdk: String.valueOf(releaseManifest.compileSdk),
+        minSdk: String.valueOf(releaseManifest.minSdk),
+        targetSdk: String.valueOf(releaseManifest.targetSdk),
+        dbVersion: String.valueOf(schemaManifest.userVersion),
+        schemaRevision: String.valueOf(schemaManifest.legacyR906Revision),
+        legacyR811Revision: String.valueOf(schemaManifest.legacyR811Revision),
+        legacyR815Revision: String.valueOf(schemaManifest.legacyR815Revision),
+        legacyR906Revision: String.valueOf(schemaManifest.legacyR906Revision),
+        r925Revision: String.valueOf(schemaManifest.r925Revision),
+        criticalDomainRevision: String.valueOf(schemaManifest.criticalDomainRevision),
+        researchDomainRevision: String.valueOf(schemaManifest.researchDomainRevision),
+        legacyDomainRevision: String.valueOf(schemaManifest.legacyDomainRevision),
+        eventLedgerRevision: String.valueOf(schemaManifest.eventLedgerRevision),
+        databaseName: String.valueOf(releaseManifest.databaseName),
+        gameCode: String.valueOf(releaseManifest.gameCode),
+        releaseMode: String.valueOf(releaseManifest.releaseMode),
+        releaseManifestSha256: manifestSha256
+]
+expectedIdentity.each { key, expected ->
+    def actual = releaseIdentity.getProperty(key, '').trim()
+    if (actual != expected) throw new GradleException('R926_IDENTITY_DRIFT_' + key + '|expected=' + expected + '|actual=' + actual)
+}
+def requiredIdentity = { String key ->
+    def value = expectedIdentity[key]
+    if (value == null || String.valueOf(value).trim().isEmpty()) throw new GradleException('R926_IDENTITY_MISSING_' + key)
+    String.valueOf(value)
+}
+// R995 restores the user's authorized legacy release default. Keep its value in
+// the local build environment; never write it into tracked source or build logs.
+def releaseApiKey = (System.getenv('DUOQU_API_KEY') ?: '').trim()
+if (!releaseApiKey.isEmpty() && !(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
+    throw new GradleException('R995_RELEASE_DEFAULT_API_KEY_INVALID')
+}
+def requestedRelease = gradle.startParameter.taskNames.any {
+    it.tokenize(':').last() ==~ /(?:assemble|bundle|package)Release(?:Bundle)?/
+}
+if (requestedRelease && !(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
+    throw new GradleException('R995_RELEASE_DEFAULT_API_KEY_REQUIRED')
+}
+def releaseApiKeySplit = releaseApiKey.length().intdiv(2)
+def releaseApiKeyA = releaseApiKey.substring(0, releaseApiKeySplit)
+def releaseApiKeyB = releaseApiKey.substring(releaseApiKeySplit)
+android {
+    namespace 'com.ethk3.novaonepro'
+    buildToolsVersion '36.0.0'
+    compileSdk Integer.parseInt(requiredIdentity('compileSdk'))
+    ndkVersion "28.2.13676358"
+    externalNativeBuild { cmake { path file("src/main/cpp/CMakeLists.txt"); version "3.22.1" } }
+    defaultConfig {
+        applicationId requiredIdentity('applicationId')
+        minSdk Integer.parseInt(requiredIdentity('minSdk'))
+        ndk { abiFilters "arm64-v8a", "armeabi-v7a", "x86_64" }
+        targetSdk Integer.parseInt(requiredIdentity('targetSdk'))
+        versionCode Integer.parseInt(requiredIdentity('versionCode'))
+        versionName requiredIdentity('versionName')
+        testInstrumentationRunner 'com.ethk3.novaonepro.strategyv2.Su1AndroidTestRunner'
+        vectorDrawables.useSupportLibrary = false
+        buildConfigField 'String', 'DUOQU_API_KEY_A', '"' + releaseApiKeyA + '"'
+        buildConfigField 'String', 'DUOQU_API_KEY_B', '"' + releaseApiKeyB + '"'
+        buildConfigField 'String', 'RELEASE_MANIFEST_SHA256', '"' + manifestSha256 + '"'
+        def sourceCommitR26 = providers.exec { commandLine "git", "rev-parse", "HEAD" }.standardOutput.asText.get().trim()
+        if (!(sourceCommitR26 ==~ /[0-9a-f]{40}/)) throw new GradleException("R26_SOURCE_COMMIT_UNAVAILABLE")
+        buildConfigField 'String', 'SOURCE_COMMIT_R26', '"' + sourceCommitR26 + '"'
+        buildConfigField 'int', 'DB_USER_VERSION', requiredIdentity('dbVersion')
+        buildConfigField 'int', 'LEGACY_R906_SCHEMA_REVISION', requiredIdentity('legacyR906Revision')
+        buildConfigField 'String', 'R925_SCHEMA_REVISION', '"' + requiredIdentity('r925Revision') + '"'
+        buildConfigField 'int', 'CRITICAL_DOMAIN_REVISION', requiredIdentity('criticalDomainRevision')
+        buildConfigField 'int', 'RESEARCH_DOMAIN_REVISION', requiredIdentity('researchDomainRevision')
+        buildConfigField 'int', 'LEGACY_DOMAIN_REVISION', requiredIdentity('legacyDomainRevision')
+        buildConfigField 'int', 'EVENT_LEDGER_REVISION', requiredIdentity('eventLedgerRevision')
+        setProperty('archivesBaseName', 'Starcore-Tianshu-' + requiredIdentity('versionName'))
+    }
+    buildFeatures { buildConfig true }
+    androidResources { noCompress += ["jsonl"] }
+    buildTypes {
+        debug { minifyEnabled false }
+        release { minifyEnabled false; shrinkResources false; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' }
+    }
+    def r13SigningFile = System.getenv('R13_SIGNING_P12')
+    if (r13SigningFile) {
+        signingConfigs {
+            r13Independent {
+                storeFile rootProject.file(r13SigningFile)
+                storeType 'PKCS12'
+                storePassword System.getenv('R13_SIGNING_PASSWORD')
+                keyAlias 'starcore-r13'
+                keyPassword System.getenv('R13_SIGNING_PASSWORD')
+            }
+        }
+        buildTypes.debug.signingConfig signingConfigs.r13Independent
+        buildTypes.release.signingConfig signingConfigs.r13Independent
+    }
+    if (requiredIdentity('applicationId') == 'com.starcore.research.r13' &&
+        gradle.startParameter.taskNames.any { it.tokenize(':').last() ==~ /(?:assemble|package)Debug(?:AndroidTest)?/ } && !r13SigningFile) {
+        throw new GradleException('R13_FIXED_SIGNING_KEY_REQUIRED')
+    }
+    // Packaging requires the existing signing identity. Lint/unit tasks need no secrets.
+    def signingFile = System.getenv('STARCORE_SIGNING_P12')
+    if (signingFile && requiredIdentity('applicationId') != 'com.starcore.research.r13') {
+        signingConfigs {
+            originalRelease {
+                storeFile rootProject.file(signingFile)
+                storeType System.getenv('STARCORE_SIGNING_TYPE') ?: 'PKCS12'
+                storePassword System.getenv('STARCORE_SIGNING_PASSWORD')
+                keyAlias System.getenv('STARCORE_SIGNING_ALIAS') ?: 'starcore-r902'
+                keyPassword System.getenv('STARCORE_SIGNING_KEY_PASSWORD') ?: System.getenv('STARCORE_SIGNING_PASSWORD')
+            }
+        }
+        buildTypes.release.signingConfig signingConfigs.originalRelease
+    }
+    compileOptions { coreLibraryDesugaringEnabled true; sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    testOptions { unitTests.returnDefaultValues = true }
+    lint { baseline file("lint-baseline.xml"); abortOnError true; checkReleaseBuilds true; warningsAsErrors true }
+}
+java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+
+gradle.taskGraph.whenReady { graph ->
+    if (graph.allTasks.any { it.project == project && it.name ==~ /(?:assemble|bundle|package)Release(?:Bundle)?/ }) {
+        if (!(releaseApiKey ==~ /[A-Za-z0-9]{8,128}/)) {
+            throw new GradleException('R995_RELEASE_DEFAULT_API_KEY_REQUIRED')
+        }
+        def independentR13 = requiredIdentity('applicationId') == 'com.starcore.research.r13'
+        def config = android.signingConfigs.findByName(independentR13 ? 'r13Independent' : 'originalRelease')
+        def expectedCert = (System.getenv(independentR13 ? 'R13_EXPECTED_CERT_SHA256' : 'STARCORE_EXPECTED_CERT_SHA256') ?: '').toLowerCase()
+        if (config == null || !config.storeFile.isFile() || !config.storePassword || !config.keyPassword
+                || !(expectedCert ==~ /[0-9a-f]{64}/)) {
+            throw new GradleException('CP12_ORIGINAL_RELEASE_SIGNING_INPUTS_REQUIRED')
+        }
+        try {
+            def store = java.security.KeyStore.getInstance(config.storeType)
+            config.storeFile.withInputStream { store.load(it, config.storePassword.toCharArray()) }
+            if (!store.isKeyEntry(config.keyAlias)
+                    || !(store.getKey(config.keyAlias, config.keyPassword.toCharArray()) instanceof java.security.PrivateKey)) {
+                throw new GradleException('CP12_ORIGINAL_RELEASE_PRIVATE_KEY_REQUIRED')
+            }
+            def actualCert = java.security.MessageDigest.getInstance('SHA-256')
+                    .digest(store.getCertificate(config.keyAlias).encoded)
+                    .collect { String.format('%02x', it) }.join('')
+            if (actualCert != expectedCert) throw new GradleException('CP12_ORIGINAL_RELEASE_CERTIFICATE_MISMATCH')
+        } catch (GradleException problem) {
+            throw problem
+        } catch (Exception ignored) {
+            throw new GradleException('CP12_ORIGINAL_RELEASE_KEY_UNREADABLE')
+        }
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+}
+
+// The ART parity test calls the same checked-in harness as the host test. Keep
+// this helper in the test APK only; a plain assembleDebugAndroidTest must work
+// without a caller manually copying Java into the source tree.
+def prepareRawUpstreamAndroidTestHarness = tasks.register('prepareRawUpstreamAndroidTestHarness', Copy) {
+    from rootProject.file('verification/r932/RawUpstreamHarnessR932.java')
+    into layout.buildDirectory.dir('generated/source/androidTestParity/com/ethk3/novaonepro')
+}
+android.sourceSets.androidTest.java.srcDir(layout.buildDirectory.dir('generated/source/androidTestParity'))
+tasks.matching { it.name == 'compileDebugAndroidTestJavaWithJavac' || it.name == 'compileReleaseAndroidTestJavaWithJavac' }.configureEach {
+    dependsOn prepareRawUpstreamAndroidTestHarness
+}
+
+// Build identity of the exact two catalogs consumed by the runtime importers.
+def verifyCatalogAssetsCP12 = tasks.register('verifyCatalogAssetsCP12', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/verify_catalog_assets_cp12.py').absolutePath, '--check'
+    outputs.upToDateWhen { false }
+}
+
+// R967 explicit numerical dependencies/policy. Outputs live only under build/generated.
+def generateR967Semantics = tasks.register('generateR967Semantics', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/r967_semantic_identity.py').absolutePath
+    // Always validate the closed manifest, including newly introduced paths.
+    outputs.upToDateWhen { false }
+}
+android.sourceSets.main.java.srcDir(layout.buildDirectory.dir('generated/source/r967'))
+// Validate the generated identity independently before consumers compile it.
+def verifyR967Semantics = tasks.register('verifyR967Semantics', Exec) {
+    dependsOn generateR967Semantics
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/r967_semantic_identity.py').absolutePath, '--check'
+    outputs.upToDateWhen { false }
+}
+// Run the original eight mutation cases through the real semantic generator.
+def testR967Semantics = tasks.register('testR967Semantics', Exec) {
+    dependsOn verifyR967Semantics
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/r967_semantic_identity.py').absolutePath, '--self-test'
+    outputs.upToDateWhen { false }
+}
+// Assembly must fail if a consumer or concurrent writer changed a generated value.
+def verifyFinalR967Semantics = tasks.register('verifyFinalR967Semantics', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/r967_semantic_identity.py').absolutePath, '--check'
+    outputs.upToDateWhen { false }
+}
+// Generated values belong to this build, rather than yesterday's tracked literals.
+// The same exact input check runs before Java compilation and after assembly.
+def provenanceHost = System.getProperty('os.name').toLowerCase()
+def provenanceHostTag = provenanceHost.contains('windows') ? 'windows-x86_64' :
+        (provenanceHost.contains('mac') ? 'darwin-x86_64' : 'linux-x86_64')
+def provenanceExe = provenanceHost.contains('windows') ? '.exe' : ''
+def provenanceSdk = android.sdkDirectory
+def provenanceTools = [
+        'jdk-modules': new File(System.getProperty('java.home'), 'lib/modules'),
+        'android-platform': new File(provenanceSdk, 'platforms/android-' + requiredIdentity('compileSdk') + '/android.jar'),
+        'd8': new File(provenanceSdk, 'build-tools/36.0.0/lib/d8.jar'),
+        'aapt2': new File(provenanceSdk, 'build-tools/36.0.0/aapt2' + provenanceExe),
+        'ndk-version': new File(provenanceSdk, 'ndk/28.2.13676358/source.properties'),
+        'clang': new File(provenanceSdk, 'ndk/28.2.13676358/toolchains/llvm/prebuilt/' + provenanceHostTag + '/bin/clang' + provenanceExe),
+        'cmake': new File(provenanceSdk, 'cmake/3.22.1/bin/cmake' + provenanceExe),
+        'gradle-wrapper': rootProject.file('gradle/wrapper/gradle-wrapper.jar')
+]
+def provenanceArguments = ['python3', rootProject.file('scripts/r815_generate_provenance.py').absolutePath]
+provenanceTools.each { name, path -> provenanceArguments.addAll(['--toolchain-file', name + '=' + path.absolutePath]) }
+def generateR815Provenance = tasks.register('generateR815Provenance', Exec) {
+    dependsOn verifyR967Semantics
+    workingDir rootProject.projectDir
+    commandLine provenanceArguments
+    outputs.upToDateWhen { false }
+}
+def verifyR815Provenance = tasks.register('verifyR815Provenance', Exec) {
+    dependsOn generateR815Provenance
+    workingDir rootProject.projectDir
+    commandLine provenanceArguments + ['--check']
+    outputs.upToDateWhen { false }
+}
+def verifyFinalR815Provenance = tasks.register('verifyFinalR815Provenance', Exec) {
+    workingDir rootProject.projectDir
+    commandLine provenanceArguments + ['--check']
+    outputs.upToDateWhen { false }
+}
+android.sourceSets.main.java.srcDir(layout.buildDirectory.dir('generated/source/r815'))
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r815'))
+tasks.named('preBuild').configure { dependsOn verifyR815Provenance }
+tasks.withType(JavaCompile).configureEach { dependsOn verifyR815Provenance }
+tasks.configureEach { task ->
+    if (task.name.startsWith('assemble') || task.name.startsWith('bundle')) {
+        task.finalizedBy verifyFinalR815Provenance, verifyFinalR967Semantics
+    }
+}
+// Lossless source-call evidence is materialized from a pinned archive, then checked against
+// every actual product source hash. It is included in the same APK assets as the report reads.
+def generateR982SourceCallAsset = tasks.register('generateR982SourceCallAsset', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/r982_source_call_asset.py').absolutePath
+    outputs.upToDateWhen { false }
+}
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r982'))
+tasks.named('preBuild').configure { dependsOn generateR982SourceCallAsset }
+def generateR997ConstructionAssets = tasks.register('generateR997ConstructionAssets', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/r997_construction_assets.py').absolutePath
+    outputs.upToDateWhen { false }
+}
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r997'))
+tasks.named('preBuild').configure { dependsOn generateR997ConstructionAssets }
+tasks.named('preBuild').configure { dependsOn verifyR967Semantics, verifyCatalogAssetsCP12 }
+def verifyPlan1025Schema = tasks.register('verifyPlan1025Schema', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('scripts/generate_strategy_su2_schema.py').absolutePath, '--check'
+    outputs.upToDateWhen { false }
+}
+tasks.named('preBuild').configure { dependsOn verifyPlan1025Schema }
+// R27-054: build identity, card registry, source audit and merge status as report assets (generated outputs only).
+def generateR27BuildIdentity = tasks.register('generateR27BuildIdentity', Exec) {
+    workingDir rootProject.projectDir
+    commandLine 'python3', rootProject.file('tools/r27/build_identity.py').absolutePath, layout.buildDirectory.dir('generated/assets/r27b').get().asFile.absolutePath
+    outputs.upToDateWhen { false }
+}
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/assets/r27b'))
+tasks.named('preBuild').configure { dependsOn generateR27BuildIdentity }
+tasks.withType(JavaCompile).configureEach { dependsOn verifyR967Semantics }
+
+// Canonical acceptance has no dependency on a connected physical device.
+tasks.register('verifyCanonicalPlanBuildCP3') {
+    dependsOn testR967Semantics, 'testDebugUnitTest', 'lintRelease'
+}

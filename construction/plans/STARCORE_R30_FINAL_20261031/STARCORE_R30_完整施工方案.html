@@ -1,0 +1,4353 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STARCORE R30 施工方案</title><style>:root{--bg:#fbfaf7;--fg:#1f2328;--mut:#646a73;--line:#e3e0d8;--code:#f2efe8;--acc:#9a3412}
+@media (prefers-color-scheme:dark){:root{--bg:#16181c;--fg:#e6e6e6;--mut:#9aa0a6;--line:#30343b;--code:#1f2228;--acc:#fb923c}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 -apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif}
+main{max-width:1040px;margin:0 auto;padding:16px}nav{border:1px solid var(--line);padding:8px 16px;margin:12px 0 24px}
+nav ol{margin:0;padding-left:20px}a{color:var(--acc)}h1{font-size:1.6em;border-bottom:2px solid var(--line);padding-bottom:6px}
+h3{margin-top:2em;padding-top:8px;border-top:1px dashed var(--line)}section{margin-bottom:48px}
+.src{color:var(--mut);font-size:12px}table{border-collapse:collapse;display:block;overflow-x:auto;margin:8px 0}
+th,td{border:1px solid var(--line);padding:4px 8px;vertical-align:top}th{background:var(--code)}
+code{background:var(--code);padding:1px 4px;border-radius:3px;font-size:.92em;word-break:break-all}pre{background:var(--code);padding:10px;overflow-x:auto}pre code{padding:0;word-break:normal}</style></head><body><main><h1>STARCORE R30 最终施工方案（完整可读版）</h1>
+<nav><strong>目录</strong><ol><li><a href="#s0">STARCORE R30 最终施工方案 · 2026-10-31</a></li><li><a href="#s1">施工方必读（直接照做，不需要另写方案）</a></li><li><a href="#s2">00 R29 为何无法施工，R30 怎么改</a></li><li><a href="#s3">01 基线、分支、签名与版本号</a></li><li><a href="#s4">02 施工规则：顺序、文件所有权、门禁、状态</a></li><li><a href="#s5">B00 基线切换与施工护栏</a></li><li><a href="#s6">B01 写者与事务治理（并发集中批）</a></li><li><a href="#s7">B02 实时链：抓取→结算→下一期冻结</a></li><li><a href="#s8">B03 历史训练与时点正确性（PIT）</a></li><li><a href="#s9">B04 完整策略与结构创造</a></li><li><a href="#s10">B05 进化、对照与神经训练</a></li><li><a href="#s11">B06 原子、矩阵与校准</a></li><li><a href="#s12">B07 资格与主链</a></li><li><a href="#s13">B08 报告与存储</a></li><li><a href="#s14">B09 图表、故障注入与性能</a></li><li><a href="#s15">B10 真机长测、自然质量与交付</a></li><li><a href="#s16">B11【条件批次】R27研究表独立库</a></li><li><a href="#s17">90 44项指标：测量来源、环境与负责卡</a></li><li><a href="#s18">91 R29 52卡 → R30 57卡 映射</a></li></ol></nav><section id="s0"><div class="src">README.md</div><h1>STARCORE R30 最终施工方案 · 2026-10-31</h1>
+<p><strong>12 批次（B00—B10 + 条件批次 B11）、57 张施工卡、44 项指标不变。基线 = 已验收的 CP06 <code>bb607cf</code>。</strong></p>
+<p>R29 方案在 B01 卡死了 10 个检查点（CP07→CP16 都未签收），原因不在施工方：方案要求把 378 张表“边写边在线复制再切换”，却没定写者清单、停写方式和代码，而 bb607cf 里有 106 个文件、1890 处直接写研究表。R30 把方案该定的东西全部定死：</p>
+<table>
+<thead>
+<tr>
+<th>R29 留给施工方现场想的</th>
+<th>R30 已经定好</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>怎么拆库、迁哪些表、写者怎么停</td>
+<td><strong>B01 不拆库</strong>：给唯一写锁记账→把持锁 &gt;50ms 的后台事务切片；第一个长事务已找到并给出整段替换代码（结算汇总每次重算全部历史，实测 49.9ms→0.15ms）</td>
+</tr>
+<tr>
+<td>独立研究库何时做</td>
+<td>降为<strong>条件批次 B11</strong>：三项真机数据条件同时满足才开工；只迁 r27_* 32 张表、13 个文件 66 处写点（附表逐行列出），停机式离线复制，冻结触发器让漏网写者第一次写就报表名</td>
+</tr>
+<tr>
+<td>手机上已装过 R29 CP07+ 包怎么办</td>
+<td><strong>B00-03 R29FoldBackR30</strong>：启动时删除会让 CP06 写入直接失败的 R29 guard 触发器、把 R29 独立库数据回收进主库（已用 SQL 合同复现并验证）</td>
+</tr>
+<tr>
+<td>一张卡改哪些文件</td>
+<td>每张卡“独占文件”表 + 方法定位（来自 bb607cf 方法索引）；同批次一个文件只归一张卡；提交后 <code>ownership_check.py</code> 机器检查</td>
+</tr>
+<tr>
+<td>关键代码</td>
+<td><code>code/</code> 下 18 个新类 + 4 个按卡拆分的补丁 + 12 个测试文件（每卡一个）+ 1 个设备测试，已对 bb607cf 真实源码编译并测试</td>
+</tr>
+<tr>
+<td>时延门槛在哪测</td>
+<td>每项指标给出测量表、方法和环境；时延只以真机 <code>r30_issue_timeline</code> / <code>r30_writer_hold</code> 判定，CI 模拟器只记录</td>
+</tr>
+</tbody>
+</table>
+<h2>先读这四份</h2>
+<ol>
+<li><a href="docs/00_R29为何无法施工与R30裁决.md">docs/00 R29为何无法施工与R30裁决</a></li>
+<li><a href="docs/02_施工规则_文件所有权与门禁.md">docs/02 施工规则：顺序、文件所有权、门禁、状态</a></li>
+<li><a href="docs/01_基线分支签名与版本号.md">docs/01 基线、分支、签名、版本号</a></li>
+<li><a href="START_HERE_施工方必读.md">START_HERE_施工方必读.md</a>（直接交给施工方/Codex 的逐步指令）</li>
+</ol>
+<h2>批次</h2>
+<table>
+<thead>
+<tr>
+<th>批次</th>
+<th>名称</th>
+<th>卡</th>
+<th>versionCode</th>
+<th>出口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B00</td>
+<td>基线切换与施工护栏</td>
+<td>5</td>
+<td>577310001</td>
+<td>CP06/CP16 旧数据上覆盖安装都能启动；R29 遗留回收</td>
+</tr>
+<tr>
+<td>B01</td>
+<td>写者与事务治理（并发集中批）</td>
+<td>7</td>
+<td>577310011</td>
+<td>后台持锁 &gt;200ms 为 0；关键写等待 P95≤200ms（真机）</td>
+</tr>
+<tr>
+<td>B02</td>
+<td>实时链：抓取→结算→下一期冻结</td>
+<td>5</td>
+<td>577310021</td>
+<td>抓到→结算 P95≤1s；请求→冻结 P95≤5s；赛前≥5s 覆盖≥99.5%（真机）</td>
+</tr>
+<tr>
+<td>B03</td>
+<td>历史训练与时点正确性</td>
+<td>6</td>
+<td>577310031</td>
+<td>PIT 违规=0；续训一致</td>
+</tr>
+<tr>
+<td>B04</td>
+<td>完整策略与结构创造</td>
+<td>7</td>
+<td>577310041</td>
+<td>空壳出生=0；I14—I20 新族有出生</td>
+</tr>
+<tr>
+<td>B05</td>
+<td>进化、对照与神经训练</td>
+<td>5</td>
+<td>577310051</td>
+<td>空信号误授证在预算内；神经模型消费可追溯</td>
+</tr>
+<tr>
+<td>B06</td>
+<td>原子、矩阵与校准</td>
+<td>4</td>
+<td>577310061</td>
+<td>校准时间隔离；等质量 ECE 并列出数</td>
+</tr>
+<tr>
+<td>B07</td>
+<td>资格与主链</td>
+<td>4</td>
+<td>577310071</td>
+<td>合法正对照贯通、非法全拦；“有证书没出手”逐期原因</td>
+</tr>
+<tr>
+<td>B08</td>
+<td>报告与存储</td>
+<td>5</td>
+<td>577310081</td>
+<td>同快照出数、取消≤2s、存储不超预算</td>
+</tr>
+<tr>
+<td>B09</td>
+<td>图表、故障注入与性能</td>
+<td>3</td>
+<td>577310091</td>
+<td>故障注入 14 格全过</td>
+</tr>
+<tr>
+<td>B10</td>
+<td>真机长测、自然质量与交付</td>
+<td>4</td>
+<td>577310101</td>
+<td>真机三场景；质量如实出数</td>
+</tr>
+<tr>
+<td>B11</td>
+<td>【条件】R27 研究表独立库</td>
+<td>2</td>
+<td>577310111</td>
+<td>条件不满足即 NOT_REQUIRED</td>
+</tr>
+</tbody>
+</table>
+<p>每批文档：<code>docs/B00_…md</code> 到 <code>docs/B11_…md</code>（批次说明 + 全部卡片）。机器清单：<code>registries/cards.json</code>、<code>batches.json</code>、<code>file_ownership.json</code>、<code>metrics_r30.json</code>、<code>r29_to_r30_crosswalk.json</code>。</p>
+<h2>本包已实际验证的（可复现：<code>bash tools/run_host_verification.sh &lt;bb607cf检出&gt;</code>）</h2>
+<ul>
+<li>12 个纯 Java 新类与 12 个测试文件对 bb607cf 真实源码编译；<strong>HOST 测试 31/31 通过</strong>（含 8 线程并发计数、切片中途失败回滚续做不重复、16 线程单飞、I14 新族 500 次出生全部通过完整策略合同、对现有 <code>SequentialQualificationR27</code> 的空信号/功效模拟）。</li>
+<li>6 个 Android 侧新类用 Android API 桩编译通过（所用 API 签名已对照 bb607cf）。</li>
+<li><strong>SQL 合同 19/19 通过</strong>：执行的是从 Java 类导出的原字符串（时间线先写者赢、账本落库与报告查询、冻结触发器、R29 回收触发器筛选、R29 guard 让 CP06 写入失败的复现、整表复制与内容哈希）。</li>
+<li>4 个补丁在干净的 bb607cf 上按序 <code>git am</code> 全部成功。</li>
+<li><strong>逐卡累积编译 12/12</strong>：按卡序只放入“到该卡为止已加入的类”，每张卡的测试都能编译——施工到任何一张卡中途都不会因为引用后面卡的类而编译失败。</li>
+<li>方案自检 8/8：R29 52 卡全部映射、44 指标全覆盖、文件独占、MODIFY 目标都存在于 bb607cf、代码引用都在包内、依赖只向前、基线快照 81 个文件哈希一致。</li>
+</ul>
+<h2>本包没有做、也不能宣称的</h2>
+<ul>
+<li>没有改应用分支、没有构建 APK、没有在模拟器或真机上运行（这台环境没有 Android SDK）。所有设备指标当前为 NOT_RUN。</li>
+<li>≥34% 命中、约 15% 出手频率是<strong>待验证目标</strong>，不是承诺；R27/R29 回放与报告至今未显示超过基线的预测优势。证书门、全局 α 预算、单笔 REAL、默认 REAL 关闭、禁止追期/加倍/补配额全部保持不变，R30 不为任何策略族开绿灯。</li>
+</ul>
+<h2>包内容与大小</h2>
+<p><code>docs/</code>（17 份）· <code>code/main</code>（18 个类）· <code>code/test</code>（12 个测试类，每卡一个）· <code>code/androidTest</code>（1 个）· <code>code/patches</code>（4 个）· <code>tools/</code>（验证与护栏工具）· <code>registries/</code>（卡、批次、所有权、指标、映射、方法索引、表写点清单）· <code>baseline/bb607cf/</code>（81 个文件的基线原字节）· <code>evidence/</code>（全部验证日志）· <code>STARCORE_R30_完整施工方案.html</code>（单文件可读版）。大小见 MANIFEST.json。</p></section><section id="s1"><div class="src">START_HERE_施工方必读.md</div><h1>施工方必读（直接照做，不需要另写方案）</h1>
+<p>你负责执行 STARCORE R30。仓库 <code>gtt46461-star/starcore-public-build</code>。方案目录 <code>construction/plans/STARCORE_R30_FINAL_20261031/</code>（下称 <code>$PLAN</code>）。</p>
+<h2>0. 开工前（一次）</h2>
+<pre><code class="language-bash">PLAN=construction/plans/STARCORE_R30_FINAL_20261031
+git fetch origin
+git switch -c construction/r30-20261031 bb607cf5ab69f7286f859e43f87ada85a5bc456d
+git checkout origin/main -- construction/plans/STARCORE_R30_FINAL_20261031     # 把方案带进施工分支（只读）
+python3 $PLAN/tools/validate_plan.py                                            # 8/8 PASS 才继续
+</code></pre>
+<p>注意：<strong>不要</strong>从 <code>construction/r29-20261029</code>（9ff38ff）开工，也不要合并它的任何提交。</p>
+<h2>1. 每张卡怎么做</h2>
+<ol>
+<li>打开 <code>$PLAN/docs/Bxx_*.md</code>，找到本卡（编号顺序即施工顺序，前一卡未 DONE 不得开始下一卡）。</li>
+<li>只改“独占文件”表里的文件。</li>
+<li>ADD：从 <code>$PLAN/code/main/...</code> 原样复制到 <code>app/src/main/java/...</code> 同路径；测试从 <code>$PLAN/code/test/...</code> 复制到 <code>app/src/test/java/...</code>。</li>
+<li>有补丁的卡：<code>git am $PLAN/code/patches/000N-*.patch</code>（四个补丁已在 bb607cf 上按序验证可应用）。</li>
+<li>有“整段替换代码”的卡（B01-04）：按 <code>docs/B01</code> 第4.1节替换指定方法，其余方法一行不动。</li>
+<li>ADD_SPEC：按卡里给的类名、方法签名和行为编写；签名不得改。</li>
+<li>编译 + 单测 → 提交（信息以卡号开头）→ <code>python3 tools/r30/ownership_check.py --card &lt;卡号&gt; --base &lt;上一卡提交&gt;</code> → 推送 → 等 r30.yml 全绿。</li>
+<li>更新 <code>construction/r30/STATUS.md</code>：DONE（提交、CI 链接）/ NOT_RUN（缺设备）/ BLOCKED（原因）。</li>
+</ol>
+<h2>2. 每批最后</h2>
+<ul>
+<li>按 <code>docs/01</code> 第2节改 versionCode，跑 <code>tools/r29/rebind_identity.py</code>；</li>
+<li>两条签名通道各出一个 APK，核对证书指纹、包名、versionCode、源码提交；</li>
+<li>在 CP06 数据与 CP16 数据上各覆盖安装一次，冷启动、二次启动无崩溃；</li>
+<li>交付：提交链接、两个 APK 直链、CI 日志、STATUS.md、已验证/未验证清单。</li>
+</ul>
+<h2>3. 绝对禁止</h2>
+<ul>
+<li>删除类、DROP 表、清空模型/训练数据；</li>
+<li>放宽任何时间、数据、统计门槛；把模拟器/HOST 结果写成真机结果；</li>
+<li>持有数据库写锁时做网络、sleep、等待其他线程、模型计算；</li>
+<li>追期、加倍、马丁、亏损后加注、为凑频率补出手；用 SHADOW 冒充 REAL；</li>
+<li>改未登记的文件（先登记子卡）。</li>
+</ul>
+<h2>4. 遇到方案没写到的情况</h2>
+<p>停下，在 STATUS.md 记 BLOCKED，写清：哪张卡、哪个文件哪一行、现象、两个可选做法。不要自行发明新的跨文件机制——那正是 R29 卡死的原因。</p></section><section id="s2"><div class="src">docs/00_R29为何无法施工与R30裁决.md</div><h1>00 R29 为何无法施工，R30 怎么改</h1>
+<h2>1. 事实（全部来自仓库，可复核）</h2>
+<table>
+<thead>
+<tr>
+<th>事实</th>
+<th>出处</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R29 方案：11批/52卡/44指标；52 张卡平均每张只有“文件+一句话做法+一句话验收”</td>
+<td>main:construction/plans/STARCORE_R29_FINAL_20261029/docs/10_批次与52张施工卡.md（40KB 写 52 卡）</td>
+</tr>
+<tr>
+<td>R29 B01（R29-004—008，双库可恢复迁移）要求“分块复制、行哈希、watermark 追平、短暂停写者、切换路由”，但没有给出：迁哪些表、谁是写者、怎么停写者、代码怎么写</td>
+<td>同上 R29-004/005；docs/02 第4节</td>
+</tr>
+<tr>
+<td>施工方从 2026-10-30 CP06 起在 B01 上连续做了 CP07—CP16 共 10 个检查点，B01 仍“未签收”，B02 产品施工“未开始”</td>
+<td>construction/r29-20261029:construction/r29/STATUS.md（9ff38ff）</td>
+</tr>
+<tr>
+<td>这 10 个检查点在 app/src/main 新增 34 个类、改 83 个文件（+6006/−788 行），其中 29 个新类直接依赖 ResearchRouteR29/ResearchCutoverR29/LegacyResearchScopeR29 这套路由</td>
+<td><code>git diff --stat bb607cf..9ff38ff -- app/src/main</code>；本包 evidence/r29_b01_class_dependency.txt</td>
+</tr>
+<tr>
+<td>失败形态反复出现：warm 升级 <code>ROOT_RESEARCH_ADVANCED_AFTER_SEAL</code>、Root 漂移、schema 安装 60s 门槛、首次服务 60s 门槛、ACK 缺 inbox</td>
+<td>STATUS.md CP11—CP16 各段</td>
+</tr>
+<tr>
+<td>根因：bb607cf 中有 <strong>106 个文件、1890 处</strong>直接写研究域表（本包 registries/table_inventory_bb607cf.json 静态扫描；R29 B01 施工后增至 124 个文件），R29 用“线程局部作用域”决定写到哪个库，作用域外的写仍进 Root，复制封存后 Root 继续变化</td>
+<td>本包 tools/scan_table_writers.py 输出</td>
+</tr>
+<tr>
+<td>CP06（bb607cf，577291006）是最后一个已验收、已发布双证书 APK 的检查点，不含任何 B01 路由代码</td>
+<td>CURRENT_FINAL_PLAN.md 指针；<code>git ls-tree bb607cf</code> 中 R29 类只有 11 个，无 Route/Cutover</td>
+</tr>
+</tbody>
+</table>
+<p>结论：<strong>R29 不是施工方做得不好，是方案把一个需要“精确写者清单 + 停写机制 + 确定代码”的问题交给施工方现场发明。</strong> 方案没定的东西，施工方只能一个检查点一个检查点地试。</p>
+<h2>2. R30 的五条裁决</h2>
+<ol>
+<li><strong>基线回到 CP06（bb607cf）</strong>。R29 CP07—CP16 的代码不并入；分支打标签封存（B00-02）。</li>
+<li><strong>B01 不拆库</strong>。CP06 已有单写锁+关键写优先机制，实时链慢只可能是后台写持锁太久。B01 先给每次写锁使用记账（WriterHoldLedgerR30），再把长事务切片。已静态找到第一个确定的长事务：结算汇总每次重算全部历史期（本包实测 2 万期时 49.9ms→0.15ms）。</li>
+<li><strong>独立研究库降为条件批次 B11</strong>，三项真机数据条件同时满足才开工；只迁 r27_* 32 张表、13 个文件 66 处写点，停机式离线复制，冻结触发器让漏网写者第一次写就报表名。</li>
+<li><strong>每张卡定死文件</strong>：同一批次一个文件只归一张卡（极少数必须共享的，按卡序先后、方法不重叠，并在批次文档顶部列明）；提交后 <code>ownership_check.py</code> 机器检查越界。</li>
+<li><strong>关键代码直接给</strong>：本包 code/ 下 20 个新类/测试/补丁已对 bb607cf 真实源码编译，HOST 测试 31 项、SQL 合同 19 项全部通过（evidence/）。施工方复制即可，不需要再设计。</li>
+</ol>
+<h2>3. R29 B01 资产处置表（B00-02 照抄进 construction/r30/R29_ARCHIVE.md）</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>类</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>路由/切库核心</td>
+<td>ResearchRouteR29、ResearchCutoverR29、MigrationCopyR29、ResearchDatabaseR29、LegacyResearchScopeR29、ResearchRowsR29、ResearchInputMirrorR29、CriticalInputMirrorR29、RetainedFormalCopiesR29、LegacyDomainUpgradeR29、LegacyDomainExtensionR29 等 29 个</td>
+<td>不并入。被 B11（条件批次）的 OfflineCutoverR30 取代</td>
+</tr>
+<tr>
+<td>不依赖路由</td>
+<td>FetchCadenceR29、FetchObservationR29、ExperimentRegistrationR29、EvolutionDatasetPinR29</td>
+<td>不整文件复制；B02-02 / B05-01 施工时可审读参考</td>
+</tr>
+<tr>
+<td>所有权声明</td>
+<td>LegacyResearchOwnershipR29</td>
+<td>不并入；表所有权以 scan_table_writers.py 静态清单 + 运行时 sqlite_master 为准</td>
+</tr>
+<tr>
+<td>已在 R29 后期包装到手机上的副作用</td>
+<td>Root 上 r29_copy_track_<em> / r29_critical_track_</em> / r29_critical_input_write_guard* 等触发器；r29_database_route=ACTIVE；starcore-r29-research.db</td>
+<td><strong>B00-03 R29FoldBackR30 在首次启动时回收</strong>（guard 触发器会让 CP06 代码写入直接 ABORT，SQL 合同 T05 已复现）</td>
+</tr>
+</tbody>
+</table>
+<h2>4. 不变的东西</h2>
+<ul>
+<li>44 项指标的 ID、名称、目标值一个不改；只给每项补“从哪张表、哪个方法测”（registries/metrics_r30.json）。</li>
+<li>证书门 34%/250/ECE0.04/最差块26%/连败≤6、全局 α 预算序贯资格、DecisionGateEngine 唯一 REAL 所有者、SettlementEngine 唯一结算所有者、每期最多一笔 REAL、默认 REAL 关闭——全部保持 CP06 现状。</li>
+<li>1832 条原需求、299 张原文件卡保全清单不动（legacy_count.py 实测 1832/299）。</li>
+<li>禁止追期、加倍、马丁、亏损后加注、频率补配额；15% 是观察目标不是配额；命中率≥34% 是待验证目标不是承诺。</li>
+</ul></section><section id="s3"><div class="src">docs/01_基线分支签名与版本号.md</div><h1>01 基线、分支、签名与版本号</h1>
+<h2>1. 唯一基线</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>仓库</td>
+<td>gtt46461-star/starcore-public-build</td>
+</tr>
+<tr>
+<td>应用基线提交</td>
+<td><code>bb607cf5ab69f7286f859e43f87ada85a5bc456d</code>（R29.1 checkpoint06，versionCode 577291006，已发布双证书 APK）</td>
+</tr>
+<tr>
+<td>R30 施工分支</td>
+<td><code>construction/r30-20261031</code>（从 bb607cf 新建，B00-01）</td>
+</tr>
+<tr>
+<td>封存</td>
+<td><code>archive/r29-b01-cp16</code> → <code>9ff38ffe7063bc938aededfa3271187f9140a0fe</code>（B00-02，只打标签）</td>
+</tr>
+<tr>
+<td>方案发布位置</td>
+<td>main：<code>construction/plans/STARCORE_R30_FINAL_20261031/</code> + 根目录 <code>CURRENT_FINAL_PLAN.md</code></td>
+</tr>
+<tr>
+<td>基线字节快照</td>
+<td>本包 <code>baseline/bb607cf/</code>（所有 MODIFY 目标文件原字节 + 参考文件），清单 <code>baseline/BASELINE_MANIFEST.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>开工第一步（B00-01）用 <code>baseline_lock.py</code> 校验工作树与快照逐字节一致；不一致说明基线被人动过，停止施工。</p>
+<h2>2. 版本号</h2>
+<table>
+<thead>
+<tr>
+<th>批次</th>
+<th>versionCode</th>
+<th>versionName</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B00</td>
+<td>577310001</td>
+<td>R30-B00-2026.10.31-1</td>
+</tr>
+<tr>
+<td>B01</td>
+<td>577310011</td>
+<td>R30-B01-&lt;日期&gt;-1</td>
+</tr>
+<tr>
+<td>…</td>
+<td>5773100B1（B=批次号）</td>
+<td>R30-Bxx-&lt;日期&gt;-n</td>
+</tr>
+<tr>
+<td>B11</td>
+<td>577310111</td>
+<td>R30-B11-&lt;日期&gt;-1</td>
+</tr>
+</tbody>
+</table>
+<p>规则：每次重新出包 +1（例如 B01 第二次出包 577310012）；任何时候不得小于 577291016（R29 CP16，手机上可能装过）。只改 <code>release/release_manifest.json</code> 的 versionCode/versionName，然后按 CP06 原流程运行 <code>tools/r29/rebind_identity.py</code> 重绑生成身份（R30 不改该脚本）。</p>
+<h2>3. 签名（两条通道，沿用 CP06 已验证方式）</h2>
+<table>
+<thead>
+<tr>
+<th>证书</th>
+<th>用于</th>
+<th>通道</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原 R13/R26 证书</td>
+<td>一直装 R13/R26 系列的手机</td>
+<td>签名缓存在 <code>construction/su1-20261022</code> 分支的 Actions 缓存；向该分支提交 <code>.github/r30-official-request.json</code>（内容 <code>{"source":"&lt;40位提交&gt;"}</code>）触发 <code>r30-official.yml</code>（由 tools/r30/r30-official-build.yml 复制而来，只改请求文件名）</td>
+</tr>
+<tr>
+<td>R27 证书</td>
+<td>装过 R27/R29 CP06 R27 证书包的手机</td>
+<td><code>construction/r27-20261028</code> 分支上的 <code>r30-build.yml</code>（由 tools/r29/r29-build.yml 复制，只改分支与文件名）</td>
+</tr>
+</tbody>
+</table>
+<p>两种证书的包<strong>不能交叉覆盖安装</strong>。密钥、口令永不进入仓库、方案或云任务。出包后核对：签名证书 SHA-256 与 CP06 同证书包一致、包名一致、versionCode 正确、源码提交与请求一致（<code>tools/r29/package_receipt.py</code>）。</p>
+<h2>4. 每批交付物（缺一不签收）</h2>
+<ol>
+<li>源码提交链接（批次最后一卡提交）；</li>
+<li>两证书 APK 直链 + 证书指纹 + sha256；</li>
+<li><code>evidence/r30/ci/</code> 全部日志（R29 原有全部检查 + R30 追加门禁）；</li>
+<li><code>construction/r30/STATUS.md</code> 更新：每卡 DONE/NOT_RUN/BLOCKED 及原因；</li>
+<li>设备未测项写 NOT_RUN；自然质量未达写 QUALITY_NOT_MET。</li>
+</ol></section><section id="s4"><div class="src">docs/02_施工规则_文件所有权与门禁.md</div><h1>02 施工规则：顺序、文件所有权、门禁、状态</h1>
+<h2>1. 顺序</h2>
+<ul>
+<li>批次严格按 B00 → B01 → … → B10 施工；B11 只在 B11-01 判定 REQUIRED 时施工。</li>
+<li>批次内卡片严格按编号顺序：前一卡提交且本卡门禁通过，才开下一卡。<strong>不并行施工任何两张卡。</strong></li>
+<li>跨文件、跨线程的并发问题全部集中在 B01（规则见 docs/B01 第2节 L1–L7）；之后批次发现新并发问题，回到 B01 规则新开 B01-xx 子卡，不在别的卡里顺手改。</li>
+</ul>
+<h2>2. 文件所有权（机器检查）</h2>
+<ul>
+<li>每张卡的“独占文件”见 <code>registries/cards.json</code> 与各批次文档；<code>registries/file_ownership.json</code> 是 <code>ownership_check.py</code> 的输入。</li>
+<li>同一批次一个文件只属于一张卡。唯一例外记在 <code>file_ownership.json.batch_shared_sequential</code>（当前只有 B03 的 ReplayEvaluatorR27：B03-01 改回放样本生成，B03-06 改评价入口，按序施工、方法不重叠）。</li>
+<li>对所有卡开放的路径：<code>construction/r30/</code>、<code>evidence/r30/</code>、<code>construction/plans/STARCORE_R30_FINAL_20261031/</code>（方案只读副本）、<code>release/release_manifest.json</code>、<code>release/release_identity.properties</code>、生成身份文件（rebind_identity.py 产物）。</li>
+<li>需要改未登记文件：停止，先在 STATUS.md 记录原因，新开子卡（编号 Bxx-yy-z）登记文件后再改。</li>
+</ul>
+<h2>3. 每卡固定流程</h2>
+<pre><code>1  git switch construction/r30-20261031 &amp;&amp; git pull --ff-only
+2  按卡“施工步骤”逐条做；代码从本包 code/ 原样复制（ADD），或按补丁/替换代码修改（MODIFY）
+3  ./gradlew --no-daemon :app:compileDebugJavaWithJavac
+4  ./gradlew --no-daemon :app:testDebugUnitTest            # 含本包 code/test 下 R30 测试
+5  git commit -m &quot;&lt;卡号&gt; &lt;一句话&gt;&quot;
+6  python3 tools/r30/ownership_check.py --card &lt;卡号&gt; --base &lt;上一卡提交&gt;
+7  推送 → r30.yml 自动跑 tools/r30/ci_build.sh（R29 原有全部检查 + R30 追加门禁）
+8  STATUS.md 把本卡改为 DONE（附提交、CI 链接）或 BLOCKED（附原因）
+</code></pre>
+<h2>4. 批次门禁</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>内容</th>
+<th>何时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1 编译与单测</td>
+<td>compileDebugJavaWithJavac、testDebugUnitTest、lint（新增问题=0）</td>
+<td>每卡</td>
+</tr>
+<tr>
+<td>G2 R29 原有检查</td>
+<td>tools/r29/ci_build.sh 中全部（身份、DDL、SU1/R26/plan1025、qual_host、host_checks）</td>
+<td>每卡（CI）</td>
+</tr>
+<tr>
+<td>G3 R30 追加</td>
+<td>SQL 合同 T01–T06、所有权检查、写点扫描</td>
+<td>每卡（CI）</td>
+</tr>
+<tr>
+<td>G4 模拟器冒烟</td>
+<td>安装、冷启动、服务 60 秒心跳、无崩溃；批次相关 androidTest</td>
+<td>每批最后一卡</td>
+</tr>
+<tr>
+<td>G5 覆盖安装</td>
+<td>在 CP06 数据与 CP16 数据上各做一次覆盖安装（两证书各自对应）</td>
+<td>每批出包</td>
+</tr>
+<tr>
+<td>G6 真机</td>
+<td>批次出口里写明“真机”的指标</td>
+<td>B01（24h）、B02（24h）、B10（全部）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>时间门槛只在对应环境判定</strong>：例如“首次服务 ≤60s”“schema 安装 ≤180s”是 CP06 已有的模拟器门槛，继续沿用；但 M03/M04/M05/M07 等时延指标<strong>只以真机 r30_issue_timeline / r30_writer_hold 为准</strong>，CI 模拟器的时延只记录不判定（registries/metrics_r30.json 的 environment 列）。这是 R29 B01 在 CI 模拟器时延上反复失败的教训。</p>
+<h2>5. 状态字</h2>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TODO</td>
+<td>未开始</td>
+</tr>
+<tr>
+<td>DOING</td>
+<td>施工中（同时只能有一张卡）</td>
+</tr>
+<tr>
+<td>DONE</td>
+<td>本卡全部验收项满足，有提交与 CI 链接</td>
+</tr>
+<tr>
+<td>NOT_RUN</td>
+<td>需要的设备/环境测试未执行（不得写 PASS）</td>
+</tr>
+<tr>
+<td>BLOCKED</td>
+<td>无法继续，写明原因与需要的决定</td>
+</tr>
+<tr>
+<td>QUALITY_NOT_MET</td>
+<td>自然质量指标已测但未达目标（不改口径）</td>
+</tr>
+<tr>
+<td>NOT_REQUIRED</td>
+<td>仅 B11：开工条件不满足</td>
+</tr>
+</tbody>
+</table>
+<h2>6. 回滚</h2>
+<ul>
+<li>代码：每批出包前打标签 <code>r30-bXX-&lt;versionCode&gt;</code>；回滚=安装上一标签同证书 APK（versionCode 更低需先卸载——<strong>会丢数据，禁止</strong>；因此回滚一律通过“新 versionCode + 旧代码”重新出包）。</li>
+<li>数据：R30 全部新增表均为加法（CREATE TABLE IF NOT EXISTS），不 DROP、不改旧列；B00-03 回收 R29 时 RP 文件改名保留，不删除。</li>
+</ul></section><section id="s5"><div class="src">docs/B00_基线切换与施工护栏.md</div><h1>B00 基线切换与施工护栏</h1>
+<p><strong>目标</strong>：以已验收CP06为唯一基线建R30分支；回收R29后期测试包遗留的触发器/独立库；装好施工护栏工具。完成后手机升级到R30不丢数据、不被R29触发器卡死。</p>
+<p><strong>批次出口</strong>：B00 APK 覆盖安装在 CP06 与 CP16 两种旧数据上均能启动；r30_foldback_state 正确；HOST 全绿。</p>
+<p><strong>versionCode</strong>：577310001（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B00-01 从CP06建R30分支并锁定基线</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：无；对应R29：R29-001；指标：M01</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>construction/r30/STATUS.md</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>construction/r30/BASELINE.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>release/release_manifest.json</code></td>
+<td>MODIFY</td>
+<td>versionCode；versionName</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>git fetch origin bb607cf5ab69f7286f859e43f87ada85a5bc456d &amp;&amp; git switch -c construction/r30-20261031 bb607cf5ab69f7286f859e43f87ada85a5bc456d</li>
+<li>运行 python3 tools/r30/baseline_lock.py --plan construction/plans/STARCORE_R30_FINAL_20261031 --out construction/r30/BASELINE.json：逐个校验本包 baseline/ 下每个文件与当前工作树字节一致（sha256），不一致立即停止并报告（说明有人改过基线）。</li>
+<li>release/release_manifest.json：versionCode=577310001，versionName="R30-B00-2026.10.31-1"；其余字段不动。随后按 CP06 既有流程运行 python3 tools/r29/rebind_identity.py 绑定生成身份（不改脚本）。</li>
+<li>新建 construction/r30/STATUS.md，首行写：R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状态表（TODO/DOING/DONE/NOT_RUN/BLOCKED）。</li>
+<li>提交信息：R30-B00-01 baseline bb607cf locked</li>
+</ol>
+<p><strong>本包代码</strong>：<code>tools/baseline_lock.py</code></p>
+<p><strong>测试</strong>：baseline_lock.py 输出 mismatches=0</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>分支头父提交=bb607cf</li>
+<li>BASELINE.json 列出本包 baseline/ 中全部文件且 mismatches=0</li>
+<li>versionCode=577310001 &gt; CP16 的 577291016（保证能覆盖安装任何R29包）</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B00-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B00-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B00-02 封存R29 B01分支，登记可复用件</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B00-01；对应R29：R29-004, R29-005；指标：M01, M02</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>construction/r30/R29_ARCHIVE.md</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>git tag archive/r29-b01-cp16 9ff38ffe7063bc938aededfa3271187f9140a0fe &amp;&amp; git push origin archive/r29-b01-cp16（只打标签，不合并、不删分支）。</li>
+<li>R29_ARCHIVE.md 照抄本包 docs/00 第3节“R29 B01 资产处置表”：34个新增类全部不并入R30；其中 FetchCadenceR29/FetchObservationR29/ExperimentRegistrationR29/EvolutionDatasetPinR29 4个不依赖路由的类，仅作为 B02-02 与 B05-01 的参考实现，需要时由对应卡逐行审读后重写，不得整文件复制。</li>
+</ol>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>标签存在且指向 9ff38ff</li>
+<li>R30分支 git log 不含 bb607cf 之后的任何 R29 提交</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B00-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B00-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B00-03 回收R29后期包遗留的Root触发器与独立研究库</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B00-02；对应R29：R29-051；指标：M09, M02</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/TableCopierR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code></td>
+<td>MODIFY</td>
+<td>initialize()</td>
+<td>244</td>
+</tr>
+<tr>
+<td><code>app/src/androidTest/java/com/ethk3/novaonepro/R30FoldBackInstrumentedTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制本包 code/main/.../TableCopierR30.java、R29FoldBackR30.java 到 app/src/main/java/com/ethk3/novaonepro/strategyv2/（原样，不改）。</li>
+<li>git am code/patches/0001-R30-B00-03-fold-back-R29-RP-and-triggers.patch（只改 RuntimeCoordinatorR26.initialize() 开头 3 行；本包已在 bb607cf 上实测可应用）。</li>
+<li>复制 code/androidTest/R30FoldBackInstrumentedTest.java 到 app/src/androidTest/java/com/ethk3/novaonepro/；它在真实SQLite上构造：(a) 只有CP06数据；(b) Root带 r29_critical_input_write_guard 触发器；(c) r29_database_route=ACTIVE 且 RP 文件存在；(d) ACTIVE 但 RP 缺失；逐一断言回收结果。</li>
+<li>运行 HOST：python3 tools/r30/sql_contract_tests.py（T04/T05/T06 必须通过）。</li>
+<li>CI：模拟器跑 connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.ethk3.novaonepro.R30FoldBackInstrumentedTest。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/TableCopierR30.java</code>；<code>code/main/com/ethk3/novaonepro/strategyv2/R29FoldBackR30.java</code>；<code>code/androidTest/R30FoldBackInstrumentedTest.java</code>；<code>code/patches/0001-R30-B00-03-fold-back-R29-RP-and-triggers.patch</code></p>
+<p><strong>测试</strong>：SQL T04/T05/T06；R30FoldBackInstrumentedTest 4个场景</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>CP06旧数据：r30_foldback_state=NO_ACTIVE_R29_ROUTE，耗时&lt;50ms</li>
+<li>Root有R29 guard：触发器被删，CP06写入恢复</li>
+<li>ACTIVE+RP：RP行全部回到Root，路由RETIRED_BY_R30，RP改名*.r30-retired</li>
+<li>ACTIVE+RP缺失：路由RETIRED_RP_MISSING_BY_R30，Root数据不动</li>
+</ul>
+<p><strong>禁止</strong>：不得删除 r29_legacy_model_no_update / r29_legacy_model_no_delete（CP06自带保护触发器）；不得用 ATTACH（会关闭WAL）；不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B00-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B00-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B00-04 装施工护栏工具与R30 CI入口</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B00-03；对应R29：R29-050；指标：M01, M34</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tools/r30/</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>.github/workflows/r30.yml</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>tools/r30/r30-official-build.yml</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制本包 tools/ 下 ownership_check.py、baseline_lock.py、scan_table_writers.py、sql_contract_tests.py、offenders.py、legacy_count.py、host/、ci_build_r30.sh 到仓库 tools/r30/（validate_plan.py、build_plan.py、cards_r30.py 留在方案包内，不进应用分支）。</li>
+<li>复制 tools/r29/ci_build.sh 为 tools/r30/ci_build.sh，只改两处：LOG=evidence/r30/ci；在 'python3 tools/r29/host_checks.py' 之后加一行 'bash tools/r30/ci_build_r30.sh "$LOG"'（运行R30宿主测试+SQL合同+所有权检查）。</li>
+<li>复制 .github/workflows/r29.yml 为 r30.yml：branches 改为 ['construction/r30-20261031']，paths-ignore 改 evidence/r30/<strong>、construction/r30/</strong>，run 改 bash tools/r30/ci_build.sh。</li>
+<li>签名包：沿用 CP06 已验证的两条签名通道（R13证书在 construction/su1-20261022 的 Actions 缓存，R27证书在 construction/r27-20261028）。复制 tools/r29/r29-official-build.yml、r29-build.yml 为 r30-*，请求文件名改为 .github/r30-official-request.json，其余不改。密钥永不进入仓库或云任务。</li>
+<li>在 tools/r30/ownership_check.py 中登记本包 registries/file_ownership.json；以后每个卡的提交都跑：python3 tools/r30/ownership_check.py --card &lt;卡号&gt; --base &lt;上一卡提交&gt;，越界即失败。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>tools/ownership_check.py</code>；<code>tools/baseline_lock.py</code>；<code>tools/scan_table_writers.py</code>；<code>tools/sql_contract_tests.py</code>；<code>tools/offenders.py</code>；<code>tools/legacy_count.py</code>；<code>tools/ci_build_r30.sh</code>；<code>tools/host/</code></p>
+<p><strong>测试</strong>：ci_build_r30.sh 在干净检出上全绿</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>r30.yml 在分支推送后自动运行且全绿</li>
+<li>两条签名通道各产出 versionCode=577310001 的 APK，证书指纹与CP06对应包一致</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B00-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B00-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B00-05 复核R29已签收的B00三卡并统一指标测量口径</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B00-04；对应R29：R29-002, R29-003；指标：M01, M02, M32, M33</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java</code></td>
+<td>MODIFY</td>
+<td>evaluate(Map<String,Probe>,Map<String,Object>)（bb607cf:23）</td>
+<td>44</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricDefinitionsR29.java</code></td>
+<td>MODIFY</td>
+<td>44项定义常量</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>MetricDefinitionsR29 中44项定义保持ID与目标不变；为每项补 measurementSource 字段，取值严格按本包 registries/metrics_r30.json 的 measurement 列（例如 M07→r30_writer_hold critical 等待P95；M03/M04/M05→r30_issue_timeline）。</li>
+<li>MetricEvaluatorR29.evaluate：数据源表不存在或样本为0 → 值 null、状态 INSUFFICIENT；禁止返回0或PASS。</li>
+<li>保留 R29 的 1832 条原需求/299 张原卡保全清单（CP06 已含 LegacyContinuityR27），本卡只复核计数：python3 tools/r30/legacy_count.py 必须输出 requirements=1832、fileCards=299（本包已实测）。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>registries/metrics_r30.json</code></p>
+<p><strong>测试</strong>：MetricEvaluator 空库返回 INSUFFICIENT 的 JUnit（code/test 已给出样例断言模式）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>44项每项都有 measurementSource</li>
+<li>空报告不产生任何PASS</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B00-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B00-05 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s6"><div class="src">docs/B01_写者与事务治理_并发集中批.md</div><h1>B01 写者与事务治理（并发集中批）</h1>
+<blockquote>
+<p>本批是全部“跨文件、跨线程、跨任务”的并发问题的唯一施工批次。B01 之后的任何批次不得再改锁、写者、调度归属；发现新并发问题一律回到本批次的规则处理（新开 B01-xx 子卡）。</p>
+</blockquote>
+<h2>1. 为什么不拆库（R29 卡死的原因与 R30 的定案）</h2>
+<p>CP06 的写入结构是：<strong>一个 SQLite 文件 + 一把公平写锁 <code>DatabaseCoordinator.WRITE_LOCK_CP3</code></strong>，并且已有“关键业务写优先、后台写在关键写等待时不排队”的机制（<code>DatabaseCoordinator.runWrite</code> 第 616–717 行，<code>isCriticalBusinessOperationR914</code> / <code>isBackgroundOperationR909</code> 两份名单）。所以实时链被拖慢的根因只可能是：<strong>某个后台写在拿到锁之后持有太久</strong>（关键写排在它后面只能等它提交）。</p>
+<p>R29 的做法是把 378 张表在线复制到第二个库，但 bb607cf 中有 <strong>106 个文件、1890 处直接写研究表</strong>（R29 施工后增至 124 个文件）、路由靠线程局部作用域，复制期间旧写者继续写 Root，于是出现 <code>ROOT_RESEARCH_ADVANCED_AFTER_SEAL</code>，CP06→CP16 连续 10 个检查点 B01 都没签收。</p>
+<p>R30 的定案：
+1. <strong>先测量</strong>：每一次写锁使用都记“等了多久、持有多久”（B01-01/02）。
+2. <strong>再切片</strong>：持有超过 50ms 的后台写改成多个短事务（B01-03/04），关键写最多只等一个片。
+3. <strong>不拆库</strong>。只有当 B10 真机数据证明切片后仍不达标，才进入条件批次 B11（只迁 r27_* 共 32 张表、停机式离线复制、冻结触发器兜底）。</p>
+<h2>2. 锁与线程规则（全批次、全项目强制）</h2>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>说明</th>
+<th>检查方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 唯一写锁</td>
+<td>所有写都经 <code>DatabaseCoordinator.runWrite/runAtomicWrite*</code>；不得新建 <code>SQLiteDatabase</code> 写连接（B11 研究库除外）</td>
+<td><code>grep -rn "getWritableDatabase()" app/src/main</code> 只允许 DatabaseCoordinator/DbHelper</td>
+</tr>
+<tr>
+<td>L2 持锁期间禁止</td>
+<td>网络请求、<code>Thread.sleep</code>、<code>wait/join/Future.get</code>、模型推理/训练、进入其他 <code>synchronized</code></td>
+<td>代码审查清单；B01-01 账本 hold_max 异常即查</td>
+</tr>
+<tr>
+<td>L3 后台写持有上限</td>
+<td>目标 ≤50ms，硬上限 200ms（<code>WriterHoldLedgerR30</code>）</td>
+<td>r30_writer_hold.over_hard=0</td>
+</tr>
+<tr>
+<td>L4 让出点</td>
+<td>后台切片只能在<strong>片与片之间</strong>让出（<code>ChunkedWriterR30</code>），事务体内部不让出（让出=回滚=白做）</td>
+<td>ChunkedWriterR30 设计保证</td>
+</tr>
+<tr>
+<td>L5 操作名</td>
+<td>后台写操作名必须以 <code>R26_</code>/<code>R27_</code> 开头或含 <code>RESEARCH</code>，否则会被当成普通写排进公平队列</td>
+<td>B01-02 报告列出未识别的操作名</td>
+</tr>
+<tr>
+<td>L6 关键写名单不动</td>
+<td><code>isCriticalBusinessOperationR914</code> 名单是 CP06 真机修正结果，R30 不增不减</td>
+<td>diff 检查</td>
+</tr>
+<tr>
+<td>L7 主线程</td>
+<td>主线程禁止任何写（CP06 已抛 <code>CP3_DB_WRITE_ON_MAIN_THREAD</code>），B02-05 再清读</td>
+<td>StrictMode</td>
+</tr>
+</tbody>
+</table>
+<h2>3. 文件修改顺序（同批次内严格串行）</h2>
+<p><code>B01-01 DatabaseCoordinator</code> → <code>B01-02 ResearchPoolR27/SchemaR27/ReportR29</code> → <code>B01-03 新类</code> → <code>B01-04 LiveShadowsR27/RetentionR26/DataRetentionGovernorR900</code> → <code>B01-05 RuntimeReportR26</code> → <code>B01-06 RuntimeCoordinatorR26/ThermalPolicyR29</code> → <code>B01-07 AutoFetchService</code>。
+每张卡一个提交（或一组提交，最后一个提交信息以卡号开头），提交后跑 <code>ownership_check.py</code>。没有两张卡改同一个文件。</p>
+<h2>4. 切片模板（B01-04 及以后所有切片必须用这两个模板之一）</h2>
+<h3>4.1 模板A：逐行幂等更新——以 <code>LiveShadowsR27.settle</code> 为例（完整替换代码）</h3>
+<p>已静态确认的问题：<code>settleBatch</code> 末尾
+<code>UPDATE r27_opportunity SET settled=(SELECT count(*) …) WHERE target_ordinal&lt;=?</code>
+每次结算都把<strong>全部历史期</strong>重算一遍（r27_opportunity 每期 +1 行，永远增长）。实测（本包 evidence/settle_aggregate_benchmark.json）：2 万期×24 观察者时桌面 CPU 上 49.9ms，只更新本批涉及的 24 个期号仅 0.15ms；手机慢 5–10 倍，已越过 200ms 硬上限且继续线性变长。</p>
+<p>替换 <code>LiveShadowsR27.java</code> 中 <code>settle(...)</code> 与 <code>settleBatch(...)</code> 两个方法为（其余方法不动）：</p>
+<pre><code class="language-java">    static final int SETTLE_CHUNK_R30 = 160;
+
+    static long settle(RuntimeR27 rt, ResearchPoolR27.Worker w, long latestOrd) throws Exception {
+        long[] settled = new long[1];
+        // R30-B01-04: 每片 ≤160 行一个事务；汇总只更新本片涉及的期号。每条 UPDATE 都带 hit IN(-1,-2)，片间幂等。
+        for (ResearchWriteQueueR27.Batch chunk : settleChunks(w.ro, latestOrd, settled, SETTLE_CHUNK_R30))
+            RuntimeR27.submit(w, &quot;LIVE_SETTLE&quot;, chunk);
+        return settled[0];
+    }
+
+    /** 兼容旧调用与旧测试：把所有片合成一个 Batch（内容与旧版相同，只是汇总语句改为按期号）。 */
+    static ResearchWriteQueueR27.Batch settleBatch(SQLiteDatabase ro, long latestOrd, long[] settled) {
+        ResearchWriteQueueR27.Batch all = new ResearchWriteQueueR27.Batch();
+        for (ResearchWriteQueueR27.Batch chunk : settleChunks(ro, latestOrd, settled, Integer.MAX_VALUE)) all.ops.addAll(chunk.ops);
+        return all;
+    }
+
+    static List&lt;ResearchWriteQueueR27.Batch&gt; settleChunks(SQLiteDatabase ro, long latestOrd, long[] settled, int perChunk) {
+        List&lt;Object[]&gt; rows = new ArrayList&lt;&gt;();
+        try (Cursor c = ro.rawQuery(SETTLEABLE, new String[] {String.valueOf(latestOrd)})) {
+            while (c.moveToNext()) rows.add(new Object[] {c.getString(0), c.getLong(1), c.getString(2), c.getInt(3), c.getInt(4), c.getInt(5), c.getInt(6), c.getInt(7), c.getString(8), c.getInt(9)});
+        }
+        List&lt;ResearchWriteQueueR27.Batch&gt; out = new ArrayList&lt;&gt;();
+        ResearchWriteQueueR27.Batch b = QualificationInboxR29.pendingDraws(ro, latestOrd); // 缺期记账只放第一片
+        java.util.TreeSet&lt;Long&gt; ords = new java.util.TreeSet&lt;&gt;();
+        long now = System.currentTimeMillis(); int inChunk = 0;
+        for (Object[] r : rows) {
+            String id = (String) r[0]; long ord = (Long) r[1]; int actual = (Integer) r[9];
+            if (actual &lt; 1) continue; // malformed draw value: never invent an outcome
+            boolean frozen = &quot;FROZEN&quot;.equals(r[8]);
+            boolean hit = frozen &amp;&amp; (actual == (Integer) r[4] || actual == (Integer) r[5] || actual == (Integer) r[6]);
+            b.add(&quot;UPDATE r27_live_frozen SET hit=?,settled_at=? WHERE policy_hash=? AND target_ordinal=? AND hit IN(-1,-2)&quot;, hit ? 1 : 0, now, id, ord);
+            ords.add(ord); settled[0]++;
+            if (++inChunk &gt;= perChunk) { closeSettleChunk(b, ords); out.add(b); b = new ResearchWriteQueueR27.Batch(); ords = new java.util.TreeSet&lt;&gt;(); inChunk = 0; }
+        }
+        if (inChunk &gt; 0 || !b.isEmpty()) { closeSettleChunk(b, ords); out.add(b); }
+        return out;
+    }
+
+    private static void closeSettleChunk(ResearchWriteQueueR27.Batch b, java.util.Set&lt;Long&gt; ords) {
+        for (Long o : ords)
+            b.add(&quot;UPDATE r27_opportunity SET settled=(SELECT count(*) FROM r27_live_frozen f WHERE f.target_ordinal=? AND f.hit&gt;=0) WHERE target_ordinal=?&quot;, o, o);
+    }
+</code></pre>
+<p>语义对比：旧语句对“未在本批结算的期”也会重算 settled，但这些期的 r27_live_frozen 没变化，重算结果不变——新旧在最终数据上逐行一致（B01-04 验收要求用同一回放数据集对比 r27_opportunity 全表）。</p>
+<h3>4.2 模板B：保留/清理类 DELETE（RetentionR26、DataRetentionGovernorR900 及以后所有清理）</h3>
+<pre><code class="language-java">    /** 把一条可能很大的 DELETE 拆成每事务 ≤500 行；原 WHERE 条件字节不变。 */
+    static long deleteInSlicesR30(DbStore store, String operation, String table, String where, Object[] args) {
+        String sql = &quot;DELETE FROM &quot; + table + &quot; WHERE rowid IN (SELECT rowid FROM &quot; + table + &quot; WHERE &quot; + where + &quot; LIMIT 500)&quot;;
+        long total = 0;
+        while (true) {
+            int n = store.coordinatorForResearchR952().runAtomicWriteOrThrowF01(operation, db -&gt; {
+                db.execSQL(sql, args);
+                try (android.database.Cursor c = db.rawQuery(&quot;SELECT changes()&quot;, null)) { return c.moveToFirst() ? c.getInt(0) : 0; }
+            });
+            total += n;
+            if (n &lt; 500) return total;
+            if (com.ethk3.novaonepro.RealtimePressureGateR811.hasActiveCriticalWork()) Thread.yield(); // 片间让出
+        }
+    }
+</code></pre>
+<p>WITHOUT ROWID 表把 <code>rowid</code> 换成主键列（<code>TableCopierR30.pkOrder</code> 同口径）。</p>
+<h3>4.3 需要整批原子可见的写（不能切片的情况）</h3>
+<p>例如“一组模型权重 + 游标”必须同时可见：先分片写入 <code>*_pages(batch_id, seq, payload)</code>，最后一个小事务写 <code>*_manifest(batch_id, complete=1)</code> 与游标；读者只读 complete=1 的 batch_id。这是 R29 方案已提出、CP06 的 <code>ModelArtifactR29</code> 已部分采用的模式，本批不新增实例，B03-05 使用。</p>
+<h2>5. 本批次已提供的代码与验证</h2>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code/main/.../WriterHoldLedgerR30.java</code></td>
+<td>已对 bb607cf 源码编译；HOST 6 个测试通过（含 8 线程×2 万次并发计数）</td>
+</tr>
+<tr>
+<td><code>code/main/.../HoldLedgerFlushR30.java</code></td>
+<td>已用 Android API 桩编译；SQL 合同 T02 通过</td>
+</tr>
+<tr>
+<td><code>code/main/.../ChunkedWriterR30.java</code></td>
+<td>已编译；HOST 6 个测试通过（含中途失败回滚续做无重复）</td>
+</tr>
+<tr>
+<td><code>code/main/.../CoordinatorTxR30.java</code></td>
+<td>已用 Android API 桩编译（签名已对照 bb607cf DatabaseCoordinator:773）</td>
+</tr>
+<tr>
+<td><code>code/main/.../TaskLivenessR30.java</code></td>
+<td>已编译；HOST 测试通过</td>
+</tr>
+<tr>
+<td><code>code/patches/0001…0004-*.patch</code>（按卡拆分，B00-03/B01-01/B01-02/B02-01 各一个）</td>
+<td>在 bb607cf 干净检出上按序 <code>git am</code> 全部成功（evidence/patch_apply_check.txt）</td>
+</tr>
+</tbody>
+</table>
+<p>未完成且必须由施工方在 CI/真机完成：完整 Android 编译、模拟器 2 小时与真机 24 小时的 r30_writer_hold 实测。</p>
+<h2>附表A：AutoFetchService 全部 postDelayed（bb607cf，B01-07 用）</h2>
+<table>
+<thead>
+<tr>
+<th>行</th>
+<th>语句</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>650</td>
+<td><code>analysisWatchdogHandler.postDelayed(this, ANALYSIS_WATCHDOG_INTERVAL_MS);</code></td>
+</tr>
+<tr>
+<td>797</td>
+<td><code>runtimeGuardHandler.postDelayed(this, BACKTEST_HEARTBEAT_INTERVAL_MS);</code></td>
+</tr>
+<tr>
+<td>830</td>
+<td><code>startupHeartbeatHandlerR323.postDelayed(this, 1500L);</code></td>
+</tr>
+<tr>
+<td>865</td>
+<td><code>livenessHandlerR817.postDelayed(this, 5000L);</code></td>
+</tr>
+<tr>
+<td>937</td>
+<td><code>startupHeartbeatHandlerR323.postDelayed(</code></td>
+</tr>
+<tr>
+<td>1434</td>
+<td><code>learningHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>1930</td>
+<td><code>runtimeGuardHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>2022</td>
+<td><code>owner.postDelayed(</code></td>
+</tr>
+<tr>
+<td>2059</td>
+<td><code>admittedR58[0] = owner.postDelayed(</code></td>
+</tr>
+<tr>
+<td>2231</td>
+<td><code>settlementRecoveryHandlerR908.postDelayed(this, R908_SETTLEMENT_PULSE_MS);</code></td>
+</tr>
+<tr>
+<td>2245</td>
+<td><code>researchHandlerR908.postDelayed(this, R908_RESEARCH_SELF_PULSE_MS);</code></td>
+</tr>
+<tr>
+<td>2320</td>
+<td><code>owner.postDelayed(new Runnable() {</code></td>
+</tr>
+<tr>
+<td>2335</td>
+<td><code>owner.postDelayed(new Runnable() {</code></td>
+</tr>
+<tr>
+<td>2455</td>
+<td><code>researchHandlerR908.postDelayed(researchSelfLoopR908, 1200L);</code></td>
+</tr>
+<tr>
+<td>2484</td>
+<td><code>owner.postDelayed(</code></td>
+</tr>
+<tr>
+<td>2498</td>
+<td><code>owner.postDelayed(</code></td>
+</tr>
+<tr>
+<td>2617</td>
+<td><code>analysisWatchdogHandler.postDelayed(analysisWatchdogLoop, ANALYSIS_WATCHDOG_INTERVAL_MS);</code></td>
+</tr>
+<tr>
+<td>2669</td>
+<td><code>fetchHandler.postDelayed(fetchLoop, delay);</code></td>
+</tr>
+<tr>
+<td>4039</td>
+<td><code>if (!handler.postDelayed(ticket, 100L)) exitedAnalysisReleasesR77.remove(ticket.key, ticke</code></td>
+</tr>
+<tr>
+<td>4078</td>
+<td><code>if (!expired &amp;&amp; handler.postDelayed(this, 250L)) return;</code></td>
+</tr>
+<tr>
+<td>4086</td>
+<td><code>if (handler.postDelayed(this, delay)) return;</code></td>
+</tr>
+<tr>
+<td>4094</td>
+<td><code>if (!expired &amp;&amp; handler.postDelayed(this, 250L)) return;</code></td>
+</tr>
+<tr>
+<td>4127</td>
+<td><code>boolean posted = owner.postDelayed(</code></td>
+</tr>
+<tr>
+<td>4317</td>
+<td><code>h.postDelayed(</code></td>
+</tr>
+<tr>
+<td>4338</td>
+<td><code>analysisHandler.postDelayed(analysisLoop, ANALYSIS_RETRY_DELAY_MS);</code></td>
+</tr>
+<tr>
+<td>4640</td>
+<td><code>analysisHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>5303</td>
+<td><code>owner.postDelayed(researchContinuationR70,</code></td>
+</tr>
+<tr>
+<td>9837</td>
+<td><code>h.postDelayed(</code></td>
+</tr>
+<tr>
+<td>10083</td>
+<td><code>learningHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>10093</td>
+<td><code>learningHandler.postDelayed(this, 3500L);</code></td>
+</tr>
+<tr>
+<td>11455</td>
+<td><code>backfillHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>11782</td>
+<td><code>backtestHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>12611</td>
+<td><code>runtimeGuardHandler.postDelayed(backtestHeartbeatLoop, BACKTEST_HEARTBEAT_INTERVAL_MS);</code></td>
+</tr>
+<tr>
+<td>12953</td>
+<td><code>learningHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>13065</td>
+<td><code>microHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>13230</td>
+<td><code>learningHandler.postDelayed(teacherMatrixLoop, delayMs);</code></td>
+</tr>
+<tr>
+<td>13451</td>
+<td><code>learningHandler.postDelayed(v20CauseChainLoop, delayMs);</code></td>
+</tr>
+<tr>
+<td>14769</td>
+<td><code>learningHandler.postDelayed(realBetDiagnosisLoop, delayMs);</code></td>
+</tr>
+<tr>
+<td>14902</td>
+<td><code>learningHandler.postDelayed(fullDiagnosisLoop, delayMs);</code></td>
+</tr>
+<tr>
+<td>15934</td>
+<td><code>runtimeGuardHandler.postDelayed(decisionStateRefreshR77, DECISION_FAST_STATE_DELAY_MS);</code></td>
+</tr>
+<tr>
+<td>17272</td>
+<td><code>learningHandler.postDelayed(</code></td>
+</tr>
+<tr>
+<td>17343</td>
+<td><code>learningHandler.postDelayed(</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>目标</strong>：把所有跨文件、跨线程的写入并发问题一次处理完：唯一写锁持有时长可测量、后台长事务切片、关键写永远优先、任务活性可判定、重复调度入口收敛。不拆库。</p>
+<p><strong>批次出口</strong>：模拟器2小时+真机24小时：后台 over_hard(&gt;200ms)=0；关键写等待P95≤200ms；STALLED任务=0（UNKNOWN单列）。</p>
+<p><strong>versionCode</strong>：577310011（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B01-01 唯一写锁：等待/持有时长账本</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B00-05；对应R29：R29-005, R29-047；指标：M07, M14</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30WriterHoldLedgerTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code></td>
+<td>MODIFY</td>
+<td>runWrite(String,WriteCallable,T) 的 body finally 块（bb607cf:668-676）</td>
+<td>3635</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 WriterHoldLedgerR30.java。</li>
+<li>git am code/patches/0002-R30-B01-01-writer-hold-ledger-hook.patch：DatabaseCoordinator.runWrite 的 body finally 改为同时调用 WriterHoldLedgerR30.record(opR909, criticalBusinessR914, lastDbLockWaitMs, bodyMs, !committed)；重入写（reentrantWriterR914=true）不记，避免双计。</li>
+<li>不改锁本身、不改 isCriticalBusinessOperationR914 / isBackgroundOperationR909 名单（这两个名单已是CP06实测修正结果）。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/WriterHoldLedgerR30.java</code>；<code>code/patches/0002-R30-B01-01-writer-hold-ledger-hook.patch</code></p>
+<p><strong>测试</strong>：R30WriterHoldLedgerTest 6个测试</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>HOST 6个测试通过</li>
+<li>补丁后 DatabaseCoordinator 与 bb607cf 的差异仅为补丁所示8行</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B01-02 账本落库与报告出数</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B01-01；对应R29：R29-047；指标：M07, M17</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchPoolR27.java</code></td>
+<td>MODIFY</td>
+<td>flushCpu(String,long,long,long) 末尾 writes.flush() 之后（bb607cf:183）</td>
+<td>202</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java</code></td>
+<td>MODIFY</td>
+<td>ensure(SQLiteDatabase)</td>
+<td>98</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code></td>
+<td>MODIFY</td>
+<td>第3章 运行与时延</td>
+<td>112</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 HoldLedgerFlushR30.java；git am code/patches/0003-R30-B01-02-persist-writer-hold-ledger.patch（ResearchPoolR27.flushCpu 与 SchemaR27.ensure 各加1行）。</li>
+<li>ReportR29 第3章新增两张表：‘后台超时持有前50’（HoldLedgerFlushR30.REPORT_TOP，参数=now-24h）与‘关键写等待’（REPORT_CRITICAL）；表不存在时显示‘INSUFFICIENT：r30_writer_hold 尚无窗口’。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/HoldLedgerFlushR30.java</code>；<code>code/patches/0003-R30-B01-02-persist-writer-hold-ledger.patch</code></p>
+<p><strong>测试</strong>：SQL T02 全部通过</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>运行10分钟后 r30_writer_hold 至少9个窗口</li>
+<li>报告第3章出现两张表</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B01-03 切片写入工具与Android适配器</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B01-02；对应R29：R29-005；指标：M07, M10</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ChunkedWriterTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ChunkedWriterR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CoordinatorTxR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 ChunkedWriterR30.java 与 CoordinatorTxR30.java（适配器把 TxRunner 映射到 DatabaseCoordinator.runAtomicWriteOrThrowF01；游标表 r30_chunk_cursor 由适配器每片 CREATE TABLE IF NOT EXISTS 自建，不改 SchemaR27）。</li>
+<li>Pressure 实现：criticalWaiting = RealtimePressureGateR811.hasActiveCriticalWork() || SettlementExecutionGateR819.isActive()（与 ResearchWorkBudgetR927.checkpoint 同口径）。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/ChunkedWriterR30.java</code>；<code>code/main/com/ethk3/novaonepro/strategyv2/CoordinatorTxR30.java</code></p>
+<p><strong>测试</strong>：R30ChunkedWriterTest 6个测试</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>HOST通过</li>
+<li>杀进程续做：游标与数据一致（androidTest 或 HOST 回滚测试）</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B01-04 按账本切片前五名后台长事务</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B01-03；对应R29：R29-047, R29-005；指标：M07, M06, M10</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code></td>
+<td>MODIFY</td>
+<td>settle(RuntimeR27,Worker,long)（bb607cf:45）；settleBatch(SQLiteDatabase,long,long[])（bb607cf:51）整段替换为 docs/B01 4.1</td>
+<td>237</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RetentionR26.java</code></td>
+<td>MODIFY</td>
+<td>所有 DELETE 语句</td>
+<td>60</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/DataRetentionGovernorR900.java</code></td>
+<td>MODIFY</td>
+<td>所有 DELETE 语句</td>
+<td>446</td>
+</tr>
+<tr>
+<td><code>construction/r30/B01_OFFENDERS.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>先装 B01-01/02，模拟器（Android 10, 2核2GB）连续运行2小时、真机至少6小时，导出 r30_writer_hold；用 tools/r30/offenders.py 生成 B01_OFFENDERS.json（后台 over_hard&gt;0 或 hold_p95&gt;50ms 的操作，按 over_hard 降序）。</li>
+<li>静态已知高危（不等数据先改）：LiveShadowsR27.settle/settleBatch 按 docs/B01 第4.1节整段替换（每片≤160行一个事务；r27_opportunity 汇总从“全历史重算”改为“只算本片涉及的期号”，实测 49.9ms→0.15ms，见 evidence/settle_aggregate_benchmark.json）。</li>
+<li>所有保留/清理 DELETE（RetentionR26、DataRetentionGovernorR900）统一改用 docs/B01 第4.2节 deleteInSlicesR30 模板（每事务≤500行，原 WHERE 条件字节不变）。</li>
+<li>B01_OFFENDERS.json 中其余前五名：若其操作名在本卡文件内，按上述两模板之一处理；若在其他文件（例如 ResearchMigrationRegistryR952 的 1185 处写语句），不在本卡改，登记到 B09-04（性能卡）并写明操作名、P95、文件:行。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>docs/B01 第4.1节 settle/settleChunks 完整替换代码</code>；<code>docs/B01 第4.2节 deleteInSlicesR30</code></p>
+<p><strong>测试</strong>：既有 LiveShadows 结算测试全通过；新增：640行待结算分4片提交，杀进程后续做不重复（HOST回滚测试同模式）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>复测2小时：本卡改过的操作 over_hard=0</li>
+<li>结算结果与改前逐行一致（同一回放数据集对比 r27_live_frozen.hit）</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B01-05 任务活性判定与报告</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B01-04；对应R29：R29-006；指标：M12, M11</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TaskLivenessTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeReportR26.java</code></td>
+<td>MODIFY</td>
+<td>任务列表输出</td>
+<td>165</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 TaskLivenessR30.java。</li>
+<li>RuntimeReportR26 生成任务表时，每个 r26_task 行按以下事实调用 classify：pending = 该任务自报的待处理条数（ResearchPoolR27.Outcome.progress 的 remaining；无此字段的旧任务填 -1）；periodsSinceCommit = 最新开奖序号 − 该任务最后一次提交时的开奖序号（r26_task.last_committed_seq，没有则 -1）；dependencyMissing = blocked_reason 以 DEPENDENCY 或 WAITING_ 开头；waitingNewDraw = 最近 Outcome.idle 原因含 WAITING_NEW_DRAW；running = status='RUNNING'。</li>
+<li>报告第4章新增‘任务活性’表与 summarize 结果；M12 读 summarize.m12（null 表示有UNKNOWN，报告必须列出这些任务名）。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/TaskLivenessR30.java</code></p>
+<p><strong>测试</strong>：livenessClassification</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>报告第4章每个任务都有状态；UNKNOWN任务名单单列</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-05 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B01-06 调度公平与温控核对</h3>
+<ul>
+<li>批次内顺序：第 6 张；前置：R30-B01-05；对应R29：R29-006；指标：M11, M12, M13, M14</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code></td>
+<td>MODIFY</td>
+<td>claim()；resource(...)/thermal 段</td>
+<td>244</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ThermalPolicyR29.java</code></td>
+<td>MODIFY</td>
+<td>update(int,double,long)（bb607cf:10）</td>
+<td>30</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>注意：RuntimeCoordinatorR26 在 B00-03 已改过 initialize()，本卡只改 claim() 与温控段；按顺序在 B00-03 合入后施工。</li>
+<li>claim()：保持现有 P1/P2/P3 轮转；新增一条——若某任务 TaskLivenessR30=STALLED，下一轮优先 claim 它一次（每轮最多一个），并在 r26_task.blocked_reason 写 R30_STALL_BOOST。</li>
+<li>ThermalPolicyR29.update：thermalHeadroom 为 NaN/负数 → 视为未知，保持当前 worker 数不变（不得降为0也不得升到上限）；≥0.95 → 1 worker；≥0.85 → 2；否则按配置；恢复需连续3次读数低于阈值（滞回）。</li>
+</ol>
+<p><strong>测试</strong>：ThermalPolicy 单测：NaN/0.1/0.86/0.96 与滞回序列</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>温控序列测试通过</li>
+<li>STALLED 任务在下一轮被调度</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-06 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-06 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B01-07 重复调度入口清单与收敛</h3>
+<ul>
+<li>批次内顺序：第 7 张；前置：R30-B01-06；对应R29：R29-008, R29-007；指标：M02, M08, M12</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code></td>
+<td>MODIFY</td>
+<td>researchSelfLoopR908 (bb607cf:2245,2455)；learningHandler (1434)；runtimeGuardHandler (797,1930)</td>
+<td>17991</td>
+</tr>
+<tr>
+<td><code>construction/r30/SCHEDULER_OWNERS.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>运行 python3 tools/r30/scan_table_writers.py . /tmp/afs.json --file AutoFetchService.java 得到 AutoFetchService 的全部直接写点（文件:行）；再人工沿 bb607cf 中全部 42 处 postDelayed（行号表见 docs/B01_写者与事务治理.md 附表A）各自调用的方法，记录每个循环写哪些表；与 RuntimeCoordinatorR26.initialize() 中 add(...) 注册的任务写的表对比。</li>
+<li>同一张研究表被两个循环同时写（例如 researchSelfLoopR908 与 r26 任务都写 research_*）：保留 RuntimeCoordinatorR26 的任务，AutoFetchService 对应循环改为‘只在 RuntimeCoordinatorR26 未运行时执行’（判断 RuntimeCoordinatorR26.isRunning()），不删除代码。</li>
+<li>抓取/结算/冻结相关循环（fetchLoop、settlementRecoveryHandlerR908、analysisWatchdog）不动——它们属于实时链，B02 负责。</li>
+<li>SCHEDULER_OWNERS.json：每个循环 → 写哪些表 → 处置（KEEP/GUARDED_BY_COORDINATOR）→ 证据（文件:行）。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>tools/scan_table_writers.py</code></p>
+<p><strong>测试</strong>：生命周期回归：前台/后台/服务重启后预测、训练、图表、结算都不丢（沿用 CP06 androidTest 套件）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>SCHEDULER_OWNERS.json 无‘两个活跃写者写同一研究表’</li>
+<li>旧算法类一个都不删</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B01-07 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B01-07 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s7"><div class="src">docs/B02_实时链_抓取→结算→下一期冻结.md</div><h1>B02 实时链：抓取→结算→下一期冻结</h1>
+<h2>1. 测量先行</h2>
+<p>R29 报告里“请求到提交 P95=46.5s”只有一个总数，无法知道时间花在哪一段。B02-01 先把每期 8 个时间点落进 <code>r30_issue_timeline</code>（与业务写同一事务、先写者赢、单调钟+开机标识），之后 B02-02…05 每一项改动都必须用该表证明“哪一段变快了”。</p>
+<h2>2. 时间线配对 SQL（ReportR29 第3章使用）</h2>
+<p>开奖期 i 的结算 → 目标期 i+1 的冻结。目标期号由 <code>TargetIssueResolver</code> 给出，这里用 r36 已有的请求表把两者连起来：</p>
+<pre><code class="language-sql">-- 最近1440期：开奖期的观测/结算点 + 下一目标期的请求/准备/冻结/截止
+SELECT d.issue AS draw_issue, t.issue AS target_issue,
+       d.boot_first_observed, d.mono_first_observed, d.mono_settled, d.boot_settled,
+       t.boot_next_requested, t.mono_next_requested, t.mono_next_prepared, t.mono_next_frozen, t.boot_next_frozen,
+       t.wall_next_frozen, t.wall_next_deadline
+FROM r30_issue_timeline d
+JOIN r30_issue_timeline t ON t.issue = (SELECT min(issue) FROM r30_issue_timeline x WHERE x.issue &gt; d.issue AND x.wall_next_requested IS NOT NULL)
+WHERE d.wall_first_observed IS NOT NULL
+ORDER BY d.issue DESC LIMIT 1440;
+</code></pre>
+<p>期号是同长度数字字符串（例如 202610310593），字符串比较即时间顺序；跨日期号同样满足。组装 <code>IssueTimelineR30.Row</code> 时，SETTLED 用 d 行、NEXT_* 用 t 行，然后 <code>summarize</code>。</p>
+<h2>3. 本批次已提供的代码与验证</h2>
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IssueTimelineR30.java</code>（纯Java）</td>
+<td>已对 bb607cf 编译；HOST 3 个测试；SQL T01 通过</td>
+</tr>
+<tr>
+<td><code>IssueTimelineWriterR30.java</code>（Android）</td>
+<td>已用 API 桩编译；7 个调用点见类注释</td>
+</tr>
+<tr>
+<td><code>FetchBackoffR30.java</code>（纯Java）</td>
+<td>已编译；16 线程单飞测试 + 退避序列测试通过</td>
+</tr>
+</tbody>
+</table>
+<h2>4. 不改的东西</h2>
+<p><code>AppConfig.REALTIME_FETCH_INTERVAL_MS=1000</code>、关键写名单、结算所有权（SettlementEngine 唯一）、REAL 所有权（DecisionGateEngine 唯一）全部不变。源端未公布前不得伪造开奖；首次看到时间不得冒充源端公布时间（SOURCE_PUBLISHED 只在接口真给出时填写）。</p>
+<p><strong>目标</strong>：每期8个时间点落库，链路每段有P95；抓取单飞+退避；缺期补抓与幂等结算；准备在事务外、冻结在短事务内；UI不阻塞。</p>
+<p><strong>批次出口</strong>：真机24h：抓到→正式结算P95≤1000ms；请求→冻结P95≤5000ms；赛前≥5s冻结覆盖≥99.5%（受支持场景）。</p>
+<p><strong>versionCode</strong>：577310021（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B02-01 每期8点时间线落库</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B01-07；对应R29：R29-009, R29-010, R29-013；指标：M03, M04, M05, M07</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30IssueTimelineTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java</code></td>
+<td>MODIFY</td>
+<td>R925_FETCH_COMPLETE 回调 (bb607cf:99)</td>
+<td>466</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/DbStore.java</code></td>
+<td>MODIFY</td>
+<td>R914_DRAW_SAVE_ATOMIC 回调 (bb607cf:2191)</td>
+<td>22119</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java</code></td>
+<td>MODIFY</td>
+<td>R36_ANALYSIS_REQUEST 回调 (bb607cf:59)</td>
+<td>1338</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java</code></td>
+<td>MODIFY</td>
+<td>R36_CANONICAL (1006)；R36_SETTLEMENT_CORE_R911 (1037)</td>
+<td>3635</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java</code></td>
+<td>MODIFY</td>
+<td>ensure(SQLiteDatabase) 时间线 DDL</td>
+<td>98</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 IssueTimelineR30.java、IssueTimelineWriterR30.java；git am code/patches/0004-R30-B02-01-issue-timeline-schema.patch（SchemaR27.ensure 加时间线 DDL）。</li>
+<li>按 IssueTimelineWriterR30 类注释中的7个调用点逐一插入 mark/markAt（每处1–2行，在已有事务体内）。DatabaseCoordinator 在 B01-01 已改过，本卡只在 1006/1037 两个 task 体末尾各加一行。</li>
+<li>TargetIssueResolver 已能算出下一期截止时间：在 R36_ANALYSIS_REQUEST 回调里调用 IssueTimelineWriterR30.deadline(db, targetIssue, deadlineWall)。</li>
+<li>ReportR29 第3章（B01-02 已建）加‘实时链分段’表：读最近 1440 期 r30_issue_timeline，组装 IssueTimelineR30.Row 后调用 summarize，原样输出 n/P50/P95/max/pass/跨重启/缺失。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/IssueTimelineR30.java</code>；<code>code/main/com/ethk3/novaonepro/strategyv2/IssueTimelineWriterR30.java</code>；<code>code/patches/0004-R30-B02-01-issue-timeline-schema.patch</code></p>
+<p><strong>测试</strong>：timeline* 3个HOST测试；SQL T01</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>运行30分钟：≥95% 的期有 FIRST_OBSERVED/DRAW_COMMITTED/SETTLED 三点</li>
+<li>报告出现分段表且无伪造PASS</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B02-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B02-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B02-02 抓取单飞与退避节奏</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B02-01；对应R29：R29-009；指标：M04, M05, M18</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30FetchBackoffTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FetchBackoffR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java</code></td>
+<td>MODIFY</td>
+<td>fetchLoop 调度 (bb607cf:2669 fetchHandler.postDelayed)</td>
+<td>17991</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>注意：AutoFetchService 在 B01-07 已改过研究循环，本卡只改 fetchLoop。</li>
+<li>AutoFetchService 持有一个 static final FetchBackoffR30 FETCH_R30；fetchLoop 进入时 if(!FETCH_R30.tryBegin()) return;（直接返回，不重排）；请求结束 finally FETCH_R30.end(ok)；下一次 postDelayed 的 delay 改为 FETCH_R30.nextDelayMs(haveCurrent, msUntilDeadline)。</li>
+<li>HTTP 超时：读取/连接各 4000ms（FetchBackoffR30.REQUEST_TIMEOUT_MS），在现有客户端构造处设置。</li>
+<li>报告第3章加：rejectedConcurrent、consecutiveFailures 当前值。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/FetchBackoffR30.java</code></p>
+<p><strong>测试</strong>：singleFlightRejectsConcurrentRequests；backoffGrowsCapsAndResets</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>日志中同一时刻在途请求恒≤1</li>
+<li>断网→恢复：退避序列 1/2/4/8/15s，恢复后立即回到1s</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B02-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B02-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B02-03 缺期补抓与幂等结算核验</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B02-02；对应R29：R29-010, R29-012；指标：M04, M06, M10</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java</code></td>
+<td>MODIFY</td>
+<td>r29_pending_draw 处理</td>
+<td>316</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code></td>
+<td>MODIFY</td>
+<td>结算入口幂等键</td>
+<td>2967</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>CP06 已有 r29_pending_draw 与 hit IN(-1,-2) 重结算（LiveShadowsR27 第36–66行注释）。本卡只补测试与两处缺口：</li>
+<li>(1) r29_pending_draw.checks 无上限：加 next_check_at，退避 1,2,4…最长 300s；超过 2880 次（约48小时）标记 STALE 并在报告列出，不删除；</li>
+<li>(2) SettlementEngine：同一 (issue, candidate) 第二次结算必须返回已存在结果且不改任何行（幂等键=issue|candidate|settlement_hash）。</li>
+</ol>
+<p><strong>测试</strong>：androidTest：先缺开奖→跨3期补回→原冻结只结算一次；同 issue 重复结算返回同结果、行数不变</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>上述两测试通过</li>
+<li>迟到预测（冻结晚于截止）永不被结算为FUTURE</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B02-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B02-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B02-04 准备在事务外、冻结在短事务内</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B02-03；对应R29：R29-011, R29-010；指标：M03, M05, M07</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/V51RuntimeOrchestrator.java</code></td>
+<td>MODIFY</td>
+<td>分析计算与 R36_CANONICAL 提交之间</td>
+<td>875</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code></td>
+<td>MODIFY</td>
+<td>freeze(RuntimeR27,Worker,String,long,long,String,boolean)（bb607cf:80）——与 B01-04 的 settleBatch 不同方法</td>
+<td>237</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>注意：LiveShadowsR27 在 B01-04 改过 settleBatch；本卡只改 freeze 路径方法，两卡不得并行。</li>
+<li>V51RuntimeOrchestrator：把候选计算（模型推理、特征、排序）全部移到 runR36Transaction 之前；事务体只做：校验仍是同一目标期+写冻结行+时间线 NEXT_PREPARED/NEXT_FROZEN。事务体内禁止调用任何模型/特征方法（代码审查清单项）。</li>
+<li>LiveShadowsR27 研究观察冻结同理：先在 worker 线程算好 Batch，再 submit(freezeWrite=true)。</li>
+</ol>
+<p><strong>测试</strong>：R30 timeline：prepare_to_frozen P95≤200ms（真机）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>事务体内无模型调用（审查+ grep 规则）</li>
+<li>M07 关键写等待未变差</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B02-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B02-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B02-05 UI与后台延迟</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B02-04；对应R29：R29-013；指标：M13, M14, M33</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/MainActivity.java</code></td>
+<td>MODIFY</td>
+<td>主线程数据库访问点</td>
+<td>9484</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code></td>
+<td>MODIFY</td>
+<td>图表加载</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>StrictMode（仅 debug 构建）开启 detectDiskReads/detectDiskWrites penaltyLog；跑一遍所有页面，日志中每条主线程磁盘访问都移到后台执行器。</li>
+<li>ChartsRepositoryR27：分页读取（每页≤500行），不在主线程拼长字符串。</li>
+</ol>
+<p><strong>测试</strong>：debug 构建 StrictMode 违规=0</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>各页面首次打开&lt;1s（真机）</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B02-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B02-05 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s8"><div class="src">docs/B03_历史训练与时点正确性_PIT.md</div><h1>B03 历史训练与时点正确性（PIT）</h1>
+<p><strong>目标</strong>：历史回放与实时冻结共用一套PIT守卫；分割与曝光账防止确认段被重复使用；增量特征与可恢复训练游标。</p>
+<p><strong>批次出口</strong>：PIT违规=0（含故意注入的反例被拒）；训练续训结果与不中断一致（登记容差内）。</p>
+<p><strong>versionCode</strong>：577310031（批次内每次重新出包 +1，不得回退）</p>
+<p><strong>本批次顺序共享文件</strong>（同一文件被本批次两张卡改动：只能按卡序先后施工，改动方法互不重叠）：</p>
+<ul>
+<li><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code>：R30-B03-01（回放样本生成） → R30-B03-06（评价入口（与 B03-01 不同方法））</li>
+</ul>
+<h3>R30-B03-01 PIT守卫接入所有冻结写入</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B02-05；对应R29：R29-015, R29-016；指标：M18, M19</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30PitGuardTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PitGuardR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/LiveShadowsR27.java</code></td>
+<td>MODIFY</td>
+<td>freeze(...)（bb607cf:80）写 Batch 之前</td>
+<td>237</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code></td>
+<td>MODIFY</td>
+<td>回放样本生成</td>
+<td>147</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 PitGuardR30.java。DDL：CREATE TABLE IF NOT EXISTS r30_pit_violation(policy_hash TEXT,target_ordinal INTEGER,code TEXT,source TEXT,recorded_at INTEGER,PRIMARY KEY(policy_hash,target_ordinal,code))（加进 SchemaR27.ensure）。</li>
+<li>LiveShadowsR27 每条冻结、ReplayEvaluatorR27 每个回放样本：构造 Freeze → check → 非空则不写该冻结/不计该样本，写 r30_pit_violation。回放中 deadlineAt=该期计划截止，frozenAt=deadlineAt-5000（回放模拟口径），modelAvailableAt=模型训练截止期的计划开奖时间。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/PitGuardR30.java</code></p>
+<p><strong>测试</strong>：pitGuard* HOST 测试；反例注入：故意让一个回放样本 trainedThrough=target，必须被拒并入账</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>真机/回放 r30_pit_violation 只含注入反例</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B03-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B03-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B03-02 真实历史数据治理</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B03-01；对应R29：R29-014；指标：M15, M18</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HistoryImportR27.java</code></td>
+<td>MODIFY</td>
+<td>导入校验</td>
+<td>55</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayDatasetR27.java</code></td>
+<td>MODIFY</td>
+<td>dataset hash</td>
+<td>175</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code></td>
+<td>MODIFY</td>
+<td>draws 热库上限</td>
+<td>131</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>导入：期号连续性、10个号码为1..10排列、重复期去重、冲突隔离到 r27_fetch_reject（已有表）。</li>
+<li>dataset hash = sha256(首期|末期|行数|逐行规范化串)；数据集换代时旧 hash 的指纹/资格不跨代比较。</li>
+<li>热库 draws≤5000（M15），超出部分进压缩历史块（现有 ArchiveStoreSU1），回放从块读取。</li>
+</ol>
+<p><strong>测试</strong>：导入乱序/重复/缺期/跨日 fixture</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>fixture 全通过</li>
+<li>热库行数≤5000</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B03-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B03-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B03-03 分割角色与曝光账</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B03-02；对应R29：R29-015；指标：M18, M19</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SplitR27.java</code></td>
+<td>MODIFY</td>
+<td>角色划分</td>
+<td>52</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/HoldoutLedgerR27.java</code></td>
+<td>MODIFY</td>
+<td>曝光记录</td>
+<td>51</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java</code></td>
+<td>MODIFY</td>
+<td>评分只读 H_TRAIN/H_SELECT</td>
+<td>63</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>H_TRAIN/H_SELECT/H_CONFIRM 三段按 dataset hash 固定；H_CONFIRM 每个候选只允许被读取一次，读取即写 HoldoutLedgerR27（policy_hash, dataset_hash, range, read_at）；第二次读取抛 R30_CONFIRM_REUSED。</li>
+<li>AtomScoreR27 只能读 H_TRAIN/H_SELECT（代码断言）。</li>
+</ol>
+<p><strong>测试</strong>：同一候选二次读确认段被拒</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>训练分割污染=0</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B03-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B03-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B03-04 增量特征与回放</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B03-03；对应R29：R29-016；指标：M03, M11, M18</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FeatureCacheR27.java</code></td>
+<td>MODIFY</td>
+<td>FamilyStream 增量喂入；rows [0,fed) 不变断言</td>
+<td>310</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code></td>
+<td>MODIFY</td>
+<td>每期增量特征调度</td>
+<td>330</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>FeatureCacheR27 现有注释要求 rows[0,fed) 不变：加断言（hash 前缀比对，每100期一次），失败则整缓存重建并记 r30_cache_rebuild。</li>
+<li>RuntimeR27 每期只追加新一行特征，不全量重算；缓存键=(dataset hash, trainedThrough, feature ABI, position)。</li>
+</ol>
+<p><strong>测试</strong>：增量与全量结果逐位一致（HOST，用 ReplayDatasetR27 小样本）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>一致性测试通过</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B03-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B03-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B03-05 训练游标与可恢复状态</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B03-04；对应R29：R29-017；指标：M10, M20</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java</code></td>
+<td>MODIFY</td>
+<td>checkpoint 保存/恢复</td>
+<td>84</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java</code></td>
+<td>MODIFY</td>
+<td>训练游标</td>
+<td>243</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelArtifactR29.java</code></td>
+<td>MODIFY</td>
+<td>artifact 发布</td>
+<td>103</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>checkpoint=权重+优化器状态+RNG状态+游标，一次原子发布（先写临时文件→fsync→rename→提交引用行）。</li>
+<li>恢复后继续训练 N 步的结果与不中断训练 N 步一致（浮点容差登记在 ModelArtifactR29.TOLERANCE）。</li>
+</ol>
+<p><strong>测试</strong>：中断/恢复一致性 HOST 测试</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>一致性在容差内；不重复学习同一事件</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B03-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B03-05 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B03-06 统一回放评价器</h3>
+<ul>
+<li>批次内顺序：第 6 张；前置：R30-B03-05；对应R29：R29-018；指标：M18, M19, Q05, Q06</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayScoreR27.java</code></td>
+<td>MODIFY</td>
+<td>评分</td>
+<td>67</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReplayEvaluatorR27.java</code></td>
+<td>MODIFY</td>
+<td>评价入口（与 B03-01 不同方法）</td>
+<td>147</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvalContextR27.java</code></td>
+<td>MODIFY</td>
+<td>scores 缓存键含 dataset hash</td>
+<td>58</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>注意：ReplayEvaluatorR27 在 B03-01 已改样本生成，本卡只改评价入口。</li>
+<li>所有回放评分统一走 ReplayEvaluatorR27.evaluate(policy, role)；scoreMemo 键加 dataset hash，避免换代后命中旧缓存。</li>
+</ol>
+<p><strong>测试</strong>：同策略同数据集两次评分完全一致；换数据集缓存失效</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>测试通过</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B03-06 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B03-06 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s9"><div class="src">docs/B04_完整策略与结构创造.md</div><h1>B04 完整策略与结构创造</h1>
+<h2>1. 定义</h2>
+<p>“完整策略”= 现有 <code>PolicySpecR27</code> 的全部五段（输入/模型/读出/选择器/更新器）+ 来源 Meta，且通过 <code>PolicyContractR30.violations()</code> 为空。R30 不另立第二种策略格式；R29 方案中的 PolicyContractR29 由 PolicyContractR30 取代（直接复用真实 PolicyAstR27 的类型检查与范围/因果检查，本包测试已证明它会拒绝 <code>add(PROB, RISK)</code> 这样的类型混合）。</p>
+<h2>2. 去重</h2>
+<p>语法不同、行为相同 = 同一策略。行为指纹 <code>BehaviorSignatureR30</code> 取 256 个 H_TRAIN 探针期上的（是否出手、位置、K3 集合），不出手的期不看位置与号码。</p>
+<h2>3. 新增类（已写好，直接复制）</h2>
+<ul>
+<li><code>code/main/.../StructureWindowR30.java</code>：窗口计数与 top3，纯函数，只读 [target-w, target)。</li>
+<li><code>code/main/.../SetIntersectionPolicyR30.java</code>：思路族 I14，实现 bb607cf 真实接口 <code>IdeaFamilyR27</code>（id/nameZh/coreIdea/generate/mutate），程序为 <code>mix(α, freq(p,w1), freqnb(p,w2))</code>。</li>
+<li><code>code/test/.../R30B04StructureTest.java</code>：500 次出生与 200 次变异全部通过 <code>PolicyContractR30</code>；修改目标期本身不影响窗口计数（PIT）。本包已在 bb607cf 源码上实测 4/4 通过。</li>
+</ul>
+<p>族注册：bb607cf 的族列表在 <code>EvolutionLoopR27.java</code> 第 46–49 行（<code>new IdeaI01…</code> 到 <code>new IdeaI13SelectorOnlyR27()</code>）。为避免两张卡改同一处，I14–I20 七个新族统一由 <strong>B04-06</strong> 一次追加到该列表之后，B04-04 只交付类与测试。</p>
+<h2>4. 资格不豁免</h2>
+<p>任何族（包括 I14 现行交叉方法）产生的策略都走同一条：出生合同 → 观察 → 序贯资格（全局 α 预算，<code>SequentialQualificationR27</code>）→ 证书门（34%/250/ECE0.04/26%/连败6 不变）→ 主链。R30 不为任何族开绿灯。</p>
+<p><strong>目标</strong>：所有新策略必须是完整合同（程序+选位+K3+出手规则+读出+更新+来源）；行为指纹去重；结构窗口/集合缩减/选时选位/六类结构生成器/失败驱动修复。</p>
+<p><strong>批次出口</strong>：空壳出生=0；行为重复计数与账一致；13族+新增6类生成器全部可执行且有出生记录。</p>
+<p><strong>versionCode</strong>：577310041（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B04-01 完整策略合同进出生门</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B03-06；对应R29：R29-019；指标：M21, M22</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30PolicyContractTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/PolicyContractR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/BirthGateR27.java</code></td>
+<td>MODIFY</td>
+<td>出生检查入口</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 PolicyContractR30.java。</li>
+<li>BirthGateR27 出生检查第一步调用 PolicyContractR30.violations；非空 → 拒绝，拒绝码写现有出生拒绝账（BirthGateR27 已有的 reject 记录），前缀 R30_CONTRACT:。</li>
+<li>RANDOM 规则策略只能以对照身份登记（controlOnly），不得进入资格队列。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/PolicyContractR30.java</code></p>
+<p><strong>测试</strong>：completePolicyPasses；emptyShellsRejected</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>空壳出生=0（报告出生拒绝码分布）</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B04-02 行为指纹去重</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B04-01；对应R29：R29-025；指标：M22, M23</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30BehaviorSignatureTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/BehaviorSignatureR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EliteArchiveR27.java</code></td>
+<td>MODIFY</td>
+<td>入档去重</td>
+<td>31</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IslandModelR27.java</code></td>
+<td>MODIFY</td>
+<td>迁移去重</td>
+<td>38</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 BehaviorSignatureR30.java。探针期规则见类注释（256期，只在 H_TRAIN 段）。</li>
+<li>EliteArchiveR27 入档前计算指纹；已存在相同指纹 → 不入档，记 r30_behavior_dup(signature, kept_policy, dropped_policy)。IslandModelR27 迁移同样检查。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/BehaviorSignatureR30.java</code></p>
+<p><strong>测试</strong>：behaviorSignatureIgnoresNonActDetails</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>报告去重计数=r30_behavior_dup 行数</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B04-03 13个业务思路族增强</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B04-02；对应R29：R29-020；指标：M21, M23</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaFamilyR27.java</code></td>
+<td>MODIFY</td>
+<td>族接口</td>
+<td>105</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ExpertProposalsR27.java</code></td>
+<td>MODIFY</td>
+<td>专家提案</td>
+<td>68</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>每个族的 propose 必须产出完整 PolicySpecR27（经 B04-01 合同）；族自身的 reason 写入 Meta.reason。</li>
+<li>ExpertProposalsR27 提案同样过合同。</li>
+</ol>
+<p><strong>测试</strong>：每族生成100个提案，合同通过率报告</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>13族都有出生记录</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B04-04 短期结构窗口与集合缩减</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B04-03；对应R29：R29-021；指标：M18, M21, Q01</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30B04StructureTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureWindowR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 StructureWindowR30.java、SetIntersectionPolicyR30.java（已对 bb607cf 真实 IdeaFamilyR27/PolicyAstR27 编译并测试）。</li>
+<li>本卡不登记（族列表在 EvolutionLoopR27.java:46–49，由 B04-06 统一登记 I14–I20，避免两卡改同一处）；I14 把多集合×多位置交叉表达为 mix(α,freq(p,w1),freqnb(p,w2))，出生同样过合同、同样进观察与资格，不享有任何豁免。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/StructureWindowR30.java</code>；<code>code/main/com/ethk3/novaonepro/strategyv2/SetIntersectionPolicyR30.java</code>；<code>code/test/com/ethk3/novaonepro/strategyv2/R30B04StructureTest.java</code></p>
+<p><strong>测试</strong>：R30B04StructureTest 4个测试（500个I14出生+200次变异全部合同合法；窗口只读过去）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>R30B04StructureTest 4/4 通过</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B04-05 选时选位与出手条件</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B04-04；对应R29：R29-022；指标：M18, M30, Q01, Q02</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI13SelectorOnlyR27.java</code></td>
+<td>MODIFY</td>
+<td>选择器</td>
+<td>33</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SelectorPolicyR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>SelectorPolicyR30 只决定“哪一位、是否出手”，不改打分程序；与打分策略组合后形成新 PolicySpecR27（position/rule/threshold/rate 四字段）。</li>
+<li>出手率在 H_SELECT 上估计，结果写入 Meta.reason（例如 act≈0.18@H_SELECT），资格阶段按事前登记的出手率计算 δ_min（SequentialQualificationR27.deltaMin）。</li>
+</ol>
+<p><strong>测试</strong>：选择器不读确认段</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>组合策略合同通过</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-05 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B04-06 六类结构生成器注册</h3>
+<ul>
+<li>批次内顺序：第 6 张；前置：R30-B04-05；对应R29：R29-023；指标：M21, M23, M36</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StructureGeneratorRegistryR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java</code></td>
+<td>MODIFY</td>
+<td>族列表 FAMILIES（bb607cf:46–49，new IdeaI01…I13）</td>
+<td>527</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>注意：IdeaFamilyR27 归 B04-03 所有，本卡不改它。</li>
+<li>六类：窗口差分、位置轮换、遗漏回补、邻号转移、奇偶/大小状态、条件交集；每类一个 IdeaFamilyR27 实现（照 SetIntersectionPolicyR30 的写法：generate 用 Grow.pos/Grow.spec，mutate 用 Grow.swapLeaf），id I15–I20，放在 StructureGeneratorRegistryR30 的静态内部类中。</li>
+<li>EvolutionLoopR27 族列表在 I13 之后追加 new SetIntersectionPolicyR30() 与 StructureGeneratorRegistryR30.ALL 中六个实例；列表其余不动。</li>
+<li>每类复制 R30B04StructureTest.i14ProposalsAreCompleteContracts 改类名做同样的 500 次合同测试。</li>
+</ol>
+<p><strong>测试</strong>：六类各生成50个合同合法提案</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>I14–I20 七个新族都有出生记录（报告族分布）</li>
+<li>七类各 500 次出生合同全部合法</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-06 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-06 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B04-07 失败驱动结构修复</h3>
+<ul>
+<li>批次内顺序：第 7 张；前置：R30-B04-06；对应R29：R29-024；指标：M19, M21, Q06</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MutationOpsR27.java</code></td>
+<td>MODIFY</td>
+<td>变异</td>
+<td>128</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CrossoverOpsR27.java</code></td>
+<td>MODIFY</td>
+<td>交叉</td>
+<td>42</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/FusionOpsR27.java</code></td>
+<td>MODIFY</td>
+<td>融合</td>
+<td>60</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>注意：ExpertProposalsR27 归 B04-03；本卡不改它。</li>
+<li>变异/交叉/融合输入增加‘失败画像’：父代在 H_SELECT 上命中率最低的位置与窗口；算子优先修改这些叶子。产物同样过合同。</li>
+</ol>
+<p><strong>测试</strong>：算子产物合同通过率≥99%</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>失败画像写入 Meta.reason</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B04-07 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B04-07 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s10"><div class="src">docs/B05_进化、对照与神经训练.md</div><h1>B05 进化、对照与神经训练</h1>
+<p><strong>目标</strong>：进化与确认隔离；全管线空信号对照；AtomNet十位置真实训练；I08神经表示接入策略；NumberQ与学习模型统一。</p>
+<p><strong>批次出口</strong>：同池对照可复算；神经模型被策略实际消费的调用记录100%可追溯。</p>
+<p><strong>versionCode</strong>：577310051（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B05-01 进化与确认隔离</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B04-07；对应R29：R29-026；指标：M19, Q06</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java</code></td>
+<td>MODIFY</td>
+<td>代际选择只用 H_SELECT</td>
+<td>527</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>EvolutionLoopR27 选择/淘汰只读 H_TRAIN/H_SELECT；进入确认（H_CONFIRM 或实时 FUTURE）的候选从此冻结，进化不得再改其参数。</li>
+<li>HoldoutLedgerR27（B03-03 已改）为确认段唯一闸门。</li>
+</ol>
+<p><strong>测试</strong>：进化循环中任何对 H_CONFIRM 的读取抛异常</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>测试通过</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B05-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B05-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B05-02 全管线空信号对照与功效</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B05-01；对应R29：R29-027；指标：M36, Q08</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30SequentialNullSimTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/NullEvolutionR27.java</code></td>
+<td>MODIFY</td>
+<td>对照运行</td>
+<td>44</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/SequentialQualificationR27.java</code></td>
+<td>MODIFY</td>
+<td>仅增加报告字段，不改数学</td>
+<td>74</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>NullEvolutionR27：用同一流水线在‘随机排列开奖序列’上跑完整进化+资格，记录误授证数（期望≈0）。</li>
+<li>功效：注入真实优势 0.34/0.37/0.40 的合成策略，记录检出所需期数分布（Q08）。合成结果只进 Q08，不计入任何真实质量。</li>
+<li>SequentialQualificationR27 数学不改；只把 json() 增加 deltaMin 来源说明。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/test/com/ethk3/novaonepro/strategyv2/R30SequentialNullSimTest.java</code></p>
+<p><strong>测试</strong>：R30SequentialNullSimTest.nullStrategiesRarelyQualify：2000 个零优势策略误授证≤2（本包实测已对 bb607cf 现有 SequentialQualificationR27 通过）；realEdgeIsDetectable：0.40 优势 20 次中≥18 次检出（本包实测通过）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>报告 Q08 有数</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B05-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B05-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B05-03 AtomNet 十位置真实训练输入</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B05-02；对应R29：R29-028；指标：M18, M20, Q05</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/AtomReplayR27.java</code></td>
+<td>MODIFY</td>
+<td>pos = ordinal%10+1 轮换（bb607cf:38）</td>
+<td>77</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetR27.java</code></td>
+<td>MODIFY</td>
+<td>输入层</td>
+<td>107</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>AtomReplayR27 当前每期只取一个轮换位置（静态发现S04）：改为每期十个位置各一个样本（10倍样本，训练切片预算不变，按 B01 切片规则）。</li>
+<li>AtomNetR27 输入增加位置 one-hot。</li>
+</ol>
+<p><strong>测试</strong>：样本数=期数×10</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>训练吞吐报告（每期样本/耗时）</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B05-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B05-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B05-04 I08 神经表示接入策略消费者</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B05-03；对应R29：R29-029；指标：M21, M24, Q05</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/IdeaI08NeuralRepresentationR27.java</code></td>
+<td>MODIFY</td>
+<td>KINDS={"family"}</td>
+<td>22</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ModelSurfaceProviderR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>ModelSurfaceProviderR30.predict(pit, frozenModelRef)：返回不可变概率面；要求 trainedThrough&lt;target 且模型在冻结前可用（PitGuardR30 检查）。</li>
+<li>I08 增加叶子 model_surface(position)，从 provider 读；每次调用写 r30_model_call(policy_hash, model_hash, target_ordinal)。</li>
+</ol>
+<p><strong>测试</strong>：调用记录与冻结一一对应</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M24：消费记录100%匹配或明确BLOCKED</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B05-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B05-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B05-05 NumberQ 排序器与学习模型统一</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B05-04；对应R29：R29-030；指标：M20, M24, Q05</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomNetTrainerR27.java</code></td>
+<td>MODIFY</td>
+<td>排序输出（与 B03-05 不同方法）</td>
+<td>84</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/NumberRankerAdapterR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>NumberRankerAdapterR30 把 AtomNet 输出统一成 double[10] 概率面，供 ModelSurfaceProviderR30 使用；不另起一套排序。</li>
+</ol>
+<p><strong>测试</strong>：概率面和为1（PitGuardR30）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>只有一套号码排序</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B05-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B05-05 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s11"><div class="src">docs/B06_原子、矩阵与校准.md</div><h1>B06 原子、矩阵与校准</h1>
+<p><strong>目标</strong>：原子/分子贡献评分；20矩阵与教师能力迁移；能力逐对象注册；校准时间隔离与等质量箱ECE。</p>
+<p><strong>批次出口</strong>：矩阵接线全可追溯；校准样本100%时间隔离；Q05按新口径出数（未达标如实）。</p>
+<p><strong>versionCode</strong>：577310061（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B06-01 校准时间隔离与等质量箱</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B05-05；对应R29：R29-034；指标：M26, Q05</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30CalibrationTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CalibrationRowsR27.java</code></td>
+<td>MODIFY</td>
+<td>拟合窗口</td>
+<td>99</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 CalibrationR30.java。</li>
+<li>CalibrationRowsR27 拟合只用 ordinal &lt; 被评估样本 ordinal 的行（滚动拟合）；评估输出同时给等宽ECE（旧）与等质量ECE、Brier、BSS、支持覆盖（新），报告并列。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/CalibrationR30.java</code></p>
+<p><strong>测试</strong>：calibrationPerfectAndBiased</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>报告 Q05 两种口径并列</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B06-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B06-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B06-02 原子分子贡献评分</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B06-01；对应R29：R29-031；指标：M19, M22, Q05</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomScoreR27.java</code></td>
+<td>MODIFY</td>
+<td>贡献评分（与 B03-03 不同方法）</td>
+<td>63</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DerivedAtomR27.java</code></td>
+<td>MODIFY</td>
+<td>分子组合</td>
+<td>102</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>贡献=加入/移除该原子后 H_SELECT 上 BrierGain 的配对差（同期配对），报告均值与单侧95%下界。</li>
+</ol>
+<p><strong>测试</strong>：已知无效原子贡献下界≤0</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>报告原子贡献表</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B06-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B06-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B06-03 20矩阵与教师能力迁移</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B06-02；对应R29：R29-032；指标：M02, M25</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixSnapshotSU2.java</code></td>
+<td>MODIFY</td>
+<td>快照</td>
+<td>77</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/MatrixSnapshotFeedbackR930.java</code></td>
+<td>MODIFY</td>
+<td>反馈</td>
+<td>563</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>MatrixRegistryR30 列出20个矩阵：id、产出者类、消费者类、最近产出期、未产出原因。</li>
+<li>不迁移数据，只登记与接线检查。</li>
+</ol>
+<p><strong>测试</strong>：20项全部有行</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M25 全可追溯</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B06-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B06-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B06-04 能力逐对象注册表</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B06-03；对应R29：R29-033；指标：M17, M23, M25</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CapabilityRegistryR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportDataR27.java</code></td>
+<td>MODIFY</td>
+<td>能力章节数据</td>
+<td>115</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>F01—F24、E01—E16、I00—I20、AtomNet、矩阵：每个对象一行（实现类、是否可执行、最近运行、产出数、证据状态）。没有证据不得标有效。</li>
+</ol>
+<p><strong>测试</strong>：对象数=24+16+21+1+20</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>报告能力表</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B06-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B06-04 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s12"><div class="src">docs/B07_资格与主链.md</div><h1>B07 资格与主链</h1>
+<p><strong>目标</strong>：确认队列不被换榜挤掉；资格门版本化；选择器独立评价；证书→主链→REAL逐项解释（默认REAL关闭）。</p>
+<p><strong>批次出口</strong>：合法正对照贯通、非法/过期全部拦截；空信号模拟误授证率在预算内；‘有证书没出手’逐期有原因。</p>
+<p><strong>versionCode</strong>：577310071（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B07-01 确认队列不被换榜挤掉</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B06-04；对应R29：R29-035；指标：M27, M29, Q03</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java</code></td>
+<td>MODIFY</td>
+<td>OBSERVE_CAP=24 观察池（bb607cf:106）</td>
+<td>330</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationInboxR29.java</code></td>
+<td>MODIFY</td>
+<td>连续消费（与 B02-03 不同方法）</td>
+<td>316</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>观察池分两段：确认队列（已进入资格累计的策略，永不因换榜被移出，直到资格结论 QUALIFIED/NOT_BETTER）+ 探索位（其余 OBSERVE_CAP−确认数，按 H_SELECT 分数换榜）。</li>
+<li>资格累计连续游标（CP06 已实现）保持；补测试：换榜100代后确认队列成员不变。</li>
+</ol>
+<p><strong>测试</strong>：换榜不挤出确认队列</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M29=0</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B07-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B07-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B07-02 资格门版本化</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B07-01；对应R29：R29-036；指标：M27, M36, Q01, Q03, Q04</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/CertificateGateR27.java</code></td>
+<td>MODIFY</td>
+<td>常量加 GATE_VERSION</td>
+<td>61</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>门槛数值一律不改（34%/250/ECE0.04/26%/连败6）。只加 GATE_VERSION="R27_GATE_V1" 并写进每张证书；版本不同的证书不可比较。</li>
+<li>R29_GATE_V2 不启用（保持 R29 方案‘未实施/未启用’状态），本版不引入新门。</li>
+</ol>
+<p><strong>测试</strong>：证书带版本</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>证书表 gate_version 非空</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B07-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B07-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B07-03 主链逐项解释与单笔REAL</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B07-02；对应R29：R29-037, R29-038；指标：M06, M28, M30, M35</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DecisionChainTest.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DecisionChainR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/DecisionGateEngine.java</code></td>
+<td>MODIFY</td>
+<td>只读：在现有决定点调用 explain 并落库，不改判定</td>
+<td>11368</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/MainlineBridgeSU2.java</code></td>
+<td>MODIFY</td>
+<td>证书→主链投影只读</td>
+<td>120</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 DecisionChainR30.java。</li>
+<li>DecisionGateEngine 每期决定后（无论结果）组装 Facts 并 explain，写 r30_decision_explain(issue, first_blocker, items_json)。DecisionGateEngine 原判定逻辑一行不改；若 explain.allowReal 与原判定不一致，写 r30_decision_mismatch 并以原判定为准（REAL 只会更严不会更松）。</li>
+<li>用户 REAL 开关默认关闭；stakeFixed：金额与连败/亏损无关才为 true。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/DecisionChainR30.java</code></p>
+<p><strong>测试</strong>：realRequiresEveryItemAndDefaultsOff；androidTest：合法正对照贯通；过期证书/缺冻结/已有REAL 全部拦截</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>r30_decision_mismatch=0（或全部为更严方向）</li>
+<li>报告‘有证书没出手’逐期原因</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B07-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B07-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B07-04 证书撤销≤5秒</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B07-03；对应R29：R29-051；指标：M35</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/SettlementEngine.java</code></td>
+<td>MODIFY</td>
+<td>撤销钩子（与 B02-03 不同方法）</td>
+<td>2967</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>开奖修订或 hash 冲突 → 立即把受影响证书置 REVOKED（同一事务），DecisionGateEngine 下一次读取即拒绝。</li>
+</ol>
+<p><strong>测试</strong>：撤销到拒绝 ≤5000ms</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M35 测得</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B07-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B07-04 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s13"><div class="src">docs/B08_报告与存储.md</div><h1>B08 报告与存储</h1>
+<p><strong>目标</strong>：12章报告同一数据快照出数；诊断规则给代码行动；升级诊断/消融空章修复；导出可取消；总存储与保留。</p>
+<p><strong>批次出口</strong>：报告口径冲突=0；取消≤2s；默认ZIP≤20MiB或分卷；存储未超预算。</p>
+<p><strong>versionCode</strong>：577310081（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B08-01 12章报告同一快照出数</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B07-04；对应R29：R29-039；指标：M17, M31, M32</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java</code></td>
+<td>MODIFY</td>
+<td>生成入口</td>
+<td>112</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java</code></td>
+<td>MODIFY</td>
+<td>旧章节</td>
+<td>188</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>报告开始时开一个只读事务（BEGIN DEFERRED）读完所有章节再结束，保证同一快照；每章写 snapshot watermark（最新期号+各表 max rowid）。</li>
+</ol>
+<p><strong>测试</strong>：两章对同一指标出数一致</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M32=0 冲突</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B08-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B08-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B08-02 诊断规则给出具体代码行动</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B08-01；对应R29：R29-040；指标：M31, M32</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>规则=条件→结论→行动（文件:方法）。示例：r30_writer_hold over_hard&gt;0 → ‘后台长事务’ → ‘按 B01-04 模板切片 <operation>’。</li>
+</ol>
+<p><strong>测试</strong>：每条规则有行动</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M31 100% 或 UNKNOWN+采集动作</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B08-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B08-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B08-03 升级诊断与消融空章修复</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B08-02；对应R29：R29-041；指标：M17, M31, Q06</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/UpgradeDiagnosisSU2.java</code></td>
+<td>MODIFY</td>
+<td>消融章节</td>
+<td>885</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>无数据时写 INSUFFICIENT 与原因，不输出空表。</li>
+</ol>
+<p><strong>测试</strong>：空库报告无空章</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>测试通过</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B08-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B08-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B08-04 导出取消、重建与分页</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B08-03；对应R29：R29-042；指标：M16, M17, M32</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java</code></td>
+<td>MODIFY</td>
+<td>导出</td>
+<td>492</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/ReportTaskControlR69.java</code></td>
+<td>MODIFY</td>
+<td>取消</td>
+<td>121</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/ReportPublicationCP12.java</code></td>
+<td>MODIFY</td>
+<td>发布</td>
+<td>152</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>取消：检查点间隔≤200ms；取消后2s内释放全部资源。</li>
+<li>ZIP 默认≤20MiB，超出分卷 part01..N，索引文件列全部分卷。</li>
+</ol>
+<p><strong>测试</strong>：取消≤2000ms</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M16/M17</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B08-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B08-04 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B08-05 总存储与证据保留</h3>
+<ul>
+<li>批次内顺序：第 5 张；前置：R30-B08-04；对应R29：R29-043；指标：M15, M17</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code></td>
+<td>MODIFY</td>
+<td>存储统计（与 B03-02 不同方法）</td>
+<td>131</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>ResearchRetentionR30：按配置总预算（默认 1.5GB）清理可重算缓存；不可重算证据（冻结、结算、证书、曝光账）永不自动删除。清理一律用 B01-04 的 DELETE 模板。</li>
+<li>*.r30-retired（B00-03 留下的R29研究库）在空间不足时最先删除，删前写 r30_copy_log 引用。</li>
+</ol>
+<p><strong>测试</strong>：超预算时只删可重算项</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M15</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B08-05 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B08-05 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s14"><div class="src">docs/B09_图表、故障注入与性能.md</div><h1>B09 图表、故障注入与性能</h1>
+<p><strong>目标</strong>：图表与排行榜保全；代际/能力可视化；全链故障注入回归；按B01账本做最后的性能修复。</p>
+<p><strong>批次出口</strong>：全部图表场景可打开且与报告口径一致；故障注入矩阵全通过。</p>
+<p><strong>versionCode</strong>：577310091（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B09-01 图表与排行榜保全</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B08-05；对应R29：R29-044, R29-045；指标：M02, M32, M33, Q06</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ChartCacheR27.java</code></td>
+<td>MODIFY</td>
+<td>缓存键</td>
+<td>272</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/ChartsRepositoryR27.java</code></td>
+<td>MODIFY</td>
+<td>代际/能力图表（与 B02-05 不同方法）</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>14类旧图表全部保留；新增代际提升图（配对差下界）与能力覆盖图，数据来自 B08-01 同一快照。</li>
+</ol>
+<p><strong>测试</strong>：所有图表页打开截图（androidTest）</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M33</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B09-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B09-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B09-02 全链故障注入回归</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B09-01；对应R29：R29-046；指标：M02, M06, M09, M18, M20, M28</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/androidTest/java/com/ethk3/novaonepro/R30FaultMatrixTest.java</code></td>
+<td>ADD_SPEC</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>矩阵：{抓取超时, 开奖冲突, 结算中杀进程, 冻结中杀进程, 磁盘满(SQLITE_FULL), 时钟回拨, 服务被系统停止} × {前台, 后台}；每格断言：无半成品、无重复结算、无伪造开奖时间、恢复后补齐。</li>
+</ol>
+<p><strong>测试</strong>：14格全部通过</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M06/M09/M18/M20/M28</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B09-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B09-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B09-03 性能剖析与最后修复</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B09-02；对应R29：R29-047；指标：M03, M04, M07, M11, M14</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java</code></td>
+<td>MODIFY</td>
+<td>submit 等待策略</td>
+<td>112</td>
+</tr>
+<tr>
+<td><code>construction/r30/B09_PERF.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>读取 B01_OFFENDERS.json 中登记到本卡的其他文件操作（例如 ResearchMigrationRegistryR952）；每个操作单开子卡 R30-B09-03-x，文件所有权在子卡登记后才可改。</li>
+<li>ResearchWriteQueueR27.submit：MAX_WAIT_MS 不改；被拒次数写入 B09_PERF.json。</li>
+</ol>
+<p><strong>测试</strong>：复测 over_hard=0</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>M03/M04/M07/M11/M14</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B09-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B09-03 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s15"><div class="src">docs/B10_真机长测、自然质量与交付.md</div><h1>B10 真机长测、自然质量与交付</h1>
+<p><strong>目标</strong>：V2353A前台60分钟/息屏6小时/72小时；自然质量按事前登记规则统计；撤销与回滚演练；最终账本与单一入口。</p>
+<p><strong>批次出口</strong>：工程36项按真机结果签收；质量8项如实出数（未达标写QUALITY_NOT_MET，不改口径）。</p>
+<p><strong>versionCode</strong>：577310101（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B10-01 真机长时场景</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B09-03；对应R29：R29-048；指标：M05, M13, M14, M15, M34</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>construction/r30/DEVICE_V2353A.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>V2353A：前台60分钟、息屏6小时、连续72小时；每场景导出报告 ZIP 与 r30_issue_timeline/r30_writer_hold 原表。</li>
+<li>未执行的场景写 NOT_RUN，不写 PASS。</li>
+</ol>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>DEVICE_V2353A.json 三场景齐全</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B10-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B10-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B10-02 自然质量与主链闭环</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B10-01；对应R29：R29-049；指标：Q01, Q02, Q03, Q04, Q05, Q06, Q07</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>construction/r30/QUALITY.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>Q01–Q07 按事前登记口径从真机数据计算；未达标写 QUALITY_NOT_MET 与差距，不改口径、不补配额。15% 是观察目标不是配额。</li>
+</ol>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>QUALITY.json 每项有值或 INSUFFICIENT</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B10-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B10-02 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B10-03 撤销与回滚演练</h3>
+<ul>
+<li>批次内顺序：第 3 张；前置：R30-B10-02；对应R29：R29-051；指标：M09, M35</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>construction/r30/ROLLBACK_DRILL.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>证书撤销演练（B07-04）；APK 回退到上一批次版本的覆盖安装演练（同证书）；记录数据保留情况。</li>
+</ol>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>演练记录完整</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B10-03 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B10-03 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B10-04 最终账本与单一入口</h3>
+<ul>
+<li>批次内顺序：第 4 张；前置：R30-B10-03；对应R29：R29-050, R29-052；指标：M01, M02, M17, M32</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CURRENT_FINAL_PLAN.md</code></td>
+<td>MODIFY</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>construction/r30/FINAL.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>FINAL.json：每卡状态、每指标值、APK 直链、源码提交、签名指纹；main 的 CURRENT_FINAL_PLAN.md 指向最终分支与APK。</li>
+</ol>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>入口唯一</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B10-04 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B10-04 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s16"><div class="src">docs/B11_条件批次_R27研究表独立库.md</div><h1>B11【条件批次】R27研究表独立库</h1>
+<h2>1. 开工条件（三项同时满足，否则 NOT_REQUIRED）</h2>
+<ol>
+<li>B10-01 真机 24 小时以上数据中，<code>r30_writer_hold</code> 关键写（critical=1）<code>wait_p95</code> 最大值 &gt; 200ms（M07 不达标）；</li>
+<li>同期后台超时持有（over_hard&gt;0）的前 5 名操作中 ≥3 个属于 R27 研究写（操作名以 <code>R27_</code> 开头）；</li>
+<li>这些操作已按 B01 模板切片并复测仍不达标（B09-03 的 B09_PERF.json 有记录）。</li>
+</ol>
+<h2>2. 为什么这次能施工（与 R29 的区别）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>R29 B01</th>
+<th>R30 B11</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>迁移范围</td>
+<td>378 张表（Root 研究域+旧域）</td>
+<td>仅 r27_* 共 32 张（除 r27_fetch_reject、r27_chart_cache）</td>
+</tr>
+<tr>
+<td>写者数</td>
+<td>bb607cf 106 个文件 1890 处（R29 后 124 个文件）、线程局部路由</td>
+<td>13 个文件 66 处（附表B），R27 引擎主写入口只有 ResearchWriteQueueR27 一个</td>
+</tr>
+<tr>
+<td>复制方式</td>
+<td>边写边复制 + 追平 + 哈希漂移检测</td>
+<td>进程启动时、研究 worker 启动前一次性复制，期间无研究写者</td>
+</tr>
+<tr>
+<td>漏网写者</td>
+<td>事后发现 <code>ROOT_RESEARCH_ADVANCED_AFTER_SEAL</code></td>
+<td>冻结触发器：第一次写就 <code>RAISE(ABORT,'R30_RESEARCH_TABLE_FROZEN:&lt;表&gt;')</code> 带表名</td>
+</tr>
+<tr>
+<td>ATTACH</td>
+<td>不用</td>
+<td>不用（Android 对 ATTACH 会关闭 WAL）</td>
+</tr>
+<tr>
+<td>校验</td>
+<td>自定义 typed row chain</td>
+<td>行数 + 按 rowid/主键顺序的内容 SHA-256（OfflineCutoverR30.ContentHash）+ integrity_check</td>
+</tr>
+</tbody>
+</table>
+<p>SQL 合同 T03（冻结触发器三种写全拦截、state=2 后 Root 永久只读、state=0 恢复）与 T06（rowid/WITHOUT ROWID 分页复制、幂等重做、缺列上报、内容哈希一致）已在本包实测通过。</p>
+<h2>3. 路由点</h2>
+<p>切库后 r27_* 的读写只能通过：<code>ResearchWriteQueueR27</code>（批量写，唯一 writer 连接）与 <code>StoreR27</code>（读连接与少量直接写）。附表B 中其他文件的直接写点逐一改为调用 StoreR27 研究连接；改完后再跑 <code>scan_table_writers.py --prefix r27_</code>，结果中只能剩 ResearchWriteQueueR27/StoreR27/SchemaR27。</p>
+<h2>附表B：bb607cf 中写 r27_* 表的全部静态写点</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>写点（行(语句→表)）</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LiveShadowsR27.java</code></td>
+<td>63(UPDATE→r27_live_frozen), 66(UPDATE→r27_opportunity), 94(INSERT→r27_live_frozen), 101(INSERT→r27_opportunity), 107(INSERT→r27_live_frozen), 109(INSERT→r27_opportunity), 135(INSERT→r27_certificate), 190(INSERT→r27_semantic_fingerprint), 193(INSERT→r27_abi_continuity), 197(UPDATE→r27_live_shadow), 198(INSERT→r27_lineage), 200(UPDATE→r27_live_shadow), 227(INSERT→r27_calibration)</td>
+<td>13</td>
+</tr>
+<tr>
+<td><code>StoreR27.java</code></td>
+<td>48(INSERT→r27_policy), 50(UPDATE→r27_policy), 61(INSERT→r27_lineage), 64(INSERT→r27_replay_score), 72(INSERT→r27_generation), 83(UPDATE→r27_live_shadow), 85(INSERT→r27_expert_proposal), 88(INSERT→r27_ablation), 90(INSERT→r27_holdout_exposure), 109(INSERT→r27_live_shadow), 112(INSERT→r27_eprocess), 114(UPDATE→r27_policy), 126(UPDATE→r27_eprocess)</td>
+<td>13</td>
+</tr>
+<tr>
+<td><code>AtomWorldR27.java</code></td>
+<td>47(INSERT→r27_atom_score), 68(INSERT→r27_atom_score), 103(INSERT→r27_molecule), 149(INSERT→r27_atomnet_epoch), 158(INSERT→r27_brier_pair), 159(INSERT→r27_brier_pair), 161(INSERT→r27_atomnet_state), 189(INSERT→r27_brier_pair), 197(INSERT→r27_atomnet_epoch), 203(UPDATE→r27_atomnet_state), 220(INSERT→r27_atomnet_pending), 221(INSERT→r27_atomnet_pending)</td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>RuntimeR27.java</code></td>
+<td>70(INSERT→r27_replay_dataset), 92(INSERT→r27_evolution_cursor), 125(UPDATE→r27_live_shadow), 131(INSERT→r27_live_shadow), 133(UPDATE→r27_live_shadow), 189(UPDATE→r27_eprocess), 189(UPDATE→r27_live_shadow)</td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>QualificationInboxR29.java</code></td>
+<td>185(UPDATE→r27_eprocess), 189(UPDATE→r27_live_shadow), 241(UPDATE→r27_eprocess), 243(UPDATE→r27_certificate)</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>LegacyPolicyExportR27.java</code></td>
+<td>27(INSERT→r27_lineage), 28(INSERT→r27_legacy_export), 44(INSERT→r27_legacy_export), 50(INSERT→r27_legacy_export)</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>ResearchPoolR27.java</code></td>
+<td>148(INSERT→r27_task_error), 149(DELETE→r27_task_error), 178(INSERT→r27_thread_cpu), 179(UPDATE→r27_thread_cpu)</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>LegacyContinuityR27.java</code></td>
+<td>28(INSERT→r27_legacy_roster_alias), 65(INSERT→r27_semantic_fingerprint), 66(INSERT→r27_abi_continuity)</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>ResearchWriteQueueR27.java</code></td>
+<td>103(INSERT→r27_write_wait), 104(UPDATE→r27_write_wait)</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>HistoryImportR27.java</code></td>
+<td>33(INSERT→r27_history_import)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>LegacyReplayR26.java</code></td>
+<td>104(INSERT→r27_lineage)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>SchemaR27.java</code></td>
+<td>82(INSERT→r27_migration)</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>RuntimeCoordinatorR26.java</code></td>
+<td>161(INSERT→r27_task_error)</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>合计 13 个文件 66 处（静态扫描；拼接表名扫不到，切库后冻结触发器兜底）。</p>
+<p><strong>目标</strong>：仅当B01+B02后真机数据证明单库写锁仍是实时链瓶颈时施工：停机式离线切库，只迁r27_*研究表，冻结触发器保证漏网写者立即报错。</p>
+<p><strong>批次出口</strong>：触发条件三项同时满足才开工；否则写NOT_REQUIRED并结束。</p>
+<p><strong>versionCode</strong>：577310111（批次内每次重新出包 +1，不得回退）</p>
+<h3>R30-B11-01 开工条件判定</h3>
+<ul>
+<li>批次内顺序：第 1 张；前置：R30-B10-01；对应R29：R29-004；指标：M07, M08</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>construction/r30/B11_DECISION.json</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>从 B10-01 的真机数据计算三项条件（见 OfflineCutoverR30 类注释）；任一不满足 → B11_DECISION.json={decision:NOT_REQUIRED} 并结束 B11。</li>
+</ol>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>决定有数据支撑</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B11-01 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B11-01 --base &lt;上一卡提交&gt;</code>。</p>
+<h3>R30-B11-02 停机式离线切库与唯一路由点</h3>
+<ul>
+<li>批次内顺序：第 2 张；前置：R30-B11-01；对应R29：R29-004, R29-005；指标：M07, M08, M09</li>
+</ul>
+<p><strong>独占文件</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>改动范围</th>
+<th>bb607cf 行数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/OfflineCutoverR30.java</code></td>
+<td>ADD</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchWriteQueueR27.java</code></td>
+<td>MODIFY</td>
+<td>writer 目标连接</td>
+<td>112</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/StoreR27.java</code></td>
+<td>MODIFY</td>
+<td>R27 读写连接</td>
+<td>131</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java</code></td>
+<td>MODIFY</td>
+<td>initialize() 中 R29FoldBackR30 之后</td>
+<td>244</td>
+</tr>
+</tbody>
+</table>
+<p><strong>施工步骤</strong></p>
+<ol>
+<li>复制 OfflineCutoverR30.java；initialize() 中 R29FoldBack 之后调用 OfflineCutoverR30.run(store)（仅当 B11_DECISION=REQUIRED 时编译进开关 r30.research.split=1）。</li>
+<li>唯一路由点：ResearchWriteQueueR27 的 writer 与 StoreR27 的 r27_<em> 读写连接改指研究库；其余写 r27_</em> 的直接写点（docs/B11 附表B 共 13 个文件 66 处，精确行号见 docs/B11 附表）逐一改为经 StoreR27 研究连接。</li>
+<li>冻结触发器保证遗漏点在第一次写入时报 R30_RESEARCH_TABLE_FROZEN:&lt;表&gt;，CI 与真机日志 grep 该串必须为0。</li>
+</ol>
+<p><strong>本包代码</strong>：<code>code/main/com/ethk3/novaonepro/strategyv2/OfflineCutoverR30.java</code></p>
+<p><strong>测试</strong>：SQL T03/T06；androidTest：切库后杀进程/升级/回滚</p>
+<p><strong>验收（全部满足才可标DONE）</strong></p>
+<ul>
+<li>日志无 R30_RESEARCH_TABLE_FROZEN</li>
+<li>M07 复测达标</li>
+</ul>
+<p><strong>禁止</strong>：不得删除类、DROP表、清空模型或训练数据（保全规则）；不得放宽任何时间/数据/统计门槛来让测试通过；不得把模拟器/HOST结果写成真机结果；未测写NOT_RUN；不得在持有数据库写锁时做网络请求、sleep、等待其他线程或进入其他synchronized块；不得修改本卡未列出的文件；需要时新开卡并登记</p>
+<p><strong>提交信息格式</strong>：<code>R30-B11-02 &lt;一句话&gt;</code>；提交后运行 <code>python3 tools/r30/ownership_check.py --card R30-B11-02 --base &lt;上一卡提交&gt;</code>。</p></section><section id="s17"><div class="src">docs/90_44项指标测量口径.md</div><h1>90 44项指标：测量来源、环境与负责卡</h1>
+<p>缺数一律 null/INSUFFICIENT，不得写 0 或 PASS。环境=DEVICE 的指标只以真机数据判定。</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>类</th>
+<th>名称</th>
+<th>目标</th>
+<th>R30 测量来源</th>
+<th>环境</th>
+<th>负责卡</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M01</td>
+<td>ENGINEERING</td>
+<td>源码与安装身份</td>
+<td>全部一致</td>
+<td>构建身份：release_manifest.json + APK 签名指纹 + 源码提交（tools/r29/package_receipt.py）</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B00-01, R30-B00-02, R30-B00-04, R30-B00-05, R30-B10-04</td>
+</tr>
+<tr>
+<td>M02</td>
+<td>ENGINEERING</td>
+<td>功能保全覆盖</td>
+<td>100%有记录；无凭空VERIFIED</td>
+<td>保全清单 1832/299（legacy_count.py）+ 生命周期回归 androidTest</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B00-02, R30-B00-03, R30-B00-05, R30-B01-07, R30-B06-03, R30-B09-01, R30-B09-02, R30-B10-04</td>
+</tr>
+<tr>
+<td>M03</td>
+<td>ENGINEERING</td>
+<td>准时预测持久化</td>
+<td>P95≤5000ms</td>
+<td>r30_issue_timeline：request_to_frozen 与 settled_to_frozen 段 P95（IssueTimelineR30.summarize）</td>
+<td>DEVICE</td>
+<td>R30-B02-01, R30-B02-04, R30-B03-04, R30-B09-03</td>
+</tr>
+<tr>
+<td>M04</td>
+<td>ENGINEERING</td>
+<td>抓到后正式结算</td>
+<td>P95≤1000ms</td>
+<td>r30_issue_timeline：observe_to_settled 段 P95</td>
+<td>DEVICE</td>
+<td>R30-B02-01, R30-B02-02, R30-B02-03, R30-B09-03</td>
+</tr>
+<tr>
+<td>M05</td>
+<td>ENGINEERING</td>
+<td>赛前有效覆盖</td>
+<td>目标100%；受支持健康场景≥99.5%</td>
+<td>r30_issue_timeline：NEXT_DEADLINE−NEXT_FROZEN ≥5000ms 的期数占比</td>
+<td>DEVICE</td>
+<td>R30-B02-01, R30-B02-02, R30-B02-04, R30-B10-01</td>
+</tr>
+<tr>
+<td>M06</td>
+<td>ENGINEERING</td>
+<td>唯一正式结算</td>
+<td>均为0</td>
+<td>结算表唯一键冲突计数 + 同 issue REAL 意向计数（SQL 见 docs/90）</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B01-04, R30-B02-03, R30-B07-03, R30-B09-02</td>
+</tr>
+<tr>
+<td>M07</td>
+<td>ENGINEERING</td>
+<td>实时写事务</td>
+<td>P95≤200ms；24h失败0</td>
+<td>r30_writer_hold critical=1 的 wait_p95 最大值；24h 失败数=sum(failures)</td>
+<td>DEVICE</td>
+<td>R30-B01-01, R30-B01-02, R30-B01-03, R30-B01-04, R30-B02-01, R30-B02-04, R30-B09-03, R30-B11-01, R30-B11-02</td>
+</tr>
+<tr>
+<td>M08</td>
+<td>ENGINEERING</td>
+<td>分库隔离</td>
+<td>0</td>
+<td>单库模式：SCHEDULER_OWNERS.json 中同表双写者数；B11 启用后：日志 R30_RESEARCH_TABLE_FROZEN 次数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B01-07, R30-B11-01, R30-B11-02</td>
+</tr>
+<tr>
+<td>M09</td>
+<td>ENGINEERING</td>
+<td>迁移一致性</td>
+<td>全部一致；丢失/重复0</td>
+<td>r30_copy_log COUNT_MISMATCH 行数 + B11 ContentHash 不一致数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B00-03, R30-B09-02, R30-B10-03, R30-B11-02</td>
+</tr>
+<tr>
+<td>M10</td>
+<td>ENGINEERING</td>
+<td>每期训练投递</td>
+<td>100%；重复消费0</td>
+<td>每期训练投递：r952_research_outbox 状态分布 + QualificationInboxR29 连续游标</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B01-03, R30-B01-04, R30-B02-03, R30-B03-05</td>
+</tr>
+<tr>
+<td>M11</td>
+<td>ENGINEERING</td>
+<td>训练完成新鲜度</td>
+<td>正常负载最老积压≤5期；超限必须FAIL</td>
+<td>TaskLivenessR30：最老积压期数（pending 最大任务）</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B01-05, R30-B01-06, R30-B03-04, R30-B09-03</td>
+</tr>
+<tr>
+<td>M12</td>
+<td>ENGINEERING</td>
+<td>任务活性</td>
+<td>0；等依赖/等数据单列</td>
+<td>TaskLivenessR30.summarize.m12（null=有UNKNOWN）</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B01-05, R30-B01-06, R30-B01-07</td>
+</tr>
+<tr>
+<td>M13</td>
+<td>ENGINEERING</td>
+<td>前后台连续性</td>
+<td>受支持场景不丢已投递任务；缺口全记录</td>
+<td>B10 场景：前后台切换前后已投递任务数差</td>
+<td>DEVICE</td>
+<td>R30-B01-06, R30-B02-05, R30-B10-01</td>
+</tr>
+<tr>
+<td>M14</td>
+<td>ENGINEERING</td>
+<td>进程稳定性</td>
+<td>0</td>
+<td>进程崩溃/ANR 计数（logcat + ApplicationExitInfo）</td>
+<td>DEVICE</td>
+<td>R30-B01-01, R30-B01-06, R30-B02-05, R30-B09-03, R30-B10-01</td>
+</tr>
+<tr>
+<td>M15</td>
+<td>ENGINEERING</td>
+<td>热库与总磁盘</td>
+<td>draws≤5000；未超配置总预算且可恢复</td>
+<td>draws 热库行数 + 应用数据目录总字节</td>
+<td>DEVICE</td>
+<td>R30-B03-02, R30-B08-05, R30-B10-01</td>
+</tr>
+<tr>
+<td>M16</td>
+<td>ENGINEERING</td>
+<td>报告取消</td>
+<td>≤2000ms</td>
+<td>ReportTaskControlR69 取消到释放耗时</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B08-04</td>
+</tr>
+<tr>
+<td>M17</td>
+<td>ENGINEERING</td>
+<td>报告完整性</td>
+<td>全量索引100%；默认ZIP≤20MiB或明确分卷</td>
+<td>报告索引覆盖率 + ZIP 大小/分卷</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B01-02, R30-B06-04, R30-B08-01, R30-B08-03, R30-B08-04, R30-B08-05, R30-B10-04</td>
+</tr>
+<tr>
+<td>M18</td>
+<td>ENGINEERING</td>
+<td>PIT泄漏反证</td>
+<td>0</td>
+<td>r30_pit_violation 非注入行数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B02-02, R30-B03-01, R30-B03-02, R30-B03-03, R30-B03-04, R30-B03-06, R30-B04-04, R30-B04-05, R30-B05-03, R30-B09-02</td>
+</tr>
+<tr>
+<td>M19</td>
+<td>ENGINEERING</td>
+<td>训练分割污染</td>
+<td>0</td>
+<td>HoldoutLedgerR27 R30_CONFIRM_REUSED 计数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B03-01, R30-B03-03, R30-B03-06, R30-B04-07, R30-B05-01, R30-B06-02</td>
+</tr>
+<tr>
+<td>M20</td>
+<td>ENGINEERING</td>
+<td>全状态续训恢复</td>
+<td>按已登记浮点容差一致；不重复学习</td>
+<td>ModelArtifactR29 中断/恢复一致性测试结果</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B03-05, R30-B05-03, R30-B05-05, R30-B09-02</td>
+</tr>
+<tr>
+<td>M21</td>
+<td>ENGINEERING</td>
+<td>策略完整合同</td>
+<td>100%；空壳拒绝</td>
+<td>BirthGateR27 R30_CONTRACT: 拒绝码分布；入池策略合同违规=0</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B04-01, R30-B04-03, R30-B04-04, R30-B04-06, R30-B04-07, R30-B05-04</td>
+</tr>
+<tr>
+<td>M22</td>
+<td>ENGINEERING</td>
+<td>结构与行为去重</td>
+<td>计数与ledger一致</td>
+<td>r30_behavior_dup 行数与报告去重计数一致</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B04-01, R30-B04-02, R30-B06-02</td>
+</tr>
+<tr>
+<td>M23</td>
+<td>ENGINEERING</td>
+<td>族专家覆盖</td>
+<td>全部注册与可执行；没有证据不标有效</td>
+<td>CapabilityRegistryR30 对象可执行率</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B04-02, R30-B04-03, R30-B04-06, R30-B06-04</td>
+</tr>
+<tr>
+<td>M24</td>
+<td>ENGINEERING</td>
+<td>模型实际消费</td>
+<td>100%匹配或明确BLOCKED；不得伪造调用</td>
+<td>r30_model_call 与冻结行匹配率</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B05-04, R30-B05-05</td>
+</tr>
+<tr>
+<td>M25</td>
+<td>ENGINEERING</td>
+<td>矩阵接线</td>
+<td>全部可追溯；未产出有明确原因</td>
+<td>MatrixRegistryR30 20 项可追溯率</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B06-03, R30-B06-04</td>
+</tr>
+<tr>
+<td>M26</td>
+<td>ENGINEERING</td>
+<td>校准时间隔离</td>
+<td>100%；零模型需可定位原因</td>
+<td>校准样本时间隔离检查通过率</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B06-01</td>
+</tr>
+<tr>
+<td>M27</td>
+<td>ENGINEERING</td>
+<td>资格预算连续</td>
+<td>全部通过</td>
+<td>SequentialQualificationR27 全局序号连续、无重置</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B07-01, R30-B07-02</td>
+</tr>
+<tr>
+<td>M28</td>
+<td>ENGINEERING</td>
+<td>主链闭环</td>
+<td>合法正对照贯通；非法/过期全部拦截</td>
+<td>androidTest 正对照贯通 + 非法/过期拦截</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B07-03, R30-B09-02</td>
+</tr>
+<tr>
+<td>M29</td>
+<td>ENGINEERING</td>
+<td>确认队列连续</td>
+<td>0</td>
+<td>确认队列被挤出次数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B07-01</td>
+</tr>
+<tr>
+<td>M30</td>
+<td>ENGINEERING</td>
+<td>主链选择器身份</td>
+<td>未确认组合不能REAL</td>
+<td>r30_decision_explain：selectorConfirmed=FAIL 时 REAL 次数（必须0）</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B04-05, R30-B07-03</td>
+</tr>
+<tr>
+<td>M31</td>
+<td>ENGINEERING</td>
+<td>诊断可追溯</td>
+<td>100%或UNKNOWN并给采集动作</td>
+<td>DiagnosisRulesR30 规则行动覆盖率</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B08-01, R30-B08-02, R30-B08-03</td>
+</tr>
+<tr>
+<td>M32</td>
+<td>ENGINEERING</td>
+<td>报告口径一致</td>
+<td>0</td>
+<td>同快照两章同指标冲突数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B00-05, R30-B08-01, R30-B08-02, R30-B08-04, R30-B09-01, R30-B10-04</td>
+</tr>
+<tr>
+<td>M33</td>
+<td>ENGINEERING</td>
+<td>图表回归</td>
+<td>全部场景可打开且口径一致</td>
+<td>图表页面 androidTest 截图通过数</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B00-05, R30-B02-05, R30-B09-01</td>
+</tr>
+<tr>
+<td>M34</td>
+<td>ENGINEERING</td>
+<td>签名覆盖安装</td>
+<td>成功；首启/二启无崩溃</td>
+<td>覆盖安装首启/二启无崩溃（两证书）</td>
+<td>DEVICE</td>
+<td>R30-B00-04, R30-B10-01</td>
+</tr>
+<tr>
+<td>M35</td>
+<td>ENGINEERING</td>
+<td>失效模型撤销</td>
+<td>目标≤5000ms；不含APK回滚</td>
+<td>证书撤销到 DecisionGate 拒绝的耗时</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B07-03, R30-B07-04, R30-B10-03</td>
+</tr>
+<tr>
+<td>M36</td>
+<td>ENGINEERING</td>
+<td>同池对照</td>
+<td>有可复算输出；合成不计真实质量</td>
+<td>NullEvolutionR27 同池对照输出可复算</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B04-06, R30-B05-02, R30-B07-02</td>
+</tr>
+<tr>
+<td>Q01</td>
+<td>QUALITY</td>
+<td>自然ACT命中</td>
+<td>≥34%，优先≥37%；未达不得宣称达标</td>
+<td>真机 FUTURE ACT 命中率（事前登记策略）</td>
+<td>DEVICE</td>
+<td>R30-B04-04, R30-B04-05, R30-B07-02, R30-B10-02</td>
+</tr>
+<tr>
+<td>Q02</td>
+<td>QUALITY</td>
+<td>真实频率</td>
+<td>目标≥15%；质量支持扩大；不得补配额</td>
+<td>真机实际出手频率（不补配额）</td>
+<td>DEVICE</td>
+<td>R30-B04-05, R30-B10-02</td>
+</tr>
+<tr>
+<td>Q03</td>
+<td>QUALITY</td>
+<td>真实统计优势</td>
+<td>e≥1/alpha，假设与预算成立</td>
+<td>SequentialQualificationR27 logEUp ≥ log(1/α_i)</td>
+<td>DEVICE</td>
+<td>R30-B07-01, R30-B07-02, R30-B10-02</td>
+</tr>
+<tr>
+<td>Q04</td>
+<td>QUALITY</td>
+<td>跨块稳定</td>
+<td>窗口规则事前冻结；不得事后选好块</td>
+<td>事前冻结窗口规则下各块命中率</td>
+<td>DEVICE</td>
+<td>R30-B07-02, R30-B10-02</td>
+</tr>
+<tr>
+<td>Q05</td>
+<td>QUALITY</td>
+<td>校准与BSS</td>
+<td>ECE目标≤0.04；样本≥200且支持箱覆盖质量≥90%；不要求5个非空箱；BSS、区间、支持范围如实报告</td>
+<td>CalibrationR30：等质量ECE、BSS、支持覆盖（与等宽ECE并列）</td>
+<td>DEVICE</td>
+<td>R30-B03-06, R30-B05-03, R30-B05-04, R30-B05-05, R30-B06-01, R30-B06-02, R30-B10-02</td>
+</tr>
+<tr>
+<td>Q06</td>
+<td>QUALITY</td>
+<td>进化提升</td>
+<td>有效区间下界&gt;0才计验证改善</td>
+<td>父子配对差单侧95%下界</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B03-06, R30-B04-07, R30-B05-01, R30-B08-03, R30-B09-01, R30-B10-02</td>
+</tr>
+<tr>
+<td>Q07</td>
+<td>QUALITY</td>
+<td>有效资产产量</td>
+<td>目标≥1，继续寻找多个互补资产；0必须如实</td>
+<td>ACTIVE 证书资产数</td>
+<td>DEVICE</td>
+<td>R30-B10-02</td>
+</tr>
+<tr>
+<td>Q08</td>
+<td>QUALITY</td>
+<td>空信号与优势检出力</td>
+<td>报告误授证率及CI、34/37/40%信号功效，不以一次模拟签收</td>
+<td>R30SequentialNullSimTest 空信号/功效 + NullEvolutionR27</td>
+<td>HOST_OR_EMULATOR_ALLOWED</td>
+<td>R30-B05-02</td>
+</tr>
+</tbody>
+</table></section><section id="s18"><div class="src">docs/91_R29到R30映射.md</div><h1>91 R29 52卡 → R30 57卡 映射</h1>
+<p>R29 每张卡的需求都由下列 R30 卡承接（V01 自检：52/52 已映射）。</p>
+<table>
+<thead>
+<tr>
+<th>R29</th>
+<th>R29批次</th>
+<th>R29标题</th>
+<th>R30 卡</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R29-001</td>
+<td>B00</td>
+<td>锁定当前源码与报告</td>
+<td>R30-B00-01</td>
+</tr>
+<tr>
+<td>R29-002</td>
+<td>B00</td>
+<td>1832要求与299卡保全回归</td>
+<td>R30-B00-05</td>
+</tr>
+<tr>
+<td>R29-003</td>
+<td>B00</td>
+<td>统一指标与分母</td>
+<td>R30-B00-05</td>
+</tr>
+<tr>
+<td>R29-004</td>
+<td>B01</td>
+<td>双库可恢复迁移</td>
+<td>R30-B00-02, R30-B11-01, R30-B11-02</td>
+</tr>
+<tr>
+<td>R29-005</td>
+<td>B01</td>
+<td>独立writer与事件投递</td>
+<td>R30-B00-02, R30-B01-01, R30-B01-03, R30-B01-04, R30-B11-02</td>
+</tr>
+<tr>
+<td>R29-006</td>
+<td>B01</td>
+<td>持续调度与正确温控</td>
+<td>R30-B01-05, R30-B01-06</td>
+</tr>
+<tr>
+<td>R29-007</td>
+<td>B01</td>
+<td>旧算法能力适配</td>
+<td>R30-B01-07</td>
+</tr>
+<tr>
+<td>R29-008</td>
+<td>B01</td>
+<td>重复任务入口收敛</td>
+<td>R30-B01-07</td>
+</tr>
+<tr>
+<td>R29-009</td>
+<td>B02</td>
+<td>抓取与时钟校准</td>
+<td>R30-B02-01, R30-B02-02</td>
+</tr>
+<tr>
+<td>R29-010</td>
+<td>B02</td>
+<td>实时短事务闭环</td>
+<td>R30-B02-01, R30-B02-03, R30-B02-04</td>
+</tr>
+<tr>
+<td>R29-011</td>
+<td>B02</td>
+<td>观察准备与冻结分离</td>
+<td>R30-B02-04</td>
+</tr>
+<tr>
+<td>R29-012</td>
+<td>B02</td>
+<td>幂等结算与补缺</td>
+<td>R30-B02-03</td>
+</tr>
+<tr>
+<td>R29-013</td>
+<td>B02</td>
+<td>后台与UI延迟</td>
+<td>R30-B02-01, R30-B02-05</td>
+</tr>
+<tr>
+<td>R29-014</td>
+<td>B03</td>
+<td>真实历史数据治理</td>
+<td>R30-B03-02</td>
+</tr>
+<tr>
+<td>R29-015</td>
+<td>B03</td>
+<td>时间角色与曝光账</td>
+<td>R30-B03-01, R30-B03-03</td>
+</tr>
+<tr>
+<td>R29-016</td>
+<td>B03</td>
+<td>每期增量特征与回放</td>
+<td>R30-B03-01, R30-B03-04</td>
+</tr>
+<tr>
+<td>R29-017</td>
+<td>B03</td>
+<td>训练游标与可恢复状态</td>
+<td>R30-B03-05</td>
+</tr>
+<tr>
+<td>R29-018</td>
+<td>B03</td>
+<td>统一真实回放评价器</td>
+<td>R30-B03-06</td>
+</tr>
+<tr>
+<td>R29-019</td>
+<td>B04</td>
+<td>完整策略合同</td>
+<td>R30-B04-01</td>
+</tr>
+<tr>
+<td>R29-020</td>
+<td>B04</td>
+<td>现有13业务思路族增强</td>
+<td>R30-B04-03</td>
+</tr>
+<tr>
+<td>R29-021</td>
+<td>B04</td>
+<td>短期结构窗口和集合缩减</td>
+<td>R30-B04-04</td>
+</tr>
+<tr>
+<td>R29-022</td>
+<td>B04</td>
+<td>选时选位与ACT条件</td>
+<td>R30-B04-05</td>
+</tr>
+<tr>
+<td>R29-023</td>
+<td>B04</td>
+<td>新增六类结构生成器</td>
+<td>R30-B04-06</td>
+</tr>
+<tr>
+<td>R29-024</td>
+<td>B04</td>
+<td>失败驱动结构修复</td>
+<td>R30-B04-07</td>
+</tr>
+<tr>
+<td>R29-025</td>
+<td>B04</td>
+<td>有效多样性与语义去重</td>
+<td>R30-B04-02</td>
+</tr>
+<tr>
+<td>R29-026</td>
+<td>B05</td>
+<td>进化与确认隔离</td>
+<td>R30-B05-01</td>
+</tr>
+<tr>
+<td>R29-027</td>
+<td>B05</td>
+<td>全管线对照与功效</td>
+<td>R30-B05-02</td>
+</tr>
+<tr>
+<td>R29-028</td>
+<td>B05</td>
+<td>多位置AtomNet真实训练输入</td>
+<td>R30-B05-03</td>
+</tr>
+<tr>
+<td>R29-029</td>
+<td>B05</td>
+<td>神经表示接入策略消费者</td>
+<td>R30-B05-04</td>
+</tr>
+<tr>
+<td>R29-030</td>
+<td>B05</td>
+<td>NumberQ排序器与学习模型统一</td>
+<td>R30-B05-05</td>
+</tr>
+<tr>
+<td>R29-031</td>
+<td>B06</td>
+<td>原子分子贡献评分</td>
+<td>R30-B06-02</td>
+</tr>
+<tr>
+<td>R29-032</td>
+<td>B06</td>
+<td>20矩阵与教师能力迁移</td>
+<td>R30-B06-03</td>
+</tr>
+<tr>
+<td>R29-033</td>
+<td>B06</td>
+<td>能力逐对象注册表</td>
+<td>R30-B06-04</td>
+</tr>
+<tr>
+<td>R29-034</td>
+<td>B06</td>
+<td>校准链打通与隔离</td>
+<td>R30-B06-01</td>
+</tr>
+<tr>
+<td>R29-035</td>
+<td>B07</td>
+<td>确认队列和晋级通道</td>
+<td>R30-B07-01</td>
+</tr>
+<tr>
+<td>R29-036</td>
+<td>B07</td>
+<td>可行资格门与风险规则版本</td>
+<td>R30-B07-02</td>
+</tr>
+<tr>
+<td>R29-037</td>
+<td>B07</td>
+<td>频率与主链选择器独立评价</td>
+<td>R30-B07-03</td>
+</tr>
+<tr>
+<td>R29-038</td>
+<td>B07</td>
+<td>跨库证书投影到唯一REAL</td>
+<td>R30-B07-03</td>
+</tr>
+<tr>
+<td>R29-039</td>
+<td>B08</td>
+<td>12章报告统一出数</td>
+<td>R30-B08-01</td>
+</tr>
+<tr>
+<td>R29-040</td>
+<td>B08</td>
+<td>诊断规则与具体代码行动</td>
+<td>R30-B08-02</td>
+</tr>
+<tr>
+<td>R29-041</td>
+<td>B08</td>
+<td>升级诊断与消融空章修复</td>
+<td>R30-B08-03</td>
+</tr>
+<tr>
+<td>R29-042</td>
+<td>B08</td>
+<td>导出取消重建与完整分页</td>
+<td>R30-B08-04</td>
+</tr>
+<tr>
+<td>R29-043</td>
+<td>B08</td>
+<td>总存储和证据保留</td>
+<td>R30-B08-05</td>
+</tr>
+<tr>
+<td>R29-044</td>
+<td>B09</td>
+<td>保全图表与实盘排行榜</td>
+<td>R30-B09-01</td>
+</tr>
+<tr>
+<td>R29-045</td>
+<td>B09</td>
+<td>代际与能力可视化</td>
+<td>R30-B09-01</td>
+</tr>
+<tr>
+<td>R29-046</td>
+<td>B09</td>
+<td>全链故障注入与回归</td>
+<td>R30-B09-02</td>
+</tr>
+<tr>
+<td>R29-047</td>
+<td>B09</td>
+<td>性能剖析与实际瓶颈修复</td>
+<td>R30-B01-01, R30-B01-02, R30-B01-04, R30-B09-03</td>
+</tr>
+<tr>
+<td>R29-048</td>
+<td>B10</td>
+<td>真机长时场景验收</td>
+<td>R30-B10-01</td>
+</tr>
+<tr>
+<td>R29-049</td>
+<td>B10</td>
+<td>自然质量与主链闭环验收</td>
+<td>R30-B10-02</td>
+</tr>
+<tr>
+<td>R29-050</td>
+<td>B10</td>
+<td>每批可安装APK与签名来源</td>
+<td>R30-B00-04, R30-B10-04</td>
+</tr>
+<tr>
+<td>R29-051</td>
+<td>B10</td>
+<td>模型撤销和迁移回滚演练</td>
+<td>R30-B00-03, R30-B07-04, R30-B10-03</td>
+</tr>
+<tr>
+<td>R29-052</td>
+<td>B10</td>
+<td>最终发布账本与单一入口</td>
+<td>R30-B10-04</td>
+</tr>
+</tbody>
+</table></section></main></body></html>

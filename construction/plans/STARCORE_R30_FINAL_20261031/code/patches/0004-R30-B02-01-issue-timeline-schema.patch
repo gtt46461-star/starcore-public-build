@@ -1,0 +1,24 @@
+From 4c48c009be196d19df808cf406578c281e6b59c8 Mon Sep 17 00:00:00 2001
+From: R30 plan <r30@plan.local>
+Date: Sat, 31 Oct 2026 09:31:48 +0800
+Subject: [PATCH 4/4] R30-B02-01 issue timeline schema
+
+---
+ app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java b/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
+index cfb344d..fc82e9b 100644
+--- a/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
++++ b/app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java
+@@ -74,6 +74,7 @@ public final class SchemaR27 {
+         if (!db.inTransaction()) throw new IllegalStateException("R27_WRITER_REQUIRED");
+         for (String sql : DDL) db.execSQL(sql);
+         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
++        db.execSQL(IssueTimelineR30.DDL); db.execSQL(IssueTimelineR30.INDEX); // R30-B02-01 (additive)
+         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
+         if (tableExists(db, "r26_task")) {
+             long now = System.currentTimeMillis();
+-- 
+2.43.0
+
