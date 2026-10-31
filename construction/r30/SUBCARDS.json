@@ -85,13 +85,14 @@
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ConfirmReadStoreR30.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/EvolutionLoopR27.java",
     "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ConfirmPersistenceTest.java",
     "tools/r30/qual_host/ConfirmReadStoreR30HostTest.java",
     "tools/r30/ci_build.sh",
     "release/r982_source_calls.manifest.json",
     "release/r982_source_calls.tsv.gz"
    ],
-   "reason": "复核发现确认账仅驻内存，DDL 未执行，旧生产链也未接入；进程死亡可重新读取。先补加法式表、通过既有研究写队列在读取前提交唯一确认记录、启动恢复和实际 SQLite 重启回归，旧曝光无法确定数据集时保守拒绝。进化循环接入另按 B03-06/B05-01 处理；不增加独立数据库、不在持锁时等待。"
+   "reason": "复核发现确认账仅驻内存，DDL 未执行，旧生产链也未接入；进程死亡可重新读取。补加法式表、通过既有研究写队列在读取前提交唯一确认记录、启动恢复和实际 SQLite 重启回归，旧曝光无法确定数据集时保守拒绝。进一步补进化循环的实际确认入口与重读失败处理（B03-06 继续统一评价入口，B05-01 继续实现进化与确认隔离），不增加独立数据库、不在持锁时等待。"
   },
   {
    "card": "R30-B03-04",

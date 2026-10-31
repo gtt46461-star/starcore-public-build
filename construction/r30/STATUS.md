@@ -84,6 +84,8 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 
 - 修正后的源码 ff52929：编译通过；确认账及统一评价器相关定向单测 8/8 通过；实际 SQLite 新进程恢复和重复建表回归通过；R30 SQL 19/19、所有权检查无越界，lint 任务成功（沿用上述基线）；完整新 CI 待执行。此前源码 56fb281 的 [CI 41176676100](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41176676100) 已成功，含重复 schema 安装检查，不能替代 ff52929 的 CI。
 
+- B03-03-b 继续补 EvolutionLoop 确认入口：现有 look 直接调用 run 会绕过已持久化的账本。先用实际进化入口建立反证，再修接线及重读处理；B03-06 仍负责统一评价入口，B05-01 负责确认后进化隔离。
+
 - 源码 58b24f9 本地 41 份新 XML 共 177 项单测、失败/错误/跳过均为 0；本轮 lint 新问题 0，原有 51 条基线、7 条未匹配保留。R30 SQL 合同 19/19，资格与模型回滚 Q1–Q16 通过；实时缓存两种回归及冻结源 8 种 SQLite 场景通过。日志见 evidence/r30/b03-04-b/source-58b24f9。远端 [CI run 41175814154](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41175814154) 成功；本地及 CI 结果不替代设备验收。
 - B00 已有 R13 run 41169766223 和 R27 run 41169784335 构建通过；R13 原覆盖升级使用 R26 包，另有 4 项模拟器构造数据测试。实际 CP06/CP16 → 已发布 B00 版的首次 run 41176346773 安装及文件标记保留成功，但 release 的 run-as 探针无法读取偏好，READY 超时，未到数据库比较；失败证据保留。独立验证分支使用模拟器 root 读取相同偏好并保持原门槛，重跑 [41176921680](https://github.com/gtt46461-star/starcore-public-build/actions/runs/41176921680) 两路均通过：覆盖前 4714 条开奖数据无丢失或更改、数据库 integrity_check 为 ok、原有表无缺失，覆盖及全新安装的冷启/重启均通过服务心跳探针。证据在 evidence/r30/b00-actual-upgrade；该测试只证明所发布 B00 R13 包在 API34 模拟器的结果，未证明 CP16 独立库 ACTIVE 状态回收、最新 R30 源码出包升级或真机长测。
 
