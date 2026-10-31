@@ -572,6 +572,22 @@
     "release/r982_source_calls.tsv.gz"
    ],
    "reason": "实际取消/分卷必须串起已有Service、持久命令、Publication、Provider和保存/分享入口：100ms轮询，R30只读快照SQL接公开CancellationSignal，流/只读租约关闭后立即清本job派生临时文件；原库/模型/外部SAF不删。同OS boot单调取消起点与释放回执，缺可靠起点为null，不用墙钟补时。默认20MiB以内原标准ZIP；超过后按原已校验ZIP字节切part01..N，索引含全部顺序/偏移/长度/分卷及全ZIP hash与重组说明，旧格式与续传保持；分卷不是独立ZIP，前端如实说明。新增实际文件/原JNI/哈希重组、取消释放与保护原数据回归，接CI；Android取消源码回归。先登记后落产品代码，不改变原native诊断进程守卫。"
+  },
+  {
+   "card": "R30-B08-05",
+   "id": "R30-B08-05-a",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionStoreR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeCoordinatorR26.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR29.java",
+    "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30ResearchRetentionTest.java",
+    "tools/r30/qual_host/ResearchRetentionR30HostTest.java",
+    "tools/r30/ci_build.sh",
+    "release/r982_source_calls.manifest.json",
+    "release/r982_source_calls.tsv.gz"
+   ],
+   "reason": "总预算必须接实际retention任务、完整应用目录测量和同快照存储报告；默认1500000000字节，可配置。新纯文件策略只允许明确可重算缓存，旧退役研究库须FOLDED_BACK/原copy_log回收证据及删除前持久引用；未知/未完整测量不称预算通过。为阻止原窗口清理丢失不可重算冻结/结算/证书/曝光/模型状态，在原维护开始前安装加法式逐表归档与触发器：原DELETE/清空payload在同一事务完整保留OLD字段/BLOB到不可改删档案，再沿用原折叠/窗口/资格数学，不改原RetentionR26/Diagnosis/Matrix学习算法。来源schema变更用版本触发器与registry启用指纹、旧触发器不DROP，归档不进入当前统计或训练。文件扫描/删除不在DB写锁，DB清理用B01幂等限量模板；只清图表可重建键，保护Q08/模型/校准等唯一缓存证据。注册实际Runtime、报告、纯文件及真实SQLite字节保全/回滚/过预算回归，先登记再施工。"
   }
  ]
 }
