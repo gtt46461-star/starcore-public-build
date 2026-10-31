@@ -24,7 +24,7 @@ jobs:
           python3 - <<'CODE'
           import json,os,re
           r=json.load(open('.github/r30-preflight-request.json'));assert re.fullmatch('[a-f0-9]{40}',r['source'])
-          focus=r.get('focus','full');assert focus in ('full','charts-and-faults')
+          focus=r.get('focus','full');assert focus in ('full','charts-and-faults','charts-and-remaining-faults')
           with open(os.environ['GITHUB_OUTPUT'],'a') as out: out.write('source='+r['source']+'\nfocus='+focus+'\n')
           CODE
       - uses: actions/checkout@v4
@@ -72,8 +72,8 @@ jobs:
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
       - name: Internal debug and test APKs only; never a final acceptance or public delivery
         run: |
-          ./gradlew --no-daemon --max-workers=4 :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset
-          ./gradlew --no-daemon --max-workers=4 -Pr30Instrumentation=true :app:assembleDebug :app:assembleDebugAndroidTest
+          ./gradlew --no-daemon --max-workers=4 -Pandroid.injected.build.abi=x86_64 :app:compileDebugJavaWithJavac -x :app:generateR982SourceCallAsset
+          ./gradlew --no-daemon --max-workers=4 -Pandroid.injected.build.abi=x86_64 -Pr30Instrumentation=true :app:assembleDebug :app:assembleDebugAndroidTest
           grep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml
       - name: Enable emulator acceleration
         run: |
@@ -98,4 +98,5 @@ jobs:
             evidence/r30/android-regression/
             evidence/r30/android-focus/
             evidence/r30/fault-matrix/
+            evidence/r30/fault-focus/
             startup-evidence/
