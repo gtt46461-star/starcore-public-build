@@ -47,7 +47,7 @@ jobs:
           PY
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs delivered/*.apk | tee public-certificate.txt
           grep -F '9e6d5dc79d29d4ba5b435a171e6535386f8a56ea6fad71a6cc77aeb10ade3eca' public-certificate.txt
-      - name: Pin the unmodified smoke checks to the requested published baseline
+      - name: Pin baseline and permit root-only preference reads on the disposable emulator
         env:
           R30_BASE_URL: ${{ matrix.url }}
           R30_BASE_SHA: ${{ matrix.sha }}
@@ -60,7 +60,15 @@ jobs:
           oldsha='739e6b13c692d11ed1cbc7c09f5f95d904328cefc1bf9d6616a9e5266203d433'
           assert s.count(old)==1 and s.count(oldsha)==1 and s.count("-name '*debug.apk'")==1
           s=s.replace(old,os.environ['R30_BASE_URL']).replace(oldsha,os.environ['R30_BASE_SHA']).replace("-name '*debug.apk'","-name '*release.apk'")
+          root='adb root > "$OUT/root.txt"; adb wait-for-device'
+          assert s.count(root)==1
+          s=s.replace(root,root+"\nadb shell 'test \"$(id -u)\" = 0'")
           Path('/tmp/r30-b00-smoke.sh').write_text(s)
+          p=Path('scripts/probe_r13_startup.py'); probe=p.read_text()
+          old_read="raw=adb('exec-out','run-as',PKG,'cat','shared_prefs/'+name+'.xml',check=False)"
+          root_read="raw=adb('exec-out','cat','/data/user/0/'+PKG+'/shared_prefs/'+name+'.xml',check=False)"
+          assert probe.count(old_read)==1
+          p.write_text(probe.replace(old_read,root_read))
           PY
       - name: Enable emulator acceleration
         run: |
