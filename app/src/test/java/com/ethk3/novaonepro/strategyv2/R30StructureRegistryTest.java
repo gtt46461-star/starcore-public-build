@@ -59,4 +59,20 @@ public final class R30StructureRegistryTest {
         IdeaFamilyR27 family = new StructureGeneratorRegistryR30.ConditionalIntersection();
         assertEquals(family.propose(new StatsR27.SplitMix(7),ca).canonical(), family.propose(new StatsR27.SplitMix(7),cb).canonical());
     }
+
+    @Test public void expandedFamilyMinimaCannotStarveExpertProposals() {
+        final int[] expertReceipts = {0};
+        R27BirthGateTest.Recorder sink = new R27BirthGateTest.Recorder() {
+            @Override public void expert(ExpertProposalsR27.Proposal p, int generation) {
+                super.expert(p,generation); expertReceipts[0]++;
+            }
+        };
+        EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.births = 40; cfg.seed = 24;
+        EvolutionLoopR27 loop = new EvolutionLoopR27(cfg, new FeatureCacheR27(ReplayDatasetR27.synthetic(1800,24,new int[0])), sink, () -> 0L);
+        EvolutionLoopR27.Member parent = new EvolutionLoopR27.Member();
+        parent.spec = EvolutionLoopR27.FAMILIES[1].propose(new StatsR27.SplitMix(7),new IdeaFamilyR27.Context()); parent.island = "I01";
+        loop.population.add(parent);
+        loop.step(); loop.step();
+        assertTrue("family minima consumed all expert slots", expertReceipts[0] > 0);
+    }
 }

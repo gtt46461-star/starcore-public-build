@@ -157,10 +157,13 @@ public final class EvolutionLoopR27 {
             if (survivors > 0) n += Math.min(cfg.minPerFamily * 4, (int) Math.round(bonusPool * familySurvivors.getOrDefault(FAMILIES[f].id(), 0) / (double) survivors));
             for (int i = 0; i < n; i++) births.add(FAMILIES[f].propose(rng, ic));
         }
-        int rest = Math.max(0, total - births.size());
+        // Experts can propose a complete new program without a surviving parent. Reserve their requested share
+        // before allocating the remaining operators; family minima and this quota may exceed a tiny target.
+        int ex = cfg.expertShare > 0 ? Math.max(1, (int) Math.floor(total * cfg.expertShare)) : 0;
+        int rest = Math.max(0, total - births.size() - ex);
         boolean haveParents = !population.isEmpty();
         int mut = haveParents ? (int) Math.round(rest * cfg.mutationShare / 1.0) : 0, cx = haveParents ? (int) Math.round(rest * cfg.crossoverShare) : 0;
-        int fu = archive.filled() >= 2 ? (int) Math.round(rest * cfg.fusionShare) : 0, ex = haveParents ? (int) Math.round(rest * cfg.expertShare) : 0;
+        int fu = archive.filled() >= 2 ? (int) Math.round(rest * cfg.fusionShare) : 0;
         for (int i = 0; i < mut; i++) {
             Member p = population.get(rng.nextInt(population.size()));
             IdeaFamilyR27 fam = family(p.island);
