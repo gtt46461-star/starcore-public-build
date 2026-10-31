@@ -91,6 +91,10 @@ public final class StoreR27 {
             for (Object[] r : rows) batch.add("INSERT OR REPLACE INTO r27_ablation(generation,champion_hash,node_index,removed_child,branch,delta_u,delta_logloss) VALUES(?,?,?,?,?,?,?)", generation, champion, r[0], r[1], r[2], r[3], r[4]);
         }
         public void holdoutLook(long block, String h) { batch.add("INSERT OR IGNORE INTO r27_holdout_exposure(block_id,policy_hash,looked_at) VALUES(?,?,?)", block, h, System.currentTimeMillis()); }
+        public void behaviorDuplicate(BehaviorSignatureR30.Duplicate d) {
+            batch.add("INSERT OR IGNORE INTO r30_behavior_dup(dataset_hash,probe_set_hash,signature,kept_policy,dropped_policy,stage,recorded_at) VALUES(?,?,?,?,?,?,?)",
+                    d.datasetHash, d.probeSetHash, d.signature, d.keptPolicy, d.droppedPolicy, d.stage, System.currentTimeMillis());
+        }
         static Object n(double d) { return Double.isFinite(d) ? (Object) d : null; }
         static long num(Object o) { return o instanceof Number ? ((Number) o).longValue() : 0; }
         static String trim(String s) { return s == null ? "" : s.length() > 400 ? s.substring(0, 400) : s; }

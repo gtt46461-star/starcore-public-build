@@ -40,6 +40,7 @@ public final class EvolutionLoopR27 {
         void expert(ExpertProposalsR27.Proposal p, int generation);
         void ablation(int generation, String championHash, List<Object[]> rows);
         void holdoutLook(long block, String policyHash);
+        void behaviorDuplicate(BehaviorSignatureR30.Duplicate duplicate);
     }
     public interface Clock { long now(); }
 
@@ -277,7 +278,16 @@ public final class EvolutionLoopR27 {
         familySurvivors.clear(); familySurvivors.putAll(famSurv);
         // Archive offers and population cap (worst non-elite members leave, archived as RETIRED).
         // Cells are taken against the current champion at offer time so a resumed loop files elites identically (H12).
-        for (Member m : population) { m.cell = cellOf(m); archive.offer(m.cell, m.spec, m.u, m.tau); }
+        BehaviorSignatureR30.Probes probes = BehaviorSignatureR30.probes(ctx.data, ctx.split);
+        Map<String,String> fingerprints = behaviorFingerprints(probes, true);
+        archive.bindBehavior(fingerprints);
+        genStats.put("behaviorProbeSetHash", probes.hash); genStats.put("behaviorProbeCount", (long)probes.rows.length);
+        genStats.put("behaviorProbeStatus", probes.ready() ? "READY" : "INSUFFICIENT");
+        for (Member m : population) {
+            m.cell = cellOf(m);
+            if (probes.ready()) archive.offer(m.cell, m.spec, m.u, m.tau, fingerprints.get(m.hash()),
+                    (signature, kept, dropped) -> sink.behaviorDuplicate(new BehaviorSignatureR30.Duplicate(probes, signature, kept, dropped, "ARCHIVE")));
+        }
         population.sort((a, b) -> a.u != b.u ? Double.compare(b.u, a.u) : a.hash().compareTo(b.hash()));
         int removed = 0;
         for (int pass = 0; pass < 2 && population.size() > cfg.populationCap; pass++)
@@ -383,7 +393,11 @@ public final class EvolutionLoopR27 {
     void stepMigrateAblate() {
         if (generation > 0 && generation % cfg.migrateEvery == 0) {
             int moved = 0;
-            for (String[] mv : IslandModelR27.migrations(population)) for (Member m : population) if (m.hash().equals(mv[0])) { m.island = mv[1]; moved++; }
+            BehaviorSignatureR30.Probes probes = BehaviorSignatureR30.probes(ctx.data, ctx.split);
+            Map<String,String> fingerprints = behaviorFingerprints(probes, false);
+            for (String[] mv : IslandModelR27.migrations(population, fingerprints,
+                    (signature, kept, dropped) -> sink.behaviorDuplicate(new BehaviorSignatureR30.Duplicate(probes, signature, kept, dropped, "MIGRATION"))))
+                for (Member m : population) if (m.hash().equals(mv[0])) { m.island = mv[1]; moved++; }
             lastRecord.put("migrated", (long) moved);
         }
         if (champion != null && generation > 0 && generation % cfg.ablateEvery == 0) {
@@ -407,6 +421,20 @@ public final class EvolutionLoopR27 {
     }
 
     // ------------------------------------------------------------------ helpers
+    private Map<String,String> behaviorFingerprints(BehaviorSignatureR30.Probes probes, boolean includeArchive) {
+        Map<String,String> out = new HashMap<>();
+        if (!probes.ready()) return out;
+        for (Member member : population) {
+            if (member.trace == null) refresh(member);
+            out.put(member.hash(), BehaviorSignatureR30.fromTrace(probes, member.trace));
+        }
+        if (includeArchive) for (EliteArchiveR27.Elite elite : archive.snapshot().values()) {
+            String hash = elite.spec.policyHash();
+            if (!out.containsKey(hash)) out.put(hash, BehaviorSignatureR30.fromTrace(probes, ctx.selectTrace(elite.spec, ctx.temperature(elite.spec))));
+        }
+        return out;
+    }
+
     void refresh(Member m) {
         if (m.trace == null) m.trace = ctx.selectTrace(m.spec, m.tau);
         ReplayScoreR27 s = ReplayScoreR27.of(SplitR27.SELECT, m.trace, ctx.split.selectFrom, ctx.split.selectTo);

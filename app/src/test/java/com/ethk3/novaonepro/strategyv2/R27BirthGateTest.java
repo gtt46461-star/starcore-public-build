@@ -48,6 +48,7 @@ public class R27BirthGateTest {
         public void expert(ExpertProposalsR27.Proposal p, int g) { events.add("E|" + p.expert + "|" + g); }
         public void ablation(int g, String c, List<Object[]> rows) { events.add("A|" + g + "|" + rows.size()); }
         public void holdoutLook(long b, String h) { events.add("H|" + b + "|" + h); }
+        public void behaviorDuplicate(BehaviorSignatureR30.Duplicate d) { events.add("D|" + d.datasetHash + "|" + d.probeSetHash + "|" + d.signature + "|" + d.keptPolicy + "|" + d.droppedPolicy + "|" + d.stage); }
     }
 
     @Test public void noOpChildIsDetectedAndNotRegistered() {

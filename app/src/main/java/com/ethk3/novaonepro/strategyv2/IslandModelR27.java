@@ -28,6 +28,25 @@ public final class IslandModelR27 {
         return out;
     }
 
+    /** The receiving island keeps its existing behavior; accepted arrivals also reserve their signature. */
+    public static <M extends Member> List<String[]> migrations(List<M> population, java.util.Map<String,String> fingerprints, BehaviorSignatureR30.Rejected rejected) {
+        java.util.Map<String,java.util.Map<String,String>> receiving = new java.util.HashMap<>();
+        for (M member : population) {
+            String fingerprint = fingerprints.get(member.hash());
+            if (fingerprint != null) receiving.computeIfAbsent(member.island(), k -> new java.util.LinkedHashMap<>()).putIfAbsent(fingerprint, member.hash());
+        }
+        List<String[]> out = new ArrayList<>();
+        for (String[] move : migrations(population)) {
+            String fingerprint = fingerprints.get(move[0]);
+            if (fingerprint == null) continue;
+            java.util.Map<String,String> destination = receiving.computeIfAbsent(move[1], k -> new java.util.LinkedHashMap<>());
+            String kept = destination.get(fingerprint);
+            if (kept != null && !kept.equals(move[0])) rejected.duplicate(fingerprint, kept, move[0]);
+            else { out.add(move); destination.put(fingerprint, move[0]); }
+        }
+        return out;
+    }
+
     /** Diversity metric: mean pairwise behavior Jaccard between island champions (reported; >0.9 = collapse). */
     public static double championSimilarity(List<int[]> championSignatures) {
         double s = 0; int n = 0;

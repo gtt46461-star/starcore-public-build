@@ -28,6 +28,7 @@ public final class ReportR29 {
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
         out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
         out.put("issueTimelineR30", issueTimeline(db));
+        out.put("behaviorDedupR30", behaviorDuplicates(db));
         Map<String,Object> fetch = new LinkedHashMap<>(); // R30-B02-02 (sub-card B02-02-a): current process values
         fetch.put("rejectedConcurrent", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.rejectedConcurrent());
         fetch.put("consecutiveFailures", com.ethk3.novaonepro.AutoFetchService.FETCH_R30.consecutiveFailures());
@@ -137,6 +138,23 @@ public final class ReportR29 {
         m.put("status", "MEASURED"); m.put("segments", IssueTimelineR30.summarize(rows));
         m.put("environmentNote", "时延门槛只以真机为准（docs/02 §4）；模拟器/CI 数值只记录不判定");
         return m;
+    }
+    /** M22 counts committed duplicate receipts, never a process-local counter. */
+    static Map<String,Object> behaviorDuplicates(SQLiteDatabase db) {
+        Map<String,Object> result = new LinkedHashMap<>(), stages = new LinkedHashMap<>();
+        result.put("source", "r30_behavior_dup");
+        result.put("scope", "拒绝入档/迁移的尝试；保留原策略和旧资产，不等于质量验证");
+        try {
+            long rows = 0;
+            try (Cursor c = db.rawQuery("SELECT stage,count(*) FROM r30_behavior_dup GROUP BY stage ORDER BY stage", null)) {
+                while (c.moveToNext()) { long count = c.getLong(1); rows += count; stages.put(c.getString(0), count); }
+            }
+            result.put("rows", rows); result.put("byStage", stages);
+            result.put("status", rows > 0 ? "MEASURED" : "NO_REJECTIONS_RECORDED");
+        } catch (RuntimeException unavailable) {
+            result.put("rows", null); result.put("status", "INSUFFICIENT"); result.put("reason", unavailable.getClass().getSimpleName());
+        }
+        return result;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
 

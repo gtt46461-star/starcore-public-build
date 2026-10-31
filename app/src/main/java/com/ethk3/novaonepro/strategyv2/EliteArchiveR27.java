@@ -11,6 +11,33 @@ public final class EliteArchiveR27 {
     public static final int CELLS = 5 * 8 * 4;
     public static final class Elite { public final PolicySpecR27 spec; public final double u, tau; public Elite(PolicySpecR27 s, double u, double tau) { spec = s; this.u = u; this.tau = tau; } }
     private final Map<Integer, Elite> cells = new TreeMap<>();
+    private final Map<String, String> behavior = new java.util.HashMap<>();
+
+    /** Rebind existing cells to this dataset's probes before considering any new offers. */
+    public synchronized void bindBehavior(Map<String, String> fingerprints) {
+        behavior.clear();
+        for (Elite elite : cells.values()) {
+            String hash = elite.spec.policyHash(), fingerprint = fingerprints.get(hash);
+            if (fingerprint != null) behavior.put(hash, fingerprint);
+        }
+    }
+
+    public synchronized boolean offer(int cell, PolicySpecR27 spec, double u, double tau, String fingerprint, BehaviorSignatureR30.Rejected rejected) {
+        if (fingerprint == null) throw new IllegalArgumentException("R30_BEHAVIOR_PROBES_NOT_READY");
+        String incoming = spec.policyHash();
+        for (Elite kept : cells.values()) {
+            String hash = kept.spec.policyHash();
+            if (!hash.equals(incoming) && fingerprint.equals(behavior.get(hash))) {
+                rejected.duplicate(fingerprint, hash, incoming); return false;
+            }
+        }
+        boolean accepted = offer(cell, spec, u, tau);
+        if (accepted) behavior.put(incoming, fingerprint);
+        java.util.Set<String> present = new java.util.HashSet<>();
+        for (Elite elite : cells.values()) present.add(elite.spec.policyHash());
+        behavior.keySet().retainAll(present);
+        return accepted;
+    }
 
     public static int actBand(double rate) { return rate < 0.05 ? 0 : rate < 0.10 ? 1 : rate < 0.15 ? 2 : rate < 0.25 ? 3 : 4; }
     public static int corrBand(double jaccard) { return jaccard < 0.25 ? 0 : jaccard < 0.5 ? 1 : jaccard < 0.75 ? 2 : 3; }
