@@ -53,6 +53,23 @@ public final class ReplayEvaluatorR27 {
         return false;
     }
 
+    // ---------------------------------------------------------------- R30-B03-06 unified evaluation entry
+    /** The single replay scoring entry: one walk-forward pass and the score of {@code role} (H_TRAIN, H_SELECT or
+     * H_CONFIRM). H_CONFIRM is read only through {@link HoldoutLedgerR27#confirm} (once per candidate and dataset hash). */
+    public static ReplayScoreR27 evaluate(PolicySpecR27 spec, EvalContextR27 ctx, String role, double tau, HoldoutLedgerR27 ledger) {
+        SplitR27 sp = ctx.split; int from, to;
+        if (SplitR27.TRAIN.equals(role)) { from = sp.trainFrom; to = sp.trainTo; }
+        else if (SplitR27.SELECT.equals(role)) { from = sp.selectFrom; to = sp.selectTo; }
+        else if (SplitR27.CONFIRM.equals(role) || SplitR27.HOLDOUT.equals(role)) {
+            if (!sp.holdoutAvailable) throw new IllegalStateException("R30_CONFIRM_UNAVAILABLE");
+            if (ledger == null) throw new IllegalStateException("R30_CONFIRM_WITHOUT_LEDGER");
+            ledger.confirm(spec.policyHash(), ctx.data.datasetHash, sp.holdoutBlock, sp.holdoutFrom, sp.holdoutTo);
+            from = sp.holdoutFrom; to = sp.holdoutTo;
+        } else throw new IllegalArgumentException("R30_UNKNOWN_ROLE:" + role);
+        Trace tr = run(spec, ctx.scores(spec), ctx.data, ctx.labels, tau, sp.trainFrom, to);
+        return ReplayScoreR27.of(ReplayScoreR27.storedSplit(role), tr, from, to);
+    }
+
     public static double[] scores(PolicySpecR27 spec, FeatureCacheR27 f) { return PolicyAstR27.eval(spec.ast, f, spec.position); }
 
     /** Fits the softmax temperature on H_TRAIN rows by grid search on log-loss (bias held at zero). */

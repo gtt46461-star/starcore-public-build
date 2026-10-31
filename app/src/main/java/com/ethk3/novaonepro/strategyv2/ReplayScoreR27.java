@@ -19,6 +19,9 @@ public final class ReplayScoreR27 {
     public double hitRate() { return nAct == 0 ? Double.NaN : hits / (double) nAct; }
     public double actRate() { return nSched == 0 ? 0 : nAct / (double) nSched; }
 
+    /** R30-B03-06: role name as stored (H_CONFIRM is recorded under the existing H_HOLDOUT split name). */
+    public static String storedSplit(String role) { return SplitR27.CONFIRM.equals(role) ? SplitR27.HOLDOUT : role; }
+
     public static ReplayScoreR27 of(String split, ReplayEvaluatorR27.Trace tr, int from, int to) {
         int sched = Math.max(0, to - from), act = 0, hits = 0, skipped = 0, streak = 0, maxStreak = 0, n = 0;
         double brier = 0, ll = 0; double[] p = new double[sched]; int[] y = new int[sched];
