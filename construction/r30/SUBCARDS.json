@@ -597,6 +597,15 @@
     "tools/r29/qual_host/shim/android/database/sqlite/SQLiteDatabase.java"
    ],
    "reason": "实际退役库回收证明回归复用原TableCopierR30，原复制器通过Cursor.getType保持SQLite INTEGER/REAL/TEXT/BLOB/NULL；旧资格HOST适配尚无该API，真实运行因此NoSuchMethodError。新增基于实际JDBC返回值的类型映射，仅HOST编译/运行、不进入APK，不改产品复制器或放宽字节/缺列校验；先登记后补适配。"
+  },
+  {
+   "card": "R30-B08-05",
+   "id": "R30-B08-05-c",
+   "files": [
+    "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportR27.java",
+    "app/src/androidTest/java/com/ethk3/novaonepro/R30ResearchRetentionAndroidTest.java"
+   ],
+   "reason": "B08批次最后一张补Android真实SQLite归档/回滚/不可删回归源码，验证WITHOUT ROWID原始复合字段和BLOB仍可保全；云端当前只编译，运行在最终同证书模拟器门禁中如实另签收。主报告摘要需显示同一快照保存的真实预算测量结果，不只在JSON/Markdown附件；缺测仍UNKNOWN/INSUFFICIENT，不新增独立查询或推算。先登记后修改。"
   }
  ]
 }
