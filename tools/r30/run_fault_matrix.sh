@@ -10,8 +10,19 @@ serial=$(adb get-serialno)
 run_id=${GITHUB_RUN_ID:-local-$(date +%s)}
 adb shell svc wifi disable
 adb shell svc data disable
+clock_restore_needed=0
+clock_original_auto_time=
+restore_clock() {
+  local restored_ms
+  restored_ms=$(python3 -c 'import time; print(time.time_ns()//1000000)')
+  adb shell cmd alarm set-time "$restored_ms" >> "$out/os-clock-restore.txt" || return 1
+  if [[ "$clock_original_auto_time" == null ]]; then adb shell settings delete global auto_time >> "$out/os-clock-restore.txt" || return 1;
+  else adb shell settings put global auto_time "$clock_original_auto_time" >> "$out/os-clock-restore.txt" || return 1; fi
+  clock_restore_needed=0
+}
 finish() {
   local result=$?
+  if [[ "$clock_restore_needed" == 1 ]]; then restore_clock || result=1; fi
   if [[ "$result" != 0 ]]; then
     for file in "$out/"*-run.txt "$out/"*-recover.txt "$out/"*-arm.txt; do
       [[ -f "$file" ]] && { echo "FAULT_FAILURE_OUTPUT:$file"; tail -n 80 "$file"; }
@@ -42,6 +53,31 @@ for visibility in foreground background; do
       grep -F "R30_FAULT_KILL_POINT" "$out/$cell-arm-logcat.txt" | grep -F "$operation|202610310241|ACTUAL_OWNER_BEFORE_COMMIT" > "$out/$cell-kill-point.txt" || { echo "ACTUAL_KILL_POINT_MISSING:$cell"; exit 1; }
       instrument "$fault" "$visibility" recover "$scope" > "$out/$cell-recover.txt" 2>&1
       result="$out/$cell-recover.txt"
+    elif [[ "$fault" == clock_rollback ]]; then
+      instrument "$fault" "$visibility" run "$scope" > "$out/$cell-run.txt" 2>&1 & clock_pid=$!
+      seen=0
+      for attempt in $(seq 1 450); do
+        if grep -q 'R30_FAULT_CLOCK_ARMED|' "$out/$cell-run.txt"; then seen=1; break; fi
+        kill -0 "$clock_pid" 2>/dev/null || break
+        sleep .1
+      done
+      [[ "$seen" == 1 ]] || { wait "$clock_pid" || true; echo "OS_CLOCK_NOT_ARMED:$cell"; exit 1; }
+      clock_original_auto_time=$(adb shell settings get global auto_time | tr -d '\r')
+      clock_restore_needed=1
+      adb shell settings put global auto_time 0
+      clock_before_seconds=$(adb shell date +%s | tr -d '\r')
+      [[ "$clock_before_seconds" =~ ^[0-9]+$ ]] || { echo OS_CLOCK_UNREADABLE; exit 1; }
+      adb shell cmd alarm set-time "$((clock_before_seconds * 1000 - 60000))" > "$out/$cell-os-rollback.txt"
+      seen=0
+      for attempt in $(seq 1 150); do
+        if grep -q 'R30_FAULT_CLOCK_OBSERVED|' "$out/$cell-run.txt"; then seen=1; break; fi
+        kill -0 "$clock_pid" 2>/dev/null || break
+        sleep .1
+      done
+      restore_clock
+      [[ "$seen" == 1 ]] || { wait "$clock_pid" || true; echo "ACTUAL_OS_CLOCK_ROLLBACK_NOT_OBSERVED:$cell"; exit 1; }
+      wait "$clock_pid"
+      result="$out/$cell-run.txt"
     elif [[ "$fault" == service_stop ]]; then
       instrument "$fault" "$visibility" arm "$scope" > "$out/$cell-arm.txt" 2>&1 & arm_pid=$!
       seen=0
@@ -72,7 +108,7 @@ done
 python3 - "$out" <<'PY'
 import json, pathlib, subprocess, sys
 out=pathlib.Path(sys.argv[1]); rows=[line.split('\t') for line in (out/'cells.tsv').read_text().splitlines()]; assert len(rows)==14 and len({tuple(r[:2]) for r in rows})==14
-receipt={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'environment':'ANDROID_EMULATOR','physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','cells':[dict(zip(('fault','visibility','mechanics'),row)) for row in rows],'conflictRecovery':'HARD_BLOCK_AWAITING_VERIFIED_CANONICAL; never automatically erase conflicting evidence','serviceStop':'actual system force-stop then explicit user reopen; no automatic restart claim','wallClockFault':'injected wall input with real monotonic samples, not an OS clock change','signingKeysRead':False,'productModelsDeleted':False}
+receipt={'source':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'environment':'ANDROID_EMULATOR','physicalDevice':'NOT_RUN','naturalQuality':'NOT_PROVEN','cells':[dict(zip(('fault','visibility','mechanics'),row)) for row in rows],'conflictRecovery':'HARD_BLOCK_AWAITING_VERIFIED_CANONICAL; never automatically erase conflicting evidence','serviceStop':'actual system force-stop then explicit user reopen; no automatic restart claim','wallClockFault':'actual rooted-emulator OS rollback and restoration through AlarmManager shell, two real wall/monotonic samples; restored before original-deadline recovery','signingKeysRead':False,'productModelsDeleted':False}
 (out/'matrix.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n')
 print('R30_FAULT_MATRIX|14_ACTUAL_EMULATOR_CELLS|NO_PHYSICAL_OR_NATURAL_CLAIM|PASS')
 PY

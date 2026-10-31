@@ -44,6 +44,15 @@ public final class R30DecisionChainAndroidTest {
             long latest=System.currentTimeMillis()-1000;
             for(int i=1;i<=240;i++){Models.Draw d=new Models.Draw();d.issue=String.format(Locale.ROOT,"20261031%04d",i);d.openTime=latest-(240-i)*60000L;d.fetchTime=d.openTime+500;for(int p=0;p<10;p++)d.numbers[p]=(p+i-1)%10+1;history.add(d);}
             assertEquals(240,store.saveDraws(history));deadline=TargetIssueResolver.predrawDeadlineWallR20261008(store.getLatestDraw());
+            long sourceStarted=android.os.SystemClock.elapsedRealtime();
+            String sourceRequest=FetchLedgerR925.begin(store,"SYNTHETIC_FIXTURE","https://127.0.0.1/SYNTHETIC_NOT_NETWORK_OR_NATURAL");assertFalse(sourceRequest.isEmpty());
+            ApiClient.RawHttpResult source=new ApiClient.RawHttpResult();source.ok=true;source.httpCode=200;
+            source.body=StrictCanonicalJson.write(Collections.singletonMap("SYNTHETIC_NOT_NETWORK_OR_NATURAL",base));
+            FetchLedgerR925.complete(store,sourceRequest,android.os.SystemClock.elapsedRealtime()-sourceStarted,source);
+            FetchLedgerR925.payload(store,sourceRequest,"SYNTHETIC_FIXTURE_NOT_NETWORK_OR_NATURAL",base,true,"SYNTHETIC_INPUT_MECHANICS_ONLY");
+            try(Cursor receipt=db.rawQuery("SELECT status,payload_hash,first_available_at,received_at FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{sourceRequest})){
+                assertTrue(receipt.moveToFirst());assertEquals("HTTP_PAYLOAD_ACCEPTED",receipt.getString(0));assertEquals(V51ChecksumEngine.sha256(source.body),receipt.getString(1));assertTrue(receipt.getLong(2)>0);assertTrue(receipt.getLong(3)>=receipt.getLong(2));
+            }
             assertEquals("0",store.getState(RealAuthoritySU2.USER_SWITCH,"0"));
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(DataOutputStream out=new DataOutputStream(bytes)){for(int i=0;i<100;i++)out.writeFloat(.1f);}
             store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SYNTHETIC_R30_CERTIFICATE_AND_FORECAST",w->{
@@ -68,12 +77,14 @@ public final class R30DecisionChainAndroidTest {
         AnalysisSingleFlightR36.Request request=requests.ensurePending(f.base,f.target,f.deadline,label);
         AnalysisSingleFlightR36.SubmitResult submit=AnalysisSingleFlightR36.shared().submit(request);assertTrue(submit.startNow);
         AnalysisSingleFlightR36.Lease lease=submit.lease;assertNotNull(lease);lease.bindCurrentThread();
+        RuntimeResourceAuditR927.Scope resources=null;boolean committed=false;
         try{
             request=requests.claim(request,lease.ownerId,System.currentTimeMillis());assertNotNull(request);
+            lease.token.claimDurablePulse(System.currentTimeMillis(),true);resources=RuntimeResourceAuditR927.begin(f.store,lease);
             V51RuntimeInputR36 input=V51RuntimeInputR36.freeze(f.history,request);request=requests.bindHistoryHash(request,input.historyHash,lease.ownerId);
             V51RuntimeOrchestrator.OutcomeR36 outcome=V51AutoFetchBridge.runR36(f.store,input,request,lease);
-            assertNotNull(outcome);assertNotNull(outcome.runtime);return outcome;
-        }finally{AnalysisSingleFlightR36.shared().releaseAndTakeNext(lease);}
+            assertNotNull(outcome);assertNotNull(outcome.runtime);committed=outcome.commit!=null&&outcome.commit.success;return outcome;
+        }finally{try{RuntimeResourceAuditR927.finish(f.store,resources,committed,"SYNTHETIC_ORIGINAL_OWNER_TEST");}finally{AnalysisSingleFlightR36.shared().releaseAndTakeNext(lease);}}
     }
 
     @Test public void correctionRevokesAndNextAuthorityReadRejectsWithinFiveSeconds()throws Exception {
@@ -125,9 +136,11 @@ public final class R30DecisionChainAndroidTest {
             String identity=BuildIdentity.verifyAndPersist(f.app,f.store);assertTrue(identity,BuildIdentity.isBetCompatible(identity));
             AnalysisRequestStoreR36 requests=new AnalysisRequestStoreR36(f.store);AnalysisSingleFlightR36.Request request=requests.ensurePending(f.base,f.target,f.deadline,"R30_SYNTHETIC_LEGAL_POSITIVE");
             AnalysisSingleFlightR36.SubmitResult submit=AnalysisSingleFlightR36.shared().submit(request);assertTrue(submit.startNow);AnalysisSingleFlightR36.Lease lease=submit.lease;assertNotNull(lease);lease.bindCurrentThread();
+            RuntimeResourceAuditR927.Scope resources=null;boolean committed=false;
             try {
-                request=requests.claim(request,lease.ownerId,System.currentTimeMillis());assertNotNull(request);V51RuntimeInputR36 input=V51RuntimeInputR36.freeze(f.history,request);request=requests.bindHistoryHash(request,input.historyHash,lease.ownerId);
+                request=requests.claim(request,lease.ownerId,System.currentTimeMillis());assertNotNull(request);lease.token.claimDurablePulse(System.currentTimeMillis(),true);resources=RuntimeResourceAuditR927.begin(f.store,lease);V51RuntimeInputR36 input=V51RuntimeInputR36.freeze(f.history,request);request=requests.bindHistoryHash(request,input.historyHash,lease.ownerId);
                 V51RuntimeOrchestrator.OutcomeR36 outcome=V51AutoFetchBridge.runR36(f.store,input,request,lease);
+                committed=outcome.commit!=null&&outcome.commit.success;
                 assertTrue(outcome.runtime.success);assertTrue(outcome.commit.success);
                 assertNotNull("The selected valid SU2 certificate must reach the existing typed proof",outcome.runtime.contract.certifiedPrediction);
                 assertEquals("Original gate reject="+outcome.runtime.authorized.rejectCode+"; policy="+outcome.runtime.contract.policy.lane,V51Enums.DecisionAction.BET,outcome.runtime.authorized.action);
@@ -140,7 +153,7 @@ public final class R30DecisionChainAndroidTest {
                 assertFalse("Canonical REAL must close the target",RealAuthoritySU2.allows(f.store,f.candidate(),f.certificate,f.target,f.deadline));
                 V51Models.AuthorizedDecision duplicate=new DecisionGateEngine().decideV51B12(f.store,outcome.runtime.contract);assertNotEquals(V51Enums.DecisionAction.BET,duplicate.action);
                 System.out.println("R30_ANDROID_ORIGINAL_OWNER_POSITIVE|1200_ACTIONS|CERTIFICATE_FROZEN_MAINLINE_REAL|EXPLAIN_MATCH|CANONICAL_DUPLICATE_REJECTED|SYNTHETIC_NOT_NATURAL_OR_PHYSICAL_QUALITY|PASS");
-            }finally{AnalysisSingleFlightR36.shared().releaseAndTakeNext(lease);}
+            }finally{try{RuntimeResourceAuditR927.finish(f.store,resources,committed,"SYNTHETIC_ORIGINAL_OWNER_POSITIVE");}finally{AnalysisSingleFlightR36.shared().releaseAndTakeNext(lease);}}
         }
     }
 }
