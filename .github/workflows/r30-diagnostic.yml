@@ -1,0 +1,41 @@
+name: R30 read-only existing Android failure summary
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/workflows/r30-diagnostic.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: '13052964735'
+          run-id: 41227596487
+          github-token: ${{ github.token }}
+          path: diagnosis
+          merge-multiple: true
+      - name: Existing failure test output only; no keys or raw database
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json,re
+          root=Path('diagnosis')
+          sensitive=re.compile(r'api.?key|authorization|bearer|password|token=|https?://',re.I)
+          for p in sorted(root.rglob('*')):
+              if not p.is_file():continue
+              print('DIAGNOSTIC_FILE',p.relative_to(root),p.stat().st_size)
+              if p.name=='startup.json':
+                  j=json.loads(p.read_text());print('STARTUP_RESULT',json.dumps({k:j.get(k) for k in ['passed','baseline_reproduced','crash']})[:12000])
+              elif p.suffix=='.txt' and 'logcat' not in p.name and any(s in p.parts for s in ['android-regression','fault-matrix']):
+                  for line in p.read_text(errors='replace').splitlines()[:300]:
+                      print('[REDACTED_CONFIGURATION_LINE]' if sensitive.search(line) else line)
+              elif 'logcat' in p.name:
+                  lines=p.read_text(errors='replace').splitlines()
+                  for i,line in enumerate(lines):
+                      if re.search(r'FATAL EXCEPTION|INSTRUMENTATION_FAILED|Unable to find instrumentation|Permission Denial|Exception:|Error:',line):
+                          for row in lines[max(0,i-1):i+14]:print('[REDACTED_CONFIGURATION_LINE]' if sensitive.search(row) else row)
+          PY
