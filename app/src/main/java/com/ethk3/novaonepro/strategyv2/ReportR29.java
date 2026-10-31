@@ -26,6 +26,7 @@ public final class ReportR29 {
         Map<String,Object> model = modelCheckpoint(db);
         out.put("modelContinuation", model);
         out.put("runtimeHealth", cachedPanel(db, "health", "summary"));
+        out.put("writerHoldR30", writerHold(db, System.currentTimeMillis() - 24L * 3600_000L));
         Map<String,MetricEvaluatorR29.Probe> probes=probes(baseline,preservation);
         probes.putAll(qualificationProbes(qualification));
         if ("RECORDED".equals(model.get("status"))) {
@@ -71,6 +72,33 @@ public final class ReportR29 {
                 "回执 "+receipts+"，回执与e-process不一致 "+mismatch+"，未解决冲突 "+conflicts+"，遗留hit=-2 "+minus2+"，待补抓开奖 "+q.get("pendingDrawOpen")+"；设备重启/杀进程回执前不计PASS",
                 "LIVE_EXPERIMENT_RECEIPTS",null,null,null,receipts,ev));
         return probes;
+    }
+    /** R30-B01-02 第3章 运行与时延：后台超时持有前50 + 关键写等待（来自 r30_writer_hold，近24小时）。 */
+    static Map<String,Object> writerHold(SQLiteDatabase db, long since) {
+        Map<String,Object> m = new LinkedHashMap<>();
+        m.put("chapter", "3 运行与时延"); m.put("source", "r30_writer_hold"); m.put("windowSince", since);
+        List<Map<String,Object>> top = new ArrayList<>(), critical = new ArrayList<>();
+        long windows;
+        try {
+            try (Cursor c = db.rawQuery("SELECT count(*) FROM r30_writer_hold WHERE window_end>=?", new String[] {Long.toString(since)})) { windows = c.moveToFirst() ? c.getLong(0) : 0; }
+            try (Cursor c = db.rawQuery(HoldLedgerFlushR30.REPORT_TOP, new String[] {Long.toString(since)})) {
+                while (c.moveToNext()) {
+                    Map<String,Object> r = new LinkedHashMap<>(); r.put("operation", c.getString(0)); r.put("count", c.getLong(1)); r.put("holdMaxMs", c.getLong(2));
+                    r.put("holdP95Ms", c.isNull(3) ? null : c.getLong(3)); r.put("overBudget", c.getLong(4)); r.put("overHard", c.getLong(5)); top.add(r);
+                }
+            }
+            try (Cursor c = db.rawQuery(HoldLedgerFlushR30.REPORT_CRITICAL, new String[] {Long.toString(since)})) {
+                while (c.moveToNext()) {
+                    Map<String,Object> r = new LinkedHashMap<>(); r.put("operation", c.getString(0)); r.put("count", c.getLong(1));
+                    r.put("waitP95Ms", c.isNull(2) ? null : c.getLong(2)); r.put("waitMaxMs", c.getLong(3)); r.put("holdMaxMs", c.getLong(4)); critical.add(r);
+                }
+            }
+        } catch (RuntimeException missingTable) { windows = 0; }
+        m.put("windows", windows);
+        if (windows <= 0) { m.put("status", "INSUFFICIENT"); m.put("reason", "INSUFFICIENT：r30_writer_hold 尚无窗口"); }
+        else m.put("status", "MEASURED");
+        m.put("backgroundOverBudgetTop50", top); m.put("criticalWriteWait", critical);
+        return m;
     }
     static long num(Object o) { return o instanceof Number ? ((Number)o).longValue() : 0; }
 

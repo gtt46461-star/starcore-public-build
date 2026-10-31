@@ -181,6 +181,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
             });
         } catch (RuntimeException busy) { android.util.Log.w("STARCORE_R27", "cpu receipt deferred", busy); }
         writes.flush();
+        HoldLedgerFlushR30.maybeFlush(store); // R30-B01-02
     }
 
     static String stack(Throwable t) { StringWriter s = new StringWriter(); t.printStackTrace(new PrintWriter(s)); String v = s.toString(); return v.length() > 16000 ? v.substring(0, 16000) : v; }

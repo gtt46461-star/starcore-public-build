@@ -11,10 +11,10 @@ R30 基线 bb607cf（CP06，已验收）；R29 CP07–CP16 不并入；每卡状
 |R30-B00-01|B00|从CP06建R30分支并锁定基线|DONE|7157660adec1|CI 自 B00-04 起|baseline_lock mismatches=0；rebind 产物 release/strategy_su1_reviewed_inputs.json 按 docs/02§2 属开放文件（ownership_check 原 OPEN 表漏列，B00-04 补登）|
 |R30-B00-02|B00|封存R29 B01分支，登记可复用件|DONE|aa28bc2f60a4|—|标签本地已建；远端 tag 推送被会话代理 403 拒绝，待所有者补推（见 R29_ARCHIVE.md）|
 |R30-B00-03|B00|回收R29后期包遗留的Root触发器与独立研究库|DONE|17dc6ef7bb35|待 r30.yml（B00-04 起）|本地全量编译通过；SQL 合同 19/19（含 T04/T05/T06）；R30FoldBackInstrumentedTest 需模拟器（CI connectedDebugAndroidTest）|
-|R30-B00-04|B00|装施工护栏工具与R30 CI入口|DOING|—|—|工具按方案原样复制，3 处必要修正（见下方偏差记录 D1–D3）|
+|R30-B00-04|B00|装施工护栏工具与R30 CI入口|DONE|f7044a7c2eba|—|工具按方案原样复制，3 处必要修正（见下方偏差记录 D1–D3）|
 |R30-B00-05|B00|复核R29已签收的B00三卡并统一指标测量口径|DONE|—|—|44 项均有 measurementSource；空源/零样本→INSUFFICIENT、值 null；legacy_count requirements=1832 fileCards=299；子卡 R30-B00-05-a 登记测试文件|
-|R30-B01-01|B01|唯一写锁：等待/持有时长账本|DONE|—|—|HOST 6/6；DatabaseCoordinator 仅补丁所示改动；真机/模拟器持锁数据 NOT_RUN|
-|R30-B01-02|B01|账本落库与报告出数|TODO|—|—|—|
+|R30-B01-01|B01|唯一写锁：等待/持有时长账本|DONE|0bdc4468dde1|—|HOST 6/6；DatabaseCoordinator 仅补丁所示改动；真机/模拟器持锁数据 NOT_RUN|
+|R30-B01-02|B01|账本落库与报告出数|DONE|—|—|SQL T02 4/4；报告第3章两表（writerHoldR30）；“运行10分钟≥9窗口”需设备 NOT_RUN|
 |R30-B01-03|B01|切片写入工具与Android适配器|TODO|—|—|—|
 |R30-B01-04|B01|按账本切片前五名后台长事务|TODO|—|—|—|
 |R30-B01-05|B01|任务活性判定与报告|TODO|—|—|—|
