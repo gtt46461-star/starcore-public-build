@@ -11,6 +11,16 @@ import java.util.Map;
 /** Read-only engineering diagnosis is available before natural confirmation has enough samples. */
 public final class ReportR29 {
     private ReportR29() {}
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db){return chapters(db,null);}
+    public static List<Map<String,Object>> chapters(SQLiteDatabase db,Map<String,Object> sourceManifest){
+        return ReportR27.chaptersR30(ReportSnapshotR30.capture(db,sourceManifest));
+    }
+    /** JSON and Markdown receive this same chapter list, never independently reload their metrics. */
+    public static Map<String,Object> document(List<Map<String,Object>> chapters){
+        Map<String,Object> out=new LinkedHashMap<>();out.put("schemaVersion","R30_REPORT_1");out.put("chapters",chapters);out.put("expectedChapters",12);out.put("exportedChapters",chapters.size());
+        out.put("snapshotWatermark",chapters.isEmpty()?null:chapters.get(0).get("snapshotWatermark"));out.put("reportConsistencyConflicts",chapters.isEmpty()?null:chapters.get(0).get("reportConsistencyConflicts"));
+        out.put("overallAcceptance","INCOMPLETE");out.put("naturalQuality","INSUFFICIENT");out.put("physicalDevice","NOT_RUN");out.put("legacyDetails",java.util.Arrays.asList("R26_REPORT.json","R27_REPORT.md","snapshot.db"));return out;
+    }
     public static Map<String,Object> chapter(SQLiteDatabase db) {
         Map<String,Object> out=new LinkedHashMap<>(), snapshot=new LinkedHashMap<>();
         snapshot.put("sourceCommit",BuildConfig.SOURCE_COMMIT_R26); snapshot.put("capturedAt",System.currentTimeMillis());

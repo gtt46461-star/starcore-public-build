@@ -243,6 +243,14 @@ public final class ReportExportServiceCP4 extends Service {
                         if(summary!=null){r27Summary.getParentFile().mkdirs();try(java.io.FileOutputStream out=new java.io.FileOutputStream(r27Summary)){out.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(summary).getBytes(StandardCharsets.UTF_8));}}
                     }catch(Exception r27Failure){try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r27Report),StandardCharsets.UTF_8)){w.write("# R27 报告生成失败\n\n"+r27Failure);}}
                     ReportMemberPlanCP12.append(members,r27Report.getName(),r27Report.getName(),ReportArchiveCP4.hash(r27Report,active),r27Report.length());
+                    // R30 primary report: capture once, then serialize the identical twelve chapters twice.
+                    java.util.Map<String,Object> r30Source=(java.util.Map<String,Object>)com.ethk3.novaonepro.strategyv2.JsonR27.parse(ReportJobJournalCP12.readAtomic(new File(directory,"source-manifest.json"),65536));
+                    java.util.List<java.util.Map<String,Object>> r30Chapters=com.ethk3.novaonepro.strategyv2.ReportR29.chapters(copy,r30Source);
+                    File r30Json=new File(directory,"R30_REPORT.json"),r30Markdown=new File(directory,"R30_REPORT.md");
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Json),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.JsonR27.write(com.ethk3.novaonepro.strategyv2.ReportR29.document(r30Chapters)));}
+                    try(java.io.Writer w=new java.io.OutputStreamWriter(new java.io.FileOutputStream(r30Markdown),StandardCharsets.UTF_8)){w.write(com.ethk3.novaonepro.strategyv2.ReportR27.markdownR30(r30Chapters));}
+                    ReportMemberPlanCP12.append(members,r30Json.getName(),r30Json.getName(),ReportArchiveCP4.hash(r30Json,active),r30Json.length());
+                    ReportMemberPlanCP12.append(members,r30Markdown.getName(),r30Markdown.getName(),ReportArchiveCP4.hash(r30Markdown,active),r30Markdown.length());
                     File r26Identities=new File(directory,"R26_POLICY_IDENTITIES.jsonl");
                     com.ethk3.novaonepro.strategyv2.PolicyIdentityLedgerR26.export(copy,r26Identities,job.snapshotSha,request.optBoolean("includeRawEvidence",false),active::checkpoint);
                     ReportMemberPlanCP12.append(members,r26Identities.getName(),r26Identities.getName(),ReportArchiveCP4.hash(r26Identities,active),r26Identities.length());

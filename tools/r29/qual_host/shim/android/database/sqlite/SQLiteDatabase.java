@@ -32,6 +32,7 @@ public class SQLiteDatabase {
         } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); }
     }
     public boolean inTransaction() { try { return !jdbc.getAutoCommit(); } catch (java.sql.SQLException e) { return false; } }
+    public boolean isReadOnly() { try { return jdbc.isReadOnly(); } catch (java.sql.SQLException e) { throw new SQLiteException(e.getMessage()); } }
 
     static final class Rows implements Cursor {
         final List<Object[]> rows; int at = -1;

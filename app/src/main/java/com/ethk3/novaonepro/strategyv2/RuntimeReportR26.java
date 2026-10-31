@@ -179,7 +179,8 @@ public final class RuntimeReportR26 {
         return out.put("status",unknown.length()>0?"INSUFFICIENT":"MEASURED").put("tasks",tasks).put("unknownTasks",unknown).put("summary",sum).put("m12",sum.get("m12"))
                 .put("missingFacts",new JSONArray().put(columns.contains("pending")?"":"r26_task.pending").put(columns.contains("last_committed_seq")?"":"r26_task.last_committed_seq"));
     }
-    public static String render(SQLiteDatabase db){
+    public static String render(SQLiteDatabase db){return ReportR27.summaryR30(ReportDataR27.chaptersR30(db));}
+    public static String renderLegacy(SQLiteDatabase db){
         StringBuilder b=new StringBuilder("\nR26 持续研究\n");if(!RuntimeSchemaR26.ready(db))return b.append("等待运行会话初始化；工程/能力/自然质量/真机分别验收。\n").toString();
         try(Cursor c=db.rawQuery("SELECT task_id,lane,cursor,status,coalesce(blocked_reason,''),steps,last_cpu_ms FROM r26_task ORDER BY lane,task_id",null)){while(c.moveToNext())b.append(c.getString(1)).append(' ').append(c.getString(0)).append("：").append(c.getString(3)).append("；已提交游标 ").append(c.getLong(2)).append("；切片 ").append(c.getLong(5)).append("；CPU ").append(c.getLong(6)).append("ms ").append(c.getString(4)).append('\n');}
         try{JSONObject live=taskLivenessR30(db);b.append("\n第4章 任务活性（M12）\n");JSONArray t=live.optJSONArray("tasks");

@@ -83,6 +83,8 @@ public final class ReportDataR27 {
 
     public static Map<String,Object> capabilityInventoryR30(SQLiteDatabase db){return CapabilityRegistryStoreR30.report(db);}
 
+    public static List<Map<String,Object>> chaptersR30(SQLiteDatabase db){return ReportR29.chapters(db);}
+    /** Preserved R27 attachment API. The primary R30 report uses chaptersR30 and its detached read view. */
     public static List<Map<String, Object>> chapters(SQLiteDatabase db) {
         ReportR27.Input in = load(db); if (in.previous == null) in.previous = previousSummary; List<Map<String, Object>> out = new ArrayList<>();
         out.add(ReportR27.truth(in)); out.add(ReportR27.evolution(in)); out.add(ReportR27.runtime(in)); out.add(ReportR27.upgrade(in));

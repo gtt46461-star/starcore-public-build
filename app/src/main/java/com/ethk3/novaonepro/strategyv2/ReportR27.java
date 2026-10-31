@@ -173,6 +173,65 @@ public final class ReportR27 {
 
     /** Readable Markdown rendering (R27_REPORT.md). */
     @SuppressWarnings("unchecked")
+    /** R30 chapters consume one detached read view; formatting performs no database reads. */
+    public static final class R30Input {
+        public final Map<String,Object> facts,watermark,data; public final List<String> errors;
+        public R30Input(Map<String,Object> facts,Map<String,Object> watermark,Map<String,Object> data,List<String> errors){
+            this.facts=freezeMap(facts);this.watermark=freezeMap(watermark);this.data=freezeMap(data);this.errors=java.util.Collections.unmodifiableList(new ArrayList<>(errors));
+        }
+    }
+    @SuppressWarnings("unchecked") static Object freezeR30(Object x){
+        if(x instanceof Map)return freezeMap((Map<String,Object>)x);
+        if(x instanceof List){List<Object> out=new ArrayList<>();for(Object value:(List<?>)x)out.add(freezeR30(value));return java.util.Collections.unmodifiableList(out);}
+        return x;
+    }
+    static Map<String,Object> freezeMap(Map<String,Object> source){Map<String,Object> out=new LinkedHashMap<>();for(Map.Entry<String,Object> e:source.entrySet())out.put(e.getKey(),freezeR30(e.getValue()));return java.util.Collections.unmodifiableMap(out);}
+    static long nonnegativeR30(Object x){return x instanceof Number?Math.max(0,((Number)x).longValue()):0;}
+    public static List<Map<String,Object>> chaptersR30(R30Input in){
+        String[][] chapters={
+            {"胜率真相与独立样本","futurePeriods","futureActs","futureHits","independentFutureIssues","maxFuturePeriods","bestFutureHr","qualifiedExperiments","activeCertificates"},
+            {"进化与独立确认","evolutionAttempts","policyObjects","generations","confirmedPackets","confirmationReservations","behaviorDuplicates"},
+            {"运行与时延","writerWindows","writerHardViolations","timelineEvents","runtimeTasks"},
+            {"任务活性","runtimeTasks","taskProgressRows"},
+            {"真实数据与时点边界","draws","importedRows","pitViolations","qualificationReceipts","receiptStateMismatches","openQualificationConflicts"},
+            {"十位置模型与校准","modelCheckpoints","modelSurfaceRows","modelCalls","calibratedPolicies"},
+            {"原子分子矩阵与能力","atoms","molecules","nativeMatrixRows","su2MatrixRows","registeredCapabilities"},
+            {"资格、证书与主链解释","qualifiedExperiments","activeCertificates","decisionRecords","decisionMismatches","unsafeDecisionMismatches","revocationEvents","revokedPolicies"},
+            {"升级连续性","abiFingerprints","abiChecks","legacyExports","modelCheckpoints"},
+            {"消融与修复证据","ablationRows","birthRejections","behaviorDuplicates"},
+            {"导出、存储与证据保留","storageCategories","retainedCertificateArchives","retainedModelObjects"},
+            {"实施、运行与验收差距","futurePeriods","qualifiedExperiments","activeCertificates","receiptStateMismatches","unsafeDecisionMismatches"}
+        };
+        Map<String,Object> common=new LinkedHashMap<>();for(String key:new String[]{"futurePeriods","futureActs","futureHits","independentFutureIssues","qualifiedExperiments","activeCertificates","evolutionAttempts","policyObjects"})common.put(key,in.facts.get(key));
+        Object mismatch=in.facts.get("receiptStateMismatches");Long conflicts=mismatch instanceof Number?nonnegativeR30(mismatch):null;
+        List<Map<String,Object>> out=new ArrayList<>();
+        for(int i=0;i<chapters.length;i++){
+            Map<String,Object> metrics=new LinkedHashMap<>();for(int j=1;j<chapters[i].length;j++)metrics.put(chapters[i][j],in.facts.get(chapters[i][j]));
+            boolean known=false,recorded=false;for(Object value:metrics.values())if(value instanceof Number){known=true;recorded|=((Number)value).doubleValue()!=0;}
+            String status=conflicts!=null&&conflicts>0?"DATA_CONFLICT":!in.errors.isEmpty()?"PARTIAL":!known?"UNKNOWN_SOURCE_MISSING":recorded?"RECORDED_UNVALIDATED":"INSUFFICIENT";
+            Map<String,Object> c=chapter(String.format(java.util.Locale.ROOT,"R30_%02d",i+1),"第"+(i+1)+"章 "+chapters[i][0],status,"同一只读事实快照；已记录不等于自然质量或真机通过，缺源保持未知。");
+            c.put("schemaVersion","R30_REPORT_1");c.put("evidenceLevel","DETACHED_SQLITE_READ_SNAPSHOT");c.put("snapshotWatermark",in.watermark);c.put("commonMetrics",java.util.Collections.unmodifiableMap(common));c.put("metrics",metrics);
+            c.put("sourceErrors",in.errors);c.put("reportConsistencyConflicts",conflicts);c.put("naturalQuality","INSUFFICIENT");c.put("physicalDevice","NOT_RUN");
+            c.put("metricDefinition","futurePeriods/Acts/Hits are contiguous ACTIVE experiment receipt rows, not independent periods; independentFutureIssues deduplicates target issues. Replay, controls and synthetic probes never substitute for natural FUTURE quality.");
+            String[] dataKeys=i==0?new String[]{"qualification","certificates"}:i==1?new String[]{"evolution","confirmation","syntheticControl"}:i==2?new String[]{"writerWindows","timeline"}:i==3?new String[]{"taskLiveness","tasks"}:i==4?new String[]{"qualificationConflicts","pit"}:i==5?new String[]{"checkpoints","neuralTraining","calibration","modelCalls","runtimeCaches"}:i==6?new String[]{"capabilities","atoms","molecules","matrices"}:i==7?new String[]{"certificates","decisions","revocations"}:i==8?new String[]{"abi","legacy"}:i==9?new String[]{"ablation","birthRejects"}:i==10?new String[]{"storage","exports"}:new String[]{"snapshotSources","runtimeCaches"};
+            Map<String,Object> data=new LinkedHashMap<>();for(String key:dataKeys)data.put(key,in.data.get(key));c.put("data",data);
+            c.put("collectionAction","ReportR29.chapters / ReportExportServiceCP4: export the complete frozen snapshot and referenced rows; missing source is not a measured zero.");
+            if(i==0){Map<String,Object> summary=new LinkedHashMap<>();for(String key:new String[]{"maxFuturePeriods","bestFutureHr","qualifiedExperiments","futureActs","futureHits","independentFutureIssues"})summary.put(key,in.facts.get(key));summary.put("qualified",in.facts.get("qualifiedExperiments"));summary.put("snapshotWatermark",in.watermark);c.put("summary",summary);}
+            out.add(c);
+        }
+        return out;
+    }
+    public static String markdownR30(List<Map<String,Object>> chapters){
+        return markdown(chapters).replace("# STARCORE R27 检测报告（自动生成）","# STARCORE R30 检测报告（同一只读快照）")
+                .replace("空数据只显示 INSUFFICIENT；本报告不含人工撰写的通过结论，所有结论由数据自动选择。","12章来自同一只读事实快照。缺来源保持 UNKNOWN，零样本保持 INSUFFICIENT；已记录不能代替自然质量和真机验收。");
+    }
+    public static String summaryR30(List<Map<String,Object>> chapters){
+        StringBuilder out=new StringBuilder("\nSTARCORE R30 同一只读快照报告\n");
+        for(Map<String,Object> chapter:chapters){out.append('\n').append(chapter.get("title")).append(" · ").append(chapter.get("status")).append('\n').append(JsonR27.write(chapter.get("metrics"))).append('\n');
+            if("R30_04".equals(chapter.get("sectionId")))out.append(JsonR27.write(chapter.get("data"))).append('\n');
+        }
+        return out.append("\n完整12章和来源水位请导出 R30_REPORT.json / R30_REPORT.md；自然质量与真机验收独立。\n").toString();
+    }
     public static String markdown(List<Map<String, Object>> chapters) {
         StringBuilder b = new StringBuilder("# STARCORE R27 检测报告（自动生成）\n\n空数据只显示 INSUFFICIENT；本报告不含人工撰写的通过结论，所有结论由数据自动选择。\n");
         for (Map<String, Object> c : chapters) {
