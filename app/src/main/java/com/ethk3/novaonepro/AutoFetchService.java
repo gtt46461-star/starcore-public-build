@@ -4111,8 +4111,18 @@ public final class AutoFetchService extends Service {
             throw new IllegalStateException("R366_DURABLE_LEASE_FENCE_LOST:" + stage);
     }
 
+    /** R30-B01-07: true while RuntimeCoordinatorR26 is the active owner of the shared research tables. */
+    private boolean researchOwnedByCoordinatorR30() {
+        com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26 coordinator = continuousRuntimeR26;
+        return coordinator != null && coordinator.isRunning();
+    }
+
     private void postResearchCaptureR907(final String requestedTarget, final int attempt) {
         if (!running || userRequestedStopV5 || store == null) return;
+        if (researchOwnedByCoordinatorR30()) { // R30-B01-07: same shared research tables as the R26 tasks
+            try { store.setState("r946_research_capture_status", "YIELD_R30_RESEARCH_OWNED_BY_R26:" + safe(requestedTarget)); } catch (Throwable ignored) {}
+            return;
+        }
         ResearchCaptureQueueR946.Ticket ticket = researchCaptureQueueR946.offer(requestedTarget);
         if (ticket != null) dispatchResearchCaptureR946(ticket, attempt <= 0 ? 10L : 450L);
     }
@@ -5256,6 +5266,14 @@ public final class AutoFetchService extends Service {
                             StorageReclaimR943.quiet(store);
                             return;
                         }
+                    }
+                    // R30-B01-07: the continuity/capture research below writes the same research_*_v2 tables as the
+                    // RuntimeCoordinatorR26 tasks (construction/r30/SCHEDULER_OWNERS.json). R26 owns them while it runs;
+                    // retention/reclaim turns above are maintenance and stay here.
+                    if (researchOwnedByCoordinatorR30()) {
+                        store.setState("r908_research_tick_status", "YIELD_R30_RESEARCH_OWNED_BY_R26");
+                        heartbeatStateV8().markLearningAttempt("V51_OWNER_YIELD", "R30_OWNED_BY_R26");
+                        return;
                     }
                     ResearchRuntimeSqlGateR911.Report sqlGate =
                             ResearchRuntimeSqlGateR911.verifyAndPublish(store);
