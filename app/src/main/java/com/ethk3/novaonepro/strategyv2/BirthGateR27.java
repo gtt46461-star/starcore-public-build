@@ -33,6 +33,25 @@ public final class BirthGateR27 {
     public void setMaxDepth(int d) { maxDepth = Math.max(2, Math.min(MAX_DEPTH, d)); }
     public int maxDepth() { return maxDepth; }
 
+    /** First gate for new main-line candidates; restored assets and explicit controls retain check(). */
+    public static Verdict candidateContract(PolicySpecR27 spec) {
+        List<String> violations;
+        try { violations = PolicyContractR30.violations(spec); }
+        catch (RuntimeException malformed) { return reject(Reason.TYPE, "R30_CONTRACT:MALFORMED_PROGRAM:" + malformed.getClass().getSimpleName()); }
+        if (!violations.isEmpty()) {
+            StringBuilder codes = new StringBuilder("R30_CONTRACT:");
+            for (String code : violations) { if (codes.length() > "R30_CONTRACT:".length()) codes.append(';'); codes.append(code); }
+            return reject(Reason.TYPE, codes.toString());
+        }
+        if (PolicyContractR30.controlOnly(spec)) return reject(Reason.TYPE, "R30_CONTRACT:CONTROL_ONLY");
+        return new Verdict(true, null, "R30_CONTRACT:COMPLETE", null);
+    }
+
+    public Verdict checkCandidate(PolicySpecR27 spec) {
+        Verdict contract = candidateContract(spec);
+        return contract.ok ? check(spec) : contract;
+    }
+
     public Verdict check(PolicySpecR27 spec) {
         PolicyAstR27.Node ast = spec.ast;
         if (ast.depth() > maxDepth || ast.size() > MAX_NODES || ast.constants() > MAX_CONSTANTS)

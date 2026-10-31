@@ -101,8 +101,8 @@ public final class EvolutionLoopR27 {
     public EvalContextR27 context() { return ctx; }
     // Package-private hooks for HOST tests (H05/H12).
     void gateRegister(String hash, int[] sig) { gate.register(hash, sig); }
-    void addPendingForTest(PolicySpecR27 s) { Pending p = new Pending(); p.spec = s; p.structural = s.meta == null || MutationOpsR27.structural(s.meta.operator); pending.add(p); }
-    String pendingState(String hash) { for (Pending p : pending) if (p.spec.policyHash().equals(hash)) return p.state; return null; }
+    void addPendingForTest(PolicySpecR27 s) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); pending.add(p); }
+    String pendingState(String hash) { for (Pending p : pending) if (pendingSpecJson(p) != null && p.spec.policyHash().equals(hash)) return p.state; return null; }
     public HoldoutLedgerR27 ledger() { return ledger; }
     private void count(String k, long d) { counters.get(k)[0] += d; }
     public long counter(String k) { return counters.get(k)[0]; }
@@ -175,7 +175,7 @@ public final class EvolutionLoopR27 {
         }
         // Fill any rounding/operator shortfall from generators so every generation has the configured size.
         while (births.size() < total) births.add(FAMILIES[1 + rng.nextInt(13)].generate(rng, ic));
-        for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s.meta == null || MutationOpsR27.structural(s.meta.operator); pending.add(p); }
+        for (PolicySpecR27 s : births) { Pending p = new Pending(); p.spec = s; p.structural = s != null && (s.meta == null || MutationOpsR27.structural(s.meta.operator)); pending.add(p); }
         count("attempts", births.size());
         genStats.put("births", (long) births.size());
     }
@@ -185,6 +185,13 @@ public final class EvolutionLoopR27 {
         Set<String> seenThisGen = new HashSet<>();
         int rejected = 0, noop = 0, dup = 0, structural = 0; Map<String, Integer> reasons = new LinkedHashMap<>();
         for (Pending p : pending) {
+            BirthGateR27.Verdict contract = BirthGateR27.candidateContract(p.spec);
+            if (!contract.ok) {
+                p.state = "REJECTED"; p.reason = contract.detail; rejected++;
+                reasons.merge(contract.detail, 1, Integer::sum);
+                if (pendingSpecJson(p) != null) sink.policy(p.spec, "REJECTED", "BIRTH_REJECTED(" + contract.reason + "):" + contract.detail, generation, ctx.data.datasetHash);
+                continue;
+            }
             String h = p.spec.policyHash();
             if (existing.contains(h) || !seenThisGen.add(h)) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "SAME_POLICY_HASH"; dup++; continue; }
             BirthGateR27.Verdict v = gate.check(p.spec);
@@ -202,6 +209,17 @@ public final class EvolutionLoopR27 {
         }
         count("uniquePolicies", seenThisGen.size()); count("structuralCandidates", structural); count("behaviorNovel", pending.size() - rejected - noop - dup);
         genStats.put("rejected", (long) rejected); genStats.put("noOp", (long) noop); genStats.put("duplicates", (long) dup); genStats.put("rejectReasons", new LinkedHashMap<String, Object>(reasons));
+    }
+
+    /** Malformed rejected proposals have no valid policy identity; retain their reason in the cursor/generation,
+     * without minting a fake identity or crashing while serializing the pending list. */
+    private static String pendingSpecJson(Pending p) {
+        if (p.spec == null) return null;
+        try { return p.spec.fullJson(); }
+        catch (RuntimeException invalid) {
+            if ("REJECTED".equals(p.state) || !BirthGateR27.candidateContract(p.spec).ok) return null;
+            throw invalid;
+        }
     }
 
     static String role(String op) {
@@ -473,7 +491,7 @@ public final class EvolutionLoopR27 {
         for (Map.Entry<Integer, EliteArchiveR27.Elite> e : archive.snapshot().entrySet()) { Map<String, Object> x = new LinkedHashMap<>(); x.put("cell", (long) e.getKey()); x.put("spec", e.getValue().spec.fullJson()); x.put("u", e.getValue().u); x.put("tau", e.getValue().tau); arc.add(x); }
         s.put("archive", arc);
         List<Object> pend = new ArrayList<>();
-        for (Pending p : pending) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.spec.fullJson()); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural); pend.add(x); }
+        for (Pending p : pending) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", pendingSpecJson(p)); x.put("state", p.state); x.put("reason", p.reason); x.put("tau", fin(p.tau)); x.put("structural", p.structural); pend.add(x); }
         s.put("pending", pend);
         List<Object> lv = new ArrayList<>(); for (PolicySpecR27 p : live) { Map<String, Object> x = new LinkedHashMap<>(); x.put("spec", p.fullJson()); x.put("tau", liveTau.get(p.policyHash())); lv.add(x); }
         s.put("live", lv);
