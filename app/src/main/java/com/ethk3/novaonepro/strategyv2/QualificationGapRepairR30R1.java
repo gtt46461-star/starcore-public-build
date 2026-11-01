@@ -19,7 +19,7 @@ public final class QualificationGapRepairR30R1 {
     /** One archive page for one blocked experiment; other live work continues on the same pool. */
     public static long step(SQLiteDatabase ro,QualificationInboxR29.Commit sink)throws Exception{
         Gap gap=null;
-        try(Cursor c=ro.rawQuery("SELECT c.experiment_id,c.blocked_ordinal,e.last_ordinal,e.n,e.global_index,s.status FROM r29_qual_cursor c JOIN r27_eprocess e ON e.policy_hash=c.experiment_id JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash WHERE c.blocked_reason='MISSING_OPPORTUNITY' AND s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') ORDER BY c.updated_at,c.experiment_id LIMIT 1",null)){
+        try(Cursor c=ro.rawQuery("SELECT c.experiment_id,c.blocked_ordinal,e.last_ordinal,e.n,e.global_index,s.status FROM r29_qual_cursor c JOIN r27_eprocess e ON e.policy_hash=c.experiment_id JOIN r27_live_shadow s ON s.policy_hash=e.policy_hash WHERE c.blocked_reason='MISSING_OPPORTUNITY' AND s.status IN ('ACTIVE','CONTROL_I00','CONTROL_NULL') AND NOT EXISTS(SELECT 1 FROM r27_chart_cache wait WHERE wait.panel_id='r30-qualification-gap-retry' AND wait.key=c.experiment_id||'|'||c.blocked_ordinal AND CAST(wait.payload_json AS INTEGER)>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER)) ORDER BY c.updated_at,c.experiment_id LIMIT 1",null)){
             if(c.moveToFirst()){gap=new Gap();gap.id=c.getString(0);gap.ordinal=c.getLong(1);gap.last=c.getLong(2);gap.n=c.getLong(3);gap.index=c.getLong(4);gap.status=c.getString(5);}
         }
         if(gap==null)return 0;final Gap g=gap;String key=g.id+"|"+g.ordinal;
@@ -60,6 +60,8 @@ public final class QualificationGapRepairR30R1 {
         });
         if(restore){batch.add("INSERT INTO r27_live_frozen("+COLUMNS+") SELECT "+COLUMNS+" FROM "+ARCHIVE+" WHERE __r30_id=? AND policy_hash=? AND target_ordinal=?",originalRow,g.id,g.ordinal);batch.add("UPDATE r29_qual_cursor SET blocked_reason='ORIGINAL_RESTORED_REPLAY_PENDING',updated_at=? WHERE experiment_id=?",System.currentTimeMillis(),g.id);}
         if(seal){batch.add("UPDATE r29_qual_cursor SET blocked_reason='SEALED_MISSING_OPPORTUNITY',updated_at=? WHERE experiment_id=?",System.currentTimeMillis(),g.id);batch.add("UPDATE r27_live_shadow SET status=?,reason='Original opportunity missing from active data and available immutable app archive; segment sealed without resetting alpha or synthesizing SKIP',updated_at=? WHERE policy_hash=?",SEALED,System.currentTimeMillis(),g.id);batch.add("UPDATE r27_certificate SET status='REVOKED_MISSING_OPPORTUNITY' WHERE policy_hash=? AND status='ACTIVE'",g.id);}
+        if(!archiveReady||conflict)batch.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES('r30-qualification-gap-retry',?,?,?)",key,Long.toString(System.currentTimeMillis()+30000),System.currentTimeMillis());
+        else batch.add("DELETE FROM r27_chart_cache WHERE panel_id='r30-qualification-gap-retry' AND key=?",key);
         batch.add("INSERT OR REPLACE INTO r27_chart_cache(panel_id,key,payload_json,updated_at) VALUES(?,?,?,?)",PANEL,key,JsonR27.write(state),System.currentTimeMillis());
         try{return sink.commit("R30_QUAL_ORIGINAL_GAP",batch)?1:0;}catch(IllegalStateException race){if(!QualificationInboxR29.precondition(race))throw race;return 0;}
     }

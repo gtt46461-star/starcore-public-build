@@ -130,6 +130,7 @@ public final class QualificationInboxR29 {
             while (c.moveToNext()) experiments.add(c.getString(0));
         }
         for (String id : experiments) {
+            CooperativeContinuationR26.poll();
             if (hasOpenConflict(ro, id)) { pass.blocked.put(id, BLOCK_CONFLICT); continue; }
             long firstOrdinal = calendarStart(ro, id);
             if (firstOrdinal < 0) {
@@ -145,6 +146,7 @@ public final class QualificationInboxR29 {
             }
             if (needsRebuild(ro, id)) { if (rebuild(ro, sink, id)) pass.rebuilt++; else { pass.casRetries++; continue; } }
             for (int guard = 0; guard < 64; guard++) {
+                CooperativeContinuationR26.poll();
                 SequentialQualificationR27.State s = StoreR27.readEprocess(ro, id); if (s == null) break;
                 final long expectLast = s.lastOrdinal, expectN = s.n;
                 Plan p = plan(s, rows(ro, id, s.lastOrdinal, MAX_STEP + 1), latestOrdinal, MAX_STEP, firstOrdinal);
