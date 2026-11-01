@@ -190,3 +190,35 @@ jobs:
           path: |
             evidence/r30/upgrade-EXISTING_R27-${{ matrix.checkpoint }}/
             startup-evidence/
+  publish:
+    needs: [build, emulator, upgrade]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.source }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
+          path: verified-candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-ANDROID-EVIDENCE
+          path: verified-android
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: R30-REPAIR1-R27-UPGRADE-*
+          path: verified-upgrades
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Publish only the exact independently verified same-certificate candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/r30-repair/publish_verified.py --source '${{ needs.build.outputs.source }}' --candidate verified-candidate --android verified-android --upgrades verified-upgrades
