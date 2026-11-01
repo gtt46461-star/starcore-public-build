@@ -54,6 +54,7 @@ public final class BirthGateR27 {
 
     public Verdict check(PolicySpecR27 spec) {
         PolicyAstR27.Node ast = spec.ast;
+        if(SetIntersectionPolicyR30.exact(spec)){Verdict contract=candidateContract(spec);if(!contract.ok)return contract;}
         if (ast.depth() > maxDepth || ast.size() > MAX_NODES || ast.constants() > MAX_CONSTANTS)
             return reject(Reason.TOO_COMPLEX, "depth=" + ast.depth() + ",nodes=" + ast.size() + ",constants=" + ast.constants());
         try { PolicyAstR27.type(ast); } catch (IllegalArgumentException e) { return reject(Reason.TYPE, e.getMessage()); }
@@ -73,10 +74,17 @@ public final class BirthGateR27 {
         ReplayEvaluatorR27.Trace tr = ReplayEvaluatorR27.run(spec, s, cache.data, cache.data.draws, spec.temperature, probeFrom, probeTo);
         int available = 0; double[] z = new double[10], p = new double[10];
         for (int t = probeFrom; t < probeTo; t++) {
-            if (tr.skipped[t]) continue;
+            if (tr.skipped[t]) {
+                // A declared abstention has complete, checked inputs but no K3 forecast. It is not missing input.
+                if(SetIntersectionPolicyR30.exact(spec)&&t>=spec.ast.ints[1]&&cache.data.consecutive(t,spec.ast.ints[1])){
+                    java.util.Map<String,Object> support=SetIntersectionPolicyR30.support(cache,t,spec.position,spec.ast.ints[0],spec.ast.ints[1]);
+                    if("ABSTAIN_INTERSECTION_LT3".equals(support.get("status"))&&Integer.valueOf(0).equals(support.get("filledNumbers")))available++;
+                }
+                continue;
+            }
             available++;
             if (!ReplayEvaluatorR27.standardize(s, t, z)) return reject(Reason.OUTPUT, "NONFINITE_SCORE@" + t);
-            ReplayEvaluatorR27.softmax(z, spec.temperature, null, p);
+            if(SetIntersectionPolicyR30.exact(spec))System.arraycopy(s,t*10,p,0,10);else ReplayEvaluatorR27.softmax(z, spec.temperature, null, p);
             double sum = 0; for (double x : p) { if (!Double.isFinite(x) || x < 0) return reject(Reason.OUTPUT, "PROBABILITY@" + t); sum += x; }
             if (Math.abs(sum - 1) > 1e-9) return reject(Reason.OUTPUT, "SUM@" + t + "=" + sum);
             int a = tr.k3[t * 3], b = tr.k3[t * 3 + 1], c = tr.k3[t * 3 + 2];
