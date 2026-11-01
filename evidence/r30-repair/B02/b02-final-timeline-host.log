@@ -1,0 +1,16 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+Exception in thread "main" java.lang.AssertionError: current report consumes exact cached event payload and retains conflict
+	at com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest.need(RepairTimelineR30HostTest.java:8)
+	at com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest.main(RepairTimelineR30HostTest.java:36)
+Traceback (most recent call last):
+  File "/workspace/starcore-r30-repair/tools/r30-repair/run_timeline_host.py", line 12, in <module>
+    run(['java','-Xmx512m','-cp',os.pathsep.join(map(str,[shim,test,classes,jdbc,sdk])),'com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest'])
+  File "/workspace/starcore-r30-repair/tools/r30-repair/run_timeline_host.py", line 6, in run
+    def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['java', '-Xmx512m', '-cp', '/tmp/repair-timeline-host-6ratb431/shim:/tmp/repair-timeline-host-6ratb431/test:/workspace/starcore-r30-repair/app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:/workspace/work/r29/deps/sqlite-jdbc.jar:/workspace/starcore-environment/android-sdk/platforms/android-36/android.jar', 'com.ethk3.novaonepro.strategyv2.RepairTimelineR30HostTest']' returned non-zero exit status 1.

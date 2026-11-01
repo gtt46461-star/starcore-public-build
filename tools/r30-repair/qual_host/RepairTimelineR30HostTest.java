@@ -4,11 +4,12 @@ import android.database.Cursor;
 import java.sql.*;
 import java.util.*;
 public final class RepairTimelineR30HostTest {
+    static final long WALL_BASE=System.currentTimeMillis()-10000;
     interface Work{void run()throws Exception;}
     static void need(boolean value,String reason){if(!value)throw new AssertionError(reason);}
     static void tx(SQLiteDatabase db,Work work)throws Exception{db.jdbc.setAutoCommit(false);try{work.run();db.jdbc.commit();}catch(Exception|Error failure){db.jdbc.rollback();throw failure;}finally{db.jdbc.setAutoCommit(true);}}
     static long n(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){need(c.moveToFirst(),sql);return c.getLong(0);}}
-    static void mark(SQLiteDatabase db,String trace,String role,IssueTimelineR30.Stage stage,long mono){IssueTimelineWriterR30.markEventAt(db,"SYNTHETIC_ISSUE",IssueTimelineR30.EventRole.valueOf(role),IssueTimelineR30.EventKind.DRAW,trace,null,null,"SYNTHETIC_EXACT_DRAW_HASH",stage,1000+mono,mono,"SYNTHETIC_BOOT_A");}
+    static void mark(SQLiteDatabase db,String trace,String role,IssueTimelineR30.Stage stage,long mono){IssueTimelineWriterR30.markEventAt(db,"SYNTHETIC_ISSUE",IssueTimelineR30.EventRole.valueOf(role),IssueTimelineR30.EventKind.DRAW,trace,null,null,"SYNTHETIC_EXACT_DRAW_HASH",stage,WALL_BASE+mono,mono,"SYNTHETIC_BOOT_A");}
     static Map<String,Object> event(SQLiteDatabase db,String trace){return IssueTimelineWriterR30.readEvent(db,IssueTimelineWriterR30.eventId("SYNTHETIC_ISSUE",IssueTimelineR30.EventKind.DRAW,trace,"SYNTHETIC_EXACT_DRAW_HASH"));}
     static long events(SQLiteDatabase db){return n(db,"SELECT count(*) FROM r27_chart_cache WHERE panel_id IN ('"+IssueTimelineR30.EVENT_DRAW_PANEL+"','"+IssueTimelineR30.EVENT_PRED_PANEL+"','"+IssueTimelineR30.EVENT_RAW_PANEL+"')");}
     public static void main(String[] args)throws Exception{
