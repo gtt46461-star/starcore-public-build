@@ -104,7 +104,7 @@
         "app/src/main/java/com/ethk3/novaonepro/ReportExportServiceCP4.java",
         "tools/r30-repair/run_writer_host.py"
       ],
-      "reason": "原按issue唯一时间线升级成事件实例存储；同一原schemaOwner事务复制并逐列EXCEPT验证原字段，原表名保留兼容视图及INSTEAD OF触发器，物理表净增0，保持方案总共只新增6张研究物化表。旧API读写仅作用LEGACY_MIXED原件，不能污染新LIVE/BACKFILL事件。DRAW绑定原HTTP request+drawHash，PREDICTION绑定原attempt，实际响应单调钟持久化且不由墙钟倒推；实际kernel boot不可读则进程范围保守降级。提交后时间在实际COMMIT返回且释放原writer后采样，有界pending由原遥测任务重试，进程死亡未落库保持UNKNOWN。原结算endTransaction异常不再吞掉。原业务数学、REAL与资格Owner不改。先登记后施工；迁移/回滚/旧SQL兼容必须由原生SQLite测试核验。"
+      "reason": "原issue唯一物理时间线及旧API保持不变；新事件收据复用已存在r27_chart_cache专用r30-timeline-r1命名空间，DRAW/PRED/RAW/HEAD独立键和窗口索引，无新增遥测物理表，方案仍只新增6张研究物化表。可重算图缓存清理不得删除此收据命名空间。DRAW绑定原HTTP request+drawHash，PRED绑定原attempt；旧表只能作为历史附件，不参与新LIVE SLO。真实响应单调钟直接持久化，不由墙钟倒推；kernel boot不可读则保守进程范围。提交后时刻在真正COMMIT和原writer返回后采样，由原遥测任务有界重试，死亡未落库UNKNOWN。原结算endTransaction异常真实回传，原数学、REAL与资格Owner保持。旧版读写兼容及角色/实例隔离用原生SQLite验证。此前视图兼容试验被原生SQLite检测出旧索引DDL不兼容，未交付，保留失败日志并取消该迁移。先登记后施工。"
     },
     {
       "id": "FR-B02-05-a",
