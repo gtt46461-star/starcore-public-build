@@ -84,6 +84,24 @@
         "tools/r30-repair/run_retention_host.py"
       ],
       "reason": "在实际生产类和原生SQLite中验证固定源键集的折叠、原充分统计、同事务回滚/重试、单阶段恢复以及保护模型原件；HOST不替代Android设备。旧prune API保留全循环兼容，生产任务每次只做一个维护阶段并在同事务持久化阶段。先登记后施工。"
+    },
+    {
+      "id": "FR-B02-04-a",
+      "card": "FR-B02-04",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/FetchLedgerR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/ApiClient.java",
+        "app/src/main/java/com/ethk3/novaonepro/SchemaRevisionR925.java",
+        "app/src/main/java/com/ethk3/novaonepro/AnalysisRequestStoreR36.java",
+        "app/src/main/java/com/ethk3/novaonepro/DatabaseCoordinator.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairIssueTimelineR30Test.java",
+        "tools/r30-repair/qual_host/RepairTimelineR30HostTest.java",
+        "tools/r30-repair/run_timeline_host.py"
+      ],
+      "reason": "原按issue唯一时间线历史只读保留；新增一张事件实例遥测表，由原SchemaR27唯一创建，与六张研究物化表分属遥测/研究合同，不新增业务写者。DRAW绑定原HTTP request+drawHash，PREDICTION绑定原attempt，角色LIVE/BACKFILL/REPLAY分开。原R925响应账加实际接收单调钟和clock scope，由其原SchemaRevisionR925创建。禁止用墙钟回算单调钟；真实内核boot ID不可读则进程范围保守降级。原事务内仅补遥测，不改变正式结算/REAL/资格/冻结Owner，负差、跨boot、重复及缺失不剪裁。先登记后施工。"
     }
   ]
 }
