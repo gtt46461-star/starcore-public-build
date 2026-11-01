@@ -884,8 +884,8 @@
   ],
   "all60Complete": false,
   "engineeringAndNaturalAcceptanceSeparate": true,
-  "currentBatch": "B11_INTEGRATION_FIXING_REAL_FAILURES",
-  "updatedAt": "2026-11-01T20:29:43.251159+00:00",
+  "currentBatch": "B11_FINAL_002_ENGINEERING_ACCEPTANCE",
+  "updatedAt": "2026-11-01T20:49:21.113136+00:00",
   "completionPolicy": "不由提交数、代码文件数、截图数或341项测试执行率推算60卡产品通过率；Vivo72小时和自然质量仍待真实证据。",
   "currentSource": "1342b77b0c3ffeb73e68d892fee93987dc4a4129",
   "ciAttempts": [
@@ -893,6 +893,13 @@
       "runId": 41346205880,
       "source": "46b1beff0405ffbf79f1ef1e38d140516a823b83",
       "outcome": "FAILED_ORIGINAL_SU1_INDEPENDENT_COMPILER_DEPENDENCY_LIST",
+      "signerLoader": "ORIGINAL_R27_RESTORED_UNCHANGED",
+      "apk": "NOT_BUILT"
+    },
+    {
+      "runId": 41347587316,
+      "source": "1953f9cfb148baba3be30d60ea230963e0baa834",
+      "outcome": "FAILED_ORIGINAL_SQL_FIXTURE_EXPECTED14_BINDINGS_ACTUAL16",
       "signerLoader": "ORIGINAL_R27_RESTORED_UNCHANGED",
       "apk": "NOT_BUILT"
     }
@@ -911,5 +918,25 @@
     "originalSU2": "PASS_ALL_17_ORIGINAL_TESTS",
     "originalR26": "PASS_ALL_ORIGINAL_PROTOCOLS",
     "lint": "One new indentation error fixed; original51baseline errors unchanged; rerun pending"
+  },
+  "versionCode": 577311002,
+  "fullUnitAfterFix": {
+    "compiledSource": "1953f9cfb148baba3be30d60ea230963e0baa834",
+    "executed": 342,
+    "passed": 342,
+    "failed": 0,
+    "skipped": 0,
+    "lintNewErrors": 0,
+    "originalLintBaselineErrors": 51
+  },
+  "candidate002": {
+    "rootAliasCounterexample": "Real13bytes vs alias0 reproduced on compiled production class; fixed root canonicalization, child symlinks still refused",
+    "targetedStorageTests": 3,
+    "targetedFailures": 0,
+    "androidTestCompile": "PASS",
+    "lint": "PASS_NO_NEW_ISSUES",
+    "originalSqlContracts": "21/21 PASS incl real16 parameterSQL, old14 named-column writer compatibility",
+    "finalFullAndAndroidExecution": "PENDING_CI",
+    "naturalQuality": "NOT_PROVEN"
   }
 }
