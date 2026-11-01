@@ -107,7 +107,7 @@ public final class EvolutionLoopR27 {
         SplitR27 split = SplitR27.of(cache.data, ledger.degradedBlocks());
         ctx = new EvalContextR27(cache, split, null);
         gate = new BirthGateR27(cache, split.trainTo); gate.setMaxDepth(gateMaxDepth);
-        for (Member m : population) if (m.sig != null) gate.register(m.hash(), m.sig);
+        for (Member m : population) if (m.sig != null) gate.register(m.hash(), m.sig,m.spec.position);
     }
     /** daily-close: rebinding to a new dataset happens only between generations (step 1). */
     public void rebind(FeatureCacheR27 cache) {
@@ -234,9 +234,9 @@ public final class EvolutionLoopR27 {
             p.sig = v.signature;
             if (p.spec.meta != null && p.spec.meta.parents.size() == 1 && !"LEGACY_SEED".equals(p.spec.meta.operator)) {
                 int[] parentSig = gate.signatureOf(p.spec.meta.parents.get(0));
-                if (parentSig != null && Arrays.equals(parentSig, v.signature)) { p.state = "NO_OP"; p.reason = "SIGNATURE_EQUALS_PARENT"; noop++; continue; }
+                if (parentSig != null && gate.sameTarget(p.spec.meta.parents.get(0),p.spec.position) && Arrays.equals(parentSig, v.signature)) { p.state = "NO_OP"; p.reason = "SIGNATURE_EQUALS_PARENT"; noop++; continue; }
             }
-            String d = gate.duplicateOf(v.signature);double localSimilarity=Double.NaN;
+            String d = gate.duplicateOf(v.signature,p.spec.position);double localSimilarity=Double.NaN;
             if(d==null)for(Pending sibling:bornThisGeneration)if(sibling.spec.position==p.spec.position||sibling.sig.length==0&&v.signature.length==0){double similarity=BirthGateR27.jaccard(sibling.sig,v.signature);if(similarity>=BirthGateR27.DUPLICATE_JACCARD){d=sibling.spec.policyHash();localSimilarity=similarity;break;}}
             if (d != null) { p.state = "DUPLICATE_BEHAVIOR"; p.reason = "JACCARD>=0.95:" + d; dup++;
                 if(Double.isFinite(localSimilarity))localBehaviorDuplicatesTotal++;if(Double.isFinite(localSimilarity)&&localBehaviorDuplicates.size()<256){Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("keptPolicy",d);receipt.put("droppedPolicy",h);receipt.put("similarity",localSimilarity);receipt.put("droppedPosition",p.spec.position);receipt.put("stage","BIRTH_SAME_GENERATION");receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("probeScope","ORIGINAL_BIRTH_GATE_PROBE_SAME_TARGET_OR_BOTH_NO_ACT");receipt.put("signatureHash",StatsR27.sha256(Arrays.toString(v.signature)));localBehaviorDuplicates.add(receipt);}continue; }
@@ -306,7 +306,7 @@ public final class EvolutionLoopR27 {
         for (SuccessiveHalvingR27.Candidate c : r.survivors) {
             Pending p = byHash.get(c.spec.policyHash());
             Member m = new Member(); m.spec = c.spec; m.tau = c.temperature; m.trace = c.trace; m.sig = p.sig; m.island = island(c.spec);
-            refresh(m); population.add(m); gate.register(m.hash(), m.sig);
+            refresh(m); population.add(m); gate.register(m.hash(), m.sig,m.spec.position);
             sink.policy(c.spec, "ACTIVE", "SURVIVED_R0_R1_R2", generation, ctx.data.datasetHash); sink.score(m.hash(), ctx.data.datasetHash, c.select);
             famSurv.merge(m.island, 1, Integer::sum);
         }
@@ -567,7 +567,7 @@ public final class EvolutionLoopR27 {
             // Behavior signatures are not persisted (size); they are recomputed deterministically on restore.
             if(validated==null){BirthGateR27.Verdict v = l.gate.check(m.spec); m.sig = v.ok ? v.signature : new int[0];}
             else {Member original=null;for(Member candidate:validated.population)if(candidate.hash().equals(m.hash())){original=candidate;break;}if(original==null)throw new IllegalStateException("R30_PRIVATE_FORK_IDENTITY");m.sig=original.sig==null?null:original.sig.clone();m.u=original.u;m.lcb=original.lcb;m.hr=original.hr;m.actRate=original.actRate;m.brier=original.brier;m.cell=original.cell;m.trace=original.trace;}
-            l.population.add(m); if(m.sig!=null)l.gate.register(m.hash(), m.sig);
+            l.population.add(m); if(m.sig!=null)l.gate.register(m.hash(), m.sig,m.spec.position);
         }
         if(validated==null)for (Member m : l.population) l.refresh(m);
         for (Object o : (List<Object>) s.get("archive")) { Map<String, Object> x = (Map<String, Object>) o; l.archive.put((int) JsonR27.num(x.get("cell")), new EliteArchiveR27.Elite(spec(x.get("spec")), JsonR27.num(x.get("u")), JsonR27.num(x.get("tau")))); }

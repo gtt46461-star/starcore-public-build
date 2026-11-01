@@ -24,6 +24,7 @@ public final class BirthGateR27 {
     /** Per-period prediction cost limit (5 ms by default; tests lower it to exercise COST). */
     public void setCostLimitMs(double ms) { costLimitMs = ms; }
     private final Map<String, int[]> signatures = new HashMap<>();
+    private final Map<String,Integer> positions=new HashMap<>();
     private final Map<Long, String> exact = new HashMap<>();
 
     public BirthGateR27(FeatureCacheR27 cache, int probeEnd) {
@@ -96,17 +97,20 @@ public final class BirthGateR27 {
     }
 
     /** Duplicate test against registered behavior (exact hash first, then Jaccard ≥ 0.95 against registered set). */
-    public String duplicateOf(int[] sig) {
+    public String duplicateOf(int[] sig) {return duplicateOf(sig,0);}
+    public boolean sameTarget(String hash,int position){int existing=positions.getOrDefault(hash,0);return existing==0||position==0||existing==position;}
+    public String duplicateOf(int[] sig,int position) {
         long h = Arrays.hashCode(sig) * 31L + sig.length;
         String same = exact.get(h);
-        if (same != null && Arrays.equals(signatures.get(same), sig)) return same;
-        for (Map.Entry<String, int[]> e : signatures.entrySet()) if (jaccard(sig, e.getValue()) >= DUPLICATE_JACCARD) return e.getKey();
+        if (same != null && (sameTarget(same,position)||sig.length==0)&&Arrays.equals(signatures.get(same), sig)) return same;
+        for (Map.Entry<String, int[]> e : signatures.entrySet()) if ((sameTarget(e.getKey(),position)||sig.length==0&&e.getValue().length==0)&&jaccard(sig, e.getValue()) >= DUPLICATE_JACCARD) return e.getKey();
         return null;
     }
-    public void register(String policyHash, int[] sig) { signatures.put(policyHash, sig); exact.put(Arrays.hashCode(sig) * 31L + sig.length, policyHash); }
-    public void unregister(String policyHash) { signatures.remove(policyHash); }
+    public void register(String policyHash,int[] sig){register(policyHash,sig,0);}
+    public void register(String policyHash,int[] sig,int position) { positions.put(policyHash,position);signatures.put(policyHash, sig); exact.put(Arrays.hashCode(sig) * 31L + sig.length, policyHash); }
+    public void unregister(String policyHash) { signatures.remove(policyHash);positions.remove(policyHash); }
     public int registered() { return signatures.size(); }
-    void copyValidatedRegistrationsR30(BirthGateR27 source){for(Map.Entry<String,int[]> e:source.signatures.entrySet())register(e.getKey(),e.getValue().clone());}
+    void copyValidatedRegistrationsR30(BirthGateR27 source){for(Map.Entry<String,int[]> e:source.signatures.entrySet())register(e.getKey(),e.getValue().clone(),source.positions.getOrDefault(e.getKey(),0));}
     public int[] signatureOf(String policyHash) { return signatures.get(policyHash); }
 
     /** Sorted (row, K3) codes for acting rows in the probe. */

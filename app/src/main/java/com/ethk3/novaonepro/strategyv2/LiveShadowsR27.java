@@ -211,7 +211,7 @@ public final class LiveShadowsR27 {
         try (Cursor c = w.ro.rawQuery("SELECT payload_json FROM r27_chart_cache WHERE panel_id='mainline' AND key='choice'", null)) {
             if (c.moveToFirst()) { Object ch = ((Map<?, ?>) JsonR27.parse(c.getString(0))).get("choice"); deployed = ch instanceof String ? (String) ch : null; }
         } catch (RuntimeException none) { deployed = null; }
-        for (Shadow s : shadows(w.ro, "('ACTIVE')")) {
+        for (Shadow s : shadows(w.ro, "('ACTIVE','ACTIVE_REPAIR1')")) {
             SequentialQualificationR27.State st = StoreR27.readEprocess(w.ro, s.id); if (st == null) continue;
             CertificateGateR27.Evidence e = new CertificateGateR27.Evidence(); e.policyHash = s.id; e.sequentialState = st.state; e.acts = st.acts; e.hits = st.hits; e.logE = st.logUp;
             e.abiEquivalent = s.semanticAbi!=null&&!s.semanticAbi.isEmpty()&&s.semanticAbi.equals(rt.semanticAbi(s.spec)); e.ece = ece(w.ro, s.id); e.calibrationQuality = CertificateGateR27.calibrationQuality(e.ece);
@@ -317,7 +317,7 @@ public final class LiveShadowsR27 {
         if (rt.calibrationIndexR30==0 && System.currentTimeMillis() - lastCalibration < 10 * 60_000L) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", 0, 0);
         EvolutionLoopR27 evo = rt.evo; if (evo == null) return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-evolution)", 0, -1);
         EvalContextR27 ctx = evo.context(); ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long n = 0;
-        List<Shadow> calibrationPolicies=shadows(w.ro,"('ACTIVE')");
+        List<Shadow> calibrationPolicies=shadows(w.ro,"('ACTIVE','ACTIVE_REPAIR1')");
         int calibrationAt=Math.min(rt.calibrationIndexR30,Math.max(0,calibrationPolicies.size()-1));
         List<Shadow> calibrationSlice=calibrationPolicies.isEmpty()?java.util.Collections.emptyList():calibrationPolicies.subList(calibrationAt,calibrationAt+1);
         for (Shadow s : calibrationSlice) {

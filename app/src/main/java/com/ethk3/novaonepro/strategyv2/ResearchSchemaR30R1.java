@@ -13,6 +13,7 @@ public final class ResearchSchemaR30R1 {
       "CREATE TABLE IF NOT EXISTS r30r1_task_progress(task_id TEXT PRIMARY KEY,owner_version TEXT NOT NULL,work_unit TEXT NOT NULL,work_cursor INTEGER NOT NULL,known_latest INTEGER NOT NULL,pending INTEGER,oldest_pending_ordinal INTEGER,last_commit_clock_ordinal INTEGER,completed_input_ordinal INTEGER,fence INTEGER NOT NULL,session_id TEXT NOT NULL,updated_at INTEGER NOT NULL,artifact_identity TEXT NOT NULL,CHECK(work_cursor>=0 AND known_latest>=work_cursor),CHECK(pending IS NULL OR pending>=0))",
       "CREATE INDEX IF NOT EXISTS r30r1_run_source ON r30r1_analysis_run(dataset_hash,source_revision,role,policy_hash)",
       "CREATE INDEX IF NOT EXISTS r30r1_proposal_ready ON r30r1_proposal(state,created_at,proposal_id)",
+      "CREATE INDEX IF NOT EXISTS r30r1_measure_kind_key ON r30r1_research_measure(kind,measure_key,run_id)",
       "CREATE INDEX IF NOT EXISTS r30r1_measure_parent ON r30r1_research_measure(parent_hash,kind,from_ordinal)",
       "CREATE INDEX IF NOT EXISTS r30r1_chart_latest ON r30r1_chart_cache(view_id,updated_at DESC)",
       "CREATE TRIGGER IF NOT EXISTS r30r1_collection_no_update BEFORE UPDATE ON r30r1_analysis_run WHEN OLD.status='ONLINE_MODEL_ROLE_REGISTERED' BEGIN SELECT RAISE(ABORT,'RESEARCH_COLLECTION_CONTRACT_IMMUTABLE'); END",
