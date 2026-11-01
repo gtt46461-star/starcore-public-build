@@ -27,9 +27,9 @@ python3 scripts/r926_release_manifest.py --check
 python3 scripts/r967_semantic_identity.py --check
 python3 scripts/test_r13_production_ddl.py
 python3 scripts/generate_strategy_su2_schema.py --check
-python3 scripts/verify_strategy_su1.py > "$LOG/su1.log"
-python3 scripts/verify_plan1025.py > "$LOG/plan1025.log"
-python3 scripts/verify_r26.py > "$LOG/r26.log"
+if ! python3 scripts/verify_strategy_su1.py > "$LOG/su1.log" 2>&1; then tail -n 80 "$LOG/su1.log"; exit 1; fi
+if ! python3 scripts/verify_plan1025.py > "$LOG/plan1025.log" 2>&1; then tail -n 80 "$LOG/plan1025.log"; exit 1; fi
+if ! python3 scripts/verify_r26.py > "$LOG/r26.log" 2>&1; then tail -n 80 "$LOG/r26.log"; exit 1; fi
 python3 tools/r29/host_checks.py --out "$LOG/r29_host_checks.json"
 bash tools/r30/ci_build_r30.sh "$LOG"
 ./gradlew --no-daemon :app:testDebugUnitTest 2>&1 | tee "$LOG/unit.log" | tail -n 30

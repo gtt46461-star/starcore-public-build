@@ -35,14 +35,20 @@ def run(contracts):
     db = sqlite3.connect(":memory:")
     db.execute(contracts["hold_ddl"])
     ins = contracts["hold_insert"]
-    db.execute(ins, (1, 100, "R27_LIVE_SETTLE", 0, 10, 5, 500, 500, 350, None, 2, 3, 2, 0))
-    db.execute(ins, (1, 100, "R914_DRAW_SAVE_ATOMIC", 1, 10, 2, 5, 5, 5, 50, 80, 0, 0, 0))
-    db.execute(ins, (1, 100, "R27_LIVE_SETTLE", 0, 11, 5, 500, 500, 351, None, 2, 3, 2, 0))  # REPLACE 同窗口
+    assert ins.count("?")==16, "Explicit repair histogram/session contract changed"
+    unknown_histogram_session = (None, "SYNTHETIC_SQL_CONTRACT_SESSION")
+    db.execute(ins, (1, 100, "R27_LIVE_SETTLE", 0, 10, 5, 500, 500, 350, None, 2, 3, 2, 0) + unknown_histogram_session)
+    db.execute(ins, (1, 100, "R914_DRAW_SAVE_ATOMIC", 1, 10, 2, 5, 5, 5, 50, 80, 0, 0, 0) + unknown_histogram_session)
+    db.execute(ins, (1, 100, "R27_LIVE_SETTLE", 0, 11, 5, 500, 500, 351, None, 2, 3, 2, 0) + unknown_histogram_session)  # REPLACE 同窗口
     top = db.execute(contracts["hold_report_top"], (0,)).fetchall()
     crit = db.execute(contracts["hold_report_critical"], (0,)).fetchall()
     check("T02_report_top", top == [("R27_LIVE_SETTLE", 11, 351, 500, 3, 2)], str(top))
     check("T02_report_critical", crit == [("R914_DRAW_SAVE_ATOMIC", 10, 50, 80, 5)], str(crit))
     check("T02_null_percentile_kept", db.execute("SELECT wait_p95 FROM r30_writer_hold WHERE critical=0").fetchone()[0] is None)
+    check("T02_histogram_unknown_not_zero", db.execute("SELECT histogram_json,process_session FROM r30_writer_hold WHERE critical=0").fetchone() == unknown_histogram_session)
+    legacy_columns=[r[1] for r in db.execute("PRAGMA table_info(r30_writer_hold)")][:14]
+    db.execute("INSERT INTO r30_writer_hold("+",".join(legacy_columns)+") VALUES("+",".join("?" for _ in legacy_columns)+")", (2,50,"LEGACY_NAMED14_COMPATIBLE",0,1,0,0,0,0,None,0,0,0,0))
+    check("T02_old_named14_writer_compatible", db.execute("SELECT histogram_json,process_session FROM r30_writer_hold WHERE operation='LEGACY_NAMED14_COMPATIBLE'").fetchone() == (None,None))
     db.execute(contracts["hold_prune"], (101,))
     check("T02_prune", db.execute("SELECT count(*) FROM r30_writer_hold").fetchone()[0] == 0)
 

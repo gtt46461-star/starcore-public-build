@@ -566,6 +566,16 @@
         "evidence/r30-repair/B11/Q08_FINAL_MECHANISM.json"
       ],
       "reason": "先登记：实际编译类+临时目录原生文件复现根别名13字节被漏计为0/INCOMPLETE。只规范化普查根一次，子目录链接仍拒绝，无法解析根明确不完整；新增真实root alias反例。后续候选002高于001，最终算法包未变，保留20次完整Q08算法源哈希边界。"
+    },
+    {
+      "id": "FR-B11-01-original-sql-fixture",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30/sql_contract_tests.py",
+        "tools/r30/ci_build.sh",
+        "tools/r30-repair/ci_build.sh"
+      ],
+      "reason": "先登记：第二轮CI实际失败于原写锁SQL夹具14参数，生产已按B02增加histogram/session为16参数。显式补NULL未知直方图和合成session，并额外验证旧14命名列写法兼容，不删除T01–T06。CI失败打印实际末段日志方便定位，所有门禁仍失败即停。"
     }
   ]
 }
