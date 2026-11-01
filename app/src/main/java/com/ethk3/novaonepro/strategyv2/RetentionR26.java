@@ -6,9 +6,9 @@ import java.util.Map;
 /** Bounded raw feedback and freeze history. Lag revokes authority without discarding learned parameters. */
 public final class RetentionR26 {
     private RetentionR26() {}
-    /** R30-B01-04 (docs/B01 §4.2): previously unbounded DELETEs remove at most this many rows per retention pass; the
-     * original WHERE text is unchanged and the coordinator's next retention pass removes the rest. prune() stays one
-     * fenced writer transaction because its fold counters must commit with their deletes. */
+    /** Per-statement upper bound; actual duration still comes from the writer ledger.
+     * Each live maintenance pass executes one persisted phase. A fold and its exact delete remain atomic.
+     * prune() is the historical full-cycle adapter for existing diagnostics and regression callers. */
     static final int SLICE_R30 = 500;
     private static long count(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){return c.moveToFirst()?c.getLong(0):0;}}
     private static void fold(SQLiteDatabase db,String kind,long n){if(n==0)return;db.execSQL("INSERT OR IGNORE INTO r26_retention_total VALUES(?,0)",new Object[]{kind});db.execSQL("UPDATE r26_retention_total SET folded=folded+? WHERE kind=?",new Object[]{n,kind});}

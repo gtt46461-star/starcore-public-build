@@ -1011,14 +1011,15 @@ public final class ApiClient {
         ApiTransportGovernanceEngine.PayloadGate auditedGate=new ApiTransportGovernanceEngine.PayloadGate(){
             public ApiTransportGovernanceEngine.PayloadDecision evaluate(String source,String body,long now){
                 ApiTransportGovernanceEngine.PayloadDecision decision=gate==null?ApiTransportGovernanceEngine.PayloadDecision.accept():gate.evaluate(source,body,now);
-                String issue="";
-                try{Models.ApiResult parsed=ApiParser.parseLatest(body,source);if(parsed!=null&&parsed.latestDraw!=null)issue=parsed.latestDraw.issue;}catch(Throwable invalid){issue="PARSE_UNAVAILABLE";}
-                FetchLedgerR925.payload(ledgerStoreR925,ledgerRequestR925.get(),source,issue,decision.accepted,decision.code);
+                String issue="",observedDrawHash=null;
+                try{Models.ApiResult parsed=ApiParser.parseLatest(body,source);if(parsed!=null&&parsed.latestDraw!=null){issue=parsed.latestDraw.issue;observedDrawHash=DrawHashR36.sha256V2(parsed.latestDraw);}}catch(Throwable invalid){issue="PARSE_UNAVAILABLE";}
+                FetchLedgerR925.payload(ledgerStoreR925,ledgerRequestR925.get(),source,issue,decision.accepted,decision.code,observedDrawHash);
                 return decision;
             }
         };
-        ApiTransportGovernanceEngine.TransportResult result =
-                TIANSHU_TRANSPORT.execute(
+        ApiTransportGovernanceEngine.TransportResult result;
+        try(com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.RequestScope timelineRole=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestScope(gate==null?com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.BACKFILL:com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.LIVE)){
+        result=TIANSHU_TRANSPORT.execute(
                         request,
                         new ApiTransportGovernanceEngine.TransportAdapter() {
                             public ApiTransportGovernanceEngine.HttpResponse execute(String url) {
@@ -1034,6 +1035,7 @@ public final class ApiClient {
                             }
                         },
                         auditedGate);
+        }
         if (result.success) return rawSuccess(result.body, result.sourceLine);
         return Models.ApiResult.fail(
                 errorCode,

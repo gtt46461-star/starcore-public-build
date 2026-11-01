@@ -30,6 +30,7 @@ public final class HoldLedgerFlushR30 {
     private HoldLedgerFlushR30() {}
 
     public static void maybeFlush(DbStore store) {
+        IssueTimelineWriterR30.flushCommitted(store);
         long now=System.currentTimeMillis();
         if(now-lastFlush<PERIOD_MS||!FLUSHING.compareAndSet(false,true))return;
         try {

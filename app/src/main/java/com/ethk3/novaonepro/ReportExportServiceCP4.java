@@ -59,6 +59,7 @@ public final class ReportExportServiceCP4 extends Service {
             // R27.3: where every app thread is right now (a stalled business loop names its blocking frame).
             ReportJobJournalCP12.collectObservation(root,id,observation,"threadStacks",ReportExportServiceCP4::threadStacksR27);
             ReportJobJournalCP12.collectObservation(root,id,observation,"ftrlWritePhases",()->com.ethk3.novaonepro.strategyv2.JsonR27.write(FtrlWriteTraceR30.snapshot()));
+            observation.put("timelineCommitObservations",new JSONObject(com.ethk3.novaonepro.strategyv2.JsonR27.write(com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.commitObservationState())));
             RealtimePressureGateR811.Snapshot pressure=RealtimePressureGateR811.snapshot();
             observation.put("analysisDepth",pressure.analysisDepth).put("settlementDepth",pressure.settlementDepth)
                     .put("quietForMs",pressure.quietForMs).put("settlementExecutionActive",SettlementExecutionGateR819.isActive());

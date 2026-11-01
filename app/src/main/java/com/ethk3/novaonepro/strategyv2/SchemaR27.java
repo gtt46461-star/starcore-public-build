@@ -89,6 +89,7 @@ public final class SchemaR27 {
         db.execSQL(HoldLedgerFlushR30.DDL); // R30-B01-02 (additive)
         column(db,"r30_writer_hold","histogram_json","TEXT");column(db,"r30_writer_hold","process_session","TEXT");
         db.execSQL(IssueTimelineR30.DDL); db.execSQL(IssueTimelineR30.INDEX); // R30-B02-01 (additive)
+        db.execSQL(IssueTimelineR30.EVENT_DDL);db.execSQL(IssueTimelineR30.EVENT_INDEX);db.execSQL(IssueTimelineR30.EVENT_ACTIVE_INDEX);
         for (String[] c : COLUMNS) if (tableExists(db, c[0])) column(db, c[0], c[1], c[2]);
         if (tableExists(db, "r26_task")) {
             long now = System.currentTimeMillis();

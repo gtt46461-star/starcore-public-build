@@ -29,6 +29,8 @@ public final class IssueTimelineR30 {
     private IssueTimelineR30() {}
 
     public enum Stage { SOURCE_PUBLISHED, FIRST_OBSERVED, VALIDATED, DRAW_COMMITTED, SETTLED, NEXT_REQUESTED, NEXT_PREPARED, NEXT_FROZEN, NEXT_DEADLINE }
+    public enum EventRole { LIVE, BACKFILL, REPLAY, UNKNOWN }
+    public enum EventKind { DRAW, PREDICTION }
 
     public static final String DDL =
             "CREATE TABLE IF NOT EXISTS r30_issue_timeline(issue TEXT PRIMARY KEY,boot_id TEXT NOT NULL,"
@@ -40,6 +42,12 @@ public final class IssueTimelineR30 {
             + "boot_next_requested TEXT,boot_next_prepared TEXT,boot_next_frozen TEXT,"
             + "outcome TEXT NOT NULL DEFAULT 'OPEN',updated_at INTEGER NOT NULL)";
     public static final String INDEX = "CREATE INDEX IF NOT EXISTS r30_issue_timeline_updated ON r30_issue_timeline(updated_at)";
+    public static final String EVENT_TABLE="r30_issue_timeline_event_r1";
+    /** Separate additive telemetry objects; the original per-issue timeline is retained as historical evidence. */
+    public static final String EVENT_DDL=DDL.replace("r30_issue_timeline(",EVENT_TABLE+"(")
+        .replace("issue TEXT PRIMARY KEY,boot_id TEXT NOT NULL,","event_id TEXT PRIMARY KEY,issue TEXT NOT NULL,event_role TEXT NOT NULL CHECK(event_role IN ('LIVE','BACKFILL','REPLAY','UNKNOWN')),event_kind TEXT NOT NULL CHECK(event_kind IN ('DRAW','PREDICTION')),source_trace TEXT NOT NULL,source_issue TEXT,source_draw_hash TEXT,draw_hash TEXT,duplicate_marks INTEGER NOT NULL DEFAULT 0,event_started_wall INTEGER NOT NULL,durable_wall INTEGER,durable_mono INTEGER,durable_boot TEXT,durable_stage TEXT,timing_boundary TEXT,boot_id TEXT NOT NULL,");
+    public static final String EVENT_INDEX="CREATE INDEX IF NOT EXISTS r30_issue_event_identity ON "+EVENT_TABLE+"(issue,event_kind,event_role,wall_draw_committed,updated_at)";
+    public static final String EVENT_ACTIVE_INDEX="CREATE INDEX IF NOT EXISTS r30_issue_event_active_window ON "+EVENT_TABLE+"(event_started_wall,event_id) WHERE event_kind='PREDICTION' OR wall_draw_committed IS NOT NULL";
     /** 先插入空行（不存在时）。 */
     public static final String SQL_ENSURE = "INSERT OR IGNORE INTO r30_issue_timeline(issue,boot_id,updated_at) VALUES(?,?,?)";
 
@@ -85,7 +93,7 @@ public final class IssueTimelineR30 {
             Long a = mono[from.ordinal()], b = mono[to.ordinal()];
             String ba = boot[from.ordinal()], bb = boot[to.ordinal()];
             if (a == null || b == null || ba == null || !ba.equals(bb)) return null;
-            return b - a;
+            return b<a?null:b-a;
         }
         /** 赛前余量：截止 − 冻结（墙钟，截止是计划值）。 */
         public Long freezeMarginMs() {
@@ -99,11 +107,11 @@ public final class IssueTimelineR30 {
         Map<String, Object> out = new LinkedHashMap<>();
         for (Segment seg : SEGMENTS) {
             List<Long> v = new ArrayList<>();
-            int crossBoot = 0, missing = 0;
+            int crossBoot = 0, missing = 0, negative = 0;
             for (Row r : rows) {
                 Long e = r.elapsed(seg.from, seg.to);
                 if (e != null) v.add(e);
-                else if (r.mono[seg.from.ordinal()] != null && r.mono[seg.to.ordinal()] != null) crossBoot++;
+                else if (r.mono[seg.from.ordinal()] != null && r.mono[seg.to.ordinal()] != null) {if(java.util.Objects.equals(r.boot[seg.from.ordinal()],r.boot[seg.to.ordinal()])&&r.boot[seg.from.ordinal()]!=null)negative++;else crossBoot++;}
                 else missing++;
             }
             Map<String, Object> m = new LinkedHashMap<>();
@@ -117,6 +125,7 @@ public final class IssueTimelineR30 {
             m.put("pass", p95 == null ? null : (Object) (p95 <= seg.targetP95Ms));
             m.put("crossBoot", crossBoot);
             m.put("missing", missing);
+            m.put("negativeMonotonicDifference",negative);
             out.put(seg.id, m);
         }
         int withDeadline = 0, onTime = 0;

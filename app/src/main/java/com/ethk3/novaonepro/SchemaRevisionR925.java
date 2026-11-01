@@ -40,6 +40,9 @@ public final class SchemaRevisionR925 {
         addColumn(db, TABLE_FETCH_LEDGER, "draw_at INTEGER NOT NULL DEFAULT 0");
         addColumn(db, TABLE_FETCH_LEDGER, "clock_epoch TEXT NOT NULL DEFAULT ''");
         addColumn(db, TABLE_FETCH_LEDGER, "label_version TEXT NOT NULL DEFAULT ''");
+        addColumn(db,TABLE_FETCH_LEDGER,"request_role TEXT NOT NULL DEFAULT 'UNKNOWN'");
+        addColumn(db,TABLE_FETCH_LEDGER,"received_mono_ms INTEGER");
+        addColumn(db,TABLE_FETCH_LEDGER,"received_boot_id TEXT");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r925_fetch_time ON " + TABLE_FETCH_LEDGER + "(request_at)");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_r925_fetch_issue_available ON "
                 + TABLE_FETCH_LEDGER + "(latest_issue,first_available_at)");

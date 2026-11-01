@@ -2731,7 +2731,7 @@ public final class AutoFetchService extends Service {
                 return;
             }
             Models.ApiResult latestResult = null;
-            try {
+            try (com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.RequestScope timelineRole=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestScope(com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.LIVE)) {
                 latestResult = fetchLatestRealtime();
             } finally {
                 FETCH_R30.end(latestResult != null && latestResult.ok && latestResult.latestDraw != null);

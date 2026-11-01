@@ -46,15 +46,16 @@ public final class FetchLedgerR925 {
         final String path = endpoint(url);
         final String verb = safe(method).length() == 0 ? "GET" : safe(method);
         final long requestAt = TimeSourceR811.wallNowMs();
+        final String requestRole=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.requestRole().name();
         try {
             DatabaseCoordinator.WriteRunnable insert = new DatabaseCoordinator.WriteRunnable() {
                         @Override public void run(SQLiteDatabase db) {
                             db.execSQL(
                                     "INSERT OR IGNORE INTO " + SchemaRevisionR925.TABLE_FETCH_LEDGER
-                                            + "(request_id,method,endpoint,request_at,status,error_code,clock_epoch,label_version)"
-                                            + " VALUES (?,?,?,?,?,?,?,?)",
+                                            + "(request_id,method,endpoint,request_at,status,error_code,clock_epoch,label_version,request_role)"
+                                            + " VALUES (?,?,?,?,?,?,?,?,?)",
                                     new Object[] {id, verb, path, requestAt, "REQUESTED", "",
-                                            CLOCK_EPOCH, SOURCE_EVENT_LABEL_VERSION});
+                                            CLOCK_EPOCH, SOURCE_EVENT_LABEL_VERSION,requestRole});
                         }
                     };
             // R27.1: without this receipt the draw cannot be bound (HTTP_REQUEST_RECEIPT_NOT_DURABLE) and the whole
@@ -81,8 +82,9 @@ public final class FetchLedgerR925 {
         final int httpCode = raw == null ? 0 : raw.httpCode;
         final boolean transportOk = raw != null && raw.ok;
         final String body = raw == null || raw.body == null ? "" : raw.body;
-        final String payloadHash = V51ChecksumEngine.sha256(body);
         final long receivedAt = TimeSourceR811.wallNowMs();
+        final long receivedMono=android.os.SystemClock.elapsedRealtime();final String receivedBoot=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId();
+        final String payloadHash = V51ChecksumEngine.sha256(body);
         String rawReason = raw == null ? "TRANSPORT_NULL_RESULT" : safe(raw.errorMessage);
         if (rawReason.length() == 0) {
             rawReason = httpCode == 503 ? "HTTP_503" : "TRANSPORT_EXCEPTION";
@@ -101,12 +103,12 @@ public final class FetchLedgerR925 {
                         @Override public void run(SQLiteDatabase db) {
                             db.execSQL(
                                     "UPDATE " + SchemaRevisionR925.TABLE_FETCH_LEDGER
-                                            + " SET response_at=?,received_at=?,latency_ms=?,http_code=?,"
-                                            + "response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?"
+                                            + " SET response_at=coalesce(response_at,?),received_at=CASE WHEN received_at>0 THEN received_at ELSE ? END,latency_ms=?,http_code=?,"
+                                            + "response_hash=?,payload_hash=?,status=?,error_code=?,clock_epoch=?,label_version=?,received_mono_ms=coalesce(received_mono_ms,?),received_boot_id=coalesce(received_boot_id,?)"
                                             + " WHERE request_id=?",
                                     new Object[] {receivedAt, receivedAt, Math.max(0L, elapsed), httpCode,
                                             payloadHash, payloadHash, status, error, CLOCK_EPOCH,
-                                            SOURCE_EVENT_LABEL_VERSION, id});
+                                            SOURCE_EVENT_LABEL_VERSION,receivedMono,receivedBoot, id});
                         }
                     });
             if (!saved) lastWriteError = "COMPLETE:WRITE_REJECTED:" + rejectedR27(store, "COMPLETE");
@@ -122,6 +124,9 @@ public final class FetchLedgerR925 {
             final String issue,
             final boolean accepted,
             final String reason) {
+        payload(store,id,source,issue,accepted,reason,null);
+    }
+    public static void payload(final DbStore store,final String id,final String source,final String issue,final boolean accepted,final String reason,final String observedDrawHash) {
         if (store == null || safe(id).length() == 0) return;
         final String[] finalStatus = new String[] {"PAYLOAD_REJECTED_BUSINESS"};
         final long[] evidenceTimes = new long[] {0L, 0L, 0L}; // firstAvailable, received, draw
@@ -183,12 +188,7 @@ public final class FetchLedgerR925 {
                             // R30-B02-01 FIRST_OBSERVED: the issue is only known once this response is parsed, so the
                             // mark sits in this fetch-ledger callback (R925_FETCH_COMPLETE has the raw body only). Wall time
                             // is the first accepted availability; first writer wins on the timeline row.
-                            if (accepted && firstAvailableAt > 0L && TargetIssueResolver.isValid(issue)) {
-                                long ageMs = Math.max(0L, System.currentTimeMillis() - firstAvailableAt);
-                                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markAt(db, issue,
-                                        com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.FIRST_OBSERVED,
-                                        firstAvailableAt, android.os.SystemClock.elapsedRealtime() - ageMs);
-                            }
+                            if(accepted&&TargetIssueResolver.isValid(issue)&&observedDrawHash!=null)timelineDrawR30(db,id,issue,observedDrawHash,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.FIRST_OBSERVED);
                             if (owns) db.setTransactionSuccessful();
                             } finally { if (owns) db.endTransaction(); }
                         }
@@ -377,6 +377,17 @@ public final class FetchLedgerR925 {
         }
         return b;
     }
+    /** Telemetry reads the exact original request. It never derives a monotonic instant from wall time. */
+    private static void timelineDrawR30(SQLiteDatabase db,String request,String issue,String drawHash,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage stage){
+        try(Cursor c=db.rawQuery("SELECT request_role,latest_issue,received_at,received_mono_ms,received_boot_id FROM "+SchemaRevisionR925.TABLE_FETCH_LEDGER+" WHERE request_id=?",new String[]{request})){
+            if(!c.moveToFirst())return;
+            com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole role;
+            try{role=com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.valueOf(c.getString(0));}catch(RuntimeException unknown){role=com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.UNKNOWN;}
+            if(!issue.equals(c.getString(1)))role=com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventRole.BACKFILL;
+            if(!c.isNull(3)&&!c.isNull(4))com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markEventAt(db,issue,role,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventKind.DRAW,request,null,null,drawHash,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.FIRST_OBSERVED,c.getLong(2),c.getLong(3),c.getString(4));
+            if(stage!=com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.FIRST_OBSERVED)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markEventAt(db,issue,role,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventKind.DRAW,request,null,null,drawHash,stage,System.currentTimeMillis(),android.os.SystemClock.elapsedRealtime(),com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.bootId());
+        }catch(RuntimeException unavailable){android.util.Log.w("STARCORE_R30","original request clock unavailable: "+unavailable.getClass().getSimpleName());}
+    }
     private static String bindingJsonR82(DrawBindingR82 b,long row)throws org.json.JSONException {
         org.json.JSONObject o=new org.json.JSONObject();o.put("version","HTTP_CANONICAL_BINDING_R82_1");o.put("request_id",b.request);
         o.put("http_payload_sha256",b.payload);o.put("draw_raw_sha256",b.rawHash);o.put("draw_hash",b.drawHash);
@@ -394,8 +405,8 @@ public final class FetchLedgerR925 {
         // R30-B02-01 VALIDATED: called first inside DbStore's R914_DRAW_SAVE_ATOMIC (and history batch) transaction,
         // after the draw passed normalization/validation and before its first INSERT. DbStore stays byte-identical
         // (main-chain red line, R27QualityTest.h15MainlineRedLines).
-        if(draw!=null)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db,draw.issue,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.VALIDATED);
         DrawBindingR82 b=checkedBindingR82(db,draw);if(b==null)return;
+        timelineDrawR30(db,b.request,b.issue,b.drawHash,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.VALIDATED);
         try{exactAppendR82(db,RuntimeEventLedgerR926.Event.of(b.issue,b.fingerprint,b.request,"FETCH_BINDING_R82","PARSED_DRAW",RuntimeEventLedgerR926.RANK_REQUESTED,
                 bindingJsonR82(b,0),"ApiClient.ApiParser","HTTP_DRAW_BOUND_R82|"+b.request+"|"+b.fingerprint));}
         catch(org.json.JSONException invalid){throw new IllegalStateException("HTTP_BINDING_JSON",invalid);}
@@ -404,8 +415,8 @@ public final class FetchLedgerR925 {
     public static void canonicalDrawWithinR82(SQLiteDatabase db,Models.Draw draw) {
         // R30-B02-01 DRAW_COMMITTED: same transaction, called after the draw row is written (DbStore skips this call when
         // the draw is blocked/deferred); the commit follows the settlement enqueue and acceptance event in that body.
-        if(draw!=null)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db,draw.issue,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.DRAW_COMMITTED);
         DrawBindingR82 b=checkedBindingR82(db,draw);if(b==null)return;
+        timelineDrawR30(db,b.request,b.issue,b.drawHash,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.DRAW_COMMITTED);
         long row=0;try(Cursor c=db.rawQuery("SELECT rowid,draw_hash_v2,draw_hash_version,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10 FROM draws WHERE issue=?",new String[]{b.issue})){
             if(!c.moveToFirst()||!DrawHashR36.matchesPersisted(c.getString(1),c.getInt(2),draw))throw new IllegalStateException("HTTP_CANONICAL_DRAW_NOT_DURABLE");row=c.getLong(0);
             for(int i=0;i<10;i++)if(c.getInt(i+3)!=draw.numbers[i])throw new IllegalStateException("HTTP_CANONICAL_NUMBERS_CONFLICT");

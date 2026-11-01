@@ -19,6 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /** 星核天枢B03数据库唯一协调器。 唯一职责：连接复用、单写者调度、原子事务、幂等与审计；绝不计算概率、Lane或创建BET。 */
 public final class DatabaseCoordinator {
+    private static final ThreadLocal<String> LAST_OWNED_COMMIT_R30=new ThreadLocal<>();
     // R30-B09-02: instrumentation-only callback on its executing thread; absent by default.
     // No product caller. Never wait, sleep, or perform network work from this callback.
     interface BeforeCommitFaultR30 { void beforeCommit(String operation,String targetIssue,SQLiteDatabase db); }
@@ -636,6 +637,7 @@ public final class DatabaseCoordinator {
             for (int attempt = 0; attempt <= AppConfig.DB_LOCK_RETRY_COUNT; attempt++) {
                 long acquireStartedR927 = TimeSourceR811.monoNowMs();
                 boolean waitRecordedR927 = false;
+                long heldSinceR30=-1,localWaitR30=-1;boolean transactionFailedR30=true;
                 com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.Critical continuationWriteCriticalR26=null;
                 try {
                     while (true) {
@@ -653,6 +655,7 @@ public final class DatabaseCoordinator {
                         }
                         if (writeLock.tryLock(Math.min(backgroundR909 ? 10L : 50L, remainingCP3), TimeUnit.MILLISECONDS)) {
                             locked = true;
+                            heldSinceR30=TimeSourceR811.monoNowMs();localWaitR30=Math.max(0,heldSinceR30-waitStarted);
                             // Every writer entry, including legacy non-transaction wrappers, must
                             // release the sole writer before a numerical continuation may park.
                             continuationWriteCriticalR26=com.ethk3.novaonepro.strategyv2.CooperativeContinuationR26.critical();
@@ -666,7 +669,7 @@ public final class DatabaseCoordinator {
                     RuntimeResourceAuditR927.lockWait(TimeSourceR811.monoNowMs()-acquireStartedR927);
                     waitRecordedR927 = true;
                     locked = true;
-                    lastDbLockWaitMs = Math.max(0L, TimeSourceR811.monoNowMs() - waitStarted);
+                    lastDbLockWaitMs = localWaitR30>=0?localWaitR30:Math.max(0L,TimeSourceR811.monoNowMs()-waitStarted);
                     if (lastDbLockWaitMs > longestDbLockWaitMs)
                         longestDbLockWaitMs = lastDbLockWaitMs;
                     if (!opR909.startsWith("R927_RESOURCE")) RuntimeResourceAuditR927.checkpoint("DB_LOCK_ACQUIRED");
@@ -676,15 +679,14 @@ public final class DatabaseCoordinator {
                     try {
                         com.ethk3.novaonepro.strategyv2.RuntimeCoordinatorR26.checkThreadFence(writable());
                         T result = task.call(writable());
+                        transactionFailedR30=result instanceof TransactionResult&&!((TransactionResult<?>)result).success;
                         recordSuccess(operation, started);
                         bodyCommittedR30 = true;
                         return result;
                     } finally {
                         long bodyMsR30 = TimeSourceR811.monoNowMs()-bodyStartedR927;
                         RuntimeResourceAuditR927.dbBody(bodyMsR30, backgroundR909);
-                        // R30-B01-01: hold/wait ledger for every sole-writer use. Never throws.
-                        if (!reentrantWriterR914) com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(
-                                opR909, criticalBusinessR914, lastDbLockWaitMs, bodyMsR30, !bodyCommittedR30);
+                        if(!bodyCommittedR30)transactionFailedR30=true;
                     }
                 } catch (RuntimeResourceAuditR927.BudgetExceeded deadlineR927) {
                     throw deadlineR927;
@@ -708,23 +710,29 @@ public final class DatabaseCoordinator {
                         return fallback;
                     }
                     if (locked) {
+                        long fullHoldR30=heldSinceR30<0?-1:TimeSourceR811.monoNowMs()-heldSinceR30;
                         try {
                             writeLock.unlock();
                         } catch (Throwable ignore) {
                             lastError = "R926_WRITE_UNLOCK_FAILED:" + safeError(ignore);
                         }
                         locked = false;
+                        if(!reentrantWriterR914&&fullHoldR30>=0)recordUnlockedWriterR30(opR909,criticalBusinessR914,localWaitR30,fullHoldR30,transactionFailedR30);
+                        heldSinceR30=-1;
                     }
                     sleepBackoff(attempt, writeDeadlineCP3);
                 } finally {
                     if (!waitRecordedR927) RuntimeResourceAuditR927.lockWait(TimeSourceR811.monoNowMs()-acquireStartedR927);
                     if (locked) {
+                        long fullHoldR30=heldSinceR30<0?-1:TimeSourceR811.monoNowMs()-heldSinceR30;
                         try {
                             writeLock.unlock();
                         } catch (Throwable ignore) {
                             lastError = "R926_WRITE_FINALLY_UNLOCK_FAILED:" + safeError(ignore);
                         }
                         locked = false;
+                        if(!reentrantWriterR914&&fullHoldR30>=0)recordUnlockedWriterR30(opR909,criticalBusinessR914,localWaitR30,fullHoldR30,transactionFailedR30);
+                        heldSinceR30=-1;
                     }
                     if(continuationWriteCriticalR26!=null)continuationWriteCriticalR26.close();
                 }
@@ -734,6 +742,10 @@ public final class DatabaseCoordinator {
             if (criticalBusinessR914) criticalBusinessWaitersR914.decrementAndGet();
         }
         return fallback;
+    }
+    private void recordUnlockedWriterR30(String operation,boolean critical,long wait,long hold,boolean failed){
+        if(writeLock.isHeldByCurrentThread())return;
+        com.ethk3.novaonepro.strategyv2.WriterHoldLedgerR30.record(operation,critical,Math.max(0,wait),Math.max(0,hold),failed);
     }
 
     /** Existing writer lock + actual SQLite transaction. Old fallback API is preserved. */
@@ -1015,13 +1027,16 @@ public final class DatabaseCoordinator {
         final String timelineIssueR30 = targetIssue;
         TransactionCallable<T> timed = task == null ? null : new TransactionCallable<T>() {
             @Override public T call(SQLiteDatabase db, TransactionContext tx) throws Exception {
-                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markAt(db, timelineIssueR30, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_PREPARED, preparedWallR30, preparedMonoR30);
+                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markPredictionAt(db,timelineIssueR30,attemptId,null,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_PREPARED,preparedWallR30,preparedMonoR30);
                 T value = task.call(db, tx);
-                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, timelineIssueR30, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_FROZEN);
+                com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markPrediction(db,timelineIssueR30,attemptId,null,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_FROZEN);
                 return value;
             }
         };
-        return runR36Transaction("R36_CANONICAL", targetIssue, key, timed, fallback);
+        LAST_OWNED_COMMIT_R30.remove();TransactionResult<T> result=runR36Transaction("R36_CANONICAL",targetIssue,key,timed,fallback);
+        boolean observedCommit=result.success&&!result.replay&&result.transactionHash.equals(LAST_OWNED_COMMIT_R30.get());LAST_OWNED_COMMIT_R30.remove();
+        if(observedCommit)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.committed(com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.eventId(targetIssue,com.ethk3.novaonepro.strategyv2.IssueTimelineR30.EventKind.PREDICTION,attemptId,null),com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.NEXT_FROZEN);
+        return result;
     }
 
     public <T> TransactionResult<T> runSettlementTransactionR36(
@@ -1055,7 +1070,8 @@ public final class DatabaseCoordinator {
                 new TransactionContext("R36_SETTLEMENT_CORE_R911", targetIssue, idempotencyKey);
         if (!tx.valid())
             return TransactionResult.fail(fallback, "TX_CONTEXT_INVALID", tx.transactionHash, 0L);
-        return runWrite(
+        final String[] timelineEvent=new String[1];final boolean[] ownCommitObserved=new boolean[1];
+        TransactionResult<T> result=runWrite(
                 "R36_SETTLEMENT_CORE_R911",
                 new WriteCallable<TransactionResult<T>>() {
                     @Override public TransactionResult<T> call(SQLiteDatabase db) {
@@ -1067,7 +1083,7 @@ public final class DatabaseCoordinator {
                         try {
                             if (owns) db.beginTransaction();
                             T value = task.call(db, tx);
-                            com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.mark(db, targetIssue, com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.SETTLED); // R30-B02-01
+                            timelineEvent[0]=com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.markSettled(db,targetIssue);
                             faultBeforeCommitR30("R36_SETTLEMENT_CORE_R911",targetIssue,db);
                             if (owns) db.setTransactionSuccessful();
                             return TransactionResult.ok(
@@ -1081,14 +1097,16 @@ public final class DatabaseCoordinator {
                                     System.currentTimeMillis() - started);
                         } finally {
                             if (owns && db.inTransaction()) {
-                                try { db.endTransaction(); }
-                                catch (Throwable ignore) { lastError = "R926_TX_END_FAILED:" + safeError(ignore); }
+                                try { db.endTransaction();ownCommitObserved[0]=true; }
+                                catch (Throwable endError) {lastError="R926_TX_END_FAILED:"+safeError(endError);throw new IllegalStateException(lastError,endError);}
                             }
                         }
                     }
                 },
                 TransactionResult.fail(
                         fallback, "WRITE_COORDINATION_FAILED", tx.transactionHash, 0L));
+        if(result.success&&ownCommitObserved[0]&&timelineEvent[0]!=null)com.ethk3.novaonepro.strategyv2.IssueTimelineWriterR30.committed(timelineEvent[0],com.ethk3.novaonepro.strategyv2.IssueTimelineR30.Stage.SETTLED);
+        return result;
     }
 
     public <T> TransactionResult<T> runDeferredTransactionR36(
@@ -1165,6 +1183,7 @@ public final class DatabaseCoordinator {
             if (owns && db.inTransaction()) {
                 try {
                     db.endTransaction();
+                    LAST_OWNED_COMMIT_R30.set(tx.transactionHash);
                 } catch (Throwable endError) {
                     throw new IllegalStateException("R926_TX_END_FAILED:" + safeError(endError), endError);
                 }

@@ -3,6 +3,7 @@ import pathlib,os,subprocess,tempfile
 root=pathlib.Path(__file__).resolve().parents[2]
 plan=root/'construction/plans/STARCORE_R30_FINAL_REPAIR_20261101'
 src=root/'app/src/main/java/com/ethk3/novaonepro/strategyv2'
+sdk=pathlib.Path(os.environ['ANDROID_HOME'])/'platforms/android-36/android.jar'
 jdbc=pathlib.Path(os.environ.get('SQLITE_JDBC','/workspace/work/r29/deps/sqlite-jdbc.jar'))
 def run(args):subprocess.run(list(map(str,args)),cwd=root,check=True)
 with tempfile.TemporaryDirectory(prefix='repair-writer-') as directory:
@@ -25,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix='repair-writer-') as directory:
  }catch(Exception failure){try{connection.rollback();}catch(Exception ignored){}throw new IllegalStateException(failure);}
  finally{try{connection.setAutoCommit(true);}catch(Exception failure){throw new IllegalStateException(failure);}}}
  }}''',
- 'android/util/Log.java':'''package android.util;public final class Log{public static int w(String tag,String message,Throwable error){return 0;}}''',
+ 'android/util/Log.java':'''package android.util;public final class Log{public static int w(String tag,String message,Throwable error){return 0;}public static int w(String tag,String message){return 0;}}''',
  'com/ethk3/novaonepro/strategyv2/NativeWriterRetryHost.java':'''package com.ethk3.novaonepro.strategyv2;
  import java.sql.*;import com.ethk3.novaonepro.DbStore;
  public final class NativeWriterRetryHost {
@@ -44,6 +45,6 @@ with tempfile.TemporaryDirectory(prefix='repair-writer-') as directory:
  files=[]
  for name,text in adapters.items():
   p=tmp/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text);files.append(p)
- run(['javac','-encoding','UTF-8','-cp',out,'-d',out,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),*files,src/'JsonR27.java',src/'HoldLedgerFlushR30.java'])
- run(['java','-cp',os.pathsep.join(map(str,[out,jdbc])),'com.ethk3.novaonepro.strategyv2.NativeWriterRetryHost'])
+ run(['javac','-encoding','UTF-8','-cp',os.pathsep.join(map(str,[out,sdk])),'-d',out,*sorted((root/'tools/r29/qual_host/shim').rglob('*.java')),*files,src/'JsonR27.java',src/'HoldLedgerFlushR30.java',src/'IssueTimelineR30.java',src/'IssueTimelineWriterR30.java',src/'HashingSU1.java'])
+ run(['java','-cp',os.pathsep.join(map(str,[out,jdbc,sdk])),'com.ethk3.novaonepro.strategyv2.NativeWriterRetryHost'])
 print('FR_B02_WRITER_SOURCE_AND_NATIVE_SQLITE_HOST_SCOPE_PASS_NOT_ANDROID_OR_PROCESS_DEATH')
