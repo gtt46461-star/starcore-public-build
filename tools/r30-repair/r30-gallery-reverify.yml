@@ -1,0 +1,126 @@
+name: STARCORE R30 exact published APK gallery correction
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r30-gallery-request.json', '.github/workflows/r30-gallery-reverify.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: r30-gallery-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r30-gallery-request.json
+      - id: request
+        run: |
+          python3 - <<'PYTHON'
+          import json,os,re
+          r=json.load(open('.github/r30-gallery-request.json'))
+          assert r['appSource']=='a94ee9dae4e0165f8b2b340bbcb23f4be3a8743f'
+          assert re.fullmatch('[a-f0-9]{40}',r['testSource'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('appSource='+r['appSource']+'\n'+'testSource='+r['testSource']+'\n')
+          PYTHON
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.appSource }}
+          fetch-depth: 0
+      - name: Apply declared capture-only test source; retain exact application HEAD and all source guards
+        run: |
+          git fetch --no-tags origin construction/r30-repair-20261101
+          git merge-base --is-ancestor '${{ steps.request.outputs.testSource }}' origin/construction/r30-repair-20261101
+          git show '${{ steps.request.outputs.testSource }}:tools/r30-repair/reverify_gallery.py' > /tmp/r30-reverify-gallery.py
+          python3 /tmp/r30-reverify-gallery.py prepare --app '${{ steps.request.outputs.appSource }}' --tests '${{ steps.request.outputs.testSource }}'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.3.5 'cryptography>=41,<51'
+      - uses: actions/cache/restore@v4
+        with:
+          path: ~/.starcore/r27-ci-temp-key
+          key: starcore-r27-ci-temp-signing-v1
+          fail-on-cache-miss: true
+      - name: Reuse the existing R27 certificate only (no new key)
+        env:
+          R29_API_KEY: ${{ secrets.DUOQU_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, subprocess, hashlib
+          root=pathlib.Path.home()/'.starcore/r27-ci-temp-key'
+          key=root/'r27-ci.p12'; password=(root/'pw').read_text().strip()
+          if not key.is_file() or not password: raise SystemExit('ORIGINAL_SIGNING_UNAVAILABLE')
+          print('::add-mask::'+password)
+          cert=subprocess.check_output(['keytool','-exportcert','-keystore',str(key),'-storetype','PKCS12','-alias','starcore-r13','-storepass',password],stderr=subprocess.DEVNULL)
+          fingerprint=hashlib.sha256(cert).hexdigest()
+          if fingerprint!='d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7': raise SystemExit('R27_SIGNING_CHANGED')
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('R13_SIGNING_P12='+str(key)+'\nR13_SIGNING_PASSWORD='+password+'\nR13_EXPECTED_CERT_SHA256='+fingerprint+'\nR29_SIGNING=EXISTING_R27_CI_NOT_OFFICIAL_R13\n')
+              credential=os.environ.get('R29_API_KEY','').strip()
+              if credential:
+                  print('::add-mask::'+credential)
+                  out.write('DUOQU_API_KEY='+credential+'\n')
+          print('Reused R27 certificate '+fingerprint+'; official R13 upgrade BLOCKED')
+          PY
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1' > /dev/null
+      - name: Download and verify the already-published APK and prior evidence; never replace APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download r30-repair1-577311002-a94ee9dae4e0 --repo "$GITHUB_REPOSITORY" --dir previous --pattern 'STARCORE-R30-REPAIR1-EXISTING_R27-a94ee9dae4e0.apk' --pattern 'ANDROID_ACCEPTANCE_EVIDENCE.zip' --pattern 'ACCEPTANCE.json' --pattern 'delivery.json' --pattern 'SHA256SUMS.txt'
+          python3 /tmp/r30-reverify-gallery.py verify-apk
+      - name: Compile and sign the corrected instrumentation only through original guards and signer
+        run: |
+          [ -n "${DUOQU_API_KEY:-}" ] || { echo FINAL_API_CONFIGURATION_UNAVAILABLE; exit 1; }
+          ./gradlew --no-daemon -q -Pr30Instrumentation=true :app:assembleDebugAndroidTest
+          grep -Fq 'android:name="com.ethk3.novaonepro.R30FaultAndroidRunner"' app/build/intermediates/packaged_manifests/debugAndroidTest/processDebugAndroidTestManifest/AndroidManifest.xml
+          mkdir -p gallery-androidtest
+          cp app/build/outputs/apk/androidTest/debug/*.apk gallery-androidtest/
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          profile: pixel_4
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r30-repair/prepare_emulator.sh && adb install previous/STARCORE-R30-REPAIR1-EXISTING_R27-a94ee9dae4e0.apk && adb install -t $(find gallery-androidtest -name '*.apk' -print -quit) && python3 scripts/probe_r13_startup.py --installed && bash tools/r30-repair/run_android_regression.sh evidence/gallery/android-regression
+      - name: Validate all fresh real frames and preserve original full-acceptance receipts
+        run: python3 /tmp/r30-reverify-gallery.py merge
+      - name: Correct public evidence assets only; APK bytes and URL unchanged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload r30-repair1-577311002-a94ee9dae4e0 gallery-corrected/ANDROID_ACCEPTANCE_EVIDENCE.zip gallery-corrected/ACCEPTANCE.json gallery-corrected/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
+          echo R30_GALLERY_PUBLIC_EVIDENCE_ONLY_CORRECTION_PASS_APK_UNCHANGED
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-REPAIR1-PUBLISHED-APK-GALLERY-REVERIFICATION
+          path: |
+            gallery-verification-context.json
+            gallery-corrected/
+            gallery-androidtest/
+            evidence/gallery/
+            startup-evidence/
+          if-no-files-found: error

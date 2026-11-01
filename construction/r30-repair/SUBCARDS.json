@@ -721,6 +721,18 @@
         "tools/r30-repair/r30-repair-build.yml"
       ],
       "reason": "先登记：临时工件域被proxy403且不绕过，需公开可核验的实际单测分母。原全量完成后只读取真实JUnit XML汇总source/tests/failures/errors/skipped，打印并保存；发布器对准确source及零失败/零跳过复核并随公开证据ZIP交付。不增加替代测试或虚拟通过数，不删除旧lint基线。"
+    },
+    {
+      "id": "FR-B11-01-public-gallery-actual-frame-reverify",
+      "card": "FR-B11-01",
+      "files": [
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30RepairChartsAndroidTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30ChartsAndroidTest.java",
+        "app/src/androidTest/java/com/ethk3/novaonepro/R30GalleryCaptureR30.java",
+        "tools/r30-repair/r30-gallery-reverify.yml",
+        "tools/r30-repair/reverify_gallery.py"
+      ],
+      "reason": "先登记：C7全部门禁成功后独立下载人工检查确认READY-R01/R02/R03 PNG哈希完全相同，画面均R01；生产R02/R03分别LINES/GRAPH，说明截图定位/实际帧提交未同步。补真实布局/可见标题或plot/帧提交等待及关键不同图截图差异断言，重新对同一a94公开APK进行单独Android图库验证。产品main/source/signature/APK字节不变；明确appSource=a94与testSource修复commit分离，不改或禁用源/签名守卫。公开证据仅在新图库真实通过后更正。"
     }
   ]
 }

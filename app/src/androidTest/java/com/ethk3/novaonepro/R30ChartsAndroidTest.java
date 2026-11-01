@@ -60,9 +60,8 @@ public final class R30ChartsAndroidTest {
                     assertEquals("headline +14 R27 +2 R30 +12 retained R83 panels in "+scenario+"; status="+actualStatus.get(),29,count.get());
                     instrumentation.runOnMainSync(()->{for(int retained=17;retained<29;retained++)assertTrue("original R83 panel retained",cards(activity).getChildAt(retained) instanceof LinearLayout);});
                     for(int index=0;index<29;index++){
-                        final int child=index;instrumentation.runOnMainSync(()->{LinearLayout list=cards(activity);View card=list.getChildAt(child);assertTrue("each panel must render its actual card, not an error fallback",card instanceof LinearLayout);((ScrollView)list.getParent()).scrollTo(0,card.getTop());});
-                        instrumentation.waitForIdleSync();SystemClock.sleep(150);
-                        Bitmap bitmap=instrumentation.getUiAutomation().takeScreenshot();assertNotNull("screenshot "+scenario+index,bitmap);
+                        R30GalleryCaptureR30.Frame capture=R30GalleryCaptureR30.capture(instrumentation,cards(activity),index,null,null);
+                        Bitmap bitmap=capture.bitmap;
                         try(OutputStream stream=new FileOutputStream(new File(output,String.format(Locale.ROOT,"%s-%02d.png",scenario,index)))){assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,stream));}finally{bitmap.recycle();}saved++;
                     }
                 }finally{instrumentation.runOnMainSync(activity::finish);instrumentation.waitForIdleSync();}
