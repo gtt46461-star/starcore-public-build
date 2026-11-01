@@ -74,7 +74,7 @@ public final class FeatureCacheR27 {
         if (o != null) return o.compute(this, tp, a, b);
         switch (kind) {
             case "set_intersection": return exactIntersection(tp,a,b);
-            case "set_intersection_when_repeat": {double[] out=exactIntersection(tp,a,b),state=leaf("regime",tp,0,128);for(int row=0;row<data.size();row++)if(row<Math.max(128,b)||!data.consecutive(row,Math.max(128,b))||!Double.isFinite(state[row*10])||state[row*10]<=.1)java.util.Arrays.fill(out,row*10,row*10+10,Double.NaN);return out;}
+            case "set_intersection_when_repeat": {double[] out=exactIntersection(tp,a,b),state=leaf("regime",tp,0,b);for(int row=0;row<data.size();row++)if(row<b||!data.consecutive(row,b)||!Double.isFinite(state[row*10])||state[row*10]<=.1)java.util.Arrays.fill(out,row*10,row*10+10,Double.NaN);return out;}
             case "freq": return freq(a, b);
             case "fdecay": return decay(a, b);
             case "freqnb": return neighborFreq(a, b);

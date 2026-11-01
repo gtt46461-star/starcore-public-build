@@ -47,7 +47,7 @@ public final class PolicySpecR27 {
         TreeSet<String> leaves = new TreeSet<>(); TreeSet<Long> windows = new TreeSet<>();
         for (PolicyAstR27.Node n : PolicyAstR27.nodes(ast)) if (n.leaf() && !n.op.equals("c")) {
             leaves.add(n.op);
-            switch (n.op) { case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": windows.add((long) n.ints[1]); break; case "set_intersection":windows.add((long)n.ints[0]);windows.add((long)n.ints[1]);break; case "regime": windows.add((long) n.ints[0]); break; default: break; }
+            switch (n.op) { case "freq": case "freqnb": case "meangap": case "oddeven": case "bigsmall": windows.add((long) n.ints[1]); break; case "set_intersection_when_repeat": case "set_intersection":windows.add((long)n.ints[0]);windows.add((long)n.ints[1]);break; case "regime": windows.add((long) n.ints[0]); break; default: break; }
         }
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("leaves", new ArrayList<Object>(leaves)); m.put("windows", new ArrayList<Object>(windows)); m.put("missing",SetIntersectionPolicyR30.exact(this)?"ABSTAIN_SET_SUPPORT_OR_HISTORY_GAP":"SKIPPED_GAP");

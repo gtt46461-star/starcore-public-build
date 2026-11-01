@@ -260,7 +260,7 @@ public final class PolicyAstR27 {
     public static String describe(Node n) {
         switch (n.op) {
             case "c": return num(n.param);
-            case "set_intersection_when_repeat": return "过去128期重复状态>0.1时的精确交集；条件不满足或不足3弃权";
+            case "set_intersection_when_repeat": return "过去"+n.ints[1]+"期重复状态>0.1时的精确交集；条件不满足或不足3弃权";
             case "set_intersection": return "本位近"+n.ints[0]+"期与两邻位近"+n.ints[1]+"期K3精确交集(不足3弃权)";
             case "freq": return "第" + n.ints[0] + "位近" + n.ints[1] + "期频率";
             case "fdecay": return "第" + n.ints[0] + "位衰减频率(半衰期" + n.ints[1] + ")";
