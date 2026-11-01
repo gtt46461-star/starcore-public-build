@@ -99,7 +99,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 Task t;
                 try { t = next(); } catch (Throwable failure) { active.decrementAndGet(); throw failure; }
                 if (t == null) { active.decrementAndGet(); sleep(250); continue; }
-                Outcome o = null; Throwable failure = null;
+                Outcome o = null; Throwable failure = null;ResourceBudget appliedResourceBudget=null;
                 boolean quarantined = false;
                 try {
                     try (Cursor c = w.ro.rawQuery("SELECT status FROM r26_task WHERE task_id=?", new String[] {t.id()})) {
@@ -112,7 +112,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                         else {
                             if(current==null){current=new PreparedTaskR30R1(t,w,claim);synchronized(this){prepared.put(t.id(),current);}}
                             current.claim=claim;
-                            refreshResourceBudget(w.ro);ResourceBudget applied=resourceBudget;int quantum=applied.quantums.getOrDefault(t.id(),200);resourceUses.put(t.id(),applied);
+                            refreshResourceBudget(w.ro);appliedResourceBudget=resourceBudget;int quantum=appliedResourceBudget.quantums.getOrDefault(t.id(),200);
                             try{o=current.slice(quantum);}finally{recordResearchCost(t.id(),current.lastCpuNanos);if(current.done()){current.close();synchronized(this){prepared.remove(t.id());}}}
                         }
                     }
@@ -120,7 +120,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
                 finally { active.decrementAndGet(); synchronized (this) { running.put(t.id(), false); } }
                 if (quarantined) { synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + 5000); } continue; }
                 slices++;
-                record(t.id(), o, failure);
+                record(t.id(), o, failure,appliedResourceBudget);
                 if (o == null || o.units == 0) synchronized (this) { notBefore.put(t.id(), System.currentTimeMillis() + (failure != null ? 5000 : o!=null&&"COOPERATIVE_PREPARED_STEP".equals(o.reason)?25:1000)); }
             } catch (Throwable unexpected) { android.util.Log.w("STARCORE_R27", "worker " + w.name, unexpected); sleep(500); }
             long now = SystemClock.elapsedRealtime();
@@ -159,8 +159,7 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     public synchronized void wake(String id) { notBefore.remove(id); }
 
-    private void record(String id, Outcome o, Throwable failure) {
-        final ResourceBudget appliedResourceBudget=resourceUses.remove(id);
+    private void record(String id, Outcome o, Throwable failure,ResourceBudget appliedResourceBudget) {
         WaitKindR27.Wait wait = WaitKindR27.classify(o == null ? 0 : o.units, o == null ? null : o.reason, failure, o == null ? 0 : o.cursor, o == null ? -1 : o.latest, resource, false);
         final long now = System.currentTimeMillis(); final String stack = failure == null ? null : stack(failure);
         try {
@@ -228,7 +227,6 @@ public final class ResearchPoolR27 implements AutoCloseable {
     }
     public boolean isClosed() { return closed; }
     static final class ResourceBudget {final String run;final long from,through;final java.util.Map<String,Integer> quantums;ResourceBudget(String run,long from,long through,java.util.Map<String,Integer> q){this.run=run;this.from=from;this.through=through;quantums=java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(q));}}
-    private final java.util.Map<String,ResourceBudget> resourceUses=new java.util.concurrent.ConcurrentHashMap<>();
     private volatile ResourceBudget resourceBudget=new ResourceBudget(null,0,0,java.util.Collections.emptyMap());private final java.util.concurrent.atomic.AtomicLong lastResourceRead=new java.util.concurrent.atomic.AtomicLong();
     @SuppressWarnings("unchecked") static java.util.Map<String,Integer> resourceQuantums(java.util.List<?> costs,String session){java.util.Map<String,Long> observed=new java.util.LinkedHashMap<>();long total=0;for(Object o:costs)if(o instanceof java.util.Map){java.util.Map<?,?> row=(java.util.Map<?,?>)o;if(session.equals(row.get("session"))&&row.get("actualContinuationCpuNs") instanceof Number&&row.get("task") instanceof String){long cpu=Math.max(0,((Number)row.get("actualContinuationCpuNs")).longValue());observed.put((String)row.get("task"),cpu);total+=cpu;}}java.util.Map<String,Integer> out=new java.util.LinkedHashMap<>();for(java.util.Map.Entry<String,Long> e:observed.entrySet())out.put(e.getKey(),observed.size()>1&&total>=100000000L&&e.getValue()/(double)total>Math.min(.5,2.0/observed.size())?100:200);return out;}
     @SuppressWarnings("unchecked") private void refreshResourceBudget(SQLiteDatabase db){long now=SystemClock.elapsedRealtime(),before=lastResourceRead.get();if(now-before<60000||!lastResourceRead.compareAndSet(before,now))return;try(Cursor q=db.rawQuery("SELECT r.run_id,r.summary_json,r.contract_hash,r.from_ordinal,r.through_ordinal FROM r30r1_research_measure m JOIN r30r1_analysis_run r ON r.run_id=m.run_id WHERE m.kind='MATRIX_RESOURCE_EFFICIENCY' AND r.role='SELECT' AND r.status='COMMITTED' AND r.source_commit=? ORDER BY r.recorded_at DESC LIMIT 1",new String[]{com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26})){if(!q.moveToFirst()||!ResearchStoreR30R1.currentSource(com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26,q.getString(1)))return;java.util.Map<String,Object> source=(java.util.Map<String,Object>)JsonR27.parse(q.getString(1));if(!(source.get("frame") instanceof java.util.Map)||!StatsR27.sha256(JsonR27.write(source.get("frame"))).equals(q.getString(2)))throw new IllegalStateException("RESOURCE_SOURCE_HASH");java.util.Map<?,?> frame=(java.util.Map<?,?>)source.get("frame");Object detail=frame.get("details");Object raw=detail instanceof java.util.Map?((java.util.Map<?,?>)detail).get("actualTaskCosts"):null;if(!(raw instanceof java.util.List))return;java.util.Map<String,Integer> selected=resourceQuantums((java.util.List<?>)raw,session);if(!selected.isEmpty())resourceBudget=new ResourceBudget(q.getString(0),q.getLong(3),q.getLong(4),selected);}catch(RuntimeException sourceUnavailable){android.util.Log.w("STARCORE_R30","resource analysis unavailable; retain last legal bounded compute quantum",sourceUnavailable);}}
