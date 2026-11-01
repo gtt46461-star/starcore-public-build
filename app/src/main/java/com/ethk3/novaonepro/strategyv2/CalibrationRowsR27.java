@@ -17,17 +17,20 @@ public final class CalibrationRowsR27 {
     public static final String EXCLUDED_LATE = "EXCLUDED_LATE", EXCLUDED_GAP = "EXCLUDED_GAP", IDENTITY_DRIFT = "IDENTITY_DRIFT", INSUFFICIENT_ROWS = "INSUFFICIENT_ROWS";
 
     public static final class Row {
-        public final String issue, source; public final long frozenAt, openTime,ordinal; public final double score; public final int hit, position; public final boolean evaluationPresent, identityMatches;
+        public final String issue, source; public final long frozenAt, openTime,ordinal; public final double score; public final int hit, position; public final boolean evaluationPresent, identityMatches,predeclaredAct;
         public Row(String issue, String source, long frozenAt, long openTime, double score, int hit, int position, boolean evaluationPresent, boolean identityMatches) {
             this(issue,source,frozenAt,openTime,score,hit,position,evaluationPresent,identityMatches,Long.MIN_VALUE);
         }
         public Row(String issue,String source,long frozenAt,long openTime,double score,int hit,int position,boolean evaluationPresent,boolean identityMatches,long ordinal){
-            this.ordinal=ordinal;this.issue = issue; this.source = source; this.frozenAt = frozenAt; this.openTime = openTime; this.score = score; this.hit = hit; this.position = position; this.evaluationPresent = evaluationPresent; this.identityMatches = identityMatches;
+            this(issue,source,frozenAt,openTime,score,hit,position,evaluationPresent,identityMatches,ordinal,true);
+        }
+        public Row(String issue,String source,long frozenAt,long openTime,double score,int hit,int position,boolean evaluationPresent,boolean identityMatches,long ordinal,boolean predeclaredAct){
+            this.ordinal=ordinal;this.issue = issue; this.source = source; this.frozenAt = frozenAt; this.openTime = openTime; this.score = score; this.hit = hit; this.position = position; this.evaluationPresent = evaluationPresent; this.identityMatches = identityMatches;this.predeclaredAct=predeclaredAct;
         }
     }
     public static final class Result {
         public String state, reason, method = "PLATT"; public int fitRows, validationRows, excludedLate, excludedGap, identityDrift; public double a = Double.NaN, b = Double.NaN, ece = Double.NaN, eceIsotonic = Double.NaN;
-        public int excludedInvalid,excludedConflicts,excludedDuplicates;
+        public int excludedInvalid,excludedConflicts,excludedDuplicates,excludedNonAct;
         public final Map<String,Object> quality=new LinkedHashMap<>();public final List<Evaluation> evaluations=new ArrayList<>();
         public final Map<String, Object> eceByStratum = new LinkedHashMap<>(); public String fitSource = "";
     }
@@ -77,6 +80,8 @@ public final class CalibrationRowsR27 {
         Result r=new Result();r.method="PLATT";
         Map<String,Row> unique=new java.util.TreeMap<>();java.util.Set<String> conflicts=new java.util.HashSet<>();
         for(Row row:rows){
+            if(row==null||row.source==null){r.excludedInvalid++;continue;}
+            if(!row.predeclaredAct){r.excludedNonAct++;continue;}
             if(!row.identityMatches){r.identityDrift++;continue;}
             if(!row.evaluationPresent||row.hit<0){r.excludedGap++;continue;}
             if(!Double.isFinite(row.score)||row.hit>1||row.position<1||row.position>10||row.ordinal==Long.MIN_VALUE||(!row.source.equals("REPLAY")&&!row.source.equals("FUTURE"))){r.excludedInvalid++;continue;}
@@ -117,7 +122,7 @@ public final class CalibrationRowsR27 {
         r.quality.put("supportCoverage",coverage);r.quality.put("supportCoverageMethod","PER_ROW_PRIOR_FIT_PROBABILITY_RANGE");
         r.quality.put("q05Pass",p.length<CalibrationR30.MIN_SAMPLES?null:((Number)r.quality.get("eceEqualMass")).doubleValue()<=.04&&coverage>=.90);
         r.quality.put("fitRowsPerEvaluation",(long)FIT);r.quality.put("embargoPeriods",(long)EMBARGO);r.quality.put("temporalRowsChecked",(long)p.length);r.quality.put("temporalViolations",0L);
-        r.quality.put("excludedLate",(long)r.excludedLate);r.quality.put("excludedGap",(long)r.excludedGap);r.quality.put("excludedInvalid",(long)r.excludedInvalid);r.quality.put("excludedConflicts",(long)r.excludedConflicts);r.quality.put("excludedDuplicates",(long)r.excludedDuplicates);r.quality.put("windowLimit",5000L);
+        r.quality.put("evaluationCondition","PREDECLARED_ACT_EQUALS_1");r.quality.put("excludedNonAct",(long)r.excludedNonAct);r.quality.put("excludedLate",(long)r.excludedLate);r.quality.put("excludedGap",(long)r.excludedGap);r.quality.put("excludedInvalid",(long)r.excludedInvalid);r.quality.put("excludedConflicts",(long)r.excludedConflicts);r.quality.put("excludedDuplicates",(long)r.excludedDuplicates);r.quality.put("windowLimit",5000L);
         r.quality.put("measurementSource","PRIOR_ORDINAL_PLATT_ON_H_SELECT_ONLY_FUTURE_READ_ONLY");
         r.quality.put("target","BINARY_K3_MEMBERSHIP");r.quality.put("fitRole","H_SELECT");r.quality.put("validationRole","FUTURE_READ_ONLY");r.quality.put("formalLabelsUsedForFit",0L);
         r.quality.put("rawSameRows",CalibrationR30.evaluate(raw,y,raw.length,10,0,1));

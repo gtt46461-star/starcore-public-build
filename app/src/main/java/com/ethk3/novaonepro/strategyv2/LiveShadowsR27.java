@@ -324,9 +324,9 @@ public final class LiveShadowsR27 {
             final long calibrationRevision=SchemaR27.liveSourceRevision(w.ro);
             List<CalibrationRowsR27.Row> rows = new ArrayList<>();
             ReplayEvaluatorR27.Trace tr = ctx.selectTrace(s.spec, s.tau);
-            for (int t = ctx.split.selectFrom; t < ctx.split.selectTo; t++) if (!tr.skipped[t])
+            for (int t = ctx.split.selectFrom; t < ctx.split.selectTo; t++) if (!tr.skipped[t]&&tr.act[t])
                 rows.add(new CalibrationRowsR27.Row(ctx.data.issues[t], "REPLAY", 0, 0, tr.pHit[t], tr.hit[t], s.spec.position, true, true,calibrationOrdinalR30(ctx.data.issues[t])));
-            try (Cursor c = w.ro.rawQuery("SELECT target_issue,probabilities,n1,n2,n3,hit,frozen_at,deadline_at,status,target_ordinal FROM r27_live_frozen WHERE policy_hash=? AND hit>=-2 ORDER BY target_ordinal DESC LIMIT 5000", new String[] {s.id})) {
+            try (Cursor c = w.ro.rawQuery("SELECT target_issue,probabilities,n1,n2,n3,hit,frozen_at,deadline_at,status,target_ordinal,act FROM r27_live_frozen WHERE policy_hash=? AND hit>=-2 ORDER BY target_ordinal DESC LIMIT 5000", new String[] {s.id})) {
                 while (c.moveToNext()) {
                     boolean frozen = "FROZEN".equals(c.getString(8));double score=Double.NaN;
                     try {
@@ -335,7 +335,7 @@ public final class LiveShadowsR27 {
                         if(valid&&frozen)score=p[a-1]+p[bb-1]+p[cc-1];
                     } catch(RuntimeException corrupt) { /* Invalid row is counted explicitly by fitRolling, not fitted. */ }
                     long canonicalOrdinal=calibrationOrdinalR30(c.getString(0));if(canonicalOrdinal!=c.getLong(9))canonicalOrdinal=Long.MIN_VALUE;
-                    rows.add(new CalibrationRowsR27.Row(c.getString(0), "FUTURE", frozen ? c.getLong(6) : 0, c.getLong(7), score, frozen ? c.getInt(5) : -1, s.spec.position, frozen && c.getInt(5) >= 0, true,canonicalOrdinal));
+                    rows.add(new CalibrationRowsR27.Row(c.getString(0), "FUTURE", frozen ? c.getLong(6) : 0, c.getLong(7), score, frozen ? c.getInt(5) : -1, s.spec.position, frozen && c.getInt(5) >= 0, true,canonicalOrdinal,c.getInt(10)==1));
                 }
             }
             CalibrationRowsR27.Result r = CalibrationRowsR27.fitRolling(rows);
