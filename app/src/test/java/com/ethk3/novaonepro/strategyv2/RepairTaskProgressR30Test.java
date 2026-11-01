@@ -40,4 +40,5 @@ public final class RepairTaskProgressR30Test {
             assertTrue(work.slice(200).done);assertEquals(1,prepared.get());assertEquals(3,attempts.get());assertEquals(1,published.get());
         }finally{work.close();}
     }
+ @Test public void actualResourceBudgetKeepsBothTasksAndExcludesOtherSessions(){java.util.Map<String,Object> heavy=new java.util.LinkedHashMap<>(),light=new java.util.LinkedHashMap<>();heavy.put("session","current");heavy.put("task","heavy");heavy.put("actualContinuationCpuNs",950000000L);light.put("session","current");light.put("task","light");light.put("actualContinuationCpuNs",50000000L);java.util.Map<String,Integer> budget=ResearchPoolR27.resourceQuantums(java.util.Arrays.asList(heavy,light),"current");assertEquals(100,(int)budget.get("heavy"));assertEquals(200,(int)budget.get("light"));assertTrue(ResearchPoolR27.resourceQuantums(java.util.Arrays.asList(heavy,light),"another-process").isEmpty());for(int quantum:budget.values())assertTrue(quantum>=100&&quantum<=200);}
 }
