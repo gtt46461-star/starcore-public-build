@@ -93,6 +93,7 @@ public final class ResearchStoreR30R1 {
     }
     static String runnerIssue(long ordinal){return com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(ordinal);}
 
+    static boolean currentSource(String sourceCommit,String summaryJson){if(!com.ethk3.novaonepro.BuildConfig.SOURCE_COMMIT_R26.equals(sourceCommit))return false;Object parsed=JsonR27.parse(summaryJson);if(!(parsed instanceof Map))return false;Object contract=((Map<?,?>)parsed).get("sourceContract");return contract instanceof Map&&FrozenConfirmationR30.currentSemantics().equals(((Map<?,?>)contract).get("abi"));}
     static boolean stale(Throwable failure){for(Throwable t=failure;t!=null&&t.getCause()!=t;t=t.getCause())if(t instanceof StaleResearch)return true;return false;}
     public static final class StaleResearch extends IllegalStateException {StaleResearch(){super("RESEARCH_CONSUME_STALE");}}
     public static final class Ready {public final String proposal;public final PolicySpecR27 child;Ready(String proposal,PolicySpecR27 child){this.proposal=proposal;this.child=child;}}

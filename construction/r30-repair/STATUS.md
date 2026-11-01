@@ -1,28 +1,15 @@
 # R30 返修施工状态
 
-当前施工 B05。B00–B04 的实现与证据见 STATUS.json；存在的设备、真实大库、部分任务 pending 来源与旧验证来源限制仍保留。此处不将工程实现计为自然质量通过。
+当前施工 B08，B06/B07 共用的配对研究和精确子代链已接通。尚未完成全部60卡；B09–B11未验收，新返修APK未生成。
 
-B00：4 张卡；BASELINE_AND_CONTRACT_RECORDED。
+B01–B05 的实现、故障记录和设备限制见 STATUS.json。
 
-B01：5 张卡；IMPLEMENTED_ANDROID_JAVA_AND_HOST_VERIFIED_DEVICE_PENDING。
+B06：schema、真实payload、5类独立张量、反事实配对矩阵、SU2原件和校准修复已有Android/HOST检查点；其他矩阵消费者仍接B08。
 
-B02：6 张卡；IMPLEMENTED_ANDROID_JAVA_AND_NATIVE_SQLITE_HOST_PASS_DEVICE_PENDING, IMPLEMENTED_ANDROID_JAVA_JUNIT_AND_NATIVE_SQLITE_HOST_PASS_DEVICE_PENDING, PHASE_TIMING_AND_EXPLAIN_IMPLEMENTED_LARGE_DEVICE_DATABASE_REMEASUREMENT_PENDING。
+B07：256行双臂可恢复研究、固定日历块、原出生门、同事务消费、16原源适配器已接通；20次生产控制重复、完整反馈消费者尚待执行/集成。
 
-B03：5 张卡；IMPLEMENTED_WITH_NAMED_PENDING_SOURCE_AND_DEVICE_LIMITATIONS。
+B08：真实硬集合交集与不足3弃权已实现，77项相关回归通过；多尺度结构、专家/融合/预算/漂移研究继续施工。
 
-B04：5 张卡；IMPLEMENTED_ANDROID_JAVA_JUNIT_AND_NATIVE_SQLITE_PROCESS_RESTART_PASS_DEVICE_PENDING。
+B09：18新研究图和47图Android验收未完成。B10：新证据引用的存储/导出/升级验收未完成。B11：本返修APK、真机24/72h与自然质量未验收。
 
-B05：5 张卡；IN_PROGRESS。
-
-B06：6 张卡；NOT_STARTED。
-
-B07：5 张卡；NOT_STARTED。
-
-B08：5 张卡；NOT_STARTED。
-
-B09：5 张卡；NOT_STARTED。
-
-B10：5 张卡；NOT_STARTED。
-
-B11：4 张卡；NOT_STARTED。
-
+主机合成结果不证明自然优势，编译/JUnit不代替Android实机验收。已有负BSS和首轮2项失败日志保留。
