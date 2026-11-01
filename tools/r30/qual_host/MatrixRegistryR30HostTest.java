@@ -16,7 +16,7 @@ public final class MatrixRegistryR30HostTest {
                 s.execute("CREATE TABLE research_matrix_snapshot_r930(kind TEXT,target_issue TEXT,frozen_at INTEGER)");
                 s.execute("CREATE TABLE su2_matrix_snapshot(checkpoint_sequence INTEGER,updated_at INTEGER)");
             }
-            Map<String,Object> empty=MatrixRegistryStoreR30.report(db);require("TRACEABLE".equals(empty.get("status")),"BINDINGS_NOT_VERIFIED:"+JsonR27.write(empty));
+            Map<String,Object> empty=MatrixRegistryStoreR30.report(db);require("TRACEABLE".equals(empty.get("staticBindingStatus"))&&"INCOMPLETE_PRODUCTION".equals(empty.get("status"))&&((Number)empty.get("verifiedBindings")).longValue()==20,"BINDINGS_NOT_VERIFIED:"+JsonR27.write(empty));
             require(((Number)row(empty,MatrixRegistryR30.SU2_ID).get("retainedSnapshotCount")).longValue()==0,"EMPTY_SOURCE_NOT_MEASURED_ZERO");require("NOT_RUN".equals(row(empty,"R930:EVIDENCE_TEACHER").get("evidenceState")),"EMPTY_SOURCE_MARKED_EFFECTIVE");
             try(Statement s=c.createStatement()){
                 s.execute("INSERT INTO research_matrix_snapshot_r930 VALUES('EVIDENCE_TEACHER','202610300101',1000),('EVIDENCE_TEACHER','202610300102',2000),('REVERSE_REASONING','202610300102',2000)");

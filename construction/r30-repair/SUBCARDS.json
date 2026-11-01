@@ -618,6 +618,17 @@
         "tools/r30/qual_host/CapabilityRegistryR30HostTest.java"
       ],
       "reason": "先登记：原完整能力原生测试在空库复现实际生产NPE：三重条件表达式把未知消费Boolean null拆箱。改显式TRUE/FALSE/null分支，缺源仍UNKNOWN不置0；原82对象/坏checkpoint/孤儿缓存/未证明有效断言保留，并验证20缺源矩阵消费均null。"
+    },
+    {
+      "id": "FR-B11-01-native-semantic-and-schema-contracts",
+      "card": "FR-B11-01",
+      "files": [
+        "tools/r30/qual_host/MatrixRegistryR30HostTest.java",
+        "tools/r30/qual_host/ConfirmationQueueR30HostTest.java",
+        "tools/r30/qual_host/CertificateVersionR30HostTest.java",
+        "tools/r30/qual_host/ResearchRetentionR30HostTest.java"
+      ],
+      "reason": "先登记：完整原生尾段一次收集4个旧断言漂移。静态TRACEABLE改查staticBindingStatus并仍验证20绑定/整体未产出；观察者统计包含旧+R1命名空间；V1正例先断言无ABI不发证，再用真实生产golden计算ABI后发证，数字门槛不改；retention夹具先调用原SU2 metadata owner补4字段再建保护归档。所有原100次重排/签证/回滚/原件字节断言保留。"
     }
   ]
 }

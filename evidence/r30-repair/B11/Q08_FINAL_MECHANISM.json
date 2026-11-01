@@ -2721,7 +2721,7 @@
   "status": "MEASURED",
   "uncertaintyScope": "Synthetic independent repeats under the declared budget only; not a natural false-certificate rate",
   "workBudget": "40 births x 3 generations x 6000 frozen future periods per independent null repeat; original pipeline",
-  "sourceScope": "Actual compiled algorithms at1342b77b; final subsequent changes are outer storage census, formatting, identity, CI and evidence only; full algorithm source hashes follow",
+  "sourceScope": "Actual compiled algorithms at1342b77b, with historical per-file hashes retained. The only later changed hashed file is the read-only MatrixRegistryStoreR30 report null-unboxing fix, separately disclosed below. This result is not represented as a rerun at the final whole-source commit.",
   "algorithmSourceSha256": {
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/AlphaLedgerSU1.java": "00fce7cc665d809b190312bab63fe9b1e33ddf639fb815d9b2df4b02f7afff06",
     "app/src/main/java/com/ethk3/novaonepro/strategyv2/ArchiveStoreSU1.java": "2e8eab1cec331fa54de0579bad9a757da72d7a024c4cadaec96c986ee7d09d87",
@@ -3081,5 +3081,12 @@
   },
   "sourceCommitFull": "1342b77b0c3ffeb73e68d892fee93987dc4a4129",
   "independentReplicates": 20,
-  "sameProtocolRepeatedExecutionsAreNotAdditionalReplicates": true
+  "sameProtocolRepeatedExecutionsAreNotAdditionalReplicates": true,
+  "laterReadOnlyReporterFix": {
+    "path": "app/src/main/java/com/ethk3/novaonepro/strategyv2/MatrixRegistryStoreR30.java",
+    "testedHash": "e778191aa673e1f91f588b7f1e302e582af611c4772bc5425120e3f13b10c6f9",
+    "finalReporterHash": "2a73699c1b4bc6ac3c0ece6f9c82448d2888678306c2e2da7504e42009987b16",
+    "change": "Preserve missing consumed Boolean as null using explicit branches; fixes an actual report NPE. No forecast, optimization, eligibility, gate threshold, or random-stream algorithm change.",
+    "verifiedBy": "Original CapabilityRegistryR30HostTest: all82 objects and20 missing consumed=null; no natural efficacy claim."
+  }
 }

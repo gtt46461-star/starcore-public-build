@@ -14,7 +14,7 @@ public final class ResearchRetentionR30HostTest {
     static byte[] blob(SQLiteDatabase db,String sql){try(Cursor c=db.rawQuery(sql,null)){need(c.moveToFirst(),"BLOB_ROW_MISSING");return c.getBlob(0);}}
     static void reject(Work work,String why)throws Exception{try{work.run();throw new AssertionError(why);}catch(android.database.sqlite.SQLiteException expected){}}
     static void schema(SQLiteDatabase db)throws Exception{
-        tx(db,()->{RuntimeSchemaR26.ensure(db);for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);for(String ddl:StrategySchemaSU2.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);});
+        tx(db,()->{RuntimeSchemaR26.ensure(db);for(String ddl:SchemaR27.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);for(String ddl:StrategySchemaSU2.DDL)if(ddl.startsWith("CREATE TABLE"))db.execSQL(ddl);MatrixStoreSU2.ensureMetadata(db);});
     }
     public static void main(String[] args)throws Exception{
         Class.forName("org.sqlite.JDBC");Path data=Files.createTempDirectory("r30-retention-host-");File database=new File(data.toFile(),"databases/root.db");database.getParentFile().mkdirs();

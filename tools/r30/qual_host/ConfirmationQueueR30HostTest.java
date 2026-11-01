@@ -42,8 +42,8 @@ public final class ConfirmationQueueR30HostTest {
                 for(int j=0;j<60;j++){int n=(generation+j)%200;EvolutionLoopR27.Member m=new EvolutionLoopR27.Member();m.spec=policy(n);m.tau=1;m.u=60-j;loop.population.add(m);}
                 runtime.refreshObservers(worker,loop);
                 require(expected.equals(QualificationInboxR29.confirmationQueueR30(db)),"CONFIRMATION_EVICTED_G"+generation);
-                require(count(db,"SELECT count(*) FROM r27_live_shadow WHERE status='OBSERVE'")==20,"EXPLORATION_IGNORED_CONFIRMATION_CAP_G"+generation);
-                require(count(db,"SELECT count(*) FROM r27_live_shadow o JOIN r27_live_shadow a ON o.base_policy=a.base_policy WHERE o.status='OBSERVE' AND a.status='ACTIVE'")==0,"DUPLICATE_ACTIVE_BASE_USED_EXPLORATION_SLOT");
+                require(count(db,"SELECT count(*) FROM r27_live_shadow WHERE status IN ('OBSERVE','OBSERVE_REPAIR1')")==20,"EXPLORATION_IGNORED_CONFIRMATION_CAP_G"+generation);
+                require(count(db,"SELECT count(*) FROM r27_live_shadow o JOIN r27_live_shadow a ON o.base_policy=a.base_policy WHERE o.status IN ('OBSERVE','OBSERVE_REPAIR1') AND a.status IN ('ACTIVE','ACTIVE_REPAIR1')")==0,"DUPLICATE_ACTIVE_BASE_USED_EXPLORATION_SLOT");
                 require(before.equals(state(db)),"RANKING_CHANGED_QUALIFICATION_G"+generation);
             }
             String rows=observers(db);loop.generation++;Collections.reverse(loop.population);for(int i=0;i<loop.population.size();i++)loop.population.get(i).u=60-i;
@@ -54,11 +54,11 @@ public final class ConfirmationQueueR30HostTest {
             require(before.equals(state(db))&&count(db,"SELECT count(*) FROM r29_qual_receipt")==16,"RERANK_REPLAY_DUPLICATED_RECEIPTS");
             db.execSQL("UPDATE r27_eprocess SET state=? WHERE policy_hash=?",new Object[]{SequentialQualificationR27.QUALIFIED,policy(0).policyHash()});
             db.execSQL("UPDATE r27_eprocess SET state=? WHERE policy_hash=?",new Object[]{SequentialQualificationR27.NOT_BETTER,policy(1).policyHash()});runtime.refreshObservers(worker,loop);
-            require(QualificationInboxR29.confirmationQueueR30(db).size()==2&&count(db,"SELECT count(*) FROM r27_live_shadow WHERE status='OBSERVE'")==22,"TERMINAL_RESULT_DID_NOT_RELEASE_EXPLORATION_SLOT");
+            require(QualificationInboxR29.confirmationQueueR30(db).size()==2&&count(db,"SELECT count(*) FROM r27_live_shadow WHERE status IN ('OBSERVE','OBSERVE_REPAIR1')")==22,"TERMINAL_RESULT_DID_NOT_RELEASE_EXPLORATION_SLOT");
             // Legacy installations can already have more than 24 active registrations: preserve all of them.
             for(int i=200;i<231;i++)StoreR27.insertShadow(db,policy(i),1,"HOST","host-abi",policy(i).policyHash(),policy(i).policyHash());
             Map<String,String> oversized=new LinkedHashMap<>(QualificationInboxR29.confirmationQueueR30(db));runtime.refreshObservers(worker,loop);
-            require(oversized.size()==33&&oversized.equals(QualificationInboxR29.confirmationQueueR30(db))&&count(db,"SELECT count(*) FROM r27_live_shadow WHERE status='OBSERVE'")==0,"OVERCAPACITY_REGISTRATION_WAS_EVICTED");
+            require(oversized.size()==33&&oversized.equals(QualificationInboxR29.confirmationQueueR30(db))&&count(db,"SELECT count(*) FROM r27_live_shadow WHERE status IN ('OBSERVE','OBSERVE_REPAIR1')")==0,"OVERCAPACITY_REGISTRATION_WAS_EVICTED");
             System.out.println("R30_CONFIRM_QUEUE_SQLITE|100_REAL_RERANKS|M29_EVICTIONS_0|CAP_24_MINUS_CONFIRMED|NO_DUPLICATE_BASE|CURSOR_ALPHA_RECEIPTS_UNCHANGED|FAILED_COMMIT_ROLLED_BACK|TERMINAL_RELEASE|LEGACY_OVERCAP_PRESERVED|PASS");
         }
     }

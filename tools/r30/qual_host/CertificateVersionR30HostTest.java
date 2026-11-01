@@ -38,6 +38,10 @@ public final class CertificateVersionR30HostTest {
                 atomic(connection,db,b);
             },()->false);unsafe.putObject(pool,unsafe.objectFieldOffset(ResearchPoolR27.class.getDeclaredField("writes")),writes);ResearchPoolR27.Worker worker=pool.new Worker(db,"version-host");
             LiveShadowsR27.certify(runtime,worker,1299);
+            require("NOT_ISSUED".equals(text(db,"SELECT status FROM r27_certificate WHERE policy_hash='synthetic-current'")),"MISSING_ABI_MUST_NOT_ISSUE");
+            try(java.io.InputStream golden=new java.io.FileInputStream("app/src/main/assets/"+SemanticAbiR27.GOLDEN_ASSET)){runtime.operatorAbi=OperatorGoldenR27.fingerprints(new FeatureCacheR27(SemanticAbiR27.readGolden(golden,true)));}
+            db.execSQL("UPDATE r27_live_shadow SET semantic_abi=? WHERE policy_hash=?",new Object[]{runtime.semanticAbi(spec),id});
+            LiveShadowsR27.certify(runtime,worker,1299);
             require("ACTIVE|R27_GATE_V1".equals(text(db,"SELECT status||'|'||gate_version FROM r27_certificate WHERE policy_hash='synthetic-current'")),"ACTUAL_CERTIFY_DID_NOT_BIND_V1");
             require(text(db,"SELECT gates_json FROM r27_certificate WHERE policy_hash='synthetic-current'").contains("R27_GATE_V1"),"CERTIFICATE_GATES_MISSING_VERSION");
             double[] probabilities=new double[10];Arrays.fill(probabilities,.1);long now=System.currentTimeMillis();
