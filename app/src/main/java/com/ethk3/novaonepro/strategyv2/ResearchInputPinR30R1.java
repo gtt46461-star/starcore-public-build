@@ -1,0 +1,45 @@
+package com.ethk3.novaonepro.strategyv2;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import com.ethk3.novaonepro.BuildConfig;
+import com.ethk3.novaonepro.TargetIssueResolver;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.zip.*;
+
+/** Immutable, original-input recovery. Formal rows are retained with their original split, never optimized. */
+public final class ResearchInputPinR30R1 {
+    private ResearchInputPinR30R1() {}
+    public static final String STATUS="INPUT_DATASET_PINNED", VERSION="R30_REPAIR_INPUT_PIN1";
+    public static String id(String dataset){return StatsR27.sha256(VERSION+'|'+ResearchContractR30R1.sha(dataset));}
+    public static final class Pin {public final ReplayDatasetR27 data;public final long revision;Pin(ReplayDatasetR27 d,long r){data=d;revision=r;}}
+    static String ordinal(String row){String s=row+".issue";return "(CAST(julianday(substr("+s+",1,4)||'-'||substr("+s+",5,2)||'-'||substr("+s+",7,2))-julianday('2020-01-01') AS INTEGER)*1440+CAST(substr("+s+",9,4) AS INTEGER))";}
+    static String[] triggerSql(){List<String> out=new ArrayList<>();for(String table:new String[]{"draws","r27_history_import"})for(String op:new String[]{"INSERT","UPDATE"}){
+        String changed="NEW.issue IS NOT OLD.issue";
+        if(table.equals("draws")){changed+=" OR NEW.open_time IS NOT OLD.open_time OR NEW.dirty IS NOT OLD.dirty";for(int n=1;n<=10;n++)changed+=" OR NEW.n"+n+" IS NOT OLD.n"+n;}
+        else changed+=" OR NEW.ordinal IS NOT OLD.ordinal OR NEW.numbers IS NOT OLD.numbers OR NEW.status IS NOT OLD.status";
+        String affected=ordinal("NEW")+" BETWEEN p.from_ordinal AND p.through_ordinal";
+        if(op.equals("UPDATE"))affected+=" OR "+ordinal("OLD")+" BETWEEN p.from_ordinal AND p.through_ordinal";
+        out.add("CREATE TRIGGER IF NOT EXISTS r30r1_pin_"+table+'_'+op.toLowerCase(Locale.ROOT)+" AFTER "+op+" ON "+table+(op.equals("UPDATE")?" WHEN ("+changed+")":"")+" BEGIN INSERT OR IGNORE INTO r30r1_research_measure SELECT p.run_id,'SOURCE_CHANGED:"+table+":"+op+":'||NEW.issue||':'||(SELECT generation FROM r30_live_source_revision WHERE singleton=1),'INPUT_INVALIDATION',p.policy_hash,'ORIGINAL_CANONICAL_INPUT',p.from_ordinal,p.through_ordinal,0,NULL,NULL,NULL,'{\"reason\":\"CANONICAL_CORRECTION_OR_IN_RANGE_BACKFILL\",\"table\":\""+table+"\"}' FROM r30r1_analysis_run p WHERE p.status='"+STATUS+"' AND ("+affected+"); END");
+    }return out.toArray(new String[0]);}
+    public static void ensure(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("PIN_WRITER_REQUIRED");if(!SchemaR27.tableExists(db,"draws")||!SchemaR27.tableExists(db,"r27_history_import"))return;for(String sql:triggerSql())db.execSQL(sql);db.execSQL("CREATE TRIGGER IF NOT EXISTS r30r1_pin_immutable BEFORE UPDATE ON r30r1_analysis_run WHEN OLD.status='"+STATUS+"' BEGIN SELECT RAISE(ABORT,'RESEARCH_INPUT_PIN_IMMUTABLE'); END");if(!triggersValid(db))throw new IllegalStateException("PIN_TRIGGER_CONFLICT");}
+    static String canonical(String s){return s==null?"":s.replace(" IF NOT EXISTS "," ").trim().replaceAll("\\s+"," ");}
+    public static boolean triggersValid(SQLiteDatabase db){for(String expected:triggerSql()){String name=expected.substring("CREATE TRIGGER IF NOT EXISTS ".length(),expected.indexOf(" AFTER "));try(Cursor c=db.rawQuery("SELECT sql FROM sqlite_master WHERE type='trigger' AND name=?",new String[]{name})){if(!c.moveToFirst()||!canonical(expected).equals(canonical(c.getString(0))))return false;}}return true;}
+    public static boolean invalid(SQLiteDatabase db,String hash){try(Cursor c=db.rawQuery("SELECT 1 FROM r30r1_research_measure WHERE run_id=? AND kind='INPUT_INVALIDATION' LIMIT 1",new String[]{id(hash)})){return c.moveToFirst();}}
+    /** Legacy evidence without a pin retains its original conservative global-revision guard. New runtime always pins. */
+    public static long revision(SQLiteDatabase db,String dataset){try(Cursor c=db.rawQuery("SELECT source_revision FROM r30r1_analysis_run WHERE run_id=? AND status=?",new String[]{id(dataset),STATUS})){if(c.moveToFirst()){if(invalid(db,dataset)||!triggersValid(db))throw new ResearchStoreR30R1.StaleResearch();return c.getLong(0);}}return SchemaR27.liveSourceRevision(db);}
+    public static void require(SQLiteDatabase db,String dataset,long revision){if(!SchemaR27.liveSourceTriggersValid(db)||revision(db,dataset)!=revision)throw new ResearchStoreR30R1.StaleResearch();}
+    public static void append(ResearchWriteQueueR27.Batch b,ReplayDatasetR27 d,long sourceRevision,long now){
+        if(d.size()==0||d.size()>10000||sourceRevision<0)throw new IllegalArgumentException("PIN_INPUT_BOUNDARY");
+        Map<String,Object> payload=new LinkedHashMap<>();StringBuilder raw=new StringBuilder();for(int i=0;i<d.size();i++){if(!TargetIssueResolver.isValid(d.issues[i])||TargetIssueResolver.sequenceOrdinalSU1(d.issues[i])!=d.ordinals[i])throw new IllegalArgumentException("PIN_CANONICAL_ISSUE");raw.append(d.issues[i]).append(':');for(int n:d.draws[i])raw.append((char)('a'+n-1));raw.append('\n');}
+        String encoded;try{ByteArrayOutputStream bytes=new ByteArrayOutputStream();try(GZIPOutputStream zip=new GZIPOutputStream(bytes)){zip.write(raw.toString().getBytes(StandardCharsets.UTF_8));}encoded=Base64.getEncoder().encodeToString(bytes.toByteArray());}catch(IOException e){throw new IllegalStateException(e);}
+        SplitR27 split=SplitR27.of(d,null);payload.put("schema",VERSION);payload.put("datasetHash",d.datasetHash);payload.put("rows",d.size());payload.put("compressedOriginalRows",encoded);payload.put("rawHash",StatsR27.sha256(raw.toString()));payload.put("split",split.describe());payload.put("trainTo",split.trainTo);payload.put("selectTo",split.selectTo);payload.put("holdoutTo",split.holdoutTo);payload.put("formalRowsRole","ORIGINAL_CONFIRM_AND_OPEN_RETAINED_FOR_RECOVERY_ONLY_NOT_SHARED_OPTIMIZATION");payload.put("firstIssue",d.issues[0]);payload.put("lastIssue",d.issues[d.size()-1]);
+        String json=JsonR27.write(payload),hash=StatsR27.sha256(json);
+        b.guardBefore(db->{if(SchemaR27.liveSourceRevision(db)!=sourceRevision||!triggersValid(db))throw new ResearchStoreR30R1.StaleResearch();return 0;});
+        b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",id(d.datasetHash),d.datasetHash,StatsR27.sha256("ORIGINAL_DATASET_INPUT"),"SELECT",BuildConfig.SOURCE_COMMIT_R26,sourceRevision,d.ordinals[0],d.ordinals[d.size()-1],hash,STATUS,json,now);
+        b.guardAfter(db->{try(Cursor c=db.rawQuery("SELECT contract_hash,summary_json FROM r30r1_analysis_run WHERE run_id=?",new String[]{id(d.datasetHash)})){if(!c.moveToFirst()||!hash.equals(c.getString(0))||!json.equals(c.getString(1)))throw new IllegalStateException("PIN_IDENTITY_CONFLICT");}return 0;});
+    }
+    @SuppressWarnings("unchecked") public static Pin load(SQLiteDatabase db,String hash){try(Cursor c=db.rawQuery("SELECT source_revision,summary_json,contract_hash FROM r30r1_analysis_run WHERE run_id=? AND status=?",new String[]{id(hash),STATUS})){if(!c.moveToFirst())return null;String json=c.getString(1);if(!StatsR27.sha256(json).equals(c.getString(2)))throw new IllegalStateException("PIN_PAYLOAD_HASH");Map<String,Object> p=(Map<String,Object>)JsonR27.parse(json);String encoded=(String)p.get("compressedOriginalRows");if(encoded.length()>1048576)throw new IllegalStateException("PIN_BOUNDS");ByteArrayOutputStream raw=new ByteArrayOutputStream();try(InputStream zip=new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(encoded)))){byte[] buffer=new byte[8192];int n;while((n=zip.read(buffer))!=-1){raw.write(buffer,0,n);if(raw.size()>1048576)throw new IllegalStateException("PIN_RAW_BOUNDS");}}catch(IOException e){throw new IllegalStateException("PIN_GZIP",e);}String text=new String(raw.toByteArray(),StandardCharsets.UTF_8);if(!StatsR27.sha256(text).equals(p.get("rawHash")))throw new IllegalStateException("PIN_RAW_HASH");List<ReplayDatasetR27.Row> rows=new ArrayList<>();for(String line:text.split("\n")){if(line.length()!=23||line.charAt(12)!=':')throw new IllegalStateException("PIN_ROW");int[] values=new int[10];for(int i=0;i<10;i++)values[i]=line.charAt(13+i)-'a'+1;String issue=line.substring(0,12);rows.add(new ReplayDatasetR27.Row(issue,TargetIssueResolver.sequenceOrdinalSU1(issue),values));}ReplayDatasetR27 d=ReplayDatasetR27.of(rows);if(d.rejectedRows!=0||!hash.equals(d.datasetHash)||d.size()!=((Number)p.get("rows")).intValue()||!SplitR27.of(d,null).describe().equals(p.get("split")))throw new IllegalStateException("PIN_DATASET_OR_ROLE_HASH");return new Pin(d,c.getLong(0));}}
+}

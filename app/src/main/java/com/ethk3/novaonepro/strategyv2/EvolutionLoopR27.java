@@ -68,7 +68,7 @@ public final class EvolutionLoopR27 {
     public final EliteArchiveR27 archive = new EliteArchiveR27();
     private List<Pending> pending = new ArrayList<>();
     List<ResearchStoreR30R1.Ready> directedResearch=Collections.emptyList();
-    void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||SchemaR27.liveSourceRevision(db)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
+    void revalidateResearchAdmissions(android.database.sqlite.SQLiteDatabase db){for(Pending p:pending)if(p.researchProposal!=null){try(android.database.Cursor c=db.rawQuery("SELECT p.state,r.source_revision,r.source_commit,r.summary_json FROM r30r1_proposal p JOIN r30r1_analysis_run r ON r.run_id=p.run_id WHERE p.proposal_id=?",new String[]{p.researchProposal})){if(!c.moveToFirst()||!"READY".equals(c.getString(0))||ResearchInputPinR30R1.invalid(db,ctx.data.datasetHash)||ResearchInputPinR30R1.revision(db,ctx.data.datasetHash)!=c.getLong(1)||!ResearchStoreR30R1.currentSource(c.getString(2),c.getString(3))){p.state="RESEARCH_STALE";p.reason="SOURCE_OR_PROPOSAL_CHANGED_BEFORE_ORIGINAL_GATE";}}}}
     void commitResearchAdmissions(ResearchWriteQueueR27.Batch batch,long now){for(Pending p:pending)if(p.researchProposal!=null){
         if("BORN".equals(p.state))ResearchStoreR30R1.consume(batch,p.researchProposal,p.spec.policyHash(),generation,"ORIGINAL_BIRTH_GATE_R30_REPAIR1",now);
         else batch.add("UPDATE r30r1_proposal SET state=?,reason=? WHERE proposal_id=? AND state='READY'","RESEARCH_STALE".equals(p.state)?"STALE":"REJECTED",p.state+":"+p.reason,p.researchProposal);
@@ -114,6 +114,8 @@ public final class EvolutionLoopR27 {
         bestSelectSeen = Double.NEGATIVE_INFINITY; generationsWithoutSelectImprovement = 0;
         for (Member m : population) { m.trace = null; m.tau = ctx.temperature(m.spec); refresh(m); }
     }
+    /** A corrected development input cannot complete its old generation. No exposure, model, RNG or alpha is reset. */
+    void restartInvalidDevelopmentInput(){pending.clear();directedResearch=Collections.emptyList();pendingConfirmation=null;confirmationDispatched=false;step=1;generation++;}
     public EvalContextR27 context() { return ctx; }
     // Package-private hooks for HOST tests (H05/H12).
     void gateRegister(String hash, int[] sig) { gate.register(hash, sig); }

@@ -16,7 +16,7 @@ import java.util.Map;
  * r27-legacy-export, r27-health. Every slice reports a WaitKindR27 reason through the pool. */
 public final class RuntimeR27 implements AutoCloseable {
     public static final int DATASET_ROWS = 5000, REFRESH_NEW_ROWS = 360, LIVE_REBASE_ROWS = 6500;
-    public static final String LOOP = "MAIN";
+    public static final String LOOP = "MAIN_REPAIR1"; // MAIN stays readable by the pre-repair APK
     final DbStore store; final ResearchPoolR27 pool;
     // Evolution dataset snapshot (rebound only between generations).
     volatile ReplayDatasetR27 evoData; volatile FeatureCacheR27 evoCache; volatile ReplayDatasetR27 pendingData; volatile FeatureCacheR27 pendingCache;
@@ -81,9 +81,17 @@ public final class RuntimeR27 implements AutoCloseable {
             String latest = latestIssue(w.ro); if (latest == null) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS", 0, 0);
             long latestOrd = TargetIssueResolver.sequenceOrdinalSU1(latest);
             ReplayDatasetR27 cur = pendingData != null ? pendingData : evoData;
-            if (cur != null && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
+            if(cur==null){
+                String savedHash=null;
+                try(Cursor x=w.ro.rawQuery("SELECT dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1",new String[]{LOOP,"MAIN",LOOP})){if(x.moveToFirst())savedHash=x.getString(0);}
+                if(savedHash!=null){ResearchInputPinR30R1.Pin pin=ResearchInputPinR30R1.load(w.ro,savedHash);if(pin!=null){evoData=pin.data;evoCache=new FeatureCacheR27(pin.data);ModelSurfaceStoreR30.bindHistorical(w.ro,evoCache);return ResearchPoolR27.Outcome.progress(1,pin.data.ordinals[pin.data.size()-1]);}}
+            }
+
+            if (cur != null && !ResearchInputPinR30R1.invalid(w.ro,cur.datasetHash) && latestOrd - cur.ordinals[cur.size() - 1] < REFRESH_NEW_ROWS) return ResearchPoolR27.Outcome.idle("NO_NEW_EVENT", cur.ordinals[cur.size() - 1], latestOrd);
             long t0 = System.currentTimeMillis();
+            final long capturedRevision=SchemaR27.liveSourceRevision(w.ro);
             ReplayDatasetR27 d = StoreR27.loadDataset(w.ro, DATASET_ROWS);
+            if(capturedRevision<0||capturedRevision!=SchemaR27.liveSourceRevision(w.ro))return ResearchPoolR27.Outcome.idle("DEPENDENCY(DATASET_READ_SOURCE_CHANGED)",0,-1);
             if (d.size() < 3 * SplitR27.BLOCK) return ResearchPoolR27.Outcome.idle("WAITING_DRAWS:rows=" + d.size(), d.size(), 3 * SplitR27.BLOCK);
             FeatureCacheR27 c = new FeatureCacheR27(d);
             ModelSurfaceStoreR30.bindHistorical(w.ro,c);
@@ -91,6 +99,7 @@ public final class RuntimeR27 implements AutoCloseable {
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
             b.add("INSERT OR IGNORE INTO r27_replay_dataset(dataset_hash,from_issue,to_issue,rows,segments,split,built_at,build_ms) VALUES(?,?,?,?,?,?,?,?)",
                     d.datasetHash, d.issues[0], d.issues[d.size() - 1], d.size(), d.segments(), sp.describe(), System.currentTimeMillis(), System.currentTimeMillis() - t0);
+            ResearchInputPinR30R1.append(b,d,capturedRevision,System.currentTimeMillis());
             submit(w, "REPLAY_DATASET", b);
             if (evoData == null) { evoData = d; evoCache = c; } else { pendingData = d; pendingCache = c; }
             return ResearchPoolR27.Outcome.progress(1, d.ordinals[d.size() - 1]);
@@ -105,6 +114,12 @@ public final class RuntimeR27 implements AutoCloseable {
             EvolutionLoopR27 committed=evo;
             if(committed==null){committed=restoreOrCreate(w);ConfirmReadStoreR30.restore(w.ro,committed.ledger());}
             EvolutionLoopR27 loop=committed.preparedForkR30();
+            if(ResearchInputPinR30R1.invalid(w.ro,loop.context().data.datasetHash)){
+                if(pendingCache==null||ResearchInputPinR30R1.invalid(w.ro,pendingCache.data.datasetHash))return ResearchPoolR27.Outcome.idle("DEPENDENCY(CORRECTED_REPLAY_DATASET)",0,-1);
+                // Save the original cursor below before abandoning this invalid development generation. Exposure ledger/RNG/population remain.
+                loop.restartInvalidDevelopmentInput();
+            }
+
             // Never expose a learner draft or a newly rebound dataset before its artifact transaction succeeds.
             final FeatureCacheR27 selectedCache=loop.step==1&&pendingCache!=null?pendingCache:evoCache;
             final ReplayDatasetR27 selectedData=selectedCache.data;
@@ -130,6 +145,13 @@ public final class RuntimeR27 implements AutoCloseable {
             if(stepBefore==3)loop.revalidateResearchAdmissions(w.ro);
             loop.step();
             ResearchWriteQueueR27.Batch b = sink.batch;
+            final long inputRevision=ResearchInputPinR30R1.revision(w.ro,selectedData.datasetHash);
+            b.guardBefore(db->{ResearchInputPinR30R1.require(db,selectedData.datasetHash,inputRevision);return 0;});
+            if(ResearchInputPinR30R1.invalid(w.ro,committed.context().data.datasetHash)){
+                String old=committed.snapshot(),saved=StatsR27.sha256("INVALID_INPUT_CURSOR|"+old);
+                b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",saved,committed.context().data.datasetHash,StatsR27.sha256("RECOVERY_CURSOR"),"SELECT",BuildConfig.SOURCE_COMMIT_R26,0,committed.context().data.ordinals[0],committed.context().data.ordinals[committed.context().data.size()-1],StatsR27.sha256(old),"INVALID_INPUT_CURSOR_PRESERVED",old,System.currentTimeMillis());
+            }
+
             if(stepBefore==3)loop.commitResearchAdmissions(b,System.currentTimeMillis());
             if (stepBefore == 8 && loop.confirmationDispatched) FrozenConfirmationStoreR30.freeze(b,loop.pendingConfirmation,loop.context().data);
             if (confirmResult != null) FrozenConfirmationStoreR30.generationReport(b,w.ro,genBefore,confirmTask,confirmResult);
@@ -248,7 +270,7 @@ public final class RuntimeR27 implements AutoCloseable {
 
     EvolutionLoopR27 restoreOrCreate(ResearchPoolR27.Worker w) {
         EvolutionLoopR27.Config cfg = new EvolutionLoopR27.Config(); cfg.seed = System.currentTimeMillis();
-        try (Cursor c = w.ro.rawQuery("SELECT snapshot,dataset_hash FROM r27_evolution_cursor WHERE loop=?", new String[] {LOOP})) {
+        try (Cursor c = w.ro.rawQuery("SELECT snapshot,dataset_hash FROM r27_evolution_cursor WHERE loop IN (?,?) ORDER BY CASE loop WHEN ? THEN 0 ELSE 1 END LIMIT 1", new String[] {LOOP,"MAIN",LOOP})) {
             if (c.moveToFirst()) {
                 try { return EvolutionLoopR27.restore(c.getString(0), cfg, evoCache, null, System::currentTimeMillis); }
                 catch (RuntimeException mismatch) {

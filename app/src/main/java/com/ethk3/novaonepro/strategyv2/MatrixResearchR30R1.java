@@ -59,7 +59,7 @@ public final class MatrixResearchR30R1 {
     }
     static ResearchPoolR27.Outcome step(RuntimeR27 rt,ResearchPoolR27.Worker w)throws Exception{
         EvolutionLoopR27 evolution=rt.evo;if(evolution==null)return ResearchPoolR27.Outcome.idle("DEPENDENCY(r27-evolution)",0,-1);
-        EvalContextR27 ctx=evolution.context();long revision=SchemaR27.liveSourceRevision(w.ro);if(revision<0)return ResearchPoolR27.Outcome.idle("DEPENDENCY(SOURCE_REVISION)",0,-1);
+        EvalContextR27 ctx=evolution.context();if(ResearchInputPinR30R1.invalid(w.ro,ctx.data.datasetHash))return ResearchPoolR27.Outcome.idle("DEPENDENCY(CORRECTED_DATASET)",0,-1);long revision=ResearchInputPinR30R1.revision(w.ro,ctx.data.datasetHash);if(revision<0)return ResearchPoolR27.Outcome.idle("DEPENDENCY(SOURCE_REVISION)",0,-1);
         PolicySpecR27 policy=evolution.population.isEmpty()?null:evolution.population.get(0).spec;
         String input=StatsR27.sha256(ctx.data.datasetHash+"|"+revision+"|"+(policy==null?"NO_STUDENT":policy.policyHash()));
         for(MatrixRegistryR30.Definition def:MatrixRegistryR30.all())if(def.namespace.equals("R930")&&!def.kind.equals("COUNTERFACTUAL")){
@@ -67,7 +67,7 @@ public final class MatrixResearchR30R1 {
             long started=System.nanoTime();MatrixTensorR30R1.Tensor tensor=build(def.kind,ctx,policy,revision);long now=System.currentTimeMillis();Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("matrixId",def.id);receipt.put("inputIdentity",input);receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("sourceRevision",revision);receipt.put("role","SELECT");receipt.put("producerVersion",MatrixTensorR30R1.VERSION);receipt.put("status",tensor==null?"BLOCKED_DEPENDENCY":"PRODUCED");receipt.put("reason",tensor==null?dependency(def.kind):null);receipt.put("matrixHash",tensor==null?null:tensor.hash);receipt.put("costNs",System.nanoTime()-started);receipt.put("qualityEffective",null);
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();if(tensor!=null)MatrixTensorR30R1.append(b,tensor,now);
             b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,def.kind,JsonR27.write(receipt),now);
-            b.guardBefore(db->{if(SchemaR27.liveSourceRevision(db)!=revision)throw new ResearchStoreR30R1.StaleResearch();return 0;});
+            b.guardBefore(db->{ResearchInputPinR30R1.require(db,ctx.data.datasetHash,revision);return 0;});
             if(tensor!=null)ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(tensor.throughOrdinal,tensor.throughOrdinal,null,null,tensor.throughOrdinal,tensor.hash));
             try{RuntimeR27.submit(w,"MATRIX_TYPED",b);}catch(RuntimeException sourceChanged){if(ResearchStoreR30R1.stale(sourceChanged))return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE_CHANGED_RETRY)",0,-1);throw sourceChanged;}
             return tensor==null?ResearchPoolR27.Outcome.idle("DEPENDENCY("+dependency(def.kind)+")",0,-1):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);

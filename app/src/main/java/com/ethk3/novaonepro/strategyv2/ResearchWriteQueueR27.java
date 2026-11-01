@@ -40,6 +40,11 @@ public final class ResearchWriteQueueR27 {
             final DatabaseCoordinator.WriteCallable<Integer> prior=before;
             before=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r<0)return -1;}Integer result=guard.call(db);return result==null?-1:result;};return this;
         }
+        public Batch guardAfter(DatabaseCoordinator.WriteCallable<Integer> guard) {
+            if(guard==null)throw new IllegalArgumentException("R30_BATCH_GUARD_REQUIRED");
+            final DatabaseCoordinator.WriteCallable<Integer> prior=after;
+            after=db->{if(prior!=null){Integer r=prior.call(db);if(r==null||r<0)return -1;}Integer result=guard.call(db);return result==null?-1:result;};return this;
+        }
     }
 
     public void setNextDeadline(long wallMs) { nextDeadline = wallMs; }
