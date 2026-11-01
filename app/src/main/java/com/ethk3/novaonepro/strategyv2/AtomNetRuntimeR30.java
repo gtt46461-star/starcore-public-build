@@ -42,6 +42,7 @@ public final class AtomNetRuntimeR30 {
             next.materializedSamples+=n;next.materializeMs+=(System.nanoTime()-begin)/1_000_000L;
         }else if(!next.ready()) n=next.work(AtomNetStoreR30.samples(w.ro,next));
         else{
+            final long sourceRevision=SchemaR27.liveSourceRevision(w.ro);
             ReplayDatasetR27 recent=StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64);
             int t=-1;OnlineResearchWindowR30R1.Window collected=null;
             for(int i=AtomReplayR27.MIN_ROWS;i<recent.size();i++)if(recent.issues[i].compareTo(next.completeIssue)>0){
@@ -54,9 +55,10 @@ public final class AtomNetRuntimeR30 {
             if(frame.values[p]==null)return ResearchPoolR27.Outcome.idle("BLOCKED_POSITION_INPUT",next.trainer.onlineSteps,-1);
             double[] x=AtomNetR27.positionedInput(AtomReplayR27.features(frame.values[p],frame.present[p],true),p+1);
             settle(b,w,recent.issues[t],p+1,frame.hit[p],now);
+            final String collectionRun=collected.id;b.guardBefore(db->{if(sourceRevision<0||SchemaR27.liveSourceRevision(db)!=sourceRevision||!SchemaR27.liveSourceTriggersValid(db))return -1;try(Cursor invalid=db.rawQuery("SELECT 1 FROM r30r1_research_measure WHERE run_id=? AND kind='INPUT_INVALIDATION' LIMIT 1",new String[]{collectionRun})){return invalid.moveToFirst()?-1:0;}});
             next.online(new AtomNetTrainerR27.Sample(x,frame.hit[p],frame.actual[p]-1,AtomNetSessionR30.eventKey(recent.issues[t],p+1)),recent.issues[t],recent.ordinals[t],p+1);n=1;
         }
-        AtomNetStoreR30.checkpoint(b,next,System.currentTimeMillis());RuntimeR27.submit(w,"ATOMNET_R30_SLICE",b);
+        AtomNetStoreR30.checkpoint(b,next,System.currentTimeMillis());try{RuntimeR27.submit(w,"ATOMNET_R30_SLICE",b);}catch(IllegalStateException changed){if(QualificationInboxR29.precondition(changed))return ResearchPoolR27.Outcome.idle("DEPENDENCY(NEURAL_SOURCE_CHANGED_PREPARED_RETRY)",saved.trainer.onlineSteps,-1);throw changed;}
         rt.publishAtomStateR30(next);
         if(next.ready())forecast(rt,w,next,StoreR27.loadDataset(w.ro,AtomReplayR27.HISTORY+64));
         return ResearchPoolR27.Outcome.progress(n,++rt.atomUnitsR30);
