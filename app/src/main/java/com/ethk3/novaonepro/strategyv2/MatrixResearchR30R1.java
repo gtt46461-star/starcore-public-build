@@ -67,9 +67,9 @@ public final class MatrixResearchR30R1 {
             long started=System.nanoTime();MatrixTensorR30R1.Tensor tensor=build(def.kind,ctx,policy,revision);long now=System.currentTimeMillis();Map<String,Object> receipt=new LinkedHashMap<>();receipt.put("matrixId",def.id);receipt.put("inputIdentity",input);receipt.put("datasetHash",ctx.data.datasetHash);receipt.put("sourceRevision",revision);receipt.put("role","SELECT");receipt.put("producerVersion",MatrixTensorR30R1.VERSION);receipt.put("status",tensor==null?"BLOCKED_DEPENDENCY":"PRODUCED");receipt.put("reason",tensor==null?dependency(def.kind):null);receipt.put("matrixHash",tensor==null?null:tensor.hash);receipt.put("costNs",System.nanoTime()-started);receipt.put("qualityEffective",null);
             ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();if(tensor!=null)MatrixTensorR30R1.append(b,tensor,now);
             b.add("INSERT OR REPLACE INTO r27_chart_cache VALUES(?,?,?,?)",PANEL,def.kind,JsonR27.write(receipt),now);
-            b.guardBefore(db->{if(SchemaR27.liveSourceRevision(db)!=revision)throw new IllegalStateException("MATRIX_SOURCE_CHANGED");return 0;});
+            b.guardBefore(db->{if(SchemaR27.liveSourceRevision(db)!=revision)throw new ResearchStoreR30R1.StaleResearch();return 0;});
             if(tensor!=null)ResearchStoreR30R1.appendOwnedProgress(b,-1,new ResearchStoreR30R1.Facts(tensor.throughOrdinal,tensor.throughOrdinal,null,null,tensor.throughOrdinal,tensor.hash));
-            RuntimeR27.submit(w,"MATRIX_TYPED",b);
+            try{RuntimeR27.submit(w,"MATRIX_TYPED",b);}catch(RuntimeException sourceChanged){if(ResearchStoreR30R1.stale(sourceChanged))return ResearchPoolR27.Outcome.idle("DEPENDENCY(MATRIX_SOURCE_CHANGED_RETRY)",0,-1);throw sourceChanged;}
             return tensor==null?ResearchPoolR27.Outcome.idle("DEPENDENCY("+dependency(def.kind)+")",0,-1):ResearchPoolR27.Outcome.progress(1,tensor.throughOrdinal);
         }
         return ResearchPoolR27.Outcome.idle("WAITING_NEW_RESEARCH_INPUT",0,-1);

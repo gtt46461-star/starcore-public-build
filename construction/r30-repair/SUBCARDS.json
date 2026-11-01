@@ -282,6 +282,15 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java"
       ],
       "reason": "先登记：原SU2 schema owner增加可空input-through/commit后可用时刻/消费计数，原checkpoint身份不换日历。原generation事务返回后才观察availableAt；进程在间隙死亡则UNKNOWN，不倒填。矩阵评分提交保留source generation和原graded cursor CAS。"
+    },
+    {
+      "id": "FR-B01-03-b",
+      "card": "FR-B01-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/DiagnosisRulesR30.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30DiagnosisRulesTest.java"
+      ],
+      "reason": "先登记：诊断action优先指向本返修FR-Bxx施工卡，旧R30-Bxx只保留legacyCard供历史追溯；实际typed pending/校准/模型来源更新，避免用户把历史方案误当当前待施工。"
     }
   ]
 }

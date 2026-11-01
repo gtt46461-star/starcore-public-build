@@ -27,14 +27,14 @@ public final class DiagnosisRulesR30 {
             r("WRITER_HARD","M07","writerHardViolations","r30_writer_hold.over_hard","R30-B01-04",
               "strategyv2/ResearchWriteQueueR27","submit",Mode.VIOLATION_COUNT,
               "写锁窗口存在硬超限；按窗口的 operation 定位实际写者",
-              "读取 writerWindows.operation/critical，按 B01-04 的幂等分片模板拆对应操作；计算移到事务外，保留写队列与实时优先级",
+              "读取 writerWindows.operation/critical，按 FR-B02-02/FR-B02-03 的幂等分片合同拆对应操作；计算移到事务外，保留写队列与实时优先级",
               "在目标设备运行实际写者并收集 WriterHoldLedgerR30.record 的窗口、operation、count 和 hold/wait 分位数",
               "R30WriterHoldLedgerTest、R30ChunkedWriterTest；目标设备复测相同 operation 的硬超限与实时结算"),
             r("TASK_STALLED","M12","taskStalled","r26_task -> TaskLivenessR30.summary.m12","R30-B01-05",
               "strategyv2/ResearchPoolR27","loop",Mode.VIOLATION_COUNT,
               "有积压的任务至少五期未提交",
               "按 taskLiveness.tasks.taskId 对照 tasks 的 wait_kind/blocked_reason/cursor，检查租约和依赖；修复对应任务的分片提交，保留游标",
-              "采集每个任务 pending、last_committed_seq 和当前真实期号；补齐被限量展示省略的任务，依赖等待与等待新期分别记录",
+              "采集 r30r1_task_progress 的 pending、last_commit_clock_ordinal、work_unit、artifact_identity 和当前真实期号；补齐被限量展示省略的任务，依赖等待与等待新期分别记录",
               "R30TaskLivenessTest；有积压五期告警、等待新期不误报、缺字段保持 UNKNOWN"),
             r("RECEIPT_STATE","M32","receiptStateMismatches","r29_qual_receipt / r27_eprocess.n","R30-B03-06",
               "strategyv2/QualificationInboxR29","rebuild",Mode.VIOLATION_COUNT,
@@ -66,7 +66,7 @@ public final class DiagnosisRulesR30 {
               "检查 task_key/state 与已登记确认曝光，恢复原冻结确认任务；禁止回读 H_CONFIRM 调参或重置曝光预算",
               "导出 r30_frozen_confirm 与 r30_confirm_read 的冻结候选/数据hash、预约和完成状态",
               "FrozenConfirmationR30HostTest 中断恢复、重复曝光拒绝、原始证据重用与登记一致"),
-            r("MODEL_STATE","M20","modelCheckpoints","r29_model_checkpoint ATOMNET_TEN_R30/ATOMNET_FTRL","R30-B05-03",
+            r("MODEL_STATE","M20","modelCheckpoints","r29_model_checkpoint ATOMNET_TEN_R30_REPAIR1；旧 ATOMNET_TEN_R30/ATOMNET_FTRL 原件保留","R30-B05-03",
               "strategyv2/ModelArtifactR29","decode",Mode.RECORDED_COUNT,
               "当前 NN checkpoint 不足以证明可恢复全状态训练",
               "核对 owner/ABI/dataset/state_hash，完整解码权重/优化器/RNG/游标后重跑中断恢复；保留旧 ABI 模型，不用缓存冒充模型",
@@ -113,7 +113,7 @@ public final class DiagnosisRulesR30 {
               "独立未来期数只能说明已存样本，不能宣称自然命中达标",
               "按事前登记、ACT和自然期号去重审核真实样本及证书，保留原统计门槛；回放/合成/重复策略样本另列",
               "在目标设备采集事前登记到自然FUTURE结算的原始冻结、ACT命中、时间块、校准和序贯证据",
-              "B10自然Q01–Q07逐项验收；样本不足为INSUFFICIENT，未测不填0/PASS"),
+              "FR-B11-03自然Q01–Q07逐项验收；样本不足为INSUFFICIENT，未测不填0/PASS"),
             r("SNAPSHOT_CAPTURE","M32","captureErrors","ReportSnapshotR30.capture sourceErrors","R30-B08-01",
               "strategyv2/ReportSnapshotR30","capture",Mode.VIOLATION_COUNT,
               "报告快照采集失败或部分来源不可用",
@@ -122,6 +122,22 @@ public final class DiagnosisRulesR30 {
               "ReportSnapshotR30HostTest 并发写入、缺源、UTF8、水位及冲突原样显示")
         ));
     }
+    static List<String> currentRepairCards(String id){String cards;switch(id){
+        case "WRITER_HARD":cards="FR-B02-01 FR-B02-02 FR-B02-03";break;
+        case "TASK_STALLED":cards="FR-B03-01 FR-B03-04 FR-B07-04";break;
+        case "RECEIPT_STATE":case "QUAL_CONFLICT":cards="FR-B05-03 FR-B05-05";break;
+        case "UNSAFE_DECISION":cards="FR-B05-04 FR-B05-05";break;
+        case "PIT_REJECTIONS":cards="FR-B04-05";break;
+        case "CONFIRM_EVIDENCE":cards="FR-B05-01 FR-B05-02";break;
+        case "MODEL_STATE":case "ABI_CONTINUITY":cards="FR-B04-01 FR-B04-02 FR-B04-03";break;
+        case "MODEL_CONSUMER":cards="FR-B04-04 FR-B04-05";break;
+        case "CALIBRATION":cards="FR-B06-06 FR-B08-04";break;
+        case "NATIVE_MATRIX":case "SU2_MATRIX":cards="FR-B06-01 FR-B06-02 FR-B06-03";break;
+        case "ABLATION":cards="FR-B07-01 FR-B08-01";break;
+        case "NATURAL_SAMPLE":cards="FR-B11-03";break;
+        case "SNAPSHOT_CAPTURE":cards="FR-B01-04 FR-B10-03";break;
+        default:throw new IllegalArgumentException("UNMAPPED_REPAIR_DIAGNOSIS:"+id);
+    }return Collections.unmodifiableList(Arrays.asList(cards.split(" ")));}
     static Long count(Object value) {
         if (!(value instanceof Number)) return null;
         double d=((Number)value).doubleValue();
@@ -150,7 +166,7 @@ public final class DiagnosisRulesR30 {
             evidence.put("source",rule.source);evidence.put("snapshotWatermark",watermark);
             if(rule.field.equals("captureErrors"))evidence.put("sourceErrors",errors);
             Map<String,Object> action=new LinkedHashMap<>();action.put("file",rule.file);action.put("method",rule.method);
-            action.put("code",rule.file+":"+rule.method);action.put("card",rule.card);
+            action.put("code",rule.file+":"+rule.method);action.put("card",currentRepairCards(rule.id).get(0));action.put("repairCards",currentRepairCards(rule.id));action.put("legacyCard",rule.card);action.put("plan","R30_REPAIR_FINAL_20261101");
             action.put("instruction",value==null||state.equals("INSUFFICIENT")?rule.collect:rule.repair);
             action.put("verification",rule.verification);
             Map<String,Object> finding=new LinkedHashMap<>();finding.put("id",rule.id);finding.put("metric",rule.metric);

@@ -67,7 +67,7 @@ public final class ResearchStoreR30R1 {
         String run=c.key("PAIRED_COMPONENT_ANALYSIS_V1|"+e.analysisContractHash+'|'+advice.componentPath);Map<String,Object> summary=new LinkedHashMap<>();
         summary.put("sourceContract",PairedReplayRunnerR30R1.contractJson(c));summary.put("counterfactualHash",measuredCounterfactualHash);summary.put("componentPath",advice.componentPath);summary.put("status",e.status);summary.put("observedCalendarIssues",(long)e.observedCalendarIssues);summary.put("evaluatedIssues",(long)e.evaluatedIssues);summary.put("completeBlocks",(long)e.completeBlocks);summary.put("incompleteBlocks",(long)e.incompleteBlocks);summary.put("incompleteFullBlocks",(long)e.incompleteFullBlocks);summary.put("excludedTailIssues",(long)e.excludedTailIssues);summary.put("missingIssues",(long)e.missingIssues);summary.put("mean",e.meanBlockGain);summary.put("lower95",e.lower95);summary.put("upper95",e.upper95);
         ResearchWriteQueueR27.Batch b=new ResearchWriteQueueR27.Batch();
-        b.guardBefore(db->SchemaR27.liveSourceRevision(db)==c.sourceRevision&&SchemaR27.liveSourceTriggersValid(db)?0:-1);
+        b.guardBefore(db->{if(!SchemaR27.liveSourceTriggersValid(db))throw new IllegalStateException("RESEARCH_SOURCE_TRIGGER_CONFLICT");if(SchemaR27.liveSourceRevision(db)!=c.sourceRevision)throw new StaleResearch();return 0;});
         b.add("INSERT OR IGNORE INTO r30r1_analysis_run VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,c.datasetHash,c.policyHash,c.role.name(),c.sourceCommit,c.sourceRevision,c.fromOrdinal,c.throughOrdinal,e.analysisContractHash,"COMMITTED",JsonR27.write(summary),now);
         b.add("INSERT OR IGNORE INTO r30r1_research_measure VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",run,advice.componentPath,"ATOM_PAIRED_GAIN",c.policyHash,"REGISTERED_CALENDAR_BLOCKS",c.fromOrdinal,c.throughOrdinal,e.evaluatedIssues,e.meanBlockGain,e.lower95,e.upper95,JsonR27.write(summary));
         if(advice.action==ResearchAdviceR30R1.Action.PRUNE_COMPONENT){Map<String,Object> p=new LinkedHashMap<>();p.put("componentPath",advice.componentPath);p.put("candidate",measuredCounterfactualJson);p.put("candidateHash",measuredCounterfactualHash);p.put("evidenceKey",advice.evidenceKey);p.put("analysisContractHash",e.analysisContractHash);
@@ -93,6 +93,7 @@ public final class ResearchStoreR30R1 {
     }
     static String runnerIssue(long ordinal){return com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(ordinal);}
 
+    static boolean stale(Throwable failure){for(Throwable t=failure;t!=null&&t.getCause()!=t;t=t.getCause())if(t instanceof StaleResearch)return true;return false;}
     public static final class StaleResearch extends IllegalStateException {StaleResearch(){super("RESEARCH_CONSUME_STALE");}}
     public static final class Ready {public final String proposal;public final PolicySpecR27 child;Ready(String proposal,PolicySpecR27 child){this.proposal=proposal;this.child=child;}}
     @SuppressWarnings("unchecked") public static List<Ready> ready(SQLiteDatabase db,EvalContextR27 ctx,int generation,int limit){
