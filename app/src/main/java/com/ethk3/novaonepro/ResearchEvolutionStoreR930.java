@@ -217,52 +217,52 @@ public final class ResearchEvolutionStoreR930 {
     /** Original writer callback, also exercised on native SQLite. A conflict must abort every capture and matrix row. */
     public static boolean putSnapshotInTransaction(SQLiteDatabase db,MatrixSnapshotFeedbackR930.CommonSnapshot snapshot,long nowMs){
         if(!db.inTransaction()||snapshot==null||nowMs<=0)throw new IllegalStateException("R930_SNAPSHOT_ORIGINAL_TRANSACTION_REQUIRED");
-                        for (MatrixSnapshotFeedbackR930.CaptureRecord record
-                                : snapshot.capture.stages.values()) {
-                            ContentValues values = new ContentValues();
-                            values.put("capture_hash", record.captureHash);
-                            values.put("target_issue", record.targetIssue);
-                            values.put("max_source_issue", record.maxSourceIssue);
-                            values.put("stage", record.stage.name());
-                            values.put("frozen_at", record.frozenAtMs);
-                            values.put("freeze_hash", record.freezeHash);
-                            values.put("input_hash", record.inputHash);
-                            values.put("expected_rows", record.expectedRows);
-                            values.put("captured_rows", record.capturedRows);
-                            values.put("missing_rows", record.missingRows);
-                            values.put("cost_ns", record.costNs);
-                            values.put("payload_hash", record.payloadHash);
-                            values.put("complete", record.complete() ? 1 : 0);
-                            values.put("created_at", nowMs);
-                            if (db.insertWithOnConflict(T_CAPTURE, null, values,SQLiteDatabase.CONFLICT_IGNORE)<0L){
-                                try(Cursor c=db.rawQuery("SELECT capture_hash,payload_hash FROM "+T_CAPTURE+" WHERE target_issue=? AND stage=? AND freeze_hash=?",new String[]{record.targetIssue,record.stage.name(),record.freezeHash})){if(!c.moveToFirst()||!record.captureHash.equals(c.getString(0))||!record.payloadHash.equals(c.getString(1)))throw new IllegalStateException("R930_CAPTURE_KEY_CONFLICT");}
-                            }
-                        }
-                        for (MatrixSnapshotFeedbackR930.FrozenMatrix matrix
-                                : snapshot.matrices.values()) {
-                            ContentValues values = new ContentValues();
-                            values.put("matrix_hash", matrix.matrixHash);
-                            values.put("snapshot_hash", snapshot.snapshotHash);
-                            values.put("target_issue", matrix.targetIssue);
-                            values.put("max_source_issue", matrix.maxSourceIssue);
-                            values.put("kind", matrix.kind.name());
-                            values.put("frozen_at", matrix.frozenAtMs);
-                            values.put("input_stage", matrix.inputStage);
-                            values.put("graph_hash", matrix.graphHash);
-                            values.put("input_hash", matrix.inputHash);
-                            values.put("bundle_hash", snapshot.bundleHash);
-                            values.put("model_hash", matrix.modelHash);
-                            values.put("present_cells", matrix.presentCells());
-                            values.put("payload_json",matrix.payloadJsonR30());values.put("producer_version","R930_LEGACY_POSITION_NUMBER_V1");
-                            values.put("created_at", nowMs);
-                            if(db.insertWithOnConflict(T_MATRIX,null,values,SQLiteDatabase.CONFLICT_IGNORE)<0L){
-                                try(Cursor c=db.rawQuery("SELECT matrix_hash,payload_json FROM "+T_MATRIX+" WHERE snapshot_hash=? AND kind=?",new String[]{snapshot.snapshotHash,matrix.kind.name()})){if(!c.moveToFirst()||!matrix.matrixHash.equals(c.getString(0))||!c.isNull(1)&&!matrix.payloadJsonR30().equals(c.getString(1)))throw new IllegalStateException("R930_MATRIX_KEY_CONFLICT");}
-                                db.execSQL("UPDATE "+T_MATRIX+" SET payload_json=?,producer_version=? WHERE matrix_hash=? AND payload_json IS NULL",new Object[]{matrix.payloadJsonR30(),"R930_LEGACY_POSITION_NUMBER_V1",matrix.matrixHash});
-                            }
-                        }
-                        event(db, "COMMON_MATRIX_SNAPSHOT", snapshot.targetIssue,
-                                snapshot.snapshotHash, "RECORDED", "COMMON_FREEZE_PASS", nowMs);
-                        return true;
+        for (MatrixSnapshotFeedbackR930.CaptureRecord record
+                : snapshot.capture.stages.values()) {
+            ContentValues values = new ContentValues();
+            values.put("capture_hash", record.captureHash);
+            values.put("target_issue", record.targetIssue);
+            values.put("max_source_issue", record.maxSourceIssue);
+            values.put("stage", record.stage.name());
+            values.put("frozen_at", record.frozenAtMs);
+            values.put("freeze_hash", record.freezeHash);
+            values.put("input_hash", record.inputHash);
+            values.put("expected_rows", record.expectedRows);
+            values.put("captured_rows", record.capturedRows);
+            values.put("missing_rows", record.missingRows);
+            values.put("cost_ns", record.costNs);
+            values.put("payload_hash", record.payloadHash);
+            values.put("complete", record.complete() ? 1 : 0);
+            values.put("created_at", nowMs);
+            if (db.insertWithOnConflict(T_CAPTURE, null, values,SQLiteDatabase.CONFLICT_IGNORE)<0L){
+                try(Cursor c=db.rawQuery("SELECT capture_hash,payload_hash FROM "+T_CAPTURE+" WHERE target_issue=? AND stage=? AND freeze_hash=?",new String[]{record.targetIssue,record.stage.name(),record.freezeHash})){if(!c.moveToFirst()||!record.captureHash.equals(c.getString(0))||!record.payloadHash.equals(c.getString(1)))throw new IllegalStateException("R930_CAPTURE_KEY_CONFLICT");}
+            }
+        }
+        for (MatrixSnapshotFeedbackR930.FrozenMatrix matrix
+                : snapshot.matrices.values()) {
+            ContentValues values = new ContentValues();
+            values.put("matrix_hash", matrix.matrixHash);
+            values.put("snapshot_hash", snapshot.snapshotHash);
+            values.put("target_issue", matrix.targetIssue);
+            values.put("max_source_issue", matrix.maxSourceIssue);
+            values.put("kind", matrix.kind.name());
+            values.put("frozen_at", matrix.frozenAtMs);
+            values.put("input_stage", matrix.inputStage);
+            values.put("graph_hash", matrix.graphHash);
+            values.put("input_hash", matrix.inputHash);
+            values.put("bundle_hash", snapshot.bundleHash);
+            values.put("model_hash", matrix.modelHash);
+            values.put("present_cells", matrix.presentCells());
+            values.put("payload_json",matrix.payloadJsonR30());values.put("producer_version","R930_LEGACY_POSITION_NUMBER_V1");
+            values.put("created_at", nowMs);
+            if(db.insertWithOnConflict(T_MATRIX,null,values,SQLiteDatabase.CONFLICT_IGNORE)<0L){
+                try(Cursor c=db.rawQuery("SELECT matrix_hash,payload_json FROM "+T_MATRIX+" WHERE snapshot_hash=? AND kind=?",new String[]{snapshot.snapshotHash,matrix.kind.name()})){if(!c.moveToFirst()||!matrix.matrixHash.equals(c.getString(0))||!c.isNull(1)&&!matrix.payloadJsonR30().equals(c.getString(1)))throw new IllegalStateException("R930_MATRIX_KEY_CONFLICT");}
+                db.execSQL("UPDATE "+T_MATRIX+" SET payload_json=?,producer_version=? WHERE matrix_hash=? AND payload_json IS NULL",new Object[]{matrix.payloadJsonR30(),"R930_LEGACY_POSITION_NUMBER_V1",matrix.matrixHash});
+            }
+        }
+        event(db, "COMMON_MATRIX_SNAPSHOT", snapshot.targetIssue,
+                snapshot.snapshotHash, "RECORDED", "COMMON_FREEZE_PASS", nowMs);
+        return true;
     }
 
     public static boolean putAblation(final DbStore store,
