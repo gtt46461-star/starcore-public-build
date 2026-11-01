@@ -16,7 +16,7 @@ public final class OnlineResearchWindowR30R1 {
         public void require(long ordinal,long observedAt){if(ordinal<first||ordinal>last||observedAt<=registeredAt)throw new IllegalStateException("ONLINE_RESEARCH_WINDOW_OR_AVAILABILITY_MISMATCH");}
     }
     public static Window find(SQLiteDatabase db,String dataset,long ordinal){
-        try(Cursor c=db.rawQuery("SELECT run_id,from_ordinal,through_ordinal,recorded_at FROM r30r1_analysis_run WHERE dataset_hash=? AND policy_hash=? AND role='ONLINE_RESEARCH' AND status=? AND from_ordinal<=? AND through_ordinal>=? ORDER BY from_ordinal DESC LIMIT 1",new String[]{dataset,HashingSU1.text(AtomNetSessionR30.OWNER),STATUS,String.valueOf(ordinal),String.valueOf(ordinal)})){
+        try(Cursor c=db.rawQuery("SELECT run_id,from_ordinal,through_ordinal,recorded_at FROM r30r1_analysis_run WHERE dataset_hash=? AND policy_hash=? AND role='ONLINE_RESEARCH' AND status=? AND from_ordinal<=? AND through_ordinal>=? AND NOT EXISTS(SELECT 1 FROM r30r1_research_measure invalid WHERE invalid.run_id=r30r1_analysis_run.run_id AND invalid.kind='INPUT_INVALIDATION') ORDER BY from_ordinal DESC LIMIT 1",new String[]{dataset,HashingSU1.text(AtomNetSessionR30.OWNER),STATUS,String.valueOf(ordinal),String.valueOf(ordinal)})){
             return c.moveToFirst()?new Window(c.getString(0),c.getLong(1),c.getLong(2),c.getLong(3)):null;
         }
     }
