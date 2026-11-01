@@ -1,0 +1,92 @@
+Picked up JAVA_TOOL_OPTIONS:  -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Task :app:generateR27BuildIdentity
+R27_BUILD_IDENTITY_WRITTEN a45695adc1f459d54bdc5de2a7ca048644f0df9b 6b473d5dd1a298b11cd439d9ec472aba81bb4c20
+
+> Task :app:generateR997ConstructionAssets
+R997_CONSTRUCTION_ASSETS_GENERATED requirements=1832 statuses_preserved=TRUE
+
+> Task :app:verifyCatalogAssetsCP12
+CATALOG_IDENTITY_PASS|atoms=25350|seeds=4200|stream_line_cap=65536
+
+> Task :app:verifyPlan1025Schema
+SU2 production DDL: reproducible and executable
+
+> Task :app:generateR967Semantics
+R967_SEMANTIC_IDENTITY_GENERATED|f8b9d8f23b80892d64bfa42dfcebd43697156bdaa82256415f5e7769f703313c
+
+> Task :app:verifyR967Semantics
+R967_SEMANTIC_IDENTITY_VERIFIED|f8b9d8f23b80892d64bfa42dfcebd43697156bdaa82256415f5e7769f703313c
+
+> Task :app:generateR815Provenance
+R817_PROVENANCE=PASS|MODE=GENERATE|SOURCE=11e18abb6be4e0382d208f99c3728e073f758df31186e7b6eab56258de8c6410|RESOURCE=2f466bd1f59996018aa5dfeef3cebb5136fa9b36093ed21187212f728dbc3ab1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=7a8cba04257ccd9c8047a176f7da001b7da18b5a03da4775faa75f9d28206f7b|GENERATED_AT=2026-11-01T14:16:07Z
+
+> Task :app:verifyR815Provenance
+R817_PROVENANCE=PASS|MODE=CHECK|SOURCE=11e18abb6be4e0382d208f99c3728e073f758df31186e7b6eab56258de8c6410|RESOURCE=2f466bd1f59996018aa5dfeef3cebb5136fa9b36093ed21187212f728dbc3ab1|TOOLCHAIN=28b6d2c9188d8af4ccabee6776785b46ff5c675634f84b1fbc1779dd69c9212a|INPUTS=7a8cba04257ccd9c8047a176f7da001b7da18b5a03da4775faa75f9d28206f7b|GENERATED_AT=2026-11-01T14:16:07Z
+
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:generateDebugBuildConfig
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+
+> Task :app:compileDebugJavaWithJavac
+/workspace/starcore-r30-repair/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java:38: error: method fields in class HashingSU1 cannot be applied to given types;
+            try(Cursor tick=db.rawQuery("SELECT max(updated_at),count(*) FROM r27_chart_cache WHERE panel_id=?",new String[]{panel})){if(tick.moveToFirst()&&!tick.isNull(0)){long at=tick.getLong(0);commitProgress(db,task,claim.owner,claim.fence,calendar(db),new Facts(at/1000,at/1000,0L,null,null,HashingSU1.fields(task,at,tick.getLong(1))));}}return;
+                                                                                                                                                                                                                                                                                                                   ^
+  required: String[]
+  found:    String,long,long
+  reason: varargs mismatch; long cannot be converted to String
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: /workspace/starcore-r30-repair/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+1 error
+
+> Task :app:compileDebugJavaWithJavac FAILED
+
+[Incubating] Problems report is available at: file:///workspace/starcore-r30-repair/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler output below.
+  /workspace/starcore-r30-repair/app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java:38: error: method fields in class HashingSU1 cannot be applied to given types;
+              try(Cursor tick=db.rawQuery("SELECT max(updated_at),count(*) FROM r27_chart_cache WHERE panel_id=?",new String[]{panel})){if(tick.moveToFirst()&&!tick.isNull(0)){long at=tick.getLong(0);commitProgress(db,task,claim.owner,claim.fence,calendar(db),new Facts(at/1000,at/1000,0L,null,null,HashingSU1.fields(task,at,tick.getLong(1))));}}return;
+                                                                                                                                                                                                                                                                                                                     ^
+    required: String[]
+    found:    String,long,long
+    reason: varargs mismatch; long cannot be converted to String
+  Note: Recompile with -Xlint:deprecation for details.
+  Note: /workspace/starcore-r30-repair/app/src/main/java/com/ethk3/novaonepro/AutoFetchService.java uses unchecked or unsafe operations.
+  Note: Recompile with -Xlint:unchecked for details.
+  Note: Some input files use or override a deprecated API.
+  1 error
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.6/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 17s
+24 actionable tasks: 10 executed, 14 up-to-date

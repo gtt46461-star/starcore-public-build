@@ -135,6 +135,20 @@
         "tools/r30-repair/run_progress_host.py"
       ],
       "reason": "在原协作continuation上保留prepared局部状态与同一批次，200ms写重试后park并轮转服务；原唯一writer/lease/fence照常校验。Evolution仅在成功提交后发布私有draft；公开外部restore的完整验证不降级，内存fork仅复制已验证状态。57入口独立登记单位与明确依赖，主产物同事务记录有类型事实，调度receipt不再推进完成水位。先登记后施工。"
+    },
+    {
+      "id": "FR-B04-03-a",
+      "card": "FR-B04-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchStoreR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/OnlineResearchWindowR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/AtomWorldR27.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNeuralR30Test.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30TenPositionTrainingTest.java",
+        "tools/r30-repair/qual_host/RepairNeuralR30HostTest.java",
+        "tools/r30-repair/run_neural_host.py"
+      ],
+      "reason": "神经模型只从原TRAIN/SELECT和事前登记的新ONLINE_RESEARCH时间窗学习；保留原确认段，不以改名来读取正式标签。开发验证改用SELECT原输入；完整优化器/游标继续恢复，旧outer原始字节迁移前归档到已有不可变legacy checkpoint表。研究窗口登记复用6表之一analysis_run，非分析完成或自然质量证明。真实64行预取与模型消费缺失/过期/错误哈希用原生SQLite反证。先登记后施工。"
     }
   ]
 }
