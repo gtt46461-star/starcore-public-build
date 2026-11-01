@@ -61,7 +61,8 @@ public final class RuntimeR27 implements AutoCloseable {
         StringBuilder identity=new StringBuilder(op);
         for(ResearchWriteQueueR27.Op row:b.ops){identity.append('|').append(row.sql);if(row.args!=null)for(Object arg:row.args)identity.append('|').append(arg instanceof byte[]?StatsR27.sha256((byte[])arg):String.valueOf(arg));}
         byte[] preparedIdentity=HashingSU1.text(identity.toString()).getBytes(java.nio.charset.StandardCharsets.UTF_8);
-        CommitEnvelopeR30R1 envelope=new CommitEnvelopeR30R1(HashingSU1.text(op+"|"+new String(preparedIdentity,java.nio.charset.StandardCharsets.UTF_8)),0,0,preparedIdentity);
+        RuntimeCoordinatorR26.Claim claim=RuntimeCoordinatorR26.currentClaimR30();
+        CommitEnvelopeR30R1 envelope=new CommitEnvelopeR30R1(HashingSU1.text(op+"|"+new String(preparedIdentity,java.nio.charset.StandardCharsets.UTF_8)),claim==null?0:claim.fence,0,preparedIdentity);
         for(;;){
             if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
             CommitEnvelopeR30R1.Outcome outcome=envelope.attempt((id,fence,revision,state)->w.writes().submit(op,b,w::cancelled,freezeWrite)?CommitEnvelopeR30R1.Outcome.COMMITTED:CommitEnvelopeR30R1.Outcome.RETRY_LATER);

@@ -87,6 +87,8 @@ public final class ResearchWriteQueueR27 {
         if (!db.inTransaction()) throw new IllegalStateException("R29_BATCH_TRANSACTION_REQUIRED");
         if (batch.before != null) require(batch.before.call(db), operation);
         exec(db, batch);
+        // Any automatic task facts precede the original final deadline/source guard.
+        ResearchStoreR30R1.afterOwnedArtifact(db,"R27_"+operation,RuntimeCoordinatorR26.currentClaimR30());
         if (batch.after != null) require(batch.after.call(db), operation);
     }
     private static void require(Integer ok, String operation) {
