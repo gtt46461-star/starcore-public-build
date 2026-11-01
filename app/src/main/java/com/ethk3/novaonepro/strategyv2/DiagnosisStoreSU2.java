@@ -24,6 +24,9 @@ import java.util.*;
  */
 public final class DiagnosisStoreSU2 {
     private DiagnosisStoreSU2() {}
+    // Default-null, thread-local fault boundary; production callers never install a callback.
+    static final ThreadLocal<java.util.function.Consumer<String>> reportFaultR30R1=new ThreadLocal<>();
+    private static void reportStageR30R1(String stage){java.util.function.Consumer<String> fault=reportFaultR30R1.get();if(fault!=null)fault.accept(stage);}
     public static final int BLOCK = 500, KEEP_BLOCKS = 40, MAX_SHADOWS = 4, DAILY_DAYS = 90, BINDINGS = 10080, CHOICES = 2000;
     public static final long PROBE_SLICE_NANOS = 2_000_000_000L, CERT_KEEP_MS = 30L * 86400000L;
     static final String PROBE_OWNER = "PROBE";             // literal 'PROBE' in the retention SQL
@@ -77,24 +80,31 @@ public final class DiagnosisStoreSU2 {
     public static String[] report(SQLiteDatabase db) {
         String snap=null, stage="READ_SNAPSHOT";
         try {
+            reportStageR30R1(stage);
             try (Cursor c=db.rawQuery("SELECT snapshot FROM su2_diag_snapshot ORDER BY report_sequence DESC LIMIT 1",null)) { if(c.moveToFirst())snap=c.getString(0); }
             if(snap==null)return UpgradeDiagnosisSU2.unavailableR30("INSUFFICIENT","su2_diag_snapshot 可读但没有已存快照；原信息探针尚未产生诊断");
-            stage="PARSE_SNAPSHOT";UpgradeDiagnosisSU2.Snapshot parsed=UpgradeDiagnosisSU2.parse(snap);
-            stage="DIAGNOSE";UpgradeDiagnosisSU2.Diagnosis diagnosis=UpgradeDiagnosisSU2.diagnose(parsed);
-            stage="READ_LEDGER";UpgradeDiagnosisSU2.Ledger ledger=loadLedger(db);
-            stage="RENDER_MARKDOWN";String md=UpgradeDiagnosisSU2.renderR30(diagnosis,ledger);
-            stage="RENDER_JSON";return new String[]{md,UpgradeDiagnosisSU2.toJsonR30(diagnosis,ledger)};
+            stage="PARSE_SNAPSHOT";reportStageR30R1(stage);
+            if(!snap.startsWith("SU2DIAG\t1\n")&&!snap.startsWith("SU2DIAG\t1\r\n"))throw new IllegalArgumentException("SU2_DIAG_SNAPSHOT_HEADER");
+            UpgradeDiagnosisSU2.Snapshot parsed=UpgradeDiagnosisSU2.parse(snap);
+            stage="DIAGNOSE";reportStageR30R1(stage);UpgradeDiagnosisSU2.Diagnosis diagnosis=UpgradeDiagnosisSU2.diagnose(parsed);
+            stage="READ_LEDGER";reportStageR30R1(stage);UpgradeDiagnosisSU2.Ledger ledger=loadLedger(db);
+            stage="RENDER_MARKDOWN";reportStageR30R1(stage);String md=UpgradeDiagnosisSU2.renderR30(diagnosis,ledger);
+            stage="RENDER_JSON";reportStageR30R1(stage);return new String[]{md,UpgradeDiagnosisSU2.toJsonR30(diagnosis,ledger)};
         } catch(RuntimeException failure) {
             String fingerprint=failure.getClass().getName();
-            List<Object> chain=new ArrayList<>();
-            for(StackTraceElement frame:failure.getStackTrace()) {
-                if(frame.getClassName().startsWith("com.ethk3.novaonepro."))chain.add(frame.toString());
-                if(chain.size()==12)break;
+            List<Object> chain=new ArrayList<>(),causes=new ArrayList<>();
+            Set<Throwable> seen=Collections.newSetFromMap(new IdentityHashMap<Throwable,Boolean>());
+            for(Throwable cause=failure;cause!=null&&causes.size()<8&&seen.add(cause);cause=cause.getCause()) {
+                causes.add(cause.getClass().getName());
+                for(StackTraceElement frame:cause.getStackTrace()) {
+                    if(chain.size()==12)break;
+                    if(frame.getClassName().startsWith("com.ethk3.novaonepro."))chain.add(frame.toString());
+                }
             }
             String reason="诊断来源读取失败："+fingerprint+"；stage="+stage+"；"+(chain.isEmpty()?"NO_PRODUCT_FRAME":chain.get(0));
             String[] result=UpgradeDiagnosisSU2.unavailableR30("UNKNOWN",reason);
             @SuppressWarnings("unchecked") Map<String,Object> json=new LinkedHashMap<>((Map<String,Object>)JsonR27.parse(result[1]));
-            json.put("failureStage",stage);json.put("errorChain",chain);json.put("snapshotHash",snap==null?null:HashingSU1.text(snap));
+            json.put("failureStage",stage);json.put("errorChain",chain);json.put("exceptionTypes",causes);json.put("snapshotHash",snap==null?null:HashingSU1.text(snap));
             result[1]=JsonR27.write(json)+"\n";return result;
         }
     }

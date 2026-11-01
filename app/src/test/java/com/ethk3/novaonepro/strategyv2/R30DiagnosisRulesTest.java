@@ -16,7 +16,7 @@ public final class R30DiagnosisRulesTest {
         Map<String,Object> facts=new HashMap<>();facts.put("writerHardViolations",3L);facts.put("receiptStateMismatches",2L);facts.put("unsafeDecisionMismatches",1L);facts.put("pitViolations",4L);facts.put("calibratedPolicies",40L);facts.put("independentFutureIssues",10000L);facts.put("modelCheckpoints",0L);facts.put("openQualificationConflicts",0L);
         Map<String,Object> mark=Collections.singletonMap("factsReadAt",123L);
         Map<String,Object> report=DiagnosisRulesR30.evaluate(facts,Collections.emptyMap(),mark,Collections.emptyList());
-        assertEquals("DETECTED",find(report,"WRITER_HARD").get("status"));assertEquals("DETECTED",find(report,"RECEIPT_STATE").get("status"));assertEquals("DETECTED",find(report,"UNSAFE_DECISION").get("status"));assertEquals("REVIEW_GUARD_REJECTIONS",find(report,"PIT_REJECTIONS").get("status"));
+        assertEquals("DETECTED",find(report,"WRITER_HARD").get("status"));assertEquals("M07",find(report,"WRITER_HARD").get("metric"));assertEquals("DETECTED",find(report,"RECEIPT_STATE").get("status"));assertEquals("DETECTED",find(report,"UNSAFE_DECISION").get("status"));assertEquals("REVIEW_GUARD_REJECTIONS",find(report,"PIT_REJECTIONS").get("status"));
         assertEquals("RECORDED_UNVALIDATED",find(report,"CALIBRATION").get("status"));assertEquals("RECORDED_UNVALIDATED",find(report,"NATURAL_SAMPLE").get("status"));assertEquals("INSUFFICIENT",find(report,"MODEL_STATE").get("status"));assertEquals("CLEAR_IN_CAPTURED_SCOPE",find(report,"QUAL_CONFLICT").get("status"));assertFalse(find(report,"QUAL_CONFLICT").get("conclusion").toString().contains("仍有未解决"));
         assertSame(mark,((Map<?,?>)find(report,"WRITER_HARD").get("evidence")).get("snapshotWatermark"));
     }
