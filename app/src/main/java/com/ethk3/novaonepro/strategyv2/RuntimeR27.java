@@ -55,13 +55,16 @@ public final class RuntimeR27 implements AutoCloseable {
     static String latestIssue(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT issue FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getString(0) : null; } }
     static long latestOpen(SQLiteDatabase ro) { try (Cursor c = ro.rawQuery("SELECT open_time FROM draws WHERE dirty=0 ORDER BY issue DESC LIMIT 1", null)) { return c.moveToFirst() ? c.getLong(0) : 0; } }
     static void submit(ResearchPoolR27.Worker w, String op, ResearchWriteQueueR27.Batch b) throws InterruptedException {
+        submit(w,op,b,false);
+    }
+    static void submit(ResearchPoolR27.Worker w,String op,ResearchWriteQueueR27.Batch b,boolean freezeWrite)throws InterruptedException {
         StringBuilder identity=new StringBuilder(op);
         for(ResearchWriteQueueR27.Op row:b.ops){identity.append('|').append(row.sql);if(row.args!=null)for(Object arg:row.args)identity.append('|').append(arg instanceof byte[]?StatsR27.sha256((byte[])arg):String.valueOf(arg));}
         byte[] preparedIdentity=HashingSU1.text(identity.toString()).getBytes(java.nio.charset.StandardCharsets.UTF_8);
         CommitEnvelopeR30R1 envelope=new CommitEnvelopeR30R1(HashingSU1.text(op+"|"+new String(preparedIdentity,java.nio.charset.StandardCharsets.UTF_8)),0,0,preparedIdentity);
         for(;;){
             if(w.cancelled())throw new InterruptedException("R27_CANCELLED");
-            CommitEnvelopeR30R1.Outcome outcome=envelope.attempt((id,fence,revision,state)->w.writes().submit(op,b,w::cancelled)?CommitEnvelopeR30R1.Outcome.COMMITTED:CommitEnvelopeR30R1.Outcome.RETRY_LATER);
+            CommitEnvelopeR30R1.Outcome outcome=envelope.attempt((id,fence,revision,state)->w.writes().submit(op,b,w::cancelled,freezeWrite)?CommitEnvelopeR30R1.Outcome.COMMITTED:CommitEnvelopeR30R1.Outcome.RETRY_LATER);
             if(outcome==CommitEnvelopeR30R1.Outcome.COMMITTED){envelope.publishedState();return;}
             CooperativeContinuationR26.yieldPreparedWrite();
         }

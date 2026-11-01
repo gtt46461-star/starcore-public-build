@@ -64,7 +64,7 @@ public final class LegacyContinuityR27 {
         ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch(); long now = System.currentTimeMillis();
         b.add("INSERT OR REPLACE INTO r27_semantic_fingerprint(policy_hash,build,fingerprint,operator_abi,rows_blob,computed_at) VALUES(?,?,?,?,NULL,?)", rosterKey, current, fp[0], operatorAbi, now);
         if (needDecision) b.add("INSERT OR IGNORE INTO r27_abi_continuity(policy_hash,old_build,new_build,result,first_diff_issue,first_diff_field,checked_at) VALUES(?,?,?,?,?,?,?)", KEY, stored, current, result, null, field, now);
-        while (!writes.submit("LEGACY_ABI_CONTINUITY", b, () -> false)) Thread.sleep(50);
+        while (!writes.submit("LEGACY_ABI_CONTINUITY", b, Thread.currentThread()::isInterrupted)) {if(Thread.currentThread().isInterrupted())throw new InterruptedException("R30_ABI_CANCELLED");CooperativeContinuationR26.yieldPreparedWrite();}
         RuntimeCoordinatorR26.wake();
         return 1;
     }

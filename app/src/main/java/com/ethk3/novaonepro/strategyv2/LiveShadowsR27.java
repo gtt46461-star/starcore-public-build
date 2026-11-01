@@ -161,7 +161,7 @@ public final class LiveShadowsR27 {
             });
             b.after = b.before; // Both the source and the original 5 s margin must still hold before commit.
             if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,?,?,0,0,?)", target, targetIssue, todo.size(), frozen, acted, System.currentTimeMillis());
-            try { while (!w.writes().submit(opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); } return todo.size(); }
+            try { RuntimeR27.submit(w,opportunity ? "LIVE_FREEZE" : "OBSERVE_FREEZE",b,true);return todo.size(); }
             catch (IllegalStateException late) {
                 if (causedBy(late, "R30_FREEZE_SOURCE_CHANGED")) {
                     recordSourceWait(w,todo,target,"SOURCE_CHANGED_BEFORE_COMMIT"); return 0;
@@ -174,7 +174,7 @@ public final class LiveShadowsR27 {
         for (Shadow s : todo) b.add("INSERT OR IGNORE INTO r27_live_frozen(policy_hash,target_ordinal,target_issue,position,probabilities,n1,n2,n3,act,status,frozen_at,deadline_at) VALUES(?,?,?,?,?,0,0,0,0,'DEADLINE_MISSED',?,?)",
                 s.id, target, targetIssue, s.spec.position, StoreR27.pack(new double[10]), System.currentTimeMillis(), deadline);
         if (opportunity) b.add("INSERT OR REPLACE INTO r27_opportunity(target_ordinal,target_issue,scheduled,frozen,acted,settled,deadline_missed,recorded_at) VALUES(?,?,?,0,0,0,?,?)", target, targetIssue, todo.size(), todo.size(), System.currentTimeMillis());
-        while (!w.writes().submit("LIVE_DEADLINE_MISSED", b, w::cancelled, true)) { if (w.cancelled()) return 0; Thread.sleep(20); }
+        RuntimeR27.submit(w,"LIVE_DEADLINE_MISSED",b,true);
         return todo.size();
     }
 
@@ -183,7 +183,7 @@ public final class LiveShadowsR27 {
         ResearchWriteQueueR27.Batch wait=new ResearchWriteQueueR27.Batch();wait.add(PIT_DDL_R30);
         long now=System.currentTimeMillis();
         for (Shadow s:pending) {wait.add("INSERT OR IGNORE INTO r30_pit_violation(policy_hash,target_ordinal,code,source,recorded_at) VALUES(?,?,?,?,?)",s.id,target,reason,"LIVE_WAIT",now);ModelSurfaceStoreR30.calls(wait,s.id,s.spec,target,null,null,false,reason);}
-        while (!w.writes().submit("LIVE_SOURCE_WAIT",wait,w::cancelled)) { if(w.cancelled()) return;Thread.sleep(20); }
+        RuntimeR27.submit(w,"LIVE_SOURCE_WAIT",wait);
     }
 
     /** The sole writer verifies the original draw and scheduled clock immediately before publication. */
