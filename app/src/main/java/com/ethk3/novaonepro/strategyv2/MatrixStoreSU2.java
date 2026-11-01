@@ -10,9 +10,12 @@ import org.json.*;
 /** One shared persisted matrix document for report and dashboard; live grades never consume replay outcomes. */
 public final class MatrixStoreSU2 {
     private MatrixStoreSU2() {}
+    static void ensureMetadata(SQLiteDatabase db){if(!db.inTransaction())throw new IllegalStateException("SU2_MATRIX_SCHEMA_WRITER");for(String[] column:new String[][]{{"input_through_ordinal","INTEGER"},{"available_at","INTEGER"},{"consumed_actions","INTEGER"},{"last_consumed_at","INTEGER"}})SchemaR27.column(db,"su2_matrix_snapshot",column[0],column[1]);}
+    private static final java.util.concurrent.atomic.AtomicLong availabilityFailures=new java.util.concurrent.atomic.AtomicLong();private static volatile String lastAvailabilityFailure;
+    public static void markAvailable(DbStore store,String key,long through,long observedAfterCommit){try{store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_MATRIX_AVAILABLE",db->{db.execSQL("UPDATE su2_matrix_snapshot SET available_at=? WHERE genome_key=? AND checkpoint_sequence=? AND available_at IS NULL",new Object[]{observedAfterCommit,key,through});return 0;});}catch(RuntimeException failure){availabilityFailures.incrementAndGet();lastAvailabilityFailure=failure.getClass().getSimpleName();}}
     public static void save(SQLiteDatabase db,String key,long through,MatrixSnapshotSU2.Data data,long now){
         if(!db.inTransaction())throw new IllegalStateException("SU2_MATRIX_WRITER");
-        db.execSQL("INSERT OR IGNORE INTO su2_matrix_snapshot(genome_key,checkpoint_sequence,snapshot_json,factors_blob,reason_state,graded_through,updated_at) VALUES(?,?,?,?,?,?,?)",new Object[]{key,through,data.json,data.factors,data.stream,through,now});
+        db.execSQL("INSERT OR IGNORE INTO su2_matrix_snapshot(genome_key,checkpoint_sequence,snapshot_json,factors_blob,reason_state,graded_through,updated_at,input_through_ordinal,available_at,consumed_actions) VALUES(?,?,?,?,?,?,?,?,NULL,0)",new Object[]{key,through,data.json,data.factors,data.stream,through,now,through});
         db.execSQL("DELETE FROM su2_matrix_snapshot WHERE checkpoint_sequence<(SELECT min(checkpoint_sequence) FROM (SELECT checkpoint_sequence FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8))");
     }
     static final class Row {String key,json,stats;byte[] factors,state;long checkpoint,graded,end;}
@@ -46,7 +49,7 @@ public final class MatrixStoreSU2 {
                 }
                 if(missing>0){long[] loss=stats.computeIfAbsent("__MISSING_SOURCE",k->new long[4]);loss[0]+=missing;}
                 final long done=end;final String encoded=statsJson(stats);final Row row=r;final byte[] state=MatrixSnapshotSU2.streamBytes(stream);
-                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_MATRIX_GRADES",w->{w.execSQL("UPDATE su2_matrix_snapshot SET stats_json=?,reason_state=?,graded_through=?,updated_at=? WHERE genome_key=? AND checkpoint_sequence=? AND graded_through=?",new Object[]{encoded,state,done,System.currentTimeMillis(),row.key,row.checkpoint,row.graded});return 0;});
+                store.coordinatorForResearchR952().runAtomicWriteOrThrowF01("SU2_MATRIX_GRADES",w->{if(EventFrameBuilderSU1.generation(w)!=frame.sourceGeneration)throw new IllegalStateException("SU2_MATRIX_SOURCE_CHANGED");w.execSQL("UPDATE su2_matrix_snapshot SET stats_json=?,reason_state=?,graded_through=?,updated_at=?,consumed_actions=coalesce(consumed_actions,0)+?,last_consumed_at=? WHERE genome_key=? AND checkpoint_sequence=? AND graded_through=?",new Object[]{encoded,state,done,System.currentTimeMillis(),decisions.size(),decisions.isEmpty()?null:System.currentTimeMillis(),row.key,row.checkpoint,row.graded});return 0;});
                 return"SU2_MATRIX_GRADED:"+decisions.size(); // bounded slice: at most 64 frozen actions, one snapshot
             }
             return"SU2_MATRIX_UP_TO_DATE";
@@ -57,7 +60,7 @@ public final class MatrixStoreSU2 {
     public static String report(SQLiteDatabase db){
         try{
             JSONArray snapshots=new JSONArray();
-            try(Cursor c=db.rawQuery("SELECT snapshot_json,stats_json,graded_through FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8",null)){
+            try(Cursor c=db.rawQuery("SELECT snapshot_json,stats_json,graded_through,input_through_ordinal,available_at,consumed_actions,last_consumed_at FROM su2_matrix_snapshot ORDER BY checkpoint_sequence DESC LIMIT 8",null)){
                 while(c.moveToNext()){
                     JSONObject row=new JSONObject(c.getString(0)),grades=new JSONObject();Map<String,long[]> stats=readStats(c.getString(1));
                     for(Map.Entry<String,long[]> e:stats.entrySet()){
@@ -65,6 +68,7 @@ public final class MatrixStoreSU2 {
                         JSONObject g=new JSONObject();g.put("supported",n[0]);g.put("hit_when_supported",n[0]>0?n[1]/(double)n[0]:JSONObject.NULL);g.put("other",n[2]);g.put("hit_otherwise",n[2]>0?n[3]/(double)n[2]:JSONObject.NULL);
                         g.put("wilson_supported",MatrixSnapshotSU2.wilson(n[1],n[0]));g.put("grade",stats.containsKey("__MISSING_SOURCE")?"C_EXPLAIN_ONLY":MatrixSnapshotSU2.grade(n[0],n[1],n[2],n[3]));grades.put(e.getKey(),g);
                     }
+                    row.put("inputThroughOrdinal",c.isNull(3)?JSONObject.NULL:c.getLong(3));row.put("availableAt",c.isNull(4)?JSONObject.NULL:c.getLong(4));row.put("consumedActions",c.isNull(5)?JSONObject.NULL:c.getLong(5));row.put("lastConsumedAt",c.isNull(6)?JSONObject.NULL:c.getLong(6));row.put("availabilityObservationFailuresProcess",availabilityFailures.get());row.put("lastAvailabilityFailureType",lastAvailabilityFailure==null?JSONObject.NULL:lastAvailabilityFailure);
                     row.put("reason_grades",grades);row.put("forward_through",c.getLong(2));snapshots.put(row);
                 }
             }

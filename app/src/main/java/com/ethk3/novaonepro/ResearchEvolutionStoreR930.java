@@ -143,7 +143,7 @@ public final class ResearchEvolutionStoreR930 {
                 + "event_hash TEXT PRIMARY KEY NOT NULL,event_type TEXT NOT NULL,entity_id TEXT NOT NULL,"
                 + "entity_hash TEXT NOT NULL,status TEXT NOT NULL,reason TEXT NOT NULL,created_at INTEGER NOT NULL)");
         addMatrixColumn(db,"payload_json","TEXT");addMatrixColumn(db,"role","TEXT");
-        addMatrixColumn(db,"source_revision","INTEGER");addMatrixColumn(db,"producer_version","TEXT");
+        addMatrixColumn(db,"source_revision","INTEGER");addMatrixColumn(db,"producer_version","TEXT");addMatrixColumn(db,"analysis_run_id","TEXT");
     }
 
     private static void addMatrixColumn(SQLiteDatabase db,String name,String type){

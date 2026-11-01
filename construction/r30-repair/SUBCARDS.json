@@ -253,6 +253,35 @@
         "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairTaskProgressR30Test.java"
       ],
       "reason": "先登记：原57入口保留，另加2个真实任务；报告总数59明确原始和新增命名空间，缺facts仍UNKNOWN；更新断言验证新增Owner也不被漏计。"
+    },
+    {
+      "id": "FR-B07-03-a",
+      "card": "FR-B07-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchTableAdaptersR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchRetentionR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ResearchSchemaR30R1.java"
+      ],
+      "reason": "先登记：16个只读机读适配器固定原表/角色/Owner，不新增16物理表；六R1表的有界索引/快照与原件链接；run/measure/proposal/consume及原矩阵由原retention保护图归档保留，图缓存仍可重算。"
+    },
+    {
+      "id": "FR-B07-05-a",
+      "card": "FR-B07-05",
+      "files": [
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/R30NullPipelineTest.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairNullBudgetR30Test.java"
+      ],
+      "reason": "先登记：生产协议独立全管线零信号重复20次，Q08分母、条件/无条件假阳性区间与功效区间、预声明预算；老3次协议按version保留。原双实例全管线恢复回归使用显式3次测试预算，其覆盖范围如实标注；不把短测试冒充生产20次完成。"
+    },
+    {
+      "id": "FR-B06-03-a",
+      "card": "FR-B06-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/LegacyGenerationR26.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/StrategySchemaSU2.java"
+      ],
+      "reason": "先登记：原SU2 schema owner增加可空input-through/commit后可用时刻/消费计数，原checkpoint身份不换日历。原generation事务返回后才观察availableAt；进程在间隙死亡则UNKNOWN，不倒填。矩阵评分提交保留source generation和原graded cursor CAS。"
     }
   ]
 }

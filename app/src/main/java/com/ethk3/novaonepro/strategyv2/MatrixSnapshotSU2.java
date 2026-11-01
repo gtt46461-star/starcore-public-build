@@ -10,10 +10,12 @@ public final class MatrixSnapshotSU2 {
     public static final class Factor {
         final int kind, a, b; final String name, family; final double[] weight;
         Factor(int kind, int a, int b, String name, double[] weight) {
+            if(kind<0||kind>3||a<0||b<0||weight==null||weight.length!=10)throw new IllegalArgumentException("SU2_FACTOR_SHAPE");for(double v:weight)if(!Double.isFinite(v))throw new IllegalArgumentException("SU2_FACTOR_NONFINITE");
             this.kind=kind;this.a=a;this.b=b;this.name=name;this.weight=weight.clone();
             int end=name.length();for(char ch:new char[]{'(','×','['}){int at=name.indexOf(ch);if(at>=0)end=Math.min(end,at);}family=name.substring(0,end);
         }
         double support(AtomStreamSU2 stream,int position,int mask) {
+            if(stream==null||position<1||position>10||(mask&~1023)!=0||Integer.bitCount(mask)!=3)throw new IllegalArgumentException("SU2_MATRIX_SUPPORT_REQUIRES_ORIGINAL_POSITION_K3");
             float[][] values;
             if(kind==0)values=stream.atom(a);
             else if(kind==1)values=AtomStreamSU2.pair(stream.atom(a),stream.atom(b));
@@ -37,7 +39,7 @@ public final class MatrixSnapshotSU2 {
         return out;
     }
     public static Data capture(CommitteeSU2 committee,ModelReplaySU2.Library lib,long through){
-        Map<String,Object> root=new LinkedHashMap<>();root.put("schema","SU2_MATRICES_V1");root.put("matrix_registry_id",MatrixRegistryR30.SU2_ID);root.put("genome_key",committee.key());root.put("checkpoint_sequence",through);root.put("formula",committee.formula());
+        Map<String,Object> root=new LinkedHashMap<>();root.put("schema","SU2_MATRICES_V1");root.put("matrix_registry_id",MatrixRegistryR30.SU2_ID);root.put("genome_key",committee.key());root.put("checkpoint_sequence",through);root.put("periodKind","SU2_CHECKPOINT_SEQUENCE");root.put("inputThroughOrdinal",through);root.put("inputThroughIssue",com.ethk3.novaonepro.TargetIssueResolver.fromSequenceOrdinalSU1(through));root.put("availableAt",null);root.put("availabilitySource","POST_COMMIT_OBSERVATION_IN_ORIGINAL_SU2_STORE");root.put("effectivenessScope","ASSOCIATION_ONLY_NEEDS_PAIRED_FORWARD_VALIDATION");root.put("formula",committee.formula());
         List<Factor> all=new ArrayList<>();List<Object> visible=new ArrayList<>(),teachers=new ArrayList<>();Set<String> seen=new HashSet<>();int[][] draws=lib.draws();
         Set<Integer> atoms=new LinkedHashSet<>();for(int a:ModelEvolutionSU2.defaultAtoms())atoms.add(a);
         for(ModelGenomeSU2 sub:committee.subs){

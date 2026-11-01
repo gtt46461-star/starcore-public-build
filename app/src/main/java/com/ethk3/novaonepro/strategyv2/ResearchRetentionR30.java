@@ -13,6 +13,7 @@ public final class ResearchRetentionR30 {
         "r26_incumbent_frozen","r26_frozen","r26_feedback","r26_consumption","r26_policy_identity","r26_checkpoint_receipt","r26_gap_receipt","r26_expert_audit","r26_evolution","r26_foundry","r26_legacy_campaign","r26_expert_experiment","r26_live_model","r26_candidate",
         "r27_policy","r27_lineage","r27_generation","r27_live_frozen","r27_live_shadow","r27_eprocess","r27_certificate","r27_holdout_exposure","r27_atomnet_state","r29_qual_receipt","r29_model_checkpoint","r29_legacy_model_checkpoint",
         "r30_confirm_read","r30_frozen_confirm","r30_model_artifact","r30_model_surface","r30_model_call","r30_decision_explain","r30_decision_mismatch","r30_certificate_revocation_event","r30_revoked_policy","r30_revoked_certificate",
+        "r30r1_analysis_run","r30r1_research_measure","r30r1_proposal","r30r1_consume","research_matrix_snapshot_r930",
         "su2_certificate","su2_mainline_choice","su2_mainline_binding","su2_live_state","su2_matrix_snapshot","su2_diag_snapshot","su2_live_decision","su2_model_genome","su2_lineage",
         "su1_model_ablation","su1_campaign_audit","su1_live_prediction","su1_live_result","su1_sealed_plan","su1_sealed_result","su1_certificate","su1_alpha_ledger"));
     public static final class Candidate {

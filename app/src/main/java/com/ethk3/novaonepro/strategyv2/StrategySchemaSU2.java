@@ -50,6 +50,7 @@ public final class StrategySchemaSU2 {
             db.execSQL("ALTER TABLE su2_model_genome_r16 RENAME TO su2_model_genome");
         }
         for (String s : DDL) db.execSQL(s);
+        MatrixStoreSU2.ensureMetadata(db);
     }
     private static String genomeDefinition(SQLiteDatabase db) {
         try (Cursor c = db.rawQuery("SELECT sql FROM sqlite_master WHERE type='table' AND name='su2_model_genome'", null)) {

@@ -134,7 +134,7 @@ public final class ReportDataR27 {
             case "ACTION_SURFACE": return "SELECT key,payload_json,updated_at FROM r27_chart_cache WHERE panel_id='report' AND key='action_surface'";
             case "OWNER": return "SELECT count(*) AS real_rows,count(DISTINCT target_issue) AS real_issues,(SELECT count(*) FROM (SELECT target_issue FROM trades WHERE is_realtime_real=1 GROUP BY target_issue HAVING count(*)>1)) AS issues_with_more_than_one_real FROM trades WHERE is_realtime_real=1";
             case "UI": return "SELECT state_key,state_value FROM app_state WHERE state_key LIKE 'r27_ui_%'";
-            default: return null;
+            default: return ResearchTableAdaptersR30R1.query(id);
         }
     }
     public static boolean r27Sourced(String id) { return query(id) != null || id.equals("DEVICE") || id.equals("CONCLUSION"); }

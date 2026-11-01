@@ -11,6 +11,7 @@ public final class ResearchSchemaR30R1 {
       "CREATE TABLE IF NOT EXISTS r30r1_consume(proposal_id TEXT PRIMARY KEY,child_policy_hash TEXT NOT NULL,source_generation INTEGER NOT NULL,consumer_version TEXT NOT NULL,receipt_hash TEXT NOT NULL,consumed_at INTEGER NOT NULL,FOREIGN KEY(proposal_id) REFERENCES r30r1_proposal(proposal_id))",
       "CREATE TABLE IF NOT EXISTS r30r1_chart_cache(view_id TEXT NOT NULL,frame_id TEXT NOT NULL,run_id TEXT NOT NULL,payload_json TEXT NOT NULL,payload_hash TEXT NOT NULL,updated_at INTEGER NOT NULL,PRIMARY KEY(view_id,frame_id),FOREIGN KEY(run_id) REFERENCES r30r1_analysis_run(run_id))",
       "CREATE TABLE IF NOT EXISTS r30r1_task_progress(task_id TEXT PRIMARY KEY,owner_version TEXT NOT NULL,work_unit TEXT NOT NULL,work_cursor INTEGER NOT NULL,known_latest INTEGER NOT NULL,pending INTEGER,oldest_pending_ordinal INTEGER,last_commit_clock_ordinal INTEGER,completed_input_ordinal INTEGER,fence INTEGER NOT NULL,session_id TEXT NOT NULL,updated_at INTEGER NOT NULL,artifact_identity TEXT NOT NULL,CHECK(work_cursor>=0 AND known_latest>=work_cursor),CHECK(pending IS NULL OR pending>=0))",
+      "CREATE INDEX IF NOT EXISTS r30r1_run_source ON r30r1_analysis_run(dataset_hash,source_revision,role,policy_hash)",
       "CREATE INDEX IF NOT EXISTS r30r1_proposal_ready ON r30r1_proposal(state,created_at,proposal_id)",
       "CREATE INDEX IF NOT EXISTS r30r1_measure_parent ON r30r1_research_measure(parent_hash,kind,from_ordinal)",
       "CREATE INDEX IF NOT EXISTS r30r1_chart_latest ON r30r1_chart_cache(view_id,updated_at DESC)",
