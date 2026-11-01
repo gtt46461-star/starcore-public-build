@@ -1,66 +1,7 @@
-# R30 返修实际施工进度
+# R30 返修实际状态
 
-基线 `b225ab204db043b347f9d76d6c5c1376fd9a2590`；原始方案203项哈希及1201主Java身份全部相符；191方法锚点可定位。B00元数据与原合同已登记，基线Java复编通过。新返修尚无Android运行/真机/自然质量验收。
+B00：203份方案文件和1201个基线Java文件校验一致，合同已登记。
 
-|卡|批次|标题|实际状态|
-|---|---|---|---|
-|FR-B00-01|B00|固定运行源码、方案和签名身份|BASELINE_AND_CONTRACT_RECORDED|
-|FR-B00-02|B00|逐文件动作与跨文件所有权登记|BASELINE_AND_CONTRACT_RECORDED|
-|FR-B00-03|B00|保全历史训练和已有效功能|BASELINE_AND_CONTRACT_RECORDED|
-|FR-B00-04|B00|冻结研究角色、单位和资格合同|BASELINE_AND_CONTRACT_RECORDED|
-|FR-B01-01|B01|修复诊断空探针空指针|NOT_STARTED|
-|FR-B01-02|B01|导出诊断失败阶段和错误链|NOT_STARTED|
-|FR-B01-03|B01|修正诊断指标映射|NOT_STARTED|
-|FR-B01-04|B01|统一44指标与12章事实对象|NOT_STARTED|
-|FR-B01-05|B01|补齐逐图、逐矩阵、逐能力和前次报告对比|NOT_STARTED|
-|FR-B02-01|B02|防止写锁遥测旋转丢数与失败丢窗口|NOT_STARTED|
-|FR-B02-02|B02|定位并优化FTRL事务内慢点|NOT_STARTED|
-|FR-B02-03|B02|移出旧结算解释与保留重计算|NOT_STARTED|
-|FR-B02-04|B02|实时事件身份和时间线校正|NOT_STARTED|
-|FR-B02-05|B02|关键落库、结算和下一期冻结的幂等贯通|NOT_STARTED|
-|FR-B02-06|B02|跨文件批次原子性与组合守卫|NOT_STARTED|
-|FR-B03-01|B03|唯一schemaOwner增加研究物化表|NOT_STARTED|
-|FR-B03-02|B03|57任务分清工作单位与日历新鲜度|NOT_STARTED|
-|FR-B03-03|B03|任务提交与真实进度原子记录|NOT_STARTED|
-|FR-B03-04|B03|有界重试和状态发布协议|NOT_STARTED|
-|FR-B03-05|B03|公平持续运行与息屏任务恢复|NOT_STARTED|
-|FR-B04-01|B04|神经预处理、梯度、发布水位分列|NOT_STARTED|
-|FR-B04-02|B04|单批64样本预取与输入完整性|NOT_STARTED|
-|FR-B04-03|B04|完整优化器续训及标签隔离|NOT_STARTED|
-|FR-B04-04|B04|真实10×10概率面准备和发布|NOT_STARTED|
-|FR-B04-05|B04|I08与策略冻结真实消费闭环|NOT_STARTED|
-|FR-B05-01|B05|确认负结果与不足结果准确展示|NOT_STARTED|
-|FR-B05-02|B05|确认原件、曝光预算与唯一注册|NOT_STARTED|
-|FR-B05-03|B05|资格缺期4实验逐项恢复或封段|NOT_STARTED|
-|FR-B05-04|B05|对齐报告旁路门禁与实际签证合同|NOT_STARTED|
-|FR-B05-05|B05|唯一REAL、撤销与真实结算隔离|NOT_STARTED|
-|FR-B06-01|B06|矩阵静态接线与运行效果分列|NOT_STARTED|
-|FR-B06-02|B06|恢复矩阵唯一schema与真实生产入口|NOT_STARTED|
-|FR-B06-03|B06|矩阵真实消费与反事实效果验证|NOT_STARTED|
-|FR-B06-04|B06|原子/分子目录到可执行贡献闭环|NOT_STARTED|
-|FR-B06-05|B06|82能力与原教师F23恢复|NOT_STARTED|
-|FR-B06-06|B06|校准、概率目标和支持域|NOT_STARTED|
-|FR-B07-01|B07|机器可读研究证据和配对贡献核心|NOT_STARTED|
-|FR-B07-02|B07|分析、处方、消费和图缓存同事务|NOT_STARTED|
-|FR-B07-03|B07|16逻辑研究表适配现有来源|NOT_STARTED|
-|FR-B07-04|B07|研究任务分片、进度和恢复|NOT_STARTED|
-|FR-B07-05|B07|反证控制与失败机制记忆|NOT_STARTED|
-|FR-B08-01|B08|原子剔除研究→精确子代的完整示范链|NOT_STARTED|
-|FR-B08-02|B08|短期结构、跨位与集合交集研究|NOT_STARTED|
-|FR-B08-03|B08|专家、家族、变异和融合的贡献反馈|NOT_STARTED|
-|FR-B08-04|B08|校准、模型消费与漂移研究|NOT_STARTED|
-|FR-B08-05|B08|预算、失败记忆与端到端信用|NOT_STARTED|
-|FR-B09-01|B09|登记18个研究图的算法合同|NOT_STARTED|
-|FR-B09-02|B09|有界图帧、张量切片与单快照读取|NOT_STARTED|
-|FR-B09-03|B09|手机研究工作台与生命周期|NOT_STARTED|
-|FR-B09-04|B09|旧29图语义与真实资金纠偏|NOT_STARTED|
-|FR-B09-05|B09|47图与报告、研究动作的联合验收|NOT_STARTED|
-|FR-B10-01|B10|真实空间归因与预算|NOT_STARTED|
-|FR-B10-02|B10|5000热期与引用安全归档|NOT_STARTED|
-|FR-B10-03|B10|导出快照生命周期、取消与重建|NOT_STARTED|
-|FR-B10-04|B10|覆盖安装、备份和迁移并发控制|NOT_STARTED|
-|FR-B10-05|B10|存储与并发故障矩阵|NOT_STARTED|
-|FR-B11-01|B11|全源码编译、既有回归与47图Android验证|NOT_STARTED|
-|FR-B11-02|B11|V2353A前台、息屏与72小时实测|NOT_STARTED|
-|FR-B11-03|B11|自然高质量资产与主链效果独立验收|NOT_STARTED|
-|FR-B11-04|B11|最终源码、APK、方案与证据交付|NOT_STARTED|
+B01：5张卡已有真实源码修改；Android Java编译、20项JUnit、16份诊断原件、6阶段故障和原生SQLite只读捕获通过。不是当前APK的Android设备验收。
+
+当前施工B02，剩余卡以STATUS.json为准。18研究图的算法与工作台尚未施工，索引不是完成声明；Vivo长测和自然质量未通过，不宣称100%。

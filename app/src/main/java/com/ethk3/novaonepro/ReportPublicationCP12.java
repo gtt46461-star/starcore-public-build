@@ -157,7 +157,7 @@ public final class ReportPublicationCP12 {
      if(!part.getAbsoluteFile().equals(part.getCanonicalFile())||!part.isFile()||!part.delete())throw new IOException("REPORT_PART_CLEANUP_FAILED");
     }
    }
-   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json",archive)));
+   cleanChildren(job,new HashSet<String>(Arrays.asList("job.json","published.json","delivery","share.lock","share-until.json","R30_SUCCESSFUL_SUMMARY_CANDIDATE.json",archive)));
   }catch(IOException error){throw error;}catch(Exception error){throw new IOException("REPORT_CLEANUP_VERIFICATION_FAILED",error);}
  }
  private static void cleanChildren(File directory,Set<String> keep)throws IOException{File[] files=directory.listFiles();if(files==null)throw new IOException("REPORT_CLEANUP_LIST");if(files.length>4096)throw new IOException("REPORT_CLEANUP_DIRECTORY_LIMIT");for(File file:files){if(keep.contains(file.getName()))continue;if(!file.getAbsoluteFile().equals(file.getCanonicalFile()))throw new IOException("REPORT_CLEANUP_SYMLINK");if(file.isDirectory())cleanChildren(file,Collections.<String>emptySet());if(!file.delete())throw new IOException("REPORT_CLEANUP_FAILED");}}

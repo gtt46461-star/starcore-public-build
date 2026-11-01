@@ -28,6 +28,16 @@ public final class DiagnosisReportR30R1HostTest {
             db.execSQL("UPDATE su2_diag_snapshot SET snapshot='SYNTHETIC_CORRUPT_HEADER'");
             Map<String,Object> corrupt=report(db);need("PARSE_SNAPSHOT".equals(corrupt.get("failureStage")),"malformed header classification");
             System.out.println("FR_DIAGNOSIS_REPORT_HOST|REAL_SQLITE_AND_PRODUCTION_BYTECODE|6_FAILURE_STAGES|CAUSE_CHAIN_BOUNDS_AND_REDACTION|READ_ONLY|CORRUPT_HEADER|HOST_NOT_ANDROID|PASS");
+            db.execSQL("CREATE TABLE draws(issue TEXT PRIMARY KEY,dirty INTEGER NOT NULL)");db.execSQL("INSERT INTO draws VALUES('202611010001',0)");
+            db.execSQL("CREATE TABLE trades(target_issue TEXT,is_realtime_real INTEGER)");db.execSQL("INSERT INTO trades VALUES('202611010001',1),('202611010001',1)");
+            db.execSQL("CREATE TABLE research_matrix_snapshot_r930(matrix_kind TEXT,matrix_hash TEXT,target_issue TEXT,frozen_at INTEGER)");
+            db.execSQL("INSERT INTO research_matrix_snapshot_r930 VALUES('EVIDENCE_TEACHER','SYNTHETIC_EXACT_ORIGINAL_HASH','202611010001',1),('EVIDENCE_TEACHER','SYNTHETIC_SECOND_HASH','202611010002',2)");
+            long reportChanges=n(connection,"SELECT total_changes()"),reportSchema=n(connection,"SELECT count(*) FROM sqlite_master");db.execSQL("PRAGMA query_only=ON");
+            ReportR27.R30Input captured=ReportSnapshotR30.capture(db,Collections.singletonMap("snapshotSha256","SYNTHETIC_JDBC_SNAPSHOT"));
+            need(captured.errors.isEmpty(),"real production report SELECT: "+captured.errors);need(((Number)captured.facts.get("draws")).longValue()==1,"exact draw source");need(((Number)captured.facts.get("duplicateRealIssues")).longValue()==1,"original REAL conflict retained");
+            Map<?,?> matrixIndex=(Map<?,?>)((Map<?,?>)captured.data.get("objectIndex")).get("matrices");boolean found=false;for(Object item:(List<?>)matrixIndex.get("objects")){Map<?,?> row=(Map<?,?>)item;if("R930:EVIDENCE_TEACHER".equals(row.get("objectId"))){need(((Number)row.get("retainedCount")).longValue()==2,"full matrix denominator");need("SYNTHETIC_SECOND_HASH".equals(((Map<?,?>)row.get("runtimeReference")).get("latestOriginalHash")),"exact original hash");found=true;}}need(found,"complete matrix index");
+            need(captured.metricResults.size()==44&&ReportR29.fromSnapshotR30(captured).size()==12,"actual read feeds44 metrics12 chapters");need(n(connection,"SELECT total_changes()")==reportChanges&&n(connection,"SELECT count(*) FROM sqlite_master")==reportSchema,"report capture writes no state");
+            System.out.println("FR_REPORT_CAPTURE_HOST|ACTUAL_PRODUCTION_SELECT_NATIVE_SQLITE|44_METRICS_12_CHAPTERS|FULL_MATRIX_DENOMINATOR|ORIGINAL_REAL_NEGATIVE_EVIDENCE|QUERY_ONLY_NO_WRITES|HOST_NOT_ANDROID|PASS");
         }
     }
 }
