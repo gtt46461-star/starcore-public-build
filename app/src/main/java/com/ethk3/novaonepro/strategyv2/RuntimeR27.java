@@ -273,6 +273,7 @@ public final class RuntimeR27 implements AutoCloseable {
             w.writes().setNextDeadline(deadline);
             long units = LiveShadowsR27.settle(RuntimeR27.this, w, latestOrd);
             units += LiveShadowsR27.qualify(RuntimeR27.this, w, latestOrd);
+            units += QualificationGapRepairR30R1.step(w.ro,(operation,batch)->{submit(w,operation,batch);return true;});
             ensureControls(w);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline);
             units += LiveShadowsR27.freeze(RuntimeR27.this, w, latest, latestOrd, deadline, LiveShadowsR27.OBSERVE_STATES, false);
@@ -289,7 +290,8 @@ public final class RuntimeR27 implements AutoCloseable {
             final PolicySpecR27 spec = (PolicySpecR27) c[1]; if (spec == null) continue; final String status = (String) c[0];
             boolean have; try (Cursor x = w.ro.rawQuery("SELECT 1 FROM r27_live_shadow WHERE status=?", new String[] {status})) { have = x.moveToFirst(); }
             if (have) continue;
-            final double tau = (Double) c[2]; final String id = StatsR27.sha256(status + "|" + spec.policyHash());
+            final double tau = (Double) c[2];String previousId=StatsR27.sha256(status+"|"+spec.policyHash());String previousStatus=QualificationGapRepairR30R1.text(w.ro,"SELECT status FROM r27_live_shadow WHERE policy_hash=?",previousId);
+            final String id=QualificationGapRepairR30R1.SEALED.equals(previousStatus)?StatsR27.sha256(status+"|"+spec.policyHash()+"|R30_REPAIR_NEW_FUTURE_SEGMENT|"+latestIssue(w.ro)):previousId;
             ResearchWriteQueueR27.Batch b = new ResearchWriteQueueR27.Batch();
             b.guardBefore(db -> { StoreR27.insertShadow(db, spec, tau, status + ":same-period negative control", semanticAbi(spec), id, spec.policyHash());
                 db.execSQL("UPDATE r27_live_shadow SET status=? WHERE policy_hash=?", new Object[] {status, id}); db.execSQL("UPDATE r27_eprocess SET state='CONTROL_NOT_ELIGIBLE' WHERE policy_hash=?", new Object[] {id}); return 0; });

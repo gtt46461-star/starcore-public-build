@@ -155,6 +155,21 @@
         "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java"
       ],
       "reason": "神经模型只从原TRAIN/SELECT和事前登记的新ONLINE_RESEARCH时间窗学习；保留原确认段，不以改名来读取正式标签。开发验证改用SELECT原输入；完整优化器/游标继续恢复，旧outer原始字节迁移前归档到已有不可变legacy checkpoint表。研究窗口登记复用6表之一analysis_run，非分析完成或自然质量证明。真实64行预取与模型消费缺失/过期/错误哈希用原生SQLite反证。先登记后施工。"
+    },
+    {
+      "id": "FR-B05-03-a",
+      "card": "FR-B05-03",
+      "files": [
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/QualificationGapRepairR30R1.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/RuntimeR27.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/ReportSnapshotR30.java",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/MetricEvaluatorR29.java",
+        "app/src/test/java/com/ethk3/novaonepro/strategyv2/RepairConfirmationR30Test.java",
+        "tools/r30-repair/qual_host/RepairQualificationR30HostTest.java",
+        "tools/r30-repair/run_qualification_host.py",
+        "app/src/main/java/com/ethk3/novaonepro/strategyv2/SchemaR27.java"
+      ],
+      "reason": "逐实验在既有不可变保全归档中每片64行查找原始predraw，持久保存扫描高水位和原件引用；原件恢复保持原值并由原连续消费者重放，无原件只封存受影响实验且原globalIndex/alpha/账本不改。归档不可读或缺证明则明确UNKNOWN，不能赛后造SKIP。控制新段使用新事前身份及递增全局预算序号。报告新增逐实验缺口处置与权威输入摘要，原GateV1阈值不变，V2仍仅would_issue。先登记后施工。"
     }
   ]
 }

@@ -18,7 +18,7 @@ import java.util.zip.GZIPOutputStream;
 public final class FrozenConfirmationStoreR30 {
     private FrozenConfirmationStoreR30() {}
     public static final String[] DDL = {
-        "CREATE TABLE IF NOT EXISTS r30_frozen_confirm(task_key TEXT PRIMARY KEY,policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,block_id INTEGER NOT NULL,generation INTEGER NOT NULL,packet_json TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'PENDING',result_json TEXT,verified INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,completed_at INTEGER,registered_at INTEGER NOT NULL DEFAULT 0,registration_state TEXT NOT NULL DEFAULT 'PENDING')",
+        "CREATE TABLE IF NOT EXISTS r30_frozen_confirm(task_key TEXT PRIMARY KEY,policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,block_id INTEGER NOT NULL,generation INTEGER NOT NULL,packet_json TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'PENDING',result_json TEXT,verified INTEGER NOT NULL DEFAULT 0,created_at INTEGER NOT NULL,completed_at INTEGER,registered_at INTEGER NOT NULL DEFAULT 0,registration_state TEXT NOT NULL DEFAULT 'PENDING',registration_experiment_id TEXT)",
         "CREATE INDEX IF NOT EXISTS r30_frozen_confirm_pending ON r30_frozen_confirm(verified,registered_at,created_at)",
         "CREATE TABLE IF NOT EXISTS r30_confirm_trace(experiment_id TEXT NOT NULL,policy_hash TEXT NOT NULL,dataset_hash TEXT NOT NULL,block_id INTEGER NOT NULL,temperature REAL NOT NULL,trace_json TEXT NOT NULL,trace_hash TEXT NOT NULL,recorded_at INTEGER NOT NULL,PRIMARY KEY(experiment_id,dataset_hash,block_id))",
         "CREATE TABLE IF NOT EXISTS r30_confirm_dataset(dataset_hash TEXT PRIMARY KEY,payload BLOB NOT NULL,payload_hash TEXT NOT NULL,recorded_at INTEGER NOT NULL)"
@@ -118,6 +118,9 @@ public final class FrozenConfirmationStoreR30 {
         };
     }
     public static void complete(ResearchWriteQueueR27.Batch batch, FrozenConfirmationR30.Task task, FrozenConfirmationR30.Result result) {
+        if(!task.key.equals(result.report.get("taskKey"))||!task.datasetHash.equals(result.report.get("datasetHash"))||!(result.report.get("holdoutBlock") instanceof Number)||((Number)result.report.get("holdoutBlock")).longValue()!=task.block||result.verified&&!"COMPLETED".equals(result.report.get("status")))throw new IllegalArgumentException("R30_CONFIRM_RESULT_IDENTITY");
+        final String immutablePacket=task.json(),immutableResult=result.json();
+        batch.guardBefore(db->{try(Cursor c=db.rawQuery("SELECT packet_json,state,result_json FROM r30_frozen_confirm WHERE task_key=?",new String[]{task.key})){if(!c.moveToFirst()||!immutablePacket.equals(c.getString(0)))return -1;if("DONE".equals(c.getString(1)))return immutableResult.equals(c.getString(2))?0:-1;return "PENDING".equals(c.getString(1))?0:-1;}});
         batch.add("UPDATE r30_frozen_confirm SET state='DONE',result_json=?,verified=?,completed_at=? WHERE task_key=? AND state='PENDING'",
                 result.json(),result.verified ? 1 : 0,System.currentTimeMillis(),task.key);
         if (result.verified) {
@@ -136,14 +139,20 @@ public final class FrozenConfirmationStoreR30 {
         PolicySpecR27 spec = task.champion.spec(); String reason = "INDEPENDENT_CONFIRMATION:" + task.key;
         ResearchWriteQueueR27.Batch batch = new ResearchWriteQueueR27.Batch();
         batch.guardBefore(db -> {
-            boolean exists;
-            try (Cursor c = db.rawQuery("SELECT 1 FROM r27_live_shadow WHERE policy_hash=?",new String[]{spec.policyHash()})) { exists = c.moveToFirst(); }
-            if (!exists) try (Cursor c = db.rawQuery("SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'",null)) {
-                if (c.moveToFirst() && c.getLong(0) >= cap) throw new IllegalStateException("R30_CONFIRM_WAIT_SLOT");
+            if(!FrozenConfirmationR30.currentSemantics().equals(task.researchSemanticHash))return -1;
+            long registered;String registeredExperiment;
+            try(Cursor saved=db.rawQuery("SELECT packet_json,state,verified,result_json,registered_at,registration_experiment_id FROM r30_frozen_confirm WHERE task_key=?",new String[]{task.key})){
+                if(!saved.moveToFirst()||!task.json().equals(saved.getString(0))||!"DONE".equals(saved.getString(1))||saved.getLong(2)!=1)return -1;
+                Map<String,Object> result=MetricEvaluatorR29.map(JsonR27.parse(saved.getString(3)));if(!Boolean.TRUE.equals(result.get("verified"))||!"COMPLETED".equals(result.get("status"))||!task.key.equals(result.get("taskKey")))return -1;
+                registered=saved.getLong(4);registeredExperiment=saved.getString(5);
             }
-            StoreR27.insertShadow(db,spec,task.champion.temperature,reason,abi,spec.policyHash(),spec.policyHash()); return 0;
+            if(registered>0)return 0; // Exactly the original registration; never allocate another global index on retry.
+            String experiment=spec.policyHash();boolean exists=false;
+            try(Cursor current=db.rawQuery("SELECT status,updated_at FROM r27_live_shadow WHERE policy_hash=?",new String[]{experiment})){if(current.moveToFirst()){exists=true;if(QualificationGapRepairR30R1.SEALED.equals(current.getString(0))){if(task.frozenAt<=current.getLong(1))throw new IllegalStateException("R30_CONFIRM_NEW_PACKET_REQUIRED_AFTER_SEALED_SEGMENT");experiment=StatsR27.sha256("R30_REPAIR_NEW_FUTURE_SEGMENT|"+spec.policyHash()+"|"+task.key);exists=false;}}}
+            if(!exists)try(Cursor c=db.rawQuery("SELECT count(*) FROM r27_live_shadow WHERE status='ACTIVE'",null)){if(c.moveToFirst()&&c.getLong(0)>=cap)throw new IllegalStateException("R30_CONFIRM_WAIT_SLOT");}
+            StoreR27.insertShadow(db,spec,task.champion.temperature,reason,abi,experiment,spec.policyHash());
+            db.execSQL("UPDATE r30_frozen_confirm SET registered_at=?,registration_state='REGISTERED',registration_experiment_id=? WHERE task_key=? AND registered_at=0",new Object[]{System.currentTimeMillis(),experiment,task.key});return 0;
         });
-        batch.add("UPDATE r30_frozen_confirm SET registered_at=?,registration_state='REGISTERED' WHERE task_key=? AND registered_at=0",System.currentTimeMillis(),task.key);
         return batch;
     }
 

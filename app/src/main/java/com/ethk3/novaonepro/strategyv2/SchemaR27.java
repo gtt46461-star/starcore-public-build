@@ -61,6 +61,7 @@ public final class SchemaR27 {
     };
     /** Guarded column additions on existing baseline tables. */
     static final String[][] COLUMNS = {
+        {"r30_frozen_confirm","registration_experiment_id","TEXT"},
         {"r26_task", "wait_kind", "TEXT NOT NULL DEFAULT ''"},
         {"r26_task", "wait_detail", "TEXT NOT NULL DEFAULT ''"},
         {"r26_task", "wait_since", "INTEGER NOT NULL DEFAULT 0"},

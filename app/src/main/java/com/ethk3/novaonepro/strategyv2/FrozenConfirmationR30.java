@@ -83,7 +83,7 @@ public final class FrozenConfirmationR30 {
     public static final class Result {
         public final Map<String,Object> report;
         public final boolean verified;
-        Result(Map<String,Object> report) { this.report = new LinkedHashMap<>(report); verified = Boolean.TRUE.equals(report.get("verified")); }
+        @SuppressWarnings("unchecked") Result(Map<String,Object> report) { this.report=java.util.Collections.unmodifiableMap((Map<String,Object>)JsonR27.parse(JsonR27.write(report)));verified=Boolean.TRUE.equals(this.report.get("verified")); }
         public String json() { return JsonR27.write(report); }
         @SuppressWarnings("unchecked") public static Result parse(String text) { return new Result((Map<String,Object>)JsonR27.parse(text)); }
     }

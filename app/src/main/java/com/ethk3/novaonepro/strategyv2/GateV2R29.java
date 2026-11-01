@@ -78,12 +78,14 @@ public final class GateV2R29 {
     public static final class Evidence {
         public String policyHash, sequentialState; public long registeredOrdinal = -1, latestOrdinal = -1, opportunities, frozen, actDecisions, settledActs, pendingActs, hits;
         public double[] p = new double[0]; public int[] y = new int[0]; public long[] actOrdinal = new long[0];
+        public String inputHash,registrationOrigin;public long qualificationPrefix=-1,rawSettledActs,rawHits;
         public double pairedLcbVsI00 = Double.NaN, pairedLcbVsNull = Double.NaN; public boolean deployed;
     }
     public static final class Verdict { public boolean wouldIssue; public final List<String> failing = new ArrayList<>(); public final Map<String, Object> sections = new LinkedHashMap<>(); }
 
     public static Verdict evaluate(Evidence e) {
         Verdict v = new Verdict();
+        Map<String,Object> provenance=new LinkedHashMap<>();provenance.put("policy",POLICY);provenance.put("enabled",ENABLED);provenance.put("authority","REPORT_ONLY_WOULD_ISSUE; ACTIVE_CERTIFICATE_AUTHORITY="+CertificateGateR27.GATE_VERSION);provenance.put("sourcePrefixHash",e.inputHash);provenance.put("inputHash",inputHash(e));provenance.put("registrationOrigin",e.registrationOrigin);provenance.put("qualificationPrefix",e.qualificationPrefix);provenance.put("settledActSource","unique r29_qual_receipt through the contiguous prefix");provenance.put("rawFrozenSettledActs",e.rawSettledActs);provenance.put("rawFrozenHits",e.rawHits);v.sections.put("provenance",provenance);
         // statistics
         double hr = e.settledActs == 0 ? Double.NaN : e.hits / (double) e.settledActs; double[] hrCi = wilson(e.hits, e.settledActs);
         Map<String, Object> st = new LinkedHashMap<>(); st.put("sequentialState", e.sequentialState); st.put("settledActs", e.settledActs); st.put("pendingActs", e.pendingActs);
@@ -156,17 +158,21 @@ public final class GateV2R29 {
     /** Reads the FUTURE evidence of one live experiment. */
     public static Evidence evidence(SQLiteDatabase ro, String id, long latestOrdinal) {
         Evidence e = new Evidence(); e.policyHash = id; e.latestOrdinal = latestOrdinal;
-        try (Cursor c = ro.rawQuery("SELECT state FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()) e.sequentialState = c.getString(0); }
+        try (Cursor c = ro.rawQuery("SELECT state,last_ordinal FROM r27_eprocess WHERE policy_hash=?", new String[] {id})) { if (c.moveToFirst()){e.sequentialState=c.getString(0);e.qualificationPrefix=c.getLong(1);} }
         try (Cursor c = ro.rawQuery("SELECT min(target_ordinal),sum(CASE WHEN status='FROZEN' THEN 1 ELSE 0 END),sum(CASE WHEN status='FROZEN' AND act=1 THEN 1 ELSE 0 END),"
                 + "sum(CASE WHEN status='FROZEN' AND act=1 AND hit<0 THEN 1 ELSE 0 END) FROM r27_live_frozen WHERE policy_hash=? AND target_ordinal<=?", new String[] {id, String.valueOf(latestOrdinal)})) {
             if (c.moveToFirst() && !c.isNull(0)) { e.registeredOrdinal = c.getLong(0); e.frozen = c.getLong(1); e.actDecisions = c.getLong(2); e.pendingActs = c.getLong(3); e.opportunities = latestOrdinal - e.registeredOrdinal + 1; }
         }
         long registered = QualificationInboxR29.calendarStart(ro, id);
         if (registered >= 0) { e.registeredOrdinal = registered; e.opportunities = Math.max(0, latestOrdinal - registered + 1); }
+        e.registrationOrigin=QualificationGapRepairR30R1.text(ro,"SELECT origin FROM r29_qual_calendar WHERE experiment_id=?",id);
+        try(Cursor c=ro.rawQuery("SELECT count(*),coalesce(sum(hit),0) FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN' AND act=1 AND hit IN(0,1) AND target_ordinal<=?",new String[]{id,String.valueOf(latestOrdinal)})){if(c.moveToFirst()){e.rawSettledActs=c.getLong(0);e.rawHits=c.getLong(1);}}
+        StringBuilder input=new StringBuilder(POLICY).append('|').append(id).append('|').append(e.registeredOrdinal).append('|').append(latestOrdinal).append('|').append(e.qualificationPrefix).append('|').append(e.opportunities).append('|').append(e.registrationOrigin);
         List<double[]> rows = new ArrayList<>();
-        try (Cursor c = ro.rawQuery("SELECT target_ordinal,probabilities,n1,n2,n3,hit FROM r27_live_frozen WHERE policy_hash=? AND status='FROZEN' AND act=1 AND hit>=0 AND target_ordinal<=? ORDER BY target_ordinal", new String[] {id, String.valueOf(latestOrdinal)})) {
+        try (Cursor c = ro.rawQuery("SELECT r.target_ordinal,f.probabilities,f.n1,f.n2,f.n3,r.hit,r.digest FROM r29_qual_receipt r LEFT JOIN r27_live_frozen f ON f.policy_hash=r.experiment_id AND f.target_ordinal=r.target_ordinal AND f.status='FROZEN' AND f.act=1 WHERE r.experiment_id=? AND r.act=1 AND r.target_ordinal<=? ORDER BY r.target_ordinal", new String[] {id, String.valueOf(e.qualificationPrefix)})) {
             while (c.moveToNext()) {
-                double[] pr = StoreR27.unpack(c.getBlob(1)); double p = Double.NaN;
+                byte[] frozen=c.getBlob(1);double[] pr=frozen==null||frozen.length!=80?new double[0]:StoreR27.unpack(frozen);double p=Double.NaN;
+                input.append('|').append(c.getLong(0)).append(':').append(c.getString(6)).append(':').append(frozen==null?"MISSING_ORIGINAL":StatsR27.sha256(frozen));
                 int a = c.getInt(2), b = c.getInt(3), z = c.getInt(4);
                 if (pr.length == 10 && a >= 1 && a <= 10 && b >= 1 && b <= 10 && z >= 1 && z <= 10 && a != b && a != z && b != z) {
                     double sum = 0; boolean valid = true;
@@ -178,11 +184,14 @@ public final class GateV2R29 {
         }
         int n = rows.size(); e.settledActs = n; e.p = new double[n]; e.y = new int[n]; e.actOrdinal = new long[n];
         for (int i = 0; i < n; i++) { double[] r = rows.get(i); e.actOrdinal[i] = (long) r[0]; e.p[i] = r[1]; e.y[i] = (int) r[2]; e.hits += e.y[i]; }
-        return e;
+        e.inputHash=StatsR27.sha256(input.toString());return e;
     }
+
+    public static String inputHash(Evidence e){StringBuilder b=new StringBuilder(POLICY).append('|').append(e.policyHash).append('|').append(e.sequentialState).append('|').append(e.registeredOrdinal).append('|').append(e.latestOrdinal).append('|').append(e.qualificationPrefix).append('|').append(e.opportunities).append('|').append(e.frozen).append('|').append(e.actDecisions).append('|').append(e.settledActs).append('|').append(e.pendingActs).append('|').append(e.hits).append('|').append(e.deployed).append('|').append(Double.toHexString(e.pairedLcbVsI00)).append('|').append(Double.toHexString(e.pairedLcbVsNull)).append('|').append(e.inputHash).append('|').append(e.rawSettledActs).append('|').append(e.rawHits).append("|P_LENGTH=").append(e.p.length);for(double p:e.p)b.append('|').append(Double.toHexString(p));b.append("|Y_LENGTH=").append(e.y.length);for(int y:e.y)b.append('|').append(y);b.append("|ORDINAL_LENGTH=").append(e.actOrdinal.length);for(long ordinal:e.actOrdinal)b.append('|').append(ordinal);return StatsR27.sha256(b.toString());}
 
     /** Statement recording one V2 evaluation (added to the certify batch). */
     public static void record(ResearchWriteQueueR27.Batch b, Evidence e, Verdict v) {
+        if(!inputHash(e).equals(MetricEvaluatorR29.map(v.sections.get("provenance")).get("inputHash")))throw new IllegalStateException("GATE_V2_EVIDENCE_CHANGED_AFTER_EVALUATION");
         b.add("INSERT OR REPLACE INTO r29_gate_v2(policy_hash,policy_version,would_issue,failing,sections_json,evaluated_through,evaluated_at) VALUES(?,?,?,?,?,?,?)",
                 e.policyHash, POLICY, v.wouldIssue ? 1 : 0, String.join(",", v.failing), JsonR27.write(v.sections), e.latestOrdinal, System.currentTimeMillis());
     }

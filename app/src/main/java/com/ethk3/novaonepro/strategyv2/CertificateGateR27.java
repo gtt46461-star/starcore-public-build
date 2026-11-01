@@ -60,5 +60,6 @@ public final class CertificateGateR27 {
         return best;
     }
     /** Calibration quality in [0,1]: 1 at ECE 0, 0 at the 0.04 gate. */
+    public static Map<String,Object> contract(){Map<String,Object> c=new LinkedHashMap<>();c.put("activeGate",GATE_VERSION);c.put("MIN_HR",MIN_HR);c.put("MIN_ACTS",MIN_ACTS);c.put("MAX_ECE",MAX_ECE);c.put("MIN_WORST_720_BLOCK",MIN_WORST_BLOCK);c.put("MAX_LOSS_STREAK",MAX_LOSS_STREAK);c.put("scope","Original immutable V1 thresholds; no V2 report can issue a certificate");c.put("contractHash",StatsR27.sha256(JsonR27.write(c)));return java.util.Collections.unmodifiableMap(c);}
     public static double calibrationQuality(double ece) { return Double.isFinite(ece) ? StatsR27.clamp(1 - ece / MAX_ECE, 0, 1) : 0; }
 }
