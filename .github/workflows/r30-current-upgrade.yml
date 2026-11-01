@@ -1,0 +1,71 @@
+name: STARCORE repair002 current R30-107 upgrade compatibility
+on:
+  push:
+    branches: ['construction/r27-20261028']
+    paths: ['.github/r30-current-upgrade-request.json', '.github/workflows/r30-current-upgrade.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: r30-current107-upgrade-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  upgrade-current107:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/r30-current-upgrade-request.json
+      - id: request
+        run: |
+          python3 - <<'PY'
+          import json,os,re
+          x=json.load(open('.github/r30-current-upgrade-request.json'));assert re.fullmatch('[0-9a-f]{40}',x['source']);assert isinstance(x['candidateRun'],int)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('source='+x['source']+'\nrun='+str(x['candidateRun'])+'\n')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.request.outputs.source }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: R30-REPAIR1-R27-FINAL-CANDIDATE
+          path: candidate
+          run-id: ${{ steps.request.outputs.run }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools build-tools;36.0.0
+          log-accepted-android-sdk-licenses: false
+      - name: Add the actual installed-generation public APK as an explicit test input
+        run: |
+          python3 - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('tools/r30/UPGRADE_BASELINES.json');rows=json.loads(p.read_text());rows.append({'lane':'EXISTING_R27','checkpoint':'CURRENT_R30_107','url':'https://github.com/gtt46461-star/starcore-public-build/releases/download/r30-final-577310107-b225ab204db0/STARCORE-R30-FINAL-EXISTING_R27-b225ab204db0.apk','sha256':'c414a664dec8a8c58f5e3f573f875e593a3c5d7c156b8df19e856bf5109c9a94','certificateSha256':'d8d8cee7f406267b2bf18fc9aef0c6ab760423cf205ccd6613dd44085bcc74e7'});p.write_text(json.dumps(rows,indent=2)+'\n')
+          PY
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: default
+          disable-animations: true
+          ram-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -cores 2
+          script: bash tools/r30/run_upgrade_drill.sh $(find candidate -name '*.apk' -print -quit) EXISTING_R27 CURRENT_R30_107 evidence/r30/current107-upgrade
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: R30-REPAIR002-CURRENT107-UPGRADE
+          path: |
+            evidence/r30/current107-upgrade/
+            startup-evidence/
